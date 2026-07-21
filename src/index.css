@@ -48,13 +48,6 @@ body {
   background-clip: padding-box;
 }
 
-.tree-line {
-  background-image: linear-gradient(var(--color-line) 60%, transparent 0%);
-  background-position: left;
-  background-size: 1px 6px;
-  background-repeat: repeat-y;
-}
-
 .reduce-motion,
 .reduce-motion * {
   transition-duration: 0.001ms !important;
@@ -99,18 +92,6 @@ body {
   transform: scale(0.92);
 }
 
-@keyframes icon-bounce-y {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-2px);
-  }
-}
-.icon-bounce:hover svg {
-  animation: icon-bounce-y 520ms ease-in-out infinite;
-}
 .focus-ring {
   outline: none;
 }

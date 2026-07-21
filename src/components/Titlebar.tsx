@@ -5,7 +5,6 @@ import {
 } from '@tauri-apps/api/window'
 import { motion } from 'framer-motion'
 import { version } from '../../package.json'
-import { Tooltip } from './ui/Tooltip'
 
 export function TitleBar() {
   const [appWindow, setAppWindow] = useState<TauriWindow | null>(null)
@@ -50,6 +49,8 @@ export function TitleBar() {
       ></div>
 
       <div
+        data-tauri-drag-region
+        onDoubleClick={() => safe((w) => w.toggleMaximize())}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-auto select-none"
@@ -63,17 +64,12 @@ export function TitleBar() {
             y: isHovered ? -10 : 0,
             transition: { duration: 0.22, ease: 'easeInOut' },
           }}
-          className="font-black italic tracking-tight text-xl text-muted flex items-center gap-2"
+          className="font-black italic tracking-tight text-xl text-muted flex items-center gap-2 pointer-events-none"
         >
           GodotHub
-          <Tooltip content="See what's new and upcoming →" side="bottom">
-            <button
-              onClick={() => window.dispatchEvent(new CustomEvent('app:switch-tab', { detail: 4 }))}
-              className="text-[9px] mb-2 font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber/15 text-amber border border-amber/30 hover:bg-amber/25 hover:border-amber/50 cursor-pointer shrink-0 transition-colors"
-            >
-              Beta
-            </button>
-          </Tooltip>
+          <span className="text-[9px] mt-1 font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber/15 text-amber border border-amber/30 shrink-0">
+            Beta
+          </span>
         </motion.h1>
         <motion.p
           initial={false}
@@ -82,7 +78,7 @@ export function TitleBar() {
             y: isHovered ? 0 : 10,
           }}
           transition={{ duration: 0.22, ease: 'easeInOut' }}
-          className="absolute inset-0 flex items-center justify-center font-mono text-xs text-muted/70"
+          className="absolute inset-0 flex items-center justify-center font-mono text-xs text-muted/70 pointer-events-none"
         >
           v{version}
         </motion.p>
