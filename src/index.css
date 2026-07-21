@@ -1,0 +1,136 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-base: #1e1f22;
+  --color-surface: #2b2d31;
+  --color-raised: #323339;
+  --color-overlay: #3a3c43;
+  --color-line: #3f4147;
+  --color-ink: #f2f3f5;
+  --color-muted: #949ba4;
+  --color-accent: #5865f2;
+  --color-accent-dim: #3c45a5;
+  --color-accent-bright: #7983f5;
+  --color-mint: #23a55a;
+  --color-amber: #f0b132;
+  --color-danger: #f23f42;
+  --font-display: 'Space Grotesk', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --radius-sm: 8px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --spacing: 4.5px;
+}
+
+body {
+  @apply bg-base text-ink font-body antialiased;
+  user-select: none;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  display: none;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-overlay);
+  background-clip: padding-box;
+}
+
+.tree-line {
+  background-image: linear-gradient(var(--color-line) 60%, transparent 0%);
+  background-position: left;
+  background-size: 1px 6px;
+  background-repeat: repeat-y;
+}
+
+.reduce-motion,
+.reduce-motion * {
+  transition-duration: 0.001ms !important;
+  animation-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Smooth colour transitions when theme changes */
+.theme-transitioning,
+.theme-transitioning * {
+  transition: background-color 0.35s ease,
+              border-color 0.35s ease,
+              color 0.35s ease,
+              fill 0.35s ease,
+              stroke 0.35s ease,
+              box-shadow 0.35s ease !important;
+}
+
+/* ---------------------------------------------------------------------- */
+/* Micro-interaction primitives shared across custom controls              */
+/* ---------------------------------------------------------------------- */
+
+@keyframes icon-pop {
+  0% {
+    transform: scale(1) rotate(0deg);
+  }
+  40% {
+    transform: scale(1.16) rotate(-8deg);
+  }
+  100% {
+    transform: scale(1.08) rotate(0deg);
+  }
+}
+
+.icon-wiggle svg {
+  transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.icon-wiggle:hover svg {
+  animation: icon-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.icon-wiggle:active svg {
+  transform: scale(0.92);
+}
+
+@keyframes icon-bounce-y {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-2px);
+  }
+}
+.icon-bounce:hover svg {
+  animation: icon-bounce-y 520ms ease-in-out infinite;
+}
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 45%, transparent);
+}
+
+.setting-highlight {
+  animation: setting-pulse 1.5s ease-out;
+  border-radius: inherit;
+}
+
+@keyframes setting-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(69, 127, 242, 0.4);
+  }
+  30% {
+    box-shadow: 0 0 0 6px rgba(69, 127, 242, 0.15);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(69, 127, 242, 0);
+  }
+}

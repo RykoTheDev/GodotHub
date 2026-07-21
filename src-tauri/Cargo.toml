@@ -1,0 +1,35 @@
+[package]
+name = "godothub"
+version = "0.1.0"
+description = "A Tauri App"
+authors = ["you"]
+edition = "2021"
+
+[lib]
+name = "godothub_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = ["tray-icon"] }
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri-plugin-dialog = "2.7.1"
+reqwest = { version = "0.13.4", features = ["json", "stream"] }
+tokio = { version = "1.52.3", features = ["full"] }
+futures-util = "0.3.32"
+zip = "8.6.0"
+uuid = { version = "1.23.4", features = ["v4", "serde"] }
+chrono = { version = "0.4.45", features = ["serde"] }
+base64 = "0.22.1"
+tauri-plugin-prevent-default = "5"
+feed-rs = "2"
+tauri-plugin-single-instance = "2.0.0"
+notify = "6"
+tauri-plugin-updater = "2.10.1"
+
+[target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
+tauri-plugin-single-instance = "2"

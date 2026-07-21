@@ -1,0 +1,278 @@
+[
+  {
+    "id": "5512ee2c-6273-4efb-b3d3-8063b574c302",
+    "version": "v0.1.0 - The Beta Begins",
+    "date": "2026-07-13",
+    "notes": [
+      {
+        "category": "add",
+        "text": "Create new projects, scan for existing ones, or import them directly"
+      },
+      {
+        "category": "add",
+        "text": "Download versions or scan for versions you already have"
+      },
+      {
+        "category": "add",
+        "text": "Categories and workspaces to keep your projects organized, whether they're personal, for game jams, or freelance work"
+      },
+      {
+        "category": "add",
+        "text": "Changelog view to track what's changed in each version of GodotHub"
+      },
+      {
+        "category": "add",
+        "text": "Settings view so you can tweak GodotHub to work the way you want"
+      },
+      {
+        "category": "add",
+        "text": "Dark and light mode with a customizable accent color"
+      },
+      {
+        "category": "add",
+        "text": "Pin projects to keep your most important ones at the top"
+      },
+      {
+        "category": "add",
+        "text": "Sort and filter your projects however you like"
+      },
+      {
+        "category": "add",
+        "text": "Search projects by name"
+      },
+      {
+        "category": "add",
+        "text": "Rename versions to use whatever naming style works for you"
+      }
+    ],
+    "created_at": 1783950258
+  },
+  {
+    "id": "df66a54b-2618-44be-a541-c975475d5bce",
+    "version": "v0.2.0 - Smol but Mighty Update",
+    "date": "2026-07-13",
+    "notes": [
+      {
+        "category": "add",
+        "text": "Auto bind projects to their matching Godot versions if you have them downloaded"
+      },
+      {
+        "category": "add",
+        "text": "Folder depth slider to control how deep the scan goes for projects and versions"
+      },
+      {
+        "category": "fix",
+        "text": "Icon colors and hover states weren't updating when you changed the accent color in Settings, now they do"
+      },
+      {
+        "category": "fix",
+        "text": "Uninstalling a version used to leave files behind, now it cleans everything up properly"
+      },
+      {
+        "category": "improve",
+        "text": "Moved the Scan Now button to the top of the scan directories card in Settings so it's easier to find"
+      },
+      {
+        "category": "improve",
+        "text": "Added Scan Now buttons directly in the Projects and Versions list views for quick manual rescans"
+      },
+      {
+        "category": "improve",
+        "text": "Added a fallback download path for Godot versions in case you haven't set one up in Settings yet"
+      },
+      {
+        "category": "improve",
+        "text": "Added a helpful description in Settings explaining the default download path for versions"
+      },
+      {
+        "category": "improve",
+        "text": "Replaced the star system for setting default directories with checkboxes, it's clearer now"
+      },
+      {
+        "category": "improve",
+        "text": "Drag and drop support for reordering projects in the list view using the dnd-kit library"
+      }
+    ],
+    "created_at": 1783951458
+  },
+  {
+    "id": "1bc5f8c4-4f6b-4249-87ba-56744cf5bbc1",
+    "version": "v0.3.0 - Project Management Update",
+    "date": "2026-07-15",
+    "notes": [
+      {
+        "category": "add",
+        "text": "Button in settings to wipe app data and start fresh, useful if something breaks or you just want a clean slate"
+      },
+      {
+        "category": "add",
+        "text": "Import versions the same way you import projects, with a dedicated import button"
+      },
+      {
+        "category": "add",
+        "text": "Categorization for versions in the Versions view"
+      },
+      {
+        "category": "add",
+        "text": "Filtering options for versions in the Versions view"
+      },
+      {
+        "category": "add",
+        "text": "Pause, resume, and cancel downloads for versions"
+      },
+      {
+        "category": "add",
+        "text": "Progress popup when scanning or importing"
+      },
+      {
+        "category": "add",
+        "text": "Categories collapse and expand in the Projects View"
+      },
+      {
+        "category": "add",
+        "text": "Right Click context menu for projects and versions with options to open, rename, delete, and more"
+      },
+      {
+        "category": "add",
+        "text": "Pin Projects to the sidebar for quick access anywhere in the app"
+      },
+      {
+        "category": "add",
+        "text": "'Auto-Scan on Startup' Settings option"
+      },
+      {
+        "category": "fix",
+        "text": "If you minimize to system tray and try opening from the taskbar, it now brings back the existing instance instead of spawning a new one"
+      },
+      {
+        "category": "fix",
+        "text": "Auto scan for projects and versions now runs right after onboarding"
+      },
+      {
+        "category": "fix",
+        "text": "Fixed naming inconsistencies between imported and installed versions, they now show up the same way in the list"
+      },
+      {
+        "category": "fix",
+        "text": "Imported versions were not being recognized as installed, so the Available versions list still showed Install instead of Installed, that's fixed now"
+      },
+      {
+        "category": "fix",
+        "text": "If you delete an imported version from your file system, it now disappears from the list view automatically"
+      },
+      {
+        "category": "fix",
+        "text": "Uninstalling an imported version now removes the console build along with it, no more leftover files"
+      },
+      {
+        "category": "fix",
+        "text": "Download progress used to reset and show Install again when switching views, now it keeps your progress and shows the right state"
+      },
+      {
+        "category": "improve",
+        "text": "Re-did the Settings Page layout"
+      },
+      {
+        "category": "improve",
+        "text": "Tooltip UI for overall App."
+      }
+    ],
+    "created_at": 1784026943
+  },
+  {
+    "id": "b6915081-bf5a-4ce4-9400-c3e8af6203c0",
+    "version": "v0.4.0 - The Git Gud Update",
+    "date": "2026-07-20",
+    "notes": [
+      {
+        "category": "add",
+        "text": "Command Palette for Quick Access across the App."
+      },
+      {
+        "category": "add",
+        "text": "Drag/Drop Import for Projects and Versions"
+      },
+      {
+        "category": "add",
+        "text": "Feeling lucky button to Appearance settings to randomly change the accent and background colors.. u might be feeling lucky?"
+      },
+      {
+        "category": "add",
+        "text": "Launch Arguments for Projects, Right Click Context menu to access it"
+      },
+      {
+        "category": "add",
+        "text": "Direct Project Cloning and Importing from Github"
+      },
+      {
+        "category": "add",
+        "text": "Git Integration with Commits History, Branches, Fetch, Pull, Commit, Push, and more"
+      },
+      {
+        "category": "add",
+        "text": "Report a bug section for bug reporting and feedback"
+      },
+      {
+        "category": "add",
+        "text": "Custom Icons when creating New Project"
+      },
+      {
+        "category": "improve",
+        "text": "Light Mode accent and background colors can be changed now"
+      },
+      {
+        "category": "add",
+        "text": "Project Size Chart Modal that can be accessed via context menu right click on the Project Card"
+      },
+      {
+        "category": "improve",
+        "text": "Removed Dragging from Pinned Projects and instead Arrows to move up and down"
+      },
+      {
+        "category": "add",
+        "text": "Recent Projects in the sidebar, Quantity can be controlled in settings"
+      },
+      {
+        "category": "add",
+        "text": "Search bar in settings"
+      },
+      {
+        "category": "add",
+        "text": "Export/Import option in Advanced menu of Settings"
+      },
+      {
+        "category": "improve",
+        "text": "Changed Settings UI / UX"
+      },
+      {
+        "category": "add",
+        "text": "Launch Modal when launching a project"
+      },
+      {
+        "category": "add",
+        "text": "Custom Templates for your Project"
+      },
+      {
+        "category": "add",
+        "text": "Project Size Chart Modal that can be accessed via context menu right click on the Project Card"
+      }
+    ],
+    "created_at": 1784205220
+  },
+  {
+    "id": "0ad9c0f8-ea03-4118-923d-ac9f3b73e23f",
+    "version": "v0.5.0 - The Auto Update",
+    "date": "2026-07-21",
+    "notes": [
+      {
+        "category": "add",
+        "text": "Auto Updater and Github Workflows to Auto Build for each OS"
+      },
+      {
+        "category": "improve",
+        "text": "UX Glitches and Improvements"
+      }
+    ],
+    "created_at": 1784628826
+  }
+]
