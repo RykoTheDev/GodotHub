@@ -269,6 +269,10 @@
         "text": "Auto Updater and Github Workflows to Auto Build for each OS"
       },
       {
+        "category": "fix",
+        "text": "Auto updater wasn't working properly, now it checks for updates and downloads them correctly"
+      },
+      {
         "category": "improve",
         "text": "UX Glitches and Improvements"
       }

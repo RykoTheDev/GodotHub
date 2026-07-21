@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { check } from '@tauri-apps/plugin-updater'
+import { getVersion } from '@tauri-apps/api/app'
 import { IconRefresh, IconDownload, IconCheck, IconX } from '../Icons'
 
 type UpdateState =
@@ -18,6 +19,7 @@ interface Props {
 
 export function CheckForUpdatesModal({ onClose, mode = 'manual' }: Props) {
   const [state, setState] = useState<UpdateState>({ type: 'checking' })
+  const [currentVersion, setCurrentVersion] = useState<string | null>(null)
   const onCloseRef = useRef(onClose)
   onCloseRef.current = onClose
 
@@ -67,6 +69,10 @@ export function CheckForUpdatesModal({ onClose, mode = 'manual' }: Props) {
       setState({ type: 'error', message: String(e) })
     }
   }, [mode])
+
+  useEffect(() => {
+    getVersion().then(setCurrentVersion).catch(() => setCurrentVersion(null))
+  }, [])
 
   useEffect(() => {
     doCheck()
@@ -129,7 +135,7 @@ export function CheckForUpdatesModal({ onClose, mode = 'manual' }: Props) {
               <div className="text-center">
                 <p className="text-sm font-medium text-ink">GodotHub is already up to date</p>
                 <p className="text-xs text-muted mt-1">
-                  v0.5.0 is the latest version.
+                  v{currentVersion ?? '?'} is the latest version.
                 </p>
               </div>
             </div>
