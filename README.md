@@ -367,34 +367,11 @@ godothub/
 │   ├── Cargo.toml                  # Rust dependencies
 │   └── tauri.conf.json             # Tauri configuration
 │
-├── CONTRIBUTING.md                 # Contribution guidelines
 ├── package.json                    # Frontend dependencies
 ├── vite.config.ts                  # Vite configuration
 ├── tsconfig.json                   # TypeScript configuration
 └── README.md                       # This file
 ```
-
----
-
-## Contributing
-
-We welcome contributions of all kinds! Whether it's bug fixes, features, documentation, or feedback - every bit helps.
-
-Here's how to get started:
-
-1. **Fork** the repository
-2. **Create a feature branch**: `git checkout -b feature/amazing-feature`
-3. **Make your changes**
-4. **Commit** using clear messages
-5. **Push** to your fork
-6. **Open a Pull Request**
-
-> 📖 For detailed guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md) which covers:
-> - Development setup & architecture
-> - Coding standards (TypeScript & Rust)
-> - Commit conventions
-> - Pull request process
-> - Testing guidelines
 
 ---
 
