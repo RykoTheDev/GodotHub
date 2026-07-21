@@ -37,8 +37,6 @@
   <a href="#installation"><kbd>🛠️ Installation</kbd></a>
   &nbsp;&nbsp;&nbsp;
   <a href="#keyboard-shortcuts"><kbd>⌨️ Shortcuts</kbd></a>
-  &nbsp;&nbsp;&nbsp;
-  <a href="CONTRIBUTING.md"><kbd>🤝 Contribute</kbd></a>
 </p>
 
 ---
@@ -98,19 +96,6 @@
 </table>
 
 > <sub>💡 Screenshots show the dark theme with default accent color. All visuals are customizable.</sub>
-
----
-
-## Table of Contents
-
-- [Screenshots](#screenshots)
-- [Features](#features)
-- [Installation](#installation)
-- [Keyboard Shortcuts](#keyboard-shortcuts)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Contributing](#contributing)
-- [License](#license)
 
 ---
 
