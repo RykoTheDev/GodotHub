@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { api } from '../../lib/api'
+import { useTaskTray } from '../../hooks/useTaskTray'
 
 interface Props {
   defaultLocation?: string | null
@@ -17,6 +18,7 @@ export function CloneRepoModal({
   const [location, setLocation] = useState(defaultLocation ?? '')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const { registerTask, updateTask, unregisterTask } = useTaskTray()
 
   const pickLocation = async () => {
     const folder = await api.pickFolder()
@@ -36,12 +38,35 @@ export function CloneRepoModal({
     setBusy(true)
     setError(null)
 
+    const repoName = url.trim().split('/').pop()?.replace('.git', '') || 'repository'
+    const taskId = `clone-${Date.now()}`
+
+    registerTask({
+      id: taskId,
+      type: 'clone-repo',
+      label: `Cloning ${repoName}`,
+      description: 'Starting…',
+      progress: null,
+      status: 'running',
+    })
+
     try {
       const clonedPath = await api.cloneRepo(url.trim(), location)
+      updateTask(taskId, {
+        description: 'Importing project…',
+        status: 'running',
+      })
       const project = await api.importProject(clonedPath, '')
+      updateTask(taskId, { status: 'completed', description: 'Done' })
+      setTimeout(() => unregisterTask(taskId), 3000)
       onCloned(project.id)
     } catch (e) {
       setError(String(e))
+      updateTask(taskId, {
+        status: 'error',
+        errorMessage: String(e),
+      })
+      setTimeout(() => unregisterTask(taskId), 6000)
     } finally {
       setBusy(false)
     }

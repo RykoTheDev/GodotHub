@@ -19,6 +19,9 @@ interface CapturedError {
 const MAX_CAPTURED = 20
 let capturedErrors: CapturedError[] = []
 let captureInstalled = false
+let origConsoleError: typeof console.error | null = null
+let origWindowOnError: typeof window.onerror | null = null
+let unhandledRejectionHandler: ((e: PromiseRejectionEvent) => void) | null = null
 
 function installErrorCapture() {
   if (captureInstalled) return
@@ -31,22 +34,39 @@ function installErrorCapture() {
     ].slice(0, MAX_CAPTURED)
   }
 
-  const origError = console.error
+  origConsoleError = console.error
   console.error = (...args: unknown[]) => {
     push('console.error', args.map((a) => (typeof a === 'object' ? String(a) : String(a))).join(' '))
-    origError.apply(console, args)
+    origConsoleError!.apply(console, args)
   }
 
-  const origOnError = window.onerror
+  origWindowOnError = window.onerror
   window.onerror = (_event, _source, _lineno, _colno, error) => {
     push('window.onerror', error?.message ?? String(_event))
-    return origOnError ? origOnError.call(window, _event, _source, _lineno, _colno, error) : false
+    return origWindowOnError ? origWindowOnError.call(window, _event, _source, _lineno, _colno, error) : false
   }
 
-  const handler = (e: PromiseRejectionEvent) => {
+  unhandledRejectionHandler = (e: PromiseRejectionEvent) => {
     push('unhandledrejection', e.reason?.message ?? String(e.reason))
   }
-  window.addEventListener('unhandledrejection', handler)
+  window.addEventListener('unhandledrejection', unhandledRejectionHandler)
+}
+
+function uninstallErrorCapture() {
+  if (origConsoleError) {
+    console.error = origConsoleError
+    origConsoleError = null
+  }
+  if (origWindowOnError) {
+    window.onerror = origWindowOnError
+    origWindowOnError = null
+  }
+  if (unhandledRejectionHandler) {
+    window.removeEventListener('unhandledrejection', unhandledRejectionHandler)
+    unhandledRejectionHandler = null
+  }
+  capturedErrors = []
+  captureInstalled = false
 }
 
 async function getGPUInfo(): Promise<string> {
@@ -79,7 +99,7 @@ async function buildReport(): Promise<string> {
     `Platform: ${navigator.platform}`,
     `Language: ${navigator.language}`,
     `CPU Cores: ${navigator.hardwareConcurrency ?? 'unknown'}`,
-    `RAM: ${(navigator as any).deviceMemory ? `${(navigator as any).deviceMemory} GB` : 'unknown'}`,
+    `RAM: ${(navigator as Navigator & { deviceMemory?: number }).deviceMemory ? `${(navigator as Navigator & { deviceMemory?: number }).deviceMemory} GB` : 'unknown'}`,
     `Screen: ${screen.width}x${screen.height} @${screen.colorDepth}bit`,
     `GPU: ${gpu}`,
     `User Agent: ${navigator.userAgent}`,
@@ -124,7 +144,10 @@ export function BugReportModal({ onClose }: Props) {
         setLoading(false)
       }
     })
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+      uninstallErrorCapture()
+    }
   }, [])
 
   const handleCopy = async () => {

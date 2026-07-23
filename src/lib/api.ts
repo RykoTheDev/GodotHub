@@ -147,6 +147,18 @@ export const api = {
     invoke<void>('git_undo_commit', { path }),
   gitUndoPull: (path: string) =>
     invoke<void>('git_undo_pull', { path }),
+  gitMergeConflictFiles: (path: string) =>
+    invoke<string[]>('git_merge_conflict_files', { path }),
+  gitResolveConflictOurs: (path: string, filePath: string) =>
+    invoke<void>('git_resolve_conflict_ours', { path, filePath }),
+  gitResolveConflictTheirs: (path: string, filePath: string) =>
+    invoke<void>('git_resolve_conflict_theirs', { path, filePath }),
+  gitResolveConflictManual: (path: string, filePath: string) =>
+    invoke<void>('git_resolve_conflict_manual', { path, filePath }),
+  gitAbortMerge: (path: string) =>
+    invoke<void>('git_abort_merge', { path }),
+  gitIsMerging: (path: string) =>
+    invoke<boolean>('git_is_merging', { path }),
   validateGodotFolder: (path: string) =>
     invoke<{ name: string; icon: string | null } | null>(
       'validate_godot_folder',

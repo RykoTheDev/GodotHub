@@ -39,7 +39,7 @@ fn check_is_repo(path: &str) -> bool {
     false
 }
 
-fn friendly_git_error(stderr: &str) -> String {
+fn friendly_git_error(stderr: &str, path: &str) -> String {
     let lower = stderr.to_lowercase();
 
     if lower.contains("host key verification failed") {
@@ -138,6 +138,39 @@ fn friendly_git_error(stderr: &str) -> String {
                 "  - You're offline or have a slow connection\n",
                 "  - The server is busy or down\n",
                 "  - A firewall is blocking the connection\n\n",
+                "Raw error:\n{}",
+            ),
+            stderr.trim()
+        );
+    }
+
+    if lower.contains("merge conflict")
+        || (lower.contains("conflict") && lower.contains("merge"))
+        || lower.contains("automatic merge failed")
+    {
+        let conflicted = get_merge_conflict_files_for_path_internal(path).unwrap_or_default();
+        if !conflicted.is_empty() {
+            let files_list = conflicted.join("\n  · ");
+            return format!(
+                concat!(
+                    "Merge conflicts detected.\n\n",
+                    "The following files have conflicts:\n",
+                    "  · {}\n\n",
+                    "You can resolve them using the conflict resolver below,\n",
+                    "or by opening a terminal and editing each file manually.\n",
+                    "After resolving, stage and commit the changes.\n\n",
+                    "Raw error:\n{}",
+                ),
+                files_list,
+                stderr.trim()
+            );
+        }
+        return format!(
+            concat!(
+                "Merge conflicts detected.\n\n",
+                "There are conflicts that need to be resolved before the merge can complete.\n",
+                "Open a terminal in the project folder and use 'git status' to see them,\n",
+                "then edit the conflicted files and run 'git add' and 'git commit'.\n\n",
                 "Raw error:\n{}",
             ),
             stderr.trim()
@@ -369,7 +402,7 @@ pub fn git_pull(path: String) -> Result<String, String> {
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(friendly_git_error(&stderr));
+        return Err(friendly_git_error(&stderr, &path));
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
@@ -394,7 +427,7 @@ pub fn git_push(path: String, force: Option<bool>) -> Result<String, String> {
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(friendly_git_error(&stderr));
+        return Err(friendly_git_error(&stderr, &path));
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
@@ -430,7 +463,7 @@ pub fn git_log_entries(path: String) -> Result<Vec<GitLogEntry>, String> {
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(friendly_git_error(&stderr));
+        return Err(friendly_git_error(&stderr, &path));
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout);
@@ -510,7 +543,7 @@ pub fn git_fetch(path: String) -> Result<String, String> {
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        return Err(friendly_git_error(&stderr));
+        return Err(friendly_git_error(&stderr, &path));
     }
 
     let stdout = String::from_utf8_lossy(&output.stdout).trim().to_string();
@@ -1083,4 +1116,153 @@ pub fn clone_repo(url: String, dest: String) -> Result<String, String> {
     }
 
     Ok(clone_target.to_string_lossy().to_string())
+}
+
+fn get_merge_conflict_files_for_path_internal(path: &str) -> Result<Vec<String>, String> {
+    if !check_is_repo(path) {
+        return Err("Not a git repository".into());
+    }
+
+    let output = cmd()
+        .args(["-C", path, "diff", "--name-only", "--diff-filter=U"])
+        .output()
+        .map_err(|e| format!("Failed to check merge conflicts: {}", e))?;
+
+    if !output.status.success() {
+        return Err("Failed to check merge conflicts".into());
+    }
+
+    let stdout = String::from_utf8_lossy(&output.stdout);
+    let files: Vec<String> = stdout
+        .lines()
+        .filter(|l| !l.trim().is_empty())
+        .map(|l| l.trim().to_string())
+        .collect();
+
+    Ok(files)
+}
+
+#[tauri::command]
+pub fn git_merge_conflict_files(path: String) -> Result<Vec<String>, String> {
+    get_merge_conflict_files_for_path_internal(&path)
+}
+
+#[tauri::command]
+pub fn git_resolve_conflict_ours(path: String, file_path: String) -> Result<(), String> {
+    if !check_is_repo(&path) {
+        return Err("Not a git repository".into());
+    }
+
+    let checkout = cmd()
+        .args(["-C", &path, "checkout", "--ours", &file_path])
+        .output()
+        .map_err(|e| format!("Failed to run checkout --ours: {}", e))?;
+
+    if !checkout.status.success() {
+        let stderr = String::from_utf8_lossy(&checkout.stderr);
+        return Err(format!("Failed to resolve conflict using ours: {}", stderr.trim()));
+    }
+
+    let add = cmd()
+        .args(["-C", &path, "add", &file_path])
+        .output()
+        .map_err(|e| format!("Failed to stage resolved file: {}", e))?;
+
+    if !add.status.success() {
+        let stderr = String::from_utf8_lossy(&add.stderr);
+        return Err(format!("Failed to stage resolved file: {}", stderr.trim()));
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
+pub fn git_resolve_conflict_theirs(path: String, file_path: String) -> Result<(), String> {
+    if !check_is_repo(&path) {
+        return Err("Not a git repository".into());
+    }
+
+    let checkout = cmd()
+        .args(["-C", &path, "checkout", "--theirs", &file_path])
+        .output()
+        .map_err(|e| format!("Failed to run checkout --theirs: {}", e))?;
+
+    if !checkout.status.success() {
+        let stderr = String::from_utf8_lossy(&checkout.stderr);
+        return Err(format!("Failed to resolve conflict using theirs: {}", stderr.trim()));
+    }
+
+    let add = cmd()
+        .args(["-C", &path, "add", &file_path])
+        .output()
+        .map_err(|e| format!("Failed to stage resolved file: {}", e))?;
+
+    if !add.status.success() {
+        let stderr = String::from_utf8_lossy(&add.stderr);
+        return Err(format!("Failed to stage resolved file: {}", stderr.trim()));
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
+pub fn git_resolve_conflict_manual(path: String, file_path: String) -> Result<(), String> {
+    if !check_is_repo(&path) {
+        return Err("Not a git repository".into());
+    }
+
+    // Just stage the file as-is, assuming the user edited it manually
+    let add = cmd()
+        .args(["-C", &path, "add", &file_path])
+        .output()
+        .map_err(|e| format!("Failed to stage resolved file: {}", e))?;
+
+    if !add.status.success() {
+        let stderr = String::from_utf8_lossy(&add.stderr);
+        return Err(format!("Failed to stage resolved file: {}", stderr.trim()));
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
+pub fn git_abort_merge(path: String) -> Result<(), String> {
+    if !check_is_repo(&path) {
+        return Err("Not a git repository".into());
+    }
+
+    let output = cmd()
+        .args(["-C", &path, "merge", "--abort"])
+        .output()
+        .map_err(|e| format!("Failed to run git merge --abort: {}", e))?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        return Err(format!("Abort merge failed: {}", stderr.trim()));
+    }
+
+    Ok(())
+}
+
+#[tauri::command]
+pub fn git_is_merging(path: String) -> Result<bool, String> {
+    if !check_is_repo(&path) {
+        return Err("Not a git repository".into());
+    }
+
+    let output = cmd()
+        .args(["-C", &path, "rev-parse", "--git-dir"])
+        .output()
+        .map_err(|e| format!("Failed to check merge state: {}", e))?;
+
+    if !output.status.success() {
+        return Err("Failed to check merge state".into());
+    }
+
+    let git_dir = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    let merge_head = std::path::PathBuf::from(&path).join(&git_dir).join("MERGE_HEAD");
+    let rebase_merge = std::path::PathBuf::from(&path).join(&git_dir).join("rebase-merge");
+    let rebase_apply = std::path::PathBuf::from(&path).join(&git_dir).join("rebase-apply");
+
+    Ok(merge_head.exists() || rebase_merge.exists() || rebase_apply.exists())
 }

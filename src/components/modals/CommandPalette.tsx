@@ -99,7 +99,7 @@ function buildCommands(mod: string, paletteKey: string): CommandItem[] {
       icon: <IconGear className="w-4 h-4" />,
       section: 'Navigation',
       action: () => {
-        window.dispatchEvent(new CustomEvent('app:switch-tab', { detail: 3 }))
+        window.dispatchEvent(new CustomEvent('app:switch-tab', { detail: 4 }))
       },
     },
 

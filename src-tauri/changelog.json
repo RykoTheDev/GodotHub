@@ -278,5 +278,17 @@
       }
     ],
     "created_at": 1784628826
+  },
+  {
+    "id": "e0c96ef1-bcea-4c80-8277-373752dfc38d",
+    "version": "v1.0.0",
+    "date": "2026-07-23",
+    "notes": [
+      {
+        "category": "add",
+        "text": "Task Tray to keep track of progress, Importing, Downloading and Cloning"
+      }
+    ],
+    "created_at": 1784658817
   }
 ]

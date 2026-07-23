@@ -11,6 +11,7 @@ import type {
 import { api } from '../../lib/api'
 import { DiffViewer } from './DiffViewer'
 import { GitResultDialog, parseGitError } from './GitResultDialog'
+import { MergeConflictDialog } from './MergeConflictDialog'
 import { Tooltip } from '../ui/Tooltip'
 import {
   IconX,
@@ -134,6 +135,9 @@ export function GitSidebar({ project, gitStatus, onClose, onRefresh }: Props) {
 
   const [diffFile, setDiffFile] = useState<string | null>(null)
 
+  const [showMergeConflicts, setShowMergeConflicts] = useState(false)
+  const [mergeActive, setMergeActive] = useState(false)
+
   const [toasts, setToasts] = useState<Toast[]>([])
 
   const addToast = useCallback((type: Toast['type'], message: string) => {
@@ -246,6 +250,25 @@ export function GitSidebar({ project, gitStatus, onClose, onRefresh }: Props) {
     return () => { cancelled = true }
   }, [project.path])
 
+  // Check for existing merge conflicts on mount
+  useEffect(() => {
+    if (!isRepo) return
+    let cancelled = false
+    api.gitIsMerging(project.path).then((merging) => {
+      if (!cancelled) {
+        setMergeActive(merging)
+        if (merging) {
+          api.gitMergeConflictFiles(project.path).then((files) => {
+            if (!cancelled && files.length > 0) {
+              setShowMergeConflicts(true)
+            }
+          }).catch(() => {})
+        }
+      }
+    }).catch(() => {})
+    return () => { cancelled = true }
+  }, [project.path, isRepo])
+
   useEffect(() => {
     if (!isRepo) {
       setLogLoading(false); setBranchesLoading(false); setChangesLoading(false); setStashesLoading(false)
@@ -271,8 +294,35 @@ export function GitSidebar({ project, gitStatus, onClose, onRefresh }: Props) {
       window.dispatchEvent(new CustomEvent('app:refresh-git-status'))
       return true
     } catch (e) {
-      showGitError(String(e))
+      const errStr = String(e)
+      const lower = errStr.toLowerCase()
+      // Check for merge conflicts first to avoid UI flash
+      if (lower.includes('merge conflict') || lower.includes('merge conflicts detected')) {
+        const conflictFiles = await api.gitMergeConflictFiles(project.path).catch(() => [])
+        if (conflictFiles.length > 0) {
+          setShowMergeConflicts(true)
+          setMergeActive(true)
+          return false
+        }
+      }
+      showGitError(errStr)
       return false
+    } finally {
+      setBusyAction(null)
+    }
+  }
+
+  const handleAbortMerge = async () => {
+    try {
+      setBusyAction('abort-merge')
+      await api.gitAbortMerge(project.path)
+      setShowMergeConflicts(false)
+      addToast('success', 'Merge aborted. Working directory restored.')
+      await refreshAll()
+      onRefresh()
+      window.dispatchEvent(new CustomEvent('app:refresh-git-status'))
+    } catch (e) {
+      addToast('error', String(e))
     } finally {
       setBusyAction(null)
     }
@@ -546,7 +596,27 @@ export function GitSidebar({ project, gitStatus, onClose, onRefresh }: Props) {
         <>
           {/* Action buttons */}
           <div className="flex items-center gap-2 px-5 py-3 border-b border-line shrink-0 flex-wrap">
-            <button disabled={busyAction !== null}
+            {/* Merge status banner */}
+            {mergeActive && !showMergeConflicts && (
+              <div className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-danger/10 border border-danger/30 mb-1">
+                <IconAlertTriangle className="w-3.5 h-3.5 text-danger shrink-0" />
+                <span className="flex-1 text-[11px] text-danger font-medium">Merge in progress</span>
+                <button
+                  onClick={() => setShowMergeConflicts(true)}
+                  className="focus-ring cursor-pointer text-[10px] text-accent-bright hover:underline font-medium"
+                >
+                  Resolve
+                </button>
+                <button
+                  onClick={handleAbortMerge}
+                  disabled={busyAction !== null}
+                  className="focus-ring cursor-pointer text-[10px] text-danger hover:underline disabled:opacity-40 font-medium"
+                >
+                  Abort
+                </button>
+              </div>
+            )}
+            <button disabled={busyAction !== null || showMergeConflicts}
               onClick={() => doAction('pull', async () => {
                 const r = await api.gitPull(project.path)
                 if (r) {
@@ -558,8 +628,11 @@ export function GitSidebar({ project, gitStatus, onClose, onRefresh }: Props) {
                   showGitSuccess('Pull complete', r)
                 }
               })}
-              className="focus-ring cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-bright disabled:opacity-50 disabled:cursor-not-allowed text-[11px] font-medium text-white transition-colors">
-              <IconCloudArrowDown className="w-3 h-3" />{busyAction === 'pull' ? '…' : 'Pull'}
+              className={`focus-ring cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-[11px] font-medium text-white transition-colors ${
+                showMergeConflicts ? 'bg-danger/40 text-danger/60' : 'bg-accent hover:bg-accent-bright'
+              }`}
+              title={showMergeConflicts ? 'Resolve conflicts first' : 'Pull latest changes'}>
+              <IconCloudArrowDown className="w-3 h-3" />{busyAction === 'pull' ? '…' : showMergeConflicts ? 'Conflicts' : 'Pull'}
             </button>
             <button onClick={handlePushAction} disabled={busyAction !== null}
               className="focus-ring cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-bright disabled:opacity-50 disabled:cursor-not-allowed text-[11px] font-medium text-white transition-colors">
@@ -677,19 +750,22 @@ export function GitSidebar({ project, gitStatus, onClose, onRefresh }: Props) {
             <div className="px-5 pt-4 pb-2 border-b border-line">
               <div className="flex items-center justify-between mb-2">
                 <h4 className="text-[10px] font-semibold uppercase tracking-wider text-muted/60">Changes</h4>
-                {unstagedFiles.length > 0 && (
+                {(unstagedFiles.length > 0 || stagedFiles.size > 0) && (
                   <div className="flex items-center gap-2">
                     {/* Select / Deselect All */}
-                    {stagedFiles.size < unstagedFiles.length ? (
+                    {stagedFiles.size < unstagedFiles.length && (
                       <button onClick={selectAllUnstaged}
                         className="focus-ring cursor-pointer text-[10px] text-accent-bright hover:underline transition-colors">Select all</button>
-                    ) : (
+                    )}
+                    {(stagedFiles.size > 1 || (stagedFiles.size > 0 && unstagedFiles.length === 0)) && (
                       <button onClick={deselectAll}
                         className="focus-ring cursor-pointer text-[10px] text-muted hover:text-ink hover:underline transition-colors">Deselect all</button>
                     )}
                     <span className="text-muted/30">·</span>
-                    <button onClick={() => setShowDiscardConfirm(true)} disabled={busyAction !== null}
-                      className="focus-ring cursor-pointer text-[10px] text-danger hover:underline disabled:opacity-40 disabled:cursor-not-allowed transition-colors">Discard all</button>
+                    {(stagedFiles.size > 1 || (stagedFiles.size > 0 && unstagedFiles.length === 0)) && (
+                      <button onClick={() => setShowDiscardConfirm(true)} disabled={busyAction !== null}
+                        className="focus-ring cursor-pointer text-[10px] text-danger hover:underline disabled:opacity-40 disabled:cursor-not-allowed transition-colors">Discard all</button>
+                    )}
                     {stagedFiles.size > 0 && (
                       <button onClick={handleStageFiles} disabled={busyAction !== null}
                         className="focus-ring cursor-pointer text-[10px] text-mint hover:underline disabled:opacity-40 disabled:cursor-not-allowed transition-colors">Stage ({stagedFiles.size})</button>
@@ -1038,7 +1114,7 @@ export function GitSidebar({ project, gitStatus, onClose, onRefresh }: Props) {
 
       {/* Git result dialog (errors with instructions / success confirmations) */}
       <AnimatePresence>
-        {gitResult && (
+        {gitResult && !showMergeConflicts && (
           <GitResultDialog
             type={gitResult.type}
             title={gitResult.title}
@@ -1046,6 +1122,27 @@ export function GitSidebar({ project, gitStatus, onClose, onRefresh }: Props) {
             rawError={gitResult.rawError}
             onClose={() => setGitResult(null)}
             onOpenTerminal={() => api.openTerminal(project.path)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Merge Conflict Resolver */}
+      <AnimatePresence>
+        {showMergeConflicts && (
+          <MergeConflictDialog
+            projectPath={project.path}
+            onClose={() => setShowMergeConflicts(false)}
+            onAllResolved={async () => {
+              // All conflicts staged — close dialog and let user commit via the existing commit flow
+              setShowMergeConflicts(false)
+              setMergeActive(false)
+              await refreshAll()
+              onRefresh()
+              window.dispatchEvent(new CustomEvent('app:refresh-git-status'))
+              addToast('success', 'All conflicts resolved! Write a merge commit message and click Commit.')
+            }}
+            onOpenTerminal={() => api.openTerminal(project.path)}
+            onAbortMerge={handleAbortMerge}
           />
         )}
       </AnimatePresence>

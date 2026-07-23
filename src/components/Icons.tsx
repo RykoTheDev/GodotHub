@@ -58,6 +58,10 @@ import {
   faBookOpen,
   faBug,
   faHardDrive,
+  faBell,
+  faSpinner,
+  faCircleCheck,
+  faCircleXmark,
 } from '@fortawesome/free-solid-svg-icons'
 
 interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, 'ref'> {
@@ -65,12 +69,11 @@ interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, 'ref'> {
 }
 
 function solid(icon: IconDefinition) {
-  return ({ className, fill, style, ...rest }: IconProps) => (
+  return ({ className, fill, style }: IconProps) => (
     <FontAwesomeIcon
       icon={icon}
       className={className}
       style={fill === 'none' ? { opacity: 0.45, ...style } : style}
-      {...(rest as any)}
     />
   )
 }
@@ -132,3 +135,7 @@ export const IconInfo = solid(faInfoCircle)
 export const IconBomb = solid(faBomb)
 export const IconCopy = solid(faCopy)
 export const IconMore = solid(faEllipsisVertical)
+export const IconBell = solid(faBell)
+export const IconSpinner = solid(faSpinner)
+export const IconCircleCheck = solid(faCircleCheck)
+export const IconCircleX = solid(faCircleXmark)

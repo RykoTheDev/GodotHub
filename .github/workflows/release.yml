@@ -1,6 +1,7 @@
-# Builds GodotHub when a tag like v0.6.0 is pushed,
+# Builds GodotHub when a tag like v1.0.0 is pushed,
 # signs the updater artifacts, auto-generates latest.json,
-# and publishes a GitHub Release with everything.
+# and publishes a GitHub Release with installers and updater files.
+
 name: Build & Release
 
 on:
@@ -18,8 +19,11 @@ jobs:
       matrix:
         include:
           - os: windows-latest
+            target: x86_64-pc-windows-msvc
           - os: macos-latest
+            target: aarch64-apple-darwin
           - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
 
     runs-on: ${{ matrix.os }}
 
@@ -29,6 +33,8 @@ jobs:
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
 
       - name: Cache Rust dependencies
         uses: actions/cache@v4
@@ -37,9 +43,9 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             src-tauri/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('src-tauri/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-release-${{ hashFiles('src-tauri/Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-cargo-
+            ${{ runner.os }}-cargo-release-
 
       - name: Install dependencies (Linux only)
         if: runner.os == 'Linux'
@@ -60,10 +66,10 @@ jobs:
       - name: Install frontend dependencies
         run: bun install
 
-      - name: Check Rust code
-        run: cargo check --manifest-path src-tauri/Cargo.toml
+      - name: TypeScript typecheck
+        run: bun run tsc --noEmit
 
-      - name: Build & Release
+      - name: Build Tauri app & publish release
         uses: tauri-apps/tauri-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -72,12 +78,12 @@ jobs:
         with:
           tagName: ${{ github.ref_name }}
           releaseName: 'GodotHub ${{ github.ref_name }}'
-          releaseBody: 'See the assets below for the installer and updater files.'
+          releaseBody: 'See the assets below for the installer and updater files for your platform.'
           releaseDraft: true
           uploadUpdaterJson: true
           updaterJsonPreferNsis: true
 
-      - name: Upload standalone Windows executable
+      - name: Upload standalone executable (Windows only)
         if: runner.os == 'Windows'
         shell: bash
         run: |

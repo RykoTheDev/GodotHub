@@ -27,6 +27,7 @@ import { OnboardingTips } from './components/OnboardingTips'
 import { WorkspaceSwitcher } from './WorkspaceSwitcher'
 import { Tooltip } from './components/ui/Tooltip'
 import type { GitStatus, Project } from './types'
+import { ViewErrorBoundary } from './components/ViewErrorBoundary'
 import { GitSidebar } from './components/git/GitSidebar'
 import {
   IconGear,
@@ -49,6 +50,7 @@ import {
   GodotVersionsProvider,
   useGodotVersionsContext,
 } from './hooks/godotVersionsContext'
+import { TaskTrayProvider } from './hooks/useTaskTray'
 
 type Tab = 'projects' | 'versions' | 'news' | 'templates' | 'settings' | 'changelog'
 
@@ -694,24 +696,36 @@ const [bugReportOpen, setBugReportOpen] = useState(false)
               transition={{ duration: 0.15, ease: 'easeOut' }}
             >
               {tab === 'projects' ? (
-                <ProjectsView
-                  key={activeId}
-                  onShowGitSidebar={(p, s) => setGitSidebarProject({ project: p, gitStatus: s })}
-                />
+                <ViewErrorBoundary name="Projects">
+                  <ProjectsView
+                    key={activeId}
+                    onShowGitSidebar={(p, s) => setGitSidebarProject({ project: p, gitStatus: s })}
+                  />
+                </ViewErrorBoundary>
               ) : tab === 'versions' ? (
-                <VersionsView />
+                <ViewErrorBoundary name="Versions">
+                  <VersionsView />
+                </ViewErrorBoundary>
               ) : tab === 'news' ? (
-                <NewsView />
+                <ViewErrorBoundary name="News">
+                  <NewsView />
+                </ViewErrorBoundary>
               ) : tab === 'templates' ? (
-                <TemplatesView />
+                <ViewErrorBoundary name="Templates">
+                  <TemplatesView />
+                </ViewErrorBoundary>
               ) : tab === 'changelog' ? (
-                <ChangelogView />
+                <ViewErrorBoundary name="Changelog">
+                  <ChangelogView />
+                </ViewErrorBoundary>
               ) : (
-                <SettingsView
-                  key={activeId}
-                  highlightSetting={highlightSetting}
-                  onHighlightDone={() => setHighlightSetting(null)}
-                />
+                <ViewErrorBoundary name="Settings">
+                  <SettingsView
+                    key={activeId}
+                    highlightSetting={highlightSetting}
+                    onHighlightDone={() => setHighlightSetting(null)}
+                  />
+                </ViewErrorBoundary>
               )}
             </motion.div>
           </AnimatePresence>
@@ -1107,7 +1121,9 @@ export default function App() {
 
   return (
     <GodotVersionsProvider>
-      <AppContent />
+      <TaskTrayProvider>
+        <AppContent />
+      </TaskTrayProvider>
     </GodotVersionsProvider>
   )
 }

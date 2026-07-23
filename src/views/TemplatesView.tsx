@@ -6,6 +6,7 @@ import type { ProjectTemplate, TemplateSyncResult } from '../types'
 import { IconCopy, IconTrash, IconAlertTriangle, IconRefresh, IconExternalLink } from '../components/Icons'
 import { Tooltip } from '../components/ui/Tooltip'
 import { TemplatePreviewModal } from '../components/modals/TemplatePreviewModal'
+import { useTaskTray } from '../hooks/useTaskTray'
 
 export function TemplatesView() {
   const { settings } = useSettings()
@@ -18,6 +19,7 @@ export function TemplatesView() {
   const [syncMessage, setSyncMessage] = useState<string | null>(null)
   const [syncResult, setSyncResult] = useState<TemplateSyncResult | null>(null)
   const [previewTemplate, setPreviewTemplate] = useState<ProjectTemplate | null>(null)
+  const { registerTask, updateTask, unregisterTask } = useTaskTray()
 
   const load = async () => {
     try {
@@ -35,6 +37,14 @@ export function TemplatesView() {
     setSyncing(true)
     setSyncMessage(null)
     setSyncResult(null)
+    registerTask({
+      id: 'sync-templates',
+      type: 'sync-templates',
+      label: 'Syncing templates',
+      description: 'Starting…',
+      progress: null,
+      status: 'running',
+    })
     try {
       const result = await api.syncTemplatesWithScanDir()
       setSyncResult(result)
@@ -50,9 +60,19 @@ export function TemplatesView() {
           ? parts.join(' · ')
           : 'Templates are up to date.',
       )
+      updateTask('sync-templates', {
+        status: 'completed',
+        description: parts.length > 0 ? parts.join(' · ') : 'Up to date',
+      })
+      setTimeout(() => unregisterTask('sync-templates'), 3000)
       await load()
     } catch (e) {
       setSyncMessage(String(e))
+      updateTask('sync-templates', {
+        status: 'error',
+        errorMessage: String(e),
+      })
+      setTimeout(() => unregisterTask('sync-templates'), 6000)
     } finally {
       setSyncing(false)
     }

@@ -1,5 +1,9 @@
 import type { Project } from '../types'
 
+interface ProjectWithSize extends Project {
+  __cached_size?: number
+}
+
 export type ProjectSortOption =
   | 'custom'
   | 'name_asc'
@@ -41,9 +45,9 @@ export function comparatorFor(
     case 'created_asc':
       return (a, b) => timeOf(a.created_at) - timeOf(b.created_at)
     case 'size_desc':
-      return (a, b) => ((b as any).__cached_size ?? 0) - ((a as any).__cached_size ?? 0)
+      return (a, b) => ((b as ProjectWithSize).__cached_size ?? 0) - ((a as ProjectWithSize).__cached_size ?? 0)
     case 'size_asc':
-      return (a, b) => ((a as any).__cached_size ?? 0) - ((b as any).__cached_size ?? 0)
+      return (a, b) => ((a as ProjectWithSize).__cached_size ?? 0) - ((b as ProjectWithSize).__cached_size ?? 0)
     case 'custom':
     default:
       return null

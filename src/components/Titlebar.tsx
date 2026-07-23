@@ -5,6 +5,7 @@ import {
 } from '@tauri-apps/api/window'
 import { motion } from 'framer-motion'
 import { version } from '../../package.json'
+import { TaskTray } from './TaskTray'
 
 export function TitleBar() {
   const [appWindow, setAppWindow] = useState<TauriWindow | null>(null)
@@ -67,9 +68,6 @@ export function TitleBar() {
           className="font-black italic tracking-tight text-xl text-muted flex items-center gap-2 pointer-events-none"
         >
           GodotHub
-          <span className="text-[9px] mt-1 font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber/15 text-amber border border-amber/30 shrink-0">
-            Beta
-          </span>
         </motion.h1>
         <motion.p
           initial={false}
@@ -84,57 +82,61 @@ export function TitleBar() {
         </motion.p>
       </div>
 
-      <div className="flex items-stretch gap-1 px-3">
-        <motion.button
-          onClick={() => safe((w) => w.minimize())}
-          aria-label="Minimize"
-          className="w-6 cursor-pointer flex items-center justify-center text-muted hover:text-ink transition-colors shrink-0"
-          whileHover={{
-            y: -2,
-            scale: 1.1,
-          }}
-          transition={{
-            type: 'spring',
-            stiffness: 500,
-            damping: 30,
-          }}
-        >
-          <div className="w-4 h-4 bg-green-400 rounded-full" />
-        </motion.button>
+      <div className="flex items-stretch gap-1">
+        <TaskTray />
+        <div className="w-px h-5 self-center bg-line/40 mx-1" />
+        <div className="flex items-stretch gap-1 px-3">
+          <motion.button
+            onClick={() => safe((w) => w.minimize())}
+            aria-label="Minimize"
+            className="w-6 cursor-pointer flex items-center justify-center text-muted hover:text-ink transition-colors shrink-0"
+            whileHover={{
+              y: -2,
+              scale: 1.1,
+            }}
+            transition={{
+              type: 'spring',
+              stiffness: 500,
+              damping: 30,
+            }}
+          >
+            <div className="w-4 h-4 bg-green-400 rounded-full" />
+          </motion.button>
 
-        <motion.button
-          onClick={() => safe((w) => w.toggleMaximize())}
-          aria-label={isMaximized ? 'Restore' : 'Maximize'}
-          className="w-6 cursor-pointer flex items-center justify-center text-muted hover:text-ink transition-colors shrink-0"
-          whileHover={{
-            y: -2,
-            scale: 1.1,
-          }}
-          transition={{
-            type: 'spring',
-            stiffness: 500,
-            damping: 30,
-          }}
-        >
-          <div className="w-4 h-4 bg-amber rounded-full" />
-        </motion.button>
+          <motion.button
+            onClick={() => safe((w) => w.toggleMaximize())}
+            aria-label={isMaximized ? 'Restore' : 'Maximize'}
+            className="w-6 cursor-pointer flex items-center justify-center text-muted hover:text-ink transition-colors shrink-0"
+            whileHover={{
+              y: -2,
+              scale: 1.1,
+            }}
+            transition={{
+              type: 'spring',
+              stiffness: 500,
+              damping: 30,
+            }}
+          >
+            <div className="w-4 h-4 bg-amber rounded-full" />
+          </motion.button>
 
-        <motion.button
-          onClick={() => safe((w) => w.close())}
-          aria-label="Close"
-          className="w-6 cursor-pointer flex items-center justify-center text-muted hover:text-white transition-colors shrink-0"
-          whileHover={{
-            y: -2,
-            scale: 1.1,
-          }}
-          transition={{
-            type: 'spring',
-            stiffness: 500,
-            damping: 30,
-          }}
-        >
-          <div className="w-4 h-4 bg-red-400 rounded-full" />
-        </motion.button>
+          <motion.button
+            onClick={() => safe((w) => w.close())}
+            aria-label="Close"
+            className="w-6 cursor-pointer flex items-center justify-center text-muted hover:text-white transition-colors shrink-0"
+            whileHover={{
+              y: -2,
+              scale: 1.1,
+            }}
+            transition={{
+              type: 'spring',
+              stiffness: 500,
+              damping: 30,
+            }}
+          >
+            <div className="w-4 h-4 bg-red-400 rounded-full" />
+          </motion.button>
+        </div>
       </div>
     </div>
   )
