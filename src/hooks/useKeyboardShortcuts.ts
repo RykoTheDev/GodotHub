@@ -52,6 +52,7 @@ export function useKeyboardShortcuts(
         case '2':
         case '3':
         case '4':
+        case '5':
           if (!isInput) {
             e.preventDefault()
             h.current.onSwitchTab(parseInt(e.key) - 1)

@@ -529,7 +529,7 @@ const [bugReportOpen, setBugReportOpen] = useState(false)
       onNewProject: requestNewProject,
       onOpenSettings: () => setTab('settings'),
       onSwitchTab: (i: number) => {
-        const tabs: Tab[] = ['projects', 'versions', 'news', 'templates', 'asset-store']
+        const tabs: Tab[] = ['projects', 'versions', 'templates', 'asset-store', 'news']
         if (tabs[i]) setTab(tabs[i])
       },
       onCommandPalette: () => setCommandPaletteOpen((o) => !o),
