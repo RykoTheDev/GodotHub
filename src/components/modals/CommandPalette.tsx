@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import {
   IconBug,
@@ -24,10 +25,10 @@ import type { Project, InstalledGodotVersion, Workspace } from '../../types'
 
 interface CommandItem {
   id: string
-  label: string
+  labelKey: string
   shortcut?: string
   icon: React.ReactNode
-  section: string
+  sectionKey: string
   context?: 'projects' | 'versions'
   action: () => void
 }
@@ -46,59 +47,59 @@ function buildCommands(mod: string, paletteKey: string): CommandItem[] {
   return [
     {
       id: 'go-projects',
-      label: 'Go to Projects',
+      labelKey: 'go_to_projects',
       shortcut: `${mod}1`,
       icon: <IconLayoutGrid className="w-4 h-4" />,
-      section: 'Navigation',
+      sectionKey: 'section_navigation',
       action: () => {
         window.dispatchEvent(new CustomEvent('app:switch-tab', { detail: 0 }))
       },
     },
     {
       id: 'go-versions',
-      label: 'Go to Versions',
+      labelKey: 'go_to_versions',
       shortcut: `${mod}2`,
       icon: <IconLayoutList className="w-4 h-4" />,
-      section: 'Navigation',
+      sectionKey: 'section_navigation',
       action: () => {
         window.dispatchEvent(new CustomEvent('app:switch-tab', { detail: 1 }))
       },
     },
     {
       id: 'go-news',
-      label: 'Go to News',
+      labelKey: 'go_to_news',
       shortcut: `${mod}3`,
       icon: <IconNews className="w-4 h-4" />,
-      section: 'Navigation',
+      sectionKey: 'section_navigation',
       action: () => {
         window.dispatchEvent(new CustomEvent('app:switch-tab', { detail: 2 }))
       },
     },
     {
       id: 'go-changelog',
-      label: 'Open Changelog',
+      labelKey: 'open_changelog',
       icon: <IconBookOpen className="w-4 h-4" />,
-      section: 'Navigation',
+      sectionKey: 'section_navigation',
       action: () => {
         window.dispatchEvent(new CustomEvent('app:switch-tab', { detail: 4 }))
       },
     },
     {
       id: 'go-templates',
-      label: 'Go to Templates',
+      labelKey: 'go_to_templates',
       shortcut: `${mod}4`,
       icon: <IconCopy className="w-4 h-4" />,
-      section: 'Navigation',
+      sectionKey: 'section_navigation',
       action: () => {
         window.dispatchEvent(new CustomEvent('app:switch-tab', { detail: 3 }))
       },
     },
     {
       id: 'go-settings',
-      label: 'Open Settings',
+      labelKey: 'open_settings',
       shortcut: `${mod},`,
       icon: <IconGear className="w-4 h-4" />,
-      section: 'Navigation',
+      sectionKey: 'section_navigation',
       action: () => {
         window.dispatchEvent(new CustomEvent('app:switch-tab', { detail: 4 }))
       },
@@ -106,10 +107,10 @@ function buildCommands(mod: string, paletteKey: string): CommandItem[] {
 
     {
       id: 'new-project',
-      label: 'New Project',
+      labelKey: 'new_project',
       shortcut: `${mod}N`,
       icon: <IconFolderPlus className="w-4 h-4" />,
-      section: 'Projects',
+      sectionKey: 'section_projects',
       context: 'projects',
       action: () => {
         window.dispatchEvent(new CustomEvent('app:new-project-request'))
@@ -117,9 +118,9 @@ function buildCommands(mod: string, paletteKey: string): CommandItem[] {
     },
     {
       id: 'import-project',
-      label: 'Import Project',
+      labelKey: 'import_project',
       icon: <IconImport className="w-4 h-4" />,
-      section: 'Projects',
+      sectionKey: 'section_projects',
       context: 'projects',
       action: () => {
         window.dispatchEvent(new CustomEvent('app:import-project-request'))
@@ -127,9 +128,9 @@ function buildCommands(mod: string, paletteKey: string): CommandItem[] {
     },
     {
       id: 'scan-projects',
-      label: 'Scan for Projects',
+      labelKey: 'scan_for_projects',
       icon: <IconRefresh className="w-4 h-4" />,
-      section: 'Projects',
+      sectionKey: 'section_projects',
       context: 'projects',
       action: () => {
         window.dispatchEvent(new CustomEvent('app:scan-projects-request'))
@@ -138,9 +139,9 @@ function buildCommands(mod: string, paletteKey: string): CommandItem[] {
 
     {
       id: 'create-workspace',
-      label: 'Create Workspace',
+      labelKey: 'create_workspace',
       icon: <IconBriefcase className="w-4 h-4" />,
-      section: 'Workspaces',
+      sectionKey: 'section_workspaces',
       action: () => {
         window.dispatchEvent(new CustomEvent('app:create-workspace-request'))
       },
@@ -148,19 +149,19 @@ function buildCommands(mod: string, paletteKey: string): CommandItem[] {
 
     {
       id: 'show-shortcuts',
-      label: 'Keyboard Shortcuts',
+      labelKey: 'keyboard_shortcuts',
       shortcut: `${mod}${paletteKey.toUpperCase()}`,
       icon: <IconSearch className="w-4 h-4" />,
-      section: 'Help',
+      sectionKey: 'section_help',
       action: () => {
         window.dispatchEvent(new CustomEvent('app:show-shortcuts'))
       },
     },
     {
       id: 'report-bug',
-      label: 'Report a Bug',
+      labelKey: 'report_a_bug',
       icon: <IconBug className="w-4 h-4" />,
-      section: 'Help',
+      sectionKey: 'section_help',
       action: () => {
         window.dispatchEvent(new CustomEvent('app:report-bug'))
       },
@@ -168,9 +169,9 @@ function buildCommands(mod: string, paletteKey: string): CommandItem[] {
 
     {
       id: 'scan-versions',
-      label: 'Scan for Engines',
+      labelKey: 'scan_for_engines',
       icon: <IconSearch className="w-4 h-4" />,
-      section: 'Engines',
+      sectionKey: 'section_engines',
       context: 'versions',
       action: () => {
         window.dispatchEvent(new CustomEvent('app:scan-versions'))
@@ -178,9 +179,9 @@ function buildCommands(mod: string, paletteKey: string): CommandItem[] {
     },
     {
       id: 'import-version',
-      label: 'Import Version',
+      labelKey: 'import_version',
       icon: <IconImport className="w-4 h-4" />,
-      section: 'Engines',
+      sectionKey: 'section_engines',
       context: 'versions',
       action: () => {
         window.dispatchEvent(new CustomEvent('app:import-version-request'))
@@ -189,9 +190,9 @@ function buildCommands(mod: string, paletteKey: string): CommandItem[] {
 
     {
       id: 'sync-templates',
-      label: 'Sync Templates from Directory',
+      labelKey: 'sync_templates_from_directory',
       icon: <IconRefresh className="w-4 h-4" />,
-      section: 'Templates',
+      sectionKey: 'section_templates',
       action: () => {
         window.dispatchEvent(new CustomEvent('app:sync-templates-request'))
       },
@@ -201,47 +202,47 @@ function buildCommands(mod: string, paletteKey: string): CommandItem[] {
 
 export interface SettingSearchEntry {
   key: string
-  label: string
   tab: string
+  label?: string
 }
 
 export const SETTINGS_SEARCH_ITEMS: SettingSearchEntry[] = (
   [
-  { key: 'project_scan_dirs', label: 'Project scan folders', tab: 'storage' },
-  { key: 'version_scan_dirs', label: 'Version scan folders', tab: 'storage' },
-  { key: 'default_project_location', label: 'Default project location', tab: 'storage' },
-  { key: 'download_dir', label: 'Download folder', tab: 'storage' },
-  { key: 'scan_depth', label: 'Scan depth', tab: 'storage' },
-  { key: 'download_concurrency', label: 'Simultaneous downloads', tab: 'storage' },
-  { key: 'close_on_project_open', label: 'Close on project open', tab: 'behavior' },
-  { key: 'minimize_to_tray', label: 'Minimize to tray', tab: 'behavior' },
-  { key: 'reopen_after_godot_closes', label: 'Reopen after Godot closes', tab: 'behavior' },
-  { key: 'auto_scan_on_startup', label: 'Auto-scan on startup', tab: 'behavior' },
-  { key: 'categories_enabled', label: 'Use categories', tab: 'behavior' },
-  { key: 'workspaces_enabled', label: 'Use workspaces', tab: 'behavior' },
-  { key: 'tooltip_delay', label: 'Tooltip delay', tab: 'behavior' },
-  { key: 'command_palette_keybind', label: 'Command palette key', tab: 'behavior' },
-  { key: 'tray_recent_projects_count', label: 'Tray recent projects count', tab: 'behavior' },
-  { key: 'last_opened_time_format', label: 'Time format', tab: 'display' },
-  { key: 'last_opened_date_format', label: 'Date format', tab: 'display' },
-  { key: 'theme_mode', label: 'Theme mode', tab: 'appearance' },
-  { key: 'accent_color', label: 'Accent color', tab: 'appearance' },
-  { key: 'background_color', label: 'Background color', tab: 'appearance' },
-  { key: 'corner_radius', label: 'Corner radius', tab: 'appearance' },
-  { key: 'ui_density', label: 'UI density', tab: 'appearance' },
-  { key: 'font_scale', label: 'Text size', tab: 'appearance' },
-  { key: 'reduce_motion', label: 'Reduce motion', tab: 'appearance' },
-  { key: 'feeling_lucky', label: "I'm Feeling Lucky, random colors", tab: 'appearance' },
-  { key: 'reset_colors', label: 'Reset colors to default', tab: 'appearance' },
-  { key: 'sidebar_width', label: 'Sidebar width', tab: 'appearance' },
-  { key: 'setup_wizard', label: 'Run setup wizard', tab: 'advanced' },
-  { key: 'reset_settings', label: 'Reset settings to default', tab: 'advanced' },
-  { key: 'delete_app_data', label: 'Delete app data', tab: 'advanced' },
-  { key: 'check_updates', label: 'Check for updates', tab: 'advanced' },
-  { key: 'show_support_button', label: 'Show support button in titlebar', tab: 'advanced' },
-  { key: 'show_star_button', label: 'Show star button in titlebar', tab: 'advanced' },
-  { key: 'show_scrollbars', label: 'Show scrollbar', tab: 'appearance' },
-  { key: 'project_icon_opacity', label: 'Project icon opacity', tab: 'appearance' },
+  { key: 'project_scan_dirs', tab: 'storage' },
+  { key: 'version_scan_dirs', tab: 'storage' },
+  { key: 'default_project_location', tab: 'storage' },
+  { key: 'download_dir', tab: 'storage' },
+  { key: 'scan_depth', tab: 'storage' },
+  { key: 'download_concurrency', tab: 'storage' },
+  { key: 'close_on_project_open', tab: 'behavior' },
+  { key: 'minimize_to_tray', tab: 'behavior' },
+  { key: 'reopen_after_godot_closes', tab: 'behavior' },
+  { key: 'auto_scan_on_startup', tab: 'behavior' },
+  { key: 'categories_enabled', tab: 'behavior' },
+  { key: 'workspaces_enabled', tab: 'behavior' },
+  { key: 'tooltip_delay', tab: 'behavior' },
+  { key: 'command_palette_keybind', tab: 'behavior' },
+  { key: 'tray_recent_projects_count', tab: 'behavior' },
+  { key: 'last_opened_time_format', tab: 'display' },
+  { key: 'last_opened_date_format', tab: 'display' },
+  { key: 'theme_mode', tab: 'appearance' },
+  { key: 'accent_color', tab: 'appearance' },
+  { key: 'background_color', tab: 'appearance' },
+  { key: 'corner_radius', tab: 'appearance' },
+  { key: 'ui_density', tab: 'appearance' },
+  { key: 'font_scale', tab: 'appearance' },
+  { key: 'reduce_motion', tab: 'appearance' },
+  { key: 'feeling_lucky', tab: 'appearance' },
+  { key: 'reset_colors', tab: 'appearance' },
+  { key: 'sidebar_width', tab: 'appearance' },
+  { key: 'setup_wizard', tab: 'advanced' },
+  { key: 'reset_settings', tab: 'advanced' },
+  { key: 'delete_app_data', tab: 'advanced' },
+  { key: 'check_updates', tab: 'advanced' },
+  { key: 'show_support_button', tab: 'advanced' },
+  { key: 'show_star_button', tab: 'advanced' },
+  { key: 'show_scrollbars', tab: 'appearance' },
+  { key: 'project_icon_opacity', tab: 'appearance' },
   ] as SettingSearchEntry[]
 ).filter((item) => !(isMac && item.key === 'minimize_to_tray'))
 
@@ -266,6 +267,7 @@ export function CommandPalette({
   activeWorkspaceId = '',
   paletteKey = 'k',
 }: Props) {
+  const { t } = useTranslation(['common', 'settings'])
   const [query, setQuery] = useState('')
   const [selectedIndex, setSelectedIndex] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -310,10 +312,10 @@ export function CommandPalette({
       items.push({
         id: `recent:${p.id}`,
         label: p.name,
-        sublabel: `Opened ${formatLastOpened(p.last_opened) || 'recently'}`,
+        sublabel: t('opened_recently', { label: formatLastOpened(p.last_opened) || 'recently' }),
         shortcut: navShortcuts.projects,
         icon: <IconClock className="w-4 h-4" />,
-        section: 'Recent',
+        section: t('recent_section'),
         action: () => {
           window.dispatchEvent(new CustomEvent('app:switch-tab', { detail: 0 }))
           window.dispatchEvent(
@@ -330,7 +332,7 @@ export function CommandPalette({
         sublabel: p.path,
         shortcut: navShortcuts.projects,
         icon: <IconNode className="w-4 h-4" />,
-        section: 'Projects',
+        section: t('projects_section'),
         action: () => {
           window.dispatchEvent(new CustomEvent('app:switch-tab', { detail: 0 }))
           window.dispatchEvent(
@@ -347,7 +349,7 @@ export function CommandPalette({
         sublabel: v.executable_path,
         shortcut: navShortcuts.versions,
         icon: <IconPlay className="w-4 h-4" />,
-        section: 'Installed Versions',
+        section: t('installed_versions_section'),
         action: () => {
           window.dispatchEvent(new CustomEvent('app:switch-tab', { detail: 1 }))
         },
@@ -357,11 +359,11 @@ export function CommandPalette({
     for (const s of SETTINGS_SEARCH_ITEMS) {
       items.push({
         id: `setting:${s.key}`,
-        label: s.label,
-        sublabel: `Settings → ${s.tab.charAt(0).toUpperCase() + s.tab.slice(1)}`,
+        label: t(`setting_${s.key}`, { ns: 'settings' }),
+        sublabel: t('settings_label', { tab: s.tab.charAt(0).toUpperCase() + s.tab.slice(1) }),
         shortcut: navShortcuts.settings,
         icon: <IconGear className="w-4 h-4" />,
-        section: 'Settings',
+        section: t('settings_section'),
         action: () => {
           window.dispatchEvent(
             new CustomEvent('app:open-setting', { detail: s.key }),
@@ -375,15 +377,15 @@ export function CommandPalette({
       const active = w.id === activeWorkspaceId
       items.push({
         id: `workspace:${w.id}`,
-        label: active ? `${w.name} (active)` : w.name,
-        sublabel: active ? 'Current workspace' : 'Switch workspace',
+        label: active ? t('active_workspace', { name: w.name }) : w.name,
+        sublabel: active ? t('current_workspace') : t('switch_workspace'),
         icon: (
           <WsIcon
             className="w-4 h-4"
             style={{ color: w.color }}
           />
         ),
-        section: 'Workspaces',
+        section: t('workspaces_section'),
         action: () => {
           window.dispatchEvent(
             new CustomEvent('app:switch-workspace', { detail: w.id }),
@@ -404,11 +406,15 @@ export function CommandPalette({
     const q = query.trim().toLowerCase()
     const results = q
       ? allItems.filter((item) => {
-          const label = 'label' in item ? item.label.toLowerCase() : ''
+          const label = 'labelKey' in item
+            ? t(item.labelKey).toLowerCase()
+            : item.label.toLowerCase()
           const sublabel = 'sublabel' in item
             ? (item as DynamicItem).sublabel.toLowerCase()
             : ''
-          const section = item.section.toLowerCase()
+          const section = 'sectionKey' in item
+            ? t(item.sectionKey).toLowerCase()
+            : item.section.toLowerCase()
           return (
             label.includes(q) ||
             sublabel.includes(q) ||
@@ -419,8 +425,11 @@ export function CommandPalette({
 
     const sections = new Map<string, ResultItem[]>()
     for (const item of results) {
-      if (!sections.has(item.section)) sections.set(item.section, [])
-      sections.get(item.section)!.push(item)
+      const section = 'sectionKey' in item
+        ? t(item.sectionKey)
+        : item.section
+      if (!sections.has(section)) sections.set(section, [])
+      sections.get(section)!.push(item)
     }
     return [...sections.entries()]
   }, [query, allItems])
@@ -503,7 +512,7 @@ export function CommandPalette({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Search commands, projects, engines, settings…"
+            placeholder={t('command_palette_placeholder')}
             className="flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-muted/50"
           />
           <kbd className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-raised border border-line text-muted/60 shrink-0">
@@ -518,7 +527,7 @@ export function CommandPalette({
           {flatList.length === 0 ? (
             <div className="py-8 text-center">
               <p className="text-xs text-muted">
-                No results match{' '}
+                {t('command_palette_no_results')}{' '}
                 <span className="font-mono text-ink">"{query}"</span>
               </p>
             </div>
@@ -555,7 +564,7 @@ export function CommandPalette({
                         {item.icon}
                       </span>
                       <div className="flex-1 text-left min-w-0">
-                        <span className="block truncate">{item.label}</span>
+                        <span className="block truncate">{'labelKey' in item ? t(item.labelKey) : item.label}</span>
                         {isDynamic && (
                           <span className="block text-[10px] text-muted/50 truncate">
                             {(item as DynamicItem).sublabel}
@@ -578,15 +587,15 @@ export function CommandPalette({
         <div className="px-4 py-2 border-t border-line flex items-center gap-4 text-[10px] text-muted/50">
           <span>
             <kbd className="font-mono px-1 bg-raised rounded border border-line">↑↓</kbd>{' '}
-            Navigate
+            {t('command_palette_navigate')}
           </span>
           <span>
             <kbd className="font-mono px-1 bg-raised rounded border border-line">↵</kbd>{' '}
-            Select
+            {t('command_palette_select')}
           </span>
           <span>
-            <kbd className="font-mono px-1 bg-raised rounded border border-line">Esc</kbd>{' '}
-            Close
+            <kbd className="font-mono px-1 bg-raised rounded border border-line">{t('command_palette_escape')}</kbd>{' '}
+            {t('command_palette_close')}
           </span>
         </div>
       </motion.div>

@@ -47,8 +47,8 @@ export const api = {
     invoke<InstalledGodotVersion>('rename_godot_version', { tag, customName }),
   deleteGodotVersion: (tag: string) =>
     invoke<void>('delete_godot_version', { tag }),
-  openGodotVersion: (tag: string) =>
-    invoke<void>('open_godot_version', { tag }),
+  openGodotVersion: (tag: string, withConsole?: boolean) =>
+    invoke<void>('open_godot_version', { tag, console: withConsole ?? null }),
   testGithubToken: () =>
     invoke<{ remaining: number; limit: number; reset_at: number; used_token: boolean }>('test_github_token'),
   getGithubRateLimit: () =>
@@ -65,8 +65,10 @@ export const api = {
     invoke<Project>('update_project', { id, updates }),
   reorderProjects: (orderedIds: string[]) =>
     invoke<void>('reorder_projects', { orderedIds }),
-  openProject: (id: string, editor: boolean) =>
-    invoke<void>('open_project', { id, editor }),
+  saveProjectTags: (id: string, path: string, tags: string[]) =>
+    invoke<Project>('write_project_tags', { id, path, tags }),
+  openProject: (id: string, editor: boolean, withConsole?: boolean) =>
+    invoke<void>('open_project', { id, editor, console: withConsole ?? null }),
   stopProject: (id: string) =>
     invoke<void>('stop_project', { id }),
   openProjectFolder: (path: string) =>

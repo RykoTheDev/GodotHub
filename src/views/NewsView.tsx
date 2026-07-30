@@ -1,4 +1,5 @@
 import { openUrl } from '@tauri-apps/plugin-opener'
+import { useTranslation } from 'react-i18next'
 import { useNews } from '../hooks/useNews'
 import {
   IconNews,
@@ -76,6 +77,7 @@ function NewsCardSkeleton() {
 }
 
 export function NewsView() {
+  const { t } = useTranslation('common')
   const { items, hasMore, loading, error, fromCache, showMore, reload } =
     useNews()
 
@@ -85,10 +87,10 @@ export function NewsView() {
         <div className="flex items-start justify-between gap-4 mb-5">
           <div>
             <h2 className="font-body font-semibold text-3xl tracking-tight">
-              NEWS
+              {t('news_title')}
             </h2>
             <p className="text-xs text-muted">
-              Latest posts from the official Godot Engine blog.
+              {t('news_subtitle')}
             </p>
           </div>
           <button
@@ -99,15 +101,14 @@ export function NewsView() {
             <IconRefresh
               className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`}
             />
-            Refresh
+            {t('refresh')}
           </button>
         </div>
 
         {fromCache && (
           <div className="mb-5 flex items-center gap-2.5 rounded-lg border border-line bg-raised/60 px-4 py-2.5 text-xs text-muted">
             <IconWifiOff className="w-3.5 h-3.5 shrink-0" />
-            Couldn't reach godotengine.org, showing the articles saved from last
-            time.
+            {t('news_cached')}
           </div>
         )}
 
@@ -123,14 +124,14 @@ export function NewsView() {
               <IconWifiOff className="w-5 h-5 text-muted" />
             </div>
             <p className="text-sm text-muted max-w-xs leading-relaxed">
-              Couldn't load Godot news. {error}
+              {t('news_error')} {error}
             </p>
             <button
               onClick={reload}
               className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm transition-colors"
             >
               <IconRefresh className="w-3.5 h-3.5" />
-              Try again
+              {t('try_again')}
             </button>
           </div>
         ) : items.length === 0 ? (
@@ -139,7 +140,7 @@ export function NewsView() {
               <IconNews className="w-5 h-5 text-muted" />
             </div>
             <p className="text-sm text-muted max-w-xs leading-relaxed">
-              No news to show right now.
+              {t('news_empty')}
             </p>
           </div>
         ) : (
@@ -158,7 +159,7 @@ export function NewsView() {
                   onClick={showMore}
                   className="focus-ring cursor-pointer px-5 py-2.5 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
                 >
-                  Show more
+                  {t('show_more')}
                 </button>
               </div>
             )}

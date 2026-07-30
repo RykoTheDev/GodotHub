@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useChangelog } from '../hooks/useChangelog'
 import { ChangelogEntryModal } from '../components/modals/ChangelogEntryModal'
@@ -26,12 +27,11 @@ function formatDate(raw: string): string {
 
 const GROUPS: {
   key: ChangelogNote['category']
-  label: string
   color: string
 }[] = [
-  { key: 'add', label: 'Added', color: 'text-mint' },
-  { key: 'fix', label: 'Fixed', color: 'text-danger' },
-  { key: 'improve', label: 'Improved', color: 'text-accent-bright' },
+  { key: 'add', color: 'text-mint' },
+  { key: 'fix', color: 'text-danger' },
+  { key: 'improve', color: 'text-accent-bright' },
 ]
 
 function EntryCard({
@@ -45,6 +45,7 @@ function EntryCard({
   onEdit: () => void
   onDelete: () => void
 }) {
+  const { t } = useTranslation('changelog')
   return (
     <motion.div
       layout
@@ -101,7 +102,7 @@ function EntryCard({
                     <p
                       className={`text-[10px] font-semibold uppercase tracking-wide mb-1 ${g.color}`}
                     >
-                      {g.label}
+                      {t(g.key)}
                     </p>
                     <ul className="flex flex-col gap-1.5">
                       {items.map((n, i) => (
@@ -126,6 +127,7 @@ function EntryCard({
 }
 
 export function ChangelogView() {
+  const { t } = useTranslation('changelog')
   const { entries, loading, addEntry, updateEntry, removeEntry } =
     useChangelog()
   const [modalOpen, setModalOpen] = useState(false)
@@ -148,9 +150,9 @@ export function ChangelogView() {
       <div className="flex items-center justify-between mb-8">
         <div>
           <h2 className="font-body font-semibold text-3xl tracking-tight">
-            CHANGELOG
+            {t('changelog_title')}
           </h2>
-          <p className="text-xs text-muted">A history of GodotHub updates.</p>
+          <p className="text-xs text-muted">{t('changelog_subtitle')}</p>
         </div>
         {IS_DEV && (
           <motion.button
@@ -162,7 +164,7 @@ export function ChangelogView() {
             <span className="icon-wiggle inline-flex">
               <IconPlus className="w-4 h-4" />
             </span>
-            Add Entry
+            {t('common:add_entry')}
           </motion.button>
         )}
       </div>
@@ -182,7 +184,7 @@ export function ChangelogView() {
             <IconBookOpen className="w-5 h-5 text-muted" />
           </div>
           <p className="text-sm text-muted max-w-xs leading-relaxed">
-            No changelog entries yet
+            {t('no_entries')}
           </p>
         </div>
       ) : (
@@ -218,9 +220,9 @@ export function ChangelogView() {
       <AnimatePresence>
         {confirmingDeleteId && (
           <ConfirmDialog
-            title="Delete changelog entry?"
-            description="This removes the entry permanently. This can't be undone."
-            confirmLabel="Delete"
+            title={t('delete_entry_title')}
+            description={t('delete_entry_desc')}
+            confirmLabel={t('delete')}
             variant="danger"
             onConfirm={async () => {
               await removeEntry(confirmingDeleteId)

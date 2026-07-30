@@ -11,6 +11,8 @@ pub struct InstalledGodotVersion {
     pub custom_name: Option<String>,
     #[serde(default)]
     pub install_root: Option<String>,
+    #[serde(default)]
+    pub supports_console: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -56,6 +58,8 @@ pub struct Project {
     pub sort_order: i64,
     #[serde(default)]
     pub launch_arguments: String,
+    #[serde(default)]
+    pub tags: Vec<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -100,6 +104,8 @@ pub struct ProjectUpdate {
     pub pinned: Option<bool>,
     #[serde(default)]
     pub launch_arguments: Option<String>,
+    #[serde(default)]
+    pub tags: Option<Vec<String>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -136,6 +142,8 @@ pub struct AppSettings {
     pub reduce_motion: bool,
     #[serde(default = "default_theme_mode")]
     pub theme_mode: String,
+    #[serde(default)]
+    pub launch_with_console: bool,
     #[serde(default)]
     pub close_on_project_open: bool,
     #[serde(default)]
@@ -180,6 +188,12 @@ pub struct AppSettings {
     pub show_scrollbars: bool,
     #[serde(default = "default_project_icon_opacity")]
     pub project_icon_opacity: u32,
+    #[serde(default = "default_language")]
+    pub language: String,
+}
+
+fn default_language() -> String {
+    "en-US".to_string()
 }
 
 fn default_project_icon_opacity() -> u32 {
@@ -321,6 +335,7 @@ impl Default for AppSettings {
             corner_radius: default_corner_radius(),
             ui_density: default_ui_density(),
             font_scale: default_font_scale(),
+            launch_with_console: false,
             reduce_motion: false,
             theme_mode: default_theme_mode(),
             close_on_project_open: false,
@@ -345,6 +360,7 @@ tooltip_delay: default_tooltip_delay(),
             show_star_button: true,
             show_scrollbars: true,
             project_icon_opacity: 14,
+            language: default_language(),
         }
     }
 }

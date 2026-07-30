@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { IconChevronDown } from '../Icons'
 
 export interface DropdownOption {
@@ -24,10 +25,12 @@ export function Dropdown({
   value,
   options,
   onChange,
-  emptyLabel = 'Choose Version',
+  emptyLabel: emptyLabelProp,
   className = '',
   openUp,
 }: Props) {
+  const { t } = useTranslation('versions')
+  const emptyLabel = emptyLabelProp ?? t('choose_version')
   const [open, setOpen] = useState(false)
   const [computedOpenUp, setComputedOpenUp] = useState(false)
   const ref = useRef<HTMLDivElement>(null)

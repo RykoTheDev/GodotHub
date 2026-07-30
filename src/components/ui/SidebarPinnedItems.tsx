@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { api } from '../../lib/api'
 import { Tooltip } from './Tooltip'
 import { IconPlay, IconX } from '../Icons'
@@ -22,6 +23,7 @@ function SidebarProjectItem({
   onOpen: (id: string) => void
   onUnpin?: (id: string) => void
 }) {
+  const { t } = useTranslation('common')
   const [icon, setIcon] = useState<string | null>(null)
   const [settingsName, setSettingsName] = useState<string | null>(null)
   const displayName = settingsName ?? project.name
@@ -51,7 +53,7 @@ function SidebarProjectItem({
       <Tooltip key={project.id} content={displayName} side="right">
         <button
           onClick={() => onOpen(project.id)}
-          aria-label={`Open ${displayName}`}
+          aria-label={t('open_project_sidebar', { name: displayName })}
           className="focus-ring cursor-pointer w-11 h-11 flex items-center justify-center rounded-lg text-muted hover:text-ink hover:bg-raised/60 transition-colors relative overflow-hidden"
         >
           {icon ? (
@@ -91,14 +93,14 @@ function SidebarProjectItem({
       <div className="relative z-1 flex items-center gap-0.5 opacity-0 group-hover/card:opacity-100 transition-opacity">
         <button
           onClick={() => onOpen(project.id)}
-          aria-label={`Open ${displayName}`}
+          aria-label={t('open_project_sidebar', { name: displayName })}
           className="focus-ring cursor-pointer p-1 rounded-md text-muted/60 hover:text-accent-bright hover:bg-raised transition-colors"
         >
           <IconPlay className="w-3 h-3" />
         </button>          {onUnpin && (
             <button
               onClick={() => onUnpin(project.id)}
-              aria-label={`Remove ${displayName} from sidebar`}
+              aria-label={t('remove_from_sidebar', { name: displayName })}
               className="focus-ring cursor-pointer p-1 rounded-md text-muted/60 hover:text-danger hover:bg-danger/10 transition-colors"
             >
               <IconX className="w-3 h-3" />

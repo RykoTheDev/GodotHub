@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTaskTray, type Task } from '../hooks/useTaskTray'
 import { Tooltip } from './ui/Tooltip'
@@ -41,39 +42,40 @@ function TaskIcon({ task }: { task: Task }) {
 }
 
 function StatusBadge({ status }: { status: Task['status'] }) {
+  const { t } = useTranslation('common')
   switch (status) {
     case 'queued':
       return (
         <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted/10 text-muted/70 border border-line/50">
-          Queued
+          {t('queued')}
         </span>
       )
     case 'running':
       return (
         <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-accent/10 text-accent-bright border border-accent-dim/30 flex items-center gap-1">
           <IconRefresh className="w-2.5 h-2.5 animate-spin" />
-          Active
+          {t('active')}
         </span>
       )
     case 'paused':
       return (
         <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber/10 text-amber border border-amber/30 flex items-center gap-1">
           <IconPause className="w-2.5 h-2.5" />
-          Paused
+          {t('paused')}
         </span>
       )
     case 'completed':
       return (
         <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-mint/10 text-mint border border-mint/30 flex items-center gap-1">
           <IconCircleCheck className="w-2.5 h-2.5" />
-          Done
+          {t('done')}
         </span>
       )
     case 'error':
       return (
         <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-danger/10 text-danger border border-danger/30 flex items-center gap-1">
           <IconCircleX className="w-2.5 h-2.5" />
-          Error
+          {t('task_error_status')}
         </span>
       )
   }
@@ -131,6 +133,7 @@ function TaskItem({ task }: { task: Task }) {
 }
 
 export function TaskTray() {
+  const { t } = useTranslation('common')
   const { tasks, activeCount, clearCompleted } = useTaskTray()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
@@ -161,22 +164,22 @@ export function TaskTray() {
   )
 
   const tooltipContent = useMemo(() => {
-    if (activeCount === 0) return 'No active tasks'
+    if (activeCount === 0) return t('task_tray_empty')
     const labels = tasks
       .filter((t) => t.status === 'queued' || t.status === 'running')
       .slice(0, 3)
       .map((t) => t.label)
-    if (labels.length === 0) return `${activeCount} active task${activeCount !== 1 ? 's' : ''}`
+    if (labels.length === 0) return activeCount === 1 ? t('task_tray_active_tasks', { count: 1 }) : t('task_tray_active_tasks_plural', { count: activeCount })
     const preview = labels.join(', ')
     const remaining = activeCount - labels.length
-    if (remaining > 0) return `${preview} +${remaining} more`
+    if (remaining > 0) return t('task_tray_more', { preview, remaining })
     return preview
-  }, [tasks, activeCount])
+  }, [t, tasks, activeCount])
 
   const bellButton = (
     <motion.button
       onClick={() => setOpen((o) => !o)}
-      aria-label="Task Tray"
+      aria-label={t('task_tray_aria')}
       className="relative w-9 cursor-pointer flex items-center justify-center text-muted hover:text-ink transition-colors shrink-0"
       whileHover={{
         y: -2,
@@ -226,14 +229,14 @@ export function TaskTray() {
           >
             <div className="px-4 py-2.5 border-b border-line/50 mb-1">
               <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">
-                Tasks
+                {t('task_tray_title')}
               </h3>
               <p className="text-[10px] text-muted/50 mt-0.5">
                 {hasActivity
-                  ? `${activeCount} active, ${tasks.length - activeCount} recent`
+                  ? t('task_tray_active_count', { active: activeCount, recent: tasks.length - activeCount })
                   : empty
-                    ? 'No active tasks'
-                    : `${tasks.length} recent task${tasks.length !== 1 ? 's' : ''}`}
+                    ? t('task_tray_empty')
+                    : tasks.length === 1 ? t('task_tray_only_recent', { count: 1 }) : t('task_tray_only_recent_plural', { count: tasks.length })}
               </p>
             </div>
             <div className="flex flex-col">
@@ -249,11 +252,9 @@ export function TaskTray() {
                       <IconBell className="w-4 h-4 text-muted/50" />
                     </div>
                     <div>
-                      <p className="text-xs text-muted font-medium">No tasks running</p>
+                      <p className="text-xs text-muted font-medium">{t('no_tasks_running')}</p>
                       <p className="text-[10px] text-muted/50 mt-2 leading-relaxed max-w-[220px]">
-                        Background operations like downloading Godot versions, scanning
-                        for projects &amp; versions, syncing templates, and cloning
-                        repositories will appear here with live progress.
+                        {t('no_tasks_desc')}
                       </p>
                     </div>
                   </motion.div>
@@ -267,7 +268,7 @@ export function TaskTray() {
             {!empty && (
               <div className="border-t border-line/50 mt-1 pt-1.5 px-1 flex items-center justify-between">
                 <p className="text-[9px] text-muted/40">
-                  Completed auto-dismiss
+                  {t('task_tray_auto_dismiss')}
                 </p>
                 {dismissibleCount > 0 && (
                   <motion.button
@@ -277,7 +278,7 @@ export function TaskTray() {
                     className="focus-ring cursor-pointer flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-medium text-muted hover:text-ink hover:bg-raised transition-all"
                   >
                     <IconX className="w-3 h-3" />
-                    Dismiss {dismissibleCount}
+                    {t('task_tray_dismiss', { count: dismissibleCount })}
                   </motion.button>
                 )}
               </div>

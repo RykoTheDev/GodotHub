@@ -1,16 +1,18 @@
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { IconStore } from '../components/Icons'
 
 export function AssetStoreView() {
+  const { t } = useTranslation('common')
   return (
     <div className="p-10 pt-6 max-w-8xl mx-auto flex flex-col gap-6">
       <div className="flex items-center gap-4">
         <div>
           <h2 className="font-body font-semibold text-3xl tracking-tight">
-            ASSET STORE
+            {t('asset_store_title')}
           </h2>
           <p className="text-xs text-muted">
-            Browse, install, and manage Godot assets from the community.
+            {t('asset_subtitle')}
           </p>
         </div>
       </div>
@@ -26,11 +28,10 @@ export function AssetStoreView() {
         </div>
         <div className="text-center max-w-xs">
           <h3 className="font-display font-semibold text-lg text-ink">
-            Coming Soon
+            {t('asset_coming_soon')}
           </h3>
           <p className="text-sm text-muted mt-1.5 leading-relaxed">
-            The Asset Store is being built. Soon you'll be able to browse,
-            and install them into your templates or projects with a single click.
+            {t('asset_description')}
           </p>
         </div>
       </motion.div>

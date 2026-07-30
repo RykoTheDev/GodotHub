@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import type { Category, InstalledGodotVersion, ProjectTemplate } from '../../types'
 import { api } from '../../lib/api'
 import { Dropdown } from '../ui/Dropdown'
@@ -35,6 +36,7 @@ export function CreateProjectModal({
   onCreated,
   categories = [],
 }: Props) {
+  const { t } = useTranslation('common')
   const [name, setName] = useState('')
   const [location, setLocation] = useState(defaultLocation ?? '')
   const [version, setVersion] = useState(installedVersions[0]?.tag ?? '')
@@ -93,7 +95,7 @@ export function CreateProjectModal({
 
   const submit = async () => {
     if (!name || !location) {
-      setError('Give the project a name and a folder to create it in.')
+      setError(t('create_project_error'))
       return
     }
     setBusy(true)
@@ -124,16 +126,16 @@ export function CreateProjectModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div>
-          <h3 className="font-display font-semibold text-xl">New Project</h3>
+          <h3 className="font-display font-semibold text-xl">{t('create_project_title')}</h3>
           <p className="text-xs text-muted mt-1">
-            Creates a fresh project.godot in the folder you choose.
+            {t('create_project_desc')}
           </p>
         </div>
 
         {/* Row 1: Name + Location */}
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-medium text-muted">Name</label>
+            <label className="text-xs font-medium text-muted">{t('project_name_label')}</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -143,13 +145,13 @@ export function CreateProjectModal({
           </div>
 
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-medium text-muted">Location</label>
+            <label className="text-xs font-medium text-muted">{t('project_location_label')}</label>
             <div className="flex gap-2.5">
               <input
                 value={location}
                 readOnly
                 className="flex-1 bg-raised border border-line rounded-lg px-3.5 py-2.5 text-sm font-mono text-muted truncate"
-                placeholder="Choose a folder"
+                placeholder={t('choose_folder_placeholder')}
               />
               <motion.button
                 whileHover={{ y: -1 }}
@@ -157,7 +159,7 @@ export function CreateProjectModal({
                 onClick={pickLocation}
                 className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm transition-colors shrink-0"
               >
-                Browse
+                {t('browse')}
               </motion.button>
             </div>
           </div>
@@ -168,9 +170,8 @@ export function CreateProjectModal({
           {templates.length > 0 && (
             <div className="flex flex-col gap-2">
               <label className="text-xs font-medium text-muted">
-                Template{' '}
-                <span className="text-muted/60 font-normal">(optional)</span>
-              </label>
+                  {t('template_optional')}
+                </label>
               <div className="flex flex-wrap gap-1.5">
                 <button
                   type="button"
@@ -181,7 +182,7 @@ export function CreateProjectModal({
                       : 'border-line text-muted hover:border-accent-dim hover:text-ink'
                   }`}
                 >
-                  Blank
+                  {t('blank_template')}
                 </button>
                 {templates.map((t) => (
                   <button
@@ -200,7 +201,7 @@ export function CreateProjectModal({
               </div>
               {templateId && (
                 <p className="text-[10px] text-muted/60">
-                  Files from the template will be copied into the new project.
+                  {t('template_copy_desc')}
                 </p>
               )}
             </div>
@@ -209,13 +210,12 @@ export function CreateProjectModal({
           {categories.length > 0 && (
             <div className={`flex flex-col gap-2 ${templates.length === 0 ? 'col-span-2' : ''}`}>
               <label className="text-xs font-medium text-muted">
-                Category{' '}
-                <span className="text-muted/60 font-normal">(optional)</span>
+                {t('category_optional')}
               </label>
               <Dropdown
                 value={category}
                 onChange={setCategory}
-                emptyLabel="No category"
+                emptyLabel={t('no_category_label')}
                 options={categories.map((c) => ({
                   value: c.name,
                   label: c.name,
@@ -230,7 +230,7 @@ export function CreateProjectModal({
         {/* Row 3: Version + Icon */}
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
-            <label className="text-xs font-medium text-muted">Godot Version</label>
+            <label className="text-xs font-medium text-muted">{t('godot_version_label')}</label>
             <Dropdown
               value={version}
               onChange={setVersion}
@@ -243,15 +243,14 @@ export function CreateProjectModal({
             />
             {installedVersions.length === 0 && (
               <p className="text-xs text-amber">
-                No engine installed yet, grab one from the Versions tab first.
+                {t('no_engine_warning')}
               </p>
             )}
           </div>
 
           <div className="flex flex-col gap-2">
             <label className="text-xs font-medium text-muted">
-              Project Icon{' '}
-              <span className="text-muted/60 font-normal">(optional)</span>
+              {t('project_icon_label')}
             </label>
             <div className="flex items-center gap-3">
               {/* Icon preview */}
@@ -265,7 +264,7 @@ export function CreateProjectModal({
                   onClick={pickIcon}
                   className="focus-ring cursor-pointer px-3 py-2 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-xs transition-colors"
                 >
-                  {iconPath ? 'Change' : 'Choose'}
+                  {iconPath ? t('change_icon') : t('choose_icon')}
                 </motion.button>
                 {iconPath && (
                   <motion.button
@@ -276,7 +275,7 @@ export function CreateProjectModal({
                     onClick={clearIcon}
                     className="focus-ring cursor-pointer px-3 py-2 rounded-lg border border-line text-muted hover:text-danger hover:border-danger/30 hover:bg-danger/10 text-xs transition-colors"
                   >
-                    Reset
+                    {t('reset_icon')}
                   </motion.button>
                 )}
               </div>
@@ -287,7 +286,7 @@ export function CreateProjectModal({
               </p>
             )}
             <p className="text-[10px] text-muted/40">
-              SVG, PNG, or JPG. Defaults to Godot logo.
+              {t('icon_format_desc')}
             </p>
           </div>
         </div>
@@ -301,7 +300,7 @@ export function CreateProjectModal({
             onClick={onClose}
             className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
           >
-            Cancel
+            {t('cancel')}
           </motion.button>
           <motion.button
             whileHover={busy ? undefined : { y: -1 }}
@@ -310,7 +309,7 @@ export function CreateProjectModal({
             disabled={busy}
             className="focus-ring px-5 cursor-pointer py-2.5 rounded-lg bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white transition-colors"
           >
-            {busy ? 'Creating…' : 'Create Project'}
+            {busy ? t('creating') : t('create_project_btn')}
           </motion.button>
         </div>
       </motion.div>

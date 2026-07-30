@@ -87,13 +87,6 @@ jobs:
           uploadUpdaterJson: true
           updaterJsonPreferNsis: true
 
-      - name: Patch AppImage with Wayland fix (Linux only, non-fatal)
-        if: runner.os == 'Linux'
-        shell: bash
-        run: |
-          chmod +x src-tauri/scripts/patch-appimage-wayland.sh
-          bash src-tauri/scripts/patch-appimage-wayland.sh || echo "⚠️ AppImage patching skipped (non-fatal)"
-
       - name: Upload standalone executable (Windows only)
         if: runner.os == 'Windows'
         shell: bash

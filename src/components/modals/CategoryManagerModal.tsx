@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   DndContext,
@@ -48,6 +49,7 @@ interface Props {
 }
 
 function SortableCategoryItem({
+  t,
   category,
   editing,
   editValue,
@@ -59,6 +61,7 @@ function SortableCategoryItem({
   onEditColorChange,
   onConfirmDelete,
 }: {
+  t: (key: string, options?: Record<string, unknown>) => string
   category: Category
   editing: boolean
   editValue: string
@@ -67,7 +70,7 @@ function SortableCategoryItem({
   onSubmitEdit: () => void
   onCancelEdit: () => void
   onEditValueChange: (value: string) => void
-  onEditColorChange: (color: string) => void
+  onEditColorChange: (value: string) => void
   onConfirmDelete: () => void
 }) {
   const {
@@ -125,14 +128,14 @@ function SortableCategoryItem({
           <div className="flex flex-col gap-1 shrink-0">
             <button
               onClick={onSubmitEdit}
-              aria-label="Save"
+              aria-label={t('save')}
               className="focus-ring cursor-pointer p-1.5 rounded-md text-mint hover:bg-surface transition-colors"
             >
               <IconCheck className="w-4 h-4" />
             </button>
             <button
               onClick={onCancelEdit}
-              aria-label="Cancel"
+              aria-label={t('cancel')}
               className="focus-ring cursor-pointer p-1.5 rounded-md text-muted hover:bg-surface transition-colors"
             >
               <IconX className="w-3.5 h-3.5" />
@@ -148,14 +151,14 @@ function SortableCategoryItem({
           <span className="flex-1 text-sm truncate">{category.name}</span>
           <button
             onClick={onStartEdit}
-            aria-label={`Edit ${category.name}`}
+            aria-label={t('edit_category', { name: category.name })}
             className="focus-ring cursor-pointer p-1.5 rounded-md text-muted opacity-0 group-hover:opacity-100 hover:text-ink hover:bg-surface transition-colors"
           >
             <IconPencil className="w-3.5 h-3.5" />
           </button>
           <button
             onClick={onConfirmDelete}
-            aria-label={`Delete ${category.name}`}
+            aria-label={t('delete_category', { name: category.name })}
             className="focus-ring cursor-pointer p-1.5 rounded-md text-muted opacity-0 group-hover:opacity-100 hover:text-danger hover:bg-surface transition-colors"
           >
             <IconTrash className="w-3.5 h-3.5" />
@@ -174,6 +177,7 @@ export function CategoryManagerModal({
   onDelete,
   onReorder,
 }: Props) {
+  const { t } = useTranslation('common')
   const [newName, setNewName] = useState('')
   const [newColor, setNewColor] = useState(CATEGORY_COLORS[0])
   const [error, setError] = useState<string | null>(null)
@@ -288,12 +292,11 @@ export function CategoryManagerModal({
       >
         <div>
           <h3 className="font-display font-semibold text-lg">
-            Manage Categories
-          </h3>
-          <p className="text-xs text-muted mt-1.5">
-            Create your own categories, drag to reorder, and file projects into
-            them from the Projects list.
-          </p>
+              {t('manage_categories_title')}
+            </h3>
+            <p className="text-xs text-muted mt-1.5">
+              {t('manage_categories_desc')}
+            </p>
         </div>
 
         <div className="flex flex-col gap-3">
@@ -302,7 +305,7 @@ export function CategoryManagerModal({
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && submitNew()}
-              placeholder="New category name…"
+              placeholder={t('new_category_placeholder')}
               className="focus-ring flex-1 bg-raised border border-line rounded-lg px-3.5 py-2.5 text-sm focus:border-accent-dim transition-colors"
             />
             <motion.button
@@ -313,11 +316,11 @@ export function CategoryManagerModal({
               className="focus-ring cursor-pointer shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-accent hover:bg-accent-bright disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium text-white transition-colors"
             >
               <IconPlus className="w-3.5 h-3.5" />
-              Add
+              {t('add')}
             </motion.button>
           </div>
           <ColorSwatchPicker
-            label="Color"
+            label={t('color_label')}
             value={newColor}
             onChange={setNewColor}
             presets={CATEGORY_COLORS}
@@ -339,7 +342,7 @@ export function CategoryManagerModal({
             <div className="flex flex-col gap-2 max-h-72 overflow-y-auto">
               {categories.length === 0 ? (
                 <p className="text-xs text-muted text-center py-6">
-                  No categories yet, add one above.
+                  {t('no_categories_yet')}
                 </p>
               ) : (
                 <AnimatePresence initial={false}>
@@ -349,6 +352,7 @@ export function CategoryManagerModal({
                     return (
                       <SortableCategoryItem
                         key={cat.id}
+                        t={t}
                         category={cat}
                         editing={editingId === cat.id}
                         editValue={editingId === cat.id ? editValue : ''}
@@ -393,7 +397,7 @@ export function CategoryManagerModal({
             onClick={onClose}
             className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
           >
-            Done
+            {t('done')}
           </motion.button>
         </div>
       </motion.div>
@@ -401,9 +405,9 @@ export function CategoryManagerModal({
       {confirmDelete && (
         <div onClick={(e) => e.stopPropagation()}>
           <ConfirmDialog
-            title="Delete category?"
-            description={`"${confirmDelete.name}" will be removed. Projects filed under it move to Uncategorized, nothing on disk is touched.`}
-            confirmLabel="Delete"
+            title={t('delete_category_title')}
+            description={t('delete_category_desc', { name: confirmDelete.name })}
+            confirmLabel={t('delete')}
             variant="danger"
             onConfirm={() => {
               onDelete(confirmDelete.id)

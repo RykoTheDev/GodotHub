@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from 'react'
+import i18n from './i18n'
 
 interface Props {
   children: ReactNode
@@ -40,10 +41,9 @@ export class ErrorBoundary extends Component<Props, State> {
           textAlign: 'center',
         }}
       >
-        <h1 style={{ fontSize: 18, fontWeight: 600 }}>Something went wrong</h1>
+        <h1 style={{ fontSize: 18, fontWeight: 600 }}>{i18n.t('common:app_error_title')}</h1>
         <p style={{ fontSize: 13, color: '#949ba4', maxWidth: 480 }}>
-          GodotHub hit an unexpected error and couldn't render. Details below,
-          check the console (right-click → Inspect) for the full stack trace.
+          {i18n.t('common:app_error_desc')}
         </p>
         <pre
           style={{
@@ -71,7 +71,7 @@ export class ErrorBoundary extends Component<Props, State> {
             fontSize: 13,
           }}
         >
-          Reload
+          {i18n.t('common:reload')}
         </button>
       </div>
     )

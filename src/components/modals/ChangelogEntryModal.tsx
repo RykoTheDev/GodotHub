@@ -1,17 +1,8 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { IconPlus, IconX } from '../Icons'
 import type { ChangelogEntry, ChangelogNote } from '../../types'
-
-const CATEGORIES: {
-  value: ChangelogNote['category']
-  label: string
-  color: string
-}[] = [
-  { value: 'add', label: 'Add', color: 'text-mint' },
-  { value: 'fix', label: 'Fix', color: 'text-danger' },
-  { value: 'improve', label: 'Improve', color: 'text-accent-bright' },
-]
 
 interface Props {
   entry?: ChangelogEntry
@@ -23,9 +14,20 @@ interface Props {
   ) => Promise<void>
 }
 
+const CATEGORIES: {
+  value: ChangelogNote['category']
+  label: string
+  color: string
+}[] = [
+  { value: 'add', label: 'Add', color: 'text-mint' },
+  { value: 'fix', label: 'Fix', color: 'text-danger' },
+  { value: 'improve', label: 'Improve', color: 'text-accent-bright' },
+] as const
+
 const todayIso = () => new Date().toISOString().slice(0, 10)
 
 export function ChangelogEntryModal({ entry, onClose, onSave }: Props) {
+  const { t } = useTranslation('common')
   const [version, setVersion] = useState(entry?.version ?? '')
   const [date, setDate] = useState(entry?.date ?? todayIso())
   const [notes, setNotes] = useState<ChangelogNote[]>(
@@ -33,6 +35,11 @@ export function ChangelogEntryModal({ entry, onClose, onSave }: Props) {
   )
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+
+  const categories = CATEGORIES.map((c) => ({
+    ...c,
+    label: t(c.value),
+  }))
 
   const setNote = (i: number, patch: Partial<ChangelogNote>) =>
     setNotes((prev) =>
@@ -47,7 +54,7 @@ export function ChangelogEntryModal({ entry, onClose, onSave }: Props) {
 
   const submit = async () => {
     if (!version.trim()) {
-      setError('Give the entry a version.')
+      setError(t('changelog_error_no_version'))
       return
     }
     setBusy(true)
@@ -80,43 +87,43 @@ export function ChangelogEntryModal({ entry, onClose, onSave }: Props) {
         <div className="flex flex-col gap-6 p-7 pb-0 shrink-0">
           <div>
             <h3 className="font-display font-semibold text-lg">
-              {entry ? 'Edit Changelog Entry' : 'New Changelog Entry'}
+              {entry ? t('edit_entry') : t('new_entry')}
             </h3>
             <p className="text-xs text-muted mt-1.5">
-              Logs an app update, shown newest-first on the Changelog page.
+              {t('changelog_entry_desc')}
             </p>
           </div>
 
           <div className="flex gap-4">
             <div className="flex flex-col gap-2 flex-1">
-              <label className="text-xs font-medium text-muted">Version</label>
+              <label className="text-xs font-medium text-muted">{t('changelog_version_label')}</label>
               <input
                 autoFocus
                 value={version}
                 onChange={(e) => setVersion(e.target.value)}
                 className="focus-ring bg-raised border border-line rounded-lg px-3.5 py-2.5 text-sm focus:border-accent-dim transition-colors"
-                placeholder="v1.0.0"
+                placeholder={t('changelog_version_placeholder')}
               />
             </div>
             <div className="flex flex-col gap-2 flex-1">
-              <label className="text-xs font-medium text-muted">Date</label>
+              <label className="text-xs font-medium text-muted">{t('changelog_date_label')}</label>
               <input
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
                 className="focus-ring bg-raised border border-line rounded-lg px-3.5 py-2.5 text-sm focus:border-accent-dim transition-colors"
-                placeholder="2026-07-13"
+                placeholder={t('changelog_date_placeholder')}
               />
             </div>
           </div>
         </div>
 
         <div className="flex flex-col gap-2.5 p-7 overflow-y-auto min-h-0">
-          <span className="text-xs font-medium text-muted">What changed</span>
+          <span className="text-xs font-medium text-muted">{t('changelog_what_changed')}</span>
           <div className="flex flex-col gap-2">
             {notes.map((note, i) => (
               <div key={i} className="flex items-center gap-2">
                 <div className="flex rounded-md border border-line overflow-hidden shrink-0">
-                  {CATEGORIES.map((c) => (
+                  {categories.map((c) => (
                     <button
                       key={c.value}
                       type="button"
@@ -141,13 +148,13 @@ export function ChangelogEntryModal({ entry, onClose, onSave }: Props) {
                     }
                   }}
                   className="focus-ring flex-1 bg-raised border border-line rounded-lg px-3.5 py-2 text-sm focus:border-accent-dim transition-colors"
-                  placeholder="Added drag-and-drop project reordering"
+                  placeholder={t('changelog_placeholder_note')}
                 />
                 {notes.length > 1 && (
                   <button
                     type="button"
                     onClick={() => removeNote(i)}
-                    aria-label="Remove line"
+                    aria-label={t('changelog_remove_line_aria')}
                     className="focus-ring cursor-pointer p-1.5 rounded-md text-muted hover:text-danger hover:bg-danger/10 transition-colors"
                   >
                     <IconX className="w-3 h-3" />
@@ -164,7 +171,7 @@ export function ChangelogEntryModal({ entry, onClose, onSave }: Props) {
             className="focus-ring cursor-pointer self-start flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-muted hover:text-ink hover:bg-raised transition-colors"
           >
             <IconPlus className="w-3 h-3" />
-            Add line
+            {t('changelog_add_line')}
           </motion.button>
         </div>
 
@@ -177,7 +184,7 @@ export function ChangelogEntryModal({ entry, onClose, onSave }: Props) {
               onClick={onClose}
               className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
             >
-              Cancel
+              {t('cancel')}
             </motion.button>
             <motion.button
               whileHover={busy ? undefined : { y: -1 }}
@@ -186,7 +193,7 @@ export function ChangelogEntryModal({ entry, onClose, onSave }: Props) {
               disabled={busy}
               className="focus-ring px-4 cursor-pointer py-2.5 rounded-lg bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white transition-colors"
             >
-              {busy ? 'Saving…' : entry ? 'Save Changes' : 'Add Entry'}
+              {busy ? t('saving') : entry ? t('save_changes') : t('add_entry')}
             </motion.button>
           </div>
         </div>

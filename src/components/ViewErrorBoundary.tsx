@@ -1,5 +1,6 @@
 import { Component, type ReactNode } from 'react'
 import { IconAlertTriangle, IconRefresh, IconBug } from './Icons'
+import i18n from '../i18n'
 
 interface Props {
   children: ReactNode
@@ -38,11 +39,10 @@ export class ViewErrorBoundary extends Component<Props, State> {
         </div>
         <div className="text-center max-w-sm">
           <h3 className="font-semibold text-sm text-ink mb-1">
-            {name} encountered an error
+            {i18n.t('common:view_error_title', { name })}
           </h3>
           <p className="text-xs text-muted leading-relaxed">
-            Something went wrong while rendering this view. You can switch to another tab
-            or try reloading this one.
+            {i18n.t('common:view_error_desc')}
           </p>
         </div>
         <pre className="text-[11px] text-danger/80 bg-danger/5 border border-danger/20 rounded-lg px-4 py-3 max-w-full overflow-auto max-h-24 select-all">
@@ -54,14 +54,14 @@ export class ViewErrorBoundary extends Component<Props, State> {
             className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors"
           >
             <IconRefresh className="w-3.5 h-3.5" />
-            Retry
+            {i18n.t('common:retry')}
           </button>
           <button
             onClick={() => window.dispatchEvent(new CustomEvent('app:report-bug'))}
             className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg border border-danger/40 text-danger hover:bg-danger/10 hover:border-danger text-xs font-medium transition-colors"
           >
             <IconBug className="w-3.5 h-3.5" />
-            Report Bug
+            {i18n.t('common:report_bug')}
           </button>
         </div>
       </div>

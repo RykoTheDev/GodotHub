@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { IconX, IconCheckCircle, IconAlertTriangle, IconTerminal, IconChevronDown, IconCopy } from '../Icons'
 
 interface GitResultDialogProps {
@@ -53,6 +54,7 @@ export function GitResultDialog({
   onClose,
   onOpenTerminal,
 }: GitResultDialogProps) {
+  const { t } = useTranslation('common')
   const [showRaw, setShowRaw] = useState(false)
 
   return (
@@ -113,7 +115,7 @@ export function GitResultDialog({
               <IconChevronDown
                 className={`w-3 h-3 transition-transform duration-150 ${showRaw ? 'rotate-0' : '-rotate-90'}`}
               />
-              <span>Technical details</span>
+              <span>{t('technical_details')}</span>
               <div className="flex-1" />
               {showRaw && (
                 <button
@@ -122,7 +124,7 @@ export function GitResultDialog({
                     navigator.clipboard.writeText(rawError)
                   }}
                   className="focus-ring p-1 rounded text-muted hover:text-ink hover:bg-raised transition-colors cursor-pointer"
-                  title="Copy to clipboard"
+                  title={t('copy_to_clipboard')}
                 >
                   <IconCopy className="w-3 h-3" />
                 </button>
@@ -147,7 +149,7 @@ export function GitResultDialog({
               className="focus-ring cursor-pointer flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs text-muted hover:text-ink hover:bg-raised border border-line transition-colors"
             >
               <IconTerminal className="w-3.5 h-3.5" />
-              Open Terminal
+              {t('open_terminal')}
             </button>
           )}
           <button
@@ -158,7 +160,7 @@ export function GitResultDialog({
                 : 'bg-accent hover:bg-accent-bright text-white'
             }`}
           >
-            {type === 'success' ? 'Done' : 'Got it'}
+            {type === 'success' ? t('done') : t('got_it')}
           </button>
         </div>
       </motion.div>

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSettings } from '../hooks/useSettings'
 import { DirList } from '../components/ui/DirList'
@@ -9,7 +10,7 @@ import { ConfirmDialog } from '../components/modals/ConfirmDialog'
 import { IconSun, IconMoon, IconHeart, IconRocket, IconBug } from '../components/Icons'
 import { api } from '../lib/api'
 import { applyTheme } from '../lib/colors'
-import { isMac } from '../lib/platform'
+import { isMac, isWindows } from '../lib/platform'
 import {
   applyRadius,
   applyDensity,
@@ -145,12 +146,12 @@ function randomConstrainedHex(minSum: number, maxSum: number): string {
 type SettingsTab =
   'storage' | 'behavior' | 'display' | 'appearance' | 'advanced'
 
-const TABS: { id: SettingsTab; label: string }[] = [
-  { id: 'storage', label: 'Storage' },
-  { id: 'behavior', label: 'Behavior' },
-  { id: 'display', label: 'Display' },
-  { id: 'appearance', label: 'Appearance' },
-  { id: 'advanced', label: 'Advanced' },
+const TABS: { id: SettingsTab }[] = [
+  { id: 'storage' },
+  { id: 'behavior' },
+  { id: 'display' },
+  { id: 'appearance' },
+  { id: 'advanced' },
 ]
 
 function SectionCard({
@@ -186,6 +187,7 @@ function KeyRecorder({
   onChange: (key: string) => void
   onReset?: () => void
 }) {
+  const { t } = useTranslation('settings')
   const [listening, setListening] = useState(false)
   const [confirmMsg, setConfirmMsg] = useState<string | null>(null)
   const confirmTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -212,7 +214,7 @@ function KeyRecorder({
       onChangeRef.current(captured)
       setListening(false)
 
-      const label = captured === ' ' ? 'Space' : captured.toUpperCase()
+      const label = captured === ' ' ? t('key_space') : captured.toUpperCase()
       setConfirmMsg(`✓ ${mod}${label}`)
       if (confirmTimer.current) clearTimeout(confirmTimer.current)
       confirmTimer.current = setTimeout(() => setConfirmMsg(null), 1500)
@@ -229,13 +231,13 @@ function KeyRecorder({
   }, [])
 
   const displayKey =
-    value === ' ' ? 'Space' : value ? value.toUpperCase() : '—'
+    value === ' ' ? t('key_space') : value ? value.toUpperCase() : '—'
 
   return (
     <label className="flex flex-col gap-2.5 pt-5 border-t border-line">
       <div className="flex items-center justify-between">
         <span className="text-xs font-medium text-muted block">
-          Command palette shortcut
+          {t('palette_shortcut')}
         </span>
         {value !== 'p' && onReset && (
           <button
@@ -248,15 +250,15 @@ function KeyRecorder({
             }}
             className="focus-ring cursor-pointer text-[10px] font-medium text-muted/60 hover:text-accent transition-colors"
           >
-            Reset to default
+            {t('reset_to_default')}
           </button>
         )}
       </div>
       <p className="text-[11px] text-muted mt-0.5 leading-relaxed">
-        Click the button below, then press any key to rebind.{' '}
-        Press{' '}
+        {t('keybind_instruction')}{' '}
+        {t('press')}{' '}
         <kbd className="font-mono text-[10px] px-1 py-0.5 rounded bg-raised border border-line">Esc</kbd>
-        {' '}to cancel.
+        {' '}{t('to_cancel')}.
       </p>
       <div className="flex items-center gap-3">
         <button
@@ -272,14 +274,14 @@ function KeyRecorder({
           {listening ? (
             <>
               <span className="inline-block w-2 h-2 rounded-full bg-accent animate-pulse" />
-              <span>Press a key…</span>
+              <span>{t('press_key')}</span>
             </>
           ) : (
             <>
               <kbd className="text-xs px-2 py-0.5 rounded bg-surface border border-line/50">
                 {mod}{displayKey}
               </kbd>
-              <span className="text-xs font-normal text-muted">Click to rebind</span>
+              <span className="text-xs font-normal text-muted">{t('click_to_rebind')}</span>
             </>
           )}
         </button>
@@ -304,8 +306,9 @@ function KeyRecorder({
 }
 
 function SaveStatus({ state }: { state: SaveState }) {
+  const { t } = useTranslation('settings')
   return (
-    <div className="h-4 flex items-center">
+    <div className="flex items-center gap-2 h-4">
       <AnimatePresence mode="wait">
         {state === 'saving' && (
           <motion.span
@@ -315,7 +318,7 @@ function SaveStatus({ state }: { state: SaveState }) {
             exit={{ opacity: 0 }}
             className="text-xs text-muted"
           >
-            Saving…
+            {t('saving')}
           </motion.span>
         )}
         {state === 'saved' && (
@@ -324,9 +327,9 @@ function SaveStatus({ state }: { state: SaveState }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="text-xs text-accent"
+            className="text-xs text-mint"
           >
-            Saved
+            {t('saved')}
           </motion.span>
         )}
       </AnimatePresence>
@@ -343,6 +346,7 @@ export function SettingsView({
   highlightSetting,
   onHighlightDone,
 }: SettingsViewProps = {}) {
+  const { t, i18n } = useTranslation('settings')
   const { settings, update, resetToDefaults, loaded } = useSettings()
   const [current, setCurrent] = useState<AppSettings | null>(null)
   const [scanMessage, setScanMessage] = useState<string | null>(null)
@@ -400,6 +404,7 @@ export function SettingsView({
       download_dir: { tab: 'storage', section: 'storage-folders' },
       scan_depth: { tab: 'storage', section: 'storage-folders' },
       download_concurrency: { tab: 'storage', section: 'storage-folders' },
+      launch_with_console: { tab: 'behavior', section: 'behavior' },
       close_on_project_open: { tab: 'behavior', section: 'behavior' },
       minimize_to_tray: { tab: 'behavior', section: 'behavior' },
       reopen_after_godot_closes: { tab: 'behavior', section: 'behavior' },              auto_scan_on_startup: { tab: 'behavior', section: 'behavior-projects' },
@@ -528,10 +533,10 @@ export function SettingsView({
   }
 
   if (!loaded || !current)
-    return <div className="p-10 text-sm text-muted">Loading settings…</div>
+    return <div className="p-10 text-sm text-muted">{t('loading')}</div>
 
   const runScan = async () => {
-    setScanMessage('Scanning…')
+    setScanMessage(t('scanning'))
     const [projects, versions] = await Promise.all([
       current.project_scan_dirs.length
         ? api.scanForProjects(current.project_scan_dirs, current.scan_depth)
@@ -541,7 +546,7 @@ export function SettingsView({
         : Promise.resolve([]),
     ])
     setScanMessage(
-      `Found ${projects.length} new project${projects.length === 1 ? '' : 's'} and ${versions.length} new version${versions.length === 1 ? '' : 's'}.`,
+      t('scan_result', { projects: projects.length, versions: versions.length })
     )
   }
 
@@ -616,10 +621,10 @@ export function SettingsView({
     <div className="p-10 pt-15 max-w-8xl mx-auto gap-6 flex flex-col">        <div className="flex items-start justify-between">
         <div>
           <h2 className="font-body font-semibold text-3xl tracking-tight">
-            SETTINGS
+            {t('settings_title')}
           </h2>
           <p className="text-xs text-muted">
-            Storage locations, auto-scan folders, and appearance.
+            {t('settings_subtitle')}
           </p>
         </div>
         <SaveStatus state={saveState} />
@@ -639,7 +644,7 @@ export function SettingsView({
                 ;(e.target as HTMLInputElement).blur()
               }
             }}
-            placeholder="Search settings…"
+            placeholder={t('search_placeholder')}
             className="focus-ring w-full bg-raised border border-line rounded-xl pl-10 pr-4 py-3 text-sm focus:border-accent-dim transition-colors"
           />
           {settingsSearchQuery && (
@@ -663,14 +668,14 @@ export function SettingsView({
               const q = settingsSearchQuery.trim().toLowerCase()
               const matches = SETTINGS_SEARCH_ITEMS.filter(
                 (item) =>
-                  item.label.toLowerCase().includes(q) ||
+                  (item.label ?? item.key.replace(/_/g, ' ')).toLowerCase().includes(q) ||
                   item.key.toLowerCase().includes(q),
               )
               if (matches.length === 0) {
                 return (
                   <div className="px-4 py-6 text-center">
                     <p className="text-xs text-muted">
-                      No settings match{' '}
+                      {t('no_settings_match')}{' '}
                       <span className="font-mono text-ink">"{settingsSearchQuery}"</span>
                     </p>
                   </div>
@@ -690,7 +695,7 @@ export function SettingsView({
                       }}
                       className="focus-ring cursor-pointer w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors hover:bg-raised text-muted hover:text-ink"
                     >
-                      <span className="flex-1">{item.label}</span>
+                      <span className="flex-1">{item.label ?? item.key.replace(/_/g, ' ')}</span>
                       <span className="text-[10px] font-medium text-muted/50 uppercase tracking-wider">
                         {item.tab}
                       </span>
@@ -705,21 +710,24 @@ export function SettingsView({
 
       {/* Tab bar */}
       <div className="inline-flex self-start rounded-lg border border-line bg-raised p-1 gap-1">
-        {TABS.map(({ id, label }) => (
-          <motion.button
-            key={id}
-            whileTap={{ scale: 0.96 }}
-            onClick={() => setTab(id)}
-            className={
-              'focus-ring cursor-pointer px-4 py-1.5 rounded-md text-xs font-medium transition-colors ' +
-              (tab === id
-                ? 'bg-accent text-white shadow-sm'
-                : 'text-muted hover:text-ink hover:bg-overlay/60')
-            }
-          >
-            {label}
-          </motion.button>
-        ))}
+        {TABS.map(({ id }) => {
+          const label = t(id)
+          return (
+            <motion.button
+              key={id}
+              whileTap={{ scale: 0.96 }}
+              onClick={() => setTab(id)}
+              className={
+                'focus-ring cursor-pointer px-4 py-1.5 rounded-md text-xs font-medium transition-colors ' +
+                (tab === id
+                  ? 'bg-accent text-white shadow-sm'
+                  : 'text-muted hover:text-ink hover:bg-overlay/60')
+              }
+            >
+              {label}
+            </motion.button>
+          )
+        })}
       </div>
 
       <AnimatePresence mode="wait">
@@ -733,55 +741,52 @@ export function SettingsView({
           >
             <div data-section-id="storage-folders">
             <SectionCard
-              title="Storage & Auto-scan"
-              description="Folders GodotHub checks at startup. Star a folder to also use it as the default location for new projects/downloads."
+              title={t('storage_title')}
+              description={t('storage_desc')}
             >
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col gap-2.5">
                   <span className="text-xs font-medium text-muted">
-                    Projects
+                    {t('section_projects')}
                   </span>
                   <DirList
                     dirs={current.project_scan_dirs}
                     onChange={(dirs) => setField('project_scan_dirs', dirs)}
-                    emptyHint="No folders added, nothing will be scanned at startup, and new projects will ask where to save each time."
+                    emptyHint={t('empty_hint_projects')}
                     defaultDir={current.default_project_location}
                     onSetDefault={(dir) =>
                       setField('default_project_location', dir)
                     }
-                    defaultLabel="New project default"
+                    defaultLabel={t('new_project_default')}
                     showFallbackDescription={false}
                   />
                   <p className="text-[11px] text-muted leading-relaxed">
-                    Scanned at startup for existing projects. The starred folder
-                    pre-fills the "Location" field in the New Project dialog.
+                    {t('projects_desc')}
                   </p>
                 </div>
 
                 <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
                   <span className="text-xs font-medium text-muted">
-                    Godot versions
+                    {t('section_godot_versions')}
                   </span>
                   <DirList
                     dirs={current.version_scan_dirs}
                     onChange={(dirs) => setField('version_scan_dirs', dirs)}
-                    emptyHint="No folders added, nothing will be scanned at startup, and new downloads will use the app data folder."
+                    emptyHint={t('empty_hint_versions')}
                     defaultDir={current.download_dir}
                     onSetDefault={(dir) => setField('download_dir', dir)}
-                    defaultLabel="Download folder"
+                    defaultLabel={t('download_folder')}
                     showFallbackDescription={true}
                     fallbackDownloadPath="AppData\\Roaming\\com.ryko.godothub\\godot-versions\\"
                   />
                   <p className="text-[11px] text-muted leading-relaxed">
-                    Scanned at startup for installed Godot executables. The
-                    starred folder is where new Godot versions are extracted
-                    when you install them.
+                    {t('godot_versions_desc')}
                   </p>
                 </div>
 
                 <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
                   <span className="text-xs font-medium text-muted">
-                    Templates
+                    {t('section_templates')}
                   </span>
                   <div className="flex items-center gap-2.5">
                     {current.template_scan_dir ? (
@@ -797,12 +802,12 @@ export function SettingsView({
                           onClick={() => setField('template_scan_dir', null)}
                           className="focus-ring cursor-pointer px-3 py-2 rounded-lg border border-line text-xs text-muted hover:text-danger hover:border-danger/30 hover:bg-danger/10 transition-colors"
                         >
-                          Clear
+                          {t('clear')}
                         </motion.button>
                       </>
                     ) : (
                       <span className="text-xs text-muted">
-                        No folder set. You can still import manually or use 'Save as Template'.
+                        {t('no_folder_set')}
                       </span>
                     )}
                     <motion.button
@@ -814,24 +819,21 @@ export function SettingsView({
                       }}
                       className="focus-ring cursor-pointer px-3.5 py-2 rounded-lg border border-line text-xs hover:border-accent-dim hover:bg-raised transition-colors"
                     >
-                      Browse
+                      {t('browse')}
                     </motion.button>
                   </div>
                   <p className="text-[11px] text-muted leading-relaxed">
-                    Any subfolders inside this directory will be imported as
-                    templates when you click 'Import from Directory' in the
-                    Templates view.
+                    {t('template_scan_desc')}
                   </p>
                 </div>
 
                 <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
                   <div className="flex items-center justify-between gap-4">
                     <span className="text-xs font-medium text-muted">
-                      Scan depth
+                      {t('scan_depth_label')}
                     </span>
                     <span className="text-xs text-ink tabular-nums">
-                      {current.scan_depth} folder
-                      {current.scan_depth === 1 ? '' : 's'} deep
+                      {t('folders_deep', { count: current.scan_depth })}
                     </span>
                   </div>
                   <Slider
@@ -839,23 +841,20 @@ export function SettingsView({
                     min={1}
                     max={10}
                     onChange={(value) => setField('scan_depth', value)}
-                    label="Scan depth"
+                    label={t('scan_depth_label')}
                   />
                   <p className="text-[11px] text-muted leading-relaxed">
-                    How many folders deep to look inside each scan folder above.
-                    Lower is faster and avoids picking up unrelated
-                    projects/versions buried in nested subfolders; higher digs
-                    further if yours are deeply nested.
+                    {t('scan_depth_desc')}
                   </p>
                 </div>
 
                 <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
                   <div className="flex items-center justify-between gap-4">
                     <span className="text-xs font-medium text-muted">
-                      Simultaneous downloads
+                      {t('download_concurrency_label')}
                     </span>
                     <span className="text-xs text-ink tabular-nums">
-                      {current.download_concurrency} at once
+                      {t('at_once', { count: current.download_concurrency })}
                     </span>
                   </div>
                   <Slider
@@ -865,12 +864,10 @@ export function SettingsView({
                     onChange={(value) =>
                       setField('download_concurrency', value)
                     }
-                    label="Simultaneous downloads"
+                    label={t('download_concurrency_label')}
                   />
                   <p className="text-[11px] text-muted leading-relaxed">
-                    How many Godot versions can download at the same time. Extra
-                    downloads wait in a queue and start automatically as slots
-                    free up.
+                    {t('download_concurrency_desc')}
                   </p>
                 </div>
 
@@ -881,7 +878,7 @@ export function SettingsView({
                     onClick={runScan}
                     className="focus-ring cursor-pointer px-5 py-2.5 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
                   >
-                    Scan Now
+                    {t('scan_now')}
                   </motion.button>
                   {scanMessage && (
                     <span className="text-xs text-muted">{scanMessage}</span>
@@ -904,19 +901,37 @@ export function SettingsView({
           >
             <div data-section-id="behavior">
             <SectionCard
-              title="Behavior"
-              description="How GodotHub acts when you launch a project."
+              title={t('behavior_title')}
+              description={t('behavior_desc')}
             >
               <div className="flex flex-col gap-5">
                 <label className="flex items-center justify-between gap-4">
                   <div>
                     <span className="text-xs font-medium text-muted block">
-                      Close application on project open
+                      {t('launch_console_label')}
                     </span>
                     <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                      {isMac
-                        ? 'Hides GodotHub automatically as soon as a project is launched in Godot. It keeps running in the Dock.'
-                        : 'Quits GodotHub automatically as soon as a project is launched in Godot.'}
+                      {isWindows
+                        ? t('launch_console_desc_windows')
+                        : t('launch_console_desc')}
+                    </p>
+                  </div>
+                  <Toggle
+                    checked={current.launch_with_console}
+                    onChange={(checked) =>
+                      setField('launch_with_console', checked)
+                    }
+                    label={t('launch_console_label')}
+                  />
+                </label>
+
+                <label className="flex items-center justify-between gap-4 pt-5 border-t border-line">
+                  <div>
+                    <span className="text-xs font-medium text-muted block">
+                      {t('close_on_open_label')}
+                    </span>
+                    <p className="text-[11px] text-muted mt-1 leading-relaxed">
+                      {isMac ? t('close_on_open_desc_mac') : t('close_on_open_desc')}
                     </p>
                   </div>
                   <Toggle
@@ -924,7 +939,7 @@ export function SettingsView({
                     onChange={(checked) =>
                       setField('close_on_project_open', checked)
                     }
-                    label="Close application on project open"
+                    label={t('close_on_open_label')}
                   />
                 </label>
 
@@ -932,12 +947,10 @@ export function SettingsView({
                   <label className="flex items-center justify-between gap-4 pt-5 border-t border-line">
                     <div>
                       <span className="text-xs font-medium text-muted block">
-                        Minimize to system tray on closing app
+                        {t('minimize_tray_label')}
                       </span>
                       <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                        Keeps GodotHub running in the system tray instead of
-                        quitting when you close the window. Use the tray icon to
-                        reopen or quit.
+                        {t('minimize_tray_desc')}
                       </p>
                     </div>
                     <Toggle
@@ -945,7 +958,7 @@ export function SettingsView({
                       onChange={(checked) =>
                         setField('minimize_to_tray', checked)
                       }
-                      label="Minimize to system tray on closing app"
+                      label={t('minimize_tray_label')}
                     />
                   </label>
                 )}
@@ -962,12 +975,10 @@ export function SettingsView({
                       >
                         <div>
                           <span className="text-xs font-medium text-muted block">
-                            Reopen after closing Godot
+                            {t('reopen_label')}
                           </span>
                           <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                            {isMac
-                              ? 'Brings GodotHub back automatically once the Godot editor for that project is closed.'
-                              : 'Brings GodotHub back out of the system tray automatically once the Godot editor for that project is closed.'}
+                            {isMac ? t('reopen_desc_mac') : t('reopen_desc')}
                           </p>
                         </div>
                         <Toggle
@@ -975,7 +986,7 @@ export function SettingsView({
                           onChange={(checked) =>
                             setField('reopen_after_godot_closes', checked)
                           }
-                          label="Reopen after closing Godot"
+                          label={t('reopen_label')}
                         />
                       </motion.label>
                     )}
@@ -984,10 +995,10 @@ export function SettingsView({
                 <label className="flex flex-col gap-2.5 pt-5 border-t border-line">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-medium text-muted">
-                      Tray recent projects
+                      {t('tray_recent_label')}
                     </span>
                     <span className="text-xs text-ink tabular-nums">
-                      {current.tray_recent_projects_count} project{current.tray_recent_projects_count === 1 ? '' : 's'}
+                      {t('n_projects', { count: current.tray_recent_projects_count })}
                     </span>
                   </div>
                   <Slider
@@ -998,11 +1009,10 @@ export function SettingsView({
                       setField('tray_recent_projects_count', value)
                       api.refreshTrayMenu().catch(() => {})
                     }}
-                    label="Tray recent projects"
+                    label={t('tray_recent_label')}
                   />
                   <p className="text-[11px] text-muted leading-relaxed">
-                    How many recently opened projects appear in the system tray
-                    context menu. Set between 1 and 10.
+                    {t('tray_recent_desc')}
                   </p>
                 </label>
 
@@ -1017,20 +1027,17 @@ export function SettingsView({
 
             <div data-section-id="behavior-projects">
             <SectionCard
-              title="Projects"
-              description="How projects are organized in GodotHub."
+              title={t('behavior_projects_title')}
+              description={t('behavior_projects_desc')}
             >
               <div className="flex flex-col gap-5">
                 <label className="flex items-center justify-between gap-4">
                   <div>
                     <span className="text-xs font-medium text-muted block">
-                      Auto-scan on startup
+                      {t('auto_scan_label')}
                     </span>
                     <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                      Automatically scans your configured project and version
-                      folders for new additions every time GodotHub starts. You
-                      can still scan manually anytime from the Projects and
-                      Versions views.
+                      {t('auto_scan_desc')}
                     </p>
                   </div>
                   <Toggle
@@ -1038,20 +1045,17 @@ export function SettingsView({
                     onChange={(checked) =>
                       setField('auto_scan_on_startup', checked)
                     }
-                    label="Auto-scan on startup"
+                    label={t('auto_scan_label')}
                   />
                 </label>
 
                 <label className="flex items-center justify-between gap-4 pt-5 border-t border-line">
                   <div>
                     <span className="text-xs font-medium text-muted block">
-                      Use categories
+                      {t('use_categories_label')}
                     </span>
                     <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                      Turns off categories entirely, no Categories button, no
-                      category filter, no Uncategorized bucket. Projects shows
-                      one plain list. Existing category assignments are kept and
-                      come back if you turn this on again.
+                      {t('categories_off_desc')}
                     </p>
                   </div>
                   <Toggle
@@ -1059,21 +1063,17 @@ export function SettingsView({
                     onChange={(checked) =>
                       setField('categories_enabled', checked)
                     }
-                    label="Use categories"
+                    label={t('use_categories_label')}
                   />
                 </label>
 
                 <label className="flex items-center justify-between gap-4 pt-5 border-t border-line">
                   <div>
                     <span className="text-xs font-medium text-muted block">
-                      Use workspaces
+                      {t('use_workspaces_label')}
                     </span>
                     <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                      Turns off workspaces entirely, no workspace switcher, no
-                      "add workspace" button. GodotHub behaves as if there were
-                      only the one currently-active workspace. Existing
-                      workspaces are kept and the switcher comes back if you
-                      turn this on again.
+                      {t('workspaces_off_desc')}
                     </p>
                   </div>
                   <Toggle
@@ -1081,14 +1081,14 @@ export function SettingsView({
                     onChange={(checked) =>
                       setField('workspaces_enabled', checked)
                     }
-                    label="Use workspaces"
+                    label={t('use_workspaces_label')}
                   />
                 </label>
 
                 <label className="flex flex-col gap-2.5 pt-5 border-t border-line">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-medium text-muted">
-                      Tooltip delay
+                      {t('tooltip_delay_label')}
                     </span>
                     <span className="text-xs text-ink tabular-nums">
                       {current.tooltip_delay}ms
@@ -1102,12 +1102,10 @@ export function SettingsView({
                     onChange={(value) =>
                       setField('tooltip_delay', value)
                     }
-                    label="Tooltip delay"
+                    label={t('tooltip_delay_label')}
                   />
                   <p className="text-[11px] text-muted leading-relaxed">
-                    How long to wait before showing tooltips when hovering over
-                    buttons, icons, and sidebar items. Lower values feel more
-                    responsive; higher values reduce distraction.
+                    {t('tooltip_delay_desc')}
                   </p>
                 </label>
 
@@ -1117,20 +1115,17 @@ export function SettingsView({
 
             <div data-section-id="behavior-watchers">
             <SectionCard
-              title="File Watchers"
-              description="Automatically detect changes in your scan folders and keep projects, versions, and templates up to date without clicking Sync."
+              title={t('file_watchers_title')}
+              description={t('file_watchers_desc')}
             >
               <div className="flex flex-col gap-5">
                 <label className="flex items-center justify-between gap-4">
                   <div>
                     <span className="text-xs font-medium text-muted block">
-                      Watch project folders
+                      {t('watch_projects_label')}
                     </span>
                     <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                      Automatically scans for new or removed projects whenever
-                      files change inside your configured project scan folders.
-                      New project folders are added to your library; removed
-                      ones are left in place but unregistered.
+                      {t('watch_projects_desc')}
                     </p>
                   </div>
                   <Toggle
@@ -1138,20 +1133,17 @@ export function SettingsView({
                     onChange={(checked) =>
                       setField('auto_watch_project_dirs', checked)
                     }
-                    label="Watch project folders"
+                    label={t('watch_projects_label')}
                   />
                 </label>
 
                 <label className="flex items-center justify-between gap-4 pt-5 border-t border-line">
                   <div>
                     <span className="text-xs font-medium text-muted block">
-                      Watch version folders
+                      {t('watch_versions_label')}
                     </span>
                     <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                      Automatically scans for new or removed Godot executables
-                      whenever files change inside your configured version scan
-                      folders. New executables are added to your installed
-                      versions list.
+                      {t('watch_versions_desc')}
                     </p>
                   </div>
                   <Toggle
@@ -1159,19 +1151,17 @@ export function SettingsView({
                     onChange={(checked) =>
                       setField('auto_watch_version_dirs', checked)
                     }
-                    label="Watch version folders"
+                    label={t('watch_versions_label')}
                   />
                 </label>
 
                 <label className="flex items-center justify-between gap-4 pt-5 border-t border-line">
                   <div>
                     <span className="text-xs font-medium text-muted block">
-                      Watch template directory
+                      {t('watch_template_label')}
                     </span>
                     <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                      Automatically syncs templates whenever files change inside
-                      your template scan directory. Edit a template folder and
-                      the template content updates automatically.
+                      {t('watch_template_desc')}
                     </p>
                   </div>
                   <Toggle
@@ -1179,13 +1169,12 @@ export function SettingsView({
                     onChange={(checked) =>
                       setField('auto_watch_template_dir', checked)
                     }
-                    label="Watch template directory"
+                    label={t('watch_template_label')}
                   />
                 </label>
 
                 <p className="text-[10px] text-muted/50 mt-1 leading-relaxed">
-                  Watchers use debounced file system events. Changes are detected within a
-                  few seconds of the last file save. Disabling a watcher frees system resources.
+                  {t('watcher_footer_desc')}
                 </p>
               </div>
             </SectionCard>
@@ -1203,20 +1192,20 @@ export function SettingsView({
           >
             <div data-section-id="display">
             <SectionCard
-              title="Last Opened Display"
+              title={t('last_opened_title')}
               description={
-                'Controls the "last opened" pill shown on project cards. Hidden entirely for projects that have never been opened.'
+                t('last_opened_desc')
               }
             >
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col gap-2.5">
                   <span className="text-xs font-medium text-muted">
-                    Time format (shown when opened today)
+                    {t('time_format_label')}
                   </span>
                   <div className="inline-flex self-start rounded-lg border border-line bg-raised p-1 gap-1">
                     {[
-                      { value: '12h' as const, label: '12-hour (2:30 PM)' },
-                      { value: '24h' as const, label: '24-hour (14:30)' },
+                      { value: '12h' as const, label: t('12h') },
+                      { value: '24h' as const, label: t('24h') },
                     ].map(({ value, label }) => {
                       const active = current.last_opened_time_format === value
                       return (
@@ -1242,13 +1231,13 @@ export function SettingsView({
 
                 <div className="flex flex-col gap-2.5">
                   <span className="text-xs font-medium text-muted">
-                    Date format (shown for any other day)
+                    {t('date_format_label')}
                   </span>
                   <div className="inline-flex self-start rounded-lg border border-line bg-raised p-1 gap-1">
                     {[
-                      { value: 'DD-MM-YYYY' as const, label: 'DD-MM-YYYY' },
-                      { value: 'MM-DD-YYYY' as const, label: 'MM-DD-YYYY' },
-                      { value: 'YYYY-MM-DD' as const, label: 'YYYY-MM-DD' },
+                      { value: 'DD-MM-YYYY' as const, label: t('dd_mm_yyyy') },
+                      { value: 'MM-DD-YYYY' as const, label: t('mm_dd_yyyy') },
+                      { value: 'YYYY-MM-DD' as const, label: t('yyyy_mm_dd') },
                     ].map(({ value, label }) => {
                       const active = current.last_opened_date_format === value
                       return (
@@ -1272,6 +1261,38 @@ export function SettingsView({
                   </div>
                 </div>
               </div>
+
+              <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
+                <span className="text-xs font-medium text-muted">
+                  {t('language_label')}
+                </span>
+                <div className="inline-flex self-start rounded-lg border border-line bg-raised p-1 gap-1">
+                  {[
+                    { value: 'en-US', label: 'English' },
+                    { value: 'zh-CN', label: '简体中文' },
+                  ].map(({ value, label }) => {
+                    const active = i18n.language === value || i18n.language.startsWith(value.split('-')[0])
+                    return (
+                      <motion.button
+                        key={value}
+                        whileTap={{ scale: 0.96 }}
+                        onClick={() => {
+                          i18n.changeLanguage(value)
+                          setField('language', value)
+                        }}
+                        className={
+                          'focus-ring cursor-pointer px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors ' +
+                          (active
+                            ? 'bg-accent text-white'
+                            : 'text-muted hover:text-ink hover:bg-overlay/60')
+                        }
+                      >
+                        {label}
+                      </motion.button>
+                    )
+                  })}
+                </div>
+              </div>
             </SectionCard>
             </div>
           </motion.div>
@@ -1287,18 +1308,18 @@ export function SettingsView({
           >
             <div data-section-id="appearance">
             <SectionCard
-              title="Appearance"
-              description="Changes apply instantly across the whole app."
+              title={t('appearance_title')}
+              description={t('appearance_desc')}
             >
               <div className="flex flex-col gap-7">
                 <div className="flex flex-col gap-2.5">
-                  <span className="text-xs font-medium text-muted">Theme</span>
+                  <span className="text-xs font-medium text-muted">{t('theme')}</span>
                   <div className="flex items-center gap-3 flex-wrap">
                     {/* Dark / Light */}
                     <div className="inline-flex self-start rounded-lg border border-line bg-raised p-1 gap-1">
                       {[
-                        { mode: 'dark' as const, label: 'Dark', Icon: IconMoon },
-                        { mode: 'light' as const, label: 'Light', Icon: IconSun },
+                        { mode: 'dark' as const, label: t('dark'), Icon: IconMoon },
+                        { mode: 'light' as const, label: t('light'), Icon: IconSun },
                       ].map(({ mode, label, Icon }) => {
                         const active = current.theme_mode === mode
                         return (
@@ -1326,21 +1347,21 @@ export function SettingsView({
                         whileHover={{ y: -1 }}
                         whileTap={{ scale: 0.96 }}
                         onClick={feelingLucky}
-                        aria-label="I'm feeling lucky"
+                        aria-label={t('feeling_lucky')}
                         className="focus-ring cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-muted hover:text-accent-bright hover:bg-overlay/60 transition-colors"
                       >
                         <IconRocket className="w-3.5 h-3.5" />
-                        Lucky
+                        {t('lucky')}
                       </motion.button>
                       <motion.button
                         whileHover={{ y: -1 }}
                         whileTap={{ scale: 0.96 }}
                         onClick={resetThemeColors}
-                        aria-label="Reset colors to default"
+                        aria-label={t('reset_colors')}
                         className="focus-ring cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-muted hover:text-ink hover:bg-overlay/60 transition-colors"
                       >
                         <IconHeart className="w-3.5 h-3.5" />
-                        Reset
+                        {t('reset')}
                       </motion.button>
                     </div>
                   </div>
@@ -1348,7 +1369,7 @@ export function SettingsView({
 
                 <div className="flex gap-8">
                   <ColorSwatchPicker
-                    label="Accent color"
+                    label={t('setting_accent_color')}
                     value={current.accent_color}
                     presets={
                       current.theme_mode === 'light'
@@ -1361,7 +1382,7 @@ export function SettingsView({
                     }}
                   />
                   <ColorSwatchPicker
-                    label="Background color"
+                    label={t('setting_background_color')}
                     value={current.background_color}
                     presets={
                       current.theme_mode === 'light'
@@ -1375,15 +1396,13 @@ export function SettingsView({
                   />
                 </div>
                 <p className="-mt-4 text-[11px] text-muted leading-relaxed">
-                  Background color applies across all themes. In light mode
-                  the app derives card surfaces, borders, and overlays from your
-                  chosen background. In dark mode the background sets the base page color.
+                  {t('background_color_desc')}
                 </p>
 
                 <label className="flex flex-col gap-2.5">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-medium text-muted">
-                      Corner radius
+                      {t('corner_radius_label')}
                     </span>
                     <span className="text-xs font-mono text-ink bg-raised px-2 py-0.5 rounded-md">
                       {current.corner_radius}px
@@ -1394,22 +1413,21 @@ export function SettingsView({
                     max={20}
                     step={1}
                     value={current.corner_radius}
-                    label="Corner radius"
+                    label={t('corner_radius_label')}
                     onChange={(v) => {
                       setField('corner_radius', v)
                       applyRadius(v)
                     }}
                   />
                   <p className="text-[11px] text-muted leading-relaxed">
-                    Controls every rounded corner in the app, cards, buttons,
-                    inputs, and dropdowns. 0 for sharp, square corners.
+                    {t('corner_radius_desc')}
                   </p>
                 </label>
 
                 <label className="flex flex-col gap-2.5">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-medium text-muted">
-                      UI density
+                      {t('ui_density_label')}
                     </span>
                     <span className="text-xs font-mono text-ink bg-raised px-2 py-0.5 rounded-md">
                       {Math.round(current.ui_density * 100)}%
@@ -1420,22 +1438,21 @@ export function SettingsView({
                     max={1.25}
                     step={0.05}
                     value={current.ui_density}
-                    label="UI density"
+                    label={t('ui_density_label')}
                     onChange={(v) => {
                       setField('ui_density', v)
                       applyDensity(v)
                     }}
                   />
                   <p className="text-[11px] text-muted leading-relaxed">
-                    Scales padding, margins, and spacing everywhere, lower for a
-                    tighter, compact layout.
+                    {t('density_desc')}
                   </p>
                 </label>
 
                 <label className="flex flex-col gap-2.5">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-medium text-muted">
-                      Text size
+                      {t('text_size_label')}
                     </span>
                     <span className="text-xs font-mono text-ink bg-raised px-2 py-0.5 rounded-md">
                       {Math.round(current.font_scale * 100)}%
@@ -1446,25 +1463,24 @@ export function SettingsView({
                     max={1.3}
                     step={0.05}
                     value={current.font_scale}
-                    label="Text size"
+                    label={t('text_size_label')}
                     onChange={(v) => {
                       setField('font_scale', v)
                       applyFontScale(v)
                     }}
                   />
                   <p className="text-[11px] text-muted leading-relaxed">
-                    Scales all text (and anything sized relative to it) across
-                    the app.
+                    {t('text_size_desc')}
                   </p>
                 </label>
 
                 <label className="flex items-center justify-between gap-4">
                   <div>
                     <span className="text-xs font-medium text-muted block">
-                      Reduce motion
+                      {t('reduce_motion_label')}
                     </span>
                     <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                      Minimizes hover and UI transition animations.
+                      {t('reduce_motion_desc')}
                     </p>
                   </div>
                   <Toggle
@@ -1473,17 +1489,17 @@ export function SettingsView({
                       setField('reduce_motion', checked)
                       applyReducedMotion(checked)
                     }}
-                    label="Reduce motion"
+                    label={t('reduce_motion_label')}
                   />
                 </label>
 
                 <label className="flex items-center justify-between gap-4">
                   <div>
                     <span className="text-xs font-medium text-muted block">
-                      Show scrollbar
+                      {t('show_scrollbar_label')}
                     </span>
                     <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                      Hides the scrollbar across the entire app when toggled off. You can still scroll with keyboard, trackpad, or mouse wheel.
+                      {t('scrollbar_desc')}
                     </p>
                   </div>
                   <Toggle
@@ -1491,14 +1507,14 @@ export function SettingsView({
                     onChange={(checked) => {
                       setField('show_scrollbars', checked)
                     }}
-                    label="Show scrollbar"
+                    label={t('show_scrollbar_label')}
                   />
                 </label>
 
                 <label className="flex flex-col gap-2.5">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-medium text-muted">
-                      Project icon opacity
+                      {t('project_icon_opacity_label')}
                     </span>
                     <span className="text-xs font-mono text-ink bg-raised px-2 py-0.5 rounded-md">
                       {current.project_icon_opacity}%
@@ -1509,16 +1525,14 @@ export function SettingsView({
                     max={50}
                     step={1}
                     value={current.project_icon_opacity}
-                    label="Project icon opacity"
+                    label={t('project_icon_opacity_label')}
                     onChange={(v) => {
                       setField('project_icon_opacity', v)
                       applyProjectIconOpacity(v)
                     }}
                   />
                   <p className="text-[11px] text-muted leading-relaxed">
-                    Controls the background icon opacity on project cards.
-                    Lower values make the icon more subtle, higher values make
-                    it more visible.
+                    {t('icon_opacity_desc')}
                   </p>
                 </label>
 
@@ -1526,7 +1540,7 @@ export function SettingsView({
                   <div className="flex flex-col gap-2.5">
                     <div className="flex items-center justify-between gap-4">
                       <span className="text-xs font-medium text-muted">
-                        Sidebar width (expanded)
+                        {t('sidebar_expanded_label')}
                       </span>
                       <span className="text-xs font-mono text-ink bg-raised px-2 py-0.5 rounded-md">
                         {sidebarExpandedWidth}px
@@ -1537,7 +1551,7 @@ export function SettingsView({
                       min={160}
                       max={400}
                       step={10}
-                      label="Sidebar width (expanded)"
+                      label={t('sidebar_expanded_label')}
                       onChange={(v) => {
                         setSidebarExpandedWidth(v)
                         try {
@@ -1555,7 +1569,7 @@ export function SettingsView({
                   <div className="flex flex-col gap-2.5">
                     <div className="flex items-center justify-between gap-4">
                       <span className="text-xs font-medium text-muted">
-                        Sidebar width (collapsed)
+                        {t('sidebar_collapsed_label')}
                       </span>
                       <span className="text-xs font-mono text-ink bg-raised px-2 py-0.5 rounded-md">
                         {sidebarCollapsedWidth}px
@@ -1566,7 +1580,7 @@ export function SettingsView({
                       min={50}
                       max={120}
                       step={2}
-                      label="Sidebar width (collapsed)"
+                      label={t('sidebar_collapsed_label')}
                       onChange={(v) => {
                         setSidebarCollapsedWidth(v)
                         try {
@@ -1589,7 +1603,7 @@ export function SettingsView({
                   onClick={resetAppearance}
                   className="focus-ring cursor-pointer self-start px-4 py-2 rounded-lg border border-line text-muted hover:text-ink hover:bg-raised text-sm transition-colors"
                 >
-                  Reset appearance to default
+                  {t('reset_appearance')}
                 </motion.button>
               </div>
             </SectionCard>
@@ -1607,8 +1621,8 @@ export function SettingsView({
             className="flex flex-col gap-6"
           >
             <SectionCard
-              title="GitHub API Token"
-              description="Optionally set a GitHub personal access token to increase the API rate limit from 60 to 5,000 requests per hour when fetching available Godot versions. No scopes/permissions needed."
+              title={t('github_token_title')}
+              description={t('github_token_desc')}
             >
               <div className="flex flex-col gap-2.5">
                 <div className="relative">
@@ -1618,7 +1632,7 @@ export function SettingsView({
                     onChange={(e) =>
                       setField('github_token', e.target.value || null)
                     }
-                    placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                    placeholder={t('setting_token_placeholder', { ns: 'common' })}
                     className="focus-ring w-full bg-raised border border-line rounded-lg px-3.5 py-2.5 text-sm font-mono focus:border-accent-dim transition-colors pr-20"
                   />
                   <motion.button
@@ -1634,10 +1648,10 @@ export function SettingsView({
                           ? `${info.remaining}/${info.limit} (resets ~${mins}min)`
                           : `${info.remaining}/${info.limit}`
                         setTokenTestState(info.remaining > 0 ? 'success' : 'warning')
-                        setTokenTestMsg(`Token valid! Rate limit: ${status}`)
+                        setTokenTestMsg(t('token_valid', { status }))
                       } catch (e) {
                         setTokenTestState('error')
-                        setTokenTestMsg(`Test failed: ${e}`)
+                        setTokenTestMsg(t('test_failed', { error: e }))
                       }
                       tokenTestTimeout.current = setTimeout(() => {
                         setTokenTestState('idle')
@@ -1646,7 +1660,7 @@ export function SettingsView({
                     }}
                     className="focus-ring cursor-pointer absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md bg-raised border border-line text-xs font-medium text-muted hover:text-ink hover:border-accent-dim transition-colors"
                   >
-                    {tokenTestState === 'testing' ? 'Testing…' : 'Test'}
+                    {tokenTestState === 'testing' ? t('testing') : t('test')}
                   </motion.button>
                 </div>
                 {tokenTestMsg && (
@@ -1660,7 +1674,7 @@ export function SettingsView({
                   </span>
                 )}
                 <p className="text-[11px] text-muted leading-relaxed">
-                  Create a token at{' '}
+                  {t('token_help_desc')}{' '}
                   <a
                     href="https://github.com/settings/tokens"
                     target="_blank"
@@ -1669,19 +1683,16 @@ export function SettingsView({
                   >
                     github.com/settings/tokens
                   </a>
-                  . You only need to check the{' '}
-                  <code className="text-[10px] px-1 py-0.5 rounded bg-raised border border-line">public_repo</code>{' '}
-                  scope if you want private repo access, otherwise leave all
-                  scopes unchecked. No sensitive permissions required.
+                  .
                 </p>
               </div>
             </SectionCard>
 
             <div data-section-id="advanced-support" className="rounded-xl border border-line bg-surface/60 p-6 flex items-center justify-between gap-6">
               <div className="min-w-0">
-                <h3 className="font-display font-semibold">Titlebar Buttons</h3>
+                <h3 className="font-display font-semibold">{t('titlebar_buttons')}</h3>
                 <p className="text-xs text-muted mt-1.5 leading-relaxed">
-                  Show or hide the "Support" and "Star on GitHub" buttons in the titlebar.
+                  {t('titlebar_buttons_desc')}
                 </p>
               </div>
               <div className="flex items-center gap-4 shrink-0">
@@ -1691,9 +1702,9 @@ export function SettingsView({
                     onChange={(checked) =>
                       setField('show_support_button', checked)
                     }
-                    label="Show support button"
+                    label={t('show_support_label')}
                   />
-                  <span className="text-xs text-muted whitespace-nowrap">Support Dev</span>
+                  <span className="text-xs text-muted whitespace-nowrap">{t('support_dev_short')}</span>
                 </label>
                 <label className="flex items-center gap-2 cursor-pointer">
                   <Toggle
@@ -1701,9 +1712,9 @@ export function SettingsView({
                     onChange={(checked) =>
                       setField('show_star_button', checked)
                     }
-                    label="Show star button"
+                    label={t('show_star_label')}
                   />
-                  <span className="text-xs text-muted whitespace-nowrap">Star</span>
+                  <span className="text-xs text-muted whitespace-nowrap">{t('star')}</span>
                 </label>
               </div>
             </div>
@@ -1711,14 +1722,9 @@ export function SettingsView({
             <div data-section-id="advanced-setup">
             <div className="rounded-xl border border-line bg-surface/60 p-6 flex items-center justify-between gap-6">
               <div className="min-w-0">
-                <h3 className="font-display font-semibold">
-                  Run Setup Wizard Again
-                </h3>
+                <h3 className="font-display font-semibold">{t('setup_wizard_again')}</h3>
                 <p className="text-xs text-muted mt-1.5 leading-relaxed">
-                  Reopens the first-time setup flow where you can reconfigure
-                  scan folders, categories, accent color, and corner radius.
-                  Settings already saved will be kept, you can always skip steps
-                  you don&apos;t need to change.
+                  {t('setup_wizard_desc')}
                 </p>
               </div>
               <motion.button
@@ -1727,7 +1733,7 @@ export function SettingsView({
                 onClick={() => setFields({ setup_complete: false })}
                 className="focus-ring cursor-pointer shrink-0 px-5 py-2.5 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
               >
-                Open Setup
+                {t('open_setup')}
               </motion.button>
             </div>
             </div>
@@ -1735,14 +1741,9 @@ export function SettingsView({
             <div data-section-id="advanced-reset">
             <div className="rounded-xl border border-line bg-surface/60 p-6 flex items-center justify-between gap-6">
               <div className="min-w-0">
-                <h3 className="font-display font-semibold">
-                  Reset Settings to Default
-                </h3>
+                <h3 className="font-display font-semibold">{t('reset_settings')}</h3>
                 <p className="text-xs text-muted mt-1.5 leading-relaxed">
-                  Restores every setting on this page; download folder, scan
-                  folders, appearance and behavior back to their original
-                  defaults. Scan folders and download locations are kept; only
-                  toggles, sliders, and color picks are reset.
+                  {t('reset_settings_desc')}
                 </p>
               </div>
               <motion.button
@@ -1751,7 +1752,7 @@ export function SettingsView({
                 onClick={() => setConfirmingReset(true)}
                 className="focus-ring cursor-pointer shrink-0 px-5 py-2.5 rounded-lg border border-line text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-sm font-medium transition-colors"
               >
-                Reset
+                {t('reset')}
               </motion.button>
             </div>
             </div>
@@ -1759,16 +1760,9 @@ export function SettingsView({
             <div data-section-id="advanced-delete">
             <div className="rounded-xl border border-danger/30 bg-danger/4 p-6 flex items-center justify-between gap-6">
               <div className="min-w-0">
-                <h3 className="font-display font-semibold text-danger">
-                  Delete App Data
-                </h3>
+                <h3 className="font-display font-semibold text-danger">{t('delete_app_data')}</h3>
                 <p className="text-xs text-muted mt-1.5 leading-relaxed">
-                  Permanently wipes every workspace, project, category,
-                  installed-version record, and setting GodotHub has stored. You
-                  will be restarted at first-time setup. Your actual project
-                  folders and Godot installs on disk are{' '}
-                  <span className="text-ink font-medium">not</span> touched,
-                  unless they live in the default download folder.
+                  {t('delete_data_desc')}
                 </p>
               </div>
               <motion.button
@@ -1777,17 +1771,16 @@ export function SettingsView({
                 onClick={() => setConfirmingWipe(true)}
                 className="focus-ring cursor-pointer shrink-0 px-5 py-2.5 rounded-lg border border-danger/40 text-danger hover:bg-danger/10 text-sm font-medium transition-colors"
               >
-                Delete All
+                {t('delete_all')}
               </motion.button>
             </div>
             </div>
 
             <div data-section-id="advanced-updates" className="rounded-xl border border-line bg-surface/60 p-6 flex items-center justify-between gap-6">
               <div className="min-w-0">
-                <h3 className="font-display font-semibold">Check for Updates</h3>
+                <h3 className="font-display font-semibold">{t('check_updates_title')}</h3>
                 <p className="text-xs text-muted mt-1.5 leading-relaxed">
-                  Check if a new version of GodotHub is available. Updates are
-                  downloaded and installed automatically, then applied on restart.
+                  {t('updates_desc')}
                 </p>
               </div>
               <motion.button
@@ -1799,15 +1792,15 @@ export function SettingsView({
                 className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
               >
                 <IconRefresh className="w-4 h-4" />
-                Check for Updates
+                {t('check_updates')}
               </motion.button>
             </div>
 
             <div className="rounded-xl border border-line bg-surface/60 p-6 flex items-center justify-between gap-6">
               <div className="min-w-0">
-                <h3 className="font-display font-semibold">Report a Bug</h3>
+                <h3 className="font-display font-semibold">{t('report_bug_title')}</h3>
                 <p className="text-xs text-muted mt-1.5 leading-relaxed">
-                  Help improve GodotHub by reporting issues on GitHub.
+                  {t('report_bug_desc')}
                 </p>
               </div>
               <motion.button
@@ -1819,7 +1812,7 @@ export function SettingsView({
                 className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
               >
                 <IconBug className="w-4 h-4" />
-                Report a Bug
+                {t('report_bug')}
               </motion.button>
             </div>
           </motion.div>
@@ -1829,9 +1822,9 @@ export function SettingsView({
       <AnimatePresence>
         {confirmingReset && (
           <ConfirmDialog
-            title="Reset all settings?"
-            description="This restores every setting on this page, download folder, scan folders, appearance, and behavior, back to their defaults. This can't be undone."
-            confirmLabel="Reset Settings"
+            title={t('reset_all_title')}
+            description={t('reset_all_desc')}
+            confirmLabel={t('reset_settings')}
             variant="danger"
             onConfirm={resetAllSettings}
             onCancel={() => setConfirmingReset(false)}
@@ -1839,9 +1832,9 @@ export function SettingsView({
         )}
         {confirmingWipe && (
           <ConfirmDialog
-            title="Delete all app data?"
-            description="This permanently deletes every workspace, project, category, installed-version record, and setting GodotHub has stored, and restarts you at first-time setup. Your actual project folders and Godot installs on disk are not touched, unless they live in the default download folder, in which case they're deleted too. This can't be undone."
-            confirmLabel="Delete App Data"
+            title={t('delete_all_title')}
+            description={t('delete_all_desc')}
+            confirmLabel={t('delete_app_data')}
             variant="danger"
             onConfirm={wipeAppData}
             onCancel={() => setConfirmingWipe(false)}

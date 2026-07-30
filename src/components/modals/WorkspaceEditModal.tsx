@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import type { Workspace } from '../../types'
 import { ColorSwatchPicker } from '../ui/ColorSwatchPicker'
 import { ConfirmDialog } from './ConfirmDialog'
@@ -24,6 +25,7 @@ export function WorkspaceEditModal({
   onSave,
   onDelete,
 }: Props) {
+  const { t } = useTranslation('common')
   const [name, setName] = useState(workspace.name)
   const [icon, setIcon] = useState(workspace.icon)
   const [color, setColor] = useState(workspace.color)
@@ -33,7 +35,7 @@ export function WorkspaceEditModal({
 
   const submit = async () => {
     if (!name.trim()) {
-      setError('Give the workspace a name.')
+      setError(t('workspace_name_required_error'))
       return
     }
     setBusy(true)
@@ -63,14 +65,14 @@ export function WorkspaceEditModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div>
-          <h3 className="font-display font-semibold text-lg">Edit Workspace</h3>
+          <h3 className="font-display font-semibold text-lg">{t('edit_workspace_title')}</h3>
           <p className="text-xs text-muted mt-1.5">
-            Settings, projects, and categories stay with this workspace only.
+            {t('workspace_edit_desc')}
           </p>
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-medium text-muted">Name</label>
+          <label className="text-xs font-medium text-muted">{t('workspace_name_label')}</label>
           <input
             autoFocus
             value={name}
@@ -81,7 +83,7 @@ export function WorkspaceEditModal({
         </div>
 
         <div className="flex flex-col gap-2.5">
-          <span className="text-xs font-medium text-muted">Icon</span>
+          <span className="text-xs font-medium text-muted">{t('icon_label')}</span>
           <div className="flex flex-wrap gap-2">
             {WORKSPACE_ICON_KEYS.map((key) => {
               const Icon = getWorkspaceIcon(key)
@@ -108,7 +110,7 @@ export function WorkspaceEditModal({
         </div>
 
         <ColorSwatchPicker
-          label="Color"
+          label={t('color_label')}
           value={color}
           onChange={setColor}
           presets={WORKSPACE_COLOR_PRESETS}
@@ -123,11 +125,11 @@ export function WorkspaceEditModal({
             onClick={() => canDelete && setConfirmingDelete(true)}
             disabled={!canDelete}
             title={
-              canDelete ? undefined : "You can't delete your only workspace"
+              canDelete ? undefined : t('cant_delete_only_workspace')
             }
             className="focus-ring cursor-pointer disabled:cursor-not-allowed px-4 py-2.5 rounded-lg text-sm text-muted hover:text-danger hover:bg-danger/5 disabled:opacity-40 disabled:hover:text-muted disabled:hover:bg-transparent transition-colors"
           >
-            Delete
+            {t('delete_workspace')}
           </motion.button>
 
           <div className="flex gap-2.5">
@@ -137,7 +139,7 @@ export function WorkspaceEditModal({
               onClick={onClose}
               className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
             >
-              Cancel
+              {t('cancel')}
             </motion.button>
             <motion.button
               whileHover={busy ? undefined : { y: -1 }}
@@ -146,7 +148,7 @@ export function WorkspaceEditModal({
               disabled={busy}
               className="focus-ring px-4 cursor-pointer py-2.5 rounded-lg bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white transition-colors"
             >
-              Save
+              {t('save')}
             </motion.button>
           </div>
         </div>
@@ -155,9 +157,9 @@ export function WorkspaceEditModal({
       {confirmingDelete && (
         <div onClick={(e) => e.stopPropagation()}>
           <ConfirmDialog
-            title="Delete workspace?"
-            description={`"${workspace.name}" and everything scoped to it (its settings, projects, and categories) will be removed. Project files on disk are never touched. Installed Godot versions are shared and stay untouched.`}
-            confirmLabel="Delete"
+            title={t('delete_workspace_title')}
+            description={t('delete_workspace_desc', { name: workspace.name })}
+            confirmLabel={t('delete')}
             variant="danger"
             onConfirm={() => {
               setConfirmingDelete(false)

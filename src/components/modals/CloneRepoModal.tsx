@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { api } from '../../lib/api'
 import { useTaskTray } from '../../hooks/useTaskTray'
@@ -18,6 +19,7 @@ export function CloneRepoModal({
   const [location, setLocation] = useState(defaultLocation ?? '')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const { t } = useTranslation('common')
   const { registerTask, updateTask, unregisterTask } = useTaskTray()
 
   const pickLocation = async () => {
@@ -27,11 +29,11 @@ export function CloneRepoModal({
 
   const submit = async () => {
     if (!url.trim()) {
-      setError('Please enter a repository URL.')
+      setError(t('clone_repo_error_url'))
       return
     }
     if (!location) {
-      setError('Please choose where to clone the repository.')
+      setError(t('clone_repo_error_location'))
       return
     }
 
@@ -44,8 +46,8 @@ export function CloneRepoModal({
     registerTask({
       id: taskId,
       type: 'clone-repo',
-      label: `Cloning ${repoName}`,
-      description: 'Starting…',
+      label: `${t('cloning')} ${repoName}`,
+      description: t('loading'),
       progress: null,
       status: 'running',
     })
@@ -53,7 +55,7 @@ export function CloneRepoModal({
     try {
       const clonedPath = await api.cloneRepo(url.trim(), location)
       updateTask(taskId, {
-        description: 'Importing project…',
+        description: t('importing_project'),
         status: 'running',
       })
       const project = await api.importProject(clonedPath, '')
@@ -89,36 +91,35 @@ export function CloneRepoModal({
       >
         <div>
           <h3 className="font-display font-semibold text-lg">
-            Clone Repository
+            {t('clone_repo_title')}
           </h3>
           <p className="text-xs text-muted mt-1.5">
-            Clone a Git repository and import it as a Godot project. The folder
-            must contain a <code className="text-ink">project.godot</code> file.
+            {t('clone_repo_desc')}
           </p>
         </div>
 
         <div className="flex flex-col gap-2">
           <label className="text-xs font-medium text-muted">
-            Repository URL
+            {t('clone_repo_url_label')}
           </label>
           <input
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="https://github.com/user/my-game.git"
+            placeholder={t('clone_repo_url_placeholder')}
             className="focus-ring bg-raised border border-line rounded-lg px-3.5 py-2.5 text-sm font-mono text-ink focus:border-accent-dim transition-colors"
           />
         </div>
 
         <div className="flex flex-col gap-2">
           <label className="text-xs font-medium text-muted">
-            Destination Folder
+            {t('clone_repo_dest_label')}
           </label>
           <div className="flex gap-2.5">
             <input
               value={location}
               readOnly
               className="flex-1 bg-raised border border-line rounded-lg px-3.5 py-2.5 text-sm font-mono text-muted"
-              placeholder="Choose a folder"
+              placeholder={t('clone_repo_dest_placeholder')}
             />
             <motion.button
               whileHover={{ y: -1 }}
@@ -126,11 +127,11 @@ export function CloneRepoModal({
               onClick={pickLocation}
               className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm transition-colors"
             >
-              Browse
+              {t('browse')}
             </motion.button>
           </div>
           <p className="text-[11px] text-muted/60">
-            A subfolder named after the repository will be created here.
+            {t('clone_repo_subfolder_hint')}
           </p>
         </div>
 
@@ -148,7 +149,7 @@ export function CloneRepoModal({
             disabled={busy}
             className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
           >
-            Cancel
+            {t('clone_repo_cancel')}
           </motion.button>
           <motion.button
             whileHover={busy ? undefined : { y: -1 }}
@@ -157,7 +158,7 @@ export function CloneRepoModal({
             disabled={busy}
             className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white transition-colors"
           >
-            {busy ? 'Cloning…' : 'Clone & Import'}
+            {busy ? t('cloning') : t('clone_import')}
           </motion.button>
         </div>
       </motion.div>

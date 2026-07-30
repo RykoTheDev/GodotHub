@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 
 interface Props {
   projectName: string
@@ -9,21 +10,15 @@ interface Props {
 }
 
 const SUGGESTIONS = [
-  { label: '--debug', description: 'Run with debugger attached' },
-  { label: '--single-window', description: 'Force single window mode' },
-  {
-    label: '--rendering-driver opengl3',
-    description: 'Use OpenGL 3 rendering driver',
-  },
-  {
-    label: '--rendering-driver vulkan',
-    description: 'Use Vulkan rendering driver',
-  },
-  { label: '--headless', description: 'Run without a window' },
-  { label: '--verbose', description: 'Log detailed debug output' },
-  { label: '--editor', description: 'Open the editor (same as -e)' },
-  { label: '--build-solutions', description: 'Build C# solutions on open' },
-  { label: '--gpu-index 1', description: 'Use GPU index 1 (dedicated GPU)' },
+  { labelKey: 'args_debug', descKey: 'args_debug_desc' },
+  { labelKey: 'args_single_window', descKey: 'args_single_window_desc' },
+  { labelKey: 'args_opengl3', descKey: 'args_opengl3_desc' },
+  { labelKey: 'args_vulkan', descKey: 'args_vulkan_desc' },
+  { labelKey: 'args_headless', descKey: 'args_headless_desc' },
+  { labelKey: 'args_verbose', descKey: 'args_verbose_desc' },
+  { labelKey: 'args_editor', descKey: 'args_editor_desc' },
+  { labelKey: 'args_build_solutions', descKey: 'args_build_solutions_desc' },
+  { labelKey: 'args_gpu_index', descKey: 'args_gpu_index_desc' },
 ]
 
 export function LaunchArgsModal({
@@ -32,6 +27,7 @@ export function LaunchArgsModal({
   onSave,
   onClose,
 }: Props) {
+  const { t } = useTranslation('common')
   const [args, setArgs] = useState(currentArgs)
 
   const append = (flag: string) => {
@@ -58,41 +54,42 @@ export function LaunchArgsModal({
       >
         <div>
           <h3 className="font-display font-semibold text-lg">
-            Launch Arguments
+            {t('args_heading')}
           </h3>
           <p className="text-xs text-muted mt-1.5">
-            Custom CLI flags passed to Godot when opening{' '}
-            <span className="font-medium text-ink">{projectName}</span>.
+            {t('args_desc_custom_flags_before')}{' '}
+            <span className="font-medium text-ink">{projectName}</span>
+            {t('args_desc_custom_flags_after')}
           </p>
         </div>
 
         <div className="flex flex-col gap-2">
-          <label className="text-xs font-medium text-muted">Arguments</label>
+          <label className="text-xs font-medium text-muted">{t('args_label')}</label>
           <input
             value={args}
             onChange={(e) => setArgs(e.target.value)}
-            placeholder="e.g. --debug --single-window"
+            placeholder={t('args_placeholder')}
             className="focus-ring bg-raised border border-line rounded-lg px-3.5 py-2.5 text-sm font-mono text-ink focus:border-accent-dim transition-colors"
           />
           <p className="text-[11px] text-muted/60">
-            Separate arguments with spaces. Flags with values like{' '}
-            <code className="text-muted">--rendering-driver opengl3</code> use
-            two tokens.
+            {t('args_desc_separate_prefix')}{' '}
+            <code className="text-muted">--rendering-driver opengl3</code>{' '}
+            {t('args_desc_separate_suffix')}
           </p>
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-xs font-medium text-muted">Suggestions</span>
+          <span className="text-xs font-medium text-muted">{t('args_suggestions')}</span>
           <div className="flex flex-wrap gap-1.5">
             {SUGGESTIONS.map((s) => (
               <button
-                key={s.label}
+                key={s.labelKey}
                 type="button"
-                onClick={() => append(s.label)}
-                title={s.description}
+                onClick={() => append(t(s.labelKey))}
+                title={t(s.descKey)}
                 className="focus-ring cursor-pointer px-2.5 py-1 rounded-md bg-raised border border-line text-[11px] font-mono text-muted hover:text-ink hover:border-accent-dim transition-colors"
               >
-                {s.label}
+                {t(s.labelKey)}
               </button>
             ))}
           </div>
@@ -105,7 +102,7 @@ export function LaunchArgsModal({
             onClick={onClose}
             className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
           >
-            Cancel
+            {t('cancel')}
           </motion.button>
           <motion.button
             whileHover={{ y: -1 }}
@@ -113,7 +110,7 @@ export function LaunchArgsModal({
             onClick={() => onSave(args.trim())}
             className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
           >
-            Save
+            {t('save')}
           </motion.button>
         </div>
       </motion.div>

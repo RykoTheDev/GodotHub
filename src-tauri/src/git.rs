@@ -7,7 +7,7 @@ use std::process::Command;
 use std::os::windows::process::CommandExt;
 
 #[cfg(target_os = "windows")]
-const CREATE_NO_WINDOW: u32 = 0x08000000;
+use crate::terminal::CREATE_NO_WINDOW;
 
 fn cmd() -> Command {
     #[allow(unused_mut)]
@@ -378,7 +378,7 @@ pub fn open_terminal(path: String) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub fn git_log(path: String) -> Result<(), String> {
+pub fn git_log(_app: tauri::AppHandle, path: String) -> Result<(), String> {
     let dir = PathBuf::from(&path);
     if !dir.exists() {
         return Err("Path does not exist".into());
@@ -414,29 +414,11 @@ pub fn git_log(path: String) -> Result<(), String> {
 
     #[cfg(all(unix, not(target_os = "macos")))]
     {
-        let terminals: [(&str, &[&str]); 5] = [
-            ("gnome-terminal", &["--", "bash", "-c"]),
-            ("konsole", &["--new-tab", "-e", "bash", "-c"]),
-            ("xfce4-terminal", &["-e", "bash", "-c"]),
-            ("xterm", &["-e", "bash", "-c"]),
-            ("x-terminal-emulator", &["-e", "bash", "-c"]),
-        ];
-        let cmd = format!("cd '{}' && git log --oneline --graph -25 --all; exec bash", path.replace('\'', "'\\''"));
-        let mut spawned = false;
-        for (term, args) in &terminals {
-            if Command::new(term)
-                .args(*args)
-                .arg(&cmd)
-                .spawn()
-                .is_ok()
-            {
-                spawned = true;
-                break;
-            }
-        }
-        if !spawned {
-            return Err("Could not find a terminal emulator".into());
-        }
+        let script = format!(
+            "#!/bin/sh\ncd '{}' && git log --oneline --graph -25 --all\nexec sh\n",
+            path.replace('\'', "'\\''")
+        );
+        crate::terminal::spawn_shell_script_in_terminal(&_app, &script)?;
     }
 
     Ok(())

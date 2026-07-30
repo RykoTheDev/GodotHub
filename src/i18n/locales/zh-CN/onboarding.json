@@ -1,0 +1,22 @@
+{
+  "welcome": "欢迎",
+  "godot_versions": "Godot 版本",
+  "categories": "分类",
+  "customize": "自定义",
+  "finish": "完成",
+  "in_progress": "进行中",
+  "prototypes": "原型",
+  "finished": "已完成",
+  "game_jams": "游戏开发竞赛",
+  "project_folders": "项目文件夹",
+  "version_folders": "版本文件夹",
+  "welcome_title": "欢迎使用 GodotHub",
+  "welcome_desc": "管理本机上所有 Godot 项目和引擎版本的家。让我们进行一些简单的设置，让它按照你喜欢的方式工作。只需一分钟，所有设置都可以在之后更改。",
+  "onboard_empty_projects": "尚未添加任何文件夹，GodotHub 无法找到现有项目，除非添加文件夹，也可以稍后手动添加项目。",
+  "onboard_empty_versions": "尚未添加任何文件夹，除非在下方设置，否则新的 Godot 下载将保存到应用数据文件夹。",
+  "onboard_no_template_folder": "未设置文件夹，您可以稍后在设置中配置，或手动保存模板。",
+  "onboard_categories_desc": "这里没有必填项，没有分类的项目会显示为「未分类」。",
+  "language_title": "选择语言",
+  "language_desc": "选择 GodotHub 使用的语言。你可以在设置中随时更改。",
+  "language_heading": "语言"
+}

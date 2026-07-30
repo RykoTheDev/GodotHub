@@ -10,6 +10,7 @@ import { api } from '../lib/api'
 import { applyTheme } from '../lib/colors'
 import { applyAppearance } from '../lib/appearance'
 import { useWorkspaces } from './useWorkspaces'
+import i18n from 'i18next'
 import type { AppSettings } from '../types'
 
 const DEFAULTS: AppSettings = {
@@ -26,6 +27,7 @@ const DEFAULTS: AppSettings = {
   font_scale: 1.0,
   reduce_motion: false,
   theme_mode: 'dark',
+  launch_with_console: false,
   close_on_project_open: false,
   minimize_to_tray: false,
   reopen_after_godot_closes: false,
@@ -48,6 +50,7 @@ const DEFAULTS: AppSettings = {
   show_star_button: true,
   show_scrollbars: true,
   project_icon_opacity: 14,
+  language: 'en-US',
 }
 
 interface SettingsContextValue {
@@ -71,6 +74,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       setSettings(s)
       applyTheme(s.accent_color, s.background_color, s.theme_mode)
       applyAppearance(s)
+      if (s.language && s.language !== i18n.language) {
+        i18n.changeLanguage(s.language)
+      }
       setLoaded(true)
     })
     return () => {
@@ -82,6 +88,9 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     const saved = await api.updateSettings(next)
     setSettings(saved)
     applyTheme(saved.accent_color, saved.background_color, saved.theme_mode)
+    if (saved.language) {
+      localStorage.setItem('i18nextLng', saved.language)
+    }
     applyAppearance(saved)
     return saved
   }

@@ -72,7 +72,14 @@ pub fn read_registry(app: &AppHandle) -> Vec<InstalledGodotVersion> {
     if !file.exists() {
         return vec![];
     }
-    serde_json::from_str(&fs::read_to_string(&file).unwrap_or_default()).unwrap_or_default()
+    let list: Vec<InstalledGodotVersion> =
+        serde_json::from_str(&fs::read_to_string(&file).unwrap_or_default()).unwrap_or_default();
+    list.into_iter()
+        .map(|mut v| {
+            v.supports_console = supports_console(Path::new(&v.executable_path));
+            v
+        })
+        .collect()
 }
 
 pub fn write_registry(app: &AppHandle, list: &Vec<InstalledGodotVersion>) -> Result<(), String> {
@@ -595,6 +602,7 @@ async fn run_download(app: AppHandle, key: String) {
             installed_at: chrono::Utc::now().to_rfc3339(),
             custom_name: None,
             install_root: Some(target_dir.to_string_lossy().to_string()),
+            supports_console: false,
         };
         register_version(&app2, installed.clone()).map_err(|e| e.to_string())?;
         crate::projects::rebind_projects_to_version(&app2, &installed);
@@ -648,6 +656,13 @@ pub fn find_executable(dir: &Path) -> Option<PathBuf> {
         }
     }
     None
+}
+
+#[cfg(target_os = "windows")]
+pub fn console_executable_for(exe: &Path) -> Option<PathBuf> {
+    let stem = exe.file_stem()?.to_str()?;
+    let candidate = exe.with_file_name(format!("{stem}_console.exe"));
+    candidate.is_file().then_some(candidate)
 }
 
 pub fn migrate_mono_tags(app: &AppHandle) {
@@ -711,21 +726,92 @@ pub fn rename_godot_version(
     Ok(updated)
 }
 
+pub struct LaunchedEditor {
+    pub child: std::process::Child,
+    pub kill_tree: bool,
+    #[cfg(unix)]
+    pub pid_file: Option<PathBuf>,
+}
+
+pub fn spawn_editor(
+    app: &AppHandle,
+    exe: &Path,
+    args: &[String],
+    title: &str,
+    use_console: bool,
+) -> Result<LaunchedEditor, String> {
+    if !use_console {
+        return spawn_plain(exe, args);
+    }
+
+    spawn_with_console(app, exe, args, title)
+}
+
+fn spawn_plain(exe: &Path, args: &[String]) -> Result<LaunchedEditor, String> {
+    std::process::Command::new(exe)
+        .args(args)
+        .spawn()
+        .map(|child| LaunchedEditor {
+            child,
+            kill_tree: false,
+            #[cfg(unix)]
+            pid_file: None,
+        })
+        .map_err(|e| format!("Failed to launch editor: {e}"))
+}
+
+#[cfg(target_os = "windows")]
+fn spawn_with_console(
+    _app: &AppHandle,
+    exe: &Path,
+    args: &[String],
+    title: &str,
+) -> Result<LaunchedEditor, String> {
+    match console_executable_for(exe) {
+        Some(wrapper) => crate::terminal::spawn_program_in_console(&wrapper, args, title)
+            .map(|child| LaunchedEditor {
+                child,
+                kill_tree: true,
+            }),
+        None => spawn_plain(exe, args),
+    }
+}
+
+#[cfg(unix)]
+fn spawn_with_console(
+    app: &AppHandle,
+    exe: &Path,
+    args: &[String],
+    _title: &str,
+) -> Result<LaunchedEditor, String> {
+    crate::terminal::spawn_program_in_terminal(app, exe, args).map(|(child, pid_file)| {
+        LaunchedEditor {
+            child,
+            kill_tree: false,
+            pid_file: Some(pid_file),
+        }
+    })
+}
+
 #[tauri::command]
-pub fn open_godot_version(app: AppHandle, tag: String) -> Result<(), String> {
+pub fn open_godot_version(app: AppHandle, tag: String, console: Option<bool>) -> Result<(), String> {
     let list = read_registry(&app);
     let version = list
         .iter()
         .find(|v| v.tag == tag)
         .ok_or("Version not found")?;
-    let exe_path = &version.executable_path;
-    let path = std::path::PathBuf::from(exe_path);
+    let path = PathBuf::from(&version.executable_path);
     if !path.exists() {
         return Err("Executable no longer exists at that path".into());
     }
-    std::process::Command::new(path)
-        .spawn()
-        .map_err(|e| format!("Failed to launch editor: {e}"))?;
+
+    let use_console = console.unwrap_or_else(|| settings::read_settings(&app).launch_with_console);
+    let title = version
+        .custom_name
+        .clone()
+        .unwrap_or_else(|| version.tag.clone());
+
+    spawn_editor(&app, &path, &[], &title, use_console)?;
     Ok(())
 }
 
@@ -775,7 +861,7 @@ pub fn delete_godot_version(app: AppHandle, tag: String) -> Result<(), String> {
     {
         if let Some(stem) = exe_path.file_stem().and_then(|s| s.to_str()) {
             let console_name = format!("{}_console.exe", stem);
-            let _ = trash::delete(&exe_path.with_file_name(console_name));
+            let _ = trash::delete(exe_path.with_file_name(console_name));
         }
     }
 
@@ -927,6 +1013,7 @@ pub async fn import_version_zip(
         installed_at: chrono::Utc::now().to_rfc3339(),
         custom_name: None,
         install_root: Some(target_dir.to_string_lossy().to_string()),
+        supports_console: false,
     };
 
     register_version(&app, installed.clone())?;
@@ -946,4 +1033,14 @@ pub fn prune_missing(app: &AppHandle) -> Vec<InstalledGodotVersion> {
         let _ = write_registry(app, &kept);
     }
     kept
+}
+
+#[cfg(target_os = "windows")]
+fn supports_console(exe: &Path) -> bool {
+    console_executable_for(exe).is_some()
+}
+
+#[cfg(not(target_os = "windows"))]
+fn supports_console(_exe: &Path) -> bool {
+    true
 }

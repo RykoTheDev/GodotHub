@@ -1,0 +1,22 @@
+{
+  "welcome": "Welcome",
+  "godot_versions": "Godot Versions",
+  "categories": "Categories",
+  "customize": "Customize",
+  "finish": "Finish",
+  "in_progress": "In Progress",
+  "prototypes": "Prototypes",
+  "finished": "Finished",
+  "game_jams": "Game Jams",
+  "project_folders": "Project folders",
+  "version_folders": "Version folders",
+  "welcome_title": "Welcome to GodotHub",
+  "welcome_desc": "A home for every Godot project and engine version on this machine. Let's set a few things up so it works the way you want, it only takes a minute, and everything here can be changed later in Settings.",
+  "onboard_empty_projects": "No folders added yet, GodotHub won't find any existing projects until you add one, or you can add projects manually later.",
+  "onboard_empty_versions": "No folders added yet, new Godot downloads will go to the app data folder unless you set one below.",
+  "onboard_no_template_folder": "No folder set, you can always configure this later in Settings, or save templates manually.",
+  "onboard_categories_desc": "Nothing here is required, projects with no category simply show up as Uncategorized.",
+  "language_title": "Choose your language",
+  "language_desc": "Select the language you'd like GodotHub to use. You can change this later in Settings.",
+  "language_heading": "Language"
+}

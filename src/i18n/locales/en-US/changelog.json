@@ -1,0 +1,10 @@
+{
+  "add": "Added",
+  "fix": "Fixed",
+  "improve": "Improved",
+  "changelog_title": "CHANGELOG",
+  "no_entries": "No changelog entries yet",
+  "delete_entry_title": "Delete changelog entry?",
+  "delete_entry_desc": "This removes the entry permanently. This can't be undone.",
+  "changelog_subtitle": "A history of GodotHub updates."
+}

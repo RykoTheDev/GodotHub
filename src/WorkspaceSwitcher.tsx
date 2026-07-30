@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useWorkspaces } from './hooks/useWorkspaces'
 import { IconPlus } from './components/Icons'
@@ -13,6 +14,7 @@ interface Props {
 }
 
 export function WorkspaceSwitcher({ collapsed }: Props) {
+  const { t } = useTranslation('common')
   const {
     workspaces,
     activeId,
@@ -36,7 +38,7 @@ export function WorkspaceSwitcher({ collapsed }: Props) {
           const Icon = getWorkspaceIcon(w.icon)
           const active = w.id === activeId
           return (
-            <Tooltip content={active ? `${w.name} (right-click to edit)` : w.name} side="right">
+            <Tooltip content={active ? t('workspace_right_click', { name: w.name }) : w.name} side="right">
             <motion.button
               key={w.id}
               type="button"
@@ -47,7 +49,7 @@ export function WorkspaceSwitcher({ collapsed }: Props) {
                 e.preventDefault()
                 setEditing(w)
               }}
-              aria-label={`Switch to ${w.name} workspace`}
+              aria-label={t('workspace_switch_aria', { name: w.name })}
               className={`focus-ring icon-wiggle cursor-pointer relative w-9 h-9 shrink-0 rounded-full flex items-center justify-center border-2 transition-all ${
                 active
                   ? 'border-ink/70 shadow-sm'
@@ -60,13 +62,13 @@ export function WorkspaceSwitcher({ collapsed }: Props) {
             </Tooltip>
           )
         })}
-        <Tooltip content="Add workspace" side="right">
+        <Tooltip content={t('add_workspace')} side="right">
           <motion.button
             type="button"
             whileHover={{ y: -1 }}
             whileTap={{ scale: 0.94 }}
             onClick={() => setCreating(true)}
-            aria-label="Add workspace"
+            aria-label={t('add_workspace')}
             className="focus-ring cursor-pointer w-9 h-9 shrink-0 rounded-full flex items-center justify-center border-2 border-dashed border-line text-muted hover:text-ink hover:border-accent-dim transition-colors"
           >
             <IconPlus className="w-3 h-3" />

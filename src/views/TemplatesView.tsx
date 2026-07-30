@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef } from 'react'
+import { useTranslation, Trans } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { api } from '../lib/api'
 import { useSettings } from '../hooks/useSettings'
@@ -23,6 +24,7 @@ export function TemplatesView() {
   const [previewTemplate, setPreviewTemplate] = useState<ProjectTemplate | null>(null)
   const [query, setQuery] = useState('')
   const { registerTask, updateTask, unregisterTask } = useTaskTray()
+  const { t } = useTranslation('common')
 
   const load = async () => {
     try {
@@ -43,8 +45,8 @@ export function TemplatesView() {
     registerTask({
       id: 'sync-templates',
       type: 'sync-templates',
-      label: 'Syncing templates',
-      description: 'Starting…',
+      label: t('syncing'),
+      description: t('loading'),
       progress: null,
       status: 'running',
     })
@@ -53,19 +55,19 @@ export function TemplatesView() {
       setSyncResult(result)
       const parts: string[] = []
       if (result.imported.length > 0)
-        parts.push(`Imported ${result.imported.length}`)
+        parts.push(t('template_imported_count', { count: result.imported.length }))
       if (result.updated.length > 0)
-        parts.push(`Updated ${result.updated.length}`)
+        parts.push(t('template_updated_count', { count: result.updated.length }))
       if (result.removed.length > 0)
-        parts.push(`Removed ${result.removed.length}`)
+        parts.push(t('template_removed_count', { count: result.removed.length }))
       setSyncMessage(
         parts.length > 0
           ? parts.join(' · ')
-          : 'Templates are up to date.',
+          : t('templates_up_to_date'),
       )
       updateTask('sync-templates', {
         status: 'completed',
-        description: parts.length > 0 ? parts.join(' · ') : 'Up to date',
+        description: parts.length > 0 ? parts.join(' · ') : t('up_to_date'),
       })
       setTimeout(() => unregisterTask('sync-templates'), 3000)
       await load()
@@ -127,12 +129,12 @@ export function TemplatesView() {
         <div className="flex items-center justify-between gap-4">
           <div>
             <h2 className="font-body font-semibold text-3xl tracking-tight">
-              TEMPLATES
+              {t('templates_title')}
             </h2>
             <p className="text-xs text-muted mt-1">
               {templates.length > 0
-                ? `${templates.length} template${templates.length !== 1 ? 's' : ''} available${isSearching ? ` · Showing ${filteredTemplates.length}` : ''}`
-                : 'No templates saved yet.'}
+                ? t('template_count', { count: templates.length }) + (isSearching ? ' · ' + t('showing_count', { count: filteredTemplates.length }) : '')
+                : t('no_templates_saved')}
             </p>
           </div>
           {/* Search bar */}
@@ -142,7 +144,7 @@ export function TemplatesView() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search templates…"
+              placeholder={t('template_search_placeholder')}
               className="w-full pl-9 pr-9 py-2 rounded-lg border border-line bg-surface text-sm text-ink placeholder:text-muted/50 outline-none transition-all focus:border-accent focus:ring-1 focus:ring-accent/30"
             />
             {query && (
@@ -157,7 +159,7 @@ export function TemplatesView() {
         </div>
         <div className="flex items-center gap-3 mt-4">
           <Tooltip
-            content={!settings.template_scan_dir ? 'Set a template scan directory in Settings → Storage first' : 'Sync from directory'}
+            content={!settings.template_scan_dir ? t('template_scan_dir_hint') : t('template_sync_from_dir')}
             side="bottom"
           >
             <motion.button
@@ -170,11 +172,11 @@ export function TemplatesView() {
               <span className={`icon-wiggle inline-flex ${syncing ? 'animate-spin' : ''}`}>
                 <IconRefresh className="w-4 h-4" />
               </span>
-              {syncing ? 'Syncing…' : 'Sync Now'}
+              {syncing ? t('syncing') : t('sync_now')}
             </motion.button>
           </Tooltip>
           {settings.template_scan_dir && (
-            <Tooltip content="Open templates folder in file manager" side="bottom">
+            <Tooltip content={t('template_open_folder')} side="bottom">
               <motion.button
                 whileHover={{ y: -1 }}
                 whileTap={{ scale: 0.96 }}
@@ -182,7 +184,7 @@ export function TemplatesView() {
                 className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
               >
                 <IconExternalLink className="w-4 h-4" />
-                Open Folder
+                {t('template_open_folder_btn')}
               </motion.button>
             </Tooltip>
           )}
@@ -195,22 +197,24 @@ export function TemplatesView() {
       </div>
 
       {!loaded ? (
-        <div className="text-sm text-muted">Loading…</div>
+        <div className="text-sm text-muted">{t('loading')}</div>
       ) : templates.length === 0 ? (
         <div className="border border-dashed border-line rounded-2xl py-24 flex flex-col items-center gap-4 text-center">
           <div className="w-12 h-12 rounded-xl bg-raised border border-line flex items-center justify-center">
             <IconCopy className="w-5 h-5 text-muted" />
           </div>
           <p className="text-sm text-muted max-w-xs leading-relaxed">
-            No templates yet. Right-click a project or open its "More" menu and
-            select <strong>Save as Template</strong> to create one.
+            <Trans i18nKey="no_templates_yet" ns="common">
+              No templates yet. Right-click a project or open its "More" menu and
+              select <strong>Save as Template</strong> to create one.
+            </Trans>
           </p>
         </div>
       ) : filteredTemplates.length === 0 ? (
         <div className="border border-dashed border-line rounded-2xl py-24 flex flex-col items-center gap-4 text-center">
           <IconSearch className="w-5 h-5 text-muted" />
           <p className="text-sm text-muted max-w-xs leading-relaxed">
-            No templates match <strong>"{query}"</strong>.
+            {t('no_templates_match')} <strong>"{query}"</strong>.
           </p>
         </div>
       ) : (
@@ -221,53 +225,53 @@ export function TemplatesView() {
               <div className="flex items-center gap-2 mb-4">
                 <IconCopy className="w-3.5 h-3.5 text-muted" />
                 <h3 className="text-xs font-semibold uppercase tracking-wide text-muted">
-                  Your Templates
+                  {t('template_your_templates')}
                 </h3>
                 <span className="text-[10px] text-muted/50">· {user.length}</span>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <AnimatePresence>
-                  {user.map((t) => (
+                  {user.map((tmpl) => (
                     <motion.div
-                      key={t.id}
+                      key={tmpl.id}
                       layout
                       initial={{ opacity: 0, y: 8 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, scale: 0.95 }}
                       className="relative border border-line rounded-xl bg-surface p-5 flex flex-col gap-3 group cursor-pointer"
-                      onClick={() => setPreviewTemplate(t)}
+                      onClick={() => setPreviewTemplate(tmpl)}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="w-9 h-9 rounded-lg bg-raised border border-line flex items-center justify-center shrink-0">
-                          <IconCopy className="w-4 h-4 text-muted" />
+                          <IconCopy className="w-3.5 h-3.5 text-muted" />
                         </div>
                         <button
-                          onClick={(e) => { e.stopPropagation(); setConfirmDelete(t.id) }}
+                          onClick={(e) => { e.stopPropagation(); setConfirmDelete(tmpl.id) }}
                           className="focus-ring cursor-pointer p-1.5 rounded-lg text-muted/40 opacity-0 group-hover:opacity-100 hover:text-danger hover:bg-danger/10 transition-all"
-                          aria-label={`Delete ${t.name} template`}
+                          aria-label={t('delete_template', { name: tmpl.name })}
                         >
                           <IconTrash className="w-3.5 h-3.5" />
                         </button>
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="font-display font-semibold text-sm truncate">
-                          {t.name}
+                          {tmpl.name}
                         </h4>
-                        {t.description && (
+                        {tmpl.description && (
                           <p className="text-xs text-muted mt-1 leading-relaxed">
-                            {t.description}
+                            {tmpl.description}
                           </p>
                         )}
                       </div>
                       <div className="flex items-center gap-1.5 text-[10px] text-muted/50 font-mono">
-                        {t.godot_version && (
-                          <span>Godot {t.godot_version}</span>
+                        {tmpl.godot_version && (
+                          <span>{t('godot')} {tmpl.godot_version}</span>
                         )}
-                        {t.created_at && (
+                        {tmpl.created_at && (
                           <>
                             <span>·</span>
                             <span>
-                              {new Date(t.created_at).toLocaleDateString()}
+                              {new Date(tmpl.created_at).toLocaleDateString()}
                             </span>
                           </>
                         )}
@@ -314,12 +318,12 @@ export function TemplatesView() {
                 </div>
                 <div>
                   <h4 className="font-display font-semibold text-muted">
-                    Delete Template?
+                    {t('template_delete_title')}
                   </h4>
                   <p className="text-xs text-muted mt-0.5">
                     {templates.find((t) => t.id === confirmDelete)?.name
-                      ? `"${templates.find((t) => t.id === confirmDelete)?.name}" will be permanently removed.`
-                      : 'This cannot be undone.'}
+                      ? t('template_delete_desc', { name: templates.find((t) => t.id === confirmDelete)?.name })
+                      : t('cannot_undo')}
                   </p>
                 </div>
               </div>
@@ -331,7 +335,7 @@ export function TemplatesView() {
                   disabled={deleting}
                   className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
                 >
-                  Cancel
+                  {t('cancel')}
                 </motion.button>
                 <motion.button
                   whileHover={deleting ? undefined : { y: -1 }}
@@ -340,7 +344,7 @@ export function TemplatesView() {
                   disabled={deleting}
                   className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg bg-danger hover:bg-danger/80 disabled:opacity-50 text-sm font-medium text-white transition-colors"
                 >
-                  {deleting ? 'Deleting…' : 'Delete'}
+                  {deleting ? t('deleting') : t('delete')}
                 </motion.button>
               </div>
             </motion.div>
@@ -354,13 +358,13 @@ export function TemplatesView() {
           <div className="bg-surface border border-line rounded-2xl px-8 py-6 flex flex-col items-center gap-3 min-w-64">
             <IconRefresh className="w-6 h-6 animate-spin text-accent" />
             <p className="text-sm font-medium text-ink">
-              Syncing templates from directory…
+              {t('template_syncing_from_dir')}
             </p>
             <button
               onClick={() => setDialogMinimized(true)}
               className="focus-ring cursor-pointer text-xs text-muted hover:text-ink transition-colors mt-1"
             >
-              Resume in background
+              {t('resume_background')}
             </button>
           </div>
         </div>

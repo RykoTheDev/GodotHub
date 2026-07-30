@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import type { Project, ProjectSizeInfo } from '../../types'
 import { api } from '../../lib/api'
 import { IconX, IconHardDrive } from '../Icons'
@@ -35,6 +36,7 @@ function DonutChart({
   hoveredIndex: number | null
   onHover: (index: number | null) => void
 }) {
+  const { t } = useTranslation('common')
   const innerRadius = 65
   const [animated, setAnimated] = useState(false)
 
@@ -46,7 +48,7 @@ function DonutChart({
   if (totalSize === 0) {
     return (
       <div className="flex items-center justify-center h-56 text-muted text-sm">
-        No files found
+        {t('no_files_found')}
       </div>
     )
   }
@@ -69,13 +71,13 @@ function DonutChart({
       : 0
     displayArcs.push({
       ...remaining.reduce((merged, c) => ({
-        label: 'Other',
+        label: t('other'),
         size: merged.size + c.size,
         color: '#94a3b8',
         count: merged.count + c.count,
         startAngle: 0,
         endAngle: 0,
-      }), { label: 'Other', size: 0, color: '#94a3b8', count: 0, startAngle: 0, endAngle: 0 }),
+      }), { label: t('other'), size: 0, color: '#94a3b8', count: 0, startAngle: 0, endAngle: 0 }),
       startAngle,
       endAngle: 360,
     })
@@ -135,7 +137,7 @@ function DonutChart({
         textAnchor="middle"
         className="fill-muted text-[10px] uppercase tracking-wider"
       >
-        Total
+        {t('total')}
       </text>
     </svg>
   )
@@ -211,6 +213,7 @@ function ChartTooltip({
 }
 
 export function ProjectPropertiesModal({ project, onClose }: Props) {
+  const { t } = useTranslation('common')
   const [sizeInfo, setSizeInfo] = useState<ProjectSizeInfo | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -264,7 +267,7 @@ export function ProjectPropertiesModal({ project, onClose }: Props) {
               <IconHardDrive className="w-5 h-5 text-accent-bright" />
             </div>
             <div>
-              <h3 className="font-display font-semibold text-lg">Project Size</h3>
+              <h3 className="font-display font-semibold text-lg">{t('project_size')}</h3>
               <p className="text-xs text-muted font-mono truncate max-w-sm">
                 {project.name}
               </p>
@@ -275,7 +278,7 @@ export function ProjectPropertiesModal({ project, onClose }: Props) {
             whileTap={{ scale: 0.9 }}
             onClick={onClose}
             className="focus-ring cursor-pointer p-1.5 rounded-lg text-muted hover:text-ink hover:bg-raised transition-colors"
-            aria-label="Close"
+            aria-label={t('close')}
           >
             <IconX className="w-4 h-4" />
           </motion.button>
@@ -284,7 +287,7 @@ export function ProjectPropertiesModal({ project, onClose }: Props) {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-16 gap-3">
             <div className="w-8 h-8 rounded-full border-2 border-accent/30 border-t-accent animate-spin" />
-            <p className="text-sm text-muted">Scanning project files…</p>
+            <p className="text-sm text-muted">{t('scanning_project_files')}</p>
           </div>
         ) : error ? (
           <div className="flex items-center justify-center py-16 text-danger text-sm">
@@ -312,12 +315,12 @@ export function ProjectPropertiesModal({ project, onClose }: Props) {
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-6 mb-5 pb-4 border-b border-line">
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted/60">Total Size</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted/60">{t('total_size')}</p>
                   <p className="text-lg font-display font-semibold text-ink mt-0.5">{formatSize(sizeInfo.total_size)}</p>
                 </div>
                 <div className="w-px h-8 bg-line" />
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted/60">Files</p>
+                  <p className="text-[10px] font-semibold uppercase tracking-wider text-muted/60">{t('files')}</p>
                   <p className="text-lg font-display font-semibold text-ink mt-0.5">{sizeInfo.file_count.toLocaleString()}</p>
                 </div>
               </div>

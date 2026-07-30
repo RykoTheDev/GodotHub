@@ -56,6 +56,7 @@ pub fn reset_settings(app: AppHandle) -> Result<AppSettings, String> {
         version_scan_dirs: current.version_scan_dirs,
         scan_depth: current.scan_depth,
         setup_complete: current.setup_complete,
+        language: current.language,
         ..AppSettings::default()
     };
     write_settings(&app, &reset)?;

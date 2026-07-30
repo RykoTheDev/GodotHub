@@ -8,6 +8,7 @@ mod projects;
 mod scan;
 mod settings;
 mod templates;
+mod terminal;
 mod watcher;
 mod workspace;
 
@@ -191,6 +192,7 @@ pub fn run() {
                             app.clone(),
                             id.to_string(),
                             true,
+                            None,
                         );
                     }
                 })
@@ -257,6 +259,7 @@ pub fn run() {
             projects::validate_godot_folder,
             projects::stop_project,
             projects::pick_file,
+            projects::write_project_tags,
             categories::list_categories,
             categories::create_category,
             categories::update_category,

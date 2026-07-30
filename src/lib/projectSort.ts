@@ -8,13 +8,13 @@ export type ProjectSortOption =
   | 'created_desc'
   | 'created_asc'
 
-export const SORT_OPTIONS: { value: ProjectSortOption; label: string }[] = [
-  { value: 'categories', label: 'Categories' },
-  { value: 'recent', label: 'Recently opened' },
-  { value: 'name_asc', label: 'Name (A–Z)' },
-  { value: 'name_desc', label: 'Name (Z–A)' },
-  { value: 'created_desc', label: 'Date added (newest)' },
-  { value: 'created_asc', label: 'Date added (oldest)' },
+export const SORT_OPTIONS: { value: ProjectSortOption; labelKey: string }[] = [
+  { value: 'categories', labelKey: 'sort_categories' },
+  { value: 'recent', labelKey: 'sort_recent' },
+  { value: 'name_asc', labelKey: 'sort_name_asc' },
+  { value: 'name_desc', labelKey: 'sort_name_desc' },
+  { value: 'created_desc', labelKey: 'sort_created_desc' },
+  { value: 'created_asc', labelKey: 'sort_created_asc' },
 ]
 
 function timeOf(iso: string | null | undefined): number {

@@ -1605,6 +1605,7 @@ dependencies = [
  "chrono",
  "feed-rs",
  "futures-util",
+ "libc",
  "notify",
  "reqwest",
  "serde",

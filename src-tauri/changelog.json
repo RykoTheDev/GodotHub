@@ -439,6 +439,18 @@
       {
         "category": "add",
         "text": "Opacity slider in Settings -> Appearance for Icons in Project Cards"
+      },
+      {
+        "category": "add",
+        "text": "PR by Stryde01: Add Chinese translation to the app, Settings -> Display"
+      },
+      {
+        "category": "add",
+        "text": "PR by XRomieo: Add 'Open in Console' option when opening a project"
+      },
+      {
+        "category": "fix",
+        "text": "PR by Zalyto: Icon Clipping in Project Card"
       }
     ],
     "created_at": 1785270388

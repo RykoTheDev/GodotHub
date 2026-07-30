@@ -10,6 +10,7 @@ import {
 } from 'react'
 import { listen } from '@tauri-apps/api/event'
 import type { DownloadProgress } from '../types'
+import i18n from '../i18n'
 
 export interface Task {
   id: string
@@ -101,7 +102,7 @@ export function TaskTrayProvider({ children }: { children: ReactNode }) {
           registerTask({
             id: 'scan-projects',
             type: 'scan-projects',
-            label: 'Scanning projects',
+            label: i18n.t('common:scanning_projects'),
             description: total > 0 ? `${current} / ${total}` : undefined,
             progress: { current, total },
             status: 'running',
@@ -120,7 +121,7 @@ export function TaskTrayProvider({ children }: { children: ReactNode }) {
           registerTask({
             id: 'scan-versions',
             type: 'scan-versions',
-            label: 'Scanning versions',
+            label: i18n.t('common:scanning_versions'),
             description: total > 0 ? `${current} / ${total}` : undefined,
             progress: { current, total },
             status: 'running',
@@ -139,8 +140,8 @@ export function TaskTrayProvider({ children }: { children: ReactNode }) {
         registerTask({
           id: `download-${key}`,
           type: 'download-godot',
-          label: `Downloading ${key}`,
-          description: 'Queued…',
+          label: i18n.t('common:downloading_version', { version: key }),
+          description: i18n.t('common:queued'),
           progress: null,
           status: 'queued',
         })
@@ -157,7 +158,7 @@ export function TaskTrayProvider({ children }: { children: ReactNode }) {
         registerTask({
           id,
           type: 'download-godot',
-          label: `Downloading ${tag}`,
+          label: i18n.t('common:downloading_version', { version: tag }),
           description:
             total > 0
               ? `${(downloaded / 1024 / 1024).toFixed(1)} / ${(total / 1024 / 1024).toFixed(1)} MB (${pct}%)`

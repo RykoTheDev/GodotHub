@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { version } from '../../../package.json'
 import { IconBug, IconCopy, IconDownload, IconExternalLink, IconRefresh } from '../Icons'
@@ -116,6 +117,7 @@ function downloadReport(report: string) {
 }
 
 export function BugReportModal({ onClose }: Props) {
+  const { t } = useTranslation('common')
   const [report, setReport] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -163,9 +165,9 @@ export function BugReportModal({ onClose }: Props) {
             <IconBug className="w-5 h-5 text-danger" />
           </div>
           <div>
-            <h3 className="font-display font-semibold text-lg">Report a Bug</h3>
+            <h3 className="font-display font-semibold text-lg">{t('bug_report_title', { ns: 'common' })}</h3>
             <p className="text-xs text-muted mt-0.5">
-              Help me improve GodotHub v{version}
+              {t('bug_report_desc', { ns: 'common', version })}
             </p>
           </div>
         </div>
@@ -192,7 +194,7 @@ export function BugReportModal({ onClose }: Props) {
             className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-lg border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <IconCopy className="w-4 h-4" />
-            Copy Log
+            {t('bug_report_copy_log')}
           </button>
           <div className="flex items-center gap-2.5">
             <motion.button
@@ -203,7 +205,7 @@ export function BugReportModal({ onClose }: Props) {
               className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-lg border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <IconDownload className="w-4 h-4" />
-              Download Log
+              {t('bug_report_download_log')}
             </motion.button>
             <motion.button
               whileHover={{ y: -1 }}
@@ -215,7 +217,7 @@ export function BugReportModal({ onClose }: Props) {
               className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-lg bg-danger hover:bg-danger/90 text-sm font-medium text-white transition-colors"
             >
               <IconExternalLink className="w-4 h-4" />
-              Open GitHub Issues
+              {t('bug_report_open_github')}
             </motion.button>
           </div>
         </div>

@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { IconTrash } from '../Icons'
 
 interface Props {
@@ -18,6 +19,7 @@ export function ConfirmDialog({
   onConfirm,
   onCancel,
 }: Props) {
+  const { t } = useTranslation('common')
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -54,7 +56,7 @@ export function ConfirmDialog({
             onClick={onCancel}
             className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
           >
-            Cancel
+            {t('cancel')}
           </motion.button>
           <motion.button
             whileHover={{ y: -1 }}

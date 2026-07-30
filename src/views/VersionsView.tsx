@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSettings } from '../hooks/useSettings'
 import { api } from '../lib/api'
@@ -18,7 +19,9 @@ import {
   IconPlay,
   IconExternalLink,
   IconRocket,
+  IconTerminal,
 } from '../components/Icons'
+import { SplitButton } from '../components/ui/SplitButton'
 import { ScrollReveal } from '../components/ui/ScrollReveal'
 import { useGodotVersionsContext } from '../hooks/godotVersionsContext'
 import { ConfirmDialog } from '../components/modals/ConfirmDialog'
@@ -137,6 +140,7 @@ function FilterDropdown({
 }
 
 export function VersionsView() {
+  const { t } = useTranslation('versions')
   const {
     installed,
     available,
@@ -154,6 +158,7 @@ export function VersionsView() {
     scanProgress,
   } = useGodotVersionsContext()
   const { settings } = useSettings()
+  const launchWithConsole = settings.launch_with_console
   const [contextMenu, setContextMenu] = useState<{
     x: number
     y: number
@@ -207,7 +212,7 @@ export function VersionsView() {
       const imported = await api.importVersion(dir)
       await refreshInstalled()
       if (imported.length > 1) {
-        alert(`Imported ${imported.length} versions from that folder.`)
+        alert(t('version_imported_many', { count: imported.length }))
       }
     } catch (e) {
     } finally {
@@ -295,7 +300,7 @@ export function VersionsView() {
       <section>
         <div className="flex items-center justify-between">
           <h2 className="font-body font-semibold text-3xl tracking-tight">
-            INSTALLED VERSIONS
+            {t('installed_title')}
           </h2>
           <div className="flex items-center gap-3">
             <motion.button
@@ -308,10 +313,10 @@ export function VersionsView() {
               <span className="icon-wiggle inline-flex">
                 <IconImport className="w-4 h-4" />
               </span>
-              {importing ? 'Importing…' : 'Import'}
+              {importing ? t('importing') : t('import')}
             </motion.button>
             <Tooltip
-              content="Add a scan folder in Settings first"
+              content={t('add_scan_folder_hint', { ns: 'common' })}
               side="bottom"
             >              <motion.button
                 whileHover={{ y: -1 }}
@@ -325,13 +330,13 @@ export function VersionsView() {
                 >
                   <IconRefresh className="w-4 h-4" />
                 </span>
-                {scanning ? 'Scanning…' : 'Scan Now'}
+                {scanning ? t('scanning') : t('scan_now')}
               </motion.button>
             </Tooltip>
             </div>
         </div>
         <p className="text-xs text-muted mb-5 mt-[-3px]">
-          Engines available to bind to a project.
+          {t('version_engines_desc', { ns: 'common' })}
         </p>
 
         <div className="relative w-64 mb-5">
@@ -340,7 +345,7 @@ export function VersionsView() {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search versions…"
+            placeholder={t('version_search_placeholder', { ns: 'common' })}
             className="w-full pl-9 pr-9 py-2 rounded-lg border border-line bg-surface text-sm text-ink placeholder:text-muted/50 outline-none transition-all focus:border-accent focus:ring-1 focus:ring-accent/30"
           />
           {query && (
@@ -359,15 +364,14 @@ export function VersionsView() {
               <IconDownload className="w-5 h-5 text-muted" />
             </div>
             <p className="text-sm text-muted max-w-xs leading-relaxed">
-              No versions installed. Download a version from below or drag and
-              drop your existing version folder here.
+              {t('version_no_installed', { ns: 'common' })}
             </p>
           </div>
         ) : filteredInstalled.length === 0 && isSearching ? (
           <div className="border border-dashed border-line rounded-2xl py-16 flex flex-col items-center gap-4 text-center mb-5">
             <IconSearch className="w-5 h-5 text-muted" />
             <p className="text-sm text-muted max-w-xs leading-relaxed">
-              No installed versions match <strong>"{query}"</strong>.
+              {t('no_versions_match')} <strong>"{query}"</strong>.
             </p>
           </div>
         ) : (
@@ -400,7 +404,7 @@ export function VersionsView() {
                         whileTap={{ scale: 0.95 }}
                         onClick={commitEdit}
                         className="focus-ring cursor-pointer p-1.5 rounded-lg text-accent hover:bg-accent/10 transition-colors"
-                        aria-label="Save name"
+                        aria-label={t('version_save_name_aria', { ns: 'common' })}
                       >
                         <IconPencil className="w-3.5 h-3.5" />
                       </motion.button>
@@ -417,13 +421,13 @@ export function VersionsView() {
                           Mono
                         </span>
                       )}
-                      <Tooltip content="Rename this version">
+                      <Tooltip content={t('version_rename_tooltip', { ns: 'common' })}>
                         <button
                           onClick={(e) => {
                             e.stopPropagation()
                             startEditing(v.tag, v.custom_name)
                           }}
-                          aria-label="Rename version"
+                          aria-label={t('version_rename_aria', { ns: 'common' })}
                           className="icon-wiggle focus-ring cursor-pointer p-1.5 rounded-lg text-muted/60 hover:text-ink hover:bg-raised transition-colors shrink-0"
                         >
                           <IconPencil className="w-3.5 h-3.5" />
@@ -433,18 +437,41 @@ export function VersionsView() {
                   )}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
+                  <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
+                    <SplitButton
+                      variant="outline"
+                      label={t('open')}
+                      icon={IconRocket}
+                      menuLabel={t('more_editor_launch_options')}
+                      onClick={() => api.openGodotVersion(v.tag).catch(() => {})}
+                      items={[
+                        {
+                          label: t('open_editor'),
+                          icon: IconRocket,
+                          badge:
+                            v.supports_console && launchWithConsole
+                              ? undefined
+                              : t('launch_default_badge', { ns: 'common' }),
+                          onClick: () =>
+                            api.openGodotVersion(v.tag, false).catch(() => {}),
+                        },
+                        ...(v.supports_console
+                          ? [
+                              {
+                                label: t('open_with_console', { ns: 'common' }),
+                                icon: IconTerminal,
+                                badge: launchWithConsole
+                                  ? t('launch_default_badge', { ns: 'common' })
+                                  : undefined,
+                                onClick: () =>
+                                  api.openGodotVersion(v.tag, true).catch(() => {}),
+                              },
+                            ]
+                          : []),
+                      ]}
+                    />
+                  </div>
                   <motion.button
-                    whileHover={{ y: -1 }}
-                    whileTap={{ scale: 0.96 }}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      api.openGodotVersion(v.tag).catch(() => {})
-                    }}
-                    className="icon-wiggle cursor-pointer focus-ring flex items-center gap-2 px-3.5 py-2 rounded-lg border border-line text-muted hover:text-mint hover:border-mint/50 text-sm transition-colors shrink-0"
-                  >
-                    <IconRocket className="w-3.5 h-3.5" />
-                    Open
-                  </motion.button>                    <motion.button
                     whileHover={{ y: -1 }}
                     whileTap={{ scale: 0.96 }}
                     onClick={(e) => {
@@ -454,7 +481,7 @@ export function VersionsView() {
                     className="icon-wiggle cursor-pointer focus-ring flex items-center gap-2 px-3.5 py-2 rounded-lg border border-line text-muted hover:text-danger hover:border-danger/50 text-sm transition-colors shrink-0"
                   >
                     <IconTrash className="w-3.5 h-3.5" />
-                    Uninstall
+                    {t('uninstall', { ns: 'versions' })}
                   </motion.button>
                 </div>
               </div>
@@ -468,17 +495,17 @@ export function VersionsView() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="font-body font-semibold text-3xl tracking-tight">
-              AVAILABLE VERSIONS
+              {t('available_title')}
             </h2>
             <p className="text-xs text-muted mb-3">
-              Pulled from Godot's official release builds.
+              {t('available_subtitle')}
             </p>
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-3 mb-5 px-3.5 py-2.5 rounded-lg bg-raised border border-line">
           <FilterDropdown
-            label="Type"
+            label={t('type')}
             value={filters.buildType}
             onChange={(v) =>
               setFilters((prev) => ({
@@ -487,13 +514,13 @@ export function VersionsView() {
               }))
             }
             options={[
-              { value: 'standard', label: 'Standard' },
-              { value: 'mono', label: 'Mono' },
-              { value: 'both', label: 'Both' },
+              { value: 'standard', label: t('standard') },
+              { value: 'mono', label: t('mono') },
+              { value: 'both', label: t('both') },
             ]}
           />
           <FilterDropdown
-            label="Channel"
+            label={t('channel')}
             value={filters.channel}
             onChange={(v) =>
               setFilters((prev) => ({
@@ -502,22 +529,22 @@ export function VersionsView() {
               }))
             }
             options={[
-              { value: 'stable', label: 'Stable' },
-              { value: 'unstable', label: 'Unstable' },
-              { value: 'both', label: 'Both' },
+              { value: 'stable', label: t('stable') },
+              { value: 'unstable', label: t('unstable') },
+              { value: 'both', label: t('both') },
             ]}
           />
         </div>
 
         {loadingAvailable ? (
-          <p className="text-sm text-muted">Fetching releases…</p>
+          <p className="text-sm text-muted">{t('fetching')}</p>
         ) : availableError ? (
           <div className="border border-dashed border-danger/50 rounded-2xl py-24 flex flex-col items-center gap-4 text-center px-6">
             <div className="w-12 h-12 rounded-xl bg-danger/10 border border-danger/30 flex items-center justify-center">
               <IconX className="w-5 h-5 text-danger" />
             </div>
             <p className="text-sm text-danger">
-              Couldn't fetch available versions.
+              {t('fetch_error')}
             </p>
             <p className="text-xs text-muted font-mono break-all max-w-md">
               {availableError}
@@ -528,18 +555,18 @@ export function VersionsView() {
               onClick={() => refreshAvailable()}
               className="focus-ring px-4 py-2 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
             >
-              Retry
+              {t('retry', { ns: 'versions' })}
             </motion.button>
           </div>
         ) : isSearching && filteredAvailable.length === 0 ? (
-          <p className="text-sm text-muted">Fetching releases…</p>
+          <p className="text-sm text-muted">{t('fetching')}</p>
         ) : availableError ? (
           <div className="border border-dashed border-danger/50 rounded-2xl py-24 flex flex-col items-center gap-4 text-center px-6">
             <div className="w-12 h-12 rounded-xl bg-danger/10 border border-danger/30 flex items-center justify-center">
               <IconX className="w-5 h-5 text-danger" />
             </div>
             <p className="text-sm text-danger">
-              Couldn't fetch available versions.
+              {t('fetch_error')}
             </p>
             <p className="text-xs text-muted font-mono break-all max-w-md">
               {availableError}
@@ -550,7 +577,7 @@ export function VersionsView() {
               onClick={() => refreshAvailable()}
               className="focus-ring px-4 py-2 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
             >
-              Retry
+              {t('retry', { ns: 'versions' })}
             </motion.button>
           </div>
         ) : (
@@ -607,7 +634,7 @@ export function VersionsView() {
                           <IconChevronDown
                             className={`w-3 h-3 transition-transform ${isCollapsed ? '-rotate-90' : ''}`}
                           />
-                          {group}
+                          {group === 'Other' ? t('other') : group}
                         </button>
                         <AnimatePresence initial={false}>
                           {!isCollapsed && (
@@ -647,12 +674,12 @@ export function VersionsView() {
                                       />
                                       {asset.is_mono && (
                                         <span className="text-xs px-2 py-1 rounded-md bg-accent/10 text-accent-bright border border-accent-dim/40 shrink-0">
-                                          Mono
+                                          {t('mono', { ns: 'versions' })}
                                         </span>
                                       )}
                                       <span className="text-xs text-muted font-mono">
                                         {(asset.size / 1024 / 1024).toFixed(0)}{' '}
-                                        MB
+                                        {t('mb', { ns: 'versions' })}
                                       </span>
                                     </div>
 
@@ -660,7 +687,7 @@ export function VersionsView() {
                                       <div className="flex items-center gap-2">
                                         {dl.status === 'queued' ? (
                                           <span className="text-xs text-muted font-mono px-2">
-                                            Queued…
+                                            {t('queued', { ns: 'versions' })}
                                           </span>
                                         ) : (
                                           <div className="w-60">
@@ -680,7 +707,7 @@ export function VersionsView() {
                                             </div>
                                             <p className="text-xs text-muted font-mono mt-1.5">
                                               {dl.status === 'paused'
-                                                ? 'Paused · '
+                                                ? t('paused_dot')
                                                 : ''}
                                               {(
                                                 dl.downloaded /
@@ -695,30 +722,30 @@ export function VersionsView() {
                                           </div>
                                         )}
                                         {dl.status === 'paused' ? (
-                                          <Tooltip content="Resume download">
+                                          <Tooltip content={t('resume_download', { ns: 'versions' })}>
                                             <button
                                               onClick={() => resume(progressKey)}
-                                              aria-label="Resume download"
+                                              aria-label={t('resume_download', { ns: 'versions' })}
                                               className="focus-ring cursor-pointer py-2 px-3 rounded-lg border border-line text-muted hover:text-mint hover:border-mint/50 transition-colors"
                                             >
                                               <IconPlay className="w-5 h-5" />
                                             </button>
                                           </Tooltip>
                                         ) : dl.status === 'downloading' ? (
-                                          <Tooltip content="Pause download">
+                                          <Tooltip content={t('pause_download', { ns: 'versions' })}>
                                             <button
                                               onClick={() => pause(progressKey)}
-                                              aria-label="Pause download"
+                                              aria-label={t('pause_download', { ns: 'versions' })}
                                               className="focus-ring cursor-pointer py-2 px-3 rounded-lg border border-line text-muted hover:text-ink hover:border-accent-dim transition-colors"
                                             >
                                               <IconPause className="w-5 h-5" />
                                             </button>
                                           </Tooltip>
                                         ) : null}
-                                        <Tooltip content="Cancel download">
+                                        <Tooltip content={t('cancel_download', { ns: 'versions' })}>
                                           <button
                                             onClick={() => cancel(progressKey)}
-                                            aria-label="Cancel download"
+                                            aria-label={t('cancel_download', { ns: 'versions' })}
                                             className="focus-ring cursor-pointer py-2 px-3 rounded-lg border border-line text-muted hover:text-danger hover:border-danger/50 transition-colors"
                                           >
                                             <IconX className="w-5 h-5" />
@@ -727,7 +754,7 @@ export function VersionsView() {
                                       </div>
                                     ) : isInstalled ? (
                                       <span className="text-xs text-mint font-medium px-2">
-                                        Installed
+                                        {t('installed_label', { ns: 'versions' })}
                                       </span>
                                     ) : (
                                       <motion.button
@@ -743,7 +770,7 @@ export function VersionsView() {
                                         className="icon-wiggle focus-ring cursor-pointer flex items-center gap-2 px-3.5 py-2 rounded-lg bg-accent hover:bg-accent-bright disabled:opacity-40 text-sm font-medium text-white transition-colors"
                                       >
                                         <IconDownload className="w-3.5 h-3.5" />
-                                        Install
+                                        {t('install', { ns: 'versions' })}
                                       </motion.button>
                                     )}
                                   </div>
@@ -765,7 +792,7 @@ export function VersionsView() {
                       onClick={() => setVisibleGroups((v) => v + 5)}
                       className="focus-ring cursor-pointer px-5 py-2.5 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
                     >
-                      Show more
+                      {t('show_more', { ns: 'versions' })}
                     </motion.button>
                   </div>
                 )}
@@ -781,10 +808,10 @@ export function VersionsView() {
             <IconRefresh className="w-6 h-6 animate-spin text-accent" />
             <p className="text-sm font-medium text-ink">
               {importing
-                ? 'Importing version…'
+                ? t('importing_version')
                 : scanProgress && scanProgress.total > 0
-                  ? `Importing ${scanProgress.current}/${scanProgress.total} versions…`
-                  : 'Scanning for versions…'}
+                  ? t('importing_progress', { current: scanProgress.current, total: scanProgress.total })
+                  : t('scanning_versions')}
             </p>
             {(scanProgress && scanProgress.total > 0) && (
               <div className="h-1.5 w-full rounded-full bg-line overflow-hidden">
@@ -800,7 +827,7 @@ export function VersionsView() {
               onClick={() => setDialogMinimized(true)}
               className="focus-ring cursor-pointer text-xs text-muted hover:text-ink transition-colors mt-1"
             >
-              Resume in background
+              {t('resume_background', { ns: 'common' })}
             </button>
           </div>
         </div>
@@ -809,9 +836,9 @@ export function VersionsView() {
       <AnimatePresence>
         {confirmUninstallTag && (
           <ConfirmDialog
-            title="Uninstall version?"
-            description={`"${confirmUninstallTag}" and its files will be moved to your system's Trash / Recycle Bin. You can reinstall it later if needed.`}
-            confirmLabel="Uninstall"
+            title={t('version_uninstall_title', { ns: 'common' })}
+            description={t('version_uninstall_desc', { ns: 'common', tag: confirmUninstallTag })}
+            confirmLabel={t('version_uninstall_confirm', { ns: 'common' })}
             variant="danger"
             onConfirm={() => {
               remove(confirmUninstallTag)
@@ -839,19 +866,30 @@ export function VersionsView() {
     const execPath = version?.executable_path
     return [
       {
-        label: 'Rename',
+        label: t('rename'),
         icon: IconPencil,
         onClick: () => startEditing(tag, version?.custom_name),
       },
       {
-        label: 'Open Editor',
+        label: t('open_editor'),
         icon: IconRocket,
         onClick: () => {
           if (tag) api.openGodotVersion(tag).catch(() => {})
         },
       },
+      ...(version?.supports_console
+        ? [
+            {
+              label: t('open_editor_with_console'),
+              icon: IconTerminal,
+              onClick: () => {
+                if (tag) api.openGodotVersion(tag, true).catch(() => {})
+              },
+            },
+          ]
+        : []),
       {
-        label: 'Open Install Folder',
+        label: t('open_install_folder'),
         icon: IconExternalLink,
         onClick: () => {
           if (execPath) {
@@ -862,7 +900,7 @@ export function VersionsView() {
       },
       { type: 'separator' },
       {
-        label: 'Uninstall',
+        label: t('uninstall'),
         icon: IconTrash,
         variant: 'danger',
         onClick: () => setConfirmUninstallTag(tag),

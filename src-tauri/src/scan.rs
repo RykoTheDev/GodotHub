@@ -132,7 +132,17 @@ fn resolve_macos_bundle_exe(app_bundle: &Path) -> Option<PathBuf> {
 use std::os::windows::process::CommandExt;
 
 #[cfg(target_os = "windows")]
-const CREATE_NO_WINDOW: u32 = 0x08000000;
+use crate::terminal::CREATE_NO_WINDOW;
+
+fn extract_version_line(raw: &str) -> Option<&str> {
+    fn numeric(part: Option<&str>) -> bool {
+        part.is_some_and(|p| !p.is_empty() && p.chars().all(|c| c.is_ascii_digit()))
+    }
+    raw.lines().map(str::trim).find(|line| {
+        let mut parts = line.split('.');
+        numeric(parts.next()) && numeric(parts.next())
+    })
+}
 
 fn probe_version(exe: &Path) -> String {
     let mut cmd = std::process::Command::new(exe);
@@ -141,12 +151,12 @@ fn probe_version(exe: &Path) -> String {
     cmd.creation_flags(CREATE_NO_WINDOW);
     match cmd.output() {
         Ok(o) => {
-            let out = String::from_utf8_lossy(&o.stdout).trim().to_string();
-            if out.is_empty() {
-                String::from_utf8_lossy(&o.stderr).trim().to_string()
-            } else {
-                out
-            }
+            let stdout = String::from_utf8_lossy(&o.stdout);
+            let stderr = String::from_utf8_lossy(&o.stderr);
+            extract_version_line(&stdout)
+                .or_else(|| extract_version_line(&stderr))
+                .unwrap_or_default()
+                .to_string()
         }
         Err(_) => String::new(),
     }
@@ -270,6 +280,7 @@ pub fn scan_for_versions_blocking(
             installed_at: chrono::Utc::now().to_rfc3339(),
             custom_name: None,
             install_root: None,
+            supports_console: false,
         };
 
         if godot_versions::register_version(&app, installed.clone())? {
@@ -389,6 +400,7 @@ fn import_version_blocking(
             installed_at: chrono::Utc::now().to_rfc3339(),
             custom_name: None,
             install_root: None,
+            supports_console: false,
         };
 
         match godot_versions::register_version(&app, installed.clone()) {

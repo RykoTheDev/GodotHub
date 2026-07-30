@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
 import { IconX } from '../Icons'
 
 interface ShortcutGroup {
@@ -14,33 +15,35 @@ interface Props {
 }
 
 export function ShortcutCheatsheet({ onClose, paletteKey }: Props) {
+  const { t } = useTranslation('common')
+
   const groups: ShortcutGroup[] = [
     {
-      label: 'Navigation',
+      label: t('shortcuts_navigation'),
       shortcuts: [
-        { keys: `${MODIFIER}1`, desc: 'Projects' },
-        { keys: `${MODIFIER}2`, desc: 'Versions' },
-        { keys: `${MODIFIER}3`, desc: 'News' },
-        { keys: `${MODIFIER}4`, desc: 'Templates' },
-        { keys: `${MODIFIER},`, desc: 'Settings' },
+        { keys: `${MODIFIER}1`, desc: t('shortcuts_goto_projects') },
+        { keys: `${MODIFIER}2`, desc: t('shortcuts_goto_versions') },
+        { keys: `${MODIFIER}3`, desc: t('shortcuts_goto_news') },
+        { keys: `${MODIFIER}4`, desc: t('shortcuts_goto_templates') },
+        { keys: `${MODIFIER},`, desc: t('shortcuts_goto_settings') },
       ],
     },
     {
-      label: 'Command Palette',
+      label: t('shortcuts_command_palette'),
       shortcuts: [
         {
           keys: `${MODIFIER}${paletteKey.toUpperCase()}`,
-          desc: 'Open command palette',
+          desc: t('shortcuts_open_palette'),
         },
-        { keys: '↑↓', desc: 'Navigate results' },
-        { keys: '↵', desc: 'Select' },
-        { keys: 'Esc', desc: 'Close' },
+        { keys: '↑↓', desc: t('shortcuts_navigate_results') },
+        { keys: '↵', desc: t('shortcuts_select') },
+        { keys: 'Esc', desc: t('shortcuts_close') },
       ],
     },
     {
-      label: 'Projects',
+      label: t('shortcuts_projects'),
       shortcuts: [
-        { keys: `${MODIFIER}N`, desc: 'New project' },
+        { keys: `${MODIFIER}N`, desc: t('shortcuts_new_project') },
       ],
     },
   ]
@@ -67,15 +70,15 @@ export function ShortcutCheatsheet({ onClose, paletteKey }: Props) {
         <div className="flex items-center justify-between mb-5">
           <div>
             <h3 className="font-display font-semibold text-lg">
-              Keyboard Shortcuts
+              {t('keyboard_shortcuts')}
             </h3>
             <p className="text-xs text-muted mt-1">
-              All shortcuts are available from anywhere in the app.
+              {t('shortcuts_desc')}
             </p>
           </div>
           <button
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t('close')}
             className="focus-ring cursor-pointer p-2 rounded-lg text-muted hover:text-ink hover:bg-raised transition-colors"
           >
             <IconX className="w-4 h-4" />
@@ -107,11 +110,11 @@ export function ShortcutCheatsheet({ onClose, paletteKey }: Props) {
 
         <div className="mt-5 pt-4 border-t border-line flex justify-center">
           <p className="text-[10px] text-muted/50">
-            Tip: Press{' '}
+            {t('shortcuts_tip_prefix')}{' '}
             <kbd className="font-mono px-1 bg-raised rounded border border-line">
               {MODIFIER}{paletteKey.toUpperCase()}
             </kbd>{' '}
-            to open this and search everything
+            {t('shortcuts_tip_suffix')}
           </p>
         </div>
       </motion.div>

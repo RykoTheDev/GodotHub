@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 import { listen } from '@tauri-apps/api/event'
@@ -56,12 +57,12 @@ import { TaskTrayProvider } from './hooks/useTaskTray'
 
 type Tab = 'projects' | 'versions' | 'news' | 'templates' | 'asset-store' | 'settings' | 'changelog'
 
-const NAV_ITEMS: { tab: Tab; label: string; icon: typeof IconLayoutGrid }[] = [
-  { tab: 'projects', label: 'Projects', icon: IconLayoutGrid },
-  { tab: 'versions', label: 'Versions', icon: IconLayoutList },
-  { tab: 'templates', label: 'Templates', icon: IconCopy },
-  { tab: 'asset-store', label: 'Asset Store', icon: IconStore },
-  { tab: 'news', label: 'News', icon: IconNews },
+const NAV_ITEMS: { tab: Tab; labelKey: string; icon: typeof IconLayoutGrid }[] = [
+  { tab: 'projects', labelKey: 'projects', icon: IconLayoutGrid },
+  { tab: 'versions', labelKey: 'versions', icon: IconLayoutList },
+  { tab: 'templates', labelKey: 'templates', icon: IconCopy },
+  { tab: 'asset-store', labelKey: 'asset_store', icon: IconStore },
+  { tab: 'news', labelKey: 'news', icon: IconNews },
 ]
 
 const SIDEBAR_COLLAPSED_KEY = 'sidebar_collapsed'
@@ -87,6 +88,9 @@ function loadExpandedWidth(): number {
 }
 
 function AppContent() {
+  const { t: tNav } = useTranslation('nav')
+  const { t } = useTranslation('common')
+
   const [tab, setTab] = useState<Tab>('projects')
   const tabRef = useRef(tab)
   tabRef.current = tab
@@ -436,7 +440,11 @@ const [bugReportOpen, setBugReportOpen] = useState(false)
       setHighlightSetting(settingKey)
     }
     const handleOpenProject = async (e: Event) => {
-      const projectId = (e as CustomEvent).detail as string
+      const detail = (e as CustomEvent).detail as
+        | string
+        | { id: string; console?: boolean }
+      const projectId = typeof detail === 'string' ? detail : detail.id
+      const withConsole = typeof detail === 'string' ? undefined : detail.console
       const proj = projectsRef.current.find((p) => p.id === projectId)
       if (proj) {
         setLaunchingProject({
@@ -446,7 +454,7 @@ const [bugReportOpen, setBugReportOpen] = useState(false)
         })
       }
       try {
-        await api.openProject(projectId, true)
+        await api.openProject(projectId, true, withConsole)
         refreshProjects()
       } catch (e) {
         setLaunchingProject(null)
@@ -571,13 +579,14 @@ const [bugReportOpen, setBugReportOpen] = useState(false)
           <nav
             className={`flex flex-col gap-1.5 mt-3 w-full ${collapsed ? 'items-center' : ''}`}
           >
-            {NAV_ITEMS.map(({ tab: t, label, icon: Icon }) => {
-              const active = tab === t
-              const isAssetStore = t === 'asset-store'
+            {NAV_ITEMS.map(({ tab: tabId, labelKey, icon: Icon }) => {
+              const label = tNav(labelKey)
+              const active = tab === tabId
+              const isAssetStore = tabId === 'asset-store'
               const btn = (
                 <button
-                  key={t}
-                  onClick={() => setTab(t)}
+                  key={tabId}
+                  onClick={() => setTab(tabId)}
                   aria-label={label}
                   className={`focus-ring cursor-pointer icon-wiggle relative flex items-center gap-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
                     collapsed
@@ -585,8 +594,8 @@ const [bugReportOpen, setBugReportOpen] = useState(false)
                       : 'w-full pl-4 pr-3'
                   } ${isAssetStore
                     ? active
-                      ? 'text-ink border border-dashed border-amber/40 bg-amber/[0.04]'
-                      : 'text-muted hover:text-ink hover:bg-amber/[0.04] border border-dashed border-transparent hover:border-amber/25'
+                      ? 'text-ink border border-dashed border-amber/40 bg-amber/4'
+                      : 'text-muted hover:text-ink hover:bg-amber/4 border border-dashed border-transparent hover:border-amber/25'
                     : active
                       ? 'text-ink'
                       : 'text-muted hover:text-ink hover:bg-raised/60'
@@ -611,7 +620,7 @@ const [bugReportOpen, setBugReportOpen] = useState(false)
                       <span className="relative">{label}</span>
                       {isAssetStore && (
                         <span className="relative ml-auto text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full bg-amber/10 text-amber/70 border border-amber/20">
-                          Soon
+                          {t('sidebar_soon')}
                         </span>
                       )}
                     </>
@@ -619,7 +628,7 @@ const [bugReportOpen, setBugReportOpen] = useState(false)
                 </button>
               )
               return collapsed ? (
-                <Tooltip key={t} content={`${label} (Coming soon)`} side="right">
+                <Tooltip key={tabId} content={t('coming_soon_tooltip', { name: label })} side="right">
                   {btn}
                 </Tooltip>
               ) : (
@@ -644,7 +653,7 @@ const [bugReportOpen, setBugReportOpen] = useState(false)
                   <kbd className="font-mono text-[9px] px-1 py-0.5 rounded bg-raised border border-line">
                     {navigator.platform.includes('Mac') ? `⌘${paletteKey.toUpperCase()}` : `Ctrl+${paletteKey.toUpperCase()}`}
                   </kbd>
-                  <span>Quick commands</span>
+                  <span>{t('quick_commands')}</span>
                 </button>
               </div>
             )}            {(() => {
@@ -678,8 +687,8 @@ const [bugReportOpen, setBugReportOpen] = useState(false)
               }
               return (
                 <>
-                  {navButton('changelog', 'Changelog', IconBookOpen)}
-                  {navButton('settings', 'Settings', IconGear)}
+                  {navButton('changelog', tNav('changelog'), IconBookOpen)}
+                  {navButton('settings', tNav('settings'), IconGear)}
                 </>
               )
             })()}
@@ -688,7 +697,7 @@ const [bugReportOpen, setBugReportOpen] = useState(false)
           <div className="absolute -right-4 top-1/2 -translate-y-1/2 z-20">
               <button
                 onClick={toggleCollapsed}
-                aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                aria-label={collapsed ? t('expand_sidebar') : t('collapse_sidebar')}
                 className="focus-ring cursor-pointer w-8 h-8 flex items-center justify-center rounded-full bg-surface border border-line text-muted hover:text-ink hover:border-accent-dim transition-opacity opacity-0 group-hover:opacity-100 shadow-sm"
               >
                 {collapsed ? (
@@ -905,21 +914,21 @@ const [bugReportOpen, setBugReportOpen] = useState(false)
               <div className="text-center">
                 <p className="text-lg font-semibold text-ink">
                   {dragType === 'version'
-                    ? 'Drop your Godot .zip file'
-                    : 'Drop your Godot project folders'}
+                    ? t('drop_godot_zip')
+                    : t('drop_project_folders')}
                 </p>
                 <p className="text-sm mt-1">
                   {dragType === 'version' ? (
                     <span className="text-amber">
-                      The archive will be extracted and registered automatically
+                      {t('drop_version_desc')}
                     </span>
                   ) : (
                     <span className="text-muted">
-                      Each folder must contain a{' '}
+                      {t('drop_project_desc')}{' '}
                       <code className="font-mono text-xs px-1.5 py-0.5 rounded bg-raised border border-line">
-                        project.godot
+                        {t('project_godot_file')}
                       </code>{' '}
-                      file
+                      {t('file')}
                     </span>
                   )}
                 </p>
@@ -945,21 +954,21 @@ const [bugReportOpen, setBugReportOpen] = useState(false)
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-mint uppercase tracking-wide">
                 {successNotification.count === 1
-                  ? 'Imported successfully'
-                  : `Imported ${successNotification.count} projects`}
+                  ? t('imported_successfully')
+                  : t('imported_count', { count: successNotification.count })}
               </p>
               <p className="text-sm text-ink mt-0.5 truncate">
                 {successNotification.count === 1
                   ? successNotification.firstProjectName
                   : successNotification.failCount && successNotification.failCount > 0
-                    ? `${successNotification.count} succeeded, ${successNotification.failCount} failed`
-                    : `All ${successNotification.count} project folders imported`}
+                    ? t('succeeded_failed', { succeeded: successNotification.count, failed: successNotification.failCount })
+                    : t('all_imported', { count: successNotification.count })}
               </p>
             </div>
             <button
               onClick={() => setSuccessNotification(null)}
               className="focus-ring cursor-pointer shrink-0 p-1.5 rounded-lg text-muted hover:text-ink hover:bg-black/10 transition-colors"
-              aria-label="Dismiss"
+              aria-label={t('dismiss')}
             >
               <IconX className="w-3.5 h-3.5" />
             </button>
@@ -1006,7 +1015,7 @@ const [bugReportOpen, setBugReportOpen] = useState(false)
 
               <div>
                 <h3 className="font-display font-semibold text-lg text-ink">
-                  Starting…
+                  {t('starting')}
                 </h3>
                 <p className="text-sm text-muted mt-1">
                   {launchingProject.name}
@@ -1027,11 +1036,11 @@ const [bugReportOpen, setBugReportOpen] = useState(false)
                 className="focus-ring cursor-pointer flex items-center gap-2 px-5 py-2.5 rounded-lg border border-danger/40 text-danger hover:bg-danger/10 hover:border-danger text-sm font-medium transition-colors"
               >
                 <IconX className="w-4 h-4" />
-                Stop Launch
+                {t('stop_launch_btn')}
               </motion.button>
 
               <p className="text-[10px] text-muted/50">
-                Godot is launching in the background. This overlay will auto-dismiss.
+                {t('launching_desc')}
               </p>
             </motion.div>
           </motion.div>
@@ -1042,9 +1051,9 @@ const [bugReportOpen, setBugReportOpen] = useState(false)
       <AnimatePresence>
         {confirmingStop && launchingProject && (
           <ConfirmDialog
-            title="Stop Launch"
-            description={`Are you sure you want to cancel launching ${launchingProject.name}? Godot may already be starting up.`}
-            confirmLabel="Stop"
+            title={t('stop_launch_title')}
+            description={t('stop_launch_desc', { name: launchingProject.name })}
+            confirmLabel={t('stop')}
             variant="danger"
             onConfirm={() => {
               api.stopProject(launchingProject.id).catch(() => {})
@@ -1064,10 +1073,10 @@ const [bugReportOpen, setBugReportOpen] = useState(false)
               <IconRefresh className="w-6 h-6 animate-spin text-accent" />
               <p className="text-sm font-medium text-ink">
                 {importingOverlay.type === 'version'
-                  ? 'Importing version…'
+                  ? t('importing_version')
                   : importingOverlay.total > 1
-                    ? `Importing project ${importingOverlay.current}/${importingOverlay.total}…`
-                    : 'Importing project…'}
+                    ? t('importing_progress', { current: importingOverlay.current, total: importingOverlay.total })
+                    : t('importing_project')}
               </p>
               {importingOverlay.total > 1 && (
                 <div className="h-1.5 w-full rounded-full bg-line overflow-hidden">
@@ -1083,7 +1092,7 @@ const [bugReportOpen, setBugReportOpen] = useState(false)
                 onClick={() => setImportingOverlay(null)}
                 className="focus-ring cursor-pointer text-xs text-muted hover:text-ink transition-colors mt-1"
               >
-                Resume in background
+                {t('resume_background')}
               </button>
             </div>
           </div>
@@ -1105,7 +1114,7 @@ const [bugReportOpen, setBugReportOpen] = useState(false)
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs font-semibold text-danger uppercase tracking-wide">
-                Import failed
+                {t('import_failed')}
               </p>
               <p className="text-sm text-ink mt-0.5">
                 {errorNotification}
@@ -1114,7 +1123,7 @@ const [bugReportOpen, setBugReportOpen] = useState(false)
             <button
               onClick={() => setErrorNotification(null)}
               className="focus-ring cursor-pointer shrink-0 p-1.5 rounded-lg text-muted hover:text-ink hover:bg-black/10 transition-colors"
-              aria-label="Dismiss"
+              aria-label={t('dismiss')}
             >
               <IconX className="w-3.5 h-3.5" />
             </button>
@@ -1126,13 +1135,14 @@ const [bugReportOpen, setBugReportOpen] = useState(false)
 }
 
 export default function App() {
+  const { t } = useTranslation('common')
   const { settings, update, loaded } = useSettings()
   const { loaded: workspacesLoaded } = useWorkspaces()
 
   if (!loaded || !workspacesLoaded) {
     return (
       <div className="h-screen w-screen flex items-center justify-center bg-base text-muted text-sm">
-        Loading…
+        {t('app_loading')}
       </div>
     )
   }

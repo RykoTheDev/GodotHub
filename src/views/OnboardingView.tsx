@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { applyTheme } from '../lib/colors'
 import { applyRadius } from '../lib/appearance'
@@ -115,14 +116,14 @@ interface Props {
 type StepId =
   'welcome' | 'projects' | 'versions' | 'templates' | 'categories' | 'customize' | 'finish'
 
-const ALL_STEPS: { id: StepId; label: string }[] = [
-  { id: 'welcome', label: 'Welcome' },
-  { id: 'projects', label: 'Projects' },
-  { id: 'versions', label: 'Godot Versions' },
-  { id: 'templates', label: 'Templates' },
-  { id: 'categories', label: 'Categories' },
-  { id: 'customize', label: 'Customize' },
-  { id: 'finish', label: 'Finish' },
+const ALL_STEPS: { id: StepId }[] = [
+  { id: 'welcome' },
+  { id: 'projects' },
+  { id: 'versions' },
+  { id: 'templates' },
+  { id: 'categories' },
+  { id: 'customize' },
+  { id: 'finish' },
 ]
 
 function StepShell({
@@ -157,6 +158,8 @@ function StepShell({
 }
 
 export function OnboardingView({ settings, onComplete }: Props) {
+  const { t } = useTranslation('onboarding')
+  const { t: tc, i18n } = useTranslation('common')
   const STEPS = useMemo(
     () =>
       ALL_STEPS.filter(
@@ -187,6 +190,13 @@ export function OnboardingView({ settings, onComplete }: Props) {
   const goNext = () => setStepIndex((i) => Math.min(i + 1, STEPS.length - 1))
   const goBack = () => setStepIndex((i) => Math.max(i - 1, 0))
 
+  const categoryLabels: Record<string, string> = useMemo(() => ({
+    'In Progress': t('in_progress'),
+    'Prototypes': t('prototypes'),
+    'Finished': t('finished'),
+    'Game Jams': t('game_jams'),
+  }), [t])
+
   const addStarterCategory = async (name: string) => {
     if (categories.some((c) => c.name.toLowerCase() === name.toLowerCase()))
       return
@@ -213,7 +223,7 @@ export function OnboardingView({ settings, onComplete }: Props) {
   const finish = async (skip: boolean) => {
     setFinishing(true)
     const final: AppSettings = skip
-      ? { ...settings, setup_complete: true }
+      ? { ...settings, setup_complete: true, language: draft.language }
       : { ...draft, setup_complete: true }
     await Promise.all([
       final.project_scan_dirs.length
@@ -239,7 +249,7 @@ export function OnboardingView({ settings, onComplete }: Props) {
           {STEPS.map((s, i) => (
             <div
               key={s.id}
-              title={s.label}
+              title={t(s.id)}
               className={`h-1.5 rounded-full transition-all duration-300 ${
                 i === stepIndex
                   ? 'w-8 bg-accent'
@@ -263,30 +273,63 @@ export function OnboardingView({ settings, onComplete }: Props) {
             {step.id === 'welcome' && (
               <StepShell
                 icon={<span className="font-black italic text-lg">GH</span>}
-                title="Welcome to GodotHub"
-                description="A home for every Godot project and engine version on this machine. Let's set a few things up so it works the way you want, it only takes a minute, and everything here can be changed later in Settings."
+                title={t('welcome_title')}
+                description={t('welcome_desc')}
               >
-                <div className="grid grid-cols-3 gap-3">
-                  <div className="flex flex-col gap-2 p-4 rounded-xl border border-line bg-surface/60">
-                    <IconLayoutGrid className="w-4 h-4 text-accent-bright" />
-                    <span className="text-xs font-medium">Projects</span>
-                    <p className="text-[11px] text-muted leading-relaxed">
-                      Keep every project organized in one place.
-                    </p>
+                <div className="flex flex-col gap-5">
+                  <div className="flex flex-col gap-2">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted">
+                      {t('language_heading')}
+                    </span>
+                    <div className="inline-flex self-start rounded-lg border border-line bg-raised p-1 gap-1">
+                      {[
+                        { value: 'en-US', label: 'English' },
+                        { value: 'zh-CN', label: '简体中文' },
+                      ].map(({ value, label }) => {
+                        const active = i18n.language === value || i18n.language.startsWith(value.split('-')[0])
+                        return (
+                          <motion.button
+                            key={value}
+                            whileTap={{ scale: 0.96 }}
+                            onClick={() => {
+                              i18n.changeLanguage(value)
+                              setDraft((prev) => ({ ...prev, language: value }))
+                            }}
+                            className={
+                              'focus-ring cursor-pointer px-4 py-2 rounded-md text-sm font-medium transition-colors ' +
+                              (active
+                                ? 'bg-accent text-white'
+                                : 'text-muted hover:text-ink hover:bg-overlay/60')
+                            }
+                          >
+                            {label}
+                          </motion.button>
+                        )
+                      })}
+                    </div>
                   </div>
-                  <div className="flex flex-col gap-2 p-4 rounded-xl border border-line bg-surface/60">
-                    <IconLayoutList className="w-4 h-4 text-accent-bright" />
-                    <span className="text-xs font-medium">Versions</span>
-                    <p className="text-[11px] text-muted leading-relaxed">
-                      Download and manage Godot engine builds.
-                    </p>
-                  </div>
-                  <div className="flex flex-col gap-2 p-4 rounded-xl border border-line bg-surface/60">
-                    <IconNews className="w-4 h-4 text-accent-bright" />
-                    <span className="text-xs font-medium">News</span>
-                    <p className="text-[11px] text-muted leading-relaxed">
-                      Stay current with what's new in Godot.
-                    </p>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="flex flex-col gap-2 p-4 rounded-xl border border-line bg-surface/60">
+                      <IconLayoutGrid className="w-4 h-4 text-accent-bright" />
+                      <span className="text-xs font-medium">{tc('section_projects')}</span>
+                      <p className="text-[11px] text-muted leading-relaxed">
+                        {t('onboarding_keep_organized', { ns: 'common' })}
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-2 p-4 rounded-xl border border-line bg-surface/60">
+                      <IconLayoutList className="w-4 h-4 text-accent-bright" />
+                      <span className="text-xs font-medium">{tc('section_versions')}</span>
+                      <p className="text-[11px] text-muted leading-relaxed">
+                        {t('onboarding_download_manage', { ns: 'common' })}
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-2 p-4 rounded-xl border border-line bg-surface/60">
+                      <IconNews className="w-4 h-4 text-accent-bright" />
+                      <span className="text-xs font-medium">{tc('section_news')}</span>
+                      <p className="text-[11px] text-muted leading-relaxed">
+                        {t('onboarding_stay_current', { ns: 'common' })}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </StepShell>
@@ -295,18 +338,18 @@ export function OnboardingView({ settings, onComplete }: Props) {
             {step.id === 'projects' && (
               <StepShell
                 icon={<IconFolderPlus className="w-5 h-5" />}
-                title="Where are your projects?"
-                description="Add folders GodotHub should scan for existing Godot projects at startup. Star one to make it the default save location when you create a new project. You can skip this and add folders later in Settings."
+                title={t('onboarding_projects_title', { ns: 'common' })}
+                description={t('onboarding_projects_desc', { ns: 'common' })}
               >
                 <DirList
                   dirs={draft.project_scan_dirs}
                   onChange={(dirs) => setField('project_scan_dirs', dirs)}
-                  emptyHint="No folders added yet, GodotHub won't find any existing projects until you add one, or you can add projects manually later."
+                  emptyHint={t('onboard_empty_projects')}
                   defaultDir={draft.default_project_location}
                   onSetDefault={(dir) =>
                     setField('default_project_location', dir)
                   }
-                  defaultLabel="New project default"
+                  defaultLabel={t('new_project_default', { ns: 'settings' })}
                 />
               </StepShell>
             )}
@@ -314,16 +357,16 @@ export function OnboardingView({ settings, onComplete }: Props) {
             {step.id === 'versions' && (
               <StepShell
                 icon={<IconDownload className="w-5 h-5" />}
-                title="Where do Godot versions live?"
-                description="Add folders GodotHub should scan for installed Godot engine executables. Star one to set it as the download location for new versions you install through the Versions tab."
+                title={t('onboarding_versions_title', { ns: 'common' })}
+                description={t('onboarding_versions_desc', { ns: 'common' })}
               >
                 <DirList
                   dirs={draft.version_scan_dirs}
                   onChange={(dirs) => setField('version_scan_dirs', dirs)}
-                  emptyHint="No folders added yet, new Godot downloads will go to the app data folder unless you set one below."
+                  emptyHint={t('onboard_empty_versions')}
                   defaultDir={draft.download_dir}
                   onSetDefault={(dir) => setField('download_dir', dir)}
-                  defaultLabel="Download folder"
+                  defaultLabel={t('download_folder', { ns: 'settings' })}
                 />
               </StepShell>
             )}
@@ -331,8 +374,8 @@ export function OnboardingView({ settings, onComplete }: Props) {
             {step.id === 'templates' && (
               <StepShell
                 icon={<IconCopy className="w-5 h-5" />}
-                title="Template projects directory"
-                description="Optionally set a folder where you keep reusable project templates. Any subfolder inside it will be imported as templates on finish, so they show up when you create new projects. You can also save individual projects as templates anytime from the Projects view, or import more later from the Templates tab."
+                title={t('onboarding_templates_title', { ns: 'common' })}
+                description={t('onboarding_templates_desc', { ns: 'common' })}
               >
                 <div className="flex flex-col gap-3 w-full">
                   <div className="flex items-center gap-2.5">
@@ -344,8 +387,7 @@ export function OnboardingView({ settings, onComplete }: Props) {
                       />
                     ) : (
                       <span className="text-xs text-muted">
-                        No folder set, you can always configure this later in
-                        Settings, or save templates manually.
+                        {t('onboard_no_template_folder')}
                       </span>
                     )}
                     <motion.button
@@ -357,7 +399,7 @@ export function OnboardingView({ settings, onComplete }: Props) {
                       }}
                       className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm transition-colors"
                     >
-                      Browse
+                      {t('browse', { ns: 'common' })}
                     </motion.button>
                     {draft.template_scan_dir && (
                       <motion.button
@@ -366,7 +408,7 @@ export function OnboardingView({ settings, onComplete }: Props) {
                         onClick={() => setField('template_scan_dir', null)}
                         className="focus-ring cursor-pointer px-3 py-2.5 rounded-lg border border-line text-xs text-muted hover:text-danger hover:border-danger/30 hover:bg-danger/10 transition-colors"
                       >
-                        Clear
+                        {t('clear', { ns: 'common' })}
                       </motion.button>
                     )}
                   </div>
@@ -377,8 +419,8 @@ export function OnboardingView({ settings, onComplete }: Props) {
             {step.id === 'categories' && (
               <StepShell
                 icon={<IconTags className="w-5 h-5" />}
-                title="Organize with categories"
-                description="Categories are folders for your project list, file projects under them however makes sense to you. Add a few starters or make your own; you can rename, reorder, or delete these anytime from Settings."
+                title={t('onboarding_categories_title', { ns: 'common' })}
+                description={t('onboarding_categories_desc_full', { ns: 'common' })}
               >
                 <div className="flex flex-col gap-4 w-full">
                   <div className="flex flex-wrap gap-2">
@@ -404,7 +446,7 @@ export function OnboardingView({ settings, onComplete }: Props) {
                           ) : (
                             <IconPlus className="w-3 h-3" />
                           )}
-                          {name}
+                          {categoryLabels[name] || name}
                         </motion.button>
                       )
                     })}
@@ -417,7 +459,7 @@ export function OnboardingView({ settings, onComplete }: Props) {
                       onKeyDown={(e) =>
                         e.key === 'Enter' && addCustomCategory()
                       }
-                      placeholder="Custom category name…"
+                      placeholder={t('onboarding_custom_category_placeholder', { ns: 'common' })}
                       className="focus-ring flex-1 bg-raised border border-line rounded-lg px-3.5 py-2.5 text-sm focus:border-accent-dim transition-colors"
                     />
                     <motion.button
@@ -428,14 +470,14 @@ export function OnboardingView({ settings, onComplete }: Props) {
                       className="focus-ring cursor-pointer shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-accent hover:bg-accent-bright disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium text-white transition-colors"
                     >
                       <IconPlus className="w-3.5 h-3.5" />
-                      Add
+                      {t('add', { ns: 'common' })}
                     </motion.button>
                   </div>
 
                   {categories.length > 0 && (
                     <div className="flex flex-col gap-2">
                       <span className="text-[11px] font-medium text-muted uppercase tracking-wide">
-                        Your categories
+                        {t('onboarding_your_categories', { ns: 'common' })}
                       </span>
                       <div className="flex flex-col gap-1.5 max-h-40 overflow-y-auto">
                         {categories.map((c) => (
@@ -446,7 +488,7 @@ export function OnboardingView({ settings, onComplete }: Props) {
                             <span className="text-xs">{c.name}</span>
                             <button
                               onClick={() => removeCategory(c.id)}
-                              aria-label={`Remove ${c.name}`}
+                              aria-label={t('remove_category_aria', { ns: 'common', name: c.name })}
                               className="icon-wiggle cursor-pointer text-muted opacity-0 group-hover:opacity-100 hover:text-danger transition-colors"
                             >
                               <IconTrash className="w-3.5 h-3.5" />
@@ -458,8 +500,7 @@ export function OnboardingView({ settings, onComplete }: Props) {
                   )}
 
                   <p className="text-[11px] text-muted leading-relaxed">
-                    Nothing here is required, projects with no category simply
-                    show up as Uncategorized.
+                    {t('onboard_categories_desc')}
                   </p>
                 </div>
               </StepShell>
@@ -468,13 +509,13 @@ export function OnboardingView({ settings, onComplete }: Props) {
             {step.id === 'customize' && (
               <StepShell
                 icon={<IconArrowUpDown className="w-5 h-5" />}
-                title="Make it yours"
-                description="Pick an accent and background color to start. Corner roundness, density, text size, and light/dark mode are all in Settings whenever you want to fine-tune further."
+                title={t('onboarding_customize_title', { ns: 'common' })}
+                description={t('onboarding_customize_desc', { ns: 'common' })}
               >
                 <div className="flex flex-col gap-7 w-full">
                   <div className="flex gap-8">
                     <ColorSwatchPicker
-                      label="Accent color"
+                      label={t('onboarding_accent_color', { ns: 'common' })}
                       value={draft.accent_color}
                       presets={
                       draft.theme_mode === 'light'
@@ -491,7 +532,7 @@ export function OnboardingView({ settings, onComplete }: Props) {
                       }}
                     />
                     <ColorSwatchPicker
-                      label="Background color"
+                      label={t('onboarding_bg_color', { ns: 'common' })}
                       value={draft.background_color}
                       presets={
                       draft.theme_mode === 'light'
@@ -512,7 +553,7 @@ export function OnboardingView({ settings, onComplete }: Props) {
                   <label className="flex flex-col gap-2.5">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-medium text-muted">
-                        Corner radius
+                        {t('onboarding_corner_radius', { ns: 'common' })}
                       </span>
                       <span className="text-xs font-mono text-ink bg-raised px-2 py-0.5 rounded-md">
                         {draft.corner_radius}px
@@ -523,7 +564,7 @@ export function OnboardingView({ settings, onComplete }: Props) {
                       max={20}
                       step={1}
                       value={draft.corner_radius}
-                      label="Corner radius"
+                      label={t('onboarding_corner_radius', { ns: 'common' })}
                       onChange={(v) => {
                         setField('corner_radius', v)
                         applyRadius(v)
@@ -537,27 +578,27 @@ export function OnboardingView({ settings, onComplete }: Props) {
             {step.id === 'finish' && (
               <StepShell
                 icon={<IconCheck className="w-5 h-5" />}
-                title="You're all set"
-                description="GodotHub is ready to go. You can revisit any of this, folders, categories, and appearance, from the Settings tab at any time."
+                title={t('onboarding_finish_title', { ns: 'common' })}
+                description={t('onboarding_finish_desc', { ns: 'common' })}
               >
                 <div className="flex flex-col gap-2.5 w-full text-sm">
                   <div className="flex items-center justify-between px-4 py-3 rounded-lg bg-surface/60 border border-line">
-                    <span className="text-muted">Project folders</span>
+                    <span className="text-muted">{t('project_folders')}</span>
                     <span className="font-mono text-xs">
-                      {draft.project_scan_dirs.length || 'none'}
+                      {draft.project_scan_dirs.length || tc('none')}
                     </span>
                   </div>
                   <div className="flex items-center justify-between px-4 py-3 rounded-lg bg-surface/60 border border-line">
-                    <span className="text-muted">Version folders</span>
+                    <span className="text-muted">{t('version_folders')}</span>
                     <span className="font-mono text-xs">
-                      {draft.version_scan_dirs.length || 'none'}
+                      {draft.version_scan_dirs.length || tc('none')}
                     </span>
                   </div>
                   {settings.categories_enabled && (
                     <div className="flex items-center justify-between px-4 py-3 rounded-lg bg-surface/60 border border-line">
-                      <span className="text-muted">Categories</span>
+                      <span className="text-muted">{t('categories')}</span>
                       <span className="font-mono text-xs">
-                        {categories.length || 'none'}
+                        {categories.length || tc('none')}
                       </span>
                     </div>
                   )}
@@ -573,7 +614,7 @@ export function OnboardingView({ settings, onComplete }: Props) {
             disabled={finishing}
             className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg text-sm text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-50"
           >
-            {stepIndex === 0 ? 'Skip setup' : 'Back'}
+            {stepIndex === 0 ? tc('skip_setup') : tc('back')}
           </button>
 
           {step.id === 'finish' ? (
@@ -584,7 +625,7 @@ export function OnboardingView({ settings, onComplete }: Props) {
               disabled={finishing}
               className="focus-ring cursor-pointer px-6 py-2.5 rounded-lg bg-accent hover:bg-accent-bright disabled:opacity-60 text-sm font-medium text-white transition-colors"
             >
-              {finishing ? 'Finishing…' : 'Get Started'}
+              {finishing ? tc('finishing') : tc('get_started')}
             </motion.button>
           ) : (
             <motion.button
@@ -593,7 +634,7 @@ export function OnboardingView({ settings, onComplete }: Props) {
               onClick={goNext}
               className="focus-ring cursor-pointer px-6 py-2.5 rounded-lg bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
             >
-              Continue
+              {t('onboarding_continue', { ns: 'common' })}
             </motion.button>
           )}
         </div>
