@@ -43,6 +43,6 @@
   "source_archive": "Godot أرشيف",
   "open_source_page": "افتح {{source}}",
   "switch_to_archive": "بدل لأرشيف Godot",
-  "console_label": "Console",
-  "no_available_versions_match": "No available versions match"
+  "console_label": "الطرفية",
+  "no_available_versions_match": "لا توجد إصدارات متوافقة"
 }

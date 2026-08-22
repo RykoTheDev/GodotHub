@@ -19,5 +19,5 @@
   "onboard_cloud_heading": "Cloud Backup",
   "onboard_cloud_desc": "Already have a backup? Sign in with GitHub and restore your workspaces, projects, and settings from a gist.",
   "onboard_cloud_sign_in": "Sign in with GitHub",
-  "onboard_cloud_connected": "Connected as @{{username}}"
+  "onboard_cloud_connected": "تواصل معنا كـ @{{username}}"
 }
