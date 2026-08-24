@@ -298,6 +298,7 @@ export function App() {
           <ProjectsView
             onOpenSettings={() => setTab('settings')}
             connected={!cardLayout}
+            gitSidebarOpen={!!gitSidebarProject}
           />
         )
       case 'versions':

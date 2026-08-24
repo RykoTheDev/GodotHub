@@ -33,6 +33,7 @@ import { ImportButton } from '../components/reusables/ImportButton'
 import { OverlayScrollArea } from '../components/reusables/OverlayScrollArea'
 import { ProjectCard } from '../components/cards/ProjectCard'
 import { ProjectCardList } from '../components/cards/ProjectCardList'
+import { ProjectCardKanban } from '../components/cards/ProjectCardKanban'
 
 type ProjectViewMode = 'list' | 'grid' | 'kanban'
 import { useSettings } from '../../hooks/useSettings'
@@ -55,9 +56,11 @@ import { CategoryManagerModal } from '../components/modals/CategoryManagerModal'
 export function ProjectsView({
   onOpenSettings,
   connected = false,
+  gitSidebarOpen = false,
 }: {
   onOpenSettings?: () => void
   connected?: boolean
+  gitSidebarOpen?: boolean
 }) {
   const { t } = useTranslation('nav')
   const { t: tc } = useTranslation('common')
@@ -686,46 +689,75 @@ export function ProjectsView({
         <div
           className={`h-full ${connected ? 'pl-5' : ''} pr-5 pb-4 flex flex-col gap-2`}
         >
-        <ProjectCardList
-          projects={filtered}
-          totalCount={projects.length}
-          animationThreshold={settings.animation_threshold}
-          hasActiveFilters={hasActiveFilters}
-          categories={settings.categories_enabled ? categories : []}
-          categoriesEnabled={settings.categories_enabled && sortBy === 'categories'}
-          onReorder={settings.categories_enabled && sortBy === 'categories' && !hasActiveFilters ? reorder : undefined}
-          onMoveProject={settings.categories_enabled && sortBy === 'categories' && !hasActiveFilters ? moveProject : undefined}
-          renderCard={(p) => (
-            <ProjectCard
-              project={p}
-              installedVersions={installed}
-              categories={settings.categories_enabled ? categories : []}
-              gitStatus={gitStatusMap[p.path] ?? null}
-              launchWithConsole={settings.launch_with_console}
-              onTogglePin={() => setPinned(p.id, !p.pinned)}
-              onVersionChange={(tag) => updateVersion(p.id, tag)}
-              onRemove={() => remove(p.id, false)}
-              onDelete={() => remove(p.id, true)}
-              onCategoryChange={settings.categories_enabled && sortBy !== 'categories' ? (cat) => setCategory(p.id, cat) : undefined}
-              onTagsSaved={(updated) => updateTags(updated.id, updated.tags)}
-              onTagClick={(tag) => setTagFilter((cur) => (cur === tag ? null : tag))}
-              onLaunchArgsChange={(args) => handleLaunchArgsChange(p.id, args)}
-              onShowGitSidebar={() =>
-                window.dispatchEvent(
-                  new CustomEvent('app:show-git-sidebar', {
-                    detail: {
-                      project: p,
-                      gitStatus: gitStatusMap[p.path] ?? null,
-                    },
-                  }),
-                )
-              }
-              activeTag={tagFilter}
-              selected={selectedIds.has(p.id)}
-              onToggleSelect={(selecting || selectedIds.size > 0) ? (e) => toggleSelect(p.id, e) : undefined}
-            />
-          )}
-        />
+        {viewMode === 'kanban' ? (
+          <ProjectCardKanban
+            projects={filtered}
+            categories={settings.categories_enabled ? categories : []}
+            installedVersions={installed}
+            gitStatusMap={gitStatusMap}
+            launchWithConsole={settings.launch_with_console}
+            compact={gitSidebarOpen}
+            onTogglePin={(id) => setPinned(id, !projects.find((p) => p.id === id)?.pinned)}
+            onVersionChange={(id, tag) => updateVersion(id, tag)}
+            onRemove={(id) => remove(id, false)}
+            onTagsSaved={(updated) => updateTags(updated.id, updated.tags)}
+            onTagClick={(tag) => setTagFilter((cur) => (cur === tag ? null : tag))}
+            onShowGitSidebar={(project, gitStatus) =>
+              window.dispatchEvent(
+                new CustomEvent('app:show-git-sidebar', {
+                  detail: { project, gitStatus },
+                }),
+              )
+            }
+            activeTag={tagFilter}
+            selectedIds={selectedIds}
+            onToggleSelect={(id, e) => toggleSelect(id, e)}
+            selecting={selecting}
+            onReorder={settings.categories_enabled && sortBy === 'categories' && !hasActiveFilters ? reorder : undefined}
+            onMoveProject={settings.categories_enabled && sortBy === 'categories' && !hasActiveFilters ? moveProject : undefined}
+          />
+        ) : (
+          <ProjectCardList
+            projects={filtered}
+            totalCount={projects.length}
+            animationThreshold={settings.animation_threshold}
+            hasActiveFilters={hasActiveFilters}
+            categories={settings.categories_enabled ? categories : []}
+            categoriesEnabled={settings.categories_enabled && sortBy === 'categories'}
+            onReorder={settings.categories_enabled && sortBy === 'categories' && !hasActiveFilters ? reorder : undefined}
+            onMoveProject={settings.categories_enabled && sortBy === 'categories' && !hasActiveFilters ? moveProject : undefined}
+            renderCard={(p) => (
+              <ProjectCard
+                project={p}
+                installedVersions={installed}
+                categories={settings.categories_enabled ? categories : []}
+                gitStatus={gitStatusMap[p.path] ?? null}
+                launchWithConsole={settings.launch_with_console}
+                onTogglePin={() => setPinned(p.id, !p.pinned)}
+                onVersionChange={(tag) => updateVersion(p.id, tag)}
+                onRemove={() => remove(p.id, false)}
+                onDelete={() => remove(p.id, true)}
+                onCategoryChange={settings.categories_enabled && sortBy !== 'categories' ? (cat) => setCategory(p.id, cat) : undefined}
+                onTagsSaved={(updated) => updateTags(updated.id, updated.tags)}
+                onTagClick={(tag) => setTagFilter((cur) => (cur === tag ? null : tag))}
+                onLaunchArgsChange={(args) => handleLaunchArgsChange(p.id, args)}
+                onShowGitSidebar={() =>
+                  window.dispatchEvent(
+                    new CustomEvent('app:show-git-sidebar', {
+                      detail: {
+                        project: p,
+                        gitStatus: gitStatusMap[p.path] ?? null,
+                      },
+                    }),
+                  )
+                }
+                activeTag={tagFilter}
+                selected={selectedIds.has(p.id)}
+                onToggleSelect={(selecting || selectedIds.size > 0) ? (e) => toggleSelect(p.id, e) : undefined}
+              />
+            )}
+          />
+        )}
 
       <AnimatePresence>
         {createProjectOpen && (
