@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "GodotHub",
-  "version": "1.3.8",
-  "identifier": "com.ryko.godothub",
+  "version": "1.3.9",
+  "identifier": "Ryko.GodotHub",
   "build": {
     "beforeDevCommand": "bun run dev",
     "devUrl": "http://localhost:1420",

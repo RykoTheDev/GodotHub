@@ -23,7 +23,6 @@ import {
   applyCustomCss,
   applyDensity,
   applyFontScale,
-  applyNewUi,
   applyProjectIconOpacity,
   applyRadius,
   applyScrollbars,
@@ -91,7 +90,6 @@ const DEFAULTS: AppSettings = {
   theme_preset: 'custom',
   git_init_new_projects: false,
   open_after_import: true,
-  new_ui: true,
   card_layout: true,
   dashboard_custom_name: null,
   default_landing_tab: 'projects',
@@ -140,7 +138,6 @@ function applySettingsAppearance(prev: AppSettings, next: AppSettings) {
   if (next.project_icon_opacity !== prev.project_icon_opacity) {
     applyProjectIconOpacity(next.project_icon_opacity)
   }
-  if (next.new_ui !== prev.new_ui) applyNewUi(next.new_ui)
   if (next.language && next.language !== prev.language) {
     localStorage.setItem('i18nextLng', next.language)
     if (next.language !== i18n.language) i18n.changeLanguage(next.language)

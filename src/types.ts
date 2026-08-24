@@ -411,7 +411,6 @@ export interface AppSettings {
   theme_preset: string
   git_init_new_projects: boolean
   open_after_import: boolean
-  new_ui: boolean
   card_layout: boolean
   dashboard_custom_name: string | null
   default_landing_tab: string

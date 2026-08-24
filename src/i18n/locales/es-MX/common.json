@@ -288,6 +288,10 @@
   "search_projects_placeholder": "Buscar proyector por nombre o por ubicacion…",
   "clear_search": "Limpiar busqueda",
   "sort": "Ordenar…",
+  "view": "View",
+  "view_list": "List",
+  "view_grid": "Grid",
+  "view_kanban": "Kanban",
   "loading_projects": "Cargando Proyectos…",
   "no_projects_yet": "Aun no hay nada aqui. Crea un nuevo proyecto o importa uno existente desde tu disco.",
   "no_scan_folders_yet": "Este Espacio de Trabajo no tiene una Carpeta de Escaneo. Agregue uno para buscar tus proyectos.",
@@ -604,8 +608,6 @@
   "news_count": "Posts",
   "asset_store_count": "Assets",
   "asset_more_aria": "More actions",
-  "view_list": "List view",
-  "view_grid": "Grid view",
   "changelog_generate_from_git": "Generate from Git",
   "changelog_draft_title": "Release notes from Git",
   "changelog_draft_desc": "Draft a changelog entry from the commits between two refs. Conventional commits (feat:, fix:, perf:, …) are grouped into Added / Fixed / Improved automatically.",
@@ -773,6 +775,5 @@
   "dashboard_preset_name_placeholder": "Preset name",
   "dashboard_preset_delete": "Delete preset",
   "dashboard_custom_presets": "Your presets",
-  "dashboard_hidden_tiles": "Hidden tiles",
-  "project_drag_reorder_aria": "Drag to reorder"
+  "dashboard_hidden_tiles": "Hidden tiles"
 }

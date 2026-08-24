@@ -308,8 +308,10 @@
   "search_projects_placeholder": "Поиск проектов по имени или пути…",
   "clear_search": "Очистить поиск",
   "sort": "Сортировка…",
-  "view_list": "Список",
-  "view_grid": "Сетка",
+  "view": "View",
+  "view_list": "List",
+  "view_grid": "Grid",
+  "view_kanban": "Kanban",
   "loading_projects": "Загрузка проектов…",
   "no_projects_yet": "Пока здесь ничего нет. Создайте новый проект или импортируйте тот, который уже есть на диске.",
   "no_scan_folders_yet": "В этом рабочем пространстве пока нет папок для сканирования. Добавьте одну, чтобы найти свои проекты.",
@@ -779,6 +781,5 @@
   "dashboard_preset_name_placeholder": "Preset name",
   "dashboard_preset_delete": "Delete preset",
   "dashboard_custom_presets": "Your presets",
-  "dashboard_hidden_tiles": "Hidden tiles",
-  "project_drag_reorder_aria": "Drag to reorder"
+  "dashboard_hidden_tiles": "Hidden tiles"
 }

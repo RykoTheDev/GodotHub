@@ -314,8 +314,10 @@
   "search_projects_placeholder": "按名称或路径搜索项目…",
   "clear_search": "清除搜索",
   "sort": "排序…",
-  "view_list": "列表视图",
-  "view_grid": "网格视图",
+  "view": "View",
+  "view_list": "List",
+  "view_grid": "Grid",
+  "view_kanban": "Kanban",
   "loading_projects": "正在加载项目…",
   "no_projects_yet": "还没有项目。创建一个新项目或导入磁盘上已有的项目。",
   "no_scan_folders_yet": "此工作区尚未设置扫描文件夹。添加一个即可找到你的项目。",
@@ -779,6 +781,5 @@
   "dashboard_preset_name_placeholder": "Preset name",
   "dashboard_preset_delete": "Delete preset",
   "dashboard_custom_presets": "Your presets",
-  "dashboard_hidden_tiles": "Hidden tiles",
-  "project_drag_reorder_aria": "Drag to reorder"
+  "dashboard_hidden_tiles": "Hidden tiles"
 }
