@@ -66,6 +66,15 @@ import ruRUVersions from './locales/ru-RU/versions.json'
 import ruRUDashboard from './locales/ru-RU/dashboard.json'
 
 
+import viVNChangelog from './locales/vi-VN/changelog.json'
+import viVNCommon from './locales/vi-VN/common.json'
+import viVNDashboard from './locales/vi-VN/dashboard.json'
+import viVNGit from './locales/vi-VN/git.json'
+import viVNNav from './locales/vi-VN/nav.json'
+import viVNOnboarding from './locales/vi-VN/onboarding.json'
+import viVNSettings from './locales/vi-VN/settings.json'
+import viVNVersions from './locales/vi-VN/versions.json'
+
 
 const arMAResources = {
   nav: arMANav,
@@ -122,6 +131,17 @@ const zhCNResources = {
   dashboard: zhCNDashboard,
 }
 
+const viVNResources = {
+  changelog: viVNChangelog,
+  common: viVNCommon,
+  dashboard: viVNDashboard,
+  git: viVNGit,
+  nav: viVNNav,
+  onboarding: viVNOnboarding,
+  settings: viVNSettings,
+  versions: viVNVersions,
+}
+
 const resources = {
   'en-US': {
     nav: enUSNav,
@@ -159,6 +179,8 @@ const resources = {
 
   'ar-MA': arMAResources,
   ar: arMAResources,
+  'vi-VN': viVNResources,
+  vi: viVNResources,
 }
 
 i18n
