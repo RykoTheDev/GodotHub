@@ -936,5 +936,36 @@
     ],
     "known_issues": [],
     "created_at": 1787518890
+  },
+  {
+    "id": "c2304190-fbf9-43e6-9fa5-e22f9ae238ab",
+    "version": "v1.3.9 - Patch Update",
+    "date": "2026-08-25",
+    "notes": [
+      {
+        "category": "improve",
+        "text": "Changed Saved Directory Name"
+      },
+      {
+        "category": "add",
+        "text": "Settings button to toggle off Bug Report button, Tray Button and Langugage button from Titlebar"
+      },
+      {
+        "category": "fix",
+        "text": "Word Wrapping for other Languages, so they don't clip out"
+      },
+      {
+        "category": "improve",
+        "text": "Deleted Duplicated files, Merged some files"
+      },
+      {
+        "category": "improve",
+        "text": "Removed Classic UI from the App"
+      }
+    ],
+    "known_issues": [
+      "Save Data folder has been renamed from com.ryko.godothub to Ryko.GodotHub, So you might need to re-setup your GodotHub :D"
+    ],
+    "created_at": 1787661171
   }
 ]
