@@ -4,7 +4,7 @@
   "improve": "مُحسّن",
   "changelog_title": "سجل التغييرات",
   "no_entries": "لا توجد أي تغييرات حاليا",
-  "delete_entry_title": "حذف سجل التغييرات?",
+  "delete_entry_title": "هل تريد حذف سجل التغييرات؟",
   "delete_entry_desc": "هذا سيحذف المدخل كليا. لا يمكن التراجع عن هذا الخيار.",
   "changelog_subtitle": "تاريخ التغييرات في GodotHub.",
   "known_issues": "المشاكل المعروفة"
