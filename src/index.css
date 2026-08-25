@@ -39,6 +39,36 @@
   --spacing: 4.5px;
 }
 
+/*
+ * CJK fallbacks. Inter and Google Sans Code carry no CJK glyphs, so Japanese
+ * and Chinese text drops straight to the generic family. The stacks stay
+ * scoped per language on purpose: ja and zh share Han characters but draw
+ * them with different regional forms, so one merged stack would render one of
+ * the two with the wrong glyphs. This relies on <html lang> tracking the UI
+ * language, which src/i18n/index.ts keeps in sync.
+ */
+:root {
+  --font-cjk: sans-serif;
+  --font-cjk-mono: monospace;
+
+  --font-display: 'Inter Variable', var(--font-cjk);
+  --font-body: 'Inter Variable', var(--font-cjk);
+  --font-mono: 'Google Sans Code', var(--font-cjk-mono);
+}
+
+html:lang(ja) {
+  --font-cjk: 'Yu Gothic UI', 'Hiragino Sans', 'Noto Sans CJK JP',
+    'Noto Sans JP', 'Meiryo', sans-serif;
+  --font-cjk-mono: 'Noto Sans Mono CJK JP', 'MS Gothic', 'Osaka-Mono',
+    monospace;
+}
+
+html:lang(zh) {
+  --font-cjk: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans CJK SC',
+    'Noto Sans SC', sans-serif;
+  --font-cjk-mono: 'Noto Sans Mono CJK SC', 'NSimSun', monospace;
+}
+
 @property --spacing {
   syntax: '<length>';
   inherits: true;
@@ -145,8 +175,8 @@ textarea::placeholder {
 }
 
 .new-ui {
-  --font-display: var(--app-font-display, 'Inter Variable');
-  --font-body: var(--app-font-body, 'Inter Variable');
+  --font-display: var(--app-font-display, 'Inter Variable'), var(--font-cjk);
+  --font-body: var(--app-font-body, 'Inter Variable'), var(--font-cjk);
 }
 
 .new-ui .new-ui-scroll-viewport::-webkit-scrollbar {
@@ -285,7 +315,7 @@ textarea::placeholder {
   list-style: decimal;
 }
 .markdown-body code {
-  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-family: ui-monospace, SFMono-Regular, Menlo, var(--font-cjk-mono);
   font-size: 0.8em;
   background: var(--color-raised);
   border: 1px solid var(--color-line);

@@ -17,6 +17,7 @@ import {
   IconRocket,
   IconTrash,
 } from '../lib/icons'
+import { formatLocaleDate } from '../lib/locale'
 import type { ChangelogEntry, ChangelogNote } from '../types'
 
 const IS_DEV = import.meta.env.DEV
@@ -25,7 +26,7 @@ function formatDate(raw: string): string {
   if (!raw) return ''
   const d = new Date(raw)
   if (Number.isNaN(d.getTime())) return raw
-  return d.toLocaleDateString(undefined, {
+  return formatLocaleDate(d, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',

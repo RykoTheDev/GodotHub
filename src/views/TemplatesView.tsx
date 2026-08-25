@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 import { api } from '../lib/api'
 import { consumePendingAction } from '../lib/pendingAction'
+import { formatLocaleDate } from '../lib/locale'
 import { useSettings } from '../hooks/useSettings'
 import { useWorkspaces } from '../hooks/useWorkspaces'
 import type { ProjectTemplate, TemplateSyncResult } from '../types'
@@ -384,7 +385,7 @@ export function TemplatesView({
                             <>
                               <span>·</span>
                               <span>
-                                {new Date(tmpl.created_at).toLocaleDateString()}
+                                {formatLocaleDate(new Date(tmpl.created_at))}
                               </span>
                             </>
                           )}

@@ -4,6 +4,7 @@ import type { Project } from '../../types'
 import { api } from '../../lib/api'
 import { effectiveTotalMs } from '../../lib/projectSort'
 import { formatDuration } from '../../lib/duration'
+import { formatLocaleDate } from '../../lib/locale'
 import { ModalShell } from './ModalShell'
 
 import { IconStopwatch, IconClock, IconHistory } from '../../lib/icons'
@@ -36,7 +37,7 @@ function isSameLocalWeek(aMs: number, bMs: number): boolean {
 }
 
 function dayLabel(key: string): string {
-  return new Date(`${key}T00:00:00`).toLocaleDateString(undefined, {
+  return formatLocaleDate(new Date(`${key}T00:00:00`), {
     weekday: 'short',
   })
 }

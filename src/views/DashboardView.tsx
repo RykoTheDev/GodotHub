@@ -19,6 +19,7 @@ import {
   type LastOpenedTimeFormat,
 } from '../lib/lastOpened'
 import { formatDuration } from '../lib/duration'
+import { formatLocaleDate } from '../lib/locale'
 import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 import { OverlayScrollArea } from '../components/reusables/OverlayScrollArea'
 import {
@@ -493,13 +494,13 @@ function activityLabel(
     return `${h12} ${suffix}`
   }
   if (range === 'yearly') {
-    return new Date(`${key}-01T00:00:00`).toLocaleDateString(undefined, {
+    return formatLocaleDate(new Date(`${key}-01T00:00:00`), {
       month: 'short',
     })
   }
   const d = new Date(`${key}T00:00:00`)
   return range === 'weekly'
-    ? d.toLocaleDateString(undefined, { weekday: 'short' })
+    ? formatLocaleDate(d, { weekday: 'short' })
     : String(d.getDate())
 }
 
@@ -582,7 +583,7 @@ function ActivityChart({
 }
 
 function weekdayName(weekday: number): string {
-  return new Date(2026, 0, 5 + weekday).toLocaleDateString(undefined, {
+  return formatLocaleDate(new Date(2026, 0, 5 + weekday), {
     weekday: 'long',
   })
 }

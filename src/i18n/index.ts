@@ -199,4 +199,14 @@ i18n
     },
   })
 
+// Chromium picks CJK font fallbacks and line-breaking rules from <html lang>,
+// which index.html hardcodes to "en". Left stale, Japanese text can be drawn
+// with Chinese glyph forms. src/index.css keys its CJK stacks off :lang().
+function syncDocumentLanguage(lng: string): void {
+  document.documentElement.lang = lng
+}
+
+i18n.on('languageChanged', syncDocumentLanguage)
+syncDocumentLanguage(i18n.resolvedLanguage || i18n.language || 'en-US')
+
 export default i18n
