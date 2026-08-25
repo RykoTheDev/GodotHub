@@ -1996,11 +1996,8 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between gap-4">
             <div className="min-w-0">
-              <p className="text-xs text-muted leading-relaxed">
-                {ts('sync_desc')}
-              </p>
               {syncMessage && (
-                <p className="text-xs text-muted mt-1.5 break-words">
+                <p className="text-xs text-muted mt-1.5 wrap-break-word">
                   {syncMessage}
                 </p>
               )}

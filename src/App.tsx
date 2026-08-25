@@ -32,6 +32,7 @@ import { useSettings } from './hooks/useSettings'
 import { useUpdateAvailable } from './hooks/useUpdateAvailable'
 import { OnboardingView as Onboarding } from './views/OnboardingView'
 import { useTauriEvent } from './lib/useTauriEvent'
+import { useDiscordRpc } from './hooks/useDiscordRpc'
 import { ChangelogBadgeProvider } from './hooks/useChangelogBadge'
 import { ScreenReaderAnnouncer } from './lib/screenReader'
 import { relaunch } from '@tauri-apps/plugin-process'
@@ -146,6 +147,8 @@ export function App() {
   }, [openProject])
 
   useTauriEvent<{ id: string }>('project:exited', () => refreshProjects())
+
+  useDiscordRpc(settings, projects)
 
   useEffect(() => {
     markSplashConsumed()

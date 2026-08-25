@@ -31,7 +31,7 @@ function ToastCard({ toast }: { toast: ToastItem }) {
       className="flex items-start gap-2.5 w-80 rounded-menu border border-outline/50 bg-surface/95 backdrop-blur shadow-lg shadow-black/20 px-3.5 py-3"
     >
       <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${color}`} />
-      <p className="flex-1 min-w-0 text-xs text-ink leading-snug break-words">
+      <p className="flex-1 min-w-0 text-xs text-ink leading-snug wrap-break-word">
         {toast.message}
       </p>
       <button

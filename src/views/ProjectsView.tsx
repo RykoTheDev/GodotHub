@@ -39,7 +39,7 @@ type ProjectViewMode = 'list' | 'grid' | 'kanban'
 import { useSettings } from '../hooks/useSettings'
 import { useScrollCompensation } from '../hooks/useScrollCompensation'
 import { api } from '../lib/api'
-import type { GitStatus } from '../types'
+import type { GitStatus, Project } from '../types'
 import {
   comparatorFor,
   SORT_OPTIONS,
@@ -93,12 +93,12 @@ export function ProjectsView({
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (e.key === 'Control' || e.key === 'Shift') {
+      if (e.key === 'Control') {
         setSelecting(true)
       }
     }
     const up = (e: KeyboardEvent) => {
-      if (e.key === 'Control' || e.key === 'Shift') {
+      if (e.key === 'Control') {
         setSelecting(false)
       }
     }
@@ -290,15 +290,38 @@ export function ProjectsView({
   const hasActiveFilters =
     query.trim() !== '' || tagFilter !== null || categoryFilter !== null
 
+  const categoriesEnabled = settings.categories_enabled && sortBy === 'categories'
+
+  const visualOrder = useMemo(() => {
+    if (!categoriesEnabled) return filtered
+    const pinned = filtered.filter((p) => p.pinned)
+    const unpinned = filtered.filter((p) => !p.pinned)
+    const UNCATEGORIZED_KEY = '__uncategorized__'
+    const groups = new Map<string, Project[]>()
+    for (const p of unpinned) {
+      const cat = p.category || UNCATEGORIZED_KEY
+      if (!groups.has(cat)) groups.set(cat, [])
+      groups.get(cat)!.push(p)
+    }
+    const ordered: Project[] = [...pinned]
+    for (const cat of categories) {
+      const projs = groups.get(cat.name)
+      if (projs) ordered.push(...projs)
+    }
+    const uncategorized = groups.get(UNCATEGORIZED_KEY)
+    if (uncategorized) ordered.push(...uncategorized)
+    return ordered
+  }, [filtered, categoriesEnabled, categories])
+
   const lastClickedIndexRef = useRef<number | null>(null)
 
   const toggleSelect = useCallback((id: string, e?: React.MouseEvent) => {
-    const clickedIndex = filtered.findIndex((p) => p.id === id)
+    const clickedIndex = visualOrder.findIndex((p) => p.id === id)
 
     if (e?.shiftKey && lastClickedIndexRef.current !== null) {
       const start = Math.min(lastClickedIndexRef.current, clickedIndex)
       const end = Math.max(lastClickedIndexRef.current, clickedIndex)
-      const rangeIds = filtered.slice(start, end + 1).map((p) => p.id)
+      const rangeIds = visualOrder.slice(start, end + 1).map((p) => p.id)
       setSelectedIds((prev) => {
         const next = new Set(prev)
         for (const rid of rangeIds) next.add(rid)
@@ -326,7 +349,7 @@ export function ProjectsView({
       })
     }
     lastClickedIndexRef.current = clickedIndex
-  }, [filtered])
+  }, [visualOrder])
 
   const clearSelection = useCallback(() => {
     setSelectedIds(new Set())
@@ -498,35 +521,6 @@ export function ProjectsView({
           }))}
         />
 
-        <Dropdown
-          align="left"
-          trigger={({ open, toggle }) => (
-            <motion.button
-              type="button"
-              aria-expanded={open}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.94 }}
-              onClick={toggle}
-              className="focus-ring cursor-pointer flex items-center justify-center gap-1 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
-            >
-              {viewMode === 'grid' ? (
-                <IconLayoutGrid className="w-3 h-3 text-muted" />
-              ) : viewMode === 'kanban' ? (
-                <IconLayoutGrid className="w-3 h-3 text-muted" />
-              ) : (
-                <IconLayoutList className="w-3 h-3 text-muted" />
-              )}
-              <span className="text-[16px] font-medium">
-                {tc('view')}
-              </span>
-            </motion.button>
-          )}
-          items={[
-            { key: 'list', label: tc('view_list'), active: viewMode === 'list', onClick: () => setViewMode('list') },
-            { key: 'grid', label: tc('view_grid'), active: viewMode === 'grid', onClick: () => setViewMode('grid') },
-            { key: 'kanban', label: tc('view_kanban'), active: viewMode === 'kanban', onClick: () => setViewMode('kanban') },
-          ]}
-        />
 
         {settings.categories_enabled && (
           <Dropdown
@@ -584,6 +578,38 @@ export function ProjectsView({
             ]}
           />
         )}
+
+        <div className="w-px h-5 bg-outline/50 shrink-0" />
+        
+        <Dropdown
+          align="left"
+          trigger={({ open, toggle }) => (
+            <motion.button
+              type="button"
+              aria-expanded={open}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.94 }}
+              onClick={toggle}
+              className="focus-ring cursor-pointer flex items-center justify-center gap-1 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
+            >
+              {viewMode === 'grid' ? (
+                <IconLayoutGrid className="w-3 h-3 text-muted" />
+              ) : viewMode === 'kanban' ? (
+                <IconLayoutGrid className="w-3 h-3 text-muted" />
+              ) : (
+                <IconLayoutList className="w-3 h-3 text-muted" />
+              )}
+              <span className="text-[16px] font-medium">
+                {tc('view')}
+              </span>
+            </motion.button>
+          )}
+          items={[
+            { key: 'list', label: tc('view_list'), active: viewMode === 'list', onClick: () => setViewMode('list') },
+            { key: 'grid', label: tc('view_grid'), active: viewMode === 'grid', onClick: () => setViewMode('grid') },
+            { key: 'kanban', label: tc('view_kanban'), active: viewMode === 'kanban', onClick: () => setViewMode('kanban') },
+          ]}
+        />
 
         {tagFilter && (
             <button

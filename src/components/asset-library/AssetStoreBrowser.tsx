@@ -256,7 +256,7 @@ export function AssetStoreBrowser({
             className="flex items-center gap-2 px-3.5 py-2.5 rounded-item border border-mint/20 bg-mint/10 text-xs text-mint"
           >
             <IconCheck className="w-3.5 h-3.5 shrink-0" />
-            <span className="min-w-0 break-words">{notice}</span>
+            <span className="min-w-0 wrap-break-word">{notice}</span>
           </motion.div>
         )}
       </AnimatePresence>

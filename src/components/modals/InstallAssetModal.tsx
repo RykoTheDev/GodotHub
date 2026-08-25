@@ -310,7 +310,7 @@ export function InstallAssetModal({ asset, onClose, onInstalled }: Props) {
           {error && (
             <div className="flex items-start gap-2 p-2.5 rounded-item bg-danger/10 border border-danger/20 text-xs text-danger leading-snug">
               <IconAlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
-              <span className="min-w-0 break-words">{error}</span>
+              <span className="min-w-0 wrap-break-word">{error}</span>
             </div>
           )}
         </div>

@@ -696,7 +696,7 @@ export function CreateProjectModal({
                   <p className="text-xs font-semibold text-amber">
                     {t('git_init_warning_title')}
                   </p>
-                  <p className="text-xs text-muted leading-relaxed mt-1 whitespace-pre-wrap break-words">
+                  <p className="text-xs text-muted leading-relaxed mt-1 whitespace-pre-wrap wrap-break-word">
                     {gitWarning}
                   </p>
                 </div>
@@ -720,7 +720,7 @@ export function CreateProjectModal({
                   <p className="text-xs font-semibold text-mint">
                     {t('remote_repo_created_title')}
                   </p>
-                  <p className="text-xs text-muted leading-relaxed mt-1 whitespace-pre-wrap break-words">
+                  <p className="text-xs text-muted leading-relaxed mt-1 whitespace-pre-wrap wrap-break-word">
                     {remoteSuccess}
                   </p>
                 </div>

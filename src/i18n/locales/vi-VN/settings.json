@@ -10,7 +10,9 @@
   "screen_reader_desc": "Thông báo các sự kiện quan trọng (nhập, lỗi, thao tác git) qua trình đọc màn hình khi chúng xảy ra.",
   "screen_reader_beta_desc": "Đây là tính năng chưa được kiểm thử. Nếu bạn cần trình đọc màn hình, hãy giúp kiểm thử và báo cáo lỗi để được sửa sớm nhất có thể.",
   "advanced": "Nâng cao",
+  "advanced_desc": "Diagnostics, reset options, and advanced maintenance tools.",
   "integrations": "Tích hợp",
+  "integrations_desc": "Connect external services like GitHub, GitLab, and Discord.",
   "git_auth_title": "Đăng nhập bằng {{provider}}",
   "git_auth_instructions": "Ủy quyền GodotHub trong trình duyệt. Một trang xác minh sẽ mở. Nếu không, dùng nút bên dưới.",
   "git_auth_enter_code": "Nhập mã này",
@@ -351,5 +353,7 @@
   "credits_license": "Giấy phép",
   "credits_built_with": "Xây dựng bằng",
   "credits_contributors": "Người đóng góp",
-  "display_desc": "Date formats, language, window decorations, and titlebar buttons."
+  "display_desc": "Date formats, language, window decorations, and titlebar buttons.",
+  "advanced_desc": "Diagnostics, reset options, and advanced maintenance tools.",
+  "integrations_desc": "Connect external services like GitHub, GitLab, and Discord."
 }

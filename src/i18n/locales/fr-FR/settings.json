@@ -10,7 +10,9 @@
   "screen_reader_desc": "Annonce les événements importants (imports, erreurs, actions git) via votre lecteur d'écran, au moment où ils se produisent.",
   "screen_reader_beta_desc": "Cette fonctionnalité n'a pas été testée. Si vous avez besoin d'un lecteur d'écran, aidez à la tester et signalez tout bug pour qu'il soit corrigé au plus vite.",
   "advanced": "Avancé",
+  "advanced_desc": "Diagnostics, reset options, and advanced maintenance tools.",
   "integrations": "Intégrations",
+  "integrations_desc": "Connect external services like GitHub, GitLab, and Discord.",
   "git_auth_title": "Se connecter avec {{provider}}",
   "git_auth_instructions": "Autorisez GodotHub dans votre navigateur. Une page de vérification devrait s'être ouverte. Sinon, utilisez le bouton ci-dessous.",
   "git_auth_enter_code": "Saisissez ce code",
@@ -351,5 +353,7 @@
   "credits_license": "Licence",
   "credits_built_with": "Construit avec",
   "credits_contributors": "Contributeurs",
-  "display_desc": "Date formats, language, window decorations, and titlebar buttons."
+  "display_desc": "Date formats, language, window decorations, and titlebar buttons.",
+  "advanced_desc": "Diagnostics, reset options, and advanced maintenance tools.",
+  "integrations_desc": "Connect external services like GitHub, GitLab, and Discord."
 }
