@@ -134,14 +134,14 @@ textarea::placeholder {
 .masonry {
   display: flex;
   width: auto;
-  margin-left: -1rem;
+  margin-left: -1.25rem;
 }
 .masonry-column {
-  padding-left: 1rem;
+  padding-left: 1.25rem;
   background-clip: padding-box;
 }
 .masonry-column > * {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .new-ui {

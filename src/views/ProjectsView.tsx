@@ -34,6 +34,7 @@ import { OverlayScrollArea } from '../components/reusables/OverlayScrollArea'
 import { ProjectCard } from '../components/cards/ProjectCard'
 import { ProjectCardList } from '../components/cards/ProjectCardList'
 import { ProjectCardKanban } from '../components/cards/ProjectCardKanban'
+import { ProjectCardGrid } from '../components/cards/ProjectCardGrid'
 
 type ProjectViewMode = 'list' | 'grid' | 'kanban'
 import { useSettings } from '../hooks/useSettings'
@@ -723,6 +724,33 @@ export function ProjectsView({
             gitStatusMap={gitStatusMap}
             launchWithConsole={settings.launch_with_console}
             compact={gitSidebarOpen}
+            onTogglePin={(id) => setPinned(id, !projects.find((p) => p.id === id)?.pinned)}
+            onVersionChange={(id, tag) => updateVersion(id, tag)}
+            onRemove={(id) => remove(id, false)}
+            onTagsSaved={(updated) => updateTags(updated.id, updated.tags)}
+            onTagClick={(tag) => setTagFilter((cur) => (cur === tag ? null : tag))}
+            onShowGitSidebar={(project, gitStatus) =>
+              window.dispatchEvent(
+                new CustomEvent('app:show-git-sidebar', {
+                  detail: { project, gitStatus },
+                }),
+              )
+            }
+            activeTag={tagFilter}
+            selectedIds={selectedIds}
+            onToggleSelect={(id, e) => toggleSelect(id, e)}
+            selecting={selecting}
+            onReorder={settings.categories_enabled && sortBy === 'categories' && !hasActiveFilters ? reorder : undefined}
+            onMoveProject={settings.categories_enabled && sortBy === 'categories' && !hasActiveFilters ? moveProject : undefined}
+          />
+        ) : viewMode === 'grid' ? (
+          <ProjectCardGrid
+            projects={filtered}
+            installedVersions={installed}
+            categories={settings.categories_enabled ? categories : []}
+            categoriesEnabled={settings.categories_enabled && sortBy === 'categories'}
+            gitStatusMap={gitStatusMap}
+            launchWithConsole={settings.launch_with_console}
             onTogglePin={(id) => setPinned(id, !projects.find((p) => p.id === id)?.pinned)}
             onVersionChange={(id, tag) => updateVersion(id, tag)}
             onRemove={(id) => remove(id, false)}
