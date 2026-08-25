@@ -349,6 +349,19 @@ To update manually:
 winget upgrade Ryko.GodotHub
 ```
 
+### Install via Scoop (Windows)
+
+```powershell
+scoop bucket add extras
+scoop install godothub
+```
+
+To update manually:
+
+```powershell
+scoop update godothub
+```
+
 ### Build from Source
 
 <details>
@@ -450,7 +463,7 @@ godothub/
 │   ├── api/                        # Tauri command bindings
 │   ├── hooks/                      # Custom React hooks & contexts
 │   ├── lib/                        # Utility libraries & shared helpers
-│   ├── i18n/                       # Localization (en-US, zh-CN, ja-JP, es-MX, ru-RU, ar-MA)
+│   ├── i18n/                       # Localization (en-US, ja-JP, fr-FR, vi-VN, zh-CN, es-MX, ru-RU, ar-MA)
 │   └── interface/                  # All UI code
 │       ├── App.tsx                 # Main app shell + root component
 │       ├── index.ts                # Public exports
@@ -505,12 +518,16 @@ godothub/
 ## 🌍 Languages
 In beta phase (languages other than english might be incomplete)
 
-| Languages | Status          |
-| ------- | ------------------ |
-| English   | Completed |
-| Chinese   | Beta               |
-| Russian   | Incomplete               |
-| Arabic    | Incomplete               |
+| Languages  | Status     |
+| ---------- | ---------- |
+| English    | Completed  |
+| Japanese   | Completed  |
+| French     | Completed  |
+| Vietnamese | Beta       |
+| Chinese    | Beta       |
+| Spanish    | Incomplete |
+| Russian    | Incomplete |
+| Arabic     | Incomplete |
 
 ---
 
