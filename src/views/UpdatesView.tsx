@@ -9,6 +9,7 @@ import { ViewHeader } from '../components/reusables/ViewHeader'
 import { useSettings } from '../hooks/useSettings'
 import { useUpdates } from '../hooks/useUpdates'
 import { useUpdatesBadge } from '../hooks/useUpdatesBadge'
+import { formatLocaleDate, formatRelativeTime } from '../lib/locale'
 import type { UpdateEntry, UpdateKind } from '../types'
 import {
   IconAlertTriangle,
@@ -67,7 +68,7 @@ function formatDate(at: number): string {
   if (!at) return ''
   const d = new Date(at * 1000)
   if (Number.isNaN(d.getTime())) return ''
-  return d.toLocaleDateString(undefined, {
+  return formatLocaleDate(d, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -88,16 +89,10 @@ function formatTimeAgo(at: number): string {
   for (const [unit, secondsPer] of units) {
     const value = Math.floor(seconds / secondsPer)
     if (value >= 1) {
-      return new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' }).format(
-        -value,
-        unit,
-      )
+      return formatRelativeTime(-value, unit)
     }
   }
-  return new Intl.RelativeTimeFormat(undefined, { numeric: 'auto' }).format(
-    -seconds,
-    'second',
-  )
+  return formatRelativeTime(-seconds, 'second')
 }
 
 function CardContent({

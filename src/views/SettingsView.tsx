@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Toggle } from '../components/ui/Toggle'
 import { Slider } from '../components/ui/Slider'
 import { viewTransition } from '../lib/motion'
+import { formatLocaleDateTime, formatLocaleTime } from '../lib/locale'
 import { useSettings } from '../hooks/useSettings'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { useProjectsContext } from '../hooks/projectsContext'
@@ -311,7 +312,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         setSyncUrl(info.gist_url)
         if (info.pushed_at) {
           try {
-            setLastPushedAt(new Date(info.pushed_at).toLocaleString())
+            setLastPushedAt(formatLocaleDateTime(new Date(info.pushed_at)))
           } catch {}
         }
       }
@@ -333,7 +334,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       try {
         const res = await api.gistSyncPush()
         setSyncUrl(res.gist_url)
-        setLastAutoBackup(new Date().toLocaleTimeString())
+        setLastAutoBackup(formatLocaleTime(new Date()))
       } catch (e) {
         console.error('[auto-backup] failed:', e)
       }
@@ -502,7 +503,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
     try {
       const res = await api.gistSyncPush()
       setSyncUrl(res.gist_url)
-      setLastPushedAt(new Date(res.pushed_at).toLocaleString())
+      setLastPushedAt(formatLocaleDateTime(new Date(res.pushed_at)))
       setSyncMessage(ts('sync_push_done'))
     } catch (e) {
       setSyncMessage(String(e))

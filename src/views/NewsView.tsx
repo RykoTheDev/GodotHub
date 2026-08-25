@@ -14,13 +14,14 @@ import {
   IconRefresh,
   IconWifiOff,
 } from '../lib/icons'
+import { formatLocaleDate } from '../lib/locale'
 import type { NewsItem } from '../types'
 
 function formatDate(iso: string | null): string | null {
   if (!iso) return null
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return null
-  return d.toLocaleDateString(undefined, {
+  return formatLocaleDate(d, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',

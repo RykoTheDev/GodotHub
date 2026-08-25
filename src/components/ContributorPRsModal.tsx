@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { openUrl } from '@tauri-apps/plugin-opener'
+import { formatLocaleDate } from '../lib/locale'
 
 interface PR {
   number: number
@@ -41,7 +42,7 @@ function stateBadge(pr: PR) {
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString(undefined, {
+  return formatLocaleDate(new Date(iso), {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
