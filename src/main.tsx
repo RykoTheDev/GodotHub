@@ -1,6 +1,6 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import { App } from './interface/App'
+import { App } from './App'
 import { ErrorBoundary } from './ErrorBoundary'
 import { SettingsProvider } from './hooks/useSettings'
 import { WorkspacesProvider } from './hooks/useWorkspaces'
