@@ -125,9 +125,11 @@ for (const locale of locales) {
     const localeKeys = flattenKeys(localeData);
 
     const missing = Object.keys(enKeys).filter(k => !(k in localeKeys));
+    // Also detect keys with empty values that need to be filled (when not using --empty)
+    const empty = !emptyValues ? Object.keys(enKeys).filter(k => k in localeKeys && localeKeys[k] === '' && enKeys[k] !== '') : [];
     const extra = Object.keys(localeKeys).filter(k => !(k in enKeys));
 
-    if (missing.length === 0 && extra.length === 0) {
+    if (missing.length === 0 && empty.length === 0 && extra.length === 0) {
       console.log(color(`    ${ns}.json ✓`, c.green));
       continue;
     }
@@ -148,6 +150,23 @@ for (const locale of locales) {
           localeKeys[k] = emptyValues ? '' : enKeys[k];
         }
         nsChanges += missing.length;
+      }
+    }
+
+    if (empty.length > 0 && !emptyValues) {
+      console.log(color(`    ${ns}.json: ~${empty.length} empty (will fill with English)`, c.yellow));
+      for (const k of empty.slice(0, 5)) {
+        console.log(color(`      ~ ${k}`, c.dim));
+      }
+      if (empty.length > 5) {
+        console.log(color(`        ... and ${empty.length - 5} more`, c.dim));
+      }
+
+      if (applyMode) {
+        for (const k of empty) {
+          localeKeys[k] = enKeys[k];
+        }
+        nsChanges += empty.length;
       }
     }
 

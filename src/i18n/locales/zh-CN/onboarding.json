@@ -16,8 +16,8 @@
   "onboard_no_template_folder": "未设置文件夹，您可以稍后在设置中配置，或手动保存模板。",
   "onboard_categories_desc": "这里没有必填项，没有分类的项目会显示为「未分类」。",
   "language_heading": "语言",
-  "onboard_cloud_heading": "Cloud Backup",
-  "onboard_cloud_desc": "Already have a backup? Sign in with GitHub and restore your workspaces, projects, and settings from a gist.",
-  "onboard_cloud_sign_in": "Sign in with GitHub",
-  "onboard_cloud_connected": "Connected as @{{username}}"
+  "onboard_cloud_heading": "云端备份",
+  "onboard_cloud_desc": "已有备份？使用 GitHub 登录，从 gist 恢复您的工作区、项目和设置。",
+  "onboard_cloud_sign_in": "使用 GitHub 登录",
+  "onboard_cloud_connected": "已连接为 @{{username}}"
 }
