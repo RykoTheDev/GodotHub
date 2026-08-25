@@ -442,7 +442,7 @@ export function ProjectsView({
               <AnimatedNumber value={filtered.length} />
             </h2>
             <p className="text-lg font-medium uppercase text-muted">
-              {t('projects')}
+              {t('projects_count')}
             </p>
           </>
         }

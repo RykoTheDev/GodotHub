@@ -1,6 +1,7 @@
 {
   "dashboard": "لوحة التحكم",
   "projects": "المشاريع",
+  "projects_count": "مشروعا(مشاريع)",
   "versions": "الإصدارات",
   "templates": "القوالب",
   "asset_store": "متجر الأصول",
