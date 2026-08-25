@@ -696,5 +696,7 @@
   "project_already_open_title": "Dự án đã mở",
   "project_already_open_desc": "{{name}} đang chạy. Mở lại sẽ khởi chạy thêm một instance editor. Vẫn mở?",
   "project_open_anyway": "Vẫn mở",
-  "git_sidebar": "Thanh bên Git"
+  "git_sidebar": "Thanh bên Git",
+  "view": "View",
+  "view_kanban": "Kanban"
 }
