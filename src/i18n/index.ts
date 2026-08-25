@@ -29,6 +29,14 @@ import esMXOnboarding from './locales/es-MX/onboarding.json'
 import esMXVersions from './locales/es-MX/versions.json'
 import esMXDashboard from './locales/es-MX/dashboard.json'
 
+import frFRNav from './locales/fr-FR/nav.json'
+import frFRCommon from './locales/fr-FR/common.json'
+import frFRSettings from './locales/fr-FR/settings.json'
+import frFRGit from './locales/fr-FR/git.json'
+import frFRChangelog from './locales/fr-FR/changelog.json'
+import frFROnboarding from './locales/fr-FR/onboarding.json'
+import frFRVersions from './locales/fr-FR/versions.json'
+import frFRDashboard from './locales/fr-FR/dashboard.json'
 
 import jaJPNav from './locales/ja-JP/nav.json'
 import jaJPCommon from './locales/ja-JP/common.json'
@@ -57,6 +65,15 @@ import ruRUOnboarding from './locales/ru-RU/onboarding.json'
 import ruRUVersions from './locales/ru-RU/versions.json'
 import ruRUDashboard from './locales/ru-RU/dashboard.json'
 
+
+import viVNChangelog from './locales/vi-VN/changelog.json'
+import viVNCommon from './locales/vi-VN/common.json'
+import viVNDashboard from './locales/vi-VN/dashboard.json'
+import viVNGit from './locales/vi-VN/git.json'
+import viVNNav from './locales/vi-VN/nav.json'
+import viVNOnboarding from './locales/vi-VN/onboarding.json'
+import viVNSettings from './locales/vi-VN/settings.json'
+import viVNVersions from './locales/vi-VN/versions.json'
 
 
 const arMAResources = {
@@ -92,6 +109,17 @@ const jaJPResources = {
   dashboard: jaJPDashboard,
 }
 
+const frFRResources = {
+  nav: frFRNav,
+  common: frFRCommon,
+  settings: frFRSettings,
+  git: frFRGit,
+  changelog: frFRChangelog,
+  onboarding: frFROnboarding,
+  versions: frFRVersions,
+  dashboard: frFRDashboard,
+}
+
 const zhCNResources = {
   nav: zhCNNav,
   common: zhCNCommon,
@@ -101,6 +129,17 @@ const zhCNResources = {
   onboarding: zhCNOnboarding,
   versions: zhCNVersions,
   dashboard: zhCNDashboard,
+}
+
+const viVNResources = {
+  changelog: viVNChangelog,
+  common: viVNCommon,
+  dashboard: viVNDashboard,
+  git: viVNGit,
+  nav: viVNNav,
+  onboarding: viVNOnboarding,
+  settings: viVNSettings,
+  versions: viVNVersions,
 }
 
 const resources = {
@@ -124,6 +163,9 @@ const resources = {
   'ja-JP': jaJPResources,
   ja: jaJPResources,
   
+  'fr-FR': frFRResources,
+  fr: frFRResources,
+  
   'ru-RU': {
     nav: ruRUNav,
     common: ruRuCommon,
@@ -137,6 +179,8 @@ const resources = {
 
   'ar-MA': arMAResources,
   ar: arMAResources,
+  'vi-VN': viVNResources,
+  vi: viVNResources,
 }
 
 i18n
