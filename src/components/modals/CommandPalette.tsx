@@ -282,7 +282,6 @@ export function CommandPalette({
 }: Props) {
   const { t } = useTranslation('nav')
   const { t: tc } = useTranslation('common')
-  const { t: ts } = useTranslation('settings')
   const { settings } = useSettings()
   const { workspaces, activeId, switchWorkspace } = useWorkspaces()
   const [query, setQuery] = useState('')
@@ -380,7 +379,7 @@ export function CommandPalette({
     for (const s of SETTINGS_SEARCH_ITEMS) {
       items.push({
         id: `setting:${s.key}`,
-        label: ts(`setting_${s.key}`),
+        label: tc(`setting_${s.key}`),
         sublabel: tc('settings_label', {
           tab: s.tab.charAt(0).toUpperCase() + s.tab.slice(1),
         }),
@@ -421,7 +420,6 @@ export function CommandPalette({
     onNavigate,
     t,
     tc,
-    ts,
     settings.workspaces_enabled,
   ])
 
