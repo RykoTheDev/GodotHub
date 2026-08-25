@@ -93,12 +93,12 @@ export function ProjectsView({
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
-      if (e.key === 'Control' || e.key === 'Meta' || e.key === 'Shift') {
+      if (e.key === 'Control' || e.key === 'Shift') {
         setSelecting(true)
       }
     }
     const up = (e: KeyboardEvent) => {
-      if (e.key === 'Control' || e.key === 'Meta' || e.key === 'Shift') {
+      if (e.key === 'Control' || e.key === 'Shift') {
         setSelecting(false)
       }
     }

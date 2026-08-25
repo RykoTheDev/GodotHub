@@ -15,6 +15,7 @@ import {
   IconSearch,
   IconPlug,
 } from '../../lib/icons'
+import { ModalHeader } from './ModalHeader'
 
 function repoBaseName(url: string): string {
   let cleaned = url.trim().replace(/\/+$/, '')
@@ -248,21 +249,12 @@ export function CloneRepoModal({
         className="bg-surface rounded-modal w-full max-w-2xl max-h-[88vh] flex flex-col shadow-2xl overflow-clip"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-4 p-5 pb-2">
-          <div className="flex items-start gap-1 min-w-0 bg-black/15 px-3 py-4 rounded-btn shrink-0">
-            <div className="w-10 h-10 rounded-tile flex items-center justify-center shrink-0 ">
-              <IconGitBranch className="w-5 h-5 text-accent-bright" />
-            </div>
-            <div className="min-w-0">
-              <h3 className="uppercase font-semibold text-xl text-ink">
-                {t('clone_repo_title')}
-              </h3>
-              <p className="text-xs text-muted mt-0.5">
-                {t('clone_repo_desc')}
-              </p>
-            </div>
-          </div>
-        </div>
+        <ModalHeader
+          icon={<IconGitBranch className="w-5 h-5 text-accent-bright" />}
+          title={t('clone_repo_title')}
+          description={t('clone_repo_desc')}
+          autoFocusBanner={false}
+        />
 
         {connectedProvider && (
           <div className="flex items-center gap-2 px-6 pt-1">

@@ -20,6 +20,7 @@ import {
   IconAlertTriangle,
   IconSpinner,
 } from '../../lib/icons'
+import { ModalHeader } from './ModalHeader'
 
 interface Props {
   installedVersions: InstalledGodotVersion[]
@@ -293,21 +294,12 @@ export function CreateProjectModal({
         className="bg-surface rounded-modal w-full max-w-2xl max-h-[88vh] flex flex-col shadow-2xl overflow-clip"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-start justify-between gap-4 p-5 pb-2">
-          <div className="flex items-start gap-1 w-full bg-black/15 px-3 py-4 rounded-btn shrink-0">
-            <div className="w-10 h-10 rounded-tile flex items-center justify-center shrink-0">
-              <IconFolderPlus className="w-5 h-5 text-accent-bright" />
-            </div>
-            <div className="min-w-0">
-              <h3 className="uppercase font-semibold text-xl text-ink">
-                {t('create_project_title')}
-              </h3>
-              <p className="text-xs text-muted mt-0.5">
-                {t('create_project_desc')}
-              </p>
-            </div>
-          </div>
-        </div>
+        <ModalHeader
+          icon={<IconFolderPlus className="w-5 h-5 text-accent-bright" />}
+          title={t('create_project_title')}
+          description={t('create_project_desc')}
+          autoFocusBanner={false}
+        />
 
         <div className="gap-6 p-6 flex-1 overflow-y-auto">
           <div className="flex flex-col gap-4">
@@ -704,7 +696,7 @@ export function CreateProjectModal({
                   <p className="text-xs font-semibold text-amber">
                     {t('git_init_warning_title')}
                   </p>
-                  <p className="text-xs text-muted leading-relaxed mt-1 whitespace-pre-wrap wrap-break-word">
+                  <p className="text-xs text-muted leading-relaxed mt-1 whitespace-pre-wrap break-words">
                     {gitWarning}
                   </p>
                 </div>
@@ -728,7 +720,7 @@ export function CreateProjectModal({
                   <p className="text-xs font-semibold text-mint">
                     {t('remote_repo_created_title')}
                   </p>
-                  <p className="text-xs text-muted leading-relaxed mt-1 whitespace-pre-wrap wrap-break-word">
+                  <p className="text-xs text-muted leading-relaxed mt-1 whitespace-pre-wrap break-words">
                     {remoteSuccess}
                   </p>
                 </div>

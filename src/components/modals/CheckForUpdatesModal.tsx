@@ -427,7 +427,7 @@ export function CheckForUpdatesModal({
                             className="text-xs text-muted leading-relaxed flex gap-2"
                           >
                             <span className="shrink-0 text-amber">•</span>
-                            <span className="whitespace-pre-wrap wrap-break-word">
+                            <span className="whitespace-pre-wrap break-words">
                               {issue}
                             </span>
                           </li>
@@ -470,7 +470,7 @@ export function CheckForUpdatesModal({
                                     <span className="shrink-0 text-muted">
                                       •
                                     </span>
-                                    <span className="whitespace-pre-wrap wrap-break-word">
+                                    <span className="whitespace-pre-wrap break-words">
                                       {item}
                                     </span>
                                   </li>
