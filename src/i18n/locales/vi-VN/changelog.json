@@ -1,0 +1,11 @@
+{
+  "add": "Đã được thêm",
+  "fix": "Đã được sửa",
+  "improve": "Đã được cải thiện",
+  "changelog_title": "NHẬT KÝ THAY ĐỔI",
+  "no_entries": "Chưa có mục nào trong nhật ký thay đổi",
+  "delete_entry_title": "Xóa mục nhật ký thay đổi??",
+  "delete_entry_desc": "Thao tác này xóa mục nhập vĩnh viễn. Không thể hoàn tác.",
+  "changelog_subtitle": "Lịch sử các bản cập nhật của GodotHub.",
+  "known_issues": "Các vấn đề đã được ghi nhận"
+}
