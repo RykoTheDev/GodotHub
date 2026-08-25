@@ -50,7 +50,6 @@ import {
   IconTrash,
 } from '../lib/icons'
 import type { AppSettings } from '../types'
-import '../style.css'
 
 interface Props {
   settings: AppSettings

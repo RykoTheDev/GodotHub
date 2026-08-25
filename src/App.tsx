@@ -30,7 +30,7 @@ import { AssetStoreView } from './views/AssetStoreView'
 import { DashboardView } from './views/DashboardView'
 import { useSettings } from './hooks/useSettings'
 import { useUpdateAvailable } from './hooks/useUpdateAvailable'
-import { Onboarding } from './components/Onboarding'
+import { OnboardingView as Onboarding } from './views/OnboardingView'
 import { useTauriEvent } from './lib/useTauriEvent'
 import { ChangelogBadgeProvider } from './hooks/useChangelogBadge'
 import { ScreenReaderAnnouncer } from './lib/screenReader'
@@ -52,7 +52,6 @@ import {
   IconRocket,
   IconStore,
 } from './lib/icons'
-import './style.css'
 
 const TABS = [
   { id: 'dashboard', navKey: 'dashboard', icon: IconHouse, hidden: true },

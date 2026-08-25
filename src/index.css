@@ -18,9 +18,9 @@
   --color-amber: #f0b132;
   --color-danger: #f2555a;
 
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-body: 'Inter', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-display: 'Inter Variable', sans-serif;
+  --font-body: 'Inter Variable', sans-serif;
+  --font-mono: 'Google Sans Code', monospace;
 
   --radius-sm: 9.6px;
   --radius-md: 12px;
@@ -140,6 +140,30 @@ textarea::placeholder {
 }
 .masonry-column > * {
   margin-bottom: 1rem;
+}
+
+.new-ui {
+  --font-display: var(--app-font-display, 'Inter Variable');
+  --font-body: var(--app-font-body, 'Inter Variable');
+}
+
+.new-ui .new-ui-scroll-viewport::-webkit-scrollbar {
+  display: none;
+}
+.new-ui .new-ui-scroll-viewport {
+  scrollbar-width: none;
+}
+
+.new-ui .dashboard-masonry {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+.new-ui .dashboard-masonry-column {
+  min-width: 0;
+}
+.new-ui .dashboard-masonry-column > * {
+  margin-bottom: 1.5rem;
 }
 
 .reduce-motion,
