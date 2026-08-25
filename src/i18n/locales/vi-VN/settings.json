@@ -350,5 +350,6 @@
   "credits_developer": "Tạo bởi",
   "credits_license": "Giấy phép",
   "credits_built_with": "Xây dựng bằng",
-  "credits_contributors": "Người đóng góp"
+  "credits_contributors": "Người đóng góp",
+  "display_desc": "Date formats, language, window decorations, and titlebar buttons."
 }

@@ -258,8 +258,6 @@ pub struct AppSettings {
     #[serde(default = "default_true")]
     pub open_after_import: bool,
     #[serde(default = "default_true")]
-    pub new_ui: bool,
-    #[serde(default = "default_true")]
     pub card_layout: bool,
     #[serde(default)]
     pub dashboard_custom_name: Option<String>,
@@ -550,7 +548,6 @@ tooltip_delay: default_tooltip_delay(),
             theme_preset: default_theme_preset(),
             git_init_new_projects: false,
             open_after_import: true,
-            new_ui: true,
             card_layout: true,
             dashboard_custom_name: None,
             default_landing_tab: default_landing_tab(),

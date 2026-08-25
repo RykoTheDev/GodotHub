@@ -350,5 +350,6 @@
   "credits_developer": "Créé par",
   "credits_license": "Licence",
   "credits_built_with": "Construit avec",
-  "credits_contributors": "Contributeurs"
+  "credits_contributors": "Contributeurs",
+  "display_desc": "Date formats, language, window decorations, and titlebar buttons."
 }

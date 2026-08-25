@@ -696,5 +696,7 @@
   "project_already_open_title": "Projet déjà ouvert",
   "project_already_open_desc": "{{name}} est déjà lancé. L'ouvrir à nouveau lancera une seconde instance de l'éditeur. Ouvrir quand même ?",
   "project_open_anyway": "Ouvrir quand même",
-  "git_sidebar": "Barre latérale Git"
+  "git_sidebar": "Barre latérale Git",
+  "view": "View",
+  "view_kanban": "Kanban"
 }

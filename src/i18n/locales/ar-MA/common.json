@@ -331,8 +331,10 @@
   "search_projects_placeholder": "ابحث عن المشاريع بالإسم أو المسار…",
   "clear_search": "امسح البحث",
   "sort": "رتب…",
-  "view_list": "عرض قائمة",
-  "view_grid": "عرض شبكة",
+  "view": "View",
+  "view_list": "List",
+  "view_grid": "Grid",
+  "view_kanban": "Kanban",
   "loading_projects": "جاري تحميل المشاريع…",
   "no_projects_yet": "لا شيء هنا بعد. أنشئ مشروعا جديدا أو استورد واحدا لديك بالفعل.",
   "no_scan_folders_yet": "بيئة العمل هذه ليس لديها أي مجلدات مسح بعد. أضف واحدا للعثور على مشاريعك.",
@@ -771,6 +773,5 @@
   "preview_update_modal": "Preview Update Modal",
   "clone_repo_open_after": "Open it right after importing",
   "command_palette_title": "Command Palette",
-  "command_palette_desc": "Jump to anything; commands, projects, engines, settings",
-  "project_drag_reorder_aria": "Drag to reorder"
+  "command_palette_desc": "Jump to anything; commands, projects, engines, settings"
 }

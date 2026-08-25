@@ -332,8 +332,10 @@
   "search_projects_placeholder": "プロジェクトを検索…",
   "clear_search": "検索をクリア",
   "sort": "並べ替え",
-  "view_list": "リスト表示",
-  "view_grid": "グリッド表示",
+  "view": "View",
+  "view_list": "List",
+  "view_grid": "Grid",
+  "view_kanban": "Kanban",
   "loading_projects": "プロジェクトを読み込み中…",
   "no_projects_yet": "まだ何もありません。新しいプロジェクトを作成するか、ディスク上の既存のプロジェクトをインポートしてください。",
   "no_scan_folders_yet": "このワークスペースにはスキャンフォルダがまだありません。追加してプロジェクトを探しましょう。",
@@ -696,6 +698,5 @@
   "project_already_open_title": "プロジェクトはすでに開いています",
   "project_already_open_desc": "{{name}} はすでに実行中です。もう一度開くと、エディタが 2 つ目のインスタンスとして起動します。それでも開きますか？",
   "project_open_anyway": "それでも開く",
-  "git_sidebar": "Git サイドバー",
-  "project_drag_reorder_aria": "再注文へのドラッグ"
+  "git_sidebar": "Git サイドバー"
 }

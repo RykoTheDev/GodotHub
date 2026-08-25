@@ -1,6 +1,6 @@
 [package]
 name = "godothub"
-version = "1.3.8"
+version = "1.3.9"
 description = "Godot Version and Project Management"
 authors = ["Ryko"]
 edition = "2021"

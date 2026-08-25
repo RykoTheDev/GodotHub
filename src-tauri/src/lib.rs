@@ -25,7 +25,48 @@ mod updates;
 mod watcher;
 mod workspace;
 
+use std::fs;
 use tauri::{Manager, WindowEvent};
+
+/// Migrates data from the old app data folder (`com.ryko.godothub`) to the
+/// new one (`Ryko.GodotHub`) when the identifier changes. Only runs once
+/// because the old folder is deleted after the move.
+fn migrate_identifier(app: &tauri::App) {
+    use std::path::PathBuf;
+
+    let new_dir = match app.path().app_data_dir() {
+        Ok(d) => d,
+        Err(_) => return,
+    };
+
+    // Derive the old directory from the new one by replacing the last path
+    // component. On every platform the app data dir ends with the identifier.
+    let old_name = "com.ryko.godothub";
+    let old_dir: PathBuf = new_dir
+        .parent()
+        .map(|p| p.join(old_name))
+        .unwrap_or_default();
+
+    if !old_dir.exists() || old_dir == new_dir {
+        return;
+    }
+
+    let _ = fs::create_dir_all(&new_dir);
+
+    // Move every entry from old to new, skipping anything that already exists.
+    if let Ok(entries) = fs::read_dir(&old_dir) {
+        for entry in entries.flatten() {
+            let dest = new_dir.join(entry.file_name());
+            if dest.exists() {
+                continue;
+            }
+            let _ = fs::rename(entry.path(), &dest);
+        }
+    }
+
+    // Remove the now-empty old directory (best-effort).
+    let _ = fs::remove_dir_all(&old_dir);
+}
 
 #[tauri::command]
 fn get_os_username() -> Option<String> {
@@ -102,6 +143,8 @@ pub fn run() {
                 .build(),
         )
         .setup(|app| {
+            migrate_identifier(app);
+
             if let Ok(dir) = app.path().app_data_dir() {
                 git_helpers::set_credential_store(dir.join("git-credentials"));
             }

@@ -45,7 +45,7 @@ You don't have to write code to help:
 | **Translate** | Add or improve a language in `src/i18n/`. No Rust or TypeScript needed. See the [Localization section](#-localization). |
 | **Test** | The app is only heavily tested on Windows, Arch Linux (Hyprland), and recent macOS. Try a nightly/dev build on your setup and report what breaks. |
 | **Write docs** | Improve the README, this file, or add FAQ content. |
-| **Fix a bug / build a feature** | The classic path, see below. |
+| **Fix a bug / build a feature** | The traditional path, see below. |
 
 ### Finding something to work on
 
@@ -100,8 +100,7 @@ bun run tauri dev
 ```
 
 This builds the Rust backend and starts Vite with hot-reload for the frontend.
-The app window opens with the **New UI** by default (switch to the classic UI
-from the titlebar menu if you need it).
+The app window opens with the GodotHub UI.
 
 ### Building a release
 
@@ -137,14 +136,13 @@ godothub/
 │   ├── lib/                    # Shared helpers (api.ts, useApiData, naming…)
 │   ├── i18n/                   # Localization (see the dedicated section below)
 │   └── interface/
-│       ├── classic/            # The original UI
-│       │   ├── components/     #   cards/, git/, modals/, titlebar/, ui/…
-│       │   └── views/          #   ProjectsView, SettingsView, ChangelogView…
-│       └── new/                # The new UI (isolated from classic)
-│           ├── App.tsx         #   Self-contained shell
-│           ├── style.css       #   Design tokens (scoped to new UI)
-│           ├── components/     #   cards/, git/, modals/, reusables/, titlebar/, ui/
-│           └── views/          #   ProjectsView, SettingsView, VersionsView…
+│       ├── App.tsx             # Main app shell
+│       ├── style.css           # Design tokens
+│       ├── components/         #   cards/, git/, modals/, reusables/, titlebar/, ui/
+│       ├── hooks/              #   useScrollCompensation, useSectionSearch
+│       ├── lib/                #   icons, duration, toast, workspaceIcons
+│       ├── views/              #   ProjectsView, SettingsView, VersionsView…
+│       └── onboarding/         #   First-run setup wizard
 ├── src-tauri/                  # Backend (Rust)
 │   ├── src/
 │   │   ├── lib.rs              # Tauri setup + command registration
@@ -159,10 +157,8 @@ godothub/
 └── package.json
 ```
 
-**The two UIs are intentionally isolated.** The new UI (`src/interface/new/`)
-must *never* import from the classic UI, an ESLint rule
-(`godothub/no-classic-ui-imports`) enforces this. If a component is needed in
-both, it belongs in a shared location (`src/lib/`, `src/hooks/` folders), and anything UI-specific should be duplicated rather than cross-imported.
+**UI-specific components** live in `src/interface/components/ui/` (Checkbox, Toggle, Dropdown, Tooltip…)
+and `reusables/` (OverlayScrollArea, ViewHeader, ScanButton…). Shared logic goes in `src/lib/` or `src/hooks/`.
 
 ---
 
@@ -222,8 +218,8 @@ but do mention which platform you *did* test on in the PR.
 - React function components with hooks; no class components.
 - Follow the patterns already in the file you're editing (state shape,
   error handling, naming).
-- New-UI components use the existing primitives in
-  `src/interface/new/components/ui/` (Checkbox, Toggle, Dropdown, Tooltip…)
+- Components use the existing primitives in
+  `src/interface/components/ui/` (Checkbox, Toggle, Dropdown, Tooltip…)
   and `reusables/` (OverlayScrollArea, ViewHeader, ScanButton…) instead of
   re-implementing them inline. If the shared component doesn't fit, extend it,
   don't fork it.
@@ -261,6 +257,7 @@ missing keys.
 | Locale | Language | Status |
 |--------|----------|--------|
 | `en-US` | English | ✅ Complete |
+| `ja-JP` | 日本語 | ✅ Complete |
 | `es-MX` | Español | 🚧 Incomplete |
 | `zh-CN` | 简体中文 | 🧪 Beta |
 | `ru-RU` | Русский | 🚧 Incomplete |
@@ -285,6 +282,7 @@ src/i18n/
     │   ├── nav.json          #   Sidebar navigation labels
     │   ├── changelog.json    #   Changelog view
     │   └── dashboard.json    #   Dashboard greetings
+    ├── ja-JP/
     ├── es-MX/
     ├── zh-CN/
     ├── ru-RU/

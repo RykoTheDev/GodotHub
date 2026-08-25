@@ -450,36 +450,23 @@ godothub/
 │   ├── api/                        # Tauri command bindings
 │   ├── hooks/                      # Custom React hooks & contexts
 │   ├── lib/                        # Utility libraries & shared helpers
-│   ├── i18n/                       # Localization (en-US, zh-CN)
-│   ├── interface/                  # All UI code (classic + new)
-│   │   ├── classic/                # The original (classic) UI
-│   │   │   ├── App.tsx             # Classic app shell + root component
-│   │   │   ├── WorkspaceSwitcher.tsx
-│   │   │   ├── components/
-│   │   │   │   ├── cards/          # Card components (ProjectCard)
-│   │   │   │   ├── git/            # Git sidebar, diff viewer, result dialog
-│   │   │   │   ├── modals/         # All modal dialogs
-│   │   │   │   ├── reusables/      # App-level reuse (Tooltip, Toasts, SplashScreen…)
-│   │   │   │   ├── titlebar/       # Titlebar, TaskTray
-│   │   │   │   ├── ui/             # Primitive UI components
-│   │   │   │   └── …               # AssetLibraryBrowser, AssetStoreBrowser, Sidebar, etc.
-│   │   │   ├── lib/                # Classic-only helpers (Icons, workspaceIcons)
-│   │   │   └── views/              # Main application views
-│   │   └── new/                    # Experimental New UI (isolated)
-│   │       ├── App.tsx             # New UI shell (self-contained)
-│   │       ├── index.ts            # Public exports
-│   │       ├── style.css           # New UI design tokens (scoped)
-│   │       ├── components/
-│   │       │   ├── cards/          # Card components (ProjectCard, InstalledVersionCard)
-│   │       │   ├── git/            # Git sidebar, diff viewer, result dialog
-│   │       │   ├── modals/         # Modal dialogs
-│   │       │   ├── reusables/      # App-level reuse (Tooltip, ScanButton, ViewHeader)
-│   │       │   ├── titlebar/       # Titlebar, TaskTray, RunningProjectsChip
-│   │       │   ├── ui/             # Form controls & primitives (Checkbox, Dropdown, Slider…)
-│   │       │   └── …               # DirList, OverlayScrollArea, Sidebar, etc.
-│   │       ├── hooks/              # New-UI-only React hooks
-│   │       ├── lib/                # New-UI helpers (duration, icons)
-│   │       └── views/              # Main application views
+│   ├── i18n/                       # Localization (en-US, zh-CN, ja-JP, es-MX, ru-RU, ar-MA)
+│   └── interface/                  # All UI code
+│       ├── App.tsx                 # Main app shell + root component
+│       ├── index.ts                # Public exports
+│       ├── style.css               # Design tokens
+│       ├── components/
+│       │   ├── cards/              # Card components (ProjectCard, InstalledVersionCard)
+│       │   ├── git/                # Git sidebar, diff viewer, result dialog
+│       │   ├── modals/             # Modal dialogs
+│       │   ├── reusables/          # App-level reuse (Tooltip, ScanButton, ViewHeader, SplashScreen…)
+│       │   ├── titlebar/           # Titlebar, TaskTray, RunningProjectsChip
+│       │   ├── ui/                 # Form controls & primitives (Checkbox, Dropdown, Slider…)
+│       │   └── …                   # DirList, OverlayScrollArea, Sidebar, etc.
+│       ├── hooks/                  # UI-only React hooks
+│       ├── lib/                    # UI helpers (duration, icons, toast)
+│       ├── views/                  # Main application views
+│       └── onboarding/             # First-run setup wizard
 │   └── …
 ├── src-tauri/                      # Backend (Rust)
 │   ├── src/
