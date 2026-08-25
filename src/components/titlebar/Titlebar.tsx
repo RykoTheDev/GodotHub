@@ -118,7 +118,7 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
             </Tooltip>
         )}
 
-        {!minimal && (
+        {!minimal && settings.show_bug_button && (
             <Tooltip content={t('report_a_bug')}>
             <motion.button
               type="button"
@@ -137,13 +137,19 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
             </Tooltip>
         )}
 
-        <div className="w-px h-5 bg-line/40 mx-1 shrink-0" />
-        <LanguageMenu />
-        {!minimal && <TaskTray />}
+        {(settings.show_language_button || (!minimal && settings.show_tray_button)) && (
+          <>
+            <div className="w-px h-5 bg-line/40 mx-1 shrink-0" />
+            {settings.show_language_button && <LanguageMenu />}
+            {!minimal && settings.show_tray_button && <TaskTray />}
+          </>
+        )}
 
         {showWindowControls && (
           <>
-            <div className="w-px h-5 bg-line/40 mx-1 shrink-0" />
+            {(settings.show_language_button || (!minimal && settings.show_tray_button)) && (
+              <div className="w-px h-5 bg-line/40 mx-1 shrink-0" />
+            )}
             <div className="flex self-stretch">
                 <Tooltip content={t('minimize')}>
                 <button

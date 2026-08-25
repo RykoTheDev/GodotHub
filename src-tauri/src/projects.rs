@@ -116,8 +116,10 @@ fn settle_project_session(
             session_start_ms = Some(marker.unwrap_or_else(|| epoch_ms().saturating_sub(added_ms)));
         }
         None => {
-            if project.session_started_at_ms.is_some() {
-                project.session_started_at_ms.take();
+            if let Some(start) = project.session_started_at_ms.take() {
+                let elapsed_ms = epoch_ms().saturating_sub(start);
+                added_ms = elapsed_ms.saturating_sub(SESSION_START_DELAY_MS);
+                session_start_ms = Some(start);
                 changed = true;
             }
         }

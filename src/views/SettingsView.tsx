@@ -18,7 +18,7 @@ import { useWorkspaces } from '../hooks/useWorkspaces'
 import { useAppVersion } from '../hooks/useAppVersion'
 import { useContributors } from '../hooks/useContributors'
 import { ContributorPRsModal } from '../components/ContributorPRsModal'
-import { LANGUAGES } from '../i18n/languages'
+
 import { api } from '../lib/api'
 import {
   ACCENT_PRESETS_DARK,
@@ -38,7 +38,7 @@ import {
 import { ColorSwatchPicker } from '../components/ui/ColorSwatchPicker'
 import { OverlayScrollArea } from '../components/reusables/OverlayScrollArea'
 import { DirList } from '../components/reusables/DirList'
-import { LanguagePicker } from '../components/reusables/LanguagePicker'
+
 import { KeyRecorder } from '../components/ui/KeyRecorder'
 import { matchesSearch, useSectionSearch } from '../hooks/useSectionSearch'
 import { Dropdown } from '../components/ui/Dropdown'
@@ -1092,23 +1092,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         </div>
       </Subsection>
 
-      <Subsection
-        id="display-language"
-        title={
-          <span className="inline-flex items-center gap-2">
-            {ts('language_label')}
-            <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-tag bg-amber/15 text-amber border border-amber/30">
-              Beta
-            </span>
-          </span>
-        }
-        searchText={`${ts('language_label')} ${LANGUAGES.map((l) => l.label).join(' ')}`}
-        query={searchQuery}
-        onMatch={reportMatch}
-      >
-        <LanguagePicker />
-      </Subsection>
-
       {!isMac && (
         <Subsection
           id="display-os-decorations"
@@ -1146,13 +1129,40 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               label={ts('show_support_label')}
             />
           </SettingRow>
-          <SettingRow label={ts('show_star_label')} divider>
+          <SettingRow label={ts('show_star_label')}>
             <Toggle
               checked={settings.show_star_button}
               onChange={(checked) =>
                 update({ ...settings, show_star_button: checked })
               }
               label={ts('show_star_label')}
+            />
+          </SettingRow>
+          <SettingRow label={ts('show_bug_label')}>
+            <Toggle
+              checked={settings.show_bug_button}
+              onChange={(checked) =>
+                update({ ...settings, show_bug_button: checked })
+              }
+              label={ts('show_bug_label')}
+            />
+          </SettingRow>
+          <SettingRow label={ts('show_tray_label')}>
+            <Toggle
+              checked={settings.show_tray_button}
+              onChange={(checked) =>
+                update({ ...settings, show_tray_button: checked })
+              }
+              label={ts('show_tray_label')}
+            />
+          </SettingRow>
+          <SettingRow label={ts('show_language_label')} divider>
+            <Toggle
+              checked={settings.show_language_button}
+              onChange={(checked) =>
+                update({ ...settings, show_language_button: checked })
+              }
+              label={ts('show_language_label')}
             />
           </SettingRow>
         </div>
@@ -1324,45 +1334,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               update({ ...settings, download_concurrency: value })
             }
           />
-        </div>
-      </Subsection>
-
-      <Subsection
-        id="storage-time-stats"
-        title={ts('time_tracking_title')}
-        description={ts('time_tracking_desc')}
-        searchText={`${ts('time_tracking_title')} ${ts('time_tracking_desc')} ${ts('export_stats_btn')} ${ts('import_stats_btn')}`}
-        query={searchQuery}
-        onMatch={reportMatch}
-      >
-        <div className="flex items-center gap-2 flex-wrap">
-          <button
-            type="button"
-            onClick={handleExportStats}
-            disabled={statsBusy !== null}
-            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {statsBusy === 'export' ? ts('saving') : ts('export_stats_btn')}
-          </button>
-          <button
-            type="button"
-            onClick={handleImportStats}
-            disabled={statsBusy !== null}
-            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {statsBusy === 'import' ? ts('saving') : ts('import_stats_btn')}
-          </button>
-          {statsMessage && <span className="text-xs text-muted">{statsMessage}</span>}
-        </div>
-        <div className="mt-2">
-          <button
-            type="button"
-            onClick={() => setConfirmClearStats(true)}
-            disabled={statsBusy !== null}
-            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-danger/10 border border-danger/30 text-danger hover:bg-danger/20 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {ts('clear_stats_btn')}
-          </button>
         </div>
       </Subsection>
 
@@ -2727,6 +2698,40 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           >
             {ts('reset')}
           </button>
+        </div>
+
+        <div className="rounded-item bg-overlay px-4 py-4 flex items-center justify-between gap-6">
+          <div className="min-w-0">
+            <h3 className="text-sm font-medium text-ink">
+              {ts('time_tracking_title')}
+            </h3>
+            <p className="text-xs text-muted mt-1.5 leading-relaxed">
+              {ts('time_tracking_desc')}
+            </p>
+            {statsMessage && (
+              <span className="text-xs text-muted block mt-1.5">
+                {statsMessage}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleExportStats}
+              disabled={statsBusy !== null}
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {statsBusy === 'export' ? ts('saving') : ts('export_stats_btn')}
+            </button>
+            <button
+              type="button"
+              onClick={handleImportStats}
+              disabled={statsBusy !== null}
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {statsBusy === 'import' ? ts('saving') : ts('import_stats_btn')}
+            </button>
+          </div>
         </div>
 
         <div className="rounded-item border border-danger/30 bg-danger/4 px-4 py-4 flex items-center justify-between gap-6">

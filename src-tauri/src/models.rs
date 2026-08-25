@@ -234,6 +234,12 @@ pub struct AppSettings {
     #[serde(default = "default_true")]
     pub show_star_button: bool,
     #[serde(default = "default_true")]
+    pub show_bug_button: bool,
+    #[serde(default = "default_true")]
+    pub show_tray_button: bool,
+    #[serde(default = "default_true")]
+    pub show_language_button: bool,
+    #[serde(default = "default_true")]
     pub show_scrollbars: bool,
     #[serde(default = "default_true")]
     pub animated_numbers: bool,
@@ -536,6 +542,9 @@ tooltip_delay: default_tooltip_delay(),
             auto_watch_template_dir: default_watch_templates(),
             show_support_button: true,
             show_star_button: true,
+            show_bug_button: true,
+            show_tray_button: true,
+            show_language_button: true,
             show_scrollbars: true,
             animated_numbers: true,
             screen_reader_announcements: true,

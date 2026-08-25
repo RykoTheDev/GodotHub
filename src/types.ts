@@ -400,6 +400,9 @@ export interface AppSettings {
   tray_recent_projects_count: number
   show_support_button: boolean
   show_star_button: boolean
+  show_bug_button: boolean
+  show_tray_button: boolean
+  show_language_button: boolean
   show_scrollbars: boolean
   animated_numbers: boolean
   screen_reader_announcements: boolean

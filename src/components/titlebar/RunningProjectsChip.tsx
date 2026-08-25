@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { api } from '../../lib/api'
 import { useTauriEvent } from '../../lib/useTauriEvent'
 import { formatDuration } from '../../lib/duration'
-import { IconPlay, IconTerminal, IconX } from '../../lib/icons'
+import { IconTerminal, IconX } from '../../lib/icons'
 
 const TIMER_START_DELAY_MS = 3000
 
@@ -148,13 +148,12 @@ export function RunningProjectsChip() {
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.94 }}
                 transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:border-accent-dim transition-colors"
+                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-6 px-2.5 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:border-accent-dim transition-colors"
               >
                 <span className="relative flex w-2 h-2">
                   <span className="absolute inline-flex h-full w-full rounded-full bg-mint opacity-60 animate-ping" />
                   <span className="relative inline-flex rounded-full w-2 h-2 bg-mint" />
                 </span>
-                <IconPlay className="w-3 h-3 text-mint" />
                 <span className="text-[13px] font-semibold tabular-nums">
                   {running.length}
                 </span>
