@@ -17,7 +17,7 @@
   "onboard_categories_desc": "Nothing here is required, projects with no category simply show up as Uncategorized.",
   "language_heading": "Language",
   "onboard_cloud_heading": "Cloud Backup",
-  "onboard_cloud_desc": "Already have a backup? Đăng nhập GitHub và khôi phục Workspace, dự án và cài đặt của bạn từ một gist.",
+  "onboard_cloud_desc": "Already have a backup? Sign in with GitHub and restore your workspaces, projects, and settings from a gist.",
   "onboard_cloud_sign_in": "Sign in with GitHub",
   "onboard_cloud_connected": "Connected as @{{username}}"
 }
