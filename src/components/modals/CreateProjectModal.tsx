@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import type {
+  Category,
   GitAuthState,
   InstalledGodotVersion,
   ProjectTemplate,
@@ -26,6 +27,8 @@ interface Props {
   installedVersions: InstalledGodotVersion[]
   defaultLocation?: string | null
   initialTemplateId?: string | null
+  categories?: Category[]
+  categoriesEnabled?: boolean
   onClose: () => void
   onCreated: () => void
 }
@@ -50,6 +53,8 @@ export function CreateProjectModal({
   installedVersions,
   defaultLocation,
   initialTemplateId = null,
+  categories = [],
+  categoriesEnabled = false,
   onClose,
   onCreated,
 }: Props) {
@@ -61,6 +66,7 @@ export function CreateProjectModal({
   const [iconPath, setIconPath] = useState<string | null>(null)
   const [iconPreview, setIconPreview] = useState<string | null>(null)
   const [templateId, setTemplateId] = useState<string | null>(initialTemplateId)
+  const [category, setCategory] = useState<string | null>(null)
   const [previewTemplate, setPreviewTemplate] = useState<ProjectTemplate | null>(null)
   const [templates, setTemplates] = useState<ProjectTemplate[]>([])
   const [error, setError] = useState<string | null>(null)
@@ -214,7 +220,7 @@ export function CreateProjectModal({
         version,
         iconPath,
         templateId,
-        null,
+        category,
       )
       if (initGit) {
         setInitializingGit(true)
@@ -352,6 +358,51 @@ export function CreateProjectModal({
                 </motion.button>
               </div>
             </div>
+
+            {categoriesEnabled && (
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-medium text-muted">
+                  {t('category_optional')}
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setCategory(null)}
+                    className={`${chipClass(category === null)} ${
+                      category === null
+                        ? 'border-accent bg-accent/10 text-accent-bright'
+                        : ''
+                    }`}
+                  >
+                    {category === null && (
+                      <IconCheck className="w-3 h-3 inline mr-1 -mt-0.5" />
+                    )}
+                    {t('no_category_label')}
+                  </button>
+                  {categories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setCategory(cat.name)}
+                      className={`${chipClass(category === cat.name)} ${
+                        category === cat.name
+                          ? 'border-accent bg-accent/10 text-accent-bright'
+                          : ''
+                      }`}
+                    >
+                      {category === cat.name && (
+                        <IconCheck className="w-3 h-3 inline mr-1 -mt-0.5" />
+                      )}
+                      <span
+                        className="w-1.5 h-1.5 rounded-full shrink-0"
+                        style={{ backgroundColor: cat.color }}
+                      />
+                      {cat.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {templates.length > 0 && (
               <div className="flex flex-col gap-2">

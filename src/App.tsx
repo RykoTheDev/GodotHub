@@ -29,6 +29,7 @@ import { NewsView } from './views/NewsView'
 import { AssetStoreView } from './views/AssetStoreView'
 import { DashboardView } from './views/DashboardView'
 import { useSettings } from './hooks/useSettings'
+import { useCategoriesContext } from './hooks/categoriesContext'
 import { useUpdateAvailable } from './hooks/useUpdateAvailable'
 import { OnboardingView as Onboarding } from './views/OnboardingView'
 import { useTauriEvent } from './lib/useTauriEvent'
@@ -110,6 +111,7 @@ export function App() {
     'manual' | 'preview'
   >('manual')
   const { installed } = useGodotVersionsContext()
+  const { categories } = useCategoriesContext()
   const settingsRef = useRef(settings)
   settingsRef.current = settings
   const paletteKey = settings.command_palette_keybind || 'p'
@@ -480,6 +482,8 @@ export function App() {
           <CreateProjectModal
             installedVersions={installed}
             defaultLocation={settings.default_project_location}
+            categories={categories}
+            categoriesEnabled={settings.categories_enabled}
             onClose={() => setCreateProjectOpen(false)}
             onCreated={() => {
               setCreateProjectOpen(false)

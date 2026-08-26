@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
-import type { GitAuthState, UserRepoInfo } from '../../types'
+import type { Category, GitAuthState, UserRepoInfo } from '../../types'
 import { api } from '../../lib/api'
 import { useSettings } from '../../hooks/useSettings'
 import { useTaskTray } from '../../hooks/useTaskTray'
@@ -30,12 +30,16 @@ type Tab = 'browse' | 'url'
 
 interface Props {
   defaultLocation?: string | null
+  categories?: Category[]
+  categoriesEnabled?: boolean
   onClose: () => void
   onCloned: (projectPath: string) => void
 }
 
 export function CloneRepoModal({
   defaultLocation,
+  categories = [],
+  categoriesEnabled = false,
   onClose,
   onCloned,
 }: Props) {
@@ -50,6 +54,7 @@ export function CloneRepoModal({
   const [openAfterImport, setOpenAfterImport] = useState(
     settings.open_after_import,
   )
+  const [category, setCategory] = useState<string | null>(null)
 
   const [gitAuth, setGitAuth] = useState<GitAuthState | null>(null)
   const [activeTab, setActiveTab] = useState<Tab>('browse')
@@ -203,7 +208,7 @@ export function CloneRepoModal({
         description: t('importing_project'),
         status: 'running',
       })
-      const project = await api.importProject(clonedPath, '', null)
+      const project = await api.importProject(clonedPath, '', category)
       updateTask(taskId, { status: 'completed', description: 'Done' })
       setTimeout(() => unregisterTask(taskId), 3000)
       onCloned(project.id)
@@ -470,6 +475,51 @@ export function CloneRepoModal({
                 </motion.button>
               </div>
             </div>
+
+            {categoriesEnabled && (
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-medium text-muted">
+                  {t('category_optional')}
+                </label>
+                <div className="flex flex-wrap gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setCategory(null)}
+                    className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-btn border text-xs font-medium transition-colors ${
+                      category === null
+                        ? 'border-accent bg-accent/10 text-accent-bright'
+                        : 'border-outline/50 text-muted hover:border-accent-dim hover:text-ink hover:bg-raised'
+                    }`}
+                  >
+                    {category === null && (
+                      <IconCheck className="w-3 h-3 inline mr-1 -mt-0.5" />
+                    )}
+                    {t('no_category_label')}
+                  </button>
+                  {categories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setCategory(cat.name)}
+                      className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-btn border text-xs font-medium transition-colors ${
+                        category === cat.name
+                          ? 'border-accent bg-accent/10 text-accent-bright'
+                          : 'border-outline/50 text-muted hover:border-accent-dim hover:text-ink hover:bg-raised'
+                      }`}
+                    >
+                      {category === cat.name && (
+                        <IconCheck className="w-3 h-3 inline mr-1 -mt-0.5" />
+                      )}
+                      <span
+                        className="w-1.5 h-1.5 rounded-full shrink-0"
+                        style={{ backgroundColor: cat.color }}
+                      />
+                      {cat.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <label className="flex items-center gap-2.5 cursor-pointer select-none">
               <Checkbox

@@ -818,6 +818,8 @@ export function ProjectsView({
           <CreateProjectModal
             installedVersions={installed}
             defaultLocation={settings.default_project_location}
+            categories={categories}
+            categoriesEnabled={settings.categories_enabled}
             onClose={() => setCreateProjectOpen(false)}
             onCreated={() => {
               setCreateProjectOpen(false)
@@ -831,6 +833,8 @@ export function ProjectsView({
         {cloneRepoOpen && (
           <CloneRepoModal
             defaultLocation={settings.default_project_location}
+            categories={categories}
+            categoriesEnabled={settings.categories_enabled}
             onClose={() => setCloneRepoOpen(false)}
             onCloned={() => {
               setCloneRepoOpen(false)
