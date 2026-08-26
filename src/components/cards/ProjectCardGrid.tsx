@@ -31,6 +31,9 @@ interface ProjectCardGridProps {
   onTogglePin: (id: string) => void
   onVersionChange: (id: string, tag: string) => void
   onRemove: (id: string) => void
+  onDelete?: (id: string) => void
+  onCategoryChange?: (id: string, category: string) => void
+  onLaunchArgsChange?: (id: string, args: string) => void
   onTagsSaved?: (project: Project) => void
   onTagClick?: (tag: string) => void
   onShowGitSidebar?: (project: Project, gitStatus: GitStatus | null) => void
@@ -76,7 +79,11 @@ function SortableGridCard({
           {...attributes}
           {...listeners}
           aria-label="Drag to reorder"
-          className="focus-ring absolute top-2 right-2 z-20 w-6 h-6 rounded-full border flex items-center justify-center cursor-grab active:cursor-grabbing touch-none opacity-0 group-hover/drag:opacity-100 hover:border-accent-dim hover:text-accent transition-all duration-150 bg-raised border-outline/30 text-muted/50"
+          className={`focus-ring absolute top-1/2 -translate-y-1/2 left-1 z-20 w-6 h-12 rounded-full border flex items-center justify-center cursor-grab active:cursor-grabbing touch-none transition-all duration-200 ${
+            isDragging
+              ? 'bg-accent border-accent text-white scale-110 shadow-md shadow-accent/30 opacity-100'
+              : 'bg-raised border-line shadow-md shadow-base text-muted/50 opacity-0 group-hover/drag:opacity-100 hover:border-accent-dim hover:text-accent hover:scale-110'
+          }`}
         >
           <svg className="w-3 h-3" viewBox="0 0 16 16" fill="currentColor">
             <circle cx="5" cy="4" r="1.5" />
@@ -94,8 +101,9 @@ function SortableGridCard({
 }
 
 const BREAKPOINTS = {
-  default: 3,
-  1280: 2,
+  default: 4,
+  1280: 3,
+  960: 2,
   640: 1,
 }
 
@@ -111,6 +119,9 @@ export function ProjectCardGrid({
   onTogglePin,
   onVersionChange,
   onRemove,
+  onDelete,
+  onCategoryChange,
+  onLaunchArgsChange,
   onTagsSaved,
   onTagClick,
   onShowGitSidebar,
@@ -216,11 +227,15 @@ export function ProjectCardGrid({
         <ProjectCardGridItem
           project={p}
           installedVersions={installedVersions}
+          categories={categories}
           gitStatus={gitStatusMap[p.path] ?? null}
           launchWithConsole={launchWithConsole}
           onTogglePin={() => onTogglePin(p.id)}
           onVersionChange={(tag) => onVersionChange(p.id, tag)}
           onRemove={() => onRemove(p.id)}
+          onDelete={onDelete ? () => onDelete(p.id) : undefined}
+          onCategoryChange={onCategoryChange ? (cat) => onCategoryChange(p.id, cat) : undefined}
+          onLaunchArgsChange={onLaunchArgsChange ? (args) => onLaunchArgsChange(p.id, args) : undefined}
           onTagsSaved={onTagsSaved}
           onTagClick={onTagClick}
           onShowGitSidebar={() => onShowGitSidebar?.(p, gitStatusMap[p.path] ?? null)}

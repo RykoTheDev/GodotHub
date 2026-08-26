@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, type Transition } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import type { GitStatus, InstalledGodotVersion, Project } from '../../types'
+import type { Category, GitStatus, InstalledGodotVersion, Project } from '../../types'
 import { api, getCachedProjectIcon, getCachedProjectName } from '../../lib/api'
 import { formatDuration } from '../../lib/duration'
 import { effectiveTotalMs } from '../../lib/projectSort'
@@ -9,29 +9,41 @@ import { tagColor } from '../../lib/colors'
 import { isReducedMotion } from '../../lib/appearance'
 import { useProjectResolutionEpoch } from '../../hooks/useProjectResolutionEpoch'
 import { Dropdown } from '../ui/Dropdown'
+import { OpenButton } from '../reusables/OpenButton'
+import { ConfirmDialog } from '../modals/ConfirmDialog'
+import { TagManagerModal } from '../modals/TagManagerModal'
+import { LaunchArgsModal } from '../modals/LaunchArgsModal'
+import { SaveAsTemplateModal } from '../modals/SaveAsTemplateModal'
 import {
   IconCheckCircle,
   IconClock,
+  IconCode,
+  IconCopy,
   IconExternalLink,
   IconGitBranch,
   IconNode,
   IconPencil,
   IconPin,
-  IconPlay,
+  IconTags,
+  IconTrash,
   IconX,
 } from '../../lib/icons'
 
 interface ProjectCardKanbanItemProps {
   project: Project
   installedVersions: InstalledGodotVersion[]
+  categories?: Category[]
   gitStatus?: GitStatus | null
   launchWithConsole?: boolean
   compact?: boolean
   onTogglePin: () => void
   onVersionChange: (tag: string) => void
   onRemove: () => void
+  onDelete?: () => void
+  onCategoryChange?: (category: string) => void
   onTagsSaved?: (project: Project) => void
   onTagClick?: (tag: string) => void
+  onLaunchArgsChange?: (args: string) => void
   onShowGitSidebar?: () => void
   activeTag?: string | null
   selected?: boolean
@@ -48,14 +60,18 @@ function getInitials(name: string): string {
 export function ProjectCardKanbanItem({
   project,
   installedVersions,
+  categories = [],
   gitStatus,
   launchWithConsole,
   compact = false,
   onTogglePin,
   onVersionChange,
   onRemove,
+  onDelete,
+  onCategoryChange,
   onTagsSaved,
   onTagClick,
+  onLaunchArgsChange,
   onShowGitSidebar,
   activeTag,
   selected = false,
@@ -76,6 +92,10 @@ export function ProjectCardKanbanItem({
   const [editTagValue, setEditTagValue] = useState('')
   const [tagError, setTagError] = useState<string | null>(null)
   const [savingTags, setSavingTags] = useState(false)
+  const [confirmAction, setConfirmAction] = useState<'remove' | 'delete' | null>(null)
+  const [showLaunchArgs, setShowLaunchArgs] = useState(false)
+  const [tagManagerOpen, setTagManagerOpen] = useState(false)
+  const [templateSaveOpen, setTemplateSaveOpen] = useState(false)
   const addInputRef = useRef<HTMLInputElement>(null)
   const editInputRef = useRef<HTMLInputElement>(null)
 
@@ -496,53 +516,173 @@ export function ProjectCardKanbanItem({
 
         <div className="flex-1" />
 
-        {/* Hover actions */}
-        <AnimatePresence>
-          {cardHovered && (
-            <motion.div
-              initial={{ opacity: 0, width: 0 }}
-              animate={{ opacity: 1, width: 'auto' }}
-              exit={{ opacity: 0, width: 0 }}
-              transition={{ duration: 0.15 }}
-              className="flex items-center gap-1 overflow-hidden"
-            >
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  openFolder()
-                }}
-                className="focus-ring cursor-pointer shrink-0 w-5 h-5 rounded-item flex items-center justify-center text-muted hover:text-ink hover:bg-raised transition-colors"
-                title={t('open_folder')}
-              >
-                <IconExternalLink className="w-2.5 h-2.5" />
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onRemove()
-                }}
-                className="focus-ring cursor-pointer shrink-0 w-5 h-5 rounded-item flex items-center justify-center text-muted hover:text-ink hover:bg-raised transition-colors"
-                title={t('project_card_remove_library')}
-              >
-                <IconX className="w-2.5 h-2.5" />
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  launchProject(launchWithConsole)
-                }}
-                className="focus-ring cursor-pointer shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-btn bg-accent text-white hover:bg-accent-bright transition-colors"
-                title={t('open_project')}
-              >
-                <IconPlay className="w-2.5 h-2.5" fill="currentColor" />
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <OpenButton
+          label={boundVersion ? t('open_project') : t('no_version_selected')}
+          disabled={!boundVersion}
+          onOpen={(console) => launchProject(console)}
+          consoleSupported={boundVersion?.supports_console ?? false}
+          consoleInitiallyOn={launchWithConsole && (boundVersion?.supports_console ?? false)}
+          moreAriaLabel={t('project_more_aria')}
+          className="px-4 text-[11px] h-7"
+          items={[
+            {
+              key: 'open-folder',
+              label: t('open_folder'),
+              icon: IconExternalLink,
+              onClick: openFolder,
+            },
+            {
+              key: 'open-ide',
+              label: t('open_in_ide'),
+              icon: IconCode,
+              onClick: () => api.openInEditor(project.path).catch((e) => alert(e)),
+            },
+            {
+              key: 'launch-arguments',
+              label: t('launch_arguments'),
+              icon: IconCode,
+              onClick: () => setShowLaunchArgs(true),
+            },
+            {
+              key: 'manage-tags',
+              label: t('manage_tags'),
+              icon: IconTags,
+              onClick: () => setTagManagerOpen(true),
+              dividerAfter: !!onCategoryChange,
+            },
+            ...(onCategoryChange
+              ? [
+                  {
+                    key: 'set-category',
+                    label: t('set_category'),
+                    icon: IconTags,
+                    children: [
+                      {
+                        key: 'category-uncategorized',
+                        label: t('uncategorized'),
+                        dotColor: '#949ba4',
+                        active: !project.category,
+                        onClick: () => onCategoryChange(''),
+                      },
+                      ...categories.map((c) => ({
+                        key: `category-${c.id}`,
+                        label: c.name,
+                        dotColor: c.color,
+                        active: project.category === c.name,
+                        onClick: () => onCategoryChange(c.name),
+                      })),
+                    ],
+                    dividerAfter: true,
+                  },
+                ]
+              : []),
+            {
+              key: 'save-as-template',
+              label: t('save_as_template'),
+              icon: IconCopy,
+              onClick: () => setTemplateSaveOpen(true),
+              dividerAfter: true,
+            },
+            {
+              key: 'pin',
+              label: project.pinned
+                ? t('project_unpin_from_library')
+                : t('project_pin_to_library'),
+              icon: IconPin,
+              onClick: onTogglePin,
+              dividerAfter: !!gitStatus?.is_repo,
+            },
+            ...(gitStatus?.is_repo
+              ? [
+                  {
+                    key: 'git-sidebar',
+                    label: t('git_sidebar'),
+                    icon: IconGitBranch,
+                    onClick: onShowGitSidebar,
+                    dividerAfter: true,
+                  },
+                ]
+              : []),
+            {
+              key: 'remove',
+              label: t('project_card_remove_library'),
+              icon: IconX,
+              onClick: () => setConfirmAction('remove'),
+            },
+            {
+              key: 'delete',
+              label: t('project_card_delete_files'),
+              icon: IconTrash,
+              danger: true,
+              onClick: () => setConfirmAction('delete'),
+            },
+          ]}
+        />
       </div>
+
+      <AnimatePresence>
+        {confirmAction === 'remove' && (
+          <ConfirmDialog
+            title={t('project_remove_title')}
+            description={t('project_remove_desc', { name: displayName })}
+            confirmLabel={t('project_remove_confirm')}
+            onConfirm={() => {
+              setConfirmAction(null)
+              onRemove()
+            }}
+            onCancel={() => setConfirmAction(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {confirmAction === 'delete' && (
+          <ConfirmDialog
+            title={t('project_delete_title')}
+            description={t('project_delete_desc', { name: displayName })}
+            confirmLabel={t('project_delete_confirm')}
+            variant="danger"
+            onConfirm={() => {
+              setConfirmAction(null)
+              onDelete?.()
+            }}
+            onCancel={() => setConfirmAction(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showLaunchArgs && (
+          <LaunchArgsModal
+            projectName={displayName}
+            currentArgs={project.launch_arguments}
+            onSave={(args) => {
+              onLaunchArgsChange?.(args)
+              setShowLaunchArgs(false)
+            }}
+            onClose={() => setShowLaunchArgs(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {tagManagerOpen && (
+          <TagManagerModal
+            project={project}
+            onClose={() => setTagManagerOpen(false)}
+            onSaved={(updated) => onTagsSaved?.(updated)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {templateSaveOpen && (
+          <SaveAsTemplateModal
+            project={project}
+            onClose={() => setTemplateSaveOpen(false)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }

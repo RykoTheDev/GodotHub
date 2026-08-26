@@ -32,6 +32,9 @@ interface ProjectCardKanbanProps {
   onTogglePin: (id: string) => void
   onVersionChange: (id: string, tag: string) => void
   onRemove: (id: string) => void
+  onDelete?: (id: string) => void
+  onCategoryChange?: (id: string, category: string) => void
+  onLaunchArgsChange?: (id: string, args: string) => void
   onTagsSaved?: (project: Project) => void
   onTagClick?: (tag: string) => void
   onShowGitSidebar?: (project: Project, gitStatus: GitStatus | null) => void
@@ -106,6 +109,9 @@ export function ProjectCardKanban({
   onTogglePin,
   onVersionChange,
   onRemove,
+  onDelete,
+  onCategoryChange,
+  onLaunchArgsChange,
   onTagsSaved,
   onTagClick,
   onShowGitSidebar,
@@ -213,12 +219,16 @@ export function ProjectCardKanban({
           key={p.id}
           project={p}
           installedVersions={installedVersions}
+          categories={categories}
           gitStatus={gitStatusMap[p.path] ?? null}
           launchWithConsole={launchWithConsole}
           compact={compact}
           onTogglePin={() => onTogglePin(p.id)}
           onVersionChange={(tag) => onVersionChange(p.id, tag)}
           onRemove={() => onRemove(p.id)}
+          onDelete={onDelete ? () => onDelete(p.id) : undefined}
+          onCategoryChange={onCategoryChange ? (cat) => onCategoryChange(p.id, cat) : undefined}
+          onLaunchArgsChange={onLaunchArgsChange ? (args) => onLaunchArgsChange(p.id, args) : undefined}
           onTagsSaved={onTagsSaved}
           onTagClick={onTagClick}
           onShowGitSidebar={() => onShowGitSidebar?.(p, gitStatusMap[p.path] ?? null)}

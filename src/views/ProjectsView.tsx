@@ -148,7 +148,7 @@ export function ProjectsView({
       const raw = localStorage.getItem('godothub_projects_sort_by')
       if (raw) return raw as ProjectSortOption
     } catch {}
-    return settings.categories_enabled ? 'categories' : 'recent'
+    return 'categories'
   })
   const [sortNow, setSortNow] = useState(() => Date.now())
   useEffect(() => {
@@ -499,21 +499,33 @@ export function ProjectsView({
       <div className="shrink-0 flex items-center gap-2 mb-3">
         <Dropdown
           align="left"
-          trigger={({ open, toggle }) => (
-            <motion.button
-              type="button"
-              aria-expanded={open}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.94 }}
-              onClick={toggle}
-              className="focus-ring cursor-pointer flex items-center justify-center gap-1 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
-            >
-              <IconArrowUpDown className="w-3 h-3 text-muted" />
-              <span className="text-[16px] font-medium">
-                {tc('sort')}
-              </span>
-            </motion.button>
-          )}
+          trigger={({ open, toggle }) => {
+            const defaultSort: ProjectSortOption = 'categories'
+            const isCustomSort = sortBy !== defaultSort
+            const activeSortLabel = SORT_OPTIONS.find((o) => o.value === sortBy)
+            return (
+              <motion.button
+                type="button"
+                aria-expanded={open}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.94 }}
+                onClick={toggle}
+                className={`focus-ring cursor-pointer flex items-center justify-center gap-1 h-8 px-4 rounded-item transition-colors ${
+                  isCustomSort
+                    ? 'bg-accent/15 text-accent-bright ring-1 ring-accent-dim/70'
+                    : 'bg-overlay text-muted hover:text-ink hover:bg-raised'
+                }`}
+              >
+                <IconArrowUpDown className="w-3 h-3" />
+                <span className="text-[16px] font-medium">{tc('sort')}</span>
+                {activeSortLabel && (
+                  <span className="text-[12px] tabular-nums text-muted/80 max-w-30 truncate">
+                    {tc(activeSortLabel.labelKey)}
+                  </span>
+                )}
+              </motion.button>
+            )
+          }}
           items={SORT_OPTIONS.map((opt) => ({
             key: opt.value,
             label: tc(opt.labelKey),
@@ -584,27 +596,36 @@ export function ProjectsView({
         
         <Dropdown
           align="left"
-          trigger={({ open, toggle }) => (
-            <motion.button
-              type="button"
-              aria-expanded={open}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.94 }}
-              onClick={toggle}
-              className="focus-ring cursor-pointer flex items-center justify-center gap-1 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
-            >
-              {viewMode === 'grid' ? (
-                <IconLayoutGrid className="w-3 h-3 text-muted" />
-              ) : viewMode === 'kanban' ? (
-                <IconLayoutGrid className="w-3 h-3 text-muted" />
-              ) : (
-                <IconLayoutList className="w-3 h-3 text-muted" />
-              )}
-              <span className="text-[16px] font-medium">
-                {tc('view')}
-              </span>
-            </motion.button>
-          )}
+          trigger={({ open, toggle }) => {
+            const isCustomView = viewMode !== 'list'
+            const viewLabel = viewMode === 'grid' ? tc('view_grid') : viewMode === 'kanban' ? tc('view_kanban') : tc('view_list')
+            return (
+              <motion.button
+                type="button"
+                aria-expanded={open}
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.94 }}
+                onClick={toggle}
+                className={`focus-ring cursor-pointer flex items-center justify-center gap-1 h-8 px-4 rounded-item transition-colors ${
+                  isCustomView
+                    ? 'bg-accent/15 text-accent-bright ring-1 ring-accent-dim/70'
+                    : 'bg-overlay text-muted hover:text-ink hover:bg-raised'
+                }`}
+              >
+                {viewMode === 'grid' ? (
+                  <IconLayoutGrid className="w-3 h-3" />
+                ) : viewMode === 'kanban' ? (
+                  <IconLayoutGrid className="w-3 h-3" />
+                ) : (
+                  <IconLayoutList className="w-3 h-3" />
+                )}
+                <span className="text-[16px] font-medium">{tc('view')}</span>
+                <span className="text-[12px] tabular-nums text-muted/80 max-w-30 truncate">
+                  {viewLabel}
+                </span>
+              </motion.button>
+            )
+          }}
           items={[
             { key: 'list', label: tc('view_list'), active: viewMode === 'list', onClick: () => setViewMode('list') },
             { key: 'grid', label: tc('view_grid'), active: viewMode === 'grid', onClick: () => setViewMode('grid') },
@@ -727,6 +748,9 @@ export function ProjectsView({
             onTogglePin={(id) => setPinned(id, !projects.find((p) => p.id === id)?.pinned)}
             onVersionChange={(id, tag) => updateVersion(id, tag)}
             onRemove={(id) => remove(id, false)}
+            onDelete={(id) => remove(id, true)}
+            onCategoryChange={(id, cat) => setCategory(id, cat)}
+            onLaunchArgsChange={(id, args) => handleLaunchArgsChange(id, args)}
             onTagsSaved={(updated) => updateTags(updated.id, updated.tags)}
             onTagClick={(tag) => setTagFilter((cur) => (cur === tag ? null : tag))}
             onShowGitSidebar={(project, gitStatus) =>
@@ -754,6 +778,9 @@ export function ProjectsView({
             onTogglePin={(id) => setPinned(id, !projects.find((p) => p.id === id)?.pinned)}
             onVersionChange={(id, tag) => updateVersion(id, tag)}
             onRemove={(id) => remove(id, false)}
+            onDelete={(id) => remove(id, true)}
+            onCategoryChange={(id, cat) => setCategory(id, cat)}
+            onLaunchArgsChange={(id, args) => handleLaunchArgsChange(id, args)}
             onTagsSaved={(updated) => updateTags(updated.id, updated.tags)}
             onTagClick={(tag) => setTagFilter((cur) => (cur === tag ? null : tag))}
             onShowGitSidebar={(project, gitStatus) =>
