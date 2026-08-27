@@ -1,10 +1,18 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import i18n from '../../i18n'
 import {
   LANGUAGES,
+  SYSTEM_LANGUAGE,
+  getSystemLanguage,
   languageStatusLabelKey,
   type LanguageStatus,
 } from '../../i18n/languages'
@@ -35,24 +43,42 @@ export function LanguageMenu() {
       {ts(languageStatusLabelKey(status))}
     </span>
   )
+
   const [open, setOpen] = useState(false)
   const [dir, setDir] = useState(false)
-  const [pos, setPos] = useState<{ left: number; top: number } | null>(null)
+  const [pos, setPos] = useState<{
+    left: number
+    top: number
+  } | null>(null)
+
   const ref = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        if (listRef.current?.contains(e.target as Node)) return
+      if (
+        ref.current &&
+        !ref.current.contains(e.target as Node)
+      ) {
+        if (
+          listRef.current?.contains(e.target as Node)
+        ) {
+          return
+        }
+
         setOpen(false)
       }
     }
+
     const keyHandler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false)
+      if (e.key === 'Escape') {
+        setOpen(false)
+      }
     }
+
     document.addEventListener('mousedown', handler)
     document.addEventListener('keydown', keyHandler)
+
     return () => {
       document.removeEventListener('mousedown', handler)
       document.removeEventListener('keydown', keyHandler)
@@ -61,49 +87,114 @@ export function LanguageMenu() {
 
   const measure = useCallback(() => {
     const el = ref.current
-    if (!el || !listRef.current) return
+
+    if (!el || !listRef.current) {
+      return
+    }
+
     const r = el.getBoundingClientRect()
     const spaceBelow = window.innerHeight - r.bottom
     const d = spaceBelow < OPEN_UP_THRESHOLD
     const h = listRef.current.offsetHeight
+
     setDir(d)
+
     setPos({
-      left: Math.max(EDGE_PADDING, r.right - MENU_WIDTH),
-      top: Math.max(EDGE_PADDING, d ? r.top - h - GAP : r.bottom + GAP),
+      left: Math.max(
+        EDGE_PADDING,
+        r.right - MENU_WIDTH,
+      ),
+      top: Math.max(
+        EDGE_PADDING,
+        d
+          ? r.top - h - GAP
+          : r.bottom + GAP,
+      ),
     })
   }, [])
 
   useLayoutEffect(() => {
-    if (open) measure()
-  }, [open, measure])
-
-  useEffect(() => {
-    if (!open) return
-    const reposition = () => measure()
-    window.addEventListener('scroll', reposition, true)
-    window.addEventListener('resize', reposition)
-    return () => {
-      window.removeEventListener('scroll', reposition, true)
-      window.removeEventListener('resize', reposition)
+    if (open) {
+      measure()
     }
   }, [open, measure])
 
-  const isActive = (value: string) =>
-    i18n.language === value || i18n.language.startsWith(value.split('-')[0])
+  useEffect(() => {
+    if (!open) {
+      return
+    }
+
+    const reposition = () => measure()
+
+    window.addEventListener(
+      'scroll',
+      reposition,
+      true,
+    )
+
+    window.addEventListener(
+      'resize',
+      reposition,
+    )
+
+    return () => {
+      window.removeEventListener(
+        'scroll',
+        reposition,
+        true,
+      )
+
+      window.removeEventListener(
+        'resize',
+        reposition,
+      )
+    }
+  }, [open, measure])
+
+  const isActive = (value: string) => {
+    if (value === SYSTEM_LANGUAGE) {
+      return settings.language === SYSTEM_LANGUAGE
+    }
+
+    if (settings.language === SYSTEM_LANGUAGE) {
+      return false
+    }
+
+    return (
+      i18n.language === value ||
+      i18n.language.startsWith(
+        value.split('-')[0],
+      )
+    )
+  }
 
   const select = (value: string) => {
-    i18n.changeLanguage(value)
-    update({ ...settings, language: value })
+    const language =
+      value === SYSTEM_LANGUAGE
+        ? getSystemLanguage()
+        : value
+
+    i18n.changeLanguage(language)
+
+    update({
+      ...settings,
+      language: value,
+    })
+
     setOpen(false)
   }
 
-  const noDrag = (e: React.MouseEvent) => e.stopPropagation()
+  const noDrag = (e: React.MouseEvent) =>
+    e.stopPropagation()
 
   return (
     <>
-      <div ref={ref} className="flex items-stretch shrink-0">
+      <div
+        ref={ref}
+        className="flex items-stretch shrink-0"
+      >
         <Tooltip content={ts('language_label')}>
-        <motion.button
+          <motion.button
             type="button"
             onClick={() => setOpen((o) => !o)}
             onMouseDown={noDrag}
@@ -112,7 +203,11 @@ export function LanguageMenu() {
             aria-haspopup="menu"
             whileHover={{ scale: 1.08 }}
             whileTap={{ scale: 0.9 }}
-            transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+            transition={{
+              type: 'spring',
+              stiffness: 500,
+              damping: 30,
+            }}
             className="focus-ring cursor-pointer relative w-9 h-8 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised transition-colors shrink-0"
           >
             <IconLanguage className="w-4 h-4" />
@@ -125,27 +220,54 @@ export function LanguageMenu() {
           {open && (
             <motion.div
               ref={listRef}
-              initial={{ opacity: 0, y: dir ? 6 : -6, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: dir ? 6 : -6, scale: 0.96 }}
-              transition={{ duration: 0.15, ease: 'easeOut' }}
+              initial={{
+                opacity: 0,
+                y: dir ? 6 : -6,
+                scale: 0.96,
+              }}
+              animate={{
+                opacity: 1,
+                y: 0,
+                scale: 1,
+              }}
+              exit={{
+                opacity: 0,
+                y: dir ? 6 : -6,
+                scale: 0.96,
+              }}
+              transition={{
+                duration: 0.15,
+                ease: 'easeOut',
+              }}
               role="menu"
               className={`fixed z-50 ${
-                dir ? 'origin-bottom' : 'origin-top'
+                dir
+                  ? 'origin-bottom'
+                  : 'origin-top'
               } rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 p-1.5`}
-              style={{ left: pos?.left, top: pos?.top, width: MENU_WIDTH }}
+              style={{
+                left: pos?.left,
+                top: pos?.top,
+                width: MENU_WIDTH,
+              }}
             >
               <div className="px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted/50">
                 {ts('language_label')}
               </div>
+
               {LANGUAGES.map((lang) => {
                 const active = isActive(lang.value)
+                const isSystem =
+                  lang.value === SYSTEM_LANGUAGE
+
                 return (
                   <button
                     key={lang.value}
                     type="button"
                     role="menuitem"
-                    onClick={() => select(lang.value)}
+                    onClick={() =>
+                      select(lang.value)
+                    }
                     className={`focus-ring cursor-pointer w-full flex items-center justify-between gap-2 text-left px-2.5 py-2 rounded-item text-xs transition-colors ${
                       active
                         ? 'bg-accent/15 text-accent-bright'
@@ -153,11 +275,21 @@ export function LanguageMenu() {
                     }`}
                   >
                     <span className="flex items-center gap-1.5 min-w-0">
-                      <LanguageFlag country={lang.country} />
-                      <span className="truncate">{lang.label}</span>
-                      {badge(lang.status)}
+                      <LanguageFlag
+                        country={lang.country}
+                      />
+
+                      <span className="truncate">
+                      {lang.labelKey ? ts(lang.labelKey): lang.label}
+                      </span>
+
+                      {!isSystem &&
+                        badge(lang.status)}
                     </span>
-                    {active && <IconCheck className="w-3.5 h-3.5" />}
+
+                    {active && (
+                      <IconCheck className="w-3.5 h-3.5" />
+                    )}
                   </button>
                 )
               })}

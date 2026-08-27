@@ -270,6 +270,7 @@
   "token_help_desc": "أنشئ رمزًا مميزًا على github.com/settings/tokens. ما عليك سوى تحديد نطاق public_repo إذا كنت ترغب في الوصول إلى المستودع الخاص، وإلا فاترك جميع النطاقات غير محددة. لا توجد أذونات حساسة مطلوبة.",
   "search_placeholder": "ابحث في الإعدادات…",
   "language_label": "اللغة",
+  "language_system": "لغة النظام",
   "language_complete": "مكتملة",
   "language_beta": "تجريبية",
   "language_incomplete": "غير مكتملة",

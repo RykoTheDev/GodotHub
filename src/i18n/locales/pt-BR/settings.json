@@ -335,6 +335,7 @@
   "landing_tab_label": "Página inicial padrão",
   "landing_tab_desc": "Define qual visualização abre quando o aplicativo inicia. O Painel só está disponível na nova interface, então a interface clássica usa Projetos como alternativa.",
   "language_label": "Idioma",
+  "language_system": "Idioma do sistema",
   "language_complete": "Completo",
   "language_beta": "Beta",
   "language_incomplete": "Incompleto",

@@ -27,6 +27,10 @@ import {
   applyRadius,
   applyScrollbars,
 } from '../lib/appearance'
+import {
+  SYSTEM_LANGUAGE,
+  getSystemLanguage,
+} from '../i18n/languages'
 import { registerPendingSave } from '../lib/pendingSave'
 import { useWorkspaces } from './useWorkspaces'
 import { defaultCornerRadius } from '../lib/platform'
@@ -143,7 +147,11 @@ function applySettingsAppearance(prev: AppSettings, next: AppSettings) {
   }
   if (next.language && next.language !== prev.language) {
     localStorage.setItem('i18nextLng', next.language)
-    if (next.language !== i18n.language) i18n.changeLanguage(next.language)
+    const resolvedLanguage = next.language === SYSTEM_LANGUAGE ? getSystemLanguage() : next.language
+
+if (resolvedLanguage !== i18n.language) {
+  i18n.changeLanguage(resolvedLanguage)
+}
   }
 }
 
@@ -174,7 +182,11 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       )
       applyAppearance(s)
       if (s.language && s.language !== i18n.language) {
-        i18n.changeLanguage(s.language)
+        i18n.changeLanguage(
+          s.language === SYSTEM_LANGUAGE
+          ? getSystemLanguage()
+           : s.language,
+          )
       }
       setLoaded(true)
     })

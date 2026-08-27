@@ -344,6 +344,7 @@
   "landing_tab_label": "Trang đích mặc định",
   "landing_tab_desc": "View nào mở khi ứng dụng khởi động. Dashboard chỉ có trong giao diện mới, nên giao diện cổ điển sẽ về Dự án.",
   "language_label": "Ngôn ngữ",
+  "language_system": "Ngôn ngữ hệ thống",
   "language_complete": "Hoàn chỉnh",
   "language_beta": "Beta",
   "language_incomplete": "Chưa hoàn chỉnh",
