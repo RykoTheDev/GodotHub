@@ -1,4 +1,4 @@
-import { US, CN, RU, MA, MX, JP, FR , VN} from 'country-flag-icons/react/3x2'
+import { US, CN, RU, MA, MX, JP, FR , VN, BR} from 'country-flag-icons/react/3x2'
 
 const FLAGS: Record<string, typeof US> = {
   US,
@@ -9,6 +9,7 @@ const FLAGS: Record<string, typeof US> = {
   JP,
   FR,
   VN,
+  BR,
 }
 
 export function LanguageFlag({

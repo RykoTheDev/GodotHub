@@ -1,0 +1,23 @@
+{
+  "welcome": "Boas-vindas",
+  "categories": "Categorias",
+  "customize": "Personalizar",
+  "finish": "Concluir",
+  "in_progress": "Em andamento",
+  "prototypes": "Protótipos",
+  "finished": "Concluídos",
+  "game_jams": "Game Jams",
+  "project_folders": "Pastas de projetos",
+  "version_folders": "Pastas de versões",
+  "welcome_title": "Boas-vindas ao GodotHub",
+  "welcome_desc": "Um lugar para todos os projetos e versões do Godot nesta máquina. Vamos configurar algumas coisas para que tudo funcione do jeito que você quer. Leva só um minuto, e tudo aqui pode ser alterado depois nas Configurações.",
+  "onboard_empty_projects": "Nenhuma pasta adicionada ainda. O GodotHub não encontrará projetos existentes até você adicionar uma, ou você pode adicionar projetos manualmente depois.",
+  "onboard_empty_versions": "Nenhuma pasta adicionada ainda. Novos downloads do Godot irão para a pasta de dados do aplicativo, a menos que você defina uma abaixo.",
+  "onboard_no_template_folder": "Nenhuma pasta definida. Você sempre pode configurar isso depois nas Configurações ou salvar templates manualmente.",
+  "onboard_categories_desc": "Nada aqui é obrigatório. Projetos sem categoria simplesmente aparecem como Sem categoria.",
+  "language_heading": "Idioma",
+  "onboard_cloud_heading": "Backup na nuvem",
+  "onboard_cloud_desc": "Já tem um backup? Entre com o GitHub e restaure seus espaços de trabalho, projetos e configurações a partir de um gist.",
+  "onboard_cloud_sign_in": "Entrar com o GitHub",
+  "onboard_cloud_connected": "Conectado como @{{username}}"
+}

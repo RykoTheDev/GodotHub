@@ -20,6 +20,15 @@ import enUSOnboarding from './locales/en-US/onboarding.json'
 import enUSVersions from './locales/en-US/versions.json'
 import enUSDashboard from './locales/en-US/dashboard.json'
 
+import ptBRNav from './locales/pt-BR/nav.json'
+import ptBRCommon from './locales/pt-BR/common.json'
+import ptBRSettings from './locales/pt-BR/settings.json'
+import ptBRGit from './locales/pt-BR/git.json'
+import ptBRChangelog from './locales/pt-BR/changelog.json'
+import ptBROnboarding from './locales/pt-BR/onboarding.json'
+import ptBRVersions from './locales/pt-BR/versions.json'
+import ptBRDashboard from './locales/pt-BR/dashboard.json'
+
 import esMXNav from "./locales/es-MX/nav.json"
 import esMXCommon from './locales/es-MX/common.json'
 import esMXSettings from './locales/es-MX/settings.json'
@@ -85,6 +94,17 @@ const arMAResources = {
   onboarding: arMAOnboarding,
   versions: arMAVersions,
   dashboard: arMADashboard,
+}
+
+const ptBRResources = {
+  nav: ptBRNav,
+  common: ptBRCommon,
+  settings: ptBRSettings,
+  git: ptBRGit,
+  changelog: ptBRChangelog,
+  onboarding: ptBROnboarding,
+  versions: ptBRVersions,
+  dashboard: ptBRDashboard,
 }
 
 const esMXResources = {
@@ -153,6 +173,9 @@ const resources = {
     versions: enUSVersions,
     dashboard: enUSDashboard,
   },
+
+  'pt-BR': ptBRResources,
+  pt: ptBRResources,
 
   'es-MX': esMXResources,
   es: esMXResources,
