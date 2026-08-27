@@ -219,7 +219,7 @@ export function NewsView({ connected = false }: { connected?: boolean }) {
               )}
             </>
           )}
-          <div className="shrink-0 h-4" aria-hidden="true" />
+          <div className="shrink-0 h-20" aria-hidden="true" />
         </div>
       </OverlayScrollArea>
     </div>
