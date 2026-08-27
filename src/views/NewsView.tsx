@@ -163,6 +163,7 @@ export function NewsView({ connected = false }: { connected?: boolean }) {
       <OverlayScrollArea
         className={`flex-1 min-w-0 ${connected ? '' : '-mr-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
+        topButtonBottom={'bottom-16'}
       >
         <div className={`h-full ${connected ? 'pl-3' : ''} pr-5 pb-4`}>
           {loading && items.length === 0 ? (
@@ -219,7 +220,7 @@ export function NewsView({ connected = false }: { connected?: boolean }) {
               )}
             </>
           )}
-          <div className="shrink-0 h-20" aria-hidden="true" />
+          <div className="shrink-0 h-4" aria-hidden="true" />
         </div>
       </OverlayScrollArea>
     </div>

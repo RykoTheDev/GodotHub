@@ -902,6 +902,11 @@ pub fn find_executable(dir: &Path) -> Option<PathBuf> {
         }
 
         if path.is_dir() {
+            // Skip GodotSharp directories – they only contain managed DLLs,
+            // never the actual Godot executable.
+            if lower == "godotsharp" {
+                continue;
+            }
             if let Some(found) = find_executable(&path) {
                 return Some(found);
             }
@@ -913,7 +918,7 @@ pub fn find_executable(dir: &Path) -> Option<PathBuf> {
             return Some(path);
         }
         #[cfg(target_os = "linux")]
-        if lower.starts_with("godot") {
+        if lower.starts_with("godot") && !lower.ends_with(".dll") {
             return Some(path);
         }
     }
