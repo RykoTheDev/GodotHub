@@ -27,10 +27,7 @@ import {
   applyRadius,
   applyScrollbars,
 } from '../lib/appearance'
-import {
-  SYSTEM_LANGUAGE,
-  getSystemLanguage,
-} from '../i18n/languages'
+import { resolveLanguage } from '../i18n/languages'
 import { registerPendingSave } from '../lib/pendingSave'
 import { useWorkspaces } from './useWorkspaces'
 import { defaultCornerRadius } from '../lib/platform'
@@ -146,12 +143,11 @@ function applySettingsAppearance(prev: AppSettings, next: AppSettings) {
     applyProjectIconOpacity(next.project_icon_opacity)
   }
   if (next.language && next.language !== prev.language) {
-    localStorage.setItem('i18nextLng', next.language)
-    const resolvedLanguage = next.language === SYSTEM_LANGUAGE ? getSystemLanguage() : next.language
-
-if (resolvedLanguage !== i18n.language) {
-  i18n.changeLanguage(resolvedLanguage)
-}
+    const resolvedLanguage = resolveLanguage(next.language)
+    localStorage.setItem('i18nextLng', resolvedLanguage)
+    if (resolvedLanguage !== i18n.language) {
+      i18n.changeLanguage(resolvedLanguage)
+    }
   }
 }
 
@@ -181,12 +177,11 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         s.raised_contrast,
       )
       applyAppearance(s)
-      if (s.language && s.language !== i18n.language) {
-        i18n.changeLanguage(
-          s.language === SYSTEM_LANGUAGE
-          ? getSystemLanguage()
-           : s.language,
-          )
+      if (s.language) {
+        const resolvedLanguage = resolveLanguage(s.language)
+        if (resolvedLanguage !== i18n.language) {
+          i18n.changeLanguage(resolvedLanguage)
+        }
       }
       setLoaded(true)
     })
@@ -265,7 +260,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
             saved.raised_contrast,
           )
           if (saved.language) {
-            localStorage.setItem('i18nextLng', saved.language)
+            localStorage.setItem('i18nextLng', resolveLanguage(saved.language))
           }
           applyAppearance(saved)
         }
