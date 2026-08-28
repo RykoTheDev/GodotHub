@@ -814,5 +814,8 @@
   "setting_discord_app_id": "Discord Application ID",
   "setting_discord_rpc_show_projects": "Discord Show Project Names",
   "setting_discord_rpc_excluded_projects": "Discord Excluded Projects",
-  "setting_discord_rpc_project_presences": "Discord Custom Presence"
+  "setting_discord_rpc_project_presences": "Discord Custom Presence",
+  "all": "All",
+  "check_updates_known_issues": "Known Issues",
+  "git_clean": "clean"
 }

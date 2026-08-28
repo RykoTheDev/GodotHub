@@ -738,5 +738,8 @@
   "project_already_open_title": "Projeto já aberto",
   "project_already_open_desc": "{{name}} já está em execução. Abri-lo novamente inicia uma segunda instância do editor. Abrir mesmo assim?",
   "project_open_anyway": "Abrir mesmo assim",
-  "git_sidebar": "Barra lateral do Git"
+  "git_sidebar": "Barra lateral do Git",
+  "all": "All",
+  "check_updates_known_issues": "Known Issues",
+  "git_clean": "clean"
 }
