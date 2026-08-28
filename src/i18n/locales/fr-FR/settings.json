@@ -344,6 +344,7 @@
   "landing_tab_label": "Page d'accueil par défaut",
   "landing_tab_desc": "Quelle vue s'ouvre au démarrage de l'application. Le tableau de bord n'est disponible que dans la nouvelle interface, l'interface classique se rabat donc sur Projets.",
   "language_label": "Langue",
+  "language_system": "Langue du système",
   "language_complete": "Complète",
   "language_beta": "Bêta",
   "language_incomplete": "Incomplète",

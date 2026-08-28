@@ -197,6 +197,7 @@
   "search_placeholder": "搜索设置…",
   "interface_label": "界面",
   "language_label": "语言",
+  "language_system": "系统语言",
   "use_os_decorations": "使用系统窗口装饰",
   "use_os_decorations_desc": "使用操作系统的原生标题栏和窗口控件，而不是 GodotHub 的自定义标题栏。需要重启才能完全生效。",
   "accessibility": "辅助功能",
