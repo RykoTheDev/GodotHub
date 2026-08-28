@@ -11,7 +11,11 @@ import {
   resolveThemeMode,
   getThemePreset,
 } from '../lib/colors'
-import { LANGUAGES } from '../i18n/languages'
+import {
+  LANGUAGES,
+  SYSTEM_LANGUAGE,
+  getSystemLanguage,
+} from '../i18n/languages'
 import { defaultCornerRadius } from '../lib/platform'
 import {
   useOnboarding,
@@ -333,9 +337,7 @@ export function OnboardingView({
                               align="left"
                               trigger={({ open, toggle }) => {
                                 const current = LANGUAGES.find(
-                                  (l) =>
-                                    i18n.language === l.value ||
-                                    i18n.language.startsWith(l.value.split('-')[0]),
+                                  (l) => l.value === draft.language,
                                 )
                                 return (
                                   <button
@@ -345,20 +347,33 @@ export function OnboardingView({
                                     className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-btn border border-outline/50 bg-overlay text-sm font-medium text-ink hover:border-accent-dim transition-colors"
                                   >
                                     {current && <LanguageFlag country={current.country} />}
-                                    {current?.label ?? i18n.language}
+                                    {current
+                                      ? current.labelKey
+                                        ? i18n.t(`settings:${current.labelKey}`)
+                                        : current.label
+                                      : i18n.language}
                                     <IconChevronDown className={`w-3 h-3 text-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
                                   </button>
                                 )
                               }}
-                              items={LANGUAGES.map(({ value, label, country }) => ({
+                              items={LANGUAGES.map(({ value, label, labelKey, country }) => ({
                                 key: value,
-                                label,
+                                label: labelKey ? i18n.t(`settings:${labelKey}`) : label,
                                 leading: <LanguageFlag country={country} className="w-5 h-3.5" />,
-                                active: i18n.language === value || i18n.language.startsWith(value.split('-')[0]),
+                                active: draft.language === value,
                                 onClick: () => {
-                                  i18n.changeLanguage(value)
-                                  setDraft((prev) => ({ ...prev, language: value }))
-                                },
+                                  const language =
+                                    value === SYSTEM_LANGUAGE
+                                      ? getSystemLanguage()
+                                      : value
+
+                                  i18n.changeLanguage(language)
+
+                                setDraft((prev) => ({
+                                  ...prev,
+                                  language: value,
+                                }))
+                              },
                               }))}
                             />
                           </div>
@@ -897,16 +912,15 @@ export function OnboardingView({
                                 value={
                                   (() => {
                                     const lang = LANGUAGES.find(
-                                      (l) =>
-                                        draft.language === l.value ||
-                                        draft.language.startsWith(
-                                          l.value.split('-')[0],
-                                        ),
+                                      (l) => l.value === draft.language,
                                     )
+
                                     return lang ? (
                                       <span className="inline-flex items-center gap-1.5">
                                         <LanguageFlag country={lang.country} />
-                                        {lang.label}
+                                        {lang.labelKey
+                                          ? i18n.t(`settings:${lang.labelKey}`)
+                                          : lang.label}
                                       </span>
                                     ) : (
                                       draft.language
