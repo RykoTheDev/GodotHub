@@ -17,13 +17,11 @@
   "fetch_error": "利用可能なバージョンを取得できませんでした。",
   "importing_version": "バージョンをインポート中…",
   "scanning_versions": "バージョンをスキャン中…",
-  "importing": "インポート中…",
   "import": "インポート",
   "scanning": "スキャン中…",
   "scan_now": "今すぐスキャン",
   "other": "その他",
   "paused_dot": "一時停止中 · ",
-  "choose_version": "バージョンを選択",
   "installed_title": "インストール済みバージョン",
   "available_title": "利用可能なバージョン",
   "available_subtitle": "Godot の公式リリースビルドから取得しています。",
@@ -43,6 +41,5 @@
   "source": "取得元",
   "source_github": "GitHub",
   "source_archive": "Godot アーカイブ",
-  "open_source_page": "{{source}} で開く",
   "switch_to_archive": "Godot アーカイブに切り替える"
 }

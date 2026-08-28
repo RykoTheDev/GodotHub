@@ -14,7 +14,6 @@
   "onboard_empty_projects": "Carpeta sin añadirse aun, GodotHub no podra escanear tus proyectos hasta que asignes una carpeta, o tu puedes agregarlos mas adelante.",
   "onboard_empty_versions": "Carpeta sin añadirse aun, Las nuevas descargas de Godot iran a la carpeta AppData a menos que configures una a continuacion.",
   "onboard_no_template_folder": "No hay ninguna carpeta configurada, siempre puedes configurar esto más tarde en Configuracion o guardar las Plantillas manualmente.",
-  "onboard_categories_desc": "Nada de aqui es requerido, Proyectos sin categoria simplemente se mostrara como Sin Categorizado.",
   "language_heading": "Lenguajes",
   "onboard_cloud_heading": "Cloud Backup",
   "onboard_cloud_desc": "Already have a backup? Sign in with GitHub and restore your workspaces, projects, and settings from a gist.",

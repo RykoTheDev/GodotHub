@@ -17,13 +17,11 @@
   "fetch_error": "Não foi possível buscar as versões disponíveis.",
   "importing_version": "Importando versão…",
   "scanning_versions": "Procurando versões…",
-  "importing": "Importando…",
   "import": "Importar",
   "scanning": "Procurando…",
   "scan_now": "Procurar agora",
   "other": "Outro",
   "paused_dot": "Pausado · ",
-  "choose_version": "Escolher versão",
   "installed_title": "VERSÕES INSTALADAS",
   "available_title": "VERSÕES DISPONÍVEIS",
   "available_subtitle": "Obtidas das builds oficiais da Godot.",
@@ -43,6 +41,5 @@
   "source": "Origem",
   "source_github": "GitHub",
   "source_archive": "Godot Archive",
-  "open_source_page": "Abrir em {{source}}",
   "switch_to_archive": "Mudar para Godot Archive"
 }

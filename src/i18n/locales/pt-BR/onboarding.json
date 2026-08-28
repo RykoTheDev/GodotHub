@@ -14,7 +14,6 @@
   "onboard_empty_projects": "Nenhuma pasta adicionada ainda. O GodotHub não encontrará projetos existentes até você adicionar uma, ou você pode adicionar projetos manualmente depois.",
   "onboard_empty_versions": "Nenhuma pasta adicionada ainda. Novos downloads do Godot irão para a pasta de dados do aplicativo, a menos que você defina uma abaixo.",
   "onboard_no_template_folder": "Nenhuma pasta definida. Você sempre pode configurar isso depois nas Configurações ou salvar templates manualmente.",
-  "onboard_categories_desc": "Nada aqui é obrigatório. Projetos sem categoria simplesmente aparecem como Sem categoria.",
   "language_heading": "Idioma",
   "onboard_cloud_heading": "Backup na nuvem",
   "onboard_cloud_desc": "Já tem um backup? Entre com o GitHub e restaure seus espaços de trabalho, projetos e configurações a partir de um gist.",

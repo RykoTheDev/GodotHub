@@ -17,13 +17,11 @@
   "fetch_error": "Không thể tải các phiên bản hiện có.",
   "importing_version": "Đang import phiên bản…",
   "scanning_versions": "Đang quét các phiên bản…",
-  "importing": "Đang import…",
   "import": "Import",
   "scanning": "Đang quét…",
   "scan_now": "Quét ngay",
   "other": "Khác",
   "paused_dot": "Đã tạm dừng · ",
-  "choose_version": "Chọn phiên bản",
   "installed_title": "PHIÊN BẢN ĐÃ CÀI ĐẶT",
   "available_title": "PHIÊN BẢN HIỆN CÓ",
   "available_subtitle": "Được lấy từ các bản build phát hành chính thức của Godot.",
@@ -43,6 +41,5 @@
   "source": "Nguồn",
   "source_github": "GitHub",
   "source_archive": "Godot Archive",
-  "open_source_page": "Mở trên {{source}}",
   "switch_to_archive": "Chuyển sang Godot Archive"
 }

@@ -14,7 +14,6 @@
   "onboard_empty_projects": "フォルダがまだ追加されていません。追加するまで GodotHub は既存のプロジェクトを見つけられません。あとから手動でプロジェクトを追加することもできます。",
   "onboard_empty_versions": "フォルダがまだ追加されていません。下で指定しない限り、新しくダウンロードした Godot はアプリデータフォルダに保存されます。",
   "onboard_no_template_folder": "フォルダが未設定です。あとから「設定」で構成することも、テンプレートを手動で保存することもできます。",
-  "onboard_categories_desc": "どれも必須ではありません。カテゴリのないプロジェクトは「未分類」として表示されます。",
   "language_heading": "言語",
   "onboard_cloud_heading": "クラウドバックアップ",
   "onboard_cloud_desc": "すでにバックアップがありますか？ GitHub でサインインすると、gist からワークスペース・プロジェクト・設定を復元できます。",

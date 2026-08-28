@@ -14,7 +14,6 @@
   "onboard_empty_projects": "尚未添加任何文件夹，GodotHub 无法找到现有项目，除非添加文件夹，也可以稍后手动添加项目。",
   "onboard_empty_versions": "尚未添加任何文件夹，除非在下方设置，否则新的 Godot 下载将保存到应用数据文件夹。",
   "onboard_no_template_folder": "未设置文件夹，您可以稍后在设置中配置，或手动保存模板。",
-  "onboard_categories_desc": "这里没有必填项，没有分类的项目会显示为「未分类」。",
   "language_heading": "语言",
   "onboard_cloud_heading": "云端备份",
   "onboard_cloud_desc": "已有备份？使用 GitHub 登录，从 gist 恢复您的工作区、项目和设置。",

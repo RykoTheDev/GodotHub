@@ -1064,6 +1064,10 @@
       {
         "category": "improve",
         "text": "Description Wrapping on Modal Headers"
+      },
+      {
+        "category": "improve",
+        "text": "Removed Unused Keys that were carried from Classic UI, with PR Help of shiena"
       }
     ],
     "known_issues": [],

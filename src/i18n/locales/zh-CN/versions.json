@@ -17,13 +17,11 @@
   "fetch_error": "无法获取可用版本。",
   "importing_version": "正在导入版本…",
   "scanning_versions": "正在扫描版本…",
-  "importing": "导入中…",
   "import": "导入",
   "scanning": "正在扫描…",
   "scan_now": "立即扫描",
   "other": "其他",
   "paused_dot": "已暂停 · ",
-  "choose_version": "选择版本",
   "installed_title": "已安装的版本",
   "available_title": "可用版本",
   "available_subtitle": "从 Godot 官方发布版本中获取。",
@@ -43,6 +41,5 @@
   "source": "来源",
   "source_github": "GitHub",
   "source_archive": "Godot 存档",
-  "open_source_page": "在 {{source}} 上打开",
   "switch_to_archive": "切换到 Godot 存档"
 }

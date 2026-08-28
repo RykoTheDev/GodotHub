@@ -31,13 +31,11 @@
   "download_version_already_exists": "Версия уже существует",
   "download_version_already_exists_desc": "Версия, которую вы пытаетесь скачать, уже существует в списке версий. Вы можете открыть её или удалить, чтобы скачать заново.",
   "scanning_versions": "Сканирование версий…",
-  "importing": "Импорт…",
   "import": "Импорт",
   "scanning": "Сканирование…",
   "scan_now": "Сканировать сейчас",
   "other": "Другое",
   "paused_dot": "Приостановить · ",
-  "choose_version": "Выберите версию",
   "installed_title": "Установленные версии",
   "available_title": "Доступные версии",
   "available_subtitle": "Получить из официальных выпусков Godot.",
@@ -58,6 +56,5 @@
   "source": "Source",
   "source_github": "GitHub",
   "source_archive": "Godot Archive",
-  "open_source_page": "Open on {{source}}",
   "switch_to_archive": "Switch to Godot Archive"
 }
