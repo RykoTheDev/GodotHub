@@ -14,6 +14,7 @@
     "i18n:types": "node scripts/generate-i18n-types.cjs",
     "i18n:add": "node scripts/i18n-add.cjs",
     "i18n:sync": "node scripts/i18n-sync.cjs",
+    "i18n:unused": "node scripts/find-unused-keys.cjs",
     "validate": "tsc --noEmit && bun run i18n:check -- --check-values"
   },
   "dependencies": {

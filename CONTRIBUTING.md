@@ -496,6 +496,23 @@ bun run i18n:sync -- --remove-extras  # Also remove stale keys
 By default, `--apply` copies the English text as a placeholder.
 Use `--empty` if you want empty strings instead (for translators to fill in).
 
+### Finding dead keys
+
+Keys outlive the components that used them. Once a key is in the locale files
+every translator keeps translating it, so it is worth pruning:
+
+```bash
+bun run i18n:unused             # Report en-US keys nothing references
+bun run i18n:unused -- --json   # Machine-readable
+bun run i18n:unused -- --strict # Exit 1 when any are found
+```
+
+A key counts as used when its name appears as a quoted literal anywhere under
+`src/`, or when it starts with a prefix built dynamically, as in
+`` t(`asset_source_${asset.source}`) ``. Static analysis cannot follow every
+indirection, so read the list before deleting anything. Once the keys are gone
+from every locale, `bun run i18n:types` shrinks the generated types to match.
+
 ### i18n helper scripts
 
 | Command | Purpose |
@@ -507,6 +524,7 @@ Use `--empty` if you want empty strings instead (for translators to fill in).
 | `bun run i18n:sync` | Show missing keys (dry run) |
 | `bun run i18n:sync -- --apply` | Add missing keys (copies English values) |
 | `bun run i18n:sync -- --apply --empty` | Add missing keys (empty for translation) |
+| `bun run i18n:unused` | List en-US keys that no source file references |
 | `bun run i18n:types` | Regenerate TypeScript types |
 | `bun run validate` | Run all checks (typecheck + i18n) |
 
@@ -520,6 +538,8 @@ Use `--empty` if you want empty strings instead (for translators to fill in).
 If any issues are found, the commit is blocked with instructions to fix it. Skip with `git commit --no-verify` (not recommended).
 
 **CI** (`.github/workflows/ci.yml`) runs `i18n:check -- --check-values` on every PR to `main`. PRs with missing, extra, or untranslated keys will fail the check.
+
+CI also runs `i18n:unused`, which annotates unreferenced keys on the line they sit on in `en-US`. It never fails the build, since static analysis cannot prove a key is dead.
 
 ### Locale file checklist
 
