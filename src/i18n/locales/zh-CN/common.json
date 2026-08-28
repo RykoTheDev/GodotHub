@@ -833,5 +833,7 @@
   "setting_discord_app_id": "Discord 应用 ID",
   "setting_discord_rpc_show_projects": "Discord 显示项目名称",
   "setting_discord_rpc_excluded_projects": "Discord 排除的项目",
-  "setting_discord_rpc_project_presences": "Discord 自定义状态"
+  "setting_discord_rpc_project_presences": "Discord 自定义状态",
+  "all": "All",
+  "git_clean": "clean"
 }

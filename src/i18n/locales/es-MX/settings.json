@@ -199,6 +199,7 @@
   "card_layout_label": "Card layout",
   "card_layout_desc": "Show the sidebar, views, and titlebar as separate floating rounded cards. Turn off for a connected layout where everything merges into one surface, like the classic UI.",
   "language_label": "Language",
+  "language_system": "Idioma del sistema",
   "language_complete": "Complete",
   "language_beta": "Beta",
   "language_incomplete": "Incomplete",

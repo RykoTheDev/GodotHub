@@ -335,6 +335,7 @@
   "landing_tab_label": "Default landing page",
   "landing_tab_desc": "Which view opens when the app starts. The dashboard is only available in the new UI, so the classic interface falls back to Projects.",
   "language_label": "Language",
+  "language_system": "System language",
   "language_complete": "Complete",
   "language_beta": "Beta",
   "language_incomplete": "Incomplete",

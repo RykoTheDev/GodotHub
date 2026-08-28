@@ -333,6 +333,7 @@
   "landing_tab_label": "起動時に表示する画面",
   "landing_tab_desc": "アプリの起動時に開く画面です。ダッシュボードは新 UI でのみ利用できるため、クラシックインターフェースでは「プロジェクト」が代わりに開きます。",
   "language_label": "言語",
+  "language_system": "システム言語",
   "language_complete": "翻訳済み",
   "language_beta": "ベータ",
   "language_incomplete": "一部未翻訳",

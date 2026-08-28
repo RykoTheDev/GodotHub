@@ -163,6 +163,7 @@
   "token_help_desc": "Создайте токен на github.com/settings/tokens. You only need to check the public_repo scope if you want private repo access, otherwise leave all scopes unchecked. No sensitive permissions required.",
   "search_placeholder": "Найти настройки…",
   "language_label": "Язык",
+  "language_system": "Язык системы",
   "use_os_decorations": "Использовать системный вид окна",
   "use_os_decorations_desc": "Использует нативную (встроенную) строку заголовка операционной системы и элементы управления окна вместо пользовательских элементов управления GodotHub. Требуется перезапуск, чтобы изменения полностью вступили в силу.",
   "accessibility": "Accessibility",
