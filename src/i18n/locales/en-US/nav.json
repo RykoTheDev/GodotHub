@@ -1,7 +1,8 @@
 {
   "dashboard": "Dashboard",
   "projects": "Projects",
-   "projects_count": "Projects",
+  "projects_count_one": "Project",
+  "projects_count_other": "Projects",
   "versions": "Versions",
   "templates": "Templates",
   "asset_store": "Asset Store",

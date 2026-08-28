@@ -193,9 +193,7 @@ export function RestoreProgressModal({ onClose }: Props) {
                   {preview.workspace_count}
                 </p>
                 <p className="text-[11px] text-muted">
-                  {preview.workspace_count === 1
-                    ? t('restore_modal_workspaces_one')
-                    : t('restore_modal_workspaces_other')}
+                  {t('restore_modal_workspaces', { count: preview.workspace_count })}
                 </p>
               </div>
               <div className="rounded-lg bg-overlay px-3 py-2.5">
@@ -203,9 +201,7 @@ export function RestoreProgressModal({ onClose }: Props) {
                   {preview.project_count}
                 </p>
                 <p className="text-[11px] text-muted">
-                  {preview.project_count === 1
-                    ? t('restore_modal_projects_one')
-                    : t('restore_modal_projects_other')}
+                  {t('restore_modal_projects', { count: preview.project_count })}
                 </p>
               </div>
               <div className="rounded-lg bg-overlay px-3 py-2.5">
@@ -213,9 +209,7 @@ export function RestoreProgressModal({ onClose }: Props) {
                   {preview.category_count}
                 </p>
                 <p className="text-[11px] text-muted">
-                  {preview.category_count === 1
-                    ? t('restore_modal_categories_one')
-                    : t('restore_modal_categories_other')}
+                  {t('restore_modal_categories', { count: preview.category_count })}
                 </p>
               </div>
               <div className="rounded-lg bg-overlay px-3 py-2.5">
@@ -223,9 +217,7 @@ export function RestoreProgressModal({ onClose }: Props) {
                   {preview.template_count}
                 </p>
                 <p className="text-[11px] text-muted">
-                  {preview.template_count === 1
-                    ? t('restore_modal_templates_one')
-                    : t('restore_modal_templates_other')}
+                  {t('restore_modal_templates', { count: preview.template_count })}
                 </p>
               </div>
             </div>

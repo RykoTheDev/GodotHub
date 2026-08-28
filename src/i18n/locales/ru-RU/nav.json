@@ -10,5 +10,7 @@
   "changelog": "Журнал изменений",
   "updates": "Обновления от разработчика",
   "collapse_sidebar": "Collapse",
-  "expand_sidebar": "Expand"
+  "expand_sidebar": "Expand",
+  "projects_count_one": "Project",
+  "projects_count_other": "Projects"
 }

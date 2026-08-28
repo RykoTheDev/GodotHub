@@ -835,5 +835,19 @@
   "available_views": "Available",
   "remove_view": "Remove view",
   "rename_view": "Rename view",
-  "all_views_created": "All view types have been added."
+  "all_views_created": "All view types have been added.",
+  "file_count_one": "{{count}} file",
+  "file_count_other": "{{count}} files",
+  "folder_count_one": "{{count}} folder",
+  "folder_count_other": "{{count}} folders",
+  "project_count_one": "{{count}} project",
+  "project_count_other": "{{count}} projects",
+  "template_count_one": "{{count}} template available",
+  "template_count_other": "{{count}} templates available",
+  "tag_count_one": "{{count}} tag",
+  "tag_count_other": "{{count}} tags",
+  "task_tray_only_recent_one": "{{count}} recent task",
+  "task_tray_only_recent_other": "{{count}} recent tasks",
+  "task_tray_active_tasks_one": "{{count}} active task",
+  "task_tray_active_tasks_other": "{{count}} active tasks"
 }

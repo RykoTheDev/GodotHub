@@ -10,5 +10,7 @@
   "collapse_sidebar": "Colapsar",
   "expand_sidebar": "Expandir",
   "updates": "Actualizacion del Dev",
-  "dashboard": "Dashboard"
+  "dashboard": "Dashboard",
+  "projects_count_one": "Project",
+  "projects_count_other": "Projects"
 }

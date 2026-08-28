@@ -354,11 +354,9 @@ export function TaskTray() {
                     })
                   : empty
                     ? t('task_tray_empty')
-                    : tasks.length === 1
-                      ? t('task_tray_only_recent', { count: 1 })
-                      : t('task_tray_only_recent_plural', {
-                          count: tasks.length,
-                        })}
+                    : t('task_tray_only_recent', {
+                        count: tasks.length,
+                      })}
               </p>
             </div>
             <div className="flex flex-col">
