@@ -248,7 +248,6 @@
   "asset_more_aria": "Thêm hành động",
   "project_count": "{{count}} dự án",
   "project_count_plural": "{{count}} dự án",
-  "showing_count": "Đang hiển thị {{count}}",
   "settings_title": "CÀI ĐẶT",
   "template_count": "{{count}} mẫu có sẵn",
   "template_count_plural": "{{count}} mẫu có sẵn",
@@ -596,10 +595,12 @@
   "file_count_other": "{{count}} files",
   "folder_count_one": "{{count}} folder",
   "folder_count_other": "{{count}} folders",
-  "template_count_one": "{{count}} Template",
-  "template_count_other": "{{count}} Templates",
   "tag_count_one": "{{count}} tag",
   "tag_count_other": "{{count}} tags",
   "task_tray_only_recent_one": "{{count}} recent task",
-  "task_tray_only_recent_other": "{{count}} recent tasks"
+  "task_tray_only_recent_other": "{{count}} recent tasks",
+  "template_your_templates_one": "Template",
+  "template_your_templates_other": "Templates",
+  "asset_duplicate_title": "Template already installed",
+  "asset_duplicate_desc": "\"{{name}}\" is already in your templates. Install a duplicate anyway?"
 }

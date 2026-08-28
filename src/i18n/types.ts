@@ -266,10 +266,7 @@ export type commonKeys =
   | 'news_count'
   | 'asset_store_count'
   | 'asset_more_aria'
-  | 'showing_count'
   | 'settings_title'
-  | 'template_count_one'
-  | 'template_count_other'
   | 'template_create_project'
   | 'no_templates_match'
   | 'no_projects_match'
@@ -604,7 +601,9 @@ export type commonKeys =
   | 'project_already_open_title'
   | 'project_already_open_desc'
   | 'project_open_anyway'
-  | 'git_sidebar';
+  | 'git_sidebar'
+  | 'asset_duplicate_title'
+  | 'asset_duplicate_desc';
 
 /** Keys from dashboard.json */
 export type dashboardKeys = 
@@ -1186,12 +1185,20 @@ export type versionsKeys =
   | 'resume_download'
   | 'pause_download'
   | 'cancel_download'
+  | 'installed_count_one'
+  | 'installed_count_other'
   | 'installed_label'
   | 'original_name'
   | 'source'
   | 'source_github'
   | 'source_archive'
-  | 'switch_to_archive';
+  | 'switch_to_archive'
+  | 'sort_version_latest'
+  | 'sort_version_oldest'
+  | 'sort_version_recently_installed'
+  | 'sort_version_oldest_installed'
+  | 'sort_version_name_asc'
+  | 'sort_version_name_desc';
 
 /** All namespace names */
 export type Namespace = 'changelog' | 'common' | 'dashboard' | 'git' | 'nav' | 'onboarding' | 'settings' | 'versions';
@@ -1458,10 +1465,7 @@ export type TranslationKey =
   | 'common:news_count'
   | 'common:asset_store_count'
   | 'common:asset_more_aria'
-  | 'common:showing_count'
   | 'common:settings_title'
-  | 'common:template_count_one'
-  | 'common:template_count_other'
   | 'common:template_create_project'
   | 'common:no_templates_match'
   | 'common:no_projects_match'
@@ -1797,6 +1801,8 @@ export type TranslationKey =
   | 'common:project_already_open_desc'
   | 'common:project_open_anyway'
   | 'common:git_sidebar'
+  | 'common:asset_duplicate_title'
+  | 'common:asset_duplicate_desc'
   | 'dashboard:greeting_morning'
   | 'dashboard:greeting_afternoon'
   | 'dashboard:greeting_evening'
@@ -2360,9 +2366,17 @@ export type TranslationKey =
   | 'versions:resume_download'
   | 'versions:pause_download'
   | 'versions:cancel_download'
+  | 'versions:installed_count_one'
+  | 'versions:installed_count_other'
   | 'versions:installed_label'
   | 'versions:original_name'
   | 'versions:source'
   | 'versions:source_github'
   | 'versions:source_archive'
-  | 'versions:switch_to_archive';
+  | 'versions:switch_to_archive'
+  | 'versions:sort_version_latest'
+  | 'versions:sort_version_oldest'
+  | 'versions:sort_version_recently_installed'
+  | 'versions:sort_version_oldest_installed'
+  | 'versions:sort_version_name_asc'
+  | 'versions:sort_version_name_desc';

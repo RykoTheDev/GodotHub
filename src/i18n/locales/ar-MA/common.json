@@ -248,7 +248,6 @@
   "asset_more_aria": "خيارات أخرى",
   "project_count": "{{count}} مشروعا",
   "project_count_plural": "{{count}} مشروعا",
-  "showing_count": "تظهر {{count}}",
   "settings_title": "الإعدادات",
   "template_count": "{{count}} قالب متاح",
   "template_count_plural": "{{count}} قالب متاح",
@@ -671,10 +670,12 @@
   "file_count_other": "{{count}} files",
   "folder_count_one": "{{count}} folder",
   "folder_count_other": "{{count}} folders",
-  "template_count_one": "{{count}} Template",
-  "template_count_other": "{{count}} Templates",
   "tag_count_one": "{{count}} tag",
   "tag_count_other": "{{count}} tags",
   "task_tray_only_recent_one": "{{count}} recent task",
-  "task_tray_only_recent_other": "{{count}} recent tasks"
+  "task_tray_only_recent_other": "{{count}} recent tasks",
+  "template_your_templates_one": "Template",
+  "template_your_templates_other": "Templates",
+  "asset_duplicate_title": "Template already installed",
+  "asset_duplicate_desc": "\"{{name}}\" is already in your templates. Install a duplicate anyway?"
 }

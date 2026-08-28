@@ -34,6 +34,8 @@
   "resume_download": "استئنف التنزيل",
   "pause_download": "أوقف التنزيل مؤقتا",
   "cancel_download": "ألغي التنزيل",
+  "installed_count_one": "مثبت",
+  "installed_count_other": "مثبتان",
   "installed_label": "مثبت",
   "original_name": "الأصلي",
   "source": "المصدر",
@@ -41,5 +43,11 @@
   "source_archive": "Godot أرشيف",
   "switch_to_archive": "بدل لأرشيف Godot",
   "console_label": "الطرفية",
-  "no_available_versions_match": "لا توجد إصدارات متوافقة"
+  "no_available_versions_match": "لا توجد إصدارات متوافقة",
+  "sort_version_latest": "Latest",
+  "sort_version_oldest": "Oldest",
+  "sort_version_recently_installed": "Recently Installed",
+  "sort_version_oldest_installed": "Oldest Installed",
+  "sort_version_name_asc": "Name (A–Z)",
+  "sort_version_name_desc": "Name (Z–A)"
 }

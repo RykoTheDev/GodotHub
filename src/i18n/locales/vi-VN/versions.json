@@ -36,10 +36,18 @@
   "resume_download": "Tiếp tục tải xuống",
   "pause_download": "Tạm dừng tải xuống",
   "cancel_download": "Hủy tải xuống",
+  "installed_count_one": "Đã cài đặt",
+  "installed_count_other": "Đã cài đặt",
   "installed_label": "Đã cài đặt",
   "original_name": "Gốc",
   "source": "Nguồn",
   "source_github": "GitHub",
   "source_archive": "Godot Archive",
-  "switch_to_archive": "Chuyển sang Godot Archive"
+  "switch_to_archive": "Chuyển sang Godot Archive",
+  "sort_version_latest": "Latest",
+  "sort_version_oldest": "Oldest",
+  "sort_version_recently_installed": "Recently Installed",
+  "sort_version_oldest_installed": "Oldest Installed",
+  "sort_version_name_asc": "Name (A–Z)",
+  "sort_version_name_desc": "Name (Z–A)"
 }

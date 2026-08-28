@@ -36,10 +36,18 @@
   "resume_download": "Reprendre le téléchargement",
   "pause_download": "Mettre en pause le téléchargement",
   "cancel_download": "Annuler le téléchargement",
+  "installed_count_one": "Installé",
+  "installed_count_other": "Installés",
   "installed_label": "Installé",
   "original_name": "Original",
   "source": "Source",
   "source_github": "GitHub",
   "source_archive": "Archive Godot",
-  "switch_to_archive": "Passer à l'archive Godot"
+  "switch_to_archive": "Passer à l'archive Godot",
+  "sort_version_latest": "Latest",
+  "sort_version_oldest": "Oldest",
+  "sort_version_recently_installed": "Recently Installed",
+  "sort_version_oldest_installed": "Oldest Installed",
+  "sort_version_name_asc": "Name (A–Z)",
+  "sort_version_name_desc": "Name (Z–A)"
 }

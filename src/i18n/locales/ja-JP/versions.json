@@ -36,10 +36,18 @@
   "resume_download": "ダウンロードを再開",
   "pause_download": "ダウンロードを一時停止",
   "cancel_download": "ダウンロードをキャンセル",
+  "installed_count_one": "インストール済み",
+  "installed_count_other": "インストール済み",
   "installed_label": "インストール済み",
   "original_name": "元の名前",
   "source": "取得元",
   "source_github": "GitHub",
   "source_archive": "Godot アーカイブ",
-  "switch_to_archive": "Godot アーカイブに切り替える"
+  "switch_to_archive": "Godot アーカイブに切り替える",
+  "sort_version_latest": "Latest",
+  "sort_version_oldest": "Oldest",
+  "sort_version_recently_installed": "Recently Installed",
+  "sort_version_oldest_installed": "Oldest Installed",
+  "sort_version_name_asc": "Name (A–Z)",
+  "sort_version_name_desc": "Name (Z–A)"
 }

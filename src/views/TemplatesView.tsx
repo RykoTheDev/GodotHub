@@ -40,10 +40,10 @@ const TEMPLATE_SORT_KEY = 'godothub_template_sort'
 type TemplateSortOption = 'name_asc' | 'name_desc' | 'newest' | 'oldest'
 
 const TEMPLATE_SORT_OPTIONS: { value: TemplateSortOption; labelKey: string }[] = [
-  { value: 'name_asc', labelKey: 'sort_template_name_asc' },
-  { value: 'name_desc', labelKey: 'sort_template_name_desc' },
-  { value: 'newest', labelKey: 'sort_template_newest' },
-  { value: 'oldest', labelKey: 'sort_template_oldest' },
+  { value: 'name_asc', labelKey: 'sort_name_asc' },
+  { value: 'name_desc', labelKey: 'sort_name_desc' },
+  { value: 'newest', labelKey: 'sort_created_desc' },
+  { value: 'oldest', labelKey: 'sort_created_asc' },
 ]
 
 function TabSwitcher({

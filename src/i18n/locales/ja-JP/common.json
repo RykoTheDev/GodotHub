@@ -249,7 +249,6 @@
   "asset_more_aria": "その他の操作",
   "project_count": "{{count}} 件のプロジェクト",
   "project_count_plural": "{{count}} 件のプロジェクト",
-  "showing_count": "{{count}} 件を表示中",
   "settings_title": "設定",
   "template_count": "{{count}} 件のテンプレートが利用可能",
   "template_count_plural": "{{count}} 件のテンプレートが利用可能",
@@ -596,9 +595,12 @@
   "folder_count_one": "{{count}} folder",
   "folder_count_other": "{{count}} folders",
   "": "{{count}} template available",
-  "template_count_other": "{{count}} templates available",
   "tag_count_one": "{{count}} tag",
   "tag_count_other": "{{count}} tags",
   "task_tray_only_recent_one": "{{count}} recent task",
-  "task_tray_only_recent_other": "{{count}} recent tasks"
+  "task_tray_only_recent_other": "{{count}} recent tasks",
+  "template_your_templates_one": "Template",
+  "template_your_templates_other": "Templates",
+  "asset_duplicate_title": "Template already installed",
+  "asset_duplicate_desc": "\"{{name}}\" is already in your templates. Install a duplicate anyway?"
 }

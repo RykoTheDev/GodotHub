@@ -36,6 +36,8 @@
   "resume_download": "恢复下载",
   "pause_download": "暂停下载",
   "cancel_download": "取消下载",
+  "installed_count_one": "已安装",
+  "installed_count_other": "已安装",
   "installed_label": "已安装",
   "original_name": "原始名称",
   "source": "来源",

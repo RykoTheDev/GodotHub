@@ -350,7 +350,7 @@ export function VersionsView({
                 <AnimatedNumber value={installed.length} />
               </h2>
               <p className="text-lg font-medium uppercase text-muted">
-                {tv('installed_label')}
+                {tv('installed_count', { count: installed.length })}
               </p>
             </>
           }
