@@ -539,6 +539,8 @@ If any issues are found, the commit is blocked with instructions to fix it. Skip
 
 **CI** (`.github/workflows/ci.yml`) runs `i18n:check -- --check-values` on every PR to `main`. PRs with missing, extra, or untranslated keys will fail the check.
 
+CI also runs `i18n:unused`, which annotates unreferenced keys on the line they sit on in `en-US`. It never fails the build, since static analysis cannot prove a key is dead.
+
 ### Locale file checklist
 
 - Keys are always `snake_case`, quoted, with commas after every entry except
