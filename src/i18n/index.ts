@@ -2,6 +2,8 @@ import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 
+import { SYSTEM_LANGUAGE, getSystemLanguage } from './languages'
+
 import arMANav from './locales/ar-MA/nav.json'
 import arMACommon from './locales/ar-MA/common.json'
 import arMASettings from './locales/ar-MA/settings.json'
@@ -204,6 +206,18 @@ const resources = {
   ar: arMAResources,
   'vi-VN': viVNResources,
   vi: viVNResources,
+}
+
+// The language setting stores the literal 'system' choice, and earlier builds
+// cached that value as i18nextLng. It matches no resource bundle, so the
+// detector would resolve it to the en-US fallback on every launch. Rewrite it
+// to the actual system locale before the detector reads it.
+try {
+  if (localStorage.getItem('i18nextLng') === SYSTEM_LANGUAGE) {
+    localStorage.setItem('i18nextLng', getSystemLanguage())
+  }
+} catch {
+  // localStorage may be unavailable; the navigator detector still applies.
 }
 
 i18n
