@@ -1,6 +1,7 @@
 import i18n from '../../i18n'
 import {
   LANGUAGES,
+  resolveLanguage,
   type LanguageStatus,
 } from '../../i18n/languages'
 import { IconCheck } from '../../lib/icons'
@@ -41,7 +42,7 @@ export function LanguagePicker({
     LANGUAGES.find((l) => isActive(l.value)) ?? LANGUAGES[0]
 
   const handleChange = (value: string) => {
-    i18n.changeLanguage(value)
+    i18n.changeLanguage(resolveLanguage(value))
     update({ ...settings, language: value })
   }
 
