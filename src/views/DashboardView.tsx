@@ -794,11 +794,21 @@ function GitOverview({ tall = false, active = true }: { tall?: boolean; active?:
     }
   }, [projects])
 
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   useEffect(() => {
     if (!active) return
     fetchStatuses()
     const interval = setInterval(fetchStatuses, 30000)
-    return () => clearInterval(interval)
+    const handleRefresh = () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      debounceRef.current = setTimeout(fetchStatuses, 300)
+    }
+    window.addEventListener('app:refresh-git-status', handleRefresh)
+    return () => {
+      clearInterval(interval)
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      window.removeEventListener('app:refresh-git-status', handleRefresh)
+    }
   }, [active, fetchStatuses])
 
   const dirty = useMemo(

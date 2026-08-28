@@ -31,6 +31,7 @@ export const api = {
   openProjectFolder: projectsApi.openFolder,
   openInEditor: projectsApi.openInEditor,
   getProjectSize: projectsApi.getSize,
+  getProjectFileTree: projectsApi.getFileTree,
   pickFolder: projectsApi.pickFolder,
   pickFile: projectsApi.pickFile,
   pickSavePath: projectsApi.pickSavePath,

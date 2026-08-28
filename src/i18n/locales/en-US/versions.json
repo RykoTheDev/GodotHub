@@ -1,6 +1,6 @@
 {
-  "standard": "Standard",
-  "mono": "Mono",
+  "standard": "Standard (GDScript)",
+  "mono": "Mono (C#/.NET)",
   "console_label": "Console",
   "both": "Both",
   "stable": "Stable",

@@ -16,11 +16,9 @@ struct SyncState {
 }
 
 fn persistent_gist_dir(app: &AppHandle) -> PathBuf {
-    // Store gist state in ~/.godothub/ so it survives app data deletion.
     if let Ok(home) = app.path().home_dir() {
         home.join(".godothub")
     } else {
-        // Fallback to app_data_dir if home dir is unavailable.
         app.path().app_data_dir().expect("no app data dir")
     }
 }
@@ -266,7 +264,6 @@ pub async fn gist_sync_fetch_backup(app: AppHandle) -> Result<RestorePreview, St
         if wb.has_time_stats() {
             has_time_stats = true;
         }
-        // Collect scan dirs from the first workspace that has them.
         if version_scan_dirs.is_empty() {
             version_scan_dirs = wb.version_scan_dirs().clone();
         }
@@ -312,7 +309,6 @@ pub async fn gist_sync_pull(app: AppHandle) -> Result<crate::models::AppSettings
         serde_json::from_str(&file.content).map_err(|e| e.to_string())?;
     let settings = crate::backup::apply_app_backup(&app, backup)?;
 
-    // Scan project, version, and template directories after restore.
     let scan_depth = settings.scan_depth;
     let project_dirs = settings.project_scan_dirs.clone();
     let version_dirs = settings.version_scan_dirs.clone();
@@ -338,7 +334,6 @@ pub async fn gist_sync_pull(app: AppHandle) -> Result<crate::models::AppSettings
     Ok(settings)
 }
 
-/// Extract a gist ID from a full GitHub gist URL or raw ID.
 fn gist_id_from_input(input: &str) -> Result<String, String> {
     let trimmed = input.trim();
     if trimmed.is_empty() {
@@ -349,7 +344,6 @@ fn gist_id_from_input(input: &str) -> Result<String, String> {
         .strip_prefix("https://gist.github.com/")
         .or_else(|| trimmed.strip_prefix("http://gist.github.com/"))
     {
-        // The ID is the last path segment.
         let id = id.trim_end_matches('/');
         if let Some(pos) = id.rfind('/') {
             return Ok(id[pos + 1..].to_string());
@@ -399,7 +393,6 @@ pub async fn gist_sync_pull_by_url(
         .ok_or("Backup file not found in this gist")?;
     let backup: crate::backup::AppBackup =
         serde_json::from_str(&file.content).map_err(|e| e.to_string())?;
-    // Save the gist state so future push/pull works without re-entering.
     write_sync_state(
         &app,
         &SyncState {
@@ -410,7 +403,6 @@ pub async fn gist_sync_pull_by_url(
     );
     let settings = crate::backup::apply_app_backup(&app, backup)?;
 
-    // Scan project, version, and template directories after restore.
     let scan_depth = settings.scan_depth;
     let project_dirs = settings.project_scan_dirs.clone();
     let version_dirs = settings.version_scan_dirs.clone();

@@ -110,7 +110,7 @@ function VersionTag({
 function MonoBadge() {
   return (
     <span className="text-[10px] font-semibold px-2 py-0.5 rounded-tag bg-accent/10 text-accent-bright border border-accent-dim/40 shrink-0">
-      Mono
+      .NET
     </span>
   )
 }
@@ -402,7 +402,10 @@ export function VersionsView({
                   key: 'archive',
                   label: tv('source_archive'),
                   active: source === 'archive',
-                  onClick: () => refreshAvailable('archive'),
+                  onClick: () => {
+                    refreshAvailable('archive')
+                    setFilters((p) => ({ ...p, channel: 'stable' }))
+                  },
                 },
               ]}
             />
@@ -434,6 +437,7 @@ export function VersionsView({
                 { key: 'both', label: tv('both'), active: filters.buildType === 'both', onClick: () => setFilters((p) => ({ ...p, buildType: 'both' })) },
               ]}
             />
+            {source !== 'archive' && (
             <Dropdown
               align="left"
               trigger={({ open, toggle }) => (
@@ -462,6 +466,7 @@ export function VersionsView({
                 { key: 'both', label: tv('both'), active: filters.channel === 'both', onClick: () => setFilters((p) => ({ ...p, channel: 'both' })) },
               ]}
             />
+            )}
           </div>
 
           {loadingAvailable ? (

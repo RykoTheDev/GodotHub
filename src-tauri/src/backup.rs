@@ -158,7 +158,6 @@ fn apply_workspace_backup_in(
     let current_settings = crate::settings::read_settings_from(dir);
     let mut settings = backup.settings;
     settings.dismissed_project_paths = current_settings.dismissed_project_paths;
-    // Mark setup as complete so onboarding is skipped after restore.
     settings.setup_complete = true;
     crate::settings::write_settings_to(dir, &settings).map_err(|e| e.to_string())?;
 
@@ -283,7 +282,6 @@ pub(crate) fn apply_app_backup(
         }
     }
 
-    // Remove workspaces that weren't in the backup (e.g. the auto-created "Default").
     {
         let mut state = crate::workspace::read_state(app);
         let to_remove: Vec<String> = state
@@ -299,9 +297,7 @@ pub(crate) fn apply_app_backup(
                     let _ = std::fs::remove_dir_all(crate::workspace::workspace_dir(app, id));
                 }
             }
-            // Ensure active_id points to a valid workspace.
             if state.workspaces.is_empty() {
-                // This shouldn't happen since we just restored workspaces, but be safe.
             } else if !state.workspaces.iter().any(|w| w.id == state.active_id) {
                 state.active_id = state.workspaces[0].id.clone();
             }

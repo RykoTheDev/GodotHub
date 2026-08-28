@@ -19,7 +19,9 @@ import { Dropdown } from '../ui/Dropdown'
 
 import { TimeTrackerModal } from '../modals/TimeTrackerModal'
 import { SaveAsTemplateModal } from '../modals/SaveAsTemplateModal'
+import { ProjectSizeModal } from '../modals/ProjectSizeModal'
 import { OpenButton } from '../reusables/OpenButton'
+import { Tooltip } from '../reusables/Tooltip'
 import {
   IconCheckCircle,
   IconChevronDown,
@@ -28,9 +30,11 @@ import {
   IconCopy,
   IconExternalLink,
   IconGitBranch,
+  IconHardDrive,
   IconNode,
   IconPencil,
   IconPin,
+  IconPlay,
   IconStopwatch,
   IconTags,
   IconTrash,
@@ -65,6 +69,13 @@ function getInitials(name: string): string {
   if (words.length === 0) return ''
   if (words.length === 1) return words[0].slice(0, 2).toUpperCase()
   return (words[0][0] + words[1][0]).toUpperCase()
+}
+
+function formatBytes(bytes: number): string {
+  if (bytes >= 1024 ** 3) return `${(bytes / 1024 ** 3).toFixed(1)} GB`
+  if (bytes >= 1024 ** 2) return `${(bytes / 1024 ** 2).toFixed(1)} MB`
+  if (bytes >= 1024) return `${(bytes / 1024).toFixed(0)} KB`
+  return `${bytes} B`
 }
 
 export function ProjectCard({
@@ -103,6 +114,7 @@ export function ProjectCard({
   const [tagManagerOpen, setTagManagerOpen] = useState(false)
   const [timeTrackerOpen, setTimeTrackerOpen] = useState(false)
   const [templateSaveOpen, setTemplateSaveOpen] = useState(false)
+  const [sizeModalOpen, setSizeModalOpen] = useState(false)
   const [showLaunchArgs, setShowLaunchArgs] = useState(false)
   const [editingTagIndex, setEditingTagIndex] = useState<number | null>(null)
   const [editTagValue, setEditTagValue] = useState('')
@@ -168,6 +180,15 @@ export function ProjectCard({
   const allMs = effectiveTotalMs(project, now)
   const sessionMs = sessionStart ? Math.max(0, now - sessionStart) : 0
 
+  const [projectSize, setProjectSize] = useState<number | null>(null)
+  useEffect(() => {
+    let cancelled = false
+    api.getProjectSize(project.path).then((info) => {
+      if (!cancelled) setProjectSize(info.total_size)
+    }).catch(() => {})
+    return () => { cancelled = true }
+  }, [project.path])
+
   const openFolder = () =>
     api.openProjectFolder(project.path).catch((e) => alert(e))
   const openInIde = () => api.openInEditor(project.path).catch((e) => alert(e))
@@ -177,6 +198,8 @@ export function ProjectCard({
         detail: { id: project.id, console: withConsole },
       }),
     )
+  const playProject = () =>
+    api.openProject(project.id, false).catch((e) => alert(e))
   const saveTags = async (newTags: string[]) => {
     setSavingTags(true)
     try {
@@ -675,6 +698,17 @@ export function ProjectCard({
                 {formatDuration(allMs)}
               </button>
           )}
+          {projectSize != null && projectSize > 0 && (
+              <button
+                type="button"
+                onClick={() => setSizeModalOpen(true)}
+                aria-label={t('project_card_project_size')}
+                className="focus-ring cursor-pointer border border-outline/50 inline-flex items-center gap-1.5 rounded-btn px-3 py-3 bg-black/10 font-mono text-[10px] text-muted hover:text-ink hover:bg-raised transition-colors shrink-0"
+              >
+                <IconHardDrive className="w-3 h-3 text-muted/60 shrink-0" />
+                {formatBytes(projectSize)}
+              </button>
+          )}
           {categories.length > 0 && onCategoryChange && (
             <Dropdown
               align="right"
@@ -722,14 +756,14 @@ export function ProjectCard({
         </div>
       </div>
 
-      <div className="flex items-stretch shrink-0 relative overflow-hidden -mr-2">
+      <div className="flex items-stretch shrink-0 relative -mr-2">
         {sessionMs > 0 && (
           <motion.div
             initial={{ x: 80, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 80, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-            className="flex items-center shrink-0 -mr-2"
+            className="flex items-center shrink-0 -mr-2 overflow-hidden"
           >
             <div className="flex items-center gap-2 px-4 h-10 bg-base/50 border-r-0 rounded-l-dropdown-btn font-mono text-xs text-accent-bright whitespace-nowrap">
               <span className="w-1.5 h-1.5 rounded-full bg-accent-bright animate-pulse shrink-0" />
@@ -737,7 +771,26 @@ export function ProjectCard({
             </div>
           </motion.div>
         )}
-        <div>
+        <div className="flex flex-col justify-end gap-1.5">
+          <AnimatePresence>
+            {versionInstalled && cardHovered && (
+              <Tooltip content={t('play_project_tooltip')} side="left">
+              <motion.button
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 8 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                type="button"
+                onClick={playProject}
+                aria-label={t('play_project')}
+                className="focus-ring cursor-pointer h-12 w-full inline-flex items-center justify-center gap-1.5 rounded-btn bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 shadow-md shadow-black/10 transition-colors text-[18px] font-medium shrink-0"
+              >
+                <IconPlay className="w-4 h-4" />
+                {t('play_project')}
+              </motion.button>
+              </Tooltip>
+            )}
+          </AnimatePresence>
         <OpenButton
           label={versionInstalled ? t('open_project') : t('no_version_selected')}
           disabled={!versionInstalled}
@@ -912,6 +965,16 @@ export function ProjectCard({
           <SaveAsTemplateModal
             project={project}
             onClose={() => setTemplateSaveOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {sizeModalOpen && (
+          <ProjectSizeModal
+            projectPath={project.path}
+            projectName={displayName}
+            onClose={() => setSizeModalOpen(false)}
           />
         )}
       </AnimatePresence>

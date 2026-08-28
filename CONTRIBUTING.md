@@ -42,8 +42,8 @@ You don't have to write code to help:
 |---|---|
 | **Report a bug** | Open an issue with steps to reproduce, expected vs. actual behavior, and your OS + app version. |
 | **Request a feature** | Open an issue describing *what* you want and *why*. Screenshots/mockups help a lot. |
-| **Translate** | Add or improve a language in `src/i18n/`. No Rust or TypeScript needed. See the [Localization section](#-localization). |
-| **Test** | The app is only heavily tested on Windows, Arch Linux (Hyprland), and recent macOS. Try a nightly/dev build on your setup and report what breaks. |
+| **Translate** | Add or improve a language in `src/i18n/`. A Bit of Typescript and React Knowledge is needed. See the [Localization section](#-localization). |
+| **Test** | The app is only heavily tested on Windows, Arch Linux (Hyprland), Fedora (Gnome) 43, and recent macOS. Try a nightly/dev build on your setup and report what breaks. |
 | **Write docs** | Improve the README, this file, or add FAQ content. |
 | **Fix a bug / build a feature** | The traditional path, see below. |
 
@@ -56,6 +56,46 @@ You don't have to write code to help:
 - **Open an issue before starting large changes**. A quick "I'd like to
   refactor X / add Y" saves everyone from a PR that goes in a direction the
   project doesn't want.
+
+---
+
+## 🤖 AI Usage Policy
+
+Contributors are permitted to use AI-assisted development tools (such as Copilot, Deepseek, ChatGPT, Claude) to help write code. However, all AI-generated contributions must meet the same quality standards as human-written code.
+
+### Guidelines
+
+**Do's ✅**
+
+- Use AI as a productivity aid for boilerplate, refactoring suggestions, or
+  debugging assistance.
+- Review and understand every line of AI-generated code before submitting it.
+- Test AI-generated code thoroughly, just as you would with your own work.
+- Mention in your PR description if you used AI assistance (helps reviewers
+  understand the context).
+
+**Don'ts ❌**
+
+- **Do not submit AI-generated code without thorough review.** We do not accept
+  "vibe-coded" PRs code that is submitted without the contributor understanding
+  what it does or verifying it works.
+- Do not rely on AI to write critical logic that you don't understand.
+- Do not use AI to generate translations for localization files if you don't know they are correct or not (see
+  [Localization](#-localization) for the correct workflow).
+- Do not commit/push via AI Agent (or have it Co-Authored) like Claude Code or GitHub Copilot. Push it manually or your PR will be instantly closed without any explaination. (We already have fake calls with Copilot and Codebuff in our Collab. List, I don't want a new one)
+
+### Why this policy exists
+
+AI tools are powerful, but they can introduce subtle bugs, security issues, or
+code that doesn't align with the project's style and architecture. By requiring
+human review and understanding, we ensure that:
+
+- Every line of code has a purpose and is understood by someone.
+- The project remains maintainable and consistent over time.
+- Contributors grow their skills rather than outsourcing them.
+
+If you're unsure whether your use of AI is acceptable, open an issue or ask in
+your PR I'm happy to discuss it.
 
 ---
 

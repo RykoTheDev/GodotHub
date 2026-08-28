@@ -20,6 +20,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import type { Category, GitStatus, InstalledGodotVersion, Project } from '../../types'
 import { ProjectCardGridItem } from './ProjectCardGridItem'
+import { DragHandle } from '../reusables/DragHandle'
 
 interface ProjectCardGridProps {
   projects: Project[]
@@ -73,28 +74,14 @@ function SortableGridCard({
 
   return (
     <div ref={setNodeRef} style={style} className="relative group/drag">
-      {!disabled && (
-        <button
-          ref={setActivatorNodeRef}
-          {...attributes}
-          {...listeners}
-          aria-label="Drag to reorder"
-          className={`focus-ring absolute top-1/2 -translate-y-1/2 left-1 z-20 w-6 h-12 rounded-full border flex items-center justify-center cursor-grab active:cursor-grabbing touch-none transition-all duration-200 ${
-            isDragging
-              ? 'bg-accent border-accent text-white scale-110 shadow-md shadow-accent/30 opacity-100'
-              : 'bg-raised border-line shadow-md shadow-base text-muted/50 opacity-0 group-hover/drag:opacity-100 hover:border-accent-dim hover:text-accent hover:scale-110'
-          }`}
-        >
-          <svg className="w-3 h-3" viewBox="0 0 16 16" fill="currentColor">
-            <circle cx="5" cy="4" r="1.5" />
-            <circle cx="11" cy="4" r="1.5" />
-            <circle cx="5" cy="8" r="1.5" />
-            <circle cx="11" cy="8" r="1.5" />
-            <circle cx="5" cy="12" r="1.5" />
-            <circle cx="11" cy="12" r="1.5" />
-          </svg>
-        </button>
-      )}
+      <DragHandle
+        ref={setActivatorNodeRef}
+        attributes={attributes}
+        listeners={listeners}
+        isDragging={isDragging}
+        disabled={disabled}
+        className="absolute top-1/2 -translate-y-1/2 left-1"
+      />
       {children}
     </div>
   )

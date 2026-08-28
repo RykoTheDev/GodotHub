@@ -17,7 +17,6 @@ pub enum TrackedHandle {
     Child(Child),
     #[cfg(unix)]
     Pid(u32),
-    /// Re-tracked stale session: poll the OS process list for the project path.
     PollAlive { project_path: String },
 }
 
@@ -136,7 +135,6 @@ fn settle_project_session(
     }
 }
 
-/// Parse `--path <value>` from a command-line string, handling quoted and unquoted values.
 fn parse_path_arg(cmdline: &str) -> Option<String> {
     let args: Vec<&str> = cmdline.split_whitespace().collect();
     for (i, arg) in args.iter().enumerate() {
@@ -152,8 +150,6 @@ fn parse_path_arg(cmdline: &str) -> Option<String> {
     None
 }
 
-/// Scan the OS process list for Godot processes and return the set of
-/// project paths they were launched with (`--path <dir>`).
 fn find_running_godot_project_paths() -> std::collections::HashSet<String> {
     let mut paths = std::collections::HashSet::new();
     let output = gather_godot_process_lines();
@@ -223,9 +219,6 @@ pub(crate) fn settle_stale_sessions(app: &AppHandle) {
     });
 }
 
-/// Re-track a stale session whose Godot process is still alive.
-/// Spawns a fresh monitoring thread so the session will be properly settled
-/// when the user eventually closes Godot.
 fn retrack_stale_session(app: &AppHandle, project: &Project) {
     let Some(state) = app.try_state::<ActiveProcesses>() else {
         return;
@@ -1818,6 +1811,71 @@ pub async fn get_project_size(path: String) -> Result<ProjectSizeInfo, String> {
         );
 
         result
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+#[derive(Clone, Serialize)]
+pub struct ProjectFileEntry {
+    pub path: String,
+    pub is_dir: bool,
+    pub size: u64,
+}
+
+#[tauri::command]
+pub async fn get_project_file_tree(path: String) -> Result<Vec<ProjectFileEntry>, String> {
+    tokio::task::spawn_blocking(move || -> Result<Vec<ProjectFileEntry>, String> {
+        let dir = PathBuf::from(&path);
+        if !dir.exists() {
+            return Err("Project folder does not exist".into());
+        }
+
+        let mut entries = Vec::new();
+        let skip = [".git", "node_modules", ".import", ".godot"];
+
+        fn walk(
+            dir: &Path,
+            base: &Path,
+            entries: &mut Vec<ProjectFileEntry>,
+            skip: &[&str],
+        ) {
+            let read = match fs::read_dir(dir) {
+                Ok(r) => r,
+                Err(_) => return,
+            };
+
+            for entry in read.flatten() {
+                let path = entry.path();
+                let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
+
+                if skip.contains(&name) {
+                    continue;
+                }
+
+                let rel = path.strip_prefix(base).unwrap_or(&path);
+                let rel_str = rel.to_string_lossy().replace('\\', "/");
+
+                if path.is_dir() {
+                    entries.push(ProjectFileEntry {
+                        path: format!("{}/", rel_str),
+                        is_dir: true,
+                        size: 0,
+                    });
+                    walk(&path, base, entries, skip);
+                } else if path.is_file() {
+                    let size = fs::metadata(&path).map(|m| m.len()).unwrap_or(0);
+                    entries.push(ProjectFileEntry {
+                        path: rel_str,
+                        is_dir: false,
+                        size,
+                    });
+                }
+            }
+        }
+
+        walk(&dir, &dir, &mut entries, &skip);
+        Ok(entries)
     })
     .await
     .map_err(|e| e.to_string())?

@@ -860,9 +860,6 @@ fn parse_changed_files(stdout: &str) -> Vec<GitChangedFile> {
             if status.trim().is_empty() && raw_path.is_empty() {
                 return None;
             }
-            // Git --porcelain output quotes filenames containing special characters
-            // (spaces, quotes, etc.). Strip the surrounding quotes so downstream
-            // commands receive the actual filesystem path.
             let file_path = if raw_path.starts_with('"') && raw_path.ends_with('"') && raw_path.len() >= 2 {
                 raw_path[1..raw_path.len() - 1].to_string()
             } else {

@@ -21,7 +21,8 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import { AnimatedNumber } from '../reusables/AnimatedNumber'
 import { useTranslation } from 'react-i18next'
-import { IconChevronDown, IconGrip, IconNode, IconPin } from '../../lib/icons'
+import { IconChevronDown, IconNode, IconPin } from '../../lib/icons'
+import { DragHandle } from '../reusables/DragHandle'
 import { isReducedMotion } from '../../lib/appearance'
 import type { Category, Project } from '../../types'
 
@@ -50,7 +51,6 @@ interface ProjectCardListProps {
   onMoveProject?: (id: string, category: string, destOrderedIds: string[]) => Promise<void>
 }
 
-// Context to pass drag state down to SortableProjectCard
 interface DragContext {
   activeDragId: string | null
   categoryMap: Map<string, string>
@@ -86,9 +86,6 @@ function SortableProjectCard({
   const thisCat = categoryMap.get(id)
   const isCrossCategoryDrag = activeDragId != null && activeCat != null && thisCat != null && activeCat !== thisCat
 
-  // Suppress displacement within the same category to prevent clipping
-  // outside the category section's overflow:hidden container. The dragged
-  // card moves via the DragOverlay; other cards stay in place until the drop.
   const isSameCategory = !isCrossCategoryDrag && activeDragId != null && thisCat === activeCat
   const suppressTransform = isCrossCategoryDrag || isSameCategory
 
@@ -107,21 +104,14 @@ function SortableProjectCard({
         isDragging ? 'shadow-lg shadow-accent/8 ring-1 ring-accent/20' : ''
       }`}
     >
-      {!disabled && (
-        <button
-          ref={setActivatorNodeRef}
-          {...attributes}
-          {...listeners}
-          aria-label="Drag to reorder"
-          className={`focus-ring absolute top-1/2 -translate-y-1/2 left-1.5 z-20 w-5 h-8 rounded-full border flex items-center justify-center cursor-grab active:cursor-grabbing touch-none transition-all duration-200 ${
-            isDragging
-              ? 'bg-accent border-accent text-white scale-110 shadow-md shadow-accent/30 opacity-100'
-              : 'bg-raised border-line shadow-md shadow-base text-muted/50 opacity-0 group-hover/drag:opacity-100 hover:border-accent-dim hover:text-accent hover:scale-110'
-          }`}
-        >
-          <IconGrip className="w-2.5 h-2.5" />
-        </button>
-      )}
+      <DragHandle
+        ref={setActivatorNodeRef}
+        attributes={attributes}
+        listeners={listeners}
+        isDragging={isDragging}
+        disabled={disabled}
+        className="absolute top-1/2 -translate-y-1/2 left-1.5"
+      />
       {children}
 
     </div>
@@ -329,7 +319,6 @@ export function ProjectCardList({
     () => ({ activeDragId, categoryMap }),
     [activeDragId, categoryMap],
   )
-  // --- End Drag and Drop ---
 
   const pinnedHeader = (
     <div className="mt-1 mb-0.5 flex items-center gap-2 px-1 rounded-item">

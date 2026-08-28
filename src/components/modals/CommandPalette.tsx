@@ -17,7 +17,9 @@ import {
   IconFolderPlus,
   IconGear,
   IconImport,
+  IconKanban,
   IconLayoutGrid,
+  IconLayoutList,
   IconNews,
   IconNode,
   IconPlay,
@@ -160,6 +162,31 @@ function buildCommands(
       sectionKey: 'section_projects',
       context: 'projects',
       action: () => dispatch('app:scan-projects'),
+    },
+
+    {
+      id: 'switch-view-list',
+      labelKey: 'view_list',
+      icon: <IconLayoutList className="w-4 h-4" />,
+      sectionKey: 'section_views',
+      context: 'projects',
+      action: () => dispatch('app:switch-view', 'list'),
+    },
+    {
+      id: 'switch-view-grid',
+      labelKey: 'view_grid',
+      icon: <IconLayoutGrid className="w-4 h-4" />,
+      sectionKey: 'section_views',
+      context: 'projects',
+      action: () => dispatch('app:switch-view', 'grid'),
+    },
+    {
+      id: 'switch-view-kanban',
+      labelKey: 'view_kanban',
+      icon: <IconKanban className="w-4 h-4" />,
+      sectionKey: 'section_views',
+      context: 'projects',
+      action: () => dispatch('app:switch-view', 'kanban'),
     },
 
     {

@@ -34,7 +34,6 @@ export function RestoreProgressModal({ onClose }: Props) {
   const [preview, setPreview] = useState<RestorePreview | null>(null)
   const [error, setError] = useState<string | null>(null)
 
-  // Fetch on mount
   useEffect(() => {
     api
       .gistSyncFetchBackup()
@@ -53,7 +52,6 @@ export function RestoreProgressModal({ onClose }: Props) {
     try {
       await api.gistSyncPull()
       setPhase('done')
-      // Give a moment for the user to see the success state, then restart.
       setTimeout(() => {
         window.location.reload()
       }, 1200)

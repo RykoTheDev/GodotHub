@@ -77,6 +77,7 @@ import {
   faSquare,
   faClone,
   faPlug,
+  faTableColumns,
 } from '@fortawesome/free-solid-svg-icons'
 
 export interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, 'ref'> {
@@ -111,6 +112,7 @@ export const IconPin = solid(faMapPin)
 export const IconGrip = solid(faGripVertical)
 export const IconLayoutGrid = solid(faTableCellsLarge)
 export const IconLayoutList = solid(faListUl)
+export const IconKanban = solid(faTableColumns)
 export const IconLanguage = solid(faLanguage)
 export const IconSun = solid(faSun)
 export const IconMoon = solid(faMoon)

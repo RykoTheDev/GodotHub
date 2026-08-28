@@ -28,9 +28,6 @@ mod workspace;
 use std::fs;
 use tauri::{Manager, WindowEvent};
 
-/// Migrates data from the old app data folder (`com.ryko.godothub`) to the
-/// new one (`Ryko.GodotHub`) when the identifier changes. Only runs once
-/// because the old folder is deleted after the move.
 fn migrate_identifier(app: &tauri::App) {
     use std::path::PathBuf;
 
@@ -39,8 +36,6 @@ fn migrate_identifier(app: &tauri::App) {
         Err(_) => return,
     };
 
-    // Derive the old directory from the new one by replacing the last path
-    // component. On every platform the app data dir ends with the identifier.
     let old_name = "com.ryko.godothub";
     let old_dir: PathBuf = new_dir
         .parent()
@@ -53,7 +48,6 @@ fn migrate_identifier(app: &tauri::App) {
 
     let _ = fs::create_dir_all(&new_dir);
 
-    // Move every entry from old to new, skipping anything that already exists.
     if let Ok(entries) = fs::read_dir(&old_dir) {
         for entry in entries.flatten() {
             let dest = new_dir.join(entry.file_name());
@@ -64,7 +58,6 @@ fn migrate_identifier(app: &tauri::App) {
         }
     }
 
-    // Remove the now-empty old directory (best-effort).
     let _ = fs::remove_dir_all(&old_dir);
 }
 
@@ -263,6 +256,7 @@ pub fn run() {
             projects::open_in_editor,
             projects::get_project_icon,
             projects::get_project_size,
+            projects::get_project_file_tree,
             projects::get_project_name,
             projects::validate_godot_folder,
             projects::stop_project,

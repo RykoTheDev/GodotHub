@@ -311,7 +311,6 @@ pub fn breakdown(
     (today, week)
 }
 
-/// Delete all time-tracking data and reset per-project counters.
 #[tauri::command]
 pub fn clear_time_stats(app: AppHandle) -> Result<(), String> {
     write_stats(&app, &TimeStatsStore::default());

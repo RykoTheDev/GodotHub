@@ -24,6 +24,7 @@ import type { Category } from '../../types'
 import { ConfirmDialog } from './ConfirmDialog'
 import { ModalShell } from './ModalShell'
 import { ColorSwatchPicker } from '../ui/ColorSwatchPicker'
+import { DragHandle } from '../reusables/DragHandle'
 import {
   IconCheck,
   IconGrip,
@@ -73,6 +74,7 @@ function SortableCategoryItem({
     attributes,
     listeners,
     setNodeRef,
+    setActivatorNodeRef,
     transform,
     transition,
     isDragging,
@@ -97,13 +99,14 @@ function SortableCategoryItem({
           : 'border-line/60 hover:border-accent-dim/40'
       } bg-raised`}
     >
-      <span
-        {...attributes}
-        {...listeners}
-        className="inline-flex touch-none cursor-grab active:cursor-grabbing"
-      >
-        <IconGrip className="w-3.5 h-3.5 text-muted/50 shrink-0" />
-      </span>
+      <DragHandle
+        ref={setActivatorNodeRef}
+        attributes={attributes}
+        listeners={listeners}
+        isDragging={isDragging}
+        disabled={editing}
+        className="!static !transform-none !opacity-100 !w-6 !h-6 !rounded-md"
+      />
       {editing ? (
         <>
           <div className="flex-1 flex flex-col gap-2">

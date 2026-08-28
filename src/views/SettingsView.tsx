@@ -8,6 +8,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Toggle } from '../components/ui/Toggle'
+import { Segmented } from '../components/reusables/Segmented'
 import { Slider } from '../components/ui/Slider'
 import { viewTransition } from '../lib/motion'
 import { formatLocaleDateTime, formatLocaleTime } from '../lib/locale'
@@ -191,36 +192,6 @@ function SettingRow({
   )
 }
 
-function Segmented({
-  value,
-  onChange,
-  options,
-}: {
-  value: string
-  onChange: (value: string) => void
-  options: { value: string; label: string; mono?: boolean }[]
-}) {
-  return (
-    <div className="inline-flex self-start rounded-btn border border-outline/50 bg-overlay p-1 gap-1">
-      {options.map(({ value: v, label, mono }) => {
-        const active = value === v
-        return (
-          <button
-            key={v}
-            type="button"
-            onClick={() => onChange(v)}
-            className={`focus-ring cursor-pointer px-3.5 py-1.5 rounded-btn text-xs font-medium transition-colors ${
-              mono ? 'font-mono' : ''
-            } ${active ? 'bg-accent text-white' : 'text-muted hover:text-ink hover:bg-raised'}`}
-          >
-            {label}
-          </button>
-        )
-      })}
-    </div>
-  )
-}
-
 export function SettingsView({ connected = false }: { connected?: boolean }) {
   const { t } = useTranslation('nav')
   const { t: ts } = useTranslation('settings')
@@ -305,7 +276,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
     { value: 1440, label: ts('sync_auto_backup_24h') },
   ]
 
-  // Load stored gist info on mount so the URL survives app data deletion.
   useEffect(() => {
     api.gistSyncGetInfo().then((info) => {
       if (info) {
@@ -322,7 +292,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
   const [lastAutoBackup, setLastAutoBackup] = useState<string | null>(null)
   const autoBackupRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  // Auto-backup timer: push to gist at the configured interval.
   useEffect(() => {
     if (autoBackupRef.current) {
       clearInterval(autoBackupRef.current)

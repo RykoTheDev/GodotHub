@@ -95,7 +95,6 @@ export function Tooltip({
   const getTriggerRect = useCallback(() => {
     const el = triggerRef.current
     if (!el) return null
-    // if wrapper contains a single child, measure the child
     if (el.childElementCount === 1 && el.firstElementChild) {
       return el.firstElementChild.getBoundingClientRect()
     }
@@ -109,7 +108,6 @@ export function Tooltip({
       const tr = getTriggerRect()
       if (!tr) return
       positioned.current = false
-      // place offscreen first so we can measure
       setPos({ x: -9999, y: -9999 })
       setOpen(true)
 

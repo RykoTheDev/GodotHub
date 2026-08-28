@@ -57,6 +57,8 @@ export const projectsApi = {
     invoke<void>('open_in_editor', { path }),
   getSize: (path: string) =>
     invoke<ProjectSizeInfo>('get_project_size', { path }),
+  getFileTree: (path: string) =>
+    invoke<Array<{ path: string; is_dir: boolean; size: number }>>('get_project_file_tree', { path }),
   pickFolder: () => invoke<string | null>('pick_folder'),
   pickFile: () => invoke<string | null>('pick_file'),
   pickSavePath: (defaultName: string) =>

@@ -452,40 +452,61 @@ fn parse_archive_tags(html: &str) -> Vec<String> {
     tags
 }
 
-fn archive_asset_names() -> Vec<String> {
-    let mut names = Vec::new();
+fn parse_tag_parts(tag: &str) -> (String, String) {
+    if let Some(idx) = tag.rfind('-') {
+        let flavor = &tag[idx + 1..];
+        let version = &tag[..idx];
+        (version.to_string(), flavor.to_string())
+    } else {
+        (tag.to_string(), "stable".to_string())
+    }
+}
+
+fn archive_asset_slugs() -> Vec<(&'static str, &'static str)> {
+    let mut slugs = Vec::new();
     #[cfg(target_os = "windows")]
     {
-        names.push("win64.exe.zip".to_string());
-        names.push("mono_win64.zip".to_string());
+        slugs.push(("win64.exe.zip", "windows.64"));
+        slugs.push(("mono_win64.zip", "windows.64"));
     }
     #[cfg(target_os = "macos")]
     {
-        names.push("macos.universal.zip".to_string());
-        names.push("mono_macos.universal.zip".to_string());
+        slugs.push(("macos.universal.zip", "macos.universal"));
+        slugs.push(("mono_macos.universal.zip", "macos.universal"));
     }
     #[cfg(target_os = "linux")]
     if let Some(arch) = LINUX_ARCH_TOKEN {
-        let (std, mono) = match arch {
-            "x86_64" => ("linux.x86_64.zip", "mono_linux_x86_64.zip"),
-            "x86_32" => ("linux.x86_32.zip", "mono_linux_x86_32.zip"),
-            "arm64" => ("linux.arm64.zip", "mono_linux_arm64.zip"),
-            "arm32" => ("linux.arm32.zip", "mono_linux_arm32.zip"),
-            _ => ("", ""),
-        };
-        if !std.is_empty() {
-            names.push(std.to_string());
-            names.push(mono.to_string());
+        match arch {
+            "x86_64" => {
+                slugs.push(("linux.x86_64.zip", "linux.64"));
+                slugs.push(("mono_linux_x86_64.zip", "linux.64"));
+            }
+            "x86_32" => {
+                slugs.push(("linux.x86_32.zip", "linux.32"));
+                slugs.push(("mono_linux_x86_32.zip", "linux.32"));
+            }
+            "arm64" => {
+                slugs.push(("linux.arm64.zip", "linux.arm64"));
+                slugs.push(("mono_linux_arm64.zip", "linux.arm64"));
+            }
+            "arm32" => {
+                slugs.push(("linux.arm32.zip", "linux.arm32"));
+                slugs.push(("mono_linux_arm32.zip", "linux.arm32"));
+            }
+            _ => {}
         }
     }
-    names
+    slugs
 }
 
 async fn fetch_archive_assets(client: &reqwest::Client, tag: &str) -> Vec<GodotReleaseAsset> {
+    let (version, flavor) = parse_tag_parts(tag);
     let mut assets = Vec::new();
-    for suffix in archive_asset_names() {
-        let name = format!("Godot_v{tag}_{suffix}");
-        let url = format!("https://github.com/godotengine/godot/releases/download/{tag}/{name}");
+    for (slug, platform) in archive_asset_slugs() {
+        let name = format!("Godot_v{tag}_{slug}");
+        let url = format!(
+            "https://downloads.godotengine.org/?version={version}&flavor={flavor}&slug={slug}&platform={platform}"
+        );
         let Ok(resp) = client.head(&url).send().await else {
             continue;
         };
@@ -502,7 +523,7 @@ async fn fetch_archive_assets(client: &reqwest::Client, tag: &str) -> Vec<GodotR
             name,
             download_url: url,
             size,
-            is_mono: suffix.contains("mono"),
+            is_mono: slug.contains("mono"),
         });
     }
     assets
@@ -902,8 +923,6 @@ pub fn find_executable(dir: &Path) -> Option<PathBuf> {
         }
 
         if path.is_dir() {
-            // Skip GodotSharp directories – they only contain managed DLLs,
-            // never the actual Godot executable.
             if lower == "godotsharp" {
                 continue;
             }
@@ -1198,7 +1217,14 @@ pub fn delete_godot_version(app: AppHandle, tag: String) -> Result<(), String> {
     if let Some(root) = &removed.install_root {
         let root_path = PathBuf::from(root);
         if root_path.is_dir() {
-            let _ = trash::delete_all([&root_path]);
+            if let Err(e) = trash::delete_all([&root_path]) {
+                eprintln!("[delete_godot_version] trash failed for install_root {:?}: {e}, falling back to fs::remove_dir_all", root_path);
+                let _ = fs::remove_dir_all(&root_path);
+            } else {
+                eprintln!("[delete_godot_version] trashed install_root {:?}", root_path);
+            }
+        } else {
+            eprintln!("[delete_godot_version] install_root {:?} is not a directory, skipping", root_path);
         }
         return Ok(());
     }
@@ -1211,7 +1237,13 @@ pub fn delete_godot_version(app: AppHandle, tag: String) -> Result<(), String> {
             .ok()
             .and_then(|p| p.components().next())
         {
-            let _ = trash::delete_all([managed.join(version_folder)]);
+            let folder = managed.join(version_folder);
+            if let Err(e) = trash::delete_all([&folder]) {
+                eprintln!("[delete_godot_version] trash failed for managed folder {:?}: {e}, falling back to fs::remove_dir_all", folder);
+                let _ = fs::remove_dir_all(&folder);
+            } else {
+                eprintln!("[delete_godot_version] trashed managed folder {:?}", folder);
+            }
             return Ok(());
         }
     }
@@ -1222,7 +1254,12 @@ pub fn delete_godot_version(app: AppHandle, tag: String) -> Result<(), String> {
             .ancestors()
             .find(|p| p.extension().map(|e| e == "app").unwrap_or(false))
         {
-            let _ = trash::delete_all([bundle]);
+            if let Err(e) = trash::delete_all([bundle]) {
+                eprintln!("[delete_godot_version] trash failed for macOS bundle {:?}: {e}, falling back to fs::remove_dir_all", bundle);
+                let _ = fs::remove_dir_all(bundle);
+            } else {
+                eprintln!("[delete_godot_version] trashed macOS bundle {:?}", bundle);
+            }
             return Ok(());
         }
     }
@@ -1231,11 +1268,20 @@ pub fn delete_godot_version(app: AppHandle, tag: String) -> Result<(), String> {
     {
         if let Some(stem) = exe_path.file_stem().and_then(|s| s.to_str()) {
             let console_name = format!("{}_console.exe", stem);
-            let _ = trash::delete(exe_path.with_file_name(console_name));
+            let console_path = exe_path.with_file_name(&console_name);
+            if let Err(e) = trash::delete(&console_path) {
+                eprintln!("[delete_godot_version] trash failed for console exe {:?}: {e}, falling back to fs::remove_file", console_path);
+                let _ = fs::remove_file(&console_path);
+            }
         }
     }
 
-    let _ = trash::delete(&exe_path);
+    if let Err(e) = trash::delete(&exe_path) {
+        eprintln!("[delete_godot_version] trash failed for exe {:?}: {e}, falling back to fs::remove_file", exe_path);
+        let _ = fs::remove_file(&exe_path);
+    } else {
+        eprintln!("[delete_godot_version] trashed exe {:?}", exe_path);
+    }
     Ok(())
 }
 

@@ -21,6 +21,7 @@ import {
 import { CSS } from '@dnd-kit/utilities'
 import type { Category, GitStatus, InstalledGodotVersion, Project } from '../../types'
 import { ProjectCardKanbanItem } from './ProjectCardKanbanItem'
+import { DragHandle } from '../reusables/DragHandle'
 
 interface ProjectCardKanbanProps {
   projects: Project[]
@@ -76,24 +77,14 @@ function SortableKanbanCard({
 
   return (
     <div ref={setNodeRef} style={style} className="mb-3 relative group/drag">
-      {!disabled && (
-        <button
-          ref={setActivatorNodeRef}
-          {...attributes}
-          {...listeners}
-          aria-label="Drag to reorder"
-          className="focus-ring absolute top-1/2 -translate-y-1/2 -left-1.5 z-20 w-5 h-10 rounded-full border flex items-center justify-center cursor-grab active:cursor-grabbing touch-none opacity-0 group-hover/drag:opacity-100 hover:border-accent-dim hover:text-accent transition-all duration-150 bg-raised border-outline/30 text-muted/50"
-        >
-          <svg className="w-3 h-3" viewBox="0 0 16 16" fill="currentColor">
-            <circle cx="5" cy="4" r="1.5" />
-            <circle cx="11" cy="4" r="1.5" />
-            <circle cx="5" cy="8" r="1.5" />
-            <circle cx="11" cy="8" r="1.5" />
-            <circle cx="5" cy="12" r="1.5" />
-            <circle cx="11" cy="12" r="1.5" />
-          </svg>
-        </button>
-      )}
+      <DragHandle
+        ref={setActivatorNodeRef}
+        attributes={attributes}
+        listeners={listeners}
+        isDragging={isDragging}
+        disabled={disabled}
+        className="absolute top-1/2 -translate-y-1/2 -left-1.5"
+      />
       {children}
     </div>
   )

@@ -17,9 +17,8 @@ import {
   IconArrowUpDown,
   IconCheck,
   IconFilter,
+  IconGear,
   IconGitBranch,
-  IconLayoutGrid,
-  IconLayoutList,
   IconPin,
   IconPlay,
   IconPlus,
@@ -28,6 +27,8 @@ import {
   IconX,
 } from '../lib/icons'
 import { tagColor } from '../lib/colors'
+import { Segmented } from '../components/reusables/Segmented'
+import { CreateViewModal } from '../components/modals/CreateViewModal'
 import { Dropdown } from '../components/ui/Dropdown'
 import { ImportButton } from '../components/reusables/ImportButton'
 import { OverlayScrollArea } from '../components/reusables/OverlayScrollArea'
@@ -126,6 +127,46 @@ export function ProjectsView({
       localStorage.setItem('godothub_projects_view_mode', viewMode)
     } catch {}
   }, [viewMode])
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const mode = (e as CustomEvent<ProjectViewMode>).detail
+      if (mode === 'list' || mode === 'grid' || mode === 'kanban') {
+        setViewMode(mode)
+      }
+    }
+    window.addEventListener('app:switch-view', handler)
+    return () => window.removeEventListener('app:switch-view', handler)
+  }, [])
+  const [savedViews, setSavedViews] = useState<ProjectViewMode[]>(() => {
+    try {
+      const raw = localStorage.getItem('godothub_saved_views')
+      if (raw) {
+        const parsed = JSON.parse(raw)
+        if (Array.isArray(parsed) && parsed.every((v: string) => ['list', 'grid', 'kanban'].includes(v))) {
+          return parsed
+        }
+      }
+    } catch {}
+    return []
+  })
+  useEffect(() => {
+    try {
+      localStorage.setItem('godothub_saved_views', JSON.stringify(savedViews))
+    } catch {}
+  }, [savedViews])
+  const [viewNames, setViewNames] = useState<Record<string, string>>(() => {
+    try {
+      const raw = localStorage.getItem('godothub_view_names')
+      if (raw) return JSON.parse(raw)
+    } catch {}
+    return {}
+  })
+  useEffect(() => {
+    try {
+      localStorage.setItem('godothub_view_names', JSON.stringify(viewNames))
+    } catch {}
+  }, [viewNames])
+  const [createViewModalOpen, setCreateViewModalOpen] = useState(false)
   const [tagFilter, setTagFilter] = useState<string | null>(() => {
     try {
       const raw = sessionStorage.getItem('godothub_projects_tag_filter')
@@ -189,13 +230,18 @@ export function ProjectsView({
     }
   }, [])
 
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   useEffect(() => {
     fetchGitStatuses()
     const interval = setInterval(fetchGitStatuses, 30000)
-    const handleRefresh = () => fetchGitStatuses()
+    const handleRefresh = () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+      debounceRef.current = setTimeout(fetchGitStatuses, 300)
+    }
     window.addEventListener('app:refresh-git-status', handleRefresh)
     return () => {
       clearInterval(interval)
+      if (debounceRef.current) clearTimeout(debounceRef.current)
       window.removeEventListener('app:refresh-git-status', handleRefresh)
     }
   }, [fetchGitStatuses, projectPathsKey])
@@ -590,48 +636,41 @@ export function ProjectsView({
               })),
             ]}
           />
-        )}
+        )}        <div className="w-px h-5 bg-outline/50 shrink-0" />
 
-        <div className="w-px h-5 bg-outline/50 shrink-0" />
-        
-        <Dropdown
-          align="left"
-          trigger={({ open, toggle }) => {
-            const isCustomView = viewMode !== 'list'
-            const viewLabel = viewMode === 'grid' ? tc('view_grid') : viewMode === 'kanban' ? tc('view_kanban') : tc('view_list')
-            return (
-              <motion.button
-                type="button"
-                aria-expanded={open}
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.94 }}
-                onClick={toggle}
-                className={`focus-ring cursor-pointer flex items-center justify-center gap-1 h-8 px-4 rounded-item transition-colors ${
-                  isCustomView
-                    ? 'bg-accent/15 text-accent-bright ring-1 ring-accent-dim/70'
-                    : 'bg-overlay text-muted hover:text-ink hover:bg-raised'
-                }`}
-              >
-                {viewMode === 'grid' ? (
-                  <IconLayoutGrid className="w-3 h-3" />
-                ) : viewMode === 'kanban' ? (
-                  <IconLayoutGrid className="w-3 h-3" />
-                ) : (
-                  <IconLayoutList className="w-3 h-3" />
-                )}
-                <span className="text-[16px] font-medium">{tc('view')}</span>
-                <span className="text-[12px] tabular-nums text-muted/80 max-w-30 truncate">
-                  {viewLabel}
-                </span>
-              </motion.button>
-            )
-          }}
-          items={[
-            { key: 'list', label: tc('view_list'), active: viewMode === 'list', onClick: () => setViewMode('list') },
-            { key: 'grid', label: tc('view_grid'), active: viewMode === 'grid', onClick: () => setViewMode('grid') },
-            { key: 'kanban', label: tc('view_kanban'), active: viewMode === 'kanban', onClick: () => setViewMode('kanban') },
-          ]}
-        />
+        {savedViews.length >= 2 ? (
+          <div className="flex items-center gap-1.5">
+            <Segmented
+              value={viewMode}
+              onChange={(v) => setViewMode(v as ProjectViewMode)}
+              options={savedViews.map((v) => ({
+                value: v,
+                label: viewNames[v] ?? (v === 'list' ? tc('view_list') : v === 'grid' ? tc('view_grid') : tc('view_kanban')),
+              }))}
+            />
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.94 }}
+              onClick={() => setCreateViewModalOpen(true)}
+              aria-label={tc('manage_views')}
+              className="focus-ring cursor-pointer flex items-center justify-center w-8 h-8 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 transition-colors"
+            >
+              <IconGear className="w-3.5 h-3.5" />
+            </motion.button>
+          </div>
+        ) : (
+          <motion.button
+            type="button"
+            whileHover={{ scale: 1.04 }}
+            whileTap={{ scale: 0.94 }}
+            onClick={() => setCreateViewModalOpen(true)}
+            className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 transition-colors"
+          >
+            <IconPlus className="w-3 h-3" />
+            <span className="text-[13px] font-medium">{tc('create_view')}</span>
+          </motion.button>
+        )}
 
         {tagFilter && (
             <button
@@ -650,6 +689,29 @@ export function ProjectsView({
         )}
 
       </div>
+
+      <AnimatePresence>
+        {createViewModalOpen && (
+          <CreateViewModal
+            savedViews={savedViews}
+            viewNames={viewNames}
+            onAdd={(mode) => {
+              setSavedViews((prev) => [...prev, mode])
+              setViewMode(mode)
+            }}
+            onRemove={(mode) => {
+              setSavedViews((prev) => prev.filter((v) => v !== mode))
+              if (viewMode === mode) {
+                setViewMode(savedViews.find((v) => v !== mode) ?? 'list')
+              }
+            }}
+            onRename={(mode, name) => {
+              setViewNames((prev) => ({ ...prev, [mode]: name }))
+            }}
+            onClose={() => setCreateViewModalOpen(false)}
+          />
+        )}
+      </AnimatePresence>
       <AnimatePresence>
         {selectedIds.size > 0 && (
           <motion.div

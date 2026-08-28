@@ -30,7 +30,6 @@ import { AssetStoreView } from './views/AssetStoreView'
 import { DashboardView } from './views/DashboardView'
 import { useSettings } from './hooks/useSettings'
 import { useCategoriesContext } from './hooks/categoriesContext'
-import { useUpdateAvailable } from './hooks/useUpdateAvailable'
 import { OnboardingView as Onboarding } from './views/OnboardingView'
 import { useTauriEvent } from './lib/useTauriEvent'
 import { useDiscordRpc } from './hooks/useDiscordRpc'
@@ -115,7 +114,6 @@ export function App() {
   const settingsRef = useRef(settings)
   settingsRef.current = settings
   const paletteKey = settings.command_palette_keybind || 'p'
-  const { setPreviewUpdate } = useUpdateAvailable()
 
   const openProject = useCallback(
     async (projectId: string, withConsole?: boolean) => {
@@ -257,18 +255,6 @@ export function App() {
     },
     paletteKey,
   )
-
-  // Dev preview: Ctrl+Shift+U toggles the update pill
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === 'U') {
-        e.preventDefault()
-        setPreviewUpdate((prev) => !prev)
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [setPreviewUpdate])
 
   useEffect(() => {
     const handleShowGitSidebar = (e: Event) => {
@@ -417,29 +403,40 @@ export function App() {
 
         <AnimatePresence>
           {gitSidebarProject && (
-            <motion.aside
-              key="git-panel"
-              initial={{ width: 0, opacity: 0 }}
-              animate={{
-                width: 320,
-                opacity: 1,
-                transition: { type: 'spring', stiffness: 350, damping: 32 },
-              }}
-              exit={{
-                width: 0,
-                opacity: 0,
-                transition: { duration: 0.12, ease: 'easeOut' },
-              }}
-              className="shrink-0 h-full overflow-hidden"
-            >
-              <GitSidebar
-                project={gitSidebarProject.project}
-                gitStatus={gitSidebarProject.gitStatus}
-                onClose={() => setGitSidebarProject(null)}
-                onRefresh={() => refreshProjects()}
-                connected={!cardLayout}
+            <>
+              <motion.div
+                key="git-backdrop"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.15 }}
+                className="absolute inset-0 z-40 bg-black/30"
+                onClick={() => setGitSidebarProject(null)}
               />
-            </motion.aside>
+              <motion.aside
+                key="git-panel"
+                initial={{ x: '100%', opacity: 0 }}
+                animate={{
+                  x: 0,
+                  opacity: 1,
+                  transition: { type: 'spring', stiffness: 350, damping: 32 },
+                }}
+                exit={{
+                  x: '100%',
+                  opacity: 0,
+                  transition: { duration: 0.15, ease: 'easeOut' },
+                }}
+                className="absolute top-2 right-2 bottom-2 z-50 w-80 overflow-hidden rounded-xl shadow-2xl shadow-black/40"
+              >
+                <GitSidebar
+                  project={gitSidebarProject.project}
+                  gitStatus={gitSidebarProject.gitStatus}
+                  onClose={() => setGitSidebarProject(null)}
+                  onRefresh={() => refreshProjects()}
+                  connected={!cardLayout}
+                />
+              </motion.aside>
+            </>
           )}
         </AnimatePresence>
 

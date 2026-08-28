@@ -76,11 +76,16 @@ function TruncatedPath({ path, deleted = false }: { path: string; deleted?: bool
     </span>
   )
 
-  return truncated ? (              <span className="flex-1 min-w-0">
-      {span}
-    </span>
-  ) : (
+  const content = (
     <span className="flex-1 min-w-0">{span}</span>
+  )
+
+  return truncated ? (
+    <Tooltip content={path} className="flex-1 min-w-0">
+      {content}
+    </Tooltip>
+  ) : (
+    content
   )
 }
 
@@ -333,6 +338,10 @@ export function GitSidebar({
   const [publishingBranch, setPublishingBranch] = useState(false)
   const branchMenuRef = useRef<HTMLDivElement>(null)
 
+  const notifyGitStatusChanged = useCallback(() => {
+    window.dispatchEvent(new Event('app:refresh-git-status'))
+  }, [])
+
   const refreshGitAuth = useCallback(async () => {
     try {
       setGitAuth(await api.gitAuthGetState())
@@ -478,6 +487,7 @@ export function GitSidebar({
       void refreshLog()
       void refreshAheadBehind()
       onRefresh()
+      notifyGitStatusChanged()
       pushToast('success', t('switched_ok', { branch: name }))
     } catch (e) {
       pushToast('error', String(e))
@@ -496,6 +506,7 @@ export function GitSidebar({
       await refreshChanges()
       void refreshLog()
       onRefresh()
+      notifyGitStatusChanged()
       setNewBranchName('')
       setNewBranchMode(false)
       pushToast('success', t('branch_created'))
@@ -541,6 +552,7 @@ export function GitSidebar({
       await api.gitPull(project.path)
       await api.gitPush(project.path)
       onRefresh()
+      notifyGitStatusChanged()
       await refreshChanges()
       void refreshLog()
       void refreshAheadBehind()
@@ -569,6 +581,7 @@ export function GitSidebar({
       await api.gitStashPush(project.path)
       await refreshStashes()
       await refreshChanges()
+      notifyGitStatusChanged()
       void refreshLog()
       pushToast('success', t('changes_stashed_ok'))
     } catch (e) {
@@ -585,6 +598,7 @@ export function GitSidebar({
       await api.gitStashApply(project.path, index)
       await refreshStashes()
       await refreshChanges()
+      notifyGitStatusChanged()
       void refreshLog()
       pushToast('success', t('stash_applied_ok'))
     } catch (e) {
@@ -601,6 +615,7 @@ export function GitSidebar({
       await api.gitStashPop(project.path, index)
       await refreshStashes()
       await refreshChanges()
+      notifyGitStatusChanged()
       void refreshLog()
       pushToast('success', t('stash_popped_ok'))
     } catch (e) {
@@ -647,6 +662,7 @@ export function GitSidebar({
     try {
       await api.gitStageFile(project.path, '.')
       await refreshChanges()
+      notifyGitStatusChanged()
       pushToast('success', t('stage_all_ok'))
     } catch (e) {
       pushToast('error', String(e))
@@ -658,6 +674,7 @@ export function GitSidebar({
     try {
       await api.gitUnstageFile(project.path, '.')
       await refreshChanges()
+      notifyGitStatusChanged()
       pushToast('success', t('unstage_all_ok'))
     } catch (e) {
       pushToast('error', String(e))
@@ -671,6 +688,7 @@ export function GitSidebar({
       await api.gitDiscardChanges(project.path)
       await refreshStashes()
       await refreshChanges()
+      notifyGitStatusChanged()
       void refreshLog()
       pushToast('success', t('discard_all_ok'))
     } catch (e) {
@@ -685,6 +703,7 @@ export function GitSidebar({
       await refreshChanges()
       void refreshLog()
       onRefresh()
+      notifyGitStatusChanged()
       pushToast('success', t('undo_commit_done'))
     } catch (e) {
       pushToast('error', String(e))
@@ -699,6 +718,7 @@ export function GitSidebar({
       void refreshLog()
       void refreshAheadBehind()
       onRefresh()
+      notifyGitStatusChanged()
       pushToast('success', t('undo_pull_done'))
     } catch (e) {
       pushToast('error', String(e))
@@ -720,6 +740,7 @@ export function GitSidebar({
       else if (action === 'pull') await api.gitPull(project.path)
       else await api.gitFetch(project.path)
       onRefresh()
+      notifyGitStatusChanged()
       await refreshChanges()
       void refreshLog()
       void refreshAheadBehind()
@@ -788,6 +809,7 @@ export function GitSidebar({
       await refreshChanges()
       void refreshLog()
       onRefresh()
+      notifyGitStatusChanged()
       pushToast('success', t('merge_aborted'))
     } catch (e) {
       pushToast('error', String(e))
@@ -814,6 +836,7 @@ export function GitSidebar({
       await api.gitCommit(project.path, msg, false)
       setCommitMessage('')
       onRefresh()
+      notifyGitStatusChanged()
       void refreshChanges()
       void refreshLog()
       void refreshAheadBehind()
@@ -881,6 +904,7 @@ export function GitSidebar({
     try {
       await api.gitStageFile(project.path, filePath)
       await refreshChanges()
+      notifyGitStatusChanged()
       pushToast('success', t('staged_ok'))
     } catch (e) {
       pushToast('error', String(e))
@@ -891,6 +915,7 @@ export function GitSidebar({
     try {
       await api.gitDiscardFile(project.path, filePath)
       await refreshChanges()
+      notifyGitStatusChanged()
       pushToast('success', t('discarded_ok'))
     } catch (e) {
       pushToast('error', String(e))
@@ -901,6 +926,7 @@ export function GitSidebar({
     try {
       await api.gitUnstageFile(project.path, filePath)
       await refreshChanges()
+      notifyGitStatusChanged()
       pushToast('success', t('unstaged_ok'))
     } catch (e) {
       pushToast('error', String(e))
@@ -1149,6 +1175,16 @@ export function GitSidebar({
                             : 'bg-overlay text-muted hover:text-ink hover:bg-raised cursor-pointer',
                     ].join(' ')}
                   >
+                    {key === 'push' && aheadBehind && aheadBehind.ahead > 0 && state === 'idle' && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-mint text-overlay text-[8px] font-bold px-1 z-10">
+                        {aheadBehind.ahead}
+                      </span>
+                    )}
+                    {key === 'pull' && aheadBehind && aheadBehind.behind > 0 && state === 'idle' && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-danger text-overlay text-[8px] font-bold px-1 z-10">
+                        {aheadBehind.behind}
+                      </span>
+                    )}
                     <AnimatePresence mode="popLayout" initial={false}>
                       <motion.span
                         key={state}
@@ -1396,10 +1432,10 @@ export function GitSidebar({
 
             <div className="flex flex-col overflow-hidden rounded-item border border-outline/50 bg-base/40">
               {!remotesLoading && remotes.length > 0 && (
+                  <Tooltip content={remotes[0].web_url} className="w-full">
                   <button
                     type="button"
                     onClick={() => void openUrl(remotes[0].web_url).catch(() => {})}
-                    title={remotes[0].web_url}
                     className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-2.5 py-2 text-left min-w-0 transition-colors hover:bg-raised/60"
                   >
                     <ProviderBadge webUrl={remotes[0].web_url} />
@@ -1408,6 +1444,7 @@ export function GitSidebar({
                     </span>
                     <IconExternalLink className="w-3 h-3 text-muted/40 shrink-0" />
                   </button>
+                  </Tooltip>
               )}
               <textarea
                 value={commitMessage}
@@ -1435,10 +1472,10 @@ export function GitSidebar({
                     <span className="text-[9px] font-semibold uppercase tracking-wider text-muted/50 px-1">
                       {r.name}
                     </span>
+                      <Tooltip content={r.web_url} className="w-full">
                       <button
                         type="button"
                         onClick={() => void openUrl(r.web_url).catch(() => {})}
-                        title={r.web_url}
                         className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-2.5 py-2 rounded-item border border-line/60 bg-base/40 hover:bg-raised hover:border-accent/40 transition-colors text-left min-w-0"
                       >
                         <IconGitBranch className="w-3 h-3 text-accent shrink-0" />
@@ -1447,6 +1484,7 @@ export function GitSidebar({
                         </span>
                         <IconExternalLink className="w-3 h-3 text-muted/50 shrink-0" />
                       </button>
+                      </Tooltip>
                   </div>
                 ))}
               </div>
@@ -1494,12 +1532,16 @@ export function GitSidebar({
                   >
                     <IconDownload className="w-3 h-3 text-muted/40 shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-[11px] text-ink truncate">
-                        {s.message || `stash@{${s.index}}`}
-                      </p>
-                      <p className="text-[9px] font-mono text-muted/50">
-                        stash@{s.index}
-                      </p>
+                      <Tooltip content={s.message || `stash@{${s.index}}`} className="block">
+                        <p className="text-[11px] text-ink truncate">
+                          {s.message || `stash@{${s.index}}`}
+                        </p>
+                      </Tooltip>
+                      <Tooltip content={`stash@{${s.index}}`} className="block">
+                        <p className="text-[9px] font-mono text-muted/50">
+                          stash@{s.index}
+                        </p>
+                      </Tooltip>
                     </div>
                     <div
                       onClick={(e) => e.stopPropagation()}
