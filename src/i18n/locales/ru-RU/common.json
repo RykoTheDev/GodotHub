@@ -822,5 +822,16 @@
   "setting_discord_app_id": "Discord Application ID",
   "setting_discord_rpc_show_projects": "Discord Show Project Names",
   "setting_discord_rpc_excluded_projects": "Discord Excluded Projects",
-  "setting_discord_rpc_project_presences": "Discord Custom Presence"
+  "setting_discord_rpc_project_presences": "Discord Custom Presence",
+  "section_views": "Views",
+  "play_project": "Play",
+  "play_project_tooltip": "Play the game without opening editor",
+  "create_view": "Create New View",
+  "manage_views": "Manage Views",
+  "manage_views_desc": "Choose which layouts appear in the view switcher. Rename views to keep things organized.",
+  "active_views": "Active",
+  "available_views": "Available",
+  "remove_view": "Remove view",
+  "rename_view": "Rename view",
+  "all_views_created": "All view types have been added."
 }
