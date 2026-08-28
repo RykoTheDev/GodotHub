@@ -110,7 +110,7 @@ function SortableProjectCard({
         listeners={listeners}
         isDragging={isDragging}
         disabled={disabled}
-        className="absolute top-1/2 -translate-y-1/2 left-1.5"
+        className="absolute top-1/2 -translate-y-1/2 "
       />
       {children}
 
@@ -366,7 +366,7 @@ export function ProjectCardList({
         key={p.id}
         id={p.id}
       >
-        <div className="pl-5">{card}</div>
+        <div className="px-2">{card}</div>
       </SortableProjectCard>
     )
   }

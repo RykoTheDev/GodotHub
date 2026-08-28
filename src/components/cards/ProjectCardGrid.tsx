@@ -73,14 +73,14 @@ function SortableGridCard({
   }
 
   return (
-    <div ref={setNodeRef} style={style} className="relative group/drag">
+    <div ref={setNodeRef} style={style} className="relative group/drag overflow-visible">
       <DragHandle
         ref={setActivatorNodeRef}
         attributes={attributes}
         listeners={listeners}
         isDragging={isDragging}
         disabled={disabled}
-        className="absolute top-1/2 -translate-y-1/2 left-1"
+        className="absolute top-1/2 -translate-y-1/2 ml-[-8px] left-0"
       />
       {children}
     </div>
@@ -210,7 +210,7 @@ export function ProjectCardGrid({
 
   const renderCard = (p: Project) => {
     const card = (
-      <div key={p.id} className="mb-5">
+      <div key={p.id} className="mb-3">
         <ProjectCardGridItem
           project={p}
           installedVersions={installedVersions}
@@ -265,7 +265,7 @@ export function ProjectCardGrid({
             </div>
             <Masonry
               breakpointCols={BREAKPOINTS}
-              className="masonry"
+              className={`masonry ${isDndEnabled ? 'px-2' : ''}`}
               columnClassName="masonry-column"
             >
               {catProjects.map(renderCard)}
@@ -292,7 +292,7 @@ export function ProjectCardGrid({
             </div>
             <Masonry
               breakpointCols={BREAKPOINTS}
-              className="masonry"
+              className={`masonry ${isDndEnabled ? 'px-2' : ''}`}
               columnClassName="masonry-column"
             >
               {uncategorizedProjects.map(renderCard)}
@@ -308,7 +308,7 @@ export function ProjectCardGrid({
   ) : (
     <Masonry
       breakpointCols={BREAKPOINTS}
-      className="masonry"
+      className={`masonry ${isDndEnabled ? 'px-2' : ''}`}
       columnClassName="masonry-column"
     >
       {projects.map(renderCard)}
