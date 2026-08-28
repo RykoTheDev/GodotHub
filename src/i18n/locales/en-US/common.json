@@ -252,8 +252,8 @@
   "asset_more_aria": "More actions",
   "showing_count": "Showing {{count}}",
   "settings_title": "SETTINGS",
-  "template_count_one": "{{count}} template available",
-  "template_count_other": "{{count}} templates available",
+  "template_count_one": "{{count}} Template",
+  "template_count_other": "{{count}} Templates",
   "template_create_project": "Create Project",
   "no_templates_match": "No templates match",
   "no_projects_match": "No projects match",
@@ -318,7 +318,8 @@
   "asset_prev_page": "Previous page",
   "asset_next_page": "Next page",
   "asset_page_x_of_y": "Page {{page}} of {{total}}",
-  "template_your_templates": "Templates",
+  "template_your_templates_one": "Template",
+  "template_your_templates_other": "Templates",
   "template_imported_count": "Imported {{count}}",
   "template_updated_count": "Updated {{count}}",
   "template_removed_count": "Removed {{count}}",
@@ -587,5 +588,11 @@
   "project_already_open_title": "Project already open",
   "project_already_open_desc": "{{name}} is already running. Opening it again launches a second editor instance. Open anyway?",
   "project_open_anyway": "Open anyway",
-  "git_sidebar": "Git sidebar"
+  "git_sidebar": "Git sidebar",
+  "sort_template_name_asc": "Name (A–Z)",
+  "sort_template_name_desc": "Name (Z–A)",
+  "sort_template_newest": "Newest",
+  "sort_template_oldest": "Oldest",
+  "asset_duplicate_title": "Template already installed",
+  "asset_duplicate_desc": "\"{{name}}\" is already in your templates. Install a duplicate anyway?"
 }

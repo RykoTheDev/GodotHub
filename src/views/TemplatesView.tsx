@@ -18,6 +18,7 @@ import { useProjectsContext } from '../hooks/projectsContext'
 import { useTaskTray } from '../hooks/useTaskTray'
 import { ViewHeader } from '../components/reusables/ViewHeader'
 import { SearchBar } from '../components/ui/SearchBar'
+import { Dropdown } from '../components/ui/Dropdown'
 import { OverlayScrollArea } from '../components/reusables/OverlayScrollArea'
 import { ScanButton } from '../components/reusables/ScanButton'
 import { ConfirmDialog } from '../components/modals/ConfirmDialog'
@@ -25,6 +26,7 @@ import { TemplatePreviewModal } from '../components/modals/TemplatePreviewModal'
 import { CreateProjectModal } from '../components/modals/CreateProjectModal'
 import { AssetLibraryBrowser } from '../components/asset-library/AssetLibraryBrowser'
 import {
+  IconChevronDown,
   IconCopy,
   IconFolderPlus,
   IconSearch,
@@ -32,6 +34,17 @@ import {
   IconTrash,
   type IconProps,
 } from '../lib/icons'
+
+const TEMPLATE_SORT_KEY = 'godothub_template_sort'
+
+type TemplateSortOption = 'name_asc' | 'name_desc' | 'newest' | 'oldest'
+
+const TEMPLATE_SORT_OPTIONS: { value: TemplateSortOption; labelKey: string }[] = [
+  { value: 'name_asc', labelKey: 'sort_template_name_asc' },
+  { value: 'name_desc', labelKey: 'sort_template_name_desc' },
+  { value: 'newest', labelKey: 'sort_template_newest' },
+  { value: 'oldest', labelKey: 'sort_template_oldest' },
+]
 
 function TabSwitcher({
   value,
@@ -90,12 +103,19 @@ export function TemplatesView({
   const [loaded, setLoaded] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
-  const [syncMessage, setSyncMessage] = useState<string | null>(null)
-  const [syncResult, setSyncResult] = useState<TemplateSyncResult | null>(null)
+  const [_syncMessage, setSyncMessage] = useState<string | null>(null)
+  const [_syncResult, setSyncResult] = useState<TemplateSyncResult | null>(null)
   const [previewTemplate, setPreviewTemplate] = useState<ProjectTemplate | null>(null)
   const [createTemplate, setCreateTemplate] = useState<ProjectTemplate | null>(null)
   const [query, setQuery] = useState('')
   const [assetStats, setAssetStats] = useState({ loading: true, total: 0 })
+  const [sortBy, setSortBy] = useState<TemplateSortOption>(() => {
+    try {
+      const raw = localStorage.getItem(TEMPLATE_SORT_KEY)
+      if (raw === 'name_asc' || raw === 'name_desc' || raw === 'newest' || raw === 'oldest') return raw
+    } catch {}
+    return 'name_asc'
+  })
 
   const load = async () => {
     try {
@@ -107,6 +127,12 @@ export function TemplatesView({
   useEffect(() => {
     load()
   }, [activeId])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(TEMPLATE_SORT_KEY, sortBy)
+    } catch {}
+  }, [sortBy])
 
   const handleSync = async () => {
     setSyncMessage(null)
@@ -182,7 +208,7 @@ export function TemplatesView({
   }
 
   const isSearching = query.trim().length > 0
-  const filteredTemplates = isSearching
+  const filteredTemplates = (isSearching
     ? templates.filter(
         (t) =>
           t.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -190,13 +216,19 @@ export function TemplatesView({
             t.description.toLowerCase().includes(query.toLowerCase())),
       )
     : templates
-
-  const syncHadChanges =
-    syncResult &&
-    (syncResult.imported.length > 0 ||
-      syncResult.updated.length > 0 ||
-      syncResult.removed.length > 0)
-
+  ).slice().sort((a, b) => {
+    switch (sortBy) {
+      case 'name_desc':
+        return b.name.localeCompare(a.name)
+      case 'newest':
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      case 'oldest':
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      case 'name_asc':
+      default:
+        return a.name.localeCompare(b.name)
+    }
+  })
   return (
     <div className="flex-1 min-w-0 h-full flex flex-col gap-2">
       <ViewHeader
@@ -209,7 +241,7 @@ export function TemplatesView({
                 <AnimatedNumber value={templates.length} />
               </h2>
               <p className="text-lg font-medium uppercase text-muted">
-                {tc('template_your_templates')}
+                {tc('template_your_templates', { count: templates.length })}
               </p>
             </>
           ) : (
@@ -271,28 +303,6 @@ export function TemplatesView({
             ]}
           />
         </div>
-        {tab === 'local' && (templates.length > 0 || syncMessage) && (
-          <div className="flex items-center gap-3 flex-wrap">
-            {templates.length > 0 && (
-              <span className="text-xs text-muted">
-                {tc('template_count', { count: templates.length })}
-                {isSearching
-                  ? ' · ' +
-                    tc('showing_count', { count: filteredTemplates.length })
-                  : ''}
-              </span>
-            )}
-            {syncMessage && (
-              <span
-                className={`text-xs ${
-                  syncHadChanges ? 'text-mint' : 'text-muted'
-                }`}
-              >
-                {syncMessage}
-              </span>
-            )}
-          </div>
-        )}
       </ViewHeader>
 
       <OverlayScrollArea
@@ -336,6 +346,37 @@ export function TemplatesView({
                   </p>
                 </div>
               ) : (
+                <>
+                <div className="flex items-center justify-start">
+                  <Dropdown
+                    align="left"
+                    trigger={({ open, toggle }) => {
+                      const activeOption = TEMPLATE_SORT_OPTIONS.find((o) => o.value === sortBy)
+                      return (
+                        <motion.button
+                          type="button"
+                          aria-expanded={open}
+                          whileHover={{ scale: 1.04 }}
+                          whileTap={{ scale: 0.94 }}
+                          onClick={toggle}
+                          className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
+                        >
+                          <span className="text-[12px] text-muted">{tc('sort')}:</span>
+                          <span className="text-[13px] font-medium text-ink">
+                            {activeOption ? tc(activeOption.labelKey) : tc('sort')}
+                          </span>
+                          <IconChevronDown className="w-3 h-3 text-muted" />
+                        </motion.button>
+                      )
+                    }}
+                    items={TEMPLATE_SORT_OPTIONS.map((opt) => ({
+                      key: opt.value,
+                      label: tc(opt.labelKey),
+                      active: opt.value === sortBy,
+                      onClick: () => setSortBy(opt.value),
+                    }))}
+                  />
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   <AnimatePresence>
                     {filteredTemplates.map((tmpl) => (
@@ -406,10 +447,11 @@ export function TemplatesView({
                     ))}
                   </AnimatePresence>
                 </div>
+                </>
               )}
             </>
           ) : (
-            <AssetLibraryBrowser query={query} onStatsChange={setAssetStats} />
+            <AssetLibraryBrowser query={query} onStatsChange={setAssetStats} installedTemplateNames={templates.map((t) => t.name)} />
           )}
           <div className="shrink-0 h-4" aria-hidden="true" />
         </div>

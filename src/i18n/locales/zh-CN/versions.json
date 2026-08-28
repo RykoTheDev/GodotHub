@@ -41,5 +41,11 @@
   "source": "来源",
   "source_github": "GitHub",
   "source_archive": "Godot 存档",
-  "switch_to_archive": "切换到 Godot 存档"
+  "switch_to_archive": "切换到 Godot 存档",
+  "sort_version_latest": "最新版本",
+  "sort_version_oldest": "最早版本",
+  "sort_version_recently_installed": "最近安装",
+  "sort_version_oldest_installed": "最早安装",
+  "sort_version_name_asc": "名称 (A–Z)",
+  "sort_version_name_desc": "名称 (Z–A)"
 }

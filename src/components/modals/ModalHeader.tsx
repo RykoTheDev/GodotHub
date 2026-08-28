@@ -54,7 +54,7 @@ export function ModalHeader({
             {title}
           </h3>
           {description && (
-            <p className="text-xs text-muted mt-0.5 leading-relaxed wrap-break-word">{description}</p>
+            <p className="text-xs text-muted mt-0.5 leading-relaxed wrap-break-word line-clamp-3">{description}</p>
           )}
         </div>
       </div>

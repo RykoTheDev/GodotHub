@@ -24,7 +24,10 @@ function FileTree({
   entries: TemplateFileEntry[]
   t: (key: string, options?: Record<string, unknown>) => string
 }) {
-  const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
+  const [collapsed, setCollapsed] = useState<Set<string>>(() => {
+    // Start with all directories collapsed
+    return new Set(entries.filter((e) => e.is_dir).map((e) => e.path))
+  })
 
   const toggle = (path: string) => {
     setCollapsed((prev) => {
@@ -159,21 +162,7 @@ export function TemplatePreviewModal({ template, onClose }: Props) {
     <ModalShell
       icon={<IconCopy className="w-5 h-5 text-accent-bright" />}
       title={template.name}
-      description={
-        <>
-          {template.description && (
-            <span className="block leading-relaxed">
-              {template.description}
-            </span>
-          )}
-          <span className="flex items-center gap-2 mt-1 text-[10px] text-muted/50 font-mono">
-            <IconInfo className="w-3 h-3" />
-            {t('file_count', { count: fileCount })}
-            {dirCount > 0 && ` · ${t('folder_count', { count: dirCount })}`}
-            {totalSize > 0 && ` · ${formatSize(totalSize)}`}
-          </span>
-        </>
-      }
+      description={template.description || undefined}
       maxWidth="max-w-lg"
       onClose={onClose}
     >
@@ -191,7 +180,15 @@ export function TemplatePreviewModal({ template, onClose }: Props) {
               {t('template_empty')}
             </div>
           ) : (
-            <FileTree entries={entries} t={t} />
+            <>
+              <div className="flex items-center gap-2 px-1 pb-2 text-[10px] text-muted/50 font-mono">
+                <IconInfo className="w-3 h-3" />
+                {t('file_count', { count: fileCount })}
+                {dirCount > 0 && ` · ${t('folder_count', { count: dirCount })}`}
+                {totalSize > 0 && ` · ${formatSize(totalSize)}`}
+              </div>
+              <FileTree entries={entries} t={t} />
+            </>
           )}
         </div>
     </ModalShell>

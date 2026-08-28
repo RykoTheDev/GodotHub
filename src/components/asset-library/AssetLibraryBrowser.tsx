@@ -27,8 +27,12 @@ import {
   IconStore,
   IconX,
 } from '../../lib/icons'
+import { ConfirmDialog } from '../modals/ConfirmDialog'
 
 const PAGE_SIZE = 12
+
+// Module-level set to persist installing state across component mounts
+const installingAssets = new Set<string>()
 
 const VERSION_OPTIONS = [
   '4.7',
@@ -55,9 +59,11 @@ const GATHER_EMPTY_RUN = 5
 export function AssetLibraryBrowser({
   query,
   onStatsChange,
+  installedTemplateNames = [],
 }: {
   query: string
   onStatsChange?: (stats: { loading: boolean; total: number }) => void
+  installedTemplateNames?: string[]
 }) {
   const { t } = useTranslation('common')
   const [assets, setAssets] = useState<AssetLibraryAsset[]>([])
@@ -68,9 +74,14 @@ export function AssetLibraryBrowser({
   const [page, setPage] = useState(0)
   const [pages, setPages] = useState(0)
   const [total, setTotal] = useState(0)
-  const [installing, setInstalling] = useState<string | null>(null)
+  const [installing, setInstalling] = useState<string | null>(() => {
+    // Restore from module-level set on mount
+    const values = Array.from(installingAssets)
+    return values.length > 0 ? values[0] : null
+  })
   const [installed, setInstalled] = useState<Set<string>>(new Set())
   const [paging, setPaging] = useState(false)
+  const [duplicateAsset, setDuplicateAsset] = useState<AssetLibraryAsset | null>(null)
   const searchTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const rootRef = useRef<HTMLDivElement>(null)
 
@@ -255,17 +266,33 @@ export function AssetLibraryBrowser({
     })
   }
 
-  const install = async (asset: AssetLibraryAsset) => {
-    if (installing) return
+  const isAlreadyInstalled = (asset: AssetLibraryAsset) =>
+    installedTemplateNames.some(
+      (name) => name.toLowerCase() === asset.title.toLowerCase(),
+    )
+
+  const doInstall = async (asset: AssetLibraryAsset) => {
+    if (installing || installingAssets.has(asset.asset_id)) return
+    installingAssets.add(asset.asset_id)
     setInstalling(asset.asset_id)
+    setDuplicateAsset(null)
     try {
       await api.installAssetAsTemplate(asset.asset_id)
       setInstalled((prev) => new Set(prev).add(asset.asset_id))
       window.dispatchEvent(new Event('app:refresh-templates'))
     } catch {
     } finally {
+      installingAssets.delete(asset.asset_id)
       setInstalling(null)
     }
+  }
+
+  const install = (asset: AssetLibraryAsset) => {
+    if (isAlreadyInstalled(asset)) {
+      setDuplicateAsset(asset)
+      return
+    }
+    doInstall(asset)
   }
 
   const dropBtnClass =
@@ -399,7 +426,8 @@ export function AssetLibraryBrowser({
             <AnimatePresence mode="popLayout">
               {assets.map((asset) => {
                 const isInstalled = installed.has(asset.asset_id)
-                const isInstalling = installing === asset.asset_id
+                const isAlreadyPresent = isAlreadyInstalled(asset)
+                const isInstalling = installing === asset.asset_id || installingAssets.has(asset.asset_id)
                 return (
                   <AssetCard
                     key={asset.asset_id}
@@ -415,9 +443,9 @@ export function AssetLibraryBrowser({
                         whileTap={isInstalled || isInstalling ? undefined : { scale: 0.94 }}
                         transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                         onClick={() => install(asset)}
-                        disabled={isInstalled || isInstalling}
+                        disabled={isInstalling}
                         className={`focus-ring cursor-pointer flex items-center justify-center gap-1.5 w-full h-12 px-6 rounded-dropdown-btn font-semibold text-[17px] shadow-md shadow-black/10 border transition-colors disabled:cursor-default ${
-                          isInstalled
+                          isInstalled || isAlreadyPresent
                             ? 'bg-mint/10 text-mint border-mint/20'
                             : 'bg-accent text-ink hover:bg-accent-bright border-outline/50'
                         }`}
@@ -427,7 +455,7 @@ export function AssetLibraryBrowser({
                             <IconSpinner className="w-3.5 h-3.5 animate-spin" />
                             {t('asset_installing')}
                           </>
-                        ) : isInstalled ? (
+                        ) : isInstalled || isAlreadyPresent ? (
                           <>
                             <IconCheck className="w-3.5 h-3.5" />
                             {t('asset_installed')}
@@ -529,6 +557,16 @@ export function AssetLibraryBrowser({
             )
           )}
         </>
+      )}
+
+      {duplicateAsset && (
+        <ConfirmDialog
+          title={t('asset_duplicate_title')}
+          description={t('asset_duplicate_desc', { name: duplicateAsset.title })}
+          confirmLabel={t('asset_install')}
+          onConfirm={() => doInstall(duplicateAsset)}
+          onCancel={() => setDuplicateAsset(null)}
+        />
       )}
     </div>
   )

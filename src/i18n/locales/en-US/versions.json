@@ -41,5 +41,11 @@
   "source": "Source",
   "source_github": "GitHub",
   "source_archive": "Godot Archive",
-  "switch_to_archive": "Switch to Godot Archive"
+  "switch_to_archive": "Switch to Godot Archive",
+  "sort_version_latest": "Latest",
+  "sort_version_oldest": "Oldest",
+  "sort_version_recently_installed": "Recently Installed",
+  "sort_version_oldest_installed": "Oldest Installed",
+  "sort_version_name_asc": "Name (A–Z)",
+  "sort_version_name_desc": "Name (Z–A)"
 }

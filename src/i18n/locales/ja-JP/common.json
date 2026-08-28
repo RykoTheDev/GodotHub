@@ -595,7 +595,7 @@
   "file_count_other": "{{count}} files",
   "folder_count_one": "{{count}} folder",
   "folder_count_other": "{{count}} folders",
-  "template_count_one": "{{count}} template available",
+  "": "{{count}} template available",
   "template_count_other": "{{count}} templates available",
   "tag_count_one": "{{count}} tag",
   "tag_count_other": "{{count}} tags",

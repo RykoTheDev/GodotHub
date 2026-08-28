@@ -28,6 +28,23 @@ import {
 } from '../lib/icons'
 
 const VERSION_FILTERS_KEY = 'godothub_version_filters'
+const VERSION_SORT_KEY = 'godothub_version_sort'
+
+type VersionSortOption = 'latest' | 'oldest' | 'name_asc' | 'name_desc' | 'recently_installed' | 'oldest_installed'
+
+const VERSION_SORT_OPTIONS: { value: VersionSortOption; labelKey: string }[] = [
+  { value: 'latest', labelKey: 'sort_version_latest' },
+  { value: 'oldest', labelKey: 'sort_version_oldest' },
+  { value: 'recently_installed', labelKey: 'sort_version_recently_installed' },
+  { value: 'oldest_installed', labelKey: 'sort_version_oldest_installed' },
+  { value: 'name_asc', labelKey: 'sort_version_name_asc' },
+  { value: 'name_desc', labelKey: 'sort_version_name_desc' },
+]
+
+const AVAILABLE_SORT_OPTIONS: { value: VersionSortOption; labelKey: string }[] = [
+  { value: 'latest', labelKey: 'sort_version_latest' },
+  { value: 'oldest', labelKey: 'sort_version_oldest' },
+]
 
 interface VersionFilters {
   buildType: 'standard' | 'mono' | 'both'
@@ -146,6 +163,20 @@ export function VersionsView({
 
   const [query, setQuery] = useState('')
   const [filters, setFilters] = useState<VersionFilters>(loadVersionFilters)
+  const [sortBy, setSortBy] = useState<VersionSortOption>(() => {
+    try {
+      const raw = localStorage.getItem(VERSION_SORT_KEY)
+      if (raw === 'latest' || raw === 'oldest' || raw === 'name_asc' || raw === 'name_desc') return raw
+    } catch {}
+    return 'latest'
+  })
+  const [installedSortBy, setInstalledSortBy] = useState<VersionSortOption>(() => {
+    try {
+      const raw = localStorage.getItem(VERSION_SORT_KEY + '_installed')
+      if (raw === 'latest' || raw === 'oldest' || raw === 'name_asc' || raw === 'name_desc' || raw === 'recently_installed' || raw === 'oldest_installed') return raw
+    } catch {}
+    return 'latest'
+  })
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({})
   const [visibleGroups, setVisibleGroups] = useState(5)
   const [scanning, setScanning] = useState(false)
@@ -155,6 +186,18 @@ export function VersionsView({
       localStorage.setItem(VERSION_FILTERS_KEY, JSON.stringify(filters))
     } catch {}
   }, [filters])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(VERSION_SORT_KEY, sortBy)
+    } catch {}
+  }, [sortBy])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(VERSION_SORT_KEY + '_installed', installedSortBy)
+    } catch {}
+  }, [installedSortBy])
 
   const handleImportVersion = async (folder: string) => {
     const taskId = `import-version-${Date.now()}`
@@ -215,13 +258,32 @@ export function VersionsView({
   const rateLimited =
     source === 'github' && /rate\s*limit/i.test(availableError || '')
 
-  const filteredInstalled = isSearching
+  const filteredInstalled = (isSearching
     ? installed.filter(
         (v) =>
           v.tag.toLowerCase().includes(q) ||
           (v.custom_name && v.custom_name.toLowerCase().includes(q)),
       )
     : installed
+  ).slice().sort((a, b) => {
+    const tagA = a.custom_name || a.tag
+    const tagB = b.custom_name || b.tag
+    switch (installedSortBy) {
+      case 'oldest':
+        return a.tag.localeCompare(b.tag, undefined, { numeric: true })
+      case 'name_asc':
+        return tagA.localeCompare(tagB)
+      case 'name_desc':
+        return tagB.localeCompare(tagA)
+      case 'recently_installed':
+        return new Date(b.installed_at).getTime() - new Date(a.installed_at).getTime()
+      case 'oldest_installed':
+        return new Date(a.installed_at).getTime() - new Date(b.installed_at).getTime()
+      case 'latest':
+      default:
+        return b.tag.localeCompare(a.tag, undefined, { numeric: true })
+    }
+  })
 
   const filteredAvailable = isSearching
     ? available
@@ -256,7 +318,19 @@ export function VersionsView({
         },
         {},
       ),
-  ).sort(([a], [b]) => b.localeCompare(a, undefined, { numeric: true }))
+  ).sort(([a], [b]) => {
+    switch (sortBy) {
+      case 'oldest':
+        return a.localeCompare(b, undefined, { numeric: true })
+      case 'name_asc':
+        return a.localeCompare(b, undefined, { numeric: true })
+      case 'name_desc':
+        return b.localeCompare(a, undefined, { numeric: true })
+      case 'latest':
+      default:
+        return b.localeCompare(a, undefined, { numeric: true })
+    }
+  })
 
   const animate = !isReducedMotion()
   const entranceTransition: Transition = {
@@ -316,6 +390,7 @@ export function VersionsView({
       <OverlayScrollArea
         className={`flex-1 min-w-0 ${connected ? '' : '-mr-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
+        topButtonBottom="bottom-18"
       >
         <div
           className={`h-full ${connected ? 'pl-5' : ''} pr-5 pb-4 flex flex-col gap-2`}
@@ -338,9 +413,39 @@ export function VersionsView({
           </div>
         ) : (
           <div className="flex flex-col gap-2">
-            <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted px-1">
-              {tv('installed_title')}
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted px-1">
+                {tv('installed_title')}
+              </h3>
+              <Dropdown
+                align="right"
+                trigger={({ open, toggle }) => {
+                  const activeOption = VERSION_SORT_OPTIONS.find((o) => o.value === installedSortBy)
+                  return (
+                    <motion.button
+                      type="button"
+                      aria-expanded={open}
+                      whileHover={{ scale: 1.04 }}
+                      whileTap={{ scale: 0.94 }}
+                      onClick={toggle}
+                      className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
+                    >
+                      <span className="text-[12px] text-muted">{tc('sort')}:</span>
+                      <span className="text-[13px] font-medium text-ink">
+                        {activeOption ? tv(activeOption.labelKey) : tc('sort')}
+                      </span>
+                      <IconChevronDown className="w-3 h-3 text-muted" />
+                    </motion.button>
+                  )
+                }}
+                items={VERSION_SORT_OPTIONS.map((opt) => ({
+                  key: opt.value,
+                  label: tv(opt.labelKey),
+                  active: opt.value === installedSortBy,
+                  onClick: () => setInstalledSortBy(opt.value),
+                }))}
+              />
+            </div>
             <div className="flex flex-col gap-2">
               {filteredInstalled.map((v, i) => (
                 <motion.div
@@ -467,6 +572,34 @@ export function VersionsView({
               ]}
             />
             )}
+            <Dropdown
+              align="left"
+              trigger={({ open, toggle }) => {
+                const activeOption = VERSION_SORT_OPTIONS.find((o) => o.value === sortBy)
+                return (
+                  <motion.button
+                    type="button"
+                    aria-expanded={open}
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.94 }}
+                    onClick={toggle}
+                    className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
+                  >
+                    <span className="text-[13px] text-muted">{tc('sort')}:</span>
+                    <span className="text-[16px] font-medium text-ink">
+                      {activeOption ? tv(activeOption.labelKey) : tc('sort')}
+                    </span>
+                    <IconChevronDown className="w-3 h-3 text-muted" />
+                  </motion.button>
+                )
+              }}
+              items={AVAILABLE_SORT_OPTIONS.map((opt) => ({
+                key: opt.value,
+                label: tv(opt.labelKey),
+                active: opt.value === sortBy,
+                onClick: () => setSortBy(opt.value),
+              }))}
+            />
           </div>
 
           {loadingAvailable ? (
