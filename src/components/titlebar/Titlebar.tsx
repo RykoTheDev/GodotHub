@@ -67,6 +67,15 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
 
   const noDrag = (e: React.MouseEvent) => e.stopPropagation()
 
+  const hasAnyTitlebarButton =
+    settings.show_support_button ||
+    settings.show_star_button ||
+    settings.show_bug_button ||
+    settings.show_language_button ||
+    settings.show_tray_button
+
+  if (useOsDec && !hasAnyTitlebarButton) return null
+
   const windowDot =
     'w-4.5 h-4.5 rounded-xl transition-[filter] duration-150 group-hover/win:brightness-125'
 
@@ -74,7 +83,9 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
     <header
       data-tauri-drag-region
       onDoubleClick={handleDoubleClick}
-      className={`shrink-0 h-8 flex items-center gap-3 select-none ${
+      className={`shrink-0 flex items-center gap-3 select-none ${
+        showWindowControls ? 'h-8' : 'h-11'
+      } ${
         settings.card_layout ? 'bg-raised/80' : 'bg-raised border-b border-line'
       } ${isMac ? 'pl-20' : 'pl-4'} ${showWindowControls ? '' : 'pr-4'}`}
     >

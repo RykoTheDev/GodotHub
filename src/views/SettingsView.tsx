@@ -2903,7 +2903,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               <button
                 type="button"
                 onClick={() => handleCatChange('credits' as SettingsCat)}
-                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-outline/50 bg-raised/60 hover:bg-raised text-[10px] font-mono text-muted/60 hover:text-muted transition-colors"
+                className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 ${connected ? 'mb-3' : ''} rounded-full border border-outline/50 bg-raised/60 hover:bg-raised text-[10px] font-mono text-muted/60 hover:text-muted transition-colors`}
               >
                 {ts('app_version_label', { version: appVersion })}
               </button>

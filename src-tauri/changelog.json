@@ -1031,7 +1031,7 @@
       },
       {
         "category": "add",
-        "text": "New Views for Project Cards (Still in Beta). List, Kanban and Grid Views"
+        "text": "New Views for Project Cards. List, Kanban and Grid Views"
       },
       {
         "category": "improve",
@@ -1040,6 +1040,30 @@
       {
         "category": "add",
         "text": "Dashboard View; Can be accessed by Clicking the \"GodotHub\" title in the sidebar if Sidebar is un-collapsed and a Home Button if sidebar is Collapsed"
+      },
+      {
+        "category": "add",
+        "text": "System Language Option; PR by mauriciovalentim"
+      },
+      {
+        "category": "fix",
+        "text": "Counter Pluralization for Project count and Task tray"
+      },
+      {
+        "category": "fix",
+        "text": "Downloaded Godot Version couldn't be deleted when they were in Custom Set Directory in Debian Distros"
+      },
+      {
+        "category": "improve",
+        "text": "Update Standard and Mono text in Versions to be beginner Friendly"
+      },
+      {
+        "category": "fix",
+        "text": "Downloaded Mono Godot Version's directory was messed up in Debian distros"
+      },
+      {
+        "category": "improve",
+        "text": "Description Wrapping on Modal Headers"
       }
     ],
     "known_issues": [],

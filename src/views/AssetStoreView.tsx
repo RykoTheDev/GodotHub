@@ -106,7 +106,7 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
         />
       </ViewHeader>
 
-      <div className="shrink-0 pr-6 flex items-center gap-2 flex-wrap">
+      <div className={`shrink-0 pr-6 flex items-center gap-2 flex-wrap ${connected ? 'pl-3' : ''}`}>
         <Dropdown
           align="left"
           trigger={({ open, toggle }) => (

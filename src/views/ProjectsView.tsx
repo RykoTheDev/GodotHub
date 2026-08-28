@@ -532,7 +532,7 @@ export function ProjectsView({
                 onClick={() => setCategoryManagerOpen(true)}
                 aria-label={tc('manage_categories')}
                 className="focus-ring cursor-pointer inline-flex items-center justify-center shadow-md shadow-black/10 border border-outline/50 w-10 h-10 shrink-0 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
-              >
+            >
                 <IconTags className="w-4 h-4" />
               </motion.button>
             )}
@@ -542,7 +542,7 @@ export function ProjectsView({
         <SearchBar value={query} onChange={setQuery} />
       </ViewHeader>
 
-      <div className="shrink-0 flex items-center gap-2 mb-3">
+      <div className={`shrink-0 flex items-center gap-2 mb-3 ${connected ? 'pl-5' : ''}`}>
         <Dropdown
           align="left"
           trigger={({ open, toggle }) => {
