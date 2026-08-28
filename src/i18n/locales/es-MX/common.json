@@ -445,6 +445,8 @@
   "sort_time_desc": "Tiempo total",
   "filter": "Filtros",
   "news_count": "Posts",
+  "asset_store_count_one": "Recurso",
+  "asset_store_count_other": "Recursos",
   "asset_store_count": "Recursos",
   "asset_more_aria": "Mas Acciones",
   "changelog_generate_from_git": "Generar desde Git",
@@ -602,5 +604,6 @@
   "template_your_templates_one": "Template",
   "template_your_templates_other": "Templates",
   "asset_duplicate_title": "Template already installed",
-  "asset_duplicate_desc": "\"{{name}}\" is already in your templates. Install a duplicate anyway?"
+  "asset_duplicate_desc": "\"{{name}}\" is already in your templates. Install a duplicate anyway?",
+  "asset_store_count_zero": "No assets"
 }

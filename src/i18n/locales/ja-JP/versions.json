@@ -49,5 +49,6 @@
   "sort_version_recently_installed": "Recently Installed",
   "sort_version_oldest_installed": "Oldest Installed",
   "sort_version_name_asc": "Name (A–Z)",
-  "sort_version_name_desc": "Name (Z–A)"
+  "sort_version_name_desc": "Name (Z–A)",
+  "installed_count_zero": "No installs"
 }

@@ -250,7 +250,7 @@ export function TemplatesView({
                 <AnimatedNumber value={assetStats.total} />
               </h2>
               <p className="text-lg font-medium uppercase text-muted">
-                {tc('asset_store_count')}
+                {tc('asset_store_count', { count: assetStats.total })}
               </p>
             </>
           )

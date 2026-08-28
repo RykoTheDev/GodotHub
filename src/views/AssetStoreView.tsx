@@ -94,7 +94,7 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
               <AnimatedNumber value={stats.total} />
             </h2>
             <p className="text-lg font-medium uppercase text-muted">
-              {tc('asset_store_count')}
+              {tc('asset_store_count', { count: stats.total })}
             </p>
           </>
         }

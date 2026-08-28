@@ -503,6 +503,8 @@
   "creating_remote_repo": "正在创建远程仓库…",
   "remote_repo_created_title": "远程仓库已创建",
   "news_count": "文章",
+  "asset_store_count_one": "资源",
+  "asset_store_count_other": "资源",
   "asset_store_count": "资源",
   "asset_more_aria": "更多操作",
   "changelog_generate_from_git": "从 Git 生成",

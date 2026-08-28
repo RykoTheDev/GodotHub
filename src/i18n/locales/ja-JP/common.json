@@ -245,6 +245,8 @@
   "asset_store_title": "アセットストア",
   "news_title": "ニュース",
   "news_count": "記事",
+  "asset_store_count_one": "アセット",
+  "asset_store_count_other": "アセット",
   "asset_store_count": "アセット",
   "asset_more_aria": "その他の操作",
   "project_count": "{{count}} 件のプロジェクト",
@@ -602,5 +604,6 @@
   "template_your_templates_one": "Template",
   "template_your_templates_other": "Templates",
   "asset_duplicate_title": "Template already installed",
-  "asset_duplicate_desc": "\"{{name}}\" is already in your templates. Install a duplicate anyway?"
+  "asset_duplicate_desc": "\"{{name}}\" is already in your templates. Install a duplicate anyway?",
+  "asset_store_count_zero": "No assets"
 }

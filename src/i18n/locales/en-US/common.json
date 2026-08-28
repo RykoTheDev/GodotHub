@@ -248,6 +248,8 @@
   "asset_store_title": "ASSET STORE",
   "news_title": "NEWS",
   "news_count": "Posts",
+  "asset_store_count_one": "Asset",
+  "asset_store_count_other": "Assets",
   "asset_store_count": "Assets",
   "asset_more_aria": "More actions",
   "settings_title": "SETTINGS",

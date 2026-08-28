@@ -244,6 +244,8 @@
   "asset_store_title": "CỬA HÀNG ASSET",
   "news_title": "TIN TỨC",
   "news_count": "Bài viết",
+  "asset_store_count_one": "Asset",
+  "asset_store_count_other": "Assets",
   "asset_store_count": "Asset",
   "asset_more_aria": "Thêm hành động",
   "project_count": "{{count}} dự án",
@@ -602,5 +604,6 @@
   "template_your_templates_one": "Template",
   "template_your_templates_other": "Templates",
   "asset_duplicate_title": "Template already installed",
-  "asset_duplicate_desc": "\"{{name}}\" is already in your templates. Install a duplicate anyway?"
+  "asset_duplicate_desc": "\"{{name}}\" is already in your templates. Install a duplicate anyway?",
+  "asset_store_count_zero": "No assets"
 }
