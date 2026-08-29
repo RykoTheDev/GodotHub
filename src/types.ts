@@ -423,7 +423,29 @@ export interface AppSettings {
   dashboard_tall_sections: string[]
   dashboard_custom_presets: DashboardCustomPreset[]
   auto_backup_interval_minutes: number
+  card_show_size: boolean
+  card_show_time: boolean
+  card_blur_path: boolean
+  card_show_path: boolean
+  card_show_tags: boolean
+  card_show_last_opened: boolean
+  card_show_play: boolean
+  card_show_console: boolean
+  card_view_overrides: Record<string, Partial<CardViewSettings>>
 }
+
+export interface CardViewSettings {
+  show_size: boolean
+  show_time: boolean
+  blur_path: boolean
+  show_path: boolean
+  show_tags: boolean
+  show_last_opened: boolean
+  show_play: boolean
+  show_console: boolean
+}
+
+export type ProjectViewMode = 'list' | 'grid' | 'kanban'
 
 export interface DashboardCustomPreset {
   id: string

@@ -103,6 +103,15 @@ const DEFAULTS: AppSettings = {
   dashboard_tall_sections: [],
   dashboard_custom_presets: [],
   auto_backup_interval_minutes: 0,
+  card_show_size: true,
+  card_show_time: true,
+  card_blur_path: false,
+  card_show_path: true,
+  card_show_tags: true,
+  card_show_last_opened: true,
+  card_show_play: true,
+  card_show_console: true,
+  card_view_overrides: {},
 }
 
 interface SettingsContextValue {

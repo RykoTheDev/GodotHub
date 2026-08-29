@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, type Transition } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import type { Category, GitStatus, InstalledGodotVersion, Project } from '../../types'
+import type { Category, GitStatus, InstalledGodotVersion, Project, ProjectViewMode } from '../../types'
+import { getCardViewSettings } from '../../lib/cardViewSettings'
 import { api, getCachedProjectIcon, getCachedProjectName } from '../../lib/api'
 import { formatDuration } from '../../lib/duration'
 import { effectiveTotalMs } from '../../lib/projectSort'
 import { tagColor } from '../../lib/colors'
 import { isReducedMotion } from '../../lib/appearance'
+import { useSettings } from '../../hooks/useSettings'
 import { useProjectResolutionEpoch } from '../../hooks/useProjectResolutionEpoch'
 import { Dropdown } from '../ui/Dropdown'
 import { OpenButton } from '../reusables/OpenButton'
@@ -49,6 +51,7 @@ interface ProjectCardGridItemProps {
   activeTag?: string | null
   selected?: boolean
   onToggleSelect?: (e: React.MouseEvent) => void
+  viewMode?: ProjectViewMode
 }
 
 function getInitials(name: string): string {
@@ -76,8 +79,11 @@ export function ProjectCardGridItem({
   activeTag,
   selected = false,
   onToggleSelect,
+  viewMode = 'grid',
 }: ProjectCardGridItemProps) {
   const { t } = useTranslation('common')
+  const { settings } = useSettings()
+  const cardSettings = getCardViewSettings(settings, viewMode)
   const resolutionEpoch = useProjectResolutionEpoch()
   const [icon, setIcon] = useState<string | null>(() =>
     getCachedProjectIcon(project.path),
@@ -292,7 +298,7 @@ export function ProjectCardGridItem({
           )}
         </div>
         {/* Time pill (top-right) */}
-        {(sessionMs > 0 || (allMs > 0 && sessionMs === 0)) && (
+        {cardSettings.show_time && (sessionMs > 0 || (allMs > 0 && sessionMs === 0)) && (
           <span className="absolute top-2 right-2 z-10 inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-surface/90 border border-outline/50 font-mono text-[10px] font-medium text-muted backdrop-blur-sm">
             {sessionMs > 0 ? (
               <>
@@ -336,18 +342,21 @@ export function ProjectCardGridItem({
         </div>
 
         {/* Path (pill) */}
+        {cardSettings.show_path && (
         <button
           type="button"
           onClick={(e) => {
             e.stopPropagation()
             api.openProjectFolder(project.path).catch((err) => alert(err))
           }}
-          className="block bg-black/15 px-3 py-1 rounded-tag text-[11px] font-mono text-muted truncate hover:text-accent-bright cursor-pointer transition-colors w-fit max-w-full text-center mx-auto"
+          className={`block bg-black/15 px-3 py-1 rounded-tag text-[11px] font-mono text-muted truncate hover:text-accent-bright cursor-pointer transition-colors w-fit max-w-full text-center mx-auto ${cardSettings.blur_path ? 'blur-sm hover:blur-none transition-[filter]' : ''}`}
         >
           {project.path}
         </button>
+        )}
 
         {/* Tags */}
+        {cardSettings.show_tags && project.tags.length > 0 && (
         <div className="relative flex items-center gap-1 flex-wrap min-h-[22px] justify-center overflow-hidden" style={{ maxHeight: '44px' }}>
         {project.tags.slice(0, 3).map((tag, i) => {
           const color = tagColor(tag)
@@ -506,6 +515,7 @@ export function ProjectCardGridItem({
           <span className="text-[9px] text-muted">+{project.tags.length - 3}</span>
         )}
       </div>
+        )}
 
         {/* Footer: Version + Open button */}
         <div className="flex flex-wrap items-center gap-2 mt-auto pt-2">
@@ -540,6 +550,7 @@ export function ProjectCardGridItem({
             onOpen={(console) => launchProject(console)}
             consoleSupported={boundVersion?.supports_console ?? false}
             consoleInitiallyOn={launchWithConsole && (boundVersion?.supports_console ?? false)}
+            showConsole={cardSettings.show_console}
             moreAriaLabel={t('project_more_aria')}
             className="px-6 text-xs h-8"
             headerItems={[

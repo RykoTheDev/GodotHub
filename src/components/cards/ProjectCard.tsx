@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, type Transition } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import type { Category, GitStatus, InstalledGodotVersion, Project } from '../../types'
+import type { Category, GitStatus, InstalledGodotVersion, Project, ProjectViewMode } from '../../types'
+import { getCardViewSettings } from '../../lib/cardViewSettings'
 import { api, getCachedProjectIcon, getCachedProjectName } from '../../lib/api'
 import {
   formatLastOpened,
@@ -60,6 +61,7 @@ interface ProjectCardProps {
   activeTag?: string | null
   selected?: boolean
   onToggleSelect?: (e: React.MouseEvent) => void
+  viewMode?: ProjectViewMode
 }
 
 function getInitials(name: string): string {
@@ -98,9 +100,11 @@ export function ProjectCard({
   activeTag,
   selected = false,
   onToggleSelect,
+  viewMode = 'list',
 }: ProjectCardProps) {
   const { t } = useTranslation('common')
   const { settings } = useSettings()
+  const cardSettings = getCardViewSettings(settings, viewMode)
   const resolutionEpoch = useProjectResolutionEpoch()
   const [icon, setIcon] = useState<string | null>(() =>
     getCachedProjectIcon(project.path),
@@ -357,7 +361,7 @@ export function ProjectCard({
                 )}
               </button>
           )}
-          {lastOpenedLabel && (
+          {lastOpenedLabel && cardSettings.show_last_opened && (
               <span className="inline-flex items-center gap-1 pl-1.5 pr-1 py-0.5 rounded-tag font-mono text-[10px] font-medium tracking-tight shrink-0 text-muted">
                 <IconClock className="w-2.5 h-2.5 text-muted/60 shrink-0" />
                 {lastOpenedLabel}
@@ -481,7 +485,7 @@ export function ProjectCard({
           )}
         </div>
 
-        {project.tags.length > 0 && (
+        {project.tags.length > 0 && cardSettings.show_tags && (
           <div className="flex items-center gap-1 flex-wrap min-w-0">
               {project.tags
                 .slice(0, tagsExpanded ? project.tags.length : 2)
@@ -618,13 +622,15 @@ export function ProjectCard({
             </div>
           )}
 
-          <button
-            type="button"
-            onClick={openFolder}
-            className="block bg-black/15 px-3 py-1 rounded-tag text-[11px] font-mono text-muted truncate hover:text-accent-bright cursor-pointer transition-colors w-fit max-w-full"
-          >
-            {project.path}
-          </button>
+          {cardSettings.show_path && (
+            <button
+              type="button"
+              onClick={openFolder}
+              className={`block bg-black/15 px-3 py-1 rounded-tag text-[11px] font-mono text-muted truncate hover:text-accent-bright cursor-pointer transition-colors w-fit max-w-full ${cardSettings.blur_path ? 'blur-sm hover:blur-none transition-[filter]' : ''}`}
+            >
+              {project.path}
+            </button>
+          )}
 
         <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
           <Dropdown
@@ -701,7 +707,7 @@ export function ProjectCard({
                 </span>
               )}
           </motion.span>
-          {allMs > 0 && (
+          {allMs > 0 && cardSettings.show_time && (
               <button
                 type="button"
                 onClick={() => setTimeTrackerOpen(true)}
@@ -712,7 +718,7 @@ export function ProjectCard({
                 {formatDuration(allMs)}
               </button>
           )}
-          {projectSize != null && projectSize > 0 && (
+          {projectSize != null && projectSize > 0 && cardSettings.show_size && (
               <button
                 type="button"
                 onClick={() => setSizeModalOpen(true)}
@@ -787,7 +793,7 @@ export function ProjectCard({
         )}
         <div className="flex flex-col justify-end gap-1.5">
           <AnimatePresence>
-            {versionInstalled && cardHovered && (
+            {versionInstalled && cardHovered && cardSettings.show_play && (
               <Tooltip content={t('play_project_tooltip')} side="left">
               <motion.button
                 initial={{ opacity: 0, y: 8 }}
@@ -811,6 +817,7 @@ export function ProjectCard({
           onOpen={launchProject}
           consoleSupported={supportsConsole}
           consoleInitiallyOn={launchWithConsole && supportsConsole}
+          showConsole={cardSettings.show_console}
           moreAriaLabel={t('project_more_aria')}
           className="px-10"
           headerItems={[
