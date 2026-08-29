@@ -9,6 +9,7 @@ import { ViewHeader } from '../components/reusables/ViewHeader'
 import { useSettings } from '../hooks/useSettings'
 import { useUpdates } from '../hooks/useUpdates'
 import { useUpdatesBadge } from '../hooks/useUpdatesBadge'
+import { Tooltip } from '../components/reusables/Tooltip'
 import { formatLocaleDate, formatRelativeTime } from '../lib/locale'
 import type { UpdateEntry, UpdateKind } from '../types'
 import {
@@ -168,17 +169,19 @@ function CardContent({
           <code className="flex-1 min-w-0 font-mono text-xs text-ink whitespace-pre-wrap break-all">
             {entry.command}
           </code>
-          <button
-              onClick={copyCommand}
-              aria-label={copied ? t('updates_copied') : t('updates_copy')}
-              className="focus-ring cursor-pointer shrink-0 p-1.5 rounded-btn text-muted/60 hover:text-ink hover:bg-raised transition-colors"
-            >
-              {copied ? (
-                <IconCheck className="w-3.5 h-3.5 text-mint" />
-              ) : (
-                <IconCopy className="w-3.5 h-3.5" />
-              )}
-            </button>
+          <Tooltip content={copied ? t('updates_copied') : t('updates_copy')} side="top">
+            <button
+                onClick={copyCommand}
+                aria-label={copied ? t('updates_copied') : t('updates_copy')}
+                className="focus-ring cursor-pointer shrink-0 p-1.5 rounded-btn text-muted/60 hover:text-ink hover:bg-raised transition-colors"
+              >
+                {copied ? (
+                  <IconCheck className="w-3.5 h-3.5 text-mint" />
+                ) : (
+                  <IconCopy className="w-3.5 h-3.5" />
+                )}
+              </button>
+          </Tooltip>
         </div>
       )}
     </div>

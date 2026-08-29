@@ -527,16 +527,18 @@ export function ProjectsView({
               }
             />
             {settings.categories_enabled && (
-              <motion.button
-                type="button"
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.94 }}
-                onClick={() => setCategoryManagerOpen(true)}
-                aria-label={tc('manage_categories')}
-                className="focus-ring cursor-pointer inline-flex items-center justify-center shadow-md shadow-black/10 border border-outline/50 w-10 h-10 shrink-0 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
-            >
-                <IconTags className="w-4 h-4" />
-              </motion.button>
+              <Tooltip content={tc('manage_categories')} side="bottom">
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.94 }}
+                  onClick={() => setCategoryManagerOpen(true)}
+                  aria-label={tc('manage_categories')}
+                  className="focus-ring cursor-pointer inline-flex items-center justify-center shadow-md shadow-black/10 border border-outline/50 w-10 h-10 shrink-0 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
+              >
+                  <IconTags className="w-4 h-4" />
+                </motion.button>
+              </Tooltip>
             )}
           </>
         }
@@ -650,16 +652,18 @@ export function ProjectsView({
                 label: viewNames[v] ?? (v === 'list' ? tc('view_list') : v === 'grid' ? tc('view_grid') : tc('view_kanban')),
               }))}
             />
-            <motion.button
-              type="button"
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.94 }}
-              onClick={() => setCreateViewModalOpen(true)}
-              aria-label={tc('manage_views')}
-              className="focus-ring cursor-pointer flex items-center justify-center w-8 h-8 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 transition-colors"
-            >
-              <IconGear className="w-3.5 h-3.5" />
-            </motion.button>
+            <Tooltip content={tc('manage_views')} side="bottom">
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.94 }}
+                onClick={() => setCreateViewModalOpen(true)}
+                aria-label={tc('manage_views')}
+                className="focus-ring cursor-pointer flex items-center justify-center w-8 h-8 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 transition-colors"
+              >
+                <IconGear className="w-3.5 h-3.5" />
+              </motion.button>
+            </Tooltip>
           </div>
         ) : (
           <motion.button
@@ -724,18 +728,20 @@ export function ProjectsView({
             className="overflow-hidden shrink-0"
           >
             <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-item bg-accent/10 border border-accent-dim/40">
-              <button
-                type="button"
-                onClick={toggleSelectAllVisible}
-                aria-label={tc('select_all_visible')}
-                className={`focus-ring cursor-pointer w-5 h-5 rounded-item border-2 flex items-center justify-center transition-colors ${
-                  allVisibleSelected
-                    ? 'bg-accent border-accent text-white'
-                    : 'border-muted/40 text-transparent hover:border-accent/60'
-                }`}
-              >
-                <IconCheck className="w-3 h-3" />
-              </button>
+              <Tooltip content={tc('select_all_visible')} side="bottom">
+                <button
+                  type="button"
+                  onClick={toggleSelectAllVisible}
+                  aria-label={tc('select_all_visible')}
+                  className={`focus-ring cursor-pointer w-5 h-5 rounded-item border-2 flex items-center justify-center transition-colors ${
+                    allVisibleSelected
+                      ? 'bg-accent border-accent text-white'
+                      : 'border-muted/40 text-transparent hover:border-accent/60'
+                  }`}
+                >
+                  <IconCheck className="w-3 h-3" />
+                </button>
+              </Tooltip>
               <span className="text-sm font-medium text-ink tabular-nums">
                 {tc('selected_count', { count: selectedIds.size })}
               </span>
@@ -778,14 +784,16 @@ export function ProjectsView({
                   {tc('bulk_delete')}
                 </span>
               </button>
-              <button
-                type="button"
-                onClick={clearSelection}
-                aria-label={tc('clear_selection')}
-                className="focus-ring cursor-pointer w-8 h-8 rounded-btn flex items-center justify-center text-muted hover:text-ink hover:bg-overlay transition-colors"
-              >
-                <IconX className="w-3.5 h-3.5" />
-              </button>
+              <Tooltip content={tc('clear_selection')} side="bottom">
+                <button
+                  type="button"
+                  onClick={clearSelection}
+                  aria-label={tc('clear_selection')}
+                  className="focus-ring cursor-pointer w-8 h-8 rounded-btn flex items-center justify-center text-muted hover:text-ink hover:bg-overlay transition-colors"
+                >
+                  <IconX className="w-3.5 h-3.5" />
+                </button>
+              </Tooltip>
             </div>
           </motion.div>
         )}

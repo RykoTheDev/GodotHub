@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { RefObject } from 'react'
 import { IconSearch, IconX } from '../../lib/icons'
+import { Tooltip } from '../reusables/Tooltip'
 
 interface SearchBarProps {
   value: string
@@ -43,17 +44,19 @@ export function SearchBar({
         className="flex-1 min-w-0 bg-transparent outline-none text-sm font-medium text-ink placeholder:text-muted/70"
       />
       {value && (
-        <button
-          type="button"
-          aria-label={t('clear_search')}
-          onClick={() => {
-            onChange('')
-            requestAnimationFrame(() => ownRef.current?.focus())
-          }}
-          className="cursor-pointer flex items-center justify-center w-6 h-6 rounded-btn text-muted hover:text-ink hover:bg-raised transition-colors"
-        >
-          <IconX className="w-3.5 h-3.5" />
-        </button>
+        <Tooltip content={t('clear_search')} side="top">
+          <button
+            type="button"
+            aria-label={t('clear_search')}
+            onClick={() => {
+              onChange('')
+              requestAnimationFrame(() => ownRef.current?.focus())
+            }}
+            className="cursor-pointer flex items-center justify-center w-6 h-6 rounded-btn text-muted hover:text-ink hover:bg-raised transition-colors"
+          >
+            <IconX className="w-3.5 h-3.5" />
+          </button>
+        </Tooltip>
       )}
     </div>
   )

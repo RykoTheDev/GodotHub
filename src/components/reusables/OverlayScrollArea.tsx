@@ -12,6 +12,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { IconChevronUp } from '../../lib/icons'
 import { isReducedMotion } from '../../lib/appearance'
+import { Tooltip } from './Tooltip'
 
 interface OverlayScrollAreaProps {
   children: ReactNode
@@ -230,20 +231,22 @@ export function OverlayScrollArea({
 
       <AnimatePresence>
         {!hideTopButton && showTopBtn && !overlayOpen && (
-          <motion.button
-            key="scroll-to-top"
-            type="button"
-            aria-label={t('scroll_to_top')}
-            onClick={scrollToTop}
-            initial={{ opacity: 0, y: 12, scale: 0.85, x: '-50%' }}
-            animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
-            exit={{ opacity: 0, y: 12, scale: 0.85, x: '-50%' }}
-            transition={{ type: 'spring', stiffness: 420, damping: 28 }}
-            className={`focus-ring cursor-pointer absolute left-1/2 -ml-2 z-30 inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-raised border border-outline/50 text-muted shadow-lg shadow-black/40 transition-colors duration-150 hover:text-ink hover:border-accent-dim/70 hover:bg-overlay ${topButtonBottom}`}
-          >
-            <IconChevronUp className="w-3.5 h-3.5" />
-            <span className="text-xs font-medium">{t('scroll_to_top')}</span>
-          </motion.button>
+          <Tooltip content={t('scroll_to_top')} side="top">
+            <motion.button
+              key="scroll-to-top"
+              type="button"
+              aria-label={t('scroll_to_top')}
+              onClick={scrollToTop}
+              initial={{ opacity: 0, y: 12, scale: 0.85, x: '-50%' }}
+              animate={{ opacity: 1, y: 0, scale: 1, x: '-50%' }}
+              exit={{ opacity: 0, y: 12, scale: 0.85, x: '-50%' }}
+              transition={{ type: 'spring', stiffness: 420, damping: 28 }}
+              className={`focus-ring cursor-pointer absolute left-1/2 -ml-2 z-30 inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-raised border border-outline/50 text-muted shadow-lg shadow-black/40 transition-colors duration-150 hover:text-ink hover:border-accent-dim/70 hover:bg-overlay ${topButtonBottom}`}
+            >
+              <IconChevronUp className="w-3.5 h-3.5" />
+              <span className="text-xs font-medium">{t('scroll_to_top')}</span>
+            </motion.button>
+          </Tooltip>
         )}
       </AnimatePresence>
     </div>

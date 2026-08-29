@@ -18,6 +18,7 @@ import {
   IconTrash,
 } from '../lib/icons'
 import { formatLocaleDate } from '../lib/locale'
+import { Tooltip } from '../components/reusables/Tooltip'
 import type { ChangelogEntry, ChangelogNote } from '../types'
 
 const IS_DEV = import.meta.env.DEV
@@ -105,20 +106,24 @@ function EntryCard({
             </div>
             {IS_DEV && (
               <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  onClick={onEdit}
-                  aria-label={`Edit ${entry.version}`}
-                  className="focus-ring cursor-pointer p-2 rounded-btn text-muted hover:text-ink hover:bg-raised transition-colors"
-                >
-                  <IconPencil className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={onDelete}
-                  aria-label={`Delete ${entry.version}`}
-                  className="focus-ring cursor-pointer p-2 rounded-btn text-muted hover:text-danger hover:bg-danger/10 transition-colors"
-                >
-                  <IconTrash className="w-3.5 h-3.5" />
-                </button>
+                <Tooltip content={`Edit ${entry.version}`} side="top">
+                  <button
+                    onClick={onEdit}
+                    aria-label={`Edit ${entry.version}`}
+                    className="focus-ring cursor-pointer p-2 rounded-btn text-muted hover:text-ink hover:bg-raised transition-colors"
+                  >
+                    <IconPencil className="w-3.5 h-3.5" />
+                  </button>
+                </Tooltip>
+                <Tooltip content={`Delete ${entry.version}`} side="top">
+                  <button
+                    onClick={onDelete}
+                    aria-label={`Delete ${entry.version}`}
+                    className="focus-ring cursor-pointer p-2 rounded-btn text-muted hover:text-danger hover:bg-danger/10 transition-colors"
+                  >
+                    <IconTrash className="w-3.5 h-3.5" />
+                  </button>
+                </Tooltip>
               </div>
             )}
           </div>

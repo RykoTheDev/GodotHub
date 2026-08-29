@@ -23,6 +23,7 @@ import { OverlayScrollArea } from '../components/reusables/OverlayScrollArea'
 import { ScanButton } from '../components/reusables/ScanButton'
 import { ConfirmDialog } from '../components/modals/ConfirmDialog'
 import { TemplatePreviewModal } from '../components/modals/TemplatePreviewModal'
+import { Tooltip } from '../components/reusables/Tooltip'
 import { CreateProjectModal } from '../components/modals/CreateProjectModal'
 import { AssetLibraryBrowser } from '../components/asset-library/AssetLibraryBrowser'
 import {
@@ -393,18 +394,18 @@ export function TemplatesView({
                           <div className="w-10 h-10 rounded-tile bg-raised border border-outline/50 flex items-center justify-center shrink-0">
                             <IconCopy className="w-4 h-4 text-muted" />
                           </div>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setConfirmDelete(tmpl.id)
-                            }}
-                            className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 opacity-0 group-hover:opacity-100 hover:text-danger hover:bg-danger/10 transition-all"
-                            aria-label={tc('delete_template', {
-                              name: tmpl.name,
-                            })}
-                          >
-                            <IconTrash className="w-3.5 h-3.5" />
-                          </button>
+                          <Tooltip content={tc('delete_template', { name: tmpl.name })} side="left">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setConfirmDelete(tmpl.id)
+                              }}
+                              className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 opacity-0 group-hover:opacity-100 hover:text-danger hover:bg-danger/10 transition-all"
+                              aria-label={tc('delete_template', { name: tmpl.name })}
+                            >
+                              <IconTrash className="w-3.5 h-3.5" />
+                            </button>
+                          </Tooltip>
                         </div>
                         <div className="flex-1 min-w-0">
                           <h4 className="font-display font-semibold text-sm truncate">

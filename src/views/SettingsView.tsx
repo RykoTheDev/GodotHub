@@ -80,6 +80,7 @@ import {
 import type { IconProps } from '../lib/icons'
 import type { AppSettings, GitAuthState } from '../types'
 import { GitAuthModal } from '../components/modals/GitAuthModal'
+import { Tooltip } from '../components/reusables/Tooltip'
 
 type SettingsCat =
   | 'appearance'
@@ -1791,18 +1792,19 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                       {pat.username}
                     </span>
                   </div>
-                    <button
-                      type="button"
-                      aria-label={ts('git_pat_remove')}
-                      title={ts('git_pat_remove')}
-                      onClick={async () => {
-                        await api.gitAuthRemovePat(pat.host)
-                        await refreshGitAuth()
-                      }}
-                      className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/60 hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
-                    >
-                      <IconTrash className="w-3.5 h-3.5" />
-                    </button>
+                    <Tooltip content={ts('git_pat_remove')} side="left">
+                      <button
+                        type="button"
+                        aria-label={ts('git_pat_remove')}
+                        onClick={async () => {
+                          await api.gitAuthRemovePat(pat.host)
+                          await refreshGitAuth()
+                        }}
+                        className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/60 hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
+                      >
+                        <IconTrash className="w-3.5 h-3.5" />
+                      </button>
+                    </Tooltip>
                 </div>
               ))}
             </div>

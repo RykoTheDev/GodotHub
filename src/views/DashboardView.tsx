@@ -67,6 +67,7 @@ import {
   type DashboardTileId,
 } from '../lib/dashboardSections'
 import type { GitStatus, Project, TimeInsights } from '../types'
+import { Tooltip } from '../components/reusables/Tooltip'
 
 function dispatch(event: string, detail?: unknown) {
   window.dispatchEvent(
@@ -172,54 +173,64 @@ function TileEditControls({
     'focus-ring cursor-pointer p-1 rounded-btn text-accent-bright bg-accent/10 hover:bg-accent/20 transition-colors'
   return (
     <div className="flex items-center gap-0.5 shrink-0">
-      <button
-          type="button"
-          onClick={() => onMove(-1)}
-          disabled={index === 0}
-          aria-label={tc('dashboard_tile_move_up')}
-          className={`${btnClass} disabled:opacity-30 disabled:cursor-not-allowed`}
-        >
-          <IconChevronUp className="w-3 h-3" />
-        </button>
-      <button
-          type="button"
-          onClick={() => onMove(1)}
-          disabled={index === total - 1}
-          aria-label={tc('dashboard_tile_move_down')}
-          className={`${btnClass} disabled:opacity-30 disabled:cursor-not-allowed`}
-        >
-          <IconChevronDown className="w-3 h-3" />
-        </button>
-      {canSpan && (
-        <button
+      <Tooltip content={tc('dashboard_tile_move_up')} side="top">
+          <button
             type="button"
-            onClick={onToggleSpan}
-            aria-label={tc(spanning ? 'dashboard_tile_span_off' : 'dashboard_tile_span')}
-            aria-pressed={spanning}
-            className={spanning ? activeBtnClass : btnClass}
+            onClick={() => onMove(-1)}
+            disabled={index === 0}
+            aria-label={tc('dashboard_tile_move_up')}
+            className={`${btnClass} disabled:opacity-30 disabled:cursor-not-allowed`}
           >
-            <IconLayoutGrid className="w-3 h-3" />
+            <IconChevronUp className="w-3 h-3" />
           </button>
+        </Tooltip>
+      <Tooltip content={tc('dashboard_tile_move_down')} side="top">
+          <button
+            type="button"
+            onClick={() => onMove(1)}
+            disabled={index === total - 1}
+            aria-label={tc('dashboard_tile_move_down')}
+            className={`${btnClass} disabled:opacity-30 disabled:cursor-not-allowed`}
+          >
+            <IconChevronDown className="w-3 h-3" />
+          </button>
+        </Tooltip>
+      {canSpan && (
+        <Tooltip content={tc(spanning ? 'dashboard_tile_span_off' : 'dashboard_tile_span')} side="top">
+          <button
+              type="button"
+              onClick={onToggleSpan}
+              aria-label={tc(spanning ? 'dashboard_tile_span_off' : 'dashboard_tile_span')}
+              aria-pressed={spanning}
+              className={spanning ? activeBtnClass : btnClass}
+            >
+              <IconLayoutGrid className="w-3 h-3" />
+            </button>
+        </Tooltip>
       )}
       {canTall && (
-        <button
-            type="button"
-            onClick={onToggleTall}
-            aria-label={tc(tall ? 'dashboard_tile_tall_off' : 'dashboard_tile_tall')}
-            aria-pressed={tall}
-            className={tall ? activeBtnClass : btnClass}
-          >
-            <IconArrowUpDown className="w-3 h-3" />
-          </button>
+        <Tooltip content={tc(tall ? 'dashboard_tile_tall_off' : 'dashboard_tile_tall')} side="top">
+          <button
+              type="button"
+              onClick={onToggleTall}
+              aria-label={tc(tall ? 'dashboard_tile_tall_off' : 'dashboard_tile_tall')}
+              aria-pressed={tall}
+              className={tall ? activeBtnClass : btnClass}
+            >
+              <IconArrowUpDown className="w-3 h-3" />
+            </button>
+        </Tooltip>
       )}
-      <button
-          type="button"
-          onClick={onRemove}
-          aria-label={tc('dashboard_tile_remove')}
-          className="focus-ring cursor-pointer p-1 rounded-btn text-muted/50 hover:text-danger hover:bg-danger/10 transition-colors"
-        >
-          <IconX className="w-3 h-3" />
-        </button>
+      <Tooltip content={tc('dashboard_tile_remove')} side="top">
+          <button
+            type="button"
+            onClick={onRemove}
+            aria-label={tc('dashboard_tile_remove')}
+            className="focus-ring cursor-pointer p-1 rounded-btn text-muted/50 hover:text-danger hover:bg-danger/10 transition-colors"
+          >
+            <IconX className="w-3 h-3" />
+          </button>
+        </Tooltip>
     </div>
   )
 }
@@ -1525,24 +1536,28 @@ export function DashboardView({
                   placeholder={tc('dashboard_name_placeholder')}
                   className="focus-ring w-64 bg-base border border-accent rounded-btn px-3 py-2 text-xl font-medium text-ink outline-none"
                 />
-                  <motion.button
-                    type="button"
-                    whileTap={{ scale: 0.92 }}
-                    onClick={commitName}
-                    aria-label={tc('dashboard_rename_save')}
-                    className="focus-ring cursor-pointer p-1.5 rounded-btn text-accent hover:bg-accent/10 transition-colors"
-                  >
-                    <IconCheck className="w-4 h-4" />
-                  </motion.button>
-                  <motion.button
-                    type="button"
-                    whileTap={{ scale: 0.92 }}
-                    onClick={cancelNameEdit}
-                    aria-label={tc('cancel')}
-                    className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/60 hover:text-ink hover:bg-raised transition-colors"
-                  >
-                    <IconX className="w-4 h-4" />
-                  </motion.button>
+                  <Tooltip content={tc('dashboard_rename_save')} side="top">
+                    <motion.button
+                      type="button"
+                      whileTap={{ scale: 0.92 }}
+                      onClick={commitName}
+                      aria-label={tc('dashboard_rename_save')}
+                      className="focus-ring cursor-pointer p-1.5 rounded-btn text-accent hover:bg-accent/10 transition-colors"
+                    >
+                      <IconCheck className="w-4 h-4" />
+                    </motion.button>
+                  </Tooltip>
+                  <Tooltip content={tc('cancel')} side="top">
+                    <motion.button
+                      type="button"
+                      whileTap={{ scale: 0.92 }}
+                      onClick={cancelNameEdit}
+                      aria-label={tc('cancel')}
+                      className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/60 hover:text-ink hover:bg-raised transition-colors"
+                    >
+                      <IconX className="w-4 h-4" />
+                    </motion.button>
+                  </Tooltip>
               </div>
             ) : (
               <h1 className="font-display text-5xl font-bold leading-13 text-ink min-w-0">
@@ -1559,25 +1574,29 @@ export function DashboardView({
 
             {!editingName && (
               <>
-                  <button
-                    type="button"
-                    onClick={startEditingName}
-                    aria-label={tc('dashboard_rename_aria')}
-                    className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 hover:text-ink hover:bg-raised shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150"
-                  >
-                    <IconPencil className="w-3.5 h-3.5" />
-                  </button>
-                {settings.dashboard_custom_name && (
+                  <Tooltip content={tc('dashboard_rename_aria')} side="right">
                     <button
                       type="button"
-                      onClick={() =>
-                        update({ ...settings, dashboard_custom_name: null })
-                      }
-                      aria-label={tc('dashboard_rename_reset')}
-                      className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 hover:text-danger hover:bg-danger/10 shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150"
+                      onClick={startEditingName}
+                      aria-label={tc('dashboard_rename_aria')}
+                      className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 hover:text-ink hover:bg-raised shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150"
                     >
-                      <IconX className="w-3.5 h-3.5" />
+                      <IconPencil className="w-3.5 h-3.5" />
                     </button>
+                  </Tooltip>
+                {settings.dashboard_custom_name && (
+                    <Tooltip content={tc('dashboard_rename_reset')} side="right">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          update({ ...settings, dashboard_custom_name: null })
+                        }
+                        aria-label={tc('dashboard_rename_reset')}
+                        className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 hover:text-danger hover:bg-danger/10 shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150"
+                      >
+                        <IconX className="w-3.5 h-3.5" />
+                      </button>
+                    </Tooltip>
                 )}
               </>
             )}
@@ -1705,14 +1724,16 @@ export function DashboardView({
                             {active && <IconCheck className="w-3 h-3" />}
                             {preset.name}
                           </button>
-                            <button
-                              type="button"
-                              onClick={() => removePreset(preset.id)}
-                              aria-label={tc('dashboard_preset_delete')}
-                              className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/50 hover:text-danger hover:bg-danger/10 transition-colors"
-                            >
-                              <IconX className="w-3 h-3" />
-                            </button>
+                            <Tooltip content={tc('dashboard_preset_delete')} side="left">
+                              <button
+                                type="button"
+                                onClick={() => removePreset(preset.id)}
+                                aria-label={tc('dashboard_preset_delete')}
+                                className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/50 hover:text-danger hover:bg-danger/10 transition-colors"
+                              >
+                                <IconX className="w-3 h-3" />
+                              </button>
+                            </Tooltip>
                         </span>
                       )
                     })}
