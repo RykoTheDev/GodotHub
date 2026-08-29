@@ -1076,6 +1076,26 @@
       {
         "category": "improve",
         "text": "More Button Dropdown has been shrunk down with few duplicate options cut from it, since project card itslef already had them. Now it's clutter free"
+      },
+      {
+        "category": "add",
+        "text": "Discord RPC Toggle in Onboarding view"
+      },
+      {
+        "category": "add",
+        "text": "Discord RPC State for Onboarding screen"
+      },
+      {
+        "category": "improve",
+        "text": "Replaced many Aria-Labels with our own Custom Tooltip component"
+      },
+      {
+        "category": "fix",
+        "text": "\"More\" button dropdown's Dynamic Behaviour"
+      },
+      {
+        "category": "improve",
+        "text": "Truncated \"More\" button dropdown with lesser options which were basically duplicates"
       }
     ],
     "known_issues": [],

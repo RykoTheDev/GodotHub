@@ -184,7 +184,6 @@ function ChangedFileRow({
           <button
               type="button"
               onClick={onStage}
-              aria-label={stageLabel}
               className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-mint hover:bg-raised transition-colors"
             >
               <IconPlus className="w-3 h-3" />
@@ -196,7 +195,6 @@ function ChangedFileRow({
           <button
               type="button"
               onClick={onUnstage}
-              aria-label={unstageLabel}
               className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-amber hover:bg-raised transition-colors"
             >
               <IconChevronUp className="w-3 h-3" />
@@ -208,7 +206,6 @@ function ChangedFileRow({
           <button
               type="button"
               onClick={onDiscard}
-              aria-label={discardLabel}
               className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-danger hover:bg-raised transition-colors"
             >
               <IconTrash className="w-3 h-3" />
@@ -970,17 +967,18 @@ export function GitSidebar({
         <span className="font-display font-medium text-ink/50 text-sm ml-1 truncate">
           {project.name} // Git
         </span>
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label={t('close_sidebar')}
-          className="focus-ring cursor-pointer w-9 h-9 shrink-0 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised/60 transition-colors"
-        >
-          <IconX className="w-4 h-4" />
-        </button>
+        <Tooltip content={t('close_sidebar')} side="left">
+          <button
+            type="button"
+            onClick={onClose}
+            className="focus-ring cursor-pointer w-9 h-9 shrink-0 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised/60 transition-colors"
+          >
+            <IconX className="w-4 h-4" />
+          </button>
+        </Tooltip>
       </div>
 
-      <div className="flex-1 min-h-0 overflow-y-auto new-ui-scroll-viewport">
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden new-ui-scroll-viewport">
         <div className="px-3 py-3 flex flex-col gap-3">
           <motion.div
             initial={{ opacity: 0, x: 24 }}
@@ -1336,7 +1334,6 @@ export function GitSidebar({
                                     type="button"
                                     onClick={() => void handlePublishBranch(b.name)}
                                     disabled={publishingBranch}
-                                    aria-label={t('publish_branch')}
                                     className="cursor-pointer shrink-0 p-1 mr-1 rounded text-muted/50 hover:text-accent hover:bg-raised transition-colors disabled:opacity-40"
                                   >
                                     <IconArrowUp
@@ -1353,7 +1350,6 @@ export function GitSidebar({
                                     type="button"
                                     onClick={() => void handleDeleteBranch(b.name)}
                                     disabled={!!deletingBranch}
-                                    aria-label={t('delete_branch')}
                                     className={`cursor-pointer shrink-0 p-1 mr-1 rounded transition-colors disabled:opacity-40 ${
                                       b.has_upstream
                                         ? 'text-muted/50 hover:text-danger hover:bg-raised opacity-0 group-hover:opacity-100'
@@ -1392,15 +1388,16 @@ export function GitSidebar({
                               placeholder={t('new_branch_placeholder')}
                               className="flex-1 min-w-0 bg-base border border-outline/50 rounded-item px-2 py-1.5 text-[11px] text-ink placeholder:text-muted focus:border-accent-dim outline-none transition-colors"
                             />
-                            <button
-                              type="button"
-                              onClick={() => void handleCreateBranch()}
-                              disabled={!newBranchName.trim()}
-                              aria-label={t('new_branch_btn')}
-                              className="focus-ring cursor-pointer shrink-0 p-1.5 rounded text-muted hover:text-mint hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                            >
-                              <IconCheck className="w-3.5 h-3.5" />
-                            </button>
+                            <Tooltip content={t('new_branch_btn')} side="top">
+                              <button
+                                type="button"
+                                onClick={() => void handleCreateBranch()}
+                                disabled={!newBranchName.trim()}
+                                className="focus-ring cursor-pointer shrink-0 p-1.5 rounded text-muted hover:text-mint hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                              >
+                                <IconCheck className="w-3.5 h-3.5" />
+                              </button>
+                            </Tooltip>
                           </div>
                         ) : (
                           <button
@@ -1422,7 +1419,6 @@ export function GitSidebar({
                   type="button"
                   onClick={() => void handleSync()}
                   disabled={syncing}
-                  aria-label={t('sync')}
                   className="focus-ring cursor-pointer h-full inline-flex items-center justify-center px-3.5 rounded-item border border-outline/50 bg-raised/60 text-muted transition-colors hover:text-accent hover:bg-raised disabled:opacity-50 disabled:cursor-wait"
                 >
                   <IconRefresh className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
@@ -1552,7 +1548,6 @@ export function GitSidebar({
                           type="button"
                           onClick={() => void handleStashApply(s.index)}
                           disabled={!!stashBusy}
-                          aria-label={t('apply_stash')}
                           className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-mint hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-wait"
                         >
                           <IconPlay
@@ -1569,7 +1564,6 @@ export function GitSidebar({
                           type="button"
                           onClick={() => void handleStashPop(s.index)}
                           disabled={!!stashBusy}
-                          aria-label={t('pop_stash')}
                           className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-amber hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-wait"
                         >
                           <IconChevronUp
@@ -1586,7 +1580,6 @@ export function GitSidebar({
                           type="button"
                           onClick={() => void handleStashDrop(s.index)}
                           disabled={!!stashBusy}
-                          aria-label={t('drop_stash')}
                           className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-danger hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-wait"
                         >
                           <IconTrash

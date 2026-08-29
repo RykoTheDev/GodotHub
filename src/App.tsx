@@ -343,7 +343,7 @@ export function App() {
       <Titlebar />
 
       <div
-        className={`relative flex-1 flex min-h-0 ${
+        className={`relative flex-1 flex min-h-0 overflow-hidden ${
           cardLayout ? 'p-4 pt-3 gap-4' : 'gap-0'
         }`}
       >
@@ -426,7 +426,7 @@ export function App() {
                   opacity: 0,
                   transition: { duration: 0.15, ease: 'easeOut' },
                 }}
-                className="absolute top-2 right-2 bottom-2 z-50 w-80 overflow-hidden rounded-xl shadow-2xl shadow-black/40"
+                className="absolute top-2 right-2 bottom-2 z-50 w-80 overflow-hidden rounded-xl shadow-2xl shadow-black/40 shrink-0"
               >
                 <GitSidebar
                   project={gitSidebarProject.project}

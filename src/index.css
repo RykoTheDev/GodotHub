@@ -82,6 +82,7 @@ html.ui-scaling {
 body {
   @apply bg-base text-ink font-body antialiased;
   user-select: none;
+  overflow: hidden;
   overflow-wrap: break-word;
   word-break: break-word;
 }

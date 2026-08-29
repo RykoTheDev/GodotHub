@@ -276,26 +276,28 @@ export function ProjectCard({
     >
       {onToggleSelect && (
         <div className="absolute top-2.5 left-2.5 z-20">
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation()
-              onToggleSelect(e)
-            }}
-            aria-label={
-              selected ? t('project_deselect_aria') : t('project_select_aria')
-            }
-            aria-pressed={selected}
-            className={`focus-ring cursor-pointer w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-150 ${
-              selected
-                ? 'bg-accent border-accent text-white scale-100 opacity-100'
-                : 'border-muted/40 bg-black/20 opacity-100 hover:border-accent/60 hover:scale-105'
-            }`}
+          <Tooltip
+            content={selected ? t('project_deselect_aria') : t('project_select_aria')}
+            side="right"
           >
-            {selected && (
-              <IconCheckCircle className="w-3.5 h-3.5" fill="currentColor" />
-            )}
-          </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                onToggleSelect(e)
+              }}
+              aria-pressed={selected}
+              className={`focus-ring cursor-pointer w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-150 ${
+                selected
+                  ? 'bg-accent border-accent text-white scale-100 opacity-100'
+                  : 'border-muted/40 bg-black/20 opacity-100 hover:border-accent/60 hover:scale-105'
+              }`}
+            >
+              {selected && (
+                <IconCheckCircle className="w-3.5 h-3.5" fill="currentColor" />
+              )}
+            </button>
+          </Tooltip>
         </div>
       )}
       <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-item isolate">

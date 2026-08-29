@@ -206,10 +206,10 @@ export function Sidebar({
   }
 
   const collapseBtn = (
+    <Tooltip content={collapsed ? t('expand_sidebar') : t('collapse_sidebar')} side="right">
     <button
       type="button"
       onClick={toggleCollapsed}
-      aria-label={collapsed ? t('expand_sidebar') : t('collapse_sidebar')}
       className={`focus-ring cursor-pointer flex items-center justify-center rounded-item text-sm font-medium transition-colors text-muted hover:text-ink hover:bg-raised/60 border ${
         collapsed
           ? `absolute top-2 -right-4 w-8 h-8 shrink-0 bg-raised border-line shadow-md shadow-black/10 transition-opacity duration-200 ease-out ${
@@ -227,6 +227,7 @@ export function Sidebar({
         <IconChevronsLeft className={`w-4 h-4 ${collapsed ? 'pr-0' : 'pr-2'}`} />
       </motion.span>
     </button>
+    </Tooltip>
   )
 
   return (
@@ -269,7 +270,6 @@ export function Sidebar({
           <button
               type="button"
               onClick={() => onTabChange('dashboard')}
-              aria-label={t('dashboard')}
               className="focus-ring cursor-pointer w-6 h-6 shrink-0 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised/60 transition-colors"
             >
               <IconHouse className="w-4 h-4" />
@@ -330,7 +330,6 @@ export function Sidebar({
                       } catch {}
                       setPaletteHintDismissed(true)
                     }}
-                    aria-label={tc('close')}
                     className="focus-ring cursor-pointer w-4 h-4 rounded-full bg-raised border border-outline/60 text-muted/60 hover:text-ink hover:border-outline flex items-center justify-center transition-colors absolute -top-1.5 -right-1.5"
                   >
                     <IconX className="w-2.5 h-2.5" />
@@ -356,7 +355,6 @@ export function Sidebar({
                   type="button"
                   onClick={onOpenUpdatesModal}
                   className="focus-ring cursor-pointer w-11 h-11 shrink-0 flex items-center justify-center rounded-item relative text-muted hover:text-ink hover:bg-raised/60 transition-colors"
-                  aria-label="Update available"
                 >
                   <IconArrowUp className="w-4 h-4" />
                   <span className="absolute top-2 right-2 flex w-2 h-2" aria-hidden="true">
