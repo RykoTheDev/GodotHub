@@ -365,8 +365,6 @@
   "add_tag_aria": "Добавить тег",
   "tag_count": "{{count}} тег(ов)",
   "no_tags": "Пока нет тегов",
-  "project_pin_to_library": "Закрепить в библиотеке",
-  "project_unpin_from_library": "Открепить от библиотеки",
   "bug_report_title": "Сообщить об ошибке",
   "bug_report_desc": "Помогите мне улучшить GodotHub v{{version}}",
   "bug_report_copy_log": "Скопировать лог",
@@ -681,5 +679,10 @@
   "template_your_templates_other": "Templates",
   "asset_duplicate_title": "Template already installed",
   "asset_duplicate_desc": "\"{{name}}\" is already in your templates. Install a duplicate anyway?",
-  "asset_store_count_zero": "No assets"
+  "asset_store_count_zero": "No assets",
+  "onboarding_discord_rpc": "Discord Rich Presence",
+  "onboarding_discord_rpc_desc": "Show what you're doing in GodotHub on your Discord profile.",
+  "check_updates_portable_title": "Manual update required",
+  "check_updates_portable_desc": "Portable installs cannot auto-update. Download the latest version from GitHub and replace the existing files.",
+  "preview_state_portable": "Portable"
 }

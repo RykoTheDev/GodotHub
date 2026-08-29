@@ -436,8 +436,6 @@
   "saving_tags": "タグを保存中…",
   "tag_count": "{{count}} 個のタグ",
   "no_tags": "タグはまだありません",
-  "project_pin_to_library": "ライブラリにピン留め",
-  "project_unpin_from_library": "ライブラリのピン留めを解除",
   "bug_report_title": "バグを報告",
   "bug_report_desc": "うまく動かないところがありましたか？ 何が起きたか教えてください。システム情報は自動的に添付されます。",
   "bug_report_describe_label": "何が起きましたか？",
@@ -604,5 +602,11 @@
   "template_your_templates_other": "テンプレート",
   "asset_duplicate_title": "テンプレートはインストール済みです",
   "asset_duplicate_desc": "「{{name}}」はすでにテンプレートに追加されています。重複してインストールしますか？",
-  "asset_store_count_zero": "アセットなし"
+  "asset_store_count_zero": "アセットなし",
+  "onboarding_discord_rpc": "Discord Rich Presence",
+  "onboarding_discord_rpc_desc": "Show what you're doing in GodotHub on your Discord profile.",
+  "check_updates_portable_title": "Manual update required",
+  "check_updates_portable_desc": "Portable installs cannot auto-update. Download the latest version from GitHub and replace the existing files.",
+  "check_updates_download_from_github": "Download from GitHub",
+  "preview_state_portable": "Portable"
 }

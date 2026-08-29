@@ -40,6 +40,10 @@ function setActivity(payload: DiscordActivity) {
 }
 
 const VIEW_PRESENCE: Record<string, { details: string; state: string }> = {
+  onboarding: {
+    details: 'Setting up GodotHub',
+    state: 'Getting everything just right...',
+  },
   dashboard: {
     details: 'in Dashboard',
     state: 'Checking in on those juicy stats',

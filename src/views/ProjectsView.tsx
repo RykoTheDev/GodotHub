@@ -31,6 +31,7 @@ import { Segmented } from '../components/reusables/Segmented'
 import { CreateViewModal } from '../components/modals/CreateViewModal'
 import { Dropdown } from '../components/ui/Dropdown'
 import { ImportButton } from '../components/reusables/ImportButton'
+import { Tooltip } from '../components/reusables/Tooltip'
 import { OverlayScrollArea } from '../components/reusables/OverlayScrollArea'
 import { ProjectCard } from '../components/cards/ProjectCard'
 import { ProjectCardList } from '../components/cards/ProjectCardList'
@@ -470,17 +471,18 @@ export function ProjectsView({
         connected={connected}
         title={t('projects')}
         leadingAction={
-          <motion.button
-            type="button"
-            aria-label={t('new_project')}
-            onClick={() => setCreateProjectOpen(true)}
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.9 }}
-            transition={{ type: 'spring', stiffness: 500, damping: 28 }}
-            className="w-9 h-9 cursor-pointer flex items-center justify-center rounded-full bg-accent text-ink hover:bg-accent-bright transition-colors"
-          >
-            <IconPlus className="w-10 h-10" strokeWidth={3} />
-          </motion.button>
+          <Tooltip content={tc('new_project')} side="bottom">
+            <motion.button
+              type="button"
+              onClick={() => setCreateProjectOpen(true)}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.9 }}
+              transition={{ type: 'spring', stiffness: 500, damping: 28 }}
+              className="w-9 h-9 cursor-pointer flex items-center justify-center rounded-full bg-accent text-ink hover:bg-accent-bright transition-colors"
+            >
+              <IconPlus className="w-10 h-10" strokeWidth={3} />
+            </motion.button>
+          </Tooltip>
         }
         metric={
           <>

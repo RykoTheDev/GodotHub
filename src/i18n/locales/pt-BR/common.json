@@ -435,8 +435,6 @@
   "saving_tags": "Salvando tags…",
   "tag_count": "{{count}} tag(s)",
   "no_tags": "Ainda não há tags",
-  "project_pin_to_library": "Fixar na biblioteca",
-  "project_unpin_from_library": "Desafixar da biblioteca",
   "bug_report_title": "Reportar um bug",
   "bug_report_desc": "Algo quebrou? Conte o que aconteceu. As informações do seu sistema são anexadas automaticamente.",
   "bug_report_describe_label": "O que aconteceu?",
@@ -604,5 +602,11 @@
   "template_your_templates_other": "Templates",
   "asset_duplicate_title": "Template already installed",
   "asset_duplicate_desc": "\"{{name}}\" is already in your templates. Install a duplicate anyway?",
-  "asset_store_count_zero": "No assets"
+  "asset_store_count_zero": "No assets",
+  "onboarding_discord_rpc": "Discord Rich Presence",
+  "onboarding_discord_rpc_desc": "Show what you're doing in GodotHub on your Discord profile.",
+  "check_updates_portable_title": "Manual update required",
+  "check_updates_portable_desc": "Portable installs cannot auto-update. Download the latest version from GitHub and replace the existing files.",
+  "check_updates_download_from_github": "Download from GitHub",
+  "preview_state_portable": "Portable"
 }

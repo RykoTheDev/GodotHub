@@ -10,6 +10,7 @@ import { isReducedMotion } from '../../lib/appearance'
 import { useProjectResolutionEpoch } from '../../hooks/useProjectResolutionEpoch'
 import { Dropdown } from '../ui/Dropdown'
 import { OpenButton } from '../reusables/OpenButton'
+import { Tooltip } from '../reusables/Tooltip'
 import { ConfirmDialog } from '../modals/ConfirmDialog'
 import { TagManagerModal } from '../modals/TagManagerModal'
 import { LaunchArgsModal } from '../modals/LaunchArgsModal'
@@ -25,6 +26,7 @@ import {
   IconPencil,
   IconPin,
   IconTags,
+  IconTerminal,
   IconTrash,
   IconX,
 } from '../../lib/icons'
@@ -278,32 +280,30 @@ export function ProjectCardKanbanItem({
                 ? 'bg-amber/10 text-amber hover:bg-amber/20'
                 : 'text-muted/50 hover:text-ink hover:bg-raised'
             }`}
-            title={gitStatus.has_uncommitted ? t('git_uncommitted') : t('git_clean')}
+            title={gitStatus.branch ?? (gitStatus.has_uncommitted ? t('git_uncommitted') : t('git_clean'))}
           >
             <IconGitBranch className="w-3 h-3" />
           </button>
         )}
 
         {/* Pin */}
-        <motion.button
-          type="button"
-          onClick={(e) => {
-            e.stopPropagation()
-            onTogglePin()
-          }}
-          initial={false}
-          animate={{
-            width: cardHovered || project.pinned ? 20 : 0,
-            opacity: cardHovered || project.pinned ? 1 : 0,
-          }}
-          transition={springTransition}
-          className="focus-ring cursor-pointer overflow-hidden shrink-0"
-        >
-          <IconPin
-            className="w-3 h-3"
-            fill={project.pinned ? 'currentColor' : 'none'}
-          />
-        </motion.button>
+        {cardHovered && !project.pinned && (
+          <Tooltip content={t('project_pin_aria')} side="left">
+            <motion.button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation()
+                onTogglePin()
+              }}
+              initial={{ width: 0, opacity: 0 }}
+              animate={{ width: 20, opacity: 1 }}
+              transition={springTransition}
+              className="focus-ring cursor-pointer overflow-hidden shrink-0 text-muted/40 hover:text-ink"
+            >
+              <IconPin className="w-3 h-3" />
+            </motion.button>
+          </Tooltip>
+        )}
       </div>
 
       {/* Tags */}
@@ -524,7 +524,7 @@ export function ProjectCardKanbanItem({
           consoleInitiallyOn={launchWithConsole && (boundVersion?.supports_console ?? false)}
           moreAriaLabel={t('project_more_aria')}
           className="px-4 text-[11px] h-7"
-          items={[
+          headerItems={[
             {
               key: 'open-folder',
               label: t('open_folder'),
@@ -537,10 +537,12 @@ export function ProjectCardKanbanItem({
               icon: IconCode,
               onClick: () => api.openInEditor(project.path).catch((e) => alert(e)),
             },
+          ]}
+          items={[
             {
               key: 'launch-arguments',
               label: t('launch_arguments'),
-              icon: IconCode,
+              icon: IconTerminal,
               onClick: () => setShowLaunchArgs(true),
             },
             {
@@ -583,26 +585,6 @@ export function ProjectCardKanbanItem({
               onClick: () => setTemplateSaveOpen(true),
               dividerAfter: true,
             },
-            {
-              key: 'pin',
-              label: project.pinned
-                ? t('project_unpin_from_library')
-                : t('project_pin_to_library'),
-              icon: IconPin,
-              onClick: onTogglePin,
-              dividerAfter: !!gitStatus?.is_repo,
-            },
-            ...(gitStatus?.is_repo
-              ? [
-                  {
-                    key: 'git-sidebar',
-                    label: t('git_sidebar'),
-                    icon: IconGitBranch,
-                    onClick: onShowGitSidebar,
-                    dividerAfter: true,
-                  },
-                ]
-              : []),
             {
               key: 'remove',
               label: t('project_card_remove_library'),

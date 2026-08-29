@@ -147,7 +147,7 @@
   "setup_wizard_desc": "Снова открывает мастер первоначальной настройки, где можно перенастроить папки для сканирования, категории, акцентный цвет и радиус закруглений. Уже сохранённые настройки будут сохранены; шаги, которые не нужно менять, можно пропустить.",
   "updates_desc": "Проверять, доступна ли новая версия GodotHub. Обновления скачиваются и устанавливаются автоматически, затем применяются после перезапуска.",
   "report_bug_desc": "Помогите улучшить GodotHub, сообщая о проблемах на GitHub.",
-  "token_help_desc": "Создайте токен на github.com/settings/tokens. You only need to check the public_repo scope if you want private repo access, otherwise leave all scopes unchecked. No sensitive permissions required.",
+  "token_help_desc": "Создайте токен на github.com/settings/tokens. You only need to check the repo scope if you want private repo access, otherwise leave all scopes unchecked. No sensitive permissions required.",
   "search_placeholder": "Найти настройки…",
   "language_label": "Язык",
   "language_system": "Язык системы",

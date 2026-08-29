@@ -37,6 +37,7 @@ import {
   IconPlay,
   IconStopwatch,
   IconTags,
+  IconTerminal,
   IconTrash,
   IconX,
 } from '../../lib/icons'
@@ -128,7 +129,8 @@ export function ProjectCard({
   const addInputRef = useRef<HTMLInputElement>(null)
 
   const displayName = settingsName ?? project.name
-  const pinOpen = cardHovered || pinFocused || project.pinned
+  const pinButtonVisible = project.pinned || cardHovered || pinFocused
+  const pinLabelVisible = (cardHovered || pinFocused) && !project.pinned
   const springTransition: Transition = isReducedMotion()
     ? { duration: 0 }
     : { type: 'spring', stiffness: 460, damping: 34 }
@@ -338,14 +340,19 @@ export function ProjectCard({
               <button
                 type="button"
                 onClick={onShowGitSidebar}
-                    aria-label={t('git_sidebar')}
-                className={`shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-item transition-colors cursor-pointer ${
+                aria-label={t('git_sidebar')}
+                className={`shrink-0 inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-tag transition-colors cursor-pointer ${
                   gitStatus.has_uncommitted
                     ? 'bg-amber/10 text-amber'
                     : 'text-muted hover:text-ink hover:bg-raised'
                 }`}
               >
                 <IconGitBranch className="w-3 h-3 shrink-0" />
+                {gitStatus.branch && (
+                  <span className="text-[10px] font-mono font-medium truncate max-w-24">
+                    {gitStatus.branch}
+                  </span>
+                )}
               </button>
           )}
           {lastOpenedLabel && (
@@ -658,34 +665,39 @@ export function ProjectCard({
           <motion.span
             initial={false}
             animate={{
-              width: pinOpen ? 22 : 0,
-              marginRight: pinOpen ? 6 : 0,
-              opacity: pinOpen ? 1 : 0,
+              width: pinButtonVisible ? 'auto' : 0,
+              marginRight: pinButtonVisible ? 6 : 0,
+              opacity: pinButtonVisible ? 1 : 0,
             }}
             transition={springTransition}
-            className="overflow-hidden inline-flex items-center shrink-0"
+            className="overflow-hidden inline-flex items-center gap-1 shrink-0"
           >
-              <button
-                type="button"
-                onClick={onTogglePin}
-                    onFocus={() => setPinFocused(true)}
-                onBlur={() => setPinFocused(false)}
-                aria-label={
-                  project.pinned
-                    ? t('project_unpin_aria')
-                    : t('project_pin_aria')
-                }
-                className={`focus-ring icon-wiggle cursor-pointer p-1 rounded-item transition-colors ${
-                  project.pinned
-                    ? 'text-accent-bright opacity-100'
-                    : 'text-muted/40 opacity-100 hover:text-ink hover:bg-raised'
-                }`}
+              <Tooltip
+                content={project.pinned ? t('project_unpin_aria') : t('project_pin_aria')}
+                side="top"
               >
-                <IconPin
-                  className="w-3.5 h-3.5"
-                  fill={project.pinned ? 'currentColor' : 'none'}
-                />
-              </button>
+                <button
+                  type="button"
+                  onClick={onTogglePin}
+                  onFocus={() => setPinFocused(true)}
+                  onBlur={() => setPinFocused(false)}
+                  className={`focus-ring icon-wiggle cursor-pointer p-1 rounded-item transition-colors ${
+                    project.pinned
+                      ? 'text-accent-bright hover:text-muted hover:bg-raised'
+                      : 'text-muted/40 hover:text-ink hover:bg-raised'
+                  }`}
+                >
+                  <IconPin
+                    className="w-3.5 h-3.5"
+                    fill={project.pinned ? 'currentColor' : 'none'}
+                  />
+                </button>
+              </Tooltip>
+              {pinLabelVisible && (
+                <span className="text-[10px] font-medium text-muted whitespace-nowrap">
+                  {t('project_pin_aria')}
+                </span>
+              )}
           </motion.span>
           {allMs > 0 && (
               <button
@@ -799,23 +811,25 @@ export function ProjectCard({
           consoleInitiallyOn={launchWithConsole && supportsConsole}
           moreAriaLabel={t('project_more_aria')}
           className="px-10"
+          headerItems={[
+            {
+              key: 'open-folder',
+              label: t('open_folder'),
+              icon: IconExternalLink,
+              onClick: openFolder,
+            },
+            {
+              key: 'open-ide',
+              label: t('open_in_ide'),
+              icon: IconCode,
+              onClick: openInIde,
+            },
+          ]}
           items={[
-          {
-            key: 'open-folder',
-            label: t('open_folder'),
-            icon: IconExternalLink,
-            onClick: openFolder,
-          },
-          {
-            key: 'open-ide',
-            label: t('open_in_ide'),
-            icon: IconCode,
-            onClick: openInIde,
-          },
           {
             key: 'launch-arguments',
             label: t('launch_arguments'),
-            icon: IconCode,
+            icon: IconTerminal,
             onClick: () => setShowLaunchArgs(true),
           },
           {
@@ -858,26 +872,6 @@ export function ProjectCard({
             onClick: () => setTemplateSaveOpen(true),
             dividerAfter: true,
           },
-          {
-            key: 'pin',
-            label: project.pinned
-              ? t('project_unpin_from_library')
-              : t('project_pin_to_library'),
-            icon: IconPin,
-            onClick: onTogglePin,
-            dividerAfter: true,
-          },
-          ...(gitStatus?.is_repo
-            ? [
-                {
-                  key: 'git-sidebar',
-                  label: t('git_sidebar'),
-                  icon: IconGitBranch,
-                  onClick: onShowGitSidebar,
-                  dividerAfter: true,
-                },
-              ]
-            : []),
           {
             key: 'remove',
             label: t('project_card_remove_library'),

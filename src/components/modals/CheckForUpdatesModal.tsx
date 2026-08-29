@@ -9,8 +9,10 @@ import {
   IconRefresh,
   IconDownload,
   IconCheck,
+  IconExternalLink,
   IconX,
 } from '../../lib/icons'
+import { api } from '../../lib/api'
 import { useSettings } from '../../hooks/useSettings'
 
 type UpdateState =
@@ -19,6 +21,7 @@ type UpdateState =
   | { type: 'downloading'; progress: number }
   | { type: 'done' }
   | { type: 'uptodate' }
+  | { type: 'portable'; version: string; notes: string | null }
   | { type: 'error'; message: string }
 
 interface Props {
@@ -27,9 +30,9 @@ interface Props {
   mode?: 'manual' | 'preview'
 }
 
-const PREVIEW_VERSION = '1.3.8'
+const PREVIEW_VERSION = '1.0.0'
 
-const PREVIEW_NOTES = `## What's new in v1.3.7 - The Preview Update
+const PREVIEW_NOTES = `## What's new in v1.0.0 - The Preview Update
 
 ## 🚀 New
 
@@ -57,6 +60,7 @@ const PREVIEW_STATES = [
   'downloading',
   'done',
   'uptodate',
+  'portable',
   'error',
 ] as const
 
@@ -194,8 +198,19 @@ export function CheckForUpdatesModal({
     }
     setState({ type: 'checking' })
     try {
-      const update = await check()
+      const [update, portable] = await Promise.all([
+        check(),
+        api.isPortableInstall().catch(() => false),
+      ])
       if (update) {
+        if (portable) {
+          setState({
+            type: 'portable',
+            version: update.version,
+            notes: update.body ?? null,
+          })
+          return
+        }
         setState({
           type: 'available',
           version: update.version,
@@ -280,6 +295,13 @@ export function CheckForUpdatesModal({
         break
       case 'uptodate':
         setState({ type: 'uptodate' })
+        break
+      case 'portable':
+        setState({
+          type: 'portable',
+          version: PREVIEW_VERSION,
+          notes: PREVIEW_NOTES,
+        })
         break
       case 'error':
         setState({
@@ -374,6 +396,46 @@ export function CheckForUpdatesModal({
                 <p className="text-xs text-muted mt-1">
                   {t('is_latest', { version: currentVersion ?? '?' })}
                 </p>
+              </div>
+            </div>
+          )}
+
+          {state.type === 'portable' && (
+            <div className="flex flex-col items-center gap-5 w-full">
+              <div className="w-14 h-14 rounded-full bg-amber/10 flex items-center justify-center">
+                <IconAlertTriangle className="w-6 h-6 text-amber" />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium text-ink">
+                  {t('check_updates_portable_title')}
+                </p>
+                <p className="text-xs text-muted mt-1 max-w-xs leading-relaxed">
+                  {t('check_updates_portable_desc')}
+                </p>
+              </div>
+              <div className="w-full max-w-sm rounded-item border border-amber/30 bg-amber/10 p-4">
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-xs font-semibold text-ink">
+                      v{state.version}
+                    </span>
+                    <span className="text-xs text-muted">—</span>
+                    <span className="text-xs text-muted">
+                      {t('check_updates_version_available', { version: state.version })}
+                    </span>
+                  </div>
+                  <motion.a
+                    whileHover={{ y: -1 }}
+                    whileTap={{ scale: 0.96 }}
+                    href="https://github.com/RykoL/GodotHub/releases/latest"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="focus-ring cursor-pointer flex items-center justify-center gap-2 px-5 py-2.5 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors no-underline"
+                  >
+                    <IconExternalLink className="w-4 h-4" />
+                    {t('check_updates_download_from_github')}
+                  </motion.a>
+                </div>
               </div>
             </div>
           )}

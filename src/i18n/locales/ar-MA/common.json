@@ -406,8 +406,6 @@
   "add_tag_aria": "أضف وسم",
   "tag_count": "{{count}} وسم(وسوم)",
   "no_tags": "لا توجد وسوم بعد",
-  "project_pin_to_library": "ثبت في المكتبة",
-  "project_unpin_from_library": "ألغ التثبيت في المكتبة",
   "bug_report_title": "أبلغ عن مشكلة",
   "bug_report_desc": "ساعدنا على تحسين GodotHub v{{version}}",
   "bug_report_copy_log": "انسخ السجل",
@@ -680,5 +678,11 @@
   "template_your_templates_other": "Templates",
   "asset_duplicate_title": "Template already installed",
   "asset_duplicate_desc": "\"{{name}}\" is already in your templates. Install a duplicate anyway?",
-  "asset_store_count_zero": "No assets"
+  "asset_store_count_zero": "No assets",
+  "onboarding_discord_rpc": "Discord Rich Presence",
+  "onboarding_discord_rpc_desc": "Show what you're doing in GodotHub on your Discord profile.",
+  "check_updates_portable_title": "Manual update required",
+  "check_updates_portable_desc": "Portable installs cannot auto-update. Download the latest version from GitHub and replace the existing files.",
+  "check_updates_download_from_github": "Download from GitHub",
+  "preview_state_portable": "Portable"
 }

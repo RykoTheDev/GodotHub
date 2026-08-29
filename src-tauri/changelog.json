@@ -1068,6 +1068,14 @@
       {
         "category": "improve",
         "text": "Removed Unused Keys that were carried from Classic UI, with PR Help of shiena"
+      },
+      {
+        "category": "fix",
+        "text": "Re-wired Update Modal for Portable installs"
+      },
+      {
+        "category": "improve",
+        "text": "More Button Dropdown has been shrunk down with few duplicate options cut from it, since project card itslef already had them. Now it's clutter free"
       }
     ],
     "known_issues": [],

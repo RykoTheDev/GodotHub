@@ -23,12 +23,14 @@ import {
 } from '../hooks/useOnboarding'
 import { api } from '../lib/api'
 import { Titlebar } from '../components/titlebar/Titlebar'
+import { useDiscordRpc } from '../hooks/useDiscordRpc'
 import { DirList } from '../components/reusables/DirList'
 import { ColorSwatchPicker } from '../components/ui/ColorSwatchPicker'
 import { Slider } from '../components/ui/Slider'
 import { OverlayScrollArea } from '../components/reusables/OverlayScrollArea'
 import { LanguageFlag } from '../components/reusables/LanguageFlag'
 import { Dropdown } from '../components/ui/Dropdown'
+import { Toggle } from '../components/ui/Toggle'
 import { ThemePresetsModal } from '../components/modals/ThemePresetsModal'
 import { RestoreProgressModal } from '../components/modals/RestoreProgressModal'
 import { GitAuthModal } from '../components/modals/GitAuthModal'
@@ -190,6 +192,14 @@ export function OnboardingView({
   const { t: tc, i18n } = useTranslation('common')
   const { t: ts } = useTranslation('settings')
   const [presetModal, setPresetModal] = useState<'light' | 'dark' | null>(null)
+  useDiscordRpc(settings, [])
+
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent('app:view-changed', { detail: 'onboarding' }),
+    )
+  }, [])
+
   const {
     STEPS,
     stepIndex,
@@ -379,6 +389,24 @@ export function OnboardingView({
                           </div>
 
                           <OnboardingCloudBackup />
+
+                          <div className="flex items-center justify-between gap-4 px-4 py-3 rounded-item bg-overlay border border-outline/50">
+                            <div className="min-w-0">
+                              <p className="text-xs font-medium text-ink">
+                                {tc('onboarding_discord_rpc')}
+                              </p>
+                              <p className="text-[11px] text-muted mt-0.5 leading-relaxed">
+                                {tc('onboarding_discord_rpc_desc')}
+                              </p>
+                            </div>
+                            <Toggle
+                              checked={draft.discord_rpc_enabled}
+                              onChange={(checked) =>
+                                setDraft((prev) => ({ ...prev, discord_rpc_enabled: checked }))
+                              }
+                              label={tc('onboarding_discord_rpc')}
+                            />
+                          </div>
 
                           <div className="grid grid-cols-3 gap-3">
                             <div className="flex flex-col gap-2 p-4 rounded-item bg-overlay border border-outline/50">

@@ -30,10 +30,19 @@ export interface NewDropdownItem {
   children?: NewDropdownItem[]
 }
 
+export interface NewDropdownHeaderItem {
+  key: string
+  icon: ComponentType<IconProps>
+  label: string
+  onClick: () => void
+}
+
 interface NewDropdownProps {
   trigger: (props: { open: boolean; toggle: () => void }) => ReactNode
   items: NewDropdownItem[]
+  header?: NewDropdownHeaderItem[]
   align?: 'left' | 'right'
+  side?: 'top' | 'bottom' | 'left'
   menuClassName?: string
   compact?: boolean
 }
@@ -44,6 +53,8 @@ const MENU_FALLBACK_WIDTH = 240
 
 const SUBMENU_FALLBACK_HEIGHT = 260
 
+const VIEWPORT_PAD = 8
+
 const SUBMENU_FALLBACK_WIDTH = 220
 
 const GAP = 8
@@ -51,7 +62,9 @@ const GAP = 8
 export function Dropdown({
   trigger,
   items,
+  header,
   align = 'right',
+  side = 'bottom',
   menuClassName = '',
   compact = false,
 }: NewDropdownProps) {
@@ -90,9 +103,23 @@ export function Dropdown({
     const r = el.getBoundingClientRect()
     const mh = menuRef.current?.offsetHeight ?? MENU_FALLBACK_HEIGHT
     const mw = menuRef.current?.offsetWidth ?? MENU_FALLBACK_WIDTH
+
+    if (side === 'left') {
+      setOpenUp(false)
+      let left = r.left - mw - GAP
+      if (left < VIEWPORT_PAD) left = r.right + GAP
+      let top = r.top
+      if (top + mh > window.innerHeight - VIEWPORT_PAD) {
+        top = window.innerHeight - mh - VIEWPORT_PAD
+      }
+      if (top < VIEWPORT_PAD) top = VIEWPORT_PAD
+      setPos({ left, top, width: mw })
+      return
+    }
+
     const spaceBelow = window.innerHeight - r.bottom
     const spaceAbove = r.top
-    const up = spaceBelow < mh && spaceAbove > spaceBelow
+    const up = side === 'top' || (spaceBelow < mh && spaceAbove > spaceBelow)
     setOpenUp(up)
 
     const spaceLeft = r.right
@@ -102,12 +129,20 @@ export function Dropdown({
         ? !(spaceLeft < mw && spaceRight > spaceLeft)
         : spaceRight < mw && spaceLeft > spaceRight
 
-    setPos({
-      left: leftSide ? r.right - mw : r.left,
-      top: up ? r.top - mh - GAP : r.bottom + GAP,
-      width: mw,
-    })
-  }, [align])
+    let left = leftSide ? r.right - mw : r.left
+    left = Math.max(VIEWPORT_PAD, Math.min(left, window.innerWidth - mw - VIEWPORT_PAD))
+
+    let top = up ? r.top - mh - GAP : r.bottom + GAP
+    if (up) {
+      if (top < VIEWPORT_PAD) top = VIEWPORT_PAD
+    } else {
+      if (top + mh > window.innerHeight - VIEWPORT_PAD) {
+        top = window.innerHeight - mh - VIEWPORT_PAD
+      }
+    }
+
+    setPos({ left, top, width: mw })
+  }, [align, side])
 
   const measureSubmenu = useCallback((itemKey: string) => {
     const itemEl = itemRefs.current[itemKey]
@@ -135,13 +170,14 @@ export function Dropdown({
 
   useEffect(() => {
     if (!open) return
-    window.addEventListener('scroll', measure, true)
-    window.addEventListener('resize', measure)
+    const onScroll = () => closeAll()
+    window.addEventListener('scroll', onScroll, true)
+    window.addEventListener('resize', onScroll)
     return () => {
-      window.removeEventListener('scroll', measure, true)
-      window.removeEventListener('resize', measure)
+      window.removeEventListener('scroll', onScroll, true)
+      window.removeEventListener('resize', onScroll)
     }
-  }, [open, measure])
+  }, [open, closeAll])
 
   useEffect(() => {
     if (!open) {
@@ -240,11 +276,26 @@ export function Dropdown({
               role="menu"
               onKeyDown={handleMenuKey}
               style={{ left: pos?.left, top: pos?.top, width: pos?.width }}
-              className={`fixed z-50 rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 min-w-60 ${compact ? 'p-1' : 'p-1.5'} ${
+              className={`fixed z-50 rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 ${compact ? 'min-w-48 p-1' : 'min-w-60 p-1.5'} ${
                 openUp ? 'origin-bottom' : 'origin-top'
               } ${menuClassName}`}
               onMouseLeave={() => setOpenSubmenuKey(null)}
             >
+              {header && header.length > 0 && (
+                <div className={`flex items-center gap-1 ${compact ? 'p-0.5' : 'p-1'} border-b border-white/6 mb-1`}> 
+                  {header.map((h) => (
+                    <button
+                      key={h.key}
+                      type="button"
+                      onClick={() => { closeAll(); h.onClick() }}
+                      title={h.label}
+                      className="focus-ring cursor-pointer flex items-center justify-center w-8 h-8 rounded-item text-muted hover:text-ink hover:bg-raised transition-colors"
+                    >
+                      <h.icon className="w-4 h-4" />
+                    </button>
+                  ))}
+                </div>
+              )}
               {items.map((item) => (
                 <div
                   key={item.key}
