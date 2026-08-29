@@ -221,21 +221,23 @@ function Section({
   title,
   count,
   storageKey,
+  defaultOpen,
   onContextMenu,
   children,
 }: {
   title: string
   count?: number
   storageKey?: string
+  defaultOpen?: boolean
   onContextMenu?: (e: React.MouseEvent) => void
   children: ReactNode
 }) {
   const [open, setOpen] = useState(() => {
-    if (!storageKey) return true
+    if (!storageKey) return defaultOpen ?? true
     try {
       return localStorage.getItem(storageKey) !== '0'
     } catch {
-      return true
+      return defaultOpen ?? true
     }
   })
   const toggle = () => setOpen((v) => {
@@ -932,6 +934,7 @@ export function GitSidebar({
               title={t('auth_connected_accounts')}
               count={connectedCount}
               storageKey="git-sidebar-connected-accounts"
+              defaultOpen={false}
             >
             {connectedCount === 0 ? (
               <div className="px-2.5 py-3">

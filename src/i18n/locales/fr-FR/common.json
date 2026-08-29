@@ -618,5 +618,7 @@
   "customize_card_show_tags": "Show Tags",
   "customize_card_show_last_opened": "Show Last Opened",
   "customize_card_show_play": "Show Play Button",
-  "customize_card_show_console": "Show Open with Console"
+  "customize_card_show_console": "Show Open with Console",
+  "empty_category": "Empty Category",
+  "release_to_drop": "Release to drop"
 }

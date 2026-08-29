@@ -678,5 +678,7 @@
   "all": "All",
   "git_clean": "clean",
   "asset_duplicate_title": "模板已安装",
-  "asset_duplicate_desc": "\"{{name}}\" 已在您的模板中。是否安装副本？"
+  "asset_duplicate_desc": "\"{{name}}\" 已在您的模板中。是否安装副本？",
+  "empty_category": "空分类",
+  "release_to_drop": "释放以放置"
 }

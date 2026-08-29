@@ -617,5 +617,7 @@
   "customize_card_show_tags": "タグを表示",
   "customize_card_show_last_opened": "最終起動を表示",
   "customize_card_show_play": "実行ボタンを表示",
-  "customize_card_show_console": "「コンソール付きで開く」を表示"
+  "customize_card_show_console": "「コンソール付きで開く」を表示",
+  "empty_category": "Empty Category",
+  "release_to_drop": "Release to drop"
 }

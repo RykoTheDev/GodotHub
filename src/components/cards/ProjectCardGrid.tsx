@@ -6,6 +6,7 @@ import {
   DragOverlay,
   PointerSensor,
   KeyboardSensor,
+  useDroppable,
   useSensor,
   useSensors,
   closestCenter,
@@ -44,6 +45,39 @@ interface ProjectCardGridProps {
   selecting: boolean
   onReorder?: (orderedIds: string[]) => Promise<void>
   onMoveProject?: (id: string, category: string, destOrderedIds: string[]) => Promise<void>
+}
+
+function GridCategoryDropZone({
+  droppableId,
+  isEmpty,
+  children,
+}: {
+  droppableId: string
+  isEmpty: boolean
+  children: React.ReactNode
+}) {
+  const { t } = useTranslation('common')
+  const { isOver, setNodeRef } = useDroppable({
+    id: droppableId,
+    disabled: !isEmpty,
+  })
+
+  if (!isEmpty) return <>{children}</>
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={`rounded-item transition-colors duration-150 min-h-[100px] flex items-center justify-center ${
+        isOver
+          ? 'bg-accent/10 border-2 border-dashed border-accent/50'
+          : 'bg-overlay/30 border border-dashed border-outline/30'
+      }`}
+    >
+      <span className={`text-xs select-none ${isOver ? 'text-accent-bright font-medium' : 'text-muted/40'}`}>
+        {isOver ? t('release_to_drop') : t('empty_category')}
+      </span>
+    </div>
+  )
 }
 
 function SortableGridCard({
@@ -155,13 +189,33 @@ export function ProjectCardGrid({
       const targetId = over.id as string
 
       const draggedProject = projectsById.get(draggedId)
+      if (!draggedProject) return
+
+      if (!onReorder) return
+
+      // Check if dropped onto a category droppable (empty category)
+      const catDropMatch = targetId.match(/^grid-cat-(.+)$/) 
+      if (catDropMatch && onMoveProject) {
+        const catId = catDropMatch[1]
+        const targetCat = catId === 'uncategorized' 
+          ? UNCATEGORIZED 
+          : categories.find((c) => c.id === catId)?.name ?? catId
+        const draggedCat = draggedProject.category || UNCATEGORIZED
+        if (draggedCat === targetCat) return
+        const destProjects = projects.filter(
+          (p) => (p.category || UNCATEGORIZED) === targetCat && !p.pinned,
+        )
+        const newDest = [...destProjects]
+        newDest.push(draggedProject)
+        await onMoveProject(draggedId, targetCat === UNCATEGORIZED ? '' : targetCat, newDest.map((p) => p.id))
+        return
+      }
+
       const targetProject = projectsById.get(targetId)
-      if (!draggedProject || !targetProject) return
+      if (!targetProject) return
 
       const draggedCat = draggedProject.category || UNCATEGORIZED
       const targetCat = targetProject.category || UNCATEGORIZED
-
-      if (!onReorder) return
 
       if (draggedCat !== targetCat && onMoveProject) {
         const destProjects = projects.filter(
@@ -184,7 +238,7 @@ export function ProjectCardGrid({
         }
       }
     },
-    [projectsById, projects, onReorder, onMoveProject],
+    [projectsById, projects, categories, onReorder, onMoveProject],
   )
 
   const draggedProject = activeDragId ? projectsById.get(activeDragId) ?? null : null
@@ -248,7 +302,6 @@ export function ProjectCardGrid({
     <>
       {categories.map((cat) => {
         const catProjects = grouped?.get(cat.name) ?? []
-        if (catProjects.length === 0) return null
         return (
           <div key={cat.id} className="mb-6">
             <div className="flex items-center gap-2 mb-3 px-1">
@@ -263,19 +316,20 @@ export function ProjectCardGrid({
                 {catProjects.length}
               </span>
             </div>
-            <Masonry
-              breakpointCols={BREAKPOINTS}
-              className={`masonry ${isDndEnabled ? 'px-2' : ''}`}
-              columnClassName="masonry-column"
-            >
-              {catProjects.map(renderCard)}
-            </Masonry>
+            <GridCategoryDropZone droppableId={`grid-cat-${cat.id}`} isEmpty={catProjects.length === 0}>
+              <Masonry
+                breakpointCols={BREAKPOINTS}
+                className={`masonry ${isDndEnabled ? 'px-2' : ''}`}
+                columnClassName="masonry-column"
+              >
+                {catProjects.map(renderCard)}
+              </Masonry>
+            </GridCategoryDropZone>
           </div>
         )
       })}
       {(() => {
         const uncategorizedProjects = grouped?.get(UNCATEGORIZED) ?? []
-        if (uncategorizedProjects.length === 0) return null
         return (
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-3 px-1">
@@ -290,13 +344,15 @@ export function ProjectCardGrid({
                 {uncategorizedProjects.length}
               </span>
             </div>
-            <Masonry
-              breakpointCols={BREAKPOINTS}
-              className={`masonry ${isDndEnabled ? 'px-2' : ''}`}
-              columnClassName="masonry-column"
-            >
-              {uncategorizedProjects.map(renderCard)}
-            </Masonry>
+            <GridCategoryDropZone droppableId="grid-cat-uncategorized" isEmpty={uncategorizedProjects.length === 0}>
+              <Masonry
+                breakpointCols={BREAKPOINTS}
+                className={`masonry ${isDndEnabled ? 'px-2' : ''}`}
+                columnClassName="masonry-column"
+              >
+                {uncategorizedProjects.map(renderCard)}
+              </Masonry>
+            </GridCategoryDropZone>
           </div>
         )
       })()}

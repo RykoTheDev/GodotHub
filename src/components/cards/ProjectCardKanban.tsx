@@ -5,6 +5,7 @@ import {
   DragOverlay,
   PointerSensor,
   KeyboardSensor,
+  useDroppable,
   useSensor,
   useSensors,
   closestCenter,
@@ -167,13 +168,33 @@ export function ProjectCardKanban({
       const targetId = over.id as string
 
       const draggedProject = projectsById.get(draggedId)
+      if (!draggedProject) return
+
+      if (!onReorder) return
+
+      // Check if dropped onto a category droppable (empty category)
+      const catDropMatch = targetId.match(/^kanban-cat-(.+)$/) 
+      if (catDropMatch && onMoveProject) {
+        const catId = catDropMatch[1]
+        const targetCat = catId === 'uncategorized' 
+          ? UNCATEGORIZED 
+          : categories.find((c) => c.id === catId)?.name ?? catId
+        const draggedCat = draggedProject.category || UNCATEGORIZED
+        if (draggedCat === targetCat) return
+        const destProjects = projects.filter(
+          (p) => (p.category || UNCATEGORIZED) === targetCat && !p.pinned,
+        )
+        const newDest = [...destProjects]
+        newDest.push(draggedProject)
+        await onMoveProject(draggedId, targetCat === UNCATEGORIZED ? '' : targetCat, newDest.map((p) => p.id))
+        return
+      }
+
       const targetProject = projectsById.get(targetId)
-      if (!draggedProject || !targetProject) return
+      if (!targetProject) return
 
       const draggedCat = draggedProject.category || UNCATEGORIZED
       const targetCat = targetProject.category || UNCATEGORIZED
-
-      if (!onReorder) return
 
       if (draggedCat !== targetCat && onMoveProject) {
         // Cross-column move
@@ -198,7 +219,7 @@ export function ProjectCardKanban({
         }
       }
     },
-    [projectsById, projects, onReorder, onMoveProject],
+    [projectsById, projects, categories, onReorder, onMoveProject],
   )
 
   const draggedProject = activeDragId ? projectsById.get(activeDragId) ?? null : null
@@ -251,6 +272,7 @@ export function ProjectCardKanban({
             color={cat.color}
             count={catProjects.length}
             compact={compact}
+            droppableId={`kanban-cat-${cat.id}`}
           >
             {isDndEnabled ? (
               <SortableContext
@@ -268,13 +290,13 @@ export function ProjectCardKanban({
 
       {(() => {
         const uncategorizedProjects = grouped.get(UNCATEGORIZED) ?? []
-        if (uncategorizedProjects.length === 0) return null
         return (
           <KanbanColumn
             title={tc('uncategorized')}
             color="#949ba4"
             count={uncategorizedProjects.length}
             compact={compact}
+            droppableId="kanban-cat-uncategorized"
           >
             {isDndEnabled ? (
               <SortableContext
@@ -340,10 +362,18 @@ interface KanbanColumnProps {
   color: string
   count: number
   compact?: boolean
+  droppableId?: string
   children: React.ReactNode
 }
 
-function KanbanColumn({ title, color, count, compact, children }: KanbanColumnProps) {
+function KanbanColumn({ title, color, count, compact, droppableId, children }: KanbanColumnProps) {
+  const { t } = useTranslation('common')
+  const isEmpty = count === 0
+  const { isOver, setNodeRef } = useDroppable({
+    id: droppableId ?? `kanban-col-${title}`,
+    disabled: !isEmpty,
+  })
+
   return (
     <div className={`flex flex-col flex-1 ${compact ? 'min-w-[260px] max-w-xs' : 'min-w-xs max-w-[380px]'}`}>
       <div className="flex items-center gap-2 mb-2 px-1">
@@ -358,8 +388,25 @@ function KanbanColumn({ title, color, count, compact, children }: KanbanColumnPr
           {count}
         </span>
       </div>
-      <div className={`flex-1 overflow-y-auto rounded-item bg-overlay/50 border border-outline/30 ${compact ? 'p-2.5 min-h-[200px]' : 'p-3 min-h-[250px]'}`}>
+      <div
+        ref={isEmpty ? setNodeRef : undefined}
+        className={`flex-1 overflow-y-auto rounded-item transition-colors duration-150 ${
+          isOver
+            ? 'bg-accent/10 border-2 border-dashed border-accent/50'
+            : 'bg-overlay/50 border border-outline/30'
+        } ${compact ? 'p-2.5 min-h-[200px]' : 'p-3 min-h-[250px]'}`}
+      >
         {children}
+        {isEmpty && !isOver && (
+          <div className="flex items-center justify-center h-full min-h-[120px]">
+            <span className="text-xs text-muted/40 select-none">{t('empty_category')}</span>
+          </div>
+        )}
+        {isEmpty && isOver && (
+          <div className="flex items-center justify-center h-full min-h-[120px]">
+            <span className="text-xs text-accent-bright font-medium select-none">{t('release_to_drop')}</span>
+          </div>
+        )}
       </div>
     </div>
   )

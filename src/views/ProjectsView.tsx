@@ -958,6 +958,7 @@ export function ProjectsView({
         {categoryManagerOpen && (
           <CategoryManagerModal
             categories={categories}
+            projects={projects}
             onClose={() => setCategoryManagerOpen(false)}
             onCreate={createCategory}
             onUpdate={updateCategory}

@@ -5,6 +5,7 @@ import {
   DragOverlay,
   PointerSensor,
   KeyboardSensor,
+  useDroppable,
   useSensor,
   useSensors,
   closestCenter,
@@ -125,6 +126,7 @@ function CategorySection({
   children,
   defaultOpen = true,
   disableAnimation = false,
+  droppableId,
 }: {
   title: string
   color?: string
@@ -132,8 +134,16 @@ function CategorySection({
   children: ReactNode
   defaultOpen?: boolean
   disableAnimation?: boolean
+  droppableId?: string
 }) {
+  const { t } = useTranslation('common')
   const [open, setOpen] = useState(defaultOpen)
+  const isEmpty = count === 0
+  const { isOver, setNodeRef } = useDroppable({
+    id: droppableId ?? `list-cat-${title}`,
+    disabled: !isEmpty,
+  })
+
   return (
     <div className="flex flex-col">
       <button
@@ -168,7 +178,24 @@ function CategorySection({
         }`}
       >
         <div className="overflow-hidden min-h-0">
-          <div className="flex flex-col gap-2 pt-2 pb-0.5">{children}</div>
+          <div
+            ref={isEmpty ? setNodeRef : undefined}
+            className={`flex flex-col gap-2 pt-2 pb-0.5 rounded-item transition-colors duration-150 ${
+              isOver ? 'bg-accent/10 ring-1 ring-accent/30' : ''
+            }`}
+          >
+            {children}
+            {isEmpty && !isOver && (
+              <div className="flex items-center justify-center py-6">
+                <span className="text-xs text-muted/40 select-none">{t('empty_category')}</span>
+              </div>
+            )}
+            {isEmpty && isOver && (
+              <div className="flex items-center justify-center py-6">
+                <span className="text-xs text-accent-bright font-medium select-none">{t('release_to_drop')}</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -281,13 +308,33 @@ export function ProjectCardList({
       const targetId = over.id as string
 
       const draggedProject = projectsById.get(draggedId)
+      if (!draggedProject) return
+
+      if (!onReorder) return
+
+      // Check if dropped onto a category droppable (empty category)
+      const catDropMatch = targetId.match(/^list-cat-(.+)$/) 
+      if (catDropMatch && onMoveProject) {
+        const catId = catDropMatch[1]
+        const targetCat = catId === 'uncategorized' 
+          ? UNCATEGORIZED 
+          : categories.find((c) => c.id === catId)?.name ?? catId
+        const draggedCat = draggedProject.category || UNCATEGORIZED
+        if (draggedCat === targetCat) return
+        const destProjects = unpinnedProjects.filter(
+          (p) => (p.category || UNCATEGORIZED) === targetCat,
+        )
+        const newDest = [...destProjects]
+        newDest.push(draggedProject)
+        await onMoveProject(draggedId, targetCat === UNCATEGORIZED ? '' : targetCat, newDest.map((p) => p.id))
+        return
+      }
+
       const targetProject = projectsById.get(targetId)
-      if (!draggedProject || !targetProject) return
+      if (!targetProject) return
 
       const draggedCat = draggedProject.category || UNCATEGORIZED
       const targetCat = targetProject.category || UNCATEGORIZED
-
-      if (!onReorder) return
 
       if (draggedCat !== targetCat && onMoveProject) {
         const destProjects = unpinnedProjects.filter(
@@ -310,7 +357,7 @@ export function ProjectCardList({
         }
       }
     },
-    [projectsById, unpinnedProjects, onReorder, onMoveProject],
+    [projectsById, unpinnedProjects, categories, onReorder, onMoveProject],
   )
 
   const draggedProject = activeDragId ? projectsById.get(activeDragId) ?? null : null
@@ -476,10 +523,9 @@ function renderCategoryGroups(
   disableAnimation = false,
 ): ReactNode[] {
   const result: ReactNode[] = []
-  const defined = categories.filter((c) => groups.has(c.name))
   const uncategorized = groups.get(UNCATEGORIZED) ?? []
 
-  for (const cat of defined) {
+  for (const cat of categories) {
     const projs = groups.get(cat.name) ?? []
     result.push(
       <CategorySection
@@ -487,25 +533,27 @@ function renderCategoryGroups(
         title={cat.name}
         color={cat.color}
         count={projs.length}
+        defaultOpen={projs.length > 0}
         disableAnimation={disableAnimation}
+        droppableId={`list-cat-${cat.id}`}
       >
         {projs.map((p) => cardFor(p))}
       </CategorySection>,
     )
   }
 
-  if (uncategorized.length > 0) {
-    result.push(
-      <CategorySection
-        key="cat-uncategorized"
-        title="Uncategorized"
-        count={uncategorized.length}
-        disableAnimation={disableAnimation}
-      >
-        {uncategorized.map((p) => cardFor(p))}
-      </CategorySection>,
-    )
-  }
+  result.push(
+    <CategorySection
+      key="cat-uncategorized"
+      title="Uncategorized"
+      count={uncategorized.length}
+      defaultOpen={uncategorized.length > 0}
+      disableAnimation={disableAnimation}
+      droppableId="list-cat-uncategorized"
+    >
+      {uncategorized.map((p) => cardFor(p))}
+    </CategorySection>,
+  )
 
   return result
 }

@@ -618,7 +618,9 @@ export type commonKeys =
   | 'project_open_anyway'
   | 'git_sidebar'
   | 'asset_duplicate_title'
-  | 'asset_duplicate_desc';
+  | 'asset_duplicate_desc'
+  | 'empty_category'
+  | 'release_to_drop';
 
 /** Keys from dashboard.json */
 export type dashboardKeys = 
@@ -1828,6 +1830,8 @@ export type TranslationKey =
   | 'common:git_sidebar'
   | 'common:asset_duplicate_title'
   | 'common:asset_duplicate_desc'
+  | 'common:empty_category'
+  | 'common:release_to_drop'
   | 'dashboard:greeting_morning'
   | 'dashboard:greeting_afternoon'
   | 'dashboard:greeting_evening'

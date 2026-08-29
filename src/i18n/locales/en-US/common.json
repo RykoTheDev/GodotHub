@@ -602,5 +602,7 @@
   "project_open_anyway": "Open anyway",
   "git_sidebar": "Git sidebar",
   "asset_duplicate_title": "Template already installed",
-  "asset_duplicate_desc": "\"{{name}}\" is already in your templates. Install a duplicate anyway?"
+  "asset_duplicate_desc": "\"{{name}}\" is already in your templates. Install a duplicate anyway?",
+  "empty_category": "Empty Category",
+  "release_to_drop": "Release to drop"
 }
