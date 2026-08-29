@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { IconRefresh } from '../../lib/icons'
 import { isReducedMotion } from '../../lib/appearance'
 import { ConfirmDialog } from '../modals/ConfirmDialog'
+import { Tooltip } from './Tooltip'
 
 type Phase = 'idle' | 'scanning' | 'done' | 'error'
 const MIN_SCAN_TIME = 800
@@ -175,6 +176,18 @@ export function ScanButton({
 
   return (
     <>
+      <Tooltip
+        content={
+          phase === 'idle'
+            ? t('scan_for_projects')
+            : phase === 'done'
+              ? t('scan_complete')
+              : phase === 'error'
+                ? t('scan_failed')
+                : t('scanning')
+        }
+        side="bottom"
+      >
       <motion.button
         type="button"
         onClick={handleScan}
@@ -233,6 +246,7 @@ export function ScanButton({
           </motion.span>
         </AnimatePresence>
       </motion.button>
+      </Tooltip>
 
       <AnimatePresence>
         {foundDismissed && (

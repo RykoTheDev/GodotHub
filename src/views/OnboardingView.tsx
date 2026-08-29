@@ -192,7 +192,6 @@ export function OnboardingView({
   const { t: tc, i18n } = useTranslation('common')
   const { t: ts } = useTranslation('settings')
   const [presetModal, setPresetModal] = useState<'light' | 'dark' | null>(null)
-  useDiscordRpc(settings, [])
 
   useEffect(() => {
     window.dispatchEvent(
@@ -232,6 +231,8 @@ export function OnboardingView({
     addCustomCategory,
     categoryLabels,
   } = useOnboarding({ settings, onComplete })
+
+  useDiscordRpc(draft, [])
 
   return (
     <div className="new-ui h-screen w-screen flex flex-col bg-base text-ink font-body select-none">
