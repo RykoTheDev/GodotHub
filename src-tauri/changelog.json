@@ -1100,6 +1100,14 @@
       {
         "category": "add",
         "text": "Experimental Option in Settings, Where you can enable stuff that are still in development"
+      },
+      {
+        "category": "improve",
+        "text": "Categories are now more UX Friendly, Empty Categories will show up too and can be populated by dragging and dropping existing project cards into them."
+      },
+      {
+        "category": "improve",
+        "text": "Manage Categories Modal has been updated to include the project cards inside each categories"
       }
     ],
     "known_issues": [],
