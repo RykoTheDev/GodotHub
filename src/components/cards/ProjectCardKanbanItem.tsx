@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, type Transition } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import type { Category, GitStatus, InstalledGodotVersion, Project } from '../../types'
+import type { Category, GitStatus, InstalledGodotVersion, Project, ProjectViewMode } from '../../types'
+import { getCardViewSettings } from '../../lib/cardViewSettings'
 import { api, getCachedProjectIcon, getCachedProjectName } from '../../lib/api'
 import { formatDuration } from '../../lib/duration'
 import { effectiveTotalMs } from '../../lib/projectSort'
 import { tagColor } from '../../lib/colors'
 import { isReducedMotion } from '../../lib/appearance'
+import { useSettings } from '../../hooks/useSettings'
 import { useProjectResolutionEpoch } from '../../hooks/useProjectResolutionEpoch'
 import { Dropdown } from '../ui/Dropdown'
 import { OpenButton } from '../reusables/OpenButton'
@@ -50,6 +52,7 @@ interface ProjectCardKanbanItemProps {
   activeTag?: string | null
   selected?: boolean
   onToggleSelect?: (e: React.MouseEvent) => void
+  viewMode?: ProjectViewMode
 }
 
 function getInitials(name: string): string {
@@ -78,8 +81,11 @@ export function ProjectCardKanbanItem({
   activeTag,
   selected = false,
   onToggleSelect,
+  viewMode = 'kanban',
 }: ProjectCardKanbanItemProps) {
   const { t } = useTranslation('common')
+  const { settings } = useSettings()
+  const cardSettings = getCardViewSettings(settings, viewMode)
   const resolutionEpoch = useProjectResolutionEpoch()
   const [icon, setIcon] = useState<string | null>(() =>
     getCachedProjectIcon(project.path),
@@ -307,6 +313,7 @@ export function ProjectCardKanbanItem({
       </div>
 
       {/* Tags */}
+      {cardSettings.show_tags && project.tags.length > 0 && (
       <div className="flex items-center gap-1 flex-wrap min-h-[22px]">
         {project.tags.slice(0, 3).map((tag, i) => {
           const color = tagColor(tag)
@@ -470,6 +477,7 @@ export function ProjectCardKanbanItem({
           <span className="text-[9px] text-muted">+{project.tags.length - 3}</span>
         )}
       </div>
+        )}
 
       {/* Footer: Version + Time + Actions */}
       <div className="flex items-center gap-1.5 text-[11px] text-muted">
@@ -499,7 +507,7 @@ export function ProjectCardKanbanItem({
         />
 
         {/* Session time */}
-        {sessionMs > 0 && (
+        {cardSettings.show_time && sessionMs > 0 && (
           <span className="inline-flex items-center gap-1 text-accent-bright font-mono">
             <span className="w-1.5 h-1.5 rounded-full bg-accent-bright animate-pulse shrink-0" />
             {formatDuration(sessionMs)}
@@ -507,7 +515,7 @@ export function ProjectCardKanbanItem({
         )}
 
         {/* Total time */}
-        {allMs > 0 && sessionMs === 0 && (
+        {cardSettings.show_time && allMs > 0 && sessionMs === 0 && (
           <span className="inline-flex items-center gap-1 font-mono">
             <IconClock className="w-2.5 h-2.5 text-muted/60" />
             {formatDuration(allMs)}
@@ -522,6 +530,7 @@ export function ProjectCardKanbanItem({
           onOpen={(console) => launchProject(console)}
           consoleSupported={boundVersion?.supports_console ?? false}
           consoleInitiallyOn={launchWithConsole && (boundVersion?.supports_console ?? false)}
+          showConsole={cardSettings.show_console}
           moreAriaLabel={t('project_more_aria')}
           className="px-4 text-[11px] h-7"
           headerItems={[

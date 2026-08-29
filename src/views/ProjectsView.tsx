@@ -652,18 +652,16 @@ export function ProjectsView({
                 label: viewNames[v] ?? (v === 'list' ? tc('view_list') : v === 'grid' ? tc('view_grid') : tc('view_kanban')),
               }))}
             />
-            <Tooltip content={tc('manage_views')} side="bottom">
-              <motion.button
-                type="button"
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.94 }}
-                onClick={() => setCreateViewModalOpen(true)}
-                aria-label={tc('manage_views')}
-                className="focus-ring cursor-pointer flex items-center justify-center w-8 h-8 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 transition-colors"
-              >
-                <IconGear className="w-3.5 h-3.5" />
-              </motion.button>
-            </Tooltip>
+            <motion.button
+              type="button"
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.94 }}
+              onClick={() => setCreateViewModalOpen(true)}
+              aria-label={tc('manage_views')}
+              className="focus-ring cursor-pointer flex items-center justify-center w-8 h-8 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 transition-colors"
+            >
+              <IconGear className="w-3.5 h-3.5" />
+            </motion.button>
           </div>
         ) : (
           <motion.button
@@ -907,6 +905,7 @@ export function ProjectsView({
                 activeTag={tagFilter}
                 selected={selectedIds.has(p.id)}
                 onToggleSelect={(selecting || selectedIds.size > 0) ? (e) => toggleSelect(p.id, e) : undefined}
+                viewMode={viewMode}
               />
             )}
           />

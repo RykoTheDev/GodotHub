@@ -608,5 +608,14 @@
   "check_updates_portable_title": "Manual update required",
   "check_updates_portable_desc": "Portable installs cannot auto-update. Download the latest version from GitHub and replace the existing files.",
   "check_updates_download_from_github": "Download from GitHub",
-  "preview_state_portable": "Portable"
+  "preview_state_portable": "Portable",
+  "customize_card_section": "Project Card",
+  "customize_card_show_size": "Show Project Size",
+  "customize_card_show_time": "Show Time Tracked",
+  "customize_card_blur_path": "Blur Project Directory",
+  "customize_card_show_path": "Show Project Directory",
+  "customize_card_show_tags": "Show Tags",
+  "customize_card_show_last_opened": "Show Last Opened",
+  "customize_card_show_play": "Show Play Button",
+  "customize_card_show_console": "Show Open with Console"
 }

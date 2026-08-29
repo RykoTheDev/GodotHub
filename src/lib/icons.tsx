@@ -78,6 +78,8 @@ import {
   faClone,
   faPlug,
   faTableColumns,
+  faEye,
+  faEyeSlash,
 } from '@fortawesome/free-solid-svg-icons'
 
 export interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, 'ref'> {
@@ -171,3 +173,5 @@ export const IconMinus = solid(faMinus)
 export const IconSquare = solid(faSquare)
 export const IconClone = solid(faClone)
 export const IconPlug = solid(faPlug)
+export const IconEye = solid(faEye)
+export const IconEyeSlash = solid(faEyeSlash)

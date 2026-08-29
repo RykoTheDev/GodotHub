@@ -281,6 +281,44 @@ pub struct AppSettings {
     pub dashboard_custom_presets: Vec<DashboardCustomPreset>,
     #[serde(default)]
     pub auto_backup_interval_minutes: u32,
+    #[serde(default = "default_true")]
+    pub card_show_size: bool,
+    #[serde(default = "default_true")]
+    pub card_show_time: bool,
+    #[serde(default)]
+    pub card_blur_path: bool,
+    #[serde(default = "default_true")]
+    pub card_show_path: bool,
+    #[serde(default = "default_true")]
+    pub card_show_tags: bool,
+    #[serde(default = "default_true")]
+    pub card_show_last_opened: bool,
+    #[serde(default = "default_true")]
+    pub card_show_play: bool,
+    #[serde(default = "default_true")]
+    pub card_show_console: bool,
+    #[serde(default)]
+    pub card_view_overrides: std::collections::HashMap<String, CardViewOverride>,
+}
+
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, Default)]
+pub struct CardViewOverride {
+    #[serde(default = "default_true")]
+    pub show_size: bool,
+    #[serde(default = "default_true")]
+    pub show_time: bool,
+    #[serde(default)]
+    pub blur_path: bool,
+    #[serde(default = "default_true")]
+    pub show_path: bool,
+    #[serde(default = "default_true")]
+    pub show_tags: bool,
+    #[serde(default = "default_true")]
+    pub show_last_opened: bool,
+    #[serde(default = "default_true")]
+    pub show_play: bool,
+    #[serde(default = "default_true")]
+    pub show_console: bool,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -566,6 +604,15 @@ tooltip_delay: default_tooltip_delay(),
             dashboard_tall_sections: vec![],
             dashboard_custom_presets: vec![],
             auto_backup_interval_minutes: 0,
+            card_show_size: true,
+            card_show_time: true,
+            card_blur_path: false,
+            card_show_path: true,
+            card_show_tags: true,
+            card_show_last_opened: true,
+            card_show_play: true,
+            card_show_console: true,
+            card_view_overrides: std::collections::HashMap::new(),
         }
     }
 }

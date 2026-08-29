@@ -14,6 +14,7 @@ interface OpenButtonProps {
   headerItems?: NewDropdownHeaderItem[]
   consoleSupported?: boolean
   consoleInitiallyOn?: boolean
+  showConsole?: boolean
   disabled?: boolean
   moreAriaLabel: string
   className?: string
@@ -26,6 +27,7 @@ export function OpenButton({
   headerItems,
   consoleSupported = false,
   consoleInitiallyOn = false,
+  showConsole = true,
   disabled = false,
   moreAriaLabel,
   className = 'px-10',
@@ -53,7 +55,7 @@ export function OpenButton({
         {label}
       </motion.button>
 
-      {consoleSupported && (
+      {consoleSupported && showConsole && (
         <Tooltip content={t('open_with_console')} side="top">
           <motion.button
               key={consoleEnabled ? 'console-on' : 'console-off'}
