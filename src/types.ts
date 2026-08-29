@@ -432,6 +432,7 @@ export interface AppSettings {
   card_show_play: boolean
   card_show_console: boolean
   card_view_overrides: Record<string, Partial<CardViewSettings>>
+  customize_view_enabled: boolean
 }
 
 export interface CardViewSettings {

@@ -1096,6 +1096,10 @@
       {
         "category": "improve",
         "text": "Truncated \"More\" button dropdown with lesser options which were basically duplicates"
+      },
+      {
+        "category": "add",
+        "text": "Experimental Option in Settings, Where you can enable stuff that are still in development"
       }
     ],
     "known_issues": [],

@@ -296,16 +296,6 @@
   "sync_manual_hint": "丢失了本地数据？输入您的 gist URL 或 ID 从任意机器恢复。",
   "sync_manual_placeholder": "https://gist.github.com/... 或 gist ID",
   "sync_manual_pull_btn": "恢复",
-  "sync_auto_backup_label": "自动备份",
-  "sync_auto_backup_desc": "定期在后台将工作区推送到 gist。需要 GitHub 令牌。",
-  "sync_auto_backup_off": "关闭",
-  "sync_auto_backup_15m": "每 15 分钟",
-  "sync_auto_backup_30m": "每 30 分钟",
-  "sync_auto_backup_1h": "每小时",
-  "sync_auto_backup_6h": "每 6 小时",
-  "sync_auto_backup_12h": "每 12 小时",
-  "sync_auto_backup_24h": "每 24 小时",
-  "sync_auto_backup_last": "上次自动备份：{{time}}",
   "restore_modal_title": "从云恢复",
   "restore_modal_desc": "检查将从您的 GitHub gist 备份中恢复的内容。",
   "restore_modal_fetching": "正在从 GitHub 获取备份…",
@@ -328,5 +318,9 @@
   "restore_modal_done_title": "备份已恢复",
   "restore_modal_done_desc": "您的工作区数据已恢复。",
   "restore_modal_done_hint": "点击下方按钮重启以应用所有更改。",
-  "restore_modal_restart_btn": "重启应用"
+  "restore_modal_restart_btn": "重启应用",
+  "experimental": "实验性",
+  "experimental_desc": "试用仍在开发中的新功能。这些功能可能不稳定或随时变更。",
+  "customize_view_label": "自定义视图按钮",
+  "customize_view_desc": "在项目视图中显示自定义视图按钮。禁用时，已添加的视图将被移除，视图将重置为仅列表模式。"
 }

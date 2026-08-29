@@ -167,6 +167,13 @@ export function ProjectsView({
       localStorage.setItem('godothub_view_names', JSON.stringify(viewNames))
     } catch {}
   }, [viewNames])
+  useEffect(() => {
+    if (!settings.customize_view_enabled) {
+      setSavedViews([])
+      setViewNames({})
+      setViewMode('list')
+    }
+  }, [settings.customize_view_enabled])
   const [createViewModalOpen, setCreateViewModalOpen] = useState(false)
   const [tagFilter, setTagFilter] = useState<string | null>(() => {
     try {
@@ -640,40 +647,45 @@ export function ProjectsView({
               })),
             ]}
           />
-        )}        <div className="w-px h-5 bg-outline/50 shrink-0" />
+        )}
 
-        {savedViews.length >= 2 ? (
-          <div className="flex items-center gap-1.5">
-            <Segmented
-              value={viewMode}
-              onChange={(v) => setViewMode(v as ProjectViewMode)}
-              options={savedViews.map((v) => ({
-                value: v,
-                label: viewNames[v] ?? (v === 'list' ? tc('view_list') : v === 'grid' ? tc('view_grid') : tc('view_kanban')),
-              }))}
-            />
-            <motion.button
-              type="button"
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.94 }}
-              onClick={() => setCreateViewModalOpen(true)}
-              aria-label={tc('manage_views')}
-              className="focus-ring cursor-pointer flex items-center justify-center w-8 h-8 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 transition-colors"
-            >
-              <IconGear className="w-3.5 h-3.5" />
-            </motion.button>
-          </div>
-        ) : (
-          <motion.button
-            type="button"
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.94 }}
-            onClick={() => setCreateViewModalOpen(true)}
-            className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 transition-colors"
-          >
-            <IconPlus className="w-3 h-3" />
-            <span className="text-[13px] font-medium">{tc('create_view')}</span>
-          </motion.button>
+        {settings.customize_view_enabled && (
+          <>
+            <div className="w-px h-5 bg-outline/50 shrink-0" />
+            {savedViews.length >= 2 ? (
+              <div className="flex items-center gap-1.5">
+                <Segmented
+                  value={viewMode}
+                  onChange={(v) => setViewMode(v as ProjectViewMode)}
+                  options={savedViews.map((v) => ({
+                    value: v,
+                    label: viewNames[v] ?? (v === 'list' ? tc('view_list') : v === 'grid' ? tc('view_grid') : tc('view_kanban')),
+                  }))}
+                />
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.94 }}
+                  onClick={() => setCreateViewModalOpen(true)}
+                  aria-label={tc('manage_views')}
+                  className="focus-ring cursor-pointer flex items-center justify-center w-8 h-8 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 transition-colors"
+                >
+                  <IconGear className="w-3.5 h-3.5" />
+                </motion.button>
+              </div>
+            ) : (
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.94 }}
+                onClick={() => setCreateViewModalOpen(true)}
+                className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 transition-colors"
+              >
+                <IconPlus className="w-3 h-3" />
+                <span className="text-[13px] font-medium">{tc('create_view')}</span>
+              </motion.button>
+            )}
+          </>
         )}
 
         {tagFilter && (

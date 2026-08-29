@@ -243,16 +243,6 @@
   "sync_manual_hint": "Perdeu seus dados locais? Informe a URL ou o ID do Gist para restaurar a partir de qualquer máquina.",
   "sync_manual_placeholder": "https://gist.github.com/... ou ID do Gist",
   "sync_manual_pull_btn": "Restaurar",
-  "sync_auto_backup_label": "Backup automático",
-  "sync_auto_backup_desc": "Envia periodicamente seus espaços de trabalho para o GitHub Gist em segundo plano. Requer um token do GitHub.",
-  "sync_auto_backup_off": "Desativado",
-  "sync_auto_backup_15m": "A cada 15 minutos",
-  "sync_auto_backup_30m": "A cada 30 minutos",
-  "sync_auto_backup_1h": "A cada hora",
-  "sync_auto_backup_6h": "A cada 6 horas",
-  "sync_auto_backup_12h": "A cada 12 horas",
-  "sync_auto_backup_24h": "A cada 24 horas",
-  "sync_auto_backup_last": "Último backup automático: {{time}}",
   "restore_modal_title": "Restaurar da nuvem",
   "restore_modal_desc": "Revise o que será restaurado a partir do backup no GitHub Gist.",
   "restore_modal_fetching": "Buscando backup no GitHub…",
@@ -328,5 +318,9 @@
   "credits_developer": "Criado por",
   "credits_license": "Licença",
   "credits_built_with": "Desenvolvido com",
-  "credits_contributors": "Colaboradores"
+  "credits_contributors": "Colaboradores",
+  "experimental": "Experimental",
+  "experimental_desc": "Try out new features that are still in development. These may be unstable or change without notice.",
+  "customize_view_label": "Customize View button",
+  "customize_view_desc": "Show the Customize View button in the Projects view. When disabled, added views are removed and the view resets to List only."
 }

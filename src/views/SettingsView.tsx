@@ -11,7 +11,7 @@ import { Toggle } from '../components/ui/Toggle'
 import { Segmented } from '../components/reusables/Segmented'
 import { Slider } from '../components/ui/Slider'
 import { viewTransition } from '../lib/motion'
-import { formatLocaleDateTime, formatLocaleTime } from '../lib/locale'
+import { formatLocaleDateTime } from '../lib/locale'
 import { useSettings } from '../hooks/useSettings'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { useProjectsContext } from '../hooks/projectsContext'
@@ -76,6 +76,7 @@ import {
   IconX,
   IconCloudArrowDown,
   IconExternalLink,
+  IconCode,
 } from '../lib/icons'
 import type { IconProps } from '../lib/icons'
 import type { AppSettings, GitAuthState } from '../types'
@@ -90,6 +91,7 @@ type SettingsCat =
   | 'integrations'
   | 'accessibility'
   | 'advanced'
+  | 'experimental'
   | 'credits'
 
 interface CatDef {
@@ -104,7 +106,8 @@ const CATEGORIES: CatDef[] = [
   { id: 'behavior', icon: IconGear },
   { id: 'integrations', icon: IconPlug },
   { id: 'accessibility', icon: IconUniversalAccess },
-  { id: 'advanced', icon: IconFlask },
+  { id: 'advanced', icon: IconCode },
+  { id: 'experimental', icon: IconFlask },
 ]
 
 const DEFAULT_RADIUS = defaultCornerRadius
@@ -267,16 +270,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
   const [lastPushedAt, setLastPushedAt] = useState<string | null>(null)
 
-  const autoBackupOptions = [
-    { value: 0, label: ts('sync_auto_backup_off') },
-    { value: 15, label: ts('sync_auto_backup_15m') },
-    { value: 30, label: ts('sync_auto_backup_30m') },
-    { value: 60, label: ts('sync_auto_backup_1h') },
-    { value: 360, label: ts('sync_auto_backup_6h') },
-    { value: 720, label: ts('sync_auto_backup_12h') },
-    { value: 1440, label: ts('sync_auto_backup_24h') },
-  ]
-
   useEffect(() => {
     api.gistSyncGetInfo().then((info) => {
       if (info) {
@@ -289,30 +282,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       }
     })
   }, [])
-
-  const [lastAutoBackup, setLastAutoBackup] = useState<string | null>(null)
-  const autoBackupRef = useRef<ReturnType<typeof setInterval> | null>(null)
-
-  useEffect(() => {
-    if (autoBackupRef.current) {
-      clearInterval(autoBackupRef.current)
-      autoBackupRef.current = null
-    }
-    const minutes = settings.auto_backup_interval_minutes
-    if (minutes <= 0) return
-    autoBackupRef.current = setInterval(async () => {
-      try {
-        const res = await api.gistSyncPush()
-        setSyncUrl(res.gist_url)
-        setLastAutoBackup(formatLocaleTime(new Date()))
-      } catch (e) {
-        console.error('[auto-backup] failed:', e)
-      }
-    }, minutes * 60 * 1000)
-    return () => {
-      if (autoBackupRef.current) clearInterval(autoBackupRef.current)
-    }
-  }, [settings.auto_backup_interval_minutes])
 
   const handleApplyCss = () => {
     update({ ...settings, custom_css: cssDraft })
@@ -1978,6 +1947,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 disabled={syncBusy !== null}
                 className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
+                <IconCloudArrowDown className="w-4 h-4" />
                 {syncBusy === 'pull'
                   ? ts('saving')
                   : ts('sync_pull_btn')}
@@ -2007,51 +1977,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               >
                 {manualPullBusy ? ts('saving') : ts('sync_manual_pull_btn')}
               </button>
-            </div>
-          </div>
-          <div className="border-t border-outline/30 pt-3">
-            <div className="flex items-center justify-between gap-4">
-              <div className="min-w-0">
-                <p className="text-xs font-medium text-ink">
-                  {ts('sync_auto_backup_label')}
-                </p>
-                <p className="text-xs text-muted mt-0.5">
-                  {ts('sync_auto_backup_desc')}
-                </p>
-                {lastAutoBackup && (
-                  <p className="text-[11px] text-muted mt-1">
-                    {ts('sync_auto_backup_last', { time: lastAutoBackup })}
-                  </p>
-                )}
-              </div>
-              <Dropdown
-                align="right"
-                compact
-                trigger={({ open, toggle }) => (
-                  <button
-                    type="button"
-                    onClick={toggle}
-                    className="focus-ring cursor-pointer flex items-center gap-2 px-3 py-2 rounded-btn border border-outline/50 bg-base hover:border-accent-dim text-xs font-medium transition-colors"
-                  >
-                    {autoBackupOptions.find(
-                      (o) => o.value === settings.auto_backup_interval_minutes,
-                    )?.label ?? ts('sync_auto_backup_off')}
-                    <IconChevronDown
-                      className={`w-3 h-3 text-muted transition-transform ${open ? 'rotate-180' : ''}`}
-                    />
-                  </button>
-                )}
-                items={autoBackupOptions.map((o) => ({
-                  key: String(o.value),
-                  label: o.label,
-                  active: settings.auto_backup_interval_minutes === o.value,
-                  onClick: () =>
-                    update({
-                      ...settings,
-                      auto_backup_interval_minutes: o.value,
-                    }),
-                }))}
-              />
             </div>
           </div>
         </div>
@@ -2728,6 +2653,28 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
     </div>
   )
 
+  const renderExperimental = () => (
+    <div className="flex flex-col gap-3">
+      <section className="flex flex-col gap-5 rounded-item bg-overlay px-5 py-5">
+        <div>
+          <p className="text-[11px] text-muted mt-1">{ts('experimental_desc')}</p>
+        </div>
+        <SettingRow
+          label={ts('customize_view_label')}
+          description={ts('customize_view_desc')}
+        >
+          <Toggle
+            checked={settings.customize_view_enabled}
+            onChange={(checked) =>
+              update({ ...settings, customize_view_enabled: checked })
+            }
+            label={ts('customize_view_label')}
+          />
+        </SettingRow>
+      </section>
+    </div>
+  )
+
   const renderCredits = () => (
     <div className="flex flex-col gap-3">
       <section className="flex flex-col gap-5 rounded-item bg-overlay px-5 py-5">
@@ -2821,6 +2768,8 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         return renderAccessibility()
       case 'advanced':
         return renderAdvanced()
+      case 'experimental':
+        return renderExperimental()
       case 'credits':
         return renderCredits()
     }
@@ -2927,7 +2876,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <div className="min-h-full px-5 pb-4">
               <div className="sticky top-0 z-10 -mx-5 px-5 pt-4 pb-3 bg-raised border-b border-line/60 mb-3 flex items-center gap-3">
                 {activeDef && (
-                  <div className="w-9 h-9 rounded-tile bg-accent/10 border border-accent-dim/30 flex items-center justify-center shrink-0">
+                  <div className="w-9 h-9 flex items-center justify-center shrink-0">
                     <activeDef.icon className="w-4.5 h-4.5 text-accent-bright" />
                   </div>
                 )}
@@ -2935,9 +2884,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   <h2 className="font-display text-lg font-semibold text-ink leading-tight">
                     {ts(cat)}
                   </h2>
-                  <p className="text-xs text-muted leading-relaxed">
-                    {ts(`${cat}_desc`)}
-                  </p>
                 </div>
               </div>
 

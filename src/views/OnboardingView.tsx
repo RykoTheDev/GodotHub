@@ -1076,6 +1076,7 @@ function OnboardingCloudBackup() {
   const [showRestoreModal, setShowRestoreModal] = useState(false)
   const [showGitAuth, setShowGitAuth] = useState(false)
   const [savedGistUrl, setSavedGistUrl] = useState<string | null>(null)
+  const [showUrlInput, setShowUrlInput] = useState(false)
 
   useEffect(() => {
     api.gitAuthGetState().then((s) => {
@@ -1123,41 +1124,66 @@ function OnboardingCloudBackup() {
             {t('onboard_cloud_sign_in')}
           </button>
         ) : (
-          <div className="flex flex-col gap-2.5">
+          <div className="flex flex-col gap-3">
             <p className="text-xs text-green flex items-center gap-1.5">
               <IconCheck className="w-3.5 h-3.5" />
               {t('onboard_cloud_connected', { username: gitUser })}
             </p>
-            {savedGistUrl && (
+
+            <button
+              type="button"
+              onClick={() => {
+                if (savedGistUrl) {
+                  setShowRestoreModal(true)
+                } else {
+                  setShowUrlInput(true)
+                }
+              }}
+              disabled={busy}
+              className="focus-ring cursor-pointer self-start inline-flex items-center gap-2 px-4 py-2.5 rounded-btn bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors disabled:opacity-50"
+            >
+              <IconCloudArrowDown className="w-3.5 h-3.5" />
+              {ts('sync_pull_btn')}
+            </button>
+            <p className="text-[11px] text-muted leading-relaxed">
+              {ts('sync_manual_hint')}
+            </p>
+
+            {!showUrlInput && !savedGistUrl && (
               <button
                 type="button"
-                onClick={() => setShowRestoreModal(true)}
-                disabled={busy}
-                className="focus-ring cursor-pointer self-start inline-flex items-center gap-2 px-4 py-2 rounded-btn bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors disabled:opacity-50"
+                onClick={() => setShowUrlInput(true)}
+                className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 px-3 py-1.5 rounded-btn border border-dashed border-outline/50 text-xs text-muted hover:text-ink hover:border-accent-dim transition-colors"
               >
-                {ts('sync_pull_btn')}
+                <IconCloudArrowDown className="w-3 h-3" />
+                {ts('sync_manual_placeholder')}
               </button>
             )}
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={gistUrl}
-                onChange={(e) => setGistUrl(e.target.value)}
-                placeholder={ts('sync_manual_placeholder')}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handlePull()
-                }}
-                className="focus-ring flex-1 bg-base border border-outline/50 rounded-btn px-3 py-2 text-xs focus:border-accent-dim transition-colors"
-              />
-              <button
-                type="button"
-                onClick={handlePull}
-                disabled={busy || !gistUrl.trim()}
-                className="focus-ring cursor-pointer px-4 py-2 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised text-xs font-medium transition-colors disabled:opacity-50"
-              >
-                {busy ? ts('saving') : ts('sync_manual_pull_btn')}
-              </button>
-            </div>
+
+            {(showUrlInput || savedGistUrl) && (
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={gistUrl}
+                    onChange={(e) => setGistUrl(e.target.value)}
+                    placeholder={ts('sync_manual_placeholder')}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handlePull()
+                    }}
+                    className="focus-ring flex-1 bg-base border border-outline/50 rounded-btn px-3 py-2 text-xs focus:border-accent-dim transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={handlePull}
+                    disabled={busy || !gistUrl.trim()}
+                    className="focus-ring cursor-pointer px-4 py-2 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised text-xs font-medium transition-colors disabled:opacity-50"
+                  >
+                    {busy ? ts('saving') : ts('sync_manual_pull_btn')}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
         {msg && (

@@ -299,16 +299,6 @@
   "sync_manual_hint": "Lost your local data? Enter your gist URL or ID to restore from any machine.",
   "sync_manual_placeholder": "https://gist.github.com/... or gist ID",
   "sync_manual_pull_btn": "Restore",
-  "sync_auto_backup_label": "Automatic backup",
-  "sync_auto_backup_desc": "Periodically push your workspaces to the gist in the background. Requires a GitHub token.",
-  "sync_auto_backup_off": "Off",
-  "sync_auto_backup_15m": "Every 15 minutes",
-  "sync_auto_backup_30m": "Every 30 minutes",
-  "sync_auto_backup_1h": "Every hour",
-  "sync_auto_backup_6h": "Every 6 hours",
-  "sync_auto_backup_12h": "Every 12 hours",
-  "sync_auto_backup_24h": "Every 24 hours",
-  "sync_auto_backup_last": "Last auto-backup: {{time}}",
   "restore_modal_title": "Restore from Cloud",
   "restore_modal_desc": "Review what will be restored from your GitHub gist backup.",
   "restore_modal_fetching": "Fetching backup from GitHub…",
@@ -331,5 +321,9 @@
   "restore_modal_done_title": "Backup Restored",
   "restore_modal_done_desc": "Your workspace data has been restored.",
   "restore_modal_done_hint": "Click the button below to restart and apply all changes.",
-  "restore_modal_restart_btn": "Restart App"
+  "restore_modal_restart_btn": "Restart App",
+  "experimental": "Experimental",
+  "experimental_desc": "Try out new features that are still in development. These may be unstable or change without notice.",
+  "customize_view_label": "Customize View button",
+  "customize_view_desc": "Show the Customize View button in the Projects view. When disabled, added views are removed and the view resets to List only."
 }

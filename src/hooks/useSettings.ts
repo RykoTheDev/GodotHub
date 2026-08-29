@@ -112,6 +112,7 @@ const DEFAULTS: AppSettings = {
   card_show_play: true,
   card_show_console: true,
   card_view_overrides: {},
+  customize_view_enabled: false,
 }
 
 interface SettingsContextValue {

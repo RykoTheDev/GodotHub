@@ -243,16 +243,6 @@
   "sync_manual_hint": "Mất dữ liệu local? Nhập URL hoặc ID gist để khôi phục từ bất kỳ máy nào.",
   "sync_manual_placeholder": "https://gist.github.com/... hoặc ID gist",
   "sync_manual_pull_btn": "Khôi phục",
-  "sync_auto_backup_label": "Sao lưu tự động",
-  "sync_auto_backup_desc": "Định kỳ đẩy workspace lên gist ở nền. Cần token GitHub.",
-  "sync_auto_backup_off": "Tắt",
-  "sync_auto_backup_15m": "Mỗi 15 phút",
-  "sync_auto_backup_30m": "Mỗi 30 phút",
-  "sync_auto_backup_1h": "Mỗi giờ",
-  "sync_auto_backup_6h": "Mỗi 6 giờ",
-  "sync_auto_backup_12h": "Mỗi 12 giờ",
-  "sync_auto_backup_24h": "Mỗi 24 giờ",
-  "sync_auto_backup_last": "Lần sao lưu tự động cuối: {{time}}",
   "restore_modal_title": "Khôi phục từ đám mây",
   "restore_modal_desc": "Xem lại những gì sẽ được khôi phục từ bản sao lưu GitHub gist của bạn.",
   "restore_modal_fetching": "Đang lấy sao lưu từ GitHub…",
@@ -338,5 +328,9 @@
   "credits_developer": "Tạo bởi",
   "credits_license": "Giấy phép",
   "credits_built_with": "Xây dựng bằng",
-  "credits_contributors": "Người đóng góp"
+  "credits_contributors": "Người đóng góp",
+  "experimental": "Experimental",
+  "experimental_desc": "Try out new features that are still in development. These may be unstable or change without notice.",
+  "customize_view_label": "Customize View button",
+  "customize_view_desc": "Show the Customize View button in the Projects view. When disabled, added views are removed and the view resets to List only."
 }

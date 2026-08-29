@@ -352,88 +352,36 @@ export function GitSidebar({
   useEffect(() => {
     let cancelled = false
     setChangesLoading(true)
-    api
-      .gitChangedFiles(project.path)
-      .then((files) => {
-        if (cancelled) return
-        setChangedFiles(files)
-        setChangesLoading(false)
-      })
-      .catch(() => {
-        if (!cancelled) setChangesLoading(false)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [project.path])
-
-  useEffect(() => {
-    let cancelled = false
     setRemotesLoading(true)
-    api
-      .gitListRemotes(project.path)
-      .then((rs) => {
-        if (cancelled) return
-        setRemotes(rs)
-        setRemotesLoading(false)
-      })
-      .catch(() => {
-        if (!cancelled) setRemotesLoading(false)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [project.path])
-
-  useEffect(() => {
-    let cancelled = false
     setBranchesLoading(true)
-    api
-      .gitListBranches(project.path)
-      .then((bs) => {
-        if (cancelled) return
-        setBranches(bs)
-        setBranchesLoading(false)
-      })
-      .catch(() => {
-        if (!cancelled) setBranchesLoading(false)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [project.path])
-
-  useEffect(() => {
-    let cancelled = false
     setCommitsLoading(true)
-    api
-      .gitLogEntries(project.path)
-      .then((log) => {
-        if (cancelled) return
-        setCommits(log)
-        setCommitsLoading(false)
-      })
-      .catch(() => {
-        if (!cancelled) setCommitsLoading(false)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [project.path])
-
-  useEffect(() => {
-    let cancelled = false
-    api
-      .gitStashList(project.path)
-      .then((list) => {
-        if (cancelled) return
-        setStashes(list)
-      })
-      .catch(() => {})
-    return () => {
-      cancelled = true
-    }
-  }, [project.path])
+    void refreshGitAuth()
+    Promise.allSettled([
+      api.gitChangedFiles(project.path),
+      api.gitListRemotes(project.path),
+      api.gitListBranches(project.path),
+      api.gitLogEntries(project.path),
+      api.gitStashList(project.path),
+      api.gitAheadBehind(project.path),
+      api.gitIsMerging(project.path),
+      api.gitMergeConflictFiles(project.path),
+    ]).then(([files, remotes, branches, log, stashes, aheadBehind, isMerging, conflictFiles]) => {
+      if (cancelled) return
+      if (files.status === 'fulfilled') setChangedFiles(files.value)
+      if (remotes.status === 'fulfilled') setRemotes(remotes.value)
+      if (branches.status === 'fulfilled') setBranches(branches.value)
+      if (log.status === 'fulfilled') setCommits(log.value)
+      if (stashes.status === 'fulfilled') setStashes(stashes.value)
+      if (aheadBehind.status === 'fulfilled') setAheadBehind(aheadBehind.value)
+      if (isMerging.status === 'fulfilled') setMerging(isMerging.value)
+      if (conflictFiles.status === 'fulfilled') setConflictFiles(conflictFiles.value)
+      setChangesLoading(false)
+      setRemotesLoading(false)
+      setBranchesLoading(false)
+      setCommitsLoading(false)
+    })
+    return () => { cancelled = true }
+  }, [project.path, refreshGitAuth])
 
   useEffect(() => {
     api.gitStartFsWatcher(project.path).catch(() => {})
@@ -880,11 +828,6 @@ export function GitSidebar({
       setConflictFiles(files)
     } catch {}
   }, [project.path])
-
-  useEffect(() => {
-    void refreshAheadBehind()
-    void refreshMergeState()
-  }, [refreshAheadBehind, refreshMergeState])
 
   useTauriEvent(
     'git:project-changed',

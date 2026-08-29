@@ -299,6 +299,8 @@ pub struct AppSettings {
     pub card_show_console: bool,
     #[serde(default)]
     pub card_view_overrides: std::collections::HashMap<String, CardViewOverride>,
+    #[serde(default)]
+    pub customize_view_enabled: bool,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, Default)]
@@ -613,6 +615,7 @@ tooltip_delay: default_tooltip_delay(),
             card_show_play: true,
             card_show_console: true,
             card_view_overrides: std::collections::HashMap::new(),
+            customize_view_enabled: false,
         }
     }
 }

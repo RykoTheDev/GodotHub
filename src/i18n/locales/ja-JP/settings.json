@@ -243,16 +243,6 @@
   "sync_manual_hint": "ローカルのデータを失いましたか？ gist の URL または ID を入力すれば、どのマシンからでも復元できます。",
   "sync_manual_placeholder": "https://gist.github.com/... または gist ID",
   "sync_manual_pull_btn": "復元",
-  "sync_auto_backup_label": "自動バックアップ",
-  "sync_auto_backup_desc": "バックグラウンドで定期的にワークスペースを gist にプッシュします。GitHub トークンが必要です。",
-  "sync_auto_backup_off": "オフ",
-  "sync_auto_backup_15m": "15 分ごと",
-  "sync_auto_backup_30m": "30 分ごと",
-  "sync_auto_backup_1h": "1 時間ごと",
-  "sync_auto_backup_6h": "6 時間ごと",
-  "sync_auto_backup_12h": "12 時間ごと",
-  "sync_auto_backup_24h": "24 時間ごと",
-  "sync_auto_backup_last": "最終自動バックアップ: {{time}}",
   "restore_modal_title": "クラウドから復元",
   "restore_modal_desc": "GitHub gist のバックアップから復元される内容を確認してください。",
   "restore_modal_fetching": "GitHub からバックアップを取得中…",
@@ -328,5 +318,9 @@
   "credits_developer": "作成者",
   "credits_license": "ライセンス",
   "credits_built_with": "使用技術",
-  "credits_contributors": "コントリビューター"
+  "credits_contributors": "コントリビューター",
+  "experimental": "Experimental",
+  "experimental_desc": "Try out new features that are still in development. These may be unstable or change without notice.",
+  "customize_view_label": "Customize View button",
+  "customize_view_desc": "Show the Customize View button in the Projects view. When disabled, added views are removed and the view resets to List only."
 }

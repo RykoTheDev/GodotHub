@@ -299,16 +299,6 @@
   "sync_manual_hint": "Lost your local data? Enter your gist URL or ID to restore from any machine.",
   "sync_manual_placeholder": "https://gist.github.com/... or gist ID",
   "sync_manual_pull_btn": "Restore",
-  "sync_auto_backup_label": "Automatic backup",
-  "sync_auto_backup_desc": "Periodically push your workspaces to the gist in the background. Requires a GitHub token.",
-  "sync_auto_backup_off": "متوقف",
-  "sync_auto_backup_15m": "كل 15 دقيقة",
-  "sync_auto_backup_30m": "كل 30 دقيقة",
-  "sync_auto_backup_1h": "كل ساعة",
-  "sync_auto_backup_6h": "كل 6 ساعات",
-  "sync_auto_backup_12h": "كل 12 ساعة",
-  "sync_auto_backup_24h": "كل 24 ساعة",
-  "sync_auto_backup_last": "Last auto-backup: {{time}}",
   "restore_modal_title": "Restore from Cloud",
   "restore_modal_desc": "Review what will be restored from your GitHub gist backup.",
   "restore_modal_fetching": "Fetching backup from GitHub…",
@@ -331,5 +321,9 @@
   "restore_modal_done_title": "Backup Restored",
   "restore_modal_done_desc": "Your workspace data has been restored.",
   "restore_modal_done_hint": "اضغط على الزر أسفله لإعادة التشغيل و تطبيق كل التغييرات.",
-  "restore_modal_restart_btn": "أعد تشغيل التطبيق"
+  "restore_modal_restart_btn": "أعد تشغيل التطبيق",
+  "experimental": "Experimental",
+  "experimental_desc": "Try out new features that are still in development. These may be unstable or change without notice.",
+  "customize_view_label": "Customize View button",
+  "customize_view_desc": "Show the Customize View button in the Projects view. When disabled, added views are removed and the view resets to List only."
 }
