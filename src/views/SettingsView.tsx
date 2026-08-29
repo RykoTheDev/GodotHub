@@ -2827,23 +2827,37 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 onClick={() => handleCatChange(id)}
                 className={`focus-ring cursor-pointer relative flex items-center gap-2.5 px-3 py-2.5 rounded-item text-sm font-medium transition-colors ${
                   active
-                    ? 'text-ink'
-                    : 'text-muted hover:text-ink hover:bg-raised/60'
+                    ? id === 'experimental'
+                      ? 'text-ink'
+                      : 'text-ink'
+                    : id === 'experimental'
+                      ? 'text-muted hover:text-danger hover:bg-danger/10'
+                      : 'text-muted hover:text-ink hover:bg-raised/60'
                 }`}
               >
                 {active && (
                   <motion.span
                     layoutId="new-ui-settings-cat-pill"
                     transition={{ type: 'spring', stiffness: 650, damping: 38 }}
-                    className="absolute inset-0 rounded-item bg-overlay border border-outline/50 shadow-md shadow-black/10 pointer-events-none"
+                    className={`absolute inset-0 rounded-item border shadow-md shadow-black/10 pointer-events-none ${
+                      id === 'experimental'
+                        ? 'bg-danger/10 border-danger/30'
+                        : 'bg-overlay border-outline/50'
+                    }`}
                   />
                 )}
                 <Icon
                   className={`relative w-4 h-4 shrink-0 transition-colors duration-200 ${
-                    active ? 'text-accent' : 'text-muted'
+                    active
+                      ? id === 'experimental'
+                        ? 'text-danger'
+                        : 'text-accent'
+                      : id === 'experimental'
+                        ? 'text-muted'
+                        : 'text-muted'
                   }`}
                 />
-                <span className={`relative ${active ? 'text-ink' : ''}`}>
+                <span className={`relative ${active ? (id === 'experimental' ? 'text-danger' : 'text-ink') : ''}`}>
                   {ts(id)}
                 </span>
               </button>
@@ -2874,14 +2888,23 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             scrollToTopOn={cat}
           >
             <div className="min-h-full px-5 pb-4">
-              <div className="sticky top-0 z-10 -mx-5 px-5 pt-4 pb-3 bg-raised border-b border-line/60 mb-3 flex items-center gap-3">
+              <div className="sticky top-0 z-10 -mx-5 px-5 pt-4 pb-3 bg-raised border-b border-line/60 mb-3 flex items-center gap-1.5">
                 {activeDef && (
-                  <div className="w-9 h-9 flex items-center justify-center shrink-0">
-                    <activeDef.icon className="w-4.5 h-4.5 text-accent-bright" />
+                  <div className="w-12 h-12 flex items-center justify-center shrink-0 overflow-hidden">
+                    <activeDef.icon
+                      className="text-accent-bright"
+                      style={{
+                        width: '48px',
+                        height: '48px',
+                        opacity: 'var(--project-icon-opacity, 0.14)',
+                        maskImage: 'linear-gradient(to right, black 35%, transparent 90%)',
+                        WebkitMaskImage: 'linear-gradient(to right, black 35%, transparent 90%)',
+                      }}
+                    />
                   </div>
                 )}
                 <div className="min-w-0">
-                  <h2 className="font-display text-lg font-semibold text-ink leading-tight">
+                  <h2 className="font-display text-3xl font-black uppercase text-ink/40 leading-tight">
                     {ts(cat)}
                   </h2>
                 </div>
