@@ -427,7 +427,7 @@ export function CheckForUpdatesModal({
                   <motion.a
                     whileHover={{ y: -1 }}
                     whileTap={{ scale: 0.96 }}
-                    href="https://github.com/RykoL/GodotHub/releases/latest"
+                    href="https://github.com/RykoTheDev/GodotHub/releases/latest"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="focus-ring cursor-pointer flex items-center justify-center gap-2 px-5 py-2.5 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors no-underline"
