@@ -425,7 +425,7 @@ export function CategoryManagerModal({
             items={items}
             strategy={verticalListSortingStrategy}
           >
-            <div className="flex flex-col gap-2 pr-1">
+            <div className="flex flex-col gap-2 max-h-80 overflow-y-auto min-h-0 pr-1">
               {categories.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 gap-3 text-muted/50">
                   <div className="w-14 h-14 rounded-2xl bg-overlay border border-dashed border-outline/40 flex items-center justify-center">
@@ -433,7 +433,7 @@ export function CategoryManagerModal({
                   </div>
                   <div className="text-center">
                     <p className="text-sm font-medium text-muted/70">{t('no_categories_yet')}</p>
-                    <p className="text-xs text-muted/40 mt-1">Create one above to organize your projects</p>
+                    <p className="text-xs text-muted/40 mt-1">{t('category_empty_hint')}</p>
                   </div>
                 </div>
               ) : (

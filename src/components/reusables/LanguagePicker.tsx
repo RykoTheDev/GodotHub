@@ -1,4 +1,5 @@
 import i18n from '../../i18n'
+import { useTranslation } from 'react-i18next'
 import {
   LANGUAGES,
   resolveLanguage,
@@ -9,14 +10,14 @@ import { useSettings } from '../../hooks/useSettings'
 import { LanguageFlag } from './LanguageFlag'
 import { Dropdown } from '../ui/Dropdown'
 
-function statusLabel(status: LanguageStatus): string {
+function statusLabel(status: LanguageStatus, t: (key: string) => string): string {
   switch (status) {
     case 'complete':
       return '✓'
     case 'beta':
-      return 'Beta'
+      return t('language_beta')
     case 'incomplete':
-      return 'WIP'
+      return t('language_incomplete')
   }
 }
 
@@ -36,6 +37,7 @@ export function LanguagePicker({
   variant = 'dropdown',
   className,
 }: LanguagePickerProps) {
+  const { t: ts } = useTranslation('settings')
   const { settings, update } = useSettings()
 
   const current =
@@ -64,10 +66,10 @@ export function LanguagePicker({
             >
               <span className="flex items-center gap-2 min-w-0">
                 <LanguageFlag country={lang.country} className="w-5 h-3.5" />
-                <span className="truncate">{lang.label}</span>
+                <span className="truncate">{lang.labelKey ? ts(lang.labelKey) : lang.label}</span>
                 {lang.status !== 'complete' && (
                   <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-tag border bg-black/15 text-muted border-outline/40">
-                    {statusLabel(lang.status)}
+                    {statusLabel(lang.status, ts)}
                   </span>
                 )}
               </span>
@@ -90,7 +92,7 @@ export function LanguagePicker({
           className={`focus-ring cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-btn bg-overlay border border-outline/50 text-xs font-medium text-ink hover:border-accent-dim transition-colors self-start ${className ?? ''}`}
         >
           <LanguageFlag country={current.country} />
-          {current.label}
+          {current.labelKey ? ts(current.labelKey) : current.label}
           <svg
             className={`w-3 h-3 text-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
             fill="none"
@@ -103,10 +105,10 @@ export function LanguagePicker({
       )}
       items={LANGUAGES.map((lang) => ({
         key: lang.value,
-        label: lang.label,
+        label: lang.labelKey ? ts(lang.labelKey) : lang.label,
         active: isActive(lang.value),
         leading: <LanguageFlag country={lang.country} className="w-5 h-3.5" />,
-        badge: lang.status !== 'complete' ? statusLabel(lang.status) : undefined,
+        badge: lang.status !== 'complete' ? statusLabel(lang.status, ts) : undefined,
         onClick: () => handleChange(lang.value),
       }))}
     />

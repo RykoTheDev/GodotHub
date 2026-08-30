@@ -115,11 +115,11 @@ const DEFAULT_DENSITY = 1.05
 const DEFAULT_FONT_SCALE = 1.0
 const DEFAULT_PROJECT_ICON_OPACITY = 14
 
-const LANDING_TABS: { id: string; label: string }[] = [
-  { id: 'dashboard', label: 'Dashboard' },
-  { id: 'projects', label: 'Projects' },
-  { id: 'versions', label: 'Versions' },
-  { id: 'news', label: 'Godot News' },
+const LANDING_TABS: { id: string; labelKey: string }[] = [
+  { id: 'dashboard', labelKey: 'landing_dashboard' },
+  { id: 'projects', labelKey: 'landing_projects' },
+  { id: 'versions', labelKey: 'landing_versions' },
+  { id: 'news', labelKey: 'landing_news' },
 ]
 
 function Subsection({
@@ -619,7 +619,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         id="appearance-landing"
         title={ts('landing_tab_label')}
         description={ts('landing_tab_desc')}
-        searchText={`${ts('landing_tab_label')} ${ts('landing_tab_desc')} ${LANDING_TABS.map((l) => l.label).join(' ')}`}
+        searchText={`${ts('landing_tab_label')} ${ts('landing_tab_desc')} ${LANDING_TABS.map((l) => ts(l.labelKey)).join(' ')}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -633,8 +633,8 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 aria-expanded={open}
                 className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-btn bg-overlay border border-outline/50 text-xs font-medium text-ink hover:border-accent-dim transition-colors"
               >
-                {LANDING_TABS.find((l) => l.id === settings.default_landing_tab)?.label ??
-                  LANDING_TABS[0].label}
+                {ts(LANDING_TABS.find((l) => l.id === settings.default_landing_tab)?.labelKey ??
+                  LANDING_TABS[0].labelKey)}
                 <IconChevronDown
                   className={`w-3 h-3 text-muted transition-transform duration-200 ${
                     open ? 'rotate-180' : ''
@@ -644,7 +644,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             )}
             items={LANDING_TABS.map((l) => ({
               key: l.id,
-              label: l.label,
+              label: ts(l.labelKey),
               active: settings.default_landing_tab === l.id,
               onClick: () => update({ ...settings, default_landing_tab: l.id }),
             }))}
@@ -1356,7 +1356,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           <AnimatePresence initial={false}>
             {settings.close_on_project_open &&
               (isMac || settings.minimize_to_tray) && (
-                <motion.div key="div-1358"
+                <motion.div
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}

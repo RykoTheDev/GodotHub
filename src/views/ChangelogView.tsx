@@ -106,19 +106,19 @@ function EntryCard({
             </div>
             {IS_DEV && (
               <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
-                <Tooltip content={`Edit ${entry.version}`} side="top">
+                <Tooltip content={t('edit_entry_aria', { version: entry.version })} side="top">
                   <button
                     onClick={onEdit}
-                    aria-label={`Edit ${entry.version}`}
+                    aria-label={t('edit_entry_aria', { version: entry.version })}
                     className="focus-ring cursor-pointer p-2 rounded-btn text-muted hover:text-ink hover:bg-raised transition-colors"
                   >
                     <IconPencil className="w-3.5 h-3.5" />
                   </button>
                 </Tooltip>
-                <Tooltip content={`Delete ${entry.version}`} side="top">
+                <Tooltip content={t('delete_entry_aria', { version: entry.version })} side="top">
                   <button
                     onClick={onDelete}
-                    aria-label={`Delete ${entry.version}`}
+                    aria-label={t('delete_entry_aria', { version: entry.version })}
                     className="focus-ring cursor-pointer p-2 rounded-btn text-muted hover:text-danger hover:bg-danger/10 transition-colors"
                   >
                     <IconTrash className="w-3.5 h-3.5" />

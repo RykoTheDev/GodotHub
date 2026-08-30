@@ -32,27 +32,7 @@ interface Props {
 
 const PREVIEW_VERSION = '1.0.0'
 
-const PREVIEW_NOTES = `## What's new in v1.0.0 - The Preview Update
 
-## 🚀 New
-
-- Revamped the Check for Updates modal with structured release notes
-- Added screen reader announcements with an Accessibility settings tab
-
-## 🐛 Fixes
-
-- Fixed a crash when switching workspaces with pinned projects
-- Fixed update checks failing silently when GitHub rate limits are hit
-
-## ✨ Improvements
-
-- Faster startup times across all platforms
-- Reworked workspace modals with compact style pickers
-
-## ⚠️ Known Issues
-
-- Linux OS: AppImage won't work on some distros, use the .rpm or .deb package instead
-- Windows: the taskbar may briefly show a duplicate icon until the app restarts`
 
 const PREVIEW_STATES = [
   'checking',
@@ -141,7 +121,7 @@ export function CheckForUpdatesModal({
       ? {
           type: 'available',
           version: PREVIEW_VERSION,
-          notes: PREVIEW_NOTES,
+          notes: t('preview_release_notes'),
           downloadAndInstall: () => Promise.resolve(),
         }
       : { type: 'checking' },
@@ -191,7 +171,7 @@ export function CheckForUpdatesModal({
       setState({
         type: 'available',
         version: PREVIEW_VERSION,
-        notes: PREVIEW_NOTES,
+        notes: t('preview_release_notes'),
         downloadAndInstall: simulateDownload,
       })
       return
@@ -255,7 +235,7 @@ export function CheckForUpdatesModal({
     } catch (e) {
       setState({ type: 'error', message: String(e) })
     }
-  }, [mode, githubToken, simulateDownload])
+  }, [mode, githubToken, simulateDownload, t])
 
   useEffect(() => {
     getVersion().then(setCurrentVersion).catch(() => setCurrentVersion(null))
@@ -277,7 +257,7 @@ export function CheckForUpdatesModal({
         setState({
           type: 'available',
           version: PREVIEW_VERSION,
-          notes: PREVIEW_NOTES,
+          notes: t('preview_release_notes'),
           downloadAndInstall: simulateDownload,
         })
         break
@@ -300,14 +280,14 @@ export function CheckForUpdatesModal({
         setState({
           type: 'portable',
           version: PREVIEW_VERSION,
-          notes: PREVIEW_NOTES,
+          notes: t('preview_release_notes'),
         })
         break
       case 'error':
         setState({
           type: 'error',
           message:
-            'Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking.',
+            t('preview_error'),
         })
         break
     }

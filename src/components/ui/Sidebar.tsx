@@ -346,11 +346,11 @@ export function Sidebar({
                   <span className="absolute inline-flex h-full w-full rounded-full bg-accent-bright opacity-75 animate-ping" />
                   <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-bright" />
                 </span>
-                Update available
+                {tc('update_available')}
               </button>
             )}
             {(updateAvailable || previewUpdate) && onOpenUpdatesModal && collapsed && (
-                <Tooltip content="Update available">
+                <Tooltip content={tc('update_available')}>
                 <button
                   type="button"
                   onClick={onOpenUpdatesModal}

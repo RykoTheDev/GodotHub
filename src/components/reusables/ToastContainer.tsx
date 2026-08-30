@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
@@ -9,6 +10,7 @@ import {
 import { IconCheckCircle, IconX, IconAlertTriangle } from '../../lib/icons'
 
 function ToastCard({ toast }: { toast: ToastItem }) {
+  const { t } = useTranslation('common')
   const Icon =
     toast.type === 'success'
       ? IconCheckCircle
@@ -22,7 +24,7 @@ function ToastCard({ toast }: { toast: ToastItem }) {
         ? 'text-danger'
         : 'text-accent-bright'
   return (
-    <motion.div key="error"
+    <motion.div
       layout
       initial={{ opacity: 0, y: 12, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -37,7 +39,7 @@ function ToastCard({ toast }: { toast: ToastItem }) {
       <button
         type="button"
         onClick={() => dismissToast(toast.id)}
-        aria-label="Dismiss"
+        aria-label={t('dismiss')}
         className="cursor-pointer shrink-0 p-0.5 rounded text-muted/50 hover:text-ink hover:bg-raised transition-colors"
       >
         <IconX className="w-3.5 h-3.5" />

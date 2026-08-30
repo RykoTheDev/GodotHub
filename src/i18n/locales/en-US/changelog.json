@@ -7,5 +7,7 @@
   "delete_entry_title": "Delete changelog entry?",
   "delete_entry_desc": "This removes the entry permanently. This can't be undone.",
   "changelog_subtitle": "A history of GodotHub updates.",
-  "known_issues": "Known Issues"
+  "known_issues": "Known Issues",
+  "edit_entry_aria": "Edit {{version}}",
+  "delete_entry_aria": "Delete {{version}}"
 }

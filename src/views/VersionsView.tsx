@@ -108,6 +108,7 @@ function VersionTag({
   state: keyof typeof STATE_DOT
   customName?: string | null
 }) {
+  const { t } = useTranslation('versions')
   return (
     <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-item bg-overlay border border-outline/50 font-mono text-xs text-ink shrink-0">
       <span
@@ -119,7 +120,7 @@ function VersionTag({
           {customName !== tag && <span className="text-muted">({tag})</span>}
         </>
       ) : (
-        tag || 'unbound'
+        tag || t('unbound')
       )}
     </span>
   )
@@ -677,7 +678,7 @@ export function VersionsView({
                       </button>
                       <AnimatePresence initial={false}>
                         {!isCollapsed && (
-                          <motion.div key="div-679"
+                          <motion.div
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: 'auto', opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
@@ -843,7 +844,7 @@ export function VersionsView({
               </div>
               {visibleGroups < groupEntries.length && (
                 <div className="flex justify-center">
-                  <motion.button key="button-845"
+                  <motion.button
                     type="button"
                     whileHover={{ y: -1 }}
                     whileTap={{ scale: 0.96 }}
