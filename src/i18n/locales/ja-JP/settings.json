@@ -60,7 +60,7 @@
   "restart_app_confirm_title": "GodotHub を再起動しますか？",
   "restart_app_confirm_desc": "アプリが自動的に終了して再度開きます。保存されていない進行中の処理は中断される場合があります。",
   "reset_settings": "設定をリセット",
-  "reset_settings_desc": "このページのすべての設定（ダウンロードフォルダ、スキャンフォルダ、外観、動作）を初期状態に戻します。スキャンフォルダとダウンロード先は保持され、トグル・スライダー・色の選択のみがリセットされます。",
+  "reset_settings_desc": "すべての設定を初期状態に戻します。プロジェクト・カテゴリ・テンプレート・Godot のバージョンが削除されることはありません。",
   "delete_app_data": "アプリデータを削除",
   "delete_data_desc": "GodotHub が保存しているすべてのワークスペース、プロジェクト、カテゴリ、インストール済みバージョンの記録、設定を完全に消去します。初回セットアップからやり直しになります。ディスク上の実際のプロジェクトフォルダや Godot のインストールには影響しません（既定のダウンロードフォルダ内にある場合を除く）。",
   "new_project_default": "新規プロジェクトの既定",
@@ -106,7 +106,7 @@
   "testing": "テスト中…",
   "token_valid": "トークンは有効です！ レート制限: {{status}}",
   "test_failed": "テストに失敗しました: {{error}}",
-  "key_space": "Space",
+  "key_space": "スペース",
   "no_settings_match": "一致する設定はありません",
   "scan_result": "新しいプロジェクト {{projects}} 件と新しいバージョン {{versions}} 件が見つかりました。",
   "palette_shortcut": "コマンドパレットのショートカット",
@@ -319,8 +319,8 @@
   "credits_license": "ライセンス",
   "credits_built_with": "使用技術",
   "credits_contributors": "コントリビューター",
-  "experimental": "Experimental",
-  "experimental_desc": "Try out new features that are still in development. These may be unstable or change without notice.",
-  "customize_view_label": "Customize View button",
-  "customize_view_desc": "Show the Customize View button in the Projects view. When disabled, added views are removed and the view resets to List only."
+  "experimental": "試験的機能",
+  "experimental_desc": "まだ開発中の新機能を試せます。動作が不安定だったり、予告なく変更されたりする場合があります。",
+  "customize_view_label": "「ビューをカスタマイズ」ボタン",
+  "customize_view_desc": "「プロジェクト」画面に「ビューをカスタマイズ」ボタンを表示します。オフにすると、追加したビューは削除され、表示はリストのみに戻ります。"
 }
