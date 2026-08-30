@@ -1,614 +1,570 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+  type ReactNode,
+} from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useSettings } from '../hooks/useSettings'
-import { DirList } from '../components/ui/DirList'
 import { Toggle } from '../components/ui/Toggle'
+import { Segmented } from '../components/reusables/Segmented'
 import { Slider } from '../components/ui/Slider'
-import { ColorSwatchPicker } from '../components/ui/ColorSwatchPicker'
-import { ConfirmDialog } from '../components/modals/ConfirmDialog'
-import { IconSun, IconMoon, IconHeart, IconRocket, IconBug } from '../components/Icons'
-import { api } from '../lib/api'
-import { applyTheme } from '../lib/colors'
-import { isMac, isWindows } from '../lib/platform'
-import {
-  applyRadius,
-  applyDensity,
-  applyFontScale,
-  applyReducedMotion,
-  applyProjectIconOpacity,
-} from '../lib/appearance'
-import { SETTINGS_SEARCH_ITEMS } from '../components/modals/CommandPalette'
-import { IconSearch, IconX, IconRefresh } from '../components/Icons'
-import type { AppSettings } from '../types'
+import { viewTransition } from '../lib/motion'
+import { formatLocaleDateTime } from '../lib/locale'
+import { useSettings } from '../hooks/useSettings'
+import { openUrl } from '@tauri-apps/plugin-opener'
+import { useProjectsContext } from '../hooks/projectsContext'
+import { useCategoriesContext } from '../hooks/categoriesContext'
+import { useWorkspaces } from '../hooks/useWorkspaces'
+import { useAppVersion } from '../hooks/useAppVersion'
+import { useContributors } from '../hooks/useContributors'
+import { ContributorPRsModal } from '../components/ContributorPRsModal'
 
-const DEFAULT_ACCENT = '#457ff2'
-const DEFAULT_BG = '#15171c'
-const DEFAULT_RADIUS = 5
+import { api } from '../lib/api'
+import {
+  ACCENT_PRESETS_DARK,
+  ACCENT_PRESETS_LIGHT,
+  BG_PRESETS_DARK,
+  BG_PRESETS_LIGHT,
+  DEFAULT_BG,
+  DEFAULT_BG_LIGHT,
+  DEFAULT_RAISED_CONTRAST,
+  LIGHT_THEME_PRESETS,
+  DARK_THEME_PRESETS,
+  customThemeDefaults,
+  getThemePreset,
+  isDarkColor,
+  resolveThemeMode,
+} from '../lib/colors'
+import { ColorSwatchPicker } from '../components/ui/ColorSwatchPicker'
+import { OverlayScrollArea } from '../components/reusables/OverlayScrollArea'
+import { DirList } from '../components/reusables/DirList'
+
+import { KeyRecorder } from '../components/ui/KeyRecorder'
+import { matchesSearch, useSectionSearch } from '../hooks/useSectionSearch'
+import { Dropdown } from '../components/ui/Dropdown'
+import { SearchBar } from '../components/ui/SearchBar'
+import { ViewHeader } from '../components/reusables/ViewHeader'
+import { ConfirmDialog } from '../components/modals/ConfirmDialog'
+import { CheckForUpdatesModal } from '../components/modals/CheckForUpdatesModal'
+import { BugReportModal } from '../components/modals/BugReportModal'
+import { ThemePresetsModal } from '../components/modals/ThemePresetsModal'
+import { RestoreProgressModal } from '../components/modals/RestoreProgressModal'
+import { defaultCornerRadius, isMac, isWindows } from '../lib/platform'
+import { relaunch } from '@tauri-apps/plugin-process'
+import { flushPendingSave } from '../lib/pendingSave'
+import {
+  IconCheck,
+  IconPalette,
+  IconSun,
+  IconMoon,
+  IconHardDrive,
+  IconGear,
+  IconChevronDown,
+  IconSearch,
+  IconRefresh,
+  IconBug,
+  IconHeart,
+  IconFlask,
+  IconBomb,
+  IconPlug,
+  IconUniversalAccess,
+  IconGitBranch,
+  IconPlus,
+  IconTrash,
+  IconX,
+  IconCloudArrowDown,
+  IconExternalLink,
+  IconCode,
+} from '../lib/icons'
+import type { IconProps } from '../lib/icons'
+import type { AppSettings, GitAuthState } from '../types'
+import { GitAuthModal } from '../components/modals/GitAuthModal'
+import { Tooltip } from '../components/reusables/Tooltip'
+
+type SettingsCat =
+  | 'appearance'
+  | 'display'
+  | 'storage'
+  | 'behavior'
+  | 'integrations'
+  | 'accessibility'
+  | 'advanced'
+  | 'experimental'
+  | 'credits'
+
+interface CatDef {
+  id: SettingsCat
+  icon: ComponentType<IconProps>
+}
+
+const CATEGORIES: CatDef[] = [
+  { id: 'appearance', icon: IconPalette },
+  { id: 'display', icon: IconSun },
+  { id: 'storage', icon: IconHardDrive },
+  { id: 'behavior', icon: IconGear },
+  { id: 'integrations', icon: IconPlug },
+  { id: 'accessibility', icon: IconUniversalAccess },
+  { id: 'advanced', icon: IconCode },
+  { id: 'experimental', icon: IconFlask },
+]
+
+const DEFAULT_RADIUS = defaultCornerRadius
 const DEFAULT_DENSITY = 1.05
 const DEFAULT_FONT_SCALE = 1.0
 const DEFAULT_PROJECT_ICON_OPACITY = 14
 
-const SAVE_DEBOUNCE_MS = 350
-
-const ACCENT_PRESETS_DARK = [
-  '#457ff2',
-  '#5865f2',
-  '#7983f5',
-  '#23a55a',
-  '#f0b132',
-  '#eb459e',
-  '#00a8fc',
-  '#2dd4bf',
-  '#a78bfa',
-  '#f97316',
-  '#84cc16',
-  '#e11d48',
-  '#0ea5e9',
-  '#facc15',
-  '#8b5cf6',
-  '#f23f42',
-  '#22c55e',
-  '#3b82f6',
-  '#f43f5e',
+const LANDING_TABS: { id: string; labelKey: string }[] = [
+  { id: 'dashboard', labelKey: 'landing_dashboard' },
+  { id: 'projects', labelKey: 'landing_projects' },
+  { id: 'versions', labelKey: 'landing_versions' },
+  { id: 'news', labelKey: 'landing_news' },
 ]
 
-const ACCENT_PRESETS_LIGHT = [
-  '#457ff2',
-  '#5b75e6',
-  '#7480e8',
-  '#36a05b',
-  '#e0a832',
-  '#d9458e',
-  '#00a1e8',
-  '#2dc4b4',
-  '#9d7ae0',
-  '#ec7031',
-  '#78b820',
-  '#d1263f',
-  '#1b9ce0',
-  '#e8c420',
-  '#8470e8',
-  '#e04244',
-  '#28b45a',
-  '#4285d4',
-  '#d94562',
-]
-
-const BG_PRESETS_DARK = [
-  '#15171c',
-  '#10131a',
-  '#1e1f22',
-  '#111214',
-  '#13151a',
-  '#0f1115',
-  '#20232a',
-  '#171a21',
-  '#1c1e24',
-  '#1a1c23',
-  '#0d0e11',
-  '#232630',
-  '#1b1d24',
-  '#101114',
-  '#191b20',
-  '#181a1e',
-  '#1f2127',
-  '#1a1c21',
-  '#0e1014',
-  '#1c1e23',
-  '#121418',
-]
-
-const BG_PRESETS_LIGHT = [
-  '#f8f9fa',
-  '#ffffff',
-  '#f0f2f5',
-  '#f5f5f5',
-  '#fafafa',
-  '#eceff1',
-  '#f3f4f6',
-  '#f9fafb',
-  '#eef1f5',
-  '#f8f6f3',
-  '#f2f6fc',
-  '#faf5ef',
-  '#edf2f7',
-  '#f6f8fa',
-  '#f1f3f5',
-  '#e8ecf1',
-  '#faf6f0',
-]
-
-const DEFAULT_BG_LIGHT = '#f8f9fa'
-const DEFAULT_BG_DARK = '#15171c'
-
-function randomHex(): string {
-  return (
-    '#' +
-    Math.floor(Math.random() * 0x1000000)
-      .toString(16)
-      .padStart(6, '0')
-  )
-}
-
-function randomConstrainedHex(minSum: number, maxSum: number): string {
-  for (let i = 0; i < 100; i++) {
-    const hex = randomHex()
-    const r = parseInt(hex.slice(1, 3), 16)
-    const g = parseInt(hex.slice(3, 5), 16)
-    const b = parseInt(hex.slice(5, 7), 16)
-    const sum = r + g + b
-    if (sum >= minSum && sum <= maxSum) return hex
-  }
-  return '#808080'
-}
-
-type SettingsTab =
-  'storage' | 'behavior' | 'display' | 'appearance' | 'advanced'
-
-const TABS: { id: SettingsTab }[] = [
-  { id: 'storage' },
-  { id: 'behavior' },
-  { id: 'display' },
-  { id: 'appearance' },
-  { id: 'advanced' },
-]
-
-function SectionCard({
+function Subsection({
+  id,
   title,
   description,
   children,
+  searchText,
+  query,
+  onMatch,
 }: {
-  title: string
-  description: string
-  children: React.ReactNode
+  id: string
+  title: ReactNode
+  description?: string
+  children: ReactNode
+  searchText?: string
+  query: string
+  onMatch?: (id: string, matched: boolean) => void
 }) {
+  const matches = matchesSearch(
+    query,
+    typeof title === 'string' ? title : undefined,
+    description,
+    searchText,
+  )
+
+  useEffect(() => {
+    onMatch?.(id, matches)
+    return () => onMatch?.(id, false)
+  }, [id, matches, onMatch])
+
+  if (!matches) return null
+
   return (
-    <section className="flex flex-col gap-4 rounded-xl border border-line bg-surface/60 p-6">
+    <section className="flex flex-col gap-3 rounded-item bg-overlay px-4 py-4">
       <div>
-        <h3 className="font-display font-semibold">{title}</h3>
-        <p className="text-xs text-muted mt-1.5 leading-relaxed">
-          {description}
-        </p>
+        <h3 className="text-sm font-medium text-ink">{title}</h3>
+        {description && (
+          <p className="text-xs text-muted mt-1 leading-relaxed">{description}</p>
+        )}
       </div>
       {children}
     </section>
   )
 }
 
-type SaveState = 'idle' | 'saving' | 'saved'
-
-function KeyRecorder({
-  value,
-  onChange,
-  onReset,
+function SettingRow({
+  label,
+  description,
+  children,
+  divider = false,
 }: {
-  value: string
-  onChange: (key: string) => void
-  onReset?: () => void
+  label: string
+  description?: string
+  children: ReactNode
+  divider?: boolean
 }) {
-  const { t } = useTranslation('settings')
-  const [listening, setListening] = useState(false)
-  const [confirmMsg, setConfirmMsg] = useState<string | null>(null)
-  const confirmTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const btnRef = useRef<HTMLButtonElement>(null)
-  const onChangeRef = useRef(onChange)
-  onChangeRef.current = onChange
-  const mod = navigator.platform.includes('Mac') ? '⌘' : 'Ctrl+'
-
-  useEffect(() => {
-    if (!listening) return
-
-    const handler = (e: KeyboardEvent) => {
-      e.preventDefault()
-      e.stopPropagation()
-
-      if (e.key === 'Escape') {
-        setListening(false)
-        return
-      }
-
-      if (e.key.length !== 1) return
-
-      const captured = e.key === ' ' ? ' ' : e.key.toLowerCase()
-      onChangeRef.current(captured)
-      setListening(false)
-
-      const label = captured === ' ' ? t('key_space') : captured.toUpperCase()
-      setConfirmMsg(`✓ ${mod}${label}`)
-      if (confirmTimer.current) clearTimeout(confirmTimer.current)
-      confirmTimer.current = setTimeout(() => setConfirmMsg(null), 1500)
-    }
-
-    window.addEventListener('keydown', handler, true)
-    return () => window.removeEventListener('keydown', handler, true)
-  }, [listening])
-
-  useEffect(() => {
-    return () => {
-      if (confirmTimer.current) clearTimeout(confirmTimer.current)
-    }
-  }, [])
-
-  const displayKey =
-    value === ' ' ? t('key_space') : value ? value.toUpperCase() : '—'
-
   return (
-    <label className="flex flex-col gap-2.5 pt-5 border-t border-line">
-      <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-muted block">
-          {t('palette_shortcut')}
-        </span>
-        {value !== 'p' && onReset && (
-          <button
-            type="button"
-            onClick={() => {
-              onReset()
-              setConfirmMsg(`✓ ${mod}P`)
-              if (confirmTimer.current) clearTimeout(confirmTimer.current)
-              confirmTimer.current = setTimeout(() => setConfirmMsg(null), 1500)
-            }}
-            className="focus-ring cursor-pointer text-[10px] font-medium text-muted/60 hover:text-accent transition-colors"
-          >
-            {t('reset_to_default')}
-          </button>
+    <div
+      className={`flex items-center justify-between gap-4 ${
+        divider ? 'pt-4 border-t border-line' : ''
+      }`}
+    >
+      <div>
+        <span className="text-xs font-medium text-muted block">{label}</span>
+        {description && (
+          <p className="text-[11px] text-muted mt-1 leading-relaxed">
+            {description}
+          </p>
         )}
       </div>
-      <p className="text-[11px] text-muted mt-0.5 leading-relaxed">
-        {t('keybind_instruction')}{' '}
-        {t('press')}{' '}
-        <kbd className="font-mono text-[10px] px-1 py-0.5 rounded bg-raised border border-line">Esc</kbd>
-        {' '}{t('to_cancel')}.
-      </p>
-      <div className="flex items-center gap-3">
-        <button
-          ref={btnRef}
-          type="button"
-          onClick={() => setListening((l) => !l)}
-          className={`focus-ring cursor-pointer relative flex items-center justify-center gap-2 px-5 py-3 rounded-xl border text-sm font-mono font-semibold transition-all ${
-            listening
-              ? 'border-accent bg-accent/10 text-accent-bright'
-              : 'border-line bg-raised text-ink hover:border-accent-dim hover:bg-raised/80'
-          }`}
-        >
-          {listening ? (
-            <>
-              <span className="inline-block w-2 h-2 rounded-full bg-accent animate-pulse" />
-              <span>{t('press_key')}</span>
-            </>
-          ) : (
-            <>
-              <kbd className="text-xs px-2 py-0.5 rounded bg-surface border border-line/50">
-                {mod}{displayKey}
-              </kbd>
-              <span className="text-xs font-normal text-muted">{t('click_to_rebind')}</span>
-            </>
-          )}
-        </button>
-
-        <AnimatePresence mode="wait">
-          {confirmMsg && (
-            <motion.span
-              key={confirmMsg}
-              initial={{ opacity: 0, x: -4 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 4 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
-              className="text-xs text-accent font-medium shrink-0"
-            >
-              {confirmMsg}
-            </motion.span>
-          )}
-        </AnimatePresence>
-      </div>
-    </label>
-  )
-}
-
-function SaveStatus({ state }: { state: SaveState }) {
-  const { t } = useTranslation('settings')
-  return (
-    <div className="flex items-center gap-2 h-4">
-      <AnimatePresence mode="wait">
-        {state === 'saving' && (
-          <motion.span
-            key="saving"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="text-xs text-muted"
-          >
-            {t('saving')}
-          </motion.span>
-        )}
-        {state === 'saved' && (
-          <motion.span
-            key="saved"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="text-xs text-mint"
-          >
-            {t('saved')}
-          </motion.span>
-        )}
-      </AnimatePresence>
+      {children}
     </div>
   )
 }
 
-interface SettingsViewProps {
-  highlightSetting?: string | null
-  onHighlightDone?: () => void
-}
-
-export function SettingsView({
-  highlightSetting,
-  onHighlightDone,
-}: SettingsViewProps = {}) {
-  const { t, i18n } = useTranslation('settings')
-  const { settings, update, resetToDefaults, loaded } = useSettings()
-  const [current, setCurrent] = useState<AppSettings | null>(null)
+export function SettingsView({ connected = false }: { connected?: boolean }) {
+  const { t } = useTranslation('nav')
+  const { t: ts } = useTranslation('settings')
+  const { settings, update, resetToDefaults } = useSettings()
+  const appVersion = useAppVersion()
+  const { contributors } = useContributors()
+  const [selectedContributor, setSelectedContributor] = useState<{ login: string; avatar_url: string } | null>(null)
+  const { projects, refresh: refreshProjects } = useProjectsContext()
+  const { refresh: refreshCategories } = useCategoriesContext()
+  const { refresh: refreshWorkspaces } = useWorkspaces()
+  const [cat, setCat] = useState<SettingsCat>('appearance')
+  const [presetModal, setPresetModal] = useState<'light' | 'dark' | null>(null)
+  const [statsBusy, setStatsBusy] = useState<'export' | 'import' | null>(null)
+  const [statsMessage, setStatsMessage] = useState<string | null>(null)
+  const [confirmClearStats, setConfirmClearStats] = useState(false)
+  const [settingsBusy, setSettingsBusy] = useState<'export' | 'import' | null>(null)
+  const [settingsMessage, setSettingsMessage] = useState<string | null>(null)
+  const [wsBackupBusy, setWsBackupBusy] = useState<'export' | 'import' | null>(null)
+  const [wsBackupMessage, setWsBackupMessage] = useState<string | null>(null)
+  const [appBackupBusy, setAppBackupBusy] = useState<
+    'export' | 'import' | null
+  >(null)
+  const [appBackupMessage, setAppBackupMessage] = useState<string | null>(null)
+  const [syncBusy, setSyncBusy] = useState<'push' | 'pull' | null>(null)
+  const [syncMessage, setSyncMessage] = useState<string | null>(null)
+  const [syncUrl, setSyncUrl] = useState<string | null>(null)
+  const [manualGistUrl, setManualGistUrl] = useState('')
+  const [manualPullBusy, setManualPullBusy] = useState(false)
+  const [showRestoreModal, setShowRestoreModal] = useState(false)
+  const [cssDraft, setCssDraft] = useState(settings.custom_css)
+  const [cssStatus, setCssStatus] = useState<'idle' | 'applied'>('idle')
   const [scanMessage, setScanMessage] = useState<string | null>(null)
-  const [tokenTestState, setTokenTestState] = useState<'idle' | 'testing' | 'success' | 'warning' | 'error'>('idle')
+  const [tokenTestState, setTokenTestState] = useState<
+    'idle' | 'testing' | 'success' | 'warning' | 'error'
+  >('idle')
   const [tokenTestMsg, setTokenTestMsg] = useState<string | null>(null)
-  const [saveState, setSaveState] = useState<SaveState>('idle')
+  const tokenTestTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [confirmingReset, setConfirmingReset] = useState(false)
   const [confirmingWipe, setConfirmingWipe] = useState(false)
-  const [tab, setTab] = useState<SettingsTab>('storage')
-  const [settingsSearchQuery, setSettingsSearchQuery] = useState('')
-
-  const [sidebarExpandedWidth, setSidebarExpandedWidth] = useState(() => {
-    try {
-      return Math.min(
-        400,
-        Math.max(160, Number(localStorage.getItem('sidebar_width_expanded'))),
-      )
-    } catch {}
-    return 230
-  })
-  const [sidebarCollapsedWidth, setSidebarCollapsedWidth] = useState(() => {
-    try {
-      return Math.min(
-        120,
-        Math.max(50, Number(localStorage.getItem('sidebar_width_collapsed'))),
-      )
-    } catch {}
-    return 76
-  })
-
-  const tokenTestTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const saveTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const savedIndicatorTimeout = useRef<ReturnType<typeof setTimeout> | null>(
+  const [confirmingOsDec, setConfirmingOsDec] = useState<boolean | null>(null)
+  const [confirmingRestart, setConfirmingRestart] = useState(false)
+  const [showUpdates, setShowUpdates] = useState(false)
+  const [showBugReport, setShowBugReport] = useState(false)
+  const [gitAuth, setGitAuth] = useState<GitAuthState | null>(null)
+  const [gitAuthFlow, setGitAuthFlow] = useState<'github' | 'gitlab' | null>(
     null,
   )
+  const [gitAuthInstance, setGitAuthInstance] = useState<{
+    baseUrl: string
+    clientId: string
+  } | null>(null)
+  const [gitlabUrl, setGitlabUrl] = useState('')
+  const [gitlabClientId, setGitlabClientId] = useState('')
+  const [patOpen, setPatOpen] = useState(false)
+  const [patHost, setPatHost] = useState('')
+  const [patUser, setPatUser] = useState('')
+  const [patToken, setPatToken] = useState('')
+  const [patMsg, setPatMsg] = useState<string | null>(null)
+  const {
+    query: searchQuery,
+    setQuery: setSearchQuery,
+    reportMatch,
+    noResults,
+    inputRef: searchRef,
+    clear: clearSearch,
+    reset: resetSearch,
+  } = useSectionSearch()
 
   useEffect(() => {
-    if (!highlightSetting) return
+    setCssDraft(settings.custom_css)
+  }, [settings.custom_css])
 
-    if (highlightSetting === 'feeling_lucky') {
-      onHighlightDone?.()
-      feelingLucky()
-      return
-    }
-    if (highlightSetting === 'reset_colors') {
-      onHighlightDone?.()
-      resetThemeColors()
-      return
-    }
+  const [lastPushedAt, setLastPushedAt] = useState<string | null>(null)
 
-    const sectionMap: Record<string, { tab: SettingsTab; section: string }> = {
-      project_scan_dirs: { tab: 'storage', section: 'storage-folders' },
-      version_scan_dirs: { tab: 'storage', section: 'storage-folders' },
-      default_project_location: { tab: 'storage', section: 'storage-folders' },
-      download_dir: { tab: 'storage', section: 'storage-folders' },
-      scan_depth: { tab: 'storage', section: 'storage-folders' },
-      download_concurrency: { tab: 'storage', section: 'storage-folders' },
-      launch_with_console: { tab: 'behavior', section: 'behavior' },
-      close_on_project_open: { tab: 'behavior', section: 'behavior' },
-      minimize_to_tray: { tab: 'behavior', section: 'behavior' },
-      reopen_after_godot_closes: { tab: 'behavior', section: 'behavior' },              auto_scan_on_startup: { tab: 'behavior', section: 'behavior-projects' },
-      auto_watch_project_dirs: { tab: 'behavior', section: 'behavior-projects' },
-      auto_watch_version_dirs: { tab: 'behavior', section: 'behavior-projects' },
-      auto_watch_template_dir: { tab: 'behavior', section: 'behavior-projects' },
-      categories_enabled: { tab: 'behavior', section: 'behavior-projects' },
-      workspaces_enabled: { tab: 'behavior', section: 'behavior-projects' },
-      check_updates: { tab: 'advanced', section: 'advanced-updates' },
-      tooltip_delay: { tab: 'behavior', section: 'behavior-projects' },
-      tray_recent_projects_count: { tab: 'behavior', section: 'behavior' },
-      command_palette_keybind: { tab: 'behavior', section: 'behavior' },
-      last_opened_time_format: { tab: 'display', section: 'display' },
-      last_opened_date_format: { tab: 'display', section: 'display' },
-      theme_mode: { tab: 'appearance', section: 'appearance' },
-      accent_color: { tab: 'appearance', section: 'appearance' },
-      background_color: { tab: 'appearance', section: 'appearance' },
-      corner_radius: { tab: 'appearance', section: 'appearance' },
-      ui_density: { tab: 'appearance', section: 'appearance' },
-      font_scale: { tab: 'appearance', section: 'appearance' },
-      reduce_motion: { tab: 'appearance', section: 'appearance' },
-      show_scrollbars: { tab: 'appearance', section: 'appearance' },
-      project_icon_opacity: { tab: 'appearance', section: 'appearance' },
-      sidebar_width: { tab: 'appearance', section: 'appearance' },
-      setup_wizard: { tab: 'advanced', section: 'advanced-setup' },
-      reset_settings: { tab: 'advanced', section: 'advanced-reset' },
-      delete_app_data: { tab: 'advanced', section: 'advanced-delete' },
-      show_support_button: { tab: 'advanced', section: 'advanced-support' },
-      show_star_button: { tab: 'advanced', section: 'advanced-support' },
-    }
-
-    const info = sectionMap[highlightSetting]
-    if (!info) {
-      onHighlightDone?.()
-      return
-    }
-    setTab(info.tab)
-    const t = setTimeout(() => {
-      const el = document.querySelector(
-        `[data-section-id="${info.section}"]`,
-      )
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' })
-        el.classList.add('setting-highlight')
-        setTimeout(() => {
-          el.classList.remove('setting-highlight')
-          onHighlightDone?.()
-        }, 1500)
-      } else {
-        onHighlightDone?.()
+  useEffect(() => {
+    api.gistSyncGetInfo().then((info) => {
+      if (info) {
+        setSyncUrl(info.gist_url)
+        if (info.pushed_at) {
+          try {
+            setLastPushedAt(formatLocaleDateTime(new Date(info.pushed_at)))
+          } catch {}
+        }
       }
-    }, 200)
-    return () => clearTimeout(t)
-  }, [highlightSetting])
-
-  const prevSettingsRef = useRef(settings)
-
-  useEffect(() => {
-    if (!loaded) return
-    if (current === null || settings !== prevSettingsRef.current) {
-      prevSettingsRef.current = settings
-      const projectDirs =
-        settings.default_project_location &&
-        !settings.project_scan_dirs.includes(settings.default_project_location)
-          ? [...settings.project_scan_dirs, settings.default_project_location]
-          : settings.project_scan_dirs
-      const versionDirs =
-        settings.download_dir &&
-        !settings.version_scan_dirs.includes(settings.download_dir)
-          ? [...settings.version_scan_dirs, settings.download_dir]
-          : settings.version_scan_dirs
-      setCurrent({
-        ...settings,
-        project_scan_dirs: projectDirs,
-        version_scan_dirs: versionDirs,
-      })
-    }
-  }, [loaded, settings])
-
-  useEffect(() => {
-    return () => {
-      if (saveTimeout.current) clearTimeout(saveTimeout.current)
-      if (savedIndicatorTimeout.current)
-        clearTimeout(savedIndicatorTimeout.current)
-    }
+    })
   }, [])
 
-  const persist = useCallback(
-    (next: AppSettings) => {
-      if (saveTimeout.current) clearTimeout(saveTimeout.current)
-      if (savedIndicatorTimeout.current)
-        clearTimeout(savedIndicatorTimeout.current)
-      setSaveState('saving')
-      saveTimeout.current = setTimeout(async () => {
-        await update(next)
-        api.restartWatchers().catch(() => {})
-        setSaveState('saved')
-        savedIndicatorTimeout.current = setTimeout(
-          () => setSaveState('idle'),
-          1500,
-        )
-      }, SAVE_DEBOUNCE_MS)
-    },
-    [update],
-  )
-
-  const setField = <K extends keyof AppSettings>(
-    key: K,
-    value: AppSettings[K],
-  ) => {
-    setCurrent((prev) => {
-      if (!prev) return prev
-      const next = { ...prev, [key]: value }
-      persist(next)
-      return next
-    })
+  const handleApplyCss = () => {
+    update({ ...settings, custom_css: cssDraft })
+    setCssStatus('applied')
+    setTimeout(() => setCssStatus('idle'), 1500)
   }
 
-  const setFields = (patch: Partial<AppSettings>) => {
-    setCurrent((prev) => {
-      if (!prev) return prev
-      const next = { ...prev, ...patch }
-      persist(next)
-      return next
-    })
+  const handleExportStats = async () => {
+    setStatsBusy('export')
+    setStatsMessage(null)
+    try {
+      const path = await api.pickSavePath('godothub-time-stats.json')
+      if (!path) return
+      await api.exportProjectStats(path)
+      setStatsMessage(ts('stats_exported'))
+    } catch (e) {
+      setStatsMessage(String(e))
+    } finally {
+      setStatsBusy(null)
+    }
   }
 
-  if (!loaded || !current)
-    return <div className="p-10 text-sm text-muted">{t('loading')}</div>
+  const handleImportStats = async () => {
+    setStatsBusy('import')
+    setStatsMessage(null)
+    try {
+      const path = await api.pickDataFile()
+      if (!path) return
+      const count = await api.importProjectStats(path)
+      await refreshProjects()
+      setStatsMessage(ts('stats_imported', { count }))
+    } catch (e) {
+      setStatsMessage(String(e))
+    } finally {
+      setStatsBusy(null)
+    }
+  }
+
+  const handleClearStats = async () => {
+    setConfirmClearStats(false)
+    setStatsBusy('import')
+    setStatsMessage(null)
+    try {
+      await api.clearTimeStats()
+      await refreshProjects()
+      setStatsMessage(ts('stats_cleared'))
+    } catch (e) {
+      setStatsMessage(String(e))
+    } finally {
+      setStatsBusy(null)
+    }
+  }
+
+  const handleExportSettings = async () => {
+    setSettingsBusy('export')
+    setSettingsMessage(null)
+    try {
+      const path = await api.pickSavePath('godothub-settings.json')
+      if (!path) return
+      await api.exportSettings(path)
+      setSettingsMessage(ts('settings_exported'))
+    } catch (e) {
+      setSettingsMessage(String(e))
+    } finally {
+      setSettingsBusy(null)
+    }
+  }
+
+  const handleImportSettings = async () => {
+    setSettingsBusy('import')
+    setSettingsMessage(null)
+    try {
+      const path = await api.pickDataFile()
+      if (!path) return
+      const imported = await api.importSettings(path)
+      await update(imported)
+      await refreshProjects()
+      setSettingsMessage(ts('settings_imported'))
+    } catch (e) {
+      setSettingsMessage(String(e))
+    } finally {
+      setSettingsBusy(null)
+    }
+  }
+
+  const handleExportWorkspace = async () => {
+    setWsBackupBusy('export')
+    setWsBackupMessage(null)
+    try {
+      const path = await api.pickSavePath('godothub-workspace-backup.json')
+      if (!path) return
+      await api.exportWorkspaceBackup(path)
+      setWsBackupMessage(ts('workspace_backup_exported'))
+    } catch (e) {
+      setWsBackupMessage(String(e))
+    } finally {
+      setWsBackupBusy(null)
+    }
+  }
+
+  const handleImportWorkspace = async () => {
+    setWsBackupBusy('import')
+    setWsBackupMessage(null)
+    try {
+      const path = await api.pickDataFile()
+      if (!path) return
+      const imported = await api.importWorkspaceBackup(path)
+      await update(imported)
+      await refreshProjects()
+      await refreshCategories()
+      window.dispatchEvent(new Event('app:refresh-templates'))
+      setWsBackupMessage(ts('workspace_backup_imported'))
+    } catch (e) {
+      setWsBackupMessage(String(e))
+    } finally {
+      setWsBackupBusy(null)
+    }
+  }
+
+  const handleExportApp = async () => {
+    setAppBackupBusy('export')
+    setAppBackupMessage(null)
+    try {
+      const path = await api.pickSavePath('godothub-full-backup.json')
+      if (!path) return
+      await api.exportAppBackup(path)
+      setAppBackupMessage(ts('app_backup_exported'))
+    } catch (e) {
+      setAppBackupMessage(String(e))
+    } finally {
+      setAppBackupBusy(null)
+    }
+  }
+
+  const handleImportApp = async () => {
+    setAppBackupBusy('import')
+    setAppBackupMessage(null)
+    try {
+      const path = await api.pickDataFile()
+      if (!path) return
+      const imported = await api.importAppBackup(path)
+      await update(imported)
+      await refreshProjects()
+      await refreshCategories()
+      await refreshWorkspaces()
+      window.dispatchEvent(new Event('app:refresh-templates'))
+      setAppBackupMessage(ts('app_backup_imported'))
+    } catch (e) {
+      setAppBackupMessage(String(e))
+    } finally {
+      setAppBackupBusy(null)
+    }
+  }
+
+  const handleSyncPush = async () => {
+    setSyncBusy('push')
+    setSyncMessage(null)
+    try {
+      const res = await api.gistSyncPush()
+      setSyncUrl(res.gist_url)
+      setLastPushedAt(formatLocaleDateTime(new Date(res.pushed_at)))
+      setSyncMessage(ts('sync_push_done'))
+    } catch (e) {
+      setSyncMessage(String(e))
+    } finally {
+      setSyncBusy(null)
+    }
+  }
+
+  const handleSyncPull = () => {
+    setShowRestoreModal(true)
+  }
+
+  const handleManualPull = async () => {
+    if (!manualGistUrl.trim()) return
+    setManualPullBusy(true)
+    try {
+      await api.gistSyncSaveGistUrl(manualGistUrl.trim())
+      const info = await api.gistSyncGetInfo()
+      if (info) setSyncUrl(info.gist_url)
+      setShowRestoreModal(true)
+    } catch (e) {
+      setSyncMessage(String(e))
+    } finally {
+      setManualPullBusy(false)
+    }
+  }
+
+  const selectCustom = () =>
+    update({
+      ...settings,
+      theme_preset: 'custom',
+      ...customThemeDefaults(resolveThemeMode(settings.theme_mode)),
+    })
+
+  const setThemeMode = (mode: 'dark' | 'light' | 'system') => {
+    const resolved = resolveThemeMode(mode)
+    const targetDark = resolved === 'dark'
+    const bg = isDarkColor(settings.background_color) === targetDark
+      ? settings.background_color
+      : targetDark ? DEFAULT_BG : DEFAULT_BG_LIGHT
+    update({ ...settings, theme_mode: mode, background_color: bg })
+  }
+
+  const selectPreset = (id: string) => {
+    if (id === settings.theme_preset) return
+    if (id === 'custom') {
+      const defaults = customThemeDefaults(resolveThemeMode(settings.theme_mode))
+      update({ ...settings, theme_preset: id, ...defaults })
+    } else {
+      const preset = getThemePreset(id)
+      if (preset) update({ ...settings, theme_preset: id, theme_mode: preset.mode })
+    }
+  }
 
   const runScan = async () => {
-    setScanMessage(t('scanning'))
+    setScanMessage(ts('scanning'))
     const [projects, versions] = await Promise.all([
-      current.project_scan_dirs.length
-        ? api.scanForProjects(current.project_scan_dirs, current.scan_depth)
+      settings.project_scan_dirs.length
+        ? api.scanForProjects(settings.project_scan_dirs, settings.scan_depth)
         : Promise.resolve([]),
-      current.version_scan_dirs.length
-        ? api.scanForVersions(current.version_scan_dirs, current.scan_depth)
+      settings.version_scan_dirs.length
+        ? api.scanForVersions(settings.version_scan_dirs, settings.scan_depth)
         : Promise.resolve([]),
     ])
     setScanMessage(
-      t('scan_result', { projects: projects.length, versions: versions.length })
+      ts('scan_result', { projects: projects.length, versions: versions.length }),
     )
-  }
-
-  const previewTheme = (
-    accent: string,
-    background: string,
-    mode = current.theme_mode,
-  ) => applyTheme(accent, background, mode)
-
-  const feelingLucky = () => {
-    const resolvedMode = current.theme_mode
-    const bg =
-      resolvedMode === 'light'
-        ? randomConstrainedHex(576, 735)
-        : randomConstrainedHex(48, 384)
-    const accent = randomHex()
-    setFields({ accent_color: accent, background_color: bg })
-    previewTheme(accent, bg)
+    await refreshProjects()
   }
 
   const resetThemeColors = () => {
-    const resolvedMode = current.theme_mode
-    const accent = DEFAULT_ACCENT
-    const bg = resolvedMode === 'light' ? DEFAULT_BG_LIGHT : DEFAULT_BG_DARK
-    setFields({ accent_color: accent, background_color: bg })
-    previewTheme(accent, bg)
+    const resolvedMode = resolveThemeMode(settings.theme_mode)
+    const defaults = customThemeDefaults(resolvedMode)
+    update({ ...settings, ...defaults })
   }
 
-  const setThemeMode = (mode: 'dark' | 'light') => {
-    const bg = mode === 'light' ? DEFAULT_BG_LIGHT : DEFAULT_BG_DARK
-    setFields({ theme_mode: mode, background_color: bg })
-    previewTheme(current.accent_color, bg, mode)
-  }
   const resetAppearance = () => {
-    setFields({
-      accent_color: DEFAULT_ACCENT,
-      background_color: DEFAULT_BG,
+    const defaults = customThemeDefaults(resolveThemeMode(settings.theme_mode))
+    update({
+      ...settings,
+      ...defaults,
       corner_radius: DEFAULT_RADIUS,
       ui_density: DEFAULT_DENSITY,
       font_scale: DEFAULT_FONT_SCALE,
-      reduce_motion: false,
       theme_mode: 'dark',
+      custom_css: '',
+      animation_intensity: 'full',
+      view_entrance: 'fade',
       project_icon_opacity: DEFAULT_PROJECT_ICON_OPACITY,
+      raised_contrast: DEFAULT_RAISED_CONTRAST,
+      theme_preset: 'custom',
     })
-    previewTheme(DEFAULT_ACCENT, DEFAULT_BG, 'dark')
-    applyRadius(DEFAULT_RADIUS)
-    applyDensity(DEFAULT_DENSITY)
-    applyFontScale(DEFAULT_FONT_SCALE)
-    applyReducedMotion(false)
-    applyProjectIconOpacity(DEFAULT_PROJECT_ICON_OPACITY)
+    setCssDraft('')
+  }
+
+  const testGithubToken = async () => {
+    if (tokenTestTimeout.current) clearTimeout(tokenTestTimeout.current)
+    try {
+      setTokenTestState('testing')
+      const info = await api.testGithubToken()
+      const mins = Math.max(
+        1,
+        Math.round((info.reset_at - Date.now() / 1000) / 60),
+      )
+      const status = info.used_token
+        ? `${info.remaining}/${info.limit} (resets ~${mins}min)`
+        : `${info.remaining}/${info.limit}`
+      setTokenTestState(info.remaining > 0 ? 'success' : 'warning')
+      setTokenTestMsg(ts('token_valid', { status }))
+    } catch (e) {
+      setTokenTestState('error')
+      setTokenTestMsg(ts('test_failed', { error: e }))
+    }
+    tokenTestTimeout.current = setTimeout(() => {
+      setTokenTestState('idle')
+      setTokenTestMsg(null)
+    }, 5000)
   }
 
   const resetAllSettings = async () => {
-    if (saveTimeout.current) clearTimeout(saveTimeout.current)
-    if (savedIndicatorTimeout.current)
-      clearTimeout(savedIndicatorTimeout.current)
     setConfirmingReset(false)
-    setSaveState('saving')
-    const defaults = await resetToDefaults()
-    setCurrent(defaults)
-    setSaveState('saved')
-    savedIndicatorTimeout.current = setTimeout(() => setSaveState('idle'), 1500)
+    await resetToDefaults()
   }
 
   const wipeAppData = async () => {
@@ -617,1228 +573,2492 @@ export function SettingsView({
     window.location.reload()
   }
 
-  return (
-    <div className="p-10 pt-15 max-w-8xl mx-auto gap-6 flex flex-col">        <div className="flex items-start justify-between">
-        <div>
-          <h2 className="font-body font-semibold text-3xl tracking-tight">
-            {t('settings_title')}
-          </h2>
-          <p className="text-xs text-muted">
-            {t('settings_subtitle')}
+  const handleOsDecConfirm = async () => {
+    const value = confirmingOsDec
+    setConfirmingOsDec(null)
+    if (value === null) return
+    await update({ ...settings, use_os_decorations: value })
+    await flushPendingSave()
+    await relaunch()
+  }
+
+  const handleRestart = async () => {
+    setConfirmingRestart(false)
+    await flushPendingSave()
+    await relaunch()
+  }
+
+  useEffect(() => {
+    return () => {
+      void flushPendingSave()
+    }
+  }, [])
+
+  const renderAppearance = () => (
+    <div className="flex flex-col gap-3">
+      <Subsection
+        id="appearance-layout"
+        title={ts('card_layout_label')}
+        description={ts('card_layout_desc')}
+        searchText={`${ts('card_layout_label')} ${ts('card_layout_desc')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <SettingRow label={ts('card_layout_label')}>
+          <Toggle
+            checked={settings.card_layout ?? true}
+            onChange={(checked) =>
+              update({ ...settings, card_layout: checked })
+            }
+            label={ts('card_layout_label')}
+          />
+        </SettingRow>
+      </Subsection>
+
+      <Subsection
+        id="appearance-landing"
+        title={ts('landing_tab_label')}
+        description={ts('landing_tab_desc')}
+        searchText={`${ts('landing_tab_label')} ${ts('landing_tab_desc')} ${LANDING_TABS.map((l) => ts(l.labelKey)).join(' ')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <SettingRow label={ts('landing_tab_label')}>
+          <Dropdown
+            align="right"
+            trigger={({ open, toggle }) => (
+              <button
+                type="button"
+                onClick={toggle}
+                aria-expanded={open}
+                className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-btn bg-overlay border border-outline/50 text-xs font-medium text-ink hover:border-accent-dim transition-colors"
+              >
+                {ts(LANDING_TABS.find((l) => l.id === settings.default_landing_tab)?.labelKey ??
+                  LANDING_TABS[0].labelKey)}
+                <IconChevronDown
+                  className={`w-3 h-3 text-muted transition-transform duration-200 ${
+                    open ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+            )}
+            items={LANDING_TABS.map((l) => ({
+              key: l.id,
+              label: ts(l.labelKey),
+              active: settings.default_landing_tab === l.id,
+              onClick: () => update({ ...settings, default_landing_tab: l.id }),
+            }))}
+          />
+        </SettingRow>
+      </Subsection>
+
+      <Subsection
+        id="appearance-presets"
+        title={ts('theme_preset_label')}
+        description={ts('theme_preset_desc')}
+        searchText={`${ts('theme_preset_label')} ${ts('theme_preset_custom')} ${ts('preset_light_group')} ${ts('preset_dark_group')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-4">
+          {([
+            { mode: 'light' as const, label: ts('preset_light_group'), Icon: IconSun, presets: LIGHT_THEME_PRESETS },
+            { mode: 'dark' as const, label: ts('preset_dark_group'), Icon: IconMoon, presets: DARK_THEME_PRESETS },
+          ]).map(({ mode, label, Icon, presets }) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => setPresetModal(mode)}
+              className="focus-ring cursor-pointer flex items-center gap-3 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised px-4 py-3.5 transition-colors"
+            >
+              <Icon className="w-4 h-4 text-muted shrink-0" />
+              <span className="text-xs font-medium text-ink">{label}</span>
+              <span className="text-[10px] font-medium text-muted/60">
+                {presets.length}
+              </span>
+              <IconChevronDown className="w-3.5 h-3.5 text-muted -rotate-90 ml-auto" />
+            </button>
+          ))}
+
+          <button
+            type="button"
+            onClick={selectCustom}
+            className={`focus-ring cursor-pointer flex items-center gap-3 rounded-btn border px-4 py-3.5 transition-colors ${
+              settings.theme_preset === 'custom'
+                ? 'border-accent bg-accent/10'
+                : 'border-outline/50 hover:border-accent-dim hover:bg-raised'
+            }`}
+          >
+            <IconPalette className="w-4 h-4 text-muted shrink-0" />
+            <span className="text-xs font-medium text-ink">
+              {ts('theme_preset_custom')}
+            </span>
+            {settings.theme_preset === 'custom' ? (
+              <IconCheck className="w-3.5 h-3.5 text-accent-bright ml-auto" />
+            ) : (
+              <IconChevronDown className="w-3.5 h-3.5 text-muted -rotate-90 ml-auto" />
+            )}
+          </button>
+        </div>
+
+        {settings.theme_preset === 'custom' && (
+          <div className="flex flex-col gap-3 pt-4 border-t border-line">
+            <div className="flex flex-col gap-2">
+              <span className="text-xs font-medium text-muted">{ts('theme')}</span>
+              {settings.theme_mode === 'system' && (
+                <p className="text-[11px] text-muted leading-relaxed">
+                  {ts('theme_follow_desc')}
+                </p>
+              )}
+              <div className="flex items-center gap-2 flex-wrap">
+                <Segmented
+                  value={settings.theme_mode}
+                  onChange={(v) => setThemeMode(v as 'dark' | 'light' | 'system')}
+                  options={[
+                    { value: 'dark', label: ts('dark') },
+                    { value: 'light', label: ts('light') },
+                    { value: 'system', label: ts('system') },
+                  ]}
+                />
+                <button
+                  type="button"
+                  onClick={resetThemeColors}
+                  aria-label={ts('reset_colors')}
+                  className="focus-ring cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-medium text-muted hover:text-ink hover:bg-raised transition-colors"
+                >
+                  <IconHeart className="w-3.5 h-3.5" />
+                  {ts('reset')}
+                </button>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-8">
+              <ColorSwatchPicker
+                label={ts('setting_accent_color')}
+                value={settings.accent_color}
+                presets={
+                  resolveThemeMode(settings.theme_mode) === 'light'
+                    ? ACCENT_PRESETS_LIGHT
+                    : ACCENT_PRESETS_DARK
+                }
+                onChange={(hex) => update({ ...settings, accent_color: hex })}
+              />
+              <ColorSwatchPicker
+                label={ts('setting_background_color')}
+                value={settings.background_color}
+                presets={
+                  resolveThemeMode(settings.theme_mode) === 'light'
+                    ? BG_PRESETS_LIGHT
+                    : BG_PRESETS_DARK
+                }
+                onChange={(hex) => update({ ...settings, background_color: hex })}
+              />
+            </div>
+            <p className="text-[11px] text-muted leading-relaxed">
+              {ts('background_color_desc')}
+            </p>
+
+            <div className="flex flex-col gap-2">
+              <Slider
+                label={ts('raised_contrast_label')}
+                display={
+                  <span className="text-xs font-medium text-ink tabular-nums">
+                    {ts('raised_contrast_value', {
+                      value: settings.raised_contrast,
+                    })}
+                  </span>
+                }
+                value={settings.raised_contrast}
+                min={0}
+                max={40}
+                step={1}
+                defaultValue={DEFAULT_RAISED_CONTRAST}
+                onChange={(value) =>
+                  update({ ...settings, raised_contrast: value })
+                }
+              />
+              <p className="text-[11px] text-muted leading-relaxed">
+                {ts('raised_contrast_desc')}
+              </p>
+            </div>
+          </div>
+        )}
+      </Subsection>
+
+      <Subsection
+        id="appearance-radius"
+        title={ts('corner_radius_label')}
+        description={ts('corner_radius_desc')}
+        searchText={`${ts('corner_radius_label')} ${ts('corner_radius_desc')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-2">
+          <Slider
+            label={ts('corner_radius_label')}
+            display={
+              <span className="text-xs font-mono text-ink tabular-nums">
+                {settings.corner_radius}px
+              </span>
+            }
+            value={settings.corner_radius}
+            min={0}
+            max={20}
+            step={1}
+            defaultValue={DEFAULT_RADIUS}
+            onChange={(v) => update({ ...settings, corner_radius: v })}
+          />
+        </div>
+      </Subsection>
+
+      <Subsection
+        id="appearance-view-entrance"
+        title={ts('view_entrance_label')}
+        description={ts('view_entrance_desc')}
+        searchText={`${ts('view_entrance_label')} ${ts('view_entrance_desc')} ${ts('entrance_fade')} ${ts('entrance_slide')} ${ts('entrance_scale')} ${ts('entrance_none')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-3">
+          <SettingRow label={ts('view_entrance_label')}>
+            <Segmented
+              value={settings.view_entrance}
+              onChange={(v) =>
+                update({
+                  ...settings,
+                  view_entrance: v as AppSettings['view_entrance'],
+                })
+              }
+              options={[
+                { value: 'fade', label: ts('entrance_fade') },
+                { value: 'slide', label: ts('entrance_slide') },
+                { value: 'scale', label: ts('entrance_scale') },
+                { value: 'none', label: ts('entrance_none') },
+              ]}
+            />
+          </SettingRow>
+          <p className="text-[11px] text-muted leading-relaxed">
+            {ts('view_entrance_desc')}
           </p>
         </div>
-        <SaveStatus state={saveState} />
-      </div>
+      </Subsection>
 
-      {/* Settings search */}
-      <div className="relative">
-        <div className="relative">
-          <IconSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted/50 pointer-events-none" />
-          <input
-            type="text"
-            value={settingsSearchQuery}
-            onChange={(e) => setSettingsSearchQuery(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Escape') {
-                setSettingsSearchQuery('')
-                ;(e.target as HTMLInputElement).blur()
-              }
-            }}
-            placeholder={t('search_placeholder')}
-            className="focus-ring w-full bg-raised border border-line rounded-xl pl-10 pr-4 py-3 text-sm focus:border-accent-dim transition-colors"
+      <Subsection
+        id="appearance-animation-threshold"
+        title={ts('animation_threshold_label')}
+        description={ts('animation_threshold_desc')}
+        searchText={`${ts('animation_threshold_label')} ${ts('animation_threshold_desc')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-2">
+          <Slider
+            label={ts('animation_threshold_label')}
+            display={
+              <span className="text-xs font-medium text-ink tabular-nums">
+                {ts('n_projects', { count: settings.animation_threshold })}
+              </span>
+            }
+            value={settings.animation_threshold}
+            min={10}
+            max={100}
+            step={5}
+            defaultValue={20}
+            onChange={(value) =>
+              update({ ...settings, animation_threshold: value })
+            }
           />
-          {settingsSearchQuery && (
-            <button
-              onClick={() => setSettingsSearchQuery('')}
-              className="focus-ring cursor-pointer absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-md text-muted hover:text-ink hover:bg-surface transition-colors"
-            >
-              <IconX className="w-3.5 h-3.5" />
-            </button>
-          )}
         </div>
+      </Subsection>
 
-        {/* Search results dropdown */}
-        {settingsSearchQuery.trim() && (
-          <motion.div
-            initial={{ opacity: 0, y: -4 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="absolute left-0 right-0 top-full mt-2 bg-surface border border-line rounded-xl shadow-2xl shadow-black/30 overflow-hidden z-50"
-          >
-            {(() => {
-              const q = settingsSearchQuery.trim().toLowerCase()
-              const matches = SETTINGS_SEARCH_ITEMS.filter(
-                (item) =>
-                  (item.label ?? item.key.replace(/_/g, ' ')).toLowerCase().includes(q) ||
-                  item.key.toLowerCase().includes(q),
-              )
-              if (matches.length === 0) {
-                return (
-                  <div className="px-4 py-6 text-center">
-                    <p className="text-xs text-muted">
-                      {t('no_settings_match')}{' '}
-                      <span className="font-mono text-ink">"{settingsSearchQuery}"</span>
-                    </p>
-                  </div>
-                )
+      <Subsection
+        id="appearance-animated-numbers"
+        title={ts('animated_numbers_label')}
+        description={ts('animated_numbers_desc')}
+        searchText={`${ts('animated_numbers_label')} ${ts('animated_numbers_desc')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <SettingRow label={ts('animated_numbers_label')}>
+          <Toggle
+            checked={settings.animated_numbers}
+            onChange={(checked) =>
+              update({ ...settings, animated_numbers: checked })
+            }
+            label={ts('animated_numbers_label')}
+          />
+        </SettingRow>
+      </Subsection>
+
+      <Subsection
+        id="appearance-icon-opacity"
+        title={ts('project_icon_opacity_label')}
+        description={ts('icon_opacity_desc')}
+        searchText={`${ts('project_icon_opacity_label')} ${ts('icon_opacity_desc')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-2">
+          <Slider
+            label={ts('project_icon_opacity_label')}
+            display={
+              <span className="text-xs font-mono text-ink tabular-nums">
+                {settings.project_icon_opacity}%
+              </span>
+            }
+            value={settings.project_icon_opacity}
+            min={0}
+            max={50}
+            step={1}
+            defaultValue={DEFAULT_PROJECT_ICON_OPACITY}
+            onChange={(v) =>
+              update({ ...settings, project_icon_opacity: v })
+            }
+          />
+        </div>
+      </Subsection>
+
+      <Subsection
+        id="appearance-css"
+        title={ts('custom_css_label')}
+        description={ts('custom_css_desc')}
+        searchText={`${ts('custom_css_label')} ${ts('custom_css_desc')} ${ts('custom_css_apply')} ${ts('custom_css_clear')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-2">
+          <textarea
+            value={cssDraft}
+            onChange={(e) => {
+              setCssDraft(e.target.value)
+              setCssStatus('idle')
+            }}
+            spellCheck={false}
+            placeholder={ts('custom_css_placeholder')}
+            className="focus-ring w-full h-40 resize-y bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono text-ink placeholder:text-muted/50 transition-colors focus:border-accent-dim"
+          />
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleApplyCss}
+              className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn bg-accent text-white text-xs font-medium hover:bg-accent-dim transition-colors"
+            >
+              {ts('custom_css_apply')}
+            </button>
+            {settings.custom_css && (
+              <button
+                type="button"
+                onClick={() => {
+                  setCssDraft('')
+                  update({ ...settings, custom_css: '' })
+                  setCssStatus('applied')
+                  setTimeout(() => setCssStatus('idle'), 1500)
+                }}
+                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3.5 rounded-btn bg-overlay border border-outline/50 text-muted text-xs font-medium hover:text-ink hover:bg-raised transition-colors"
+              >
+                {ts('custom_css_clear')}
+              </button>
+            )}
+            {cssStatus === 'applied' && (
+              <span className="text-xs text-mint font-medium">
+                {ts('custom_css_applied')}
+              </span>
+            )}
+          </div>
+        </div>
+      </Subsection>
+
+      <button
+        type="button"
+        onClick={resetAppearance}
+        className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 px-4 py-2 rounded-btn border border-outline/50 text-muted hover:text-ink hover:bg-raised text-xs font-medium transition-colors"
+      >
+        <IconRefresh className="w-3.5 h-3.5" />
+        {ts('reset_appearance')}
+      </button>
+    </div>
+  )
+
+  const renderDisplay = () => (
+    <div className="flex flex-col gap-3">
+      <Subsection
+        id="display-formats"
+        title={ts('last_opened_title')}
+        description={ts('last_opened_desc')}
+        searchText={`${ts('last_opened_title')} ${ts('last_opened_desc')} ${ts('time_format_label')} ${ts('date_format_label')} ${ts('12h')} ${ts('24h')} ${ts('dd_mm_yyyy')} ${ts('mm_dd_yyyy')} ${ts('yyyy_mm_dd')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2.5">
+            <span className="text-xs font-medium text-muted">
+              {ts('time_format_label')}
+            </span>
+            <Segmented
+              value={settings.last_opened_time_format}
+              onChange={(v) =>
+                update({
+                  ...settings,
+                  last_opened_time_format: v as AppSettings['last_opened_time_format'],
+                })
               }
+              options={[
+                { value: '12h', label: ts('12h') },
+                { value: '24h', label: ts('24h') },
+              ]}
+            />
+          </div>
+
+          <div className="flex flex-col gap-2.5">
+            <span className="text-xs font-medium text-muted">
+              {ts('date_format_label')}
+            </span>
+            <Segmented
+              value={settings.last_opened_date_format}
+              onChange={(v) =>
+                update({
+                  ...settings,
+                  last_opened_date_format: v as AppSettings['last_opened_date_format'],
+                })
+              }
+              options={[
+                { value: 'DD-MM-YYYY', label: ts('dd_mm_yyyy'), mono: true },
+                { value: 'MM-DD-YYYY', label: ts('mm_dd_yyyy'), mono: true },
+                { value: 'YYYY-MM-DD', label: ts('yyyy_mm_dd'), mono: true },
+              ]}
+            />
+          </div>
+
+        </div>
+      </Subsection>
+
+      {!isMac && (
+        <Subsection
+          id="display-os-decorations"
+          title={ts('use_os_decorations')}
+          description={ts('use_os_decorations_desc')}
+          searchText={`${ts('use_os_decorations')} ${ts('use_os_decorations_desc')}`}
+          query={searchQuery}
+          onMatch={reportMatch}
+        >
+          <SettingRow label={ts('use_os_decorations')}>
+            <Toggle
+              checked={settings.use_os_decorations}
+              onChange={(checked) => setConfirmingOsDec(checked)}
+              label={ts('use_os_decorations')}
+            />
+          </SettingRow>
+        </Subsection>
+      )}
+
+      <Subsection
+        id="display-titlebar"
+        title={ts('titlebar_buttons')}
+        description={ts('titlebar_buttons_desc')}
+        searchText={`${ts('titlebar_buttons')} ${ts('titlebar_buttons_desc')} ${ts('show_support_label')} ${ts('show_star_label')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-4">
+          <SettingRow label={ts('show_support_label')}>
+            <Toggle
+              checked={settings.show_support_button}
+              onChange={(checked) =>
+                update({ ...settings, show_support_button: checked })
+              }
+              label={ts('show_support_label')}
+            />
+          </SettingRow>
+          <SettingRow label={ts('show_star_label')}>
+            <Toggle
+              checked={settings.show_star_button}
+              onChange={(checked) =>
+                update({ ...settings, show_star_button: checked })
+              }
+              label={ts('show_star_label')}
+            />
+          </SettingRow>
+          <SettingRow label={ts('show_bug_label')}>
+            <Toggle
+              checked={settings.show_bug_button}
+              onChange={(checked) =>
+                update({ ...settings, show_bug_button: checked })
+              }
+              label={ts('show_bug_label')}
+            />
+          </SettingRow>
+          <SettingRow label={ts('show_tray_label')}>
+            <Toggle
+              checked={settings.show_tray_button}
+              onChange={(checked) =>
+                update({ ...settings, show_tray_button: checked })
+              }
+              label={ts('show_tray_label')}
+            />
+          </SettingRow>
+          <SettingRow label={ts('show_language_label')} divider>
+            <Toggle
+              checked={settings.show_language_button}
+              onChange={(checked) =>
+                update({ ...settings, show_language_button: checked })
+              }
+              label={ts('show_language_label')}
+            />
+          </SettingRow>
+        </div>
+      </Subsection>
+    </div>
+  )
+
+  const renderStorage = () => (
+    <div className="flex flex-col gap-3">
+      <Subsection
+        id="storage-folders"
+        title={ts('storage_title')}
+        description={ts('storage_desc')}
+        searchText={`${ts('storage_title')} ${ts('storage_desc')} ${ts('section_projects')} ${ts('section_godot_versions')} ${ts('section_templates')} ${ts('new_project_default')} ${ts('download_folder')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2.5">
+            <span className="text-xs font-medium text-muted">
+              {ts('section_projects')}
+            </span>
+            <DirList
+              dirs={settings.project_scan_dirs}
+              onChange={(dirs) => update({ ...settings, project_scan_dirs: dirs })}
+              emptyHint={ts('empty_hint_projects')}
+              defaultDir={settings.default_project_location}
+              onSetDefault={(dir) =>
+                update({ ...settings, default_project_location: dir })
+              }
+              defaultLabel={ts('new_project_default')}
+            />
+            <p className="text-[11px] text-muted leading-relaxed">
+              {ts('projects_desc')}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
+            <span className="text-xs font-medium text-muted">
+              {ts('section_godot_versions')}
+            </span>
+            <DirList
+              dirs={settings.version_scan_dirs}
+              onChange={(dirs) => update({ ...settings, version_scan_dirs: dirs })}
+              emptyHint={ts('empty_hint_versions')}
+              defaultDir={settings.download_dir}
+              onSetDefault={(dir) => update({ ...settings, download_dir: dir })}
+              defaultLabel={ts('download_folder')}
+              showFallbackDescription
+              fallbackDownloadPath="AppData/Ryko.GodotHub/godot-versions/"
+            />
+            <p className="text-[11px] text-muted leading-relaxed">
+              {ts('godot_versions_desc')}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
+            <span className="text-xs font-medium text-muted">
+              {ts('section_templates')}
+            </span>
+            <div className="flex items-center gap-2.5">
+              {settings.template_scan_dir ? (
+                <>
+                  <input
+                    readOnly
+                    value={settings.template_scan_dir}
+                    className="flex-1 bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono text-ink"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => update({ ...settings, template_scan_dir: null })}
+                    className="focus-ring cursor-pointer px-3 py-2 rounded-btn border border-outline/50 text-xs text-muted hover:text-danger hover:border-danger/30 hover:bg-danger/10 transition-colors"
+                  >
+                    {ts('clear')}
+                  </button>
+                </>
+              ) : (
+                <span className="text-xs text-muted">{ts('no_folder_set')}</span>
+              )}
+              <button
+                type="button"
+                onClick={async () => {
+                  const folder = await api.pickFolder()
+                  if (folder) update({ ...settings, template_scan_dir: folder })
+                }}
+                className="focus-ring cursor-pointer px-3.5 py-2 rounded-btn border border-outline/50 text-xs hover:border-accent-dim hover:bg-raised transition-colors"
+              >
+                {ts('browse')}
+              </button>
+            </div>
+            <p className="text-[11px] text-muted leading-relaxed">
+              {ts('template_scan_desc')}
+            </p>
+          </div>
+        </div>
+      </Subsection>
+
+      <Subsection
+        id="storage-scan-depth"
+        title={ts('scan_depth_label')}
+        description={ts('scan_depth_desc')}
+        searchText={`${ts('scan_depth_label')} ${ts('scan_depth_desc')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-2">
+          <Slider
+            label={ts('scan_depth_label')}
+            display={
+              <span className="text-xs font-medium text-ink tabular-nums">
+                {ts('folders_deep', { count: settings.scan_depth })}
+              </span>
+            }
+            value={settings.scan_depth}
+            min={1}
+            max={10}
+            defaultValue={2}
+            onChange={(value) => update({ ...settings, scan_depth: value })}
+          />
+        </div>
+      </Subsection>
+
+      <Subsection
+        id="storage-icon-scan-depth"
+        title={ts('icon_scan_depth_label')}
+        description={ts('icon_scan_depth_desc')}
+        searchText={`${ts('icon_scan_depth_label')} ${ts('icon_scan_depth_desc')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-2">
+          <Slider
+            label={ts('icon_scan_depth_label')}
+            display={
+              <span className="text-xs font-medium text-ink tabular-nums">
+                {ts('folders_deep', { count: settings.icon_scan_depth })}
+              </span>
+            }
+            value={settings.icon_scan_depth}
+            min={1}
+            max={20}
+            defaultValue={4}
+            onChange={(value) => update({ ...settings, icon_scan_depth: value })}
+          />
+        </div>
+      </Subsection>
+
+      <Subsection
+        id="storage-concurrency"
+        title={ts('download_concurrency_label')}
+        description={ts('download_concurrency_desc')}
+        searchText={`${ts('download_concurrency_label')} ${ts('download_concurrency_desc')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-2">
+          <Slider
+            label={ts('download_concurrency_label')}
+            display={
+              <span className="text-xs font-medium text-ink tabular-nums">
+                {ts('at_once', { count: settings.download_concurrency })}
+              </span>
+            }
+            value={settings.download_concurrency}
+            min={1}
+            max={10}
+            defaultValue={3}
+            onChange={(value) =>
+              update({ ...settings, download_concurrency: value })
+            }
+          />
+        </div>
+      </Subsection>
+
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={runScan}
+          className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+        >
+          <IconRefresh className="w-4 h-4" />
+          {ts('scan_now')}
+        </button>
+        {scanMessage && (
+          <span className="text-xs text-muted">{scanMessage}</span>
+        )}
+      </div>
+    </div>
+  )
+
+  const renderBehavior = () => (
+    <div className="flex flex-col gap-3">
+      <Subsection
+        id="behavior-launch"
+        title={ts('behavior_title')}
+        description={ts('behavior_desc')}
+        searchText={`${ts('behavior_title')} ${ts('behavior_desc')} ${ts('launch_console_label')} ${ts('close_on_open_label')} ${ts('minimize_tray_label')} ${ts('reopen_label')} ${ts('tray_recent_label')} ${ts('palette_shortcut')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-5">
+          <SettingRow
+            label={ts('launch_console_label')}
+            description={
+              isWindows
+                ? ts('launch_console_desc_windows')
+                : ts('launch_console_desc')
+            }
+          >
+            <Toggle
+              checked={settings.launch_with_console}
+              onChange={(checked) =>
+                update({ ...settings, launch_with_console: checked })
+              }
+              label={ts('launch_console_label')}
+            />
+          </SettingRow>
+
+          <SettingRow
+            label={ts('close_on_open_label')}
+            description={
+              isMac ? ts('close_on_open_desc_mac') : ts('close_on_open_desc')
+            }
+            divider
+          >
+            <Toggle
+              checked={settings.close_on_project_open}
+              onChange={(checked) =>
+                update({ ...settings, close_on_project_open: checked })
+              }
+              label={ts('close_on_open_label')}
+            />
+          </SettingRow>
+
+          {!isMac && (
+            <SettingRow
+              label={ts('minimize_tray_label')}
+              description={ts('minimize_tray_desc')}
+              divider
+            >
+              <Toggle
+                checked={settings.minimize_to_tray}
+                onChange={(checked) =>
+                  update({ ...settings, minimize_to_tray: checked })
+                }
+                label={ts('minimize_tray_label')}
+              />
+            </SettingRow>
+          )}
+
+          <AnimatePresence initial={false}>
+            {settings.close_on_project_open &&
+              (isMac || settings.minimize_to_tray) && (
+                <motion.div key="div-1358"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.2, ease: 'easeOut' }}
+                  className="overflow-hidden"
+                >
+                  <SettingRow
+                    label={ts('reopen_label')}
+                    description={
+                      isMac ? ts('reopen_desc_mac') : ts('reopen_desc')
+                    }
+                    divider
+                  >
+                    <Toggle
+                      checked={settings.reopen_after_godot_closes}
+                      onChange={(checked) =>
+                        update({ ...settings, reopen_after_godot_closes: checked })
+                      }
+                      label={ts('reopen_label')}
+                    />
+                  </SettingRow>
+                </motion.div>
+              )}
+          </AnimatePresence>
+
+          <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
+            <Slider
+              label={ts('tray_recent_label')}
+              display={
+                <span className="text-xs text-ink tabular-nums">
+                  {ts('n_projects', {
+                    count: settings.tray_recent_projects_count,
+                  })}
+                </span>
+              }
+              value={settings.tray_recent_projects_count}
+              min={1}
+              max={10}
+              defaultValue={5}
+              onChange={(value) => {
+                update({ ...settings, tray_recent_projects_count: value })
+                api.refreshTrayMenu().catch(() => {})
+              }}
+            />
+            <p className="text-[11px] text-muted leading-relaxed">
+              {ts('tray_recent_desc')}
+            </p>
+          </div>
+
+          <KeyRecorder
+            value={settings.command_palette_keybind}
+            onChange={(value) =>
+              update({ ...settings, command_palette_keybind: value })
+            }
+            onReset={() =>
+              update({ ...settings, command_palette_keybind: 'p' })
+            }
+          />
+        </div>
+      </Subsection>
+
+      <Subsection
+        id="behavior-projects"
+        title={ts('behavior_projects_title')}
+        description={ts('behavior_projects_desc')}
+        searchText={`${ts('behavior_projects_title')} ${ts('behavior_projects_desc')} ${ts('auto_scan_label')} ${ts('use_workspaces_label')} ${ts('git_init_new_projects_label')} ${ts('naming_convention_label')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-5">
+          <SettingRow
+            label={ts('auto_scan_label')}
+            description={ts('auto_scan_desc')}
+          >
+            <Toggle
+              checked={settings.auto_scan_on_startup}
+              onChange={(checked) =>
+                update({ ...settings, auto_scan_on_startup: checked })
+              }
+              label={ts('auto_scan_label')}
+            />
+          </SettingRow>
+
+          <SettingRow
+            label={ts('use_workspaces_label')}
+            description={ts('workspaces_off_desc')}
+            divider
+          >
+            <Toggle
+              checked={settings.workspaces_enabled}
+              onChange={(checked) =>
+                update({ ...settings, workspaces_enabled: checked })
+              }
+              label={ts('use_workspaces_label')}
+            />
+          </SettingRow>
+
+          <SettingRow
+            label={ts('git_init_new_projects_label')}
+            description={ts('git_init_new_projects_desc')}
+            divider
+          >
+            <Toggle
+              checked={settings.git_init_new_projects}
+              onChange={(checked) =>
+                update({ ...settings, git_init_new_projects: checked })
+              }
+              label={ts('git_init_new_projects_label')}
+            />
+          </SettingRow>
+
+          <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
+            <span className="text-xs font-medium text-muted">
+              {ts('naming_convention_label')}
+            </span>
+            {(() => {
+              const conventionOptions = [
+                { value: 'keep' as const, label: ts('naming_keep') },
+                { value: 'kebab-case' as const, label: ts('naming_kebab') },
+                { value: 'snake_case' as const, label: ts('naming_snake') },
+                { value: 'camelCase' as const, label: ts('naming_camel') },
+                { value: 'PascalCase' as const, label: ts('naming_pascal') },
+                { value: 'Title Case' as const, label: ts('naming_title') },
+              ]
+              const currentLabel =
+                conventionOptions.find(
+                  (o) => o.value === settings.directory_naming_convention,
+                )?.label ?? conventionOptions[0].label
               return (
-                <div className="max-h-60 overflow-y-auto p-1.5">
-                  {matches.map((item) => (
+                <Dropdown
+                  align="right"
+                  trigger={({ open, toggle }) => (
                     <button
-                      key={item.key}
-                      onClick={() => {
-                        setSettingsSearchQuery('')
-                        setTab(item.tab as SettingsTab)
-                        window.dispatchEvent(
-                          new CustomEvent('app:open-setting', { detail: item.key }),
-                        )
-                      }}
-                      className="focus-ring cursor-pointer w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-left transition-colors hover:bg-raised text-muted hover:text-ink"
+                      type="button"
+                      onClick={toggle}
+                      aria-expanded={open}
+                      className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-btn bg-overlay border border-outline/50 text-xs font-medium text-ink hover:border-accent-dim transition-colors"
                     >
-                      <span className="flex-1">{item.label ?? item.key.replace(/_/g, ' ')}</span>
-                      <span className="text-[10px] font-medium text-muted/50 uppercase tracking-wider">
-                        {item.tab}
-                      </span>
+                      {currentLabel}
+                      <IconChevronDown
+                        className={`w-3 h-3 text-muted transition-transform duration-200 ${
+                          open ? 'rotate-180' : ''
+                        }`}
+                      />
                     </button>
-                  ))}
-                </div>
+                  )}
+                  items={conventionOptions.map(({ value, label }) => ({
+                    key: value,
+                    label,
+                    active: settings.directory_naming_convention === value,
+                    onClick: () =>
+                      update({ ...settings, directory_naming_convention: value }),
+                  }))}
+                />
               )
             })()}
-          </motion.div>
-        )}
-      </div>
+            <p className="text-[11px] text-muted leading-relaxed">
+              {ts('naming_convention_desc')}
+            </p>
+          </div>
 
-      {/* Tab bar */}
-      <div className="inline-flex self-start rounded-lg border border-line bg-raised p-1 gap-1">
-        {TABS.map(({ id }) => {
-          const label = t(id)
-          return (
-            <motion.button
-              key={id}
-              whileTap={{ scale: 0.96 }}
-              onClick={() => setTab(id)}
-              className={
-                'focus-ring cursor-pointer px-4 py-1.5 rounded-md text-xs font-medium transition-colors ' +
-                (tab === id
-                  ? 'bg-accent text-white shadow-sm'
-                  : 'text-muted hover:text-ink hover:bg-overlay/60')
-              }
-            >
-              {label}
-            </motion.button>
-          )
-        })}
-      </div>
+        </div>
+      </Subsection>
 
-      <AnimatePresence mode="wait">
-        {tab === 'storage' && (
-          <motion.div
-            key="storage"
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.12 }}
+      <Subsection
+        id="behavior-watchers"
+        title={ts('file_watchers_title')}
+        description={ts('file_watchers_desc')}
+        searchText={`${ts('file_watchers_title')} ${ts('file_watchers_desc')} ${ts('watch_projects_label')} ${ts('watch_versions_label')} ${ts('watch_template_label')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-5">
+          <SettingRow
+            label={ts('watch_projects_label')}
+            description={ts('watch_projects_desc')}
           >
-            <div data-section-id="storage-folders">
-            <SectionCard
-              title={t('storage_title')}
-              description={t('storage_desc')}
-            >
-              <div className="flex flex-col gap-6">
-                <div className="flex flex-col gap-2.5">
-                  <span className="text-xs font-medium text-muted">
-                    {t('section_projects')}
-                  </span>
-                  <DirList
-                    dirs={current.project_scan_dirs}
-                    onChange={(dirs) => setField('project_scan_dirs', dirs)}
-                    emptyHint={t('empty_hint_projects')}
-                    defaultDir={current.default_project_location}
-                    onSetDefault={(dir) =>
-                      setField('default_project_location', dir)
-                    }
-                    defaultLabel={t('new_project_default')}
-                    showFallbackDescription={false}
-                  />
-                  <p className="text-[11px] text-muted leading-relaxed">
-                    {t('projects_desc')}
-                  </p>
-                </div>
+            <Toggle
+              checked={settings.auto_watch_project_dirs}
+              onChange={(checked) => {
+                update({ ...settings, auto_watch_project_dirs: checked })
+                api.restartWatchers().catch(() => {})
+              }}
+              label={ts('watch_projects_label')}
+            />
+          </SettingRow>
 
-                <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
-                  <span className="text-xs font-medium text-muted">
-                    {t('section_godot_versions')}
-                  </span>
-                  <DirList
-                    dirs={current.version_scan_dirs}
-                    onChange={(dirs) => setField('version_scan_dirs', dirs)}
-                    emptyHint={t('empty_hint_versions')}
-                    defaultDir={current.download_dir}
-                    onSetDefault={(dir) => setField('download_dir', dir)}
-                    defaultLabel={t('download_folder')}
-                    showFallbackDescription={true}
-                    fallbackDownloadPath="AppData\\Roaming\\com.ryko.godothub\\godot-versions\\"
-                  />
-                  <p className="text-[11px] text-muted leading-relaxed">
-                    {t('godot_versions_desc')}
-                  </p>
-                </div>
-
-                <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
-                  <span className="text-xs font-medium text-muted">
-                    {t('section_templates')}
-                  </span>
-                  <div className="flex items-center gap-2.5">
-                    {current.template_scan_dir ? (
-                      <>
-                        <input
-                          readOnly
-                          value={current.template_scan_dir}
-                          className="flex-1 bg-raised border border-line rounded-lg px-3.5 py-2.5 text-xs font-mono"
-                        />
-                        <motion.button
-                          whileHover={{ y: -1 }}
-                          whileTap={{ scale: 0.96 }}
-                          onClick={() => setField('template_scan_dir', null)}
-                          className="focus-ring cursor-pointer px-3 py-2 rounded-lg border border-line text-xs text-muted hover:text-danger hover:border-danger/30 hover:bg-danger/10 transition-colors"
-                        >
-                          {t('clear')}
-                        </motion.button>
-                      </>
-                    ) : (
-                      <span className="text-xs text-muted">
-                        {t('no_folder_set')}
-                      </span>
-                    )}
-                    <motion.button
-                      whileHover={{ y: -1 }}
-                      whileTap={{ scale: 0.96 }}
-                      onClick={async () => {
-                        const folder = await api.pickFolder()
-                        if (folder) setField('template_scan_dir', folder)
-                      }}
-                      className="focus-ring cursor-pointer px-3.5 py-2 rounded-lg border border-line text-xs hover:border-accent-dim hover:bg-raised transition-colors"
-                    >
-                      {t('browse')}
-                    </motion.button>
-                  </div>
-                  <p className="text-[11px] text-muted leading-relaxed">
-                    {t('template_scan_desc')}
-                  </p>
-                </div>
-
-                <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="text-xs font-medium text-muted">
-                      {t('scan_depth_label')}
-                    </span>
-                    <span className="text-xs text-ink tabular-nums">
-                      {t('folders_deep', { count: current.scan_depth })}
-                    </span>
-                  </div>
-                  <Slider
-                    value={current.scan_depth}
-                    min={1}
-                    max={10}
-                    onChange={(value) => setField('scan_depth', value)}
-                    label={t('scan_depth_label')}
-                  />
-                  <p className="text-[11px] text-muted leading-relaxed">
-                    {t('scan_depth_desc')}
-                  </p>
-                </div>
-
-                <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
-                  <div className="flex items-center justify-between gap-4">
-                    <span className="text-xs font-medium text-muted">
-                      {t('download_concurrency_label')}
-                    </span>
-                    <span className="text-xs text-ink tabular-nums">
-                      {t('at_once', { count: current.download_concurrency })}
-                    </span>
-                  </div>
-                  <Slider
-                    value={current.download_concurrency}
-                    min={1}
-                    max={10}
-                    onChange={(value) =>
-                      setField('download_concurrency', value)
-                    }
-                    label={t('download_concurrency_label')}
-                  />
-                  <p className="text-[11px] text-muted leading-relaxed">
-                    {t('download_concurrency_desc')}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-3 pt-5 border-t border-line">
-                  <motion.button
-                    whileHover={{ y: -1 }}
-                    whileTap={{ scale: 0.96 }}
-                    onClick={runScan}
-                    className="focus-ring cursor-pointer px-5 py-2.5 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
-                  >
-                    {t('scan_now')}
-                  </motion.button>
-                  {scanMessage && (
-                    <span className="text-xs text-muted">{scanMessage}</span>
-                  )}
-                </div>
-              </div>
-            </SectionCard>
-            </div>
-          </motion.div>
-        )}
-
-        {tab === 'behavior' && (
-          <motion.div
-            key="behavior"
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.12 }}
-            className="flex flex-col gap-6"
+          <SettingRow
+            label={ts('watch_versions_label')}
+            description={ts('watch_versions_desc')}
+            divider
           >
-            <div data-section-id="behavior">
-            <SectionCard
-              title={t('behavior_title')}
-              description={t('behavior_desc')}
-            >
-              <div className="flex flex-col gap-5">
-                <label className="flex items-center justify-between gap-4">
-                  <div>
-                    <span className="text-xs font-medium text-muted block">
-                      {t('launch_console_label')}
-                    </span>
-                    <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                      {isWindows
-                        ? t('launch_console_desc_windows')
-                        : t('launch_console_desc')}
-                    </p>
-                  </div>
-                  <Toggle
-                    checked={current.launch_with_console}
-                    onChange={(checked) =>
-                      setField('launch_with_console', checked)
-                    }
-                    label={t('launch_console_label')}
-                  />
-                </label>
+            <Toggle
+              checked={settings.auto_watch_version_dirs}
+              onChange={(checked) => {
+                update({ ...settings, auto_watch_version_dirs: checked })
+                api.restartWatchers().catch(() => {})
+              }}
+              label={ts('watch_versions_label')}
+            />
+          </SettingRow>
 
-                <label className="flex items-center justify-between gap-4 pt-5 border-t border-line">
-                  <div>
-                    <span className="text-xs font-medium text-muted block">
-                      {t('close_on_open_label')}
-                    </span>
-                    <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                      {isMac ? t('close_on_open_desc_mac') : t('close_on_open_desc')}
-                    </p>
-                  </div>
-                  <Toggle
-                    checked={current.close_on_project_open}
-                    onChange={(checked) =>
-                      setField('close_on_project_open', checked)
-                    }
-                    label={t('close_on_open_label')}
-                  />
-                </label>
-
-                {!isMac && (
-                  <label className="flex items-center justify-between gap-4 pt-5 border-t border-line">
-                    <div>
-                      <span className="text-xs font-medium text-muted block">
-                        {t('minimize_tray_label')}
-                      </span>
-                      <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                        {t('minimize_tray_desc')}
-                      </p>
-                    </div>
-                    <Toggle
-                      checked={current.minimize_to_tray}
-                      onChange={(checked) =>
-                        setField('minimize_to_tray', checked)
-                      }
-                      label={t('minimize_tray_label')}
-                    />
-                  </label>
-                )}
-
-                <AnimatePresence initial={false}>
-                  {current.close_on_project_open &&
-                    (isMac || current.minimize_to_tray) && (
-                      <motion.label
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.2, ease: 'easeOut' }}
-                        className="flex items-center justify-between gap-4 pt-5 border-t border-line overflow-hidden"
-                      >
-                        <div>
-                          <span className="text-xs font-medium text-muted block">
-                            {t('reopen_label')}
-                          </span>
-                          <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                            {isMac ? t('reopen_desc_mac') : t('reopen_desc')}
-                          </p>
-                        </div>
-                        <Toggle
-                          checked={current.reopen_after_godot_closes}
-                          onChange={(checked) =>
-                            setField('reopen_after_godot_closes', checked)
-                          }
-                          label={t('reopen_label')}
-                        />
-                      </motion.label>
-                    )}
-                </AnimatePresence>
-
-                <label className="flex flex-col gap-2.5 pt-5 border-t border-line">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-muted">
-                      {t('tray_recent_label')}
-                    </span>
-                    <span className="text-xs text-ink tabular-nums">
-                      {t('n_projects', { count: current.tray_recent_projects_count })}
-                    </span>
-                  </div>
-                  <Slider
-                    value={current.tray_recent_projects_count}
-                    min={1}
-                    max={10}
-                    onChange={(value) => {
-                      setField('tray_recent_projects_count', value)
-                      api.refreshTrayMenu().catch(() => {})
-                    }}
-                    label={t('tray_recent_label')}
-                  />
-                  <p className="text-[11px] text-muted leading-relaxed">
-                    {t('tray_recent_desc')}
-                  </p>
-                </label>
-
-                <KeyRecorder
-                  value={current.command_palette_keybind}
-                  onChange={(value) => setField('command_palette_keybind', value)}
-                  onReset={() => setField('command_palette_keybind', 'p')}
-                />
-              </div>
-            </SectionCard>
-            </div>
-
-            <div data-section-id="behavior-projects">
-            <SectionCard
-              title={t('behavior_projects_title')}
-              description={t('behavior_projects_desc')}
-            >
-              <div className="flex flex-col gap-5">
-                <label className="flex items-center justify-between gap-4">
-                  <div>
-                    <span className="text-xs font-medium text-muted block">
-                      {t('auto_scan_label')}
-                    </span>
-                    <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                      {t('auto_scan_desc')}
-                    </p>
-                  </div>
-                  <Toggle
-                    checked={current.auto_scan_on_startup}
-                    onChange={(checked) =>
-                      setField('auto_scan_on_startup', checked)
-                    }
-                    label={t('auto_scan_label')}
-                  />
-                </label>
-
-                <label className="flex items-center justify-between gap-4 pt-5 border-t border-line">
-                  <div>
-                    <span className="text-xs font-medium text-muted block">
-                      {t('use_categories_label')}
-                    </span>
-                    <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                      {t('categories_off_desc')}
-                    </p>
-                  </div>
-                  <Toggle
-                    checked={current.categories_enabled}
-                    onChange={(checked) =>
-                      setField('categories_enabled', checked)
-                    }
-                    label={t('use_categories_label')}
-                  />
-                </label>
-
-                <label className="flex items-center justify-between gap-4 pt-5 border-t border-line">
-                  <div>
-                    <span className="text-xs font-medium text-muted block">
-                      {t('use_workspaces_label')}
-                    </span>
-                    <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                      {t('workspaces_off_desc')}
-                    </p>
-                  </div>
-                  <Toggle
-                    checked={current.workspaces_enabled}
-                    onChange={(checked) =>
-                      setField('workspaces_enabled', checked)
-                    }
-                    label={t('use_workspaces_label')}
-                  />
-                </label>
-
-                <label className="flex flex-col gap-2.5 pt-5 border-t border-line">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-muted">
-                      {t('tooltip_delay_label')}
-                    </span>
-                    <span className="text-xs text-ink tabular-nums">
-                      {current.tooltip_delay}ms
-                    </span>
-                  </div>
-                  <Slider
-                    value={current.tooltip_delay}
-                    min={100}
-                    max={1000}
-                    step={50}
-                    onChange={(value) =>
-                      setField('tooltip_delay', value)
-                    }
-                    label={t('tooltip_delay_label')}
-                  />
-                  <p className="text-[11px] text-muted leading-relaxed">
-                    {t('tooltip_delay_desc')}
-                  </p>
-                </label>
-
-              </div>
-            </SectionCard>
-            </div>
-
-            <div data-section-id="behavior-watchers">
-            <SectionCard
-              title={t('file_watchers_title')}
-              description={t('file_watchers_desc')}
-            >
-              <div className="flex flex-col gap-5">
-                <label className="flex items-center justify-between gap-4">
-                  <div>
-                    <span className="text-xs font-medium text-muted block">
-                      {t('watch_projects_label')}
-                    </span>
-                    <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                      {t('watch_projects_desc')}
-                    </p>
-                  </div>
-                  <Toggle
-                    checked={current.auto_watch_project_dirs}
-                    onChange={(checked) =>
-                      setField('auto_watch_project_dirs', checked)
-                    }
-                    label={t('watch_projects_label')}
-                  />
-                </label>
-
-                <label className="flex items-center justify-between gap-4 pt-5 border-t border-line">
-                  <div>
-                    <span className="text-xs font-medium text-muted block">
-                      {t('watch_versions_label')}
-                    </span>
-                    <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                      {t('watch_versions_desc')}
-                    </p>
-                  </div>
-                  <Toggle
-                    checked={current.auto_watch_version_dirs}
-                    onChange={(checked) =>
-                      setField('auto_watch_version_dirs', checked)
-                    }
-                    label={t('watch_versions_label')}
-                  />
-                </label>
-
-                <label className="flex items-center justify-between gap-4 pt-5 border-t border-line">
-                  <div>
-                    <span className="text-xs font-medium text-muted block">
-                      {t('watch_template_label')}
-                    </span>
-                    <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                      {t('watch_template_desc')}
-                    </p>
-                  </div>
-                  <Toggle
-                    checked={current.auto_watch_template_dir}
-                    onChange={(checked) =>
-                      setField('auto_watch_template_dir', checked)
-                    }
-                    label={t('watch_template_label')}
-                  />
-                </label>
-
-                <p className="text-[10px] text-muted/50 mt-1 leading-relaxed">
-                  {t('watcher_footer_desc')}
-                </p>
-              </div>
-            </SectionCard>
-            </div>
-          </motion.div>
-        )}
-
-        {tab === 'display' && (
-          <motion.div
-            key="display"
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.12 }}
+          <SettingRow
+            label={ts('watch_template_label')}
+            description={ts('watch_template_desc')}
+            divider
           >
-            <div data-section-id="display">
-            <SectionCard
-              title={t('last_opened_title')}
-              description={
-                t('last_opened_desc')
-              }
-            >
-              <div className="flex flex-col gap-6">
-                <div className="flex flex-col gap-2.5">
-                  <span className="text-xs font-medium text-muted">
-                    {t('time_format_label')}
-                  </span>
-                  <div className="inline-flex self-start rounded-lg border border-line bg-raised p-1 gap-1">
-                    {[
-                      { value: '12h' as const, label: t('12h') },
-                      { value: '24h' as const, label: t('24h') },
-                    ].map(({ value, label }) => {
-                      const active = current.last_opened_time_format === value
-                      return (
-                        <motion.button
-                          key={value}
-                          whileTap={{ scale: 0.96 }}
-                          onClick={() =>
-                            setField('last_opened_time_format', value)
-                          }
-                          className={
-                            'focus-ring cursor-pointer px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors ' +
-                            (active
-                              ? 'bg-accent text-white'
-                              : 'text-muted hover:text-ink hover:bg-overlay/60')
-                          }
-                        >
-                          {label}
-                        </motion.button>
-                      )
-                    })}
-                  </div>
-                </div>
+            <Toggle
+              checked={settings.auto_watch_template_dir}
+              onChange={(checked) => {
+                update({ ...settings, auto_watch_template_dir: checked })
+                api.restartWatchers().catch(() => {})
+              }}
+              label={ts('watch_template_label')}
+            />
+          </SettingRow>
 
-                <div className="flex flex-col gap-2.5">
-                  <span className="text-xs font-medium text-muted">
-                    {t('date_format_label')}
-                  </span>
-                  <div className="inline-flex self-start rounded-lg border border-line bg-raised p-1 gap-1">
-                    {[
-                      { value: 'DD-MM-YYYY' as const, label: t('dd_mm_yyyy') },
-                      { value: 'MM-DD-YYYY' as const, label: t('mm_dd_yyyy') },
-                      { value: 'YYYY-MM-DD' as const, label: t('yyyy_mm_dd') },
-                    ].map(({ value, label }) => {
-                      const active = current.last_opened_date_format === value
-                      return (
-                        <motion.button
-                          key={value}
-                          whileTap={{ scale: 0.96 }}
-                          onClick={() =>
-                            setField('last_opened_date_format', value)
-                          }
-                          className={
-                            'focus-ring cursor-pointer px-3.5 py-1.5 rounded-md text-xs font-mono font-medium transition-colors ' +
-                            (active
-                              ? 'bg-accent text-white'
-                              : 'text-muted hover:text-ink hover:bg-overlay/60')
-                          }
-                        >
-                          {label}
-                        </motion.button>
-                      )
-                    })}
-                  </div>
-                </div>
-              </div>
+          <p className="text-[10px] text-muted/50 mt-1 leading-relaxed">
+            {ts('watcher_footer_desc')}
+          </p>
+        </div>
+      </Subsection>
+    </div>
+  )
 
-              <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
-                <span className="text-xs font-medium text-muted">
-                  {t('language_label')}
-                </span>
-                <div className="inline-flex self-start rounded-lg border border-line bg-raised p-1 gap-1">
-                  {[
-                    { value: 'en-US', label: 'English' },
-                    { value: 'zh-CN', label: '简体中文' },
-                  ].map(({ value, label }) => {
-                    const active = i18n.language === value || i18n.language.startsWith(value.split('-')[0])
-                    return (
-                      <motion.button
-                        key={value}
-                        whileTap={{ scale: 0.96 }}
-                        onClick={() => {
-                          i18n.changeLanguage(value)
-                          setField('language', value)
-                        }}
-                        className={
-                          'focus-ring cursor-pointer px-3.5 py-1.5 rounded-md text-xs font-medium transition-colors ' +
-                          (active
-                            ? 'bg-accent text-white'
-                            : 'text-muted hover:text-ink hover:bg-overlay/60')
-                        }
-                      >
-                        {label}
-                      </motion.button>
-                    )
-                  })}
-                </div>
-              </div>
-            </SectionCard>
-            </div>
-          </motion.div>
-        )}
+  const refreshGitAuth = async () => {
+    try {
+      setGitAuth(await api.gitAuthGetState())
+    } catch {}
+  }
 
-        {tab === 'appearance' && (
-          <motion.div
-            key="appearance"
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.12 }}
-          >
-            <div data-section-id="appearance">
-            <SectionCard
-              title={t('appearance_title')}
-              description={t('appearance_desc')}
-            >
-              <div className="flex flex-col gap-7">
-                <div className="flex flex-col gap-2.5">
-                  <span className="text-xs font-medium text-muted">{t('theme')}</span>
-                  <div className="flex items-center gap-3 flex-wrap">
-                    {/* Dark / Light */}
-                    <div className="inline-flex self-start rounded-lg border border-line bg-raised p-1 gap-1">
-                      {[
-                        { mode: 'dark' as const, label: t('dark'), Icon: IconMoon },
-                        { mode: 'light' as const, label: t('light'), Icon: IconSun },
-                      ].map(({ mode, label, Icon }) => {
-                        const active = current.theme_mode === mode
-                        return (
-                          <motion.button
-                            key={mode}
-                            whileTap={{ scale: 0.96 }}
-                            onClick={() => setThemeMode(mode)}
-                            className={
-                              'focus-ring cursor-pointer flex items-center gap-2 px-3.5 py-1.5 rounded-md text-sm font-medium transition-colors ' +
-                              (active
-                                ? 'bg-accent text-white'
-                                : 'text-muted hover:text-ink hover:bg-overlay/60')
-                            }
-                          >
-                            <Icon className="w-3.5 h-3.5" />
-                            {label}
-                          </motion.button>
-                        )
-                      })}
-                    </div>
+  useEffect(() => {
+    void refreshGitAuth()
+  }, [])
 
-                    {/* Lucky / Reset */}
-                    <div className="inline-flex self-start rounded-lg border border-line bg-raised p-1 gap-1">
-                      <motion.button
-                        whileHover={{ y: -1 }}
-                        whileTap={{ scale: 0.96 }}
-                        onClick={feelingLucky}
-                        aria-label={t('feeling_lucky')}
-                        className="focus-ring cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-muted hover:text-accent-bright hover:bg-overlay/60 transition-colors"
-                      >
-                        <IconRocket className="w-3.5 h-3.5" />
-                        {t('lucky')}
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ y: -1 }}
-                        whileTap={{ scale: 0.96 }}
-                        onClick={resetThemeColors}
-                        aria-label={t('reset_colors')}
-                        className="focus-ring cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium text-muted hover:text-ink hover:bg-overlay/60 transition-colors"
-                      >
-                        <IconHeart className="w-3.5 h-3.5" />
-                        {t('reset')}
-                      </motion.button>
-                    </div>
-                  </div>
-                </div>
+  const handleSavePat = async () => {
+    setPatMsg(null)
+    try {
+      await api.gitAuthSavePat(patHost, patUser, patToken)
+      setPatHost('')
+      setPatUser('')
+      setPatToken('')
+      setPatOpen(false)
+      await refreshGitAuth()
+    } catch (e) {
+      setPatMsg(String(e))
+    }
+  }
 
-                <div className="flex gap-8">
-                  <ColorSwatchPicker
-                    label={t('setting_accent_color')}
-                    value={current.accent_color}
-                    presets={
-                      current.theme_mode === 'light'
-                        ? ACCENT_PRESETS_LIGHT
-                        : ACCENT_PRESETS_DARK
-                    }
-                    onChange={(hex) => {
-                      setField('accent_color', hex)
-                      previewTheme(hex, current.background_color)
-                    }}
-                  />
-                  <ColorSwatchPicker
-                    label={t('setting_background_color')}
-                    value={current.background_color}
-                    presets={
-                      current.theme_mode === 'light'
-                        ? BG_PRESETS_LIGHT
-                        : BG_PRESETS_DARK
-                    }
-                    onChange={(hex) => {
-                      setField('background_color', hex)
-                      previewTheme(current.accent_color, hex)
-                    }}
-                  />
-                </div>
-                <p className="-mt-4 text-[11px] text-muted leading-relaxed">
-                  {t('background_color_desc')}
-                </p>
-
-                <label className="flex flex-col gap-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-muted">
-                      {t('corner_radius_label')}
-                    </span>
-                    <span className="text-xs font-mono text-ink bg-raised px-2 py-0.5 rounded-md">
-                      {current.corner_radius}px
-                    </span>
-                  </div>
-                  <Slider
-                    min={0}
-                    max={20}
-                    step={1}
-                    value={current.corner_radius}
-                    label={t('corner_radius_label')}
-                    onChange={(v) => {
-                      setField('corner_radius', v)
-                      applyRadius(v)
-                    }}
-                  />
-                  <p className="text-[11px] text-muted leading-relaxed">
-                    {t('corner_radius_desc')}
-                  </p>
-                </label>
-
-                <label className="flex flex-col gap-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-muted">
-                      {t('ui_density_label')}
-                    </span>
-                    <span className="text-xs font-mono text-ink bg-raised px-2 py-0.5 rounded-md">
-                      {Math.round(current.ui_density * 100)}%
-                    </span>
-                  </div>
-                  <Slider
-                    min={0.75}
-                    max={1.25}
-                    step={0.05}
-                    value={current.ui_density}
-                    label={t('ui_density_label')}
-                    onChange={(v) => {
-                      setField('ui_density', v)
-                      applyDensity(v)
-                    }}
-                  />
-                  <p className="text-[11px] text-muted leading-relaxed">
-                    {t('density_desc')}
-                  </p>
-                </label>
-
-                <label className="flex flex-col gap-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-muted">
-                      {t('text_size_label')}
-                    </span>
-                    <span className="text-xs font-mono text-ink bg-raised px-2 py-0.5 rounded-md">
-                      {Math.round(current.font_scale * 100)}%
-                    </span>
-                  </div>
-                  <Slider
-                    min={0.85}
-                    max={1.3}
-                    step={0.05}
-                    value={current.font_scale}
-                    label={t('text_size_label')}
-                    onChange={(v) => {
-                      setField('font_scale', v)
-                      applyFontScale(v)
-                    }}
-                  />
-                  <p className="text-[11px] text-muted leading-relaxed">
-                    {t('text_size_desc')}
-                  </p>
-                </label>
-
-                <label className="flex items-center justify-between gap-4">
-                  <div>
-                    <span className="text-xs font-medium text-muted block">
-                      {t('reduce_motion_label')}
-                    </span>
-                    <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                      {t('reduce_motion_desc')}
-                    </p>
-                  </div>
-                  <Toggle
-                    checked={current.reduce_motion}
-                    onChange={(checked) => {
-                      setField('reduce_motion', checked)
-                      applyReducedMotion(checked)
-                    }}
-                    label={t('reduce_motion_label')}
-                  />
-                </label>
-
-                <label className="flex items-center justify-between gap-4">
-                  <div>
-                    <span className="text-xs font-medium text-muted block">
-                      {t('show_scrollbar_label')}
-                    </span>
-                    <p className="text-[11px] text-muted mt-1 leading-relaxed">
-                      {t('scrollbar_desc')}
-                    </p>
-                  </div>
-                  <Toggle
-                    checked={current.show_scrollbars}
-                    onChange={(checked) => {
-                      setField('show_scrollbars', checked)
-                    }}
-                    label={t('show_scrollbar_label')}
-                  />
-                </label>
-
-                <label className="flex flex-col gap-2.5">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium text-muted">
-                      {t('project_icon_opacity_label')}
-                    </span>
-                    <span className="text-xs font-mono text-ink bg-raised px-2 py-0.5 rounded-md">
-                      {current.project_icon_opacity}%
-                    </span>
-                  </div>
-                  <Slider
-                    min={0}
-                    max={50}
-                    step={1}
-                    value={current.project_icon_opacity}
-                    label={t('project_icon_opacity_label')}
-                    onChange={(v) => {
-                      setField('project_icon_opacity', v)
-                      applyProjectIconOpacity(v)
-                    }}
-                  />
-                  <p className="text-[11px] text-muted leading-relaxed">
-                    {t('icon_opacity_desc')}
-                  </p>
-                </label>
-
-                <div className="pt-5 border-t border-line flex flex-col gap-5">
-                  <div className="flex flex-col gap-2.5">
-                    <div className="flex items-center justify-between gap-4">
-                      <span className="text-xs font-medium text-muted">
-                        {t('sidebar_expanded_label')}
-                      </span>
-                      <span className="text-xs font-mono text-ink bg-raised px-2 py-0.5 rounded-md">
-                        {sidebarExpandedWidth}px
-                      </span>
-                    </div>
-                    <Slider
-                      value={sidebarExpandedWidth}
-                      min={160}
-                      max={400}
-                      step={10}
-                      label={t('sidebar_expanded_label')}
-                      onChange={(v) => {
-                        setSidebarExpandedWidth(v)
-                        try {
-                          localStorage.setItem(
-                            'sidebar_width_expanded',
-                            String(v),
-                          )
-                          window.dispatchEvent(
-                            new Event('app:sidebar-width-changed'),
-                          )
-                        } catch {}
-                      }}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-2.5">
-                    <div className="flex items-center justify-between gap-4">
-                      <span className="text-xs font-medium text-muted">
-                        {t('sidebar_collapsed_label')}
-                      </span>
-                      <span className="text-xs font-mono text-ink bg-raised px-2 py-0.5 rounded-md">
-                        {sidebarCollapsedWidth}px
-                      </span>
-                    </div>
-                    <Slider
-                      value={sidebarCollapsedWidth}
-                      min={50}
-                      max={120}
-                      step={2}
-                      label={t('sidebar_collapsed_label')}
-                      onChange={(v) => {
-                        setSidebarCollapsedWidth(v)
-                        try {
-                          localStorage.setItem(
-                            'sidebar_width_collapsed',
-                            String(v),
-                          )
-                          window.dispatchEvent(
-                            new Event('app:sidebar-width-changed'),
-                          )
-                        } catch {}
-                      }}
-                    />
-                  </div>
-                </div>
-
-                <motion.button
-                  whileHover={{ y: -1 }}
-                  whileTap={{ scale: 0.96 }}
-                  onClick={resetAppearance}
-                  className="focus-ring cursor-pointer self-start px-4 py-2 rounded-lg border border-line text-muted hover:text-ink hover:bg-raised text-sm transition-colors"
+  const renderIntegrations = () => (
+    <div className="flex flex-col gap-3">
+      <Subsection
+        id="integrations-git"
+        title={
+          <span className="inline-flex items-center gap-2">
+            <IconGitBranch className="w-3.5 h-3.5 text-muted" />
+            Git
+          </span>
+        }
+        description={ts('github_token_desc')}
+        searchText={`${ts('git_sign_in_github')} ${ts('git_sign_in_gitlab')} ${ts('git_pat_title')} ${ts('github_token_title')} ${ts('github_token_desc')} ${ts('test')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-5">
+          <div className="flex flex-col gap-2.5">
+            <span className="text-xs font-medium text-muted">GitHub</span>
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-xs text-muted">
+                {gitAuth?.github
+                  ? ts('git_connected_as', {
+                      username: gitAuth.github.username,
+                    })
+                  : ts('git_oauth_hint')}
+              </span>
+              {gitAuth?.github ? (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await api.gitAuthDisconnect('github')
+                    await refreshGitAuth()
+                  }}
+                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item border border-outline/50 text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-xs font-medium transition-colors"
                 >
-                  {t('reset_appearance')}
-                </motion.button>
-              </div>
-            </SectionCard>
+                  {ts('git_disconnect')}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setGitAuthFlow('github')}
+                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors"
+                >
+                  <IconGitBranch className="w-3.5 h-3.5" />
+                  {ts('git_sign_in_github')}
+                </button>
+              )}
             </div>
-          </motion.div>
-        )}
+          </div>
 
-        {tab === 'advanced' && (
-          <motion.div
-            key="advanced"
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -4 }}
-            transition={{ duration: 0.12 }}
-            className="flex flex-col gap-6"
-          >
-            <SectionCard
-              title={t('github_token_title')}
-              description={t('github_token_desc')}
+          <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
+            <span className="text-xs font-medium text-muted">GitLab</span>
+            <div className="flex items-center justify-between gap-4">
+              <span className="text-xs text-muted">
+                {gitAuth?.gitlab
+                  ? gitAuth.gitlab.host
+                    ? ts('git_connected_to', {
+                        host: gitAuth.gitlab.host,
+                        username: gitAuth.gitlab.username,
+                      })
+                    : ts('git_connected_as', {
+                        username: gitAuth.gitlab.username,
+                      })
+                  : ts('git_oauth_hint')}
+              </span>
+              {gitAuth?.gitlab ? (
+                <button
+                  type="button"
+                  onClick={async () => {
+                    await api.gitAuthDisconnect('gitlab')
+                    await refreshGitAuth()
+                  }}
+                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item border border-outline/50 text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-xs font-medium transition-colors"
+                >
+                  {ts('git_disconnect')}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setGitAuthFlow('gitlab')}
+                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors"
+                >
+                  <IconGitBranch className="w-3.5 h-3.5" />
+                  {ts('git_sign_in_gitlab')}
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
+            <span className="text-xs font-medium text-muted">
+              {ts('git_self_hosted_title')}
+            </span>
+            <p className="text-[11px] text-muted leading-relaxed">
+              {ts('git_self_hosted_desc')}
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <input
+                value={gitlabUrl}
+                onChange={(e) => setGitlabUrl(e.target.value)}
+                placeholder={ts('git_self_hosted_url_placeholder')}
+                className="focus-ring bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
+              />
+              <input
+                value={gitlabClientId}
+                onChange={(e) => setGitlabClientId(e.target.value)}
+                placeholder={ts('git_self_hosted_client_id')}
+                className="focus-ring bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
+              />
+            </div>
+            <button
+              type="button"
+              disabled={!gitlabUrl.trim() || !gitlabClientId.trim()}
+              onClick={() => {
+                setGitAuthInstance({
+                  baseUrl: gitlabUrl.trim(),
+                  clientId: gitlabClientId.trim(),
+                })
+                setGitAuthFlow('gitlab')
+              }}
+              className="focus-ring cursor-pointer inline-flex items-center justify-center gap-1.5 h-8 px-4 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium transition-colors w-fit"
             >
-              <div className="flex flex-col gap-2.5">
-                <div className="relative">
-                  <input
-                    type="password"
-                    value={current.github_token ?? ''}
-                    onChange={(e) =>
-                      setField('github_token', e.target.value || null)
-                    }
-                    placeholder={t('setting_token_placeholder', { ns: 'common' })}
-                    className="focus-ring w-full bg-raised border border-line rounded-lg px-3.5 py-2.5 text-sm font-mono focus:border-accent-dim transition-colors pr-20"
-                  />
-                  <motion.button
-                    whileHover={{ y: -1 }}
-                    whileTap={{ scale: 0.96 }}
-                    onClick={async () => {
-                      if (tokenTestTimeout.current) clearTimeout(tokenTestTimeout.current)
-                      try {
-                        setTokenTestState('testing')
-                        const info = await api.testGithubToken()
-                        const mins = Math.max(1, Math.round((info.reset_at - Date.now() / 1000) / 60))
-                        const status = info.used_token
-                          ? `${info.remaining}/${info.limit} (resets ~${mins}min)`
-                          : `${info.remaining}/${info.limit}`
-                        setTokenTestState(info.remaining > 0 ? 'success' : 'warning')
-                        setTokenTestMsg(t('token_valid', { status }))
-                      } catch (e) {
-                        setTokenTestState('error')
-                        setTokenTestMsg(t('test_failed', { error: e }))
-                      }
-                      tokenTestTimeout.current = setTimeout(() => {
-                        setTokenTestState('idle')
-                        setTokenTestMsg(null)
-                      }, 5000)
-                    }}
-                    className="focus-ring cursor-pointer absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md bg-raised border border-line text-xs font-medium text-muted hover:text-ink hover:border-accent-dim transition-colors"
-                  >
-                    {tokenTestState === 'testing' ? t('testing') : t('test')}
-                  </motion.button>
+              <IconGitBranch className="w-3.5 h-3.5" />
+              {ts('git_sign_in_self_hosted')}
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
+            <span className="text-xs font-medium text-muted">
+              {ts('git_pat_title')}
+            </span>
+            <p className="text-[11px] text-muted leading-relaxed">
+              {ts('git_pat_desc')}
+            </p>
+
+            {(gitAuth?.pats.length ?? 0) === 0 && !patOpen && (
+              <span className="text-xs text-muted/60">
+                {ts('git_pat_empty')}
+              </span>
+            )}
+
+            <div className="flex flex-col gap-2">
+              {(gitAuth?.pats ?? []).map((pat) => (
+                <div
+                  key={pat.host}
+                  className="flex items-center justify-between gap-3 rounded-btn bg-base border border-outline/50 px-3.5 py-2.5"
+                >
+                  <div className="min-w-0 flex items-center gap-2">
+                    <span className="text-xs font-medium text-ink font-mono">
+                      {pat.host}
+                    </span>
+                    <span className="text-[11px] text-muted">
+                      {pat.username}
+                    </span>
+                  </div>
+                    <Tooltip content={ts('git_pat_remove')} side="left">
+                      <button
+                        type="button"
+                        aria-label={ts('git_pat_remove')}
+                        onClick={async () => {
+                          await api.gitAuthRemovePat(pat.host)
+                          await refreshGitAuth()
+                        }}
+                        className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/60 hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
+                      >
+                        <IconTrash className="w-3.5 h-3.5" />
+                      </button>
+                    </Tooltip>
                 </div>
-                {tokenTestMsg && (
-                  <span className={`text-[11px] ${
-                    tokenTestState === 'success' ? 'text-mint' :
-                    tokenTestState === 'warning' ? 'text-amber' :
-                    tokenTestState === 'error' ? 'text-danger' :
-                    'text-muted'
-                  }`}>
-                    {tokenTestMsg}
-                  </span>
+              ))}
+            </div>
+
+            {patOpen ? (
+              <div className="flex flex-col gap-2.5">
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    value={patHost}
+                    onChange={(e) => setPatHost(e.target.value)}
+                    placeholder={ts('git_pat_host_placeholder')}
+                    className="focus-ring bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
+                  />
+                  <input
+                    value={patUser}
+                    onChange={(e) => setPatUser(e.target.value)}
+                    placeholder={ts('git_pat_username')}
+                    className="focus-ring bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
+                  />
+                </div>
+                <input
+                  type="password"
+                  value={patToken}
+                  onChange={(e) => setPatToken(e.target.value)}
+                  placeholder={ts('git_pat_token')}
+                  className="focus-ring bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
+                />
+                {patMsg && (
+                  <span className="text-[11px] text-danger">{patMsg}</span>
                 )}
-                <p className="text-[11px] text-muted leading-relaxed">
-                  {t('token_help_desc')}{' '}
-                  <a
-                    href="https://github.com/settings/tokens"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-accent hover:text-accent-bright underline underline-offset-2"
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleSavePat}
+                    className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors"
                   >
-                    github.com/settings/tokens
-                  </a>
-                  .
-                </p>
+                    {ts('git_pat_save')}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setPatOpen(false)
+                      setPatMsg(null)
+                    }}
+                    className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3.5 rounded-item border border-outline/50 text-muted hover:text-ink hover:bg-raised text-xs font-medium transition-colors"
+                  >
+                    {ts('cancel', { ns: 'common' })}
+                  </button>
+                </div>
               </div>
-            </SectionCard>
-
-            <div data-section-id="advanced-support" className="rounded-xl border border-line bg-surface/60 p-6 flex items-center justify-between gap-6">
-              <div className="min-w-0">
-                <h3 className="font-display font-semibold">{t('titlebar_buttons')}</h3>
-                <p className="text-xs text-muted mt-1.5 leading-relaxed">
-                  {t('titlebar_buttons_desc')}
-                </p>
-              </div>
-              <div className="flex items-center gap-4 shrink-0">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <Toggle
-                    checked={current.show_support_button}
-                    onChange={(checked) =>
-                      setField('show_support_button', checked)
-                    }
-                    label={t('show_support_label')}
-                  />
-                  <span className="text-xs text-muted whitespace-nowrap">{t('support_dev_short')}</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <Toggle
-                    checked={current.show_star_button}
-                    onChange={(checked) =>
-                      setField('show_star_button', checked)
-                    }
-                    label={t('show_star_label')}
-                  />
-                  <span className="text-xs text-muted whitespace-nowrap">{t('star')}</span>
-                </label>
-              </div>
-            </div>
-
-            <div data-section-id="advanced-setup">
-            <div className="rounded-xl border border-line bg-surface/60 p-6 flex items-center justify-between gap-6">
-              <div className="min-w-0">
-                <h3 className="font-display font-semibold">{t('setup_wizard_again')}</h3>
-                <p className="text-xs text-muted mt-1.5 leading-relaxed">
-                  {t('setup_wizard_desc')}
-                </p>
-              </div>
-              <motion.button
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.96 }}
-                onClick={() => setFields({ setup_complete: false })}
-                className="focus-ring cursor-pointer shrink-0 px-5 py-2.5 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+            ) : (
+              <button
+                type="button"
+                onClick={() => setPatOpen(true)}
+                className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 h-8 px-4 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised text-xs font-medium transition-colors"
               >
-                {t('open_setup')}
-              </motion.button>
-            </div>
-            </div>
+                <IconPlus className="w-3.5 h-3.5" />
+                {ts('git_pat_add')}
+              </button>
+            )}
+          </div>
 
-            <div data-section-id="advanced-reset">
-            <div className="rounded-xl border border-line bg-surface/60 p-6 flex items-center justify-between gap-6">
-              <div className="min-w-0">
-                <h3 className="font-display font-semibold">{t('reset_settings')}</h3>
-                <p className="text-xs text-muted mt-1.5 leading-relaxed">
-                  {t('reset_settings_desc')}
-                </p>
+          {!gitAuth?.github && (
+            <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
+              <span className="text-xs font-medium text-muted">
+                {ts('github_token_title')}
+              </span>
+              <div className="relative">
+                <input
+                  type="password"
+                  value={settings.github_token ?? ''}
+                  onChange={(e) =>
+                    update({ ...settings, github_token: e.target.value || null })
+                  }
+                  placeholder={ts('setting_token_placeholder', { ns: 'common' })}
+                  className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm font-mono focus:border-accent-dim transition-colors pr-20"
+                />
+                <button
+                  type="button"
+                  onClick={testGithubToken}
+                  className="focus-ring cursor-pointer absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md bg-overlay border border-outline/50 text-xs font-medium text-muted hover:text-ink hover:border-accent-dim transition-colors"
+                >
+                  {tokenTestState === 'testing' ? ts('testing') : ts('test')}
+                </button>
               </div>
-              <motion.button
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.96 }}
-                onClick={() => setConfirmingReset(true)}
-                className="focus-ring cursor-pointer shrink-0 px-5 py-2.5 rounded-lg border border-line text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-sm font-medium transition-colors"
+              {tokenTestMsg && (
+                <span
+                  className={`text-[11px] ${
+                    tokenTestState === 'success'
+                      ? 'text-mint'
+                      : tokenTestState === 'warning'
+                        ? 'text-amber'
+                        : tokenTestState === 'error'
+                          ? 'text-danger'
+                          : 'text-muted'
+                  }`}
+                >
+                  {tokenTestMsg}
+                </span>
+              )}
+              <p className="text-[11px] text-muted leading-relaxed">
+                {ts('token_help_desc')}{' '}
+                <a
+                  href="https://github.com/settings/tokens"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-accent hover:text-accent-bright underline underline-offset-2"
+                >
+                  github.com/settings/tokens
+                </a>
+                .
+              </p>
+            </div>
+          )}
+        </div>
+      </Subsection>
+
+      {gitAuth?.github && (
+      <Subsection
+        id="integrations-sync"
+        title={
+          <span className="inline-flex items-center gap-2">
+            <IconCloudArrowDown className="w-3.5 h-3.5 text-muted" />
+            {ts('sync_title')}
+          </span>
+        }
+        description={ts('sync_desc')}
+        searchText={`${ts('sync_title')} ${ts('sync_desc')} ${ts('sync_push_btn')} ${ts('sync_pull_btn')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              {syncMessage && (
+                <p className="text-xs text-muted mt-1.5 wrap-break-word">
+                  {syncMessage}
+                </p>
+              )}
+              {syncUrl && (
+                <button
+                  type="button"
+                  onClick={() => openUrl(syncUrl)}
+                  className="focus-ring cursor-pointer mt-1.5 inline-flex items-center gap-1.5 text-xs text-accent-bright hover:underline"
+                >
+                  <IconExternalLink className="w-3 h-3" />
+                  {ts('sync_open_gist')}
+                </button>
+              )}
+              {lastPushedAt && (
+                <p className="text-[11px] text-muted mt-1">
+                  {ts('sync_last_pushed', { time: lastPushedAt })}
+                </p>
+              )}
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={handleSyncPush}
+                disabled={syncBusy !== null}
+                className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {t('reset')}
-              </motion.button>
-            </div>
-            </div>
-
-            <div data-section-id="advanced-delete">
-            <div className="rounded-xl border border-danger/30 bg-danger/4 p-6 flex items-center justify-between gap-6">
-              <div className="min-w-0">
-                <h3 className="font-display font-semibold text-danger">{t('delete_app_data')}</h3>
-                <p className="text-xs text-muted mt-1.5 leading-relaxed">
-                  {t('delete_data_desc')}
-                </p>
-              </div>
-              <motion.button
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.96 }}
-                onClick={() => setConfirmingWipe(true)}
-                className="focus-ring cursor-pointer shrink-0 px-5 py-2.5 rounded-lg border border-danger/40 text-danger hover:bg-danger/10 text-sm font-medium transition-colors"
+                <IconCloudArrowDown className="w-4 h-4" />
+                {syncBusy === 'push'
+                  ? ts('saving')
+                  : ts('sync_push_btn')}
+              </button>
+              <button
+                type="button"
+                onClick={handleSyncPull}
+                disabled={syncBusy !== null}
+                className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {t('delete_all')}
-              </motion.button>
+                <IconCloudArrowDown className="w-4 h-4" />
+                {syncBusy === 'pull'
+                  ? ts('saving')
+                  : ts('sync_pull_btn')}
+              </button>
             </div>
-            </div>
-
-            <div data-section-id="advanced-updates" className="rounded-xl border border-line bg-surface/60 p-6 flex items-center justify-between gap-6">
-              <div className="min-w-0">
-                <h3 className="font-display font-semibold">{t('check_updates_title')}</h3>
-                <p className="text-xs text-muted mt-1.5 leading-relaxed">
-                  {t('updates_desc')}
-                </p>
-              </div>
-              <motion.button
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.96 }}
-                onClick={() => {
-                  window.dispatchEvent(new CustomEvent('app:check-updates'))
+          </div>
+          <div className="border-t border-outline/30 pt-3">
+            <p className="text-xs text-muted mb-2">
+              {ts('sync_manual_hint')}
+            </p>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={manualGistUrl}
+                onChange={(e) => setManualGistUrl(e.target.value)}
+                placeholder={ts('sync_manual_placeholder')}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') handleManualPull()
                 }}
-                className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+                className="focus-ring flex-1 bg-base border border-outline/50 rounded-btn px-3 py-2 text-xs focus:border-accent-dim transition-colors"
+              />
+              <button
+                type="button"
+                onClick={handleManualPull}
+                disabled={manualPullBusy || !manualGistUrl.trim()}
+                className="focus-ring cursor-pointer px-4 py-2 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <IconRefresh className="w-4 h-4" />
-                {t('check_updates')}
-              </motion.button>
+                {manualPullBusy ? ts('saving') : ts('sync_manual_pull_btn')}
+              </button>
             </div>
+          </div>
+        </div>
+      </Subsection>
+      )}
 
-            <div className="rounded-xl border border-line bg-surface/60 p-6 flex items-center justify-between gap-6">
-              <div className="min-w-0">
-                <h3 className="font-display font-semibold">{t('report_bug_title')}</h3>
-                <p className="text-xs text-muted mt-1.5 leading-relaxed">
-                  {t('report_bug_desc')}
-                </p>
-              </div>
-              <motion.button
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.96 }}
-                onClick={() => {
-                  window.dispatchEvent(new CustomEvent('app:report-bug'))
-                }}
-                className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+      <Subsection
+        id="integrations-discord"
+        title={ts('discord_rpc_label')}
+        description={ts('discord_rpc_desc')}
+        searchText={`${ts('discord_rpc_label')} ${ts('discord_rpc_desc')} ${ts('discord_app_id_label')} ${ts('discord_app_id_desc')} ${ts('discord_developer_portal')} ${ts('discord_show_projects_label')} ${ts('discord_show_projects_desc')} ${ts('discord_excluded_label')} ${ts('discord_excluded_desc')} ${ts('discord_custom_label')} ${ts('discord_custom_desc')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-5">
+          <SettingRow label={ts('discord_rpc_label')}>
+            <Toggle
+              checked={settings.discord_rpc_enabled}
+              onChange={(checked) =>
+                update({ ...settings, discord_rpc_enabled: checked })
+              }
+              label={ts('discord_rpc_label')}
+            />
+          </SettingRow>
+
+          <div className="flex flex-col gap-2.5">
+            <span className="text-xs font-medium text-muted">
+              {ts('discord_app_id_label')}
+            </span>
+            <input
+              type="text"
+              value={settings.discord_app_id ?? ''}
+              onChange={(e) =>
+                update({ ...settings, discord_app_id: e.target.value || null })
+              }
+              placeholder={ts('discord_app_id_placeholder')}
+              className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm font-mono focus:border-accent-dim transition-colors"
+            />
+            {!settings.discord_app_id?.trim() && (
+              <span className="text-[11px] text-mint font-medium">
+                {ts('discord_builtin_hint')}
+              </span>
+            )}
+            <p className="text-[11px] text-muted leading-relaxed">
+              {ts('discord_app_id_desc')}{' '}
+              <a
+                href="https://discord.com/developers/applications"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-accent hover:text-accent-bright underline underline-offset-2"
               >
-                <IconBug className="w-4 h-4" />
-                {t('report_bug')}
-              </motion.button>
+                {ts('discord_developer_portal')}
+              </a>
+              .
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
+            <SettingRow label={ts('discord_show_projects_label')}>
+              <Toggle
+                checked={settings.discord_rpc_show_projects}
+                onChange={(checked) =>
+                  update({ ...settings, discord_rpc_show_projects: checked })
+                }
+                label={ts('discord_show_projects_label')}
+              />
+            </SettingRow>
+            <p className="text-[11px] text-muted leading-relaxed">
+              {ts('discord_show_projects_desc')}
+            </p>
+          </div>
+
+          <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
+            <span className="text-xs font-medium text-muted">
+              {ts('discord_excluded_label')}
+            </span>
+            <p className="text-[11px] text-muted leading-relaxed">
+              {ts('discord_excluded_desc')}
+            </p>
+            <Dropdown
+              trigger={({ toggle }) => (
+                <button
+                  type="button"
+                  onClick={toggle}
+                  className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 h-8 px-4 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised text-xs font-medium transition-colors"
+                >
+                  <IconPlus className="w-3.5 h-3.5" />
+                  {ts('discord_exclude_project')}
+                </button>
+              )}
+              items={projects
+                .filter(
+                  (p) =>
+                    !settings.discord_rpc_excluded_projects.includes(p.id),
+                )
+                .map((p) => ({
+                  key: p.id,
+                  label: p.name,
+                  onClick: () =>
+                    update({
+                      ...settings,
+                      discord_rpc_excluded_projects: [
+                        ...settings.discord_rpc_excluded_projects,
+                        p.id,
+                      ],
+                    }),
+                }))}
+            />
+            {settings.discord_rpc_excluded_projects.length > 0 ? (
+              <div className="flex flex-col gap-1.5">
+                {settings.discord_rpc_excluded_projects.map((id) => {
+                  const proj = projects.find((p) => p.id === id)
+                  return (
+                    <div
+                      key={id}
+                      className="flex items-center justify-between gap-3 rounded-item bg-raised border border-line px-3 py-2"
+                    >
+                      <span className="text-xs text-ink truncate">
+                        {proj?.name ?? id}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          update({
+                            ...settings,
+                            discord_rpc_excluded_projects:
+                              settings.discord_rpc_excluded_projects.filter(
+                                (x) => x !== id,
+                              ),
+                          })
+                        }
+                        aria-label={ts('discord_excluded_remove')}
+                        className="focus-ring cursor-pointer shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-muted hover:text-danger hover:bg-danger/10 transition-colors"
+                      >
+                        <IconX className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )
+                })}
+              </div>
+            ) : (
+              <p className="text-[11px] text-muted/70">
+                {ts('discord_excluded_empty')}
+              </p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
+            <span className="text-xs font-medium text-muted">
+              {ts('discord_custom_label')}
+            </span>
+            <p className="text-[11px] text-muted leading-relaxed">
+              {ts('discord_custom_desc')}
+            </p>
+            <Dropdown
+              trigger={({ toggle }) => (
+                <button
+                  type="button"
+                  onClick={toggle}
+                  className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 h-8 px-4 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised text-xs font-medium transition-colors"
+                >
+                  <IconPlus className="w-3.5 h-3.5" />
+                  {ts('discord_custom_add')}
+                </button>
+              )}
+              items={projects
+                .filter(
+                  (p) =>
+                    !settings.discord_rpc_project_presences.some(
+                      (pr) => pr.id === p.id,
+                    ) &&
+                    !settings.discord_rpc_excluded_projects.includes(p.id),
+                )
+                .map((p) => ({
+                  key: p.id,
+                  label: p.name,
+                  onClick: () =>
+                    update({
+                      ...settings,
+                      discord_rpc_project_presences: [
+                        ...settings.discord_rpc_project_presences,
+                        { id: p.id, details: null, state: null },
+                      ],
+                    }),
+                }))}
+            />
+            {settings.discord_rpc_project_presences.length > 0 && (
+              <div className="flex flex-col gap-2">
+                {settings.discord_rpc_project_presences.map((pr) => {
+                  const proj = projects.find((p) => p.id === pr.id)
+                  const setPresence = (
+                    field: 'details' | 'state',
+                    value: string,
+                  ) =>
+                    update({
+                      ...settings,
+                      discord_rpc_project_presences:
+                        settings.discord_rpc_project_presences.map((x) =>
+                          x.id === pr.id
+                            ? { ...x, [field]: value || null }
+                            : x,
+                        ),
+                    })
+                  return (
+                    <div
+                      key={pr.id}
+                      className="rounded-item bg-raised border border-line p-3 flex flex-col gap-2"
+                    >
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="text-xs font-medium text-ink truncate">
+                          {proj?.name ?? pr.id}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            update({
+                              ...settings,
+                              discord_rpc_project_presences:
+                                settings.discord_rpc_project_presences.filter(
+                                  (x) => x.id !== pr.id,
+                                ),
+                            })
+                          }
+                          aria-label={ts('discord_custom_remove')}
+                          className="focus-ring cursor-pointer shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-muted hover:text-danger hover:bg-danger/10 transition-colors"
+                        >
+                          <IconX className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <input
+                          type="text"
+                          value={pr.details ?? ''}
+                          onChange={(e) =>
+                            setPresence('details', e.target.value)
+                          }
+                          placeholder={ts('discord_custom_details_placeholder')}
+                          className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3 py-2 text-xs focus:border-accent-dim transition-colors"
+                        />
+                        <input
+                          type="text"
+                          value={pr.state ?? ''}
+                          onChange={(e) => setPresence('state', e.target.value)}
+                          placeholder={ts('discord_custom_state_placeholder')}
+                          className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3 py-2 text-xs focus:border-accent-dim transition-colors"
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </div>
+        </div>
+      </Subsection>
+    </div>
+  )
+
+  const renderAccessibility = () => (
+    <div className="flex flex-col gap-3">
+      <Subsection
+        id="accessibility-density"
+        title={ts('ui_density_label')}
+        description={ts('density_desc')}
+        searchText={`${ts('ui_density_label')} ${ts('density_desc')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-2">
+          <Slider
+            label={ts('ui_density_label')}
+            display={
+              <span className="text-xs font-mono text-ink tabular-nums">
+                {Math.round(settings.ui_density * 100)}%
+              </span>
+            }
+            value={settings.ui_density}
+            min={0.75}
+            max={1.25}
+            step={0.05}
+            defaultValue={DEFAULT_DENSITY}
+            onChange={(v) => update({ ...settings, ui_density: v })}
+          />
+        </div>
+      </Subsection>
+
+      <Subsection
+        id="accessibility-text-size"
+        title={ts('text_size_label')}
+        description={ts('text_size_desc')}
+        searchText={`${ts('text_size_label')} ${ts('text_size_desc')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-2">
+          <Slider
+            label={ts('text_size_label')}
+            display={
+              <span className="text-xs font-mono text-ink tabular-nums">
+                {Math.round(settings.font_scale * 100)}%
+              </span>
+            }
+            value={settings.font_scale}
+            min={0.85}
+            max={1.3}
+            step={0.05}
+            defaultValue={DEFAULT_FONT_SCALE}
+            onChange={(v) => update({ ...settings, font_scale: v })}
+          />
+        </div>
+      </Subsection>
+
+      <Subsection
+        id="accessibility-screen-reader"
+        title={ts('screen_reader_label')}
+        description={ts('screen_reader_desc')}
+        searchText={`${ts('screen_reader_label')} ${ts('screen_reader_desc')} ${ts('screen_reader_beta_desc')} ${ts('accessibility')} ${ts('accessibility_desc')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <SettingRow label={ts('screen_reader_label')}>
+          <Toggle
+            checked={settings.screen_reader_announcements}
+            onChange={(checked) =>
+              update({ ...settings, screen_reader_announcements: checked })
+            }
+            label={ts('screen_reader_label')}
+          />
+        </SettingRow>
+        <p className="text-[11px] text-amber/90 leading-relaxed mt-1">
+          {ts('screen_reader_beta_desc')}
+        </p>
+      </Subsection>
+
+      <Subsection
+        id="accessibility-motion"
+        title={ts('animation_intensity_label')}
+        description={ts('animation_intensity_desc')}
+        searchText={`${ts('animation_intensity_label')} ${ts('animation_intensity_desc')} ${ts('animation_full')} ${ts('animation_subtle')} ${ts('animation_none')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <SettingRow label={ts('animation_intensity_label')}>
+          <Segmented
+            value={settings.animation_intensity}
+            onChange={(v) =>
+              update({
+                ...settings,
+                animation_intensity: v as AppSettings['animation_intensity'],
+              })
+            }
+            options={[
+              { value: 'full', label: ts('animation_full') },
+              { value: 'subtle', label: ts('animation_subtle') },
+              { value: 'none', label: ts('animation_none') },
+            ]}
+          />
+        </SettingRow>
+      </Subsection>
+
+      <Subsection
+        id="accessibility-scrollbars"
+        title={ts('show_scrollbar_label')}
+        description={ts('scrollbar_desc')}
+        searchText={`${ts('show_scrollbar_label')} ${ts('scrollbar_desc')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <SettingRow label={ts('show_scrollbar_label')}>
+          <Toggle
+            checked={settings.show_scrollbars}
+            onChange={(checked) =>
+              update({ ...settings, show_scrollbars: checked })
+            }
+            label={ts('show_scrollbar_label')}
+          />
+        </SettingRow>
+      </Subsection>
+
+      <Subsection
+        id="accessibility-tooltip-delay"
+        title={ts('tooltip_delay_label')}
+        description={ts('tooltip_delay_desc')}
+        searchText={`${ts('tooltip_delay_label')} ${ts('tooltip_delay_desc')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-2">
+          <Slider
+            label={ts('tooltip_delay_label')}
+            display={
+              <span className="text-xs text-ink tabular-nums">
+                {settings.tooltip_delay}ms
+              </span>
+            }
+            value={settings.tooltip_delay}
+            min={100}
+            max={1000}
+            step={50}
+            defaultValue={350}
+            onChange={(value) =>
+              update({ ...settings, tooltip_delay: value })
+            }
+          />
+        </div>
+      </Subsection>
+    </div>
+  )
+
+  const renderAdvanced = () => (
+    <div className="flex flex-col gap-3">
+      <Subsection
+        id="advanced-setup"
+        title={ts('setup_wizard_again')}
+        description={ts('setup_wizard_desc')}
+        searchText={`${ts('setup_wizard_again')} ${ts('setup_wizard_desc')} ${ts('open_setup')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex justify-end">
+          <button
+            type="button"
+            onClick={() => update({ ...settings, setup_complete: false })}
+            className="focus-ring cursor-pointer shrink-0 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+          >
+            {ts('open_setup')}
+          </button>
+        </div>
+      </Subsection>
+
+      <div className="flex flex-col gap-3">
+        <div className="rounded-item bg-overlay px-4 py-4 flex items-center justify-between gap-6">
+          <div className="min-w-0">
+            <h3 className="text-sm font-medium text-ink">
+              {ts('check_updates_title')}
+            </h3>
+            <p className="text-xs text-muted mt-1.5 leading-relaxed">
+              {ts('updates_desc')}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowUpdates(true)}
+            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+          >
+            <IconRefresh className="w-4 h-4" />
+            {ts('check_updates')}
+          </button>
+        </div>
+
+        <div className="rounded-item bg-overlay px-4 py-4 flex items-center justify-between gap-6">
+          <div className="min-w-0">
+            <h3 className="text-sm font-medium text-ink">
+              {ts('restart_app')}
+            </h3>
+            <p className="text-xs text-muted mt-1.5 leading-relaxed">
+              {ts('restart_app_desc')}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setConfirmingRestart(true)}
+            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+          >
+            <IconRefresh className="w-4 h-4" />
+            {ts('restart_app')}
+          </button>
+        </div>
+
+        <div className="rounded-item bg-overlay px-4 py-4 flex items-center justify-between gap-6">
+          <div className="min-w-0">
+            <h3 className="text-sm font-medium text-ink">
+              {ts('report_bug_title')}
+            </h3>
+            <p className="text-xs text-muted mt-1.5 leading-relaxed">
+              {ts('report_bug_desc')}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowBugReport(true)}
+            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+          >
+            <IconBug className="w-4 h-4" />
+            {ts('report_bug')}
+          </button>
+        </div>
+
+        <div className="rounded-item bg-overlay px-4 py-4 flex items-center justify-between gap-6">
+          <div className="min-w-0">
+            <h3 className="text-sm font-medium text-ink">
+              {ts('settings_backup_title')}
+            </h3>
+            <p className="text-xs text-muted mt-1.5 leading-relaxed">
+              {ts('settings_backup_desc')}
+            </p>
+            {settingsMessage && (
+              <span className="text-xs text-muted block mt-1.5">
+                {settingsMessage}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleExportSettings}
+              disabled={settingsBusy !== null}
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {settingsBusy === 'export'
+                ? ts('saving')
+                : ts('export_settings_btn')}
+            </button>
+            <button
+              type="button"
+              onClick={handleImportSettings}
+              disabled={settingsBusy !== null}
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {settingsBusy === 'import'
+                ? ts('saving')
+                : ts('import_settings_btn')}
+            </button>
+          </div>
+        </div>
+
+        <div className="rounded-item bg-overlay px-4 py-4 flex items-center justify-between gap-6">
+          <div className="min-w-0">
+            <h3 className="text-sm font-medium text-ink">
+              {ts('workspace_backup_title')}
+            </h3>
+            <p className="text-xs text-muted mt-1.5 leading-relaxed">
+              {ts('workspace_backup_desc')}
+            </p>
+            {wsBackupMessage && (
+              <span className="text-xs text-muted block mt-1.5">
+                {wsBackupMessage}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleExportWorkspace}
+              disabled={wsBackupBusy !== null}
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {wsBackupBusy === 'export'
+                ? ts('saving')
+                : ts('workspace_backup_export_btn')}
+            </button>
+            <button
+              type="button"
+              onClick={handleImportWorkspace}
+              disabled={wsBackupBusy !== null}
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {wsBackupBusy === 'import'
+                ? ts('saving')
+                : ts('workspace_backup_restore_btn')}
+            </button>
+          </div>
+        </div>
+
+        <div className="rounded-item bg-overlay px-4 py-4 flex items-center justify-between gap-6">
+          <div className="min-w-0">
+            <h3 className="text-sm font-medium text-ink">
+              {ts('app_backup_title')}
+            </h3>
+            <p className="text-xs text-muted mt-1.5 leading-relaxed">
+              {ts('app_backup_desc')}
+            </p>
+            {appBackupMessage && (
+              <span className="text-xs text-muted block mt-1.5">
+                {appBackupMessage}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleExportApp}
+              disabled={appBackupBusy !== null}
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {appBackupBusy === 'export'
+                ? ts('saving')
+                : ts('app_backup_export_btn')}
+            </button>
+            <button
+              type="button"
+              onClick={handleImportApp}
+              disabled={appBackupBusy !== null}
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {appBackupBusy === 'import'
+                ? ts('saving')
+                : ts('app_backup_restore_btn')}
+            </button>
+          </div>
+        </div>
+
+        <div className="rounded-item bg-overlay px-4 py-4 flex items-center justify-between gap-6">
+          <div className="min-w-0">
+            <h3 className="text-sm font-medium text-ink">
+              {ts('reset_settings')}
+            </h3>
+            <p className="text-xs text-muted mt-1.5 leading-relaxed">
+              {ts('reset_settings_desc')}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setConfirmingReset(true)}
+            className="focus-ring cursor-pointer shrink-0 px-5 py-2.5 rounded-item border border-outline/50 text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-sm font-medium transition-colors"
+          >
+            {ts('reset')}
+          </button>
+        </div>
+
+        <div className="rounded-item bg-overlay px-4 py-4 flex items-center justify-between gap-6">
+          <div className="min-w-0">
+            <h3 className="text-sm font-medium text-ink">
+              {ts('time_tracking_title')}
+            </h3>
+            <p className="text-xs text-muted mt-1.5 leading-relaxed">
+              {ts('time_tracking_desc')}
+            </p>
+            {statsMessage && (
+              <span className="text-xs text-muted block mt-1.5">
+                {statsMessage}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleExportStats}
+              disabled={statsBusy !== null}
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {statsBusy === 'export' ? ts('saving') : ts('export_stats_btn')}
+            </button>
+            <button
+              type="button"
+              onClick={handleImportStats}
+              disabled={statsBusy !== null}
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {statsBusy === 'import' ? ts('saving') : ts('import_stats_btn')}
+            </button>
+          </div>
+        </div>
+
+        <div className="rounded-item border border-danger/30 bg-danger/4 px-4 py-4 flex items-center justify-between gap-6">
+          <div className="min-w-0">
+            <h3 className="text-sm font-medium text-danger">
+              {ts('delete_app_data')}
+            </h3>
+            <p className="text-xs text-muted mt-1.5 leading-relaxed">
+              {ts('delete_data_desc')}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setConfirmingWipe(true)}
+            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-danger/40 text-danger hover:bg-danger/10 text-sm font-medium transition-colors"
+          >
+            <IconBomb className="w-4 h-4" />
+            {ts('delete_all')}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+
+  const renderExperimental = () => (
+    <div className="flex flex-col gap-3">
+      <section className="flex flex-col gap-5 rounded-item bg-overlay px-5 py-5">
+        <div>
+          <p className="text-[11px] text-muted mt-1">{ts('experimental_desc')}</p>
+        </div>
+        <SettingRow
+          label={ts('customize_view_label')}
+          description={ts('customize_view_desc')}
+        >
+          <Toggle
+            checked={settings.customize_view_enabled}
+            onChange={(checked) =>
+              update({ ...settings, customize_view_enabled: checked })
+            }
+            label={ts('customize_view_label')}
+          />
+        </SettingRow>
+      </section>
+    </div>
+  )
+
+  const renderCredits = () => (
+    <div className="flex flex-col gap-3">
+      <section className="flex flex-col gap-5 rounded-item bg-overlay px-5 py-5">
+        <div>
+          <h3 className="font-display font-semibold text-sm">{ts('credits_title')}</h3>
+          <p className="text-[11px] text-muted mt-1">{ts('credits_desc')}</p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => openUrl('https://github.com/RykoTheDev')}
+          className="focus-ring cursor-pointer flex items-center gap-4 px-5 py-4 rounded-item border border-outline/50 bg-raised/40 hover:bg-raised transition-colors text-left w-full"
+        >
+          <img
+            src="https://github.com/RykoTheDev.png?size=80"
+            alt="RykoTheDev"
+            className="w-11 h-11 rounded-full ring-2 ring-accent/20"
+            onError={(e) => {
+              const img = e.currentTarget
+              img.style.display = 'none'
+              const fallback = img.nextElementSibling as HTMLElement
+              if (fallback) fallback.style.display = 'flex'
+            }}
+          />
+          <span className="w-11 h-11 rounded-full bg-accent/15 border border-accent-dim/30 items-center justify-center text-sm font-bold text-accent hidden">
+            R
+          </span>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-ink">RykoTheDev</p>
+            <p className="text-[11px] text-muted">{ts('credits_developer')}</p>
+          </div>
+        </button>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div className="flex flex-col gap-1 px-4 py-3 rounded-item border border-outline/50 bg-raised/30">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted/50">{ts('credits_license')}</span>
+            <span className="text-sm font-medium text-ink">MIT</span>
+          </div>
+          <div className="flex flex-col gap-1 px-4 py-3 rounded-item border border-outline/50 bg-raised/30">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted/50">{ts('credits_built_with')}</span>
+            <span className="text-sm font-medium text-ink">Tauri + React + TypeScript</span>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted/50">{ts('credits_contributors')}</span>
+          <div className="flex flex-wrap gap-2">
+            {contributors.filter((c) => c.login !== 'RykoTheDev').map((c) => (
+              <button
+                key={c.login}
+                type="button"
+                onClick={() => setSelectedContributor({ login: c.login, avatar_url: c.avatar_url })}
+                className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-outline/50 bg-raised/60 hover:bg-raised transition-colors"
+              >
+                <img
+                  src={c.avatar_url}
+                  alt={c.login}
+                  className="w-5 h-5 rounded-full"
+                  onError={(e) => {
+                    const img = e.currentTarget
+                    img.style.display = 'none'
+                    const fallback = img.nextElementSibling as HTMLElement
+                    if (fallback) fallback.style.display = 'flex'
+                  }}
+                />
+                <span className="w-5 h-5 rounded-full bg-accent/15 border border-accent-dim/30 items-center justify-center text-[9px] font-bold text-accent hidden">
+                  {c.login[0].toUpperCase()}
+                </span>
+                <span className="text-xs font-medium text-ink">{c.login}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+
+  const renderContent = () => {
+    switch (cat) {
+      case 'appearance':
+        return renderAppearance()
+      case 'display':
+        return renderDisplay()
+      case 'storage':
+        return renderStorage()
+      case 'behavior':
+        return renderBehavior()
+      case 'integrations':
+        return renderIntegrations()
+      case 'accessibility':
+        return renderAccessibility()
+      case 'advanced':
+        return renderAdvanced()
+      case 'experimental':
+        return renderExperimental()
+      case 'credits':
+        return renderCredits()
+    }
+  }
+
+  const activeDef = CATEGORIES.find((c) => c.id === cat)
+  const railRefs = useRef<(HTMLButtonElement | null)[]>([])
+
+  const handleCatChange = (next: SettingsCat) => {
+    resetSearch()
+    setCat(next)
+  }
+
+  const handleRailKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return
+    e.preventDefault()
+    const idx = CATEGORIES.findIndex((c) => c.id === cat)
+    const next =
+      e.key === 'ArrowDown'
+        ? CATEGORIES[(idx + 1) % CATEGORIES.length]
+        : CATEGORIES[(idx - 1 + CATEGORIES.length) % CATEGORIES.length]
+    handleCatChange(next.id)
+    railRefs.current[CATEGORIES.findIndex((c) => c.id === next.id)]?.focus()
+  }
+
+  return (
+    <div className="flex-1 min-w-0 h-full flex flex-col">
+      <ViewHeader
+        connected={connected}
+        title={t('settings')}
+      >
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder={ts('search_placeholder')}
+          inputRef={searchRef}
+        />
+      </ViewHeader>
+
+      <div className="flex-1 min-h-0 flex gap-4 mt-2">
+        <nav
+          onKeyDown={handleRailKeyDown}
+          aria-label={ts('settings_title')}
+          className={`shrink-0 w-52 flex flex-col gap-1 ${connected ? 'pl-3' : ''}`}
+        >
+          {CATEGORIES.map(({ id, icon: Icon }, railIndex) => {
+            const active = cat === id
+            return (
+              <button
+                key={id}
+                ref={(el) => {
+                  railRefs.current[railIndex] = el
+                }}
+                type="button"
+                onClick={() => handleCatChange(id)}
+                className={`focus-ring cursor-pointer relative flex items-center gap-2.5 px-3 py-2.5 rounded-item text-sm font-medium transition-colors ${
+                  active
+                    ? id === 'experimental'
+                      ? 'text-ink'
+                      : 'text-ink'
+                    : id === 'experimental'
+                      ? 'text-muted hover:text-danger hover:bg-danger/10'
+                      : 'text-muted hover:text-ink hover:bg-raised/60'
+                }`}
+              >
+                {active && (
+                  <motion.span
+                    layoutId="new-ui-settings-cat-pill"
+                    transition={{ type: 'spring', stiffness: 650, damping: 38 }}
+                    className={`absolute inset-0 rounded-item border shadow-md shadow-black/10 pointer-events-none ${
+                      id === 'experimental'
+                        ? 'bg-danger/10 border-danger/30'
+                        : 'bg-overlay border-outline/50'
+                    }`}
+                  />
+                )}
+                <Icon
+                  className={`relative w-4 h-4 shrink-0 transition-colors duration-200 ${
+                    active
+                      ? id === 'experimental'
+                        ? 'text-danger'
+                        : 'text-accent'
+                      : id === 'experimental'
+                        ? 'text-muted'
+                        : 'text-muted'
+                  }`}
+                />
+                <span className={`relative ${active ? (id === 'experimental' ? 'text-danger' : 'text-ink') : ''}`}>
+                  {ts(id)}
+                </span>
+              </button>
+            )
+          })}
+          {appVersion && (
+            <div className="mt-auto pt-6 pl-1">
+              <button
+                type="button"
+                onClick={() => handleCatChange('credits' as SettingsCat)}
+                className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 ${connected ? 'mb-3' : ''} rounded-full border border-outline/50 bg-raised/60 hover:bg-raised text-[10px] font-mono text-muted/60 hover:text-muted transition-colors`}
+              >
+                {ts('app_version_label', { version: appVersion })}
+              </button>
             </div>
-          </motion.div>
+          )}
+        </nav>
+
+        <div
+          className={`flex-1 min-w-0 flex bg-raised overflow-hidden ${
+            connected ? 'rounded-tl-tag' : 'rounded-card'
+          }`}
+        >
+          <OverlayScrollArea
+            className="flex-1 min-w-0"
+            hideThumb={!settings.show_scrollbars}
+            hideTopButton
+            scrollToTopOn={cat}
+          >
+            <div className="min-h-full px-5 pb-4">
+              <div className="sticky top-0 z-10 -mx-5 px-5 pt-4 pb-3 bg-raised border-b border-line/60 mb-3 flex items-center gap-1.5">
+                {activeDef && (
+                  <div className="w-12 h-12 flex items-center justify-center shrink-0 overflow-hidden">
+                    <activeDef.icon
+                      className="text-accent-bright"
+                      style={{
+                        width: '48px',
+                        height: '48px',
+                        opacity: 'var(--project-icon-opacity, 0.14)',
+                        maskImage: 'linear-gradient(to right, black 35%, transparent 90%)',
+                        WebkitMaskImage: 'linear-gradient(to right, black 35%, transparent 90%)',
+                      }}
+                    />
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <h2 className="font-display text-3xl font-black uppercase text-ink/40 leading-tight">
+                    {ts(cat)}
+                  </h2>
+                </div>
+              </div>
+
+              {noResults ? (
+                <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
+                  <div className="w-12 h-12 rounded-tile bg-overlay border border-outline/50 flex items-center justify-center">
+                    <IconSearch className="w-5 h-5 text-muted/50" />
+                  </div>
+                  <p className="text-sm text-muted">{ts('no_settings_match')}</p>
+                  <button
+                    type="button"
+                    onClick={clearSearch}
+                    className="focus-ring cursor-pointer text-xs font-medium text-accent hover:text-accent-bright transition-colors"
+                  >
+                    {ts('clear')}
+                  </button>
+                </div>
+              ) : (
+                <motion.div
+                  key={cat}
+                  {...viewTransition(settings.view_entrance, settings.animation_intensity)}
+                >
+                  {renderContent()}
+                </motion.div>
+              )}
+            </div>
+          </OverlayScrollArea>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {presetModal && (
+          <ThemePresetsModal
+            mode={presetModal}
+            currentId={settings.theme_preset}
+            onSelect={(id) => selectPreset(id)}
+            onClose={() => setPresetModal(null)}
+          />
         )}
       </AnimatePresence>
 
       <AnimatePresence>
         {confirmingReset && (
           <ConfirmDialog
-            title={t('reset_all_title')}
-            description={t('reset_all_desc')}
-            confirmLabel={t('reset_settings')}
+            title={ts('reset_all_title')}
+            description={ts('reset_all_desc')}
+            confirmLabel={ts('reset_settings')}
             variant="danger"
             onConfirm={resetAllSettings}
             onCancel={() => setConfirmingReset(false)}
           />
         )}
+      </AnimatePresence>
+
+      <AnimatePresence>
         {confirmingWipe && (
           <ConfirmDialog
-            title={t('delete_all_title')}
-            description={t('delete_all_desc')}
-            confirmLabel={t('delete_app_data')}
+            title={ts('delete_all_title')}
+            description={ts('delete_all_desc')}
+            confirmLabel={ts('delete_app_data')}
             variant="danger"
             onConfirm={wipeAppData}
             onCancel={() => setConfirmingWipe(false)}
           />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {confirmingOsDec !== null && (
+          <ConfirmDialog
+            title={ts('restart_required_title', { ns: 'common' })}
+            description={ts('restart_required_desc', { ns: 'common' })}
+            confirmLabel={ts('restart_now', { ns: 'common' })}
+            variant="default"
+            onConfirm={handleOsDecConfirm}
+            onCancel={() => setConfirmingOsDec(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {confirmingRestart && (
+          <ConfirmDialog
+            title={ts('restart_app_confirm_title')}
+            description={ts('restart_app_confirm_desc')}
+            confirmLabel={ts('restart_app')}
+            variant="default"
+            onConfirm={handleRestart}
+            onCancel={() => setConfirmingRestart(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {confirmClearStats && (
+          <ConfirmDialog
+            title={ts('clear_stats_confirm_title')}
+            description={ts('clear_stats_confirm_desc')}
+            confirmLabel={ts('clear_stats_confirm_btn')}
+            variant="danger"
+            onConfirm={handleClearStats}
+            onCancel={() => setConfirmClearStats(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showUpdates && (
+          <CheckForUpdatesModal
+            onClose={() => setShowUpdates(false)}
+            onOpenTokenSettings={() => {
+              handleCatChange('integrations')
+              setSearchQuery('')
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showBugReport && (
+          <BugReportModal onClose={() => setShowBugReport(false)} />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {gitAuthFlow && (
+          <GitAuthModal
+            provider={gitAuthFlow}
+            baseUrl={gitAuthInstance?.baseUrl ?? null}
+            clientId={gitAuthInstance?.clientId ?? null}
+            onClose={() => {
+              setGitAuthFlow(null)
+              setGitAuthInstance(null)
+            }}
+            onConnected={() => {
+              void refreshGitAuth()
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      {selectedContributor && (
+        <ContributorPRsModal
+          login={selectedContributor.login}
+          avatarUrl={selectedContributor.avatar_url}
+          onClose={() => setSelectedContributor(null)}
+        />
+      )}
+
+      <AnimatePresence>
+        {showRestoreModal && (
+          <RestoreProgressModal onClose={() => setShowRestoreModal(false)} />
         )}
       </AnimatePresence>
     </div>

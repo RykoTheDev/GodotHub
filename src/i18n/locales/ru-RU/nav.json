@@ -1,0 +1,14 @@
+{
+  "dashboard": "Панель управления",
+  "projects": "Проекты",
+  "projects_count": "Проекты",
+  "versions": "Версии",
+  "templates": "Шаблоны",
+  "asset_store": "Магазин ассетов",
+  "news": "Новости",
+  "settings": "Настройки",
+  "changelog": "Журнал изменений",
+  "updates": "Обновления от разработчика",
+  "projects_count_one": "Project",
+  "projects_count_other": "Projects"
+}

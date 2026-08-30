@@ -1,30 +1,65 @@
 import { useEffect, useRef, useState } from 'react'
+import { openUrl } from '@tauri-apps/plugin-opener'
 import { useTranslation } from 'react-i18next'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, type Transition } from 'framer-motion'
+import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
+import { useGodotVersionsContext } from '../hooks/godotVersionsContext'
 import { useSettings } from '../hooks/useSettings'
+import { useTaskTray } from '../hooks/useTaskTray'
+import { isReducedMotion } from '../lib/appearance'
 import { api } from '../lib/api'
-import { VersionBadge } from '../components/ui/VersionBadge'
-import { ContextMenu, type ContextMenuSection } from '../components/ui/ContextMenu'
-import { Tooltip } from '../components/ui/Tooltip'
+import type { GodotReleaseAsset } from '../types'
+import { ViewHeader } from '../components/reusables/ViewHeader'
+import { SearchBar } from '../components/ui/SearchBar'
+import { Dropdown } from '../components/ui/Dropdown'
+import { OverlayScrollArea } from '../components/reusables/OverlayScrollArea'
+import { ScanButton } from '../components/reusables/ScanButton'
+import { ImportButton } from '../components/reusables/ImportButton'
+import { Tooltip } from '../components/reusables/Tooltip'
+import { InstalledVersionCard } from '../components/cards/InstalledVersionCard'
 import {
-  IconDownload,
-  IconTrash,
-  IconPencil,
-  IconSearch,
-  IconX,
-  IconRefresh,
-  IconImport,
   IconChevronDown,
+  IconDownload,
+  IconExternalLink,
   IconPause,
   IconPlay,
-  IconExternalLink,
-  IconRocket,
-  IconTerminal,
-} from '../components/Icons'
-import { SplitButton } from '../components/ui/SplitButton'
-import { ScrollReveal } from '../components/ui/ScrollReveal'
-import { useGodotVersionsContext } from '../hooks/godotVersionsContext'
-import { ConfirmDialog } from '../components/modals/ConfirmDialog'
+  IconSearch,
+  IconSpinner,
+  IconX,
+} from '../lib/icons'
+
+const VERSION_FILTERS_KEY = 'godothub_version_filters'
+const VERSION_SORT_KEY = 'godothub_version_sort'
+
+type VersionSortOption = 'latest' | 'oldest' | 'name_asc' | 'name_desc' | 'recently_installed' | 'oldest_installed'
+
+const VERSION_SORT_OPTIONS: { value: VersionSortOption; labelKey: string }[] = [
+  { value: 'latest', labelKey: 'sort_version_latest' },
+  { value: 'oldest', labelKey: 'sort_version_oldest' },
+  { value: 'recently_installed', labelKey: 'sort_version_recently_installed' },
+  { value: 'oldest_installed', labelKey: 'sort_version_oldest_installed' },
+  { value: 'name_asc', labelKey: 'sort_version_name_asc' },
+  { value: 'name_desc', labelKey: 'sort_version_name_desc' },
+]
+
+const AVAILABLE_SORT_OPTIONS: { value: VersionSortOption; labelKey: string }[] = [
+  { value: 'latest', labelKey: 'sort_version_latest' },
+  { value: 'oldest', labelKey: 'sort_version_oldest' },
+]
+
+interface VersionFilters {
+  buildType: 'standard' | 'mono' | 'both'
+  channel: 'stable' | 'unstable' | 'both'
+}
+const DEFAULT_FILTERS: VersionFilters = { buildType: 'both', channel: 'both' }
+
+function loadVersionFilters(): VersionFilters {
+  try {
+    const raw = localStorage.getItem(VERSION_FILTERS_KEY)
+    if (raw) return { ...DEFAULT_FILTERS, ...JSON.parse(raw) }
+  } catch {}
+  return DEFAULT_FILTERS
+}
 
 function versionCore(raw: string): string {
   const parts = raw
@@ -44,103 +79,71 @@ function versionCore(raw: string): string {
 }
 
 function minorGroup(tag: string): string {
-  const m = tag
-    .trim()
-    .replace(/^v/, '')
-    .match(/^(\d+)\.(\d+)/)
+  const m = tag.trim().replace(/^v/, '').match(/^(\d+)\.(\d+)/)
   return m ? `${m[1]}.${m[2]}` : 'Other'
 }
 
-const VERSION_FILTERS_KEY = 'godothub_version_filters'
-
-interface VersionFilters {
-  buildType: 'standard' | 'mono' | 'both'
-  channel: 'stable' | 'unstable' | 'both'
-}
-const DEFAULT_FILTERS: VersionFilters = { buildType: 'both', channel: 'both' }
-
-function loadVersionFilters(): VersionFilters {
-  try {
-    const raw = localStorage.getItem(VERSION_FILTERS_KEY)
-    if (raw) return { ...DEFAULT_FILTERS, ...JSON.parse(raw) }
-  } catch {}
-  return DEFAULT_FILTERS
+function downloadKey(tag: string, assetName: string) {
+  return assetName.toLowerCase().includes('mono') ? `${tag}-mono` : tag
 }
 
-function FilterDropdown({
-  label,
-  value,
-  options,
-  onChange,
+function sourcePageUrl(source: string, tag: string): string {
+  return source === 'archive'
+    ? `https://godotengine.org/download/archive/${tag}/`
+    : `https://github.com/godotengine/godot-builds/releases/tag/${tag}`
+}
+
+const STATE_DOT = {
+  installed: 'bg-mint',
+  available: 'bg-muted',
+  downloading: 'bg-amber',
+} as const
+
+function VersionTag({
+  tag,
+  state,
+  customName,
 }: {
-  label: string
-  value: string
-  options: { value: string; label: string }[]
-  onChange: (value: string) => void
+  tag: string
+  state: keyof typeof STATE_DOT
+  customName?: string | null
 }) {
-  const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
-
-  const selected = options.find((o) => o.value === value)
-
+  const { t } = useTranslation('versions')
   return (
-    <div ref={ref} className="relative">
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className={`focus-ring cursor-pointer flex items-center gap-2 pl-3 pr-2 py-1.5 rounded-lg bg-surface border text-xs text-ink transition-colors ${
-          open ? 'border-accent' : 'border-line hover:border-accent-dim'
-        }`}
-      >
-        <span className="text-muted">{label}:</span>
-        <span className="font-medium">{selected?.label ?? ''}</span>
-        <IconChevronDown
-          className={`w-3 h-3 text-muted transition-transform ${open ? 'rotate-180' : ''}`}
-        />
-      </button>
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0, y: -4, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -4, scale: 0.97 }}
-            transition={{ duration: 0.12, ease: 'easeOut' }}
-            className="absolute z-20 mt-1.5 min-w-32 rounded-xl border border-line bg-surface shadow-2xl shadow-black/40 p-1.5 origin-top"
-          >
-            {options.map((o) => (
-              <button
-                key={o.value}
-                type="button"
-                onClick={() => {
-                  onChange(o.value)
-                  setOpen(false)
-                }}
-                className={`w-full text-left px-3 py-1.5 rounded-lg text-xs transition-colors ${
-                  value === o.value
-                    ? 'bg-accent/20 text-accent-bright'
-                    : 'text-ink hover:bg-raised'
-                }`}
-              >
-                {o.label}
-              </button>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+    <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-item bg-overlay border border-outline/50 font-mono text-xs text-ink shrink-0">
+      <span
+        className={`w-1.5 h-1.5 rounded-full ${STATE_DOT[state]} ${state === 'downloading' ? 'animate-pulse' : ''}`}
+      />
+      {customName ? (
+        <>
+          {customName}
+          {customName !== tag && <span className="text-muted">({tag})</span>}
+        </>
+      ) : (
+        tag || t('unbound')
+      )}
+    </span>
   )
 }
 
-export function VersionsView() {
-  const { t } = useTranslation('versions')
+function MonoBadge() {
+  return (
+    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-tag bg-accent/10 text-accent-bright border border-accent-dim/40 shrink-0">
+      .NET
+    </span>
+  )
+}
+
+export function VersionsView({
+  onOpenSettings,
+  connected = false,
+}: {
+  onOpenSettings?: () => void
+  connected?: boolean
+}) {
+  const { t } = useTranslation('nav')
+  const { t: tv } = useTranslation('versions')
+  const { t: tc } = useTranslation('common')
   const {
     installed,
     available,
@@ -155,34 +158,30 @@ export function VersionsView() {
     rename,
     refreshAvailable,
     refreshInstalled,
-    scanProgress,
+    source,
   } = useGodotVersionsContext()
   const { settings } = useSettings()
-  const launchWithConsole = settings.launch_with_console
-  const [contextMenu, setContextMenu] = useState<{
-    x: number
-    y: number
-    versionTag: string
-  } | null>(null)
-  const [scanning, setScanning] = useState(false)
-  const [importing, setImporting] = useState(false)
-  const [dialogMinimized, setDialogMinimized] = useState(false)
-  const [collapsedGroups, setCollapsedGroups] = useState<
-    Record<string, boolean>
-  >({})
-  const [visibleGroups, setVisibleGroups] = useState(5)
-  const [filters, setFilters] = useState<VersionFilters>(loadVersionFilters)
+  const { registerTask, updateTask, unregisterTask } = useTaskTray()
+
   const [query, setQuery] = useState('')
-  const [confirmUninstallTag, setConfirmUninstallTag] = useState<string | null>(null)
-  const [_rateLimit, setRateLimit] = useState<{
-    remaining: number
-    limit: number
-    reset_at: number
-    used_token: boolean
-  } | null>(null)
-  const [editingTag, setEditingTag] = useState<string | null>(null)
-  const [editValue, setEditValue] = useState('')
-  const editInputRef = useRef<HTMLInputElement>(null)
+  const [filters, setFilters] = useState<VersionFilters>(loadVersionFilters)
+  const [sortBy, setSortBy] = useState<VersionSortOption>(() => {
+    try {
+      const raw = localStorage.getItem(VERSION_SORT_KEY)
+      if (raw === 'latest' || raw === 'oldest' || raw === 'name_asc' || raw === 'name_desc') return raw
+    } catch {}
+    return 'latest'
+  })
+  const [installedSortBy, setInstalledSortBy] = useState<VersionSortOption>(() => {
+    try {
+      const raw = localStorage.getItem(VERSION_SORT_KEY + '_installed')
+      if (raw === 'latest' || raw === 'oldest' || raw === 'name_asc' || raw === 'name_desc' || raw === 'recently_installed' || raw === 'oldest_installed') return raw
+    } catch {}
+    return 'latest'
+  })
+  const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({})
+  const [visibleGroups, setVisibleGroups] = useState(5)
+  const [scanning, setScanning] = useState(false)
 
   useEffect(() => {
     try {
@@ -191,478 +190,528 @@ export function VersionsView() {
   }, [filters])
 
   useEffect(() => {
-    const fetchRateLimit = async () => {
-      try {
-        const info = await api.getGithubRateLimit()
-        setRateLimit(info)
-      } catch {}
-    }
-    fetchRateLimit()
-    const interval = setInterval(fetchRateLimit, 60000)
-    return () => clearInterval(interval)
-  }, [])
-
-  const handleImportVersion = async (folder?: string) => {
-    const dir = folder ?? (await api.pickFolder())
-    if (!dir) return
-    if (scanning || importing) return
-    setDialogMinimized(false)
-    setImporting(true)
     try {
-      const imported = await api.importVersion(dir)
+      localStorage.setItem(VERSION_SORT_KEY, sortBy)
+    } catch {}
+  }, [sortBy])
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(VERSION_SORT_KEY + '_installed', installedSortBy)
+    } catch {}
+  }, [installedSortBy])
+
+  const handleImportVersion = async (folder: string) => {
+    const taskId = `import-version-${Date.now()}`
+    registerTask({
+      id: taskId,
+      type: 'import-versions',
+      label: tv('importing_version'),
+      description: folder,
+      progress: null,
+      status: 'running',
+    })
+    try {
+      await api.importVersion(folder)
       await refreshInstalled()
-      if (imported.length > 1) {
-        alert(t('version_imported_many', { count: imported.length }))
-      }
+      updateTask(taskId, { status: 'completed' })
+      setTimeout(() => unregisterTask(taskId), 3000)
     } catch (e) {
-    } finally {
-      setImporting(false)
+      updateTask(taskId, { status: 'error', errorMessage: String(e) })
+      setTimeout(() => unregisterTask(taskId), 6000)
     }
   }
 
-  const importVersionRef = useRef(handleImportVersion)
-  importVersionRef.current = handleImportVersion
-  useEffect(() => {
-    const handler = () => importVersionRef.current()
-    window.addEventListener('app:import-version', handler)
-    return () => window.removeEventListener('app:import-version', handler)
-  }, [])
-
   const handleScanNow = async () => {
     if (scanning) return
-    setDialogMinimized(false)
+    if (!settings.version_scan_dirs.length) {
+      if (onOpenSettings) onOpenSettings()
+      else
+        window.dispatchEvent(
+          new CustomEvent('app:open-setting', { detail: 'version_scan_dirs' }),
+        )
+      return
+    }
     setScanning(true)
     try {
-      if (settings.version_scan_dirs.length) {
-        await api.scanForVersions(
-          settings.version_scan_dirs,
-          settings.scan_depth,
-        )
-        await refreshInstalled()
-      }
+      await api.scanForVersions(settings.version_scan_dirs, settings.scan_depth)
     } finally {
       setScanning(false)
     }
   }
+  const scanRef = useRef(handleScanNow)
+  scanRef.current = handleScanNow
 
-  const scanNowRef = useRef(handleScanNow)
-  scanNowRef.current = handleScanNow
   useEffect(() => {
-    const handler = () => scanNowRef.current()
-    window.addEventListener('app:scan-versions', handler)
-    return () => window.removeEventListener('app:scan-versions', handler)
+    const onScan = () => scanRef.current()
+    window.addEventListener('app:scan-versions', onScan)
+    return () => {
+      window.removeEventListener('app:scan-versions', onScan)
+    }
   }, [])
 
-  const startEditing = (tag: string, current: string | null | undefined) => {
-    setEditingTag(tag)
-    setEditValue(current ?? tag)
-    requestAnimationFrame(() => editInputRef.current?.focus())
-  }
-
-  const commitEdit = () => {
-    if (editingTag) {
-      const trimmed = editValue.trim()
-      rename(editingTag, trimmed || null)
-    }
-    setEditingTag(null)
-    setEditValue('')
-  }
-
-  const cancelEdit = () => {
-    setEditingTag(null)
-    setEditValue('')
+  const openVersion = (tag: string, console?: boolean) => {
+    api.openGodotVersion(tag, console).catch((err) => alert(String(err)))
   }
 
   const isSearching = query.trim().length > 0
+  const q = query.trim().toLowerCase()
 
-  const filteredInstalled = isSearching
+  const rateLimited =
+    source === 'github' && /rate\s*limit/i.test(availableError || '')
+
+  const filteredInstalled = (isSearching
     ? installed.filter(
         (v) =>
-          v.tag.toLowerCase().includes(query.toLowerCase()) ||
-          (v.custom_name &&
-            v.custom_name.toLowerCase().includes(query.toLowerCase())),
+          v.tag.toLowerCase().includes(q) ||
+          (v.custom_name && v.custom_name.toLowerCase().includes(q)),
       )
     : installed
+  ).slice().sort((a, b) => {
+    const tagA = a.custom_name || a.tag
+    const tagB = b.custom_name || b.tag
+    switch (installedSortBy) {
+      case 'oldest':
+        return a.tag.localeCompare(b.tag, undefined, { numeric: true })
+      case 'name_asc':
+        return tagA.localeCompare(tagB)
+      case 'name_desc':
+        return tagB.localeCompare(tagA)
+      case 'recently_installed':
+        return new Date(b.installed_at).getTime() - new Date(a.installed_at).getTime()
+      case 'oldest_installed':
+        return new Date(a.installed_at).getTime() - new Date(b.installed_at).getTime()
+      case 'latest':
+      default:
+        return b.tag.localeCompare(a.tag, undefined, { numeric: true })
+    }
+  })
 
   const filteredAvailable = isSearching
     ? available
         .map((r) => ({
           ...r,
-          assets: r.assets.filter(() =>
-            r.tag.toLowerCase().includes(query.toLowerCase()),
-          ),
+          assets: r.assets.filter(() => r.tag.toLowerCase().includes(q)),
         }))
         .filter((r) => r.assets.length > 0)
     : available
 
+  const groupEntries = Object.entries(
+    filteredAvailable
+      .flatMap((r) => {
+        const isStable = r.tag.toLowerCase().includes('stable')
+        if (
+          filters.channel !== 'both' &&
+          (filters.channel === 'stable') !== isStable
+        )
+          return []
+        return r.assets
+          .filter(
+            (a) =>
+              filters.buildType === 'both' ||
+              (filters.buildType === 'mono') === a.is_mono,
+          )
+          .map((asset) => ({ tag: r.tag, asset }))
+      })
+      .reduce<Record<string, { tag: string; asset: GodotReleaseAsset }[]>>(
+        (groups, row) => {
+          ;(groups[minorGroup(row.tag)] ??= []).push(row)
+          return groups
+        },
+        {},
+      ),
+  ).sort(([a], [b]) => {
+    switch (sortBy) {
+      case 'oldest':
+        return a.localeCompare(b, undefined, { numeric: true })
+      case 'name_asc':
+        return a.localeCompare(b, undefined, { numeric: true })
+      case 'name_desc':
+        return b.localeCompare(a, undefined, { numeric: true })
+      case 'latest':
+      default:
+        return b.localeCompare(a, undefined, { numeric: true })
+    }
+  })
+
+  const animate = !isReducedMotion()
+  const entranceTransition: Transition = {
+    type: 'tween',
+    duration: animate ? 0.25 : 0,
+    ease: 'easeOut',
+  }
+
   return (
-    <div className="p-10 pt-6 max-w-8xl mx-auto">
-      <section>
-        <div className="flex items-center justify-between">
-          <h2 className="font-body font-semibold text-3xl tracking-tight">
-            {t('installed_title')}
-          </h2>
-          <div className="flex items-center gap-3">
-            <motion.button
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.96 }}
-              onClick={() => handleImportVersion()}
-              disabled={scanning || importing}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
-            >
-              <span className="icon-wiggle inline-flex">
-                <IconImport className="w-4 h-4" />
-              </span>
-              {importing ? t('importing') : t('import')}
-            </motion.button>
-            <Tooltip
-              content={t('add_scan_folder_hint', { ns: 'common' })}
-              side="bottom"
-            >              <motion.button
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.96 }}
-                onClick={handleScanNow}
-                disabled={scanning || settings.version_scan_dirs.length === 0}
-                className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <span
-                  className={`icon-wiggle inline-flex ${scanning ? 'animate-spin' : ''}`}
-                >
-                  <IconRefresh className="w-4 h-4" />
-                </span>
-                {scanning ? t('scanning') : t('scan_now')}
-              </motion.button>
-            </Tooltip>
-            </div>
-        </div>
-        <p className="text-xs text-muted mb-5 mt-[-3px]">
-          {t('version_engines_desc', { ns: 'common' })}
-        </p>
-
-        <div className="relative w-64 mb-5">
-          <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted/50 pointer-events-none" />
-          <input
-            type="text"
+    <div className="flex-1 min-w-0 h-full flex flex-col gap-2">
+      <ViewHeader
+        connected={connected}
+        title={t('versions')}
+          metric={
+            <>
+              <h2 className="text-4xl font-bold text-muted">
+                <AnimatedNumber value={installed.length} />
+              </h2>
+              <p className="text-lg font-medium uppercase text-muted">
+                {tv('installed_count', { count: installed.length })}
+              </p>
+            </>
+          }
+          actions={
+            <>
+              <ImportButton
+                onImport={handleImportVersion}
+                disabled={scanning}
+                importEvent="app:import-version"
+              />
+              <ScanButton
+                onOpenSettings={onOpenSettings}
+                disabled={scanning}
+                scanDirs={settings.version_scan_dirs}
+                scan={() =>
+                  api.scanForVersions(
+                    settings.version_scan_dirs,
+                    settings.scan_depth,
+                  )
+                }
+                onComplete={() => {
+                  refreshInstalled().catch(() => {})
+                }}
+                onScanStart={() => setScanning(true)}
+                onScanEnd={() => setScanning(false)}
+              />
+            </>
+          }
+        >
+          <SearchBar
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={t('version_search_placeholder', { ns: 'common' })}
-            className="w-full pl-9 pr-9 py-2 rounded-lg border border-line bg-surface text-sm text-ink placeholder:text-muted/50 outline-none transition-all focus:border-accent focus:ring-1 focus:ring-accent/30"
+            onChange={setQuery}
+            placeholderKey="version_search_placeholder"
           />
-          {query && (
-            <button
-              onClick={() => setQuery('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted/50 hover:text-ink transition-colors cursor-pointer"
-            >
-              <IconX className="w-3.5 h-3.5" />
-            </button>
-          )}
-        </div>
+      </ViewHeader>
 
+      <OverlayScrollArea
+        className={`flex-1 min-w-0 ${connected ? '' : '-mr-4 -mb-4'}`}
+        hideThumb={!settings.show_scrollbars}
+        topButtonBottom="bottom-18"
+      >
+        <div
+          className={`h-full ${connected ? 'pl-5' : ''} pr-5 pb-4 flex flex-col gap-2`}
+        >
         {installed.length === 0 && !isSearching ? (
-          <div className="border border-dashed border-line rounded-2xl py-24 flex flex-col items-center gap-4 text-center mb-5">
-            <div className="w-12 h-12 rounded-xl bg-raised border border-line flex items-center justify-center">
+          <div className="rounded-item border border-dashed border-outline/50 py-20 flex flex-col items-center gap-3 text-center px-6">
+            <div className="w-12 h-12 rounded-tile bg-overlay border border-outline/50 flex items-center justify-center">
               <IconDownload className="w-5 h-5 text-muted" />
             </div>
-            <p className="text-sm text-muted max-w-xs leading-relaxed">
-              {t('version_no_installed', { ns: 'common' })}
+            <p className="text-sm text-muted max-w-sm leading-relaxed">
+              {tc('version_no_installed')}
             </p>
           </div>
         ) : filteredInstalled.length === 0 && isSearching ? (
-          <div className="border border-dashed border-line rounded-2xl py-16 flex flex-col items-center gap-4 text-center mb-5">
+          <div className="rounded-item border border-dashed border-outline/50 py-16 flex flex-col items-center gap-3 text-center">
             <IconSearch className="w-5 h-5 text-muted" />
-            <p className="text-sm text-muted max-w-xs leading-relaxed">
-              {t('no_versions_match')} <strong>"{query}"</strong>.
+            <p className="text-sm text-muted">
+              {tv('no_versions_match')} <strong className="text-ink">"{query}"</strong>.
             </p>
           </div>
         ) : (
-          <div className="flex flex-col gap-3 mb-5">
-            {filteredInstalled.map((v) => (
-              <ScrollReveal key={v.tag} delay={0.03}>
-              <div
-                onContextMenu={(e) => {
-                  e.preventDefault()
-                  setContextMenu({ x: e.clientX, y: e.clientY, versionTag: v.tag })
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center justify-between">
+              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted px-1">
+                {tv('installed_title')}
+              </h3>
+              <Dropdown
+                align="right"
+                trigger={({ open, toggle }) => {
+                  const activeOption = VERSION_SORT_OPTIONS.find((o) => o.value === installedSortBy)
+                  return (
+                    <motion.button
+                      type="button"
+                      aria-expanded={open}
+                      whileHover={{ scale: 1.04 }}
+                      whileTap={{ scale: 0.94 }}
+                      onClick={toggle}
+                      className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
+                    >
+                      <span className="text-[12px] text-muted">{tc('sort')}:</span>
+                      <span className="text-[13px] font-medium text-ink">
+                        {activeOption ? tv(activeOption.labelKey) : tc('sort')}
+                      </span>
+                      <IconChevronDown className="w-3 h-3 text-muted" />
+                    </motion.button>
+                  )
                 }}
-                className="flex items-center justify-between border border-line rounded-xl px-5 py-4 bg-surface hover:border-accent-dim transition-all duration-200"
-              >
-                <div className="flex items-center gap-3 min-w-0">
-                  {editingTag === v.tag ? (
-                    <div className="flex items-center gap-2">
-                      <input
-                        ref={editInputRef}
-                        type="text"
-                        value={editValue}
-                        onChange={(e) => setEditValue(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') commitEdit()
-                          if (e.key === 'Escape') cancelEdit()
-                        }}
-                        onBlur={commitEdit}
-                        className="focus-ring w-44 bg-raised border border-accent rounded-lg px-3 py-1.5 text-sm font-mono text-ink outline-none"
-                      />
-                      <motion.button
-                        whileTap={{ scale: 0.95 }}
-                        onClick={commitEdit}
-                        className="focus-ring cursor-pointer p-1.5 rounded-lg text-accent hover:bg-accent/10 transition-colors"
-                        aria-label={t('version_save_name_aria', { ns: 'common' })}
-                      >
-                        <IconPencil className="w-3.5 h-3.5" />
-                      </motion.button>
-                    </div>
-                  ) : (
-                    <>
-                      <VersionBadge
-                        tag={v.tag}
-                        state="installed"
-                        customName={v.custom_name}
-                      />
-                      {v.is_mono && (
-                        <span className="text-xs px-2 py-1 rounded-md bg-accent/10 text-accent-bright border border-accent-dim/40 shrink-0">
-                          Mono
-                        </span>
-                      )}
-                      <Tooltip content={t('version_rename_tooltip', { ns: 'common' })}>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            startEditing(v.tag, v.custom_name)
-                          }}
-                          aria-label={t('version_rename_aria', { ns: 'common' })}
-                          className="icon-wiggle focus-ring cursor-pointer p-1.5 rounded-lg text-muted/60 hover:text-ink hover:bg-raised transition-colors shrink-0"
-                        >
-                          <IconPencil className="w-3.5 h-3.5" />
-                        </button>
-                      </Tooltip>
-                    </>
-                  )}
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
-                    <SplitButton
-                      variant="outline"
-                      label={t('open')}
-                      icon={IconRocket}
-                      menuLabel={t('more_editor_launch_options')}
-                      onClick={() => api.openGodotVersion(v.tag).catch(() => {})}
-                      items={[
-                        {
-                          label: t('open_editor'),
-                          icon: IconRocket,
-                          badge:
-                            v.supports_console && launchWithConsole
-                              ? undefined
-                              : t('launch_default_badge', { ns: 'common' }),
-                          onClick: () =>
-                            api.openGodotVersion(v.tag, false).catch(() => {}),
-                        },
-                        ...(v.supports_console
-                          ? [
-                              {
-                                label: t('open_with_console', { ns: 'common' }),
-                                icon: IconTerminal,
-                                badge: launchWithConsole
-                                  ? t('launch_default_badge', { ns: 'common' })
-                                  : undefined,
-                                onClick: () =>
-                                  api.openGodotVersion(v.tag, true).catch(() => {}),
-                              },
-                            ]
-                          : []),
-                      ]}
-                    />
-                  </div>
-                  <motion.button
-                    whileHover={{ y: -1 }}
-                    whileTap={{ scale: 0.96 }}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      setConfirmUninstallTag(v.tag)
-                    }}
-                    className="icon-wiggle cursor-pointer focus-ring flex items-center gap-2 px-3.5 py-2 rounded-lg border border-line text-muted hover:text-danger hover:border-danger/50 text-sm transition-colors shrink-0"
-                  >
-                    <IconTrash className="w-3.5 h-3.5" />
-                    {t('uninstall', { ns: 'versions' })}
-                  </motion.button>
-                </div>
-              </div>
-              </ScrollReveal>
-            ))}
+                items={VERSION_SORT_OPTIONS.map((opt) => ({
+                  key: opt.value,
+                  label: tv(opt.labelKey),
+                  active: opt.value === installedSortBy,
+                  onClick: () => setInstalledSortBy(opt.value),
+                }))}
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              {filteredInstalled.map((v, i) => (
+                <motion.div
+                  key={v.tag}
+                  initial={animate ? { opacity: 0, y: 10 } : false}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    ...entranceTransition,
+                    delay: animate ? Math.min(i * 0.05, 0.35) : 0,
+                  }}
+                >
+                  <InstalledVersionCard
+                    version={v}
+                    onOpen={(console) => openVersion(v.tag, console)}
+                    onRename={(name) => rename(v.tag, name)}
+                    onUninstall={() => remove(v.tag)}
+                  />
+                </motion.div>
+              ))}
+            </div>
           </div>
         )}
-      </section>
 
-      <section>
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="font-body font-semibold text-3xl tracking-tight">
-              {t('available_title')}
-            </h2>
-            <p className="text-xs text-muted mb-3">
-              {t('available_subtitle')}
-            </p>
-          </div>
-        </div>
+        <section className="flex flex-col gap-2">
+          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted px-1">
+            {tv('available_title')}
+          </h3>
+          <p className="text-xs text-muted px-1 -mt-1">{tv('available_subtitle')}</p>
 
-        <div className="flex flex-wrap items-center gap-3 mb-5 px-3.5 py-2.5 rounded-lg bg-raised border border-line">
-          <FilterDropdown
-            label={t('type')}
-            value={filters.buildType}
-            onChange={(v) =>
-              setFilters((prev) => ({
-                ...prev,
-                buildType: v as VersionFilters['buildType'],
-              }))
-            }
-            options={[
-              { value: 'standard', label: t('standard') },
-              { value: 'mono', label: t('mono') },
-              { value: 'both', label: t('both') },
-            ]}
-          />
-          <FilterDropdown
-            label={t('channel')}
-            value={filters.channel}
-            onChange={(v) =>
-              setFilters((prev) => ({
-                ...prev,
-                channel: v as VersionFilters['channel'],
-              }))
-            }
-            options={[
-              { value: 'stable', label: t('stable') },
-              { value: 'unstable', label: t('unstable') },
-              { value: 'both', label: t('both') },
-            ]}
-          />
-        </div>
-
-        {loadingAvailable ? (
-          <p className="text-sm text-muted">{t('fetching')}</p>
-        ) : availableError ? (
-          <div className="border border-dashed border-danger/50 rounded-2xl py-24 flex flex-col items-center gap-4 text-center px-6">
-            <div className="w-12 h-12 rounded-xl bg-danger/10 border border-danger/30 flex items-center justify-center">
-              <IconX className="w-5 h-5 text-danger" />
-            </div>
-            <p className="text-sm text-danger">
-              {t('fetch_error')}
-            </p>
-            <p className="text-xs text-muted font-mono break-all max-w-md">
-              {availableError}
-            </p>
-            <motion.button
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.96 }}
-              onClick={() => refreshAvailable()}
-              className="focus-ring px-4 py-2 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
-            >
-              {t('retry', { ns: 'versions' })}
-            </motion.button>
-          </div>
-        ) : isSearching && filteredAvailable.length === 0 ? (
-          <p className="text-sm text-muted">{t('fetching')}</p>
-        ) : availableError ? (
-          <div className="border border-dashed border-danger/50 rounded-2xl py-24 flex flex-col items-center gap-4 text-center px-6">
-            <div className="w-12 h-12 rounded-xl bg-danger/10 border border-danger/30 flex items-center justify-center">
-              <IconX className="w-5 h-5 text-danger" />
-            </div>
-            <p className="text-sm text-danger">
-              {t('fetch_error')}
-            </p>
-            <p className="text-xs text-muted font-mono break-all max-w-md">
-              {availableError}
-            </p>
-            <motion.button
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.96 }}
-              onClick={() => refreshAvailable()}
-              className="focus-ring px-4 py-2 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
-            >
-              {t('retry', { ns: 'versions' })}
-            </motion.button>
-          </div>
-        ) : (
-          (() => {
-            const groupEntries = Object.entries(
-              filteredAvailable
-                .flatMap((r) => {
-                  const isStable = r.tag.toLowerCase().includes('stable')
-                  if (
-                    filters.channel !== 'both' &&
-                    (filters.channel === 'stable') !== isStable
-                  )
-                    return []
-                  return r.assets
-                    .filter(
-                      (a) =>
-                        filters.buildType === 'both' ||
-                        (filters.buildType === 'mono') === a.is_mono,
-                    )
-                    .map((asset) => ({ tag: r.tag, asset }))
-                })
-                .reduce<
-                  Record<
-                    string,
-                    {
-                      tag: string
-                      asset: (typeof available)[number]['assets'][number]
-                    }[]
+          <div className="shrink-0 flex items-center gap-2">
+            <Dropdown
+              align="left"
+              trigger={({ open, toggle }) => (
+                <motion.button
+                  type="button"
+                  aria-expanded={open}
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.94 }}
+                  onClick={toggle}
+                  className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
+                >
+                  <span className="text-[13px] text-muted">{tv('source')}:</span>
+                  <span className="text-[16px] font-medium text-ink">
+                    {source === 'archive'
+                      ? tv('source_archive')
+                      : tv('source_github')}
+                  </span>
+                  <IconChevronDown className="w-3 h-3 text-muted" />
+                </motion.button>
+              )}
+              items={[
+                {
+                  key: 'github',
+                  label: tv('source_github'),
+                  active: source === 'github',
+                  onClick: () => refreshAvailable('github'),
+                },
+                {
+                  key: 'archive',
+                  label: tv('source_archive'),
+                  active: source === 'archive',
+                  onClick: () => {
+                    refreshAvailable('archive')
+                    setFilters((p) => ({ ...p, channel: 'stable' }))
+                  },
+                },
+              ]}
+            />
+            <Dropdown
+              align="left"
+              trigger={({ open, toggle }) => (
+                <motion.button
+                  type="button"
+                  aria-expanded={open}
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.94 }}
+                  onClick={toggle}
+                  className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
+                >
+                  <span className="text-[13px] text-muted">{tv('type')}:</span>
+                  <span className="text-[16px] font-medium text-ink">
+                    {filters.buildType === 'both'
+                      ? tv('both')
+                      : filters.buildType === 'mono'
+                        ? tv('mono')
+                        : tv('standard')}
+                  </span>
+                  <IconChevronDown className="w-3 h-3 text-muted" />
+                </motion.button>
+              )}
+              items={[
+                { key: 'standard', label: tv('standard'), active: filters.buildType === 'standard', onClick: () => setFilters((p) => ({ ...p, buildType: 'standard' })) },
+                { key: 'mono', label: tv('mono'), active: filters.buildType === 'mono', onClick: () => setFilters((p) => ({ ...p, buildType: 'mono' })) },
+                { key: 'both', label: tv('both'), active: filters.buildType === 'both', onClick: () => setFilters((p) => ({ ...p, buildType: 'both' })) },
+              ]}
+            />
+            {source !== 'archive' && (
+            <Dropdown
+              align="left"
+              trigger={({ open, toggle }) => (
+                <motion.button
+                  type="button"
+                  aria-expanded={open}
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.94 }}
+                  onClick={toggle}
+                  className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
+                >
+                  <span className="text-[13px] text-muted">{tv('channel')}:</span>
+                  <span className="text-[16px] font-medium text-ink">
+                    {filters.channel === 'both'
+                      ? tv('both')
+                      : filters.channel === 'stable'
+                        ? tv('stable')
+                        : tv('unstable')}
+                  </span>
+                  <IconChevronDown className="w-3 h-3 text-muted" />
+                </motion.button>
+              )}
+              items={[
+                { key: 'stable', label: tv('stable'), active: filters.channel === 'stable', onClick: () => setFilters((p) => ({ ...p, channel: 'stable' })) },
+                { key: 'unstable', label: tv('unstable'), active: filters.channel === 'unstable', onClick: () => setFilters((p) => ({ ...p, channel: 'unstable' })) },
+                { key: 'both', label: tv('both'), active: filters.channel === 'both', onClick: () => setFilters((p) => ({ ...p, channel: 'both' })) },
+              ]}
+            />
+            )}
+            <Dropdown
+              align="left"
+              trigger={({ open, toggle }) => {
+                const activeOption = VERSION_SORT_OPTIONS.find((o) => o.value === sortBy)
+                return (
+                  <motion.button
+                    type="button"
+                    aria-expanded={open}
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.94 }}
+                    onClick={toggle}
+                    className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
                   >
-                >((groups, row) => {
-                  ;(groups[minorGroup(row.tag)] ??= []).push(row)
-                  return groups
-                }, {}),
-            ).sort(([a], [b]) =>
-              b.localeCompare(a, undefined, { numeric: true }),
-            )
+                    <span className="text-[13px] text-muted">{tc('sort')}:</span>
+                    <span className="text-[16px] font-medium text-ink">
+                      {activeOption ? tv(activeOption.labelKey) : tc('sort')}
+                    </span>
+                    <IconChevronDown className="w-3 h-3 text-muted" />
+                  </motion.button>
+                )
+              }}
+              items={AVAILABLE_SORT_OPTIONS.map((opt) => ({
+                key: opt.value,
+                label: tv(opt.labelKey),
+                active: opt.value === sortBy,
+                onClick: () => setSortBy(opt.value),
+              }))}
+            />
+          </div>
 
-            return (
-              <>
-                <div className="flex flex-col gap-6">
-                  {groupEntries.slice(0, visibleGroups).map(([group, rows]) => {
-                    const isCollapsed = collapsedGroups[group]
-                    return (
-                      <div key={group} className="flex flex-col gap-3">
-                        <button
-                          onClick={() =>
-                            setCollapsedGroups((prev) => ({
-                              ...prev,
-                              [group]: !prev[group],
-                            }))
-                          }
-                          className="focus-ring cursor-pointer flex items-center gap-1.5 text-xs font-semibold text-muted uppercase tracking-wide w-fit"
-                        >
-                          <IconChevronDown
-                            className={`w-3 h-3 transition-transform ${isCollapsed ? '-rotate-90' : ''}`}
-                          />
-                          {group === 'Other' ? t('other') : group}
-                        </button>
-                        <AnimatePresence initial={false}>
-                          {!isCollapsed && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: 'auto' }}
-                              exit={{ opacity: 0, height: 0 }}
-                              transition={{ duration: 0.15 }}
-                              className="flex flex-col gap-3 overflow-hidden"
-                            >
-                              {rows.map(({ tag, asset }) => {
-                                const progressKey = asset.is_mono
-                                  ? `${tag}-mono`
-                                  : tag
+          {loadingAvailable ? (
+            <div className="flex items-center gap-2 py-8 justify-center">
+              <IconSpinner className="w-4 h-4 animate-spin text-muted" />
+              <span className="text-sm text-muted">{tv('fetching')}</span>
+            </div>
+          ) : availableError ? (
+            <div className="rounded-item border border-dashed border-danger/30 py-16 flex flex-col items-center gap-3 text-center px-6">
+              <div className="w-12 h-12 rounded-tile bg-danger/10 border border-danger/30 flex items-center justify-center">
+                <IconX className="w-5 h-5 text-danger" />
+              </div>
+              <p className="text-sm text-danger">{tv('fetch_error')}</p>
+              <p className="text-xs text-muted font-mono break-all max-w-md">
+                {availableError}
+              </p>
+              <motion.button
+                type="button"
+                whileHover={{ y: -1 }}
+                whileTap={{ scale: 0.96 }}
+                onClick={() => refreshAvailable()}
+                className="focus-ring cursor-pointer px-4 py-2 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+              >
+                {tv('retry')}
+              </motion.button>
+              {rateLimited && (
+                <motion.button
+                  type="button"
+                  whileHover={{ y: -1 }}
+                  whileTap={{ scale: 0.96 }}
+                  onClick={() => refreshAvailable('archive')}
+                  className="focus-ring cursor-pointer px-4 py-2 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
+                >
+                  {tv('switch_to_archive')}
+                </motion.button>
+              )}
+            </div>
+          ) : isSearching && filteredAvailable.length === 0 ? (
+            <p className="text-sm text-muted px-1">
+              {tv('no_available_versions_match')}{" "}
+              <strong className="text-ink">"{query}"</strong>.
+            </p>
+          ) : groupEntries.length === 0 ? (
+            <p className="text-sm text-muted px-1">
+              {tv('no_available_versions_match')}
+            </p>
+          ) : (
+            <>
+              <div className="flex flex-col gap-4">
+                {groupEntries.slice(0, visibleGroups).map(([group, rows]) => {
+                  const isCollapsed = collapsedGroups[group]
+                  return (
+                    <div key={group} className="flex flex-col gap-2">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setCollapsedGroups((prev) => ({
+                            ...prev,
+                            [group]: !prev[group],
+                          }))
+                        }
+                        aria-expanded={!isCollapsed}
+                        className="focus-ring cursor-pointer flex items-center gap-1.5 w-fit text-[11px] font-semibold uppercase tracking-wider text-muted hover:text-ink transition-colors"
+                      >
+                        <IconChevronDown
+                          className={`w-3 h-3 transition-transform duration-200 ${
+                            isCollapsed ? '-rotate-90' : ''
+                          }`}
+                        />
+                        {group === 'Other' ? tv('other') : group}
+                        <span className="text-[10px] font-medium text-muted/60">
+                          {rows.length}
+                        </span>
+                      </button>
+                      <AnimatePresence initial={false}>
+                        {!isCollapsed && (
+                          <motion.div key="div-679"
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: 'auto', opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.18, ease: 'easeOut' }}
+                            className="overflow-hidden"
+                          >
+                            <div className="flex flex-col gap-2">
+                              {rows.map(({ tag, asset }, rowIndex) => {
+                                const progressKey = downloadKey(tag, asset.name)
                                 const isInstalled = installed.some(
                                   (v) =>
                                     (versionCore(v.tag) === versionCore(tag) ||
-                                      versionCore(v.version) ===
-                                        versionCore(tag)) &&
+                                      versionCore(v.version) === versionCore(tag)) &&
                                     v.is_mono === asset.is_mono,
                                 )
                                 const dl = downloads[progressKey]
                                 return (
-                                  <ScrollReveal key={progressKey} delay={0.02}>
-                                  <div className="flex items-center justify-between border border-line rounded-xl px-5 py-4 bg-surface hover:border-accent-dim transition-colors"
+                                  <motion.div
+                                    key={progressKey}
+                                    initial={animate ? { opacity: 0, y: 10 } : false}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    transition={{
+                                      ...entranceTransition,
+                                      delay: animate
+                                        ? Math.min(rowIndex * 0.05, 0.35)
+                                        : 0,
+                                    }}
                                   >
-                                    <div className="flex items-center gap-3">
-                                      <VersionBadge
+                                  <div
+                                    className="flex items-center justify-between gap-3 rounded-item bg-overlay border border-outline/50 px-4 py-3 hover:border-accent-dim transition-colors"
+                                  >
+                                    <div className="flex items-center gap-2.5 min-w-0">
+                                      <VersionTag
                                         tag={tag}
                                         state={
                                           isInstalled
@@ -672,28 +721,27 @@ export function VersionsView() {
                                               : 'available'
                                         }
                                       />
-                                      {asset.is_mono && (
-                                        <span className="text-xs px-2 py-1 rounded-md bg-accent/10 text-accent-bright border border-accent-dim/40 shrink-0">
-                                          {t('mono', { ns: 'versions' })}
-                                        </span>
-                                      )}
-                                      <span className="text-xs text-muted font-mono">
-                                        {(asset.size / 1024 / 1024).toFixed(0)}{' '}
-                                        {t('mb', { ns: 'versions' })}
+                                      {asset.is_mono && <MonoBadge />}
+                                      <span className="text-xs text-muted font-mono shrink-0">
+                                        {(asset.size / 1024 / 1024).toFixed(0)} {tv('mb')}
                                       </span>
                                     </div>
 
                                     {dl ? (
-                                      <div className="flex items-center gap-2">
+                                      <div className="flex items-center gap-2 shrink-0">
                                         {dl.status === 'queued' ? (
                                           <span className="text-xs text-muted font-mono px-2">
-                                            {t('queued', { ns: 'versions' })}
+                                            {tv('queued')}
                                           </span>
                                         ) : (
-                                          <div className="w-60">
-                                            <div className="h-2 bg-raised rounded-full overflow-hidden">
+                                          <div className="w-56">
+                                            <div className="h-1.5 bg-raised rounded-full overflow-hidden">
                                               <motion.div
-                                                className={`h-full rounded-full ${dl.status === 'paused' ? 'bg-muted' : 'bg-amber'}`}
+                                                className={`h-full rounded-full ${
+                                                  dl.status === 'paused'
+                                                    ? 'bg-muted'
+                                                    : 'bg-amber'
+                                                }`}
                                                 animate={{
                                                   width: dl.total
                                                     ? `${(dl.downloaded / dl.total) * 100}%`
@@ -705,15 +753,11 @@ export function VersionsView() {
                                                 }}
                                               />
                                             </div>
-                                            <p className="text-xs text-muted font-mono mt-1.5">
+                                            <p className="text-[11px] text-muted font-mono mt-1 tabular-nums">
                                               {dl.status === 'paused'
-                                                ? t('paused_dot')
+                                                ? tv('paused_dot')
                                                 : ''}
-                                              {(
-                                                dl.downloaded /
-                                                1024 /
-                                                1024
-                                              ).toFixed(1)}{' '}
+                                              {(dl.downloaded / 1024 / 1024).toFixed(1)}{' '}
                                               MB
                                               {dl.total
                                                 ? ` / ${(dl.total / 1024 / 1024).toFixed(1)} MB`
@@ -722,189 +766,102 @@ export function VersionsView() {
                                           </div>
                                         )}
                                         {dl.status === 'paused' ? (
-                                          <Tooltip content={t('resume_download', { ns: 'versions' })}>
-                                            <button
+                                          <Tooltip content={tv('resume_download')} side="top">
+                                            <motion.button
+                                              type="button"
+                                              whileTap={{ scale: 0.9 }}
                                               onClick={() => resume(progressKey)}
-                                              aria-label={t('resume_download', { ns: 'versions' })}
-                                              className="focus-ring cursor-pointer py-2 px-3 rounded-lg border border-line text-muted hover:text-mint hover:border-mint/50 transition-colors"
+                                              className="focus-ring cursor-pointer p-2 rounded-btn border border-outline/50 text-muted hover:text-mint hover:border-mint/40 transition-colors"
                                             >
-                                              <IconPlay className="w-5 h-5" />
-                                            </button>
+                                              <IconPlay className="w-4 h-4" />
+                                            </motion.button>
                                           </Tooltip>
                                         ) : dl.status === 'downloading' ? (
-                                          <Tooltip content={t('pause_download', { ns: 'versions' })}>
-                                            <button
+                                          <Tooltip content={tv('pause_download')} side="top">
+                                            <motion.button
+                                              type="button"
+                                              whileTap={{ scale: 0.9 }}
                                               onClick={() => pause(progressKey)}
-                                              aria-label={t('pause_download', { ns: 'versions' })}
-                                              className="focus-ring cursor-pointer py-2 px-3 rounded-lg border border-line text-muted hover:text-ink hover:border-accent-dim transition-colors"
+                                              className="focus-ring cursor-pointer p-2 rounded-btn border border-outline/50 text-muted hover:text-ink hover:border-accent-dim transition-colors"
                                             >
-                                              <IconPause className="w-5 h-5" />
-                                            </button>
+                                              <IconPause className="w-4 h-4" />
+                                            </motion.button>
                                           </Tooltip>
                                         ) : null}
-                                        <Tooltip content={t('cancel_download', { ns: 'versions' })}>
-                                          <button
+                                        <Tooltip content={tv('cancel_download')} side="top">
+                                          <motion.button
+                                            type="button"
+                                            whileTap={{ scale: 0.9 }}
                                             onClick={() => cancel(progressKey)}
-                                            aria-label={t('cancel_download', { ns: 'versions' })}
-                                            className="focus-ring cursor-pointer py-2 px-3 rounded-lg border border-line text-muted hover:text-danger hover:border-danger/50 transition-colors"
+                                            className="focus-ring cursor-pointer p-2 rounded-btn border border-outline/50 text-muted hover:text-danger hover:border-danger/40 transition-colors"
                                           >
-                                            <IconX className="w-5 h-5" />
-                                          </button>
+                                            <IconX className="w-4 h-4" />
+                                          </motion.button>
                                         </Tooltip>
                                       </div>
                                     ) : isInstalled ? (
-                                      <span className="text-xs text-mint font-medium px-2">
-                                        {t('installed_label', { ns: 'versions' })}
+                                      <span className="text-xs text-mint font-medium shrink-0">
+                                        {tv('installed_label')}
                                       </span>
                                     ) : (
-                                      <motion.button
-                                        whileHover={{ y: -1 }}
-                                        whileTap={{ scale: 0.96 }}
-                                        onClick={() =>
-                                          download(
-                                            tag,
-                                            asset.name,
-                                            asset.download_url,
-                                          )
-                                        }
-                                        className="icon-wiggle focus-ring cursor-pointer flex items-center gap-2 px-3.5 py-2 rounded-lg bg-accent hover:bg-accent-bright disabled:opacity-40 text-sm font-medium text-white transition-colors"
-                                      >
-                                        <IconDownload className="w-3.5 h-3.5" />
-                                        {t('install', { ns: 'versions' })}
-                                      </motion.button>
+                                      <div className="flex items-center gap-2 shrink-0">
+                                          <motion.button
+                                            type="button"
+                                            whileHover={{ y: -1 }}
+                                            whileTap={{ scale: 0.96 }}
+                                            onClick={() =>
+                                              openUrl(sourcePageUrl(source, tag))
+                                            }
+                                            className="focus-ring cursor-pointer flex items-center gap-1.5 h-9 px-3.5 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+                                          >
+                                            <IconExternalLink className="w-3.5 h-3.5" />
+                                          </motion.button>
+                                        <motion.button
+                                          type="button"
+                                          whileHover={{ y: -1 }}
+                                          whileTap={{ scale: 0.96 }}
+                                          onClick={() =>
+                                            download(tag, asset.name, asset.download_url)
+                                          }
+                                          className="focus-ring cursor-pointer flex items-center gap-1.5 h-9 px-4 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
+                                        >
+                                          <IconDownload className="w-3.5 h-3.5" />
+                                          {tv('install')}
+                                        </motion.button>
+                                      </div>
                                     )}
                                   </div>
-                                  </ScrollReveal>
+                                  </motion.div>
                                 )
                               })}
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    )
-                  })}
-                </div>
-                {visibleGroups < groupEntries.length && (
-                  <div className="flex justify-center mt-5">
-                    <motion.button
-                      whileHover={{ y: -1 }}
-                      whileTap={{ scale: 0.96 }}
-                      onClick={() => setVisibleGroups((v) => v + 5)}
-                      className="focus-ring cursor-pointer px-5 py-2.5 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
-                    >
-                      {t('show_more', { ns: 'versions' })}
-                    </motion.button>
-                  </div>
-                )}
-              </>
-            )
-          })()
-        )}
-      </section>
-
-      {(scanning || importing) && !dialogMinimized && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-surface border border-line rounded-2xl px-8 py-6 flex flex-col items-center gap-3 min-w-64">
-            <IconRefresh className="w-6 h-6 animate-spin text-accent" />
-            <p className="text-sm font-medium text-ink">
-              {importing
-                ? t('importing_version')
-                : scanProgress && scanProgress.total > 0
-                  ? t('importing_progress', { current: scanProgress.current, total: scanProgress.total })
-                  : t('scanning_versions')}
-            </p>
-            {(scanProgress && scanProgress.total > 0) && (
-              <div className="h-1.5 w-full rounded-full bg-line overflow-hidden">
-                <div
-                  className="h-full bg-accent transition-all duration-200"
-                  style={{
-                    width: `${(scanProgress.current / scanProgress.total) * 100}%`,
-                  }}
-                />
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  )
+                })}
               </div>
-            )}
-            <button
-              onClick={() => setDialogMinimized(true)}
-              className="focus-ring cursor-pointer text-xs text-muted hover:text-ink transition-colors mt-1"
-            >
-              {t('resume_background', { ns: 'common' })}
-            </button>
-          </div>
+              {visibleGroups < groupEntries.length && (
+                <div className="flex justify-center">
+                  <motion.button key="button-845"
+                    type="button"
+                    whileHover={{ y: -1 }}
+                    whileTap={{ scale: 0.96 }}
+                    onClick={() => setVisibleGroups((v) => v + 5)}
+                    className="focus-ring cursor-pointer px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+                  >
+                    {tv('show_more')}
+                  </motion.button>
+                </div>
+              )}
+            </>
+          )}
+        </section>
+        <div className="shrink-0 h-4" aria-hidden="true" />
         </div>
-      )}
+      </OverlayScrollArea>
 
-      <AnimatePresence>
-        {confirmUninstallTag && (
-          <ConfirmDialog
-            title={t('version_uninstall_title', { ns: 'common' })}
-            description={t('version_uninstall_desc', { ns: 'common', tag: confirmUninstallTag })}
-            confirmLabel={t('version_uninstall_confirm', { ns: 'common' })}
-            variant="danger"
-            onConfirm={() => {
-              remove(confirmUninstallTag)
-              setConfirmUninstallTag(null)
-            }}
-            onCancel={() => setConfirmUninstallTag(null)}
-          />
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {contextMenu && (
-          <ContextMenu
-            position={{ x: contextMenu.x, y: contextMenu.y }}
-            onClose={() => setContextMenu(null)}
-            items={buildVersionMenuItems(contextMenu.versionTag)}
-          />
-        )}
-      </AnimatePresence>
     </div>
   )
-
-  function buildVersionMenuItems(tag: string): ContextMenuSection[] {
-    const version = installed.find((v) => v.tag === tag)
-    const execPath = version?.executable_path
-    return [
-      {
-        label: t('rename'),
-        icon: IconPencil,
-        onClick: () => startEditing(tag, version?.custom_name),
-      },
-      {
-        label: t('open_editor'),
-        icon: IconRocket,
-        onClick: () => {
-          if (tag) api.openGodotVersion(tag).catch(() => {})
-        },
-      },
-      ...(version?.supports_console
-        ? [
-            {
-              label: t('open_editor_with_console'),
-              icon: IconTerminal,
-              onClick: () => {
-                if (tag) api.openGodotVersion(tag, true).catch(() => {})
-              },
-            },
-          ]
-        : []),
-      {
-        label: t('open_install_folder'),
-        icon: IconExternalLink,
-        onClick: () => {
-          if (execPath) {
-            const dir = execPath.replace(/[/\\][^/\\]*$/, '')
-            if (dir && dir !== execPath) api.openProjectFolder(dir).catch(() => {})
-          }
-        },
-      },
-      { type: 'separator' },
-      {
-        label: t('uninstall'),
-        icon: IconTrash,
-        variant: 'danger',
-        onClick: () => setConfirmUninstallTag(tag),
-      },
-    ]
-  }
 }

@@ -1,45 +1,64 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { IconPlus, IconX } from '../Icons'
+import { ModalShell } from './ModalShell'
+import {
+  IconAlertTriangle,
+  IconPencil,
+  IconPlus,
+  IconX,
+} from '../../lib/icons'
+
 import type { ChangelogEntry, ChangelogNote } from '../../types'
 
 interface Props {
   entry?: ChangelogEntry
+  initial?: {
+    version?: string
+    date?: string
+    notes?: ChangelogNote[]
+  }
   onClose: () => void
   onSave: (
     version: string,
     date: string,
     notes: ChangelogNote[],
+    knownIssues: string[],
   ) => Promise<void>
 }
 
 const CATEGORIES: {
   value: ChangelogNote['category']
   label: string
-  color: string
+  activeClass: string
+  dotClass: string
 }[] = [
-  { value: 'add', label: 'Add', color: 'text-mint' },
-  { value: 'fix', label: 'Fix', color: 'text-danger' },
-  { value: 'improve', label: 'Improve', color: 'text-accent-bright' },
-] as const
+  { value: 'add', label: 'add', activeClass: 'bg-mint/15 text-mint', dotClass: 'bg-mint' },
+  { value: 'fix', label: 'fix', activeClass: 'bg-danger/15 text-danger', dotClass: 'bg-danger' },
+  {
+    value: 'improve',
+    label: 'improve',
+    activeClass: 'bg-accent/15 text-accent-bright',
+    dotClass: 'bg-accent-bright',
+  },
+]
 
 const todayIso = () => new Date().toISOString().slice(0, 10)
 
-export function ChangelogEntryModal({ entry, onClose, onSave }: Props) {
+export function ChangelogEntryModal({ entry, initial, onClose, onSave }: Props) {
   const { t } = useTranslation('common')
-  const [version, setVersion] = useState(entry?.version ?? '')
-  const [date, setDate] = useState(entry?.date ?? todayIso())
-  const [notes, setNotes] = useState<ChangelogNote[]>(
-    entry?.notes.length ? entry.notes : [{ category: 'add', text: '' }],
+  const [version, setVersion] = useState(entry?.version ?? initial?.version ?? '')
+  const [date, setDate] = useState(entry?.date ?? initial?.date ?? todayIso())
+  const [notes, setNotes] = useState<ChangelogNote[]>(() => {
+    if (entry?.notes.length) return entry.notes
+    if (initial?.notes?.length) return initial.notes
+    return [{ category: 'add', text: '' }]
+  })
+  const [knownIssues, setKnownIssues] = useState<string[]>(
+    entry?.known_issues?.length ? entry.known_issues : [],
   )
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
-
-  const categories = CATEGORIES.map((c) => ({
-    ...c,
-    label: t(c.value),
-  }))
 
   const setNote = (i: number, patch: Partial<ChangelogNote>) =>
     setNotes((prev) =>
@@ -52,6 +71,14 @@ export function ChangelogEntryModal({ entry, onClose, onSave }: Props) {
       prev.length === 1 ? prev : prev.filter((_, idx) => idx !== i),
     )
 
+  const setIssue = (i: number, text: string) =>
+    setKnownIssues((prev) =>
+      prev.map((issue, idx) => (idx === i ? text : issue)),
+    )
+  const addIssue = () => setKnownIssues((prev) => [...prev, ''])
+  const removeIssue = (i: number) =>
+    setKnownIssues((prev) => prev.filter((_, idx) => idx !== i))
+
   const submit = async () => {
     if (!version.trim()) {
       setError(t('changelog_error_no_version'))
@@ -60,7 +87,7 @@ export function ChangelogEntryModal({ entry, onClose, onSave }: Props) {
     setBusy(true)
     setError(null)
     try {
-      await onSave(version, date, notes)
+      await onSave(version, date, notes, knownIssues)
       onClose()
     } catch (e) {
       setError(String(e))
@@ -70,72 +97,89 @@ export function ChangelogEntryModal({ entry, onClose, onSave }: Props) {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ opacity: 0, y: 12, scale: 0.96 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-        className="bg-surface border border-line rounded-2xl w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex flex-col gap-6 p-7 pb-0 shrink-0">
-          <div>
-            <h3 className="font-display font-semibold text-lg">
-              {entry ? t('edit_entry') : t('new_entry')}
-            </h3>
-            <p className="text-xs text-muted mt-1.5">
-              {t('changelog_entry_desc')}
-            </p>
+    <ModalShell
+      icon={<IconPencil className="w-5 h-5 text-accent-bright" />}
+      title={entry ? t('edit_entry') : t('new_entry')}
+      description={t('changelog_entry_desc')}
+      maxWidth="max-w-lg"
+      onClose={onClose}
+      showClose={false}
+      footer={
+        <>
+          {error && <p className="text-xs text-danger">{error}</p>}
+          <div className="ml-auto flex justify-end gap-2.5">
+            <motion.button
+              whileHover={{ y: -1 }}
+              whileTap={{ scale: 0.96 }}
+              onClick={onClose}
+              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
+            >
+              {t('cancel')}
+            </motion.button>
+            <motion.button
+              whileHover={busy ? undefined : { y: -1 }}
+              whileTap={busy ? undefined : { scale: 0.96 }}
+              onClick={submit}
+              disabled={busy}
+              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white transition-colors"
+            >
+              {busy ? t('saving') : entry ? t('save_changes') : t('add_entry')}
+            </motion.button>
           </div>
-
+        </>
+      }
+    >
+        <div className="flex flex-col gap-2.5 p-6">
           <div className="flex gap-4">
             <div className="flex flex-col gap-2 flex-1">
-              <label className="text-xs font-medium text-muted">{t('changelog_version_label')}</label>
+              <label className="text-xs font-medium text-muted">
+                {t('changelog_version_label')}
+              </label>
               <input
                 autoFocus
                 value={version}
                 onChange={(e) => setVersion(e.target.value)}
-                className="focus-ring bg-raised border border-line rounded-lg px-3.5 py-2.5 text-sm focus:border-accent-dim transition-colors"
+                className="focus-ring bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm text-ink focus:border-accent-dim transition-colors"
                 placeholder={t('changelog_version_placeholder')}
               />
             </div>
             <div className="flex flex-col gap-2 flex-1">
-              <label className="text-xs font-medium text-muted">{t('changelog_date_label')}</label>
+              <label className="text-xs font-medium text-muted">
+                {t('changelog_date_label')}
+              </label>
               <input
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="focus-ring bg-raised border border-line rounded-lg px-3.5 py-2.5 text-sm focus:border-accent-dim transition-colors"
+                className="focus-ring bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm text-ink focus:border-accent-dim transition-colors"
                 placeholder={t('changelog_date_placeholder')}
               />
             </div>
           </div>
-        </div>
 
-        <div className="flex flex-col gap-2.5 p-7 overflow-y-auto min-h-0">
-          <span className="text-xs font-medium text-muted">{t('changelog_what_changed')}</span>
+          <span className="text-xs font-medium text-muted mt-3">
+            {t('changelog_what_changed')}
+          </span>
           <div className="flex flex-col gap-2">
             {notes.map((note, i) => (
               <div key={i} className="flex items-center gap-2">
-                <div className="flex rounded-md border border-line overflow-hidden shrink-0">
-                  {categories.map((c) => (
-                    <button
-                      key={c.value}
-                      type="button"
-                      onClick={() => setNote(i, { category: c.value })}
-                      className={`px-2 py-1.5 text-[10px] font-medium transition-colors ${
-                        note.category === c.value
-                          ? `bg-raised ${c.color}`
-                          : 'text-muted hover:bg-raised/50'
-                      }`}
-                    >
-                      {c.label}
-                    </button>
+                <div className="flex rounded-btn border border-outline/50 overflow-hidden shrink-0">
+                  {CATEGORIES.map((c) => (
+                      <button
+                        key={c.value}
+                        type="button"
+                        onClick={() => setNote(i, { category: c.value })}
+                        title={t(c.label)}
+                        className={`focus-ring cursor-pointer px-2 py-1.5 text-[10px] font-medium transition-colors ${
+                          note.category === c.value
+                            ? c.activeClass
+                            : 'text-muted hover:bg-raised/50'
+                        }`}
+                      >
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full inline-block mr-1 align-middle ${c.dotClass}`}
+                        />
+                        {t(c.label)}
+                      </button>
                   ))}
                 </div>
                 <input
@@ -147,7 +191,7 @@ export function ChangelogEntryModal({ entry, onClose, onSave }: Props) {
                       addNote()
                     }
                   }}
-                  className="focus-ring flex-1 bg-raised border border-line rounded-lg px-3.5 py-2 text-sm focus:border-accent-dim transition-colors"
+                  className="focus-ring flex-1 bg-base border border-outline/50 rounded-btn px-3.5 py-2 text-sm text-ink focus:border-accent-dim transition-colors"
                   placeholder={t('changelog_placeholder_note')}
                 />
                 {notes.length > 1 && (
@@ -155,7 +199,7 @@ export function ChangelogEntryModal({ entry, onClose, onSave }: Props) {
                     type="button"
                     onClick={() => removeNote(i)}
                     aria-label={t('changelog_remove_line_aria')}
-                    className="focus-ring cursor-pointer p-1.5 rounded-md text-muted hover:text-danger hover:bg-danger/10 transition-colors"
+                    className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted hover:text-danger hover:bg-danger/10 transition-colors"
                   >
                     <IconX className="w-3 h-3" />
                   </button>
@@ -168,36 +212,62 @@ export function ChangelogEntryModal({ entry, onClose, onSave }: Props) {
             whileHover={{ y: -1 }}
             whileTap={{ scale: 0.96 }}
             onClick={addNote}
-            className="focus-ring cursor-pointer self-start flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs text-muted hover:text-ink hover:bg-raised transition-colors"
+            className="focus-ring cursor-pointer self-start flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs text-muted hover:text-ink hover:bg-raised transition-colors"
           >
             <IconPlus className="w-3 h-3" />
             {t('changelog_add_line')}
           </motion.button>
-        </div>
 
-        <div className="flex flex-col gap-3 p-7 pt-4 border-t border-line shrink-0">
-          {error && <p className="text-xs text-danger">{error}</p>}
-          <div className="flex justify-end gap-2.5">
-            <motion.button
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.96 }}
-              onClick={onClose}
-              className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
-            >
-              {t('cancel')}
-            </motion.button>
-            <motion.button
-              whileHover={busy ? undefined : { y: -1 }}
-              whileTap={busy ? undefined : { scale: 0.96 }}
-              onClick={submit}
-              disabled={busy}
-              className="focus-ring px-4 cursor-pointer py-2.5 rounded-lg bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white transition-colors"
-            >
-              {busy ? t('saving') : entry ? t('save_changes') : t('add_entry')}
-            </motion.button>
+          <div className="flex items-center gap-1.5 mt-4">
+            <IconAlertTriangle className="w-3.5 h-3.5 text-amber" />
+            <span className="text-xs font-medium text-muted">
+              {t('changelog_known_issues')}
+            </span>
           </div>
+          <div className="flex flex-col gap-2">
+            {knownIssues.length === 0 ? (
+              <p className="text-[11px] text-muted/60 italic">
+                {t('changelog_known_issues_none')}
+              </p>
+            ) : (
+              knownIssues.map((issue, i) => (
+                <div key={i} className="flex items-center gap-2">
+                  <IconAlertTriangle className="w-3.5 h-3.5 text-amber shrink-0" />
+                  <input
+                    value={issue}
+                    onChange={(e) => setIssue(i, e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault()
+                        addIssue()
+                      }
+                    }}
+                    className="focus-ring flex-1 bg-base border border-outline/50 rounded-btn px-3.5 py-2 text-sm text-ink focus:border-amber/60 transition-colors"
+                    placeholder={t('changelog_known_issue_placeholder')}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeIssue(i)}
+                    aria-label={t('changelog_remove_known_issue_aria')}
+                    className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted hover:text-danger hover:bg-danger/10 transition-colors"
+                  >
+                    <IconX className="w-3 h-3" />
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+          <motion.button
+            type="button"
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={addIssue}
+            className="focus-ring cursor-pointer self-start flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs text-muted hover:text-ink hover:bg-raised transition-colors"
+          >
+            <IconPlus className="w-3 h-3" />
+            {t('changelog_add_known_issue')}
+          </motion.button>
         </div>
-      </motion.div>
-    </motion.div>
+    </ModalShell>
   )
 }

@@ -1,0 +1,21 @@
+{
+  "welcome": "Chào Mừng",
+  "customize": "Tùy Chỉnh",
+  "finish": "Hoàn Thành",
+  "in_progress": "Đang Phát Triển",
+  "prototypes": "Thử nghiệm",
+  "finished": "Hoàn Thành",
+  "game_jams": "Game Jams",
+  "project_folders": "Thư mục Dự án",
+  "version_folders": "Thư mục Phiên bản",
+  "welcome_title": "Chào mừng đến GodotHub",
+  "welcome_desc": "Đây là nơi lưu trữ mọi dự án Godot và phiên bản engine trên máy này. Hãy thiết lập một vài thứ để nó hoạt động theo ý muốn của bạn, chỉ mất một phút thôi, và mọi thứ ở đây đều có thể thay đổi sau này trong phần Cài đặt.",
+  "onboard_empty_projects": "Chưa có thư mục nào được thêm vào, GodotHub sẽ không tìm thấy bất kỳ dự án hiện có nào cho đến khi bạn thêm một dự án, hoặc bạn có thể thêm dự án thủ công sau.",
+  "onboard_empty_versions": "Chưa có thư mục nào được thêm vào, các bản tải xuống Godot mới sẽ được lưu vào thư mục dữ liệu ứng dụng trừ khi bạn thiết lập một thư mục khác bên dưới.",
+  "onboard_no_template_folder": "Chưa thiết lập thư mục nào, bạn luôn có thể cấu hình điều này sau trong phần Cài đặt hoặc lưu mẫu theo cách thủ công.",
+  "language_heading": "Ngôn Ngữ",
+  "onboard_cloud_heading": "Sao lưu Cloud",
+  "onboard_cloud_desc": "Có sẵn một bản sao lưu? Đăng nhập GitHub và khôi phục Workspace, dự án và cài đặt của bạn từ một gist.",
+  "onboard_cloud_sign_in": "Đăng nhập GitHub",
+  "onboard_cloud_connected": "Kết nối bằng @{{username}}"
+}

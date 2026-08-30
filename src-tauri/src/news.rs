@@ -56,6 +56,55 @@ fn strip_html(input: &str) -> String {
     decoded.split_whitespace().collect::<Vec<_>>().join(" ")
 }
 
+fn extract_item_images(xml: &[u8]) -> Result<Vec<Option<String>>, String> {
+    use quick_xml::events::Event;
+    use quick_xml::Reader;
+
+    let mut reader = Reader::from_reader(xml);
+    reader.config_mut().trim_text(true);
+    let mut images = Vec::new();
+    let mut in_item = false;
+    let mut in_image = false;
+    let mut current: Option<String> = None;
+    let mut buf = Vec::new();
+
+    loop {
+        match reader.read_event_into(&mut buf) {
+            Ok(Event::Start(e)) => {
+                let name = e.name();
+                if name.as_ref() == b"item" {
+                    in_item = true;
+                    current = None;
+                } else if in_item && name.as_ref() == b"image" {
+                    in_image = true;
+                }
+            }
+            Ok(Event::Text(t)) if in_image => {
+                if let Ok(text) = t.xml10_content() {
+                    let text = text.trim().to_string();
+                    if !text.is_empty() && current.is_none() {
+                        current = Some(text);
+                    }
+                }
+            }
+            Ok(Event::End(e)) => {
+                let name = e.name();
+                if name.as_ref() == b"item" {
+                    images.push(current.take());
+                    in_item = false;
+                } else if in_item && name.as_ref() == b"image" {
+                    in_image = false;
+                }
+            }
+            Ok(Event::Eof) => break,
+            Err(e) => return Err(format!("Failed to parse feed XML: {e}")),
+            _ => {}
+        }
+        buf.clear();
+    }
+    Ok(images)
+}
+
 #[derive(serde::Serialize)]
 pub struct NewsResponse {
     pub items: Vec<NewsItem>,
@@ -97,11 +146,13 @@ async fn fetch_live() -> Result<Vec<NewsItem>, String> {
     }
     let bytes = resp.bytes().await.map_err(|e| e.to_string())?;
     let feed = feed_rs::parser::parse(&bytes[..]).map_err(|e| e.to_string())?;
+    let images = extract_item_images(&bytes)?;
 
     let items = feed
         .entries
         .into_iter()
-        .filter_map(|entry| {
+        .zip(images)
+        .filter_map(|(entry, image)| {
             let title = entry.title.map(|t| t.content)?;
             let link = entry.links.first().map(|l| l.href.clone())?;
             let published = entry.published.or(entry.updated).map(|dt| dt.to_rfc3339());
@@ -121,6 +172,7 @@ async fn fetch_live() -> Result<Vec<NewsItem>, String> {
                 summary,
                 author,
                 category,
+                image,
             })
         })
         .collect();

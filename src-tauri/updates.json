@@ -1,0 +1,23 @@
+[
+  {
+    "id": "d2f0a1c4-7e9b-4a3d-9c8e-5b1a6f2d3e4a",
+    "kind": "announcement",
+    "title": "Working on New UI",
+    "body": "Completely hand-written, no UI library. It takes time, but it'll fix many UI/UX issues you might be facing. Please be patient and I hope it will be worth the wait!",
+    "is_new": true,
+    "featured": true,
+    "link": "https://github.com/RykoTheDev/GodotHub",
+    "created_at": 1786320000
+  },
+  {
+    "id": "a1b2c3d4-5e6f-4a7b-8c9d-0e1f2a3b4c5d",
+    "kind": "known-issue",
+    "title": "AppImage shows a blank white screen on Linux",
+    "body": "If you are using the AppImage on Linux and see a blank white screen, this is due to a linuxdeploy issue affecting most Tauri-based apps. You can fix it by running the following command in the terminal before launching the app (replace the path if your libwayland-client.so.0 is located elsewhere). This is a known issue and will be fixed as soon as the linuxdeploy contributors fix it. You can also use the .rpm or .deb versions, which work completely fine. I apologize for the inconvenience and thank you for your patience.",
+    "command": "LD_PRELOAD=/usr/lib/libwayland-client.so.0",
+    "is_new": false,
+    "featured": false,
+    "link": "https://github.com/RykoTheDev/GodotHub/issues",
+    "created_at": 1786233600
+  }
+]

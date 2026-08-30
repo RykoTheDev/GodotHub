@@ -1,28 +1,25 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
 import { api } from '../lib/api'
+import { useApiData } from '../lib/useApiData'
 import type { ChangelogEntry, ChangelogNote } from '../types'
 
 export function useChangelog() {
-  const [entries, setEntries] = useState<ChangelogEntry[]>([])
-  const [loading, setLoading] = useState(true)
-
-  const refresh = useCallback(async () => {
-    setLoading(true)
-    try {
-      setEntries(await api.listChangelogEntries())
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    refresh()
-  }, [refresh])
+  const { data: entries, loading, refresh } = useApiData(
+    () => api.listChangelogEntries(),
+    [],
+    [] as ChangelogEntry[],
+  )
 
   const addEntry = useCallback(
-    async (version: string, date: string, notes: ChangelogNote[]) => {
-      await api.addChangelogEntry(version, date, notes)
+    async (
+      version: string,
+      date: string,
+      notes: ChangelogNote[],
+      knownIssues: string[],
+    ) => {
+      await api.addChangelogEntry(version, date, notes, knownIssues)
       await refresh()
+      window.dispatchEvent(new CustomEvent('app:changelog-entry-added'))
     },
     [refresh],
   )
@@ -33,9 +30,11 @@ export function useChangelog() {
       version: string,
       date: string,
       notes: ChangelogNote[],
+      knownIssues: string[],
     ) => {
-      await api.updateChangelogEntry(id, version, date, notes)
+      await api.updateChangelogEntry(id, version, date, notes, knownIssues)
       await refresh()
+      window.dispatchEvent(new CustomEvent('app:changelog-entry-added'))
     },
     [refresh],
   )

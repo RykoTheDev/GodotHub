@@ -1,0 +1,13 @@
+{
+  "dashboard": "ダッシュボード",
+  "projects": "プロジェクト",
+  "versions": "バージョン",
+  "templates": "テンプレート",
+  "asset_store": "アセットストア",
+  "news": "Godot ニュース",
+  "settings": "設定",
+  "changelog": "変更履歴",
+  "updates": "開発者からのお知らせ",
+  "projects_count_one": "プロジェクト",
+  "projects_count_other": "プロジェクト"
+}

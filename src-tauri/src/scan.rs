@@ -31,13 +31,124 @@ fn walk<F: FnMut(&Path)>(dir: &Path, depth: usize, max_depth: usize, visit: &mut
     }
 }
 
+fn collect_matching_paths<F>(dirs: &[String], max_depth: usize, mut matcher: F) -> Vec<PathBuf>
+where
+    F: FnMut(&Path) -> bool,
+{
+    let mut results = Vec::new();
+    for dir in dirs {
+        let root = PathBuf::from(dir);
+        if !root.exists() {
+            continue;
+        }
+        walk(&root, 0, max_depth, &mut |path| {
+            if matcher(path) {
+                results.push(path.to_path_buf());
+            }
+        });
+    }
+    results
+}
+fn register_version_candidate(
+    app: &AppHandle,
+    candidate: PathBuf,
+    existing: &mut Vec<InstalledGodotVersion>,
+    existing_paths: &[String],
+) -> Result<Option<InstalledGodotVersion>, String> {
+    let exe_path = if candidate.is_dir() {
+        match resolve_macos_bundle_exe(&candidate) {
+            Some(p) => p,
+            None => return Ok(None),
+        }
+    } else {
+        candidate
+    };
+
+    let exe_str = exe_path.to_string_lossy().to_string();
+
+    if existing_paths.contains(&exe_str) {
+        return Ok(None);
+    }
+
+    let raw_version = probe_version(&exe_path);
+
+    let base_tag = if raw_version.is_empty() {
+        let fname = exe_path
+            .file_name()
+            .and_then(|s| s.to_str())
+            .unwrap_or("");
+        godot_versions::parse_godot_tag_from_filename(fname)
+            .or_else(|| {
+                exe_path
+                    .file_stem()
+                    .map(|s| s.to_string_lossy().to_string())
+            })
+            .unwrap_or_else(|| "unknown".into())
+    } else {
+        normalize_tag(&raw_version)
+    };
+
+    let is_mono = exe_str.to_lowercase().contains("mono");
+    let tag = if is_mono && !base_tag.ends_with("-mono") {
+        format!("{}-mono", base_tag)
+    } else {
+        base_tag
+    };
+
+    if existing.iter().any(|v| v.tag == tag && v.is_mono == is_mono) {
+        return Ok(None);
+    }
+
+    let version = if raw_version.is_empty() {
+        let v = tag.trim_end_matches("-mono");
+        v.split('-').next().unwrap_or(v).trim_start_matches('v').to_string()
+    } else {
+        raw_version
+    };
+
+    let installed = InstalledGodotVersion {
+        tag,
+        version,
+        executable_path: exe_str,
+        is_mono,
+        installed_at: chrono::Utc::now().to_rfc3339(),
+        custom_name: None,
+        install_root: None,
+        supports_console: false,
+    };
+
+    match godot_versions::register_version(app, installed.clone()) {
+        Ok(true) => {
+            existing.push(installed.clone());
+            projects::rebind_projects_to_version(app, &installed);
+            Ok(Some(installed))
+        }
+        Ok(false) => Ok(None),
+        Err(e) => Err(e),
+    }
+}
+
 #[tauri::command]
 pub async fn scan_for_projects(
     app: AppHandle,
     dirs: Vec<String>,
     depth: u32,
 ) -> Result<Vec<Project>, String> {
-    tokio::task::spawn_blocking(move || scan_for_projects_blocking(app, dirs, depth))
+    tokio::task::spawn_blocking(move || {
+        let result = scan_for_projects_blocking(app.clone(), dirs, depth, false)?;
+        Ok(result.added)
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+pub async fn scan_for_projects_with_info(
+    app: AppHandle,
+    dirs: Vec<String>,
+    depth: u32,
+) -> Result<ScanProjectsResult, String> {
+    tokio::task::spawn_blocking(move || scan_for_projects_blocking(app, dirs, depth, true))
         .await
         .map_err(|e| e.to_string())?
 }
@@ -46,48 +157,58 @@ pub fn scan_for_projects_blocking(
     app: AppHandle,
     dirs: Vec<String>,
     depth: u32,
-) -> Result<Vec<Project>, String> {
+    include_dismissed: bool,
+) -> Result<ScanProjectsResult, String> {
     let existing = projects::list_projects(app.clone());
     let existing_paths: Vec<String> = existing.iter().map(|p| p.path.clone()).collect();
-    let mut found_dirs: Vec<PathBuf> = vec![];
     let max_depth = depth as usize;
 
-    for dir in &dirs {
-        let root = PathBuf::from(dir);
-        if !root.exists() {
-            continue;
-        }
-        walk(&root, 0, max_depth, &mut |path| {
-            if path.is_file()
-                && path
-                    .file_name()
-                    .map(|n| n == "project.godot")
-                    .unwrap_or(false)
-            {
-                if let Some(parent) = path.parent() {
-                    found_dirs.push(parent.to_path_buf());
-                }
-            }
-        });
-    }
+    let dismissed = crate::settings::read_settings(&app).dismissed_project_paths;
+
+    let found_dirs = collect_matching_paths(&dirs, max_depth, |path| {
+        path.is_file()
+            && path.file_name().map(|n| n == "project.godot").unwrap_or(false)
+    });
+
+    let mut found_dismissed: Vec<String> = vec![];
 
     let new_dirs: Vec<PathBuf> = found_dirs
         .into_iter()
-        .filter(|d| !existing_paths.contains(&d.to_string_lossy().to_string()))
+        .filter(|d| {
+            let parent_path = d.parent()
+                .map(|p| p.to_string_lossy().to_string())
+                .unwrap_or_default();
+            if projects::contains_path(&existing_paths, &parent_path) {
+                return false;
+            }
+            if projects::contains_path(&dismissed, &parent_path) {
+                if include_dismissed {
+                    found_dismissed.push(parent_path);
+                }
+                return false;
+            }
+            true
+        })
         .collect();
-    let total = new_dirs.len();
 
+    let project_dirs: Vec<PathBuf> = new_dirs
+        .into_iter()
+        .filter_map(|p| p.parent().map(|pp| pp.to_path_buf()))
+        .collect();
+
+    let total = project_dirs.len();
     let _ = app.emit("project-scan-progress", (0usize, total));
 
     let mut added = vec![];
-    for dir in new_dirs {
+    for dir in project_dirs {
         let path_str = dir.to_string_lossy().to_string();
         if let Ok(p) = projects::register_project(app.clone(), path_str, String::new(), None) {
             added.push(p);
         }
         let _ = app.emit("project-scan-progress", (added.len(), total));
     }
-    Ok(added)
+    let _ = app.emit("watcher:project-scan-done", ());
+    Ok(ScanProjectsResult { added, found_dismissed })
 }
 
 fn looks_like_executable(path: &Path) -> bool {
@@ -193,101 +314,27 @@ pub fn scan_for_versions_blocking(
     dirs: Vec<String>,
     depth: u32,
 ) -> Result<Vec<InstalledGodotVersion>, String> {
-    let existing = godot_versions::read_registry(&app);
+    let mut existing = godot_versions::read_registry(&app);
     let existing_paths: Vec<String> = existing.iter().map(|v| v.executable_path.clone()).collect();
-    let mut candidates: Vec<PathBuf> = vec![];
     let max_depth = depth as usize;
 
-    for dir in &dirs {
-        let root = PathBuf::from(dir);
-        if !root.exists() {
-            continue;
-        }
-        walk(&root, 0, max_depth, &mut |path| {
-            if looks_like_executable(path) {
-                candidates.push(path.to_path_buf());
-            }
-        });
-    }
+    let candidates = collect_matching_paths(&dirs, max_depth, looks_like_executable);
 
     let total = candidates.len();
     let _ = app.emit("version-scan-progress", (0usize, total));
 
     let mut added = vec![];
     for (i, candidate) in candidates.into_iter().enumerate() {
-        let exe_path = if candidate.is_dir() {
-            match resolve_macos_bundle_exe(&candidate) {
-                Some(p) => p,
-                None => {
-                    let _ = app.emit("version-scan-progress", (i + 1, total));
-                    continue;
-                }
-            }
-        } else {
-            candidate
-        };
-        let exe_str = exe_path.to_string_lossy().to_string();
-        if existing_paths.contains(&exe_str) {
-            let _ = app.emit("version-scan-progress", (i + 1, total));
-            continue;
-        }
-
-        let raw_version = probe_version(&exe_path);
-
-        let base_tag = if raw_version.is_empty() {
-            let fname = exe_path
-                .file_name()
-                .and_then(|s| s.to_str())
-                .unwrap_or("");
-            godot_versions::parse_godot_tag_from_filename(fname)
-                .or_else(|| {
-                    exe_path
-                        .file_stem()
-                        .map(|s| s.to_string_lossy().to_string())
-                })
-                .unwrap_or_else(|| "unknown".into())
-        } else {
-            normalize_tag(&raw_version)
-        };
-
-        let is_mono = exe_str.to_lowercase().contains("mono");
-        let tag = if is_mono && !base_tag.ends_with("-mono") {
-            format!("{}-mono", base_tag)
-        } else {
-            base_tag
-        };
-
-        if existing
-            .iter()
-            .any(|v| v.tag == tag && v.is_mono == is_mono)
-        {
-            let _ = app.emit("version-scan-progress", (i + 1, total));
-            continue;
-        }
-
-        let version = if raw_version.is_empty() {
-            let v = tag.trim_end_matches("-mono");
-            v.split('-').next().unwrap_or(v).trim_start_matches('v').to_string()
-        } else {
-            raw_version
-        };
-
-        let installed = InstalledGodotVersion {
-            tag,
-            version,
-            executable_path: exe_str,
-            is_mono,
-            installed_at: chrono::Utc::now().to_rfc3339(),
-            custom_name: None,
-            install_root: None,
-            supports_console: false,
-        };
-
-        if godot_versions::register_version(&app, installed.clone())? {
-            projects::rebind_projects_to_version(&app, &installed);
-            added.push(installed);
+        match register_version_candidate(&app, candidate, &mut existing, &existing_paths) {
+            Ok(Some(v)) => added.push(v),
+            Ok(None) => {}
+            Err(e) => eprintln!("Error registering version: {e}"),
         }
         let _ = app.emit("version-scan-progress", (i + 1, total));
+    }
+    let _ = app.emit("watcher:version-scan-done", ());
+    if !added.is_empty() {
+        let _ = app.emit("watcher:project-scan-done", ());
     }
     Ok(added)
 }
@@ -312,16 +359,17 @@ fn import_version_blocking(
     }
 
     let mut existing = godot_versions::read_registry(&app);
+    let existing_paths: Vec<String> = existing.iter().map(|v| v.executable_path.clone()).collect();
 
     let mut candidates: Vec<PathBuf> = vec![];
     if looks_like_executable(&root) {
         candidates.push(root.clone());
     } else {
-        walk(&root, 0, 4, &mut |p| {
-            if looks_like_executable(p) {
-                candidates.push(p.to_path_buf());
-            }
-        });
+        candidates = collect_matching_paths(
+            &[path],
+            4,
+            looks_like_executable,
+        );
     }
 
     if candidates.is_empty() {
@@ -334,81 +382,10 @@ fn import_version_blocking(
     let mut imported = vec![];
     let mut last_err: Option<String> = None;
 
-    for (i, found) in candidates.into_iter().enumerate() {
-        let exe_path = if found.is_dir() {
-            match resolve_macos_bundle_exe(&found) {
-                Some(p) => p,
-                None => {
-                    let _ = app.emit("version-scan-progress", (i + 1, total));
-                    continue;
-                }
-            }
-        } else {
-            found
-        };
-        let exe_str = exe_path.to_string_lossy().to_string();
-        if existing.iter().any(|v| v.executable_path == exe_str) {
-            let _ = app.emit("version-scan-progress", (i + 1, total));
-            continue;
-        }
-
-        let raw_version = probe_version(&exe_path);
-
-        let base_tag = if raw_version.is_empty() {
-            let fname = exe_path
-                .file_name()
-                .and_then(|s| s.to_str())
-                .unwrap_or("");
-            godot_versions::parse_godot_tag_from_filename(fname)
-                .or_else(|| {
-                    exe_path
-                        .file_stem()
-                        .map(|s| s.to_string_lossy().to_string())
-                })
-                .unwrap_or_else(|| "unknown".into())
-        } else {
-            normalize_tag(&raw_version)
-        };
-
-        let is_mono = exe_str.to_lowercase().contains("mono");
-        let tag = if is_mono && !base_tag.ends_with("-mono") {
-            format!("{}-mono", base_tag)
-        } else {
-            base_tag
-        };
-
-        if existing
-            .iter()
-            .any(|v| v.tag == tag && v.is_mono == is_mono)
-        {
-            let _ = app.emit("version-scan-progress", (i + 1, total));
-            continue;
-        }
-
-        let version = if raw_version.is_empty() {
-            let v = tag.trim_end_matches("-mono");
-            v.split('-').next().unwrap_or(v).trim_start_matches('v').to_string()
-        } else {
-            raw_version
-        };
-
-        let installed = InstalledGodotVersion {
-            tag,
-            version,
-            executable_path: exe_str,
-            is_mono,
-            installed_at: chrono::Utc::now().to_rfc3339(),
-            custom_name: None,
-            install_root: None,
-            supports_console: false,
-        };
-
-        match godot_versions::register_version(&app, installed.clone()) {
-            Ok(_) => {
-                existing.push(installed.clone());
-                projects::rebind_projects_to_version(&app, &installed);
-                imported.push(installed);
-            }
+    for (i, candidate) in candidates.into_iter().enumerate() {
+        match register_version_candidate(&app, candidate, &mut existing, &existing_paths) {
+            Ok(Some(v)) => imported.push(v),
+            Ok(None) => {}
             Err(e) => last_err = Some(e),
         }
         let _ = app.emit("version-scan-progress", (i + 1, total));
@@ -417,5 +394,7 @@ fn import_version_blocking(
     if imported.is_empty() {
         return Err(last_err.unwrap_or_else(|| "This version is already imported.".into()));
     }
+    let _ = app.emit("watcher:version-scan-done", ());
+    let _ = app.emit("watcher:project-scan-done", ());
     Ok(imported)
 }

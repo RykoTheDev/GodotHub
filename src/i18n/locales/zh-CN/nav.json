@@ -1,9 +1,13 @@
 {
+  "dashboard": "仪表盘",
   "projects": "项目",
-  "versions": "版本管理",
+  "projects_count_one": "项目",
+  "projects_count_other": "项目",
+  "versions": "版本",
   "templates": "模板",
   "asset_store": "资源商店",
   "news": "新闻",
   "settings": "设置",
-  "changelog": "更新日志"
+  "changelog": "更新日志",
+  "updates": "开发者动态"
 }

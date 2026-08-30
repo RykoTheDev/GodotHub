@@ -1,0 +1,11 @@
+{
+  "add": "Ajouts",
+  "fix": "Corrections",
+  "improve": "Améliorations",
+  "changelog_title": "CHANGELOG",
+  "no_entries": "Aucune entrée de changelog n'a été trouvée.",
+  "delete_entry_title": "Supprimer l'entrée ?",
+  "delete_entry_desc": "Cela supprime l'entrée du changelog de manière permanente. Cette action est irréversible.",
+  "changelog_subtitle": "Un historique des mises à jour de GodotHub.",
+  "known_issues": "Problèmes connus"
+}

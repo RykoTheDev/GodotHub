@@ -1,34 +1,25 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 import { api } from '../lib/api'
+import { useApiDataWithError } from '../lib/useApiData'
 import type { NewsItem } from '../types'
 
 const PAGE_SIZE = 10
 
 export function useNews() {
-  const [items, setItems] = useState<NewsItem[]>([])
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const [fromCache, setFromCache] = useState(false)
 
-  const load = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const res = await api.fetchGodotNews()
-      setItems(res.items)
-      setFromCache(res.from_cache)
-      setVisibleCount(PAGE_SIZE)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e))
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    load()
-  }, [load])
+  const { data: items, loading, error, refresh: load } =
+    useApiDataWithError(
+      async () => {
+        const res = await api.fetchGodotNews()
+        setVisibleCount(PAGE_SIZE)
+        setFromCache(res.from_cache)
+        return res.items
+      },
+      [],
+      [] as NewsItem[],
+    )
 
   const showMore = useCallback(() => {
     setVisibleCount((c) => Math.min(c + PAGE_SIZE, items.length))

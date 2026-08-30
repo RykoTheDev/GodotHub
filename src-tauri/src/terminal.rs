@@ -14,7 +14,8 @@ use std::path::PathBuf;
 use tauri::{AppHandle, Manager};
 
 #[cfg(all(unix, not(target_os = "macos")))]
-const TERMINALS: [(&str, &[&str]); 22] = [
+const TERMINALS: [(&str, &[&str]); 23] = [
+    ("xdg-terminal-exec", &[]),
     ("x-terminal-emulator", &["-e"]),
     ("gnome-terminal", &["--"]),
     ("konsole", &["-e"]),
@@ -157,14 +158,22 @@ fn flags_for(binary: &str) -> &'static [&'static str] {
 }
 
 #[cfg(all(unix, not(target_os = "macos")))]
+pub fn sanitize_child_env(cmd: &mut Command) {
+    if std::env::var_os("APPIMAGE").is_some() {
+        cmd.env_remove("LD_LIBRARY_PATH");
+    }
+}
+
+#[cfg(not(all(unix, not(target_os = "macos"))))]
+pub fn sanitize_child_env(_cmd: &mut Command) {}
+
+#[cfg(all(unix, not(target_os = "macos")))]
 fn spawn_script(script: &Path) -> Result<Child, String> {
     if let Some(preferred) = std::env::var("TERMINAL").ok().filter(|t| !t.is_empty()) {
         if let Some(binary) = find_on_path(&preferred) {
-            if let Ok(child) = Command::new(binary)
-                .args(flags_for(&preferred))
-                .arg(script)
-                .spawn()
-            {
+            let mut cmd = Command::new(binary);
+            sanitize_child_env(&mut cmd);
+            if let Ok(child) = cmd.args(flags_for(&preferred)).arg(script).spawn() {
                 return Ok(child);
             }
         }
@@ -174,7 +183,9 @@ fn spawn_script(script: &Path) -> Result<Child, String> {
         let Some(resolved) = find_on_path(binary) else {
             continue;
         };
-        if let Ok(child) = Command::new(resolved).args(flags).arg(script).spawn() {
+        let mut cmd = Command::new(resolved);
+        sanitize_child_env(&mut cmd);
+        if let Ok(child) = cmd.args(flags).arg(script).spawn() {
             return Ok(child);
         }
     }

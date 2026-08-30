@@ -64,6 +64,17 @@ jobs:
       - name: TypeScript typecheck
         run: bun run tsc --noEmit
 
+      - name: i18n validation
+        run: bun run i18n:check -- --check-values
+
+      # Reports only. Static analysis cannot see every indirection, so an
+      # unreferenced key is a lead to follow, not grounds to fail a build.
+      - name: i18n unused keys
+        run: bun run i18n:unused
+
+      - name: ESLint (New UI isolation)
+        run: bun run lint
+
       - name: Rust cargo check
         run: cargo check --manifest-path src-tauri/Cargo.toml
 

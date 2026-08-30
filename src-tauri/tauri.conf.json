@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "GodotHub",
-  "version": "1.2.0",
-  "identifier": "com.ryko.godothub",
+  "version": "1.4.0",
+  "identifier": "Ryko.GodotHub",
   "build": {
     "beforeDevCommand": "bun run dev",
     "devUrl": "http://localhost:1420",
@@ -22,8 +22,8 @@
         "transparent": false,
         "alwaysOnTop": false,
         "dragDropEnabled": true,
-        "minWidth": 1000,
-        "minHeight": 640,
+        "minWidth": 1180,
+        "minHeight": 680,
         "center": true,
         "visible": false
       }

@@ -1,0 +1,11 @@
+{
+  "add": "Adicionado",
+  "fix": "Corrigido",
+  "improve": "Melhorado",
+  "changelog_title": "REGISTRO DE ALTERAÇÕES",
+  "no_entries": "Ainda não há entradas no registro de alterações",
+  "delete_entry_title": "Excluir entrada do registro de alterações?",
+  "delete_entry_desc": "Isso removerá a entrada permanentemente. Esta ação não pode ser desfeita.",
+  "changelog_subtitle": "Um histórico das atualizações do GodotHub.",
+  "known_issues": "Problemas conhecidos"
+}
