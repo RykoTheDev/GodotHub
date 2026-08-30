@@ -46,7 +46,7 @@ export function ColorSwatchPicker({ label, value, onChange, presets }: Props) {
 
       <AnimatePresence>
         {open && (
-          <motion.div
+          <motion.div key="div-48"
             initial={{ opacity: 0, y: -6, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -6, scale: 0.97 }}

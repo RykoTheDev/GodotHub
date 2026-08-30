@@ -79,9 +79,16 @@ html.ui-scaling {
   transition: --spacing 0.2s ease, font-size 0.2s ease;
 }
 
+* {
+  user-select: none;
+}
+
+input, textarea, [contenteditable="true"] {
+  user-select: text;
+}
+
 body {
   @apply bg-base text-ink font-body antialiased;
-  user-select: none;
   overflow: hidden;
   overflow-wrap: break-word;
   word-break: break-word;
@@ -244,8 +251,9 @@ textarea::placeholder {
 }
 
 *:focus,
-*:focus-visible {
-  outline: none;
+*:focus-visible,
+*:focus-within {
+  outline: none !important;
 }
 
 .focus-ring {

@@ -1,8 +1,5 @@
 {
-  "close_sidebar": "Закрыть боковую панель",
-  "delete": "Удалить",
   "remove": "Удалить",
-  "checking_changes": "Проверка изменений…",
   "pull": "Обновить",
   "push": "Отправить",
   "force_push": "Принудительно",
@@ -12,8 +9,6 @@
   "committing": "Выполняется коммит…",
   "merge_aborted": "Слияние отменено. Рабочая директория восстановлена.",
   "new_branch_btn": "+ Новая",
-  "retry": "Повторить",
-  "close": "Закрыть",
   "abort_merge": "Отменить merge",
   "merge_in_progress": "Выполняется merge",
   "working_tree_clean": "Рабочее дерево чистое.",

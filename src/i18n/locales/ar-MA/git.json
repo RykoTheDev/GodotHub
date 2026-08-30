@@ -1,6 +1,4 @@
 {
-  "close_sidebar": "أغلق الشريط الجانبي",
-  "delete": "احذف",
   "remove": "أزل",
   "checking_changes": "جاري التحقق من التغييرات…",
   "pull": "اسحب",
@@ -14,8 +12,6 @@
   "unstaged_count": "غير معدة ({{count}})",
   "merge_aborted": "ألغي الدمج. تم استعادت مجلد العمل.",
   "new_branch_btn": "+ جديد",
-  "retry": "أعد المحاولة",
-  "close": "أغلق",
   "abort_merge": "ألغي الدمج",
   "merge_in_progress": "الدمج في حالة تقدم",
   "select_all": "اختر الكل",

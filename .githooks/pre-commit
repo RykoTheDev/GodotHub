@@ -1,0 +1,54 @@
+#!/bin/bash
+
+# GodotHub pre-commit hook.
+# blocks em-dashes (U+2014 and U+2013) in staged source files.
+# use --no-verify bypass only if you know what you're doing.
+
+set -e
+
+fail() {
+  echo "" >&2
+  echo "pre-commit hook rejected this commit:" >&2
+  echo "  $1" >&2
+  echo "" >&2
+  echo "fix the file(s) above and re-run git commit." >&2
+  exit 1
+}
+
+# Get staged files (exclude deleted files)
+staged_files=$(git diff --cached --name-only --diff-filter=ACMR)
+
+if [ -z "$staged_files" ]; then
+  exit 0
+fi
+
+# Check for em-dashes (— U+2014 and – U+2013) in staged files
+hits=""
+for file in $staged_files; do
+  # skip binary files
+  if file --mime-type "$file" 2>/dev/null | grep -q 'application/octet-stream'; then
+    continue
+  fi
+
+  # only check text-like source files
+  case "$file" in
+    *.ts|*.tsx|*.js|*.jsx|*.mjs|*.cjs|*.css|*.scss|*.html|*.svg|*.json|*.md|*.yaml|*.yml|*.toml|*.rs|*.py|*.sh)
+      ;;
+    *)
+      continue
+      ;;
+  esac
+
+  # search the staged content for em-dashes (— U+2014) and en-dashes (– U+2013)
+  if git diff --cached -U0 -- "$file" | grep '^+' | grep -v '^+++' | grep -q $'\342\200\224'; then
+    hits="$hits\n  $file"
+  elif git diff --cached -U0 -- "$file" | grep '^+' | grep -v '^+++' | grep -q $'\342\200\223'; then
+    hits="$hits\n  $file"
+  fi
+done
+
+if [ -n "$hits" ]; then
+  fail "em-dash found in staged file(s):$(echo -e "$hits")\nuse --, : or , instead of — or –."
+fi
+
+exit 0

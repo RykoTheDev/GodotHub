@@ -94,14 +94,14 @@ export function ContributorPRsModal({ login, avatarUrl, onClose }: Props) {
 
   return createPortal(
     <AnimatePresence>
-      <motion.div
+      <motion.div key="div-94"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
         onClick={onClose}
       >
-        <motion.div
+        <motion.div key="div-101"
           initial={{ opacity: 0, scale: 0.96 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.96 }}

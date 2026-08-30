@@ -226,6 +226,7 @@ i18n
   .init({
     resources,
     fallbackLng: 'en-US',
+    fallbackNS: ['common'],
     defaultNS: 'common',
     interpolation: {
       escapeValue: false,

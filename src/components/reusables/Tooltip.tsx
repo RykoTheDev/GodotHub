@@ -235,7 +235,7 @@ export function Tooltip({
       {createPortal(
         <AnimatePresence>
           {open && (
-            <motion.div
+            <motion.div key="div-237"
               ref={tipRef}
               initial={{ opacity: 0, scale: 0.92, ...enterFrom() }}
               animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}

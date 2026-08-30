@@ -1,5 +1,4 @@
 {
-  "close_sidebar": "Cerrar barra lateral",
   "delete": "Eliminar",
   "remove": "Quitar",
   "checking_changes": "Comprobando cambios…",
@@ -13,7 +12,6 @@
   "merge_aborted": "Fusión abortada. Trabajando en el directorio.",
   "new_branch_btn": "+ Nueva",
   "retry": "Reintentar",
-  "close": "Cerrar",
   "abort_merge": "Abortar fusión",
   "merge_in_progress": "Fusión en progreso",
   "discard_all": "Descartar todo",

@@ -267,7 +267,7 @@ export function Dropdown({
       {createPortal(
         <AnimatePresence>
           {open && (
-            <motion.div
+            <motion.div key="div-269"
               ref={menuRef}
               initial={{ opacity: 0, y: openUp ? 6 : -6, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}

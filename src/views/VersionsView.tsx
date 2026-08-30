@@ -678,7 +678,7 @@ export function VersionsView({
                       </button>
                       <AnimatePresence initial={false}>
                         {!isCollapsed && (
-                          <motion.div
+                          <motion.div key="div-679"
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: 'auto', opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
@@ -844,7 +844,7 @@ export function VersionsView({
               </div>
               {visibleGroups < groupEntries.length && (
                 <div className="flex justify-center">
-                  <motion.button
+                  <motion.button key="button-845"
                     type="button"
                     whileHover={{ y: -1 }}
                     whileTap={{ scale: 0.96 }}

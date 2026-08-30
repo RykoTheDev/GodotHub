@@ -730,7 +730,7 @@ export function ProjectsView({
       </AnimatePresence>
       <AnimatePresence>
         {selectedIds.size > 0 && (
-          <motion.div
+          <motion.div key="selection-bar"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}

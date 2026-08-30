@@ -1,6 +1,4 @@
 {
-  "close_sidebar": "关闭侧栏",
-  "delete": "删除",
   "remove": "移除",
   "checking_changes": "正在检查更改…",
   "pull": "拉取",
@@ -12,8 +10,6 @@
   "committing": "正在提交…",
   "merge_aborted": "合并已中止。工作目录已恢复。",
   "new_branch_btn": "+ 新建",
-  "retry": "重试",
-  "close": "关闭",
   "abort_merge": "中止合并",
   "merge_in_progress": "合并正在进行",
   "working_tree_clean": "工作区没有未提交更改。",
