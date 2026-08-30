@@ -90,8 +90,6 @@
   "naming_camel": "camelCase (myGame)",
   "naming_pascal": "PascalCase (MyGame)",
   "naming_title": "Title Case (My Game)",
-  "setting_accent_color": "Màu nhấn",
-  "setting_background_color": "Màu nền",
   "theme": "Theme",
   "theme_preset_label": "Theme có sẵn",
   "theme_preset_desc": "Chọn Theme màu đầy đủ. Preset điều khiển mọi màu trong ứng dụng; chọn Tùy chỉnh để dùng màu nhấn và nền riêng.",
@@ -100,7 +98,6 @@
   "preset_dark_group": "Theme tối",
   "check_updates_title": "Kiểm tra cập nhật",
   "report_bug_title": "Báo cáo lỗi",
-  "scanning": "Đang quét…",
   "test": "Kiểm tra",
   "testing": "Đang kiểm tra…",
   "token_valid": "Token hợp lệ! Giới hạn tốc độ: {{status}}",
@@ -269,7 +266,6 @@
   "raised_contrast_desc": "Mức các bề mặt nổi (thẻ, ô nhập, menu) tách khỏi màu nền. Giá trị cao hơn tạo tách biệt rõ hơn; 0 làm chúng trùng với nền.",
   "raised_contrast_value": "{{value}}%",
   "setup_wizard_desc": "Mở lại luồng thiết lập lần đầu nơi bạn có thể cấu hình lại thư mục quét, danh mục, màu nhấn và độ bo góc. Cài đặt đã lưu được giữ, bạn luôn có thể bỏ qua các bước không cần đổi.",
-  "updates_desc": "Kiểm tra xem có phiên bản mới của GodotHub không. Cập nhật được tải và cài tự động, rồi áp dụng khi khởi động lại.",
   "report_bug_desc": "Giúp cải thiện GodotHub bằng cách báo cáo vấn đề trên GitHub.",
   "token_help_desc": "Tạo token tại github.com/settings/tokens. Bạn chỉ cần đánh dấu scope repo nếu muốn truy cập repo riêng tư, nếu không hãy để trống mọi scope. Không cần quyền nhạy cảm.",
   "discord_rpc_label": "Discord Rich Presence",
@@ -329,12 +325,5 @@
   "landing_dashboard": "Dashboard",
   "landing_projects": "Projects",
   "landing_versions": "Versions",
-  "landing_news": "Godot News",
-  "saving": "Saving…",
-  "settings_title": "SETTINGS",
-  "section_projects": "Projects",
-  "section_templates": "Templates",
-  "scan_now": "Scan Now",
-  "browse": "Browse",
-  "report_bug": "Report a Bug"
+  "landing_news": "Godot News"
 }

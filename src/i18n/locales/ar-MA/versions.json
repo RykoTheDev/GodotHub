@@ -13,10 +13,6 @@
   "type": "النوع",
   "channel": "القناة",
   "fetch_error": "لم يكن بالمستطاع جلب الإصدارات المتاحة.",
-  "importing_version": "استوراد إصدار…",
-  "scanning_versions": "جاري تفقد الإصدارات…",
-  "scanning": "جاري المسح…",
-  "scan_now": "امسح الآن",
   "paused_dot": "متوقف · ",
   "installed_title": "الإصدارات المثبتة",
   "available_title": "الإصدارات المتوفرة",
@@ -45,11 +41,5 @@
   "sort_version_name_asc": "Name (A–Z)",
   "sort_version_name_desc": "Name (Z–A)",
   "installed_count_zero": "No installs",
-  "unbound": "unbound",
-  "fetching": "Fetching releases…",
-  "import": "Import",
-  "other": "Other",
-  "retry": "Retry",
-  "show_more": "Show more",
-  "queued": "Queued…"
+  "unbound": "unbound"
 }

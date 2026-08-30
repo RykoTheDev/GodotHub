@@ -14,9 +14,6 @@
   "type": "Loại",
   "channel": "Kênh",
   "fetch_error": "Không thể tải các phiên bản hiện có.",
-  "importing_version": "Đang import phiên bản…",
-  "scanning_versions": "Đang quét các phiên bản…",
-  "scanning": "Đang quét…",
   "paused_dot": "Đã tạm dừng · ",
   "installed_title": "PHIÊN BẢN ĐÃ CÀI ĐẶT",
   "available_title": "PHIÊN BẢN HIỆN CÓ",
@@ -25,7 +22,6 @@
   "no_available_versions_match": "Không có phiên bản hiện có nào khớp",
   "open": "Mở",
   "install": "Cài đặt",
-  "show_more": "Hiển thị thêm",
   "mb": "MB",
   "resume_download": "Tiếp tục tải xuống",
   "pause_download": "Tạm dừng tải xuống",
@@ -45,11 +41,5 @@
   "sort_version_name_asc": "Name (A–Z)",
   "sort_version_name_desc": "Name (Z–A)",
   "installed_count_zero": "No installs",
-  "unbound": "unbound",
-  "fetching": "Fetching releases…",
-  "import": "Import",
-  "scan_now": "Scan Now",
-  "other": "Other",
-  "retry": "Retry",
-  "queued": "Queued…"
+  "unbound": "unbound"
 }

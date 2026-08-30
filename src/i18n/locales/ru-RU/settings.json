@@ -49,8 +49,6 @@
   "naming_camel": "camelCase (мояИгра)",
   "naming_pascal": "PascalCase (МояИгра)",
   "naming_title": "Title Case (Моя Игра)",
-  "setting_accent_color": "Акцентный цвет",
-  "setting_background_color": "Цвет фона",
   "setting_reduce_motion": "Уменьшить время движения аниамций",
   "theme": "Тема",
   "check_updates_title": "Проверить обновления",
@@ -137,7 +135,6 @@
   "icon_opacity_desc": "Управляет непрозрачностью фоновой иконки на карточках проектов. Меньшие значения делают иконку более незаметной, большие, более заметной.",
   "background_color_desc": "Цвет фона применяется ко всем темам. В светлом режиме приложение использует выбранный цвет фона, чтобы формировать поверхности карточек, границы и наложения. В тёмном режиме фон задаёт базовый цвет страницы.",
   "setup_wizard_desc": "Снова открывает мастер первоначальной настройки, где можно перенастроить папки для сканирования, категории, акцентный цвет и радиус закруглений. Уже сохранённые настройки будут сохранены; шаги, которые не нужно менять, можно пропустить.",
-  "updates_desc": "Проверять, доступна ли новая версия GodotHub. Обновления скачиваются и устанавливаются автоматически, затем применяются после перезапуска.",
   "report_bug_desc": "Помогите улучшить GodotHub, сообщая о проблемах на GitHub.",
   "token_help_desc": "Создайте токен на github.com/settings/tokens. You only need to check the repo scope if you want private repo access, otherwise leave all scopes unchecked. No sensitive permissions required.",
   "search_placeholder": "Найти настройки…",
@@ -321,13 +318,5 @@
   "landing_dashboard": "Dashboard",
   "landing_projects": "Projects",
   "landing_versions": "Versions",
-  "landing_news": "Godot News",
-  "saving": "Saving…",
-  "scanning": "Scanning…",
-  "settings_title": "SETTINGS",
-  "section_projects": "Projects",
-  "section_templates": "Templates",
-  "scan_now": "Scan Now",
-  "browse": "Browse",
-  "report_bug": "Report a Bug"
+  "landing_news": "Godot News"
 }

@@ -266,7 +266,6 @@
   "raised_contrast_desc": "Define o quanto superfícies elevadas (cartões, campos e menus) se destacam da sua cor de fundo. Valores maiores aumentam a separação; 0 as torna idênticas ao fundo.",
   "raised_contrast_value": "{{value}}%",
   "setup_wizard_desc": "Reabre o fluxo de configuração inicial, onde você pode reconfigurar pastas de busca, categorias, cor de destaque e arredondamento dos cantos. As configurações já salvas serão mantidas e você sempre pode pular etapas que não precisa alterar.",
-  "updates_desc": "Verifique se há uma nova versão do GodotHub disponível. As atualizações são baixadas e instaladas automaticamente e aplicadas após reiniciar.",
   "report_bug_desc": "Ajude a melhorar o GodotHub reportando problemas no GitHub.",
   "token_help_desc": "Crie um token em github.com/settings/tokens. Você só precisa marcar o escopo repo se quiser acesso a repositórios privados; caso contrário, deixe todos os escopos desmarcados. Nenhuma permissão sensível é necessária.",
   "discord_rpc_label": "Discord Rich Presence",
@@ -316,15 +315,5 @@
   "landing_dashboard": "Dashboard",
   "landing_projects": "Projects",
   "landing_versions": "Versions",
-  "landing_news": "Godot News",
-  "setting_accent_color": "Accent color",
-  "setting_background_color": "Background color",
-  "saving": "Saving…",
-  "scanning": "Scanning…",
-  "settings_title": "SETTINGS",
-  "section_projects": "Projects",
-  "section_templates": "Templates",
-  "scan_now": "Scan Now",
-  "browse": "Browse",
-  "report_bug": "Report a Bug"
+  "landing_news": "Godot News"
 }

@@ -13,7 +13,6 @@
   "type": "Тип",
   "channel": "Канал",
   "fetch_error": "Не удалось получить доступные версии.",
-  "importing_version": "Импорт версии…",
   "imported_version": "Версия импортирована",
   "import_error": "Не удалось импортировать версию.",
   "version_not_found": "Версия не найдена",
@@ -29,7 +28,6 @@
   "download_version_cancelled": "Скачивание версии отменено",
   "download_version_already_exists": "Версия уже существует",
   "download_version_already_exists_desc": "Версия, которую вы пытаетесь скачать, уже существует в списке версий. Вы можете открыть её или удалить, чтобы скачать заново.",
-  "scanning_versions": "Сканирование версий…",
   "paused_dot": "Приостановить · ",
   "installed_title": "Установленные версии",
   "available_title": "Доступные версии",
@@ -58,13 +56,5 @@
   "sort_version_name_asc": "Name (A–Z)",
   "sort_version_name_desc": "Name (Z–A)",
   "installed_count_zero": "No installs",
-  "unbound": "unbound",
-  "fetching": "Fetching releases…",
-  "import": "Import",
-  "scanning": "Scanning…",
-  "scan_now": "Scan Now",
-  "other": "Other",
-  "retry": "Retry",
-  "show_more": "Show more",
-  "queued": "Queued…"
+  "unbound": "unbound"
 }

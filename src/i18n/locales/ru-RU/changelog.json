@@ -1,7 +1,4 @@
 {
-  "add": "Добавлено",
-  "fix": "Исправлено",
-  "improve": "Улучшено",
   "changelog_title": "Журнал изменений",
   "no_entries": "Нет записей в журнале изменений",
   "delete_entry_title": "Удалить запись из журнала изменений?",
@@ -9,5 +6,8 @@
   "changelog_subtitle": "История обновлений GodotHub.",
   "known_issues": "Известные проблемы",
   "edit_entry_aria": "Edit {{version}}",
-  "delete_entry_aria": "Delete {{version}}"
+  "delete_entry_aria": "Delete {{version}}",
+  "added": "Добавлено",
+  "fixed": "Исправлено",
+  "improved": "Улучшено"
 }

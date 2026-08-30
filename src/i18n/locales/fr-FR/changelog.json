@@ -1,7 +1,4 @@
 {
-  "add": "Ajouts",
-  "fix": "Corrections",
-  "improve": "Améliorations",
   "changelog_title": "CHANGELOG",
   "no_entries": "Aucune entrée de changelog n'a été trouvée.",
   "delete_entry_title": "Supprimer l'entrée ?",
@@ -9,5 +6,8 @@
   "changelog_subtitle": "Un historique des mises à jour de GodotHub.",
   "known_issues": "Problèmes connus",
   "edit_entry_aria": "Edit {{version}}",
-  "delete_entry_aria": "Delete {{version}}"
+  "delete_entry_aria": "Delete {{version}}",
+  "added": "Ajouts",
+  "fixed": "Corrections",
+  "improved": "Améliorations"
 }

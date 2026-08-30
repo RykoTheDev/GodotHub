@@ -1,7 +1,4 @@
 {
-  "add": "Đã được thêm",
-  "fix": "Đã được sửa",
-  "improve": "Đã được cải thiện",
   "changelog_title": "NHẬT KÝ THAY ĐỔI",
   "no_entries": "Chưa có mục nào trong nhật ký thay đổi",
   "delete_entry_title": "Xóa mục nhật ký thay đổi??",
@@ -9,5 +6,8 @@
   "changelog_subtitle": "Lịch sử các bản cập nhật của GodotHub.",
   "known_issues": "Các vấn đề đã được ghi nhận",
   "edit_entry_aria": "Edit {{version}}",
-  "delete_entry_aria": "Delete {{version}}"
+  "delete_entry_aria": "Delete {{version}}",
+  "added": "Đã được thêm",
+  "fixed": "Đã được sửa",
+  "improved": "Đã được cải thiện"
 }

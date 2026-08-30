@@ -90,8 +90,6 @@
   "naming_camel": "camelCase (myGame)",
   "naming_pascal": "PascalCase (MyGame)",
   "naming_title": "Title Case (My Game)",
-  "setting_accent_color": "Couleur d'accentuation",
-  "setting_background_color": "Couleur d'arrière-plan",
   "theme": "Thème",
   "theme_preset_label": "Préréglage de thème",
   "theme_preset_desc": "Choisissez un thème de couleurs complet. Un préréglage contrôle toutes les couleurs de l'application ; choisissez Personnalisé pour utiliser vos propres couleurs d'accentuation et d'arrière-plan.",
@@ -268,7 +266,6 @@
   "raised_contrast_desc": "À quel point les surfaces surélevées (cartes, champs, menus) se détachent de votre couleur d'arrière-plan. Des valeurs hautes donnent plus de séparation ; 0 les rend identiques à l'arrière-plan.",
   "raised_contrast_value": "{{value}} %",
   "setup_wizard_desc": "Rouvre le parcours de configuration initiale où vous pouvez reconfigurer les dossiers à scanner, les catégories, la couleur d'accentuation et l'arrondi des coins. Les paramètres déjà enregistrés sont conservés, vous pouvez toujours passer les étapes que vous ne voulez pas changer.",
-  "updates_desc": "Vérifiez si une nouvelle version de GodotHub est disponible. Les mises à jour sont téléchargées et installées automatiquement, puis appliquées au redémarrage.",
   "report_bug_desc": "Aidez à améliorer GodotHub en signalant les problèmes sur GitHub.",
   "token_help_desc": "Créez un token sur github.com/settings/tokens. Vous n'avez besoin de cocher le scope repo que si vous voulez accéder à des dépôts privés, sinon laissez tous les scopes décochés. Aucune permission sensible n'est requise.",
   "discord_rpc_label": "Discord Rich Presence",
@@ -328,13 +325,5 @@
   "landing_dashboard": "Dashboard",
   "landing_projects": "Projects",
   "landing_versions": "Versions",
-  "landing_news": "Godot News",
-  "saving": "Saving…",
-  "scanning": "Scanning…",
-  "settings_title": "SETTINGS",
-  "section_projects": "Projects",
-  "section_templates": "Templates",
-  "scan_now": "Scan Now",
-  "browse": "Browse",
-  "report_bug": "Report a Bug"
+  "landing_news": "Godot News"
 }

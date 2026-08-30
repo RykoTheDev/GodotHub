@@ -36,24 +36,28 @@ function formatDate(raw: string): string {
 
 const GROUPS: {
   key: ChangelogNote['category']
+  i18nKey: string
   dot: string
   label: string
   chip: string
 }[] = [
   {
     key: 'add',
+    i18nKey: 'added',
     dot: 'bg-mint',
     label: 'text-mint',
     chip: 'bg-mint/10 text-mint',
   },
   {
     key: 'fix',
+    i18nKey: 'fixed',
     dot: 'bg-danger',
     label: 'text-danger',
     chip: 'bg-danger/10 text-danger ',
   },
   {
     key: 'improve',
+    i18nKey: 'improved',
     dot: 'bg-accent-bright',
     label: 'text-accent-bright',
     chip: 'bg-accent/15 text-accent-bright',
@@ -141,7 +145,7 @@ function EntryCard({
                     className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-tag text-[10px] font-semibold ${g.chip}`}
                   >
                     <span className={`w-1.5 h-1.5 rounded-full ${g.dot}`} />
-                    {count} {t(g.key)}
+                    {count} {t(g.i18nKey)}
                   </span>
                 )
               })}
@@ -166,7 +170,7 @@ function EntryCard({
                     <p
                       className={`text-[10px] font-semibold uppercase tracking-wider mb-1.5 ${g.label}`}
                     >
-                      {t(g.key)}
+                      {t(g.i18nKey)}
                     </p>
                     <ul className="flex flex-col gap-1.5">
                       {items.map((n, i) => (

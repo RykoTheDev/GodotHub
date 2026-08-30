@@ -1,6 +1,5 @@
 {
   "remove": "Xóa",
-  "checking_changes": "Đang kiểm tra thay đổi…",
   "changes_title": "Thay đổi",
   "pull": "Pull",
   "push": "Push",
@@ -48,7 +47,6 @@
   "committed_ok": "Đã commit.",
   "switched_ok": "Đã chuyển sang {{branch}}.",
   "sync": "Sync",
-  "syncing": "Đang sync…",
   "diff_no_diff": "Không có diff cho file này.",
   "fetching": "Đang fetch…",
   "stashes_title": "Stash",

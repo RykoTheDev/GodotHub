@@ -1,7 +1,5 @@
 {
-  "delete": "Eliminar",
   "remove": "Quitar",
-  "checking_changes": "Comprobando cambios…",
   "pull": "Pull",
   "push": "Push",
   "force_push": "Forzar push",
@@ -11,7 +9,6 @@
   "committing": "Confirmando…",
   "merge_aborted": "Fusión abortada. Trabajando en el directorio.",
   "new_branch_btn": "+ Nueva",
-  "retry": "Reintentar",
   "abort_merge": "Abortar fusión",
   "merge_in_progress": "Fusión en progreso",
   "discard_all": "Descartar todo",
@@ -59,7 +56,6 @@
   "committed_ok": "Committed.",
   "switched_ok": "Switched to {{branch}}.",
   "sync": "Sync",
-  "syncing": "Syncing…",
   "diff_no_diff": "No diff available for this file.",
   "fetching": "Fetching…",
   "stashes_title": "Stashes",
