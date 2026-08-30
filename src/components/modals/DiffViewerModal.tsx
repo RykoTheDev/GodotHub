@@ -70,7 +70,7 @@ export function DiffViewerModal({ title, subtitle, fetchDiff, onClose }: Props) 
           )}
         </div>
 
-        <div className="max-h-[60vh] overflow-auto new-ui-scroll-viewport">
+        <div className="">
           {loading ? (
             <div className="flex flex-col gap-1.5 p-5 animate-pulse">
               {Array.from({ length: 14 }).map((_, i) => (

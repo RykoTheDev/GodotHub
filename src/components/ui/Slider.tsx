@@ -51,7 +51,7 @@ export function Slider({
               <AnimatePresence>
                 {canReset && (
                     <Tooltip content={t('reset_to_default')} side="left">
-                      <motion.button
+                      <motion.button key="button-53"
                         type="button"
                         initial={{ opacity: 0, scale: 0.75, y: 1 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}

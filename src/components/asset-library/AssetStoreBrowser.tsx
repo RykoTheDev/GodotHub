@@ -249,7 +249,7 @@ export function AssetStoreBrowser({
     <div ref={rootRef} className="flex flex-col gap-3">
       <AnimatePresence>
         {notice && (
-          <motion.div
+          <motion.div key="div-251"
             initial={{ opacity: 0, y: -6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -6 }}
@@ -361,7 +361,7 @@ export function AssetStoreBrowser({
 
           {(page > 0 || page + 1 < pages) && (
             <div className="flex items-center justify-center gap-1.5 flex-wrap">
-                <motion.button
+                <motion.button key="button-363"
                   type="button"
                   whileTap={{ scale: 0.94 }}
                   onClick={() => navigate(page - 1)}

@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# GodotHub commit-msg hook.
+# blocks commits with no impact label, AI/generated-content attribution
+# (including AI/bot co-author trailers; human co-authors are allowed), or em-dashes.
+# --no-verify bypass only if you know what you're doing.
+
+set -e
+
+msg_file="$1"
+msg=$(cat "$msg_file")
+subject=$(sed -n '/^[[:space:]]*#/d; /^[[:space:]]*$/d; p; q' "$msg_file")
+
+fail() {
+  echo "" >&2
+  echo "commit-msg hook rejected this commit:" >&2
+  echo "  $1" >&2
+  echo "" >&2
+  echo "fix the message and re-run git commit." >&2
+  exit 1
+}
+
+# AI/bot co-authors are forbidden; human co-authors are allowed. The
+# generated-content check below also catches AI names anywhere in the message.
+if grep -iE '^[[:space:]]*co-authored-by:' <<<"$msg" | grep -qiE '\b(cl[a]ude|anthr[o]pic|assist[a]nt|L[L]M|chatg[p]t|g[p]t-[0-9]|copil[o]t|curs[o]r|gemin[i]|cod[e]x|dev[i]n|b[o]t)\b'; then
+  fail "forbidden AI/bot co-author trailer found (human co-authors are allowed)."
+fi
+
+case "$subject" in
+  Merge\ *|Revert\ *|fixup!\ *|squash!\ *) ;;
+  *)
+    if [[ ! $subject =~ ^\[(global|installation|system|ryoku|docs|test|tooling|release)\][[:space:]]+ ]]; then
+      fail "commit subject must start with one impact label: [global], [installation], [system], [ryoku], [docs], [test], [tooling], or [release]."
+    fi
+    ;;
+esac
+
+if grep -qiE '\b(cl[a]ude|anthr[o]pic|assist[a]nt|L[L]M|chatg[p]t|g[p]t-[0-9])\b' <<<"$msg"; then
+  fail "forbidden generated-content attribution term found in commit message."
+fi
+
+if grep -qiE 'generat[e]d with|written by (cl[a]ude|a[i]|an l[l]m)|created using an A[I]' <<<"$msg"; then
+  fail "forbidden generated-content attribution phrasing found in commit message."
+fi
+
+if grep -q $'\xe2\x80\x94' <<<"$msg"; then
+  fail "em-dash (U+2014) found in commit message. use : or , or . instead."
+fi
+
+exit 0

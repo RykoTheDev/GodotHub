@@ -536,7 +536,7 @@ export function CloneRepoModal({
 
         <AnimatePresence>
           {error && (
-            <motion.div
+            <motion.div key="error"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
@@ -552,7 +552,7 @@ export function CloneRepoModal({
         </AnimatePresence>
 
         <div className="flex justify-end gap-2.5 p-6 pt-4 border-t border-line">
-          <motion.button
+          <motion.button key="error"
             whileTap={{ scale: 0.96 }}
             onClick={onClose}
             disabled={busy}
@@ -560,7 +560,7 @@ export function CloneRepoModal({
           >
             {t('clone_repo_cancel')}
           </motion.button>
-          <motion.button
+          <motion.button key="error"
             whileTap={busy ? undefined : { scale: 0.96 }}
             onClick={submit}
             disabled={busy}

@@ -438,7 +438,7 @@ export function AssetLibraryBrowser({
                         : undefined
                     }
                     actions={
-                      <motion.button
+                      <motion.button key="button-440"
                         whileHover={isInstalled || isInstalling ? undefined : { scale: 1.04 }}
                         whileTap={isInstalled || isInstalling ? undefined : { scale: 0.94 }}
                         transition={{ type: 'spring', stiffness: 500, damping: 30 }}
@@ -477,7 +477,7 @@ export function AssetLibraryBrowser({
           {version === '' ? (
             (page > 0 || page + 1 < pages) && (
               <div className="flex items-center justify-center gap-1.5 flex-wrap">
-                <motion.button
+                <motion.button key="button-479"
                     type="button"
                     whileTap={{ scale: 0.94 }}
                     onClick={() => navigate(page - 1)}

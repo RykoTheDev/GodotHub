@@ -1,6 +1,4 @@
 {
-  "close_sidebar": "Đóng thanh bên",
-  "delete": "Xóa",
   "remove": "Xóa",
   "checking_changes": "Đang kiểm tra thay đổi…",
   "changes_title": "Thay đổi",
@@ -61,8 +59,6 @@
   "drop_stash": "Drop stash",
   "merge_aborted": "Đã hủy merge. Thư mục làm việc đã được khôi phục.",
   "new_branch_btn": "+ Mới",
-  "retry": "Thử lại",
-  "close": "Đóng",
   "abort_merge": "Hủy merge",
   "merge_in_progress": "Đang trong quá trình merge",
   "working_tree_clean": "Working tree sạch.",

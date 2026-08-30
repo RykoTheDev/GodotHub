@@ -936,7 +936,7 @@ export function GitSidebar({
       <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden new-ui-scroll-viewport">
         {!ready ? (
           <div className="flex-1 flex items-center justify-center h-full">
-            <motion.div
+            <motion.div key="div-938"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.2 }}
@@ -1185,7 +1185,7 @@ export function GitSidebar({
             })}
           </motion.div>
 
-          <motion.div
+          <motion.div key="div-1187"
             initial={{ opacity: 0, x: 24 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.2, ease: 'easeOut', delay: 0.28 }}
@@ -1242,6 +1242,7 @@ export function GitSidebar({
                 <AnimatePresence>
                   {branchMenuOpen && (
                     <motion.div
+                      key="branch-menu"
                       initial={{ opacity: 0, y: -4, scale: 0.97 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -4, scale: 0.97 }}
@@ -1742,6 +1743,7 @@ export function GitSidebar({
         <AnimatePresence>
           {ctxMenu && (
             <motion.div
+              key="ctx-menu"
               ref={ctxMenuRef}
               role="menu"
               initial={{ opacity: 0, scale: 0.96, y: -4 }}

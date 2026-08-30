@@ -11,7 +11,7 @@ const MIN_SCAN_TIME = 800
 
 function Spinner({ reduced, size = 20 }: { reduced: boolean; size?: number }) {
   return (
-    <motion.svg
+    <motion.svg key="error"
       width={size}
       height={size}
       viewBox="0 0 24 24"

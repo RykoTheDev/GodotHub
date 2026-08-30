@@ -131,7 +131,7 @@ export function RunningProjectsChip() {
     <div ref={ref} className="relative shrink-0">
       <AnimatePresence>
         {running.length > 0 && (
-          <motion.div
+          <motion.div key="div-133"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
@@ -139,7 +139,7 @@ export function RunningProjectsChip() {
             onMouseDown={noDrag}
             className="relative"
           >
-            <motion.button
+            <motion.button key="button-141"
                 type="button"
                 onClick={() => setOpen((o) => !o)}
                 aria-label={t('running')}
@@ -161,7 +161,7 @@ export function RunningProjectsChip() {
 
             <AnimatePresence>
               {open && (
-                <motion.div
+                <motion.div key="div-163"
                   ref={menuRef}
                   initial={{ opacity: 0, y: openUp ? 6 : -6, scale: 0.96 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}

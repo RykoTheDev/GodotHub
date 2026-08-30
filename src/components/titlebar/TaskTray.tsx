@@ -330,7 +330,7 @@ export function TaskTray() {
 
       <AnimatePresence>
         {open && (
-          <motion.div
+          <motion.div key="div-332"
             ref={menuRef}
             initial={{ opacity: 0, y: openUp ? 6 : -6, scale: 0.96 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -362,7 +362,7 @@ export function TaskTray() {
             <div className="flex flex-col">
               <AnimatePresence mode="popLayout">
                 {empty ? (
-                  <motion.div
+                  <motion.div key="empty"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
@@ -391,7 +391,7 @@ export function TaskTray() {
                   {t('task_tray_auto_dismiss')}
                 </p>
                 {dismissibleCount > 0 && (
-                  <motion.button
+                  <motion.button key="empty"
                     type="button"
                     whileHover={{ y: -1 }}
                     whileTap={{ scale: 0.95 }}

@@ -505,6 +505,7 @@ export function App() {
           />
         )}
       </AnimatePresence>
+
     </div>
     {splashPhase !== 'done' && <SplashScreen phase={splashPhase} />}
     </ChangelogBadgeProvider>

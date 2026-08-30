@@ -785,7 +785,7 @@ export function ProjectCard({
           <AnimatePresence>
             {versionInstalled && cardHovered && cardSettings.show_play && (
               <Tooltip content={t('play_project_tooltip')} side="left">
-              <motion.button
+              <motion.button key="button-787"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 8 }}
