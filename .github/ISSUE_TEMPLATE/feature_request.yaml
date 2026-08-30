@@ -1,0 +1,72 @@
+name: Feature Request
+description: Suggest an idea for this project.
+title: "[FEATURE]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to suggest a new feature!
+        Please fill out the form below to help us understand your request.
+  - type: textarea
+    id: problem-description
+    attributes:
+      label: Is your feature request related to a problem?
+      description: A clear and concise description of what the problem is.
+      placeholder: I'm always frustrated when [...]
+    validations:
+      required: true
+  - type: textarea
+    id: solution-description
+    attributes:
+      label: Describe the solution you'd like
+      description: A clear and concise description of what you want to happen.
+      placeholder: I would like to see [...]
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Describe alternatives you've considered
+      description: A clear and concise description of any alternative solutions or features you've considered.
+      placeholder: I have considered [...]
+    validations:
+      required: false
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Add any other context, screenshots, or mockups about the feature request here.
+      placeholder: Add any additional information...
+    validations:
+      required: false
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: How important is this feature to you?
+      options:
+        - Low (Nice to have)
+        - Medium (Important)
+        - High (Critical for my use case)
+        - Urgent (Blocking my workflow)
+      default: 1
+    validations:
+      required: true
+  - type: checkboxes
+    id: contribution
+    attributes:
+      label: Are you willing to contribute?
+      description: Would you be willing to help implement this feature?
+      options:
+        - label: Yes, I can help with development
+        - label: Yes, I can help with testing
+        - label: Yes, I can help with documentation
+        - label: No, I'm just suggesting the idea
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        **Thank you for your suggestion!** We'll review it and get back to you.

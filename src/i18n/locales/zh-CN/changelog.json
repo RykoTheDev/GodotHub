@@ -6,5 +6,6 @@
   "no_entries": "暂无更新日志条目",
   "delete_entry_title": "删除更新日志条目？",
   "delete_entry_desc": "这将永久删除该条目，此操作不可撤销。",
-  "changelog_subtitle": "GodotHub 更新历史。"
+  "changelog_subtitle": "GodotHub 更新历史。",
+  "known_issues": "已知问题"
 }

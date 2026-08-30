@@ -1,21 +1,27 @@
-import { openUrl } from '@tauri-apps/plugin-opener'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
+import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
+import { openUrl } from '@tauri-apps/plugin-opener'
 import { useNews } from '../hooks/useNews'
+import { useSettings } from '../hooks/useSettings'
+import { OverlayScrollArea } from '../components/reusables/OverlayScrollArea'
+import { ViewHeader } from '../components/reusables/ViewHeader'
 import {
-  IconNews,
   IconClock,
   IconExternalLink,
+  IconNews,
   IconRefresh,
   IconWifiOff,
-} from '../components/Icons'
-import { ScrollReveal } from '../components/ui/ScrollReveal'
+} from '../lib/icons'
+import { formatLocaleDate } from '../lib/locale'
 import type { NewsItem } from '../types'
 
 function formatDate(iso: string | null): string | null {
   if (!iso) return null
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return null
-  return d.toLocaleDateString(undefined, {
+  return formatLocaleDate(d, {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
@@ -23,16 +29,36 @@ function formatDate(iso: string | null): string | null {
 }
 
 function NewsCard({ item }: { item: NewsItem }) {
+  const [imageFailed, setImageFailed] = useState(false)
   const date = formatDate(item.published)
 
   return (
-    <button
-      onClick={() => openUrl(item.link)}
-      className="group focus-ring cursor-pointer text-left flex flex-col gap-3 rounded-xl border border-line bg-surface p-5 hover:border-accent-dim hover:bg-raised/40 transition-colors"
+    <motion.button
+      type="button"
+      onClick={() => openUrl(item.link).catch(() => {})}
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{ duration: 0.35, ease: 'easeOut' }}
+      className="group focus-ring cursor-pointer text-left w-full flex flex-col gap-3 rounded-item border border-outline/50 bg-overlay p-5 mb-3 break-inside-avoid overflow-hidden hover:border-accent-dim/70 hover:bg-raised transition-colors"
     >
+      {item.image && !imageFailed && (
+        <div className="relative -mx-5 -mt-5 h-36 shrink-0 overflow-hidden">
+          <img
+            src={item.image}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            className="absolute inset-0 w-full h-full object-cover"
+            onError={() => setImageFailed(true)}
+          />
+          <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-overlay to-transparent pointer-events-none" />
+        </div>
+      )}
+
       <div className="flex items-center justify-between gap-3">
         {item.category ? (
-          <span className="text-[10px] font-medium uppercase tracking-wide text-accent-bright bg-accent/10 border border-accent/20 rounded-full px-2.5 py-1">
+          <span className="text-[10px] font-semibold uppercase tracking-wider text-accent-bright bg-accent/10 border border-accent-dim/30 rounded-tag px-2.5 py-1">
             {item.category}
           </span>
         ) : (
@@ -41,7 +67,7 @@ function NewsCard({ item }: { item: NewsItem }) {
         <IconExternalLink className="w-3 h-3 text-muted opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
       </div>
 
-      <h3 className="font-display font-semibold text-sm leading-snug line-clamp-2">
+      <h3 className="font-display font-medium text-lg leading-snug line-clamp-2">
         {item.title}
       </h3>
 
@@ -53,21 +79,22 @@ function NewsCard({ item }: { item: NewsItem }) {
 
       <div className="mt-auto pt-1 flex items-center gap-3 text-[11px] text-muted">
         {date && (
-          <span className="flex items-center gap-1.5">
+          <span className="inline-flex items-center gap-1.5">
             <IconClock className="w-3 h-3" />
             {date}
           </span>
         )}
         {item.author && <span className="truncate">{item.author}</span>}
       </div>
-    </button>
+    </motion.button>
   )
 }
 
 function NewsCardSkeleton() {
   return (
-    <div className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-5 animate-pulse">
-      <div className="h-4 w-16 rounded-full bg-raised" />
+    <div className="flex flex-col gap-3 rounded-item border border-outline/50 bg-overlay p-5 mb-3 break-inside-avoid overflow-hidden animate-pulse">
+      <div className="-mx-5 -mt-5 h-36 bg-raised" />
+      <div className="h-4 w-16 rounded-tag bg-raised" />
       <div className="h-4 w-4/5 rounded bg-raised" />
       <div className="h-3 w-full rounded bg-raised" />
       <div className="h-3 w-3/4 rounded bg-raised" />
@@ -76,96 +103,126 @@ function NewsCardSkeleton() {
   )
 }
 
-export function NewsView() {
-  const { t } = useTranslation('common')
-  const { items, hasMore, loading, error, fromCache, showMore, reload } =
-    useNews()
+export function NewsView({ connected = false }: { connected?: boolean }) {
+  const { t: tc } = useTranslation('common')
+  const { settings } = useSettings()
+  const {
+    items,
+    total,
+    hasMore,
+    loading,
+    error,
+    fromCache,
+    showMore,
+    reload,
+  } = useNews()
 
   return (
-    <div className="p-10 pt-6 max-w-8xl mx-auto">
-      <section>
-        <div className="flex items-start justify-between gap-4 mb-5">
-          <div>
-            <h2 className="font-body font-semibold text-3xl tracking-tight">
-              {t('news_title')}
+    <div className="flex-1 min-w-0 h-full flex flex-col">
+      <ViewHeader
+        connected={connected}
+        className="mb-4"
+        title={tc('news_title')}
+        metric={
+          <>
+            <h2 className="text-4xl font-bold text-muted">
+              <AnimatedNumber value={total} />
             </h2>
-            <p className="text-xs text-muted">
-              {t('news_subtitle')}
+            <p className="text-lg font-medium uppercase text-muted">
+              {tc('news_count')}
             </p>
-          </div>
-          <button
+          </>
+        }
+        actions={
+          <motion.button
+            type="button"
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.96 }}
             onClick={reload}
             disabled={loading}
-            className="focus-ring cursor-pointer icon-wiggle shrink-0 flex items-center gap-2 px-3.5 py-2 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-xs font-medium text-muted hover:text-ink transition-colors disabled:opacity-50 disabled:cursor-default"
+            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-overlay border border-outline/50 text-xs font-medium text-muted hover:text-ink hover:bg-raised hover:border-accent-dim transition-colors disabled:opacity-40 disabled:cursor-default"
           >
             <IconRefresh
-              className={`w-3 h-3 ${loading ? 'animate-spin' : ''}`}
+              className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`}
             />
-            {t('refresh')}
-          </button>
-        </div>
+            {tc('refresh')}
+          </motion.button>
+        }
+      >
+        <p className="text-xs text-muted flex items-center gap-1.5 flex-wrap">
+          <span>{tc('news_subtitle')}</span>
+          {fromCache && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-overlay border border-outline/50 text-[10px] text-muted/70">
+              <IconWifiOff className="w-3 h-3" />
+              {tc('news_cached')}
+            </span>
+          )}
+        </p>
+      </ViewHeader>
 
-        {fromCache && (
-          <div className="mb-5 flex items-center gap-2.5 rounded-lg border border-line bg-raised/60 px-4 py-2.5 text-xs text-muted">
-            <IconWifiOff className="w-3.5 h-3.5 shrink-0" />
-            {t('news_cached')}
-          </div>
-        )}
-
-        {loading && items.length === 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <NewsCardSkeleton key={i} />
-            ))}
-          </div>
-        ) : error && items.length === 0 ? (
-          <div className="border border-dashed border-line rounded-2xl py-24 flex flex-col items-center gap-4 text-center">
-            <div className="w-12 h-12 rounded-xl bg-raised border border-line flex items-center justify-center">
-              <IconWifiOff className="w-5 h-5 text-muted" />
-            </div>
-            <p className="text-sm text-muted max-w-xs leading-relaxed">
-              {t('news_error')} {error}
-            </p>
-            <button
-              onClick={reload}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm transition-colors"
-            >
-              <IconRefresh className="w-3.5 h-3.5" />
-              {t('try_again')}
-            </button>
-          </div>
-        ) : items.length === 0 ? (
-          <div className="border border-dashed border-line rounded-2xl py-24 flex flex-col items-center gap-4 text-center">
-            <div className="w-12 h-12 rounded-xl bg-raised border border-line flex items-center justify-center">
-              <IconNews className="w-5 h-5 text-muted" />
-            </div>
-            <p className="text-sm text-muted max-w-xs leading-relaxed">
-              {t('news_empty')}
-            </p>
-          </div>
-        ) : (
-          <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {items.map((item, i) => (
-                <ScrollReveal key={item.id} delay={i * 0.04}>
-                  <NewsCard item={item} />
-                </ScrollReveal>
+      <OverlayScrollArea
+        className={`flex-1 min-w-0 ${connected ? '' : '-mr-4 -mb-4'}`}
+        hideThumb={!settings.show_scrollbars}
+        topButtonBottom={'bottom-16'}
+      >
+        <div className={`h-full ${connected ? 'pl-3' : ''} pr-5 pb-4`}>
+          {loading && items.length === 0 ? (
+            <div className="columns-1 lg:columns-2 gap-3">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <NewsCardSkeleton key={i} />
               ))}
             </div>
-
-            {hasMore && (
-              <div className="flex justify-center mt-6">
-                <button
-                  onClick={showMore}
-                  className="focus-ring cursor-pointer px-5 py-2.5 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
-                >
-                  {t('show_more')}
-                </button>
+          ) : error && items.length === 0 ? (
+            <div className="border border-dashed border-danger/30 rounded-item py-24 flex flex-col items-center gap-4 text-center">
+              <div className="w-12 h-12 rounded-tile bg-danger/10 border border-danger/30 flex items-center justify-center">
+                <IconWifiOff className="w-5 h-5 text-danger" />
               </div>
-            )}
-          </>
-        )}
-      </section>
+              <p className="text-sm text-muted max-w-xs leading-relaxed">
+                {tc('news_error')} {error}
+              </p>
+              <button
+                onClick={reload}
+                className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2 rounded-item border border-outline/50 hover:bg-raised text-xs font-medium text-ink transition-colors"
+              >
+                <IconRefresh className="w-3.5 h-3.5" />
+                {tc('try_again')}
+              </button>
+            </div>
+          ) : items.length === 0 ? (
+            <div className="border border-dashed border-outline/50 rounded-item py-24 flex flex-col items-center gap-4 text-center">
+              <div className="w-12 h-12 rounded-tile bg-overlay border border-outline/50 flex items-center justify-center">
+                <IconNews className="w-5 h-5 text-muted" />
+              </div>
+              <p className="text-sm text-muted max-w-xs leading-relaxed">
+                {tc('news_empty')}
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="columns-1 lg:columns-2 gap-3">
+                {items.map((item) => (
+                  <NewsCard key={item.id} item={item} />
+                ))}
+              </div>
+
+              {hasMore && (
+                <div className="flex justify-center mt-6">
+                  <motion.button
+                    type="button"
+                    whileHover={{ y: -1 }}
+                    whileTap={{ scale: 0.96 }}
+                    onClick={showMore}
+                    className="focus-ring cursor-pointer h-9 px-5 rounded-item bg-overlay border border-outline/50 text-sm font-medium text-ink hover:bg-raised hover:border-accent-dim transition-colors"
+                  >
+                    {tc('show_more')}
+                  </motion.button>
+                </div>
+              )}
+            </>
+          )}
+          <div className="shrink-0 h-4" aria-hidden="true" />
+        </div>
+      </OverlayScrollArea>
     </div>
   )
 }

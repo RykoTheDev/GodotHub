@@ -1,7 +1,3 @@
-# Builds GodotHub when a tag like v1.0.0 is pushed,
-# signs the updater artifacts, auto-generates latest.json,
-# and publishes a GitHub Release with installers and updater files.
-
 name: Build & Release
 
 on:
@@ -72,6 +68,41 @@ jobs:
       - name: TypeScript typecheck
         run: bun run tsc --noEmit
 
+      - name: Generate release notes from changelog
+        id: release-notes
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          BODY=$(node - <<'EOF'
+          const fs = require('fs');
+          const tag = process.env.RELEASE_TAG;
+          const entries = JSON.parse(fs.readFileSync('src-tauri/changelog.json', 'utf8'));
+          const entry = entries.find((e) => (e.version || '').trim().split(' ')[0] === tag)
+            || entries.find((e) => (e.version || '').trim().split(' ')[0].startsWith(tag));
+          const HEADERS = { add: '🚀 New', fix: '🐛 Fixes', improve: '✨ Improvements' };
+          if (!entry) {
+            console.log('See the assets below for the installer and updater files for your platform.');
+            process.exit(0);
+          }
+          const sections = ['add', 'fix', 'improve']
+            .map((k) => ({ k, items: (entry.notes || []).filter((n) => n.category === k).map((n) => n.text) }))
+            .filter((s) => s.items.length)
+            .map((s) => `## ${HEADERS[s.k]}\n\n` + s.items.map((t) => `- ${t}`).join('\n'))
+            .join('\n\n');
+          const known = (entry.known_issues || []).filter(Boolean);
+          const knownSection = known.length
+            ? `\n\n## ⚠️ Known Issues\n\n` + known.map((t) => `- ${t}`).join('\n')
+            : '';
+          console.log(`## What's new in ${entry.version}\n\n${sections}${knownSection}`);
+          EOF
+          )
+          {
+            echo "body<<GH_RELEASE_NOTES"
+            echo "$BODY"
+            echo "GH_RELEASE_NOTES"
+          } >> "$GITHUB_OUTPUT"
+
       - name: Build Tauri app & publish release
         uses: tauri-apps/tauri-action@v1
         env:
@@ -82,10 +113,10 @@ jobs:
           args: ${{ matrix.args }}
           tagName: ${{ github.ref_name }}
           releaseName: 'GodotHub ${{ github.ref_name }}'
-          releaseBody: 'See the assets below for the installer and updater files for your platform.'
+          releaseBody: ${{ steps.release-notes.outputs.body }}
           releaseDraft: true
-          uploadUpdaterJson: true
-          updaterJsonPreferNsis: true
+          uploadUpdaterJson: false
+          uploadUpdaterSignatures: true
 
       - name: Upload standalone executable (Windows only)
         if: runner.os == 'Windows'
@@ -96,3 +127,162 @@ jobs:
             --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+  generate-latest-json:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate latest.json in the working updater format
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # The releases/tags/{tag} endpoint 404s while the release is still a
+          # draft, so find the release via the (draft-inclusive) list endpoint.
+          release_id=$(gh api --paginate "repos/$REPO/releases" \
+            --jq "map(select(.tag_name == \"$TAG\")) | .[0].id // empty")
+          if [ -z "$release_id" ]; then
+            echo "no release found for tag $TAG" >&2
+            exit 1
+          fi
+          release=$(gh api "repos/$REPO/releases/$release_id")
+          gh api --paginate "repos/$REPO/releases/$release_id/assets" > assets.json
+          mkdir -p sigs
+          while IFS=$'\t' read -r asset_id asset_name; do
+            gh api -H "Accept: application/octet-stream" \
+              "repos/$REPO/releases/assets/$asset_id" > "sigs/$asset_name"
+          done < <(jq -r '.[] | select(.name | endswith(".sig")) | [.id, .name] | @tsv' assets.json)
+          export NOTES="$(printf '%s' "$release" | jq -r '.body // ""')"
+          node - <<'EOF'
+          const fs = require('fs');
+          const TAG = process.env.TAG;
+          const REPO = process.env.REPO;
+          const NOTES = process.env.NOTES || '';
+          const version = TAG.replace(/^v/i, '');
+          const assets = JSON.parse(fs.readFileSync('assets.json', 'utf8'));
+          const sigAssets = assets.filter((a) => a.name.endsWith('.sig'));
+          if (sigAssets.length === 0) {
+            throw new Error('no .sig files found on the release; are updater artifacts enabled?');
+          }
+          const signatures = new Map();
+          for (const a of sigAssets) {
+            const artifactName = a.name.slice(0, -'.sig'.length);
+            signatures.set(artifactName, fs.readFileSync(`sigs/${a.name}`, 'utf8').trim());
+          }
+          const taggedUrl = (name) =>
+            `https://github.com/${REPO}/releases/download/${TAG}/${encodeURIComponent(name)}`;
+          const normArch = (a) => {
+            if (['amd64', 'x86_64', 'x64'].includes(a)) return 'x86_64';
+            if (['x86', 'i386', 'i686'].includes(a)) return 'i686';
+            if (['arm64', 'aarch64'].includes(a)) return 'aarch64';
+            if (['arm', 'armv7', 'armhf'].includes(a)) return 'armv7';
+            return a;
+          };
+          const classify = (name) => {
+            let m;
+            if ((m = name.match(/_([a-zA-Z0-9]+)\.app\.tar\.gz$/)))
+              return { os: 'darwin', arch: normArch(m[1]), installer: 'app' };
+            if ((m = name.match(/_([a-zA-Z0-9]+)\.AppImage$/)))
+              return { os: 'linux', arch: normArch(m[1]), installer: 'appimage' };
+            if ((m = name.match(/_([a-zA-Z0-9]+)\.deb$/)))
+              return { os: 'linux', arch: normArch(m[1]), installer: 'deb' };
+            if ((m = name.match(/\.([a-zA-Z0-9_]+)\.rpm$/)))
+              return { os: 'linux', arch: normArch(m[1]), installer: 'rpm' };
+            if ((m = name.match(/_([a-zA-Z0-9]+)-setup\.exe$/)))
+              return { os: 'windows', arch: normArch(m[1]), installer: 'nsis' };
+            if ((m = name.match(/_([a-zA-Z0-9]+)(?:_[a-zA-Z-]+)?\.msi$/)))
+              return { os: 'windows', arch: normArch(m[1]), installer: 'msi' };
+            return null;
+          };
+          // Mirrors updaterJsonPreferNsis: the NSIS setup.exe owns the base windows key.
+          const preferNsis = true;
+          const isPreferredBase = (c) => {
+            if (c.os === 'darwin') return c.installer === 'app';
+            if (c.os === 'linux') return c.installer === 'appimage';
+            if (c.os === 'windows') return preferNsis ? c.installer === 'nsis' : c.installer === 'msi';
+            return false;
+          };
+          const artifacts = [];
+          for (const [name, signature] of signatures) {
+            const c = classify(name);
+            if (!c) {
+              // Every .sig on the release is an updater artifact, so failing to
+              // recognize one must fail the job instead of silently publishing
+              // a latest.json that is missing that platform.
+              throw new Error(`unrecognized updater artifact: ${name}`);
+            }
+            artifacts.push({ name, signature, ...c });
+          }
+          const hasNativeArm = artifacts.some((a) => a.os === 'darwin' && a.arch === 'aarch64');
+          const hasNativeX64 = artifacts.some((a) => a.os === 'darwin' && a.arch === 'x86_64');
+          const platforms = {};
+          const set = (key, entry) => { platforms[key] = entry; };
+          // Deterministic ordering (OS, then installer, then name) so the file
+          // looks the same on every runner and matches the old v1.2.5 layout.
+          const osOrder = { darwin: 0, linux: 1, windows: 2 };
+          const installerOrder = { app: 0, appimage: 1, deb: 2, rpm: 3, nsis: 4, msi: 5 };
+          artifacts.sort(
+            (a, b) =>
+              (osOrder[a.os] ?? 9) - (osOrder[b.os] ?? 9) ||
+              (installerOrder[a.installer] ?? 9) - (installerOrder[b.installer] ?? 9) ||
+              (a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
+          );
+          for (const a of artifacts) {
+            const entry = { signature: a.signature, url: taggedUrl(a.name) };
+            if (isPreferredBase(a)) {
+              if (a.os === 'darwin' && a.arch === 'universal') {
+                if (!platforms['darwin-aarch64'] || !hasNativeArm) set('darwin-aarch64', entry);
+                if (!platforms['darwin-x86_64'] || !hasNativeX64) set('darwin-x86_64', entry);
+                set('darwin-universal', entry);
+              } else {
+                set(`${a.os}-${a.arch}`, entry);
+              }
+            }
+            if (a.os === 'darwin' && a.arch === 'universal') {
+              if (!platforms['darwin-aarch64-app'] || !hasNativeArm) set('darwin-aarch64-app', entry);
+              if (!platforms['darwin-x86_64-app'] || !hasNativeX64) set('darwin-x86_64-app', entry);
+              set('darwin-universal-app', entry);
+            } else {
+              set(`${a.os}-${a.arch}-${a.installer}`, entry);
+            }
+          }
+          if (Object.keys(platforms).length === 0) {
+            throw new Error('could not derive any platform entries from the release signatures');
+          }
+          const manifest = { version, notes: NOTES, pub_date: new Date().toISOString(), platforms };
+          fs.writeFileSync('latest.json', JSON.stringify(manifest, null, 2));
+          console.log(`wrote latest.json with ${Object.keys(platforms).length} platform entries`);
+          EOF
+          gh release upload "$TAG" latest.json --repo "$REPO" --clobber
+
+  publish-to-winget:
+    needs: [build, generate-latest-json]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+
+    steps:
+      - name: Strip 'v' prefix from tag
+        id: version
+        run: |
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION#v}"  # Remove leading 'v' if present
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Sync winget-pkgs fork
+        env:
+          GH_TOKEN: ${{ secrets.WINGET_TOKEN }}
+        run: |
+          FORK_OWNER=$(gh api user --jq .login)
+          gh api -X POST "repos/${FORK_OWNER}/winget-pkgs/merge-upstream" \
+            -f branch=master
+
+      - name: Publish to WinGet
+        uses: vedantmgoyal9/winget-releaser@v2
+        with:
+          identifier: Ryko.GodotHub
+          token: ${{ secrets.WINGET_TOKEN }}
+          version: ${{ steps.version.outputs.version }}
+          installers-regex: '\.msi$'

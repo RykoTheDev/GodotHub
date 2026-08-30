@@ -1,32 +1,90 @@
 @import 'tailwindcss';
+@plugin './corner-shape.config.js';
 
 @theme {
-  --color-base: #1e1f22;
-  --color-surface: #2b2d31;
-  --color-raised: #323339;
-  --color-overlay: #3a3c43;
-  --color-line: #3f4147;
-  --color-ink: #f2f3f5;
-  --color-muted: #949ba4;
-  --color-accent: #5865f2;
-  --color-accent-dim: #3c45a5;
-  --color-accent-bright: #7983f5;
-  --color-mint: #23a55a;
+
+  --color-base: #17181c;
+  --color-surface: #212228;
+  --color-raised: #292b32;
+  --color-overlay: #27282E;
+  --color-line: #3a3d46;
+  --color-outline: #3a3d46;
+  --color-ink: #f4f5f7;
+  --color-muted: #9aa3b2;
+  --color-accent: #4f7cff;
+  --color-accent-dim: #3a5fd0;
+  --color-accent-bright: #7aa0ff;
+  --color-mint: #2fbf71;
   --color-amber: #f0b132;
-  --color-danger: #f23f42;
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-body: 'Inter', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
-  --radius-sm: 8px;
-  --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-xl: 20px;
+  --color-danger: #f2555a;
+
+  --font-display: 'Inter Variable', sans-serif;
+  --font-body: 'Inter Variable', sans-serif;
+  --font-mono: 'Google Sans Code', monospace;
+
+  --radius-sm: 9.6px;
+  --radius-md: 12px;
+  --radius-lg: 16.8px;
+  --radius-xl: 24px;
+  --radius-tag: 12px;
+  --radius-btn: 19.2px;
+  --radius-dropdown-btn: 15.6px;
+  --radius-dropdown: 15.6px;
+  --radius-item: 26.4px;
+  --radius-tile: 19.2px;
+  --radius-menu: 28.8px;
+  --radius-card: 28.8px;
+  --radius-modal: 36px;
+
   --spacing: 4.5px;
+}
+
+/*
+ * CJK fallbacks. Inter and Google Sans Code carry no CJK glyphs, so Japanese
+ * and Chinese text drops straight to the generic family. The stacks stay
+ * scoped per language on purpose: ja and zh share Han characters but draw
+ * them with different regional forms, so one merged stack would render one of
+ * the two with the wrong glyphs. This relies on <html lang> tracking the UI
+ * language, which src/i18n/index.ts keeps in sync.
+ */
+:root {
+  --font-cjk: sans-serif;
+  --font-cjk-mono: monospace;
+
+  --font-display: 'Inter Variable', var(--font-cjk);
+  --font-body: 'Inter Variable', var(--font-cjk);
+  --font-mono: 'Google Sans Code', var(--font-cjk-mono);
+}
+
+html:lang(ja) {
+  --font-cjk: 'Yu Gothic UI', 'Hiragino Sans', 'Noto Sans CJK JP',
+    'Noto Sans JP', 'Meiryo', sans-serif;
+  --font-cjk-mono: 'Noto Sans Mono CJK JP', 'MS Gothic', 'Osaka-Mono',
+    monospace;
+}
+
+html:lang(zh) {
+  --font-cjk: 'Microsoft YaHei', 'PingFang SC', 'Noto Sans CJK SC',
+    'Noto Sans SC', sans-serif;
+  --font-cjk-mono: 'Noto Sans Mono CJK SC', 'NSimSun', monospace;
+}
+
+@property --spacing {
+  syntax: '<length>';
+  inherits: true;
+  initial-value: 4.5px;
+}
+
+html.ui-scaling {
+  transition: --spacing 0.2s ease, font-size 0.2s ease;
 }
 
 body {
   @apply bg-base text-ink font-body antialiased;
   user-select: none;
+  overflow: hidden;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 input::placeholder,
@@ -38,7 +96,16 @@ textarea::placeholder {
   width: 8px;
   height: 8px;
 }
+::-webkit-scrollbar:vertical {
+  width: 8px;
+}
+::-webkit-scrollbar:horizontal {
+  height: 8px;
+}
 ::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-track:horizontal {
   background: transparent;
 }
 
@@ -49,7 +116,18 @@ textarea::placeholder {
   background-clip: padding-box;
   transition: background 0.2s ease;
 }
+::-webkit-scrollbar-thumb:horizontal {
+  background: var(--color-line);
+  border-radius: 999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background 0.2s ease;
+}
 ::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent-dim);
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:horizontal:hover {
   background: var(--color-accent-dim);
   background-clip: padding-box;
 }
@@ -57,11 +135,14 @@ textarea::placeholder {
   background: var(--color-accent);
   background-clip: padding-box;
 }
+::-webkit-scrollbar-thumb:horizontal:active {
+  background: var(--color-accent);
+  background-clip: padding-box;
+}
 ::-webkit-scrollbar-corner {
   background: transparent;
 }
 
-/* Firefox scrollbar */
 * {
   scrollbar-width: thin;
   scrollbar-color: var(--color-line) transparent;
@@ -76,14 +157,55 @@ textarea::placeholder {
   scrollbar-width: none;
 }
 
+.project-list-cv > * {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 120px;
+}
+
+.masonry {
+  display: flex;
+  width: auto;
+  margin-left: -1.25rem;
+}
+.masonry-column {
+  padding-left: 1.25rem;
+  background-clip: padding-box;
+}
+.masonry-column > * {
+  margin-bottom: 1.25rem;
+}
+
+.new-ui {
+  --font-display: var(--app-font-display, 'Inter Variable'), var(--font-cjk);
+  --font-body: var(--app-font-body, 'Inter Variable'), var(--font-cjk);
+}
+
+.new-ui .new-ui-scroll-viewport::-webkit-scrollbar {
+  display: none;
+}
+.new-ui .new-ui-scroll-viewport {
+  scrollbar-width: none;
+}
+
+.new-ui .dashboard-masonry {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+}
+.new-ui .dashboard-masonry-column {
+  min-width: 0;
+}
+.new-ui .dashboard-masonry-column > * {
+  margin-bottom: 1.5rem;
+}
+
 .reduce-motion,
 .reduce-motion * {
   transition-duration: 0.001ms !important;
-  animation-duration: 0.001ms !important;
+  animation: none !important;
   scroll-behavior: auto !important;
 }
 
-/* Smooth colour transitions when theme changes */
 .theme-transitioning,
 .theme-transitioning * {
   transition: background-color 0.35s ease,
@@ -94,9 +216,10 @@ textarea::placeholder {
               box-shadow 0.35s ease !important;
 }
 
-/* ---------------------------------------------------------------------- */
-/* Micro-interaction primitives shared across custom controls              */
-/* ---------------------------------------------------------------------- */
+.reduce-motion .theme-transitioning,
+.reduce-motion .theme-transitioning * {
+  transition-duration: 0.001ms !important;
+}
 
 @keyframes icon-pop {
   0% {
@@ -118,6 +241,11 @@ textarea::placeholder {
 }
 .icon-wiggle:active svg {
   transform: scale(0.92);
+}
+
+*:focus,
+*:focus-visible {
+  outline: none;
 }
 
 .focus-ring {
@@ -142,4 +270,130 @@ textarea::placeholder {
   100% {
     box-shadow: 0 0 0 0 rgba(69, 127, 242, 0);
   }
+}
+
+.markdown-body {
+  font-size: 0.875rem;
+  line-height: 1.65;
+  color: var(--color-muted);
+}
+.markdown-body > :first-child {
+  margin-top: 0;
+}
+.markdown-body > :last-child {
+  margin-bottom: 0;
+}
+.markdown-body p {
+  margin: 0.5rem 0;
+}
+.markdown-body a {
+  color: var(--color-accent-bright);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.markdown-body a:hover {
+  color: var(--color-ink);
+}
+.markdown-body strong {
+  color: var(--color-ink);
+  font-weight: 600;
+}
+.markdown-body em {
+  color: var(--color-ink);
+}
+.markdown-body ul,
+.markdown-body ol {
+  margin: 0.5rem 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.markdown-body ul {
+  list-style: disc;
+}
+.markdown-body ol {
+  list-style: decimal;
+}
+.markdown-body code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, var(--font-cjk-mono);
+  font-size: 0.8em;
+  background: var(--color-raised);
+  border: 1px solid var(--color-line);
+  border-radius: 0.375rem;
+  padding: 0.1em 0.35em;
+  color: var(--color-ink);
+}
+.markdown-body pre {
+  margin: 0.6rem 0;
+  background: var(--color-base);
+  border: 1px solid var(--color-line);
+  border-radius: 0.625rem;
+  padding: 0.75rem 1rem;
+  overflow-x: auto;
+}
+.markdown-body pre code {
+  background: transparent;
+  border: none;
+  padding: 0;
+}
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3,
+.markdown-body h4 {
+  color: var(--color-ink);
+  font-weight: 600;
+  margin: 0.9rem 0 0.4rem;
+}
+.markdown-body h1 {
+  font-size: 1.125rem;
+}
+.markdown-body h2 {
+  font-size: 1.05rem;
+}
+.markdown-body h3 {
+  font-size: 1rem;
+}
+.markdown-body h4 {
+  font-size: 0.925rem;
+}
+.markdown-body blockquote {
+  margin: 0.6rem 0;
+  padding: 0.25rem 0 0.25rem 0.75rem;
+  border-left: 3px solid var(--color-accent-dim);
+  color: var(--color-muted);
+}
+.markdown-body hr {
+  margin: 0.9rem 0;
+  border: none;
+  border-top: 1px solid var(--color-line);
+}
+
+@keyframes changelog-shine {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
+.changelog-shine {
+  position: relative;
+}
+
+.changelog-shine::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    110deg,
+    transparent 25%,
+    rgba(var(--color-accent-rgb, 99 102 241), 0.25) 50%,
+    transparent 75%
+  );
+  background-size: 200% 100%;
+  animation: changelog-shine 2s ease-in-out infinite;
 }

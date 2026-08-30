@@ -9,6 +9,18 @@ use tauri::{AppHandle, Emitter, Manager};
 
 pub struct ActiveWatchers(pub Mutex<Vec<RecommendedWatcher>>);
 
+pub struct GitWatcher(pub Mutex<Option<RecommendedWatcher>>);
+
+fn is_ignored_watcher_event(event: &Event) -> bool {
+    !event.paths.is_empty()
+        && event.paths.iter().all(|p| {
+            matches!(
+                p.file_name().and_then(|n| n.to_str()),
+                Some(".godotrc") | Some("global.json")
+            )
+        })
+}
+
 fn create_debounced_watcher(
     app: AppHandle,
     path: PathBuf,
@@ -52,6 +64,9 @@ fn create_debounced_watcher(
                         | EventKind::Other
                         | EventKind::Any => continue,
                         _ => {
+                            if is_ignored_watcher_event(&event) {
+                                continue;
+                            }
                             last_event = Instant::now();
                             pending = true;
                         }
@@ -88,7 +103,6 @@ fn create_debounced_multi_watcher(
     debounce_duration: Duration,
     extra_delay: Duration,
     action: Arc<dyn Fn(AppHandle) + Send + Sync + 'static>,
-    event_name: &'static str,
 ) -> Option<RecommendedWatcher> {
     if dirs.is_empty() {
         return None;
@@ -132,6 +146,9 @@ fn create_debounced_multi_watcher(
                         | EventKind::Other
                         | EventKind::Any => continue,
                         _ => {
+                            if is_ignored_watcher_event(&event) {
+                                continue;
+                            }
                             last_event = Instant::now();
                             pending = true;
                         }
@@ -149,8 +166,7 @@ fn create_debounced_multi_watcher(
                         let app = app.clone();
                         let action = action.clone();
                         std::thread::spawn(move || {
-                            action(app.clone());
-                            let _ = app.emit(event_name, ());
+                            action(app);
                         });
                     }
                 }
@@ -160,6 +176,38 @@ fn create_debounced_multi_watcher(
     });
 
     Some(watcher)
+}
+
+#[tauri::command]
+pub fn start_git_fs_watcher(app: AppHandle, path: String) -> Result<(), String> {
+    let dir = PathBuf::from(&path);
+    if !dir.is_dir() {
+        return Err("Path is not a directory".into());
+    }
+    if let Some(state) = app.try_state::<GitWatcher>() {
+        *state.0.lock().unwrap() = None;
+    }
+    let watcher = create_debounced_watcher(
+        app.clone(),
+        dir,
+        Duration::from_millis(800),
+        Duration::from_millis(300),
+        Arc::new(|_a: AppHandle| {}) as Arc<dyn Fn(AppHandle) + Send + Sync + 'static>,
+        "git:project-changed",
+    );
+    if let Some(w) = watcher {
+        if let Some(state) = app.try_state::<GitWatcher>() {
+            *state.0.lock().unwrap() = Some(w);
+        }
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub fn stop_git_fs_watcher(app: AppHandle) {
+    if let Some(state) = app.try_state::<GitWatcher>() {
+        *state.0.lock().unwrap() = None;
+    }
 }
 
 pub fn start_template_watcher(app: AppHandle, scan_dir: PathBuf, debounce_ms: u64) {
@@ -183,31 +231,29 @@ pub fn start_template_watcher(app: AppHandle, scan_dir: PathBuf, debounce_ms: u6
 
 pub fn start_project_watchers(app: AppHandle, dirs: Vec<PathBuf>, depth: u32, debounce_ms: u64) {
     let app_clone = app.clone();
+    let workspace_id = crate::workspace::active_workspace_id(&app);
     let watcher = create_debounced_multi_watcher(
         app,
         dirs,
         Duration::from_millis(debounce_ms),
         Duration::from_millis(1500),
         Arc::new(move |a: AppHandle| {
-            let dirs: Vec<String> = a
-                .try_state::<ActiveWatchers>()
-                .map(|_| {
-                    let s = crate::settings::read_settings(&a);
-                    s.project_scan_dirs.clone()
-                })
-                .unwrap_or_default();
+            if crate::workspace::active_workspace_id(&a) != workspace_id {
+                return;
+            }
+            let dirs: Vec<String> = crate::settings::read_settings(&a).project_scan_dirs;
             if !dirs.is_empty() {
                 let result = crate::scan::scan_for_projects_blocking(
                     a.clone(),
                     dirs,
                     depth,
+                    false,
                 );
                 if let Err(e) = result {
                     eprintln!("[watcher] Project auto-scan failed: {e}");
                 }
             }
         }) as Arc<dyn Fn(AppHandle) + Send + Sync + 'static>,
-        "watcher:project-scan-done",
     );
 
     if let Some(w) = watcher {
@@ -219,19 +265,17 @@ pub fn start_project_watchers(app: AppHandle, dirs: Vec<PathBuf>, depth: u32, de
 
 pub fn start_version_watchers(app: AppHandle, dirs: Vec<PathBuf>, depth: u32, debounce_ms: u64) {
     let app_clone = app.clone();
+    let workspace_id = crate::workspace::active_workspace_id(&app);
     let watcher = create_debounced_multi_watcher(
         app,
         dirs,
         Duration::from_millis(debounce_ms),
         Duration::from_millis(1500),
         Arc::new(move |a: AppHandle| {
-            let dirs: Vec<String> = a
-                .try_state::<ActiveWatchers>()
-                .map(|_| {
-                    let s = crate::settings::read_settings(&a);
-                    s.version_scan_dirs.clone()
-                })
-                .unwrap_or_default();
+            if crate::workspace::active_workspace_id(&a) != workspace_id {
+                return;
+            }
+            let dirs: Vec<String> = crate::settings::read_settings(&a).version_scan_dirs;
             if !dirs.is_empty() {
                 let result = crate::scan::scan_for_versions_blocking(
                     a.clone(),
@@ -243,7 +287,6 @@ pub fn start_version_watchers(app: AppHandle, dirs: Vec<PathBuf>, depth: u32, de
                 }
             }
         }) as Arc<dyn Fn(AppHandle) + Send + Sync + 'static>,
-        "watcher:version-scan-done",
     );
 
     if let Some(w) = watcher {

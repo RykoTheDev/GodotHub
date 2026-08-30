@@ -1,1150 +1,1795 @@
-import { useEffect, useState, useCallback, useRef } from 'react'
-import { useTranslation } from 'react-i18next'
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useTranslation } from 'react-i18next'
+import { openUrl } from '@tauri-apps/plugin-opener'
+import { useTauriEvent } from '../../lib/useTauriEvent'
+import { pushToast } from '../../lib/toast'
 import type {
+  GitAheadBehind,
+  GitAuthState,
   GitBranchInfo,
   GitChangedFile,
   GitLogEntry,
+  GitRemoteInfo,
   GitStashEntry,
   GitStatus,
   Project,
 } from '../../types'
 import { api } from '../../lib/api'
-import { DiffViewer } from './DiffViewer'
-import { GitResultDialog, parseGitError } from './GitResultDialog'
-import { MergeConflictDialog } from './MergeConflictDialog'
-import { Tooltip } from '../ui/Tooltip'
 import {
-  IconX,
-  IconGitBranch,
-  IconCloudArrowDown,
-  IconRefresh,
-  IconExternalLink,
-  IconTerminal,
-  IconTrash,
-  IconArrowUpDown,
-  IconHistory,
+  IconArrowUp,
   IconCheck,
-  IconFolderPlus,
-  IconCheckCircle,
-  IconAlertTriangle,
-  IconInfo,
-  IconBomb,
-} from '../Icons'
+  IconChevronDown,
+  IconChevronUp,
+  IconCloudArrowDown,
+  IconDownload,
+  IconExternalLink,
+  IconGitBranch,
+  IconHistory,
+  IconPlay,
+  IconPlus,
+  IconRefresh,
+  IconTrash,
+  IconX,
+} from '../../lib/icons'
+
+import { GitAuthModal } from '../modals/GitAuthModal'
+import { DiffViewerModal } from '../modals/DiffViewerModal'
+import { CommitDetailsModal } from '../modals/CommitDetailsModal'
 import { ConfirmDialog } from '../modals/ConfirmDialog'
+import { CommitGraph } from './CommitGraph'
+import { Tooltip } from '../reusables/Tooltip'
 
 interface Props {
   project: Project
   gitStatus: GitStatus | null
   onClose: () => void
   onRefresh: () => void
+  connected?: boolean
 }
 
-interface Toast {
-  id: number
-  type: 'success' | 'error' | 'info'
-  message: string
-}
+function TruncatedPath({ path, deleted = false }: { path: string; deleted?: boolean }) {
+  const ref = useRef<HTMLSpanElement>(null)
+  const [truncated, setTruncated] = useState(false)
 
-let toastId = 0
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const check = () => {
+      setTruncated(el.scrollWidth > el.clientWidth + 1)
+    }
+    check()
+    const observer = new ResizeObserver(check)
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [path])
 
-function truncateMessage(msg: string): string {
-  const trimmed = msg.trim()
-  if (!trimmed) return msg
-  const firstLine = trimmed.split('\n')[0] ?? trimmed
-  if (firstLine.length <= 120) return firstLine
-  return firstLine.slice(0, 117) + '…'
-}
-
-function statusLabel(status: string): { short: string; color: string; label: string } {
-  const s = status.trim()
-  if (s === 'M' || s === 'M ') return { short: 'M', color: 'text-amber', label: 'Modified' }
-  if (s === 'A' || s === 'A ') return { short: 'A', color: 'text-mint', label: 'Added' }
-  if (s === 'D' || s === 'D ') return { short: 'D', color: 'text-danger', label: 'Deleted' }
-  if (s === 'R' || s === 'R ') return { short: 'R', color: 'text-accent-bright', label: 'Renamed' }
-  if (s === 'C' || s === 'C ') return { short: 'C', color: 'text-accent-bright', label: 'Copied' }
-  if (s.includes('?')) return { short: '?', color: 'text-muted', label: 'Untracked' }
-  if (s.includes('U')) return { short: 'U', color: 'text-danger', label: 'Unmerged' }
-  return { short: s, color: 'text-muted', label: s }
-}
-
-function Checkbox({
-  checked,
-  onChange,
-  className = '',
-}: {
-  checked: boolean
-  onChange: () => void
-  className?: string
-}) {
-  return (
-    <label
-      className={`git-checkbox relative inline-flex items-center justify-center w-4 h-4 shrink-0 cursor-pointer ${className}`}
-      onClick={(e) => e.stopPropagation()}
+  const span = (
+    <span
+      ref={ref}
+      className={`text-[11px] font-mono text-muted truncate block ${
+        deleted ? 'line-through decoration-muted/60' : ''
+      }`}
     >
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={onChange}
-        className="absolute inset-0 opacity-0 cursor-pointer"
-      />
-      <span
-        className={`w-4 h-4 rounded border transition-all duration-150 flex items-center justify-center
-          ${checked
-            ? 'bg-accent border-accent-bright'
-            : 'bg-base border-line hover:border-accent-dim'
-          }`}
-      >
-        {checked && (
-          <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 12 12" stroke="currentColor" strokeWidth={3}>
-            <path d="M2 6l3 3 5-5" />
-          </svg>
-        )}
-      </span>
-    </label>
+      {path}
+    </span>
+  )
+
+  const content = (
+    <span className="flex-1 min-w-0">{span}</span>
+  )
+
+  return truncated ? (
+    <Tooltip content={path} className="flex-1 min-w-0">
+      {content}
+    </Tooltip>
+  ) : (
+    content
   )
 }
 
-export function GitSidebar({ project, gitStatus, onClose, onRefresh }: Props) {
+function Spinner() {
+  return (
+    <motion.svg
+      width={16}
+      height={16}
+      viewBox="0 0 24 24"
+      fill="none"
+      className="block"
+      animate={{ rotate: 360 }}
+      transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}
+    >
+      <path
+        d="M21 12a9 9 0 1 1-6.219-8.56"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+      />
+    </motion.svg>
+  )
+}
+
+function ProviderBadge({ webUrl }: { webUrl: string }) {
+  if (webUrl.includes('gitlab.com')) {
+    return (
+      <span className="shrink-0 text-[9px] font-semibold px-1.5 py-0.5 rounded-tag bg-amber/15 text-amber">
+        GitLab
+      </span>
+    )
+  }
+  if (webUrl.includes('github.com')) {
+    return (
+      <span className="shrink-0 text-[9px] font-semibold px-1.5 py-0.5 rounded-tag bg-ink/10 text-ink">
+        GitHub
+      </span>
+    )
+  }
+  return <IconGitBranch className="w-3 h-3 text-muted/40 shrink-0" />
+}
+
+function ChangedFileRow({
+  file,
+  badgeChar,
+  deleted,
+  onStage,
+  onUnstage,
+  onDiscard,
+  onOpen,
+  stageLabel,
+  unstageLabel,
+  discardLabel,
+}: {
+  file: GitChangedFile
+  badgeChar: string
+  deleted: boolean
+  onStage?: () => void
+  onUnstage?: () => void
+  onDiscard?: () => void
+  onOpen?: () => void
+  stageLabel: string
+  unstageLabel: string
+  discardLabel: string
+}) {
+  const ch = badgeChar === '?' ? 'U' : badgeChar
+  const isAdded = ch === 'A'
+  const isDeleted = ch === 'D'
+  const isModified = ch === 'M'
+  const color = isAdded
+    ? 'text-mint'
+    : isDeleted
+      ? 'text-danger'
+      : isModified
+        ? 'text-amber'
+        : 'text-muted/50'
+  return (
+    <div
+      onClick={onOpen}
+      className={`group relative flex items-center gap-1.5 px-2.5 py-1.5 hover:bg-raised/60 transition-colors ${
+        onOpen ? 'cursor-pointer' : ''
+      }`}
+    >
+      <span className={`w-3 shrink-0 text-[9px] font-mono font-bold ${color}`}>
+        {ch}
+      </span>
+      <div className="flex-1 min-w-0">
+        <TruncatedPath path={file.path} deleted={deleted} />
+      </div>
+      <div
+        onClick={(e) => e.stopPropagation()}
+        className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity bg-base/80 rounded-md px-0.5 py-0.5"
+      >
+        {onStage && (
+          <Tooltip content={stageLabel}>
+          <button
+              type="button"
+              onClick={onStage}
+              className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-mint hover:bg-raised transition-colors"
+            >
+              <IconPlus className="w-3 h-3" />
+            </button>
+          </Tooltip>
+        )}
+        {onUnstage && (
+          <Tooltip content={unstageLabel}>
+          <button
+              type="button"
+              onClick={onUnstage}
+              className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-amber hover:bg-raised transition-colors"
+            >
+              <IconChevronUp className="w-3 h-3" />
+            </button>
+          </Tooltip>
+        )}
+        {onDiscard && (
+          <Tooltip content={discardLabel}>
+          <button
+              type="button"
+              onClick={onDiscard}
+              className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-danger hover:bg-raised transition-colors"
+            >
+              <IconTrash className="w-3 h-3" />
+            </button>
+          </Tooltip>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function Section({
+  title,
+  count,
+  storageKey,
+  defaultOpen,
+  onContextMenu,
+  children,
+}: {
+  title: string
+  count?: number
+  storageKey?: string
+  defaultOpen?: boolean
+  onContextMenu?: (e: React.MouseEvent) => void
+  children: ReactNode
+}) {
+  const [open, setOpen] = useState(() => {
+    if (!storageKey) return defaultOpen ?? true
+    try {
+      return localStorage.getItem(storageKey) !== '0'
+    } catch {
+      return defaultOpen ?? true
+    }
+  })
+  const toggle = () => setOpen((v) => {
+    if (storageKey) {
+      try {
+        localStorage.setItem(storageKey, v ? '0' : '1')
+      } catch {}
+    }
+    return !v
+  })
+  return (
+    <div className="flex flex-col gap-1.5">
+      <button
+        type="button"
+        onClick={toggle}
+        onContextMenu={onContextMenu}
+        aria-expanded={open}
+        className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-1 py-1 rounded-item text-left hover:bg-raised/60 transition-colors group"
+      >
+        <IconChevronDown
+          className={`w-3 h-3 text-muted/50 shrink-0 transition-transform duration-200 ${
+            open ? '' : '-rotate-90'
+          }`}
+        />
+        <span className="flex-1 text-[10px] font-semibold uppercase tracking-wider text-muted/50 group-hover:text-muted transition-colors">
+          {title}
+        </span>
+        {typeof count === 'number' && count > 0 && (
+          <span className="text-[10px] font-mono font-medium tabular-nums text-muted/60 bg-overlay border border-outline/50 rounded-tag px-1.5 py-0.5 shrink-0">
+            {count}
+          </span>
+        )}
+      </button>
+
+      <div
+        className={`grid transition-[grid-template-rows] duration-200 ease-out ${
+          open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
+        }`}
+      >
+        <div className="overflow-hidden min-h-0">
+          <div className="flex flex-col gap-1.5">{children}</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function GitSidebar({
+  project,
+  gitStatus,
+  onClose,
+  onRefresh,
+  connected = false,
+}: Props) {
   const { t } = useTranslation('git')
-  const [displayName, setDisplayName] = useState<string | null>(null)
-  const [remoteUrl, setRemoteUrl] = useState<string | null>(null)
-  const [logEntries, setLogEntries] = useState<GitLogEntry[]>([])
-  const [logLoading, setLogLoading] = useState(true)
-
-  const [branches, setBranches] = useState<GitBranchInfo[]>([])
-  const [branchesLoading, setBranchesLoading] = useState(true)
-  const [newBranchName, setNewBranchName] = useState('')
-  const [showCreateBranch, setShowCreateBranch] = useState(false)
-
+  const { t: tc } = useTranslation('common')
+  const [gitAuth, setGitAuth] = useState<GitAuthState | null>(null)
+  const [gitAuthFlow, setGitAuthFlow] = useState<'github' | 'gitlab' | null>(
+    null,
+  )
+  const [commitMessage, setCommitMessage] = useState('')
+  const [committing, setCommitting] = useState(false)
   const [changedFiles, setChangedFiles] = useState<GitChangedFile[]>([])
   const [changesLoading, setChangesLoading] = useState(true)
-
-  const [stagedFiles, setStagedFiles] = useState<Set<string>>(new Set())
-  const [commitMessage, setCommitMessage] = useState('')
-  const [amendMode, setAmendMode] = useState(false)
-  const [pushAfterCommit, setPushAfterCommit] = useState(false)
-
-  const [stashes, setStashes] = useState<GitStashEntry[]>([])
-  const [stashesLoading, setStashesLoading] = useState(true)
-
-  const [busyAction, setBusyAction] = useState<string | null>(null)
-
-  const [switchedTo, setSwitchedTo] = useState<string | null>(null)
-
-  const [remoteInput, setRemoteInput] = useState('')
-  const [showRemoteInput, setShowRemoteInput] = useState(false)
-
-  const [diffFile, setDiffFile] = useState<string | null>(null)
-
-  const [showMergeConflicts, setShowMergeConflicts] = useState(false)
-  const [mergeActive, setMergeActive] = useState(false)
-
-  const [toasts, setToasts] = useState<Toast[]>([])
-
-  const addToast = useCallback((type: Toast['type'], message: string) => {
-    const id = ++toastId
-    setToasts((prev) => [...prev, { id, type, message: truncateMessage(message) }])
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id))
-    }, 5000)
-  }, [])
-
-  const [gitResult, setGitResult] = useState<{
-    type: 'success' | 'error'
-    title: string
-    instructions: string
-    rawError?: string
+  const [remotes, setRemotes] = useState<GitRemoteInfo[]>([])
+  const [remotesLoading, setRemotesLoading] = useState(true)
+  const [branches, setBranches] = useState<GitBranchInfo[]>([])
+  const [branchesLoading, setBranchesLoading] = useState(true)
+  const [switchingBranch, setSwitchingBranch] = useState<string | null>(null)
+  const [branchMenuOpen, setBranchMenuOpen] = useState(false)
+  const [syncing, setSyncing] = useState(false)
+  const [remotePhase, setRemotePhase] = useState<{
+    action: 'push' | 'pull' | 'fetch'
+    phase: 'running' | 'done' | 'error'
   } | null>(null)
+  const remoteTimerRef = useRef<number | null>(null)
+  const [commits, setCommits] = useState<GitLogEntry[]>([])
+  const [commitsLoading, setCommitsLoading] = useState(true)
+  const [stashes, setStashes] = useState<GitStashEntry[]>([])
+  const [stashBusy, setStashBusy] = useState<string | null>(null)
+  const [ctxMenu, setCtxMenu] = useState<{ x: number; y: number } | null>(null)
+  const ctxMenuRef = useRef<HTMLDivElement>(null)
+  const [diffFile, setDiffFile] = useState<GitChangedFile | null>(null)
+  const [stashDiff, setStashDiff] = useState<{
+    index: number
+    message: string
+  } | null>(null)
+  const [aheadBehind, setAheadBehind] = useState<GitAheadBehind | null>(null)
+  const [merging, setMerging] = useState(false)
+  const [conflictFiles, setConflictFiles] = useState<string[]>([])
+  const [mergeBusy, setMergeBusy] = useState<string | null>(null)
+  const [forcePushOpen, setForcePushOpen] = useState(false)
+  const [commitHash, setCommitHash] = useState<string | null>(null)
+  const [newBranchMode, setNewBranchMode] = useState(false)
+  const [newBranchName, setNewBranchName] = useState('')
+  const [deletingBranch, setDeletingBranch] = useState<string | null>(null)
+  const [publishingBranch, setPublishingBranch] = useState(false)
+  const branchMenuRef = useRef<HTMLDivElement>(null)
 
-  const showGitError = useCallback((message: string) => {
-    const parsed = parseGitError(message)
-    setGitResult({ type: 'error', ...parsed })
+  const notifyGitStatusChanged = useCallback(() => {
+    window.dispatchEvent(new Event('app:refresh-git-status'))
   }, [])
 
-  const showGitSuccess = useCallback((title: string, instructions?: string) => {
-    setGitResult({ type: 'success', title, instructions: instructions ?? '' })
+  const refreshGitAuth = useCallback(async () => {
+    try {
+      setGitAuth(await api.gitAuthGetState())
+    } catch {}
   }, [])
 
-  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false)
-  const [confirmBranchDelete, setConfirmBranchDelete] = useState<string | null>(null)
-  const [showRemoveRemoteConfirm, setShowRemoveRemoteConfirm] = useState(false)
-  const [showStashPushConfirm, setShowStashPushConfirm] = useState(false)
-  const [showPushConfirm, setShowPushConfirm] = useState(false)
-  const [showForcePushConfirm, setShowForcePushConfirm] = useState(false)
-
-  interface UndoEntry {
-    id: number
-    label: string
-    undo: () => Promise<void>
-    redo?: () => Promise<void>
-  }
-  const [undoHistory, setUndoHistory] = useState<UndoEntry[]>([])
-  const [redoHistory, setRedoHistory] = useState<UndoEntry[]>([])
-  const nextUndoIdRef = useRef(0)
-
-  const pushUndo = useCallback((label: string, undo: () => Promise<void>, redo?: () => Promise<void>) => {
-    setUndoHistory((prev) => [{ id: nextUndoIdRef.current++, label, undo, redo }, ...prev])
-    setRedoHistory([])
-  }, [])
-
-  const handleUndo = async (entry: UndoEntry) => {
-    setBusyAction('undo')
-    try {
-      await entry.undo()
-      setRedoHistory((prev) => [entry, ...prev])
-      setUndoHistory((prev) => prev.filter((e) => e.id !== entry.id))
-      await refreshAll()
-      onRefresh()
-      window.dispatchEvent(new CustomEvent('app:refresh-git-status'))
-    } catch (e) {
-      addToast('error', String(e))
-    } finally {
-      setBusyAction(null)
-    }
-  }
-
-  const handleRedo = async (entry: UndoEntry) => {
-    if (!entry.redo) return
-    setBusyAction('redo')
-    try {
-      await entry.redo()
-      setUndoHistory((prev) => [entry, ...prev])
-      setRedoHistory((prev) => prev.filter((e) => e.id !== entry.id))
-      await refreshAll()
-      onRefresh()
-      window.dispatchEvent(new CustomEvent('app:refresh-git-status'))
-    } catch (e) {
-      addToast('error', String(e))
-    } finally {
-      setBusyAction(null)
-    }
-  }
-
-  const isRepo = gitStatus?.is_repo ?? false
-
-  const refreshAll = useCallback(async () => {
-    try {
-      const [entries, branchList, files, stashList] = await Promise.all([
-        api.gitLogEntries(project.path).catch(() => [] as GitLogEntry[]),
-        api.gitListBranches(project.path).catch(() => [] as GitBranchInfo[]),
-        api.gitChangedFiles(project.path).catch(() => [] as GitChangedFile[]),
-        api.gitStashList(project.path).catch(() => [] as GitStashEntry[]),
-      ])
-      setLogEntries(entries)
-      setBranches(branchList)
-      setChangedFiles(files)
-      setStashes(stashList)
-      if (files.length === 0) setStagedFiles(new Set())
-    } catch { /* fallback */ }
-  }, [project.path])
+  useEffect(() => {
+    void refreshGitAuth()
+  }, [refreshGitAuth])
 
   useEffect(() => {
     let cancelled = false
-    api.getProjectName(project.path).then((name) => { if (!cancelled) setDisplayName(name) })
+    setChangesLoading(true)
+    setRemotesLoading(true)
+    setBranchesLoading(true)
+    setCommitsLoading(true)
+    void refreshGitAuth()
+    Promise.allSettled([
+      api.gitChangedFiles(project.path),
+      api.gitListRemotes(project.path),
+      api.gitListBranches(project.path),
+      api.gitLogEntries(project.path),
+      api.gitStashList(project.path),
+      api.gitAheadBehind(project.path),
+      api.gitIsMerging(project.path),
+      api.gitMergeConflictFiles(project.path),
+    ]).then(([files, remotes, branches, log, stashes, aheadBehind, isMerging, conflictFiles]) => {
+      if (cancelled) return
+      if (files.status === 'fulfilled') setChangedFiles(files.value)
+      if (remotes.status === 'fulfilled') setRemotes(remotes.value)
+      if (branches.status === 'fulfilled') setBranches(branches.value)
+      if (log.status === 'fulfilled') setCommits(log.value)
+      if (stashes.status === 'fulfilled') setStashes(stashes.value)
+      if (aheadBehind.status === 'fulfilled') setAheadBehind(aheadBehind.value)
+      if (isMerging.status === 'fulfilled') setMerging(isMerging.value)
+      if (conflictFiles.status === 'fulfilled') setConflictFiles(conflictFiles.value)
+      setChangesLoading(false)
+      setRemotesLoading(false)
+      setBranchesLoading(false)
+      setCommitsLoading(false)
+    })
     return () => { cancelled = true }
+  }, [project.path, refreshGitAuth])
+
+  useEffect(() => {
+    api.gitStartFsWatcher(project.path).catch(() => {})
+    return () => {
+      api.gitStopFsWatcher().catch(() => {})
+    }
   }, [project.path])
 
   useEffect(() => {
-    let cancelled = false
-    api.gitRemoteUrl(project.path).then((url) => { if (!cancelled) setRemoteUrl(url) })
-      .catch(() => { if (!cancelled) setRemoteUrl(null) })
-    return () => { cancelled = true }
+    setBranchMenuOpen(false)
+    setCtxMenu(null)
+    setDiffFile(null)
+    setStashDiff(null)
+    setCommitHash(null)
+    setForcePushOpen(false)
+    setNewBranchMode(false)
+    setNewBranchName('')
+    setCommitMessage('')
   }, [project.path])
 
   useEffect(() => {
-    if (!isRepo) return
-    let cancelled = false
-    api.gitIsMerging(project.path).then((merging) => {
-      if (!cancelled) {
-        setMergeActive(merging)
-        if (merging) {
-          api.gitMergeConflictFiles(project.path).then((files) => {
-            if (!cancelled && files.length > 0) {
-              setShowMergeConflicts(true)
-            }
-          }).catch(() => {})
-        }
+    if (!branchMenuOpen) return
+    const onDown = (e: MouseEvent) => {
+      if (branchMenuRef.current && !branchMenuRef.current.contains(e.target as Node)) {
+        setBranchMenuOpen(false)
       }
-    }).catch(() => {})
-    return () => { cancelled = true }
-  }, [project.path, isRepo])
-
-  useEffect(() => {
-    if (!isRepo) {
-      setLogLoading(false); setBranchesLoading(false); setChangesLoading(false); setStashesLoading(false)
-      return
     }
-    let cancelled = false
-    setLogLoading(true); setBranchesLoading(true); setChangesLoading(true); setStashesLoading(true)
-    Promise.all([
-      api.gitLogEntries(project.path).then((e) => { if (!cancelled) { setLogEntries(e); setLogLoading(false) } }).catch(() => { if (!cancelled) setLogLoading(false) }),
-      api.gitListBranches(project.path).then((b) => { if (!cancelled) { setBranches(b); setBranchesLoading(false) } }).catch(() => { if (!cancelled) setBranchesLoading(false) }),
-      api.gitChangedFiles(project.path).then((f) => { if (!cancelled) { setChangedFiles(f); setChangesLoading(false) } }).catch(() => { if (!cancelled) setChangesLoading(false) }),
-      api.gitStashList(project.path).then((s) => { if (!cancelled) { setStashes(s); setStashesLoading(false) } }).catch(() => { if (!cancelled) setStashesLoading(false) }),
-    ])
-    return () => { cancelled = true }
-  }, [project.path, isRepo])
-
-  const doAction = async (key: string, fn: () => Promise<unknown>): Promise<boolean> => {
-    setBusyAction(key)
-    try {
-      await fn()
-      await refreshAll()
-      onRefresh()
-      window.dispatchEvent(new CustomEvent('app:refresh-git-status'))
-      return true
-    } catch (e) {
-      const errStr = String(e)
-      const lower = errStr.toLowerCase()
-      if (lower.includes('merge conflict') || lower.includes('merge conflicts detected')) {
-        const conflictFiles = await api.gitMergeConflictFiles(project.path).catch(() => [])
-        if (conflictFiles.length > 0) {
-          setShowMergeConflicts(true)
-          setMergeActive(true)
-          return false
-        }
-      }
-      showGitError(errStr)
-      return false
-    } finally {
-      setBusyAction(null)
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key === 'Escape') setBranchMenuOpen(false)
     }
-  }
-
-  const handleAbortMerge = async () => {
-    try {
-      setBusyAction('abort-merge')
-      await api.gitAbortMerge(project.path)
-      setShowMergeConflicts(false)
-      addToast('success', t('merge_aborted'))
-      await refreshAll()
-      onRefresh()
-      window.dispatchEvent(new CustomEvent('app:refresh-git-status'))
-    } catch (e) {
-      addToast('error', String(e))
-    } finally {
-      setBusyAction(null)
+    document.addEventListener('mousedown', onDown)
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      window.removeEventListener('keydown', onKey)
     }
-  }
+  }, [branchMenuOpen])
 
   const handleSwitchBranch = async (name: string) => {
-    const prevBranch = currentBranch?.name
-    const ok = await doAction(`switch:${name}`, async () => {
+    if (switchingBranch || branches.find((b) => b.name === name)?.is_current) {
+      return
+    }
+    setSwitchingBranch(name)
+    try {
       await api.gitSwitchBranch(project.path, name)
-      setSwitchedTo(name)
-      setTimeout(() => setSwitchedTo(null), 2500)
-    })
-    if (ok && prevBranch && prevBranch !== name) {
-      pushUndo(
-        `Switch to "${name}"`,
-        async () => { await api.gitSwitchBranch(project.path, prevBranch) },
-        async () => { await api.gitSwitchBranch(project.path, name) },
-      )
+      setBranches(await api.gitListBranches(project.path))
+      await refreshChanges()
+      void refreshLog()
+      void refreshAheadBehind()
+      onRefresh()
+      notifyGitStatusChanged()
+      pushToast('success', t('switched_ok', { branch: name }))
+    } catch (e) {
+      pushToast('error', String(e))
+    } finally {
+      setSwitchingBranch(null)
     }
   }
 
   const handleCreateBranch = async () => {
-    if (!newBranchName.trim()) return
-    const branchName = newBranchName.trim()
-    const ok = await doAction('create-branch', async () => {
-      await api.gitCreateBranch(project.path, branchName)
-      setNewBranchName(''); setShowCreateBranch(false)
-    })
-    if (ok) {
-      pushUndo(
-        `Create branch "${branchName}"`,
-        async () => { await api.gitDeleteBranch(project.path, branchName) },
-        async () => { await api.gitCreateBranch(project.path, branchName) },
+    const name = newBranchName.trim()
+    if (!name || deletingBranch) return
+    try {
+      await api.gitCreateBranch(project.path, name)
+      await api.gitSwitchBranch(project.path, name)
+      setBranches(await api.gitListBranches(project.path))
+      await refreshChanges()
+      void refreshLog()
+      onRefresh()
+      notifyGitStatusChanged()
+      setNewBranchName('')
+      setNewBranchMode(false)
+      pushToast('success', t('branch_created'))
+    } catch (e) {
+      pushToast('error', String(e))
+    }
+  }
+
+  const handleDeleteBranch = async (name: string) => {
+    if (deletingBranch) return
+    setDeletingBranch(name)
+    try {
+      await api.gitDeleteBranch(project.path, name)
+      setBranches(await api.gitListBranches(project.path))
+      pushToast('success', t('branch_deleted'))
+    } catch (e) {
+      pushToast('error', String(e))
+    } finally {
+      setDeletingBranch(null)
+    }
+  }
+
+  const handlePublishBranch = async (name: string) => {
+    if (publishingBranch) return
+    setPublishingBranch(true)
+    try {
+      await api.gitBranchPublish(project.path, name)
+      setBranches(await api.gitListBranches(project.path))
+      void refreshAheadBehind()
+      void refreshLog()
+      pushToast('success', t('branch_published'))
+    } catch (e) {
+      pushToast('error', String(e))
+    } finally {
+      setPublishingBranch(false)
+    }
+  }
+
+  const handleSync = async () => {
+    if (syncing) return
+    setSyncing(true)
+    try {
+      await api.gitPull(project.path)
+      await api.gitPush(project.path)
+      onRefresh()
+      notifyGitStatusChanged()
+      await refreshChanges()
+      void refreshLog()
+      void refreshAheadBehind()
+      void refreshMergeState()
+      pushToast('success', t('synced_ok'))
+    } catch (e) {
+      pushToast('error', String(e))
+    } finally {
+      setSyncing(false)
+    }
+  }
+
+  useEffect(
+    () => () => {
+      if (remoteTimerRef.current != null) {
+        window.clearTimeout(remoteTimerRef.current)
+      }
+    },
+    [],
+  )
+
+  const handleStashPush = async () => {
+    if (stashBusy) return
+    setStashBusy('push')
+    try {
+      await api.gitStashPush(project.path)
+      await refreshStashes()
+      await refreshChanges()
+      notifyGitStatusChanged()
+      void refreshLog()
+      pushToast('success', t('changes_stashed_ok'))
+    } catch (e) {
+      pushToast('error', String(e))
+    } finally {
+      setStashBusy(null)
+    }
+  }
+
+  const handleStashApply = async (index: number) => {
+    if (stashBusy) return
+    setStashBusy(`apply:${index}`)
+    try {
+      await api.gitStashApply(project.path, index)
+      await refreshStashes()
+      await refreshChanges()
+      notifyGitStatusChanged()
+      void refreshLog()
+      pushToast('success', t('stash_applied_ok'))
+    } catch (e) {
+      pushToast('error', String(e))
+    } finally {
+      setStashBusy(null)
+    }
+  }
+
+  const handleStashPop = async (index: number) => {
+    if (stashBusy) return
+    setStashBusy(`pop:${index}`)
+    try {
+      await api.gitStashPop(project.path, index)
+      await refreshStashes()
+      await refreshChanges()
+      notifyGitStatusChanged()
+      void refreshLog()
+      pushToast('success', t('stash_popped_ok'))
+    } catch (e) {
+      pushToast('error', String(e))
+    } finally {
+      setStashBusy(null)
+    }
+  }
+
+  const handleStashDrop = async (index: number) => {
+    if (stashBusy) return
+    setStashBusy(`drop:${index}`)
+    try {
+      await api.gitStashDrop(project.path, index)
+      await refreshStashes()
+      pushToast('success', t('stash_dropped_ok'))
+    } catch (e) {
+      pushToast('error', String(e))
+    } finally {
+      setStashBusy(null)
+    }
+  }
+
+  useEffect(() => {
+    if (!ctxMenu) return
+    const onDown = (e: MouseEvent) => {
+      if (ctxMenuRef.current && !ctxMenuRef.current.contains(e.target as Node)) {
+        setCtxMenu(null)
+      }
+    }
+    const onKey = (e: globalThis.KeyboardEvent) => {
+      if (e.key === 'Escape') setCtxMenu(null)
+    }
+    document.addEventListener('mousedown', onDown)
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [ctxMenu])
+
+  const handleStageAll = async () => {
+    setCtxMenu(null)
+    try {
+      await api.gitStageFile(project.path, '.')
+      await refreshChanges()
+      notifyGitStatusChanged()
+      pushToast('success', t('stage_all_ok'))
+    } catch (e) {
+      pushToast('error', String(e))
+    }
+  }
+
+  const handleUnstageAll = async () => {
+    setCtxMenu(null)
+    try {
+      await api.gitUnstageFile(project.path, '.')
+      await refreshChanges()
+      notifyGitStatusChanged()
+      pushToast('success', t('unstage_all_ok'))
+    } catch (e) {
+      pushToast('error', String(e))
+    }
+  }
+
+  const handleDiscardAll = async () => {
+    setCtxMenu(null)
+    try {
+      await api.gitStashPush(project.path)
+      await api.gitDiscardChanges(project.path)
+      await refreshStashes()
+      await refreshChanges()
+      notifyGitStatusChanged()
+      void refreshLog()
+      pushToast('success', t('discard_all_ok'))
+    } catch (e) {
+      pushToast('error', String(e))
+    }
+  }
+
+  const handleUndoCommit = async () => {
+    setCtxMenu(null)
+    try {
+      await api.gitUndoCommit(project.path)
+      await refreshChanges()
+      void refreshLog()
+      onRefresh()
+      notifyGitStatusChanged()
+      pushToast('success', t('undo_commit_done'))
+    } catch (e) {
+      pushToast('error', String(e))
+    }
+  }
+
+  const handleUndoPull = async () => {
+    setCtxMenu(null)
+    try {
+      await api.gitUndoPull(project.path)
+      await refreshChanges()
+      void refreshLog()
+      void refreshAheadBehind()
+      onRefresh()
+      notifyGitStatusChanged()
+      pushToast('success', t('undo_pull_done'))
+    } catch (e) {
+      pushToast('error', String(e))
+    }
+  }
+
+  const handleRemoteAction = async (action: 'push' | 'pull' | 'fetch') => {
+    if (remotePhase) return
+    setRemotePhase({ action, phase: 'running' })
+    const hold = (phase: 'done' | 'error') => {
+      setRemotePhase({ action, phase })
+      remoteTimerRef.current = window.setTimeout(
+        () => setRemotePhase(null),
+        1200,
       )
     }
-  }
-
-  const handleDeleteBranch = (name: string) => doAction(`delete:${name}`, () => api.gitDeleteBranch(project.path, name))
-  const handleStashPush = () => doAction('stash-push', () => api.gitStashPush(project.path))
-  const handleStashApply = (index: number) => doAction(`stash-apply:${index}`, () => api.gitStashApply(project.path, index))
-  const handleStashDrop = (index: number) => doAction(`stash-drop:${index}`, () => api.gitStashDrop(project.path, index))
-  const handleDiscardChanges = () =>
-    doAction('discard', async () => {
-      const stashResult = await api.gitStashPush(project.path)
-      if (stashResult) {
-        const match = stashResult.match(/stash@\{([^}]+)\}/)
-        const stashLabel = match ? `stash@{${match[1]}}` : 'latest'
-        addToast('info', t('git_stashed_to', { ns: 'common', label: stashLabel }))
-      }
-      await api.gitDiscardChanges(project.path)
-    })
-  const handleInit = () => doAction('init', async () => { await api.gitInit(project.path) })
-
-  const toggleStage = (filePath: string) => {
-    setStagedFiles((prev) => {
-      const next = new Set(prev)
-      if (next.has(filePath)) next.delete(filePath)
-      else next.add(filePath)
-      return next
-    })
-  }
-
-  const selectAllUnstaged = () => {
-    setStagedFiles((prev) => {
-      const next = new Set(prev)
-      for (const f of unstagedFiles) {
-        next.add(f.path)
-      }
-      return next
-    })
-  }
-
-  const deselectAll = () => {
-    setStagedFiles(new Set())
-  }
-
-  const handleStageFiles = async () => {
-    if (stagedFiles.size === 0) return
-    setBusyAction('stage')
     try {
-      for (const f of stagedFiles) {
-        await api.gitStageFile(project.path, f)
-      }
-      setStagedFiles(new Set())
-      await refreshAll()
-      addToast('success', t('git_files_staged', { ns: 'common', count: stagedFiles.size }))
+      if (action === 'push') await api.gitPush(project.path)
+      else if (action === 'pull') await api.gitPull(project.path)
+      else await api.gitFetch(project.path)
+      onRefresh()
+      notifyGitStatusChanged()
+      await refreshChanges()
+      void refreshLog()
+      void refreshAheadBehind()
+      void refreshMergeState()
+      hold('done')
+      pushToast(
+        'success',
+        action === 'push'
+          ? t('pushed_ok')
+          : action === 'pull'
+            ? t('pulled_ok')
+            : t('fetched_ok'),
+      )
     } catch (e) {
-      showGitError(String(e))
-    } finally {
-      setBusyAction(null)
+      hold('error')
+      pushToast('error', String(e))
     }
+  }
+
+  const handleForcePush = async () => {
+    setForcePushOpen(false)
+    try {
+      await api.gitPushForce(project.path)
+      void refreshAheadBehind()
+      pushToast('success', t('force_pushed'))
+    } catch (e) {
+      pushToast('error', String(e))
+    }
+  }
+
+  const handleResolveConflict = async (
+    kind: 'ours' | 'theirs' | 'manual',
+    filePath: string,
+  ) => {
+    setMergeBusy(kind)
+    try {
+      if (kind === 'ours') {
+        await api.gitResolveConflictOurs(project.path, filePath)
+      } else if (kind === 'theirs') {
+        await api.gitResolveConflictTheirs(project.path, filePath)
+      } else {
+        await api.gitResolveConflictManual(project.path, filePath)
+      }
+      await refreshMergeState()
+      await refreshChanges()
+      pushToast(
+        'success',
+        kind === 'ours'
+          ? t('resolved_ours')
+          : kind === 'theirs'
+            ? t('resolved_theirs')
+            : t('resolved_manual'),
+      )
+    } catch (e) {
+      pushToast('error', String(e))
+    } finally {
+      setMergeBusy(null)
+    }
+  }
+
+  const handleAbortMerge = async () => {
+    setMergeBusy('abort')
+    try {
+      await api.gitAbortMerge(project.path)
+      await refreshMergeState()
+      await refreshChanges()
+      void refreshLog()
+      onRefresh()
+      notifyGitStatusChanged()
+      pushToast('success', t('merge_aborted'))
+    } catch (e) {
+      pushToast('error', String(e))
+    } finally {
+      setMergeBusy(null)
+    }
+  }
+
+  const handleDisconnect = async (provider: 'github' | 'gitlab') => {
+    try {
+      await api.gitAuthDisconnect(provider)
+      await refreshGitAuth()
+    } catch {}
   }
 
   const handleCommit = async () => {
-    if (!commitMessage.trim()) return
     const msg = commitMessage.trim()
-    setBusyAction('commit')
+    if (!msg || committing) return
+    setCommitting(true)
     try {
-      const filesToStage = pendingStageFiles.length > 0
-        ? pendingStageFiles
-        : unstagedFiles.filter((f) => !f.status.trim().includes('?'))
-      if (filesToStage.length > 0) {
-        for (const f of filesToStage) {
-          await api.gitStageFile(project.path, f.path)
-        }
+      if (stagedFiles.length === 0) {
+        await api.gitStageFile(project.path, '.')
       }
-
-      const result = await api.gitCommit(project.path, msg, amendMode)
-      showGitSuccess(amendMode ? t('commit_amended') : t('committed'), result || t('committed_successfully'))
-
-      if (!amendMode) {
-        pushUndo(
-          `Commit "${msg.length > 30 ? msg.slice(0, 30) + '…' : msg}"`,
-          async () => { await api.gitUndoCommit(project.path) },
-          async () => {
-            await api.gitStageFile(project.path, '.')
-            await api.gitCommit(project.path, msg, false)
-          },
-        )
-      }
-
-      if (pushAfterCommit && remoteUrl) {
-        try {
-          const pushResult = await api.gitPush(project.path)
-          if (pushResult) showGitSuccess(t('pushed'), pushResult)
-        } catch (e) {
-          showGitError(`Push failed: ${e}`)
-        }
-      }
-
+      await api.gitCommit(project.path, msg, false)
       setCommitMessage('')
-      setAmendMode(false)
-      setPushAfterCommit(false)
-      setStagedFiles(new Set())
-      await refreshAll()
       onRefresh()
-      window.dispatchEvent(new CustomEvent('app:refresh-git-status'))
+      notifyGitStatusChanged()
+      void refreshChanges()
+      void refreshLog()
+      void refreshAheadBehind()
+      pushToast('success', t('committed_ok'))
     } catch (e) {
-      showGitError(String(e))
+      pushToast('error', String(e))
     } finally {
-      setBusyAction(null)
+      setCommitting(false)
     }
   }
 
-  const handleSetRemote = async () => {
-    if (!remoteInput.trim()) return
-    const newUrl = remoteInput.trim()
-    const prevUrl = remoteUrl
-    const ok = await doAction('set-remote', async () => {
-      await api.gitSetRemote(project.path, newUrl)
-      setRemoteUrl(newUrl)
-      setRemoteInput('')
-      setShowRemoteInput(false)
-    })
-    if (ok) {
-      if (prevUrl) {
-        pushUndo(
-          `Set remote URL`,
-          async () => { await api.gitSetRemote(project.path, prevUrl); setRemoteUrl(prevUrl) },
-          async () => { await api.gitSetRemote(project.path, newUrl); setRemoteUrl(newUrl) },
-        )
-      } else {
-        pushUndo(
-          `Add remote URL`,
-          async () => { await api.gitRemoveRemote(project.path); setRemoteUrl(null) },
-          async () => { await api.gitSetRemote(project.path, newUrl); setRemoteUrl(newUrl) },
-        )
-      }
+  const refreshChanges = useCallback(async () => {
+    try {
+      const files = await api.gitChangedFiles(project.path)
+      setChangedFiles(files)
+    } catch {}
+  }, [project.path])
+
+  const refreshLog = useCallback(async () => {
+    try {
+      setCommits(await api.gitLogEntries(project.path))
+    } catch {}
+  }, [project.path])
+
+  const refreshStashes = useCallback(async () => {
+    try {
+      setStashes(await api.gitStashList(project.path))
+    } catch {}
+  }, [project.path])
+
+  const refreshAheadBehind = useCallback(async () => {
+    try {
+      setAheadBehind(await api.gitAheadBehind(project.path))
+    } catch {}
+  }, [project.path])
+
+  const refreshMergeState = useCallback(async () => {
+    try {
+      const [isMerging, files] = await Promise.all([
+        api.gitIsMerging(project.path),
+        api.gitMergeConflictFiles(project.path),
+      ])
+      setMerging(isMerging)
+      setConflictFiles(files)
+    } catch {}
+  }, [project.path])
+
+  useTauriEvent(
+    'git:project-changed',
+    () => {
+      void refreshChanges()
+      void refreshLog()
+      void refreshAheadBehind()
+      void refreshMergeState()
+    },
+    [refreshChanges, refreshLog, refreshAheadBehind, refreshMergeState],
+  )
+
+  const handleStageFile = async (filePath: string) => {
+    try {
+      await api.gitStageFile(project.path, filePath)
+      await refreshChanges()
+      notifyGitStatusChanged()
+      pushToast('success', t('staged_ok'))
+    } catch (e) {
+      pushToast('error', String(e))
     }
   }
 
-  const handleRemoveRemote = async () => {
-    const removedUrl = remoteUrl
-    const ok = await doAction('remove-remote', async () => {
-      await api.gitRemoveRemote(project.path)
-      setRemoteUrl(null)
-    })
-    if (ok && removedUrl) {
-      pushUndo(
-        `Remove remote`,
-        async () => { await api.gitSetRemote(project.path, removedUrl); setRemoteUrl(removedUrl) },
-        async () => { await api.gitRemoveRemote(project.path); setRemoteUrl(null) },
-      )
+  const handleDiscardFile = async (filePath: string) => {
+    try {
+      await api.gitDiscardFile(project.path, filePath)
+      await refreshChanges()
+      notifyGitStatusChanged()
+      pushToast('success', t('discarded_ok'))
+    } catch (e) {
+      pushToast('error', String(e))
     }
   }
 
-  const handlePushAction = () => {
-    if (changedFiles.length > 0) {
-      setShowPushConfirm(true)
-    } else {
-      executePush(false)
+  const handleUnstageFile = async (filePath: string) => {
+    try {
+      await api.gitUnstageFile(project.path, filePath)
+      await refreshChanges()
+      notifyGitStatusChanged()
+      pushToast('success', t('unstaged_ok'))
+    } catch (e) {
+      pushToast('error', String(e))
     }
   }
 
-  const executePush = async (force: boolean) => {
-    await doAction(force ? 'force-push' : 'push', async () => {
-      try {
-        const r = force ? await api.gitPushForce(project.path) : await api.gitPush(project.path)
-        if (r) showGitSuccess(force ? t('force_push_succeeded') : t('pushed'), r)
-      } catch (e: unknown) {
-        const errStr = String(e)
-        if (!force && (errStr.toLowerCase().includes('non-fast-forward') || errStr.toLowerCase().includes('[rejected]') || errStr.toLowerCase().includes('failed to push'))) {
-          addToast('info', t('push_rejected'))
-          try {
-            await api.gitPull(project.path)
-            const retry = await api.gitPush(project.path)
-            showGitSuccess(t('push_after_pull'), retry || t('changes_pushed'))
-            return
-          } catch (pullErr) {
-            showGitError(`Pull then push failed: ${pullErr}`)
-            throw pullErr
-          }
-        }
-        throw e
-      }
-    })
-  }
+  const stagedFiles = changedFiles.filter((f) => {
+    const s = f.status
+    return s.length > 0 && s[0] !== ' ' && s[0] !== '?'
+  })
+  const unstagedFiles = changedFiles.filter((f) => {
+    const s = f.status
+    if (s === '??') return true
+    return s.length > 1 && s[1] !== ' ' && s[1] !== '?'
+  })
 
-  const handleForcePush = () => setShowForcePushConfirm(true)
+  const currentBranch =
+    branches.find((b) => b.is_current)?.name ?? gitStatus?.branch ?? '…'
 
-  const currentBranch = branches.find((b) => b.is_current)
-
-  const isStaged = (f: GitChangedFile) => {
-    const s = f.status.trim()
-    return s.length === 2 && s[0] !== ' ' && s[0] !== '?' && s[1] === ' '
-  }
-  const gitStagedFiles = changedFiles.filter((f) => isStaged(f))
-  const unstagedFiles = changedFiles.filter((f) => !isStaged(f) && !stagedFiles.has(f.path))
-  const pendingStageFiles = changedFiles.filter((f) => stagedFiles.has(f.path))
+  const connectedCount =
+    (gitAuth?.github ? 1 : 0) +
+    (gitAuth?.gitlab ? 1 : 0) +
+    (gitAuth?.pats ?? []).length
 
   return (
-    <div className="w-[380px] h-full flex flex-col overflow-hidden relative">
-      {/* Header */}
-      <div className="flex items-center justify-between px-5 py-4 border-b border-line shrink-0">
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <IconGitBranch className="w-4 h-4 text-accent-bright shrink-0" />
-            <h3 className="font-display font-semibold truncate">{displayName ?? project.name}</h3>
-            <Tooltip content={t('git_beta_tooltip', { ns: 'common' })} side="bottom">
-              <button
-                onClick={() => window.dispatchEvent(new CustomEvent('app:switch-tab', { detail: 4 }))}
-                className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-amber/15 text-amber border border-amber/30 hover:bg-amber/25 hover:border-amber/50 cursor-pointer shrink-0 transition-colors"
-              >
-                {t('git_beta_badge', { ns: 'common' })}
-              </button>
-            </Tooltip>
-          </div>
-          {isRepo && currentBranch && (
-            <p className="text-[11px] font-mono text-muted mt-0.5 truncate">
-              {currentBranch.name}
-              {changedFiles.length > 0 && <span className="ml-1.5 text-amber">· {changedFiles.length} {t('git_uncommitted', { ns: 'common' })}</span>}
-            </p>
-          )}
-        </div>
-        <button onClick={onClose} aria-label={t('close_sidebar')} className="focus-ring cursor-pointer p-1.5 rounded-lg text-muted hover:text-ink hover:bg-raised transition-colors shrink-0">
-          <IconX className="w-4 h-4" />
-        </button>
+    <div
+      className={`flex flex-col h-full w-full overflow-hidden ${
+        connected ? 'rounded-none border-l border-line bg-raised' : 'rounded-card bg-raised'
+      }`}
+    >
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={project.path}
+          initial={{ opacity: 0, x: 16 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: -16 }}
+          transition={{ duration: 0.16, ease: 'easeOut' }}
+          className="flex flex-col h-full min-h-0"
+        >
+      <div className="shrink-0 flex items-center justify-between h-12 border-b border-line px-3">
+        <span className="font-display font-medium text-ink/50 text-sm ml-1 truncate">
+          {project.name} // Git
+        </span>
+        <Tooltip content={t('close_sidebar')} side="left">
+          <button
+            type="button"
+            onClick={onClose}
+            className="focus-ring cursor-pointer w-9 h-9 shrink-0 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised/60 transition-colors"
+          >
+            <IconX className="w-4 h-4" />
+          </button>
+        </Tooltip>
       </div>
 
-      {!isRepo ? (
-        <div className="flex-1 flex flex-col items-center justify-center gap-4 p-8 text-center">
-          <IconGitBranch className="w-10 h-10 text-muted/40" />
-          <p className="text-sm text-muted">{t('git_not_repo', { ns: 'common' })}</p>
-          <button disabled={busyAction === 'init'} onClick={handleInit}
-            className="focus-ring cursor-pointer flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent hover:bg-accent-bright disabled:opacity-50 disabled:cursor-not-allowed text-xs font-medium text-white transition-colors">
-            <IconFolderPlus className="w-3.5 h-3.5" />
-            {busyAction === 'init' ? t('initializing') : t('init_repo')}
-          </button>
-        </div>
-      ) : (
-        <>
-          {/* Action buttons */}
-          <div className="flex items-center gap-2 px-5 py-3 border-b border-line shrink-0 flex-wrap">
-            {/* Merge status banner */}
-            {mergeActive && !showMergeConflicts && (
-              <div className="w-full flex items-center gap-2 px-3 py-2 rounded-lg bg-danger/10 border border-danger/30 mb-1">
-                <IconAlertTriangle className="w-3.5 h-3.5 text-danger shrink-0" />
-                <span className="flex-1 text-[11px] text-danger font-medium">{t('merge_in_progress')}</span>
-                <button
-                  onClick={() => setShowMergeConflicts(true)}
-                  className="focus-ring cursor-pointer text-[10px] text-accent-bright hover:underline font-medium"
-                >
-                  {t('resolve')}
-                </button>
-                <button
-                  onClick={handleAbortMerge}
-                  disabled={busyAction !== null}
-                  className="focus-ring cursor-pointer text-[10px] text-danger hover:underline disabled:opacity-40 font-medium"
-                >
-                  Abort
-                </button>
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden new-ui-scroll-viewport">
+        <div className="px-3 py-3 flex flex-col gap-3">
+          <motion.div
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut', delay: 0.1 }}
+          >
+            <Section
+              title={t('auth_connected_accounts')}
+              count={connectedCount}
+              storageKey="git-sidebar-connected-accounts"
+              defaultOpen={false}
+            >
+            {connectedCount === 0 ? (
+              <div className="px-2.5 py-3">
+                <p className="text-[11px] text-muted/60 leading-relaxed">
+                  {t('auth_connect_hint')}
+                </p>
+              </div>
+            ) : (
+            <>
+            {gitAuth?.github && (
+            <div className="flex items-center justify-between gap-2 px-2.5 py-2 rounded-item border border-line/60 bg-base/40">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="w-7 h-7 rounded-item flex items-center justify-center shrink-0 border bg-mint/10 border-mint/30 text-mint">
+                  <IconGitBranch className="w-3.5 h-3.5" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-xs font-medium text-ink">GitHub</p>
+                  <p className="text-[10px] font-mono text-muted truncate">
+                    @{gitAuth.github.username}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleDisconnect('github')}
+                className="focus-ring cursor-pointer inline-flex items-center gap-1 px-2 py-1 rounded-tag text-[10px] font-medium text-muted hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
+              >
+                {t('auth_disconnect')}
+              </button>
+            </div>
+            )}
+
+            {gitAuth?.gitlab && (
+            <div className="flex items-center justify-between gap-2 px-2.5 py-2 rounded-item border border-line/60 bg-base/40">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="w-7 h-7 rounded-item flex items-center justify-center shrink-0 border bg-mint/10 border-mint/30 text-mint">
+                  <IconGitBranch className="w-3.5 h-3.5" />
+                </span>
+                <div className="min-w-0">
+                  <p className="text-xs font-medium text-ink">GitLab</p>
+                  <p className="text-[10px] font-mono text-muted truncate">
+                    @{gitAuth.gitlab.username}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => handleDisconnect('gitlab')}
+                className="focus-ring cursor-pointer inline-flex items-center gap-1 px-2 py-1 rounded-tag text-[10px] font-medium text-muted hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
+              >
+                {t('auth_disconnect')}
+              </button>
+            </div>
+            )}
+
+            {(gitAuth?.pats ?? []).length > 0 && (
+              <div className="flex flex-col gap-1 px-1 pt-1">
+                {(gitAuth?.pats ?? []).map((pat) => (
+                  <div
+                    key={pat.host}
+                    className="flex items-center gap-1.5 px-2 py-1.5 rounded-item bg-mint/5 border border-mint/20"
+                  >
+                    <IconCheck className="w-3 h-3 text-mint shrink-0" />
+                    <span className="text-[10px] font-mono text-muted truncate flex-1">
+                      {pat.host}
+                    </span>
+                    <span className="text-[10px] text-muted/60 truncate">
+                      @{pat.username}
+                    </span>
+                  </div>
+                ))}
               </div>
             )}
-            <button disabled={busyAction !== null || showMergeConflicts}
-              onClick={() => doAction('pull', async () => {
-                const r = await api.gitPull(project.path)
-                if (r) {
-                  pushUndo(
-                    `Pull`,
-                    async () => { await api.gitUndoPull(project.path) },
-                    async () => { const r2 = await api.gitPull(project.path); if (r2) addToast('info', r2) },
-                  )
-                  showGitSuccess(t('pull_complete'), r)
-                }
-              })}
-              className={`focus-ring cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-[11px] font-medium text-white transition-colors ${
-                showMergeConflicts ? 'bg-danger/40 text-danger/60' : 'bg-accent hover:bg-accent-bright'
-              }`}
-              title={showMergeConflicts ? t('resolve_first') : t('pull_latest')}>
-              <IconCloudArrowDown className="w-3 h-3" />{busyAction === 'pull' ? '…' : showMergeConflicts ? t('conflicts') : t('pull')}
-            </button>
-            <button onClick={handlePushAction} disabled={busyAction !== null}
-              className="focus-ring cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent hover:bg-accent-bright disabled:opacity-50 disabled:cursor-not-allowed text-[11px] font-medium text-white transition-colors">
-              <IconArrowUpDown className="w-3 h-3" />{busyAction === 'push' ? '…' : t('push')}
-            </button>
-            <button disabled={busyAction !== null}
-              onClick={handleForcePush}
-              className="focus-ring cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-danger/40 text-danger hover:bg-danger/10 hover:border-danger disabled:opacity-50 disabled:cursor-not-allowed text-[11px] font-medium transition-colors">
-              <IconBomb className="w-3 h-3" />{busyAction === 'force-push' ? '…' : t('force_push')}
-            </button>
-            <button disabled={busyAction !== null}
-              onClick={() => doAction('fetch', () => api.gitFetch(project.path))}
-              className="focus-ring cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-line text-muted hover:text-ink hover:border-accent-dim disabled:opacity-50 disabled:cursor-not-allowed text-[11px] font-medium transition-colors">
-              <IconRefresh className={`w-3 h-3 ${busyAction === 'fetch' ? 'animate-spin' : ''}`} />{busyAction === 'fetch' ? '…' : t('fetch')}
-            </button>
-            <button onClick={() => api.openTerminal(project.path)} title={t('git_open_in_terminal', { ns: 'common' })}
-              className="focus-ring cursor-pointer px-2 py-0.5 rounded-lg border border-line text-muted hover:text-ink hover:border-accent-dim transition-colors">
-              <IconTerminal className="w-3 h-3" />
-            </button>
-          </div>
+            </>
+            )}
+            </Section>
+          </motion.div>
 
-          <div className="flex-1 overflow-y-auto">
-            {/* Remote Config */}
-            <div className="px-5 pt-4 pb-2 border-b border-line">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="text-[10px] font-semibold uppercase tracking-wider text-muted/60">{t('remote_title')}</h4>
-                <button onClick={() => setShowRemoteInput((v) => !v)}
-                  className="focus-ring cursor-pointer text-[10px] text-accent-bright hover:underline transition-colors">
-                  {remoteUrl ? t('change') : t('add_remote')}
-                </button>
-              </div>
-              {showRemoteInput ? (
-                <div className="flex items-center gap-1.5 mb-1">
-                  <input type="text" value={remoteInput} onChange={(e) => setRemoteInput(e.target.value)}
-                    placeholder={remoteUrl ? t('new_remote_url') : t('git_remote_placeholder', { ns: 'common' })}
-                    onKeyDown={(e) => { if (e.key === 'Enter') handleSetRemote(); if (e.key === 'Escape') setShowRemoteInput(false) }}
-                    className="flex-1 focus-ring bg-base border border-line rounded-md px-2.5 py-1.5 text-xs text-ink placeholder:text-muted transition-colors focus:border-accent-dim outline-none" autoFocus />
-                  <button onClick={handleSetRemote} disabled={busyAction !== null || !remoteInput.trim()}
-                    className="focus-ring cursor-pointer p-1.5 rounded-md bg-accent hover:bg-accent-bright disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors">
-                    <IconCheck className="w-3 h-3" />
-                  </button>
-                </div>
-              ) : remoteUrl ? (
-                <div className="flex items-center gap-1.5">
-                  <span className="flex-1 text-[11px] font-mono text-muted truncate" title={remoteUrl}>{remoteUrl}</span>
-                  <button onClick={() => setShowRemoveRemoteConfirm(true)} disabled={busyAction !== null} title={t('git_remove_remote', { ns: 'common' })}
-                    className="focus-ring cursor-pointer p-1 rounded text-muted hover:text-danger transition-colors">
-                    <IconTrash className="w-3 h-3" />
-                  </button>
+          {merging && (
+            <motion.div
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.2, ease: 'easeOut', delay: 0.16 }}
+            >
+              <Section title={t('merge_in_progress')} count={conflictFiles.length}>
+              {conflictFiles.length === 0 ? (
+                <div className="px-2.5 py-2">
+                  <span className="text-[11px] text-muted/50">…</span>
                 </div>
               ) : (
-                <p className="text-[11px] text-muted/60 py-1">{t('git_no_remote', { ns: 'common' })}</p>
-              )}
-            </div>
-
-            {/* Branches */}
-            <div className="px-5 pt-4 pb-2 border-b border-line">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="text-[10px] font-semibold uppercase tracking-wider text-muted/60">{t('branches_title', { ns: 'git' })}</h4>
-                <button onClick={() => setShowCreateBranch((v) => !v)}
-                  className="focus-ring cursor-pointer text-[10px] text-accent-bright hover:underline transition-colors">{t('new_branch_btn', { ns: 'git' })}</button>
-              </div>
-              {showCreateBranch && (
-                <div className="flex items-center gap-1.5 mb-2">
-                  <input type="text" value={newBranchName} onChange={(e) => setNewBranchName(e.target.value)}
-                    placeholder={t('git_branch_name_placeholder', { ns: 'common' })}
-                    onKeyDown={(e) => { if (e.key === 'Enter') handleCreateBranch(); if (e.key === 'Escape') setShowCreateBranch(false) }}
-                    className="flex-1 focus-ring bg-base border border-line rounded-md px-2.5 py-1.5 text-xs text-ink placeholder:text-muted transition-colors focus:border-accent-dim outline-none" autoFocus />
-                  <button onClick={handleCreateBranch} disabled={busyAction !== null || !newBranchName.trim()}
-                    className="focus-ring cursor-pointer p-1.5 rounded-md bg-accent hover:bg-accent-bright disabled:opacity-40 disabled:cursor-not-allowed text-white transition-colors">
-                    <IconCheck className="w-3 h-3" />
-                  </button>
-                </div>
-              )}
-              {branchesLoading ? (
-                <div className="flex items-center gap-2 py-2"><IconRefresh className="w-3 h-3 animate-spin text-muted" /><span className="text-[11px] text-muted">{t('loading_branches')}</span></div>
-              ) : branches.length === 0 ? (
-                <p className="text-[11px] text-muted/60 py-2">No branches found.</p>
-              ) : (
-                <div className="flex flex-col gap-0.5 max-h-[150px] overflow-y-auto">
-                  {branches.map((b) => (
-                    <div key={b.name}
-                      className={`group flex items-center gap-2 px-2.5 py-1.5 rounded-md transition-colors ${b.is_current ? 'bg-accent/10 text-ink' : 'hover:bg-raised text-muted'}`}>
-                      <IconGitBranch className={`w-3 h-3 shrink-0 ${b.is_current ? 'text-accent-bright' : ''}`} />
-                      <span className={`text-xs font-mono truncate flex-1 ${b.is_current ? 'font-medium' : ''}`}>{b.name}</span>
-                      {b.is_current ? (
-                        <span className="text-[9px] font-semibold uppercase transition-all duration-300"
-                          style={{
-                            color: switchedTo ? 'var(--color-mint, #34d399)' : 'var(--color-accent-bright)',
-                          }}
+                <div className="flex flex-col gap-1">
+                  {conflictFiles.map((f) => (
+                    <div
+                      key={f}
+                      className="flex flex-col gap-1.5 px-2.5 py-2 rounded-item border border-danger/20 bg-danger/5"
+                    >
+                      <p className="text-[11px] font-mono text-ink truncate">
+                        {f}
+                      </p>
+                      <div className="flex gap-1">
+                        <button
+                          type="button"
+                          onClick={() => void handleResolveConflict('ours', f)}
+                          disabled={!!mergeBusy}
+                          className="focus-ring cursor-pointer flex-1 px-1.5 py-1 rounded-tag text-[10px] font-medium text-mint bg-mint/10 hover:bg-mint/20 transition-colors disabled:opacity-40 disabled:cursor-wait"
                         >
-                          {switchedTo === b.name ? t('switched') : t('active_branch')}
-                        </span>
-                      ) : (
-                        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <button onClick={() => handleSwitchBranch(b.name)} disabled={busyAction !== null}
-                            className="focus-ring cursor-pointer p-1 rounded text-muted hover:text-accent-bright hover:bg-raised disabled:opacity-40 transition-colors" title={`Switch to ${b.name}`}>
-                            <IconCheck className="w-3 h-3" />
-                          </button>
-                          {b.name !== 'main' && b.name !== 'master' && (
-                            <button onClick={() => setConfirmBranchDelete(b.name)} disabled={busyAction !== null}
-                              className="focus-ring cursor-pointer p-1 rounded text-muted hover:text-danger hover:bg-raised disabled:opacity-40 transition-colors" title={`Delete ${b.name}`}>
-                              <IconTrash className="w-3 h-3" />
-                            </button>
-                          )}
-                        </div>
-                      )}
+                          {t('use_ours')}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void handleResolveConflict('theirs', f)}
+                          disabled={!!mergeBusy}
+                          className="focus-ring cursor-pointer flex-1 px-1.5 py-1 rounded-tag text-[10px] font-medium text-amber bg-amber/10 hover:bg-amber/20 transition-colors disabled:opacity-40 disabled:cursor-wait"
+                        >
+                          {t('use_theirs')}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => void handleResolveConflict('manual', f)}
+                          disabled={!!mergeBusy}
+                          className="focus-ring cursor-pointer flex-1 px-1.5 py-1 rounded-tag text-[10px] font-medium text-accent-bright bg-accent/10 hover:bg-accent/20 transition-colors disabled:opacity-40 disabled:cursor-wait"
+                        >
+                          {t('i_resolved')}
+                        </button>
+                      </div>
                     </div>
                   ))}
                 </div>
               )}
+              <button
+                type="button"
+                onClick={() => void handleAbortMerge()}
+                disabled={!!mergeBusy}
+                className="focus-ring cursor-pointer w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-item border border-danger/30 text-danger hover:bg-danger/10 transition-colors disabled:opacity-40 disabled:cursor-wait text-[11px] font-medium"
+              >
+                <IconTrash
+                  className={`w-3.5 h-3.5 ${
+                    mergeBusy === 'abort' ? 'animate-spin' : ''
+                  }`}
+                />
+                {t('abort_merge')}
+              </button>
+              </Section>
+            </motion.div>
+          )}
+
+          <motion.div
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut', delay: 0.22 }}
+            className="flex gap-1.5"
+          >
+            {(
+              [
+                { key: 'push', Icon: IconArrowUp },
+                { key: 'pull', Icon: IconCloudArrowDown },
+                { key: 'fetch', Icon: IconDownload },
+              ] as const
+            ).map(({ key, Icon }) => {
+              const isActive = remotePhase?.action === key
+              const state = isActive ? remotePhase.phase : 'idle'
+              return (
+                  <Tooltip content={isActive ? t(`${key}ing`) : t(key)} className="flex-1 min-w-0">
+                  <motion.button
+                    type="button"
+                    onClick={() => void handleRemoteAction(key)}
+                    onContextMenu={(e) => {
+                      if (key !== 'push') return
+                      e.preventDefault()
+                      setForcePushOpen(true)
+                    }}
+                    disabled={!!remotePhase}
+                    aria-label={t(key)}
+                    className={["w-full",
+                      'relative w-full h-8 inline-flex items-center justify-center rounded-item border border-outline/50 shadow-md shadow-black/10 select-none focus-ring transition-colors duration-300',
+                      state === 'running'
+                        ? 'bg-accent text-overlay'
+                        : state === 'done'
+                          ? 'bg-mint text-overlay'
+                          : state === 'error'
+                            ? 'bg-danger text-overlay'
+                            : 'bg-overlay text-muted hover:text-ink hover:bg-raised cursor-pointer',
+                    ].join(' ')}
+                  >
+                    {key === 'push' && aheadBehind && aheadBehind.ahead > 0 && state === 'idle' && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-mint text-overlay text-[8px] font-bold px-1 z-10">
+                        {aheadBehind.ahead}
+                      </span>
+                    )}
+                    {key === 'pull' && aheadBehind && aheadBehind.behind > 0 && state === 'idle' && (
+                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-danger text-overlay text-[8px] font-bold px-1 z-10">
+                        {aheadBehind.behind}
+                      </span>
+                    )}
+                    <AnimatePresence mode="popLayout" initial={false}>
+                      <motion.span
+                        key={state}
+                        className="inline-flex"
+                        initial={{ opacity: 0, scale: 0.6, filter: 'blur(4px)' }}
+                        animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
+                        exit={{
+                          opacity: 0,
+                          scale: 0.6,
+                          filter: 'blur(4px)',
+                          transition: { duration: 0.15 },
+                        }}
+                        transition={{ duration: 0.2, ease: [0.34, 1.56, 0.64, 1] }}
+                      >
+                        {state === 'running' ? (
+                          <Spinner />
+                        ) : state === 'done' ? (
+                          <IconCheck className="w-3.5 h-3.5" />
+                        ) : state === 'error' ? (
+                          <IconX className="w-3.5 h-3.5" />
+                        ) : (
+                          <Icon className="w-3.5 h-3.5" />
+                        )}
+                      </motion.span>
+                    </AnimatePresence>
+                  </motion.button>
+                  </Tooltip>
+              )
+            })}
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut', delay: 0.28 }}
+            className="flex flex-col gap-1.5"
+          >
+            {remotesLoading ? (
+              <div className="px-2 py-1.5">
+                <span className="text-[10px] text-muted/50">…</span>
+              </div>
+            ) : remotes.length === 0 ? (
+              <div className="px-2 py-1.5 rounded-item border border-dashed border-outline/60">
+                <span className="text-[10px] text-muted/50">
+                  {t('no_remotes')}
+                </span>
+              </div>
+            ) : null}
+
+            <div className="flex items-stretch gap-1.5">
+              <div
+                ref={branchMenuRef}
+                className="relative flex-1 min-w-0 rounded-item border border-outline/50 bg-raised/60"
+              >
+                <button
+                  type="button"
+                  onClick={() => setBranchMenuOpen((v) => !v)}
+                  aria-expanded={branchMenuOpen}
+                  className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-2.5 py-2 text-left min-w-0 transition-colors hover:bg-raised rounded-item"
+                >
+                  <IconGitBranch className="w-3 h-3 text-accent shrink-0" />
+                  <span className="flex-1 text-[11px] font-semibold text-ink truncate">
+                    {switchingBranch ?? currentBranch}
+                  </span>
+                  {aheadBehind &&
+                    (aheadBehind.ahead > 0 || aheadBehind.behind > 0) && (
+                      <span className="flex items-center gap-1 shrink-0">
+                        {aheadBehind.behind > 0 && (
+                          <span className="text-[9px] font-mono font-semibold text-danger bg-danger/10 rounded-tag px-1 py-0.5">
+                            ↓{aheadBehind.behind}
+                          </span>
+                        )}
+                        {aheadBehind.ahead > 0 && (
+                          <span className="text-[9px] font-mono font-semibold text-mint bg-mint/10 rounded-tag px-1 py-0.5">
+                            ↑{aheadBehind.ahead}
+                          </span>
+                        )}
+                      </span>
+                    )}
+                  <IconChevronDown
+                    className={`w-3 h-3 text-muted/60 shrink-0 transition-transform duration-200 ${
+                      branchMenuOpen ? 'rotate-180' : ''
+                    }`}
+                  />
+                </button>
+                <AnimatePresence>
+                  {branchMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -4, scale: 0.97 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -4, scale: 0.97 }}
+                      transition={{ duration: 0.12, ease: 'easeOut' }}
+                      className="absolute left-0 right-0 top-full z-20 mt-1 rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 p-1.5 max-h-56 overflow-y-auto new-ui-scroll-viewport"
+                    >
+                      {branchesLoading ? (
+                        <div className="px-2 py-1.5">
+                          <span className="text-[11px] text-muted/50">
+                            {tc('loading')}
+                          </span>
+                        </div>
+                      ) : branches.length === 0 ? (
+                        <div className="px-2 py-1.5">
+                          <span className="text-[11px] text-muted/50">
+                            {t('no_branches')}
+                          </span>
+                        </div>
+                      ) : (
+                        branches.map((b) => {
+                          const isCurrent = b.is_current
+                          const isSwitching = switchingBranch === b.name
+                          return (
+                            <div
+                              key={b.name}
+                              className="group relative flex items-center"
+                            >
+                              <button
+                                type="button"
+                                disabled={isCurrent || !!switchingBranch}
+                                onClick={() => {
+                                  setBranchMenuOpen(false)
+                                  void handleSwitchBranch(b.name)
+                                }}
+                                className={`flex-1 min-w-0 flex items-center gap-1.5 pl-2 pr-1 py-1.5 rounded-item text-[11px] font-medium transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed text-left ${
+                                  isCurrent
+                                    ? 'text-ink bg-accent/10'
+                                    : 'text-muted hover:bg-raised hover:text-ink'
+                                }`}
+                              >
+                                <IconGitBranch
+                                  className={`w-3 h-3 shrink-0 ${
+                                    isCurrent ? 'text-accent' : 'text-muted/40'
+                                  }`}
+                                />
+                                <span className="flex-1 truncate">
+                                  {b.name}
+                                </span>
+                                {isSwitching && (
+                                  <span className="text-[10px] text-muted/50 animate-pulse">
+                                    {t('switching')}
+                                  </span>
+                                )}
+                                  {isCurrent && (
+                                  <IconCheck className="w-3 h-3 text-accent shrink-0" />
+                                )}
+                              </button>
+                              {isCurrent && !b.has_upstream && (
+                                  <Tooltip content={t('publish_branch')}>
+                                  <button
+                                    type="button"
+                                    onClick={() => void handlePublishBranch(b.name)}
+                                    disabled={publishingBranch}
+                                    className="cursor-pointer shrink-0 p-1 mr-1 rounded text-muted/50 hover:text-accent hover:bg-raised transition-colors disabled:opacity-40"
+                                  >
+                                    <IconArrowUp
+                                      className={`w-3 h-3 ${
+                                        publishingBranch ? 'animate-spin' : ''
+                                      }`}
+                                    />
+                                  </button>
+                                  </Tooltip>
+                              )}
+                              {!isCurrent && (
+                                  <Tooltip content={t('delete_branch')}>
+                                  <button
+                                    type="button"
+                                    onClick={() => void handleDeleteBranch(b.name)}
+                                    disabled={!!deletingBranch}
+                                    className={`cursor-pointer shrink-0 p-1 mr-1 rounded transition-colors disabled:opacity-40 ${
+                                      b.has_upstream
+                                        ? 'text-muted/50 hover:text-danger hover:bg-raised opacity-0 group-hover:opacity-100'
+                                        : 'text-muted/60 hover:text-danger hover:bg-raised'
+                                    }`}
+                                  >
+                                    <IconTrash
+                                      className={`w-3 h-3 ${
+                                        deletingBranch === b.name
+                                          ? 'animate-spin'
+                                          : ''
+                                      }`}
+                                    />
+                                  </button>
+                                  </Tooltip>
+                              )}
+                            </div>
+                          )
+                        })
+                      )}
+                      <div className="border-t border-outline/40 mt-1 pt-1">
+                        {newBranchMode ? (
+                          <div className="flex items-center gap-1">
+                            <input
+                              autoFocus
+                              value={newBranchName}
+                              onChange={(e) => setNewBranchName(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                  void handleCreateBranch()
+                                } else if (e.key === 'Escape') {
+                                  setNewBranchMode(false)
+                                  setNewBranchName('')
+                                }
+                              }}
+                              placeholder={t('new_branch_placeholder')}
+                              className="flex-1 min-w-0 bg-base border border-outline/50 rounded-item px-2 py-1.5 text-[11px] text-ink placeholder:text-muted focus:border-accent-dim outline-none transition-colors"
+                            />
+                            <Tooltip content={t('new_branch_btn')} side="top">
+                              <button
+                                type="button"
+                                onClick={() => void handleCreateBranch()}
+                                disabled={!newBranchName.trim()}
+                                className="focus-ring cursor-pointer shrink-0 p-1.5 rounded text-muted hover:text-mint hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                              >
+                                <IconCheck className="w-3.5 h-3.5" />
+                              </button>
+                            </Tooltip>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => setNewBranchMode(true)}
+                            className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-2 py-1.5 rounded-item text-[11px] font-medium text-muted hover:bg-raised hover:text-ink transition-colors"
+                          >
+                            <IconPlus className="w-3 h-3 text-accent shrink-0" />
+                            {t('new_branch_btn')}
+                          </button>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+                <Tooltip content={syncing ? t('syncing') : t('sync')}>
+                <button
+                  type="button"
+                  onClick={() => void handleSync()}
+                  disabled={syncing}
+                  className="focus-ring cursor-pointer h-full inline-flex items-center justify-center px-3.5 rounded-item border border-outline/50 bg-raised/60 text-muted transition-colors hover:text-accent hover:bg-raised disabled:opacity-50 disabled:cursor-wait"
+                >
+                  <IconRefresh className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+                </button>
+                </Tooltip>
             </div>
 
-            {/* Changes + Staging + Commit */}
-            <div className="px-5 pt-4 pb-2 border-b border-line">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="text-[10px] font-semibold uppercase tracking-wider text-muted/60">Changes</h4>
-                {(unstagedFiles.length > 0 || stagedFiles.size > 0) && (
-                  <div className="flex items-center gap-2">
-                    {/* Select / Deselect All */}
-                    {stagedFiles.size < unstagedFiles.length && (
-                      <button onClick={selectAllUnstaged}
-                        className="focus-ring cursor-pointer text-[10px] text-accent-bright hover:underline transition-colors">{t('select_all')}</button>
+            <div className="flex flex-col overflow-hidden rounded-item border border-outline/50 bg-base/40">
+              {!remotesLoading && remotes.length > 0 && (
+                  <Tooltip content={remotes[0].web_url} className="w-full">
+                  <button
+                    type="button"
+                    onClick={() => void openUrl(remotes[0].web_url).catch(() => {})}
+                    className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-2.5 py-2 text-left min-w-0 transition-colors hover:bg-raised/60"
+                  >
+                    <ProviderBadge webUrl={remotes[0].web_url} />
+                    <span className="text-[11px] font-medium text-ink truncate flex-1">
+                      {remotes[0].repo_name}
+                    </span>
+                    <IconExternalLink className="w-3 h-3 text-muted/40 shrink-0" />
+                  </button>
+                  </Tooltip>
+              )}
+              <textarea
+                value={commitMessage}
+                onChange={(e) => setCommitMessage(e.target.value)}
+                placeholder={tc('git_commit_placeholder')}
+                rows={3}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                    e.preventDefault()
+                    void handleCommit()
+                  }
+                }}
+                className={`w-full bg-transparent px-2.5 py-2 text-xs text-ink placeholder:text-muted transition-colors focus:bg-raised focus:border-accent-dim outline-none resize-none ${
+                  !remotesLoading && remotes.length > 0
+                    ? 'border-t border-outline/50'
+                    : ''
+                }`}
+              />
+            </div>
+
+            {!remotesLoading && remotes.length > 1 && (
+              <div className="flex flex-col gap-1">
+                {remotes.slice(1).map((r) => (
+                  <div key={r.name} className="flex flex-col gap-0.5">
+                    <span className="text-[9px] font-semibold uppercase tracking-wider text-muted/50 px-1">
+                      {r.name}
+                    </span>
+                      <Tooltip content={r.web_url} className="w-full">
+                      <button
+                        type="button"
+                        onClick={() => void openUrl(r.web_url).catch(() => {})}
+                        className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-2.5 py-2 rounded-item border border-line/60 bg-base/40 hover:bg-raised hover:border-accent/40 transition-colors text-left min-w-0"
+                      >
+                        <IconGitBranch className="w-3 h-3 text-accent shrink-0" />
+                        <span className="text-[11px] font-medium text-ink truncate flex-1">
+                          {r.repo_name}
+                        </span>
+                        <IconExternalLink className="w-3 h-3 text-muted/50 shrink-0" />
+                      </button>
+                      </Tooltip>
+                  </div>
+                ))}
+              </div>
+            )}
+
+              <Tooltip content={commitMessage.trim() ? t('commit') : tc('git_commit_placeholder')} side="top">
+              <button
+                type="button"
+                onClick={() => void handleCommit()}
+                disabled={!commitMessage.trim() || committing}
+                className="focus-ring cursor-pointer w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-item bg-accent hover:bg-accent-bright disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium text-white transition-colors"
+              >
+                <IconCheck className="w-3.5 h-3.5" />
+                {committing ? t('committing') : t('commit')}
+              </button>
+              </Tooltip>
+          </motion.div>
+
+          {stashes.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.2, ease: 'easeOut', delay: 0.34 }}
+            >
+              <Section title={t('stashes_title')} count={stashes.length}>
+              <button
+                type="button"
+                onClick={() => void handleStashPush()}
+                disabled={!!stashBusy}
+                className="focus-ring cursor-pointer w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-item border border-dashed border-outline/60 bg-base/40 text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-50 disabled:cursor-wait text-[11px] font-medium"
+              >
+                <IconDownload
+                  className={`w-3.5 h-3.5 shrink-0 ${
+                    stashBusy === 'push' ? 'animate-spin' : ''
+                  }`}
+                />
+                {stashBusy === 'push' ? t('stashing') : t('stash')}
+              </button>
+              <div className="flex flex-col gap-1">
+                {stashes.map((s) => (
+                  <div
+                    key={s.index}
+                    onClick={() => setStashDiff({ index: s.index, message: s.message })}
+                    className="group relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-item border border-line/60 bg-base/40 hover:bg-raised/60 transition-colors cursor-pointer"
+                  >
+                    <IconDownload className="w-3 h-3 text-muted/40 shrink-0" />
+                    <div className="flex-1 min-w-0">
+                      <Tooltip content={s.message || `stash@{${s.index}}`} className="block">
+                        <p className="text-[11px] text-ink truncate">
+                          {s.message || `stash@{${s.index}}`}
+                        </p>
+                      </Tooltip>
+                      <Tooltip content={`stash@{${s.index}}`} className="block">
+                        <p className="text-[9px] font-mono text-muted/50">
+                          stash@{s.index}
+                        </p>
+                      </Tooltip>
+                    </div>
+                    <div
+                      onClick={(e) => e.stopPropagation()}
+                      className="absolute right-1.5 top-1/2 -translate-y-1/2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity bg-base/80 rounded-md px-0.5 py-0.5"
+                    >
+                        <Tooltip content={t('apply_stash')}>
+                        <button
+                          type="button"
+                          onClick={() => void handleStashApply(s.index)}
+                          disabled={!!stashBusy}
+                          className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-mint hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-wait"
+                        >
+                          <IconPlay
+                            className={`w-3 h-3 ${
+                              stashBusy === `apply:${s.index}`
+                                ? 'animate-spin'
+                                : ''
+                            }`}
+                          />
+                        </button>
+                        </Tooltip>
+                        <Tooltip content={t('pop_stash')}>
+                        <button
+                          type="button"
+                          onClick={() => void handleStashPop(s.index)}
+                          disabled={!!stashBusy}
+                          className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-amber hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-wait"
+                        >
+                          <IconChevronUp
+                            className={`w-3 h-3 ${
+                              stashBusy === `pop:${s.index}`
+                                ? 'animate-spin'
+                                : ''
+                            }`}
+                          />
+                        </button>
+                        </Tooltip>
+                        <Tooltip content={t('drop_stash')}>
+                        <button
+                          type="button"
+                          onClick={() => void handleStashDrop(s.index)}
+                          disabled={!!stashBusy}
+                          className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-danger hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-wait"
+                        >
+                          <IconTrash
+                            className={`w-3 h-3 ${
+                              stashBusy === `drop:${s.index}`
+                                ? 'animate-spin'
+                                : ''
+                            }`}
+                          />
+                        </button>
+                        </Tooltip>
+                    </div>
+                  </div>
+                ))}
+                </div>
+              </Section>
+            </motion.div>
+          )}
+
+          <motion.div
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut', delay: 0.4 }}
+          >
+            <Section
+              title={t('changes_title')}
+            count={changedFiles.length}
+            onContextMenu={(e) => {
+              e.preventDefault()
+              setCtxMenu({ x: e.clientX, y: e.clientY })
+            }}
+          >
+            <div className="bg-base/50 border border-outline/50 rounded-item overflow-hidden">
+              <div className="h-52 overflow-y-auto new-ui-scroll-viewport">
+                {changesLoading ? (
+                  <div className="flex items-center gap-2 px-3 py-2.5">
+                    <span className="text-[11px] text-muted/50">
+                      {t('checking_changes')}
+                    </span>
+                  </div>
+                ) : changedFiles.length === 0 ? (
+                  <div className="px-3 py-2.5">
+                    <span className="text-[11px] text-muted/50">
+                      {t('working_tree_clean')}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col py-0.5">
+                    {stagedFiles.length > 0 && (
+                      <>
+                        <div className="flex items-center justify-between px-2.5 pt-1.5 pb-0.5">
+                          <span className="text-[9px] font-semibold uppercase tracking-wider text-muted/50">
+                            {t('staged_changes')}
+                          </span>
+                          <span className="text-[9px] font-mono text-muted/50">
+                            {stagedFiles.length}
+                          </span>
+                        </div>
+                        {stagedFiles.map((f) => (
+                          <ChangedFileRow
+                            key={f.path}
+                            file={f}
+                            badgeChar={f.status[0]}
+                            deleted={f.status[0] === 'D'}
+                            onUnstage={() => void handleUnstageFile(f.path)}
+                            onDiscard={() => void handleDiscardFile(f.path)}
+                            onOpen={() => setDiffFile(f)}
+                            stageLabel={t('stage_file')}
+                            unstageLabel={t('unstage_file')}
+                            discardLabel={t('discard_file')}
+                          />
+                        ))}
+                      </>
                     )}
-                    {(stagedFiles.size > 1 || (stagedFiles.size > 0 && unstagedFiles.length === 0)) && (
-                      <button onClick={deselectAll}
-                        className="focus-ring cursor-pointer text-[10px] text-muted hover:text-ink hover:underline transition-colors">{t('deselect_all')}</button>
-                    )}
-                    <span className="text-muted/30">·</span>
-                    {(stagedFiles.size > 1 || (stagedFiles.size > 0 && unstagedFiles.length === 0)) && (
-                      <button onClick={() => setShowDiscardConfirm(true)} disabled={busyAction !== null}
-                        className="focus-ring cursor-pointer text-[10px] text-danger hover:underline disabled:opacity-40 disabled:cursor-not-allowed transition-colors">{t('discard_all')}</button>
-                    )}
-                    {stagedFiles.size > 0 && (
-                      <button onClick={handleStageFiles} disabled={busyAction !== null}
-                        className="focus-ring cursor-pointer text-[10px] text-mint hover:underline disabled:opacity-40 disabled:cursor-not-allowed transition-colors">Stage ({stagedFiles.size})</button>
+                    {unstagedFiles.length > 0 && (
+                      <>
+                        <div className="flex items-center justify-between px-2.5 pt-1.5 pb-0.5">
+                          <span className="text-[9px] font-semibold uppercase tracking-wider text-muted/50">
+                            {t('changes_title')}
+                          </span>
+                          <span className="text-[9px] font-mono text-muted/50">
+                            {unstagedFiles.length}
+                          </span>
+                        </div>
+                        {unstagedFiles.map((f) => (
+                          <ChangedFileRow
+                            key={f.path}
+                            file={f}
+                            badgeChar={f.status[1]}
+                            deleted={f.status[1] === 'D'}
+                            onStage={() => void handleStageFile(f.path)}
+                            onDiscard={() => void handleDiscardFile(f.path)}
+                            onOpen={() => setDiffFile(f)}
+                            stageLabel={t('stage_file')}
+                            unstageLabel={t('unstage_file')}
+                            discardLabel={t('discard_file')}
+                          />
+                        ))}
+                      </>
                     )}
                   </div>
                 )}
               </div>
-
-              {changesLoading ? (
-                <div className="flex items-center gap-2 py-2"><IconRefresh className="w-3 h-3 animate-spin text-muted" /><span className="text-[11px] text-muted">{t('checking_changes')}</span></div>
-              ) : changedFiles.length === 0 ? (
-                <p className="text-[11px] text-muted/60 py-2">{t('working_tree_clean')}</p>
-              ) : (
-                <div className="flex flex-col gap-0.5 max-h-[220px] overflow-y-auto">
-                  {/* Staged section badge */}
-                  {gitStagedFiles.length > 0 && (
-                    <>
-                      <div className="flex items-center gap-1.5 px-1 py-1 mt-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-mint shrink-0" />
-                        <span className="text-[9px] font-semibold uppercase text-mint tracking-wider">Staged ({gitStagedFiles.length})</span>
-                      </div>
-                      {gitStagedFiles.map((f, i) => {
-                        const info = statusLabel(f.status)
-                        return (
-                          <div key={`git-staged-${f.path}-${i}`}
-                            className="flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-mint/5 hover:bg-mint/10 transition-colors">
-                            <span className="w-4 h-4 shrink-0" /> {/* Spacer for alignment */}
-                            <span className={`font-mono text-[10px] font-bold w-4 shrink-0 ${info.color}`}>{info.short}</span>
-                            <button onClick={() => setDiffFile(f.path)}
-                              className="flex-1 text-left text-[11px] font-mono text-muted truncate hover:text-accent-bright transition-colors cursor-pointer">{f.path}</button>
-                          </div>
-                        )
-                      })}
-                    </>
-                  )}
-
-                  {/* Pending stage (selected via checkbox) */}
-                  {pendingStageFiles.length > 0 && (
-                    <>
-                      <div className="flex items-center gap-1.5 px-1 py-1 mt-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-accent-bright shrink-0" />
-                        <span className="text-[9px] font-semibold uppercase text-accent-bright tracking-wider">{t('pending_stage', { count: pendingStageFiles.length })}</span>
-                      </div>
-                      {pendingStageFiles.map((f, i) => {
-                        const info = statusLabel(f.status)
-                        return (
-                          <div key={`staged-${f.path}-${i}`}
-                            className="flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-accent/5 hover:bg-accent/10 transition-colors">
-                            <Checkbox checked={true} onChange={() => toggleStage(f.path)} />
-                            <span className={`font-mono text-[10px] font-bold w-4 shrink-0 ${info.color}`}>{info.short}</span>
-                            <button onClick={() => setDiffFile(f.path)}
-                              className="flex-1 text-left text-[11px] font-mono text-muted truncate hover:text-accent-bright transition-colors cursor-pointer">{f.path}</button>
-                          </div>
-                        )
-                      })}
-                    </>
-                  )}
-
-                  {/* Unstaged / untracked files */}
-                  {unstagedFiles.length > 0 && (
-                    <>
-                      <div className="flex items-center justify-between gap-1.5 px-1 py-1 mt-1">
-                        <div className="flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-amber shrink-0" />
-                          <span className="text-[9px] font-semibold uppercase text-amber tracking-wider">
-                            {unstagedFiles.length === changedFiles.length - gitStagedFiles.length - pendingStageFiles.length ? t('unstaged') : t('unstaged_count', { count: unstagedFiles.length })}
-                          </span>
-                        </div>
-                      </div>
-                      {unstagedFiles.map((f, i) => {
-                        const info = statusLabel(f.status)
-                        const checked = stagedFiles.has(f.path)
-                        return (
-                          <div key={`unstaged-${f.path}-${i}`}
-                            className="flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-raised transition-colors">
-                            <Checkbox checked={checked} onChange={() => toggleStage(f.path)} />
-                            <span className={`font-mono text-[10px] font-bold w-4 shrink-0 ${info.color}`}>{info.short}</span>
-                            <button onClick={() => setDiffFile(f.path)}
-                              className="flex-1 text-left text-[11px] font-mono text-muted truncate hover:text-accent-bright transition-colors cursor-pointer">{f.path}</button>
-                          </div>
-                        )
-                      })}
-                    </>
-                  )}
-                </div>
-              )}
-
-              {/* Commit composer */}
-              {changedFiles.length > 0 && (
-                <div className="mt-3 flex flex-col gap-2 pb-1">
-                  <textarea
-                    value={commitMessage}
-                    onChange={(e) => setCommitMessage(e.target.value)}
-                    placeholder={t('git_commit_placeholder', { ns: 'common' })}
-                    rows={2}
-                    onKeyDown={(e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey) && commitMessage.trim()) handleCommit() }}
-                    className="focus-ring w-full bg-base border border-line rounded-md px-3 py-2 text-xs text-ink placeholder:text-muted transition-colors focus:border-accent-dim outline-none resize-none"
-                  />
-                  <div className="flex items-center gap-3">
-                    <label className="flex items-center gap-1.5 cursor-pointer select-none" onClick={() => setAmendMode((v) => !v)}>
-                      <Checkbox checked={amendMode} onChange={() => setAmendMode((v) => !v)} />
-                      <span className="text-[10px] text-muted hover:text-ink transition-colors">{t('amend')}</span>
-                    </label>
-                    {remoteUrl && (
-                      <label className="flex items-center gap-1.5 cursor-pointer select-none" onClick={() => setPushAfterCommit((v) => !v)}>
-                        <Checkbox checked={pushAfterCommit} onChange={() => setPushAfterCommit((v) => !v)} />
-                        <span className="text-[10px] text-muted hover:text-ink transition-colors">{t('push_after')}</span>
-                      </label>
-                    )}
-                    <div className="flex-1" />
-                    <span className="text-[10px] text-muted/60">Ctrl+Enter</span>
-                    <button
-                      disabled={busyAction !== null || !commitMessage.trim() || changedFiles.length === 0}
-                      onClick={handleCommit}
-                      className="focus-ring cursor-pointer flex items-center gap-1.5 px-4 py-1.5 rounded-lg bg-accent hover:bg-accent-bright disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium text-white transition-colors"
-                    >
-                      <IconCheck className="w-3 h-3" />
-                      {busyAction === 'commit'
-                        ? (pushAfterCommit ? t('commit_push') : t('committing'))
-                        : (amendMode ? t('amend') : t('commit'))}
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
+            </Section>
+          </motion.div>
 
-            {/* Undo / Redo */}
-            {(undoHistory.length > 0 || redoHistory.length > 0) && (
-              <div className="px-5 pt-4 pb-3 border-b border-line">
-                <div className="flex items-center justify-between mb-2">
-                  <h4 className="text-[10px] font-semibold uppercase tracking-wider text-muted/60">Actions</h4>
-                </div>
-                <div className="flex flex-col gap-0.5">
-                  {redoHistory.slice(0, 3).map((entry) => (
-                    <button key={`redo-${entry.id}`}
-                      onClick={() => handleRedo(entry)}
-                      disabled={busyAction !== null}
-                      className="flex items-center gap-2 px-2.5 py-1.5 rounded-md opacity-40 hover:opacity-100 hover:bg-raised transition-all disabled:opacity-20 disabled:cursor-not-allowed w-full text-left cursor-pointer">
-                      <IconHistory className="w-3 h-3 text-muted shrink-0" />
-                      <span className="text-[11px] text-muted truncate flex-1">{t('redo')} {entry.label}</span>
-                    </button>
-                  ))}
-                  {undoHistory.slice(0, 5).map((entry) => (
-                    <button key={`undo-${entry.id}`}
-                      onClick={() => handleUndo(entry)}
-                      disabled={busyAction !== null}
-                      className="flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-raised transition-all disabled:opacity-40 disabled:cursor-not-allowed w-full text-left cursor-pointer group">
-                      <IconHistory className="w-3 h-3 text-accent-bright shrink-0" />
-                      <span className="text-[11px] text-muted truncate flex-1 group-hover:text-ink transition-colors">{entry.label}</span>
-                      <span className="text-[9px] text-accent-bright font-semibold uppercase shrink-0">{t('undo')}</span>
-                    </button>
-                  ))}
+          <motion.div
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut', delay: 0.46 }}
+          >
+            <Section title={t('commits_title')} count={commits.length}>
+            {commitsLoading ? (
+              <div className="px-2.5 py-2">
+                <span className="text-[11px] text-muted/50">
+                  {tc('loading')}
+                </span>
+              </div>
+            ) : (
+              <div className="bg-base/50 border border-outline/50 rounded-item overflow-hidden">
+                <div className="max-h-64 overflow-y-auto new-ui-scroll-viewport">
+                  <CommitGraph
+                    commits={commits}
+                    remoteUrl={remotes[0]?.web_url}
+                    onOpenDetails={(hash) => setCommitHash(hash)}
+                  />
                 </div>
               </div>
             )}
+            </Section>
+          </motion.div>
 
-            {/* Stashes */}
-            <div className="px-5 pt-4 pb-2 border-b border-line">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="text-[10px] font-semibold uppercase tracking-wider text-muted/60">Stashes</h4>
-              </div>
-              {stashesLoading ? (
-                <div className="flex items-center gap-2 py-2"><IconRefresh className="w-3 h-3 animate-spin text-muted" /><span className="text-[11px] text-muted">{t('loading_stashes')}</span></div>
-              ) : stashes.length === 0 ? (
-                <p className="text-[11px] text-muted/60 py-2">No stashes.</p>
-              ) : (
-                <div className="flex flex-col gap-0.5 max-h-[120px] overflow-y-auto">
-                  {stashes.map((s) => (
-                    <div key={s.index} className="group flex items-center gap-2 px-2.5 py-1.5 rounded-md hover:bg-raised transition-colors">
-                      <IconHistory className="w-3 h-3 text-muted shrink-0" />
-                      <span className="text-[11px] font-mono text-muted truncate flex-1">{s.message}</span>
-                      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button onClick={() => handleStashApply(s.index)} disabled={busyAction !== null}
-                          className="focus-ring cursor-pointer p-1 rounded text-muted hover:text-accent-bright transition-colors" title={t('git_apply_stash', { ns: 'common' })}><IconCheck className="w-3 h-3" /></button>
-                        <button onClick={() => handleStashDrop(s.index)} disabled={busyAction !== null}
-                          className="focus-ring cursor-pointer p-1 rounded text-muted hover:text-danger transition-colors" title={t('git_drop_stash', { ns: 'common' })}><IconTrash className="w-3 h-3" /></button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+        </div>
+      </div>
+        </motion.div>
+      </AnimatePresence>
 
-            {/* Commits */}
-            <div className="px-5 pt-4 pb-5">
-              <h4 className="text-[10px] font-semibold uppercase tracking-wider text-muted/60 mb-3">{t('recent_commits')}</h4>
-              {logLoading ? (
-                <div className="flex items-center justify-center py-6"><IconRefresh className="w-4 h-4 animate-spin text-muted" /></div>
-              ) : logEntries.length === 0 ? (
-                <div className="border border-dashed border-line rounded-xl py-6 text-center"><p className="text-xs text-muted">{t('no_commits_found')}</p></div>
-              ) : (
-                <div className="flex flex-col gap-1.5">
-                  {logEntries.map((entry, i) => (
-                    <div key={`${entry.hash}-${i}`}
-                      onClick={() => { if (remoteUrl) { const u = `${remoteUrl.replace(/\/+$/, '')}/commit/${entry.hash}`; window.open(u, '_blank') } }}
-                      className={`group flex items-start gap-3 px-3 py-2 rounded-lg transition-colors ${remoteUrl ? 'cursor-pointer hover:bg-raised' : 'cursor-default'}`}>
-                      <div className="flex flex-col items-center gap-1 shrink-0 pt-1">
-                        <div className="w-1.5 h-1.5 rounded-full bg-accent/60 ring-2 ring-accent/10 shrink-0" />
-                        {i < logEntries.length - 1 && <div className="w-px flex-1 bg-line min-h-[14px]" />}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5">
-                          <p className="text-[11px] font-mono text-accent-bright font-medium truncate">{entry.hash}</p>
-                          {remoteUrl && <IconExternalLink className="w-2.5 h-2.5 text-muted/40 opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />}
-                        </div>
-                        <p className="text-xs text-ink leading-snug mt-0.5 line-clamp-2">{entry.message}</p>
-                        <p className="text-[10px] text-muted mt-0.5">{entry.author} · {entry.date}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </>
+      {gitAuthFlow && (
+        <GitAuthModal
+          provider={gitAuthFlow}
+          onClose={() => setGitAuthFlow(null)}
+          onConnected={() => {
+            setGitAuthFlow(null)
+            void refreshGitAuth()
+          }}
+        />
       )}
 
-      {/* Toast notifications */}
-      <div className="absolute bottom-3 left-3 right-3 z-50 flex flex-col gap-2 pointer-events-none">
-        <AnimatePresence>
-          {toasts.map((toast) => (
-            <motion.div
-              key={toast.id}
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
-              className={`pointer-events-auto flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl shadow-lg border text-xs max-w-full ${
-                toast.type === 'success'
-                  ? 'bg-mint/10 border-mint/30 text-mint'
-                  : toast.type === 'error'
-                  ? 'bg-danger/10 border-danger/30 text-danger'
-                  : 'bg-accent/10 border-accent/30 text-accent-bright'
-              }`}
-            >
-              {toast.type === 'success' ? (
-                <IconCheckCircle className="w-4 h-4 shrink-0" />
-              ) : toast.type === 'error' ? (
-                <IconAlertTriangle className="w-4 h-4 shrink-0" />
-              ) : (
-                <IconInfo className="w-4 h-4 shrink-0" />
-              )}
-              <span className="flex-1 min-w-0 truncate leading-snug">{toast.message}</span>
-              <button
-                onClick={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}
-                className="shrink-0 p-0.5 rounded opacity-60 hover:opacity-100 transition-opacity cursor-pointer"
-              >
-                <IconX className="w-3 h-3" />
-              </button>
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </div>
-
-      {/* Diff viewer */}
       {diffFile && (
-        <DiffViewer
-          projectPath={project.path}
-          filePath={diffFile}
+        <DiffViewerModal
+          title={diffFile.path}
+          subtitle={project.name}
+          fetchDiff={() => api.gitFileDiff(project.path, diffFile.path)}
           onClose={() => setDiffFile(null)}
         />
       )}
 
-      {/* Discard confirmation */}
-      <AnimatePresence>
-        {showDiscardConfirm && (
-          <ConfirmDialog
-            title={t('discard_title')}
-            description={t('discard_desc')}
-            confirmLabel={t('discard')}
-            variant="danger"
-            onConfirm={() => { setShowDiscardConfirm(false); handleDiscardChanges() }}
-            onCancel={() => setShowDiscardConfirm(false)}
-          />
-        )}
-      </AnimatePresence>
+      {stashDiff && (
+        <DiffViewerModal
+          title={`stash@{${stashDiff.index}}`}
+          subtitle={stashDiff.message || undefined}
+          fetchDiff={() => api.gitStashShow(project.path, stashDiff.index)}
+          onClose={() => setStashDiff(null)}
+        />
+      )}
 
-      {/* Branch delete confirmation */}
-      <AnimatePresence>
-        {confirmBranchDelete && (
-          <ConfirmDialog
-            title={t('delete_branch_title', { name: confirmBranchDelete })}
-            description={t('delete_branch_desc')}
-            confirmLabel={t('delete')}
-            variant="danger"
-            onConfirm={() => { const name = confirmBranchDelete; setConfirmBranchDelete(null); handleDeleteBranch(name) }}
-            onCancel={() => setConfirmBranchDelete(null)}
-          />
-        )}
-      </AnimatePresence>
+      {commitHash && (
+        <CommitDetailsModal
+          project={project}
+          hash={commitHash}
+          onClose={() => setCommitHash(null)}
+        />
+      )}
 
-      {/* Remote remove confirmation */}
-      <AnimatePresence>
-        {showRemoveRemoteConfirm && (
-          <ConfirmDialog
-            title={t('remove_remote_title')}
-            description={t('remove_remote_desc')}
-            confirmLabel={t('remove')}
-            variant="danger"
-            onConfirm={() => { setShowRemoveRemoteConfirm(false); handleRemoveRemote() }}
-            onCancel={() => setShowRemoveRemoteConfirm(false)}
-          />
-        )}
-      </AnimatePresence>
+      {forcePushOpen && (
+        <ConfirmDialog
+          title={t('force_push_confirm_title')}
+          description={t('force_push_confirm_desc')}
+          confirmLabel={t('force_push')}
+          variant="danger"
+          onConfirm={() => void handleForcePush()}
+          onCancel={() => setForcePushOpen(false)}
+        />
+      )}
 
-      {/* Stash push confirmation */}
-      <AnimatePresence>
-        {showStashPushConfirm && (
-          <ConfirmDialog
-            title={t('git_stash_title', { ns: 'common' })}
-            description={t('git_stash_desc', { ns: 'common' })}
-            confirmLabel={t('git_stash_confirm', { ns: 'common' })}
-            onConfirm={() => { setShowStashPushConfirm(false); handleStashPush() }}
-            onCancel={() => setShowStashPushConfirm(false)}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Push with uncommitted changes confirmation */}
-      <AnimatePresence>
-        {showPushConfirm && (
-          <ConfirmDialog
-            title={t('git_push_uncommitted_title', { ns: 'common' })}
-            description={t('git_push_uncommitted_desc', { ns: 'common' })}
-            confirmLabel={t('git_push_uncommitted_confirm', { ns: 'common' })}
-            variant="default"
-            onConfirm={() => { setShowPushConfirm(false); executePush(false) }}
-            onCancel={() => setShowPushConfirm(false)}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Force push confirmation */}
-      <AnimatePresence>
-        {showForcePushConfirm && (
-          <ConfirmDialog
-            title={t('git_force_push_title', { ns: 'common' })}
-            description={t('git_force_push_desc', { ns: 'common' })}
-            confirmLabel={t('git_force_push_confirm', { ns: 'common' })}
-            variant="danger"
-            onConfirm={() => { setShowForcePushConfirm(false); executePush(true) }}
-            onCancel={() => setShowForcePushConfirm(false)}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Git result dialog (errors with instructions / success confirmations) */}
-      <AnimatePresence>
-        {gitResult && !showMergeConflicts && (
-          <GitResultDialog
-            type={gitResult.type}
-            title={gitResult.title}
-            instructions={gitResult.instructions}
-            rawError={gitResult.rawError}
-            onClose={() => setGitResult(null)}
-            onOpenTerminal={() => api.openTerminal(project.path)}
-          />
-        )}
-      </AnimatePresence>
-
-      {/* Merge Conflict Resolver */}
-      <AnimatePresence>
-        {showMergeConflicts && (
-          <MergeConflictDialog
-            projectPath={project.path}
-            onClose={() => setShowMergeConflicts(false)}
-            onAllResolved={async () => {
-              setShowMergeConflicts(false)
-              setMergeActive(false)
-              await refreshAll()
-              onRefresh()
-              window.dispatchEvent(new CustomEvent('app:refresh-git-status'))
-              addToast('success', t('conflicts_resolved'))
-            }}
-            onOpenTerminal={() => api.openTerminal(project.path)}
-            onAbortMerge={handleAbortMerge}
-          />
-        )}
-      </AnimatePresence>
+      {createPortal(
+        <AnimatePresence>
+          {ctxMenu && (
+            <motion.div
+              ref={ctxMenuRef}
+              role="menu"
+              initial={{ opacity: 0, scale: 0.96, y: -4 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.96, y: -4 }}
+              transition={{ duration: 0.12, ease: 'easeOut' }}
+              style={{ left: ctxMenu.x, top: ctxMenu.y }}
+              className="fixed z-50 w-48 rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 p-1.5"
+            >
+              {stagedFiles.length > 0 && (
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => void handleUnstageAll()}
+                  className="focus-ring cursor-pointer w-full flex items-center gap-2 px-2.5 py-2 rounded-item text-xs font-medium text-muted hover:bg-raised hover:text-ink transition-colors"
+                >
+                  <IconChevronUp className="w-3.5 h-3.5 text-amber shrink-0" />
+                  {t('unstage_all_changes')}
+                </button>
+              )}
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => void handleStageAll()}
+                className="focus-ring cursor-pointer w-full flex items-center gap-2 px-2.5 py-2 rounded-item text-xs font-medium text-muted hover:bg-raised hover:text-ink transition-colors"
+              >
+                <IconPlus className="w-3.5 h-3.5 text-mint shrink-0" />
+                {t('stage_all')}
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setCtxMenu(null)
+                  void handleStashPush()
+                }}
+                className="focus-ring cursor-pointer w-full flex items-center gap-2 px-2.5 py-2 rounded-item text-xs font-medium text-muted hover:bg-raised hover:text-ink transition-colors"
+              >
+                <IconDownload className="w-3.5 h-3.5 text-amber shrink-0" />
+                {t('stash')}
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => void handleDiscardAll()}
+                className="focus-ring cursor-pointer w-full flex items-center gap-2 px-2.5 py-2 rounded-item text-xs font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
+              >
+                <IconTrash className="w-3.5 h-3.5 shrink-0" />
+                {t('discard_all')}
+              </button>
+              <div className="h-px bg-white/6 my-1" />
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => void handleUndoCommit()}
+                className="focus-ring cursor-pointer w-full flex items-center gap-2 px-2.5 py-2 rounded-item text-xs font-medium text-muted hover:bg-raised hover:text-ink transition-colors"
+              >
+                <IconHistory className="w-3.5 h-3.5 shrink-0" />
+                {t('undo_last_commit')}
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => void handleUndoPull()}
+                className="focus-ring cursor-pointer w-full flex items-center gap-2 px-2.5 py-2 rounded-item text-xs font-medium text-muted hover:bg-raised hover:text-ink transition-colors"
+              >
+                <IconCloudArrowDown className="w-3.5 h-3.5 shrink-0" />
+                {t('undo_pull')}
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>,
+        document.body,
+      )}
     </div>
   )
 }

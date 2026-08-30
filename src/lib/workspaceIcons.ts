@@ -11,7 +11,7 @@ import {
   IconHeart,
   IconDumbbell,
   IconBook,
-} from '../components/Icons'
+} from './icons'
 
 export const WORKSPACE_ICONS = {
   briefcase: IconBriefcase,

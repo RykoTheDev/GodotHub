@@ -1,28 +1,27 @@
+use crate::error::AppResult;
+use crate::persist;
 use crate::models::*;
 use crate::projects;
-use std::fs;
-use std::path::PathBuf;
 use tauri::AppHandle;
 use uuid::Uuid;
 
-fn categories_file(app: &AppHandle) -> PathBuf {
-    crate::workspace::active_workspace_dir(app).join("categories.json")
+pub(crate) fn read_categories_from(dir: &std::path::Path) -> Vec<Category> {
+    persist::read_json(&dir.join("categories.json"))
 }
 
-fn read_categories(app: &AppHandle) -> Vec<Category> {
-    let file = categories_file(app);
-    if !file.exists() {
-        return vec![];
-    }
-    serde_json::from_str(&fs::read_to_string(&file).unwrap_or_default()).unwrap_or_default()
+pub(crate) fn read_categories(app: &AppHandle) -> Vec<Category> {
+    read_categories_from(&crate::workspace::active_workspace_dir(app))
 }
 
-fn write_categories(app: &AppHandle, categories: &Vec<Category>) -> Result<(), String> {
-    fs::write(
-        categories_file(app),
-        serde_json::to_string_pretty(categories).map_err(|e| e.to_string())?,
-    )
-    .map_err(|e| e.to_string())
+pub(crate) fn write_categories_to(
+    dir: &std::path::Path,
+    categories: &Vec<Category>,
+) -> AppResult<()> {
+    persist::write_json(&dir.join("categories.json"), categories)
+}
+
+pub(crate) fn write_categories(app: &AppHandle, categories: &Vec<Category>) -> AppResult<()> {
+    write_categories_to(&crate::workspace::active_workspace_dir(app), categories)
 }
 
 #[tauri::command]
@@ -48,7 +47,7 @@ pub fn create_category(app: AppHandle, name: String, color: Option<String>) -> R
         .max()
         .map(|m| m + 1)
         .unwrap_or(0);
-    let effective_color = color.unwrap_or_else(|| "#457ff2".to_string());
+    let effective_color = color.unwrap_or_else(default_accent);
     let category = Category {
         id: Uuid::new_v4().to_string(),
         name: trimmed,
@@ -56,7 +55,7 @@ pub fn create_category(app: AppHandle, name: String, color: Option<String>) -> R
         color: effective_color,
     };
     cats.push(category.clone());
-    write_categories(&app, &cats)?;
+    write_categories(&app, &cats).map_err(|e| e.to_string())?;
     Ok(category)
 }
 
@@ -73,7 +72,7 @@ pub fn update_category(
         .position(|c| c.id == id)
         .ok_or("Category not found")?;
 
-    if let Some(new_name) = name {
+    if let Some(ref new_name) = name {
         let trimmed = new_name.trim().to_string();
         if trimmed.is_empty() {
             return Err("Category name can't be empty".into());
@@ -85,72 +84,35 @@ pub fn update_category(
             return Err("A category with this name already exists".into());
         }
         let old_name = cats[idx].name.clone();
-        cats[idx].name = trimmed.clone();
+        cats[idx].name = trimmed;
 
-        if old_name != trimmed {
+        if old_name != cats[idx].name {
             let mut all_projects = projects::read_projects(&app);
             let mut changed = false;
             for p in all_projects.iter_mut() {
                 if p.category.as_deref() == Some(old_name.as_str()) {
-                    p.category = Some(trimmed.clone());
+                    p.category = Some(cats[idx].name.clone());
                     changed = true;
                 }
             }
             if changed {
-                projects::write_projects(&app, &all_projects)?;
+                projects::write_projects(&app, &all_projects).map_err(|e| e.to_string())?;
             }
         }
     }
 
-    if let Some(new_color) = color {
-        cats[idx].color = new_color;
+    if let Some(ref new_color) = color {
+        cats[idx].color = new_color.clone();
     }
 
     let updated = cats[idx].clone();
-    write_categories(&app, &cats)?;
+    write_categories(&app, &cats).map_err(|e| e.to_string())?;
     Ok(updated)
 }
 
 #[tauri::command]
 pub fn rename_category(app: AppHandle, id: String, name: String) -> Result<Category, String> {
-    let trimmed = name.trim().to_string();
-    if trimmed.is_empty() {
-        return Err("Category name can't be empty".into());
-    }
-    let mut cats = read_categories(&app);
-    if cats
-        .iter()
-        .any(|c| c.id != id && c.name.eq_ignore_ascii_case(&trimmed))
-    {
-        return Err("A category with this name already exists".into());
-    }
-
-    let old_name = {
-        let cat = cats
-            .iter_mut()
-            .find(|c| c.id == id)
-            .ok_or("Category not found")?;
-        let old = cat.name.clone();
-        cat.name = trimmed.clone();
-        old
-    };
-    write_categories(&app, &cats)?;
-
-    if old_name != trimmed {
-        let mut all_projects = projects::read_projects(&app);
-        let mut changed = false;
-        for p in all_projects.iter_mut() {
-            if p.category.as_deref() == Some(old_name.as_str()) {
-                p.category = Some(trimmed.clone());
-                changed = true;
-            }
-        }
-        if changed {
-            projects::write_projects(&app, &all_projects)?;
-        }
-    }
-
-    Ok(cats.into_iter().find(|c| c.id == id).expect("just updated"))
+    update_category(app, id, Some(name), None)
 }
 
 #[tauri::command]
@@ -161,7 +123,7 @@ pub fn delete_category(app: AppHandle, id: String) -> Result<(), String> {
         .position(|c| c.id == id)
         .ok_or("Category not found")?;
     let removed = cats.remove(idx);
-    write_categories(&app, &cats)?;
+    write_categories(&app, &cats).map_err(|e| e.to_string())?;
 
     let mut all_projects = projects::read_projects(&app);
     let mut changed = false;
@@ -172,7 +134,7 @@ pub fn delete_category(app: AppHandle, id: String) -> Result<(), String> {
         }
     }
     if changed {
-        projects::write_projects(&app, &all_projects)?;
+        projects::write_projects(&app, &all_projects).map_err(|e| e.to_string())?;
     }
     Ok(())
 }
@@ -185,5 +147,5 @@ pub fn reorder_categories(app: AppHandle, ordered_ids: Vec<String>) -> Result<()
             c.sort_order = i as i64;
         }
     }
-    write_categories(&app, &cats)
+    write_categories(&app, &cats).map_err(|e| e.to_string())
 }

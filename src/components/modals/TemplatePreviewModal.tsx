@@ -1,9 +1,14 @@
 import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../lib/api'
+import { ModalShell } from './ModalShell'
 import type { ProjectTemplate, TemplateFileEntry } from '../../types'
-import { IconCopy, IconInfo, IconX, IconChevronDown, IconChevronRight } from '../Icons'
+import {
+  IconCopy,
+  IconInfo,
+  IconChevronDown,
+  IconChevronRight,
+} from '../../lib/icons'
 
 function formatSize(bytes: number): string {
   if (bytes === 0) return ''
@@ -12,8 +17,17 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-function FileTree({ entries, t }: { entries: TemplateFileEntry[]; t: (key: string, options?: Record<string, unknown>) => string }) {
-  const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
+function FileTree({
+  entries,
+  t,
+}: {
+  entries: TemplateFileEntry[]
+  t: (key: string, options?: Record<string, unknown>) => string
+}) {
+  const [collapsed, setCollapsed] = useState<Set<string>>(() => {
+    // Start with all directories collapsed
+    return new Set(entries.filter((e) => e.is_dir).map((e) => e.path))
+  })
 
   const toggle = (path: string) => {
     setCollapsed((prev) => {
@@ -66,7 +80,7 @@ function FileTree({ entries, t }: { entries: TemplateFileEntry[]; t: (key: strin
     return (
       <div key={node.path}>
         <div
-          className={`flex items-center gap-2 px-2 py-1 rounded-md text-xs hover:bg-raised/60 transition-colors cursor-default ${
+          className={`flex items-center gap-2 px-2 py-1 rounded-item text-xs hover:bg-raised/60 transition-colors cursor-default ${
             depth === 0 ? 'font-medium text-ink' : 'text-muted'
           }`}
           style={{ paddingLeft: `${depth * 16 + 8}px` }}
@@ -145,55 +159,14 @@ export function TemplatePreviewModal({ template, onClose }: Props) {
   const totalSize = entries.reduce((acc, e) => acc + e.size, 0)
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-      onClick={onClose}
+    <ModalShell
+      icon={<IconCopy className="w-5 h-5 text-accent-bright" />}
+      title={template.name}
+      description={template.description || undefined}
+      maxWidth="max-w-lg"
+      onClose={onClose}
     >
-      <motion.div
-        initial={{ opacity: 0, y: 12, scale: 0.96 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-        className="bg-surface border border-line rounded-2xl w-full max-w-lg max-h-[80vh] flex flex-col shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4 p-6 pb-4 border-b border-line">
-          <div className="flex items-start gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-              <IconCopy className="w-4 h-4 text-accent-bright" />
-            </div>
-            <div className="min-w-0">
-              <h3 className="font-display font-semibold text-lg truncate">
-                {template.name}
-              </h3>
-              {template.description && (
-                <p className="text-xs text-muted mt-0.5 leading-relaxed">
-                  {template.description}
-                </p>
-              )}
-              <div className="flex items-center gap-2 mt-1.5 text-[10px] text-muted/50 font-mono">
-                <IconInfo className="w-3 h-3" />
-                {t('file_count', { count: fileCount })}
-                {dirCount > 0 && ` · ${t('folder_count', { count: dirCount })}`}
-                {totalSize > 0 && ` · ${formatSize(totalSize)}`}
-
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={onClose}
-            className="focus-ring cursor-pointer p-1.5 rounded-lg text-muted hover:text-ink hover:bg-raised transition-colors shrink-0"
-            aria-label={t('close')}
-          >
-            <IconX className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="p-6">
           {loading ? (
             <div className="flex items-center justify-center py-12 text-sm text-muted">
               {t('loading')}
@@ -207,10 +180,17 @@ export function TemplatePreviewModal({ template, onClose }: Props) {
               {t('template_empty')}
             </div>
           ) : (
-            <FileTree entries={entries} t={t} />
+            <>
+              <div className="flex items-center gap-2 px-1 pb-2 text-[10px] text-muted/50 font-mono">
+                <IconInfo className="w-3 h-3" />
+                {t('file_count', { count: fileCount })}
+                {dirCount > 0 && ` · ${t('folder_count', { count: dirCount })}`}
+                {totalSize > 0 && ` · ${formatSize(totalSize)}`}
+              </div>
+              <FileTree entries={entries} t={t} />
+            </>
           )}
         </div>
-      </motion.div>
-    </motion.div>
+    </ModalShell>
   )
 }

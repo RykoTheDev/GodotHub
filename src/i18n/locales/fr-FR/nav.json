@@ -1,0 +1,16 @@
+{
+  "dashboard": "Tableau de bord",
+  "projects": "Projets",
+  "projects_count": "Projets",
+  "versions": "Versions",
+  "templates": "Modèles",
+  "asset_store": "Asset Store",
+  "news": "Godot News",
+  "settings": "Paramètres",
+  "changelog": "Changelog",
+  "collapse_sidebar": "Rabattre",
+  "expand_sidebar": "Développer",
+  "updates": "Nouvelles du développeur",
+  "projects_count_one": "Project",
+  "projects_count_other": "Projects"
+}

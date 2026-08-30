@@ -1,0 +1,16 @@
+{
+  "projects": "Proyectos",
+  "projects_count": "Proyectos",
+  "versions": "Versiones",
+  "templates": "Plantillas",
+  "asset_store": "Tienda de Recursos",
+  "news": "Noticias de Godot",
+  "settings": "Configuracion",
+  "changelog": "Cambios de Registro",
+  "collapse_sidebar": "Colapsar",
+  "expand_sidebar": "Expandir",
+  "updates": "Actualizacion del Dev",
+  "dashboard": "Dashboard",
+  "projects_count_one": "Project",
+  "projects_count_other": "Projects"
+}

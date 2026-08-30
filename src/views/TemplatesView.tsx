@@ -1,30 +1,122 @@
-import { useEffect, useState, useRef } from 'react'
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ComponentType,
+} from 'react'
 import { useTranslation, Trans } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
+import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 import { api } from '../lib/api'
+import { consumePendingAction } from '../lib/pendingAction'
+import { formatLocaleDate } from '../lib/locale'
 import { useSettings } from '../hooks/useSettings'
 import { useWorkspaces } from '../hooks/useWorkspaces'
 import type { ProjectTemplate, TemplateSyncResult } from '../types'
-import { IconCopy, IconTrash, IconAlertTriangle, IconRefresh, IconExternalLink, IconSearch, IconX } from '../components/Icons'
-import { Tooltip } from '../components/ui/Tooltip'
-import { TemplatePreviewModal } from '../components/modals/TemplatePreviewModal'
+import { useGodotVersionsContext } from '../hooks/godotVersionsContext'
+import { useProjectsContext } from '../hooks/projectsContext'
 import { useTaskTray } from '../hooks/useTaskTray'
+import { ViewHeader } from '../components/reusables/ViewHeader'
+import { SearchBar } from '../components/ui/SearchBar'
+import { Dropdown } from '../components/ui/Dropdown'
+import { OverlayScrollArea } from '../components/reusables/OverlayScrollArea'
+import { ScanButton } from '../components/reusables/ScanButton'
+import { ConfirmDialog } from '../components/modals/ConfirmDialog'
+import { TemplatePreviewModal } from '../components/modals/TemplatePreviewModal'
+import { Tooltip } from '../components/reusables/Tooltip'
+import { CreateProjectModal } from '../components/modals/CreateProjectModal'
+import { AssetLibraryBrowser } from '../components/asset-library/AssetLibraryBrowser'
+import {
+  IconChevronDown,
+  IconCopy,
+  IconFolderPlus,
+  IconSearch,
+  IconStore,
+  IconTrash,
+  type IconProps,
+} from '../lib/icons'
 
-export function TemplatesView() {
+const TEMPLATE_SORT_KEY = 'godothub_template_sort'
+
+type TemplateSortOption = 'name_asc' | 'name_desc' | 'newest' | 'oldest'
+
+const TEMPLATE_SORT_OPTIONS: { value: TemplateSortOption; labelKey: string }[] = [
+  { value: 'name_asc', labelKey: 'sort_name_asc' },
+  { value: 'name_desc', labelKey: 'sort_name_desc' },
+  { value: 'newest', labelKey: 'sort_created_desc' },
+  { value: 'oldest', labelKey: 'sort_created_asc' },
+]
+
+function TabSwitcher({
+  value,
+  onChange,
+  options,
+}: {
+  value: string
+  onChange: (value: string) => void
+  options: {
+    value: string
+    label: string
+    icon: ComponentType<IconProps>
+  }[]
+}) {
+  return (
+    <div className="inline-flex self-start shrink-0 h-12 items-center rounded-btn border border-outline/50 bg-overlay p-1 gap-1">
+      {options.map(({ value: v, label, icon: Icon }) => {
+        const active = value === v
+        return (
+          <button
+            key={v}
+            type="button"
+            onClick={() => onChange(v)}
+            className={`focus-ring cursor-pointer h-full flex items-center gap-1.5 px-3.5 rounded-btn text-xs font-medium transition-colors ${
+              active
+                ? 'bg-accent text-white'
+                : 'text-muted hover:text-ink hover:bg-raised'
+            }`}
+          >
+            <Icon className="w-3.5 h-3.5" />
+            {label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+export function TemplatesView({
+  connected = false,
+  onOpenSettings,
+}: {
+  connected?: boolean
+  onOpenSettings?: () => void
+}) {
+  const { t } = useTranslation('nav')
+  const { t: tc } = useTranslation('common')
   const { settings } = useSettings()
   const { activeId } = useWorkspaces()
+  const { installed } = useGodotVersionsContext()
+  const { refresh: refreshProjects } = useProjectsContext()
+  const { registerTask, updateTask, unregisterTask } = useTaskTray()
+
+  const [tab, setTab] = useState<'local' | 'asset'>('local')
   const [templates, setTemplates] = useState<ProjectTemplate[]>([])
   const [loaded, setLoaded] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
   const [deleting, setDeleting] = useState(false)
-  const [syncing, setSyncing] = useState(false)
-  const [dialogMinimized, setDialogMinimized] = useState(false)
-  const [syncMessage, setSyncMessage] = useState<string | null>(null)
-  const [syncResult, setSyncResult] = useState<TemplateSyncResult | null>(null)
+  const [_syncMessage, setSyncMessage] = useState<string | null>(null)
+  const [_syncResult, setSyncResult] = useState<TemplateSyncResult | null>(null)
   const [previewTemplate, setPreviewTemplate] = useState<ProjectTemplate | null>(null)
+  const [createTemplate, setCreateTemplate] = useState<ProjectTemplate | null>(null)
   const [query, setQuery] = useState('')
-  const { registerTask, updateTask, unregisterTask } = useTaskTray()
-  const { t } = useTranslation('common')
+  const [assetStats, setAssetStats] = useState({ loading: true, total: 0 })
+  const [sortBy, setSortBy] = useState<TemplateSortOption>(() => {
+    try {
+      const raw = localStorage.getItem(TEMPLATE_SORT_KEY)
+      if (raw === 'name_asc' || raw === 'name_desc' || raw === 'newest' || raw === 'oldest') return raw
+    } catch {}
+    return 'name_asc'
+  })
 
   const load = async () => {
     try {
@@ -37,16 +129,20 @@ export function TemplatesView() {
     load()
   }, [activeId])
 
+  useEffect(() => {
+    try {
+      localStorage.setItem(TEMPLATE_SORT_KEY, sortBy)
+    } catch {}
+  }, [sortBy])
+
   const handleSync = async () => {
-    setDialogMinimized(false)
-    setSyncing(true)
     setSyncMessage(null)
     setSyncResult(null)
     registerTask({
       id: 'sync-templates',
       type: 'sync-templates',
-      label: t('syncing'),
-      description: t('loading'),
+      label: tc('syncing'),
+      description: tc('loading'),
       progress: null,
       status: 'running',
     })
@@ -55,19 +151,15 @@ export function TemplatesView() {
       setSyncResult(result)
       const parts: string[] = []
       if (result.imported.length > 0)
-        parts.push(t('template_imported_count', { count: result.imported.length }))
+        parts.push(tc('template_imported_count', { count: result.imported.length }))
       if (result.updated.length > 0)
-        parts.push(t('template_updated_count', { count: result.updated.length }))
+        parts.push(tc('template_updated_count', { count: result.updated.length }))
       if (result.removed.length > 0)
-        parts.push(t('template_removed_count', { count: result.removed.length }))
-      setSyncMessage(
-        parts.length > 0
-          ? parts.join(' · ')
-          : t('templates_up_to_date'),
-      )
+        parts.push(tc('template_removed_count', { count: result.removed.length }))
+      setSyncMessage(parts.length > 0 ? parts.join(' · ') : null)
       updateTask('sync-templates', {
         status: 'completed',
-        description: parts.length > 0 ? parts.join(' · ') : t('up_to_date'),
+        description: parts.length > 0 ? parts.join(' · ') : tc('up_to_date'),
       })
       setTimeout(() => unregisterTask('sync-templates'), 3000)
       await load()
@@ -78,8 +170,7 @@ export function TemplatesView() {
         errorMessage: String(e),
       })
       setTimeout(() => unregisterTask('sync-templates'), 6000)
-    } finally {
-      setSyncing(false)
+      throw e
     }
   }
 
@@ -88,7 +179,12 @@ export function TemplatesView() {
   const loadRef = useRef(load)
   loadRef.current = load
   useEffect(() => {
-    const handler = () => syncRef.current()
+    if (consumePendingAction() === 'sync-templates') {
+      syncRef.current().catch(() => {})
+    }
+    const handler = () => {
+      syncRef.current().catch(() => {})
+    }
     const refreshHandler = () => loadRef.current()
     window.addEventListener('app:sync-templates', handler)
     window.addEventListener('app:refresh-templates', refreshHandler)
@@ -99,6 +195,7 @@ export function TemplatesView() {
   }, [])
 
   const handleDelete = async (id: string) => {
+    if (deleting) return
     setDeleting(true)
     try {
       await api.deleteTemplate(id)
@@ -112,7 +209,7 @@ export function TemplatesView() {
   }
 
   const isSearching = query.trim().length > 0
-  const filteredTemplates = isSearching
+  const filteredTemplates = (isSearching
     ? templates.filter(
         (t) =>
           t.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -120,172 +217,247 @@ export function TemplatesView() {
             t.description.toLowerCase().includes(query.toLowerCase())),
       )
     : templates
-
-  const user = filteredTemplates
-
+  ).slice().sort((a, b) => {
+    switch (sortBy) {
+      case 'name_desc':
+        return b.name.localeCompare(a.name)
+      case 'newest':
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      case 'oldest':
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+      case 'name_asc':
+      default:
+        return a.name.localeCompare(b.name)
+    }
+  })
   return (
-    <div className="p-10 pt-6 max-w-8xl mx-auto">
-      <div className="mb-8">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <h2 className="font-body font-semibold text-3xl tracking-tight">
-              {t('templates_title')}
-            </h2>
-            <p className="text-xs text-muted mt-1">
-              {templates.length > 0
-                ? t('template_count', { count: templates.length }) + (isSearching ? ' · ' + t('showing_count', { count: filteredTemplates.length }) : '')
-                : t('no_templates_saved')}
-            </p>
-          </div>
-          {/* Search bar */}
-          <div className="relative w-64 shrink-0">
-            <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted/50 pointer-events-none" />
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder={t('template_search_placeholder')}
-              className="w-full pl-9 pr-9 py-2 rounded-lg border border-line bg-surface text-sm text-ink placeholder:text-muted/50 outline-none transition-all focus:border-accent focus:ring-1 focus:ring-accent/30"
-            />
-            {query && (
-              <button
-                onClick={() => setQuery('')}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted/50 hover:text-ink transition-colors cursor-pointer"
-              >
-                <IconX className="w-3.5 h-3.5" />
-              </button>
+    <div className="flex-1 min-w-0 h-full flex flex-col gap-2">
+      <ViewHeader
+        connected={connected}
+        title={t('templates')}
+        metric={
+          tab === 'local' ? (
+            <>
+              <h2 className="text-4xl font-bold text-muted">
+                <AnimatedNumber value={templates.length} />
+              </h2>
+              <p className="text-lg font-medium uppercase text-muted">
+                {tc('template_your_templates', { count: templates.length })}
+              </p>
+            </>
+          ) : (
+            <>
+              <h2 className="text-4xl font-bold text-muted">
+                <AnimatedNumber value={assetStats.total} />
+              </h2>
+              <p className="text-lg font-medium uppercase text-muted">
+                {tc('asset_store_count', { count: assetStats.total })}
+              </p>
+            </>
+          )
+        }
+        actions={
+          <>
+            {settings.template_scan_dir && (
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.94 }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  onClick={() =>
+                    api.openProjectFolder(settings.template_scan_dir!)
+                  }
+                  className="focus-ring cursor-pointer flex items-center justify-center px-6 h-10 rounded-item bg-overlay shadow-md shadow-black/10 border border-outline/50 hover:bg-raised text-muted hover:text-ink font-semibold text-[17px] transition-colors"
+                >
+                  {tc('template_open_folder_btn')}
+                </motion.button>
             )}
-          </div>
+            <ScanButton
+              onOpenSettings={onOpenSettings}
+              scanDirs={
+                settings.template_scan_dir
+                  ? [settings.template_scan_dir]
+                  : []
+              }
+              scan={() => handleSync()}
+            />
+          </>
+        }
+      >
+        <div className="flex items-center gap-2">
+          <SearchBar
+            value={query}
+            onChange={setQuery}
+            placeholderKey={
+              tab === 'local'
+                ? 'template_search_placeholder'
+                : 'asset_search_placeholder'
+            }
+            className="flex-1"
+          />
+          <TabSwitcher
+            value={tab}
+            onChange={(v) => setTab(v as 'local' | 'asset')}
+            options={[
+              { value: 'local', label: tc('templates_tab_local'), icon: IconCopy },
+              { value: 'asset', label: tc('templates_tab_asset'), icon: IconStore },
+            ]}
+          />
         </div>
-        <div className="flex items-center gap-3 mt-4">
-          <Tooltip
-            content={!settings.template_scan_dir ? t('template_scan_dir_hint') : t('template_sync_from_dir')}
-            side="bottom"
-          >
-            <motion.button
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.96 }}
-              onClick={handleSync}
-              disabled={syncing || !settings.template_scan_dir}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              <span className={`icon-wiggle inline-flex ${syncing ? 'animate-spin' : ''}`}>
-                <IconRefresh className="w-4 h-4" />
-              </span>
-              {syncing ? t('syncing') : t('sync_now')}
-            </motion.button>
-          </Tooltip>
-          {settings.template_scan_dir && (
-            <Tooltip content={t('template_open_folder')} side="bottom">
-              <motion.button
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.96 }}
-                onClick={() => api.openProjectFolder(settings.template_scan_dir!)}
-                className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-lg border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
-              >
-                <IconExternalLink className="w-4 h-4" />
-                {t('template_open_folder_btn')}
-              </motion.button>
-            </Tooltip>
-          )}
-          {syncMessage && (
-            <span className={`text-xs ${syncResult && (syncResult.imported.length > 0 || syncResult.updated.length > 0 || syncResult.removed.length > 0) ? 'text-mint' : 'text-muted'}`}>
-              {syncMessage}
-            </span>
-          )}
-        </div>
-      </div>
+      </ViewHeader>
 
-      {!loaded ? (
-        <div className="text-sm text-muted">{t('loading')}</div>
-      ) : templates.length === 0 ? (
-        <div className="border border-dashed border-line rounded-2xl py-24 flex flex-col items-center gap-4 text-center">
-          <div className="w-12 h-12 rounded-xl bg-raised border border-line flex items-center justify-center">
-            <IconCopy className="w-5 h-5 text-muted" />
-          </div>
-          <p className="text-sm text-muted max-w-xs leading-relaxed">
-            <Trans i18nKey="no_templates_yet" ns="common">
-              No templates yet. Right-click a project or open its "More" menu and
-              select <strong>Save as Template</strong> to create one.
-            </Trans>
-          </p>
-        </div>
-      ) : filteredTemplates.length === 0 ? (
-        <div className="border border-dashed border-line rounded-2xl py-24 flex flex-col items-center gap-4 text-center">
-          <IconSearch className="w-5 h-5 text-muted" />
-          <p className="text-sm text-muted max-w-xs leading-relaxed">
-            {t('no_templates_match')} <strong>"{query}"</strong>.
-          </p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-8">
-          {/* User templates section */}
-          {user.length > 0 && (
-            <section>
-              <div className="flex items-center gap-2 mb-4">
-                <IconCopy className="w-3.5 h-3.5 text-muted" />
-                <h3 className="text-xs font-semibold uppercase tracking-wide text-muted">
-                  {t('template_your_templates')}
-                </h3>
-                <span className="text-[10px] text-muted/50">· {user.length}</span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <AnimatePresence>
-                  {user.map((tmpl) => (
-                    <motion.div
-                      key={tmpl.id}
-                      layout
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95 }}
-                      className="relative border border-line rounded-xl bg-surface p-5 flex flex-col gap-3 group cursor-pointer"
-                      onClick={() => setPreviewTemplate(tmpl)}
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-raised border border-line flex items-center justify-center shrink-0">
-                          <IconCopy className="w-3.5 h-3.5 text-muted" />
-                        </div>
-                        <button
-                          onClick={(e) => { e.stopPropagation(); setConfirmDelete(tmpl.id) }}
-                          className="focus-ring cursor-pointer p-1.5 rounded-lg text-muted/40 opacity-0 group-hover:opacity-100 hover:text-danger hover:bg-danger/10 transition-all"
-                          aria-label={t('delete_template', { name: tmpl.name })}
-                        >
-                          <IconTrash className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-display font-semibold text-sm truncate">
-                          {tmpl.name}
-                        </h4>
-                        {tmpl.description && (
-                          <p className="text-xs text-muted mt-1 leading-relaxed">
-                            {tmpl.description}
-                          </p>
-                        )}
-                      </div>
-                      <div className="flex items-center gap-1.5 text-[10px] text-muted/50 font-mono">
-                        {tmpl.godot_version && (
-                          <span>{t('godot')} {tmpl.godot_version}</span>
-                        )}
-                        {tmpl.created_at && (
-                          <>
-                            <span>·</span>
-                            <span>
-                              {new Date(tmpl.created_at).toLocaleDateString()}
-                            </span>
-                          </>
-                        )}
-                      </div>
-                    </motion.div>
+      <OverlayScrollArea
+        className={`flex-1 min-w-0 ${connected ? '' : '-mr-4 -mb-4'}`}
+        hideThumb={!settings.show_scrollbars}
+        topButtonBottom="bottom-17"
+      >
+        <div
+          className={`h-full ${connected ? 'pl-5' : ''} pr-5 pb-4 flex flex-col gap-2`}
+        >
+          {tab === 'local' ? (
+            <>
+              {!loaded ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="h-52 rounded-item border border-outline/50 bg-overlay animate-pulse"
+                    />
                   ))}
-                </AnimatePresence>
-              </div>
-            </section>
+                </div>
+              ) : templates.length === 0 ? (
+                <div className="rounded-item border border-dashed border-outline/50 py-20 flex flex-col items-center gap-3 text-center px-6">
+                  <div className="w-12 h-12 rounded-tile bg-overlay border border-outline/50 flex items-center justify-center">
+                    <IconCopy className="w-5 h-5 text-muted" />
+                  </div>
+                  <p className="text-sm text-muted max-w-sm leading-relaxed">
+                    <Trans i18nKey="no_templates_yet" ns="common">
+                      No templates yet. Right-click a project or open its "More"
+                      menu and select{' '}
+                      <strong>Save as Template</strong> to create one.
+                    </Trans>
+                  </p>
+                </div>
+              ) : filteredTemplates.length === 0 ? (
+                <div className="rounded-item border border-dashed border-outline/50 py-16 flex flex-col items-center gap-3 text-center">
+                  <IconSearch className="w-5 h-5 text-muted" />
+                  <p className="text-sm text-muted">
+                    {tc('no_templates_match')}{' '}
+                    <strong className="text-ink">"{query}"</strong>.
+                  </p>
+                </div>
+              ) : (
+                <>
+                <div className="flex items-center justify-start">
+                  <Dropdown
+                    align="left"
+                    trigger={({ open, toggle }) => {
+                      const activeOption = TEMPLATE_SORT_OPTIONS.find((o) => o.value === sortBy)
+                      return (
+                        <motion.button
+                          type="button"
+                          aria-expanded={open}
+                          whileHover={{ scale: 1.04 }}
+                          whileTap={{ scale: 0.94 }}
+                          onClick={toggle}
+                          className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
+                        >
+                          <span className="text-[12px] text-muted">{tc('sort')}:</span>
+                          <span className="text-[13px] font-medium text-ink">
+                            {activeOption ? tc(activeOption.labelKey) : tc('sort')}
+                          </span>
+                          <IconChevronDown className="w-3 h-3 text-muted" />
+                        </motion.button>
+                      )
+                    }}
+                    items={TEMPLATE_SORT_OPTIONS.map((opt) => ({
+                      key: opt.value,
+                      label: tc(opt.labelKey),
+                      active: opt.value === sortBy,
+                      onClick: () => setSortBy(opt.value),
+                    }))}
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  <AnimatePresence>
+                    {filteredTemplates.map((tmpl) => (
+                      <motion.div
+                        key={tmpl.id}
+                        layout
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        className="relative border border-outline/50 rounded-item bg-overlay p-5 flex flex-col gap-3 group cursor-pointer hover:border-accent-dim transition-colors"
+                        onClick={() => setPreviewTemplate(tmpl)}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="w-10 h-10 rounded-tile bg-raised border border-outline/50 flex items-center justify-center shrink-0">
+                            <IconCopy className="w-4 h-4 text-muted" />
+                          </div>
+                          <Tooltip content={tc('delete_template', { name: tmpl.name })} side="left">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setConfirmDelete(tmpl.id)
+                              }}
+                              className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 opacity-0 group-hover:opacity-100 hover:text-danger hover:bg-danger/10 transition-all"
+                              aria-label={tc('delete_template', { name: tmpl.name })}
+                            >
+                              <IconTrash className="w-3.5 h-3.5" />
+                            </button>
+                          </Tooltip>
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-display font-semibold text-sm truncate">
+                            {tmpl.name}
+                          </h4>
+                          {tmpl.description && (
+                            <p className="text-xs text-muted mt-1 leading-relaxed line-clamp-3">
+                              {tmpl.description}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[10px] text-muted/50 font-mono">
+                          {tmpl.godot_version && (
+                            <span>
+                              {tc('godot')} {tmpl.godot_version}
+                            </span>
+                          )}
+                          {tmpl.created_at && (
+                            <>
+                              <span>·</span>
+                              <span>
+                                {formatLocaleDate(new Date(tmpl.created_at))}
+                              </span>
+                            </>
+                          )}
+                        </div>
+                        <motion.button
+                          whileHover={{ y: -1 }}
+                          whileTap={{ scale: 0.96 }}
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setCreateTemplate(tmpl)
+                          }}
+                          className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 px-3 py-2 rounded-item bg-accent/10 border border-accent-dim/30 text-accent-bright text-xs font-semibold hover:bg-accent/20 transition-colors"
+                        >
+                          <IconFolderPlus className="w-3.5 h-3.5" />
+                          {tc('template_create_project')}
+                        </motion.button>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                </div>
+                </>
+              )}
+            </>
+          ) : (
+            <AssetLibraryBrowser query={query} onStatsChange={setAssetStats} installedTemplateNames={templates.map((t) => t.name)} />
           )}
+          <div className="shrink-0 h-4" aria-hidden="true" />
         </div>
-      )}
+      </OverlayScrollArea>
 
-      {/* Preview modal */}
       <AnimatePresence>
         {previewTemplate && (
           <TemplatePreviewModal
@@ -295,80 +467,39 @@ export function TemplatesView() {
         )}
       </AnimatePresence>
 
-      {/* Delete confirmation dialog */}
       <AnimatePresence>
-        {confirmDelete && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-            onClick={() => !deleting && setConfirmDelete(null)}
-          >
-            <motion.div
-              initial={{ opacity: 0, y: 12, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-              className="bg-surface border border-line rounded-2xl p-6 w-full max-w-sm flex flex-col gap-5 shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-danger/10 flex items-center justify-center shrink-0">
-                  <IconAlertTriangle className="w-5 h-5 text-danger" />
-                </div>
-                <div>
-                  <h4 className="font-display font-semibold text-muted">
-                    {t('template_delete_title')}
-                  </h4>
-                  <p className="text-xs text-muted mt-0.5">
-                    {templates.find((t) => t.id === confirmDelete)?.name
-                      ? t('template_delete_desc', { name: templates.find((t) => t.id === confirmDelete)?.name })
-                      : t('cannot_undo')}
-                  </p>
-                </div>
-              </div>
-              <div className="flex justify-end gap-2.5">
-                <motion.button
-                  whileHover={{ y: -1 }}
-                  whileTap={{ scale: 0.96 }}
-                  onClick={() => setConfirmDelete(null)}
-                  disabled={deleting}
-                  className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
-                >
-                  {t('cancel')}
-                </motion.button>
-                <motion.button
-                  whileHover={deleting ? undefined : { y: -1 }}
-                  whileTap={deleting ? undefined : { scale: 0.96 }}
-                  onClick={() => handleDelete(confirmDelete)}
-                  disabled={deleting}
-                  className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg bg-danger hover:bg-danger/80 disabled:opacity-50 text-sm font-medium text-white transition-colors"
-                >
-                  {deleting ? t('deleting') : t('delete')}
-                </motion.button>
-              </div>
-            </motion.div>
-          </motion.div>
+        {createTemplate && (
+          <CreateProjectModal
+            installedVersions={installed}
+            defaultLocation={settings.default_project_location}
+            initialTemplateId={createTemplate.id}
+            onClose={() => setCreateTemplate(null)}
+            onCreated={() => {
+              setCreateTemplate(null)
+              refreshProjects()
+            }}
+          />
         )}
       </AnimatePresence>
 
-      {/* Sync overlay */}
-      {syncing && !dialogMinimized && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-surface border border-line rounded-2xl px-8 py-6 flex flex-col items-center gap-3 min-w-64">
-            <IconRefresh className="w-6 h-6 animate-spin text-accent" />
-            <p className="text-sm font-medium text-ink">
-              {t('template_syncing_from_dir')}
-            </p>
-            <button
-              onClick={() => setDialogMinimized(true)}
-              className="focus-ring cursor-pointer text-xs text-muted hover:text-ink transition-colors mt-1"
-            >
-              {t('resume_background')}
-            </button>
-          </div>
-        </div>
-      )}
+      <AnimatePresence>
+        {confirmDelete && (
+          <ConfirmDialog
+            variant="danger"
+            title={tc('template_delete_title')}
+            description={
+              templates.find((t) => t.id === confirmDelete)?.name
+                ? tc('template_delete_desc', {
+                    name: templates.find((t) => t.id === confirmDelete)?.name,
+                  })
+                : tc('cannot_undo')
+            }
+            confirmLabel={deleting ? tc('deleting') : tc('delete')}
+            onConfirm={() => handleDelete(confirmDelete)}
+            onCancel={() => setConfirmDelete(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }

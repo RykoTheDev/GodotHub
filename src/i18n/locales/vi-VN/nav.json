@@ -1,0 +1,16 @@
+{
+  "dashboard": "Dashboard",
+  "projects": "Dự Án",
+  "projects_count": "Dự Án",
+  "versions": "Phiên Bản",
+  "templates": "Mẫu",
+  "asset_store": "Cửa Hàng Asset",
+  "news": "Tin Tức Godot",
+  "settings": "Cài Đặt",
+  "changelog": "Changelog",
+  "collapse_sidebar": "Thu Gọn",
+  "expand_sidebar": "Mở Rộng",
+  "updates": "Cập nhật từ nhà phát triển",
+  "projects_count_one": "Project",
+  "projects_count_other": "Projects"
+}

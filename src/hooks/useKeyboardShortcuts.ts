@@ -5,6 +5,7 @@ export interface ShortcutHandlers {
   onOpenSettings: () => void
   onSwitchTab: (tabIndex: number) => void
   onCommandPalette: () => void
+  onRestart: () => void
   onEscape: () => void
 }
 
@@ -47,6 +48,10 @@ export function useKeyboardShortcuts(
             e.preventDefault()
             h.current.onOpenSettings()
           }
+          break
+        case 'r':
+          e.preventDefault()
+          h.current.onRestart()
           break
         case '1':
         case '2':

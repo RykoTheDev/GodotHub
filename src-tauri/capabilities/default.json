@@ -11,7 +11,10 @@
     "core:window:allow-toggle-maximize",
     "core:window:allow-close",
     "core:window:allow-start-dragging",
+    "core:window:allow-set-decorations",
     "core:window:allow-is-maximized",
-    "updater:default"
+    "process:default",
+    "updater:default",
+    "discord-rpc:default"
   ]
 }

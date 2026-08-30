@@ -1,31 +1,16 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
 import { api } from '../lib/api'
+import { useApiData } from '../lib/useApiData'
 import { useWorkspaces } from './useWorkspaces'
 import type { Category } from '../types'
 
 export function useCategories() {
   const { activeId } = useWorkspaces()
-  const [categories, setCategories] = useState<Category[]>([])
-  const [loaded, setLoaded] = useState(false)
-
-  const refresh = useCallback(
-    async () => {
-      try {
-        const list = await api.listCategories()
-        setCategories(list)
-        return list
-      } catch {
-        setCategories([])
-      } finally {
-        setLoaded(true)
-      }
-    },
-    [],
+  const { data: categories, loaded, refresh, setData } = useApiData(
+    () => api.listCategories(),
+    [activeId],
+    [] as Category[],
   )
-
-  useEffect(() => {
-    refresh()
-  }, [refresh, activeId])
 
   const create = useCallback(
     async (name: string, color?: string) => {
@@ -61,15 +46,19 @@ export function useCategories() {
     [refresh],
   )
 
-  const reorder = useCallback(async (orderedIds: string[]) => {
-    setCategories((prev) => {
-      const rank = new Map(orderedIds.map((id, i) => [id, i]))
-      return [...prev].sort(
-        (a, b) => (rank.get(a.id) ?? 0) - (rank.get(b.id) ?? 0),
-      )
-    })
-    await api.reorderCategories(orderedIds)
-  }, [])
+  const reorder = useCallback(
+    async (orderedIds: string[]) => {
+      setData((prev) => {
+        if (!Array.isArray(prev)) return prev
+        const rank = new Map(orderedIds.map((id, i) => [id, i]))
+        return [...prev].sort(
+          (a, b) => (rank.get(a.id) ?? 0) - (rank.get(b.id) ?? 0),
+        )
+      })
+      await api.reorderCategories(orderedIds)
+    },
+    [setData],
+  )
 
   return { categories, loaded, refresh, create, rename, update, remove, reorder }
 }

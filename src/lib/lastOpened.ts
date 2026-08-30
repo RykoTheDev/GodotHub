@@ -5,7 +5,7 @@ function pad2(n: number): string {
   return n < 10 ? `0${n}` : `${n}`
 }
 
-function formatTime(date: Date, timeFormat: LastOpenedTimeFormat): string {
+export function formatTime(date: Date, timeFormat: LastOpenedTimeFormat): string {
   let hours = date.getHours()
   const minutes = pad2(date.getMinutes())
 
@@ -19,7 +19,7 @@ function formatTime(date: Date, timeFormat: LastOpenedTimeFormat): string {
   return `${hours}:${minutes} ${suffix}`
 }
 
-function formatDate(date: Date, dateFormat: LastOpenedDateFormat): string {
+export function formatDate(date: Date, dateFormat: LastOpenedDateFormat): string {
   const day = pad2(date.getDate())
   const month = pad2(date.getMonth() + 1)
   const year = date.getFullYear()

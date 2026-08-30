@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
+import { ModalShell } from './ModalShell'
+import { IconCode } from '../../lib/icons'
 
 interface Props {
   projectName: string
@@ -38,31 +40,40 @@ export function LaunchArgsModal({
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-      onClick={onClose}
+    <ModalShell
+      icon={<IconCode className="w-5 h-5" />}
+      title={t('args_heading')}
+      description={
+        <>
+          {t('args_desc_custom_flags_before')}{' '}
+          <span className="font-medium text-ink">{projectName}</span>
+          {t('args_desc_custom_flags_after')}
+        </>
+      }
+      maxWidth="max-w-lg"
+      onClose={onClose}
+      footer={
+        <>
+          <motion.button
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={onClose}
+            className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg text-sm text-muted hover:text-ink hover:bg-raised transition-colors ml-auto"
+          >
+            {t('cancel')}
+          </motion.button>
+          <motion.button
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={() => onSave(args.trim())}
+            className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
+          >
+            {t('save')}
+          </motion.button>
+        </>
+      }
     >
-      <motion.div
-        initial={{ opacity: 0, y: 12, scale: 0.96 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-        className="bg-surface border border-line rounded-2xl p-7 w-full max-w-lg flex flex-col gap-5 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div>
-          <h3 className="font-display font-semibold text-lg">
-            {t('args_heading')}
-          </h3>
-          <p className="text-xs text-muted mt-1.5">
-            {t('args_desc_custom_flags_before')}{' '}
-            <span className="font-medium text-ink">{projectName}</span>
-            {t('args_desc_custom_flags_after')}
-          </p>
-        </div>
-
+      <div className="flex flex-col gap-5 p-6 pt-0">
         <div className="flex flex-col gap-2">
           <label className="text-xs font-medium text-muted">{t('args_label')}</label>
           <input
@@ -94,26 +105,7 @@ export function LaunchArgsModal({
             ))}
           </div>
         </div>
-
-        <div className="flex justify-end gap-2.5 mt-1">
-          <motion.button
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.96 }}
-            onClick={onClose}
-            className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
-          >
-            {t('cancel')}
-          </motion.button>
-          <motion.button
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.96 }}
-            onClick={() => onSave(args.trim())}
-            className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
-          >
-            {t('save')}
-          </motion.button>
-        </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </ModalShell>
   )
 }

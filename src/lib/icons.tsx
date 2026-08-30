@@ -1,0 +1,177 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import type { IconDefinition } from '@fortawesome/fontawesome-svg-core'
+import {
+  faFolderPlus,
+  faFileImport,
+  faPlay,
+  faTrash,
+  faDownload,
+  faDiagramProject,
+  faChevronUp,
+  faChevronDown,
+  faChevronLeft,
+  faChevronRight,
+  faXmark,
+  faGear,
+  faPlus,
+  faGripVertical,
+  faTableCellsLarge,
+  faListUl,
+  faLanguage,
+  faSun,
+  faMoon,
+  faPen,
+  faCheck,
+  faCheckCircle,
+  faTriangleExclamation,
+  faInfoCircle,
+  faBomb,
+  faClock,
+  faCopy,
+  faEllipsisVertical,
+  faMagnifyingGlass,
+  faFilter,
+  faSort,
+  faTags,
+  faFolder,
+  faNewspaper,
+  faAnglesLeft,
+  faAnglesRight,
+  faArrowDown,
+  faArrowUp,
+  faArrowUpRightFromSquare,
+  faArrowRotateRight,
+  faWifi,
+  faMapPin,
+  faBriefcase,
+  faHouse,
+  faPause,
+  faUser,
+  faCode,
+  faCodeBranch,
+  faTerminal,
+  faCloudArrowDown,
+  faHistory,
+  faGamepad,
+  faPalette,
+  faGraduationCap,
+  faRocket,
+  faFlask,
+  faHeart,
+  faDumbbell,
+  faBook,
+  faBookOpen,
+  faBug,
+  faHardDrive,
+  faBell,
+  faSpinner,
+  faCircleCheck,
+  faCircleXmark,
+  faStar,
+  faStore,
+  faStopwatch,
+  faFont,
+  faDesktop,
+  faUniversalAccess,
+  faMinus,
+  faSquare,
+  faClone,
+  faPlug,
+  faTableColumns,
+  faEye,
+  faEyeSlash,
+} from '@fortawesome/free-solid-svg-icons'
+
+export interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, 'ref'> {
+  fill?: string
+}
+
+function solid(icon: IconDefinition) {
+  return ({ className, fill, style }: IconProps) => (
+    <FontAwesomeIcon
+      icon={icon}
+      className={className}
+      style={fill === 'none' ? { opacity: 0.45, ...style } : style}
+    />
+  )
+}
+
+export const IconFolderPlus = solid(faFolderPlus)
+export const IconImport = solid(faFileImport)
+export const IconPause = solid(faPause)
+export const IconPlay = solid(faPlay)
+export const IconTrash = solid(faTrash)
+export const IconDownload = solid(faDownload)
+export const IconNode = solid(faDiagramProject)
+export const IconChevronUp = solid(faChevronUp)
+export const IconChevronDown = solid(faChevronDown)
+export const IconChevronLeft = solid(faChevronLeft)
+export const IconChevronRight = solid(faChevronRight)
+export const IconX = solid(faXmark)
+export const IconGear = solid(faGear)
+export const IconPlus = solid(faPlus)
+export const IconPin = solid(faMapPin)
+export const IconGrip = solid(faGripVertical)
+export const IconLayoutGrid = solid(faTableCellsLarge)
+export const IconLayoutList = solid(faListUl)
+export const IconKanban = solid(faTableColumns)
+export const IconLanguage = solid(faLanguage)
+export const IconSun = solid(faSun)
+export const IconMoon = solid(faMoon)
+export const IconPencil = solid(faPen)
+export const IconCheck = solid(faCheck)
+export const IconClock = solid(faClock)
+export const IconSearch = solid(faMagnifyingGlass)
+export const IconFilter = solid(faFilter)
+export const IconArrowUpDown = solid(faSort)
+export const IconTags = solid(faTags)
+export const IconNews = solid(faNewspaper)
+export const IconChevronsLeft = solid(faAnglesLeft)
+export const IconChevronsRight = solid(faAnglesRight)
+export const IconArrowDown = solid(faArrowDown)
+export const IconArrowUp = solid(faArrowUp)
+export const IconExternalLink = solid(faArrowUpRightFromSquare)
+export const IconRefresh = solid(faArrowRotateRight)
+export const IconWifiOff = solid(faWifi)
+export const IconBriefcase = solid(faBriefcase)
+export const IconHouse = solid(faHouse)
+export const IconUser = solid(faUser)
+export const IconUniversalAccess = solid(faUniversalAccess)
+export const IconCode = solid(faCode)
+export const IconGitBranch = solid(faCodeBranch)
+export const IconTerminal = solid(faTerminal)
+export const IconCloudArrowDown = solid(faCloudArrowDown)
+export const IconHistory = solid(faHistory)
+export const IconGamepad = solid(faGamepad)
+export const IconPalette = solid(faPalette)
+export const IconGraduationCap = solid(faGraduationCap)
+export const IconRocket = solid(faRocket)
+export const IconFlask = solid(faFlask)
+export const IconHeart = solid(faHeart)
+export const IconDumbbell = solid(faDumbbell)
+export const IconBook = solid(faBook)
+export const IconBookOpen = solid(faBookOpen)
+export const IconBug = solid(faBug)
+export const IconHardDrive = solid(faHardDrive)
+export const IconCheckCircle = solid(faCheckCircle)
+export const IconAlertTriangle = solid(faTriangleExclamation)
+export const IconInfo = solid(faInfoCircle)
+export const IconBomb = solid(faBomb)
+export const IconCopy = solid(faCopy)
+export const IconMore = solid(faEllipsisVertical)
+export const IconBell = solid(faBell)
+export const IconSpinner = solid(faSpinner)
+export const IconCircleCheck = solid(faCircleCheck)
+export const IconCircleX = solid(faCircleXmark)
+export const IconStar = solid(faStar)
+export const IconStore = solid(faStore)
+export const IconStopwatch = solid(faStopwatch)
+export const IconType = solid(faFont)
+export const IconMonitor = solid(faDesktop)
+export const IconFolder = solid(faFolder)
+export const IconMinus = solid(faMinus)
+export const IconSquare = solid(faSquare)
+export const IconClone = solid(faClone)
+export const IconPlug = solid(faPlug)
+export const IconEye = solid(faEye)
+export const IconEyeSlash = solid(faEyeSlash)

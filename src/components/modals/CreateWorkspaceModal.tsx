@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { ColorSwatchPicker } from '../ui/ColorSwatchPicker'
 import {
   WORKSPACE_ICON_KEYS,
   WORKSPACE_COLOR_PRESETS,
   getWorkspaceIcon,
 } from '../../lib/workspaceIcons'
+import { ModalShell } from './ModalShell'
+import { IconPlus } from '../../lib/icons'
+import { WorkspaceStylePicker } from '../ui/WorkspaceStylePicker'
 
 interface Props {
   onClose: () => void
@@ -20,6 +22,9 @@ export function CreateWorkspaceModal({ onClose, onCreate }: Props) {
   const [color, setColor] = useState(WORKSPACE_COLOR_PRESETS[0])
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+
+  const PreviewIcon = getWorkspaceIcon(icon)
+  const previewName = name.trim() || t('create_workspace_title')
 
   const submit = async () => {
     if (!name.trim()) {
@@ -38,81 +43,20 @@ export function CreateWorkspaceModal({ onClose, onCreate }: Props) {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ opacity: 0, y: 12, scale: 0.96 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-        className="bg-surface border border-line rounded-2xl p-7 w-full max-w-md flex flex-col gap-6 shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div>
-          <h3 className="font-display font-semibold text-lg">{t('create_workspace_title')}</h3>
-          <p className="text-xs text-muted mt-1.5">
-            {t('create_workspace_desc')}
-          </p>
-        </div>
-
-        <div className="flex flex-col gap-2">
-          <label className="text-xs font-medium text-muted">{t('workspace_name_label')}</label>
-          <input
-            autoFocus
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && submit()}
-            className="focus-ring bg-raised border border-line rounded-lg px-3.5 py-2.5 text-sm focus:border-accent-dim transition-colors"
-            placeholder={t('workspace_name_placeholder')}
-          />
-        </div>
-
-        <div className="flex flex-col gap-2.5">
-          <span className="text-xs font-medium text-muted">{t('icon_label')}</span>
-          <div className="flex flex-wrap gap-2">
-            {WORKSPACE_ICON_KEYS.map((key) => {
-              const Icon = getWorkspaceIcon(key)
-              const active = icon === key
-              return (
-                <motion.button
-                  key={key}
-                  type="button"
-                  whileHover={{ y: -1 }}
-                  whileTap={{ scale: 0.94 }}
-                  onClick={() => setIcon(key)}
-                  aria-label={key}
-                  className={`focus-ring cursor-pointer w-9 h-9 rounded-lg flex items-center justify-center border transition-colors ${
-                    active
-                      ? 'border-accent bg-raised text-ink'
-                      : 'border-line text-muted hover:text-ink hover:bg-raised'
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                </motion.button>
-              )
-            })}
-          </div>
-        </div>
-
-        <ColorSwatchPicker
-          label={t('color_label')}
-          value={color}
-          onChange={setColor}
-          presets={WORKSPACE_COLOR_PRESETS}
-        />
-
-        {error && <p className="text-xs text-danger">{error}</p>}
-
-        <div className="flex justify-end gap-2.5 mt-1">
+    <ModalShell
+      icon={<IconPlus className="w-5 h-5 text-accent-bright" />}
+      title={t('create_workspace_title')}
+      description={t('create_workspace_desc')}
+      maxWidth="max-w-md"
+      onClose={onClose}
+      showClose={false}
+      footer={
+        <div className="ml-auto flex justify-end gap-2.5">
           <motion.button
             whileHover={{ y: -1 }}
             whileTap={{ scale: 0.96 }}
             onClick={onClose}
-            className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
+            className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
           >
             {t('cancel')}
           </motion.button>
@@ -121,12 +65,63 @@ export function CreateWorkspaceModal({ onClose, onCreate }: Props) {
             whileTap={busy ? undefined : { scale: 0.96 }}
             onClick={submit}
             disabled={busy}
-            className="focus-ring px-4 cursor-pointer py-2.5 rounded-lg bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white transition-colors"
+            className="focus-ring px-5 cursor-pointer py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white transition-colors"
           >
             {busy ? t('creating') : t('create_workspace_btn')}
           </motion.button>
         </div>
-      </motion.div>
-    </motion.div>
+      }
+    >
+        <div className="flex flex-col gap-5 p-6">
+          <div className="relative overflow-hidden rounded-btn border border-outline/50 bg-overlay p-4 flex items-center gap-3">
+            <div
+              className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-40 transition-colors duration-300"
+              style={{ backgroundColor: color }}
+              aria-hidden="true"
+            />
+            <motion.span
+              key={icon}
+              initial={{ scale: 0.6, rotate: -12, opacity: 0 }}
+              animate={{ scale: 1, rotate: 0, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 380, damping: 22 }}
+              className="relative w-12 h-12 rounded-full border-2 flex items-center justify-center shrink-0"
+              style={{ backgroundColor: `${color}26`, borderColor: color }}
+            >
+              <PreviewIcon className="w-5 h-5" style={{ color }} />
+            </motion.span>
+            <div className="relative min-w-0">
+              <span className="block font-display font-semibold text-base text-ink truncate">
+                {previewName}
+              </span>
+              <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted/60 mt-0.5">
+                {t('workspaces_section')}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-medium text-muted">
+              {t('workspace_name_label')}
+            </label>
+            <input
+              autoFocus
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && submit()}
+              className="focus-ring bg-raised border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm focus:border-accent-dim transition-colors"
+              placeholder={t('workspace_name_placeholder')}
+            />
+          </div>
+
+          <WorkspaceStylePicker
+            icon={icon}
+            onIconChange={setIcon}
+            color={color}
+            onColorChange={setColor}
+          />
+
+          {error && <p className="text-xs text-danger">{error}</p>}
+        </div>
+    </ModalShell>
   )
 }

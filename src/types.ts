@@ -38,7 +38,64 @@ export interface ChangelogEntry {
   version: string
   date: string
   notes: ChangelogNote[]
+  known_issues: string[]
   created_at: number
+}
+
+export interface ChangelogDraftNote {
+  category: ChangelogNote['category']
+  text: string
+  hash: string
+  author: string
+}
+
+export interface ChangelogDraftSkipped {
+  hash: string
+  subject: string
+  reason: 'merge' | 'revert' | 'bump' | 'unrecognized'
+}
+
+export interface ChangelogDraft {
+  from: string
+  to: string
+  count: number
+  next_version: string
+  notes: ChangelogDraftNote[]
+  skipped: ChangelogDraftSkipped[]
+}
+
+export type UpdateKind =
+  | 'announcement'
+  | 'new-feature'
+  | 'improvement'
+  | 'breaking-change'
+  | 'known-issue'
+
+export interface UpdateEntry {
+  id: string
+  kind: UpdateKind
+  title: string
+  body: string
+  command?: string | null
+  is_new: boolean
+  featured: boolean
+  link?: string | null
+  created_at: number
+}
+
+export interface TimeInsights {
+  total_seconds: number
+  longest_streak_days: number
+  current_streak_days: number
+  most_productive_weekday: number | null
+  this_month_seconds: number
+  last_month_seconds: number
+}
+
+export interface UpdatesResponse {
+  entries: UpdateEntry[]
+  from_cache: boolean
+  fetched_at: number
 }
 
 export interface Project {
@@ -53,6 +110,10 @@ export interface Project {
   sort_order: number
   launch_arguments: string
   tags: string[]
+  total_time_seconds: number
+  session_started_at_ms: number | null
+  time_today_seconds: number
+  time_week_seconds: number
 }
 
 export interface ProjectUpdate {
@@ -72,6 +133,7 @@ export interface GitStatus {
 
 export interface GitLogEntry {
   hash: string
+  parents: string[]
   message: string
   author: string
   date: string
@@ -80,6 +142,7 @@ export interface GitLogEntry {
 export interface GitBranchInfo {
   name: string
   is_current: boolean
+  has_upstream: boolean
 }
 
 export interface GitStashEntry {
@@ -90,6 +153,45 @@ export interface GitStashEntry {
 export interface GitChangedFile {
   path: string
   status: string
+}
+
+export interface GitRemoteInfo {
+  name: string
+  web_url: string
+  repo_name: string
+}
+
+export interface GitAheadBehind {
+  ahead: number
+  behind: number
+}
+
+export interface GitCommitFile {
+  path: string
+  status: string
+}
+
+export interface GitCommitDetails {
+  hash: string
+  message: string
+  author: string
+  date: string
+  files: GitCommitFile[]
+  diff: GitDiffResult
+}
+
+export interface GitInitOutcome {
+  initialized: boolean
+  committed: boolean
+  branch: string | null
+  warning: string | null
+}
+
+export interface GitInitOptions {
+  gitignore?: boolean
+  gitattributes?: boolean
+  readme?: boolean
+  license?: string | null
 }
 
 export interface GitDiffLine {
@@ -123,6 +225,7 @@ export interface NewsItem {
   summary: string | null
   author: string | null
   category: string | null
+  image: string | null
 }
 
 export interface NewsResponse {
@@ -141,6 +244,14 @@ export interface Workspace {
 export interface WorkspacesState {
   workspaces: Workspace[]
   active_id: string
+}
+
+export interface WorkspaceScanDirs {
+  workspace_id: string
+  workspace_name: string
+  project_scan_dirs: string[]
+  version_scan_dirs: string[]
+  template_scan_dir: string | null
 }
 
 export interface TemplateFileEntry {
@@ -176,6 +287,73 @@ export interface ProjectTemplate {
   source_project_id: string | null
   source_path: string | null
   path: string
+  keep_name: boolean
+}
+
+export interface AssetLibraryAsset {
+  asset_id: string
+  title: string
+  author: string
+  category: string
+  godot_version: string
+  cost: string
+  support_level: string
+  asset_type: string
+  description: string | null
+  icon_url: string | null
+  download_url: string | null
+  browse_url: string | null
+  modify_date: string | null
+  rating?: string
+  source?: 'library' | 'store'
+}
+
+export interface AssetLibraryResponse {
+  assets: AssetLibraryAsset[]
+  page: number
+  pages: number
+  total: number
+}
+
+export interface AssetDownloadProgress {
+  asset_id: string
+  title: string
+  downloaded: number
+  total: number
+}
+
+export interface AssetDownloadError {
+  asset_id: string
+  title: string
+  message: string
+}
+
+export interface AssetLibraryCategory {
+  id: string
+  name: string
+  category_type: string
+}
+
+export interface InstallAssetResult {
+  asset_id: string
+  title: string
+  target_type: 'project' | 'template'
+  target_name: string
+  path: string
+}
+
+export type NamingConvention =
+  | 'keep'
+  | 'kebab-case'
+  | 'snake_case'
+  | 'camelCase'
+  | 'PascalCase'
+  | 'Title Case'
+
+export interface DiscordProjectPresence {
+  id: string
+  details: string | null
+  state: string | null
 }
 
 export interface AppSettings {
@@ -184,14 +362,18 @@ export interface AppSettings {
   project_scan_dirs: string[]
   version_scan_dirs: string[]
   scan_depth: number
+  icon_scan_depth: number
   download_concurrency: number
   accent_color: string
   background_color: string
   corner_radius: number
+  raised_contrast: number
   ui_density: number
   font_scale: number
-  reduce_motion: boolean
-  theme_mode: 'dark' | 'light'
+  theme_mode: 'dark' | 'light' | 'system'
+  custom_css: string
+  animation_intensity: 'full' | 'subtle' | 'none'
+  view_entrance: 'fade' | 'slide' | 'scale' | 'none'
   launch_with_console: boolean
   close_on_project_open: boolean
   minimize_to_tray: boolean
@@ -205,6 +387,11 @@ export interface AppSettings {
   command_palette_keybind: string
   external_editor_path: string | null
   github_token: string | null
+  discord_app_id: string | null
+  discord_rpc_enabled: boolean
+  discord_rpc_show_projects: boolean
+  discord_rpc_excluded_projects: string[]
+  discord_rpc_project_presences: DiscordProjectPresence[]
   template_scan_dir: string | null
   auto_watch_project_dirs: boolean
   auto_watch_version_dirs: boolean
@@ -213,7 +400,118 @@ export interface AppSettings {
   tray_recent_projects_count: number
   show_support_button: boolean
   show_star_button: boolean
+  show_bug_button: boolean
+  show_tray_button: boolean
+  show_language_button: boolean
   show_scrollbars: boolean
+  animated_numbers: boolean
+  screen_reader_announcements: boolean
   project_icon_opacity: number
+  animation_threshold: number
   language: string
+  use_os_decorations: boolean
+  directory_naming_convention: NamingConvention
+  theme_preset: string
+  git_init_new_projects: boolean
+  open_after_import: boolean
+  card_layout: boolean
+  dashboard_custom_name: string | null
+  default_landing_tab: string
+  dashboard_sections: string[]
+  dashboard_section_order: string[]
+  dashboard_section_spans: string[]
+  dashboard_tall_sections: string[]
+  dashboard_custom_presets: DashboardCustomPreset[]
+  auto_backup_interval_minutes: number
+  card_show_size: boolean
+  card_show_time: boolean
+  card_blur_path: boolean
+  card_show_path: boolean
+  card_show_tags: boolean
+  card_show_last_opened: boolean
+  card_show_play: boolean
+  card_show_console: boolean
+  card_view_overrides: Record<string, Partial<CardViewSettings>>
+  customize_view_enabled: boolean
 }
+
+export interface CardViewSettings {
+  show_size: boolean
+  show_time: boolean
+  blur_path: boolean
+  show_path: boolean
+  show_tags: boolean
+  show_last_opened: boolean
+  show_play: boolean
+  show_console: boolean
+}
+
+export type ProjectViewMode = 'list' | 'grid' | 'kanban'
+
+export interface DashboardCustomPreset {
+  id: string
+  name: string
+  sections: string[]
+  order: string[]
+  spans: string[]
+  tall: string[]
+}
+
+export interface ScanResult {
+  added: Project[]
+  found_dismissed: string[]
+}
+
+export interface GitAccountInfo {
+  username: string
+  host?: string | null
+}
+
+export interface GitPatInfo {
+  host: string
+  username: string
+}
+
+export interface GitAuthState {
+  github: GitAccountInfo | null
+  gitlab: GitAccountInfo | null
+  pats: GitPatInfo[]
+}
+
+export interface DeviceFlowStart {
+  provider: string
+  device_code: string
+  user_code: string
+  verification_uri: string
+  verification_uri_complete: string
+  interval: number
+  expires_in: number
+  base_url?: string | null
+}
+
+export type DeviceFlowPoll =
+  | { status: 'pending' }
+  | { status: 'success'; username: string }
+  | { status: 'error'; message: string }
+
+export interface CreateRepoResult {
+  url: string
+  slug: string
+}
+
+export interface UserRepoInfo {
+  name: string
+  full_name: string
+  description: string | null
+  clone_url: string
+  html_url: string
+  private: boolean
+  language: string | null
+  default_branch: string | null
+}
+
+export interface UserRepoPage {
+  repos: UserRepoInfo[]
+  has_more: boolean
+}
+

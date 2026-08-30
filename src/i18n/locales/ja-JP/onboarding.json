@@ -1,0 +1,22 @@
+{
+  "welcome": "ようこそ",
+  "categories": "カテゴリ",
+  "customize": "カスタマイズ",
+  "finish": "完了",
+  "in_progress": "進行中",
+  "prototypes": "プロトタイプ",
+  "finished": "完成済み",
+  "game_jams": "ゲームジャム",
+  "project_folders": "プロジェクトフォルダ",
+  "version_folders": "バージョンフォルダ",
+  "welcome_title": "GodotHub へようこそ",
+  "welcome_desc": "このマシン上のすべての Godot プロジェクトとエンジンバージョンをひとまとめにする場所です。お好みの使い方に合わせて、いくつか設定しておきましょう。1 分もかかりませんし、ここでの設定はあとから「設定」でいつでも変更できます。",
+  "onboard_empty_projects": "フォルダがまだ追加されていません。追加するまで GodotHub は既存のプロジェクトを見つけられません。あとから手動でプロジェクトを追加することもできます。",
+  "onboard_empty_versions": "フォルダがまだ追加されていません。下で指定しない限り、新しくダウンロードした Godot はアプリデータフォルダに保存されます。",
+  "onboard_no_template_folder": "フォルダが未設定です。あとから「設定」で構成することも、テンプレートを手動で保存することもできます。",
+  "language_heading": "言語",
+  "onboard_cloud_heading": "クラウドバックアップ",
+  "onboard_cloud_desc": "すでにバックアップがありますか？ GitHub でサインインすると、gist からワークスペース・プロジェクト・設定を復元できます。",
+  "onboard_cloud_sign_in": "GitHub でサインイン",
+  "onboard_cloud_connected": "@{{username}} として接続中"
+}
