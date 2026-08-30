@@ -315,5 +315,7 @@
   "experimental": "实验性",
   "experimental_desc": "试用仍在开发中的新功能。这些功能可能不稳定或随时变更。",
   "customize_view_label": "自定义视图按钮",
-  "customize_view_desc": "在项目视图中显示自定义视图按钮。禁用时，已添加的视图将被移除，视图将重置为仅列表模式。"
+  "customize_view_desc": "在项目视图中显示自定义视图按钮。禁用时，已添加的视图将被移除，视图将重置为仅列表模式。",
+  "git_worktrees_label": "Git Worktrees",
+  "git_worktrees_desc": "Show the Worktrees section in the Git sidebar. Worktrees let you check out multiple branches simultaneously in separate directories."
 }

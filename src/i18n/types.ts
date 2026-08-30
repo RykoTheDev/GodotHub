@@ -815,7 +815,22 @@ export type gitKeys =
   | 'discard_all'
   | 'auth_connected_accounts'
   | 'auth_disconnect'
-  | 'auth_connect_hint';
+  | 'auth_connect_hint'
+  | 'worktrees_title'
+  | 'worktree_current'
+  | 'no_worktrees'
+  | 'switch_worktree'
+  | 'switched_worktree_ok'
+  | 'add_worktree'
+  | 'add_worktree_btn'
+  | 'worktree_path_placeholder'
+  | 'worktree_branch_placeholder'
+  | 'worktree_created_ok'
+  | 'worktree_dirty'
+  | 'worktree_clean'
+  | 'remove_worktree'
+  | 'remove_worktree_confirm_desc'
+  | 'worktree_removed_ok';
 
 /** Keys from nav.json */
 export type navKeys = 
@@ -1171,7 +1186,9 @@ export type settingsKeys =
   | 'experimental'
   | 'experimental_desc'
   | 'customize_view_label'
-  | 'customize_view_desc';
+  | 'customize_view_desc'
+  | 'git_worktrees_label'
+  | 'git_worktrees_desc';
 
 /** Keys from versions.json */
 export type versionsKeys = 
@@ -2374,6 +2391,8 @@ export type TranslationKey =
   | 'settings:experimental_desc'
   | 'settings:customize_view_label'
   | 'settings:customize_view_desc'
+  | 'settings:git_worktrees_label'
+  | 'settings:git_worktrees_desc'
   | 'versions:standard'
   | 'versions:unbound'
   | 'versions:mono'

@@ -436,6 +436,7 @@ export function App() {
                   gitStatus={gitSidebarProject.gitStatus}
                   onClose={() => setGitSidebarProject(null)}
                   onRefresh={() => refreshProjects()}
+                  onSwitchProject={(p) => setGitSidebarProject((prev) => prev ? { ...prev, project: p } : null)}
                   connected={!cardLayout}
                 />
               </motion.aside>

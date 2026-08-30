@@ -71,5 +71,20 @@
   "discard_all": "丢弃全部",
   "auth_connected_accounts": "已连接的账户",
   "auth_disconnect": "断开连接",
-  "auth_connect_hint": "连接到您想要的 Git 主机开始使用，或使用 SSH 而无需连接任何账户。"
+  "auth_connect_hint": "连接到您想要的 Git 主机开始使用，或使用 SSH 而无需连接任何账户。",
+  "worktrees_title": "Worktrees",
+  "worktree_current": "Current",
+  "no_worktrees": "No additional worktrees",
+  "switch_worktree": "Switch to this worktree",
+  "switched_worktree_ok": "Switched to worktree.",
+  "add_worktree": "+ New",
+  "add_worktree_btn": "Add worktree",
+  "worktree_path_placeholder": "Path (e.g. ../my-feature)",
+  "worktree_branch_placeholder": "Branch name (optional)",
+  "worktree_created_ok": "Worktree created.",
+  "worktree_dirty": "Uncommitted changes",
+  "worktree_clean": "Clean",
+  "remove_worktree": "Remove worktree",
+  "remove_worktree_confirm_desc": "This will remove the worktree at {{path}} and discard any uncommitted changes. This cannot be undone.",
+  "worktree_removed_ok": "Worktree removed."
 }

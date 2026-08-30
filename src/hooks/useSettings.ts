@@ -113,6 +113,7 @@ const DEFAULTS: AppSettings = {
   card_show_console: true,
   card_view_overrides: {},
   customize_view_enabled: false,
+  git_worktrees_enabled: false,
 }
 
 interface SettingsContextValue {

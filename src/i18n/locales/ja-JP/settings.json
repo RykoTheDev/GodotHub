@@ -315,5 +315,7 @@
   "landing_dashboard": "Dashboard",
   "landing_projects": "Projects",
   "landing_versions": "Versions",
-  "landing_news": "Godot News"
+  "landing_news": "Godot News",
+  "git_worktrees_label": "Git Worktrees",
+  "git_worktrees_desc": "Show the Worktrees section in the Git sidebar. Worktrees let you check out multiple branches simultaneously in separate directories."
 }

@@ -71,5 +71,20 @@
   "discard_all": "すべて破棄",
   "auth_connected_accounts": "接続済みのアカウント",
   "auth_disconnect": "接続を解除",
-  "auth_connect_hint": "使用する Git ホストに接続して始めましょう。何も接続せずに SSH を使うこともできます。"
+  "auth_connect_hint": "使用する Git ホストに接続して始めましょう。何も接続せずに SSH を使うこともできます。",
+  "worktrees_title": "Worktrees",
+  "worktree_current": "Current",
+  "no_worktrees": "No additional worktrees",
+  "switch_worktree": "Switch to this worktree",
+  "switched_worktree_ok": "Switched to worktree.",
+  "add_worktree": "+ New",
+  "add_worktree_btn": "Add worktree",
+  "worktree_path_placeholder": "Path (e.g. ../my-feature)",
+  "worktree_branch_placeholder": "Branch name (optional)",
+  "worktree_created_ok": "Worktree created.",
+  "worktree_dirty": "Uncommitted changes",
+  "worktree_clean": "Clean",
+  "remove_worktree": "Remove worktree",
+  "remove_worktree_confirm_desc": "This will remove the worktree at {{path}} and discard any uncommitted changes. This cannot be undone.",
+  "worktree_removed_ok": "Worktree removed."
 }

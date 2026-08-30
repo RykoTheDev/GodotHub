@@ -71,5 +71,20 @@
   "discard_all": "Hủy bỏ tất cả",
   "auth_connected_accounts": "Tài khoản đã kết nối",
   "auth_disconnect": "Ngắt kết nối",
-  "auth_connect_hint": "Kết nối với Git host mong muốn để bắt đầu, hoặc sử dụng SSH mà không cần kết nối bất kỳ tài khoản nào."
+  "auth_connect_hint": "Kết nối với Git host mong muốn để bắt đầu, hoặc sử dụng SSH mà không cần kết nối bất kỳ tài khoản nào.",
+  "worktrees_title": "Worktrees",
+  "worktree_current": "Current",
+  "no_worktrees": "No additional worktrees",
+  "switch_worktree": "Switch to this worktree",
+  "switched_worktree_ok": "Switched to worktree.",
+  "add_worktree": "+ New",
+  "add_worktree_btn": "Add worktree",
+  "worktree_path_placeholder": "Path (e.g. ../my-feature)",
+  "worktree_branch_placeholder": "Branch name (optional)",
+  "worktree_created_ok": "Worktree created.",
+  "worktree_dirty": "Uncommitted changes",
+  "worktree_clean": "Clean",
+  "remove_worktree": "Remove worktree",
+  "remove_worktree_confirm_desc": "This will remove the worktree at {{path}} and discard any uncommitted changes. This cannot be undone.",
+  "worktree_removed_ok": "Worktree removed."
 }

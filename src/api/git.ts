@@ -1,5 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
-import type { GitAheadBehind, GitBranchInfo, GitChangedFile, GitCommitDetails, GitDiffResult, GitInitOptions, GitInitOutcome, GitLogEntry, GitRemoteInfo, GitStashEntry, GitStatus } from '../types'
+import type { GitAheadBehind, GitBranchInfo, GitChangedFile, GitCommitDetails, GitDiffResult, GitInitOptions, GitInitOutcome, GitLogEntry, GitRemoteInfo, GitStashEntry, GitStatus, GitWorktree } from '../types'
 
 export const gitApi = {
   status: (path: string) =>
@@ -99,4 +99,12 @@ export const gitApi = {
     invoke<boolean>('git_is_merging', { path }),
   openTerminal: (path: string) =>
     invoke<void>('open_terminal', { path }),
+  worktreeList: (path: string) =>
+    invoke<GitWorktree[]>('git_worktree_list', { path }),
+  worktreeSwitch: (path: string, worktreePath: string) =>
+    invoke<void>('git_worktree_switch', { path, worktreePath }),
+  worktreeAdd: (path: string, worktreePath: string, branch?: string) =>
+    invoke<void>('git_worktree_add', { path, worktreePath, branch: branch ?? null }),
+  worktreeRemove: (path: string, worktreePath: string) =>
+    invoke<void>('git_worktree_remove', { path, worktreePath }),
 }

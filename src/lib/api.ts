@@ -127,6 +127,10 @@ export const api = {
   gitResolveConflictManual: gitApi.resolveConflictManual,
   gitAbortMerge: gitApi.abortMerge,
   gitIsMerging: gitApi.isMerging,
+  gitWorktreeList: gitApi.worktreeList,
+  gitWorktreeSwitch: gitApi.worktreeSwitch,
+  gitWorktreeAdd: gitApi.worktreeAdd,
+  gitWorktreeRemove: gitApi.worktreeRemove,
 
   gitAuthGetState: gitAuthApi.getState,
   gitAuthCreateRemoteRepo: gitAuthApi.createRemoteRepo,

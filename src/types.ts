@@ -166,6 +166,13 @@ export interface GitAheadBehind {
   behind: number
 }
 
+export interface GitWorktree {
+  path: string
+  branch: string | null
+  head: string
+  has_uncommitted: boolean
+}
+
 export interface GitCommitFile {
   path: string
   status: string
@@ -433,6 +440,7 @@ export interface AppSettings {
   card_show_console: boolean
   card_view_overrides: Record<string, Partial<CardViewSettings>>
   customize_view_enabled: boolean
+  git_worktrees_enabled: boolean
 }
 
 export interface CardViewSettings {

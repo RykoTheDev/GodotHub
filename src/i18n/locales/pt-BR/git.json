@@ -71,5 +71,20 @@
   "discard_all": "Descartar tudo",
   "auth_connected_accounts": "Contas conectadas",
   "auth_disconnect": "Desconectar",
-  "auth_connect_hint": "Conecte-se ao host Git desejado para começar ou use SSH sem conectar nenhuma conta."
+  "auth_connect_hint": "Conecte-se ao host Git desejado para começar ou use SSH sem conectar nenhuma conta.",
+  "worktrees_title": "Worktrees",
+  "worktree_current": "Current",
+  "no_worktrees": "No additional worktrees",
+  "switch_worktree": "Switch to this worktree",
+  "switched_worktree_ok": "Switched to worktree.",
+  "add_worktree": "+ New",
+  "add_worktree_btn": "Add worktree",
+  "worktree_path_placeholder": "Path (e.g. ../my-feature)",
+  "worktree_branch_placeholder": "Branch name (optional)",
+  "worktree_created_ok": "Worktree created.",
+  "worktree_dirty": "Uncommitted changes",
+  "worktree_clean": "Clean",
+  "remove_worktree": "Remove worktree",
+  "remove_worktree_confirm_desc": "This will remove the worktree at {{path}} and discard any uncommitted changes. This cannot be undone.",
+  "worktree_removed_ok": "Worktree removed."
 }

@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { useTauriEvent } from '../../lib/useTauriEvent'
+import { useSettings } from '../../hooks/useSettings'
 import { pushToast } from '../../lib/toast'
 import type {
   GitAheadBehind,
@@ -14,6 +15,7 @@ import type {
   GitRemoteInfo,
   GitStashEntry,
   GitStatus,
+  GitWorktree,
   Project,
 } from '../../types'
 import { api } from '../../lib/api'
@@ -22,6 +24,7 @@ import {
   IconCheck,
   IconChevronDown,
   IconChevronUp,
+  IconClone,
   IconCloudArrowDown,
   IconDownload,
   IconExternalLink,
@@ -46,6 +49,7 @@ interface Props {
   gitStatus: GitStatus | null
   onClose: () => void
   onRefresh: () => void
+  onSwitchProject?: (project: Project) => void
   connected?: boolean
 }
 
@@ -290,10 +294,12 @@ export function GitSidebar({
   gitStatus,
   onClose,
   onRefresh,
+  onSwitchProject,
   connected = false,
 }: Props) {
   const { t } = useTranslation('git')
   const { t: tc } = useTranslation('common')
+  const { settings } = useSettings()
   const [gitAuth, setGitAuth] = useState<GitAuthState | null>(null)
   const [gitAuthFlow, setGitAuthFlow] = useState<'github' | 'gitlab' | null>(
     null,
@@ -336,6 +342,14 @@ export function GitSidebar({
   const [deletingBranch, setDeletingBranch] = useState<string | null>(null)
   const [publishingBranch, setPublishingBranch] = useState(false)
   const branchMenuRef = useRef<HTMLDivElement>(null)
+  const [worktrees, setWorktrees] = useState<GitWorktree[]>([])
+  const [switchingWorktree, setSwitchingWorktree] = useState<string | null>(null)
+  const [newWorktreeMode, setNewWorktreeMode] = useState(false)
+  const [newWorktreePath, setNewWorktreePath] = useState('')
+  const [newWorktreeBranch, setNewWorktreeBranch] = useState('')
+  const [creatingWorktree, setCreatingWorktree] = useState(false)
+  const [removingWorktree, setRemovingWorktree] = useState<string | null>(null)
+  const [removeWorktreeConfirm, setRemoveWorktreeConfirm] = useState<string | null>(null)
   const [ready, setReady] = useState(false)
 
   const notifyGitStatusChanged = useCallback(() => {
@@ -361,6 +375,7 @@ export function GitSidebar({
     setBranchesLoading(true)
     setCommitsLoading(true)
     void refreshGitAuth()
+    const worktreesEnabled = settings.git_worktrees_enabled
     Promise.allSettled([
       api.gitChangedFiles(project.path),
       api.gitListRemotes(project.path),
@@ -370,7 +385,8 @@ export function GitSidebar({
       api.gitAheadBehind(project.path),
       api.gitIsMerging(project.path),
       api.gitMergeConflictFiles(project.path),
-    ]).then(([files, remotes, branches, log, stashes, aheadBehind, isMerging, conflictFiles]) => {
+      worktreesEnabled ? api.gitWorktreeList(project.path) : Promise.resolve([]),
+    ]).then(([files, remotes, branches, log, stashes, aheadBehind, isMerging, conflictFiles, wts]) => {
       if (cancelled) return
       if (files.status === 'fulfilled') setChangedFiles(files.value)
       if (remotes.status === 'fulfilled') setRemotes(remotes.value)
@@ -380,13 +396,14 @@ export function GitSidebar({
       if (aheadBehind.status === 'fulfilled') setAheadBehind(aheadBehind.value)
       if (isMerging.status === 'fulfilled') setMerging(isMerging.value)
       if (conflictFiles.status === 'fulfilled') setConflictFiles(conflictFiles.value)
+      if (wts.status === 'fulfilled') setWorktrees(wts.value)
       setChangesLoading(false)
       setRemotesLoading(false)
       setBranchesLoading(false)
       setCommitsLoading(false)
     })
     return () => { cancelled = true }
-  }, [project.path, refreshGitAuth, ready])
+  }, [project.path, refreshGitAuth, ready, settings.git_worktrees_enabled])
 
   useEffect(() => {
     const onOpened = () => setReady(true)
@@ -412,6 +429,10 @@ export function GitSidebar({
     setNewBranchMode(false)
     setNewBranchName('')
     setCommitMessage('')
+    setNewWorktreeMode(false)
+    setNewWorktreePath('')
+    setNewWorktreeBranch('')
+    setRemoveWorktreeConfirm(null)
   }, [project.path])
 
   useEffect(() => {
@@ -841,6 +862,67 @@ export function GitSidebar({
     } catch {}
   }, [project.path])
 
+  const refreshWorktrees = useCallback(async () => {
+    try {
+      const wts = await api.gitWorktreeList(project.path)
+      setWorktrees(wts)
+    } catch {}
+  }, [project.path])
+
+  const handleSwitchWorktree = async (worktreePath: string) => {
+    if (switchingWorktree) return
+    setSwitchingWorktree(worktreePath)
+    try {
+      await api.gitWorktreeSwitch(project.path, worktreePath)
+      // Update the project to point to the worktree directory
+      onSwitchProject?.({ ...project, path: worktreePath })
+      pushToast('success', t('switched_worktree_ok'))
+    } catch (e) {
+      pushToast('error', String(e))
+    } finally {
+      setSwitchingWorktree(null)
+    }
+  }
+
+  const handleCreateWorktree = async () => {
+    const wtPath = newWorktreePath.trim()
+    if (!wtPath || creatingWorktree) return
+    setCreatingWorktree(true)
+    try {
+      const branch = newWorktreeBranch.trim() || undefined
+      // Resolve relative paths against the project directory
+      const resolvedPath = wtPath.startsWith('/') ? wtPath : `${project.path}/${wtPath}`
+      await api.gitWorktreeAdd(project.path, resolvedPath, branch)
+      await refreshWorktrees()
+      onRefresh()
+      notifyGitStatusChanged()
+      setNewWorktreePath('')
+      setNewWorktreeBranch('')
+      setNewWorktreeMode(false)
+      pushToast('success', t('worktree_created_ok'))
+    } catch (e) {
+      pushToast('error', String(e))
+    } finally {
+      setCreatingWorktree(false)
+    }
+  }
+
+  const handleRemoveWorktree = async (worktreePath: string) => {
+    if (removingWorktree) return
+    setRemovingWorktree(worktreePath)
+    try {
+      await api.gitWorktreeRemove(project.path, worktreePath)
+      await refreshWorktrees()
+      onRefresh()
+      notifyGitStatusChanged()
+      pushToast('success', t('worktree_removed_ok'))
+    } catch (e) {
+      pushToast('error', String(e))
+    } finally {
+      setRemovingWorktree(null)
+    }
+  }
+
   useTauriEvent(
     'git:project-changed',
     () => {
@@ -848,8 +930,9 @@ export function GitSidebar({
       void refreshLog()
       void refreshAheadBehind()
       void refreshMergeState()
+      if (settings.git_worktrees_enabled) void refreshWorktrees()
     },
-    [refreshChanges, refreshLog, refreshAheadBehind, refreshMergeState],
+    [refreshChanges, refreshLog, refreshAheadBehind, refreshMergeState, refreshWorktrees, settings.git_worktrees_enabled],
   )
 
   const handleStageFile = async (filePath: string) => {
@@ -1471,6 +1554,153 @@ export function GitSidebar({
               </Tooltip>
           </motion.div>
 
+          {settings.git_worktrees_enabled && (
+            <motion.div
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.2, ease: 'easeOut', delay: 0.3 }}
+            >
+              <Section title={t('worktrees_title')} count={worktrees.length} storageKey="git-sidebar-worktrees" defaultOpen={false}>
+                <div className="flex flex-col gap-1">
+                  {worktrees.length === 0 ? (
+                    <div className="px-2.5 py-2">
+                      <span className="text-[11px] text-muted/50">
+                        {t('no_worktrees')}
+                      </span>
+                    </div>
+                  ) : worktrees.map((wt) => {
+                      const isCurrent = wt.path === project.path
+                      const isSwitching = switchingWorktree === wt.path
+                      const isMainWorktree = wt.path === project.path
+                      return (
+                        <div
+                          key={wt.path}
+                          className="group relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-item border border-line/60 bg-base/40 hover:bg-raised/60 transition-colors"
+                        >
+                          <IconClone className={`w-3 h-3 shrink-0 ${isCurrent ? 'text-accent' : 'text-muted/40'}`} />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <p className={`text-[11px] font-medium truncate ${isCurrent ? 'text-ink' : 'text-muted'}`}>
+                                {wt.branch ?? wt.path.split('/').pop()}
+                              </p>
+                              {wt.has_uncommitted ? (
+                                <Tooltip content={t('worktree_dirty')}>
+                                  <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-amber" />
+                                </Tooltip>
+                              ) : (
+                                <Tooltip content={t('worktree_clean')}>
+                                  <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-mint/60" />
+                                </Tooltip>
+                              )}
+                            </div>
+                            <Tooltip content={wt.path} className="block">
+                              <p className="text-[9px] font-mono text-muted/50 truncate">
+                                {isMainWorktree ? t('worktree_current') : wt.path}
+                              </p>
+                            </Tooltip>
+                          </div>
+                          {isSwitching && (
+                            <span className="text-[10px] text-muted/50 animate-pulse">
+                              {t('switching')}
+                            </span>
+                          )}
+                          {!isCurrent && !isSwitching && (
+                            <Tooltip content={t('switch_worktree')}>
+                              <button
+                                type="button"
+                                onClick={() => void handleSwitchWorktree(wt.path)}
+                                disabled={!!switchingWorktree}
+                                className="focus-ring cursor-pointer shrink-0 p-1 rounded text-muted/50 hover:text-accent hover:bg-raised transition-colors disabled:opacity-40"
+                              >
+                                <IconExternalLink className="w-3 h-3" />
+                              </button>
+                            </Tooltip>
+                          )}
+                          {!isMainWorktree && !isSwitching && (
+                            <Tooltip content={t('remove_worktree')}>
+                              <button
+                                type="button"
+                                onClick={() => setRemoveWorktreeConfirm(wt.path)}
+                                disabled={!!removingWorktree}
+                                className="focus-ring cursor-pointer shrink-0 p-1 rounded text-muted/50 hover:text-danger hover:bg-raised transition-colors disabled:opacity-40 opacity-0 group-hover:opacity-100"
+                              >
+                                <IconTrash className="w-3 h-3" />
+                              </button>
+                            </Tooltip>
+                          )}
+                          {isCurrent && (
+                            <IconCheck className="w-3 h-3 text-accent shrink-0" />
+                          )}
+                        </div>
+                      )
+                    })}
+                  </div>
+                <div className="border-t border-outline/40 mt-1 pt-1">
+                  {newWorktreeMode ? (
+                    <div className="flex flex-col gap-1.5">
+                      <input
+                        autoFocus
+                        value={newWorktreePath}
+                        onChange={(e) => setNewWorktreePath(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            void handleCreateWorktree()
+                          } else if (e.key === 'Escape') {
+                            setNewWorktreeMode(false)
+                            setNewWorktreePath('')
+                            setNewWorktreeBranch('')
+                          }
+                        }}
+                        placeholder={t('worktree_path_placeholder')}
+                        className="w-full bg-base border border-outline/50 rounded-item px-2 py-1.5 text-[11px] text-ink placeholder:text-muted focus:border-accent-dim outline-none transition-colors"
+                      />
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          value={newWorktreeBranch}
+                          onChange={(e) => setNewWorktreeBranch(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              void handleCreateWorktree()
+                            } else if (e.key === 'Escape') {
+                              setNewWorktreeMode(false)
+                              setNewWorktreePath('')
+                              setNewWorktreeBranch('')
+                            }
+                          }}
+                          placeholder={t('worktree_branch_placeholder')}
+                          className="flex-1 min-w-0 bg-base border border-outline/50 rounded-item px-2 py-1.5 text-[11px] text-ink placeholder:text-muted focus:border-accent-dim outline-none transition-colors"
+                        />
+                        <Tooltip content={t('add_worktree_btn')} side="top">
+                          <button
+                            type="button"
+                            onClick={() => void handleCreateWorktree()}
+                            disabled={!newWorktreePath.trim() || creatingWorktree}
+                            className="focus-ring cursor-pointer shrink-0 p-1.5 rounded text-muted hover:text-mint hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                          >
+                            {creatingWorktree ? (
+                              <Spinner />
+                            ) : (
+                              <IconCheck className="w-3.5 h-3.5" />
+                            )}
+                          </button>
+                        </Tooltip>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setNewWorktreeMode(true)}
+                      className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-2 py-1.5 rounded-item text-[11px] font-medium text-muted hover:bg-raised hover:text-ink transition-colors"
+                    >
+                      <IconPlus className="w-3 h-3 text-accent shrink-0" />
+                      {t('add_worktree')}
+                    </button>
+                  )}
+                </div>
+              </Section>
+            </motion.div>
+          )}
+
           {stashes.length > 0 && (
             <motion.div
               initial={{ opacity: 0, x: 24 }}
@@ -1736,6 +1966,21 @@ export function GitSidebar({
           variant="danger"
           onConfirm={() => void handleForcePush()}
           onCancel={() => setForcePushOpen(false)}
+        />
+      )}
+
+      {removeWorktreeConfirm && (
+        <ConfirmDialog
+          title={t('remove_worktree')}
+          description={t('remove_worktree_confirm_desc', { path: removeWorktreeConfirm })}
+          confirmLabel={t('remove_worktree')}
+          variant="danger"
+          onConfirm={() => {
+            const p = removeWorktreeConfirm
+            setRemoveWorktreeConfirm(null)
+            void handleRemoveWorktree(p)
+          }}
+          onCancel={() => setRemoveWorktreeConfirm(null)}
         />
       )}
 

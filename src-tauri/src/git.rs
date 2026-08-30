@@ -96,6 +96,14 @@ fn default_true() -> bool {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct GitWorktree {
+    pub path: String,
+    pub branch: Option<String>,
+    pub head: String,
+    pub has_uncommitted: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GitDiffResult {
     pub hunks: Vec<GitDiffHunk>,
 }
@@ -1612,4 +1620,154 @@ fn parse_diff_text(diff_text: &str) -> GitDiffResult {
         result.hunks.push(hunk);
     }
     result
+}
+
+fn worktree_has_uncommitted(wt_path: &str) -> bool {
+    let output = git_helpers::git_raw(wt_path, ["status", "--porcelain"]);
+    match output {
+        Ok(out) => {
+            let stdout = git_helpers::output_stdout(&out);
+            !stdout.trim().is_empty()
+        }
+        Err(_) => false,
+    }
+}
+
+#[tauri::command]
+pub async fn git_worktree_list(path: String) -> Result<Vec<GitWorktree>, String> {
+    tokio::task::spawn_blocking(move || {
+        if !check_is_repo(&path) {
+            return Err("Not a git repository".into());
+        }
+        let stdout = git_helpers::git_cmd(&path, ["worktree", "list", "--porcelain"])
+            .map_err(|e| e.to_string())?;
+
+        let mut worktrees: Vec<GitWorktree> = Vec::new();
+        let mut current_path: Option<String> = None;
+        let mut current_head: Option<String> = None;
+        let mut current_branch: Option<String> = None;
+
+        for line in stdout.lines() {
+            let trimmed = line.trim();
+            if trimmed.starts_with("worktree ") {
+                // Save the previous worktree if any
+                if let Some(p) = current_path.take() {
+                    let has_uncommitted = worktree_has_uncommitted(&p);
+                    worktrees.push(GitWorktree {
+                        path: p,
+                        branch: current_branch.take(),
+                        head: current_head.take().unwrap_or_default(),
+                        has_uncommitted,
+                    });
+                }
+                current_path = Some(trimmed["worktree ".len()..].to_string());
+            } else if trimmed.starts_with("HEAD ") {
+                current_head = Some(trimmed["HEAD ".len()..].to_string());
+            } else if trimmed.starts_with("branch ") {
+                // branch refs/heads/main
+                let branch_ref = &trimmed["branch ".len()..];
+                current_branch = Some(
+                    branch_ref
+                        .strip_prefix("refs/heads/")
+                        .unwrap_or(branch_ref)
+                        .to_string(),
+                );
+            } else if trimmed == "detached" {
+                current_branch = None;
+            }
+        }
+        // Don't forget the last worktree
+        if let Some(p) = current_path.take() {
+            let has_uncommitted = worktree_has_uncommitted(&p);
+            worktrees.push(GitWorktree {
+                path: p,
+                branch: current_branch.take(),
+                head: current_head.take().unwrap_or_default(),
+                has_uncommitted,
+            });
+        }
+
+        Ok(worktrees)
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+pub async fn git_worktree_switch(path: String, worktree_path: String) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || {
+        if !check_is_repo(&path) {
+            return Err("Not a git repository".into());
+        }
+        let wt_dir = PathBuf::from(&worktree_path);
+        if !wt_dir.is_dir() {
+            return Err(format!("Worktree directory does not exist: {}", worktree_path));
+        }
+        // Validate this is actually a worktree of this repo
+        git_helpers::git_cmd(&worktree_path, ["rev-parse", "--git-dir"])
+            .map_err(|e| e.to_string())?;
+        Ok(())
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+pub async fn git_worktree_add(
+    path: String,
+    worktree_path: String,
+    branch: Option<String>,
+) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || {
+        if !check_is_repo(&path) {
+            return Err("Not a git repository".into());
+        }
+        let wt_dir = PathBuf::from(&worktree_path);
+        if wt_dir.exists() {
+            return Err(format!(
+                "Directory already exists: {}",
+                worktree_path
+            ));
+        }
+        if let Some(parent) = wt_dir.parent() {
+            if !parent.exists() {
+                fs::create_dir_all(parent)
+                    .map_err(|e| format!("Failed to create parent directory: {e}"))?;
+            }
+        }
+        let mut args = vec!["worktree", "add"];
+        if let Some(ref b) = branch {
+            args.push("-b");
+            args.push(b.as_str());
+        }
+        args.push(worktree_path.as_str());
+        git_helpers::git_cmd(&path, &args).map_err(|e| e.to_string())?;
+        Ok(())
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+pub async fn git_worktree_remove(
+    path: String,
+    worktree_path: String,
+) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || {
+        if !check_is_repo(&path) {
+            return Err("Not a git repository".into());
+        }
+        let wt_dir = PathBuf::from(&worktree_path);
+        if !wt_dir.exists() {
+            return Err(format!("Worktree does not exist: {}", worktree_path));
+        }
+        // Remove the worktree and prune stale data
+        git_helpers::git_cmd(&path, ["worktree", "remove", worktree_path.as_str(), "--force"])
+            .map_err(|e| e.to_string())?;
+        git_helpers::git_cmd(&path, ["worktree", "prune"])
+            .map_err(|e| e.to_string())?;
+        Ok(())
+    })
+    .await
+    .map_err(|e| e.to_string())?
 }

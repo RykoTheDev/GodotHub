@@ -1,5 +1,34 @@
 [
   {
+    "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "version": "v1.5.0",
+    "date": "2026-08-31",
+    "notes": [
+      {
+        "category": "add",
+        "text": "Git Worktree support: list, create, switch, and remove git worktrees directly from the Git sidebar"
+      },
+      {
+        "category": "add",
+        "text": "Dirty/clean status badges next to each worktree showing uncommitted changes at a glance"
+      },
+      {
+        "category": "add",
+        "text": "Experimental toggle in Settings → Experimental to enable/disable Git Worktrees"
+      },
+      {
+        "category": "add",
+        "text": "Confirmation dialog before removing a worktree to prevent accidental data loss"
+      },
+      {
+        "category": "improve",
+        "text": "Worktree creation supports relative paths and optional branch names"
+      }
+    ],
+    "known_issues": [],
+    "created_at": 1788182400
+  },
+  {
     "id": "c4a2e3b1-8f6d-4c5a-9b7e-2d1f0a3c5e8b",
     "version": "v1.1.0",
     "date": "2026-07-27",
