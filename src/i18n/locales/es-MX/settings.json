@@ -319,5 +319,12 @@
   "experimental": "Experimental",
   "experimental_desc": "Try out new features that are still in development. These may be unstable or change without notice.",
   "customize_view_label": "Customize View button",
-  "customize_view_desc": "Show the Customize View button in the Projects view. When disabled, added views are removed and the view resets to List only."
+  "customize_view_desc": "Show the Customize View button in the Projects view. When disabled, added views are removed and the view resets to List only.",
+  "landing_dashboard": "Dashboard",
+  "landing_projects": "Projects",
+  "landing_versions": "Versions",
+  "landing_news": "Godot News",
+  "setting_accent_color": "Accent color",
+  "setting_background_color": "Background color",
+  "report_bug": "Report a Bug"
 }

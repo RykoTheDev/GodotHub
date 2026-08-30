@@ -7,5 +7,7 @@
   "delete_entry_title": "Удалить запись из журнала изменений?",
   "delete_entry_desc": "Это приведет к постоянному удалению этой записи, операция необратима.",
   "changelog_subtitle": "История обновлений GodotHub.",
-  "known_issues": "Известные проблемы"
+  "known_issues": "Известные проблемы",
+  "edit_entry_aria": "Edit {{version}}",
+  "delete_entry_aria": "Delete {{version}}"
 }

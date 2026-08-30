@@ -7,5 +7,7 @@
   "delete_entry_title": "Supprimer l'entrée ?",
   "delete_entry_desc": "Cela supprime l'entrée du changelog de manière permanente. Cette action est irréversible.",
   "changelog_subtitle": "Un historique des mises à jour de GodotHub.",
-  "known_issues": "Problèmes connus"
+  "known_issues": "Problèmes connus",
+  "edit_entry_aria": "Edit {{version}}",
+  "delete_entry_aria": "Delete {{version}}"
 }

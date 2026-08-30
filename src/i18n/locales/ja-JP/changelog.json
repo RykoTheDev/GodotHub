@@ -7,5 +7,7 @@
   "known_issues": "既知の問題",
   "add": "Added",
   "fix": "Fixed",
-  "improve": "Improved"
+  "improve": "Improved",
+  "edit_entry_aria": "Edit {{version}}",
+  "delete_entry_aria": "Delete {{version}}"
 }

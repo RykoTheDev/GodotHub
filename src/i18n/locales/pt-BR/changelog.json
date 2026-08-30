@@ -7,5 +7,7 @@
   "delete_entry_title": "Excluir entrada do registro de alterações?",
   "delete_entry_desc": "Isso removerá a entrada permanentemente. Esta ação não pode ser desfeita.",
   "changelog_subtitle": "Um histórico das atualizações do GodotHub.",
-  "known_issues": "Problemas conhecidos"
+  "known_issues": "Problemas conhecidos",
+  "edit_entry_aria": "Edit {{version}}",
+  "delete_entry_aria": "Delete {{version}}"
 }

@@ -40,5 +40,16 @@
   "sort_version_oldest_installed": "Oldest Installed",
   "sort_version_name_asc": "Name (A–Z)",
   "sort_version_name_desc": "Name (Z–A)",
-  "installed_count_zero": "No installs"
+  "installed_count_zero": "No installs",
+  "unbound": "unbound",
+  "fetching": "Fetching releases…",
+  "importing_version": "Importing version…",
+  "scanning_versions": "Scanning for versions…",
+  "import": "Import",
+  "scanning": "Scanning…",
+  "scan_now": "Scan Now",
+  "other": "Other",
+  "retry": "Retry",
+  "show_more": "Show more",
+  "queued": "Queued…"
 }

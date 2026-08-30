@@ -312,5 +312,19 @@
   "experimental": "試験的機能",
   "experimental_desc": "まだ開発中の新機能を試せます。動作が不安定だったり、予告なく変更されたりする場合があります。",
   "customize_view_label": "「ビューをカスタマイズ」ボタン",
-  "customize_view_desc": "「プロジェクト」画面に「ビューをカスタマイズ」ボタンを表示します。オフにすると、追加したビューは削除され、表示はリストのみに戻ります。"
+  "customize_view_desc": "「プロジェクト」画面に「ビューをカスタマイズ」ボタンを表示します。オフにすると、追加したビューは削除され、表示はリストのみに戻ります。",
+  "landing_dashboard": "Dashboard",
+  "landing_projects": "Projects",
+  "landing_versions": "Versions",
+  "landing_news": "Godot News",
+  "setting_accent_color": "Accent color",
+  "setting_background_color": "Background color",
+  "saving": "Saving…",
+  "scanning": "Scanning…",
+  "settings_title": "SETTINGS",
+  "section_projects": "Projects",
+  "section_templates": "Templates",
+  "scan_now": "Scan Now",
+  "browse": "Browse",
+  "report_bug": "Report a Bug"
 }

@@ -7,5 +7,7 @@
   "delete_entry_title": "هل تريد حذف سجل التغييرات؟",
   "delete_entry_desc": "هذا سيحذف المدخل كليا. لا يمكن التراجع عن هذا الخيار.",
   "changelog_subtitle": "تاريخ التغييرات في GodotHub.",
-  "known_issues": "المشاكل المعروفة"
+  "known_issues": "المشاكل المعروفة",
+  "edit_entry_aria": "Edit {{version}}",
+  "delete_entry_aria": "Delete {{version}}"
 }

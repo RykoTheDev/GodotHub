@@ -7,5 +7,7 @@
   "delete_entry_title": "Xóa mục nhật ký thay đổi??",
   "delete_entry_desc": "Thao tác này xóa mục nhập vĩnh viễn. Không thể hoàn tác.",
   "changelog_subtitle": "Lịch sử các bản cập nhật của GodotHub.",
-  "known_issues": "Các vấn đề đã được ghi nhận"
+  "known_issues": "Các vấn đề đã được ghi nhận",
+  "edit_entry_aria": "Edit {{version}}",
+  "delete_entry_aria": "Delete {{version}}"
 }

@@ -7,5 +7,7 @@
   "changelog_subtitle": "Historia de las actualizaciones de GodotHub.",
   "known_issues": "Problemas conocidos.",
   "fix": "Fixed",
-  "improve": "Improved"
+  "improve": "Improved",
+  "edit_entry_aria": "Edit {{version}}",
+  "delete_entry_aria": "Delete {{version}}"
 }
