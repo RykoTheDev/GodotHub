@@ -26,6 +26,7 @@
   "updates_from_cache_ago": "· 来自 {{time}}",
   "updates_featured": "精选",
   "updates_open": "打开链接",
+  "updates_desc": "检查 GodotHub 的新版本，并在更新前查看发布说明。",
   "minimize": "最小化",
   "close_sidebar": "关闭侧栏",
   "star_on_github": "在 GitHub 上标星",

@@ -24,7 +24,7 @@ function ToastCard({ toast }: { toast: ToastItem }) {
         ? 'text-danger'
         : 'text-accent-bright'
   return (
-    <motion.div key="error"
+    <motion.div
       layout
       initial={{ opacity: 0, y: 12, scale: 0.96 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}

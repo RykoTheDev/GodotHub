@@ -1356,7 +1356,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           <AnimatePresence initial={false}>
             {settings.close_on_project_open &&
               (isMac || settings.minimize_to_tray) && (
-                <motion.div key="div-1358"
+                <motion.div
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}

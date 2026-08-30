@@ -526,10 +526,10 @@ function renderCategoryGroups(
   disableAnimation = false,
 ): ReactNode[] {
   const result: ReactNode[] = []
+  const uncategorized = groups.get(UNCATEGORIZED) ?? []
 
   for (const cat of categories) {
     const projs = groups.get(cat.name) ?? []
-    if (projs.length === 0) continue
     result.push(
       <CategorySection
         key={`cat-${cat.id}`}
@@ -545,21 +545,18 @@ function renderCategoryGroups(
     )
   }
 
-  const uncategorized = groups.get(UNCATEGORIZED) ?? []
-  if (uncategorized.length > 0) {
-    result.push(
-      <CategorySection
-        key="cat-uncategorized"
-        title={uncategorizedLabel}
-        count={uncategorized.length}
-        defaultOpen={uncategorized.length > 0}
-        disableAnimation={disableAnimation}
-        droppableId="list-cat-uncategorized"
-      >
-        {uncategorized.map((p) => cardFor(p))}
-      </CategorySection>,
-    )
-  }
+  result.push(
+    <CategorySection
+      key="cat-uncategorized"
+      title={uncategorizedLabel}
+      count={uncategorized.length}
+      defaultOpen={uncategorized.length > 0}
+      disableAnimation={disableAnimation}
+      droppableId="list-cat-uncategorized"
+    >
+      {uncategorized.map((p) => cardFor(p))}
+    </CategorySection>,
+  )
 
   return result
 }
