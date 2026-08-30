@@ -336,6 +336,7 @@ export function GitSidebar({
   const [deletingBranch, setDeletingBranch] = useState<string | null>(null)
   const [publishingBranch, setPublishingBranch] = useState(false)
   const branchMenuRef = useRef<HTMLDivElement>(null)
+  const [ready, setReady] = useState(false)
 
   const notifyGitStatusChanged = useCallback(() => {
     window.dispatchEvent(new Event('app:refresh-git-status'))
@@ -348,10 +349,12 @@ export function GitSidebar({
   }, [])
 
   useEffect(() => {
+    if (!ready) return
     void refreshGitAuth()
-  }, [refreshGitAuth])
+  }, [refreshGitAuth, ready])
 
   useEffect(() => {
+    if (!ready) return
     let cancelled = false
     setChangesLoading(true)
     setRemotesLoading(true)
@@ -383,14 +386,21 @@ export function GitSidebar({
       setCommitsLoading(false)
     })
     return () => { cancelled = true }
-  }, [project.path, refreshGitAuth])
+  }, [project.path, refreshGitAuth, ready])
 
   useEffect(() => {
+    const onOpened = () => setReady(true)
+    window.addEventListener('app:git-sidebar-opened', onOpened)
+    return () => window.removeEventListener('app:git-sidebar-opened', onOpened)
+  }, [])
+
+  useEffect(() => {
+    if (!ready) return
     api.gitStartFsWatcher(project.path).catch(() => {})
     return () => {
       api.gitStopFsWatcher().catch(() => {})
     }
-  }, [project.path])
+  }, [project.path, ready])
 
   useEffect(() => {
     setBranchMenuOpen(false)
@@ -924,6 +934,21 @@ export function GitSidebar({
       </div>
 
       <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden new-ui-scroll-viewport">
+        {!ready ? (
+          <div className="flex-1 flex items-center justify-center h-full">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.2 }}
+              className="flex flex-col items-center gap-3"
+            >
+              <Spinner />
+              <span className="text-[11px] text-muted/50">
+                {tc('loading')}
+              </span>
+            </motion.div>
+          </div>
+        ) : (
         <div className="px-3 py-3 flex flex-col gap-3">
           <motion.div
             initial={{ opacity: 0, x: 24 }}
@@ -1660,6 +1685,7 @@ export function GitSidebar({
           </motion.div>
 
         </div>
+        )}
       </div>
         </motion.div>
       </AnimatePresence>
