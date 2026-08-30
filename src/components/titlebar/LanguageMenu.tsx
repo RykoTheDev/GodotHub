@@ -218,7 +218,7 @@ export function LanguageMenu() {
       {createPortal(
         <AnimatePresence>
           {open && (
-            <motion.div
+            <motion.div key="div-220"
               ref={listRef}
               initial={{
                 opacity: 0,

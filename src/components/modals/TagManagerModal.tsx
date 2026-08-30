@@ -176,7 +176,7 @@ export function TagManagerModal({ project, onClose, onSaved }: Props) {
       <div className="p-6 pt-0 flex flex-col gap-4">
         <AnimatePresence>
           {error && (
-            <motion.div
+            <motion.div key="error"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
@@ -205,7 +205,7 @@ export function TagManagerModal({ project, onClose, onSaved }: Props) {
             placeholder={t('tag_input_placeholder')}
             className="focus-ring flex-1 bg-raised border border-line rounded-lg px-3.5 py-2.5 text-sm focus:border-accent-dim transition-colors outline-none"
           />
-          <motion.button
+          <motion.button key="button-207"
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.96 }}
             onClick={addTag}

@@ -717,7 +717,7 @@ export function CreateProjectModal({
 
         <AnimatePresence>
           {error && (
-            <motion.div
+            <motion.div key="error"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
@@ -734,7 +734,7 @@ export function CreateProjectModal({
 
         <AnimatePresence>
           {gitWarning && (
-            <motion.div
+            <motion.div key="git-warning"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
@@ -758,7 +758,7 @@ export function CreateProjectModal({
 
         <AnimatePresence>
           {remoteSuccess && (
-            <motion.div
+            <motion.div key="div-760"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
@@ -782,7 +782,7 @@ export function CreateProjectModal({
 
         <div className="flex justify-end gap-2.5 p-6 pt-4 border-t border-line">
           {gitWarning || remoteSuccess ? (
-            <motion.button
+            <motion.button key="git-warning"
               whileTap={{ scale: 0.96 }}
               onClick={onCreated}
               className="focus-ring px-5 cursor-pointer py-2.5 rounded-btn bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
@@ -791,7 +791,7 @@ export function CreateProjectModal({
             </motion.button>
           ) : (
             <>
-              <motion.button
+              <motion.button key="button-793"
                 whileTap={{ scale: 0.96 }}
                 onClick={onClose}
                 disabled={busy}
@@ -799,7 +799,7 @@ export function CreateProjectModal({
               >
                 {t('cancel')}
               </motion.button>
-              <motion.button
+              <motion.button key="button-801"
                 whileTap={busy ? undefined : { scale: 0.96 }}
                 onClick={submit}
                 disabled={busy}

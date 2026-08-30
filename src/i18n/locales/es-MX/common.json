@@ -420,7 +420,6 @@
   "updates_from_cache_ago": "· hace {{time}}",
   "updates_featured": "Destacado",
   "updates_open": "Abrir enlace",
-  "updates_desc": "Busca una nueva versión de GodotHub y revisa las notas de la versión antes de actualizar.",
   "download_queue_move_up": "Mover antes en la cola",
   "download_queue_move_down": "Mover después en la cola",
   "running_projects_desc_one": "{{count}} proyecto en ejecución",

@@ -16,6 +16,7 @@
     "i18n:sync": "node scripts/i18n-sync.cjs",
     "i18n:unused": "node scripts/find-unused-keys.cjs",
     "i18n:remove-unused": "node scripts/remove-unused-keys.cjs",
+    "i18n:dupes": "node scripts/check-duplicate-keys.mjs",
     "validate": "tsc --noEmit && bun run i18n:check -- --check-values"
   },
   "dependencies": {

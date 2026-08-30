@@ -290,7 +290,9 @@ but do mention which platform you *did* test on in the PR.
 
 Localization uses **i18next** + **react-i18next** with JSON resource files.
 English is the source of truth; every other language falls back to English for
-missing keys.
+missing keys. The `common` namespace is the primary home for shared strings,
+and all other namespaces (`git`, `settings`, `versions`, etc.) fall back to
+`common` automatically via `fallbackNS`.
 
 ### Current Status
 
@@ -342,6 +344,30 @@ src/i18n/
 | `changelog` | Changelog management | ~9 |
 | `dashboard` | Dashboard greetings | ~5 |
 
+### Duplicate key policy
+
+Duplicate keys across namespace files are **not allowed**. The `common` namespace
+is the single source of truth for any string shared across views. If a key
+exists in `common.json`, it must **not** also exist in `git.json`, `settings.json`,
+`versions.json`, or any other namespace file, even with the same value.
+
+**Why?** i18next's `fallbackNS: ['common']` config means every namespace
+automatically falls back to `common` for missing keys. Duplicates bloat the
+locale files and create confusion about where a string lives.
+
+**Rules:**
+- Shared strings (buttons, labels, messages used in multiple views) go in `common.json`.
+- Namespace-specific strings (only used in one view) go in that namespace's file.
+- Never copy a key from `common.json` into another file, even for translation.
+- Run `bun run i18n:dupes` to find any duplicate keys across namespace files.
+
+```bash
+bun run i18n:dupes            # Check all locales
+bun run i18n:dupes -- en-US   # Check one locale
+bun run i18n:dupes -- --same  # Only same-value dupes (safe to remove)
+bun run i18n:dupes -- --diff  # Only different-value dupes (need review)
+```
+
 ### How strings are used in code
 
 ```tsx
@@ -390,9 +416,13 @@ t('file_count', { count: 1 })  // "1 file"
 
 ### Adding a new string (English only!)
 
-1. Open the right namespace file under `src/i18n/locales/en-US/`
-   (e.g. `common.json` for a button label).
-2. Add your key:
+1. Decide where the key belongs:
+   - **`common.json`** if the string is a button, label, or message shared
+     across multiple views (the default for most new strings).
+   - **Namespace file** (`git.json`, `settings.json`, etc.) only if the
+     string is exclusively used in that one view.
+2. Open the right file under `src/i18n/locales/en-US/`.
+3. Add your key:
    ```json
    "project_created": "Project created",
    "greeting_user": "Hello, {{name}}!"
@@ -525,6 +555,9 @@ from every locale, `bun run i18n:types` shrinks the generated types to match.
 | `bun run i18n:sync -- --apply` | Add missing keys (copies English values) |
 | `bun run i18n:sync -- --apply --empty` | Add missing keys (empty for translation) |
 | `bun run i18n:unused` | List en-US keys that no source file references |
+| `bun run i18n:dupes` | Find duplicate keys across namespace files |
+| `bun run i18n:dupes -- --same` | Only same-value duplicates (safe to remove) |
+| `bun run i18n:dupes -- --diff` | Only different-value duplicates (need review) |
 | `bun run i18n:types` | Regenerate TypeScript types |
 | `bun run validate` | Run all checks (typecheck + i18n) |
 
@@ -552,17 +585,17 @@ CI also runs `i18n:unused`, which annotates unreferenced keys on the line they s
 ### Best Practices
 
 #### Do's ✅
-- **Keep keys identical** across all locales — only change values
+- **Keep keys identical** across all locales, only change values
 - **Use interpolation** for dynamic content: `{{name}}`, `{{count}}`
 - **Test your translations** in the app if possible
 - **Maintain the same tone** as the English version
 - **Use proper formatting** for dates/numbers per locale
-- **Keep translations concise** — UI space is limited
+- **Keep translations concise**, UI space is limited
 
 #### Don'ts ❌
-- **Don't translate keys** — only translate values
+- **Don't translate keys**, only translate values
 - **Don't add HTML** in translations (use interpolation instead)
-- **Don't change interpolation variables** — keep `{{name}}` as-is
+- **Don't change interpolation variables**, keep `{{name}}` as-is
 - **Don't translate technical terms** that should stay in English (e.g., "Git", "Godot")
 - **Don't remove keys** that exist in en-US
 

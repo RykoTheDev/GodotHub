@@ -426,6 +426,9 @@ export function App() {
                   opacity: 0,
                   transition: { duration: 0.15, ease: 'easeOut' },
                 }}
+                onAnimationComplete={() => {
+                  window.dispatchEvent(new Event('app:git-sidebar-opened'))
+                }}
                 className="absolute top-2 right-2 bottom-2 z-50 w-80 overflow-hidden rounded-xl shadow-2xl shadow-black/40 shrink-0"
               >
                 <GitSidebar
@@ -502,6 +505,7 @@ export function App() {
           />
         )}
       </AnimatePresence>
+
     </div>
     {splashPhase !== 'done' && <SplashScreen phase={splashPhase} />}
     </ChangelogBadgeProvider>

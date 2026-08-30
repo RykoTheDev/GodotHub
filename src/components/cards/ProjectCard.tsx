@@ -134,7 +134,6 @@ export function ProjectCard({
 
   const displayName = settingsName ?? project.name
   const pinButtonVisible = project.pinned || cardHovered || pinFocused
-  const pinLabelVisible = (cardHovered || pinFocused) && !project.pinned
   const springTransition: Transition = isReducedMotion()
     ? { duration: 0 }
     : { type: 'spring', stiffness: 460, damping: 34 }
@@ -678,34 +677,25 @@ export function ProjectCard({
               opacity: pinButtonVisible ? 1 : 0,
             }}
             transition={springTransition}
-            className="overflow-hidden inline-flex items-center gap-1 shrink-0"
+            className="overflow-hidden inline-flex items-center shrink-0"
           >
-              <Tooltip
-                content={project.pinned ? t('project_unpin_aria') : t('project_pin_aria')}
-                side="top"
+              <button
+                type="button"
+                onClick={onTogglePin}
+                onFocus={() => setPinFocused(true)}
+                onBlur={() => setPinFocused(false)}
+                className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-3 rounded-btn border font-mono text-[10px] transition-colors shrink-0 ${
+                  project.pinned
+                    ? 'bg-accent/10 border-accent-dim/40 text-accent-bright hover:bg-accent/20 hover:border-accent-dim'
+                    : 'bg-raised border-outline/50 text-muted hover:text-ink hover:border-accent-dim'
+                }`}
               >
-                <button
-                  type="button"
-                  onClick={onTogglePin}
-                  onFocus={() => setPinFocused(true)}
-                  onBlur={() => setPinFocused(false)}
-                  className={`focus-ring icon-wiggle cursor-pointer p-1 rounded-item transition-colors ${
-                    project.pinned
-                      ? 'text-accent-bright hover:text-muted hover:bg-raised'
-                      : 'text-muted/40 hover:text-ink hover:bg-raised'
-                  }`}
-                >
-                  <IconPin
-                    className="w-3.5 h-3.5"
-                    fill={project.pinned ? 'currentColor' : 'none'}
-                  />
-                </button>
-              </Tooltip>
-              {pinLabelVisible && (
-                <span className="text-[10px] font-medium text-muted whitespace-nowrap">
-                  {t('project_pin_aria')}
-                </span>
-              )}
+                <IconPin
+                  className="w-3 h-3"
+                  fill={project.pinned ? 'currentColor' : 'none'}
+                />
+                {project.pinned ? t('project_unpin_aria') : t('project_pin_aria')}
+              </button>
           </motion.span>
           {allMs > 0 && cardSettings.show_time && (
               <button
@@ -795,7 +785,7 @@ export function ProjectCard({
           <AnimatePresence>
             {versionInstalled && cardHovered && cardSettings.show_play && (
               <Tooltip content={t('play_project_tooltip')} side="left">
-              <motion.button
+              <motion.button key="button-787"
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 8 }}

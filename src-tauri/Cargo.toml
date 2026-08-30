@@ -7,7 +7,7 @@ edition = "2021"
 
 [lib]
 name = "godothub_lib"
-crate-type = ["staticlib", "rlib"]
+crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
