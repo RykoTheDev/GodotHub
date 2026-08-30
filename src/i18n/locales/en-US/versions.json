@@ -1,5 +1,6 @@
 {
   "standard": "Standard (GDScript)",
+  "unbound": "unbound",
   "mono": "Mono (C#/.NET)",
   "console_label": "Console",
   "both": "Both",

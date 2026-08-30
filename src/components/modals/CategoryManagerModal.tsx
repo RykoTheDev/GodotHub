@@ -433,7 +433,7 @@ export function CategoryManagerModal({
                   </div>
                   <div className="text-center">
                     <p className="text-sm font-medium text-muted/70">{t('no_categories_yet')}</p>
-                    <p className="text-xs text-muted/40 mt-1">Create one above to organize your projects</p>
+                    <p className="text-xs text-muted/40 mt-1">{t('category_empty_hint')}</p>
                   </div>
                 </div>
               ) : (

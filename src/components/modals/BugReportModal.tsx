@@ -65,16 +65,16 @@ function installErrorCapture() {
 
 installErrorCapture()
 
-async function getGPUInfo(): Promise<string> {
+async function getGPUInfo(t: (key: string) => string): Promise<string> {
   try {
     const canvas = document.createElement('canvas')
     const gl =
       canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
-    if (!gl) return 'WebGL not available'
+    if (!gl) return t('gpu_webgl_unavailable')
     const debugInfo = (
       gl as WebGLRenderingContext
     ).getExtension('WEBGL_debug_renderer_info')
-    if (!debugInfo) return 'GPU info unavailable'
+    if (!debugInfo) return t('gpu_info_unavailable')
     const renderer = (gl as WebGLRenderingContext).getParameter(
       debugInfo.UNMASKED_RENDERER_WEBGL,
     )
@@ -84,19 +84,19 @@ async function getGPUInfo(): Promise<string> {
     canvas.remove()
     return `${vendor}, ${renderer}`
   } catch {
-    return 'GPU info unavailable'
+    return t('gpu_info_unavailable')
   }
 }
 
-async function buildSystemReport(): Promise<{ specs: string; errors: string }> {
-  const gpu = await getGPUInfo()
+async function buildSystemReport(t: (key: string) => string): Promise<{ specs: string; errors: string }> {
+  const gpu = await getGPUInfo(t)
 
   const specs = [
-    '## System',
+    `## ${t('bug_report_system')}`,
     '',
-    `- **Version**: ${version}`,
-    `- **Date**: ${new Date().toISOString().slice(0, 10)}`,
-    `- **OS**: ${
+    `- **${t('bug_report_version')}**: ${version}`,
+    `- **${t('bug_report_date')}**: ${new Date().toISOString().slice(0, 10)}`,
+    `- **${t('bug_report_os')}**: ${
       navigator.userAgent.includes('Windows')
         ? 'Windows'
         : navigator.userAgent.includes('Mac OS X') ||
@@ -106,28 +106,28 @@ async function buildSystemReport(): Promise<{ specs: string; errors: string }> {
             ? 'Linux'
             : navigator.userAgent
     }`,
-    `- **Platform**: ${navigator.platform}`,
-    `- **Language**: ${navigator.language}`,
-    `- **CPU Cores**: ${navigator.hardwareConcurrency ?? 'unknown'}`,
-    `- **RAM**: ${
+    `- **${t('bug_report_platform')}**: ${navigator.platform}`,
+    `- **${t('bug_report_language')}**: ${navigator.language}`,
+    `- **${t('bug_report_cpu_cores')}**: ${navigator.hardwareConcurrency ?? t('unknown')}`,
+    `- **${t('bug_report_ram')}**: ${
       (
         navigator as Navigator & { deviceMemory?: number }
       ).deviceMemory
         ? `${(navigator as Navigator & { deviceMemory?: number }).deviceMemory} GB`
-        : 'unknown'
+        : t('unknown')
     }`,
-    `- **Screen**: ${screen.width}x${screen.height} @${screen.colorDepth}bit`,
-    `- **GPU**: ${gpu}`,
-    `- **User Agent**: ${navigator.userAgent}`,
+    `- **${t('bug_report_screen')}**: ${screen.width}x${screen.height} @${screen.colorDepth}bit`,
+    `- **${t('bug_report_gpu')}**: ${gpu}`,
+    `- **${t('bug_report_user_agent')}**: ${navigator.userAgent}`,
   ].join('\n')
 
-  const errorLines: string[] = ['## Recent Errors']
+  const errorLines: string[] = [`## ${t('bug_report_recent_errors')}`]
   if (capturedErrors.length > 0) {
     for (const err of capturedErrors) {
       errorLines.push(`- \`[${err.time}]\` (${err.source}) ${err.message}`)
     }
   } else {
-    errorLines.push('- _(none captured)_')
+    errorLines.push(`- _(${t('bug_report_none_captured')})_`)
   }
 
   return { specs, errors: errorLines.join('\n') }
@@ -137,12 +137,13 @@ function assembleReport(
   description: string,
   specs: string,
   errors: string,
+  t: (key: string) => string,
 ): string {
   const desc = description.trim()
   return [
-    '## Description',
+    `## ${t('bug_report_description')}`,
     '',
-    desc || '_No description provided_',
+    desc || `_ ${t('bug_report_no_description')} _`,
     '',
     specs,
     '',
@@ -175,7 +176,7 @@ export function BugReportModal({ onClose }: Props) {
   useEffect(() => {
     let cancelled = false
     setLoading(true)
-    buildSystemReport().then((r) => {
+    buildSystemReport(t).then((r) => {
       if (!cancelled) {
         setSystem(r)
         setLoading(false)
@@ -184,11 +185,11 @@ export function BugReportModal({ onClose }: Props) {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [t])
 
   const report = useMemo(
-    () => (system ? assembleReport(description, system.specs, system.errors) : null),
-    [description, system],
+    () => (system ? assembleReport(description, system.specs, system.errors, t) : null),
+    [description, system, t],
   )
 
   const handleCopy = async () => {

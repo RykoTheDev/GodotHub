@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import {
   US,
   CN,
@@ -31,12 +32,13 @@ export function LanguageFlag({
   className?: string
   title?: string
 }) {
+  const { t } = useTranslation('common')
   if (country === 'SYSTEM') {
     return (
       <span
         aria-hidden="true"
         className={`inline-flex shrink-0 items-center justify-center ${className}`}
-        title={title ?? 'System language'}
+        title={title ?? t('system_language')}
       >
         🌐
       </span>

@@ -452,6 +452,7 @@ export function ProjectCardList({
                 (dndCategoryGroups || categoryGroups)!,
                 categories,
                 isDndEnabled ? cardForDnd : cardFor,
+                t('uncategorized'),
                 isDndEnabled,
               )
             : unpinnedProjects.map((p) => isDndEnabled ? cardForDnd(p) : cardFor(p))),
@@ -461,6 +462,7 @@ export function ProjectCardList({
             (dndCategoryGroups || categoryGroups)!,
             categories,
             isDndEnabled ? cardForDnd : cardFor,
+            t('uncategorized'),
             isDndEnabled,
           )
         : projects.map((p) => isDndEnabled ? cardForDnd(p) : cardFor(p))
@@ -520,6 +522,7 @@ function renderCategoryGroups(
   groups: Map<string, Project[]>,
   categories: Category[],
   cardFor: (p: Project) => ReactNode,
+  uncategorizedLabel: string,
   disableAnimation = false,
 ): ReactNode[] {
   const result: ReactNode[] = []
@@ -545,7 +548,7 @@ function renderCategoryGroups(
   result.push(
     <CategorySection
       key="cat-uncategorized"
-      title="Uncategorized"
+      title={uncategorizedLabel}
       count={uncategorized.length}
       defaultOpen={uncategorized.length > 0}
       disableAnimation={disableAnimation}

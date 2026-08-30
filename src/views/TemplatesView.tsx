@@ -331,11 +331,11 @@ export function TemplatesView({
                     <IconCopy className="w-5 h-5 text-muted" />
                   </div>
                   <p className="text-sm text-muted max-w-sm leading-relaxed">
-                    <Trans i18nKey="no_templates_yet" ns="common">
-                      No templates yet. Right-click a project or open its "More"
-                      menu and select{' '}
-                      <strong>Save as Template</strong> to create one.
-                    </Trans>
+                    <Trans
+                      i18nKey="no_templates_yet"
+                      ns="common"
+                      components={{ 1: <strong /> }}
+                    />
                   </p>
                 </div>
               ) : filteredTemplates.length === 0 ? (

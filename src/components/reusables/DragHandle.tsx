@@ -1,4 +1,5 @@
 import type { DraggableAttributes, DraggableSyntheticListeners } from '@dnd-kit/core'
+import { useTranslation } from 'react-i18next'
 import { IconGrip } from '../../lib/icons'
 
 interface DragHandleProps {
@@ -18,6 +19,7 @@ export function DragHandle({
   disabled = false,
   className = '',
 }: DragHandleProps) {
+  const { t } = useTranslation('common')
   if (disabled) return null
 
   return (
@@ -25,7 +27,7 @@ export function DragHandle({
       ref={ref}
       {...attributes}
       {...listeners}
-      aria-label="Drag to reorder"
+      aria-label={t('drag_to_reorder')}
       className={`focus-ring z-20 w-5 h-10 rounded-full border flex items-center justify-center cursor-grab active:cursor-grabbing touch-none transition-all duration-200 ${
         isDragging
           ? 'bg-accent border-accent text-white scale-110 shadow-md shadow-accent/30 opacity-100'

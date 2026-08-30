@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { openUrl } from '@tauri-apps/plugin-opener'
@@ -19,24 +20,24 @@ interface Props {
   onClose: () => void
 }
 
-function stateBadge(pr: PR) {
+function stateBadge(pr: PR, t: (key: string) => string) {
   if (pr.merged_at) {
     return (
       <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-accent/15 text-accent">
-        Merged
+        {t('contributor_pr_merged')}
       </span>
     )
   }
   if (pr.state === 'open') {
     return (
       <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-mint/15 text-mint">
-        Open
+        {t('contributor_pr_open')}
       </span>
     )
   }
   return (
     <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-danger/15 text-danger">
-      Closed
+      {t('contributor_pr_closed')}
     </span>
   )
 }
@@ -50,6 +51,7 @@ function formatDate(iso: string) {
 }
 
 export function ContributorPRsModal({ login, avatarUrl, onClose }: Props) {
+  const { t } = useTranslation('common')
   const [prs, setPrs] = useState<PR[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(false)
@@ -127,7 +129,9 @@ export function ContributorPRsModal({ login, avatarUrl, onClose }: Props) {
                 {login}
               </button>
               <p className="text-[11px] text-muted">
-                {loading ? 'Loading PRs...' : `${prs.length} pull request${prs.length !== 1 ? 's' : ''}`}
+                {loading
+                  ? t('contributor_pr_loading')
+                  : t(prs.length === 1 ? 'contributor_pr_count_one' : 'contributor_pr_count_other', { count: prs.length })}
               </p>
             </div>
             <button
@@ -162,12 +166,12 @@ export function ContributorPRsModal({ login, avatarUrl, onClose }: Props) {
               </div>
             ) : error ? (
               <div className="flex flex-col items-center justify-center gap-2 py-12 text-muted text-sm">
-                <p>Failed to load pull requests.</p>
-                <p className="text-xs text-muted/50">Check your internet connection.</p>
+                <p>{t('contributor_pr_load_failed')}</p>
+                <p className="text-xs text-muted/50">{t('contributor_pr_network_hint')}</p>
               </div>
             ) : prs.length === 0 ? (
               <div className="flex flex-col items-center justify-center gap-2 py-12 text-muted text-sm">
-                <p>No pull requests found.</p>
+                <p>{t('contributor_pr_empty')}</p>
               </div>
             ) : (
               <div className="flex flex-col">
@@ -185,7 +189,7 @@ export function ContributorPRsModal({ login, avatarUrl, onClose }: Props) {
                       <p className="text-xs font-medium text-ink truncate">{pr.title}</p>
                       <p className="text-[10px] text-muted mt-0.5">{formatDate(pr.created_at)}</p>
                     </div>
-                    {stateBadge(pr)}
+                    {stateBadge(pr, t)}
                   </button>
                 ))}
               </div>

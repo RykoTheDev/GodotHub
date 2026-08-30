@@ -108,6 +108,7 @@ function VersionTag({
   state: keyof typeof STATE_DOT
   customName?: string | null
 }) {
+  const { t } = useTranslation('versions')
   return (
     <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-item bg-overlay border border-outline/50 font-mono text-xs text-ink shrink-0">
       <span
@@ -119,7 +120,7 @@ function VersionTag({
           {customName !== tag && <span className="text-muted">({tag})</span>}
         </>
       ) : (
-        tag || 'unbound'
+        tag || t('unbound')
       )}
     </span>
   )
