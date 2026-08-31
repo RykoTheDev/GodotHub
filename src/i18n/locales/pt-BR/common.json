@@ -493,7 +493,7 @@
   "task_tray_only_recent_plural": "{{count}} tarefas recentes",
   "task_tray_active_tasks": "{{count}} tarefa ativa",
   "task_tray_active_tasks_plural": "{{count}} tarefas ativas",
-  "task_tray_aria": "Bandeja de tarefas",
+  "task_tray_aria": "Bandeja do sistema",
   "task_tray_auto_dismiss": "Concluídas são dispensadas automaticamente",
   "task_tray_dismiss": "Dispensar {{count}}",
   "task_error_status": "Erro",

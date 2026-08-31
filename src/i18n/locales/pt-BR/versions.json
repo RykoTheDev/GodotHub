@@ -40,6 +40,6 @@
   "sort_version_oldest_installed": "Instalada há mais tempo",
   "sort_version_name_asc": "Nome (A–Z)",
   "sort_version_name_desc": "Nome (Z–A)",
-  "installed_count_zero": "No installs",
-  "unbound": "unbound"
+  "installed_count_zero": "Nenhuma instalada",
+  "unbound": "Não atribuído"
 }
