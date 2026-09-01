@@ -41,5 +41,5 @@
   "sort_version_name_asc": "名前（A→Z）",
   "sort_version_name_desc": "名前（Z→A）",
   "installed_count_zero": "インストールなし",
-  "unbound": "unbound"
+  "unbound": "未割り当て"
 }

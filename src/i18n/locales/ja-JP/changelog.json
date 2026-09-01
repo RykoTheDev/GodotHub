@@ -5,9 +5,9 @@
   "delete_entry_desc": "エントリを完全に削除します。この操作は取り消せません。",
   "changelog_subtitle": "GodotHub の更新の履歴です。",
   "known_issues": "既知の問題",
-  "edit_entry_aria": "Edit {{version}}",
-  "delete_entry_aria": "Delete {{version}}",
-  "added": "Added",
-  "fixed": "Fixed",
-  "improved": "Improved"
+  "edit_entry_aria": "{{version}} を編集",
+  "delete_entry_aria": "{{version}} を削除",
+  "added": "追加",
+  "fixed": "修正",
+  "improved": "改善"
 }
