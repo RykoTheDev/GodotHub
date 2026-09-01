@@ -204,6 +204,7 @@ const resources = {
 
   'ar-MA': arMAResources,
   ar: arMAResources,
+  
   'vi-VN': viVNResources,
   vi: viVNResources,
 }

@@ -5,8 +5,8 @@
   "delete_entry_desc": "هذا سيحذف المدخل كليا. لا يمكن التراجع عن هذا الخيار.",
   "changelog_subtitle": "تاريخ التغييرات في GodotHub.",
   "known_issues": "المشاكل المعروفة",
-  "edit_entry_aria": "Edit {{version}}",
-  "delete_entry_aria": "Delete {{version}}",
+  "edit_entry_aria": "عدل {{version}}",
+  "delete_entry_aria": "احذف {{version}}",
   "added": "مُضاف",
   "fixed": "مُصلّح",
   "improved": "مُحسّن"
