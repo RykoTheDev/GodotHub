@@ -85,7 +85,7 @@
   </tr>
   <tr>
     <td width="50%" align="center">
-      <img src="assets/settings-appearance-view.png" alt="Settings & Appearance" width="400">
+      <img src="assets/settings-view.png" alt="Settings & Appearance" width="400">
       <br><strong>Appearance & Settings</strong>
       <br><sub>Deep customization with themes, accent colors, corner radius, and more</sub>
     </td>
