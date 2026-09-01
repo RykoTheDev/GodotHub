@@ -45,21 +45,20 @@
 
 ## 📸 Screenshots
 
-<p align="center">
-  <img src="assets/projects-view.png" alt="GodotHub Main Window" width="820">
-  <br>
-  <em>The Projects view with search, categories, and drag-and-drop sorting</em>
-</p>
-
-<br>
-
 <table>
   <tr>
     <td width="50%" align="center">
-      <img src="assets/dashboard-view.png" alt="Versions View" width="400">
+      <img src="assets/dashboard-view.png" alt="Dashboard View" width="400">
       <br><strong>Dashboard</strong>
       <br><sub>See your Data in realtime</sub>
     </td>
+    <td width="50%" align="center">
+      <img src="assets/projects-view.png" alt="Projects View" width="400">
+      <br><strong>Projects</strong>
+      <br><sub>The Projects view with search, categories, and drag-and-drop sorting</sub>
+    </td>
+  </tr>
+  <tr>
     <td width="50%" align="center">
       <img src="assets/versions-view.png" alt="Versions View" width="400">
       <br><strong>Versions</strong>
