@@ -46,7 +46,7 @@
 ## 📸 Screenshots
 
 <p align="center">
-  <img src="assets/hero-screenshot.png" alt="GodotHub Main Window" width="820">
+  <img src="assets/projects-view.png" alt="GodotHub Main Window" width="820">
   <br>
   <em>The Projects view with search, categories, and drag-and-drop sorting</em>
 </p>
@@ -56,37 +56,42 @@
 <table>
   <tr>
     <td width="50%" align="center">
+      <img src="assets/dashboard-view.png" alt="Versions View" width="400">
+      <br><strong>Dashboard</strong>
+      <br><sub>See your Data in realtime</sub>
+    </td>
+    <td width="50%" align="center">
       <img src="assets/versions-view.png" alt="Versions View" width="400">
-      <br><strong>🎯 Versions</strong>
+      <br><strong>Versions</strong>
       <br><sub>Browse, download, and manage Godot versions</sub>
     </td>
     <td width="50%" align="center">
       <img src="assets/templates-view.png" alt="Templates View" width="400">
-      <br><strong>📦 Templates</strong>
+      <br><strong>Templates</strong>
       <br><sub>Save and reuse project templates</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
       <img src="assets/asset-store-view.png" alt="Asset Store View" width="400">
-      <br><strong>🛒 Asset Store</strong>
+      <br><strong>Asset Store</strong>
       <br><sub>Install assets from old and new asset store directly into projects or templates</sub>
     </td>
     <td width="50%" align="center">
       <img src="assets/git-view.png" alt="Git Integration" width="400">
-      <br><strong>🔄 Git Integration</strong>
+      <br><strong>Git Integration</strong>
       <br><sub>Full Git management inside GodotHub</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
       <img src="assets/settings-appearance-view.png" alt="Settings & Appearance" width="400">
-      <br><strong>🎨 Appearance & Settings</strong>
+      <br><strong>Appearance & Settings</strong>
       <br><sub>Deep customization with themes, accent colors, corner radius, and more</sub>
     </td>
     <td width="50%" align="center">
       <img src="assets/news-view.png" alt="News Feed" width="400">
-      <br><strong>📰 News Feed</strong>
+      <br><strong>News Feed</strong>
       <br><sub>Stay up to date with Godot community news</sub>
     </td>
   </tr>
