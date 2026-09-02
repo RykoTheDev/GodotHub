@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { IconCheck } from '../../lib/icons'
 import { HsvColorPicker } from './HsvColorPicker'
 import { Dropdown } from './Dropdown'

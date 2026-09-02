@@ -1157,6 +1157,10 @@
       {
         "category": "add",
         "text": "Gitlab Repo list in Clone Repository Modal"
+      },
+      {
+        "category": "fix",
+        "text": "Play button size change no longer glitches Project card size; PR by mauriciovalentim"
       }
     ],
     "known_issues": [],
