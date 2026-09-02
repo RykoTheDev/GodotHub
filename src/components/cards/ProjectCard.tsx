@@ -782,25 +782,38 @@ export function ProjectCard({
       <div className="flex items-stretch shrink-0 relative -mr-2">
 
         <div className="flex flex-col justify-end gap-1.5">
-          <AnimatePresence>
-            {versionInstalled && cardHovered && cardSettings.show_play && (
-              <Tooltip content={t('play_project_tooltip')} side="left">
-              <motion.button key="button-787"
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 8 }}
-                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                type="button"
-                onClick={playProject}
-                aria-label={t('play_project')}
-                className="focus-ring cursor-pointer h-12 w-full inline-flex items-center justify-center gap-1.5 rounded-btn bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 shadow-md shadow-black/10 transition-colors text-[18px] font-medium shrink-0"
-              >
-                <IconPlay className="w-4 h-4" />
-                {t('play_project')}
-              </motion.button>
-              </Tooltip>
-            )}
-          </AnimatePresence>
+          {cardSettings.show_play && (
+            <div className="flex h-12 w-full">
+              <AnimatePresence>
+                {versionInstalled && cardHovered && (
+                  <Tooltip
+                    content={t('play_project_tooltip')}
+                    side="left"
+                    className="w-full"
+                  >
+                    <motion.button
+                      key="button-787"
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 8 }}
+                      transition={{
+                        type: 'spring',
+                        stiffness: 500,
+                        damping: 30,
+                      }}
+                      type="button"
+                      onClick={playProject}
+                      aria-label={t('play_project')}
+                      className="focus-ring inline-flex h-12 w-full shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-btn border border-outline/50 bg-overlay text-[18px] font-medium text-muted shadow-md shadow-black/10 transition-colors hover:bg-raised hover:text-ink"
+                    >
+                      <IconPlay className="h-4 w-4" />
+                      {t('play_project')}
+                    </motion.button>
+                  </Tooltip>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
         <OpenButton
           label={versionInstalled ? t('open_project') : t('no_version_selected')}
           disabled={!versionInstalled}
