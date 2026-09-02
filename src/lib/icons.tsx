@@ -1,6 +1,10 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import type { IconDefinition } from '@fortawesome/fontawesome-svg-core'
 import {
+  faGithub as faGithubBrand,
+  faGitlab as faGitlabBrand,
+} from '@fortawesome/free-brands-svg-icons'
+import {
   faFolderPlus,
   faFileImport,
   faPlay,
@@ -175,3 +179,5 @@ export const IconClone = solid(faClone)
 export const IconPlug = solid(faPlug)
 export const IconEye = solid(faEye)
 export const IconEyeSlash = solid(faEyeSlash)
+export const IconGithub = solid(faGithubBrand as IconDefinition)
+export const IconGitlab = solid(faGitlabBrand as IconDefinition)

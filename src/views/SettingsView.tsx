@@ -77,6 +77,10 @@ import {
   IconCloudArrowDown,
   IconExternalLink,
   IconCode,
+  IconFolder,
+  IconRocket,
+  IconGithub,
+  IconGitlab,
 } from '../lib/icons'
 import type { IconProps } from '../lib/icons'
 import type { AppSettings, GitAuthState } from '../types'
@@ -154,7 +158,7 @@ function Subsection({
   if (!matches) return null
 
   return (
-    <section className="flex flex-col gap-3 rounded-item bg-overlay px-4 py-4">
+    <section className="flex flex-col gap-2 rounded-item bg-overlay px-4 py-4">
       <div>
         <h3 className="text-sm font-medium text-ink">{title}</h3>
         {description && (
@@ -604,7 +608,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         query={searchQuery}
         onMatch={reportMatch}
       >
-        <SettingRow label={ts('card_layout_label')}>
           <Toggle
             checked={settings.card_layout ?? true}
             onChange={(checked) =>
@@ -612,7 +615,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             }
             label={ts('card_layout_label')}
           />
-        </SettingRow>
       </Subsection>
 
       <Subsection
@@ -623,7 +625,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         query={searchQuery}
         onMatch={reportMatch}
       >
-        <SettingRow label={ts('landing_tab_label')}>
           <Dropdown
             align="right"
             trigger={({ open, toggle }) => (
@@ -649,7 +650,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               onClick: () => update({ ...settings, default_landing_tab: l.id }),
             }))}
           />
-        </SettingRow>
       </Subsection>
 
       <Subsection
@@ -795,7 +795,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       >
         <div className="flex flex-col gap-2">
           <Slider
-            label={ts('corner_radius_label')}
             display={
               <span className="text-xs font-mono text-ink tabular-nums">
                 {settings.corner_radius}px
@@ -820,7 +819,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         onMatch={reportMatch}
       >
         <div className="flex flex-col gap-3">
-          <SettingRow label={ts('view_entrance_label')}>
             <Segmented
               value={settings.view_entrance}
               onChange={(v) =>
@@ -836,10 +834,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 { value: 'none', label: ts('entrance_none') },
               ]}
             />
-          </SettingRow>
-          <p className="text-[11px] text-muted leading-relaxed">
-            {ts('view_entrance_desc')}
-          </p>
         </div>
       </Subsection>
 
@@ -853,7 +847,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       >
         <div className="flex flex-col gap-2">
           <Slider
-            label={ts('animation_threshold_label')}
             display={
               <span className="text-xs font-medium text-ink tabular-nums">
                 {ts('n_projects', { count: settings.animation_threshold })}
@@ -879,7 +872,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         query={searchQuery}
         onMatch={reportMatch}
       >
-        <SettingRow label={ts('animated_numbers_label')}>
           <Toggle
             checked={settings.animated_numbers}
             onChange={(checked) =>
@@ -887,7 +879,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             }
             label={ts('animated_numbers_label')}
           />
-        </SettingRow>
       </Subsection>
 
       <Subsection
@@ -900,7 +891,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       >
         <div className="flex flex-col gap-2">
           <Slider
-            label={ts('project_icon_opacity_label')}
             display={
               <span className="text-xs font-mono text-ink tabular-nums">
                 {settings.project_icon_opacity}%
@@ -1041,13 +1031,11 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           query={searchQuery}
           onMatch={reportMatch}
         >
-          <SettingRow label={ts('use_os_decorations')}>
             <Toggle
               checked={settings.use_os_decorations}
               onChange={(checked) => setConfirmingOsDec(checked)}
               label={ts('use_os_decorations')}
             />
-          </SettingRow>
         </Subsection>
       )}
 
@@ -1120,11 +1108,15 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         query={searchQuery}
         onMatch={reportMatch}
       >
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2.5">
-            <span className="text-xs font-medium text-muted">
-              {ts('section_projects')}
-            </span>
+        <div className="flex flex-col gap-3">
+          {/* Projects */}
+          <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
+            <div className="flex items-center gap-2">
+              <IconFolder className="w-4 h-4 text-accent shrink-0" />
+              <span className="text-xs font-medium text-ink">
+                {ts('section_projects')}
+              </span>
+            </div>
             <DirList
               dirs={settings.project_scan_dirs}
               onChange={(dirs) => update({ ...settings, project_scan_dirs: dirs })}
@@ -1140,10 +1132,14 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             </p>
           </div>
 
-          <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
-            <span className="text-xs font-medium text-muted">
-              {ts('section_godot_versions')}
-            </span>
+          {/* Versions */}
+          <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
+            <div className="flex items-center gap-2">
+              <IconCloudArrowDown className="w-4 h-4 text-mint shrink-0" />
+              <span className="text-xs font-medium text-ink">
+                {ts('section_godot_versions')}
+              </span>
+            </div>
             <DirList
               dirs={settings.version_scan_dirs}
               onChange={(dirs) => update({ ...settings, version_scan_dirs: dirs })}
@@ -1159,18 +1155,20 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             </p>
           </div>
 
-          <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
-            <span className="text-xs font-medium text-muted">
-              {ts('section_templates')}
-            </span>
-            <div className="flex items-center gap-2.5">
+          {/* Templates */}
+          <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
+            <div className="flex items-center gap-2">
+              <IconRocket className="w-4 h-4 text-amber shrink-0" />
+              <span className="text-xs font-medium text-ink">
+                {ts('section_templates')}
+              </span>
+            </div>
+            <div className="flex flex-col gap-2.5">
               {settings.template_scan_dir ? (
-                <>
-                  <input
-                    readOnly
-                    value={settings.template_scan_dir}
-                    className="flex-1 bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono text-ink"
-                  />
+                <div className="flex items-center gap-2.5">
+                  <span className="flex-1 min-w-0 bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono text-ink truncate">
+                    {settings.template_scan_dir}
+                  </span>
                   <button
                     type="button"
                     onClick={() => update({ ...settings, template_scan_dir: null })}
@@ -1178,7 +1176,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   >
                     {ts('clear')}
                   </button>
-                </>
+                </div>
               ) : (
                 <span className="text-xs text-muted">{ts('no_folder_set')}</span>
               )}
@@ -1188,8 +1186,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   const folder = await api.pickFolder()
                   if (folder) update({ ...settings, template_scan_dir: folder })
                 }}
-                className="focus-ring cursor-pointer px-3.5 py-2 rounded-btn border border-outline/50 text-xs hover:border-accent-dim hover:bg-raised transition-colors"
+                className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 px-3.5 py-2 rounded-btn border border-dashed border-outline/60 text-xs text-muted hover:text-accent-bright hover:border-accent-dim transition-colors"
               >
+                <IconPlus className="w-3 h-3" />
                 {ts('browse')}
               </button>
             </div>
@@ -1210,7 +1209,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       >
         <div className="flex flex-col gap-2">
           <Slider
-            label={ts('scan_depth_label')}
             display={
               <span className="text-xs font-medium text-ink tabular-nums">
                 {ts('folders_deep', { count: settings.scan_depth })}
@@ -1235,7 +1233,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       >
         <div className="flex flex-col gap-2">
           <Slider
-            label={ts('icon_scan_depth_label')}
             display={
               <span className="text-xs font-medium text-ink tabular-nums">
                 {ts('folders_deep', { count: settings.icon_scan_depth })}
@@ -1260,7 +1257,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       >
         <div className="flex flex-col gap-2">
           <Slider
-            label={ts('download_concurrency_label')}
             display={
               <span className="text-xs font-medium text-ink tabular-nums">
                 {ts('at_once', { count: settings.download_concurrency })}
@@ -1621,17 +1617,19 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         query={searchQuery}
         onMatch={reportMatch}
       >
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-2.5">
-            <span className="text-xs font-medium text-muted">GitHub</span>
+        <div className="flex flex-col gap-3">
+          {/* GitHub */}
+          <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
             <div className="flex items-center justify-between gap-4">
-              <span className="text-xs text-muted">
-                {gitAuth?.github
-                  ? ts('git_connected_as', {
-                      username: gitAuth.github.username,
-                    })
-                  : ts('git_oauth_hint')}
-              </span>
+              <div className="flex items-center gap-2">
+              <IconGithub className="w-4 h-4 text-ink shrink-0" />
+              <span className="text-xs font-medium text-ink">GitHub</span>
+                {gitAuth?.github && (
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-tag bg-mint/15 text-mint border border-mint/30">
+                    {ts('git_connected_as', { username: gitAuth.github.username })}
+                  </span>
+                )}
+              </div>
               {gitAuth?.github ? (
                 <button
                   type="button"
@@ -1639,7 +1637,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                     await api.gitAuthDisconnect('github')
                     await refreshGitAuth()
                   }}
-                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item border border-outline/50 text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-xs font-medium transition-colors"
+                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn border border-outline/50 text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-xs font-medium transition-colors"
                 >
                   {ts('git_disconnect')}
                 </button>
@@ -1647,30 +1645,33 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 <button
                   type="button"
                   onClick={() => setGitAuthFlow('github')}
-                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors"
+                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors"
                 >
-                  <IconGitBranch className="w-3.5 h-3.5" />
                   {ts('git_sign_in_github')}
                 </button>
               )}
             </div>
+            {!gitAuth?.github && (
+              <p className="text-[11px] text-muted leading-relaxed">
+                {ts('git_oauth_hint')}
+              </p>
+            )}
           </div>
 
-          <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
-            <span className="text-xs font-medium text-muted">GitLab</span>
+          {/* GitLab */}
+          <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
             <div className="flex items-center justify-between gap-4">
-              <span className="text-xs text-muted">
-                {gitAuth?.gitlab
-                  ? gitAuth.gitlab.host
-                    ? ts('git_connected_to', {
-                        host: gitAuth.gitlab.host,
-                        username: gitAuth.gitlab.username,
-                      })
-                    : ts('git_connected_as', {
-                        username: gitAuth.gitlab.username,
-                      })
-                  : ts('git_oauth_hint')}
-              </span>
+              <div className="flex items-center gap-2">
+              <IconGitlab className="w-4 h-4 text-amber shrink-0" />
+              <span className="text-xs font-medium text-ink">GitLab</span>
+                {gitAuth?.gitlab && (
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-tag bg-mint/15 text-mint border border-mint/30">
+                    {gitAuth.gitlab.host
+                      ? ts('git_connected_to', { host: gitAuth.gitlab.host, username: gitAuth.gitlab.username })
+                      : ts('git_connected_as', { username: gitAuth.gitlab.username })}
+                  </span>
+                )}
+              </div>
               {gitAuth?.gitlab ? (
                 <button
                   type="button"
@@ -1678,7 +1679,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                     await api.gitAuthDisconnect('gitlab')
                     await refreshGitAuth()
                   }}
-                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item border border-outline/50 text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-xs font-medium transition-colors"
+                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn border border-outline/50 text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-xs font-medium transition-colors"
                 >
                   {ts('git_disconnect')}
                 </button>
@@ -1686,19 +1687,27 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 <button
                   type="button"
                   onClick={() => setGitAuthFlow('gitlab')}
-                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors"
+                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors"
                 >
-                  <IconGitBranch className="w-3.5 h-3.5" />
                   {ts('git_sign_in_gitlab')}
                 </button>
               )}
             </div>
+            {!gitAuth?.gitlab && (
+              <p className="text-[11px] text-muted leading-relaxed">
+                {ts('git_oauth_hint')}
+              </p>
+            )}
           </div>
 
-          <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
-            <span className="text-xs font-medium text-muted">
-              {ts('git_self_hosted_title')}
-            </span>
+          {/* Self-hosted GitLab */}
+          <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
+            <div className="flex items-center gap-2">
+              <IconPlug className="w-4 h-4 text-accent-bright shrink-0" />
+              <span className="text-xs font-medium text-ink">
+                {ts('git_self_hosted_title')}
+              </span>
+            </div>
             <p className="text-[11px] text-muted leading-relaxed">
               {ts('git_self_hosted_desc')}
             </p>
@@ -1707,13 +1716,13 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 value={gitlabUrl}
                 onChange={(e) => setGitlabUrl(e.target.value)}
                 placeholder={ts('git_self_hosted_url_placeholder')}
-                className="focus-ring bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
+                className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
               />
               <input
                 value={gitlabClientId}
                 onChange={(e) => setGitlabClientId(e.target.value)}
                 placeholder={ts('git_self_hosted_client_id')}
-                className="focus-ring bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
+                className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
               />
             </div>
             <button
@@ -1726,17 +1735,20 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 })
                 setGitAuthFlow('gitlab')
               }}
-              className="focus-ring cursor-pointer inline-flex items-center justify-center gap-1.5 h-8 px-4 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium transition-colors w-fit"
+              className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 h-8 px-4 rounded-btn border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium transition-colors"
             >
-              <IconGitBranch className="w-3.5 h-3.5" />
               {ts('git_sign_in_self_hosted')}
             </button>
           </div>
 
-          <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
-            <span className="text-xs font-medium text-muted">
-              {ts('git_pat_title')}
-            </span>
+          {/* Personal Access Tokens */}
+          <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
+            <div className="flex items-center gap-2">
+              <IconCode className="w-4 h-4 text-danger shrink-0" />
+              <span className="text-xs font-medium text-ink">
+                {ts('git_pat_title')}
+              </span>
+            </div>
             <p className="text-[11px] text-muted leading-relaxed">
               {ts('git_pat_desc')}
             </p>
@@ -1751,7 +1763,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               {(gitAuth?.pats ?? []).map((pat) => (
                 <div
                   key={pat.host}
-                  className="flex items-center justify-between gap-3 rounded-btn bg-base border border-outline/50 px-3.5 py-2.5"
+                  className="flex items-center justify-between gap-3 rounded-btn bg-overlay border border-outline/50 px-3.5 py-2.5"
                 >
                   <div className="min-w-0 flex items-center gap-2">
                     <span className="text-xs font-medium text-ink font-mono">
@@ -1785,13 +1797,13 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                     value={patHost}
                     onChange={(e) => setPatHost(e.target.value)}
                     placeholder={ts('git_pat_host_placeholder')}
-                    className="focus-ring bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
+                    className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
                   />
                   <input
                     value={patUser}
                     onChange={(e) => setPatUser(e.target.value)}
                     placeholder={ts('git_pat_username')}
-                    className="focus-ring bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
+                    className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
                   />
                 </div>
                 <input
@@ -1799,7 +1811,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   value={patToken}
                   onChange={(e) => setPatToken(e.target.value)}
                   placeholder={ts('git_pat_token')}
-                  className="focus-ring bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
+                  className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
                 />
                 {patMsg && (
                   <span className="text-[11px] text-danger">{patMsg}</span>
@@ -2247,7 +2259,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       >
         <div className="flex flex-col gap-2">
           <Slider
-            label={ts('ui_density_label')}
             display={
               <span className="text-xs font-mono text-ink tabular-nums">
                 {Math.round(settings.ui_density * 100)}%
@@ -2273,7 +2284,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       >
         <div className="flex flex-col gap-2">
           <Slider
-            label={ts('text_size_label')}
             display={
               <span className="text-xs font-mono text-ink tabular-nums">
                 {Math.round(settings.font_scale * 100)}%
@@ -2297,7 +2307,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         query={searchQuery}
         onMatch={reportMatch}
       >
-        <SettingRow label={ts('screen_reader_label')}>
           <Toggle
             checked={settings.screen_reader_announcements}
             onChange={(checked) =>
@@ -2305,7 +2314,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             }
             label={ts('screen_reader_label')}
           />
-        </SettingRow>
         <p className="text-[11px] text-amber/90 leading-relaxed mt-1">
           {ts('screen_reader_beta_desc')}
         </p>
@@ -2319,7 +2327,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         query={searchQuery}
         onMatch={reportMatch}
       >
-        <SettingRow label={ts('animation_intensity_label')}>
           <Segmented
             value={settings.animation_intensity}
             onChange={(v) =>
@@ -2334,7 +2341,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               { value: 'none', label: ts('animation_none') },
             ]}
           />
-        </SettingRow>
       </Subsection>
 
       <Subsection
@@ -2345,7 +2351,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         query={searchQuery}
         onMatch={reportMatch}
       >
-        <SettingRow label={ts('show_scrollbar_label')}>
           <Toggle
             checked={settings.show_scrollbars}
             onChange={(checked) =>
@@ -2353,7 +2358,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             }
             label={ts('show_scrollbar_label')}
           />
-        </SettingRow>
       </Subsection>
 
       <Subsection
@@ -2366,7 +2370,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       >
         <div className="flex flex-col gap-2">
           <Slider
-            label={ts('tooltip_delay_label')}
             display={
               <span className="text-xs text-ink tabular-nums">
                 {settings.tooltip_delay}ms

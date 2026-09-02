@@ -41,12 +41,14 @@ export interface NewDropdownHeaderItem {
 
 interface NewDropdownProps {
   trigger: (props: { open: boolean; toggle: () => void }) => ReactNode
-  items: NewDropdownItem[]
+  items?: NewDropdownItem[]
   header?: NewDropdownHeaderItem[]
   align?: 'left' | 'right'
   side?: 'top' | 'bottom' | 'left'
   menuClassName?: string
   compact?: boolean
+  children?: ReactNode
+  onOpenChange?: (open: boolean) => void
 }
 
 const MENU_FALLBACK_HEIGHT = 220
@@ -63,12 +65,14 @@ const GAP = 8
 
 export function Dropdown({
   trigger,
-  items,
+  items = [],
   header,
   align = 'right',
   side = 'bottom',
   menuClassName = '',
   compact = false,
+  children,
+  onOpenChange,
 }: NewDropdownProps) {
   const [open, setOpen] = useState(false)
   const [openUp, setOpenUp] = useState(false)
@@ -84,12 +88,17 @@ export function Dropdown({
   const menuRef = useRef<HTMLDivElement>(null)
   const itemRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
-  const toggle = useCallback(() => setOpen((v) => !v), [])
+  const toggle = useCallback(() => setOpen((v) => {
+    const next = !v
+    onOpenChange?.(next)
+    return next
+  }), [onOpenChange])
 
   const closeAll = useCallback(() => {
     setOpen(false)
     setOpenSubmenuKey(null)
-  }, [])
+    onOpenChange?.(false)
+  }, [onOpenChange])
 
   useEffect(() => {
     if (!open) return
@@ -298,6 +307,7 @@ export function Dropdown({
                   ))}
                 </div>
               )}
+              {children}
               {items.map((item) => (
                 <div
                   key={item.key}

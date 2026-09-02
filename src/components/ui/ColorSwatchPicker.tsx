@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { IconCheck } from '../../lib/icons'
+import { HsvColorPicker } from './HsvColorPicker'
+import { Dropdown } from './Dropdown'
 
 interface Props {
   label: string
@@ -13,82 +15,51 @@ function isValidHex(hex: string) {
 }
 
 export function ColorSwatchPicker({ label, value, onChange, presets }: Props) {
-  const [open, setOpen] = useState(false)
   const [hexDraft, setHexDraft] = useState(value)
-  const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => setHexDraft(value), [value])
 
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
-
   return (
-    <div ref={ref} className="relative flex flex-col gap-2">
-      <span className="text-xs font-medium text-muted">{label}</span>
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="focus-ring cursor-pointer flex items-center gap-3 px-3.5 py-2.5 rounded-btn bg-overlay border border-outline/50 hover:border-accent-dim transition-colors"
-      >
-        <span
-          className="w-8 h-8 rounded-tile border border-line shadow-inner shrink-0"
-          style={{ backgroundColor: value }}
-        />
-        <span className="text-xs font-mono text-ink">
-          {value.toLowerCase()}
-        </span>
-      </button>
-
-      <AnimatePresence>
-        {open && (
-          <motion.div key="div-48"
-            initial={{ opacity: 0, y: -6, scale: 0.97 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -6, scale: 0.97 }}
-            transition={{ duration: 0.15, ease: 'easeOut' }}
-            className="absolute z-30 top-full mt-2 left-0 w-64 rounded-menu border border-line bg-surface shadow-2xl shadow-black/40 p-4 flex flex-col gap-3"
+    <Dropdown
+      align="left"
+      side="bottom"
+      trigger={({ open, toggle }) => (
+        <div className="flex flex-col gap-2 min-w-0 w-full">
+          <span className="text-xs font-medium text-muted">{label}</span>
+          <button
+            type="button"
+            onClick={toggle}
+            aria-expanded={open}
+            className="focus-ring cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-btn bg-overlay border border-outline/50 hover:border-accent-dim transition-colors w-full"
           >
-            <div className="grid grid-cols-8 gap-2">
-              {presets.map((preset) => (
-                <button
-                  key={preset}
-                  type="button"
-                  onClick={() => {
-                    onChange(preset)
-                    setHexDraft(preset)
-                  }}
-                  aria-label={preset}
-                  className={`w-6 h-6 rounded-full cursor-pointer border transition-transform hover:scale-125 hover:z-10 ${
-                    preset.toLowerCase() === value.toLowerCase()
-                      ? 'border-2 border-ink scale-110'
-                      : 'border-black/20'
-                  }`}
-                  style={{ backgroundColor: preset }}
-                />
-              ))}
-            </div>
-
-            <div className="flex items-center gap-2 pt-1 border-t border-line">
-              <label className="relative w-9 h-9 rounded-item border border-line overflow-hidden shrink-0 cursor-pointer hover:border-accent-dim transition-colors">
-                <span
-                  className="absolute inset-0"
-                  style={{ backgroundColor: value }}
-                />
-                <input
-                  type="color"
-                  value={value}
-                  onChange={(e) => {
-                    onChange(e.target.value)
-                    setHexDraft(e.target.value)
-                  }}
-                  className="absolute inset-0 opacity-0 cursor-pointer"
-                />
-              </label>
+            <span
+              className="w-8 h-8 rounded-tile border border-line shadow-inner shrink-0"
+              style={{ backgroundColor: value }}
+            />
+            <span className="text-xs font-mono text-ink truncate ml-auto">
+              {value.toLowerCase()}
+            </span>
+          </button>
+        </div>
+      )}
+    >
+      <div className="p-3 flex flex-col gap-3 min-w-[440px]">
+        <div className="flex gap-3">
+          {/* HSV Picker + hex input */}
+          <div className="flex flex-col gap-3">
+            <HsvColorPicker
+              value={value}
+              onChange={(hex) => {
+                onChange(hex)
+                setHexDraft(hex)
+              }}
+              size={180}
+            />
+            <div className="flex items-center gap-2">
+              <span
+                className="w-7 h-7 rounded-item border border-line shadow-inner shrink-0"
+                style={{ backgroundColor: value }}
+              />
               <input
                 value={hexDraft}
                 onChange={(e) => {
@@ -102,12 +73,45 @@ export function ColorSwatchPicker({ label, value, onChange, presets }: Props) {
                   if (!isValidHex(hexDraft)) setHexDraft(value)
                 }}
                 spellCheck={false}
-                className="focus-ring flex-1 min-w-0 bg-overlay border border-outline/50 rounded-item px-2.5 py-1.5 text-xs font-mono text-ink focus:border-accent-dim transition-colors"
+                placeholder="#000000"
+                className="focus-ring w-20 bg-overlay border border-outline/50 rounded-item px-2.5 py-2 text-xs font-mono text-ink focus:border-accent-dim transition-colors"
               />
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
+          </div>
+
+          {/* Preset swatches */}
+          <div className="border-l border-line pl-3 flex flex-col">
+            <span className="text-[10px] font-medium text-muted/60 uppercase tracking-wider mb-2 block">Presets</span>
+            <div className="grid grid-cols-6 gap-1.5">
+              {presets.map((preset) => {
+                const isSelected = preset.toLowerCase() === value.toLowerCase()
+                return (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => {
+                      onChange(preset)
+                      setHexDraft(preset)
+                    }}
+                    aria-label={preset}
+                    title={preset}
+                    className={`relative w-7 h-7 rounded-btn cursor-pointer border transition-all hover:scale-125 hover:z-10 ${
+                      isSelected
+                        ? 'ring-2 ring-offset-1 ring-offset-surface ring-ink scale-110'
+                        : 'border-black/20 hover:border-white/40'
+                    }`}
+                    style={{ backgroundColor: preset }}
+                  >
+                    {isSelected && (
+                      <IconCheck className="absolute inset-0 m-auto w-2.5 h-2.5" style={{ color: preset === '#ffffff' || preset === '#f8f9fa' || preset === '#fafafa' || preset === '#fdf6e3' || preset === '#fbf1c7' ? '#000' : '#fff' }} />
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+    </Dropdown>
   )
 }

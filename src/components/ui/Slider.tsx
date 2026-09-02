@@ -35,11 +35,10 @@ export function Slider({
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      {label && (
-        <span className="text-xs font-medium text-muted">{label}</span>
-      )}
-
       <div className="flex items-center justify-between gap-4">
+        {label && (
+          <span className="text-xs font-medium text-muted">{label}</span>
+        )}
         <span className="ml-auto flex items-center gap-1">
           <Tooltip content={t('reset_to_default')} side="left">
             <button

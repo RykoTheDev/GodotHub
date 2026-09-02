@@ -1,5 +1,4 @@
-use crate::persist;
-use serde::{Deserialize, Serialize};
+use crate::persist;use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use tauri::{AppHandle, Manager};
 
@@ -7,7 +6,7 @@ const GITHUB_DEV_CLIENT_ID: &str = "Ov23liu8vbSyRFgs0Ka0";
 const GITLAB_DEV_CLIENT_ID: &str = "e80ad1fc408f647d60484286a65ae370bb7b06fdfd7fc5dc36478542f76529ee";
 
 const GITHUB_SCOPES: &str = "repo read:user gist";
-const GITLAB_SCOPES: &str = "read_repository write_repository read_user";
+const GITLAB_SCOPES: &str = "api read_user";
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 struct GitAuthFile {
@@ -269,7 +268,7 @@ pub async fn start_device_flow(
                 return Err(
                     "GitLab rejected the requested scopes. Open your OAuth \
                      application on GitLab (Preferences -> Applications) and \
-                     enable all of: read_repository, write_repository, read_user. \
+                     enable the 'api' and 'read_user' scopes. \
                      Then try signing in again."
                         .to_string(),
                 );
@@ -804,3 +803,4 @@ pub async fn create_remote_repo(
 
     Ok(CreateRepoResult { url: repo_url, slug })
 }
+

@@ -67,8 +67,31 @@ export function CloneRepoModal({
   const [repoSearch, setRepoSearch] = useState('')
   const [selectedRepo, setSelectedRepo] = useState<UserRepoInfo | null>(null)
 
-  const connectedProvider = gitAuth?.github ? 'github' : gitAuth?.gitlab ? 'gitlab' : null
-  const connectedUsername = gitAuth?.github?.username ?? gitAuth?.gitlab?.username ?? null
+  const availableProviders = [
+    gitAuth?.github ? 'github' : null,
+    gitAuth?.gitlab ? 'gitlab' : null,
+  ].filter(Boolean) as ('github' | 'gitlab')[]
+  const hasAnyProvider = availableProviders.length > 0
+
+  const [browseProvider, setBrowseProvider] = useState<
+    'github' | 'gitlab' | null
+  >(null)
+
+  useEffect(() => {
+    if (browseProvider === null && availableProviders.length > 0) {
+      setBrowseProvider(availableProviders[0])
+    }
+  }, [availableProviders, browseProvider])
+
+  useEffect(() => {
+    if (browseProvider && !availableProviders.includes(browseProvider)) {
+      setBrowseProvider(availableProviders[0] ?? null)
+    }
+  }, [availableProviders, browseProvider])
+
+  const connectedUsername = browseProvider
+    ? gitAuth?.[browseProvider]?.username ?? null
+    : null
 
   const handleOpenAfterImportChange = (checked: boolean) => {
     setOpenAfterImport(checked)
@@ -83,11 +106,11 @@ export function CloneRepoModal({
   const repoName = useMemo(() => repoBaseName(url), [url])
 
   useEffect(() => {
-    if (connectedProvider && activeTab === 'browse') {
-    } else if (!connectedProvider) {
+    if (hasAnyProvider && activeTab === 'browse') {
+    } else if (!hasAnyProvider) {
       setActiveTab('url')
     }
-  }, [connectedProvider])
+  }, [hasAnyProvider])
 
   useEffect(() => {
     if (activeTab === 'url') {
@@ -102,7 +125,7 @@ export function CloneRepoModal({
   }, [])
 
   const fetchRepos = useCallback(async (pageNum: number, append: boolean) => {
-    if (!connectedProvider) return
+    if (!browseProvider) return
     if (append) {
       setReposLoadingMore(true)
     } else {
@@ -110,7 +133,7 @@ export function CloneRepoModal({
     }
     setReposError(null)
     try {
-      const result = await api.gitAuthListUserRepos(connectedProvider, pageNum)
+      const result = await api.gitAuthListUserRepos(browseProvider, pageNum)
       setRepos((prev) => append ? [...prev, ...result.repos] : result.repos)
       setHasMoreRepos(result.has_more)
       setRepoPage(pageNum)
@@ -120,13 +143,13 @@ export function CloneRepoModal({
       setReposLoading(false)
       setReposLoadingMore(false)
     }
-  }, [connectedProvider])
+  }, [browseProvider])
 
   useEffect(() => {
-    if (activeTab === 'browse' && connectedProvider && repos.length === 0 && !reposLoading) {
+    if (activeTab === 'browse' && browseProvider && repos.length === 0 && !reposLoading) {
       fetchRepos(1, false)
     }
-  }, [activeTab, connectedProvider, repos.length, reposLoading, fetchRepos])
+  }, [activeTab, browseProvider, repos.length, reposLoading, fetchRepos])
 
   const loadMoreRepos = useCallback(() => {
     fetchRepos(repoPage + 1, true)
@@ -261,7 +284,7 @@ export function CloneRepoModal({
           autoFocusBanner={false}
         />
 
-        {connectedProvider && (
+        {hasAnyProvider && (
           <div className="flex items-center gap-2 px-6 pt-1">
             <button
               type="button"
@@ -282,15 +305,42 @@ export function CloneRepoModal({
 
         <div className="gap-6 p-6 flex-1 overflow-y-auto">
           <div className="md:col-span-3 flex flex-col gap-4">
-            {activeTab === 'browse' && connectedProvider && (
+            {activeTab === 'browse' && browseProvider && (
               <div className="flex flex-col gap-3">
                 <div className="flex items-center gap-2 px-1">
-                  <span className="text-xs text-muted">
-                    {t('clone_repo_connected_as', { username: connectedUsername })}
-                  </span>
+                  {availableProviders.length > 1 && (
+                    <div className="flex items-center gap-1">
+                      {availableProviders.map((p) => (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => {
+                            if (p !== browseProvider) {
+                              setBrowseProvider(p)
+                              setRepos([])
+                              setSelectedRepo(null)
+                              setRepoSearch('')
+                            }
+                          }}
+                          className={`px-2.5 py-1 rounded-btn text-[11px] font-medium capitalize transition-colors ${
+                            browseProvider === p
+                              ? 'bg-accent/15 text-accent-bright border border-accent/30'
+                              : 'text-muted hover:text-ink hover:bg-raised border border-transparent'
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  {availableProviders.length <= 1 && (
+                    <span className="text-xs font-medium text-accent-bright capitalize">
+                      {browseProvider}
+                    </span>
+                  )}
                   <span className="text-xs text-muted opacity-50">•</span>
-                  <span className="text-xs font-medium text-accent-bright capitalize">
-                    {connectedProvider}
+                  <span className="text-xs text-muted">
+                    {connectedUsername ? `@${connectedUsername}` : ''}
                   </span>
                   <button
                     type="button"
@@ -418,9 +468,9 @@ export function CloneRepoModal({
               </div>
             )}
 
-            {(activeTab === 'url' || !connectedProvider) && (
+            {(activeTab === 'url' || !hasAnyProvider) && (
               <>
-                {!connectedProvider && (
+                {!hasAnyProvider && (
                   <div className="flex items-center gap-2 px-3 py-2.5 rounded-item bg-overlay border border-outline/30 text-xs text-muted">
                     <IconPlug className="w-3.5 h-3.5 shrink-0 opacity-60" />
                     <span>{t('clone_repo_no_account')}</span>
