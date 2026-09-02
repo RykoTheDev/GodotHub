@@ -867,7 +867,7 @@ export function OnboardingView({
                               }
                               value={draft.corner_radius}
                               min={0}
-                              max={20}
+                              max={15}
                               step={1}
                               defaultValue={defaultCornerRadius}
                               onChange={(v) => {

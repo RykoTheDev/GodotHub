@@ -6,7 +6,7 @@ export const DEFAULT_BG = themeDefaults.background
 export const DEFAULT_BG_LIGHT = '#f8f9fa'
 export const DEFAULT_RAISED_CONTRAST = 8
 
-export const RADIUS_MD_DEFAULT = 12
+export const RADIUS_MD_DEFAULT = 10
 
 export const RADIUS_SCALE: Record<string, number> = {
   '--radius-sm': 0.8,

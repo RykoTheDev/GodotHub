@@ -39,6 +39,7 @@ import {
   IconStopwatch,
   IconTags,
   IconTerminal,
+  IconRocket,
   IconTrash,
   IconX,
 } from '../../lib/icons'
@@ -815,20 +816,29 @@ export function ProjectCard({
               key: 'open-folder',
               label: t('open_folder'),
               icon: IconExternalLink,
+              tooltip: t('open_folder'),
               onClick: openFolder,
             },
             {
               key: 'open-ide',
               label: t('open_in_ide'),
               icon: IconCode,
+              tooltip: t('open_in_ide'),
               onClick: openInIde,
+            },
+            {
+              key: 'open-terminal',
+              label: t('open_terminal'),
+              icon: IconTerminal,
+              tooltip: t('open_terminal'),
+              onClick: () => api.openTerminal(project.path).catch((e) => alert(e)),
             },
           ]}
           items={[
           {
             key: 'launch-arguments',
             label: t('launch_arguments'),
-            icon: IconTerminal,
+            icon: IconRocket,
             onClick: () => setShowLaunchArgs(true),
           },
           {

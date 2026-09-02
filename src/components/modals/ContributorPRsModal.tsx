@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { openUrl } from '@tauri-apps/plugin-opener'
-import { formatLocaleDate } from '../lib/locale'
+import { formatLocaleDate } from '../../lib/locale'
 
 interface PR {
   number: number

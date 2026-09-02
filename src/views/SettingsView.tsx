@@ -19,7 +19,7 @@ import { useCategoriesContext } from '../hooks/categoriesContext'
 import { useWorkspaces } from '../hooks/useWorkspaces'
 import { useAppVersion } from '../hooks/useAppVersion'
 import { useContributors } from '../hooks/useContributors'
-import { ContributorPRsModal } from '../components/ContributorPRsModal'
+import { ContributorPRsModal } from '../components/modals/ContributorPRsModal'
 
 import { api } from '../lib/api'
 import {

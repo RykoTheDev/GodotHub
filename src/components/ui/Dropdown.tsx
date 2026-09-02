@@ -13,6 +13,7 @@ import {
 import { createPortal } from 'react-dom'
 import { IconChevronRight } from '../../lib/icons'
 import type { IconProps } from '../../lib/icons'
+import { Tooltip } from '../reusables/Tooltip'
 
 export interface NewDropdownItem {
   key: string
@@ -34,6 +35,7 @@ export interface NewDropdownHeaderItem {
   key: string
   icon: ComponentType<IconProps>
   label: string
+  tooltip?: string
   onClick: () => void
 }
 
@@ -276,7 +278,7 @@ export function Dropdown({
               role="menu"
               onKeyDown={handleMenuKey}
               style={{ left: pos?.left, top: pos?.top, width: pos?.width }}
-              className={`fixed z-50 rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 ${compact ? 'min-w-48 p-1' : 'min-w-60 p-1.5'} ${
+              className={`fixed z-50 rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 overflow-clip ${compact ? 'min-w-48 p-2' : 'min-w-60 p-2.5'} ${
                 openUp ? 'origin-bottom' : 'origin-top'
               } ${menuClassName}`}
               onMouseLeave={() => setOpenSubmenuKey(null)}
@@ -284,15 +286,15 @@ export function Dropdown({
               {header && header.length > 0 && (
                 <div className={`flex items-center gap-1 ${compact ? 'p-0.5' : 'p-1'} border-b border-white/6 mb-1`}> 
                   {header.map((h) => (
-                    <button
-                      key={h.key}
-                      type="button"
-                      onClick={() => { closeAll(); h.onClick() }}
-                      title={h.label}
-                      className="focus-ring cursor-pointer flex items-center justify-center w-8 h-8 rounded-item text-muted hover:text-ink hover:bg-raised transition-colors"
-                    >
-                      <h.icon className="w-4 h-4" />
-                    </button>
+                    <Tooltip key={h.key} content={h.tooltip ?? h.label} side="top">
+                      <button
+                        type="button"
+                        onClick={() => { closeAll(); h.onClick() }}
+                        className="focus-ring cursor-pointer flex items-center justify-center w-8 h-8 rounded-item text-muted hover:text-ink hover:bg-raised transition-colors"
+                      >
+                        <h.icon className="w-4 h-4" />
+                      </button>
+                    </Tooltip>
                   ))}
                 </div>
               )}

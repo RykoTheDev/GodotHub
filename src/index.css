@@ -1,5 +1,4 @@
 @import 'tailwindcss';
-@plugin './corner-shape.config.js';
 
 @theme {
 

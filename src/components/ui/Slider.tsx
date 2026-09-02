@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { IconRefresh } from '../../lib/icons'
 import { Tooltip } from '../reusables/Tooltip'
@@ -36,44 +35,34 @@ export function Slider({
 
   return (
     <div className="flex flex-col gap-2 w-full">
-      {(label || display || canReset) && (
-        <div className="flex items-center justify-between gap-4">
-          {label && (
-            <span className="text-xs font-medium text-muted">{label}</span>
-          )}
-          <span className="ml-auto flex items-center gap-1.5">
-            {display && (
-              <span className="shrink-0 inline-flex items-center px-2 py-0.5 rounded-tag bg-raised border border-outline/50">
-                {display}
-              </span>
-            )}
-            <span className="relative w-5 h-5 shrink-0">
-              <AnimatePresence>
-                {canReset && (
-                    <Tooltip content={t('reset_to_default')} side="left">
-                      <motion.button key="button-53"
-                        type="button"
-                        initial={{ opacity: 0, scale: 0.75, y: 1 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.75, y: 1 }}
-                        transition={{ type: 'spring', stiffness: 350, damping: 26, mass: 0.9 }}
-                        onClick={() => {
-                          beginScaleSmoothing()
-                          onChange(defaultValue)
-                        }}
-                        disabled={disabled}
-                        aria-label={t('reset_to_default')}
-                        className="focus-ring cursor-pointer w-full h-full flex items-center justify-center rounded-full bg-raised border border-outline/50 text-muted transition-colors duration-150 hover:text-accent-bright hover:border-accent-dim/70 hover:bg-overlay disabled:cursor-not-allowed disabled:opacity-50 absolute inset-0"
-                      >
-                        <IconRefresh className="w-3 h-3" />
-                      </motion.button>
-                    </Tooltip>
-                )}
-              </AnimatePresence>
-            </span>
-          </span>
-        </div>
+      {label && (
+        <span className="text-xs font-medium text-muted">{label}</span>
       )}
+
+      <div className="flex items-center justify-between gap-4">
+        <span className="ml-auto flex items-center gap-1">
+          <Tooltip content={t('reset_to_default')} side="left">
+            <button
+              type="button"
+              onClick={() => {
+                if (defaultValue === undefined) return
+                beginScaleSmoothing()
+                onChange(defaultValue)
+              }}
+              disabled={disabled || !canReset}
+              aria-label={t('reset_to_default')}
+              className={`focus-ring cursor-pointer h-6 w-6 flex items-center justify-center rounded-full border transition-colors duration-150 overflow-hidden shrink-0 ${canReset ? 'bg-raised border-outline/50 text-muted hover:text-accent-bright hover:border-accent-dim/70 hover:bg-overlay' : 'bg-transparent border-transparent text-transparent'}`}
+            >
+              <IconRefresh className="w-3 h-3" />
+            </button>
+          </Tooltip>
+          {display && (
+            <span className="shrink-0 inline-flex items-center px-2 h-6 bg-raised border border-outline/50 text-xs font-mono text-ink tabular-nums rounded-tag">
+              {display}
+            </span>
+          )}
+        </span>
+      </div>
 
       <div
         className={`group relative flex items-center w-full h-5 ${disabled ? 'opacity-40' : ''}`}

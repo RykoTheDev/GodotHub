@@ -1133,6 +1133,18 @@
       {
         "category": "fix",
         "text": "Time tracking pill moving along with play button in project card"
+      },
+      {
+        "category": "add",
+        "text": "Open in Terminal option in \"More\" Button in Project Card"
+      },
+      {
+        "category": "improve",
+        "text": "Changed corner radius max value from 20 to 15"
+      },
+      {
+        "category": "improve",
+        "text": "removed squircle styled corner radius for windows (due to some visual glitches)"
       }
     ],
     "known_issues": [],
