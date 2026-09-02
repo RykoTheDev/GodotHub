@@ -1120,5 +1120,18 @@
     ],
     "known_issues": [],
     "created_at": 1787840657
+  },
+  {
+    "id": "2cccb969-3a45-4ae8-a31a-982c1e15e640",
+    "version": "v1.4.1",
+    "date": "2026-09-02",
+    "notes": [
+      {
+        "category": "fix",
+        "text": "Gist Pull Button not working on Onboarding Screen"
+      }
+    ],
+    "known_issues": [],
+    "created_at": 1788349462
   }
 ]

@@ -1070,40 +1070,19 @@ function OnboardingCloudBackup() {
   const { t } = useTranslation('onboarding')
   const { t: ts } = useTranslation('settings')
   const [gitUser, setGitUser] = useState<string | null>(null)
-  const [gistUrl, setGistUrl] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [msg, setMsg] = useState<string | null>(null)
+
   const [showRestoreModal, setShowRestoreModal] = useState(false)
   const [showGitAuth, setShowGitAuth] = useState(false)
-  const [savedGistUrl, setSavedGistUrl] = useState<string | null>(null)
-  const [showUrlInput, setShowUrlInput] = useState(false)
 
   useEffect(() => {
     api.gitAuthGetState().then((s) => {
       if (s.github) setGitUser(s.github.username)
-    })
-    api.gistSyncGetInfo().then((info) => {
-      if (info) setSavedGistUrl(info.gist_url)
     })
   }, [])
 
   const handleConnected = (username: string) => {
     setGitUser(username)
     setShowGitAuth(false)
-  }
-
-  const handlePull = async () => {
-    if (!gistUrl.trim()) return
-    setBusy(true)
-    setMsg(null)
-    try {
-      await api.gistSyncSaveGistUrl(gistUrl.trim())
-      setShowRestoreModal(true)
-    } catch (e) {
-      setMsg(String(e))
-    } finally {
-      setBusy(false)
-    }
   }
 
   return (
@@ -1132,15 +1111,8 @@ function OnboardingCloudBackup() {
 
             <button
               type="button"
-              onClick={() => {
-                if (savedGistUrl) {
-                  setShowRestoreModal(true)
-                } else {
-                  setShowUrlInput(true)
-                }
-              }}
-              disabled={busy}
-              className="focus-ring cursor-pointer self-start inline-flex items-center gap-2 px-4 py-2.5 rounded-btn bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors disabled:opacity-50"
+              onClick={() => setShowRestoreModal(true)}
+              className="focus-ring cursor-pointer self-start inline-flex items-center gap-2 px-4 py-2.5 rounded-btn bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors"
             >
               <IconCloudArrowDown className="w-3.5 h-3.5" />
               {ts('sync_pull_btn')}
@@ -1148,47 +1120,9 @@ function OnboardingCloudBackup() {
             <p className="text-[11px] text-muted leading-relaxed">
               {ts('sync_manual_hint')}
             </p>
-
-            {!showUrlInput && !savedGistUrl && (
-              <button
-                type="button"
-                onClick={() => setShowUrlInput(true)}
-                className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 px-3 py-1.5 rounded-btn border border-dashed border-outline/50 text-xs text-muted hover:text-ink hover:border-accent-dim transition-colors"
-              >
-                <IconCloudArrowDown className="w-3 h-3" />
-                {ts('sync_manual_placeholder')}
-              </button>
-            )}
-
-            {(showUrlInput || savedGistUrl) && (
-              <div className="flex flex-col gap-2">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={gistUrl}
-                    onChange={(e) => setGistUrl(e.target.value)}
-                    placeholder={ts('sync_manual_placeholder')}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') handlePull()
-                    }}
-                    className="focus-ring flex-1 bg-base border border-outline/50 rounded-btn px-3 py-2 text-xs focus:border-accent-dim transition-colors"
-                  />
-                  <button
-                    type="button"
-                    onClick={handlePull}
-                    disabled={busy || !gistUrl.trim()}
-                    className="focus-ring cursor-pointer px-4 py-2 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised text-xs font-medium transition-colors disabled:opacity-50"
-                  >
-                    {busy ? ts('saving') : ts('sync_manual_pull_btn')}
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         )}
-        {msg && (
-          <p className="text-[11px] text-muted">{msg}</p>
-        )}
+
       </div>
 
       <AnimatePresence>
