@@ -680,23 +680,30 @@ export function ProjectCard({
             transition={springTransition}
             className="overflow-hidden inline-flex items-center shrink-0"
           >
-              <button
-                type="button"
-                onClick={onTogglePin}
-                onFocus={() => setPinFocused(true)}
-                onBlur={() => setPinFocused(false)}
-                className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-3 rounded-btn border font-mono text-[10px] transition-colors shrink-0 ${
-                  project.pinned
-                    ? 'bg-accent/10 border-accent-dim/40 text-accent-bright hover:bg-accent/20 hover:border-accent-dim'
-                    : 'bg-raised border-outline/50 text-muted hover:text-ink hover:border-accent-dim'
-                }`}
-              >
-                <IconPin
-                  className="w-3 h-3"
-                  fill={project.pinned ? 'currentColor' : 'none'}
-                />
-                {project.pinned ? t('project_unpin_aria') : t('project_pin_aria')}
-              </button>
+              {project.pinned ? (
+                <Tooltip content={t('project_unpin_aria')} side="top">
+                  <button
+                    type="button"
+                    onClick={onTogglePin}
+                    onFocus={() => setPinFocused(true)}
+                    onBlur={() => setPinFocused(false)}
+                    className="focus-ring cursor-pointer inline-flex items-center ml-1 px-2.5 py-2.5 rounded-btn border font-mono transition-colors shrink-0 bg-accent/10 border-accent-dim/40 text-accent-bright hover:bg-accent/20 hover:border-accent-dim"
+                  >
+                    <IconPin className="w-3 h-3" fill="currentColor" />
+                  </button>
+                </Tooltip>
+              ) : (
+                <button
+                  type="button"
+                  onClick={onTogglePin}
+                  onFocus={() => setPinFocused(true)}
+                  onBlur={() => setPinFocused(false)}
+                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-3 rounded-btn border font-mono text-[10px] transition-colors shrink-0 bg-raised border-outline/50 text-muted hover:text-ink hover:border-accent-dim"
+                >
+                  <IconPin className="w-3 h-3" />
+                  {t('project_pin_aria')}
+                </button>
+              )}
           </motion.span>
           {allMs > 0 && cardSettings.show_time && (
               <button

@@ -89,8 +89,8 @@ function EntryCard({
       transition={{ duration: 0.3, ease: 'easeOut' }}
       className="group relative flex gap-5"
     >
-      <div className="flex flex-col items-center pt-2 shrink-0">
-        <span className="w-3 h-3 rounded-full bg-accent shrink-0 ring-4 ring-accent/15" />
+      <div className="flex flex-col items-center pt-2 pl-2 shrink-0">
+        <span className="w-2 h-2 rounded-full bg-accent shrink-0 ring-4 ring-accent/15" />
         {!isLast && <span className="w-px flex-1 bg-line mt-2" />}
       </div>
 

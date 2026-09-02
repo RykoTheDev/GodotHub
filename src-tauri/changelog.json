@@ -1161,6 +1161,14 @@
       {
         "category": "fix",
         "text": "Play button size change no longer glitches Project card size; PR by mauriciovalentim"
+      },
+      {
+        "category": "improve",
+        "text": "Update Pin Button in Pinned state on Project Card"
+      },
+      {
+        "category": "improve",
+        "text": "Remove inner scrollbar from manage categories modal"
       }
     ],
     "known_issues": [],
