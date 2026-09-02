@@ -765,15 +765,13 @@ export function ProjectCard({
           )}
         </div>
       </div>
-
-      <div className="flex items-stretch shrink-0 relative -mr-2">
         {sessionMs > 0 && (
           <motion.div
             initial={{ x: 80, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: 80, opacity: 0 }}
             transition={{ type: 'spring', stiffness: 350, damping: 25 }}
-            className="flex items-center shrink-0 -mr-2 overflow-hidden"
+            className="flex items-center shrink-0 -mr-5 mb-1 overflow-hidden"
           >
             <div className="flex items-center gap-2 px-4 h-10 bg-base/50 border-r-0 rounded-l-dropdown-btn font-mono text-xs text-accent-bright whitespace-nowrap">
               <span className="w-1.5 h-1.5 rounded-full bg-accent-bright animate-pulse shrink-0" />
@@ -781,6 +779,8 @@ export function ProjectCard({
             </div>
           </motion.div>
         )}
+      <div className="flex items-stretch shrink-0 relative -mr-2">
+
         <div className="flex flex-col justify-end gap-1.5">
           <AnimatePresence>
             {versionInstalled && cardHovered && cardSettings.show_play && (
@@ -885,7 +885,7 @@ export function ProjectCard({
             onClick: () => setConfirmAction('delete'),
           },
         ]}
-      />
+        />
       </div>
       </div>
 

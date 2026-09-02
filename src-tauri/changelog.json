@@ -1129,6 +1129,10 @@
       {
         "category": "fix",
         "text": "Gist Pull Button not working on Onboarding Screen"
+      },
+      {
+        "category": "fix",
+        "text": "Time tracking pill moving along with play button in project card"
       }
     ],
     "known_issues": [],
