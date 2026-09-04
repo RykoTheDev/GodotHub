@@ -241,6 +241,13 @@ export function VersionsView({
   }
   const scanRef = useRef(handleScanNow)
   scanRef.current = handleScanNow
+  const searchRef = useRef<HTMLInputElement | null>(null)
+
+  useEffect(() => {
+    const focusSearch = () => searchRef.current?.focus()
+    window.addEventListener('app:focus-search', focusSearch)
+    return () => window.removeEventListener('app:focus-search', focusSearch)
+  }, [])
 
   useEffect(() => {
     const onScan = () => scanRef.current()
@@ -386,6 +393,7 @@ export function VersionsView({
             value={query}
             onChange={setQuery}
             placeholderKey="version_search_placeholder"
+            inputRef={searchRef}
           />
       </ViewHeader>
 

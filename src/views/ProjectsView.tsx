@@ -42,6 +42,7 @@ type ProjectViewMode = 'list' | 'grid' | 'kanban'
 import { useSettings } from '../hooks/useSettings'
 import { useScrollCompensation } from '../hooks/useScrollCompensation'
 import { api } from '../lib/api'
+import { pushToast } from '../lib/toast'
 import type { GitStatus, Project } from '../types'
 import {
   comparatorFor,
@@ -53,6 +54,8 @@ import { SearchBar } from '../components/ui/SearchBar'
 import { ViewHeader } from '../components/reusables/ViewHeader'
 import { CreateProjectModal } from '../components/modals/CreateProjectModal'
 import { CloneRepoModal } from '../components/modals/CloneRepoModal'
+import { BulkTagModal } from '../components/modals/BulkTagModal'
+import { DuplicateProjectModal } from '../components/modals/DuplicateProjectModal'
 import { ConfirmDialog } from '../components/modals/ConfirmDialog'
 import { CategoryManagerModal } from '../components/modals/CategoryManagerModal'
 
@@ -113,6 +116,8 @@ export function ProjectsView({
     }
   }, [])
 
+  const [bulkTagsOpen, setBulkTagsOpen] = useState(false)
+  const [duplicateProject, setDuplicateProject] = useState<Project | null>(null)
   const [confirmBatchAction, setConfirmBatchAction] = useState<
     'remove' | 'delete' | null
   >(null)
@@ -246,11 +251,14 @@ export function ProjectsView({
       if (debounceRef.current) clearTimeout(debounceRef.current)
       debounceRef.current = setTimeout(fetchGitStatuses, 300)
     }
+    const handleFocus = () => void fetchGitStatuses()
     window.addEventListener('app:refresh-git-status', handleRefresh)
+    window.addEventListener('focus', handleFocus)
     return () => {
       clearInterval(interval)
       if (debounceRef.current) clearTimeout(debounceRef.current)
       window.removeEventListener('app:refresh-git-status', handleRefresh)
+      window.removeEventListener('focus', handleFocus)
     }
   }, [fetchGitStatuses, projectPathsKey])
 
@@ -446,11 +454,48 @@ export function ProjectsView({
     clearSelection()
   }, [selectedIds, projects, setPinned, clearSelection])
 
+  const reimportForUndo = useCallback(
+    (removed: Project[]) => {
+      for (const p of removed) {
+        void api
+          .importProject(p.path, p.godot_version, p.category)
+          .catch(() => {})
+      }
+    },
+    [],
+  )
+
+  const removeWithUndo = useCallback(
+    async (id: string, deleteFiles: boolean) => {
+      if (deleteFiles) {
+        await remove(id, true)
+        return
+      }
+      const target = projects.find((p) => p.id === id)
+      await remove(id, false)
+      if (!target) return
+      pushToast('info', tc('removed_from_library', { count: 1 }), 6000, {
+        label: tc('undo'),
+        onClick: () => reimportForUndo([target]),
+      })
+    },
+    [projects, remove, tc, reimportForUndo],
+  )
+
   const executeBatchRemove = useCallback(async () => {
     setConfirmBatchAction(null)
-    for (const id of selectedIds) await remove(id, false)
+    const targets = [...selectedIds]
+      .map((id) => projects.find((p) => p.id === id))
+      .filter((p): p is Project => !!p)
+    for (const p of targets) await remove(p.id, false)
     clearSelection()
-  }, [selectedIds, remove, clearSelection])
+    if (targets.length > 0) {
+      pushToast('info', tc('removed_from_library', { count: targets.length }), 6000, {
+        label: tc('undo'),
+        onClick: () => reimportForUndo(targets),
+      })
+    }
+  }, [selectedIds, projects, remove, clearSelection, tc, reimportForUndo])
 
   const executeBatchDelete = useCallback(async () => {
     setConfirmBatchAction(null)
@@ -463,6 +508,8 @@ export function ProjectsView({
     await refresh()
   }, [refresh])
 
+  const searchRef = useRef<HTMLInputElement | null>(null)
+
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && selectedIds.size > 0) clearSelection()
@@ -470,6 +517,32 @@ export function ProjectsView({
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   }, [selectedIds.size, clearSelection])
+
+  useEffect(() => {
+    const focusSearch = () => searchRef.current?.focus()
+    const launchSelection = () => {
+      if (selectedIds.size > 0) batchLaunch()
+    }
+    const deleteSelection = () => {
+      if (selectedIds.size > 0) setConfirmBatchAction('remove')
+    }
+    const setCategoryFilterEvent = (e: Event) => {
+      const detail = (e as CustomEvent).detail as string | undefined
+      if (typeof detail !== 'string') return
+      setCategoryFilter(detail === '' ? null : detail)
+      clearSelection()
+    }
+    window.addEventListener('app:focus-search', focusSearch)
+    window.addEventListener('app:launch-selection', launchSelection)
+    window.addEventListener('app:delete-selection', deleteSelection)
+    window.addEventListener('app:set-category-filter', setCategoryFilterEvent)
+    return () => {
+      window.removeEventListener('app:focus-search', focusSearch)
+      window.removeEventListener('app:launch-selection', launchSelection)
+      window.removeEventListener('app:delete-selection', deleteSelection)
+      window.removeEventListener('app:set-category-filter', setCategoryFilterEvent)
+    }
+  }, [selectedIds.size, batchLaunch, clearSelection])
 
   return (
     <div className="flex-1 min-w-0 h-full flex flex-col">
@@ -550,7 +623,7 @@ export function ProjectsView({
           </>
         }
       >
-        <SearchBar value={query} onChange={setQuery} />
+        <SearchBar value={query} onChange={setQuery} inputRef={searchRef} />
       </ViewHeader>
 
       <div className={`shrink-0 flex items-center gap-2 mb-3 ${connected ? 'pl-5' : ''}`}>
@@ -776,6 +849,16 @@ export function ProjectsView({
               </button>
               <button
                 type="button"
+                onClick={() => setBulkTagsOpen(true)}
+                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-raised text-muted hover:text-ink hover:bg-overlay transition-colors"
+              >
+                <IconTags className="w-3 h-3" />
+                <span className="text-xs font-medium">
+                  {tc('bulk_tags')}
+                </span>
+              </button>
+              <button
+                type="button"
                 onClick={() => setConfirmBatchAction('remove')}
                 className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-raised text-muted hover:text-ink hover:bg-overlay transition-colors"
               >
@@ -829,9 +912,10 @@ export function ProjectsView({
             compact={gitSidebarOpen}
             onTogglePin={(id) => setPinned(id, !projects.find((p) => p.id === id)?.pinned)}
             onVersionChange={(id, tag) => updateVersion(id, tag)}
-            onRemove={(id) => remove(id, false)}
+            onRemove={(id) => void removeWithUndo(id, false)}
             onDelete={(id) => remove(id, true)}
             onCategoryChange={(id, cat) => setCategory(id, cat)}
+            onDuplicate={(project) => setDuplicateProject(project)}
             onLaunchArgsChange={(id, args) => handleLaunchArgsChange(id, args)}
             onTagsSaved={(updated) => updateTags(updated.id, updated.tags)}
             onTagClick={(tag) => setTagFilter((cur) => (cur === tag ? null : tag))}
@@ -859,9 +943,10 @@ export function ProjectsView({
             launchWithConsole={settings.launch_with_console}
             onTogglePin={(id) => setPinned(id, !projects.find((p) => p.id === id)?.pinned)}
             onVersionChange={(id, tag) => updateVersion(id, tag)}
-            onRemove={(id) => remove(id, false)}
+            onRemove={(id) => void removeWithUndo(id, false)}
             onDelete={(id) => remove(id, true)}
             onCategoryChange={(id, cat) => setCategory(id, cat)}
+            onDuplicate={(project) => setDuplicateProject(project)}
             onLaunchArgsChange={(id, args) => handleLaunchArgsChange(id, args)}
             onTagsSaved={(updated) => updateTags(updated.id, updated.tags)}
             onTagClick={(tag) => setTagFilter((cur) => (cur === tag ? null : tag))}
@@ -898,9 +983,10 @@ export function ProjectsView({
                 launchWithConsole={settings.launch_with_console}
                 onTogglePin={() => setPinned(p.id, !p.pinned)}
                 onVersionChange={(tag) => updateVersion(p.id, tag)}
-                onRemove={() => remove(p.id, false)}
+                onRemove={() => void removeWithUndo(p.id, false)}
                 onDelete={() => remove(p.id, true)}
                 onCategoryChange={settings.categories_enabled && sortBy !== 'categories' ? (cat) => setCategory(p.id, cat) : undefined}
+                onDuplicate={() => setDuplicateProject(p)}
                 onTagsSaved={(updated) => updateTags(updated.id, updated.tags)}
                 onTagClick={(tag) => setTagFilter((cur) => (cur === tag ? null : tag))}
                 onLaunchArgsChange={(args) => handleLaunchArgsChange(p.id, args)}
@@ -964,6 +1050,28 @@ export function ProjectsView({
             onUpdate={updateCategory}
             onDelete={removeCategory}
             onReorder={reorderCategories}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {duplicateProject && (
+          <DuplicateProjectModal
+            project={duplicateProject}
+            onClose={() => setDuplicateProject(null)}
+            onDuplicated={() => void refresh()}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {bulkTagsOpen && (
+          <BulkTagModal
+            projects={[...selectedIds]
+              .map((id) => projects.find((p) => p.id === id))
+              .filter((p): p is Project => !!p)}
+            onClose={() => setBulkTagsOpen(false)}
+            onApplied={() => void refresh()}
           />
         )}
       </AnimatePresence>

@@ -34,6 +34,7 @@ tauri-plugin-single-instance = "2.0.0"
 notify = "6"
 tauri-plugin-updater = "2.10.1"
 tauri-plugin-window-state = "2"
+tauri-plugin-notification = "2"
 trash = "3"
 thiserror = "2"
 tauri-plugin-discord-rpc = { git = "https://github.com/Youwes09/tauri-plugin-discord-rpc" }

@@ -319,5 +319,9 @@
   "git_worktrees_label": "Git Worktrees",
   "git_worktrees_desc": "Mostra a seção Worktrees na barra lateral do Git. Worktrees permitem usar várias branches ao mesmo tempo em diretórios separados.",
   "fixed_sidebar_resize_knob_label": "Fixed sidebar resize knob",
-  "fixed_sidebar_resize_knob_desc": "Keeps the sidebar resize handle pinned at the center of the edge instead of following the cursor. Resizing still works by dragging the edge."
+  "fixed_sidebar_resize_knob_desc": "Keeps the sidebar resize handle pinned at the center of the edge instead of following the cursor. Resizing still works by dragging the edge.",
+  "desktop_notifications_label": "Desktop notifications",
+  "desktop_notifications_desc": "Show an OS notification when long operations finish (installs, clones, Git sync), even when the window is in the background.",
+  "colored_titlebar_buttons_label": "Colored window buttons",
+  "colored_titlebar_buttons_desc": "Use colored macOS-style circles for the minimize, maximize and close buttons. When disabled, the titlebar uses standard Windows-style buttons."
 }

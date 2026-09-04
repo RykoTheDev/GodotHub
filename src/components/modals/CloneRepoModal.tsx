@@ -235,6 +235,9 @@ export function CloneRepoModal({
       updateTask(taskId, { status: 'completed', description: 'Done' })
       setTimeout(() => unregisterTask(taskId), 3000)
       onCloned(project.id)
+      if (settings.desktop_notifications_enabled) {
+        void api.notify('GodotHub', t('notification_clone_done'))
+      }
       if (openAfterImport) {
         api.openProject(project.id, true).catch((e) => alert(String(e)))
       }

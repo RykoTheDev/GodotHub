@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { api } from '../lib/api'
 import { useTauriEvent } from '../lib/useTauriEvent'
 import { useWorkspaces } from './useWorkspaces'
+import { useSettings } from './useSettings'
+import i18n from '../i18n'
 import type {
   DownloadProgress,
   GodotRelease,
@@ -22,6 +24,7 @@ const sameInstalled = (
 
 export function useGodotVersions() {
   const { activeId } = useWorkspaces()
+  const { settings } = useSettings()
   const [installed, setInstalled] = useState<InstalledGodotVersion[]>([])
   const [available, setAvailable] = useState<GodotRelease[]>([])
   const [loadingAvailable, setLoadingAvailable] = useState(false)
@@ -145,7 +148,13 @@ export function useGodotVersions() {
   useTauriEvent<string>('godot-download-complete', (key) => {
     clearKey(key)
     refreshInstalled()
-  })
+    if (settings.desktop_notifications_enabled) {
+      void api.notify(
+        'GodotHub',
+        i18n.t('notification_version_installed', { ns: 'common', tag: key }),
+      )
+    }
+  }, [settings.desktop_notifications_enabled])
 
   const download = useCallback(
     async (tag: string, assetName: string, url: string) => {

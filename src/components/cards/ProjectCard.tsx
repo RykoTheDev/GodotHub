@@ -55,6 +55,7 @@ interface ProjectCardProps {
   onRemove: () => void
   onDelete: () => void
   onCategoryChange?: (category: string) => void
+  onDuplicate?: () => void
   onTagsSaved?: (project: Project) => void
   onTagClick?: (tag: string) => void
   onLaunchArgsChange?: (args: string) => void
@@ -94,6 +95,7 @@ export function ProjectCard({
   onRemove,
   onDelete,
   onCategoryChange,
+  onDuplicate,
   onTagsSaved,
   onTagClick,
   onLaunchArgsChange,
@@ -868,6 +870,16 @@ export function ProjectCard({
             onClick: () => setTagManagerOpen(true),
             dividerAfter: !!onCategoryChange,
           },
+          ...(onDuplicate
+            ? [
+                {
+                  key: 'duplicate',
+                  label: t('duplicate_project'),
+                  icon: IconCopy,
+                  onClick: onDuplicate,
+                },
+              ]
+            : []),
           ...(onCategoryChange
             ? [
                 {

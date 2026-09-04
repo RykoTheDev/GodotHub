@@ -46,6 +46,7 @@ interface ProjectCardKanbanItemProps {
   onRemove: () => void
   onDelete?: () => void
   onCategoryChange?: (category: string) => void
+  onDuplicate?: () => void
   onTagsSaved?: (project: Project) => void
   onTagClick?: (tag: string) => void
   onLaunchArgsChange?: (args: string) => void
@@ -75,6 +76,7 @@ export function ProjectCardKanbanItem({
   onRemove,
   onDelete,
   onCategoryChange,
+  onDuplicate,
   onTagsSaved,
   onTagClick,
   onLaunchArgsChange,
@@ -562,14 +564,23 @@ export function ProjectCardKanbanItem({
                 label: t('launch_arguments'),
                 icon: IconRocket,
                 onClick: () => setShowLaunchArgs(true),
+              },              {
+                key: 'manage-tags',
+                label: t('manage_tags'),
+                icon: IconTags,
+                onClick: () => setTagManagerOpen(true),
+                dividerAfter: !!onCategoryChange,
               },
-            {
-              key: 'manage-tags',
-              label: t('manage_tags'),
-              icon: IconTags,
-              onClick: () => setTagManagerOpen(true),
-              dividerAfter: !!onCategoryChange,
-            },
+              ...(onDuplicate
+                ? [
+                    {
+                      key: 'duplicate',
+                      label: t('duplicate_project'),
+                      icon: IconCopy,
+                      onClick: onDuplicate,
+                    },
+                  ]
+                : []),
             ...(onCategoryChange
               ? [
                   {

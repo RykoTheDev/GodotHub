@@ -63,6 +63,17 @@ fn migrate_identifier(app: &tauri::App) {
 }
 
 #[tauri::command]
+fn notify(app: tauri::AppHandle, title: String, body: String) {
+    use tauri_plugin_notification::NotificationExt;
+    let _ = app
+        .notification()
+        .builder()
+        .title(title)
+        .body(body)
+        .show();
+}
+
+#[tauri::command]
 fn get_os_username() -> Option<String> {
     for var in ["USERNAME", "USER", "LOGNAME"] {
         if let Ok(v) = std::env::var(var) {
@@ -126,6 +137,7 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_process::init())
         .plugin(tauri_plugin_prevent_default::init())
+        .plugin(tauri_plugin_notification::init())
         .plugin(tauri_plugin_updater::Builder::new().build())
         .plugin(
             tauri_plugin_window_state::Builder::default()
@@ -246,8 +258,10 @@ pub fn run() {
             git_auth::create_remote_repo,
             git_auth::list_user_repos,
             godot_versions::import_version_zip,
+            notify,
             projects::list_projects,
             projects::create_project,
+            projects::duplicate_project,
             projects::import_project,
             projects::remove_project,
             projects::update_project,

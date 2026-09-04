@@ -36,6 +36,18 @@ function ToastCard({ toast }: { toast: ToastItem }) {
       <p className="flex-1 min-w-0 text-xs text-ink leading-snug wrap-break-word">
         {toast.message}
       </p>
+      {toast.action && (
+        <button
+          type="button"
+          onClick={() => {
+            dismissToast(toast.id)
+            toast.action?.onClick()
+          }}
+          className="cursor-pointer shrink-0 text-xs font-semibold text-accent-bright hover:text-ink hover:bg-raised px-2 py-1 rounded-tag transition-colors"
+        >
+          {toast.action.label}
+        </button>
+      )}
       <button
         type="button"
         onClick={() => dismissToast(toast.id)}

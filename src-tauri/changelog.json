@@ -1190,6 +1190,14 @@
       {
         "category": "fix",
         "text": "Repeated terminal launches when reopening GodotHub with Godot running; PR by hanmi255"
+      },
+      {
+        "category": "improve",
+        "text": "Changed Titlebar buttons to be more like Windows/Linux OS's"
+      },
+      {
+        "category": "add",
+        "text": "A setting to change titlebar buttons back to mac os style if wanted"
       }
     ],
     "known_issues": [],

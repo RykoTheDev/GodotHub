@@ -54,6 +54,7 @@ import { RestoreProgressModal } from '../components/modals/RestoreProgressModal'
 import { defaultCornerRadius, isMac, isWindows } from '../lib/platform'
 import { relaunch } from '@tauri-apps/plugin-process'
 import { flushPendingSave } from '../lib/pendingSave'
+import { consumePendingSettingsCategory } from '../lib/settingsCategoryNav'
 import {
   IconCheck,
   IconPalette,
@@ -267,6 +268,33 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
     clear: clearSearch,
     reset: resetSearch,
   } = useSectionSearch()
+
+  useEffect(() => {
+    const focusSearch = () => searchRef.current?.focus()
+    window.addEventListener('app:focus-search', focusSearch)
+    return () => window.removeEventListener('app:focus-search', focusSearch)
+  }, [searchRef])
+
+  useEffect(() => {
+    const pending = consumePendingSettingsCategory()
+    if (pending && CATEGORIES.some((c) => c.id === pending)) {
+      resetSearch()
+      setCat(pending as SettingsCat)
+    }
+  }, [resetSearch])
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail as string | undefined
+      if (typeof detail !== 'string') return
+      consumePendingSettingsCategory()
+      resetSearch()
+      setCat(detail as SettingsCat)
+    }
+    window.addEventListener('app:open-settings-category', handler)
+    return () =>
+      window.removeEventListener('app:open-settings-category', handler)
+  }, [resetSearch])
 
   useEffect(() => {
     setCssDraft(settings.custom_css)
@@ -616,6 +644,25 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             label={ts('card_layout_label')}
           />
       </Subsection>
+
+      {!isMac && (
+        <Subsection
+          id="appearance-titlebar-buttons"
+          title={ts('colored_titlebar_buttons_label')}
+          description={ts('colored_titlebar_buttons_desc')}
+          searchText={`${ts('colored_titlebar_buttons_label')} ${ts('colored_titlebar_buttons_desc')} ${ts('card_layout_label')}`}
+          query={searchQuery}
+          onMatch={reportMatch}
+        >
+          <Toggle
+            checked={settings.colored_titlebar_buttons ?? false}
+            onChange={(checked) =>
+              update({ ...settings, colored_titlebar_buttons: checked })
+            }
+            label={ts('colored_titlebar_buttons_label')}
+          />
+        </Subsection>
+      )}
 
       <Subsection
         id="appearance-landing"
@@ -1514,6 +1561,30 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             </p>
           </div>
 
+        </div>
+      </Subsection>
+
+      <Subsection
+        id="behavior-notifications"
+        title={ts('desktop_notifications_label')}
+        description={ts('desktop_notifications_desc')}
+        searchText={`${ts('desktop_notifications_label')} ${ts('desktop_notifications_desc')} ${ts('behavior_title')} ${ts('behavior_desc')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-5">
+          <SettingRow
+            label={ts('desktop_notifications_label')}
+            description={ts('desktop_notifications_desc')}
+          >
+            <Toggle
+              checked={settings.desktop_notifications_enabled}
+              onChange={(checked) =>
+                update({ ...settings, desktop_notifications_enabled: checked })
+              }
+              label={ts('desktop_notifications_label')}
+            />
+          </SettingRow>
         </div>
       </Subsection>
 

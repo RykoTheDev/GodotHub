@@ -308,6 +308,7 @@ export function GitSidebar({
   const [committing, setCommitting] = useState(false)
   const [changedFiles, setChangedFiles] = useState<GitChangedFile[]>([])
   const [changesLoading, setChangesLoading] = useState(true)
+  const [changesQuery, setChangesQuery] = useState('')
   const [remotes, setRemotes] = useState<GitRemoteInfo[]>([])
   const [remotesLoading, setRemotesLoading] = useState(true)
   const [branches, setBranches] = useState<GitBranchInfo[]>([])
@@ -433,6 +434,7 @@ export function GitSidebar({
     setNewWorktreePath('')
     setNewWorktreeBranch('')
     setRemoveWorktreeConfirm(null)
+    setChangesQuery('')
   }, [project.path])
 
   useEffect(() => {
@@ -536,6 +538,9 @@ export function GitSidebar({
       void refreshAheadBehind()
       void refreshMergeState()
       pushToast('success', t('synced_ok'))
+      if (settings.desktop_notifications_enabled) {
+        void api.notify('GodotHub', t('synced_ok'))
+      }
     } catch (e) {
       pushToast('error', String(e))
     } finally {
@@ -724,14 +729,16 @@ export function GitSidebar({
       void refreshAheadBehind()
       void refreshMergeState()
       hold('done')
-      pushToast(
-        'success',
+      const doneLabel =
         action === 'push'
           ? t('pushed_ok')
           : action === 'pull'
             ? t('pulled_ok')
-            : t('fetched_ok'),
-      )
+            : t('fetched_ok')
+      pushToast('success', doneLabel)
+      if (settings.desktop_notifications_enabled) {
+        void api.notify('GodotHub', doneLabel)
+      }
     } catch (e) {
       hold('error')
       pushToast('error', String(e))
@@ -968,11 +975,15 @@ export function GitSidebar({
     }
   }
 
-  const stagedFiles = changedFiles.filter((f) => {
+  const changesQueryLower = changesQuery.trim().toLowerCase()
+  const visibleChangedFiles = changesQueryLower
+    ? changedFiles.filter((f) => f.path.toLowerCase().includes(changesQueryLower))
+    : changedFiles
+  const stagedFiles = visibleChangedFiles.filter((f) => {
     const s = f.status
     return s.length > 0 && s[0] !== ' ' && s[0] !== '?'
   })
-  const unstagedFiles = changedFiles.filter((f) => {
+  const unstagedFiles = visibleChangedFiles.filter((f) => {
     const s = f.status
     if (s === '??') return true
     return s.length > 1 && s[1] !== ' ' && s[1] !== '?'
@@ -1814,6 +1825,15 @@ export function GitSidebar({
               setCtxMenu({ x: e.clientX, y: e.clientY })
             }}
           >
+            {changedFiles.length > 0 && (
+              <input
+                type="text"
+                value={changesQuery}
+                onChange={(e) => setChangesQuery(e.target.value)}
+                placeholder={t('filter_changes')}
+                className="w-full bg-base/50 border border-outline/50 rounded-item px-2.5 py-1.5 text-[11px] text-ink placeholder:text-muted focus:border-accent-dim outline-none transition-colors mb-1.5"
+              />
+            )}
             <div className="bg-base/50 border border-outline/50 rounded-item overflow-hidden">
               <div className="h-52 overflow-y-auto new-ui-scroll-viewport">
                 {changesLoading ? (
@@ -1826,6 +1846,14 @@ export function GitSidebar({
                   <div className="px-3 py-2.5">
                     <span className="text-[11px] text-muted/50">
                       {t('working_tree_clean')}
+                    </span>
+                  </div>
+                ) : changesQuery.trim() !== '' &&
+                  stagedFiles.length === 0 &&
+                  unstagedFiles.length === 0 ? (
+                  <div className="px-3 py-2.5">
+                    <span className="text-[11px] text-muted/50">
+                      {t('no_matching_changes')}
                     </span>
                   </div>
                 ) : (

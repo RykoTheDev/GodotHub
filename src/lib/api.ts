@@ -22,6 +22,7 @@ export const api = {
   updateProject: projectsApi.update,
   reorderProjects: projectsApi.reorder,
   saveProjectTags: projectsApi.saveTags,
+  duplicateProject: projectsApi.duplicate,
   openProject: projectsApi.open,
   stopProject: projectsApi.stop,
   listRunningProjects: () =>
@@ -37,6 +38,8 @@ export const api = {
   pickSavePath: projectsApi.pickSavePath,
   pickDataFile: projectsApi.pickDataFile,
   getOsUsername: settingsApi.getOsUsername,
+  notify: (title: string, body: string) =>
+    invoke<void>('notify', { title, body }),
   exportWorkspaceBackup: settingsApi.exportWorkspaceBackup,
   importWorkspaceBackup: settingsApi.importWorkspaceBackup,
   exportAppBackup: settingsApi.exportAppBackup,

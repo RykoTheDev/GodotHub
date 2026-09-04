@@ -39,6 +39,8 @@ export const projectsApi = {
     invoke<Project>('create_project', { name, location, godotVersion, iconPath: iconPath ?? null, templateId: templateId ?? null, category: category ?? null }),
   remove: (id: string, deleteFiles: boolean) =>
     invoke<void>('remove_project', { id, deleteFiles }),
+  duplicate: (id: string, name: string, destDir: string | null) =>
+    invoke<Project>('duplicate_project', { id, name, destDir }),
   update: (id: string, updates: ProjectUpdate) =>
     invoke<Project>('update_project', { id, updates }),
   reorder: (orderedIds: string[]) =>

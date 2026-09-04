@@ -305,6 +305,10 @@ pub struct AppSettings {
     pub git_worktrees_enabled: bool,
     #[serde(default)]
     pub fixed_sidebar_resize_knob: bool,
+    #[serde(default = "default_true")]
+    pub desktop_notifications_enabled: bool,
+    #[serde(default)]
+    pub colored_titlebar_buttons: bool,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, Default)]
@@ -622,6 +626,8 @@ tooltip_delay: default_tooltip_delay(),
             customize_view_enabled: false,
             git_worktrees_enabled: false,
             fixed_sidebar_resize_knob: false,
+            desktop_notifications_enabled: true,
+            colored_titlebar_buttons: false,
         }
     }
 }

@@ -36,6 +36,7 @@ interface ProjectCardKanbanProps {
   onRemove: (id: string) => void
   onDelete?: (id: string) => void
   onCategoryChange?: (id: string, category: string) => void
+  onDuplicate?: (project: Project) => void
   onLaunchArgsChange?: (id: string, args: string) => void
   onTagsSaved?: (project: Project) => void
   onTagClick?: (tag: string) => void
@@ -103,6 +104,7 @@ export function ProjectCardKanban({
   onRemove,
   onDelete,
   onCategoryChange,
+  onDuplicate,
   onLaunchArgsChange,
   onTagsSaved,
   onTagClick,
@@ -240,6 +242,7 @@ export function ProjectCardKanban({
           onRemove={() => onRemove(p.id)}
           onDelete={onDelete ? () => onDelete(p.id) : undefined}
           onCategoryChange={onCategoryChange ? (cat) => onCategoryChange(p.id, cat) : undefined}
+          onDuplicate={onDuplicate ? () => onDuplicate(p) : undefined}
           onLaunchArgsChange={onLaunchArgsChange ? (args) => onLaunchArgsChange(p.id, args) : undefined}
           onTagsSaved={onTagsSaved}
           onTagClick={onTagClick}

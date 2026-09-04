@@ -11,7 +11,15 @@ import { useSettings } from '../../hooks/useSettings'
 import { RunningProjectsChip } from '../titlebar/RunningProjectsChip'
 import { TaskTray } from '../titlebar/TaskTray'
 import { LanguageMenu } from '../titlebar/LanguageMenu'
-import { IconHeart, IconStar, IconBug } from '../../lib/icons'
+import {
+  IconHeart,
+  IconStar,
+  IconBug,
+  IconMinus,
+  IconX,
+  IconWindowMaximize,
+  IconWindowRestore,
+} from '../../lib/icons'
 import { Tooltip } from '../reusables/Tooltip'
 
 export function Titlebar({ minimal = false }: { minimal?: boolean }) {
@@ -158,7 +166,8 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
             {(settings.show_language_button || (!minimal && settings.show_tray_button)) && (
               <div className="w-px h-5 bg-line/40 mx-1 shrink-0" />
             )}
-            <div className="flex self-stretch">
+            {settings.colored_titlebar_buttons ? (
+              <div className="flex self-stretch">
                 <Tooltip content={t('minimize')}>
                 <button
                   type="button"
@@ -206,7 +215,50 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
                   />
                 </button>
                 </Tooltip>
-            </div>
+              </div>
+            ) : (
+              <div className="flex self-stretch">
+                <Tooltip content={t('minimize')}>
+                <button
+                  type="button"
+                  aria-label={t('minimize')}
+                  onMouseDown={noDrag}
+                  onClick={() => safe((w) => w.minimize())}
+                  className="focus-ring cursor-pointer group/win w-11 h-full flex items-center justify-center text-ink/55 hover:bg-ink/10 hover:text-ink transition-colors"
+                >
+                  <IconMinus className="w-2.5 h-2.5" />
+                </button>
+                </Tooltip>
+
+                <Tooltip content={isMaximized ? t('restore') : t('maximize')}>
+                <button
+                  type="button"
+                  aria-label={isMaximized ? t('restore') : t('maximize')}
+                  onMouseDown={noDrag}
+                  onClick={() => safe((w) => w.toggleMaximize())}
+                  className="focus-ring cursor-pointer group/win w-11 h-full flex items-center justify-center text-ink/55 hover:bg-ink/10 hover:text-ink transition-colors"
+                >
+                  {isMaximized ? (
+                    <IconWindowRestore className="w-2.5 h-2.5" />
+                  ) : (
+                    <IconWindowMaximize className="w-2.5 h-2.5" />
+                  )}
+                </button>
+                </Tooltip>
+
+                <Tooltip content={t('close')}>
+                <button
+                  type="button"
+                  aria-label={t('close')}
+                  onMouseDown={noDrag}
+                  onClick={() => safe((w) => w.close())}
+                  className="focus-ring cursor-pointer group/win w-11 h-full flex items-center justify-center text-ink/55 hover:bg-danger hover:text-white transition-colors"
+                >
+                  <IconX className="w-3 h-3" />
+                </button>
+                </Tooltip>
+              </div>
+            )}
           </>
         )}
       </div>

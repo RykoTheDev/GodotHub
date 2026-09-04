@@ -42,6 +42,7 @@ import {
   shouldOpenSettingsAfterSwitch,
   shouldShowSplash,
 } from './lib/uiTransition'
+import { setPendingSettingsCategory } from './lib/settingsCategoryNav'
 import {
   IconBell,
   IconBookOpen,
@@ -274,6 +275,18 @@ export function App() {
   }, [])
 
   useEffect(() => {
+    const handleOpenSettingsCategory = (e: Event) => {
+      const detail = (e as CustomEvent).detail as string | undefined
+      if (typeof detail !== 'string') return
+      setPendingSettingsCategory(detail)
+      setTab('settings')
+    }
+    window.addEventListener('app:open-settings-category', handleOpenSettingsCategory)
+    return () =>
+      window.removeEventListener('app:open-settings-category', handleOpenSettingsCategory)
+  }, [])
+
+  useEffect(() => {
     const handleSetTab = (e: Event) => {
       const detail = (e as CustomEvent).detail as NewTab | undefined
       if (detail) setTab(detail)
@@ -346,6 +359,9 @@ export function App() {
         setCommandPaletteOpen(false)
         setBugReportOpen(false)
       },
+      onFocusSearch: () => window.dispatchEvent(new Event('app:focus-search')),
+      onLaunchSelection: () => window.dispatchEvent(new Event('app:launch-selection')),
+      onDeleteSelection: () => window.dispatchEvent(new Event('app:delete-selection')),
     },
     paletteKey,
   )

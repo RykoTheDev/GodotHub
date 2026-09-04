@@ -526,6 +526,99 @@ pub fn create_project(
     Ok(project)
 }
 
+#[tauri::command]
+pub fn duplicate_project(
+    app: AppHandle,
+    id: String,
+    name: String,
+    dest_dir: Option<String>,
+) -> Result<Project, String> {
+    let settings = settings::read_settings(&app);
+    let projects = read_projects(&app);
+    let source = projects
+        .iter()
+        .find(|p| p.id == id)
+        .ok_or_else(|| "Project not found".to_string())?;
+    let source_dir = PathBuf::from(&source.path);
+    if !source_dir.is_dir() {
+        return Err("Source project folder not found".into());
+    }
+
+    let dest = match dest_dir {
+        Some(d) if !d.trim().is_empty() => PathBuf::from(d),
+        _ => source_dir
+            .parent()
+            .unwrap_or(&source_dir)
+            .to_path_buf(),
+    };
+    let folder_name = apply_naming_convention(&name, &settings.directory_naming_convention);
+    let target_dir = dest.join(&folder_name);
+    if target_dir.exists() {
+        return Err(format!(
+            "A folder named '{}' already exists at this location",
+            folder_name
+        ));
+    }
+
+    // Copy the project folder, skipping Git history and the Godot cache.
+    crate::templates::copy_dir(&source_dir, &target_dir, &[".git", ".godot"])?;
+
+    // Rewrite the project name in project.godot.
+    let godot_path = target_dir.join("project.godot");
+    if godot_path.exists() {
+        let existing = fs::read_to_string(&godot_path).unwrap_or_default();
+        let lines: Vec<String> = existing
+            .lines()
+            .map(|l| {
+                let trimmed = l.trim();
+                if trimmed.starts_with("config/name=") {
+                    format!("config/name=\"{}\"", name)
+                } else {
+                    l.to_string()
+                }
+            })
+            .collect();
+        if !lines.iter().any(|l| l.trim().starts_with("config/name=")) {
+            if let Some(idx) = lines.iter().position(|l| l.trim() == "[application]") {
+                let mut updated = lines;
+                updated.insert(idx + 1, format!("config/name=\"{}\"", name));
+                fs::write(&godot_path, updated.join("\n")).map_err(|e| e.to_string())?;
+            }
+        } else {
+            fs::write(&godot_path, lines.join("\n")).map_err(|e| e.to_string())?;
+        }
+    }
+
+    let mut projects = read_projects(&app);
+    let project_path = target_dir.to_string_lossy().to_string();
+    let tags = resolve_project_tags(&project_path);
+    let project = Project {
+        id: Uuid::new_v4().to_string(),
+        name,
+        path: project_path,
+        godot_version: source.godot_version.clone(),
+        created_at: chrono::Utc::now().to_rfc3339(),
+        last_opened: None,
+        category: source.category.clone(),
+        pinned: false,
+        sort_order: next_sort_order(&projects, &source.category),
+        launch_arguments: String::new(),
+        tags,
+        total_time_seconds: 0,
+        session_started_at_ms: None,
+        time_today_seconds: 0,
+        time_week_seconds: 0,
+    };
+
+    projects.push(project.clone());
+    write_projects(&app, &projects)?;
+    undismiss(&app, &project.path);
+    if !project.godot_version.is_empty() {
+        let _ = crate::godotenv::pin_version(&project.path, &project.godot_version);
+    }
+    Ok(project)
+}
+
 fn version_feature_tag(tag: &str) -> String {
     let cleaned = tag.trim().trim_start_matches('v');
     let mut parts = cleaned.split(['.', '-']);

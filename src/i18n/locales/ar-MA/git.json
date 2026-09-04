@@ -91,5 +91,7 @@
   "worktree_clean": "Clean",
   "remove_worktree": "Remove worktree",
   "remove_worktree_confirm_desc": "This will remove the worktree at {{path}} and discard any uncommitted changes. This cannot be undone.",
-  "worktree_removed_ok": "Worktree removed."
+  "worktree_removed_ok": "Worktree removed.",
+  "filter_changes": "Filter changed files…",
+  "no_matching_changes": "No matching changes."
 }

@@ -15,6 +15,7 @@
     "core:window:allow-is-maximized",
     "process:default",
     "updater:default",
-    "discord-rpc:default"
+    "discord-rpc:default",
+    "notification:default"
   ]
 }
