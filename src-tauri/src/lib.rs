@@ -13,6 +13,7 @@ mod licenses;
 mod models;
 mod news;
 mod persist;
+mod process;
 mod projects;
 mod scan;
 mod settings;

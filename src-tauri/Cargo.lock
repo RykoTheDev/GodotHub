@@ -1641,6 +1641,7 @@ dependencies = [
  "trash",
  "url",
  "uuid 1.23.4",
+ "windows-sys 0.61.2",
  "zip 8.6.0",
 ]
 
