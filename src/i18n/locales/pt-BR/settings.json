@@ -317,5 +317,7 @@
   "landing_versions": "Versões",
   "landing_news": "Notícias do Godot",
   "git_worktrees_label": "Git Worktrees",
-  "git_worktrees_desc": "Mostra a seção Worktrees na barra lateral do Git. Worktrees permitem usar várias branches ao mesmo tempo em diretórios separados."
+  "git_worktrees_desc": "Mostra a seção Worktrees na barra lateral do Git. Worktrees permitem usar várias branches ao mesmo tempo em diretórios separados.",
+  "fixed_sidebar_resize_knob_label": "Fixed sidebar resize knob",
+  "fixed_sidebar_resize_knob_desc": "Keeps the sidebar resize handle pinned at the center of the edge instead of following the cursor. Resizing still works by dragging the edge."
 }

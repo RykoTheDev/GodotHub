@@ -478,7 +478,6 @@
   "clone_repo_no_repos_found": "Không có repository nào khớp tìm kiếm.",
   "clone_repo_loading_repos": "Đang tải repository...",
   "clone_repo_load_error": "Tải repository thất bại.",
-  "clone_repo_connected_as": "Đã kết nối với tư cách {{username}}",
   "clone_repo_private": "Riêng tư",
   "clone_repo_public": "Công khai",
   "clone_repo_select": "Chọn",

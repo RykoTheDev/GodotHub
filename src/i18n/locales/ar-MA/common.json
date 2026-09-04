@@ -435,7 +435,6 @@
   "clone_repo_no_repos_found": "No repositories match your search.",
   "clone_repo_loading_repos": "جاري تحميل المستودعات...",
   "clone_repo_load_error": "Failed to load repositories.",
-  "clone_repo_connected_as": "متصل كـ {{username}}",
   "clone_repo_private": "خاص",
   "clone_repo_public": "عام",
   "clone_repo_select": "اختر",

@@ -1173,5 +1173,26 @@
     ],
     "known_issues": [],
     "created_at": 1788349462
+  },
+  {
+    "id": "ec6596e1-b6e3-40b4-ba55-b6de5c836425",
+    "version": "v1.4.2",
+    "date": "2026-09-04",
+    "notes": [
+      {
+        "category": "add",
+        "text": "Resizing to Git Sidebar"
+      },
+      {
+        "category": "improve",
+        "text": "Ability to reset default width of sidebar by Double Clicking on the Resize Knob"
+      },
+      {
+        "category": "fix",
+        "text": "Repeated terminal launches when reopening GodotHub with Godot running; PR by hanmi255"
+      }
+    ],
+    "known_issues": [],
+    "created_at": 1788557838
   }
 ]

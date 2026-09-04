@@ -2386,6 +2386,23 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           />
         </div>
       </Subsection>
+
+      <Subsection
+        id="accessibility-sidebar-resize-knob"
+        title={ts('fixed_sidebar_resize_knob_label')}
+        description={ts('fixed_sidebar_resize_knob_desc')}
+        searchText={`${ts('fixed_sidebar_resize_knob_label')} ${ts('fixed_sidebar_resize_knob_desc')} ${ts('accessibility')} ${ts('accessibility_desc')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+          <Toggle
+            checked={settings.fixed_sidebar_resize_knob}
+            onChange={(checked) =>
+              update({ ...settings, fixed_sidebar_resize_knob: checked })
+            }
+            label={ts('fixed_sidebar_resize_knob_label')}
+          />
+      </Subsection>
     </div>
   )
 

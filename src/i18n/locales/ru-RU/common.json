@@ -405,7 +405,6 @@
   "clone_repo_no_repos_found": "Репозитории не найдены.",
   "clone_repo_loading_repos": "Загрузка репозиториев...",
   "clone_repo_load_error": "Не удалось загрузить репозитории.",
-  "clone_repo_connected_as": "Подключено как {{username}}",
   "clone_repo_private": "Приватный",
   "clone_repo_public": "Публичный",
   "clone_repo_select": "Выбрать",

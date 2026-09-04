@@ -303,6 +303,8 @@ pub struct AppSettings {
     pub customize_view_enabled: bool,
     #[serde(default)]
     pub git_worktrees_enabled: bool,
+    #[serde(default)]
+    pub fixed_sidebar_resize_knob: bool,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, Default)]
@@ -619,6 +621,7 @@ tooltip_delay: default_tooltip_delay(),
             card_view_overrides: std::collections::HashMap::new(),
             customize_view_enabled: false,
             git_worktrees_enabled: false,
+            fixed_sidebar_resize_knob: false,
         }
     }
 }

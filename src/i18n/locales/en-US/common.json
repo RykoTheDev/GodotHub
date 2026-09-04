@@ -505,7 +505,6 @@
   "clone_repo_no_repos_found": "No repositories match your search.",
   "clone_repo_loading_repos": "Loading repositories...",
   "clone_repo_load_error": "Failed to load repositories.",
-  "clone_repo_connected_as": "Connected as {{username}}",
   "clone_repo_private": "Private",
   "clone_repo_public": "Public",
   "clone_repo_select": "Select",

@@ -441,6 +441,7 @@ export interface AppSettings {
   card_view_overrides: Record<string, Partial<CardViewSettings>>
   customize_view_enabled: boolean
   git_worktrees_enabled: boolean
+  fixed_sidebar_resize_knob: boolean
 }
 
 export interface CardViewSettings {

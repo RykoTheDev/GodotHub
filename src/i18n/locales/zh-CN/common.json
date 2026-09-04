@@ -444,7 +444,6 @@
   "clone_repo_no_repos_found": "没有匹配的仓库。",
   "clone_repo_loading_repos": "加载仓库中...",
   "clone_repo_load_error": "加载仓库失败。",
-  "clone_repo_connected_as": "已连接 {{username}}",
   "clone_repo_private": "私有",
   "clone_repo_public": "公开",
   "clone_repo_select": "选择",

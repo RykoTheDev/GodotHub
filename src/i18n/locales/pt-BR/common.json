@@ -478,7 +478,6 @@
   "clone_repo_no_repos_found": "Nenhum repositório corresponde à sua pesquisa.",
   "clone_repo_loading_repos": "Carregando repositórios...",
   "clone_repo_load_error": "Falha ao carregar os repositórios.",
-  "clone_repo_connected_as": "Conectado como {{username}}",
   "clone_repo_private": "Privado",
   "clone_repo_public": "Público",
   "clone_repo_select": "Selecionar",

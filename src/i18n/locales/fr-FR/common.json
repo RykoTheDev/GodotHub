@@ -478,7 +478,6 @@
   "clone_repo_no_repos_found": "Aucun dépôt ne correspond à votre recherche.",
   "clone_repo_loading_repos": "Chargement des dépôts...",
   "clone_repo_load_error": "Échec du chargement des dépôts.",
-  "clone_repo_connected_as": "Connecté en tant que {{username}}",
   "clone_repo_private": "Privé",
   "clone_repo_public": "Public",
   "clone_repo_select": "Sélectionner",

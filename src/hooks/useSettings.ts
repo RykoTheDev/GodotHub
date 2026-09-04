@@ -114,6 +114,7 @@ const DEFAULTS: AppSettings = {
   card_view_overrides: {},
   customize_view_enabled: false,
   git_worktrees_enabled: false,
+  fixed_sidebar_resize_knob: false,
 }
 
 interface SettingsContextValue {

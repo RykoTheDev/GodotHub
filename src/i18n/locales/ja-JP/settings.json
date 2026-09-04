@@ -317,5 +317,7 @@
   "landing_versions": "バージョン",
   "landing_news": "Godot ニュース",
   "git_worktrees_label": "Git ワークツリー",
-  "git_worktrees_desc": "Git サイドバーにワークツリーのセクションを表示します。ワークツリーを使うと、複数のブランチを別々のディレクトリに同時にチェックアウトできます。"
+  "git_worktrees_desc": "Git サイドバーにワークツリーのセクションを表示します。ワークツリーを使うと、複数のブランチを別々のディレクトリに同時にチェックアウトできます。",
+  "fixed_sidebar_resize_knob_label": "Fixed sidebar resize knob",
+  "fixed_sidebar_resize_knob_desc": "Keeps the sidebar resize handle pinned at the center of the edge instead of following the cursor. Resizing still works by dragging the edge."
 }

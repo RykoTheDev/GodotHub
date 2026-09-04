@@ -470,7 +470,6 @@
   "clone_repo_no_repos_found": "検索条件に一致するリポジトリはありません。",
   "clone_repo_loading_repos": "リポジトリを読み込み中…",
   "clone_repo_load_error": "リポジトリの読み込みに失敗しました。",
-  "clone_repo_connected_as": "{{username}} として接続中",
   "clone_repo_private": "プライベート",
   "clone_repo_public": "パブリック",
   "clone_repo_select": "選択",
