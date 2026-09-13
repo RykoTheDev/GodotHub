@@ -103,6 +103,34 @@ jobs:
             echo "GH_RELEASE_NOTES"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Resolve release asset names
+        id: naming
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          version="${RELEASE_TAG#v}"
+          # Beautified asset names start with v1.4.4. Earlier tags must keep
+          # Tauri's default CLI names because already-installed builds of those
+          # versions look for them, so the new layout turns itself on only once
+          # the tag reaches FIRST_BEAUTIFIED.
+          FIRST_BEAUTIFIED="1.4.4"
+          older=$(printf '%s\n%s\n' "$FIRST_BEAUTIFIED" "$version" | sort -V | head -n1)
+          if [ "$older" = "$FIRST_BEAUTIFIED" ]; then
+            pattern='[name]-[version]-[platform]-[arch][setup].[ext]'
+            portable="GodotHub-${version}-windows-x64-portable.exe"
+          else
+            pattern=''
+            portable='GodotHub.exe'
+          fi
+          {
+            echo "pattern=$pattern"
+            echo "portable=$portable"
+          } >> "$GITHUB_OUTPUT"
+          echo "asset name pattern: ${pattern:-<tauri default>}"
+          echo "portable executable: $portable"
+
       - name: Build Tauri app & publish release
         uses: tauri-apps/tauri-action@v1
         env:
@@ -111,6 +139,7 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           args: ${{ matrix.args }}
+          releaseAssetNamePattern: ${{ steps.naming.outputs.pattern }}
           tagName: ${{ github.ref_name }}
           releaseName: 'GodotHub ${{ github.ref_name }}'
           releaseBody: ${{ steps.release-notes.outputs.body }}
@@ -122,8 +151,9 @@ jobs:
         if: runner.os == 'Windows'
         shell: bash
         run: |
+          cp "src-tauri/target/release/GodotHub.exe" "${{ steps.naming.outputs.portable }}"
           gh release upload "${{ github.ref_name }}" \
-            "src-tauri/target/release/GodotHub.exe" \
+            "${{ steps.naming.outputs.portable }}" \
             --clobber
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -183,6 +213,21 @@ jobs:
           };
           const classify = (name) => {
             let m;
+            // v1.4.4+ assets carry an explicit platform token, e.g.
+            // GodotHub-1.4.4-windows-x64-setup.exe or
+            // GodotHub-1.4.4-darwin-universal.app.tar.gz. Older tags keep
+            // Tauri's default CLI names, so both shapes are parsed here.
+            if ((m = name.match(/-(windows|darwin|macos|linux)-([a-zA-Z0-9_]+)/))) {
+              const os = m[1] === 'macos' ? 'darwin' : m[1];
+              const arch = normArch(m[2]);
+              if (/\.app\.tar\.gz$/.test(name)) return { os, arch, installer: 'app' };
+              if (/\.AppImage$/.test(name)) return { os, arch, installer: 'appimage' };
+              if (/\.deb$/.test(name)) return { os, arch, installer: 'deb' };
+              if (/\.rpm$/.test(name)) return { os, arch, installer: 'rpm' };
+              if (/-setup\.exe$/.test(name)) return { os, arch, installer: 'nsis' };
+              if (/\.msi$/.test(name)) return { os, arch, installer: 'msi' };
+              return null;
+            }
             if ((m = name.match(/_([a-zA-Z0-9]+)\.app\.tar\.gz$/)))
               return { os: 'darwin', arch: normArch(m[1]), installer: 'app' };
             if ((m = name.match(/_([a-zA-Z0-9]+)\.AppImage$/)))

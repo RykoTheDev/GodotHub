@@ -272,11 +272,13 @@ Contributors can use AI during development, but every PR is manually reviewed be
 
 GodotHub is available as a desktop app for:
 
-| Platform | Package Types |
+| Platform | Download |
 |---|---|
-| **Windows** | `.msi` or `.exe` installer |
-| **macOS** | `.dmg` or `.app` bundle |
-| **Linux** | `.deb`, `.AppImage`, or `.rpm` |
+| **Windows** | `GodotHub-<version>-windows-x64-setup.exe` (installer), `GodotHub-<version>-windows-x64.msi` (installer), or `GodotHub-<version>-windows-x64-portable.exe` (no install needed) |
+| **macOS** | `GodotHub-<version>-darwin-universal.dmg` (Apple Silicon and Intel) |
+| **Linux** | `GodotHub-<version>-linux-amd64.deb`, `GodotHub-<version>-linux-x86_64.rpm`, or `GodotHub-<version>-linux-amd64.AppImage` |
+
+Replace `<version>` with the release you're downloading (for example `1.4.4`). Releases before v1.4.4 use the older file names.
 
 ### Install via Winget (Windows)
 

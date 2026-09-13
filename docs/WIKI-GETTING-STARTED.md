@@ -8,7 +8,13 @@ This page walks you through installing GodotHub, the first-run setup, and what t
 
 ### Windows
 
-Download the `.msi` or `.exe` installer from the [releases page](https://github.com/RykoTheDev/godothub/releases/latest), or install with winget:
+Download the installer from the [releases page](https://github.com/RykoTheDev/godothub/releases/latest):
+
+- `GodotHub-<version>-windows-x64-setup.exe` - recommended installer
+- `GodotHub-<version>-windows-x64.msi` - alternative installer
+- `GodotHub-<version>-windows-x64-portable.exe` - runs without installing
+
+Or install with winget:
 
 ```powershell
 winget install Ryko.GodotHub
@@ -24,11 +30,17 @@ winget upgrade Ryko.GodotHub
 
 ### macOS
 
-Download the `.dmg` or `.app` bundle from the [releases page](https://github.com/RykoTheDev/godothub/releases/latest).
+Download `GodotHub-<version>-darwin-universal.dmg` from the [releases page](https://github.com/RykoTheDev/godothub/releases/latest). It's a universal build, so it runs on both Apple Silicon and Intel Macs.
 
 ### Linux
 
-Download the `.deb`, `.AppImage`, or `.rpm` package from the [releases page](https://github.com/RykoTheDev/godothub/releases/latest).
+Grab the package for your distro from the [releases page](https://github.com/RykoTheDev/godothub/releases/latest):
+
+- `GodotHub-<version>-linux-amd64.deb` - Debian and Ubuntu based distros
+- `GodotHub-<version>-linux-x86_64.rpm` - Fedora, RHEL, and openSUSE based distros
+- `GodotHub-<version>-linux-amd64.AppImage` - single file, nothing to install
+
+Replace `<version>` with the release you're downloading (for example `1.4.4`). Releases before v1.4.4 use the older file names.
 
 Two things to know about Linux:
 
