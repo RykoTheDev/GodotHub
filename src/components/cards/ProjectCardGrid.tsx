@@ -1,12 +1,7 @@
 import { useMemo } from 'react'
 import Masonry from 'react-masonry-css'
 import { useTranslation } from 'react-i18next'
-import {
-  DndContext,
-  DragOverlay,
-  closestCenter,
-  useDroppable,
-} from '@dnd-kit/core'
+import { DndContext, DragOverlay, closestCenter } from '@dnd-kit/core'
 import { SortableContext } from '@dnd-kit/sortable'
 import type {
   Category,
@@ -15,6 +10,11 @@ import type {
   Project,
 } from '../../types'
 import { ProjectCardGridItem } from './ProjectCardGridItem'
+import {
+  HiddenCategoriesSection,
+  ProjectCategorySection,
+  type HiddenCategoryEntry,
+} from './CategorySections'
 import { UNCATEGORIZED_KEY } from '../../lib/projectDrag'
 import { AUTO_SCROLL_CONFIG, DRAG_FEEL } from '../../lib/dragFeel'
 import { useProjectDnd } from '../../hooks/useProjectDnd'
@@ -46,48 +46,18 @@ interface ProjectCardGridProps {
   onToggleSelect?: (id: string, e: React.MouseEvent) => void
   selecting: boolean
   onReorder?: (orderedIds: string[]) => Promise<void>
-  onMoveProject?: (
-    id: string,
+  onMoveProjects?: (
+    ids: string[],
     category: string,
     destOrderedIds: string[],
   ) => Promise<void>
-}
-
-function GridCategoryDropZone({
-  droppableId,
-  isEmpty,
-  children,
-}: {
-  droppableId: string
-  isEmpty: boolean
-  children: React.ReactNode
-}) {
-  const { t } = useTranslation('common')
-  const { isOver, setNodeRef } = useDroppable({
-    id: droppableId,
-    disabled: !isEmpty,
-  })
-
-  if (!isEmpty) return <>{children}</>
-
-  return (
-    <div
-      ref={setNodeRef}
-      className={`rounded-item transition-all duration-150 min-h-[100px] flex items-center justify-center ${
-        isOver
-          ? 'bg-accent/10 border-2 border-dashed border-accent/50'
-          : 'bg-overlay/30 border border-dashed border-outline/30'
-      }`}
-    >
-      <span
-        className={`text-xs select-none ${
-          isOver ? 'text-accent-bright font-medium' : 'text-muted/40'
-        }`}
-      >
-        {isOver ? t('release_to_drop') : t('empty_category')}
-      </span>
-    </div>
-  )
+  /** Hidden categories and how many projects each of them holds. */
+  hiddenCategories?: HiddenCategoryEntry[]
+  onUnhideCategory?: (id: string) => void
+  onCategoryContextMenu?: (
+    e: React.MouseEvent<HTMLElement>,
+    category: Category,
+  ) => void
 }
 
 const BREAKPOINTS = {
@@ -121,7 +91,10 @@ export function ProjectCardGrid({
   onToggleSelect,
   selecting,
   onReorder,
-  onMoveProject,
+  onMoveProjects,
+  hiddenCategories = [],
+  onUnhideCategory,
+  onCategoryContextMenu,
 }: ProjectCardGridProps) {
   const { t: tc } = useTranslation('common')
 
@@ -136,8 +109,9 @@ export function ProjectCardGrid({
     grouped,
     prefixes: { category: 'grid-cat-' },
     collisionDetection: closestCenter,
+    selectedIds,
     onReorder,
-    onMoveProject,
+    onMoveProjects,
   })
 
   const groupedProjects = useMemo(() => {
@@ -219,55 +193,55 @@ export function ProjectCardGrid({
       {categories.map((cat) => {
         const catProjects = groupedProjects?.get(cat.name) ?? []
         return (
-          <div key={cat.id} className="mb-6">
-            <div className="flex items-center gap-2 mb-3 px-1">
-              <span
-                className="w-2.5 h-2.5 rounded-full shrink-0 ring-1 ring-black/20"
-                style={{ backgroundColor: cat.color }}
-              />
-              <span className="text-sm font-medium text-ink">{cat.name}</span>
-              <span className="text-xs text-muted tabular-nums">
-                {catProjects.length}
-              </span>
-            </div>
-            <GridCategoryDropZone
-              droppableId={`grid-cat-${cat.id}`}
-              isEmpty={catProjects.length === 0}
-            >
-              {masonry(catProjects)}
-            </GridCategoryDropZone>
-          </div>
+          <ProjectCategorySection
+            key={cat.id}
+            variant="grid"
+            title={cat.name}
+            color={cat.color}
+            count={catProjects.length}
+            defaultOpen={catProjects.length > 0}
+            disableAnimation={isDndEnabled}
+            droppableId={`grid-cat-${cat.id}`}
+            onContextMenu={
+              onCategoryContextMenu
+                ? (e) => onCategoryContextMenu(e, cat)
+                : undefined
+            }
+          >
+            {masonry(catProjects)}
+          </ProjectCategorySection>
         )
       })}
       {(() => {
         const uncategorizedProjects = groupedProjects?.get(UNCATEGORIZED) ?? []
         return (
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-3 px-1">
-              <span
-                className="w-2.5 h-2.5 rounded-full shrink-0 ring-1 ring-black/20"
-                style={{ backgroundColor: '#949ba4' }}
-              />
-              <span className="text-sm font-medium text-ink">
-                {tc('uncategorized')}
-              </span>
-              <span className="text-xs text-muted tabular-nums">
-                {uncategorizedProjects.length}
-              </span>
-            </div>
-            <GridCategoryDropZone
-              droppableId="grid-cat-uncategorized"
-              isEmpty={uncategorizedProjects.length === 0}
-            >
-              {masonry(uncategorizedProjects)}
-            </GridCategoryDropZone>
-          </div>
+          <ProjectCategorySection
+            variant="grid"
+            title={tc('uncategorized')}
+            count={uncategorizedProjects.length}
+            defaultOpen={uncategorizedProjects.length > 0}
+            disableAnimation={isDndEnabled}
+            droppableId="grid-cat-uncategorized"
+          >
+            {masonry(uncategorizedProjects)}
+          </ProjectCategorySection>
         )
       })()}
     </>
   )
 
-  const allContent = grouped ? categoryContent : masonry(projects)
+  const allContent = (
+    <>
+      {grouped ? categoryContent : masonry(projects)}
+      {hiddenCategories.length > 0 && (
+        <HiddenCategoriesSection
+          entries={hiddenCategories}
+          onUnhide={(id) => onUnhideCategory?.(id)}
+          className="pb-4"
+        />
+      )}
+    </>
+  )
 
   if (isDndEnabled) {
     const activeProject = dnd.activeProject
@@ -291,7 +265,11 @@ export function ProjectCardGrid({
             }}
           >
             {activeProject ? (
-              <ProjectDragOverlay innerRef={dnd.overlayRef} className="max-w-xs">
+              <ProjectDragOverlay
+                innerRef={dnd.overlayRef}
+                count={dnd.activeIds.length}
+                className="max-w-xs"
+              >
                 <ProjectCardGridItem
                   project={activeProject}
                   installedVersions={installedVersions}

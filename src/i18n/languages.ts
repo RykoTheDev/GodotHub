@@ -86,7 +86,6 @@ export function getSystemLanguage(): string {
   return 'en-US'
 }
 
-// Settings persist the literal 'system' choice; i18next needs a real locale.
 export function resolveLanguage(language: string): string {
   return language === SYSTEM_LANGUAGE ? getSystemLanguage() : language
 }

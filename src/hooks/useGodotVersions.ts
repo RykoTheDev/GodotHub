@@ -5,6 +5,7 @@ import { useWorkspaces } from './useWorkspaces'
 import { useSettings } from './useSettings'
 import i18n from '../i18n'
 import type {
+  CurrentVersionInfo,
   DownloadProgress,
   GodotRelease,
   InstalledGodotVersion,
@@ -26,6 +27,7 @@ export function useGodotVersions() {
   const { activeId } = useWorkspaces()
   const { settings } = useSettings()
   const [installed, setInstalled] = useState<InstalledGodotVersion[]>([])
+  const [current, setCurrent] = useState<CurrentVersionInfo | null>(null)
   const [available, setAvailable] = useState<GodotRelease[]>([])
   const [loadingAvailable, setLoadingAvailable] = useState(false)
   const [availableError, setAvailableError] = useState<string | null>(null)
@@ -52,10 +54,19 @@ export function useGodotVersions() {
     total: number
   } | null>(null)
 
+  const refreshCurrent = useCallback(async () => {
+    try {
+      setCurrent(await api.getCurrentGodotVersion())
+    } catch {
+      setCurrent(null)
+    }
+  }, [])
+
   const refreshInstalled = useCallback(async () => {
     const next = await api.listInstalledGodotVersions()
     setInstalled((prev) => (sameInstalled(prev, next) ? prev : next))
-  }, [])
+    await refreshCurrent()
+  }, [refreshCurrent])
 
   const refreshAvailable = useCallback(async (src?: string) => {
     const next = src === 'archive' || src === 'github' ? src : sourceRef.current
@@ -189,8 +200,22 @@ export function useGodotVersions() {
     return updated
   }, [])
 
+  const pinCurrent = useCallback(async (tag: string) => {
+    const info = await api.setCurrentGodotVersion(tag)
+    setCurrent(info)
+    return info
+  }, [])
+
+  const unpinCurrent = useCallback(async () => {
+    await api.clearCurrentGodotVersion()
+    setCurrent(null)
+  }, [])
+
   return {
     installed,
+    current,
+    setCurrent: pinCurrent,
+    clearCurrent: unpinCurrent,
     available,
     loadingAvailable,
     availableError,

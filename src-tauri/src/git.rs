@@ -1650,7 +1650,6 @@ pub async fn git_worktree_list(path: String) -> Result<Vec<GitWorktree>, String>
         for line in stdout.lines() {
             let trimmed = line.trim();
             if trimmed.starts_with("worktree ") {
-                // Save the previous worktree if any
                 if let Some(p) = current_path.take() {
                     let has_uncommitted = worktree_has_uncommitted(&p);
                     worktrees.push(GitWorktree {
@@ -1664,7 +1663,6 @@ pub async fn git_worktree_list(path: String) -> Result<Vec<GitWorktree>, String>
             } else if trimmed.starts_with("HEAD ") {
                 current_head = Some(trimmed["HEAD ".len()..].to_string());
             } else if trimmed.starts_with("branch ") {
-                // branch refs/heads/main
                 let branch_ref = &trimmed["branch ".len()..];
                 current_branch = Some(
                     branch_ref
@@ -1676,7 +1674,6 @@ pub async fn git_worktree_list(path: String) -> Result<Vec<GitWorktree>, String>
                 current_branch = None;
             }
         }
-        // Don't forget the last worktree
         if let Some(p) = current_path.take() {
             let has_uncommitted = worktree_has_uncommitted(&p);
             worktrees.push(GitWorktree {
@@ -1703,7 +1700,6 @@ pub async fn git_worktree_switch(path: String, worktree_path: String) -> Result<
         if !wt_dir.is_dir() {
             return Err(format!("Worktree directory does not exist: {}", worktree_path));
         }
-        // Validate this is actually a worktree of this repo
         git_helpers::git_cmd(&worktree_path, ["rev-parse", "--git-dir"])
             .map_err(|e| e.to_string())?;
         Ok(())
@@ -1761,7 +1757,6 @@ pub async fn git_worktree_remove(
         if !wt_dir.exists() {
             return Err(format!("Worktree does not exist: {}", worktree_path));
         }
-        // Remove the worktree and prune stale data
         git_helpers::git_cmd(&path, ["worktree", "remove", worktree_path.as_str(), "--force"])
             .map_err(|e| e.to_string())?;
         git_helpers::git_cmd(&path, ["worktree", "prune"])

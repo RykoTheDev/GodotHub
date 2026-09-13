@@ -2,6 +2,7 @@ mod asset_library;
 mod backup;
 mod categories;
 mod changelog;
+mod current_version;
 mod error;
 mod git;
 mod git_auth;
@@ -249,6 +250,9 @@ pub fn run() {
             godot_versions::open_godot_version,
             godot_versions::test_github_token,
             godot_versions::get_github_rate_limit,
+            current_version::get_current_version,
+            current_version::set_current_version,
+            current_version::clear_current_version,
             git_auth::start_device_flow,
             git_auth::poll_device_flow,
             git_auth::get_git_auth_state,

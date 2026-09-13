@@ -30,12 +30,32 @@ export function useCategories() {
   )
 
   const update = useCallback(
-    async (id: string, name?: string | null, color?: string | null) => {
-      const result = await api.updateCategory(id, name, color)
+    async (
+      id: string,
+      name?: string | null,
+      color?: string | null,
+      hidden?: boolean | null,
+    ) => {
+      const result = await api.updateCategory(id, name, color, hidden)
       await refresh()
       return result
     },
     [refresh],
+  )
+
+  const setHidden = useCallback(
+    async (id: string, hidden: boolean) => {
+      setData((prev) => {
+        if (!Array.isArray(prev)) return prev
+        return prev.map((c) => (c.id === id ? { ...c, hidden } : c))
+      })
+      try {
+        await api.updateCategory(id, null, null, hidden)
+      } finally {
+        await refresh()
+      }
+    },
+    [refresh, setData],
   )
 
   const remove = useCallback(
@@ -60,5 +80,15 @@ export function useCategories() {
     [setData],
   )
 
-  return { categories, loaded, refresh, create, rename, update, remove, reorder }
+  return {
+    categories,
+    loaded,
+    refresh,
+    create,
+    rename,
+    update,
+    remove,
+    reorder,
+    setHidden,
+  }
 }

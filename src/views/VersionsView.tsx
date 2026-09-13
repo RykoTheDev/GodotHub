@@ -156,6 +156,9 @@ export function VersionsView({
     cancel,
     remove,
     rename,
+    current,
+    setCurrent,
+    clearCurrent,
     refreshAvailable,
     refreshInstalled,
     source,
@@ -469,8 +472,11 @@ export function VersionsView({
                 >
                   <InstalledVersionCard
                     version={v}
+                    isCurrent={current?.tag === v.tag}
                     onOpen={(console) => openVersion(v.tag, console)}
                     onRename={(name) => rename(v.tag, name)}
+                    onSetCurrent={() => setCurrent(v.tag)}
+                    onClearCurrent={clearCurrent}
                     onUninstall={() => remove(v.tag)}
                   />
                 </motion.div>

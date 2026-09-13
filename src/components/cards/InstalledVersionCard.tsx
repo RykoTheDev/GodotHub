@@ -1,14 +1,16 @@
 import { useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import type { InstalledGodotVersion } from '../../types'
+import type { CurrentVersionInfo, InstalledGodotVersion } from '../../types'
 import { api } from '../../lib/api'
 import { ConfirmDialog } from '../modals/ConfirmDialog'
+import { CurrentVersionModal } from '../modals/CurrentVersionModal'
 import { OpenButton } from '../reusables/OpenButton'
 import {
   IconCheck,
   IconExternalLink,
   IconPencil,
+  IconPin,
   IconRocket,
   IconTerminal,
   IconTrash,
@@ -16,15 +18,21 @@ import {
 
 interface InstalledVersionCardProps {
   version: InstalledGodotVersion
+  isCurrent: boolean
   onOpen: (console?: boolean) => void
   onRename: (name: string | null) => void
+  onSetCurrent: () => Promise<CurrentVersionInfo>
+  onClearCurrent: () => Promise<void>
   onUninstall: () => void
 }
 
 export function InstalledVersionCard({
   version: v,
+  isCurrent,
   onOpen,
   onRename,
+  onSetCurrent,
+  onClearCurrent,
   onUninstall,
 }: InstalledVersionCardProps) {
   const { t: tc } = useTranslation('common')
@@ -34,6 +42,23 @@ export function InstalledVersionCard({
   const [editValue, setEditValue] = useState('')
   const editInputRef = useRef<HTMLInputElement>(null)
   const [confirmingUninstall, setConfirmingUninstall] = useState(false)
+  const [aliasInfo, setAliasInfo] = useState<CurrentVersionInfo | null>(null)
+
+  const setAsCurrent = async () => {
+    try {
+      setAliasInfo(await onSetCurrent())
+    } catch (e) {
+      alert(String(e))
+    }
+  }
+
+  const unsetCurrent = async () => {
+    try {
+      await onClearCurrent()
+    } catch (e) {
+      alert(String(e))
+    }
+  }
 
   const startEditing = () => {
     setEditing(true)
@@ -115,6 +140,12 @@ export function InstalledVersionCard({
                 >
                   {v.is_mono ? tv('mono') : tv('standard')}
                 </span>
+                {isCurrent && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-accent/15 text-accent-bright border border-accent-dim/40 text-[10px] font-semibold shrink-0">
+                    <IconPin className="w-2.5 h-2.5" />
+                    {tv('current_badge')}
+                  </span>
+                )}
                 {v.supports_console && (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-mint/10 text-mint border border-mint/30 text-[10px] font-semibold shrink-0">
                     {tv('console_label')}
@@ -142,6 +173,12 @@ export function InstalledVersionCard({
             label: tv('rename'),
             icon: IconPencil,
             onClick: startEditing,
+          },
+          {
+            key: 'current',
+            label: isCurrent ? tv('unset_current') : tv('set_as_current'),
+            icon: IconPin,
+            onClick: isCurrent ? unsetCurrent : setAsCurrent,
           },
           {
             key: 'open',
@@ -188,6 +225,15 @@ export function InstalledVersionCard({
               onUninstall()
             }}
             onCancel={() => setConfirmingUninstall(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {aliasInfo && (
+          <CurrentVersionModal
+            info={aliasInfo}
+            onClose={() => setAliasInfo(null)}
           />
         )}
       </AnimatePresence>

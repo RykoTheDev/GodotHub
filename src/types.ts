@@ -9,6 +9,13 @@ export interface InstalledGodotVersion {
   supports_console?: boolean
 }
 
+export interface CurrentVersionInfo {
+  tag: string
+  alias_path: string
+  aliases_dir: string
+  method: 'symlink' | 'hardlink' | 'shim'
+}
+
 export interface GodotReleaseAsset {
   name: string
   download_url: string
@@ -26,6 +33,7 @@ export interface Category {
   name: string
   sort_order: number
   color: string
+  hidden: boolean
 }
 
 export interface ChangelogNote {

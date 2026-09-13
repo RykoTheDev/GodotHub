@@ -1,18 +1,18 @@
-import {
-  useMemo,
-  useState,
-  type ReactNode,
-} from 'react'
+import { useMemo, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react'
 import { AnimatePresence, motion, type Transition } from 'framer-motion'
 import { DndContext, DragOverlay, closestCenter } from '@dnd-kit/core'
 import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import { useDroppable } from '@dnd-kit/core'
 import { AnimatedNumber } from '../reusables/AnimatedNumber'
 import { useTranslation } from 'react-i18next'
-import { IconChevronDown, IconNode, IconPin } from '../../lib/icons'
+import { IconNode, IconPin } from '../../lib/icons'
+import {
+  HiddenCategoriesSection,
+  ProjectCategorySection,
+  type HiddenCategoryEntry,
+} from './CategorySections'
 import { isReducedMotion } from '../../lib/appearance'
 import { UNCATEGORIZED_KEY } from '../../lib/projectDrag'
 import { AUTO_SCROLL_CONFIG, DRAG_FEEL } from '../../lib/dragFeel'
@@ -36,100 +36,19 @@ interface ProjectCardListProps {
   categories?: Category[]
   categoriesEnabled?: boolean
   onReorder?: (orderedIds: string[]) => Promise<void>
-  onMoveProject?: (
-    id: string,
+  onMoveProjects?: (
+    ids: string[],
     category: string,
     destOrderedIds: string[],
   ) => Promise<void>
-}
-
-function CategorySection({
-  title,
-  color,
-  count,
-  children,
-  defaultOpen = true,
-  disableAnimation = false,
-  droppableId,
-}: {
-  title: string
-  color?: string
-  count: number
-  children: ReactNode
-  defaultOpen?: boolean
-  disableAnimation?: boolean
-  droppableId?: string
-}) {
-  const { t } = useTranslation('common')
-  const [open, setOpen] = useState(defaultOpen)
-  const isEmpty = count === 0
-  const { isOver, setNodeRef } = useDroppable({
-    id: droppableId ?? `list-cat-${title}`,
-    disabled: !isEmpty,
-  })
-
-  return (
-    <div className="flex flex-col">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-1 py-1 rounded-item text-left hover:bg-raised/60 transition-colors group"
-      >
-        <IconChevronDown
-          className={`w-3 h-3 text-muted/50 shrink-0 transition-transform duration-200 ${
-            open ? '' : '-rotate-90'
-          }`}
-        />
-        {color && (
-          <span
-            className="w-2 h-2 rounded-full shrink-0"
-            style={{ backgroundColor: color }}
-          />
-        )}
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted/50 group-hover:text-muted transition-colors">
-          {title}
-        </span>
-        <div className="flex-1 h-px bg-outline/30 mx-1.5" />
-        <span className="text-[10px] font-medium text-muted/50 tabular-nums shrink-0">
-          · <AnimatedNumber value={count} />
-        </span>
-      </button>
-
-      <div
-        className={`grid ${
-          disableAnimation
-            ? ''
-            : 'transition-[grid-template-rows] duration-200 ease-out'
-        } ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
-      >
-        <div className="overflow-hidden min-h-0">
-          <div
-            ref={isEmpty ? setNodeRef : undefined}
-            className={`flex flex-col gap-2 pt-2 pb-0.5 rounded-item transition-colors duration-150 ${
-              isOver ? 'bg-accent/10 ring-1 ring-accent/30' : ''
-            }`}
-          >
-            {children}
-            {isEmpty && !isOver && (
-              <div className="flex items-center justify-center py-6">
-                <span className="text-xs text-muted/40 select-none">
-                  {t('empty_category')}
-                </span>
-              </div>
-            )}
-            {isEmpty && isOver && (
-              <div className="flex items-center justify-center py-6">
-                <span className="text-xs text-accent-bright font-medium select-none">
-                  {t('release_to_drop')}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
+  /** Hidden categories and how many projects each of them holds. */
+  hiddenCategories?: HiddenCategoryEntry[]
+  onUnhideCategory?: (id: string) => void
+  onCategoryContextMenu?: (
+    e: ReactMouseEvent<HTMLElement>,
+    category: Category,
+  ) => void
+  selectedIds?: Set<string>
 }
 
 export function ProjectCardList({
@@ -141,7 +60,11 @@ export function ProjectCardList({
   categories = [],
   categoriesEnabled = false,
   onReorder,
-  onMoveProject,
+  onMoveProjects,
+  hiddenCategories = [],
+  onUnhideCategory,
+  onCategoryContextMenu,
+  selectedIds,
 }: ProjectCardListProps) {
   const { t } = useTranslation('common')
 
@@ -210,8 +133,9 @@ export function ProjectCardList({
     grouped,
     prefixes: { category: 'list-cat-' },
     collisionDetection: closestCenter,
+    selectedIds,
     onReorder,
-    onMoveProject,
+    onMoveProjects,
   })
 
   const cardBody = (p: Project) => renderCard(p)
@@ -314,7 +238,7 @@ export function ProjectCardList({
     for (const cat of categories) {
       const projs = groups.get(cat.name) ?? []
       result.push(
-        <CategorySection
+        <ProjectCategorySection
           key={`cat-${cat.id}`}
           title={cat.name}
           color={cat.color}
@@ -322,14 +246,19 @@ export function ProjectCardList({
           defaultOpen={projs.length > 0}
           disableAnimation={isDndEnabled}
           droppableId={`list-cat-${cat.id}`}
+          onContextMenu={
+            onCategoryContextMenu
+              ? (e) => onCategoryContextMenu(e, cat)
+              : undefined
+          }
         >
           {projs.map((p) => cardFor(p))}
-        </CategorySection>,
+        </ProjectCategorySection>,
       )
     }
     const uncategorized = groups.get(UNCATEGORIZED) ?? []
     result.push(
-      <CategorySection
+      <ProjectCategorySection
         key="cat-uncategorized"
         title={t('uncategorized')}
         count={uncategorized.length}
@@ -338,16 +267,15 @@ export function ProjectCardList({
         droppableId="list-cat-uncategorized"
       >
         {uncategorized.map((p) => cardFor(p))}
-      </CategorySection>,
+      </ProjectCategorySection>,
     )
-    // Category names that no longer exist in the category list.
     for (const key of orderedCategoryKeys) {
       if (key === UNCATEGORIZED || categories.some((c) => c.name === key)) {
         continue
       }
       const projs = groups.get(key) ?? []
       result.push(
-        <CategorySection
+        <ProjectCategorySection
           key={`cat-stray-${key}`}
           title={key}
           count={projs.length}
@@ -356,7 +284,7 @@ export function ProjectCardList({
           droppableId={`list-cat-${key}`}
         >
           {projs.map((p) => cardFor(p))}
-        </CategorySection>,
+        </ProjectCategorySection>,
       )
     }
     return result
@@ -366,9 +294,19 @@ export function ProjectCardList({
     ? renderGrouped()
     : unpinnedProjects.map((p) => cardFor(p))
 
+  const hiddenSection =
+    hiddenCategories.length > 0 ? (
+      <HiddenCategoriesSection
+        key="hidden-categories"
+        entries={hiddenCategories}
+        onUnhide={(id) => onUnhideCategory?.(id)}
+        className="mt-3"
+      />
+    ) : null
+
   const listChildren: ReactNode[] =
     projects.length === 0
-      ? [emptyState]
+      ? [emptyState, hiddenSection]
       : showPinnedSection
         ? [
             <div
@@ -384,8 +322,9 @@ export function ProjectCardList({
               style={{ backgroundColor: 'var(--color-outline)' }}
             />,
             ...unpinnedContent,
+            hiddenSection,
           ]
-        : unpinnedContent
+        : [...unpinnedContent, hiddenSection]
 
   const list = animateList ? (
     <AnimatePresence initial={false}>{listChildren}</AnimatePresence>
@@ -419,7 +358,10 @@ export function ProjectCardList({
             }}
           >
             {dnd.activeProject ? (
-              <ProjectDragOverlay innerRef={dnd.overlayRef}>
+              <ProjectDragOverlay
+                innerRef={dnd.overlayRef}
+                count={dnd.activeIds.length}
+              >
                 <div className="px-2">{cardBody(dnd.activeProject)}</div>
               </ProjectDragOverlay>
             ) : null}

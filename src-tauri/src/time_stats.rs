@@ -37,8 +37,6 @@ pub fn write_stats(app: &AppHandle, store: &TimeStatsStore) {
     write_stats_to(&crate::workspace::active_workspace_dir(app), store);
 }
 
-/// Start of the local day `date` began, or `None` on a DST edge where midnight
-/// does not exist (parts of Brazil, Chile and Lebanon shift at 00:00).
 fn local_day_start(date: chrono::NaiveDate) -> Option<chrono::DateTime<chrono::Local>> {
     date.and_hms_opt(0, 0, 0)
         .and_then(|dt| dt.and_local_timezone(chrono::Local).earliest())
@@ -59,10 +57,6 @@ fn overlap_seconds(
     }
 }
 
-/// Credit `seconds` to every local date the session actually covers.
-///
-/// Crediting the whole span to the start date is what lets a single day report
-/// more than 24 hours once a session runs past midnight.
 fn add_to_daily(
     store: &mut TimeStatsStore,
     project_id: &str,
@@ -100,7 +94,6 @@ fn add_to_daily(
     }
 }
 
-/// How often the "app is alive" heartbeat is written while a project runs.
 const ACTIVITY_WRITE_INTERVAL_MS: u64 = 20_000;
 static LAST_ACTIVITY_WRITE: AtomicU64 = AtomicU64::new(0);
 
@@ -114,11 +107,6 @@ fn activity_file(dir: &std::path::Path) -> std::path::PathBuf {
     dir.join("time_activity.json")
 }
 
-/// Record that the app is alive right now (throttled).
-///
-/// A session that outlives the app is settled on the next launch using this
-/// timestamp as the upper bound, so an unexpected exit can never credit the
-/// hours the app was not running.
 pub fn touch_activity(app: &AppHandle) {
     let now = crate::projects::epoch_ms();
     let last = LAST_ACTIVITY_WRITE.load(Ordering::Relaxed);
@@ -133,7 +121,6 @@ pub fn touch_activity(app: &AppHandle) {
     );
 }
 
-/// Last known moment the app was running, or 0 when never recorded.
 pub fn last_active_ms(app: &AppHandle) -> u64 {
     persist::read_json::<ActivityHeartbeat>(&activity_file(
         &crate::workspace::active_workspace_dir(app),
@@ -205,7 +192,6 @@ pub fn get_activity(app: AppHandle, range: String) -> Vec<(String, u64)> {
                         continue;
                     };
                     let end = start + Duration::seconds(s.seconds as i64);
-                    // Include sessions that began yesterday but ran past midnight.
                     if end <= day_start || start >= day_end {
                         continue;
                     }
@@ -406,8 +392,6 @@ pub fn breakdown(
         return (0, 0);
     };
 
-    // "Today" is the part of each session that falls inside today, not whole
-    // sessions that merely started today.
     let mut today_secs = 0u64;
     let mut week_secs = 0u64;
     for s in sessions {

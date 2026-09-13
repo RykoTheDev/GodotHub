@@ -663,5 +663,12 @@
   "project_duplicated": "Project duplicated.",
   "notification_version_installed": "Godot {{tag}} installed",
   "notification_asset_installed": "{{title}} installed",
-  "notification_clone_done": "Repository cloned and imported"
+  "notification_clone_done": "Repository cloned and imported",
+  "hide_category": "Hide Category",
+  "category_hidden_toast": "\"{{name}}\" hidden. Restore it from Hidden Categories.",
+  "hidden_categories": "Hidden Categories",
+  "hidden_categories_hint": "Those categories and their projects stay out of the way. Unhide one to bring it back.",
+  "hidden_category_projects": "{{count}} project(s)",
+  "unhide": "Unhide",
+  "unhide_category_aria": "Unhide {{name}}"
 }

@@ -1,5 +1,9 @@
 import { invoke } from '@tauri-apps/api/core'
-import type { GodotRelease, InstalledGodotVersion } from '../types'
+import type {
+  CurrentVersionInfo,
+  GodotRelease,
+  InstalledGodotVersion,
+} from '../types'
 
 export const versionsApi = {
   fetchAvailable: (source?: string) =>
@@ -19,6 +23,10 @@ export const versionsApi = {
     invoke<InstalledGodotVersion>('rename_godot_version', { tag, customName }),
   delete: (tag: string) =>
     invoke<void>('delete_godot_version', { tag }),
+  getCurrent: () => invoke<CurrentVersionInfo | null>('get_current_version'),
+  setCurrent: (tag: string) =>
+    invoke<CurrentVersionInfo>('set_current_version', { tag }),
+  clearCurrent: () => invoke<void>('clear_current_version'),
   open: (tag: string, withConsole?: boolean) =>
     invoke<void>('open_godot_version', { tag, console: withConsole ?? null }),
   import: (path: string) =>

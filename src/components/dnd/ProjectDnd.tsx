@@ -196,10 +196,13 @@ export function ProjectDropLine({ ignorePrefix }: { ignorePrefix?: string }) {
 export function ProjectDragOverlay({
   innerRef,
   children,
+  count = 1,
   className = '',
 }: {
   innerRef: React.RefObject<HTMLDivElement | null>
   children: ReactNode
+  /** Number of cards travelling; more than one shows a badge. */
+  count?: number
   className?: string
 }) {
   useLayoutEffect(() => {
@@ -210,7 +213,7 @@ export function ProjectDragOverlay({
   return (
     <div
       ref={innerRef}
-      className={`rounded-item bg-overlay/95 shadow-2xl shadow-black/40 ring-1 ring-accent/25 backdrop-blur-sm ${className}`}
+      className={`relative rounded-item bg-overlay/95 shadow-2xl shadow-black/40 ring-1 ring-accent/25 backdrop-blur-sm ${className}`}
       style={{
         transformOrigin: 'center',
         transition: isReducedMotion()
@@ -219,6 +222,11 @@ export function ProjectDragOverlay({
       }}
     >
       {children}
+      {count > 1 && (
+        <span className="pointer-events-none absolute -top-2 -right-2 z-30 min-w-6 h-6 px-1.5 rounded-full bg-accent-bright text-white text-[11px] font-semibold flex items-center justify-center shadow-md shadow-black/30">
+          {count}
+        </span>
+      )}
     </div>
   )
 }

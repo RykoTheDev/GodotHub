@@ -11,25 +11,19 @@ import {
   type ReactNode,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { IconChevronRight } from '../../lib/icons'
 import type { IconProps } from '../../lib/icons'
 import { Tooltip } from '../reusables/Tooltip'
+import {
+  MenuButton,
+  MenuDivider,
+  menuSurfaceClass,
+  MENU_GAP,
+  MENU_VIEWPORT_PAD,
+  type MenuItem,
+} from './menu'
 
-export interface NewDropdownItem {
-  key: string
-  label: string
-  icon?: ComponentType<IconProps>
-  leading?: ReactNode
-  onClick?: () => void
-  disabled?: boolean
-  danger?: boolean
-  active?: boolean
-  dotColor?: string
-  shortcut?: string
-  dividerAfter?: boolean
-  badge?: string
-  children?: NewDropdownItem[]
-}
+/** The row shape lives in `menu.tsx` so context menus render identically. */
+export type NewDropdownItem = MenuItem
 
 export interface NewDropdownHeaderItem {
   key: string
@@ -57,11 +51,11 @@ const MENU_FALLBACK_WIDTH = 240
 
 const SUBMENU_FALLBACK_HEIGHT = 260
 
-const VIEWPORT_PAD = 8
+const VIEWPORT_PAD = MENU_VIEWPORT_PAD
 
 const SUBMENU_FALLBACK_WIDTH = 220
 
-const GAP = 8
+const GAP = MENU_GAP
 
 export function Dropdown({
   trigger,
@@ -287,7 +281,7 @@ export function Dropdown({
               role="menu"
               onKeyDown={handleMenuKey}
               style={{ left: pos?.left, top: pos?.top, width: pos?.width }}
-              className={`fixed z-50 rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 overflow-clip ${compact ? 'min-w-48 p-2' : 'min-w-60 p-2.5'} ${
+              className={`fixed z-50 ${menuSurfaceClass(compact)} ${
                 openUp ? 'origin-bottom' : 'origin-top'
               } ${menuClassName}`}
               onMouseLeave={() => setOpenSubmenuKey(null)}
@@ -324,67 +318,12 @@ export function Dropdown({
                     }
                   }}
                 >
-                  <button
-                    type="button"
-                    role="menuitem"
-                    disabled={item.disabled}
-                    onClick={(e) => handleItemClick(item, e)}
-                    className={`w-full flex items-center gap-1 rounded-item text-xs font-medium transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
-                      compact ? 'px-2 py-1.5' : 'px-2.5 py-2'
-                    } ${
-                      item.danger
-                        ? 'text-red-400 hover:bg-red-500/10 hover:text-red-300'
-                        : item.active
-                          ? 'text-ink bg-accent hover:bg-accent'
-                          : 'text-muted hover:bg-raised hover:text-ink'
-                    }`}
-                  >
-                    {item.leading && (
-                      <span className="shrink-0">{item.leading}</span>
-                    )}
-                    {item.icon && (
-                      <span
-                        className={`${
-                          compact ? 'w-6 h-6' : 'w-7 h-7'
-                        } rounded-btn flex items-center justify-center shrink-0 ${
-                          item.danger
-                            ? 'bg-red-500/10'
-                            : item.active
-                              ? 'bg-accent/20'
-                              : 'bg-transparent'
-                        }`}
-                      >
-                        <item.icon
-                          className={`${compact ? 'w-3 h-3' : 'w-3.5 h-3.5'} ${item.danger ? 'text-red-400' : item.active ? 'text-accent-bright' : 'text-muted'}`}
-                        />
-                      </span>
-                    )}
-                    {item.dotColor && (
-                      <span
-                        aria-hidden="true"
-                        className="w-2 h-2 rounded-full shrink-0"
-                        style={{ backgroundColor: item.dotColor }}
-                      />
-                    )}
-                    <span className="flex-1 text-left truncate">{item.label}</span>
-                    {item.badge && (
-                      <span
-                        className={`shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded-tag border ${
-                          item.active
-                            ? 'bg-black/15 text-ink border-black/10'
-                            : 'bg-accent/10 text-accent-bright border-accent-dim/40'
-                        }`}
-                      >
-                        {item.badge}
-                      </span>
-                    )}
-                    {item.shortcut && (
-                      <span className="text-[10px] text-muted font-mono shrink-0">{item.shortcut}</span>
-                    )}
-                    {item.children?.length ? (
-                      <IconChevronRight className="w-3 h-3 text-muted/80 shrink-0" />
-                    ) : null}
-                  </button>
+                  <MenuButton
+                    item={item}
+                    compact={compact}
+                    onSelect={(e) => handleItemClick(item, e)}
+                    caret={Boolean(item.children?.length)}
+                  />
                   {item.children?.length && openSubmenuKey === item.key && (
                     <div
                       className={`absolute top-0 min-w-52 rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/15 p-1 z-60 ${
@@ -394,75 +333,23 @@ export function Dropdown({
                     >
                       {item.children.map((child) => (
                         <div key={child.key}>
-                          <button
-                            type="button"
-                            role="menuitem"
-                            disabled={child.disabled}
-                            onClick={() => {
+                          <MenuButton
+                            item={child}
+                            compact={compact}
+                            onSelect={() => {
                               closeAll()
                               child.onClick?.()
                             }}
-                            className={`w-full flex items-center gap-1 rounded-item text-xs font-medium transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
-                              compact ? 'px-2 py-1.5' : 'px-2.5 py-2'
-                            } ${
-                              child.danger
-                                ? 'text-red-400 hover:bg-red-500/10 hover:text-red-300'
-                                : child.active
-                                  ? 'text-ink bg-accent hover:bg-accent'
-                                  : 'text-muted hover:bg-raised hover:text-ink'
-                            }`}
-                          >
-                            {child.icon && (
-                              <span
-                                className={`${
-                                  compact ? 'w-6 h-6' : 'w-7 h-7'
-                                } rounded-btn flex items-center justify-center shrink-0 ${
-                                  child.danger
-                                    ? 'bg-red-500/10'
-                                    : child.active
-                                      ? 'bg-accent/20'
-                                      : 'bg-transparent'
-                                }`}
-                              >
-                                <child.icon
-                                  className={`${compact ? 'w-3 h-3' : 'w-3.5 h-3.5'} ${child.danger ? 'text-red-400' : child.active ? 'text-accent-bright' : 'text-muted'}`}
-                                />
-                              </span>
-                            )}
-                            {child.dotColor && (
-                              <span
-                                aria-hidden="true"
-                                className="w-2 h-2 rounded-full shrink-0"
-                                style={{ backgroundColor: child.dotColor }}
-                              />
-                            )}
-                            <span className="flex-1 text-left truncate">{child.label}</span>
-                            {child.badge && (
-                              <span
-                                className={`shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded-tag border ${
-                                  child.active
-                                    ? 'bg-black/15 text-ink border-black/10'
-                                    : 'bg-accent/10 text-accent-bright border-accent-dim/40'
-                                }`}
-                              >
-                                {child.badge}
-                              </span>
-                            )}
-                            {child.shortcut && (
-                              <span className="text-[10px] text-muted font-mono shrink-0">
-                                {child.shortcut}
-                              </span>
-                            )}
-                          </button>
+                          />
                           {child.dividerAfter && (
-                            <div className={`h-px bg-white/6 ${compact ? 'my-0.5' : 'my-1'}`} />
+                            <MenuDivider compact={compact} />
                           )}
                         </div>
                       ))}
                     </div>
                   )}
                   {item.dividerAfter && (
-                    <div className={`h-px bg-white/6 ${compact ? 'my-0.5' : 'my-1'}`} />
+                    <MenuDivider compact={compact} />
                   )}
                 </div>
               ))}

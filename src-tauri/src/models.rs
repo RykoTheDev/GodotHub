@@ -81,6 +81,8 @@ pub struct Category {
     pub sort_order: i64,
     #[serde(default = "default_category_color")]
     pub color: String,
+    #[serde(default)]
+    pub hidden: bool,
 }
 
 fn default_category_color() -> String {
@@ -460,7 +462,7 @@ fn default_os_decorations() -> bool {
     false
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Workspace {
     pub id: String,
     pub name: String,
@@ -481,7 +483,7 @@ pub struct DiscordProjectPresence {
     pub state: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct WorkspacesState {
     pub workspaces: Vec<Workspace>,
     pub active_id: String,

@@ -7,28 +7,28 @@
  */
 export const DRAG_FEEL = {
   /** Pointer travel before a press becomes a drag. Smaller = eager, larger = deliberate. */
-  activationDistance: 6,
+  activationDistance: 4,
 
   /** Siblings sliding into the gap while a card is airborne. */
   reflow: {
-    duration: 260,
+    duration: 220,
     easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
   },
 
   /** The floating card settling into its slot on drop. */
   drop: {
-    duration: 220,
+    duration: 180,
     easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
   },
 
   /** Velocity-driven lean of the floating card. */
   tilt: {
     /** Hard cap so the card never looks like it fell over. */
-    maxDeg: 3.5,
+    maxDeg: 2.5,
     /** Degrees per (px/ms). Higher leans more for the same flick. */
     velocityScale: 150,
     /** 0..1 per sample. Higher follows the pointer more tightly, lower is silkier. */
-    damping: 0.35,
+    damping: 0.28,
     /** Ignore samples closer together than this to avoid jitter. */
     sampleMs: 16,
     /** CSS ease applied between samples. 0 disables. */
@@ -43,7 +43,7 @@ export const DRAG_FEEL = {
     height: 3,
     dot: 6,
     glow: true,
-    transition: 180,
+    transition: 150,
   },
 
   /** How high the floating card is lifted. */
@@ -55,7 +55,7 @@ export const DRAG_FEEL = {
   autoScroll: {
     thresholdX: 0.2,
     thresholdY: 0.2,
-    acceleration: 20,
+    acceleration: 24,
   },
 } as const
 

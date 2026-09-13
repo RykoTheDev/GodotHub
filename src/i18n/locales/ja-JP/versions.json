@@ -41,5 +41,19 @@
   "sort_version_name_asc": "名前（A→Z）",
   "sort_version_name_desc": "名前（Z→A）",
   "installed_count_zero": "インストールなし",
-  "unbound": "未割り当て"
+  "unbound": "未割り当て",
+  "current_badge": "Current",
+  "set_as_current": "Set as Current",
+  "unset_current": "Unset Current",
+  "current_set_title": "Version Set as Current",
+  "current_set_desc": "{{tag}} is now reachable through the alias below.",
+  "current_alias_label": "Alias",
+  "current_dir_label": "Folder",
+  "current_copy": "Copy",
+  "current_copied": "Copied",
+  "current_copy_alias": "Copy alias path",
+  "current_copy_dir": "Copy folder path",
+  "current_open_folder": "Open Alias Folder",
+  "current_path_hint": "Add the folder above to your PATH to run \"Godot\" from any terminal, script, or tool. The alias always follows the current version, so pinning another version or uninstalling this one updates it automatically.",
+  "current_shim_note": "Windows symlinks need Developer Mode or admin rights, so a launcher script was created instead. It behaves the same from the command line."
 }

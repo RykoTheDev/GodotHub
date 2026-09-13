@@ -678,5 +678,12 @@
   "project_duplicated": "تم نسخ المشروع.",
   "notification_version_installed": "Godot {{tag}} مثبت",
   "notification_asset_installed": "{{title}} مثبت",
-  "notification_clone_done": "تم استنساخ و استوراد المستودع"
+  "notification_clone_done": "تم استنساخ و استوراد المستودع",
+  "hide_category": "Hide Category",
+  "category_hidden_toast": "\"{{name}}\" hidden. Restore it from Hidden Categories.",
+  "hidden_categories": "Hidden Categories",
+  "hidden_categories_hint": "Those categories and their projects stay out of the way. Unhide one to bring it back.",
+  "hidden_category_projects": "{{count}} project(s)",
+  "unhide": "Unhide",
+  "unhide_category_aria": "Unhide {{name}}"
 }

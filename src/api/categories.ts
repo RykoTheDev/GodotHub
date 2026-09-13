@@ -7,8 +7,18 @@ export const categoriesApi = {
     invoke<Category>('create_category', { name, color: color ?? null }),
   rename: (id: string, name: string) =>
     invoke<Category>('rename_category', { id, name }),
-  update: (id: string, name?: string | null, color?: string | null) =>
-    invoke<Category>('update_category', { id, name: name ?? null, color: color ?? null }),
+  update: (
+    id: string,
+    name?: string | null,
+    color?: string | null,
+    hidden?: boolean | null,
+  ) =>
+    invoke<Category>('update_category', {
+      id,
+      name: name ?? null,
+      color: color ?? null,
+      hidden: hidden ?? null,
+    }),
   delete: (id: string) => invoke<void>('delete_category', { id }),
   reorder: (orderedIds: string[]) =>
     invoke<void>('reorder_categories', { orderedIds }),
