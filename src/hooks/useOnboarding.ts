@@ -5,6 +5,7 @@ import { useWorkspaces } from './useWorkspaces'
 import { useTauriEvent } from '../lib/useTauriEvent'
 import { api } from '../lib/api'
 import { applyRadius } from '../lib/appearance'
+import { CATEGORY_COLORS } from '../lib/categoryColors'
 import {
   DEFAULT_BG,
   DEFAULT_BG_LIGHT,
@@ -33,6 +34,15 @@ export const STARTER_CATEGORIES = [
   'Finished',
   'Game Jams',
 ]
+
+/// Each starter gets a distinct palette color so the seeded categories aren't
+/// all the same shade.
+export const STARTER_CATEGORY_COLORS: Record<string, string> = {
+  'In Progress': CATEGORY_COLORS[0],
+  'Prototypes': CATEGORY_COLORS[1],
+  'Finished': CATEGORY_COLORS[2],
+  'Game Jams': CATEGORY_COLORS[3],
+}
 
 export const ALL_STEPS: { id: OnboardingStepId }[] = [
   { id: 'welcome' },
@@ -145,6 +155,7 @@ export function useOnboarding({ settings, onComplete }: UseOnboardingOptions) {
     remove: removeCategory,
   } = useCategoriesContext()
   const [categoryDraft, setCategoryDraft] = useState('')
+  const [categoryColor, setCategoryColor] = useState<string>(CATEGORY_COLORS[0])
   const [categoryBusy, setCategoryBusy] = useState(false)
 
   const step = STEPS[stepIndex]
@@ -243,7 +254,7 @@ export function useOnboarding({ settings, onComplete }: UseOnboardingOptions) {
       return
     setCategoryBusy(true)
     try {
-      await createCategory(name)
+      await createCategory(name, STARTER_CATEGORY_COLORS[name] ?? categoryColor)
     } finally {
       setCategoryBusy(false)
     }
@@ -254,8 +265,9 @@ export function useOnboarding({ settings, onComplete }: UseOnboardingOptions) {
     if (!name) return
     setCategoryBusy(true)
     try {
-      await createCategory(name)
+      await createCategory(name, categoryColor)
       setCategoryDraft('')
+      setCategoryColor(CATEGORY_COLORS[0])
     } finally {
       setCategoryBusy(false)
     }
@@ -328,6 +340,8 @@ export function useOnboarding({ settings, onComplete }: UseOnboardingOptions) {
     removeCategory,
     categoryDraft,
     setCategoryDraft,
+    categoryColor,
+    setCategoryColor,
     categoryBusy,
     addStarterCategory,
     addCustomCategory,

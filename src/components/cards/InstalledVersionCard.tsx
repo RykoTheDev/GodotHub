@@ -23,6 +23,7 @@ interface InstalledVersionCardProps {
   onRename: (name: string | null) => void
   onSetCurrent: () => Promise<CurrentVersionInfo>
   onClearCurrent: () => Promise<void>
+  onManageAliases: () => void
   onUninstall: () => void
 }
 
@@ -33,6 +34,7 @@ export function InstalledVersionCard({
   onRename,
   onSetCurrent,
   onClearCurrent,
+  onManageAliases,
   onUninstall,
 }: InstalledVersionCardProps) {
   const { t: tc } = useTranslation('common')
@@ -179,6 +181,12 @@ export function InstalledVersionCard({
             label: isCurrent ? tv('unset_current') : tv('set_as_current'),
             icon: IconPin,
             onClick: isCurrent ? unsetCurrent : setAsCurrent,
+          },
+          {
+            key: 'alias',
+            label: tv('alias_create'),
+            icon: IconTerminal,
+            onClick: onManageAliases,
           },
           {
             key: 'open',

@@ -108,6 +108,8 @@
 | **Grouped Display** | Versions grouped by `major.minor` with collapsible sections. |
 | **Filtering** | Filter by build type (Standard / Mono / Both) and channel (Stable / Unstable / Both). |
 | **Custom Names** | Give installed versions your own names. |
+| **Pin as Current** | Mark one version as the current one. GodotHub drops a `Godot` launcher into its aliases folder, so scripts, test runners, and MCP servers get a stable path that follows the pin. |
+| **Version Aliases** | Give extra command names to specific versions; `godot-mono`, `godot-next`, whatever you like. Manage them from the Versions view; delete a launcher from the folder and the alias disappears from the app too. |
 | **Auto-Cleanup** | Prunes missing executables from the registry automatically. |
 
 </details>
@@ -170,6 +172,7 @@
 |---|---|
 | **Create & Customize** | Custom names and colors from a rich palette. |
 | **Collapsible Sections** | Collapse and expand category sections. |
+| **Hide & Restore** | Right-click a category to hide it and its projects, then bring it back from the Hidden Categories section. |
 | **Drag Between Categories** | Drag projects between categories (`@dnd-kit`-powered). |
 | **Filter by Category** | Filter the project list by any category. |
 | **Enable / Disable** | Turn categories on or off globally from Settings. |

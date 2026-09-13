@@ -11,6 +11,10 @@ pub struct ActiveWatchers(pub Mutex<Vec<RecommendedWatcher>>);
 
 pub struct GitWatcher(pub Mutex<Option<RecommendedWatcher>>);
 
+/// Watches the alias (`bin`) folder. Kept separate from `ActiveWatchers` so it
+/// survives `restart_watchers` (alias files are workspace-independent).
+pub struct AliasWatcher(pub Mutex<Option<RecommendedWatcher>>);
+
 fn is_ignored_watcher_event(event: &Event) -> bool {
     !event.paths.is_empty()
         && event.paths.iter().all(|p| {
@@ -226,6 +230,26 @@ pub fn start_template_watcher(app: AppHandle, scan_dir: PathBuf, debounce_ms: u6
         if let Some(state) = app.try_state::<ActiveWatchers>() {
             state.0.lock().unwrap().push(w);
         }
+    }
+}
+
+/// Watches the aliases folder so launcher files added, deleted or replaced
+/// outside the app are reflected in the saved alias list and the UI.
+pub fn start_alias_watcher(app: AppHandle) {
+    let dir = crate::current_version::aliases_dir(&app);
+    let watcher = create_debounced_watcher(
+        app.clone(),
+        dir,
+        Duration::from_millis(500),
+        Duration::from_millis(0),
+        Arc::new(|a: AppHandle| {
+            let _ = crate::current_version::list_named_aliases(&a);
+        }) as Arc<dyn Fn(AppHandle) + Send + Sync + 'static>,
+        "versions:aliases-changed",
+    );
+
+    if let Some(state) = app.try_state::<AliasWatcher>() {
+        *state.0.lock().unwrap() = watcher;
     }
 }
 

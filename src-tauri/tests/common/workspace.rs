@@ -203,3 +203,25 @@ fn folders_without_workspace_data_are_not_recovered() {
 
     let _ = fs::remove_dir_all(&base);
 }
+
+#[test]
+fn recovery_pulls_legacy_files_into_the_recovered_workspace() {
+    let base = temp_dir("ws-recover-legacy");
+    let dir = workspace_dir_in(&base, "kept");
+    fs::write(dir.join("projects.json"), "[]").expect("failed to write projects");
+    // The real settings are still sitting next to the index, from before the
+    // workspace layout existed.
+    fs::write(base.join("settings.json"), "{\"setup_complete\": true}").expect("write failed");
+    fs::write(base.join("workspaces.json"), "not json at all").expect("write failed");
+
+    let state = read_state_in(&base);
+
+    assert_eq!(state.active_id, "kept");
+    assert!(
+        workspace_dir_in(&base, "kept").join("settings.json").is_file(),
+        "legacy settings should follow into the recovered workspace"
+    );
+    assert!(!base.join("settings.json").exists());
+
+    let _ = fs::remove_dir_all(&base);
+}

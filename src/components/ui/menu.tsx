@@ -33,7 +33,10 @@ export const MENU_VIEWPORT_PAD = 8
 export const MENU_GAP = 8
 
 export function menuSurfaceClass(compact: boolean, extra = ''): string {
-  return `rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 overflow-clip ${
+  // Deliberately no overflow clipping: submenus render as absolutely positioned
+  // children of the menu surface, so `overflow-clip` swallows them entirely.
+  // Rows are inset by the surface padding, so nothing bleeds past the corners.
+  return `rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 ${
     compact ? 'min-w-48 p-2' : 'min-w-60 p-2.5'
   } ${extra}`
 }

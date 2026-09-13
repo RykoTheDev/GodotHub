@@ -16,6 +16,19 @@ export interface CurrentVersionInfo {
   method: 'symlink' | 'hardlink' | 'shim'
 }
 
+export interface AliasInfo {
+  name: string
+  tag: string
+  alias_path: string
+  aliases_dir: string
+  method: 'symlink' | 'hardlink' | 'shim'
+}
+
+export interface VersionAliases {
+  aliases: AliasInfo[]
+  aliases_dir: string
+}
+
 export interface GodotReleaseAsset {
   name: string
   download_url: string

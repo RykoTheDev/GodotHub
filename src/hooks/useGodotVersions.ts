@@ -5,6 +5,7 @@ import { useWorkspaces } from './useWorkspaces'
 import { useSettings } from './useSettings'
 import i18n from '../i18n'
 import type {
+  AliasInfo,
   CurrentVersionInfo,
   DownloadProgress,
   GodotRelease,
@@ -28,6 +29,8 @@ export function useGodotVersions() {
   const { settings } = useSettings()
   const [installed, setInstalled] = useState<InstalledGodotVersion[]>([])
   const [current, setCurrent] = useState<CurrentVersionInfo | null>(null)
+  const [aliases, setAliases] = useState<AliasInfo[]>([])
+  const [aliasesDir, setAliasesDir] = useState('')
   const [available, setAvailable] = useState<GodotRelease[]>([])
   const [loadingAvailable, setLoadingAvailable] = useState(false)
   const [availableError, setAvailableError] = useState<string | null>(null)
@@ -62,11 +65,22 @@ export function useGodotVersions() {
     }
   }, [])
 
+  const refreshAliases = useCallback(async () => {
+    try {
+      const next = await api.listVersionAliases()
+      setAliases(next.aliases)
+      setAliasesDir(next.aliases_dir)
+    } catch {
+      setAliases([])
+    }
+  }, [])
+
   const refreshInstalled = useCallback(async () => {
     const next = await api.listInstalledGodotVersions()
     setInstalled((prev) => (sameInstalled(prev, next) ? prev : next))
     await refreshCurrent()
-  }, [refreshCurrent])
+    await refreshAliases()
+  }, [refreshCurrent, refreshAliases])
 
   const refreshAvailable = useCallback(async (src?: string) => {
     const next = src === 'archive' || src === 'github' ? src : sourceRef.current
@@ -122,6 +136,13 @@ export function useGodotVersions() {
       setTimeout(() => setScanProgress(null), 800)
     }
   })
+
+  // The aliases folder is watched on the Rust side: launcher files removed or
+  // replaced outside the app trigger a refresh so the aliases modal stays in
+  // sync. `list_named_aliases` also prunes the saved list.
+  useTauriEvent('versions:aliases-changed', () => {
+    void refreshAliases()
+  }, [refreshAliases])
 
   useTauriEvent<string>('godot-download-queued', (key) => {
     setDownloads((prev) => ({
@@ -211,11 +232,33 @@ export function useGodotVersions() {
     setCurrent(null)
   }, [])
 
+  const createAlias = useCallback(
+    async (name: string, tag: string) => {
+      const info = await api.createVersionAlias(name, tag)
+      await refreshAliases()
+      return info
+    },
+    [refreshAliases],
+  )
+
+  const deleteAlias = useCallback(
+    async (name: string) => {
+      await api.deleteVersionAlias(name)
+      await refreshAliases()
+    },
+    [refreshAliases],
+  )
+
   return {
     installed,
     current,
+    aliases,
+    aliasesDir,
     setCurrent: pinCurrent,
     clearCurrent: unpinCurrent,
+    createAlias,
+    deleteAlias,
+    refreshAliases,
     available,
     loadingAvailable,
     availableError,

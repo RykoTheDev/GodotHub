@@ -17,6 +17,7 @@ import { ScanButton } from '../components/reusables/ScanButton'
 import { ImportButton } from '../components/reusables/ImportButton'
 import { Tooltip } from '../components/reusables/Tooltip'
 import { InstalledVersionCard } from '../components/cards/InstalledVersionCard'
+import { VersionAliasesModal } from '../components/modals/VersionAliasesModal'
 import {
   IconChevronDown,
   IconDownload,
@@ -157,8 +158,12 @@ export function VersionsView({
     remove,
     rename,
     current,
+    aliases,
+    aliasesDir,
     setCurrent,
     clearCurrent,
+    createAlias,
+    deleteAlias,
     refreshAvailable,
     refreshInstalled,
     source,
@@ -185,6 +190,7 @@ export function VersionsView({
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({})
   const [visibleGroups, setVisibleGroups] = useState(5)
   const [scanning, setScanning] = useState(false)
+  const [aliasModal, setAliasModal] = useState<{ tag?: string } | null>(null)
 
   useEffect(() => {
     try {
@@ -368,6 +374,16 @@ export function VersionsView({
           }
           actions={
             <>
+              <motion.button
+                type="button"
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.94 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                onClick={() => setAliasModal({})}
+                className="focus-ring text-muted hover:text-ink font-semibold text-[17px] bg-overlay shadow-md shadow-black/10 border border-outline/50 hover:bg-raised cursor-pointer h-10 flex items-center px-6 rounded-item transition-colors"
+              >
+                {tv('aliases_manage')}
+              </motion.button>
               <ImportButton
                 onImport={handleImportVersion}
                 disabled={scanning}
@@ -477,6 +493,7 @@ export function VersionsView({
                     onRename={(name) => rename(v.tag, name)}
                     onSetCurrent={() => setCurrent(v.tag)}
                     onClearCurrent={clearCurrent}
+                    onManageAliases={() => setAliasModal({ tag: v.tag })}
                     onUninstall={() => remove(v.tag)}
                   />
                 </motion.div>
@@ -875,6 +892,20 @@ export function VersionsView({
         <div className="shrink-0 h-4" aria-hidden="true" />
         </div>
       </OverlayScrollArea>
+
+      <AnimatePresence>
+        {aliasModal && (
+          <VersionAliasesModal
+            versions={installed}
+            aliases={aliases}
+            aliasesDir={aliasesDir}
+            initialTag={aliasModal.tag}
+            onClose={() => setAliasModal(null)}
+            onCreate={createAlias}
+            onDelete={deleteAlias}
+          />
+        )}
+      </AnimatePresence>
 
     </div>
   )

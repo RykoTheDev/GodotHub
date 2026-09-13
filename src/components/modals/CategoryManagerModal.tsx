@@ -24,6 +24,7 @@ import type { Category, Project } from '../../types'
 import { ConfirmDialog } from './ConfirmDialog'
 import { ModalShell } from './ModalShell'
 import { ColorSwatchPicker } from '../ui/ColorSwatchPicker'
+import { CATEGORY_COLORS } from '../../lib/categoryColors'
 import { DragHandle } from '../reusables/DragHandle'
 import {
   IconCheck,
@@ -34,13 +35,6 @@ import {
   IconTrash,
   IconX,
 } from '../../lib/icons'
-
-const CATEGORY_COLORS = [
-  '#457ff2', '#f28b45', '#45c97f', '#e74c8a', '#a855f7',
-  '#22d3ee', '#f59e0b', '#ef4444', '#10b981', '#6366f1',
-  '#ec4899', '#14b8a6', '#f97316', '#8b5cf6', '#06b6d4',
-  '#84cc16', '#d946ef', '#0ea5e9', '#eab308', '#3b82f6',
-]
 
 function normalizeCategoryName(value: string): string {
   return value.trim().toLocaleLowerCase()

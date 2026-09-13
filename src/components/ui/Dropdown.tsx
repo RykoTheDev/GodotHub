@@ -324,29 +324,55 @@ export function Dropdown({
                     onSelect={(e) => handleItemClick(item, e)}
                     caret={Boolean(item.children?.length)}
                   />
-                  {item.children?.length && openSubmenuKey === item.key && (
-                    <div
-                      className={`absolute top-0 min-w-52 rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/15 p-1 z-60 ${
-                        submenuSide === 'left' ? 'right-full mr-1' : 'left-full ml-1'
-                      }`}
-                      style={{ transform: `translateY(${submenuOffsetY}px)` }}
-                    >
-                      {item.children.map((child) => (
-                        <div key={child.key}>
-                          <MenuButton
-                            item={child}
-                            compact={compact}
-                            onSelect={() => {
-                              closeAll()
-                              child.onClick?.()
+                  {item.children?.length && (
+                    <AnimatePresence>
+                      {openSubmenuKey === item.key && (
+                        <div
+                          className={`absolute top-0 z-60 ${
+                            submenuSide === 'left'
+                              ? 'right-full mr-1'
+                              : 'left-full ml-1'
+                          }`}
+                          style={{ transform: `translateY(${submenuOffsetY}px)` }}
+                        >
+                          <motion.div
+                            initial={{
+                              opacity: 0,
+                              x: submenuSide === 'left' ? 6 : -6,
+                              scale: 0.97,
                             }}
-                          />
-                          {child.dividerAfter && (
-                            <MenuDivider compact={compact} />
-                          )}
+                            animate={{ opacity: 1, x: 0, scale: 1 }}
+                            exit={{
+                              opacity: 0,
+                              x: submenuSide === 'left' ? 6 : -6,
+                              scale: 0.97,
+                            }}
+                            transition={{ duration: 0.15, ease: 'easeOut' }}
+                            className={`min-w-52 rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/15 p-1 ${
+                              submenuSide === 'left'
+                                ? 'origin-right'
+                                : 'origin-left'
+                            }`}
+                          >
+                            {item.children.map((child) => (
+                              <div key={child.key}>
+                                <MenuButton
+                                  item={child}
+                                  compact={compact}
+                                  onSelect={() => {
+                                    closeAll()
+                                    child.onClick?.()
+                                  }}
+                                />
+                                {child.dividerAfter && (
+                                  <MenuDivider compact={compact} />
+                                )}
+                              </div>
+                            ))}
+                          </motion.div>
                         </div>
-                      ))}
-                    </div>
+                      )}
+                    </AnimatePresence>
                   )}
                   {item.dividerAfter && (
                     <MenuDivider compact={compact} />

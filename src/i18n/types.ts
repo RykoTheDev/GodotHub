@@ -1290,7 +1290,23 @@ export type versionsKeys =
   | 'current_copy_dir'
   | 'current_open_folder'
   | 'current_path_hint'
-  | 'current_shim_note';
+  | 'current_shim_note'
+  | 'mono_short'
+  | 'aliases_manage'
+  | 'aliases_title'
+  | 'aliases_desc'
+  | 'aliases_empty'
+  | 'aliases_no_versions'
+  | 'aliases_path_hint'
+  | 'alias_create'
+  | 'alias_add'
+  | 'alias_name_label'
+  | 'alias_name_placeholder'
+  | 'alias_copy_path'
+  | 'alias_shim_badge'
+  | 'alias_remove'
+  | 'alias_remove_title'
+  | 'alias_remove_desc';
 
 /** All namespace names */
 export type Namespace = 'changelog' | 'common' | 'dashboard' | 'git' | 'nav' | 'onboarding' | 'settings' | 'versions';
@@ -2563,4 +2579,20 @@ export type TranslationKey =
   | 'versions:current_copy_dir'
   | 'versions:current_open_folder'
   | 'versions:current_path_hint'
-  | 'versions:current_shim_note';
+  | 'versions:current_shim_note'
+  | 'versions:mono_short'
+  | 'versions:aliases_manage'
+  | 'versions:aliases_title'
+  | 'versions:aliases_desc'
+  | 'versions:aliases_empty'
+  | 'versions:aliases_no_versions'
+  | 'versions:aliases_path_hint'
+  | 'versions:alias_create'
+  | 'versions:alias_add'
+  | 'versions:alias_name_label'
+  | 'versions:alias_name_placeholder'
+  | 'versions:alias_copy_path'
+  | 'versions:alias_shim_badge'
+  | 'versions:alias_remove'
+  | 'versions:alias_remove_title'
+  | 'versions:alias_remove_desc';

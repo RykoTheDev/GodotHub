@@ -28,39 +28,124 @@ mod watcher;
 mod workspace;
 
 use std::fs;
+use std::path::Path;
 use tauri::{Manager, WindowEvent};
 
-fn migrate_identifier(app: &tauri::App) {
-    use std::path::PathBuf;
+/// The data folder used before the bundle identifier was renamed.
+const LEGACY_IDENTIFIER: &str = "com.ryko.godothub";
 
-    let new_dir = match app.path().app_data_dir() {
-        Ok(d) => d,
-        Err(_) => return,
+/// Written once the old data folder has been drained, so a folder that could not
+/// be fully emptied can never be migrated a second time and re-inject stale
+/// files on top of newer data.
+const IDENTIFIER_MIGRATION_MARKER: &str = "identifier-migration.done";
+
+#[derive(Debug, Default, PartialEq, Eq)]
+pub(crate) struct IdentifierMigration {
+    /// Files that landed at their destination.
+    pub moved: usize,
+    /// Files whose destination was taken, kept beside it instead.
+    pub kept: usize,
+    /// Files that could not be moved and were left where they were.
+    pub failed: usize,
+}
+
+/// Drains the old data folder into the new one.
+///
+/// Nothing is ever discarded. A file whose destination already exists is kept
+/// alongside it with a `.legacy` suffix, and a file that cannot be moved stays
+/// put. That matters because this is the only bridge between the two folders: a
+/// skipped entry used to be deleted along with the old folder, which is enough
+/// to take a user's settings and projects with it.
+pub(crate) fn migrate_app_data(new_dir: &Path, old_dir: &Path) -> IdentifierMigration {
+    let mut result = IdentifierMigration::default();
+    let Ok(entries) = fs::read_dir(old_dir) else {
+        return result;
     };
 
-    let old_name = "com.ryko.godothub";
-    let old_dir: PathBuf = new_dir
+    for entry in entries.flatten() {
+        let from = entry.path();
+        let Some(name) = from
+            .file_name()
+            .map(|n| n.to_string_lossy().to_string())
+        else {
+            continue;
+        };
+
+        let dest = new_dir.join(&name);
+        if !dest.exists() {
+            match fs::rename(&from, &dest) {
+                Ok(()) => result.moved += 1,
+                Err(_) => result.failed += 1,
+            }
+            continue;
+        }
+
+        let aside = {
+            let mut counter = 0;
+            loop {
+                let candidate = if counter == 0 {
+                    new_dir.join(format!("{name}.legacy"))
+                } else {
+                    new_dir.join(format!("{name}.legacy-{counter}"))
+                };
+                if !candidate.exists() {
+                    break candidate;
+                }
+                counter += 1;
+            }
+        };
+        match fs::rename(&from, &aside) {
+            Ok(()) => result.kept += 1,
+            Err(_) => result.failed += 1,
+        }
+    }
+
+    result
+}
+
+fn migrate_identifier(app: &tauri::App) {
+    let Ok(new_dir) = app.path().app_data_dir() else {
+        return;
+    };
+
+    let marker = new_dir.join(IDENTIFIER_MIGRATION_MARKER);
+    if marker.exists() {
+        return;
+    }
+
+    let old_dir = new_dir
         .parent()
-        .map(|p| p.join(old_name))
+        .map(|p| p.join(LEGACY_IDENTIFIER))
         .unwrap_or_default();
 
-    if !old_dir.exists() || old_dir == new_dir {
+    if old_dir == new_dir || !old_dir.exists() {
         return;
     }
 
     let _ = fs::create_dir_all(&new_dir);
+    let result = migrate_app_data(&new_dir, &old_dir);
 
-    if let Ok(entries) = fs::read_dir(&old_dir) {
-        for entry in entries.flatten() {
-            let dest = new_dir.join(entry.file_name());
-            if dest.exists() {
-                continue;
-            }
-            let _ = fs::rename(entry.path(), &dest);
-        }
+    // Only drop the old folder once nothing is left behind, so a move that
+    // failed can never take the user's data with it.
+    let emptied = fs::read_dir(&old_dir)
+        .map(|mut entries| entries.next().is_none())
+        .unwrap_or(false);
+    if emptied {
+        let _ = fs::remove_dir(&old_dir);
     }
 
-    let _ = fs::remove_dir_all(&old_dir);
+    let _ = fs::write(
+        &marker,
+        format!(
+            "{} legacy={} moved={} kept={} failed={} old_folder_removed={}\n",
+            chrono::Utc::now().to_rfc3339(),
+            LEGACY_IDENTIFIER,
+            result.moved,
+            result.kept,
+            result.failed,
+            emptied
+        ),
+    );
 }
 
 #[tauri::command]
@@ -161,6 +246,11 @@ pub fn run() {
             ));
             app.manage(watcher::ActiveWatchers(std::sync::Mutex::new(Vec::new())));
             app.manage(watcher::GitWatcher(std::sync::Mutex::new(None)));
+            app.manage(watcher::AliasWatcher(std::sync::Mutex::new(None)));
+
+            // Alias files live outside the workspace, so this watcher is started
+            // once here rather than from `restart_watchers`.
+            watcher::start_alias_watcher(app.handle().clone());
 
             godot_versions::migrate_registry_to_global(app.handle());
 
@@ -253,6 +343,9 @@ pub fn run() {
             current_version::get_current_version,
             current_version::set_current_version,
             current_version::clear_current_version,
+            current_version::list_version_aliases,
+            current_version::create_version_alias,
+            current_version::delete_version_alias,
             git_auth::start_device_flow,
             git_auth::poll_device_flow,
             git_auth::get_git_auth_state,
@@ -410,3 +503,7 @@ pub fn run() {
             }
         });
 }
+
+#[cfg(test)]
+#[path = "../tests/common/identifier_migration.rs"]
+mod identifier_migration_tests;
