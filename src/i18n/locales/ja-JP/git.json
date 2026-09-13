@@ -87,6 +87,6 @@
   "remove_worktree": "ワークツリーを削除",
   "remove_worktree_confirm_desc": "{{path}} のワークツリーを削除し、コミットされていない変更をすべて破棄します。この操作は取り消せません。",
   "worktree_removed_ok": "ワークツリーを削除しました。",
-  "filter_changes": "Filter changed files…",
-  "no_matching_changes": "No matching changes."
+  "filter_changes": "変更されたファイルを絞り込む…",
+  "no_matching_changes": "一致する変更はありません。"
 }
