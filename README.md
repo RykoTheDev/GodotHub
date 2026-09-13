@@ -1,28 +1,16 @@
-<table align="center" border="0" cellpadding="0" cellspacing="0">
-  <tr>
-    <td valign="middle" style="padding-right: 16px;">
-      <img src="https://raw.githubusercontent.com/RykoTheDev/godothub/main/src-tauri/icons/128x128@2x.png" alt="GodotHub Logo" width="96" height="96" style="border-radius: 20px;">
-    </td>
-    <td valign="middle" align="left">
-      <h1 style="margin: 0; padding: 0; font-size: 3em;">GodotHub</h1>
-      <h3 style="margin: 0; padding: 0; font-weight: normal;">An All-in-One Godot Launcher</h3>
-    </td>
-  </tr>
-</table>
-
 <p align="center">
-  <img src="https://badgen.net/github/release/RykoTheDev/godothub?label=Latest&color=457ff2" alt="Latest Release">
-  <img src="https://badgen.net/badge/platform/Windows%20%7C%20macOS%20%7C%20Linux/5865f2" alt="Platforms">
-  <img src="https://badgen.net/badge/Godot/4.x/478cbf" alt="Godot 4.x">
-  <img src="https://badgen.net/github/license/RykoTheDev/godothub?color=23a55a" alt="License">
+  <a href="https://ryko.is-a.dev/godothub">
+    <img width="800" height="340" alt="cover" src="https://github.com/user-attachments/assets/29ea1efa-e977-4417-9da6-69c81104fc97" />
+  </a>
 </p>
-
-> [!WARNING]
-> I've only properly tested this on **Windows** and **Arch Linux (Hyprland)**. **Fedora 43 (GNOME)** and the latest **macOS** were tested by the community, not me. Behavior on other Linux distros is honestly a bit of an unknown. If you hit a bug, [open an issue](https://github.com/RykoTheDev/godothub/issues), or reach out if you want to help test other platforms.
->
-> AppImage is currently broken on most Linux distros. This is an upstream `linuxdeploy` problem affecting basically every Tauri app, not something I can fix from here. Will update once there's a fix upstream.
-
----
+<p align="center">
+  <img width="800" height="210" alt="warning-cover" src="https://github.com/user-attachments/assets/cc3c0d68-57a3-4ab6-b025-61f5b0bcef61" />
+</p>
+<p align="center">
+  <a href="https://patreon.com/TheRyko">
+  <img width="300" height="70" alt="patreon-badge" src="https://github.com/user-attachments/assets/931aa0ac-f46b-4155-81cd-3615ed55122b" />
+  </a>
+</p>
 
 ## Screenshots
 
@@ -31,48 +19,40 @@
     <td width="50%" align="center">
       <img src="assets/dashboard-view.png" alt="Dashboard View" width="400">
       <br><strong>Dashboard</strong>
-      <br><sub>Your data, in real time</sub>
     </td>
     <td width="50%" align="center">
       <img src="assets/projects-view.png" alt="Projects View" width="400">
       <br><strong>Projects</strong>
-      <br><sub>Search, categories, drag-and-drop sorting</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
       <img src="assets/versions-view.png" alt="Versions View" width="400">
       <br><strong>Versions</strong>
-      <br><sub>Browse, download, and manage Godot versions</sub>
     </td>
     <td width="50%" align="center">
       <img src="assets/templates-view.png" alt="Templates View" width="400">
       <br><strong>Templates</strong>
-      <br><sub>Save and reuse project templates</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
       <img src="assets/asset-store-view.png" alt="Asset Store View" width="400">
       <br><strong>Asset Store</strong>
-      <br><sub>Install assets from the old and new asset store straight into a project or template</sub>
     </td>
     <td width="50%" align="center">
       <img src="assets/git-view.png" alt="Git Integration" width="400">
       <br><strong>Git Integration</strong>
-      <br><sub>Full Git management without leaving the app</sub>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
       <img src="assets/settings-view.png" alt="Settings & Appearance" width="400">
       <br><strong>Appearance & Settings</strong>
-      <br><sub>Themes, accent colors, corner radius, and more</sub>
     </td>
     <td width="50%" align="center">
       <img src="assets/news-view.png" alt="News Feed" width="400">
       <br><strong>News Feed</strong>
-      <br><sub>Godot community news, right in the sidebar</sub>
     </td>
   </tr>
 </table>
@@ -82,15 +62,11 @@
 ---
 
 <p align="center">
-  <a href="https://discord.com/invite/nA7dus32Yv/" target="_blank" rel="noopener noreferrer">
+  <a href="https://discord.com/invite/nA7dus32Yv/">
     <img src="/assets/discord-banner.png" alt="Discord">
   </a>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://patreon.com/TheRyko" target="_blank" rel="noopener noreferrer">
-    <img src="/assets/patreon-banner.png" alt="Patreon">
-  </a>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <a href="https://x.com/theRyko11" target="_blank" rel="noopener noreferrer">
+  &nbsp;
+  <a href="https://x.com/theRyko11">
     <img src="/assets/twitter-banner.png" alt="Twitter">
   </a>
 </p>
