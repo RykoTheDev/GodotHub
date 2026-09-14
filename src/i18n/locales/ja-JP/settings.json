@@ -318,10 +318,10 @@
   "landing_news": "Godot ニュース",
   "git_worktrees_label": "Git ワークツリー",
   "git_worktrees_desc": "Git サイドバーにワークツリーのセクションを表示します。ワークツリーを使うと、複数のブランチを別々のディレクトリに同時にチェックアウトできます。",
-  "fixed_sidebar_resize_knob_label": "Fixed sidebar resize knob",
-  "fixed_sidebar_resize_knob_desc": "Keeps the sidebar resize handle pinned at the center of the edge instead of following the cursor. Resizing still works by dragging the edge.",
-  "desktop_notifications_label": "Desktop notifications",
-  "desktop_notifications_desc": "Show an OS notification when long operations finish (installs, clones, Git sync), even when the window is in the background.",
-  "colored_titlebar_buttons_label": "Colored window buttons",
-  "colored_titlebar_buttons_desc": "Use colored macOS-style circles for the minimize, maximize and close buttons. When disabled, the titlebar uses standard Windows-style buttons."
+  "fixed_sidebar_resize_knob_label": "サイドバーのリサイズハンドルを固定",
+  "fixed_sidebar_resize_knob_desc": "サイドバーのリサイズハンドルをカーソルに追従させず、端の中央に固定します。端をドラッグしてリサイズすることは引き続きできます。",
+  "desktop_notifications_label": "デスクトップ通知",
+  "desktop_notifications_desc": "インストール、クローン、Git の同期など時間のかかる処理が終わったときに、ウィンドウがバックグラウンドにあっても OS の通知を表示します。",
+  "colored_titlebar_buttons_label": "色付きのウィンドウボタン",
+  "colored_titlebar_buttons_desc": "最小化・最大化・閉じるボタンを、macOS 風の色付きの丸で表示します。オフにすると、タイトルバーには Windows 標準スタイルのボタンが使われます。"
 }
