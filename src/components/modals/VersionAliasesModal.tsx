@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import type { AliasInfo, InstalledGodotVersion } from '../../types'
 import { api } from '../../lib/api'
+import { isWindows } from '../../lib/platform'
 import { ConfirmDialog } from './ConfirmDialog'
 import { ModalShell } from './ModalShell'
 import {
@@ -42,6 +43,11 @@ export function VersionAliasesModal({
   const [pendingDelete, setPendingDelete] = useState<AliasInfo | null>(null)
 
   const folder = aliasesDir || aliases[0]?.aliases_dir || ''
+
+  // Mono builds load their GodotSharp runtime from next to the executable, so on
+  // Windows their aliases are launcher scripts rather than links.
+  const needsMonoScriptNote = (versionTag: string) =>
+    isWindows && versions.some((v) => v.tag === versionTag && v.is_mono)
 
   const copy = async (target: string, value: string) => {
     try {
@@ -168,6 +174,12 @@ export function VersionAliasesModal({
             ) : (
               <p className="text-xs text-amber">{tv('aliases_no_versions')}</p>
             )}
+
+            {needsMonoScriptNote(tag) && (
+              <p className="text-[11px] text-muted leading-relaxed">
+                {tv('alias_mono_script_note')}
+              </p>
+            )}
           </div>
 
           {error && (
@@ -194,7 +206,14 @@ export function VersionAliasesModal({
                         {alias.tag}
                       </span>
                       {alias.method === 'shim' && (
-                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-tag bg-amber/10 text-amber border border-amber/30 shrink-0">
+                        <span
+                          title={
+                            needsMonoScriptNote(alias.tag)
+                              ? tv('alias_mono_script_note')
+                              : undefined
+                          }
+                          className="text-[10px] font-semibold px-1.5 py-0.5 rounded-tag bg-amber/10 text-amber border border-amber/30 shrink-0"
+                        >
                           {tv('alias_shim_badge')}
                         </span>
                       )}

@@ -1306,6 +1306,7 @@ export type versionsKeys =
   | 'alias_name_placeholder'
   | 'alias_copy_path'
   | 'alias_shim_badge'
+  | 'alias_mono_script_note'
   | 'alias_remove'
   | 'alias_remove_title'
   | 'alias_remove_desc';
@@ -2597,6 +2598,7 @@ export type TranslationKey =
   | 'versions:alias_name_placeholder'
   | 'versions:alias_copy_path'
   | 'versions:alias_shim_badge'
+  | 'versions:alias_mono_script_note'
   | 'versions:alias_remove'
   | 'versions:alias_remove_title'
   | 'versions:alias_remove_desc';

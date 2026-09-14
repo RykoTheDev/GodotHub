@@ -1,6 +1,7 @@
 use super::{
-    alias_candidates_for, alias_file_name, alias_file_name_for, remove_alias_files,
-    remove_existing_aliases, shim_script, validate_alias_name, ALIAS_CANDIDATES,
+    alias_candidates_for, alias_file_name, alias_file_name_for, alias_is_usable, alias_needs_shim,
+    create_alias, detect_method, remove_alias_files, remove_existing_aliases, shim_script,
+    validate_alias_name, ALIAS_CANDIDATES,
 };
 use std::fs;
 use std::path::Path;
@@ -28,6 +29,79 @@ fn shim_quotes_target_and_forwards_arguments() {
 #[test]
 fn alias_candidates_cover_the_platform_alias_name() {
     assert!(ALIAS_CANDIDATES.contains(&alias_file_name()));
+}
+
+#[test]
+fn mono_versions_need_a_launcher_script_on_windows() {
+    // Mono builds look for `GodotSharp` next to the executable they were started
+    // from, and Windows does not resolve a link to the real folder when starting it.
+    assert_eq!(alias_needs_shim(true), cfg!(target_os = "windows"));
+    assert!(
+        !alias_needs_shim(false),
+        "standard builds keep working from a link"
+    );
+}
+
+#[test]
+fn mono_aliases_never_leave_a_link_behind_on_windows() {
+    let dir = temp_alias_dir("mono-alias");
+    let target = dir.join(if cfg!(target_os = "windows") {
+        "Godot_v4.5-stable_mono_win64.exe"
+    } else {
+        "Godot_v4.5-stable_mono_linux.x86_64"
+    });
+    fs::write(&target, b"exe").expect("failed to create target executable");
+
+    let alias = dir.join(alias_file_name());
+    let (method, path) = create_alias(&target, &alias, true).expect("alias should be created");
+
+    assert!(path.is_file(), "the alias should exist: {path:?}");
+    if alias_needs_shim(true) {
+        assert_eq!(method, "shim");
+        assert_eq!(detect_method(&path), "shim");
+        assert!(
+            fs::symlink_metadata(&alias).is_err(),
+            "a link that cannot find GodotSharp must not be created"
+        );
+    } else {
+        assert_eq!(method, "symlink");
+    }
+
+    let _ = fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn standard_aliases_still_prefer_a_link() {
+    let dir = temp_alias_dir("standard-alias");
+    let target = dir.join(if cfg!(target_os = "windows") {
+        "Godot_v4.5-stable_win64.exe"
+    } else {
+        "Godot_v4.5-stable_linux.x86_64"
+    });
+    fs::write(&target, b"exe").expect("failed to create target executable");
+
+    let (method, path) = create_alias(&target, &dir.join(alias_file_name()), false)
+        .expect("alias should be created");
+
+    assert!(path.is_file());
+    assert_ne!(method, "shim", "standard builds should not need a launcher");
+
+    let _ = fs::remove_dir_all(&dir);
+}
+
+#[test]
+fn launcher_scripts_serve_mono_versions_but_links_do_not() {
+    let dir = temp_alias_dir("usable-alias");
+    let script = dir.join("godot-mono.cmd");
+    fs::write(&script, b"@echo off\r\n").expect("failed to create shim");
+    let link = dir.join("godot-mono.exe");
+    fs::write(&link, b"exe").expect("failed to create link stand-in");
+
+    assert!(alias_is_usable(&script, true));
+    assert_eq!(alias_is_usable(&link, true), !alias_needs_shim(true));
+    assert!(alias_is_usable(&link, false));
+
+    let _ = fs::remove_dir_all(&dir);
 }
 
 #[test]

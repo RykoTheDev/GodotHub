@@ -219,19 +219,51 @@ fn remove_existing_aliases(dir: &Path) {
     }
 }
 
+/// Mono builds ship a `GodotSharp` folder next to their executable and look for
+/// it relative to the path they were started from. A link in the aliases folder
+/// is started from that folder, so the runtime would be searched for there and
+/// never be found. On Windows the started path is not resolved through the link,
+/// so mono versions get a launcher script that runs the real executable from its
+/// own folder instead.
+#[cfg(target_os = "windows")]
+pub fn alias_needs_shim(is_mono: bool) -> bool {
+    is_mono
+}
+
+#[cfg(not(target_os = "windows"))]
+pub fn alias_needs_shim(_is_mono: bool) -> bool {
+    false
+}
+
+/// Whether a launcher already in the aliases folder still works for a version.
+/// A link can't serve a mono version on Windows, but any launcher script can.
+fn alias_is_usable(path: &Path, is_mono: bool) -> bool {
+    detect_method(path) == "shim" || !alias_needs_shim(is_mono)
+}
+
 #[cfg(unix)]
-fn create_alias(target: &Path, alias: &Path) -> Result<(&'static str, PathBuf), String> {
+fn create_alias(
+    target: &Path,
+    alias: &Path,
+    _is_mono: bool,
+) -> Result<(&'static str, PathBuf), String> {
     std::os::unix::fs::symlink(target, alias).map_err(|e| e.to_string())?;
     Ok(("symlink", alias.to_path_buf()))
 }
 
 #[cfg(target_os = "windows")]
-fn create_alias(target: &Path, alias: &Path) -> Result<(&'static str, PathBuf), String> {
-    if std::os::windows::fs::symlink_file(target, alias).is_ok() {
-        return Ok(("symlink", alias.to_path_buf()));
-    }
-    if fs::hard_link(target, alias).is_ok() {
-        return Ok(("hardlink", alias.to_path_buf()));
+fn create_alias(
+    target: &Path,
+    alias: &Path,
+    is_mono: bool,
+) -> Result<(&'static str, PathBuf), String> {
+    if !alias_needs_shim(is_mono) {
+        if std::os::windows::fs::symlink_file(target, alias).is_ok() {
+            return Ok(("symlink", alias.to_path_buf()));
+        }
+        if fs::hard_link(target, alias).is_ok() {
+            return Ok(("hardlink", alias.to_path_buf()));
+        }
     }
     let shim = alias.with_extension("cmd");
     fs::write(&shim, shim_script(target)).map_err(|e| e.to_string())?;
@@ -251,7 +283,8 @@ fn activate(app: &AppHandle, tag: &str) -> Result<CurrentVersionInfo, String> {
 
     let dir = aliases_dir(app);
     remove_existing_aliases(&dir);
-    let (method, alias_path) = create_alias(&target, &dir.join(alias_file_name()))?;
+    let (method, alias_path) =
+        create_alias(&target, &dir.join(alias_file_name()), version.is_mono)?;
 
     let state = CurrentVersionState {
         tag: Some(tag.to_string()),
@@ -305,7 +338,11 @@ pub fn create_named_alias(app: &AppHandle, name: &str, tag: &str) -> Result<Alia
 
     let dir = aliases_dir(app);
     remove_alias_files(&dir, &name);
-    let (method, alias_path) = create_alias(&target, &dir.join(alias_file_name_for(&name)))?;
+    let (method, alias_path) = create_alias(
+        &target,
+        &dir.join(alias_file_name_for(&name)),
+        version.is_mono,
+    )?;
     state.aliases.push(VersionAlias {
         name: name.clone(),
         tag: tag.to_string(),
@@ -347,6 +384,22 @@ pub fn list_named_aliases(app: &AppHandle) -> VersionAliases {
         let Some(path) = existing_alias_path(&dir, &alias.name) else {
             changed = true;
             continue;
+        };
+        // A link created for a mono version before launcher scripts were used
+        // can't find `GodotSharp`, so rebuild it as a launcher script.
+        let path = if alias_is_usable(&path, version.is_mono) {
+            path
+        } else {
+            remove_alias_files(&dir, &alias.name);
+            let Ok((_, repaired)) = create_alias(
+                &target,
+                &dir.join(alias_file_name_for(&alias.name)),
+                version.is_mono,
+            ) else {
+                changed = true;
+                continue;
+            };
+            repaired
         };
         let method = detect_method(&path);
 
@@ -423,32 +476,36 @@ pub fn get_current_version(app: AppHandle) -> Option<CurrentVersionInfo> {
     }
 
     let dir = aliases_dir(&app);
-    let alias = dir.join(alias_file_name());
-
-    if fs::symlink_metadata(&alias).is_err() {
-        remove_existing_aliases(&dir);
-        let Ok((method, alias_path)) = create_alias(&target, &alias) else {
-            let _ = clear(&app);
-            return None;
-        };
-        let state = CurrentVersionState {
-            tag: Some(tag.clone()),
-            method: method.to_string(),
-        };
-        let _ = crate::persist::write_json_with_backup(&state_file(&app), &state);
-        return Some(CurrentVersionInfo {
-            tag,
-            alias_path: alias_path.to_string_lossy().to_string(),
-            aliases_dir: dir.to_string_lossy().to_string(),
-            method: method.to_string(),
-        });
+    if let Some(alias) = existing_alias_path(&dir, PIN_ALIAS_NAME) {
+        // A mono version pinned before launcher scripts existed still has a
+        // link that can't find `GodotSharp`, so fall through and rebuild it.
+        if alias_is_usable(&alias, version.is_mono) {
+            return Some(CurrentVersionInfo {
+                tag,
+                alias_path: alias.to_string_lossy().to_string(),
+                aliases_dir: dir.to_string_lossy().to_string(),
+                method: detect_method(&alias),
+            });
+        }
     }
 
+    remove_existing_aliases(&dir);
+    let Ok((method, alias_path)) =
+        create_alias(&target, &dir.join(alias_file_name()), version.is_mono)
+    else {
+        let _ = clear(&app);
+        return None;
+    };
+    let state = CurrentVersionState {
+        tag: Some(tag.clone()),
+        method: method.to_string(),
+    };
+    let _ = crate::persist::write_json_with_backup(&state_file(&app), &state);
     Some(CurrentVersionInfo {
         tag,
-        alias_path: alias.to_string_lossy().to_string(),
+        alias_path: alias_path.to_string_lossy().to_string(),
         aliases_dir: dir.to_string_lossy().to_string(),
-        method: state.method,
+        method: method.to_string(),
     })
 }
 
