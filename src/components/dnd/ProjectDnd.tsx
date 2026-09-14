@@ -16,10 +16,6 @@ import { IconGrip } from '../../lib/icons'
 import { isReducedMotion } from '../../lib/appearance'
 import { DRAG_FEEL, REFLOW_TRANSITION } from '../../lib/dragFeel'
 
-/**
- * Interactive elements should keep their own behaviour. A drag only starts
- * when the pointer goes down on the card body itself.
- */
 const NO_DRAG_SELECTOR =
   'button, a, input, textarea, select, [role="button"], [contenteditable="true"], [data-drag-ignore]'
 
@@ -60,19 +56,10 @@ export interface SortableProjectItemProps {
   disabled?: boolean
   children: ReactNode
   className?: string
-  /** Skip dnd-kit's translate transform (used by the masonry grid). */
   static?: boolean
-  /** Position of the grip affordance inside the item. */
   gripClassName?: string
 }
 
-/**
- * A whole-card draggable wrapper. The card body starts the drag, buttons and
- * inputs keep working, and the grip doubles as the keyboard activator.
- *
- * Deliberately subscribes to no drag state: the list can hold hundreds of
- * cards and none of them should re-render just because a drag is in flight.
- */
 export function SortableProjectItem({
   id,
   disabled = false,
@@ -134,12 +121,6 @@ export function SortableProjectItem({
   )
 }
 
-/**
- * The accent insertion line, drawn once per surface in a fixed layer.
- *
- * It subscribes to dnd-kit directly, so the only component re-rendering while
- * the pointer moves is this thin strip of pixels.
- */
 export function ProjectDropLine({ ignorePrefix }: { ignorePrefix?: string }) {
   const { active, over } = useDndContext()
   const { height, dot, glow, transition } = DRAG_FEEL.dropLine
@@ -188,11 +169,6 @@ export function ProjectDropLine({ ignorePrefix }: { ignorePrefix?: string }) {
   )
 }
 
-/**
- * The floating preview rendered inside dnd-kit's <DragOverlay>. The hook writes
- * the lean (and lift scale) straight onto this node via `innerRef`, so moving
- * the pointer never triggers a React render.
- */
 export function ProjectDragOverlay({
   innerRef,
   children,
@@ -201,7 +177,6 @@ export function ProjectDragOverlay({
 }: {
   innerRef: React.RefObject<HTMLDivElement | null>
   children: ReactNode
-  /** Number of cards travelling; more than one shows a badge. */
   count?: number
   className?: string
 }) {

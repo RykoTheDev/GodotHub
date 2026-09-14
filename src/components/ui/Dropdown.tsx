@@ -22,7 +22,6 @@ import {
   type MenuItem,
 } from './menu'
 
-/** The row shape lives in `menu.tsx` so context menus render identically. */
 export type NewDropdownItem = MenuItem
 
 export interface NewDropdownHeaderItem {

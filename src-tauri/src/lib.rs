@@ -31,31 +31,17 @@ use std::fs;
 use std::path::Path;
 use tauri::{Manager, WindowEvent};
 
-/// The data folder used before the bundle identifier was renamed.
 const LEGACY_IDENTIFIER: &str = "com.ryko.godothub";
 
-/// Written once the old data folder has been drained, so a folder that could not
-/// be fully emptied can never be migrated a second time and re-inject stale
-/// files on top of newer data.
 const IDENTIFIER_MIGRATION_MARKER: &str = "identifier-migration.done";
 
 #[derive(Debug, Default, PartialEq, Eq)]
 pub(crate) struct IdentifierMigration {
-    /// Files that landed at their destination.
     pub moved: usize,
-    /// Files whose destination was taken, kept beside it instead.
     pub kept: usize,
-    /// Files that could not be moved and were left where they were.
     pub failed: usize,
 }
 
-/// Drains the old data folder into the new one.
-///
-/// Nothing is ever discarded. A file whose destination already exists is kept
-/// alongside it with a `.legacy` suffix, and a file that cannot be moved stays
-/// put. That matters because this is the only bridge between the two folders: a
-/// skipped entry used to be deleted along with the old folder, which is enough
-/// to take a user's settings and projects with it.
 pub(crate) fn migrate_app_data(new_dir: &Path, old_dir: &Path) -> IdentifierMigration {
     let mut result = IdentifierMigration::default();
     let Ok(entries) = fs::read_dir(old_dir) else {
@@ -125,8 +111,6 @@ fn migrate_identifier(app: &tauri::App) {
     let _ = fs::create_dir_all(&new_dir);
     let result = migrate_app_data(&new_dir, &old_dir);
 
-    // Only drop the old folder once nothing is left behind, so a move that
-    // failed can never take the user's data with it.
     let emptied = fs::read_dir(&old_dir)
         .map(|mut entries| entries.next().is_none())
         .unwrap_or(false);
@@ -248,8 +232,6 @@ pub fn run() {
             app.manage(watcher::GitWatcher(std::sync::Mutex::new(None)));
             app.manage(watcher::AliasWatcher(std::sync::Mutex::new(None)));
 
-            // Alias files live outside the workspace, so this watcher is started
-            // once here rather than from `restart_watchers`.
             watcher::start_alias_watcher(app.handle().clone());
 
             godot_versions::migrate_registry_to_global(app.handle());
@@ -345,6 +327,7 @@ pub fn run() {
             current_version::clear_current_version,
             current_version::list_version_aliases,
             current_version::create_version_alias,
+            current_version::create_version_aliases,
             current_version::delete_version_alias,
             git_auth::start_device_flow,
             git_auth::poll_device_flow,

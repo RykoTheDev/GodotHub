@@ -1,6 +1,7 @@
 import { invoke } from '@tauri-apps/api/core'
 import type {
-  AliasInfo,
+  AliasBatchResult,
+  AliasRequest,
   CurrentVersionInfo,
   GodotRelease,
   InstalledGodotVersion,
@@ -30,8 +31,8 @@ export const versionsApi = {
     invoke<CurrentVersionInfo>('set_current_version', { tag }),
   clearCurrent: () => invoke<void>('clear_current_version'),
   listAliases: () => invoke<VersionAliases>('list_version_aliases'),
-  createAlias: (name: string, tag: string) =>
-    invoke<AliasInfo>('create_version_alias', { name, tag }),
+  createAliases: (entries: AliasRequest[]) =>
+    invoke<AliasBatchResult>('create_version_aliases', { entries }),
   deleteAlias: (name: string) =>
     invoke<void>('delete_version_alias', { name }),
   open: (tag: string, withConsole?: boolean) =>

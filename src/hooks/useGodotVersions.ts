@@ -5,7 +5,9 @@ import { useWorkspaces } from './useWorkspaces'
 import { useSettings } from './useSettings'
 import i18n from '../i18n'
 import type {
+  AliasBatchResult,
   AliasInfo,
+  AliasRequest,
   CurrentVersionInfo,
   DownloadProgress,
   GodotRelease,
@@ -137,9 +139,6 @@ export function useGodotVersions() {
     }
   })
 
-  // The aliases folder is watched on the Rust side: launcher files removed or
-  // replaced outside the app trigger a refresh so the aliases modal stays in
-  // sync. `list_named_aliases` also prunes the saved list.
   useTauriEvent('versions:aliases-changed', () => {
     void refreshAliases()
   }, [refreshAliases])
@@ -232,11 +231,11 @@ export function useGodotVersions() {
     setCurrent(null)
   }, [])
 
-  const createAlias = useCallback(
-    async (name: string, tag: string) => {
-      const info = await api.createVersionAlias(name, tag)
+  const createAliases = useCallback(
+    async (entries: AliasRequest[]): Promise<AliasBatchResult> => {
+      const result = await api.createVersionAliases(entries)
       await refreshAliases()
-      return info
+      return result
     },
     [refreshAliases],
   )
@@ -256,7 +255,7 @@ export function useGodotVersions() {
     aliasesDir,
     setCurrent: pinCurrent,
     clearCurrent: unpinCurrent,
-    createAlias,
+    createAliases,
     deleteAlias,
     refreshAliases,
     available,

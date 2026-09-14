@@ -41,7 +41,6 @@ interface ProjectCardListProps {
     category: string,
     destOrderedIds: string[],
   ) => Promise<void>
-  /** Hidden categories and how many projects each of them holds. */
   hiddenCategories?: HiddenCategoryEntry[]
   onUnhideCategory?: (id: string) => void
   onCategoryContextMenu?: (
@@ -97,7 +96,6 @@ export function ProjectCardList({
     return map
   }, [unpinnedProjects])
 
-  /** Category keys in the order they are rendered, including stray ones. */
   const orderedCategoryKeys = useMemo(() => {
     const keys: string[] = []
     for (const cat of categories) {
@@ -110,7 +108,6 @@ export function ProjectCardList({
     return keys
   }, [categories, groups])
 
-  /** Draggable projects in the exact order they appear on screen. */
   const sortableProjects = useMemo(() => {
     if (!grouped) return unpinnedProjects
     const ordered: Project[] = []

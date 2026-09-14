@@ -162,7 +162,7 @@ export function VersionsView({
     aliasesDir,
     setCurrent,
     clearCurrent,
-    createAlias,
+    createAliases,
     deleteAlias,
     refreshAvailable,
     refreshInstalled,
@@ -901,7 +901,7 @@ export function VersionsView({
             aliasesDir={aliasesDir}
             initialTag={aliasModal.tag}
             onClose={() => setAliasModal(null)}
-            onCreate={createAlias}
+            onCreateMany={createAliases}
             onDelete={deleteAlias}
           />
         )}

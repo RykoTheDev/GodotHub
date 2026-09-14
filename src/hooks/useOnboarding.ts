@@ -35,8 +35,6 @@ export const STARTER_CATEGORIES = [
   'Game Jams',
 ]
 
-/// Each starter gets a distinct palette color so the seeded categories aren't
-/// all the same shade.
 export const STARTER_CATEGORY_COLORS: Record<string, string> = {
   'In Progress': CATEGORY_COLORS[0],
   'Prototypes': CATEGORY_COLORS[1],

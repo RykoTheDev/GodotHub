@@ -1,26 +1,17 @@
 import { arrayMove } from '@dnd-kit/sortable'
 import type { Category, Project } from '../types'
 
-/**
- * Sentinel key for projects that have no category. Used internally by the drag
- * layer so uncategorized projects can be grouped/dropped like any other.
- */
 export const UNCATEGORIZED_KEY = '__uncategorized__'
 
-/** The droppable id used for a category zone is `${prefix}${suffix}`. */
 export interface DroppablePrefixes {
-  /** e.g. `list-cat-` / `grid-cat-` / `kanban-cat-` */
   category: string
 }
 
 export type ProjectDropResolution =
   | { type: 'none' }
-  /** Manual reorder inside the current (flat) list or a single category. */
   | { type: 'reorder'; orderedIds: string[] }
-  /** Move into another category, optionally landing at a specific position. */
   | {
       type: 'move'
-      /** Every project that travelled, in visual order. */
       activeIds: string[]
       categoryName: string
       destOrderedIds: string[]
@@ -30,7 +21,6 @@ export function categoryKeyOf(project: Pick<Project, 'category'>): string {
   return project.category || UNCATEGORIZED_KEY
 }
 
-/** Translate a droppable id suffix (`<category.id>` or `uncategorized`) to a category key. */
 function categoryKeyFromSuffix(suffix: string, categories: Category[]): string {
   if (suffix === 'uncategorized') return UNCATEGORIZED_KEY
   return categories.find((c) => c.id === suffix)?.name ?? suffix
@@ -130,10 +120,6 @@ export function resolveProjectDrop(input: ProjectDropInput): ProjectDropResoluti
   }
 }
 
-/**
- * The multi-selection case: the group keeps its internal order and lands at the
- * hovered slot, in the target category when it is dropped on another group.
- */
 function resolveGroupDrop({
   group,
   overId,

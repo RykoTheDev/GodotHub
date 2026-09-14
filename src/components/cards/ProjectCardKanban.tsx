@@ -57,7 +57,6 @@ interface ProjectCardKanbanProps {
     category: string,
     destOrderedIds: string[],
   ) => Promise<void>
-  /** Hidden categories and how many projects each of them holds. */
   hiddenCategories?: HiddenCategoryEntry[]
   onUnhideCategory?: (id: string) => void
   onCategoryContextMenu?: (
@@ -111,7 +110,6 @@ export function ProjectCardKanban({
     return map
   }, [projects])
 
-  /** Draggable projects in DOM order (category columns, then uncategorized). */
   const sortableProjects = useMemo(() => {
     if (!grouped) return projects
     const ordered: Project[] = []

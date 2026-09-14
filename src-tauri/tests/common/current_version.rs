@@ -33,8 +33,6 @@ fn alias_candidates_cover_the_platform_alias_name() {
 
 #[test]
 fn mono_versions_need_a_launcher_script_on_windows() {
-    // Mono builds look for `GodotSharp` next to the executable they were started
-    // from, and Windows does not resolve a link to the real folder when starting it.
     assert_eq!(alias_needs_shim(true), cfg!(target_os = "windows"));
     assert!(
         !alias_needs_shim(false),

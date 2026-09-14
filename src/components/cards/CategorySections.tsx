@@ -15,13 +15,6 @@ export interface HiddenCategoryEntry {
   count: number
 }
 
-/**
- * A collapsible category group shared by the list and grid surfaces.
- *
- * While a card is in flight the header stays a drop target even after the
- * section opens underneath the pointer, so dropping onto a collapsed category
- * is a single gesture rather than expand-then-drop.
- */
 export function ProjectCategorySection({
   title,
   color,
@@ -171,10 +164,6 @@ export function ProjectCategorySection({
   )
 }
 
-/**
- * The home for hidden categories, at the bottom of the projects list. Hidden
- * categories keep their projects; this is the way back.
- */
 export function HiddenCategoriesSection({
   entries,
   onUnhide,

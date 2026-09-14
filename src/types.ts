@@ -29,6 +29,22 @@ export interface VersionAliases {
   aliases_dir: string
 }
 
+export interface AliasRequest {
+  name: string
+  tag: string
+}
+
+export interface AliasSkip {
+  name: string
+  tag: string
+  reason: string
+}
+
+export interface AliasBatchResult {
+  created: AliasInfo[]
+  skipped: AliasSkip[]
+}
+
 export interface GodotReleaseAsset {
   name: string
   download_url: string

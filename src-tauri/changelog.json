@@ -1271,5 +1271,18 @@
     ],
     "known_issues": [],
     "created_at": 1789156269
+  },
+  {
+    "id": "7a36b9f8-f8fe-49d8-99a9-3cc2f2c36f8d",
+    "version": "v1.4.4",
+    "date": "2026-09-14",
+    "notes": [
+      {
+        "category": "add",
+        "text": "Alias Creation for Godot Versions; You can now create your own alias for any installed version and use it in scripts or something else idk"
+      }
+    ],
+    "known_issues": [],
+    "created_at": 1789412855
   }
 ]

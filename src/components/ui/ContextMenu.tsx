@@ -19,12 +19,6 @@ import {
 const FALLBACK_HEIGHT = 160
 const FALLBACK_WIDTH = 240
 
-/**
- * A right-click menu built from the same rows, surface and motion as
- * `Dropdown`, including the flip-into-view positioning, so it never feels like
- * a different kind of menu. Render it inside an `<AnimatePresence>` to get the
- * exit animation.
- */
 export function ContextMenu({
   items,
   x,
@@ -34,7 +28,6 @@ export function ContextMenu({
   label,
 }: {
   items: MenuItem[]
-  /** Viewport coordinates of the click that opened the menu. */
   x: number
   y: number
   onClose: () => void

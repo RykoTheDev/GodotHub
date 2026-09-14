@@ -69,6 +69,13 @@
   "alias_copy_path": "Copy alias path",
   "alias_shim_badge": "script",
   "alias_mono_script_note": "Mono builds load GodotSharp from the folder next to the executable, so on Windows the alias is created as a launcher script instead of a link.",
+  "alias_create_all_one": "Create Alias",
+  "alias_create_all_other": "Create {{count}} Aliases",
+  "aliases_batch_created_one": "1 alias created",
+  "aliases_batch_created_other": "{{count}} aliases created",
+  "aliases_batch_skipped_one": "1 alias skipped",
+  "aliases_batch_skipped_other": "{{count}} aliases skipped",
+  "alias_queue_duplicate": "\"{{name}}\" is already in the list",
   "alias_remove": "Remove alias",
   "alias_remove_title": "Remove this alias?",
   "alias_remove_desc": "The command \"{{name}}\" will stop working. The Godot version itself stays installed."

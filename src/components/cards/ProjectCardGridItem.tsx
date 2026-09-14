@@ -230,7 +230,6 @@ export function ProjectCardGridItem({
           : 'bg-overlay border-outline/50 hover:bg-raised hover:border-accent-dim/60'
       }`}
     >
-      {/* Selection checkbox */}
       {onToggleSelect && (
         <div className="absolute top-2 left-7 z-20">
           <button
@@ -252,7 +251,6 @@ export function ProjectCardGridItem({
         </div>
       )}
 
-      {/* Pin button (top-left) */}
       {cardHovered && !project.pinned && (
         <Tooltip content={t('project_pin_aria')} side="right">
           <motion.button
@@ -271,7 +269,6 @@ export function ProjectCardGridItem({
         </Tooltip>
       )}
 
-      {/* Icon header (matches AssetCard style) */}
       <div className="relative h-24 shrink-0 bg-raised flex items-center justify-center overflow-hidden rounded-t-item">
         {icon && (
           <img
@@ -300,7 +297,6 @@ export function ProjectCardGridItem({
             </span>
           )}
         </div>
-        {/* Time pill (top-right) */}
         {cardSettings.show_time && (sessionMs > 0 || (allMs > 0 && sessionMs === 0)) && (
           <span className="absolute top-2 right-2 z-10 inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-surface/90 border border-outline/50 font-mono text-[10px] font-medium text-muted backdrop-blur-sm">
             {sessionMs > 0 ? (
@@ -318,9 +314,7 @@ export function ProjectCardGridItem({
         )}
       </div>
 
-      {/* Content */}
       <div className="flex flex-col items-center gap-1.5 p-4 flex-1 min-w-0">
-        {/* Project name + Git button (centered) */}
         <div className="flex items-center gap-1.5 justify-center min-w-0">
           <h3 className="font-display font-medium text-lg text-ink leading-snug line-clamp-2 text-center min-w-0">
             {displayName}
@@ -344,7 +338,6 @@ export function ProjectCardGridItem({
           )}
         </div>
 
-        {/* Path (pill) */}
         {cardSettings.show_path && (
         <button
           type="button"
@@ -358,7 +351,6 @@ export function ProjectCardGridItem({
         </button>
         )}
 
-        {/* Tags */}
         {cardSettings.show_tags && project.tags.length > 0 && (
         <div className="relative flex items-center gap-1 flex-wrap min-h-[22px] justify-center overflow-hidden" style={{ maxHeight: '44px' }}>
         {project.tags.slice(0, 3).map((tag, i) => {
@@ -520,7 +512,6 @@ export function ProjectCardGridItem({
       </div>
         )}
 
-        {/* Footer: Version + Open button */}
         <div className="flex flex-wrap items-center gap-2 mt-auto pt-2">
           <Dropdown
             align="left"

@@ -79,7 +79,7 @@ export const api = {
   setCurrentGodotVersion: versionsApi.setCurrent,
   clearCurrentGodotVersion: versionsApi.clearCurrent,
   listVersionAliases: versionsApi.listAliases,
-  createVersionAlias: versionsApi.createAlias,
+  createVersionAliases: versionsApi.createAliases,
   deleteVersionAlias: versionsApi.deleteAlias,
   openGodotVersion: versionsApi.open,
   testGithubToken: versionsApi.testGithubToken,

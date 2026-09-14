@@ -13,7 +13,6 @@ pub struct CurrentVersionInfo {
     pub method: String,
 }
 
-/// A named command (for example `godot-mono`) bound to one installed version.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct VersionAlias {
     pub name: String,
@@ -26,7 +25,6 @@ pub struct AliasInfo {
     pub tag: String,
     pub alias_path: String,
     pub aliases_dir: String,
-    /// How the alias was created: `symlink`, `hardlink` or `shim`.
     pub method: String,
 }
 
@@ -34,6 +32,25 @@ pub struct AliasInfo {
 pub struct VersionAliases {
     pub aliases: Vec<AliasInfo>,
     pub aliases_dir: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AliasRequest {
+    pub name: String,
+    pub tag: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct AliasSkip {
+    pub name: String,
+    pub tag: String,
+    pub reason: String,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct AliasBatchResult {
+    pub created: Vec<AliasInfo>,
+    pub skipped: Vec<AliasSkip>,
 }
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
@@ -64,8 +81,6 @@ pub fn alias_file_name() -> &'static str {
     "Godot"
 }
 
-/// The pinned alias name. Named aliases may not use it, so they can never
-/// shadow the "current version" command.
 const PIN_ALIAS_NAME: &str = "Godot";
 
 const RESERVED_NAMES: [&str; 22] = [
@@ -73,7 +88,6 @@ const RESERVED_NAMES: [&str; 22] = [
     "com8", "com9", "lpt1", "lpt2", "lpt3", "lpt4", "lpt5", "lpt6", "lpt7", "lpt8", "lpt9",
 ];
 
-/// The filename a named alias is primarily created under.
 #[cfg(target_os = "windows")]
 pub fn alias_file_name_for(name: &str) -> String {
     format!("{name}.exe")
@@ -84,8 +98,6 @@ pub fn alias_file_name_for(name: &str) -> String {
     name.to_string()
 }
 
-/// Every filename a named alias may have been created under, so removing it
-/// never leaves a stale launcher behind.
 pub fn alias_candidates_for(name: &str) -> Vec<String> {
     let mut names = vec![alias_file_name_for(name)];
     for candidate in [format!("{name}.cmd"), name.to_string()] {
@@ -96,8 +108,6 @@ pub fn alias_candidates_for(name: &str) -> Vec<String> {
     names
 }
 
-/// Rejects names that would break out of the aliases folder, collide with the
-/// pinned alias, or be unusable as a command on Windows.
 pub fn validate_alias_name(name: &str) -> Result<String, String> {
     let trimmed = name.trim();
     if trimmed.is_empty() {
@@ -219,12 +229,6 @@ fn remove_existing_aliases(dir: &Path) {
     }
 }
 
-/// Mono builds ship a `GodotSharp` folder next to their executable and look for
-/// it relative to the path they were started from. A link in the aliases folder
-/// is started from that folder, so the runtime would be searched for there and
-/// never be found. On Windows the started path is not resolved through the link,
-/// so mono versions get a launcher script that runs the real executable from its
-/// own folder instead.
 #[cfg(target_os = "windows")]
 pub fn alias_needs_shim(is_mono: bool) -> bool {
     is_mono
@@ -235,8 +239,6 @@ pub fn alias_needs_shim(_is_mono: bool) -> bool {
     false
 }
 
-/// Whether a launcher already in the aliases folder still works for a version.
-/// A link can't serve a mono version on Windows, but any launcher script can.
 fn alias_is_usable(path: &Path, is_mono: bool) -> bool {
     detect_method(path) == "shim" || !alias_needs_shim(is_mono)
 }
@@ -358,9 +360,6 @@ pub fn create_named_alias(app: &AppHandle, name: &str, tag: &str) -> Result<Alia
     })
 }
 
-/// Every named alias. An alias whose version is gone, or whose launcher was
-/// deleted from the aliases folder, is dropped from the saved list as well, so
-/// the folder and the app always agree.
 pub fn list_named_aliases(app: &AppHandle) -> VersionAliases {
     let dir = aliases_dir(app);
     let list = crate::godot_versions::read_registry(app);
@@ -379,14 +378,10 @@ pub fn list_named_aliases(app: &AppHandle) -> VersionAliases {
             continue;
         }
 
-        // The aliases folder is the source of truth: if the launcher file was
-        // deleted by hand, forget the alias rather than recreating it.
         let Some(path) = existing_alias_path(&dir, &alias.name) else {
             changed = true;
             continue;
         };
-        // A link created for a mono version before launcher scripts were used
-        // can't find `GodotSharp`, so rebuild it as a launcher script.
         let path = if alias_is_usable(&path, version.is_mono) {
             path
         } else {
@@ -439,7 +434,6 @@ pub fn delete_named_alias(app: &AppHandle, name: &str) -> Result<(), String> {
     write_aliases(app, &state)
 }
 
-/// Drops every named alias pointing at a version that was uninstalled.
 pub fn remove_aliases_for_tag(app: &AppHandle, tag: &str) {
     let mut state = read_aliases(app);
     let doomed: Vec<String> = state
@@ -477,8 +471,6 @@ pub fn get_current_version(app: AppHandle) -> Option<CurrentVersionInfo> {
 
     let dir = aliases_dir(&app);
     if let Some(alias) = existing_alias_path(&dir, PIN_ALIAS_NAME) {
-        // A mono version pinned before launcher scripts existed still has a
-        // link that can't find `GodotSharp`, so fall through and rebuild it.
         if alias_is_usable(&alias, version.is_mono) {
             return Some(CurrentVersionInfo {
                 tag,
@@ -527,6 +519,25 @@ pub fn list_version_aliases(app: AppHandle) -> VersionAliases {
 #[tauri::command]
 pub fn create_version_alias(app: AppHandle, name: String, tag: String) -> Result<AliasInfo, String> {
     create_named_alias(&app, &name, &tag)
+}
+
+#[tauri::command]
+pub fn create_version_aliases(app: AppHandle, entries: Vec<AliasRequest>) -> AliasBatchResult {
+    let mut created = Vec::new();
+    let mut skipped = Vec::new();
+
+    for entry in entries {
+        match create_named_alias(&app, &entry.name, &entry.tag) {
+            Ok(info) => created.push(info),
+            Err(reason) => skipped.push(AliasSkip {
+                name: entry.name,
+                tag: entry.tag,
+                reason,
+            }),
+        }
+    }
+
+    AliasBatchResult { created, skipped }
 }
 
 #[tauri::command]

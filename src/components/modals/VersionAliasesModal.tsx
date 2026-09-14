@@ -1,7 +1,12 @@
 import { useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import type { AliasInfo, InstalledGodotVersion } from '../../types'
+import type {
+  AliasBatchResult,
+  AliasInfo,
+  AliasRequest,
+  InstalledGodotVersion,
+} from '../../types'
 import { api } from '../../lib/api'
 import { isWindows } from '../../lib/platform'
 import { ConfirmDialog } from './ConfirmDialog'
@@ -21,7 +26,7 @@ export function VersionAliasesModal({
   aliasesDir,
   initialTag,
   onClose,
-  onCreate,
+  onCreateMany,
   onDelete,
 }: {
   versions: InstalledGodotVersion[]
@@ -29,7 +34,7 @@ export function VersionAliasesModal({
   aliasesDir: string
   initialTag?: string
   onClose: () => void
-  onCreate: (name: string, tag: string) => Promise<AliasInfo>
+  onCreateMany: (entries: AliasRequest[]) => Promise<AliasBatchResult>
   onDelete: (name: string) => Promise<void>
 }) {
   const { t: tv } = useTranslation('versions')
@@ -41,11 +46,11 @@ export function VersionAliasesModal({
   const [error, setError] = useState<string | null>(null)
   const [copied, setCopied] = useState<string | null>(null)
   const [pendingDelete, setPendingDelete] = useState<AliasInfo | null>(null)
+  const [queue, setQueue] = useState<AliasRequest[]>([])
+  const [outcome, setOutcome] = useState<AliasBatchResult | null>(null)
 
   const folder = aliasesDir || aliases[0]?.aliases_dir || ''
 
-  // Mono builds load their GodotSharp runtime from next to the executable, so on
-  // Windows their aliases are launcher scripts rather than links.
   const needsMonoScriptNote = (versionTag: string) =>
     isWindows && versions.some((v) => v.tag === versionTag && v.is_mono)
 
@@ -57,14 +62,30 @@ export function VersionAliasesModal({
     } catch {}
   }
 
-  const submit = async () => {
+  const addToQueue = () => {
     const trimmed = name.trim()
-    if (!trimmed || !tag || busy) return
+    if (!trimmed || !tag) return
+    if (queue.some((entry) => entry.name.toLowerCase() === trimmed.toLowerCase())) {
+      setError(tv('alias_queue_duplicate', { name: trimmed }))
+      return
+    }
+    setError(null)
+    setOutcome(null)
+    setQueue((prev) => [...prev, { name: trimmed, tag }])
+    setName('')
+  }
+
+  const removeQueued = (entry: AliasRequest) =>
+    setQueue((prev) => prev.filter((item) => item !== entry))
+
+  const createQueued = async () => {
+    if (queue.length === 0 || busy) return
     setBusy(true)
     setError(null)
+    setOutcome(null)
     try {
-      await onCreate(trimmed, tag)
-      setName('')
+      setOutcome(await onCreateMany(queue))
+      setQueue([])
     } catch (e) {
       setError(String(e))
     } finally {
@@ -122,7 +143,7 @@ export function VersionAliasesModal({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') void submit()
+                  if (e.key === 'Enter') addToQueue()
                 }}
                 placeholder={tv('alias_name_placeholder')}
                 aria-label={tv('alias_name_label')}
@@ -133,7 +154,7 @@ export function VersionAliasesModal({
                 whileTap={{ scale: 0.96 }}
                 type="button"
                 disabled={!name.trim() || !tag || busy}
-                onClick={() => void submit()}
+                onClick={addToQueue}
                 className={`focus-ring flex items-center gap-1.5 px-4 py-2 rounded-btn text-sm font-medium border transition-colors ${
                   !name.trim() || !tag || busy
                     ? 'bg-raised text-muted/40 border-line cursor-not-allowed'
@@ -180,7 +201,69 @@ export function VersionAliasesModal({
                 {tv('alias_mono_script_note')}
               </p>
             )}
+
+            {queue.length > 0 && (
+              <div className="flex flex-col gap-1.5 border-t border-outline/40 pt-2.5">
+                {queue.map((entry) => (
+                  <div key={entry.name} className="flex items-center gap-2 min-w-0">
+                    <p className="font-mono text-xs text-ink truncate">{entry.name}</p>
+                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-tag bg-black/15 text-muted border border-outline/40 shrink-0">
+                      {entry.tag}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => removeQueued(entry)}
+                      aria-label={tv('alias_remove')}
+                      className="focus-ring cursor-pointer ml-auto shrink-0 p-1.5 rounded-btn text-muted/70 hover:text-danger hover:bg-danger/10 transition-colors"
+                    >
+                      <IconTrash className="w-3 h-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              type="button"
+              disabled={queue.length === 0 || busy}
+              onClick={() => void createQueued()}
+              className={`focus-ring flex items-center justify-center gap-1.5 px-4 py-2 rounded-btn text-sm font-medium border transition-colors ${
+                queue.length === 0 || busy
+                  ? 'bg-raised text-muted/40 border-line cursor-not-allowed'
+                  : 'bg-accent text-white border-accent hover:bg-accent-bright cursor-pointer'
+              }`}
+            >
+              <IconCheck className="w-3.5 h-3.5" />
+              {tv('alias_create_all', { count: queue.length })}
+            </motion.button>
           </div>
+
+          {outcome && (
+            <div className="flex flex-col gap-1 rounded-item border border-outline/50 bg-overlay p-3">
+              {outcome.created.length > 0 && (
+                <p className="text-xs text-mint">
+                  {tv('aliases_batch_created', { count: outcome.created.length })}
+                </p>
+              )}
+              {outcome.skipped.length > 0 && (
+                <>
+                  <p className="text-xs text-amber">
+                    {tv('aliases_batch_skipped', { count: outcome.skipped.length })}
+                  </p>
+                  {outcome.skipped.map((skip) => (
+                    <p
+                      key={skip.name}
+                      className="font-mono text-[11px] text-muted truncate"
+                      title={`${skip.name} - ${skip.reason}`}
+                    >
+                      {skip.name} - {skip.reason}
+                    </p>
+                  ))}
+                </>
+              )}
+            </div>
+          )}
 
           {error && (
             <p className="text-xs text-danger leading-relaxed">{error}</p>

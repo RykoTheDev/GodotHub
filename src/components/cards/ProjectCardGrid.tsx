@@ -51,7 +51,6 @@ interface ProjectCardGridProps {
     category: string,
     destOrderedIds: string[],
   ) => Promise<void>
-  /** Hidden categories and how many projects each of them holds. */
   hiddenCategories?: HiddenCategoryEntry[]
   onUnhideCategory?: (id: string) => void
   onCategoryContextMenu?: (

@@ -58,12 +58,6 @@ fn write_state_in(base: &Path, state: &WorkspacesState) -> Result<(), String> {
     persist::write_json_with_backup(&workspaces_file_in(base), state).map_err(|e| e.to_string())
 }
 
-/// Reads JSON from disk, retrying a transient failure before giving up.
-///
-/// On Windows an antivirus scan, a backup tool, or the updater relaunching the
-/// app can hold a file open for a moment. Treating that window as a corrupt
-/// index would rename the real one aside and rebuild state from disk, which can
-/// drop the user onto a different workspace than the one they were using.
 fn read_json_retry<T: serde::de::DeserializeOwned>(file: &Path) -> Option<T> {
     for attempt in 0..3 {
         match fs::read_to_string(file) {
@@ -247,9 +241,6 @@ pub fn read_state_in(base: &Path) -> WorkspacesState {
                 damaged
             ),
         );
-        // A recovered workspace can predate the workspace layout. Pull any files
-        // still sitting next to the index into it, otherwise the user's real
-        // settings stay stranded and the app comes up looking freshly installed.
         migrate_legacy_files(base, &state.active_id);
         let _ = write_state_in(base, &state);
         return state;

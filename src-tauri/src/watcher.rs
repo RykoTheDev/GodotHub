@@ -11,8 +11,6 @@ pub struct ActiveWatchers(pub Mutex<Vec<RecommendedWatcher>>);
 
 pub struct GitWatcher(pub Mutex<Option<RecommendedWatcher>>);
 
-/// Watches the alias (`bin`) folder. Kept separate from `ActiveWatchers` so it
-/// survives `restart_watchers` (alias files are workspace-independent).
 pub struct AliasWatcher(pub Mutex<Option<RecommendedWatcher>>);
 
 fn is_ignored_watcher_event(event: &Event) -> bool {
@@ -233,8 +231,6 @@ pub fn start_template_watcher(app: AppHandle, scan_dir: PathBuf, debounce_ms: u6
     }
 }
 
-/// Watches the aliases folder so launcher files added, deleted or replaced
-/// outside the app are reflected in the saved alias list and the UI.
 pub fn start_alias_watcher(app: AppHandle) {
     let dir = crate::current_version::aliases_dir(&app);
     let watcher = create_debounced_watcher(

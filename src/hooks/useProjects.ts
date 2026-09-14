@@ -95,11 +95,6 @@ export function useProjects() {
     [refresh, setData],
   )
 
-  /**
-   * Move one or more projects into a category and persist the destination
-   * order. A multi-selection travels together, so the whole group lands in the
-   * target category with the order it was dropped in.
-   */
   const moveProjects = useCallback(
     async (ids: string[], category: string, destOrderedIds: string[]) => {
       if (ids.length === 0) return

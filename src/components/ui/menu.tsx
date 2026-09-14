@@ -6,10 +6,6 @@ import type {
 import { IconChevronRight } from '../../lib/icons'
 import type { IconProps } from '../../lib/icons'
 
-/**
- * Shared menu pieces. Dropdowns and context menus render the same rows and the
- * same surface, so a right-click menu never looks like a different component.
- */
 export interface MenuItem {
   key: string
   label: string
@@ -26,16 +22,11 @@ export interface MenuItem {
   children?: MenuItem[]
 }
 
-/** Keep menus clear of the window edges. */
 export const MENU_VIEWPORT_PAD = 8
 
-/** Distance between a trigger and its menu. */
 export const MENU_GAP = 8
 
 export function menuSurfaceClass(compact: boolean, extra = ''): string {
-  // Deliberately no overflow clipping: submenus render as absolutely positioned
-  // children of the menu surface, so `overflow-clip` swallows them entirely.
-  // Rows are inset by the surface padding, so nothing bleeds past the corners.
   return `rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 ${
     compact ? 'min-w-48 p-2' : 'min-w-60 p-2.5'
   } ${extra}`
@@ -54,7 +45,6 @@ export function MenuButton({
   item: MenuItem
   compact: boolean
   onSelect: (e: ReactMouseEvent<HTMLButtonElement>) => void
-  /** Show the submenu chevron. */
   caret?: boolean
 }) {
   const iconBox = compact ? 'w-6 h-6' : 'w-7 h-7'

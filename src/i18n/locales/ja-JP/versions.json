@@ -71,5 +71,13 @@
   "alias_shim_badge": "スクリプト",
   "alias_remove": "エイリアスを削除",
   "alias_remove_title": "このエイリアスを削除しますか？",
-  "alias_remove_desc": "コマンド「{{name}}」は使えなくなります。Godot のバージョン自体はインストールされたまま残ります。"
+  "alias_remove_desc": "コマンド「{{name}}」は使えなくなります。Godot のバージョン自体はインストールされたまま残ります。",
+  "alias_mono_script_note": "Mono builds load GodotSharp from the folder next to the executable, so on Windows the alias is created as a launcher script instead of a link.",
+  "alias_create_all_one": "Create Alias",
+  "alias_create_all_other": "Create {{count}} Aliases",
+  "aliases_batch_created_one": "1 alias created",
+  "aliases_batch_created_other": "{{count}} aliases created",
+  "aliases_batch_skipped_one": "1 alias skipped",
+  "aliases_batch_skipped_other": "{{count}} aliases skipped",
+  "alias_queue_duplicate": "\"{{name}}\" is already in the list"
 }

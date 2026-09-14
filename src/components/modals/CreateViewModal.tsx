@@ -123,9 +123,7 @@ export function CreateViewModal({
     >
       <div className="p-6">
         <div className="flex gap-6 min-h-0">
-          {/* Left: Project Card Toggles */}
           <div className="flex flex-col gap-2 min-w-0 flex-1">
-            {/* View Tabs */}
             <div className="flex items-center gap-1 bg-overlay rounded-tag p-0.5">
               {tabViews.map((v) => {
                 const Icon = v.icon
@@ -178,10 +176,8 @@ export function CreateViewModal({
             </div>
           </div>
 
-          {/* Divider */}
           <div className="w-px bg-outline/30 shrink-0" />
 
-          {/* Right: View Management */}
           <div className="flex flex-col gap-2 min-w-0 flex-1">
             {active.length > 0 && (
               <div className="flex flex-col gap-1">

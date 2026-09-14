@@ -19,16 +19,11 @@ import {
 import type { Category, Project } from '../types'
 
 export interface UseProjectDndOptions {
-  /** Draggable projects in DOM order (pinned projects excluded). */
   projects: Project[]
   categories: Category[]
   grouped: boolean
   prefixes: DroppablePrefixes
   collisionDetection?: CollisionDetection
-  /**
-   * Selection state. A drag that starts on a selected card carries the whole
-   * selection, as long as every selected project is draggable.
-   */
   selectedIds?: Set<string>
   onReorder?: (orderedIds: string[]) => Promise<void> | void
   onMoveProjects?: (
@@ -38,14 +33,6 @@ export interface UseProjectDndOptions {
   ) => Promise<void> | void
 }
 
-/**
- * Owns everything drag related for a projects surface: sensors, the active
- * card(s), the overlay transform, and the drop resolution.
- *
- * The tilt is written straight to the overlay's DOM node instead of React
- * state. Drag move fires many times a second, and re-rendering a list of cards
- * on every one of those would make the card visibly trail the pointer.
- */
 export function useProjectDnd({
   projects,
   categories,

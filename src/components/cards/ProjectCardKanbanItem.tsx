@@ -234,7 +234,6 @@ export function ProjectCardKanbanItem({
           : 'bg-overlay border-outline/50 hover:bg-raised hover:border-accent-dim/60'
       }`}
     >
-      {/* Selection checkbox */}
       {onToggleSelect && (
         <div className="absolute top-2 left-2 z-20">
           <button
@@ -256,7 +255,6 @@ export function ProjectCardKanbanItem({
         </div>
       )}
 
-      {/* Header: Icon + Name + Actions */}
       <div className="flex items-center gap-2 min-w-0">
         <div className={`shrink-0 rounded-item bg-raised flex items-center justify-center overflow-hidden ${
           compact ? 'w-8 h-8' : 'w-10 h-10'
@@ -276,7 +274,6 @@ export function ProjectCardKanbanItem({
           </h4>
         </div>
 
-        {/* Git indicator */}
         {gitStatus?.is_repo && (
           <button
             type="button"
@@ -295,7 +292,6 @@ export function ProjectCardKanbanItem({
           </button>
         )}
 
-        {/* Pin */}
         {cardHovered && !project.pinned && (
           <Tooltip content={t('project_pin_aria')} side="left">
             <motion.button
@@ -315,7 +311,6 @@ export function ProjectCardKanbanItem({
         )}
       </div>
 
-      {/* Tags */}
       {cardSettings.show_tags && project.tags.length > 0 && (
       <div className="flex items-center gap-1 flex-wrap min-h-[22px]">
         {project.tags.slice(0, 3).map((tag, i) => {
@@ -482,9 +477,7 @@ export function ProjectCardKanbanItem({
       </div>
         )}
 
-      {/* Footer: Version + Time + Actions */}
       <div className="flex items-center gap-1.5 text-[11px] text-muted">
-        {/* Version dropdown */}
         <Dropdown
           align="left"
           trigger={({ open, toggle }) => (
@@ -509,7 +502,6 @@ export function ProjectCardKanbanItem({
           }))}
         />
 
-        {/* Session time */}
         {cardSettings.show_time && sessionMs > 0 && (
           <span className="inline-flex items-center gap-1 text-accent-bright font-mono">
             <span className="w-1.5 h-1.5 rounded-full bg-accent-bright animate-pulse shrink-0" />
@@ -517,7 +509,6 @@ export function ProjectCardKanbanItem({
           </span>
         )}
 
-        {/* Total time */}
         {cardSettings.show_time && allMs > 0 && sessionMs === 0 && (
           <span className="inline-flex items-center gap-1 font-mono">
             <IconClock className="w-2.5 h-2.5 text-muted/60" />

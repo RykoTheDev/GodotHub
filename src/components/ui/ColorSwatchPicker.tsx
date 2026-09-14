@@ -45,7 +45,6 @@ export function ColorSwatchPicker({ label, value, onChange, presets }: Props) {
     >
       <div className="p-3 flex flex-col gap-3 min-w-[440px]">
         <div className="flex gap-3">
-          {/* HSV Picker + hex input */}
           <div className="flex flex-col gap-3">
             <HsvColorPicker
               value={value}
@@ -79,7 +78,6 @@ export function ColorSwatchPicker({ label, value, onChange, presets }: Props) {
             </div>
           </div>
 
-          {/* Preset swatches */}
           <div className="border-l border-line pl-3 flex flex-col">
             <span className="text-[10px] font-medium text-muted/60 uppercase tracking-wider mb-2 block">Presets</span>
             <div className="grid grid-cols-6 gap-1.5">

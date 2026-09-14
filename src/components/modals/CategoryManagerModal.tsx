@@ -371,7 +371,6 @@ export function CategoryManagerModal({
       }
     >
       <div className="p-6 pt-0 flex flex-col gap-5">
-        {/* New category form */}
         <div className="flex flex-col gap-3">
           <div className="flex gap-2.5">
             <input
@@ -408,7 +407,6 @@ export function CategoryManagerModal({
           </div>
         )}
 
-        {/* Categories list */}
         <DndContext
           sensors={sensors}
           collisionDetection={closestCorners}
