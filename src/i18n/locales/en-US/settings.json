@@ -20,6 +20,7 @@
   "git_auth_enter_code": "Enter this code",
   "git_auth_copy_code": "Copy code",
   "git_auth_open_browser": "Open browser",
+  "git_auth_copy_link": "Copy link",
   "git_auth_waiting": "Waiting for you to authorize…",
   "git_auth_starting": "Starting…",
   "git_auth_connected_as": "Connected as @{{username}}",
