@@ -1233,8 +1233,7 @@ export type settingsKeys =
   | 'desktop_notifications_label'
   | 'desktop_notifications_desc'
   | 'colored_titlebar_buttons_label'
-  | 'colored_titlebar_buttons_desc';
-  | 'git_worktrees_desc'
+  | 'colored_titlebar_buttons_desc'
   | 'project_todos_label'
   | 'project_todos_desc';
 

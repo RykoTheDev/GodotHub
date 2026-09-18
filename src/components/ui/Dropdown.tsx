@@ -324,6 +324,7 @@ export function Dropdown({
                     compact={compact}
                     onSelect={(e) => handleItemClick(item, e)}
                     caret={Boolean(item.children?.length)}
+                    activeItemClassName={activeItemClassName}
                   />
                   {item.children?.length && (
                     <AnimatePresence>
@@ -364,6 +365,7 @@ export function Dropdown({
                                     closeAll()
                                     child.onClick?.()
                                   }}
+                                  activeItemClassName={activeItemClassName}
                                 />
                                 {child.dividerAfter && (
                                   <MenuDivider compact={compact} />
