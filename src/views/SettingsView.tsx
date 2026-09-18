@@ -660,25 +660,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           label={ts("card_layout_label")}
         />
       </Subsection>
-
-      {!isMac && (
-        <Subsection
-          id="appearance-titlebar-buttons"
-          title={ts('colored_titlebar_buttons_label')}
-          description={ts('colored_titlebar_buttons_desc')}
-          searchText={`${ts('colored_titlebar_buttons_label')} ${ts('colored_titlebar_buttons_desc')} ${ts('card_layout_label')}`}
-          query={searchQuery}
-          onMatch={reportMatch}
-        >
-          <Toggle
-            checked={settings.colored_titlebar_buttons ?? false}
-            onChange={(checked) =>
-              update({ ...settings, colored_titlebar_buttons: checked })
-            }
-            label={ts('colored_titlebar_buttons_label')}
-          />
-      </Subsection>
-
+    
       {!isMac && (
         <Subsection
           id="appearance-titlebar-buttons"
