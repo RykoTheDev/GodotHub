@@ -325,6 +325,6 @@
   "colored_titlebar_buttons_label": "色付きのウィンドウボタン",
   "colored_titlebar_buttons_desc": "最小化・最大化・閉じるボタンを、macOS 風の色付きの丸で表示します。オフにすると、タイトルバーには Windows 標準スタイルのボタンが使われます。",
   "git_auth_copy_link": "リンクをコピー",
-  "project_todos_label": "Project Next Steps",
-  "project_todos_desc": "Show the Next Steps section on project cards, allowing you to track the upcoming tasks for each project."
+  "project_todos_label": "プロジェクトの次のステップ",
+  "project_todos_desc": "プロジェクトカードに「次のステップ」セクションを表示し、プロジェクトごとに今後のタスクを管理できるようにします。"
 }
