@@ -72,12 +72,12 @@
   "alias_remove": "エイリアスを削除",
   "alias_remove_title": "このエイリアスを削除しますか？",
   "alias_remove_desc": "コマンド「{{name}}」は使えなくなります。Godot のバージョン自体はインストールされたまま残ります。",
-  "alias_mono_script_note": "Mono builds load GodotSharp from the folder next to the executable, so on Windows the alias is created as a launcher script instead of a link.",
-  "alias_create_all_one": "Create Alias",
-  "alias_create_all_other": "Create {{count}} Aliases",
-  "aliases_batch_created_one": "1 alias created",
-  "aliases_batch_created_other": "{{count}} aliases created",
-  "aliases_batch_skipped_one": "1 alias skipped",
-  "aliases_batch_skipped_other": "{{count}} aliases skipped",
-  "alias_queue_duplicate": "\"{{name}}\" is already in the list"
+  "alias_mono_script_note": "Mono ビルドは実行ファイルと同じフォルダから GodotSharp を読み込むため、Windows ではエイリアスをリンクではなくランチャースクリプトとして作成します。",
+  "alias_create_all_one": "エイリアスを作成",
+  "alias_create_all_other": "{{count}} 件のエイリアスを作成",
+  "aliases_batch_created_one": "{{count}} 件のエイリアスを作成しました",
+  "aliases_batch_created_other": "{{count}} 件のエイリアスを作成しました",
+  "aliases_batch_skipped_one": "{{count}} 件のエイリアスをスキップしました",
+  "aliases_batch_skipped_other": "{{count}} 件のエイリアスをスキップしました",
+  "alias_queue_duplicate": "「{{name}}」はすでにリストにあります"
 }
