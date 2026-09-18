@@ -5,7 +5,9 @@ import { isReducedMotion } from '../../lib/appearance'
 import { formatLastOpened } from '../../lib/lastOpened'
 import { useWorkspaces } from '../../hooks/useWorkspaces'
 import { useSettings } from '../../hooks/useSettings'
+import { useCategoriesContext } from '../../hooks/categoriesContext'
 import { getWorkspaceIcon } from '../../lib/workspaceIcons'
+import { THEME_PRESETS } from '../../lib/colors'
 import type { InstalledGodotVersion, Project } from '../../types'
 import {
   IconBell,
@@ -22,11 +24,13 @@ import {
   IconLayoutList,
   IconNews,
   IconNode,
+  IconPalette,
   IconPlay,
   IconRefresh,
   IconRocket,
   IconSearch,
   IconStore,
+  IconTags,
 } from '../../lib/icons'
 import { ModalHeader } from './ModalHeader'
 
@@ -309,8 +313,9 @@ export function CommandPalette({
 }: Props) {
   const { t } = useTranslation('nav')
   const { t: tc } = useTranslation('common')
-  const { settings } = useSettings()
+  const { settings, update } = useSettings()
   const { workspaces, activeId, switchWorkspace } = useWorkspaces()
+  const { categories } = useCategoriesContext()
   const [query, setQuery] = useState('')
   const [selectedIndex, setSelectedIndex] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
@@ -436,6 +441,38 @@ export function CommandPalette({
       }
     }
 
+    if (settings.categories_enabled && categories.length > 0) {
+      items.push({
+        id: 'category-all',
+        label: tc('all_categories'),
+        sublabel: tc('clear_category_filter'),
+        icon: <IconTags className="w-4 h-4" />,
+        section: tc('categories_section'),
+        action: () => dispatch('app:set-category-filter', ''),
+      })
+      for (const c of categories) {
+        items.push({
+          id: `category:${c.id}`,
+          label: c.name,
+          sublabel: tc('filter_by_category'),
+          icon: <IconTags className="w-4 h-4" style={{ color: c.color }} />,
+          section: tc('categories_section'),
+          action: () => dispatch('app:set-category-filter', c.name),
+        })
+      }
+    }
+
+    for (const preset of THEME_PRESETS) {
+      items.push({
+        id: `preset:${preset.id}`,
+        label: preset.name,
+        sublabel: tc(preset.mode === 'light' ? 'theme_light' : 'theme_dark'),
+        icon: <IconPalette className="w-4 h-4" />,
+        section: tc('theme_presets_section'),
+        action: () => update({ ...settings, theme_preset: preset.id }),
+      })
+    }
+
     return items
   }, [
     projects,
@@ -447,7 +484,9 @@ export function CommandPalette({
     onNavigate,
     t,
     tc,
-    settings.workspaces_enabled,
+    categories,
+    update,
+    settings,
   ])
 
   const allItems = useMemo(

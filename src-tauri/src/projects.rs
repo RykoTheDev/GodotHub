@@ -1,5 +1,6 @@
 use crate::models::*;
 use crate::persist;
+use crate::process::{self, ProcessLiveness};
 use crate::settings;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -15,26 +16,38 @@ use std::time::SystemTime;
 
 pub enum TrackedHandle {
     Child(Child),
-    #[cfg(unix)]
-    Pid(u32),
-    PollAlive { project_path: String },
+    Pid { pid: u32, project_path: String },
 }
 
 pub struct TrackedProcess {
     pub handle: TrackedHandle,
     pub kill_tree: bool,
     pub launched_at: std::time::SystemTime,
+    pid_revalidated: bool,
 }
 
 impl TrackedProcess {
     fn is_running(&mut self) -> bool {
         match &mut self.handle {
             TrackedHandle::Child(child) => matches!(child.try_wait(), Ok(None)),
-            #[cfg(unix)]
-            TrackedHandle::Pid(pid) => crate::terminal::process_is_alive(*pid),
-            TrackedHandle::PollAlive { project_path } => {
-                let running = find_running_godot_project_paths();
-                running.iter().any(|p| same_path(p, project_path))
+            TrackedHandle::Pid { pid, project_path } => {
+                match process::process_liveness(*pid) {
+                    ProcessLiveness::Alive => true,
+                    ProcessLiveness::Exited => {
+                        if self.pid_revalidated {
+                            return false;
+                        }
+                        self.pid_revalidated = true;
+                        match process::find_running_godot_processes() {
+                            Ok(processes) => processes.iter().any(|running| {
+                                running.pid == *pid
+                                    && same_path(&running.project_path, project_path)
+                            }),
+                            Err(_) => true,
+                        }
+                    }
+                    ProcessLiveness::Unknown => true,
+                }
             }
         }
     }
@@ -67,10 +80,10 @@ fn icon_cache() -> &'static Mutex<HashMap<String, CachedIcon>> {
 
 pub(crate) fn read_projects_from(dir: &std::path::Path) -> Vec<Project> {
     let file = dir.join("projects.json");
-    if !file.exists() {
+    if !file.exists() && !persist::backup_path(&file).exists() {
         return vec![];
     }
-    serde_json::from_str(&fs::read_to_string(&file).unwrap_or_default()).unwrap_or_default()
+    persist::read_json_with_backup(&file)
 }
 
 pub(crate) fn read_projects(app: &AppHandle) -> Vec<Project> {
@@ -81,7 +94,8 @@ pub(crate) fn write_projects_to(
     dir: &std::path::Path,
     projects: &Vec<Project>,
 ) -> Result<(), String> {
-    persist::write_json(&dir.join("projects.json"), projects).map_err(|e| e.to_string())
+    persist::write_json_with_backup(&dir.join("projects.json"), projects)
+        .map_err(|e| e.to_string())
 }
 
 pub(crate) fn write_projects(app: &AppHandle, projects: &Vec<Project>) -> Result<(), String> {
@@ -116,7 +130,9 @@ fn settle_project_session(
         }
         None => {
             if let Some(start) = project.session_started_at_ms.take() {
-                let elapsed_ms = epoch_ms().saturating_sub(start);
+                let observed_end = crate::time_stats::last_active_ms(app).max(start);
+                let end = epoch_ms().min(observed_end);
+                let elapsed_ms = end.saturating_sub(start);
                 added_ms = elapsed_ms.saturating_sub(SESSION_START_DELAY_MS);
                 session_start_ms = Some(start);
                 changed = true;
@@ -135,63 +151,6 @@ fn settle_project_session(
     }
 }
 
-fn parse_path_arg(cmdline: &str) -> Option<String> {
-    let args: Vec<&str> = cmdline.split_whitespace().collect();
-    for (i, arg) in args.iter().enumerate() {
-        if *arg == "--path" {
-            if let Some(next) = args.get(i + 1) {
-                let p = next.trim_start_matches('"').trim_end_matches('"');
-                if !p.is_empty() {
-                    return Some(p.to_string());
-                }
-            }
-        }
-    }
-    None
-}
-
-fn find_running_godot_project_paths() -> std::collections::HashSet<String> {
-    let mut paths = std::collections::HashSet::new();
-    let output = gather_godot_process_lines();
-    for line in output.lines() {
-        let trimmed = line.trim();
-        if trimmed.is_empty() {
-            continue;
-        }
-        if let Some(project_path) = parse_path_arg(trimmed) {
-            paths.insert(project_path);
-        }
-    }
-    paths
-}
-
-#[cfg(target_os = "windows")]
-fn gather_godot_process_lines() -> String {
-    use std::process::Command;
-    Command::new("wmic")
-        .args(["process", "where", "name like 'Godot%'", "get", "commandline"])
-        .output()
-        .map(|o| String::from_utf8_lossy(&o.stdout).into_owned())
-        .unwrap_or_default()
-}
-
-#[cfg(unix)]
-fn gather_godot_process_lines() -> String {
-    use std::process::Command;
-    let raw = Command::new("ps")
-        .args(["-eo", "args"])
-        .output()
-        .map(|o| String::from_utf8_lossy(&o.stdout).into_owned())
-        .unwrap_or_default();
-    raw.lines()
-        .filter(|l| {
-            let lower = l.to_lowercase();
-            lower.contains("godot") && lower.contains("--path")
-        })
-        .collect::<Vec<_>>()
-        .join("\n")
-}
-
 pub(crate) fn settle_stale_sessions(app: &AppHandle) {
     static SETTLED: std::sync::OnceLock<()> = std::sync::OnceLock::new();
     SETTLED.get_or_init(|| {
@@ -204,13 +163,24 @@ pub(crate) fn settle_stale_sessions(app: &AppHandle) {
         };
         let projects = read_projects(app);
 
-        let os_running = find_running_godot_project_paths();
+        let Ok(os_running) = process::find_running_godot_processes() else {
+            return;
+        };
 
         for p in projects {
             if p.session_started_at_ms.is_some() && !running.contains(&p.id) {
-                let still_running = os_running.iter().any(|os_path| same_path(os_path, &p.path));
-                if still_running {
-                    retrack_stale_session(app, &p);
+                if let Some(running_process) = os_running
+                    .iter()
+                    .find(|process| same_path(&process.project_path, &p.path))
+                {
+                    retrack_stale_session(
+                        app,
+                        &p,
+                        TrackedHandle::Pid {
+                            pid: running_process.pid,
+                            project_path: p.path.clone(),
+                        },
+                    );
                 } else {
                     settle_project_session(app, &p.id, None);
                 }
@@ -219,18 +189,18 @@ pub(crate) fn settle_stale_sessions(app: &AppHandle) {
     });
 }
 
-fn retrack_stale_session(app: &AppHandle, project: &Project) {
+fn retrack_stale_session(app: &AppHandle, project: &Project, handle: TrackedHandle) {
     let Some(state) = app.try_state::<ActiveProcesses>() else {
         return;
     };
 
     let id = project.id.clone();
-    let path = project.path.clone();
     let app_clone = app.clone();
 
     let tracked = TrackedProcess {
-        handle: TrackedHandle::PollAlive { project_path: path },
+        handle,
         kill_tree: false,
+        pid_revalidated: false,
         launched_at: std::time::UNIX_EPOCH
             + std::time::Duration::from_millis(
                 project
@@ -537,6 +507,97 @@ pub fn create_project(
         category: effective_category.clone(),
         pinned: false,
         sort_order: next_sort_order(&projects, &effective_category),
+        launch_arguments: String::new(),
+        tags,
+        total_time_seconds: 0,
+        session_started_at_ms: None,
+        time_today_seconds: 0,
+        time_week_seconds: 0,
+    };
+
+    projects.push(project.clone());
+    write_projects(&app, &projects)?;
+    undismiss(&app, &project.path);
+    if !project.godot_version.is_empty() {
+        let _ = crate::godotenv::pin_version(&project.path, &project.godot_version);
+    }
+    Ok(project)
+}
+
+#[tauri::command]
+pub fn duplicate_project(
+    app: AppHandle,
+    id: String,
+    name: String,
+    dest_dir: Option<String>,
+) -> Result<Project, String> {
+    let settings = settings::read_settings(&app);
+    let projects = read_projects(&app);
+    let source = projects
+        .iter()
+        .find(|p| p.id == id)
+        .ok_or_else(|| "Project not found".to_string())?;
+    let source_dir = PathBuf::from(&source.path);
+    if !source_dir.is_dir() {
+        return Err("Source project folder not found".into());
+    }
+
+    let dest = match dest_dir {
+        Some(d) if !d.trim().is_empty() => PathBuf::from(d),
+        _ => source_dir
+            .parent()
+            .unwrap_or(&source_dir)
+            .to_path_buf(),
+    };
+    let folder_name = apply_naming_convention(&name, &settings.directory_naming_convention);
+    let target_dir = dest.join(&folder_name);
+    if target_dir.exists() {
+        return Err(format!(
+            "A folder named '{}' already exists at this location",
+            folder_name
+        ));
+    }
+
+    crate::templates::copy_dir(&source_dir, &target_dir, &[".git", ".godot"])?;
+
+    let godot_path = target_dir.join("project.godot");
+    if godot_path.exists() {
+        let existing = fs::read_to_string(&godot_path).unwrap_or_default();
+        let lines: Vec<String> = existing
+            .lines()
+            .map(|l| {
+                let trimmed = l.trim();
+                if trimmed.starts_with("config/name=") {
+                    format!("config/name=\"{}\"", name)
+                } else {
+                    l.to_string()
+                }
+            })
+            .collect();
+        if !lines.iter().any(|l| l.trim().starts_with("config/name=")) {
+            if let Some(idx) = lines.iter().position(|l| l.trim() == "[application]") {
+                let mut updated = lines;
+                updated.insert(idx + 1, format!("config/name=\"{}\"", name));
+                fs::write(&godot_path, updated.join("\n")).map_err(|e| e.to_string())?;
+            }
+        } else {
+            fs::write(&godot_path, lines.join("\n")).map_err(|e| e.to_string())?;
+        }
+    }
+
+    let mut projects = read_projects(&app);
+    let project_path = target_dir.to_string_lossy().to_string();
+    let tags = resolve_project_tags(&project_path);
+    let project = Project {
+        id: Uuid::new_v4().to_string(),
+        name,
+        path: project_path,
+        godot_version: source.godot_version.clone(),
+        created_at: chrono::Utc::now().to_rfc3339(),
+        last_opened: None,
+        category: source.category.clone(),
+        pinned: false,
+        sort_order: next_sort_order(&projects, &source.category),
         launch_arguments: String::new(),
         tags,
         total_time_seconds: 0,
@@ -893,6 +954,7 @@ pub fn open_project(
     project.last_opened = Some(chrono::Utc::now().to_rfc3339());
     project.session_started_at_ms = Some(epoch_ms() + SESSION_START_DELAY_MS);
     write_projects(&app, &projects)?;
+    crate::time_stats::touch_activity(&app);
 
     let _ = crate::tray::refresh_tray_menu(app.clone());
 
@@ -902,6 +964,7 @@ pub fn open_project(
             TrackedProcess {
                 handle: TrackedHandle::Child(launched.child),
                 kill_tree,
+                pid_revalidated: false,
                 launched_at: std::time::SystemTime::now(),
             },
         );
@@ -970,7 +1033,19 @@ fn adopt_terminal_pid(app: &AppHandle, id: &str, pid_file: &Path) {
                 let mut active = state.0.lock().unwrap();
                 active
                     .get_mut(id)
-                    .map(|tracked| std::mem::replace(&mut tracked.handle, TrackedHandle::Pid(pid)))
+                    .map(|tracked| {
+                        std::mem::replace(
+                            &mut tracked.handle,
+                            TrackedHandle::Pid {
+                                pid,
+                                project_path: read_projects(app)
+                                    .into_iter()
+                                    .find(|project| project.id == id)
+                                    .map(|project| project.path)
+                                    .unwrap_or_default(),
+                            },
+                        )
+                    })
             };
 
             if let Some(TrackedHandle::Child(mut launcher)) = replaced {
@@ -984,25 +1059,23 @@ fn adopt_terminal_pid(app: &AppHandle, id: &str, pid_file: &Path) {
 
 fn wait_until_exited(app: &AppHandle, id: &str) {
     const POLL: std::time::Duration = std::time::Duration::from_millis(500);
-    const POLL_SLOW: std::time::Duration = std::time::Duration::from_secs(5);
-
     loop {
+        crate::time_stats::touch_activity(app);
         let Some(state) = app.try_state::<ActiveProcesses>() else {
             return;
         };
 
-        let (exited, is_poll) = {
+        let exited = {
             let mut active = state.0.lock().unwrap();
             let Some(tracked) = active.get_mut(id) else {
                 return;
             };
-            let is_poll = matches!(tracked.handle, TrackedHandle::PollAlive { .. });
             if tracked.is_running() {
-                (None, is_poll)
+                None
             } else {
                 let elapsed = tracked.launched_at.elapsed().ok();
                 active.remove(id);
-                (Some(elapsed), is_poll)
+                Some(elapsed)
             }
         };
 
@@ -1012,7 +1085,7 @@ fn wait_until_exited(app: &AppHandle, id: &str) {
             return;
         }
 
-        std::thread::sleep(if is_poll { POLL_SLOW } else { POLL });
+        std::thread::sleep(POLL);
     }
 }
 
@@ -1039,10 +1112,15 @@ fn kill_tracked(tracked: &mut TrackedProcess) -> Result<(), String> {
             child.wait().ok();
             Ok(())
         }
-        #[cfg(unix)]
-        TrackedHandle::Pid(pid) => crate::terminal::terminate_process(*pid),
-        TrackedHandle::PollAlive { .. } => {
-            Ok(())
+        TrackedHandle::Pid { pid, project_path } => {
+            let processes = process::find_running_godot_processes()
+                .map_err(|error| format!("Could not verify Godot process identity: {error}"))?;
+            if !processes.iter().any(|running| {
+                running.pid == *pid && same_path(&running.project_path, project_path)
+            }) {
+                return Err("Refusing to terminate a PID whose Godot identity no longer matches".into());
+            }
+            process::terminate_process(*pid)
         }
     }
 }

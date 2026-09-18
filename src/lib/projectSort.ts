@@ -1,6 +1,7 @@
 import type { Project } from '../types'
 
 export type ProjectSortOption =
+  | 'manual'
   | 'categories'
   | 'recent'
   | 'name_asc'
@@ -10,6 +11,7 @@ export type ProjectSortOption =
   | 'time_desc'
 
 export const SORT_OPTIONS: { value: ProjectSortOption; labelKey: string }[] = [
+  { value: 'manual', labelKey: 'sort_manual' },
   { value: 'categories', labelKey: 'sort_categories' },
   { value: 'recent', labelKey: 'sort_recent' },
   { value: 'name_asc', labelKey: 'sort_name_asc' },
@@ -52,6 +54,7 @@ export function comparatorFor(
       return (a, b) => timeOf(a.created_at) - timeOf(b.created_at)
     case 'time_desc':
       return (a, b) => effectiveTotalMs(b, now) - effectiveTotalMs(a, now)
+    case 'manual':
     case 'categories':
       return null
     default:

@@ -7,6 +7,9 @@ export interface ShortcutHandlers {
   onCommandPalette: () => void
   onRestart: () => void
   onEscape: () => void
+  onFocusSearch?: () => void
+  onLaunchSelection?: () => void
+  onDeleteSelection?: () => void
 }
 
 export function useKeyboardShortcuts(
@@ -53,6 +56,12 @@ export function useKeyboardShortcuts(
           e.preventDefault()
           h.current.onRestart()
           break
+        case 'f':
+          if (!isInput) {
+            e.preventDefault()
+            h.current.onFocusSearch?.()
+          }
+          break
         case '1':
         case '2':
         case '3':
@@ -63,6 +72,17 @@ export function useKeyboardShortcuts(
           }
           break
       }
+      return
+    }
+
+    if (e.key === 'Enter' && !isInput) {
+      h.current.onLaunchSelection?.()
+      return
+    }
+    if ((e.key === 'Delete' || e.key === 'Backspace') && !isInput) {
+      e.preventDefault()
+      h.current.onDeleteSelection?.()
+      return
     }
   }, [])
 

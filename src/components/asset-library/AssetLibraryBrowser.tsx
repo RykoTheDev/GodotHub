@@ -31,7 +31,6 @@ import { ConfirmDialog } from '../modals/ConfirmDialog'
 
 const PAGE_SIZE = 12
 
-// Module-level set to persist installing state across component mounts
 const installingAssets = new Set<string>()
 
 const VERSION_OPTIONS = [
@@ -75,7 +74,6 @@ export function AssetLibraryBrowser({
   const [pages, setPages] = useState(0)
   const [total, setTotal] = useState(0)
   const [installing, setInstalling] = useState<string | null>(() => {
-    // Restore from module-level set on mount
     const values = Array.from(installingAssets)
     return values.length > 0 ? values[0] : null
   })

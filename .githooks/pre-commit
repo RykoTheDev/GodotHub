@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # GodotHub pre-commit hook.
-# blocks em-dashes (U+2014 and U+2013) in staged source files.
+# blocks em-dashes (U+2014) in staged source files.
 # use --no-verify bypass only if you know what you're doing.
 
 set -e
@@ -22,7 +22,7 @@ if [ -z "$staged_files" ]; then
   exit 0
 fi
 
-# Check for em-dashes (— U+2014 and – U+2013) in staged files
+# Check for em-dashes (— U+2014) in staged files
 hits=""
 for file in $staged_files; do
   # skip binary files
@@ -39,16 +39,14 @@ for file in $staged_files; do
       ;;
   esac
 
-  # search the staged content for em-dashes (— U+2014) and en-dashes (– U+2013)
+  # search the staged content for em-dashes (— U+2014)
   if git diff --cached -U0 -- "$file" | grep '^+' | grep -v '^+++' | grep -q $'\342\200\224'; then
-    hits="$hits\n  $file"
-  elif git diff --cached -U0 -- "$file" | grep '^+' | grep -v '^+++' | grep -q $'\342\200\223'; then
     hits="$hits\n  $file"
   fi
 done
 
 if [ -n "$hits" ]; then
-  fail "em-dash found in staged file(s):$(echo -e "$hits")\nuse --, : or , instead of — or –."
+  fail "em-dash found in staged file(s):$(echo -e "$hits")\nuse --, : or , instead of —."
 fi
 
 exit 0

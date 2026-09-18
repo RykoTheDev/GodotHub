@@ -1,6 +1,6 @@
 [package]
 name = "godothub"
-version = "1.4.1"
+version = "1.4.4"
 description = "Godot Version and Project Management"
 authors = ["Ryko"]
 edition = "2021"
@@ -34,6 +34,7 @@ tauri-plugin-single-instance = "2.0.0"
 notify = "6"
 tauri-plugin-updater = "2.10.1"
 tauri-plugin-window-state = "2"
+tauri-plugin-notification = "2"
 trash = "3"
 thiserror = "2"
 tauri-plugin-discord-rpc = { git = "https://github.com/Youwes09/tauri-plugin-discord-rpc" }
@@ -43,3 +44,6 @@ tauri-plugin-single-instance = "2"
 
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_System_Threading"] }

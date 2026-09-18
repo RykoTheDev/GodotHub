@@ -81,6 +81,8 @@ pub struct Category {
     pub sort_order: i64,
     #[serde(default = "default_category_color")]
     pub color: String,
+    #[serde(default)]
+    pub hidden: bool,
 }
 
 fn default_category_color() -> String {
@@ -304,6 +306,12 @@ pub struct AppSettings {
     #[serde(default)]
     pub git_worktrees_enabled: bool,
     #[serde(default)]
+    pub fixed_sidebar_resize_knob: bool,
+    #[serde(default = "default_true")]
+    pub desktop_notifications_enabled: bool,
+    #[serde(default)]
+    pub colored_titlebar_buttons: bool,
+    #[serde(default)]
     pub project_todos_enabled: bool,
 }
 
@@ -456,7 +464,7 @@ fn default_os_decorations() -> bool {
     false
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Workspace {
     pub id: String,
     pub name: String,
@@ -477,7 +485,7 @@ pub struct DiscordProjectPresence {
     pub state: Option<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct WorkspacesState {
     pub workspaces: Vec<Workspace>,
     pub active_id: String,
@@ -621,6 +629,9 @@ tooltip_delay: default_tooltip_delay(),
             card_view_overrides: std::collections::HashMap::new(),
             customize_view_enabled: false,
             git_worktrees_enabled: false,
+            fixed_sidebar_resize_knob: false,
+            desktop_notifications_enabled: true,
+            colored_titlebar_buttons: false,
             project_todos_enabled: false,
         }
     }

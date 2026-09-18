@@ -6,7 +6,7 @@ use tauri::AppHandle;
 use uuid::Uuid;
 
 pub(crate) fn read_categories_from(dir: &std::path::Path) -> Vec<Category> {
-    persist::read_json(&dir.join("categories.json"))
+    persist::read_json_with_backup(&dir.join("categories.json"))
 }
 
 pub(crate) fn read_categories(app: &AppHandle) -> Vec<Category> {
@@ -17,7 +17,7 @@ pub(crate) fn write_categories_to(
     dir: &std::path::Path,
     categories: &Vec<Category>,
 ) -> AppResult<()> {
-    persist::write_json(&dir.join("categories.json"), categories)
+    persist::write_json_with_backup(&dir.join("categories.json"), categories)
 }
 
 pub(crate) fn write_categories(app: &AppHandle, categories: &Vec<Category>) -> AppResult<()> {
@@ -53,6 +53,7 @@ pub fn create_category(app: AppHandle, name: String, color: Option<String>) -> R
         name: trimmed,
         sort_order: next_order,
         color: effective_color,
+        hidden: false,
     };
     cats.push(category.clone());
     write_categories(&app, &cats).map_err(|e| e.to_string())?;
@@ -65,6 +66,7 @@ pub fn update_category(
     id: String,
     name: Option<String>,
     color: Option<String>,
+    hidden: Option<bool>,
 ) -> Result<Category, String> {
     let mut cats = read_categories(&app);
     let idx = cats
@@ -105,6 +107,10 @@ pub fn update_category(
         cats[idx].color = new_color.clone();
     }
 
+    if let Some(hidden) = hidden {
+        cats[idx].hidden = hidden;
+    }
+
     let updated = cats[idx].clone();
     write_categories(&app, &cats).map_err(|e| e.to_string())?;
     Ok(updated)
@@ -112,7 +118,7 @@ pub fn update_category(
 
 #[tauri::command]
 pub fn rename_category(app: AppHandle, id: String, name: String) -> Result<Category, String> {
-    update_category(app, id, Some(name), None)
+    update_category(app, id, Some(name), None, None)
 }
 
 #[tauri::command]

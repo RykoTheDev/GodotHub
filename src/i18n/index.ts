@@ -24,16 +24,6 @@ import enUSVersions from './locales/en-US/versions.json'
 import enUSDashboard from './locales/en-US/dashboard.json'
 import enUSTodos from './locales/en-US/todos.json'
 
-import ptBRNav from './locales/pt-BR/nav.json'
-import ptBRCommon from './locales/pt-BR/common.json'
-import ptBRSettings from './locales/pt-BR/settings.json'
-import ptBRGit from './locales/pt-BR/git.json'
-import ptBRChangelog from './locales/pt-BR/changelog.json'
-import ptBROnboarding from './locales/pt-BR/onboarding.json'
-import ptBRVersions from './locales/pt-BR/versions.json'
-import ptBRDashboard from './locales/pt-BR/dashboard.json'
-import ptBRTodos from './locales/pt-BR/todos.json'
-
 import esMXNav from "./locales/es-MX/nav.json"
 import esMXCommon from './locales/es-MX/common.json'
 import esMXSettings from './locales/es-MX/settings.json'
@@ -64,15 +54,15 @@ import jaJPVersions from './locales/ja-JP/versions.json'
 import jaJPDashboard from './locales/ja-JP/dashboard.json'
 import jaJPTodos from './locales/ja-JP/todos.json'
 
-import zhCNNav from './locales/zh-CN/nav.json'
-import zhCNCommon from './locales/zh-CN/common.json'
-import zhCNSettings from './locales/zh-CN/settings.json'
-import zhCNGit from './locales/zh-CN/git.json'
-import zhCNChangelog from './locales/zh-CN/changelog.json'
-import zhCNOnboarding from './locales/zh-CN/onboarding.json'
-import zhCNVersions from './locales/zh-CN/versions.json'
-import zhCNDashboard from './locales/zh-CN/dashboard.json'
-import zhCNTodos from './locales/zh-CN/todos.json'
+import ptBRNav from './locales/pt-BR/nav.json'
+import ptBRCommon from './locales/pt-BR/common.json'
+import ptBRSettings from './locales/pt-BR/settings.json'
+import ptBRGit from './locales/pt-BR/git.json'
+import ptBRChangelog from './locales/pt-BR/changelog.json'
+import ptBROnboarding from './locales/pt-BR/onboarding.json'
+import ptBRVersions from './locales/pt-BR/versions.json'
+import ptBRDashboard from './locales/pt-BR/dashboard.json'
+import ptBRTodos from './locales/pt-BR/todos.json'
 
 import ruRUNav from './locales/ru-RU/nav.json'
 import ruRuCommon from './locales/ru-RU/common.json'
@@ -84,7 +74,6 @@ import ruRUVersions from './locales/ru-RU/versions.json'
 import ruRUDashboard from './locales/ru-RU/dashboard.json'
 import ruRUTodos from './locales/ru-RU/todos.json'
 
-
 import viVNChangelog from './locales/vi-VN/changelog.json'
 import viVNCommon from './locales/vi-VN/common.json'
 import viVNDashboard from './locales/vi-VN/dashboard.json'
@@ -95,91 +84,29 @@ import viVNSettings from './locales/vi-VN/settings.json'
 import viVNVersions from './locales/vi-VN/versions.json'
 import viVNTodos from './locales/vi-VN/todos.json'
 
-const arMAResources = {
-  nav: arMANav,
-  common: arMACommon,
-  settings: arMASettings,
-  git: arMAGit,
-  changelog: arMAChangelog,
-  onboarding: arMAOnboarding,
-  versions: arMAVersions,
-  dashboard: arMADashboard,
-  todos: arMATodos,
-}
-
-const ptBRResources = {
-  nav: ptBRNav,
-  common: ptBRCommon,
-  settings: ptBRSettings,
-  git: ptBRGit,
-  changelog: ptBRChangelog,
-  onboarding: ptBROnboarding,
-  versions: ptBRVersions,
-  dashboard: ptBRDashboard,
-  todos: ptBRTodos,
-}
-
-const esMXResources = {
-  nav: esMXNav,
-  common: esMXCommon,
-  settings: esMXSettings,
-  git: esMXGit,
-  changelog: esMXChangelog,
-  onboarding: esMXOnboarding,
-  versions: esMXVersions,
-  dashboard: esMXDashboard,
-  todos: esMXTodos,
-}
-
-const jaJPResources = {
-  nav: jaJPNav,
-  common: jaJPCommon,
-  settings: jaJPSettings,
-  git: jaJPGit,
-  changelog: jaJPChangelog,
-  onboarding: jaJPOnboarding,
-  versions: jaJPVersions,
-  dashboard: jaJPDashboard,
-  todos: jaJPTodos,
-}
-
-const frFRResources = {
-  nav: frFRNav,
-  common: frFRCommon,
-  settings: frFRSettings,
-  git: frFRGit,
-  changelog: frFRChangelog,
-  onboarding: frFROnboarding,
-  versions: frFRVersions,
-  dashboard: frFRDashboard,
-  todos: frFRTodos,
-}
-
-const zhCNResources = {
-  nav: zhCNNav,
-  common: zhCNCommon,
-  settings: zhCNSettings,
-  git: zhCNGit,
-  changelog: zhCNChangelog,
-  onboarding: zhCNOnboarding,
-  versions: zhCNVersions,
-  dashboard: zhCNDashboard,
-  todos: zhCNTodos,
-}
-
-const viVNResources = {
-  changelog: viVNChangelog,
-  common: viVNCommon,
-  dashboard: viVNDashboard,
-  git: viVNGit,
-  nav: viVNNav,
-  onboarding: viVNOnboarding,
-  settings: viVNSettings,
-  versions: viVNVersions,
-  todos: viVNTodos,
-}
+import zhCNNav from './locales/zh-CN/nav.json'
+import zhCNCommon from './locales/zh-CN/common.json'
+import zhCNSettings from './locales/zh-CN/settings.json'
+import zhCNGit from './locales/zh-CN/git.json'
+import zhCNChangelog from './locales/zh-CN/changelog.json'
+import zhCNOnboarding from './locales/zh-CN/onboarding.json'
+import zhCNVersions from './locales/zh-CN/versions.json'
+import zhCNDashboard from './locales/zh-CN/dashboard.json'
+import zhCNTodos from './locales/zh-CN/todos.json'
 
 const resources = {
+  'ar-MA': {
+    nav: arMANav,
+    common: arMACommon,
+    settings: arMASettings,
+    git: arMAGit,
+    changelog: arMAChangelog,
+    onboarding: arMAOnboarding,
+    versions: arMAVersions,
+    dashboard: arMADashboard,
+    todos: arMATodos,
+  },
+
   'en-US': {
     nav: enUSNav,
     common: enUSCommon,
@@ -192,21 +119,54 @@ const resources = {
     todos: enUSTodos,
   },
 
-  'pt-BR': ptBRResources,
-  pt: ptBRResources,
+  'es-MX': {
+    nav: esMXNav,
+    common: esMXCommon,
+    settings: esMXSettings,
+    git: esMXGit,
+    changelog: esMXChangelog,
+    onboarding: esMXOnboarding,
+    versions: esMXVersions,
+    dashboard: esMXDashboard,
+    todos: esMXTodos,
+  },
 
-  'es-MX': esMXResources,
-  es: esMXResources,
+  'fr-FR': {
+    nav: frFRNav,
+    common: frFRCommon,
+    settings: frFRSettings,
+    git: frFRGit,
+    changelog: frFRChangelog,
+    onboarding: frFROnboarding,
+    versions: frFRVersions,
+    dashboard: frFRDashboard,
+    todos: frFRTodos,
+  },
 
-  'zh-CN': zhCNResources,
-  zh: zhCNResources,
+  'ja-JP': {
+    nav: jaJPNav,
+    common: jaJPCommon,
+    settings: jaJPSettings,
+    git: jaJPGit,
+    changelog: jaJPChangelog,
+    onboarding: jaJPOnboarding,
+    versions: jaJPVersions,
+    dashboard: jaJPDashboard,
+    todos: jaJPTodos,
+  },
 
-  'ja-JP': jaJPResources,
-  ja: jaJPResources,
-  
-  'fr-FR': frFRResources,
-  fr: frFRResources,
-  
+  'pt-BR': {
+    nav: ptBRNav,
+    common: ptBRCommon,
+    settings: ptBRSettings,
+    git: ptBRGit,
+    changelog: ptBRChangelog,
+    onboarding: ptBROnboarding,
+    versions: ptBRVersions,
+    dashboard: ptBRDashboard,
+    todos: ptBRTodos,
+  },
+
   'ru-RU': {
     nav: ruRUNav,
     common: ruRuCommon,
@@ -219,17 +179,31 @@ const resources = {
     todos: ruRUTodos,
   },
 
-  'ar-MA': arMAResources,
-  ar: arMAResources,
-  
-  'vi-VN': viVNResources,
-  vi: viVNResources,
+  'vi-VN': {
+    changelog: viVNChangelog,
+    common: viVNCommon,
+    dashboard: viVNDashboard,
+    git: viVNGit,
+    nav: viVNNav,
+    onboarding: viVNOnboarding,
+    settings: viVNSettings,
+    versions: viVNVersions,
+    todos: viVNTodos,
+  },
+
+  'zh-CN': {
+    nav: zhCNNav,
+    common: zhCNCommon,
+    settings: zhCNSettings,
+    git: zhCNGit,
+    changelog: zhCNChangelog,
+    onboarding: zhCNOnboarding,
+    versions: zhCNVersions,
+    dashboard: zhCNDashboard,
+    todos: zhCNTodos,
+  },
 }
 
-// The language setting stores the literal 'system' choice, and earlier builds
-// cached that value as i18nextLng. It matches no resource bundle, so the
-// detector would resolve it to the en-US fallback on every launch. Rewrite it
-// to the actual system locale before the detector reads it.
 try {
   if (localStorage.getItem('i18nextLng') === SYSTEM_LANGUAGE) {
     localStorage.setItem('i18nextLng', getSystemLanguage())
@@ -255,9 +229,6 @@ i18n
     },
   })
 
-// Chromium picks CJK font fallbacks and line-breaking rules from <html lang>,
-// which index.html hardcodes to "en". Left stale, Japanese text can be drawn
-// with Chinese glyph forms. src/index.css keys its CJK stacks off :lang().
 function syncDocumentLanguage(lng: string): void {
   document.documentElement.lang = lng
 }

@@ -1,27 +1,28 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import Masonry from 'react-masonry-css'
 import { useTranslation } from 'react-i18next'
-import {
-  DndContext,
-  DragOverlay,
-  PointerSensor,
-  KeyboardSensor,
-  useDroppable,
-  useSensor,
-  useSensors,
-  closestCenter,
-  type DragStartEvent,
-  type DragEndEvent,
-} from '@dnd-kit/core'
-import {
-  useSortable,
-  arrayMove,
-  sortableKeyboardCoordinates,
-} from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
-import type { Category, GitStatus, InstalledGodotVersion, Project } from '../../types'
+import { DndContext, DragOverlay, closestCenter } from '@dnd-kit/core'
+import { SortableContext } from '@dnd-kit/sortable'
+import type {
+  Category,
+  GitStatus,
+  InstalledGodotVersion,
+  Project,
+} from '../../types'
 import { ProjectCardGridItem } from './ProjectCardGridItem'
-import { DragHandle } from '../reusables/DragHandle'
+import {
+  HiddenCategoriesSection,
+  ProjectCategorySection,
+  type HiddenCategoryEntry,
+} from './CategorySections'
+import { UNCATEGORIZED_KEY } from '../../lib/projectDrag'
+import { AUTO_SCROLL_CONFIG, DRAG_FEEL } from '../../lib/dragFeel'
+import { useProjectDnd } from '../../hooks/useProjectDnd'
+import {
+  ProjectDragOverlay,
+  ProjectDropLine,
+  SortableProjectItem,
+} from '../dnd/ProjectDnd'
 
 interface ProjectCardGridProps {
   projects: Project[]
@@ -35,6 +36,7 @@ interface ProjectCardGridProps {
   onRemove: (id: string) => void
   onDelete?: (id: string) => void
   onCategoryChange?: (id: string, category: string) => void
+  onDuplicate?: (project: Project) => void
   onLaunchArgsChange?: (id: string, args: string) => void
   onTagsSaved?: (project: Project) => void
   onTagClick?: (tag: string) => void
@@ -44,81 +46,17 @@ interface ProjectCardGridProps {
   onToggleSelect?: (id: string, e: React.MouseEvent) => void
   selecting: boolean
   onReorder?: (orderedIds: string[]) => Promise<void>
-  onMoveProject?: (id: string, category: string, destOrderedIds: string[]) => Promise<void>
-}
-
-function GridCategoryDropZone({
-  droppableId,
-  isEmpty,
-  children,
-}: {
-  droppableId: string
-  isEmpty: boolean
-  children: React.ReactNode
-}) {
-  const { t } = useTranslation('common')
-  const { isOver, setNodeRef } = useDroppable({
-    id: droppableId,
-    disabled: !isEmpty,
-  })
-
-  if (!isEmpty) return <>{children}</>
-
-  return (
-    <div
-      ref={setNodeRef}
-      className={`rounded-item transition-colors duration-150 min-h-[100px] flex items-center justify-center ${
-        isOver
-          ? 'bg-accent/10 border-2 border-dashed border-accent/50'
-          : 'bg-overlay/30 border border-dashed border-outline/30'
-      }`}
-    >
-      <span className={`text-xs select-none ${isOver ? 'text-accent-bright font-medium' : 'text-muted/40'}`}>
-        {isOver ? t('release_to_drop') : t('empty_category')}
-      </span>
-    </div>
-  )
-}
-
-function SortableGridCard({
-  id,
-  disabled,
-  children,
-}: {
-  id: string
-  disabled?: boolean
-  children: React.ReactNode
-}) {
-  const {
-    setNodeRef,
-    setActivatorNodeRef,
-    attributes,
-    listeners,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id, disabled })
-
-  const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : 1,
-    zIndex: isDragging ? 50 : undefined,
-  }
-
-  return (
-    <div ref={setNodeRef} style={style} className="relative group/drag overflow-visible">
-      <DragHandle
-        ref={setActivatorNodeRef}
-        attributes={attributes}
-        listeners={listeners}
-        isDragging={isDragging}
-        disabled={disabled}
-        className="absolute top-1/2 -translate-y-1/2 ml-[-8px] left-0"
-      />
-      {children}
-    </div>
-  )
+  onMoveProjects?: (
+    ids: string[],
+    category: string,
+    destOrderedIds: string[],
+  ) => Promise<void>
+  hiddenCategories?: HiddenCategoryEntry[]
+  onUnhideCategory?: (id: string) => void
+  onCategoryContextMenu?: (
+    e: React.MouseEvent<HTMLElement>,
+    category: Category,
+  ) => void
 }
 
 const BREAKPOINTS = {
@@ -128,7 +66,7 @@ const BREAKPOINTS = {
   640: 1,
 }
 
-const UNCATEGORIZED = '__uncategorized__'
+const UNCATEGORIZED = UNCATEGORIZED_KEY
 
 export function ProjectCardGrid({
   projects,
@@ -142,6 +80,7 @@ export function ProjectCardGrid({
   onRemove,
   onDelete,
   onCategoryChange,
+  onDuplicate,
   onLaunchArgsChange,
   onTagsSaved,
   onTagClick,
@@ -151,120 +90,44 @@ export function ProjectCardGrid({
   onToggleSelect,
   selecting,
   onReorder,
-  onMoveProject,
+  onMoveProjects,
+  hiddenCategories = [],
+  onUnhideCategory,
+  onCategoryContextMenu,
 }: ProjectCardGridProps) {
   const { t: tc } = useTranslation('common')
-  const [activeDragId, setActiveDragId] = useState<string | null>(null)
 
-  const dndSensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  )
-
-  const projectsById = useMemo(() => {
-    const map = new Map<string, Project>()
-    for (const p of projects) {
-      map.set(p.id, p)
-    }
-    return map
-  }, [projects])
-
+  const grouped = categoriesEnabled && categories.length > 0
   const isDndEnabled = Boolean(onReorder)
 
-  const handleDragStart = useCallback((e: DragStartEvent) => {
-    setActiveDragId(e.active.id as string)
-  }, [])
+  const sortableIds = useMemo(() => projects.map((p) => p.id), [projects])
 
-  const handleDragEnd = useCallback(
-    async (e: DragEndEvent) => {
-      const { active, over } = e
-      setActiveDragId(null)
-      if (!over || active.id === over.id) return
+  const dnd = useProjectDnd({
+    projects,
+    categories,
+    grouped,
+    prefixes: { category: 'grid-cat-' },
+    collisionDetection: closestCenter,
+    selectedIds,
+    onReorder,
+    onMoveProjects,
+  })
 
-      const draggedId = active.id as string
-      const targetId = over.id as string
-
-      const draggedProject = projectsById.get(draggedId)
-      if (!draggedProject) return
-
-      if (!onReorder) return
-
-      // Check if dropped onto a category droppable (empty category)
-      const catDropMatch = targetId.match(/^grid-cat-(.+)$/) 
-      if (catDropMatch && onMoveProject) {
-        const catId = catDropMatch[1]
-        const targetCat = catId === 'uncategorized' 
-          ? UNCATEGORIZED 
-          : categories.find((c) => c.id === catId)?.name ?? catId
-        const draggedCat = draggedProject.category || UNCATEGORIZED
-        if (draggedCat === targetCat) return
-        const destProjects = projects.filter(
-          (p) => (p.category || UNCATEGORIZED) === targetCat && !p.pinned,
-        )
-        const newDest = [...destProjects]
-        newDest.push(draggedProject)
-        await onMoveProject(draggedId, targetCat === UNCATEGORIZED ? '' : targetCat, newDest.map((p) => p.id))
-        return
-      }
-
-      const targetProject = projectsById.get(targetId)
-      if (!targetProject) return
-
-      const draggedCat = draggedProject.category || UNCATEGORIZED
-      const targetCat = targetProject.category || UNCATEGORIZED
-
-      if (draggedCat !== targetCat && onMoveProject) {
-        const destProjects = projects.filter(
-          (p) => (p.category || UNCATEGORIZED) === targetCat && !p.pinned,
-        )
-        const destTargetIdx = destProjects.findIndex((p) => p.id === targetId)
-        const insertIdx = destTargetIdx >= 0 ? destTargetIdx : destProjects.length
-        const newDest = [...destProjects]
-        newDest.splice(insertIdx, 0, draggedProject)
-        await onMoveProject(draggedId, targetCat === UNCATEGORIZED ? '' : targetCat, newDest.map((p) => p.id))
-      } else if (draggedCat === targetCat) {
-        const catProjects = projects.filter(
-          (p) => (p.category || UNCATEGORIZED) === draggedCat && !p.pinned,
-        )
-        const oldIdx = catProjects.findIndex((p) => p.id === draggedId)
-        const newIdx = catProjects.findIndex((p) => p.id === targetId)
-        if (oldIdx !== -1 && newIdx !== -1) {
-          const reordered = arrayMove(catProjects, oldIdx, newIdx)
-          await onReorder(reordered.map((p) => p.id))
-        }
-      }
-    },
-    [projectsById, projects, categories, onReorder, onMoveProject],
-  )
-
-  const draggedProject = activeDragId ? projectsById.get(activeDragId) ?? null : null
-
-  const grouped = useMemo(() => {
-    if (!categoriesEnabled) return null
+  const groupedProjects = useMemo(() => {
+    if (!grouped) return null
     const map = new Map<string, Project[]>()
-    for (const cat of categories) {
-      map.set(cat.name, [])
-    }
-    map.set(UNCATEGORIZED, [])
-    for (const project of projects) {
-      const cat = project.category || UNCATEGORIZED
-      const list = map.get(cat)
-      if (list) {
-        list.push(project)
-      } else {
-        map.set(cat, [project])
-      }
+    for (const p of projects) {
+      const key = p.category || UNCATEGORIZED
+      const list = map.get(key)
+      if (list) list.push(p)
+      else map.set(key, [p])
     }
     return map
-  }, [projects, categories, categoriesEnabled])
+  }, [projects, grouped])
 
   const renderCard = (p: Project) => {
     const card = (
-      <div key={p.id} className="mb-3">
+      <div className="mb-3">
         <ProjectCardGridItem
           project={p}
           installedVersions={installedVersions}
@@ -275,130 +138,147 @@ export function ProjectCardGrid({
           onVersionChange={(tag) => onVersionChange(p.id, tag)}
           onRemove={() => onRemove(p.id)}
           onDelete={onDelete ? () => onDelete(p.id) : undefined}
-          onCategoryChange={onCategoryChange ? (cat) => onCategoryChange(p.id, cat) : undefined}
-          onLaunchArgsChange={onLaunchArgsChange ? (args) => onLaunchArgsChange(p.id, args) : undefined}
+          onCategoryChange={
+            onCategoryChange ? (cat) => onCategoryChange(p.id, cat) : undefined
+          }
+          onDuplicate={onDuplicate ? () => onDuplicate(p) : undefined}
+          onLaunchArgsChange={
+            onLaunchArgsChange ? (args) => onLaunchArgsChange(p.id, args) : undefined
+          }
           onTagsSaved={onTagsSaved}
           onTagClick={onTagClick}
-          onShowGitSidebar={() => onShowGitSidebar?.(p, gitStatusMap[p.path] ?? null)}
+          onShowGitSidebar={() =>
+            onShowGitSidebar?.(p, gitStatusMap[p.path] ?? null)
+          }
           activeTag={activeTag}
           selected={selectedIds.has(p.id)}
-          onToggleSelect={(selecting || selectedIds.size > 0) ? (e) => onToggleSelect?.(p.id, e) : undefined}
+          onToggleSelect={
+            selecting || selectedIds.size > 0
+              ? (e) => onToggleSelect?.(p.id, e)
+              : undefined
+          }
         />
       </div>
     )
 
     if (isDndEnabled) {
       return (
-        <SortableGridCard key={p.id} id={p.id}>
+        <SortableProjectItem
+          key={p.id}
+          id={p.id}
+          static
+          gripClassName="left-1"
+        >
           {card}
-        </SortableGridCard>
+        </SortableProjectItem>
       )
     }
 
-    return card
+    return <div key={p.id}>{card}</div>
   }
 
-  const categoryContent = (
-    <>
-      {categories.map((cat) => {
-        const catProjects = grouped?.get(cat.name) ?? []
-        return (
-          <div key={cat.id} className="mb-6">
-            <div className="flex items-center gap-2 mb-3 px-1">
-              <span
-                className="w-2.5 h-2.5 rounded-full shrink-0 ring-1 ring-black/20"
-                style={{ backgroundColor: cat.color }}
-              />
-              <span className="text-sm font-medium text-ink">
-                {cat.name}
-              </span>
-              <span className="text-xs text-muted tabular-nums">
-                {catProjects.length}
-              </span>
-            </div>
-            <GridCategoryDropZone droppableId={`grid-cat-${cat.id}`} isEmpty={catProjects.length === 0}>
-              <Masonry
-                breakpointCols={BREAKPOINTS}
-                className={`masonry ${isDndEnabled ? 'px-2' : ''}`}
-                columnClassName="masonry-column"
-              >
-                {catProjects.map(renderCard)}
-              </Masonry>
-            </GridCategoryDropZone>
-          </div>
-        )
-      })}
-      {(() => {
-        const uncategorizedProjects = grouped?.get(UNCATEGORIZED) ?? []
-        return (
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-3 px-1">
-              <span
-                className="w-2.5 h-2.5 rounded-full shrink-0 ring-1 ring-black/20"
-                style={{ backgroundColor: '#949ba4' }}
-              />
-              <span className="text-sm font-medium text-ink">
-                {tc('uncategorized')}
-              </span>
-              <span className="text-xs text-muted tabular-nums">
-                {uncategorizedProjects.length}
-              </span>
-            </div>
-            <GridCategoryDropZone droppableId="grid-cat-uncategorized" isEmpty={uncategorizedProjects.length === 0}>
-              <Masonry
-                breakpointCols={BREAKPOINTS}
-                className={`masonry ${isDndEnabled ? 'px-2' : ''}`}
-                columnClassName="masonry-column"
-              >
-                {uncategorizedProjects.map(renderCard)}
-              </Masonry>
-            </GridCategoryDropZone>
-          </div>
-        )
-      })()}
-    </>
-  )
-
-  const allContent = grouped ? (
-    categoryContent
-  ) : (
+  const masonry = (list: Project[]) => (
     <Masonry
       breakpointCols={BREAKPOINTS}
       className={`masonry ${isDndEnabled ? 'px-2' : ''}`}
       columnClassName="masonry-column"
     >
-      {projects.map(renderCard)}
+      {list.map(renderCard)}
     </Masonry>
   )
 
+  const categoryContent = (
+    <>
+      {categories.map((cat) => {
+        const catProjects = groupedProjects?.get(cat.name) ?? []
+        return (
+          <ProjectCategorySection
+            key={cat.id}
+            variant="grid"
+            title={cat.name}
+            color={cat.color}
+            count={catProjects.length}
+            defaultOpen={catProjects.length > 0}
+            disableAnimation={isDndEnabled}
+            droppableId={`grid-cat-${cat.id}`}
+            onContextMenu={
+              onCategoryContextMenu
+                ? (e) => onCategoryContextMenu(e, cat)
+                : undefined
+            }
+          >
+            {masonry(catProjects)}
+          </ProjectCategorySection>
+        )
+      })}
+      {(() => {
+        const uncategorizedProjects = groupedProjects?.get(UNCATEGORIZED) ?? []
+        return (
+          <ProjectCategorySection
+            variant="grid"
+            title={tc('uncategorized')}
+            count={uncategorizedProjects.length}
+            defaultOpen={uncategorizedProjects.length > 0}
+            disableAnimation={isDndEnabled}
+            droppableId="grid-cat-uncategorized"
+          >
+            {masonry(uncategorizedProjects)}
+          </ProjectCategorySection>
+        )
+      })()}
+    </>
+  )
+
+  const allContent = (
+    <>
+      {grouped ? categoryContent : masonry(projects)}
+      {hiddenCategories.length > 0 && (
+        <HiddenCategoriesSection
+          entries={hiddenCategories}
+          onUnhide={(id) => onUnhideCategory?.(id)}
+          className="pb-4"
+        />
+      )}
+    </>
+  )
+
   if (isDndEnabled) {
+    const activeProject = dnd.activeProject
     return (
       <div className="pb-4">
         <DndContext
-          sensors={dndSensors}
-          collisionDetection={closestCenter}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
+          sensors={dnd.sensors}
+          collisionDetection={dnd.collisionDetection ?? closestCenter}
+          autoScroll={AUTO_SCROLL_CONFIG}
+          onDragStart={dnd.handleDragStart}
+          onDragMove={dnd.handleDragMove}
+          onDragEnd={dnd.handleDragEnd}
+          onDragCancel={dnd.handleDragCancel}
         >
-          {allContent}
+          <SortableContext items={sortableIds}>{allContent}</SortableContext>
+          <ProjectDropLine ignorePrefix="grid-cat-" />
           <DragOverlay
             dropAnimation={{
-              duration: 280,
-              easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+              duration: DRAG_FEEL.drop.duration,
+              easing: DRAG_FEEL.drop.easing,
             }}
           >
-            {draggedProject ? (
-              <div className="rounded-item shadow-2xl shadow-black/30 scale-[1.015] ring-1 ring-accent/20 bg-overlay/95 backdrop-blur-sm max-w-xs">
+            {activeProject ? (
+              <ProjectDragOverlay
+                innerRef={dnd.overlayRef}
+                count={dnd.activeIds.length}
+                className="max-w-xs"
+              >
                 <ProjectCardGridItem
-                  project={draggedProject}
+                  project={activeProject}
                   installedVersions={installedVersions}
-                  gitStatus={gitStatusMap[draggedProject.path] ?? null}
+                  gitStatus={gitStatusMap[activeProject.path] ?? null}
                   launchWithConsole={launchWithConsole}
                   onTogglePin={() => {}}
                   onVersionChange={() => {}}
                   onRemove={() => {}}
                 />
-              </div>
+              </ProjectDragOverlay>
             ) : null}
           </DragOverlay>
         </DndContext>
@@ -406,9 +286,5 @@ export function ProjectCardGrid({
     )
   }
 
-  return (
-    <div className="pb-4">
-      {allContent}
-    </div>
-  )
+  return <div className="pb-4">{allContent}</div>
 }

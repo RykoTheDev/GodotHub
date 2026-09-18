@@ -56,7 +56,7 @@
   "dashboard_git_branch": "على {{branch}}",
   "dashboard_storage": "المساحة المستخدمة",
   "dashboard_storage_empty": "لا يوجد مشروع حاليا للقياس.",
-  "dashboard_storage_loading": "Measuring…",
+  "dashboard_storage_loading": "جاري القياس…",
   "dashboard_storage_total": "{{size}} الكل",
   "dashboard_customize": "التخصيص",
   "dashboard_done_customizing": "تم",

@@ -1,28 +1,34 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   DndContext,
   DragOverlay,
-  PointerSensor,
-  KeyboardSensor,
+  closestCorners,
   useDroppable,
-  useSensor,
-  useSensors,
-  closestCenter,
-  type DragStartEvent,
-  type DragEndEvent,
 } from '@dnd-kit/core'
 import {
   SortableContext,
-  useSortable,
   verticalListSortingStrategy,
-  arrayMove,
-  sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
-import type { Category, GitStatus, InstalledGodotVersion, Project } from '../../types'
+import type {
+  Category,
+  GitStatus,
+  InstalledGodotVersion,
+  Project,
+} from '../../types'
 import { ProjectCardKanbanItem } from './ProjectCardKanbanItem'
-import { DragHandle } from '../reusables/DragHandle'
+import {
+  HiddenCategoriesSection,
+  type HiddenCategoryEntry,
+} from './CategorySections'
+import { UNCATEGORIZED_KEY } from '../../lib/projectDrag'
+import { AUTO_SCROLL_CONFIG, DRAG_FEEL } from '../../lib/dragFeel'
+import { useProjectDnd } from '../../hooks/useProjectDnd'
+import {
+  ProjectDragOverlay,
+  ProjectDropLine,
+  SortableProjectItem,
+} from '../dnd/ProjectDnd'
 
 interface ProjectCardKanbanProps {
   projects: Project[]
@@ -36,6 +42,7 @@ interface ProjectCardKanbanProps {
   onRemove: (id: string) => void
   onDelete?: (id: string) => void
   onCategoryChange?: (id: string, category: string) => void
+  onDuplicate?: (project: Project) => void
   onLaunchArgsChange?: (id: string, args: string) => void
   onTagsSaved?: (project: Project) => void
   onTagClick?: (tag: string) => void
@@ -45,51 +52,20 @@ interface ProjectCardKanbanProps {
   onToggleSelect?: (id: string, e: React.MouseEvent) => void
   selecting: boolean
   onReorder?: (orderedIds: string[]) => Promise<void>
-  onMoveProject?: (id: string, category: string, destOrderedIds: string[]) => Promise<void>
+  onMoveProjects?: (
+    ids: string[],
+    category: string,
+    destOrderedIds: string[],
+  ) => Promise<void>
+  hiddenCategories?: HiddenCategoryEntry[]
+  onUnhideCategory?: (id: string) => void
+  onCategoryContextMenu?: (
+    e: React.MouseEvent<HTMLElement>,
+    category: Category,
+  ) => void
 }
 
-const UNCATEGORIZED = '__uncategorized__'
-
-function SortableKanbanCard({
-  id,
-  disabled,
-  children,
-}: {
-  id: string
-  disabled?: boolean
-  children: React.ReactNode
-}) {
-  const {
-    setNodeRef,
-    setActivatorNodeRef,
-    attributes,
-    listeners,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id, disabled })
-
-  const style: React.CSSProperties = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    opacity: isDragging ? 0.4 : 1,
-    zIndex: isDragging ? 50 : undefined,
-  }
-
-  return (
-    <div ref={setNodeRef} style={style} className="mb-3 relative group/drag">
-      <DragHandle
-        ref={setActivatorNodeRef}
-        attributes={attributes}
-        listeners={listeners}
-        isDragging={isDragging}
-        disabled={disabled}
-        className="absolute top-1/2 -translate-y-1/2 -left-1.5"
-      />
-      {children}
-    </div>
-  )
-}
+const UNCATEGORIZED = UNCATEGORIZED_KEY
 
 export function ProjectCardKanban({
   projects,
@@ -103,6 +79,7 @@ export function ProjectCardKanban({
   onRemove,
   onDelete,
   onCategoryChange,
+  onDuplicate,
   onLaunchArgsChange,
   onTagsSaved,
   onTagClick,
@@ -112,123 +89,61 @@ export function ProjectCardKanban({
   onToggleSelect,
   selecting,
   onReorder,
-  onMoveProject,
+  onMoveProjects,
+  hiddenCategories = [],
+  onUnhideCategory,
+  onCategoryContextMenu,
 }: ProjectCardKanbanProps) {
   const { t: tc } = useTranslation('common')
-  const [activeDragId, setActiveDragId] = useState<string | null>(null)
 
-  const dndSensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: 8 },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  )
+  const grouped = categories.length > 0
+  const isDndEnabled = Boolean(onReorder)
 
-  const grouped = useMemo(() => {
+  const groupedProjects = useMemo(() => {
     const map = new Map<string, Project[]>()
-    for (const cat of categories) {
-      map.set(cat.name, [])
-    }
-    map.set(UNCATEGORIZED, [])
     for (const project of projects) {
-      const cat = project.category || UNCATEGORIZED
-      const list = map.get(cat)
-      if (list) {
-        list.push(project)
-      } else {
-        map.set(cat, [project])
-      }
-    }
-    return map
-  }, [projects, categories])
-
-  const projectsById = useMemo(() => {
-    const map = new Map<string, Project>()
-    for (const p of projects) {
-      map.set(p.id, p)
+      const key = project.category || UNCATEGORIZED
+      const list = map.get(key)
+      if (list) list.push(project)
+      else map.set(key, [project])
     }
     return map
   }, [projects])
 
-  const isDndEnabled = Boolean(onReorder)
-
-  const handleDragStart = useCallback((e: DragStartEvent) => {
-    setActiveDragId(e.active.id as string)
-  }, [])
-
-  const handleDragEnd = useCallback(
-    async (e: DragEndEvent) => {
-      const { active, over } = e
-      setActiveDragId(null)
-      if (!over || active.id === over.id) return
-
-      const draggedId = active.id as string
-      const targetId = over.id as string
-
-      const draggedProject = projectsById.get(draggedId)
-      if (!draggedProject) return
-
-      if (!onReorder) return
-
-      // Check if dropped onto a category droppable (empty category)
-      const catDropMatch = targetId.match(/^kanban-cat-(.+)$/) 
-      if (catDropMatch && onMoveProject) {
-        const catId = catDropMatch[1]
-        const targetCat = catId === 'uncategorized' 
-          ? UNCATEGORIZED 
-          : categories.find((c) => c.id === catId)?.name ?? catId
-        const draggedCat = draggedProject.category || UNCATEGORIZED
-        if (draggedCat === targetCat) return
-        const destProjects = projects.filter(
-          (p) => (p.category || UNCATEGORIZED) === targetCat && !p.pinned,
-        )
-        const newDest = [...destProjects]
-        newDest.push(draggedProject)
-        await onMoveProject(draggedId, targetCat === UNCATEGORIZED ? '' : targetCat, newDest.map((p) => p.id))
-        return
+  const sortableProjects = useMemo(() => {
+    if (!grouped) return projects
+    const ordered: Project[] = []
+    for (const cat of categories) {
+      ordered.push(...(groupedProjects.get(cat.name) ?? []))
+    }
+    ordered.push(...(groupedProjects.get(UNCATEGORIZED) ?? []))
+    for (const [key, list] of groupedProjects) {
+      if (
+        key === UNCATEGORIZED ||
+        categories.some((c) => c.name === key)
+      ) {
+        continue
       }
+      ordered.push(...list)
+    }
+    return ordered
+  }, [grouped, projects, categories, groupedProjects])
 
-      const targetProject = projectsById.get(targetId)
-      if (!targetProject) return
+  const dnd = useProjectDnd({
+    projects: sortableProjects,
+    categories,
+    grouped,
+    prefixes: { category: 'kanban-cat-' },
+    collisionDetection: closestCorners,
+    selectedIds,
+    onReorder,
+    onMoveProjects,
+  })
 
-      const draggedCat = draggedProject.category || UNCATEGORIZED
-      const targetCat = targetProject.category || UNCATEGORIZED
-
-      if (draggedCat !== targetCat && onMoveProject) {
-        // Cross-column move
-        const destProjects = projects.filter(
-          (p) => (p.category || UNCATEGORIZED) === targetCat && !p.pinned,
-        )
-        const destTargetIdx = destProjects.findIndex((p) => p.id === targetId)
-        const insertIdx = destTargetIdx >= 0 ? destTargetIdx : destProjects.length
-        const newDest = [...destProjects]
-        newDest.splice(insertIdx, 0, draggedProject)
-        await onMoveProject(draggedId, targetCat === UNCATEGORIZED ? '' : targetCat, newDest.map((p) => p.id))
-      } else if (draggedCat === targetCat) {
-        // Same-column reorder
-        const catProjects = projects.filter(
-          (p) => (p.category || UNCATEGORIZED) === draggedCat && !p.pinned,
-        )
-        const oldIdx = catProjects.findIndex((p) => p.id === draggedId)
-        const newIdx = catProjects.findIndex((p) => p.id === targetId)
-        if (oldIdx !== -1 && newIdx !== -1) {
-          const reordered = arrayMove(catProjects, oldIdx, newIdx)
-          await onReorder(reordered.map((p) => p.id))
-        }
-      }
-    },
-    [projectsById, projects, categories, onReorder, onMoveProject],
-  )
-
-  const draggedProject = activeDragId ? projectsById.get(activeDragId) ?? null : null
-
-  const renderItems = (list: Project[]) =>
-    list.map((p) => {
+  const renderItem = useCallback(
+    (p: Project) => {
       const card = (
         <ProjectCardKanbanItem
-          key={p.id}
           project={p}
           installedVersions={installedVersions}
           categories={categories}
@@ -239,32 +154,75 @@ export function ProjectCardKanban({
           onVersionChange={(tag) => onVersionChange(p.id, tag)}
           onRemove={() => onRemove(p.id)}
           onDelete={onDelete ? () => onDelete(p.id) : undefined}
-          onCategoryChange={onCategoryChange ? (cat) => onCategoryChange(p.id, cat) : undefined}
-          onLaunchArgsChange={onLaunchArgsChange ? (args) => onLaunchArgsChange(p.id, args) : undefined}
+          onCategoryChange={
+            onCategoryChange ? (cat) => onCategoryChange(p.id, cat) : undefined
+          }
+          onDuplicate={onDuplicate ? () => onDuplicate(p) : undefined}
+          onLaunchArgsChange={
+            onLaunchArgsChange ? (args) => onLaunchArgsChange(p.id, args) : undefined
+          }
           onTagsSaved={onTagsSaved}
           onTagClick={onTagClick}
-          onShowGitSidebar={() => onShowGitSidebar?.(p, gitStatusMap[p.path] ?? null)}
+          onShowGitSidebar={() =>
+            onShowGitSidebar?.(p, gitStatusMap[p.path] ?? null)
+          }
           activeTag={activeTag}
           selected={selectedIds.has(p.id)}
-          onToggleSelect={(selecting || selectedIds.size > 0) ? (e) => onToggleSelect?.(p.id, e) : undefined}
+          onToggleSelect={
+            selecting || selectedIds.size > 0
+              ? (e) => onToggleSelect?.(p.id, e)
+              : undefined
+          }
         />
       )
 
       if (isDndEnabled) {
         return (
-          <SortableKanbanCard key={p.id} id={p.id}>
+          <SortableProjectItem
+            key={p.id}
+            id={p.id}
+            className="mb-3"
+            gripClassName="left-1"
+          >
             {card}
-          </SortableKanbanCard>
+          </SortableProjectItem>
         )
       }
 
-      return <div key={p.id} className="mb-3">{card}</div>
-    })
+      return (
+        <div key={p.id} className="mb-3">
+          {card}
+        </div>
+      )
+    },
+    [
+      installedVersions,
+      categories,
+      gitStatusMap,
+      launchWithConsole,
+      compact,
+      onTogglePin,
+      onVersionChange,
+      onRemove,
+      onDelete,
+      onCategoryChange,
+      onDuplicate,
+      onLaunchArgsChange,
+      onTagsSaved,
+      onTagClick,
+      onShowGitSidebar,
+      activeTag,
+      selectedIds,
+      onToggleSelect,
+      selecting,
+      isDndEnabled,
+    ],
+  )
 
   const columnContent = (
     <>
       {categories.map((cat) => {
-        const catProjects = grouped.get(cat.name) ?? []
+        const catProjects = groupedProjects.get(cat.name) ?? []
         return (
           <KanbanColumn
             key={cat.id}
@@ -273,23 +231,28 @@ export function ProjectCardKanban({
             count={catProjects.length}
             compact={compact}
             droppableId={`kanban-cat-${cat.id}`}
+            onContextMenu={
+              onCategoryContextMenu
+                ? (e) => onCategoryContextMenu(e, cat)
+                : undefined
+            }
           >
             {isDndEnabled ? (
               <SortableContext
                 items={catProjects.map((p) => p.id)}
                 strategy={verticalListSortingStrategy}
               >
-                {renderItems(catProjects)}
+                {catProjects.map(renderItem)}
               </SortableContext>
             ) : (
-              renderItems(catProjects)
+              catProjects.map(renderItem)
             )}
           </KanbanColumn>
         )
       })}
 
       {(() => {
-        const uncategorizedProjects = grouped.get(UNCATEGORIZED) ?? []
+        const uncategorizedProjects = groupedProjects.get(UNCATEGORIZED) ?? []
         return (
           <KanbanColumn
             title={tc('uncategorized')}
@@ -303,10 +266,10 @@ export function ProjectCardKanban({
                 items={uncategorizedProjects.map((p) => p.id)}
                 strategy={verticalListSortingStrategy}
               >
-                {renderItems(uncategorizedProjects)}
+                {uncategorizedProjects.map(renderItem)}
               </SortableContext>
             ) : (
-              renderItems(uncategorizedProjects)
+              uncategorizedProjects.map(renderItem)
             )}
           </KanbanColumn>
         )
@@ -314,45 +277,69 @@ export function ProjectCardKanban({
     </>
   )
 
+  const hiddenSection =
+    hiddenCategories.length > 0 ? (
+      <HiddenCategoriesSection
+        entries={hiddenCategories}
+        onUnhide={(id) => onUnhideCategory?.(id)}
+        className="shrink-0 pt-1"
+      />
+    ) : null
+
   if (isDndEnabled) {
+    const activeProject = dnd.activeProject
     return (
-      <div className="flex gap-4 h-full overflow-x-auto pb-4">
+      <div className="flex flex-col h-full">
+      <div className="flex gap-4 flex-1 min-h-0 overflow-x-auto pb-4">
         <DndContext
-          sensors={dndSensors}
-          collisionDetection={closestCenter}
-          onDragStart={handleDragStart}
-          onDragEnd={handleDragEnd}
+          sensors={dnd.sensors}
+          collisionDetection={dnd.collisionDetection ?? closestCorners}
+          autoScroll={AUTO_SCROLL_CONFIG}
+          onDragStart={dnd.handleDragStart}
+          onDragMove={dnd.handleDragMove}
+          onDragEnd={dnd.handleDragEnd}
+          onDragCancel={dnd.handleDragCancel}
         >
           {columnContent}
+          <ProjectDropLine ignorePrefix="kanban-cat-" />
           <DragOverlay
             dropAnimation={{
-              duration: 280,
-              easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
+              duration: DRAG_FEEL.drop.duration,
+              easing: DRAG_FEEL.drop.easing,
             }}
           >
-            {draggedProject ? (
-              <div className="rounded-item shadow-2xl shadow-black/30 scale-[1.015] ring-1 ring-accent/20 bg-overlay/95 backdrop-blur-sm max-w-xs">
+            {activeProject ? (
+              <ProjectDragOverlay
+                innerRef={dnd.overlayRef}
+                count={dnd.activeIds.length}
+                className="max-w-xs"
+              >
                 <ProjectCardKanbanItem
-                  project={draggedProject}
+                  project={activeProject}
                   installedVersions={installedVersions}
-                  gitStatus={gitStatusMap[draggedProject.path] ?? null}
+                  gitStatus={gitStatusMap[activeProject.path] ?? null}
                   launchWithConsole={launchWithConsole}
                   compact={compact}
                   onTogglePin={() => {}}
                   onVersionChange={() => {}}
                   onRemove={() => {}}
                 />
-              </div>
+              </ProjectDragOverlay>
             ) : null}
           </DragOverlay>
         </DndContext>
+      </div>
+      {hiddenSection}
       </div>
     )
   }
 
   return (
-    <div className="flex gap-4 h-full overflow-x-auto pb-4">
-      {columnContent}
+    <div className="flex flex-col h-full">
+      <div className="flex gap-4 flex-1 min-h-0 overflow-x-auto pb-4">
+        {columnContent}
+      </div>
+      {hiddenSection}
     </div>
   )
 }
@@ -363,48 +350,70 @@ interface KanbanColumnProps {
   count: number
   compact?: boolean
   droppableId?: string
+  onContextMenu?: (e: React.MouseEvent<HTMLElement>) => void
   children: React.ReactNode
 }
 
-function KanbanColumn({ title, color, count, compact, droppableId, children }: KanbanColumnProps) {
+function KanbanColumn({
+  title,
+  color,
+  count,
+  compact,
+  droppableId,
+  onContextMenu,
+  children,
+}: KanbanColumnProps) {
   const { t } = useTranslation('common')
   const isEmpty = count === 0
   const { isOver, setNodeRef } = useDroppable({
     id: droppableId ?? `kanban-col-${title}`,
-    disabled: !isEmpty,
   })
 
   return (
-    <div className={`flex flex-col flex-1 ${compact ? 'min-w-[260px] max-w-xs' : 'min-w-xs max-w-[380px]'}`}>
-      <div className="flex items-center gap-2 mb-2 px-1">
+    <div
+      className={`flex flex-col flex-1 ${
+        compact ? 'min-w-[260px] max-w-xs' : 'min-w-xs max-w-[380px]'
+      }`}
+    >
+      <div
+        className="flex items-center gap-2 mb-2 px-1 rounded-item"
+        onContextMenu={
+          onContextMenu
+            ? (e) => {
+                e.preventDefault()
+                onContextMenu(e)
+              }
+            : undefined
+        }
+      >
         <span
           className="w-2.5 h-2.5 rounded-full shrink-0 ring-1 ring-black/20"
           style={{ backgroundColor: color }}
         />
-        <span className="text-sm font-medium text-ink truncate">
-          {title}
-        </span>
-        <span className="text-xs text-muted tabular-nums">
-          {count}
-        </span>
+        <span className="text-sm font-medium text-ink truncate">{title}</span>
+        <span className="text-xs text-muted tabular-nums">{count}</span>
       </div>
       <div
-        ref={isEmpty ? setNodeRef : undefined}
-        className={`flex-1 overflow-y-auto rounded-item transition-colors duration-150 ${
+        ref={setNodeRef}
+        className={`flex-1 overflow-y-auto rounded-item border transition-colors duration-150 ${
           isOver
-            ? 'bg-accent/10 border-2 border-dashed border-accent/50'
-            : 'bg-overlay/50 border border-outline/30'
+            ? 'bg-accent/10 border-accent/50'
+            : 'bg-overlay/50 border-outline/30'
         } ${compact ? 'p-2.5 min-h-[200px]' : 'p-3 min-h-[250px]'}`}
       >
         {children}
         {isEmpty && !isOver && (
           <div className="flex items-center justify-center h-full min-h-[120px]">
-            <span className="text-xs text-muted/40 select-none">{t('empty_category')}</span>
+            <span className="text-xs text-muted/40 select-none">
+              {t('empty_category')}
+            </span>
           </div>
         )}
         {isEmpty && isOver && (
           <div className="flex items-center justify-center h-full min-h-[120px]">
-            <span className="text-xs text-accent-bright font-medium select-none">{t('release_to_drop')}</span>
+            <span className="text-xs text-accent-bright font-medium select-none">
+              {t('release_to_drop')}
+            </span>
           </div>
         )}
       </div>

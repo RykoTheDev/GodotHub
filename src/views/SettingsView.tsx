@@ -54,6 +54,7 @@ import { RestoreProgressModal } from "../components/modals/RestoreProgressModal"
 import { defaultCornerRadius, isMac, isWindows } from "../lib/platform";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { flushPendingSave } from "../lib/pendingSave";
+import { consumePendingSettingsCategory } from '../lib/settingsCategoryNav'
 import {
   IconCheck,
   IconPalette,
@@ -276,6 +277,33 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
     clear: clearSearch,
     reset: resetSearch,
   } = useSectionSearch();
+
+  useEffect(() => {
+    const focusSearch = () => searchRef.current?.focus()
+    window.addEventListener('app:focus-search', focusSearch)
+    return () => window.removeEventListener('app:focus-search', focusSearch)
+  }, [searchRef])
+
+  useEffect(() => {
+    const pending = consumePendingSettingsCategory()
+    if (pending && CATEGORIES.some((c) => c.id === pending)) {
+      resetSearch()
+      setCat(pending as SettingsCat)
+    }
+  }, [resetSearch])
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const detail = (e as CustomEvent).detail as string | undefined
+      if (typeof detail !== 'string') return
+      consumePendingSettingsCategory()
+      resetSearch()
+      setCat(detail as SettingsCat)
+    }
+    window.addEventListener('app:open-settings-category', handler)
+    return () =>
+      window.removeEventListener('app:open-settings-category', handler)
+  }, [resetSearch])
 
   useEffect(() => {
     setCssDraft(settings.custom_css);
@@ -632,6 +660,43 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           label={ts("card_layout_label")}
         />
       </Subsection>
+
+      {!isMac && (
+        <Subsection
+          id="appearance-titlebar-buttons"
+          title={ts('colored_titlebar_buttons_label')}
+          description={ts('colored_titlebar_buttons_desc')}
+          searchText={`${ts('colored_titlebar_buttons_label')} ${ts('colored_titlebar_buttons_desc')} ${ts('card_layout_label')}`}
+          query={searchQuery}
+          onMatch={reportMatch}
+        >
+          <Toggle
+            checked={settings.colored_titlebar_buttons ?? false}
+            onChange={(checked) =>
+              update({ ...settings, colored_titlebar_buttons: checked })
+            }
+            label={ts('colored_titlebar_buttons_label')}
+          />
+      </Subsection>
+
+      {!isMac && (
+        <Subsection
+          id="appearance-titlebar-buttons"
+          title={ts('colored_titlebar_buttons_label')}
+          description={ts('colored_titlebar_buttons_desc')}
+          searchText={`${ts('colored_titlebar_buttons_label')} ${ts('colored_titlebar_buttons_desc')} ${ts('card_layout_label')}`}
+          query={searchQuery}
+          onMatch={reportMatch}
+        >
+          <Toggle
+            checked={settings.colored_titlebar_buttons ?? false}
+            onChange={(checked) =>
+              update({ ...settings, colored_titlebar_buttons: checked })
+            }
+            label={ts('colored_titlebar_buttons_label')}
+          />
+        </Subsection>
+      )}
 
       <Subsection
         id="appearance-landing"
@@ -1142,7 +1207,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         onMatch={reportMatch}
       >
         <div className="flex flex-col gap-3">
-          {/* Projects */}
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
             <div className="flex items-center gap-2">
               <IconFolder className="w-4 h-4 text-accent shrink-0" />
@@ -1167,7 +1231,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             </p>
           </div>
 
-          {/* Versions */}
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
             <div className="flex items-center gap-2">
               <IconCloudArrowDown className="w-4 h-4 text-mint shrink-0" />
@@ -1192,7 +1255,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             </p>
           </div>
 
-          {/* Templates */}
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
             <div className="flex items-center gap-2">
               <IconRocket className="w-4 h-4 text-amber shrink-0" />
@@ -1567,6 +1629,54 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       </Subsection>
 
       <Subsection
+        id="behavior-notifications"
+        title={ts('desktop_notifications_label')}
+        description={ts('desktop_notifications_desc')}
+        searchText={`${ts('desktop_notifications_label')} ${ts('desktop_notifications_desc')} ${ts('behavior_title')} ${ts('behavior_desc')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-5">
+          <SettingRow
+            label={ts('desktop_notifications_label')}
+            description={ts('desktop_notifications_desc')}
+          >
+            <Toggle
+              checked={settings.desktop_notifications_enabled}
+              onChange={(checked) =>
+                update({ ...settings, desktop_notifications_enabled: checked })
+              }
+              label={ts('desktop_notifications_label')}
+            />
+          </SettingRow>
+        </div>
+      </Subsection>
+
+      <Subsection
+        id="behavior-notifications"
+        title={ts('desktop_notifications_label')}
+        description={ts('desktop_notifications_desc')}
+        searchText={`${ts('desktop_notifications_label')} ${ts('desktop_notifications_desc')} ${ts('behavior_title')} ${ts('behavior_desc')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-5">
+          <SettingRow
+            label={ts('desktop_notifications_label')}
+            description={ts('desktop_notifications_desc')}
+          >
+            <Toggle
+              checked={settings.desktop_notifications_enabled}
+              onChange={(checked) =>
+                update({ ...settings, desktop_notifications_enabled: checked })
+              }
+              label={ts('desktop_notifications_label')}
+            />
+          </SettingRow>
+        </div>
+      </Subsection>
+
+      <Subsection
         id="behavior-watchers"
         title={ts("file_watchers_title")}
         description={ts("file_watchers_desc")}
@@ -1667,7 +1777,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         onMatch={reportMatch}
       >
         <div className="flex flex-col gap-3">
-          {/* GitHub */}
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
@@ -1709,7 +1818,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             )}
           </div>
 
-          {/* GitLab */}
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
@@ -1756,7 +1864,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             )}
           </div>
 
-          {/* Self-hosted GitLab */}
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
             <div className="flex items-center gap-2">
               <IconPlug className="w-4 h-4 text-accent-bright shrink-0" />
@@ -1797,7 +1904,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             </button>
           </div>
 
-          {/* Personal Access Tokens */}
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
             <div className="flex items-center gap-2">
               <IconCode className="w-4 h-4 text-danger shrink-0" />
@@ -2436,6 +2542,23 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             onChange={(value) => update({ ...settings, tooltip_delay: value })}
           />
         </div>
+      </Subsection>
+
+      <Subsection
+        id="accessibility-sidebar-resize-knob"
+        title={ts('fixed_sidebar_resize_knob_label')}
+        description={ts('fixed_sidebar_resize_knob_desc')}
+        searchText={`${ts('fixed_sidebar_resize_knob_label')} ${ts('fixed_sidebar_resize_knob_desc')} ${ts('accessibility')} ${ts('accessibility_desc')}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+          <Toggle
+            checked={settings.fixed_sidebar_resize_knob}
+            onChange={(checked) =>
+              update({ ...settings, fixed_sidebar_resize_knob: checked })
+            }
+            label={ts('fixed_sidebar_resize_knob_label')}
+          />
       </Subsection>
     </div>
   );

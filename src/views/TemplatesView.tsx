@@ -178,6 +178,13 @@ export function TemplatesView({
   syncRef.current = handleSync
   const loadRef = useRef(load)
   loadRef.current = load
+  const searchRef = useRef<HTMLInputElement | null>(null)
+
+  useEffect(() => {
+    const focusSearch = () => searchRef.current?.focus()
+    window.addEventListener('app:focus-search', focusSearch)
+    return () => window.removeEventListener('app:focus-search', focusSearch)
+  }, [])
   useEffect(() => {
     if (consumePendingAction() === 'sync-templates') {
       syncRef.current().catch(() => {})

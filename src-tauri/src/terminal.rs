@@ -236,19 +236,6 @@ pub fn read_pid_file(path: &Path) -> Option<u32> {
         .filter(|pid| *pid > 1)
 }
 
-#[cfg(unix)]
-pub fn process_is_alive(pid: u32) -> bool {
-    unsafe { libc::kill(pid as libc::pid_t, 0) == 0 }
-}
-
-#[cfg(unix)]
-pub fn terminate_process(pid: u32) -> Result<(), String> {
-    if unsafe { libc::kill(pid as libc::pid_t, libc::SIGKILL) } == 0 {
-        return Ok(());
-    }
-    Err(std::io::Error::last_os_error().to_string())
-}
-
 #[cfg(target_os = "windows")]
 fn console_title(raw: &str) -> String {
     let cleaned: String = raw

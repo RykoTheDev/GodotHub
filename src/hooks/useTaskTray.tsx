@@ -14,6 +14,8 @@ import type {
   DownloadProgress,
 } from '../types'
 import i18n from '../i18n'
+import { api } from '../lib/api'
+import { useSettings } from './useSettings'
 
 export interface Task {
   id: string
@@ -45,6 +47,7 @@ interface TaskTrayContextValue {
 const TaskTrayContext = createContext<TaskTrayContextValue | null>(null)
 
 export function TaskTrayProvider({ children }: { children: ReactNode }) {
+  const { settings } = useSettings()
   const [tasks, setTasks] = useState<Task[]>([])
   const timersRef = useRef<Map<string, ReturnType<typeof setTimeout>>>(
     new Map(),
@@ -247,7 +250,16 @@ export function TaskTrayProvider({ children }: { children: ReactNode }) {
       status: 'completed',
     })
     scheduleRemoval(`download-asset-${payload.asset_id}`, 3000)
-  })
+    if (settings.desktop_notifications_enabled) {
+      void api.notify(
+        'GodotHub',
+        i18n.t('notification_asset_installed', {
+          ns: 'common',
+          title: payload.title,
+        }),
+      )
+    }
+  }, [settings.desktop_notifications_enabled])
 
   const clearCompleted = useCallback(() => {
     setTasks((prev) =>

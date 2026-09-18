@@ -2,7 +2,13 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { api } from '../lib/api'
 import { useTauriEvent } from '../lib/useTauriEvent'
 import { useWorkspaces } from './useWorkspaces'
+import { useSettings } from './useSettings'
+import i18n from '../i18n'
 import type {
+  AliasBatchResult,
+  AliasInfo,
+  AliasRequest,
+  CurrentVersionInfo,
   DownloadProgress,
   GodotRelease,
   InstalledGodotVersion,
@@ -22,7 +28,11 @@ const sameInstalled = (
 
 export function useGodotVersions() {
   const { activeId } = useWorkspaces()
+  const { settings } = useSettings()
   const [installed, setInstalled] = useState<InstalledGodotVersion[]>([])
+  const [current, setCurrent] = useState<CurrentVersionInfo | null>(null)
+  const [aliases, setAliases] = useState<AliasInfo[]>([])
+  const [aliasesDir, setAliasesDir] = useState('')
   const [available, setAvailable] = useState<GodotRelease[]>([])
   const [loadingAvailable, setLoadingAvailable] = useState(false)
   const [availableError, setAvailableError] = useState<string | null>(null)
@@ -49,10 +59,30 @@ export function useGodotVersions() {
     total: number
   } | null>(null)
 
+  const refreshCurrent = useCallback(async () => {
+    try {
+      setCurrent(await api.getCurrentGodotVersion())
+    } catch {
+      setCurrent(null)
+    }
+  }, [])
+
+  const refreshAliases = useCallback(async () => {
+    try {
+      const next = await api.listVersionAliases()
+      setAliases(next.aliases)
+      setAliasesDir(next.aliases_dir)
+    } catch {
+      setAliases([])
+    }
+  }, [])
+
   const refreshInstalled = useCallback(async () => {
     const next = await api.listInstalledGodotVersions()
     setInstalled((prev) => (sameInstalled(prev, next) ? prev : next))
-  }, [])
+    await refreshCurrent()
+    await refreshAliases()
+  }, [refreshCurrent, refreshAliases])
 
   const refreshAvailable = useCallback(async (src?: string) => {
     const next = src === 'archive' || src === 'github' ? src : sourceRef.current
@@ -109,6 +139,10 @@ export function useGodotVersions() {
     }
   })
 
+  useTauriEvent('versions:aliases-changed', () => {
+    void refreshAliases()
+  }, [refreshAliases])
+
   useTauriEvent<string>('godot-download-queued', (key) => {
     setDownloads((prev) => ({
       ...prev,
@@ -145,7 +179,13 @@ export function useGodotVersions() {
   useTauriEvent<string>('godot-download-complete', (key) => {
     clearKey(key)
     refreshInstalled()
-  })
+    if (settings.desktop_notifications_enabled) {
+      void api.notify(
+        'GodotHub',
+        i18n.t('notification_version_installed', { ns: 'common', tag: key }),
+      )
+    }
+  }, [settings.desktop_notifications_enabled])
 
   const download = useCallback(
     async (tag: string, assetName: string, url: string) => {
@@ -180,8 +220,44 @@ export function useGodotVersions() {
     return updated
   }, [])
 
+  const pinCurrent = useCallback(async (tag: string) => {
+    const info = await api.setCurrentGodotVersion(tag)
+    setCurrent(info)
+    return info
+  }, [])
+
+  const unpinCurrent = useCallback(async () => {
+    await api.clearCurrentGodotVersion()
+    setCurrent(null)
+  }, [])
+
+  const createAliases = useCallback(
+    async (entries: AliasRequest[]): Promise<AliasBatchResult> => {
+      const result = await api.createVersionAliases(entries)
+      await refreshAliases()
+      return result
+    },
+    [refreshAliases],
+  )
+
+  const deleteAlias = useCallback(
+    async (name: string) => {
+      await api.deleteVersionAlias(name)
+      await refreshAliases()
+    },
+    [refreshAliases],
+  )
+
   return {
     installed,
+    current,
+    aliases,
+    aliasesDir,
+    setCurrent: pinCurrent,
+    clearCurrent: unpinCurrent,
+    createAliases,
+    deleteAlias,
+    refreshAliases,
     available,
     loadingAvailable,
     availableError,

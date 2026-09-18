@@ -80,6 +80,8 @@ import {
   faMinus,
   faSquare,
   faClone,
+  faWindowMaximize,
+  faWindowRestore,
   faPlug,
   faTableColumns,
   faEye,
@@ -175,6 +177,8 @@ export const IconMonitor = solid(faDesktop)
 export const IconFolder = solid(faFolder)
 export const IconMinus = solid(faMinus)
 export const IconSquare = solid(faSquare)
+export const IconWindowMaximize = solid(faWindowMaximize)
+export const IconWindowRestore = solid(faWindowRestore)
 export const IconClone = solid(faClone)
 export const IconPlug = solid(faPlug)
 export const IconEye = solid(faEye)

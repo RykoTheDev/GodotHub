@@ -86,5 +86,7 @@
   "worktree_clean": "Sem alterações",
   "remove_worktree": "Remover worktree",
   "remove_worktree_confirm_desc": "Isso removerá a worktree em {{path}} e descartará quaisquer alterações sem commit. Isso não poderá ser desfeito.",
-  "worktree_removed_ok": "Worktree removida."
+  "worktree_removed_ok": "Worktree removida.",
+  "filter_changes": "Filter changed files…",
+  "no_matching_changes": "No matching changes."
 }

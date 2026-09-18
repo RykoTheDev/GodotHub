@@ -1,9 +1,15 @@
 export type ToastType = 'success' | 'error' | 'info'
 
+export interface ToastAction {
+  label: string
+  onClick: () => void
+}
+
 export interface ToastItem {
   id: number
   type: ToastType
   message: string
+  action?: ToastAction
 }
 
 type Listener = (toasts: ToastItem[]) => void
@@ -16,9 +22,14 @@ function emit() {
   for (const l of listeners) l(toasts)
 }
 
-export function pushToast(type: ToastType, message: string, ttlMs = 4000) {
+export function pushToast(
+  type: ToastType,
+  message: string,
+  ttlMs = 4000,
+  action?: ToastAction,
+) {
   const id = nextId++
-  toasts = [...toasts, { id, type, message }]
+  toasts = [...toasts, { id, type, message, action }]
   emit()
   window.setTimeout(() => {
     toasts = toasts.filter((t) => t.id !== id)

@@ -9,6 +9,42 @@ export interface InstalledGodotVersion {
   supports_console?: boolean
 }
 
+export interface CurrentVersionInfo {
+  tag: string
+  alias_path: string
+  aliases_dir: string
+  method: 'symlink' | 'hardlink' | 'shim'
+}
+
+export interface AliasInfo {
+  name: string
+  tag: string
+  alias_path: string
+  aliases_dir: string
+  method: 'symlink' | 'hardlink' | 'shim'
+}
+
+export interface VersionAliases {
+  aliases: AliasInfo[]
+  aliases_dir: string
+}
+
+export interface AliasRequest {
+  name: string
+  tag: string
+}
+
+export interface AliasSkip {
+  name: string
+  tag: string
+  reason: string
+}
+
+export interface AliasBatchResult {
+  created: AliasInfo[]
+  skipped: AliasSkip[]
+}
+
 export interface GodotReleaseAsset {
   name: string
   download_url: string
@@ -26,6 +62,7 @@ export interface Category {
   name: string
   sort_order: number
   color: string
+  hidden: boolean
 }
 
 export interface ChangelogNote {
@@ -441,6 +478,9 @@ export interface AppSettings {
   card_view_overrides: Record<string, Partial<CardViewSettings>>
   customize_view_enabled: boolean
   git_worktrees_enabled: boolean
+  fixed_sidebar_resize_knob: boolean
+  desktop_notifications_enabled: boolean
+  colored_titlebar_buttons: boolean
   project_todos_enabled: boolean
 }
 

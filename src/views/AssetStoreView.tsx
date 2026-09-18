@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
@@ -55,6 +55,13 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
   const [sort, setSort] = useState<AssetSortKey>('relevance')
   const [categories, setCategories] = useState<AssetLibraryCategory[]>([])
   const [stats, setStats] = useState({ loading: true, total: 0 })
+  const searchRef = useRef<HTMLInputElement | null>(null)
+
+  useEffect(() => {
+    const focusSearch = () => searchRef.current?.focus()
+    window.addEventListener('app:focus-search', focusSearch)
+    return () => window.removeEventListener('app:focus-search', focusSearch)
+  }, [])
 
   useEffect(() => {
     api
@@ -103,6 +110,7 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
           value={query}
           onChange={setQuery}
           placeholderKey="asset_search_placeholder"
+          inputRef={searchRef}
         />
       </ViewHeader>
 

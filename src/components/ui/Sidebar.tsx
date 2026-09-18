@@ -20,6 +20,7 @@ export interface SidebarTab {
 }
 
 const COLLAPSED_WIDTH = 68
+const DEFAULT_SIDEBAR_WIDTH = 256
 const KNOB_HEIGHT = 40
 const KNOB_MIN_TOP = 36
 const KNOB_TRACK_DIST = 56
@@ -52,10 +53,10 @@ export function Sidebar({
     try {
       return Math.min(
         350,
-        Math.max(180, Number(localStorage.getItem('new_ui_sidebar_width')) || 256),
+        Math.max(180, Number(localStorage.getItem('new_ui_sidebar_width')) || DEFAULT_SIDEBAR_WIDTH),
       )
     } catch {
-      return 256
+      return DEFAULT_SIDEBAR_WIDTH
     }
   })
   const [collapsed, setCollapsed] = useState(() => {
@@ -76,6 +77,7 @@ export function Sidebar({
   const [revealed, setRevealed] = useState(false)
   const [knobY, setKnobY] = useState<number | null>(null)
   const showKnob = revealed || dragging
+  const lastDownRef = useRef(0)
   const toggleCollapsed = () => {
     setKnobY(null)
     setCollapsed((prev) => {
@@ -94,6 +96,17 @@ export function Sidebar({
   const footerTabs = tabs.filter((t) => t.footer)
 
   const beginDrag = (e: React.PointerEvent) => {
+    const now = Date.now()
+    if (now - lastDownRef.current < 350) {
+      lastDownRef.current = now
+      setWidth(DEFAULT_SIDEBAR_WIDTH)
+      setKnobY(null)
+      try {
+        localStorage.setItem('new_ui_sidebar_width', String(DEFAULT_SIDEBAR_WIDTH))
+      } catch {}
+      return
+    }
+    lastDownRef.current = now
     e.preventDefault()
     startXRef.current = e.clientX
     startWidthRef.current = widthRef.current
@@ -126,6 +139,7 @@ export function Sidebar({
       setWidth(Math.min(350, Math.max(180, Math.round(next))))
       return
     }
+    if (settings.fixed_sidebar_resize_knob) return
     const rect = e.currentTarget.getBoundingClientRect()
     const y = e.clientY - rect.top
     setKnobY(clampKnobY(y, rect.height))
@@ -137,7 +151,7 @@ export function Sidebar({
   }
 
   const handleWrapperMove = (e: React.MouseEvent) => {
-    if (dragging || collapsed) return
+    if (dragging || collapsed || settings.fixed_sidebar_resize_knob) return
     const rect = e.currentTarget.getBoundingClientRect()
     const dist = rect.right - e.clientX
     if (dist > KNOB_RESET_DIST) {
@@ -420,9 +434,9 @@ export function Sidebar({
       >
         <div
           className={`absolute left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none transition-[top,opacity] duration-200 ease-out ${
-            knobY != null ? '' : 'top-1/2'
+            knobY != null && !settings.fixed_sidebar_resize_knob ? '' : 'top-1/2'
           } ${showKnob ? 'opacity-100' : 'opacity-0'}`}
-          style={knobY != null ? { top: knobY } : undefined}
+          style={knobY != null && !settings.fixed_sidebar_resize_knob ? { top: knobY } : undefined}
         >
           <div
             className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-tag bg-raised border border-line shadow-md shadow-base text-[10px] font-mono text-muted tabular-nums whitespace-nowrap transition-all duration-200 ${

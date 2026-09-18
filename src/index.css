@@ -38,14 +38,6 @@
   --spacing: 4.5px;
 }
 
-/*
- * CJK fallbacks. Inter and Google Sans Code carry no CJK glyphs, so Japanese
- * and Chinese text drops straight to the generic family. The stacks stay
- * scoped per language on purpose: ja and zh share Han characters but draw
- * them with different regional forms, so one merged stack would render one of
- * the two with the wrong glyphs. This relies on <html lang> tracking the UI
- * language, which src/i18n/index.ts keeps in sync.
- */
 :root {
   --font-cjk: sans-serif;
   --font-cjk-mono: monospace;

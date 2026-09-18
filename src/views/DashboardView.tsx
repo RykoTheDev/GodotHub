@@ -814,11 +814,14 @@ function GitOverview({ tall = false, active = true }: { tall?: boolean; active?:
       if (debounceRef.current) clearTimeout(debounceRef.current)
       debounceRef.current = setTimeout(fetchStatuses, 300)
     }
+    const handleFocus = () => void fetchStatuses()
     window.addEventListener('app:refresh-git-status', handleRefresh)
+    window.addEventListener('focus', handleFocus)
     return () => {
       clearInterval(interval)
       if (debounceRef.current) clearTimeout(debounceRef.current)
       window.removeEventListener('app:refresh-git-status', handleRefresh)
+      window.removeEventListener('focus', handleFocus)
     }
   }, [active, fetchStatuses])
 
