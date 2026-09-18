@@ -41,11 +41,13 @@ export function MenuButton({
   compact,
   onSelect,
   caret = false,
+  activeItemClassName,
 }: {
   item: MenuItem
   compact: boolean
   onSelect: (e: ReactMouseEvent<HTMLButtonElement>) => void
   caret?: boolean
+  activeItemClassName?: string
 }) {
   const iconBox = compact ? 'w-6 h-6' : 'w-7 h-7'
   const iconSize = compact ? 'w-3 h-3' : 'w-3.5 h-3.5'
@@ -62,7 +64,7 @@ export function MenuButton({
         item.danger
           ? 'text-red-400 hover:bg-red-500/10 hover:text-red-300'
           : item.active
-            ? 'text-ink bg-accent hover:bg-accent'
+            ? activeItemClassName ?? 'text-ink bg-accent hover:bg-accent'
             : 'text-muted hover:bg-raised hover:text-ink'
       }`}
     >

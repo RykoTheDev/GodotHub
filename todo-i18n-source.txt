@@ -1,0 +1,1609 @@
+
+===== src/components/cards/ProjectTodoPanel.tsx =====
+import { useEffect, useMemo, useRef, useState } from "react";
+import { IconCheckCircle } from "../../lib/icons";
+
+import { useTranslation } from "react-i18next";
+
+import { useSettings } from "../../hooks/useSettings";
+import { useProjectTodos } from "../../hooks/useProjectTodos";
+
+import { formatDate, type LastOpenedDateFormat } from "../../lib/lastOpened";
+import { ProjectTodoModal } from "./ProjectTodoModal";
+import { ProjectTodoDetailsModal } from "./ProjectTodoDetailsModal";
+import { ProjectTodoList } from "./ProjectTodoList";
+import { ProjectTodoListModal } from "./ProjectTodoListModal";
+import { ConfirmDialog } from "../modals/ConfirmDialog";
+
+import type { ProjectTodo, TodoStatus } from "../../types/projectTodo";
+
+// const mockTodos: ProjectTodo[] = [
+//   {
+//     id: "1",
+//     title: "Adicionar ícone do projeto",
+//     status: "done",
+//     area: "art",
+//     dueDate: "2026-08-20",
+//     createdAt: "2026-08-15",
+//   },
+//   {
+//     id: "2",
+//     title: "Revisar traduções",
+//     status: "done",
+//     area: "other",
+//     dueDate: "2026-08-23",
+//     createdAt: "2026-08-16",
+//   },
+//   {
+//     id: "3",
+//     title: "Criar menu principal",
+//     area: "programming",
+//     status: "in_progress",
+//     dueDate: "2026-08-29",
+//     description: "Implementar o menu principal do jogo com transições suaves.",
+//     createdAt: "2026-08-18",
+//   },
+//   {
+//     id: "4",
+//     title: "Melhorar interface do launcher",
+//     area: "design",
+//     status: "paused",
+//     dueDate: "2026-09-02",
+//     createdAt: "2026-08-20",
+//   },
+//   {
+//     id: "5",
+//     title: "Testar configurações de exportação fela da puta",
+//     area: "other",
+//     status: "todo",
+//     createdAt: "2026-08-21",
+//   },
+// ];
+
+type ProjectTodoPanelProps = {
+  projectId: string;
+  onLoaded: () => void;
+  onClose: () => void;
+};
+
+type StatusSort = "completed-first" | "todo-first" | null;
+
+type DueDateSort = "nearest-first" | "farthest-first" | null;
+
+const statusConfig = {
+  todo: {
+    label: "A fazer",
+    className: "bg-raised text-ink border border-outline/40",
+    dotClassName: "bg-muted",
+  },
+  paused: {
+    label: "Em pausa",
+    className: "bg-amber/20 text-ink border border-amber/30",
+    dotClassName: "bg-amber",
+  },
+  in_progress: {
+    label: "Em andamento",
+    className: "bg-accent/15 text-ink border border-accent/30",
+    dotClassName: "bg-accent",
+  },
+  done: {
+    label: "Concluída",
+    className: "bg-mint/15 text-ink border border-mint/30",
+    dotClassName: "bg-mint",
+  },
+} satisfies Record<
+  TodoStatus,
+  { label: string; className: string; dotClassName: string }
+>;
+
+const statusOrder = {
+  todo: 0,
+  paused: 1,
+  in_progress: 2,
+  done: 3,
+} satisfies Record<TodoStatus, number>;
+
+function sortProjectTodos(
+  todos: ProjectTodo[],
+  statusSort: StatusSort,
+  dueDateSort: DueDateSort,
+) {
+  if (!statusSort && !dueDateSort) {
+    return todos;
+  }
+
+  return todos
+    .map((todo, index) => ({ todo, index }))
+    .sort((a, b) => {
+      if (dueDateSort) {
+        const aDate = a.todo.dueDate;
+        const bDate = b.todo.dueDate;
+
+        if (!aDate && !bDate) {
+          return a.index - b.index;
+        }
+
+        if (!aDate) return 1;
+        if (!bDate) return -1;
+
+        const dateDifference = aDate.localeCompare(bDate);
+
+        if (dateDifference !== 0) {
+          return dueDateSort === "nearest-first"
+            ? dateDifference
+            : -dateDifference;
+        }
+
+        return a.index - b.index;
+      }
+
+      if (statusSort) {
+        const direction = statusSort === "completed-first" ? -1 : 1;
+
+        const statusDifference =
+          (statusOrder[a.todo.status] - statusOrder[b.todo.status]) * direction;
+
+        if (statusDifference !== 0) {
+          return statusDifference;
+        }
+      }
+
+      return a.index - b.index;
+    })
+    .map(({ todo }) => todo);
+}
+
+function haveSameTodoOrder(first: ProjectTodo[], second: ProjectTodo[]) {
+  return (
+    first.length === second.length &&
+    first.every((todo, index) => todo.id === second[index]?.id)
+  );
+}
+
+function getTodayValue() {
+  const today = new Date();
+
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+}
+
+function formatDueDate(
+  dueDate: string | undefined,
+  today: string,
+  dateFormat: LastOpenedDateFormat,
+  locale: string,
+) {
+  if (!dueDate) return "—";
+
+  const millisecondsPerDay = 86_400_000;
+  const differenceInDays = Math.round(
+    (new Date(`${dueDate}T00:00:00Z`).getTime() -
+      new Date(`${today}T00:00:00Z`).getTime()) /
+      millisecondsPerDay,
+  );
+
+  if (differenceInDays >= -1 && differenceInDays <= 1) {
+    const relativeDate = new Intl.RelativeTimeFormat(locale, {
+      numeric: "auto",
+    }).format(differenceInDays, "day");
+
+    return relativeDate.replace(/^./u, (character) =>
+      character.toLocaleUpperCase(locale),
+    );
+  }
+
+  const date = new Date(`${dueDate}T00:00:00`);
+
+  if (dueDate.slice(0, 4) !== today.slice(0, 4)) {
+    return formatDate(date, dateFormat);
+  }
+
+  return new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "short",
+  }).format(date);
+}
+
+export function ProjectTodoPanel({
+  projectId,
+  onLoaded,
+  onClose,
+}: ProjectTodoPanelProps) {
+  const { settings } = useSettings();
+  const { i18n } = useTranslation();
+  const locale = i18n.resolvedLanguage ?? i18n.language;
+
+  const formatTodoDueDate = (dueDate: string | undefined, todayValue: string) =>
+    formatDueDate(
+      dueDate,
+      todayValue,
+      settings.last_opened_date_format,
+      locale,
+    );
+
+  const {
+    todos,
+    loaded,
+    loading,
+    error,
+    saving,
+    saveError,
+    refresh,
+    saveTodos,
+    retrySave,
+  } = useProjectTodos(projectId);
+
+  useEffect(() => {
+    if (loaded) {
+      onLoaded();
+    }
+  }, [loaded, onLoaded]);
+  const [statusSort, setStatusSort] = useState<StatusSort>(null);
+  const [dueDateSort, setDueDateSort] = useState<DueDateSort>("nearest-first");
+
+  const addTodo = (todo: ProjectTodo): Promise<boolean> => {
+    const nextTodos = [...todos, todo];
+
+    return saveTodos(nextTodos, false);
+  };
+
+  const updateTodo = async (
+    updatedTodo: ProjectTodo,
+    rememberFailure = true,
+  ): Promise<boolean> => {
+    const nextTodos = todos.map((todo) =>
+      todo.id === updatedTodo.id ? updatedTodo : todo,
+    );
+
+    return saveTodos(nextTodos, rememberFailure);
+  };
+
+  const setTodoStatus = (todo: ProjectTodo, status: TodoStatus) => {
+    previousStatusRef.current.delete(todo.id);
+
+    updateTodo({
+      ...todo,
+      status,
+    });
+  };
+
+  const toggleTodoCompleted = (todo: ProjectTodo) => {
+    if (todo.status === "done") {
+      const previousStatus = previousStatusRef.current.get(todo.id) ?? "todo";
+
+      previousStatusRef.current.delete(todo.id);
+
+      updateTodo({
+        ...todo,
+        status: previousStatus,
+      });
+
+      return;
+    }
+
+    previousStatusRef.current.set(todo.id, todo.status);
+
+    updateTodo({
+      ...todo,
+      status: "done",
+    });
+  };
+
+  const [isCreating, setIsCreating] = useState(false);
+  const [viewingTodo, setViewingTodo] = useState<ProjectTodo | null>(null);
+  const [editingTodo, setEditingTodo] = useState<ProjectTodo | null>(null);
+  const [showAllTodos, setShowAllTodos] = useState(false);
+  const [deletingTodo, setDeletingTodo] = useState<ProjectTodo | null>(null);
+
+  const previousStatusRef = useRef<Map<string, TodoStatus>>(new Map());
+  const pendingCount = todos.filter((todo) => todo.status !== "done").length;
+
+  const sortedTodos = useMemo(
+    () => sortProjectTodos(todos, statusSort, dueDateSort),
+    [todos, statusSort, dueDateSort],
+  );
+
+  const compactTodos = sortedTodos
+    .filter((todo) => todo.status !== "done")
+    .slice(0, 5);
+
+  const fullTodos = useMemo(
+    () => [
+      ...sortedTodos.filter((todo) => todo.status !== "done"),
+      ...todos.filter((todo) => todo.status === "done"),
+    ],
+    [sortedTodos, todos],
+  );
+
+  const toggleStatusSort = () => {
+    const preferredDirection =
+      statusSort === "completed-first" ? "todo-first" : "completed-first";
+
+    const oppositeDirection =
+      preferredDirection === "completed-first"
+        ? "todo-first"
+        : "completed-first";
+
+    const preferredOrder = sortProjectTodos(todos, preferredDirection, null);
+
+    const oppositeOrder = sortProjectTodos(todos, oppositeDirection, null);
+
+    const nextDirection =
+      haveSameTodoOrder(preferredOrder, sortedTodos) &&
+      !haveSameTodoOrder(oppositeOrder, sortedTodos)
+        ? oppositeDirection
+        : preferredDirection;
+
+    setDueDateSort(null);
+    setStatusSort(nextDirection);
+  };
+
+  const toggleDueDateSort = () => {
+    const preferredDirection =
+      dueDateSort === "nearest-first" ? "farthest-first" : "nearest-first";
+
+    const oppositeDirection =
+      preferredDirection === "nearest-first"
+        ? "farthest-first"
+        : "nearest-first";
+
+    const preferredOrder = sortProjectTodos(todos, null, preferredDirection);
+
+    const oppositeOrder = sortProjectTodos(todos, null, oppositeDirection);
+
+    const nextDirection =
+      haveSameTodoOrder(preferredOrder, sortedTodos) &&
+      !haveSameTodoOrder(oppositeOrder, sortedTodos)
+        ? oppositeDirection
+        : preferredDirection;
+
+    setStatusSort(null);
+    setDueDateSort(nextDirection);
+  };
+
+  const today = getTodayValue();
+
+  const viewingTodoOverdue = viewingTodo
+    ? !!viewingTodo.dueDate &&
+      viewingTodo.dueDate < today &&
+      viewingTodo.status !== "done"
+    : false;
+
+  return (
+    <div className="rounded-b-item border-x border-b border-outline/50 bg-overlay">
+      <div className="flex items-center justify-between px-3.5 py-2.5">
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] font-semibold uppercase tracking-wide text-muted">
+            Próximos passos
+          </span>
+        </div>
+
+        <span className="flex h-3 w-3 shrink-0 items-center justify-center">
+          {saving && (
+            <span
+              aria-label="Salvando tarefas"
+              className="h-3 w-3 animate-spin rounded-full border-2 border-accent-dim/30 border-t-accent-bright"
+            />
+          )}
+        </span>
+        <div className="flex items-center gap-3">
+          <span className="text-[10px] font-mono text-muted">
+            {pendingCount} {pendingCount === 1 ? "pendente" : "pendentes"}
+          </span>
+
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => setIsCreating(true)}
+            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 rounded-btn border border-accent/30 bg-accent/10 px-2.5 py-1.5 text-[10px] font-medium text-accent-bright transition-colors hover:border-accent/50 hover:bg-accent/20 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-accent/30 disabled:hover:bg-accent/10"
+          >
+            <span className="text-xs font-semibold">+</span>
+            Nova tarefa
+          </button>
+
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Ocultar próximos passos"
+            className="text-muted cursor-pointer"
+          >
+            ⌃
+          </button>
+        </div>
+      </div>
+
+      {saveError && (
+        <div
+          role="alert"
+          title={saveError}
+          className="mx-3.5 mb-2 flex items-center justify-between gap-3 rounded-item border border-danger/30 bg-danger/5 px-3 py-2 text-[11px] text-danger"
+        >
+          <span>Não foi possível salvar as alterações.</span>
+
+          <button
+            type="button"
+            onClick={() => void retrySave()}
+            disabled={saving}
+            className="focus-ring shrink-0 cursor-pointer rounded-btn border border-danger/30 px-2.5 py-1 transition-colors hover:bg-danger/10 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Tentar novamente
+          </button>
+        </div>
+      )}
+
+      {/* Tarefas */}
+      {loading ? (
+        <div className="mx-3.5 mb-2 flex items-center justify-center rounded-item border border-outline/50 px-4 py-10">
+          <span className="text-[11px] text-muted">Carregando tarefas...</span>
+        </div>
+      ) : error ? (
+        <div
+          className="mx-3.5 mb-2 flex flex-col items-center justify-center rounded-item border border-danger/30 bg-danger/5 px-4 py-10 text-center"
+          title={error}
+        >
+          <p className="text-sm font-medium text-danger">
+            Não foi possível carregar as tarefas
+          </p>
+
+          <p className="mt-1 text-[11px] text-muted">
+            Seus dados não foram modificados.
+          </p>
+
+          <button
+            type="button"
+            onClick={() => void refresh()}
+            className="focus-ring mt-4 cursor-pointer rounded-btn border border-outline/50 px-3 py-1.5 text-[11px] text-muted transition-colors hover:bg-raised hover:text-ink"
+          >
+            Tentar novamente
+          </button>
+        </div>
+      ) : todos.length === 0 ? (
+        <div className="mx-3.5 mb-2 flex flex-col items-center justify-center rounded-item border border-outline/50 px-4 py-10 text-center">
+          <span className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-accent/10 text-accent-bright">
+            <IconCheckCircle aria-hidden="true" className="h-4 w-4" />
+          </span>
+
+          <p className="text-sm font-medium text-ink">Nenhuma tarefa ainda</p>
+
+          <p className="mt-1 text-[11px] text-muted">
+            Adicione o primeiro próximo passo deste projeto.
+          </p>
+
+          <button
+            type="button"
+            disabled={saving}
+            onClick={() => setIsCreating(true)}
+            className="focus-ring mt-4 inline-flex cursor-pointer items-center gap-1.5 rounded-btn border border-accent/30 bg-accent/10 px-3 py-1.5 text-[11px] font-medium text-accent-bright transition-colors hover:border-accent/50 hover:bg-accent/20"
+          >
+            <span className="text-xs font-semibold">+</span>
+            Criar tarefa
+          </button>
+        </div>
+      ) : (
+        <>
+          {pendingCount === 0 ? (
+            <div className="mx-3.5 mb-2 flex flex-col items-center justify-center rounded-item border border-outline/50 px-4 py-10 text-center">
+              <span className="mb-3 flex h-9 w-9 items-center justify-center rounded-full bg-mint/10 text-mint">
+                <IconCheckCircle aria-hidden="true" className="h-4 w-4" />
+              </span>
+
+              <p className="text-sm font-medium text-ink">Tudo concluído</p>
+
+              <p className="mt-1 text-[11px] text-muted">
+                Você concluiu todos os próximos passos deste projeto.
+              </p>
+            </div>
+          ) : (
+            <ProjectTodoList
+              todos={compactTodos}
+              today={today}
+              disabled={saving}
+              statusSort={statusSort}
+              dueDateSort={dueDateSort}
+              statusConfig={statusConfig}
+              className="mx-3.5 mb-2"
+              formatDueDate={formatTodoDueDate}
+              onToggleStatusSort={toggleStatusSort}
+              onToggleDueDateSort={toggleDueDateSort}
+              onToggleCompleted={toggleTodoCompleted}
+              onSetStatus={setTodoStatus}
+              onUpdate={updateTodo}
+              onView={setViewingTodo}
+              onEdit={setEditingTodo}
+              onDelete={setDeletingTodo}
+            />
+          )}
+          {/* Rodapé */}
+          <div className="flex items-center justify-between px-3.5 pb-2.5">
+            <span className="text-[10px] text-muted">
+              Use a lista para acompanhar os próximos passos do projeto.
+            </span>
+
+            <button
+              type="button"
+              className="focus-ring cursor-pointer rounded-btn border border-outline/50 px-2.5 py-1.5 text-[10px] text-muted transition-colors hover:border-accent-dim hover:bg-raised hover:text-ink"
+              onClick={() => setShowAllTodos(true)}
+            >
+              Ver todas
+            </button>
+          </div>
+        </>
+      )}
+      {showAllTodos &&
+        !viewingTodo &&
+        !isCreating &&
+        !editingTodo &&
+        !deletingTodo && (
+          <ProjectTodoListModal
+            totalCount={todos.length}
+            pendingCount={pendingCount}
+            createDisabled={saving}
+            onCreate={() => setIsCreating(true)}
+            onClose={() => setShowAllTodos(false)}
+          >
+            <ProjectTodoList
+              todos={fullTodos}
+              today={today}
+              disabled={saving}
+              statusSort={statusSort}
+              dueDateSort={dueDateSort}
+              statusConfig={statusConfig}
+              showArea
+              formatDueDate={formatTodoDueDate}
+              onToggleStatusSort={toggleStatusSort}
+              onToggleDueDateSort={toggleDueDateSort}
+              onToggleCompleted={toggleTodoCompleted}
+              onSetStatus={setTodoStatus}
+              onUpdate={updateTodo}
+              onView={setViewingTodo}
+              onEdit={setEditingTodo}
+              onDelete={setDeletingTodo}
+            />
+          </ProjectTodoListModal>
+        )}
+      {viewingTodo && (
+        <ProjectTodoDetailsModal
+          todo={viewingTodo}
+          statusLabel={statusConfig[viewingTodo.status].label}
+          statusClassName={statusConfig[viewingTodo.status].className}
+          overdue={viewingTodoOverdue}
+          onClose={() => setViewingTodo(null)}
+        />
+      )}
+      {isCreating && (
+        <ProjectTodoModal
+          onClose={() => setIsCreating(false)}
+          onSubmit={addTodo}
+        />
+      )}
+
+      {editingTodo && (
+        <ProjectTodoModal
+          todo={editingTodo}
+          onClose={() => setEditingTodo(null)}
+          onSubmit={(todo) => updateTodo(todo, false)}
+        />
+      )}
+
+      {deletingTodo && (
+        <ConfirmDialog
+          title="Excluir tarefa?"
+          description={
+            <>
+              A tarefa <strong>“{deletingTodo.title}”</strong> será excluída.
+              Esta ação não pode ser desfeita.
+            </>
+          }
+          confirmLabel="Excluir"
+          variant="danger"
+          onConfirm={async () => {
+            const nextTodos = todos.filter(
+              (todo) => todo.id !== deletingTodo.id,
+            );
+
+            await saveTodos(nextTodos);
+
+            setDeletingTodo(null);
+          }}
+          onCancel={() => setDeletingTodo(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+===== src/components/cards/ProjectTodoList.tsx =====
+import { DatePicker } from "../ui/DatePicker";
+import { Dropdown } from "../ui/Dropdown";
+import { IconMore, IconPencil, IconTrash } from "../../lib/icons";
+
+import type {
+  ProjectTodo,
+  TodoArea,
+  TodoStatus,
+} from "../../types/projectTodo";
+
+type StatusSort = "completed-first" | "todo-first" | null;
+type DueDateSort = "nearest-first" | "farthest-first" | null;
+
+type StatusConfig = Record<
+  TodoStatus,
+  {
+    label: string;
+    className: string;
+    dotClassName: string;
+  }
+>;
+
+type ProjectTodoListProps = {
+  todos: ProjectTodo[];
+  today: string;
+  statusSort: StatusSort;
+  dueDateSort: DueDateSort;
+  statusConfig: StatusConfig;
+  showArea?: boolean;
+  className?: string;
+  disabled?: boolean;
+  formatDueDate: (dueDate: string | undefined, today: string) => string;
+  onToggleStatusSort: () => void;
+  onToggleDueDateSort: () => void;
+  onToggleCompleted: (todo: ProjectTodo) => void;
+  onSetStatus: (todo: ProjectTodo, status: TodoStatus) => void;
+  onUpdate: (todo: ProjectTodo) => void;
+  onView: (todo: ProjectTodo) => void;
+  onEdit: (todo: ProjectTodo) => void;
+  onDelete: (todo: ProjectTodo) => void;
+};
+
+const areaLabels = {
+  programming: "Programação",
+  art: "Arte",
+  audio: "Áudio",
+  design: "Design",
+  narrative: "Narrativa",
+  other: "Outro",
+} satisfies Record<TodoArea, string>;
+
+export function ProjectTodoList({
+  todos,
+  today,
+  statusSort,
+  dueDateSort,
+  statusConfig,
+  showArea = false,
+  className = "",
+  disabled = false,
+  formatDueDate,
+  onToggleStatusSort,
+  onToggleDueDateSort,
+  onToggleCompleted,
+  onSetStatus,
+  onUpdate,
+  onView,
+  onEdit,
+  onDelete,
+}: ProjectTodoListProps) {
+  const statusHeader = (
+    <button
+      type="button"
+      onClick={onToggleStatusSort}
+      className={`focus-ring cursor-pointer rounded-btn text-center text-[9px] font-medium uppercase tracking-wide text-muted/60 transition-colors hover:bg-raised hover:text-ink ${
+        showArea ? "w-28" : "min-w-[88px]"
+      }`}
+      title="Ordenar por status"
+    >
+      Status{" "}
+      {statusSort === "completed-first"
+        ? "↓"
+        : statusSort === "todo-first"
+          ? "↑"
+          : ""}
+    </button>
+  );
+
+  const dueDateHeader = (
+    <button
+      type="button"
+      onClick={onToggleDueDateSort}
+      className={`focus-ring cursor-pointer rounded-btn text-[9px] font-medium uppercase tracking-wide text-muted/60 transition-colors hover:bg-raised hover:text-ink ${
+        showArea ? "w-28 text-center" : "w-24 text-center"
+      }`}
+      title="Ordenar por prazo"
+    >
+      Prazo{" "}
+      {dueDateSort === "nearest-first"
+        ? "↑"
+        : dueDateSort === "farthest-first"
+          ? "↓"
+          : ""}
+    </button>
+  );
+
+  return (
+    <div
+      className={`overflow-hidden rounded-item border border-outline/50 ${
+        showArea ? "min-w-[640px]" : ""
+      } ${className}`}
+    >
+      <div className="flex items-center gap-3 border-b border-outline/40 px-3 py-3">
+        <span className="w-3.5 shrink-0" />
+
+        <span className="min-w-0 flex-1 text-[9px] font-medium uppercase tracking-wide text-muted/60">
+          Tarefa
+        </span>
+
+        {showArea && (
+          <span className="w-28 shrink-0 text-center text-[9px] font-medium uppercase tracking-wide text-muted/60">
+            Área
+          </span>
+        )}
+
+        <div className="flex shrink-0 items-center gap-2">
+          {showArea ? (
+            <>
+              {dueDateHeader}
+              {statusHeader}
+            </>
+          ) : (
+            <>
+              {statusHeader}
+              {dueDateHeader}
+            </>
+          )}
+
+          <span className="w-6 shrink-0" />
+        </div>
+      </div>
+
+      {todos.map((todo, index) => {
+        const status = statusConfig[todo.status];
+        const completed = todo.status === "done";
+        const overdue = !!todo.dueDate && todo.dueDate < today && !completed;
+
+        const statusControl = (
+          <Dropdown
+            align="right"
+            compact
+            activeItemClassName="bg-raised text-ink hover:bg-raised"
+            menuClassName="!min-w-40!"
+            trigger={({ open, toggle }) => (
+              <button
+                type="button"
+                disabled={disabled}
+                onClick={toggle}
+                aria-label={`Alterar status: ${status.label}`}
+                aria-expanded={open}
+                className={`focus-ring shrink-0 cursor-pointer rounded-tag border px-2 py-1 text-center text-[10px] transition-all hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50 ${status.className} ${
+                  showArea ? "w-28" : "min-w-[88px]"
+                } ${open ? "ring-1 ring-accent/40" : ""}`}
+              >
+                {status.label}
+              </button>
+            )}
+            items={[
+              {
+                key: "todo",
+                label: "A fazer",
+                leading: (
+                  <span
+                    aria-hidden="true"
+                    className={`mr-1 block h-2 w-2 rounded-full ${statusConfig.todo.dotClassName}`}
+                  />
+                ),
+                shortcut: todo.status === "todo" ? "✓" : undefined,
+                active: todo.status === "todo",
+                onClick: () => onSetStatus(todo, "todo"),
+              },
+              {
+                key: "paused",
+                label: "Em pausa",
+                leading: (
+                  <span
+                    aria-hidden="true"
+                    className={`mr-1 block h-2 w-2 rounded-full ${statusConfig.paused.dotClassName}`}
+                  />
+                ),
+                shortcut: todo.status === "paused" ? "✓" : undefined,
+                active: todo.status === "paused",
+                onClick: () => onSetStatus(todo, "paused"),
+              },
+              {
+                key: "in-progress",
+                label: "Em andamento",
+                leading: (
+                  <span
+                    aria-hidden="true"
+                    className={`mr-1 block h-2 w-2 rounded-full ${statusConfig.in_progress.dotClassName}`}
+                  />
+                ),
+                shortcut: todo.status === "in_progress" ? "✓" : undefined,
+                active: todo.status === "in_progress",
+                onClick: () => onSetStatus(todo, "in_progress"),
+              },
+              {
+                key: "done",
+                label: "Concluída",
+                leading: (
+                  <span
+                    aria-hidden="true"
+                    className={`mr-1 block h-2 w-2 rounded-full ${statusConfig.done.dotClassName}`}
+                  />
+                ),
+                shortcut: todo.status === "done" ? "✓" : undefined,
+                active: todo.status === "done",
+                onClick: () => onSetStatus(todo, "done"),
+              },
+            ]}
+          />
+        );
+
+        const dueDateControl = completed ? (
+          <span
+            aria-hidden="true"
+            className={`shrink-0 ${showArea ? "w-28" : "w-24"}`}
+          />
+        ) : (
+          <div
+            className={
+              showArea
+                ? "w-28 shrink-0 [&>div]:w-full [&_button]:w-full [&_button]:text-center"
+                : "w-24 shrink-0 [&>div]:w-full [&_button]:w-full [&_button]:text-center"
+            }
+          >
+            <DatePicker
+              value={todo.dueDate ?? ""}
+              disabled={disabled}
+              onChange={(dueDate) =>
+                onUpdate({
+                  ...todo,
+                  dueDate: dueDate || undefined,
+                })
+              }
+              compact
+              markPastDates
+              displayValue={
+                <span
+                  className={overdue ? "font-medium text-danger" : "text-muted"}
+                  title={overdue ? "Prazo vencido" : undefined}
+                >
+                  {formatDueDate(todo.dueDate, today)}
+                </span>
+              }
+            />
+          </div>
+        );
+
+        return (
+          <div
+            key={todo.id}
+            className={`flex items-center gap-3 px-3 py-2 ${
+              index < todos.length - 1 ? "border-b border-outline/40" : ""
+            }`}
+          >
+            <button
+              type="button"
+              disabled={disabled}
+              onClick={() => onToggleCompleted(todo)}
+              aria-label={
+                completed
+                  ? "Marcar tarefa como não concluída"
+                  : "Marcar tarefa como concluída"
+              }
+              className="focus-ring flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-btn disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {completed ? (
+                <span className="text-mint">✓</span>
+              ) : (
+                <span className="h-3.5 w-3.5 rounded border border-outline transition-colors hover:border-mint" />
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => onView(todo)}
+              title={todo.title}
+              aria-label={`Ver detalhes da tarefa: ${todo.title}`}
+              className={`focus-ring min-w-0 flex-1 cursor-pointer truncate rounded-btn text-left text-[11px] transition-colors ${
+                completed
+                  ? "text-muted line-through hover:text-ink"
+                  : "text-ink hover:text-accent-bright"
+              }`}
+            >
+              {todo.title}
+            </button>
+
+            {showArea && (
+              <span className="w-28 shrink-0 text-center">
+                <span className="inline-flex w-full justify-center truncate rounded-tag border border-outline/50 bg-raised px-2 py-1 text-[10px] font-medium text-ink">
+                  {areaLabels[todo.area ?? "other"]}
+                </span>
+              </span>
+            )}
+
+            <div className="flex shrink-0 items-center gap-2">
+              {showArea ? (
+                <>
+                  {dueDateControl}
+                  {statusControl}
+                </>
+              ) : (
+                <>
+                  {statusControl}
+                  {dueDateControl}
+                </>
+              )}
+
+              <Dropdown
+                align="right"
+                compact
+                trigger={({ open, toggle }) => (
+                  <button
+                    type="button"
+                    disabled={disabled}
+                    aria-label="Ações da tarefa"
+                    aria-expanded={open}
+                    onClick={toggle}
+                    className={`focus-ring flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-btn transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                      open
+                        ? "bg-raised text-ink"
+                        : "text-muted hover:bg-raised hover:text-ink"
+                    }`}
+                  >
+                    <IconMore className="h-3.5 w-3.5" />
+                  </button>
+                )}
+                items={[
+                  {
+                    key: "edit",
+                    label: "Editar",
+                    icon: IconPencil,
+                    onClick: () => onEdit(todo),
+                    dividerAfter: true,
+                  },
+                  {
+                    key: "delete",
+                    label: "Excluir",
+                    icon: IconTrash,
+                    danger: true,
+                    onClick: () => onDelete(todo),
+                  },
+                ]}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+===== src/components/cards/ProjectTodoModal.tsx =====
+import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+import { motion } from "framer-motion";
+import { ModalHeader } from "../modals/ModalHeader";
+import { IconCheckCircle, IconPencil } from "../../lib/icons";
+
+import type {
+  ProjectTodo,
+  TodoArea,
+  TodoStatus,
+} from "../../types/projectTodo";
+import { DatePicker } from "../ui/DatePicker";
+
+type ProjectTodoModalProps = {
+  onClose: () => void;
+  onSubmit: (todo: ProjectTodo) => Promise<boolean>;
+  todo?: ProjectTodo;
+};
+
+const areaOptions: Array<{
+  value: TodoArea;
+  label: string;
+}> = [
+  { value: "programming", label: "Programação" },
+  { value: "art", label: "Arte" },
+  { value: "audio", label: "Áudio" },
+  { value: "design", label: "Design" },
+  { value: "narrative", label: "Narrativa" },
+  { value: "other", label: "Outro" },
+];
+
+export function ProjectTodoModal({
+  onClose,
+  onSubmit,
+  todo,
+}: ProjectTodoModalProps) {
+  const editing = !!todo;
+
+  const [title, setTitle] = useState(todo?.title ?? "");
+  const [description, setDescription] = useState(todo?.description ?? "");
+  const [dueDate, setDueDate] = useState(todo?.dueDate ?? "");
+  const [status, setStatus] = useState<TodoStatus>(todo?.status ?? "todo");
+  const [area, setArea] = useState<TodoArea>(todo?.area ?? "other");
+
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState(false);
+
+  const trimmedTitle = title.trim();
+
+  const hasChanges =
+    !editing ||
+    trimmedTitle !== todo.title ||
+    description.trim() !== (todo.description ?? "") ||
+    dueDate !== (todo.dueDate ?? "") ||
+    status !== todo.status ||
+    area !== (todo.area ?? "other");
+
+  const canSubmit = trimmedTitle.length > 0 && hasChanges && !submitting;
+
+  const submit = async () => {
+    if (!canSubmit) return;
+
+    const savedTodo: ProjectTodo = {
+      id: todo?.id ?? crypto.randomUUID(),
+      title: trimmedTitle,
+      status,
+      area,
+      description: description.trim() || undefined,
+      dueDate: dueDate || undefined,
+      createdAt: todo?.createdAt ?? new Date().toISOString(),
+    };
+
+    setSubmitting(true);
+    setSubmitError(false);
+
+    const saved = await onSubmit(savedTodo);
+
+    setSubmitting(false);
+
+    if (saved) {
+      onClose();
+    } else {
+      setSubmitError(true);
+    }
+  };
+
+  useEffect(() => {
+    const handler = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handler);
+
+    return () => {
+      window.removeEventListener("keydown", handler);
+    };
+  }, [onClose]);
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("app:dialog-open"));
+
+    return () => {
+      window.dispatchEvent(new CustomEvent("app:dialog-close"));
+    };
+  }, []);
+
+  const optionButtonClass = (active: boolean) =>
+    `focus-ring cursor-pointer px-3 py-2 rounded-btn border text-xs font-medium transition-colors ${
+      active
+        ? "border-accent bg-accent/10 text-accent-bright"
+        : "border-outline/50 text-muted hover:border-accent-dim hover:text-ink hover:bg-raised"
+    }`;
+
+  // const canSubmit = title.trim().length > 0;
+
+  return createPortal(
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      onClick={onClose}
+    >
+      <motion.div
+        role="dialog"
+        aria-modal="true"
+        initial={{ opacity: 0, y: 14, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+        className="bg-surface rounded-modal w-full max-w-lg max-h-[88vh] flex flex-col shadow-2xl overflow-clip"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <ModalHeader
+          icon={
+            editing ? (
+              <IconPencil className="w-5 h-5 text-accent-bright" />
+            ) : (
+              <IconCheckCircle className="w-5 h-5 text-accent-bright" />
+            )
+          }
+          title={editing ? "Editar tarefa" : "Nova tarefa"}
+          description={
+            editing
+              ? "Atualize as informações desta tarefa."
+              : "Adicione um próximo passo para este projeto."
+          }
+          onClose={onClose}
+          autoFocusBanner={false}
+        />
+
+        <div className="p-6 pt-4 flex flex-col gap-4 overflow-y-auto">
+          {/* Título */}
+          <div className="flex flex-col gap-0.5">
+            <label className="pl-3 text-xs font-medium text-muted">
+              Título
+            </label>
+
+            <input
+              type="text"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Ex.: Criar menu principal"
+              className="focus-ring bg-overlay border border-outline/50 focus:border-accent-dim rounded-item px-3.5 py-2.5 text-sm font-mono text-ink placeholder:text-muted/70 transition-colors"
+            />
+          </div>
+
+          {/* Área */}
+          <div className="flex flex-col gap-2">
+            <label className="pl-3 text-xs font-medium text-muted">Área</label>
+
+            <div className="flex flex-wrap gap-1.5">
+              {areaOptions.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setArea(option.value)}
+                  className={optionButtonClass(area === option.value)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Status */}
+          <div className="flex flex-col gap-2">
+            <label className="pl-3 text-xs font-medium text-muted">
+              Status
+            </label>
+
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                type="button"
+                onClick={() => setStatus("todo")}
+                className={optionButtonClass(status === "todo")}
+              >
+                A fazer
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setStatus("paused")}
+                className={optionButtonClass(status === "paused")}
+              >
+                Em pausa
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setStatus("in_progress")}
+                className={optionButtonClass(status === "in_progress")}
+              >
+                Em andamento
+              </button>
+              <button
+                type="button"
+                onClick={() => setStatus("done")}
+                className={optionButtonClass(status === "done")}
+              >
+                Concluída
+              </button>
+            </div>
+          </div>
+
+          {/* Descrição */}
+          <div className="flex flex-col gap-0.5">
+            <label className="pl-3 text-xs font-medium text-muted">
+              Descrição{" "}
+              <span className="font-normal text-muted/60">(opcional)</span>
+            </label>
+
+            <textarea
+              rows={4}
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder="Adicione mais detalhes sobre o que precisa ser feito..."
+              className="focus-ring bg-overlay border border-outline/50 focus:border-accent-dim rounded-item px-3.5 py-2.5 text-sm text-ink placeholder:text-muted/70 transition-colors resize-none"
+            />
+          </div>
+
+          {/* Prazo */}
+          <div className="flex flex-col gap-0.5">
+            <label className="pl-3 text-xs font-medium text-muted">
+              Prazo{" "}
+              <span className="font-normal text-muted/60">(opcional)</span>
+            </label>
+
+            <DatePicker
+              value={dueDate}
+              onChange={setDueDate}
+              placeholder="Sem prazo"
+              clearLabel="Remover prazo"
+              markPastDates
+              pastDateMessage="Este prazo já venceu"
+            />
+          </div>
+        </div>
+
+        {submitError && (
+          <div
+            role="alert"
+            className="mx-6 rounded-item border border-danger/30 bg-danger/5 px-3 py-2 text-[11px] text-danger"
+          >
+            Não foi possível salvar a tarefa. Tente novamente.
+          </div>
+        )}
+
+        {/* Rodapé */}
+        <div className="flex justify-end gap-2 p-5 pt-2">
+          <motion.button
+            type="button"
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={onClose}
+            className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm text-muted hover:text-ink transition-colors"
+          >
+            Cancelar
+          </motion.button>
+
+          <motion.button
+            type="button"
+            whileHover={canSubmit ? { y: -1 } : undefined}
+            whileTap={canSubmit ? { scale: 0.96 } : undefined}
+            onClick={submit}
+            disabled={!canSubmit}
+            className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn bg-accent text-white text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {submitting
+              ? "Salvando..."
+              : editing
+                ? "Salvar alterações"
+                : "Adicionar tarefa"}
+          </motion.button>
+        </div>
+      </motion.div>
+    </motion.div>,
+    document.body,
+  );
+}
+
+===== src/components/cards/ProjectTodoDetailsModal.tsx =====
+import { useEffect } from "react";
+import { createPortal } from "react-dom";
+import { motion } from "framer-motion";
+
+import { IconCheckCircle } from "../../lib/icons";
+import type {
+  ProjectTodo,
+  TodoArea,
+} from "../../types/projectTodo";
+
+import { ModalHeader } from "../modals/ModalHeader";
+
+type ProjectTodoDetailsModalProps = {
+  todo: ProjectTodo;
+  statusLabel: string;
+  statusClassName: string;
+  overdue: boolean;
+  onClose: () => void;
+};
+
+const areaLabels = {
+  programming: "Programação",
+  art: "Arte",
+  audio: "Áudio",
+  design: "Design",
+  narrative: "Narrativa",
+  other: "Outro",
+} satisfies Record<TodoArea, string>;
+
+function toLocalDate(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+
+  return new Date(year, month - 1, day);
+}
+
+function formatDueDateContext(dueDate: string, overdue: boolean) {
+  const date = toLocalDate(dueDate);
+  const today = new Date();
+  const millisecondsPerDay = 86_400_000;
+
+  const differenceInDays = Math.round(
+    (Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()) -
+      Date.UTC(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate(),
+      )) /
+      millisecondsPerDay,
+  );
+
+  if (differenceInDays === 0) return "Hoje";
+  if (differenceInDays === 1) return "Amanhã";
+
+  if (differenceInDays > 1) {
+    return `Vence em ${differenceInDays} dias`;
+  }
+
+  if (overdue && differenceInDays === -1) {
+    return "Venceu ontem";
+  }
+
+  if (overdue) {
+    return `Venceu há ${Math.abs(differenceInDays)} dias`;
+  }
+
+  return null;
+}
+
+export function ProjectTodoDetailsModal({
+  todo,
+  statusLabel,
+  statusClassName,
+  overdue,
+  onClose,
+}: ProjectTodoDetailsModalProps) {
+      const fullDueDateLabel = todo.dueDate
+    ? new Intl.DateTimeFormat("pt-BR", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }).format(toLocalDate(todo.dueDate))
+    : "Sem prazo";
+
+  const dueDateContextLabel = todo.dueDate
+    ? formatDueDateContext(todo.dueDate, overdue)
+    : null;
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("app:dialog-open"));
+
+    return () => {
+      window.dispatchEvent(new CustomEvent("app:dialog-close"));
+    };
+  }, []);
+
+  return createPortal(
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <motion.div
+        role="dialog"
+        aria-modal="true"
+        initial={{ opacity: 0, y: 14, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+        className="flex h-[min(720px,88vh)] w-full max-w-lg flex-col overflow-clip rounded-modal bg-surface shadow-2xl"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <ModalHeader
+          icon={
+            <IconCheckCircle className="h-5 w-5 text-accent-bright" />
+          }
+          title={todo.title}
+          titleClassName="line-clamp-2 leading-tight"
+          description="Detalhes da tarefa"
+          onClose={onClose}
+          autoFocusBanner={false}
+        />
+
+        <div className="min-h-0 flex-1 overflow-y-auto p-6 pt-4 flex flex-col gap-4">
+         <div className="flex flex-col gap-1.5">
+            <span className="pl-3 text-xs font-medium text-muted">
+              Área
+            </span>
+
+            <span className="w-fit rounded-tag border border-outline/50 bg-raised px-3 py-1.5 text-xs font-medium text-ink">
+              {areaLabels[todo.area ?? "other"]}
+            </span>
+          </div>
+          
+         <div className="flex flex-col gap-1.5">
+            <span className="pl-3 text-xs font-medium text-muted">
+              Status
+            </span>
+
+            <span
+              className={`w-fit rounded-tag px-3 py-1.5 text-xs font-medium ${statusClassName}`}
+            >
+              {statusLabel}
+            </span>
+          </div>
+
+                    
+
+          <div className="flex flex-col gap-1.5">
+            <span className="pl-3 text-xs font-medium text-muted">
+              Descrição
+            </span>
+
+            <div className="min-h-20 whitespace-pre-wrap break-words rounded-item border border-outline/50 bg-overlay px-3.5 py-2.5 text-sm text-ink">
+              {todo.description || (
+                <span className="text-muted">Sem descrição</span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <span className="pl-3 text-xs font-medium text-muted">
+              Prazo
+            </span>
+
+                        <div
+              className={`rounded-item border border-outline/50 bg-overlay px-3.5 py-2.5 ${
+                !todo.dueDate
+                  ? "text-muted"
+                  : overdue
+                    ? "text-danger"
+                    : "text-ink"
+              }`}
+            >
+              <div className="text-sm font-medium">
+                {overdue}
+                {fullDueDateLabel}
+              </div>
+
+              {dueDateContextLabel && (
+                <div
+                  className={`mt-1 text-xs ${
+                    overdue ? "text-danger/80" : "text-muted"
+                  }`}
+                >
+                  {dueDateContextLabel}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end p-5 pt-2">
+          <motion.button
+            type="button"
+            whileHover={{ y: -1 }}
+            whileTap={{ scale: 0.96 }}
+            onClick={onClose}
+            className="focus-ring cursor-pointer rounded-btn border border-outline/50 px-4 py-2.5 text-sm text-muted transition-colors hover:border-accent-dim hover:bg-raised hover:text-ink"
+          >
+            Fechar
+          </motion.button>
+        </div>
+      </motion.div>
+    </motion.div>,
+    document.body,
+  );
+}
+
+===== src/components/cards/ProjectTodoListModal.tsx =====
+import { useEffect, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { motion } from "framer-motion";
+
+import { IconCheckCircle } from "../../lib/icons";
+import { ModalHeader } from "../modals/ModalHeader";
+
+type ProjectTodoListModalProps = {
+  totalCount: number;
+  pendingCount: number;
+  createDisabled?: boolean;
+  onCreate: () => void;
+  onClose: () => void;
+  children: ReactNode;
+};
+
+export function ProjectTodoListModal({
+  totalCount,
+  pendingCount,
+  createDisabled = false,
+  onCreate,
+  onClose,
+  children,
+}: ProjectTodoListModalProps) {
+  const completedCount = totalCount - pendingCount;
+
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [onClose]);
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("app:dialog-open"));
+
+    return () => {
+      window.dispatchEvent(new CustomEvent("app:dialog-close"));
+    };
+  }, []);
+
+  return createPortal(
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <motion.div
+        role="dialog"
+        aria-modal="true"
+        initial={{ opacity: 0, y: 14, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+        className="flex h-[min(760px,90vh)] w-full max-w-6xl flex-col overflow-clip rounded-modal bg-surface shadow-2xl"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <ModalHeader
+          icon={<IconCheckCircle className="h-5 w-5 text-accent-bright" />}
+          title="Próximos passos"
+          description="Visualize e gerencie todas as tarefas deste projeto."
+          onClose={onClose}
+          autoFocusBanner={false}
+        />
+
+        <div className="flex min-h-0 flex-1 flex-col p-6 pt-4">
+          <div className="mb-4 flex shrink-0 items-center justify-between gap-4">
+            <span className="text-[11px] font-mono text-muted">
+              {pendingCount} {pendingCount === 1 ? "pendente" : "pendentes"}
+              <span className="mx-2 text-muted/40">•</span>
+              {completedCount}{" "}
+              {completedCount === 1 ? "concluída" : "concluídas"}
+            </span>
+
+            <button
+              type="button"
+              disabled={createDisabled}
+              onClick={onCreate}
+              className="focus-ring inline-flex cursor-pointer items-center gap-1.5 rounded-btn border border-accent/30 bg-accent/10 px-3 py-1.5 text-[11px] font-medium text-accent-bright transition-colors hover:border-accent/50 hover:bg-accent/20 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <span className="text-xs font-semibold">+</span>
+              Nova tarefa
+            </button>
+          </div>
+
+          <div className="min-h-0 flex-1 overflow-auto pr-1">{children}</div>
+        </div>
+      </motion.div>
+    </motion.div>,
+    document.body,
+  );
+}

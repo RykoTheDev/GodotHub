@@ -117,6 +117,7 @@ const DEFAULTS: AppSettings = {
   fixed_sidebar_resize_knob: false,
   desktop_notifications_enabled: true,
   colored_titlebar_buttons: false,
+  project_todos_enabled: false,
 }
 
 interface SettingsContextValue {

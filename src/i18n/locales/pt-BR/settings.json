@@ -324,5 +324,7 @@
   "desktop_notifications_desc": "Show an OS notification when long operations finish (installs, clones, Git sync), even when the window is in the background.",
   "colored_titlebar_buttons_label": "Colored window buttons",
   "colored_titlebar_buttons_desc": "Use colored macOS-style circles for the minimize, maximize and close buttons. When disabled, the titlebar uses standard Windows-style buttons.",
-  "git_auth_copy_link": "Copy link"
+  "git_auth_copy_link": "Copy link",
+  "project_todos_label": "Próximos passos dos projetos",
+  "project_todos_desc": "Mostra a seção Próximos passos nos cartões de projeto, permitindo acompanhar as próximas tarefas de cada projeto."
 }

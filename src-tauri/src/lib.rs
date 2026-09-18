@@ -16,6 +16,7 @@ mod news;
 mod persist;
 mod process;
 mod projects;
+mod project_todos;
 mod scan;
 mod settings;
 mod sync;
@@ -340,6 +341,8 @@ pub fn run() {
             godot_versions::import_version_zip,
             notify,
             projects::list_projects,
+            project_todos::list_project_todos,
+            project_todos::save_project_todos,
             projects::create_project,
             projects::duplicate_project,
             projects::import_project,

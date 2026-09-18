@@ -820,6 +820,14 @@ pub async fn remove_project(app: AppHandle, id: String, delete_files: bool) -> R
     }
 
     if delete_files {
+        if let Err(error) =
+            crate::project_todos::remove_project_todos(&app, &project.id)
+        {
+            eprintln!(
+                "Failed to remove todos for project {}: {}", project.id, error
+            );
+        }
+
         let path = project.path.clone();
         tokio::task::spawn_blocking(move || {
             let _ = trash::delete_all([&path]);

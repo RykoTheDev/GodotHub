@@ -11,6 +11,7 @@ interface Props {
   variants?: Variants
   titleId?: string
   autoFocusBanner?: boolean
+  titleClassName?: string
 }
 
 export function ModalHeader({
@@ -20,6 +21,7 @@ export function ModalHeader({
   onClose,
   variants,
   titleId,
+  titleClassName = 'truncate',
   autoFocusBanner = true,
 }: Props) {
   const { t } = useTranslation('common')
@@ -50,7 +52,7 @@ export function ModalHeader({
           {icon}
         </div>
         <div className="min-w-0">
-          <h3 id={id} className="uppercase font-semibold text-xl text-ink truncate">
+          <h3 id={id} title={title} className={`uppercase font-semibold text-xl text-ink ${titleClassName}`}>
             {title}
           </h3>
           {description && (

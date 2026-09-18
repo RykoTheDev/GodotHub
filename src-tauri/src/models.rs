@@ -311,6 +311,8 @@ pub struct AppSettings {
     pub desktop_notifications_enabled: bool,
     #[serde(default)]
     pub colored_titlebar_buttons: bool,
+    #[serde(default)]
+    pub project_todos_enabled: bool,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, Default)]
@@ -630,6 +632,7 @@ tooltip_delay: default_tooltip_delay(),
             fixed_sidebar_resize_knob: false,
             desktop_notifications_enabled: true,
             colored_titlebar_buttons: false,
+            project_todos_enabled: false,
         }
     }
 }
@@ -653,4 +656,39 @@ impl<'de> serde::Deserialize<'de> for ChangelogNote {
             Raw::Full { category, text } => ChangelogNote { category, text },
         })
     }
+}
+
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TodoStatus {
+    Todo,
+    Paused,
+    InProgress,
+    Done,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TodoArea {
+    Programming,
+    Art,
+    Audio,
+    Design,
+    Narrative,
+    Other,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ProjectTodo {
+    pub id: String,
+    pub title: String,
+    pub status: TodoStatus,
+    pub area: TodoArea,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub due_date: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
+    pub created_at: String,
 }

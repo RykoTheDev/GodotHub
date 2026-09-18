@@ -39,6 +39,7 @@ interface NewDropdownProps {
   align?: 'left' | 'right'
   side?: 'top' | 'bottom' | 'left'
   menuClassName?: string
+  activeItemClassName?: string
   compact?: boolean
   children?: ReactNode
   onOpenChange?: (open: boolean) => void
@@ -63,6 +64,7 @@ export function Dropdown({
   align = 'right',
   side = 'bottom',
   menuClassName = '',
+  activeItemClassName = 'text-ink bg-accent hover:bg-accent',
   compact = false,
   children,
   onOpenChange,
@@ -322,6 +324,7 @@ export function Dropdown({
                     compact={compact}
                     onSelect={(e) => handleItemClick(item, e)}
                     caret={Boolean(item.children?.length)}
+                    activeItemClassName={activeItemClassName}
                   />
                   {item.children?.length && (
                     <AnimatePresence>
@@ -362,6 +365,7 @@ export function Dropdown({
                                     closeAll()
                                     child.onClick?.()
                                   }}
+                                  activeItemClassName={activeItemClassName}
                                 />
                                 {child.dividerAfter && (
                                   <MenuDivider compact={compact} />
