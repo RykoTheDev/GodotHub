@@ -111,6 +111,37 @@ struct GistDetail {
 #[derive(Deserialize)]
 struct GistFile {
     content: String,
+    #[serde(default)]
+    truncated: bool,
+    #[serde(default)]
+    raw_url: Option<String>,
+}
+
+async fn full_gist_content(
+    client: &reqwest::Client,
+    token: &str,
+    file: &GistFile,
+) -> Result<String, String> {
+    if !file.truncated {
+        return Ok(file.content.clone());
+    }
+    let raw_url = file
+        .raw_url
+        .as_ref()
+        .ok_or("Gist file is truncated but GitHub did not provide a raw_url")?;
+    let resp = client
+        .get(raw_url)
+        .bearer_auth(token)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+    let status = resp.status();
+    if !status.is_success() {
+        return Err(format!(
+            "Failed to fetch full backup content (HTTP {status}). The gist file was too large to load in one request; try again or check your connection."
+        ));
+    }
+    resp.text().await.map_err(|e| e.to_string())
 }
 
 async fn create_gist(
@@ -247,8 +278,9 @@ pub async fn gist_sync_fetch_backup(app: AppHandle) -> Result<RestorePreview, St
         .files
         .get(BACKUP_FILE_NAME)
         .ok_or("Backup file not found in the synced gist")?;
+    let content = full_gist_content(&client, &token, file).await?;
     let backup: crate::backup::AppBackup =
-        serde_json::from_str(&file.content).map_err(|e| e.to_string())?;
+        serde_json::from_str(&content).map_err(|e| e.to_string())?;
     let mut project_count = 0;
     let mut category_count = 0;
     let mut template_count = 0;
@@ -305,8 +337,9 @@ pub async fn gist_sync_pull(app: AppHandle) -> Result<crate::models::AppSettings
         .files
         .get(BACKUP_FILE_NAME)
         .ok_or("Backup file not found in the synced gist")?;
+    let content = full_gist_content(&client, &token, file).await?;
     let backup: crate::backup::AppBackup =
-        serde_json::from_str(&file.content).map_err(|e| e.to_string())?;
+        serde_json::from_str(&content).map_err(|e| e.to_string())?;
     let settings = crate::backup::apply_app_backup(&app, backup)?;
 
     let scan_depth = settings.scan_depth;
@@ -391,8 +424,9 @@ pub async fn gist_sync_pull_by_url(
         .files
         .get(BACKUP_FILE_NAME)
         .ok_or("Backup file not found in this gist")?;
+    let content = full_gist_content(&client, &token, file).await?;
     let backup: crate::backup::AppBackup =
-        serde_json::from_str(&file.content).map_err(|e| e.to_string())?;
+        serde_json::from_str(&content).map_err(|e| e.to_string())?;
     write_sync_state(
         &app,
         &SyncState {

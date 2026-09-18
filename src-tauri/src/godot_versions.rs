@@ -1213,6 +1213,8 @@ pub fn delete_godot_version(app: AppHandle, tag: String) -> Result<(), String> {
         .ok_or("Version not found")?;
     let removed = list.remove(idx);
     write_registry(&app, &list)?;
+    crate::current_version::clear_if_current(&app, &removed.tag);
+    crate::current_version::remove_aliases_for_tag(&app, &removed.tag);
 
     if let Some(root) = &removed.install_root {
         let root_path = PathBuf::from(root);

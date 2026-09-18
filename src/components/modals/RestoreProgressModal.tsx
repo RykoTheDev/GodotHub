@@ -98,7 +98,7 @@ export function RestoreProgressModal({ onClose }: Props) {
           : t('restore_modal_desc')
       }
       maxWidth="max-w-md"
-      onClose={phase === 'preview' || phase === 'error' ? onClose : undefined}
+      onClose={onClose}
       showClose={phase === 'preview' || phase === 'error'}
       footer={
         phase === 'preview' ? (

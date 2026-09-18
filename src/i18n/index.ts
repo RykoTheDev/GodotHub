@@ -186,10 +186,6 @@ const resources = {
 }
 }
 
-// The language setting stores the literal 'system' choice, and earlier builds
-// cached that value as i18nextLng. It matches no resource bundle, so the
-// detector would resolve it to the en-US fallback on every launch. Rewrite it
-// to the actual system locale before the detector reads it.
 try {
   if (localStorage.getItem('i18nextLng') === SYSTEM_LANGUAGE) {
     localStorage.setItem('i18nextLng', getSystemLanguage())
@@ -215,9 +211,6 @@ i18n
     },
   })
 
-// Chromium picks CJK font fallbacks and line-breaking rules from <html lang>,
-// which index.html hardcodes to "en". Left stale, Japanese text can be drawn
-// with Chinese glyph forms. src/index.css keys its CJK stacks off :lang().
 function syncDocumentLanguage(lng: string): void {
   document.documentElement.lang = lng
 }

@@ -881,7 +881,6 @@ export function GitSidebar({
     setSwitchingWorktree(worktreePath)
     try {
       await api.gitWorktreeSwitch(project.path, worktreePath)
-      // Update the project to point to the worktree directory
       onSwitchProject?.({ ...project, path: worktreePath })
       pushToast('success', t('switched_worktree_ok'))
     } catch (e) {
@@ -897,7 +896,6 @@ export function GitSidebar({
     setCreatingWorktree(true)
     try {
       const branch = newWorktreeBranch.trim() || undefined
-      // Resolve relative paths against the project directory
       const resolvedPath = wtPath.startsWith('/') ? wtPath : `${project.path}/${wtPath}`
       await api.gitWorktreeAdd(project.path, resolvedPath, branch)
       await refreshWorktrees()

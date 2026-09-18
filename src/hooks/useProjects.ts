@@ -95,14 +95,20 @@ export function useProjects() {
     [refresh, setData],
   )
 
-  const moveProject = useCallback(
-    async (id: string, category: string, destOrderedIds: string[]) => {
+  const moveProjects = useCallback(
+    async (ids: string[], category: string, destOrderedIds: string[]) => {
+      if (ids.length === 0) return
+      const moving = new Set(ids)
       setData((prev) => {
         if (!Array.isArray(prev)) return prev
         const rank = new Map(destOrderedIds.map((pid, i) => [pid, i]))
         return prev.map((p) => {
-          if (p.id === id) {
-            return { ...p, category: category || null, sort_order: rank.get(id) ?? p.sort_order }
+          if (moving.has(p.id)) {
+            return {
+              ...p,
+              category: category || null,
+              sort_order: rank.get(p.id) ?? p.sort_order,
+            }
           }
           if (rank.has(p.id)) {
             return { ...p, sort_order: rank.get(p.id)! }
@@ -110,7 +116,9 @@ export function useProjects() {
           return p
         })
       })
-      await api.updateProject(id, { category })
+      for (const id of ids) {
+        await api.updateProject(id, { category })
+      }
       await api.reorderProjects(destOrderedIds)
     },
     [setData],
@@ -136,7 +144,7 @@ export function useProjects() {
     setPinned,
     updateTags,
     setCategory,
-    moveProject,
+    moveProjects,
     reorder,
     scanProgress,
   }

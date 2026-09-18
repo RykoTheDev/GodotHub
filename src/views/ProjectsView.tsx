@@ -16,6 +16,7 @@ import { useCategoriesContext } from '../hooks/categoriesContext'
 import {
   IconArrowUpDown,
   IconCheck,
+  IconEyeSlash,
   IconFilter,
   IconGear,
   IconGitBranch,
@@ -30,6 +31,9 @@ import { tagColor } from '../lib/colors'
 import { Segmented } from '../components/reusables/Segmented'
 import { CreateViewModal } from '../components/modals/CreateViewModal'
 import { Dropdown } from '../components/ui/Dropdown'
+import { ContextMenu } from '../components/ui/ContextMenu'
+import type { MenuItem } from '../components/ui/menu'
+import type { HiddenCategoryEntry } from '../components/cards/CategorySections'
 import { ImportButton } from '../components/reusables/ImportButton'
 import { Tooltip } from '../components/reusables/Tooltip'
 import { OverlayScrollArea } from '../components/reusables/OverlayScrollArea'
@@ -43,7 +47,7 @@ import { useSettings } from '../hooks/useSettings'
 import { useScrollCompensation } from '../hooks/useScrollCompensation'
 import { api } from '../lib/api'
 import { pushToast } from '../lib/toast'
-import type { GitStatus, Project } from '../types'
+import type { Category, GitStatus, Project } from '../types'
 import {
   comparatorFor,
   SORT_OPTIONS,
@@ -80,14 +84,26 @@ export function ProjectsView({
     updateTags,
     setCategory,
     reorder,
-    moveProject,
+    moveProjects,
   } = useProjectsContext()
-  const { categories, create: createCategory, update: updateCategory, remove: removeCategory, reorder: reorderCategories } = useCategoriesContext()
+  const {
+    categories,
+    create: createCategory,
+    update: updateCategory,
+    remove: removeCategory,
+    reorder: reorderCategories,
+    setHidden: setCategoryHidden,
+  } = useCategoriesContext()
   const { installed } = useGodotVersionsContext()
   const { settings } = useSettings()
   const [createProjectOpen, setCreateProjectOpen] = useState(false)
   const [cloneRepoOpen, setCloneRepoOpen] = useState(false)
   const [categoryManagerOpen, setCategoryManagerOpen] = useState(false)
+  const [categoryMenu, setCategoryMenu] = useState<{
+    x: number
+    y: number
+    category: Category
+  } | null>(null)
   const [query, setQuery] = useState('')
   const [debouncedQuery, setDebouncedQuery] = useState('')
   useEffect(() => {
@@ -312,7 +328,8 @@ export function ProjectsView({
 
   useEffect(() => {
     if (categoryFilter === null || categoryFilter === '') return
-    if (!categories.some((c) => c.name === categoryFilter)) {
+    const match = categories.find((c) => c.name === categoryFilter)
+    if (!match || match.hidden) {
       setCategoryFilter(null)
     }
   }, [categories, categoryFilter])
@@ -340,28 +357,67 @@ export function ProjectsView({
     return list
   }, [projects, debouncedQuery, tagFilter, categoryFilter])
 
-  // 'categories' is only a distinct mode while categories are enabled. Any
-  // stored 'categories' value otherwise resolves to a plain manual order.
   const effectiveSortBy: ProjectSortOption =
     sortBy === 'categories' && !settings.categories_enabled ? 'manual' : sortBy
 
+  const categoriesEnabled =
+    settings.categories_enabled && effectiveSortBy === 'categories'
+
+  const visibleCategories = useMemo(
+    () => categories.filter((c) => !c.hidden),
+    [categories],
+  )
+
+  const hiddenCategories = useMemo<HiddenCategoryEntry[]>(() => {
+    const hidden = categories.filter((c) => c.hidden)
+    if (hidden.length === 0) return []
+    const counts = new Map<string, number>()
+    for (const p of baseFiltered) {
+      if (!p.category) continue
+      counts.set(p.category, (counts.get(p.category) ?? 0) + 1)
+    }
+    return hidden.map((category) => ({
+      category,
+      count: counts.get(category.name) ?? 0,
+    }))
+  }, [categories, baseFiltered])
+
+  const hiddenCategoryNames = useMemo(
+    () => new Set(hiddenCategories.map((h) => h.category.name)),
+    [hiddenCategories],
+  )
+
+  const surfaceCategories = useMemo(
+    () => (settings.categories_enabled ? visibleCategories : []),
+    [settings.categories_enabled, visibleCategories],
+  )
+
+  const hiddenEntries = categoriesEnabled ? hiddenCategories : []
+
   const filtered = useMemo(() => {
-    let list = baseFiltered
+    const list =
+      categoriesEnabled && hiddenCategoryNames.size > 0
+        ? baseFiltered.filter(
+            (p) => !p.category || !hiddenCategoryNames.has(p.category),
+          )
+        : baseFiltered
     const cmp = comparatorFor(effectiveSortBy, sortNow)
     return [...list].sort((a, b) => {
       if (a.pinned !== b.pinned) return a.pinned ? -1 : 1
       if (a.pinned) return a.name.localeCompare(b.name)
       return cmp ? cmp(a, b) : a.sort_order - b.sort_order
     })
-  }, [baseFiltered, effectiveSortBy, sortNow])
+  }, [
+    baseFiltered,
+    categoriesEnabled,
+    hiddenCategoryNames,
+    effectiveSortBy,
+    sortNow,
+  ])
 
   const hasActiveFilters =
     query.trim() !== '' || tagFilter !== null || categoryFilter !== null
 
-  const categoriesEnabled = settings.categories_enabled && effectiveSortBy === 'categories'
-
-  // Dragging is available in every view and sort mode; a filtered or searched
-  // subset has no stable order to persist, so it is left alone.
   const dragEnabled = !hasActiveFilters
 
   const visualOrder = useMemo(() => {
@@ -376,14 +432,14 @@ export function ProjectsView({
       groups.get(cat)!.push(p)
     }
     const ordered: Project[] = [...pinned]
-    for (const cat of categories) {
+    for (const cat of visibleCategories) {
       const projs = groups.get(cat.name)
       if (projs) ordered.push(...projs)
     }
     const uncategorized = groups.get(UNCATEGORIZED_KEY)
     if (uncategorized) ordered.push(...uncategorized)
     return ordered
-  }, [filtered, categoriesEnabled, categories])
+  }, [filtered, categoriesEnabled, visibleCategories])
 
   const lastClickedIndexRef = useRef<number | null>(null)
 
@@ -517,8 +573,6 @@ export function ProjectsView({
     await refresh()
   }, [refresh])
 
-  // Dropping a card pins the list to a custom order. A grouped (categories)
-  // surface keeps its grouping; a flat surface switches to manual order.
   const handleListReorder = useCallback(
     async (orderedIds: string[]) => {
       if (!categoriesEnabled) setSortBy('manual')
@@ -535,13 +589,54 @@ export function ProjectsView({
     [settings.categories_enabled, reorder],
   )
 
-  const handleMoveProject = useCallback(
-    async (id: string, category: string, destOrderedIds: string[]) => {
+  const handleMoveProjects = useCallback(
+    async (ids: string[], category: string, destOrderedIds: string[]) => {
       setSortBy(settings.categories_enabled ? 'categories' : 'manual')
-      await moveProject(id, category, destOrderedIds)
+      await moveProjects(ids, category, destOrderedIds)
     },
-    [settings.categories_enabled, moveProject],
+    [settings.categories_enabled, moveProjects],
   )
+
+  const openCategoryMenu = useCallback(
+    (e: React.MouseEvent<HTMLElement>, category: Category) => {
+      setCategoryMenu({ x: e.clientX, y: e.clientY, category })
+    },
+    [],
+  )
+
+  const hideCategory = useCallback(
+    async (category: Category) => {
+      setSelectedIds((prev) => {
+        if (prev.size === 0) return prev
+        const next = new Set(prev)
+        for (const p of projects) {
+          if ((p.category ?? '') === category.name) next.delete(p.id)
+        }
+        return next
+      })
+      await setCategoryHidden(category.id, true)
+      pushToast('info', tc('category_hidden_toast', { name: category.name }))
+    },
+    [projects, setCategoryHidden, tc],
+  )
+
+  const unhideCategory = useCallback(
+    async (id: string) => {
+      await setCategoryHidden(id, false)
+    },
+    [setCategoryHidden],
+  )
+
+  const categoryMenuItems: MenuItem[] = categoryMenu
+    ? [
+        {
+          key: 'hide-category',
+          label: tc('hide_category'),
+          icon: IconEyeSlash,
+          onClick: () => void hideCategory(categoryMenu.category),
+        },
+      ]
+    : []
 
   const searchRef = useRef<HTMLInputElement | null>(null)
 
@@ -752,7 +847,7 @@ export function ProjectsView({
                 dotColor: '#949ba4',
                 onClick: () => setCategoryFilter(''),
               },
-              ...categories.map((cat) => ({
+              ...visibleCategories.map((cat) => ({
                 key: `filter-${cat.id}`,
                 label: cat.name,
                 active: categoryFilter === cat.name,
@@ -946,7 +1041,7 @@ export function ProjectsView({
         {viewMode === 'kanban' ? (
           <ProjectCardKanban
             projects={filtered}
-            categories={settings.categories_enabled ? categories : []}
+            categories={surfaceCategories}
             installedVersions={installed}
             gitStatusMap={gitStatusMap}
             launchWithConsole={settings.launch_with_console}
@@ -972,17 +1067,20 @@ export function ProjectsView({
             onToggleSelect={(id, e) => toggleSelect(id, e)}
             selecting={selecting}
             onReorder={dragEnabled ? handleKanbanReorder : undefined}
-            onMoveProject={
+            onMoveProjects={
               dragEnabled && settings.categories_enabled
-                ? handleMoveProject
+                ? handleMoveProjects
                 : undefined
             }
+            hiddenCategories={hiddenEntries}
+            onUnhideCategory={unhideCategory}
+            onCategoryContextMenu={openCategoryMenu}
           />
         ) : viewMode === 'grid' ? (
           <ProjectCardGrid
             projects={filtered}
             installedVersions={installed}
-            categories={settings.categories_enabled ? categories : []}
+            categories={surfaceCategories}
             categoriesEnabled={categoriesEnabled}
             gitStatusMap={gitStatusMap}
             launchWithConsole={settings.launch_with_console}
@@ -1007,9 +1105,12 @@ export function ProjectsView({
             onToggleSelect={(id, e) => toggleSelect(id, e)}
             selecting={selecting}
             onReorder={dragEnabled ? handleListReorder : undefined}
-            onMoveProject={
-              dragEnabled && categoriesEnabled ? handleMoveProject : undefined
+            onMoveProjects={
+              dragEnabled && categoriesEnabled ? handleMoveProjects : undefined
             }
+            hiddenCategories={hiddenEntries}
+            onUnhideCategory={unhideCategory}
+            onCategoryContextMenu={openCategoryMenu}
           />
         ) : (
           <ProjectCardList
@@ -1017,17 +1118,21 @@ export function ProjectsView({
             totalCount={projects.length}
             animationThreshold={settings.animation_threshold}
             hasActiveFilters={hasActiveFilters}
-            categories={settings.categories_enabled ? categories : []}
+            categories={surfaceCategories}
             categoriesEnabled={categoriesEnabled}
             onReorder={dragEnabled ? handleListReorder : undefined}
-            onMoveProject={
-              dragEnabled && categoriesEnabled ? handleMoveProject : undefined
+            onMoveProjects={
+              dragEnabled && categoriesEnabled ? handleMoveProjects : undefined
             }
+            hiddenCategories={hiddenEntries}
+            onUnhideCategory={unhideCategory}
+            onCategoryContextMenu={openCategoryMenu}
+            selectedIds={selectedIds}
             renderCard={(p) => (
               <ProjectCard
                 project={p}
                 installedVersions={installed}
-                categories={settings.categories_enabled ? categories : []}
+                categories={surfaceCategories}
                 gitStatus={gitStatusMap[p.path] ?? null}
                 launchWithConsole={settings.launch_with_console}
                 onTogglePin={() => setPinned(p.id, !p.pinned)}
@@ -1063,7 +1168,7 @@ export function ProjectsView({
           <CreateProjectModal
             installedVersions={installed}
             defaultLocation={settings.default_project_location}
-            categories={categories}
+            categories={surfaceCategories}
             categoriesEnabled={settings.categories_enabled}
             onClose={() => setCreateProjectOpen(false)}
             onCreated={() => {
@@ -1078,7 +1183,7 @@ export function ProjectsView({
         {cloneRepoOpen && (
           <CloneRepoModal
             defaultLocation={settings.default_project_location}
-            categories={categories}
+            categories={surfaceCategories}
             categoriesEnabled={settings.categories_enabled}
             onClose={() => setCloneRepoOpen(false)}
             onCloned={() => {
@@ -1152,6 +1257,20 @@ export function ProjectsView({
             variant="danger"
             onConfirm={executeBatchDelete}
             onCancel={() => setConfirmBatchAction(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {categoryMenu && (
+          <ContextMenu
+            key="category-context-menu"
+            label={categoryMenu.category.name}
+            x={categoryMenu.x}
+            y={categoryMenu.y}
+            items={categoryMenuItems}
+            compact
+            onClose={() => setCategoryMenu(null)}
           />
         )}
       </AnimatePresence>

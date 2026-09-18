@@ -1209,15 +1209,80 @@
     "date": "2026-09-11",
     "notes": [
       {
-        "category": "fix",
-        "text": "Time track bug where it accumulated next day's tracked time into one if project was opened during midnight"
+        "category": "add",
+        "text": "Pin a version as Current from the Versions view. GodotHub creates a 'Godot' launcher in its alias folder, so scripts, test runners and MCP servers get a stable path instead of chasing each version's install location"
+      },
+      {
+        "category": "add",
+        "text": "Version aliases: give extra command names to specific versions, like 'godot-mono' or 'godot-next', and manage them from the Versions view"
+      },
+      {
+        "category": "add",
+        "text": "Hidden categories: hide a category and its projects from the project lists, then bring it back from the Hidden Categories section"
+      },
+      {
+        "category": "add",
+        "text": "Right-click context menu for categories in the Projects view"
+      },
+      {
+        "category": "add",
+        "text": "Pick a color while creating categories during setup, and each starter category now gets its own shade"
       },
       {
         "category": "improve",
         "text": "Re-worked on Drag n Drop for Project cards"
+      },
+      {
+        "category": "improve",
+        "text": "Submenus now animate in instead of appearing instantly"
+      },
+      {
+        "category": "improve",
+        "text": "Renamed the 'Manual' sorting option to 'Custom'"
+      },
+      {
+        "category": "improve",
+        "text": "Installed versions can now be sorted by name, Z-A"
+      },
+      {
+        "category": "improve",
+        "text": "Arabic translation; PR by Spy-B"
+      },
+      {
+        "category": "improve",
+        "text": "Version aliases update live: deleting a launcher from the alias folder refreshes the aliases manager right away"
+      },
+      {
+        "category": "fix",
+        "text": "Time track bug where it accumulated next day's tracked time into one if project was opened during midnight"
+      },
+      {
+        "category": "fix",
+        "text": "The 'Set category...' submenu was cut off and unreachable, so a project's category couldn't be changed from its card menu"
+      },
+      {
+        "category": "fix",
+        "text": "Data folder migration no longer deletes files it couldn't move, and a rebuilt library keeps its settings instead of asking for first-time setup again"
+      },
+      {
+        "category": "fix",
+        "text": "A data file that antivirus or the updater locks for a moment is no longer mistaken for a corrupt one"
       }
     ],
     "known_issues": [],
     "created_at": 1789156269
+  },
+  {
+    "id": "7a36b9f8-f8fe-49d8-99a9-3cc2f2c36f8d",
+    "version": "v1.4.4",
+    "date": "2026-09-14",
+    "notes": [
+      {
+        "category": "add",
+        "text": "Alias Creation for Godot Versions; You can now create your own alias for any installed version and use it in scripts or something else idk"
+      }
+    ],
+    "known_issues": [],
+    "created_at": 1789412855
   }
 ]

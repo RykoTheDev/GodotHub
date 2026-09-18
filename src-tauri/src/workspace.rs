@@ -1,76 +1,195 @@
 use crate::models::*;
 use crate::persist;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::{Mutex, OnceLock};
 use tauri::{AppHandle, Manager};
 use uuid::Uuid;
+
+const META_FILE: &str = "workspace.json";
+const LEGACY_FILES: [&str; 4] = ["settings.json", "projects.json", "categories.json", "templates"];
 
 fn state_lock() -> &'static Mutex<()> {
     static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
     LOCK.get_or_init(|| Mutex::new(()))
 }
 
-fn workspaces_file(app: &AppHandle) -> PathBuf {
-    let base = app.path().app_data_dir().expect("no app data dir");
-    if !base.exists() {
-        let _ = fs::create_dir_all(&base);
-    }
+fn app_data_dir(app: &AppHandle) -> PathBuf {
+    app.path().app_data_dir().expect("no app data dir")
+}
+
+fn workspaces_file_in(base: &Path) -> PathBuf {
     base.join("workspaces.json")
 }
 
-fn workspaces_root(app: &AppHandle) -> PathBuf {
-    app.path()
-        .app_data_dir()
-        .expect("no app data dir")
-        .join("workspaces")
+fn workspaces_root_in(base: &Path) -> PathBuf {
+    base.join("workspaces")
 }
 
-pub fn workspace_dir(app: &AppHandle, id: &str) -> PathBuf {
-    let dir = workspaces_root(app).join(id);
+fn workspaces_root(app: &AppHandle) -> PathBuf {
+    workspaces_root_in(&app_data_dir(app))
+}
+
+fn ensure_dir(dir: &Path) {
     if !dir.exists() {
-        let _ = fs::create_dir_all(&dir);
+        let _ = fs::create_dir_all(dir);
     }
+}
+
+pub fn workspace_dir_in(base: &Path, id: &str) -> PathBuf {
+    let dir = workspaces_root_in(base).join(id);
+    ensure_dir(&dir);
     dir
 }
 
-pub(crate) fn write_state(app: &AppHandle, state: &WorkspacesState) -> Result<(), String> {
-    persist::write_json(&workspaces_file(app), state).map_err(|e| e.to_string())
+pub fn workspace_dir(app: &AppHandle, id: &str) -> PathBuf {
+    workspace_dir_in(&app_data_dir(app), id)
 }
 
-pub fn read_state(app: &AppHandle) -> WorkspacesState {
-    let _guard = state_lock().lock().unwrap_or_else(|e| e.into_inner());
-    let file = workspaces_file(app);
-    if file.exists() {
-        match persist::read_json_opt::<WorkspacesState>(&file) {
-            Some(mut state) if !state.workspaces.is_empty() => {
-                if !state.workspaces.iter().any(|w| w.id == state.active_id) {
-                    state.active_id = state.workspaces[0].id.clone();
-                    let _ = write_state(app, &state);
-                }
-                return state;
-            }
-            Some(_) => {}
-            None => {
-                let backup = file.with_extension(format!(
-                    "json.corrupt-{}",
-                    chrono::Utc::now().timestamp()
-                ));
-                let _ = fs::rename(&file, &backup);
+pub(crate) fn write_state(app: &AppHandle, state: &WorkspacesState) -> Result<(), String> {
+    write_state_in(&app_data_dir(app), state)
+}
+
+fn write_state_in(base: &Path, state: &WorkspacesState) -> Result<(), String> {
+    for ws in &state.workspaces {
+        let dir = workspace_dir_in(base, &ws.id);
+        let _ = persist::write_json(&dir.join(META_FILE), ws);
+    }
+    persist::write_json_with_backup(&workspaces_file_in(base), state).map_err(|e| e.to_string())
+}
+
+fn read_json_retry<T: serde::de::DeserializeOwned>(file: &Path) -> Option<T> {
+    for attempt in 0..3 {
+        match fs::read_to_string(file) {
+            Ok(raw) => return serde_json::from_str(&raw).ok(),
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => return None,
+            Err(_) => {
+                std::thread::sleep(std::time::Duration::from_millis(20 * (attempt + 1)));
             }
         }
     }
+    None
+}
 
-    let base = app.path().app_data_dir().expect("no app data dir");
-    let id = Uuid::new_v4().to_string();
-    let dir = workspace_dir(app, &id);
-    for name in ["settings.json", "projects.json", "categories.json", "templates"] {
+fn read_state_file(file: &Path) -> Option<WorkspacesState> {
+    for candidate in [file.to_path_buf(), persist::backup_path(file)] {
+        if let Some(state) = read_json_retry::<WorkspacesState>(&candidate) {
+            if !state.workspaces.is_empty() {
+                return Some(state);
+            }
+        }
+    }
+    None
+}
+
+fn has_workspace_data(dir: &Path) -> bool {
+    dir.join(META_FILE).is_file()
+        || dir.join("settings.json").is_file()
+        || dir.join("projects.json").is_file()
+        || dir.join("categories.json").is_file()
+        || dir.join("templates").is_dir()
+}
+
+fn dir_timestamp(dir: &Path) -> String {
+    fs::metadata(dir)
+        .and_then(|m| m.modified())
+        .ok()
+        .map(chrono::DateTime::<chrono::Utc>::from)
+        .unwrap_or_else(chrono::Utc::now)
+        .to_rfc3339()
+}
+
+fn pick_active(workspaces: &[Workspace], root: &Path) -> String {
+    let mut best: Option<(bool, std::time::SystemTime, String)> = None;
+    for ws in workspaces {
+        let settings = root.join(&ws.id).join("settings.json");
+        let Ok(modified) = fs::metadata(&settings).and_then(|m| m.modified()) else {
+            continue;
+        };
+        let configured = persist::read_json_opt::<serde_json::Value>(&settings)
+            .and_then(|v| v.get("setup_complete").and_then(|b| b.as_bool()))
+            .unwrap_or(false);
+        let candidate = (configured, modified, ws.id.clone());
+        if best.as_ref().is_none_or(|current| candidate > *current) {
+            best = Some(candidate);
+        }
+    }
+    best.map(|(_, _, id)| id)
+        .unwrap_or_else(|| workspaces[0].id.clone())
+}
+
+fn recover_state(base: &Path) -> Option<WorkspacesState> {
+    let root = workspaces_root_in(base);
+    let mut dirs: Vec<(String, PathBuf)> = fs::read_dir(&root)
+        .ok()?
+        .flatten()
+        .filter_map(|entry| {
+            let dir = entry.path();
+            let id = dir.file_name()?.to_str()?.to_string();
+            (dir.is_dir() && has_workspace_data(&dir)).then_some((id, dir))
+        })
+        .collect();
+
+    if dirs.is_empty() {
+        return None;
+    }
+    dirs.sort_by(|a, b| a.0.cmp(&b.0));
+
+    let single = dirs.len() == 1;
+    let workspaces: Vec<Workspace> = dirs
+        .into_iter()
+        .enumerate()
+        .map(|(index, (id, dir))| {
+            let mut workspace = persist::read_json_opt::<Workspace>(&dir.join(META_FILE))
+                .unwrap_or_else(|| Workspace {
+                    id: id.clone(),
+                    name: if single {
+                        "Default".to_string()
+                    } else {
+                        format!("Recovered {}", index + 1)
+                    },
+                    icon: "briefcase".to_string(),
+                    color: crate::models::default_accent(),
+                    created_at: dir_timestamp(&dir),
+                });
+            workspace.id = id;
+            workspace
+        })
+        .collect();
+
+    let active_id = pick_active(&workspaces, &root);
+    Some(WorkspacesState {
+        workspaces,
+        active_id,
+    })
+}
+
+fn note(base: &Path, message: &str) {
+    use std::io::Write;
+    let Ok(mut file) = fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(base.join("diagnostics.log"))
+    else {
+        return;
+    };
+    let _ = writeln!(file, "{} [workspace] {}", chrono::Utc::now().to_rfc3339(), message);
+}
+
+fn migrate_legacy_files(base: &Path, id: &str) {
+    let dir = workspace_dir_in(base, id);
+    for name in LEGACY_FILES {
         let src = base.join(name);
         let dst = dir.join(name);
         if src.exists() && !dst.exists() {
             let _ = fs::rename(&src, &dst);
         }
     }
+}
+
+fn create_default_state(base: &Path) -> WorkspacesState {
+    let id = Uuid::new_v4().to_string();
+    migrate_legacy_files(base, &id);
 
     let workspace = Workspace {
         id: id.clone(),
@@ -83,8 +202,54 @@ pub fn read_state(app: &AppHandle) -> WorkspacesState {
         workspaces: vec![workspace],
         active_id: id,
     };
-    let _ = write_state(app, &state);
+    let _ = write_state_in(base, &state);
     state
+}
+
+pub fn read_state(app: &AppHandle) -> WorkspacesState {
+    let _guard = state_lock().lock().unwrap_or_else(|e| e.into_inner());
+    read_state_in(&app_data_dir(app))
+}
+
+pub fn read_state_in(base: &Path) -> WorkspacesState {
+    ensure_dir(base);
+    let file = workspaces_file_in(base);
+
+    if let Some(mut state) = read_state_file(&file) {
+        if !state.workspaces.iter().any(|w| w.id == state.active_id) {
+            state.active_id = state.workspaces[0].id.clone();
+            let _ = write_state_in(base, &state);
+        }
+        return state;
+    }
+
+    let damaged = file.exists();
+    if damaged {
+        let backup = file.with_extension(format!(
+            "json.corrupt-{}",
+            chrono::Utc::now().timestamp()
+        ));
+        let _ = fs::rename(&file, &backup);
+    }
+
+    if let Some(state) = recover_state(base) {
+        note(
+            base,
+            &format!(
+                "rebuilt workspaces index from disk: {} workspace(s), damaged index: {}",
+                state.workspaces.len(),
+                damaged
+            ),
+        );
+        migrate_legacy_files(base, &state.active_id);
+        let _ = write_state_in(base, &state);
+        return state;
+    }
+
+    if damaged {
+        note(base, "workspaces index was unusable and nothing could be recovered");
+    }
+    create_default_state(base)
 }
 
 pub fn active_workspace_dir(app: &AppHandle) -> PathBuf {
@@ -110,7 +275,7 @@ pub fn list_workspace_scan_dirs(app: AppHandle) -> Vec<WorkspaceScanDirs> {
         .map(|w| {
             let dir = workspace_dir(&app, &w.id);
             let settings: crate::models::AppSettings =
-                persist::read_json(&dir.join("settings.json"));
+                persist::read_json_with_backup(&dir.join("settings.json"));
             WorkspaceScanDirs {
                 workspace_id: w.id.clone(),
                 workspace_name: w.name.clone(),
@@ -250,3 +415,7 @@ pub fn delete_workspace(app: AppHandle, id: String) -> Result<WorkspacesState, S
     }
     Ok(state)
 }
+
+#[cfg(test)]
+#[path = "../tests/common/workspace.rs"]
+mod workspace_common_tests;

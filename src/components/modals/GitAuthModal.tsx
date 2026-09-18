@@ -38,6 +38,7 @@ export function GitAuthModal({
   )
   const [message, setMessage] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
+  const [linkCopied, setLinkCopied] = useState(false)
   const stopRef = useRef(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const onConnectedRef = useRef(onConnected)
@@ -128,6 +129,21 @@ export function GitAuthModal({
       flow.verification_uri_complete || flow.verification_uri
     if (url) openUrl(url).catch(() => {})
   }
+
+  const copyLink = async () => {
+    if (!flow) return
+    const url =
+      flow.verification_uri_complete || flow.verification_uri
+    if (!url) return
+    try {
+      await navigator.clipboard.writeText(url)
+      setLinkCopied(true)
+      setTimeout(() => setLinkCopied(false), 1600)
+    } catch {}
+  }
+
+  const verificationUrl =
+    flow?.verification_uri_complete || flow?.verification_uri
 
   return (
     <ModalShell
@@ -231,6 +247,31 @@ export function GitAuthModal({
                   {ts('git_auth_open_browser')}
                 </button>
               </div>
+
+              {verificationUrl && (
+                <div className="flex items-center justify-center gap-2">
+                  <a
+                    href={verificationUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-accent hover:text-accent-bright underline break-all transition-colors"
+                  >
+                    {verificationUrl}
+                  </a>
+                  <button
+                    type="button"
+                    onClick={copyLink}
+                    aria-label={ts('git_auth_copy_link')}
+                    className="focus-ring cursor-pointer p-1.5 rounded-btn border border-outline/50 text-muted hover:text-ink hover:border-accent-dim transition-colors shrink-0"
+                  >
+                    {linkCopied ? (
+                      <IconCheck className="w-3.5 h-3.5 text-mint" />
+                    ) : (
+                      <IconCopy className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                </div>
+              )}
 
               <div className="flex items-center justify-center gap-2 py-1">
                 <IconSpinner className="w-3.5 h-3.5 animate-spin text-muted" />

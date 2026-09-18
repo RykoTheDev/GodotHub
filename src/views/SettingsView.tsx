@@ -1156,7 +1156,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         onMatch={reportMatch}
       >
         <div className="flex flex-col gap-3">
-          {/* Projects */}
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
             <div className="flex items-center gap-2">
               <IconFolder className="w-4 h-4 text-accent shrink-0" />
@@ -1179,7 +1178,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             </p>
           </div>
 
-          {/* Versions */}
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
             <div className="flex items-center gap-2">
               <IconCloudArrowDown className="w-4 h-4 text-mint shrink-0" />
@@ -1202,7 +1200,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             </p>
           </div>
 
-          {/* Templates */}
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
             <div className="flex items-center gap-2">
               <IconRocket className="w-4 h-4 text-amber shrink-0" />
@@ -1689,7 +1686,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         onMatch={reportMatch}
       >
         <div className="flex flex-col gap-3">
-          {/* GitHub */}
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
@@ -1729,7 +1725,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             )}
           </div>
 
-          {/* GitLab */}
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
@@ -1771,7 +1766,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             )}
           </div>
 
-          {/* Self-hosted GitLab */}
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
             <div className="flex items-center gap-2">
               <IconPlug className="w-4 h-4 text-accent-bright shrink-0" />
@@ -1812,7 +1806,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             </button>
           </div>
 
-          {/* Personal Access Tokens */}
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
             <div className="flex items-center gap-2">
               <IconCode className="w-4 h-4 text-danger shrink-0" />

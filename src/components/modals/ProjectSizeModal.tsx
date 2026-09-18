@@ -91,7 +91,6 @@ function FileTree({
   t: (key: string, options?: Record<string, unknown>) => string
 }) {
   const [collapsed, setCollapsed] = useState<Set<string>>(() => {
-    // Start with all directories collapsed
     return new Set(entries.filter((e) => e.is_dir).map((e) => e.path))
   })
 

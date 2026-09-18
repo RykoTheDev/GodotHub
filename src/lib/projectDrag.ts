@@ -1,26 +1,18 @@
 import { arrayMove } from '@dnd-kit/sortable'
 import type { Category, Project } from '../types'
 
-/**
- * Sentinel key for projects that have no category. Used internally by the drag
- * layer so uncategorized projects can be grouped/dropped like any other.
- */
 export const UNCATEGORIZED_KEY = '__uncategorized__'
 
-/** The droppable id used for a category zone is `${prefix}${suffix}`. */
 export interface DroppablePrefixes {
-  /** e.g. `list-cat-` / `grid-cat-` / `kanban-cat-` */
   category: string
 }
 
 export type ProjectDropResolution =
   | { type: 'none' }
-  /** Manual reorder inside the current (flat) list or a single category. */
   | { type: 'reorder'; orderedIds: string[] }
-  /** Move into another category, optionally landing at a specific position. */
   | {
       type: 'move'
-      activeId: string
+      activeIds: string[]
       categoryName: string
       destOrderedIds: string[]
     }
@@ -29,7 +21,6 @@ export function categoryKeyOf(project: Pick<Project, 'category'>): string {
   return project.category || UNCATEGORIZED_KEY
 }
 
-/** Translate a droppable id suffix (`<category.id>` or `uncategorized`) to a category key. */
 function categoryKeyFromSuffix(suffix: string, categories: Category[]): string {
   if (suffix === 'uncategorized') return UNCATEGORIZED_KEY
   return categories.find((c) => c.id === suffix)?.name ?? suffix
@@ -39,36 +30,42 @@ function idsOf(projects: Project[]): string[] {
   return projects.map((p) => p.id)
 }
 
+function sameOrder(a: string[], b: string[]): boolean {
+  return a.length === b.length && a.every((id, i) => id === b[i])
+}
+
+function zoneKeyOf(
+  overId: string,
+  categories: Category[],
+  prefixes: DroppablePrefixes,
+): string | null {
+  if (!overId.startsWith(prefixes.category)) return null
+  return categoryKeyFromSuffix(overId.slice(prefixes.category.length), categories)
+}
+
 export interface ProjectDropInput {
   activeId: string
+  activeIds?: string[]
   overId: string
-  /**
-   * The draggable projects in the order they appear in the DOM. Pinned projects
-   * are never draggable and must be excluded.
-   */
   projects: Project[]
   categories: Category[]
-  /** Whether the view renders the projects grouped into their categories. */
   grouped: boolean
   prefixes: DroppablePrefixes
 }
 
-/**
- * Pure resolution of a drag end. Given where a card started and where it was
- * dropped, work out whether it was reordered, moved to another category, or
- * nothing at all. No side effects so both the UI and tests can share it.
- */
-export function resolveProjectDrop({
-  activeId,
-  overId,
-  projects,
-  categories,
-  grouped,
-  prefixes,
-}: ProjectDropInput): ProjectDropResolution {
-  if (activeId === overId) return { type: 'none' }
+export function resolveProjectDrop(input: ProjectDropInput): ProjectDropResolution {
+  const { activeId, overId, projects, categories, grouped, prefixes } = input
 
-  // Flat list: a simple index move over everything draggable.
+  const group = (input.activeIds?.length ? input.activeIds : [activeId]).filter(
+    (id) => projects.some((p) => p.id === id),
+  )
+  if (group.length === 0) return { type: 'none' }
+  if (group.includes(overId)) return { type: 'none' }
+
+  if (group.length > 1) {
+    return resolveGroupDrop({ group, overId, projects, categories, grouped, prefixes })
+  }
+
   if (!grouped) {
     const ids = idsOf(projects)
     const from = ids.indexOf(activeId)
@@ -103,7 +100,6 @@ export function resolveProjectDrop({
     }
   }
 
-  // Same category: reorder in place.
   if (targetKey === draggedKey) {
     const ids = idsOf(projects.filter((p) => categoryKeyOf(p) === draggedKey))
     const from = ids.indexOf(activeId)
@@ -113,14 +109,79 @@ export function resolveProjectDrop({
     return { type: 'reorder', orderedIds: arrayMove(ids, from, to) }
   }
 
-  // Cross-category move.
   const dest = projects.filter((p) => categoryKeyOf(p) === targetKey)
   const next = [...dest]
   next.splice(insertIndex ?? dest.length, 0, dragged)
   return {
     type: 'move',
-    activeId,
+    activeIds: [activeId],
     categoryName: targetKey === UNCATEGORIZED_KEY ? '' : targetKey,
     destOrderedIds: idsOf(next),
+  }
+}
+
+function resolveGroupDrop({
+  group,
+  overId,
+  projects,
+  categories,
+  grouped,
+  prefixes,
+}: {
+  group: string[]
+  overId: string
+  projects: Project[]
+  categories: Category[]
+  grouped: boolean
+  prefixes: DroppablePrefixes
+}): ProjectDropResolution {
+  const travelling = new Set(group)
+  const groupProjects = group
+    .map((id) => projects.find((p) => p.id === id))
+    .filter((p): p is Project => Boolean(p))
+
+  if (!grouped) {
+    const rest = idsOf(projects).filter((id) => !travelling.has(id))
+    const overIdx = rest.indexOf(overId)
+    const insertAt = overIdx >= 0 ? overIdx : rest.length
+    rest.splice(insertAt, 0, ...group)
+    const before = idsOf(projects)
+    if (sameOrder(before, rest)) return { type: 'none' }
+    return { type: 'reorder', orderedIds: rest }
+  }
+
+  const lead = groupProjects[0]
+  if (!lead) return { type: 'none' }
+  const draggedKey = categoryKeyOf(lead)
+
+  const zoneKey = zoneKeyOf(overId, categories, prefixes)
+  let targetKey: string
+  if (zoneKey !== null) {
+    targetKey = zoneKey
+  } else {
+    const overProject = projects.find((p) => p.id === overId)
+    if (!overProject) return { type: 'none' }
+    targetKey = categoryKeyOf(overProject)
+  }
+
+  const destAll = projects.filter((p) => categoryKeyOf(p) === targetKey)
+  const dest = destAll.filter((p) => !travelling.has(p.id))
+  const overIdx = dest.findIndex((p) => p.id === overId)
+  const insertAt = zoneKey !== null ? dest.length : overIdx >= 0 ? overIdx : dest.length
+
+  const next = [...dest]
+  next.splice(insertAt, 0, ...groupProjects)
+  const orderedIds = idsOf(next)
+
+  if (targetKey === draggedKey) {
+    if (sameOrder(idsOf(destAll), orderedIds)) return { type: 'none' }
+    return { type: 'reorder', orderedIds }
+  }
+
+  return {
+    type: 'move',
+    activeIds: group,
+    categoryName: targetKey === UNCATEGORIZED_KEY ? '' : targetKey,
+    destOrderedIds: orderedIds,
   }
 }

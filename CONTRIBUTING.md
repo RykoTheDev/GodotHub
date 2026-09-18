@@ -151,6 +151,12 @@ bun run tauri:build
 On Linux this also runs the AppImage Wayland patch script. The output lands in
 `src-tauri/target/release/`.
 
+Local builds keep Tauri's default bundle names (for example
+`GodotHub_1.4.4_amd64.AppImage`). The release workflow uploads the same files
+under a friendlier `GodotHub-<version>-<platform>-<arch>` pattern, so the names
+on the releases page differ from the ones you get locally. See the
+`Resolve release asset names` step in `.github/workflows/release.yml`.
+
 ### Useful scripts
 
 | Command | Purpose |

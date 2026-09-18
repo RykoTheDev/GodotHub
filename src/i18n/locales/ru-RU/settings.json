@@ -326,5 +326,6 @@
   "desktop_notifications_label": "Desktop notifications",
   "desktop_notifications_desc": "Show an OS notification when long operations finish (installs, clones, Git sync), even when the window is in the background.",
   "colored_titlebar_buttons_label": "Colored window buttons",
-  "colored_titlebar_buttons_desc": "Use colored macOS-style circles for the minimize, maximize and close buttons. When disabled, the titlebar uses standard Windows-style buttons."
+  "colored_titlebar_buttons_desc": "Use colored macOS-style circles for the minimize, maximize and close buttons. When disabled, the titlebar uses standard Windows-style buttons.",
+  "git_auth_copy_link": "Copy link"
 }

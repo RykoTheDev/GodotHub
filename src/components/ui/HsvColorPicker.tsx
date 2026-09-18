@@ -108,7 +108,6 @@ export function HsvColorPicker({ value, onChange, size = 200 }: HsvColorPickerPr
 
   return (
     <div className="flex flex-col gap-3 select-none">
-      {/* Saturation / Brightness panel */}
       <div
         ref={svRef}
         className="relative rounded-lg cursor-crosshair overflow-hidden border border-line"
@@ -123,7 +122,6 @@ export function HsvColorPicker({ value, onChange, size = 200 }: HsvColorPickerPr
           updateFromSV(e.clientX, e.clientY)
         }}
       >
-        {/* Thumb */}
         <div
           className="absolute w-4 h-4 rounded-full border-2 border-white shadow-md pointer-events-none -translate-x-1/2 -translate-y-1/2"
           style={{
@@ -133,8 +131,6 @@ export function HsvColorPicker({ value, onChange, size = 200 }: HsvColorPickerPr
           }}
         />
       </div>
-
-      {/* Hue slider */}
       <div
         ref={hueRef}
         className="relative rounded-lg cursor-pointer overflow-hidden border border-line"

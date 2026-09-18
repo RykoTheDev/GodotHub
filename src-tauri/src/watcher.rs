@@ -11,6 +11,8 @@ pub struct ActiveWatchers(pub Mutex<Vec<RecommendedWatcher>>);
 
 pub struct GitWatcher(pub Mutex<Option<RecommendedWatcher>>);
 
+pub struct AliasWatcher(pub Mutex<Option<RecommendedWatcher>>);
+
 fn is_ignored_watcher_event(event: &Event) -> bool {
     !event.paths.is_empty()
         && event.paths.iter().all(|p| {
@@ -226,6 +228,24 @@ pub fn start_template_watcher(app: AppHandle, scan_dir: PathBuf, debounce_ms: u6
         if let Some(state) = app.try_state::<ActiveWatchers>() {
             state.0.lock().unwrap().push(w);
         }
+    }
+}
+
+pub fn start_alias_watcher(app: AppHandle) {
+    let dir = crate::current_version::aliases_dir(&app);
+    let watcher = create_debounced_watcher(
+        app.clone(),
+        dir,
+        Duration::from_millis(500),
+        Duration::from_millis(0),
+        Arc::new(|a: AppHandle| {
+            let _ = crate::current_version::list_named_aliases(&a);
+        }) as Arc<dyn Fn(AppHandle) + Send + Sync + 'static>,
+        "versions:aliases-changed",
+    );
+
+    if let Some(state) = app.try_state::<AliasWatcher>() {
+        *state.0.lock().unwrap() = watcher;
     }
 }
 

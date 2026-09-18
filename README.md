@@ -1,5 +1,7 @@
 <p align="center">
-  <img width="800" height="340" alt="cover" src="https://github.com/user-attachments/assets/29ea1efa-e977-4417-9da6-69c81104fc97" />
+  <a href="https://ryko.is-a.dev/godothub">
+    <img width="800" height="340" alt="cover" src="https://github.com/user-attachments/assets/29ea1efa-e977-4417-9da6-69c81104fc97" />
+  </a>
 </p>
 <p align="center">
   <img width="800" height="210" alt="warning-cover" src="https://github.com/user-attachments/assets/cc3c0d68-57a3-4ab6-b025-61f5b0bcef61" />
@@ -106,6 +108,8 @@
 | **Grouped Display** | Versions grouped by `major.minor` with collapsible sections. |
 | **Filtering** | Filter by build type (Standard / Mono / Both) and channel (Stable / Unstable / Both). |
 | **Custom Names** | Give installed versions your own names. |
+| **Pin as Current** | Mark one version as the current one. GodotHub drops a `Godot` launcher into its aliases folder, so scripts, test runners, and MCP servers get a stable path that follows the pin. |
+| **Version Aliases** | Give extra command names to specific versions; `godot-mono`, `godot-next`, whatever you like. Manage them from the Versions view; delete a launcher from the folder and the alias disappears from the app too. |
 | **Auto-Cleanup** | Prunes missing executables from the registry automatically. |
 
 </details>
@@ -168,6 +172,7 @@
 |---|---|
 | **Create & Customize** | Custom names and colors from a rich palette. |
 | **Collapsible Sections** | Collapse and expand category sections. |
+| **Hide & Restore** | Right-click a category to hide it and its projects, then bring it back from the Hidden Categories section. |
 | **Drag Between Categories** | Drag projects between categories (`@dnd-kit`-powered). |
 | **Filter by Category** | Filter the project list by any category. |
 | **Enable / Disable** | Turn categories on or off globally from Settings. |
@@ -267,11 +272,13 @@ Contributors can use AI during development, but every PR is manually reviewed be
 
 GodotHub is available as a desktop app for:
 
-| Platform | Package Types |
+| Platform | Download |
 |---|---|
-| **Windows** | `.msi` or `.exe` installer |
-| **macOS** | `.dmg` or `.app` bundle |
-| **Linux** | `.deb`, `.AppImage`, or `.rpm` |
+| **Windows** | `GodotHub-<version>-windows-x64-setup.exe` (installer), `GodotHub-<version>-windows-x64.msi` (installer), or `GodotHub-<version>-windows-x64-portable.exe` (no install needed) |
+| **macOS** | `GodotHub-<version>-darwin-universal.dmg` (Apple Silicon and Intel) |
+| **Linux** | `GodotHub-<version>-linux-amd64.deb`, `GodotHub-<version>-linux-x86_64.rpm`, or `GodotHub-<version>-linux-amd64.AppImage` |
+
+Replace `<version>` with the release you're downloading (for example `1.4.4`). Releases before v1.4.4 use the older file names.
 
 ### Install via Winget (Windows)
 

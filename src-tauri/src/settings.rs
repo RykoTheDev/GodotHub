@@ -5,7 +5,7 @@ use std::path::Path;
 use tauri::{AppHandle, Manager};
 
 pub fn read_settings_from(dir: &Path) -> AppSettings {
-    persist::read_json(&dir.join("settings.json"))
+    persist::read_json_with_backup(&dir.join("settings.json"))
 }
 
 pub fn read_settings(app: &AppHandle) -> AppSettings {
@@ -13,7 +13,7 @@ pub fn read_settings(app: &AppHandle) -> AppSettings {
 }
 
 pub fn write_settings_to(dir: &Path, settings: &AppSettings) -> AppResult<()> {
-    persist::write_json(&dir.join("settings.json"), settings)
+    persist::write_json_with_backup(&dir.join("settings.json"), settings)
 }
 
 pub fn write_settings(app: &AppHandle, settings: &AppSettings) -> AppResult<()> {

@@ -17,6 +17,10 @@ import type {
   Project,
 } from '../../types'
 import { ProjectCardKanbanItem } from './ProjectCardKanbanItem'
+import {
+  HiddenCategoriesSection,
+  type HiddenCategoryEntry,
+} from './CategorySections'
 import { UNCATEGORIZED_KEY } from '../../lib/projectDrag'
 import { AUTO_SCROLL_CONFIG, DRAG_FEEL } from '../../lib/dragFeel'
 import { useProjectDnd } from '../../hooks/useProjectDnd'
@@ -48,11 +52,17 @@ interface ProjectCardKanbanProps {
   onToggleSelect?: (id: string, e: React.MouseEvent) => void
   selecting: boolean
   onReorder?: (orderedIds: string[]) => Promise<void>
-  onMoveProject?: (
-    id: string,
+  onMoveProjects?: (
+    ids: string[],
     category: string,
     destOrderedIds: string[],
   ) => Promise<void>
+  hiddenCategories?: HiddenCategoryEntry[]
+  onUnhideCategory?: (id: string) => void
+  onCategoryContextMenu?: (
+    e: React.MouseEvent<HTMLElement>,
+    category: Category,
+  ) => void
 }
 
 const UNCATEGORIZED = UNCATEGORIZED_KEY
@@ -79,7 +89,10 @@ export function ProjectCardKanban({
   onToggleSelect,
   selecting,
   onReorder,
-  onMoveProject,
+  onMoveProjects,
+  hiddenCategories = [],
+  onUnhideCategory,
+  onCategoryContextMenu,
 }: ProjectCardKanbanProps) {
   const { t: tc } = useTranslation('common')
 
@@ -97,7 +110,6 @@ export function ProjectCardKanban({
     return map
   }, [projects])
 
-  /** Draggable projects in DOM order (category columns, then uncategorized). */
   const sortableProjects = useMemo(() => {
     if (!grouped) return projects
     const ordered: Project[] = []
@@ -123,8 +135,9 @@ export function ProjectCardKanban({
     grouped,
     prefixes: { category: 'kanban-cat-' },
     collisionDetection: closestCorners,
+    selectedIds,
     onReorder,
-    onMoveProject,
+    onMoveProjects,
   })
 
   const renderItem = useCallback(
@@ -218,6 +231,11 @@ export function ProjectCardKanban({
             count={catProjects.length}
             compact={compact}
             droppableId={`kanban-cat-${cat.id}`}
+            onContextMenu={
+              onCategoryContextMenu
+                ? (e) => onCategoryContextMenu(e, cat)
+                : undefined
+            }
           >
             {isDndEnabled ? (
               <SortableContext
@@ -259,10 +277,20 @@ export function ProjectCardKanban({
     </>
   )
 
+  const hiddenSection =
+    hiddenCategories.length > 0 ? (
+      <HiddenCategoriesSection
+        entries={hiddenCategories}
+        onUnhide={(id) => onUnhideCategory?.(id)}
+        className="shrink-0 pt-1"
+      />
+    ) : null
+
   if (isDndEnabled) {
     const activeProject = dnd.activeProject
     return (
-      <div className="flex gap-4 h-full overflow-x-auto pb-4">
+      <div className="flex flex-col h-full">
+      <div className="flex gap-4 flex-1 min-h-0 overflow-x-auto pb-4">
         <DndContext
           sensors={dnd.sensors}
           collisionDetection={dnd.collisionDetection ?? closestCorners}
@@ -281,7 +309,11 @@ export function ProjectCardKanban({
             }}
           >
             {activeProject ? (
-              <ProjectDragOverlay innerRef={dnd.overlayRef} className="max-w-xs">
+              <ProjectDragOverlay
+                innerRef={dnd.overlayRef}
+                count={dnd.activeIds.length}
+                className="max-w-xs"
+              >
                 <ProjectCardKanbanItem
                   project={activeProject}
                   installedVersions={installedVersions}
@@ -297,12 +329,17 @@ export function ProjectCardKanban({
           </DragOverlay>
         </DndContext>
       </div>
+      {hiddenSection}
+      </div>
     )
   }
 
   return (
-    <div className="flex gap-4 h-full overflow-x-auto pb-4">
-      {columnContent}
+    <div className="flex flex-col h-full">
+      <div className="flex gap-4 flex-1 min-h-0 overflow-x-auto pb-4">
+        {columnContent}
+      </div>
+      {hiddenSection}
     </div>
   )
 }
@@ -313,6 +350,7 @@ interface KanbanColumnProps {
   count: number
   compact?: boolean
   droppableId?: string
+  onContextMenu?: (e: React.MouseEvent<HTMLElement>) => void
   children: React.ReactNode
 }
 
@@ -322,6 +360,7 @@ function KanbanColumn({
   count,
   compact,
   droppableId,
+  onContextMenu,
   children,
 }: KanbanColumnProps) {
   const { t } = useTranslation('common')
@@ -336,7 +375,17 @@ function KanbanColumn({
         compact ? 'min-w-[260px] max-w-xs' : 'min-w-xs max-w-[380px]'
       }`}
     >
-      <div className="flex items-center gap-2 mb-2 px-1">
+      <div
+        className="flex items-center gap-2 mb-2 px-1 rounded-item"
+        onContextMenu={
+          onContextMenu
+            ? (e) => {
+                e.preventDefault()
+                onContextMenu(e)
+              }
+            : undefined
+        }
+      >
         <span
           className="w-2.5 h-2.5 rounded-full shrink-0 ring-1 ring-black/20"
           style={{ backgroundColor: color }}

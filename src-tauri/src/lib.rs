@@ -2,6 +2,7 @@ mod asset_library;
 mod backup;
 mod categories;
 mod changelog;
+mod current_version;
 mod error;
 mod git;
 mod git_auth;
@@ -27,39 +28,108 @@ mod watcher;
 mod workspace;
 
 use std::fs;
+use std::path::Path;
 use tauri::{Manager, WindowEvent};
 
-fn migrate_identifier(app: &tauri::App) {
-    use std::path::PathBuf;
+const LEGACY_IDENTIFIER: &str = "com.ryko.godothub";
 
-    let new_dir = match app.path().app_data_dir() {
-        Ok(d) => d,
-        Err(_) => return,
+const IDENTIFIER_MIGRATION_MARKER: &str = "identifier-migration.done";
+
+#[derive(Debug, Default, PartialEq, Eq)]
+pub(crate) struct IdentifierMigration {
+    pub moved: usize,
+    pub kept: usize,
+    pub failed: usize,
+}
+
+pub(crate) fn migrate_app_data(new_dir: &Path, old_dir: &Path) -> IdentifierMigration {
+    let mut result = IdentifierMigration::default();
+    let Ok(entries) = fs::read_dir(old_dir) else {
+        return result;
     };
 
-    let old_name = "com.ryko.godothub";
-    let old_dir: PathBuf = new_dir
+    for entry in entries.flatten() {
+        let from = entry.path();
+        let Some(name) = from
+            .file_name()
+            .map(|n| n.to_string_lossy().to_string())
+        else {
+            continue;
+        };
+
+        let dest = new_dir.join(&name);
+        if !dest.exists() {
+            match fs::rename(&from, &dest) {
+                Ok(()) => result.moved += 1,
+                Err(_) => result.failed += 1,
+            }
+            continue;
+        }
+
+        let aside = {
+            let mut counter = 0;
+            loop {
+                let candidate = if counter == 0 {
+                    new_dir.join(format!("{name}.legacy"))
+                } else {
+                    new_dir.join(format!("{name}.legacy-{counter}"))
+                };
+                if !candidate.exists() {
+                    break candidate;
+                }
+                counter += 1;
+            }
+        };
+        match fs::rename(&from, &aside) {
+            Ok(()) => result.kept += 1,
+            Err(_) => result.failed += 1,
+        }
+    }
+
+    result
+}
+
+fn migrate_identifier(app: &tauri::App) {
+    let Ok(new_dir) = app.path().app_data_dir() else {
+        return;
+    };
+
+    let marker = new_dir.join(IDENTIFIER_MIGRATION_MARKER);
+    if marker.exists() {
+        return;
+    }
+
+    let old_dir = new_dir
         .parent()
-        .map(|p| p.join(old_name))
+        .map(|p| p.join(LEGACY_IDENTIFIER))
         .unwrap_or_default();
 
-    if !old_dir.exists() || old_dir == new_dir {
+    if old_dir == new_dir || !old_dir.exists() {
         return;
     }
 
     let _ = fs::create_dir_all(&new_dir);
+    let result = migrate_app_data(&new_dir, &old_dir);
 
-    if let Ok(entries) = fs::read_dir(&old_dir) {
-        for entry in entries.flatten() {
-            let dest = new_dir.join(entry.file_name());
-            if dest.exists() {
-                continue;
-            }
-            let _ = fs::rename(entry.path(), &dest);
-        }
+    let emptied = fs::read_dir(&old_dir)
+        .map(|mut entries| entries.next().is_none())
+        .unwrap_or(false);
+    if emptied {
+        let _ = fs::remove_dir(&old_dir);
     }
 
-    let _ = fs::remove_dir_all(&old_dir);
+    let _ = fs::write(
+        &marker,
+        format!(
+            "{} legacy={} moved={} kept={} failed={} old_folder_removed={}\n",
+            chrono::Utc::now().to_rfc3339(),
+            LEGACY_IDENTIFIER,
+            result.moved,
+            result.kept,
+            result.failed,
+            emptied
+        ),
+    );
 }
 
 #[tauri::command]
@@ -160,6 +230,9 @@ pub fn run() {
             ));
             app.manage(watcher::ActiveWatchers(std::sync::Mutex::new(Vec::new())));
             app.manage(watcher::GitWatcher(std::sync::Mutex::new(None)));
+            app.manage(watcher::AliasWatcher(std::sync::Mutex::new(None)));
+
+            watcher::start_alias_watcher(app.handle().clone());
 
             godot_versions::migrate_registry_to_global(app.handle());
 
@@ -249,6 +322,13 @@ pub fn run() {
             godot_versions::open_godot_version,
             godot_versions::test_github_token,
             godot_versions::get_github_rate_limit,
+            current_version::get_current_version,
+            current_version::set_current_version,
+            current_version::clear_current_version,
+            current_version::list_version_aliases,
+            current_version::create_version_alias,
+            current_version::create_version_aliases,
+            current_version::delete_version_alias,
             git_auth::start_device_flow,
             git_auth::poll_device_flow,
             git_auth::get_git_auth_state,
@@ -406,3 +486,7 @@ pub fn run() {
             }
         });
 }
+
+#[cfg(test)]
+#[path = "../tests/common/identifier_migration.rs"]
+mod identifier_migration_tests;

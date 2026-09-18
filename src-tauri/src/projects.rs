@@ -46,8 +46,6 @@ impl TrackedProcess {
                             Err(_) => true,
                         }
                     }
-                    // A permission error is not evidence that the process exited. Keep
-                    // monitoring it; the next poll may succeed after a transient error.
                     ProcessLiveness::Unknown => true,
                 }
             }
@@ -82,10 +80,10 @@ fn icon_cache() -> &'static Mutex<HashMap<String, CachedIcon>> {
 
 pub(crate) fn read_projects_from(dir: &std::path::Path) -> Vec<Project> {
     let file = dir.join("projects.json");
-    if !file.exists() {
+    if !file.exists() && !persist::backup_path(&file).exists() {
         return vec![];
     }
-    serde_json::from_str(&fs::read_to_string(&file).unwrap_or_default()).unwrap_or_default()
+    persist::read_json_with_backup(&file)
 }
 
 pub(crate) fn read_projects(app: &AppHandle) -> Vec<Project> {
@@ -96,7 +94,8 @@ pub(crate) fn write_projects_to(
     dir: &std::path::Path,
     projects: &Vec<Project>,
 ) -> Result<(), String> {
-    persist::write_json(&dir.join("projects.json"), projects).map_err(|e| e.to_string())
+    persist::write_json_with_backup(&dir.join("projects.json"), projects)
+        .map_err(|e| e.to_string())
 }
 
 pub(crate) fn write_projects(app: &AppHandle, projects: &Vec<Project>) -> Result<(), String> {
@@ -131,10 +130,6 @@ fn settle_project_session(
         }
         None => {
             if let Some(start) = project.session_started_at_ms.take() {
-                // Godot exited while the app was not watching, so we cannot know
-                // when it stopped. Bound the session to the last moment the app
-                // was known to be alive instead of crediting every hour since it
-                // started, which counted the app's own downtime as work.
                 let observed_end = crate::time_stats::last_active_ms(app).max(start);
                 let end = epoch_ms().min(observed_end);
                 let elapsed_ms = end.saturating_sub(start);
@@ -169,9 +164,6 @@ pub(crate) fn settle_stale_sessions(app: &AppHandle) {
         let projects = read_projects(app);
 
         let Ok(os_running) = process::find_running_godot_processes() else {
-            // Process discovery is required to distinguish an exited session from a
-            // temporarily unavailable process listing. Leave the session untouched and
-            // let the next application start retry discovery.
             return;
         };
 
@@ -566,10 +558,8 @@ pub fn duplicate_project(
         ));
     }
 
-    // Copy the project folder, skipping Git history and the Godot cache.
     crate::templates::copy_dir(&source_dir, &target_dir, &[".git", ".godot"])?;
 
-    // Rewrite the project name in project.godot.
     let godot_path = target_dir.join("project.godot");
     if godot_path.exists() {
         let existing = fs::read_to_string(&godot_path).unwrap_or_default();
@@ -1062,7 +1052,6 @@ fn adopt_terminal_pid(app: &AppHandle, id: &str, pid_file: &Path) {
 fn wait_until_exited(app: &AppHandle, id: &str) {
     const POLL: std::time::Duration = std::time::Duration::from_millis(500);
     loop {
-        // Keeps the "app was alive" bound fresh while a session is running.
         crate::time_stats::touch_activity(app);
         let Some(state) = app.try_state::<ActiveProcesses>() else {
             return;

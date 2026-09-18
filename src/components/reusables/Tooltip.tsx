@@ -35,7 +35,6 @@ export function Tooltip({
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const positioned = useRef(false)
 
-  /* ---- positioning logic ---- */
 
   const calc = useCallback(
     (tr: DOMRect, tw: number, th: number) => {
@@ -101,7 +100,6 @@ export function Tooltip({
     return el.getBoundingClientRect()
   }, [])
 
-  /* ---- hover handlers ---- */
 
   const show = useCallback(() => {
     timer.current = setTimeout(() => {
@@ -129,7 +127,6 @@ export function Tooltip({
     positioned.current = false
   }, [])
 
-  /* reposition on scroll / resize while open */
   useEffect(() => {
     if (!open) return
     const reposition = () => {
@@ -150,14 +147,12 @@ export function Tooltip({
     }
   }, [open, getTriggerRect, calc])
 
-  /* cleanup on unmount */
   useEffect(() => {
     return () => {
       if (timer.current) clearTimeout(timer.current)
     }
   }, [])
 
-  /* ---- arrow style ---- */
 
   const arrowStyle = (side: string): React.CSSProperties => {
     const base: React.CSSProperties = {
@@ -188,7 +183,6 @@ export function Tooltip({
     return base
   }
 
-  /* ---- animation offsets ---- */
 
   const enterFrom = () => {
     const d = 6
@@ -244,10 +238,8 @@ export function Tooltip({
               className="fixed z-9999 pointer-events-none"
               style={{ left: pos.x, top: pos.y }}
             >
-              {/* arrow */}
               <div style={arrowStyle(arrow)} />
 
-              {/* bubble */}
               <div
                 className="relative px-3 py-1.5 rounded-tag bg-raised border border-line text-[11px] text-muted font-medium leading-snug shadow-md shadow-base"
                 style={{

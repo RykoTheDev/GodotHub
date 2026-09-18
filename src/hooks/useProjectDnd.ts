@@ -19,43 +19,35 @@ import {
 import type { Category, Project } from '../types'
 
 export interface UseProjectDndOptions {
-  /** Draggable projects in DOM order (pinned projects excluded). */
   projects: Project[]
   categories: Category[]
   grouped: boolean
   prefixes: DroppablePrefixes
   collisionDetection?: CollisionDetection
+  selectedIds?: Set<string>
   onReorder?: (orderedIds: string[]) => Promise<void> | void
-  onMoveProject?: (
-    id: string,
+  onMoveProjects?: (
+    ids: string[],
     category: string,
     destOrderedIds: string[],
   ) => Promise<void> | void
 }
 
-/**
- * Owns everything drag related for a projects surface: sensors, the active
- * card, the overlay transform, and the drop resolution.
- *
- * The tilt is written straight to the overlay's DOM node instead of React
- * state. Drag move fires many times a second, and re-rendering a list of cards
- * on every one of those would make the card visibly trail the pointer.
- */
 export function useProjectDnd({
   projects,
   categories,
   grouped,
   prefixes,
   collisionDetection,
+  selectedIds,
   onReorder,
-  onMoveProject,
+  onMoveProjects,
 }: UseProjectDndOptions) {
   const reducedMotion = isReducedMotion()
   const overlayRef = useRef<HTMLDivElement | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
-      // Small threshold so clicks, text selection and buttons keep working.
       activationConstraint: { distance: DRAG_FEEL.activationDistance },
     }),
     useSensor(KeyboardSensor, {
@@ -63,7 +55,8 @@ export function useProjectDnd({
     }),
   )
 
-  const [activeId, setActiveId] = useState<string | null>(null)
+  const [activeIds, setActiveIds] = useState<string[]>([])
+  const activeId = activeIds[0] ?? null
 
   const byId = useMemo(
     () => new Map(projects.map((p) => [p.id, p])),
@@ -78,10 +71,25 @@ export function useProjectDnd({
     el.style.transform = `rotate(${angle}deg) scale(${DRAG_FEEL.lift.scale})`
   }, [])
 
-  const handleDragStart = useCallback((e: DragStartEvent) => {
-    setActiveId(String(e.active.id))
-    motion.current = { x: 0, t: performance.now(), angle: 0 }
-  }, [])
+  const handleDragStart = useCallback(
+    (e: DragStartEvent) => {
+      const id = String(e.active.id)
+      const draggable = new Set(projects.map((p) => p.id))
+      const carriesSelection =
+        selectedIds != null &&
+        selectedIds.size > 1 &&
+        selectedIds.has(id) &&
+        [...selectedIds].every((selected) => draggable.has(selected))
+
+      setActiveIds(
+        carriesSelection
+          ? projects.filter((p) => selectedIds.has(p.id)).map((p) => p.id)
+          : [id],
+      )
+      motion.current = { x: 0, t: performance.now(), angle: 0 }
+    },
+    [projects, selectedIds],
+  )
 
   const handleDragMove = useCallback(
     (e: DragMoveEvent) => {
@@ -101,7 +109,7 @@ export function useProjectDnd({
   )
 
   const reset = useCallback(() => {
-    setActiveId(null)
+    setActiveIds([])
     motion.current = { x: 0, t: 0, angle: 0 }
     paintTilt(0)
   }, [paintTilt])
@@ -111,10 +119,12 @@ export function useProjectDnd({
   const handleDragEnd = useCallback(
     async (e: DragEndEvent) => {
       const { active, over } = e
+      const group = activeIds.length > 0 ? activeIds : [String(active.id)]
       reset()
       if (!over) return
       const resolution = resolveProjectDrop({
         activeId: String(active.id),
+        activeIds: group,
         overId: String(over.id),
         projects,
         categories,
@@ -124,28 +134,27 @@ export function useProjectDnd({
       if (resolution.type === 'reorder') {
         await onReorder?.(resolution.orderedIds)
       } else if (resolution.type === 'move') {
-        await onMoveProject?.(
-          resolution.activeId,
+        await onMoveProjects?.(
+          resolution.activeIds,
           resolution.categoryName,
           resolution.destOrderedIds,
         )
       }
     },
     [
+      activeIds,
       reset,
       projects,
       categories,
       grouped,
       prefixes,
       onReorder,
-      onMoveProject,
+      onMoveProjects,
     ],
   )
 
-  // Hold a grabbing cursor and suppress text selection for the whole drag so
-  // the interaction reads the same everywhere on screen.
   useEffect(() => {
-    if (!activeId) return
+    if (activeIds.length === 0) return
     const { body } = document
     const prevCursor = body.style.cursor
     const prevSelect = body.style.userSelect
@@ -155,13 +164,14 @@ export function useProjectDnd({
       body.style.cursor = prevCursor
       body.style.userSelect = prevSelect
     }
-  }, [activeId])
+  }, [activeIds.length])
 
   const activeProject = activeId ? byId.get(activeId) ?? null : null
 
   return {
     sensors,
     activeId,
+    activeIds,
     activeProject,
     overlayRef,
     collisionDetection,

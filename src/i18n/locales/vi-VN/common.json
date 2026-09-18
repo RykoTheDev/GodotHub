@@ -123,6 +123,7 @@
   "launch_arguments": "Tham số khởi chạy",
   "save_as_template": "Lưu thành mẫu",
   "git": "Git",
+  "add": "Thêm",
   "color_label": "Màu",
   "icon_label": "Biểu tượng",
   "expand": "Mở rộng",
@@ -635,6 +636,7 @@
   "bug_report_none_captured": "none captured",
   "bug_report_description": "Description",
   "bug_report_no_description": "No description provided",
+  "unknown": "không rõ",
   "gpu_webgl_unavailable": "WebGL not available",
   "gpu_info_unavailable": "GPU info unavailable",
   "update_available": "Update available",
@@ -678,5 +680,12 @@
   "project_duplicated": "Project duplicated.",
   "notification_version_installed": "Godot {{tag}} installed",
   "notification_asset_installed": "{{title}} installed",
-  "notification_clone_done": "Repository cloned and imported"
+  "notification_clone_done": "Repository cloned and imported",
+  "hide_category": "Hide Category",
+  "category_hidden_toast": "\"{{name}}\" hidden. Restore it from Hidden Categories.",
+  "hidden_categories": "Hidden Categories",
+  "hidden_categories_hint": "Those categories and their projects stay out of the way. Unhide one to bring it back.",
+  "hidden_category_projects": "{{count}} project(s)",
+  "unhide": "Unhide",
+  "unhide_category_aria": "Unhide {{name}}"
 }
