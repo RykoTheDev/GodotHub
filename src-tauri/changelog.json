@@ -1267,6 +1267,10 @@
       {
         "category": "fix",
         "text": "A data file that antivirus or the updater locks for a moment is no longer mistaken for a corrupt one"
+      },
+      {
+        "category": "add",
+        "text": "Alias Creation for Godot Versions; You can now create your own alias for any installed version and use it in scripts or something else idk"
       }
     ],
     "known_issues": [],
@@ -1278,8 +1282,16 @@
     "date": "2026-09-14",
     "notes": [
       {
-        "category": "add",
-        "text": "Alias Creation for Godot Versions; You can now create your own alias for any installed version and use it in scripts or something else idk"
+        "category": "fix",
+        "text": "Alias Creation for Mono Versions fixed, Mono versions now create as .cmd files instead of their exe versions due to some issues with Mono versions"
+      },
+      {
+        "category": "improve",
+        "text": "Add Redirect Link to Github/Gitlab Auth Modal for AppImage users, since the button doesnt work"
+      },
+      {
+        "category": "improve",
+        "text": "File namings on Github Release Page for GodotHub have been changed to be more user friendly and easy to understand"
       }
     ],
     "known_issues": [],
