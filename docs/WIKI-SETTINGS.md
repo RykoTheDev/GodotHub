@@ -144,6 +144,21 @@ Power-user settings: API tokens, data, updates, and app-level controls.
 
 ---
 
+## Experimental
+
+Features that are still in development. They may be unstable or change without notice.
+
+- **Customize View button**, **Git Worktrees**, **Project Next Steps**: see the Projects and Git docs for details.
+- **Use mise for Godot versions**: hand Godot version management to [mise](https://mise.jdx.dev), so a version only lives once on disk instead of being installed twice; once by mise and once by GodotHub. Requires the `mise` CLI on your `PATH`; the toggle reports the detected version when it finds it.
+
+  With it enabled:
+  - Projects that pin Godot in `mise.toml`, `.mise.toml`, `mise.local.toml`, or `.tool-versions` are matched to that version, and picking a version for a project updates that same file (GodotHub stops writing `.godotrc` for those projects).
+  - Installing a version runs `mise install godot@<version>` instead of downloading a copy, and the **mise · Sync** button in the Versions view imports every Godot version mise already has so it shows up with a `mise` badge.
+  - Uninstalling a version runs `mise uninstall godot@<version>`; GodotHub never deletes files inside mise's store itself.
+  - Mono/.NET builds are not available through mise's asdf plugin, so those keep using GodotHub's own downloader.
+
+---
+
 ## Related
 
 - [[Home]]

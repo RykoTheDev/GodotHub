@@ -115,6 +115,7 @@ fn register_version_candidate(
         custom_name: None,
         install_root: None,
         supports_console: false,
+        managed_by: None,
     };
 
     match godot_versions::register_version(app, installed.clone()) {

@@ -12,6 +12,7 @@ import type {
   DownloadProgress,
   GodotRelease,
   InstalledGodotVersion,
+  MiseStatus,
 } from '../types'
 
 export interface DownloadState extends DownloadProgress {
@@ -58,6 +59,8 @@ export function useGodotVersions() {
     current: number
     total: number
   } | null>(null)
+  const [miseStatus, setMiseStatus] = useState<MiseStatus | null>(null)
+  const [miseInstalls, setMiseInstalls] = useState<Record<string, boolean>>({})
 
   const refreshCurrent = useCallback(async () => {
     try {
@@ -83,6 +86,18 @@ export function useGodotVersions() {
     await refreshCurrent()
     await refreshAliases()
   }, [refreshCurrent, refreshAliases])
+
+  const refreshMiseStatus = useCallback(async () => {
+    try {
+      setMiseStatus(await api.miseStatus())
+    } catch {
+      setMiseStatus(null)
+    }
+  }, [])
+
+  useEffect(() => {
+    void refreshMiseStatus()
+  }, [refreshMiseStatus, settings.use_mise])
 
   const refreshAvailable = useCallback(async (src?: string) => {
     const next = src === 'archive' || src === 'github' ? src : sourceRef.current
@@ -190,13 +205,35 @@ export function useGodotVersions() {
   const download = useCallback(
     async (tag: string, assetName: string, url: string) => {
       const key = keyOf(tag, assetName)
+      // mise's asdf-godot plugin only ships non-mono release tags, so .NET builds
+      // always come from GodotHub's own downloader.
+      const viaMise =
+        settings.use_mise &&
+        !!miseStatus?.available &&
+        !assetName.toLowerCase().includes('mono')
+
+      if (viaMise) {
+        setMiseInstalls((prev) => ({ ...prev, [key]: true }))
+        try {
+          await api.miseInstallGodotVersion(tag)
+        } finally {
+          setMiseInstalls((prev) => {
+            const next = { ...prev }
+            delete next[key]
+            return next
+          })
+        }
+        await refreshInstalled()
+        return
+      }
+
       setDownloads((prev) => ({
         ...prev,
         [key]: { tag: key, downloaded: 0, total: 0, status: 'queued' },
       }))
       await api.downloadGodotVersion(tag, assetName, url)
     },
-    [],
+    [settings.use_mise, miseStatus?.available, refreshInstalled],
   )
 
   const pause = useCallback((key: string) => api.pauseDownload(key), [])
@@ -208,11 +245,22 @@ export function useGodotVersions() {
 
   const remove = useCallback(
     async (tag: string) => {
-      await api.deleteGodotVersion(tag)
+      const target = installed.find((v) => v.tag === tag)
+      if (target?.managed_by === 'mise') {
+        // mise owns the files, so let it remove them from its own store.
+        await api.miseUninstallGodotVersion(tag)
+      } else {
+        await api.deleteGodotVersion(tag)
+      }
       await refreshInstalled()
     },
-    [refreshInstalled],
+    [installed, refreshInstalled],
   )
+
+  const syncMise = useCallback(async () => {
+    await api.miseSyncVersions()
+    await refreshInstalled()
+  }, [refreshInstalled])
 
   const rename = useCallback(async (tag: string, customName: string | null) => {
     const updated = await api.renameGodotVersion(tag, customName)
@@ -262,6 +310,10 @@ export function useGodotVersions() {
     loadingAvailable,
     availableError,
     source,
+    miseStatus,
+    miseInstalls,
+    refreshMiseStatus,
+    syncMise,
     downloads,
     download,
     pause,

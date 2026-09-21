@@ -118,6 +118,7 @@ const DEFAULTS: AppSettings = {
   desktop_notifications_enabled: true,
   colored_titlebar_buttons: false,
   project_todos_enabled: false,
+  use_mise: false,
 }
 
 interface SettingsContextValue {

@@ -79,5 +79,11 @@
   "aliases_batch_created_other": "{{count}} 件のエイリアスを作成しました",
   "aliases_batch_skipped_one": "{{count}} 件のエイリアスをスキップしました",
   "aliases_batch_skipped_other": "{{count}} 件のエイリアスをスキップしました",
-  "alias_queue_duplicate": "「{{name}}」はすでにリストにあります"
+  "alias_queue_duplicate": "「{{name}}」はすでにリストにあります",
+  "managed_by_mise": "mise",
+  "mise_installing": "Installing with mise…",
+  "mise_sync": "Sync",
+  "mise_sync_title": "Import the Godot versions mise has installed so they show up here.",
+  "mise_missing": "mise not found",
+  "mise_uninstall_desc": "mise will uninstall {{tag}} from its own store. Projects that pin it in mise.toml will need it installed again."
 }

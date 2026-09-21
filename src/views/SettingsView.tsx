@@ -84,7 +84,7 @@ import {
   IconGitlab,
 } from "../lib/icons";
 import type { IconProps } from "../lib/icons";
-import type { AppSettings, GitAuthState } from "../types";
+import type { AppSettings, GitAuthState, MiseStatus } from "../types";
 import { GitAuthModal } from "../components/modals/GitAuthModal";
 import { Tooltip } from "../components/reusables/Tooltip";
 
@@ -249,6 +249,22 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
   const tokenTestTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [confirmingWipe, setConfirmingWipe] = useState(false);
+  const [miseStatus, setMiseStatus] = useState<MiseStatus | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .miseStatus()
+      .then((status) => {
+        if (!cancelled) setMiseStatus(status);
+      })
+      .catch(() => {
+        if (!cancelled) setMiseStatus(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const [confirmingOsDec, setConfirmingOsDec] = useState<boolean | null>(null);
   const [confirmingRestart, setConfirmingRestart] = useState(false);
   const [showUpdates, setShowUpdates] = useState(false);
@@ -2857,6 +2873,26 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             label={ts("project_todos_label")}
           />
         </SettingRow>
+
+        <SettingRow label={ts("mise_label")} description={ts("mise_desc")}>
+          <Toggle
+            checked={settings.use_mise}
+            onChange={(checked) => {
+              update({ ...settings, use_mise: checked });
+              if (checked) api.miseSyncVersions().catch(() => {});
+            }}
+            label={ts("mise_label")}
+          />
+        </SettingRow>
+        {settings.use_mise && (
+          <p className="text-[11px] text-muted -mt-2">
+            {miseStatus?.available
+              ? ts("mise_detected", {
+                  version: miseStatus.version ?? miseStatus.path ?? "",
+                })
+              : ts("mise_not_found")}
+          </p>
+        )}
       </section>
     </div>
   );

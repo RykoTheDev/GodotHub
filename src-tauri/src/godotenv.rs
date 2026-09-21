@@ -177,6 +177,12 @@ pub fn detect_version(project_path: &str) -> Option<DetectedVersion> {
             return Some(version);
         }
     }
+
+    for dir in ancestor_dirs(Path::new(project_path)) {
+        if let Some(version) = crate::mise::config_version(&dir) {
+            return Some(version);
+        }
+    }
     None
 }
 
@@ -298,13 +304,22 @@ pub fn sharp_string(n: &GodotVersionNumber) -> String {
     s
 }
 
-pub fn pin_version(project_dir: &str, tag: &str) -> Result<(), String> {
+pub fn pin_version(project_dir: &str, tag: &str, use_mise: bool) -> Result<(), String> {
     let number = match parse_installed_tag(tag) {
         Some(n) => n,
         None => return Ok(())
     };
     let is_mono = tag.trim().ends_with("-mono");
     let root = Path::new(project_dir);
+
+    // With mise enabled, the project's mise.toml/.tool-versions is the source of
+    // truth: pin there and drop the .godotrc GodotHub wrote, so detection can't
+    // pick up a stale GodotHub pin instead.
+    if use_mise && crate::mise::write_pin(root, tag)? {
+        let _ = fs::remove_file(root.join(".godotrc"));
+        return Ok(());
+    }
+
     if is_mono {
         write_global_json_pin(root, &number)?;
         if parse_global_json(&root.join("global.json")).is_some() {

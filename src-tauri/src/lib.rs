@@ -11,6 +11,7 @@ mod godot_versions;
 mod godotenv;
 mod install_mode;
 mod licenses;
+mod mise;
 mod models;
 mod news;
 mod persist;
@@ -250,6 +251,17 @@ pub fn run() {
                 templates::consolidate_legacy_templates(&handle);
 
                 let s = settings::read_settings(&handle);
+
+                // With the mise integration on, pull in the versions mise already
+                // has so they show up without pressing Sync.
+                if s.use_mise {
+                    let mise_handle = handle.clone();
+                    let _ = tokio::task::spawn_blocking(move || {
+                        mise::sync_installed(&mise_handle)
+                    })
+                    .await;
+                }
+
                 if s.template_scan_dir.is_some() {
                     let _ = templates::sync_templates_with_scan_dir(handle.clone());
                 }
@@ -424,6 +436,10 @@ pub fn run() {
             changelog::generate_changelog_draft,
             updates::fetch_updates,
             install_mode::is_portable_install,
+            mise::mise_status,
+            mise::mise_sync_godot_versions,
+            mise::mise_install_godot_version,
+            mise::mise_uninstall_godot_version,
             git::clone_repo,
             git::get_git_status,
             git::batch_git_status,

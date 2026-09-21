@@ -167,6 +167,9 @@ export function VersionsView({
     refreshAvailable,
     refreshInstalled,
     source,
+    miseStatus,
+    miseInstalls,
+    syncMise,
   } = useGodotVersionsContext()
   const { settings } = useSettings()
   const { registerTask, updateTask, unregisterTask } = useTaskTray()
@@ -446,6 +449,23 @@ export function VersionsView({
               <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted px-1">
                 {tv('installed_title')}
               </h3>
+              <div className="flex items-center gap-2">
+              {settings.use_mise && (
+                <Tooltip content={tv('mise_sync_title')} side="top">
+                  <motion.button
+                    type="button"
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.94 }}
+                    onClick={() => syncMise().catch(() => {})}
+                    className="focus-ring cursor-pointer flex items-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors font-mono"
+                  >
+                    <span className="text-[12px] text-muted">mise</span>
+                    <span className="text-[13px] font-medium text-ink">
+                      {miseStatus?.available ? tv('mise_sync') : tv('mise_missing')}
+                    </span>
+                  </motion.button>
+                </Tooltip>
+              )}
               <Dropdown
                 align="right"
                 trigger={({ open, toggle }) => {
@@ -474,6 +494,7 @@ export function VersionsView({
                   onClick: () => setInstalledSortBy(opt.value),
                 }))}
               />
+              </div>
             </div>
             <div className="flex flex-col gap-2">
               {filteredInstalled.map((v, i) => (
@@ -726,6 +747,7 @@ export function VersionsView({
                                     v.is_mono === asset.is_mono,
                                 )
                                 const dl = downloads[progressKey]
+                                const miseBusy = !!miseInstalls[progressKey]
                                 return (
                                   <motion.div
                                     key={progressKey}
@@ -747,7 +769,7 @@ export function VersionsView({
                                         state={
                                           isInstalled
                                             ? 'installed'
-                                            : dl
+                                            : dl || miseBusy
                                               ? 'downloading'
                                               : 'available'
                                         }
@@ -758,7 +780,14 @@ export function VersionsView({
                                       </span>
                                     </div>
 
-                                    {dl ? (
+                                    {miseBusy ? (
+                                      <div className="flex items-center gap-2 shrink-0">
+                                        <IconSpinner className="w-4 h-4 animate-spin text-muted" />
+                                        <span className="text-xs text-muted">
+                                          {tv('mise_installing')}
+                                        </span>
+                                      </div>
+                                    ) : dl ? (
                                       <div className="flex items-center gap-2 shrink-0">
                                         {dl.status === 'queued' ? (
                                           <span className="text-xs text-muted font-mono px-2">
@@ -852,7 +881,11 @@ export function VersionsView({
                                           whileHover={{ y: -1 }}
                                           whileTap={{ scale: 0.96 }}
                                           onClick={() =>
-                                            download(tag, asset.name, asset.download_url)
+                                            download(
+                                              tag,
+                                              asset.name,
+                                              asset.download_url,
+                                            ).catch((e) => alert(String(e)))
                                           }
                                           className="focus-ring cursor-pointer flex items-center gap-1.5 h-9 px-4 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
                                         >

@@ -7,6 +7,13 @@ export interface InstalledGodotVersion {
   custom_name?: string | null
   install_root?: string | null
   supports_console?: boolean
+  managed_by?: string | null
+}
+
+export interface MiseStatus {
+  available: boolean
+  path: string | null
+  version: string | null
 }
 
 export interface CurrentVersionInfo {
@@ -482,6 +489,7 @@ export interface AppSettings {
   desktop_notifications_enabled: boolean
   colored_titlebar_buttons: boolean
   project_todos_enabled: boolean
+  use_mise: boolean
 }
 
 export interface CardViewSettings {
