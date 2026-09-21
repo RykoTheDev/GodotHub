@@ -49,7 +49,7 @@
   "naming_camel": "camelCase (мояИгра)",
   "naming_pascal": "PascalCase (МояИгра)",
   "naming_title": "Title Case (Моя Игра)",
-  "setting_reduce_motion": "Уменьшить время движения аниамций",
+  "setting_reduce_motion": "Уменьшить движение анимаций",
   "theme": "Тема",
   "check_updates_title": "Проверить обновления",
   "report_bug_title": "Сообщить о багах",
