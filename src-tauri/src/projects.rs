@@ -11,8 +11,9 @@ use tauri::{AppHandle, Emitter, Manager};
 use uuid::Uuid;
 
 use std::collections::HashMap;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Mutex, OnceLock};
-use std::time::SystemTime;
+use std::time::{Duration, Instant, SystemTime};
 
 pub enum TrackedHandle {
     Child(Child),
@@ -64,6 +65,10 @@ pub struct RunningProjectInfo {
 }
 
 const SESSION_START_DELAY_MS: u64 = 3000;
+const SETTLE_OK_TTL: Duration = Duration::from_secs(60);
+
+static LAST_SETTLE_OK: Mutex<Option<Instant>> = Mutex::new(None);
+static SETTLE_IN_FLIGHT: AtomicBool = AtomicBool::new(false);
 
 const DEFAULT_ICON_SVG: &[u8] = include_bytes!("../icon.svg");
 
@@ -151,42 +156,92 @@ fn settle_project_session(
     }
 }
 
-pub(crate) fn settle_stale_sessions(app: &AppHandle) {
-    static SETTLED: std::sync::OnceLock<()> = std::sync::OnceLock::new();
-    SETTLED.get_or_init(|| {
-        let running: std::collections::HashSet<String> = {
-            let Some(state) = app.try_state::<ActiveProcesses>() else {
-                return;
-            };
-            let active = state.0.lock().unwrap();
-            active.keys().cloned().collect()
-        };
-        let projects = read_projects(app);
+#[cfg(test)]
+#[path = "../tests/common/projects.rs"]
+mod projects_common_tests;
 
-        let Ok(os_running) = process::find_running_godot_processes() else {
+pub(crate) fn settle_stale_sessions(app: &AppHandle) {
+    settle_stale_sessions_inner(app, &LAST_SETTLE_OK, &SETTLE_IN_FLIGHT, || {
+        process::find_running_godot_processes()
+    });
+}
+
+// True when a settle attempt is due: never succeeded, or the last success is
+// older than SETTLE_OK_TTL. Failures leave LAST_SETTLE_OK untouched so the
+// next call retries instead of staying throttled.
+fn settle_due(last_ok: Option<Instant>, now: Instant) -> bool {
+    match last_ok {
+        None => true,
+        Some(t) => now.saturating_duration_since(t) > SETTLE_OK_TTL,
+    }
+}
+
+// Releases SETTLE_IN_FLIGHT on drop, including early returns and panics.
+struct SettleFlightGuard<'a>(&'a AtomicBool);
+impl Drop for SettleFlightGuard<'_> {
+    fn drop(&mut self) {
+        self.0.store(false, Ordering::SeqCst);
+    }
+}
+
+// Core of settle_stale_sessions with injected state and process lookup so
+// tests can simulate Err then Ok without real ps/wmic processes. An Err
+// returns without updating last_ok, so the next call retries.
+fn settle_stale_sessions_inner(
+    app: &AppHandle,
+    last_ok: &Mutex<Option<Instant>>,
+    in_flight: &AtomicBool,
+    find_processes: impl FnOnce() -> Result<Vec<process::RunningProcess>, String>,
+) {
+    if in_flight.swap(true, Ordering::SeqCst) {
+        return;
+    }
+    let _flight = SettleFlightGuard(in_flight);
+
+    let need = {
+        let guard = last_ok.lock().unwrap_or_else(|e| e.into_inner());
+        settle_due(*guard, Instant::now())
+    };
+    if !need {
+        return;
+    }
+
+    let running: std::collections::HashSet<String> = {
+        let Some(state) = app.try_state::<ActiveProcesses>() else {
             return;
         };
+        let active = state.0.lock().unwrap();
+        active.keys().cloned().collect()
+    };
+    let projects = read_projects(app);
 
-        for p in projects {
-            if p.session_started_at_ms.is_some() && !running.contains(&p.id) {
-                if let Some(running_process) = os_running
-                    .iter()
-                    .find(|process| same_path(&process.project_path, &p.path))
-                {
-                    retrack_stale_session(
-                        app,
-                        &p,
-                        TrackedHandle::Pid {
-                            pid: running_process.pid,
-                            project_path: p.path.clone(),
-                        },
-                    );
-                } else {
-                    settle_project_session(app, &p.id, None);
-                }
+    let Ok(os_running) = find_processes() else {
+        // Failure leaves last_ok untouched so the next call retries.
+        return;
+    };
+
+    for p in projects {
+        if p.session_started_at_ms.is_some() && !running.contains(&p.id) {
+            if let Some(running_process) = os_running
+                .iter()
+                .find(|process| same_path(&process.project_path, &p.path))
+            {
+                retrack_stale_session(
+                    app,
+                    &p,
+                    TrackedHandle::Pid {
+                        pid: running_process.pid,
+                        project_path: p.path.clone(),
+                    },
+                );
+            } else {
+                settle_project_session(app, &p.id, None);
             }
         }
-    });
+    }
+
+    // Throttle the next runs; even an empty settle counts as success.
+    *last_ok.lock().unwrap_or_else(|e| e.into_inner()) = Some(Instant::now());
 }
 
 fn retrack_stale_session(app: &AppHandle, project: &Project, handle: TrackedHandle) {
