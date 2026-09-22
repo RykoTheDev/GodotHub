@@ -282,27 +282,9 @@ pub(crate) fn apply_app_backup(
         }
     }
 
-    {
-        let mut state = crate::workspace::read_state(app);
-        let to_remove: Vec<String> = state
-            .workspaces
-            .iter()
-            .filter(|w| !restored_ids.contains(&w.id))
-            .map(|w| w.id.clone())
-            .collect();
-        if !to_remove.is_empty() {
-            for id in &to_remove {
-                if let Some(idx) = state.workspaces.iter().position(|w| &w.id == id) {
-                    state.workspaces.remove(idx);
-                    let _ = std::fs::remove_dir_all(crate::workspace::workspace_dir(app, id));
-                }
-            }
-            if state.workspaces.is_empty() {
-            } else if !state.workspaces.iter().any(|w| w.id == state.active_id) {
-                state.active_id = state.workspaces[0].id.clone();
-            }
-            let _ = crate::workspace::write_state(app, &state);
-        }
+    let removed = crate::workspace::drop_workspaces_except(app, &restored_ids);
+    for id in removed {
+        let _ = std::fs::remove_dir_all(crate::workspace::workspace_dir(app, &id));
     }
 
     let _ = crate::watcher::restart_watchers(app.clone());

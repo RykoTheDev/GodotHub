@@ -988,14 +988,13 @@ fn migrate_mono_tags_in_place(
 
 pub fn migrate_mono_tags(app: &AppHandle) {
     let mut list = read_registry(app);
-    let mut projects = crate::projects::read_projects(app);
-    let (registry_changed, projects_changed) = migrate_mono_tags_in_place(&mut list, &mut projects);
-    if registry_changed {
-        let _ = write_registry(app, &list);
-    }
-    if projects_changed {
-        let _ = crate::projects::write_projects(app, &projects);
-    }
+    let _ = crate::projects::mutate_projects(app, |projects| {
+        let (registry_changed, projects_changed) = migrate_mono_tags_in_place(&mut list, projects);
+        if registry_changed {
+            let _ = write_registry(app, &list);
+        }
+        Ok(((), projects_changed))
+    });
 }
 
 fn installed_signature() -> &'static Mutex<Option<String>> {

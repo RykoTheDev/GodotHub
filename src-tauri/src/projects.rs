@@ -11,7 +11,7 @@ use tauri::{AppHandle, Emitter, Manager};
 use uuid::Uuid;
 
 use std::collections::HashMap;
-use std::sync::{Mutex, OnceLock};
+use std::sync::{Mutex, MutexGuard, OnceLock};
 use std::time::SystemTime;
 
 pub enum TrackedHandle {
@@ -98,8 +98,39 @@ pub(crate) fn write_projects_to(
         .map_err(|e| e.to_string())
 }
 
-pub(crate) fn write_projects(app: &AppHandle, projects: &Vec<Project>) -> Result<(), String> {
-    write_projects_to(&crate::workspace::active_workspace_dir(app), projects)
+fn projects_lock(app: &AppHandle) -> MutexGuard<'_, ()> {
+    crate::file_locks(app)
+        .projects
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+}
+
+pub(crate) fn mutate_projects<T>(
+    app: &AppHandle,
+    mutate: impl FnOnce(&mut Vec<Project>) -> Result<(T, bool), String>,
+) -> Result<T, String> {
+    mutate_projects_in(
+        &crate::workspace::active_workspace_dir(app),
+        crate::file_locks(app),
+        mutate,
+    )
+}
+
+fn mutate_projects_in<T>(
+    dir: &Path,
+    locks: &crate::FileLocks,
+    mutate: impl FnOnce(&mut Vec<Project>) -> Result<(T, bool), String>,
+) -> Result<T, String> {
+    let _guard = locks
+        .projects
+        .lock()
+        .unwrap_or_else(|e| e.into_inner());
+    let mut projects = read_projects_from(dir);
+    let (value, changed) = mutate(&mut projects)?;
+    if changed {
+        write_projects_to(dir, &projects)?;
+    }
+    Ok(value)
 }
 
 pub(crate) fn epoch_ms() -> u64 {
@@ -114,41 +145,43 @@ fn settle_project_session(
     id: &str,
     active_elapsed: Option<std::time::Duration>,
 ) {
-    let mut projects = read_projects(app);
-    let Some(project) = projects.iter_mut().find(|p| p.id == id) else {
-        return;
-    };
-    let mut changed = false;
-    let mut added_ms = 0u64;
-    let mut session_start_ms: Option<u64> = None;
-    match active_elapsed {
-        Some(d) => {
-            let marker = project.session_started_at_ms.take();
-            changed = marker.is_some();
-            added_ms = (d.as_millis() as u64).saturating_sub(SESSION_START_DELAY_MS);
-            session_start_ms = Some(marker.unwrap_or_else(|| epoch_ms().saturating_sub(added_ms)));
-        }
-        None => {
-            if let Some(start) = project.session_started_at_ms.take() {
-                let observed_end = crate::time_stats::last_active_ms(app).max(start);
-                let end = epoch_ms().min(observed_end);
-                let elapsed_ms = end.saturating_sub(start);
-                added_ms = elapsed_ms.saturating_sub(SESSION_START_DELAY_MS);
-                session_start_ms = Some(start);
-                changed = true;
+    let session = mutate_projects(app, |projects| {
+        let Some(project) = projects.iter_mut().find(|p| p.id == id) else {
+            return Ok((None, false));
+        };
+        let mut changed = false;
+        let mut added_ms = 0u64;
+        let mut session_start_ms: Option<u64> = None;
+        match active_elapsed {
+            Some(d) => {
+                let marker = project.session_started_at_ms.take();
+                changed = marker.is_some();
+                added_ms = (d.as_millis() as u64).saturating_sub(SESSION_START_DELAY_MS);
+                session_start_ms =
+                    Some(marker.unwrap_or_else(|| epoch_ms().saturating_sub(added_ms)));
+            }
+            None => {
+                if let Some(start) = project.session_started_at_ms.take() {
+                    let observed_end = crate::time_stats::last_active_ms(app).max(start);
+                    let end = epoch_ms().min(observed_end);
+                    let elapsed_ms = end.saturating_sub(start);
+                    added_ms = elapsed_ms.saturating_sub(SESSION_START_DELAY_MS);
+                    session_start_ms = Some(start);
+                    changed = true;
+                }
             }
         }
-    }
-    if added_ms > 0 {
-        project.total_time_seconds += added_ms / 1000;
-        changed = true;
-    }
-    if changed {
-        let _ = write_projects(app, &projects);
-    }
-    if let Some(start_ms) = session_start_ms {
-        crate::time_stats::record_session(app, id, start_ms, added_ms / 1000);
-    }
+        if added_ms > 0 {
+            project.total_time_seconds += added_ms / 1000;
+            changed = true;
+        }
+        let session = session_start_ms.map(|start_ms| (start_ms, added_ms / 1000));
+        Ok((session, changed))
+    });
+    let Ok(Some((start_ms, seconds))) = session else {
+        return;
+    };
+    crate::time_stats::record_session(app, id, start_ms, seconds);
 }
 
 pub(crate) fn settle_stale_sessions(app: &AppHandle) {
@@ -240,17 +273,28 @@ pub fn contains_path(paths: &[String], path: &str) -> bool {
     paths.iter().any(|p| normalize_path(p) == target)
 }
 
-fn undismiss(app: &AppHandle, path: &str) {
-    let mut s = settings::read_settings(app);
-    let before = s.dismissed_project_paths.len();
-    s.dismissed_project_paths.retain(|p| !same_path(p, path));
-    if s.dismissed_project_paths.len() != before {
-        let _ = settings::write_settings(app, &s);
-    }
+fn mutate_dismissed_archive<T>(
+    app: &AppHandle,
+    mutate: impl FnOnce(&mut BTreeMap<String, Project>) -> Result<(T, bool), String>,
+) -> Result<T, String> {
+    let _guard = projects_lock(app);
     let mut archive = read_dismissed_archive(app);
-    if archive.remove(&normalize_path(path)).is_some() {
+    let (value, changed) = mutate(&mut archive)?;
+    if changed {
         write_dismissed_archive(app, &archive);
     }
+    Ok(value)
+}
+
+fn undismiss(app: &AppHandle, path: &str) {
+    let _ = settings::mutate_settings(app, |s| {
+        let before = s.dismissed_project_paths.len();
+        s.dismissed_project_paths.retain(|p| !same_path(p, path));
+        Ok(((), s.dismissed_project_paths.len() != before))
+    });
+    let _ = mutate_dismissed_archive(app, |archive| {
+        Ok(((), archive.remove(&normalize_path(path)).is_some()))
+    });
 }
 
 fn dismissed_archive_file(app: &AppHandle) -> PathBuf {
@@ -283,39 +327,39 @@ fn next_sort_order(projects: &[Project], category: &Option<String>) -> i64 {
 pub fn list_projects(app: AppHandle) -> Vec<Project> {
     let start = std::time::Instant::now();
     settle_stale_sessions(&app);
-    let projects = read_projects(&app);
-    let (mut kept, removed): (Vec<Project>, Vec<Project>) = projects
-        .into_iter()
-        .partition(|p| Path::new(&p.path).join("project.godot").exists());
+    let mut kept = match mutate_projects(&app, |projects| {
+        let stored = projects.len();
+        projects.retain(|p| Path::new(&p.path).join("project.godot").exists());
+        let mut changed = projects.len() != stored;
 
-    let mut tags_changed = false;
-    let mut names_changed = false;
-    for p in kept.iter_mut() {
-        if p.tags.is_empty() {
-            let disk_tags = resolve_project_tags(&p.path);
-            if !disk_tags.is_empty() {
-                p.tags = disk_tags;
-                tags_changed = true;
+        for p in projects.iter_mut() {
+            if p.tags.is_empty() {
+                let disk_tags = resolve_project_tags(&p.path);
+                if !disk_tags.is_empty() {
+                    p.tags = disk_tags;
+                    changed = true;
+                }
             }
-        }
-        let folder = Path::new(&p.path)
-            .file_name()
-            .map(|n| n.to_string_lossy().to_string());
-        if let Some(folder_name) = folder {
-            if p.name == folder_name {
-                if let Some(resolved) = resolve_project_name(&p.path) {
-                    if !resolved.trim().is_empty() && resolved != p.name {
-                        p.name = resolved;
-                        names_changed = true;
+            let folder = Path::new(&p.path)
+                .file_name()
+                .map(|n| n.to_string_lossy().to_string());
+            if let Some(folder_name) = folder {
+                if p.name == folder_name {
+                    if let Some(resolved) = resolve_project_name(&p.path) {
+                        if !resolved.trim().is_empty() && resolved != p.name {
+                            p.name = resolved;
+                            changed = true;
+                        }
                     }
                 }
             }
         }
-    }
+        Ok((projects.clone(), changed))
+    }) {
+        Ok(projects) => projects,
+        Err(_) => read_projects(&app),
+    };
 
-    if !removed.is_empty() || tags_changed || names_changed {
-        let _ = write_projects(&app, &kept);
-    }
     let stats = crate::time_stats::read_stats(&app);
     let now = chrono::Local::now();
     for p in kept.iter_mut() {
@@ -493,30 +537,31 @@ pub fn create_project(
         let _ = fs::create_dir(project_dir.join(".godot"));
     }
 
-    let mut projects = read_projects(&app);
     let effective_category = category.as_ref().and_then(|c| if c.trim().is_empty() { None } else { Some(c.clone()) });
     let project_path = project_dir.to_string_lossy().to_string();
     let tags = resolve_project_tags(&project_path);
-    let project = Project {
-        id: Uuid::new_v4().to_string(),
-        name,
-        path: project_path,
-        godot_version,
-        created_at: chrono::Utc::now().to_rfc3339(),
-        last_opened: None,
-        category: effective_category.clone(),
-        pinned: false,
-        sort_order: next_sort_order(&projects, &effective_category),
-        launch_arguments: String::new(),
-        tags,
-        total_time_seconds: 0,
-        session_started_at_ms: None,
-        time_today_seconds: 0,
-        time_week_seconds: 0,
-    };
 
-    projects.push(project.clone());
-    write_projects(&app, &projects)?;
+    let project = mutate_projects(&app, |projects| {
+        let project = Project {
+            id: Uuid::new_v4().to_string(),
+            name,
+            path: project_path,
+            godot_version,
+            created_at: chrono::Utc::now().to_rfc3339(),
+            last_opened: None,
+            category: effective_category.clone(),
+            pinned: false,
+            sort_order: next_sort_order(projects, &effective_category),
+            launch_arguments: String::new(),
+            tags,
+            total_time_seconds: 0,
+            session_started_at_ms: None,
+            time_today_seconds: 0,
+            time_week_seconds: 0,
+        };
+        projects.push(project.clone());
+        Ok((project, true))
+    })?;
     undismiss(&app, &project.path);
     if !project.godot_version.is_empty() {
         let _ = crate::godotenv::pin_version(&project.path, &project.godot_version);
@@ -532,9 +577,8 @@ pub fn duplicate_project(
     dest_dir: Option<String>,
 ) -> Result<Project, String> {
     let settings = settings::read_settings(&app);
-    let projects = read_projects(&app);
-    let source = projects
-        .iter()
+    let source = read_projects(&app)
+        .into_iter()
         .find(|p| p.id == id)
         .ok_or_else(|| "Project not found".to_string())?;
     let source_dir = PathBuf::from(&source.path);
@@ -585,29 +629,36 @@ pub fn duplicate_project(
         }
     }
 
-    let mut projects = read_projects(&app);
     let project_path = target_dir.to_string_lossy().to_string();
     let tags = resolve_project_tags(&project_path);
-    let project = Project {
-        id: Uuid::new_v4().to_string(),
-        name,
-        path: project_path,
-        godot_version: source.godot_version.clone(),
-        created_at: chrono::Utc::now().to_rfc3339(),
-        last_opened: None,
-        category: source.category.clone(),
-        pinned: false,
-        sort_order: next_sort_order(&projects, &source.category),
-        launch_arguments: String::new(),
-        tags,
-        total_time_seconds: 0,
-        session_started_at_ms: None,
-        time_today_seconds: 0,
-        time_week_seconds: 0,
-    };
-
-    projects.push(project.clone());
-    write_projects(&app, &projects)?;
+    let project = mutate_projects(&app, |projects| {
+        let fresh = projects.iter().find(|p| p.id == id);
+        let godot_version = fresh
+            .map(|p| p.godot_version.clone())
+            .unwrap_or_else(|| source.godot_version.clone());
+        let category = fresh
+            .and_then(|p| p.category.clone())
+            .or_else(|| source.category.clone());
+        let project = Project {
+            id: Uuid::new_v4().to_string(),
+            name,
+            path: project_path,
+            godot_version,
+            created_at: chrono::Utc::now().to_rfc3339(),
+            last_opened: None,
+            category: category.clone(),
+            pinned: false,
+            sort_order: next_sort_order(projects, &category),
+            launch_arguments: String::new(),
+            tags,
+            total_time_seconds: 0,
+            session_started_at_ms: None,
+            time_today_seconds: 0,
+            time_week_seconds: 0,
+        };
+        projects.push(project.clone());
+        Ok((project, true))
+    })?;
     undismiss(&app, &project.path);
     if !project.godot_version.is_empty() {
         let _ = crate::godotenv::pin_version(&project.path, &project.godot_version);
@@ -648,39 +699,37 @@ fn rebind_project_to_spec(
 
 pub fn rebind_projects_to_version(app: &AppHandle, version: &InstalledGodotVersion) {
     let installed = crate::godot_versions::read_registry(app);
-    let mut projects = read_projects(app);
-    let mut changed = false;
-    for p in projects.iter_mut() {
-        let Some(spec) = crate::godotenv::detect_version(&p.path) else {
-            continue;
-        };
-        if !crate::godotenv::matches_detected(&spec, &version.tag) {
-            continue;
+    let _ = mutate_projects(app, |projects| {
+        let mut changed = false;
+        for p in projects.iter_mut() {
+            let Some(spec) = crate::godotenv::detect_version(&p.path) else {
+                continue;
+            };
+            if !crate::godotenv::matches_detected(&spec, &version.tag) {
+                continue;
+            }
+            if rebind_project_to_spec(p, &spec, &installed) {
+                changed = true;
+            }
         }
-        if rebind_project_to_spec(p, &spec, &installed) {
-            changed = true;
-        }
-    }
-    if changed {
-        let _ = write_projects(app, &projects);
-    }
+        Ok(((), changed))
+    });
 }
 
 pub fn rebind_projects_to_installed(app: &AppHandle) {
     let installed = crate::godot_versions::read_registry(app);
-    let mut projects = read_projects(app);
-    let mut changed = false;
-    for p in projects.iter_mut() {
-        let Some(spec) = crate::godotenv::detect_version(&p.path) else {
-            continue;
-        };
-        if rebind_project_to_spec(p, &spec, &installed) {
-            changed = true;
+    let _ = mutate_projects(app, |projects| {
+        let mut changed = false;
+        for p in projects.iter_mut() {
+            let Some(spec) = crate::godotenv::detect_version(&p.path) else {
+                continue;
+            };
+            if rebind_project_to_spec(p, &spec, &installed) {
+                changed = true;
+            }
         }
-    }
-    if changed {
-        let _ = write_projects(app, &projects);
-    }
+        Ok(((), changed))
+    });
 }
 
 pub fn register_project(
@@ -698,78 +747,75 @@ pub fn register_project(
         .unwrap_or_else(|| "Untitled".into());
     let name = resolve_project_name(&path).unwrap_or(folder_name);
 
-    let mut projects = read_projects(&app);
-    if projects.iter().any(|p| same_path(&p.path, &path)) {
-        return Err("This project is already in your library".into());
-    }
+    let project = mutate_projects(&app, |projects| {
+        if projects.iter().any(|p| same_path(&p.path, &path)) {
+            return Err("This project is already in your library".into());
+        }
 
-    let mut archive = read_dismissed_archive(&app);
-    if let Some(mut archived) = archive.remove(&normalize_path(&path)) {
-        archived.session_started_at_ms = None;
-        archived.time_today_seconds = 0;
-        archived.time_week_seconds = 0;
-        let folder_name = PathBuf::from(&path)
-            .file_name()
-            .map(|n| n.to_string_lossy().to_string());
-        if let Some(folder) = folder_name {
-            if archived.name == folder {
-                if let Some(resolved) = resolve_project_name(&path) {
-                    if !resolved.trim().is_empty() {
-                        archived.name = resolved;
+        if let Some(mut archived) = read_dismissed_archive(&app).remove(&normalize_path(&path)) {
+            archived.session_started_at_ms = None;
+            archived.time_today_seconds = 0;
+            archived.time_week_seconds = 0;
+            let folder_name = PathBuf::from(&path)
+                .file_name()
+                .map(|n| n.to_string_lossy().to_string());
+            if let Some(folder) = folder_name {
+                if archived.name == folder {
+                    if let Some(resolved) = resolve_project_name(&path) {
+                        if !resolved.trim().is_empty() {
+                            archived.name = resolved;
+                        }
                     }
                 }
             }
+            if !godot_version.is_empty() {
+                archived.godot_version = godot_version.clone();
+            }
+            if let Some(cat) = &category {
+                archived.category = Some(cat.clone());
+            }
+            if archived.godot_version.is_empty() {
+                if let Some(spec) = crate::godotenv::detect_version(&path) {
+                    let installed = crate::godot_versions::read_registry(&app);
+                    if let Some(v) = crate::godotenv::best_match(&spec, &installed) {
+                        archived.godot_version = v.tag.clone();
+                    }
+                }
+            }
+            projects.push(archived.clone());
+            return Ok((archived, true));
         }
-        if !godot_version.is_empty() {
-            archived.godot_version = godot_version;
-        }
-        if let Some(cat) = &category {
-            archived.category = Some(cat.clone());
-        }
-        if archived.godot_version.is_empty() {
+
+        let mut detected = godot_version.clone();
+        if detected.is_empty() {
             if let Some(spec) = crate::godotenv::detect_version(&path) {
                 let installed = crate::godot_versions::read_registry(&app);
                 if let Some(v) = crate::godotenv::best_match(&spec, &installed) {
-                    archived.godot_version = v.tag.clone();
+                    detected = v.tag.clone();
                 }
             }
         }
-        write_dismissed_archive(&app, &archive);
-        projects.push(archived.clone());
-        write_projects(&app, &projects)?;
-        undismiss(&app, &path);
-        return Ok(archived);
-    }
-
-    let mut godot_version = godot_version;
-    if godot_version.is_empty() {
-        if let Some(spec) = crate::godotenv::detect_version(&path) {
-            let installed = crate::godot_versions::read_registry(&app);
-            if let Some(v) = crate::godotenv::best_match(&spec, &installed) {
-                godot_version = v.tag.clone();
-            }
-        }
-    }
-    let tags = resolve_project_tags(&path);
-    let project = Project {
-        id: Uuid::new_v4().to_string(),
-        name,
-        path,
-        godot_version,
-        created_at: chrono::Utc::now().to_rfc3339(),
-        last_opened: None,
-        sort_order: next_sort_order(&projects, &category),
-        category,
-        pinned: false,
-        launch_arguments: String::new(),
-        tags,
-        total_time_seconds: 0,
-        session_started_at_ms: None,
-        time_today_seconds: 0,
-        time_week_seconds: 0,
-    };
-    projects.push(project.clone());
-    write_projects(&app, &projects)?;
+        let project = Project {
+            id: Uuid::new_v4().to_string(),
+            name: name.clone(),
+            path: path.clone(),
+            godot_version: detected,
+            created_at: chrono::Utc::now().to_rfc3339(),
+            last_opened: None,
+            sort_order: next_sort_order(projects, &category),
+            category: category.clone(),
+            pinned: false,
+            launch_arguments: String::new(),
+            tags: resolve_project_tags(&path),
+            total_time_seconds: 0,
+            session_started_at_ms: None,
+            time_today_seconds: 0,
+            time_week_seconds: 0,
+        };
+        projects.push(project.clone());
+        Ok((project, true))
+    })?;
+    undismiss(&app, &project.path);
     Ok(project)
 }
 
@@ -795,28 +841,32 @@ pub fn import_project(
 
 #[tauri::command]
 pub async fn remove_project(app: AppHandle, id: String, delete_files: bool) -> Result<(), String> {
-    let mut projects = read_projects(&app);
-    let idx = projects
-        .iter()
-        .position(|p| p.id == id)
-        .ok_or("Project not found")?;
-    let project = projects.remove(idx);
-    write_projects(&app, &projects)?;
+    let project = mutate_projects(&app, |projects| {
+        let idx = projects
+            .iter()
+            .position(|p| p.id == id)
+            .ok_or("Project not found")?;
+        Ok((projects.remove(idx), true))
+    })?;
 
     if !delete_files {
-        let mut s = crate::settings::read_settings(&app);
-        if !contains_path(&s.dismissed_project_paths, &project.path) {
-            s.dismissed_project_paths.push(project.path.clone());
-            let _ = crate::settings::write_settings(&app, &s);
-        }
+        let path = project.path.clone();
+        let _ = crate::settings::mutate_settings(&app, |s| {
+            if contains_path(&s.dismissed_project_paths, &path) {
+                return Ok(((), false));
+            }
+            s.dismissed_project_paths.push(path.clone());
+            Ok(((), true))
+        });
 
         let mut snapshot = project.clone();
         snapshot.session_started_at_ms = None;
         snapshot.time_today_seconds = 0;
         snapshot.time_week_seconds = 0;
-        let mut archive = read_dismissed_archive(&app);
-        archive.insert(normalize_path(&project.path), snapshot);
-        write_dismissed_archive(&app, &archive);
+        let _ = mutate_dismissed_archive(&app, |archive| {
+            archive.insert(normalize_path(&project.path), snapshot);
+            Ok(((), true))
+        });
     }
 
     if delete_files {
@@ -855,49 +905,49 @@ pub fn update_project(
     id: String,
     updates: ProjectUpdate,
 ) -> Result<Project, String> {
-    let mut projects = read_projects(&app);
-    let project = projects
-        .iter_mut()
-        .find(|p| p.id == id)
-        .ok_or("Project not found")?;
-    if let Some(name) = updates.name {
-        project.name = name;
-    }
-    if let Some(v) = updates.godot_version {
-        if project.godot_version != v {
-            project.godot_version = v.clone();
-            if !v.is_empty() {
-                let _ = crate::godotenv::pin_version(&project.path, &v);
+    mutate_projects(&app, |projects| {
+        let project = projects
+            .iter_mut()
+            .find(|p| p.id == id)
+            .ok_or("Project not found")?;
+        if let Some(name) = updates.name {
+            project.name = name;
+        }
+        if let Some(v) = updates.godot_version {
+            if project.godot_version != v {
+                project.godot_version = v.clone();
+                if !v.is_empty() {
+                    let _ = crate::godotenv::pin_version(&project.path, &v);
+                }
             }
         }
-    }
-    if let Some(category) = updates.category {
-        project.category = if category.trim().is_empty() {
-            None
-        } else {
-            Some(category)
-        };
-    }
-    if let Some(pinned) = updates.pinned {
-        project.pinned = pinned;
-    }
-    if let Some(launch_arguments) = updates.launch_arguments {
-        project.launch_arguments = launch_arguments;
-    }
-    let updated = project.clone();
-    write_projects(&app, &projects)?;
-    Ok(updated)
+        if let Some(category) = updates.category {
+            project.category = if category.trim().is_empty() {
+                None
+            } else {
+                Some(category)
+            };
+        }
+        if let Some(pinned) = updates.pinned {
+            project.pinned = pinned;
+        }
+        if let Some(launch_arguments) = updates.launch_arguments {
+            project.launch_arguments = launch_arguments;
+        }
+        Ok((project.clone(), true))
+    })
 }
 
 #[tauri::command]
 pub fn reorder_projects(app: AppHandle, ordered_ids: Vec<String>) -> Result<(), String> {
-    let mut projects = read_projects(&app);
-    for (i, id) in ordered_ids.iter().enumerate() {
-        if let Some(p) = projects.iter_mut().find(|p| &p.id == id) {
-            p.sort_order = i as i64;
+    mutate_projects(&app, |projects| {
+        for (i, id) in ordered_ids.iter().enumerate() {
+            if let Some(p) = projects.iter_mut().find(|p| &p.id == id) {
+                p.sort_order = i as i64;
+            }
         }
-    }
-    write_projects(&app, &projects)
+        Ok(((), true))
+    })
 }
 
 #[tauri::command]
@@ -907,9 +957,9 @@ pub fn open_project(
     editor: bool,
     console: Option<bool>,
 ) -> Result<(), String> {
-    let mut projects = read_projects(&app);
+    let projects = read_projects(&app);
     let project = projects
-        .iter_mut()
+        .iter()
         .find(|p| p.id == id)
         .ok_or("Project not found")?;
     let project_name = resolve_project_name(&project.path)
@@ -951,9 +1001,13 @@ pub fn open_project(
     let pid_file = launched.pid_file.clone();
     let kill_tree = launched.kill_tree;
 
-    project.last_opened = Some(chrono::Utc::now().to_rfc3339());
-    project.session_started_at_ms = Some(epoch_ms() + SESSION_START_DELAY_MS);
-    write_projects(&app, &projects)?;
+    mutate_projects(&app, |projects| {
+        if let Some(project) = projects.iter_mut().find(|p| p.id == id) {
+            project.last_opened = Some(chrono::Utc::now().to_rfc3339());
+            project.session_started_at_ms = Some(epoch_ms() + SESSION_START_DELAY_MS);
+        }
+        Ok(((), true))
+    })?;
     crate::time_stats::touch_activity(&app);
 
     let _ = crate::tray::refresh_tray_menu(app.clone());
@@ -1520,15 +1574,15 @@ pub fn write_project_tags(
 
     fs::write(&godot_file, lines.join("\n")).map_err(|e| e.to_string())?;
 
-    let mut projects = read_projects(&app);
-    let project = projects
-        .iter_mut()
-        .find(|p| p.id == id)
-        .ok_or("Project not found")?;
-    project.tags = tags;
-    let updated = project.clone();
-    write_projects(&app, &projects)?;
-    Ok(updated)
+    let project = mutate_projects(&app, |projects| {
+        let project = projects
+            .iter_mut()
+            .find(|p| p.id == id)
+            .ok_or("Project not found")?;
+        project.tags = tags;
+        Ok((project.clone(), true))
+    })?;
+    Ok(project)
 }
 
 pub(crate) fn resolve_project_tags(project_path: &str) -> Vec<String> {
@@ -1601,26 +1655,27 @@ pub fn import_project_stats(app: AppHandle, path: String) -> Result<usize, Strin
     let Some(stats) = stats else {
         return Err("Couldn't read the stats backup file".into());
     };
-    let mut projects = read_projects(&app);
-    let mut imported = 0usize;
-    let mut restored: Vec<(
-        String,
-        Vec<crate::time_stats::SessionRecord>,
-        std::collections::BTreeMap<String, u64>,
-    )> = Vec::new();
-    for s in &stats.projects {
-        let idx = projects
-            .iter()
-            .position(|p| p.id == s.id)
-            .or_else(|| projects.iter().position(|p| same_path(&p.path, &s.path)));
-        if let Some(idx) = idx {
-            projects[idx].total_time_seconds = s.total_time_seconds;
-            restored.push((projects[idx].id.clone(), s.sessions.clone(), s.daily.clone()));
-            imported += 1;
+    let restored = mutate_projects(&app, |projects| {
+        let mut restored: Vec<(
+            String,
+            Vec<crate::time_stats::SessionRecord>,
+            std::collections::BTreeMap<String, u64>,
+        )> = Vec::new();
+        for s in &stats.projects {
+            let idx = projects
+                .iter()
+                .position(|p| p.id == s.id)
+                .or_else(|| projects.iter().position(|p| same_path(&p.path, &s.path)));
+            if let Some(idx) = idx {
+                projects[idx].total_time_seconds = s.total_time_seconds;
+                restored.push((projects[idx].id.clone(), s.sessions.clone(), s.daily.clone()));
+            }
         }
-    }
-    if imported > 0 {
-        write_projects(&app, &projects)?;
+        let changed = !restored.is_empty();
+        Ok((restored, changed))
+    })?;
+
+    if !restored.is_empty() {
         let mut store = crate::time_stats::read_stats(&app);
         let mut changed = false;
         for (id, sessions, daily) in &restored {
@@ -1637,7 +1692,7 @@ pub fn import_project_stats(app: AppHandle, path: String) -> Result<usize, Strin
             crate::time_stats::write_stats(&app, &store);
         }
     }
-    Ok(imported)
+    Ok(restored.len())
 }
 
 pub(crate) fn resolve_project_name(project_path: &str) -> Option<String> {
@@ -1966,3 +2021,7 @@ pub async fn get_project_file_tree(path: String) -> Result<Vec<ProjectFileEntry>
     .await
     .map_err(|e| e.to_string())?
 }
+
+#[cfg(test)]
+#[path = "../tests/common/projects_lock.rs"]
+mod projects_lock_tests;

@@ -3,6 +3,7 @@ use serde::Serialize;
 use std::fs::{self, File};
 use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::sync::Mutex;
 
 use crate::error::AppResult;
 
@@ -43,8 +44,14 @@ pub fn read_json_opt_with_backup<T: DeserializeOwned>(path: &Path) -> Option<T> 
     read_json_opt(path).or_else(|| read_json_opt(&backup_path(path)))
 }
 
+fn backup_lock() -> &'static Mutex<()> {
+    static LOCK: Mutex<()> = Mutex::new(());
+    &LOCK
+}
+
 pub fn write_json_with_backup<T: Serialize>(path: &Path, data: &T) -> AppResult<()> {
     let json = serde_json::to_string_pretty(data)?;
+    let _guard = backup_lock().lock().unwrap_or_else(|e| e.into_inner());
     if let Ok(previous) = fs::read(path) {
         if !previous.is_empty() {
             let _ = write_bytes(&backup_path(path), &previous);

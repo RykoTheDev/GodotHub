@@ -1,7 +1,8 @@
 use crate::error::AppResult;
-use crate::persist;
 use crate::models::*;
+use crate::persist;
 use crate::projects;
+use std::sync::MutexGuard;
 use tauri::AppHandle;
 use uuid::Uuid;
 
@@ -24,6 +25,26 @@ pub(crate) fn write_categories(app: &AppHandle, categories: &Vec<Category>) -> A
     write_categories_to(&crate::workspace::active_workspace_dir(app), categories)
 }
 
+fn categories_lock(app: &AppHandle) -> MutexGuard<'_, ()> {
+    crate::file_locks(app)
+        .categories
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+}
+
+fn mutate_categories<T>(
+    app: &AppHandle,
+    mutate: impl FnOnce(&mut Vec<Category>) -> Result<(T, bool), String>,
+) -> Result<T, String> {
+    let _guard = categories_lock(app);
+    let mut categories = read_categories(app);
+    let (value, changed) = mutate(&mut categories)?;
+    if changed {
+        write_categories(app, &categories).map_err(|e| e.to_string())?;
+    }
+    Ok(value)
+}
+
 #[tauri::command]
 pub fn list_categories(app: AppHandle) -> Vec<Category> {
     let mut cats = read_categories(&app);
@@ -37,27 +58,26 @@ pub fn create_category(app: AppHandle, name: String, color: Option<String>) -> R
     if trimmed.is_empty() {
         return Err("Category name can't be empty".into());
     }
-    let mut cats = read_categories(&app);
-    if cats.iter().any(|c| c.name.eq_ignore_ascii_case(&trimmed)) {
-        return Err("A category with this name already exists".into());
-    }
-    let next_order = cats
-        .iter()
-        .map(|c| c.sort_order)
-        .max()
-        .map(|m| m + 1)
-        .unwrap_or(0);
-    let effective_color = color.unwrap_or_else(default_accent);
-    let category = Category {
-        id: Uuid::new_v4().to_string(),
-        name: trimmed,
-        sort_order: next_order,
-        color: effective_color,
-        hidden: false,
-    };
-    cats.push(category.clone());
-    write_categories(&app, &cats).map_err(|e| e.to_string())?;
-    Ok(category)
+    mutate_categories(&app, |cats| {
+        if cats.iter().any(|c| c.name.eq_ignore_ascii_case(&trimmed)) {
+            return Err("A category with this name already exists".into());
+        }
+        let next_order = cats
+            .iter()
+            .map(|c| c.sort_order)
+            .max()
+            .map(|m| m + 1)
+            .unwrap_or(0);
+        let category = Category {
+            id: Uuid::new_v4().to_string(),
+            name: trimmed.clone(),
+            sort_order: next_order,
+            color: color.unwrap_or_else(default_accent),
+            hidden: false,
+        };
+        cats.push(category.clone());
+        Ok((category, true))
+    })
 }
 
 #[tauri::command]
@@ -68,51 +88,56 @@ pub fn update_category(
     color: Option<String>,
     hidden: Option<bool>,
 ) -> Result<Category, String> {
-    let mut cats = read_categories(&app);
-    let idx = cats
-        .iter()
-        .position(|c| c.id == id)
-        .ok_or("Category not found")?;
-
-    if let Some(ref new_name) = name {
-        let trimmed = new_name.trim().to_string();
-        if trimmed.is_empty() {
-            return Err("Category name can't be empty".into());
-        }
-        if cats
+    let (updated, rename) = mutate_categories(&app, |cats| {
+        let idx = cats
             .iter()
-            .any(|c| c.id != id && c.name.eq_ignore_ascii_case(&trimmed))
-        {
-            return Err("A category with this name already exists".into());
-        }
-        let old_name = cats[idx].name.clone();
-        cats[idx].name = trimmed;
+            .position(|c| c.id == id)
+            .ok_or("Category not found")?;
 
-        if old_name != cats[idx].name {
-            let mut all_projects = projects::read_projects(&app);
+        let mut rename: Option<(String, String)> = None;
+        if let Some(ref new_name) = name {
+            let trimmed = new_name.trim().to_string();
+            if trimmed.is_empty() {
+                return Err("Category name can't be empty".into());
+            }
+            if cats
+                .iter()
+                .any(|c| c.id != id && c.name.eq_ignore_ascii_case(&trimmed))
+            {
+                return Err("A category with this name already exists".into());
+            }
+            let old_name = cats[idx].name.clone();
+            cats[idx].name = trimmed;
+            if old_name != cats[idx].name {
+                rename = Some((old_name, cats[idx].name.clone()));
+            }
+        }
+
+        if let Some(ref new_color) = color {
+            cats[idx].color = new_color.clone();
+        }
+
+        if let Some(hidden) = hidden {
+            cats[idx].hidden = hidden;
+        }
+
+        let updated = cats[idx].clone();
+        Ok(((updated, rename), true))
+    })?;
+
+    if let Some((old_name, new_name)) = rename {
+        projects::mutate_projects(&app, |all_projects| {
             let mut changed = false;
             for p in all_projects.iter_mut() {
                 if p.category.as_deref() == Some(old_name.as_str()) {
-                    p.category = Some(cats[idx].name.clone());
+                    p.category = Some(new_name.clone());
                     changed = true;
                 }
             }
-            if changed {
-                projects::write_projects(&app, &all_projects).map_err(|e| e.to_string())?;
-            }
-        }
+            Ok(((), changed))
+        })?;
     }
 
-    if let Some(ref new_color) = color {
-        cats[idx].color = new_color.clone();
-    }
-
-    if let Some(hidden) = hidden {
-        cats[idx].hidden = hidden;
-    }
-
-    let updated = cats[idx].clone();
-    write_categories(&app, &cats).map_err(|e| e.to_string())?;
     Ok(updated)
 }
 
@@ -123,35 +148,34 @@ pub fn rename_category(app: AppHandle, id: String, name: String) -> Result<Categ
 
 #[tauri::command]
 pub fn delete_category(app: AppHandle, id: String) -> Result<(), String> {
-    let mut cats = read_categories(&app);
-    let idx = cats
-        .iter()
-        .position(|c| c.id == id)
-        .ok_or("Category not found")?;
-    let removed = cats.remove(idx);
-    write_categories(&app, &cats).map_err(|e| e.to_string())?;
+    let removed = mutate_categories(&app, |cats| {
+        let idx = cats
+            .iter()
+            .position(|c| c.id == id)
+            .ok_or("Category not found")?;
+        Ok((cats.remove(idx), true))
+    })?;
 
-    let mut all_projects = projects::read_projects(&app);
-    let mut changed = false;
-    for p in all_projects.iter_mut() {
-        if p.category.as_deref() == Some(removed.name.as_str()) {
-            p.category = None;
-            changed = true;
+    projects::mutate_projects(&app, |all_projects| {
+        let mut changed = false;
+        for p in all_projects.iter_mut() {
+            if p.category.as_deref() == Some(removed.name.as_str()) {
+                p.category = None;
+                changed = true;
+            }
         }
-    }
-    if changed {
-        projects::write_projects(&app, &all_projects).map_err(|e| e.to_string())?;
-    }
-    Ok(())
+        Ok(((), changed))
+    })
 }
 
 #[tauri::command]
 pub fn reorder_categories(app: AppHandle, ordered_ids: Vec<String>) -> Result<(), String> {
-    let mut cats = read_categories(&app);
-    for (i, id) in ordered_ids.iter().enumerate() {
-        if let Some(c) = cats.iter_mut().find(|c| &c.id == id) {
-            c.sort_order = i as i64;
+    mutate_categories(&app, |cats| {
+        for (i, id) in ordered_ids.iter().enumerate() {
+            if let Some(c) = cats.iter_mut().find(|c| &c.id == id) {
+                c.sort_order = i as i64;
+            }
         }
-    }
-    write_categories(&app, &cats).map_err(|e| e.to_string())
+        Ok(((), true))
+    })
 }
