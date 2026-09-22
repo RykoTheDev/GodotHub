@@ -2,7 +2,7 @@ use crate::models::*;
 use crate::persist;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::sync::{Mutex, OnceLock};
+use std::sync::{Mutex, MutexGuard, OnceLock};
 use tauri::{AppHandle, Manager};
 use uuid::Uuid;
 
@@ -56,6 +56,26 @@ fn write_state_in(base: &Path, state: &WorkspacesState) -> Result<(), String> {
         let _ = persist::write_json(&dir.join(META_FILE), ws);
     }
     persist::write_json_with_backup(&workspaces_file_in(base), state).map_err(|e| e.to_string())
+}
+
+fn workspace_lock(app: &AppHandle) -> MutexGuard<'_, ()> {
+    crate::file_locks(app)
+        .workspace
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+}
+
+fn mutate_workspace_state<T>(
+    app: &AppHandle,
+    mutate: impl FnOnce(&mut WorkspacesState) -> Result<(T, bool), String>,
+) -> Result<T, String> {
+    let _guard = workspace_lock(app);
+    let mut state = read_state_in(&app_data_dir(app));
+    let (value, changed) = mutate(&mut state)?;
+    if changed {
+        write_state(app, &state)?;
+    }
+    Ok(value)
 }
 
 fn read_json_retry<T: serde::de::DeserializeOwned>(file: &Path) -> Option<T> {
@@ -207,11 +227,12 @@ fn create_default_state(base: &Path) -> WorkspacesState {
 }
 
 pub fn read_state(app: &AppHandle) -> WorkspacesState {
-    let _guard = state_lock().lock().unwrap_or_else(|e| e.into_inner());
+    let _guard = workspace_lock(app);
     read_state_in(&app_data_dir(app))
 }
 
 pub fn read_state_in(base: &Path) -> WorkspacesState {
+    let _guard = state_lock().lock().unwrap_or_else(|e| e.into_inner());
     ensure_dir(base);
     let file = workspaces_file_in(base);
 
@@ -261,6 +282,28 @@ pub fn active_workspace_id(app: &AppHandle) -> String {
     read_state(app).active_id
 }
 
+pub(crate) fn drop_workspaces_except(
+    app: &AppHandle,
+    keep_ids: &std::collections::HashSet<String>,
+) -> Vec<String> {
+    mutate_workspace_state(app, |state| {
+        let removed: Vec<String> = state
+            .workspaces
+            .iter()
+            .filter(|w| !keep_ids.contains(&w.id))
+            .map(|w| w.id.clone())
+            .collect();
+        state.workspaces.retain(|w| keep_ids.contains(&w.id));
+        if !state.workspaces.is_empty() && !state.workspaces.iter().any(|w| w.id == state.active_id)
+        {
+            state.active_id = state.workspaces[0].id.clone();
+        }
+        let changed = !removed.is_empty();
+        Ok((removed, changed))
+    })
+    .unwrap_or_default()
+}
+
 #[tauri::command]
 pub fn list_workspaces(app: AppHandle) -> WorkspacesState {
     read_state(&app)
@@ -298,26 +341,26 @@ pub fn create_workspace_silent(
     if trimmed.is_empty() {
         return Err("Workspace name can't be empty".into());
     }
-    let mut state = read_state(app);
-    if state
-        .workspaces
-        .iter()
-        .any(|w| w.name.eq_ignore_ascii_case(&trimmed))
-    {
-        return Err("A workspace with this name already exists".into());
-    }
-    let id = Uuid::new_v4().to_string();
-    workspace_dir(app, &id);
-    let workspace = Workspace {
-        id: id.clone(),
-        name: trimmed,
-        icon,
-        color,
-        created_at: chrono::Utc::now().to_rfc3339(),
-    };
-    state.workspaces.push(workspace.clone());
-    write_state(app, &state)?;
-    Ok(workspace)
+    mutate_workspace_state(app, |state| {
+        if state
+            .workspaces
+            .iter()
+            .any(|w| w.name.eq_ignore_ascii_case(&trimmed))
+        {
+            return Err("A workspace with this name already exists".into());
+        }
+        let id = Uuid::new_v4().to_string();
+        workspace_dir(app, &id);
+        let workspace = Workspace {
+            id,
+            name: trimmed,
+            icon,
+            color,
+            created_at: chrono::Utc::now().to_rfc3339(),
+        };
+        state.workspaces.push(workspace.clone());
+        Ok((workspace, true))
+    })
 }
 
 #[tauri::command]
@@ -331,38 +374,40 @@ pub fn create_workspace(
     if trimmed.is_empty() {
         return Err("Workspace name can't be empty".into());
     }
-    let mut state = read_state(&app);
-    if state
-        .workspaces
-        .iter()
-        .any(|w| w.name.eq_ignore_ascii_case(&trimmed))
-    {
-        return Err("A workspace with this name already exists".into());
-    }
-    let id = Uuid::new_v4().to_string();
-    workspace_dir(&app, &id);
-    let workspace = Workspace {
-        id: id.clone(),
-        name: trimmed,
-        icon,
-        color,
-        created_at: chrono::Utc::now().to_rfc3339(),
-    };
-    state.workspaces.push(workspace);
-    state.active_id = id;
-    write_state(&app, &state)?;
+    let state = mutate_workspace_state(&app, |state| {
+        if state
+            .workspaces
+            .iter()
+            .any(|w| w.name.eq_ignore_ascii_case(&trimmed))
+        {
+            return Err("A workspace with this name already exists".into());
+        }
+        let id = Uuid::new_v4().to_string();
+        workspace_dir(&app, &id);
+        let workspace = Workspace {
+            id: id.clone(),
+            name: trimmed,
+            icon,
+            color,
+            created_at: chrono::Utc::now().to_rfc3339(),
+        };
+        state.workspaces.push(workspace);
+        state.active_id = id;
+        Ok((state.clone(), true))
+    })?;
     let _ = crate::watcher::restart_watchers(app);
     Ok(state)
 }
 
 #[tauri::command]
 pub fn switch_workspace(app: AppHandle, id: String) -> Result<WorkspacesState, String> {
-    let mut state = read_state(&app);
-    if !state.workspaces.iter().any(|w| w.id == id) {
-        return Err("Workspace not found".into());
-    }
-    state.active_id = id;
-    write_state(&app, &state)?;
+    let state = mutate_workspace_state(&app, |state| {
+        if !state.workspaces.iter().any(|w| w.id == id) {
+            return Err("Workspace not found".into());
+        }
+        state.active_id = id;
+        Ok((state.clone(), true))
+    })?;
     let _ = crate::watcher::restart_watchers(app);
     Ok(state)
 }
@@ -375,40 +420,48 @@ pub fn update_workspace(
     icon: Option<String>,
     color: Option<String>,
 ) -> Result<WorkspacesState, String> {
-    let mut state = read_state(&app);
-    if let Some(ref n) = name {
-        let trimmed = n.trim();
-        if trimmed.is_empty() {
-            return Err("Workspace name can't be empty".into());
+    let state = mutate_workspace_state(&app, |state| {
+        if let Some(ref n) = name {
+            let trimmed = n.trim();
+            if trimmed.is_empty() {
+                return Err("Workspace name can't be empty".into());
+            }
+            if state
+                .workspaces
+                .iter()
+                .any(|w| w.id != id && w.name.eq_ignore_ascii_case(trimmed))
+            {
+                return Err("A workspace with this name already exists".into());
+            }
         }
-        if state.workspaces.iter().any(|w| w.id != id && w.name.eq_ignore_ascii_case(trimmed)) {
-            return Err("A workspace with this name already exists".into());
+        if let Some(ws) = state.workspaces.iter_mut().find(|w| w.id == id) {
+            if let Some(ref n) = name { ws.name = n.trim().to_string(); }
+            if let Some(icon) = icon { ws.icon = icon; }
+            if let Some(color) = color { ws.color = color; }
+        } else {
+            return Err("Workspace not found".into());
         }
-    }
-    if let Some(ws) = state.workspaces.iter_mut().find(|w| w.id == id) {
-        if let Some(ref n) = name { ws.name = n.trim().to_string(); }
-        if let Some(icon) = icon { ws.icon = icon; }
-        if let Some(color) = color { ws.color = color; }
-    } else {
-        return Err("Workspace not found".into());
-    }
-    write_state(&app, &state)?;
+        Ok((state.clone(), true))
+    })?;
     Ok(state)
 }
 
 #[tauri::command]
 pub fn delete_workspace(app: AppHandle, id: String) -> Result<WorkspacesState, String> {
-    let mut state = read_state(&app);
-    if state.workspaces.len() <= 1 {
-        return Err("Can't delete your only workspace".into());
-    }
-    let idx = state.workspaces.iter().position(|w| w.id == id).ok_or("Workspace not found")?;
-    state.workspaces.remove(idx);
-    let switched = state.active_id == id;
-    if switched {
-        state.active_id = state.workspaces[0].id.clone();
-    }
-    write_state(&app, &state)?;
+    let (state, switched) = mutate_workspace_state(&app, |state| {
+        if state.workspaces.len() <= 1 {
+            return Err("Can't delete your only workspace".into());
+        }
+        let idx = state.workspaces.iter().position(|w| w.id == id).ok_or("Workspace not found")?;
+        state.workspaces.remove(idx);
+        let switched = state.active_id == id;
+        if switched {
+            state.active_id = state.workspaces[0].id.clone();
+        }
+        write_state(&app, &state)?;
+        Ok(((state.clone(), switched), true))
+    })?;
+
     let _ = fs::remove_dir_all(workspaces_root(&app).join(&id));
     if switched {
         let _ = crate::watcher::restart_watchers(app);

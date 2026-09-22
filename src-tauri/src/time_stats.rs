@@ -412,19 +412,17 @@ pub fn breakdown(
 pub fn clear_time_stats(app: AppHandle) -> Result<(), String> {
     write_stats(&app, &TimeStatsStore::default());
 
-    let mut projects = crate::projects::read_projects(&app);
-    let mut changed = false;
-    for p in projects.iter_mut() {
-        if p.total_time_seconds != 0 || p.time_today_seconds != 0 || p.time_week_seconds != 0 || p.session_started_at_ms.is_some() {
-            p.total_time_seconds = 0;
-            p.time_today_seconds = 0;
-            p.time_week_seconds = 0;
-            p.session_started_at_ms = None;
-            changed = true;
+    crate::projects::mutate_projects(&app, |projects| {
+        let mut changed = false;
+        for p in projects.iter_mut() {
+            if p.total_time_seconds != 0 || p.time_today_seconds != 0 || p.time_week_seconds != 0 || p.session_started_at_ms.is_some() {
+                p.total_time_seconds = 0;
+                p.time_today_seconds = 0;
+                p.time_week_seconds = 0;
+                p.session_started_at_ms = None;
+                changed = true;
+            }
         }
-    }
-    if changed {
-        crate::projects::write_projects(&app, &projects).map_err(|e| e.to_string())?;
-    }
-    Ok(())
+        Ok(((), changed))
+    })
 }

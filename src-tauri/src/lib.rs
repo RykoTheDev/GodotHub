@@ -30,11 +30,24 @@ mod workspace;
 
 use std::fs;
 use std::path::Path;
+use std::sync::Mutex;
 use tauri::{Manager, WindowEvent};
 
 const LEGACY_IDENTIFIER: &str = "com.ryko.godothub";
 
 const IDENTIFIER_MIGRATION_MARKER: &str = "identifier-migration.done";
+
+#[derive(Default)]
+pub struct FileLocks {
+    pub projects: Mutex<()>,
+    pub settings: Mutex<()>,
+    pub categories: Mutex<()>,
+    pub workspace: Mutex<()>,
+}
+
+pub(crate) fn file_locks(app: &tauri::AppHandle) -> &FileLocks {
+    app.state::<FileLocks>().inner()
+}
 
 #[derive(Debug, Default, PartialEq, Eq)]
 pub(crate) struct IdentifierMigration {
@@ -229,6 +242,7 @@ pub fn run() {
             app.manage(std::sync::Arc::new(
                 asset_library::AssetResponseCache::default(),
             ));
+            app.manage(FileLocks::default());
             app.manage(watcher::ActiveWatchers(std::sync::Mutex::new(Vec::new())));
             app.manage(watcher::GitWatcher(std::sync::Mutex::new(None)));
             app.manage(watcher::AliasWatcher(std::sync::Mutex::new(None)));
