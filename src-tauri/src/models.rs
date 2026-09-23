@@ -14,6 +14,8 @@ pub struct InstalledGodotVersion {
     pub install_root: Option<String>,
     #[serde(default)]
     pub supports_console: bool,
+    #[serde(default)]
+    pub managed_by: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -313,6 +315,8 @@ pub struct AppSettings {
     pub colored_titlebar_buttons: bool,
     #[serde(default)]
     pub project_todos_enabled: bool,
+    #[serde(default)]
+    pub use_mise: bool,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, Default)]
@@ -633,6 +637,7 @@ tooltip_delay: default_tooltip_delay(),
             desktop_notifications_enabled: true,
             colored_titlebar_buttons: false,
             project_todos_enabled: false,
+            use_mise: false,
         }
     }
 }

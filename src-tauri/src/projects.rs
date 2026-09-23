@@ -574,7 +574,11 @@ pub fn create_project(
     write_projects(&app, &projects)?;
     undismiss(&app, &project.path);
     if !project.godot_version.is_empty() {
-        let _ = crate::godotenv::pin_version(&project.path, &project.godot_version);
+        let _ = crate::godotenv::pin_version(
+            &project.path,
+            &project.godot_version,
+            settings.use_mise,
+        );
     }
     Ok(project)
 }
@@ -665,7 +669,11 @@ pub fn duplicate_project(
     write_projects(&app, &projects)?;
     undismiss(&app, &project.path);
     if !project.godot_version.is_empty() {
-        let _ = crate::godotenv::pin_version(&project.path, &project.godot_version);
+        let _ = crate::godotenv::pin_version(
+            &project.path,
+            &project.godot_version,
+            settings.use_mise,
+        );
     }
     Ok(project)
 }
@@ -922,7 +930,8 @@ pub fn update_project(
         if project.godot_version != v {
             project.godot_version = v.clone();
             if !v.is_empty() {
-                let _ = crate::godotenv::pin_version(&project.path, &v);
+                let use_mise = settings::read_settings(&app).use_mise;
+                let _ = crate::godotenv::pin_version(&project.path, &v, use_mise);
             }
         }
     }

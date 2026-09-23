@@ -148,6 +148,11 @@ export function InstalledVersionCard({
                     {tv('current_badge')}
                   </span>
                 )}
+                {v.managed_by === 'mise' && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-mint/10 text-mint border border-mint/30 text-[10px] font-semibold shrink-0 font-mono">
+                    {tv('managed_by_mise')}
+                  </span>
+                )}
                 {v.supports_console && (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-mint/10 text-mint border border-mint/30 text-[10px] font-semibold shrink-0">
                     {tv('console_label')}
@@ -225,7 +230,11 @@ export function InstalledVersionCard({
         {confirmingUninstall && (
           <ConfirmDialog
             title={tc('version_uninstall_title')}
-            description={tc('version_uninstall_desc', { tag: v.tag })}
+            description={
+              v.managed_by === 'mise'
+                ? tv('mise_uninstall_desc', { tag: v.tag })
+                : tc('version_uninstall_desc', { tag: v.tag })
+            }
             confirmLabel={tc('version_uninstall_confirm')}
             variant="danger"
             onConfirm={() => {

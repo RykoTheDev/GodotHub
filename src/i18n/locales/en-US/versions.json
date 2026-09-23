@@ -34,6 +34,7 @@
   "source": "Source",
   "source_github": "GitHub",
   "source_archive": "Godot Archive",
+  "source_mise": "mise",
   "switch_to_archive": "Switch to Godot Archive",
   "sort_version_latest": "Latest",
   "sort_version_oldest": "Oldest",
@@ -78,5 +79,11 @@
   "alias_queue_duplicate": "\"{{name}}\" is already in the list",
   "alias_remove": "Remove alias",
   "alias_remove_title": "Remove this alias?",
-  "alias_remove_desc": "The command \"{{name}}\" will stop working. The Godot version itself stays installed."
+  "alias_remove_desc": "The command \"{{name}}\" will stop working. The Godot version itself stays installed.",
+  "managed_by_mise": "mise",
+  "mise_installing": "Installing with mise…",
+  "mise_sync": "Sync",
+  "mise_sync_title": "Import the Godot versions mise has installed so they show up here.",
+  "mise_missing": "mise not found",
+  "mise_uninstall_desc": "mise will uninstall {{tag}} from its own store. Projects that pin it in mise.toml will need it installed again."
 }

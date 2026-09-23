@@ -1,6 +1,7 @@
 import { invoke } from '@tauri-apps/api/core'
 import { projectsApi, getCachedProjectIcon, getCachedProjectName } from '../api/projects'
 import { versionsApi } from '../api/versions'
+import { miseApi } from '../api/mise'
 import { gitApi } from '../api/git'
 import { gitAuthApi } from '../api/gitAuth'
 import { settingsApi } from '../api/settings'
@@ -88,6 +89,11 @@ export const api = {
   importVersion: versionsApi.import,
   importVersionZip: versionsApi.importZip,
   validateGodotFolder: versionsApi.validateFolder,
+  miseStatus: miseApi.status,
+  miseRefreshStatus: miseApi.refreshStatus,
+  miseSyncVersions: miseApi.syncVersions,
+  miseInstallGodotVersion: miseApi.install,
+  miseUninstallGodotVersion: miseApi.uninstall,
 
   cloneRepo: gitApi.clone,
   getGitStatus: gitApi.status,

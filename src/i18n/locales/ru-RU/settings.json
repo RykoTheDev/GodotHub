@@ -329,5 +329,9 @@
   "colored_titlebar_buttons_desc": "Use colored macOS-style circles for the minimize, maximize and close buttons. When disabled, the titlebar uses standard Windows-style buttons.",
   "git_auth_copy_link": "Copy link",
   "project_todos_label": "Project Next Steps",
-  "project_todos_desc": "Show the Next Steps section on project cards, allowing you to track the upcoming tasks for each project."
+  "project_todos_desc": "Show the Next Steps section on project cards, allowing you to track the upcoming tasks for each project.",
+  "mise_label": "Use mise for Godot versions",
+  "mise_desc": "Let mise manage your Godot versions: read the version a project pins in mise.toml or .tool-versions, install versions with mise, and reuse the ones mise already has instead of downloading a second copy. Requires the mise CLI on your PATH. Mono/.NET builds keep using GodotHub's downloader.",
+  "mise_detected": "Detected mise {{version}}",
+  "mise_not_found": "mise was not found on your PATH, so this stays off until you install it."
 }

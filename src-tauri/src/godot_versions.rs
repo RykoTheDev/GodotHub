@@ -249,10 +249,12 @@ pub async fn fetch_available_godot_versions(
     app: AppHandle,
     source: Option<String>,
 ) -> Result<Vec<GodotRelease>, String> {
-    if source.as_deref() == Some("archive") {
-        fetch_archive_versions(app).await
-    } else {
-        fetch_github_versions(app).await
+    match source.as_deref() {
+        Some("archive") => fetch_archive_versions(app).await,
+        Some("mise") => tokio::task::spawn_blocking(crate::mise::available_releases)
+            .await
+            .map_err(|e| e.to_string())?,
+        _ => fetch_github_versions(app).await,
     }
 }
 
@@ -896,6 +898,7 @@ fn install_version_archive(
         custom_name: None,
         install_root: Some(target_dir.to_string_lossy().to_string()),
         supports_console: false,
+        managed_by: None,
     };
     register_version(app, installed.clone()).map_err(|e| e.to_string())?;
     crate::projects::rebind_projects_to_version(app, &installed);
@@ -1216,6 +1219,12 @@ pub fn delete_godot_version(app: AppHandle, tag: String) -> Result<(), String> {
     crate::current_version::clear_if_current(&app, &removed.tag);
     crate::current_version::remove_aliases_for_tag(&app, &removed.tag);
 
+    // Versions managed by an external tool (mise) live outside GodotHub, so we
+    // only forget them here. Deleting the files is that tool's job.
+    if removed.managed_by.as_deref() == Some(crate::mise::MANAGED_BY) {
+        return Ok(());
+    }
+
     if let Some(root) = &removed.install_root {
         let root_path = PathBuf::from(root);
         if root_path.is_dir() {
@@ -1433,6 +1442,7 @@ pub async fn import_version_zip(
         custom_name: None,
         install_root: Some(target_dir.to_string_lossy().to_string()),
         supports_console: false,
+        managed_by: None,
     };
 
     register_version(&app, installed.clone())?;

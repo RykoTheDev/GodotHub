@@ -88,10 +88,14 @@ function downloadKey(tag: string, assetName: string) {
   return assetName.toLowerCase().includes('mono') ? `${tag}-mono` : tag
 }
 
-function sourcePageUrl(source: string, tag: string): string {
-  return source === 'archive'
-    ? `https://godotengine.org/download/archive/${tag}/`
-    : `https://github.com/godotengine/godot-builds/releases/tag/${tag}`
+function sourcePageUrl(source: string, tag: string, miseSource?: string | null): string {
+  if (source === 'github')
+    return `https://github.com/godotengine/godot-builds/releases/tag/${tag}`
+  if (source === 'mise')
+    return miseSource
+      ? `${miseSource.replace(/\/$/, '')}/tag/${tag}`
+      : `https://github.com/godotengine/godot/releases/tag/${tag}`
+  return `https://godotengine.org/download/archive/${tag}/`
 }
 
 const STATE_DOT = {
@@ -167,6 +171,10 @@ export function VersionsView({
     refreshAvailable,
     refreshInstalled,
     source,
+    miseStatus,
+    miseInstalls,
+    refreshMiseStatus,
+    syncMise,
   } = useGodotVersionsContext()
   const { settings } = useSettings()
   const { registerTask, updateTask, unregisterTask } = useTaskTray()
@@ -257,6 +265,12 @@ export function VersionsView({
     window.addEventListener('app:focus-search', focusSearch)
     return () => window.removeEventListener('app:focus-search', focusSearch)
   }, [])
+
+  // Fresh mise detection on every view mount so the sync button and the mise
+  // source option reflect reality (the hook also re-runs it on toggle changes).
+  useEffect(() => {
+    refreshMiseStatus().catch(() => {})
+  }, [refreshMiseStatus])
 
   useEffect(() => {
     const onScan = () => scanRef.current()
@@ -446,6 +460,23 @@ export function VersionsView({
               <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted px-1">
                 {tv('installed_title')}
               </h3>
+              <div className="flex items-center gap-2">
+              {settings.use_mise && (
+                <Tooltip content={tv('mise_sync_title')} side="top">
+                  <motion.button
+                    type="button"
+                    whileHover={{ scale: 1.04 }}
+                    whileTap={{ scale: 0.94 }}
+                    onClick={() => syncMise().catch(() => {})}
+                    className="focus-ring cursor-pointer flex items-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors font-mono"
+                  >
+                    <span className="text-[12px] text-muted">mise</span>
+                    <span className="text-[13px] font-medium text-ink">
+                      {miseStatus?.available ? tv('mise_sync') : tv('mise_missing')}
+                    </span>
+                  </motion.button>
+                </Tooltip>
+              )}
               <Dropdown
                 align="right"
                 trigger={({ open, toggle }) => {
@@ -474,6 +505,7 @@ export function VersionsView({
                   onClick: () => setInstalledSortBy(opt.value),
                 }))}
               />
+              </div>
             </div>
             <div className="flex flex-col gap-2">
               {filteredInstalled.map((v, i) => (
@@ -524,7 +556,9 @@ export function VersionsView({
                   <span className="text-[16px] font-medium text-ink">
                     {source === 'archive'
                       ? tv('source_archive')
-                      : tv('source_github')}
+                      : source === 'mise'
+                        ? tv('source_mise')
+                        : tv('source_github')}
                   </span>
                   <IconChevronDown className="w-3 h-3 text-muted" />
                 </motion.button>
@@ -545,6 +579,19 @@ export function VersionsView({
                     setFilters((p) => ({ ...p, channel: 'stable' }))
                   },
                 },
+                ...(settings.use_mise && miseStatus?.available
+                  ? [
+                      {
+                        key: 'mise',
+                        label: tv('source_mise'),
+                        active: source === 'mise',
+                        onClick: () => {
+                          refreshAvailable('mise')
+                          setFilters((p) => ({ ...p, channel: 'stable' }))
+                        },
+                      },
+                    ]
+                  : []),
               ]}
             />
             <Dropdown
@@ -575,7 +622,7 @@ export function VersionsView({
                 { key: 'both', label: tv('both'), active: filters.buildType === 'both', onClick: () => setFilters((p) => ({ ...p, buildType: 'both' })) },
               ]}
             />
-            {source !== 'archive' && (
+            {source === 'github' && (
             <Dropdown
               align="left"
               trigger={({ open, toggle }) => (
@@ -726,6 +773,7 @@ export function VersionsView({
                                     v.is_mono === asset.is_mono,
                                 )
                                 const dl = downloads[progressKey]
+                                const miseBusy = !!miseInstalls[progressKey]
                                 return (
                                   <motion.div
                                     key={progressKey}
@@ -747,18 +795,27 @@ export function VersionsView({
                                         state={
                                           isInstalled
                                             ? 'installed'
-                                            : dl
+                                            : dl || miseBusy
                                               ? 'downloading'
                                               : 'available'
                                         }
                                       />
                                       {asset.is_mono && <MonoBadge />}
-                                      <span className="text-xs text-muted font-mono shrink-0">
-                                        {(asset.size / 1024 / 1024).toFixed(0)} {tv('mb')}
-                                      </span>
+                                      {source !== 'mise' && (
+                                        <span className="text-xs text-muted font-mono shrink-0">
+                                          {(asset.size / 1024 / 1024).toFixed(0)} {tv('mb')}
+                                        </span>
+                                      )}
                                     </div>
 
-                                    {dl ? (
+                                    {miseBusy ? (
+                                      <div className="flex items-center gap-2 shrink-0">
+                                        <IconSpinner className="w-4 h-4 animate-spin text-muted" />
+                                        <span className="text-xs text-muted">
+                                          {tv('mise_installing')}
+                                        </span>
+                                      </div>
+                                    ) : dl ? (
                                       <div className="flex items-center gap-2 shrink-0">
                                         {dl.status === 'queued' ? (
                                           <span className="text-xs text-muted font-mono px-2">
@@ -841,7 +898,7 @@ export function VersionsView({
                                             whileHover={{ y: -1 }}
                                             whileTap={{ scale: 0.96 }}
                                             onClick={() =>
-                                              openUrl(sourcePageUrl(source, tag))
+                                              openUrl(sourcePageUrl(source, tag, miseStatus?.source_url))
                                             }
                                             className="focus-ring cursor-pointer flex items-center gap-1.5 h-9 px-3.5 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
                                           >
@@ -852,7 +909,11 @@ export function VersionsView({
                                           whileHover={{ y: -1 }}
                                           whileTap={{ scale: 0.96 }}
                                           onClick={() =>
-                                            download(tag, asset.name, asset.download_url)
+                                            download(
+                                              tag,
+                                              asset.name,
+                                              asset.download_url,
+                                            ).catch((e) => alert(String(e)))
                                           }
                                           className="focus-ring cursor-pointer flex items-center gap-1.5 h-9 px-4 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
                                         >

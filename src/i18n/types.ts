@@ -930,6 +930,7 @@ export type settingsKeys =
   | 'git_auth_enter_code'
   | 'git_auth_copy_code'
   | 'git_auth_open_browser'
+  | 'git_auth_copy_link'
   | 'git_auth_waiting'
   | 'git_auth_starting'
   | 'git_auth_connected_as'
@@ -1235,7 +1236,11 @@ export type settingsKeys =
   | 'colored_titlebar_buttons_label'
   | 'colored_titlebar_buttons_desc'
   | 'project_todos_label'
-  | 'project_todos_desc';
+  | 'project_todos_desc'
+  | 'mise_label'
+  | 'mise_desc'
+  | 'mise_detected'
+  | 'mise_not_found';
 
 /** Keys from todos.json */
 export type todosKeys = 
@@ -1344,6 +1349,7 @@ export type versionsKeys =
   | 'source'
   | 'source_github'
   | 'source_archive'
+  | 'source_mise'
   | 'switch_to_archive'
   | 'sort_version_latest'
   | 'sort_version_oldest'
@@ -1388,7 +1394,13 @@ export type versionsKeys =
   | 'alias_queue_duplicate'
   | 'alias_remove'
   | 'alias_remove_title'
-  | 'alias_remove_desc';
+  | 'alias_remove_desc'
+  | 'managed_by_mise'
+  | 'mise_installing'
+  | 'mise_sync'
+  | 'mise_sync_title'
+  | 'mise_missing'
+  | 'mise_uninstall_desc';
 
 /** All namespace names */
 export type Namespace = 'changelog' | 'common' | 'dashboard' | 'git' | 'nav' | 'onboarding' | 'settings' | 'todos' | 'versions';
@@ -2253,21 +2265,6 @@ export type TranslationKey =
   | 'git:worktree_removed_ok'
   | 'git:filter_changes'
   | 'git:no_matching_changes'
-  | 'git:worktrees_title'
-  | 'git:worktree_current'
-  | 'git:no_worktrees'
-  | 'git:switch_worktree'
-  | 'git:switched_worktree_ok'
-  | 'git:add_worktree'
-  | 'git:add_worktree_btn'
-  | 'git:worktree_path_placeholder'
-  | 'git:worktree_branch_placeholder'
-  | 'git:worktree_created_ok'
-  | 'git:worktree_dirty'
-  | 'git:worktree_clean'
-  | 'git:remove_worktree'
-  | 'git:remove_worktree_confirm_desc'
-  | 'git:worktree_removed_ok'
   | 'nav:dashboard'
   | 'nav:projects'
   | 'nav:projects_count_one'
@@ -2319,6 +2316,7 @@ export type TranslationKey =
   | 'settings:git_auth_enter_code'
   | 'settings:git_auth_copy_code'
   | 'settings:git_auth_open_browser'
+  | 'settings:git_auth_copy_link'
   | 'settings:git_auth_waiting'
   | 'settings:git_auth_starting'
   | 'settings:git_auth_connected_as'
@@ -2625,6 +2623,10 @@ export type TranslationKey =
   | 'settings:colored_titlebar_buttons_desc'
   | 'settings:project_todos_label'
   | 'settings:project_todos_desc'
+  | 'settings:mise_label'
+  | 'settings:mise_desc'
+  | 'settings:mise_detected'
+  | 'settings:mise_not_found'
   | 'todos:next_steps'
   | 'todos:all_tasks_description'
   | 'todos:saving_tasks'
@@ -2727,6 +2729,7 @@ export type TranslationKey =
   | 'versions:source'
   | 'versions:source_github'
   | 'versions:source_archive'
+  | 'versions:source_mise'
   | 'versions:switch_to_archive'
   | 'versions:sort_version_latest'
   | 'versions:sort_version_oldest'
@@ -2771,4 +2774,10 @@ export type TranslationKey =
   | 'versions:alias_queue_duplicate'
   | 'versions:alias_remove'
   | 'versions:alias_remove_title'
-  | 'versions:alias_remove_desc';
+  | 'versions:alias_remove_desc'
+  | 'versions:managed_by_mise'
+  | 'versions:mise_installing'
+  | 'versions:mise_sync'
+  | 'versions:mise_sync_title'
+  | 'versions:mise_missing'
+  | 'versions:mise_uninstall_desc';
