@@ -22,6 +22,12 @@ export interface DownloadState extends DownloadProgress {
 const keyOf = (tag: string, assetName: string) =>
   assetName.toLowerCase().includes('mono') ? `${tag}-mono` : tag
 
+// mise's asdf plugin only ships stable Godot releases, so pre-release tags
+// (betas, release candidates, dev builds) always need GodotHub's downloader.
+const isPrereleaseTag = (tag: string) => /(alpha|beta|rc|dev)/i.test(tag)
+
+export type VersionSource = 'github' | 'archive' | 'mise'
+
 const sameInstalled = (
   a: InstalledGodotVersion[],
   b: InstalledGodotVersion[],
@@ -29,7 +35,7 @@ const sameInstalled = (
 
 export function useGodotVersions() {
   const { activeId } = useWorkspaces()
-  const { settings } = useSettings()
+  const { settings, loaded } = useSettings()
   const [installed, setInstalled] = useState<InstalledGodotVersion[]>([])
   const [current, setCurrent] = useState<CurrentVersionInfo | null>(null)
   const [aliases, setAliases] = useState<AliasInfo[]>([])
@@ -37,11 +43,10 @@ export function useGodotVersions() {
   const [available, setAvailable] = useState<GodotRelease[]>([])
   const [loadingAvailable, setLoadingAvailable] = useState(false)
   const [availableError, setAvailableError] = useState<string | null>(null)
-  const [source, setSource] = useState<'github' | 'archive'>(() => {
+  const [source, setSource] = useState<VersionSource>(() => {
     try {
-      return localStorage.getItem('godothub_version_source') === 'archive'
-        ? 'archive'
-        : 'github'
+      const saved = localStorage.getItem('godothub_version_source')
+      return saved === 'archive' || saved === 'mise' ? saved : 'github'
     } catch {
       return 'github'
     }
@@ -54,6 +59,7 @@ export function useGodotVersions() {
       localStorage.setItem('godothub_version_source', source)
     } catch {}
   }, [source])
+
   const [downloads, setDownloads] = useState<Record<string, DownloadState>>({})
   const [scanProgress, setScanProgress] = useState<{
     current: number
@@ -100,7 +106,10 @@ export function useGodotVersions() {
   }, [refreshMiseStatus, settings.use_mise])
 
   const refreshAvailable = useCallback(async (src?: string) => {
-    const next = src === 'archive' || src === 'github' ? src : sourceRef.current
+    const next =
+      src === 'archive' || src === 'mise' || src === 'github'
+        ? src
+        : sourceRef.current
     setSource(next)
     sourceRef.current = next
     setLoadingAvailable(true)
@@ -113,6 +122,14 @@ export function useGodotVersions() {
       setLoadingAvailable(false)
     }
   }, [])
+
+  // The mise source is only offered when the experimental integration is
+  // enabled, so a saved `mise` source must fall back once it's turned off.
+  useEffect(() => {
+    if (loaded && sourceRef.current === 'mise' && !settings.use_mise) {
+      refreshAvailable('github')
+    }
+  }, [loaded, settings.use_mise, refreshAvailable])
 
   const clearKey = (key: string) =>
     setDownloads((prev) => {
@@ -205,12 +222,14 @@ export function useGodotVersions() {
   const download = useCallback(
     async (tag: string, assetName: string, url: string) => {
       const key = keyOf(tag, assetName)
-      // mise's asdf-godot plugin only ships non-mono release tags, so .NET builds
-      // always come from GodotHub's own downloader.
+      // mise's asdf-godot plugin only ships non-mono, stable release tags, so
+      // .NET and pre-release builds always come from GodotHub's own downloader.
       const viaMise =
-        settings.use_mise &&
-        !!miseStatus?.available &&
-        !assetName.toLowerCase().includes('mono')
+        !assetName.toLowerCase().includes('mono') &&
+        (sourceRef.current === 'mise' ||
+          (settings.use_mise &&
+            !!miseStatus?.available &&
+            !isPrereleaseTag(tag)))
 
       if (viaMise) {
         setMiseInstalls((prev) => ({ ...prev, [key]: true }))

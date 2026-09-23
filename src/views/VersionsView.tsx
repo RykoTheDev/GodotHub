@@ -88,10 +88,14 @@ function downloadKey(tag: string, assetName: string) {
   return assetName.toLowerCase().includes('mono') ? `${tag}-mono` : tag
 }
 
-function sourcePageUrl(source: string, tag: string): string {
-  return source === 'archive'
-    ? `https://godotengine.org/download/archive/${tag}/`
-    : `https://github.com/godotengine/godot-builds/releases/tag/${tag}`
+function sourcePageUrl(source: string, tag: string, miseSource?: string | null): string {
+  if (source === 'github')
+    return `https://github.com/godotengine/godot-builds/releases/tag/${tag}`
+  if (source === 'mise')
+    return miseSource
+      ? `${miseSource.replace(/\/$/, '')}/tag/${tag}`
+      : `https://github.com/godotengine/godot/releases/tag/${tag}`
+  return `https://godotengine.org/download/archive/${tag}/`
 }
 
 const STATE_DOT = {
@@ -545,7 +549,9 @@ export function VersionsView({
                   <span className="text-[16px] font-medium text-ink">
                     {source === 'archive'
                       ? tv('source_archive')
-                      : tv('source_github')}
+                      : source === 'mise'
+                        ? tv('source_mise')
+                        : tv('source_github')}
                   </span>
                   <IconChevronDown className="w-3 h-3 text-muted" />
                 </motion.button>
@@ -566,6 +572,19 @@ export function VersionsView({
                     setFilters((p) => ({ ...p, channel: 'stable' }))
                   },
                 },
+                ...(settings.use_mise && miseStatus?.available
+                  ? [
+                      {
+                        key: 'mise',
+                        label: tv('source_mise'),
+                        active: source === 'mise',
+                        onClick: () => {
+                          refreshAvailable('mise')
+                          setFilters((p) => ({ ...p, channel: 'stable' }))
+                        },
+                      },
+                    ]
+                  : []),
               ]}
             />
             <Dropdown
@@ -596,7 +615,7 @@ export function VersionsView({
                 { key: 'both', label: tv('both'), active: filters.buildType === 'both', onClick: () => setFilters((p) => ({ ...p, buildType: 'both' })) },
               ]}
             />
-            {source !== 'archive' && (
+            {source === 'github' && (
             <Dropdown
               align="left"
               trigger={({ open, toggle }) => (
@@ -775,9 +794,11 @@ export function VersionsView({
                                         }
                                       />
                                       {asset.is_mono && <MonoBadge />}
-                                      <span className="text-xs text-muted font-mono shrink-0">
-                                        {(asset.size / 1024 / 1024).toFixed(0)} {tv('mb')}
-                                      </span>
+                                      {source !== 'mise' && (
+                                        <span className="text-xs text-muted font-mono shrink-0">
+                                          {(asset.size / 1024 / 1024).toFixed(0)} {tv('mb')}
+                                        </span>
+                                      )}
                                     </div>
 
                                     {miseBusy ? (
@@ -870,7 +891,7 @@ export function VersionsView({
                                             whileHover={{ y: -1 }}
                                             whileTap={{ scale: 0.96 }}
                                             onClick={() =>
-                                              openUrl(sourcePageUrl(source, tag))
+                                              openUrl(sourcePageUrl(source, tag, miseStatus?.source_url))
                                             }
                                             className="focus-ring cursor-pointer flex items-center gap-1.5 h-9 px-3.5 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
                                           >

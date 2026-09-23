@@ -34,6 +34,7 @@
   "source": "Source",
   "source_github": "GitHub",
   "source_archive": "Godot Archive",
+  "source_mise": "mise",
   "switch_to_archive": "Switch to Godot Archive",
   "sort_version_latest": "Latest",
   "sort_version_oldest": "Oldest",

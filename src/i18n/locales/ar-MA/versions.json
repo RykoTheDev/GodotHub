@@ -86,5 +86,6 @@
   "mise_sync": "Sync",
   "mise_sync_title": "Import the Godot versions mise has installed so they show up here.",
   "mise_missing": "mise not found",
-  "mise_uninstall_desc": "mise will uninstall {{tag}} from its own store. Projects that pin it in mise.toml will need it installed again."
+  "mise_uninstall_desc": "mise will uninstall {{tag}} from its own store. Projects that pin it in mise.toml will need it installed again.",
+  "source_mise": "mise"
 }

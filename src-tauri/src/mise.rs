@@ -1,6 +1,7 @@
 use crate::godotenv::{self, DetectedVersion};
-use crate::models::InstalledGodotVersion;
+use crate::models::{GodotRelease, GodotReleaseAsset, InstalledGodotVersion};
 use serde::{Deserialize, Serialize};
+use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
 use tauri::{AppHandle, Emitter};
@@ -26,6 +27,8 @@ pub struct MiseStatus {
     pub available: bool,
     pub path: Option<String>,
     pub version: Option<String>,
+    /// Page to open for a Godot version provided by mise's backend.
+    pub source_url: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -142,17 +145,46 @@ pub fn mise_version() -> Option<String> {
         .map(str::to_string)
 }
 
+/// mise's registry maps a tool shorthand like `godot` to a backend spec such
+/// as `aqua:godotengine/godot` or `github:godotengine/godot`. That maps to the
+/// upstream release page: the aqua registry entries for Godot are GitHub
+/// releases of `godotengine/godot`, and `github:owner/repo` releases live at
+/// `github.com/<owner>/<repo>/releases`.
+fn upstream_repo(full: &str) -> Option<String> {
+    let (_backend, spec) = full.split_once(':')?;
+    // aqua specs are `owner/repo`; github ones are `owner/repo` too. Anything
+    // else (core, asdf, cargo, ...) doesn't have a predictable release page.
+    let mut parts = spec.trim().split('/');
+    let owner = parts.next()?.trim();
+    let repo = parts.next()?.trim();
+    if owner.is_empty() || repo.is_empty() {
+        return None;
+    }
+    Some(format!("https://github.com/{owner}/{repo}"))
+}
+
+/// Where mise's Godot backend fetches builds from, discovered from the
+/// registry entry so it follows whatever backend the user's mise resolves to.
+fn source_url() -> Option<String> {
+    let output = run_mise(&["registry", GODOT_TOOL]).ok()?;
+    let full = output.lines().map(str::trim).find(|l| !l.is_empty())?;
+    let repo = upstream_repo(full)?;
+    Some(format!("{repo}/releases"))
+}
+
 pub fn status() -> MiseStatus {
     match mise_binary() {
         Some(path) => MiseStatus {
             available: true,
             path: Some(path.to_string_lossy().to_string()),
             version: mise_version(),
+            source_url: source_url(),
         },
         None => MiseStatus {
             available: false,
             path: None,
             version: None,
+            source_url: None,
         },
     }
 }
@@ -236,6 +268,58 @@ pub fn list_godot_installs() -> Result<Vec<MiseGodotInstall>, String> {
             }
         }
     }
+}
+
+/// Parse the plain-text output of `mise ls-remote godot`.
+///
+/// mise prints one version per line. The Godot plugin only ships stable
+/// releases, so anything that isn't a plain version number (headers, blank
+/// lines, notes) is ignored. Older/other backends may prefix the version with
+/// a `v`, which we strip before validating.
+fn parse_remote_versions(raw: &str) -> Vec<String> {
+    let mut seen = HashSet::new();
+    let mut versions = Vec::new();
+    for line in raw.lines() {
+        let line = line.trim();
+        if line.is_empty() || line.starts_with('#') {
+            continue;
+        }
+        // Some backends emit a table-like header or `v`-prefixed tags.
+        if line.eq_ignore_ascii_case("version") {
+            continue;
+        }
+        let version = line.trim_start_matches('v').trim();
+        if version.is_empty() || !version.chars().next().is_some_and(|c| c.is_ascii_digit()) {
+            continue;
+        }
+        if !crate::godot_versions::meets_min_version(version) {
+            continue;
+        }
+        if seen.insert(version.to_string()) {
+            versions.push(version.to_string());
+        }
+    }
+    versions
+}
+
+/// The Godot versions mise can install, shaped like the releases GodotHub's
+/// other sources return so the Versions view can render them the same way.
+/// mise fetches the build itself, so the synthesized asset carries no download
+/// URL or size.
+pub fn available_releases() -> Result<Vec<GodotRelease>, String> {
+    let stdout = run_mise(&["ls-remote", GODOT_TOOL])?;
+    Ok(parse_remote_versions(&stdout)
+        .into_iter()
+        .map(|tag| GodotRelease {
+            assets: vec![GodotReleaseAsset {
+                name: format!("Godot_v{tag}"),
+                download_url: String::new(),
+                size: 0,
+                is_mono: false,
+            }],
+            tag,
+        })
+        .collect())
 }
 
 fn is_skippable_dir(lower: &str) -> bool {
@@ -1032,6 +1116,18 @@ mod tests {
         assert_eq!(entry.executable_path, executable.to_string_lossy());
 
         assert!(registry_entries(&installs, &entries).is_empty());
+    }
+
+    #[test]
+    fn parses_remote_versions_and_filters_non_releases() {
+        let raw = "\n4.4-stable\nv4.3.1-stable\n3.5-stable\nnot-a-version\n4.4-stable\nversion\n";
+        assert_eq!(
+            parse_remote_versions(raw),
+            vec!["4.4-stable", "4.3.1-stable"]
+        );
+
+        let pre = "4.5-beta1\n4.4-rc2\n4.4.1-stable\n";
+        assert_eq!(parse_remote_versions(pre), vec!["4.5-beta1", "4.4-rc2", "4.4.1-stable"]);
     }
 
     #[test]

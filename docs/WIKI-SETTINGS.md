@@ -154,6 +154,7 @@ Features that are still in development. They may be unstable or change without n
   With it enabled:
   - Projects that pin Godot in `mise.toml`, `.mise.toml`, `mise.local.toml`, or `.tool-versions` are matched to that version, and picking a version for a project updates that same file (GodotHub stops writing `.godotrc` for those projects).
   - Installing a version runs `mise install godot@<version>` instead of downloading a copy, and the **mise · Sync** button in the Versions view imports every Godot version mise already has so it shows up with a `mise` badge.
+  - The **Source** dropdown in the Available Versions section offers **mise** alongside GitHub and Godot Archive while the integration is enabled. It lists the stable versions mise can install, while GitHub keeps offering pre-release (beta/RC) builds and the archive stays available for older releases. The **open in browser** button next to Install points at the release page of the repository mise's backend fetches builds from (discovered via `mise registry godot`).
   - Uninstalling a version runs `mise uninstall godot@<version>`; GodotHub never deletes files inside mise's store itself.
   - Mono/.NET builds are not available through mise's asdf plugin, so those keep using GodotHub's own downloader.
 

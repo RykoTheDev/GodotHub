@@ -249,10 +249,12 @@ pub async fn fetch_available_godot_versions(
     app: AppHandle,
     source: Option<String>,
 ) -> Result<Vec<GodotRelease>, String> {
-    if source.as_deref() == Some("archive") {
-        fetch_archive_versions(app).await
-    } else {
-        fetch_github_versions(app).await
+    match source.as_deref() {
+        Some("archive") => fetch_archive_versions(app).await,
+        Some("mise") => tokio::task::spawn_blocking(crate::mise::available_releases)
+            .await
+            .map_err(|e| e.to_string())?,
+        _ => fetch_github_versions(app).await,
     }
 }
 
