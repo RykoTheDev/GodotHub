@@ -437,6 +437,7 @@ pub fn run() {
             updates::fetch_updates,
             install_mode::is_portable_install,
             mise::mise_status,
+            mise::mise_refresh_status,
             mise::mise_sync_godot_versions,
             mise::mise_install_godot_version,
             mise::mise_uninstall_godot_version,

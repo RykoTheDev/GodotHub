@@ -2879,6 +2879,10 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             checked={settings.use_mise}
             onChange={(checked) => {
               update({ ...settings, use_mise: checked });
+              api
+                .miseRefreshStatus()
+                .then((status) => setMiseStatus(status))
+                .catch(() => setMiseStatus(null));
               if (checked) api.miseSyncVersions().catch(() => {});
             }}
             label={ts("mise_label")}

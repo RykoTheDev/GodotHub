@@ -173,6 +173,7 @@ export function VersionsView({
     source,
     miseStatus,
     miseInstalls,
+    refreshMiseStatus,
     syncMise,
   } = useGodotVersionsContext()
   const { settings } = useSettings()
@@ -264,6 +265,12 @@ export function VersionsView({
     window.addEventListener('app:focus-search', focusSearch)
     return () => window.removeEventListener('app:focus-search', focusSearch)
   }, [])
+
+  // Fresh mise detection on every view mount so the sync button and the mise
+  // source option reflect reality (the hook also re-runs it on toggle changes).
+  useEffect(() => {
+    refreshMiseStatus().catch(() => {})
+  }, [refreshMiseStatus])
 
   useEffect(() => {
     const onScan = () => scanRef.current()

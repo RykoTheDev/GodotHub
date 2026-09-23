@@ -1614,7 +1614,7 @@ dependencies = [
 
 [[package]]
 name = "godothub"
-version = "1.4.4"
+version = "1.4.5"
 dependencies = [
  "base64 0.22.1",
  "chrono",

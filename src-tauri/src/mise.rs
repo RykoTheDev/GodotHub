@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::sync::{Mutex, OnceLock};
+use std::time::{Duration, Instant};
 use tauri::{AppHandle, Emitter};
 
 #[cfg(target_os = "windows")]
@@ -22,12 +24,13 @@ const MISE_CONFIG_FILES: [&str; 4] = [
 ];
 const TOOL_VERSIONS_FILE: &str = ".tool-versions";
 
+const STATUS_CACHE_TTL: Duration = Duration::from_secs(300);
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MiseStatus {
     pub available: bool,
     pub path: Option<String>,
     pub version: Option<String>,
-    /// Page to open for a Godot version provided by mise's backend.
     pub source_url: Option<String>,
 }
 
@@ -145,15 +148,8 @@ pub fn mise_version() -> Option<String> {
         .map(str::to_string)
 }
 
-/// mise's registry maps a tool shorthand like `godot` to a backend spec such
-/// as `aqua:godotengine/godot` or `github:godotengine/godot`. That maps to the
-/// upstream release page: the aqua registry entries for Godot are GitHub
-/// releases of `godotengine/godot`, and `github:owner/repo` releases live at
-/// `github.com/<owner>/<repo>/releases`.
 fn upstream_repo(full: &str) -> Option<String> {
     let (_backend, spec) = full.split_once(':')?;
-    // aqua specs are `owner/repo`; github ones are `owner/repo` too. Anything
-    // else (core, asdf, cargo, ...) doesn't have a predictable release page.
     let mut parts = spec.trim().split('/');
     let owner = parts.next()?.trim();
     let repo = parts.next()?.trim();
@@ -163,8 +159,6 @@ fn upstream_repo(full: &str) -> Option<String> {
     Some(format!("https://github.com/{owner}/{repo}"))
 }
 
-/// Where mise's Godot backend fetches builds from, discovered from the
-/// registry entry so it follows whatever backend the user's mise resolves to.
 fn source_url() -> Option<String> {
     let output = run_mise(&["registry", GODOT_TOOL]).ok()?;
     let full = output.lines().map(str::trim).find(|l| !l.is_empty())?;
@@ -172,7 +166,18 @@ fn source_url() -> Option<String> {
     Some(format!("{repo}/releases"))
 }
 
-pub fn status() -> MiseStatus {
+fn status_cache() -> &'static Mutex<Option<(Instant, MiseStatus)>> {
+    static CACHE: OnceLock<Mutex<Option<(Instant, MiseStatus)>>> = OnceLock::new();
+    CACHE.get_or_init(|| Mutex::new(None))
+}
+
+/// Drop the cached status so the next `mise_status` call re-detects mise with
+/// fresh subprocess output (used when the integration toggle changes).
+pub fn clear_status_cache() {
+    *status_cache().lock().unwrap() = None;
+}
+
+fn compute_status() -> MiseStatus {
     match mise_binary() {
         Some(path) => MiseStatus {
             available: true,
@@ -187,6 +192,23 @@ pub fn status() -> MiseStatus {
             source_url: None,
         },
     }
+}
+
+pub fn status() -> MiseStatus {
+    let cache = status_cache();
+    let mut cached = cache.lock().unwrap();
+    if let Some((at, status)) = cached.as_ref() {
+        if at.elapsed() < STATUS_CACHE_TTL {
+            return status.clone();
+        }
+    }
+    let fresh = compute_status();
+    if fresh.available {
+        *cached = Some((Instant::now(), fresh.clone()));
+    } else {
+        *cached = None;
+    }
+    fresh
 }
 
 fn tool_key_is_godot(key: &str) -> bool {
@@ -270,12 +292,6 @@ pub fn list_godot_installs() -> Result<Vec<MiseGodotInstall>, String> {
     }
 }
 
-/// Parse the plain-text output of `mise ls-remote godot`.
-///
-/// mise prints one version per line. The Godot plugin only ships stable
-/// releases, so anything that isn't a plain version number (headers, blank
-/// lines, notes) is ignored. Older/other backends may prefix the version with
-/// a `v`, which we strip before validating.
 fn parse_remote_versions(raw: &str) -> Vec<String> {
     let mut seen = HashSet::new();
     let mut versions = Vec::new();
@@ -284,7 +300,6 @@ fn parse_remote_versions(raw: &str) -> Vec<String> {
         if line.is_empty() || line.starts_with('#') {
             continue;
         }
-        // Some backends emit a table-like header or `v`-prefixed tags.
         if line.eq_ignore_ascii_case("version") {
             continue;
         }
@@ -302,10 +317,6 @@ fn parse_remote_versions(raw: &str) -> Vec<String> {
     versions
 }
 
-/// The Godot versions mise can install, shaped like the releases GodotHub's
-/// other sources return so the Versions view can render them the same way.
-/// mise fetches the build itself, so the synthesized asset carries no download
-/// URL or size.
 pub fn available_releases() -> Result<Vec<GodotRelease>, String> {
     let stdout = run_mise(&["ls-remote", GODOT_TOOL])?;
     Ok(parse_remote_versions(&stdout)
@@ -823,6 +834,12 @@ fn forget_version(app: &AppHandle, tag: &str) {
 
 #[tauri::command]
 pub fn mise_status() -> MiseStatus {
+    status()
+}
+
+#[tauri::command]
+pub fn mise_refresh_status() -> MiseStatus {
+    clear_status_cache();
     status()
 }
 

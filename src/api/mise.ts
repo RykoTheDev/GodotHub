@@ -3,6 +3,7 @@ import type { InstalledGodotVersion, MiseStatus } from '../types'
 
 export const miseApi = {
   status: () => invoke<MiseStatus>('mise_status'),
+  refreshStatus: () => invoke<MiseStatus>('mise_refresh_status'),
   syncVersions: () =>
     invoke<InstalledGodotVersion[]>('mise_sync_godot_versions'),
   install: (tag: string) =>

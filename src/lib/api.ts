@@ -90,6 +90,7 @@ export const api = {
   importVersionZip: versionsApi.importZip,
   validateGodotFolder: versionsApi.validateFolder,
   miseStatus: miseApi.status,
+  miseRefreshStatus: miseApi.refreshStatus,
   miseSyncVersions: miseApi.syncVersions,
   miseInstallGodotVersion: miseApi.install,
   miseUninstallGodotVersion: miseApi.uninstall,

@@ -95,7 +95,7 @@ export function useGodotVersions() {
 
   const refreshMiseStatus = useCallback(async () => {
     try {
-      setMiseStatus(await api.miseStatus())
+      setMiseStatus(await api.miseRefreshStatus())
     } catch {
       setMiseStatus(null)
     }
