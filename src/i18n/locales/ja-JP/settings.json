@@ -327,8 +327,8 @@
   "git_auth_copy_link": "リンクをコピー",
   "project_todos_label": "プロジェクトの次のステップ",
   "project_todos_desc": "プロジェクトカードに「次のステップ」セクションを表示し、プロジェクトごとに今後のタスクを管理できるようにします。",
-  "mise_label": "Use mise for Godot versions",
-  "mise_desc": "Let mise manage your Godot versions: read the version a project pins in mise.toml or .tool-versions, install versions with mise, and reuse the ones mise already has instead of downloading a second copy. Requires the mise CLI on your PATH. Mono/.NET builds keep using GodotHub's downloader.",
-  "mise_detected": "Detected mise {{version}}",
-  "mise_not_found": "mise was not found on your PATH, so this stays off until you install it."
+  "mise_label": "Godot のバージョン管理に mise を使用",
+  "mise_desc": "Godot のバージョンを mise で管理します。プロジェクトが mise.toml または .tool-versions で指定しているバージョンを読み取り、mise でバージョンをインストールし、mise にインストール済みのバージョンは重複してダウンロードせずに再利用します。PATH 上に mise CLI が必要です。Mono/.NET ビルドは引き続き GodotHub のダウンローダーを使用します。",
+  "mise_detected": "mise {{version}} を検出しました",
+  "mise_not_found": "PATH 上に mise が見つかりません。mise をインストールするまでこの設定はオフのままになります。"
 }
