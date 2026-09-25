@@ -81,10 +81,10 @@
   "aliases_batch_skipped_other": "{{count}} 件のエイリアスをスキップしました",
   "alias_queue_duplicate": "「{{name}}」はすでにリストにあります",
   "managed_by_mise": "mise",
-  "mise_installing": "Installing with mise…",
-  "mise_sync": "Sync",
-  "mise_sync_title": "Import the Godot versions mise has installed so they show up here.",
-  "mise_missing": "mise not found",
-  "mise_uninstall_desc": "mise will uninstall {{tag}} from its own store. Projects that pin it in mise.toml will need it installed again.",
+  "mise_installing": "mise でインストール中…",
+  "mise_sync": "同期",
+  "mise_sync_title": "mise でインストール済みの Godot バージョンを取り込み、ここに表示します。",
+  "mise_missing": "mise が見つかりません",
+  "mise_uninstall_desc": "mise が管理するストアから {{tag}} をアンインストールします。mise.toml でこのバージョンを指定しているプロジェクトでは、再インストールが必要になります。",
   "source_mise": "mise"
 }
