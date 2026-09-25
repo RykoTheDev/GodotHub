@@ -80,10 +80,10 @@
   "aliases_batch_skipped_other": "{{count}} 个别名已跳过",
   "alias_queue_duplicate": "\"{{name}}\" 已在列表中",
   "managed_by_mise": "mise",
-  "mise_installing": "Installing with mise…",
-  "mise_sync": "Sync",
-  "mise_sync_title": "Import the Godot versions mise has installed so they show up here.",
-  "mise_missing": "mise not found",
-  "mise_uninstall_desc": "mise will uninstall {{tag}} from its own store. Projects that pin it in mise.toml will need it installed again.",
+  "mise_installing": "使用 mise 安装中…",
+  "mise_sync": "同步",
+  "mise_sync_title": "导入 mise 已安装的 Godot 版本，使其在此处显示。",
+  "mise_missing": "未找到 mise",
+  "mise_uninstall_desc": "mise 将从其自身的存储中卸载 {{tag}}。在 mise.toml 中设定该版本的项目将需要重新安装它。",
   "source_mise": "mise"
 }
