@@ -88,5 +88,9 @@
   "remove_worktree_confirm_desc": "Isso removerá a worktree em {{path}} e descartará quaisquer alterações sem commit. Isso não poderá ser desfeito.",
   "worktree_removed_ok": "Worktree removida.",
   "filter_changes": "Filter changed files…",
-  "no_matching_changes": "No matching changes."
+  "no_matching_changes": "No matching changes.",
+  "auto_fetch_label": "Fetch automatically",
+  "auto_fetch_hint": "Runs git fetch every few minutes so the pull bubble always shows how many commits you're behind, without merging anything. Leave it off to only fetch when you click Fetch.",
+  "commits_to_push": "{{count}} commit(s) to push",
+  "commits_to_pull": "{{count}} commit(s) to pull"
 }

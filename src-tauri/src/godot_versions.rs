@@ -1154,13 +1154,13 @@ fn spawn_plain(exe: &Path, args: &[String]) -> Result<LaunchedEditor, String> {
 
 #[cfg(target_os = "windows")]
 fn spawn_with_console(
-    _app: &AppHandle,
+    app: &AppHandle,
     exe: &Path,
     args: &[String],
     title: &str,
 ) -> Result<LaunchedEditor, String> {
     match console_executable_for(exe) {
-        Some(wrapper) => crate::terminal::spawn_program_in_console(&wrapper, args, title)
+        Some(wrapper) => crate::terminal::spawn_program_in_console(app, &wrapper, args, title)
             .map(|child| LaunchedEditor {
                 child,
                 kill_tree: true,
@@ -1219,8 +1219,6 @@ pub fn delete_godot_version(app: AppHandle, tag: String) -> Result<(), String> {
     crate::current_version::clear_if_current(&app, &removed.tag);
     crate::current_version::remove_aliases_for_tag(&app, &removed.tag);
 
-    // Versions managed by an external tool (mise) live outside GodotHub, so we
-    // only forget them here. Deleting the files is that tool's job.
     if removed.managed_by.as_deref() == Some(crate::mise::MANAGED_BY) {
         return Ok(());
     }

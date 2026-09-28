@@ -114,12 +114,10 @@ export function parseProjectQuery(
       if (value) {
         filters.push({ field: token.field, value })
       } else if (token.field === 'pinned') {
-        // `pinned:` on its own means "pinned only".
         filters.push({ field: 'pinned', value: '' })
       }
       continue
     }
-    // An unfinished `/command` shouldn't filter anything out yet.
     if (token === activeToken && token.raw.startsWith('/')) continue
     text.push(token.raw.toLowerCase())
   }

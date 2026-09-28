@@ -187,6 +187,10 @@ pub struct AppSettings {
     pub view_entrance: String,
     #[serde(default)]
     pub launch_with_console: bool,
+    #[serde(default = "default_true")]
+    pub builtin_console: bool,
+    #[serde(default)]
+    pub git_auto_fetch: bool,
     #[serde(default)]
     pub close_on_project_open: bool,
     #[serde(default)]
@@ -569,6 +573,8 @@ impl Default for AppSettings {
             ui_density: default_ui_density(),
             font_scale: default_font_scale(),
             launch_with_console: false,
+            builtin_console: true,
+            git_auto_fetch: false,
             theme_mode: default_theme_mode(),
             custom_css: String::new(),
             animation_intensity: default_animation_intensity(),

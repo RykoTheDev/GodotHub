@@ -121,6 +121,8 @@
   "launch_console_label": "Launch Godot with console",
   "launch_console_desc": "Launches Godot in your terminal emulator so engine output is visible.",
   "launch_console_desc_windows": "Shows engine output, print() calls and errors in a console window, using the console executable Godot ships alongside the editor. Only available for versions that include one.",
+  "builtin_console_label": "Use the built-in console",
+  "builtin_console_desc": "Shows the project's console output in a window inside GodotHub instead of opening your system terminal. The log keeps its colours and stays readable after the project closes, so you can still read it when Godot crashes. Turn this off to use your own terminal again.",
   "close_on_open_desc": "Quits GodotHub automatically as soon as a project is launched in Godot.",
   "close_on_open_desc_mac": "Hides GodotHub automatically as soon as a project is launched in Godot. It keeps running in the Dock.",
   "minimize_tray_label": "Minimize to system tray on closing app",

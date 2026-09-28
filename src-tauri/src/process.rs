@@ -205,6 +205,41 @@ pub(crate) fn process_liveness(pid: u32) -> ProcessLiveness {
     }
 }
 
+#[cfg(target_os = "windows")]
+pub(crate) fn exit_code(pid: u32) -> Option<i32> {
+    use windows_sys::Win32::Foundation::CloseHandle;
+    use windows_sys::Win32::System::Threading::{
+        GetExitCodeProcess, OpenProcess, PROCESS_QUERY_LIMITED_INFORMATION,
+    };
+
+    const STILL_ACTIVE: u32 = 259;
+
+    let handle = unsafe { OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, 0, pid) };
+    if handle.is_null() {
+        return None;
+    }
+    let mut code = 0u32;
+    let queried = unsafe { GetExitCodeProcess(handle, &mut code) != 0 };
+    unsafe { CloseHandle(handle) };
+    (queried && code != STILL_ACTIVE).then_some(code as i32)
+}
+
+#[cfg(unix)]
+pub(crate) fn exit_code(pid: u32) -> Option<i32> {
+    let mut status: libc::c_int = 0;
+    let child = pid as libc::pid_t;
+    if unsafe { libc::waitpid(child, &mut status, libc::WNOHANG) } != child {
+        return None;
+    }
+    if libc::WIFEXITED(status) {
+        return Some(libc::WEXITSTATUS(status));
+    }
+    if libc::WIFSIGNALED(status) {
+        return Some(128 + libc::WTERMSIG(status));
+    }
+    None
+}
+
 pub(crate) fn terminate_process(pid: u32) -> Result<(), String> {
     #[cfg(target_os = "windows")]
     {

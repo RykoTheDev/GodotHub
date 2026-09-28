@@ -166,9 +166,6 @@ pub(crate) fn settle_stale_sessions(app: &AppHandle) {
     });
 }
 
-// True when a settle attempt is due: never succeeded, or the last success is
-// older than SETTLE_OK_TTL. Failures leave LAST_SETTLE_OK untouched so the
-// next call retries instead of staying throttled.
 fn settle_due(last_ok: Option<Instant>, now: Instant) -> bool {
     match last_ok {
         None => true,
@@ -176,7 +173,6 @@ fn settle_due(last_ok: Option<Instant>, now: Instant) -> bool {
     }
 }
 
-// Releases SETTLE_IN_FLIGHT on drop, including early returns and panics.
 struct SettleFlightGuard<'a>(&'a AtomicBool);
 impl Drop for SettleFlightGuard<'_> {
     fn drop(&mut self) {
@@ -184,9 +180,6 @@ impl Drop for SettleFlightGuard<'_> {
     }
 }
 
-// Core of settle_stale_sessions with injected state and process lookup so
-// tests can simulate Err then Ok without real ps/wmic processes. An Err
-// returns without updating last_ok, so the next call retries.
 fn settle_stale_sessions_inner(
     app: &AppHandle,
     last_ok: &Mutex<Option<Instant>>,
@@ -216,7 +209,6 @@ fn settle_stale_sessions_inner(
     let projects = read_projects(app);
 
     let Ok(os_running) = find_processes() else {
-        // Failure leaves last_ok untouched so the next call retries.
         return;
     };
 
@@ -240,7 +232,6 @@ fn settle_stale_sessions_inner(
         }
     }
 
-    // Throttle the next runs; even an empty settle counts as success.
     *last_ok.lock().unwrap_or_else(|e| e.into_inner()) = Some(Instant::now());
 }
 
@@ -882,6 +873,8 @@ pub async fn remove_project(app: AppHandle, id: String, delete_files: bool) -> R
         write_dismissed_archive(&app, &archive);
     }
 
+    crate::console::forget_console(&app, &id);
+
     if delete_files {
         if let Err(error) =
             crate::project_todos::remove_project_todos(&app, &project.id)
@@ -1003,14 +996,20 @@ pub fn open_project(
 
     let settings = settings::read_settings(&app);
     let use_console = console.unwrap_or(settings.launch_with_console);
+    let exe = Path::new(&version.executable_path);
 
-    let launched = crate::godot_versions::spawn_editor(
-        &app,
-        Path::new(&version.executable_path),
-        &args,
-        &project_name,
-        use_console,
-    )?;
+    let mut in_app_console = false;
+    let launched = if use_console && settings.builtin_console {
+        match crate::console::spawn_in_app_console(&app, exe, &args, &id) {
+            Ok(launched) => {
+                in_app_console = true;
+                launched
+            }
+            Err(_) => crate::godot_versions::spawn_editor(&app, exe, &args, &project_name, true)?,
+        }
+    } else {
+        crate::godot_versions::spawn_editor(&app, exe, &args, &project_name, use_console)?
+    };
     #[cfg(unix)]
     let pid_file = launched.pid_file.clone();
     let kill_tree = launched.kill_tree;
@@ -1040,6 +1039,7 @@ pub fn open_project(
             "id": id.clone(),
             "name": project_name,
             "version": project_version,
+            "console": in_app_console,
         }),
     );
 

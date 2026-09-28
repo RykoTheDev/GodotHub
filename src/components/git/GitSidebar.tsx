@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
+
+/** How often the sidebar re-fetches when "fetch automatically" is on. */
+const AUTO_FETCH_INTERVAL_MS = 180_000
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
@@ -30,6 +33,7 @@ import {
   IconExternalLink,
   IconGitBranch,
   IconHistory,
+  IconInfo,
   IconPlay,
   IconPlus,
   IconRefresh,
@@ -43,6 +47,7 @@ import { CommitDetailsModal } from '../modals/CommitDetailsModal'
 import { ConfirmDialog } from '../modals/ConfirmDialog'
 import { CommitGraph } from './CommitGraph'
 import { Tooltip } from '../reusables/Tooltip'
+import { Checkbox } from '../ui/Checkbox'
 
 interface Props {
   project: Project
@@ -299,7 +304,7 @@ export function GitSidebar({
 }: Props) {
   const { t } = useTranslation('git')
   const { t: tc } = useTranslation('common')
-  const { settings } = useSettings()
+  const { settings, update } = useSettings()
   const [gitAuth, setGitAuth] = useState<GitAuthState | null>(null)
   const [gitAuthFlow, setGitAuthFlow] = useState<'github' | 'gitlab' | null>(
     null,
@@ -321,6 +326,8 @@ export function GitSidebar({
     phase: 'running' | 'done' | 'error'
   } | null>(null)
   const remoteTimerRef = useRef<number | null>(null)
+  const remotePhaseRef = useRef(remotePhase)
+  remotePhaseRef.current = remotePhase
   const [commits, setCommits] = useState<GitLogEntry[]>([])
   const [commitsLoading, setCommitsLoading] = useState(true)
   const [stashes, setStashes] = useState<GitStashEntry[]>([])
@@ -858,6 +865,36 @@ export function GitSidebar({
     } catch {}
   }, [project.path])
 
+  // Auto-fetch only ever runs `git fetch`: it updates the remote-tracking refs
+  // so the pull bubble can say how far behind you are, without touching the
+  // working tree or merging anything.
+  useEffect(() => {
+    if (!ready || !settings.git_auto_fetch || remotes.length === 0) return
+    let cancelled = false
+    const run = async () => {
+      if (remotePhaseRef.current) return
+      try {
+        await api.gitFetch(project.path)
+      } catch {
+        return
+      }
+      if (!cancelled) void refreshAheadBehind()
+    }
+    // Fetch right away so toggling the box shows a count immediately.
+    void run()
+    const id = window.setInterval(() => void run(), AUTO_FETCH_INTERVAL_MS)
+    return () => {
+      cancelled = true
+      window.clearInterval(id)
+    }
+  }, [
+    ready,
+    settings.git_auto_fetch,
+    remotes.length,
+    project.path,
+    refreshAheadBehind,
+  ])
+
   const refreshMergeState = useCallback(async () => {
     try {
       const [isMerging, files] = await Promise.all([
@@ -1236,13 +1273,20 @@ export function GitSidebar({
                             : 'bg-overlay text-muted hover:text-ink hover:bg-raised cursor-pointer',
                     ].join(' ')}
                   >
+                    {/* Floating count bubble: commits to push / commits to pull. */}
                     {key === 'push' && aheadBehind && aheadBehind.ahead > 0 && state === 'idle' && (
-                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-mint text-overlay text-[8px] font-bold px-1 z-10">
+                      <span
+                        aria-label={t('commits_to_push', { count: aheadBehind.ahead })}
+                        className="absolute -top-2 -right-2 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-mint text-overlay text-[9px] font-bold px-1 z-10 ring-2 ring-raised shadow-md shadow-black/30"
+                      >
                         {aheadBehind.ahead}
                       </span>
                     )}
                     {key === 'pull' && aheadBehind && aheadBehind.behind > 0 && state === 'idle' && (
-                      <span className="absolute -top-1.5 -right-1.5 min-w-[16px] h-4 flex items-center justify-center rounded-full bg-danger text-overlay text-[8px] font-bold px-1 z-10">
+                      <span
+                        aria-label={t('commits_to_pull', { count: aheadBehind.behind })}
+                        className="absolute -top-2 -right-2 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-danger text-overlay text-[9px] font-bold px-1 z-10 ring-2 ring-raised shadow-md shadow-black/30"
+                      >
                         {aheadBehind.behind}
                       </span>
                     )}
@@ -1275,6 +1319,28 @@ export function GitSidebar({
                   </Tooltip>
               )
             })}
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, x: 24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut', delay: 0.3 }}
+            className="flex items-center gap-1.5 px-1"
+          >
+            <Checkbox
+              checked={settings.git_auto_fetch}
+              onChange={(checked) =>
+                void update({ ...settings, git_auto_fetch: checked })
+              }
+              label={t('auto_fetch_label')}
+            >
+              {t('auto_fetch_label')}
+            </Checkbox>
+            <Tooltip content={t('auto_fetch_hint')} side="top">
+              <span className="inline-flex items-center justify-center text-muted/50 hover:text-muted cursor-help">
+                <IconInfo className="w-3 h-3" />
+              </span>
+            </Tooltip>
           </motion.div>
 
           <motion.div key="div-1187"

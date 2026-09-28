@@ -1,5 +1,10 @@
 import { invoke } from '@tauri-apps/api/core'
-import type { Project, ProjectSizeInfo, ProjectUpdate } from '../types'
+import type {
+  ConsoleSnapshot,
+  Project,
+  ProjectSizeInfo,
+  ProjectUpdate,
+} from '../types'
 
 const iconCache = new Map<string, string | null>()
 const nameCache = new Map<string, string | null>()
@@ -53,6 +58,10 @@ export const projectsApi = {
     invoke<void>('open_project', { id, editor, console: withConsole ?? null }),
   stop: (id: string) =>
     invoke<void>('stop_project', { id }),
+  getConsole: (id: string, since?: number) =>
+    invoke<ConsoleSnapshot>('get_project_console', { id, since: since ?? null }),
+  clearConsole: (id: string) =>
+    invoke<void>('clear_project_console', { id }),
   openFolder: (path: string) =>
     invoke<void>('open_project_folder', { path }),
   openInEditor: (path: string) =>

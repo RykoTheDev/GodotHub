@@ -19,6 +19,7 @@ import { CheckForUpdatesModal } from './components/modals/CheckForUpdatesModal'
 import { CommandPalette } from './components/modals/CommandPalette'
 import { ToastContainer } from './components/reusables/ToastContainer'
 import { SplashScreen, type SplashPhase } from './components/reusables/SplashScreen'
+import { ProjectConsoleWindow } from './components/console/ProjectConsoleWindow'
 import { ProjectsView } from './views/ProjectsView'
 import { VersionsView } from './views/VersionsView'
 import { TemplatesView } from './views/TemplatesView'
@@ -625,6 +626,8 @@ export function App() {
             </>
           )}
         </AnimatePresence>
+
+        <ProjectConsoleWindow />
 
       </div>
 

@@ -22,8 +22,6 @@ export interface DownloadState extends DownloadProgress {
 const keyOf = (tag: string, assetName: string) =>
   assetName.toLowerCase().includes('mono') ? `${tag}-mono` : tag
 
-// mise's asdf plugin only ships stable Godot releases, so pre-release tags
-// (betas, release candidates, dev builds) always need GodotHub's downloader.
 const isPrereleaseTag = (tag: string) => /(alpha|beta|rc|dev)/i.test(tag)
 
 export type VersionSource = 'github' | 'archive' | 'mise'
@@ -123,8 +121,6 @@ export function useGodotVersions() {
     }
   }, [])
 
-  // The mise source is only offered when the experimental integration is
-  // enabled, so a saved `mise` source must fall back once it's turned off.
   useEffect(() => {
     if (loaded && sourceRef.current === 'mise' && !settings.use_mise) {
       refreshAvailable('github')
@@ -222,8 +218,6 @@ export function useGodotVersions() {
   const download = useCallback(
     async (tag: string, assetName: string, url: string) => {
       const key = keyOf(tag, assetName)
-      // mise's asdf-godot plugin only ships non-mono, stable release tags, so
-      // .NET and pre-release builds always come from GodotHub's own downloader.
       const viaMise =
         !assetName.toLowerCase().includes('mono') &&
         (sourceRef.current === 'mise' ||
@@ -266,7 +260,6 @@ export function useGodotVersions() {
     async (tag: string) => {
       const target = installed.find((v) => v.tag === tag)
       if (target?.managed_by === 'mise') {
-        // mise owns the files, so let it remove them from its own store.
         await api.miseUninstallGodotVersion(tag)
       } else {
         await api.deleteGodotVersion(tag)

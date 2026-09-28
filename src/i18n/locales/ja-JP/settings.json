@@ -330,5 +330,7 @@
   "mise_label": "Godot のバージョン管理に mise を使用",
   "mise_desc": "Godot のバージョンを mise で管理します。プロジェクトが mise.toml または .tool-versions で指定しているバージョンを読み取り、mise でバージョンをインストールし、mise にインストール済みのバージョンは重複してダウンロードせずに再利用します。PATH 上に mise CLI が必要です。Mono/.NET ビルドは引き続き GodotHub のダウンローダーを使用します。",
   "mise_detected": "mise {{version}} を検出しました",
-  "mise_not_found": "PATH 上に mise が見つかりません。mise をインストールするまでこの設定はオフのままになります。"
+  "mise_not_found": "PATH 上に mise が見つかりません。mise をインストールするまでこの設定はオフのままになります。",
+  "builtin_console_label": "Use the built-in console",
+  "builtin_console_desc": "Shows the project's console output in a window inside GodotHub instead of opening your system terminal. The log keeps its colours and stays readable after the project closes, so you can still read it when Godot crashes. Turn this off to use your own terminal again."
 }

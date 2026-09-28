@@ -2,6 +2,7 @@ mod asset_library;
 mod backup;
 mod categories;
 mod changelog;
+mod console;
 mod current_version;
 mod error;
 mod git;
@@ -252,8 +253,6 @@ pub fn run() {
 
                 let s = settings::read_settings(&handle);
 
-                // With the mise integration on, pull in the versions mise already
-                // has so they show up without pressing Sync.
                 if s.use_mise {
                     let mise_handle = handle.clone();
                     let _ = tokio::task::spawn_blocking(move || {
@@ -288,6 +287,7 @@ pub fn run() {
             app.manage(projects::ActiveProcesses(std::sync::Mutex::new(
                 std::collections::HashMap::new(),
             )));
+            app.manage(console::ConsoleBuffers::default());
 
             tray::setup_tray(app.handle())?;
             tray::show_main_window(app.handle());
@@ -363,6 +363,8 @@ pub fn run() {
             projects::reorder_projects,
             projects::open_project,
             projects::open_project_folder,
+            console::get_project_console,
+            console::clear_project_console,
             projects::open_in_editor,
             projects::get_project_icon,
             projects::get_project_size,

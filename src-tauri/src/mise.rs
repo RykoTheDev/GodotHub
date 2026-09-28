@@ -171,8 +171,6 @@ fn status_cache() -> &'static Mutex<Option<(Instant, MiseStatus)>> {
     CACHE.get_or_init(|| Mutex::new(None))
 }
 
-/// Drop the cached status so the next `mise_status` call re-detects mise with
-/// fresh subprocess output (used when the integration toggle changes).
 pub fn clear_status_cache() {
     *status_cache().lock().unwrap() = None;
 }

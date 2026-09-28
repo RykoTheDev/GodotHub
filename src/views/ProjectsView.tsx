@@ -140,7 +140,6 @@ export function ProjectsView({
   const [menuIndex, setMenuIndex] = useState(0)
   const [menuDismissed, setMenuDismissed] = useState(false)
 
-  // Filtering is instant - no debounce and no minimum query length.
   const parsedQuery = useMemo(
     () => parseProjectQuery(query, caret),
     [query, caret],
@@ -168,8 +167,6 @@ export function ProjectsView({
     [tc],
   )
 
-  // Discord-style slash menu: `/` lists the fields to filter by, and picking
-  // one (or typing `field:`) lists the matching values for it.
   const slashMenu = useMemo<SlashMenuState | null>(() => {
     if (menuDismissed) return null
     const token = parsedQuery.activeToken
@@ -316,7 +313,6 @@ export function ProjectsView({
         return
       }
     } else if (e.key === 'Enter') {
-      // Results already filter as you type; Enter just commits the query.
       e.preventDefault()
       setCaret(searchRef.current?.selectionStart ?? query.length)
       setMenuDismissed(true)
@@ -586,8 +582,6 @@ export function ProjectsView({
   const categoriesEnabled =
     settings.categories_enabled && effectiveSortBy === 'categories'
 
-  // While a search is active the results are shown as one relevance-ranked
-  // list, so matches are never buried in - or hidden inside - their section.
   const groupingEnabled = categoriesEnabled && !parsedQuery.active
 
   const visibleCategories = useMemo(

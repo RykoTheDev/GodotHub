@@ -687,5 +687,17 @@
   "hidden_categories_hint": "Those categories and their projects stay out of the way. Unhide one to bring it back.",
   "hidden_category_projects": "{{count}} project(s)",
   "unhide": "Unhide",
-  "unhide_category_aria": "Unhide {{name}}"
+  "unhide_category_aria": "Unhide {{name}}",
+  "search_filter_title": "Filter projects by",
+  "search_slash_hint": "Type / to filter by name, tags, categories and more",
+  "search_filter_name": "Name",
+  "search_filter_tag": "Tag",
+  "search_filter_category": "Category",
+  "search_filter_version": "Engine version",
+  "search_filter_path": "Path",
+  "search_filter_pinned": "Pinned",
+  "search_filter_pinned_yes": "Pinned only",
+  "search_filter_pinned_no": "Not pinned",
+  "search_filter_no_matches": "No matching filters",
+  "search_filter_no_values": "No matching values"
 }

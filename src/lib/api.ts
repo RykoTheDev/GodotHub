@@ -26,6 +26,8 @@ export const api = {
   duplicateProject: projectsApi.duplicate,
   openProject: projectsApi.open,
   stopProject: projectsApi.stop,
+  getProjectConsole: projectsApi.getConsole,
+  clearProjectConsole: projectsApi.clearConsole,
   listRunningProjects: () =>
     invoke<{ id: string; name: string; version: string; launched_at_ms: number }[]>(
       'list_running_projects',

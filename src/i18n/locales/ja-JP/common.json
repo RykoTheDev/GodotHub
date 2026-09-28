@@ -672,5 +672,17 @@
   "hidden_categories_hint": "これらのカテゴリとそのプロジェクトは一覧に表示されません。再表示すると一覧に戻ります。",
   "hidden_category_projects": "{{count}} 件のプロジェクト",
   "unhide": "再表示",
-  "unhide_category_aria": "「{{name}}」を再表示"
+  "unhide_category_aria": "「{{name}}」を再表示",
+  "search_filter_title": "Filter projects by",
+  "search_slash_hint": "Type / to filter by name, tags, categories and more",
+  "search_filter_name": "Name",
+  "search_filter_tag": "Tag",
+  "search_filter_category": "Category",
+  "search_filter_version": "Engine version",
+  "search_filter_path": "Path",
+  "search_filter_pinned": "Pinned",
+  "search_filter_pinned_yes": "Pinned only",
+  "search_filter_pinned_no": "Not pinned",
+  "search_filter_no_matches": "No matching filters",
+  "search_filter_no_values": "No matching values"
 }

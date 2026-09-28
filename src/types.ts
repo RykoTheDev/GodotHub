@@ -162,6 +162,22 @@ export interface Project {
   time_week_seconds: number
 }
 
+export type ConsoleStream = 'stdout' | 'stderr'
+
+export interface ConsoleLine {
+  seq: number
+  stream: ConsoleStream
+  text: string
+}
+
+export interface ConsoleSnapshot {
+  id: string
+  lines: ConsoleLine[]
+  next_seq: number
+  running: boolean
+  exit_code: number | null
+}
+
 export interface ProjectUpdate {
   name?: string
   godot_version?: string
@@ -428,6 +444,8 @@ export interface AppSettings {
   animation_intensity: 'full' | 'subtle' | 'none'
   view_entrance: 'fade' | 'slide' | 'scale' | 'none'
   launch_with_console: boolean
+  builtin_console: boolean
+  git_auto_fetch: boolean
   close_on_project_open: boolean
   minimize_to_tray: boolean
   reopen_after_godot_closes: boolean

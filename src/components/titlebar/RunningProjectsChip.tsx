@@ -196,6 +196,20 @@ export function RunningProjectsChip() {
                           transition={{ duration: 0.15, ease: 'easeOut' }}
                           className="flex items-center gap-1 px-2.5 py-2 rounded-item text-muted transition-colors hover:bg-raised"
                         >
+                          <button
+                            type="button"
+                            role="menuitem"
+                            onClick={() => {
+                              setOpen(false)
+                              window.dispatchEvent(
+                                new CustomEvent('app:open-console', {
+                                  detail: { id: p.id, name: p.name },
+                                }),
+                              )
+                            }}
+                            aria-label={`${t('console_title')} - ${p.name}`}
+                            className="focus-ring cursor-pointer flex-1 min-w-0 flex items-center gap-1 rounded-btn text-left transition-opacity hover:opacity-80"
+                          >
                           <span className="w-7 h-7 rounded-btn flex items-center justify-center shrink-0 bg-mint/10">
                             <IconTerminal className="w-3.5 h-3.5 text-mint" />
                           </span>
@@ -208,6 +222,7 @@ export function RunningProjectsChip() {
                               {formatDuration(now - p.startedAt)}
                             </p>
                           </div>
+                          </button>
                             <button
                               type="button"
                               role="menuitem"

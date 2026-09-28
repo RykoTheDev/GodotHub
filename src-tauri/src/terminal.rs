@@ -7,10 +7,8 @@ use std::os::windows::process::CommandExt;
 #[cfg(target_os = "windows")]
 pub const CREATE_NO_WINDOW: u32 = 0x0800_0000;
 
-#[cfg(unix)]
 use std::path::PathBuf;
 
-#[cfg(unix)]
 use tauri::{AppHandle, Manager};
 
 #[cfg(all(unix, not(target_os = "macos")))]
@@ -45,7 +43,6 @@ fn sh_quote(value: &str) -> String {
     format!("'{}'", value.replace('\'', "'\\''"))
 }
 
-#[cfg(unix)]
 fn prune_stale_scripts(dir: &Path) {
     let Ok(entries) = std::fs::read_dir(dir) else {
         return;
@@ -63,10 +60,7 @@ fn prune_stale_scripts(dir: &Path) {
     }
 }
 
-#[cfg(unix)]
 fn launch_dir(app: &AppHandle) -> Result<PathBuf, String> {
-    use std::os::unix::fs::{DirBuilderExt, PermissionsExt};
-
     let dir = app
         .path()
         .app_cache_dir()
@@ -77,19 +71,32 @@ fn launch_dir(app: &AppHandle) -> Result<PathBuf, String> {
         if let Some(parent) = dir.parent() {
             std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
         }
-        std::fs::DirBuilder::new()
-            .mode(0o700)
-            .create(&dir)
-            .map_err(|e| e.to_string())?;
+
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::DirBuilderExt;
+            std::fs::DirBuilder::new()
+                .mode(0o700)
+                .create(&dir)
+                .map_err(|e| e.to_string())?;
+        }
+
+        #[cfg(not(unix))]
+        {
+            std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+        }
     } else {
-        std::fs::set_permissions(&dir, std::fs::Permissions::from_mode(0o700))
-            .map_err(|e| e.to_string())?;
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            std::fs::set_permissions(&dir, std::fs::Permissions::from_mode(0o700))
+                .map_err(|e| e.to_string())?;
+        }
     }
 
     Ok(dir)
 }
 
-#[cfg(unix)]
 fn launch_stamp() -> u128 {
     std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -97,23 +104,25 @@ fn launch_stamp() -> u128 {
         .unwrap_or(0)
 }
 
-#[cfg(unix)]
 fn write_launch_script(
     app: &AppHandle,
     body: &str,
     extension: &str,
     stamp: u128,
 ) -> Result<PathBuf, String> {
-    use std::os::unix::fs::PermissionsExt;
-
     let dir = launch_dir(app)?;
     prune_stale_scripts(&dir);
 
     let script = dir.join(format!("launch-{stamp}.{extension}"));
 
     std::fs::write(&script, body).map_err(|e| e.to_string())?;
-    std::fs::set_permissions(&script, std::fs::Permissions::from_mode(0o700))
-        .map_err(|e| e.to_string())?;
+
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::set_permissions(&script, std::fs::Permissions::from_mode(0o700))
+            .map_err(|e| e.to_string())?;
+    }
 
     Ok(script)
 }
@@ -121,15 +130,27 @@ fn write_launch_script(
 #[cfg(unix)]
 fn program_script_body(program: &Path, args: &[String], pid_file: &Path) -> String {
     let quoted_pid_file = sh_quote(&pid_file.to_string_lossy());
-    let mut body = format!(
-        "#!/bin/sh\necho $$ > {quoted_pid_file}.tmp && mv {quoted_pid_file}.tmp {quoted_pid_file}\nexec "
-    );
+    let mut body = String::from("#!/bin/sh\n");
     body.push_str(&sh_quote(&program.to_string_lossy()));
     for arg in args {
         body.push(' ');
         body.push_str(&sh_quote(arg));
     }
-    body.push('\n');
+    body.push_str(" &\n");
+    body.push_str("godothub_child=$!\n");
+    body.push_str(&format!(
+        "printf '%s\\n' \"$godothub_child\" > {quoted_pid_file}.tmp && mv {quoted_pid_file}.tmp {quoted_pid_file}\n"
+    ));
+    body.push_str("wait \"$godothub_child\"\n");
+    body.push_str("godothub_status=$?\n");
+    body.push_str("if [ \"$godothub_status\" -ne 0 ]; then\n");
+    body.push_str("  printf '\\n[GodotHub] Godot exited with status %s.\\n' \"$godothub_status\"\n");
+    body.push_str(
+        "  printf '[GodotHub] This window stays open so you can read the output above.\\n'\n",
+    );
+    body.push_str("  printf 'Press Enter to close this window.'\n");
+    body.push_str("  read -r _\n");
+    body.push_str("fi\n");
     body
 }
 
@@ -261,23 +282,63 @@ fn quote_arg(arg: &str) -> String {
 }
 
 #[cfg(target_os = "windows")]
+fn quote_script_arg(arg: &str) -> String {
+    quote_arg(&arg.replace('%', "%%"))
+}
+
+#[cfg(target_os = "windows")]
+fn script_title(raw: &str) -> String {
+    let cleaned: String = console_title(raw)
+        .chars()
+        .filter(|c| !matches!(c, '&' | '|' | '<' | '>' | '^' | '(' | ')' | '!'))
+        .collect();
+
+    match cleaned.trim() {
+        "" => "Godot".to_string(),
+        trimmed => trimmed.to_string(),
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn console_script_body(program: &Path, args: &[String], title: &str) -> String {
+    let mut body = String::from("@echo off\r\n");
+    body.push_str(&format!("title {}\r\n", script_title(title)));
+    body.push_str(&quote_script_arg(&program.display().to_string()));
+    for arg in args {
+        body.push(' ');
+        body.push_str(&quote_script_arg(arg));
+    }
+    body.push_str("\r\n");
+    body.push_str("set \"godothub_status=%errorlevel%\"\r\n");
+    body.push_str("if not \"%godothub_status%\"==\"0\" (\r\n");
+    body.push_str("  echo.\r\n");
+    body.push_str("  echo [GodotHub] Godot exited with code %godothub_status%.\r\n");
+    body.push_str("  echo [GodotHub] This window stays open so you can read the output above.\r\n");
+    body.push_str("  pause\r\n");
+    body.push_str(")\r\n");
+    body
+}
+
+#[cfg(target_os = "windows")]
 pub fn spawn_program_in_console(
+    app: &AppHandle,
     program: &Path,
     args: &[String],
     title: &str,
 ) -> Result<Child, String> {
-    let mut line = format!(
-        "/C start \"{}\" /WAIT {}",
-        console_title(title),
-        quote_arg(&program.display().to_string())
-    );
-    for arg in args {
-        line.push(' ');
-        line.push_str(&quote_arg(arg));
-    }
+    let script = write_launch_script(
+        app,
+        &console_script_body(program, args, title),
+        "cmd",
+        launch_stamp(),
+    )?;
 
     Command::new("cmd")
-        .raw_arg(line)
+        .raw_arg(format!(
+            "/C start \"{}\" /WAIT {}",
+            console_title(title),
+            quote_arg(&script.display().to_string())
+        ))
         .creation_flags(CREATE_NO_WINDOW)
         .spawn()
         .map_err(|e| format!("Failed to open a console window: {e}"))

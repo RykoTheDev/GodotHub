@@ -333,5 +333,7 @@
   "mise_label": "Use mise for Godot versions",
   "mise_desc": "Let mise manage your Godot versions: read the version a project pins in mise.toml or .tool-versions, install versions with mise, and reuse the ones mise already has instead of downloading a second copy. Requires the mise CLI on your PATH. Mono/.NET builds keep using GodotHub's downloader.",
   "mise_detected": "Detected mise {{version}}",
-  "mise_not_found": "mise was not found on your PATH, so this stays off until you install it."
+  "mise_not_found": "mise was not found on your PATH, so this stays off until you install it.",
+  "builtin_console_label": "Use the built-in console",
+  "builtin_console_desc": "Shows the project's console output in a window inside GodotHub instead of opening your system terminal. The log keeps its colours and stays readable after the project closes, so you can still read it when Godot crashes. Turn this off to use your own terminal again."
 }

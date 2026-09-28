@@ -312,9 +312,6 @@ pub fn pin_version(project_dir: &str, tag: &str, use_mise: bool) -> Result<(), S
     let is_mono = tag.trim().ends_with("-mono");
     let root = Path::new(project_dir);
 
-    // With mise enabled, the project's mise.toml/.tool-versions is the source of
-    // truth: pin there and drop the .godotrc GodotHub wrote, so detection can't
-    // pick up a stale GodotHub pin instead.
     if use_mise && crate::mise::write_pin(root, tag)? {
         let _ = fs::remove_file(root.join(".godotrc"));
         return Ok(());

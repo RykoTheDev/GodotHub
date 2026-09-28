@@ -55,6 +55,8 @@ const DEFAULTS: AppSettings = {
   animation_intensity: 'full',
   view_entrance: 'fade',
   launch_with_console: false,
+  builtin_console: true,
+  git_auto_fetch: false,
   close_on_project_open: false,
   minimize_to_tray: false,
   reopen_after_godot_closes: false,

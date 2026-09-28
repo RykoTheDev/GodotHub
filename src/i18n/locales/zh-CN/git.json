@@ -88,5 +88,9 @@
   "remove_worktree_confirm_desc": "这将删除 {{path}} 处的工作树并丢弃任何未提交的更改。此操作无法撤销。",
   "worktree_removed_ok": "工作树已删除。",
   "filter_changes": "筛选更改的文件…",
-  "no_matching_changes": "没有匹配的更改."
+  "no_matching_changes": "没有匹配的更改.",
+  "auto_fetch_label": "Fetch automatically",
+  "auto_fetch_hint": "Runs git fetch every few minutes so the pull bubble always shows how many commits you're behind, without merging anything. Leave it off to only fetch when you click Fetch.",
+  "commits_to_push": "{{count}} commit(s) to push",
+  "commits_to_pull": "{{count}} commit(s) to pull"
 }

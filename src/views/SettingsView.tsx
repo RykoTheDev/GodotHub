@@ -1422,6 +1422,19 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           </SettingRow>
 
           <SettingRow
+            label={ts("builtin_console_label")}
+            description={ts("builtin_console_desc")}
+          >
+            <Toggle
+              checked={settings.builtin_console}
+              onChange={(checked) =>
+                update({ ...settings, builtin_console: checked })
+              }
+              label={ts("builtin_console_label")}
+            />
+          </SettingRow>
+
+          <SettingRow
             label={ts("close_on_open_label")}
             description={
               isMac ? ts("close_on_open_desc_mac") : ts("close_on_open_desc")
