@@ -14,6 +14,7 @@
   "new_branch_placeholder": "ブランチ名",
   "delete_branch": "ブランチを削除",
   "publish_branch": "ブランチを公開",
+  "publish_branch_to": "{{remote}} にブランチを公開",
   "branch_published": "ブランチを公開しました。",
   "use_ours": "自分側を使う",
   "use_theirs": "相手側を使う",
@@ -89,9 +90,8 @@
   "worktree_removed_ok": "ワークツリーを削除しました。",
   "filter_changes": "変更されたファイルを絞り込む…",
   "no_matching_changes": "一致する変更はありません。",
-  "auto_fetch_label": "Fetch automatically",
-  "auto_fetch_hint": "Runs git fetch every few minutes so the pull bubble always shows how many commits you're behind, without merging anything. Leave it off to only fetch when you click Fetch.",
-  "commits_to_push": "{{count}} commit(s) to push",
-  "commits_to_pull": "{{count}} commit(s) to pull",
-  "publish_branch_to": "Publish branch to {{remote}}"
+  "auto_fetch_label": "自動でフェッチする",
+  "auto_fetch_hint": "数分ごとに git fetch を実行し、プルのバッジに未取得のコミット数を常に表示します。マージは行いません。オフにすると、「フェッチ」をクリックしたときだけフェッチします。",
+  "commits_to_push": "プッシュするコミット: {{count}} 件",
+  "commits_to_pull": "プルするコミット: {{count}} 件"
 }
