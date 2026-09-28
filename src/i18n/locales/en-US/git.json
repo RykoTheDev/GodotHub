@@ -14,6 +14,7 @@
   "new_branch_placeholder": "Branch name",
   "delete_branch": "Delete branch",
   "publish_branch": "Publish branch",
+  "publish_branch_to": "Publish branch to {{remote}}",
   "branch_published": "Branch published.",
   "use_ours": "Use ours",
   "use_theirs": "Use theirs",

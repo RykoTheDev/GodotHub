@@ -532,7 +532,9 @@ pub async fn git_ahead_behind(path: String) -> Result<Option<GitAheadBehind>, St
         };
         let out = git_helpers::git_cmd(
             &path,
-            ["rev-list", "--left-right", "--count", &upstream, "...", "HEAD"],
+            // Git only understands `A...B` as a single argument; a standalone
+            // "..." is parsed as an ambiguous revision/path and fails.
+            ["rev-list", "--left-right", "--count", &format!("{}...HEAD", upstream)],
         )
         .map_err(|e| e.to_string())?;
         let parts: Vec<&str> = out.split_whitespace().collect();
@@ -692,13 +694,32 @@ pub async fn git_list_branches(path: String) -> Result<Vec<GitBranchInfo>, Strin
     .map_err(|e| e.to_string())?
 }
 
+/// Remote a brand new branch is published to: `origin` when it exists (git's
+/// convention), otherwise the repository's first configured remote.
+fn default_publish_remote(path: &str) -> Result<String, String> {
+    let out = git_helpers::git_cmd(path, ["remote"]).map_err(|e| e.to_string())?;
+    let remotes: Vec<String> = out
+        .lines()
+        .map(|line| line.trim().to_string())
+        .filter(|line| !line.is_empty())
+        .collect();
+    if let Some(origin) = remotes.iter().find(|r| r.as_str() == "origin") {
+        return Ok(origin.clone());
+    }
+    remotes
+        .into_iter()
+        .next()
+        .ok_or_else(|| "No git remote is configured for this project".to_string())
+}
+
 #[tauri::command]
 pub async fn git_branch_publish(path: String, name: String) -> Result<(), String> {
     tokio::task::spawn_blocking(move || {
         if !check_is_repo(&path) {
             return Err("Not a git repository".into());
         }
-        git_helpers::git_cmd(&path, ["push", "-u", "origin", &name])
+        let remote = default_publish_remote(&path)?;
+        git_helpers::git_cmd(&path, ["push", "-u", &remote, &name])
             .map_err(|e| e.to_string())?;
         Ok(())
     })

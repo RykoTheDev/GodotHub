@@ -1300,5 +1300,78 @@
     ],
     "known_issues": [],
     "created_at": 1789412855
+  },
+  {
+    "id": "ae20433c-aa29-454f-b957-37a3a335ef19",
+    "version": "v1.4.5",
+    "date": "2026-09-28",
+    "notes": [
+      {
+        "category": "add",
+        "text": "New In-App Console Window that persists on godot editor close and can be minimzed or swapped back to original OS's terminal use"
+      },
+      {
+        "category": "add",
+        "text": "Slash Command System like Discord but for Projects Search bar to filter for specific things"
+      },
+      {
+        "category": "improve",
+        "text": "Projects Search bar to be more precise and look for exact matches."
+      },
+      {
+        "category": "improve",
+        "text": "Update Chinese Locale; PR by hanmi255"
+      },
+      {
+        "category": "improve",
+        "text": "Update Japanese Locale; PR by shiena"
+      },
+      {
+        "category": "add",
+        "text": "mise-en-place integration, toggleable in Experimental Settings"
+      },
+      {
+        "category": "add",
+        "text": "Project's ToDo Tasks (WiP) toggleable in Experimental Settings; PR by mauriciovalentim"
+      },
+      {
+        "category": "fix",
+        "text": "Stale session settlement retry logic; PR by tuberkulez-takt"
+      },
+      {
+        "category": "fix",
+        "text": "moveProjects leaving the UI and disk state inconsistent when a project update or reorder operation fails midway; PR by tuberkulez-takt"
+      },
+      {
+        "category": "fix",
+        "text": "Push/Pull buttons never showing the number of commits waiting to be pushed or pulled"
+      },
+      {
+        "category": "improve",
+        "text": "Push button becomes \"Publish branch\" on branches with no upstream yet, publishing them in one click"
+      },
+      {
+        "category": "improve",
+        "text": "Numerical Bubbles on Push and Pull buttons if there are any commits to Push or Pull"
+      },
+      {
+        "category": "add",
+        "text": "Support for Unpublished branches to publish them before pushing"
+      },
+      {
+        "category": "improve",
+        "text": "Time tracked chart to show each day's time inside the bars instead of a hover tooltip"
+      },
+      {
+        "category": "fix",
+        "text": "Publishing a branch pushing to a hardcoded 'origin' instead of the project's actual remote"
+      },
+      {
+        "category": "improve",
+        "text": "Publish branch button tooltip to name the remote it pushes to"
+      }
+    ],
+    "known_issues": [],
+    "created_at": 1790610317
   }
 ]

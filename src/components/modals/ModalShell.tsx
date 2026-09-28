@@ -83,7 +83,13 @@ export function ModalShell({
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-      onClick={onClose}
+      onClick={(e) => {
+        // Portaled modals bubble through the React tree, so a backdrop click
+        // would otherwise reach clickable ancestors (e.g. a project card) and
+        // trigger them while closing.
+        e.stopPropagation()
+        onClose?.()
+      }}
     >
       <motion.div
         initial="hidden"

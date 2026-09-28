@@ -92,5 +92,6 @@
   "auto_fetch_label": "Fetch automatically",
   "auto_fetch_hint": "Runs git fetch every few minutes so the pull bubble always shows how many commits you're behind, without merging anything. Leave it off to only fetch when you click Fetch.",
   "commits_to_push": "{{count}} commit(s) to push",
-  "commits_to_pull": "{{count}} commit(s) to pull"
+  "commits_to_pull": "{{count}} commit(s) to pull",
+  "publish_branch_to": "Publish branch to {{remote}}"
 }

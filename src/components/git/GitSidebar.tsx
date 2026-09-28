@@ -492,6 +492,8 @@ export function GitSidebar({
       setBranches(await api.gitListBranches(project.path))
       await refreshChanges()
       void refreshLog()
+      // A brand new branch has no upstream, so drop the old branch's counts.
+      void refreshAheadBehind()
       onRefresh()
       notifyGitStatusChanged()
       setNewBranchName('')
@@ -717,6 +719,10 @@ export function GitSidebar({
 
   const handleRemoteAction = async (action: 'push' | 'pull' | 'fetch') => {
     if (remotePhase) return
+    // Pushing an unpublished branch would fail, so publish it instead and let
+    // the following pushes work normally.
+    const publishing =
+      action === 'push' && unpublishedBranch && currentBranchInfo !== null
     setRemotePhase({ action, phase: 'running' })
     const hold = (phase: 'done' | 'error') => {
       setRemotePhase({ action, phase })
@@ -726,9 +732,16 @@ export function GitSidebar({
       )
     }
     try {
-      if (action === 'push') await api.gitPush(project.path)
-      else if (action === 'pull') await api.gitPull(project.path)
-      else await api.gitFetch(project.path)
+      if (publishing && currentBranchInfo) {
+        await api.gitBranchPublish(project.path, currentBranchInfo.name)
+        setBranches(await api.gitListBranches(project.path))
+      } else if (action === 'push') {
+        await api.gitPush(project.path)
+      } else if (action === 'pull') {
+        await api.gitPull(project.path)
+      } else {
+        await api.gitFetch(project.path)
+      }
       onRefresh()
       notifyGitStatusChanged()
       await refreshChanges()
@@ -736,8 +749,9 @@ export function GitSidebar({
       void refreshAheadBehind()
       void refreshMergeState()
       hold('done')
-      const doneLabel =
-        action === 'push'
+      const doneLabel = publishing
+        ? t('branch_published')
+        : action === 'push'
           ? t('pushed_ok')
           : action === 'pull'
             ? t('pulled_ok')
@@ -1024,8 +1038,19 @@ export function GitSidebar({
     return s.length > 1 && s[1] !== ' ' && s[1] !== '?'
   })
 
-  const currentBranch =
-    branches.find((b) => b.is_current)?.name ?? gitStatus?.branch ?? '…'
+  const currentBranchInfo = branches.find((b) => b.is_current) ?? null
+  const currentBranch = currentBranchInfo?.name ?? gitStatus?.branch ?? '…'
+  // A branch without an upstream can't be pushed to yet: it has to be
+  // published first (`git push -u`), which also sets the upstream.
+  const unpublishedBranch =
+    !!currentBranchInfo &&
+    !currentBranchInfo.has_upstream &&
+    remotes.length > 0
+  // Mirrors `default_publish_remote` in src-tauri/src/git.rs: origin when it
+  // exists, otherwise the first configured remote. Only used to name the remote
+  // in the button's tooltip.
+  const publishRemote =
+    remotes.find((r) => r.name === 'origin')?.name ?? remotes[0]?.name ?? null
 
   const connectedCount =
     (gitAuth?.github ? 1 : 0) +
@@ -1250,18 +1275,44 @@ export function GitSidebar({
             ).map(({ key, Icon }) => {
               const isActive = remotePhase?.action === key
               const state = isActive ? remotePhase.phase : 'idle'
+              // Commits waiting to go out (push) / come in (pull). The backend
+              // needs a fetch first to know about incoming ones, which is why
+              // "fetch automatically" updates the pull bubble live.
+              const pending =
+                key === 'push'
+                  ? (aheadBehind?.ahead ?? 0)
+                  : key === 'pull'
+                    ? (aheadBehind?.behind ?? 0)
+                    : 0
+              const pendingLabel = t(
+                key === 'push' ? 'commits_to_push' : 'commits_to_pull',
+                { count: pending },
+              )
+              // An unpublished branch turns the push button into "Publish branch".
+              const isPublish = key === 'push' && unpublishedBranch
+              const actionLabel = isPublish
+                ? publishRemote
+                  ? t('publish_branch_to', { remote: publishRemote })
+                  : t('publish_branch')
+                : t(key)
+              const tooltip =
+                isActive && !isPublish
+                  ? t(`${key}ing`)
+                  : pending > 0
+                    ? pendingLabel
+                    : actionLabel
               return (
-                  <Tooltip content={isActive ? t(`${key}ing`) : t(key)} className="flex-1 min-w-0">
+                  <Tooltip content={tooltip} className="flex-1 min-w-0">
                   <motion.button
                     type="button"
                     onClick={() => void handleRemoteAction(key)}
                     onContextMenu={(e) => {
-                      if (key !== 'push') return
+                      if (key !== 'push' || isPublish) return
                       e.preventDefault()
                       setForcePushOpen(true)
                     }}
                     disabled={!!remotePhase}
-                    aria-label={t(key)}
+                    aria-label={actionLabel}
                     className={["w-full",
                       'relative w-full h-8 inline-flex items-center justify-center rounded-item border border-outline/50 shadow-md shadow-black/10 select-none focus-ring transition-colors duration-300',
                       state === 'running'
@@ -1274,20 +1325,14 @@ export function GitSidebar({
                     ].join(' ')}
                   >
                     {/* Floating count bubble: commits to push / commits to pull. */}
-                    {key === 'push' && aheadBehind && aheadBehind.ahead > 0 && state === 'idle' && (
+                    {state === 'idle' && pending > 0 && (
                       <span
-                        aria-label={t('commits_to_push', { count: aheadBehind.ahead })}
-                        className="absolute -top-2 -right-2 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-mint text-overlay text-[9px] font-bold px-1 z-10 ring-2 ring-raised shadow-md shadow-black/30"
+                        aria-label={pendingLabel}
+                        className={`absolute -top-2 -right-2 min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-overlay text-[9px] font-bold px-1 z-10 ring-2 ring-raised shadow-md shadow-black/30 ${
+                          key === 'push' ? 'bg-mint' : 'bg-danger'
+                        }`}
                       >
-                        {aheadBehind.ahead}
-                      </span>
-                    )}
-                    {key === 'pull' && aheadBehind && aheadBehind.behind > 0 && state === 'idle' && (
-                      <span
-                        aria-label={t('commits_to_pull', { count: aheadBehind.behind })}
-                        className="absolute -top-2 -right-2 min-w-[18px] h-[18px] flex items-center justify-center rounded-full bg-danger text-overlay text-[9px] font-bold px-1 z-10 ring-2 ring-raised shadow-md shadow-black/30"
-                      >
-                        {aheadBehind.behind}
+                        {pending > 99 ? '99+' : pending}
                       </span>
                     )}
                     <AnimatePresence mode="popLayout" initial={false}>
@@ -1310,6 +1355,10 @@ export function GitSidebar({
                           <IconCheck className="w-3.5 h-3.5" />
                         ) : state === 'error' ? (
                           <IconX className="w-3.5 h-3.5" />
+                        ) : isPublish ? (
+                          <span className="min-w-0 max-w-full truncate text-[10px] font-semibold px-1">
+                            {t('publish_branch')}
+                          </span>
                         ) : (
                           <Icon className="w-3.5 h-3.5" />
                         )}

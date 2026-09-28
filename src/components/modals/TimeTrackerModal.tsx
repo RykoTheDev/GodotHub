@@ -158,12 +158,25 @@ export function TimeTrackerModal({ project, onClose }: Props) {
                 const pct = seconds > 0 ? Math.max((seconds / max) * 100, 6) : 0
                 return (
                   <div key={key} className="flex-1 flex flex-col items-center gap-1 h-full min-w-0">
-                    <div className="flex-1 w-full flex items-end rounded-md overflow-hidden bg-raised">
+                    <div className="relative flex-1 w-full min-h-0 flex items-end rounded-md overflow-hidden bg-raised">
+                      {seconds > 0 ? (
                         <div
-                          title={formatDuration(seconds * 1000)}
-                          className="w-full rounded-t bg-accent/50 hover:bg-accent-bright transition-colors w-full h-full flex items-end"
+                          className="relative w-full rounded-t bg-accent/50 hover:bg-accent-bright transition-colors"
                           style={{ height: `${pct}%` }}
-                        />
+                        >
+                          {/* Time sits in the bar itself; short bars let it spill
+                              into the column above instead of clipping. */}
+                          <span className="absolute inset-x-0 bottom-1 text-center text-[9px] font-semibold tabular-nums text-ink">
+                            {formatDuration(seconds * 1000)}
+                          </span>
+                        </div>
+                      ) : (
+                        // Nothing tracked that day, so there is no bar to write
+                        // in: show the time in the empty column instead.
+                        <span className="w-full pb-1 text-center text-[9px] tabular-nums text-muted/60">
+                          {formatDuration(seconds * 1000)}
+                        </span>
+                      )}
                     </div>
                     <span className="text-[9px] text-muted/60 shrink-0">
                       {dayLabel(key)}
