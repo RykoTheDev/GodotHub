@@ -103,6 +103,47 @@ You can reopen the wizard anytime from **Settings → Advanced → Run Setup Wiz
 
 ---
 
+## Searching projects
+
+The search bar at the top of the **Projects** view filters as you type. There's no minimum length, so a project with a two- or three-letter name is just as searchable as one with a long name. Every word you type has to match something, and results are ranked so the closest name floats to the top instead of being buried under projects that only match on their folder path.
+
+| Rank | Matches against |
+|---|---|
+| 1 | Project name - exact, then starts with, then a word inside the name, then anywhere in the name |
+| 2 | Tags |
+| 3 | Category |
+| 4 | Engine version |
+| 5 | Folder path on disk |
+
+Filtering happens live, so `Enter` is only needed to confirm a highlighted suggestion in the slash menu below. The **✕** button clears the search.
+
+### Slash commands
+
+Type `/` in the search bar to open the list of things you can filter by. Keep typing to narrow it down, move with `↑`/`↓`, and pick with `Enter`, `Tab`, or a click. Tags, categories, and engine versions then show the values you actually have, so you pick from a list instead of typing them out. `Esc` closes the menu and leaves what you've typed alone.
+
+| Field | What it filters | Example |
+|---|---|---|
+| `name:` | Project name | `name:boss` |
+| `tag:` | Project tags | `tag:pixel-art` |
+| `category:` | Category name | `category:Game Jam` |
+| `version:` | Engine version | `version:4.3` |
+| `path:` | Folder path on disk | `path:D:/dev` |
+| `pinned:` | Pinned projects only | `pinned:` |
+
+Use `pinned:false` to see everything that *isn't* pinned. `cat:` works as a shortcut for `category:`, and `engine:` for `version:`. The field names are spelled out on purpose so that pasting a path like `C:\dev` stays a normal search instead of being read as a filter.
+
+Filters stack with each other and with plain words, so you can search for:
+
+```
+boss tag:pixel-art category:Game Jam
+```
+
+which means "projects matching *boss*, tagged *pixel-art*, in the *Game Jam* category".
+
+> While a search or a tag/category filter is active, results show up as one ranked list instead of your category sections, so nothing can hide inside a collapsed section. Dragging to reorder is turned off until you clear the search.
+
+---
+
 ## Related
 
 - [[Home]]

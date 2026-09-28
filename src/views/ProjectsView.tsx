@@ -18,8 +18,10 @@ import {
   IconCheck,
   IconEyeSlash,
   IconFilter,
+  IconFolder,
   IconGear,
   IconGitBranch,
+  IconNode,
   IconPin,
   IconPlay,
   IconPlus,
@@ -43,6 +45,24 @@ import { ProjectCardKanban } from '../components/cards/ProjectCardKanban'
 import { ProjectCardGrid } from '../components/cards/ProjectCardGrid'
 
 type ProjectViewMode = 'list' | 'grid' | 'kanban'
+
+const PROJECT_FIELD_ICONS: Record<ProjectSearchField, typeof IconNode> = {
+  name: IconNode,
+  tag: IconTags,
+  category: IconFilter,
+  version: IconGitBranch,
+  path: IconFolder,
+  pinned: IconPin,
+}
+
+interface SlashMenuState {
+  mode: 'field' | 'value'
+  title: string
+  footer?: string
+  items: SlashMenuItem[]
+  emptyLabel: string
+  token: ProjectSearchToken
+}
 import { useSettings } from '../hooks/useSettings'
 import { useScrollCompensation } from '../hooks/useScrollCompensation'
 import { api } from '../lib/api'
@@ -55,6 +75,16 @@ import {
 } from '../lib/projectSort'
 import { ScanButton } from '../components/reusables/ScanButton'
 import { SearchBar } from '../components/ui/SearchBar'
+import { SlashMenu, type SlashMenuItem } from '../components/ui/SlashMenu'
+import {
+  collectTags,
+  collectVersions,
+  matchProject,
+  parseProjectQuery,
+  replaceToken,
+  type ProjectSearchField,
+  type ProjectSearchToken,
+} from '../lib/projectSearch'
 import { ViewHeader } from '../components/reusables/ViewHeader'
 import { CreateProjectModal } from '../components/modals/CreateProjectModal'
 import { CloneRepoModal } from '../components/modals/CloneRepoModal'
@@ -96,6 +126,7 @@ export function ProjectsView({
   } = useCategoriesContext()
   const { installed } = useGodotVersionsContext()
   const { settings } = useSettings()
+  const searchRef = useRef<HTMLInputElement | null>(null)
   const [createProjectOpen, setCreateProjectOpen] = useState(false)
   const [cloneRepoOpen, setCloneRepoOpen] = useState(false)
   const [categoryManagerOpen, setCategoryManagerOpen] = useState(false)
@@ -105,11 +136,198 @@ export function ProjectsView({
     category: Category
   } | null>(null)
   const [query, setQuery] = useState('')
-  const [debouncedQuery, setDebouncedQuery] = useState('')
-  useEffect(() => {
-    const id = setTimeout(() => setDebouncedQuery(query), 150)
-    return () => clearTimeout(id)
-  }, [query])
+  const [caret, setCaret] = useState(0)
+  const [menuIndex, setMenuIndex] = useState(0)
+  const [menuDismissed, setMenuDismissed] = useState(false)
+
+  // Filtering is instant - no debounce and no minimum query length.
+  const parsedQuery = useMemo(
+    () => parseProjectQuery(query, caret),
+    [query, caret],
+  )
+
+  const handleQueryChange = (value: string) => {
+    setQuery(value)
+    setCaret(searchRef.current?.selectionStart ?? value.length)
+    setMenuDismissed(false)
+    setMenuIndex(0)
+  }
+
+  const allTags = useMemo(() => collectTags(projects), [projects])
+  const allVersions = useMemo(() => collectVersions(projects), [projects])
+
+  const fieldLabels = useMemo<Record<ProjectSearchField, string>>(
+    () => ({
+      name: tc('search_filter_name'),
+      tag: tc('search_filter_tag'),
+      category: tc('search_filter_category'),
+      version: tc('search_filter_version'),
+      path: tc('search_filter_path'),
+      pinned: tc('search_filter_pinned'),
+    }),
+    [tc],
+  )
+
+  // Discord-style slash menu: `/` lists the fields to filter by, and picking
+  // one (or typing `field:`) lists the matching values for it.
+  const slashMenu = useMemo<SlashMenuState | null>(() => {
+    if (menuDismissed) return null
+    const token = parsedQuery.activeToken
+    if (!token) return null
+
+    if (token.field) {
+      if (token.field === 'name' || token.field === 'path') return null
+      const partial = token.value.trim().toLowerCase()
+      let items: SlashMenuItem[] = []
+      if (token.field === 'tag') {
+        items = allTags
+          .filter((tag) => tag.toLowerCase().includes(partial))
+          .map((tag) => ({
+            key: `tag:${tag}`,
+            label: tag,
+            hint: 'tag',
+            icon: IconTags,
+          }))
+      } else if (token.field === 'category') {
+        items = categories
+          .filter((cat) => cat.name.toLowerCase().includes(partial))
+          .map((cat) => ({
+            key: `category:${cat.name}`,
+            label: cat.name,
+            hint: 'category',
+            dotColor: cat.color,
+          }))
+      } else if (token.field === 'version') {
+        items = allVersions
+          .filter((version) => version.toLowerCase().includes(partial))
+          .map((version) => ({
+            key: `version:${version}`,
+            label: version,
+            hint: 'version',
+            icon: IconGitBranch,
+          }))
+      } else {
+        items = [
+          {
+            key: 'pinned:true',
+            label: tc('search_filter_pinned_yes'),
+            hint: 'true',
+            icon: IconPin,
+          },
+          {
+            key: 'pinned:false',
+            label: tc('search_filter_pinned_no'),
+            hint: 'false',
+            icon: IconPin,
+          },
+        ].filter(
+          (item) =>
+            !partial ||
+            item.label.toLowerCase().includes(partial) ||
+            item.key.includes(partial),
+        )
+      }
+      return {
+        mode: 'value',
+        title: fieldLabels[token.field],
+        items,
+        emptyLabel: tc('search_filter_no_values'),
+        token,
+      }
+    }
+
+    if (!token.raw.startsWith('/')) return null
+    const partial = token.raw.slice(1).toLowerCase()
+    const fields: ProjectSearchField[] = [
+      'name',
+      'tag',
+      'category',
+      'version',
+      'path',
+      'pinned',
+    ]
+    const items: SlashMenuItem[] = fields
+      .filter(
+        (field) =>
+          !partial ||
+          field.startsWith(partial) ||
+          fieldLabels[field].toLowerCase().startsWith(partial),
+      )
+      .map((field) => ({
+        key: field,
+        label: fieldLabels[field],
+        hint: `${field}:`,
+        icon: PROJECT_FIELD_ICONS[field],
+      }))
+    return {
+      mode: 'field',
+      title: tc('search_filter_title'),
+      footer: tc('search_slash_hint'),
+      items,
+      emptyLabel: tc('search_filter_no_matches'),
+      token,
+    }
+  }, [
+    menuDismissed,
+    parsedQuery.activeToken,
+    allTags,
+    allVersions,
+    categories,
+    fieldLabels,
+    tc,
+  ])
+
+  const applySlashItem = (item: SlashMenuItem) => {
+    if (!slashMenu) return
+    const replacement =
+      slashMenu.mode === 'field'
+        ? item.key === 'name' || item.key === 'path'
+          ? `${item.key}: `
+          : `${item.key}:`
+        : `${item.key} `
+    const next = replaceToken(query, slashMenu.token, replacement)
+    setQuery(next.value)
+    setCaret(next.caret)
+    setMenuIndex(0)
+    requestAnimationFrame(() => {
+      const el = searchRef.current
+      if (!el) return
+      el.focus()
+      el.setSelectionRange(next.caret, next.caret)
+    })
+  }
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (slashMenu && slashMenu.items.length > 0) {
+      const count = slashMenu.items.length
+      if (e.key === 'ArrowDown') {
+        e.preventDefault()
+        setMenuIndex((i) => (i + 1) % count)
+        return
+      }
+      if (e.key === 'ArrowUp') {
+        e.preventDefault()
+        setMenuIndex((i) => (i - 1 + count) % count)
+        return
+      }
+      if (e.key === 'Enter' || e.key === 'Tab') {
+        e.preventDefault()
+        applySlashItem(slashMenu.items[Math.min(menuIndex, count - 1)])
+        return
+      }
+    } else if (e.key === 'Enter') {
+      // Results already filter as you type; Enter just commits the query.
+      e.preventDefault()
+      setCaret(searchRef.current?.selectionStart ?? query.length)
+      setMenuDismissed(true)
+      return
+    }
+    if (e.key === 'Escape' && slashMenu) {
+      e.preventDefault()
+      setMenuDismissed(true)
+    }
+  }
+
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [selecting, setSelecting] = useState(false)
 
@@ -334,15 +552,20 @@ export function ProjectsView({
     }
   }, [categories, categoryFilter])
 
+  const searchScores = useMemo(() => {
+    const scores = new Map<string, number>()
+    if (!parsedQuery.active) return scores
+    for (const project of projects) {
+      const score = matchProject(project, parsedQuery)
+      if (score !== null) scores.set(project.id, score)
+    }
+    return scores
+  }, [projects, parsedQuery])
+
   const baseFiltered = useMemo(() => {
-    const q = debouncedQuery.trim().toLowerCase()
     let list = projects
-    if (q) {
-      list = list.filter(
-        (p) =>
-          p.name.toLowerCase().includes(q) ||
-          p.path.toLowerCase().includes(q),
-      )
+    if (parsedQuery.active) {
+      list = list.filter((p) => searchScores.has(p.id))
     }
     if (tagFilter) {
       list = list.filter((p) => p.tags.includes(tagFilter))
@@ -355,13 +578,17 @@ export function ProjectsView({
       }
     }
     return list
-  }, [projects, debouncedQuery, tagFilter, categoryFilter])
+  }, [projects, searchScores, parsedQuery.active, tagFilter, categoryFilter])
 
   const effectiveSortBy: ProjectSortOption =
     sortBy === 'categories' && !settings.categories_enabled ? 'manual' : sortBy
 
   const categoriesEnabled =
     settings.categories_enabled && effectiveSortBy === 'categories'
+
+  // While a search is active the results are shown as one relevance-ranked
+  // list, so matches are never buried in - or hidden inside - their section.
+  const groupingEnabled = categoriesEnabled && !parsedQuery.active
 
   const visibleCategories = useMemo(
     () => categories.filter((c) => !c.hidden),
@@ -396,7 +623,7 @@ export function ProjectsView({
 
   const filtered = useMemo(() => {
     const list =
-      categoriesEnabled && hiddenCategoryNames.size > 0
+      groupingEnabled && hiddenCategoryNames.size > 0
         ? baseFiltered.filter(
             (p) => !p.category || !hiddenCategoryNames.has(p.category),
           )
@@ -405,14 +632,21 @@ export function ProjectsView({
     return [...list].sort((a, b) => {
       if (a.pinned !== b.pinned) return a.pinned ? -1 : 1
       if (a.pinned) return a.name.localeCompare(b.name)
+      if (parsedQuery.active) {
+        const scoreA = searchScores.get(a.id) ?? 0
+        const scoreB = searchScores.get(b.id) ?? 0
+        if (scoreA !== scoreB) return scoreB - scoreA
+      }
       return cmp ? cmp(a, b) : a.sort_order - b.sort_order
     })
   }, [
     baseFiltered,
-    categoriesEnabled,
+    groupingEnabled,
     hiddenCategoryNames,
     effectiveSortBy,
     sortNow,
+    parsedQuery.active,
+    searchScores,
   ])
 
   const hasActiveFilters =
@@ -421,7 +655,7 @@ export function ProjectsView({
   const dragEnabled = !hasActiveFilters
 
   const visualOrder = useMemo(() => {
-    if (!categoriesEnabled) return filtered
+    if (!groupingEnabled) return filtered
     const pinned = filtered.filter((p) => p.pinned)
     const unpinned = filtered.filter((p) => !p.pinned)
     const UNCATEGORIZED_KEY = '__uncategorized__'
@@ -439,7 +673,7 @@ export function ProjectsView({
     const uncategorized = groups.get(UNCATEGORIZED_KEY)
     if (uncategorized) ordered.push(...uncategorized)
     return ordered
-  }, [filtered, categoriesEnabled, visibleCategories])
+  }, [filtered, groupingEnabled, visibleCategories])
 
   const lastClickedIndexRef = useRef<number | null>(null)
 
@@ -638,8 +872,6 @@ export function ProjectsView({
       ]
     : []
 
-  const searchRef = useRef<HTMLInputElement | null>(null)
-
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && selectedIds.size > 0) clearSelection()
@@ -753,7 +985,29 @@ export function ProjectsView({
           </>
         }
       >
-        <SearchBar value={query} onChange={setQuery} inputRef={searchRef} />
+        <SearchBar
+          value={query}
+          onChange={handleQueryChange}
+          onKeyDown={handleSearchKeyDown}
+          onCaretChange={setCaret}
+          onBlur={() => setMenuDismissed(true)}
+          inputRef={searchRef}
+        >
+          {slashMenu && (
+            <SlashMenu
+              title={slashMenu.title}
+              footer={slashMenu.footer}
+              items={slashMenu.items}
+              selectedIndex={Math.min(
+                menuIndex,
+                Math.max(0, slashMenu.items.length - 1),
+              )}
+              emptyLabel={slashMenu.emptyLabel}
+              onSelect={applySlashItem}
+              onHighlight={setMenuIndex}
+            />
+          )}
+        </SearchBar>
       </ViewHeader>
 
       <div className={`shrink-0 flex items-center gap-2 mb-3 ${connected ? 'pl-5' : ''}`}>
@@ -1081,7 +1335,7 @@ export function ProjectsView({
             projects={filtered}
             installedVersions={installed}
             categories={surfaceCategories}
-            categoriesEnabled={categoriesEnabled}
+            categoriesEnabled={groupingEnabled}
             gitStatusMap={gitStatusMap}
             launchWithConsole={settings.launch_with_console}
             onTogglePin={(id) => setPinned(id, !projects.find((p) => p.id === id)?.pinned)}
@@ -1119,7 +1373,7 @@ export function ProjectsView({
             animationThreshold={settings.animation_threshold}
             hasActiveFilters={hasActiveFilters}
             categories={surfaceCategories}
-            categoriesEnabled={categoriesEnabled}
+            categoriesEnabled={groupingEnabled}
             onReorder={dragEnabled ? handleListReorder : undefined}
             onMoveProjects={
               dragEnabled && categoriesEnabled ? handleMoveProjects : undefined
