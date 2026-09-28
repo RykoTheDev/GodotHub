@@ -9,6 +9,8 @@ import {
 import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../lib/api'
+import { useSettings } from '../../hooks/useSettings'
+import { fetchRunningProjects } from '../../lib/runningProjects'
 import { useTauriEvent } from '../../lib/useTauriEvent'
 import { ansiSpanStyle, parseAnsi, stripAnsi } from '../../lib/ansi'
 import {
@@ -33,15 +35,10 @@ import { Tooltip } from '../reusables/Tooltip'
 import type { ConsoleLine } from '../../types'
 
 const POLL_MS = 180
-/** Slower cadence while the pill is up; the buffer is caught up on reopen. */
 const POLL_MS_IDLE = 1000
-/** Rows painted at once; the buffer keeps more, it just isn't all on screen. */
 const MAX_RENDERED_LINES = 2000
-/** Where the minimised pill is parked between sessions. */
 const PILL_STORAGE_KEY = 'new_ui_console_pill'
-/** Gap the pill keeps from the edge of the app frame. */
 const PILL_MARGIN = 10
-/** Release the pill within this distance of an edge and it snaps to it. */
 const SNAP_DISTANCE = 56
 
 interface ConsoleState {
@@ -49,8 +46,8 @@ interface ConsoleState {
   nextSeq: number
   running: boolean
   exitCode: number | null
-  /** True once the backend says the process is gone and the buffer is final. */
   done: boolean
+  restored: boolean
   name: string
 }
 
@@ -86,7 +83,6 @@ function clampPill(pos: Point, frame: Size, size: Size): Point {
   }
 }
 
-/** Keeps the pill in frame and pulls it to the nearest edge when let go near one. */
 function snapPill(pos: Point, frame: Size, size: Size): Point {
   const clamped = clampPill(pos, frame, size)
   const maxX = Math.max(PILL_MARGIN, frame.w - size.w - PILL_MARGIN)
@@ -120,7 +116,6 @@ const ConsoleRow = memo(function ConsoleRow({
     spans = parseAnsi(line.text)
     spanCache.set(line, spans)
   }
-  // Leave colourised output alone; only tint plain lines by severity.
   const tone = line.text.includes('\u001b')
     ? undefined
     : level === 'error'
@@ -148,12 +143,14 @@ function emptyState(name: string): ConsoleState {
     running: true,
     exitCode: null,
     done: false,
+    restored: false,
     name,
   }
 }
 
 export function ProjectConsoleWindow() {
   const { t } = useTranslation('common')
+  const { settings, loaded } = useSettings()
   const [open, setOpen] = useState(false)
   const [minimized, setMinimized] = useState(false)
   const [fullscreen, setFullscreen] = useState(true)
@@ -210,7 +207,6 @@ export function ProjectConsoleWindow() {
     }))
     setActiveId(payload.id)
     setOpen(true)
-    // A fresh run is worth reading, so surface the window even from the pill.
     setMinimized(false)
     pinnedRef.current = true
   })
@@ -225,6 +221,37 @@ export function ProjectConsoleWindow() {
       )
     },
   )
+
+  const restoredOnceRef = useRef(false)
+  useEffect(() => {
+    if (restoredOnceRef.current || !loaded || !settings.builtin_console) return
+    restoredOnceRef.current = true
+    let cancelled = false
+    void (async () => {
+      try {
+        const running = await fetchRunningProjects()
+        if (cancelled) return
+        const captured = running.filter((project) => project.console)
+        if (captured.length === 0) return
+        setStates((prev) => {
+          const next = { ...prev }
+          for (const project of captured) {
+            if (!next[project.id]) next[project.id] = emptyState(project.name)
+          }
+          return next
+        })
+        setActiveId(captured[0].id)
+        setOpen(true)
+        setMinimized(false)
+        pinnedRef.current = true
+      } catch {
+        // Nothing to restore if the backend can't say what is running.
+      }
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [loaded, settings.builtin_console])
 
   useEffect(() => {
     const handler = (e: Event) => {
@@ -242,7 +269,6 @@ export function ProjectConsoleWindow() {
 
   const activeState = activeId ? states[activeId] : undefined
 
-  // The app frame is the drag boundary, and it resizes with the window.
   useEffect(() => {
     const wrap = wrapRef.current
     if (!wrap) return
@@ -260,7 +286,6 @@ export function ProjectConsoleWindow() {
     return () => observer.disconnect()
   }, [])
 
-  // The pill's width decides how far right it may sit, so measure it when shown.
   useEffect(() => {
     if (!open || !minimized) return
     const pill = pillRef.current
@@ -288,7 +313,6 @@ export function ProjectConsoleWindow() {
         if (cancelled) return
         setStates((prev) => {
           const existing = prev[activeId]
-          // A relaunch resets the backend buffer's sequence numbers.
           const restarted = existing
             ? snapshot.next_seq < existing.nextSeq
             : false
@@ -303,6 +327,7 @@ export function ProjectConsoleWindow() {
               running: snapshot.running,
               exitCode: snapshot.exit_code,
               done: !snapshot.running,
+              restored: snapshot.restored,
               name: existing?.name ?? activeId,
             },
           }
@@ -321,7 +346,6 @@ export function ProjectConsoleWindow() {
     }
 
     void tick()
-    // Keep the pill's counts live, just at a lower rate than the open window.
     const interval = setInterval(
       () => void tick(),
       minimized ? POLL_MS_IDLE : POLL_MS,
@@ -404,7 +428,8 @@ export function ProjectConsoleWindow() {
     try {
       localStorage.setItem(PILL_STORAGE_KEY, JSON.stringify(pos))
     } catch {
-      // Position is cosmetic; a full or blocked storage just means no memory.
+      // Where the pill sits is cosmetic; storage being unavailable just means
+      // it goes back to the corner next launch.
     }
   }, [])
 
@@ -414,7 +439,6 @@ export function ProjectConsoleWindow() {
     if (!wrap || !pill) return
     const wrapRect = wrap.getBoundingClientRect()
     const pillRect = pill.getBoundingClientRect()
-    // Switch from the CSS default corner to an explicit spot so it can move.
     setPillPos({ x: pillRect.left - wrapRect.left, y: pillRect.top - wrapRect.top })
     dragRef.current = {
       pointerId: e.pointerId,
@@ -457,7 +481,6 @@ export function ProjectConsoleWindow() {
     if (e.currentTarget.hasPointerCapture(drag.pointerId)) {
       e.currentTarget.releasePointerCapture(drag.pointerId)
     }
-    // A tap (not a drag) opens the window again.
     if (!drag.moved) {
       setMinimized(false)
       pinnedRef.current = true
@@ -489,12 +512,13 @@ export function ProjectConsoleWindow() {
         }
   })()
 
-  const pillStyle = pillPos
-    ? {
-        left: clampPill(pillPos, frame, pillSize).x,
-        top: clampPill(pillPos, frame, pillSize).y,
-      }
-    : undefined
+  const pillStyle =
+    pillPos && frame.w > 0
+      ? {
+          left: clampPill(pillPos, frame, pillSize).x,
+          top: clampPill(pillPos, frame, pillSize).y,
+        }
+      : undefined
 
   return (
     <div ref={wrapRef} className="absolute inset-0 z-50 pointer-events-none">
@@ -509,7 +533,7 @@ export function ProjectConsoleWindow() {
             className={`pointer-events-auto absolute flex flex-col overflow-hidden rounded-xl border border-outline/60 bg-raised shadow-2xl shadow-black/40 ${
               fullscreen
                 ? 'inset-3'
-                : 'bottom-2 left-2 h-96 max-h-[calc(100%-1rem)] w-[42rem] max-w-[calc(100%-1rem)]'
+                : 'bottom-2 left-2 h-96 max-h-[calc(100%-1rem)] w-2xl max-w-[calc(100%-1rem)]'
             }`}
           >
             <header className="shrink-0 flex items-center gap-2 px-3 h-11 border-b border-outline/50 bg-overlay/60">
@@ -697,6 +721,13 @@ export function ProjectConsoleWindow() {
               onScroll={handleScroll}
               className="flex-1 min-h-0 overflow-y-auto bg-black/35 px-3 py-2 font-mono text-[11.5px] leading-[1.55] text-[#d7dae0]"
             >
+              {activeState?.restored && (
+                <p className="pb-2 text-[10px] text-muted/60">
+                  {activeState.running
+                    ? t('console_resumed_hint')
+                    : t('console_previous_hint')}
+                </p>
+              )}
               {trimmed > 0 && (
                 <p className="pb-2 text-[10px] text-muted/60">
                   {t('console_trimmed', { count: trimmed })}
@@ -711,7 +742,7 @@ export function ProjectConsoleWindow() {
                       : t('console_empty')}
                 </p>
               ) : (
-                <div className="whitespace-pre-wrap break-words">
+                <div className="whitespace-pre-wrap wrap-break-word">
                   {visibleEntries.map((entry) => (
                     <ConsoleRow
                       key={entry.line.seq}
@@ -785,12 +816,12 @@ export function ProjectConsoleWindow() {
                     : t('console_exit_code', { code: activeState.exitCode })}
             </span>
             {counts.error > 0 && (
-              <span className="shrink-0 min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center rounded-full bg-danger/20 text-danger text-[10px] font-bold tabular-nums">
+              <span className="shrink-0 min-w-4 h-4 px-1 inline-flex items-center justify-center rounded-full bg-danger/20 text-danger text-[10px] font-bold tabular-nums">
                 {counts.error}
               </span>
             )}
             {counts.error === 0 && counts.warning > 0 && (
-              <span className="shrink-0 min-w-[18px] h-[18px] px-1 inline-flex items-center justify-center rounded-full bg-amber/20 text-amber text-[10px] font-bold tabular-nums">
+              <span className="shrink-0 min-w-4 h-4 px-1 inline-flex items-center justify-center rounded-full bg-amber/20 text-amber text-[10px] font-bold tabular-nums">
                 {counts.warning}
               </span>
             )}

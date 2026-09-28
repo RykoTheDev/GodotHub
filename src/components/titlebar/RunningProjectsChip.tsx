@@ -9,6 +9,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../lib/api'
 import { useTauriEvent } from '../../lib/useTauriEvent'
+import { fetchRunningProjects } from '../../lib/runningProjects'
 import { formatDuration } from '../../lib/duration'
 import { IconTerminal, IconX } from '../../lib/icons'
 
@@ -43,6 +44,31 @@ export function RunningProjectsChip() {
         : [...prev, { ...p, startedAt: Date.now() + TIMER_START_DELAY_MS }],
     )
   })
+
+  // A project that kept running after GodotHub closed is adopted at startup and
+  // never fires `project:launched`, so ask for it once the app is up.
+  useEffect(() => {
+    let cancelled = false
+    void (async () => {
+      const projects = await fetchRunningProjects()
+      if (cancelled || projects.length === 0) return
+      setRunning((prev) => {
+        const known = new Set(prev.map((project) => project.id))
+        const adopted = projects
+          .filter((project) => !known.has(project.id))
+          .map((project) => ({
+            id: project.id,
+            name: project.name,
+            version: project.version,
+            startedAt: project.launched_at_ms + TIMER_START_DELAY_MS,
+          }))
+        return adopted.length === 0 ? prev : [...prev, ...adopted]
+      })
+    })()
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   useTauriEvent<{ id: string }>('project:exited', ({ id }) => {
     setRunning((prev) => prev.filter((x) => x.id !== id))

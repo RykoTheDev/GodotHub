@@ -12,6 +12,7 @@ import { changelogApi } from '../api/changelog'
 import { updatesApi } from '../api/updates'
 import { newsApi } from '../api/news'
 import { assetLibraryApi } from '../api/assetLibrary'
+import type { RunningProjectInfo } from '../types'
 
 export { getCachedProjectIcon, getCachedProjectName }
 
@@ -29,9 +30,7 @@ export const api = {
   getProjectConsole: projectsApi.getConsole,
   clearProjectConsole: projectsApi.clearConsole,
   listRunningProjects: () =>
-    invoke<{ id: string; name: string; version: string; launched_at_ms: number }[]>(
-      'list_running_projects',
-    ),
+    invoke<RunningProjectInfo[]>('list_running_projects'),
   openProjectFolder: projectsApi.openFolder,
   openInEditor: projectsApi.openInEditor,
   getProjectSize: projectsApi.getSize,

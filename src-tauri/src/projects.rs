@@ -27,6 +27,15 @@ pub struct TrackedProcess {
     pid_revalidated: bool,
 }
 
+pub(crate) fn tracked_pid(app: &AppHandle, id: &str) -> Option<u32> {
+    let state = app.try_state::<ActiveProcesses>()?;
+    let active = state.0.lock().unwrap();
+    match &active.get(id)?.handle {
+        TrackedHandle::Child(child) => Some(child.id()),
+        TrackedHandle::Pid { pid, .. } => Some(*pid),
+    }
+}
+
 impl TrackedProcess {
     fn is_running(&mut self) -> bool {
         match &mut self.handle {
@@ -62,6 +71,7 @@ pub struct RunningProjectInfo {
     pub name: String,
     pub version: String,
     pub launched_at_ms: u64,
+    pub console: bool,
 }
 
 const SESSION_START_DELAY_MS: u64 = 3000;
@@ -1191,6 +1201,7 @@ fn kill_tracked(tracked: &mut TrackedProcess) -> Result<(), String> {
 
 #[tauri::command]
 pub fn list_running_projects(app: AppHandle) -> Vec<RunningProjectInfo> {
+    settle_stale_sessions(&app);
     let entries: Vec<(String, std::time::SystemTime)> = {
         let Some(state) = app.try_state::<ActiveProcesses>() else {
             return vec![];
@@ -1214,6 +1225,7 @@ pub fn list_running_projects(app: AppHandle) -> Vec<RunningProjectInfo> {
                 .map(|d| d.as_millis() as u64)
                 .unwrap_or(0);
             Some(RunningProjectInfo {
+                console: crate::console::has_console_log(&app, &id),
                 id,
                 name: project.name.clone(),
                 version: project.godot_version.clone(),

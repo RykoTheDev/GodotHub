@@ -176,6 +176,15 @@ export interface ConsoleSnapshot {
   next_seq: number
   running: boolean
   exit_code: number | null
+  restored: boolean
+}
+
+export interface RunningProjectInfo {
+  id: string
+  name: string
+  version: string
+  launched_at_ms: number
+  console: boolean
 }
 
 export interface ProjectUpdate {
