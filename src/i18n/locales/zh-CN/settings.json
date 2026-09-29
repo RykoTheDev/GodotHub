@@ -331,6 +331,6 @@
   "mise_desc": "让 mise 管理 Godot 版本：读取项目在 mise.toml 或 .tool-versions 中设定的版本，使用 mise 安装该版本，优先复用 mise 已有的版本而不是额外下载。需要 PATH 中有 mise CLI。Mono/.NET 构建仍使用 GodotHub 的下载器。",
   "mise_detected": "检测到 mise {{version}}",
   "mise_not_found": "在 PATH 中未找到 mise，因此在安装它之前此功能保持关闭状态。",
-  "builtin_console_label": "Use the built-in console",
-  "builtin_console_desc": "Shows the project's console output in a window inside GodotHub instead of opening your system terminal. The log keeps its colours and stays readable after the project closes, so you can still read it when Godot crashes. Turn this off to use your own terminal again."
+  "builtin_console_label": "使用内置控制台",
+  "builtin_console_desc": "在 GodotHub 内部窗口中显示项目的控制台输出，而不是打开系统终端。日志会保留颜色，并且在项目关闭后仍可阅读，因此即使 Godot 崩溃，你仍然可以查看。关闭此选项可重新使用你自己的终端。"
 }

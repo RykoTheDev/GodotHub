@@ -89,9 +89,9 @@
   "worktree_removed_ok": "工作树已删除。",
   "filter_changes": "筛选更改的文件…",
   "no_matching_changes": "没有匹配的更改.",
-  "auto_fetch_label": "Fetch automatically",
-  "auto_fetch_hint": "Runs git fetch every few minutes so the pull bubble always shows how many commits you're behind, without merging anything. Leave it off to only fetch when you click Fetch.",
-  "commits_to_push": "{{count}} commit(s) to push",
-  "commits_to_pull": "{{count}} commit(s) to pull",
-  "publish_branch_to": "Publish branch to {{remote}}"
+  "auto_fetch_label": "自动获取",
+  "auto_fetch_hint": "每隔几分钟运行一次 git fetch，这样拉取提示气泡会始终显示你落后多少个提交，而不合并任何内容。保持关闭则仅在点击“获取”时才拉取更新。",
+  "commits_to_push": "{{count}} 个提交待推送",
+  "commits_to_pull": "{{count}} 个提交待拉取",
+  "publish_branch_to": "将分支发布到 {{remote}}"
 }
