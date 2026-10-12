@@ -679,6 +679,30 @@ pub fn duplicate_project(
     Ok(project)
 }
 
+fn project_has_main_scene(project_path: &str) -> bool {
+    let Ok(content) = fs::read_to_string(Path::new(project_path).join("project.godot")) else {
+        return true;
+    };
+    let mut in_application = false;
+    for line in content.lines() {
+        let trimmed = line.trim();
+        if trimmed.starts_with('[') {
+            in_application = trimmed.trim_matches(['[', ']']) == "application";
+            continue;
+        }
+        if !in_application {
+            continue;
+        }
+        let Some(value) = trimmed.strip_prefix("run/main_scene=") else {
+            continue;
+        };
+        if !value.trim().trim_matches('"').is_empty() {
+            return true;
+        }
+    }
+    false
+}
+
 fn version_feature_tag(tag: &str) -> String {
     let cleaned = tag.trim().trim_start_matches('v');
     let mut parts = cleaned.split(['.', '-']);
@@ -1003,6 +1027,13 @@ pub fn open_project(
             .split_whitespace()
             .map(str::to_string),
     );
+
+    if !editor
+        && project.launch_arguments.trim().is_empty()
+        && !project_has_main_scene(&project.path)
+    {
+        return Err("This project has no main scene to run yet. Open it in the editor and set application/run/main_scene under Project Settings.".into());
+    }
 
     let settings = settings::read_settings(&app);
     let use_console = console.unwrap_or(settings.launch_with_console);

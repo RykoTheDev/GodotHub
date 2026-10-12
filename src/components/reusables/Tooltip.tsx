@@ -35,7 +35,6 @@ export function Tooltip({
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const positioned = useRef(false)
 
-
   const calc = useCallback(
     (tr: DOMRect, tw: number, th: number) => {
       const space = {
@@ -100,7 +99,6 @@ export function Tooltip({
     return el.getBoundingClientRect()
   }, [])
 
-
   const show = useCallback(() => {
     timer.current = setTimeout(() => {
       const tr = getTriggerRect()
@@ -153,7 +151,6 @@ export function Tooltip({
     }
   }, [])
 
-
   const arrowStyle = (side: string): React.CSSProperties => {
     const base: React.CSSProperties = {
       position: 'absolute',
@@ -182,7 +179,6 @@ export function Tooltip({
     }
     return base
   }
-
 
   const enterFrom = () => {
     const d = 6

@@ -676,7 +676,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           label={ts("card_layout_label")}
         />
       </Subsection>
-    
       {!isMac && (
         <Subsection
           id="appearance-titlebar-buttons"

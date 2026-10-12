@@ -372,7 +372,6 @@ fn gist_id_from_input(input: &str) -> Result<String, String> {
     if trimmed.is_empty() {
         return Err("Gist URL or ID cannot be empty".into());
     }
-    // Full URL: https://gist.github.com/user/GIST_ID or https://gist.github.com/GIST_ID
     if let Some(id) = trimmed
         .strip_prefix("https://gist.github.com/")
         .or_else(|| trimmed.strip_prefix("http://gist.github.com/"))
@@ -385,7 +384,6 @@ fn gist_id_from_input(input: &str) -> Result<String, String> {
             return Ok(id.to_string());
         }
     }
-    // Short URL: https://git.io/... or raw ID (alphanumeric + dashes)
     if trimmed
         .chars()
         .all(|c| c.is_ascii_alphanumeric() || c == '-')

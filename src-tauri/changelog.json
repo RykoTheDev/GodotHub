@@ -1373,5 +1373,18 @@
     ],
     "known_issues": [],
     "created_at": 1790610317
+  },
+  {
+    "id": "4509fdd0-a685-4159-b067-417b4d758614",
+    "version": "v1.4.6",
+    "date": "2026-10-12",
+    "notes": [
+      {
+        "category": "fix",
+        "text": "Various small bug fixings"
+      }
+    ],
+    "known_issues": [],
+    "created_at": 1791813794
   }
 ]

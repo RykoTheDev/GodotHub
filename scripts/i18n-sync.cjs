@@ -1,14 +1,4 @@
 #!/usr/bin/env node
-// ─── i18n Sync Tool ─────────────────────────────────────────────────
-// Copies missing keys from en-US to all other locales.
-//
-// Usage:
-//   bun run i18n:sync              # Sync all locales (dry run by default)
-//   bun run i18n:sync -- --apply   # Actually write changes
-//   bun run i18n:sync -- zh-CN     # Sync only zh-CN
-//   bun run i18n:sync -- --remove-extras  # Also remove extra keys
-//   bun run i18n:sync -- --empty            # Sync with empty values (for translators)
-// ─────────────────────────────────────────────────────────────────────
 
 const fs = require('fs');
 const path = require('path');
@@ -16,7 +6,6 @@ const path = require('path');
 const LOCALES_DIR = 'src/i18n/locales';
 const SOURCE_LOCALE = 'en-US';
 
-// ── Colors ──────────────────────────────────────────────────────────
 const c = {
   reset: '\x1b[0m',
   bold: '\x1b[1m',
@@ -32,14 +21,12 @@ function color(text, ...codes) {
   return codes.join('') + text + c.reset;
 }
 
-// ── Parse args ──────────────────────────────────────────────────────
 const rawArgs = process.argv.slice(2);
 const applyMode = rawArgs.includes('--apply');
 const removeExtras = rawArgs.includes('--remove-extras');
 const emptyValues = rawArgs.includes('--empty');
 const localeFilter = rawArgs.filter(a => !a.startsWith('--'));
 
-// ── Parse keys ──────────────────────────────────────────────────────
 function parseKeys(filePath) {
   if (!fs.existsSync(filePath)) return null;
   const stat = fs.statSync(filePath);
@@ -78,7 +65,6 @@ function buildObject(keys) {
   return result;
 }
 
-// ── Get namespaces and locales ──────────────────────────────────────
 const enDir = path.join(LOCALES_DIR, SOURCE_LOCALE);
 const namespaces = fs.readdirSync(enDir)
   .filter(f => f.endsWith('.json'))
@@ -93,7 +79,6 @@ const locales = localeFilter.length > 0
   ? localeFilter.filter(l => allLocales.includes(l))
   : allLocales;
 
-// ── Header ──────────────────────────────────────────────────────────
 console.log('');
 console.log(color('  ╭─────────────────────────────────────────────╮', c.cyan));
 console.log(color('  │         🔄  i18n Sync Tool                  │', c.cyan, c.bold));
@@ -125,7 +110,6 @@ for (const locale of locales) {
     const localeKeys = flattenKeys(localeData);
 
     const missing = Object.keys(enKeys).filter(k => !(k in localeKeys));
-    // Also detect keys with empty values that need to be filled (when not using --empty)
     const empty = !emptyValues ? Object.keys(enKeys).filter(k => k in localeKeys && localeKeys[k] === '' && enKeys[k] !== '') : [];
     const extra = Object.keys(localeKeys).filter(k => !(k in enKeys));
 
@@ -196,7 +180,6 @@ for (const locale of locales) {
   console.log('');
 }
 
-// ── Summary ─────────────────────────────────────────────────────────
 console.log(color('  ────────────────────────────────────────────────', c.dim));
 
 if (applyMode) {

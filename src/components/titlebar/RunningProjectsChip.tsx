@@ -45,8 +45,6 @@ export function RunningProjectsChip() {
     )
   })
 
-  // A project that kept running after GodotHub closed is adopted at startup and
-  // never fires `project:launched`, so ask for it once the app is up.
   useEffect(() => {
     let cancelled = false
     void (async () => {

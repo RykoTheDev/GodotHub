@@ -1,10 +1,3 @@
-/**
- * Minimal ANSI escape-sequence renderer for the built-in project console.
- *
- * Godot colourises its output with SGR codes, so we keep the colours (plus the
- * usual bold/dim/underline) instead of dumping escape junk into the window.
- */
-
 export interface AnsiStyle {
   color?: string
   background?: string
@@ -18,7 +11,6 @@ export interface AnsiSpan extends AnsiStyle {
   text: string
 }
 
-/** xterm's default 16 colours, tuned for a dark terminal surface. */
 const ANSI_16 = [
   '#3f4451',
   '#e05561',
@@ -48,7 +40,6 @@ function rgbToHex(r: number, g: number, b: number): string {
   return `#${channel(r)}${channel(g)}${channel(b)}`
 }
 
-/** Maps an xterm 256-colour index to a CSS colour. */
 export function ansi256Color(index: number): string | undefined {
   if (!Number.isFinite(index) || index < 0) return undefined
   if (index < 16) return ANSI_16[index]
@@ -144,7 +135,6 @@ function applySgr(style: AnsiStyle, params: string): AnsiStyle {
   return next
 }
 
-/** Splits a line into styled runs. Text with no styling comes back as one span. */
 export function parseAnsi(input: string): AnsiSpan[] {
   if (!input) return []
   if (!input.includes('\u001b')) return [{ text: input }]

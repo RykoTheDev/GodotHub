@@ -288,7 +288,7 @@ export function Dropdown({
               onMouseLeave={() => setOpenSubmenuKey(null)}
             >
               {header && header.length > 0 && (
-                <div className={`flex items-center gap-1 ${compact ? 'p-0.5' : 'p-1'} border-b border-white/6 mb-1`}> 
+                <div className={`flex items-center gap-1 ${compact ? 'p-0.5' : 'p-1'} border-b border-white/6 mb-1`}>
                   {header.map((h) => (
                     <Tooltip key={h.key} content={h.tooltip ?? h.label} side="top">
                       <button

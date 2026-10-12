@@ -14,7 +14,6 @@ export interface MiseStatus {
   available: boolean
   path: string | null
   version: string | null
-  /** Page listing the Godot releases mise's backend fetches builds from. */
   source_url: string | null
 }
 
@@ -600,4 +599,3 @@ export interface UserRepoPage {
   repos: UserRepoInfo[]
   has_more: boolean
 }
-

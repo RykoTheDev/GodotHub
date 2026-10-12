@@ -15,49 +15,6 @@ import { ConfirmDialog } from "../modals/ConfirmDialog";
 
 import type { ProjectTodo, TodoStatus } from "../../types/projectTodo";
 
-// const mockTodos: ProjectTodo[] = [
-//   {
-//     id: "1",
-//     title: "Adicionar ícone do projeto",
-//     status: "done",
-//     area: "art",
-//     dueDate: "2026-08-20",
-//     createdAt: "2026-08-15",
-//   },
-//   {
-//     id: "2",
-//     title: "Revisar traduções",
-//     status: "done",
-//     area: "other",
-//     dueDate: "2026-08-23",
-//     createdAt: "2026-08-16",
-//   },
-//   {
-//     id: "3",
-//     title: "Criar menu principal",
-//     area: "programming",
-//     status: "in_progress",
-//     dueDate: "2026-08-29",
-//     description: "Implementar o menu principal do jogo com transições suaves.",
-//     createdAt: "2026-08-18",
-//   },
-//   {
-//     id: "4",
-//     title: "Melhorar interface do launcher",
-//     area: "design",
-//     status: "paused",
-//     dueDate: "2026-09-02",
-//     createdAt: "2026-08-20",
-//   },
-//   {
-//     id: "5",
-//     title: "Testar configurações de exportação fela da puta",
-//     area: "other",
-//     status: "todo",
-//     createdAt: "2026-08-21",
-//   },
-// ];
-
 type ProjectTodoPanelProps = {
   projectId: string;
   onLoaded: () => void;
@@ -148,7 +105,7 @@ function formatDueDate(
   dateFormat: LastOpenedDateFormat,
   locale: string,
 ) {
-  if (!dueDate) return "—";
+  if (!dueDate) return "-";
 
   const millisecondsPerDay = 86_400_000;
   const differenceInDays = Math.round(

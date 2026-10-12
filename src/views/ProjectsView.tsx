@@ -1048,7 +1048,6 @@ export function ProjectsView({
           }))}
         />
 
-
         {settings.categories_enabled && (
           <Dropdown
             align="left"

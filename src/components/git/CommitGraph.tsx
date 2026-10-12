@@ -12,7 +12,6 @@ import {
 } from '../../lib/gitGraph'
 import type { GitLogEntry } from '../../types'
 
-
 interface Props {
   commits: GitLogEntry[]
   remoteUrl?: string | null

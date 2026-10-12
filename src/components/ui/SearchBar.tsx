@@ -14,7 +14,6 @@ interface SearchBarProps {
   onKeyDown?: (e: KeyboardEvent<HTMLInputElement>) => void
   onCaretChange?: (caret: number) => void
   onBlur?: () => void
-  /** Rendered below the bar, e.g. a slash-command suggestion menu. */
   children?: ReactNode
 }
 

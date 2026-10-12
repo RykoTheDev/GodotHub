@@ -672,7 +672,7 @@ function InsightsTile({ active = true }: { active?: boolean }) {
       label: tc('dashboard_insights_productive_day'),
       value:
         insights.most_productive_weekday === null
-          ? '—'
+          ? '-'
           : weekdayName(insights.most_productive_weekday),
       Icon: IconGamepad,
       accent: 'text-accent-bright',
@@ -983,7 +983,6 @@ function StorageUsage({ tall = false, active = true }: { tall?: boolean; active?
     </div>
   )
 }
-
 
 interface RunningProject {
   id: string

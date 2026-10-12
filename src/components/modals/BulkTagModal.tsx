@@ -30,9 +30,7 @@ export function BulkTagModal({ projects, onClose, onApplied }: Props) {
     for (const p of projects) {
       try {
         await api.saveProjectTags(p.id, p.path, fn(p.tags))
-      } catch {
-        // Keep going even if a single project fails.
-      }
+      } catch {}
     }
     onApplied()
   }

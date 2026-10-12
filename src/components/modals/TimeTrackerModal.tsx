@@ -171,8 +171,6 @@ export function TimeTrackerModal({ project, onClose }: Props) {
                           </span>
                         </div>
                       ) : (
-                        // Nothing tracked that day, so there is no bar to write
-                        // in: show the time in the empty column instead.
                         <span className="w-full pb-1 text-center text-[9px] tabular-nums text-muted/60">
                           {formatDuration(seconds * 1000)}
                         </span>

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 
-/** How often the sidebar re-fetches when "fetch automatically" is on. */
 const AUTO_FETCH_INTERVAL_MS = 180_000
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -492,7 +491,6 @@ export function GitSidebar({
       setBranches(await api.gitListBranches(project.path))
       await refreshChanges()
       void refreshLog()
-      // A brand new branch has no upstream, so drop the old branch's counts.
       void refreshAheadBehind()
       onRefresh()
       notifyGitStatusChanged()
@@ -719,8 +717,6 @@ export function GitSidebar({
 
   const handleRemoteAction = async (action: 'push' | 'pull' | 'fetch') => {
     if (remotePhase) return
-    // Pushing an unpublished branch would fail, so publish it instead and let
-    // the following pushes work normally.
     const publishing =
       action === 'push' && unpublishedBranch && currentBranchInfo !== null
     setRemotePhase({ action, phase: 'running' })
@@ -879,9 +875,6 @@ export function GitSidebar({
     } catch {}
   }, [project.path])
 
-  // Auto-fetch only ever runs `git fetch`: it updates the remote-tracking refs
-  // so the pull bubble can say how far behind you are, without touching the
-  // working tree or merging anything.
   useEffect(() => {
     if (!ready || !settings.git_auto_fetch || remotes.length === 0) return
     let cancelled = false
@@ -894,7 +887,6 @@ export function GitSidebar({
       }
       if (!cancelled) void refreshAheadBehind()
     }
-    // Fetch right away so toggling the box shows a count immediately.
     void run()
     const id = window.setInterval(() => void run(), AUTO_FETCH_INTERVAL_MS)
     return () => {
@@ -1040,15 +1032,10 @@ export function GitSidebar({
 
   const currentBranchInfo = branches.find((b) => b.is_current) ?? null
   const currentBranch = currentBranchInfo?.name ?? gitStatus?.branch ?? '…'
-  // A branch without an upstream can't be pushed to yet: it has to be
-  // published first (`git push -u`), which also sets the upstream.
   const unpublishedBranch =
     !!currentBranchInfo &&
     !currentBranchInfo.has_upstream &&
     remotes.length > 0
-  // Mirrors `default_publish_remote` in src-tauri/src/git.rs: origin when it
-  // exists, otherwise the first configured remote. Only used to name the remote
-  // in the button's tooltip.
   const publishRemote =
     remotes.find((r) => r.name === 'origin')?.name ?? remotes[0]?.name ?? null
 
@@ -1074,7 +1061,7 @@ export function GitSidebar({
         >
       <div className="shrink-0 flex items-center justify-between h-12 border-b border-line px-3">
         <span className="font-display font-medium text-ink/50 text-sm ml-1 truncate">
-          {project.name} // Git
+          {project.name}
         </span>
         <Tooltip content={t('close_sidebar')} side="left">
           <button
@@ -1275,9 +1262,6 @@ export function GitSidebar({
             ).map(({ key, Icon }) => {
               const isActive = remotePhase?.action === key
               const state = isActive ? remotePhase.phase : 'idle'
-              // Commits waiting to go out (push) / come in (pull). The backend
-              // needs a fetch first to know about incoming ones, which is why
-              // "fetch automatically" updates the pull bubble live.
               const pending =
                 key === 'push'
                   ? (aheadBehind?.ahead ?? 0)
@@ -1288,7 +1272,6 @@ export function GitSidebar({
                 key === 'push' ? 'commits_to_push' : 'commits_to_pull',
                 { count: pending },
               )
-              // An unpublished branch turns the push button into "Publish branch".
               const isPublish = key === 'push' && unpublishedBranch
               const actionLabel = isPublish
                 ? publishRemote

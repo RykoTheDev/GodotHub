@@ -67,3 +67,52 @@ fn settle_skips_concurrent_runs() {
     assert!(in_flight.swap(true, Ordering::SeqCst));
     in_flight.store(false, Ordering::SeqCst);
 }
+
+#[test]
+fn a_project_without_a_main_scene_cannot_be_run() {
+    let dir = std::env::temp_dir().join(format!("godothub-main-scene-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    std::fs::create_dir_all(&dir).expect("failed to create temp dir");
+    let path = dir.to_string_lossy().to_string();
+
+    let without = "; Engine configuration file.
+
+[application]
+
+config/name=\"Demo\"
+config/features=PackedStringArray(\"4.7\")
+";
+    std::fs::write(dir.join("project.godot"), without).expect("failed to write project.godot");
+    assert!(!super::project_has_main_scene(&path));
+
+    let with_scene = "[application]
+
+config/name=\"Demo\"
+run/main_scene=\"res://main.tscn\"
+";
+    std::fs::write(dir.join("project.godot"), with_scene).expect("failed to write project.godot");
+    assert!(super::project_has_main_scene(&path));
+
+    let other_section = "[rendering]
+
+run/main_scene=\"res://main.tscn\"
+";
+    std::fs::write(dir.join("project.godot"), other_section).expect("failed to write project.godot");
+    assert!(!super::project_has_main_scene(&path));
+
+    let empty_value = "[application]
+
+run/main_scene=\"\"
+";
+    std::fs::write(dir.join("project.godot"), empty_value).expect("failed to write project.godot");
+    assert!(!super::project_has_main_scene(&path));
+
+    std::fs::remove_dir_all(&dir).ok();
+}
+
+#[test]
+fn a_missing_project_file_does_not_block_launching() {
+    let dir = std::env::temp_dir().join(format!("godothub-main-scene-none-{}", std::process::id()));
+    let _ = std::fs::remove_dir_all(&dir);
+    assert!(super::project_has_main_scene(dir.to_string_lossy().as_ref()));
+}

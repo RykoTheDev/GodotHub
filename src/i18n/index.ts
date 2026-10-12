@@ -208,9 +208,7 @@ try {
   if (localStorage.getItem('i18nextLng') === SYSTEM_LANGUAGE) {
     localStorage.setItem('i18nextLng', getSystemLanguage())
   }
-} catch {
-  // localStorage may be unavailable; the navigator detector still applies.
-}
+} catch {}
 
 i18n
   .use(LanguageDetector)

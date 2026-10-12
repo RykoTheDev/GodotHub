@@ -176,7 +176,7 @@ function formatDueDate(
   dateFormat: LastOpenedDateFormat,
   locale: string,
 ) {
-  if (!dueDate) return "—";
+  if (!dueDate) return "-";
 
   const millisecondsPerDay = 86_400_000;
   const differenceInDays = Math.round(

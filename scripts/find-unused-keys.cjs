@@ -1,39 +1,17 @@
 #!/usr/bin/env node
-// ─── Unused i18n Key Finder ─────────────────────────────────────────
-// Reports en-US keys that no source file references, so dead strings can
-// be deleted instead of being translated into every locale forever.
-//
-// Usage:
-//   bun run i18n:unused              # Human-readable report
-//   bun run i18n:unused -- --json    # Machine-readable JSON
-//   bun run i18n:unused -- --strict  # Exit 1 when unused keys are found
-//
-// Detection is deliberately conservative. A key counts as used when either:
-//   - its name appears as a quoted literal anywhere under src/, which covers
-//     t('key') as well as keys passed around in config objects, or
-//   - it starts with a prefix that is built dynamically, as in
-//     t(`asset_source_${asset.source}`)
-//
-// Static analysis cannot follow every indirection, so the output is a list
-// to review by hand. Never delete from it automatically.
-// ─────────────────────────────────────────────────────────────────────
 
 const fs = require('fs');
 const path = require('path');
 
-// ── Config ──────────────────────────────────────────────────────────
 const LOCALES_DIR = 'src/i18n/locales';
 const SOURCE_LOCALE = 'en-US';
 const SRC_DIR = 'src';
 
-// Locale JSON is the haystack, and the generated types mirror it, so both
-// would match every key and hide the ones that are actually dead.
 const SKIP = [
   path.join('src', 'i18n', 'locales'),
   path.join('src', 'i18n', 'types.ts'),
 ];
 
-// ── Colors (no dependency needed) ───────────────────────────────────
 const c = {
   reset:   '\x1b[0m',
   bold:    '\x1b[1m',
@@ -43,15 +21,12 @@ const c = {
   cyan:    '\x1b[36m',
 };
 
-// ── Parse CLI flags ─────────────────────────────────────────────────
 const rawArgs = process.argv.slice(2);
 const jsonMode = rawArgs.includes('--json');
 const strictMode = rawArgs.includes('--strict');
 const useColor = !jsonMode && process.stdout.isTTY;
 const annotate = !jsonMode && !!process.env.GITHUB_ACTIONS;
 
-// GitHub renders at most 10 warning annotations per step, and the rest are
-// dropped silently. Stop at the limit and point at the log for the others.
 const ANNOTATION_LIMIT = 10;
 let annotated = 0;
 
@@ -60,7 +35,6 @@ function color(text, ...codes) {
   return codes.join('') + text + c.reset;
 }
 
-// ── Collect en-US keys, with the line each one sits on ──────────────
 function collectKeys(file) {
   const raw = fs.readFileSync(file, 'utf8');
   const lines = raw.split(/\r?\n/);
@@ -86,7 +60,6 @@ for (const file of fs.readdirSync(sourceDir).filter(f => f.endsWith('.json'))) {
   namespaces[file.replace('.json', '')] = collectKeys(path.join(sourceDir, file));
 }
 
-// ── Read every source file as one haystack ──────────────────────────
 function sourceFiles(dir, out = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, entry.name);
@@ -100,21 +73,15 @@ function sourceFiles(dir, out = []) {
 const files = sourceFiles(SRC_DIR);
 const source = files.map(f => fs.readFileSync(f, 'utf8')).join('\n');
 
-// Any quoted identifier counts, not just the ones inside t(). Keys reach the
-// call through props and config objects often enough that narrowing this to
-// t('…') would report keys that are very much alive.
 const literals = new Set();
 for (const m of source.matchAll(/['"`]([A-Za-z0-9_:.]+)['"`]/g)) {
   literals.add(m[1].split(':').pop());
 }
 
-// t(`preview_state_${s}`) resolves at runtime, so every key under the prefix
-// has to be treated as reachable.
 const prefixes = [...new Set(
   [...source.matchAll(/`([A-Za-z0-9_]+_)\$\{/g)].map(m => m[1])
 )].sort();
 
-// i18next resolves foo_one / foo_other from a t('foo') call.
 const PLURAL_SUFFIX = /_(one|other|zero|two|few|many)$/;
 
 function isUsed(key) {
@@ -123,7 +90,6 @@ function isUsed(key) {
   return prefixes.some(p => key.startsWith(p));
 }
 
-// ── Report ──────────────────────────────────────────────────────────
 const unused = {};
 let total = 0;
 let scanned = 0;

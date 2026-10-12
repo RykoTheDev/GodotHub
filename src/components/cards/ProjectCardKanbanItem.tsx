@@ -491,7 +491,7 @@ export function ProjectCardKanbanItem({
               className="focus-ring cursor-pointer inline-flex items-center gap-1 px-1.5 py-1 rounded-tag bg-raised border border-outline/30 font-mono text-[10px] text-muted hover:text-ink hover:border-accent-dim transition-colors shrink-0"
             >
               <IconNode className="w-2 h-2" />
-              {boundVersion ? (boundVersion.custom_name || boundVersion.tag) : '—'}
+              {boundVersion ? (boundVersion.custom_name || boundVersion.tag) : '-'}
             </button>
           )}
           items={installedVersions.map((v) => ({

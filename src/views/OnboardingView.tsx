@@ -1022,7 +1022,6 @@ export function OnboardingView({
                               />
                             </SummarySection>
 
-
                           </div>
                         )}
                       </StepShell>

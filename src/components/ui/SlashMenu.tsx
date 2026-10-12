@@ -5,16 +5,11 @@ import { menuSurfaceClass } from './menu'
 export interface SlashMenuItem {
   key: string
   label: string
-  /** Right-aligned monospace hint, e.g. the `tag:` syntax or the field name. */
   hint?: string
   icon?: ComponentType<IconProps>
   dotColor?: string
 }
 
-/**
- * Discord-style suggestion list shown under the search bar while the user is
- * typing a `/command` or a `field:` value.
- */
 export function SlashMenu({
   title,
   footer,

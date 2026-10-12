@@ -1,14 +1,4 @@
 #!/usr/bin/env node
-/**
- * Checks for duplicate translation keys across namespace JSON files
- * within each locale directory.
- *
- * Usage:
- *   node scripts/check-duplicate-keys.mjs           # check all locales
- *   node scripts/check-duplicate-keys.mjs en-US     # check one locale
- *   node scripts/check-duplicate-keys.mjs --same     # only show same-value dupes
- *   node scripts/check-duplicate-keys.mjs --diff     # only show different-value dupes
- */
 
 import { readdirSync, readFileSync } from 'node:fs'
 import { join, basename } from 'node:path'
@@ -33,7 +23,7 @@ for (const locale of filteredLocales) {
   const localeDir = join(LOCALES_DIR, locale)
   const files = readdirSync(localeDir).filter(f => f.endsWith('.json'))
 
-  const allKeys = new Map() // key -> [{ file, value }]
+  const allKeys = new Map()
 
   for (const file of files.sort()) {
     const data = JSON.parse(readFileSync(join(localeDir, file), 'utf-8'))

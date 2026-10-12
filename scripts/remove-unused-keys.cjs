@@ -1,21 +1,9 @@
 #!/usr/bin/env node
-// ─── Unused i18n Key Remover ───────────────────────────────────────
-// Finds en-US keys that no source file references, then deletes them
-// from every locale JSON file and regenerates types.ts.
-//
-// Usage:
-//   node scripts/remove-unused-keys.cjs            # Dry run (report only)
-//   node scripts/remove-unused-keys.cjs --apply    # Actually delete keys
-//   node scripts/remove-unused-keys.cjs --apply --strict  # Fail on any removal
-//
-// ⚠️  Always review the dry-run output before running with --apply.
-// ─────────────────────────────────────────────────────────────────────
 
 const fs = require('fs');
 const path = require('path');
 const { execSync } = require('child_process');
 
-// ── Config ──────────────────────────────────────────────────────────
 const LOCALES_DIR = 'src/i18n/locales';
 const SOURCE_LOCALE = 'en-US';
 const TYPES_FILE = 'src/i18n/types.ts';
@@ -26,7 +14,6 @@ const SKIP = [
   path.join('src', 'i18n', 'types.ts'),
 ];
 
-// ── Colors ──────────────────────────────────────────────────────────
 const c = {
   reset:  '\x1b[0m',
   bold:   '\x1b[1m',
@@ -42,12 +29,10 @@ function color(text, ...codes) {
   return codes.join('') + text + c.reset;
 }
 
-// ── Parse CLI flags ─────────────────────────────────────────────────
 const rawArgs = process.argv.slice(2);
 const apply = rawArgs.includes('--apply');
 const strictMode = rawArgs.includes('--strict');
 
-// ── Collect en-US keys ─────────────────────────────────────────────
 function collectKeys(file) {
   const raw = fs.readFileSync(file, 'utf8');
   const keys = [];
@@ -72,7 +57,6 @@ for (const file of fs.readdirSync(sourceDir).filter(f => f.endsWith('.json'))) {
   namespaces[file.replace('.json', '')] = collectKeys(path.join(sourceDir, file));
 }
 
-// ── Read source files ──────────────────────────────────────────────
 function sourceFiles(dir, out = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, entry.name);
@@ -86,13 +70,11 @@ function sourceFiles(dir, out = []) {
 const files = sourceFiles(SRC_DIR);
 const source = files.map(f => fs.readFileSync(f, 'utf8')).join('\n');
 
-// Build literal set
 const literals = new Set();
 for (const m of source.matchAll(/['"`]([A-Za-z0-9_:.]+)['"`]/g)) {
   literals.add(m[1].split(':').pop());
 }
 
-// Dynamic prefixes
 const prefixes = [...new Set(
   [...source.matchAll(/`([A-Za-z0-9_]+_)\$\{/g)].map(m => m[1])
 )].sort();
@@ -105,7 +87,6 @@ function isUsed(key) {
   return prefixes.some(p => key.startsWith(p));
 }
 
-// ── Find unused keys ───────────────────────────────────────────────
 const unused = {};
 let total = 0;
 for (const [ns, keys] of Object.entries(namespaces)) {
@@ -116,7 +97,6 @@ for (const [ns, keys] of Object.entries(namespaces)) {
   }
 }
 
-// ── Report ──────────────────────────────────────────────────────────
 console.log('');
 console.log(color('  ╭─────────────────────────────────────────────╮', c.cyan));
 console.log(color('  │         🗑️  Remove Unused i18n Keys          │', c.cyan, c.bold));
@@ -132,7 +112,6 @@ if (total === 0) {
   process.exit(0);
 }
 
-// Show what will be removed
 for (const [ns, keys] of Object.entries(unused)) {
   console.log(color(`  ${ns}.json`, c.bold) + color(` (${keys.length})`, c.dim));
   for (const key of keys) {
@@ -148,7 +127,6 @@ if (!apply) {
   process.exit(0);
 }
 
-// ── Delete from locale files ───────────────────────────────────────
 console.log(color('  Removing keys from locale files...', c.cyan));
 console.log('');
 
@@ -191,13 +169,12 @@ console.log('');
 console.log(color(`  Total removed: ${removedCount} key occurrences across ${locales.length} locales`, c.dim));
 console.log('');
 
-// ── Regenerate types ───────────────────────────────────────────────
 console.log(color('  Regenerating types.ts...', c.cyan));
 try {
   execSync('node scripts/generate-i18n-types.cjs', { stdio: 'inherit' });
   console.log(color('  ✓ types.ts updated', c.green));
 } catch (e) {
-  console.log(color('  ⚠ Failed to regenerate types.ts — run manually: bun run i18n:types', c.yellow));
+  console.log(color('  ⚠ Failed to regenerate types.ts - run manually: bun run i18n:types', c.yellow));
 }
 
 console.log('');

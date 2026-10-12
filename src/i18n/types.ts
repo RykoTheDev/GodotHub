@@ -1,8 +1,4 @@
-// AUTO-GENERATED from en-US locale files
-// Do not edit manually. Run: bun run i18n:types
-
-/** Keys from changelog.json */
-export type changelogKeys = 
+export type changelogKeys =
   | 'changelog_title'
   | 'no_entries'
   | 'delete_entry_title'
@@ -15,8 +11,7 @@ export type changelogKeys =
   | 'fixed'
   | 'improved';
 
-/** Keys from common.json */
-export type commonKeys = 
+export type commonKeys =
   | 'new_project'
   | 'import_project'
   | 'search'
@@ -724,8 +719,7 @@ export type commonKeys =
   | 'console_resumed_hint'
   | 'console_previous_hint';
 
-/** Keys from dashboard.json */
-export type dashboardKeys = 
+export type dashboardKeys =
   | 'greeting_morning'
   | 'greeting_afternoon'
   | 'greeting_evening'
@@ -811,8 +805,7 @@ export type dashboardKeys =
   | 'dashboard_custom_presets'
   | 'dashboard_hidden_tiles';
 
-/** Keys from git.json */
-export type gitKeys = 
+export type gitKeys =
   | 'remove'
   | 'changes_title'
   | 'pull'
@@ -909,8 +902,7 @@ export type gitKeys =
   | 'filter_changes'
   | 'no_matching_changes';
 
-/** Keys from nav.json */
-export type navKeys = 
+export type navKeys =
   | 'dashboard'
   | 'projects'
   | 'projects_count_one'
@@ -923,8 +915,7 @@ export type navKeys =
   | 'changelog'
   | 'updates';
 
-/** Keys from onboarding.json */
-export type onboardingKeys = 
+export type onboardingKeys =
   | 'welcome'
   | 'customize'
   | 'finish'
@@ -945,8 +936,7 @@ export type onboardingKeys =
   | 'onboard_cloud_sign_in'
   | 'onboard_cloud_connected';
 
-/** Keys from settings.json */
-export type settingsKeys = 
+export type settingsKeys =
   | 'storage'
   | 'behavior'
   | 'display'
@@ -1282,8 +1272,7 @@ export type settingsKeys =
   | 'mise_detected'
   | 'mise_not_found';
 
-/** Keys from todos.json */
-export type todosKeys = 
+export type todosKeys =
   | 'next_steps'
   | 'all_tasks_description'
   | 'saving_tasks'
@@ -1352,8 +1341,7 @@ export type todosKeys =
   | 'overdue_days_one'
   | 'overdue_days_other';
 
-/** Keys from versions.json */
-export type versionsKeys = 
+export type versionsKeys =
   | 'standard'
   | 'unbound'
   | 'mono'
@@ -1442,11 +1430,9 @@ export type versionsKeys =
   | 'mise_missing'
   | 'mise_uninstall_desc';
 
-/** All namespace names */
 export type Namespace = 'changelog' | 'common' | 'dashboard' | 'git' | 'nav' | 'onboarding' | 'settings' | 'todos' | 'versions';
 
-/** All translation keys (namespace:key) */
-export type TranslationKey = 
+export type TranslationKey =
   | 'changelog:changelog_title'
   | 'changelog:no_entries'
   | 'changelog:delete_entry_title'

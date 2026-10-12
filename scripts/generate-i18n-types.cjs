@@ -1,6 +1,4 @@
 #!/usr/bin/env node
-// Generates TypeScript types from en-US locale files
-// Run: bun run i18n:types
 
 const fs = require('fs');
 const path = require('path');
@@ -17,7 +15,6 @@ const nsFiles = fs.readdirSync(LOCALES_DIR).filter(f => {
   catch { return false; }
 });
 
-// Parse keys and build types
 const namespaces = {};
 for (const f of nsFiles) {
   const ns = f.replace('.json', '');
@@ -35,7 +32,6 @@ for (const f of nsFiles) {
   namespaces[ns] = keys;
 }
 
-// Generate type definitions
 let output = `// AUTO-GENERATED from en-US locale files
 // Do not edit manually. Run: bun run i18n:types
 
@@ -47,12 +43,10 @@ for (const [ns, keys] of Object.entries(namespaces)) {
   output += `export type ${ns}Keys = \n${unionStr};\n\n`;
 }
 
-// All namespaces union
 const allNs = Object.keys(namespaces);
 output += `/** All namespace names */\n`;
 output += `export type Namespace = ${allNs.map(n => `'${n}'`).join(' | ')};\n\n`;
 
-// Combined key type with namespace prefix
 const allKeys = [];
 for (const [ns, keys] of Object.entries(namespaces)) {
   for (const k of keys) {

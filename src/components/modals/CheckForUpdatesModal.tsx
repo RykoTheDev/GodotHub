@@ -32,8 +32,6 @@ interface Props {
 
 const PREVIEW_VERSION = '1.0.0'
 
-
-
 const PREVIEW_STATES = [
   'checking',
   'available',
@@ -399,7 +397,7 @@ export function CheckForUpdatesModal({
                     <span className="font-mono text-xs font-semibold text-ink">
                       v{state.version}
                     </span>
-                    <span className="text-xs text-muted">—</span>
+                    <span className="text-xs text-muted">-</span>
                     <span className="text-xs text-muted">
                       {t('check_updates_version_available', { version: state.version })}
                     </span>

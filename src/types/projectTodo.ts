@@ -17,4 +17,3 @@ export type TodoArea =
   | "design"
   | "narrative"
   | "other";
-

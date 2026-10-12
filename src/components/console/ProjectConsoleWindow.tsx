@@ -240,13 +240,7 @@ export function ProjectConsoleWindow() {
           }
           return next
         })
-        setActiveId(captured[0].id)
-        setOpen(true)
-        setMinimized(false)
-        pinnedRef.current = true
-      } catch {
-        // Nothing to restore if the backend can't say what is running.
-      }
+      } catch {}
     })()
     return () => {
       cancelled = true
@@ -427,10 +421,7 @@ export function ProjectConsoleWindow() {
   const persistPill = useCallback((pos: Point) => {
     try {
       localStorage.setItem(PILL_STORAGE_KEY, JSON.stringify(pos))
-    } catch {
-      // Where the pill sits is cosmetic; storage being unavailable just means
-      // it goes back to the corner next launch.
-    }
+    } catch {}
   }, [])
 
   const pillDragStart = (e: React.PointerEvent<HTMLButtonElement>) => {

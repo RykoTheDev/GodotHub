@@ -532,8 +532,6 @@ pub async fn git_ahead_behind(path: String) -> Result<Option<GitAheadBehind>, St
         };
         let out = git_helpers::git_cmd(
             &path,
-            // Git only understands `A...B` as a single argument; a standalone
-            // "..." is parsed as an ambiguous revision/path and fails.
             ["rev-list", "--left-right", "--count", &format!("{}...HEAD", upstream)],
         )
         .map_err(|e| e.to_string())?;
@@ -694,8 +692,6 @@ pub async fn git_list_branches(path: String) -> Result<Vec<GitBranchInfo>, Strin
     .map_err(|e| e.to_string())?
 }
 
-/// Remote a brand new branch is published to: `origin` when it exists (git's
-/// convention), otherwise the repository's first configured remote.
 fn default_publish_remote(path: &str) -> Result<String, String> {
     let out = git_helpers::git_cmd(path, ["remote"]).map_err(|e| e.to_string())?;
     let remotes: Vec<String> = out

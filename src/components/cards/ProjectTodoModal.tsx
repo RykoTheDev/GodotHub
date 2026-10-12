@@ -116,8 +116,6 @@ export function ProjectTodoModal({
         : "border-outline/50 text-muted hover:border-accent-dim hover:text-ink hover:bg-raised"
     }`;
 
-  // const canSubmit = title.trim().length > 0;
-
   return createPortal(
     <motion.div
       initial={{ opacity: 0 }}
