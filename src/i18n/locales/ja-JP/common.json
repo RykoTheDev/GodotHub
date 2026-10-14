@@ -705,5 +705,9 @@
   "console_no_matches": "フィルタに一致する行はありません（{{count}} 行を非表示）。",
   "console_pill_hint": "クリックするとコンソールを再表示します。ドラッグで移動できます。",
   "console_resumed_hint": "このプロジェクトは GodotHub の終了後も実行を続けています。出力は引き続き下に取り込まれます。",
-  "console_previous_hint": "前回のセッションから引き継いだ出力です。"
+  "console_previous_hint": "前回のセッションから引き継いだ出力です。",
+  "project_card_version_unavailable": "Godot {{version}} is not installed. Select an installed version to launch this project.",
+  "project_card_total_time": "Total time: {{time}}",
+  "project_card_last_opened": "Last opened: {{date}}",
+  "project_card_more_tags": "Show {{count}} more tags"
 }
