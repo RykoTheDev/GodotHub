@@ -100,6 +100,7 @@ export function Tooltip({
   }, [])
 
   const show = useCallback(() => {
+    if (timer.current) clearTimeout(timer.current)
     timer.current = setTimeout(() => {
       const tr = getTriggerRect()
       if (!tr) return
@@ -217,6 +218,7 @@ export function Tooltip({
       onMouseLeave={hide}
       onFocus={show}
       onBlur={hide}
+      onClickCapture={hide}
       className={className}
       style={{ display: 'inline-flex' }}
     >

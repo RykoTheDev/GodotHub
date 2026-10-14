@@ -130,6 +130,8 @@ Connect GodotHub to external services like Git and GitHub.
 - **Other hosts (personal access tokens)**: add a personal access token for hosts that don't support OAuth device sign-in, such as Codeberg, Gitea, or Bitbucket. GodotHub uses it to authenticate HTTPS remotes on that host.
 - **GitHub API Token**: optionally set a GitHub personal access token to raise the API rate limit from 60 to 5,000 requests per hour when fetching available Godot versions. No scopes are needed. Create one at `github.com/settings/tokens` and test it from Settings.
 
+Git worktrees are available by default in the Git sidebar. Use **New worktree** to create a separate checkout, switch between worktrees, or remove a linked worktree. The main and current worktrees cannot be removed from the sidebar. Removing a worktree keeps its branch and commits; discarding uncommitted changes requires an explicit choice.
+
 ---
 
 ## Advanced
@@ -143,8 +145,6 @@ Power-user settings: API tokens, data, updates, and app-level controls.
 - **Delete App Data**: permanently deletes every workspace, project, category, installed-version record, and setting GodotHub has stored, then restarts you at first-time setup. Your actual project folders and Godot installs on disk are not touched, unless they live in the default download folder.
 
 ---
-
-Git worktrees are available by default in the Git sidebar. Use **New worktree** to create a separate checkout, switch between worktrees, or remove a linked worktree. The main and current worktrees cannot be removed from the sidebar. Removing a worktree keeps its branch and commits; discarding uncommitted changes requires an explicit choice.
 
 ## Experimental
 

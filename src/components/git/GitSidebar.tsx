@@ -1176,7 +1176,7 @@ export function GitSidebar({
                     {state === 'idle' && pending > 0 && (
                       <span
                         aria-label={pendingLabel}
-                        className={`absolute -top-2 -right-2 min-w-[18px] h-[18px] flex items-center justify-center rounded-full text-overlay text-[9px] font-bold px-1 z-10 ring-2 ring-raised shadow-md shadow-black/30 ${
+                        className={`absolute -top-2 -right-2 min-w-4 h-4 flex items-center justify-center rounded-full text-overlay text-[9px] font-bold px-1 z-10 ring-2 ring-raised shadow-md shadow-black/30 ${
                           key === 'push' ? 'bg-mint' : 'bg-danger'
                         }`}
                       >

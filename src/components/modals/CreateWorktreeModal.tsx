@@ -74,7 +74,7 @@ export function CreateWorktreeModal({ repositoryPath, onClose, onCreated }: Prop
         <div className="flex flex-col gap-2">
           <label htmlFor={pathId} className="text-xs font-medium text-muted">{t('worktree_location_label')}</label>
           <div className="flex gap-2">
-            <input id={pathId} autoFocus required value={path} onChange={e => setPath(e.target.value)} disabled={busy || picking}
+            <input id={pathId} dir="ltr" autoFocus required value={path} onChange={e => setPath(e.target.value)} disabled={busy || picking}
               aria-describedby={`${pathId}-hint`} placeholder={t('worktree_path_placeholder')}
               className="focus-ring min-w-0 flex-1 bg-raised border border-line rounded-item px-3.5 py-2.5 text-sm font-mono text-ink placeholder:text-muted/50 focus:border-accent-dim transition-colors disabled:opacity-50" />
             <button type="button" onClick={() => void browse()} disabled={busy || picking} title={t('worktree_browse_parent')} aria-label={t('worktree_browse_parent')}
@@ -86,7 +86,7 @@ export function CreateWorktreeModal({ repositoryPath, onClose, onCreated }: Prop
         </div>
         <div className="flex flex-col gap-2">
           <label htmlFor={branchId} className="text-xs font-medium text-muted">{t('worktree_branch_label')}</label>
-          <input id={branchId} value={branch} onChange={e => setBranch(e.target.value)} disabled={busy}
+          <input id={branchId} dir="ltr" value={branch} onChange={e => setBranch(e.target.value)} disabled={busy}
             aria-describedby={`${branchId}-hint`} placeholder={t('worktree_branch_placeholder')}
             className="focus-ring bg-raised border border-line rounded-item px-3.5 py-2.5 text-sm text-ink placeholder:text-muted/50 focus:border-accent-dim transition-colors disabled:opacity-50" />
           <p id={`${branchId}-hint`} className="text-[11px] text-muted/70 leading-relaxed">{t('worktree_branch_hint')}</p>

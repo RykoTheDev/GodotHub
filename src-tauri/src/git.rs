@@ -1657,7 +1657,7 @@ pub async fn git_worktree_list(path: String) -> Result<Vec<GitWorktree>, String>
         if !check_is_repo(&path) {
             return Err("Not a git repository".into());
         }
-        let stdout = git_helpers::git_cmd(&path, ["worktree", "list", "--porcelain"])
+        let stdout = git_helpers::git_cmd(&path, ["worktree", "list", "--porcelain", "-z"])
             .map_err(|e| e.to_string())?;
 
         let mut worktrees: Vec<GitWorktree> = Vec::new();
@@ -1665,8 +1665,7 @@ pub async fn git_worktree_list(path: String) -> Result<Vec<GitWorktree>, String>
         let mut current_head: Option<String> = None;
         let mut current_branch: Option<String> = None;
 
-        for line in stdout.lines() {
-            let trimmed = line.trim();
+        for trimmed in stdout.split('\0') {
             if trimmed.starts_with("worktree ") {
                 if let Some(p) = current_path.take() {
                     let has_uncommitted = worktree_has_uncommitted(&p);
@@ -1812,3 +1811,7 @@ pub async fn git_worktree_remove(
     .await
     .map_err(|e| e.to_string())?
 }
+
+#[cfg(test)]
+#[path = "../tests/common/git_worktrees.rs"]
+mod worktree_tests;

@@ -6,7 +6,7 @@ import { api } from '../../lib/api'
 import { pushToast } from '../../lib/toast'
 import { useTauriEvent } from '../../lib/useTauriEvent'
 import { isWithinWorktree, worktreeProjectPath } from '../../lib/worktreePaths'
-import { IconCheck, IconClone, IconPlus, IconRefresh, IconSpinner, IconTrash } from '../../lib/icons'
+import { IconCheck, IconChevronRight, IconClone, IconPlus, IconRefresh, IconSpinner, IconTrash } from '../../lib/icons'
 import { Tooltip } from '../reusables/Tooltip'
 import { Checkbox } from '../ui/Checkbox'
 import { ModalShell } from '../modals/ModalShell'
@@ -89,7 +89,7 @@ export function GitWorktrees({ project, onSwitchProject, onChanged }: Props) {
 
   return (
     <>
-      <GitSection title={t('worktrees_title')} count={worktrees.length} storageKey="git-sidebar-worktrees" defaultOpen>
+      <GitSection title={t('worktrees_title')} count={worktrees.length} storageKey="git-sidebar-worktrees" defaultOpen={false}>
         <div aria-busy={loading} className="flex flex-col gap-1.5">
           {loading && worktrees.length === 0 && !error ? (
             <div role="status" className="flex items-center gap-2 px-2.5 py-3 text-[11px] text-muted">
@@ -101,7 +101,7 @@ export function GitWorktrees({ project, onSwitchProject, onChanged }: Props) {
             const current = wt === currentWorktree
             const switching = busy?.action === 'switch' && busy.path === wt.path
             return (
-              <div key={wt.path} className={`group flex items-center gap-2 rounded-item border px-2.5 py-2 transition-colors ${current ? 'border-accent/30 bg-accent/5' : 'border-outline/50 bg-base/40 hover:bg-raised/60'}`}>
+              <div key={wt.path} className={`group grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-item border px-2.5 py-2 transition-colors ${current ? 'border-accent/30 bg-accent/5' : 'border-outline/50 bg-base/40 hover:bg-raised/60'}`}>
                 <IconClone className={`w-3.5 h-3.5 shrink-0 ${current ? 'text-accent-bright' : 'text-muted/60'}`} />
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
@@ -114,8 +114,8 @@ export function GitWorktrees({ project, onSwitchProject, onChanged }: Props) {
                         className={`block shrink-0 w-1.5 h-1.5 rounded-full ${wt.has_uncommitted ? 'bg-amber' : 'bg-mint/60'}`} />
                     </Tooltip>
                   </div>
-                  <Tooltip content={wt.path} className="block min-w-0">
-                    <p className="truncate text-[10px] font-mono text-muted/60">{wt.path}</p>
+                  <Tooltip content={wt.path} className="w-full min-w-0">
+                    <p dir="ltr" className="min-w-0 flex-1 truncate text-[10px] font-mono text-muted/60">{wt.path}</p>
                   </Tooltip>
                 </div>
                 {current ? (
@@ -126,7 +126,7 @@ export function GitWorktrees({ project, onSwitchProject, onChanged }: Props) {
                   {onSwitchProject && <Tooltip content={t('switch_worktree')}>
                     <button type="button" aria-label={t('switch_worktree_named', { name: wt.branch ?? wt.path })}
                       onClick={() => void switchTo(wt)} disabled={!!busy || loading} className={`${sectionActionClass} hover:text-accent-bright`}>
-                      {switching ? <IconSpinner className="w-3.5 h-3.5 animate-spin" /> : <IconClone className="w-3.5 h-3.5" />}
+                      {switching ? <IconSpinner className="w-3.5 h-3.5 animate-spin" /> : <IconChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />}
                     </button>
                   </Tooltip>}
                   {!wt.is_main && <Tooltip content={t('remove_worktree')}>
@@ -173,13 +173,17 @@ export function GitWorktrees({ project, onSwitchProject, onChanged }: Props) {
             </button>
           </div>}>
           <div className="flex flex-col gap-3 p-6 pt-0">
+            <div className="rounded-item bg-raised px-3 py-2.5">
+              <p className="text-xs font-medium text-ink wrap-break-word">{removal.branch ?? t('worktree_detached', { hash: removal.head.slice(0, 7) })}</p>
+              <p dir="ltr" className="mt-1 text-[11px] font-mono text-muted wrap-break-word">{removal.path}</p>
+            </div>
             {removal.has_uncommitted && <div className="rounded-item border border-danger/25 bg-danger/5 p-3">
               <p className="mb-3 text-xs text-danger leading-relaxed">{t('worktree_discard_warning')}</p>
               <Checkbox checked={discardChanges} onChange={setDiscardChanges} disabled={!!busy} label={t('worktree_discard_changes')}>
                 {t('worktree_discard_changes')}
               </Checkbox>
             </div>}
-            {removeError && <p role="alert" className="text-xs text-danger break-words">{removeError}</p>}
+            {removeError && <p role="alert" className="text-xs text-danger wrap-break-word">{removeError}</p>}
           </div>
         </ModalShell>}
       </AnimatePresence>
