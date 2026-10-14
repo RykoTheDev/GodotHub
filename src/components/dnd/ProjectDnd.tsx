@@ -1,6 +1,7 @@
 import {
   useCallback,
   useLayoutEffect,
+  type Ref,
   type CSSProperties,
   type ReactNode,
 } from 'react'
@@ -14,7 +15,7 @@ import { CSS } from '@dnd-kit/utilities'
 import { useTranslation } from 'react-i18next'
 import { IconGrip } from '../../lib/icons'
 import { isReducedMotion } from '../../lib/appearance'
-import { DRAG_FEEL, REFLOW_TRANSITION } from '../../lib/dragFeel'
+import { DRAG_FEEL } from '../../lib/dragFeel'
 
 const NO_DRAG_SELECTOR =
   'button, a, input, textarea, select, [role="button"], [contenteditable="true"], [data-drag-ignore]'
@@ -40,10 +41,10 @@ function DragGrip({
       {...attributes}
       {...listeners}
       aria-label={t('drag_to_reorder')}
-      className={`focus-ring absolute top-1/2 z-20 flex h-9 w-[18px] -translate-y-1/2 cursor-grab touch-none items-center justify-center rounded-full border transition-all duration-150 active:cursor-grabbing ${
+      className={`focus-ring absolute top-1/2 z-20 flex h-9 w-6 -translate-y-1/2 cursor-grab touch-none items-center justify-center rounded-btn border transition-[opacity,color,background-color,border-color] duration-150 active:cursor-grabbing ${
         isDragging
           ? 'pointer-events-none border-accent bg-accent text-white opacity-100 shadow-md shadow-accent/40'
-          : 'pointer-events-none border-line bg-raised text-muted/40 opacity-0 shadow-sm shadow-base group-hover/drag:pointer-events-auto group-hover/drag:opacity-100 hover:border-accent-dim hover:text-accent focus-visible:pointer-events-auto focus-visible:opacity-100'
+          : 'pointer-events-none border-line bg-raised text-muted/60 opacity-0 shadow-sm shadow-base group-hover/drag:pointer-events-auto group-hover/drag:opacity-100 group-focus-within/drag:pointer-events-auto group-focus-within/drag:opacity-100 hover:border-accent-dim hover:text-accent focus-visible:pointer-events-auto focus-visible:opacity-100'
       } ${className}`}
     >
       <IconGrip className="h-2.5 w-2.5" />
@@ -52,21 +53,25 @@ function DragGrip({
 }
 
 export interface SortableProjectItemProps {
+  ref?: Ref<HTMLDivElement>
   id: string
   disabled?: boolean
   children: ReactNode
   className?: string
   static?: boolean
   gripClassName?: string
+  carried?: boolean
 }
 
 export function SortableProjectItem({
+  ref,
   id,
   disabled = false,
   children,
   className = '',
   static: isStatic = false,
   gripClassName = 'left-0.5',
+  carried = false,
 }: SortableProjectItemProps) {
   const {
     attributes,
@@ -74,8 +79,13 @@ export function SortableProjectItem({
     setNodeRef,
     setActivatorNodeRef,
     transform,
+    transition,
     isDragging,
-  } = useSortable({ id, disabled })
+  } = useSortable({
+    id,
+    disabled,
+    transition: isReducedMotion() ? null : DRAG_FEEL.reflow,
+  })
 
   const onPointerDown = useCallback(
     (e: React.PointerEvent) => {
@@ -91,19 +101,25 @@ export function SortableProjectItem({
   )
 
   const reduced = isReducedMotion()
+  const setRefs = useCallback((node: HTMLDivElement | null) => {
+    setNodeRef(node)
+    if (typeof ref === 'function') ref(node)
+    else if (ref) ref.current = node
+  }, [ref, setNodeRef])
   const style: CSSProperties = {
     transform: isStatic ? undefined : CSS.Translate.toString(transform),
-    transition: reduced ? undefined : REFLOW_TRANSITION,
+    transition: reduced ? undefined : transition,
     zIndex: isDragging ? 40 : undefined,
   }
 
   return (
-    <div ref={setNodeRef} style={style} className={`group/drag relative ${className}`}>
+    <div ref={setRefs} style={style} className={`group/drag relative ${className}`} data-project-id={id}>
       <div
         onPointerDown={onPointerDown}
-        style={isDragging ? { opacity: DRAG_FEEL.ghostOpacity } : undefined}
+        onDragStart={(event) => event.preventDefault()}
+        style={isDragging || carried ? { opacity: DRAG_FEEL.ghostOpacity } : undefined}
         className={`h-full ${disabled ? '' : 'cursor-grab active:cursor-grabbing'} ${
-          isDragging ? 'rounded-item ring-1 ring-accent/30' : ''
+          isDragging || carried ? 'rounded-item ring-1 ring-accent/30' : ''
         }`}
       >
         {!disabled && (
@@ -121,7 +137,11 @@ export function SortableProjectItem({
   )
 }
 
-export function ProjectDropLine({ ignorePrefix }: { ignorePrefix?: string }) {
+export function ProjectDropLine({ ignorePrefix, placement, activeIds = [] }: {
+  ignorePrefix?: string
+  placement?: React.RefObject<'before' | 'after'>
+  activeIds?: string[]
+}) {
   const { active, over } = useDndContext()
   const { height, dot, glow, transition } = DRAG_FEEL.dropLine
 
@@ -134,10 +154,11 @@ export function ProjectDropLine({ ignorePrefix }: { ignorePrefix?: string }) {
 
   const onZone =
     overId != null && ignorePrefix != null && overId.startsWith(ignorePrefix)
-  const visible = overId != null && overId !== activeId && !onZone && overRect != null
+  const visible = overId != null && overId !== activeId && !activeIds.includes(overId) && !onZone && overRect != null
 
-  const after =
-    overRect != null && activeRect != null
+  const after = placement
+    ? placement.current === 'after'
+    : overRect != null && activeRect != null
       ? activeRect.top + activeRect.height / 2 >
         overRect.top + overRect.height / 2
       : false
@@ -182,13 +203,14 @@ export function ProjectDragOverlay({
 }) {
   useLayoutEffect(() => {
     const el = innerRef.current
-    if (el) el.style.transform = `rotate(0deg) scale(${DRAG_FEEL.lift.scale})`
+    if (el) el.style.transform = `rotate(0deg) scale(${isReducedMotion() ? 1 : DRAG_FEEL.lift.scale})`
   }, [innerRef])
 
   return (
     <div
       ref={innerRef}
-      className={`relative rounded-item bg-overlay/95 shadow-2xl shadow-black/40 ring-1 ring-accent/25 backdrop-blur-sm ${className}`}
+      aria-hidden="true"
+      className={`pointer-events-none relative rounded-item bg-overlay shadow-2xl shadow-black/30 ring-1 ring-accent/30 ${className}`}
       style={{
         transformOrigin: 'center',
         transition: isReducedMotion()

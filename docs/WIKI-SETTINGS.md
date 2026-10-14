@@ -144,11 +144,13 @@ Power-user settings: API tokens, data, updates, and app-level controls.
 
 ---
 
+Git worktrees are available by default in the Git sidebar. Use **New worktree** to create a separate checkout, switch between worktrees, or remove a linked worktree. The main and current worktrees cannot be removed from the sidebar. Removing a worktree keeps its branch and commits; discarding uncommitted changes requires an explicit choice.
+
 ## Experimental
 
 Features that are still in development. They may be unstable or change without notice.
 
-- **Customize View button**, **Git Worktrees**, **Project Next Steps**: see the Projects and Git docs for details.
+- **Customize View button**, **Project Next Steps**: see the Projects and Git docs for details.
 - **Use mise for Godot versions**: hand Godot version management to [mise](https://mise.jdx.dev), so a version only lives once on disk instead of being installed twice; once by mise and once by GodotHub. Requires the `mise` CLI on your `PATH`; the toggle reports the detected version when it finds it.
 
   With it enabled:

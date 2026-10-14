@@ -316,8 +316,6 @@
   "experimental_desc": "试用仍在开发中的新功能。这些功能可能不稳定或随时变更。",
   "customize_view_label": "自定义视图按钮",
   "customize_view_desc": "在项目视图中显示自定义视图按钮。禁用时，已添加的视图将被移除，视图将重置为仅列表模式。",
-  "git_worktrees_label": "Git 工作树",
-  "git_worktrees_desc": "在 Git 侧边栏中显示工作树部分。工作树允许您在不同的目录中同时切换多个分支。",
   "fixed_sidebar_resize_knob_label": "固定侧边栏调整手柄",
   "fixed_sidebar_resize_knob_desc": "在侧栏和主内容之间显示一个可拖动的调整手柄。关闭后，您可以通过拖动侧栏边缘来调整其大小。",
   "desktop_notifications_label": "桌面通知",

@@ -115,7 +115,6 @@ const DEFAULTS: AppSettings = {
   card_show_console: true,
   card_view_overrides: {},
   customize_view_enabled: false,
-  git_worktrees_enabled: false,
   fixed_sidebar_resize_knob: false,
   desktop_notifications_enabled: true,
   colored_titlebar_buttons: false,

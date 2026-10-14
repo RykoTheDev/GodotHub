@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import Masonry from 'react-masonry-css'
 import { useTranslation } from 'react-i18next'
 import { DndContext, DragOverlay, closestCenter } from '@dnd-kit/core'
-import { SortableContext } from '@dnd-kit/sortable'
+import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
 import type {
   Category,
   GitStatus,
@@ -16,7 +16,7 @@ import {
   type HiddenCategoryEntry,
 } from './CategorySections'
 import { UNCATEGORIZED_KEY } from '../../lib/projectDrag'
-import { AUTO_SCROLL_CONFIG, DRAG_FEEL } from '../../lib/dragFeel'
+import { AUTO_SCROLL_CONFIG } from '../../lib/dragFeel'
 import { useProjectDnd } from '../../hooks/useProjectDnd'
 import {
   ProjectDragOverlay,
@@ -107,7 +107,6 @@ export function ProjectCardGrid({
     categories,
     grouped,
     prefixes: { category: 'grid-cat-' },
-    collisionDetection: closestCenter,
     selectedIds,
     onReorder,
     onMoveProjects,
@@ -166,7 +165,8 @@ export function ProjectCardGrid({
         <SortableProjectItem
           key={p.id}
           id={p.id}
-          static
+          static={dnd.activeIds.length > 1}
+          carried={dnd.activeIds.includes(p.id)}
           gripClassName="left-1"
         >
           {card}
@@ -207,7 +207,9 @@ export function ProjectCardGrid({
                 : undefined
             }
           >
-            {masonry(catProjects)}
+            <SortableContext items={catProjects.map((p) => p.id)} strategy={rectSortingStrategy}>
+              {masonry(catProjects)}
+            </SortableContext>
           </ProjectCategorySection>
         )
       })}
@@ -222,7 +224,9 @@ export function ProjectCardGrid({
             disableAnimation={isDndEnabled}
             droppableId="grid-cat-uncategorized"
           >
-            {masonry(uncategorizedProjects)}
+            <SortableContext items={uncategorizedProjects.map((p) => p.id)} strategy={rectSortingStrategy}>
+              {masonry(uncategorizedProjects)}
+            </SortableContext>
           </ProjectCategorySection>
         )
       })()}
@@ -255,19 +259,15 @@ export function ProjectCardGrid({
           onDragEnd={dnd.handleDragEnd}
           onDragCancel={dnd.handleDragCancel}
         >
-          <SortableContext items={sortableIds}>{allContent}</SortableContext>
-          <ProjectDropLine ignorePrefix="grid-cat-" />
+          <SortableContext items={sortableIds} strategy={rectSortingStrategy}>{allContent}</SortableContext>
+          <ProjectDropLine ignorePrefix="grid-cat-" placement={dnd.placementRef} activeIds={dnd.activeIds} />
           <DragOverlay
-            dropAnimation={{
-              duration: DRAG_FEEL.drop.duration,
-              easing: DRAG_FEEL.drop.easing,
-            }}
+            dropAnimation={dnd.dropAnimation}
           >
             {activeProject ? (
               <ProjectDragOverlay
                 innerRef={dnd.overlayRef}
                 count={dnd.activeIds.length}
-                className="max-w-xs"
               >
                 <ProjectCardGridItem
                   project={activeProject}

@@ -2,18 +2,27 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   KeyboardSensor,
   PointerSensor,
+  closestCenter,
+  pointerWithin,
+  rectIntersection,
+  defaultDropAnimationSideEffects,
   useSensor,
   useSensors,
   type CollisionDetection,
+  type Collision,
   type DragEndEvent,
   type DragMoveEvent,
   type DragStartEvent,
+  type DropAnimation,
 } from '@dnd-kit/core'
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 import { isReducedMotion } from '../lib/appearance'
 import { DRAG_FEEL } from '../lib/dragFeel'
+import { pushToast } from '../lib/toast'
 import {
   resolveProjectDrop,
+  categoryKeyOf,
+  type DropPlacement,
   type DroppablePrefixes,
 } from '../lib/projectDrag'
 import type { Category, Project } from '../types'
@@ -23,7 +32,6 @@ export interface UseProjectDndOptions {
   categories: Category[]
   grouped: boolean
   prefixes: DroppablePrefixes
-  collisionDetection?: CollisionDetection
   selectedIds?: Set<string>
   onReorder?: (orderedIds: string[]) => Promise<void> | void
   onMoveProjects?: (
@@ -38,7 +46,6 @@ export function useProjectDnd({
   categories,
   grouped,
   prefixes,
-  collisionDetection,
   selectedIds,
   onReorder,
   onMoveProjects,
@@ -56,7 +63,9 @@ export function useProjectDnd({
   )
 
   const [activeIds, setActiveIds] = useState<string[]>([])
-  const activeId = activeIds[0] ?? null
+  const [activeId, setActiveId] = useState<string | null>(null)
+  const placementRef = useRef<DropPlacement>('before')
+  const settleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const byId = useMemo(
     () => new Map(projects.map((p) => [p.id, p])),
@@ -71,9 +80,76 @@ export function useProjectDnd({
     el.style.transform = `rotate(${angle}deg) scale(${DRAG_FEEL.lift.scale})`
   }, [])
 
+  const collisionDetection = useCallback<CollisionDetection>((args) => {
+    const zones = args.droppableContainers.filter((c) => String(c.id).startsWith(prefixes.category))
+    const cards = args.droppableContainers.filter((c) => !String(c.id).startsWith(prefixes.category))
+    let hits: Collision[]
+    if (args.pointerCoordinates) {
+      hits = pointerWithin({ ...args, droppableContainers: cards })
+      if (hits.length === 0) {
+        const zoneHits = pointerWithin({ ...args, droppableContainers: zones })
+        const zone = zoneHits[0]
+        if (zone) {
+          const zoneRect = args.droppableRects.get(zone.id)
+          const inside = cards.filter((c) => {
+            const rect = args.droppableRects.get(c.id)
+            return rect && zoneRect && rect.top >= zoneRect.top && rect.bottom <= zoneRect.bottom &&
+              rect.left >= zoneRect.left && rect.right <= zoneRect.right
+          })
+          const y = args.pointerCoordinates.y
+          const betweenCards = inside.some((c) => {
+            const rect = args.droppableRects.get(c.id)!
+            return y >= rect.top - 12 && y <= rect.bottom + 12
+          })
+          hits = betweenCards
+            ? closestCenter({ ...args, droppableContainers: inside })
+            : zoneHits
+        } else {
+          // Allow the small gaps between cards, but never snap to a distant target.
+          const { x, y } = args.pointerCoordinates
+          const nearby = cards.filter((c) => {
+            const rect = args.droppableRects.get(c.id)
+            return rect && x >= rect.left && x <= rect.right &&
+              y >= rect.top - 12 && y <= rect.bottom + 12
+          })
+          hits = closestCenter({ ...args, droppableContainers: nearby })
+        }
+      }
+    } else {
+      const cardHits = rectIntersection({ ...args, droppableContainers: cards })
+      const zoneHits = rectIntersection({ ...args, droppableContainers: zones })
+      hits = cardHits.length > 0
+        ? cardHits
+        : zoneHits.length > 0
+          ? zoneHits
+          : closestCenter({ ...args, droppableContainers: cards })
+    }
+    const target = hits[0]
+    const dragged = byId.get(String(args.active.id))
+    const overProject = target ? byId.get(String(target.id)) : undefined
+    const rect = target ? args.droppableRects.get(target.id) : undefined
+    let next: DropPlacement = 'before'
+    if (dragged && overProject && activeIds.length <= 1 &&
+      (!grouped || categoryKeyOf(dragged) === categoryKeyOf(overProject))) {
+      next = projects.indexOf(dragged) < projects.indexOf(overProject) ? 'after' : 'before'
+    } else if (rect) {
+      const y = args.pointerCoordinates?.y ?? args.collisionRect.top + args.collisionRect.height / 2
+      next = y > rect.top + rect.height / 2 ? 'after' : 'before'
+    }
+    placementRef.current = next
+    return hits
+  }, [prefixes.category, byId, activeIds.length, grouped, projects])
+
+  const dropAnimation: DropAnimation | null = reducedMotion ? null : {
+    duration: DRAG_FEEL.drop.duration,
+    easing: DRAG_FEEL.drop.easing,
+    sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0' } } }),
+  }
+
   const handleDragStart = useCallback(
     (e: DragStartEvent) => {
       const id = String(e.active.id)
+      setActiveId(id)
       const draggable = new Set(projects.map((p) => p.id))
       const carriesSelection =
         selectedIds != null &&
@@ -104,12 +180,19 @@ export function useProjectDnd({
       motion.current.t = now
       motion.current.angle += (target - motion.current.angle) * damping
       paintTilt(motion.current.angle)
+      if (settleTimer.current) clearTimeout(settleTimer.current)
+      settleTimer.current = setTimeout(() => {
+        motion.current.angle = 0
+        paintTilt(0)
+      }, 100)
     },
     [reducedMotion, paintTilt],
   )
 
   const reset = useCallback(() => {
     setActiveIds([])
+    setActiveId(null)
+    if (settleTimer.current) clearTimeout(settleTimer.current)
     motion.current = { x: 0, t: 0, angle: 0 }
     paintTilt(0)
   }, [paintTilt])
@@ -130,15 +213,20 @@ export function useProjectDnd({
         categories,
         grouped,
         prefixes,
+        placement: placementRef.current,
       })
-      if (resolution.type === 'reorder') {
-        await onReorder?.(resolution.orderedIds)
-      } else if (resolution.type === 'move') {
-        await onMoveProjects?.(
-          resolution.activeIds,
-          resolution.categoryName,
-          resolution.destOrderedIds,
-        )
+      try {
+        if (resolution.type === 'reorder') {
+          await onReorder?.(resolution.orderedIds)
+        } else if (resolution.type === 'move') {
+          await onMoveProjects?.(
+            resolution.activeIds,
+            resolution.categoryName,
+            resolution.destOrderedIds,
+          )
+        }
+      } catch (error) {
+        pushToast('error', String(error))
       }
     },
     [
@@ -166,6 +254,10 @@ export function useProjectDnd({
     }
   }, [activeIds.length])
 
+  useEffect(() => () => {
+    if (settleTimer.current) clearTimeout(settleTimer.current)
+  }, [])
+
   const activeProject = activeId ? byId.get(activeId) ?? null : null
 
   return {
@@ -175,6 +267,8 @@ export function useProjectDnd({
     activeProject,
     overlayRef,
     collisionDetection,
+    placementRef,
+    dropAnimation,
     handleDragStart,
     handleDragMove,
     handleDragEnd,

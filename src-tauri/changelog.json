@@ -1386,6 +1386,14 @@
       {
         "category": "improve",
         "text": "Better error prompts when something doesn't work as intended"
+      },
+      {
+        "category": "improve",
+        "text": "Drag-N-Dropping of Project Cards in List View."
+      },
+      {
+        "category": "add",
+        "text": "Moved Git Worktrees from Experimental to Stable, with improved UI and UX"
       }
     ],
     "known_issues": [],

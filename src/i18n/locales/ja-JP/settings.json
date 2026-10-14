@@ -316,8 +316,6 @@
   "landing_projects": "プロジェクト",
   "landing_versions": "バージョン",
   "landing_news": "Godot ニュース",
-  "git_worktrees_label": "Git ワークツリー",
-  "git_worktrees_desc": "Git サイドバーにワークツリーのセクションを表示します。ワークツリーを使うと、複数のブランチを別々のディレクトリに同時にチェックアウトできます。",
   "fixed_sidebar_resize_knob_label": "サイドバーのリサイズハンドルを固定",
   "fixed_sidebar_resize_knob_desc": "サイドバーのリサイズハンドルをカーソルに追従させず、端の中央に固定します。端をドラッグしてリサイズすることは引き続きできます。",
   "desktop_notifications_label": "デスクトップ通知",

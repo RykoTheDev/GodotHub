@@ -139,8 +139,13 @@ export function useProjects() {
         rank.has(p.id) ? { ...p, sort_order: rank.get(p.id)! } : p,
       )
     })
-    await api.reorderProjects(orderedIds)
-  }, [setData])
+    try {
+      await api.reorderProjects(orderedIds)
+    } catch (e) {
+      await refresh()
+      throw e
+    }
+  }, [refresh, setData])
 
   return {
     projects,

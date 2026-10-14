@@ -105,6 +105,6 @@ export const gitApi = {
     invoke<void>('git_worktree_switch', { path, worktreePath }),
   worktreeAdd: (path: string, worktreePath: string, branch?: string) =>
     invoke<void>('git_worktree_add', { path, worktreePath, branch: branch ?? null }),
-  worktreeRemove: (path: string, worktreePath: string) =>
-    invoke<void>('git_worktree_remove', { path, worktreePath }),
+  worktreeRemove: (path: string, worktreePath: string, force = false) =>
+    invoke<void>('git_worktree_remove', { path, worktreePath, force }),
 }

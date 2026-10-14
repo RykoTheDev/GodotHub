@@ -101,6 +101,7 @@ pub struct GitWorktree {
     pub branch: Option<String>,
     pub head: String,
     pub has_uncommitted: bool,
+    pub is_main: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -1670,6 +1671,7 @@ pub async fn git_worktree_list(path: String) -> Result<Vec<GitWorktree>, String>
                 if let Some(p) = current_path.take() {
                     let has_uncommitted = worktree_has_uncommitted(&p);
                     worktrees.push(GitWorktree {
+                        is_main: worktrees.is_empty(),
                         path: p,
                         branch: current_branch.take(),
                         head: current_head.take().unwrap_or_default(),
@@ -1694,6 +1696,7 @@ pub async fn git_worktree_list(path: String) -> Result<Vec<GitWorktree>, String>
         if let Some(p) = current_path.take() {
             let has_uncommitted = worktree_has_uncommitted(&p);
             worktrees.push(GitWorktree {
+                is_main: worktrees.is_empty(),
                 path: p,
                 branch: current_branch.take(),
                 head: current_head.take().unwrap_or_default(),
@@ -1717,8 +1720,14 @@ pub async fn git_worktree_switch(path: String, worktree_path: String) -> Result<
         if !wt_dir.is_dir() {
             return Err(format!("Worktree directory does not exist: {}", worktree_path));
         }
-        git_helpers::git_cmd(&worktree_path, ["rev-parse", "--git-dir"])
-            .map_err(|e| e.to_string())?;
+        let common_dir = |repo: &str| -> Result<PathBuf, String> {
+            let dir = git_helpers::git_cmd(repo, ["rev-parse", "--git-common-dir"])
+                .map_err(|e| e.to_string())?;
+            fs::canonicalize(Path::new(repo).join(dir.trim())).map_err(|e| e.to_string())
+        };
+        if common_dir(&path)? != common_dir(&worktree_path)? {
+            return Err("Worktree belongs to a different repository".into());
+        }
         Ok(())
     })
     .await
@@ -1735,7 +1744,12 @@ pub async fn git_worktree_add(
         if !check_is_repo(&path) {
             return Err("Not a git repository".into());
         }
-        let wt_dir = PathBuf::from(&worktree_path);
+        let requested_dir = PathBuf::from(&worktree_path);
+        let wt_dir = if requested_dir.is_absolute() {
+            requested_dir
+        } else {
+            Path::new(&path).join(requested_dir)
+        };
         if wt_dir.exists() {
             return Err(format!(
                 "Directory already exists: {}",
@@ -1753,7 +1767,9 @@ pub async fn git_worktree_add(
             args.push("-b");
             args.push(b.as_str());
         }
-        args.push(worktree_path.as_str());
+        let resolved_path = wt_dir.to_string_lossy().into_owned();
+        args.push("--");
+        args.push(resolved_path.as_str());
         git_helpers::git_cmd(&path, &args).map_err(|e| e.to_string())?;
         Ok(())
     })
@@ -1765,6 +1781,7 @@ pub async fn git_worktree_add(
 pub async fn git_worktree_remove(
     path: String,
     worktree_path: String,
+    force: Option<bool>,
 ) -> Result<(), String> {
     tokio::task::spawn_blocking(move || {
         if !check_is_repo(&path) {
@@ -1774,8 +1791,20 @@ pub async fn git_worktree_remove(
         if !wt_dir.exists() {
             return Err(format!("Worktree does not exist: {}", worktree_path));
         }
-        git_helpers::git_cmd(&path, ["worktree", "remove", worktree_path.as_str(), "--force"])
+        let current_root = git_helpers::git_cmd(&path, ["rev-parse", "--show-toplevel"])
             .map_err(|e| e.to_string())?;
+        if fs::canonicalize(&wt_dir).map_err(|e| e.to_string())?
+            == fs::canonicalize(current_root.trim()).map_err(|e| e.to_string())?
+        {
+            return Err("Cannot remove the current worktree".into());
+        }
+        let mut args = vec!["worktree", "remove"];
+        if force.unwrap_or(false) {
+            args.push("--force");
+        }
+        args.push("--");
+        args.push(worktree_path.as_str());
+        git_helpers::git_cmd(&path, &args).map_err(|e| e.to_string())?;
         git_helpers::git_cmd(&path, ["worktree", "prune"])
             .map_err(|e| e.to_string())?;
         Ok(())

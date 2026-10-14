@@ -310,8 +310,6 @@ pub struct AppSettings {
     #[serde(default)]
     pub customize_view_enabled: bool,
     #[serde(default)]
-    pub git_worktrees_enabled: bool,
-    #[serde(default)]
     pub fixed_sidebar_resize_knob: bool,
     #[serde(default = "default_true")]
     pub desktop_notifications_enabled: bool,
@@ -638,7 +636,6 @@ tooltip_delay: default_tooltip_delay(),
             card_show_console: true,
             card_view_overrides: std::collections::HashMap::new(),
             customize_view_enabled: false,
-            git_worktrees_enabled: false,
             fixed_sidebar_resize_knob: false,
             desktop_notifications_enabled: true,
             colored_titlebar_buttons: false,

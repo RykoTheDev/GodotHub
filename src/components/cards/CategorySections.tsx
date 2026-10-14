@@ -40,15 +40,17 @@ export function ProjectCategorySection({
   const [open, setOpen] = useState(defaultOpen)
   const [dropOpen, setDropOpen] = useState(false)
   const isEmpty = count === 0
-  const { active } = useDndContext()
+  const { active, over } = useDndContext()
+  const { isOver, setNodeRef, rect } = useDroppable({
+    id: droppableId ?? `cat-${title}`,
+    disabled: !droppableId,
+  })
 
   const headerIsZone = !open || dropOpen
   const bodyIsZone = open && isEmpty && !dropOpen
-
-  const { isOver, setNodeRef } = useDroppable({
-    id: droppableId ?? `cat-${title}`,
-    disabled: !headerIsZone && !bodyIsZone,
-  })
+  const bounds = rect.current
+  const containsTarget = isOver || (over && bounds && over.rect.top >= bounds.top &&
+    over.rect.bottom <= bounds.bottom && over.rect.left >= bounds.left && over.rect.right <= bounds.right)
 
   useEffect(() => {
     if (!active) {
@@ -56,8 +58,11 @@ export function ProjectCategorySection({
       return
     }
     if (!isOver || open) return
-    setDropOpen(true)
-    setOpen(true)
+    const timer = setTimeout(() => {
+      setDropOpen(true)
+      setOpen(true)
+    }, 450)
+    return () => clearTimeout(timer)
   }, [active, isOver, open])
 
   const hint = (
@@ -72,7 +77,6 @@ export function ProjectCategorySection({
 
   const body = (
     <div
-      ref={bodyIsZone ? setNodeRef : undefined}
       className={
         variant === 'grid'
           ? `rounded-item transition-all duration-150 ${
@@ -104,10 +108,10 @@ export function ProjectCategorySection({
   )
 
   return (
-    <div className={variant === 'grid' ? 'flex flex-col mb-6' : 'flex flex-col'}>
+    <div ref={setNodeRef} data-project-category={droppableId}
+      className={`${variant === 'grid' ? 'flex flex-col mb-6' : 'flex flex-col'} rounded-item transition-colors duration-150 ${active && containsTarget ? 'bg-accent/5' : ''}`}>
       <button
         type="button"
-        ref={headerIsZone ? setNodeRef : undefined}
         onClick={() => setOpen((v) => !v)}
         onContextMenu={
           onContextMenu

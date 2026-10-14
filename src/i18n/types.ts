@@ -1,4 +1,8 @@
-export type changelogKeys =
+// AUTO-GENERATED from en-US locale files
+// Do not edit manually. Run: bun run i18n:types
+
+/** Keys from changelog.json */
+export type changelogKeys = 
   | 'changelog_title'
   | 'no_entries'
   | 'delete_entry_title'
@@ -11,7 +15,8 @@ export type changelogKeys =
   | 'fixed'
   | 'improved';
 
-export type commonKeys =
+/** Keys from common.json */
+export type commonKeys = 
   | 'new_project'
   | 'import_project'
   | 'search'
@@ -719,7 +724,8 @@ export type commonKeys =
   | 'console_resumed_hint'
   | 'console_previous_hint';
 
-export type dashboardKeys =
+/** Keys from dashboard.json */
+export type dashboardKeys = 
   | 'greeting_morning'
   | 'greeting_afternoon'
   | 'greeting_evening'
@@ -805,7 +811,8 @@ export type dashboardKeys =
   | 'dashboard_custom_presets'
   | 'dashboard_hidden_tiles';
 
-export type gitKeys =
+/** Keys from git.json */
+export type gitKeys = 
   | 'remove'
   | 'changes_title'
   | 'pull'
@@ -900,9 +907,26 @@ export type gitKeys =
   | 'commits_to_push'
   | 'commits_to_pull'
   | 'filter_changes'
-  | 'no_matching_changes';
+  | 'no_matching_changes'
+  | 'create_worktree_title'
+  | 'create_worktree_desc'
+  | 'worktree_location_label'
+  | 'worktree_location_hint'
+  | 'worktree_branch_label'
+  | 'worktree_branch_hint'
+  | 'worktree_browse_parent'
+  | 'worktree_creating'
+  | 'worktree_removing'
+  | 'worktree_main'
+  | 'worktree_detached'
+  | 'worktrees_load_error'
+  | 'switch_worktree_named'
+  | 'remove_worktree_named'
+  | 'worktree_discard_changes'
+  | 'worktree_discard_warning';
 
-export type navKeys =
+/** Keys from nav.json */
+export type navKeys = 
   | 'dashboard'
   | 'projects'
   | 'projects_count_one'
@@ -915,7 +939,8 @@ export type navKeys =
   | 'changelog'
   | 'updates';
 
-export type onboardingKeys =
+/** Keys from onboarding.json */
+export type onboardingKeys = 
   | 'welcome'
   | 'customize'
   | 'finish'
@@ -936,7 +961,8 @@ export type onboardingKeys =
   | 'onboard_cloud_sign_in'
   | 'onboard_cloud_connected';
 
-export type settingsKeys =
+/** Keys from settings.json */
+export type settingsKeys = 
   | 'storage'
   | 'behavior'
   | 'display'
@@ -1257,8 +1283,6 @@ export type settingsKeys =
   | 'experimental_desc'
   | 'customize_view_label'
   | 'customize_view_desc'
-  | 'git_worktrees_label'
-  | 'git_worktrees_desc'
   | 'fixed_sidebar_resize_knob_label'
   | 'fixed_sidebar_resize_knob_desc'
   | 'desktop_notifications_label'
@@ -1272,7 +1296,8 @@ export type settingsKeys =
   | 'mise_detected'
   | 'mise_not_found';
 
-export type todosKeys =
+/** Keys from todos.json */
+export type todosKeys = 
   | 'next_steps'
   | 'all_tasks_description'
   | 'saving_tasks'
@@ -1341,7 +1366,8 @@ export type todosKeys =
   | 'overdue_days_one'
   | 'overdue_days_other';
 
-export type versionsKeys =
+/** Keys from versions.json */
+export type versionsKeys = 
   | 'standard'
   | 'unbound'
   | 'mono'
@@ -1430,9 +1456,11 @@ export type versionsKeys =
   | 'mise_missing'
   | 'mise_uninstall_desc';
 
+/** All namespace names */
 export type Namespace = 'changelog' | 'common' | 'dashboard' | 'git' | 'nav' | 'onboarding' | 'settings' | 'todos' | 'versions';
 
-export type TranslationKey =
+/** All translation keys (namespace:key) */
+export type TranslationKey = 
   | 'changelog:changelog_title'
   | 'changelog:no_entries'
   | 'changelog:delete_entry_title'
@@ -2329,6 +2357,22 @@ export type TranslationKey =
   | 'git:commits_to_pull'
   | 'git:filter_changes'
   | 'git:no_matching_changes'
+  | 'git:create_worktree_title'
+  | 'git:create_worktree_desc'
+  | 'git:worktree_location_label'
+  | 'git:worktree_location_hint'
+  | 'git:worktree_branch_label'
+  | 'git:worktree_branch_hint'
+  | 'git:worktree_browse_parent'
+  | 'git:worktree_creating'
+  | 'git:worktree_removing'
+  | 'git:worktree_main'
+  | 'git:worktree_detached'
+  | 'git:worktrees_load_error'
+  | 'git:switch_worktree_named'
+  | 'git:remove_worktree_named'
+  | 'git:worktree_discard_changes'
+  | 'git:worktree_discard_warning'
   | 'nav:dashboard'
   | 'nav:projects'
   | 'nav:projects_count_one'
@@ -2679,8 +2723,6 @@ export type TranslationKey =
   | 'settings:experimental_desc'
   | 'settings:customize_view_label'
   | 'settings:customize_view_desc'
-  | 'settings:git_worktrees_label'
-  | 'settings:git_worktrees_desc'
   | 'settings:fixed_sidebar_resize_knob_label'
   | 'settings:fixed_sidebar_resize_knob_desc'
   | 'settings:desktop_notifications_label'

@@ -2863,18 +2863,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             label={ts("customize_view_label")}
           />
         </SettingRow>
-        <SettingRow
-          label={ts("git_worktrees_label")}
-          description={ts("git_worktrees_desc")}
-        >
-          <Toggle
-            checked={settings.git_worktrees_enabled}
-            onChange={(checked) =>
-              update({ ...settings, git_worktrees_enabled: checked })
-            }
-            label={ts("git_worktrees_label")}
-          />
-        </SettingRow>
 
         <SettingRow
           label={ts("project_todos_label")}

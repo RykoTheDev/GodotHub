@@ -241,6 +241,7 @@ export interface GitWorktree {
   branch: string | null
   head: string
   has_uncommitted: boolean
+  is_main: boolean
 }
 
 export interface GitCommitFile {
@@ -512,7 +513,6 @@ export interface AppSettings {
   card_show_console: boolean
   card_view_overrides: Record<string, Partial<CardViewSettings>>
   customize_view_enabled: boolean
-  git_worktrees_enabled: boolean
   fixed_sidebar_resize_knob: boolean
   desktop_notifications_enabled: boolean
   colored_titlebar_buttons: boolean

@@ -22,7 +22,7 @@ import {
   type HiddenCategoryEntry,
 } from './CategorySections'
 import { UNCATEGORIZED_KEY } from '../../lib/projectDrag'
-import { AUTO_SCROLL_CONFIG, DRAG_FEEL } from '../../lib/dragFeel'
+import { AUTO_SCROLL_CONFIG } from '../../lib/dragFeel'
 import { useProjectDnd } from '../../hooks/useProjectDnd'
 import {
   ProjectDragOverlay,
@@ -134,7 +134,6 @@ export function ProjectCardKanban({
     categories,
     grouped,
     prefixes: { category: 'kanban-cat-' },
-    collisionDetection: closestCorners,
     selectedIds,
     onReorder,
     onMoveProjects,
@@ -181,6 +180,8 @@ export function ProjectCardKanban({
           <SortableProjectItem
             key={p.id}
             id={p.id}
+            static={dnd.activeIds.length > 1}
+            carried={dnd.activeIds.includes(p.id)}
             className="mb-3"
             gripClassName="left-1"
           >
@@ -216,6 +217,7 @@ export function ProjectCardKanban({
       onToggleSelect,
       selecting,
       isDndEnabled,
+      dnd.activeIds,
     ],
   )
 
@@ -301,18 +303,14 @@ export function ProjectCardKanban({
           onDragCancel={dnd.handleDragCancel}
         >
           {columnContent}
-          <ProjectDropLine ignorePrefix="kanban-cat-" />
+          <ProjectDropLine ignorePrefix="kanban-cat-" placement={dnd.placementRef} activeIds={dnd.activeIds} />
           <DragOverlay
-            dropAnimation={{
-              duration: DRAG_FEEL.drop.duration,
-              easing: DRAG_FEEL.drop.easing,
-            }}
+            dropAnimation={dnd.dropAnimation}
           >
             {activeProject ? (
               <ProjectDragOverlay
                 innerRef={dnd.overlayRef}
                 count={dnd.activeIds.length}
-                className="max-w-xs"
               >
                 <ProjectCardKanbanItem
                   project={activeProject}
