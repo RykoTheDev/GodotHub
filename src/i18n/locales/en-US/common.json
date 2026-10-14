@@ -704,5 +704,9 @@
   "console_no_matches": "No lines match the filters ({{count}} hidden).",
   "console_pill_hint": "Click to reopen the console, drag to move it.",
   "console_resumed_hint": "This project kept running after GodotHub closed, its output is still being captured below.",
-  "console_previous_hint": "Output kept from the previous session."
+  "console_previous_hint": "Output kept from the previous session.",
+  "project_card_version_unavailable": "Godot {{version}} is not installed. Select an installed version to launch this project.",
+  "project_card_total_time": "Total time: {{time}}",
+  "project_card_last_opened": "Last opened: {{date}}",
+  "project_card_more_tags": "Show {{count}} more tags"
 }

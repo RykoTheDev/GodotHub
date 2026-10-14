@@ -102,13 +102,13 @@ export function ProjectCardKanban({
   const groupedProjects = useMemo(() => {
     const map = new Map<string, Project[]>()
     for (const project of projects) {
-      const key = project.category || UNCATEGORIZED
+      const key = grouped ? (project.category || UNCATEGORIZED) : UNCATEGORIZED
       const list = map.get(key)
       if (list) list.push(project)
       else map.set(key, [project])
     }
     return map
-  }, [projects])
+  }, [projects, grouped])
 
   const sortableProjects = useMemo(() => {
     if (!grouped) return projects
@@ -162,9 +162,7 @@ export function ProjectCardKanban({
           }
           onTagsSaved={onTagsSaved}
           onTagClick={onTagClick}
-          onShowGitSidebar={() =>
-            onShowGitSidebar?.(p, gitStatusMap[p.path] ?? null)
-          }
+          onShowGitSidebar={onShowGitSidebar ? () => onShowGitSidebar(p, gitStatusMap[p.path] ?? null) : undefined}
           activeTag={activeTag}
           selected={selectedIds.has(p.id)}
           onToggleSelect={
@@ -179,6 +177,7 @@ export function ProjectCardKanban({
         return (
           <SortableProjectItem
             key={p.id}
+            fillHeight={false}
             id={p.id}
             static={dnd.activeIds.length > 1}
             carried={dnd.activeIds.includes(p.id)}
@@ -221,63 +220,36 @@ export function ProjectCardKanban({
     ],
   )
 
-  const columnContent = (
-    <>
-      {categories.map((cat) => {
-        const catProjects = groupedProjects.get(cat.name) ?? []
-        return (
-          <KanbanColumn
-            key={cat.id}
-            title={cat.name}
-            color={cat.color}
-            count={catProjects.length}
-            compact={compact}
-            droppableId={`kanban-cat-${cat.id}`}
-            onContextMenu={
-              onCategoryContextMenu
-                ? (e) => onCategoryContextMenu(e, cat)
-                : undefined
-            }
-          >
-            {isDndEnabled ? (
-              <SortableContext
-                items={catProjects.map((p) => p.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                {catProjects.map(renderItem)}
-              </SortableContext>
-            ) : (
-              catProjects.map(renderItem)
-            )}
-          </KanbanColumn>
-        )
-      })}
+  const columns = [
+    ...categories.map(category => ({
+      key: category.id, title: category.name, color: category.color,
+      projects: groupedProjects.get(category.name) ?? [], category,
+    })),
+    ...[...groupedProjects.entries()]
+      .filter(([key]) => key !== UNCATEGORIZED && !categories.some(category => category.name === key))
+      .map(([key, list]) => ({ key, title: key, color: '#949ba4', projects: list, category: undefined })),
+    { key: 'uncategorized', title: tc('uncategorized'), color: '#949ba4', projects: groupedProjects.get(UNCATEGORIZED) ?? [], category: undefined },
+  ]
 
-      {(() => {
-        const uncategorizedProjects = groupedProjects.get(UNCATEGORIZED) ?? []
-        return (
-          <KanbanColumn
-            title={tc('uncategorized')}
-            color="#949ba4"
-            count={uncategorizedProjects.length}
-            compact={compact}
-            droppableId="kanban-cat-uncategorized"
-          >
-            {isDndEnabled ? (
-              <SortableContext
-                items={uncategorizedProjects.map((p) => p.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                {uncategorizedProjects.map(renderItem)}
-              </SortableContext>
-            ) : (
-              uncategorizedProjects.map(renderItem)
-            )}
-          </KanbanColumn>
-        )
-      })()}
-    </>
-  )
+  const columnContent = columns.map(column => (
+    <KanbanColumn
+      key={column.key}
+      title={column.title}
+      color={column.color}
+      count={column.projects.length}
+      compact={compact}
+      droppableId={`kanban-cat-${column.key}`}
+      onContextMenu={column.category && onCategoryContextMenu
+        ? event => onCategoryContextMenu(event, column.category!)
+        : undefined}
+    >
+      {isDndEnabled ? (
+        <SortableContext items={column.projects.map(project => project.id)} strategy={verticalListSortingStrategy}>
+          {column.projects.map(renderItem)}
+        </SortableContext>
+      ) : column.projects.map(renderItem)}
+    </KanbanColumn>
+  ))
 
   const hiddenSection =
     hiddenCategories.length > 0 ? (
@@ -311,12 +283,18 @@ export function ProjectCardKanban({
               <ProjectDragOverlay
                 innerRef={dnd.overlayRef}
                 count={dnd.activeIds.length}
+                className="h-full"
               >
                 <ProjectCardKanbanItem
+                  preview
                   project={activeProject}
                   installedVersions={installedVersions}
                   gitStatus={gitStatusMap[activeProject.path] ?? null}
                   launchWithConsole={launchWithConsole}
+                  selected={selectedIds.has(activeProject.id)}
+                  onToggleSelect={selecting || selectedIds.size > 0 ? () => {} : undefined}
+                  onShowGitSidebar={onShowGitSidebar ? () => {} : undefined}
+                  activeTag={activeTag}
                   compact={compact}
                   onTogglePin={() => {}}
                   onVersionChange={() => {}}
@@ -369,8 +347,8 @@ function KanbanColumn({
 
   return (
     <div
-      className={`flex flex-col flex-1 ${
-        compact ? 'min-w-[260px] max-w-xs' : 'min-w-xs max-w-[380px]'
+      className={`flex flex-col shrink-0 min-h-0 ${
+        compact ? 'w-[260px]' : 'w-[300px]'
       }`}
     >
       <div
@@ -388,12 +366,12 @@ function KanbanColumn({
           className="w-2.5 h-2.5 rounded-full shrink-0 ring-1 ring-black/20"
           style={{ backgroundColor: color }}
         />
-        <span className="text-sm font-medium text-ink truncate">{title}</span>
-        <span className="text-xs text-muted tabular-nums">{count}</span>
+        <span className="min-w-0 flex-1 text-sm font-medium text-ink truncate">{title}</span>
+        <span className="shrink-0 text-xs text-muted tabular-nums">{count}</span>
       </div>
       <div
         ref={setNodeRef}
-        className={`flex-1 overflow-y-auto rounded-item border transition-colors duration-150 ${
+        className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden rounded-item border transition-colors duration-150 ${
           isOver
             ? 'bg-accent/10 border-accent/50'
             : 'bg-overlay/50 border-outline/30'

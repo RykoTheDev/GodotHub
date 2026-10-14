@@ -722,7 +722,11 @@ export type commonKeys =
   | 'console_no_matches'
   | 'console_pill_hint'
   | 'console_resumed_hint'
-  | 'console_previous_hint';
+  | 'console_previous_hint'
+  | 'project_card_version_unavailable'
+  | 'project_card_total_time'
+  | 'project_card_last_opened'
+  | 'project_card_more_tags';
 
 /** Keys from dashboard.json */
 export type dashboardKeys = 
@@ -2178,6 +2182,10 @@ export type TranslationKey =
   | 'common:console_pill_hint'
   | 'common:console_resumed_hint'
   | 'common:console_previous_hint'
+  | 'common:project_card_version_unavailable'
+  | 'common:project_card_total_time'
+  | 'common:project_card_last_opened'
+  | 'common:project_card_more_tags'
   | 'dashboard:greeting_morning'
   | 'dashboard:greeting_afternoon'
   | 'dashboard:greeting_evening'

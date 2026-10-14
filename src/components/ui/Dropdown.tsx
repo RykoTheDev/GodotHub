@@ -39,6 +39,7 @@ interface NewDropdownProps {
   align?: 'left' | 'right'
   side?: 'top' | 'bottom' | 'left'
   menuClassName?: string
+  className?: string
   activeItemClassName?: string
   compact?: boolean
   children?: ReactNode
@@ -64,6 +65,7 @@ export function Dropdown({
   align = 'right',
   side = 'bottom',
   menuClassName = '',
+  className = 'w-fit',
   activeItemClassName = 'text-ink bg-accent hover:bg-accent',
   compact = false,
   children,
@@ -266,7 +268,7 @@ export function Dropdown({
 
   return (
     <>
-      <div ref={ref} className="relative flex items-stretch w-fit">
+      <div ref={ref} className={`relative flex items-stretch ${className}`}>
         {trigger({ open, toggle })}
       </div>
 

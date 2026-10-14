@@ -61,6 +61,7 @@ export interface SortableProjectItemProps {
   static?: boolean
   gripClassName?: string
   carried?: boolean
+  fillHeight?: boolean
 }
 
 export function SortableProjectItem({
@@ -72,6 +73,7 @@ export function SortableProjectItem({
   static: isStatic = false,
   gripClassName = 'left-0.5',
   carried = false,
+  fillHeight = true,
 }: SortableProjectItemProps) {
   const {
     attributes,
@@ -118,7 +120,7 @@ export function SortableProjectItem({
         onPointerDown={onPointerDown}
         onDragStart={(event) => event.preventDefault()}
         style={isDragging || carried ? { opacity: DRAG_FEEL.ghostOpacity } : undefined}
-        className={`h-full ${disabled ? '' : 'cursor-grab active:cursor-grabbing'} ${
+        className={`${fillHeight ? 'h-full' : ''} ${disabled ? '' : 'cursor-grab active:cursor-grabbing'} ${
           isDragging || carried ? 'rounded-item ring-1 ring-accent/30' : ''
         }`}
       >

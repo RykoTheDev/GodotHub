@@ -1,5 +1,4 @@
 import { useMemo } from 'react'
-import Masonry from 'react-masonry-css'
 import { useTranslation } from 'react-i18next'
 import { DndContext, DragOverlay, closestCenter } from '@dnd-kit/core'
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
@@ -57,13 +56,6 @@ interface ProjectCardGridProps {
     e: React.MouseEvent<HTMLElement>,
     category: Category,
   ) => void
-}
-
-const BREAKPOINTS = {
-  default: 4,
-  1280: 3,
-  960: 2,
-  640: 1,
 }
 
 const UNCATEGORIZED = UNCATEGORIZED_KEY
@@ -126,7 +118,7 @@ export function ProjectCardGrid({
 
   const renderCard = (p: Project) => {
     const card = (
-      <div className="mb-3">
+      <div className="h-full min-w-0">
         <ProjectCardGridItem
           project={p}
           installedVersions={installedVersions}
@@ -146,9 +138,7 @@ export function ProjectCardGrid({
           }
           onTagsSaved={onTagsSaved}
           onTagClick={onTagClick}
-          onShowGitSidebar={() =>
-            onShowGitSidebar?.(p, gitStatusMap[p.path] ?? null)
-          }
+          onShowGitSidebar={onShowGitSidebar ? () => onShowGitSidebar(p, gitStatusMap[p.path] ?? null) : undefined}
           activeTag={activeTag}
           selected={selectedIds.has(p.id)}
           onToggleSelect={
@@ -165,6 +155,7 @@ export function ProjectCardGrid({
         <SortableProjectItem
           key={p.id}
           id={p.id}
+          className="h-full min-w-0"
           static={dnd.activeIds.length > 1}
           carried={dnd.activeIds.includes(p.id)}
           gripClassName="left-1"
@@ -174,17 +165,13 @@ export function ProjectCardGrid({
       )
     }
 
-    return <div key={p.id}>{card}</div>
+    return <div key={p.id} className="h-full min-w-0">{card}</div>
   }
 
-  const masonry = (list: Project[]) => (
-    <Masonry
-      breakpointCols={BREAKPOINTS}
-      className={`masonry ${isDndEnabled ? 'px-2' : ''}`}
-      columnClassName="masonry-column"
-    >
+  const cardGrid = (list: Project[]) => (
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] items-stretch gap-3 pb-4">
       {list.map(renderCard)}
-    </Masonry>
+    </div>
   )
 
   const categoryContent = (
@@ -208,11 +195,21 @@ export function ProjectCardGrid({
             }
           >
             <SortableContext items={catProjects.map((p) => p.id)} strategy={rectSortingStrategy}>
-              {masonry(catProjects)}
+              {cardGrid(catProjects)}
             </SortableContext>
           </ProjectCategorySection>
         )
       })}
+      {Array.from(groupedProjects?.entries() ?? [])
+        .filter(([name]) => name !== UNCATEGORIZED && !categories.some(category => category.name === name))
+        .map(([name, list]) => (
+          <ProjectCategorySection key={name} variant="grid" title={name} count={list.length}
+            defaultOpen disableAnimation={isDndEnabled} droppableId={`grid-cat-${name}`}>
+            <SortableContext items={list.map(project => project.id)} strategy={rectSortingStrategy}>
+              {cardGrid(list)}
+            </SortableContext>
+          </ProjectCategorySection>
+        ))}
       {(() => {
         const uncategorizedProjects = groupedProjects?.get(UNCATEGORIZED) ?? []
         return (
@@ -225,7 +222,7 @@ export function ProjectCardGrid({
             droppableId="grid-cat-uncategorized"
           >
             <SortableContext items={uncategorizedProjects.map((p) => p.id)} strategy={rectSortingStrategy}>
-              {masonry(uncategorizedProjects)}
+              {cardGrid(uncategorizedProjects)}
             </SortableContext>
           </ProjectCategorySection>
         )
@@ -235,7 +232,7 @@ export function ProjectCardGrid({
 
   const allContent = (
     <>
-      {grouped ? categoryContent : masonry(projects)}
+      {grouped ? categoryContent : cardGrid(projects)}
       {hiddenCategories.length > 0 && (
         <HiddenCategoriesSection
           entries={hiddenCategories}
@@ -268,12 +265,18 @@ export function ProjectCardGrid({
               <ProjectDragOverlay
                 innerRef={dnd.overlayRef}
                 count={dnd.activeIds.length}
+                className="h-full"
               >
                 <ProjectCardGridItem
+                  preview
                   project={activeProject}
                   installedVersions={installedVersions}
                   gitStatus={gitStatusMap[activeProject.path] ?? null}
                   launchWithConsole={launchWithConsole}
+                  selected={selectedIds.has(activeProject.id)}
+                  onToggleSelect={selecting || selectedIds.size > 0 ? () => {} : undefined}
+                  onShowGitSidebar={onShowGitSidebar ? () => {} : undefined}
+                  activeTag={activeTag}
                   onTogglePin={() => {}}
                   onVersionChange={() => {}}
                   onRemove={() => {}}
