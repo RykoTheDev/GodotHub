@@ -328,17 +328,20 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
   const [lastPushedAt, setLastPushedAt] = useState<string | null>(null);
 
   useEffect(() => {
-    api.gistSyncGetInfo().then((info) => {
-      if (info) {
-        setSyncUrl(info.gist_url);
-        if (info.pushed_at) {
-          try {
-            setLastPushedAt(formatLocaleDateTime(new Date(info.pushed_at)));
-          } catch {}
+    api
+      .gistSyncGetInfo()
+      .then((info) => {
+        if (info) {
+          setSyncUrl(info.gist_url)
+          if (info.pushed_at) {
+            try {
+              setLastPushedAt(formatLocaleDateTime(new Date(info.pushed_at)))
+            } catch {}
+          }
         }
-      }
-    });
-  }, []);
+      })
+      .catch(() => {})
+  }, [])
 
   const handleApplyCss = () => {
     update({ ...settings, custom_css: cssDraft });

@@ -1376,12 +1376,16 @@
   },
   {
     "id": "4509fdd0-a685-4159-b067-417b4d758614",
-    "version": "v1.4.6",
-    "date": "2026-10-12",
+    "version": "v1.4.6 and v1.4.7",
+    "date": "2026-10-14",
     "notes": [
       {
         "category": "fix",
-        "text": "Various small bug fixings"
+        "text": "Gist not Pulling from github at first launch after connecting with github"
+      },
+      {
+        "category": "improve",
+        "text": "Better error prompts when something doesn't work as intended"
       }
     ],
     "known_issues": [],
