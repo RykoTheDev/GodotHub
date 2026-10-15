@@ -17,6 +17,7 @@ mod models;
 mod news;
 mod persist;
 mod process;
+mod project_identity;
 mod projects;
 mod project_todos;
 mod scan;

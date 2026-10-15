@@ -128,6 +128,21 @@ pub fn last_active_ms(app: &AppHandle) -> u64 {
     .last_active_ms
 }
 
+pub fn total_seconds_for(app: &AppHandle, project_id: &str) -> u64 {
+    let store = read_stats(app);
+    let from_daily: u64 = store
+        .daily
+        .get(project_id)
+        .map(|by_day| by_day.values().copied().sum())
+        .unwrap_or(0);
+    let from_sessions: u64 = store
+        .projects
+        .get(project_id)
+        .map(|sessions| sessions.iter().map(|s| s.seconds).sum())
+        .unwrap_or(0);
+    from_daily.max(from_sessions)
+}
+
 pub fn record_session(app: &AppHandle, project_id: &str, start_ms: u64, seconds: u64) {
     if seconds == 0 {
         return;

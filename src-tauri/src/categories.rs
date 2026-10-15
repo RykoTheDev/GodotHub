@@ -90,15 +90,22 @@ pub fn update_category(
 
         if old_name != cats[idx].name {
             let mut all_projects = projects::read_projects(&app);
-            let mut changed = false;
+            let mut changed_paths: Vec<(String, String)> = Vec::new();
             for p in all_projects.iter_mut() {
                 if p.category.as_deref() == Some(old_name.as_str()) {
                     p.category = Some(cats[idx].name.clone());
-                    changed = true;
+                    changed_paths.push((p.path.clone(), p.id.clone()));
                 }
             }
-            if changed {
+            if !changed_paths.is_empty() {
                 projects::write_projects(&app, &all_projects).map_err(|e| e.to_string())?;
+                for (path, pid) in &changed_paths {
+                    crate::project_identity::ensure_project_identity(
+                        path,
+                        pid,
+                        Some(cats[idx].name.as_str()),
+                    );
+                }
             }
         }
     }
@@ -132,15 +139,18 @@ pub fn delete_category(app: AppHandle, id: String) -> Result<(), String> {
     write_categories(&app, &cats).map_err(|e| e.to_string())?;
 
     let mut all_projects = projects::read_projects(&app);
-    let mut changed = false;
+    let mut changed_paths: Vec<(String, String)> = Vec::new();
     for p in all_projects.iter_mut() {
         if p.category.as_deref() == Some(removed.name.as_str()) {
             p.category = None;
-            changed = true;
+            changed_paths.push((p.path.clone(), p.id.clone()));
         }
     }
-    if changed {
+    if !changed_paths.is_empty() {
         projects::write_projects(&app, &all_projects).map_err(|e| e.to_string())?;
+        for (path, pid) in &changed_paths {
+            crate::project_identity::ensure_project_identity(path, pid, None);
+        }
     }
     Ok(())
 }

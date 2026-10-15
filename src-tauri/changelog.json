@@ -1376,7 +1376,7 @@
   },
   {
     "id": "4509fdd0-a685-4159-b067-417b4d758614",
-    "version": "v1.4.6 and v1.4.7",
+    "version": "v1.4.6 - v1.4.7",
     "date": "2026-10-14",
     "notes": [
       {
@@ -1394,6 +1394,10 @@
       {
         "category": "add",
         "text": "Moved Git Worktrees from Experimental to Stable, with improved UI and UX"
+      },
+      {
+        "category": "improve",
+        "text": "Gave each of your Projects a unique ID (.github.json file) that will be used to track your project's time so changing the directory location now won't reset your time tracked"
       }
     ],
     "known_issues": [],

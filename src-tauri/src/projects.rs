@@ -372,6 +372,9 @@ pub fn list_projects(app: AppHandle) -> Vec<Project> {
     if !removed.is_empty() || tags_changed || names_changed {
         let _ = write_projects(&app, &kept);
     }
+    for p in &kept {
+        crate::project_identity::ensure_project_identity(&p.path, &p.id, p.category.as_deref());
+    }
     let stats = crate::time_stats::read_stats(&app);
     let now = chrono::Local::now();
     for p in kept.iter_mut() {
@@ -573,6 +576,13 @@ pub fn create_project(
 
     projects.push(project.clone());
     write_projects(&app, &projects)?;
+    // Stamp the folder with its identity so a later rename keeps tracking and
+    // category.
+    let _ = crate::project_identity::ensure_project_identity(
+        &project.path,
+        &project.id,
+        project.category.as_deref(),
+    );
     undismiss(&app, &project.path);
     if !project.godot_version.is_empty() {
         let _ = crate::godotenv::pin_version(
@@ -668,6 +678,13 @@ pub fn duplicate_project(
 
     projects.push(project.clone());
     write_projects(&app, &projects)?;
+    // The copied files may carry the source's identity marker; the duplicate
+    // needs its own so the two projects track time independently.
+    let _ = crate::project_identity::ensure_project_identity(
+        &project.path,
+        &project.id,
+        project.category.as_deref(),
+    );
     undismiss(&app, &project.path);
     if !project.godot_version.is_empty() {
         let _ = crate::godotenv::pin_version(
@@ -791,6 +808,22 @@ pub fn register_project(
         return Err("This project is already in your library".into());
     }
 
+    // A project folder carries its own identity marker, so we can recognize it
+    // again after it is renamed or moved. When its previous location no longer
+    // exists this is the same project at a new path: repoint the existing entry
+    // instead of adding a duplicate that would restart time tracking at zero.
+    let carried_id = crate::project_identity::read_project_identity(&path);
+    let carried_category = crate::project_identity::read_project_category(&path);
+    if let Some(id) = &carried_id {
+        if let Some(idx) = projects.iter().position(|p| &p.id == id) {
+            let old_path_exists =
+                Path::new(&projects[idx].path).join("project.godot").exists();
+            if !same_path(&projects[idx].path, &path) && !old_path_exists {
+                return relocate_project_entry(app, projects, idx, path, godot_version, category);
+            }
+        }
+    }
+
     let mut archive = read_dismissed_archive(&app);
     if let Some(mut archived) = archive.remove(&normalize_path(&path)) {
         archived.session_started_at_ms = None;
@@ -825,6 +858,11 @@ pub fn register_project(
         write_dismissed_archive(&app, &archive);
         projects.push(archived.clone());
         write_projects(&app, &projects)?;
+        let _ = crate::project_identity::ensure_project_identity(
+            &path,
+            &archived.id,
+            archived.category.as_deref(),
+        );
         undismiss(&app, &path);
         return Ok(archived);
     }
@@ -839,10 +877,22 @@ pub fn register_project(
         }
     }
     let tags = resolve_project_tags(&path);
+    // Reuse the id carried by the folder when it is free (for example the
+    // project was dropped from the library but its stats survive). A folder
+    // copied from a tracked project keeps a marker whose id is still in use, so
+    // that copy gets a fresh id instead.
+    let project_id = match carried_id {
+        Some(id) if !projects.iter().any(|p| p.id == id) => id,
+        _ => Uuid::new_v4().to_string(),
+    };
+    // When the project is recognized again after being dropped from the library
+    // (renamed/moved folder), restore the category it carried with it so it
+    // doesn't fall back to Uncategorized.
+    let category = category.or(carried_category);
     let project = Project {
-        id: Uuid::new_v4().to_string(),
+        id: project_id.clone(),
         name,
-        path,
+        path: path.clone(),
         godot_version,
         created_at: chrono::Utc::now().to_rfc3339(),
         last_opened: None,
@@ -851,14 +901,76 @@ pub fn register_project(
         pinned: false,
         launch_arguments: String::new(),
         tags,
-        total_time_seconds: 0,
+        total_time_seconds: crate::time_stats::total_seconds_for(&app, &project_id),
         session_started_at_ms: None,
         time_today_seconds: 0,
         time_week_seconds: 0,
     };
     projects.push(project.clone());
     write_projects(&app, &projects)?;
+    let _ = crate::project_identity::ensure_project_identity(
+        &path,
+        &project.id,
+        project.category.as_deref(),
+    );
     Ok(project)
+}
+
+/// Repoint an existing tracked project to a new path after its folder was
+/// renamed or moved. Time tracking is stored per project id, so keeping the
+/// same entry preserves all of its stats.
+fn relocate_project_entry(
+    app: AppHandle,
+    mut projects: Vec<Project>,
+    idx: usize,
+    path: String,
+    godot_version: String,
+    category: Option<String>,
+) -> Result<Project, String> {
+    {
+        let project = &mut projects[idx];
+        project.path = path.clone();
+        let folder_name = PathBuf::from(&path)
+            .file_name()
+            .map(|n| n.to_string_lossy().to_string());
+        if let Some(folder) = folder_name {
+            if project.name == folder {
+                if let Some(resolved) = resolve_project_name(&path) {
+                    if !resolved.trim().is_empty() {
+                        project.name = resolved;
+                    }
+                }
+            }
+        }
+        if !godot_version.is_empty() {
+            project.godot_version = godot_version;
+        } else if project.godot_version.is_empty() {
+            if let Some(spec) = crate::godotenv::detect_version(&path) {
+                let installed = crate::godot_versions::read_registry(&app);
+                if let Some(v) = crate::godotenv::best_match(&spec, &installed) {
+                    project.godot_version = v.tag.clone();
+                }
+            }
+        }
+        if let Some(cat) = category {
+            if !cat.trim().is_empty() {
+                project.category = Some(cat);
+            }
+        }
+        let tags = resolve_project_tags(&path);
+        if !tags.is_empty() {
+            project.tags = tags;
+        }
+    }
+    let updated = projects[idx].clone();
+    write_projects(&app, &projects)?;
+    let _ = crate::project_identity::ensure_project_identity(
+        &path,
+        &updated.id,
+        updated.category.as_deref(),
+    );
+    undismiss(&app, &path);
+    Ok(updated)
 }
 
 #[tauri::command]
@@ -977,6 +1089,12 @@ pub fn update_project(
     }
     let updated = project.clone();
     write_projects(&app, &projects)?;
+    // Keep the folder's marker in sync so a later rename restores the category.
+    let _ = crate::project_identity::ensure_project_identity(
+        &updated.path,
+        &updated.id,
+        updated.category.as_deref(),
+    );
     Ok(updated)
 }
 

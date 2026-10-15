@@ -1061,6 +1061,9 @@ mono_crash.*.json
 # OS-generated files
 .DS_Store
 Thumbs.db
+
+# GodotHub project identity marker
+.godothub.json
 ";
 
 const GODOT_GITATTRIBUTES: &str = "\
