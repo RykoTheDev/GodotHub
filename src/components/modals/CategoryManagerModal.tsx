@@ -26,8 +26,11 @@ import { ModalShell } from './ModalShell'
 import { ColorSwatchPicker } from '../ui/ColorSwatchPicker'
 import { CATEGORY_COLORS } from '../../lib/categoryColors'
 import { DragHandle } from '../reusables/DragHandle'
+import { api } from '../../lib/api'
 import {
   IconCheck,
+  IconFolder,
+  IconFolderPlus,
   IconGrip,
   IconPencil,
   IconPlus,
@@ -44,6 +47,7 @@ function SortableCategoryItem({
   category,
   projects,
   editing,
+  busy,
   editValue,
   editColor,
   onStartEdit,
@@ -52,10 +56,13 @@ function SortableCategoryItem({
   onEditValueChange,
   onEditColorChange,
   onConfirmDelete,
+  onAssignFolder,
+  onRemoveFolder,
 }: {
   category: Category
   projects: Project[]
   editing: boolean
+  busy: boolean
   editValue: string
   editColor: string
   onStartEdit: () => void
@@ -64,6 +71,8 @@ function SortableCategoryItem({
   onEditValueChange: (value: string) => void
   onEditColorChange: (value: string) => void
   onConfirmDelete: () => void
+  onAssignFolder: () => void
+  onRemoveFolder: (folder: string) => void
 }) {
   const { t } = useTranslation('common')
   const {
@@ -176,6 +185,45 @@ function SortableCategoryItem({
           </>
         )}
       </div>
+      {!editing && (
+        <div className="px-12 pb-1 pt-0">
+          <div className="flex flex-wrap items-center gap-1.5">
+            {category.folders.map((folder) => (
+              <span
+                key={folder}
+                className="flex items-center gap-1.5 pl-2.5 pr-1 py-1 rounded-lg bg-base/70 border border-outline/25 max-w-[240px]"
+              >
+                <IconFolder className="w-3 h-3 text-muted/60 shrink-0" />
+                <span
+                  className="text-[11px] text-muted truncate font-mono"
+                  title={folder}
+                >
+                  {folder}
+                </span>
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => onRemoveFolder(folder)}
+                  aria-label={t('unassign_folder_aria', { folder })}
+                  className="focus-ring cursor-pointer shrink-0 p-1 rounded-md text-muted/50 hover:text-danger hover:bg-danger/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <IconX className="w-2.5 h-2.5" />
+                </button>
+              </span>
+            ))}
+            <button
+              type="button"
+              disabled={busy}
+              onClick={onAssignFolder}
+              aria-label={t('assign_folder_to_category', { name: category.name })}
+              className="focus-ring cursor-pointer flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-dashed border-outline/50 text-[11px] text-muted hover:text-accent-bright hover:border-accent-dim transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <IconFolderPlus className="w-3 h-3" />
+              {t('assign_folder')}
+            </button>
+          </div>
+        </div>
+      )}
       {projects.length > 0 && !editing && (
         <div className="px-12 pb-3 pt-0">
           <div className="flex flex-wrap gap-1.5">
@@ -208,6 +256,8 @@ interface Props {
   onUpdate: (id: string, name?: string | null, color?: string | null) => Promise<Category>
   onDelete: (id: string) => Promise<void>
   onReorder: (orderedIds: string[]) => Promise<void>
+  onAssignFolder: (id: string, folder: string) => Promise<Category>
+  onUnassignFolder: (id: string, folder: string) => Promise<Category>
 }
 
 export function CategoryManagerModal({
@@ -218,12 +268,15 @@ export function CategoryManagerModal({
   onUpdate,
   onDelete,
   onReorder,
+  onAssignFolder,
+  onUnassignFolder,
 }: Props) {
   const { t } = useTranslation('common')
   const [newName, setNewName] = useState('')
   const [newColor, setNewColor] = useState(CATEGORY_COLORS[0])
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [folderBusyId, setFolderBusyId] = useState<string | null>(null)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editValue, setEditValue] = useState('')
   const [editColor, setEditColor] = useState('')
@@ -246,6 +299,38 @@ export function CategoryManagerModal({
       setItems(categories.map((c) => c.id))
     }
   }, [categories, activeId])
+
+  const assignFolder = useCallback(
+    async (category: Category) => {
+      const folder = await api.pickFolder()
+      if (!folder) return
+      setFolderBusyId(category.id)
+      setError(null)
+      try {
+        await onAssignFolder(category.id, folder)
+      } catch (e) {
+        setError(String(e))
+      } finally {
+        setFolderBusyId(null)
+      }
+    },
+    [onAssignFolder],
+  )
+
+  const removeFolder = useCallback(
+    async (category: Category, folder: string) => {
+      setFolderBusyId(category.id)
+      setError(null)
+      try {
+        await onUnassignFolder(category.id, folder)
+      } catch (e) {
+        setError(String(e))
+      } finally {
+        setFolderBusyId(null)
+      }
+    },
+    [onUnassignFolder],
+  )
 
   const submitNew = async () => {
     const trimmed = newName.trim()
@@ -407,6 +492,15 @@ export function CategoryManagerModal({
           </div>
         )}
 
+        {categories.length > 0 && (
+          <div className="flex items-start gap-2.5 px-3.5 py-2.5 rounded-lg bg-overlay/40 border border-outline/25">
+            <IconFolder className="w-3.5 h-3.5 text-muted/60 shrink-0 mt-0.5" />
+            <p className="text-[11px] text-muted leading-relaxed">
+              {t('category_folders_hint')}
+            </p>
+          </div>
+        )}
+
         <DndContext
           sensors={sensors}
           collisionDetection={closestCorners}
@@ -439,6 +533,7 @@ export function CategoryManagerModal({
                         category={cat}
                         projects={projects.filter((p) => p.category === cat.name)}
                         editing={editingId === cat.id}
+                        busy={folderBusyId === cat.id}
                         editValue={editingId === cat.id ? editValue : ''}
                         editColor={editingId === cat.id ? editColor : ''}
                         onStartEdit={() => startEdit(cat)}
@@ -447,6 +542,8 @@ export function CategoryManagerModal({
                         onEditValueChange={setEditValue}
                         onEditColorChange={setEditColor}
                         onConfirmDelete={() => setConfirmDeleteId(cat.id)}
+                        onAssignFolder={() => void assignFolder(cat)}
+                        onRemoveFolder={(folder) => void removeFolder(cat, folder)}
                       />
                     )
                   })}

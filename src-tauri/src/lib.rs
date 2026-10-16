@@ -389,6 +389,8 @@ pub fn run() {
             categories::rename_category,
             categories::delete_category,
             categories::reorder_categories,
+            categories::add_category_folder,
+            categories::remove_category_folder,
             settings::get_settings,
             settings::update_settings,
             settings::reset_settings,

@@ -94,7 +94,7 @@ You can reopen the wizard anytime from **Settings → Advanced → Run Setup Wiz
 
 ## After setup
 
-- **Projects**: import existing Godot projects or create new ones, pin favorites, and organize them with categories and tags.
+- **Projects**: import existing Godot projects or create new ones, pin favorites, and organize them with categories and tags. Open **Manage Categories** to file projects yourself or assign folders to a category; any project found inside an assigned folder is sorted into that category automatically.
 - **Versions**: browse and download official Godot builds, or import executables you already have.
 - **Templates**: save any project as a template and start new projects from it.
 - **Asset Store**: install assets from the old Asset Library or the new Asset Store straight into a project or template.

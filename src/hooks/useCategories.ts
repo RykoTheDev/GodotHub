@@ -80,6 +80,24 @@ export function useCategories() {
     [setData],
   )
 
+  const assignFolder = useCallback(
+    async (id: string, folder: string) => {
+      const updated = await api.addCategoryFolder(id, folder)
+      await refresh()
+      return updated
+    },
+    [refresh],
+  )
+
+  const unassignFolder = useCallback(
+    async (id: string, folder: string) => {
+      const updated = await api.removeCategoryFolder(id, folder)
+      await refresh()
+      return updated
+    },
+    [refresh],
+  )
+
   return {
     categories,
     loaded,
@@ -90,5 +108,7 @@ export function useCategories() {
     remove,
     reorder,
     setHidden,
+    assignFolder,
+    unassignFolder,
   }
 }

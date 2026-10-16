@@ -71,6 +71,7 @@ export interface Category {
   sort_order: number
   color: string
   hidden: boolean
+  folders: string[]
 }
 
 export interface ChangelogNote {

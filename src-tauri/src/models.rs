@@ -85,6 +85,8 @@ pub struct Category {
     pub color: String,
     #[serde(default)]
     pub hidden: bool,
+    #[serde(default)]
+    pub folders: Vec<String>,
 }
 
 fn default_category_color() -> String {

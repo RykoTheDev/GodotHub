@@ -123,6 +123,8 @@ export function ProjectsView({
     remove: removeCategory,
     reorder: reorderCategories,
     setHidden: setCategoryHidden,
+    assignFolder: assignCategoryFolder,
+    unassignFolder: unassignCategoryFolder,
   } = useCategoriesContext()
   const { installed } = useGodotVersionsContext()
   const { settings } = useSettings()
@@ -1451,6 +1453,16 @@ export function ProjectsView({
             onUpdate={updateCategory}
             onDelete={removeCategory}
             onReorder={reorderCategories}
+            onAssignFolder={async (id, folder) => {
+              const updated = await assignCategoryFolder(id, folder)
+              await refresh()
+              return updated
+            }}
+            onUnassignFolder={async (id, folder) => {
+              const updated = await unassignCategoryFolder(id, folder)
+              await refresh()
+              return updated
+            }}
           />
         )}
       </AnimatePresence>

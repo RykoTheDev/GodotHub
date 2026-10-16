@@ -1398,6 +1398,10 @@
       {
         "category": "improve",
         "text": "Gave each of your Projects a unique ID (.github.json file) that will be used to track your project's time so changing the directory location now won't reset your time tracked"
+      },
+      {
+        "category": "add",
+        "text": "Feature Issue #198 - Assign folders to categories in Manage Categories: any project found inside an assigned folder is automatically filed under that category, and projects already there are sorted right away"
       }
     ],
     "known_issues": [],

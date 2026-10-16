@@ -22,4 +22,8 @@ export const categoriesApi = {
   delete: (id: string) => invoke<void>('delete_category', { id }),
   reorder: (orderedIds: string[]) =>
     invoke<void>('reorder_categories', { orderedIds }),
+  addFolder: (id: string, folder: string) =>
+    invoke<Category>('add_category_folder', { id, folder }),
+  removeFolder: (id: string, folder: string) =>
+    invoke<Category>('remove_category_folder', { id, folder }),
 }

@@ -180,6 +180,8 @@ export const api = {
   updateCategory: categoriesApi.update,
   deleteCategory: categoriesApi.delete,
   reorderCategories: categoriesApi.reorder,
+  addCategoryFolder: categoriesApi.addFolder,
+  removeCategoryFolder: categoriesApi.removeFolder,
 
   listWorkspaces: workspacesApi.list,
   listWorkspaceScanDirs: workspacesApi.scanDirs,

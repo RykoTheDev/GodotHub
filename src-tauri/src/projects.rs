@@ -291,6 +291,27 @@ pub fn same_path(a: &str, b: &str) -> bool {
     normalize_path(a) == normalize_path(b)
 }
 
+pub fn path_is_within(path: &str, folder: &str) -> bool {
+    fn normalize_candidate(value: &str) -> String {
+        let trimmed = value.trim_end_matches(['/', '\\']);
+        let trimmed = if trimmed.is_empty() { value } else { trimmed };
+        case_fold(&trimmed.replace('\\', "/"))
+    }
+
+    let path = normalize_candidate(path);
+    let folder = normalize_candidate(folder);
+    if folder.is_empty() {
+        return false;
+    }
+    if path == folder {
+        return true;
+    }
+    match path.strip_prefix(&folder) {
+        Some(rest) => rest.starts_with('/'),
+        None => false,
+    }
+}
+
 pub fn contains_path(paths: &[String], path: &str) -> bool {
     let target = normalize_path(path);
     paths.iter().any(|p| normalize_path(p) == target)
@@ -553,8 +574,13 @@ pub fn create_project(
     }
 
     let mut projects = read_projects(&app);
-    let effective_category = category.as_ref().and_then(|c| if c.trim().is_empty() { None } else { Some(c.clone()) });
     let project_path = project_dir.to_string_lossy().to_string();
+    let mut effective_category = category
+        .as_ref()
+        .and_then(|c| if c.trim().is_empty() { None } else { Some(c.clone()) });
+    if effective_category.is_none() {
+        effective_category = crate::categories::category_for_path(&app, &project_path);
+    }
     let tags = resolve_project_tags(&project_path);
     let project = Project {
         id: Uuid::new_v4().to_string(),
@@ -658,6 +684,10 @@ pub fn duplicate_project(
     let mut projects = read_projects(&app);
     let project_path = target_dir.to_string_lossy().to_string();
     let tags = resolve_project_tags(&project_path);
+    let category = source
+        .category
+        .clone()
+        .or_else(|| crate::categories::category_for_path(&app, &project_path));
     let project = Project {
         id: Uuid::new_v4().to_string(),
         name,
@@ -665,9 +695,9 @@ pub fn duplicate_project(
         godot_version: source.godot_version.clone(),
         created_at: chrono::Utc::now().to_rfc3339(),
         last_opened: None,
-        category: source.category.clone(),
+        category: category.clone(),
         pinned: false,
-        sort_order: next_sort_order(&projects, &source.category),
+        sort_order: next_sort_order(&projects, &category),
         launch_arguments: String::new(),
         tags,
         total_time_seconds: 0,
@@ -803,6 +833,13 @@ pub fn register_project(
         .unwrap_or_else(|| "Untitled".into());
     let name = resolve_project_name(&path).unwrap_or(folder_name);
 
+    let category = category.filter(|c| !c.trim().is_empty());
+    let rule_category = if category.is_none() {
+        crate::categories::category_for_path(&app, &path)
+    } else {
+        None
+    };
+
     let mut projects = read_projects(&app);
     if projects.iter().any(|p| same_path(&p.path, &path)) {
         return Err("This project is already in your library".into());
@@ -819,7 +856,15 @@ pub fn register_project(
             let old_path_exists =
                 Path::new(&projects[idx].path).join("project.godot").exists();
             if !same_path(&projects[idx].path, &path) && !old_path_exists {
-                return relocate_project_entry(app, projects, idx, path, godot_version, category);
+                return relocate_project_entry(
+                    app,
+                    projects,
+                    idx,
+                    path,
+                    godot_version,
+                    category,
+                    rule_category,
+                );
             }
         }
     }
@@ -846,6 +891,8 @@ pub fn register_project(
         }
         if let Some(cat) = &category {
             archived.category = Some(cat.clone());
+        } else if archived.category.is_none() {
+            archived.category = rule_category.clone();
         }
         if archived.godot_version.is_empty() {
             if let Some(spec) = crate::godotenv::detect_version(&path) {
@@ -888,7 +935,7 @@ pub fn register_project(
     // When the project is recognized again after being dropped from the library
     // (renamed/moved folder), restore the category it carried with it so it
     // doesn't fall back to Uncategorized.
-    let category = category.or(carried_category);
+    let category = category.or(carried_category).or(rule_category);
     let project = Project {
         id: project_id.clone(),
         name,
@@ -926,6 +973,7 @@ fn relocate_project_entry(
     path: String,
     godot_version: String,
     category: Option<String>,
+    rule_category: Option<String>,
 ) -> Result<Project, String> {
     {
         let project = &mut projects[idx];
@@ -953,9 +1001,9 @@ fn relocate_project_entry(
             }
         }
         if let Some(cat) = category {
-            if !cat.trim().is_empty() {
-                project.category = Some(cat);
-            }
+            project.category = Some(cat);
+        } else if project.category.is_none() {
+            project.category = rule_category;
         }
         let tags = resolve_project_tags(&path);
         if !tags.is_empty() {
