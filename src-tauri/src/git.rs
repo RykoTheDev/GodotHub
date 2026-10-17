@@ -1062,8 +1062,9 @@ mono_crash.*.json
 .DS_Store
 Thumbs.db
 
-# GodotHub project identity marker
+# GodotHub project metadata
 .godothub.json
+.godothub/
 ";
 
 const GODOT_GITATTRIBUTES: &str = "\
@@ -1159,11 +1160,8 @@ pub async fn git_init_project(
         let opts = options.unwrap_or_default();
 
         if opts.gitignore {
-            let file = dir.join(".gitignore");
-            if !file.exists() {
-                fs::write(&file, GODOT_GITIGNORE)
-                    .map_err(|e| format!("Failed to write .gitignore: {e}"))?;
-            }
+            crate::project_metadata::ensure_gitignore(&dir, GODOT_GITIGNORE)
+                .map_err(|e| format!("Failed to write .gitignore: {e}"))?;
         }
         if opts.gitattributes {
             let file = dir.join(".gitattributes");

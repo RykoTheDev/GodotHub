@@ -141,6 +141,7 @@ fn ancestor_dirs(start: &Path) -> Vec<PathBuf> {
 }
 
 pub fn detect_version(project_path: &str) -> Option<DetectedVersion> {
+    let _ = crate::project_metadata::migrate(Path::new(project_path));
     let mut globals: Vec<PathBuf> = Vec::new();
     let mut csprojs: Vec<PathBuf> = Vec::new();
     let mut godotrcs: Vec<PathBuf> = Vec::new();
@@ -166,6 +167,10 @@ pub fn detect_version(project_path: &str) -> Option<DetectedVersion> {
             csprojs.extend(files);
         }
 
+        let stored_pin = crate::project_metadata::version_file(&dir);
+        if stored_pin.is_file() {
+            godotrcs.push(stored_pin);
+        }
         let godotrc = dir.join(".godotrc");
         if godotrc.is_file() {
             godotrcs.push(godotrc);
@@ -312,9 +317,11 @@ pub fn pin_version(project_dir: &str, tag: &str, use_mise: bool) -> Result<(), S
     };
     let is_mono = tag.trim().ends_with("-mono");
     let root = Path::new(project_dir);
+    let _ = crate::project_metadata::migrate(root);
 
     if use_mise && crate::mise::write_pin(root, tag)? {
         let _ = fs::remove_file(root.join(".godotrc"));
+        let _ = fs::remove_file(crate::project_metadata::version_file(root));
         return Ok(());
     }
 
@@ -322,6 +329,7 @@ pub fn pin_version(project_dir: &str, tag: &str, use_mise: bool) -> Result<(), S
         write_global_json_pin(root, &number)?;
         if parse_global_json(&root.join("global.json")).is_some() {
             let _ = fs::remove_file(root.join(".godotrc"));
+            let _ = fs::remove_file(crate::project_metadata::version_file(root));
         }
         Ok(())
     } else {
@@ -364,7 +372,11 @@ fn write_godotrc_pin(root: &Path, number: &GodotVersionNumber) -> Result<(), Str
 {} no-dotnet\n",
         release_string(number)
     );
-    fs::write(root.join(".godotrc"), content).map_err(|e| e.to_string())
+    crate::project_metadata::prepare(root).map_err(|error| error.to_string())?;
+    crate::persist::write_bytes(&crate::project_metadata::version_file(root), content.as_bytes())
+        .map_err(|e| e.to_string())?;
+    let _ = fs::remove_file(root.join(".godotrc"));
+    Ok(())
 }
 
 fn write_global_json_pin(root: &Path, number: &GodotVersionNumber) -> Result<(), String> {

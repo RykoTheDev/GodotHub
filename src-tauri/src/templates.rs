@@ -1,4 +1,5 @@
 use crate::models::*;
+pub(crate) use crate::template_files::{copy_dir, mirror_dir, remove_dir_force};
 use std::fs;
 use std::path::{Path, PathBuf};
 use tauri::{AppHandle, Manager};
@@ -99,72 +100,6 @@ pub(crate) fn write_template_json(dir: &Path, template: &ProjectTemplate) -> Res
     .map_err(|e| e.to_string())
 }
 
-pub(crate) fn copy_dir(src: &Path, dst: &Path, skip_dirs: &[&str]) -> Result<(), String> {
-    if !dst.exists() {
-        fs::create_dir_all(dst).map_err(|e| e.to_string())?;
-    }
-    for entry in fs::read_dir(src).map_err(|e| e.to_string())? {
-        let entry = entry.map_err(|e| e.to_string())?;
-        let name = entry.file_name();
-        let name_str = name.to_string_lossy().to_string();
-        if skip_dirs.iter().any(|d| name_str == *d) {
-            continue;
-        }
-        let src_path = entry.path();
-        let dst_path = dst.join(&name);
-        if src_path.is_dir() {
-            copy_dir(&src_path, &dst_path, skip_dirs)?;
-        } else {
-            fs::copy(&src_path, &dst_path).map_err(|e| e.to_string())?;
-        }
-    }
-    Ok(())
-}
-
-pub(crate) fn mirror_dir(src: &Path, dst: &Path, skip_dirs: &[&str]) -> Result<(), String> {
-    if !dst.exists() {
-        fs::create_dir_all(dst).map_err(|e| e.to_string())?;
-    }
-
-    fn prune(src: &Path, dst: &Path, skip_dirs: &[&str]) -> Result<(), String> {
-        let mut src_entries: std::collections::HashMap<String, bool> = std::collections::HashMap::new();
-        for entry in fs::read_dir(src).map_err(|e| e.to_string())? {
-            let entry = entry.map_err(|e| e.to_string())?;
-            let name = entry.file_name().to_string_lossy().to_string();
-            if skip_dirs.iter().any(|d| name == *d) {
-                continue;
-            }
-            let is_dir = entry.file_type().map(|t| t.is_dir()).unwrap_or(false);
-            src_entries.insert(name, is_dir);
-        }
-
-        for entry in fs::read_dir(dst).map_err(|e| e.to_string())? {
-            let entry = entry.map_err(|e| e.to_string())?;
-            let name = entry.file_name().to_string_lossy().to_string();
-            if name == "template.json" || skip_dirs.iter().any(|d| name == *d) {
-                continue;
-            }
-            let dst_is_dir = entry.file_type().map(|t| t.is_dir()).unwrap_or(false);
-            match src_entries.get(&name) {
-                None => {
-                    remove_dir_force(&entry.path())?;
-                }
-                Some(src_is_dir) if *src_is_dir != dst_is_dir => {
-                    remove_dir_force(&entry.path())?;
-                }
-                Some(true) => {
-                    prune(&src.join(&name), &entry.path(), skip_dirs)?;
-                }
-                _ => {}
-            }
-        }
-        Ok(())
-    }
-
-    prune(src, dst, skip_dirs)?;
-    copy_dir(src, dst, skip_dirs)
-}
-
 pub(crate) fn install_downloaded_asset(
     app: &AppHandle,
     name: String,
@@ -234,6 +169,9 @@ pub fn list_templates(app: AppHandle) -> Vec<ProjectTemplate> {
         let path = entry.path();
         if path.is_dir() {
             if let Some(mut t) = read_template_json(&path) {
+                if let Err(error) = crate::template_files::remove_identity_files(&path) {
+                    eprintln!("Could not remove legacy template identity: {error}");
+                }
                 let folder_name = path
                     .file_name()
                     .map(|n| n.to_string_lossy().to_string())
@@ -361,38 +299,6 @@ pub fn save_project_as_template(
     Ok(template)
 }
 
-pub(crate) fn remove_dir_force(dir: &Path) -> Result<(), String> {
-    #[allow(clippy::permissions_set_readonly_false)]
-    fn clear_readonly(path: &Path) {
-        if let Ok(meta) = fs::metadata(path) {
-            let mut perms = meta.permissions();
-            perms.set_readonly(false);
-            let _ = fs::set_permissions(path, perms);
-        }
-    }
-
-    fn walk(dir: &Path) -> Result<(), String> {
-        if dir.is_dir() {
-            for entry in fs::read_dir(dir).map_err(|e| e.to_string())? {
-                let entry = entry.map_err(|e| e.to_string())?;
-                let path = entry.path();
-                clear_readonly(&path);
-                if path.is_dir() {
-                    walk(&path)?;
-                } else {
-                    fs::remove_file(&path).map_err(|e| e.to_string())?;
-                }
-            }
-            fs::remove_dir(dir).map_err(|e| e.to_string())
-        } else {
-            clear_readonly(dir);
-            fs::remove_file(dir).map_err(|e| e.to_string())
-        }
-    }
-
-    walk(dir)
-}
-
 fn delete_dir_best_effort(dir: &Path) -> bool {
     trash::delete_all(dir)
         .map_err(|e| e.to_string())
@@ -466,7 +372,7 @@ fn list_files_recursive(base: &Path, dir: &Path, entries: &mut Vec<TemplateFileE
         let entry = entry.map_err(|e| e.to_string())?;
         let path = entry.path();
         let name = entry.file_name();
-        if name == "template.json" {
+        if name == "template.json" || crate::project_metadata::is_metadata_entry(&name) {
             continue;
         }
         let rel = path

@@ -1406,5 +1406,42 @@
     ],
     "known_issues": [],
     "created_at": 1791813794
+  },
+  {
+    "id": "fda0a5ae-e36b-47cc-9894-d40d460e5141",
+    "version": "v1.4.8",
+    "date": "2026-10-17",
+    "notes": [
+      {
+        "category": "fix",
+        "text": "Store project identity in .godothub/project.json and version pins in .godothub/.godotrc, keeping both out of the project root. The folder is also marked as hidden on Windows."
+      },
+      {
+        "category": "improve",
+        "text": "Automatically add .gdignore inside .godothub so Godot skips its contents during asset scanning and keeps the metadata folder out of the FileSystem dock on Windows, Linux, and macOS."
+      },
+      {
+        "category": "improve",
+        "text": "Automatically migrate existing .godothub.json and .godotrc files when projects load or are imported, preserving IDs, categories, version pins, and time tracking. Conflicting files or failed migrations retain the original data for recovery."
+      },
+      {
+        "category": "fix",
+        "text": "Exclude the .godothub folder and legacy metadata files when saving, importing, syncing, or copying templates and duplicating projects, so each new project gets its own identity. Clean stale metadata from managed templates and keep it out of previews."
+      },
+      {
+        "category": "fix",
+        "text": "Skip Git metadata and Godot's editor cache when creating projects from older templates, and reject overlapping copy or sync folders to protect source projects."
+      },
+      {
+        "category": "fix",
+        "text": "Keep a project's identity when installing Asset Library content: downloaded identity files no longer overwrite the destination project's marker."
+      },
+      {
+        "category": "improve",
+        "text": "Include .godothub/ when creating a new project's .gitignore, including projects whose templates already provide one. Existing ignore rules are preserved without adding duplicate entries."
+      }
+    ],
+    "known_issues": [],
+    "created_at": 1792262170
   }
 ]

@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 use tauri::AppHandle;
 use tauri::Emitter;
 
-const SKIP_DIRS: [&str; 5] = [".git", ".import", ".godot", "Addons", "addons"];
+const SKIP_DIRS: [&str; 6] = [".git", ".import", ".godot", ".godothub", "Addons", "addons"];
 
 fn walk<F: FnMut(&Path)>(dir: &Path, depth: usize, max_depth: usize, visit: &mut F) {
     if depth > max_depth {

@@ -58,7 +58,7 @@ pub fn write_json<T: Serialize>(path: &Path, data: &T) -> AppResult<()> {
     write_bytes(path, json.as_bytes())
 }
 
-fn write_bytes(path: &Path, bytes: &[u8]) -> AppResult<()> {
+pub(crate) fn write_bytes(path: &Path, bytes: &[u8]) -> AppResult<()> {
     let tmp = tmp_path(path);
     {
         let mut file = File::create(&tmp)?;

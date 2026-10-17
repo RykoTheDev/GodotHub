@@ -1133,31 +1133,5 @@ fn find_content_root(dir: &Path) -> PathBuf {
 }
 
 fn merge_asset_into(src: &Path, dst: &Path) -> Result<(), String> {
-    let skip_dirs: &[&str] = &[".godot", ".git", "node_modules"];
-    let protect_project_file = dst.join("project.godot").is_file();
-    if !dst.exists() {
-        fs::create_dir_all(dst).map_err(|e| e.to_string())?;
-    }
-    for entry in fs::read_dir(src).map_err(|e| e.to_string())? {
-        let entry = entry.map_err(|e| e.to_string())?;
-        let name = entry.file_name();
-        let name_str = name.to_string_lossy().to_string();
-        if skip_dirs.contains(&name_str.as_str()) {
-            continue;
-        }
-        if protect_project_file && name_str == "project.godot" {
-            continue;
-        }
-        let src_path = entry.path();
-        let dst_path = dst.join(&name);
-        if src_path.is_dir() {
-            crate::templates::copy_dir(&src_path, &dst_path, skip_dirs)?;
-        } else {
-            if let Some(parent) = dst_path.parent() {
-                fs::create_dir_all(parent).map_err(|e| e.to_string())?;
-            }
-            fs::copy(&src_path, &dst_path).map_err(|e| e.to_string())?;
-        }
-    }
-    Ok(())
+    crate::template_files::merge_asset_into(src, dst)
 }

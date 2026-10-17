@@ -517,7 +517,7 @@ pub fn create_project(
         if !template_src.exists() {
             return Err("Template not found".into());
         }
-        crate::templates::copy_dir(&template_src, &project_dir, &[])?;
+        crate::templates::copy_dir(&template_src, &project_dir, &[".git", ".godot"])?;
         let _ = fs::remove_file(project_dir.join("template.json"));
     } else {
         fs::create_dir_all(&project_dir).map_err(|e| e.to_string())?;
@@ -708,8 +708,8 @@ pub fn duplicate_project(
 
     projects.push(project.clone());
     write_projects(&app, &projects)?;
-    // The copied files may carry the source's identity marker; the duplicate
-    // needs its own so the two projects track time independently.
+    // Copies exclude identity markers; stamp a new identity so the two projects
+    // track time independently.
     let _ = crate::project_identity::ensure_project_identity(
         &project.path,
         &project.id,

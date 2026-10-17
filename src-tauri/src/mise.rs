@@ -955,6 +955,7 @@ mod tests {
 
         godotenv::pin_version(&path, "4.5.1-stable", true).expect("pin into mise.toml");
         assert!(!dir.join(".godotrc").exists(), "stale .godotrc was kept");
+        assert!(!crate::project_metadata::version_file(&dir).exists());
         let detected = godotenv::detect_version(&path).expect("version detected from mise.toml");
         assert_eq!(godotenv::release_string(&detected.number), "4.5.1-stable");
 
@@ -962,7 +963,8 @@ mod tests {
         fs::write(off.join("mise.toml"), "[tools]\nnode = \"20\"\n").unwrap();
         let off_path = off.to_str().unwrap().to_string();
         godotenv::pin_version(&off_path, "4.4-stable", false).expect("pin into .godotrc");
-        assert!(off.join(".godotrc").exists());
+        assert!(crate::project_metadata::version_file(&off).exists());
+        assert!(!off.join(".godotrc").exists());
 
         let _ = fs::remove_dir_all(&dir);
         let _ = fs::remove_dir_all(&off);

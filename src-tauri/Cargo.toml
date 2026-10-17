@@ -1,6 +1,6 @@
 [package]
 name = "godothub"
-version = "1.4.7"
+version = "1.4.8"
 description = "Godot Version and Project Management"
 authors = ["Ryko"]
 edition = "2021"
@@ -46,4 +46,4 @@ tauri-plugin-single-instance = "2"
 libc = "0.2"
 
 [target.'cfg(windows)'.dependencies]
-windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_System_Threading"] }
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_System_Threading", "Win32_Storage_FileSystem"] }

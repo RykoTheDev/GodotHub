@@ -1,7 +1,7 @@
 {
   "name": "godothub",
   "private": true,
-  "version": "1.4.7",
+  "version": "1.4.8",
   "type": "module",
   "scripts": {
     "dev": "vite",

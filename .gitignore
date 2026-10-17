@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# GodotHub project metadata
+.godothub/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

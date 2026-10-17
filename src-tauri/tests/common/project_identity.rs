@@ -14,7 +14,7 @@ fn marker_is_written_inside_the_project_folder() {
     let path = dir.to_string_lossy().to_string();
 
     assert!(super::write_project_identity(&path, "abc-123", None));
-    assert!(dir.join(super::IDENTITY_FILE).exists());
+    assert!(super::identity_file(&path).exists());
     assert_eq!(
         super::read_project_identity(&path).as_deref(),
         Some("abc-123")
@@ -30,7 +30,7 @@ fn marker_explains_what_it_is() {
     let path = dir.to_string_lossy().to_string();
 
     assert!(super::write_project_identity(&path, "abc-123", None));
-    let raw = fs::read_to_string(dir.join(super::IDENTITY_FILE)).unwrap();
+    let raw = fs::read_to_string(super::identity_file(&path)).unwrap();
     assert!(
         raw.starts_with("{\n  \"//\":"),
         "expected a leading self-describing entry, got: {raw}"
@@ -119,7 +119,7 @@ fn ensure_only_rewrites_when_something_changes() {
     let path = dir.to_string_lossy().to_string();
 
     assert!(super::ensure_project_identity(&path, "one", Some("Tools")));
-    let marker = dir.join(super::IDENTITY_FILE);
+    let marker = super::identity_file(&path);
     let mtime_before = fs::metadata(&marker).and_then(|m| m.modified()).ok();
 
     assert!(super::ensure_project_identity(&path, "one", Some("Tools")));
@@ -136,4 +136,73 @@ fn ensure_only_rewrites_when_something_changes() {
     );
 
     fs::remove_dir_all(&dir).ok();
+}
+
+#[cfg(windows)]
+#[test]
+fn marker_is_hidden_after_creation_and_updates() {
+    use std::os::windows::fs::MetadataExt;
+    use windows_sys::Win32::Storage::FileSystem::FILE_ATTRIBUTE_HIDDEN;
+
+    let dir = temp_dir("hidden-write");
+    fs::create_dir_all(&dir).unwrap();
+    let path = dir.to_string_lossy().to_string();
+    let marker = super::identity_file(&path);
+
+    assert!(super::write_project_identity(&path, "one", Some("Tools")));
+    assert_ne!(
+        fs::metadata(&marker).unwrap().file_attributes() & FILE_ATTRIBUTE_HIDDEN,
+        0
+    );
+    assert!(super::write_project_identity(&path, "two", Some("Games")));
+    assert_ne!(
+        fs::metadata(&marker).unwrap().file_attributes() & FILE_ATTRIBUTE_HIDDEN,
+        0
+    );
+    assert_eq!(super::read_project_identity(&path).as_deref(), Some("two"));
+    assert_eq!(
+        super::read_project_category(&path).as_deref(),
+        Some("Games")
+    );
+
+    fs::remove_dir_all(&dir).unwrap();
+}
+
+#[cfg(windows)]
+#[test]
+fn ensure_hides_existing_markers_without_rewriting_or_clearing_attributes() {
+    use std::os::windows::{ffi::OsStrExt, fs::MetadataExt};
+    use windows_sys::Win32::Storage::FileSystem::{
+        SetFileAttributesW, FILE_ATTRIBUTE_ARCHIVE, FILE_ATTRIBUTE_HIDDEN,
+    };
+
+    let dir = temp_dir("hidden-existing");
+    fs::create_dir_all(&dir).unwrap();
+    let path = dir.to_string_lossy().to_string();
+    assert!(super::write_project_identity(
+        &path,
+        "stable",
+        Some("Tools")
+    ));
+    let marker = super::identity_file(&path);
+    let wide_path: Vec<u16> = marker.as_os_str().encode_wide().chain(Some(0)).collect();
+    assert_ne!(
+        unsafe { SetFileAttributesW(wide_path.as_ptr(), FILE_ATTRIBUTE_ARCHIVE) },
+        0
+    );
+    let original = fs::read(&marker).unwrap();
+    let modified = fs::metadata(&marker).unwrap().modified().unwrap();
+
+    assert!(super::ensure_project_identity(
+        &path,
+        "stable",
+        Some("Tools")
+    ));
+    let metadata = fs::metadata(&marker).unwrap();
+    assert_ne!(metadata.file_attributes() & FILE_ATTRIBUTE_HIDDEN, 0);
+    assert_ne!(metadata.file_attributes() & FILE_ATTRIBUTE_ARCHIVE, 0);
+    assert_eq!(metadata.modified().unwrap(), modified);
+    assert_eq!(fs::read(&marker).unwrap(), original);
+
+    fs::remove_dir_all(&dir).unwrap();
 }

@@ -16,6 +16,9 @@ pub struct AliasWatcher(pub Mutex<Option<RecommendedWatcher>>);
 fn is_ignored_watcher_event(event: &Event) -> bool {
     !event.paths.is_empty()
         && event.paths.iter().all(|p| {
+            if p.components().any(|part| part.as_os_str() == crate::project_metadata::METADATA_DIR) {
+                return true;
+            }
             matches!(
                 p.file_name().and_then(|n| n.to_str()),
                 Some(".godotrc") | Some("global.json")
