@@ -712,8 +712,8 @@
   "console_pill_hint": "点击重新打开控制台，可拖拽移动。",
   "console_resumed_hint": "GodotHub 关闭后此项目仍在运行，其输出仍会在下方继续捕获。",
   "console_previous_hint": "保留了上一次会话的输出。",
-  "project_card_version_unavailable": "Godot {{version}} is not installed. Select an installed version to launch this project.",
-  "project_card_total_time": "Total time: {{time}}",
-  "project_card_last_opened": "Last opened: {{date}}",
-  "project_card_more_tags": "Show {{count}} more tags"
+  "project_card_version_unavailable": "Godot {{version}} 未安装。请选择一个已安装的版本来启动此项目。",
+  "project_card_total_time": "总时间: {{time}}",
+  "project_card_last_opened": "上次打开: {{date}}",
+  "project_card_more_tags": "显示 {{count}} 个更多标签"
 }
