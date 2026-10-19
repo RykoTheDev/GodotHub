@@ -1,10 +1,10 @@
+import { useUiMotion } from '../../hooks/useUiMotion'
 import { useEffect, type ReactNode } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
 import { IconCheckCircle } from "../../lib/icons";
-import { overlayTransition } from "../../lib/motion";
 import { ModalHeader } from "../modals/ModalHeader";
 
 type ProjectTodoListModalProps = {
@@ -24,6 +24,8 @@ export function ProjectTodoListModal({
   onClose,
   children,
 }: ProjectTodoListModalProps) {
+  const uiMotion = useUiMotion()
+
   const completedCount = totalCount - pendingCount;
   const { t } = useTranslation("todos");
 
@@ -51,19 +53,16 @@ export function ProjectTodoListModal({
 
   return createPortal(
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={overlayTransition}
+      {...uiMotion.surface('modal', `none`)}
+
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <motion.div
         role="dialog"
         aria-modal="true"
-        initial={{ opacity: 0, y: 14, scale: 0.96 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+        {...uiMotion.surface('modal', `scale(0.96)`)}
+
         className="flex h-[min(760px,90vh)] w-full max-w-6xl flex-col overflow-clip rounded-modal bg-surface shadow-2xl"
         onClick={(event) => event.stopPropagation()}
       >

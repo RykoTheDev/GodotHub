@@ -109,16 +109,16 @@ export function ChangelogEntryModal({ entry, initial, onClose, onSave }: Props) 
           {error && <p className="text-xs text-danger">{error}</p>}
           <div className="ml-auto flex justify-end gap-2.5">
             <motion.button
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.96 }}
+
+              data-press-feedback
               onClick={onClose}
               className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
             >
               {t('cancel')}
             </motion.button>
             <motion.button
-              whileHover={busy ? undefined : { y: -1 }}
-              whileTap={busy ? undefined : { scale: 0.96 }}
+
+              data-press-feedback={busy ? undefined : true}
               onClick={submit}
               disabled={busy}
               className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white transition-colors"
@@ -209,8 +209,8 @@ export function ChangelogEntryModal({ entry, initial, onClose, onSave }: Props) 
           </div>
           <motion.button
             type="button"
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.96 }}
+
+            data-press-feedback
             onClick={addNote}
             className="focus-ring cursor-pointer self-start flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs text-muted hover:text-ink hover:bg-raised transition-colors"
           >
@@ -259,8 +259,8 @@ export function ChangelogEntryModal({ entry, initial, onClose, onSave }: Props) 
           </div>
           <motion.button
             type="button"
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.96 }}
+
+            data-press-feedback
             onClick={addIssue}
             className="focus-ring cursor-pointer self-start flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs text-muted hover:text-ink hover:bg-raised transition-colors"
           >

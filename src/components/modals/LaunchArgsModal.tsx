@@ -55,16 +55,16 @@ export function LaunchArgsModal({
       footer={
         <>
           <motion.button
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.96 }}
+
+            data-press-feedback
             onClick={onClose}
             className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg text-sm text-muted hover:text-ink hover:bg-raised transition-colors ml-auto"
           >
             {t('cancel')}
           </motion.button>
           <motion.button
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.96 }}
+
+            data-press-feedback
             onClick={() => onSave(args.trim())}
             className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
           >

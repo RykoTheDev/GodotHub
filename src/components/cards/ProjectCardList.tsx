@@ -13,7 +13,7 @@ import {
   ProjectCategorySection,
   type HiddenCategoryEntry,
 } from './CategorySections'
-import { isReducedMotion } from '../../lib/appearance'
+import { useUiMotion } from '../../hooks/useUiMotion'
 import { hasOnlyPinnedProjects, UNCATEGORIZED_KEY } from '../../lib/projectDrag'
 import { AUTO_SCROLL_CONFIG } from '../../lib/dragFeel'
 import { useProjectDnd } from '../../hooks/useProjectDnd'
@@ -68,13 +68,9 @@ export function ProjectCardList({
   const { t } = useTranslation('common')
   const layoutGroupId = useId()
 
-  const animateList = totalCount <= animationThreshold && !isReducedMotion()
-  const layoutTransition: Transition = {
-    type: 'spring',
-    stiffness: 350,
-    damping: 30,
-    mass: 0.8,
-  }
+  const uiMotion = useUiMotion()
+  const animateList = totalCount <= animationThreshold && !uiMotion.reduced && !uiMotion.instant
+  const layoutTransition: Transition = uiMotion.transition('press')
 
   const showPinnedSection = projects.some((p) => p.pinned)
   const pinnedProjects = showPinnedSection

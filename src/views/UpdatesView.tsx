@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { motion } from 'framer-motion'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { MarkdownBody } from '../components/reusables/MarkdownBody'
 import { OverlayScrollArea } from '../components/reusables/OverlayScrollArea'
@@ -225,11 +224,8 @@ function CardMeta({
 
 function FeaturedCard({ entry }: { entry: UpdateEntry }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-40px' }}
-      transition={{ duration: 0.35, ease: 'easeOut' }}
+    <div
+
       className="relative overflow-hidden rounded-item border border-accent-dim/50 bg-linear-to-br from-raised via-surface to-accent-dim/10 p-6 hover:border-accent-dim/80 transition-colors"
     >
       <div className="absolute -top-24 -right-24 w-64 h-64 rounded-full bg-accent/10 blur-3xl pointer-events-none" />
@@ -237,7 +233,7 @@ function FeaturedCard({ entry }: { entry: UpdateEntry }) {
         <CardContent entry={entry} featured />
         <CardMeta entry={entry} featured />
       </div>
-    </motion.div>
+    </div>
   )
 }
 
@@ -245,11 +241,8 @@ function EntryCard({ entry, isLast }: { entry: UpdateEntry; isLast: boolean }) {
   const style = KIND_STYLES[entry.kind] ?? KIND_STYLES.announcement
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-40px' }}
-      transition={{ duration: 0.35, ease: 'easeOut' }}
+    <div
+
       className="group relative flex gap-5"
     >
       <div className="flex flex-col items-center pt-1.5 shrink-0">
@@ -265,7 +258,7 @@ function EntryCard({ entry, isLast }: { entry: UpdateEntry; isLast: boolean }) {
           </div>
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }
 

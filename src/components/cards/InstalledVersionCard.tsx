@@ -155,7 +155,7 @@ export function InstalledVersionCard({
             />
             <motion.button
               type="button"
-              whileTap={{ scale: 0.96 }}
+              data-press-feedback
               onClick={commitEdit}
               aria-label={tc('version_save_name_aria')}
               className="focus-ring cursor-pointer p-1.5 rounded-btn text-accent hover:bg-accent/10 transition-colors"
@@ -172,7 +172,7 @@ export function InstalledVersionCard({
                 </h3>
                   <motion.button
                     type="button"
-                    whileTap={{ scale: 0.96 }}
+                    data-press-feedback
                     onClick={startEditing}
                     aria-label={tc('version_rename_aria')}
                     className="focus-ring cursor-pointer p-1 rounded-btn text-muted/60 hover:text-ink hover:bg-raised transition-colors shrink-0"

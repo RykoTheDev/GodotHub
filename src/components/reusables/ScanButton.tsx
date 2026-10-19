@@ -5,6 +5,7 @@ import { IconRefresh } from '../../lib/icons'
 import { isReducedMotion } from '../../lib/appearance'
 import { ConfirmDialog } from '../modals/ConfirmDialog'
 import { Tooltip } from './Tooltip'
+import { useUiMotion } from '../../hooks/useUiMotion'
 
 type Phase = 'idle' | 'scanning' | 'done' | 'error'
 const MIN_SCAN_TIME = 800
@@ -36,32 +37,19 @@ function Spinner({ reduced, size = 20 }: { reduced: boolean; size?: number }) {
 
 function DrawGlyph({
   paths,
-  reduced,
   size = 20,
   strokeWidth = 2,
 }: {
   paths: string[]
-  reduced: boolean
   size?: number
   strokeWidth?: number
 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className="block">
-      {paths.map((p, i) => (
-        <motion.path
+      {paths.map(p => (
+        <path
           key={p}
           d={p}
-          initial={{ pathLength: 0, opacity: 0 }}
-          animate={{ pathLength: 1, opacity: 1 }}
-          transition={
-            reduced
-              ? { duration: 0 }
-              : {
-                  duration: 0.25,
-                  delay: i * 0.08,
-                  ease: [0.4, 0, 0.2, 1],
-                }
-          }
           stroke="currentColor"
           strokeWidth={strokeWidth}
           strokeLinecap="round"
@@ -95,6 +83,7 @@ export function ScanButton({
   disabled = false,
   requiresDirs = true,
 }: ScanButtonProps) {
+  const {surface} = useUiMotion()
   const { t } = useTranslation('common')
   const [phase, setPhase] = useState<Phase>('idle')
   const phaseTimerRef = useRef<number | null>(null)
@@ -170,8 +159,8 @@ export function ScanButton({
   const glyph = {
     idle: <IconRefresh className="w-5 h-5" />,
     scanning: <Spinner reduced={reduced} />,
-    done: <DrawGlyph reduced={reduced} paths={['M20 6 9 17l-5-5']} />,
-    error: <DrawGlyph reduced={reduced} paths={['M18 6 6 18', 'M6 6l12 12']} />,
+    done: <DrawGlyph paths={['M20 6 9 17l-5-5']} />,
+    error: <DrawGlyph paths={['M18 6 6 18', 'M6 6l12 12']} />,
   } as const
 
   return (
@@ -226,21 +215,7 @@ export function ScanButton({
           <motion.span
             key={phase}
             className="inline-flex"
-            initial={{ opacity: 0, scale: 0.6, filter: 'blur(4px)' }}
-            animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-            exit={{
-              opacity: 0,
-              scale: 0.6,
-              filter: 'blur(4px)',
-              transition: {
-                duration: reduced ? 0 : 0.2,
-                ease: [0.4, 0, 1, 1],
-              },
-            }}
-            transition={{
-              duration: reduced ? 0 : 0.3,
-              ease: [0.34, 1.56, 0.64, 1],
-            }}
+            {...surface('tooltip', 'scale(0.97)')}
           >
             {glyph[phase]}
           </motion.span>

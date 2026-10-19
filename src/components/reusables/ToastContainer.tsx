@@ -8,9 +8,11 @@ import {
   type ToastItem,
 } from '../../lib/toast'
 import { IconCheckCircle, IconX, IconAlertTriangle } from '../../lib/icons'
+import { useUiMotion } from '../../hooks/useUiMotion'
 
 function ToastCard({ toast }: { toast: ToastItem }) {
   const { t } = useTranslation('common')
+  const { surface, reduced, instant } = useUiMotion()
   const Icon =
     toast.type === 'success'
       ? IconCheckCircle
@@ -25,11 +27,8 @@ function ToastCard({ toast }: { toast: ToastItem }) {
         : 'text-accent-bright'
   return (
     <motion.div
-      layout
-      initial={{ opacity: 0, y: 12, scale: 0.96 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: 8, scale: 0.96 }}
-      transition={{ duration: 0.18, ease: 'easeOut' }}
+      layout={reduced || instant ? false : 'position'}
+      {...surface('popover', 'translateY(12px)')}
       className="flex items-start gap-2.5 w-80 rounded-menu border border-outline/50 bg-surface/95 backdrop-blur shadow-lg shadow-black/20 px-3.5 py-3"
     >
       <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${color}`} />

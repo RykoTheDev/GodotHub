@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { motion } from 'framer-motion'
 import { isReducedMotion } from '../../lib/appearance'
-import { overlayTransition } from '../../lib/motion'
 import { formatLastOpened } from '../../lib/lastOpened'
 import { useWorkspaces } from '../../hooks/useWorkspaces'
 import { useSettings } from '../../hooks/useSettings'
@@ -586,11 +584,7 @@ export function CommandPalette({
       className="fixed inset-0 z-100 flex items-start justify-center pt-[12vh]"
       onClick={onClose}
     >
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={overlayTransition}
+      <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm"
       />
 

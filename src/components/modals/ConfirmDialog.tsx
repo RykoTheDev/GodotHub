@@ -41,16 +41,16 @@ export function ConfirmDialog({
       footer={
         <div className="ml-auto flex items-center gap-2.5">
           <motion.button
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.96 }}
+
+            data-press-feedback
             onClick={onCancel}
             className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
           >
             {cancelLabel || t('cancel')}
           </motion.button>
           <motion.button
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.96 }}
+
+            data-press-feedback
             onClick={onConfirm}
             className={`focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm font-medium transition-colors ${
               variant === 'danger'

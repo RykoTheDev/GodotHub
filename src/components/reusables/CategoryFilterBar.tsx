@@ -33,8 +33,8 @@ export function CategoryFilterBar({
       <motion.button
         type="button"
         onClick={() => onSelect(null)}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.94 }}
+
+        data-press-feedback
         className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-item transition-colors ${
           activeCategory === null
             ? 'bg-accent/15 text-accent-bright ring-1 ring-accent-dim/70'
@@ -49,8 +49,8 @@ export function CategoryFilterBar({
       <motion.button
         type="button"
         onClick={() => onSelect(activeCategory === '' ? null : '')}
-        whileHover={{ scale: 1.04 }}
-        whileTap={{ scale: 0.94 }}
+
+        data-press-feedback
         className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-item transition-colors ${
           activeCategory === ''
             ? 'bg-accent/15 text-accent-bright ring-1 ring-accent-dim/70'
@@ -70,8 +70,8 @@ export function CategoryFilterBar({
             key={cat.id}
             type="button"
             onClick={() => onSelect(isActive ? null : cat.name)}
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.94 }}
+
+            data-press-feedback
             className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-item transition-colors ${
               isActive
                 ? 'bg-accent/15 text-accent-bright ring-1 ring-accent-dim/70'

@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { api } from '../lib/api'
 import { useApiData } from '../lib/useApiData'
 import { useTauriEvent } from '../lib/useTauriEvent'
@@ -17,6 +17,12 @@ export function useProjects() {
     current: number
     total: number
   } | null>(null)
+
+  useEffect(() => {
+    const changed = () => { void refresh() }
+    window.addEventListener('app:project-health-changed', changed)
+    return () => window.removeEventListener('app:project-health-changed', changed)
+  }, [refresh])
 
   useTauriEvent<[number, number]>('project-scan-progress', ([current, total]) => {
     setScanProgress({ current, total })

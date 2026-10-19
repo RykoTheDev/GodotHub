@@ -6,6 +6,7 @@ import {
   type ReactNode,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { useUiMotion } from '../hooks/useUiMotion'
 import { motion, AnimatePresence } from "framer-motion";
 import { Toggle } from "../components/ui/Toggle";
 import { Segmented } from "../components/reusables/Segmented";
@@ -204,6 +205,7 @@ function SettingRow({
 }
 
 export function SettingsView({ connected = false }: { connected?: boolean }) {
+  const uiMotion = useUiMotion()
   const { t } = useTranslation("nav");
   const { t: ts } = useTranslation("settings");
   const { settings, update, resetToDefaults } = useSettings();
@@ -3082,8 +3084,8 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               >
                 {active && (
                   <motion.span
-                    layoutId="new-ui-settings-cat-pill"
-                    transition={{ type: "spring", stiffness: 650, damping: 38 }}
+                    layoutId={uiMotion.instant || uiMotion.reduced ? undefined : 'new-ui-settings-cat-pill'}
+                    transition={uiMotion.transition('press')}
                     className={`absolute inset-0 rounded-item border shadow-md shadow-black/10 pointer-events-none ${
                       id === "experimental"
                         ? "bg-danger/10 border-danger/30"

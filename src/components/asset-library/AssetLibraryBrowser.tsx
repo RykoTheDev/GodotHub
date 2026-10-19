@@ -321,8 +321,8 @@ export function AssetLibraryBrowser({
             <motion.button
               type="button"
               aria-expanded={open}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.94 }}
+
+              data-press-feedback
               onClick={toggle}
               className={dropBtnClass}
             >
@@ -345,8 +345,8 @@ export function AssetLibraryBrowser({
             <motion.button
               type="button"
               aria-expanded={open}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.94 }}
+
+              data-press-feedback
               onClick={toggle}
               className={dropBtnClass}
             >
@@ -437,9 +437,9 @@ export function AssetLibraryBrowser({
                     }
                     actions={
                       <motion.button key="button-440"
-                        whileHover={isInstalled || isInstalling ? undefined : { scale: 1.04 }}
-                        whileTap={isInstalled || isInstalling ? undefined : { scale: 0.94 }}
-                        transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+
+                        data-press-feedback={isInstalled || isInstalling ? undefined : true}
+
                         onClick={() => install(asset)}
                         disabled={isInstalling}
                         className={`focus-ring cursor-pointer flex items-center justify-center gap-1.5 w-full h-12 px-6 rounded-dropdown-btn font-semibold text-[17px] shadow-md shadow-black/10 border transition-colors disabled:cursor-default ${
@@ -477,7 +477,7 @@ export function AssetLibraryBrowser({
               <div className="flex items-center justify-center gap-1.5 flex-wrap">
                 <motion.button key="button-479"
                     type="button"
-                    whileTap={{ scale: 0.94 }}
+                    data-press-feedback
                     onClick={() => navigate(page - 1)}
                     disabled={page <= 0 || paging}
                     aria-label={t('asset_prev_page')}
@@ -498,7 +498,7 @@ export function AssetLibraryBrowser({
                     <motion.button
                       key={item}
                       type="button"
-                      whileTap={{ scale: 0.94 }}
+                      data-press-feedback
                       onClick={() => navigate(item)}
                       disabled={paging}
                       aria-label={t('asset_page_x_of_y', {
@@ -518,7 +518,7 @@ export function AssetLibraryBrowser({
                 )}
                 <motion.button
                     type="button"
-                    whileTap={{ scale: 0.94 }}
+                    data-press-feedback
                     onClick={() => navigate(page + 1)}
                     disabled={page + 1 >= pages || paging}
                     aria-label={t('asset_next_page')}
@@ -533,7 +533,7 @@ export function AssetLibraryBrowser({
               <div className="flex items-center justify-center gap-1.5">
                 <motion.button
                     type="button"
-                    whileTap={{ scale: 0.94 }}
+                    data-press-feedback
                     onClick={() => navigate(page - 1)}
                     disabled={!canPrev || paging}
                     aria-label={t('asset_prev_page')}
@@ -543,7 +543,7 @@ export function AssetLibraryBrowser({
                   </motion.button>
                 <motion.button
                     type="button"
-                    whileTap={{ scale: 0.94 }}
+                    data-press-feedback
                     onClick={() => navigate(page + 1)}
                     disabled={!canNext || paging}
                     aria-label={t('asset_next_page')}

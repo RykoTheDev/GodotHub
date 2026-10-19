@@ -121,8 +121,8 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
             <motion.button
               type="button"
               aria-expanded={open}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.94 }}
+
+              data-press-feedback
               onClick={toggle}
               className={dropBtnClass}
             >
@@ -146,8 +146,8 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
               <motion.button
                 type="button"
                 aria-expanded={open}
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.94 }}
+
+                data-press-feedback
                 onClick={toggle}
                 className={dropBtnClass}
               >
@@ -182,8 +182,8 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
             <motion.button
               type="button"
               aria-expanded={open}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.94 }}
+
+              data-press-feedback
               onClick={toggle}
               className={dropBtnClass}
             >
@@ -206,8 +206,8 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
             <motion.button
               type="button"
               aria-expanded={open}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.94 }}
+
+              data-press-feedback
               onClick={toggle}
               className={dropBtnClass}
             >

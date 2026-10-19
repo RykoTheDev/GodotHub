@@ -261,8 +261,8 @@ export function CreateViewModal({
                     <motion.button
                       key={opt.value}
                       type="button"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+
+                      data-press-feedback
                       onClick={() => onAdd(opt.value)}
                       className="focus-ring cursor-pointer flex items-center gap-2.5 p-2.5 rounded-item border border-dashed border-outline/50 bg-overlay hover:bg-raised hover:border-accent-dim/50 transition-colors text-left"
                     >

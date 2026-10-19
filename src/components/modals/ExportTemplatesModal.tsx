@@ -44,9 +44,14 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
   const mutationPending = useRef(false)
   const content = useRef<HTMLDivElement>(null)
   const id = useId()
+  const previousTag = useRef(tag)
 
   useEffect(() => {
     let active = true
+    if (previousTag.current !== tag) {
+      previousTag.current = tag
+      setSelected([]); setExpanded([]); setExpandedArchitectures([]); setCollapsedCategories([])
+    }
     const cached = getCachedTemplateOptions(tag)
     setOptions(cached ?? [])
     setLoading(!cached)
@@ -55,9 +60,12 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
     loadTemplateOptions(tag, attempt > 0).then((result) => {
       if (!active) return
       setOptions(result)
-      setSelected([])
-      setExpanded([])
-      setExpandedArchitectures([])
+      const available = new Set(result.flatMap(option => option.files.filter(file => !file.installed).map(file => file.name)))
+      const platforms = new Set(result.map(option => option.id))
+      const groups = new Set(result.flatMap(option => groupTemplateFiles(option.files).map(group => `${option.id}:${group.id}`)))
+      setSelected(previous => previous.filter(name => available.has(name)))
+      setExpanded(previous => previous.filter(key => platforms.has(key)))
+      setExpandedArchitectures(previous => previous.filter(key => groups.has(key)))
     }).catch((reason) => {
       if (!active) return
       if (cached) pushToast('error', `${t('export_templates_options_failed')} ${String(reason)}`, 6000)
@@ -137,6 +145,7 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
       title={t('export_templates_choose')}
       description={t('export_templates_choose_desc', { tag })}
       maxWidth="max-w-2xl"
+      bodyClassName="h-[min(60vh,34rem)] shrink"
       onClose={onClose}
       onKeyDown={(event) => {
         if (event.key === 'Escape') { event.stopPropagation(); onClose() }
@@ -153,7 +162,7 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
       }}
       footer={
         <>
-          <div className="flex-1 min-w-0 text-xs text-muted" aria-live="polite">
+          <div className="flex-1 min-w-0 min-h-9 text-xs text-muted" aria-live="polite">
             <p className="font-medium text-ink">{t('export_templates_selected', { count: chosen.length })}</p>
             {chosen.length > 0 && (
               <p className="mt-1 text-[11px]">{t('export_templates_size_summary', {

@@ -171,6 +171,12 @@ fn templates_root_for(version: &InstalledGodotVersion) -> Option<PathBuf> {
     self_contained_root(&version.executable_path).or_else(default_templates_root)
 }
 
+pub(crate) fn installed_template_platforms(version: &InstalledGodotVersion) -> Vec<String> {
+    templates_root_for(version)
+        .map(|root| archive::installed_platforms(&root.join(template_folder_for(&version.tag, version.is_mono))))
+        .unwrap_or_default()
+}
+
 fn downloads_dir(app: &AppHandle) -> PathBuf {
     let dir = app
         .path()

@@ -5,8 +5,6 @@ import { IconMore, IconTerminal } from '../../lib/icons'
 import { Dropdown, type NewDropdownItem, type NewDropdownHeaderItem } from '../ui/Dropdown'
 import { Tooltip } from './Tooltip'
 
-const SPRING = { type: 'spring', stiffness: 500, damping: 30 } as const
-
 interface OpenButtonProps {
   label: string
   onOpen: (console?: boolean) => void
@@ -49,9 +47,9 @@ export function OpenButton({
   return (
     <div className={`flex items-stretch gap-1 ${compact ? 'min-w-0 w-full' : 'shrink-0 justify-end'}`}>
       <motion.button
-        whileHover={disabled || compact ? undefined : { scale: 1.04 }}
-        whileTap={disabled ? undefined : { scale: compact ? 0.98 : 0.94 }}
-        transition={SPRING}
+
+        data-press-feedback={disabled ? undefined : true}
+
         type="button"
         disabled={disabled}
         onClick={() => onOpen((consoleSupported && consoleEnabled) || undefined)}
@@ -68,12 +66,8 @@ export function OpenButton({
       {consoleSupported && showConsole && (
         <Tooltip content={t('open_with_console')} side="top">
           <motion.button
-              key={consoleEnabled ? 'console-on' : 'console-off'}
-              initial={{ scale: 0.9, opacity: 0.6 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 24 }}
-              whileHover={compact ? undefined : { scale: 1.04 }}
-              whileTap={{ scale: compact ? 0.98 : 0.9 }}
+
+              data-press-feedback
               type="button"
               onClick={() => setConsoleEnabled((v) => !v)}
               aria-pressed={consoleEnabled}
@@ -98,9 +92,9 @@ export function OpenButton({
         compact
         trigger={({ open, toggle }) => (
           <motion.button
-            whileHover={compact ? undefined : { scale: 1.04 }}
-            whileTap={{ scale: compact ? 0.98 : 0.94 }}
-            transition={SPRING}
+
+            data-press-feedback
+
             type="button"
             aria-label={moreAriaLabel}
             aria-expanded={open}

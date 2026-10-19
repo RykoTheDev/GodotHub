@@ -913,9 +913,9 @@ export function ProjectsView({
             <motion.button
               type="button"
               onClick={() => setCreateProjectOpen(true)}
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.96 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 28 }}
+
+              data-press-feedback
+
               className="w-9 h-9 cursor-pointer flex items-center justify-center rounded-full bg-accent text-ink hover:bg-accent-bright transition-colors"
             >
               <IconPlus className="w-10 h-10" strokeWidth={3} />
@@ -968,8 +968,8 @@ export function ProjectsView({
               <Tooltip content={tc('manage_categories')} side="bottom">
                 <motion.button
                   type="button"
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.94 }}
+
+                  data-press-feedback
                   onClick={() => setCategoryManagerOpen(true)}
                   aria-label={tc('manage_categories')}
                   className="focus-ring cursor-pointer inline-flex items-center justify-center shadow-md shadow-black/10 border border-outline/50 w-10 h-10 shrink-0 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
@@ -1021,8 +1021,8 @@ export function ProjectsView({
               <motion.button
                 type="button"
                 aria-expanded={open}
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.94 }}
+
+                data-press-feedback
                 onClick={toggle}
                 className={`focus-ring cursor-pointer flex items-center justify-center gap-1 h-8 px-4 rounded-item transition-colors ${
                   isCustomSort
@@ -1063,8 +1063,8 @@ export function ProjectsView({
                 <motion.button
                   type="button"
                   aria-expanded={open}
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.94 }}
+
+                  data-press-feedback
                   onClick={toggle}
                   className={`focus-ring cursor-pointer flex items-center justify-center gap-1 h-8 px-4 rounded-item transition-colors ${
                     hasCategoryFilter
@@ -1122,8 +1122,8 @@ export function ProjectsView({
                 />
                 <motion.button
                   type="button"
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.94 }}
+
+                  data-press-feedback
                   onClick={() => setCreateViewModalOpen(true)}
                   aria-label={tc('manage_views')}
                   className="focus-ring cursor-pointer flex items-center justify-center w-8 h-8 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 transition-colors"
@@ -1134,8 +1134,8 @@ export function ProjectsView({
             ) : (
               <motion.button
                 type="button"
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.94 }}
+
+                data-press-feedback
                 onClick={() => setCreateViewModalOpen(true)}
                 className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 transition-colors"
               >

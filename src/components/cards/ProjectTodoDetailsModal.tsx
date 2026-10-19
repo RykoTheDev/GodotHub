@@ -1,10 +1,10 @@
+import { useUiMotion } from '../../hooks/useUiMotion'
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
 import { IconCheckCircle } from "../../lib/icons";
-import { overlayTransition } from "../../lib/motion";
 import type { ProjectTodo, TodoArea } from "../../types/projectTodo";
 
 import { ModalHeader } from "../modals/ModalHeader";
@@ -30,6 +30,8 @@ export function ProjectTodoDetailsModal({
   overdue,
   onClose,
 }: ProjectTodoDetailsModalProps) {
+  const uiMotion = useUiMotion()
+
   const { t, i18n } = useTranslation(["todos", "common"]);
   const locale = i18n.resolvedLanguage ?? i18n.language;
 
@@ -111,19 +113,16 @@ export function ProjectTodoDetailsModal({
 
   return createPortal(
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={overlayTransition}
+      {...uiMotion.surface('modal', `none`)}
+
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <motion.div
         role="dialog"
         aria-modal="true"
-        initial={{ opacity: 0, y: 14, scale: 0.96 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+        {...uiMotion.surface('modal', `scale(0.96)`)}
+
         className="flex h-[min(720px,88vh)] w-full max-w-lg flex-col overflow-clip rounded-modal bg-surface shadow-2xl"
         onClick={(event) => event.stopPropagation()}
       >
@@ -206,8 +205,8 @@ export function ProjectTodoDetailsModal({
         <div className="flex justify-end p-5 pt-2">
           <motion.button
             type="button"
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.96 }}
+
+            data-press-feedback
             onClick={onClose}
             className="focus-ring cursor-pointer rounded-btn border border-outline/50 px-4 py-2.5 text-sm text-muted transition-colors hover:border-accent-dim hover:bg-raised hover:text-ink"
           >

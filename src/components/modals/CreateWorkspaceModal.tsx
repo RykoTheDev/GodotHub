@@ -53,16 +53,16 @@ export function CreateWorkspaceModal({ onClose, onCreate }: Props) {
       footer={
         <div className="ml-auto flex justify-end gap-2.5">
           <motion.button
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.96 }}
+
+            data-press-feedback
             onClick={onClose}
             className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
           >
             {t('cancel')}
           </motion.button>
           <motion.button
-            whileHover={busy ? undefined : { y: -1 }}
-            whileTap={busy ? undefined : { scale: 0.96 }}
+
+            data-press-feedback={busy ? undefined : true}
             onClick={submit}
             disabled={busy}
             className="focus-ring px-5 cursor-pointer py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white transition-colors"
@@ -79,16 +79,14 @@ export function CreateWorkspaceModal({ onClose, onCreate }: Props) {
               style={{ backgroundColor: color }}
               aria-hidden="true"
             />
-            <motion.span
+            <span
               key={icon}
-              initial={{ scale: 0.6, rotate: -12, opacity: 0 }}
-              animate={{ scale: 1, rotate: 0, opacity: 1 }}
-              transition={{ type: 'spring', stiffness: 380, damping: 22 }}
+
               className="relative w-12 h-12 rounded-full border-2 flex items-center justify-center shrink-0"
               style={{ backgroundColor: `${color}26`, borderColor: color }}
             >
               <PreviewIcon className="w-5 h-5" style={{ color }} />
-            </motion.span>
+            </span>
             <div className="relative min-w-0">
               <span className="block font-display font-semibold text-base text-ink truncate">
                 {previewName}

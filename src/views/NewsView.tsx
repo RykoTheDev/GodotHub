@@ -33,13 +33,10 @@ function NewsCard({ item }: { item: NewsItem }) {
   const date = formatDate(item.published)
 
   return (
-    <motion.button
+    <button
       type="button"
       onClick={() => openUrl(item.link).catch(() => {})}
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-40px' }}
-      transition={{ duration: 0.35, ease: 'easeOut' }}
+
       className="group focus-ring cursor-pointer text-left w-full flex flex-col gap-3 rounded-item border border-outline/50 bg-overlay p-5 mb-3 break-inside-avoid overflow-hidden hover:border-accent-dim/70 hover:bg-raised transition-colors"
     >
       {item.image && !imageFailed && (
@@ -86,7 +83,7 @@ function NewsCard({ item }: { item: NewsItem }) {
         )}
         {item.author && <span className="truncate">{item.author}</span>}
       </div>
-    </motion.button>
+    </button>
   )
 }
 
@@ -136,8 +133,8 @@ export function NewsView({ connected = false }: { connected?: boolean }) {
         actions={
           <motion.button
             type="button"
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.96 }}
+
+            data-press-feedback
             onClick={reload}
             disabled={loading}
             className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-overlay border border-outline/50 text-xs font-medium text-muted hover:text-ink hover:bg-raised hover:border-accent-dim transition-colors disabled:opacity-40 disabled:cursor-default"
@@ -209,8 +206,8 @@ export function NewsView({ connected = false }: { connected?: boolean }) {
                 <div className="flex justify-center mt-6">
                   <motion.button
                     type="button"
-                    whileHover={{ y: -1 }}
-                    whileTap={{ scale: 0.96 }}
+
+                    data-press-feedback
                     onClick={showMore}
                     className="focus-ring cursor-pointer h-9 px-5 rounded-item bg-overlay border border-outline/50 text-sm font-medium text-ink hover:bg-raised hover:border-accent-dim transition-colors"
                   >

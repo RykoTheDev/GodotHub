@@ -1,8 +1,7 @@
 import { useEffect, useId } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, type Variants } from 'framer-motion'
-import { isReducedMotion } from '../../lib/appearance'
-import { overlayTransition } from '../../lib/motion'
+import { useUiMotion } from '../../hooks/useUiMotion'
 import { ModalHeader } from './ModalHeader'
 
 interface Props {
@@ -15,6 +14,7 @@ interface Props {
   onKeyDown?: (e: React.KeyboardEvent) => void
   children: React.ReactNode
   footer?: React.ReactNode
+  bodyClassName?: string
 }
 
 export function ModalShell({
@@ -27,8 +27,9 @@ export function ModalShell({
   onKeyDown,
   children,
   footer,
+  bodyClassName,
 }: Props) {
-  const reduced = isReducedMotion()
+  const { reduced, instant, transition } = useUiMotion()
   const titleId = useId()
 
   useEffect(() => {
@@ -38,52 +39,19 @@ export function ModalShell({
     }
   }, [])
 
-  const cardVariants: Variants = reduced
-    ? {
-        hidden: { opacity: 0 },
-        show: { opacity: 1, transition: { duration: 0.15 } },
-        exit: { opacity: 0, transition: { duration: 0.12 } },
-      }
-    : {
-        hidden: { opacity: 0, scale: 0.96 },
-        show: {
-          opacity: 1,
-          scale: 1,
-          transition: {
-            type: 'spring',
-            stiffness: 380,
-            damping: 30,
-            staggerChildren: 0.07,
-            delayChildren: 0.05,
-          },
-        },
-        exit: {
-          opacity: 0,
-          scale: 0.96,
-          transition: { duration: 0.12 },
-        },
-      }
-
-  const sectionVariants: Variants = reduced
-    ? {
-        hidden: { opacity: 0 },
-        show: { opacity: 1, transition: { duration: 0.15 } },
-      }
-    : {
-        hidden: { opacity: 0, y: 10 },
-        show: {
-          opacity: 1,
-          y: 0,
-          transition: { type: 'spring', stiffness: 400, damping: 32 },
-        },
-      }
+  const closedTransform = reduced || instant ? 'none' : 'scale(0.96)'
+  const cardVariants: Variants = {
+    hidden: { opacity: 0, transform: closedTransform },
+    show: { opacity: 1, transform: reduced || instant ? 'none' : 'scale(1)', transition: transition('modal') },
+    exit: { opacity: 0, transform: closedTransform, transition: transition('modal', true) },
+  }
 
   return createPortal(
     <motion.div
-      initial={{ opacity: 0 }}
+      initial={instant ? false : { opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={overlayTransition}
+      exit={{ opacity: 0, transition: transition('modal', true) }}
+      transition={transition('modal')}
       className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={(e) => {
         e.stopPropagation()
@@ -91,7 +59,7 @@ export function ModalShell({
       }}
     >
       <motion.div
-        initial="hidden"
+        initial={instant ? false : 'hidden'}
         animate="show"
         exit="exit"
         variants={cardVariants}
@@ -107,21 +75,19 @@ export function ModalShell({
           title={title}
           description={description}
           onClose={showClose ? onClose : undefined}
-          variants={sectionVariants}
           titleId={titleId}
         />
 
-        <motion.div variants={sectionVariants} className="flex-1 min-h-0 overflow-y-auto">
+        <div className={`min-h-0 overflow-y-auto ${bodyClassName ?? 'flex-1'}`}>
           {children}
-        </motion.div>
+        </div>
 
         {footer && (
-          <motion.div
-            variants={sectionVariants}
+          <div
             className="flex items-center gap-2.5 p-6 pt-4 border-t border-line shrink-0"
           >
             {footer}
-          </motion.div>
+          </div>
         )}
       </motion.div>
     </motion.div>,

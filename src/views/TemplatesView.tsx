@@ -268,9 +268,9 @@ export function TemplatesView({
             {settings.template_scan_dir && (
                 <motion.button
                   type="button"
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.94 }}
-                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+
+                  data-press-feedback
+
                   onClick={() =>
                     api.openProjectFolder(settings.template_scan_dir!)
                   }
@@ -364,8 +364,8 @@ export function TemplatesView({
                         <motion.button
                           type="button"
                           aria-expanded={open}
-                          whileHover={{ scale: 1.04 }}
-                          whileTap={{ scale: 0.94 }}
+
+                          data-press-feedback
                           onClick={toggle}
                           className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
                         >
@@ -388,12 +388,9 @@ export function TemplatesView({
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   <AnimatePresence>
                     {filteredTemplates.map((tmpl) => (
-                      <motion.div
+                      <div
                         key={tmpl.id}
-                        layout
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
+
                         className="relative border border-outline/50 rounded-item bg-overlay p-5 flex flex-col gap-3 group cursor-pointer hover:border-accent-dim transition-colors"
                         onClick={() => setPreviewTemplate(tmpl)}
                       >
@@ -440,8 +437,8 @@ export function TemplatesView({
                           )}
                         </div>
                         <motion.button
-                          whileHover={{ y: -1 }}
-                          whileTap={{ scale: 0.96 }}
+
+                          data-press-feedback
                           onClick={(e) => {
                             e.stopPropagation()
                             setCreateTemplate(tmpl)
@@ -451,7 +448,7 @@ export function TemplatesView({
                           <IconFolderPlus className="w-3.5 h-3.5" />
                           {tc('template_create_project')}
                         </motion.button>
-                      </motion.div>
+                      </div>
                     ))}
                   </AnimatePresence>
                 </div>

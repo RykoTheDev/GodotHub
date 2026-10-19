@@ -2,6 +2,8 @@ import { useRef, useState, useCallback, useEffect, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useSettings } from '../../hooks/useSettings'
+import { useUiMotion } from '../../hooks/useUiMotion'
+import { motionIsInstant } from '../../lib/appearance'
 
 interface TooltipProps {
   content: ReactNode
@@ -27,6 +29,7 @@ export function Tooltip({
   delay: delayProp,
 }: TooltipProps) {
   const { settings } = useSettings()
+  const { surface } = useUiMotion()
   const delay = delayProp ?? settings.tooltip_delay ?? 350
 
   const [open, setOpen] = useState(false)
@@ -105,7 +108,7 @@ export function Tooltip({
 
   const show = useCallback(() => {
     if (timer.current) clearTimeout(timer.current)
-    const instant = performance.now() - lastTooltipShownAt < INSTANT_AFTER_SHOWN_MS
+    const instant = motionIsInstant() || (lastTooltipShownAt > 0 && performance.now() - lastTooltipShownAt < INSTANT_AFTER_SHOWN_MS)
     instantRef.current = instant
     timer.current = setTimeout(() => {
       const tr = getTriggerRect()
@@ -189,34 +192,6 @@ export function Tooltip({
     return base
   }
 
-  const enterFrom = () => {
-    const d = 6
-    switch (arrow) {
-      case 'top':
-        return { y: d }
-      case 'bottom':
-        return { y: -d }
-      case 'left':
-        return { x: d }
-      case 'right':
-        return { x: -d }
-    }
-  }
-
-  const exitTo = () => {
-    const d = 4
-    switch (arrow) {
-      case 'top':
-        return { y: d }
-      case 'bottom':
-        return { y: -d }
-      case 'left':
-        return { x: d }
-      case 'right':
-        return { x: -d }
-    }
-  }
-
   // The tooltip grows out of the trigger edge the arrow points at.
   const ORIGIN_BY_SIDE: Record<'top' | 'bottom' | 'left' | 'right', string> = {
     top: 'bottom center',
@@ -230,7 +205,7 @@ export function Tooltip({
   return (
     <div
       ref={triggerRef}
-      onMouseEnter={show}
+      onMouseEnter={() => { if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) show() }}
       onMouseLeave={hide}
       onFocus={show}
       onBlur={hide}
@@ -245,14 +220,7 @@ export function Tooltip({
           {open && (
             <motion.div key="div-237"
               ref={tipRef}
-              initial={
-                instantRef.current
-                  ? false
-                  : { opacity: 0, scale: 0.92, ...enterFrom() }
-              }
-              animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
-              exit={{ opacity: 0, scale: 0.92, ...exitTo() }}
-              transition={{ type: 'spring', stiffness: 480, damping: 26, mass: 0.7 }}
+              {...surface('tooltip', 'scale(0.97)', instantRef.current)}
               className="fixed z-9999 pointer-events-none"
               style={{ left: pos.x, top: pos.y, transformOrigin: ORIGIN_BY_SIDE[arrow] }}
             >

@@ -20,6 +20,7 @@ mod persist;
 mod process;
 mod project_identity;
 mod project_metadata;
+mod project_health;
 mod projects;
 mod project_todos;
 mod scan;
@@ -371,6 +372,8 @@ pub fn run() {
             projects::import_project,
             projects::remove_project,
             projects::update_project,
+            project_health::diagnose_project,
+            project_health::fix_project_health,
             projects::reorder_projects,
             projects::open_project,
             projects::open_project_folder,

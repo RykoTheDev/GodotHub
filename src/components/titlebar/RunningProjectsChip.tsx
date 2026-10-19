@@ -1,3 +1,4 @@
+import { useUiMotion } from '../../hooks/useUiMotion'
 import {
   useCallback,
   useEffect,
@@ -23,6 +24,8 @@ interface RunningProject {
 }
 
 export function RunningProjectsChip() {
+  const uiMotion = useUiMotion()
+
   const { t } = useTranslation('common')
   const [running, setRunning] = useState<RunningProject[]>([])
   const [open, setOpen] = useState(false)
@@ -156,10 +159,8 @@ export function RunningProjectsChip() {
       <AnimatePresence>
         {running.length > 0 && (
           <motion.div key="div-133"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ type: 'spring', stiffness: 500, damping: 28 }}
+            {...uiMotion.surface('tooltip', 'scale(0.97)')}
+
             onMouseDown={noDrag}
             className="relative"
           >
@@ -169,9 +170,9 @@ export function RunningProjectsChip() {
                 aria-label={t('running')}
                 aria-haspopup="menu"
                 aria-expanded={open}
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.94 }}
-                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+
+                data-press-feedback
+
                 className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-6 px-2.5 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:border-accent-dim transition-colors"
               >
                 <span className="relative flex w-2 h-2">
@@ -187,16 +188,14 @@ export function RunningProjectsChip() {
               {open && (
                 <motion.div key="div-163"
                   ref={menuRef}
-                  initial={{ opacity: 0, y: openUp ? 6 : -6, scale: 0.96 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: openUp ? 6 : -6, scale: 0.96 }}
-                  transition={{ duration: 0.15, ease: 'easeOut' }}
+                  {...uiMotion.surface('popover', `translateY(${openUp ? 6 : -6}px) scale(0.96)`)}
+
                   onMouseDown={noDrag}
                   role="menu"
                   onKeyDown={handleMenuKey}
                   className={`absolute z-50 w-72 rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 p-1.5 ${
                     openUp
-                      ? 'bottom-full mb-2 origin-bottom'
+                      ? `bottom-full mb-2 ${openLeft ? 'origin-bottom-right' : 'origin-bottom-left'}`
                       : `top-full mt-2 ${openLeft ? 'origin-top-right' : 'origin-top-left'}`
                   } ${openLeft ? 'right-0' : 'left-0'}`}
                 >
@@ -213,11 +212,9 @@ export function RunningProjectsChip() {
                       {running.map((p) => (
                         <motion.div
                           key={p.id}
-                          layout
-                          initial={{ opacity: 0, y: -6 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -6 }}
-                          transition={{ duration: 0.15, ease: 'easeOut' }}
+                          layout={uiMotion.reduced || uiMotion.instant ? false : 'position'}
+                          {...uiMotion.surface('tooltip', 'none')}
+
                           className="flex items-center gap-1 px-2.5 py-2 rounded-item text-muted transition-colors hover:bg-raised"
                         >
                           <button

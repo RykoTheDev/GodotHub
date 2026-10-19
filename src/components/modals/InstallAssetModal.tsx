@@ -184,8 +184,8 @@ export function InstallAssetModal({ asset, onClose, onInstalled }: Props) {
             {t('cancel')}
           </button>
           <motion.button
-            whileHover={!selectedId || installing ? undefined : { y: -1 }}
-            whileTap={!selectedId || installing ? undefined : { scale: 0.96 }}
+
+            data-press-feedback={!selectedId || installing ? undefined : true}
             onClick={() => selectedId && install(selectedId, selectedName ?? '')}
             disabled={!selectedId || installing}
             className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2 rounded-item bg-accent hover:bg-accent-bright text-white text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"

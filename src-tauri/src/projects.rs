@@ -722,7 +722,7 @@ pub fn duplicate_project(
     Ok(project)
 }
 
-fn project_has_main_scene(project_path: &str) -> bool {
+pub(crate) fn project_has_main_scene(project_path: &str) -> bool {
     let Ok(content) = fs::read_to_string(Path::new(project_path).join("project.godot")) else {
         return true;
     };
@@ -736,9 +736,10 @@ fn project_has_main_scene(project_path: &str) -> bool {
         if !in_application {
             continue;
         }
-        let Some(value) = trimmed.strip_prefix("run/main_scene=") else {
+        let Some((key, value)) = trimmed.split_once('=') else {
             continue;
         };
+        if key.trim() != "run/main_scene" { continue; }
         if !value.trim().trim_matches('"').is_empty() {
             return true;
         }

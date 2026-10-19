@@ -1,5 +1,4 @@
 import { useTranslation } from 'react-i18next'
-import { motion } from 'framer-motion'
 import type { AssetLibraryAsset } from '../../types'
 import {
   IconExternalLink,
@@ -38,12 +37,7 @@ export function AssetCard({
   const hasRating = Number.isFinite(rating) && rating > 0
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95 }}
-      transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+    <div
       className="group relative flex flex-col rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 transition-colors"
     >
       <div className="relative h-24 shrink-0 bg-raised flex items-center justify-center overflow-hidden rounded-t-item">
@@ -60,7 +54,7 @@ export function AssetCard({
           />
         )}
         <div className="absolute inset-x-0 bottom-0 h-10 bg-linear-to-t from-overlay to-transparent transition-opacity duration-300 group-hover:opacity-0" />
-        <div className="relative w-14 h-14 rounded-tile bg-surface/90 border border-outline/60 flex items-center justify-center overflow-hidden opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-[opacity,scale] duration-300 ease-out">
+        <div className="relative w-14 h-14 rounded-tile bg-surface/90 border border-outline/60 flex items-center justify-center overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-150">
           <IconStore className="w-5 h-5 text-muted/50" />
           {asset.icon_url && (
             <img
@@ -145,6 +139,6 @@ export function AssetCard({
           {actions}
         </div>
       )}
-    </motion.div>
+    </div>
   )
 }

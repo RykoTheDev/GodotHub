@@ -242,8 +242,8 @@ export function BugReportModal({ onClose }: Props) {
           </button>
           <div className="ml-auto flex items-center gap-2.5">
             <motion.button
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.96 }}
+
+              data-press-feedback
               onClick={() => report && downloadReport(report)}
               disabled={!report}
               className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
@@ -252,8 +252,8 @@ export function BugReportModal({ onClose }: Props) {
               {t('bug_report_download_log')}
             </motion.button>
             <motion.button
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.96 }}
+
+              data-press-feedback
               onClick={openGithubIssue}
               disabled={!report}
               className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item bg-danger hover:bg-danger/90 text-sm font-medium text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"

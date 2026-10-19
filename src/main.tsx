@@ -16,29 +16,32 @@ import '@fontsource/google-sans-code/500.css'
 import './i18n'
 import './index.css'
 import { initReducedMotionDetection } from './lib/appearance'
+import { UiMotionProvider } from './hooks/useUiMotion'
 
 initReducedMotionDetection()
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <ErrorBoundary>
-      <WorkspacesProvider>
-        <SettingsProvider>
-          <ProjectsProvider>
-            <CategoriesProvider>
-              <UpdatesBadgeProvider>
-                <UpdateAvailableProvider>
-                  <GodotVersionsProvider>
-                    <TaskTrayProvider>
-                      <App />
-                    </TaskTrayProvider>
-                  </GodotVersionsProvider>
-                </UpdateAvailableProvider>
-              </UpdatesBadgeProvider>
-            </CategoriesProvider>
-          </ProjectsProvider>
-        </SettingsProvider>
-      </WorkspacesProvider>
-    </ErrorBoundary>
+    <UiMotionProvider>
+      <ErrorBoundary>
+        <WorkspacesProvider>
+          <SettingsProvider>
+            <ProjectsProvider>
+              <CategoriesProvider>
+                <UpdatesBadgeProvider>
+                  <UpdateAvailableProvider>
+                    <GodotVersionsProvider>
+                      <TaskTrayProvider>
+                        <App />
+                      </TaskTrayProvider>
+                    </GodotVersionsProvider>
+                  </UpdateAvailableProvider>
+                </UpdatesBadgeProvider>
+              </CategoriesProvider>
+            </ProjectsProvider>
+          </SettingsProvider>
+        </WorkspacesProvider>
+      </ErrorBoundary>
+    </UiMotionProvider>
   </React.StrictMode>,
 )

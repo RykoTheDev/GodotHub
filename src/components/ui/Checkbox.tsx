@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { motion } from 'framer-motion'
+import { useUiMotion } from '../../hooks/useUiMotion'
 import { IconCheck, IconMinus } from '../../lib/icons'
 
 interface Props {
@@ -14,6 +14,7 @@ interface Props {
 
 export function Checkbox({ checked, indeterminate = false, onChange, label, disabled, children, className = '' }: Props) {
   const active = checked || indeterminate
+  const { reduced, instant } = useUiMotion()
   return (
     <button
       type="button"
@@ -33,14 +34,12 @@ export function Checkbox({ checked, indeterminate = false, onChange, label, disa
             : 'bg-raised border-line text-transparent hover:border-accent-dim'
         }`}
       >
-        <motion.span
-          initial={false}
-          animate={{ scale: active ? 1 : 0, opacity: active ? 1 : 0 }}
-          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-          className="flex items-center justify-center"
+        <span
+          style={{ opacity: active ? 1 : 0, transform: reduced || instant || active ? 'scale(1)' : 'scale(0.97)', transitionDuration: instant ? '0ms' : undefined }}
+          className="ui-control-indicator flex items-center justify-center"
         >
           {indeterminate ? <IconMinus className="w-3 h-3" /> : <IconCheck className="w-3 h-3" />}
-        </motion.span>
+        </span>
       </span>
       {children && <span className="min-w-0 text-left text-xs font-medium text-ink">{children}</span>}
     </button>

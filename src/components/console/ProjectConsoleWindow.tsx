@@ -1,3 +1,4 @@
+import { useUiMotion } from '../../hooks/useUiMotion'
 import {
   memo,
   useCallback,
@@ -149,6 +150,8 @@ function emptyState(name: string): ConsoleState {
 }
 
 export function ProjectConsoleWindow() {
+  const uiMotion = useUiMotion()
+
   const { t } = useTranslation('common')
   const { settings, loaded } = useSettings()
   const [open, setOpen] = useState(false)
@@ -516,10 +519,8 @@ export function ProjectConsoleWindow() {
       <AnimatePresence>
         {open && !minimized && (
           <motion.section
-            initial={{ opacity: 0, y: 12, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 12, scale: 0.98 }}
-            transition={{ duration: 0.16, ease: 'easeOut' }}
+            {...uiMotion.surface('popover', `translateY(12px) scale(0.97)`)}
+
             aria-label={t('console_title')}
             className={`pointer-events-auto absolute flex flex-col overflow-hidden rounded-xl border border-outline/60 bg-raised shadow-2xl shadow-black/40 ${
               fullscreen
@@ -765,10 +766,8 @@ export function ProjectConsoleWindow() {
           <motion.button
             ref={pillRef}
             type="button"
-            initial={{ opacity: 0, scale: 0.9, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 10 }}
-            transition={{ duration: 0.15, ease: 'easeOut' }}
+            {...uiMotion.surface('popover', `translateY(12px) scale(0.97)`)}
+
             onPointerDown={pillDragStart}
             onPointerMove={pillDragMove}
             onPointerUp={pillDragEnd}

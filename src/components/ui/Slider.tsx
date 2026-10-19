@@ -77,7 +77,7 @@ export function Slider({
           />
         </div>
         <div
-          className="pointer-events-none absolute top-1/2 -translate-y-1/2 w-4 h-8 rounded-lg bg-white shadow-md border border-line transition-transform duration-150 group-active:scale-90 group-hover:scale-110"
+          className="pointer-events-none absolute top-1/2 -translate-y-1/2 w-4 h-8 rounded-lg bg-white shadow-md border border-line transition-transform duration-150 "
           style={{ left: `calc(${percent}% - ${(percent / 100) * thumbSize}px)` }}
         />
         <input

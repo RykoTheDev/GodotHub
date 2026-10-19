@@ -1,10 +1,10 @@
+import { useUiMotion } from '../../hooks/useUiMotion'
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { ModalHeader } from "../modals/ModalHeader";
 import { IconCheckCircle, IconPencil } from "../../lib/icons";
-import { overlayTransition } from "../../lib/motion";
 
 import type {
   ProjectTodo,
@@ -24,6 +24,8 @@ export function ProjectTodoModal({
   onSubmit,
   todo,
 }: ProjectTodoModalProps) {
+  const uiMotion = useUiMotion()
+
   const editing = !!todo;
   const { t, i18n } = useTranslation(["todos", "common"]);
   const locale = i18n.resolvedLanguage ?? i18n.language;
@@ -119,19 +121,16 @@ export function ProjectTodoModal({
 
   return createPortal(
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={overlayTransition}
+      {...uiMotion.surface('modal', `none`)}
+
       className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
       <motion.div
         role="dialog"
         aria-modal="true"
-        initial={{ opacity: 0, y: 14, scale: 0.96 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ type: "spring", stiffness: 380, damping: 30 }}
+        {...uiMotion.surface('modal', `scale(0.96)`)}
+
         className="bg-surface rounded-modal w-full max-w-lg max-h-[88vh] flex flex-col shadow-2xl overflow-clip"
         onClick={(event) => event.stopPropagation()}
       >
@@ -275,8 +274,8 @@ export function ProjectTodoModal({
         <div className="flex justify-end gap-2 p-5 pt-2">
           <motion.button
             type="button"
-            whileHover={{ y: -1 }}
-            whileTap={{ scale: 0.96 }}
+
+            data-press-feedback
             onClick={onClose}
             className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm text-muted hover:text-ink transition-colors"
           >
@@ -285,8 +284,8 @@ export function ProjectTodoModal({
 
           <motion.button
             type="button"
-            whileHover={canSubmit ? { y: -1 } : undefined}
-            whileTap={canSubmit ? { scale: 0.96 } : undefined}
+
+            data-press-feedback={canSubmit ? true : undefined}
             onClick={submit}
             disabled={!canSubmit}
             className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn bg-accent text-white text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed"

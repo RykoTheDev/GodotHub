@@ -53,6 +53,7 @@
 }
 
 :root {
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --font-cjk: sans-serif;
   --font-cjk-mono: monospace;
 
@@ -211,30 +212,99 @@ textarea::placeholder {
   margin-bottom: 1.5rem;
 }
 
+/* Collapse the track as well as the controls. Keep spacing inside its clipped
+ * child so hidden tag actions and pin buttons leave no empty flex gap. */
+.project-hover-reveal {
+  display: inline-grid;
+  grid-template-columns: 0fr;
+  opacity: 0;
+  pointer-events: none;
+  transition: grid-template-columns 160ms var(--ease-out), opacity 160ms var(--ease-out);
+}
+.project-tag:focus-within .project-tag-actions,
+.project-pin-action:focus-within,
+.project-pin-action[data-visible="true"] {
+  grid-template-columns: 1fr;
+  opacity: 1;
+  pointer-events: auto;
+}
+@media (hover: hover) and (pointer: fine) {
+  .project-tag:hover .project-tag-actions {
+    grid-template-columns: 1fr;
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+@media (hover: none), (pointer: coarse) {
+  .project-hover-reveal {
+    grid-template-columns: 1fr;
+    opacity: 1;
+    pointer-events: auto;
+  }
+}
+
+.motion-subtle,
+.motion-subtle *,
+.motion-subtle *::before,
+.motion-subtle *::after,
 .reduce-motion,
 .reduce-motion *,
 .reduce-motion *::before,
 .reduce-motion *::after {
   transition-property: opacity, color, background-color, border-color, fill, stroke, box-shadow !important;
-  transition-duration: 0.12s !important;
-  transition-timing-function: ease-out !important;
+  transition-duration: 125ms !important;
+  transition-timing-function: var(--ease-out) !important;
   animation: none !important;
   scroll-behavior: auto !important;
 }
 
-.theme-transitioning,
-.theme-transitioning * {
-  transition: background-color 0.35s ease,
-              border-color 0.35s ease,
-              color 0.35s ease,
-              fill 0.35s ease,
-              stroke 0.35s ease,
-              box-shadow 0.35s ease !important;
+.motion-none *, .motion-none *::before, .motion-none *::after,
+.keyboard-input *, .keyboard-input *::before, .keyboard-input *::after {
+  transition-duration: 0ms !important;
+  scroll-behavior: auto !important;
+}
+.motion-none *, .motion-none *::before, .motion-none *::after,
+.keyboard-input *:not(.animate-spin), .keyboard-input *::before, .keyboard-input *::after {
+  animation: none !important;
 }
 
-.reduce-motion .theme-transitioning,
-.reduce-motion .theme-transitioning * {
-  transition-duration: 0.001ms !important;
+/* Independent scale preserves any positioning transform on the control. */
+[data-press-feedback] {
+  transition-property: scale, color, background-color, border-color, opacity, box-shadow;
+  transition-duration: 160ms;
+  transition-timing-function: var(--ease-out);
+}
+[data-press-feedback]:not(:disabled):active { scale: 0.97; }
+.keyboard-input [data-press-feedback]:active,
+.reduce-motion [data-press-feedback]:active,
+.motion-subtle [data-press-feedback]:active,
+.motion-none [data-press-feedback]:active { scale: 1; }
+
+.ui-control-indicator {
+  transition: transform 160ms var(--ease-out), opacity 160ms var(--ease-out);
+}
+
+.theme-transitioning,
+.theme-transitioning * {
+  transition: background-color 0.2s ease,
+              border-color 0.2s ease,
+              color 0.2s ease,
+              fill 0.2s ease,
+              stroke 0.2s ease,
+              box-shadow 0.2s ease !important;
+}
+
+.theme-transitioning.reduce-motion,
+.theme-transitioning.reduce-motion *,
+.theme-transitioning.motion-subtle,
+.theme-transitioning.motion-subtle * {
+  transition-duration: 125ms !important;
+}
+.theme-transitioning.keyboard-input,
+.theme-transitioning.keyboard-input *,
+.theme-transitioning.motion-none,
+.theme-transitioning.motion-none * {
+  transition-duration: 0ms !important;
 }
 
 .icon-wiggle svg {

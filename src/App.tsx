@@ -6,6 +6,8 @@ import { useGodotVersionsContext } from './hooks/godotVersionsContext'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { api } from './lib/api'
 import { overlayTransition, viewTransition } from './lib/motion'
+import { motionDuration } from './lib/motion'
+import { useUiMotion } from './hooks/useUiMotion'
 import type { GitStatus, Project } from './types'
 
 import { Sidebar } from './components/ui/Sidebar'
@@ -73,6 +75,7 @@ const DEFAULT_GIT_SIDEBAR_WIDTH = 320
 export type NewTab = (typeof TABS)[number]['id']
 
 export function App() {
+  const uiMotion = useUiMotion()
   const { t } = useTranslation('nav')
   const { t: tc } = useTranslation('common')
   const { settings, loaded: settingsLoaded, update: updateSettings } = useSettings()
@@ -254,21 +257,17 @@ export function App() {
   }, [uiSwitchIntent])
 
   useEffect(() => {
+    if (!settingsLoaded) return
     if (splashPhase === 'enter') {
-      const t = setTimeout(() => setSplashPhase('fly'), 1200)
-      return () => clearTimeout(t)
-    }
-    if (splashPhase === 'fly') {
-      const t = setTimeout(() => setSplashPhase('fade'), 600)
-      return () => clearTimeout(t)
+      setSplashPhase('fade')
     }
     if (splashPhase === 'fade') {
       const t = setTimeout(() => {
         setSplashPhase('done')
-      }, 450)
+      }, uiMotion.instant ? 0 : (uiMotion.reduced ? motionDuration.exit : motionDuration.modal) * 1000)
       return () => clearTimeout(t)
     }
-  }, [splashPhase])
+  }, [splashPhase, settingsLoaded, uiMotion.instant, uiMotion.reduced])
 
   useEffect(() => {
     const handleOpenSetting = () => setTab('settings')
@@ -528,17 +527,7 @@ export function App() {
               />
               <motion.div
                 key="git-panel"
-                initial={{ x: '100%', opacity: 0 }}
-                animate={{
-                  x: 0,
-                  opacity: 1,
-                  transition: { type: 'spring', stiffness: 350, damping: 32 },
-                }}
-                exit={{
-                  x: '100%',
-                  opacity: 0,
-                  transition: { duration: 0.15, ease: 'easeOut' },
-                }}
+                {...uiMotion.surface('modal', 'translateX(100%)')}
                 onAnimationComplete={() => {
                   window.dispatchEvent(new Event('app:git-sidebar-opened'))
                 }}
@@ -616,7 +605,7 @@ export function App() {
                           className={`flex items-center justify-center w-5 h-10 rounded-full border shadow-md shadow-base transition-[scale,background-color,border-color,box-shadow] duration-200 ${
                             gitDragging
                               ? 'bg-accent border-accent scale-110 shadow-accent/30'
-                              : 'bg-raised border-line shadow-base group-hover/edge:border-accent-dim group-hover/edge:scale-110'
+                              : 'bg-raised border-line shadow-base group-hover/edge:border-accent-dim'
                           }`}
                         >
                           <div className="flex flex-col items-center justify-center gap-1">

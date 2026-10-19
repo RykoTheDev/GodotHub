@@ -312,7 +312,7 @@ export function CheckForUpdatesModal({
       footer={
         <div className="w-full flex items-center justify-end">
           <motion.button
-            whileTap={{ scale: 0.96 }}
+            data-press-feedback
             onClick={onClose}
             className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-4 py-2 rounded-item border border-outline/50 text-xs font-medium text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors"
           >
@@ -403,8 +403,8 @@ export function CheckForUpdatesModal({
                     </span>
                   </div>
                   <motion.a
-                    whileHover={{ y: -1 }}
-                    whileTap={{ scale: 0.96 }}
+
+                    data-press-feedback
                     href="https://github.com/RykoTheDev/GodotHub/releases/latest"
                     target="_blank"
                     rel="noopener noreferrer"
@@ -524,8 +524,8 @@ export function CheckForUpdatesModal({
                 </div>
               </div>
               <motion.button
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.96 }}
+
+                data-press-feedback
                 onClick={handleInstall}
                 className="focus-ring cursor-pointer flex items-center gap-2 px-6 py-2.5 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
               >
@@ -600,8 +600,8 @@ export function CheckForUpdatesModal({
                           : t('check_updates_rate_limited_hint')}
                       </p>
                       <motion.button
-                        whileHover={{ y: -1 }}
-                        whileTap={{ scale: 0.96 }}
+
+                        data-press-feedback
                         onClick={openTokenSettings}
                         className="focus-ring cursor-pointer self-start px-4 py-2 rounded-item bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors"
                       >
@@ -612,8 +612,8 @@ export function CheckForUpdatesModal({
                     </div>
                   )}
                   <motion.button
-                    whileHover={{ y: -1 }}
-                    whileTap={{ scale: 0.96 }}
+
+                    data-press-feedback
                     onClick={doCheck}
                     className="focus-ring cursor-pointer flex items-center gap-2 px-5 py-2.5 rounded-item border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium text-ink transition-colors"
                   >

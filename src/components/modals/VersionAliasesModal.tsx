@@ -151,7 +151,7 @@ export function VersionAliasesModal({
                 className="focus-ring flex-1 min-w-0 bg-raised border border-line rounded-btn px-3 py-2 text-sm font-mono text-ink outline-none placeholder:text-muted/60"
               />
               <motion.button
-                whileTap={{ scale: 0.96 }}
+                data-press-feedback
                 type="button"
                 disabled={!name.trim() || !tag || busy}
                 onClick={addToQueue}
@@ -224,7 +224,7 @@ export function VersionAliasesModal({
             )}
 
             <motion.button
-              whileTap={{ scale: 0.98 }}
+              data-press-feedback
               type="button"
               disabled={queue.length === 0 || busy}
               onClick={() => void createQueued()}

@@ -363,7 +363,7 @@ export function AssetStoreBrowser({
             <div className="flex items-center justify-center gap-1.5 flex-wrap">
                 <motion.button key="button-363"
                   type="button"
-                  whileTap={{ scale: 0.94 }}
+                  data-press-feedback
                   onClick={() => navigate(page - 1)}
                   disabled={page <= 0 || paging}
                   aria-label={t('asset_prev_page')}
@@ -384,7 +384,7 @@ export function AssetStoreBrowser({
                   <motion.button
                     key={item}
                     type="button"
-                    whileTap={{ scale: 0.94 }}
+                    data-press-feedback
                     onClick={() => navigate(item)}
                     disabled={paging}
                     aria-label={t('asset_page_x_of_y', {
@@ -404,7 +404,7 @@ export function AssetStoreBrowser({
               )}
                 <motion.button
                   type="button"
-                  whileTap={{ scale: 0.94 }}
+                  data-press-feedback
                   onClick={() => navigate(page + 1)}
                   disabled={page + 1 >= pages || paging}
                   aria-label={t('asset_next_page')}

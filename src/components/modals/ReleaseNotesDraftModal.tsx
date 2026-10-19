@@ -159,16 +159,16 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
           )}
           <div className="ml-auto flex items-center gap-2.5">
             <motion.button
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.96 }}
+
+              data-press-feedback
               onClick={onClose}
               className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
             >
               {t('cancel')}
             </motion.button>
             <motion.button
-              whileHover={rows.length === 0 ? undefined : { y: -1 }}
-              whileTap={rows.length === 0 ? undefined : { scale: 0.96 }}
+
+              data-press-feedback={rows.length === 0 ? undefined : true}
               onClick={useDraft}
               disabled={rows.length === 0}
               className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-40 text-sm font-medium text-white transition-colors"
@@ -244,8 +244,8 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
           </div>
             <motion.button
               type="button"
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.94 }}
+
+              data-press-feedback
               onClick={generate}
               disabled={loading || !from || !to}
               title={t('changelog_draft_generate')}

@@ -13,6 +13,7 @@ import {
 import { createPortal } from 'react-dom'
 import type { IconProps } from '../../lib/icons'
 import { Tooltip } from '../reusables/Tooltip'
+import { useUiMotion } from '../../hooks/useUiMotion'
 import {
   MenuButton,
   MenuDivider,
@@ -71,6 +72,7 @@ export function Dropdown({
   children,
   onOpenChange,
 }: NewDropdownProps) {
+  const { surface } = useUiMotion()
   const [open, setOpen] = useState(false)
   const [openUp, setOpenUp] = useState(false)
   const [openSubmenuKey, setOpenSubmenuKey] = useState<string | null>(null)
@@ -277,13 +279,11 @@ export function Dropdown({
           {open && (
             <motion.div key="div-269"
               ref={menuRef}
-              initial={{ opacity: 0, y: openUp ? 6 : -6, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: openUp ? 6 : -6, scale: 0.96 }}
-              transition={{ duration: 0.15, ease: 'easeOut' }}
+              {...surface('popover', `translateY(${openUp ? 6 : -6}px) scale(0.96)`)}
               role="menu"
               onKeyDown={handleMenuKey}
-              style={{ left: pos?.left, top: pos?.top, width: pos?.width }}
+              style={{ left: pos?.left, top: pos?.top, width: pos?.width,
+                transformOrigin: side === 'left' ? 'right top' : `${openUp ? 'bottom' : 'top'} ${align === 'right' ? 'right' : 'left'}` }}
               className={`fixed z-50 ${menuSurfaceClass(compact)} ${
                 openUp ? 'origin-bottom' : 'origin-top'
               } ${menuClassName}`}
@@ -340,18 +340,7 @@ export function Dropdown({
                           style={{ transform: `translateY(${submenuOffsetY}px)` }}
                         >
                           <motion.div
-                            initial={{
-                              opacity: 0,
-                              x: submenuSide === 'left' ? 6 : -6,
-                              scale: 0.97,
-                            }}
-                            animate={{ opacity: 1, x: 0, scale: 1 }}
-                            exit={{
-                              opacity: 0,
-                              x: submenuSide === 'left' ? 6 : -6,
-                              scale: 0.97,
-                            }}
-                            transition={{ duration: 0.15, ease: 'easeOut' }}
+                            {...surface('popover', `translateX(${submenuSide === 'left' ? 6 : -6}px) scale(0.97)`)}
                             className={`min-w-52 rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/15 p-1 ${
                               submenuSide === 'left'
                                 ? 'origin-right'

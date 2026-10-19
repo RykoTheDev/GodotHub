@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { useUiMotion } from '../../hooks/useUiMotion'
 
 interface Props {
   checked: boolean
@@ -8,6 +8,7 @@ interface Props {
 }
 
 export function Toggle({ checked, onChange, label, disabled }: Props) {
+  const {reduced, instant} = useUiMotion()
   return (
     <button
       type="button"
@@ -20,11 +21,9 @@ export function Toggle({ checked, onChange, label, disabled }: Props) {
         checked ? 'bg-accent border-accent-dim' : 'bg-raised border-line'
       } ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:brightness-110'}`}
     >
-      <motion.span
-        initial={false}
-        animate={{ transform: checked ? 'translateX(22px)' : 'translateX(0px)' }}
-        transition={{ type: 'spring', stiffness: 500, damping: 32 }}
-        className="ml-0.5 block w-5 h-5 rounded-lg bg-white shadow-md"
+      <span
+        style={{transform: checked ? 'translateX(22px)' : 'translateX(0px)', transitionDuration: reduced || instant ? '0ms' : undefined}}
+        className="ui-control-indicator ml-0.5 block w-5 h-5 rounded-lg bg-white shadow-md"
       />
     </button>
   )

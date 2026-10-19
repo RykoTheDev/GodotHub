@@ -1,10 +1,10 @@
+import { useUiMotion } from '../../hooks/useUiMotion'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { Category, GitAuthState, UserRepoInfo } from '../../types'
 import { api } from '../../lib/api'
-import { overlayTransition } from '../../lib/motion'
 import { useSettings } from '../../hooks/useSettings'
 import { useTaskTray } from '../../hooks/useTaskTray'
 import { Checkbox } from '../ui/Checkbox'
@@ -44,6 +44,8 @@ export function CloneRepoModal({
   onClose,
   onCloned,
 }: Props) {
+  const uiMotion = useUiMotion()
+
   const { t } = useTranslation('common')
   const { settings, update: updateSettings } = useSettings()
   const { registerTask, updateTask, unregisterTask } = useTaskTray()
@@ -268,17 +270,14 @@ export function CloneRepoModal({
 
   return createPortal(
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={overlayTransition}
+      {...uiMotion.surface('modal', `none`)}
+
       className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
       <motion.div
-        initial={{ opacity: 0, scale: 0.96 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+        {...uiMotion.surface('modal', `scale(0.96)`)}
+
         className="bg-surface rounded-modal w-full max-w-2xl max-h-[88vh] flex flex-col shadow-2xl overflow-clip"
         onClick={(e) => e.stopPropagation()}
       >
@@ -521,8 +520,8 @@ export function CloneRepoModal({
                   placeholder={t('clone_repo_dest_placeholder')}
                 />
                 <motion.button
-                  whileHover={{ y: -1 }}
-                  whileTap={{ scale: 0.96 }}
+
+                  data-press-feedback
                   onClick={pickLocation}
                   className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm transition-colors shrink-0"
                 >
@@ -592,10 +591,8 @@ export function CloneRepoModal({
         <AnimatePresence>
           {error && (
             <motion.div key="error"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.15, ease: 'easeOut' }}
+              {...uiMotion.surface('tooltip', 'none')}
+
               className="px-6 overflow-hidden"
             >
               <div className="flex items-start gap-2.5 rounded-item border border-danger/25 bg-danger/10 px-4 py-3">
@@ -608,7 +605,7 @@ export function CloneRepoModal({
 
         <div className="flex justify-end gap-2.5 p-6 pt-4 border-t border-line">
           <motion.button key="error"
-            whileTap={{ scale: 0.96 }}
+            data-press-feedback
             onClick={onClose}
             disabled={busy}
             className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-50"
@@ -616,7 +613,7 @@ export function CloneRepoModal({
             {t('clone_repo_cancel')}
           </motion.button>
           <motion.button key="error"
-            whileTap={busy ? undefined : { scale: 0.96 }}
+            data-press-feedback={busy ? undefined : true}
             onClick={submit}
             disabled={busy}
             className="focus-ring px-5 cursor-pointer py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white transition-colors flex items-center gap-2"

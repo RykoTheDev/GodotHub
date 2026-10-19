@@ -1443,5 +1443,18 @@
     ],
     "known_issues": [],
     "created_at": 1792262170
+  },
+  {
+    "id": "fa909c38-8a1e-432b-ad3d-7bb8ceac480d",
+    "version": "v1.4.9",
+    "date": "2026-10-20",
+    "notes": [
+      {
+        "category": "add",
+        "text": "Ability to downloads Export Templates for your godot versions"
+      }
+    ],
+    "known_issues": [],
+    "created_at": 1792422007
   }
 ]

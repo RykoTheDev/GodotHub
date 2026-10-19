@@ -40,7 +40,7 @@ let output = `// AUTO-GENERATED from en-US locale files
 for (const [ns, keys] of Object.entries(namespaces)) {
   const unionStr = keys.map(k => `  | '${k}'`).join('\n');
   output += `/** Keys from ${ns}.json */\n`;
-  output += `export type ${ns}Keys = \n${unionStr};\n\n`;
+  output += `export type ${ns}Keys =\n${unionStr};\n\n`;
 }
 
 const allNs = Object.keys(namespaces);
@@ -55,7 +55,7 @@ for (const [ns, keys] of Object.entries(namespaces)) {
 }
 const allUnion = allKeys.map(k => `  | '${k}'`).join('\n');
 output += `/** All translation keys (namespace:key) */\n`;
-output += `export type TranslationKey = \n${allUnion};\n`;
+output += `export type TranslationKey =\n${allUnion};\n`;
 
 fs.writeFileSync(OUTPUT, output);
 console.log(`Generated ${OUTPUT}`);

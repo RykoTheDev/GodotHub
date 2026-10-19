@@ -1,3 +1,4 @@
+import { useUiMotion } from '../../hooks/useUiMotion'
 import { GitSection as Section } from './GitSection'
 import { GitWorktrees } from './GitWorktrees'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -233,6 +234,8 @@ export function GitSidebar({
   onSwitchProject,
   connected = false,
 }: Props) {
+  const uiMotion = useUiMotion()
+
   const { t } = useTranslation('git')
   const { t: tc } = useTranslation('common')
   const { settings, update } = useSettings()
@@ -918,10 +921,8 @@ export function GitSidebar({
       <AnimatePresence mode="wait" initial={false}>
         <motion.div
           key={project.path}
-          initial={{ opacity: 0, x: 16 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -16 }}
-          transition={{ duration: 0.16, ease: 'easeOut' }}
+          {...uiMotion.surface('tooltip', 'none')}
+
           className="flex flex-col h-full min-h-0"
         >
       <div className="shrink-0 flex items-center justify-between h-12 border-b border-line px-3">
@@ -943,9 +944,8 @@ export function GitSidebar({
         {!ready ? (
           <div className="flex-1 flex items-center justify-center h-full">
             <motion.div key="div-938"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.2 }}
+              {...uiMotion.surface('tooltip', 'none')}
+
               className="flex flex-col items-center gap-3"
             >
               <Spinner />
@@ -1174,15 +1174,8 @@ export function GitSidebar({
                       <motion.span
                         key={state}
                         className="inline-flex"
-                        initial={{ opacity: 0, scale: 0.9, filter: 'blur(2px)' }}
-                        animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-                        exit={{
-                          opacity: 0,
-                          scale: 0.9,
-                          filter: 'blur(2px)',
-                          transition: { duration: 0.15 },
-                        }}
-                        transition={{ duration: 0.2, ease: [0.34, 1.56, 0.64, 1] }}
+                        {...uiMotion.surface('tooltip', 'none')}
+
                       >
                         {state === 'running' ? (
                           <Spinner />
@@ -1275,11 +1268,9 @@ export function GitSidebar({
                   {branchMenuOpen && (
                     <motion.div
                       key="branch-menu"
-                      initial={{ opacity: 0, y: -4, scale: 0.97 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -4, scale: 0.97 }}
-                      transition={{ duration: 0.12, ease: 'easeOut' }}
-                      className="absolute left-0 right-0 top-full z-20 mt-1 rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 p-1.5 max-h-56 overflow-y-auto new-ui-scroll-viewport"
+                      {...uiMotion.surface('popover', `translateY(-4px) scale(0.97)`)}
+
+                      className="absolute left-0 right-0 top-full z-20 mt-1 origin-top-left rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 p-1.5 max-h-56 overflow-y-auto new-ui-scroll-viewport"
                     >
                       {branchesLoading ? (
                         <div className="px-2 py-1.5">
@@ -1790,11 +1781,9 @@ export function GitSidebar({
               key="ctx-menu"
               ref={ctxMenuRef}
               role="menu"
-              initial={{ opacity: 0, scale: 0.96, y: -4 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96, y: -4 }}
-              transition={{ duration: 0.12, ease: 'easeOut' }}
-              style={{ left: ctxMenu.x, top: ctxMenu.y }}
+              {...uiMotion.surface('popover', `translateY(-4px) scale(0.97)`)}
+
+              style={{ left: ctxMenu.x, top: ctxMenu.y, transformOrigin: 'top left' }}
               className="fixed z-50 w-48 rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 p-1.5"
             >
               {stagedFiles.length > 0 && (

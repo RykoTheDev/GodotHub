@@ -33,8 +33,8 @@ export function WorkspaceStylePicker({
               <motion.button
                 key={key}
                 type="button"
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.94 }}
+
+                data-press-feedback
                 onClick={() => onIconChange(key)}
                 aria-label={key}
                 aria-pressed={active}
@@ -60,15 +60,15 @@ export function WorkspaceStylePicker({
               <motion.button
                 key={c}
                 type="button"
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.96 }}
+
+                data-press-feedback
                 onClick={() => onColorChange(c)}
                 aria-label={c}
                 aria-pressed={active}
                 className={`focus-ring cursor-pointer aspect-square rounded-full border-2 transition-transform ${
                   active
                     ? 'border-ink scale-110'
-                    : 'border-transparent hover:scale-110'
+                    : 'border-transparent'
                 }`}
                 style={{ backgroundColor: c }}
               />

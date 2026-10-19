@@ -4,6 +4,7 @@ import type {
   Project,
   ProjectSizeInfo,
   ProjectUpdate,
+  ProjectHealthReport,
 } from '../types'
 
 const iconCache = new Map<string, string | null>()
@@ -39,6 +40,8 @@ export function getCachedProjectName(path: string): string | null {
 }
 
 export const projectsApi = {
+  diagnose: (id: string) => invoke<ProjectHealthReport>('diagnose_project', { id }),
+  fixHealth: (id: string, checkId: string) => invoke<void>('fix_project_health', { id, checkId }),
   list: () => invoke<Project[]>('list_projects'),
   create: (name: string, location: string, godotVersion: string, iconPath?: string | null, templateId?: string | null, category?: string | null) =>
     invoke<Project>('create_project', { name, location, godotVersion, iconPath: iconPath ?? null, templateId: templateId ?? null, category: category ?? null }),

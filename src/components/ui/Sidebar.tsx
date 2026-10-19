@@ -10,6 +10,7 @@ import { useUpdatesBadge } from '../../hooks/useUpdatesBadge'
 import { useChangelogBadge } from '../../hooks/useChangelogBadge'
 import { useUpdateAvailable } from '../../hooks/useUpdateAvailable'
 import { Tooltip } from '../reusables/Tooltip'
+import { useUiMotion } from '../../hooks/useUiMotion'
 
 export interface SidebarTab {
   id: string
@@ -46,6 +47,7 @@ export function Sidebar({
   const { t } = useTranslation('nav')
   const { t: tc } = useTranslation('common')
   const { settings } = useSettings()
+  const {instant, reduced, transition} = useUiMotion()
   const { hasUnseen } = useUpdatesBadge()
   const { hasNewEntry: hasNewChangelogEntry, markSeen: markChangelogSeen } = useChangelogBadge()
   const { updateAvailable, previewUpdate } = useUpdateAvailable()
@@ -192,8 +194,8 @@ export function Sidebar({
       >
         {active && (
           <motion.span
-            layoutId="new-ui-nav-pill"
-            transition={{ type: 'spring', stiffness: 650, damping: 38 }}
+            layoutId={instant || reduced ? undefined : 'new-ui-nav-pill'}
+            transition={transition('press')}
             className="absolute inset-0 rounded-item bg-overlay border border-outline/50 shadow-md shadow-black/10 pointer-events-none"
           />
         )}
@@ -235,14 +237,12 @@ export function Sidebar({
           : 'border-transparent w-9 h-9 ml-auto shrink-0'
       }`}
     >
-      <motion.span
-        className="inline-flex"
-        initial={false}
-        animate={{ rotate: collapsed ? 180 : 0 }}
-        transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+      <span
+        className="ui-control-indicator inline-flex"
+        style={{transform:collapsed ? 'rotate(180deg)' : 'rotate(0deg)', transitionDuration:instant || reduced ? '0ms' : undefined}}
       >
         <IconChevronsLeft className={`w-4 h-4 ${collapsed ? 'pr-0' : 'pr-2'}`} />
-      </motion.span>
+      </span>
     </button>
     </Tooltip>
   )
@@ -258,13 +258,8 @@ export function Sidebar({
         setKnobY(null)
       }}
     >
-      <motion.div
-        animate={{ width: collapsed ? COLLAPSED_WIDTH : width }}
-        transition={
-          dragging
-            ? { duration: 0 }
-            : { duration: 0.2, ease: [0.23, 1, 0.32, 1] }
-        }
+      <div
+        style={{width:collapsed ? COLLAPSED_WIDTH : width}}
         className={`flex flex-col h-full overflow-hidden ${
           connected
             ? 'rounded-none border-r border-line bg-raised'
@@ -416,7 +411,7 @@ export function Sidebar({
           </div>
         </nav>
       )}
-      </motion.div>
+      </div>
       {collapsed && (
         <span title={t('expand_sidebar')} className="contents">
           {collapseBtn}
@@ -467,7 +462,7 @@ export function Sidebar({
             className={`flex items-center justify-center w-5 h-10 rounded-full border shadow-md shadow-base transition-[scale,background-color,border-color,box-shadow] duration-200 ${
             dragging
               ? 'bg-accent border-accent scale-110 shadow-accent/30'
-              : 'bg-raised border-line shadow-base group-hover/edge:border-accent-dim group-hover/edge:scale-110'
+              : 'bg-raised border-line shadow-base group-hover/edge:border-accent-dim'
           }`}
         >
             <div className="flex flex-col items-center justify-center gap-1">

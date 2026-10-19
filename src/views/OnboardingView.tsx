@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useUiMotion } from '../hooks/useUiMotion'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ACCENT_PRESETS_DARK,
@@ -191,6 +192,7 @@ export function OnboardingView({
   settings,
   onComplete,
 }: Props) {
+  const uiMotion = useUiMotion()
   const { t } = useTranslation('onboarding')
   const { t: tc, i18n } = useTranslation('common')
   const { t: ts } = useTranslation('settings')
@@ -280,8 +282,8 @@ export function OnboardingView({
                 >
                   {active && (
                     <motion.span
-                      layoutId="new-ui-onboarding-pill"
-                      transition={{ type: 'spring', stiffness: 650, damping: 38 }}
+                      layoutId={uiMotion.instant || uiMotion.reduced ? undefined : 'new-ui-onboarding-pill'}
+                      transition={uiMotion.transition('press')}
                       className="absolute inset-0 rounded-item bg-overlay border border-outline/50 shadow-md shadow-black/10 pointer-events-none"
                     />
                   )}
@@ -672,8 +674,8 @@ export function OnboardingView({
                               return (
                                 <motion.button
                                   key={name}
-                                  whileHover={added ? undefined : { y: -1 }}
-                                  whileTap={added ? undefined : { scale: 0.96 }}
+
+                                  data-press-feedback={added ? undefined : true}
                                   disabled={added || categoryBusy}
                                   onClick={() => addStarterCategory(name)}
                                   className={`focus-ring cursor-pointer flex items-center gap-1.5 px-3.5 py-2 rounded-btn border text-xs font-medium transition-colors disabled:cursor-default ${
@@ -709,8 +711,8 @@ export function OnboardingView({
                                 className="focus-ring flex-1 bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm focus:border-accent-dim outline-none transition-colors"
                               />
                               <motion.button
-                                whileHover={categoryBusy ? undefined : { y: -1 }}
-                                whileTap={categoryBusy ? undefined : { scale: 0.96 }}
+
+                                data-press-feedback={categoryBusy ? undefined : true}
                                 onClick={addCustomCategory}
                                 disabled={categoryBusy || !categoryDraft.trim()}
                                 className="focus-ring cursor-pointer shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium text-white transition-colors"

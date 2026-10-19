@@ -28,6 +28,19 @@ import type { AnimationIntensity } from './motion'
 
 let animationIntensity: AnimationIntensity = 'full'
 let reducedMotionQuery: MediaQueryList | null = null
+let keyboardInput = false
+const motionListeners = new Set<() => void>()
+
+export function subscribeMotionPreferences(listener: () => void) {
+  motionListeners.add(listener)
+  return () => { motionListeners.delete(listener) }
+}
+
+export function getMotionSnapshot() {
+  return `${animationIntensity}|${osPrefersReducedMotion()}|${keyboardInput}`
+}
+
+export function motionIsInstant() { return keyboardInput || animationIntensity === 'none' }
 
 function reducedMotionMediaQuery(): MediaQueryList {
   reducedMotionQuery ??= window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -45,7 +58,11 @@ function shouldReduceMotion(): boolean {
 function applyReduceMotionState() {
   const enabled = shouldReduceMotion()
   document.documentElement.classList.toggle('reduce-motion', enabled)
-  MotionGlobalConfig.instantAnimations = enabled
+  document.documentElement.classList.toggle('motion-subtle', animationIntensity === 'subtle')
+  document.documentElement.classList.toggle('motion-none', animationIntensity === 'none')
+  document.documentElement.classList.toggle('keyboard-input', keyboardInput)
+  MotionGlobalConfig.instantAnimations = motionIsInstant()
+  motionListeners.forEach(listener => listener())
 }
 
 export function applyAnimationIntensity(intensity: AnimationIntensity) {
@@ -78,6 +95,18 @@ export function applyCustomCss(css: string) {
 export function initReducedMotionDetection() {
   const mq = reducedMotionMediaQuery()
   const handler = () => applyReduceMotionState()
+  const keydown = (event: KeyboardEvent) => {
+    if (['Shift', 'Control', 'Alt', 'Meta'].includes(event.key) || keyboardInput) return
+    keyboardInput = true; applyReduceMotionState()
+  }
+  const pointerdown = () => {
+    if (!keyboardInput) return
+    keyboardInput = false; applyReduceMotionState()
+  }
+  const click = (event: MouseEvent) => { if (event.detail === 0 && !keyboardInput) { keyboardInput = true; applyReduceMotionState() } }
+  document.addEventListener('keydown', keydown, true)
+  document.addEventListener('pointerdown', pointerdown, true)
+  document.addEventListener('click', click, true)
   if (typeof mq.addEventListener === 'function') {
     mq.addEventListener('change', handler)
   } else {
@@ -85,6 +114,9 @@ export function initReducedMotionDetection() {
   }
   applyReduceMotionState()
   return () => {
+    document.removeEventListener('keydown', keydown, true)
+    document.removeEventListener('pointerdown', pointerdown, true)
+    document.removeEventListener('click', click, true)
     if (typeof mq.removeEventListener === 'function') {
       mq.removeEventListener('change', handler)
     } else {
@@ -94,7 +126,7 @@ export function initReducedMotionDetection() {
 }
 
 export function isReducedMotion(): boolean {
-  return shouldReduceMotion()
+  return shouldReduceMotion() || animationIntensity === 'subtle' || keyboardInput
 }
 
 export function applyScrollbars(enabled: boolean) {

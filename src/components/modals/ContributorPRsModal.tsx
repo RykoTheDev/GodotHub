@@ -1,10 +1,10 @@
+import { useUiMotion } from '../../hooks/useUiMotion'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { formatLocaleDate } from '../../lib/locale'
-import { overlayTransition } from '../../lib/motion'
 
 interface PR {
   number: number
@@ -52,6 +52,8 @@ function formatDate(iso: string) {
 }
 
 export function ContributorPRsModal({ login, avatarUrl, onClose }: Props) {
+  const uiMotion = useUiMotion()
+
   const { t } = useTranslation('common')
   const [prs, setPrs] = useState<PR[]>([])
   const [loading, setLoading] = useState(true)
@@ -96,18 +98,14 @@ export function ContributorPRsModal({ login, avatarUrl, onClose }: Props) {
   return createPortal(
     <AnimatePresence>
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={overlayTransition}
+        {...uiMotion.surface('modal', `none`)}
+
         className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
         onClick={onClose}
       >
         <motion.div
-          initial={{ opacity: 0, scale: 0.96 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.96 }}
-          transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+          {...uiMotion.surface('modal', `scale(0.96)`)}
+
           role="dialog"
           aria-modal="true"
           className="bg-surface rounded-modal w-full max-w-lg max-h-[80vh] flex flex-col shadow-2xl overflow-clip"

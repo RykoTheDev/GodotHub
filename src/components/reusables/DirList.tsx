@@ -133,8 +133,8 @@ export function DirList({
 
       <motion.button key="button-133"
         type="button"
-        whileHover={{ y: -1 }}
-        whileTap={{ scale: 0.96 }}
+
+        data-press-feedback
         onClick={addDir}
         className="icon-wiggle cursor-pointer focus-ring flex items-center gap-1.5 self-start px-3.5 py-2 rounded-item border border-dashed border-outline/60 text-xs text-muted hover:text-accent-bright hover:border-accent-dim transition-colors"
       >

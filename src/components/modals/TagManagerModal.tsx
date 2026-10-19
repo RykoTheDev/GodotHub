@@ -143,16 +143,16 @@ export function TagManagerModal({ project, onClose, onSaved }: Props) {
           </span>
           <div className="ml-auto flex items-center gap-2.5">
             <motion.button
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.96 }}
+
+              data-press-feedback
               onClick={onClose}
               className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
             >
               {t('cancel')}
             </motion.button>
             <motion.button
-              whileHover={saving ? undefined : { y: -1 }}
-              whileTap={saving ? undefined : { scale: 0.96 }}
+
+              data-press-feedback={saving ? undefined : true}
               onClick={handleSave}
               disabled={saving}
               className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-5 py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white transition-colors"
@@ -206,8 +206,8 @@ export function TagManagerModal({ project, onClose, onSaved }: Props) {
             className="focus-ring flex-1 bg-raised border border-line rounded-lg px-3.5 py-2.5 text-sm focus:border-accent-dim transition-colors outline-none"
           />
           <motion.button key="button-207"
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.96 }}
+
+            data-press-feedback
             onClick={addTag}
             disabled={!newTag.trim()}
             className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-accent hover:bg-accent-bright disabled:opacity-40 text-sm font-medium text-white transition-colors shrink-0"

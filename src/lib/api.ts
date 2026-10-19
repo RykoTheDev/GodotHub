@@ -18,6 +18,8 @@ export { getCachedProjectIcon, getCachedProjectName }
 
 export const api = {
   listProjects: projectsApi.list,
+  diagnoseProject: projectsApi.diagnose,
+  fixProjectHealth: projectsApi.fixHealth,
   createProject: projectsApi.create,
   importProject: projectsApi.import,
   removeProject: projectsApi.remove,

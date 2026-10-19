@@ -1,3 +1,4 @@
+import { useUiMotion } from '../../hooks/useUiMotion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -10,7 +11,6 @@ import type {
 } from '../../types'
 import { api } from '../../lib/api'
 import { applyNamingConvention } from '../../lib/namingConvention'
-import { overlayTransition } from '../../lib/motion'
 import { useSettings } from '../../hooks/useSettings'
 import { TemplatePreviewModal } from './TemplatePreviewModal'
 import { Toggle } from '../ui/Toggle'
@@ -59,6 +59,8 @@ export function CreateProjectModal({
   onClose,
   onCreated,
 }: Props) {
+  const uiMotion = useUiMotion()
+
   const { t } = useTranslation('common')
   const { settings } = useSettings()
   const [name, setName] = useState('')
@@ -288,17 +290,14 @@ export function CreateProjectModal({
 
   return createPortal(
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={overlayTransition}
+      {...uiMotion.surface('modal', `none`)}
+
       className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={dismiss}
     >
       <motion.div
-        initial={{ opacity: 0, y: 14, scale: 0.96 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+        {...uiMotion.surface('modal', `scale(0.96)`)}
+
         className="bg-surface rounded-modal w-full max-w-2xl max-h-[88vh] flex flex-col shadow-2xl overflow-clip"
         onClick={(e) => e.stopPropagation()}
       >
@@ -351,8 +350,8 @@ export function CreateProjectModal({
                   placeholder={t('choose_folder_placeholder')}
                 />
                 <motion.button
-                  whileHover={{ y: -1 }}
-                  whileTap={{ scale: 0.96 }}
+
+                  data-press-feedback
                   onClick={pickLocation}
                   className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm transition-colors shrink-0"
                 >
@@ -511,8 +510,8 @@ export function CreateProjectModal({
               <div className="flex flex-col gap-1.5 flex-1 min-w-0">
                 <div className="flex gap-2">
                   <motion.button
-                    whileHover={{ y: -1 }}
-                    whileTap={{ scale: 0.96 }}
+
+                    data-press-feedback
                     onClick={pickIcon}
                     className="focus-ring cursor-pointer px-3 py-2 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised text-xs transition-colors"
                   >
@@ -520,10 +519,9 @@ export function CreateProjectModal({
                   </motion.button>
                   {iconPath && (
                     <motion.button
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      whileHover={{ y: -1 }}
-                      whileTap={{ scale: 0.96 }}
+                      {...uiMotion.surface('tooltip', 'none')}
+
+                      data-press-feedback
                       onClick={clearIcon}
                       className="focus-ring cursor-pointer px-3 py-2 rounded-btn border border-outline/50 text-muted hover:text-danger hover:border-danger/30 hover:bg-danger/10 text-xs transition-colors"
                     >
@@ -720,10 +718,8 @@ export function CreateProjectModal({
         <AnimatePresence>
           {error && (
             <motion.div key="error"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.15, ease: 'easeOut' }}
+              {...uiMotion.surface('tooltip', 'none')}
+
               className="px-6 overflow-hidden"
             >
               <div className="flex items-start gap-2.5 rounded-item border border-danger/25 bg-danger/10 px-4 py-3">
@@ -737,10 +733,8 @@ export function CreateProjectModal({
         <AnimatePresence>
           {gitWarning && (
             <motion.div key="git-warning"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.15, ease: 'easeOut' }}
+              {...uiMotion.surface('tooltip', 'none')}
+
               className="px-6 overflow-hidden"
             >
               <div className="flex items-start gap-2.5 rounded-item border border-amber/25 bg-amber/10 px-4 py-3">
@@ -761,10 +755,8 @@ export function CreateProjectModal({
         <AnimatePresence>
           {remoteSuccess && (
             <motion.div key="div-760"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.15, ease: 'easeOut' }}
+              {...uiMotion.surface('tooltip', 'none')}
+
               className="px-6 overflow-hidden"
             >
               <div className="flex items-start gap-2.5 rounded-item border border-mint/25 bg-mint/10 px-4 py-3">
@@ -785,7 +777,7 @@ export function CreateProjectModal({
         <div className="flex justify-end gap-2.5 p-6 pt-4 border-t border-line">
           {gitWarning || remoteSuccess ? (
             <motion.button key="git-warning"
-              whileTap={{ scale: 0.96 }}
+              data-press-feedback
               onClick={onCreated}
               className="focus-ring px-5 cursor-pointer py-2.5 rounded-btn bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
             >
@@ -794,7 +786,7 @@ export function CreateProjectModal({
           ) : (
             <>
               <motion.button key="button-793"
-                whileTap={{ scale: 0.96 }}
+                data-press-feedback
                 onClick={onClose}
                 disabled={busy}
                 className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-50"
@@ -802,7 +794,7 @@ export function CreateProjectModal({
                 {t('cancel')}
               </motion.button>
               <motion.button key="button-801"
-                whileTap={busy ? undefined : { scale: 0.96 }}
+                data-press-feedback={busy ? undefined : true}
                 onClick={submit}
                 disabled={busy}
                 className="focus-ring px-5 cursor-pointer py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white transition-colors flex items-center gap-2"

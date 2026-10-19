@@ -111,7 +111,7 @@ function SortableCategoryItem({
           listeners={listeners}
           isDragging={isDragging}
           disabled={editing}
-          className="static! transform-none! opacity-100! !w-7! h-7! rounded-lg!"
+          className="static! transform-none! opacity-100! w-7! h-7! rounded-lg!"
         />
         {editing ? (
           <>
@@ -468,8 +468,8 @@ export function CategoryManagerModal({
               className="focus-ring flex-1 bg-raised border border-line rounded-xl px-4 py-3 text-sm focus:border-accent-dim transition-colors outline-none"
             />
             <motion.button
-              whileHover={busy ? undefined : { scale: 1.02 }}
-              whileTap={busy ? undefined : { scale: 0.97 }}
+
+              data-press-feedback={busy ? undefined : true}
               onClick={submitNew}
               disabled={busy || !newName.trim()}
               className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-3 rounded-xl bg-accent hover:bg-accent-bright disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium text-white transition-colors"

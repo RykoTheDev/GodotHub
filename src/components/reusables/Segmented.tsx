@@ -1,5 +1,6 @@
 import { useId } from 'react'
 import { motion } from 'framer-motion'
+import { useUiMotion } from '../../hooks/useUiMotion'
 
 interface SegmentedProps {
   value: string
@@ -10,6 +11,7 @@ interface SegmentedProps {
 export function Segmented({ value, onChange, options }: SegmentedProps) {
   // Scoped per instance so two Segmented controls on one screen don't share a pill.
   const indicatorId = useId()
+  const {instant, reduced, transition} = useUiMotion()
 
   return (
     <div className="inline-flex self-start rounded-btn border border-outline/50 bg-overlay p-1 gap-1 relative isolate">
@@ -26,8 +28,8 @@ export function Segmented({ value, onChange, options }: SegmentedProps) {
           >
             {active && (
               <motion.div
-                layoutId={indicatorId}
-                transition={{ type: 'spring', stiffness: 500, damping: 35, mass: 0.8 }}
+                layoutId={instant || reduced ? undefined : indicatorId}
+                transition={transition('press')}
                 className="absolute inset-0 z-0 rounded-btn bg-accent"
               />
             )}

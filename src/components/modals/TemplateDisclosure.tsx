@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef, type ReactNode } from 'react'
-import { isReducedMotion } from '../../lib/appearance'
+import { useUiMotion } from '../../hooks/useUiMotion'
 import { disclosureMotion } from '../../lib/motion'
 import { IconChevronRight } from '../../lib/icons'
 
@@ -14,10 +14,12 @@ interface Props {
 /** Measure explicit heights so transitions can reverse from their current
  * position. Open panels return to natural height for nested disclosures. */
 export function TemplateDisclosure({ id, open, animate, className, children }: Props) {
+  const { instant, reduced } = useUiMotion()
   const panel = useRef<HTMLDivElement>(null)
   const content = useRef<HTMLDivElement>(null)
   const initialOpen = useRef(open)
   const mounted = useRef(false)
+  const previousOpen = useRef(open)
   const animateRef = useRef(animate)
   animateRef.current = animate
 
@@ -25,11 +27,19 @@ export function TemplateDisclosure({ id, open, animate, className, children }: P
     const element = panel.current
     const inner = content.current
     if (!element || !inner) return
+    const changed = previousOpen.current !== open
+    previousOpen.current = open
+    let observer: ResizeObserver | undefined
+    let timer: ReturnType<typeof setTimeout> | undefined
+    let finished = false
     const finish = () => {
+      finished = true
+      observer?.disconnect()
+      window.clearTimeout(timer)
       element.style.height = open ? 'auto' : '0px'
       element.style.opacity = open ? '1' : '0'
     }
-    if (!mounted.current || !animateRef.current || isReducedMotion()) {
+    if (!mounted.current || !changed || !animateRef.current || instant || reduced) {
       mounted.current = true
       element.style.transition = 'none'
       finish()
@@ -46,16 +56,31 @@ export function TemplateDisclosure({ id, open, animate, className, children }: P
     element.style.transition = `height ${durationMs}ms ${easing}, opacity ${durationMs}ms ${easing}`
     element.style.height = open ? `${inner.getBoundingClientRect().height}px` : '0px'
     element.style.opacity = open ? '1' : '0'
+    const fallback = () => {
+      window.clearTimeout(timer)
+      // Actual completion comes from transitionend; this only covers cancelled
+      // transitions and hidden windows, rather than cutting the last frame off.
+      timer = window.setTimeout(finish, durationMs * 2)
+    }
+    if (open) {
+      observer = new ResizeObserver(() => {
+        if (finished) return
+        const height = `${inner.getBoundingClientRect().height}px`
+        if (element.style.height !== height) { element.style.height = height; fallback() }
+      })
+      observer.observe(inner)
+    }
     const completed = (event: TransitionEvent) => {
       if (event.target === element && event.propertyName === 'height') finish()
     }
     element.addEventListener('transitionend', completed)
-    const timer = window.setTimeout(finish, durationMs)
+    fallback()
     return () => {
       element.removeEventListener('transitionend', completed)
       window.clearTimeout(timer)
+      observer?.disconnect()
     }
-  }, [open])
+  }, [open, instant, reduced])
 
   return (
     <div ref={panel} id={id} inert={!open} aria-hidden={!open}
@@ -67,11 +92,12 @@ export function TemplateDisclosure({ id, open, animate, className, children }: P
 }
 
 export function TemplateDisclosureChevron({ open, animate }: Pick<Props, 'open' | 'animate'>) {
+  const { instant, reduced } = useUiMotion()
   const { durationMs, easing } = disclosureMotion
   return (
     <span aria-hidden="true" className="inline-flex shrink-0 text-muted"
       style={{ transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
-        transition: animate && !isReducedMotion() ? `transform ${durationMs}ms ${easing}` : 'none' }}>
+        transition: animate && !instant && !reduced ? `transform ${durationMs}ms ${easing}` : 'none' }}>
       <IconChevronRight className="w-3 h-3" />
     </span>
   )

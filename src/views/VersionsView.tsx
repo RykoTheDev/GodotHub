@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { useTranslation } from 'react-i18next'
-import { motion, AnimatePresence, type Transition } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 import { useGodotVersionsContext } from '../hooks/godotVersionsContext'
 import { useExportTemplateDownloads } from '../hooks/useExportTemplateDownloads'
 import { setTemplateFilesInstalled } from '../lib/exportTemplateCatalog'
 import { useSettings } from '../hooks/useSettings'
 import { useTaskTray } from '../hooks/useTaskTray'
-import { isReducedMotion } from '../lib/appearance'
+import { useUiMotion } from '../hooks/useUiMotion'
 import { api } from '../lib/api'
 import { formatBytes } from '../lib/formatBytes'
 import { pushToast } from '../lib/toast'
@@ -157,6 +157,7 @@ export function VersionsView({
   onOpenSettings?: () => void
   connected?: boolean
 }) {
+  const uiMotion = useUiMotion()
   const { t } = useTranslation('nav')
   const { t: tv } = useTranslation('versions')
   const { t: tc } = useTranslation('common')
@@ -408,13 +409,6 @@ export function VersionsView({
     }
   })
 
-  const animate = !isReducedMotion()
-  const entranceTransition: Transition = {
-    type: 'tween',
-    duration: animate ? 0.25 : 0,
-    ease: 'easeOut',
-  }
-
   return (
     <div className="flex-1 min-w-0 h-full flex flex-col gap-2">
       <ViewHeader
@@ -434,9 +428,9 @@ export function VersionsView({
             <>
               <motion.button
                 type="button"
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.94 }}
-                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+
+                data-press-feedback
+
                 onClick={() => setAliasModal({})}
                 className="focus-ring text-muted hover:text-ink font-semibold text-[17px] bg-overlay shadow-md shadow-black/10 border border-outline/50 hover:bg-raised cursor-pointer h-10 flex items-center px-6 rounded-item transition-colors"
               >
@@ -508,8 +502,8 @@ export function VersionsView({
               <Tooltip content={tv('export_templates_open_folder')} side="top">
                 <motion.button
                   type="button"
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.94 }}
+
+                  data-press-feedback
                   onClick={() => openTemplatesFolder()}
                   aria-label={tv('export_templates_open_folder')}
                   className="focus-ring cursor-pointer flex items-center justify-center h-7 w-7 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
@@ -521,8 +515,8 @@ export function VersionsView({
                 <Tooltip content={tv('mise_sync_title')} side="top">
                   <motion.button
                     type="button"
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.94 }}
+
+                    data-press-feedback
                     onClick={() => syncMise().catch(() => {})}
                     className="focus-ring cursor-pointer flex items-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors font-mono"
                   >
@@ -541,8 +535,8 @@ export function VersionsView({
                     <motion.button
                       type="button"
                       aria-expanded={open}
-                      whileHover={{ scale: 1.04 }}
-                      whileTap={{ scale: 0.94 }}
+
+                      data-press-feedback
                       onClick={toggle}
                       className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
                     >
@@ -564,15 +558,10 @@ export function VersionsView({
               </div>
             </div>
             <div className="flex flex-col gap-2">
-              {filteredInstalled.map((v, i) => (
-                <motion.div
+              {filteredInstalled.map((v) => (
+                <div
                   key={v.tag}
-                  initial={animate ? { opacity: 0, y: 10 } : false}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{
-                    ...entranceTransition,
-                    delay: animate ? Math.min(i * 0.05, 0.35) : 0,
-                  }}
+
                 >
                   <InstalledVersionCard
                     version={v}
@@ -594,7 +583,7 @@ export function VersionsView({
                     onOpenTemplates={() => openTemplatesFolder(v.tag)}
                     onTemplatesChanged={refreshExportTemplates}
                   />
-                </motion.div>
+                </div>
               ))}
             </div>
 
@@ -651,8 +640,8 @@ export function VersionsView({
                 <motion.button
                   type="button"
                   aria-expanded={open}
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.94 }}
+
+                  data-press-feedback
                   onClick={toggle}
                   className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
                 >
@@ -704,8 +693,8 @@ export function VersionsView({
                 <motion.button
                   type="button"
                   aria-expanded={open}
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.94 }}
+
+                  data-press-feedback
                   onClick={toggle}
                   className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
                 >
@@ -733,8 +722,8 @@ export function VersionsView({
                 <motion.button
                   type="button"
                   aria-expanded={open}
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.94 }}
+
+                  data-press-feedback
                   onClick={toggle}
                   className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
                 >
@@ -764,8 +753,8 @@ export function VersionsView({
                   <motion.button
                     type="button"
                     aria-expanded={open}
-                    whileHover={{ scale: 1.04 }}
-                    whileTap={{ scale: 0.94 }}
+
+                    data-press-feedback
                     onClick={toggle}
                     className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
                   >
@@ -802,8 +791,8 @@ export function VersionsView({
               </p>
               <motion.button
                 type="button"
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.96 }}
+
+                data-press-feedback
                 onClick={() => refreshAvailable()}
                 className="focus-ring cursor-pointer px-4 py-2 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
               >
@@ -812,8 +801,8 @@ export function VersionsView({
               {rateLimited && (
                 <motion.button
                   type="button"
-                  whileHover={{ y: -1 }}
-                  whileTap={{ scale: 0.96 }}
+
+                  data-press-feedback
                   onClick={() => refreshAvailable('archive')}
                   className="focus-ring cursor-pointer px-4 py-2 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
                 >
@@ -868,7 +857,7 @@ export function VersionsView({
                             className="overflow-hidden"
                           >
                             <div className="flex flex-col gap-2">
-                              {rows.map(({ tag, asset }, rowIndex) => {
+                              {rows.map(({ tag, asset }) => {
                                 const progressKey = downloadKey(tag, asset.name)
                                 const isInstalled = installed.some(
                                   (v) =>
@@ -879,16 +868,9 @@ export function VersionsView({
                                 const dl = downloads[progressKey]
                                 const miseBusy = !!miseInstalls[progressKey]
                                 return (
-                                  <motion.div
+                                  <div
                                     key={progressKey}
-                                    initial={animate ? { opacity: 0, y: 10 } : false}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{
-                                      ...entranceTransition,
-                                      delay: animate
-                                        ? Math.min(rowIndex * 0.05, 0.35)
-                                        : 0,
-                                    }}
+
                                   >
                                   <div
                                     className="flex items-center justify-between gap-3 rounded-item bg-overlay border border-outline/50 px-4 py-3 hover:border-accent-dim transition-colors"
@@ -929,19 +911,17 @@ export function VersionsView({
                                           <div className="w-56">
                                             <div className="h-1.5 bg-raised rounded-full overflow-hidden">
                                               <motion.div
-                                                className={`h-full rounded-full ${
+                                                className={`h-full w-full origin-left rounded-full ${
                                                   dl.status === 'paused'
                                                     ? 'bg-muted'
                                                     : 'bg-amber'
                                                 }`}
                                                 animate={{
-                                                  width: dl.total
-                                                    ? `${(dl.downloaded / dl.total) * 100}%`
-                                                    : '6%',
+                                                  transform: `scaleX(${dl.total ? Math.min(1, Math.max(0, dl.downloaded / dl.total)) : 0.06})`,
                                                 }}
                                                 transition={{
-                                                  ease: 'easeOut',
-                                                  duration: 0.3,
+                                                  ease: 'linear',
+                                                  duration: uiMotion.instant || uiMotion.reduced ? 0 : 0.2,
                                                 }}
                                               />
                                             </div>
@@ -961,7 +941,7 @@ export function VersionsView({
                                           <Tooltip content={tv('resume_download')} side="top">
                                             <motion.button
                                               type="button"
-                                              whileTap={{ scale: 0.96 }}
+                                              data-press-feedback
                                               onClick={() => resume(progressKey)}
                                               className="focus-ring cursor-pointer p-2 rounded-btn border border-outline/50 text-muted hover:text-mint hover:border-mint/40 transition-colors"
                                             >
@@ -972,7 +952,7 @@ export function VersionsView({
                                           <Tooltip content={tv('pause_download')} side="top">
                                             <motion.button
                                               type="button"
-                                              whileTap={{ scale: 0.96 }}
+                                              data-press-feedback
                                               onClick={() => pause(progressKey)}
                                               className="focus-ring cursor-pointer p-2 rounded-btn border border-outline/50 text-muted hover:text-ink hover:border-accent-dim transition-colors"
                                             >
@@ -983,7 +963,7 @@ export function VersionsView({
                                         <Tooltip content={tv('cancel_download')} side="top">
                                           <motion.button
                                             type="button"
-                                            whileTap={{ scale: 0.96 }}
+                                            data-press-feedback
                                             onClick={() => cancel(progressKey)}
                                             className="focus-ring cursor-pointer p-2 rounded-btn border border-outline/50 text-muted hover:text-danger hover:border-danger/40 transition-colors"
                                           >
@@ -999,8 +979,8 @@ export function VersionsView({
                                       <div className="flex items-center gap-2 shrink-0">
                                           <motion.button
                                             type="button"
-                                            whileHover={{ y: -1 }}
-                                            whileTap={{ scale: 0.96 }}
+
+                                            data-press-feedback
                                             onClick={() =>
                                               openUrl(sourcePageUrl(source, tag, miseStatus?.source_url))
                                             }
@@ -1010,8 +990,8 @@ export function VersionsView({
                                           </motion.button>
                                         <motion.button
                                           type="button"
-                                          whileHover={{ y: -1 }}
-                                          whileTap={{ scale: 0.96 }}
+
+                                          data-press-feedback
                                           onClick={() =>
                                             download(
                                               tag,
@@ -1027,7 +1007,7 @@ export function VersionsView({
                                       </div>
                                     )}
                                   </div>
-                                  </motion.div>
+                                  </div>
                                 )
                               })}
                             </div>
@@ -1042,8 +1022,8 @@ export function VersionsView({
                 <div className="flex justify-center">
                   <motion.button
                     type="button"
-                    whileHover={{ y: -1 }}
-                    whileTap={{ scale: 0.96 }}
+
+                    data-press-feedback
                     onClick={() => setVisibleGroups((v) => v + 5)}
                     className="focus-ring cursor-pointer px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
                   >

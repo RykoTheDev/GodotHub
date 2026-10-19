@@ -104,16 +104,16 @@ export function RestoreProgressModal({ onClose }: Props) {
         phase === 'preview' ? (
           <div className="ml-auto flex items-center gap-2.5">
             <motion.button
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.96 }}
+
+              data-press-feedback
               onClick={onClose}
               className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
             >
               {tc('cancel')}
             </motion.button>
             <motion.button
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.96 }}
+
+              data-press-feedback
               onClick={handleApplyAndRestart}
               className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm font-medium bg-accent hover:bg-accent-bright text-white transition-colors"
             >
@@ -123,16 +123,16 @@ export function RestoreProgressModal({ onClose }: Props) {
         ) : phase === 'error' ? (
           <div className="ml-auto flex items-center gap-2.5">
             <motion.button
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.96 }}
+
+              data-press-feedback
               onClick={onClose}
               className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
             >
               {tc('cancel')}
             </motion.button>
             <motion.button
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.96 }}
+
+              data-press-feedback
               onClick={handleRetry}
               className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm font-medium border border-outline/50 hover:border-accent-dim hover:bg-raised transition-colors"
             >
@@ -142,8 +142,8 @@ export function RestoreProgressModal({ onClose }: Props) {
         ) : phase === 'done' ? (
           <div className="ml-auto">
             <motion.button
-              whileHover={{ y: -1 }}
-              whileTap={{ scale: 0.96 }}
+
+              data-press-feedback
               onClick={() => window.location.reload()}
               className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm font-medium bg-accent hover:bg-accent-bright text-white transition-colors inline-flex items-center gap-2"
             >

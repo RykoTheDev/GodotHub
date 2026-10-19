@@ -30,6 +30,7 @@ import {
   IconX,
 } from '../../lib/icons'
 import { Tooltip } from '../reusables/Tooltip'
+import { useUiMotion } from '../../hooks/useUiMotion'
 
 function TaskIcon({ task }: { task: Task }) {
   const iconClass = 'w-4 h-4 shrink-0'
@@ -120,6 +121,7 @@ function ProgressBar({
 }
 
 function TaskItem({ task }: { task: Task }) {
+  const { surface, reduced, instant } = useUiMotion()
   const { t } = useTranslation('common')
   const isGodotDownload = task.type === 'download-godot'
   const isQueuedGodotDownload = isGodotDownload && task.status === 'queued'
@@ -133,11 +135,8 @@ function TaskItem({ task }: { task: Task }) {
 
   return (
     <motion.div
-      layout
-      initial={{ opacity: 0, y: -8, scale: 0.96 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, y: -8, scale: 0.96 }}
-      transition={{ duration: 0.2, ease: 'easeOut' }}
+      layout={reduced || instant ? false : 'position'}
+      {...surface('popover', 'translateY(-8px)')}
       className="flex items-start gap-3 px-4 py-3 rounded-item hover:bg-raised/60 transition-colors"
     >
       <div className="w-8 h-8 rounded-btn bg-raised border border-outline/50 flex items-center justify-center shrink-0 mt-0.5">
@@ -248,6 +247,7 @@ function TaskItem({ task }: { task: Task }) {
 }
 
 export function TaskTray() {
+  const { surface } = useUiMotion()
   const { t } = useTranslation('common')
   const { tasks, activeCount, clearCompleted } = useTaskTray()
   const [open, setOpen] = useState(false)
@@ -325,19 +325,16 @@ export function TaskTray() {
           aria-label={t('task_tray_aria')}
           aria-haspopup="menu"
           aria-expanded={open}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.96 }}
-          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+
+          data-press-feedback
+
           className="focus-ring cursor-pointer relative w-9 h-8 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised transition-colors shrink-0"
         >
           <span className="relative">
             <IconBell className="w-4 h-4" />
             {hasActivity && (
               <motion.span
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.8, opacity: 0 }}
-                transition={{ type: 'spring', stiffness: 500, damping: 25 }}
+                {...surface('tooltip', 'scale(0.97)')}
                 className="absolute -top-1.5 -right-2 w-4 h-4 rounded-full bg-amber text-[9px] font-bold text-white flex items-center justify-center shadow-sm"
               >
                 {activeCount > 9 ? '9+' : activeCount}
@@ -351,10 +348,8 @@ export function TaskTray() {
         {open && (
           <motion.div key="div-332"
             ref={menuRef}
-            initial={{ opacity: 0, y: openUp ? 6 : -6, scale: 0.96 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: openUp ? 6 : -6, scale: 0.96 }}
-            transition={{ duration: 0.15, ease: 'easeOut' }}
+            {...surface('popover', `translateY(${openUp ? 6 : -6}px) scale(0.96)`)}
+            style={{transformOrigin:`${openUp ? 'bottom' : 'top'} right`}}
             onMouseDown={noDrag}
             role="menu"
             className={`absolute z-50 w-80 max-h-96 overflow-y-auto rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 p-2 origin-top-right ${
@@ -412,8 +407,8 @@ export function TaskTray() {
                 {dismissibleCount > 0 && (
                   <motion.button key="empty"
                     type="button"
-                    whileHover={{ y: -1 }}
-                    whileTap={{ scale: 0.95 }}
+
+                    data-press-feedback
                     onMouseDown={noDrag}
                     onClick={clearCompleted}
                     className="focus-ring cursor-pointer flex items-center gap-1 px-2.5 py-1 rounded-item text-[10px] font-medium text-muted hover:text-ink hover:bg-raised transition-colors"

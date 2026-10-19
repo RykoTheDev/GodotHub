@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion, type Transition } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import type {
   Category,
@@ -14,7 +14,7 @@ import { formatLastOpened } from "../../lib/lastOpened";
 import { formatDuration } from "../../lib/duration";
 import { effectiveTotalMs } from "../../lib/projectSort";
 import { tagColor } from "../../lib/colors";
-import { isReducedMotion } from "../../lib/appearance";
+import { useUiMotion } from "../../hooks/useUiMotion";
 import { useSettings } from "../../hooks/useSettings";
 import { useProjectResolutionEpoch } from "../../hooks/useProjectResolutionEpoch";
 import { ConfirmDialog } from "../modals/ConfirmDialog";
@@ -25,10 +25,12 @@ import { Dropdown } from "../ui/Dropdown";
 import { TimeTrackerModal } from "../modals/TimeTrackerModal";
 import { SaveAsTemplateModal } from "../modals/SaveAsTemplateModal";
 import { ProjectSizeModal } from "../modals/ProjectSizeModal";
+import { ProjectDoctorModal } from "../modals/ProjectDoctorModal";
 import { OpenButton } from "../reusables/OpenButton";
 import { Tooltip } from "../reusables/Tooltip";
 import {
   IconCheckCircle,
+  IconBug,
   IconChevronDown,
   IconClock,
   IconCode,
@@ -130,6 +132,7 @@ export function ProjectCard({
   const [timeTrackerOpen, setTimeTrackerOpen] = useState(false);
   const [templateSaveOpen, setTemplateSaveOpen] = useState(false);
   const [sizeModalOpen, setSizeModalOpen] = useState(false);
+  const [doctorOpen, setDoctorOpen] = useState(false);
   const [showLaunchArgs, setShowLaunchArgs] = useState(false);
   const [editingTagIndex, setEditingTagIndex] = useState<number | null>(null);
   const [editTagValue, setEditTagValue] = useState("");
@@ -152,9 +155,7 @@ export function ProjectCard({
 
   const displayName = settingsName ?? project.name;
   const pinButtonVisible = project.pinned || cardHovered || pinFocused;
-  const springTransition: Transition = isReducedMotion()
-    ? { duration: 0 }
-    : { type: "spring", stiffness: 460, damping: 34 };
+  const uiMotion = useUiMotion();
   const boundVersion = installedVersions.find(
     (v) => v.tag === project.godot_version,
   );
@@ -306,7 +307,7 @@ export function ProjectCard({
           setTodoPanelLoaded(false);
           setShowTodoPanel((current) => !current);
         }}
-        onMouseEnter={() => setCardHovered(true)}
+        onMouseEnter={() => setCardHovered(window.matchMedia('(hover: hover) and (pointer: fine)').matches)}
         onMouseLeave={() => setCardHovered(false)}
         className={`group relative flex items-end gap-3.5 border p-3.5 transition-colors duration-150 ${
           projectTodosEnabled ? "cursor-pointer" : ""
@@ -349,7 +350,7 @@ export function ProjectCard({
                 className={`focus-ring cursor-pointer w-5 h-5 rounded-full border-2 flex items-center justify-center transition-[background-color,border-color,scale] duration-150 ${
                   selected
                     ? "bg-accent border-accent text-white scale-100 opacity-100"
-                    : "border-muted/40 bg-black/20 opacity-100 hover:border-accent/60 hover:scale-105"
+                    : "border-muted/40 bg-black/20 opacity-100 hover:border-accent/60"
                 }`}
               >
                 {selected && (
@@ -368,7 +369,7 @@ export function ProjectCard({
               src={icon}
               alt=""
               aria-hidden="true"
-              className="select-none absolute -left-6 top-1/2 -translate-y-1/2 -rotate-6 group-hover:rotate-0 h-35 w-35 object-contain grayscale group-hover:grayscale-0 contrast-125 transition-[rotate,filter,opacity] duration-300 ease-out group-hover:will-change-transform"
+              className="select-none absolute -left-6 top-1/2 -translate-y-1/2 -rotate-6 h-35 w-35 object-contain grayscale group-hover:grayscale-0 contrast-125 transition-opacity duration-150"
               style={{
                 opacity: "var(--project-icon-opacity, 0.14)",
                 maskImage:
@@ -380,7 +381,7 @@ export function ProjectCard({
           ) : (
             <span
               aria-hidden="true"
-              className="select-none absolute -left-3 top-1/2 -translate-y-1/2 -rotate-6 group-hover:rotate-0 font-display font-black text-muted group-hover:text-accent-bright transition-[rotate,color,opacity] duration-300 ease-out group-hover:will-change-transform"
+              className="select-none absolute -left-3 top-1/2 -translate-y-1/2 -rotate-6 font-display font-black text-muted group-hover:text-accent-bright transition-colors duration-150"
               style={{
                 fontSize: "72px",
                 lineHeight: 1,
@@ -512,15 +513,8 @@ export function ProjectCard({
                 )}
               </span>
             ) : (
-              <motion.span
-                initial={false}
-                animate={{
-                  width: cardHovered ? "auto" : 0,
-                  marginRight: cardHovered ? 6 : 0,
-                  opacity: cardHovered ? 1 : 0,
-                }}
-                transition={springTransition}
-                className="overflow-hidden inline-flex items-center shrink-0"
+              <span
+                className={`overflow-hidden inline-flex items-center shrink-0 mr-1.5 transition-opacity duration-150 focus-within:opacity-100 ${cardHovered ? 'opacity-100' : 'opacity-0'}`}
               >
                 <button
                   type="button"
@@ -534,7 +528,7 @@ export function ProjectCard({
                 >
                   {t("add_tag_aria")}
                 </button>
-              </motion.span>
+              </span>
             )}
             {savingTags && (
               <span
@@ -555,7 +549,7 @@ export function ProjectCard({
                   return (
                     <span
                       key={`${tag}-${index}`}
-                      className={`group/tag inline-flex items-center gap-1 pl-1.5 pr-1 py-0.5 rounded-tag font-mono text-[10px] font-medium tracking-tight shrink-0 transition-[filter,box-shadow] duration-100 ${
+                      className={`project-tag group/tag inline-flex items-center pl-1.5 pr-1 py-0.5 rounded-tag font-mono text-[10px] font-medium tracking-tight shrink-0 transition-[filter,box-shadow] duration-100 ${
                         isActive
                           ? "ring-1 ring-accent-dim/70 brightness-110"
                           : ""
@@ -564,7 +558,7 @@ export function ProjectCard({
                     >
                       <span
                         aria-hidden="true"
-                        className="w-1.5 h-1.5 rounded-full shrink-0 ring-1 ring-black/20"
+                        className="w-1.5 h-1.5 mr-1 rounded-full shrink-0 ring-1 ring-black/20"
                         style={{ backgroundColor: color }}
                       />
                       {isEditing ? (
@@ -635,26 +629,32 @@ export function ProjectCard({
                           >
                             {tag}
                           </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setEditingTagIndex(index);
-                              setEditTagValue(tag);
-                              setTagError(null);
-                            }}
-                            aria-label={t("tag_rename_aria")}
-                            className="focus-ring cursor-pointer opacity-0 group-hover/tag:opacity-100 scale-75 group-hover/tag:scale-100 w-0 group-hover/tag:w-3 h-3 overflow-hidden rounded-full flex items-center justify-center transition-[width,scale,opacity,color] duration-150 hover:text-ink shrink-0"
-                          >
-                            <IconPencil className="w-2.5 h-2.5 shrink-0" />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveTag(index)}
-                            aria-label={t("tag_remove_aria", { tag })}
-                            className="focus-ring cursor-pointer opacity-0 group-hover/tag:opacity-100 scale-75 group-hover/tag:scale-100 w-0 group-hover/tag:w-3 h-3 overflow-hidden rounded-full flex items-center justify-center transition-[width,scale,opacity,color] duration-150 hover:text-danger shrink-0"
-                          >
-                            <IconX className="w-2.5 h-2.5 shrink-0" />
-                          </button>
+                          <span className="project-hover-reveal project-tag-actions">
+                            <span className="min-w-0 overflow-hidden">
+                              <span className="flex w-max items-center gap-1 pl-1">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingTagIndex(index);
+                                    setEditTagValue(tag);
+                                    setTagError(null);
+                                  }}
+                                  aria-label={t("tag_rename_aria")}
+                                  className="focus-ring cursor-pointer w-3 h-3 rounded-full flex items-center justify-center transition-colors duration-150 hover:text-ink shrink-0"
+                                >
+                                  <IconPencil className="w-2.5 h-2.5 shrink-0" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveTag(index)}
+                                  aria-label={t("tag_remove_aria", { tag })}
+                                  className="focus-ring cursor-pointer w-3 h-3 rounded-full flex items-center justify-center transition-colors duration-150 hover:text-danger shrink-0"
+                                >
+                                  <IconX className="w-2.5 h-2.5 shrink-0" />
+                                </button>
+                              </span>
+                            </span>
+                          </span>
                         </>
                       )}
                     </span>
@@ -694,78 +694,78 @@ export function ProjectCard({
           )}
 
           <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
-            <Dropdown
-              align="left"
-              trigger={({ open, toggle }) => (
-                <button
-                  type="button"
-                  aria-expanded={open}
-                  onClick={toggle}
-                  className="inline-flex items-center gap-1.5 px-3 py-3 rounded-btn bg-raised border border-outline/50 font-mono text-[10px] text-muted hover:text-ink hover:border-accent-dim cursor-pointer transition-colors shrink-0"
-                >
-                  <IconNode className="w-2.5 h-2.5" />
-                  {boundVersion ? (
-                    <>
-                      {boundVersion.custom_name || boundVersion.tag}
-                      {boundVersion.is_mono && (
-                        <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-tag bg-accent/10 text-accent-bright border border-accent-dim/40 shrink-0">
-                          {t("version_mono_badge")}
-                        </span>
-                      )}
-                    </>
-                  ) : (
-                    t("no_version_selected")
-                  )}
-                  <IconChevronDown
-                    className={`w-2.5 h-2.5 transition-transform duration-200 ${
-                      open ? "rotate-180 text-ink" : ""
-                    }`}
-                  />
-                </button>
-              )}
-              items={installedVersions.map((v) => ({
-                key: v.tag,
-                label: v.custom_name || v.tag,
-                active: v.tag === project.godot_version,
-                onClick: () => onVersionChange(v.tag),
-                badge: v.is_mono ? t("version_mono_badge") : undefined,
-              }))}
-            />
-            <motion.span
-              initial={false}
-              animate={{
-                width: pinButtonVisible ? "auto" : 0,
-                marginRight: pinButtonVisible ? 6 : 0,
-                opacity: pinButtonVisible ? 1 : 0,
-              }}
-              transition={springTransition}
-              className="overflow-hidden inline-flex items-center shrink-0"
-            >
-              {project.pinned ? (
-                <Tooltip content={t("project_unpin_aria")} side="top">
+            <div className="inline-flex items-center shrink-0">
+              <Dropdown
+                align="left"
+                trigger={({ open, toggle }) => (
                   <button
                     type="button"
-                    onClick={onTogglePin}
-                    onFocus={() => setPinFocused(true)}
-                    onBlur={() => setPinFocused(false)}
-                    className="focus-ring cursor-pointer inline-flex items-center ml-1 px-2.5 py-2.5 rounded-btn border font-mono transition-colors shrink-0 bg-accent/10 border-accent-dim/40 text-accent-bright hover:bg-accent/20 hover:border-accent-dim"
+                    aria-expanded={open}
+                    onClick={toggle}
+                    className="inline-flex items-center gap-1.5 px-3 py-3 rounded-btn bg-raised border border-outline/50 font-mono text-[10px] text-muted hover:text-ink hover:border-accent-dim cursor-pointer transition-colors shrink-0"
                   >
-                    <IconPin className="w-3 h-3" fill="currentColor" />
+                    <IconNode className="w-2.5 h-2.5" />
+                    {boundVersion ? (
+                      <>
+                        {boundVersion.custom_name || boundVersion.tag}
+                        {boundVersion.is_mono && (
+                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-tag bg-accent/10 text-accent-bright border border-accent-dim/40 shrink-0">
+                            {t("version_mono_badge")}
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      t("no_version_selected")
+                    )}
+                    <IconChevronDown
+                      className={`w-2.5 h-2.5 transition-transform duration-200 ${
+                        open ? "rotate-180 text-ink" : ""
+                      }`}
+                    />
                   </button>
-                </Tooltip>
-              ) : (
-                <button
-                  type="button"
-                  onClick={onTogglePin}
-                  onFocus={() => setPinFocused(true)}
-                  onBlur={() => setPinFocused(false)}
-                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-3 rounded-btn border font-mono text-[10px] transition-colors shrink-0 bg-raised border-outline/50 text-muted hover:text-ink hover:border-accent-dim"
-                >
-                  <IconPin className="w-3 h-3" />
-                  {t("project_pin_aria")}
-                </button>
-              )}
-            </motion.span>
+                )}
+                items={installedVersions.map((v) => ({
+                  key: v.tag,
+                  label: v.custom_name || v.tag,
+                  active: v.tag === project.godot_version,
+                  onClick: () => onVersionChange(v.tag),
+                  badge: v.is_mono ? t("version_mono_badge") : undefined,
+                }))}
+              />
+              <span
+                className="project-hover-reveal project-pin-action"
+                data-visible={pinButtonVisible}
+              >
+                <span className="min-w-0 overflow-hidden">
+                  <span className="inline-flex w-max items-center pl-1.5">
+                    {project.pinned ? (
+                      <Tooltip content={t("project_unpin_aria")} side="top">
+                        <button
+                          type="button"
+                          onClick={onTogglePin}
+                          onFocus={() => setPinFocused(true)}
+                          onBlur={() => setPinFocused(false)}
+                          className="focus-ring cursor-pointer inline-flex items-center px-2.5 py-2.5 rounded-btn border font-mono transition-colors shrink-0 bg-accent/10 border-accent-dim/40 text-accent-bright hover:bg-accent/20 hover:border-accent-dim"
+                        >
+                          <IconPin className="w-3 h-3" fill="currentColor" />
+                        </button>
+                      </Tooltip>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={onTogglePin}
+                        onFocus={() => setPinFocused(true)}
+                        onBlur={() => setPinFocused(false)}
+                        className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-3 rounded-btn border font-mono text-[10px] transition-colors shrink-0 bg-raised border-outline/50 text-muted hover:text-ink hover:border-accent-dim"
+                      >
+                        <IconPin className="w-3 h-3" />
+                        {t("project_pin_aria")}
+                      </button>
+                    )}
+                  </span>
+                </span>
+              </span>
+            </div>
             {allMs > 0 && cardSettings.show_time && (
               <button
                 type="button"
@@ -840,10 +840,7 @@ export function ProjectCard({
         </div>
         {sessionMs > 0 && (
           <motion.div
-            initial={{ x: 80, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: 80, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 350, damping: 25 }}
+            {...uiMotion.surface('tooltip', 'none')}
             className="flex items-center shrink-0 -mr-5 mb-1 overflow-hidden"
           >
             <div className="flex items-center gap-2 px-4 h-10 bg-base/50 border-r-0 rounded-l-dropdown-btn font-mono text-xs text-accent-bright whitespace-nowrap">
@@ -865,14 +862,7 @@ export function ProjectCard({
                     >
                       <motion.button
                         key="button-787"
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 8 }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 500,
-                          damping: 30,
-                        }}
+                        {...uiMotion.surface('tooltip', 'none')}
                         type="button"
                         onClick={playProject}
                         aria-label={t("play_project")}
@@ -933,6 +923,12 @@ export function ProjectCard({
                   : []),
               ]}
               items={[
+                {
+                  key: "project-doctor",
+                  label: t("title", { ns: "doctor" }),
+                  icon: IconBug,
+                  onClick: () => setDoctorOpen(true),
+                },
                 {
                   key: "launch-arguments",
                   label: t("launch_arguments"),
@@ -1089,6 +1085,9 @@ export function ProjectCard({
             />
           )}
         </AnimatePresence>
+        <AnimatePresence>
+          {doctorOpen && <ProjectDoctorModal project={project} installedVersions={installedVersions} onClose={() => setDoctorOpen(false)} />}
+        </AnimatePresence>
       </div>
 
       <AnimatePresence initial={false}>
@@ -1102,10 +1101,7 @@ export function ProjectCard({
                 : { height: 0, opacity: 0 }
             }
             exit={{ height: 0, opacity: 0 }}
-            transition={{
-              duration: 0.2,
-              ease: "easeOut",
-            }}
+            transition={uiMotion.transition('popover')}
             className="overflow-hidden"
           >
             <ProjectTodoPanel

@@ -1,10 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import {
-  motion,
-  useMotionValue,
-  useSpring,
-  useTransform,
-} from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import Masonry from 'react-masonry-css'
 import { useProjectsContext } from '../hooks/projectsContext'
@@ -120,7 +115,7 @@ function Section({
             <h2 className="text-xs font-semibold uppercase tracking-wider text-muted group-hover/title:text-ink transition-colors">
               {title}
             </h2>
-            <IconRefresh className="w-3 h-3 text-muted/40 group-hover/title:text-accent-bright group-hover/title:rotate-180 transition-[rotate,color] duration-300 shrink-0" />
+            <IconRefresh className="w-3 h-3 text-muted/40 group-hover/title:text-accent-bright transition-colors duration-150 shrink-0" />
           </button>
         ) : (
           <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">
@@ -294,8 +289,8 @@ function QuickActions() {
         <motion.button
           key={a.key}
           type="button"
-          whileHover={{ y: -1 }}
-          whileTap={{ scale: 0.97 }}
+
+          data-press-feedback
           onClick={a.onClick}
           className={`focus-ring cursor-pointer inline-flex items-center gap-2 h-11 px-5 rounded-item font-semibold text-sm shadow-md shadow-black/10 border transition-colors ${
             a.primary
@@ -390,7 +385,6 @@ function StatsRow({
 }
 
 function StatCard({
-  index,
   label,
   value,
   display,
@@ -412,44 +406,17 @@ function StatCard({
   sticker: string
   hoverBorder: string
 }) {
-  const mx = useMotionValue(0)
-  const my = useMotionValue(0)
-  const tiltSpring = { stiffness: 220, damping: 18 }
-  const rotateX = useSpring(useTransform(my, [-0.5, 0.5], [9, -9]), tiltSpring)
-  const rotateY = useSpring(useTransform(mx, [-0.5, 0.5], [-9, 9]), tiltSpring)
-
-  const handleMove = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const r = e.currentTarget.getBoundingClientRect()
-    mx.set((e.clientX - r.left) / r.width - 0.5)
-    my.set((e.clientY - r.top) / r.height - 0.5)
-  }
-  const handleLeave = () => {
-    mx.set(0)
-    my.set(0)
-  }
-
   return (
-    <motion.button
+    <button
       type="button"
-      initial={{ y: 26, opacity: 0, scale: 0.9, rotate: -1.5 }}
-      animate={{ y: 0, opacity: 1, scale: 1, rotate: 0 }}
-      transition={{
-        type: 'spring',
-        stiffness: 240,
-        damping: 20,
-        delay: 0.08 * index,
-      }}
-      whileHover={{ y: -4 }}
-      whileTap={{ scale: 0.96 }}
+
+      data-press-feedback
       onClick={tab ? () => dispatch('app:set-tab', tab) : undefined}
-      onMouseMove={handleMove}
-      onMouseLeave={handleLeave}
-      style={{ rotateX, rotateY, transformPerspective: 700 }}
       className={`group relative overflow-hidden text-left cursor-pointer focus-ring rounded-card bg-overlay border border-outline/50 px-5 py-4 flex flex-col transition-colors duration-200 hover:border-outline ${hoverBorder}`}
     >
       <Icon
         aria-hidden="true"
-        className="pointer-events-none absolute -bottom-8 -right-8 w-32 h-32 rotate-12 text-ink/5 transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110"
+        className="pointer-events-none absolute -bottom-8 -right-8 w-32 h-32 rotate-12 text-ink/5"
       />
 
       <div className="relative z-10 flex items-start justify-between gap-2">
@@ -457,7 +424,7 @@ function StatCard({
           {label}
         </span>
         <span
-          className={`w-9 h-9 shrink-0 -rotate-6 rounded-tile border flex items-center justify-center transition-transform duration-300 group-hover:rotate-0 group-hover:scale-110 ${sticker}`}
+          className={`w-9 h-9 shrink-0 -rotate-6 rounded-tile border flex items-center justify-center ${sticker}`}
         >
           <Icon className="w-4 h-4" />
         </span>
@@ -468,16 +435,16 @@ function StatCard({
       </span>
       <span
         aria-hidden="true"
-        className={`relative z-10 mt-2.5 block h-1 w-8 origin-left rounded-full bg-linear-to-r ${grad} transition-transform duration-300 group-hover:scale-x-150`}
+        className={`relative z-10 mt-2.5 block h-1 w-8 origin-left rounded-full bg-linear-to-r ${grad}`}
       />
 
       <span className="relative z-10 mt-auto pt-3 inline-flex items-center gap-1 text-[10px] font-medium text-muted/40 transition-colors duration-200 group-hover:text-muted">
         {hint ?? label}
         {tab && (
-          <IconChevronRight className="w-3 h-3 transition-transform duration-300 group-hover:translate-x-0.5" />
+          <IconChevronRight className="w-3 h-3" />
         )}
       </span>
-    </motion.button>
+    </button>
   )
 }
 
@@ -1491,7 +1458,7 @@ export function DashboardView({
                     </span>
                       <motion.button
                         type="button"
-                        whileTap={{ scale: 0.92 }}
+                        data-press-feedback
                         onClick={() => openEngine(v.tag)}
                         className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/60 hover:text-ink hover:bg-raised transition-colors"
                       >
@@ -1541,7 +1508,7 @@ export function DashboardView({
                   <Tooltip content={tc('dashboard_rename_save')} side="top">
                     <motion.button
                       type="button"
-                      whileTap={{ scale: 0.92 }}
+                      data-press-feedback
                       onClick={commitName}
                       aria-label={tc('dashboard_rename_save')}
                       className="focus-ring cursor-pointer p-1.5 rounded-btn text-accent hover:bg-accent/10 transition-colors"
@@ -1552,7 +1519,7 @@ export function DashboardView({
                   <Tooltip content={tc('cancel')} side="top">
                     <motion.button
                       type="button"
-                      whileTap={{ scale: 0.92 }}
+                      data-press-feedback
                       onClick={cancelNameEdit}
                       aria-label={tc('cancel')}
                       className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/60 hover:text-ink hover:bg-raised transition-colors"
@@ -1622,7 +1589,7 @@ export function DashboardView({
             )}
               <motion.button
                 type="button"
-                whileTap={{ scale: 0.94 }}
+                data-press-feedback
                 onClick={() => setEditingTiles((v) => !v)}
                 aria-label={tc(editingTiles ? 'dashboard_done_customizing' : 'dashboard_customize')}
                 className={`focus-ring cursor-pointer flex items-center gap-1.5 h-11 px-5 rounded-item text-sm font-semibold border transition-colors ${
@@ -1759,7 +1726,7 @@ export function DashboardView({
                   />
                   <motion.button
                     type="button"
-                    whileTap={{ scale: 0.96 }}
+                    data-press-feedback
                     onClick={savePreset}
                     disabled={!presetDraft.trim()}
                     className="focus-ring cursor-pointer px-4 py-2 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-40 disabled:cursor-default text-xs font-semibold text-ink transition-colors shrink-0"

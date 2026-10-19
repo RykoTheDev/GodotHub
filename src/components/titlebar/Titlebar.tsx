@@ -104,9 +104,9 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
             <Tooltip content={t('support_dev')}>
             <motion.button
               type="button"
-              whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.94 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+
+              data-press-feedback
+
               onMouseDown={noDrag}
               onClick={() =>
                 openUrl('https://www.patreon.com/cw/TheRyko/membership')
@@ -123,9 +123,9 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
             <Tooltip content={t('star_on_github')}>
             <motion.button
               type="button"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.96 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+
+              data-press-feedback
+
               onMouseDown={noDrag}
               onClick={() => openUrl('https://github.com/RykoTheDev/GodotHub')}
               className="focus-ring cursor-pointer w-8 h-8 flex items-center justify-center rounded-item text-muted hover:text-amber hover:bg-amber/10 transition-colors"
@@ -139,9 +139,9 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
             <Tooltip content={t('report_a_bug')}>
             <motion.button
               type="button"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.96 }}
-              transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+
+              data-press-feedback
+
               onMouseDown={noDrag}
               onClick={() =>
                 window.dispatchEvent(new Event('app:report-bug'))
@@ -176,9 +176,9 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
                   className="focus-ring cursor-pointer group/win w-9 h-full flex items-center justify-center"
                 >
                   <motion.span
-                    whileHover={{ scale: 1.06 }}
-                    whileTap={{ scale: 0.96 }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+
+                    data-press-feedback
+
                     className={`${windowDot} -mr-3 bg-mint`}
                   />
                 </button>
@@ -192,9 +192,9 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
                   className="focus-ring cursor-pointer group/win w-9 h-full flex items-center justify-center"
                 >
                   <motion.span
-                    whileHover={{ scale: 1.06 }}
-                    whileTap={{ scale: 0.96 }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+
+                    data-press-feedback
+
                     className={`${windowDot} bg-amber`}
                   />
                 </button>
@@ -208,9 +208,9 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
                   className="focus-ring cursor-pointer group/win w-9 h-full flex items-center justify-center"
                 >
                   <motion.span
-                    whileHover={{ scale: 1.06 }}
-                    whileTap={{ scale: 0.96 }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+
+                    data-press-feedback
+
                     className={`${windowDot} mr-3 bg-danger`}
                   />
                 </button>

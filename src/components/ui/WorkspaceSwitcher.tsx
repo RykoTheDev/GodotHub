@@ -1,3 +1,4 @@
+import { useUiMotion } from '../../hooks/useUiMotion'
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -20,6 +21,8 @@ const MENU_WIDTH = 232
 const OPEN_UP_THRESHOLD = 300
 
 export function WorkspaceSwitcher({ collapsed = false }: { collapsed?: boolean }) {
+  const uiMotion = useUiMotion()
+
   const { t } = useTranslation('common')
   const {
     workspaces,
@@ -152,13 +155,11 @@ export function WorkspaceSwitcher({ collapsed = false }: { collapsed?: boolean }
           {open && (
             <motion.div key="div-152"
               ref={listRef}
-              initial={{ opacity: 0, y: dir ? 6 : -6, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: dir ? 6 : -6, scale: 0.96 }}
-              transition={{ duration: 0.15, ease: 'easeOut' }}
+              {...uiMotion.surface('popover', `translateY(${dir ? 6 : -6}px) scale(0.96)`)}
+
               role="menu"
               className={`fixed z-50 ${
-                dir ? 'origin-bottom' : 'origin-top'
+                dir ? 'origin-bottom-left' : 'origin-top-left'
               } rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 p-1.5`}
               style={{ left: pos?.left, top: pos?.top, width: MENU_WIDTH }}
             >

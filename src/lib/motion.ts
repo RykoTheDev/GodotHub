@@ -4,11 +4,14 @@ export type AnimationIntensity = 'full' | 'subtle' | 'none'
 
 export type ViewEntrance = 'fade' | 'slide' | 'scale' | 'none'
 
-export const overlayTransition: Transition = { duration: 0.12, ease: 'easeOut' }
+export const easeOut = [0.23, 1, 0.32, 1] as const
+export const easeOutCss = 'cubic-bezier(0.23, 1, 0.32, 1)'
+export const motionDuration = { press: 0.16, tooltip: 0.125, popover: 0.2, modal: 0.2, exit: 0.125 } as const
+export const overlayTransition: Transition = { type: 'tween', duration: motionDuration.exit, ease: easeOut }
 
 export const disclosureMotion = {
   durationMs: 200,
-  easing: 'cubic-bezier(0.23, 1, 0.32, 1)',
+  easing: easeOutCss,
 } as const
 
 export function entranceDuration(intensity: AnimationIntensity): number {
@@ -37,15 +40,15 @@ export function viewTransition(
   const ease = [0.23, 1, 0.32, 1] as const
   if (entrance === 'scale') {
     return {
-      initial: { opacity: 0, scale: 0.98 },
-      animate: { opacity: 1, scale: 1 },
+      initial: { opacity: 0, transform: 'scale(0.97)' },
+      animate: { opacity: 1, transform: 'scale(1)' },
       transition: { duration, ease },
     }
   }
   if (entrance === 'slide') {
     return {
-      initial: { opacity: 0, y: 10 },
-      animate: { opacity: 1, y: 0 },
+      initial: { opacity: 0, transform: 'translateY(10px)' },
+      animate: { opacity: 1, transform: 'translateY(0px)' },
       transition: { duration, ease },
     }
   }

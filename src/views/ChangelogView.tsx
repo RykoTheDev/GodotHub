@@ -80,13 +80,8 @@ function EntryCard({
   const issueCount = entry.known_issues?.length ?? 0
 
   return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-40px' }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3, ease: 'easeOut' }}
+    <div
+
       className="group relative flex gap-5"
     >
       <div className="flex flex-col items-center pt-2 pl-2 shrink-0">
@@ -212,7 +207,7 @@ function EntryCard({
           )}
         </div>
       </div>
-    </motion.div>
+    </div>
   )
 }
 
@@ -269,8 +264,8 @@ export function ChangelogView({
             <div className="flex items-center gap-2">
               <motion.button
                 type="button"
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.96 }}
+
+                data-press-feedback
                 onClick={() => setDraftOpen(true)}
                 className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:border-accent-dim text-xs font-medium transition-colors"
               >
@@ -279,8 +274,8 @@ export function ChangelogView({
               </motion.button>
               <motion.button
                 type="button"
-                whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.96 }}
+
+                data-press-feedback
                 onClick={openCreate}
                 className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors"
               >

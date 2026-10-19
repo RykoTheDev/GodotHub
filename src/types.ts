@@ -10,6 +10,28 @@ export interface InstalledGodotVersion {
   managed_by?: string | null
 }
 
+export interface ProjectHealthAction {
+  kind: string
+  target: string | null
+  confirm: boolean
+}
+
+export interface ProjectHealthCheck {
+  id: string
+  category: string
+  severity: 'ok' | 'info' | 'warning' | 'error'
+  code: string
+  details: string[]
+  values: Record<string, string>
+  action: ProjectHealthAction | null
+}
+
+export interface ProjectHealthReport {
+  project_id: string
+  scanned_at_ms: number
+  checks: ProjectHealthCheck[]
+}
+
 export interface MiseStatus {
   available: boolean
   path: string | null

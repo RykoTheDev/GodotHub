@@ -8,12 +8,8 @@ import { Dropdown, type NewDropdownItem } from '../ui/Dropdown'
 const TOOL_BUTTON_CLASS =
   'text-muted hover:text-ink font-semibold text-[17px] bg-overlay shadow-md shadow-black/10 border border-outline/50 hover:bg-raised cursor-pointer h-10 flex items-center transition-colors'
 
-const TOOL_BUTTON_SPRING = { type: 'spring', stiffness: 500, damping: 30 } as const
-
 const TOOL_BUTTON_ANIMATION = {
-  whileHover: { scale: 1.04 },
-  whileTap: { scale: 0.94 },
-  transition: TOOL_BUTTON_SPRING,
+  'data-press-feedback': true,
 } as const
 
 interface ImportButtonProps {
