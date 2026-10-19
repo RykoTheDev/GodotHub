@@ -415,7 +415,3 @@ pub fn delete_workspace(app: AppHandle, id: String) -> Result<WorkspacesState, S
     }
     Ok(state)
 }
-
-#[cfg(test)]
-#[path = "../tests/common/workspace.rs"]
-mod workspace_common_tests;

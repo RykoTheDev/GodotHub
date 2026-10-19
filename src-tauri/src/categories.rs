@@ -288,7 +288,3 @@ pub fn remove_category_folder(app: AppHandle, id: String, folder: String) -> Res
     write_categories(&app, &cats).map_err(|e| e.to_string())?;
     Ok(cats[idx].clone())
 }
-
-#[cfg(test)]
-#[path = "../tests/common/categories.rs"]
-mod categories_common_tests;

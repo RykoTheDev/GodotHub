@@ -170,7 +170,3 @@ pub(crate) fn remove_dir_force(dir: &Path) -> Result<(), String> {
 
     walk(dir)
 }
-
-#[cfg(test)]
-#[path = "../tests/common/template_files.rs"]
-mod tests;

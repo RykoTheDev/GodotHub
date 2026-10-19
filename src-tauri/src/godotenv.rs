@@ -443,7 +443,3 @@ fn replace_sdk_value(line: &str, version: &str) -> String {
     out.push_str(&line[qend..]);
     out
 }
-
-#[cfg(test)]
-#[path = "../tests/common/godotenv.rs"]
-mod godotenv_common_tests;

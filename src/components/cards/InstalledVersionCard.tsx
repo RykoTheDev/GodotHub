@@ -1,17 +1,26 @@
 import { useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import type { CurrentVersionInfo, InstalledGodotVersion } from '../../types'
+import type {
+  CurrentVersionInfo,
+  ExportTemplateDownload,
+  ExportTemplatesVersionInfo,
+  InstalledGodotVersion,
+} from '../../types'
 import { api } from '../../lib/api'
+import { formatBytes } from '../../lib/formatBytes'
 import { ConfirmDialog } from '../modals/ConfirmDialog'
 import { CurrentVersionModal } from '../modals/CurrentVersionModal'
 import { OpenButton } from '../reusables/OpenButton'
+import { Tooltip } from '../reusables/Tooltip'
 import {
   IconCheck,
+  IconDownload,
   IconExternalLink,
   IconPencil,
   IconPin,
   IconRocket,
+  IconSpinner,
   IconTerminal,
   IconTrash,
 } from '../../lib/icons'
@@ -25,6 +34,12 @@ interface InstalledVersionCardProps {
   onClearCurrent: () => Promise<void>
   onManageAliases: () => void
   onUninstall: () => void
+  templates?: ExportTemplatesVersionInfo | null
+  templateDownload?: ExportTemplateDownload | null
+  onInstallTemplates?: () => void
+  onCancelTemplates?: () => void
+  onRemoveTemplates?: () => void
+  onOpenTemplates?: () => void
 }
 
 export function InstalledVersionCard({
@@ -36,6 +51,12 @@ export function InstalledVersionCard({
   onClearCurrent,
   onManageAliases,
   onUninstall,
+  templates,
+  templateDownload,
+  onInstallTemplates,
+  onCancelTemplates,
+  onRemoveTemplates,
+  onOpenTemplates,
 }: InstalledVersionCardProps) {
   const { t: tc } = useTranslation('common')
   const { t: tv } = useTranslation('versions')
@@ -45,6 +66,27 @@ export function InstalledVersionCard({
   const editInputRef = useRef<HTMLInputElement>(null)
   const [confirmingUninstall, setConfirmingUninstall] = useState(false)
   const [aliasInfo, setAliasInfo] = useState<CurrentVersionInfo | null>(null)
+  const [templateDialog, setTemplateDialog] = useState<'install' | 'remove' | null>(
+    null,
+  )
+
+  const templatesBusy = !!templateDownload || !!templates?.downloading
+  const templatePercent =
+    templateDownload && templateDownload.total > 0
+      ? Math.min(
+          100,
+          Math.round((templateDownload.downloaded / templateDownload.total) * 100),
+        )
+      : null
+  const templateStatusLabel = templateDownload
+    ? templateDownload.stage === 'extracting'
+      ? tc('export_templates_extracting')
+      : templateDownload.stage === 'verifying'
+        ? tc('export_templates_verifying')
+        : templatePercent != null
+          ? `${templatePercent}%`
+          : tv('export_templates_downloading')
+    : tv('export_templates_downloading')
 
   const setAsCurrent = async () => {
     try {
@@ -158,6 +200,41 @@ export function InstalledVersionCard({
                     {tv('console_label')}
                   </span>
                 )}
+                {templatesBusy ? (
+                  <button
+                    type="button"
+                    onClick={onCancelTemplates}
+                    title={tv('export_templates_cancel')}
+                    className="focus-ring cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-amber/10 text-amber border border-amber/30 text-[10px] font-semibold shrink-0 hover:bg-amber/20 transition-colors"
+                  >
+                    <IconSpinner className="w-2.5 h-2.5 animate-spin" />
+                    {templateStatusLabel}
+                  </button>
+                ) : templates?.installed ? (
+                  <Tooltip
+                    content={`${templates.folder} · ${formatBytes(templates.size_bytes)}`}
+                    side="top"
+                  >
+                    <button
+                      type="button"
+                      onClick={onOpenTemplates}
+                      className="focus-ring cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-mint/10 text-mint border border-mint/30 text-[10px] font-semibold shrink-0 hover:bg-mint/20 transition-colors"
+                    >
+                      <IconCheck className="w-2.5 h-2.5" />
+                      {tv('export_templates_installed')}
+                    </button>
+                  </Tooltip>
+                ) : onInstallTemplates ? (
+                  <button
+                    type="button"
+                    onClick={() => setTemplateDialog('install')}
+                    title={tv('export_templates_install')}
+                    className="focus-ring cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-overlay text-muted border border-outline/50 text-[10px] font-semibold shrink-0 hover:text-amber hover:border-amber/40 transition-colors"
+                  >
+                    <IconDownload className="w-2.5 h-2.5" />
+                    {tv('export_templates_missing')}
+                  </button>
+                ) : null}
               </div>
               {v.custom_name && v.custom_name !== v.tag && (
                 <p className="text-xs font-mono text-muted truncate mt-1">
@@ -215,6 +292,37 @@ export function InstalledVersionCard({
             icon: IconExternalLink,
             onClick: openInstallFolder,
           },
+          ...(templates?.installed
+            ? [
+                {
+                  key: 'templates-folder',
+                  label: tv('export_templates_open_folder'),
+                  icon: IconExternalLink,
+                  onClick: onOpenTemplates,
+                },
+                {
+                  key: 'templates-reinstall',
+                  label: tv('export_templates_reinstall'),
+                  icon: IconDownload,
+                  onClick: () => setTemplateDialog('install'),
+                },
+                {
+                  key: 'templates-remove',
+                  label: tv('export_templates_remove'),
+                  icon: IconTrash,
+                  onClick: () => setTemplateDialog('remove'),
+                },
+              ]
+            : onInstallTemplates
+              ? [
+                  {
+                    key: 'templates-install',
+                    label: tv('export_templates_install'),
+                    icon: IconDownload,
+                    onClick: () => setTemplateDialog('install'),
+                  },
+                ]
+              : []),
           {
             key: 'uninstall',
             label: tv('uninstall'),
@@ -251,6 +359,37 @@ export function InstalledVersionCard({
           <CurrentVersionModal
             info={aliasInfo}
             onClose={() => setAliasInfo(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {templateDialog === 'install' && (
+          <ConfirmDialog
+            title={tv('export_templates_install_title')}
+            description={tv('export_templates_install_desc', { tag: v.tag })}
+            confirmLabel={tv('export_templates_install_confirm')}
+            onConfirm={() => {
+              setTemplateDialog(null)
+              onInstallTemplates?.()
+            }}
+            onCancel={() => setTemplateDialog(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {templateDialog === 'remove' && (
+          <ConfirmDialog
+            title={tv('export_templates_remove_title')}
+            description={tv('export_templates_remove_desc', { tag: v.tag })}
+            confirmLabel={tv('export_templates_remove_confirm')}
+            variant="danger"
+            onConfirm={() => {
+              setTemplateDialog(null)
+              onRemoveTemplates?.()
+            }}
+            onCancel={() => setTemplateDialog(null)}
           />
         )}
       </AnimatePresence>

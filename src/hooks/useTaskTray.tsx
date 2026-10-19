@@ -12,6 +12,9 @@ import type {
   AssetDownloadError,
   AssetDownloadProgress,
   DownloadProgress,
+  ExportTemplatesError,
+  ExportTemplatesProgress,
+  ExportTemplatesStage,
 } from '../types'
 import i18n from '../i18n'
 import { api } from '../lib/api'
@@ -21,6 +24,7 @@ export interface Task {
   id: string
   type:
     | 'download-godot'
+    | 'download-templates'
     | 'download-asset'
     | 'scan-projects'
     | 'scan-versions'
@@ -195,6 +199,66 @@ export function TaskTrayProvider({ children }: { children: ReactNode }) {
   useTauriEvent<string>('godot-download-complete', (key) => {
     updateTask(`download-${key}`, { status: 'completed' })
     scheduleRemoval(`download-${key}`, 3000)
+  })
+
+  const templateTaskId = (tag: string) => `templates-${tag}`
+  const templateLabel = (tag: string) =>
+    i18n.t('common:downloading_export_templates', { tag })
+
+  useTauriEvent<string>('export-templates-queued', (tag) => {
+    registerTask({
+      id: templateTaskId(tag),
+      type: 'download-templates',
+      label: templateLabel(tag),
+      description: i18n.t('common:queued'),
+      progress: null,
+      status: 'queued',
+    })
+  })
+
+  useTauriEvent<ExportTemplatesProgress>(
+    'export-templates-progress',
+    ({ tag, downloaded, total }) => {
+      const pct = total > 0 ? Math.round((downloaded / total) * 100) : 0
+      registerTask({
+        id: templateTaskId(tag),
+        type: 'download-templates',
+        label: templateLabel(tag),
+        description:
+          total > 0
+            ? `${(downloaded / 1024 / 1024).toFixed(1)} / ${(
+                total /
+                1024 /
+                1024
+              ).toFixed(1)} MB (${pct}%)`
+            : `${(downloaded / 1024 / 1024).toFixed(1)} MB`,
+        progress: total > 0 ? { current: downloaded, total } : null,
+        status: 'running',
+      })
+    },
+  )
+
+  useTauriEvent<ExportTemplatesStage>('export-templates-stage', ({ tag, stage }) => {
+    updateTask(templateTaskId(tag), {
+      description:
+        stage === 'verifying'
+          ? i18n.t('common:export_templates_verifying')
+          : i18n.t('common:export_templates_extracting'),
+    })
+  })
+
+  useTauriEvent<string>('export-templates-canceled', (tag) => {
+    unregisterTask(templateTaskId(tag))
+  })
+
+  useTauriEvent<ExportTemplatesError>('export-templates-error', ({ tag, message }) => {
+    updateTask(templateTaskId(tag), { status: 'error', errorMessage: message })
+    scheduleRemoval(templateTaskId(tag), 6000)
+  })
+
+  useTauriEvent<string>('export-templates-complete', (tag) => {
+    updateTask(templateTaskId(tag), { status: 'completed' })
+    scheduleRemoval(templateTaskId(tag), 3000)
   })
 
   useTauriEvent<AssetDownloadProgress>('asset-download-queued', (payload) => {

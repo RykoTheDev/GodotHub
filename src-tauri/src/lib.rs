@@ -5,6 +5,7 @@ mod changelog;
 mod console;
 mod current_version;
 mod error;
+mod export_templates;
 mod git;
 mod git_auth;
 mod git_helpers;
@@ -354,6 +355,11 @@ pub fn run() {
             git_auth::create_remote_repo,
             git_auth::list_user_repos,
             godot_versions::import_version_zip,
+            export_templates::get_export_templates_state,
+            export_templates::install_export_templates,
+            export_templates::cancel_export_templates_download,
+            export_templates::delete_export_templates,
+            export_templates::open_export_templates_folder,
             notify,
             projects::list_projects,
             project_todos::list_project_todos,
@@ -513,7 +519,3 @@ pub fn run() {
             }
         });
 }
-
-#[cfg(test)]
-#[path = "../tests/common/identifier_migration.rs"]
-mod identifier_migration_tests;

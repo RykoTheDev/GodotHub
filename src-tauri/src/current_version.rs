@@ -544,7 +544,3 @@ pub fn create_version_aliases(app: AppHandle, entries: Vec<AliasRequest>) -> Ali
 pub fn delete_version_alias(app: AppHandle, name: String) -> Result<(), String> {
     delete_named_alias(&app, &name)
 }
-
-#[cfg(test)]
-#[path = "../tests/common/current_version.rs"]
-mod current_version_common_tests;

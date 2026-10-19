@@ -38,7 +38,7 @@ Welcome to the GodotHub wiki. GodotHub is a desktop app for Godot Engine that ke
 | Area | What you can do |
 |---|---|
 | **Projects** | Create, import, and clone projects. Reorder with drag-and-drop, pin favorites, tag, filter, batch-edit, and launch with custom arguments. |
-| **Versions** | Browse official Godot builds, download with resume support, import existing installs, and group by version with filters for Mono and stable/unstable channels. |
+| **Versions** | Browse official Godot builds, download with resume support, import existing installs, install matching export templates, and group by version with filters for Mono and stable/unstable channels. |
 | **Templates** | Save any project as a template, start new projects from templates, preview their contents, and sync a whole folder of templates with file watching. |
 | **Git** | Full Git management: status, staging, commits, push/pull/fetch, branches, stashes, an inline diff viewer, and undo. |
 | **Asset Store** | Install assets from the old Asset Library and the new Asset Store directly into projects or templates. |

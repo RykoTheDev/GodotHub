@@ -104,6 +104,7 @@
 |---|---|
 | **Browse Releases** | Pulls the full list of official Godot builds from GitHub, filtered for your platform. |
 | **Download & Install** | Progress tracking, resume support, and concurrent downloads (configurable up to 10 at once). |
+| **Export Templates** | Install the matching export templates (`.tpz`) for each version, with resumable downloads, SHA-512 verification, and cleanup of unused template folders. |
 | **Import Versions** | Import an existing Godot install from any folder, or drag-and-drop a `.zip`. |
 | **Grouped Display** | Versions grouped by `major.minor` with collapsible sections. |
 | **Filtering** | Filter by build type (Standard / Mono / Both) and channel (Stable / Unstable / Both). |

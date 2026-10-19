@@ -4,11 +4,18 @@ import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence, type Transition } from 'framer-motion'
 import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 import { useGodotVersionsContext } from '../hooks/godotVersionsContext'
+import { useExportTemplateDownloads } from '../hooks/useExportTemplateDownloads'
 import { useSettings } from '../hooks/useSettings'
 import { useTaskTray } from '../hooks/useTaskTray'
 import { isReducedMotion } from '../lib/appearance'
 import { api } from '../lib/api'
-import type { GodotReleaseAsset } from '../types'
+import { formatBytes } from '../lib/formatBytes'
+import { pushToast } from '../lib/toast'
+import type {
+  ExportTemplatesOrphan,
+  ExportTemplatesVersionInfo,
+  GodotReleaseAsset,
+} from '../types'
 import { ViewHeader } from '../components/reusables/ViewHeader'
 import { SearchBar } from '../components/ui/SearchBar'
 import { Dropdown } from '../components/ui/Dropdown'
@@ -18,14 +25,17 @@ import { ImportButton } from '../components/reusables/ImportButton'
 import { Tooltip } from '../components/reusables/Tooltip'
 import { InstalledVersionCard } from '../components/cards/InstalledVersionCard'
 import { VersionAliasesModal } from '../components/modals/VersionAliasesModal'
+import { ConfirmDialog } from '../components/modals/ConfirmDialog'
 import {
   IconChevronDown,
   IconDownload,
   IconExternalLink,
+  IconFolder,
   IconPause,
   IconPlay,
   IconSearch,
   IconSpinner,
+  IconTrash,
   IconX,
 } from '../lib/icons'
 
@@ -164,6 +174,8 @@ export function VersionsView({
     current,
     aliases,
     aliasesDir,
+    exportTemplates,
+    refreshExportTemplates,
     setCurrent,
     clearCurrent,
     createAliases,
@@ -199,6 +211,38 @@ export function VersionsView({
   const [visibleGroups, setVisibleGroups] = useState(5)
   const [scanning, setScanning] = useState(false)
   const [aliasModal, setAliasModal] = useState<{ tag?: string } | null>(null)
+  const [orphanToDelete, setOrphanToDelete] =
+    useState<ExportTemplatesOrphan | null>(null)
+  const templateDownloads = useExportTemplateDownloads(refreshExportTemplates)
+
+  const templateInfoFor = (tag: string): ExportTemplatesVersionInfo | null =>
+    exportTemplates?.versions.find((info) => info.tag === tag) ?? null
+
+  const removeTemplates = async (info: ExportTemplatesVersionInfo) => {
+    try {
+      await api.deleteExportTemplates(info.folder, info.root)
+      await refreshExportTemplates()
+      pushToast('success', tv('export_templates_removed_toast'))
+    } catch (error) {
+      pushToast('error', String(error), 6000)
+    }
+  }
+
+  const deleteOrphan = async (orphan: ExportTemplatesOrphan) => {
+    try {
+      await api.deleteExportTemplates(orphan.folder, orphan.root)
+      await refreshExportTemplates()
+      pushToast('success', tv('export_templates_orphan_deleted'))
+    } catch (error) {
+      pushToast('error', String(error), 6000)
+    }
+  }
+
+  const openTemplatesFolder = (tag?: string) => {
+    api
+      .openExportTemplatesFolder(tag)
+      .catch((error) => pushToast('error', String(error), 6000))
+  }
 
   useEffect(() => {
     try {
@@ -459,6 +503,18 @@ export function VersionsView({
                 {tv('installed_title')}
               </h3>
               <div className="flex items-center gap-2">
+              <Tooltip content={tv('export_templates_open_folder')} side="top">
+                <motion.button
+                  type="button"
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.94 }}
+                  onClick={() => openTemplatesFolder()}
+                  aria-label={tv('export_templates_open_folder')}
+                  className="focus-ring cursor-pointer flex items-center justify-center h-7 w-7 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
+                >
+                  <IconFolder className="w-3.5 h-3.5" />
+                </motion.button>
+              </Tooltip>
               {settings.use_mise && (
                 <Tooltip content={tv('mise_sync_title')} side="top">
                   <motion.button
@@ -525,10 +581,57 @@ export function VersionsView({
                     onClearCurrent={clearCurrent}
                     onManageAliases={() => setAliasModal({ tag: v.tag })}
                     onUninstall={() => remove(v.tag)}
+                    templates={templateInfoFor(v.tag)}
+                    templateDownload={templateDownloads.downloads[v.tag] ?? null}
+                    onInstallTemplates={() => void templateDownloads.install(v.tag)}
+                    onCancelTemplates={() => void templateDownloads.cancel(v.tag)}
+                    onRemoveTemplates={() => {
+                      const info = templateInfoFor(v.tag)
+                      if (info) void removeTemplates(info)
+                    }}
+                    onOpenTemplates={() => openTemplatesFolder(v.tag)}
                   />
                 </motion.div>
               ))}
             </div>
+
+            {exportTemplates && exportTemplates.orphans.length > 0 && (
+              <div className="rounded-item border border-outline/40 bg-overlay px-3.5 py-3 flex flex-col gap-2">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+                    {tv('export_templates_orphans_title')}
+                  </p>
+                  <p className="text-xs text-muted/80 mt-0.5">
+                    {tv('export_templates_orphans_desc')}
+                  </p>
+                </div>
+                <div className="flex flex-col gap-1">
+                  {exportTemplates.orphans.map((orphan) => (
+                    <div
+                      key={orphan.path}
+                      className="flex items-center gap-2 rounded-btn bg-raised/60 px-2.5 py-1.5"
+                    >
+                      <IconFolder className="w-3.5 h-3.5 text-muted shrink-0" />
+                      <span className="font-mono text-xs text-ink truncate min-w-0 flex-1">
+                        {orphan.folder}
+                      </span>
+                      <span className="text-[11px] font-mono text-muted shrink-0">
+                        {formatBytes(orphan.size_bytes)}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setOrphanToDelete(orphan)}
+                        title={tv('export_templates_orphan_delete')}
+                        aria-label={tv('export_templates_orphan_delete')}
+                        className="focus-ring cursor-pointer p-1 rounded-btn text-muted hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
+                      >
+                        <IconTrash className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -962,6 +1065,25 @@ export function VersionsView({
             onClose={() => setAliasModal(null)}
             onCreateMany={createAliases}
             onDelete={deleteAlias}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {orphanToDelete && (
+          <ConfirmDialog
+            title={tv('export_templates_orphan_delete_title')}
+            description={tv('export_templates_orphan_delete_desc', {
+              folder: orphanToDelete.folder,
+            })}
+            confirmLabel={tv('export_templates_orphan_delete')}
+            variant="danger"
+            onConfirm={() => {
+              const orphan = orphanToDelete
+              setOrphanToDelete(null)
+              void deleteOrphan(orphan)
+            }}
+            onCancel={() => setOrphanToDelete(null)}
           />
         )}
       </AnimatePresence>

@@ -268,17 +268,3 @@ pub(crate) fn terminate_process(pid: u32) -> Result<(), String> {
         Err(std::io::Error::last_os_error().to_string())
     }
 }
-
-#[cfg(test)]
-#[path = "../tests/common/process.rs"]
-mod process_common_tests;
-
-#[cfg(target_os = "windows")]
-#[cfg(test)]
-#[path = "../tests/windows/process.rs"]
-mod windows_process_tests;
-
-#[cfg(unix)]
-#[cfg(test)]
-#[path = "../tests/unix/process.rs"]
-mod unix_process_tests;

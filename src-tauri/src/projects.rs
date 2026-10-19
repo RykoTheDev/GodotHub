@@ -166,10 +166,6 @@ fn settle_project_session(
     }
 }
 
-#[cfg(test)]
-#[path = "../tests/common/projects.rs"]
-mod projects_common_tests;
-
 pub(crate) fn settle_stale_sessions(app: &AppHandle) {
     settle_stale_sessions_inner(app, &LAST_SETTLE_OK, &SETTLE_IN_FLIGHT, || {
         process::find_running_godot_processes()

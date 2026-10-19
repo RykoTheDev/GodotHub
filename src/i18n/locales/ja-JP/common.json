@@ -713,5 +713,8 @@
   "project_card_version_unavailable": "Godot {{version}} がインストールされていません。このプロジェクトを起動するには、インストール済みのバージョンを選択してください。",
   "project_card_total_time": "合計時間: {{time}}",
   "project_card_last_opened": "最終オープン: {{date}}",
-  "project_card_more_tags": "さらに {{count}} 件のタグを表示"
+  "project_card_more_tags": "さらに {{count}} 件のタグを表示",
+  "downloading_export_templates": "Downloading export templates for {{tag}}",
+  "export_templates_verifying": "Verifying download…",
+  "export_templates_extracting": "Installing templates…"
 }

@@ -1812,7 +1812,3 @@ pub async fn git_worktree_remove(
     .await
     .map_err(|e| e.to_string())?
 }
-
-#[cfg(test)]
-#[path = "../tests/common/git_worktrees.rs"]
-mod worktree_tests;

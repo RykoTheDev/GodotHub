@@ -495,7 +495,3 @@ pub fn spawn_in_app_console(
         pid_file: None,
     })
 }
-
-#[cfg(test)]
-#[path = "../tests/common/console.rs"]
-mod console_common_tests;

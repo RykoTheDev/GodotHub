@@ -715,5 +715,8 @@
   "project_card_version_unavailable": "Godot {{version}} 未安装。请选择一个已安装的版本来启动此项目。",
   "project_card_total_time": "总时间: {{time}}",
   "project_card_last_opened": "上次打开: {{date}}",
-  "project_card_more_tags": "显示 {{count}} 个更多标签"
+  "project_card_more_tags": "显示 {{count}} 个更多标签",
+  "downloading_export_templates": "Downloading export templates for {{tag}}",
+  "export_templates_verifying": "Verifying download…",
+  "export_templates_extracting": "Installing templates…"
 }

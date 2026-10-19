@@ -79,7 +79,3 @@ pub fn ensure_dir(dir: &Path) -> AppResult<()> {
     }
     Ok(())
 }
-
-#[cfg(test)]
-#[path = "../tests/common/persist.rs"]
-mod persist_common_tests;

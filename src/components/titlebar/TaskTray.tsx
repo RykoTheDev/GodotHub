@@ -36,6 +36,8 @@ function TaskIcon({ task }: { task: Task }) {
   switch (task.type) {
     case 'download-godot':
       return <IconDownload className={`${iconClass} text-amber`} />
+    case 'download-templates':
+      return <IconDownload className={`${iconClass} text-amber`} />
     case 'download-asset':
       return <IconStore className={`${iconClass} text-accent-bright`} />
     case 'scan-projects':
@@ -124,6 +126,10 @@ function TaskItem({ task }: { task: Task }) {
   const downloadKey = isGodotDownload
     ? task.id.replace(/^download-/, '')
     : null
+  const templateTag =
+    task.type === 'download-templates'
+      ? task.id.replace(/^templates-/, '')
+      : null
 
   return (
     <motion.div
@@ -209,6 +215,19 @@ function TaskItem({ task }: { task: Task }) {
                 )}
               </span>
             )}
+            {templateTag &&
+              (task.status === 'running' || task.status === 'queued') && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    api.cancelExportTemplates(templateTag).catch(() => {})
+                  }
+                  aria-label={t('cancel')}
+                  className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-danger hover:bg-danger/10 transition-colors"
+                >
+                  <IconX className="w-3 h-3" />
+                </button>
+              )}
             <StatusBadge status={task.status} />
           </div>
         </div>

@@ -65,6 +65,63 @@ export interface GodotRelease {
   assets: GodotReleaseAsset[]
 }
 
+export interface ExportTemplatesVersionInfo {
+  tag: string
+  folder: string
+  root: string
+  templates_dir: string
+  installed: boolean
+  downloading: boolean
+  size_bytes: number
+  file_count: number
+}
+
+export interface ExportTemplatesOrphan {
+  folder: string
+  path: string
+  root: string
+  size_bytes: number
+  file_count: number
+}
+
+export interface ExportTemplatesState {
+  default_dir: string
+  versions: ExportTemplatesVersionInfo[]
+  orphans: ExportTemplatesOrphan[]
+}
+
+export interface ExportTemplatesInstallResult {
+  tag: string
+  folder: string
+  verified: boolean
+  size_bytes: number
+  file_count: number
+}
+
+export interface ExportTemplatesProgress {
+  tag: string
+  downloaded: number
+  total: number
+}
+
+export interface ExportTemplatesStage {
+  tag: string
+  stage: 'verifying' | 'extracting'
+}
+
+export interface ExportTemplatesError {
+  tag: string
+  message: string
+}
+
+export type ExportTemplateStage = 'downloading' | 'verifying' | 'extracting'
+
+export interface ExportTemplateDownload {
+  downloaded: number
+  total: number
+  stage: ExportTemplateStage
+}
+
 export interface Category {
   id: string
   name: string

@@ -10,6 +10,7 @@ import type {
   AliasRequest,
   CurrentVersionInfo,
   DownloadProgress,
+  ExportTemplatesState,
   GodotRelease,
   InstalledGodotVersion,
   MiseStatus,
@@ -65,6 +66,7 @@ export function useGodotVersions() {
   } | null>(null)
   const [miseStatus, setMiseStatus] = useState<MiseStatus | null>(null)
   const [miseInstalls, setMiseInstalls] = useState<Record<string, boolean>>({})
+  const [exportTemplates, setExportTemplates] = useState<ExportTemplatesState | null>(null)
 
   const refreshCurrent = useCallback(async () => {
     try {
@@ -84,12 +86,26 @@ export function useGodotVersions() {
     }
   }, [])
 
+  const refreshExportTemplates = useCallback(async () => {
+    try {
+      const next = await api.getExportTemplatesState()
+      setExportTemplates((prev) =>
+        JSON.stringify(prev) === JSON.stringify(next) ? prev : next,
+      )
+    } catch {
+      // Templates are optional for the rest of the view; keep the last state.
+    }
+  }, [])
+
   const refreshInstalled = useCallback(async () => {
-    const next = await api.listInstalledGodotVersions()
+    const [next] = await Promise.all([
+      api.listInstalledGodotVersions(),
+      refreshExportTemplates(),
+    ])
     setInstalled((prev) => (sameInstalled(prev, next) ? prev : next))
     await refreshCurrent()
     await refreshAliases()
-  }, [refreshCurrent, refreshAliases])
+  }, [refreshCurrent, refreshAliases, refreshExportTemplates])
 
   const refreshMiseStatus = useCallback(async () => {
     try {
@@ -313,6 +329,8 @@ export function useGodotVersions() {
     current,
     aliases,
     aliasesDir,
+    exportTemplates,
+    refreshExportTemplates,
     setCurrent: pinCurrent,
     clearCurrent: unpinCurrent,
     createAliases,

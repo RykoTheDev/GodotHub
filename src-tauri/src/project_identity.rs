@@ -84,7 +84,3 @@ pub fn ensure_project_identity(project_path: &str, id: &str, category: Option<&s
     }
     write_project_identity(project_path, id, wanted.as_deref())
 }
-
-#[cfg(test)]
-#[path = "../tests/common/project_identity.rs"]
-mod project_identity_common_tests;

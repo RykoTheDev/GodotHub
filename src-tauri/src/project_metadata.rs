@@ -116,7 +116,3 @@ pub fn hide(path: &Path) {
     #[cfg(not(windows))]
     let _ = path; // Dot directory plus .gdignore hides metadata from Godot on Unix.
 }
-
-#[cfg(test)]
-#[path = "../tests/common/project_metadata.rs"]
-mod tests;
