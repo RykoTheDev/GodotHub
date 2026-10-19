@@ -546,7 +546,7 @@ export function ProjectConsoleWindow() {
                 >
                   {status.tone === 'running' && (
                     <span className="relative flex w-1.5 h-1.5">
-                      <span className="absolute inline-flex h-full w-full rounded-full bg-mint opacity-60 animate-ping" />
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-mint opacity-60 animate-attention-ping" />
                       <span className="relative inline-flex rounded-full w-1.5 h-1.5 bg-mint" />
                     </span>
                   )}
@@ -782,7 +782,7 @@ export function ProjectConsoleWindow() {
             <IconGrip className="w-2.5 h-3.5 text-muted/40 shrink-0" />
             <span className="relative flex w-1.5 h-1.5 shrink-0">
               {activeState?.running && (
-                <span className="absolute inline-flex h-full w-full rounded-full bg-mint opacity-60 animate-ping" />
+                <span className="absolute inline-flex h-full w-full rounded-full bg-mint opacity-60 animate-attention-ping" />
               )}
               <span
                 className={`relative inline-flex rounded-full w-1.5 h-1.5 ${
