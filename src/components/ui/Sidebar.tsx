@@ -129,6 +129,9 @@ export function Sidebar({
   const clampKnobY = (y: number, height: number) =>
     Math.min(Math.max(KNOB_MIN_TOP, y), Math.max(KNOB_MIN_TOP, height - KNOB_HEIGHT))
 
+  /** Knob offset from the rail's vertical center, so the position can ride on a transform. */
+  const knobOffsetY = (y: number, height: number) => clampKnobY(y, height) - height / 2
+
   const handleStripMove = (e: React.PointerEvent) => {
     if (dragging) {
       if (e.buttons === 0) {
@@ -142,7 +145,7 @@ export function Sidebar({
     if (settings.fixed_sidebar_resize_knob) return
     const rect = e.currentTarget.getBoundingClientRect()
     const y = e.clientY - rect.top
-    setKnobY(clampKnobY(y, rect.height))
+    setKnobY(knobOffsetY(y, rect.height))
   }
 
   const endDrag = (e: React.PointerEvent) => {
@@ -160,7 +163,7 @@ export function Sidebar({
     }
     if (dist <= KNOB_TRACK_DIST) {
       const y = e.clientY - rect.top
-      setKnobY(clampKnobY(y, rect.height))
+      setKnobY(knobOffsetY(y, rect.height))
     }
   }
 
@@ -257,7 +260,11 @@ export function Sidebar({
     >
       <motion.div
         animate={{ width: collapsed ? COLLAPSED_WIDTH : width }}
-        transition={dragging ? { duration: 0 } : { type: 'spring', stiffness: 650, damping: 38 }}
+        transition={
+          dragging
+            ? { duration: 0 }
+            : { duration: 0.2, ease: [0.23, 1, 0.32, 1] }
+        }
         className={`flex flex-col h-full overflow-hidden ${
           connected
             ? 'rounded-none border-r border-line bg-raised'
@@ -433,20 +440,31 @@ export function Sidebar({
         className="absolute inset-y-0 -right-3.5 w-7 cursor-col-resize group/edge z-10"
       >
         <div
-          className={`absolute left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none transition-[top,opacity] duration-200 ease-out ${
-            knobY != null && !settings.fixed_sidebar_resize_knob ? '' : 'top-1/2'
-          } ${showKnob ? 'opacity-100' : 'opacity-0'}`}
-          style={knobY != null && !settings.fixed_sidebar_resize_knob ? { top: knobY } : undefined}
+          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none transition-opacity duration-200 ease-out ${
+            showKnob ? 'opacity-100' : 'opacity-0'
+          }`}
         >
           <div
-            className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-tag bg-raised border border-line shadow-md shadow-base text-[10px] font-mono text-muted tabular-nums whitespace-nowrap transition-all duration-200 ${
+            className={`flex flex-col items-center ${
+              knobY != null && !settings.fixed_sidebar_resize_knob
+                ? ''
+                : 'transition-transform duration-200 ease-out'
+            }`}
+            style={
+              knobY != null && !settings.fixed_sidebar_resize_knob
+                ? { transform: `translateY(${knobY}px)` }
+                : undefined
+            }
+          >
+          <div
+            className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-tag bg-raised border border-line shadow-md shadow-base text-[10px] font-mono text-muted tabular-nums whitespace-nowrap transition-[translate,opacity] duration-200 ${
               dragging ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
             }`}
           >
             {width}px
           </div>
           <div
-            className={`flex items-center justify-center w-5 h-10 rounded-full border shadow-md shadow-base transition-all duration-200 ${
+            className={`flex items-center justify-center w-5 h-10 rounded-full border shadow-md shadow-base transition-[scale,background-color,border-color,box-shadow] duration-200 ${
             dragging
               ? 'bg-accent border-accent scale-110 shadow-accent/30'
               : 'bg-raised border-line shadow-base group-hover/edge:border-accent-dim group-hover/edge:scale-110'
@@ -469,6 +487,7 @@ export function Sidebar({
             }`}
           />
             </div>
+        </div>
         </div>
         </div>
       </div>

@@ -74,6 +74,16 @@ export interface ExportTemplatesVersionInfo {
   downloading: boolean
   size_bytes: number
   file_count: number
+  platforms: string[]
+}
+
+export interface ExportTemplateOption {
+  id: string
+  label: string
+  size_bytes: number
+  download_bytes: number
+  installed: boolean
+  files: { name: string; size_bytes: number; download_bytes: number; installed: boolean }[]
 }
 
 export interface ExportTemplatesOrphan {
@@ -102,6 +112,8 @@ export interface ExportTemplatesProgress {
   tag: string
   downloaded: number
   total: number
+  file?: string | null
+  platforms?: string[]
 }
 
 export interface ExportTemplatesStage {
@@ -120,6 +132,8 @@ export interface ExportTemplateDownload {
   downloaded: number
   total: number
   stage: ExportTemplateStage
+  platforms?: string[]
+  file?: string | null
 }
 
 export interface Category {

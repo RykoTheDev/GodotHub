@@ -60,7 +60,7 @@ export function AssetCard({
           />
         )}
         <div className="absolute inset-x-0 bottom-0 h-10 bg-linear-to-t from-overlay to-transparent transition-opacity duration-300 group-hover:opacity-0" />
-        <div className="relative w-14 h-14 rounded-tile bg-surface/90 border border-outline/60 flex items-center justify-center overflow-hidden opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-all duration-300 ease-out">
+        <div className="relative w-14 h-14 rounded-tile bg-surface/90 border border-outline/60 flex items-center justify-center overflow-hidden opacity-0 scale-75 group-hover:opacity-100 group-hover:scale-100 transition-[opacity,scale] duration-300 ease-out">
           <IconStore className="w-5 h-5 text-muted/50" />
           {asset.icon_url && (
             <img
@@ -85,7 +85,7 @@ export function AssetCard({
           {onOpenPage && (
             <button
               onClick={onOpenPage}
-              className="focus-ring cursor-pointer p-1 rounded-btn text-muted/40 opacity-0 group-hover:opacity-100 hover:text-ink hover:bg-raised transition-all shrink-0"
+              className="focus-ring cursor-pointer p-1 rounded-btn text-muted/40 opacity-0 group-hover:opacity-100 hover:text-ink hover:bg-raised transition-[opacity,color,background-color] shrink-0"
               aria-label={t('asset_open_page')}
             >
               <IconExternalLink className="w-3.5 h-3.5" />

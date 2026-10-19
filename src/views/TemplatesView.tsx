@@ -407,7 +407,7 @@ export function TemplatesView({
                                 e.stopPropagation()
                                 setConfirmDelete(tmpl.id)
                               }}
-                              className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 opacity-0 group-hover:opacity-100 hover:text-danger hover:bg-danger/10 transition-all"
+                              className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 opacity-0 group-hover:opacity-100 hover:text-danger hover:bg-danger/10 transition-[opacity,color,background-color]"
                               aria-label={tc('delete_template', { name: tmpl.name })}
                             >
                               <IconTrash className="w-3.5 h-3.5" />

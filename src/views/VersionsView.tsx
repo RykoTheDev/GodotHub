@@ -5,6 +5,7 @@ import { motion, AnimatePresence, type Transition } from 'framer-motion'
 import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 import { useGodotVersionsContext } from '../hooks/godotVersionsContext'
 import { useExportTemplateDownloads } from '../hooks/useExportTemplateDownloads'
+import { setTemplateFilesInstalled } from '../lib/exportTemplateCatalog'
 import { useSettings } from '../hooks/useSettings'
 import { useTaskTray } from '../hooks/useTaskTray'
 import { isReducedMotion } from '../lib/appearance'
@@ -221,6 +222,7 @@ export function VersionsView({
   const removeTemplates = async (info: ExportTemplatesVersionInfo) => {
     try {
       await api.deleteExportTemplates(info.folder, info.root)
+      setTemplateFilesInstalled(info.tag, undefined, false)
       await refreshExportTemplates()
       pushToast('success', tv('export_templates_removed_toast'))
     } catch (error) {
@@ -583,13 +585,14 @@ export function VersionsView({
                     onUninstall={() => remove(v.tag)}
                     templates={templateInfoFor(v.tag)}
                     templateDownload={templateDownloads.downloads[v.tag] ?? null}
-                    onInstallTemplates={() => void templateDownloads.install(v.tag)}
+                    onInstallTemplates={(files) => void templateDownloads.install(v.tag, files)}
                     onCancelTemplates={() => void templateDownloads.cancel(v.tag)}
                     onRemoveTemplates={() => {
                       const info = templateInfoFor(v.tag)
                       if (info) void removeTemplates(info)
                     }}
                     onOpenTemplates={() => openTemplatesFolder(v.tag)}
+                    onTemplatesChanged={refreshExportTemplates}
                   />
                 </motion.div>
               ))}
@@ -958,7 +961,7 @@ export function VersionsView({
                                           <Tooltip content={tv('resume_download')} side="top">
                                             <motion.button
                                               type="button"
-                                              whileTap={{ scale: 0.9 }}
+                                              whileTap={{ scale: 0.96 }}
                                               onClick={() => resume(progressKey)}
                                               className="focus-ring cursor-pointer p-2 rounded-btn border border-outline/50 text-muted hover:text-mint hover:border-mint/40 transition-colors"
                                             >
@@ -969,7 +972,7 @@ export function VersionsView({
                                           <Tooltip content={tv('pause_download')} side="top">
                                             <motion.button
                                               type="button"
-                                              whileTap={{ scale: 0.9 }}
+                                              whileTap={{ scale: 0.96 }}
                                               onClick={() => pause(progressKey)}
                                               className="focus-ring cursor-pointer p-2 rounded-btn border border-outline/50 text-muted hover:text-ink hover:border-accent-dim transition-colors"
                                             >
@@ -980,7 +983,7 @@ export function VersionsView({
                                         <Tooltip content={tv('cancel_download')} side="top">
                                           <motion.button
                                             type="button"
-                                            whileTap={{ scale: 0.9 }}
+                                            whileTap={{ scale: 0.96 }}
                                             onClick={() => cancel(progressKey)}
                                             className="focus-ring cursor-pointer p-2 rounded-btn border border-outline/50 text-muted hover:text-danger hover:border-danger/40 transition-colors"
                                           >

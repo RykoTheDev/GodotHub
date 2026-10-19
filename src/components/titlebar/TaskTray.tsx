@@ -110,10 +110,10 @@ function ProgressBar({
   return (
     <div className="h-1.5 w-full rounded-full bg-line/60 overflow-hidden mt-2">
       <motion.div
-        className="h-full rounded-full bg-accent"
-        initial={{ width: 0 }}
-        animate={{ width: `${pct}%` }}
-        transition={{ duration: 0.3, ease: 'easeOut' }}
+        className="h-full w-full origin-left rounded-full bg-accent"
+        initial={{ transform: 'scaleX(0)' }}
+        animate={{ transform: `scaleX(${pct / 100})` }}
+        transition={{ duration: 0.2, ease: 'easeOut' }}
       />
     </div>
   )
@@ -325,8 +325,8 @@ export function TaskTray() {
           aria-label={t('task_tray_aria')}
           aria-haspopup="menu"
           aria-expanded={open}
-          whileHover={{ scale: 1.08 }}
-          whileTap={{ scale: 0.9 }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.96 }}
           transition={{ type: 'spring', stiffness: 500, damping: 30 }}
           className="focus-ring cursor-pointer relative w-9 h-8 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised transition-colors shrink-0"
         >
@@ -334,9 +334,9 @@ export function TaskTray() {
             <IconBell className="w-4 h-4" />
             {hasActivity && (
               <motion.span
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0 }}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 500, damping: 25 }}
                 className="absolute -top-1.5 -right-2 w-4 h-4 rounded-full bg-amber text-[9px] font-bold text-white flex items-center justify-center shadow-sm"
               >
@@ -416,7 +416,7 @@ export function TaskTray() {
                     whileTap={{ scale: 0.95 }}
                     onMouseDown={noDrag}
                     onClick={clearCompleted}
-                    className="focus-ring cursor-pointer flex items-center gap-1 px-2.5 py-1 rounded-item text-[10px] font-medium text-muted hover:text-ink hover:bg-raised transition-all"
+                    className="focus-ring cursor-pointer flex items-center gap-1 px-2.5 py-1 rounded-item text-[10px] font-medium text-muted hover:text-ink hover:bg-raised transition-colors"
                   >
                     <IconX className="w-3 h-3" />
                     {t('task_tray_dismiss', { count: dismissibleCount })}

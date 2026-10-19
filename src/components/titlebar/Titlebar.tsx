@@ -123,8 +123,8 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
             <Tooltip content={t('star_on_github')}>
             <motion.button
               type="button"
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.96 }}
               transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               onMouseDown={noDrag}
               onClick={() => openUrl('https://github.com/RykoTheDev/GodotHub')}
@@ -139,8 +139,8 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
             <Tooltip content={t('report_a_bug')}>
             <motion.button
               type="button"
-              whileHover={{ scale: 1.08 }}
-              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.96 }}
               transition={{ type: 'spring', stiffness: 500, damping: 30 }}
               onMouseDown={noDrag}
               onClick={() =>
@@ -176,8 +176,8 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
                   className="focus-ring cursor-pointer group/win w-9 h-full flex items-center justify-center"
                 >
                   <motion.span
-                    whileHover={{ scale: 1.12 }}
-                    whileTap={{ scale: 0.9 }}
+                    whileHover={{ scale: 1.06 }}
+                    whileTap={{ scale: 0.96 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                     className={`${windowDot} -mr-3 bg-mint`}
                   />
@@ -192,8 +192,8 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
                   className="focus-ring cursor-pointer group/win w-9 h-full flex items-center justify-center"
                 >
                   <motion.span
-                    whileHover={{ scale: 1.12 }}
-                    whileTap={{ scale: 0.9 }}
+                    whileHover={{ scale: 1.06 }}
+                    whileTap={{ scale: 0.96 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                     className={`${windowDot} bg-amber`}
                   />
@@ -208,8 +208,8 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
                   className="focus-ring cursor-pointer group/win w-9 h-full flex items-center justify-center"
                 >
                   <motion.span
-                    whileHover={{ scale: 1.12 }}
-                    whileTap={{ scale: 0.9 }}
+                    whileHover={{ scale: 1.06 }}
+                    whileTap={{ scale: 0.96 }}
                     transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                     className={`${windowDot} mr-3 bg-danger`}
                   />

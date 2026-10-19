@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
 import { IconCheckCircle } from "../../lib/icons";
+import { overlayTransition } from "../../lib/motion";
 import { ModalHeader } from "../modals/ModalHeader";
 
 type ProjectTodoListModalProps = {
@@ -53,6 +54,7 @@ export function ProjectTodoListModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      transition={overlayTransition}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
       onClick={onClose}
     >

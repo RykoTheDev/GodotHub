@@ -12,7 +12,7 @@ export function beginScaleSmoothing() {
   if (scaleSmoothTimer) clearTimeout(scaleSmoothTimer)
   scaleSmoothTimer = setTimeout(() => {
     document.documentElement.classList.remove('ui-scaling')
-  }, 350)
+  }, 200)
 }
 
 export function applyDensity(scale: number) {

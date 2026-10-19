@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { Category, GitAuthState, UserRepoInfo } from '../../types'
 import { api } from '../../lib/api'
+import { overlayTransition } from '../../lib/motion'
 import { useSettings } from '../../hooks/useSettings'
 import { useTaskTray } from '../../hooks/useTaskTray'
 import { Checkbox } from '../ui/Checkbox'
@@ -270,6 +271,7 @@ export function CloneRepoModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      transition={overlayTransition}
       className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >

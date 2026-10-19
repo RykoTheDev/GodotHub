@@ -21,10 +21,10 @@ export function Toggle({ checked, onChange, label, disabled }: Props) {
       } ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:brightness-110'}`}
     >
       <motion.span
-        layout
+        initial={false}
+        animate={{ transform: checked ? 'translateX(22px)' : 'translateX(0px)' }}
         transition={{ type: 'spring', stiffness: 500, damping: 32 }}
-        className="block w-5 h-5 rounded-lg bg-white shadow-md"
-        style={{ marginLeft: checked ? 'calc(100% - 22px)' : '2px' }}
+        className="ml-0.5 block w-5 h-5 rounded-lg bg-white shadow-md"
       />
     </button>
   )

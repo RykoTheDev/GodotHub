@@ -15,6 +15,9 @@ interface TooltipProps {
 const VIEWPORT_PAD = 12
 const GAP = 8
 
+const INSTANT_AFTER_SHOWN_MS = 500
+let lastTooltipShownAt = 0
+
 export function Tooltip({
   content,
   children,
@@ -34,6 +37,7 @@ export function Tooltip({
   const tipRef = useRef<HTMLDivElement>(null)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const positioned = useRef(false)
+  const instantRef = useRef(false)
 
   const calc = useCallback(
     (tr: DOMRect, tw: number, th: number) => {
@@ -101,12 +105,15 @@ export function Tooltip({
 
   const show = useCallback(() => {
     if (timer.current) clearTimeout(timer.current)
+    const instant = performance.now() - lastTooltipShownAt < INSTANT_AFTER_SHOWN_MS
+    instantRef.current = instant
     timer.current = setTimeout(() => {
       const tr = getTriggerRect()
       if (!tr) return
       positioned.current = false
       setPos({ x: -9999, y: -9999 })
       setOpen(true)
+      lastTooltipShownAt = performance.now()
 
       requestAnimationFrame(() => {
         if (!tipRef.current) return
@@ -117,14 +124,15 @@ export function Tooltip({
         setArrow(r.side)
         positioned.current = true
       })
-    }, delay)
+    }, instant ? 0 : delay)
   }, [getTriggerRect, calc, delay])
 
   const hide = useCallback(() => {
     if (timer.current) clearTimeout(timer.current)
+    if (open) lastTooltipShownAt = performance.now()
     setOpen(false)
     positioned.current = false
-  }, [])
+  }, [open])
 
   useEffect(() => {
     if (!open) return
@@ -209,6 +217,14 @@ export function Tooltip({
     }
   }
 
+  // The tooltip grows out of the trigger edge the arrow points at.
+  const ORIGIN_BY_SIDE: Record<'top' | 'bottom' | 'left' | 'right', string> = {
+    top: 'bottom center',
+    bottom: 'top center',
+    left: 'center right',
+    right: 'center left',
+  }
+
   const effectiveMax = Math.min(maxWidth, window.innerWidth - VIEWPORT_PAD * 2)
 
   return (
@@ -229,12 +245,16 @@ export function Tooltip({
           {open && (
             <motion.div key="div-237"
               ref={tipRef}
-              initial={{ opacity: 0, scale: 0.92, ...enterFrom() }}
+              initial={
+                instantRef.current
+                  ? false
+                  : { opacity: 0, scale: 0.92, ...enterFrom() }
+              }
               animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
               exit={{ opacity: 0, scale: 0.92, ...exitTo() }}
               transition={{ type: 'spring', stiffness: 480, damping: 26, mass: 0.7 }}
               className="fixed z-9999 pointer-events-none"
-              style={{ left: pos.x, top: pos.y }}
+              style={{ left: pos.x, top: pos.y, transformOrigin: ORIGIN_BY_SIDE[arrow] }}
             >
               <div style={arrowStyle(arrow)} />
 

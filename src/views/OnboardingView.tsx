@@ -132,16 +132,17 @@ function ProgressRow({
       <div className="h-1.5 w-full rounded-full bg-line/40 overflow-hidden">
         {hasProgress ? (
           <motion.div
-            className="h-full rounded-full bg-accent"
-            initial={{ width: 0 }}
-            animate={{ width: `${pct}%` }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="h-full w-full origin-left rounded-full bg-accent"
+            initial={{ transform: 'scaleX(0)' }}
+            animate={{ transform: `scaleX(${pct / 100})` }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
           />
         ) : running ? (
           <motion.div
             className="h-full rounded-full bg-accent/60"
-            animate={{ x: ['-100%', '400%'] }}
-            transition={{ repeat: Infinity, duration: 1.4, ease: 'easeInOut' }}
+            initial={{ transform: 'translateX(-100%)' }}
+            animate={{ transform: 'translateX(400%)' }}
+            transition={{ repeat: Infinity, duration: 1.4, ease: 'linear' }}
             style={{ width: '30%' }}
           />
         ) : (
@@ -307,9 +308,10 @@ export function OnboardingView({
           <div className="shrink-0 p-4 border-t border-line flex flex-col gap-2">
             <div className="h-1.5 w-full rounded-full bg-line/40 overflow-hidden">
               <motion.div
-                className="h-full rounded-full bg-accent"
+                className="h-full w-full origin-left rounded-full bg-accent"
+                initial={false}
                 animate={{
-                  width: `${((stepIndex + 1) / STEPS.length) * 100}%`,
+                  transform: `scaleX(${(stepIndex + 1) / STEPS.length})`,
                 }}
                 transition={{ duration: 0.3, ease: 'easeOut' }}
               />

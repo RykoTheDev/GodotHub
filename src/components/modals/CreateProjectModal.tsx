@@ -10,6 +10,7 @@ import type {
 } from '../../types'
 import { api } from '../../lib/api'
 import { applyNamingConvention } from '../../lib/namingConvention'
+import { overlayTransition } from '../../lib/motion'
 import { useSettings } from '../../hooks/useSettings'
 import { TemplatePreviewModal } from './TemplatePreviewModal'
 import { Toggle } from '../ui/Toggle'
@@ -290,6 +291,7 @@ export function CreateProjectModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      transition={overlayTransition}
       className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={dismiss}
     >
@@ -444,7 +446,7 @@ export function CreateProjectModal({
                         type="button"
                         onClick={() => setPreviewTemplate(tpl)}
                         aria-label={t('template_preview_aria', { name: tpl.name })}
-                        className="focus-ring cursor-pointer absolute -top-2 -right-2 w-5 h-5 rounded-full bg-surface border border-line text-muted hover:text-accent-bright hover:border-accent-dim shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+                        className="focus-ring cursor-pointer absolute -top-2 -right-2 w-5 h-5 rounded-full bg-surface border border-line text-muted hover:text-accent-bright hover:border-accent-dim shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-[opacity,color,border-color]"
                       >
                         <IconBookOpen className="w-3 h-3" />
                       </button>

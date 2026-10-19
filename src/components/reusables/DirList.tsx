@@ -74,7 +74,7 @@ export function DirList({
                 <button
                   type="button"
                   onClick={() => removeDir(dir)}
-                  className="icon-wiggle cursor-pointer text-muted hover:text-danger transition-colors shrink-0"
+                  className="cursor-pointer text-muted hover:text-danger transition-colors shrink-0"
                   aria-label={t('remove_folder')}
                 >
                   <IconTrash className="w-3.5 h-3.5" />
@@ -95,7 +95,7 @@ export function DirList({
                         label: defaultLabel.toLowerCase(),
                       })}
                       onClick={() => toggleDefault(dir)}
-                      className={`focus-ring shrink-0 flex items-center justify-center w-5 h-5 rounded-md border-2 transition-all ${
+                      className={`focus-ring shrink-0 flex items-center justify-center w-5 h-5 rounded-md border-2 transition-[background-color,border-color,box-shadow] ${
                         isDefault
                           ? 'bg-accent border-accent shadow-sm shadow-accent/40'
                           : 'bg-transparent border-outline/60 hover:border-accent-dim'

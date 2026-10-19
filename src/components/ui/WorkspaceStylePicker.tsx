@@ -61,7 +61,7 @@ export function WorkspaceStylePicker({
                 key={c}
                 type="button"
                 whileHover={{ y: -1 }}
-                whileTap={{ scale: 0.9 }}
+                whileTap={{ scale: 0.96 }}
                 onClick={() => onColorChange(c)}
                 aria-label={c}
                 aria-pressed={active}

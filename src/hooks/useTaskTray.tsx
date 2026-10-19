@@ -218,13 +218,15 @@ export function TaskTrayProvider({ children }: { children: ReactNode }) {
 
   useTauriEvent<ExportTemplatesProgress>(
     'export-templates-progress',
-    ({ tag, downloaded, total }) => {
+    ({ tag, downloaded, total, file, platforms }) => {
       const pct = total > 0 ? Math.round((downloaded / total) * 100) : 0
       registerTask({
         id: templateTaskId(tag),
         type: 'download-templates',
         label: templateLabel(tag),
-        description:
+        description: [
+          platforms?.join(', '),
+          file,
           total > 0
             ? `${(downloaded / 1024 / 1024).toFixed(1)} / ${(
                 total /
@@ -232,6 +234,7 @@ export function TaskTrayProvider({ children }: { children: ReactNode }) {
                 1024
               ).toFixed(1)} MB (${pct}%)`
             : `${(downloaded / 1024 / 1024).toFixed(1)} MB`,
+        ].filter(Boolean).join(' · '),
         progress: total > 0 ? { current: downloaded, total } : null,
         status: 'running',
       })

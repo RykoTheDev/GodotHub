@@ -2,6 +2,7 @@ import { useEffect, useId } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, type Variants } from 'framer-motion'
 import { isReducedMotion } from '../../lib/appearance'
+import { overlayTransition } from '../../lib/motion'
 import { ModalHeader } from './ModalHeader'
 
 interface Props {
@@ -82,6 +83,7 @@ export function ModalShell({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
+      transition={overlayTransition}
       className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={(e) => {
         e.stopPropagation()

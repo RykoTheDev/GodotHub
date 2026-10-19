@@ -93,7 +93,7 @@ export function ColorSwatchPicker({ label, value, onChange, presets }: Props) {
                     }}
                     aria-label={preset}
                     title={preset}
-                    className={`relative w-7 h-7 rounded-btn cursor-pointer border transition-all hover:scale-125 hover:z-10 ${
+                    className={`relative w-7 h-7 rounded-btn cursor-pointer border transition-transform hover:scale-110 hover:z-10 ${
                       isSelected
                         ? 'ring-2 ring-offset-1 ring-offset-surface ring-ink scale-110'
                         : 'border-black/20 hover:border-white/40'

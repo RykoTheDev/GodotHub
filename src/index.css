@@ -67,7 +67,7 @@ html:lang(zh) {
 }
 
 html.ui-scaling {
-  transition: --spacing 0.2s ease, font-size 0.2s ease;
+  transition: --spacing 0.1s ease, font-size 0.1s ease;
 }
 
 * {
@@ -198,8 +198,12 @@ textarea::placeholder {
 }
 
 .reduce-motion,
-.reduce-motion * {
-  transition-duration: 0.001ms !important;
+.reduce-motion *,
+.reduce-motion *::before,
+.reduce-motion *::after {
+  transition-property: opacity, color, background-color, border-color, fill, stroke, box-shadow !important;
+  transition-duration: 0.12s !important;
+  transition-timing-function: ease-out !important;
   animation: none !important;
   scroll-behavior: auto !important;
 }
@@ -219,26 +223,17 @@ textarea::placeholder {
   transition-duration: 0.001ms !important;
 }
 
-@keyframes icon-pop {
-  0% {
-    transform: scale(1) rotate(0deg);
-  }
-  40% {
-    transform: scale(1.16) rotate(-8deg);
-  }
-  100% {
-    transform: scale(1.08) rotate(0deg);
-  }
-}
-
 .icon-wiggle svg {
-  transition: transform 220ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  transform: scale(1) rotate(0deg);
+  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.icon-wiggle:hover svg {
-  animation: icon-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+@media (hover: hover) and (pointer: fine) {
+  .icon-wiggle:hover svg {
+    transform: scale(1.1) rotate(-6deg);
+  }
 }
 .icon-wiggle:active svg {
-  transform: scale(0.92);
+  transform: scale(0.92) rotate(0deg);
 }
 
 *:focus,
@@ -369,30 +364,36 @@ textarea::placeholder {
 }
 
 @keyframes changelog-shine {
-  0% {
-    background-position: -200% center;
+  from {
+    transform: translateX(-100%);
   }
-  100% {
-    background-position: 200% center;
+  to {
+    transform: translateX(200%);
   }
 }
 
 .changelog-shine {
   position: relative;
+  overflow: hidden;
 }
 
 .changelog-shine::after {
   content: '';
   position: absolute;
-  inset: 0;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
   border-radius: inherit;
   pointer-events: none;
+  /* Rests off-screen so `animation: none` (reduced motion) leaves the button clean. */
+  transform: translateX(-100%);
+  will-change: transform;
   background: linear-gradient(
     110deg,
     transparent 25%,
     rgba(var(--color-accent-rgb, 99 102 241), 0.25) 50%,
     transparent 75%
   );
-  background-size: 200% 100%;
   animation: changelog-shine 2s ease-in-out infinite;
 }

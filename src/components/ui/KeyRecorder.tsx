@@ -87,7 +87,7 @@ export function KeyRecorder({ value, onChange, onReset }: Props) {
         <button
           type="button"
           onClick={() => setListening((l) => !l)}
-          className={`focus-ring cursor-pointer relative flex items-center justify-center gap-2 px-5 py-3 rounded-item border text-sm font-mono font-semibold transition-all ${
+          className={`focus-ring cursor-pointer relative flex items-center justify-center gap-2 px-5 py-3 rounded-item border text-sm font-mono font-semibold transition-colors ${
             listening
               ? 'border-accent bg-accent/10 text-accent-bright'
               : 'border-outline/50 bg-overlay text-ink hover:border-accent-dim hover:bg-raised'

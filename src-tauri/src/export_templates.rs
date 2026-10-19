@@ -11,6 +11,9 @@ use std::sync::{Arc, Mutex, OnceLock};
 use std::time::{Duration, Instant};
 use tauri::{AppHandle, Emitter, Manager};
 
+#[path = "export_template_archive.rs"]
+mod archive;
+
 const TPZ_REPO: &str = "godotengine/godot-builds";
 const MAX_EXTRACTED_BYTES: u64 = 8 * 1024 * 1024 * 1024;
 const PROGRESS_INTERVAL: Duration = Duration::from_millis(250);
@@ -20,6 +23,8 @@ pub struct ExportTemplatesProgress {
     pub tag: String,
     pub downloaded: u64,
     pub total: u64,
+    pub file: Option<String>,
+    pub platforms: Vec<String>,
 }
 
 #[derive(Clone, Serialize)]
@@ -44,6 +49,7 @@ pub struct ExportTemplatesVersionInfo {
     pub downloading: bool,
     pub size_bytes: u64,
     pub file_count: usize,
+    pub platforms: Vec<String>,
 }
 
 #[derive(Serialize)]
@@ -280,16 +286,18 @@ fn build_state(app: &AppHandle) -> Result<ExportTemplatesState, String> {
         let root = templates_root_for(version).unwrap_or_else(|| default_root.clone());
         let dir = root.join(&folder);
         let (size_bytes, file_count) = dir_stats(&dir);
+        let platforms = archive::installed_platforms(&dir);
         expected.insert(canonical(&dir));
         versions.push(ExportTemplatesVersionInfo {
             tag: version.tag.clone(),
             folder,
             root: root.to_string_lossy().to_string(),
             templates_dir: dir.to_string_lossy().to_string(),
-            installed: dir.is_dir(),
+            installed: !platforms.is_empty(),
             downloading: is_downloading(&version.tag),
             size_bytes,
             file_count,
+            platforms,
         });
     }
 
@@ -335,6 +343,31 @@ fn build_state(app: &AppHandle) -> Result<ExportTemplatesState, String> {
 #[tauri::command]
 pub async fn get_export_templates_state(app: AppHandle) -> Result<ExportTemplatesState, String> {
     tokio::task::spawn_blocking(move || build_state(&app))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+pub async fn get_export_template_options(
+    app: AppHandle,
+    tag: String,
+    refresh: Option<bool>,
+) -> Result<Vec<archive::TemplateOption>, String> {
+    let version = crate::godot_versions::read_registry(&app)
+        .into_iter()
+        .find(|version| version.tag == tag)
+        .ok_or_else(|| "This Godot version is not installed".to_string())?;
+    let folder = template_folder_for(&version.tag, version.is_mono);
+    if !is_valid_folder_name(&folder) {
+        return Err("Invalid export template version".into());
+    }
+    let root = templates_root_for(&version)
+        .ok_or_else(|| "Could not locate Godot's data folder on this system".to_string())?;
+    let url = tpz_url(&version.tag, version.is_mono);
+    let cache_path = app.path().app_data_dir().map_err(|error| error.to_string())?
+        .join("export-template-catalogs").join(format!("{folder}.json"));
+    let runtime = tokio::runtime::Handle::current();
+    tokio::task::spawn_blocking(move || archive::cached_options(&url, &root.join(folder), &cache_path, runtime, refresh.unwrap_or(false)))
         .await
         .map_err(|e| e.to_string())?
 }
@@ -525,6 +558,8 @@ async fn download_tpz(
                         tag: tag.to_string(),
                         downloaded,
                         total,
+                        file: None,
+                        platforms: Vec::new(),
                     },
                 );
             }
@@ -536,6 +571,8 @@ async fn download_tpz(
                 tag: tag.to_string(),
                 downloaded,
                 total,
+                file: None,
+                platforms: Vec::new(),
             },
         );
         return Ok(());
@@ -648,6 +685,7 @@ fn install_archive(archive_path: &Path, root: &Path, folder: &str) -> Result<(u6
 pub async fn install_export_templates(
     app: AppHandle,
     tag: String,
+    files: Option<Vec<String>>,
 ) -> Result<Option<ExportTemplatesInstallResult>, String> {
     let registry = crate::godot_versions::read_registry(&app);
     let version = registry
@@ -689,6 +727,45 @@ pub async fn install_export_templates(
         );
         Err(message)
     };
+
+    if let Some(files) = files {
+        let runtime = tokio::runtime::Handle::current();
+        let app_for_install = app.clone();
+        let tag_for_install = tag.clone();
+        let folder_for_install = folder.clone();
+        let installed = tokio::task::spawn_blocking(move || {
+            archive::install(
+                &url,
+                &root,
+                &folder_for_install,
+                &files,
+                Some(app_for_install),
+                tag_for_install,
+                cancel,
+                runtime,
+            )
+        })
+        .await
+        .map_err(|e| e.to_string())
+        .and_then(|result| result);
+        return match installed {
+            Ok((size_bytes, file_count)) => {
+                let _ = app.emit("export-templates-complete", &tag);
+                Ok(Some(ExportTemplatesInstallResult {
+                    tag,
+                    folder,
+                    verified: false,
+                    size_bytes,
+                    file_count,
+                }))
+            }
+            Err(message) if message == "__canceled__" => {
+                let _ = app.emit("export-templates-canceled", &tag);
+                Ok(None)
+            }
+            Err(message) => fail(&app, message),
+        };
+    }
 
     if let Err(message) = download_tpz(&app, &tag, &url, &archive_path, cancel.clone()).await {
         if message == "__canceled__" {
@@ -814,6 +891,39 @@ pub async fn delete_export_templates(
     })
     .await
     .map_err(|e| e.to_string())?
+}
+
+#[tauri::command]
+pub async fn uninstall_export_template_files(
+    app: AppHandle,
+    tag: String,
+    files: Vec<String>,
+) -> Result<(), String> {
+    let version = crate::godot_versions::read_registry(&app)
+        .into_iter()
+        .find(|version| version.tag == tag)
+        .ok_or_else(|| "This Godot version is not installed".to_string())?;
+    let folder = template_folder_for(&version.tag, version.is_mono);
+    if !is_valid_folder_name(&folder) {
+        return Err("Invalid export template version".into());
+    }
+    let root = templates_root_for(&version)
+        .ok_or_else(|| "Could not locate Godot's data folder on this system".to_string())?;
+    let directory = root.join(folder);
+    {
+        let mut active = active_downloads().lock().map_err(|e| e.to_string())?;
+        if active.contains_key(&tag) {
+            return Err("Wait for the current template operation to finish before uninstalling".into());
+        }
+        active.insert(tag.clone(), Arc::new(AtomicBool::new(false)));
+    }
+    let _registration = CancelRegistration { tag };
+    tokio::task::spawn_blocking(move || {
+        let paths = archive::removal_paths(&directory, &files)?;
+        trash::delete_all(&paths).map_err(|error| format!("Could not uninstall templates: {error}"))
+    })
+    .await
+    .map_err(|error| error.to_string())?
 }
 
 #[tauri::command]

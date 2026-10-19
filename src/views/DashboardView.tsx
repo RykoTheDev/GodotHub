@@ -120,7 +120,7 @@ function Section({
             <h2 className="text-xs font-semibold uppercase tracking-wider text-muted group-hover/title:text-ink transition-colors">
               {title}
             </h2>
-            <IconRefresh className="w-3 h-3 text-muted/40 group-hover/title:text-accent-bright group-hover/title:rotate-180 transition-all duration-300 shrink-0" />
+            <IconRefresh className="w-3 h-3 text-muted/40 group-hover/title:text-accent-bright group-hover/title:rotate-180 transition-[rotate,color] duration-300 shrink-0" />
           </button>
         ) : (
           <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">
@@ -468,7 +468,7 @@ function StatCard({
       </span>
       <span
         aria-hidden="true"
-        className={`relative z-10 mt-2.5 block h-1 w-8 rounded-full bg-linear-to-r ${grad} transition-all duration-300 group-hover:w-12`}
+        className={`relative z-10 mt-2.5 block h-1 w-8 origin-left rounded-full bg-linear-to-r ${grad} transition-transform duration-300 group-hover:scale-x-150`}
       />
 
       <span className="relative z-10 mt-auto pt-3 inline-flex items-center gap-1 text-[10px] font-medium text-muted/40 transition-colors duration-200 group-hover:text-muted">

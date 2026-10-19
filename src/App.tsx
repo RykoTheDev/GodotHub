@@ -5,7 +5,7 @@ import { useProjectsContext } from './hooks/projectsContext'
 import { useGodotVersionsContext } from './hooks/godotVersionsContext'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { api } from './lib/api'
-import { viewTransition } from './lib/motion'
+import { overlayTransition, viewTransition } from './lib/motion'
 import type { GitStatus, Project } from './types'
 
 import { Sidebar } from './components/ui/Sidebar'
@@ -130,6 +130,8 @@ export function App() {
   const clampGitKnobY = (y: number, height: number) =>
     Math.min(Math.max(36, y), Math.max(36, height - 40))
 
+  const knobOffsetY = (y: number, height: number) => clampGitKnobY(y, height) - height / 2
+
   const resetGitWidth = () => {
     setGitSidebarWidth(DEFAULT_GIT_SIDEBAR_WIDTH)
     try {
@@ -177,7 +179,7 @@ export function App() {
     if (fixedKnob) return
     const rect = e.currentTarget.getBoundingClientRect()
     const y = e.clientY - rect.top
-    setGitKnobY(clampGitKnobY(y, rect.height))
+    setGitKnobY(knobOffsetY(y, rect.height))
   }
 
   const handleGitWrapperMove = (e: React.MouseEvent) => {
@@ -190,7 +192,7 @@ export function App() {
     }
     if (dist <= 56) {
       const y = e.clientY - rect.top
-      setGitKnobY(clampGitKnobY(y, rect.height))
+      setGitKnobY(knobOffsetY(y, rect.height))
     }
   }
 
@@ -520,7 +522,7 @@ export function App() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.15 }}
+                transition={overlayTransition}
                 className="absolute inset-0 z-40 bg-black/30"
                 onClick={() => setGitSidebarProject(null)}
               />
@@ -587,41 +589,53 @@ export function App() {
                     className="absolute inset-y-0 -left-3.5 w-7 cursor-col-resize group/edge z-10"
                   >
                     <div
-                      className={`absolute left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center pointer-events-none transition-[top,opacity] duration-200 ease-out ${
-                        gitKnobY != null && !fixedKnob ? '' : 'top-1/2'
-                      } ${showGitKnob ? 'opacity-100' : 'opacity-0'}`}
-                      style={gitKnobY != null && !fixedKnob ? { top: gitKnobY } : undefined}
+                      className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none transition-opacity duration-200 ease-out ${
+                        showGitKnob ? 'opacity-100' : 'opacity-0'
+                      }`}
                     >
                       <div
-                        className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-tag bg-raised border border-line shadow-md shadow-base text-[10px] font-mono text-muted tabular-nums whitespace-nowrap transition-all duration-200 ${
-                          gitDragging ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
+                        className={`flex flex-col items-center ${
+                          gitKnobY != null && !fixedKnob
+                            ? ''
+                            : 'transition-transform duration-200 ease-out'
                         }`}
+                        style={
+                          gitKnobY != null && !fixedKnob
+                            ? { transform: `translateY(${gitKnobY}px)` }
+                            : undefined
+                        }
                       >
-                        {gitSidebarWidth}px
-                      </div>
-                      <div
-                        className={`flex items-center justify-center w-5 h-10 rounded-full border shadow-md shadow-base transition-all duration-200 ${
-                          gitDragging
-                            ? 'bg-accent border-accent scale-110 shadow-accent/30'
-                            : 'bg-raised border-line shadow-base group-hover/edge:border-accent-dim group-hover/edge:scale-110'
-                        }`}
-                      >
-                        <div className="flex flex-col items-center justify-center gap-1">
-                          <div
-                            className={`w-1 h-1 rounded-full transition-colors duration-200 ${
-                              gitDragging ? 'bg-white' : 'bg-line group-hover/edge:bg-accent'
-                            }`}
-                          />
-                          <div
-                            className={`w-1 h-1 rounded-full transition-colors duration-200 ${
-                              gitDragging ? 'bg-white' : 'bg-line group-hover/edge:bg-accent'
-                            }`}
-                          />
-                          <div
-                            className={`w-1 h-1 rounded-full transition-colors duration-200 ${
-                              gitDragging ? 'bg-white' : 'bg-line group-hover/edge:bg-accent'
-                            }`}
-                          />
+                        <div
+                          className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-tag bg-raised border border-line shadow-md shadow-base text-[10px] font-mono text-muted tabular-nums whitespace-nowrap transition-[translate,opacity] duration-200 ${
+                            gitDragging ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
+                          }`}
+                        >
+                          {gitSidebarWidth}px
+                        </div>
+                        <div
+                          className={`flex items-center justify-center w-5 h-10 rounded-full border shadow-md shadow-base transition-[scale,background-color,border-color,box-shadow] duration-200 ${
+                            gitDragging
+                              ? 'bg-accent border-accent scale-110 shadow-accent/30'
+                              : 'bg-raised border-line shadow-base group-hover/edge:border-accent-dim group-hover/edge:scale-110'
+                          }`}
+                        >
+                          <div className="flex flex-col items-center justify-center gap-1">
+                            <div
+                              className={`w-1 h-1 rounded-full transition-colors duration-200 ${
+                                gitDragging ? 'bg-white' : 'bg-line group-hover/edge:bg-accent'
+                              }`}
+                            />
+                            <div
+                              className={`w-1 h-1 rounded-full transition-colors duration-200 ${
+                                gitDragging ? 'bg-white' : 'bg-line group-hover/edge:bg-accent'
+                              }`}
+                            />
+                            <div
+                              className={`w-1 h-1 rounded-full transition-colors duration-200 ${
+                                gitDragging ? 'bg-white' : 'bg-line group-hover/edge:bg-accent'
+                              }`}
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>

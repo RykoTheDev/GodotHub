@@ -1,4 +1,4 @@
-import { useRef, useState, useLayoutEffect } from 'react'
+import { useId } from 'react'
 import { motion } from 'framer-motion'
 
 interface SegmentedProps {
@@ -8,37 +8,11 @@ interface SegmentedProps {
 }
 
 export function Segmented({ value, onChange, options }: SegmentedProps) {
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [indicator, setIndicator] = useState<{ left: number; width: number }>({
-    left: 0,
-    width: 0,
-  })
-
-  useLayoutEffect(() => {
-    const container = containerRef.current
-    if (!container) return
-    const activeIdx = options.findIndex((o) => o.value === value)
-    const buttons = container.querySelectorAll<HTMLButtonElement>('button')
-    const btn = buttons[activeIdx]
-    if (!btn) return
-    const containerRect = container.getBoundingClientRect()
-    const btnRect = btn.getBoundingClientRect()
-    setIndicator({
-      left: btnRect.left - containerRect.left,
-      width: btnRect.width,
-    })
-  }, [value, options])
+  // Scoped per instance so two Segmented controls on one screen don't share a pill.
+  const indicatorId = useId()
 
   return (
-    <div
-      ref={containerRef}
-      className="inline-flex self-start rounded-btn border border-outline/50 bg-overlay p-1 gap-1 relative isolate"
-    >
-      <motion.div
-        className="absolute top-1 bottom-1 rounded-btn bg-accent"
-        animate={{ left: indicator.left, width: indicator.width }}
-        transition={{ type: 'spring', stiffness: 500, damping: 35, mass: 0.8 }}
-      />
+    <div className="inline-flex self-start rounded-btn border border-outline/50 bg-overlay p-1 gap-1 relative isolate">
       {options.map(({ value: v, label, mono }) => {
         const active = value === v
         return (
@@ -50,7 +24,14 @@ export function Segmented({ value, onChange, options }: SegmentedProps) {
               mono ? 'font-mono' : ''
             } ${active ? 'text-white' : 'text-muted hover:text-ink hover:bg-raised/50'}`}
           >
-            {label}
+            {active && (
+              <motion.div
+                layoutId={indicatorId}
+                transition={{ type: 'spring', stiffness: 500, damping: 35, mass: 0.8 }}
+                className="absolute inset-0 z-0 rounded-btn bg-accent"
+              />
+            )}
+            <span className="relative z-10">{label}</span>
           </button>
         )
       })}

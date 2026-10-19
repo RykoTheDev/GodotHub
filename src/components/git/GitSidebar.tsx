@@ -956,11 +956,7 @@ export function GitSidebar({
           </div>
         ) : (
         <div className="px-3 py-3 flex flex-col gap-3">
-          <motion.div
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut', delay: 0.1 }}
-          >
+          <div>
             <Section
               title={t('auth_connected_accounts')}
               count={connectedCount}
@@ -1042,14 +1038,10 @@ export function GitSidebar({
             </>
             )}
             </Section>
-          </motion.div>
+          </div>
 
           {merging && (
-            <motion.div
-              initial={{ opacity: 0, x: 24 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.2, ease: 'easeOut', delay: 0.16 }}
-            >
+            <div>
               <Section title={t('merge_in_progress')} count={conflictFiles.length}>
               {conflictFiles.length === 0 ? (
                 <div className="px-2.5 py-2">
@@ -1109,15 +1101,10 @@ export function GitSidebar({
                 {t('abort_merge')}
               </button>
               </Section>
-            </motion.div>
+            </div>
           )}
 
-          <motion.div
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut', delay: 0.22 }}
-            className="flex gap-1.5"
-          >
+          <div className="flex gap-1.5">
             {(
               [
                 { key: 'push', Icon: IconArrowUp },
@@ -1187,12 +1174,12 @@ export function GitSidebar({
                       <motion.span
                         key={state}
                         className="inline-flex"
-                        initial={{ opacity: 0, scale: 0.6, filter: 'blur(4px)' }}
+                        initial={{ opacity: 0, scale: 0.9, filter: 'blur(2px)' }}
                         animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
                         exit={{
                           opacity: 0,
-                          scale: 0.6,
-                          filter: 'blur(4px)',
+                          scale: 0.9,
+                          filter: 'blur(2px)',
                           transition: { duration: 0.15 },
                         }}
                         transition={{ duration: 0.2, ease: [0.34, 1.56, 0.64, 1] }}
@@ -1216,14 +1203,9 @@ export function GitSidebar({
                   </Tooltip>
               )
             })}
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut', delay: 0.3 }}
-            className="flex items-center gap-1.5 px-1"
-          >
+          <div className="flex items-center gap-1.5 px-1">
             <Checkbox
               checked={settings.git_auto_fetch}
               onChange={(checked) =>
@@ -1238,14 +1220,9 @@ export function GitSidebar({
                 <IconInfo className="w-3 h-3" />
               </span>
             </Tooltip>
-          </motion.div>
+          </div>
 
-          <motion.div key="div-1187"
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut', delay: 0.28 }}
-            className="flex flex-col gap-1.5"
-          >
+          <div className="flex flex-col gap-1.5">
             {remotesLoading ? (
               <div className="px-2 py-1.5">
                 <span className="text-[10px] text-muted/50">…</span>
@@ -1524,7 +1501,7 @@ export function GitSidebar({
                 {committing ? t('committing') : t('commit')}
               </button>
               </Tooltip>
-          </motion.div>
+          </div>
 
           <GitWorktrees
             key={project.path}
@@ -1534,11 +1511,7 @@ export function GitSidebar({
           />
 
           {stashes.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, x: 24 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.2, ease: 'easeOut', delay: 0.34 }}
-            >
+            <div>
               <Section title={t('stashes_title')} count={stashes.length}>
               <button
                 type="button"
@@ -1630,14 +1603,10 @@ export function GitSidebar({
                 ))}
                 </div>
               </Section>
-            </motion.div>
+            </div>
           )}
 
-          <motion.div
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut', delay: 0.4 }}
-          >
+          <div>
             <Section
               title={t('changes_title')}
             count={changedFiles.length}
@@ -1736,13 +1705,9 @@ export function GitSidebar({
               </div>
             </div>
             </Section>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, x: 24 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut', delay: 0.46 }}
-          >
+          <div>
             <Section title={t('commits_title')} count={commits.length}>
             {commitsLoading ? (
               <div className="px-2.5 py-2">
@@ -1762,7 +1727,7 @@ export function GitSidebar({
               </div>
             )}
             </Section>
-          </motion.div>
+          </div>
 
         </div>
         )}

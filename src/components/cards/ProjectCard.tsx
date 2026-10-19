@@ -308,7 +308,7 @@ export function ProjectCard({
         }}
         onMouseEnter={() => setCardHovered(true)}
         onMouseLeave={() => setCardHovered(false)}
-        className={`group relative flex items-end gap-3.5 border p-3.5 transition-all duration-150 ${
+        className={`group relative flex items-end gap-3.5 border p-3.5 transition-colors duration-150 ${
           projectTodosEnabled ? "cursor-pointer" : ""
         } ${showTodoPanel ? "rounded-t-item" : "rounded-item"} ${
           selected
@@ -320,12 +320,12 @@ export function ProjectCard({
           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-0.5 overflow-hidden bg-accent/15">
             <motion.span
               className="block h-full w-1/3 bg-accent"
-              initial={{ x: "-100%" }}
-              animate={{ x: "300%" }}
+              initial={{ transform: 'translateX(-100%)' }}
+              animate={{ transform: 'translateX(300%)' }}
               transition={{
                 duration: 0.9,
                 repeat: Infinity,
-                ease: "easeInOut",
+                ease: 'linear',
               }}
             />
           </div>
@@ -346,7 +346,7 @@ export function ProjectCard({
                   onToggleSelect(e);
                 }}
                 aria-pressed={selected}
-                className={`focus-ring cursor-pointer w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-150 ${
+                className={`focus-ring cursor-pointer w-5 h-5 rounded-full border-2 flex items-center justify-center transition-[background-color,border-color,scale] duration-150 ${
                   selected
                     ? "bg-accent border-accent text-white scale-100 opacity-100"
                     : "border-muted/40 bg-black/20 opacity-100 hover:border-accent/60 hover:scale-105"
@@ -368,7 +368,7 @@ export function ProjectCard({
               src={icon}
               alt=""
               aria-hidden="true"
-              className="select-none absolute -left-6 top-1/2 -translate-y-1/2 -rotate-6 group-hover:rotate-0 h-35 w-35 object-contain grayscale group-hover:grayscale-0 contrast-125 transition-all duration-300 ease-out group-hover:will-change-transform"
+              className="select-none absolute -left-6 top-1/2 -translate-y-1/2 -rotate-6 group-hover:rotate-0 h-35 w-35 object-contain grayscale group-hover:grayscale-0 contrast-125 transition-[rotate,filter,opacity] duration-300 ease-out group-hover:will-change-transform"
               style={{
                 opacity: "var(--project-icon-opacity, 0.14)",
                 maskImage:
@@ -380,7 +380,7 @@ export function ProjectCard({
           ) : (
             <span
               aria-hidden="true"
-              className="select-none absolute -left-3 top-1/2 -translate-y-1/2 -rotate-6 group-hover:rotate-0 font-display font-black text-muted group-hover:text-accent-bright transition-all duration-300 ease-out group-hover:will-change-transform"
+              className="select-none absolute -left-3 top-1/2 -translate-y-1/2 -rotate-6 group-hover:rotate-0 font-display font-black text-muted group-hover:text-accent-bright transition-[rotate,color,opacity] duration-300 ease-out group-hover:will-change-transform"
               style={{
                 fontSize: "72px",
                 lineHeight: 1,
@@ -643,7 +643,7 @@ export function ProjectCard({
                               setTagError(null);
                             }}
                             aria-label={t("tag_rename_aria")}
-                            className="focus-ring cursor-pointer opacity-0 group-hover/tag:opacity-100 scale-75 group-hover/tag:scale-100 w-0 group-hover/tag:w-3 h-3 overflow-hidden rounded-full flex items-center justify-center transition-all duration-150 hover:text-ink shrink-0"
+                            className="focus-ring cursor-pointer opacity-0 group-hover/tag:opacity-100 scale-75 group-hover/tag:scale-100 w-0 group-hover/tag:w-3 h-3 overflow-hidden rounded-full flex items-center justify-center transition-[width,scale,opacity,color] duration-150 hover:text-ink shrink-0"
                           >
                             <IconPencil className="w-2.5 h-2.5 shrink-0" />
                           </button>
@@ -651,7 +651,7 @@ export function ProjectCard({
                             type="button"
                             onClick={() => handleRemoveTag(index)}
                             aria-label={t("tag_remove_aria", { tag })}
-                            className="focus-ring cursor-pointer opacity-0 group-hover/tag:opacity-100 scale-75 group-hover/tag:scale-100 w-0 group-hover/tag:w-3 h-3 overflow-hidden rounded-full flex items-center justify-center transition-all duration-150 hover:text-danger shrink-0"
+                            className="focus-ring cursor-pointer opacity-0 group-hover/tag:opacity-100 scale-75 group-hover/tag:scale-100 w-0 group-hover/tag:w-3 h-3 overflow-hidden rounded-full flex items-center justify-center transition-[width,scale,opacity,color] duration-150 hover:text-danger shrink-0"
                           >
                             <IconX className="w-2.5 h-2.5 shrink-0" />
                           </button>

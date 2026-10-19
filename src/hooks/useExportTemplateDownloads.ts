@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import { api } from '../lib/api'
+import { setTemplateFilesInstalled } from '../lib/exportTemplateCatalog'
 import { pushToast } from '../lib/toast'
 import i18n from '../i18n'
 import { useTauriEvent } from '../lib/useTauriEvent'
@@ -42,9 +43,12 @@ export function useExportTemplateDownloads(
     setDownloads((prev) => ({
       ...prev,
       [payload.tag]: {
+        ...prev[payload.tag],
         downloaded: payload.downloaded,
         total: payload.total,
         stage: 'downloading',
+        file: payload.file,
+        platforms: payload.platforms?.length ? payload.platforms : prev[payload.tag]?.platforms,
       },
     }))
   })
@@ -60,14 +64,15 @@ export function useExportTemplateDownloads(
   useTauriEvent<ExportTemplatesError>('export-templates-error', ({ tag }) => clear(tag))
 
   const install = useCallback(
-    async (tag: string) => {
+    async (tag: string, files: string[]) => {
       setDownloads((prev) => ({
         ...prev,
-        [tag]: { downloaded: prev[tag]?.downloaded ?? 0, total: prev[tag]?.total ?? 0, stage: 'downloading' },
+        [tag]: { downloaded: 0, total: 0, stage: 'downloading', file: files[0] },
       }))
       try {
-        const result = await api.installExportTemplates(tag)
+        const result = await api.installExportTemplates(tag, files)
         if (result) {
+          setTemplateFilesInstalled(tag, files, true)
           pushToast(
             'success',
             i18n.t('versions:export_templates_installed_toast', { tag }),

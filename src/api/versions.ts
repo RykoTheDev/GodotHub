@@ -5,6 +5,7 @@ import type {
   CurrentVersionInfo,
   ExportTemplatesInstallResult,
   ExportTemplatesState,
+  ExportTemplateOption,
   GodotRelease,
   InstalledGodotVersion,
   VersionAliases,
@@ -53,12 +54,16 @@ export const versionsApi = {
     invoke<{ remaining: number; limit: number; reset_at: number; used_token: boolean }>('get_github_rate_limit'),
   exportTemplatesState: () =>
     invoke<ExportTemplatesState>('get_export_templates_state'),
-  installExportTemplates: (tag: string) =>
-    invoke<ExportTemplatesInstallResult | null>('install_export_templates', { tag }),
+  getExportTemplateOptions: (tag: string, refresh = false) =>
+    invoke<ExportTemplateOption[]>('get_export_template_options', { tag, refresh }),
+  installExportTemplates: (tag: string, files: string[]) =>
+    invoke<ExportTemplatesInstallResult | null>('install_export_templates', { tag, files }),
   cancelExportTemplates: (tag: string) =>
     invoke<void>('cancel_export_templates_download', { tag }),
   deleteExportTemplates: (folder: string, root: string) =>
     invoke<void>('delete_export_templates', { folder, root }),
+  uninstallExportTemplateFiles: (tag: string, files: string[]) =>
+    invoke<void>('uninstall_export_template_files', { tag, files }),
   openExportTemplatesFolder: (tag?: string | null) =>
     invoke<void>('open_export_templates_folder', { tag: tag ?? null }),
 }

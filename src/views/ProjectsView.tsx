@@ -914,7 +914,7 @@ export function ProjectsView({
               type="button"
               onClick={() => setCreateProjectOpen(true)}
               whileHover={{ scale: 1.04 }}
-              whileTap={{ scale: 0.9 }}
+              whileTap={{ scale: 0.96 }}
               transition={{ type: 'spring', stiffness: 500, damping: 28 }}
               className="w-9 h-9 cursor-pointer flex items-center justify-center rounded-full bg-accent text-ink hover:bg-accent-bright transition-colors"
             >

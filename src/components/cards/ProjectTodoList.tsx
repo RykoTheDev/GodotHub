@@ -160,7 +160,7 @@ export function ProjectTodoList({
                 onClick={toggle}
                 aria-label={t("change_status", { status: status.label })}
                 aria-expanded={open}
-                className={`focus-ring shrink-0 cursor-pointer rounded-tag border px-2 py-1 text-center text-[10px] transition-all hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50 ${status.className} ${
+                className={`focus-ring shrink-0 cursor-pointer rounded-tag border px-2 py-1 text-center text-[10px] transition-[filter,background-color,color,border-color,box-shadow] hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50 ${status.className} ${
                   showArea ? "w-28" : "min-w-[88px]"
                 } ${open ? "ring-1 ring-accent/40" : ""}`}
               >

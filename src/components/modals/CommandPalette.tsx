@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { isReducedMotion } from '../../lib/appearance'
+import { overlayTransition } from '../../lib/motion'
 import { formatLastOpened } from '../../lib/lastOpened'
 import { useWorkspaces } from '../../hooks/useWorkspaces'
 import { useSettings } from '../../hooks/useSettings'
@@ -581,21 +582,19 @@ export function CommandPalette({
   let itemIndex = 0
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.12 }}
+    <div
       className="fixed inset-0 z-100 flex items-start justify-center pt-[12vh]"
       onClick={onClose}
     >
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-
       <motion.div
-        initial={{ opacity: 0, y: -12, scale: 0.96 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: -12, scale: 0.96 }}
-        transition={{ type: 'spring', stiffness: 400, damping: 30 }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={overlayTransition}
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+      />
+
+      <div
         className="relative w-full max-w-lg bg-surface rounded-modal shadow-2xl shadow-black/60 overflow-clip"
         onClick={(e) => e.stopPropagation()}
       >
@@ -714,7 +713,7 @@ export function CommandPalette({
             {tc('command_palette_close')}
           </span>
         </div>
-      </motion.div>
-    </motion.div>
+      </div>
+    </div>
   )
 }

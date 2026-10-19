@@ -79,7 +79,7 @@ export function ProjectCategorySection({
     <div
       className={
         variant === 'grid'
-          ? `rounded-item transition-all duration-150 ${
+          ? `rounded-item transition-colors duration-150 ${
               bodyIsZone && isOver
                 ? 'bg-accent/10 border-2 border-dashed border-accent/50 min-h-[100px] flex items-center justify-center'
                 : ''

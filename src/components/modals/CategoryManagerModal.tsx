@@ -98,7 +98,7 @@ function SortableCategoryItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`group flex flex-col rounded-xl border transition-all ${
+      className={`group flex flex-col rounded-xl border transition-[border-color,box-shadow,scale] ${
         isDragging
           ? 'border-accent shadow-lg shadow-accent/10 scale-[1.02] z-10'
           : 'border-line/60 hover:border-accent-dim/50 hover:shadow-sm'
@@ -111,7 +111,7 @@ function SortableCategoryItem({
           listeners={listeners}
           isDragging={isDragging}
           disabled={editing}
-          className="!static !transform-none !opacity-100 !w-7 !h-7 !rounded-lg"
+          className="static! transform-none! opacity-100! !w-7! h-7! rounded-lg!"
         />
         {editing ? (
           <>

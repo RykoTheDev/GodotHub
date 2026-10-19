@@ -13,7 +13,7 @@ export function SplashScreen({ phase }: SplashScreenProps) {
     <motion.div
       className="fixed inset-0 z-50 flex items-center justify-center bg-base"
       animate={{ opacity: exiting ? 0 : 1 }}
-      transition={{ duration: 0.5, ease: 'easeInOut' }}
+      transition={{ duration: 0.5, ease: [0.23, 1, 0.32, 1] }}
       style={{ pointerEvents: exiting ? 'none' : 'auto' }}
     >
       <motion.div
@@ -44,12 +44,12 @@ export function SplashScreen({ phase }: SplashScreenProps) {
             className="relative h-[3px] w-40 rounded-full bg-raised overflow-hidden"
           >
             <motion.div
-              initial={{ x: '-100%' }}
-              animate={{ x: '100%' }}
+              initial={{ transform: 'translateX(-100%)' }}
+              animate={{ transform: 'translateX(100%)' }}
               transition={{
                 duration: 1.1,
                 repeat: Infinity,
-                ease: 'easeInOut',
+                ease: 'linear',
                 delay: 0.5,
               }}
               className="absolute inset-y-0 w-1/2 rounded-full bg-linear-to-r from-transparent via-accent to-transparent"
