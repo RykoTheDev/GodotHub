@@ -175,7 +175,7 @@ export function RunningProjectsChip() {
                 className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-6 px-2.5 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:border-accent-dim transition-colors"
               >
                 <span className="relative flex w-2 h-2">
-                  <span className="absolute inline-flex h-full w-full rounded-full bg-mint opacity-60 animate-ping" />
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-mint opacity-60 animate-attention-ping" />
                   <span className="relative inline-flex rounded-full w-2 h-2 bg-mint" />
                 </span>
                 <span className="text-[13px] font-semibold tabular-nums">

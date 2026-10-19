@@ -1054,7 +1054,7 @@ function RunningNow({
               className="flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised transition-colors"
             >
               <span className="relative flex w-2 h-2 shrink-0">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-mint opacity-60 animate-ping" />
+                <span className="absolute inline-flex h-full w-full rounded-full bg-mint opacity-60 animate-attention-ping" />
                 <span className="relative inline-flex rounded-full w-2 h-2 bg-mint" />
               </span>
               <span className="min-w-0 flex-1">

@@ -1,6 +1,20 @@
 @import 'tailwindcss';
 
 @theme {
+  /* Persistent status badges (update available, unseen changelog, running
+     project) used Tailwind's infinite `animate-ping`. An animation that never
+     ends forces WebKit to produce a frame on every vsync; on WebKitGTK's
+     software presentation path the UI process then re-blits the whole window
+     each frame, costing 50-75% of a core while the app sits idle. Run a few
+     cycles to draw attention, then settle on the static dot. */
+  --animate-attention-ping: attention-ping 1s cubic-bezier(0, 0, 0.2, 1) 6;
+  @keyframes attention-ping {
+    75%,
+    100% {
+      transform: scale(2);
+      opacity: 0;
+    }
+  }
 
   --color-base: #17181c;
   --color-surface: #212228;
@@ -395,5 +409,13 @@ textarea::placeholder {
     rgba(var(--color-accent-rgb, 99 102 241), 0.25) 50%,
     transparent 75%
   );
-  animation: changelog-shine 2s ease-in-out infinite;
+  background-size: 200% 100%;
+  animation: changelog-shine 2s ease-in-out 4;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .changelog-shine::after,
+  .animate-attention-ping {
+    animation: none;
+  }
 }
