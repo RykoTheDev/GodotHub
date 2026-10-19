@@ -716,7 +716,7 @@
   "project_card_total_time": "总时间: {{time}}",
   "project_card_last_opened": "上次打开: {{date}}",
   "project_card_more_tags": "显示 {{count}} 个更多标签",
-  "downloading_export_templates": "Downloading export templates for {{tag}}",
-  "export_templates_verifying": "Verifying download…",
-  "export_templates_extracting": "Installing templates…"
+  "downloading_export_templates": "正在下载 {{tag}} 的导出模板",
+  "export_templates_verifying": "正在验证下载…",
+  "export_templates_extracting": "正在安装模板…"
 }
