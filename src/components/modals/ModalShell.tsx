@@ -74,7 +74,7 @@ export function ModalShell({
 
         {footer && (
           <div
-            className="flex items-center gap-2.5 p-6 pt-4 border-t border-line shrink-0"
+            className="flex items-center gap-2.5 p-4 border-t border-line shrink-0"
           >
             {footer}
           </div>

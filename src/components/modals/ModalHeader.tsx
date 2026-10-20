@@ -21,7 +21,7 @@ export function ModalHeader({
   onClose,
   variants,
   titleId,
-  titleClassName = 'truncate',
+  titleClassName = 'line-clamp-2 wrap-break-word',
   autoFocusBanner = true,
 }: Props) {
   const { t } = useTranslation('common')
@@ -41,14 +41,14 @@ export function ModalHeader({
   return (
     <motion.div
       variants={variants}
-      className="flex items-start justify-between gap-4 p-5 pb-2 shrink-0"
+      className="flex items-start justify-between gap-3 p-4 pb-2 shrink-0"
     >
       <div
         ref={bannerRef}
         tabIndex={-1}
-        className="flex items-start gap-1 min-w-0 flex-1 bg-black/15 px-3 py-4 rounded-btn outline-none"
+        className="flex items-start gap-2 min-w-0 flex-1 bg-black/15 px-3 py-3 rounded-btn outline-none"
       >
-        <div className="w-10 h-10 rounded-tile flex items-center justify-center shrink-0">
+        <div className="w-9 h-9 rounded-tile flex items-center justify-center shrink-0">
           {icon}
         </div>
         <div className="min-w-0">
@@ -56,7 +56,7 @@ export function ModalHeader({
             {title}
           </h3>
           {description && (
-            <p className="text-xs text-muted mt-0.5 leading-relaxed wrap-break-word line-clamp-3">{description}</p>
+            <p className="text-xs text-muted mt-0.5 leading-relaxed wrap-break-word">{description}</p>
           )}
         </div>
       </div>
