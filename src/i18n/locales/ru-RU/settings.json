@@ -333,5 +333,12 @@
   "mise_detected": "Detected mise {{version}}",
   "mise_not_found": "mise was not found on your PATH, so this stays off until you install it.",
   "builtin_console_label": "Use the built-in console",
-  "builtin_console_desc": "Shows the project's console output in a window inside GodotHub instead of opening your system terminal. The log keeps its colours and stays readable after the project closes, so you can still read it when Godot crashes. Turn this off to use your own terminal again."
+  "builtin_console_desc": "Shows the project's console output in a window inside GodotHub instead of opening your system terminal. The log keeps its colours and stays readable after the project closes, so you can still read it when Godot crashes. Turn this off to use your own terminal again.",
+  "cli_tool_title": "Command-line tool",
+  "cli_tool_desc": "Install the godothub command so you can run it from any terminal. This adds GodotHub to your PATH.",
+  "cli_tool_install": "Install",
+  "cli_tool_uninstall": "Uninstall",
+  "cli_tool_installing": "Installing...",
+  "cli_tool_installed_msg": "Installed. Open a new terminal, then run: godothub",
+  "cli_tool_uninstalled_msg": "Removed. The godothub command is no longer on your PATH."
 }

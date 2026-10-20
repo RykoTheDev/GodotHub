@@ -49,6 +49,9 @@ export const api = {
   pickSavePath: projectsApi.pickSavePath,
   pickDataFile: projectsApi.pickDataFile,
   getOsUsername: settingsApi.getOsUsername,
+  cliToolStatus: settingsApi.cliToolStatus,
+  installCliTool: settingsApi.installCliTool,
+  uninstallCliTool: settingsApi.uninstallCliTool,
   notify: (title: string, body: string) =>
     invoke<void>('notify', { title, body }),
   exportWorkspaceBackup: settingsApi.exportWorkspaceBackup,

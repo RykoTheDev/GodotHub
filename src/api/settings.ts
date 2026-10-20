@@ -1,5 +1,11 @@
 import { invoke } from '@tauri-apps/api/core'
-import type { AppSettings, Project, ScanResult, TimeInsights } from '../types'
+import type {
+  AppSettings,
+  CliToolStatus,
+  Project,
+  ScanResult,
+  TimeInsights,
+} from '../types'
 
 export const settingsApi = {
   get: () => invoke<AppSettings>('get_settings'),
@@ -52,4 +58,7 @@ export const settingsApi = {
   refreshTrayMenu: () => invoke<void>('refresh_tray_menu'),
   restartWatchers: () => invoke<void>('restart_watchers'),
   getOsUsername: () => invoke<string | null>('get_os_username'),
+  cliToolStatus: () => invoke<CliToolStatus>('cli_tool_status'),
+  installCliTool: () => invoke<CliToolStatus>('install_cli_tool'),
+  uninstallCliTool: () => invoke<CliToolStatus>('uninstall_cli_tool'),
 }

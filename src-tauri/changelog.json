@@ -1464,6 +1464,10 @@
       {
         "category": "improve",
         "text": "Error Popup on when the version install fails"
+      },
+      {
+        "category": "add",
+        "text": "GodotHub CLI (beta), You can now install Command Line tool from advanced settings and use godothub via your terminal, It's a beta feature so expect bugs and instability."
       }
     ],
     "known_issues": [],

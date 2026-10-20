@@ -1,22 +1,108 @@
 use std::cell::Cell;
-use std::io::Write;
+use std::io::{IsTerminal, Write};
 use std::path::PathBuf;
 use std::process::Command;
+use std::sync::atomic::{AtomicBool, Ordering};
 
 use clap::{Parser, Subcommand};
 
 use crate::resolve::{self, EngineSource};
+
+const LOGO: &str = r#"  ___         _     _   _  _      _
+ / __|___  __| |___| |_| || |_  _| |__
+| (_ / _ \/ _` / _ \  _| __ | || | '_ \
+ \___\___/\__,_\___/\__|_||_|\_,_|_.__/"#;
+
+static COLOR: AtomicBool = AtomicBool::new(false);
+
+fn color_enabled() -> bool {
+    COLOR.load(Ordering::Relaxed)
+}
+
+/// Decide whether to emit ANSI styling: never when --no-color or NO_COLOR is
+/// set, never for a dumb terminal, and otherwise only when stdout is a tty, so
+/// piped and redirected output stays clean.
+fn detect_color(no_color_flag: bool) -> bool {
+    if no_color_flag || std::env::var_os("NO_COLOR").is_some() {
+        return false;
+    }
+    if std::env::var("TERM").is_ok_and(|term| term == "dumb") {
+        return false;
+    }
+    std::io::stdout().is_terminal()
+}
+
+fn sgr(code: &str, text: &str) -> String {
+    if color_enabled() {
+        format!("\x1b[{code}m{text}\x1b[0m")
+    } else {
+        text.to_string()
+    }
+}
+
+fn bold(text: &str) -> String {
+    sgr("1", text)
+}
+fn dim(text: &str) -> String {
+    sgr("2", text)
+}
+fn red(text: &str) -> String {
+    sgr("31", text)
+}
+fn green(text: &str) -> String {
+    sgr("32", text)
+}
+fn yellow(text: &str) -> String {
+    sgr("33", text)
+}
+fn accent(text: &str) -> String {
+    sgr("1;36", text)
+}
+
+/// Print the logo to stderr, only in an interactive terminal, so it decorates
+/// the view without polluting stdout that a script may be parsing.
+fn print_banner() {
+    if !color_enabled() {
+        return;
+    }
+    for line in LOGO.lines() {
+        eprintln!("{}", accent(line));
+    }
+    eprintln!(
+        "{}\n",
+        dim(&format!(
+            "Godot version and project management  v{}",
+            env!("CARGO_PKG_VERSION")
+        ))
+    );
+}
+
+fn severity_label(severity: &str) -> String {
+    let tag = format!("[{severity}]");
+    match severity {
+        "error" => red(&tag),
+        "warning" => yellow(&tag),
+        "ok" => green(&tag),
+        _ => dim(&tag),
+    }
+}
 
 #[derive(Parser, Debug)]
 #[command(
     name = "godothub",
     version,
     about = "GodotHub: Godot version and project management",
+    before_help = LOGO,
     disable_help_subcommand = false
 )]
 pub struct Cli {
+    /// Windows only: attach to the parent console so output is visible.
     #[arg(long, global = true)]
     pub console: bool,
+
+    /// Disable colored output.
+    #[arg(long, global = true)]
+    pub no_color: bool,
 
     #[command(subcommand)]
     pub command: Option<Commands>,
@@ -24,31 +110,47 @@ pub struct Cli {
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
+    /// Open a registered project by name in the editor.
     Open {
+        /// Project name as shown in the app.
         name: String,
     },
+    /// Run the project in the current directory (play, not the editor).
     Run {
+        /// Project directory; defaults to the current directory, walking up to project.godot.
         #[arg(long)]
         path: Option<PathBuf>,
     },
+    /// List installed Godot versions.
     Versions,
+    /// Download and install a Godot version.
     Install {
+        /// Version tag, e.g. 4.4.1-stable or 4.4.1.
         version: String,
+        /// Install the .NET/Mono build.
         #[arg(long)]
         mono: bool,
     },
+    /// Export the current project using a preset.
     Export {
+        /// Preset name; defaults to the first preset in export_presets.cfg.
         preset: Option<String>,
+        /// Output file path.
         #[arg(long, short)]
         output: Option<PathBuf>,
+        /// Project directory; defaults to the current directory.
         #[arg(long)]
         path: Option<PathBuf>,
+        /// Overwrite an existing output file.
         #[arg(long)]
         overwrite: bool,
     },
+    /// Report project health problems for the current project.
     Doctor {
+        /// Emit the report as JSON.
         #[arg(long)]
         json: bool,
+        /// Project directory; defaults to the current directory.
         #[arg(long)]
         path: Option<PathBuf>,
     },
@@ -65,6 +167,10 @@ fn looks_like_cli(args: &[String]) -> bool {
     })
 }
 
+/// Parse argv and, when a subcommand is present, run it and return an exit code.
+/// Returns `None` when no subcommand is given, meaning the GUI should launch.
+/// Stray OS arguments on a GUI launch (for example macOS `-psn_...`) are ignored
+/// rather than treated as a parse error.
 pub fn dispatch() -> Option<i32> {
     let args: Vec<String> = std::env::args().skip(1).collect();
     if !looks_like_cli(&args) {
@@ -72,7 +178,10 @@ pub fn dispatch() -> Option<i32> {
     }
     attach_console();
     match Cli::try_parse() {
-        Ok(cli) => Some(cli.command.map(run).unwrap_or(0)),
+        Ok(cli) => {
+            COLOR.store(detect_color(cli.no_color), Ordering::Relaxed);
+            Some(cli.command.map(run).unwrap_or(0))
+        }
         Err(err) => {
             let _ = err.print();
             Some(if err.use_stderr() { 2 } else { 0 })
@@ -80,6 +189,8 @@ pub fn dispatch() -> Option<i32> {
     }
 }
 
+/// The Windows GUI subsystem build has no console, so a subcommand's output
+/// would be lost. Attaching to the parent process's console restores it.
 #[cfg(windows)]
 fn attach_console() {
     use windows_sys::Win32::System::Console::{AttachConsole, ATTACH_PARENT_PROCESS};
@@ -108,7 +219,7 @@ fn run(command: Commands) -> i32 {
     match result {
         Ok(code) => code,
         Err(message) => {
-            eprintln!("error: {message}");
+            eprintln!("{} {message}", red("error:"));
             1
         }
     }
@@ -141,22 +252,33 @@ fn source_label(source: EngineSource) -> &'static str {
 fn cmd_versions() -> Result<i32, String> {
     let base = base_dir()?;
     let list = resolve::installed_sorted(&base);
+    print_banner();
     if list.is_empty() {
         println!("No Godot versions are installed. Use `godothub install <version>`.");
         return Ok(0);
     }
     let current = crate::current_version::read_current_tag_at(&base);
     for version in &list {
-        let marker = if current.as_deref() == Some(version.tag.as_str()) {
-            "*"
+        let is_current = current.as_deref() == Some(version.tag.as_str());
+        let marker = if is_current {
+            green("*")
         } else {
-            " "
+            " ".to_string()
         };
-        let mono = if version.is_mono { " (mono)" } else { "" };
-        println!("{marker} {}{}\t{}", version.tag, mono, version.executable_path);
+        let tag = if is_current {
+            accent(&version.tag)
+        } else {
+            bold(&version.tag)
+        };
+        let mono = if version.is_mono {
+            dim(" (mono)")
+        } else {
+            String::new()
+        };
+        println!("{marker} {tag}{mono}\t{}", dim(&version.executable_path));
     }
     if current.is_some() {
-        println!("\n* = current version");
+        println!("\n{} = current version", green("*"));
     }
     Ok(0)
 }
@@ -181,10 +303,11 @@ fn cmd_open(name: &str) -> Result<i32, String> {
     );
     spawn_detached(&engine.executable_path, &args)?;
     println!(
-        "Opening {} in Godot {} (via {}).",
-        project.name,
-        engine.tag,
-        source_label(engine.source)
+        "{} {} in Godot {} ({}).",
+        green("Opening"),
+        bold(&project.name),
+        accent(&engine.tag),
+        dim(source_label(engine.source))
     );
     Ok(0)
 }
@@ -196,10 +319,11 @@ fn cmd_run(path: Option<PathBuf>) -> Result<i32, String> {
     let engine = resolve::resolve_engine(&base, &workspace, &root)?;
 
     eprintln!(
-        "Running {} with Godot {} (via {}).",
-        root.display(),
-        engine.tag,
-        source_label(engine.source)
+        "{} {} with Godot {} ({}).",
+        green("Running"),
+        dim(&root.display().to_string()),
+        accent(&engine.tag),
+        dim(source_label(engine.source))
     );
     let status = Command::new(&engine.executable_path)
         .arg("--path")
@@ -253,8 +377,10 @@ fn cmd_install(version: &str, mono: bool) -> Result<i32, String> {
         progress,
     ))?;
     println!(
-        "Installed Godot {} at {}",
-        installed.tag, installed.executable_path
+        "{} Godot {} at {}",
+        green("Installed"),
+        accent(&installed.tag),
+        dim(&installed.executable_path)
     );
     Ok(0)
 }
@@ -298,9 +424,10 @@ fn cmd_export(
     let old_engine = engine.tag.trim_start_matches('v').starts_with("3.");
     let args = crate::export_runner::cli_export_args(&root, &chosen, &output, old_engine);
     eprintln!(
-        "Exporting preset {chosen:?} with Godot {} (via {}).",
-        engine.tag,
-        source_label(engine.source)
+        "{} preset {chosen:?} with Godot {} ({}).",
+        green("Exporting"),
+        accent(&engine.tag),
+        dim(source_label(engine.source))
     );
     let status = Command::new(&engine.executable_path)
         .args(&args)
@@ -308,7 +435,12 @@ fn cmd_export(
         .map_err(|e| format!("Failed to launch Godot: {e}"))?;
     let code = status.code().unwrap_or(1);
     if code == 0 {
-        println!("Exported {} to {}", chosen, output.display());
+        println!(
+            "{} {} to {}",
+            green("Exported"),
+            bold(&chosen),
+            dim(&output.display().to_string())
+        );
     }
     Ok(code)
 }
@@ -329,11 +461,14 @@ fn cmd_doctor(json: bool, path: Option<PathBuf>) -> Result<i32, String> {
             "{}",
             serde_json::to_string_pretty(&report).map_err(|e| e.to_string())?
         );
-    } else if report.checks.is_empty() {
-        println!("No problems found.");
     } else {
-        for check in &report.checks {
-            println!("[{}] {}", check.severity, check.code);
+        print_banner();
+        if report.checks.is_empty() {
+            println!("{}", green("No problems found."));
+        } else {
+            for check in &report.checks {
+                println!("{} {}", severity_label(&check.severity), check.code);
+            }
         }
     }
 

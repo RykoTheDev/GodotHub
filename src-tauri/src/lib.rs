@@ -3,6 +3,7 @@ mod backup;
 mod categories;
 mod changelog;
 mod cli;
+mod cli_shim;
 mod console;
 mod export_runner;
 mod current_version;
@@ -384,6 +385,9 @@ pub fn run() {
             projects::remove_project,
             projects::update_project,
             projects::set_project_version,
+            cli_shim::cli_tool_status,
+            cli_shim::install_cli_tool,
+            cli_shim::uninstall_cli_tool,
             project_health::diagnose_project,
             project_health::fix_project_health,
             projects::reorder_projects,

@@ -1472,7 +1472,14 @@ export type settingsKeys =
   | 'mise_label'
   | 'mise_desc'
   | 'mise_detected'
-  | 'mise_not_found';
+  | 'mise_not_found'
+  | 'cli_tool_title'
+  | 'cli_tool_desc'
+  | 'cli_tool_install'
+  | 'cli_tool_uninstall'
+  | 'cli_tool_installing'
+  | 'cli_tool_installed_msg'
+  | 'cli_tool_uninstalled_msg';
 
 /** Keys from todos.json */
 export type todosKeys =
@@ -1684,14 +1691,14 @@ export type versionsKeys =
   | 'export_templates_web_extensions'
   | 'export_templates_web_single_threaded'
   | 'export_templates_web_extensions_single_threaded'
+  | 'export_templates_refresh'
   | 'download_failed_title'
   | 'download_failed_desc'
   | 'download_failed_source_label'
   | 'download_failed_asset_label'
   | 'download_failed_error_label'
   | 'download_failed_copy'
-  | 'download_failed_hint'
-  | 'export_templates_refresh';
+  | 'download_failed_hint';
 
 /** All namespace names */
 export type Namespace = 'changelog' | 'common' | 'dashboard' | 'git' | 'nav' | 'onboarding' | 'settings' | 'todos' | 'versions';
@@ -3150,6 +3157,13 @@ export type TranslationKey =
   | 'settings:mise_desc'
   | 'settings:mise_detected'
   | 'settings:mise_not_found'
+  | 'settings:cli_tool_title'
+  | 'settings:cli_tool_desc'
+  | 'settings:cli_tool_install'
+  | 'settings:cli_tool_uninstall'
+  | 'settings:cli_tool_installing'
+  | 'settings:cli_tool_installed_msg'
+  | 'settings:cli_tool_uninstalled_msg'
   | 'todos:next_steps'
   | 'todos:all_tasks_description'
   | 'todos:saving_tasks'
@@ -3355,11 +3369,11 @@ export type TranslationKey =
   | 'versions:export_templates_web_extensions'
   | 'versions:export_templates_web_single_threaded'
   | 'versions:export_templates_web_extensions_single_threaded'
+  | 'versions:export_templates_refresh'
   | 'versions:download_failed_title'
   | 'versions:download_failed_desc'
   | 'versions:download_failed_source_label'
   | 'versions:download_failed_asset_label'
   | 'versions:download_failed_error_label'
   | 'versions:download_failed_copy'
-  | 'versions:download_failed_hint'
-  | 'versions:export_templates_refresh';
+  | 'versions:download_failed_hint';

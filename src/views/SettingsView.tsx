@@ -23,6 +23,7 @@ import { useContributors } from "../hooks/useContributors";
 import { ContributorPRsModal } from "../components/modals/ContributorPRsModal";
 
 import { api } from "../lib/api";
+import type { CliToolStatus } from "../types";
 import {
   ACCENT_PRESETS_DARK,
   ACCENT_PRESETS_LIGHT,
@@ -235,6 +236,41 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
     "export" | "import" | null
   >(null);
   const [appBackupMessage, setAppBackupMessage] = useState<string | null>(null);
+  const [cliStatus, setCliStatus] = useState<CliToolStatus | null>(null);
+  const [cliBusy, setCliBusy] = useState(false);
+  const [cliMessage, setCliMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    api.cliToolStatus().then(setCliStatus).catch(() => {});
+  }, []);
+
+  const handleInstallCli = async () => {
+    setCliBusy(true);
+    setCliMessage(null);
+    try {
+      const status = await api.installCliTool();
+      setCliStatus(status);
+      setCliMessage(ts("cli_tool_installed_msg"));
+    } catch (error) {
+      setCliMessage(String(error));
+    } finally {
+      setCliBusy(false);
+    }
+  };
+
+  const handleUninstallCli = async () => {
+    setCliBusy(true);
+    setCliMessage(null);
+    try {
+      const status = await api.uninstallCliTool();
+      setCliStatus(status);
+      setCliMessage(ts("cli_tool_uninstalled_msg"));
+    } catch (error) {
+      setCliMessage(String(error));
+    } finally {
+      setCliBusy(false);
+    }
+  };
   const [syncBusy, setSyncBusy] = useState<"push" | "pull" | null>(null);
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
   const [syncUrl, setSyncUrl] = useState<string | null>(null);
@@ -2768,6 +2804,43 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 ? ts("saving")
                 : ts("app_backup_restore_btn")}
             </button>
+          </div>
+        </div>
+
+        <div className="rounded-item bg-overlay px-4 py-4 flex items-center justify-between gap-6">
+          <div className="min-w-0">
+            <h3 className="text-sm font-medium text-ink">
+              {ts("cli_tool_title")}
+            </h3>
+            <p className="text-xs text-muted mt-1.5 leading-relaxed">
+              {ts("cli_tool_desc")}
+            </p>
+            {cliMessage && (
+              <span className="text-xs text-muted block mt-1.5">
+                {cliMessage}
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {cliStatus?.installed ? (
+              <button
+                type="button"
+                onClick={handleUninstallCli}
+                disabled={cliBusy}
+                className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {cliBusy ? ts("cli_tool_installing") : ts("cli_tool_uninstall")}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleInstallCli}
+                disabled={cliBusy}
+                className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {cliBusy ? ts("cli_tool_installing") : ts("cli_tool_install")}
+              </button>
+            )}
           </div>
         </div>
 

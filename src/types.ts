@@ -721,3 +721,12 @@ export interface UserRepoPage {
   repos: UserRepoInfo[]
   has_more: boolean
 }
+
+export interface CliToolStatus {
+  installed: boolean
+  on_path: boolean
+  bin_dir: string
+  shim_path: string
+  platform: 'windows' | 'macos' | 'linux'
+  needs_new_terminal: boolean
+}
