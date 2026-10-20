@@ -9,6 +9,7 @@ import {
 import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../lib/api'
+import { pushToast } from '../../lib/toast'
 import { useTauriEvent } from '../../lib/useTauriEvent'
 import { fetchRunningProjects } from '../../lib/runningProjects'
 import { formatDuration } from '../../lib/duration'
@@ -149,7 +150,7 @@ export function RunningProjectsChip() {
   }
 
   const stop = (id: string) => {
-    api.stopProject(id).catch((e) => alert(String(e)))
+    api.stopProject(id).catch((e) => pushToast('error', String(e)))
   }
 
   const noDrag = (e: React.MouseEvent) => e.stopPropagation()

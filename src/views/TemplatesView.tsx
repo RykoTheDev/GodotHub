@@ -8,6 +8,7 @@ import { useTranslation, Trans } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 import { api } from '../lib/api'
+import { pushToast } from '../lib/toast'
 import { consumePendingAction } from '../lib/pendingAction'
 import { formatLocaleDate } from '../lib/locale'
 import { useSettings } from '../hooks/useSettings'
@@ -209,7 +210,7 @@ export function TemplatesView({
       setTemplates((prev) => prev.filter((t) => t.id !== id))
       setConfirmDelete(null)
     } catch (e) {
-      alert(e)
+      pushToast('error', String(e))
     } finally {
       setDeleting(false)
     }

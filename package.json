@@ -8,7 +8,7 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
-    "tauri:build": "tauri build && bash src-tauri/scripts/patch-appimage-wayland.sh",
+    "tauri:build": "tauri build",
     "lint": "eslint",
     "i18n:check": "node scripts/check-keys.cjs",
     "i18n:types": "node scripts/generate-i18n-types.cjs",

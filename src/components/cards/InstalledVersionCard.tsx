@@ -8,6 +8,7 @@ import type {
   InstalledGodotVersion,
 } from '../../types'
 import { api } from '../../lib/api'
+import { pushToast } from '../../lib/toast'
 import { formatBytes } from '../../lib/formatBytes'
 import { ConfirmDialog } from '../modals/ConfirmDialog'
 import { ExportTemplatesModal } from '../modals/ExportTemplatesModal'
@@ -96,7 +97,7 @@ export function InstalledVersionCard({
     try {
       setAliasInfo(await onSetCurrent())
     } catch (e) {
-      alert(String(e))
+      pushToast('error', String(e))
     }
   }
 
@@ -104,7 +105,7 @@ export function InstalledVersionCard({
     try {
       await onClearCurrent()
     } catch (e) {
-      alert(String(e))
+      pushToast('error', String(e))
     }
   }
 

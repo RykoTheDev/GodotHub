@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { Category, GitAuthState, UserRepoInfo } from '../../types'
 import { api } from '../../lib/api'
+import { reportLaunchError } from '../../lib/launchErrors'
 import { useSettings } from '../../hooks/useSettings'
 import { useTaskTray } from '../../hooks/useTaskTray'
 import { Checkbox } from '../ui/Checkbox'
@@ -242,7 +243,7 @@ export function CloneRepoModal({
         void api.notify('GodotHub', t('notification_clone_done'))
       }
       if (openAfterImport) {
-        api.openProject(project.id, true).catch((e) => alert(String(e)))
+        api.openProject(project.id, true).catch((e) => reportLaunchError(e))
       }
     } catch (e) {
       setError(String(e))

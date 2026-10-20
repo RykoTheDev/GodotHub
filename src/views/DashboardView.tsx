@@ -7,6 +7,7 @@ import { useGodotVersionsContext } from '../hooks/godotVersionsContext'
 import { useSettings } from '../hooks/useSettings'
 import { useTauriEvent } from '../lib/useTauriEvent'
 import { api } from '../lib/api'
+import { pushToast } from '../lib/toast'
 import {
   formatDate,
   formatLastOpened,
@@ -1151,7 +1152,7 @@ export function DashboardView({
   })
 
   const stopProject = useCallback((id: string) => {
-    api.stopProject(id).catch((e) => alert(String(e)))
+    api.stopProject(id).catch((e) => pushToast('error', String(e)))
   }, [])
 
   const displayName = (settings.dashboard_custom_name || osName || '').slice(0, 40)
@@ -1320,7 +1321,7 @@ export function DashboardView({
   }
 
   const openEngine = (tag: string, console?: boolean) => {
-    api.openGodotVersion(tag, console).catch((err) => alert(String(err)))
+    api.openGodotVersion(tag, console).catch((err) => pushToast('error', String(err)))
   }
 
   const editControls = (id: DashboardTileId, index: number) =>

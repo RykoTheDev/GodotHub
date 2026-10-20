@@ -821,6 +821,30 @@ fn finish_with_error(app: &AppHandle, key: &str, msg: String) {
 }
 
 #[tauri::command]
+pub async fn download_version_for_tag(app: AppHandle, tag: String) -> Result<(), String> {
+    let want_mono = tag.ends_with("-mono");
+    let base_tag = tag.trim_end_matches("-mono").to_string();
+
+    let releases = fetch_available_godot_versions(app.clone(), None).await?;
+    let release = releases
+        .into_iter()
+        .find(|r| r.tag == base_tag)
+        .ok_or_else(|| format!("Godot {base_tag} isn't available to download."))?;
+    let asset = release
+        .assets
+        .into_iter()
+        .find(|a| a.is_mono == want_mono)
+        .ok_or_else(|| {
+            format!(
+                "No {} build of Godot {base_tag} is available for your platform.",
+                if want_mono { "Mono/C#" } else { "standard" }
+            )
+        })?;
+
+    download_godot_version(app, base_tag, asset.name, asset.download_url)
+}
+
+#[tauri::command]
 pub fn download_godot_version(
     app: AppHandle,
     tag: String,

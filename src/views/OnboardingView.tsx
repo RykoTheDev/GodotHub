@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useUiMotion } from '../hooks/useUiMotion'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -25,6 +25,8 @@ import {
 } from '../hooks/useOnboarding'
 import { CATEGORY_COLORS } from '../lib/categoryColors'
 import { api } from '../lib/api'
+import { pushToast } from '../lib/toast'
+import type { DiscoveredInstall, DiscoveredProject } from '../types'
 import { Titlebar } from '../components/titlebar/Titlebar'
 import { useDiscordRpc } from '../hooks/useDiscordRpc'
 import { DirList } from '../components/reusables/DirList'
@@ -188,6 +190,95 @@ function SummarySection({
   )
 }
 
+interface DiscoveryRow {
+  key: string
+  primary: string
+  secondary?: string
+  badge?: string
+}
+
+function DiscoveryList({
+  heading,
+  rows,
+  selected,
+  imported,
+  busy,
+  onToggle,
+  onAdd,
+  addLabel,
+}: {
+  heading: string
+  rows: DiscoveryRow[]
+  selected: Set<string>
+  imported: Set<string>
+  busy: boolean
+  onToggle: (key: string) => void
+  onAdd: () => void
+  addLabel: (count: number) => string
+}) {
+  if (rows.length === 0) return null
+  const selectableCount = rows.filter(
+    (r) => selected.has(r.key) && !imported.has(r.key),
+  ).length
+  return (
+    <div className="flex flex-col gap-1.5">
+      <span className="text-[10px] font-semibold uppercase tracking-wide text-muted/70">
+        {heading}
+      </span>
+      <div className="flex flex-col gap-1 max-h-56 overflow-y-auto">
+        {rows.map((r) => {
+          const isImported = imported.has(r.key)
+          return (
+            <label
+              key={r.key}
+              className={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-item border border-line/60 bg-base/40 ${
+                isImported ? 'opacity-60' : 'hover:bg-raised/40 cursor-pointer'
+              }`}
+            >
+              <input
+                type="checkbox"
+                disabled={isImported}
+                checked={isImported || selected.has(r.key)}
+                onChange={() => onToggle(r.key)}
+                className="accent-accent shrink-0"
+              />
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] text-ink truncate">{r.primary}</p>
+                {r.secondary && (
+                  <p className="text-[10px] font-mono text-muted/60 truncate">
+                    {r.secondary}
+                  </p>
+                )}
+              </div>
+              {r.badge && (
+                <span className="shrink-0 text-[9px] font-semibold px-1.5 py-0.5 rounded bg-overlay border border-outline/50 text-muted">
+                  {r.badge}
+                </span>
+              )}
+              {isImported && (
+                <IconCheck className="w-3.5 h-3.5 text-accent shrink-0" />
+              )}
+            </label>
+          )
+        })}
+      </div>
+      <button
+        type="button"
+        onClick={onAdd}
+        disabled={busy || selectableCount === 0}
+        className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 px-3 py-1.5 rounded-btn bg-accent hover:bg-accent-bright text-white text-[11px] font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+      >
+        {busy ? (
+          <IconRefresh className="w-3 h-3 animate-spin" />
+        ) : (
+          <IconPlus className="w-3 h-3" />
+        )}
+        {addLabel(selectableCount)}
+      </button>
+    </div>
+  )
+}
+
 export function OnboardingView({
   settings,
   onComplete,
@@ -198,11 +289,100 @@ export function OnboardingView({
   const { t: ts } = useTranslation('settings')
   const [presetModal, setPresetModal] = useState<'light' | 'dark' | null>(null)
 
+  // Discovery: recent projects from Godot's project manager + detected installs.
+  const [recentProjects, setRecentProjects] = useState<DiscoveredProject[]>([])
+  const [detectedInstalls, setDetectedInstalls] = useState<DiscoveredInstall[]>([])
+  const [selectedProjects, setSelectedProjects] = useState<Set<string>>(new Set())
+  const [selectedInstalls, setSelectedInstalls] = useState<Set<string>>(new Set())
+  const [importedProjects, setImportedProjects] = useState<Set<string>>(new Set())
+  const [importedInstalls, setImportedInstalls] = useState<Set<string>>(new Set())
+  const [importingProjects, setImportingProjects] = useState(false)
+  const [importingInstalls, setImportingInstalls] = useState(false)
+
   useEffect(() => {
     window.dispatchEvent(
       new CustomEvent('app:view-changed', { detail: 'onboarding' }),
     )
   }, [])
+
+  useEffect(() => {
+    let cancelled = false
+    api
+      .scanGodotRecentProjects()
+      .then((list) => {
+        if (cancelled) return
+        setRecentProjects(list)
+        setSelectedProjects(new Set(list.map((p) => p.path)))
+      })
+      .catch(() => {})
+    api
+      .detectGodotInstalls()
+      .then((list) => {
+        if (cancelled) return
+        setDetectedInstalls(list)
+        setSelectedInstalls(new Set(list.map((i) => i.path)))
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const toggleIn = (
+    setter: Dispatch<SetStateAction<Set<string>>>,
+    key: string,
+  ) => {
+    setter((prev) => {
+      const next = new Set(prev)
+      if (next.has(key)) next.delete(key)
+      else next.add(key)
+      return next
+    })
+  }
+
+  const importSelectedProjects = async () => {
+    const targets = recentProjects.filter(
+      (p) => selectedProjects.has(p.path) && !importedProjects.has(p.path),
+    )
+    if (targets.length === 0) return
+    setImportingProjects(true)
+    let added = 0
+    for (const p of targets) {
+      try {
+        await api.importProject(p.path, '', null)
+        setImportedProjects((prev) => new Set(prev).add(p.path))
+        added++
+      } catch (e) {
+        pushToast('error', `${p.name}: ${String(e)}`)
+      }
+    }
+    setImportingProjects(false)
+    if (added > 0) {
+      pushToast('success', `Added ${added} project${added === 1 ? '' : 's'}.`)
+    }
+  }
+
+  const importSelectedInstalls = async () => {
+    const targets = detectedInstalls.filter(
+      (i) => selectedInstalls.has(i.path) && !importedInstalls.has(i.path),
+    )
+    if (targets.length === 0) return
+    setImportingInstalls(true)
+    let added = 0
+    for (const inst of targets) {
+      try {
+        await api.importDetectedInstall(inst.path)
+        setImportedInstalls((prev) => new Set(prev).add(inst.path))
+        added++
+      } catch (e) {
+        pushToast('error', `${inst.name}: ${String(e)}`)
+      }
+    }
+    setImportingInstalls(false)
+    if (added > 0) {
+      pushToast('success', `Added ${added} version${added === 1 ? '' : 's'}.`)
+    }
+  }
 
   const {
     STEPS,
@@ -469,6 +649,23 @@ export function OnboardingView({
                             }
                             defaultLabel={ts('new_project_default')}
                           />
+                          <DiscoveryList
+                            heading="Recent projects from Godot"
+                            rows={recentProjects.map((p) => ({
+                              key: p.path,
+                              primary: p.name,
+                              secondary: p.path,
+                              badge: p.favorite ? 'Favorite' : undefined,
+                            }))}
+                            selected={selectedProjects}
+                            imported={importedProjects}
+                            busy={importingProjects}
+                            onToggle={(k) => toggleIn(setSelectedProjects, k)}
+                            onAdd={importSelectedProjects}
+                            addLabel={(n) =>
+                              n > 0 ? `Add selected (${n})` : 'Add selected'
+                            }
+                          />
                           {projectSuggestions.length > 0 && (
                             <div className="flex flex-col gap-1.5">
                               <span className="text-[10px] font-semibold uppercase tracking-wide text-muted/70">
@@ -536,6 +733,23 @@ export function OnboardingView({
                               setField('download_dir', dir)
                             }
                             defaultLabel={ts('download_folder')}
+                          />
+                          <DiscoveryList
+                            heading="Detected Godot installs"
+                            rows={detectedInstalls.map((i) => ({
+                              key: i.path,
+                              primary: i.name,
+                              secondary: i.path,
+                              badge: i.source,
+                            }))}
+                            selected={selectedInstalls}
+                            imported={importedInstalls}
+                            busy={importingInstalls}
+                            onToggle={(k) => toggleIn(setSelectedInstalls, k)}
+                            onAdd={importSelectedInstalls}
+                            addLabel={(n) =>
+                              n > 0 ? `Add selected (${n})` : 'Add selected'
+                            }
                           />
                           {versionSuggestions.length > 0 && (
                             <div className="flex flex-col gap-1.5">

@@ -10,6 +10,8 @@ import type {
 } from "../../types";
 import { getCardViewSettings } from "../../lib/cardViewSettings";
 import { api, getCachedProjectIcon, getCachedProjectName } from "../../lib/api";
+import { pushToast } from "../../lib/toast";
+import { reportLaunchError } from "../../lib/launchErrors";
 import { formatLastOpened } from "../../lib/lastOpened";
 import { formatDuration } from "../../lib/duration";
 import { effectiveTotalMs } from "../../lib/projectSort";
@@ -220,8 +222,8 @@ export function ProjectCard({
   }, [project.path]);
 
   const openFolder = () =>
-    api.openProjectFolder(project.path).catch((e) => alert(e));
-  const openInIde = () => api.openInEditor(project.path).catch((e) => alert(e));
+    api.openProjectFolder(project.path).catch((e) => pushToast('error', String(e)));
+  const openInIde = () => api.openInEditor(project.path).catch((e) => reportLaunchError(e));
   const launchProject = (withConsole?: boolean) =>
     window.dispatchEvent(
       new CustomEvent("app:open-project", {
@@ -229,7 +231,7 @@ export function ProjectCard({
       }),
     );
   const playProject = () =>
-    api.openProject(project.id, false).catch((e) => alert(e));
+    api.openProject(project.id, false).catch((e) => reportLaunchError(e));
   const saveTags = async (newTags: string[]) => {
     setSavingTags(true);
     try {
@@ -910,7 +912,7 @@ export function ProjectCard({
                   icon: IconTerminal,
                   tooltip: t("open_terminal"),
                   onClick: () =>
-                    api.openTerminal(project.path).catch((e) => alert(e)),
+                    api.openTerminal(project.path).catch((e) => pushToast('error', String(e))),
                 },
                 ...(projectTodosEnabled
                   ? [

@@ -730,3 +730,15 @@ export interface CliToolStatus {
   platform: 'windows' | 'macos' | 'linux'
   needs_new_terminal: boolean
 }
+
+export interface DiscoveredProject {
+  path: string
+  name: string
+  favorite: boolean
+}
+
+export interface DiscoveredInstall {
+  path: string
+  name: string
+  source: string
+}

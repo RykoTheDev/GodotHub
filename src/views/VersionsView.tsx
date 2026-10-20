@@ -330,7 +330,7 @@ export function VersionsView({
   }, [])
 
   const openVersion = (tag: string, console?: boolean) => {
-    api.openGodotVersion(tag, console).catch((err) => alert(String(err)))
+    api.openGodotVersion(tag, console).catch((err) => pushToast('error', String(err)))
   }
 
   const isSearching = query.trim().length > 0

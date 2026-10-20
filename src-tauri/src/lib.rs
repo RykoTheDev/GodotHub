@@ -5,6 +5,7 @@ mod changelog;
 mod cli;
 mod cli_shim;
 mod console;
+mod discovery;
 mod export_runner;
 mod current_version;
 mod error;
@@ -342,6 +343,10 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             godot_versions::fetch_available_godot_versions,
             godot_versions::download_godot_version,
+            godot_versions::download_version_for_tag,
+            discovery::scan_godot_recent_projects,
+            discovery::detect_godot_installs,
+            discovery::import_detected_install,
             godot_versions::pause_download,
             godot_versions::resume_download,
             godot_versions::cancel_download,

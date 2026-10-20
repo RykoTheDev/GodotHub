@@ -1176,6 +1176,11 @@ pub fn set_project_version(app: AppHandle, id: String, tag: String) -> Result<()
     Ok(())
 }
 
+pub(crate) fn split_launch_args(raw: &str) -> Vec<String> {
+    shlex::split(raw)
+        .unwrap_or_else(|| raw.split_whitespace().map(str::to_string).collect())
+}
+
 #[tauri::command]
 pub fn open_project(
     app: AppHandle,
@@ -1204,18 +1209,13 @@ pub fn open_project(
     let version = versions
         .iter()
         .find(|v| v.tag == project_version)
-        .ok_or("Bound Godot version is not installed")?;
+        .ok_or_else(|| format!("Godot {project_version} is not installed"))?;
 
     let mut args = vec!["--path".to_string(), project.path.clone()];
     if editor {
         args.push("-e".to_string());
     }
-    args.extend(
-        project
-            .launch_arguments
-            .split_whitespace()
-            .map(str::to_string),
-    );
+    args.extend(split_launch_args(&project.launch_arguments));
 
     if !editor
         && project.launch_arguments.trim().is_empty()
@@ -2261,4 +2261,48 @@ pub async fn get_project_file_tree(path: String) -> Result<Vec<ProjectFileEntry>
     })
     .await
     .map_err(|e| e.to_string())?
+}
+
+#[cfg(test)]
+mod launch_arg_tests {
+    use super::split_launch_args;
+
+    #[test]
+    fn keeps_quoted_path_as_one_argument() {
+        assert_eq!(
+            split_launch_args(r#"--write-movie "my clip.avi""#),
+            vec!["--write-movie".to_string(), "my clip.avi".to_string()]
+        );
+    }
+
+    #[test]
+    fn splits_plain_arguments_on_whitespace() {
+        assert_eq!(
+            split_launch_args("--headless --quit"),
+            vec!["--headless".to_string(), "--quit".to_string()]
+        );
+    }
+
+    #[test]
+    fn empty_input_yields_no_arguments() {
+        assert!(split_launch_args("   ").is_empty());
+        assert!(split_launch_args("").is_empty());
+    }
+
+    #[test]
+    fn single_quotes_group_too() {
+        assert_eq!(
+            split_launch_args("--path '/tmp/My Game'"),
+            vec!["--path".to_string(), "/tmp/My Game".to_string()]
+        );
+    }
+
+    #[test]
+    fn unbalanced_quotes_fall_back_to_whitespace() {
+        // shlex returns None on an unterminated quote; we must not drop the args.
+        assert_eq!(
+            split_launch_args(r#"--write-movie "oops"#),
+            vec!["--write-movie".to_string(), "\"oops".to_string()]
+        );
+    }
 }

@@ -15,6 +15,7 @@ import { GitSidebar } from './components/git/GitSidebar'
 import { Titlebar } from './components/titlebar/Titlebar'
 import { OverlayScrollArea } from './components/reusables/OverlayScrollArea'
 import { ConfirmDialog } from './components/modals/ConfirmDialog'
+import { reportLaunchError } from './lib/launchErrors'
 import { CreateProjectModal } from './components/modals/CreateProjectModal'
 import { BugReportModal } from './components/modals/BugReportModal'
 import { CheckForUpdatesModal } from './components/modals/CheckForUpdatesModal'
@@ -205,6 +206,7 @@ export function App() {
   }
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
   const [bugReportOpen, setBugReportOpen] = useState(false)
+  const [confirmingRestart, setConfirmingRestart] = useState(false)
   const [createProjectOpen, setCreateProjectOpen] = useState(false)
   const [updatesModalOpen, setUpdatesModalOpen] = useState(false)
   const [updatesModalMode, setUpdatesModalMode] = useState<
@@ -222,7 +224,7 @@ export function App() {
         await api.openProject(projectId, true, withConsole)
         refreshProjects()
       } catch (err) {
-        alert(String(err))
+        reportLaunchError(err)
       }
     },
     [refreshProjects],
@@ -354,7 +356,7 @@ export function App() {
       },
       onCommandPalette: () => setCommandPaletteOpen((o) => !o),
       onRestart: () => {
-        void relaunch()
+        setConfirmingRestart(true)
       },
       onEscape: () => {
         setGitSidebarProject(null)
@@ -655,6 +657,21 @@ export function App() {
               openProject(pending.id, pending.console)
             }}
             onCancel={() => setPendingLaunch(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {confirmingRestart && (
+          <ConfirmDialog
+            title="Reload GodotHub?"
+            description="Any unsaved changes in open forms will be lost."
+            confirmLabel="Reload"
+            onConfirm={() => {
+              setConfirmingRestart(false)
+              void relaunch()
+            }}
+            onCancel={() => setConfirmingRestart(false)}
           />
         )}
       </AnimatePresence>

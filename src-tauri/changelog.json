@@ -1468,6 +1468,30 @@
       {
         "category": "add",
         "text": "GodotHub CLI (beta), You can now install Command Line tool from advanced settings and use godothub via your terminal, It's a beta feature so expect bugs and instability."
+      },
+      {
+        "category": "fix",
+        "text": "Launch arguments are now split like a shell, so quoted paths such as --write-movie \"my clip.avi\" are passed as a single argument"
+      },
+      {
+        "category": "improve",
+        "text": "When a project's bound Godot version isn't installed, you can download it in one click from the error instead of hitting a dead end"
+      },
+      {
+        "category": "improve",
+        "text": "Error pop-ups across the app were replaced with non-blocking toast notifications"
+      },
+      {
+        "category": "improve",
+        "text": "Ctrl+R now asks for confirmation before reloading, so it no longer discards unsaved input mid-form"
+      },
+      {
+        "category": "add",
+        "text": "Onboarding can import recent projects from Godot's project manager and detect existing Godot installs on PATH and in Steam libraries, letting you pick what to add"
+      },
+      {
+        "category": "fix",
+        "text": "tauri:build no longer fails on a missing patch-appimage-wayland.sh step (Wayland is already handled at runtime)"
       }
     ],
     "known_issues": [],

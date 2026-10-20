@@ -13,7 +13,12 @@ import { changelogApi } from '../api/changelog'
 import { updatesApi } from '../api/updates'
 import { newsApi } from '../api/news'
 import { assetLibraryApi } from '../api/assetLibrary'
-import type { RunningProjectInfo } from '../types'
+import type {
+  DiscoveredInstall,
+  DiscoveredProject,
+  InstalledGodotVersion,
+  RunningProjectInfo,
+} from '../types'
 
 export { getCachedProjectIcon, getCachedProjectName }
 
@@ -82,6 +87,14 @@ export const api = {
   fetchAvailableGodotVersions: (source?: string) =>
     versionsApi.fetchAvailable(source),
   downloadGodotVersion: versionsApi.download,
+  downloadVersionForTag: (tag: string) =>
+    invoke<void>('download_version_for_tag', { tag }),
+  scanGodotRecentProjects: () =>
+    invoke<DiscoveredProject[]>('scan_godot_recent_projects'),
+  detectGodotInstalls: () =>
+    invoke<DiscoveredInstall[]>('detect_godot_installs'),
+  importDetectedInstall: (path: string) =>
+    invoke<InstalledGodotVersion>('import_detected_install', { path }),
   pauseDownload: versionsApi.pauseDownload,
   resumeDownload: versionsApi.resumeDownload,
   reorderDownloadQueue: versionsApi.reorderDownloadQueue,
