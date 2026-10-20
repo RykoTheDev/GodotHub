@@ -26,6 +26,7 @@ import { ImportButton } from '../components/reusables/ImportButton'
 import { Tooltip } from '../components/reusables/Tooltip'
 import { InstalledVersionCard } from '../components/cards/InstalledVersionCard'
 import { VersionAliasesModal } from '../components/modals/VersionAliasesModal'
+import { DownloadErrorModal } from '../components/modals/DownloadErrorModal'
 import { ConfirmDialog } from '../components/modals/ConfirmDialog'
 import {
   IconChevronDown,
@@ -171,6 +172,9 @@ export function VersionsView({
     pause,
     resume,
     cancel,
+    downloadError,
+    dismissDownloadError,
+    retryDownload,
     remove,
     rename,
     current,
@@ -997,7 +1001,7 @@ export function VersionsView({
                                               tag,
                                               asset.name,
                                               asset.download_url,
-                                            ).catch((e) => alert(String(e)))
+                                            ).catch(() => {})
                                           }
                                           className="focus-ring cursor-pointer flex items-center gap-1.5 h-9 px-4 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
                                         >
@@ -1067,6 +1071,16 @@ export function VersionsView({
               void deleteOrphan(orphan)
             }}
             onCancel={() => setOrphanToDelete(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {downloadError && (
+          <DownloadErrorModal
+            error={downloadError}
+            onRetry={() => void retryDownload()}
+            onClose={dismissDownloadError}
           />
         )}
       </AnimatePresence>

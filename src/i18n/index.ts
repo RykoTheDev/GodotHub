@@ -1,5 +1,4 @@
 import i18n from 'i18next'
-import doctor from './locales/en-US/doctor.json'
 import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 
@@ -109,7 +108,6 @@ const resources = {
   },
 
   'en-US': {
-    doctor,
     nav: enUSNav,
     common: enUSCommon,
     settings: enUSSettings,
@@ -204,11 +202,6 @@ const resources = {
     dashboard: zhCNDashboard,
     todos: zhCNTodos,
   },
-}
-
-const doctorLocales = import.meta.glob('./locales/*/doctor.json', { eager: true, import: 'default' })
-for (const [locale, resource] of Object.entries(resources)) {
-  Object.assign(resource, { doctor: doctorLocales[`./locales/${locale}/doctor.json`] ?? doctor })
 }
 
 try {

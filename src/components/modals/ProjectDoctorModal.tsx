@@ -24,7 +24,7 @@ const rank = { error: 0, warning: 1, info: 2, ok: 3 }
 const actionButton = 'focus-ring cursor-pointer inline-flex shrink-0 items-center justify-center gap-2 rounded-btn border border-line bg-raised px-3 py-2 text-xs font-medium text-ink hover:border-accent-dim hover:bg-overlay transition-colors disabled:opacity-40 disabled:cursor-not-allowed'
 
 export function ProjectDoctorModal({ project, installedVersions, onClose }: Props) {
-  const { t } = useTranslation('doctor')
+  const { t } = useTranslation('common', { keyPrefix: 'project_doctor' })
   const { t: tc } = useTranslation('common')
   const [report, setReport] = useState<ProjectHealthReport | null>(null)
   const [loading, setLoading] = useState(true)

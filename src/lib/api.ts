@@ -1,5 +1,6 @@
 import { invoke } from '@tauri-apps/api/core'
 import { projectsApi, getCachedProjectIcon, getCachedProjectName } from '../api/projects'
+import { exportsApi } from '../api/exports'
 import { versionsApi } from '../api/versions'
 import { miseApi } from '../api/mise'
 import { gitApi } from '../api/git'
@@ -17,6 +18,12 @@ import type { RunningProjectInfo } from '../types'
 export { getCachedProjectIcon, getCachedProjectName }
 
 export const api = {
+  getProjectExportPresets: exportsApi.presets,
+  startProjectExport: exportsApi.start,
+  getProjectExport: exportsApi.get,
+  getProjectExports: exportsApi.list,
+  cancelProjectExport: exportsApi.cancel,
+  openExportArtifactFolder: exportsApi.openFolder,
   listProjects: projectsApi.list,
   diagnoseProject: projectsApi.diagnose,
   fixProjectHealth: projectsApi.fixHealth,

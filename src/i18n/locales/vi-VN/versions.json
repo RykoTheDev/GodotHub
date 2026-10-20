@@ -138,5 +138,12 @@
   "export_templates_web_extensions": "Web with Extensions",
   "export_templates_web_single_threaded": "Web Single-Threaded",
   "export_templates_web_extensions_single_threaded": "Web with Extensions Single-Threaded",
-  "export_templates_refresh": "Refresh available templates"
+  "export_templates_refresh": "Refresh available templates",
+  "download_failed_title": "Tải xuống thất bại",
+  "download_failed_desc": "GodotHub không thể hoàn tất cài đặt {{tag}}. Hãy sao chép thông tin bên dưới và chia sẻ để có thể chẩn đoán sự cố.",
+  "download_failed_source_label": "Nguồn",
+  "download_failed_asset_label": "Tệp",
+  "download_failed_error_label": "Chi tiết lỗi",
+  "download_failed_copy": "Sao chép chi tiết",
+  "download_failed_hint": "Nguyên nhân thường gặp: mạng hoặc proxy bị chặn, phần mềm diệt virus chặn tải xuống, thư mục tải xuống không tồn tại hoặc chỉ đọc, hoặc dung lượng ổ đĩa thấp."
 }

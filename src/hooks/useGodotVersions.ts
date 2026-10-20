@@ -20,6 +20,15 @@ export interface DownloadState extends DownloadProgress {
   status: 'queued' | 'downloading' | 'paused'
 }
 
+export interface DownloadErrorInfo {
+  key: string
+  tag: string
+  assetName: string
+  url: string
+  source: string
+  message: string
+}
+
 const keyOf = (tag: string, assetName: string) =>
   assetName.toLowerCase().includes('mono') ? `${tag}-mono` : tag
 
@@ -60,6 +69,12 @@ export function useGodotVersions() {
   }, [source])
 
   const [downloads, setDownloads] = useState<Record<string, DownloadState>>({})
+  const [downloadError, setDownloadError] = useState<DownloadErrorInfo | null>(
+    null,
+  )
+  const downloadParamsRef = useRef<
+    Record<string, { tag: string; assetName: string; url: string; source: string }>
+  >({})
   const [scanProgress, setScanProgress] = useState<{
     current: number
     total: number
@@ -218,6 +233,15 @@ export function useGodotVersions() {
 
   useTauriEvent<{ tag: string; message: string }>('godot-download-error', (payload) => {
     clearKey(payload.tag)
+    const params = downloadParamsRef.current[payload.tag]
+    setDownloadError({
+      key: payload.tag,
+      tag: params?.tag ?? payload.tag,
+      assetName: params?.assetName ?? '',
+      url: params?.url ?? '',
+      source: params?.source ?? sourceRef.current,
+      message: payload.message,
+    })
   })
 
   useTauriEvent<string>('godot-download-complete', (key) => {
@@ -245,6 +269,16 @@ export function useGodotVersions() {
         setMiseInstalls((prev) => ({ ...prev, [key]: true }))
         try {
           await api.miseInstallGodotVersion(tag)
+        } catch (e) {
+          setDownloadError({
+            key,
+            tag,
+            assetName,
+            url,
+            source: 'mise',
+            message: String(e),
+          })
+          return
         } finally {
           setMiseInstalls((prev) => {
             const next = { ...prev }
@@ -256,14 +290,41 @@ export function useGodotVersions() {
         return
       }
 
+      downloadParamsRef.current[key] = {
+        tag,
+        assetName,
+        url,
+        source: sourceRef.current,
+      }
       setDownloads((prev) => ({
         ...prev,
         [key]: { tag: key, downloaded: 0, total: 0, status: 'queued' },
       }))
-      await api.downloadGodotVersion(tag, assetName, url)
+      try {
+        await api.downloadGodotVersion(tag, assetName, url)
+      } catch (e) {
+        clearKey(key)
+        setDownloadError({
+          key,
+          tag,
+          assetName,
+          url,
+          source: sourceRef.current,
+          message: String(e),
+        })
+      }
     },
     [settings.use_mise, miseStatus?.available, refreshInstalled],
   )
+
+  const dismissDownloadError = useCallback(() => setDownloadError(null), [])
+
+  const retryDownload = useCallback(async () => {
+    const info = downloadError
+    if (!info) return
+    setDownloadError(null)
+    await download(info.tag, info.assetName, info.url)
+  }, [downloadError, download])
 
   const pause = useCallback((key: string) => api.pauseDownload(key), [])
   const resume = useCallback((key: string) => api.resumeDownload(key), [])
@@ -345,6 +406,9 @@ export function useGodotVersions() {
     refreshMiseStatus,
     syncMise,
     downloads,
+    downloadError,
+    dismissDownloadError,
+    retryDownload,
     download,
     pause,
     resume,

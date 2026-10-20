@@ -50,7 +50,7 @@ impl TrackedProcess {
                         self.pid_revalidated = true;
                         match process::find_running_godot_processes() {
                             Ok(processes) => processes.iter().any(|running| {
-                                running.pid == *pid
+                                !running.is_export && running.pid == *pid
                                     && same_path(&running.project_path, project_path)
                             }),
                             Err(_) => true,
@@ -222,7 +222,7 @@ fn settle_stale_sessions_inner(
         if p.session_started_at_ms.is_some() && !running.contains(&p.id) {
             if let Some(running_process) = os_running
                 .iter()
-                .find(|process| same_path(&process.project_path, &p.path))
+                .find(|process| !process.is_export && same_path(&process.project_path, &p.path))
             {
                 retrack_stale_session(
                     app,
@@ -1384,7 +1384,7 @@ fn kill_tracked(tracked: &mut TrackedProcess) -> Result<(), String> {
             let processes = process::find_running_godot_processes()
                 .map_err(|error| format!("Could not verify Godot process identity: {error}"))?;
             if !processes.iter().any(|running| {
-                running.pid == *pid && same_path(&running.project_path, project_path)
+                !running.is_export && running.pid == *pid && same_path(&running.project_path, project_path)
             }) {
                 return Err("Refusing to terminate a PID whose Godot identity no longer matches".into());
             }

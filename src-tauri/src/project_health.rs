@@ -73,15 +73,15 @@ impl HealthCheck {
 }
 
 #[derive(Debug)]
-struct Setting {
-    section: String,
-    key: String,
-    value: String,
+pub(crate) struct Setting {
+    pub(crate) section: String,
+    pub(crate) key: String,
+    pub(crate) value: String,
     start: usize,
     end: usize,
 }
 
-fn settings(text: &str) -> Vec<Setting> {
+pub(crate) fn settings(text: &str) -> Vec<Setting> {
     let mut result = vec![];
     let mut section = String::new();
     let mut offset = 0;
@@ -152,7 +152,7 @@ fn settings(text: &str) -> Vec<Setting> {
     result
 }
 
-fn strings(value: &str) -> Vec<String> {
+pub(crate) fn strings(value: &str) -> Vec<String> {
     let mut result = vec![];
     let mut start = None;
     let mut escaped = false;
@@ -178,7 +178,7 @@ fn strings(value: &str) -> Vec<String> {
     result
 }
 
-fn setting<'a>(fields: &'a [Setting], section: &str, key: &str) -> Option<&'a str> {
+pub(crate) fn setting<'a>(fields: &'a [Setting], section: &str, key: &str) -> Option<&'a str> {
     fields
         .iter()
         .find(|f| f.section == section && f.key == key)

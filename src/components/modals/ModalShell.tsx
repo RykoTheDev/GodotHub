@@ -1,6 +1,6 @@
 import { useEffect, useId } from 'react'
 import { createPortal } from 'react-dom'
-import { motion, type Variants } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useUiMotion } from '../../hooks/useUiMotion'
 import { ModalHeader } from './ModalHeader'
 
@@ -29,7 +29,7 @@ export function ModalShell({
   footer,
   bodyClassName,
 }: Props) {
-  const { reduced, instant, transition } = useUiMotion()
+  const { instant, transition, surface } = useUiMotion()
   const titleId = useId()
 
   useEffect(() => {
@@ -38,13 +38,6 @@ export function ModalShell({
       window.dispatchEvent(new CustomEvent('app:dialog-close'))
     }
   }, [])
-
-  const closedTransform = reduced || instant ? 'none' : 'scale(0.96)'
-  const cardVariants: Variants = {
-    hidden: { opacity: 0, transform: closedTransform },
-    show: { opacity: 1, transform: reduced || instant ? 'none' : 'scale(1)', transition: transition('modal') },
-    exit: { opacity: 0, transform: closedTransform, transition: transition('modal', true) },
-  }
 
   return createPortal(
     <motion.div
@@ -59,10 +52,7 @@ export function ModalShell({
       }}
     >
       <motion.div
-        initial={instant ? false : 'hidden'}
-        animate="show"
-        exit="exit"
-        variants={cardVariants}
+        {...surface('modal')}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}

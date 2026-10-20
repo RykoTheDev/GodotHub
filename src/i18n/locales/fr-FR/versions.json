@@ -138,5 +138,12 @@
   "export_templates_web_extensions": "Web with Extensions",
   "export_templates_web_single_threaded": "Web Single-Threaded",
   "export_templates_web_extensions_single_threaded": "Web with Extensions Single-Threaded",
-  "export_templates_refresh": "Refresh available templates"
+  "export_templates_refresh": "Refresh available templates",
+  "download_failed_title": "Échec du téléchargement",
+  "download_failed_desc": "GodotHub n'a pas pu terminer l'installation de {{tag}}. Copiez les détails ci-dessous et partagez-les pour permettre le diagnostic.",
+  "download_failed_source_label": "Source",
+  "download_failed_asset_label": "Fichier",
+  "download_failed_error_label": "Détails de l'erreur",
+  "download_failed_copy": "Copier les détails",
+  "download_failed_hint": "Causes fréquentes : un réseau ou un proxy bloqué, un antivirus qui bloque le téléchargement, un dossier de téléchargement manquant ou en lecture seule, ou un espace disque insuffisant."
 }

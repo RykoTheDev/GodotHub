@@ -20,6 +20,7 @@ import { TagManagerModal } from '../modals/TagManagerModal'
 import { SaveAsTemplateModal } from '../modals/SaveAsTemplateModal'
 import { ProjectSizeModal } from '../modals/ProjectSizeModal'
 import { ProjectDoctorModal } from '../modals/ProjectDoctorModal'
+import { ProjectBuildModal } from '../modals/ProjectBuildModal'
 import {
   IconCheck, IconChevronDown, IconClock, IconCode, IconCopy, IconExternalLink,
   IconGitBranch, IconHardDrive, IconHistory, IconNode, IconPin, IconPlay,
@@ -73,7 +74,7 @@ export function ProjectTile({
   const { settings } = useSettings()
   const options = getCardViewSettings(settings, viewMode)
   const { cardRef, icon, displayName, size, now } = useProjectTileData(project, options.show_size, preview)
-  const [dialog, setDialog] = useState<'remove' | 'delete' | 'tags' | 'args' | 'template' | 'size' | 'doctor' | null>(null)
+  const [dialog, setDialog] = useState<'remove' | 'delete' | 'tags' | 'args' | 'template' | 'size' | 'doctor' | 'build' | null>(null)
   const [brokenIcon, setBrokenIcon] = useState<string | null>(null)
   const grid = viewMode === 'grid'
   const version = installedVersions.find(entry => entry.tag === project.godot_version)
@@ -92,7 +93,8 @@ export function ProjectTile({
   const openFolder = () => runAction(() => api.openProjectFolder(project.path))
 
   const menuItems: NewDropdownItem[] = [
-    { key: 'project-doctor', label: t('title', {ns:'doctor'}), icon: IconBug, onClick: () => setDialog('doctor') },
+    { key: 'build-export', label: t('build_export.title'), icon: IconRocket, onClick: () => setDialog('build') },
+    { key: 'project-doctor', label: t('project_doctor.title'), icon: IconBug, onClick: () => setDialog('doctor') },
     { key: 'pin', label: t(project.pinned ? 'project_unpin_aria' : 'project_pin_aria'), icon: IconPin, onClick: onTogglePin },
     ...(onLaunchArgsChange ? [{ key: 'launch-arguments', label: t('launch_arguments'), icon: IconRocket, onClick: () => setDialog('args') }] : []),
     { key: 'manage-tags', label: t('manage_tags'), icon: IconTags, onClick: () => setDialog('tags') },
@@ -210,6 +212,7 @@ export function ProjectTile({
         {dialog === 'template' && <SaveAsTemplateModal project={project} onClose={() => setDialog(null)} />}
         {dialog === 'size' && <ProjectSizeModal projectPath={project.path} projectName={displayName} onClose={() => setDialog(null)} />}
         {dialog === 'doctor' && <ProjectDoctorModal project={project} installedVersions={installedVersions} onClose={() => setDialog(null)} />}
+        {dialog === 'build' && <ProjectBuildModal project={project} onClose={() => setDialog(null)} />}
       </AnimatePresence>
     </article>
   )

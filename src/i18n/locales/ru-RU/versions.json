@@ -153,5 +153,12 @@
   "export_templates_web_extensions": "Web with Extensions",
   "export_templates_web_single_threaded": "Web Single-Threaded",
   "export_templates_web_extensions_single_threaded": "Web with Extensions Single-Threaded",
-  "export_templates_refresh": "Refresh available templates"
+  "export_templates_refresh": "Refresh available templates",
+  "download_failed_title": "Не удалось скачать",
+  "download_failed_desc": "GodotHub не смог завершить установку {{tag}}. Скопируйте приведённые ниже сведения и поделитесь ими, чтобы можно было найти причину.",
+  "download_failed_source_label": "Источник",
+  "download_failed_asset_label": "Файл",
+  "download_failed_error_label": "Подробности ошибки",
+  "download_failed_copy": "Копировать сведения",
+  "download_failed_hint": "Частые причины: заблокированная сеть или прокси, антивирус, блокирующий загрузку, отсутствующая или доступная только для чтения папка загрузки, или нехватка места на диске."
 }

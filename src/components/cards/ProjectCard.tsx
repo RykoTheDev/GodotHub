@@ -26,6 +26,7 @@ import { TimeTrackerModal } from "../modals/TimeTrackerModal";
 import { SaveAsTemplateModal } from "../modals/SaveAsTemplateModal";
 import { ProjectSizeModal } from "../modals/ProjectSizeModal";
 import { ProjectDoctorModal } from "../modals/ProjectDoctorModal";
+import { ProjectBuildModal } from "../modals/ProjectBuildModal";
 import { OpenButton } from "../reusables/OpenButton";
 import { Tooltip } from "../reusables/Tooltip";
 import {
@@ -133,6 +134,7 @@ export function ProjectCard({
   const [templateSaveOpen, setTemplateSaveOpen] = useState(false);
   const [sizeModalOpen, setSizeModalOpen] = useState(false);
   const [doctorOpen, setDoctorOpen] = useState(false);
+  const [buildOpen, setBuildOpen] = useState(false);
   const [showLaunchArgs, setShowLaunchArgs] = useState(false);
   const [editingTagIndex, setEditingTagIndex] = useState<number | null>(null);
   const [editTagValue, setEditTagValue] = useState("");
@@ -924,8 +926,14 @@ export function ProjectCard({
               ]}
               items={[
                 {
+                  key: "build-export",
+                  label: t("build_export.title"),
+                  icon: IconRocket,
+                  onClick: () => setBuildOpen(true),
+                },
+                {
                   key: "project-doctor",
-                  label: t("title", { ns: "doctor" }),
+                  label: t("project_doctor.title"),
                   icon: IconBug,
                   onClick: () => setDoctorOpen(true),
                 },
@@ -1087,6 +1095,7 @@ export function ProjectCard({
         </AnimatePresence>
         <AnimatePresence>
           {doctorOpen && <ProjectDoctorModal project={project} installedVersions={installedVersions} onClose={() => setDoctorOpen(false)} />}
+          {buildOpen && <ProjectBuildModal project={project} onClose={() => setBuildOpen(false)} />}
         </AnimatePresence>
       </div>
 

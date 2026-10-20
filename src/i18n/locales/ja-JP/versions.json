@@ -138,5 +138,12 @@
   "export_templates_web_extensions": "Web with Extensions",
   "export_templates_web_single_threaded": "Web Single-Threaded",
   "export_templates_web_extensions_single_threaded": "Web with Extensions Single-Threaded",
-  "export_templates_refresh": "Refresh available templates"
+  "export_templates_refresh": "Refresh available templates",
+  "download_failed_title": "ダウンロードに失敗しました",
+  "download_failed_desc": "GodotHub は {{tag}} のインストールを完了できませんでした。下の詳細をコピーして共有すると、原因を特定できます。",
+  "download_failed_source_label": "ソース",
+  "download_failed_asset_label": "ファイル",
+  "download_failed_error_label": "エラーの詳細",
+  "download_failed_copy": "詳細をコピー",
+  "download_failed_hint": "よくある原因: ネットワークやプロキシのブロック、アンチウイルスによるダウンロードのブロック、ダウンロードフォルダーが存在しないか読み取り専用、またはディスク容量不足。"
 }

@@ -4,6 +4,16 @@ use std::process::Command;
 pub(crate) struct RunningProcess {
     pub pid: u32,
     pub project_path: String,
+    pub is_export: bool,
+}
+
+fn is_export_command(cmdline: &str) -> bool {
+    cmdline.split_ascii_whitespace().any(|arg| {
+        matches!(
+            arg.trim_matches('"'),
+            "--export" | "--export-release" | "--export-debug" | "--export-pack"
+        )
+    })
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -55,7 +65,11 @@ fn parse_windows_process_output(output: &str) -> Vec<RunningProcess> {
             let (pid, command_line) = line.split_once('\t')?;
             let pid = pid.trim().parse().ok()?;
             let project_path = parse_path_arg(command_line.trim())?;
-            Some(RunningProcess { pid, project_path })
+            Some(RunningProcess {
+                pid,
+                project_path,
+                is_export: is_export_command(command_line),
+            })
         })
         .collect::<Vec<_>>();
 
@@ -72,6 +86,7 @@ fn parse_windows_process_output(output: &str) -> Vec<RunningProcess> {
                 processes.push(RunningProcess {
                     pid: pid_value,
                     project_path,
+                    is_export: is_export_command(command_value),
                 });
             }
             pid = None;
@@ -94,9 +109,45 @@ fn parse_unix_process_output(output: &str) -> Vec<RunningProcess> {
                 return None;
             }
             let project_path = parse_path_arg(command_line.trim())?;
-            Some(RunningProcess { pid, project_path })
+            Some(RunningProcess {
+                pid,
+                project_path,
+                is_export: is_export_command(command_line),
+            })
         })
         .collect()
+}
+
+#[cfg(test)]
+mod export_discovery_tests {
+    use super::*;
+
+    #[test]
+    fn distinguishes_exports_from_editor_and_game_sessions() {
+        for flag in [
+            "--export",
+            "--export-release",
+            "--export-debug",
+            "--export-pack",
+        ] {
+            assert!(is_export_command(&format!(
+                "godot --headless --path \"C:/My Game\" {flag} Windows out.exe"
+            )));
+        }
+        assert!(!is_export_command("godot --editor --path C:/Game"));
+        assert!(!is_export_command(
+            "godot --path C:/Game --export-release-extra"
+        ));
+        #[cfg(target_os = "windows")]
+        let discovered = parse_windows_process_output("10\tGodot.exe --headless --path \"C:/My Game\" --export-release Windows out.exe\n11\tGodot.exe --editor --path \"C:/My Game\"\nCommandLine=Godot.exe --path C:/Other --export Windows out.exe\nProcessId=12\n");
+        #[cfg(unix)]
+        let discovered = parse_unix_process_output("10 godot --headless --path \"C:/My Game\" --export-release Windows out.exe\n11 godot --editor --path \"C:/My Game\"\n12 godot --path C:/Other --export Windows out.exe");
+        assert_eq!(discovered.len(), 3);
+        assert!(discovered[0].is_export);
+        assert!(!discovered[1].is_export);
+        assert!(discovered[2].is_export);
+        assert_eq!(discovered[0].project_path, "C:/My Game");
+    }
 }
 
 pub(crate) fn find_running_godot_processes() -> Result<Vec<RunningProcess>, String> {

@@ -3,6 +3,7 @@ mod backup;
 mod categories;
 mod changelog;
 mod console;
+mod export_runner;
 mod current_version;
 mod error;
 mod export_templates;
@@ -293,6 +294,7 @@ pub fn run() {
                 std::collections::HashMap::new(),
             )));
             app.manage(console::ConsoleBuffers::default());
+            app.manage(export_runner::ExportRuns::default());
 
             tray::setup_tray(app.handle())?;
             tray::show_main_window(app.handle());
@@ -379,6 +381,12 @@ pub fn run() {
             projects::open_project_folder,
             console::get_project_console,
             console::clear_project_console,
+            export_runner::get_project_export_presets,
+            export_runner::start_project_export,
+            export_runner::get_project_export,
+            export_runner::get_project_exports,
+            export_runner::cancel_project_export,
+            export_runner::open_export_artifact_folder,
             projects::open_in_editor,
             projects::get_project_icon,
             projects::get_project_size,

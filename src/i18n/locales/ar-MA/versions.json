@@ -139,5 +139,12 @@
   "export_templates_web_extensions": "Web with Extensions",
   "export_templates_web_single_threaded": "Web Single-Threaded",
   "export_templates_web_extensions_single_threaded": "Web with Extensions Single-Threaded",
-  "export_templates_refresh": "Refresh available templates"
+  "export_templates_refresh": "Refresh available templates",
+  "download_failed_title": "فشل التنزيل",
+  "download_failed_desc": "تعذّر على GodotHub إكمال تثبيت {{tag}}. انسخ التفاصيل أدناه وشاركها حتى يتسنى تشخيص المشكلة.",
+  "download_failed_source_label": "المصدر",
+  "download_failed_asset_label": "الملف",
+  "download_failed_error_label": "تفاصيل الخطأ",
+  "download_failed_copy": "نسخ التفاصيل",
+  "download_failed_hint": "الأسباب الشائعة: شبكة أو وكيل محجوب، برنامج مكافحة فيروسات يحجب التنزيل، مجلد تنزيل غير موجود أو للقراءة فقط، أو مساحة قرص منخفضة."
 }

@@ -137,5 +137,12 @@
   "export_templates_web_extensions": "Web with Extensions",
   "export_templates_web_single_threaded": "Web Single-Threaded",
   "export_templates_web_extensions_single_threaded": "Web with Extensions Single-Threaded",
-  "export_templates_refresh": "Refresh available templates"
+  "export_templates_refresh": "Refresh available templates",
+  "download_failed_title": "下载失败",
+  "download_failed_desc": "GodotHub 无法完成 {{tag}} 的安装。请复制下方的详细信息并分享，以便排查问题。",
+  "download_failed_source_label": "来源",
+  "download_failed_asset_label": "文件",
+  "download_failed_error_label": "错误详情",
+  "download_failed_copy": "复制详情",
+  "download_failed_hint": "常见原因：网络或代理被拦截、杀毒软件阻止下载、下载文件夹缺失或为只读、或磁盘空间不足。"
 }

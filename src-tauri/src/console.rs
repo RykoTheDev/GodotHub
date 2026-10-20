@@ -2,7 +2,7 @@ use std::collections::{HashMap, VecDeque};
 use std::fs::{File, OpenOptions};
 use std::io::{Read, Seek, SeekFrom};
 use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
+use std::process::{Child, Command, Stdio};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
@@ -494,4 +494,63 @@ pub fn spawn_in_app_console(
         #[cfg(unix)]
         pid_file: None,
     })
+}
+
+/// A build owns its child process, rather than participating in editor/game
+/// tracking. Reuse the same bounded buffers, disk log and incremental reader.
+pub(crate) struct JobConsole {
+    id: String,
+    session: u64,
+    store: Arc<Mutex<HashMap<String, ConsoleEntry>>>,
+    tail: LogTail,
+}
+
+impl JobConsole {
+    pub(crate) fn drain(&mut self) {
+        let lines = self.tail.read_new_lines();
+        if let Ok(mut map) = self.store.lock() {
+            if let Some(entry) = map.get_mut(&self.id).filter(|entry| entry.session == self.session) {
+                for text in lines { entry.push(ConsoleStream::Stdout, text); }
+            }
+        }
+    }
+
+    pub(crate) fn finish(mut self, app: &AppHandle, code: Option<i32>, message: &str) {
+        self.drain();
+        let fragment = std::mem::take(&mut self.tail.pending);
+        if let Ok(mut map) = self.store.lock() {
+            if let Some(entry) = map.get_mut(&self.id).filter(|entry| entry.session == self.session) {
+                if !fragment.is_empty() { entry.push(ConsoleStream::Stdout, normalize_line(&fragment)); }
+                entry.push(ConsoleStream::Stdout, message.to_string());
+                entry.running = false;
+                entry.exit_code = code;
+            }
+        }
+        let _ = app.emit("project:console-exit", serde_json::json!({"id":self.id,"code":code}));
+    }
+}
+
+pub(crate) fn spawn_job_console(app: &AppHandle, exe: &Path, args: &[String], cwd: &Path, workspace: &Path, id: &str) -> Result<(Child, JobConsole), String> {
+    let target = console_target(exe)?;
+    let store = app.try_state::<ConsoleBuffers>().ok_or("Console is unavailable")?.0.clone();
+    let path = workspace.join("console").join(format!("{}.log",safe_id(id)));
+    std::fs::create_dir_all(path.parent().ok_or("Invalid console path")?).map_err(|e| e.to_string())?;
+    File::create(&path).map_err(|e| e.to_string())?;
+    let log = open_append(&path)?;
+    let errors = log.try_clone().map_err(|e| e.to_string())?;
+    let mut command = Command::new(target);
+    command.args(args).current_dir(cwd).stdin(Stdio::null()).stdout(Stdio::from(log)).stderr(Stdio::from(errors));
+    #[cfg(windows)] {
+        use std::os::windows::process::CommandExt;
+        command.creation_flags(crate::terminal::CREATE_NO_WINDOW);
+    }
+    #[cfg(unix)] {
+        use std::os::unix::process::CommandExt;
+        command.process_group(0);
+    }
+    crate::terminal::sanitize_child_env(&mut command);
+    let child = command.spawn().map_err(|e| format!("Could not start Godot export: {e}"))?;
+    let session = next_session();
+    store.lock().unwrap().insert(id.into(), ConsoleEntry {running:true,session,..Default::default()});
+    Ok((child, JobConsole {id:id.into(), session, store, tail:LogTail::new(path,0)}))
 }

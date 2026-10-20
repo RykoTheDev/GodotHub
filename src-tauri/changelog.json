@@ -1446,12 +1446,24 @@
   },
   {
     "id": "fa909c38-8a1e-432b-ad3d-7bb8ceac480d",
-    "version": "v1.4.9",
+    "version": "v1.5.0",
     "date": "2026-10-20",
     "notes": [
       {
         "category": "add",
         "text": "Ability to downloads Export Templates for your godot versions"
+      },
+      {
+        "category": "add",
+        "text": "Project Doctor: A Tool that helps you identify what your project is missing and provides a solution if available."
+      },
+      {
+        "category": "add",
+        "text": "Build & Export Setting So you can export your builds without opening the project"
+      },
+      {
+        "category": "improve",
+        "text": "Error Popup on when the version install fails"
       }
     ],
     "known_issues": [],

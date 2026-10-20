@@ -263,6 +263,34 @@ export interface ConsoleLine {
   text: string
 }
 
+export interface ProjectExportPreset {
+  id: number
+  name: string
+  platform: string
+  output_path: string
+  missing_templates: string[]
+  template_error: string | null
+}
+
+export interface ProjectExportCatalog {
+  version_tag: string
+  engine_error: string | null
+  presets: ProjectExportPreset[]
+}
+
+export interface ProjectExportRun {
+  id: string
+  project_id: string
+  project_name: string
+  preset_name: string
+  output_path: string
+  status: 'running' | 'succeeded' | 'failed' | 'cancelled'
+  size_bytes: number | null
+  exit_code: number | null
+  error: string | null
+  started_at_ms: number
+}
+
 export interface ConsoleSnapshot {
   id: string
   lines: ConsoleLine[]

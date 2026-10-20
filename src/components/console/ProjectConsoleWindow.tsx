@@ -24,6 +24,7 @@ import {
   IconChevronDown,
   IconClone,
   IconGrip,
+  IconFolder,
   IconMinus,
   IconSquare,
   IconTerminal,
@@ -33,7 +34,9 @@ import {
   IconX,
 } from '../../lib/icons'
 import { Tooltip } from '../reusables/Tooltip'
-import type { ConsoleLine } from '../../types'
+import type { ConsoleLine, ProjectExportRun } from '../../types'
+import {formatBytes} from '../../lib/formatBytes'
+import {pushToast} from '../../lib/toast'
 
 const POLL_MS = 180
 const POLL_MS_IDLE = 1000
@@ -43,6 +46,7 @@ const PILL_MARGIN = 10
 const SNAP_DISTANCE = 56
 
 interface ConsoleState {
+  exportRun?: ProjectExportRun
   lines: ConsoleLine[]
   nextSeq: number
   running: boolean
@@ -153,6 +157,7 @@ export function ProjectConsoleWindow() {
   const uiMotion = useUiMotion()
 
   const { t } = useTranslation('common')
+  const { t: tb } = useTranslation('common', { keyPrefix: 'build_export' })
   const { settings, loaded } = useSettings()
   const [open, setOpen] = useState(false)
   const [minimized, setMinimized] = useState(false)
@@ -192,15 +197,22 @@ export function ProjectConsoleWindow() {
   const scrollRef = useRef<HTMLDivElement>(null)
   const pinnedRef = useRef(true)
 
-  const openConsole = useCallback((id: string, name?: string) => {
+  const openConsole = useCallback((id: string, name?: string, exportRun?: ProjectExportRun) => {
     setStates((prev) =>
-      prev[id] ? prev : { ...prev, [id]: emptyState(name ?? id) },
+      prev[id] ? { ...prev, [id]: {...prev[id], exportRun:exportRun ?? prev[id].exportRun} } : { ...prev, [id]: {...emptyState(name ?? id),exportRun} },
     )
     setActiveId(id)
     setOpen(true)
     setMinimized(false)
     pinnedRef.current = true
   }, [])
+
+  useTauriEvent<ProjectExportRun>('export:started', run => {
+    openConsole(run.id,`${run.project_name} · ${run.preset_name}`,run)
+  },[openConsole])
+  useTauriEvent<ProjectExportRun>('export:finished', run => {
+    setStates(prev=>prev[run.id]?{...prev,[run.id]:{...prev[run.id],exportRun:run}}:prev)
+  })
 
   useTauriEvent<LaunchedPayload>('project:launched', (payload) => {
     if (!payload.console) return
@@ -254,11 +266,11 @@ export function ProjectConsoleWindow() {
     const handler = (e: Event) => {
       const detail = (e as CustomEvent).detail as
         | string
-        | { id?: string; name?: string }
+        | { id?: string; name?: string; exportRun?: ProjectExportRun }
       const id = typeof detail === 'string' ? detail : detail?.id
       if (!id) return
       const name = typeof detail === 'string' ? undefined : detail?.name
-      openConsole(id, name)
+      openConsole(id, name, typeof detail === 'string' ? undefined : detail?.exportRun)
     }
     window.addEventListener('app:open-console', handler)
     return () => window.removeEventListener('app:open-console', handler)
@@ -298,15 +310,17 @@ export function ProjectConsoleWindow() {
   useEffect(() => {
     if (!open || !activeId) return
     let cancelled = false
+    let fetching = false
 
     const tick = async () => {
       const current = statesRef.current[activeId]
-      if (current?.done) return
+      if (current?.done || fetching) return
+      fetching = true
       try {
-        const snapshot = await api.getProjectConsole(
-          activeId,
-          current?.nextSeq ?? 0,
-        )
+        const [snapshot, exportRun] = await Promise.all([
+          api.getProjectConsole(activeId,current?.nextSeq ?? 0),
+          current?.exportRun ? api.getProjectExport(activeId).catch(()=>current.exportRun) : Promise.resolve(undefined),
+        ])
         if (cancelled) return
         setStates((prev) => {
           const existing = prev[activeId]
@@ -319,13 +333,15 @@ export function ProjectConsoleWindow() {
           return {
             ...prev,
             [activeId]: {
+              ...existing,
               lines,
               nextSeq: snapshot.next_seq,
               running: snapshot.running,
               exitCode: snapshot.exit_code,
-              done: !snapshot.running,
+              done: !snapshot.running && (!exportRun || exportRun.status !== 'running'),
               restored: snapshot.restored,
               name: existing?.name ?? activeId,
+              exportRun: exportRun ?? existing?.exportRun,
             },
           }
         })
@@ -339,7 +355,7 @@ export function ProjectConsoleWindow() {
               }
             : prev,
         )
-      }
+      } finally { fetching = false }
     }
 
     void tick()
@@ -418,7 +434,8 @@ export function ProjectConsoleWindow() {
 
   const stopProject = () => {
     if (!activeId) return
-    void api.stopProject(activeId).catch((e) => alert(String(e)))
+    const action = activeState?.exportRun ? api.cancelProjectExport(activeId) : api.stopProject(activeId)
+    void action.catch((e) => pushToast('error',String(e)))
   }
 
   const persistPill = useCallback((pos: Point) => {
@@ -492,6 +509,10 @@ export function ProjectConsoleWindow() {
 
   const status = (() => {
     if (!activeState) return null
+    if (activeState.exportRun) {
+      const run = activeState.exportRun
+      return {label:run.status==='running'?tb('running',{preset:run.preset_name}):tb(run.status),tone:run.status==='running'?'running' as const:run.status==='succeeded'?'ok' as const:run.status==='failed'?'error' as const:'neutral' as const}
+    }
     if (activeState.running) {
       return { label: t('console_running'), tone: 'running' as const }
     }
@@ -556,11 +577,11 @@ export function ProjectConsoleWindow() {
               )}
               <div className="flex-1" />
               {activeState?.running && (
-                <Tooltip content={t('stop')} side="bottom">
+                <Tooltip content={activeState?.exportRun?tb('cancel_export'):t('stop')} side="bottom">
                   <button
                     type="button"
                     onClick={stopProject}
-                    aria-label={t('stop')}
+                    aria-label={activeState?.exportRun?tb('cancel_export'):t('stop')}
                     className="focus-ring cursor-pointer w-7 h-7 rounded-btn inline-flex items-center justify-center text-muted hover:text-danger hover:bg-danger/10 transition-colors"
                   >
                     <IconSquare className="w-3 h-3" />
@@ -746,7 +767,18 @@ export function ProjectConsoleWindow() {
               )}
             </div>
 
-            {activeState &&
+            {activeState?.exportRun && activeState.exportRun.status !== 'running' && (
+              <footer className="shrink-0 flex items-center gap-3 border-t border-line bg-overlay px-3 py-3">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium text-ink">{tb(activeState.exportRun.status)}{activeState.exportRun.size_bytes!==null?` · ${formatBytes(activeState.exportRun.size_bytes)}`:''}</p>
+                  <p className="mt-1 text-[11px] font-mono text-muted break-all">{activeState.exportRun.output_path}</p>
+                  {activeState.exportRun.error&&<p className="mt-1 text-[11px] text-danger">{activeState.exportRun.error}</p>}
+                  {activeState.exportRun.status==='cancelled'&&<p className="mt-1 text-[11px] text-muted">{tb('cancel_hint')}</p>}
+                </div>
+                {activeState.exportRun.status==='succeeded'&&<button type="button" className="focus-ring cursor-pointer inline-flex shrink-0 items-center gap-2 rounded-btn border border-line bg-raised px-3 py-2 text-xs text-ink hover:bg-overlay" onClick={()=>void api.openExportArtifactFolder(activeState.exportRun!.id).catch(error=>pushToast('error',String(error)))}><IconFolder className="w-3.5 h-3.5"/>{tb('open_folder')}</button>}
+              </footer>
+            )}
+            {activeState && !activeState.exportRun &&
               !activeState.running &&
               activeState.exitCode != null &&
               activeState.exitCode !== 0 && (

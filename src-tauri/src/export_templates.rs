@@ -177,6 +177,10 @@ pub(crate) fn installed_template_platforms(version: &InstalledGodotVersion) -> V
         .unwrap_or_default()
 }
 
+pub(crate) fn installed_template_directory(version: &InstalledGodotVersion) -> Option<PathBuf> {
+    templates_root_for(version).map(|root| root.join(template_folder_for(&version.tag, version.is_mono)))
+}
+
 fn downloads_dir(app: &AppHandle) -> PathBuf {
     let dir = app
         .path()
