@@ -215,6 +215,13 @@ pub fn read_current_tag(app: &AppHandle) -> Option<String> {
     read_state(app)?.tag
 }
 
+pub fn read_current_tag_at(base: &Path) -> Option<String> {
+    crate::persist::read_json_opt_with_backup::<CurrentVersionState>(
+        &base.join("current-version.json"),
+    )?
+    .tag
+}
+
 #[cfg(any(target_os = "windows", test))]
 pub fn shim_script(target: &Path) -> String {
     format!("@echo off\r\n\"{}\" %*\r\n", target.display())

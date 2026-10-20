@@ -371,6 +371,21 @@ fn validate_output(root: &Path, value: &str, overwrite: bool) -> Result<PathBuf,
     Ok(output)
 }
 
+pub(crate) fn cli_preset_names(root: &Path) -> Result<Vec<String>, String> {
+    let name = root
+        .file_name()
+        .and_then(|name| name.to_str())
+        .unwrap_or("project");
+    Ok(read_presets(root, name)?
+        .into_iter()
+        .map(|preset| preset.name)
+        .collect())
+}
+
+pub(crate) fn cli_export_args(root: &Path, preset: &str, output: &Path, old: bool) -> Vec<String> {
+    export_args(root, preset, output, old)
+}
+
 fn export_args(project: &Path, preset: &str, output: &Path, old: bool) -> Vec<String> {
     vec![
         if old { "--no-window" } else { "--headless" }.into(),

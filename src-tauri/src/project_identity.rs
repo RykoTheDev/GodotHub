@@ -15,6 +15,8 @@ struct ProjectIdentity {
     id: String,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     category: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    godot_version: Option<String>,
 }
 
 pub fn identity_file(project_path: &str) -> PathBuf {
@@ -29,11 +31,43 @@ fn normalize_category(category: Option<&str>) -> Option<String> {
 }
 
 fn read_identity(project_path: &str) -> Option<ProjectIdentity> {
+    read_identity_any(project_path).filter(|identity| !identity.id.trim().is_empty())
+}
+
+fn read_identity_any(project_path: &str) -> Option<ProjectIdentity> {
     let root = Path::new(project_path);
     let _ = project_metadata::migrate(root);
     persist::read_json_opt::<ProjectIdentity>(&identity_file(project_path))
-        .filter(|identity| !identity.id.trim().is_empty())
         .or_else(|| persist::read_json_opt(&root.join(project_metadata::LEGACY_IDENTITY_FILE)))
+}
+
+pub fn read_project_version(project_path: &str) -> Option<String> {
+    read_identity_any(project_path)
+        .and_then(|identity| identity.godot_version)
+        .map(|version| version.trim().to_string())
+        .filter(|version| !version.is_empty())
+}
+
+pub fn set_project_version(project_path: &str, tag: Option<&str>) -> bool {
+    let root = Path::new(project_path);
+    let _ = project_metadata::migrate(root);
+    if project_metadata::prepare(root).is_err() {
+        return false;
+    }
+    let mut identity = read_identity_any(project_path).unwrap_or_default();
+    identity.godot_version = tag
+        .map(str::trim)
+        .filter(|tag| !tag.is_empty())
+        .map(str::to_string);
+    if identity.comment.is_empty() && !identity.id.trim().is_empty() {
+        identity.comment = IDENTITY_COMMENT.to_string();
+    }
+    let path = identity_file(project_path);
+    if persist::write_json(&path, &identity).is_err() {
+        return false;
+    }
+    project_metadata::hide(&path);
+    true
 }
 
 pub fn read_project_identity(project_path: &str) -> Option<String> {
@@ -57,10 +91,12 @@ pub fn write_project_identity(project_path: &str, id: &str, category: Option<&st
     if project_metadata::prepare(root).is_err() {
         return false;
     }
+    let existing_version = read_identity_any(project_path).and_then(|identity| identity.godot_version);
     let identity = ProjectIdentity {
         comment: IDENTITY_COMMENT.to_string(),
         id: id.to_string(),
         category: normalize_category(category),
+        godot_version: existing_version,
     };
     let path = identity_file(project_path);
     if persist::write_json(&path, &identity).is_err() {

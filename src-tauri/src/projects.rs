@@ -1155,6 +1155,28 @@ pub fn reorder_projects(app: AppHandle, ordered_ids: Vec<String>) -> Result<(), 
 }
 
 #[tauri::command]
+pub fn set_project_version(app: AppHandle, id: String, tag: String) -> Result<(), String> {
+    if !crate::godot_versions::read_registry(&app)
+        .iter()
+        .any(|v| v.tag == tag)
+    {
+        return Err("That Godot version is not installed".into());
+    }
+    let mut projects = read_projects(&app);
+    let project = projects
+        .iter_mut()
+        .find(|p| p.id == id)
+        .ok_or("Project not found")?;
+    project.godot_version = tag.clone();
+    let path = project.path.clone();
+    write_projects(&app, &projects)?;
+    if !crate::project_identity::set_project_version(&path, Some(&tag)) {
+        return Err("Could not write the project version pin".into());
+    }
+    Ok(())
+}
+
+#[tauri::command]
 pub fn open_project(
     app: AppHandle,
     id: String,
@@ -1168,16 +1190,20 @@ pub fn open_project(
         .ok_or("Project not found")?;
     let project_name = resolve_project_name(&project.path)
         .unwrap_or_else(|| project.name.clone());
-    let project_version = project.godot_version.clone();
+    // A project-local pin takes precedence over the app binding so the editor
+    // launches the same engine terminals and CI resolve.
+    let project_version = crate::project_identity::read_project_version(&project.path)
+        .filter(|tag| !tag.is_empty())
+        .unwrap_or_else(|| project.godot_version.clone());
 
-    if project.godot_version.is_empty() {
+    if project_version.is_empty() {
         return Err("No Godot version bound to this project".into());
     }
 
     let versions = crate::godot_versions::list_installed_godot_versions(app.clone())?;
     let version = versions
         .iter()
-        .find(|v| v.tag == project.godot_version)
+        .find(|v| v.tag == project_version)
         .ok_or("Bound Godot version is not installed")?;
 
     let mut args = vec!["--path".to_string(), project.path.clone()];

@@ -122,7 +122,11 @@ pub fn migrate_registry_to_global(app: &AppHandle) {
 }
 
 pub fn read_registry(app: &AppHandle) -> Vec<InstalledGodotVersion> {
-    let file = registry_file(app);
+    read_registry_at(&app.path().app_data_dir().expect("no app data dir"))
+}
+
+pub fn read_registry_at(base: &Path) -> Vec<InstalledGodotVersion> {
+    let file = base.join("godot-versions.json");
     if !file.exists() {
         return vec![];
     }
@@ -134,6 +138,207 @@ pub fn read_registry(app: &AppHandle) -> Vec<InstalledGodotVersion> {
             v
         })
         .collect()
+}
+
+pub fn register_version_at(base: &Path, version: InstalledGodotVersion) -> Result<bool, String> {
+    let mut list = read_registry_at(base);
+    if list
+        .iter()
+        .any(|v| v.executable_path == version.executable_path)
+    {
+        return Ok(false);
+    }
+    list.push(version);
+    persist::write_json(&base.join("godot-versions.json"), &list).map_err(|e| e.to_string())?;
+    Ok(true)
+}
+
+#[derive(serde::Deserialize)]
+struct GithubAsset {
+    name: String,
+    browser_download_url: String,
+    #[serde(default)]
+    size: u64,
+}
+
+#[derive(serde::Deserialize)]
+struct GithubRelease {
+    tag_name: String,
+    #[serde(default)]
+    assets: Vec<GithubAsset>,
+}
+
+fn tag_matches(release_tag: &str, requested: &str) -> bool {
+    let wanted = requested.trim().trim_start_matches('v');
+    let actual = release_tag.trim_start_matches('v');
+    actual == wanted
+        || actual == format!("{wanted}-stable")
+        || actual.strip_suffix("-stable") == Some(wanted)
+}
+
+/// Download, extract and register a Godot build without a running app, writing
+/// into the same registry the GUI reads. Used by the CLI `install` subcommand.
+pub async fn install_version_headless(
+    base: &Path,
+    versions_dir: &Path,
+    token: Option<String>,
+    requested: &str,
+    mono: bool,
+    progress: impl Fn(u64, u64),
+) -> Result<InstalledGodotVersion, String> {
+    let client = reqwest::Client::builder()
+        .user_agent("godot-hub")
+        .build()
+        .map_err(|e| e.to_string())?;
+
+    let mut found: Option<(String, GithubAsset)> = None;
+    'pages: for page in 1..=5 {
+        let url = format!(
+            "https://api.github.com/repos/godotengine/godot-builds/releases?per_page=100&page={page}"
+        );
+        let mut req = client.get(&url);
+        if let Some(token) = &token {
+            req = req.header("Authorization", format!("Bearer {token}"));
+        }
+        let resp = req.send().await.map_err(|e| e.to_string())?;
+        if !resp.status().is_success() {
+            let status = resp.status();
+            let remaining = resp
+                .headers()
+                .get("x-ratelimit-remaining")
+                .and_then(|v| v.to_str().ok())
+                .unwrap_or("?")
+                .to_string();
+            return Err(format!(
+                "GitHub API error {status} (rate limit remaining: {remaining}). Set a token in Settings or GITHUB_TOKEN."
+            ));
+        }
+        let releases: Vec<GithubRelease> = resp.json().await.map_err(|e| e.to_string())?;
+        if releases.is_empty() {
+            break;
+        }
+        for release in &releases {
+            if !tag_matches(&release.tag_name, requested) {
+                continue;
+            }
+            let matches: Vec<&GithubAsset> = release
+                .assets
+                .iter()
+                .filter(|asset| platform_asset_matcher(&asset.name))
+                .collect();
+            let pick = matches
+                .iter()
+                .find(|asset| asset.name.to_lowercase().contains("mono") == mono)
+                .or_else(|| matches.first())
+                .copied();
+            if let Some(asset) = pick {
+                found = Some((
+                    release.tag_name.clone(),
+                    GithubAsset {
+                        name: asset.name.clone(),
+                        browser_download_url: asset.browser_download_url.clone(),
+                        size: asset.size,
+                    },
+                ));
+                break 'pages;
+            }
+        }
+    }
+
+    let (release_tag, asset) = found.ok_or_else(|| {
+        format!(
+            "No {} build for {requested} was found for this platform.",
+            if mono { "mono" } else { "standard" }
+        )
+    })?;
+
+    let is_mono = asset.name.to_lowercase().contains("mono");
+    let key = if is_mono {
+        format!("{release_tag}-mono")
+    } else {
+        release_tag.clone()
+    };
+    if read_registry_at(base).iter().any(|v| v.tag == key) {
+        return Err(format!("Godot {key} is already installed."));
+    }
+
+    let target_dir = versions_dir.join(&key);
+    fs::create_dir_all(&target_dir).map_err(|e| e.to_string())?;
+    let zip_path = target_dir.join(&asset.name);
+
+    let resp = client
+        .get(&asset.browser_download_url)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+    if !resp.status().is_success() {
+        return Err(format!("Download failed with status {}", resp.status()));
+    }
+    let total = resp.content_length().unwrap_or(asset.size);
+    let mut file = fs::File::create(&zip_path).map_err(|e| e.to_string())?;
+    let mut downloaded = 0u64;
+    let mut stream = resp.bytes_stream();
+    while let Some(chunk) = stream.next().await {
+        let chunk = chunk.map_err(|e| e.to_string())?;
+        file.write_all(&chunk).map_err(|e| e.to_string())?;
+        downloaded += chunk.len() as u64;
+        progress(downloaded, total);
+    }
+    file.flush().map_err(|e| e.to_string())?;
+    drop(file);
+
+    extract_and_register(base, &release_tag, &asset.name, &zip_path, &target_dir)
+}
+
+fn extract_and_register(
+    base: &Path,
+    release_tag: &str,
+    asset_name: &str,
+    zip_path: &Path,
+    target_dir: &Path,
+) -> Result<InstalledGodotVersion, String> {
+    let zip_file = fs::File::open(zip_path).map_err(|e| e.to_string())?;
+    let mut archive = zip::ZipArchive::new(zip_file).map_err(|e| e.to_string())?;
+    archive.extract(target_dir).map_err(|e| e.to_string())?;
+    let _ = fs::remove_file(zip_path);
+
+    let exe_path = find_executable(target_dir)
+        .ok_or_else(|| "Could not locate the Godot executable after extraction".to_string())?;
+
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        if let Ok(meta) = fs::metadata(&exe_path) {
+            let mut perms = meta.permissions();
+            perms.set_mode(0o755);
+            let _ = fs::set_permissions(&exe_path, perms);
+        }
+    }
+
+    let version_number = release_tag
+        .split('-')
+        .next()
+        .unwrap_or(release_tag)
+        .trim_start_matches('v')
+        .to_string();
+    let is_mono = asset_name.to_lowercase().contains("mono");
+    let installed = InstalledGodotVersion {
+        tag: if is_mono {
+            format!("{release_tag}-mono")
+        } else {
+            release_tag.to_string()
+        },
+        version: version_number,
+        executable_path: exe_path.to_string_lossy().to_string(),
+        is_mono,
+        installed_at: chrono::Utc::now().to_rfc3339(),
+        custom_name: None,
+        install_root: Some(target_dir.to_string_lossy().to_string()),
+        supports_console: false,
+        managed_by: None,
+    };
+    register_version_at(base, installed.clone())?;
+    Ok(installed)
 }
 
 pub fn write_registry(app: &AppHandle, list: &Vec<InstalledGodotVersion>) -> Result<(), String> {

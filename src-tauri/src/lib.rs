@@ -2,6 +2,7 @@ mod asset_library;
 mod backup;
 mod categories;
 mod changelog;
+mod cli;
 mod console;
 mod export_runner;
 mod current_version;
@@ -24,6 +25,7 @@ mod project_metadata;
 mod project_health;
 mod projects;
 mod project_todos;
+mod resolve;
 mod scan;
 mod settings;
 mod sync;
@@ -205,6 +207,13 @@ async fn pick_data_file(app: tauri::AppHandle) -> Option<String> {
     rx.recv().ok().flatten().map(|p| p.to_string())
 }
 
+/// Entry point for command-line use. Returns `Some(exit_code)` when a
+/// subcommand was given (the GUI should not launch), or `None` to launch the
+/// GUI as usual.
+pub fn run_cli() -> Option<i32> {
+    cli::dispatch()
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -374,6 +383,7 @@ pub fn run() {
             projects::import_project,
             projects::remove_project,
             projects::update_project,
+            projects::set_project_version,
             project_health::diagnose_project,
             project_health::fix_project_health,
             projects::reorder_projects,

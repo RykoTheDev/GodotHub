@@ -705,7 +705,37 @@ fn diagnose(app: &AppHandle, id: &str) -> Result<HealthReport, String> {
     diagnose_local(project, &projects, &versions)
 }
 
-fn diagnose_local(
+pub(crate) fn diagnose_cli(
+    root: &Path,
+    version_tag: &str,
+    versions: &[InstalledGodotVersion],
+) -> Result<HealthReport, String> {
+    let project = Project {
+        id: String::new(),
+        name: root
+            .file_name()
+            .and_then(|name| name.to_str())
+            .unwrap_or("project")
+            .to_string(),
+        path: root.to_string_lossy().to_string(),
+        godot_version: version_tag.to_string(),
+        created_at: String::new(),
+        last_opened: None,
+        category: None,
+        pinned: false,
+        sort_order: 0,
+        launch_arguments: String::new(),
+        tags: Vec::new(),
+        total_time_seconds: 0,
+        session_started_at_ms: None,
+        time_today_seconds: 0,
+        time_week_seconds: 0,
+    };
+    let projects = [project.clone()];
+    diagnose_local(&project, &projects, versions)
+}
+
+pub(crate) fn diagnose_local(
     project: &Project,
     projects: &[Project],
     versions: &[InstalledGodotVersion],
