@@ -751,6 +751,9 @@ pub fn duplicate_project(
 
     projects.push(project.clone());
     write_projects(&app, &projects)?;
+    if let Err(error) = crate::project_todos::copy_project_todos(&app, &id, &project.id) {
+        eprintln!("Could not copy to-dos to the duplicated project: {error}");
+    }
     // Copies exclude identity markers; stamp a new identity so the two projects
     // track time independently.
     let _ = crate::project_identity::ensure_project_identity(

@@ -1560,6 +1560,18 @@
       {
         "category": "add",
         "text": "Implement RTL Toggle for Arabic Language"
+      },
+      {
+        "category": "fix",
+        "text": "Project to-dos are now included in workspace backups, full app backups and Gist sync, and restoring an older backup without to-dos keeps your current ones"
+      },
+      {
+        "category": "fix",
+        "text": "Project to-dos are saved safely: a damaged to-do file is restored from its automatic backup instead of showing an empty list"
+      },
+      {
+        "category": "fix",
+        "text": "Duplicating a project now copies its to-dos"
       }
     ],
     "known_issues": [],

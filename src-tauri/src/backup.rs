@@ -33,6 +33,8 @@ pub(crate) struct WorkspaceBackup {
     templates: Vec<TemplateBackup>,
     #[serde(default)]
     time_stats: crate::time_stats::TimeStatsStore,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    project_todos: Option<crate::project_todos::TodosByProject>,
 }
 
 impl WorkspaceBackup {
@@ -50,6 +52,12 @@ impl WorkspaceBackup {
     }
     pub fn has_time_stats(&self) -> bool {
         !self.time_stats.projects.is_empty()
+    }
+    pub fn todo_count(&self) -> usize {
+        self.project_todos
+            .as_ref()
+            .map(|todos| todos.values().map(Vec::len).sum())
+            .unwrap_or(0)
     }
     pub fn version_scan_dirs(&self) -> &Vec<String> {
         &self.settings.version_scan_dirs
@@ -137,6 +145,7 @@ fn build_workspace_backup_in(dir: &Path, ws: &Workspace) -> WorkspaceBackup {
         categories: crate::categories::read_categories_from(dir),
         templates,
         time_stats: crate::time_stats::read_stats_from(dir),
+        project_todos: Some(crate::project_todos::read_todos_from(dir)),
     }
 }
 
@@ -180,6 +189,10 @@ fn apply_workspace_backup_in(dir: &Path, backup: WorkspaceBackup) -> Result<AppS
     }
 
     crate::time_stats::write_stats_to(dir, &backup.time_stats);
+
+    if let Some(todos) = &backup.project_todos {
+        crate::project_todos::write_todos_to(dir, todos)?;
+    }
 
     Ok(settings)
 }

@@ -256,6 +256,8 @@
   "restore_modal_templates_one": "template",
   "restore_modal_templates_other": "templates",
   "restore_modal_time_stats": "Includes time tracking data",
+  "restore_modal_todos_one": "Includes {{count}} to-do",
+  "restore_modal_todos_other": "Includes {{count}} to-dos",
   "restore_modal_project_scan_dirs": "{{count}} project scan folder(s) will be restored",
   "restore_modal_version_scan_dirs": "{{count}} Godot version folder(s) will be restored",
   "restore_modal_workspace_list": "Workspaces",
