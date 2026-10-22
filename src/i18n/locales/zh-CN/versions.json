@@ -138,11 +138,11 @@
   "export_templates_web_single_threaded": "Web (单线程)",
   "export_templates_web_extensions_single_threaded": "Web (支持扩展·单线程)",
   "export_templates_refresh": "刷新可用模板",
-  "download_failed_title": "Download failed",
-  "download_failed_desc": "GodotHub couldn't finish installing {{tag}}. Copy the details below and share them so this can be diagnosed.",
-  "download_failed_source_label": "Source",
-  "download_failed_asset_label": "File",
-  "download_failed_error_label": "Error details",
-  "download_failed_copy": "Copy details",
-  "download_failed_hint": "Common causes: a blocked network or proxy, antivirus blocking the download, a missing or read-only download folder, or low disk space."
+  "download_failed_title": "下载失败",
+  "download_failed_desc": "GodotHub 无法完成安装 {{tag}}。复制下面的详细信息并提交，以便诊断。",
+  "download_failed_source_label": "来源",
+  "download_failed_asset_label": "文件",
+  "download_failed_error_label": "错误详情",
+  "download_failed_copy": "复制详情",
+  "download_failed_hint": "常见原因：网络或代理被阻塞，防病毒软件阻止下载，下载文件夹缺失或只读，或磁盘空间不足。"
 }
