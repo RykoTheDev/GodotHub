@@ -441,7 +441,7 @@ export function CategoryManagerModal({
   return (
     <ModalShell
       icon={<IconTags className="w-5 h-5 text-accent-bright" />}
-      title={t('manage_categories_title')}
+      title={t('manage_categories')}
       description={t('manage_categories_desc')}
       maxWidth="max-w-2xl"
       onClose={onClose}

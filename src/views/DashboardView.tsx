@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { TodoDueTile } from '../components/cards/TodoDueTile'
+import { IconCheckCircle } from '../lib/icons'
 import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import Masonry from 'react-masonry-css'
@@ -1168,11 +1170,16 @@ export function DashboardView({
   )
   const orderedTiles = useMemo(() => {
     const all = orderedTileIds(settings.dashboard_section_order)
-    return all.filter((id) => enabledTiles.includes(id))
-  }, [settings.dashboard_section_order, enabledTiles])
+    return all.filter(
+      (id) => enabledTiles.includes(id) && (id !== 'todos' || settings.project_todos_enabled),
+    )
+  }, [settings.dashboard_section_order, enabledTiles, settings.project_todos_enabled])
   const hiddenTiles = useMemo(
-    () => DASHBOARD_TILE_IDS.filter((id) => !enabledTiles.includes(id)),
-    [enabledTiles],
+    () =>
+      DASHBOARD_TILE_IDS.filter(
+        (id) => !enabledTiles.includes(id) && (id !== 'todos' || settings.project_todos_enabled),
+      ),
+    [enabledTiles, settings.project_todos_enabled],
   )
 
   const activityTitle: Record<ActivityRange, string> = {
@@ -1197,6 +1204,7 @@ export function DashboardView({
     pinned: tc('dashboard_pinned'),
     engines: tc('dashboard_engines'),
     running: tc('dashboard_running'),
+    todos: tc('dashboard_todos'),
   }
 
   const spanSet = useMemo(
@@ -1471,6 +1479,16 @@ export function DashboardView({
             ) : (
               <EmptyCard text={tc('dashboard_engines_empty')} />
             )}
+          </Section>
+        )
+      case 'todos':
+        return (
+          <Section
+            title={tc('dashboard_todos')}
+            icon={<IconCheckCircle className="w-3.5 h-3.5" />}
+            action={controls}
+          >
+            <TodoDueTile tall={tall} />
           </Section>
         )
       case 'running':

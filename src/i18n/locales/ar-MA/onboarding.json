@@ -13,9 +13,19 @@
   "onboard_empty_projects": "لم تضف أي مجلدات, جودوت هاب لا يمكنه تحديد أي مشروع إلى أن تضيف مجلد مشاريعك, أو يمكنك إستوراد المشاريع يدويا لاحقا.",
   "onboard_empty_versions": "لم تضف أي مجلدات, إصدارات جودوت المختلفة ستذهب لمجلد بيانات جودوت هاب إلا إذا عيينة واحد أخر بنفسك.",
   "onboard_no_template_folder": "لم يعين أي مجلد, يمكنك دائما تخصيص هذا في الإعدادات, أو احفظ القوالب يدويا.",
-  "language_heading": "اللغات",
   "onboard_cloud_heading": "النسخة الإحتياطية السحابية",
   "onboard_cloud_desc": "هل لديك نسخة احتياطية بالفعل؟ سجل الدخول مع GitHub و استرجع بيئات عملك، مشاريعك، و إعداداتك باختصار.",
-  "onboard_cloud_sign_in": "سجل الدخول مع GitHub",
-  "onboard_cloud_connected": "تواصل معنا كـ @{{username}}"
+  "discovery_recent_heading": "Recent projects from Godot",
+  "discovery_installs_heading": "Godot found on this computer",
+  "discovery_scanning_projects": "Reading Godot's project manager list…",
+  "discovery_scanning_installs": "Looking for Godot on your PATH and in Steam…",
+  "discovery_engine": "Godot {{version}}",
+  "discovery_favorite": "Favorite",
+  "discovery_add_selected": "Add selected",
+  "discovery_add_selected_count": "Add selected ({{count}})",
+  "discovery_added_projects_one": "Added {{count}} project.",
+  "discovery_added_projects_other": "Added {{count}} projects.",
+  "discovery_added_versions_one": "Added {{count}} version.",
+  "discovery_added_versions_other": "Added {{count}} versions.",
+  "discovery_link_hint": "Projects are linked to a matching Godot version automatically, including versions you add in the next step."
 }

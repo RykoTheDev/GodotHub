@@ -387,7 +387,7 @@ export function CommandPalette({
         sublabel: p.path,
         shortcut: navShortcuts.projects,
         icon: <IconNode className="w-4 h-4" />,
-        section: tc('projects_section'),
+        section: tc('section_projects'),
         action: () => {
           onNavigate('projects')
           dispatch('app:open-project', p.id)
@@ -416,7 +416,7 @@ export function CommandPalette({
         }),
         shortcut: navShortcuts.settings,
         icon: <IconGear className="w-4 h-4" />,
-        section: tc('settings_section'),
+        section: tc('settings_title'),
         action: () => dispatch('app:open-setting', s.key),
       })
     }
@@ -434,7 +434,7 @@ export function CommandPalette({
             ? tc('current_workspace')
             : tc('switch_workspace'),
           icon: <WsIcon className="w-4 h-4" style={{ color: w.color }} />,
-          section: tc('workspaces_section'),
+          section: tc('section_workspaces'),
           action: () => switchWorkspace(w.id),
         })
       }
@@ -446,7 +446,7 @@ export function CommandPalette({
         label: tc('all_categories'),
         sublabel: tc('clear_category_filter'),
         icon: <IconTags className="w-4 h-4" />,
-        section: tc('categories_section'),
+        section: tc('categories'),
         action: () => dispatch('app:set-category-filter', ''),
       })
       for (const c of categories) {
@@ -455,7 +455,7 @@ export function CommandPalette({
           label: c.name,
           sublabel: tc('filter_by_category'),
           icon: <IconTags className="w-4 h-4" style={{ color: c.color }} />,
-          section: tc('categories_section'),
+          section: tc('categories'),
           action: () => dispatch('app:set-category-filter', c.name),
         })
       }
@@ -698,13 +698,13 @@ export function CommandPalette({
             <kbd className="font-mono px-1 bg-overlay rounded border border-outline/50">
               ↵
             </kbd>{' '}
-            {tc('command_palette_select')}
+            {tc('clone_repo_select')}
           </span>
           <span>
             <kbd className="font-mono px-1 bg-overlay rounded border border-outline/50">
               {tc('command_palette_escape')}
             </kbd>{' '}
-            {tc('command_palette_close')}
+            {tc('close')}
           </span>
         </div>
       </div>

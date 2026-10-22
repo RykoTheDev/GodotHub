@@ -8,6 +8,7 @@ export const DASHBOARD_TILE_IDS = [
   'pinned',
   'engines',
   'running',
+  'todos',
 ] as const
 
 export type DashboardTileId = (typeof DASHBOARD_TILE_IDS)[number]
@@ -58,7 +59,7 @@ export const TILE_LAYOUT_OPTIONS: Partial<Record<DashboardTileId, { span?: boole
   insights: { span: true },
   git: { span: true, tall: true },
   storage: { span: true, tall: true },
-
+  todos: { span: true, tall: true },
 }
 
 export function tileCanSpan(id: DashboardTileId): boolean {

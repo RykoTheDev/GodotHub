@@ -514,7 +514,7 @@ export function ProjectConsoleWindow() {
       return {label:run.status==='running'?tb('running',{preset:run.preset_name}):tb(run.status),tone:run.status==='running'?'running' as const:run.status==='succeeded'?'ok' as const:run.status==='failed'?'error' as const:'neutral' as const}
     }
     if (activeState.running) {
-      return { label: t('console_running'), tone: 'running' as const }
+      return { label: t('running'), tone: 'running' as const }
     }
     if (activeState.exitCode == null) {
       return { label: t('console_finished'), tone: 'neutral' as const }
@@ -609,14 +609,14 @@ export function ProjectConsoleWindow() {
                 </button>
               </Tooltip>
               <Tooltip
-                content={fullscreen ? t('console_collapse') : t('console_expand')}
+                content={fullscreen ? t('collapse') : t('expand')}
                 side="bottom"
               >
                 <button
                   type="button"
                   onClick={() => setFullscreen((v) => !v)}
                   aria-label={
-                    fullscreen ? t('console_collapse') : t('console_expand')
+                    fullscreen ? t('collapse') : t('expand')
                   }
                   className="focus-ring cursor-pointer w-7 h-7 rounded-btn inline-flex items-center justify-center text-muted hover:text-ink hover:bg-raised transition-colors"
                 >
@@ -830,7 +830,7 @@ export function ProjectConsoleWindow() {
             </span>
             <span className="shrink-0 text-[10px] text-muted/70">
               {activeState?.running
-                ? t('console_running')
+                ? t('running')
                 : activeState?.exitCode == null
                   ? t('console_finished')
                   : activeState.exitCode === 0

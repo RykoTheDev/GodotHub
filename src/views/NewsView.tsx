@@ -119,7 +119,7 @@ export function NewsView({ connected = false }: { connected?: boolean }) {
       <ViewHeader
         connected={connected}
         className="mb-4"
-        title={tc('news_title')}
+        title={tc('section_news')}
         metric={
           <>
             <h2 className="text-4xl font-bold text-muted">

@@ -201,7 +201,7 @@ export function InstallAssetModal({ asset, onClose, onInstalled }: Props) {
                 {t('asset_install_into', { name: selectedName })}
               </>
             ) : (
-              <>{t('asset_install_btn')}</>
+              <>{t('asset_install')}</>
             )}
           </motion.button>
         </>
@@ -245,7 +245,7 @@ export function InstallAssetModal({ asset, onClose, onInstalled }: Props) {
               placeholder={
                 tab === 'project'
                   ? t('asset_install_search_projects')
-                  : t('asset_install_search_templates')
+                  : t('template_search_placeholder')
               }
               className="flex-1 min-w-0 bg-transparent outline-none text-sm font-medium text-ink placeholder:text-muted/70"
             />

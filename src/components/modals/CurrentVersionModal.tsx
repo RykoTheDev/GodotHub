@@ -80,7 +80,7 @@ export function CurrentVersionModal({
       }
     >
       <div className="px-6 pb-6 flex flex-col gap-3">
-        {pathRow('alias', tv('current_alias_label'), info.alias_path)}
+        {pathRow('alias', tv('cleanup_alias_badge'), info.alias_path)}
         {pathRow('dir', tv('current_dir_label'), info.aliases_dir)}
         <p className="text-xs text-muted leading-relaxed">
           {tv('current_path_hint')}

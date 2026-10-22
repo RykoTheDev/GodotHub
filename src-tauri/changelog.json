@@ -1560,6 +1560,50 @@
       {
         "category": "add",
         "text": "Implement RTL Toggle for Arabic Language"
+      },
+      {
+        "category": "fix",
+        "text": "Project to-dos are now included in workspace backups, full app backups and Gist sync, and restoring an older backup without to-dos keeps your current ones"
+      },
+      {
+        "category": "fix",
+        "text": "Project to-dos are saved safely: a damaged to-do file is restored from its automatic backup instead of showing an empty list"
+      },
+      {
+        "category": "fix",
+        "text": "Duplicating a project now copies its to-dos"
+      },
+      {
+        "category": "add",
+        "text": "Project to-dos: Scan code imports TODO and FIXME comments from your .gd, .cs and .gdshader files as to-dos, and completes them once the comment is removed"
+      },
+      {
+        "category": "add",
+        "text": "Project to-dos can link to a scene, script or resource (res://), so clicking it opens the file in Godot or your code editor at the right line"
+      },
+      {
+        "category": "add",
+        "text": "Project to-dos now have a #todo-N reference: a commit message like \"Fixes #todo-3\" completes it, and its details show the branches and commits that mention it"
+      },
+      {
+        "category": "add",
+        "text": "Dashboard \"Due to-dos\" tile shows overdue and due-this-week to-dos across all your projects; click one to jump to that project's to-do list"
+      },
+      {
+        "category": "add",
+        "text": "Project cards show how many to-dos are open or overdue, and you get a desktop notification when to-dos are due"
+      },
+      {
+        "category": "add",
+        "text": "Project to-dos can have a priority and a checklist, and can be reordered by dragging when no sort is active"
+      },
+      {
+        "category": "add",
+        "text": "Quick-add a to-do by typing its title and pressing Enter, and search or filter the full to-do list by area"
+      },
+      {
+        "category": "improve",
+        "text": "Completed to-dos now remember when they were finished and are listed newest first with their completion date"
       }
     ],
     "known_issues": [],

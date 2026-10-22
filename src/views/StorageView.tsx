@@ -103,10 +103,10 @@ function Badge({ tone, children }: { tone: 'accent' | 'mint' | 'amber' | 'muted'
 function OpenFolderButton({ path }: { path: string }) {
   const { t: tc } = useTranslation('common')
   return (
-    <Tooltip content={tc('cleanup_open_folder')} side="left">
+    <Tooltip content={tc('open_folder')} side="left">
       <button
         type="button"
-        aria-label={tc('cleanup_open_folder')}
+        aria-label={tc('open_folder')}
         onClick={() => void api.openProjectFolder(path).catch(() => {})}
         className="focus-ring cursor-pointer shrink-0 p-1.5 rounded-btn text-muted/60 hover:text-ink hover:bg-raised transition-colors"
       >
@@ -306,7 +306,7 @@ export function StorageView({
             <>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
                 {[
-                  { label: tc('cleanup_versions_title'), value: totals.versions },
+                  { label: tc('installed_versions_section'), value: totals.versions },
                   { label: tc('cleanup_templates_title'), value: totals.templates },
                   { label: tc('cleanup_export_templates_title'), value: totals.exports },
                   { label: tc('cleanup_reclaimable_title'), value: sum(entries.map((e) => e.size)) },
@@ -402,7 +402,7 @@ export function StorageView({
 
               <Section
                 icon={<IconCloudArrowDown className="w-3.5 h-3.5 text-muted" />}
-                title={tc('cleanup_versions_title')}
+                title={tc('installed_versions_section')}
                 total={totals.versions}
                 description={tc('cleanup_versions_desc')}
               >
@@ -429,7 +429,7 @@ export function StorageView({
                               <Tooltip content={v.projects.join(', ')}>
                                 <span>
                                   <Badge tone="mint">
-                                    {tc('cleanup_used_by_projects', { count: v.projects.length })}
+                                    {tc('n_projects', { count: v.projects.length })}
                                   </Badge>
                                 </span>
                               </Tooltip>

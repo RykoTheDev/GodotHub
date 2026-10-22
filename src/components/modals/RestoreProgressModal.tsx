@@ -17,6 +17,7 @@ interface RestorePreview {
   category_count: number
   template_count: number
   has_time_stats: boolean
+  todo_count?: number
   version_scan_dirs: string[]
   project_scan_dirs: string[]
 }
@@ -148,7 +149,7 @@ export function RestoreProgressModal({ onClose }: Props) {
               className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm font-medium bg-accent hover:bg-accent-bright text-white transition-colors inline-flex items-center gap-2"
             >
               <IconRefresh className="w-4 h-4" />
-              {t('restore_modal_restart_btn')}
+              {t('restart_app')}
             </motion.button>
           </div>
         ) : undefined
@@ -225,6 +226,12 @@ export function RestoreProgressModal({ onClose }: Props) {
               <div className="flex items-center gap-2 text-xs text-muted">
                 <IconCheck className="w-3.5 h-3.5 text-green" />
                 {t('restore_modal_time_stats')}
+              </div>
+            )}
+            {(preview.todo_count ?? 0) > 0 && (
+              <div className="flex items-center gap-2 text-xs text-muted">
+                <IconCheck className="w-3.5 h-3.5 text-green" />
+                {t('restore_modal_todos', { count: preview.todo_count })}
               </div>
             )}
             {preview.project_scan_dirs.length > 0 && (

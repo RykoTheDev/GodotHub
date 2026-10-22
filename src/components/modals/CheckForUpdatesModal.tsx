@@ -316,7 +316,7 @@ export function CheckForUpdatesModal({
             onClick={onClose}
             className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-4 py-2 rounded-item border border-outline/50 text-xs font-medium text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors"
           >
-            {t('check_updates_close_btn')}
+            {t('close')}
           </motion.button>
         </div>
       }
@@ -458,7 +458,7 @@ export function CheckForUpdatesModal({
                     <div className="w-full rounded-item border border-amber/30 bg-amber/10 p-4">
                       <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-amber mb-2">
                         <IconAlertTriangle className="w-3.5 h-3.5 shrink-0" />
-                        {t('check_updates_known_issues')}
+                        {t('changelog_known_issues')}
                       </p>
                       <ul className="flex flex-col gap-1.5">
                         {knownIssues.map((issue, i) => (
@@ -618,7 +618,7 @@ export function CheckForUpdatesModal({
                     className="focus-ring cursor-pointer flex items-center gap-2 px-5 py-2.5 rounded-item border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium text-ink transition-colors"
                   >
                     <IconRefresh className="w-4 h-4" />
-                    {t('check_updates_try_again')}
+                    {t('try_again')}
                   </motion.button>
                 </div>
               )

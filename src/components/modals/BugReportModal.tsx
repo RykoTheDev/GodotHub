@@ -205,7 +205,7 @@ export function BugReportModal({ onClose }: Props) {
   const openGithubIssue = () => {
     if (!system) return
     const firstLine = description.trim().split('\n')[0] || ''
-    const title = (firstLine || t('bug_report_title')).slice(0, 72)
+    const title = (firstLine || t('report_a_bug')).slice(0, 72)
     const params = new URLSearchParams({
       template: 'bug_report.yaml',
       title,
@@ -221,7 +221,7 @@ export function BugReportModal({ onClose }: Props) {
   return (
     <ModalShell
       icon={<IconBug className="w-5 h-5 text-danger" />}
-      title={t('bug_report_title')}
+      title={t('report_a_bug')}
       description={t('bug_report_desc', { version })}
       maxWidth="max-w-lg"
       onClose={onClose}

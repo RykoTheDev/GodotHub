@@ -42,7 +42,7 @@ export function LaunchArgsModal({
   return (
     <ModalShell
       icon={<IconCode className="w-5 h-5" />}
-      title={t('args_heading')}
+      title={t('launch_arguments')}
       description={
         <>
           {t('args_desc_custom_flags_before')}{' '}

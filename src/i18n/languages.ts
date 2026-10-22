@@ -15,7 +15,7 @@ export const LANGUAGES: LanguageOption[] = [
   {
     value: SYSTEM_LANGUAGE,
     label: 'System language',
-    labelKey: 'language_system',
+    labelKey: 'system_language',
     country: 'SYSTEM',
     status: 'complete',
     priority: -1,

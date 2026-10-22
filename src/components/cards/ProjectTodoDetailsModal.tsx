@@ -1,19 +1,27 @@
 import { useUiMotion } from '../../hooks/useUiMotion'
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
-import { IconCheckCircle } from "../../lib/icons";
-import type { ProjectTodo, TodoArea } from "../../types/projectTodo";
+import { IconCheckCircle, IconExternalLink, IconGitBranch } from "../../lib/icons";
+import { projectTodosApi } from "../../api/projectTodos";
+import type {
+  ProjectTodo,
+  TodoArea,
+  TodoGitActivity,
+} from "../../types/projectTodo";
 
 import { ModalHeader } from "../modals/ModalHeader";
 
 type ProjectTodoDetailsModalProps = {
+  projectId: string;
   todo: ProjectTodo;
   statusLabel: string;
   statusClassName: string;
   overdue: boolean;
+  onOpenLink: (todo: ProjectTodo) => void;
+  onUpdate: (todo: ProjectTodo) => void;
   onClose: () => void;
 };
 
@@ -24,10 +32,13 @@ function toLocalDate(value: string) {
 }
 
 export function ProjectTodoDetailsModal({
+  projectId,
   todo,
   statusLabel,
   statusClassName,
   overdue,
+  onOpenLink,
+  onUpdate,
   onClose,
 }: ProjectTodoDetailsModalProps) {
   const uiMotion = useUiMotion()
@@ -55,7 +66,7 @@ export function ProjectTodoDetailsModal({
     );
 
     if (differenceInDays === 0) {
-      return t("today");
+      return t("time_today");
     }
 
     if (differenceInDays === 1) {
@@ -89,6 +100,38 @@ export function ProjectTodoDetailsModal({
   const dueDateContextLabel = todo.dueDate
     ? formatDueDateContext(todo.dueDate, overdue)
     : null;
+
+  const reference = todo.number !== undefined ? `#todo-${todo.number}` : null;
+  const linkLabel = todo.link
+    ? todo.link.line
+      ? `${todo.link.path}:${todo.link.line}`
+      : todo.link.path
+    : null;
+  const closure = todo.status === "done" ? todo.closedBy : undefined;
+
+  const [activity, setActivity] = useState<TodoGitActivity | null>(null);
+  const [activityLoading, setActivityLoading] = useState(false);
+
+  useEffect(() => {
+    if (todo.number === undefined) return;
+
+    let cancelled = false;
+
+    setActivityLoading(true);
+    projectTodosApi
+      .activity(projectId, todo.number)
+      .then((result) => {
+        if (!cancelled) setActivity(result);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setActivityLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId, todo.number]);
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
@@ -146,6 +189,18 @@ export function ProjectTodoDetailsModal({
             </span>
           </div>
 
+          {todo.priority && (
+            <div className="flex flex-col gap-1.5">
+              <span className="ps-3 text-xs font-medium text-muted">
+                {t("priority")}
+              </span>
+
+              <span className="w-fit rounded-tag border border-outline/50 bg-raised px-3 py-1.5 text-xs font-medium text-ink">
+                {t(`priority_${todo.priority}`)}
+              </span>
+            </div>
+          )}
+
           <div className="flex flex-col gap-1.5">
             <span className="ps-3 text-xs font-medium text-muted">
               {t("status")}
@@ -156,11 +211,67 @@ export function ProjectTodoDetailsModal({
             >
               {statusLabel}
             </span>
+
+            {closure && (
+              <p className="ps-3 text-xs text-muted">
+                {closure.kind === "commit"
+                  ? t("closed_by_commit", {
+                      hash: closure.commit?.slice(0, 7) ?? "",
+                      subject: closure.subject ?? "",
+                    })
+                  : t("closed_by_comment_removed")}
+              </p>
+            )}
+
+            {todo.status === "done" && todo.completedAt && (
+              <p className="ps-3 text-xs text-muted">
+                {t("completed_on_full", {
+                  date: new Intl.DateTimeFormat(locale, {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  }).format(new Date(todo.completedAt)),
+                })}
+              </p>
+            )}
           </div>
+
+          {linkLabel && todo.link && (
+            <div className="flex flex-col gap-1.5">
+              <span className="ps-3 text-xs font-medium text-muted">
+                {t("linked_file")}
+              </span>
+
+              <div className="flex items-center gap-3 rounded-item border border-outline/50 bg-overlay px-3.5 py-2.5">
+                <div className="min-w-0 flex-1">
+                  <p
+                    dir="ltr"
+                    className="truncate font-mono text-xs text-ink"
+                    title={linkLabel}
+                  >
+                    {linkLabel}
+                  </p>
+                  {todo.source && (
+                    <p className="mt-0.5 text-xs text-muted">
+                      {t("source_comment", { tag: todo.source.tag })}
+                    </p>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => onOpenLink(todo)}
+                  className="focus-ring inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-btn border border-outline/50 px-2.5 py-1.5 text-[11px] font-medium text-muted transition-colors hover:border-accent-dim hover:bg-raised hover:text-ink"
+                >
+                  <IconExternalLink className="h-3 w-3" />
+                  {t("open_file")}
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="flex flex-col gap-1.5">
             <span className="ps-3 text-xs font-medium text-muted">
-              {t("description")}
+              {t("project_template_desc_label")}
             </span>
 
             <div className="min-h-20 whitespace-pre-wrap break-words rounded-item border border-outline/50 bg-overlay px-3.5 py-2.5 text-sm text-ink">
@@ -169,6 +280,43 @@ export function ProjectTodoDetailsModal({
               )}
             </div>
           </div>
+
+          {todo.checklist && todo.checklist.length > 0 && (
+            <div className="flex flex-col gap-1.5">
+              <span className="ps-3 text-xs font-medium text-muted">
+                {t("checklist")}{" "}
+                <span className="font-normal text-muted/60">
+                  {t("checklist_progress", {
+                    done: todo.checklist.filter((item) => item.done).length,
+                    total: todo.checklist.length,
+                  })}
+                </span>
+              </span>
+
+              <div className="flex flex-col gap-1 rounded-item border border-outline/50 bg-overlay px-3.5 py-2.5">
+                {todo.checklist.map((item) => (
+                  <label key={item.id} className="flex cursor-pointer items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={item.done}
+                      onChange={() =>
+                        onUpdate({
+                          ...todo,
+                          checklist: todo.checklist?.map((entry) =>
+                            entry.id === item.id ? { ...entry, done: !entry.done } : entry,
+                          ),
+                        })
+                      }
+                      className="accent-accent shrink-0"
+                    />
+                    <span className={item.done ? "text-muted line-through" : "text-ink"}>
+                      {item.text}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="flex flex-col gap-1.5">
             <span className="ps-3 text-xs font-medium text-muted">
@@ -200,6 +348,81 @@ export function ProjectTodoDetailsModal({
               )}
             </div>
           </div>
+
+          {reference && (
+            <div className="flex flex-col gap-1.5">
+              <span className="ps-3 text-xs font-medium text-muted">
+                {t("todo_reference")}
+              </span>
+
+              <div className="flex flex-col gap-2 rounded-item border border-outline/50 bg-overlay px-3.5 py-2.5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <code
+                    dir="ltr"
+                    className="rounded-tag border border-outline/50 bg-raised px-2 py-0.5 font-mono text-xs text-ink"
+                  >
+                    {reference}
+                  </code>
+                  <span className="text-xs text-muted">
+                    {t("todo_reference_hint", { ref: reference })}
+                  </span>
+                </div>
+
+                {activityLoading && !activity ? (
+                  <p className="text-xs text-muted">{t("git_activity_loading")}</p>
+                ) : activity && activity.isRepo ? (
+                  activity.branches.length === 0 && activity.commits.length === 0 ? (
+                    <p className="text-xs text-muted">
+                      {t("git_activity_empty", { ref: reference })}
+                    </p>
+                  ) : (
+                    <div className="flex flex-col gap-2 border-t border-outline/40 pt-2">
+                      {activity.branches.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <IconGitBranch
+                            aria-label={t("git_branches")}
+                            className="h-3 w-3 text-muted"
+                          />
+                          {activity.branches.map((branch) => (
+                            <span
+                              key={branch}
+                              dir="ltr"
+                              className={`rounded-tag border px-2 py-0.5 font-mono text-[10px] ${
+                                branch === activity.currentBranch
+                                  ? "border-accent/40 bg-accent/10 text-accent-bright"
+                                  : "border-outline/50 bg-raised text-ink"
+                              }`}
+                            >
+                              {branch}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {activity.commits.map((commit) => (
+                        <div key={commit.hash} className="flex items-center gap-2 text-xs">
+                          <code dir="ltr" className="shrink-0 font-mono text-muted">
+                            {commit.shortHash}
+                          </code>
+                          <span
+                            className="min-w-0 flex-1 truncate text-ink"
+                            title={`${commit.subject} · ${commit.author}`}
+                          >
+                            {commit.subject}
+                          </span>
+                          {commit.closes && (
+                            <span className="shrink-0 rounded-tag border border-mint/30 bg-mint/15 px-1.5 py-0.5 text-[10px] text-mint">
+                              {t("git_commit_closes")}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )
+                ) : null}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-end p-5 pt-2">

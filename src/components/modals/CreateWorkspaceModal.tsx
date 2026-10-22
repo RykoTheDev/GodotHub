@@ -67,7 +67,7 @@ export function CreateWorkspaceModal({ onClose, onCreate }: Props) {
             disabled={busy}
             className="focus-ring px-5 cursor-pointer py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white transition-colors"
           >
-            {busy ? t('creating') : t('create_workspace_btn')}
+            {busy ? t('creating') : t('create_workspace')}
           </motion.button>
         </div>
       }
@@ -92,7 +92,7 @@ export function CreateWorkspaceModal({ onClose, onCreate }: Props) {
                 {previewName}
               </span>
               <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted/60 mt-0.5">
-                {t('workspaces_section')}
+                {t('section_workspaces')}
               </span>
             </div>
           </div>

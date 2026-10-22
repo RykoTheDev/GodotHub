@@ -82,5 +82,6 @@
   "dashboard_preset_name_placeholder": "Nome da predefinição",
   "dashboard_preset_delete": "Excluir predefinição",
   "dashboard_custom_presets": "Suas predefinições",
-  "dashboard_hidden_tiles": "Blocos ocultos"
+  "dashboard_hidden_tiles": "Blocos ocultos",
+  "dashboard_todos": "Due to-dos"
 }

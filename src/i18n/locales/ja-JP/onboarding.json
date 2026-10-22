@@ -13,9 +13,19 @@
   "onboard_empty_projects": "フォルダがまだ追加されていません。追加するまで GodotHub は既存のプロジェクトを見つけられません。あとから手動でプロジェクトを追加することもできます。",
   "onboard_empty_versions": "フォルダがまだ追加されていません。下で指定しない限り、新しくダウンロードした Godot はアプリデータフォルダに保存されます。",
   "onboard_no_template_folder": "フォルダが未設定です。あとから「設定」で構成することも、テンプレートを手動で保存することもできます。",
-  "language_heading": "言語",
   "onboard_cloud_heading": "クラウドバックアップ",
   "onboard_cloud_desc": "すでにバックアップがありますか？ GitHub でサインインすると、gist からワークスペース・プロジェクト・設定を復元できます。",
-  "onboard_cloud_sign_in": "GitHub でサインイン",
-  "onboard_cloud_connected": "@{{username}} として接続中"
+  "discovery_recent_heading": "Recent projects from Godot",
+  "discovery_installs_heading": "Godot found on this computer",
+  "discovery_scanning_projects": "Reading Godot's project manager list…",
+  "discovery_scanning_installs": "Looking for Godot on your PATH and in Steam…",
+  "discovery_engine": "Godot {{version}}",
+  "discovery_favorite": "Favorite",
+  "discovery_add_selected": "Add selected",
+  "discovery_add_selected_count": "Add selected ({{count}})",
+  "discovery_added_projects_one": "Added {{count}} project.",
+  "discovery_added_projects_other": "Added {{count}} projects.",
+  "discovery_added_versions_one": "Added {{count}} version.",
+  "discovery_added_versions_other": "Added {{count}} versions.",
+  "discovery_link_hint": "Projects are linked to a matching Godot version automatically, including versions you add in the next step."
 }

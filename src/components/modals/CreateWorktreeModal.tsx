@@ -53,7 +53,7 @@ export function CreateWorktreeModal({ repositoryPath, onClose, onCreated }: Prop
   return (
     <ModalShell
       icon={<IconClone className="w-5 h-5" />}
-      title={t('create_worktree_title')}
+      title={t('add_worktree')}
       description={t('create_worktree_desc')}
       maxWidth="max-w-lg"
       onClose={busy || picking ? undefined : onClose}
@@ -66,7 +66,7 @@ export function CreateWorktreeModal({ repositoryPath, onClose, onCreated }: Prop
         <button type="submit" form={formId} disabled={!path.trim() || busy || picking}
           className="focus-ring cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-btn bg-accent text-sm font-medium text-white hover:bg-accent-bright transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
           {busy && <IconSpinner className="w-3.5 h-3.5 animate-spin" />}
-          {busy ? t('worktree_creating') : t('add_worktree_btn')}
+          {busy ? t('creating') : t('add_worktree_btn')}
         </button>
       </div>}
     >

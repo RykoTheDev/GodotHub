@@ -193,7 +193,7 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
             <p className="text-muted mt-2 break-words">{error}</p>
             <button type="button" onClick={() => setAttempt((value) => value + 1)}
               className="focus-ring cursor-pointer mt-4 px-4 py-2 rounded-item border border-line bg-raised text-ink hover:bg-overlay">
-              {t('export_templates_retry')}
+              {t('try_again')}
             </button>
           </div>
         ) : (
@@ -208,7 +208,7 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
               <button type="button" disabled={busy || availableFiles.length === 0}
                 onClick={() => setSelected(allSelected ? [] : availableFiles.map((file) => file.name))}
                 className="focus-ring cursor-pointer rounded-btn px-3 py-1.5 text-accent-bright hover:bg-accent/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
-                {t(allSelected ? 'export_templates_select_none' : 'export_templates_select_all')}
+                {t(allSelected ? 'clear_selection' : 'export_templates_select_all')}
               </button>
             </div>
             <div className="flex flex-col gap-2.5">

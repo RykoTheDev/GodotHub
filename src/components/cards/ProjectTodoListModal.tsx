@@ -4,8 +4,12 @@ import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
-import { IconCheckCircle } from "../../lib/icons";
+import { IconCheckCircle, IconChevronDown } from "../../lib/icons";
 import { ModalHeader } from "../modals/ModalHeader";
+import { Dropdown } from "../ui/Dropdown";
+import type { TodoArea } from "../../types/projectTodo";
+
+const AREAS: TodoArea[] = ["programming", "art", "audio", "design", "narrative", "other"];
 
 type ProjectTodoListModalProps = {
   totalCount: number;
@@ -13,6 +17,10 @@ type ProjectTodoListModalProps = {
   createDisabled?: boolean;
   onCreate: () => void;
   onClose: () => void;
+  search: string;
+  onSearchChange: (value: string) => void;
+  areaFilter: TodoArea | "all";
+  onAreaFilterChange: (value: TodoArea | "all") => void;
   children: ReactNode;
 };
 
@@ -22,6 +30,10 @@ export function ProjectTodoListModal({
   createDisabled = false,
   onCreate,
   onClose,
+  search,
+  onSearchChange,
+  areaFilter,
+  onAreaFilterChange,
   children,
 }: ProjectTodoListModalProps) {
   const uiMotion = useUiMotion()
@@ -81,6 +93,47 @@ export function ProjectTodoListModal({
               <span className="mx-2 text-muted/40">•</span>
               {t("completed_count", { count: completedCount })}
             </span>
+
+            <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
+              <input
+                type="search"
+                value={search}
+                onChange={(event) => onSearchChange(event.target.value)}
+                placeholder={t("search_tasks_placeholder")}
+                aria-label={t("search_tasks_placeholder")}
+                className="focus-ring w-full max-w-64 rounded-btn border border-outline/50 bg-overlay px-3 py-1.5 text-[11px] text-ink placeholder:text-muted/60 transition-colors focus:border-accent-dim"
+              />
+
+              <Dropdown
+                align="right"
+                compact
+                trigger={({ open, toggle }) => (
+                  <button
+                    type="button"
+                    onClick={toggle}
+                    aria-expanded={open}
+                    className="focus-ring inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-btn border border-outline/50 bg-overlay px-3 py-1.5 text-[11px] font-medium text-ink transition-colors hover:border-accent-dim"
+                  >
+                    {areaFilter === "all" ? t("all_areas") : t(`area_${areaFilter}`)}
+                    <IconChevronDown className="h-3 w-3 text-muted" />
+                  </button>
+                )}
+                items={[
+                  {
+                    key: "all",
+                    label: t("all_areas"),
+                    active: areaFilter === "all",
+                    onClick: () => onAreaFilterChange("all"),
+                  },
+                  ...AREAS.map((area) => ({
+                    key: area,
+                    label: t(`area_${area}`),
+                    active: areaFilter === area,
+                    onClick: () => onAreaFilterChange(area),
+                  })),
+                ]}
+              />
+            </div>
 
             <button
               type="button"

@@ -82,5 +82,6 @@
   "dashboard_preset_name_placeholder": "Tên mẫu bố cục",
   "dashboard_preset_delete": "Xóa mẫu bố cục",
   "dashboard_custom_presets": "Mẫu bố cục của bạn",
-  "dashboard_hidden_tiles": "Thẻ đã ẩn"
+  "dashboard_hidden_tiles": "Thẻ đã ẩn",
+  "dashboard_todos": "Due to-dos"
 }

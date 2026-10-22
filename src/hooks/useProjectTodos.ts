@@ -2,6 +2,7 @@ import { projectTodosApi } from "../api/projectTodos";
 import { useApiDataWithError } from "../lib/useApiData";
 import { useCallback, useState } from "react";
 import type { ProjectTodo } from "../types/projectTodo";
+import { notifyTodosChanged } from "../lib/openTodos";
 
 export function useProjectTodos(projectId: string) {
   const {
@@ -33,9 +34,10 @@ export function useProjectTodos(projectId: string) {
       }
 
       try {
-        await projectTodosApi.save(projectId, nextTodos);
+        const savedTodos = await projectTodosApi.save(projectId, nextTodos);
 
-        setTodos(nextTodos);
+        setTodos(savedTodos);
+        notifyTodosChanged();
         setFailedTodos(null);
         setSaveError(null);
 
@@ -50,6 +52,18 @@ export function useProjectTodos(projectId: string) {
       } finally {
         setSaving(false);
       }
+    },
+    [projectId, setTodos],
+  );
+
+  const sync = useCallback(
+    async (scanComments: boolean) => {
+      const result = await projectTodosApi.sync(projectId, scanComments);
+
+      setTodos(result.todos);
+      notifyTodosChanged();
+
+      return result;
     },
     [projectId, setTodos],
   );
@@ -70,5 +84,6 @@ export function useProjectTodos(projectId: string) {
     refresh,
     saveTodos,
     retrySave,
+    sync,
   };
 }

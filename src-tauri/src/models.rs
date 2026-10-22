@@ -655,7 +655,7 @@ impl<'de> serde::Deserialize<'de> for ChangelogNote {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum TodoStatus {
     Todo,
@@ -664,7 +664,7 @@ pub enum TodoStatus {
     Done,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum TodoArea {
     Programming,
@@ -687,4 +687,62 @@ pub struct ProjectTodo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     pub created_at: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub number: Option<u32>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub link: Option<TodoLink>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source: Option<TodoSource>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub closed_by: Option<TodoClosure>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub priority: Option<TodoPriority>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub checklist: Vec<TodoChecklistItem>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub completed_at: Option<String>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TodoPriority {
+    Low,
+    Medium,
+    High,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TodoChecklistItem {
+    pub id: String,
+    pub text: String,
+    #[serde(default)]
+    pub done: bool,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TodoLink {
+    pub path: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub line: Option<u32>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TodoSource {
+    pub kind: String,
+    pub tag: String,
+    pub key: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TodoClosure {
+    pub kind: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub commit: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub subject: Option<String>,
+    pub at: String,
 }

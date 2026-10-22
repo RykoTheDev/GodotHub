@@ -98,7 +98,7 @@ export function ProjectTile({
     { key: 'pin', label: t(project.pinned ? 'project_unpin_aria' : 'project_pin_aria'), icon: IconPin, onClick: onTogglePin },
     ...(onLaunchArgsChange ? [{ key: 'launch-arguments', label: t('launch_arguments'), icon: IconRocket, onClick: () => setDialog('args') }] : []),
     { key: 'manage-tags', label: t('manage_tags'), icon: IconTags, onClick: () => setDialog('tags') },
-    ...(onDuplicate ? [{ key: 'duplicate', label: t('duplicate_project'), icon: IconCopy, onClick: onDuplicate }] : []),
+    ...(onDuplicate ? [{ key: 'duplicate', label: t('duplicate'), icon: IconCopy, onClick: onDuplicate }] : []),
     ...(onCategoryChange ? [{ key: 'set-category', label: t('set_category'), icon: IconTags, children: [
       { key: 'uncategorized', label: t('uncategorized'), dotColor: '#949ba4', active: !project.category, onClick: () => onCategoryChange('') },
       ...categories.map(category => ({ key: category.id, label: category.name, dotColor: category.color, active: project.category === category.name, onClick: () => onCategoryChange(category.name) })),
@@ -203,7 +203,7 @@ export function ProjectTile({
       </div>
 
       <AnimatePresence>
-        {dialog === 'remove' && <ConfirmDialog title={t('project_remove_title')} description={t('project_remove_desc', { name: displayName })} confirmLabel={t('project_remove_confirm')}
+        {dialog === 'remove' && <ConfirmDialog title={t('project_remove_title')} description={t('project_remove_desc', { name: displayName })} confirmLabel={t('bulk_remove')}
           onConfirm={() => { setDialog(null); onRemove() }} onCancel={() => setDialog(null)} />}
         {dialog === 'delete' && onDelete && <ConfirmDialog title={t('project_delete_title')} description={t('project_delete_desc', { name: displayName })} confirmLabel={t('project_delete_confirm')} variant="danger"
           onConfirm={() => { setDialog(null); onDelete() }} onCancel={() => setDialog(null)} />}

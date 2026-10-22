@@ -787,8 +787,8 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                     setThemeMode(v as "dark" | "light" | "system")
                   }
                   options={[
-                    { value: "dark", label: ts("dark") },
-                    { value: "light", label: ts("light") },
+                    { value: "dark", label: ts("theme_dark") },
+                    { value: "light", label: ts("theme_light") },
                     { value: "system", label: ts("system") },
                   ]}
                 />
@@ -861,9 +861,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="appearance-radius"
-        title={ts("corner_radius_label")}
+        title={ts("onboarding_corner_radius")}
         description={ts("corner_radius_desc")}
-        searchText={`${ts("corner_radius_label")} ${ts("corner_radius_desc")}`}
+        searchText={`${ts("onboarding_corner_radius")} ${ts("corner_radius_desc")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -928,7 +928,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         id="appearance-css"
         title={ts("custom_css_label")}
         description={ts("custom_css_desc")}
-        searchText={`${ts("custom_css_label")} ${ts("custom_css_desc")} ${ts("custom_css_apply")} ${ts("custom_css_clear")}`}
+        searchText={`${ts("custom_css_label")} ${ts("custom_css_desc")} ${ts("custom_css_apply")} ${ts("clear")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -962,7 +962,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 }}
                 className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3.5 rounded-btn bg-overlay border border-outline/50 text-muted text-xs font-medium hover:text-ink hover:bg-raised transition-colors"
               >
-                {ts("custom_css_clear")}
+                {ts("clear")}
               </button>
             )}
             {cssStatus === "applied" && (
@@ -1490,9 +1490,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="behavior-launch"
-        title={ts("behavior_title")}
+        title={ts("behavior")}
         description={ts("behavior_desc")}
-        searchText={`${ts("behavior_title")} ${ts("behavior_desc")} ${ts("launch_console_label")} ${ts("close_on_open_label")} ${ts("minimize_tray_label")} ${ts("reopen_label")} ${ts("tray_recent_label")} ${ts("palette_shortcut")}`}
+        searchText={`${ts("behavior")} ${ts("behavior_desc")} ${ts("launch_console_label")} ${ts("close_on_open_label")} ${ts("minimize_tray_label")} ${ts("reopen_label")} ${ts("tray_recent_label")} ${ts("palette_shortcut")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -1631,7 +1631,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         id="behavior-projects"
         title={ts("behavior_projects_title")}
         description={ts("behavior_projects_desc")}
-        searchText={`${ts("behavior_projects_title")} ${ts("behavior_projects_desc")} ${ts("auto_scan_label")} ${ts("use_workspaces_label")} ${ts("git_init_new_projects_label")} ${ts("naming_convention_label")}`}
+        searchText={`${ts("behavior_projects_title")} ${ts("behavior_projects_desc")} ${ts("auto_scan_label")} ${ts("use_workspaces_label")} ${ts("init_git_label")} ${ts("naming_convention_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -1664,7 +1664,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           </SettingRow>
 
           <SettingRow
-            label={ts("git_init_new_projects_label")}
+            label={ts("init_git_label")}
             description={ts("git_init_new_projects_desc")}
             divider
           >
@@ -1673,7 +1673,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               onChange={(checked) =>
                 update({ ...settings, git_init_new_projects: checked })
               }
-              label={ts("git_init_new_projects_label")}
+              label={ts("init_git_label")}
             />
           </SettingRow>
 
@@ -1736,7 +1736,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         id="behavior-notifications"
         title={ts('desktop_notifications_label')}
         description={ts('desktop_notifications_desc')}
-        searchText={`${ts('desktop_notifications_label')} ${ts('desktop_notifications_desc')} ${ts('behavior_title')} ${ts('behavior_desc')}`}
+        searchText={`${ts('desktop_notifications_label')} ${ts('desktop_notifications_desc')} ${ts('behavior')} ${ts('behavior_desc')}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2242,20 +2242,20 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="integrations-discord"
-        title={ts("discord_rpc_label")}
+        title={ts("onboarding_discord_rpc")}
         description={ts("discord_rpc_desc")}
-        searchText={`${ts("discord_rpc_label")} ${ts("discord_rpc_desc")} ${ts("discord_app_id_label")} ${ts("discord_app_id_desc")} ${ts("discord_developer_portal")} ${ts("discord_show_projects_label")} ${ts("discord_show_projects_desc")} ${ts("discord_excluded_label")} ${ts("discord_excluded_desc")} ${ts("discord_custom_label")} ${ts("discord_custom_desc")}`}
+        searchText={`${ts("onboarding_discord_rpc")} ${ts("discord_rpc_desc")} ${ts("discord_app_id_label")} ${ts("discord_app_id_desc")} ${ts("discord_developer_portal")} ${ts("discord_show_projects_label")} ${ts("discord_show_projects_desc")} ${ts("discord_excluded_label")} ${ts("discord_excluded_desc")} ${ts("discord_custom_label")} ${ts("discord_custom_desc")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
         <div className="flex flex-col gap-5">
-          <SettingRow label={ts("discord_rpc_label")}>
+          <SettingRow label={ts("onboarding_discord_rpc")}>
             <Toggle
               checked={settings.discord_rpc_enabled}
               onChange={(checked) =>
                 update({ ...settings, discord_rpc_enabled: checked })
               }
-              label={ts("discord_rpc_label")}
+              label={ts("onboarding_discord_rpc")}
             />
           </SettingRow>
 
@@ -2533,7 +2533,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               disabled={cliBusy}
               className="focus-ring cursor-pointer self-start flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {cliBusy ? ts("cli_tool_installing") : ts("cli_tool_uninstall")}
+              {cliBusy ? ts("cli_tool_installing") : ts("version_uninstall_confirm")}
             </button>
           ) : (
             <button
@@ -2711,7 +2711,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         <div className="rounded-item bg-overlay px-4 py-4 flex items-center justify-between gap-6">
           <div className="min-w-0">
             <h3 className="text-sm font-medium text-ink">
-              {ts("check_updates_title")}
+              {ts("check_updates_title_modal")}
             </h3>
             <p className="text-xs text-muted mt-1.5 leading-relaxed">
               {ts("updates_desc")}
@@ -2723,7 +2723,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
           >
             <IconRefresh className="w-4 h-4" />
-            {ts("check_updates")}
+            {ts("check_updates_title_modal")}
           </button>
         </div>
 
@@ -2749,7 +2749,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         <div className="rounded-item bg-overlay px-4 py-4 flex items-center justify-between gap-6">
           <div className="min-w-0">
             <h3 className="text-sm font-medium text-ink">
-              {ts("report_bug_title")}
+              {ts("report_a_bug")}
             </h3>
             <p className="text-xs text-muted mt-1.5 leading-relaxed">
               {ts("report_bug_desc")}
@@ -3001,7 +3001,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <section className="flex flex-col gap-5 rounded-item bg-overlay px-5 py-5">
         <div>
           <h3 className="font-display font-semibold text-sm">
-            {ts("credits_title")}
+            {ts("credits")}
           </h3>
           <p className="text-[11px] text-muted mt-1">{ts("credits_desc")}</p>
         </div>
@@ -3034,7 +3034,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1 px-4 py-3 rounded-item border border-outline/50 bg-raised/30">
             <span className="text-[10px] font-semibold uppercase tracking-wider text-muted/50">
-              {ts("credits_license")}
+              {ts("git_option_license")}
             </span>
             <span className="text-sm font-medium text-ink">MIT</span>
           </div>

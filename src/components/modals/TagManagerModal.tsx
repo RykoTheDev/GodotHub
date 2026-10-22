@@ -287,7 +287,7 @@ export function TagManagerModal({ project, onClose, onSaved }: Props) {
                     <button
                       onClick={() => removeTag(index)}
                       className="focus-ring cursor-pointer p-1.5 rounded-md text-muted/50 hover:text-danger hover:bg-danger/10 transition-colors"
-                      aria-label={t('tag_remove_aria', { tag })}
+                      aria-label={t('remove_tag', { tag })}
                     >
                       <IconX className="w-3 h-3" />
                     </button>

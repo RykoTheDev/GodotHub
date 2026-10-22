@@ -55,6 +55,7 @@ import {
 } from "../../lib/icons";
 
 import { ProjectTodoPanel } from "./ProjectTodoPanel";
+import { consumeTodoFocus, localDateValue, useOpenTodos } from "../../lib/openTodos";
 
 interface ProjectCardProps {
   project: Project;
@@ -149,6 +150,36 @@ export function ProjectCard({
   const [pinFocused, setPinFocused] = useState(false);
   const [showTodoPanel, setShowTodoPanel] = useState(false);
   const [todoPanelLoaded, setTodoPanelLoaded] = useState(false);
+  const { todos: openTodos } = useOpenTodos();
+  const todayValue = localDateValue();
+  const projectOpenTodos = projectTodosEnabled
+    ? openTodos.filter((open) => open.projectId === project.id)
+    : [];
+  const overdueTodoCount = projectOpenTodos.filter(
+    (open) => open.todo.dueDate && open.todo.dueDate < todayValue,
+  ).length;
+  useEffect(() => {
+    if (!projectTodosEnabled) return;
+
+    const openPanel = () => {
+      setShowTodoPanel(true);
+      requestAnimationFrame(() =>
+        cardRef.current?.scrollIntoView({ block: "center", behavior: "smooth" }),
+      );
+    };
+
+    if (consumeTodoFocus(project.id)) openPanel();
+
+    const handleShowTodos = (event: Event) => {
+      if ((event as CustomEvent).detail === project.id && consumeTodoFocus(project.id)) {
+        openPanel();
+      }
+    };
+
+    window.addEventListener("app:show-project-todos", handleShowTodos);
+
+    return () => window.removeEventListener("app:show-project-todos", handleShowTodos);
+  }, [project.id, projectTodosEnabled]);
   useEffect(() => {
     if (projectTodosEnabled) return;
 
@@ -424,6 +455,19 @@ export function ProjectCard({
             <h3 className="font-display font-medium text-xl text-ink truncate">
               {displayName}
             </h3>
+            {projectOpenTodos.length > 0 && (
+              <span
+                className={`shrink-0 rounded-tag border px-1.5 py-0.5 text-[10px] font-medium tabular-nums ${
+                  overdueTodoCount > 0
+                    ? "border-danger/30 bg-danger/10 text-danger"
+                    : "border-outline/50 bg-raised text-muted"
+                }`}
+              >
+                {overdueTodoCount > 0
+                  ? t("overdue_count", { ns: "todos", count: overdueTodoCount })
+                  : t("open_count", { ns: "todos", count: projectOpenTodos.length })}
+              </span>
+            )}
             {gitStatus?.is_repo && (
               <button
                 type="button"
@@ -545,10 +589,10 @@ export function ProjectCard({
                     setNewTagValue("");
                     setTagError(null);
                   }}
-                  aria-label={t("add_tag_aria")}
+                  aria-label={t("add_tag")}
                   className="focus-ring cursor-pointer inline-flex items-center px-2 py-0.5 rounded-tag text-[10px] font-mono font-medium tracking-tight whitespace-nowrap text-muted hover:text-accent-bright hover:bg-raised transition-colors shrink-0 border border-dashed border-outline/50"
                 >
-                  {t("add_tag_aria")}
+                  {t("add_tag")}
                 </button>
               </span>
             )}
@@ -669,7 +713,7 @@ export function ProjectCard({
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveTag(index)}
-                                  aria-label={t("tag_remove_aria", { tag })}
+                                  aria-label={t("remove_tag", { tag })}
                                   className="focus-ring cursor-pointer w-3 h-3 rounded-full flex items-center justify-center transition-colors duration-150 hover:text-danger shrink-0"
                                 >
                                   <IconX className="w-2.5 h-2.5 shrink-0" />
@@ -805,7 +849,7 @@ export function ProjectCard({
                 <button
                   type="button"
                   onClick={() => setSizeModalOpen(true)}
-                  aria-label={t("project_card_project_size")}
+                  aria-label={t("project_size")}
                   className="focus-ring cursor-pointer border border-outline/50 inline-flex items-center gap-1.5 rounded-btn px-3 py-3 bg-black/10 font-mono text-[10px] text-muted hover:text-ink hover:bg-raised transition-colors shrink-0"
                 >
                   <IconHardDrive className="w-3 h-3 text-muted/60 shrink-0" />
@@ -974,7 +1018,7 @@ export function ProjectCard({
                   ? [
                       {
                         key: "duplicate",
-                        label: t("duplicate_project"),
+                        label: t("duplicate"),
                         icon: IconCopy,
                         onClick: onDuplicate,
                       },
@@ -1036,7 +1080,7 @@ export function ProjectCard({
             <ConfirmDialog
               title={t("project_remove_title")}
               description={t("project_remove_desc", { name: displayName })}
-              confirmLabel={t("project_remove_confirm")}
+              confirmLabel={t("bulk_remove")}
               onConfirm={() => {
                 setConfirmAction(null);
                 onRemove();

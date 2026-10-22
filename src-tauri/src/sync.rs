@@ -398,6 +398,7 @@ pub struct RestorePreview {
     pub category_count: usize,
     pub template_count: usize,
     pub has_time_stats: bool,
+    pub todo_count: usize,
     pub version_scan_dirs: Vec<String>,
     pub project_scan_dirs: Vec<String>,
 }
@@ -431,6 +432,7 @@ pub async fn gist_sync_fetch_backup(app: AppHandle) -> Result<RestorePreview, St
     let mut category_count = 0;
     let mut template_count = 0;
     let mut has_time_stats = false;
+    let mut todo_count = 0;
     let mut workspace_names = Vec::new();
     let mut version_scan_dirs = Vec::new();
     let mut project_scan_dirs = Vec::new();
@@ -439,6 +441,7 @@ pub async fn gist_sync_fetch_backup(app: AppHandle) -> Result<RestorePreview, St
         project_count += wb.project_count();
         category_count += wb.category_count();
         template_count += wb.template_count();
+        todo_count += wb.todo_count();
         if wb.has_time_stats() {
             has_time_stats = true;
         }
@@ -456,6 +459,7 @@ pub async fn gist_sync_fetch_backup(app: AppHandle) -> Result<RestorePreview, St
         category_count,
         template_count,
         has_time_stats,
+        todo_count,
         version_scan_dirs,
         project_scan_dirs,
     })

@@ -13,9 +13,19 @@
   "onboard_empty_projects": "Папки с проектами не добавлены. GodotHub не может найти существующие проекты, если вы не добавите папки.",
   "onboard_empty_versions": "Папки с версиями Godot не добавлены. Новые загрузки Godot будут сохранены в папке данных приложения, если вы не укажете другую папку.",
   "onboard_no_template_folder": "Папка для шаблонов не выбрана, вы всегда можете настроить это позже в Настройках или сохранять шаблоны вручную.",
-  "language_heading": "Язык",
   "onboard_cloud_heading": "Cloud Backup",
   "onboard_cloud_desc": "Already have a backup? Sign in with GitHub and restore your workspaces, projects, and settings from a gist.",
-  "onboard_cloud_sign_in": "Sign in with GitHub",
-  "onboard_cloud_connected": "Connected as @{{username}}"
+  "discovery_recent_heading": "Recent projects from Godot",
+  "discovery_installs_heading": "Godot found on this computer",
+  "discovery_scanning_projects": "Reading Godot's project manager list…",
+  "discovery_scanning_installs": "Looking for Godot on your PATH and in Steam…",
+  "discovery_engine": "Godot {{version}}",
+  "discovery_favorite": "Favorite",
+  "discovery_add_selected": "Add selected",
+  "discovery_add_selected_count": "Add selected ({{count}})",
+  "discovery_added_projects_one": "Added {{count}} project.",
+  "discovery_added_projects_other": "Added {{count}} projects.",
+  "discovery_added_versions_one": "Added {{count}} version.",
+  "discovery_added_versions_other": "Added {{count}} versions.",
+  "discovery_link_hint": "Projects are linked to a matching Godot version automatically, including versions you add in the next step."
 }

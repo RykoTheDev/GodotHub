@@ -82,5 +82,6 @@
   "dashboard_preset_name_placeholder": "إسم الإعداد المسبق",
   "dashboard_preset_delete": "احذف الإعدادات المسبقة",
   "dashboard_custom_presets": "إعداداتك المسبقة",
-  "dashboard_hidden_tiles": "أخفي الخانات"
+  "dashboard_hidden_tiles": "أخفي الخانات",
+  "dashboard_todos": "Due to-dos"
 }

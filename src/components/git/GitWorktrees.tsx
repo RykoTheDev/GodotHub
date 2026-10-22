@@ -109,8 +109,8 @@ export function GitWorktrees({ project, onSwitchProject, onChanged }: Props) {
                       {wt.branch ?? t('worktree_detached', { hash: wt.head.slice(0, 7) })}
                     </span>
                     {wt.is_main && <span className="text-[9px] text-muted/70">{t('worktree_main')}</span>}
-                    <Tooltip content={wt.has_uncommitted ? t('worktree_dirty') : t('worktree_clean')}>
-                      <span role="img" aria-label={wt.has_uncommitted ? t('worktree_dirty') : t('worktree_clean')}
+                    <Tooltip content={wt.has_uncommitted ? t('worktree_dirty') : t('git_clean')}>
+                      <span role="img" aria-label={wt.has_uncommitted ? t('worktree_dirty') : t('git_clean')}
                         className={`block shrink-0 w-1.5 h-1.5 rounded-full ${wt.has_uncommitted ? 'bg-amber' : 'bg-mint/60'}`} />
                     </Tooltip>
                   </div>
@@ -130,7 +130,7 @@ export function GitWorktrees({ project, onSwitchProject, onChanged }: Props) {
                     </button>
                   </Tooltip>}
                   {!wt.is_main && <Tooltip content={t('remove_worktree')}>
-                    <button type="button" aria-label={t('remove_worktree_named', { name: wt.branch ?? wt.path })}
+                    <button type="button" aria-label={t('remove_category_aria', { name: wt.branch ?? wt.path })}
                       onClick={() => { setRemoval(wt); setDiscardChanges(false); setRemoveError(null) }} disabled={!!busy || loading}
                       className={`${sectionActionClass} hover:text-danger opacity-60 group-hover:opacity-100 group-focus-within:opacity-100`}>
                       <IconTrash className="w-3.5 h-3.5" />
