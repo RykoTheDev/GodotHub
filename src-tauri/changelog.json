@@ -1544,6 +1544,18 @@
       {
         "category": "improve",
         "text": "Switching pages now plays the entrance animation chosen in Settings > Motion"
+      },
+      {
+        "category": "improve",
+        "text": "First-time setup now links projects imported from Godot's project manager to a matching Godot version automatically, based on the version saved in each project"
+      },
+      {
+        "category": "improve",
+        "text": "First-time setup now also finds recent projects from Godot 3, shows the real version of each Godot it detects, and shows a searching state while it looks"
+      },
+      {
+        "category": "fix",
+        "text": "First-time setup no longer offers Godot's console build as a separate version"
       }
     ],
     "known_issues": [],

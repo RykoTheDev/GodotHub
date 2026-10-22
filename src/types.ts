@@ -773,10 +773,12 @@ export interface DiscoveredProject {
   path: string
   name: string
   favorite: boolean
+  engine: string | null
 }
 
 export interface DiscoveredInstall {
   path: string
   name: string
   source: string
+  version: string | null
 }

@@ -119,6 +119,5 @@
   "discard_opt_untracked": "Also remove untracked files",
   "discard_opt_untracked_hint": "Permanently deletes the files listed above. This cannot be undone.",
   "discard_opt_stash": "Stash everything instead",
-  "discard_opt_stash_hint": "Saves tracked and untracked changes to a stash you can restore later.",
-  "discard_tracked_ok": "Discarded tracked changes."
+  "discard_opt_stash_hint": "Saves tracked and untracked changes to a stash you can restore later."
 }

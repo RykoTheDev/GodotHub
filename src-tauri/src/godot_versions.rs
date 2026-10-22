@@ -1387,6 +1387,7 @@ fn install_version_archive(
     };
     register_version(app, installed.clone()).map_err(|e| e.to_string())?;
     crate::projects::rebind_projects_to_version(app, &installed);
+    crate::discovery::bind_unbound_projects(app);
     Ok(())
 }
 

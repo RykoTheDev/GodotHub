@@ -225,7 +225,7 @@ fn read_config(path: &Path) -> Result<String, String> {
     fs::read_to_string(path).map_err(|e| e.to_string())
 }
 
-fn version(tag: &str) -> Option<(u32, u32)> {
+pub(crate) fn version(tag: &str) -> Option<(u32, u32)> {
     let mut parts = tag.trim().trim_start_matches('v').split(['.', '-']);
     Some((parts.next()?.parse().ok()?, parts.next()?.parse().ok()?))
 }

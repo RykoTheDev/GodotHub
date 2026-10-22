@@ -194,7 +194,7 @@ interface DiscoveryRow {
   key: string
   primary: string
   secondary?: string
-  badge?: string
+  badges?: string[]
 }
 
 function DiscoveryList({
@@ -206,6 +206,9 @@ function DiscoveryList({
   onToggle,
   onAdd,
   addLabel,
+  loading = false,
+  loadingLabel,
+  hint,
 }: {
   heading: string
   rows: DiscoveryRow[]
@@ -215,7 +218,23 @@ function DiscoveryList({
   onToggle: (key: string) => void
   onAdd: () => void
   addLabel: (count: number) => string
+  loading?: boolean
+  loadingLabel?: string
+  hint?: string
 }) {
+  if (loading && rows.length === 0) {
+    return (
+      <div className="flex flex-col gap-1.5">
+        <span className="text-[10px] font-semibold uppercase tracking-wide text-muted/70">
+          {heading}
+        </span>
+        <div className="flex items-center gap-2 px-2.5 py-2 rounded-item border border-dashed border-line/60 text-[11px] text-muted">
+          <IconRefresh className="w-3 h-3 animate-spin shrink-0" />
+          {loadingLabel}
+        </div>
+      </div>
+    )
+  }
   if (rows.length === 0) return null
   const selectableCount = rows.filter(
     (r) => selected.has(r.key) && !imported.has(r.key),
@@ -250,11 +269,14 @@ function DiscoveryList({
                   </p>
                 )}
               </div>
-              {r.badge && (
-                <span className="shrink-0 text-[9px] font-semibold px-1.5 py-0.5 rounded bg-overlay border border-outline/50 text-muted">
-                  {r.badge}
+              {r.badges?.map((badge) => (
+                <span
+                  key={badge}
+                  className="shrink-0 text-[9px] font-semibold px-1.5 py-0.5 rounded bg-overlay border border-outline/50 text-muted"
+                >
+                  {badge}
                 </span>
-              )}
+              ))}
               {isImported && (
                 <IconCheck className="w-3.5 h-3.5 text-accent shrink-0" />
               )}
@@ -275,6 +297,9 @@ function DiscoveryList({
         )}
         {addLabel(selectableCount)}
       </button>
+      {hint && (
+        <p className="text-[10px] text-muted/70 leading-relaxed">{hint}</p>
+      )}
     </div>
   )
 }
@@ -298,6 +323,8 @@ export function OnboardingView({
   const [importedInstalls, setImportedInstalls] = useState<Set<string>>(new Set())
   const [importingProjects, setImportingProjects] = useState(false)
   const [importingInstalls, setImportingInstalls] = useState(false)
+  const [discoveringProjects, setDiscoveringProjects] = useState(true)
+  const [discoveringInstalls, setDiscoveringInstalls] = useState(true)
 
   useEffect(() => {
     window.dispatchEvent(
@@ -315,6 +342,9 @@ export function OnboardingView({
         setSelectedProjects(new Set(list.map((p) => p.path)))
       })
       .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setDiscoveringProjects(false)
+      })
     api
       .detectGodotInstalls()
       .then((list) => {
@@ -323,6 +353,9 @@ export function OnboardingView({
         setSelectedInstalls(new Set(list.map((i) => i.path)))
       })
       .catch(() => {})
+      .finally(() => {
+        if (!cancelled) setDiscoveringInstalls(false)
+      })
     return () => {
       cancelled = true
     }
@@ -358,7 +391,7 @@ export function OnboardingView({
     }
     setImportingProjects(false)
     if (added > 0) {
-      pushToast('success', `Added ${added} project${added === 1 ? '' : 's'}.`)
+      pushToast('success', t('discovery_added_projects', { count: added }))
     }
   }
 
@@ -380,7 +413,7 @@ export function OnboardingView({
     }
     setImportingInstalls(false)
     if (added > 0) {
-      pushToast('success', `Added ${added} version${added === 1 ? '' : 's'}.`)
+      pushToast('success', t('discovery_added_versions', { count: added }))
     }
   }
 
@@ -650,12 +683,18 @@ export function OnboardingView({
                             defaultLabel={ts('new_project_default')}
                           />
                           <DiscoveryList
-                            heading="Recent projects from Godot"
+                            heading={t('discovery_recent_heading')}
+                            loading={discoveringProjects}
+                            loadingLabel={t('discovery_scanning_projects')}
+                            hint={t('discovery_link_hint')}
                             rows={recentProjects.map((p) => ({
                               key: p.path,
                               primary: p.name,
                               secondary: p.path,
-                              badge: p.favorite ? 'Favorite' : undefined,
+                              badges: [
+                                ...(p.engine ? [t('discovery_engine', { version: p.engine })] : []),
+                                ...(p.favorite ? [t('discovery_favorite')] : []),
+                              ],
                             }))}
                             selected={selectedProjects}
                             imported={importedProjects}
@@ -663,7 +702,7 @@ export function OnboardingView({
                             onToggle={(k) => toggleIn(setSelectedProjects, k)}
                             onAdd={importSelectedProjects}
                             addLabel={(n) =>
-                              n > 0 ? `Add selected (${n})` : 'Add selected'
+                              n > 0 ? t('discovery_add_selected_count', { count: n }) : t('discovery_add_selected')
                             }
                           />
                           {projectSuggestions.length > 0 && (
@@ -735,12 +774,16 @@ export function OnboardingView({
                             defaultLabel={ts('download_folder')}
                           />
                           <DiscoveryList
-                            heading="Detected Godot installs"
+                            heading={t('discovery_installs_heading')}
+                            loading={discoveringInstalls}
+                            loadingLabel={t('discovery_scanning_installs')}
                             rows={detectedInstalls.map((i) => ({
                               key: i.path,
-                              primary: i.name,
+                              primary: i.version
+                                ? t('discovery_engine', { version: i.version })
+                                : i.name,
                               secondary: i.path,
-                              badge: i.source,
+                              badges: [i.source],
                             }))}
                             selected={selectedInstalls}
                             imported={importedInstalls}
@@ -748,7 +791,7 @@ export function OnboardingView({
                             onToggle={(k) => toggleIn(setSelectedInstalls, k)}
                             onAdd={importSelectedInstalls}
                             addLabel={(n) =>
-                              n > 0 ? `Add selected (${n})` : 'Add selected'
+                              n > 0 ? t('discovery_add_selected_count', { count: n }) : t('discovery_add_selected')
                             }
                           />
                           {versionSuggestions.length > 0 && (

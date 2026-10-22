@@ -13,6 +13,7 @@ pub struct DiscoveredProject {
     pub path: String,
     pub name: String,
     pub favorite: bool,
+    pub engine: Option<String>,
 }
 
 #[derive(Serialize)]
@@ -20,19 +21,177 @@ pub struct DiscoveredInstall {
     pub path: String,
     pub name: String,
     pub source: String,
+    pub version: Option<String>,
 }
 
-fn projects_cfg_candidates() -> Vec<PathBuf> {
+fn godot_data_dirs() -> Vec<PathBuf> {
     let mut bases: Vec<PathBuf> = Vec::new();
     for base in [dirs::data_dir(), dirs::config_dir()].into_iter().flatten() {
         bases.push(base.join("Godot"));
         bases.push(base.join("godot"));
     }
     bases
+}
+
+fn projects_cfg_candidates() -> Vec<PathBuf> {
+    godot_data_dirs()
         .into_iter()
         .map(|b| b.join("projects.cfg"))
         .filter(|p| p.is_file())
         .collect()
+}
+
+fn godot3_settings_candidates() -> Vec<PathBuf> {
+    godot_data_dirs()
+        .into_iter()
+        .map(|b| b.join("editor_settings-3.tres"))
+        .filter(|p| p.is_file())
+        .collect()
+}
+
+fn parse_godot3_projects(text: &str) -> Vec<(String, bool)> {
+    let mut out: Vec<(String, bool)> = Vec::new();
+    for line in text.lines() {
+        let t = line.trim();
+        let (favorite, rest) = if let Some(rest) = t.strip_prefix("favorite_projects/") {
+            (true, rest)
+        } else if let Some(rest) = t.strip_prefix("projects/") {
+            (false, rest)
+        } else {
+            continue;
+        };
+        let Some((_, value)) = rest.split_once('=') else {
+            continue;
+        };
+        let path = value.trim().trim_matches('"').to_string();
+        if path.is_empty() {
+            continue;
+        }
+        if let Some(existing) = out.iter_mut().find(|(p, _)| *p == path) {
+            existing.1 |= favorite;
+        } else {
+            out.push((path, favorite));
+        }
+    }
+    out
+}
+
+pub(crate) struct ProjectEngine {
+    pub major: u32,
+    pub minor: Option<u32>,
+    pub is_dotnet: bool,
+}
+
+impl ProjectEngine {
+    fn label(&self) -> String {
+        match self.minor {
+            Some(minor) => format!("{}.{}", self.major, minor),
+            None => format!("{}.x", self.major),
+        }
+    }
+}
+
+fn has_csproj(dir: &Path) -> bool {
+    std::fs::read_dir(dir)
+        .map(|entries| {
+            entries.flatten().any(|e| {
+                e.path()
+                    .extension()
+                    .map(|ext| ext.eq_ignore_ascii_case("csproj"))
+                    .unwrap_or(false)
+            })
+        })
+        .unwrap_or(false)
+}
+
+pub(crate) fn project_engine(project_dir: &Path) -> Option<ProjectEngine> {
+    let text = std::fs::read_to_string(project_dir.join("project.godot")).ok()?;
+    let fields = crate::project_health::settings(&text);
+    let is_dotnet = has_csproj(project_dir)
+        || crate::project_health::setting(&fields, "dotnet", "project/assembly_name").is_some();
+    let feature = crate::project_health::setting(&fields, "application", "config/features")
+        .into_iter()
+        .flat_map(crate::project_health::strings)
+        .find_map(|s| crate::project_health::version(&s));
+    if let Some((major, minor)) = feature {
+        return Some(ProjectEngine {
+            major,
+            minor: Some(minor),
+            is_dotnet,
+        });
+    }
+    let format = crate::project_health::setting(&fields, "", "config_version")?
+        .trim()
+        .parse::<u32>()
+        .ok()?;
+    let major = match format {
+        4 => 3,
+        5 => 4,
+        _ => return None,
+    };
+    Some(ProjectEngine {
+        major,
+        minor: None,
+        is_dotnet,
+    })
+}
+
+pub(crate) fn pick_engine_version<'a>(
+    engine: &ProjectEngine,
+    installed: &'a [InstalledGodotVersion],
+) -> Option<&'a InstalledGodotVersion> {
+    installed
+        .iter()
+        .filter_map(|v| crate::godotenv::parse_installed_tag(&v.tag).map(|n| (v, n)))
+        .filter(|(_, n)| n.major == engine.major && engine.minor.map_or(true, |m| n.minor == m))
+        .max_by_key(|(v, n)| {
+            (
+                v.is_mono == engine.is_dotnet,
+                n.label == "stable",
+                n.minor,
+                n.patch,
+                n.label_num,
+            )
+        })
+        .map(|(v, _)| v)
+}
+
+pub(crate) fn engine_match_tag(app: &AppHandle, project_path: &str) -> Option<String> {
+    let engine = project_engine(Path::new(project_path))?;
+    let installed = crate::godot_versions::read_registry(app);
+    pick_engine_version(&engine, &installed).map(|v| v.tag.clone())
+}
+
+pub(crate) fn bind_unbound_projects(app: &AppHandle) -> usize {
+    let installed = crate::godot_versions::read_registry(app);
+    if installed.is_empty() {
+        return 0;
+    }
+    let bindings: Vec<(String, String)> = crate::projects::read_projects(app)
+        .into_iter()
+        .filter(|p| p.godot_version.is_empty())
+        .filter_map(|p| {
+            let engine = project_engine(Path::new(&p.path))?;
+            let v = pick_engine_version(&engine, &installed)?;
+            Some((p.id, v.tag.clone()))
+        })
+        .collect();
+    if bindings.is_empty() {
+        return 0;
+    }
+    let mut changed = 0;
+    let result = crate::projects::update_projects(app, |projects| {
+        for p in projects.iter_mut().filter(|p| p.godot_version.is_empty()) {
+            if let Some((_, tag)) = bindings.iter().find(|(id, _)| *id == p.id) {
+                p.godot_version = tag.clone();
+                changed += 1;
+            }
+        }
+    });
+    if result.is_err() {
+        return 0;
+    }
+    changed
 }
 
 fn parse_projects_cfg(text: &str) -> Vec<(String, bool)> {
@@ -88,11 +247,20 @@ pub async fn scan_godot_recent_projects(app: AppHandle) -> Result<Vec<Discovered
         let mut seen: BTreeSet<PathBuf> = BTreeSet::new();
         let mut out: Vec<DiscoveredProject> = Vec::new();
 
+        let mut entries: Vec<(String, bool)> = Vec::new();
         for cfg in projects_cfg_candidates() {
-            let Ok(text) = std::fs::read_to_string(&cfg) else {
-                continue;
-            };
-            for (raw_path, favorite) in parse_projects_cfg(&text) {
+            if let Ok(text) = std::fs::read_to_string(&cfg) {
+                entries.extend(parse_projects_cfg(&text));
+            }
+        }
+        for settings in godot3_settings_candidates() {
+            if let Ok(text) = std::fs::read_to_string(&settings) {
+                entries.extend(parse_godot3_projects(&text));
+            }
+        }
+
+        {
+            for (raw_path, favorite) in entries {
                 let dir = PathBuf::from(&raw_path);
                 if !dir.join("project.godot").is_file() {
                     continue;
@@ -107,6 +275,7 @@ pub async fn scan_godot_recent_projects(app: AppHandle) -> Result<Vec<Discovered
                     path: dir.to_string_lossy().to_string(),
                     name,
                     favorite,
+                    engine: project_engine(&dir).map(|e| e.label()),
                 });
             }
         }
@@ -159,9 +328,9 @@ fn path_godot_binaries() -> Vec<PathBuf> {
         return found;
     };
     #[cfg(target_os = "windows")]
-    let names = ["godot.exe", "godot4.exe", "Godot.exe", "godot_console.exe"];
+    let names = ["godot.exe", "godot4.exe", "godot3.exe", "Godot.exe"];
     #[cfg(not(target_os = "windows"))]
-    let names = ["godot", "godot4", "Godot"];
+    let names = ["godot", "godot4", "godot3", "godot-mono", "Godot"];
 
     for dir in std::env::split_paths(&path_var) {
         for name in names {
@@ -278,6 +447,9 @@ pub async fn detect_godot_installs(app: AppHandle) -> Result<Vec<DiscoveredInsta
         let mut out: Vec<DiscoveredInstall> = Vec::new();
 
         let mut add = |path: PathBuf, source: &str| {
+            if is_console_build(&path) {
+                return;
+            }
             let canon = std::fs::canonicalize(&path).unwrap_or_else(|_| path.clone());
             if registered.contains(&canon) || !seen.insert(canon) {
                 return;
@@ -288,10 +460,12 @@ pub async fn detect_godot_installs(app: AppHandle) -> Result<Vec<DiscoveredInsta
                 .map(|n| n.to_string_lossy().to_string())
                 .filter(|n| !n.is_empty())
                 .unwrap_or_else(|| folder_name(&path));
+            let version = probe_version(&path).map(|(tag, _, _)| tag);
             out.push(DiscoveredInstall {
                 path: path.to_string_lossy().to_string(),
                 name,
                 source: source.to_string(),
+                version,
             });
         };
 
@@ -305,6 +479,12 @@ pub async fn detect_godot_installs(app: AppHandle) -> Result<Vec<DiscoveredInsta
     })
     .await
     .map_err(|e| e.to_string())?
+}
+
+fn is_console_build(path: &Path) -> bool {
+    path.file_stem()
+        .map(|s| s.to_string_lossy().to_lowercase().ends_with("_console"))
+        .unwrap_or(false)
 }
 
 fn parse_version_line(line: &str) -> Option<(String, String, bool)> {
@@ -390,6 +570,8 @@ pub async fn import_detected_install(
         if !added {
             return Err("That Godot version is already in your list.".into());
         }
+        crate::projects::rebind_projects_to_version(&app, &installed);
+        bind_unbound_projects(&app);
         Ok(installed)
     })
     .await
@@ -443,6 +625,75 @@ mod tests {
             assert!(is_godot_executable_name("godot"));
             assert!(!is_godot_executable_name("godot.txt"));
         }
+    }
+
+    #[test]
+    fn parses_godot3_project_list() {
+        let tres = "[resource]\nprojects/C____games_old = \"C:/games/old\"\nfavorite_projects/C____games_old = \"C:/games/old\"\nprojects/D____jam = \"D:/jam\"\ntext_editor/theme = \"Default\"\n";
+        let parsed = parse_godot3_projects(tres);
+        assert_eq!(parsed.len(), 2);
+        assert_eq!(parsed[0], ("C:/games/old".to_string(), true));
+        assert_eq!(parsed[1], ("D:/jam".to_string(), false));
+    }
+
+    #[test]
+    fn console_builds_are_skipped() {
+        assert!(is_console_build(Path::new("Godot_v4.3-stable_win64_console.exe")));
+        assert!(!is_console_build(Path::new("Godot_v4.3-stable_win64.exe")));
+    }
+
+    fn installed(tag: &str, is_mono: bool) -> InstalledGodotVersion {
+        InstalledGodotVersion {
+            tag: tag.into(),
+            version: String::new(),
+            executable_path: String::new(),
+            is_mono,
+            installed_at: String::new(),
+            custom_name: None,
+            install_root: None,
+            supports_console: false,
+            managed_by: None,
+        }
+    }
+
+    #[test]
+    fn engine_reads_features_and_picks_best_install() {
+        let dir = std::env::temp_dir().join(format!("gh_engine_test_{}", std::process::id()));
+        let _ = std::fs::create_dir_all(&dir);
+        std::fs::write(
+            dir.join("project.godot"),
+            "config_version=5\n[application]\nconfig/features=PackedStringArray(\"4.3\", \"Forward Plus\")\n",
+        )
+        .unwrap();
+        let engine = project_engine(&dir).expect("engine detected");
+        assert_eq!(engine.label(), "4.3");
+        assert!(!engine.is_dotnet);
+
+        let list = vec![
+            installed("4.2-stable", false),
+            installed("4.3-beta2", false),
+            installed("4.3.1-stable-mono", true),
+            installed("4.3-stable", false),
+            installed("4.3.1-stable", false),
+        ];
+        assert_eq!(pick_engine_version(&engine, &list).map(|v| v.tag.as_str()), Some("4.3.1-stable"));
+
+        std::fs::write(dir.join("Game.csproj"), "<Project />").unwrap();
+        let dotnet = project_engine(&dir).unwrap();
+        assert_eq!(pick_engine_version(&dotnet, &list).map(|v| v.tag.as_str()), Some("4.3.1-stable-mono"));
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn godot3_format_without_features_matches_major() {
+        let dir = std::env::temp_dir().join(format!("gh_engine3_test_{}", std::process::id()));
+        let _ = std::fs::create_dir_all(&dir);
+        std::fs::write(dir.join("project.godot"), "config_version=4\n[application]\nconfig/name=\"Old\"\n").unwrap();
+        let engine = project_engine(&dir).unwrap();
+        assert_eq!(engine.label(), "3.x");
+        let list = vec![installed("3.5.2-stable", false), installed("3.6-stable", false), installed("4.3-stable", false)];
+        assert_eq!(pick_engine_version(&engine, &list).map(|v| v.tag.as_str()), Some("3.6-stable"));
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]

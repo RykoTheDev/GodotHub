@@ -946,6 +946,11 @@ pub fn register_project(
                 }
             }
         }
+        if archived.godot_version.is_empty() {
+            if let Some(tag) = crate::discovery::engine_match_tag(&app, &path) {
+                archived.godot_version = tag;
+            }
+        }
         write_dismissed_archive(&app, &archive);
         projects.push(archived.clone());
         write_projects(&app, &projects)?;
@@ -965,6 +970,11 @@ pub fn register_project(
             if let Some(v) = crate::godotenv::best_match(&spec, &installed) {
                 godot_version = v.tag.clone();
             }
+        }
+    }
+    if godot_version.is_empty() {
+        if let Some(tag) = crate::discovery::engine_match_tag(&app, &path) {
+            godot_version = tag;
         }
     }
     let tags = resolve_project_tags(&path);
