@@ -5,6 +5,8 @@ import { useProjectsContext } from './hooks/projectsContext'
 import { useGodotVersionsContext } from './hooks/godotVersionsContext'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { api } from './lib/api'
+import { flushPendingSave } from './lib/pendingSave'
+import { getCurrentWindow } from '@tauri-apps/api/window'
 import { overlayTransition, viewTransition } from './lib/motion'
 import { motionDuration } from './lib/motion'
 import { useUiMotion } from './hooks/useUiMotion'
@@ -85,8 +87,53 @@ export function App() {
     shouldShowSplash() ? 'enter' : 'done',
   )
   const [uiSwitchIntent] = useState(() => shouldOpenSettingsAfterSwitch())
+  const [projectsCorrupt, setProjectsCorrupt] = useState(false)
   const [tab, setTab] = useState<NewTab>(uiSwitchIntent ? 'settings' : 'projects')
   const landingTabRef = useRef<string | null>(null)
+
+  // Flush debounced settings before the window closes. This only guarantees the
+  // save runs first; the backend still decides whether to close or hide to tray.
+  useEffect(() => {
+    const win = getCurrentWindow()
+    let unlisten: (() => void) | undefined
+    let flushing = false
+    win
+      .onCloseRequested(async (event) => {
+        if (flushing) {
+          // Our own re-triggered close; let the backend decide close vs. tray.
+          flushing = false
+          return
+        }
+        flushing = true
+        event.preventDefault()
+        try {
+          await flushPendingSave()
+        } finally {
+          void win.close()
+        }
+      })
+      .then((u) => {
+        unlisten = u
+      })
+      .catch(() => {})
+    return () => {
+      unlisten?.()
+    }
+  }, [])
+
+  // Surface a corrupt project registry instead of silently showing an empty list.
+  useEffect(() => {
+    let cancelled = false
+    api
+      .getProjectsHealth()
+      .then((health) => {
+        if (!cancelled && health === 'corrupt') setProjectsCorrupt(true)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   useEffect(() => {
     window.dispatchEvent(new CustomEvent('app:view-changed', { detail: tab }))
@@ -707,6 +754,26 @@ export function App() {
           <CheckForUpdatesModal
             mode={updatesModalMode}
             onClose={() => setUpdatesModalOpen(false)}
+          />
+        )}
+        {projectsCorrupt && (
+          <ConfirmDialog
+            title={tc('projects_corrupt_title')}
+            description={tc('projects_corrupt_desc')}
+            confirmLabel={tc('projects_corrupt_restore')}
+            cancelLabel={tc('projects_corrupt_dismiss')}
+            onConfirm={() => {
+              void (async () => {
+                try {
+                  await api.restoreProjectsFromBackup()
+                  refreshProjects()
+                } catch {
+                  // Leave the files untouched if there is no usable backup.
+                }
+                setProjectsCorrupt(false)
+              })()
+            }}
+            onCancel={() => setProjectsCorrupt(false)}
           />
         )}
       </AnimatePresence>

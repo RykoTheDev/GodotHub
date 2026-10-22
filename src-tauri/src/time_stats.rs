@@ -14,15 +14,34 @@ pub struct SessionRecord {
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct TimeStatsStore {
     #[serde(default)]
-    pub version: u32,
+    pub schema_version: u32,
     #[serde(default)]
     pub projects: HashMap<String, Vec<SessionRecord>>,
     #[serde(default)]
     pub daily: HashMap<String, BTreeMap<String, u64>>,
 }
 
+impl persist::Versioned for TimeStatsStore {
+    const VERSION: u32 = 1;
+    fn migrate(mut value: serde_json::Value, _from: u32) -> serde_json::Value {
+        // Older files stored the schema number under "version".
+        if let serde_json::Value::Object(ref mut map) = value {
+            if !map.contains_key("schema_version") {
+                if let Some(old) = map.remove("version") {
+                    map.insert("schema_version".into(), old);
+                }
+            }
+        }
+        value
+    }
+}
+
+fn stats_path(dir: &std::path::Path) -> std::path::PathBuf {
+    dir.join("time_tracking.json")
+}
+
 pub fn read_stats_from(dir: &std::path::Path) -> TimeStatsStore {
-    persist::read_json(&dir.join("time_tracking.json"))
+    persist::load_json(&stats_path(dir)).value
 }
 
 pub fn read_stats(app: &AppHandle) -> TimeStatsStore {
@@ -30,7 +49,7 @@ pub fn read_stats(app: &AppHandle) -> TimeStatsStore {
 }
 
 pub fn write_stats_to(dir: &std::path::Path, store: &TimeStatsStore) {
-    let _ = persist::write_json(&dir.join("time_tracking.json"), store);
+    let _ = persist::write_json_with_backup(&stats_path(dir), store);
 }
 
 pub fn write_stats(app: &AppHandle, store: &TimeStatsStore) {
@@ -147,21 +166,23 @@ pub fn record_session(app: &AppHandle, project_id: &str, start_ms: u64, seconds:
     if seconds == 0 {
         return;
     }
-    let mut store = read_stats(app);
-    let sessions = store.projects.entry(project_id.to_string()).or_default();
-    sessions.push(SessionRecord { start_ms, seconds });
-    let cutoff = crate::projects::epoch_ms().saturating_sub(30 * 24 * 60 * 60 * 1000);
-    sessions.retain(|s| s.start_ms >= cutoff);
-    if sessions.len() > 200 {
-        sessions.drain(0..sessions.len() - 200);
-    }
-    if let Some(start) =
-        chrono::DateTime::<chrono::Utc>::from_timestamp_millis(start_ms as i64)
-            .map(|t| t.with_timezone(&chrono::Local))
-    {
-        add_to_daily(&mut store, project_id, start, seconds);
-    }
-    write_stats(app, &store);
+    let path = stats_path(&crate::workspace::active_workspace_dir(app));
+    let _ = persist::update_json::<TimeStatsStore, _>(&path, |store| {
+        let sessions = store.projects.entry(project_id.to_string()).or_default();
+        sessions.push(SessionRecord { start_ms, seconds });
+        let cutoff = crate::projects::epoch_ms().saturating_sub(30 * 24 * 60 * 60 * 1000);
+        sessions.retain(|s| s.start_ms >= cutoff);
+        if sessions.len() > 200 {
+            let excess = sessions.len() - 200;
+            sessions.drain(0..excess);
+        }
+        if let Some(start) =
+            chrono::DateTime::<chrono::Utc>::from_timestamp_millis(start_ms as i64)
+                .map(|t| t.with_timezone(&chrono::Local))
+        {
+            add_to_daily(store, project_id, start, seconds);
+        }
+    });
 }
 
 fn days_in_month(year: i32, month: u32) -> u32 {
@@ -425,21 +446,20 @@ pub fn breakdown(
 
 #[tauri::command]
 pub fn clear_time_stats(app: AppHandle) -> Result<(), String> {
-    write_stats(&app, &TimeStatsStore::default());
+    let path = stats_path(&crate::workspace::active_workspace_dir(&app));
+    let _ = persist::update_json::<TimeStatsStore, _>(&path, |store| {
+        store.projects.clear();
+        store.daily.clear();
+    });
 
-    let mut projects = crate::projects::read_projects(&app);
-    let mut changed = false;
-    for p in projects.iter_mut() {
-        if p.total_time_seconds != 0 || p.time_today_seconds != 0 || p.time_week_seconds != 0 || p.session_started_at_ms.is_some() {
+    crate::projects::update_projects(&app, |projects| {
+        for p in projects.iter_mut() {
             p.total_time_seconds = 0;
             p.time_today_seconds = 0;
             p.time_week_seconds = 0;
             p.session_started_at_ms = None;
-            changed = true;
         }
-    }
-    if changed {
-        crate::projects::write_projects(&app, &projects).map_err(|e| e.to_string())?;
-    }
+    })
+    .map_err(|e| e.to_string())?;
     Ok(())
 }

@@ -381,6 +381,8 @@ pub fn run() {
             export_templates::open_export_templates_folder,
             notify,
             projects::list_projects,
+            projects::get_projects_health,
+            projects::restore_projects_from_backup,
             project_todos::list_project_todos,
             project_todos::save_project_todos,
             projects::create_project,

@@ -875,5 +875,9 @@
     "platform_tools": "Godot 还需要为目标平台配置的 SDK、签名设置和导出选项。",
     "scan_failed": "无法读取导出预设",
     "start_failed": "无法启动导出：{{error}}"
-  }
+  },
+  "projects_corrupt_title": "Project list couldn't be read",
+  "projects_corrupt_desc": "Your projects.json file is corrupt, so your projects can't be shown. You can restore the most recent automatic backup, or dismiss this and leave the file untouched.",
+  "projects_corrupt_restore": "Restore backup",
+  "projects_corrupt_dismiss": "Not now"
 }

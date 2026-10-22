@@ -1,3 +1,9 @@
+export type ProjectsHealth =
+  | 'missing'
+  | 'ok'
+  | 'recovered_from_backup'
+  | 'corrupt'
+
 export interface InstalledGodotVersion {
   tag: string
   version: string

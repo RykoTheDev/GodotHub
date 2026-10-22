@@ -81,6 +81,8 @@ export const api = {
   getProjectIcon: projectsApi.getIcon,
   getProjectName: projectsApi.getName,
   reintroduceDismissedProjects: projectsApi.reintroduceDismissed,
+  getProjectsHealth: projectsApi.getHealth,
+  restoreProjectsFromBackup: projectsApi.restoreFromBackup,
   clearProjectIconCache: projectsApi.clearIconCache,
   clearProjectNameCache: projectsApi.clearNameCache,
 

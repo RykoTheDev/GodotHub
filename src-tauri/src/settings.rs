@@ -4,8 +4,17 @@ use crate::models::AppSettings;
 use std::path::Path;
 use tauri::{AppHandle, Manager};
 
+impl persist::Versioned for AppSettings {
+    const VERSION: u32 = 1;
+    // Additions are covered by serde defaults; add migration steps here for renames.
+}
+
+fn settings_path(dir: &Path) -> std::path::PathBuf {
+    dir.join("settings.json")
+}
+
 pub fn read_settings_from(dir: &Path) -> AppSettings {
-    persist::read_json_with_backup(&dir.join("settings.json"))
+    persist::load_json(&settings_path(dir)).value
 }
 
 pub fn read_settings(app: &AppHandle) -> AppSettings {
@@ -13,7 +22,9 @@ pub fn read_settings(app: &AppHandle) -> AppSettings {
 }
 
 pub fn write_settings_to(dir: &Path, settings: &AppSettings) -> AppResult<()> {
-    persist::write_json_with_backup(&dir.join("settings.json"), settings)
+    let mut settings = settings.clone();
+    settings.schema_version = <AppSettings as persist::Versioned>::VERSION;
+    persist::write_json_with_backup(&settings_path(dir), &settings)
 }
 
 pub fn write_settings(app: &AppHandle, settings: &AppSettings) -> AppResult<()> {

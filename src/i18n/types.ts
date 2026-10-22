@@ -886,7 +886,11 @@ export type commonKeys =
   | 'build_export.run_hint'
   | 'build_export.platform_tools'
   | 'build_export.scan_failed'
-  | 'build_export.start_failed';
+  | 'build_export.start_failed'
+  | 'projects_corrupt_title'
+  | 'projects_corrupt_desc'
+  | 'projects_corrupt_restore'
+  | 'projects_corrupt_dismiss';
 
 /** Keys from dashboard.json */
 export type dashboardKeys =

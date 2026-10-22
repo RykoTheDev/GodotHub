@@ -93,12 +93,35 @@ fn icon_cache() -> &'static Mutex<HashMap<String, CachedIcon>> {
     CACHE.get_or_init(|| Mutex::new(HashMap::new()))
 }
 
-pub(crate) fn read_projects_from(dir: &std::path::Path) -> Vec<Project> {
-    let file = dir.join("projects.json");
-    if !file.exists() && !persist::backup_path(&file).exists() {
-        return vec![];
+#[derive(serde::Serialize, serde::Deserialize, Default)]
+pub(crate) struct ProjectStore {
+    #[serde(default)]
+    pub schema_version: u32,
+    #[serde(default)]
+    pub projects: Vec<Project>,
+}
+
+impl persist::Versioned for ProjectStore {
+    const VERSION: u32 = 1;
+    fn migrate(value: serde_json::Value, _from: u32) -> serde_json::Value {
+        // Version 0 stored a bare array of projects at the top level.
+        if value.is_array() {
+            return serde_json::json!({ "schema_version": 1, "projects": value });
+        }
+        value
     }
-    persist::read_json_with_backup(&file)
+}
+
+fn projects_path(dir: &std::path::Path) -> std::path::PathBuf {
+    dir.join("projects.json")
+}
+
+pub(crate) fn load_projects_from(dir: &std::path::Path) -> persist::Loaded<ProjectStore> {
+    persist::load_json::<ProjectStore>(&projects_path(dir))
+}
+
+pub(crate) fn read_projects_from(dir: &std::path::Path) -> Vec<Project> {
+    load_projects_from(dir).value.projects
 }
 
 pub(crate) fn read_projects(app: &AppHandle) -> Vec<Project> {
@@ -109,12 +132,49 @@ pub(crate) fn write_projects_to(
     dir: &std::path::Path,
     projects: &Vec<Project>,
 ) -> Result<(), String> {
-    persist::write_json_with_backup(&dir.join("projects.json"), projects)
-        .map_err(|e| e.to_string())
+    let store = ProjectStore {
+        schema_version: <ProjectStore as persist::Versioned>::VERSION,
+        projects: projects.clone(),
+    };
+    persist::write_json_with_backup(&projects_path(dir), &store).map_err(|e| e.to_string())
 }
 
 pub(crate) fn write_projects(app: &AppHandle, projects: &Vec<Project>) -> Result<(), String> {
     write_projects_to(&crate::workspace::active_workspace_dir(app), projects)
+}
+
+/// Serializes read-modify-write on the project registry so the UI, the watcher,
+/// and the session-settle thread cannot clobber each other's updates. The vec is
+/// read from disk under the lock, mutated, and written back atomically.
+pub(crate) fn update_projects(
+    app: &AppHandle,
+    mutate: impl FnOnce(&mut Vec<Project>),
+) -> Result<Vec<Project>, String> {
+    let path = projects_path(&crate::workspace::active_workspace_dir(app));
+    persist::update_json::<ProjectStore, _>(&path, |store| mutate(&mut store.projects))
+        .map(|store| store.projects)
+        .map_err(|e| e.to_string())
+}
+
+/// Reports whether the project registry loaded cleanly, had to fall back to its
+/// backup, or is corrupt, so the UI can warn instead of showing an empty library.
+#[tauri::command]
+pub fn get_projects_health(app: AppHandle) -> persist::LoadStatus {
+    load_projects_from(&crate::workspace::active_workspace_dir(&app)).status
+}
+
+/// Restores the project registry from its `.bak` file after corruption. Returns
+/// the number of projects recovered.
+#[tauri::command]
+pub fn restore_projects_from_backup(app: AppHandle) -> Result<usize, String> {
+    let dir = crate::workspace::active_workspace_dir(&app);
+    let backup = persist::backup_path(&projects_path(&dir));
+    let loaded = persist::load_json::<ProjectStore>(&backup);
+    if loaded.status != persist::LoadStatus::Ok {
+        return Err("No usable backup to restore from.".into());
+    }
+    write_projects_to(&dir, &loaded.value.projects)?;
+    Ok(loaded.value.projects.len())
 }
 
 pub(crate) fn epoch_ms() -> u64 {
@@ -129,38 +189,33 @@ fn settle_project_session(
     id: &str,
     active_elapsed: Option<std::time::Duration>,
 ) {
-    let mut projects = read_projects(app);
-    let Some(project) = projects.iter_mut().find(|p| p.id == id) else {
-        return;
-    };
-    let mut changed = false;
     let mut added_ms = 0u64;
     let mut session_start_ms: Option<u64> = None;
-    match active_elapsed {
-        Some(d) => {
-            let marker = project.session_started_at_ms.take();
-            changed = marker.is_some();
-            added_ms = (d.as_millis() as u64).saturating_sub(SESSION_START_DELAY_MS);
-            session_start_ms = Some(marker.unwrap_or_else(|| epoch_ms().saturating_sub(added_ms)));
-        }
-        None => {
-            if let Some(start) = project.session_started_at_ms.take() {
-                let observed_end = crate::time_stats::last_active_ms(app).max(start);
-                let end = epoch_ms().min(observed_end);
-                let elapsed_ms = end.saturating_sub(start);
-                added_ms = elapsed_ms.saturating_sub(SESSION_START_DELAY_MS);
-                session_start_ms = Some(start);
-                changed = true;
+    let _ = update_projects(app, |projects| {
+        let Some(project) = projects.iter_mut().find(|p| p.id == id) else {
+            return;
+        };
+        match active_elapsed {
+            Some(d) => {
+                let marker = project.session_started_at_ms.take();
+                added_ms = (d.as_millis() as u64).saturating_sub(SESSION_START_DELAY_MS);
+                session_start_ms =
+                    Some(marker.unwrap_or_else(|| epoch_ms().saturating_sub(added_ms)));
+            }
+            None => {
+                if let Some(start) = project.session_started_at_ms.take() {
+                    let observed_end = crate::time_stats::last_active_ms(app).max(start);
+                    let end = epoch_ms().min(observed_end);
+                    let elapsed_ms = end.saturating_sub(start);
+                    added_ms = elapsed_ms.saturating_sub(SESSION_START_DELAY_MS);
+                    session_start_ms = Some(start);
+                }
             }
         }
-    }
-    if added_ms > 0 {
-        project.total_time_seconds += added_ms / 1000;
-        changed = true;
-    }
-    if changed {
-        let _ = write_projects(app, &projects);
-    }
+        if added_ms > 0 {
+            project.total_time_seconds += added_ms / 1000;
+        }
+    });
     if let Some(start_ms) = session_start_ms {
         crate::time_stats::record_session(app, id, start_ms, added_ms / 1000);
     }

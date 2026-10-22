@@ -888,5 +888,9 @@
     "platform_tools": "Godot also requires the SDKs, signing settings and export options configured for your target platform.",
     "scan_failed": "Could not read export presets",
     "start_failed": "Could not start export: {{error}}"
-  }
+  },
+  "projects_corrupt_title": "Project list couldn't be read",
+  "projects_corrupt_desc": "Your projects.json file is corrupt, so your projects can't be shown. You can restore the most recent automatic backup, or dismiss this and leave the file untouched.",
+  "projects_corrupt_restore": "Restore backup",
+  "projects_corrupt_dismiss": "Not now"
 }

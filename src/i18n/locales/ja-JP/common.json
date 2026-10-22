@@ -873,5 +873,9 @@
     "platform_tools": "Godot でのエクスポートには、対象プラットフォーム用の SDK、署名設定、エクスポートオプションの構成も必要です。",
     "scan_failed": "エクスポートプリセットを読み取れませんでした",
     "start_failed": "エクスポートを開始できませんでした: {{error}}"
-  }
+  },
+  "projects_corrupt_title": "Project list couldn't be read",
+  "projects_corrupt_desc": "Your projects.json file is corrupt, so your projects can't be shown. You can restore the most recent automatic backup, or dismiss this and leave the file untouched.",
+  "projects_corrupt_restore": "Restore backup",
+  "projects_corrupt_dismiss": "Not now"
 }

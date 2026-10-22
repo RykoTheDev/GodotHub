@@ -5,6 +5,7 @@ import type {
   ProjectSizeInfo,
   ProjectUpdate,
   ProjectHealthReport,
+  ProjectsHealth,
 } from '../types'
 
 const iconCache = new Map<string, string | null>()
@@ -99,6 +100,8 @@ export const projectsApi = {
   },
   reintroduceDismissed: (paths: string[]) =>
     invoke<Project[]>('reintroduce_dismissed_projects', { paths }),
+  getHealth: () => invoke<ProjectsHealth>('get_projects_health'),
+  restoreFromBackup: () => invoke<number>('restore_projects_from_backup'),
   clearIconCache: () => { iconCache.clear(); bumpResolutionEpoch() },
   clearNameCache: () => { nameCache.clear(); bumpResolutionEpoch() },
 }

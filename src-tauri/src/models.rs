@@ -136,6 +136,8 @@ pub struct DownloadProgress {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AppSettings {
+    #[serde(default)]
+    pub schema_version: u32,
     pub download_dir: Option<String>,
     #[serde(default)]
     pub default_project_location: Option<String>,
@@ -541,6 +543,7 @@ pub struct ScanProjectsResult {
 impl Default for AppSettings {
     fn default() -> Self {
         Self {
+            schema_version: 0,
             download_dir: None,
             default_project_location: None,
             project_scan_dirs: vec![],
