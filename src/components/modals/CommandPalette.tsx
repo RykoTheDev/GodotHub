@@ -9,7 +9,6 @@ import { getWorkspaceIcon } from '../../lib/workspaceIcons'
 import { THEME_PRESETS } from '../../lib/colors'
 import type { InstalledGodotVersion, Project } from '../../types'
 import {
-  IconBell,
   IconBookOpen,
   IconBriefcase,
   IconBug,
@@ -114,14 +113,6 @@ function buildCommands(
       icon: <IconNews className="w-4 h-4" />,
       sectionKey: 'section_navigation',
       action: () => onNavigate('news'),
-    },
-    {
-      id: 'go-updates',
-      labelKey: 'updates',
-      labelNs: 'nav',
-      icon: <IconBell className="w-4 h-4" />,
-      sectionKey: 'section_navigation',
-      action: () => onNavigate('updates'),
     },
     {
       id: 'go-changelog',

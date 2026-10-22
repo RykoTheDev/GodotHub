@@ -27,7 +27,6 @@ import { ProjectsView } from './views/ProjectsView'
 import { VersionsView } from './views/VersionsView'
 import { TemplatesView } from './views/TemplatesView'
 import { SettingsView } from './views/SettingsView'
-import { UpdatesView } from './views/UpdatesView'
 import { ChangelogView } from './views/ChangelogView'
 import { NewsView } from './views/NewsView'
 import { AssetStoreView } from './views/AssetStoreView'
@@ -48,7 +47,6 @@ import {
 } from './lib/uiTransition'
 import { setPendingSettingsCategory } from './lib/settingsCategoryNav'
 import {
-  IconBell,
   IconBookOpen,
   IconCloudArrowDown,
   IconFolder,
@@ -67,7 +65,6 @@ const TABS = [
   { id: 'asset-store', navKey: 'asset_store', icon: IconStore },
   { id: 'news', navKey: 'news', icon: IconNews },
   { id: 'settings', navKey: 'settings', icon: IconGear, footer: true },
-  { id: 'updates', navKey: 'updates', icon: IconBell, footer: true },
   { id: 'changelog', navKey: 'changelog', icon: IconBookOpen, footer: true, iconOnly: true },
 ] as const
 
@@ -414,8 +411,6 @@ export function App() {
         )
       case 'news':
         return <NewsView connected={!cardLayout} />
-      case 'updates':
-        return <UpdatesView connected={!cardLayout} />
       case 'templates':
         return (
           <TemplatesView
@@ -493,7 +488,6 @@ export function App() {
             tab === 'news' ||
             tab === 'asset-store' ||
             tab === 'templates' ||
-            tab === 'updates' ||
             tab === 'changelog' ? (
               renderView()
             ) : (

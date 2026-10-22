@@ -6,7 +6,6 @@ import { IconArrowUp, IconChevronsLeft, IconHouse, IconSearch, IconX } from '../
 import type { IconProps } from '../../lib/icons'
 import { WorkspaceSwitcher } from './WorkspaceSwitcher'
 import { useSettings } from '../../hooks/useSettings'
-import { useUpdatesBadge } from '../../hooks/useUpdatesBadge'
 import { useChangelogBadge } from '../../hooks/useChangelogBadge'
 import { useUpdateAvailable } from '../../hooks/useUpdateAvailable'
 import { Tooltip } from '../reusables/Tooltip'
@@ -48,7 +47,6 @@ export function Sidebar({
   const { t: tc } = useTranslation('common')
   const { settings } = useSettings()
   const {instant, reduced, transition} = useUiMotion()
-  const { hasUnseen } = useUpdatesBadge()
   const { hasNewEntry: hasNewChangelogEntry, markSeen: markChangelogSeen } = useChangelogBadge()
   const { updateAvailable, previewUpdate } = useUpdateAvailable()
   const [width, setWidth] = useState(() => {
@@ -204,12 +202,6 @@ export function Sidebar({
         />
         {!hideLabel && (
           <span className={`relative transition-colors duration-200 ${active ? 'text-ink' : ''}`}>{tab.label}</span>
-        )}
-        {hasUnseen && tab.id === 'updates' && !active && (
-          <span className="absolute top-1.5 right-1.5 flex w-2 h-2" aria-hidden="true">
-            <span className="absolute inline-flex h-full w-full rounded-full bg-accent-bright opacity-75 animate-attention-ping" />
-            <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-bright shadow-[0_0_6px_2px] shadow-accent/50" />
-          </span>
         )}
       </button>
     )

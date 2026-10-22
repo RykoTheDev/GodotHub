@@ -30,20 +30,6 @@ export type commonKeys =
   | 'refresh'
   | 'scroll_to_top'
   | 'quick_commands'
-  | 'updates_subtitle'
-  | 'updates_tag'
-  | 'updates_known_issue'
-  | 'updates_kind_new_feature'
-  | 'updates_kind_improvement'
-  | 'updates_kind_breaking_change'
-  | 'updates_new'
-  | 'updates_copy'
-  | 'updates_copied'
-  | 'updates_no_entries'
-  | 'updates_from_cache'
-  | 'updates_from_cache_ago'
-  | 'updates_featured'
-  | 'updates_open'
   | 'updates_desc'
   | 'minimize'
   | 'close_sidebar'
@@ -1114,8 +1100,7 @@ export type navKeys =
   | 'asset_store'
   | 'news'
   | 'settings'
-  | 'changelog'
-  | 'updates';
+  | 'changelog';
 
 /** Keys from onboarding.json */
 export type onboardingKeys =

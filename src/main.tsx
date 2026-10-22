@@ -6,7 +6,6 @@ import { SettingsProvider } from './hooks/useSettings'
 import { WorkspacesProvider } from './hooks/useWorkspaces'
 import { ProjectsProvider } from './hooks/projectsContext'
 import { CategoriesProvider } from './hooks/categoriesContext'
-import { UpdatesBadgeProvider } from './hooks/useUpdatesBadge'
 import { UpdateAvailableProvider } from './hooks/useUpdateAvailable'
 import { GodotVersionsProvider } from './hooks/godotVersionsContext'
 import { TaskTrayProvider } from './hooks/useTaskTray'
@@ -28,15 +27,13 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
           <SettingsProvider>
             <ProjectsProvider>
               <CategoriesProvider>
-                <UpdatesBadgeProvider>
-                  <UpdateAvailableProvider>
-                    <GodotVersionsProvider>
-                      <TaskTrayProvider>
-                        <App />
-                      </TaskTrayProvider>
-                    </GodotVersionsProvider>
-                  </UpdateAvailableProvider>
-                </UpdatesBadgeProvider>
+                <UpdateAvailableProvider>
+                  <GodotVersionsProvider>
+                    <TaskTrayProvider>
+                      <App />
+                    </TaskTrayProvider>
+                  </GodotVersionsProvider>
+                </UpdateAvailableProvider>
               </CategoriesProvider>
             </ProjectsProvider>
           </SettingsProvider>

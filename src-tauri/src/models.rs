@@ -100,24 +100,6 @@ pub struct ChangelogNote {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct UpdateEntry {
-    pub id: String,
-    pub kind: String,
-    pub title: String,
-    pub body: String,
-    #[serde(default)]
-    pub command: Option<String>,
-    #[serde(default)]
-    pub is_new: bool,
-    #[serde(default)]
-    pub featured: bool,
-    #[serde(default)]
-    pub link: Option<String>,
-    #[serde(default)]
-    pub created_at: i64,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ChangelogEntry {
     pub id: String,
     pub version: String,

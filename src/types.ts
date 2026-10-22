@@ -203,25 +203,6 @@ export interface ChangelogDraft {
   skipped: ChangelogDraftSkipped[]
 }
 
-export type UpdateKind =
-  | 'announcement'
-  | 'new-feature'
-  | 'improvement'
-  | 'breaking-change'
-  | 'known-issue'
-
-export interface UpdateEntry {
-  id: string
-  kind: UpdateKind
-  title: string
-  body: string
-  command?: string | null
-  is_new: boolean
-  featured: boolean
-  link?: string | null
-  created_at: number
-}
-
 export interface TimeInsights {
   total_seconds: number
   longest_streak_days: number
@@ -229,12 +210,6 @@ export interface TimeInsights {
   most_productive_weekday: number | null
   this_month_seconds: number
   last_month_seconds: number
-}
-
-export interface UpdatesResponse {
-  entries: UpdateEntry[]
-  from_cache: boolean
-  fetched_at: number
 }
 
 export interface Project {

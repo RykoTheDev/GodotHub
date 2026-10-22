@@ -36,7 +36,6 @@ mod templates;
 mod terminal;
 mod time_stats;
 mod tray;
-mod updates;
 mod watcher;
 mod workspace;
 
@@ -479,7 +478,6 @@ pub fn run() {
             changelog::delete_changelog_entry,
             changelog::list_git_tags,
             changelog::generate_changelog_draft,
-            updates::fetch_updates,
             install_mode::is_portable_install,
             mise::mise_status,
             mise::mise_refresh_status,
