@@ -3,12 +3,14 @@ use crate::persist;
 use crate::settings;
 use futures_util::StreamExt;
 use serde::Serialize;
+use sha2::{Digest, Sha512};
 use std::collections::{HashMap, VecDeque};
 use std::fs;
-use std::io::Write;
+use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, OnceLock};
+use std::time::Duration;
 use tauri::{AppHandle, Emitter, Manager};
 
 pub fn parse_godot_tag_from_filename(filename: &str) -> Option<String> {
@@ -984,6 +986,177 @@ pub fn resume_download(app: AppHandle, key: String) -> Result<(), String> {
     Ok(())
 }
 
+const MAX_DOWNLOAD_ATTEMPTS: u32 = 5;
+const BACKOFF_BASE: Duration = Duration::from_millis(500);
+const BACKOFF_CAP: Duration = Duration::from_secs(15);
+
+#[derive(Debug, PartialEq)]
+enum ResumeMode {
+    Restart,
+    Resume,
+    Abort(String),
+}
+
+#[derive(Debug, PartialEq)]
+struct ParsedContentRange {
+    start: u64,
+    total: Option<u64>,
+}
+
+fn parse_content_range(value: &str) -> Option<ParsedContentRange> {
+    let rest = value.trim().strip_prefix("bytes ")?;
+    let (range, total) = rest.split_once('/')?;
+    let (start, end) = range.split_once('-')?;
+    let start = start.trim().parse::<u64>().ok()?;
+    end.trim().parse::<u64>().ok()?;
+    let total = match total.trim() {
+        "*" => None,
+        other => Some(other.parse::<u64>().ok()?),
+    };
+    Some(ParsedContentRange { start, total })
+}
+
+fn resume_action(status: u16, content_range: Option<&str>, existing: u64) -> ResumeMode {
+    if existing == 0 {
+        return match status {
+            200 | 206 => ResumeMode::Resume,
+            416 => ResumeMode::Restart,
+            s => ResumeMode::Abort(format!("Download failed with status {s}")),
+        };
+    }
+    match status {
+        200 => ResumeMode::Restart,
+        206 => match content_range.and_then(parse_content_range) {
+            Some(cr) if cr.start == existing => ResumeMode::Resume,
+            Some(cr) => ResumeMode::Abort(format!(
+                "Server returned a mismatched range (expected start {existing}, got {})",
+                cr.start
+            )),
+            None => ResumeMode::Abort("Server sent 206 without a valid Content-Range".into()),
+        },
+        416 => ResumeMode::Restart,
+        s => ResumeMode::Abort(format!("Download failed with status {s}")),
+    }
+}
+
+fn is_transient_status(status: u16) -> bool {
+    matches!(status, 408 | 425 | 429 | 500 | 502 | 503 | 504)
+}
+
+fn is_transient_request_error(err: &reqwest::Error) -> bool {
+    err.is_timeout() || err.is_connect() || err.is_request() || err.is_body()
+}
+
+fn backoff_delay(attempt: u32) -> Duration {
+    match BACKOFF_BASE.checked_mul(1u32 << attempt.min(16)) {
+        Some(d) if d <= BACKOFF_CAP => d,
+        _ => BACKOFF_CAP,
+    }
+}
+
+fn sums_url(original_url: &str, resolved_url: &str) -> Option<String> {
+    let pick = if original_url.contains("github.com") {
+        original_url
+    } else {
+        resolved_url
+    };
+    let without_query = pick.split('?').next().unwrap_or(pick);
+    let (base, last) = without_query.rsplit_once('/')?;
+    if last.is_empty() || !last.contains('.') {
+        return None;
+    }
+    Some(format!("{base}/SHA512-SUMS.txt"))
+}
+
+fn parse_sums_file(contents: &str, asset_name: &str) -> Option<String> {
+    let wanted = Path::new(asset_name)
+        .file_name()
+        .and_then(|n| n.to_str())
+        .unwrap_or(asset_name);
+    for line in contents.lines() {
+        let line = line.trim();
+        let Some((hash, name)) = line.split_once(char::is_whitespace) else {
+            continue;
+        };
+        let name = name.trim_start_matches([' ', '*']).trim();
+        let file = Path::new(name)
+            .file_name()
+            .and_then(|n| n.to_str())
+            .unwrap_or(name);
+        if file == wanted && hash.len() == 128 && hash.bytes().all(|b| b.is_ascii_hexdigit()) {
+            return Some(hash.to_ascii_lowercase());
+        }
+    }
+    None
+}
+
+fn sha512_file(path: &Path) -> std::io::Result<String> {
+    let mut file = fs::File::open(path)?;
+    let mut hasher = Sha512::new();
+    let mut buf = [0u8; 65536];
+    loop {
+        let n = file.read(&mut buf)?;
+        if n == 0 {
+            break;
+        }
+        hasher.update(&buf[..n]);
+    }
+    Ok(to_hex(&hasher.finalize()))
+}
+
+fn to_hex(bytes: &[u8]) -> String {
+    let mut out = String::with_capacity(bytes.len() * 2);
+    for b in bytes {
+        out.push_str(&format!("{b:02x}"));
+    }
+    out
+}
+
+enum VerifyOutcome {
+    Verified,
+    Mismatch { expected: String, actual: String },
+    Unverified(String),
+}
+
+async fn verify_download(
+    client: &reqwest::Client,
+    job: &DownloadJob,
+    zip_path: &Path,
+    resolved_url: &str,
+) -> VerifyOutcome {
+    let Some(url) = sums_url(&job.download_url, resolved_url) else {
+        return VerifyOutcome::Unverified("could not determine checksum URL".into());
+    };
+    let resp = match client.get(&url).send().await {
+        Ok(r) if r.status().is_success() => r,
+        Ok(r) => {
+            return VerifyOutcome::Unverified(format!(
+                "checksum file returned status {}",
+                r.status()
+            ))
+        }
+        Err(e) => return VerifyOutcome::Unverified(format!("checksum file unreachable: {e}")),
+    };
+    let body = match resp.text().await {
+        Ok(t) => t,
+        Err(e) => return VerifyOutcome::Unverified(format!("could not read checksum file: {e}")),
+    };
+    let Some(expected) = parse_sums_file(&body, &job.asset_name) else {
+        return VerifyOutcome::Unverified("no checksum entry for this asset".into());
+    };
+    let path = zip_path.to_path_buf();
+    let actual = match tokio::task::spawn_blocking(move || sha512_file(&path)).await {
+        Ok(Ok(h)) => h,
+        Ok(Err(e)) => return VerifyOutcome::Unverified(format!("could not hash archive: {e}")),
+        Err(e) => return VerifyOutcome::Unverified(format!("hashing task failed: {e}")),
+    };
+    if actual.eq_ignore_ascii_case(&expected) {
+        VerifyOutcome::Verified
+    } else {
+        VerifyOutcome::Mismatch { expected, actual }
+    }
+}
+
 async fn run_download(app: AppHandle, key: String) {
     let (job, cancel, pause) = {
         let mgr = dm().lock().unwrap();
@@ -999,70 +1172,148 @@ async fn run_download(app: AppHandle, key: String) {
         return;
     }
     let zip_path = target_dir.join(&job.asset_name);
-    let existing: u64 = fs::metadata(&zip_path).map(|m| m.len()).unwrap_or(0);
-
     let client = match reqwest::Client::builder().user_agent("godot-hub").build() {
         Ok(c) => c,
         Err(e) => return finish_with_error(&app, &key, e.to_string()),
     };
-    let mut req = client.get(&job.download_url);
-    if existing > 0 {
-        req = req.header("Range", format!("bytes={}-", existing));
-    }
-    let resp = match req.send().await {
-        Ok(r) => r,
-        Err(e) => return finish_with_error(&app, &key, e.to_string()),
-    };
-    let total = resp.content_length().unwrap_or(0) + existing;
 
-    let mut file = match fs::OpenOptions::new()
-        .create(true)
-        .append(true)
-        .open(&zip_path)
-    {
-        Ok(f) => f,
-        Err(e) => return finish_with_error(&app, &key, e.to_string()),
-    };
-
-    let mut downloaded = existing;
-    let mut stream = resp.bytes_stream();
-    loop {
-        if cancel.load(Ordering::SeqCst) {
-            drop(file);
-            let _ = fs::remove_dir_all(&target_dir);
-            release_slot(&app, &key, true);
-            let _ = app.emit("godot-download-canceled", &key);
-            return;
+    let mut attempt: u32 = 0;
+    let resolved_url: String = loop {
+        let existing: u64 = fs::metadata(&zip_path).map(|m| m.len()).unwrap_or(0);
+        let mut req = client.get(&job.download_url);
+        if existing > 0 {
+            req = req.header(reqwest::header::RANGE, format!("bytes={existing}-"));
         }
-        if pause.load(Ordering::SeqCst) {
-            drop(file);
-            {
-                let mut mgr = dm().lock().unwrap();
-                mgr.state.insert(key.clone(), SlotState::Paused);
+        let resp = match req.send().await {
+            Ok(r) => r,
+            Err(e) => {
+                if attempt + 1 < MAX_DOWNLOAD_ATTEMPTS && is_transient_request_error(&e) {
+                    tokio::time::sleep(backoff_delay(attempt)).await;
+                    attempt += 1;
+                    continue;
+                }
+                return finish_with_error(&app, &key, format!("Download request failed: {e}"));
             }
-            release_slot(&app, &key, false);
-            let _ = app.emit("godot-download-paused", &key);
-            return;
-        }
-        let chunk = match stream.next().await {
-            Some(Ok(c)) => c,
-            Some(Err(e)) => return finish_with_error(&app, &key, e.to_string()),
-            None => break,
         };
-        if let Err(e) = file.write_all(&chunk) {
-            return finish_with_error(&app, &key, e.to_string());
+
+        let status = resp.status();
+        let content_range = resp
+            .headers()
+            .get(reqwest::header::CONTENT_RANGE)
+            .and_then(|v| v.to_str().ok())
+            .map(|s| s.to_string());
+        let resolved = resp.url().to_string();
+
+        let (truncate, start_offset, total) =
+            match resume_action(status.as_u16(), content_range.as_deref(), existing) {
+                ResumeMode::Resume => {
+                    let total = content_range
+                        .as_deref()
+                        .and_then(parse_content_range)
+                        .and_then(|cr| cr.total)
+                        .unwrap_or_else(|| existing + resp.content_length().unwrap_or(0));
+                    (false, existing, total)
+                }
+                ResumeMode::Restart => (true, 0u64, resp.content_length().unwrap_or(0)),
+                ResumeMode::Abort(msg) => {
+                    if attempt + 1 < MAX_DOWNLOAD_ATTEMPTS && is_transient_status(status.as_u16()) {
+                        tokio::time::sleep(backoff_delay(attempt)).await;
+                        attempt += 1;
+                        continue;
+                    }
+                    return finish_with_error(&app, &key, msg);
+                }
+            };
+
+        let mut file = match fs::OpenOptions::new()
+            .create(true)
+            .write(true)
+            .append(!truncate)
+            .truncate(truncate)
+            .open(&zip_path)
+        {
+            Ok(f) => f,
+            Err(e) => return finish_with_error(&app, &key, e.to_string()),
+        };
+
+        let mut downloaded = start_offset;
+        let mut stream = resp.bytes_stream();
+        let mut stream_err: Option<String> = None;
+        loop {
+            if cancel.load(Ordering::SeqCst) {
+                drop(file);
+                let _ = fs::remove_dir_all(&target_dir);
+                release_slot(&app, &key, true);
+                let _ = app.emit("godot-download-canceled", &key);
+                return;
+            }
+            if pause.load(Ordering::SeqCst) {
+                drop(file);
+                {
+                    let mut mgr = dm().lock().unwrap();
+                    mgr.state.insert(key.clone(), SlotState::Paused);
+                }
+                release_slot(&app, &key, false);
+                let _ = app.emit("godot-download-paused", &key);
+                return;
+            }
+            match stream.next().await {
+                Some(Ok(chunk)) => {
+                    if let Err(e) = file.write_all(&chunk) {
+                        return finish_with_error(&app, &key, e.to_string());
+                    }
+                    downloaded += chunk.len() as u64;
+                    let _ = app.emit(
+                        "godot-download-progress",
+                        DownloadProgress {
+                            tag: key.clone(),
+                            downloaded,
+                            total,
+                        },
+                    );
+                }
+                Some(Err(e)) => {
+                    stream_err = Some(e.to_string());
+                    break;
+                }
+                None => break,
+            }
         }
-        downloaded += chunk.len() as u64;
-        let _ = app.emit(
-            "godot-download-progress",
-            DownloadProgress {
-                tag: key.clone(),
-                downloaded,
-                total,
-            },
-        );
+        drop(file);
+
+        match stream_err {
+            None => break resolved,
+            Some(e) => {
+                if attempt + 1 < MAX_DOWNLOAD_ATTEMPTS {
+                    tokio::time::sleep(backoff_delay(attempt)).await;
+                    attempt += 1;
+                    continue;
+                }
+                return finish_with_error(&app, &key, format!("Download interrupted: {e}"));
+            }
+        }
+    };
+
+    match verify_download(&client, &job, &zip_path, &resolved_url).await {
+        VerifyOutcome::Verified => {}
+        VerifyOutcome::Mismatch { expected, actual } => {
+            let _ = fs::remove_file(&zip_path);
+            return finish_with_error(
+                &app,
+                &key,
+                format!(
+                    "Checksum verification failed for {}; the download was deleted. Expected {expected}, got {actual}.",
+                    job.asset_name
+                ),
+            );
+        }
+        VerifyOutcome::Unverified(reason) => {
+            let _ = app.emit(
+                "godot-download-unverified",
+                serde_json::json!({ "tag": key, "reason": reason }),
+            );
+        }
     }
-    drop(file);
 
     let app2 = app.clone();
     let job2 = job.clone();
@@ -1699,5 +1950,182 @@ fn supports_console(exe: &Path) -> bool {
 #[cfg(not(target_os = "windows"))]
 fn supports_console(_exe: &Path) -> bool {
     true
+}
+
+#[cfg(test)]
+mod download_tests {
+    use super::*;
+
+    fn sha512_hex(bytes: &[u8]) -> String {
+        let mut hasher = Sha512::new();
+        hasher.update(bytes);
+        to_hex(&hasher.finalize())
+    }
+
+    #[test]
+    fn resume_ignored_range_restarts() {
+        assert_eq!(resume_action(200, None, 1_000), ResumeMode::Restart);
+    }
+
+    #[test]
+    fn resume_matching_range_resumes() {
+        assert_eq!(
+            resume_action(206, Some("bytes 1000-2047/2048"), 1_000),
+            ResumeMode::Resume
+        );
+    }
+
+    #[test]
+    fn resume_mismatched_range_aborts() {
+        assert!(matches!(
+            resume_action(206, Some("bytes 500-2047/2048"), 1_000),
+            ResumeMode::Abort(_)
+        ));
+    }
+
+    #[test]
+    fn resume_206_without_content_range_aborts() {
+        assert!(matches!(
+            resume_action(206, None, 1_000),
+            ResumeMode::Abort(_)
+        ));
+    }
+
+    #[test]
+    fn resume_range_not_satisfiable_restarts() {
+        assert_eq!(resume_action(416, None, 1_000), ResumeMode::Restart);
+    }
+
+    #[test]
+    fn resume_fresh_download_is_ok() {
+        assert_eq!(resume_action(200, None, 0), ResumeMode::Resume);
+    }
+
+    #[test]
+    fn resume_server_error_aborts() {
+        assert!(matches!(
+            resume_action(503, None, 0),
+            ResumeMode::Abort(_)
+        ));
+    }
+
+    #[test]
+    fn content_range_parses_total() {
+        assert_eq!(
+            parse_content_range("bytes 200-1023/1024"),
+            Some(ParsedContentRange {
+                start: 200,
+                total: Some(1024)
+            })
+        );
+    }
+
+    #[test]
+    fn content_range_unknown_total() {
+        let cr = parse_content_range("bytes 0-1023/*").unwrap();
+        assert_eq!(cr.start, 0);
+        assert_eq!(cr.total, None);
+    }
+
+    #[test]
+    fn content_range_rejects_garbage() {
+        assert_eq!(parse_content_range("pages 1-2/3"), None);
+        assert_eq!(parse_content_range("bytes abc/10"), None);
+    }
+
+    #[test]
+    fn sums_file_two_space_format() {
+        let other = "d".repeat(128);
+        let wanted = format!("{}beef0012", "a".repeat(120));
+        let body = format!("{other}  other.zip\n{wanted}  Godot_v4.3-stable_win64.exe.zip\n");
+        let hash = parse_sums_file(&body, "Godot_v4.3-stable_win64.exe.zip").unwrap();
+        assert_eq!(hash, wanted);
+    }
+
+    #[test]
+    fn sums_file_binary_marker_and_path() {
+        let h = "a".repeat(128);
+        let body = format!("{h} *./builds/Godot_v4.4-beta1_linux.x86_64.zip\n");
+        assert_eq!(
+            parse_sums_file(&body, "Godot_v4.4-beta1_linux.x86_64.zip"),
+            Some(h)
+        );
+    }
+
+    #[test]
+    fn sums_file_missing_entry() {
+        let body = format!("{}  some-other-file.zip\n", "b".repeat(128));
+        assert_eq!(parse_sums_file(&body, "not-present.zip"), None);
+    }
+
+    #[test]
+    fn sums_file_rejects_wrong_length() {
+        let body = "abc  Godot_v4.3-stable_win64.exe.zip\n";
+        assert_eq!(parse_sums_file(body, "Godot_v4.3-stable_win64.exe.zip"), None);
+    }
+
+    #[test]
+    fn backoff_is_monotonic_and_capped() {
+        let d0 = backoff_delay(0);
+        let d1 = backoff_delay(1);
+        let d2 = backoff_delay(2);
+        assert!(d0 < d1 && d1 < d2);
+        assert_eq!(d0, BACKOFF_BASE);
+        assert!(backoff_delay(30) <= BACKOFF_CAP);
+        assert!(backoff_delay(100) <= BACKOFF_CAP);
+    }
+
+    #[test]
+    fn transient_status_classification() {
+        assert!(is_transient_status(503));
+        assert!(is_transient_status(429));
+        assert!(!is_transient_status(404));
+        assert!(!is_transient_status(200));
+    }
+
+    #[test]
+    fn sums_url_from_github_release() {
+        let url = "https://github.com/godotengine/godot-builds/releases/download/4.3-stable/Godot_v4.3-stable_win64.exe.zip";
+        assert_eq!(
+            sums_url(url, "https://objects.githubusercontent.com/signed-blob"),
+            Some("https://github.com/godotengine/godot-builds/releases/download/4.3-stable/SHA512-SUMS.txt".to_string())
+        );
+    }
+
+    #[test]
+    fn sums_url_from_resolved_archive() {
+        let original =
+            "https://downloads.godotengine.org/?version=4.3&flavor=stable&slug=win64.exe.zip&platform=windows.64";
+        let resolved = "https://downloads.godotengine.org/4.3/Godot_v4.3-stable_win64.exe.zip";
+        assert_eq!(
+            sums_url(original, resolved),
+            Some("https://downloads.godotengine.org/4.3/SHA512-SUMS.txt".to_string())
+        );
+    }
+
+    #[test]
+    fn sums_url_none_when_no_filename() {
+        let original =
+            "https://downloads.godotengine.org/?version=4.3&flavor=stable&slug=win64.exe.zip";
+        assert_eq!(sums_url(original, original), None);
+    }
+
+    #[test]
+    fn sha512_known_vector() {
+        assert_eq!(
+            sha512_hex(b"abc"),
+            "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f"
+        );
+    }
+
+    #[test]
+    fn sha512_file_matches_in_memory() {
+        let mut path = std::env::temp_dir();
+        path.push(format!("godothub-sha-test-{}.bin", std::process::id()));
+        fs::write(&path, b"abc").unwrap();
+        let from_file = sha512_file(&path).unwrap();
+        let _ = fs::remove_file(&path);
+        assert_eq!(from_file, sha512_hex(b"abc"));
+    }
 }
 

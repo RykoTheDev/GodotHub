@@ -1492,6 +1492,26 @@
       {
         "category": "fix",
         "text": "tauri:build no longer fails on a missing patch-appimage-wayland.sh step (Wayland is already handled at runtime)"
+      },
+      {
+        "category": "fix",
+        "text": "Resuming an interrupted Godot download now restarts cleanly when the server ignores the resume request, instead of appending to the file and corrupting the archive"
+      },
+      {
+        "category": "add",
+        "text": "Downloaded Godot builds are now verified against the official SHA512 checksums before installing, and a failed check deletes the bad file"
+      },
+      {
+        "category": "improve",
+        "text": "Godot downloads now retry automatically with exponential backoff on transient network errors"
+      },
+      {
+        "category": "improve",
+        "text": "Removed the \"Updates from Dev\" section and the external content service (Sanity.io) behind it"
+      },
+      {
+        "category": "improve",
+        "text": "Removed an unused web font download for a faster, more private startup"
       }
     ],
     "known_issues": [],
