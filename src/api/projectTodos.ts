@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import type {
+  OpenTodo,
   ProjectTodo,
   TodoGitActivity,
   TodoSyncResult,
@@ -12,6 +13,11 @@ export const projectTodosApi = {
   activity: todoGitActivity,
   resources: listProjectResources,
   openLink: openTodoLink,
+  open: listOpenTodos,
+}
+
+async function listOpenTodos(): Promise<OpenTodo[]> {
+  return invoke<OpenTodo[]>("list_open_todos");
 }
 
 async function listProjectTodos(projectId: string): Promise<ProjectTodo[]> {

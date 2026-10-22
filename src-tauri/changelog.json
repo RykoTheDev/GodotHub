@@ -1584,6 +1584,26 @@
       {
         "category": "add",
         "text": "Project to-dos now have a #todo-N reference: a commit message like \"Fixes #todo-3\" completes it, and its details show the branches and commits that mention it"
+      },
+      {
+        "category": "add",
+        "text": "Dashboard \"Due to-dos\" tile shows overdue and due-this-week to-dos across all your projects; click one to jump to that project's to-do list"
+      },
+      {
+        "category": "add",
+        "text": "Project cards show how many to-dos are open or overdue, and you get a desktop notification when to-dos are due"
+      },
+      {
+        "category": "add",
+        "text": "Project to-dos can have a priority and a checklist, and can be reordered by dragging when no sort is active"
+      },
+      {
+        "category": "add",
+        "text": "Quick-add a to-do by typing its title and pressing Enter, and search or filter the full to-do list by area"
+      },
+      {
+        "category": "improve",
+        "text": "Completed to-dos now remember when they were finished and are listed newest first with their completion date"
       }
     ],
     "known_issues": [],

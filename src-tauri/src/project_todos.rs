@@ -1,4 +1,5 @@
-use crate::models::ProjectTodo;
+use crate::models::{ProjectTodo, TodoStatus};
+use serde::Serialize;
 use crate::persist::{self, LoadStatus};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -69,6 +70,21 @@ pub(crate) fn ensure_numbers(todos: &mut [ProjectTodo], counter: &mut u32) -> bo
     true
 }
 
+pub(crate) fn normalize_completion(todos: &mut [ProjectTodo], now: &str) -> bool {
+    let mut changed = false;
+    for todo in todos.iter_mut() {
+        if todo.status == TodoStatus::Done {
+            if todo.completed_at.is_none() {
+                todo.completed_at = Some(now.to_string());
+                changed = true;
+            }
+        } else if todo.completed_at.take().is_some() {
+            changed = true;
+        }
+    }
+    changed
+}
+
 pub(crate) fn edit_project_todos<R>(
     dir: &Path,
     project_id: &str,
@@ -81,6 +97,7 @@ pub(crate) fn edit_project_todos<R>(
         ensure_numbers(&mut todos, &mut counter);
         let result = edit(&mut todos, &mut counter);
         ensure_numbers(&mut todos, &mut counter);
+        normalize_completion(&mut todos, &chrono::Utc::now().to_rfc3339());
         if !todos.is_empty() {
             store.projects.insert(project_id.to_string(), todos.clone());
         }
@@ -152,6 +169,32 @@ fn copy_in(dir: &Path, from_id: &str, to_id: &str) -> Result<(), String> {
     })
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct OpenTodo {
+    pub project_id: String,
+    pub project_name: String,
+    pub todo: ProjectTodo,
+}
+
+fn open_todos_in(dir: &Path, projects: &[(String, String)]) -> Result<Vec<OpenTodo>, String> {
+    let store = load_store(dir)?;
+    let mut open = Vec::new();
+    for (project_id, project_name) in projects {
+        let Some(todos) = store.projects.get(project_id) else {
+            continue;
+        };
+        for todo in todos.iter().filter(|t| t.status != TodoStatus::Done) {
+            open.push(OpenTodo {
+                project_id: project_id.clone(),
+                project_name: project_name.clone(),
+                todo: todo.clone(),
+            });
+        }
+    }
+    Ok(open)
+}
+
 pub(crate) fn active_dir(app: &AppHandle) -> PathBuf {
     crate::workspace::active_workspace_dir(app)
 }
@@ -162,6 +205,15 @@ pub(crate) fn remove_project_todos(app: &AppHandle, project_id: &str) -> Result<
 
 pub(crate) fn copy_project_todos(app: &AppHandle, from_id: &str, to_id: &str) -> Result<(), String> {
     copy_in(&active_dir(app), from_id, to_id)
+}
+
+#[tauri::command]
+pub fn list_open_todos(app: AppHandle) -> Result<Vec<OpenTodo>, String> {
+    let projects: Vec<(String, String)> = crate::projects::read_projects(&app)
+        .into_iter()
+        .map(|p| (p.id, p.name))
+        .collect();
+    open_todos_in(&active_dir(&app), &projects)
 }
 
 #[tauri::command]
@@ -204,6 +256,9 @@ pub(crate) mod tests {
             link: None,
             source: None,
             closed_by: None,
+            priority: None,
+            checklist: Vec::new(),
+            completed_at: None,
         }
     }
 
@@ -283,6 +338,64 @@ pub(crate) mod tests {
         let todos = read_todos_from(&dir);
         assert!(!todos.contains_key("src"));
         assert!(todos.contains_key("dst"));
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn completion_date_is_set_when_done_and_cleared_when_reopened() {
+        let dir = temp_dir("completion");
+        let mut done = todo("a", "Ship it");
+        done.status = TodoStatus::Done;
+        let saved = save_in(&dir, "p", vec![done, todo("b", "Later")]).unwrap();
+        let first = saved.iter().find(|t| t.id == "a").unwrap().clone();
+        assert!(first.completed_at.is_some());
+        assert!(saved.iter().find(|t| t.id == "b").unwrap().completed_at.is_none());
+
+        let again = save_in(&dir, "p", vec![first.clone()]).unwrap();
+        assert_eq!(again[0].completed_at, first.completed_at);
+
+        let mut reopened = first;
+        reopened.status = TodoStatus::InProgress;
+        let after = save_in(&dir, "p", vec![reopened]).unwrap();
+        assert!(after[0].completed_at.is_none());
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn priority_and_checklist_round_trip_and_default_when_missing() {
+        let dir = temp_dir("fields");
+        let mut rich = todo("a", "Boss fight");
+        rich.priority = Some(crate::models::TodoPriority::High);
+        rich.checklist = vec![
+            crate::models::TodoChecklistItem { id: "1".into(), text: "Phase one".into(), done: true },
+            crate::models::TodoChecklistItem { id: "2".into(), text: "Phase two".into(), done: false },
+        ];
+        save_in(&dir, "p", vec![rich, todo("b", "Plain")]).unwrap();
+        let raw = fs::read_to_string(todos_path(&dir)).unwrap();
+        assert!(raw.contains("\"priority\": \"high\""));
+        assert_eq!(raw.matches("\"checklist\"").count(), 1);
+        let loaded = list_in(&dir, "p").unwrap();
+        let boss = loaded.iter().find(|t| t.id == "a").unwrap();
+        assert_eq!(boss.priority, Some(crate::models::TodoPriority::High));
+        assert_eq!(boss.checklist.len(), 2);
+        assert!(boss.checklist[0].done);
+        let plain = loaded.iter().find(|t| t.id == "b").unwrap();
+        assert!(plain.priority.is_none() && plain.checklist.is_empty());
+        let _ = fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn open_todos_cover_every_listed_project_and_skip_done_or_unknown() {
+        let dir = temp_dir("open");
+        let mut done = todo("d", "Finished");
+        done.status = TodoStatus::Done;
+        save_in(&dir, "game", vec![todo("a", "Jump"), done]).unwrap();
+        save_in(&dir, "tool", vec![todo("b", "Export")]).unwrap();
+        save_in(&dir, "removed", vec![todo("c", "Orphan")]).unwrap();
+        let projects = vec![("game".to_string(), "My Game".to_string()), ("tool".to_string(), "Tool".to_string())];
+        let open = open_todos_in(&dir, &projects).unwrap();
+        let titles: Vec<(&str, &str)> = open.iter().map(|o| (o.project_name.as_str(), o.todo.title.as_str())).collect();
+        assert_eq!(titles, vec![("My Game", "Jump"), ("Tool", "Export")]);
         let _ = fs::remove_dir_all(&dir);
     }
 

@@ -320,6 +320,9 @@ pub(crate) fn apply_comment_scan(
                 key: comment.key.clone(),
             }),
             closed_by: None,
+            priority: None,
+            checklist: Vec::new(),
+            completed_at: None,
         });
         counts.imported += 1;
     }

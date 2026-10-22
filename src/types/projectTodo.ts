@@ -30,6 +30,23 @@ export type ProjectTodo = {
   link?: TodoLink;
   source?: TodoSource;
   closedBy?: TodoClosure;
+  priority?: TodoPriority;
+  checklist?: TodoChecklistItem[];
+  completedAt?: string;
+};
+
+export type TodoPriority = "low" | "medium" | "high";
+
+export type TodoChecklistItem = {
+  id: string;
+  text: string;
+  done: boolean;
+};
+
+export type OpenTodo = {
+  projectId: string;
+  projectName: string;
+  todo: ProjectTodo;
 };
 
 export type TodoArea =

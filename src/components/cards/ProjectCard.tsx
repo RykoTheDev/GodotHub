@@ -55,6 +55,7 @@ import {
 } from "../../lib/icons";
 
 import { ProjectTodoPanel } from "./ProjectTodoPanel";
+import { consumeTodoFocus, localDateValue, useOpenTodos } from "../../lib/openTodos";
 
 interface ProjectCardProps {
   project: Project;
@@ -149,6 +150,36 @@ export function ProjectCard({
   const [pinFocused, setPinFocused] = useState(false);
   const [showTodoPanel, setShowTodoPanel] = useState(false);
   const [todoPanelLoaded, setTodoPanelLoaded] = useState(false);
+  const { todos: openTodos } = useOpenTodos();
+  const todayValue = localDateValue();
+  const projectOpenTodos = projectTodosEnabled
+    ? openTodos.filter((open) => open.projectId === project.id)
+    : [];
+  const overdueTodoCount = projectOpenTodos.filter(
+    (open) => open.todo.dueDate && open.todo.dueDate < todayValue,
+  ).length;
+  useEffect(() => {
+    if (!projectTodosEnabled) return;
+
+    const openPanel = () => {
+      setShowTodoPanel(true);
+      requestAnimationFrame(() =>
+        cardRef.current?.scrollIntoView({ block: "center", behavior: "smooth" }),
+      );
+    };
+
+    if (consumeTodoFocus(project.id)) openPanel();
+
+    const handleShowTodos = (event: Event) => {
+      if ((event as CustomEvent).detail === project.id && consumeTodoFocus(project.id)) {
+        openPanel();
+      }
+    };
+
+    window.addEventListener("app:show-project-todos", handleShowTodos);
+
+    return () => window.removeEventListener("app:show-project-todos", handleShowTodos);
+  }, [project.id, projectTodosEnabled]);
   useEffect(() => {
     if (projectTodosEnabled) return;
 
@@ -424,6 +455,19 @@ export function ProjectCard({
             <h3 className="font-display font-medium text-xl text-ink truncate">
               {displayName}
             </h3>
+            {projectOpenTodos.length > 0 && (
+              <span
+                className={`shrink-0 rounded-tag border px-1.5 py-0.5 text-[10px] font-medium tabular-nums ${
+                  overdueTodoCount > 0
+                    ? "border-danger/30 bg-danger/10 text-danger"
+                    : "border-outline/50 bg-raised text-muted"
+                }`}
+              >
+                {overdueTodoCount > 0
+                  ? t("overdue_count", { ns: "todos", count: overdueTodoCount })
+                  : t("open_count", { ns: "todos", count: projectOpenTodos.length })}
+              </span>
+            )}
             {gitStatus?.is_repo && (
               <button
                 type="button"

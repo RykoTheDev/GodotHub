@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { IconCheckCircle, IconCode } from "../../lib/icons";
 import { pushToast } from "../../lib/toast";
 import { projectTodosApi } from "../../api/projectTodos";
+import { rankOf } from "../../lib/openTodos";
 
 import { Trans, useTranslation } from "react-i18next";
 
@@ -15,7 +16,7 @@ import { ProjectTodoList } from "./ProjectTodoList";
 import { ProjectTodoListModal } from "./ProjectTodoListModal";
 import { ConfirmDialog } from "../modals/ConfirmDialog";
 
-import type { ProjectTodo, TodoStatus } from "../../types/projectTodo";
+import type { ProjectTodo, TodoArea, TodoStatus } from "../../types/projectTodo";
 
 type ProjectTodoPanelProps = {
   projectId: string;
@@ -50,22 +51,19 @@ function sortProjectTodos(
         const aDate = a.todo.dueDate;
         const bDate = b.todo.dueDate;
 
-        if (!aDate && !bDate) {
-          return a.index - b.index;
+        if (aDate && bDate) {
+          const dateDifference = aDate.localeCompare(bDate);
+
+          if (dateDifference !== 0) {
+            return dueDateSort === "nearest-first"
+              ? dateDifference
+              : -dateDifference;
+          }
+        } else if (aDate) {
+          return -1;
+        } else if (bDate) {
+          return 1;
         }
-
-        if (!aDate) return 1;
-        if (!bDate) return -1;
-
-        const dateDifference = aDate.localeCompare(bDate);
-
-        if (dateDifference !== 0) {
-          return dueDateSort === "nearest-first"
-            ? dateDifference
-            : -dateDifference;
-        }
-
-        return a.index - b.index;
       }
 
       if (statusSort) {
@@ -79,16 +77,30 @@ function sortProjectTodos(
         }
       }
 
+      const priorityDifference = rankOf(a.todo.priority) - rankOf(b.todo.priority);
+
+      if (priorityDifference !== 0) {
+        return priorityDifference;
+      }
+
       return a.index - b.index;
     })
     .map(({ todo }) => todo);
 }
 
-function haveSameTodoOrder(first: ProjectTodo[], second: ProjectTodo[]) {
-  return (
-    first.length === second.length &&
-    first.every((todo, index) => todo.id === second[index]?.id)
-  );
+function matchesSearch(todo: ProjectTodo, query: string) {
+  if (!query) return true;
+
+  return [
+    todo.title,
+    todo.description ?? "",
+    todo.link?.path ?? "",
+    todo.number !== undefined ? `#todo-${todo.number}` : "",
+    ...(todo.checklist ?? []).map((item) => item.text),
+  ]
+    .join("\n")
+    .toLowerCase()
+    .includes(query);
 }
 
 function getTodayValue() {
@@ -322,56 +334,81 @@ export function ProjectTodoPanel({
   const fullTodos = useMemo(
     () => [
       ...sortedTodos.filter((todo) => todo.status !== "done"),
-      ...todos.filter((todo) => todo.status === "done"),
+      ...todos
+        .filter((todo) => todo.status === "done")
+        .sort((a, b) => (b.completedAt ?? "").localeCompare(a.completedAt ?? "")),
     ],
     [sortedTodos, todos],
   );
 
   const toggleStatusSort = () => {
-    const preferredDirection =
-      statusSort === "completed-first" ? "todo-first" : "completed-first";
-
-    const oppositeDirection =
-      preferredDirection === "completed-first"
-        ? "todo-first"
-        : "completed-first";
-
-    const preferredOrder = sortProjectTodos(todos, preferredDirection, null);
-
-    const oppositeOrder = sortProjectTodos(todos, oppositeDirection, null);
-
-    const nextDirection =
-      haveSameTodoOrder(preferredOrder, sortedTodos) &&
-      !haveSameTodoOrder(oppositeOrder, sortedTodos)
-        ? oppositeDirection
-        : preferredDirection;
-
     setDueDateSort(null);
-    setStatusSort(nextDirection);
+    setStatusSort(
+      statusSort === null
+        ? "todo-first"
+        : statusSort === "todo-first"
+          ? "completed-first"
+          : null,
+    );
   };
 
   const toggleDueDateSort = () => {
-    const preferredDirection =
-      dueDateSort === "nearest-first" ? "farthest-first" : "nearest-first";
-
-    const oppositeDirection =
-      preferredDirection === "nearest-first"
-        ? "farthest-first"
-        : "nearest-first";
-
-    const preferredOrder = sortProjectTodos(todos, null, preferredDirection);
-
-    const oppositeOrder = sortProjectTodos(todos, null, oppositeDirection);
-
-    const nextDirection =
-      haveSameTodoOrder(preferredOrder, sortedTodos) &&
-      !haveSameTodoOrder(oppositeOrder, sortedTodos)
-        ? oppositeDirection
-        : preferredDirection;
-
     setStatusSort(null);
-    setDueDateSort(nextDirection);
+    setDueDateSort(
+      dueDateSort === null
+        ? "nearest-first"
+        : dueDateSort === "nearest-first"
+          ? "farthest-first"
+          : null,
+    );
   };
+
+  const manualOrder = !statusSort && !dueDateSort;
+
+  const reorderTodos = (activeId: string, overId: string) => {
+    const from = todos.findIndex((todo) => todo.id === activeId);
+    const to = todos.findIndex((todo) => todo.id === overId);
+
+    if (from < 0 || to < 0 || from === to) return;
+
+    const nextTodos = [...todos];
+    const [moved] = nextTodos.splice(from, 1);
+
+    nextTodos.splice(to, 0, moved);
+    void saveTodos(nextTodos);
+  };
+
+  const [quickTitle, setQuickTitle] = useState("");
+
+  const quickAdd = async () => {
+    const title = quickTitle.trim();
+
+    if (!title || saving) return;
+
+    const added = await addTodo({
+      id: crypto.randomUUID(),
+      title,
+      status: "todo",
+      area: "other",
+      createdAt: new Date().toISOString(),
+    });
+
+    if (added) {
+      setQuickTitle("");
+    } else {
+      pushToast("error", t("save_task_failed"));
+    }
+  };
+
+  const [search, setSearch] = useState("");
+  const [areaFilter, setAreaFilter] = useState<TodoArea | "all">("all");
+  const searchQuery = search.trim().toLowerCase();
+
+  const visibleAllTodos = fullTodos.filter(
+    (todo) =>
+      (areaFilter === "all" || (todo.area ?? "other") === areaFilter) &&
+      matchesSearch(todo, searchQuery),
+  );
 
   const today = getTodayValue();
 
@@ -454,6 +491,26 @@ export function ProjectTodoPanel({
         </div>
       )}
 
+      {loaded && !error && (
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            void quickAdd();
+          }}
+          className="mx-3.5 mb-2"
+        >
+          <input
+            type="text"
+            value={quickTitle}
+            disabled={saving}
+            onChange={(event) => setQuickTitle(event.target.value)}
+            placeholder={t("quick_add_placeholder")}
+            aria-label={t("quick_add_placeholder")}
+            className="focus-ring w-full rounded-item border border-dashed border-outline/60 bg-base/40 px-3 py-2 text-[11px] text-ink placeholder:text-muted/60 transition-colors focus:border-solid focus:border-accent-dim disabled:opacity-50"
+          />
+        </form>
+      )}
+
       {/* Tarefas */}
       {loading ? (
         <div className="mx-3.5 mb-2 flex items-center justify-center rounded-item border border-outline/50 px-4 py-10">
@@ -527,6 +584,8 @@ export function ProjectTodoPanel({
               className="mx-3.5 mb-2"
               formatDueDate={formatTodoDueDate}
               onOpenLink={openLink}
+              reorderable={manualOrder && !saving}
+              onReorder={reorderTodos}
               onToggleStatusSort={toggleStatusSort}
               onToggleDueDateSort={toggleDueDateSort}
               onToggleCompleted={toggleTodoCompleted}
@@ -562,9 +621,18 @@ export function ProjectTodoPanel({
             createDisabled={saving}
             onCreate={() => setIsCreating(true)}
             onClose={() => setShowAllTodos(false)}
+            search={search}
+            onSearchChange={setSearch}
+            areaFilter={areaFilter}
+            onAreaFilterChange={setAreaFilter}
           >
+            {visibleAllTodos.length === 0 ? (
+              <p className="py-10 text-center text-[11px] text-muted">
+                {t("no_matching_tasks")}
+              </p>
+            ) : (
             <ProjectTodoList
-              todos={fullTodos}
+              todos={visibleAllTodos}
               today={today}
               disabled={saving}
               statusSort={statusSort}
@@ -573,6 +641,8 @@ export function ProjectTodoPanel({
               showArea
               formatDueDate={formatTodoDueDate}
               onOpenLink={openLink}
+              reorderable={manualOrder && !saving}
+              onReorder={reorderTodos}
               onToggleStatusSort={toggleStatusSort}
               onToggleDueDateSort={toggleDueDateSort}
               onToggleCompleted={toggleTodoCompleted}
@@ -582,6 +652,7 @@ export function ProjectTodoPanel({
               onEdit={setEditingTodo}
               onDelete={setDeletingTodo}
             />
+            )}
           </ProjectTodoListModal>
         )}
       {viewingTodo && (
@@ -592,6 +663,7 @@ export function ProjectTodoPanel({
           statusClassName={statusConfig[viewingTodo.status].className}
           overdue={viewingTodoOverdue}
           onOpenLink={openLink}
+          onUpdate={(todo) => void updateTodo(todo)}
           onClose={() => setViewingTodo(null)}
         />
       )}

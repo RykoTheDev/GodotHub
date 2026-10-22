@@ -695,6 +695,29 @@ pub struct ProjectTodo {
     pub source: Option<TodoSource>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub closed_by: Option<TodoClosure>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub priority: Option<TodoPriority>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub checklist: Vec<TodoChecklistItem>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub completed_at: Option<String>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TodoPriority {
+    Low,
+    Medium,
+    High,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TodoChecklistItem {
+    pub id: String,
+    pub text: String,
+    #[serde(default)]
+    pub done: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

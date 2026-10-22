@@ -21,6 +21,7 @@ type ProjectTodoDetailsModalProps = {
   statusClassName: string;
   overdue: boolean;
   onOpenLink: (todo: ProjectTodo) => void;
+  onUpdate: (todo: ProjectTodo) => void;
   onClose: () => void;
 };
 
@@ -37,6 +38,7 @@ export function ProjectTodoDetailsModal({
   statusClassName,
   overdue,
   onOpenLink,
+  onUpdate,
   onClose,
 }: ProjectTodoDetailsModalProps) {
   const uiMotion = useUiMotion()
@@ -187,6 +189,18 @@ export function ProjectTodoDetailsModal({
             </span>
           </div>
 
+          {todo.priority && (
+            <div className="flex flex-col gap-1.5">
+              <span className="ps-3 text-xs font-medium text-muted">
+                {t("priority")}
+              </span>
+
+              <span className="w-fit rounded-tag border border-outline/50 bg-raised px-3 py-1.5 text-xs font-medium text-ink">
+                {t(`priority_${todo.priority}`)}
+              </span>
+            </div>
+          )}
+
           <div className="flex flex-col gap-1.5">
             <span className="ps-3 text-xs font-medium text-muted">
               {t("status")}
@@ -206,6 +220,17 @@ export function ProjectTodoDetailsModal({
                       subject: closure.subject ?? "",
                     })
                   : t("closed_by_comment_removed")}
+              </p>
+            )}
+
+            {todo.status === "done" && todo.completedAt && (
+              <p className="ps-3 text-xs text-muted">
+                {t("completed_on_full", {
+                  date: new Intl.DateTimeFormat(locale, {
+                    dateStyle: "medium",
+                    timeStyle: "short",
+                  }).format(new Date(todo.completedAt)),
+                })}
               </p>
             )}
           </div>
@@ -255,6 +280,43 @@ export function ProjectTodoDetailsModal({
               )}
             </div>
           </div>
+
+          {todo.checklist && todo.checklist.length > 0 && (
+            <div className="flex flex-col gap-1.5">
+              <span className="ps-3 text-xs font-medium text-muted">
+                {t("checklist")}{" "}
+                <span className="font-normal text-muted/60">
+                  {t("checklist_progress", {
+                    done: todo.checklist.filter((item) => item.done).length,
+                    total: todo.checklist.length,
+                  })}
+                </span>
+              </span>
+
+              <div className="flex flex-col gap-1 rounded-item border border-outline/50 bg-overlay px-3.5 py-2.5">
+                {todo.checklist.map((item) => (
+                  <label key={item.id} className="flex cursor-pointer items-center gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={item.done}
+                      onChange={() =>
+                        onUpdate({
+                          ...todo,
+                          checklist: todo.checklist?.map((entry) =>
+                            entry.id === item.id ? { ...entry, done: !entry.done } : entry,
+                          ),
+                        })
+                      }
+                      className="accent-accent shrink-0"
+                    />
+                    <span className={item.done ? "text-muted line-through" : "text-ink"}>
+                      {item.text}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="flex flex-col gap-1.5">
             <span className="ps-3 text-xs font-medium text-muted">

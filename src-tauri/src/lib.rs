@@ -385,6 +385,7 @@ pub fn run() {
             projects::restore_projects_from_backup,
             project_todos::list_project_todos,
             project_todos::save_project_todos,
+            project_todos::list_open_todos,
             todo_sync::sync_project_todos,
             todo_sync::todo_git_activity,
             todo_sync::list_project_resources,

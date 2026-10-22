@@ -2,6 +2,7 @@ import { projectTodosApi } from "../api/projectTodos";
 import { useApiDataWithError } from "../lib/useApiData";
 import { useCallback, useState } from "react";
 import type { ProjectTodo } from "../types/projectTodo";
+import { notifyTodosChanged } from "../lib/openTodos";
 
 export function useProjectTodos(projectId: string) {
   const {
@@ -36,6 +37,7 @@ export function useProjectTodos(projectId: string) {
         const savedTodos = await projectTodosApi.save(projectId, nextTodos);
 
         setTodos(savedTodos);
+        notifyTodosChanged();
         setFailedTodos(null);
         setSaveError(null);
 
@@ -59,6 +61,7 @@ export function useProjectTodos(projectId: string) {
       const result = await projectTodosApi.sync(projectId, scanComments);
 
       setTodos(result.todos);
+      notifyTodosChanged();
 
       return result;
     },

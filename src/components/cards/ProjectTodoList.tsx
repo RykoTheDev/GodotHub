@@ -1,7 +1,25 @@
 import { DatePicker } from "../ui/DatePicker";
 import { Dropdown } from "../ui/Dropdown";
-import { IconCode, IconMore, IconPencil, IconTrash } from "../../lib/icons";
+import { IconCode, IconGrip, IconMore, IconPencil, IconTrash } from "../../lib/icons";
 import { useTranslation } from "react-i18next";
+import type { ReactNode } from "react";
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { localDateValue } from "../../lib/openTodos";
 
 import type {
   ProjectTodo,
@@ -20,6 +38,64 @@ type StatusConfig = Record<
     dotClassName: string;
   }
 >;
+
+const PRIORITY_DOT = {
+  high: "bg-danger",
+  medium: "bg-amber",
+  low: "bg-muted/40",
+} as const;
+
+function SortableRow({
+  id,
+  enabled,
+  label,
+  className,
+  children,
+}: {
+  id: string;
+  enabled: boolean;
+  label: string;
+  className: string;
+  children: (grip: ReactNode) => ReactNode;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id, disabled: !enabled });
+
+  const grip = enabled ? (
+    <button
+      type="button"
+      ref={setActivatorNodeRef}
+      {...attributes}
+      {...listeners}
+      aria-label={label}
+      className="focus-ring flex h-5 w-3.5 shrink-0 cursor-grab touch-none items-center justify-center rounded-btn text-muted/50 transition-colors hover:text-ink active:cursor-grabbing"
+    >
+      <IconGrip className="h-2.5 w-2.5" />
+    </button>
+  ) : null;
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Translate.toString(transform),
+        transition,
+        position: "relative",
+        zIndex: isDragging ? 10 : undefined,
+      }}
+      className={`${className} ${isDragging ? "bg-raised shadow-md" : ""}`}
+    >
+      {children(grip)}
+    </div>
+  );
+}
 
 type ProjectTodoListProps = {
   todos: ProjectTodo[];
@@ -40,6 +116,8 @@ type ProjectTodoListProps = {
   onEdit: (todo: ProjectTodo) => void;
   onDelete: (todo: ProjectTodo) => void;
   onOpenLink?: (todo: ProjectTodo) => void;
+  reorderable?: boolean;
+  onReorder?: (activeId: string, overId: string) => void;
 };
 
 export function ProjectTodoList({
@@ -61,7 +139,22 @@ export function ProjectTodoList({
   onEdit,
   onDelete,
   onOpenLink,
+  reorderable = false,
+  onReorder,
 }: ProjectTodoListProps) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      onReorder?.(String(active.id), String(over.id));
+    }
+  };
+
   const { t, i18n } = useTranslation(["todos", "common"]);
   const locale = i18n.resolvedLanguage ?? i18n.language;
   const areaLabels = {
@@ -115,6 +208,7 @@ export function ProjectTodoList({
       } ${className}`}
     >
       <div className="flex items-center gap-3 border-b border-outline/40 px-3 py-3">
+        {reorderable && <span className="w-3.5 shrink-0" />}
         <span className="w-3.5 shrink-0" />
 
         <span className="min-w-0 flex-1 text-[9px] font-medium uppercase tracking-wide text-muted/60">
@@ -144,6 +238,15 @@ export function ProjectTodoList({
         </div>
       </div>
 
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+      <SortableContext
+        items={todos.map((todo) => todo.id)}
+        strategy={verticalListSortingStrategy}
+      >
       {todos.map((todo, index) => {
         const status = statusConfig[todo.status];
         const completed = todo.status === "done";
@@ -228,9 +331,15 @@ export function ProjectTodoList({
 
         const dueDateControl = completed ? (
           <span
-            aria-hidden="true"
-            className={`shrink-0 ${showArea ? "w-28" : "w-24"}`}
-          />
+            className={`shrink-0 truncate text-center text-[10px] text-mint/80 ${showArea ? "w-28" : "w-24"}`}
+            title={todo.completedAt ? new Date(todo.completedAt).toLocaleString(locale) : undefined}
+          >
+            {todo.completedAt
+              ? t("completed_on", {
+                  date: formatDueDate(localDateValue(new Date(todo.completedAt)), today),
+                })
+              : ""}
+          </span>
         ) : (
           <div
             className={
@@ -265,12 +374,18 @@ export function ProjectTodoList({
         );
 
         return (
-          <div
+          <SortableRow
             key={todo.id}
+            id={todo.id}
+            enabled={reorderable}
+            label={t("drag_to_reorder")}
             className={`flex items-center gap-3 px-3 py-2 ${
               index < todos.length - 1 ? "border-b border-outline/40" : ""
             }`}
           >
+            {(grip) => (
+          <>
+            {grip}
             <button
               type="button"
               disabled={disabled}
@@ -286,6 +401,14 @@ export function ProjectTodoList({
                 <span className="h-3.5 w-3.5 rounded border border-outline transition-colors hover:border-mint" />
               )}
             </button>
+
+            {todo.priority && (
+              <span
+                aria-label={t("priority_label", { priority: t(`priority_${todo.priority}`) })}
+                title={t("priority_label", { priority: t(`priority_${todo.priority}`) })}
+                className={`h-1.5 w-1.5 shrink-0 rounded-full ${PRIORITY_DOT[todo.priority]}`}
+              />
+            )}
 
             {todo.number !== undefined && (
               <span
@@ -309,6 +432,18 @@ export function ProjectTodoList({
             >
               {todo.title}
             </button>
+
+            {todo.checklist && todo.checklist.length > 0 && (
+              <span
+                title={t("checklist_progress", {
+                  done: todo.checklist.filter((item) => item.done).length,
+                  total: todo.checklist.length,
+                })}
+                className="shrink-0 font-mono text-[9px] text-muted"
+              >
+                {todo.checklist.filter((item) => item.done).length}/{todo.checklist.length}
+              </span>
+            )}
 
             {todo.link && onOpenLink && (
               <button
@@ -384,9 +519,13 @@ export function ProjectTodoList({
                 ]}
               />
             </div>
-          </div>
+          </>
+            )}
+          </SortableRow>
         );
       })}
+      </SortableContext>
+      </DndContext>
     </div>
   );
 }

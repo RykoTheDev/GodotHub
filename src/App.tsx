@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useProjectsContext } from './hooks/projectsContext'
 import { useGodotVersionsContext } from './hooks/godotVersionsContext'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
+import { useOpenTodosSync, useTodoDueNotifications } from './hooks/useOpenTodosSync'
 import { api } from './lib/api'
 import { flushPendingSave } from './lib/pendingSave'
 import { getCurrentWindow } from '@tauri-apps/api/window'
@@ -221,6 +222,9 @@ export function App() {
   const [mountedTabs, setMountedTabs] = useState<NewTab[]>(() => [tab])
   if (!mountedTabs.includes(tab)) setMountedTabs([...mountedTabs, tab])
   const openSettingsTab = useCallback(() => setTab('settings'), [])
+  const todosEnabled = settingsLoaded && settings.project_todos_enabled
+  useOpenTodosSync(todosEnabled, projects.map((p) => p.id).join('|'))
+  useTodoDueNotifications(todosEnabled && settings.desktop_notifications_enabled)
 
   useEffect(() => {
     if (!settingsLoaded) return
@@ -483,6 +487,15 @@ export function App() {
     window.addEventListener('app:open-settings-category', handleOpenSettingsCategory)
     return () =>
       window.removeEventListener('app:open-settings-category', handleOpenSettingsCategory)
+  }, [])
+
+  useEffect(() => {
+    const handleShowTodos = () => {
+      setGitSidebarProject(null)
+      setTab('projects')
+    }
+    window.addEventListener('app:show-project-todos', handleShowTodos)
+    return () => window.removeEventListener('app:show-project-todos', handleShowTodos)
   }, [])
 
   useEffect(() => {

@@ -4,11 +4,13 @@ import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { ModalHeader } from "../modals/ModalHeader";
-import { IconCheckCircle, IconPencil } from "../../lib/icons";
+import { IconCheckCircle, IconPencil, IconX } from "../../lib/icons";
 
 import type {
   ProjectTodo,
   TodoArea,
+  TodoChecklistItem,
+  TodoPriority,
   TodoStatus,
 } from "../../types/projectTodo";
 import { DatePicker } from "../ui/DatePicker";
@@ -51,6 +53,30 @@ export function ProjectTodoModal({
   const [status, setStatus] = useState<TodoStatus>(todo?.status ?? "todo");
   const [area, setArea] = useState<TodoArea>(todo?.area ?? "other");
   const [linkPath, setLinkPath] = useState(todo?.link?.path ?? "");
+  const [priority, setPriority] = useState<TodoPriority | undefined>(todo?.priority);
+  const [checklist, setChecklist] = useState<TodoChecklistItem[]>(todo?.checklist ?? []);
+  const [newItem, setNewItem] = useState("");
+
+  const priorityOptions: Array<{ value: TodoPriority | undefined; label: string }> = [
+    { value: undefined, label: t("priority_none") },
+    { value: "low", label: t("priority_low") },
+    { value: "medium", label: t("priority_medium") },
+    { value: "high", label: t("priority_high") },
+  ];
+
+  const addChecklistItem = () => {
+    const text = newItem.trim();
+
+    if (!text) return;
+
+    setChecklist((items) => [...items, { id: crypto.randomUUID(), text, done: false }]);
+    setNewItem("");
+  };
+
+  const updateChecklistItem = (id: string, change: Partial<TodoChecklistItem>) =>
+    setChecklist((items) =>
+      items.map((item) => (item.id === id ? { ...item, ...change } : item)),
+    );
   const [resources, setResources] = useState<string[]>([]);
   const resourceListId = useId();
 
@@ -83,7 +109,10 @@ export function ProjectTodoModal({
     dueDate !== (todo.dueDate ?? "") ||
     status !== todo.status ||
     area !== (todo.area ?? "other") ||
-    trimmedLink !== (todo.link?.path ?? "");
+    trimmedLink !== (todo.link?.path ?? "") ||
+    priority !== todo.priority ||
+    newItem.trim() !== "" ||
+    JSON.stringify(checklist) !== JSON.stringify(todo.checklist ?? []);
 
   const canSubmit =
     trimmedTitle.length > 0 && hasChanges && !submitting && !linkInvalid;
@@ -98,6 +127,15 @@ export function ProjectTodoModal({
         }
       : undefined;
 
+    const finalChecklist = [
+      ...checklist,
+      ...(newItem.trim()
+        ? [{ id: crypto.randomUUID(), text: newItem.trim(), done: false }]
+        : []),
+    ]
+      .map((item) => ({ ...item, text: item.text.trim() }))
+      .filter((item) => item.text);
+
     const savedTodo: ProjectTodo = {
       ...todo,
       id: todo?.id ?? crypto.randomUUID(),
@@ -108,6 +146,8 @@ export function ProjectTodoModal({
       dueDate: dueDate || undefined,
       createdAt: todo?.createdAt ?? new Date().toISOString(),
       link,
+      priority,
+      checklist: finalChecklist.length > 0 ? finalChecklist : undefined,
     };
 
     setSubmitting(true);
@@ -220,6 +260,25 @@ export function ProjectTodoModal({
             </div>
           </div>
 
+<div className="flex flex-col gap-2">
+            <label className="ps-3 text-xs font-medium text-muted">
+              {t("priority")}
+            </label>
+
+            <div className="flex flex-wrap gap-1.5">
+              {priorityOptions.map((option) => (
+                <button
+                  key={option.value ?? "none"}
+                  type="button"
+                  onClick={() => setPriority(option.value)}
+                  className={optionButtonClass(priority === option.value)}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Status */}
           <div className="flex flex-col gap-2">
             <label className="ps-3 text-xs font-medium text-muted">
@@ -273,6 +332,58 @@ export function ProjectTodoModal({
               onChange={(event) => setDescription(event.target.value)}
               placeholder={t("description_placeholder")}
               className="focus-ring bg-overlay border border-outline/50 focus:border-accent-dim rounded-item px-3.5 py-2.5 text-sm text-ink placeholder:text-muted/70 transition-colors resize-none"
+            />
+          </div>
+
+<div className="flex flex-col gap-1.5">
+            <label className="ps-3 text-xs font-medium text-muted">
+              {t("checklist")}{" "}
+              <span className="font-normal text-muted/60">{t("optional")}</span>
+            </label>
+
+            {checklist.map((item) => (
+              <div
+                key={item.id}
+                className="flex items-center gap-2 rounded-item border border-outline/50 bg-overlay px-3 py-1.5"
+              >
+                <input
+                  type="checkbox"
+                  checked={item.done}
+                  onChange={() => updateChecklistItem(item.id, { done: !item.done })}
+                  aria-label={item.text}
+                  className="accent-accent shrink-0"
+                />
+                <input
+                  type="text"
+                  value={item.text}
+                  onChange={(event) => updateChecklistItem(item.id, { text: event.target.value })}
+                  className="min-w-0 flex-1 bg-transparent text-sm text-ink outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={() =>
+                    setChecklist((items) => items.filter((entry) => entry.id !== item.id))
+                  }
+                  aria-label={t("checklist_remove")}
+                  className="focus-ring shrink-0 cursor-pointer rounded-btn p-1 text-muted transition-colors hover:bg-raised hover:text-danger"
+                >
+                  <IconX className="h-3 w-3" />
+                </button>
+              </div>
+            ))}
+
+            <input
+              type="text"
+              value={newItem}
+              onChange={(event) => setNewItem(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  event.preventDefault();
+                  addChecklistItem();
+                }
+              }}
+              placeholder={t("checklist_add_placeholder")}
+              className="focus-ring bg-overlay border border-dashed border-outline/60 focus:border-accent-dim rounded-item px-3.5 py-2 text-sm text-ink placeholder:text-muted/70 transition-colors"
             />
           </div>
 
