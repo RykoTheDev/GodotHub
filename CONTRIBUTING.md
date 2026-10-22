@@ -570,9 +570,36 @@ from every locale, `bun run i18n:types` shrinks the generated types to match.
 | `bun run i18n:types` | Regenerate TypeScript types |
 | `bun run validate` | Run all checks (typecheck + i18n) |
 
+### Git hooks setup
+
+This repo keeps its hooks in `.githooks/` instead of the default `.git/hooks/`,
+so git has to be pointed at them once per clone:
+
+```bash
+git config core.hooksPath .githooks
+```
+
+`bun install` does this for you through the `prepare` script, so you usually do
+not need to run it by hand. On macOS and Linux the hook files also need the
+executable bit; if a hook does not run, make them executable:
+
+```bash
+chmod +x .githooks/*
+```
+
+Two hooks are installed:
+
+- **`pre-commit`** blocks em-dashes (U+2014, the long dash) in staged source
+  files, and, when you stage anything under `src/i18n/locales/`, runs
+  `i18n:check -- --check-values` on the locales.
+- **`commit-msg`** enforces the commit message format.
+
+Bypass a hook with `git commit --no-verify` only when you know what you are doing.
+
 ### Automatic validation
 
-**Pre-commit hook** runs `i18n:check -- --check-values` automatically when you commit changes to `src/i18n/locales/`. This checks for:
+The **`pre-commit` hook** runs `i18n:check -- --check-values` automatically when
+you commit changes to `src/i18n/locales/`. This checks for:
 - Missing keys (in en-US but not in your locale)
 - Extra keys (in your locale but not in en-US)
 - Untranslated keys (same value as English)
