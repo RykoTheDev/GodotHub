@@ -151,10 +151,7 @@ pub(crate) fn build_workspace_backup(app: &AppHandle) -> Result<WorkspaceBackup,
     Ok(build_workspace_backup_in(&dir, ws))
 }
 
-fn apply_workspace_backup_in(
-    dir: &Path,
-    backup: WorkspaceBackup,
-) -> Result<AppSettings, String> {
+fn apply_workspace_backup_in(dir: &Path, backup: WorkspaceBackup) -> Result<AppSettings, String> {
     let current_settings = crate::settings::read_settings_from(dir);
     let mut settings = backup.settings;
     settings.dismissed_project_paths = current_settings.dismissed_project_paths;
@@ -173,8 +170,7 @@ fn apply_workspace_backup_in(
         .collect();
     crate::projects::write_projects_to(dir, &projects)?;
 
-    crate::categories::write_categories_to(dir, &backup.categories)
-        .map_err(|e| e.to_string())?;
+    crate::categories::write_categories_to(dir, &backup.categories).map_err(|e| e.to_string())?;
 
     let root = templates_root_for(dir);
     let _ = fs::remove_dir_all(&root);
@@ -237,10 +233,7 @@ pub(crate) fn build_app_backup(app: &AppHandle) -> Result<AppBackup, String> {
     })
 }
 
-pub(crate) fn apply_app_backup(
-    app: &AppHandle,
-    backup: AppBackup,
-) -> Result<AppSettings, String> {
+pub(crate) fn apply_app_backup(app: &AppHandle, backup: AppBackup) -> Result<AppSettings, String> {
     if backup.workspaces.is_empty() {
         return Err("The backup doesn't contain any workspaces".into());
     }
@@ -272,9 +265,7 @@ pub(crate) fn apply_app_backup(
                 );
             }
             None => {
-                let ws = crate::workspace::create_workspace_silent(
-                    app, wname, wicon, wcolor,
-                )?;
+                let ws = crate::workspace::create_workspace_silent(app, wname, wicon, wcolor)?;
                 restored_ids.insert(ws.id.clone());
                 let dir = crate::workspace::workspace_dir(app, &ws.id);
                 last_settings = Some(apply_workspace_backup_in(&dir, wb)?);

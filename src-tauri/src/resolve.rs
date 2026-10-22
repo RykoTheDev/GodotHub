@@ -148,7 +148,10 @@ mod tests {
             Some("4.2-stable"),
             installed(&["4.3-stable", "4.2-stable"]),
         );
-        assert_eq!(got, Err(ResolveError::PinnedMissing("4.4-stable".to_string())));
+        assert_eq!(
+            got,
+            Err(ResolveError::PinnedMissing("4.4-stable".to_string()))
+        );
     }
 
     #[test]
@@ -164,13 +167,11 @@ mod tests {
 
     #[test]
     fn current_is_used_when_bound_is_absent_or_uninstalled() {
-        let no_bound = choose_version(
-            None,
-            None,
-            Some("4.2-stable"),
-            installed(&["4.2-stable"]),
+        let no_bound = choose_version(None, None, Some("4.2-stable"), installed(&["4.2-stable"]));
+        assert_eq!(
+            no_bound,
+            Ok(("4.2-stable".to_string(), EngineSource::Current))
         );
-        assert_eq!(no_bound, Ok(("4.2-stable".to_string(), EngineSource::Current)));
 
         let bound_gone = choose_version(
             None,
@@ -178,7 +179,10 @@ mod tests {
             Some("4.2-stable"),
             installed(&["4.2-stable"]),
         );
-        assert_eq!(bound_gone, Ok(("4.2-stable".to_string(), EngineSource::Current)));
+        assert_eq!(
+            bound_gone,
+            Ok(("4.2-stable".to_string(), EngineSource::Current))
+        );
     }
 
     #[test]
@@ -205,8 +209,10 @@ mod tests {
         std::fs::create_dir_all(&nested).unwrap();
         std::fs::write(tmp.join("project.godot"), b"[application]\n").unwrap();
         assert_eq!(find_project_root(&nested).as_deref(), Some(tmp.as_path()));
-        assert!(find_project_root(std::env::temp_dir().as_path()).is_none()
-            || !std::env::temp_dir().join("project.godot").exists());
+        assert!(
+            find_project_root(std::env::temp_dir().as_path()).is_none()
+                || !std::env::temp_dir().join("project.godot").exists()
+        );
         let _ = std::fs::remove_dir_all(&tmp);
     }
 }

@@ -47,17 +47,16 @@ where
     I: IntoIterator<Item = S>,
     S: AsRef<OsStr>,
 {
-    let output = git_command()
-        .args(args)
-        .current_dir(working_dir)
-        .output()?;
+    let output = git_command().args(args).current_dir(working_dir).output()?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr).trim().to_string();
         return Err(AppError::Message(stderr));
     }
 
-    Ok(String::from_utf8_lossy(&output.stdout).trim_end().to_string())
+    Ok(String::from_utf8_lossy(&output.stdout)
+        .trim_end()
+        .to_string())
 }
 
 pub fn git_raw<I, S>(working_dir: &str, args: I) -> AppResult<std::process::Output>
@@ -83,7 +82,11 @@ pub fn output_stderr(output: &std::process::Output) -> String {
 #[allow(dead_code)]
 pub fn git_lines(working_dir: &str, args: &[&str]) -> AppResult<Vec<String>> {
     let out = git_cmd(working_dir, args)?;
-    Ok(out.lines().filter(|l| !l.is_empty()).map(String::from).collect())
+    Ok(out
+        .lines()
+        .filter(|l| !l.is_empty())
+        .map(String::from)
+        .collect())
 }
 
 #[allow(dead_code)]
@@ -106,5 +109,7 @@ pub fn open_in_os(path: &Path) -> AppResult<()> {
         .or_else(|_| Command::new("dolphin").arg(_path_s).spawn())
         .or_else(|_| Command::new("thunar").arg(_path_s).spawn());
 
-    result.map(|_| ()).map_err(|e| format!("Failed to open: {e}").into())
+    result
+        .map(|_| ())
+        .map_err(|e| format!("Failed to open: {e}").into())
 }

@@ -16,7 +16,9 @@ pub struct AliasWatcher(pub Mutex<Option<RecommendedWatcher>>);
 fn is_ignored_watcher_event(event: &Event) -> bool {
     !event.paths.is_empty()
         && event.paths.iter().all(|p| {
-            if p.components().any(|part| part.as_os_str() == crate::project_metadata::METADATA_DIR) {
+            if p.components()
+                .any(|part| part.as_os_str() == crate::project_metadata::METADATA_DIR)
+            {
                 return true;
             }
             matches!(
@@ -63,20 +65,16 @@ fn create_debounced_watcher(
 
         while r.load(Ordering::SeqCst) {
             match rx.recv_timeout(Duration::from_millis(500)) {
-                Ok(Ok(event)) => {
-                    match event.kind {
-                        EventKind::Access(_)
-                        | EventKind::Other
-                        | EventKind::Any => continue,
-                        _ => {
-                            if is_ignored_watcher_event(&event) {
-                                continue;
-                            }
-                            last_event = Instant::now();
-                            pending = true;
+                Ok(Ok(event)) => match event.kind {
+                    EventKind::Access(_) | EventKind::Other | EventKind::Any => continue,
+                    _ => {
+                        if is_ignored_watcher_event(&event) {
+                            continue;
                         }
+                        last_event = Instant::now();
+                        pending = true;
                     }
-                }
+                },
                 Ok(Err(e)) => {
                     eprintln!("[watcher] Event error: {e}");
                 }
@@ -145,20 +143,16 @@ fn create_debounced_multi_watcher(
 
         while r.load(Ordering::SeqCst) {
             match rx.recv_timeout(Duration::from_millis(500)) {
-                Ok(Ok(event)) => {
-                    match event.kind {
-                        EventKind::Access(_)
-                        | EventKind::Other
-                        | EventKind::Any => continue,
-                        _ => {
-                            if is_ignored_watcher_event(&event) {
-                                continue;
-                            }
-                            last_event = Instant::now();
-                            pending = true;
+                Ok(Ok(event)) => match event.kind {
+                    EventKind::Access(_) | EventKind::Other | EventKind::Any => continue,
+                    _ => {
+                        if is_ignored_watcher_event(&event) {
+                            continue;
                         }
+                        last_event = Instant::now();
+                        pending = true;
                     }
-                }
+                },
                 Ok(Err(e)) => {
                     eprintln!("[watcher] Event error: {e}");
                 }
@@ -266,12 +260,7 @@ pub fn start_project_watchers(app: AppHandle, dirs: Vec<PathBuf>, depth: u32, de
             }
             let dirs: Vec<String> = crate::settings::read_settings(&a).project_scan_dirs;
             if !dirs.is_empty() {
-                let result = crate::scan::scan_for_projects_blocking(
-                    a.clone(),
-                    dirs,
-                    depth,
-                    false,
-                );
+                let result = crate::scan::scan_for_projects_blocking(a.clone(), dirs, depth, false);
                 if let Err(e) = result {
                     eprintln!("[watcher] Project auto-scan failed: {e}");
                 }
@@ -300,11 +289,7 @@ pub fn start_version_watchers(app: AppHandle, dirs: Vec<PathBuf>, depth: u32, de
             }
             let dirs: Vec<String> = crate::settings::read_settings(&a).version_scan_dirs;
             if !dirs.is_empty() {
-                let result = crate::scan::scan_for_versions_blocking(
-                    a.clone(),
-                    dirs,
-                    depth,
-                );
+                let result = crate::scan::scan_for_versions_blocking(a.clone(), dirs, depth);
                 if let Err(e) = result {
                     eprintln!("[watcher] Version auto-scan failed: {e}");
                 }

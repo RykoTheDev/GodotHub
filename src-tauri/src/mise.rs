@@ -281,12 +281,10 @@ fn parse_ls_json(raw: &str) -> Vec<MiseGodotInstall> {
 pub fn list_godot_installs() -> Result<Vec<MiseGodotInstall>, String> {
     match run_mise(&["ls", "--json", "--installed", GODOT_TOOL]) {
         Ok(stdout) => Ok(parse_ls_json(&stdout)),
-        Err(first_error) => {
-            match run_mise(&["ls", "--json"]) {
-                Ok(stdout) => Ok(parse_ls_json(&stdout)),
-                Err(_) => Err(first_error),
-            }
-        }
+        Err(first_error) => match run_mise(&["ls", "--json"]) {
+            Ok(stdout) => Ok(parse_ls_json(&stdout)),
+            Err(_) => Err(first_error),
+        },
     }
 }
 
@@ -751,10 +749,7 @@ pub fn registry_entries(
     installs: &[MiseGodotInstall],
     existing: &[InstalledGodotVersion],
 ) -> Vec<InstalledGodotVersion> {
-    let mut known_paths: Vec<String> = existing
-        .iter()
-        .map(|v| v.executable_path.clone())
-        .collect();
+    let mut known_paths: Vec<String> = existing.iter().map(|v| v.executable_path.clone()).collect();
     let mut known_tags: Vec<String> = existing.iter().map(|v| v.tag.clone()).collect();
     let mut added = Vec::new();
 
@@ -904,10 +899,7 @@ mod tests {
     }
 
     fn temp_project_dir(name: &str) -> PathBuf {
-        let dir = std::env::temp_dir().join(format!(
-            "godothub-mise-{name}-{}",
-            std::process::id()
-        ));
+        let dir = std::env::temp_dir().join(format!("godothub-mise-{name}-{}", std::process::id()));
         let _ = fs::remove_dir_all(&dir);
         fs::create_dir_all(&dir).expect("temp project dir");
         dir
@@ -1144,7 +1136,10 @@ mod tests {
         );
 
         let pre = "4.5-beta1\n4.4-rc2\n4.4.1-stable\n";
-        assert_eq!(parse_remote_versions(pre), vec!["4.5-beta1", "4.4-rc2", "4.4.1-stable"]);
+        assert_eq!(
+            parse_remote_versions(pre),
+            vec!["4.5-beta1", "4.4-rc2", "4.4.1-stable"]
+        );
     }
 
     #[test]

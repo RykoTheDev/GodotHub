@@ -91,7 +91,8 @@ pub fn write_project_identity(project_path: &str, id: &str, category: Option<&st
     if project_metadata::prepare(root).is_err() {
         return false;
     }
-    let existing_version = read_identity_any(project_path).and_then(|identity| identity.godot_version);
+    let existing_version =
+        read_identity_any(project_path).and_then(|identity| identity.godot_version);
     let identity = ProjectIdentity {
         comment: IDENTITY_COMMENT.to_string(),
         id: id.to_string(),

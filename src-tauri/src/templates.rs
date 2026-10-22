@@ -26,10 +26,7 @@ pub(crate) fn sanitize_folder_name(name: &str) -> String {
             c => c,
         })
         .collect();
-    let trimmed = cleaned
-        .trim()
-        .trim_end_matches(['.', ' '])
-        .to_string();
+    let trimmed = cleaned.trim().trim_end_matches(['.', ' ']).to_string();
     let result = if trimmed.is_empty() {
         "Template".to_string()
     } else {
@@ -201,13 +198,11 @@ pub(crate) fn consolidate_legacy_templates(app: &AppHandle) {
                 if !src.is_dir() || !src.join("template.json").is_file() {
                     continue;
                 }
-                let id = read_template_json(&src)
-                    .map(|t| t.id)
-                    .unwrap_or_else(|| {
-                        src.file_name()
-                            .map(|n| n.to_string_lossy().to_string())
-                            .unwrap_or_default()
-                    });
+                let id = read_template_json(&src).map(|t| t.id).unwrap_or_else(|| {
+                    src.file_name()
+                        .map(|n| n.to_string_lossy().to_string())
+                        .unwrap_or_default()
+                });
                 let dst = workspace_root.join(&id);
                 if dst.exists() {
                     continue;
@@ -343,7 +338,8 @@ pub fn delete_template(app: AppHandle, template_id: String) -> Result<(), String
         if let Some(src) = &t.source_path {
             if let Some(scan_dir) = configured_scan_dir(&app) {
                 if let Ok(src_canon) = PathBuf::from(src).canonicalize() {
-                    if src_canon.starts_with(&scan_dir) && src_canon.join("template.json").is_file() {
+                    if src_canon.starts_with(&scan_dir) && src_canon.join("template.json").is_file()
+                    {
                         let _ = delete_dir_best_effort(&src_canon);
                     }
                 }
@@ -354,12 +350,18 @@ pub fn delete_template(app: AppHandle, template_id: String) -> Result<(), String
     if delete_dir_best_effort(&dir) {
         Ok(())
     } else {
-        Err(format!("Could not delete template folder: {}", dir.display()))
+        Err(format!(
+            "Could not delete template folder: {}",
+            dir.display()
+        ))
     }
 }
 
 #[tauri::command]
-pub fn get_template_preview(app: AppHandle, template_id: String) -> Result<Vec<TemplateFileEntry>, String> {
+pub fn get_template_preview(
+    app: AppHandle,
+    template_id: String,
+) -> Result<Vec<TemplateFileEntry>, String> {
     let dir = resolve_template_dir(&app, &template_id).ok_or("Template not found")?;
 
     let mut entries = Vec::new();
@@ -367,7 +369,11 @@ pub fn get_template_preview(app: AppHandle, template_id: String) -> Result<Vec<T
     Ok(entries)
 }
 
-fn list_files_recursive(base: &Path, dir: &Path, entries: &mut Vec<TemplateFileEntry>) -> Result<(), String> {
+fn list_files_recursive(
+    base: &Path,
+    dir: &Path,
+    entries: &mut Vec<TemplateFileEntry>,
+) -> Result<(), String> {
     for entry in fs::read_dir(dir).map_err(|e| e.to_string())? {
         let entry = entry.map_err(|e| e.to_string())?;
         let path = entry.path();
@@ -427,7 +433,11 @@ pub fn sync_templates_with_scan_dir(app: AppHandle) -> Result<TemplateSyncResult
     let settings = crate::settings::read_settings(&app);
     let scan_dir = match &settings.template_scan_dir {
         Some(d) if !d.trim().is_empty() => PathBuf::from(d.trim()),
-        _ => return Err("No template scan directory configured. Set one in Settings → Storage.".into()),
+        _ => {
+            return Err(
+                "No template scan directory configured. Set one in Settings → Storage.".into(),
+            )
+        }
     };
 
     if !scan_dir.exists() {
@@ -438,7 +448,8 @@ pub fn sync_templates_with_scan_dir(app: AppHandle) -> Result<TemplateSyncResult
     }
 
     let scan_dir_canon = scan_dir.canonicalize().unwrap_or(scan_dir.clone());
-    let mut source_to_folder: std::collections::HashMap<String, String> = std::collections::HashMap::new();
+    let mut source_to_folder: std::collections::HashMap<String, String> =
+        std::collections::HashMap::new();
     if let Ok(entries) = fs::read_dir(&scan_dir) {
         for entry in entries.flatten() {
             let path = entry.path();
@@ -505,7 +516,9 @@ pub fn sync_templates_with_scan_dir(app: AppHandle) -> Result<TemplateSyncResult
             let _ = write_template_json(&dst, &t);
 
             if t.source_project_id.is_none() && !t.keep_name {
-                if let Some(proj_name) = crate::projects::resolve_project_name(&src.to_string_lossy()) {
+                if let Some(proj_name) =
+                    crate::projects::resolve_project_name(&src.to_string_lossy())
+                {
                     if proj_name != t.name {
                         t.name = proj_name;
                         let _ = write_template_json(&dst, &t);
@@ -533,7 +546,9 @@ pub fn sync_templates_with_scan_dir(app: AppHandle) -> Result<TemplateSyncResult
                 }
 
                 if t.source_project_id.is_none() && !t.keep_name {
-                    if let Some(proj_name) = crate::projects::resolve_project_name(&src.to_string_lossy()) {
+                    if let Some(proj_name) =
+                        crate::projects::resolve_project_name(&src.to_string_lossy())
+                    {
                         t.name = proj_name;
                     }
                 }

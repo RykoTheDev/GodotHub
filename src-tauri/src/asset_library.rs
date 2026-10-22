@@ -332,11 +332,7 @@ pub async fn search_asset_library(
         {
             params.push(("category".to_string(), c.to_string()));
         }
-        if let Some(f) = filter
-            .as_deref()
-            .map(str::trim)
-            .filter(|s| !s.is_empty())
-        {
+        if let Some(f) = filter.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
             params.push(("filter".to_string(), f.to_string()));
         }
         if let Some(v) = godot_version
@@ -355,11 +351,7 @@ pub async fn search_asset_library(
 
         let url = reqwest::Url::parse_with_params(&format!("{ASSET_LIB_API}/asset"), &params)
             .map_err(|e| e.to_string())?;
-        let resp = http
-            .get(url)
-            .send()
-            .await
-            .map_err(|e| e.to_string())?;
+        let resp = http.get(url).send().await.map_err(|e| e.to_string())?;
         if !resp.status().is_success() {
             return Err(format!(
                 "Godot Asset Library returned HTTP {}",
@@ -526,7 +518,9 @@ fn normalize_store_asset(a: StoreAsset) -> AssetLibraryAsset {
         icon_url: a.thumbnail,
         download_url: None,
         browse_url: if a.store_url.is_empty() {
-            Some(format!("https://store.godotengine.org/asset/{publisher_slug}/{asset_slug}/"))
+            Some(format!(
+                "https://store.godotengine.org/asset/{publisher_slug}/{asset_slug}/"
+            ))
         } else {
             Some(a.store_url)
         },
@@ -546,9 +540,7 @@ pub async fn search_asset_store(
     sort: Option<String>,
 ) -> Result<AssetLibraryResponse, String> {
     let cache = state.inner().clone();
-    let cache_key = format!(
-        "store|{filter:?}|{godot_version:?}|{page:?}|{max_results:?}|{sort:?}"
-    );
+    let cache_key = format!("store|{filter:?}|{godot_version:?}|{page:?}|{max_results:?}|{sort:?}");
     if let Some(resp) = cache.cached_search(&cache_key) {
         return Ok(resp);
     }
@@ -565,11 +557,7 @@ pub async fn search_asset_store(
         ("query".to_string(), query.to_string()),
         ("batch_size".to_string(), max_results.to_string()),
     ];
-    if let Some(s) = sort
-        .as_deref()
-        .map(str::trim)
-        .filter(|s| !s.is_empty())
-    {
+    if let Some(s) = sort.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
         params.push(("sort".to_string(), s.to_string()));
     }
     if let Some(v) = godot_version
@@ -580,11 +568,8 @@ pub async fn search_asset_store(
         params.push(("compatibility".to_string(), v.to_string()));
     }
 
-    let url = reqwest::Url::parse_with_params(
-        &format!("{ASSET_STORE_API}/search/query/"),
-        &params,
-    )
-    .map_err(|e| e.to_string())?;
+    let url = reqwest::Url::parse_with_params(&format!("{ASSET_STORE_API}/search/query/"), &params)
+        .map_err(|e| e.to_string())?;
     let resp = http.get(url).send().await.map_err(|e| e.to_string())?;
     if !resp.status().is_success() {
         return Err(format!("Godot Asset Store returned HTTP {}", resp.status()));
@@ -721,8 +706,8 @@ fn resolve_install_target(
             })
         }
         (None, Some(tid)) => {
-            let dir = crate::templates::resolve_template_dir(app, tid)
-                .ok_or("Template not found")?;
+            let dir =
+                crate::templates::resolve_template_dir(app, tid).ok_or("Template not found")?;
             let name = crate::templates::list_templates(app.clone())
                 .into_iter()
                 .find(|t| t.id == *tid)
@@ -855,7 +840,8 @@ pub async fn download_asset(
 
     emit_asset_queued(&app, &detail);
 
-    let result = download_to_file(&app, &http, &download_url, &dest, &asset_id, &detail.title).await;
+    let result =
+        download_to_file(&app, &http, &download_url, &dest, &asset_id, &detail.title).await;
 
     match &result {
         Ok(_) => emit_asset_complete(&app, &detail),
@@ -1332,7 +1318,10 @@ mod extract_tests {
         };
         let dest = scratch_dir("count");
         let res = extract_zip_reader(Cursor::new(buf), &dest, &limits);
-        assert!(res.is_err(), "archive over the entry-count cap should be rejected");
+        assert!(
+            res.is_err(),
+            "archive over the entry-count cap should be rejected"
+        );
         let _ = fs::remove_dir_all(&dest);
     }
 

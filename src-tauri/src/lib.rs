@@ -5,10 +5,10 @@ mod changelog;
 mod cli;
 mod cli_shim;
 mod console;
-mod discovery;
-mod export_runner;
 mod current_version;
+mod discovery;
 mod error;
+mod export_runner;
 mod export_templates;
 mod git;
 mod git_auth;
@@ -22,11 +22,11 @@ mod models;
 mod news;
 mod persist;
 mod process;
+mod project_health;
 mod project_identity;
 mod project_metadata;
-mod project_health;
-mod projects;
 mod project_todos;
+mod projects;
 mod resolve;
 mod scan;
 mod settings;
@@ -62,10 +62,7 @@ pub(crate) fn migrate_app_data(new_dir: &Path, old_dir: &Path) -> IdentifierMigr
 
     for entry in entries.flatten() {
         let from = entry.path();
-        let Some(name) = from
-            .file_name()
-            .map(|n| n.to_string_lossy().to_string())
-        else {
+        let Some(name) = from.file_name().map(|n| n.to_string_lossy().to_string()) else {
             continue;
         };
 
@@ -147,12 +144,7 @@ fn migrate_identifier(app: &tauri::App) {
 #[tauri::command]
 fn notify(app: tauri::AppHandle, title: String, body: String) {
     use tauri_plugin_notification::NotificationExt;
-    let _ = app
-        .notification()
-        .builder()
-        .title(title)
-        .body(body)
-        .show();
+    let _ = app.notification().builder().title(title).body(body).show();
 }
 
 #[tauri::command]
@@ -271,10 +263,8 @@ pub fn run() {
 
                 if s.use_mise {
                     let mise_handle = handle.clone();
-                    let _ = tokio::task::spawn_blocking(move || {
-                        mise::sync_installed(&mise_handle)
-                    })
-                    .await;
+                    let _ = tokio::task::spawn_blocking(move || mise::sync_installed(&mise_handle))
+                        .await;
                 }
 
                 if s.template_scan_dir.is_some() {
@@ -282,11 +272,19 @@ pub fn run() {
                 }
 
                 if s.auto_watch_project_dirs && !s.project_scan_dirs.is_empty() {
-                    let dirs: Vec<std::path::PathBuf> = s.project_scan_dirs.iter().map(std::path::PathBuf::from).collect();
+                    let dirs: Vec<std::path::PathBuf> = s
+                        .project_scan_dirs
+                        .iter()
+                        .map(std::path::PathBuf::from)
+                        .collect();
                     watcher::start_project_watchers(handle.clone(), dirs, s.scan_depth, 2000);
                 }
                 if s.auto_watch_version_dirs && !s.version_scan_dirs.is_empty() {
-                    let dirs: Vec<std::path::PathBuf> = s.version_scan_dirs.iter().map(std::path::PathBuf::from).collect();
+                    let dirs: Vec<std::path::PathBuf> = s
+                        .version_scan_dirs
+                        .iter()
+                        .map(std::path::PathBuf::from)
+                        .collect();
                     watcher::start_version_watchers(handle.clone(), dirs, s.scan_depth, 2000);
                 }
                 if s.auto_watch_template_dir {
@@ -319,13 +317,11 @@ pub fn run() {
 
                 {
                     use tauri_plugin_window_state::AppHandleExt as _;
-                    let _ = window
-                        .app_handle()
-                        .save_window_state(
-                            tauri_plugin_window_state::StateFlags::SIZE
-                                | tauri_plugin_window_state::StateFlags::POSITION
-                                | tauri_plugin_window_state::StateFlags::MAXIMIZED,
-                        );
+                    let _ = window.app_handle().save_window_state(
+                        tauri_plugin_window_state::StateFlags::SIZE
+                            | tauri_plugin_window_state::StateFlags::POSITION
+                            | tauri_plugin_window_state::StateFlags::MAXIMIZED,
+                    );
                 }
 
                 #[cfg(target_os = "macos")]

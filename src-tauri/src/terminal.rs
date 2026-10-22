@@ -144,7 +144,9 @@ fn program_script_body(program: &Path, args: &[String], pid_file: &Path) -> Stri
     body.push_str("wait \"$godothub_child\"\n");
     body.push_str("godothub_status=$?\n");
     body.push_str("if [ \"$godothub_status\" -ne 0 ]; then\n");
-    body.push_str("  printf '\\n[GodotHub] Godot exited with status %s.\\n' \"$godothub_status\"\n");
+    body.push_str(
+        "  printf '\\n[GodotHub] Godot exited with status %s.\\n' \"$godothub_status\"\n",
+    );
     body.push_str(
         "  printf '[GodotHub] This window stays open so you can read the output above.\\n'\n",
     );
@@ -225,7 +227,12 @@ fn spawn_script(script: &Path) -> Result<Child, String> {
     Command::new("open")
         .arg(script)
         .spawn()
-        .or_else(|_| Command::new("open").args(["-a", "Terminal"]).arg(script).spawn())
+        .or_else(|_| {
+            Command::new("open")
+                .args(["-a", "Terminal"])
+                .arg(script)
+                .spawn()
+        })
         .map_err(|e| format!("Failed to open a terminal: {e}"))
 }
 
@@ -235,7 +242,11 @@ pub fn spawn_program_in_terminal(
     program: &Path,
     args: &[String],
 ) -> Result<(Child, PathBuf), String> {
-    let extension = if cfg!(target_os = "macos") { "command" } else { "sh" };
+    let extension = if cfg!(target_os = "macos") {
+        "command"
+    } else {
+        "sh"
+    };
     let stamp = launch_stamp();
     let pid_file = launch_dir(app)?.join(format!("launch-{stamp}.pid"));
     let script = write_launch_script(

@@ -73,10 +73,7 @@ fn register_version_candidate(
     let raw_version = probe_version(&exe_path);
 
     let base_tag = if raw_version.is_empty() {
-        let fname = exe_path
-            .file_name()
-            .and_then(|s| s.to_str())
-            .unwrap_or("");
+        let fname = exe_path.file_name().and_then(|s| s.to_str()).unwrap_or("");
         godot_versions::parse_godot_tag_from_filename(fname)
             .or_else(|| {
                 exe_path
@@ -95,13 +92,20 @@ fn register_version_candidate(
         base_tag
     };
 
-    if existing.iter().any(|v| v.tag == tag && v.is_mono == is_mono) {
+    if existing
+        .iter()
+        .any(|v| v.tag == tag && v.is_mono == is_mono)
+    {
         return Ok(None);
     }
 
     let version = if raw_version.is_empty() {
         let v = tag.trim_end_matches("-mono");
-        v.split('-').next().unwrap_or(v).trim_start_matches('v').to_string()
+        v.split('-')
+            .next()
+            .unwrap_or(v)
+            .trim_start_matches('v')
+            .to_string()
     } else {
         raw_version
     };
@@ -168,7 +172,10 @@ pub fn scan_for_projects_blocking(
 
     let found_dirs = collect_matching_paths(&dirs, max_depth, |path| {
         path.is_file()
-            && path.file_name().map(|n| n == "project.godot").unwrap_or(false)
+            && path
+                .file_name()
+                .map(|n| n == "project.godot")
+                .unwrap_or(false)
     });
 
     let mut found_dismissed: Vec<String> = vec![];
@@ -176,7 +183,8 @@ pub fn scan_for_projects_blocking(
     let new_dirs: Vec<PathBuf> = found_dirs
         .into_iter()
         .filter(|d| {
-            let parent_path = d.parent()
+            let parent_path = d
+                .parent()
                 .map(|p| p.to_string_lossy().to_string())
                 .unwrap_or_default();
             if projects::contains_path(&existing_paths, &parent_path) {
@@ -209,7 +217,10 @@ pub fn scan_for_projects_blocking(
         let _ = app.emit("project-scan-progress", (added.len(), total));
     }
     let _ = app.emit("watcher:project-scan-done", ());
-    Ok(ScanProjectsResult { added, found_dismissed })
+    Ok(ScanProjectsResult {
+        added,
+        found_dismissed,
+    })
 }
 
 fn looks_like_executable(path: &Path) -> bool {
@@ -366,11 +377,7 @@ fn import_version_blocking(
     if looks_like_executable(&root) {
         candidates.push(root.clone());
     } else {
-        candidates = collect_matching_paths(
-            &[path],
-            4,
-            looks_like_executable,
-        );
+        candidates = collect_matching_paths(&[path], 4, looks_like_executable);
     }
 
     if candidates.is_empty() {

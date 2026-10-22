@@ -209,9 +209,7 @@ fn friendly_git_error(stderr: &str, path: &str) -> String {
             stderr.trim()
         );
     }
-    if lower.contains("could not read from remote")
-        || lower.contains("repository not found")
-    {
+    if lower.contains("could not read from remote") || lower.contains("repository not found") {
         return format!(
             concat!(
                 "Remote repository not found.\n\n",
@@ -295,7 +293,8 @@ fn friendly_git_error(stderr: &str, path: &str) -> String {
             stderr.trim()
         );
     }
-    if lower.contains("non-fast-forward") || lower.contains("[rejected]")
+    if lower.contains("non-fast-forward")
+        || lower.contains("[rejected]")
         || (lower.contains("failed to push") && lower.contains("fetch first"))
     {
         return format!(
@@ -308,10 +307,7 @@ fn friendly_git_error(stderr: &str, path: &str) -> String {
         );
     }
     format!(
-        concat!(
-            "Git operation failed.\n\n",
-            "Raw error:\n{}",
-        ),
+        concat!("Git operation failed.\n\n", "Raw error:\n{}",),
         stderr.trim()
     )
 }
@@ -331,7 +327,11 @@ fn get_merge_conflict_files_for_path_internal(path: &str) -> Result<Vec<String>,
     }
     let stdout = git_helpers::git_cmd(path, ["diff", "--name-only", "--diff-filter=U"])
         .map_err(|e| e.to_string())?;
-    Ok(stdout.lines().filter(|l| !l.trim().is_empty()).map(|l| l.trim().to_string()).collect())
+    Ok(stdout
+        .lines()
+        .filter(|l| !l.trim().is_empty())
+        .map(|l| l.trim().to_string())
+        .collect())
 }
 
 fn repo_base_name(url: &str) -> String {
@@ -346,7 +346,11 @@ fn repo_base_name(url: &str) -> String {
 
 fn get_git_status_for_path(path: &str) -> GitStatus {
     if !check_is_repo(path) {
-        return GitStatus { branch: None, has_uncommitted: false, is_repo: false };
+        return GitStatus {
+            branch: None,
+            has_uncommitted: false,
+            is_repo: false,
+        };
     }
 
     let output = git_helpers::git_raw(path, ["status", "--porcelain", "--branch"]).ok();
@@ -359,14 +363,18 @@ fn get_git_status_for_path(path: &str) -> GitStatus {
 
             for (i, line) in stdout.lines().enumerate() {
                 let trimmed = line.trim();
-                if trimmed.is_empty() { continue; }
+                if trimmed.is_empty() {
+                    continue;
+                }
                 if i == 0 && trimmed.starts_with("## ") {
                     let branch_info = &trimmed[3..];
                     if !branch_info.starts_with("HEAD (no branch)") && !branch_info.is_empty() {
                         let name = branch_info
-                            .split("...").next()
+                            .split("...")
+                            .next()
                             .unwrap_or(branch_info)
-                            .split('[').next()
+                            .split('[')
+                            .next()
                             .unwrap_or(branch_info)
                             .trim();
                         if !name.is_empty() {
@@ -377,9 +385,17 @@ fn get_git_status_for_path(path: &str) -> GitStatus {
                     has_uncommitted = true;
                 }
             }
-            GitStatus { branch, has_uncommitted, is_repo: true }
+            GitStatus {
+                branch,
+                has_uncommitted,
+                is_repo: true,
+            }
         }
-        None => GitStatus { branch: None, has_uncommitted: false, is_repo: true },
+        None => GitStatus {
+            branch: None,
+            has_uncommitted: false,
+            is_repo: true,
+        },
     }
 }
 
@@ -403,7 +419,10 @@ pub async fn batch_git_status(paths: Vec<String>) -> HashMap<String, GitStatus> 
             std::thread::scope(|s| {
                 for p in chunk {
                     s.spawn(|| {
-                        results.lock().unwrap().insert(p.clone(), get_git_status_for_path(p));
+                        results
+                            .lock()
+                            .unwrap()
+                            .insert(p.clone(), get_git_status_for_path(p));
                     });
                 }
             });
@@ -465,13 +484,12 @@ pub async fn git_log_entries(path: String) -> Result<Vec<GitLogEntry>, String> {
             .filter(|l| !l.trim().is_empty())
             .filter_map(|line| {
                 let parts: Vec<&str> = line.splitn(5, "|||").collect();
-                if parts.len() < 5 { return None; }
+                if parts.len() < 5 {
+                    return None;
+                }
                 Some(GitLogEntry {
                     hash: parts[0].to_string(),
-                    parents: parts[1]
-                        .split_whitespace()
-                        .map(|p| p.to_string())
-                        .collect(),
+                    parents: parts[1].split_whitespace().map(|p| p.to_string()).collect(),
                     author: parts[2].to_string(),
                     date: parts[3].to_string(),
                     message: parts[4].to_string(),
@@ -504,11 +522,7 @@ fn to_web_url(url: &str) -> String {
 fn repo_label(url: &str) -> String {
     let web = to_web_url(url);
     let path = web.split("://").nth(1).unwrap_or(&web);
-    let segments: Vec<&str> = path
-        .split('/')
-        .skip(1)
-        .filter(|s| !s.is_empty())
-        .collect();
+    let segments: Vec<&str> = path.split('/').skip(1).filter(|s| !s.is_empty()).collect();
     match segments.last() {
         Some(last) => last.to_string(),
         None => repo_base_name(url),
@@ -521,19 +535,21 @@ pub async fn git_ahead_behind(path: String) -> Result<Option<GitAheadBehind>, St
         if !check_is_repo(&path) {
             return Err("Not a git repository".into());
         }
-        let upstream = git_helpers::git_cmd(
-            &path,
-            ["rev-parse", "--abbrev-ref", "@{upstream}"],
-        )
-        .ok()
-        .map(|s| s.trim().to_string())
-        .filter(|s| !s.is_empty() && s != "@{upstream}");
+        let upstream = git_helpers::git_cmd(&path, ["rev-parse", "--abbrev-ref", "@{upstream}"])
+            .ok()
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty() && s != "@{upstream}");
         let Some(upstream) = upstream else {
             return Ok(None);
         };
         let out = git_helpers::git_cmd(
             &path,
-            ["rev-list", "--left-right", "--count", &format!("{}...HEAD", upstream)],
+            [
+                "rev-list",
+                "--left-right",
+                "--count",
+                &format!("{}...HEAD", upstream),
+            ],
         )
         .map_err(|e| e.to_string())?;
         let parts: Vec<&str> = out.split_whitespace().collect();
@@ -555,22 +571,17 @@ pub async fn git_show_commit(path: String, hash: String) -> Result<GitCommitDeta
         if !check_is_repo(&path) {
             return Err("Not a git repository".into());
         }
-        let meta = git_helpers::git_cmd(
-            &path,
-            ["show", "-s", "--format=%H|||%an|||%ar|||%s", &hash],
-        )
-        .map_err(|e| e.to_string())?;
+        let meta =
+            git_helpers::git_cmd(&path, ["show", "-s", "--format=%H|||%an|||%ar|||%s", &hash])
+                .map_err(|e| e.to_string())?;
         let mut parts = meta.splitn(4, "|||");
         let hash = parts.next().unwrap_or(&hash).to_string();
         let author = parts.next().unwrap_or("").to_string();
         let date = parts.next().unwrap_or("").to_string();
         let message = parts.next().unwrap_or("").to_string();
 
-        let files_out = git_helpers::git_cmd(
-            &path,
-            ["show", "--name-status", "--format=", &hash],
-        )
-        .map_err(|e| e.to_string())?;
+        let files_out = git_helpers::git_cmd(&path, ["show", "--name-status", "--format=", &hash])
+            .map_err(|e| e.to_string())?;
         let files: Vec<GitCommitFile> = files_out
             .lines()
             .filter(|l| !l.trim().is_empty())
@@ -669,7 +680,10 @@ pub async fn git_list_branches(path: String) -> Result<Vec<GitBranchInfo>, Strin
         }
         let stdout = git_helpers::git_cmd(
             &path,
-            ["branch", "--format=%(refname:short)|||%(HEAD)|||%(upstream:short)"],
+            [
+                "branch",
+                "--format=%(refname:short)|||%(HEAD)|||%(upstream:short)",
+            ],
         )
         .map_err(|e| e.to_string())?;
 
@@ -678,7 +692,9 @@ pub async fn git_list_branches(path: String) -> Result<Vec<GitBranchInfo>, Strin
             .filter(|l| !l.trim().is_empty())
             .filter_map(|line| {
                 let parts: Vec<&str> = line.splitn(3, "|||").collect();
-                if parts.len() < 3 { return None; }
+                if parts.len() < 3 {
+                    return None;
+                }
                 Some(GitBranchInfo {
                     name: parts[0].to_string(),
                     is_current: parts[1].trim() == "*",
@@ -716,8 +732,7 @@ pub async fn git_branch_publish(path: String, name: String) -> Result<(), String
             return Err("Not a git repository".into());
         }
         let remote = default_publish_remote(&path)?;
-        git_helpers::git_cmd(&path, ["push", "-u", &remote, &name])
-            .map_err(|e| e.to_string())?;
+        git_helpers::git_cmd(&path, ["push", "-u", &remote, &name]).map_err(|e| e.to_string())?;
         Ok(())
     })
     .await
@@ -788,8 +803,7 @@ pub async fn git_stash_list(path: String) -> Result<Vec<GitStashEntry>, String> 
         if !check_is_repo(&path) {
             return Err("Not a git repository".into());
         }
-        let stdout = git_helpers::git_cmd(&path, ["stash", "list"])
-            .map_err(|e| e.to_string())?;
+        let stdout = git_helpers::git_cmd(&path, ["stash", "list"]).map_err(|e| e.to_string())?;
 
         let stashes: Vec<GitStashEntry> = stdout
             .lines()
@@ -886,12 +900,16 @@ fn parse_changed_files(stdout: &str) -> Vec<GitChangedFile> {
             if status.trim().is_empty() && raw_path.is_empty() {
                 return None;
             }
-            let file_path = if raw_path.starts_with('"') && raw_path.ends_with('"') && raw_path.len() >= 2 {
-                raw_path[1..raw_path.len() - 1].to_string()
-            } else {
-                raw_path
-            };
-            Some(GitChangedFile { path: file_path, status })
+            let file_path =
+                if raw_path.starts_with('"') && raw_path.ends_with('"') && raw_path.len() >= 2 {
+                    raw_path[1..raw_path.len() - 1].to_string()
+                } else {
+                    raw_path
+                };
+            Some(GitChangedFile {
+                path: file_path,
+                status,
+            })
         })
         .collect()
 }
@@ -916,7 +934,10 @@ fn reroot_to_project(
             } else {
                 rel.to_string_lossy().to_string()
             };
-            Some(GitChangedFile { path, status: f.status })
+            Some(GitChangedFile {
+                path,
+                status: f.status,
+            })
         })
         .collect()
 }
@@ -1285,7 +1306,8 @@ pub async fn git_unstage_file(path: String, file_path: String) -> Result<(), Str
         if !check_is_repo(&path) {
             return Err("Not a git repository".into());
         }
-        git_helpers::git_cmd(&path, ["restore", "--staged", &file_path]).map_err(|e| e.to_string())?;
+        git_helpers::git_cmd(&path, ["restore", "--staged", &file_path])
+            .map_err(|e| e.to_string())?;
         Ok(())
     })
     .await
@@ -1309,9 +1331,13 @@ pub async fn git_commit(path: String, message: String, amend: bool) -> Result<St
         if !output.status.success() {
             let stderr = git_helpers::output_stderr(&output).trim().to_string();
             let stdout = git_helpers::output_stdout(&output).trim().to_string();
-            let detail = if !stderr.is_empty() { stderr }
-                        else if !stdout.is_empty() { stdout }
-                        else { "Unknown error, run 'git commit' in a terminal for more details.".to_string() };
+            let detail = if !stderr.is_empty() {
+                stderr
+            } else if !stdout.is_empty() {
+                stdout
+            } else {
+                "Unknown error, run 'git commit' in a terminal for more details.".to_string()
+            };
             return Err(format!("Commit failed: {detail}"));
         }
 
@@ -1319,7 +1345,8 @@ pub async fn git_commit(path: String, message: String, amend: bool) -> Result<St
     })
     .await
     .map_err(|e| e.to_string())?
-}#[tauri::command]
+}
+#[tauri::command]
 pub async fn git_set_remote(path: String, url: String) -> Result<(), String> {
     tokio::task::spawn_blocking(move || {
         if !check_is_repo(&path) {
@@ -1397,8 +1424,8 @@ pub async fn git_is_merging(path: String) -> Result<bool, String> {
             return Err("Not a git repository".into());
         }
 
-        let git_dir = git_helpers::git_cmd(&path, ["rev-parse", "--git-dir"])
-            .map_err(|e| e.to_string())?;
+        let git_dir =
+            git_helpers::git_cmd(&path, ["rev-parse", "--git-dir"]).map_err(|e| e.to_string())?;
         let base = std::path::PathBuf::from(&path).join(&git_dir);
 
         Ok(base.join("MERGE_HEAD").exists()
@@ -1422,7 +1449,8 @@ pub async fn git_resolve_conflict_ours(path: String, file_path: String) -> Resul
         if !check_is_repo(&path) {
             return Err("Not a git repository".into());
         }
-        git_helpers::git_cmd(&path, ["checkout", "--ours", &file_path]).map_err(|e| e.to_string())?;
+        git_helpers::git_cmd(&path, ["checkout", "--ours", &file_path])
+            .map_err(|e| e.to_string())?;
         git_helpers::git_cmd(&path, ["add", &file_path]).map_err(|e| e.to_string())?;
         Ok(())
     })
@@ -1436,7 +1464,8 @@ pub async fn git_resolve_conflict_theirs(path: String, file_path: String) -> Res
         if !check_is_repo(&path) {
             return Err("Not a git repository".into());
         }
-        git_helpers::git_cmd(&path, ["checkout", "--theirs", &file_path]).map_err(|e| e.to_string())?;
+        git_helpers::git_cmd(&path, ["checkout", "--theirs", &file_path])
+            .map_err(|e| e.to_string())?;
         git_helpers::git_cmd(&path, ["add", &file_path]).map_err(|e| e.to_string())?;
         Ok(())
     })
@@ -1458,7 +1487,11 @@ pub async fn git_resolve_conflict_manual(path: String, file_path: String) -> Res
 }
 
 #[tauri::command]
-pub async fn clone_repo(app: tauri::AppHandle, url: String, dest: String) -> Result<String, String> {
+pub async fn clone_repo(
+    app: tauri::AppHandle,
+    url: String,
+    dest: String,
+) -> Result<String, String> {
     tokio::task::spawn_blocking(move || {
         if !url.contains("://") && !url.contains('@') {
             return Err("Not a valid git URL".into());
@@ -1473,7 +1506,9 @@ pub async fn clone_repo(app: tauri::AppHandle, url: String, dest: String) -> Res
 
         let clone_target = dest_path.join(&folder_name);
         if clone_target.exists() {
-            return Err(format!("Folder '{folder_name}' already exists at this location"));
+            return Err(format!(
+                "Folder '{folder_name}' already exists at this location"
+            ));
         }
 
         let output = git_helpers::git_command()
@@ -1551,7 +1586,14 @@ pub async fn git_log(_app: tauri::AppHandle, path: String) -> Result<(), String>
         #[cfg(target_os = "windows")]
         {
             Command::new("cmd")
-                .args(["/C", "start", "Git Log", "cmd", "/K", "git log --oneline --graph -25 --all"])
+                .args([
+                    "/C",
+                    "start",
+                    "Git Log",
+                    "cmd",
+                    "/K",
+                    "git log --oneline --graph -25 --all",
+                ])
                 .current_dir(&dir)
                 .spawn()
                 .map_err(|e| e.to_string())?;
@@ -1600,8 +1642,9 @@ pub async fn git_file_diff(path: String, file_path: String) -> Result<GitDiffRes
         let stdout = git_helpers::output_stdout(&output);
 
         let diff_text = if stdout.trim().is_empty() {
-            let cached = git_helpers::git_raw(&path, ["diff", "--cached", "--no-color", "--", &file_path])
-                .ok();
+            let cached =
+                git_helpers::git_raw(&path, ["diff", "--cached", "--no-color", "--", &file_path])
+                    .ok();
             match cached {
                 Some(c) => git_helpers::output_stdout(&c),
                 None => stdout,
@@ -1626,20 +1669,30 @@ fn parse_diff_text(diff_text: &str) -> GitDiffResult {
 
     for line in diff_text.lines() {
         if let Some(header) = line.strip_prefix("@@ ") {
-            let Some((old_range, new_range)) = header
-                .split(" @@")
-                .next()
-                .and_then(|r| r.split_once(' '))
+            let Some((old_range, new_range)) =
+                header.split(" @@").next().and_then(|r| r.split_once(' '))
             else {
                 continue;
             };
 
             let old_parts: Vec<&str> = old_range.split(',').collect();
             let new_parts: Vec<&str> = new_range.split(',').collect();
-            let old_start = old_parts[0].trim_start_matches('-').parse::<u32>().unwrap_or(1);
-            let old_lines = old_parts.get(1).and_then(|s| s.parse::<u32>().ok()).unwrap_or(1);
-            let new_start = new_parts[0].trim_start_matches('+').parse::<u32>().unwrap_or(1);
-            let new_lines = new_parts.get(1).and_then(|s| s.parse::<u32>().ok()).unwrap_or(1);
+            let old_start = old_parts[0]
+                .trim_start_matches('-')
+                .parse::<u32>()
+                .unwrap_or(1);
+            let old_lines = old_parts
+                .get(1)
+                .and_then(|s| s.parse::<u32>().ok())
+                .unwrap_or(1);
+            let new_start = new_parts[0]
+                .trim_start_matches('+')
+                .parse::<u32>()
+                .unwrap_or(1);
+            let new_lines = new_parts
+                .get(1)
+                .and_then(|s| s.parse::<u32>().ok())
+                .unwrap_or(1);
 
             if let Some(hunk) = current_hunk.take() {
                 result.hunks.push(hunk);
@@ -1653,11 +1706,20 @@ fn parse_diff_text(diff_text: &str) -> GitDiffResult {
             });
         } else if let Some(hunk) = &mut current_hunk {
             if line.starts_with('+') {
-                hunk.lines.push(GitDiffLine { kind: "add".into(), content: line.strip_prefix('+').unwrap().to_string() });
+                hunk.lines.push(GitDiffLine {
+                    kind: "add".into(),
+                    content: line.strip_prefix('+').unwrap().to_string(),
+                });
             } else if line.starts_with('-') {
-                hunk.lines.push(GitDiffLine { kind: "delete".into(), content: line.strip_prefix('-').unwrap().to_string() });
+                hunk.lines.push(GitDiffLine {
+                    kind: "delete".into(),
+                    content: line.strip_prefix('-').unwrap().to_string(),
+                });
             } else if line.starts_with(' ') {
-                hunk.lines.push(GitDiffLine { kind: "context".into(), content: line.strip_prefix(' ').unwrap().to_string() });
+                hunk.lines.push(GitDiffLine {
+                    kind: "context".into(),
+                    content: line.strip_prefix(' ').unwrap().to_string(),
+                });
             }
         }
     }
@@ -1745,7 +1807,10 @@ pub async fn git_worktree_switch(path: String, worktree_path: String) -> Result<
         }
         let wt_dir = PathBuf::from(&worktree_path);
         if !wt_dir.is_dir() {
-            return Err(format!("Worktree directory does not exist: {}", worktree_path));
+            return Err(format!(
+                "Worktree directory does not exist: {}",
+                worktree_path
+            ));
         }
         let common_dir = |repo: &str| -> Result<PathBuf, String> {
             let dir = git_helpers::git_cmd(repo, ["rev-parse", "--git-common-dir"])
@@ -1778,10 +1843,7 @@ pub async fn git_worktree_add(
             Path::new(&path).join(requested_dir)
         };
         if wt_dir.exists() {
-            return Err(format!(
-                "Directory already exists: {}",
-                worktree_path
-            ));
+            return Err(format!("Directory already exists: {}", worktree_path));
         }
         if let Some(parent) = wt_dir.parent() {
             if !parent.exists() {
@@ -1832,8 +1894,7 @@ pub async fn git_worktree_remove(
         args.push("--");
         args.push(worktree_path.as_str());
         git_helpers::git_cmd(&path, &args).map_err(|e| e.to_string())?;
-        git_helpers::git_cmd(&path, ["worktree", "prune"])
-            .map_err(|e| e.to_string())?;
+        git_helpers::git_cmd(&path, ["worktree", "prune"]).map_err(|e| e.to_string())?;
         Ok(())
     })
     .await

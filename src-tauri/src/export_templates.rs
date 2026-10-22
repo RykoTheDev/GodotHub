@@ -147,21 +147,26 @@ fn default_templates_root() -> Option<PathBuf> {
 #[cfg(all(unix, not(target_os = "macos")))]
 fn default_templates_root() -> Option<PathBuf> {
     if let Some(data_home) = std::env::var_os("XDG_DATA_HOME").filter(|v| !v.is_empty()) {
-        return Some(PathBuf::from(data_home).join("godot").join("export_templates"));
+        return Some(
+            PathBuf::from(data_home)
+                .join("godot")
+                .join("export_templates"),
+        );
     }
-    std::env::var_os("HOME")
-        .map(|dir| PathBuf::from(dir).join(".local").join("share").join("godot").join("export_templates"))
+    std::env::var_os("HOME").map(|dir| {
+        PathBuf::from(dir)
+            .join(".local")
+            .join("share")
+            .join("godot")
+            .join("export_templates")
+    })
 }
 
 /// Godot in self-contained mode keeps everything next to the executable.
 fn self_contained_root(executable_path: &str) -> Option<PathBuf> {
     let exe_dir = Path::new(executable_path).parent()?;
     if exe_dir.join("_sc_").is_file() || exe_dir.join("._sc_").is_file() {
-        Some(
-            exe_dir
-                .join("editor_data")
-                .join("export_templates"),
-        )
+        Some(exe_dir.join("editor_data").join("export_templates"))
     } else {
         None
     }
@@ -173,12 +178,17 @@ fn templates_root_for(version: &InstalledGodotVersion) -> Option<PathBuf> {
 
 pub(crate) fn installed_template_platforms(version: &InstalledGodotVersion) -> Vec<String> {
     templates_root_for(version)
-        .map(|root| archive::installed_platforms(&root.join(template_folder_for(&version.tag, version.is_mono))))
+        .map(|root| {
+            archive::installed_platforms(
+                &root.join(template_folder_for(&version.tag, version.is_mono)),
+            )
+        })
         .unwrap_or_default()
 }
 
 pub(crate) fn installed_template_directory(version: &InstalledGodotVersion) -> Option<PathBuf> {
-    templates_root_for(version).map(|root| root.join(template_folder_for(&version.tag, version.is_mono)))
+    templates_root_for(version)
+        .map(|root| root.join(template_folder_for(&version.tag, version.is_mono)))
 }
 
 fn downloads_dir(app: &AppHandle) -> PathBuf {
@@ -374,12 +384,24 @@ pub async fn get_export_template_options(
     let root = templates_root_for(&version)
         .ok_or_else(|| "Could not locate Godot's data folder on this system".to_string())?;
     let url = tpz_url(&version.tag, version.is_mono);
-    let cache_path = app.path().app_data_dir().map_err(|error| error.to_string())?
-        .join("export-template-catalogs").join(format!("{folder}.json"));
+    let cache_path = app
+        .path()
+        .app_data_dir()
+        .map_err(|error| error.to_string())?
+        .join("export-template-catalogs")
+        .join(format!("{folder}.json"));
     let runtime = tokio::runtime::Handle::current();
-    tokio::task::spawn_blocking(move || archive::cached_options(&url, &root.join(folder), &cache_path, runtime, refresh.unwrap_or(false)))
-        .await
-        .map_err(|e| e.to_string())?
+    tokio::task::spawn_blocking(move || {
+        archive::cached_options(
+            &url,
+            &root.join(folder),
+            &cache_path,
+            runtime,
+            refresh.unwrap_or(false),
+        )
+    })
+    .await
+    .map_err(|e| e.to_string())?
 }
 
 fn parse_content_range_start(value: &str) -> Option<u64> {
@@ -601,7 +623,8 @@ fn strip_templates_prefix(path: &Path) -> PathBuf {
 
 fn extract_tpz(archive_path: &Path, destination: &Path) -> Result<(u64, usize), String> {
     let file = fs::File::open(archive_path).map_err(|e| e.to_string())?;
-    let mut archive = zip::ZipArchive::new(file).map_err(|e| format!("Invalid template archive: {e}"))?;
+    let mut archive =
+        zip::ZipArchive::new(file).map_err(|e| format!("Invalid template archive: {e}"))?;
 
     fs::create_dir_all(destination).map_err(|e| e.to_string())?;
 
@@ -727,7 +750,9 @@ pub async fn install_export_templates(
 
     let _ = app.emit("export-templates-queued", &tag);
 
-    let fail = |app: &AppHandle, message: String| -> Result<Option<ExportTemplatesInstallResult>, String> {
+    let fail = |app: &AppHandle,
+                message: String|
+     -> Result<Option<ExportTemplatesInstallResult>, String> {
         let _ = app.emit(
             "export-templates-error",
             ExportTemplatesError {
@@ -923,7 +948,9 @@ pub async fn uninstall_export_template_files(
     {
         let mut active = active_downloads().lock().map_err(|e| e.to_string())?;
         if active.contains_key(&tag) {
-            return Err("Wait for the current template operation to finish before uninstalling".into());
+            return Err(
+                "Wait for the current template operation to finish before uninstalling".into(),
+            );
         }
         active.insert(tag.clone(), Arc::new(AtomicBool::new(false)));
     }
@@ -973,9 +1000,18 @@ mod tests {
 
     #[test]
     fn mono_suffix_is_preserved() {
-        assert_eq!(template_folder_for("4.3-stable-mono", true), "4.3.stable.mono");
-        assert_eq!(template_folder_for("4.3-stable-mono", false), "4.3.stable.mono");
-        assert_eq!(template_folder_for("4.3.1-stable", true), "4.3.1.stable.mono");
+        assert_eq!(
+            template_folder_for("4.3-stable-mono", true),
+            "4.3.stable.mono"
+        );
+        assert_eq!(
+            template_folder_for("4.3-stable-mono", false),
+            "4.3.stable.mono"
+        );
+        assert_eq!(
+            template_folder_for("4.3.1-stable", true),
+            "4.3.1.stable.mono"
+        );
     }
 
     #[test]
@@ -1034,7 +1070,9 @@ mod tests {
             strip_templates_prefix(Path::new("version.txt")),
             PathBuf::from("version.txt")
         );
-        assert!(strip_templates_prefix(Path::new("templates")).as_os_str().is_empty());
+        assert!(strip_templates_prefix(Path::new("templates"))
+            .as_os_str()
+            .is_empty());
     }
 
     #[test]

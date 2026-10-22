@@ -1,6 +1,6 @@
 use crate::error::AppResult;
-use crate::persist;
 use crate::models::AppSettings;
+use crate::persist;
 use std::path::Path;
 use tauri::{AppHandle, Manager};
 

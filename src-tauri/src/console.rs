@@ -89,7 +89,6 @@ impl ConsoleSnapshot {
     }
 }
 
-
 fn log_dir(app: &AppHandle) -> PathBuf {
     crate::workspace::active_workspace_dir(app).join("console")
 }
@@ -110,11 +109,9 @@ fn log_path(app: &AppHandle, id: &str) -> PathBuf {
     log_dir(app).join(format!("{}.log", safe_id(id)))
 }
 
-
 pub fn has_console_log(app: &AppHandle, id: &str) -> bool {
     log_path(app, id).is_file()
 }
-
 
 fn open_append(path: &Path) -> Result<File, String> {
     OpenOptions::new()
@@ -509,8 +506,13 @@ impl JobConsole {
     pub(crate) fn drain(&mut self) {
         let lines = self.tail.read_new_lines();
         if let Ok(mut map) = self.store.lock() {
-            if let Some(entry) = map.get_mut(&self.id).filter(|entry| entry.session == self.session) {
-                for text in lines { entry.push(ConsoleStream::Stdout, text); }
+            if let Some(entry) = map
+                .get_mut(&self.id)
+                .filter(|entry| entry.session == self.session)
+            {
+                for text in lines {
+                    entry.push(ConsoleStream::Stdout, text);
+                }
             }
         }
     }
@@ -519,38 +521,84 @@ impl JobConsole {
         self.drain();
         let fragment = std::mem::take(&mut self.tail.pending);
         if let Ok(mut map) = self.store.lock() {
-            if let Some(entry) = map.get_mut(&self.id).filter(|entry| entry.session == self.session) {
-                if !fragment.is_empty() { entry.push(ConsoleStream::Stdout, normalize_line(&fragment)); }
+            if let Some(entry) = map
+                .get_mut(&self.id)
+                .filter(|entry| entry.session == self.session)
+            {
+                if !fragment.is_empty() {
+                    entry.push(ConsoleStream::Stdout, normalize_line(&fragment));
+                }
                 entry.push(ConsoleStream::Stdout, message.to_string());
                 entry.running = false;
                 entry.exit_code = code;
             }
         }
-        let _ = app.emit("project:console-exit", serde_json::json!({"id":self.id,"code":code}));
+        let _ = app.emit(
+            "project:console-exit",
+            serde_json::json!({"id":self.id,"code":code}),
+        );
     }
 }
 
-pub(crate) fn spawn_job_console(app: &AppHandle, exe: &Path, args: &[String], cwd: &Path, workspace: &Path, id: &str) -> Result<(Child, JobConsole), String> {
+pub(crate) fn spawn_job_console(
+    app: &AppHandle,
+    exe: &Path,
+    args: &[String],
+    cwd: &Path,
+    workspace: &Path,
+    id: &str,
+) -> Result<(Child, JobConsole), String> {
     let target = console_target(exe)?;
-    let store = app.try_state::<ConsoleBuffers>().ok_or("Console is unavailable")?.0.clone();
-    let path = workspace.join("console").join(format!("{}.log",safe_id(id)));
-    std::fs::create_dir_all(path.parent().ok_or("Invalid console path")?).map_err(|e| e.to_string())?;
+    let store = app
+        .try_state::<ConsoleBuffers>()
+        .ok_or("Console is unavailable")?
+        .0
+        .clone();
+    let path = workspace
+        .join("console")
+        .join(format!("{}.log", safe_id(id)));
+    std::fs::create_dir_all(path.parent().ok_or("Invalid console path")?)
+        .map_err(|e| e.to_string())?;
     File::create(&path).map_err(|e| e.to_string())?;
     let log = open_append(&path)?;
     let errors = log.try_clone().map_err(|e| e.to_string())?;
     let mut command = Command::new(target);
-    command.args(args).current_dir(cwd).stdin(Stdio::null()).stdout(Stdio::from(log)).stderr(Stdio::from(errors));
-    #[cfg(windows)] {
+    command
+        .args(args)
+        .current_dir(cwd)
+        .stdin(Stdio::null())
+        .stdout(Stdio::from(log))
+        .stderr(Stdio::from(errors));
+    #[cfg(windows)]
+    {
         use std::os::windows::process::CommandExt;
         command.creation_flags(crate::terminal::CREATE_NO_WINDOW);
     }
-    #[cfg(unix)] {
+    #[cfg(unix)]
+    {
         use std::os::unix::process::CommandExt;
         command.process_group(0);
     }
     crate::terminal::sanitize_child_env(&mut command);
-    let child = command.spawn().map_err(|e| format!("Could not start Godot export: {e}"))?;
+    let child = command
+        .spawn()
+        .map_err(|e| format!("Could not start Godot export: {e}"))?;
     let session = next_session();
-    store.lock().unwrap().insert(id.into(), ConsoleEntry {running:true,session,..Default::default()});
-    Ok((child, JobConsole {id:id.into(), session, store, tail:LogTail::new(path,0)}))
+    store.lock().unwrap().insert(
+        id.into(),
+        ConsoleEntry {
+            running: true,
+            session,
+            ..Default::default()
+        },
+    );
+    Ok((
+        child,
+        JobConsole {
+            id: id.into(),
+            session,
+            store,
+            tail: LogTail::new(path, 0),
+        },
+    ))
 }

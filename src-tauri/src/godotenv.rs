@@ -246,9 +246,7 @@ fn extract_attr(tag: &str, name: &str) -> Option<String> {
                     if q == b'"' || q == b'\'' {
                         let value = &bytes[after + 2..];
                         if let Some(end) = value.iter().position(|&b| b == q) {
-                            return std::str::from_utf8(&value[..end])
-                                .ok()
-                                .map(String::from);
+                            return std::str::from_utf8(&value[..end]).ok().map(String::from);
                         }
                     }
                 }
@@ -313,7 +311,7 @@ pub fn sharp_string(n: &GodotVersionNumber) -> String {
 pub fn pin_version(project_dir: &str, tag: &str, use_mise: bool) -> Result<(), String> {
     let number = match parse_installed_tag(tag) {
         Some(n) => n,
-        None => return Ok(())
+        None => return Ok(()),
     };
     let is_mono = tag.trim().ends_with("-mono");
     let root = Path::new(project_dir);
@@ -373,8 +371,11 @@ fn write_godotrc_pin(root: &Path, number: &GodotVersionNumber) -> Result<(), Str
         release_string(number)
     );
     crate::project_metadata::prepare(root).map_err(|error| error.to_string())?;
-    crate::persist::write_bytes(&crate::project_metadata::version_file(root), content.as_bytes())
-        .map_err(|e| e.to_string())?;
+    crate::persist::write_bytes(
+        &crate::project_metadata::version_file(root),
+        content.as_bytes(),
+    )
+    .map_err(|e| e.to_string())?;
     let _ = fs::remove_file(root.join(".godotrc"));
     Ok(())
 }

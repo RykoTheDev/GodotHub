@@ -39,7 +39,12 @@ fn build_tray_menu(app: &AppHandle) -> Result<Menu<tauri::Wry>, tauri::Error> {
     let recent_submenu = if recent.is_empty() {
         let no_recent_item =
             MenuItem::with_id(app, "no_recent", "No recent projects", false, None::<&str>)?;
-        Submenu::with_items(app, "Open Recent", true, &[&no_recent_item as &dyn IsMenuItem<_>])?
+        Submenu::with_items(
+            app,
+            "Open Recent",
+            true,
+            &[&no_recent_item as &dyn IsMenuItem<_>],
+        )?
     } else {
         let mut recent_items = Vec::new();
         for p in &recent {

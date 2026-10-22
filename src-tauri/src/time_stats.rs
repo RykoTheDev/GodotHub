@@ -133,7 +133,9 @@ pub fn touch_activity(app: &AppHandle) {
         return;
     }
     LAST_ACTIVITY_WRITE.store(now, Ordering::Relaxed);
-    let heartbeat = ActivityHeartbeat { last_active_ms: now };
+    let heartbeat = ActivityHeartbeat {
+        last_active_ms: now,
+    };
     let _ = persist::write_json(
         &activity_file(&crate::workspace::active_workspace_dir(app)),
         &heartbeat,
@@ -176,9 +178,8 @@ pub fn record_session(app: &AppHandle, project_id: &str, start_ms: u64, seconds:
             let excess = sessions.len() - 200;
             sessions.drain(0..excess);
         }
-        if let Some(start) =
-            chrono::DateTime::<chrono::Utc>::from_timestamp_millis(start_ms as i64)
-                .map(|t| t.with_timezone(&chrono::Local))
+        if let Some(start) = chrono::DateTime::<chrono::Utc>::from_timestamp_millis(start_ms as i64)
+            .map(|t| t.with_timezone(&chrono::Local))
         {
             add_to_daily(store, project_id, start, seconds);
         }
@@ -220,10 +221,9 @@ pub fn get_activity(app: AppHandle, range: String) -> Vec<(String, u64)> {
 
             for sessions in store.projects.values() {
                 for s in sessions {
-                    let Some(start) = chrono::DateTime::<chrono::Utc>::from_timestamp_millis(
-                        s.start_ms as i64,
-                    )
-                    .map(|t| t.with_timezone(&chrono::Local))
+                    let Some(start) =
+                        chrono::DateTime::<chrono::Utc>::from_timestamp_millis(s.start_ms as i64)
+                            .map(|t| t.with_timezone(&chrono::Local))
                     else {
                         continue;
                     };
@@ -241,10 +241,7 @@ pub fn get_activity(app: AppHandle, range: String) -> Vec<(String, u64)> {
 
             let mut out: Vec<(String, u64)> = Vec::with_capacity(24);
             for h in 0..24 {
-                out.push((
-                    format!("{}:{:02}", today.format("%Y-%m-%d"), h),
-                    buckets[h],
-                ));
+                out.push((format!("{}:{:02}", today.format("%Y-%m-%d"), h), buckets[h]));
             }
             out
         }
@@ -417,8 +414,7 @@ pub fn breakdown(
         return (0, 0);
     };
     let today = now.date_naive();
-    let week_start_date =
-        today - Duration::days(today.weekday().num_days_from_monday() as i64);
+    let week_start_date = today - Duration::days(today.weekday().num_days_from_monday() as i64);
 
     let (Some(today_start), Some(day_end), Some(week_start)) = (
         local_day_start(today),
@@ -431,9 +427,8 @@ pub fn breakdown(
     let mut today_secs = 0u64;
     let mut week_secs = 0u64;
     for s in sessions {
-        let Some(start) =
-            chrono::DateTime::<chrono::Utc>::from_timestamp_millis(s.start_ms as i64)
-                .map(|t| t.with_timezone(&chrono::Local))
+        let Some(start) = chrono::DateTime::<chrono::Utc>::from_timestamp_millis(s.start_ms as i64)
+            .map(|t| t.with_timezone(&chrono::Local))
         else {
             continue;
         };

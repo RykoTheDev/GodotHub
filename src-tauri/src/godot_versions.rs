@@ -618,24 +618,23 @@ async fn refresh_archive_releases(app: AppHandle) -> Result<Vec<GodotRelease>, S
         .map_err(|e| e.to_string())?;
 
     let tags = parse_archive_tags(&index_html);
-    let releases: Vec<GodotRelease> = futures_util::stream::iter(
-        tags.into_iter().filter(|t| meets_min_version(t)),
-    )
-    .map(|tag| {
-        let client = client.clone();
-        async move {
-            let assets = fetch_archive_assets(&client, &tag).await;
-            if assets.is_empty() {
-                None
-            } else {
-                Some(GodotRelease { tag, assets })
-            }
-        }
-    })
-    .buffered(8)
-    .filter_map(|r| async move { r })
-    .collect()
-    .await;
+    let releases: Vec<GodotRelease> =
+        futures_util::stream::iter(tags.into_iter().filter(|t| meets_min_version(t)))
+            .map(|tag| {
+                let client = client.clone();
+                async move {
+                    let assets = fetch_archive_assets(&client, &tag).await;
+                    if assets.is_empty() {
+                        None
+                    } else {
+                        Some(GodotRelease { tag, assets })
+                    }
+                }
+            })
+            .buffered(8)
+            .filter_map(|r| async move { r })
+            .collect()
+            .await;
 
     write_releases_cache(&app, "archive", &releases);
     Ok(releases)
@@ -895,11 +894,7 @@ pub fn download_godot_version(
 }
 
 #[tauri::command]
-pub fn reorder_download_queue(
-    app: AppHandle,
-    key: String,
-    direction: i8,
-) -> Result<(), String> {
+pub fn reorder_download_queue(app: AppHandle, key: String, direction: i8) -> Result<(), String> {
     let order = {
         let mut mgr = dm().lock().unwrap();
         let idx = mgr
@@ -1454,7 +1449,9 @@ fn migrate_mono_tags_in_place(
 
     let mut projects_changed = false;
     for old_tag in &renamed_old_tags {
-        let has_standard_still = list.iter().any(|other| !other.is_mono && other.tag == *old_tag);
+        let has_standard_still = list
+            .iter()
+            .any(|other| !other.is_mono && other.tag == *old_tag);
         if has_standard_still {
             continue;
         }
@@ -1495,7 +1492,10 @@ fn registry_signature(raw: &str) -> String {
         .iter()
         .filter_map(|e| {
             let tag = e.get("tag")?.as_str()?;
-            let path = e.get("executable_path").and_then(|x| x.as_str()).unwrap_or("");
+            let path = e
+                .get("executable_path")
+                .and_then(|x| x.as_str())
+                .unwrap_or("");
             let mono = e.get("is_mono").and_then(|x| x.as_bool()).unwrap_or(false);
             let custom = e.get("custom_name").and_then(|x| x.as_str()).unwrap_or("");
             Some(format!("{tag}|{path}|{mono}|{custom}"))
@@ -1640,11 +1640,14 @@ fn spawn_with_console(
     title: &str,
 ) -> Result<LaunchedEditor, String> {
     match console_executable_for(exe) {
-        Some(wrapper) => crate::terminal::spawn_program_in_console(app, &wrapper, args, title)
-            .map(|child| LaunchedEditor {
-                child,
-                kill_tree: true,
-            }),
+        Some(wrapper) => {
+            crate::terminal::spawn_program_in_console(app, &wrapper, args, title).map(|child| {
+                LaunchedEditor {
+                    child,
+                    kill_tree: true,
+                }
+            })
+        }
         None => spawn_plain(exe, args),
     }
 }
@@ -1666,7 +1669,11 @@ fn spawn_with_console(
 }
 
 #[tauri::command]
-pub fn open_godot_version(app: AppHandle, tag: String, console: Option<bool>) -> Result<(), String> {
+pub fn open_godot_version(
+    app: AppHandle,
+    tag: String,
+    console: Option<bool>,
+) -> Result<(), String> {
     let list = read_registry(&app);
     let version = list
         .iter()
@@ -1710,10 +1717,16 @@ pub fn delete_godot_version(app: AppHandle, tag: String) -> Result<(), String> {
                 eprintln!("[delete_godot_version] trash failed for install_root {:?}: {e}, falling back to fs::remove_dir_all", root_path);
                 let _ = fs::remove_dir_all(&root_path);
             } else {
-                eprintln!("[delete_godot_version] trashed install_root {:?}", root_path);
+                eprintln!(
+                    "[delete_godot_version] trashed install_root {:?}",
+                    root_path
+                );
             }
         } else {
-            eprintln!("[delete_godot_version] install_root {:?} is not a directory, skipping", root_path);
+            eprintln!(
+                "[delete_godot_version] install_root {:?} is not a directory, skipping",
+                root_path
+            );
         }
         return Ok(());
     }
@@ -1800,7 +1813,10 @@ pub async fn test_github_token(app: AppHandle) -> Result<RateLimitInfo, String> 
     let resp = req.send().await.map_err(|e| e.to_string())?;
     if !resp.status().is_success() {
         let status = resp.status();
-        return Err(format!("GitHub API returned {}. Check that your token is valid.", status));
+        return Err(format!(
+            "GitHub API returned {}. Check that your token is valid.",
+            status
+        ));
     }
 
     let remaining: u64 = resp
@@ -1846,11 +1862,7 @@ pub async fn import_version_zip(
     if !zip_path.exists() {
         return Err("File not found".into());
     }
-    if zip_path
-        .extension()
-        .map(|e| e != "zip")
-        .unwrap_or(true)
-    {
+    if zip_path.extension().map(|e| e != "zip").unwrap_or(true) {
         return Err("File must be a .zip archive".into());
     }
 
@@ -2003,10 +2015,7 @@ mod download_tests {
 
     #[test]
     fn resume_server_error_aborts() {
-        assert!(matches!(
-            resume_action(503, None, 0),
-            ResumeMode::Abort(_)
-        ));
+        assert!(matches!(resume_action(503, None, 0), ResumeMode::Abort(_)));
     }
 
     #[test]
@@ -2061,7 +2070,10 @@ mod download_tests {
     #[test]
     fn sums_file_rejects_wrong_length() {
         let body = "abc  Godot_v4.3-stable_win64.exe.zip\n";
-        assert_eq!(parse_sums_file(body, "Godot_v4.3-stable_win64.exe.zip"), None);
+        assert_eq!(
+            parse_sums_file(body, "Godot_v4.3-stable_win64.exe.zip"),
+            None
+        );
     }
 
     #[test]
@@ -2128,4 +2140,3 @@ mod download_tests {
         assert_eq!(from_file, sha512_hex(b"abc"));
     }
 }
-

@@ -7,7 +7,12 @@ use tauri::{AppHandle, Manager};
 use uuid::Uuid;
 
 const META_FILE: &str = "workspace.json";
-const LEGACY_FILES: [&str; 4] = ["settings.json", "projects.json", "categories.json", "templates"];
+const LEGACY_FILES: [&str; 4] = [
+    "settings.json",
+    "projects.json",
+    "categories.json",
+    "templates",
+];
 
 fn state_lock() -> &'static Mutex<()> {
     static LOCK: OnceLock<Mutex<()>> = OnceLock::new();
@@ -173,7 +178,12 @@ fn note(base: &Path, message: &str) {
     else {
         return;
     };
-    let _ = writeln!(file, "{} [workspace] {}", chrono::Utc::now().to_rfc3339(), message);
+    let _ = writeln!(
+        file,
+        "{} [workspace] {}",
+        chrono::Utc::now().to_rfc3339(),
+        message
+    );
 }
 
 fn migrate_legacy_files(base: &Path, id: &str) {
@@ -225,10 +235,8 @@ pub fn read_state_in(base: &Path) -> WorkspacesState {
 
     let damaged = file.exists();
     if damaged {
-        let backup = file.with_extension(format!(
-            "json.corrupt-{}",
-            chrono::Utc::now().timestamp()
-        ));
+        let backup =
+            file.with_extension(format!("json.corrupt-{}", chrono::Utc::now().timestamp()));
         let _ = fs::rename(&file, &backup);
     }
 
@@ -247,7 +255,10 @@ pub fn read_state_in(base: &Path) -> WorkspacesState {
     }
 
     if damaged {
-        note(base, "workspaces index was unusable and nothing could be recovered");
+        note(
+            base,
+            "workspaces index was unusable and nothing could be recovered",
+        );
     }
     create_default_state(base)
 }
@@ -381,14 +392,24 @@ pub fn update_workspace(
         if trimmed.is_empty() {
             return Err("Workspace name can't be empty".into());
         }
-        if state.workspaces.iter().any(|w| w.id != id && w.name.eq_ignore_ascii_case(trimmed)) {
+        if state
+            .workspaces
+            .iter()
+            .any(|w| w.id != id && w.name.eq_ignore_ascii_case(trimmed))
+        {
             return Err("A workspace with this name already exists".into());
         }
     }
     if let Some(ws) = state.workspaces.iter_mut().find(|w| w.id == id) {
-        if let Some(ref n) = name { ws.name = n.trim().to_string(); }
-        if let Some(icon) = icon { ws.icon = icon; }
-        if let Some(color) = color { ws.color = color; }
+        if let Some(ref n) = name {
+            ws.name = n.trim().to_string();
+        }
+        if let Some(icon) = icon {
+            ws.icon = icon;
+        }
+        if let Some(color) = color {
+            ws.color = color;
+        }
     } else {
         return Err("Workspace not found".into());
     }
@@ -402,7 +423,11 @@ pub fn delete_workspace(app: AppHandle, id: String) -> Result<WorkspacesState, S
     if state.workspaces.len() <= 1 {
         return Err("Can't delete your only workspace".into());
     }
-    let idx = state.workspaces.iter().position(|w| w.id == id).ok_or("Workspace not found")?;
+    let idx = state
+        .workspaces
+        .iter()
+        .position(|w| w.id == id)
+        .ok_or("Workspace not found")?;
     state.workspaces.remove(idx);
     let switched = state.active_id == id;
     if switched {

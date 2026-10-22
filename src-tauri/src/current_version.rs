@@ -84,8 +84,8 @@ pub fn alias_file_name() -> &'static str {
 const PIN_ALIAS_NAME: &str = "Godot";
 
 const RESERVED_NAMES: [&str; 22] = [
-    "con", "prn", "aux", "nul", "com1", "com2", "com3", "com4", "com5", "com6", "com7",
-    "com8", "com9", "lpt1", "lpt2", "lpt3", "lpt4", "lpt5", "lpt6", "lpt7", "lpt8", "lpt9",
+    "con", "prn", "aux", "nul", "com1", "com2", "com3", "com4", "com5", "com6", "com7", "com8",
+    "com9", "lpt1", "lpt2", "lpt3", "lpt4", "lpt5", "lpt6", "lpt7", "lpt8", "lpt9",
 ];
 
 #[cfg(target_os = "windows")]
@@ -154,8 +154,7 @@ fn read_aliases(app: &AppHandle) -> AliasesState {
 }
 
 fn write_aliases(app: &AppHandle, state: &AliasesState) -> Result<(), String> {
-    crate::persist::write_json_with_backup(&alias_state_file(app), state)
-        .map_err(|e| e.to_string())
+    crate::persist::write_json_with_backup(&alias_state_file(app), state).map_err(|e| e.to_string())
 }
 
 fn remove_alias_files(dir: &Path, name: &str) {
@@ -524,7 +523,11 @@ pub fn list_version_aliases(app: AppHandle) -> VersionAliases {
 }
 
 #[tauri::command]
-pub fn create_version_alias(app: AppHandle, name: String, tag: String) -> Result<AliasInfo, String> {
+pub fn create_version_alias(
+    app: AppHandle,
+    name: String,
+    tag: String,
+) -> Result<AliasInfo, String> {
     create_named_alias(&app, &name, &tag)
 }
 

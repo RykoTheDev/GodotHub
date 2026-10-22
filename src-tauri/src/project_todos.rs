@@ -31,10 +31,7 @@ fn read_project_todos(app: &AppHandle) -> Result<ProjectTodosByProject, String> 
     return Ok(project_todos);
 }
 
-pub(crate) fn remove_project_todos(
-    app: &AppHandle,
-    project_id: &str,
-) -> Result<(), String> {
+pub(crate) fn remove_project_todos(app: &AppHandle, project_id: &str) -> Result<(), String> {
     let _guard = project_todos_lock()
         .lock()
         .map_err(|_| "Failed to lock project todos".to_string())?;

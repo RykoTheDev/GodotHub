@@ -1,9 +1,11 @@
-use crate::persist;use serde::{Deserialize, Serialize};
+use crate::persist;
+use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use tauri::{AppHandle, Manager};
 
 const GITHUB_DEV_CLIENT_ID: &str = "Ov23liu8vbSyRFgs0Ka0";
-const GITLAB_DEV_CLIENT_ID: &str = "e80ad1fc408f647d60484286a65ae370bb7b06fdfd7fc5dc36478542f76529ee";
+const GITLAB_DEV_CLIENT_ID: &str =
+    "e80ad1fc408f647d60484286a65ae370bb7b06fdfd7fc5dc36478542f76529ee";
 
 const GITHUB_SCOPES: &str = "repo read:user gist";
 const GITLAB_SCOPES: &str = "api read_user";
@@ -219,7 +221,8 @@ pub async fn start_device_flow(
                     .filter(|c| !c.is_empty())
                     .ok_or_else(|| {
                         "Signing in to a self-hosted GitLab instance requires its \
-                         OAuth Application ID (Client ID).".to_string()
+                         OAuth Application ID (Client ID)."
+                            .to_string()
                     })?
             } else {
                 gitlab_client_id().ok_or_else(|| {
@@ -265,13 +268,11 @@ pub async fn start_device_flow(
         let body = resp.text().await.unwrap_or_default();
         if let Ok(v) = serde_json::from_str::<serde_json::Value>(&body) {
             if v["error"] == "invalid_scope" {
-                return Err(
-                    "GitLab rejected the requested scopes. Open your OAuth \
+                return Err("GitLab rejected the requested scopes. Open your OAuth \
                      application on GitLab (Preferences -> Applications) and \
                      enable the 'api' and 'read_user' scopes. \
                      Then try signing in again."
-                        .to_string(),
-                );
+                    .to_string());
             }
         }
         return Err(format!(
@@ -307,9 +308,7 @@ pub async fn start_device_flow(
             .as_str()
             .ok_or("Response missing user_code")?
             .to_string(),
-        verification_uri: make_absolute(
-            json["verification_uri"].as_str().unwrap_or(""),
-        ),
+        verification_uri: make_absolute(json["verification_uri"].as_str().unwrap_or("")),
         verification_uri_complete: make_absolute(
             json["verification_uri_complete"].as_str().unwrap_or(""),
         ),
@@ -344,7 +343,8 @@ pub async fn poll_device_flow(
                         .filter(|c| !c.is_empty())
                         .ok_or_else(|| {
                             "Signing in to a self-hosted GitLab instance requires its \
-                             OAuth Application ID (Client ID).".to_string()
+                             OAuth Application ID (Client ID)."
+                                .to_string()
                         })?
                 } else {
                     gitlab_client_id().ok_or_else(|| {
@@ -383,10 +383,7 @@ pub async fn poll_device_flow(
     let body = url::form_urlencoded::Serializer::new(String::new())
         .append_pair("client_id", &client_id)
         .append_pair("device_code", &device_code)
-        .append_pair(
-            "grant_type",
-            "urn:ietf:params:oauth:grant-type:device_code",
-        )
+        .append_pair("grant_type", "urn:ietf:params:oauth:grant-type:device_code")
         .finish();
     let resp = client
         .post(&token_url)
@@ -458,24 +455,18 @@ pub async fn poll_device_flow(
 pub fn get_git_auth_state(app: AppHandle) -> GitAuthState {
     let auth = read_auth(&app);
     GitAuthState {
-        github: auth
-            .github
-            .as_ref()
-            .map(|a| GitAccountInfo {
-                username: a.username.clone(),
-                host: None,
-            }),
-        gitlab: auth
-            .gitlab
-            .as_ref()
-            .map(|a| GitAccountInfo {
-                username: a.username.clone(),
-                host: a
-                    .base_url
-                    .as_deref()
-                    .map(host_from_base_url)
-                    .filter(|h| !h.is_empty()),
-            }),
+        github: auth.github.as_ref().map(|a| GitAccountInfo {
+            username: a.username.clone(),
+            host: None,
+        }),
+        gitlab: auth.gitlab.as_ref().map(|a| GitAccountInfo {
+            username: a.username.clone(),
+            host: a
+                .base_url
+                .as_deref()
+                .map(host_from_base_url)
+                .filter(|h| !h.is_empty()),
+        }),
         pats: auth
             .pats
             .iter()
@@ -519,7 +510,11 @@ pub fn save_git_pat(
         return Err("Username and token are required".into());
     }
     let mut auth = read_auth(&app);
-    if let Some(p) = auth.pats.iter_mut().find(|p| p.host.eq_ignore_ascii_case(&host)) {
+    if let Some(p) = auth
+        .pats
+        .iter_mut()
+        .find(|p| p.host.eq_ignore_ascii_case(&host))
+    {
         p.username = username.trim().to_string();
         p.token = token.trim().to_string();
     } else {
@@ -535,7 +530,8 @@ pub fn save_git_pat(
 #[tauri::command]
 pub fn remove_git_pat(app: AppHandle, host: String) -> Result<(), String> {
     let mut auth = read_auth(&app);
-    auth.pats.retain(|p| !p.host.eq_ignore_ascii_case(host.trim()));
+    auth.pats
+        .retain(|p| !p.host.eq_ignore_ascii_case(host.trim()));
     write_auth(&app, &auth)
 }
 
@@ -608,8 +604,8 @@ pub async fn list_user_repos(
 
     match provider.as_str() {
         "github" => {
-            let token = github_oauth_token(&app)
-                .ok_or("Sign in with GitHub first (Integrations > Git)")?;
+            let token =
+                github_oauth_token(&app).ok_or("Sign in with GitHub first (Integrations > Git)")?;
             let url = format!(
                 "https://api.github.com/user/repos?per_page={}&sort=updated&page={}&type=all",
                 REPOS_PER_PAGE, page
@@ -622,29 +618,31 @@ pub async fn list_user_repos(
                 .await
                 .map_err(|e| e.to_string())?;
             if !resp.status().is_success() {
-                return Err(format!(
-                    "GitHub API error ({}).",
-                    resp.status()
-                ));
+                return Err(format!("GitHub API error ({}).", resp.status()));
             }
-            let repos: Vec<serde_json::Value> =
-                resp.json().await.map_err(|e| e.to_string())?;
+            let repos: Vec<serde_json::Value> = resp.json().await.map_err(|e| e.to_string())?;
             let has_more = repos.len() >= REPOS_PER_PAGE as usize;
-            let items: Vec<UserRepoInfo> = repos.iter().map(|r| UserRepoInfo {
-                name: r["name"].as_str().unwrap_or("").to_string(),
-                full_name: r["full_name"].as_str().unwrap_or("").to_string(),
-                description: r["description"].as_str().map(|s| s.to_string()),
-                clone_url: r["clone_url"].as_str().unwrap_or("").to_string(),
-                html_url: r["html_url"].as_str().unwrap_or("").to_string(),
-                private: r["private"].as_bool().unwrap_or(false),
-                language: r["language"].as_str().map(|s| s.to_string()),
-                default_branch: r["default_branch"].as_str().map(|s| s.to_string()),
-            }).collect();
-            Ok(UserRepoPage { repos: items, has_more })
+            let items: Vec<UserRepoInfo> = repos
+                .iter()
+                .map(|r| UserRepoInfo {
+                    name: r["name"].as_str().unwrap_or("").to_string(),
+                    full_name: r["full_name"].as_str().unwrap_or("").to_string(),
+                    description: r["description"].as_str().map(|s| s.to_string()),
+                    clone_url: r["clone_url"].as_str().unwrap_or("").to_string(),
+                    html_url: r["html_url"].as_str().unwrap_or("").to_string(),
+                    private: r["private"].as_bool().unwrap_or(false),
+                    language: r["language"].as_str().map(|s| s.to_string()),
+                    default_branch: r["default_branch"].as_str().map(|s| s.to_string()),
+                })
+                .collect();
+            Ok(UserRepoPage {
+                repos: items,
+                has_more,
+            })
         }
         "gitlab" => {
-            let (token, base) = gitlab_oauth_info(&app)
-                .ok_or("Sign in with GitLab first (Integrations > Git)")?;
+            let (token, base) =
+                gitlab_oauth_info(&app).ok_or("Sign in with GitLab first (Integrations > Git)")?;
             let api_base = base.trim_end_matches('/');
             let url = format!(
                 "{}/api/v4/projects?membership=true&order_by=updated_at&sort=desc&per_page={}&page={}",
@@ -657,32 +655,37 @@ pub async fn list_user_repos(
                 .await
                 .map_err(|e| e.to_string())?;
             if !resp.status().is_success() {
-                return Err(format!(
-                    "GitLab API error ({}).",
-                    resp.status()
-                ));
+                return Err(format!("GitLab API error ({}).", resp.status()));
             }
-            let repos: Vec<serde_json::Value> =
-                resp.json().await.map_err(|e| e.to_string())?;
+            let repos: Vec<serde_json::Value> = resp.json().await.map_err(|e| e.to_string())?;
             let has_more = repos.len() >= REPOS_PER_PAGE as usize;
-            let items: Vec<UserRepoInfo> = repos.iter().map(|r| {
-                let path = r["path_with_namespace"].as_str().unwrap_or("");
-                let clone_url = r["http_url_to_repo"].as_str().unwrap_or("").to_string();
-                let web_url = r["web_url"].as_str().unwrap_or("").to_string();
-                let is_private = r["visibility"].as_str() == Some("private")
-                    || r["visibility"].as_str() == Some("internal");
-                UserRepoInfo {
-                    name: r["name"].as_str().unwrap_or("").to_string(),
-                    full_name: path.to_string(),
-                    description: r["description"].as_str().filter(|s| !s.is_empty()).map(|s| s.to_string()),
-                    clone_url,
-                    html_url: web_url,
-                    private: is_private,
-                    language: r["language"].as_str().map(|s| s.to_string()),
-                    default_branch: r["default_branch"].as_str().map(|s| s.to_string()),
-                }
-            }).collect();
-            Ok(UserRepoPage { repos: items, has_more })
+            let items: Vec<UserRepoInfo> = repos
+                .iter()
+                .map(|r| {
+                    let path = r["path_with_namespace"].as_str().unwrap_or("");
+                    let clone_url = r["http_url_to_repo"].as_str().unwrap_or("").to_string();
+                    let web_url = r["web_url"].as_str().unwrap_or("").to_string();
+                    let is_private = r["visibility"].as_str() == Some("private")
+                        || r["visibility"].as_str() == Some("internal");
+                    UserRepoInfo {
+                        name: r["name"].as_str().unwrap_or("").to_string(),
+                        full_name: path.to_string(),
+                        description: r["description"]
+                            .as_str()
+                            .filter(|s| !s.is_empty())
+                            .map(|s| s.to_string()),
+                        clone_url,
+                        html_url: web_url,
+                        private: is_private,
+                        language: r["language"].as_str().map(|s| s.to_string()),
+                        default_branch: r["default_branch"].as_str().map(|s| s.to_string()),
+                    }
+                })
+                .collect();
+            Ok(UserRepoPage {
+                repos: items,
+                has_more,
+            })
         }
         _ => Err(format!("Unknown provider: {}", provider)),
     }
@@ -708,8 +711,8 @@ pub async fn create_remote_repo(
 
     let (repo_url, token, api_base) = match provider.as_str() {
         "github" => {
-            let token = github_oauth_token(&app)
-                .ok_or("Sign in with GitHub first (Integrations > Git)")?;
+            let token =
+                github_oauth_token(&app).ok_or("Sign in with GitHub first (Integrations > Git)")?;
             let body = serde_json::json!({
                 "name": slug,
                 "private": private_repo,
@@ -733,8 +736,7 @@ pub async fn create_remote_repo(
                     text.trim()
                 ));
             }
-            let json: serde_json::Value =
-                serde_json::from_str(&text).map_err(|e| e.to_string())?;
+            let json: serde_json::Value = serde_json::from_str(&text).map_err(|e| e.to_string())?;
             let url = json["clone_url"]
                 .as_str()
                 .ok_or("GitHub response missing clone_url")?
@@ -742,8 +744,8 @@ pub async fn create_remote_repo(
             (url, token, String::new())
         }
         "gitlab" => {
-            let (token, base) = gitlab_oauth_info(&app)
-                .ok_or("Sign in with GitLab first (Integrations > Git)")?;
+            let (token, base) =
+                gitlab_oauth_info(&app).ok_or("Sign in with GitLab first (Integrations > Git)")?;
             let visibility = if private_repo { "private" } else { "public" };
             let body = url::form_urlencoded::Serializer::new(String::new())
                 .append_pair("name", &slug)
@@ -769,8 +771,7 @@ pub async fn create_remote_repo(
                     text.trim()
                 ));
             }
-            let json: serde_json::Value =
-                serde_json::from_str(&text).map_err(|e| e.to_string())?;
+            let json: serde_json::Value = serde_json::from_str(&text).map_err(|e| e.to_string())?;
             let url = json["http_url_to_repo"]
                 .as_str()
                 .ok_or("GitLab response missing http_url_to_repo")?
@@ -801,6 +802,8 @@ pub async fn create_remote_repo(
     .await
     .map_err(|e| e.to_string())??;
 
-    Ok(CreateRepoResult { url: repo_url, slug })
+    Ok(CreateRepoResult {
+        url: repo_url,
+        slug,
+    })
 }
-

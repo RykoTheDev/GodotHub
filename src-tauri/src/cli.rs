@@ -472,10 +472,7 @@ fn cmd_doctor(json: bool, path: Option<PathBuf>) -> Result<i32, String> {
         }
     }
 
-    let has_error = report
-        .checks
-        .iter()
-        .any(|check| check.severity == "error");
+    let has_error = report.checks.iter().any(|check| check.severity == "error");
     Ok(if has_error { 1 } else { 0 })
 }
 
@@ -549,13 +546,21 @@ mod tests {
     fn doctor_json_flag_and_global_console() {
         let cli = parse(&["godothub", "--console", "doctor", "--json"]);
         assert!(cli.console);
-        assert!(matches!(cli.command, Some(Commands::Doctor { json: true, .. })));
+        assert!(matches!(
+            cli.command,
+            Some(Commands::Doctor { json: true, .. })
+        ));
     }
 
     #[test]
     fn export_parses_preset_output_and_overwrite() {
         let cli = parse(&[
-            "godothub", "export", "Windows", "--output", "out.exe", "--overwrite",
+            "godothub",
+            "export",
+            "Windows",
+            "--output",
+            "out.exe",
+            "--overwrite",
         ]);
         match cli.command {
             Some(Commands::Export {

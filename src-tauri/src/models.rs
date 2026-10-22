@@ -380,8 +380,7 @@ const THEME_DEFAULTS_JSON: &str = include_str!("../theme-defaults.json");
 fn theme_defaults() -> &'static ThemeDefaults {
     static DEFAULTS: OnceLock<ThemeDefaults> = OnceLock::new();
     DEFAULTS.get_or_init(|| {
-        serde_json::from_str(THEME_DEFAULTS_JSON)
-            .expect("theme-defaults.json must be valid JSON")
+        serde_json::from_str(THEME_DEFAULTS_JSON).expect("theme-defaults.json must be valid JSON")
     })
 }
 
@@ -574,7 +573,7 @@ impl Default for AppSettings {
             workspaces_enabled: default_workspaces_enabled(),
             auto_scan_on_startup: default_auto_scan(),
             command_palette_keybind: default_palette_keybind(),
-tooltip_delay: default_tooltip_delay(),
+            tooltip_delay: default_tooltip_delay(),
             tray_recent_projects_count: default_tray_recent_projects_count(),
             external_editor_path: None,
             github_token: None,
@@ -652,7 +651,6 @@ impl<'de> serde::Deserialize<'de> for ChangelogNote {
         })
     }
 }
-
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]

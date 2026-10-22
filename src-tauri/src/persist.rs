@@ -276,9 +276,23 @@ mod tests {
     #[test]
     fn corrupt_primary_recovers_from_backup() {
         let path = scratch("recover").join("c.json");
-        write_json_with_backup(&path, &Counter { schema_version: 1, n: 42 }).unwrap();
+        write_json_with_backup(
+            &path,
+            &Counter {
+                schema_version: 1,
+                n: 42,
+            },
+        )
+        .unwrap();
         // Second write pushes the previous good value into the .bak file.
-        write_json_with_backup(&path, &Counter { schema_version: 1, n: 43 }).unwrap();
+        write_json_with_backup(
+            &path,
+            &Counter {
+                schema_version: 1,
+                n: 43,
+            },
+        )
+        .unwrap();
         fs::write(&path, b"{ this is not json").unwrap();
         let loaded = load_json::<Counter>(&path);
         assert_eq!(loaded.status, LoadStatus::RecoveredFromBackup);
@@ -297,7 +311,14 @@ mod tests {
     #[test]
     fn concurrent_updates_do_not_lose_writes() {
         let path = scratch("concurrent").join("counter.json");
-        write_json_with_backup(&path, &Counter { schema_version: 1, n: 0 }).unwrap();
+        write_json_with_backup(
+            &path,
+            &Counter {
+                schema_version: 1,
+                n: 0,
+            },
+        )
+        .unwrap();
         let threads = 16u64;
         let per_thread = 50u64;
         let mut handles = Vec::new();

@@ -52,7 +52,10 @@ fn dir_on_path(dir: &Path) -> bool {
     };
     let target = std::fs::canonicalize(dir).unwrap_or_else(|_| dir.to_path_buf());
     std::env::split_paths(&path).any(|entry| {
-        entry == dir || std::fs::canonicalize(&entry).map(|e| e == target).unwrap_or(false)
+        entry == dir
+            || std::fs::canonicalize(&entry)
+                .map(|e| e == target)
+                .unwrap_or(false)
     })
 }
 
@@ -322,7 +325,8 @@ mod tests {
 
     #[test]
     fn strip_block_removes_only_the_fenced_region() {
-        let content = "a=1\n# >>> godothub >>>\nexport PATH=\"/x:$PATH\"\n# <<< godothub <<<\nb=2\n";
+        let content =
+            "a=1\n# >>> godothub >>>\nexport PATH=\"/x:$PATH\"\n# <<< godothub <<<\nb=2\n";
         assert_eq!(strip_block(content), "a=1\nb=2\n");
     }
 

@@ -1,6 +1,6 @@
 use crate::error::AppResult;
-use crate::persist;
 use crate::models::*;
+use crate::persist;
 use crate::projects;
 use tauri::AppHandle;
 use uuid::Uuid;
@@ -106,7 +106,11 @@ pub fn list_categories(app: AppHandle) -> Vec<Category> {
 }
 
 #[tauri::command]
-pub fn create_category(app: AppHandle, name: String, color: Option<String>) -> Result<Category, String> {
+pub fn create_category(
+    app: AppHandle,
+    name: String,
+    color: Option<String>,
+) -> Result<Category, String> {
     let trimmed = name.trim().to_string();
     if trimmed.is_empty() {
         return Err("Category name can't be empty".into());
@@ -252,13 +256,18 @@ pub fn add_category_folder(app: AppHandle, id: String, folder: String) -> Result
         .position(|c| c.id == id)
         .ok_or("Category not found")?;
 
-    if cats[idx].folders.iter().any(|f| projects::same_path(f, &folder)) {
+    if cats[idx]
+        .folders
+        .iter()
+        .any(|f| projects::same_path(f, &folder))
+    {
         return Ok(cats[idx].clone());
     }
 
-    if let Some(other) = cats.iter().find(|c| {
-        c.id != id && c.folders.iter().any(|f| projects::same_path(f, &folder))
-    }) {
+    if let Some(other) = cats
+        .iter()
+        .find(|c| c.id != id && c.folders.iter().any(|f| projects::same_path(f, &folder)))
+    {
         return Err(format!(
             "This folder is already assigned to \"{}\"",
             other.name
@@ -272,7 +281,11 @@ pub fn add_category_folder(app: AppHandle, id: String, folder: String) -> Result
 }
 
 #[tauri::command]
-pub fn remove_category_folder(app: AppHandle, id: String, folder: String) -> Result<Category, String> {
+pub fn remove_category_folder(
+    app: AppHandle,
+    id: String,
+    folder: String,
+) -> Result<Category, String> {
     let mut cats = read_categories(&app);
     let idx = cats
         .iter()

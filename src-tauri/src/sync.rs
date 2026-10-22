@@ -92,7 +92,8 @@ fn gist_error_message(status: reqwest::StatusCode, context: &str) -> String {
              The workspace data may be too large for a single gist."
         ),
         500..=599 => format!(
-            "{context}: GitHub server error (HTTP {}). Try again later.", status
+            "{context}: GitHub server error (HTTP {}). Try again later.",
+            status
         ),
         _ => format!("{context}: GitHub API returned HTTP {status}"),
     }
@@ -189,10 +190,7 @@ struct BackupGist {
 
 /// A gist belongs to GodotHub when it carries the workspace backup file, or at
 /// least the backup description in case the file was renamed on GitHub.
-fn is_backup_gist(
-    description: Option<&str>,
-    files: &HashMap<String, serde_json::Value>,
-) -> bool {
+fn is_backup_gist(description: Option<&str>, files: &HashMap<String, serde_json::Value>) -> bool {
     files.contains_key(BACKUP_FILE_NAME) || description == Some(GIST_DESCRIPTION)
 }
 
@@ -330,36 +328,31 @@ async fn update_gist(
 
 #[tauri::command]
 pub async fn gist_sync_push(app: AppHandle) -> Result<GistSyncResult, String> {
-    let token = github_token(&app)
-        .ok_or("No GitHub token found. Add one in Settings → Integrations or sign in with Git auth.")?;
+    let token = github_token(&app).ok_or(
+        "No GitHub token found. Add one in Settings → Integrations or sign in with Git auth.",
+    )?;
     let backup = crate::backup::build_app_backup(&app)?;
     let content = serde_json::to_string_pretty(&backup).map_err(|e| e.to_string())?;
     let client = client()?;
 
     let (id, url) = match read_sync_state(&app) {
-        Some(state) => {
-            match update_gist(&client, &token, &state.gist_id, &content).await {
-                Ok(url) => (state.gist_id.clone(), url),
+        Some(state) => match update_gist(&client, &token, &state.gist_id, &content).await {
+            Ok(url) => (state.gist_id.clone(), url),
+            Err(update_err) => {
+                eprintln!("Gist update failed ({update_err}), creating a new one...");
+                create_gist(&client, &token, &content).await?
+            }
+        },
+        None => match find_backup_gist(&client, &token).await {
+            // A backup already exists in this account: update it instead of
+            // creating a duplicate gist.
+            Ok(Some(found)) => match update_gist(&client, &token, &found.id, &content).await {
+                Ok(url) => (found.id, url),
                 Err(update_err) => {
                     eprintln!("Gist update failed ({update_err}), creating a new one...");
                     create_gist(&client, &token, &content).await?
                 }
-            }
-        }
-        None => match find_backup_gist(&client, &token).await {
-            // A backup already exists in this account: update it instead of
-            // creating a duplicate gist.
-            Ok(Some(found)) => {
-                match update_gist(&client, &token, &found.id, &content).await {
-                    Ok(url) => (found.id, url),
-                    Err(update_err) => {
-                        eprintln!(
-                            "Gist update failed ({update_err}), creating a new one..."
-                        );
-                        create_gist(&client, &token, &content).await?
-                    }
-                }
-            }
+            },
             Ok(None) => create_gist(&client, &token, &content).await?,
             Err(err) => {
                 eprintln!("Could not look for an existing gist ({err}), creating a new one...");
@@ -411,8 +404,9 @@ pub struct RestorePreview {
 
 #[tauri::command]
 pub async fn gist_sync_fetch_backup(app: AppHandle) -> Result<RestorePreview, String> {
-    let token = github_token(&app)
-        .ok_or("No GitHub token found. Add one in Settings → Integrations or sign in with Git auth.")?;
+    let token = github_token(&app).ok_or(
+        "No GitHub token found. Add one in Settings → Integrations or sign in with Git auth.",
+    )?;
     let client = client()?;
     let state = resolve_sync_state(&app, &client, &token).await?;
     let resp = client
@@ -469,8 +463,9 @@ pub async fn gist_sync_fetch_backup(app: AppHandle) -> Result<RestorePreview, St
 
 #[tauri::command]
 pub async fn gist_sync_pull(app: AppHandle) -> Result<crate::models::AppSettings, String> {
-    let token = github_token(&app)
-        .ok_or("No GitHub token found. Add one in Settings → Integrations or sign in with Git auth.")?;
+    let token = github_token(&app).ok_or(
+        "No GitHub token found. Add one in Settings → Integrations or sign in with Git auth.",
+    )?;
     let client = client()?;
     let state = resolve_sync_state(&app, &client, &token).await?;
     let resp = client
@@ -501,13 +496,14 @@ pub async fn gist_sync_pull(app: AppHandle) -> Result<crate::models::AppSettings
     let _ = tokio::task::spawn_blocking(move || {
         if !project_dirs.is_empty() {
             let _ = crate::scan::scan_for_projects_blocking(
-                app2.clone(), project_dirs, scan_depth, false,
+                app2.clone(),
+                project_dirs,
+                scan_depth,
+                false,
             );
         }
         if !version_dirs.is_empty() {
-            let _ = crate::scan::scan_for_versions_blocking(
-                app2.clone(), version_dirs, scan_depth,
-            );
+            let _ = crate::scan::scan_for_versions_blocking(app2.clone(), version_dirs, scan_depth);
         }
         if template_dir.is_some() {
             let _ = crate::templates::sync_templates_with_scan_dir(app2);
@@ -542,11 +538,9 @@ fn gist_id_from_input(input: &str) -> Result<String, String> {
     {
         return Ok(trimmed.to_string());
     }
-    Err(
-        "Invalid gist reference. Paste a full GitHub gist URL \
+    Err("Invalid gist reference. Paste a full GitHub gist URL \
          (https://gist.github.com/...) or a gist ID."
-            .into(),
-    )
+        .into())
 }
 
 #[tauri::command]
@@ -554,8 +548,9 @@ pub async fn gist_sync_pull_by_url(
     app: AppHandle,
     gist_url: String,
 ) -> Result<crate::models::AppSettings, String> {
-    let token = github_token(&app)
-        .ok_or("No GitHub token found. Add one in Settings → Integrations or sign in with Git auth.")?;
+    let token = github_token(&app).ok_or(
+        "No GitHub token found. Add one in Settings → Integrations or sign in with Git auth.",
+    )?;
     let gist_id = gist_id_from_input(&gist_url)?;
     let client = client()?;
     let resp = client
@@ -581,9 +576,10 @@ pub async fn gist_sync_pull_by_url(
         &SyncState {
             gist_id: gist_id.clone(),
             gist_url: format!("https://gist.github.com/{gist_id}"),
-            pushed_at: detail.updated_at.clone().unwrap_or_else(|| {
-                chrono::Utc::now().to_rfc3339()
-            }),
+            pushed_at: detail
+                .updated_at
+                .clone()
+                .unwrap_or_else(|| chrono::Utc::now().to_rfc3339()),
         },
     );
     let settings = crate::backup::apply_app_backup(&app, backup)?;
@@ -596,13 +592,14 @@ pub async fn gist_sync_pull_by_url(
     let _ = tokio::task::spawn_blocking(move || {
         if !project_dirs.is_empty() {
             let _ = crate::scan::scan_for_projects_blocking(
-                app2.clone(), project_dirs, scan_depth, false,
+                app2.clone(),
+                project_dirs,
+                scan_depth,
+                false,
             );
         }
         if !version_dirs.is_empty() {
-            let _ = crate::scan::scan_for_versions_blocking(
-                app2.clone(), version_dirs, scan_depth,
-            );
+            let _ = crate::scan::scan_for_versions_blocking(app2.clone(), version_dirs, scan_depth);
         }
         if template_dir.is_some() {
             let _ = crate::templates::sync_templates_with_scan_dir(app2);

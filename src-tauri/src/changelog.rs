@@ -1,8 +1,8 @@
 use serde::Serialize;
 
 use crate::error::AppResult;
-use crate::persist;
 use crate::models::{ChangelogEntry, ChangelogNote};
+use crate::persist;
 
 #[cfg(debug_assertions)]
 use std::path::{Path, PathBuf};
@@ -219,13 +219,13 @@ fn git_tags(root: &Path) -> Result<Vec<String>, String> {
 fn bump_patch(version: &str) -> String {
     let trimmed = version.trim().trim_start_matches('v');
     let parts: Vec<&str> = trimmed.split('.').collect();
-    let last = parts
-        .last()
-        .and_then(|p| p.parse::<u32>().ok());
+    let last = parts.last().and_then(|p| p.parse::<u32>().ok());
     match last {
         Some(n) if parts.len() >= 2 => {
-            let mut out: Vec<String> =
-                parts[..parts.len() - 1].iter().map(|s| s.to_string()).collect();
+            let mut out: Vec<String> = parts[..parts.len() - 1]
+                .iter()
+                .map(|s| s.to_string())
+                .collect();
             out.push((n + 1).to_string());
             format!("v{}", out.join("."))
         }
@@ -256,24 +256,9 @@ fn classify_subject(subject: &str) -> (Option<&'static str>, &str) {
             let category = match t.as_str() {
                 "feat" | "feature" | "add" | "new" => Some("add"),
                 "fix" | "bugfix" | "bug" | "hotfix" | "patch" => Some("fix"),
-                "improve"
-                | "improvement"
-                | "perf"
-                | "performance"
-                | "refactor"
-                | "ref"
-                | "chore"
-                | "docs"
-                | "doc"
-                | "style"
-                | "test"
-                | "ci"
-                | "build"
-                | "ui"
-                | "ux"
-                | "tweak"
-                | "polish"
-                | "cleanup" => Some("improve"),
+                "improve" | "improvement" | "perf" | "performance" | "refactor" | "ref"
+                | "chore" | "docs" | "doc" | "style" | "test" | "ci" | "build" | "ui" | "ux"
+                | "tweak" | "polish" | "cleanup" => Some("improve"),
                 _ => None,
             };
             if category.is_some() && !desc.is_empty() {
@@ -331,9 +316,7 @@ fn clean_text(text: &str) -> String {
 pub fn list_git_tags() -> Result<Vec<String>, String> {
     #[cfg(not(debug_assertions))]
     {
-        return Err(
-            "Changelog tooling is only available in development builds.".into(),
-        );
+        return Err("Changelog tooling is only available in development builds.".into());
     }
 
     #[cfg(debug_assertions)]
@@ -344,15 +327,10 @@ pub fn list_git_tags() -> Result<Vec<String>, String> {
 }
 
 #[tauri::command]
-pub fn generate_changelog_draft(
-    _from: String,
-    _to: String,
-) -> Result<ChangelogDraft, String> {
+pub fn generate_changelog_draft(_from: String, _to: String) -> Result<ChangelogDraft, String> {
     #[cfg(not(debug_assertions))]
     {
-        return Err(
-            "Changelog tooling is only available in development builds.".into(),
-        );
+        return Err("Changelog tooling is only available in development builds.".into());
     }
 
     #[cfg(debug_assertions)]

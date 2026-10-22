@@ -78,9 +78,7 @@ fn folder_name(path: &Path) -> String {
 }
 
 #[tauri::command]
-pub async fn scan_godot_recent_projects(
-    app: AppHandle,
-) -> Result<Vec<DiscoveredProject>, String> {
+pub async fn scan_godot_recent_projects(app: AppHandle) -> Result<Vec<DiscoveredProject>, String> {
     tokio::task::spawn_blocking(move || {
         let known: BTreeSet<PathBuf> = crate::projects::read_projects(&app)
             .into_iter()
@@ -190,10 +188,7 @@ fn steam_roots() -> Vec<PathBuf> {
                 }
             }
         }
-        for p in [
-            r"C:\Program Files (x86)\Steam",
-            r"C:\Program Files\Steam",
-        ] {
+        for p in [r"C:\Program Files (x86)\Steam", r"C:\Program Files\Steam"] {
             roots.push(PathBuf::from(p));
         }
     }
@@ -270,9 +265,7 @@ fn steam_godot_binaries() -> Vec<PathBuf> {
 }
 
 #[tauri::command]
-pub async fn detect_godot_installs(
-    app: AppHandle,
-) -> Result<Vec<DiscoveredInstall>, String> {
+pub async fn detect_godot_installs(app: AppHandle) -> Result<Vec<DiscoveredInstall>, String> {
     tokio::task::spawn_blocking(move || {
         let registered: BTreeSet<PathBuf> =
             crate::godot_versions::list_installed_godot_versions(app.clone())
@@ -379,8 +372,8 @@ pub async fn import_detected_install(
         if !exe.is_file() {
             return Err("That Godot executable no longer exists.".to_string());
         }
-        let (tag, version, is_mono) = probe_version(&exe)
-            .ok_or("Couldn't read the Godot version from that executable.")?;
+        let (tag, version, is_mono) =
+            probe_version(&exe).ok_or("Couldn't read the Godot version from that executable.")?;
 
         let installed = InstalledGodotVersion {
             tag,
