@@ -1512,6 +1512,10 @@
       {
         "category": "improve",
         "text": "Removed an unused web font download for a faster, more private startup"
+      },
+      {
+        "category": "improve",
+        "text": "Installing an asset from the asset library now streams the download to disk instead of buffering it in memory, and refuses malicious archives (path traversal, symlinks, and zip bombs) during extraction"
       }
     ],
     "known_issues": [],

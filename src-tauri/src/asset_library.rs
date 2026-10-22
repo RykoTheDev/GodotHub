@@ -4,8 +4,7 @@ use futures_util::StreamExt;
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::fs;
-use std::io::Cursor;
-use std::io::Write;
+use std::io::{Read, Seek, Write};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
@@ -237,12 +236,14 @@ fn emit_asset_complete(app: &AppHandle, detail: &AssetDetail) {
     );
 }
 
-async fn stream_download_bytes(
+async fn stream_download_to_file(
     app: &AppHandle,
     http: &reqwest::Client,
     detail: &AssetDetail,
     download_url: &str,
-) -> Result<Vec<u8>, String> {
+    dest: &Path,
+    max_bytes: u64,
+) -> Result<(), String> {
     let resp = http
         .get(download_url)
         .send()
@@ -252,12 +253,20 @@ async fn stream_download_bytes(
         return Err(format!("Asset download returned HTTP {}", resp.status()));
     }
     let total = resp.content_length().unwrap_or(0);
-    let mut bytes: Vec<u8> = Vec::new();
+    let mut file = fs::File::create(dest).map_err(|e| e.to_string())?;
     let mut downloaded: u64 = 0;
     let mut stream = resp.bytes_stream();
     while let Some(chunk) = stream.next().await {
         let chunk = chunk.map_err(|e| e.to_string())?;
         downloaded += chunk.len() as u64;
+        if downloaded > max_bytes {
+            drop(file);
+            let _ = fs::remove_file(dest);
+            return Err(format!(
+                "Asset download exceeds the maximum allowed size ({max_bytes} bytes)"
+            ));
+        }
+        file.write_all(&chunk).map_err(|e| e.to_string())?;
         let _ = app.emit(
             "asset-download-progress",
             AssetDownloadProgress {
@@ -267,9 +276,9 @@ async fn stream_download_bytes(
                 total,
             },
         );
-        bytes.extend_from_slice(&chunk);
     }
-    Ok(bytes)
+    file.flush().map_err(|e| e.to_string())?;
+    Ok(())
 }
 
 #[tauri::command]
@@ -774,26 +783,36 @@ async fn download_and_merge(
     download_url: &str,
     target: &InstallTarget,
 ) -> Result<InstallAssetResult, String> {
-    let bytes = stream_download_bytes(app, http, detail, download_url).await?;
-
     let temp_key = asset_id.replace([':', '/', '\\'], "_");
     let temp_dir = std::env::temp_dir().join(format!("godothub-asset-{temp_key}"));
+    let zip_path = std::env::temp_dir().join(format!("godothub-asset-{temp_key}.zip"));
     let _ = crate::templates::remove_dir_force(&temp_dir);
+    let _ = fs::remove_file(&zip_path);
     fs::create_dir_all(&temp_dir).map_err(|e| e.to_string())?;
 
-    let merge_result = extract_zip(&bytes, &temp_dir)
-        .and_then(|_| {
-            let root = find_content_root(&temp_dir);
-            merge_asset_into(&root, target.dir())
-        })
-        .map(|_| InstallAssetResult {
-            asset_id: asset_id.to_string(),
-            title: detail.title.clone(),
-            target_type: target.type_str().to_string(),
-            target_name: target.name().to_string(),
-            path: target.dir().to_string_lossy().to_string(),
-        });
+    let merge_result = stream_download_to_file(
+        app,
+        http,
+        detail,
+        download_url,
+        &zip_path,
+        MAX_ASSET_DOWNLOAD_BYTES,
+    )
+    .await
+    .and_then(|_| extract_zip(&zip_path, &temp_dir))
+    .and_then(|_| {
+        let root = find_content_root(&temp_dir);
+        merge_asset_into(&root, target.dir())
+    })
+    .map(|_| InstallAssetResult {
+        asset_id: asset_id.to_string(),
+        title: detail.title.clone(),
+        target_type: target.type_str().to_string(),
+        target_name: target.name().to_string(),
+        path: target.dir().to_string_lossy().to_string(),
+    });
 
+    let _ = fs::remove_file(&zip_path);
     let _ = crate::templates::remove_dir_force(&temp_dir);
     merge_result
 }
@@ -1034,52 +1053,130 @@ async fn download_and_install(
     asset_id: &str,
     download_url: &str,
 ) -> Result<ProjectTemplate, String> {
-    let bytes = stream_download_bytes(app, http, detail, download_url).await?;
-
     let temp_key = asset_id.replace([':', '/', '\\'], "_");
     let temp_dir = std::env::temp_dir().join(format!("godothub-asset-{temp_key}"));
+    let zip_path = std::env::temp_dir().join(format!("godothub-asset-{temp_key}.zip"));
     let _ = crate::templates::remove_dir_force(&temp_dir);
+    let _ = fs::remove_file(&zip_path);
     fs::create_dir_all(&temp_dir).map_err(|e| e.to_string())?;
 
-    let extract_result = extract_zip(&bytes, &temp_dir)
-        .and_then(|_| find_project_root(&temp_dir))
-        .and_then(|src| {
-            crate::templates::install_downloaded_asset(
-                app,
-                detail.title.clone(),
-                detail.description.clone().unwrap_or_default(),
-                detail.godot_version.clone(),
-                &src,
-            )
-        });
+    let extract_result = stream_download_to_file(
+        app,
+        http,
+        detail,
+        download_url,
+        &zip_path,
+        MAX_ASSET_DOWNLOAD_BYTES,
+    )
+    .await
+    .and_then(|_| extract_zip(&zip_path, &temp_dir))
+    .and_then(|_| find_project_root(&temp_dir))
+    .and_then(|src| {
+        crate::templates::install_downloaded_asset(
+            app,
+            detail.title.clone(),
+            detail.description.clone().unwrap_or_default(),
+            detail.godot_version.clone(),
+            &src,
+        )
+    });
 
+    let _ = fs::remove_file(&zip_path);
     let _ = crate::templates::remove_dir_force(&temp_dir);
     extract_result
 }
 
-fn extract_zip(bytes: &[u8], dest: &Path) -> Result<(), String> {
-    let mut archive = zip::ZipArchive::new(Cursor::new(bytes)).map_err(|e| e.to_string())?;
+/// Cap on the compressed archive we are willing to download to disk.
+const MAX_ASSET_DOWNLOAD_BYTES: u64 = 2 * 1024 * 1024 * 1024;
+
+struct ExtractLimits {
+    /// Cap on the total decompressed size across all entries (zip-bomb guard).
+    max_total_bytes: u64,
+    /// Cap on the number of entries in the archive.
+    max_entries: usize,
+    /// Cap on a single entry's decompressed size.
+    max_entry_bytes: u64,
+}
+
+impl Default for ExtractLimits {
+    fn default() -> Self {
+        Self {
+            max_total_bytes: 2 * 1024 * 1024 * 1024,
+            max_entries: 20_000,
+            max_entry_bytes: 1024 * 1024 * 1024,
+        }
+    }
+}
+
+fn extract_zip(zip_path: &Path, dest: &Path) -> Result<(), String> {
+    let file = fs::File::open(zip_path).map_err(|e| e.to_string())?;
+    extract_zip_reader(file, dest, &ExtractLimits::default())
+}
+
+/// Extracts a zip archive into `dest`, streaming each entry to disk. Rejects
+/// path traversal (zip-slip), symlink entries, and archives that exceed the
+/// entry-count or decompressed-size limits before anything is written past them.
+fn extract_zip_reader<R: Read + Seek>(
+    reader: R,
+    dest: &Path,
+    limits: &ExtractLimits,
+) -> Result<(), String> {
+    let mut archive = zip::ZipArchive::new(reader).map_err(|e| e.to_string())?;
+    if archive.len() > limits.max_entries {
+        return Err(format!(
+            "Archive has too many entries ({} > {})",
+            archive.len(),
+            limits.max_entries
+        ));
+    }
+
+    let mut total_written: u64 = 0;
     for i in 0..archive.len() {
         let mut file = archive.by_index(i).map_err(|e| e.to_string())?;
-        let name = file.name().to_string();
-        if name.contains("..")
-            || name.starts_with('/')
-            || name.starts_with('\\')
-            || name.contains(":/")
-            || name.contains(":\\")
-        {
-            continue;
+
+        if let Some(mode) = file.unix_mode() {
+            if mode & 0o170000 == 0o120000 {
+                return Err(format!(
+                    "Archive contains a symlink entry ({}); refusing to extract",
+                    file.name()
+                ));
+            }
         }
-        let out_path = dest.join(&name);
+
+        // enclosed_name() returns None for any path that would escape the
+        // destination (absolute paths, `..` components, drive-relative paths).
+        let Some(rel) = file.enclosed_name() else {
+            return Err(format!(
+                "Archive contains an unsafe path ({}); refusing to extract",
+                file.name()
+            ));
+        };
+        let out_path = dest.join(&rel);
+
         if file.is_dir() {
             fs::create_dir_all(&out_path).map_err(|e| e.to_string())?;
-        } else {
-            if let Some(parent) = out_path.parent() {
-                fs::create_dir_all(parent).map_err(|e| e.to_string())?;
-            }
-            let mut out = fs::File::create(&out_path).map_err(|e| e.to_string())?;
-            std::io::copy(&mut file, &mut out).map_err(|e| e.to_string())?;
+            continue;
         }
+        if let Some(parent) = out_path.parent() {
+            fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+        }
+
+        // Stream to disk with a hard byte cap so a lying header can't blow past
+        // the limit; read one byte past the cap to detect an overflow.
+        let remaining_total = limits.max_total_bytes.saturating_sub(total_written);
+        let entry_cap = limits.max_entry_bytes.min(remaining_total);
+        let mut out = fs::File::create(&out_path).map_err(|e| e.to_string())?;
+        let mut limited = (&mut file).take(entry_cap + 1);
+        let written = std::io::copy(&mut limited, &mut out).map_err(|e| e.to_string())?;
+        if written > entry_cap {
+            drop(out);
+            let _ = fs::remove_file(&out_path);
+            return Err(format!(
+                "Archive is too large to extract (exceeds {} bytes); refusing to continue",
+                limits.max_total_bytes
+            ));
+        }
+        total_written += written;
     }
     Ok(())
 }
@@ -1134,4 +1231,125 @@ fn find_content_root(dir: &Path) -> PathBuf {
 
 fn merge_asset_into(src: &Path, dst: &Path) -> Result<(), String> {
     crate::template_files::merge_asset_into(src, dst)
+}
+
+#[cfg(test)]
+mod extract_tests {
+    use super::*;
+    use std::io::Cursor;
+    use zip::write::{SimpleFileOptions, ZipWriter};
+
+    fn scratch_dir(tag: &str) -> PathBuf {
+        let dir = std::env::temp_dir().join(format!(
+            "godothub-extract-test-{tag}-{}",
+            std::process::id()
+        ));
+        let _ = fs::remove_dir_all(&dir);
+        fs::create_dir_all(&dir).unwrap();
+        dir
+    }
+
+    fn small_limits() -> ExtractLimits {
+        ExtractLimits {
+            max_total_bytes: 1024,
+            max_entries: 100,
+            max_entry_bytes: 512,
+        }
+    }
+
+    #[test]
+    fn rejects_zip_slip_entry() {
+        let mut buf = Vec::new();
+        {
+            let mut w = ZipWriter::new(Cursor::new(&mut buf));
+            w.start_file("../escaped.txt", SimpleFileOptions::default())
+                .unwrap();
+            w.write_all(b"pwned").unwrap();
+            w.finish().unwrap();
+        }
+        let dest = scratch_dir("slip");
+        let res = extract_zip_reader(Cursor::new(buf), &dest, &ExtractLimits::default());
+        assert!(res.is_err(), "zip-slip archive should be rejected");
+        assert!(
+            !dest.parent().unwrap().join("escaped.txt").exists(),
+            "traversal target must not be written"
+        );
+        let _ = fs::remove_dir_all(&dest);
+    }
+
+    #[test]
+    fn rejects_zip_bomb_over_total_cap() {
+        let mut buf = Vec::new();
+        {
+            let mut w = ZipWriter::new(Cursor::new(&mut buf));
+            let opts =
+                SimpleFileOptions::default().compression_method(zip::CompressionMethod::Deflated);
+            // Two 800-byte entries decompress to 1600 bytes, past the 1024 cap.
+            for n in 0..2 {
+                w.start_file(format!("payload{n}.bin"), opts).unwrap();
+                w.write_all(&vec![0u8; 800]).unwrap();
+            }
+            w.finish().unwrap();
+        }
+        let dest = scratch_dir("bomb");
+        let res = extract_zip_reader(Cursor::new(buf), &dest, &small_limits());
+        assert!(res.is_err(), "archive over the size cap should be rejected");
+        let _ = fs::remove_dir_all(&dest);
+    }
+
+    #[test]
+    fn rejects_symlink_entry() {
+        let mut buf = Vec::new();
+        {
+            let mut w = ZipWriter::new(Cursor::new(&mut buf));
+            w.add_symlink("link", "/etc/passwd", SimpleFileOptions::default())
+                .unwrap();
+            w.finish().unwrap();
+        }
+        let dest = scratch_dir("symlink");
+        let res = extract_zip_reader(Cursor::new(buf), &dest, &ExtractLimits::default());
+        assert!(res.is_err(), "symlink entry should be rejected");
+        assert!(!dest.join("link").exists());
+        let _ = fs::remove_dir_all(&dest);
+    }
+
+    #[test]
+    fn rejects_too_many_entries() {
+        let mut buf = Vec::new();
+        {
+            let mut w = ZipWriter::new(Cursor::new(&mut buf));
+            for n in 0..5 {
+                w.start_file(format!("f{n}.txt"), SimpleFileOptions::default())
+                    .unwrap();
+                w.write_all(b"x").unwrap();
+            }
+            w.finish().unwrap();
+        }
+        let limits = ExtractLimits {
+            max_total_bytes: 1024,
+            max_entries: 3,
+            max_entry_bytes: 512,
+        };
+        let dest = scratch_dir("count");
+        let res = extract_zip_reader(Cursor::new(buf), &dest, &limits);
+        assert!(res.is_err(), "archive over the entry-count cap should be rejected");
+        let _ = fs::remove_dir_all(&dest);
+    }
+
+    #[test]
+    fn extracts_safe_archive() {
+        let mut buf = Vec::new();
+        {
+            let mut w = ZipWriter::new(Cursor::new(&mut buf));
+            w.start_file("addons/plugin/plugin.gd", SimpleFileOptions::default())
+                .unwrap();
+            w.write_all(b"extends Node").unwrap();
+            w.finish().unwrap();
+        }
+        let dest = scratch_dir("ok");
+        extract_zip_reader(Cursor::new(buf), &dest, &ExtractLimits::default()).unwrap();
+        let got = fs::read_to_string(dest.join("addons/plugin/plugin.gd")).unwrap();
+        assert_eq!(got, "extends Node");
+        let _ = fs::remove_dir_all(&dest);
+    }
 }
