@@ -33,9 +33,9 @@ export function useProjectTodos(projectId: string) {
       }
 
       try {
-        await projectTodosApi.save(projectId, nextTodos);
+        const savedTodos = await projectTodosApi.save(projectId, nextTodos);
 
-        setTodos(nextTodos);
+        setTodos(savedTodos);
         setFailedTodos(null);
         setSaveError(null);
 
@@ -50,6 +50,17 @@ export function useProjectTodos(projectId: string) {
       } finally {
         setSaving(false);
       }
+    },
+    [projectId, setTodos],
+  );
+
+  const sync = useCallback(
+    async (scanComments: boolean) => {
+      const result = await projectTodosApi.sync(projectId, scanComments);
+
+      setTodos(result.todos);
+
+      return result;
     },
     [projectId, setTodos],
   );
@@ -70,5 +81,6 @@ export function useProjectTodos(projectId: string) {
     refresh,
     saveTodos,
     retrySave,
+    sync,
   };
 }

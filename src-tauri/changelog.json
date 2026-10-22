@@ -1572,6 +1572,18 @@
       {
         "category": "fix",
         "text": "Duplicating a project now copies its to-dos"
+      },
+      {
+        "category": "add",
+        "text": "Project to-dos: Scan code imports TODO and FIXME comments from your .gd, .cs and .gdshader files as to-dos, and completes them once the comment is removed"
+      },
+      {
+        "category": "add",
+        "text": "Project to-dos can link to a scene, script or resource (res://), so clicking it opens the file in Godot or your code editor at the right line"
+      },
+      {
+        "category": "add",
+        "text": "Project to-dos now have a #todo-N reference: a commit message like \"Fixes #todo-3\" completes it, and its details show the branches and commits that mention it"
       }
     ],
     "known_issues": [],

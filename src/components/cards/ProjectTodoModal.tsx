@@ -1,5 +1,5 @@
 import { useUiMotion } from '../../hooks/useUiMotion'
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -12,14 +12,17 @@ import type {
   TodoStatus,
 } from "../../types/projectTodo";
 import { DatePicker } from "../ui/DatePicker";
+import { projectTodosApi } from "../../api/projectTodos";
 
 type ProjectTodoModalProps = {
+  projectId: string;
   onClose: () => void;
   onSubmit: (todo: ProjectTodo) => Promise<boolean>;
   todo?: ProjectTodo;
 };
 
 export function ProjectTodoModal({
+  projectId,
   onClose,
   onSubmit,
   todo,
@@ -47,11 +50,31 @@ export function ProjectTodoModal({
   const [dueDate, setDueDate] = useState(todo?.dueDate ?? "");
   const [status, setStatus] = useState<TodoStatus>(todo?.status ?? "todo");
   const [area, setArea] = useState<TodoArea>(todo?.area ?? "other");
+  const [linkPath, setLinkPath] = useState(todo?.link?.path ?? "");
+  const [resources, setResources] = useState<string[]>([]);
+  const resourceListId = useId();
+
+  useEffect(() => {
+    let cancelled = false;
+
+    projectTodosApi
+      .resources(projectId)
+      .then((list) => {
+        if (!cancelled) setResources(list);
+      })
+      .catch(() => {});
+
+    return () => {
+      cancelled = true;
+    };
+  }, [projectId]);
 
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState(false);
 
   const trimmedTitle = title.trim();
+  const trimmedLink = linkPath.trim();
+  const linkInvalid = trimmedLink !== "" && !trimmedLink.startsWith("res://");
 
   const hasChanges =
     !editing ||
@@ -59,14 +82,24 @@ export function ProjectTodoModal({
     description.trim() !== (todo.description ?? "") ||
     dueDate !== (todo.dueDate ?? "") ||
     status !== todo.status ||
-    area !== (todo.area ?? "other");
+    area !== (todo.area ?? "other") ||
+    trimmedLink !== (todo.link?.path ?? "");
 
-  const canSubmit = trimmedTitle.length > 0 && hasChanges && !submitting;
+  const canSubmit =
+    trimmedTitle.length > 0 && hasChanges && !submitting && !linkInvalid;
 
   const submit = async () => {
     if (!canSubmit) return;
 
+    const link = trimmedLink
+      ? {
+          path: trimmedLink,
+          line: todo?.link?.path === trimmedLink ? todo.link.line : undefined,
+        }
+      : undefined;
+
     const savedTodo: ProjectTodo = {
+      ...todo,
       id: todo?.id ?? crypto.randomUUID(),
       title: trimmedTitle,
       status,
@@ -74,6 +107,7 @@ export function ProjectTodoModal({
       description: description.trim() || undefined,
       dueDate: dueDate || undefined,
       createdAt: todo?.createdAt ?? new Date().toISOString(),
+      link,
     };
 
     setSubmitting(true);
@@ -258,6 +292,39 @@ export function ProjectTodoModal({
               markPastDates
               pastDateMessage={t("past_due_date")}
             />
+          </div>
+
+          <div className="flex flex-col gap-0.5">
+            <label className="ps-3 text-xs font-medium text-muted">
+              {t("linked_file")}{" "}
+              <span className="font-normal text-muted/60">{t("optional")}</span>
+            </label>
+
+            <input
+              type="text"
+              dir="ltr"
+              list={resourceListId}
+              value={linkPath}
+              onChange={(event) => setLinkPath(event.target.value)}
+              placeholder={t("linked_file_placeholder")}
+              className={`focus-ring bg-overlay border rounded-item px-3.5 py-2.5 text-sm font-mono text-ink placeholder:text-muted/70 transition-colors ${
+                linkInvalid
+                  ? "border-danger/50 focus:border-danger"
+                  : "border-outline/50 focus:border-accent-dim"
+              }`}
+            />
+            <datalist id={resourceListId}>
+              {resources.map((resource) => (
+                <option key={resource} value={resource} />
+              ))}
+            </datalist>
+            <p
+              className={`ps-3 mt-1 text-[11px] ${
+                linkInvalid ? "text-danger" : "text-muted/70"
+              }`}
+            >
+              {linkInvalid ? t("linked_file_invalid") : t("linked_file_hint")}
+            </p>
           </div>
         </div>
 

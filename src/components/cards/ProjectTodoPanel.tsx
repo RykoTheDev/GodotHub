@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { IconCheckCircle } from "../../lib/icons";
+import { IconCheckCircle, IconCode } from "../../lib/icons";
+import { pushToast } from "../../lib/toast";
+import { projectTodosApi } from "../../api/projectTodos";
 
 import { Trans, useTranslation } from "react-i18next";
 
@@ -187,7 +189,61 @@ export function ProjectTodoPanel({
     refresh,
     saveTodos,
     retrySave,
+    sync,
   } = useProjectTodos(projectId);
+
+  const [scanning, setScanning] = useState(false);
+  const autoSyncedRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!loaded || error || autoSyncedRef.current === projectId) return;
+
+    autoSyncedRef.current = projectId;
+
+    sync(false)
+      .then((result) => {
+        if (result.closedByCommits > 0) {
+          pushToast("success", t("commit_closed", { count: result.closedByCommits }));
+        }
+      })
+      .catch(() => {});
+  }, [loaded, error, projectId, sync, t]);
+
+  const scanCode = async () => {
+    setScanning(true);
+
+    try {
+      const result = await sync(true);
+      const changed = result.imported + result.closed + result.reopened;
+
+      pushToast(
+        "success",
+        changed === 0
+          ? t("comment_scan_none")
+          : t("comment_scan_summary", {
+              imported: result.imported,
+              closed: result.closed,
+              reopened: result.reopened,
+            }),
+      );
+
+      if (result.closedByCommits > 0) {
+        pushToast("success", t("commit_closed", { count: result.closedByCommits }));
+      }
+    } catch (scanError) {
+      pushToast("error", String(scanError));
+    } finally {
+      setScanning(false);
+    }
+  };
+
+  const openLink = (todo: ProjectTodo) => {
+    if (!todo.link) return;
+
+    projectTodosApi
+      .openLink(projectId, todo.link.path, todo.link.line)
+      .catch((openError) => pushToast("error", String(openError)));
+  };
 
   useEffect(() => {
     if (loaded) {
@@ -349,6 +405,17 @@ export function ProjectTodoPanel({
 
           <button
             type="button"
+            disabled={saving || scanning || !loaded || !!error}
+            onClick={() => void scanCode()}
+            title={t("scan_code_hint")}
+            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 rounded-btn border border-outline/50 px-2.5 py-1.5 text-[10px] font-medium text-muted transition-colors hover:border-accent-dim hover:bg-raised hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <IconCode className={`h-3 w-3 ${scanning ? "animate-pulse" : ""}`} />
+            {scanning ? t("scanning_code") : t("scan_code")}
+          </button>
+
+          <button
+            type="button"
             disabled={saving}
             onClick={() => setIsCreating(true)}
             className="focus-ring cursor-pointer inline-flex items-center gap-1.5 rounded-btn border border-accent/30 bg-accent/10 px-2.5 py-1.5 text-[10px] font-medium text-accent-bright transition-colors hover:border-accent/50 hover:bg-accent/20 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-accent/30 disabled:hover:bg-accent/10"
@@ -459,6 +526,7 @@ export function ProjectTodoPanel({
               statusConfig={statusConfig}
               className="mx-3.5 mb-2"
               formatDueDate={formatTodoDueDate}
+              onOpenLink={openLink}
               onToggleStatusSort={toggleStatusSort}
               onToggleDueDateSort={toggleDueDateSort}
               onToggleCompleted={toggleTodoCompleted}
@@ -504,6 +572,7 @@ export function ProjectTodoPanel({
               statusConfig={statusConfig}
               showArea
               formatDueDate={formatTodoDueDate}
+              onOpenLink={openLink}
               onToggleStatusSort={toggleStatusSort}
               onToggleDueDateSort={toggleDueDateSort}
               onToggleCompleted={toggleTodoCompleted}
@@ -517,15 +586,18 @@ export function ProjectTodoPanel({
         )}
       {viewingTodo && (
         <ProjectTodoDetailsModal
-          todo={viewingTodo}
+          projectId={projectId}
+          todo={todos.find((todo) => todo.id === viewingTodo.id) ?? viewingTodo}
           statusLabel={statusConfig[viewingTodo.status].label}
           statusClassName={statusConfig[viewingTodo.status].className}
           overdue={viewingTodoOverdue}
+          onOpenLink={openLink}
           onClose={() => setViewingTodo(null)}
         />
       )}
       {isCreating && (
         <ProjectTodoModal
+          projectId={projectId}
           onClose={() => setIsCreating(false)}
           onSubmit={addTodo}
         />
@@ -533,6 +605,7 @@ export function ProjectTodoPanel({
 
       {editingTodo && (
         <ProjectTodoModal
+          projectId={projectId}
           todo={editingTodo}
           onClose={() => setEditingTodo(null)}
           onSubmit={(todo) => updateTodo(todo, false)}

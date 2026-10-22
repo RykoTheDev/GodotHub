@@ -1,6 +1,6 @@
 import { DatePicker } from "../ui/DatePicker";
 import { Dropdown } from "../ui/Dropdown";
-import { IconMore, IconPencil, IconTrash } from "../../lib/icons";
+import { IconCode, IconMore, IconPencil, IconTrash } from "../../lib/icons";
 import { useTranslation } from "react-i18next";
 
 import type {
@@ -39,6 +39,7 @@ type ProjectTodoListProps = {
   onView: (todo: ProjectTodo) => void;
   onEdit: (todo: ProjectTodo) => void;
   onDelete: (todo: ProjectTodo) => void;
+  onOpenLink?: (todo: ProjectTodo) => void;
 };
 
 export function ProjectTodoList({
@@ -59,6 +60,7 @@ export function ProjectTodoList({
   onView,
   onEdit,
   onDelete,
+  onOpenLink,
 }: ProjectTodoListProps) {
   const { t, i18n } = useTranslation(["todos", "common"]);
   const locale = i18n.resolvedLanguage ?? i18n.language;
@@ -285,6 +287,15 @@ export function ProjectTodoList({
               )}
             </button>
 
+            {todo.number !== undefined && (
+              <span
+                dir="ltr"
+                className="shrink-0 font-mono text-[9px] text-muted/50"
+              >
+                #{todo.number}
+              </span>
+            )}
+
             <button
               type="button"
               onClick={() => onView(todo)}
@@ -298,6 +309,22 @@ export function ProjectTodoList({
             >
               {todo.title}
             </button>
+
+            {todo.link && onOpenLink && (
+              <button
+                type="button"
+                onClick={() => onOpenLink(todo)}
+                title={t("open_linked_file", {
+                  path: todo.link.line
+                    ? `${todo.link.path}:${todo.link.line}`
+                    : todo.link.path,
+                })}
+                aria-label={t("open_linked_file", { path: todo.link.path })}
+                className="focus-ring flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-btn text-muted transition-colors hover:bg-raised hover:text-accent-bright"
+              >
+                <IconCode className="h-3 w-3" />
+              </button>
+            )}
 
             {showArea && (
               <span className="w-28 shrink-0 text-center">

@@ -1248,6 +1248,16 @@ pub fn open_project(
     editor: bool,
     console: Option<bool>,
 ) -> Result<(), String> {
+    launch_project(app, id, editor, console, None)
+}
+
+pub(crate) fn launch_project(
+    app: AppHandle,
+    id: String,
+    editor: bool,
+    console: Option<bool>,
+    target: Option<String>,
+) -> Result<(), String> {
     let mut projects = read_projects(&app);
     let project = projects
         .iter_mut()
@@ -1273,6 +1283,9 @@ pub fn open_project(
     let mut args = vec!["--path".to_string(), project.path.clone()];
     if editor {
         args.push("-e".to_string());
+    }
+    if let Some(target) = &target {
+        args.push(target.clone());
     }
     args.extend(split_launch_args(&project.launch_arguments));
 
