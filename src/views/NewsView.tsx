@@ -37,7 +37,7 @@ function NewsCard({ item }: { item: NewsItem }) {
       type="button"
       onClick={() => openUrl(item.link).catch(() => {})}
 
-      className="group focus-ring cursor-pointer text-left w-full flex flex-col gap-3 rounded-item border border-outline/50 bg-overlay p-5 mb-3 break-inside-avoid overflow-hidden hover:border-accent-dim/70 hover:bg-raised transition-colors"
+      className="group focus-ring cursor-pointer text-start w-full flex flex-col gap-3 rounded-item border border-outline/50 bg-overlay p-5 mb-3 break-inside-avoid overflow-hidden hover:border-accent-dim/70 hover:bg-raised transition-colors"
     >
       {item.image && !imageFailed && (
         <div className="relative -mx-5 -mt-5 h-36 shrink-0 overflow-hidden">
@@ -158,11 +158,11 @@ export function NewsView({ connected = false }: { connected?: boolean }) {
       </ViewHeader>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-mr-4 -mb-4'}`}
+        className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
         topButtonBottom={'bottom-16'}
       >
-        <div className={`h-full ${connected ? 'pl-3' : ''} pr-5 pb-4`}>
+        <div className={`h-full ${connected ? 'ps-3' : ''} pe-5 pb-4`}>
           {loading && items.length === 0 ? (
             <div className="columns-1 lg:columns-2 gap-3">
               {Array.from({ length: 6 }).map((_, i) => (

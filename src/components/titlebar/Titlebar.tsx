@@ -95,11 +95,11 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
         showWindowControls ? 'h-8' : 'h-11'
       } ${
         settings.card_layout ? 'bg-raised/80' : 'bg-raised border-b border-line'
-      } ${isMac ? 'pl-20' : 'pl-4'} ${showWindowControls ? '' : 'pr-4'}`}
+      } ${isMac ? 'ps-20' : 'ps-4'} ${showWindowControls ? '' : 'pe-4'}`}
     >
       {!minimal && <RunningProjectsChip />}
 
-      <div className="ml-auto flex items-center gap-1.5 self-stretch ">
+      <div className="ms-auto flex items-center gap-1.5 self-stretch ">
         {!minimal && settings.show_support_button && (
             <Tooltip content={t('support_dev')}>
             <motion.button
@@ -179,7 +179,7 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
 
                     data-press-feedback
 
-                    className={`${windowDot} -mr-3 bg-mint`}
+                    className={`${windowDot} -me-3 bg-mint`}
                   />
                 </button>
                 </Tooltip>
@@ -211,7 +211,7 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
 
                     data-press-feedback
 
-                    className={`${windowDot} mr-3 bg-danger`}
+                    className={`${windowDot} me-3 bg-danger`}
                   />
                 </button>
                 </Tooltip>

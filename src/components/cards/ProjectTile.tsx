@@ -132,7 +132,7 @@ export function ProjectTile({
 
       {options.show_path && <Tooltip content={project.path} className="w-full min-w-0">
         <button type="button" dir="ltr" onClick={openFolder} disabled={preview} aria-label={t('open_folder')}
-          className={`focus-ring min-w-0 w-full cursor-pointer truncate rounded-btn px-1 py-0.5 text-left font-mono text-[11px] text-muted/70 transition-colors hover:text-accent-bright ${options.blur_path ? 'blur-sm hover:blur-none focus-visible:blur-none' : ''}`}>
+          className={`focus-ring min-w-0 w-full cursor-pointer truncate rounded-btn px-1 py-0.5 text-start font-mono text-[11px] text-muted/70 transition-colors hover:text-accent-bright ${options.blur_path ? 'blur-sm hover:blur-none focus-visible:blur-none' : ''}`}>
           {project.path}
         </button>
       </Tooltip>}
@@ -182,7 +182,7 @@ export function ProjectTile({
         <Dropdown align="left" className="w-full min-w-0" trigger={({ open, toggle }) => <button type="button" onClick={toggle} disabled={preview || installedVersions.length === 0} aria-label={t('godot_version_label')} aria-expanded={open}
           title={!version ? unavailableHint : t('godot_version_label')}
           className={`focus-ring flex w-full min-w-0 cursor-pointer items-center gap-2 rounded-btn border border-outline/50 bg-raised px-2.5 py-2 text-[11px] transition-colors hover:border-accent-dim disabled:cursor-not-allowed disabled:opacity-60 ${unavailable ? 'text-amber' : 'text-muted'}`}>
-          <IconNode className="h-3 w-3 shrink-0" /><span className="min-w-0 flex-1 truncate text-left">{versionLabel}</span><IconChevronDown className="h-2.5 w-2.5 shrink-0" />
+          <IconNode className="h-3 w-3 shrink-0" /><span className="min-w-0 flex-1 truncate text-start">{versionLabel}</span><IconChevronDown className="h-2.5 w-2.5 shrink-0" />
         </button>} items={installedVersions.map(entry => ({ key: entry.tag, label: entry.custom_name || entry.tag, badge: entry.custom_name && entry.custom_name !== entry.tag ? entry.tag : undefined, active: entry.tag === project.godot_version, onClick: () => onVersionChange(entry.tag) }))} />
         {!version && <p className="px-1 text-[10px] leading-relaxed text-muted/70">{unavailableHint}</p>}
         <div className="flex min-w-0 items-stretch gap-1.5">

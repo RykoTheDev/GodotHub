@@ -548,7 +548,7 @@ export function CheckForUpdatesModal({
               </div>
               <div className="w-full h-2 rounded-full bg-line overflow-hidden">
                 <motion.div
-                  className="h-full w-full origin-left bg-accent rounded-full"
+                  className="h-full w-full origin-left rtl:origin-right bg-accent rounded-full"
                   initial={{ transform: 'scaleX(0)' }}
                   animate={{ transform: `scaleX(${Math.round(state.progress * 100) / 100})` }}
                   transition={{ duration: 0.2, ease: 'easeOut' }}

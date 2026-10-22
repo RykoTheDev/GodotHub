@@ -97,7 +97,7 @@ export function MenuButton({
           style={{ backgroundColor: item.dotColor }}
         />
       )}
-      <span className="flex-1 text-left truncate">{item.label}</span>
+      <span className="flex-1 text-start truncate">{item.label}</span>
       {item.badge && (
         <span
           className={`shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded-tag border ${
@@ -114,7 +114,7 @@ export function MenuButton({
           {item.shortcut}
         </span>
       )}
-      {caret && <IconChevronRight className="w-3 h-3 text-muted/80 shrink-0" />}
+      {caret && <IconChevronRight className="rtl:rotate-180 w-3 h-3 text-muted/80 shrink-0" />}
     </button>
   )
 }

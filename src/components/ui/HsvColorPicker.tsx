@@ -107,7 +107,7 @@ export function HsvColorPicker({ value, onChange, size = 200 }: HsvColorPickerPr
   const hueX = (hsv.h / 360) * size
 
   return (
-    <div className="flex flex-col gap-3 select-none">
+    <div dir="ltr" className="flex flex-col gap-3 select-none">
       <div
         ref={svRef}
         className="relative rounded-lg cursor-crosshair overflow-hidden border border-line"

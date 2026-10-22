@@ -32,11 +32,11 @@ export function ViewHeader({
         </div>
 
         {metric && (
-          <div className="ml-auto flex items-baseline gap-1">{metric}</div>
+          <div className="ms-auto flex items-baseline gap-1">{metric}</div>
         )}
 
         {actions && (
-          <div className={`flex items-center gap-2 ${metric ? '' : 'ml-auto'}`}>
+          <div className={`flex items-center gap-2 ${metric ? '' : 'ms-auto'}`}>
             {actions}
           </div>
         )}

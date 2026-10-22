@@ -255,7 +255,7 @@ export function ProjectDoctorModal({ project, installedVersions, onClose }: Prop
           {passed.length > 0 && <section className="mt-5 border-t border-line pt-4">
             <button type="button" aria-expanded={showPassed} aria-controls="doctor-passed-checks" onClick={event => { setAnimatePassed(event.detail > 0); setShowPassed(!showPassed) }}
               className="focus-ring cursor-pointer flex w-full items-center gap-2 rounded-btn text-xs text-muted hover:text-ink transition-colors">
-              <IconCheckCircle className="h-3.5 w-3.5 text-mint" /><span className="flex-1 text-left">{t('passed_checks', {count:passed.length})}</span>
+              <IconCheckCircle className="h-3.5 w-3.5 text-mint" /><span className="flex-1 text-start">{t('passed_checks', {count:passed.length})}</span>
               <TemplateDisclosureChevron open={showPassed} animate={animatePassed} />
             </button>
             <TemplateDisclosure id="doctor-passed-checks" open={showPassed} animate={animatePassed}>{passed.map(row)}</TemplateDisclosure>

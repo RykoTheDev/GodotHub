@@ -676,6 +676,7 @@ export interface AppSettings {
   fixed_sidebar_resize_knob: boolean
   desktop_notifications_enabled: boolean
   colored_titlebar_buttons: boolean
+  rtl_layout: boolean
   project_todos_enabled: boolean
   use_mise: boolean
 }

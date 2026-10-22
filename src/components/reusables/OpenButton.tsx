@@ -54,7 +54,7 @@ export function OpenButton({
         disabled={disabled}
         onClick={() => onOpen((consoleSupported && consoleEnabled) || undefined)}
         title={disabled ? disabledReason : consoleEnabled ? t('open_with_console') : label}
-        className={`focus-ring flex items-center justify-center ${compact ? 'min-w-0 flex-1 px-3 h-9 text-xs' : `${className} h-12 text-[17px]`} rounded-l-dropdown-btn rounded-r-[4px] font-semibold shadow-md shadow-black/10 border border-outline/50 transition-colors ${
+        className={`focus-ring flex items-center justify-center ${compact ? 'min-w-0 flex-1 px-3 h-9 text-xs' : `${className} h-12 text-[17px]`} rounded-s-dropdown-btn rounded-e-[4px] font-semibold shadow-md shadow-black/10 border border-outline/50 transition-colors ${
           disabled
             ? 'bg-raised text-muted/40 cursor-not-allowed'
             : 'bg-accent text-ink hover:bg-accent-bright cursor-pointer'
@@ -99,7 +99,7 @@ export function OpenButton({
             aria-label={moreAriaLabel}
             aria-expanded={open}
             onClick={toggle}
-            className={`focus-ring cursor-pointer flex items-center justify-center shrink-0 ${compact ? 'w-8 h-9' : 'px-[5px] h-12 text-[17px]'} rounded-r-dropdown rounded-l-[4px] font-semibold shadow-md shadow-black/10 border border-outline/50 transition-colors ${
+            className={`focus-ring cursor-pointer flex items-center justify-center shrink-0 ${compact ? 'w-8 h-9' : 'px-[5px] h-12 text-[17px]'} rounded-e-dropdown rounded-s-[4px] font-semibold shadow-md shadow-black/10 border border-outline/50 transition-colors ${
               open
                 ? 'bg-raised text-ink border-accent-dim/60'
                 : 'bg-overlay text-muted hover:text-ink hover:bg-raised'

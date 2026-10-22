@@ -1,5 +1,12 @@
 @import 'tailwindcss';
 
+@custom-variant rtl (&:where([dir="rtl"], [dir="rtl"] *));
+
+:root[data-text-dir='rtl']:not([dir='rtl'])
+  :where(p, h1, h2, h3, h4, h5, h6, li, dt, dd, label, span, a, button, td, th, summary, legend, figcaption, blockquote, option) {
+  unicode-bidi: plaintext;
+}
+
 @theme {
   --animate-attention-ping: attention-ping 1s cubic-bezier(0, 0, 0.2, 1) 6;
   @keyframes attention-ping {
@@ -172,10 +179,10 @@ textarea::placeholder {
 .masonry {
   display: flex;
   width: auto;
-  margin-left: -1.25rem;
+  margin-inline-start: -1.25rem;
 }
 .masonry-column {
-  padding-left: 1.25rem;
+  padding-inline-start: 1.25rem;
   background-clip: padding-box;
 }
 .masonry-column > * {
@@ -376,7 +383,7 @@ textarea::placeholder {
 .markdown-body ul,
 .markdown-body ol {
   margin: 0.5rem 0;
-  padding-left: 1.25rem;
+  padding-inline-start: 1.25rem;
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
@@ -431,8 +438,9 @@ textarea::placeholder {
 }
 .markdown-body blockquote {
   margin: 0.6rem 0;
-  padding: 0.25rem 0 0.25rem 0.75rem;
-  border-left: 3px solid var(--color-accent-dim);
+  padding-block: 0.25rem;
+  padding-inline: 0.75rem 0;
+  border-inline-start: 3px solid var(--color-accent-dim);
   color: var(--color-muted);
 }
 .markdown-body hr {

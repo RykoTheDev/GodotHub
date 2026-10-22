@@ -343,8 +343,8 @@ export function DatePicker({
           }}
           className={
             compact
-              ? "focus-ring min-w-[48px] cursor-pointer whitespace-nowrap rounded-btn px-1 py-1 text-right text-[10px] tabular-nums text-muted transition-colors hover:bg-raised hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
-              : `focus-ring w-full cursor-pointer rounded-item border px-3.5 py-2.5 text-left text-sm font-mono transition-colors ${
+              ? "focus-ring min-w-[48px] cursor-pointer whitespace-nowrap rounded-btn px-1 py-1 text-end text-[10px] tabular-nums text-muted transition-colors hover:bg-raised hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
+              : `focus-ring w-full cursor-pointer rounded-item border px-3.5 py-2.5 text-start text-sm font-mono transition-colors ${
                   value
                     ? "bg-overlay border-outline/50 text-ink hover:border-accent-dim"
                     : "bg-overlay border-outline/50 text-muted hover:border-accent-dim"
@@ -355,7 +355,7 @@ export function DatePicker({
         </button>
 
         {!compact && markPastDates && selectedIsPast && pastDateMessage && (
-          <p className="mt-1 pl-3 text-[10px] text-danger">{pastDateMessage}</p>
+          <p className="mt-1 ps-3 text-[10px] text-danger">{pastDateMessage}</p>
         )}
       </div>
 

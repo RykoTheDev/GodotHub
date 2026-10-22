@@ -1,5 +1,6 @@
 import { setThemeVars } from './themeVars'
 import { radiusVars } from './colors'
+import { setRtlLayout } from '../i18n'
 
 export function applyRadius(mdPx: number) {
   setThemeVars(radiusVars(mdPx))
@@ -146,6 +147,7 @@ export function applyAppearance(settings: {
   animation_intensity: AnimationIntensity
   show_scrollbars: boolean
   project_icon_opacity: number
+  rtl_layout?: boolean
 }) {
   applyRadius(settings.corner_radius)
   applyDensity(settings.ui_density)
@@ -154,4 +156,5 @@ export function applyAppearance(settings: {
   applyCustomCss(settings.custom_css)
   applyScrollbars(settings.show_scrollbars)
   applyProjectIconOpacity(settings.project_icon_opacity)
+  setRtlLayout(settings.rtl_layout ?? false)
 }

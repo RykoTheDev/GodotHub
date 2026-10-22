@@ -141,7 +141,7 @@ export function WorkspaceSwitcher({ collapsed = false }: { collapsed?: boolean }
             <>
               <span className="truncate">{active.name}</span>
               <IconChevronDown
-                className={`w-3.5 h-3.5 ml-auto shrink-0 transition-transform duration-200 ${
+                className={`w-3.5 h-3.5 ms-auto shrink-0 transition-transform duration-200 ${
                   open ? 'rotate-180' : ''
                 }`}
               />
@@ -159,7 +159,7 @@ export function WorkspaceSwitcher({ collapsed = false }: { collapsed?: boolean }
 
               role="menu"
               className={`fixed z-50 ${
-                dir ? 'origin-bottom-left' : 'origin-top-left'
+                dir ? 'origin-bottom-left rtl:origin-bottom-right' : 'origin-top-left rtl:origin-top-right'
               } rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 p-1.5`}
               style={{ left: pos?.left, top: pos?.top, width: MENU_WIDTH }}
             >
@@ -182,7 +182,7 @@ export function WorkspaceSwitcher({ collapsed = false }: { collapsed?: boolean }
                       setOpen(false)
                       setEditing(w)
                     }}
-                    className={`focus-ring cursor-pointer w-full flex items-center gap-2 text-left px-2.5 py-2 rounded-item text-xs transition-colors ${
+                    className={`focus-ring cursor-pointer w-full flex items-center gap-2 text-start px-2.5 py-2 rounded-item text-xs transition-colors ${
                       isActive
                         ? 'bg-accent/15 text-accent-bright'
                         : 'text-muted hover:bg-raised hover:text-ink'
@@ -190,7 +190,7 @@ export function WorkspaceSwitcher({ collapsed = false }: { collapsed?: boolean }
                   >
                     {pick(w)}
                     <span className="truncate">{w.name}</span>
-                    {isActive && <IconCheck className="w-3.5 h-3.5 ml-auto shrink-0" />}
+                    {isActive && <IconCheck className="w-3.5 h-3.5 ms-auto shrink-0" />}
                   </button>
                 )
               })}

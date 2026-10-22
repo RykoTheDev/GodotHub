@@ -355,20 +355,20 @@ export function CloneRepoModal({
                       fetchRepos(1, false)
                     }}
                     disabled={reposLoading}
-                    className="ml-auto text-xs text-muted hover:text-accent-bright transition-colors"
+                    className="ms-auto text-xs text-muted hover:text-accent-bright transition-colors"
                   >
                     {t('refresh')}
                   </button>
                 </div>
 
                 <div className="relative">
-                  <IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted pointer-events-none" />
+                  <IconSearch className="absolute start-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted pointer-events-none" />
                   <input
                     ref={searchInputRef}
                     value={repoSearch}
                     onChange={(e) => setRepoSearch(e.target.value)}
                     placeholder={t('clone_repo_search_repos')}
-                    className={`${inputClass(false)} w-full pl-9`}
+                    className={`${inputClass(false)} w-full ps-9`}
                   />
                 </div>
 
@@ -403,7 +403,7 @@ export function CloneRepoModal({
                           type="button"
                           whileHover={{ backgroundColor: 'var(--color-raised)' }}
                           onClick={() => selectRepo(repo)}
-                          className={`w-full text-left px-4 py-3 flex items-start gap-3 transition-colors cursor-pointer ${
+                          className={`w-full text-start px-4 py-3 flex items-start gap-3 transition-colors cursor-pointer ${
                             isSelected ? 'bg-accent/10' : ''
                           }`}
                         >
@@ -482,7 +482,7 @@ export function CloneRepoModal({
                   </div>
                 )}
                 <div className="flex flex-col gap-0.5">
-                  <label className="pl-3 text-xs font-medium text-muted">
+                  <label className="ps-3 text-xs font-medium text-muted">
                     {t('clone_repo_url_label')}
                   </label>
                   <input
@@ -500,7 +500,7 @@ export function CloneRepoModal({
                     className={`${inputClass(urlInvalid)} w-full`}
                   />
                   {selectedRepo && (
-                    <span className="pl-3 text-xs text-accent-bright mt-0.5">
+                    <span className="ps-3 text-xs text-accent-bright mt-0.5">
                       {selectedRepo.full_name}
                     </span>
                   )}
@@ -509,7 +509,7 @@ export function CloneRepoModal({
             )}
 
             <div className="flex flex-col gap-0.5">
-              <label className="pl-3 text-xs font-medium text-muted">
+              <label className="ps-3 text-xs font-medium text-muted">
                 {t('clone_repo_dest_label')}
               </label>
               <div className="flex gap-2.5">
@@ -547,7 +547,7 @@ export function CloneRepoModal({
                     }`}
                   >
                     {category === null && (
-                      <IconCheck className="w-3 h-3 inline mr-1 -mt-0.5" />
+                      <IconCheck className="w-3 h-3 inline me-1 -mt-0.5" />
                     )}
                     {t('no_category_label')}
                   </button>
@@ -563,7 +563,7 @@ export function CloneRepoModal({
                       }`}
                     >
                       {category === cat.name && (
-                        <IconCheck className="w-3 h-3 inline mr-1 -mt-0.5" />
+                        <IconCheck className="w-3 h-3 inline me-1 -mt-0.5" />
                       )}
                       <span
                         className="w-1.5 h-1.5 rounded-full shrink-0"

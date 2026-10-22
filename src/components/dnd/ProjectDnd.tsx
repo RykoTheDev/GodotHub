@@ -71,7 +71,7 @@ export function SortableProjectItem({
   children,
   className = '',
   static: isStatic = false,
-  gripClassName = 'left-0.5',
+  gripClassName = 'start-0.5',
   carried = false,
   fillHeight = true,
 }: SortableProjectItemProps) {
@@ -186,7 +186,7 @@ export function ProjectDropLine({ ignorePrefix, placement, activeIds = [] }: {
           height,
           boxShadow: glow ? '0 0 10px var(--color-accent-bright)' : undefined,
         }}
-        className="flex-1 origin-left rounded-full bg-accent-bright"
+        className="flex-1 origin-left rtl:origin-right rounded-full bg-accent-bright"
       />
     </div>
   )
@@ -222,7 +222,7 @@ export function ProjectDragOverlay({
     >
       {children}
       {count > 1 && (
-        <span className="pointer-events-none absolute -top-2 -right-2 z-30 min-w-6 h-6 px-1.5 rounded-full bg-accent-bright text-white text-[11px] font-semibold flex items-center justify-center shadow-md shadow-black/30">
+        <span className="pointer-events-none absolute -top-2 -end-2 z-30 min-w-6 h-6 px-1.5 rounded-full bg-accent-bright text-white text-[11px] font-semibold flex items-center justify-center shadow-md shadow-black/30">
           {count}
         </span>
       )}

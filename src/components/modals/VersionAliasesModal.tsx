@@ -128,7 +128,7 @@ export function VersionAliasesModal({
             <button
               type="button"
               onClick={onClose}
-              className="focus-ring cursor-pointer ml-auto px-4 py-2.5 rounded-item bg-accent hover:bg-accent/90 text-sm font-medium text-white transition-colors"
+              className="focus-ring cursor-pointer ms-auto px-4 py-2.5 rounded-item bg-accent hover:bg-accent/90 text-sm font-medium text-white transition-colors"
             >
               {tc('close')}
             </button>
@@ -214,7 +214,7 @@ export function VersionAliasesModal({
                       type="button"
                       onClick={() => removeQueued(entry)}
                       aria-label={tv('alias_remove')}
-                      className="focus-ring cursor-pointer ml-auto shrink-0 p-1.5 rounded-btn text-muted/70 hover:text-danger hover:bg-danger/10 transition-colors"
+                      className="focus-ring cursor-pointer ms-auto shrink-0 p-1.5 rounded-btn text-muted/70 hover:text-danger hover:bg-danger/10 transition-colors"
                     >
                       <IconTrash className="w-3 h-3" />
                     </button>

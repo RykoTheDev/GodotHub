@@ -60,7 +60,7 @@ export function CreateWorktreeModal({ repositoryPath, onClose, onCreated }: Prop
       onKeyDown={(event) => {
         if (event.key === 'Escape' && !busy && !picking) { event.stopPropagation(); onClose() }
       }}
-      footer={<div className="ml-auto flex items-center gap-2.5">
+      footer={<div className="ms-auto flex items-center gap-2.5">
         <button type="button" onClick={onClose} disabled={busy || picking}
           className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed">{tc('cancel')}</button>
         <button type="submit" form={formId} disabled={!path.trim() || busy || picking}

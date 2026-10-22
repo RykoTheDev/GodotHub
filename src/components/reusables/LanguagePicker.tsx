@@ -58,7 +58,7 @@ export function LanguagePicker({
               key={lang.value}
               type="button"
               onClick={() => handleChange(lang.value)}
-              className={`focus-ring cursor-pointer w-full flex items-center justify-between gap-2 text-left px-3 py-2 rounded-item text-xs transition-colors ${
+              className={`focus-ring cursor-pointer w-full flex items-center justify-between gap-2 text-start px-3 py-2 rounded-item text-xs transition-colors ${
                 active
                   ? 'bg-accent/15 text-accent-bright'
                   : 'text-muted hover:bg-raised hover:text-ink'

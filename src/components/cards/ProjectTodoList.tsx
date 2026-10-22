@@ -174,7 +174,7 @@ export function ProjectTodoList({
                 leading: (
                   <span
                     aria-hidden="true"
-                    className={`mr-1 block h-2 w-2 rounded-full ${statusConfig.todo.dotClassName}`}
+                    className={`me-1 block h-2 w-2 rounded-full ${statusConfig.todo.dotClassName}`}
                   />
                 ),
                 shortcut: todo.status === "todo" ? "✓" : undefined,
@@ -187,7 +187,7 @@ export function ProjectTodoList({
                 leading: (
                   <span
                     aria-hidden="true"
-                    className={`mr-1 block h-2 w-2 rounded-full ${statusConfig.paused.dotClassName}`}
+                    className={`me-1 block h-2 w-2 rounded-full ${statusConfig.paused.dotClassName}`}
                   />
                 ),
                 shortcut: todo.status === "paused" ? "✓" : undefined,
@@ -200,7 +200,7 @@ export function ProjectTodoList({
                 leading: (
                   <span
                     aria-hidden="true"
-                    className={`mr-1 block h-2 w-2 rounded-full ${statusConfig.in_progress.dotClassName}`}
+                    className={`me-1 block h-2 w-2 rounded-full ${statusConfig.in_progress.dotClassName}`}
                   />
                 ),
                 shortcut: todo.status === "in_progress" ? "✓" : undefined,
@@ -213,7 +213,7 @@ export function ProjectTodoList({
                 leading: (
                   <span
                     aria-hidden="true"
-                    className={`mr-1 block h-2 w-2 rounded-full ${statusConfig.done.dotClassName}`}
+                    className={`me-1 block h-2 w-2 rounded-full ${statusConfig.done.dotClassName}`}
                   />
                 ),
                 shortcut: todo.status === "done" ? "✓" : undefined,
@@ -290,7 +290,7 @@ export function ProjectTodoList({
               onClick={() => onView(todo)}
               title={todo.title}
               aria-label={t("view_task_details", { title: todo.title })}
-              className={`focus-ring min-w-0 flex-1 cursor-pointer truncate rounded-btn text-left text-[11px] transition-colors ${
+              className={`focus-ring min-w-0 flex-1 cursor-pointer truncate rounded-btn text-start text-[11px] transition-colors ${
                 completed
                   ? "text-muted line-through hover:text-ink"
                   : "text-ink hover:text-accent-bright"

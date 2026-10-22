@@ -217,7 +217,7 @@ export function InstallAssetModal({ asset, onClose, onInstalled }: Props) {
               type="button"
               onClick={saveAsNewTemplate}
               disabled={installing}
-              className="focus-ring cursor-pointer w-full flex items-center gap-3 p-3 rounded-item border border-dashed border-mint/30 bg-mint/5 hover:bg-mint/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-left"
+              className="focus-ring cursor-pointer w-full flex items-center gap-3 p-3 rounded-item border border-dashed border-mint/30 bg-mint/5 hover:bg-mint/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-start"
             >
               <span className="w-8 h-8 rounded-tile bg-mint/10 text-mint flex items-center justify-center shrink-0">
                 <IconDownload className="w-4 h-4" />
@@ -269,7 +269,7 @@ export function InstallAssetModal({ asset, onClose, onInstalled }: Props) {
                     key={item.id}
                     type="button"
                     onClick={() => setSelectedId(item.id)}
-                    className={`focus-ring cursor-pointer w-full flex items-center gap-3 p-2.5 rounded-item border text-left transition-colors ${
+                    className={`focus-ring cursor-pointer w-full flex items-center gap-3 p-2.5 rounded-item border text-start transition-colors ${
                       selected
                         ? 'border-accent-dim/60 bg-accent/10'
                         : 'border-transparent hover:bg-raised hover:border-outline/50'

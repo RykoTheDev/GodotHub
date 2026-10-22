@@ -17,7 +17,7 @@ export function Toggle({ checked, onChange, label, disabled }: Props) {
       aria-label={label}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`focus-ring relative shrink-0 inline-flex items-center h-7 w-12 rounded-lg border transition-colors duration-200 ${
+      className={`focus-ring relative shrink-0 inline-flex items-center h-7 w-12 rounded-lg border transition-colors duration-200 rtl:-scale-x-100 ${
         checked ? 'bg-accent border-accent-dim' : 'bg-raised border-line'
       } ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:brightness-110'}`}
     >

@@ -179,7 +179,7 @@ export function ProjectCardList({
       carried={dnd.activeIds.includes(p.id)}
       static={dnd.activeIds.length > 1}
       className="px-2"
-      gripClassName="left-0.5"
+      gripClassName="start-0.5"
     >
       {animatedCard(p)}
     </SortableProjectItem>

@@ -31,7 +31,7 @@ export function SlashMenu({
     <div
       role="listbox"
       aria-label={title}
-      className={`absolute left-0 right-0 top-full mt-2 z-50 max-h-64 overflow-y-auto ${menuSurfaceClass(
+      className={`absolute start-0 end-0 top-full mt-2 z-50 max-h-64 overflow-y-auto ${menuSurfaceClass(
         false,
       )}`}
     >
@@ -70,7 +70,7 @@ export function SlashMenu({
               ) : item.icon ? (
                 <item.icon className="w-3.5 h-3.5 shrink-0" strokeWidth={2} />
               ) : null}
-              <span className="flex-1 text-left truncate">{item.label}</span>
+              <span className="flex-1 text-start truncate">{item.label}</span>
               {item.hint && (
                 <span
                   className={`shrink-0 font-mono text-[10px] ${

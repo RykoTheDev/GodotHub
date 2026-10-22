@@ -207,7 +207,7 @@ export function OverlayScrollArea({
         onPointerMove={moveDrag}
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
-        className={`absolute inset-y-0 right-0 w-3.5 flex justify-center group ${
+        className={`absolute inset-y-0 end-0 w-3.5 flex justify-center group ${
           showThumb
             ? dragging
               ? 'cursor-grabbing'

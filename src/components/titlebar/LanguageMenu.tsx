@@ -249,7 +249,7 @@ export function LanguageMenu() {
                     onClick={() =>
                       select(lang.value)
                     }
-                    className={`focus-ring cursor-pointer w-full flex items-center justify-between gap-2 text-left px-2.5 py-2 rounded-item text-xs transition-colors ${
+                    className={`focus-ring cursor-pointer w-full flex items-center justify-between gap-2 text-start px-2.5 py-2 rounded-item text-xs transition-colors ${
                       active
                         ? 'bg-accent/15 text-accent-bright'
                         : 'text-muted hover:bg-raised hover:text-ink'

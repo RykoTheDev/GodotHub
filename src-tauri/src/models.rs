@@ -302,6 +302,8 @@ pub struct AppSettings {
     #[serde(default)]
     pub colored_titlebar_buttons: bool,
     #[serde(default)]
+    pub rtl_layout: bool,
+    #[serde(default)]
     pub project_todos_enabled: bool,
     #[serde(default)]
     pub use_mise: bool,
@@ -625,6 +627,7 @@ impl Default for AppSettings {
             fixed_sidebar_resize_knob: false,
             desktop_notifications_enabled: true,
             colored_titlebar_buttons: false,
+            rtl_layout: false,
             project_todos_enabled: false,
             use_mise: false,
         }

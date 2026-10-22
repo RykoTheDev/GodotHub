@@ -369,7 +369,7 @@ export function AssetStoreBrowser({
                   aria-label={t('asset_prev_page')}
                   className="focus-ring cursor-pointer flex items-center justify-center w-9 h-9 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                 >
-                  <IconChevronLeft className="w-4 h-4" />
+                  <IconChevronLeft className="rtl:rotate-180 w-4 h-4" />
                 </motion.button>
               {pageItems().map((item, i) =>
                 item === 'ellipsis' ? (
@@ -410,7 +410,7 @@ export function AssetStoreBrowser({
                   aria-label={t('asset_next_page')}
                   className="focus-ring cursor-pointer flex items-center justify-center w-9 h-9 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                 >
-                  <IconChevronRight className="w-4 h-4" />
+                  <IconChevronRight className="rtl:rotate-180 w-4 h-4" />
                 </motion.button>
             </div>
           )}

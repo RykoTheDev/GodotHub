@@ -118,6 +118,7 @@ const DEFAULTS: AppSettings = {
   fixed_sidebar_resize_knob: false,
   desktop_notifications_enabled: true,
   colored_titlebar_buttons: false,
+  rtl_layout: false,
   project_todos_enabled: false,
   use_mise: false,
 }

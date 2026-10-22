@@ -230,7 +230,7 @@ export function RunningProjectsChip() {
                               )
                             }}
                             aria-label={`${t('console_title')} - ${p.name}`}
-                            className="focus-ring cursor-pointer flex-1 min-w-0 flex items-center gap-1 rounded-btn text-left transition-opacity hover:opacity-80"
+                            className="focus-ring cursor-pointer flex-1 min-w-0 flex items-center gap-1 rounded-btn text-start transition-opacity hover:opacity-80"
                           >
                           <span className="w-7 h-7 rounded-btn flex items-center justify-center shrink-0 bg-mint/10">
                             <IconTerminal className="w-3.5 h-3.5 text-mint" />

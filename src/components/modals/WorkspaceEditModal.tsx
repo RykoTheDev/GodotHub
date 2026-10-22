@@ -71,7 +71,7 @@ export function WorkspaceEditModal({
             >
               {t('delete_workspace')}
             </motion.button>
-            <div className="ml-auto flex gap-2.5">
+            <div className="ms-auto flex gap-2.5">
               <motion.button
 
                 data-press-feedback
@@ -96,7 +96,7 @@ export function WorkspaceEditModal({
           <div className="flex flex-col gap-5 p-6">
             <div className="relative overflow-hidden rounded-btn border border-outline/50 bg-overlay p-4 flex items-center gap-3">
               <div
-                className="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-2xl opacity-40 transition-colors duration-300"
+                className="absolute -top-10 -end-10 w-32 h-32 rounded-full blur-2xl opacity-40 transition-colors duration-300"
                 style={{ backgroundColor: color }}
                 aria-hidden="true"
               />

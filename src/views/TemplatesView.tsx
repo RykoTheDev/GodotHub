@@ -315,12 +315,12 @@ export function TemplatesView({
       </ViewHeader>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-mr-4 -mb-4'}`}
+        className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
         topButtonBottom="bottom-17"
       >
         <div
-          className={`h-full ${connected ? 'pl-5' : ''} pr-5 pb-4 flex flex-col gap-2`}
+          className={`h-full ${connected ? 'ps-5' : ''} pe-5 pb-4 flex flex-col gap-2`}
         >
           {tab === 'local' ? (
             <>

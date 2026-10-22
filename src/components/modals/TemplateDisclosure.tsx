@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, type ReactNode } from 'react'
 import { useUiMotion } from '../../hooks/useUiMotion'
 import { disclosureMotion } from '../../lib/motion'
 import { IconChevronRight } from '../../lib/icons'
+import { isRtl } from '../../lib/locale'
 
 interface Props {
   id: string
@@ -96,9 +97,9 @@ export function TemplateDisclosureChevron({ open, animate }: Pick<Props, 'open' 
   const { durationMs, easing } = disclosureMotion
   return (
     <span aria-hidden="true" className="inline-flex shrink-0 text-muted"
-      style={{ transform: open ? 'rotate(90deg)' : 'rotate(0deg)',
+      style={{ transform: open ? (isRtl() ? 'rotate(-90deg)' : 'rotate(90deg)') : 'rotate(0deg)',
         transition: animate && !instant && !reduced ? `transform ${durationMs}ms ${easing}` : 'none' }}>
-      <IconChevronRight className="w-3 h-3" />
+      <IconChevronRight className="w-3 h-3 rtl:rotate-180" />
     </span>
   )
 }

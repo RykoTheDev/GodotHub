@@ -72,7 +72,7 @@ export function CurrentVersionModal({
           <button
             type="button"
             onClick={onClose}
-            className="focus-ring cursor-pointer ml-auto px-4 py-2.5 rounded-item bg-accent hover:bg-accent/90 text-sm font-medium text-white transition-colors"
+            className="focus-ring cursor-pointer ms-auto px-4 py-2.5 rounded-item bg-accent hover:bg-accent/90 text-sm font-medium text-white transition-colors"
           >
             {tc('close')}
           </button>

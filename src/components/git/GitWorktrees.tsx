@@ -164,7 +164,7 @@ export function GitWorktrees({ project, onSwitchProject, onChanged }: Props) {
           description={t('remove_worktree_confirm_desc', { path: removal.path })} maxWidth="max-w-sm"
           onClose={busy ? undefined : () => setRemoval(null)}
           onKeyDown={event => { if (event.key === 'Escape' && !busy) { event.stopPropagation(); setRemoval(null) } }}
-          footer={<div className="ml-auto flex items-center gap-2.5">
+          footer={<div className="ms-auto flex items-center gap-2.5">
             <button type="button" onClick={() => setRemoval(null)} disabled={!!busy}
               className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-40">{tc('cancel')}</button>
             <button type="button" onClick={() => void remove()} disabled={!!busy || (removal.has_uncommitted && !discardChanges)}

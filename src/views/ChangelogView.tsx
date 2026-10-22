@@ -84,7 +84,7 @@ function EntryCard({
 
       className="group relative flex gap-5"
     >
-      <div className="flex flex-col items-center pt-2 pl-2 shrink-0">
+      <div className="flex flex-col items-center pt-2 ps-2 shrink-0">
         <span className="w-2 h-2 rounded-full bg-accent shrink-0 ring-4 ring-accent/15" />
         {!isLast && <span className="w-px flex-1 bg-line mt-2" />}
       </div>
@@ -189,7 +189,7 @@ function EntryCard({
           {entry.known_issues?.length > 0 && (
             <div className="mt-4 pt-4 border-t border-outline/40">
               <p className="text-[10px] font-semibold uppercase tracking-wider mb-1.5 text-amber">
-                <IconAlertTriangle className="w-3 h-3 inline -mt-0.5 mr-1" />
+                <IconAlertTriangle className="w-3 h-3 inline -mt-0.5 me-1" />
                 {t('known_issues')}
               </p>
               <ul className="flex flex-col gap-1.5">
@@ -290,10 +290,10 @@ export function ChangelogView({
       </ViewHeader>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-mr-4 -mb-4'}`}
+        className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
       >
-        <div className={`h-full ${connected ? 'pl-3' : ''} pr-5 pb-4`}>
+        <div className={`h-full ${connected ? 'ps-3' : ''} pe-5 pb-4`}>
           {loading && entries.length === 0 ? (
             <div className="flex flex-col gap-4">
               {Array.from({ length: 3 }).map((_, i) => (

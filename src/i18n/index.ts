@@ -227,8 +227,30 @@ i18n
     },
   })
 
+const RTL_LAYOUT_KEY = 'godothub_rtl_layout'
+
+let rtlLayout = (() => {
+  try {
+    return localStorage.getItem(RTL_LAYOUT_KEY) === '1'
+  } catch {
+    return false
+  }
+})()
+
 function syncDocumentLanguage(lng: string): void {
+  const textDir = i18n.dir(lng)
   document.documentElement.lang = lng
+  document.documentElement.dir = textDir === 'rtl' && rtlLayout ? 'rtl' : 'ltr'
+  document.documentElement.dataset.textDir = textDir
+}
+
+export function setRtlLayout(enabled: boolean): void {
+  if (enabled === rtlLayout) return
+  rtlLayout = enabled
+  try {
+    localStorage.setItem(RTL_LAYOUT_KEY, enabled ? '1' : '0')
+  } catch {}
+  syncDocumentLanguage(i18n.resolvedLanguage || i18n.language || 'en-US')
 }
 
 i18n.on('languageChanged', syncDocumentLanguage)

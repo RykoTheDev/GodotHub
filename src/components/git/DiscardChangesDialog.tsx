@@ -43,7 +43,7 @@ export function DiscardChangesDialog({
           data-press-feedback
           disabled={busy}
           onClick={onCancel}
-          className="ml-auto focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-50"
+          className="ms-auto focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-50"
         >
           {tc('cancel')}
         </button>
@@ -74,7 +74,7 @@ export function DiscardChangesDialog({
             data-press-feedback
             disabled={busy}
             onClick={onDiscardTracked}
-            className="focus-ring w-full text-left cursor-pointer rounded-btn px-3.5 py-3 bg-accent/10 border border-accent/40 hover:bg-accent/15 transition-colors disabled:opacity-50"
+            className="focus-ring w-full text-start cursor-pointer rounded-btn px-3.5 py-3 bg-accent/10 border border-accent/40 hover:bg-accent/15 transition-colors disabled:opacity-50"
           >
             <div className="text-sm font-medium text-ink">{t('discard_opt_tracked')}</div>
             <div className="text-xs text-muted mt-0.5">{t('discard_opt_tracked_hint')}</div>
@@ -85,7 +85,7 @@ export function DiscardChangesDialog({
             data-press-feedback
             disabled={busy || !hasUntracked}
             onClick={onRemoveUntracked}
-            className="focus-ring w-full text-left cursor-pointer rounded-btn px-3.5 py-3 border border-danger/40 hover:bg-danger/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="focus-ring w-full text-start cursor-pointer rounded-btn px-3.5 py-3 border border-danger/40 hover:bg-danger/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <div className="flex items-center gap-1.5 text-sm font-medium text-danger">
               <IconTrash className="w-3.5 h-3.5 shrink-0" />
@@ -99,7 +99,7 @@ export function DiscardChangesDialog({
             data-press-feedback
             disabled={busy}
             onClick={onStash}
-            className="focus-ring w-full text-left cursor-pointer rounded-btn px-3.5 py-3 border border-line hover:bg-raised transition-colors disabled:opacity-50"
+            className="focus-ring w-full text-start cursor-pointer rounded-btn px-3.5 py-3 border border-line hover:bg-raised transition-colors disabled:opacity-50"
           >
             <div className="text-sm font-medium text-ink">{t('discard_opt_stash')}</div>
             <div className="text-xs text-muted mt-0.5">{t('discard_opt_stash_hint')}</div>

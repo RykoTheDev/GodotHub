@@ -355,7 +355,7 @@ export function ProjectCard({
         )}
 
         {onToggleSelect && (
-          <div className="absolute top-2.5 left-2.5 z-20">
+          <div className="absolute top-2.5 start-2.5 z-20">
             <Tooltip
               content={
                 selected ? t("project_deselect_aria") : t("project_select_aria")
@@ -391,7 +391,7 @@ export function ProjectCard({
               src={icon}
               alt=""
               aria-hidden="true"
-              className="select-none absolute -left-6 top-1/2 -translate-y-1/2 -rotate-6 h-35 w-35 object-contain grayscale group-hover:grayscale-0 contrast-125 transition-opacity duration-150"
+              className="select-none absolute -start-6 top-1/2 -translate-y-1/2 -rotate-6 h-35 w-35 object-contain grayscale group-hover:grayscale-0 contrast-125 transition-opacity duration-150"
               style={{
                 opacity: "var(--project-icon-opacity, 0.14)",
                 maskImage:
@@ -403,7 +403,7 @@ export function ProjectCard({
           ) : (
             <span
               aria-hidden="true"
-              className="select-none absolute -left-3 top-1/2 -translate-y-1/2 -rotate-6 font-display font-black text-muted group-hover:text-accent-bright transition-colors duration-150"
+              className="select-none absolute -start-3 top-1/2 -translate-y-1/2 -rotate-6 font-display font-black text-muted group-hover:text-accent-bright transition-colors duration-150"
               style={{
                 fontSize: "72px",
                 lineHeight: 1,
@@ -419,7 +419,7 @@ export function ProjectCard({
           )}
         </div>
 
-        <div className={`min-w-0 flex-1 ${onToggleSelect ? "pl-8" : ""}`}>
+        <div className={`min-w-0 flex-1 ${onToggleSelect ? "ps-8" : ""}`}>
           <div className="flex items-center gap-1.5 flex-wrap min-w-0">
             <h3 className="font-display font-medium text-xl text-ink truncate">
               {displayName}
@@ -444,7 +444,7 @@ export function ProjectCard({
               </button>
             )}
             {lastOpenedLabel && cardSettings.show_last_opened && (
-              <span className="inline-flex items-center gap-1 pl-1.5 pr-1 py-0.5 rounded-tag font-mono text-[10px] font-medium tracking-tight shrink-0 text-muted">
+              <span className="inline-flex items-center gap-1 ps-1.5 pe-1 py-0.5 rounded-tag font-mono text-[10px] font-medium tracking-tight shrink-0 text-muted">
                 <IconClock className="w-2.5 h-2.5 text-muted/60 shrink-0" />
                 {lastOpenedLabel}
               </span>
@@ -536,7 +536,7 @@ export function ProjectCard({
               </span>
             ) : (
               <span
-                className={`overflow-hidden inline-flex items-center shrink-0 mr-1.5 transition-opacity duration-150 focus-within:opacity-100 ${cardHovered ? 'opacity-100' : 'opacity-0'}`}
+                className={`overflow-hidden inline-flex items-center shrink-0 me-1.5 transition-opacity duration-150 focus-within:opacity-100 ${cardHovered ? 'opacity-100' : 'opacity-0'}`}
               >
                 <button
                   type="button"
@@ -571,7 +571,7 @@ export function ProjectCard({
                   return (
                     <span
                       key={`${tag}-${index}`}
-                      className={`project-tag group/tag inline-flex items-center pl-1.5 pr-1 py-0.5 rounded-tag font-mono text-[10px] font-medium tracking-tight shrink-0 transition-[filter,box-shadow] duration-100 ${
+                      className={`project-tag group/tag inline-flex items-center ps-1.5 pe-1 py-0.5 rounded-tag font-mono text-[10px] font-medium tracking-tight shrink-0 transition-[filter,box-shadow] duration-100 ${
                         isActive
                           ? "ring-1 ring-accent-dim/70 brightness-110"
                           : ""
@@ -580,7 +580,7 @@ export function ProjectCard({
                     >
                       <span
                         aria-hidden="true"
-                        className="w-1.5 h-1.5 mr-1 rounded-full shrink-0 ring-1 ring-black/20"
+                        className="w-1.5 h-1.5 me-1 rounded-full shrink-0 ring-1 ring-black/20"
                         style={{ backgroundColor: color }}
                       />
                       {isEditing ? (
@@ -653,7 +653,7 @@ export function ProjectCard({
                           </button>
                           <span className="project-hover-reveal project-tag-actions">
                             <span className="min-w-0 overflow-hidden">
-                              <span className="flex w-max items-center gap-1 pl-1">
+                              <span className="flex w-max items-center gap-1 ps-1">
                                 <button
                                   type="button"
                                   onClick={() => {
@@ -759,7 +759,7 @@ export function ProjectCard({
                 data-visible={pinButtonVisible}
               >
                 <span className="min-w-0 overflow-hidden">
-                  <span className="inline-flex w-max items-center pl-1.5">
+                  <span className="inline-flex w-max items-center ps-1.5">
                     {project.pinned ? (
                       <Tooltip content={t("project_unpin_aria")} side="top">
                         <button
@@ -863,15 +863,15 @@ export function ProjectCard({
         {sessionMs > 0 && (
           <motion.div
             {...uiMotion.surface('tooltip', 'none')}
-            className="flex items-center shrink-0 -mr-5 mb-1 overflow-hidden"
+            className="flex items-center shrink-0 -me-5 mb-1 overflow-hidden"
           >
-            <div className="flex items-center gap-2 px-4 h-10 bg-base/50 border-r-0 rounded-l-dropdown-btn font-mono text-xs text-accent-bright whitespace-nowrap">
+            <div className="flex items-center gap-2 px-4 h-10 bg-base/50 border-e-0 rounded-s-dropdown-btn font-mono text-xs text-accent-bright whitespace-nowrap">
               <span className="w-1.5 h-1.5 rounded-full bg-accent-bright animate-pulse shrink-0" />
               {formatDuration(sessionMs)}
             </div>
           </motion.div>
         )}
-        <div className="flex items-stretch shrink-0 relative -mr-2">
+        <div className="flex items-stretch shrink-0 relative -me-2">
           <div className="flex flex-col justify-end gap-1.5">
             {cardSettings.show_play && (
               <div className="flex h-12 w-full">

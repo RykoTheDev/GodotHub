@@ -153,7 +153,7 @@ export function ProjectTodoModal({
         <div className="p-6 pt-4 flex flex-col gap-4 overflow-y-auto">
           {/* Título */}
           <div className="flex flex-col gap-0.5">
-            <label className="pl-3 text-xs font-medium text-muted">
+            <label className="ps-3 text-xs font-medium text-muted">
               {t("title")}
             </label>
 
@@ -168,7 +168,7 @@ export function ProjectTodoModal({
 
           {/* Área */}
           <div className="flex flex-col gap-2">
-            <label className="pl-3 text-xs font-medium text-muted">
+            <label className="ps-3 text-xs font-medium text-muted">
               {t("area")}
             </label>
 
@@ -188,7 +188,7 @@ export function ProjectTodoModal({
 
           {/* Status */}
           <div className="flex flex-col gap-2">
-            <label className="pl-3 text-xs font-medium text-muted">
+            <label className="ps-3 text-xs font-medium text-muted">
               {t("status")}
             </label>
 
@@ -228,7 +228,7 @@ export function ProjectTodoModal({
 
           {/* Descrição */}
           <div className="flex flex-col gap-0.5">
-            <label className="pl-3 text-xs font-medium text-muted">
+            <label className="ps-3 text-xs font-medium text-muted">
               {t("description")}{" "}
               <span className="font-normal text-muted/60">{t("optional")}</span>
             </label>
@@ -244,7 +244,7 @@ export function ProjectTodoModal({
 
           {/* Prazo */}
           <div className="flex flex-col gap-0.5">
-            <label className="pl-3 text-xs font-medium text-muted">
+            <label className="ps-3 text-xs font-medium text-muted">
               {t("due_date")}{" "}
               <span className="font-normal text-muted/60">{t("optional")}</span>
             </label>

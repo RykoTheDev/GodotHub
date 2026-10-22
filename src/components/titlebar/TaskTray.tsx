@@ -111,7 +111,7 @@ function ProgressBar({
   return (
     <div className="h-1.5 w-full rounded-full bg-line/60 overflow-hidden mt-2">
       <motion.div
-        className="h-full w-full origin-left rounded-full bg-accent"
+        className="h-full w-full origin-left rtl:origin-right rounded-full bg-accent"
         initial={{ transform: 'scaleX(0)' }}
         animate={{ transform: `scaleX(${pct / 100})` }}
         transition={{ duration: 0.2, ease: 'easeOut' }}
@@ -335,7 +335,7 @@ export function TaskTray() {
             {hasActivity && (
               <motion.span
                 {...surface('tooltip', 'scale(0.97)')}
-                className="absolute -top-1.5 -right-2 w-4 h-4 rounded-full bg-amber text-[9px] font-bold text-white flex items-center justify-center shadow-sm"
+                className="absolute -top-1.5 -end-2 w-4 h-4 rounded-full bg-amber text-[9px] font-bold text-white flex items-center justify-center shadow-sm"
               >
                 {activeCount > 9 ? '9+' : activeCount}
               </motion.span>
@@ -352,7 +352,7 @@ export function TaskTray() {
             style={{transformOrigin:`${openUp ? 'bottom' : 'top'} right`}}
             onMouseDown={noDrag}
             role="menu"
-            className={`absolute z-50 w-80 max-h-96 overflow-y-auto rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 p-2 origin-top-right ${
+            className={`absolute z-50 w-80 max-h-96 overflow-y-auto rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 p-2 origin-top-right rtl:origin-top-left ${
               openUp ? 'bottom-full mb-2 origin-bottom' : 'top-full mt-2'
             } right-0`}
           >

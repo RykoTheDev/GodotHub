@@ -29,10 +29,10 @@ export function DiffBody({ diff }: { diff: GitDiffResult }) {
                     isAdd ? 'bg-mint/5' : isDel ? 'bg-danger/5' : ''
                   }`}
                 >
-                  <span className="w-10 shrink-0 text-right pr-3 text-muted/40 select-none">
+                  <span className="w-10 shrink-0 text-end pe-3 text-muted/40 select-none">
                     {oldNum ?? ''}
                   </span>
-                  <span className="w-10 shrink-0 text-right pr-3 text-muted/40 select-none">
+                  <span className="w-10 shrink-0 text-end pe-3 text-muted/40 select-none">
                     {newNum ?? ''}
                   </span>
                   <span

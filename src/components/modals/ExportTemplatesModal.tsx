@@ -202,7 +202,7 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
               <span>{t('export_templates_available', { count: options.length })}</span>
               <button type="button" disabled={busy} onClick={() => setAttempt((value) => value + 1)}
                 aria-label={t('export_templates_refresh')} title={t('export_templates_refresh')}
-                className="focus-ring cursor-pointer ml-auto p-1.5 rounded-btn text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                className="focus-ring cursor-pointer ms-auto p-1.5 rounded-btn text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
                 <IconRefresh className={`w-3 h-3 ${checking ? 'animate-spin' : ''}`} />
               </button>
               <button type="button" disabled={busy || availableFiles.length === 0}
@@ -231,7 +231,7 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
                           prepareDisclosure(event)
                           setCollapsedCategories((previous) => open ? [...previous, category.id] : previous.filter((key) => key !== category.id))
                         }}
-                        className="focus-ring cursor-pointer flex flex-1 items-center gap-2 rounded-btn text-left text-sm font-medium text-muted hover:text-ink transition-colors">
+                        className="focus-ring cursor-pointer flex flex-1 items-center gap-2 rounded-btn text-start text-sm font-medium text-muted hover:text-ink transition-colors">
                         <span className="flex-1">{label}</span>
                         <TemplateDisclosureChevron open={open} animate={animateDisclosures} />
                       </button>
@@ -256,7 +256,7 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
                                   prepareDisclosure(event)
                                   setExpanded((previous) => open ? previous.filter((key) => key !== option.id) : [...previous, option.id])
                                 }}
-                                className="focus-ring cursor-pointer flex flex-1 min-w-0 items-center gap-2 rounded-btn text-left">
+                                className="focus-ring cursor-pointer flex flex-1 min-w-0 items-center gap-2 rounded-btn text-start">
                                 <span className="flex-1 min-w-0">
                                   <span className="block text-sm font-medium text-ink">{option.label}</span>
                                   <span className="block text-[11px] text-muted mt-0.5">{t('export_templates_files', { count: option.files.length })}</span>
@@ -294,7 +294,7 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
                                               prepareDisclosure(event)
                                               setExpandedArchitectures((previous) => groupOpen ? previous.filter((key) => key !== groupKey) : [...previous, groupKey])
                                             }}
-                                            className="focus-ring cursor-pointer flex flex-1 min-w-0 items-center gap-2 rounded-btn text-left py-1">
+                                            className="focus-ring cursor-pointer flex flex-1 min-w-0 items-center gap-2 rounded-btn text-start py-1">
                                             <span className="flex-1 text-xs font-medium text-ink">{groupLabel}</span>
                                             {installedCount > 0 && <span className="text-[10px] text-mint">{!fullyInstalled && `${installedCount}/${group.files.length} `}{t('export_templates_option_installed')}</span>}
                                             {!fullyInstalled && <span className="text-[10px] text-muted tabular-nums">{count}/{available.length}</span>}
@@ -304,7 +304,7 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
                                         </div>
                                       )}
                                       <TemplateDisclosure id={groupPanelId} open={groupOpen} animate={animateDisclosures} className={`flex flex-col gap-1.5 ${group.label ? 'pt-1.5' : ''}`}>{group.files.map((file) => (
-                                        <div key={file.name} className={`flex items-center gap-3 rounded-btn border px-3 py-2.5 ${group.label ? 'ml-5' : ''} ${selectedNames.has(file.name) ? 'border-accent-dim/40 bg-accent/5' : 'border-transparent bg-base/30 hover:bg-raised/70'} transition-colors`}>
+                                        <div key={file.name} className={`flex items-center gap-3 rounded-btn border px-3 py-2.5 ${group.label ? 'ms-5' : ''} ${selectedNames.has(file.name) ? 'border-accent-dim/40 bg-accent/5' : 'border-transparent bg-base/30 hover:bg-raised/70'} transition-colors`}>
                                           {file.installed ? <div className="flex flex-1 min-w-0 items-center gap-2.5">
                                             <InstalledMark label={`${file.name} · ${t('export_templates_option_installed')}`} />
                                             <span title={file.name} className="block min-w-0 truncate font-mono text-[11px] text-ink">{file.name}</span>

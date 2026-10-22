@@ -278,11 +278,11 @@ export function StorageView({
       </ViewHeader>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-mr-4 -mb-4'}`}
+        className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
         topButtonBottom={'bottom-16'}
       >
-        <div className={`${connected ? 'pl-3' : ''} pr-5 pb-4 flex flex-col gap-3`}>
+        <div className={`${connected ? 'ps-3' : ''} pe-5 pb-4 flex flex-col gap-3`}>
           {error && !report ? (
             <div className="border border-dashed border-danger/30 rounded-item py-16 flex flex-col items-center gap-4 text-center">
               <p className="text-sm text-muted max-w-sm leading-relaxed">
@@ -536,7 +536,7 @@ export function StorageView({
             onClose={() => setConfirming(false)}
             showClose={false}
             footer={
-              <div className="ml-auto flex items-center gap-2.5">
+              <div className="ms-auto flex items-center gap-2.5">
                 <motion.button
                   data-press-feedback
                   onClick={() => setConfirming(false)}

@@ -264,7 +264,7 @@ export function CreateViewModal({
 
                       data-press-feedback
                       onClick={() => onAdd(opt.value)}
-                      className="focus-ring cursor-pointer flex items-center gap-2.5 p-2.5 rounded-item border border-dashed border-outline/50 bg-overlay hover:bg-raised hover:border-accent-dim/50 transition-colors text-left"
+                      className="focus-ring cursor-pointer flex items-center gap-2.5 p-2.5 rounded-item border border-dashed border-outline/50 bg-overlay hover:bg-raised hover:border-accent-dim/50 transition-colors text-start"
                     >
                       <div className="w-7 h-7 rounded-item bg-accent/10 flex items-center justify-center shrink-0">
                         <Icon className="w-3.5 h-3.5 text-accent-bright" />

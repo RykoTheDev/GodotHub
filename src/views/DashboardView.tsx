@@ -239,7 +239,7 @@ function ProjectRow({ project }: { project: Project }) {
     <motion.button
       type="button"
       onClick={() => dispatch('app:open-project', project.id)}
-      className="group focus-ring cursor-pointer w-full flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 transition-colors text-left"
+      className="group focus-ring cursor-pointer w-full flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 transition-colors text-start"
     >
       <span className="w-9 h-9 shrink-0 rounded-btn bg-surface border border-outline/60 flex items-center justify-center overflow-hidden">
         <IconNode className="w-4 h-4 text-muted/60" />
@@ -413,11 +413,11 @@ function StatCard({
 
       data-press-feedback
       onClick={tab ? () => dispatch('app:set-tab', tab) : undefined}
-      className={`group relative overflow-hidden text-left cursor-pointer focus-ring rounded-card bg-overlay border border-outline/50 px-5 py-4 flex flex-col transition-colors duration-200 hover:border-outline ${hoverBorder}`}
+      className={`group relative overflow-hidden text-start cursor-pointer focus-ring rounded-card bg-overlay border border-outline/50 px-5 py-4 flex flex-col transition-colors duration-200 hover:border-outline ${hoverBorder}`}
     >
       <Icon
         aria-hidden="true"
-        className="pointer-events-none absolute -bottom-8 -right-8 w-32 h-32 rotate-12 text-ink/5"
+        className="pointer-events-none absolute -bottom-8 -end-8 w-32 h-32 rotate-12 text-ink/5"
       />
 
       <div className="relative z-10 flex items-start justify-between gap-2">
@@ -436,13 +436,13 @@ function StatCard({
       </span>
       <span
         aria-hidden="true"
-        className={`relative z-10 mt-2.5 block h-1 w-8 origin-left rounded-full bg-linear-to-r ${grad}`}
+        className={`relative z-10 mt-2.5 block h-1 w-8 origin-left rtl:origin-right rounded-full bg-linear-to-r ${grad}`}
       />
 
       <span className="relative z-10 mt-auto pt-3 inline-flex items-center gap-1 text-[10px] font-medium text-muted/40 transition-colors duration-200 group-hover:text-muted">
         {hint ?? label}
         {tab && (
-          <IconChevronRight className="w-3 h-3" />
+          <IconChevronRight className="rtl:rotate-180 w-3 h-3" />
         )}
       </span>
     </button>
@@ -723,7 +723,7 @@ function TopProjectsByTime({
           key={p.id}
           type="button"
           onClick={() => dispatch('app:open-project', p.id)}
-          className="group focus-ring cursor-pointer w-full flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 transition-colors text-left"
+          className="group focus-ring cursor-pointer w-full flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 transition-colors text-start"
         >
           <span className="min-w-0 flex-1">
             <span className="flex items-center justify-between gap-2">
@@ -841,7 +841,7 @@ function GitOverview({ tall = false, active = true }: { tall?: boolean; active?:
                   }),
                 )
               }
-              className="focus-ring cursor-pointer w-full flex items-center gap-3 p-3 rounded-item bg-overlay border border-amber/25 hover:bg-raised hover:border-amber/40 transition-colors text-left"
+              className="focus-ring cursor-pointer w-full flex items-center gap-3 p-3 rounded-item bg-overlay border border-amber/25 hover:bg-raised hover:border-amber/40 transition-colors text-start"
             >
               <IconGitBranch className="w-3.5 h-3.5 text-amber shrink-0" />
               <span className="min-w-0 flex-1">
@@ -974,7 +974,7 @@ function Clock({ active = true }: { active?: boolean }) {
   const dateString = formatDate(now, settings.last_opened_date_format)
 
   return (
-    <div className="ml-auto shrink-0 flex flex-col items-end gap-1">
+    <div className="ms-auto shrink-0 flex flex-col items-end gap-1">
       <span
         className="font-display text-3xl font-semibold text-ink leading-none"
         aria-label={tc('dashboard_clock_aria')}
@@ -1578,10 +1578,10 @@ export function DashboardView({
       </section>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-mr-4 -mb-4'}`}
+        className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
       >
-        <div className={`flex flex-col gap-6 ${connected ? 'pl-3' : ''} pr-5 pb-4`}>
+        <div className={`flex flex-col gap-6 ${connected ? 'ps-3' : ''} pe-5 pb-4`}>
           <div className="mt-1.5 flex items-center justify-between gap-3 flex-wrap">
             {isEnabled('quick_actions') ? (
               <QuickActions />
@@ -1685,7 +1685,7 @@ export function DashboardView({
                               update({ ...settings, ...next })
                             }}
                             aria-pressed={active}
-                            className={`focus-ring cursor-pointer flex items-center gap-1.5 pl-3 pr-1.5 h-8 rounded-btn text-xs font-semibold transition-colors ${
+                            className={`focus-ring cursor-pointer flex items-center gap-1.5 ps-3 pe-1.5 h-8 rounded-btn text-xs font-semibold transition-colors ${
                               active
                                 ? 'bg-accent text-ink'
                                 : 'text-muted hover:text-ink hover:bg-raised'

@@ -158,7 +158,7 @@ export function ProjectCardGrid({
           className="h-full min-w-0"
           static={dnd.activeIds.length > 1}
           carried={dnd.activeIds.includes(p.id)}
-          gripClassName="left-1"
+          gripClassName="start-1"
         >
           {card}
         </SortableProjectItem>

@@ -26,6 +26,7 @@ import {
 import { CATEGORY_COLORS } from '../lib/categoryColors'
 import { api } from '../lib/api'
 import { pushToast } from '../lib/toast'
+import { isRtl } from '../lib/locale'
 import type { DiscoveredInstall, DiscoveredProject } from '../types'
 import { Titlebar } from '../components/titlebar/Titlebar'
 import { useDiscordRpc } from '../hooks/useDiscordRpc'
@@ -135,7 +136,7 @@ function ProgressRow({
       <div className="h-1.5 w-full rounded-full bg-line/40 overflow-hidden">
         {hasProgress ? (
           <motion.div
-            className="h-full w-full origin-left rounded-full bg-accent"
+            className="h-full w-full origin-left rtl:origin-right rounded-full bg-accent"
             initial={{ transform: 'scaleX(0)' }}
             animate={{ transform: `scaleX(${pct / 100})` }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
@@ -166,7 +167,7 @@ function SummaryRow({
   return (
     <div className="flex items-center justify-between gap-4 px-4 py-3 rounded-item bg-overlay border border-outline/50">
       <span className="text-xs text-muted shrink-0">{label}</span>
-      <span className="font-mono text-xs text-ink text-right min-w-0 truncate">
+      <span className="font-mono text-xs text-ink text-end min-w-0 truncate">
         {value}
       </span>
     </div>
@@ -523,7 +524,7 @@ export function OnboardingView({
           <div className="shrink-0 p-4 border-t border-line flex flex-col gap-2">
             <div className="h-1.5 w-full rounded-full bg-line/40 overflow-hidden">
               <motion.div
-                className="h-full w-full origin-left rounded-full bg-accent"
+                className="h-full w-full origin-left rtl:origin-right rounded-full bg-accent"
                 initial={false}
                 animate={{
                   transform: `scaleX(${(stepIndex + 1) / STEPS.length})`,
@@ -548,9 +549,9 @@ export function OnboardingView({
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={step.id}
-                    initial={{ opacity: 0, x: 16 }}
+                    initial={{ opacity: 0, x: isRtl() ? -16 : 16 }}
                     animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -16 }}
+                    exit={{ opacity: 0, x: isRtl() ? 16 : -16 }}
                     transition={{ duration: 0.2, ease: 'easeOut' }}
                     className="w-full flex flex-col items-center"
                   >
@@ -896,7 +897,7 @@ export function OnboardingView({
                                   onClick={() =>
                                     setField('template_scan_dir', s.path)
                                   }
-                                  className="focus-ring cursor-pointer flex items-center gap-2 px-3 py-2 rounded-item border border-dashed border-outline/60 text-left hover:border-accent-dim hover:bg-overlay/60 transition-colors"
+                                  className="focus-ring cursor-pointer flex items-center gap-2 px-3 py-2 rounded-item border border-dashed border-outline/60 text-start hover:border-accent-dim hover:bg-overlay/60 transition-colors"
                                 >
                                   <span className="shrink-0 flex items-center justify-center w-4 h-4 rounded-tag bg-accent/15 text-accent-bright">
                                     <IconCopy className="w-3 h-3" />
@@ -1059,7 +1060,7 @@ export function OnboardingView({
                                   <span className="text-[10px] font-medium text-muted/60">
                                     {presets.length}
                                   </span>
-                                  <IconChevronRight className="w-3.5 h-3.5 text-muted ml-auto" />
+                                  <IconChevronRight className="rtl:rotate-180 w-3.5 h-3.5 text-muted ms-auto" />
                                 </button>
                               ))}
 
@@ -1077,7 +1078,7 @@ export function OnboardingView({
                                   {ts('theme_preset_custom')}
                                 </span>
                                 {!presetActive && (
-                                  <IconCheck className="w-3.5 h-3.5 text-accent-bright ml-auto" />
+                                  <IconCheck className="w-3.5 h-3.5 text-accent-bright ms-auto" />
                                 )}
                               </button>
                             </div>
@@ -1304,7 +1305,7 @@ export function OnboardingView({
                 tc('skip_setup')
               ) : (
                 <>
-                  <IconChevronLeft className="w-3.5 h-3.5" />
+                  <IconChevronLeft className="rtl:rotate-180 w-3.5 h-3.5" />
                   {tc('back')}
                 </>
               )}
@@ -1326,7 +1327,7 @@ export function OnboardingView({
                 className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-6 py-2.5 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
               >
                 {t('onboarding_continue', { ns: 'common' })}
-                <IconChevronRight className="w-3.5 h-3.5" />
+                <IconChevronRight className="rtl:rotate-180 w-3.5 h-3.5" />
               </button>
             )}
           </div>

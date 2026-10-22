@@ -473,12 +473,12 @@ export function VersionsView({
       </ViewHeader>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-mr-4 -mb-4'}`}
+        className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
         topButtonBottom="bottom-18"
       >
         <div
-          className={`h-full ${connected ? 'pl-5' : ''} pr-5 pb-4 flex flex-col gap-2`}
+          className={`h-full ${connected ? 'ps-5' : ''} pe-5 pb-4 flex flex-col gap-2`}
         >
         {installed.length === 0 && !isSearching ? (
           <div className="rounded-item border border-dashed border-outline/50 py-20 flex flex-col items-center gap-3 text-center px-6">
@@ -843,7 +843,7 @@ export function VersionsView({
                       >
                         <IconChevronDown
                           className={`w-3 h-3 transition-transform duration-200 ${
-                            isCollapsed ? '-rotate-90' : ''
+                            isCollapsed ? '-rotate-90 rtl:rotate-90' : ''
                           }`}
                         />
                         {group === 'Other' ? tv('other') : group}
@@ -915,7 +915,7 @@ export function VersionsView({
                                           <div className="w-56">
                                             <div className="h-1.5 bg-raised rounded-full overflow-hidden">
                                               <motion.div
-                                                className={`h-full w-full origin-left rounded-full ${
+                                                className={`h-full w-full origin-left rtl:origin-right rounded-full ${
                                                   dl.status === 'paused'
                                                     ? 'bg-muted'
                                                     : 'bg-amber'

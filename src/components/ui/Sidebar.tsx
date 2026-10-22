@@ -10,6 +10,7 @@ import { useChangelogBadge } from '../../hooks/useChangelogBadge'
 import { useUpdateAvailable } from '../../hooks/useUpdateAvailable'
 import { Tooltip } from '../reusables/Tooltip'
 import { useUiMotion } from '../../hooks/useUiMotion'
+import { isRtl } from '../../lib/locale'
 
 export interface SidebarTab {
   id: string
@@ -155,7 +156,8 @@ export function Sidebar({
         finishDrag(e)
         return
       }
-      const next = startWidthRef.current + (e.clientX - startXRef.current)
+      const delta = e.clientX - startXRef.current
+      const next = startWidthRef.current + (isRtl() ? -delta : delta)
       setWidth(Math.min(350, Math.max(180, Math.round(next))))
       return
     }
@@ -173,7 +175,7 @@ export function Sidebar({
   const handleWrapperMove = (e: React.MouseEvent) => {
     if (dragging || collapsed || settings.fixed_sidebar_resize_knob) return
     const rect = e.currentTarget.getBoundingClientRect()
-    const dist = rect.right - e.clientX
+    const dist = isRtl() ? e.clientX - rect.left : rect.right - e.clientX
     if (dist > KNOB_RESET_DIST) {
       setKnobY(null)
       return
@@ -225,12 +227,12 @@ export function Sidebar({
           <span className={`relative transition-colors duration-200 ${active ? 'text-ink' : ''}`}>{tab.label}</span>
         )}
         {showNew && !hideLabel && (
-          <span className="relative ml-auto shrink-0 px-1.5 py-0.5 rounded-tag bg-accent text-white text-[10px] font-semibold leading-none">
+          <span className="relative ms-auto shrink-0 px-1.5 py-0.5 rounded-tag bg-accent text-white text-[10px] font-semibold leading-none">
             {tc('new_badge')}
           </span>
         )}
         {showNew && hideLabel && (
-          <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-accent" aria-hidden="true" />
+          <span className="absolute top-1 end-1 w-2 h-2 rounded-full bg-accent" aria-hidden="true" />
         )}
       </button>
     )
@@ -252,17 +254,17 @@ export function Sidebar({
       onClick={toggleCollapsed}
       className={`focus-ring cursor-pointer flex items-center justify-center rounded-item text-sm font-medium transition-colors text-muted hover:text-ink hover:bg-raised/60 border ${
         collapsed
-          ? `absolute top-2 -right-4 w-8 h-8 shrink-0 bg-raised border-line shadow-md shadow-black/10 transition-opacity duration-200 ease-out ${
+          ? `absolute top-2 -end-4 w-8 h-8 shrink-0 bg-raised border-line shadow-md shadow-black/10 transition-opacity duration-200 ease-out ${
               revealed ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`
-          : 'border-transparent w-9 h-9 ml-auto shrink-0'
+          : 'border-transparent w-9 h-9 ms-auto shrink-0'
       }`}
     >
       <span
         className="ui-control-indicator inline-flex"
         style={{transform:collapsed ? 'rotate(180deg)' : 'rotate(0deg)', transitionDuration:instant || reduced ? '0ms' : undefined}}
       >
-        <IconChevronsLeft className={`w-4 h-4 ${collapsed ? 'pr-0' : 'pr-2'}`} />
+        <IconChevronsLeft className={`w-4 h-4 rtl:-scale-x-100 ${collapsed ? 'pe-0' : 'pe-2'}`} />
       </span>
     </button>
     </Tooltip>
@@ -283,7 +285,7 @@ export function Sidebar({
         style={{width:collapsed ? COLLAPSED_WIDTH : width}}
         className={`flex flex-col h-full overflow-hidden ${
           connected
-            ? 'rounded-none border-r border-line bg-raised'
+            ? 'rounded-none border-e border-line bg-raised'
             : 'rounded-card bg-raised'
         }`}
       >
@@ -296,7 +298,7 @@ export function Sidebar({
               <button
                 type="button"
                 onClick={() => onTabChange('dashboard')}
-                className="focus-ring cursor-pointer font-display pl-2 font-black text-2xl tracking-tight text-ink/50 hover:text-ink min-w-0 truncate text-left transition-colors"
+                className="focus-ring cursor-pointer font-display ps-2 font-black text-2xl tracking-tight text-ink/50 hover:text-ink min-w-0 truncate text-start transition-colors"
               >
                 GodotHub
               </button>
@@ -367,7 +369,7 @@ export function Sidebar({
                       } catch {}
                       setPaletteHintDismissed(true)
                     }}
-                    className="focus-ring cursor-pointer w-4 h-4 rounded-full bg-raised border border-outline/60 text-muted/60 hover:text-ink hover:border-outline flex items-center justify-center transition-colors absolute -top-1.5 -right-1.5"
+                    className="focus-ring cursor-pointer w-4 h-4 rounded-full bg-raised border border-outline/60 text-muted/60 hover:text-ink hover:border-outline flex items-center justify-center transition-colors absolute -top-1.5 -end-1.5"
                   >
                     <IconX className="w-2.5 h-2.5" />
                   </button>
@@ -394,7 +396,7 @@ export function Sidebar({
                   className="focus-ring cursor-pointer w-11 h-11 shrink-0 flex items-center justify-center rounded-item relative text-muted hover:text-ink hover:bg-raised/60 transition-colors"
                 >
                   <IconArrowUp className="w-4 h-4" />
-                  <span className="absolute top-2 right-2 flex w-2 h-2" aria-hidden="true">
+                  <span className="absolute top-2 end-2 flex w-2 h-2" aria-hidden="true">
                     <span className="absolute inline-flex h-full w-full rounded-full bg-accent-bright opacity-75 animate-attention-ping" />
                     <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-bright shadow-[0_0_6px_2px] shadow-accent/50" />
                   </span>
@@ -453,7 +455,7 @@ export function Sidebar({
           setRevealed(false)
           setKnobY(null)
         }}
-        className="absolute inset-y-0 -right-3.5 w-7 cursor-col-resize group/edge z-10"
+        className="absolute inset-y-0 -end-3.5 w-7 cursor-col-resize group/edge z-10"
       >
         <div
           className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none transition-opacity duration-200 ease-out ${

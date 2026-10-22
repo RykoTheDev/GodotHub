@@ -182,7 +182,7 @@ export function ProjectCardKanban({
             static={dnd.activeIds.length > 1}
             carried={dnd.activeIds.includes(p.id)}
             className="mb-3"
-            gripClassName="left-1"
+            gripClassName="start-1"
           >
             {card}
           </SortableProjectItem>

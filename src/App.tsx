@@ -79,6 +79,7 @@ import {
   shouldShowSplash,
 } from './lib/uiTransition'
 import { setPendingSettingsCategory } from './lib/settingsCategoryNav'
+import { isRtl } from './lib/locale'
 import {
   IconBookOpen,
   IconCloudArrowDown,
@@ -369,7 +370,8 @@ export function App() {
         finishGitDrag(e)
         return
       }
-      const next = gitStartWidthRef.current + (gitStartXRef.current - e.clientX)
+      const delta = gitStartXRef.current - e.clientX
+      const next = gitStartWidthRef.current + (isRtl() ? -delta : delta)
       setGitSidebarWidth(Math.min(560, Math.max(280, Math.round(next))))
       return
     }
@@ -382,7 +384,7 @@ export function App() {
   const handleGitWrapperMove = (e: React.MouseEvent) => {
     if (gitDragging || fixedKnob) return
     const rect = e.currentTarget.getBoundingClientRect()
-    const dist = e.clientX - rect.left
+    const dist = isRtl() ? rect.right - e.clientX : e.clientX - rect.left
     if (dist > 72) {
       setGitKnobY(null)
       return
@@ -661,11 +663,11 @@ export function App() {
               />
               <motion.div
                 key="git-panel"
-                {...uiMotion.surface('modal', 'translateX(100%)')}
+                {...uiMotion.surface('modal', isRtl() ? 'translateX(-100%)' : 'translateX(100%)')}
                 onAnimationComplete={() => {
                   if (gitSidebarOpenRef.current) setGitPanelOpened(true)
                 }}
-                className={`absolute top-2 right-2 bottom-2 z-50 ${gitDragging ? 'select-none' : ''}`}
+                className={`absolute top-2 end-2 bottom-2 z-50 ${gitDragging ? 'select-none' : ''}`}
               >
                 <div
                   className="relative h-full w-full"
@@ -712,7 +714,7 @@ export function App() {
                     role="separator"
                     aria-orientation="vertical"
                     style={{ touchAction: 'none' }}
-                    className="absolute inset-y-0 -left-3.5 w-7 cursor-col-resize group/edge z-10"
+                    className="absolute inset-y-0 -start-3.5 w-7 cursor-col-resize group/edge z-10"
                   >
                     <div
                       className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none transition-opacity duration-200 ease-out ${

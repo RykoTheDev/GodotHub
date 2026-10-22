@@ -137,7 +137,7 @@ export function ProjectTodoDetailsModal({
 
         <div className="min-h-0 flex-1 overflow-y-auto p-6 pt-4 flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
-            <span className="pl-3 text-xs font-medium text-muted">
+            <span className="ps-3 text-xs font-medium text-muted">
               {t("area")}
             </span>
 
@@ -147,7 +147,7 @@ export function ProjectTodoDetailsModal({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <span className="pl-3 text-xs font-medium text-muted">
+            <span className="ps-3 text-xs font-medium text-muted">
               {t("status")}
             </span>
 
@@ -159,7 +159,7 @@ export function ProjectTodoDetailsModal({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <span className="pl-3 text-xs font-medium text-muted">
+            <span className="ps-3 text-xs font-medium text-muted">
               {t("description")}
             </span>
 
@@ -171,7 +171,7 @@ export function ProjectTodoDetailsModal({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <span className="pl-3 text-xs font-medium text-muted">
+            <span className="ps-3 text-xs font-medium text-muted">
               {t("due_date")}
             </span>
 

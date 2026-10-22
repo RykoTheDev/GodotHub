@@ -14,6 +14,7 @@ import { createPortal } from 'react-dom'
 import type { IconProps } from '../../lib/icons'
 import { Tooltip } from '../reusables/Tooltip'
 import { useUiMotion } from '../../hooks/useUiMotion'
+import { mirrorSide } from '../../lib/locale'
 import {
   MenuButton,
   MenuDivider,
@@ -77,6 +78,7 @@ export function Dropdown({
   const [openUp, setOpenUp] = useState(false)
   const [openSubmenuKey, setOpenSubmenuKey] = useState<string | null>(null)
   const [submenuSide, setSubmenuSide] = useState<'left' | 'right'>('right')
+  const physicalAlign = mirrorSide(align)
   const [submenuOffsetY, setSubmenuOffsetY] = useState(0)
   const [pos, setPos] = useState<{
     left: number
@@ -135,7 +137,7 @@ export function Dropdown({
     const spaceLeft = r.right
     const spaceRight = window.innerWidth - r.left
     const leftSide =
-      align === 'right'
+      physicalAlign === 'right'
         ? !(spaceLeft < mw && spaceRight > spaceLeft)
         : spaceRight < mw && spaceLeft > spaceRight
 
@@ -152,7 +154,7 @@ export function Dropdown({
     }
 
     setPos({ left, top, width: mw })
-  }, [align, side])
+  }, [physicalAlign, side])
 
   const measureSubmenu = useCallback((itemKey: string) => {
     const itemEl = itemRefs.current[itemKey]
@@ -283,7 +285,7 @@ export function Dropdown({
               role="menu"
               onKeyDown={handleMenuKey}
               style={{ left: pos?.left, top: pos?.top, width: pos?.width,
-                transformOrigin: side === 'left' ? 'right top' : `${openUp ? 'bottom' : 'top'} ${align === 'right' ? 'right' : 'left'}` }}
+                transformOrigin: side === 'left' ? 'right top' : `${openUp ? 'bottom' : 'top'} ${physicalAlign === 'right' ? 'right' : 'left'}` }}
               className={`fixed z-50 ${menuSurfaceClass(compact)} ${
                 openUp ? 'origin-bottom' : 'origin-top'
               } ${menuClassName}`}

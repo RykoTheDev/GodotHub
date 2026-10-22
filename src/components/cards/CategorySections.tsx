@@ -122,7 +122,7 @@ export function ProjectCategorySection({
             : undefined
         }
         aria-expanded={open}
-        className={`focus-ring cursor-pointer w-full flex items-center gap-1.5 rounded-item text-left transition-colors group ${
+        className={`focus-ring cursor-pointer w-full flex items-center gap-1.5 rounded-item text-start transition-colors group ${
           variant === 'grid' ? 'px-1 py-1.5 mb-1' : 'px-1 py-1'
         } ${
           headerIsZone && isOver
@@ -132,7 +132,7 @@ export function ProjectCategorySection({
       >
         <IconChevronDown
           className={`w-3 h-3 text-muted/50 shrink-0 transition-transform duration-200 ${
-            open ? '' : '-rotate-90'
+            open ? '' : '-rotate-90 rtl:rotate-90'
           }`}
         />
         {color && (
@@ -188,11 +188,11 @@ export function HiddenCategoriesSection({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-1 py-1 rounded-item text-left hover:bg-raised/60 transition-colors group"
+        className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-1 py-1 rounded-item text-start hover:bg-raised/60 transition-colors group"
       >
         <IconChevronDown
           className={`w-3 h-3 text-muted/50 shrink-0 transition-transform duration-200 ${
-            open ? '' : '-rotate-90'
+            open ? '' : '-rotate-90 rtl:rotate-90'
           }`}
         />
         <IconEyeSlash className="w-3 h-3 text-muted/60 shrink-0" />

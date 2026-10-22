@@ -1016,7 +1016,7 @@ export function ProjectsView({
         </SearchBar>
       </ViewHeader>
 
-      <div className={`shrink-0 flex items-center gap-2 mb-3 ${connected ? 'pl-5' : ''}`}>
+      <div className={`shrink-0 flex items-center gap-2 mb-3 ${connected ? 'ps-5' : ''}`}>
         <Dropdown
           align="left"
           trigger={({ open, toggle }) => {
@@ -1289,13 +1289,13 @@ export function ProjectsView({
       </div>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-mr-4 -mb-4'}`}
+        className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
         scrollToTopOn={`${tagFilter ?? ''}-${categoryFilter ?? ''}`}
         scrollRef={viewportRef}
       >
         <div
-          className={`h-full ${connected ? 'pl-5' : ''} pr-5 pb-4 flex flex-col gap-2`}
+          className={`h-full ${connected ? 'ps-5' : ''} pe-5 pb-4 flex flex-col gap-2`}
         >
         {error && projects.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center py-16">

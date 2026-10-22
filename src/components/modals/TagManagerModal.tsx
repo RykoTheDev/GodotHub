@@ -141,7 +141,7 @@ export function TagManagerModal({ project, onClose, onSaved }: Props) {
               ? t('no_tags')
               : t('tag_count', { count: tags.length })}
           </span>
-          <div className="ml-auto flex items-center gap-2.5">
+          <div className="ms-auto flex items-center gap-2.5">
             <motion.button
 
               data-press-feedback

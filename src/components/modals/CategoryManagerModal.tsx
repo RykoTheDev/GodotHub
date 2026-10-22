@@ -191,7 +191,7 @@ function SortableCategoryItem({
             {category.folders.map((folder) => (
               <span
                 key={folder}
-                className="flex items-center gap-1.5 pl-2.5 pr-1 py-1 rounded-lg bg-base/70 border border-outline/25 max-w-[240px]"
+                className="flex items-center gap-1.5 ps-2.5 pe-1 py-1 rounded-lg bg-base/70 border border-outline/25 max-w-[240px]"
               >
                 <IconFolder className="w-3 h-3 text-muted/60 shrink-0" />
                 <span
@@ -511,7 +511,7 @@ export function CategoryManagerModal({
             items={items}
             strategy={verticalListSortingStrategy}
           >
-            <div className="flex flex-col gap-2 pr-1">
+            <div className="flex flex-col gap-2 pe-1">
               {categories.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 gap-3 text-muted/50">
                   <div className="w-14 h-14 rounded-2xl bg-overlay border border-dashed border-outline/40 flex items-center justify-center">

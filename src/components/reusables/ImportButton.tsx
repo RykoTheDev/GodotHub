@@ -69,7 +69,7 @@ export function ImportButton({
         onClick={handleImport}
         disabled={busy || disabled}
         className={`${TOOL_BUTTON_CLASS} px-6 ${
-          hasOptions ? 'rounded-l-dropdown-btn rounded-r-[4px]' : 'rounded-item'
+          hasOptions ? 'rounded-s-dropdown-btn rounded-e-[4px]' : 'rounded-item'
         } disabled:opacity-40 disabled:cursor-not-allowed`}
       >
         {t('import')}
@@ -84,7 +84,7 @@ export function ImportButton({
               aria-expanded={open}
               {...TOOL_BUTTON_ANIMATION}
               onClick={toggle}
-              className={`${TOOL_BUTTON_CLASS} px-[5px] rounded-r-dropdown rounded-l-[4px]`}
+              className={`${TOOL_BUTTON_CLASS} px-[5px] rounded-e-dropdown rounded-s-[4px]`}
             >
               <IconChevronDown
                 className={`w-3 h-3 transition-transform duration-200 ${

@@ -240,7 +240,7 @@ export function BugReportModal({ onClose }: Props) {
             )}
             {copied ? t('bug_report_copied') : t('bug_report_copy_log')}
           </button>
-          <div className="ml-auto flex items-center gap-2.5">
+          <div className="ms-auto flex items-center gap-2.5">
             <motion.button
 
               data-press-feedback

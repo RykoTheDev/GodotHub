@@ -546,7 +546,7 @@ export function ProjectConsoleWindow() {
             className={`pointer-events-auto absolute flex flex-col overflow-hidden rounded-xl border border-outline/60 bg-raised shadow-2xl shadow-black/40 ${
               fullscreen
                 ? 'inset-3'
-                : 'bottom-2 left-2 h-96 max-h-[calc(100%-1rem)] w-2xl max-w-[calc(100%-1rem)]'
+                : 'bottom-2 start-2 h-96 max-h-[calc(100%-1rem)] w-2xl max-w-[calc(100%-1rem)]'
             }`}
           >
             <header className="shrink-0 flex items-center gap-2 px-3 h-11 border-b border-outline/50 bg-overlay/60">
@@ -807,7 +807,7 @@ export function ProjectConsoleWindow() {
             style={{ ...pillStyle, touchAction: 'none' }}
             aria-label={t('console_pill_hint')}
             className={`pointer-events-auto absolute inline-flex items-center gap-2 h-9 max-w-[calc(100%-1.5rem)] px-2.5 rounded-full border border-outline/60 bg-raised shadow-2xl shadow-black/40 cursor-grab active:cursor-grabbing select-none ${
-              pillStyle ? '' : 'bottom-3 right-3'
+              pillStyle ? '' : 'bottom-3 end-3'
             }`}
           >
             <IconGrip className="w-2.5 h-3.5 text-muted/40 shrink-0" />

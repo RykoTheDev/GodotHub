@@ -311,7 +311,7 @@ export function CreateProjectModal({
         <div className="gap-6 p-6 flex-1 overflow-y-auto">
           <div className="flex flex-col gap-4">
             <div className="flex flex-col gap-0.5">
-              <label className="pl-3 text-xs font-medium text-muted">
+              <label className="ps-3 text-xs font-medium text-muted">
                 {t('project_name_label')}
               </label>
               <input
@@ -327,7 +327,7 @@ export function CreateProjectModal({
                 className={`${inputClass(nameInvalid)} w-full`}
                 placeholder={projectNamePlaceholder}
               />
-              <div className="flex items-center ml-2 mt-1 gap-1.5 text-[10px] font-mono text-muted/60">
+              <div className="flex items-center ms-2 mt-1 gap-1.5 text-[10px] font-mono text-muted/60">
                 <IconFolderPlus className="w-3 h-3 text-accent-bright/70 shrink-0" />
                 <span className="truncate">
                   {name.trim()
@@ -338,7 +338,7 @@ export function CreateProjectModal({
             </div>
 
             <div className="flex flex-col gap-0.5">
-              <label className="pl-3 text-xs font-medium text-muted">
+              <label className="ps-3 text-xs font-medium text-muted">
                 {t('project_location_label')}
               </label>
               <div className="flex gap-2.5">
@@ -376,7 +376,7 @@ export function CreateProjectModal({
                     }`}
                   >
                     {category === null && (
-                      <IconCheck className="w-3 h-3 inline mr-1 -mt-0.5" />
+                      <IconCheck className="w-3 h-3 inline me-1 -mt-0.5" />
                     )}
                     {t('no_category_label')}
                   </button>
@@ -392,7 +392,7 @@ export function CreateProjectModal({
                       }`}
                     >
                       {category === cat.name && (
-                        <IconCheck className="w-3 h-3 inline mr-1 -mt-0.5" />
+                        <IconCheck className="w-3 h-3 inline me-1 -mt-0.5" />
                       )}
                       <span
                         className="w-1.5 h-1.5 rounded-full shrink-0"
@@ -421,7 +421,7 @@ export function CreateProjectModal({
                     }`}
                   >
                     {templateId === null && (
-                      <IconCheck className="w-3 h-3 inline mr-1 -mt-0.5" />
+                      <IconCheck className="w-3 h-3 inline me-1 -mt-0.5" />
                     )}
                     {t('blank_template')}
                   </button>
@@ -437,7 +437,7 @@ export function CreateProjectModal({
                         }`}
                       >
                         {templateId === tpl.id && (
-                          <IconCheck className="w-3 h-3 inline mr-1 -mt-0.5" />
+                          <IconCheck className="w-3 h-3 inline me-1 -mt-0.5" />
                         )}
                         {tpl.name}
                       </button>
@@ -445,7 +445,7 @@ export function CreateProjectModal({
                         type="button"
                         onClick={() => setPreviewTemplate(tpl)}
                         aria-label={t('template_preview_aria', { name: tpl.name })}
-                        className="focus-ring cursor-pointer absolute -top-2 -right-2 w-5 h-5 rounded-full bg-surface border border-line text-muted hover:text-accent-bright hover:border-accent-dim shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-[opacity,color,border-color]"
+                        className="focus-ring cursor-pointer absolute -top-2 -end-2 w-5 h-5 rounded-full bg-surface border border-line text-muted hover:text-accent-bright hover:border-accent-dim shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-[opacity,color,border-color]"
                       >
                         <IconBookOpen className="w-3 h-3" />
                       </button>

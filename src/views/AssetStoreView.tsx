@@ -114,7 +114,7 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
         />
       </ViewHeader>
 
-      <div className={`shrink-0 pr-6 flex items-center gap-2 flex-wrap ${connected ? 'pl-3' : ''}`}>
+      <div className={`shrink-0 pe-6 flex items-center gap-2 flex-wrap ${connected ? 'ps-3' : ''}`}>
         <Dropdown
           align="left"
           trigger={({ open, toggle }) => (
@@ -235,11 +235,11 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
       </div>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-mr-4 -mb-4'}`}
+        className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
         topButtonBottom="bottom-14"
       >
-        <div className={`h-full ${connected ? 'pl-3' : ''} pr-5 pb-4`}>
+        <div className={`h-full ${connected ? 'ps-3' : ''} pe-5 pb-4`}>
           <AssetStoreBrowser
             query={query}
             source={source}

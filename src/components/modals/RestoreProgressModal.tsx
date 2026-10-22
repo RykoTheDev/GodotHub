@@ -102,7 +102,7 @@ export function RestoreProgressModal({ onClose }: Props) {
       showClose={phase === 'preview' || phase === 'error'}
       footer={
         phase === 'preview' ? (
-          <div className="ml-auto flex items-center gap-2.5">
+          <div className="ms-auto flex items-center gap-2.5">
             <motion.button
 
               data-press-feedback
@@ -121,7 +121,7 @@ export function RestoreProgressModal({ onClose }: Props) {
             </motion.button>
           </div>
         ) : phase === 'error' ? (
-          <div className="ml-auto flex items-center gap-2.5">
+          <div className="ms-auto flex items-center gap-2.5">
             <motion.button
 
               data-press-feedback
@@ -140,7 +140,7 @@ export function RestoreProgressModal({ onClose }: Props) {
             </motion.button>
           </div>
         ) : phase === 'done' ? (
-          <div className="ml-auto">
+          <div className="ms-auto">
             <motion.button
 
               data-press-feedback

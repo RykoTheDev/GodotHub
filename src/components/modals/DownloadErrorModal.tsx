@@ -111,7 +111,7 @@ export function DownloadErrorModal({ error, onRetry, onClose }: Props) {
             )}
             {copied ? tc('bug_report_copied') : tv('download_failed_copy')}
           </button>
-          <div className="ml-auto flex items-center gap-2.5">
+          <div className="ms-auto flex items-center gap-2.5">
             <motion.button
               data-press-feedback
               onClick={onRetry}

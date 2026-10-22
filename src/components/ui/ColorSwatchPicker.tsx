@@ -36,7 +36,7 @@ export function ColorSwatchPicker({ label, value, onChange, presets }: Props) {
               className="w-8 h-8 rounded-tile border border-line shadow-inner shrink-0"
               style={{ backgroundColor: value }}
             />
-            <span className="text-xs font-mono text-ink truncate ml-auto">
+            <span className="text-xs font-mono text-ink truncate ms-auto">
               {value.toLowerCase()}
             </span>
           </button>
@@ -78,7 +78,7 @@ export function ColorSwatchPicker({ label, value, onChange, presets }: Props) {
             </div>
           </div>
 
-          <div className="border-l border-line pl-3 flex flex-col">
+          <div className="border-s border-line ps-3 flex flex-col">
             <span className="text-[10px] font-medium text-muted/60 uppercase tracking-wider mb-2 block">Presets</span>
             <div className="grid grid-cols-6 gap-1.5">
               {presets.map((preset) => {

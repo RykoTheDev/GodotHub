@@ -41,7 +41,7 @@ export function Checkbox({ checked, indeterminate = false, onChange, label, disa
           {indeterminate ? <IconMinus className="w-3 h-3" /> : <IconCheck className="w-3 h-3" />}
         </span>
       </span>
-      {children && <span className="min-w-0 text-left text-xs font-medium text-ink">{children}</span>}
+      {children && <span className="min-w-0 text-start text-xs font-medium text-ink">{children}</span>}
     </button>
   )
 }

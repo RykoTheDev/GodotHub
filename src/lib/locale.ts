@@ -1,5 +1,16 @@
 import i18n from '../i18n'
 
+export function isRtl(): boolean {
+  return typeof document !== 'undefined' && document.documentElement.dir === 'rtl'
+}
+
+export function mirrorSide<T extends string>(side: T): T {
+  if (!isRtl()) return side
+  if (side === 'left') return 'right' as T
+  if (side === 'right') return 'left' as T
+  return side
+}
+
 export function uiLocale(): string {
   return i18n.resolvedLanguage || i18n.language || 'en-US'
 }

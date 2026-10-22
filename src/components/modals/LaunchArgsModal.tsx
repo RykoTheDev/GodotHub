@@ -58,7 +58,7 @@ export function LaunchArgsModal({
 
             data-press-feedback
             onClick={onClose}
-            className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg text-sm text-muted hover:text-ink hover:bg-raised transition-colors ml-auto"
+            className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg text-sm text-muted hover:text-ink hover:bg-raised transition-colors ms-auto"
           >
             {t('cancel')}
           </motion.button>

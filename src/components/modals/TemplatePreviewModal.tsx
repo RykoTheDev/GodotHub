@@ -91,7 +91,7 @@ function FileTree({
               aria-label={isCollapsed ? t('expand') : t('collapse')}
             >
               {isCollapsed ? (
-                <IconChevronRight className="w-3 h-3" />
+                <IconChevronRight className="rtl:rotate-180 w-3 h-3" />
               ) : (
                 <IconChevronDown className="w-3 h-3" />
               )}
@@ -114,7 +114,7 @@ function FileTree({
           <span className="truncate">{node.name}</span>
 
           {!node.is_dir && node.size > 0 && (
-            <span className="ml-auto text-[10px] text-muted/50 font-mono shrink-0">
+            <span className="ms-auto text-[10px] text-muted/50 font-mono shrink-0">
               {formatSize(node.size)}
             </span>
           )}

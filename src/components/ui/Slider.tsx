@@ -39,7 +39,7 @@ export function Slider({
         {label && (
           <span className="text-xs font-medium text-muted">{label}</span>
         )}
-        <span className="ml-auto flex items-center gap-1">
+        <span className="ms-auto flex items-center gap-1">
           <Tooltip content={t('reset_to_default')} side="left">
             <button
               type="button"
@@ -64,6 +64,7 @@ export function Slider({
       </div>
 
       <div
+        dir="ltr"
         className={`group relative flex items-center w-full h-5 ${disabled ? 'opacity-40' : ''}`}
       >
         <div

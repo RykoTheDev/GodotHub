@@ -157,7 +157,7 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
           {error && (
             <p className="text-xs text-danger self-start max-w-64">{error}</p>
           )}
-          <div className="ml-auto flex items-center gap-2.5">
+          <div className="ms-auto flex items-center gap-2.5">
             <motion.button
 
               data-press-feedback
@@ -269,7 +269,7 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
               </span>
             </div>
 
-            <div className="flex flex-col gap-1.5 max-h-64 overflow-y-auto pr-1">
+            <div className="flex flex-col gap-1.5 max-h-64 overflow-y-auto pe-1">
               {rows.length === 0 && draft.skipped.length === 0 && (
                 <p className="text-xs text-muted/70 italic py-3 text-center">
                   {t('changelog_draft_none')}
@@ -290,7 +290,7 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
                         }`}
                       >
                         <span
-                          className={`w-1.5 h-1.5 rounded-full inline-block mr-1 align-middle ${c.dotClass}`}
+                          className={`w-1.5 h-1.5 rounded-full inline-block me-1 align-middle ${c.dotClass}`}
                         />
                         {t(c.value)}
                       </button>
@@ -337,7 +337,7 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
                       </button>
                       <span className="font-mono text-[10px] shrink-0">{s.hash}</span>
                       <span className="truncate">{s.subject}</span>
-                      <span className="ml-auto shrink-0 text-[10px] uppercase tracking-wide text-muted/40">
+                      <span className="ms-auto shrink-0 text-[10px] uppercase tracking-wide text-muted/40">
                         {s.reason}
                       </span>
                     </div>

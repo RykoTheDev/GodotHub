@@ -744,7 +744,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               <span className="text-[10px] font-medium text-muted/60">
                 {presets.length}
               </span>
-              <IconChevronDown className="w-3.5 h-3.5 text-muted -rotate-90 ml-auto" />
+              <IconChevronDown className="w-3.5 h-3.5 text-muted -rotate-90 rtl:rotate-90 ms-auto" />
             </button>
           ))}
 
@@ -762,9 +762,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               {ts("theme_preset_custom")}
             </span>
             {settings.theme_preset === "custom" ? (
-              <IconCheck className="w-3.5 h-3.5 text-accent-bright ml-auto" />
+              <IconCheck className="w-3.5 h-3.5 text-accent-bright ms-auto" />
             ) : (
-              <IconChevronDown className="w-3.5 h-3.5 text-muted -rotate-90 ml-auto" />
+              <IconChevronDown className="w-3.5 h-3.5 text-muted -rotate-90 rtl:rotate-90 ms-auto" />
             )}
           </button>
         </div>
@@ -1136,6 +1136,21 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             />
           </div>
         </div>
+      </Subsection>
+
+      <Subsection
+        id="display-rtl-layout"
+        title={ts("rtl_layout_label")}
+        description={ts("rtl_layout_desc")}
+        searchText={`${ts("rtl_layout_label")} ${ts("rtl_layout_desc")} RTL`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <Toggle
+          checked={settings.rtl_layout ?? false}
+          onChange={(checked) => update({ ...settings, rtl_layout: checked })}
+          label={ts("rtl_layout_label")}
+        />
       </Subsection>
 
       {!isMac && (
@@ -2095,12 +2110,12 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   placeholder={ts("setting_token_placeholder", {
                     ns: "common",
                   })}
-                  className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm font-mono focus:border-accent-dim transition-colors pr-20"
+                  className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm font-mono focus:border-accent-dim transition-colors pe-20"
                 />
                 <button
                   type="button"
                   onClick={testGithubToken}
-                  className="focus-ring cursor-pointer absolute right-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md bg-overlay border border-outline/50 text-xs font-medium text-muted hover:text-ink hover:border-accent-dim transition-colors"
+                  className="focus-ring cursor-pointer absolute end-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md bg-overlay border border-outline/50 text-xs font-medium text-muted hover:text-ink hover:border-accent-dim transition-colors"
                 >
                   {tokenTestState === "testing" ? ts("testing") : ts("test")}
                 </button>
@@ -2994,7 +3009,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         <button
           type="button"
           onClick={() => openUrl("https://github.com/RykoTheDev")}
-          className="focus-ring cursor-pointer flex items-center gap-4 px-5 py-4 rounded-item border border-outline/50 bg-raised/40 hover:bg-raised transition-colors text-left w-full"
+          className="focus-ring cursor-pointer flex items-center gap-4 px-5 py-4 rounded-item border border-outline/50 bg-raised/40 hover:bg-raised transition-colors text-start w-full"
         >
           <img
             src="https://github.com/RykoTheDev.png?size=80"
@@ -3139,7 +3154,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         <nav
           onKeyDown={handleRailKeyDown}
           aria-label={ts("settings_title")}
-          className={`shrink-0 w-52 flex flex-col gap-1 ${connected ? "pl-3" : ""}`}
+          className={`shrink-0 w-52 flex flex-col gap-1 ${connected ? "ps-3" : ""}`}
         >
           {CATEGORIES.map(({ id, icon: Icon }, railIndex) => {
             const active = cat === id;
@@ -3192,7 +3207,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             );
           })}
           {appVersion && (
-            <div className="mt-auto pt-6 pl-1">
+            <div className="mt-auto pt-6 ps-1">
               <button
                 type="button"
                 onClick={() => handleCatChange("credits" as SettingsCat)}
@@ -3206,7 +3221,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
         <div
           className={`flex-1 min-w-0 flex bg-raised overflow-hidden ${
-            connected ? "rounded-tl-tag" : "rounded-card"
+            connected ? "rounded-ss-tag" : "rounded-card"
           }`}
         >
           <OverlayScrollArea

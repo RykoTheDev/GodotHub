@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useSettings } from '../../hooks/useSettings'
 import { useUiMotion } from '../../hooks/useUiMotion'
 import { motionIsInstant } from '../../lib/appearance'
+import { mirrorSide } from '../../lib/locale'
 
 interface TooltipProps {
   content: ReactNode
@@ -52,7 +53,7 @@ export function Tooltip({
       }
 
       const pick = (): 'top' | 'bottom' | 'left' | 'right' => {
-        if (sideProp) return sideProp
+        if (sideProp) return mirrorSide(sideProp)
 
         const ranked = (
           ['bottom', 'top', 'right', 'left'] as const

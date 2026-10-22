@@ -107,7 +107,7 @@ export function ChangelogEntryModal({ entry, initial, onClose, onSave }: Props) 
       footer={
         <>
           {error && <p className="text-xs text-danger">{error}</p>}
-          <div className="ml-auto flex justify-end gap-2.5">
+          <div className="ms-auto flex justify-end gap-2.5">
             <motion.button
 
               data-press-feedback
@@ -176,7 +176,7 @@ export function ChangelogEntryModal({ entry, initial, onClose, onSave }: Props) 
                         }`}
                       >
                         <span
-                          className={`w-1.5 h-1.5 rounded-full inline-block mr-1 align-middle ${c.dotClass}`}
+                          className={`w-1.5 h-1.5 rounded-full inline-block me-1 align-middle ${c.dotClass}`}
                         />
                         {t(c.label)}
                       </button>

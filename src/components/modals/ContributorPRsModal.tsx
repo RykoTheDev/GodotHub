@@ -180,7 +180,7 @@ export function ContributorPRsModal({ login, avatarUrl, onClose }: Props) {
                     key={pr.number}
                     type="button"
                     onClick={() => openUrl(pr.html_url)}
-                    className="focus-ring cursor-pointer flex items-start gap-3 px-5 py-3 text-left hover:bg-raised/60 transition-colors border-b border-line/50 last:border-b-0"
+                    className="focus-ring cursor-pointer flex items-start gap-3 px-5 py-3 text-start hover:bg-raised/60 transition-colors border-b border-line/50 last:border-b-0"
                   >
                     <span className="text-[11px] font-mono text-muted/50 shrink-0 mt-0.5">
                       #{pr.number}

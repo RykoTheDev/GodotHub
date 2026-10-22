@@ -660,7 +660,7 @@ export function CommandPalette({
                       >
                         {item.icon}
                       </span>
-                      <div className="flex-1 text-left min-w-0">
+                      <div className="flex-1 text-start min-w-0">
                         <span className="block truncate">
                           {'labelKey' in item
                             ? item.labelNs === 'nav'

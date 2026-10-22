@@ -26,7 +26,7 @@ export function ThemePresetPreview({ preset }: { preset: ThemePreset }) {
           style={{ backgroundColor: preset.mint }}
         />
         <span
-          className="ml-auto w-7 h-1 rounded-full"
+          className="ms-auto w-7 h-1 rounded-full"
           style={{ backgroundColor: preset.line }}
         />
       </div>
