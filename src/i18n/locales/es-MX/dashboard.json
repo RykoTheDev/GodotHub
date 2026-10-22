@@ -82,5 +82,6 @@
   "dashboard_preset_name_placeholder": "Preset name",
   "dashboard_preset_delete": "Delete preset",
   "dashboard_custom_presets": "Your presets",
-  "dashboard_hidden_tiles": "Hidden tiles"
+  "dashboard_hidden_tiles": "Hidden tiles",
+  "dashboard_todos": "Due to-dos"
 }

@@ -82,5 +82,6 @@
   "dashboard_preset_name_placeholder": "プリセット名",
   "dashboard_preset_delete": "プリセットを削除",
   "dashboard_custom_presets": "保存したプリセット",
-  "dashboard_hidden_tiles": "非表示のタイル"
+  "dashboard_hidden_tiles": "非表示のタイル",
+  "dashboard_todos": "Due to-dos"
 }

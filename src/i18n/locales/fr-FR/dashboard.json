@@ -82,5 +82,6 @@
   "dashboard_preset_name_placeholder": "Nom du préréglage",
   "dashboard_preset_delete": "Supprimer le préréglage",
   "dashboard_custom_presets": "Vos préréglages",
-  "dashboard_hidden_tiles": "Tuiles masquées"
+  "dashboard_hidden_tiles": "Tuiles masquées",
+  "dashboard_todos": "Due to-dos"
 }

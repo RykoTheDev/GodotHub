@@ -82,5 +82,6 @@
   "dashboard_preset_name_placeholder": "预设名称",
   "dashboard_preset_delete": "删除预设",
   "dashboard_custom_presets": "您的预设",
-  "dashboard_hidden_tiles": "隐藏的磁贴"
+  "dashboard_hidden_tiles": "隐藏的磁贴",
+  "dashboard_todos": "Due to-dos"
 }
