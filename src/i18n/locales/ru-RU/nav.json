@@ -9,5 +9,6 @@
   "settings": "Настройки",
   "changelog": "Журнал изменений",
   "projects_count_one": "Project",
-  "projects_count_other": "Projects"
+  "projects_count_other": "Projects",
+  "storage_view": "Storage"
 }

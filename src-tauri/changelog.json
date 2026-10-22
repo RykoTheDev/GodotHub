@@ -1524,6 +1524,26 @@
       {
         "category": "fix",
         "text": "Hardened local data against loss: a corrupt project list now offers to restore from its automatic backup instead of showing an empty library, background and UI updates to your projects and time tracking can no longer overwrite each other, each data file carries a schema version for safe future migrations, and pending settings changes are saved when you close the window"
+      },
+      {
+        "category": "add",
+        "text": "Storage view: see how much space your installed Godot versions, project templates and export templates take, and reclaim space from unused versions, unfinished downloads and orphaned export templates after reviewing exactly what will be removed"
+      },
+      {
+        "category": "improve",
+        "text": "Settings are reorganized into clearer categories, with new Motion and Data & Backup sections"
+      },
+      {
+        "category": "improve",
+        "text": "mise integration is no longer experimental and now lives under Settings > Integrations, next to the command-line tool"
+      },
+      {
+        "category": "improve",
+        "text": "Switching between pages is much faster: pages stay loaded after your first visit and keep their scroll position and filters"
+      },
+      {
+        "category": "improve",
+        "text": "Switching pages now plays the entrance animation chosen in Settings > Motion"
       }
     ],
     "known_issues": [],

@@ -392,6 +392,63 @@ export interface GitDiffResult {
   hunks: GitDiffHunk[]
 }
 
+export interface StorageVersion {
+  tag: string
+  name: string
+  path: string
+  size_bytes: number
+  managed_by: string | null
+  external: boolean
+  projects: string[]
+  templates: string[]
+  is_current: boolean
+  aliases: string[]
+  unused: boolean
+}
+
+export interface StoragePartial {
+  kind: 'version_download' | 'export_templates_download'
+  name: string
+  path: string
+  size_bytes: number
+}
+
+export interface StorageTemplate {
+  id: string
+  name: string
+  workspace: string
+  path: string
+  size_bytes: number
+}
+
+export interface StorageExportTemplates {
+  tag: string | null
+  folder: string
+  root: string
+  path: string
+  size_bytes: number
+  orphan: boolean
+}
+
+export interface StorageReport {
+  versions: StorageVersion[]
+  partials: StoragePartial[]
+  templates: StorageTemplate[]
+  export_templates: StorageExportTemplates[]
+  export_templates_error: string | null
+}
+
+export type ReclaimItem =
+  | { kind: 'version'; tag: string }
+  | { kind: 'partial'; path: string }
+  | { kind: 'export_templates'; folder: string; root: string }
+
+export interface ReclaimResult {
+  freed_bytes: number
+  removed: number
+  failed: { label: string; error: string }[]
+}
+
 export interface DownloadProgress {
   tag: string
   downloaded: number

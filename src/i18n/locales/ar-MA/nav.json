@@ -9,5 +9,6 @@
   "settings": "الإعدادات",
   "changelog": "سجل التغييرات",
   "projects_count_one": "مشروع",
-  "projects_count_other": "مشاريع"
+  "projects_count_other": "مشاريع",
+  "storage_view": "Storage"
 }

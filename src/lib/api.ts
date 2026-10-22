@@ -13,6 +13,7 @@ import { changelogApi } from '../api/changelog'
 import { updatesApi } from '../api/updates'
 import { newsApi } from '../api/news'
 import { assetLibraryApi } from '../api/assetLibrary'
+import { storageApi } from '../api/storage'
 import type {
   DiscoveredInstall,
   DiscoveredProject,
@@ -245,4 +246,7 @@ export const api = {
   downloadStoreAsset: assetLibraryApi.downloadStoreAsset,
   installStoreAsset: assetLibraryApi.installStoreAsset,
   listAssetLibraryCategories: assetLibraryApi.listCategories,
+
+  getStorageReport: storageApi.report,
+  reclaimStorage: storageApi.reclaim,
 }

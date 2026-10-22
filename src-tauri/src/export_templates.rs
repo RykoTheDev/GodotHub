@@ -206,6 +206,18 @@ fn active_downloads() -> &'static Mutex<HashMap<String, Arc<AtomicBool>>> {
     ACTIVE.get_or_init(|| Mutex::new(HashMap::new()))
 }
 
+pub(crate) fn has_active_downloads() -> bool {
+    active_downloads()
+        .lock()
+        .map(|map| !map.is_empty())
+        .unwrap_or(true)
+}
+
+pub(crate) fn existing_downloads_dir(app: &AppHandle) -> Option<PathBuf> {
+    let dir = downloads_dir(app);
+    dir.is_dir().then_some(dir)
+}
+
 fn is_downloading(tag: &str) -> bool {
     active_downloads()
         .lock()
@@ -290,7 +302,7 @@ fn canonical(path: &Path) -> PathBuf {
     path.canonicalize().unwrap_or_else(|_| path.to_path_buf())
 }
 
-fn build_state(app: &AppHandle) -> Result<ExportTemplatesState, String> {
+pub(crate) fn build_state(app: &AppHandle) -> Result<ExportTemplatesState, String> {
     let default_root = default_templates_root()
         .ok_or_else(|| "Could not locate Godot's data folder on this system".to_string())?;
     let registry = crate::godot_versions::read_registry(app);

@@ -718,8 +718,6 @@ export function ProjectsView({
     lastClickedIndexRef.current = null
   }, [])
 
-  // While hidden behind another page, drop the selection so selection
-  // shortcuts (launch, remove) cannot act on projects the user cannot see.
   useEffect(() => {
     if (active) return
     clearSelection()

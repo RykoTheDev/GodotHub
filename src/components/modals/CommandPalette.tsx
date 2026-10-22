@@ -29,6 +29,7 @@ import {
   IconSearch,
   IconStore,
   IconTags,
+  IconHardDrive,
 } from '../../lib/icons'
 import { ModalHeader } from './ModalHeader'
 
@@ -113,6 +114,14 @@ function buildCommands(
       icon: <IconNews className="w-4 h-4" />,
       sectionKey: 'section_navigation',
       action: () => onNavigate('news'),
+    },
+    {
+      id: 'go-storage',
+      labelKey: 'storage_view',
+      labelNs: 'nav',
+      icon: <IconHardDrive className="w-4 h-4" />,
+      sectionKey: 'section_navigation',
+      action: () => onNavigate('storage'),
     },
     {
       id: 'go-changelog',

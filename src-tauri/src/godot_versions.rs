@@ -4,7 +4,7 @@ use crate::settings;
 use futures_util::StreamExt;
 use serde::Serialize;
 use sha2::{Digest, Sha512};
-use std::collections::{HashMap, VecDeque};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::fs;
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
@@ -776,6 +776,16 @@ struct DownloadManager {
 fn dm() -> &'static Mutex<DownloadManager> {
     static DM: OnceLock<Mutex<DownloadManager>> = OnceLock::new();
     DM.get_or_init(|| Mutex::new(DownloadManager::default()))
+}
+
+pub(crate) fn active_download_keys() -> HashSet<String> {
+    let mgr = dm().lock().unwrap();
+    mgr.handles
+        .keys()
+        .chain(mgr.state.keys())
+        .chain(mgr.queue.iter())
+        .cloned()
+        .collect()
 }
 
 fn download_key(tag: &str, asset_name: &str) -> String {

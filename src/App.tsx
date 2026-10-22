@@ -56,6 +56,9 @@ const NewsView = lazy(() =>
 const AssetStoreView = lazy(() =>
   import('./views/AssetStoreView').then((m) => ({ default: m.AssetStoreView })),
 )
+const StorageView = lazy(() =>
+  import('./views/StorageView').then((m) => ({ default: m.StorageView })),
+)
 const DashboardView = lazy(() =>
   import('./views/DashboardView').then((m) => ({ default: m.DashboardView })),
 )
@@ -81,6 +84,7 @@ import {
   IconCloudArrowDown,
   IconFolder,
   IconGear,
+  IconHardDrive,
   IconHouse,
   IconNews,
   IconRocket,
@@ -92,6 +96,7 @@ const TABS = [
   { id: 'projects', navKey: 'projects', icon: IconFolder },
   { id: 'versions', navKey: 'versions', icon: IconCloudArrowDown },
   { id: 'templates', navKey: 'templates', icon: IconRocket },
+  { id: 'storage', navKey: 'storage_view', icon: IconHardDrive, isNew: true },
   { id: 'asset-store', navKey: 'asset_store', icon: IconStore },
   { id: 'news', navKey: 'news', icon: IconNews },
   { id: 'settings', navKey: 'settings', icon: IconGear, footer: true },
@@ -112,6 +117,7 @@ function preloadViewChunks() {
     import('./views/NewsView'),
     import('./views/SettingsView'),
     import('./views/ChangelogView'),
+    import('./views/StorageView'),
     import('./components/git/GitSidebar'),
   ]
   chunks.forEach((c) => c.catch(() => {}))
@@ -144,6 +150,8 @@ function renderTabView(
       return <TemplatesView onOpenSettings={onOpenSettings} connected={connected} />
     case 'asset-store':
       return <AssetStoreView connected={connected} />
+    case 'storage':
+      return <StorageView connected={connected} active={active} />
     case 'settings':
       return <SettingsView connected={connected} />
     case 'changelog':
@@ -161,9 +169,6 @@ interface ViewPaneProps {
   onOpenSettings: () => void
 }
 
-// Visited views stay mounted and are hidden while inactive, so switching back
-// is instant and keeps scroll position, filters and loaded data. Memoized so a
-// hidden view only re-renders when its own props change.
 const ViewPane = memo(function ViewPane({
   id,
   active,
@@ -294,7 +299,6 @@ export function App() {
   const gitSidebarOpenRef = useRef(gitSidebarOpen)
   gitSidebarOpenRef.current = gitSidebarOpen
   const [gitPanelOpened, setGitPanelOpened] = useState(false)
-  // Load the Git sidebar once its slide-in settles; with animations off there is no slide to wait for.
   useEffect(() => {
     if (!gitSidebarOpen) setGitPanelOpened(false)
     else if (uiMotion.instant) setGitPanelOpened(true)
@@ -580,6 +584,7 @@ export function App() {
     icon: tab.icon,
     footer: 'footer' in tab ? tab.footer : undefined,
     iconOnly: 'iconOnly' in tab ? tab.iconOnly : undefined,
+    isNew: 'isNew' in tab ? tab.isNew : undefined,
   }))
 
   if (settingsLoaded && !settings.setup_complete) {

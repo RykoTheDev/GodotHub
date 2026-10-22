@@ -30,6 +30,7 @@ mod projects;
 mod resolve;
 mod scan;
 mod settings;
+mod storage;
 mod sync;
 mod template_files;
 mod templates;
@@ -369,6 +370,8 @@ pub fn run() {
             git_auth::list_user_repos,
             godot_versions::import_version_zip,
             export_templates::get_export_templates_state,
+            storage::get_storage_report,
+            storage::reclaim_storage,
             export_templates::get_export_template_options,
             export_templates::install_export_templates,
             export_templates::cancel_export_templates_download,

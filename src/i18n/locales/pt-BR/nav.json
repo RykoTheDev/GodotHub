@@ -9,5 +9,6 @@
   "settings": "Configurações",
   "changelog": "Histórico de alterações",
   "projects_count_one": "Projeto",
-  "projects_count_other": "Projetos"
+  "projects_count_other": "Projetos",
+  "storage_view": "Storage"
 }

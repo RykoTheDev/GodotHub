@@ -9,5 +9,6 @@
   "changelog": "Cambios de Registro",
   "dashboard": "Dashboard",
   "projects_count_one": "Project",
-  "projects_count_other": "Projects"
+  "projects_count_other": "Projects",
+  "storage_view": "Storage"
 }

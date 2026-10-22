@@ -8,5 +8,6 @@
   "settings": "設定",
   "changelog": "変更履歴",
   "projects_count_one": "プロジェクト",
-  "projects_count_other": "プロジェクト"
+  "projects_count_other": "プロジェクト",
+  "storage_view": "Storage"
 }

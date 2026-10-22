@@ -17,6 +17,7 @@ export interface SidebarTab {
   icon: ComponentType<IconProps>
   footer?: boolean
   iconOnly?: boolean
+  isNew?: boolean
 }
 
 const COLLAPSED_WIDTH = 68
@@ -73,6 +74,22 @@ export function Sidebar({
       return false
     }
   })
+  const [seenNewTabs, setSeenNewTabs] = useState<string[]>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('new_ui_sidebar_seen_new_tabs') ?? '[]')
+      return Array.isArray(saved) ? saved.filter((id): id is string => typeof id === 'string') : []
+    } catch {
+      return []
+    }
+  })
+  const markTabSeen = (id: string) => {
+    if (seenNewTabs.includes(id)) return
+    const next = [...seenNewTabs, id]
+    setSeenNewTabs(next)
+    try {
+      localStorage.setItem('new_ui_sidebar_seen_new_tabs', JSON.stringify(next))
+    } catch {}
+  }
   const [dragging, setDragging] = useState(false)
   const [revealed, setRevealed] = useState(false)
   const [knobY, setKnobY] = useState<number | null>(null)
@@ -171,19 +188,23 @@ export function Sidebar({
     const active = activeTab === tab.id
     const Icon = tab.icon
     const hideLabel = collapsedView || !!tab.iconOnly
+    const showNew = !!tab.isNew && !seenNewTabs.includes(tab.id)
     const btn = (
       <button
         key={tab.id}
         type="button"
         onClick={() => {
           if (tab.id === 'changelog') markChangelogSeen()
+          if (tab.isNew) markTabSeen(tab.id)
           onTabChange(tab.id)
         }}
         aria-label={hideLabel ? tab.label : undefined}
         className={`focus-ring cursor-pointer relative flex items-center rounded-item text-sm font-medium transition-colors ${layoutClass} ${
+          showNew ? 'border border-dashed border-accent/70' : 'border border-transparent'
+        } ${
           active
-            ? 'text-ink border border-transparent'
-            : 'text-muted border border-transparent hover:text-ink hover:bg-raised/60'
+            ? 'text-ink'
+            : 'text-muted hover:text-ink hover:bg-raised/60'
         } ${
           hasNewChangelogEntry && tab.id === 'changelog' && !active
             ? 'changelog-shine'
@@ -202,6 +223,14 @@ export function Sidebar({
         />
         {!hideLabel && (
           <span className={`relative transition-colors duration-200 ${active ? 'text-ink' : ''}`}>{tab.label}</span>
+        )}
+        {showNew && !hideLabel && (
+          <span className="relative ml-auto shrink-0 px-1.5 py-0.5 rounded-tag bg-accent text-white text-[10px] font-semibold leading-none">
+            {tc('new_badge')}
+          </span>
+        )}
+        {showNew && hideLabel && (
+          <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-accent" aria-hidden="true" />
         )}
       </button>
     )
