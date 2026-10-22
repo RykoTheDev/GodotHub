@@ -97,10 +97,12 @@ export function ProjectsView({
   onOpenSettings,
   connected = false,
   gitSidebarOpen = false,
+  active = true,
 }: {
   onOpenSettings?: () => void
   connected?: boolean
   gitSidebarOpen?: boolean
+  active?: boolean
 }) {
   const { t } = useTranslation('nav')
   const { t: tc } = useTranslation('common')
@@ -439,12 +441,12 @@ export function ProjectsView({
   })
   const [sortNow, setSortNow] = useState(() => Date.now())
   useEffect(() => {
-    if (sortBy !== 'time_desc') return
+    if (!active || sortBy !== 'time_desc') return
     if (!projects.some((p) => p.session_started_at_ms)) return
     setSortNow(Date.now())
     const id = setInterval(() => setSortNow(Date.now()), 1000)
     return () => clearInterval(id)
-  }, [sortBy, projects])
+  }, [active, sortBy, projects])
   const [gitStatusMap, setGitStatusMap] = useState<Record<string, GitStatus>>({})
   const fetchingGitRef = useRef(false)
   const { viewportRef, restoreScroll } = useScrollCompensation()
@@ -478,6 +480,7 @@ export function ProjectsView({
 
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   useEffect(() => {
+    if (!active) return
     fetchGitStatuses()
     const interval = setInterval(fetchGitStatuses, 30000)
     const handleRefresh = () => {
@@ -493,7 +496,7 @@ export function ProjectsView({
       window.removeEventListener('app:refresh-git-status', handleRefresh)
       window.removeEventListener('focus', handleFocus)
     }
-  }, [fetchGitStatuses, projectPathsKey])
+  }, [active, fetchGitStatuses, projectPathsKey])
 
   useEffect(() => {
     try {
@@ -714,6 +717,14 @@ export function ProjectsView({
     setSelectedIds(new Set())
     lastClickedIndexRef.current = null
   }, [])
+
+  // While hidden behind another page, drop the selection so selection
+  // shortcuts (launch, remove) cannot act on projects the user cannot see.
+  useEffect(() => {
+    if (active) return
+    clearSelection()
+    setSelecting(false)
+  }, [active, clearSelection])
 
   const allVisibleSelected =
     filtered.length > 0 && filtered.every((p) => selectedIds.has(p.id))

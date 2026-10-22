@@ -1,4 +1,4 @@
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useProjectsContext } from './hooks/projectsContext'
@@ -7,7 +7,12 @@ import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
 import { api } from './lib/api'
 import { flushPendingSave } from './lib/pendingSave'
 import { getCurrentWindow } from '@tauri-apps/api/window'
-import { overlayTransition, viewTransition } from './lib/motion'
+import {
+  overlayTransition,
+  viewTransition,
+  type AnimationIntensity,
+  type ViewEntrance,
+} from './lib/motion'
 import { motionDuration } from './lib/motion'
 import { useUiMotion } from './hooks/useUiMotion'
 import type { GitStatus, Project } from './types'
@@ -17,7 +22,6 @@ const GitSidebar = lazy(() =>
   import('./components/git/GitSidebar').then((m) => ({ default: m.GitSidebar })),
 )
 import { Titlebar } from './components/titlebar/Titlebar'
-import { OverlayScrollArea } from './components/reusables/OverlayScrollArea'
 import { ConfirmDialog } from './components/modals/ConfirmDialog'
 import { reportLaunchError } from './lib/launchErrors'
 import { CreateProjectModal } from './components/modals/CreateProjectModal'
@@ -98,6 +102,101 @@ const DEFAULT_GIT_SIDEBAR_WIDTH = 320
 
 export type NewTab = (typeof TABS)[number]['id']
 
+function preloadViewChunks() {
+  const chunks = [
+    import('./views/DashboardView'),
+    import('./views/ProjectsView'),
+    import('./views/VersionsView'),
+    import('./views/TemplatesView'),
+    import('./views/AssetStoreView'),
+    import('./views/NewsView'),
+    import('./views/SettingsView'),
+    import('./views/ChangelogView'),
+    import('./components/git/GitSidebar'),
+  ]
+  chunks.forEach((c) => c.catch(() => {}))
+}
+
+function renderTabView(
+  id: NewTab,
+  active: boolean,
+  connected: boolean,
+  gitSidebarOpen: boolean,
+  onOpenSettings: () => void,
+) {
+  switch (id) {
+    case 'dashboard':
+      return <DashboardView connected={connected} active={active} />
+    case 'projects':
+      return (
+        <ProjectsView
+          onOpenSettings={onOpenSettings}
+          connected={connected}
+          gitSidebarOpen={gitSidebarOpen}
+          active={active}
+        />
+      )
+    case 'versions':
+      return <VersionsView onOpenSettings={onOpenSettings} connected={connected} />
+    case 'news':
+      return <NewsView connected={connected} />
+    case 'templates':
+      return <TemplatesView onOpenSettings={onOpenSettings} connected={connected} />
+    case 'asset-store':
+      return <AssetStoreView connected={connected} />
+    case 'settings':
+      return <SettingsView connected={connected} />
+    case 'changelog':
+      return <ChangelogView connected={connected} />
+  }
+}
+
+interface ViewPaneProps {
+  id: NewTab
+  active: boolean
+  connected: boolean
+  gitSidebarOpen: boolean
+  entrance: ViewEntrance
+  intensity: AnimationIntensity
+  onOpenSettings: () => void
+}
+
+// Visited views stay mounted and are hidden while inactive, so switching back
+// is instant and keeps scroll position, filters and loaded data. Memoized so a
+// hidden view only re-renders when its own props change.
+const ViewPane = memo(function ViewPane({
+  id,
+  active,
+  connected,
+  gitSidebarOpen,
+  entrance,
+  intensity,
+  onOpenSettings,
+}: ViewPaneProps) {
+  const variants = useMemo(() => {
+    const { initial, animate, transition } = viewTransition(entrance, intensity)
+    const from = typeof initial === 'object' ? initial : animate
+    return {
+      shown: { ...animate, display: 'block', transition },
+      hidden: { ...from, display: 'none', transition: { duration: 0 } },
+    }
+  }, [entrance, intensity])
+
+  return (
+    <motion.div
+      className="flex-1 min-w-0 h-full"
+      variants={variants}
+      initial="hidden"
+      animate={active ? 'shown' : 'hidden'}
+      aria-hidden={!active}
+    >
+      <Suspense fallback={null}>
+        {renderTabView(id, active, connected, gitSidebarOpen, onOpenSettings)}
+      </Suspense>
+    </motion.div>
+  )
+})
+
 export function App() {
   const uiMotion = useUiMotion()
   const { t } = useTranslation('nav')
@@ -113,6 +212,19 @@ export function App() {
   const [uiSwitchIntent] = useState(() => shouldOpenSettingsAfterSwitch())
   const [projectsCorrupt, setProjectsCorrupt] = useState(false)
   const [tab, setTab] = useState<NewTab>(uiSwitchIntent ? 'settings' : 'projects')
+  const [mountedTabs, setMountedTabs] = useState<NewTab[]>(() => [tab])
+  if (!mountedTabs.includes(tab)) setMountedTabs([...mountedTabs, tab])
+  const openSettingsTab = useCallback(() => setTab('settings'), [])
+
+  useEffect(() => {
+    if (!settingsLoaded) return
+    if (typeof window.requestIdleCallback === 'function') {
+      const id = window.requestIdleCallback(preloadViewChunks, { timeout: 2000 })
+      return () => window.cancelIdleCallback(id)
+    }
+    const id = window.setTimeout(preloadViewChunks, 1000)
+    return () => window.clearTimeout(id)
+  }, [settingsLoaded])
   const landingTabRef = useRef<string | null>(null)
 
   // Flush debounced settings before the window closes. This only guarantees the
@@ -470,43 +582,6 @@ export function App() {
     iconOnly: 'iconOnly' in tab ? tab.iconOnly : undefined,
   }))
 
-  const renderView = () => {
-    switch (tab) {
-      case 'dashboard':
-        return <DashboardView connected={!cardLayout} active={tab === 'dashboard'} />
-      case 'projects':
-        return (
-          <ProjectsView
-            onOpenSettings={() => setTab('settings')}
-            connected={!cardLayout}
-            gitSidebarOpen={!!gitSidebarProject}
-          />
-        )
-      case 'versions':
-        return (
-          <VersionsView
-            onOpenSettings={() => setTab('settings')}
-            connected={!cardLayout}
-          />
-        )
-      case 'news':
-        return <NewsView connected={!cardLayout} />
-      case 'templates':
-        return (
-          <TemplatesView
-            onOpenSettings={() => setTab('settings')}
-            connected={!cardLayout}
-          />
-        )
-      case 'asset-store':
-        return <AssetStoreView connected={!cardLayout} />
-      case 'settings':
-        return <SettingsView connected={!cardLayout} />
-      case 'changelog':
-        return <ChangelogView connected={!cardLayout} />
-    }
-  }
-
   if (settingsLoaded && !settings.setup_complete) {
     return (
       <Suspense fallback={null}>
@@ -554,44 +629,18 @@ export function App() {
           }}
         />
 
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div
-            key={tab}
-            className="flex-1 min-w-0 h-full"
-            {...viewTransition(
-              settings.view_entrance,
-              settings.animation_intensity,
-            )}
-          >
-            <Suspense fallback={null}>
-              {tab === 'dashboard' ||
-              tab === 'projects' ||
-              tab === 'settings' ||
-              tab === 'versions' ||
-              tab === 'news' ||
-              tab === 'asset-store' ||
-              tab === 'templates' ||
-              tab === 'changelog' ? (
-                renderView()
-              ) : (
-                <main
-                  className={`flex-1 min-w-0 relative overflow-hidden h-full ${
-                    cardLayout ? 'rounded-card bg-raised' : 'bg-raised'
-                  }`}
-                >
-                  <OverlayScrollArea
-                    className="absolute inset-0"
-                    hideThumb={!settings.show_scrollbars}
-                  >
-                    <div className="min-h-full px-6 py-4">
-                      {renderView()}
-                    </div>
-                  </OverlayScrollArea>
-                </main>
-              )}
-            </Suspense>
-          </motion.div>
-        </AnimatePresence>
+        {mountedTabs.map((id) => (
+          <ViewPane
+            key={id}
+            id={id}
+            active={id === tab}
+            connected={!cardLayout}
+            gitSidebarOpen={id === 'projects' && !!gitSidebarProject}
+            entrance={settings.view_entrance}
+            intensity={settings.animation_intensity}
+            onOpenSettings={openSettingsTab}
+          />
+        ))}
 
         <AnimatePresence>
           {gitSidebarProject && (
