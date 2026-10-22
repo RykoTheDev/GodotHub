@@ -155,7 +155,7 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
                   {categoryId
                     ? (categoryOptions.find((c) => c.value === categoryId)
                         ?.label ?? categoryId)
-                    : tc('asset_category_all')}
+                    : tc('all_categories')}
                 </span>
                 <IconChevronDown className="w-3 h-3 text-muted" />
               </motion.button>
@@ -163,7 +163,7 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
             items={[
               {
                 key: 'all',
-                label: tc('asset_category_all'),
+                label: tc('all_categories'),
                 active: categoryId === '',
                 onClick: () => setCategoryId(''),
               },

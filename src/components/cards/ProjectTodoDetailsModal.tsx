@@ -64,7 +64,7 @@ export function ProjectTodoDetailsModal({
     );
 
     if (differenceInDays === 0) {
-      return t("today");
+      return t("time_today");
     }
 
     if (differenceInDays === 1) {
@@ -246,7 +246,7 @@ export function ProjectTodoDetailsModal({
 
           <div className="flex flex-col gap-1.5">
             <span className="ps-3 text-xs font-medium text-muted">
-              {t("description")}
+              {t("project_template_desc_label")}
             </span>
 
             <div className="min-h-20 whitespace-pre-wrap break-words rounded-item border border-outline/50 bg-overlay px-3.5 py-2.5 text-sm text-ink">

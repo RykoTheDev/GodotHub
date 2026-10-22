@@ -164,10 +164,10 @@ export function ProjectsView({
     () => ({
       name: tc('search_filter_name'),
       tag: tc('search_filter_tag'),
-      category: tc('search_filter_category'),
+      category: tc('category'),
       version: tc('search_filter_version'),
       path: tc('search_filter_path'),
-      pinned: tc('search_filter_pinned'),
+      pinned: tc('pinned_section'),
     }),
     [tc],
   )
@@ -1150,7 +1150,7 @@ export function ProjectsView({
                 className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 transition-colors"
               >
                 <IconPlus className="w-3 h-3" />
-                <span className="text-[13px] font-medium">{tc('create_view')}</span>
+                <span className="text-[13px] font-medium">{tc('manage_views')}</span>
               </motion.button>
             )}
           </>
@@ -1269,7 +1269,7 @@ export function ProjectsView({
               >
                 <IconTrash className="w-3 h-3" />
                 <span className="text-xs font-medium">
-                  {tc('bulk_delete')}
+                  {tc('delete')}
                 </span>
               </button>
               <Tooltip content={tc('clear_selection')} side="bottom">
@@ -1522,7 +1522,7 @@ export function ProjectsView({
             description={tc('bulk_remove_desc', {
               count: selectedIds.size,
             })}
-            confirmLabel={tc('bulk_remove_confirm')}
+            confirmLabel={tc('bulk_remove')}
             onConfirm={executeBatchRemove}
             onCancel={() => setConfirmBatchAction(null)}
           />
@@ -1536,7 +1536,7 @@ export function ProjectsView({
             description={tc('bulk_delete_desc', {
               count: selectedIds.size,
             })}
-            confirmLabel={tc('bulk_delete_confirm')}
+            confirmLabel={tc('project_delete_confirm')}
             variant="danger"
             onConfirm={executeBatchDelete}
             onCancel={() => setConfirmBatchAction(null)}

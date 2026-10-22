@@ -51,8 +51,8 @@ const VERSION_SORT_OPTIONS: { value: VersionSortOption; labelKey: string }[] = [
   { value: 'oldest', labelKey: 'sort_version_oldest' },
   { value: 'recently_installed', labelKey: 'sort_version_recently_installed' },
   { value: 'oldest_installed', labelKey: 'sort_version_oldest_installed' },
-  { value: 'name_asc', labelKey: 'sort_version_name_asc' },
-  { value: 'name_desc', labelKey: 'sort_version_name_desc' },
+  { value: 'name_asc', labelKey: 'sort_name_asc' },
+  { value: 'name_desc', labelKey: 'sort_name_desc' },
 ]
 
 const AVAILABLE_SORT_OPTIONS: { value: VersionSortOption; labelKey: string }[] = [
@@ -500,7 +500,7 @@ export function VersionsView({
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
               <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted px-1">
-                {tv('installed_title')}
+                {tv('installed_versions_section')}
               </h3>
               <div className="flex items-center gap-2">
               <Tooltip content={tv('export_templates_open_folder')} side="top">

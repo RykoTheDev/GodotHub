@@ -149,7 +149,7 @@ export function RestoreProgressModal({ onClose }: Props) {
               className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm font-medium bg-accent hover:bg-accent-bright text-white transition-colors inline-flex items-center gap-2"
             >
               <IconRefresh className="w-4 h-4" />
-              {t('restore_modal_restart_btn')}
+              {t('restart_app')}
             </motion.button>
           </div>
         ) : undefined

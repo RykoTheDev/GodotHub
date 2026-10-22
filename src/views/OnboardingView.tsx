@@ -564,7 +564,7 @@ export function OnboardingView({
                         <div className="flex flex-col gap-6">
                           <div className="flex flex-col gap-2.5">
                             <span className="text-xs font-semibold uppercase tracking-wide text-muted">
-                              {t('language_heading')}
+                              {t('language_label')}
                             </span>
                             <Dropdown
                               align="left"
@@ -1118,8 +1118,8 @@ export function OnboardingView({
 
                               <div className="inline-flex self-start rounded-btn border border-outline/50 bg-overlay p-1 gap-1">
                                 {([
-                                  { mode: 'dark' as const, label: ts('dark'), Icon: IconMoon },
-                                  { mode: 'light' as const, label: ts('light'), Icon: IconSun },
+                                  { mode: 'dark' as const, label: ts('theme_dark'), Icon: IconMoon },
+                                  { mode: 'light' as const, label: ts('theme_light'), Icon: IconSun },
                                   { mode: 'system' as const, label: ts('system'), Icon: IconMonitor },
                                 ]).map(({ mode, label, Icon }) => {
                                   const active = draft.theme_mode === mode
@@ -1258,7 +1258,7 @@ export function OnboardingView({
                                 }`}
                               />
                               <SummaryRow
-                                label={ts('corner_radius_label')}
+                                label={ts('onboarding_corner_radius')}
                                 value={`${draft.corner_radius}px`}
                               />
                             </SummarySection>
@@ -1385,13 +1385,13 @@ function OnboardingCloudBackup() {
             onClick={() => setShowGitAuth(true)}
             className="focus-ring cursor-pointer self-start inline-flex items-center gap-2 px-4 py-2 rounded-btn bg-overlay border border-outline/50 hover:border-accent-dim hover:bg-raised text-xs font-medium transition-colors"
           >
-            {t('onboard_cloud_sign_in')}
+            {t('git_sign_in_github')}
           </button>
         ) : (
           <div className="flex flex-col gap-3">
             <p className="text-xs text-green flex items-center gap-1.5">
               <IconCheck className="w-3.5 h-3.5" />
-              {t('onboard_cloud_connected', { username: gitUser })}
+              {t('git_connected_as', { username: gitUser })}
             </p>
 
             <button

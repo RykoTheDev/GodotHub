@@ -37,7 +37,7 @@ export function SaveAsTemplateModal({ project, onClose }: Props) {
   return (
     <ModalShell
       icon={<IconCopy className="w-4 h-4" />}
-      title={t('project_save_template_title')}
+      title={t('save_as_template')}
       description={t('project_save_template_desc', { name: displayName })}
       maxWidth="max-w-sm"
       onClose={onClose}
@@ -56,7 +56,7 @@ export function SaveAsTemplateModal({ project, onClose }: Props) {
             disabled={busy || !name.trim()}
             className="focus-ring cursor-pointer flex-1 px-4 py-2.5 rounded-item bg-accent hover:bg-accent-bright disabled:opacity-50 disabled:cursor-not-allowed text-xs font-semibold text-white transition-colors"
           >
-            {busy ? t('project_saving_template') : t('project_save_template_btn')}
+            {busy ? t('saving') : t('project_save_template_btn')}
           </button>
         </>
       }
@@ -82,7 +82,7 @@ export function SaveAsTemplateModal({ project, onClose }: Props) {
           <label className="text-xs font-medium text-muted">
             {t('project_template_desc_label')}{' '}
             <span className="text-muted/60 font-normal">
-              {t('project_template_desc_sublabel')}
+              {t('optional')}
             </span>
           </label>
           <textarea

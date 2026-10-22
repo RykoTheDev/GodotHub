@@ -175,7 +175,7 @@ export function GitAuthModal({
           {status === 'starting' && (
             <div className="flex items-center gap-2 py-6 justify-center">
               <IconSpinner className="w-4 h-4 animate-spin text-muted" />
-              <span className="text-sm text-muted">{ts('git_auth_starting')}</span>
+              <span className="text-sm text-muted">{ts('starting')}</span>
             </div>
           )}
 
@@ -203,7 +203,7 @@ export function GitAuthModal({
                 <IconCheck className="w-5 h-5 text-mint" />
               </div>
               <p className="text-sm text-ink">
-                {ts('git_auth_connected_as', { username: message })}
+                {ts('git_connected_as', { username: message })}
               </p>
             </div>
           )}

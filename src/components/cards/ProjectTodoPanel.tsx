@@ -411,7 +411,7 @@ export function ProjectTodoPanel({
             className="focus-ring cursor-pointer inline-flex items-center gap-1.5 rounded-btn border border-outline/50 px-2.5 py-1.5 text-[10px] font-medium text-muted transition-colors hover:border-accent-dim hover:bg-raised hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
           >
             <IconCode className={`h-3 w-3 ${scanning ? "animate-pulse" : ""}`} />
-            {scanning ? t("scanning_code") : t("scan_code")}
+            {scanning ? t("scanning") : t("scan_code")}
           </button>
 
           <button

@@ -13,9 +13,19 @@
   "onboard_empty_projects": "Chưa có thư mục nào được thêm vào, GodotHub sẽ không tìm thấy bất kỳ dự án hiện có nào cho đến khi bạn thêm một dự án, hoặc bạn có thể thêm dự án thủ công sau.",
   "onboard_empty_versions": "Chưa có thư mục nào được thêm vào, các bản tải xuống Godot mới sẽ được lưu vào thư mục dữ liệu ứng dụng trừ khi bạn thiết lập một thư mục khác bên dưới.",
   "onboard_no_template_folder": "Chưa thiết lập thư mục nào, bạn luôn có thể cấu hình điều này sau trong phần Cài đặt hoặc lưu mẫu theo cách thủ công.",
-  "language_heading": "Ngôn Ngữ",
   "onboard_cloud_heading": "Sao lưu Cloud",
   "onboard_cloud_desc": "Có sẵn một bản sao lưu? Đăng nhập GitHub và khôi phục Workspace, dự án và cài đặt của bạn từ một gist.",
-  "onboard_cloud_sign_in": "Đăng nhập GitHub",
-  "onboard_cloud_connected": "Kết nối bằng @{{username}}"
+  "discovery_recent_heading": "Recent projects from Godot",
+  "discovery_installs_heading": "Godot found on this computer",
+  "discovery_scanning_projects": "Reading Godot's project manager list…",
+  "discovery_scanning_installs": "Looking for Godot on your PATH and in Steam…",
+  "discovery_engine": "Godot {{version}}",
+  "discovery_favorite": "Favorite",
+  "discovery_add_selected": "Add selected",
+  "discovery_add_selected_count": "Add selected ({{count}})",
+  "discovery_added_projects_one": "Added {{count}} project.",
+  "discovery_added_projects_other": "Added {{count}} projects.",
+  "discovery_added_versions_one": "Added {{count}} version.",
+  "discovery_added_versions_other": "Added {{count}} versions.",
+  "discovery_link_hint": "Projects are linked to a matching Godot version automatically, including versions you add in the next step."
 }

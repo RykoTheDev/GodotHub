@@ -147,7 +147,7 @@ function EntryCard({
               {issueCount > 0 && (
                 <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-tag text-[10px] font-semibold bg-amber/10 text-amber">
                   <IconAlertTriangle className="w-2.5 h-2.5" />
-                  {issueCount} {t('known_issues')}
+                  {issueCount} {t('changelog_known_issues')}
                 </span>
               )}
             </div>
@@ -190,7 +190,7 @@ function EntryCard({
             <div className="mt-4 pt-4 border-t border-outline/40">
               <p className="text-[10px] font-semibold uppercase tracking-wider mb-1.5 text-amber">
                 <IconAlertTriangle className="w-3 h-3 inline -mt-0.5 me-1" />
-                {t('known_issues')}
+                {t('changelog_known_issues')}
               </p>
               <ul className="flex flex-col gap-1.5">
                 {entry.known_issues.map((issue, i) => (

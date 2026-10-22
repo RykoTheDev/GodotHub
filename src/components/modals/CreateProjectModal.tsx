@@ -303,7 +303,7 @@ export function CreateProjectModal({
       >
         <ModalHeader
           icon={<IconFolderPlus className="w-5 h-5 text-accent-bright" />}
-          title={t('create_project_title')}
+          title={t('new_project')}
           description={t('create_project_desc')}
           autoFocusBanner={false}
         />
@@ -525,7 +525,7 @@ export function CreateProjectModal({
                       onClick={clearIcon}
                       className="focus-ring cursor-pointer px-3 py-2 rounded-btn border border-outline/50 text-muted hover:text-danger hover:border-danger/30 hover:bg-danger/10 text-xs transition-colors"
                     >
-                      {t('reset_icon')}
+                      {t('reset')}
                     </motion.button>
                   )}
                 </div>

@@ -69,7 +69,7 @@ export function WorkspaceEditModal({
               title={canDelete ? undefined : t('cant_delete_only_workspace')}
               className="focus-ring cursor-pointer disabled:cursor-not-allowed px-4 py-2.5 rounded-btn text-sm text-muted hover:text-danger hover:bg-danger/5 disabled:opacity-40 disabled:hover:text-muted disabled:hover:bg-transparent transition-colors"
             >
-              {t('delete_workspace')}
+              {t('delete')}
             </motion.button>
             <div className="ms-auto flex gap-2.5">
               <motion.button
@@ -113,7 +113,7 @@ export function WorkspaceEditModal({
                   {previewName}
                 </span>
                 <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted/60 mt-0.5">
-                  {t('workspaces_section')}
+                  {t('section_workspaces')}
                 </span>
               </div>
             </div>

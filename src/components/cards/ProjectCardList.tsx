@@ -69,7 +69,7 @@ export function ProjectCardList({
   const layoutGroupId = useId()
 
   const uiMotion = useUiMotion()
-  const animateList = totalCount <= animationThreshold && !uiMotion.reduced && !uiMotion.instant
+  const animateList = totalCount <= animationThreshold
   const layoutTransition: Transition = uiMotion.transition('press')
 
   const showPinnedSection = projects.some((p) => p.pinned)

@@ -313,7 +313,7 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
             {draft.skipped.length > 0 && (
               <div className="mt-2 pt-3 border-t border-outline/40">
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-muted/60">
-                  {t('changelog_draft_skipped')}
+                  {t('skipped')}
                 </span>
                 <div className="flex flex-col gap-1 mt-1.5">
                   {draft.skipped.map((s, i) => (

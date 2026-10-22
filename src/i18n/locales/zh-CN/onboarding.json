@@ -13,9 +13,19 @@
   "onboard_empty_projects": "尚未添加任何文件夹。添加文件夹后，GodotHub 才能找到现有项目；你也可以稍后手动添加项目。",
   "onboard_empty_versions": "尚未添加任何文件夹。除非在下方设置下载位置，否则新下载的 Godot 版本会保存到应用数据文件夹。",
   "onboard_no_template_folder": "未设置文件夹，您可以稍后在设置中配置，或手动保存模板。",
-  "language_heading": "语言",
   "onboard_cloud_heading": "云端备份",
   "onboard_cloud_desc": "已有备份？使用 GitHub 登录，从 gist 恢复您的工作区、项目和设置。",
-  "onboard_cloud_sign_in": "使用 GitHub 登录",
-  "onboard_cloud_connected": "已连接为 @{{username}}"
+  "discovery_recent_heading": "Recent projects from Godot",
+  "discovery_installs_heading": "Godot found on this computer",
+  "discovery_scanning_projects": "Reading Godot's project manager list…",
+  "discovery_scanning_installs": "Looking for Godot on your PATH and in Steam…",
+  "discovery_engine": "Godot {{version}}",
+  "discovery_favorite": "Favorite",
+  "discovery_add_selected": "Add selected",
+  "discovery_add_selected_count": "Add selected ({{count}})",
+  "discovery_added_projects_one": "Added {{count}} project.",
+  "discovery_added_projects_other": "Added {{count}} projects.",
+  "discovery_added_versions_one": "Added {{count}} version.",
+  "discovery_added_versions_other": "Added {{count}} versions.",
+  "discovery_link_hint": "Projects are linked to a matching Godot version automatically, including versions you add in the next step."
 }

@@ -420,8 +420,8 @@ export function CloneRepoModal({
                                 }`}
                               >
                                 {repo.private
-                                  ? t('clone_repo_private')
-                                  : t('clone_repo_public')}
+                                  ? t('remote_private')
+                                  : t('remote_public')}
                               </span>
                               {repo.language && (
                                 <span className="text-[10px] text-muted bg-overlay px-1.5 py-0.5 rounded">
@@ -510,7 +510,7 @@ export function CloneRepoModal({
 
             <div className="flex flex-col gap-0.5">
               <label className="ps-3 text-xs font-medium text-muted">
-                {t('clone_repo_dest_label')}
+                {t('destination_folder')}
               </label>
               <div className="flex gap-2.5">
                 <input
@@ -518,7 +518,7 @@ export function CloneRepoModal({
                   readOnly
                   onClick={pickLocation}
                   className={`${inputClass(locationInvalid)} flex-1 text-muted truncate`}
-                  placeholder={t('clone_repo_dest_placeholder')}
+                  placeholder={t('choose_folder_placeholder')}
                 />
                 <motion.button
 
@@ -611,7 +611,7 @@ export function CloneRepoModal({
             disabled={busy}
             className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-50"
           >
-            {t('clone_repo_cancel')}
+            {t('cancel')}
           </motion.button>
           <motion.button key="error"
             data-press-feedback={busy ? undefined : true}

@@ -332,7 +332,7 @@ export function AssetStoreBrowser({
                           }
                           disabled={isInstalled || isBusy}
                           onOpen={() => setInstallAsset(asset)}
-                          moreAriaLabel={t('asset_more_aria')}
+                          moreAriaLabel={t('project_more_aria')}
                           className="px-8"
                           items={[
                             {

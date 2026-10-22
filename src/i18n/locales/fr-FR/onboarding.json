@@ -13,9 +13,19 @@
   "onboard_empty_projects": "Aucun dossier ajouté pour le moment, GodotHub ne trouvera aucun projet existant tant que vous n'en ajoutez pas un, ou vous pouvez ajouter des projets manuellement plus tard.",
   "onboard_empty_versions": "Aucun dossier ajouté pour le moment, les nouveaux téléchargements de Godot iront dans le dossier des données de l'application sauf si vous en définissez un ci-dessous.",
   "onboard_no_template_folder": "Aucun dossier défini, vous pouvez toujours configurer cela plus tard dans les Paramètres, ou enregistrer les modèles manuellement.",
-  "language_heading": "Langue",
   "onboard_cloud_heading": "Sauvegarde Cloud",
   "onboard_cloud_desc": "Vous avez déjà une sauvegarde ? Connectez-vous avec GitHub et restaurez vos espaces de travail, projets et paramètres à partir d'un gist.",
-  "onboard_cloud_sign_in": "Se connecter avec GitHub",
-  "onboard_cloud_connected": "Connecté en tant que @{{username}}"
+  "discovery_recent_heading": "Recent projects from Godot",
+  "discovery_installs_heading": "Godot found on this computer",
+  "discovery_scanning_projects": "Reading Godot's project manager list…",
+  "discovery_scanning_installs": "Looking for Godot on your PATH and in Steam…",
+  "discovery_engine": "Godot {{version}}",
+  "discovery_favorite": "Favorite",
+  "discovery_add_selected": "Add selected",
+  "discovery_add_selected_count": "Add selected ({{count}})",
+  "discovery_added_projects_one": "Added {{count}} project.",
+  "discovery_added_projects_other": "Added {{count}} projects.",
+  "discovery_added_versions_one": "Added {{count}} version.",
+  "discovery_added_versions_other": "Added {{count}} versions.",
+  "discovery_link_hint": "Projects are linked to a matching Godot version automatically, including versions you add in the next step."
 }

@@ -985,7 +985,7 @@ export function GitSidebar({
                 onClick={() => handleDisconnect('github')}
                 className="focus-ring cursor-pointer inline-flex items-center gap-1 px-2 py-1 rounded-tag text-[10px] font-medium text-muted hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
               >
-                {t('auth_disconnect')}
+                {t('git_disconnect')}
               </button>
             </div>
             )}
@@ -1008,7 +1008,7 @@ export function GitSidebar({
                 onClick={() => handleDisconnect('gitlab')}
                 className="focus-ring cursor-pointer inline-flex items-center gap-1 px-2 py-1 rounded-tag text-[10px] font-medium text-muted hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
               >
-                {t('auth_disconnect')}
+                {t('git_disconnect')}
               </button>
             </div>
             )}

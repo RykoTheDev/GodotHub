@@ -263,7 +263,7 @@ export function ProjectTodoModal({
           {/* Descrição */}
           <div className="flex flex-col gap-0.5">
             <label className="ps-3 text-xs font-medium text-muted">
-              {t("description")}{" "}
+              {t("project_template_desc_label")}{" "}
               <span className="font-normal text-muted/60">{t("optional")}</span>
             </label>
 

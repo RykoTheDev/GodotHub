@@ -134,7 +134,7 @@ export function DownloadErrorModal({ error, onRetry, onClose }: Props) {
     >
       <div className="p-6 pt-2 flex flex-col gap-4">
         <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
-          <span className="text-muted">{tv('download_failed_source_label')}</span>
+          <span className="text-muted">{tv('source')}</span>
           <span className="text-ink">{sourceLabel}</span>
           {error.assetName ? (
             <>

@@ -277,7 +277,7 @@ export function TemplatesView({
                   }
                   className="focus-ring cursor-pointer flex items-center justify-center px-6 h-10 rounded-item bg-overlay shadow-md shadow-black/10 border border-outline/50 hover:bg-raised text-muted hover:text-ink font-semibold text-[17px] transition-colors"
                 >
-                  {tc('template_open_folder_btn')}
+                  {tc('open_folder')}
                 </motion.button>
             )}
             <ScanButton
@@ -447,7 +447,7 @@ export function TemplatesView({
                           className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 px-3 py-2 rounded-item bg-accent/10 border border-accent-dim/30 text-accent-bright text-xs font-semibold hover:bg-accent/20 transition-colors"
                         >
                           <IconFolderPlus className="w-3.5 h-3.5" />
-                          {tc('template_create_project')}
+                          {tc('create_project_btn')}
                         </motion.button>
                       </div>
                     ))}

@@ -545,10 +545,10 @@ export function ProjectCard({
                     setNewTagValue("");
                     setTagError(null);
                   }}
-                  aria-label={t("add_tag_aria")}
+                  aria-label={t("add_tag")}
                   className="focus-ring cursor-pointer inline-flex items-center px-2 py-0.5 rounded-tag text-[10px] font-mono font-medium tracking-tight whitespace-nowrap text-muted hover:text-accent-bright hover:bg-raised transition-colors shrink-0 border border-dashed border-outline/50"
                 >
-                  {t("add_tag_aria")}
+                  {t("add_tag")}
                 </button>
               </span>
             )}
@@ -669,7 +669,7 @@ export function ProjectCard({
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveTag(index)}
-                                  aria-label={t("tag_remove_aria", { tag })}
+                                  aria-label={t("remove_tag", { tag })}
                                   className="focus-ring cursor-pointer w-3 h-3 rounded-full flex items-center justify-center transition-colors duration-150 hover:text-danger shrink-0"
                                 >
                                   <IconX className="w-2.5 h-2.5 shrink-0" />
@@ -805,7 +805,7 @@ export function ProjectCard({
                 <button
                   type="button"
                   onClick={() => setSizeModalOpen(true)}
-                  aria-label={t("project_card_project_size")}
+                  aria-label={t("project_size")}
                   className="focus-ring cursor-pointer border border-outline/50 inline-flex items-center gap-1.5 rounded-btn px-3 py-3 bg-black/10 font-mono text-[10px] text-muted hover:text-ink hover:bg-raised transition-colors shrink-0"
                 >
                   <IconHardDrive className="w-3 h-3 text-muted/60 shrink-0" />
@@ -974,7 +974,7 @@ export function ProjectCard({
                   ? [
                       {
                         key: "duplicate",
-                        label: t("duplicate_project"),
+                        label: t("duplicate"),
                         icon: IconCopy,
                         onClick: onDuplicate,
                       },
@@ -1036,7 +1036,7 @@ export function ProjectCard({
             <ConfirmDialog
               title={t("project_remove_title")}
               description={t("project_remove_desc", { name: displayName })}
-              confirmLabel={t("project_remove_confirm")}
+              confirmLabel={t("bulk_remove")}
               onConfirm={() => {
                 setConfirmAction(null);
                 onRemove();

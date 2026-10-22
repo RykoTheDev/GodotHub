@@ -90,8 +90,8 @@ export function InstalledVersionCard({
         ? tc('export_templates_verifying')
         : templatePercent != null
           ? `${templatePercent}%`
-          : tv('export_templates_downloading')
-    : tv('export_templates_downloading')
+          : tv('downloading_update')
+    : tv('downloading_update')
 
   const setAsCurrent = async () => {
     try {
@@ -192,7 +192,7 @@ export function InstalledVersionCard({
                 {isCurrent && (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-accent/15 text-accent-bright border border-accent-dim/40 text-[10px] font-semibold shrink-0">
                     <IconPin className="w-2.5 h-2.5" />
-                    {tv('current_badge')}
+                    {tv('cleanup_current_badge')}
                   </span>
                 )}
                 {v.managed_by === 'mise' && (
@@ -202,7 +202,7 @@ export function InstalledVersionCard({
                 )}
                 {v.supports_console && (
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-mint/10 text-mint border border-mint/30 text-[10px] font-semibold shrink-0">
-                    {tv('console_label')}
+                    {tv('console_title')}
                   </span>
                 )}
                 {templatesBusy ? (
@@ -218,8 +218,8 @@ export function InstalledVersionCard({
                       <button
                         type="button"
                         onClick={onCancelTemplates}
-                        aria-label={tv('export_templates_cancel')}
-                        title={tv('export_templates_cancel')}
+                        aria-label={tv('cancel_download')}
+                        title={tv('cancel_download')}
                         className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-danger hover:bg-danger/10 transition-colors"
                       >
                         <IconX className="w-3 h-3" />
@@ -348,7 +348,7 @@ export function InstalledVersionCard({
               : []),
           {
             key: 'uninstall',
-            label: tv('uninstall'),
+            label: tv('version_uninstall_confirm'),
             icon: IconTrash,
             danger: true,
             dividerAfter: true,
