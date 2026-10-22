@@ -107,6 +107,7 @@ export function ProjectsView({
 
   const {
     projects,
+    error,
     refresh,
     remove,
     updateVersion,
@@ -1287,7 +1288,21 @@ export function ProjectsView({
         <div
           className={`h-full ${connected ? 'pl-5' : ''} pr-5 pb-4 flex flex-col gap-2`}
         >
-        {viewMode === 'kanban' ? (
+        {error && projects.length === 0 ? (
+          <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center py-16">
+            <p className="text-sm text-muted max-w-sm">
+              {tc('projects_load_error')}
+            </p>
+            <button
+              type="button"
+              data-press-feedback
+              onClick={() => void refresh()}
+              className="focus-ring cursor-pointer px-4 py-2 rounded-btn text-sm bg-accent text-ink hover:bg-accent-bright transition-colors"
+            >
+              {tc('retry')}
+            </button>
+          </div>
+        ) : viewMode === 'kanban' ? (
           <ProjectCardKanban
             projects={filtered}
             categories={surfaceCategories}

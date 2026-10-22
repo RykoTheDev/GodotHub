@@ -890,7 +890,8 @@ export type commonKeys =
   | 'projects_corrupt_title'
   | 'projects_corrupt_desc'
   | 'projects_corrupt_restore'
-  | 'projects_corrupt_dismiss';
+  | 'projects_corrupt_dismiss'
+  | 'projects_load_error';
 
 /** Keys from dashboard.json */
 export type dashboardKeys =

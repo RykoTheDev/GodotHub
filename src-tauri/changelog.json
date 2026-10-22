@@ -1516,6 +1516,14 @@
       {
         "category": "improve",
         "text": "Installing an asset from the asset library now streams the download to disk instead of buffering it in memory, and refuses malicious archives (path traversal, symlinks, and zip bombs) during extraction"
+      },
+      {
+        "category": "improve",
+        "text": "Discarding all changes no longer deletes untracked files by surprise: it now shows exactly which untracked files would be removed and lets you choose to discard tracked changes only, also remove untracked files, or stash everything instead, defaulting to the safe option"
+      },
+      {
+        "category": "fix",
+        "text": "Hardened local data against loss: a corrupt project list now offers to restore from its automatic backup instead of showing an empty library, background and UI updates to your projects and time tracking can no longer overwrite each other, each data file carries a schema version for safe future migrations, and pending settings changes are saved when you close the window"
       }
     ],
     "known_issues": [],

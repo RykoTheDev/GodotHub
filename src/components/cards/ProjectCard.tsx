@@ -9,6 +9,7 @@ import type {
   ProjectViewMode,
 } from "../../types";
 import { getCardViewSettings } from "../../lib/cardViewSettings";
+import { useNow } from "../../hooks/useNow";
 import { api, getCachedProjectIcon, getCachedProjectName } from "../../lib/api";
 import { pushToast } from "../../lib/toast";
 import { reportLaunchError } from "../../lib/launchErrors";
@@ -197,18 +198,35 @@ export function ProjectCard({
   );
 
   const sessionStart = project.session_started_at_ms;
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    if (!sessionStart) return;
-    setNow(Date.now());
-    const id = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(id);
-  }, [sessionStart]);
+  const now = useNow(sessionStart != null);
   const allMs = effectiveTotalMs(project, now);
   const sessionMs = sessionStart ? Math.max(0, now - sessionStart) : 0;
 
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [sizeVisible, setSizeVisible] = useState(false);
+  // Defer the (potentially expensive) size walk until the card scrolls into
+  // view and the size is actually shown, so a long list doesn't walk every
+  // project at once on mount.
+  useEffect(() => {
+    if (!cardSettings.show_size || sizeVisible) return;
+    const el = cardRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((entry) => entry.isIntersecting)) {
+          setSizeVisible(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "300px" },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [cardSettings.show_size, sizeVisible]);
+
   const [projectSize, setProjectSize] = useState<number | null>(null);
   useEffect(() => {
+    if (!cardSettings.show_size || !sizeVisible) return;
     let cancelled = false;
     api
       .getProjectSize(project.path)
@@ -219,7 +237,7 @@ export function ProjectCard({
     return () => {
       cancelled = true;
     };
-  }, [project.path]);
+  }, [project.path, cardSettings.show_size, sizeVisible]);
 
   const openFolder = () =>
     api.openProjectFolder(project.path).catch((e) => pushToast('error', String(e)));
@@ -295,7 +313,7 @@ export function ProjectCard({
   };
 
   return (
-    <div>
+    <div ref={cardRef}>
       <div
         onClick={(event) => {
           if (!projectTodosEnabled) return;

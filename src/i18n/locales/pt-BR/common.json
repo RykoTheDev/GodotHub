@@ -891,5 +891,6 @@
   "projects_corrupt_title": "Project list couldn't be read",
   "projects_corrupt_desc": "Your projects.json file is corrupt, so your projects can't be shown. You can restore the most recent automatic backup, or dismiss this and leave the file untouched.",
   "projects_corrupt_restore": "Restore backup",
-  "projects_corrupt_dismiss": "Not now"
+  "projects_corrupt_dismiss": "Not now",
+  "projects_load_error": "Couldn't load your projects. Something went wrong reading them from disk. Try again, and if it keeps failing your project list file may be damaged."
 }

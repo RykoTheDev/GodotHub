@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api } from '../lib/api'
-import { useApiData } from '../lib/useApiData'
+import { useApiDataWithError } from '../lib/useApiData'
 import { useTauriEvent } from '../lib/useTauriEvent'
 import { useWorkspaces } from './useWorkspaces'
 import type { Project } from '../types'
 
 export function useProjects() {
   const { activeId } = useWorkspaces()
-  const { data: projects, loaded, refresh, setData } = useApiData(
+  const { data: projects, loaded, error, refresh, setData } = useApiDataWithError(
     () => api.listProjects().then((list) => { api.refreshTrayMenu().catch(() => {}); return list }),
     [activeId],
     [] as Project[],
@@ -156,6 +156,7 @@ export function useProjects() {
   return {
     projects,
     loaded,
+    error,
     refresh,
     remove,
     updateVersion,

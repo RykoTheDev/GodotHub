@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useProjectsContext } from './hooks/projectsContext'
@@ -13,7 +13,9 @@ import { useUiMotion } from './hooks/useUiMotion'
 import type { GitStatus, Project } from './types'
 
 import { Sidebar } from './components/ui/Sidebar'
-import { GitSidebar } from './components/git/GitSidebar'
+const GitSidebar = lazy(() =>
+  import('./components/git/GitSidebar').then((m) => ({ default: m.GitSidebar })),
+)
 import { Titlebar } from './components/titlebar/Titlebar'
 import { OverlayScrollArea } from './components/reusables/OverlayScrollArea'
 import { ConfirmDialog } from './components/modals/ConfirmDialog'
@@ -24,18 +26,40 @@ import { CheckForUpdatesModal } from './components/modals/CheckForUpdatesModal'
 import { CommandPalette } from './components/modals/CommandPalette'
 import { ToastContainer } from './components/reusables/ToastContainer'
 import { SplashScreen, type SplashPhase } from './components/reusables/SplashScreen'
-import { ProjectConsoleWindow } from './components/console/ProjectConsoleWindow'
-import { ProjectsView } from './views/ProjectsView'
-import { VersionsView } from './views/VersionsView'
-import { TemplatesView } from './views/TemplatesView'
-import { SettingsView } from './views/SettingsView'
-import { ChangelogView } from './views/ChangelogView'
-import { NewsView } from './views/NewsView'
-import { AssetStoreView } from './views/AssetStoreView'
-import { DashboardView } from './views/DashboardView'
+const ProjectConsoleWindow = lazy(() =>
+  import('./components/console/ProjectConsoleWindow').then((m) => ({
+    default: m.ProjectConsoleWindow,
+  })),
+)
+const ProjectsView = lazy(() =>
+  import('./views/ProjectsView').then((m) => ({ default: m.ProjectsView })),
+)
+const VersionsView = lazy(() =>
+  import('./views/VersionsView').then((m) => ({ default: m.VersionsView })),
+)
+const TemplatesView = lazy(() =>
+  import('./views/TemplatesView').then((m) => ({ default: m.TemplatesView })),
+)
+const SettingsView = lazy(() =>
+  import('./views/SettingsView').then((m) => ({ default: m.SettingsView })),
+)
+const ChangelogView = lazy(() =>
+  import('./views/ChangelogView').then((m) => ({ default: m.ChangelogView })),
+)
+const NewsView = lazy(() =>
+  import('./views/NewsView').then((m) => ({ default: m.NewsView })),
+)
+const AssetStoreView = lazy(() =>
+  import('./views/AssetStoreView').then((m) => ({ default: m.AssetStoreView })),
+)
+const DashboardView = lazy(() =>
+  import('./views/DashboardView').then((m) => ({ default: m.DashboardView })),
+)
 import { useSettings } from './hooks/useSettings'
 import { useCategoriesContext } from './hooks/categoriesContext'
-import { OnboardingView as Onboarding } from './views/OnboardingView'
+const Onboarding = lazy(() =>
+  import('./views/OnboardingView').then((m) => ({ default: m.OnboardingView })),
+)
 import { useTauriEvent } from './lib/useTauriEvent'
 import { useDiscordRpc } from './hooks/useDiscordRpc'
 import { ChangelogBadgeProvider } from './hooks/useChangelogBadge'
@@ -476,10 +500,12 @@ export function App() {
 
   if (settingsLoaded && !settings.setup_complete) {
     return (
-      <Onboarding
-        settings={settings}
-        onComplete={updateSettings}
-      />
+      <Suspense fallback={null}>
+        <Onboarding
+          settings={settings}
+          onComplete={updateSettings}
+        />
+      </Suspense>
     )
   }
 
@@ -528,31 +554,33 @@ export function App() {
               settings.animation_intensity,
             )}
           >
-            {tab === 'dashboard' ||
-            tab === 'projects' ||
-            tab === 'settings' ||
-            tab === 'versions' ||
-            tab === 'news' ||
-            tab === 'asset-store' ||
-            tab === 'templates' ||
-            tab === 'changelog' ? (
-              renderView()
-            ) : (
-              <main
-                className={`flex-1 min-w-0 relative overflow-hidden h-full ${
-                  cardLayout ? 'rounded-card bg-raised' : 'bg-raised'
-                }`}
-              >
-                <OverlayScrollArea
-                  className="absolute inset-0"
-                  hideThumb={!settings.show_scrollbars}
+            <Suspense fallback={null}>
+              {tab === 'dashboard' ||
+              tab === 'projects' ||
+              tab === 'settings' ||
+              tab === 'versions' ||
+              tab === 'news' ||
+              tab === 'asset-store' ||
+              tab === 'templates' ||
+              tab === 'changelog' ? (
+                renderView()
+              ) : (
+                <main
+                  className={`flex-1 min-w-0 relative overflow-hidden h-full ${
+                    cardLayout ? 'rounded-card bg-raised' : 'bg-raised'
+                  }`}
                 >
-                  <div className="min-h-full px-6 py-4">
-                    {renderView()}
-                  </div>
-                </OverlayScrollArea>
-              </main>
-            )}
+                  <OverlayScrollArea
+                    className="absolute inset-0"
+                    hideThumb={!settings.show_scrollbars}
+                  >
+                    <div className="min-h-full px-6 py-4">
+                      {renderView()}
+                    </div>
+                  </OverlayScrollArea>
+                </main>
+              )}
+            </Suspense>
           </motion.div>
         </AnimatePresence>
 
@@ -590,19 +618,21 @@ export function App() {
                     className="h-full overflow-hidden rounded-xl shadow-2xl shadow-black/40 shrink-0"
                     style={{ width: gitSidebarWidth }}
                   >
-                    <GitSidebar
-                      project={gitSidebarProject.project}
-                      gitStatus={gitSidebarProject.gitStatus}
-                      onClose={() => setGitSidebarProject(null)}
-                      onRefresh={() => refreshProjects()}
-                      onSwitchProject={async (p) => {
-                        const status = await api.getGitStatus(p.path).catch(() => null)
-                        setGitSidebarProject((prev) => prev && prev.project.path === gitSidebarProject.project.path
-                          ? { project: p, gitStatus: status }
-                          : prev)
-                      }}
-                      connected={!cardLayout}
-                    />
+                    <Suspense fallback={null}>
+                      <GitSidebar
+                        project={gitSidebarProject.project}
+                        gitStatus={gitSidebarProject.gitStatus}
+                        onClose={() => setGitSidebarProject(null)}
+                        onRefresh={() => refreshProjects()}
+                        onSwitchProject={async (p) => {
+                          const status = await api.getGitStatus(p.path).catch(() => null)
+                          setGitSidebarProject((prev) => prev && prev.project.path === gitSidebarProject.project.path
+                            ? { project: p, gitStatus: status }
+                            : prev)
+                        }}
+                        connected={!cardLayout}
+                      />
+                    </Suspense>
                   </aside>
                   <div
                     onPointerDown={beginGitDrag}
@@ -678,7 +708,9 @@ export function App() {
           )}
         </AnimatePresence>
 
-        <ProjectConsoleWindow />
+        <Suspense fallback={null}>
+          <ProjectConsoleWindow />
+        </Suspense>
 
       </div>
 
