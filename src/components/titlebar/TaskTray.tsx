@@ -335,7 +335,7 @@ export function TaskTray() {
             {hasActivity && (
               <motion.span
                 {...surface('tooltip', 'scale(0.97)')}
-                className="absolute -top-1.5 -end-2 w-4 h-4 rounded-full bg-amber text-[9px] font-bold text-white flex items-center justify-center shadow-sm"
+                className="absolute -top-1.5 -inset-e-2 w-4 h-4 rounded-full bg-amber text-[9px] font-bold text-white flex items-center justify-center shadow-sm"
               >
                 {activeCount > 9 ? '9+' : activeCount}
               </motion.span>
