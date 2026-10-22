@@ -192,6 +192,7 @@ export const api = {
   gitAuthRemovePat: gitAuthApi.removePat,
   gitAuthListUserRepos: gitAuthApi.listUserRepos,
 
+
   getSettings: settingsApi.get,
   updateSettings: settingsApi.update,
   resetSettings: settingsApi.reset,

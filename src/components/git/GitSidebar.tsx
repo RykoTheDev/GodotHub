@@ -45,7 +45,6 @@ import { GitAuthModal } from '../modals/GitAuthModal'
 import { DiffViewerModal } from '../modals/DiffViewerModal'
 import { CommitDetailsModal } from '../modals/CommitDetailsModal'
 import { ConfirmDialog } from '../modals/ConfirmDialog'
-import { DiscardChangesDialog } from './DiscardChangesDialog'
 import { CommitGraph } from './CommitGraph'
 import { Tooltip } from '../reusables/Tooltip'
 import { Checkbox } from '../ui/Checkbox'
@@ -57,6 +56,7 @@ interface Props {
   onRefresh: () => void
   onSwitchProject?: (project: Project) => void
   connected?: boolean
+  opened: boolean
 }
 
 function TruncatedPath({ path, deleted = false }: { path: string; deleted?: boolean }) {
@@ -234,6 +234,7 @@ export function GitSidebar({
   onRefresh,
   onSwitchProject,
   connected = false,
+  opened,
 }: Props) {
   const uiMotion = useUiMotion()
 
@@ -279,15 +280,13 @@ export function GitSidebar({
   const [conflictFiles, setConflictFiles] = useState<string[]>([])
   const [mergeBusy, setMergeBusy] = useState<string | null>(null)
   const [forcePushOpen, setForcePushOpen] = useState(false)
-  const [discardDialog, setDiscardDialog] = useState<{ untracked: string[] } | null>(null)
-  const [discardBusy, setDiscardBusy] = useState(false)
   const [commitHash, setCommitHash] = useState<string | null>(null)
   const [newBranchMode, setNewBranchMode] = useState(false)
   const [newBranchName, setNewBranchName] = useState('')
   const [deletingBranch, setDeletingBranch] = useState<string | null>(null)
   const [publishingBranch, setPublishingBranch] = useState(false)
   const branchMenuRef = useRef<HTMLDivElement>(null)
-  const [ready, setReady] = useState(false)
+  const ready = opened
 
   const notifyGitStatusChanged = useCallback(() => {
     window.dispatchEvent(new Event('app:refresh-git-status'))
@@ -338,12 +337,6 @@ export function GitSidebar({
     })
     return () => { cancelled = true }
   }, [project.path, refreshGitAuth, ready])
-
-  useEffect(() => {
-    const onOpened = () => setReady(true)
-    window.addEventListener('app:git-sidebar-opened', onOpened)
-    return () => window.removeEventListener('app:git-sidebar-opened', onOpened)
-  }, [])
 
   useEffect(() => {
     if (!ready) return
@@ -605,43 +598,15 @@ export function GitSidebar({
   const handleDiscardAll = async () => {
     setCtxMenu(null)
     try {
-      const untracked = await api.gitDiscardDryRun(project.path)
-      setDiscardDialog({ untracked })
-    } catch (e) {
-      pushToast('error', String(e))
-    }
-  }
-
-  const runDiscard = async (removeUntracked: boolean) => {
-    setDiscardBusy(true)
-    try {
-      await api.gitDiscardChanges(project.path, removeUntracked)
-      await refreshChanges()
-      notifyGitStatusChanged()
-      void refreshLog()
-      pushToast('success', removeUntracked ? t('discard_all_ok') : t('discard_tracked_ok'))
-      setDiscardDialog(null)
-    } catch (e) {
-      pushToast('error', String(e))
-    } finally {
-      setDiscardBusy(false)
-    }
-  }
-
-  const handleStashInstead = async () => {
-    setDiscardBusy(true)
-    try {
       await api.gitStashPush(project.path)
+      await api.gitDiscardChanges(project.path, false)
       await refreshStashes()
       await refreshChanges()
       notifyGitStatusChanged()
       void refreshLog()
-      pushToast('success', t('changes_stashed_ok'))
-      setDiscardDialog(null)
+      pushToast('success', t('discard_all_ok'))
     } catch (e) {
       pushToast('error', String(e))
-    } finally {
-      setDiscardBusy(false)
     }
   }
 
@@ -1802,19 +1767,6 @@ export function GitSidebar({
           variant="danger"
           onConfirm={() => void handleForcePush()}
           onCancel={() => setForcePushOpen(false)}
-        />
-      )}
-
-      {discardDialog && (
-        <DiscardChangesDialog
-          untrackedFiles={discardDialog.untracked}
-          busy={discardBusy}
-          onDiscardTracked={() => void runDiscard(false)}
-          onRemoveUntracked={() => void runDiscard(true)}
-          onStash={() => void handleStashInstead()}
-          onCancel={() => {
-            if (!discardBusy) setDiscardDialog(null)
-          }}
         />
       )}
 

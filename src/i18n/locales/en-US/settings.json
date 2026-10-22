@@ -15,6 +15,8 @@
   "screen_reader_beta_desc": "This is an untested feature. If you require a screen reader, please help test it and report any bugs so they can be fixed as soon as possible.",
   "advanced": "Advanced",
   "integrations": "Integrations",
+  "motion": "Motion",
+  "data": "Data & Backup",
   "git_auth_title": "Sign in with {{provider}}",
   "git_auth_instructions": "Authorize GodotHub in your browser. A verification page should have opened. If not, use the button below.",
   "git_auth_enter_code": "Enter this code",

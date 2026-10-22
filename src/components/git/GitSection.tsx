@@ -7,6 +7,7 @@ export function GitSection({
   storageKey,
   defaultOpen,
   onContextMenu,
+  onOpenChange,
   children,
 }: {
   title: string
@@ -14,6 +15,7 @@ export function GitSection({
   storageKey?: string
   defaultOpen?: boolean
   onContextMenu?: (e: React.MouseEvent) => void
+  onOpenChange?: (open: boolean) => void
   children: ReactNode
 }) {
   const [open, setOpen] = useState(() => {
@@ -26,12 +28,14 @@ export function GitSection({
     }
   })
   const toggle = () => setOpen((v) => {
+    const next = !v
     if (storageKey) {
       try {
         localStorage.setItem(storageKey, v ? '0' : '1')
       } catch {}
     }
-    return !v
+    onOpenChange?.(next)
+    return next
   })
   return (
     <div className="flex flex-col gap-1.5">
@@ -69,4 +73,3 @@ export function GitSection({
     </div>
   )
 }
-

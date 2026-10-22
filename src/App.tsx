@@ -178,6 +178,15 @@ export function App() {
     project: Project
     gitStatus: GitStatus | null
   } | null>(null)
+  const gitSidebarOpen = !!gitSidebarProject
+  const gitSidebarOpenRef = useRef(gitSidebarOpen)
+  gitSidebarOpenRef.current = gitSidebarOpen
+  const [gitPanelOpened, setGitPanelOpened] = useState(false)
+  // Load the Git sidebar once its slide-in settles; with animations off there is no slide to wait for.
+  useEffect(() => {
+    if (!gitSidebarOpen) setGitPanelOpened(false)
+    else if (uiMotion.instant) setGitPanelOpened(true)
+  }, [gitSidebarOpen, uiMotion.instant])
   const [gitSidebarWidth, setGitSidebarWidth] = useState(() => {
     try {
       return Math.min(
@@ -600,7 +609,7 @@ export function App() {
                 key="git-panel"
                 {...uiMotion.surface('modal', 'translateX(100%)')}
                 onAnimationComplete={() => {
-                  window.dispatchEvent(new Event('app:git-sidebar-opened'))
+                  if (gitSidebarOpenRef.current) setGitPanelOpened(true)
                 }}
                 className={`absolute top-2 right-2 bottom-2 z-50 ${gitDragging ? 'select-none' : ''}`}
               >
@@ -631,6 +640,7 @@ export function App() {
                             : prev)
                         }}
                         connected={!cardLayout}
+                        opened={gitPanelOpened}
                       />
                     </Suspense>
                   </aside>

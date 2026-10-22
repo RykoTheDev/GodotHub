@@ -337,5 +337,7 @@
   "cli_tool_uninstall": "アンインストール",
   "cli_tool_installing": "インストール中…",
   "cli_tool_installed_msg": "インストールしました。新しいターミナルを開いて godothub を実行してください。",
-  "cli_tool_uninstalled_msg": "削除しました。godothub コマンドは PATH から外れました。"
+  "cli_tool_uninstalled_msg": "削除しました。godothub コマンドは PATH から外れました。",
+  "motion": "Motion",
+  "data": "Data & Backup"
 }

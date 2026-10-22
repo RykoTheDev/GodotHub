@@ -347,5 +347,7 @@
   "cli_tool_uninstall": "Uninstall",
   "cli_tool_installing": "Installing...",
   "cli_tool_installed_msg": "Installed. Open a new terminal, then run: godothub",
-  "cli_tool_uninstalled_msg": "Removed. The godothub command is no longer on your PATH."
+  "cli_tool_uninstalled_msg": "Removed. The godothub command is no longer on your PATH.",
+  "motion": "Motion",
+  "data": "Data & Backup"
 }

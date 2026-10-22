@@ -84,6 +84,9 @@ import {
   IconRocket,
   IconGithub,
   IconGitlab,
+  IconPlay,
+  IconMonitor,
+  IconHistory,
 } from "../lib/icons";
 import type { IconProps } from "../lib/icons";
 import type { AppSettings, GitAuthState, MiseStatus } from "../types";
@@ -92,11 +95,13 @@ import { Tooltip } from "../components/reusables/Tooltip";
 
 type SettingsCat =
   | "appearance"
+  | "motion"
   | "display"
-  | "storage"
-  | "behavior"
-  | "integrations"
   | "accessibility"
+  | "behavior"
+  | "storage"
+  | "integrations"
+  | "data"
   | "advanced"
   | "experimental"
   | "credits";
@@ -108,11 +113,13 @@ interface CatDef {
 
 const CATEGORIES: CatDef[] = [
   { id: "appearance", icon: IconPalette },
-  { id: "display", icon: IconSun },
-  { id: "storage", icon: IconHardDrive },
-  { id: "behavior", icon: IconGear },
-  { id: "integrations", icon: IconPlug },
+  { id: "motion", icon: IconPlay },
+  { id: "display", icon: IconMonitor },
   { id: "accessibility", icon: IconUniversalAccess },
+  { id: "behavior", icon: IconGear },
+  { id: "storage", icon: IconHardDrive },
+  { id: "integrations", icon: IconPlug },
+  { id: "data", icon: IconHistory },
   { id: "advanced", icon: IconCode },
   { id: "experimental", icon: IconFlask },
 ];
@@ -704,76 +711,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
   const renderAppearance = () => (
     <div className="flex flex-col gap-3">
       <Subsection
-        id="appearance-layout"
-        title={ts("card_layout_label")}
-        description={ts("card_layout_desc")}
-        searchText={`${ts("card_layout_label")} ${ts("card_layout_desc")}`}
-        query={searchQuery}
-        onMatch={reportMatch}
-      >
-        <Toggle
-          checked={settings.card_layout ?? true}
-          onChange={(checked) => update({ ...settings, card_layout: checked })}
-          label={ts("card_layout_label")}
-        />
-      </Subsection>
-      {!isMac && (
-        <Subsection
-          id="appearance-titlebar-buttons"
-          title={ts('colored_titlebar_buttons_label')}
-          description={ts('colored_titlebar_buttons_desc')}
-          searchText={`${ts('colored_titlebar_buttons_label')} ${ts('colored_titlebar_buttons_desc')} ${ts('card_layout_label')}`}
-          query={searchQuery}
-          onMatch={reportMatch}
-        >
-          <Toggle
-            checked={settings.colored_titlebar_buttons ?? false}
-            onChange={(checked) =>
-              update({ ...settings, colored_titlebar_buttons: checked })
-            }
-            label={ts('colored_titlebar_buttons_label')}
-          />
-        </Subsection>
-      )}
-
-      <Subsection
-        id="appearance-landing"
-        title={ts("landing_tab_label")}
-        description={ts("landing_tab_desc")}
-        searchText={`${ts("landing_tab_label")} ${ts("landing_tab_desc")} ${LANDING_TABS.map((l) => ts(l.labelKey)).join(" ")}`}
-        query={searchQuery}
-        onMatch={reportMatch}
-      >
-        <Dropdown
-          align="right"
-          trigger={({ open, toggle }) => (
-            <button
-              type="button"
-              onClick={toggle}
-              aria-expanded={open}
-              className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-btn bg-overlay border border-outline/50 text-xs font-medium text-ink hover:border-accent-dim transition-colors"
-            >
-              {ts(
-                LANDING_TABS.find((l) => l.id === settings.default_landing_tab)
-                  ?.labelKey ?? LANDING_TABS[0].labelKey,
-              )}
-              <IconChevronDown
-                className={`w-3 h-3 text-muted transition-transform duration-200 ${
-                  open ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-          )}
-          items={LANDING_TABS.map((l) => ({
-            key: l.id,
-            label: ts(l.labelKey),
-            active: settings.default_landing_tab === l.id,
-            onClick: () => update({ ...settings, default_landing_tab: l.id }),
-          }))}
-        />
-      </Subsection>
-
-      <Subsection
         id="appearance-presets"
         title={ts("theme_preset_label")}
         description={ts("theme_preset_desc")}
@@ -948,73 +885,17 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       </Subsection>
 
       <Subsection
-        id="appearance-view-entrance"
-        title={ts("view_entrance_label")}
-        description={ts("view_entrance_desc")}
-        searchText={`${ts("view_entrance_label")} ${ts("view_entrance_desc")} ${ts("entrance_fade")} ${ts("entrance_slide")} ${ts("entrance_scale")} ${ts("entrance_none")}`}
-        query={searchQuery}
-        onMatch={reportMatch}
-      >
-        <div className="flex flex-col gap-3">
-          <Segmented
-            value={settings.view_entrance}
-            onChange={(v) =>
-              update({
-                ...settings,
-                view_entrance: v as AppSettings["view_entrance"],
-              })
-            }
-            options={[
-              { value: "fade", label: ts("entrance_fade") },
-              { value: "slide", label: ts("entrance_slide") },
-              { value: "scale", label: ts("entrance_scale") },
-              { value: "none", label: ts("entrance_none") },
-            ]}
-          />
-        </div>
-      </Subsection>
-
-      <Subsection
-        id="appearance-animation-threshold"
-        title={ts("animation_threshold_label")}
-        description={ts("animation_threshold_desc")}
-        searchText={`${ts("animation_threshold_label")} ${ts("animation_threshold_desc")}`}
-        query={searchQuery}
-        onMatch={reportMatch}
-      >
-        <div className="flex flex-col gap-2">
-          <Slider
-            display={
-              <span className="text-xs font-medium text-ink tabular-nums">
-                {ts("n_projects", { count: settings.animation_threshold })}
-              </span>
-            }
-            value={settings.animation_threshold}
-            min={10}
-            max={100}
-            step={5}
-            defaultValue={20}
-            onChange={(value) =>
-              update({ ...settings, animation_threshold: value })
-            }
-          />
-        </div>
-      </Subsection>
-
-      <Subsection
-        id="appearance-animated-numbers"
-        title={ts("animated_numbers_label")}
-        description={ts("animated_numbers_desc")}
-        searchText={`${ts("animated_numbers_label")} ${ts("animated_numbers_desc")}`}
+        id="appearance-layout"
+        title={ts("card_layout_label")}
+        description={ts("card_layout_desc")}
+        searchText={`${ts("card_layout_label")} ${ts("card_layout_desc")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
         <Toggle
-          checked={settings.animated_numbers}
-          onChange={(checked) =>
-            update({ ...settings, animated_numbers: checked })
-          }
-          label={ts("animated_numbers_label")}
+          checked={settings.card_layout ?? true}
+          onChange={(checked) => update({ ...settings, card_layout: checked })}
+          label={ts("card_layout_label")}
         />
       </Subsection>
 
@@ -1104,6 +985,105 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
     </div>
   );
 
+  const renderMotion = () => (
+    <div className="flex flex-col gap-3">
+      <Subsection
+        id="motion-intensity"
+        title={ts("animation_intensity_label")}
+        description={ts("animation_intensity_desc")}
+        searchText={`${ts("animation_intensity_label")} ${ts("animation_intensity_desc")} ${ts("animation_full")} ${ts("animation_subtle")} ${ts("animation_none")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <Segmented
+          value={settings.animation_intensity}
+          onChange={(v) =>
+            update({
+              ...settings,
+              animation_intensity: v as AppSettings["animation_intensity"],
+            })
+          }
+          options={[
+            { value: "full", label: ts("animation_full") },
+            { value: "subtle", label: ts("animation_subtle") },
+            { value: "none", label: ts("animation_none") },
+          ]}
+        />
+      </Subsection>
+
+      <Subsection
+        id="motion-view-entrance"
+        title={ts("view_entrance_label")}
+        description={ts("view_entrance_desc")}
+        searchText={`${ts("view_entrance_label")} ${ts("view_entrance_desc")} ${ts("entrance_fade")} ${ts("entrance_slide")} ${ts("entrance_scale")} ${ts("entrance_none")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-3">
+          <Segmented
+            value={settings.view_entrance}
+            onChange={(v) =>
+              update({
+                ...settings,
+                view_entrance: v as AppSettings["view_entrance"],
+              })
+            }
+            options={[
+              { value: "fade", label: ts("entrance_fade") },
+              { value: "slide", label: ts("entrance_slide") },
+              { value: "scale", label: ts("entrance_scale") },
+              { value: "none", label: ts("entrance_none") },
+            ]}
+          />
+        </div>
+      </Subsection>
+
+      <Subsection
+        id="motion-animation-threshold"
+        title={ts("animation_threshold_label")}
+        description={ts("animation_threshold_desc")}
+        searchText={`${ts("animation_threshold_label")} ${ts("animation_threshold_desc")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-2">
+          <Slider
+            display={
+              <span className="text-xs font-medium text-ink tabular-nums">
+                {ts("n_projects", { count: settings.animation_threshold })}
+              </span>
+            }
+            value={settings.animation_threshold}
+            min={10}
+            max={100}
+            step={5}
+            defaultValue={20}
+            onChange={(value) =>
+              update({ ...settings, animation_threshold: value })
+            }
+          />
+        </div>
+      </Subsection>
+
+      <Subsection
+        id="motion-animated-numbers"
+        title={ts("animated_numbers_label")}
+        description={ts("animated_numbers_desc")}
+        searchText={`${ts("animated_numbers_label")} ${ts("animated_numbers_desc")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <Toggle
+          checked={settings.animated_numbers}
+          onChange={(checked) =>
+            update({ ...settings, animated_numbers: checked })
+          }
+          label={ts("animated_numbers_label")}
+        />
+      </Subsection>
+    </div>
+  );
+
   const renderDisplay = () => (
     <div className="flex flex-col gap-3">
       <Subsection
@@ -1171,6 +1151,25 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             checked={settings.use_os_decorations}
             onChange={(checked) => setConfirmingOsDec(checked)}
             label={ts("use_os_decorations")}
+          />
+        </Subsection>
+      )}
+
+      {!isMac && (
+        <Subsection
+          id="display-colored-titlebar-buttons"
+          title={ts('colored_titlebar_buttons_label')}
+          description={ts('colored_titlebar_buttons_desc')}
+          searchText={`${ts('colored_titlebar_buttons_label')} ${ts('colored_titlebar_buttons_desc')}`}
+          query={searchQuery}
+          onMatch={reportMatch}
+        >
+          <Toggle
+            checked={settings.colored_titlebar_buttons ?? false}
+            onChange={(checked) =>
+              update({ ...settings, colored_titlebar_buttons: checked })
+            }
+            label={ts('colored_titlebar_buttons_label')}
           />
         </Subsection>
       )}
@@ -1417,6 +1416,8 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         </div>
       </Subsection>
 
+      {renderWatchers()}
+
       <div className="flex items-center gap-3">
         <button
           type="button"
@@ -1435,6 +1436,43 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
   const renderBehavior = () => (
     <div className="flex flex-col gap-3">
+      <Subsection
+        id="behavior-landing"
+        title={ts("landing_tab_label")}
+        description={ts("landing_tab_desc")}
+        searchText={`${ts("landing_tab_label")} ${ts("landing_tab_desc")} ${LANDING_TABS.map((l) => ts(l.labelKey)).join(" ")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <Dropdown
+          align="right"
+          trigger={({ open, toggle }) => (
+            <button
+              type="button"
+              onClick={toggle}
+              aria-expanded={open}
+              className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-btn bg-overlay border border-outline/50 text-xs font-medium text-ink hover:border-accent-dim transition-colors"
+            >
+              {ts(
+                LANDING_TABS.find((l) => l.id === settings.default_landing_tab)
+                  ?.labelKey ?? LANDING_TABS[0].labelKey,
+              )}
+              <IconChevronDown
+                className={`w-3 h-3 text-muted transition-transform duration-200 ${
+                  open ? "rotate-180" : ""
+                }`}
+              />
+            </button>
+          )}
+          items={LANDING_TABS.map((l) => ({
+            key: l.id,
+            label: ts(l.labelKey),
+            active: settings.default_landing_tab === l.id,
+            onClick: () => update({ ...settings, default_landing_tab: l.id }),
+          }))}
+        />
+      </Subsection>
+
       <Subsection
         id="behavior-launch"
         title={ts("behavior_title")}
@@ -1702,33 +1740,12 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           </SettingRow>
         </div>
       </Subsection>
+    </div>
+  );
 
+  const renderWatchers = () => (
       <Subsection
-        id="behavior-notifications"
-        title={ts('desktop_notifications_label')}
-        description={ts('desktop_notifications_desc')}
-        searchText={`${ts('desktop_notifications_label')} ${ts('desktop_notifications_desc')} ${ts('behavior_title')} ${ts('behavior_desc')}`}
-        query={searchQuery}
-        onMatch={reportMatch}
-      >
-        <div className="flex flex-col gap-5">
-          <SettingRow
-            label={ts('desktop_notifications_label')}
-            description={ts('desktop_notifications_desc')}
-          >
-            <Toggle
-              checked={settings.desktop_notifications_enabled}
-              onChange={(checked) =>
-                update({ ...settings, desktop_notifications_enabled: checked })
-              }
-              label={ts('desktop_notifications_label')}
-            />
-          </SettingRow>
-        </div>
-      </Subsection>
-
-      <Subsection
-        id="behavior-watchers"
+        id="storage-watchers"
         title={ts("file_watchers_title")}
         description={ts("file_watchers_desc")}
         searchText={`${ts("file_watchers_title")} ${ts("file_watchers_desc")} ${ts("watch_projects_label")} ${ts("watch_versions_label")} ${ts("watch_template_label")}`}
@@ -1785,7 +1802,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           </p>
         </div>
       </Subsection>
-    </div>
   );
 
   const refreshGitAuth = async () => {
@@ -2454,6 +2470,71 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           </div>
         </div>
       </Subsection>
+
+      <Subsection
+        id="integrations-mise"
+        title={ts("mise_label")}
+        description={ts("mise_desc")}
+        searchText={`${ts("mise_label")} ${ts("mise_desc")} mise`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <Toggle
+          checked={settings.use_mise}
+          onChange={(checked) => {
+            update({ ...settings, use_mise: checked });
+            api
+              .miseRefreshStatus()
+              .then((status) => setMiseStatus(status))
+              .catch(() => setMiseStatus(null));
+            if (checked) api.miseSyncVersions().catch(() => {});
+          }}
+          label={ts("mise_label")}
+        />
+        {settings.use_mise && (
+          <p className="text-[11px] text-muted">
+            {miseStatus?.available
+              ? ts("mise_detected", {
+                  version: miseStatus.version ?? miseStatus.path ?? "",
+                })
+              : ts("mise_not_found")}
+          </p>
+        )}
+      </Subsection>
+
+      <Subsection
+        id="integrations-cli"
+        title={ts("cli_tool_title")}
+        description={ts("cli_tool_desc")}
+        searchText={`${ts("cli_tool_title")} ${ts("cli_tool_desc")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex items-center gap-3">
+          {cliStatus?.installed ? (
+            <button
+              type="button"
+              onClick={handleUninstallCli}
+              disabled={cliBusy}
+              className="focus-ring cursor-pointer self-start flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {cliBusy ? ts("cli_tool_installing") : ts("cli_tool_uninstall")}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handleInstallCli}
+              disabled={cliBusy}
+              className="focus-ring cursor-pointer self-start flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {cliBusy ? ts("cli_tool_installing") : ts("cli_tool_install")}
+            </button>
+          )}
+          {cliMessage && (
+            <span className="text-xs text-muted">{cliMessage}</span>
+          )}
+        </div>
+      </Subsection>
     </div>
   );
 
@@ -2527,30 +2608,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         <p className="text-[11px] text-amber/90 leading-relaxed mt-1">
           {ts("screen_reader_beta_desc")}
         </p>
-      </Subsection>
-
-      <Subsection
-        id="accessibility-motion"
-        title={ts("animation_intensity_label")}
-        description={ts("animation_intensity_desc")}
-        searchText={`${ts("animation_intensity_label")} ${ts("animation_intensity_desc")} ${ts("animation_full")} ${ts("animation_subtle")} ${ts("animation_none")}`}
-        query={searchQuery}
-        onMatch={reportMatch}
-      >
-        <Segmented
-          value={settings.animation_intensity}
-          onChange={(v) =>
-            update({
-              ...settings,
-              animation_intensity: v as AppSettings["animation_intensity"],
-            })
-          }
-          options={[
-            { value: "full", label: ts("animation_full") },
-            { value: "subtle", label: ts("animation_subtle") },
-            { value: "none", label: ts("animation_none") },
-          ]}
-        />
       </Subsection>
 
       <Subsection
@@ -2696,6 +2753,49 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         <div className="rounded-item bg-overlay px-4 py-4 flex items-center justify-between gap-6">
           <div className="min-w-0">
             <h3 className="text-sm font-medium text-ink">
+              {ts("reset_settings")}
+            </h3>
+            <p className="text-xs text-muted mt-1.5 leading-relaxed">
+              {ts("reset_settings_desc")}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setConfirmingReset(true)}
+            className="focus-ring cursor-pointer shrink-0 px-5 py-2.5 rounded-item border border-outline/50 text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-sm font-medium transition-colors"
+          >
+            {ts("reset")}
+          </button>
+        </div>
+
+        <div className="rounded-item border border-danger/30 bg-danger/4 px-4 py-4 flex items-center justify-between gap-6">
+          <div className="min-w-0">
+            <h3 className="text-sm font-medium text-danger">
+              {ts("delete_app_data")}
+            </h3>
+            <p className="text-xs text-muted mt-1.5 leading-relaxed">
+              {ts("delete_data_desc")}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setConfirmingWipe(true)}
+            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-danger/40 text-danger hover:bg-danger/10 text-sm font-medium transition-colors"
+          >
+            <IconBomb className="w-4 h-4" />
+            {ts("delete_all")}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderData = () => (
+    <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3">
+        <div className="rounded-item bg-overlay px-4 py-4 flex items-center justify-between gap-6">
+          <div className="min-w-0">
+            <h3 className="text-sm font-medium text-ink">
               {ts("settings_backup_title")}
             </h3>
             <p className="text-xs text-muted mt-1.5 leading-relaxed">
@@ -2810,61 +2910,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         <div className="rounded-item bg-overlay px-4 py-4 flex items-center justify-between gap-6">
           <div className="min-w-0">
             <h3 className="text-sm font-medium text-ink">
-              {ts("cli_tool_title")}
-            </h3>
-            <p className="text-xs text-muted mt-1.5 leading-relaxed">
-              {ts("cli_tool_desc")}
-            </p>
-            {cliMessage && (
-              <span className="text-xs text-muted block mt-1.5">
-                {cliMessage}
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            {cliStatus?.installed ? (
-              <button
-                type="button"
-                onClick={handleUninstallCli}
-                disabled={cliBusy}
-                className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {cliBusy ? ts("cli_tool_installing") : ts("cli_tool_uninstall")}
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleInstallCli}
-                disabled={cliBusy}
-                className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {cliBusy ? ts("cli_tool_installing") : ts("cli_tool_install")}
-              </button>
-            )}
-          </div>
-        </div>
-
-        <div className="rounded-item bg-overlay px-4 py-4 flex items-center justify-between gap-6">
-          <div className="min-w-0">
-            <h3 className="text-sm font-medium text-ink">
-              {ts("reset_settings")}
-            </h3>
-            <p className="text-xs text-muted mt-1.5 leading-relaxed">
-              {ts("reset_settings_desc")}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setConfirmingReset(true)}
-            className="focus-ring cursor-pointer shrink-0 px-5 py-2.5 rounded-item border border-outline/50 text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-sm font-medium transition-colors"
-          >
-            {ts("reset")}
-          </button>
-        </div>
-
-        <div className="rounded-item bg-overlay px-4 py-4 flex items-center justify-between gap-6">
-          <div className="min-w-0">
-            <h3 className="text-sm font-medium text-ink">
               {ts("time_tracking_title")}
             </h3>
             <p className="text-xs text-muted mt-1.5 leading-relaxed">
@@ -2894,25 +2939,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               {statsBusy === "import" ? ts("saving") : ts("import_stats_btn")}
             </button>
           </div>
-        </div>
-
-        <div className="rounded-item border border-danger/30 bg-danger/4 px-4 py-4 flex items-center justify-between gap-6">
-          <div className="min-w-0">
-            <h3 className="text-sm font-medium text-danger">
-              {ts("delete_app_data")}
-            </h3>
-            <p className="text-xs text-muted mt-1.5 leading-relaxed">
-              {ts("delete_data_desc")}
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setConfirmingWipe(true)}
-            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-danger/40 text-danger hover:bg-danger/10 text-sm font-medium transition-colors"
-          >
-            <IconBomb className="w-4 h-4" />
-            {ts("delete_all")}
-          </button>
         </div>
       </div>
     </div>
@@ -2951,30 +2977,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             label={ts("project_todos_label")}
           />
         </SettingRow>
-
-        <SettingRow label={ts("mise_label")} description={ts("mise_desc")}>
-          <Toggle
-            checked={settings.use_mise}
-            onChange={(checked) => {
-              update({ ...settings, use_mise: checked });
-              api
-                .miseRefreshStatus()
-                .then((status) => setMiseStatus(status))
-                .catch(() => setMiseStatus(null));
-              if (checked) api.miseSyncVersions().catch(() => {});
-            }}
-            label={ts("mise_label")}
-          />
-        </SettingRow>
-        {settings.use_mise && (
-          <p className="text-[11px] text-muted -mt-2">
-            {miseStatus?.available
-              ? ts("mise_detected", {
-                  version: miseStatus.version ?? miseStatus.path ?? "",
-                })
-              : ts("mise_not_found")}
-          </p>
-        )}
       </section>
     </div>
   );
@@ -3079,16 +3081,20 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
     switch (cat) {
       case "appearance":
         return renderAppearance();
+      case "motion":
+        return renderMotion();
       case "display":
         return renderDisplay();
-      case "storage":
-        return renderStorage();
-      case "behavior":
-        return renderBehavior();
-      case "integrations":
-        return renderIntegrations();
       case "accessibility":
         return renderAccessibility();
+      case "behavior":
+        return renderBehavior();
+      case "storage":
+        return renderStorage();
+      case "integrations":
+        return renderIntegrations();
+      case "data":
+        return renderData();
       case "advanced":
         return renderAdvanced();
       case "experimental":

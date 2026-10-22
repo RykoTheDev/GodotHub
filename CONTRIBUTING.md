@@ -174,36 +174,60 @@ on the releases page differ from the ones you get locally. See the
 
 ```
 godothub/
-├── src/                        # Frontend (React + TypeScript)
-│   ├── main.tsx                # Entry point
-│   ├── types.ts                # Shared TypeScript types
-│   ├── api/                    # Tauri command bindings
-│   ├── hooks/                  # React hooks & contexts
-│   ├── lib/                    # Shared helpers (api.ts, useApiData, naming…)
-│   ├── i18n/                   # Localization (see the dedicated section below)
-│   └── interface/
-│       ├── App.tsx             # Main app shell
-│       ├── style.css           # Design tokens
-│       ├── components/         #   cards/, git/, modals/, reusables/, titlebar/, ui/
-│       ├── hooks/              #   useScrollCompensation, useSectionSearch
-│       ├── lib/                #   icons, duration, toast, workspaceIcons
-│       ├── views/              #   ProjectsView, SettingsView, VersionsView…
-│       └── onboarding/         #   First-run setup wizard
-├── src-tauri/                  # Backend (Rust)
+├── src/                            # Frontend (React + TypeScript)
+│   ├── main.tsx                    # Entry point
+│   ├── App.tsx                     # Main app shell (sidebar, titlebar, view routing)
+│   ├── ErrorBoundary.tsx           # Top-level crash screen
+│   ├── index.css                   # Tailwind setup + design tokens
+│   ├── types.ts                    # Shared TypeScript types (mirrors Rust models)
+│   ├── types/                      # Feature-specific types (projectTodo…)
+│   ├── api/                        # Typed Tauri command bindings, one file per domain
+│   │                               #   projects, versions, git, gitAuth, mise, settings…
+│   ├── components/
+│   │   ├── asset-library/          #   Asset Library / Asset Store browsers & cards
+│   │   ├── cards/                  #   Project & version cards (grid, list, kanban, todos)
+│   │   ├── console/                #   Built-in Godot console window
+│   │   ├── dnd/                    #   Project drag & drop
+│   │   ├── git/                    #   Git sidebar, commit graph, diffs, worktrees
+│   │   ├── modals/                 #   Every dialog (create project, doctor, build…)
+│   │   ├── reusables/              #   OverlayScrollArea, ViewHeader, Segmented, Tooltip…
+│   │   ├── titlebar/               #   Titlebar, task tray, running-projects chip
+│   │   └── ui/                     #   Primitives: Toggle, Slider, Dropdown, Sidebar…
+│   ├── views/                      # Top-level views: Dashboard, Projects, Versions,
+│   │                               #   Templates, AssetStore, News, Settings, Onboarding…
+│   ├── hooks/                      # React hooks & context providers (useSettings…)
+│   ├── lib/                        # Shared helpers (api.ts, icons, colors, motion, toast…)
+│   └── i18n/                       # Localization (see the dedicated section below)
+├── src-tauri/                      # Backend (Rust)
 │   ├── src/
-│   │   ├── lib.rs              # Tauri setup + command registration
-│   │   ├── git.rs              # Git operations
-│   │   ├── git_auth.rs         # OAuth device flow, PATs, remote repo creation
-│   │   ├── projects.rs         # Project CRUD, launch
-│   │   ├── godot_versions.rs   # Version download/install
-│   │   └── …                   # settings, workspace, news, tray, watcher…
-│   ├── licenses/               # License texts (MIT, Apache-2.0, GPL-3.0, Unlicense)
+│   │   ├── lib.rs                  # Tauri setup + command registration
+│   │   ├── main.rs                 # Binary entry point
+│   │   ├── models.rs               # Shared data models (settings, projects, versions…)
+│   │   ├── projects.rs             # Project CRUD, launch
+│   │   ├── godot_versions.rs       # Version download/install
+│   │   ├── mise.rs                 # mise integration for Godot versions
+│   │   ├── git.rs                  # Git operations
+│   │   ├── git_auth.rs             # OAuth device flow, PATs, remote repo creation
+│   │   ├── backup.rs / persist.rs  # Backups, crash-safe persistence
+│   │   ├── project_health.rs       # Project Doctor checks
+│   │   ├── export_*.rs             # Export templates & build runner
+│   │   ├── cli.rs / cli_shim.rs    # Command-line tool
+│   │   └── …                       # settings, workspace, scan, watcher, tray, news, sync…
+│   ├── capabilities/               # Tauri permission capabilities
+│   ├── icons/                      # App icons for every platform
+│   ├── licenses/                   # License texts (MIT, Apache-2.0, GPL-3.0, Unlicense)
+│   ├── changelog.json              # In-app changelog entries
+│   ├── tauri.conf.json             # Tauri config (+ tauri.macos.conf.json overrides)
 │   └── Cargo.toml
-├── .github/workflows/          # CI + release pipelines
+├── scripts/                        # i18n tooling (check, sync, types, dupes, unused…)
+├── docs/                           # Architecture notes + wiki pages
+├── assets/                         # README screenshots & banners
+├── .githooks/                      # pre-commit & commit-msg hooks
+├── .github/workflows/              # CI + release pipelines
 └── package.json
 ```
 
-**UI-specific components** live in `src/interface/components/ui/` (Checkbox, Toggle, Dropdown, Tooltip…)
+**UI-specific components** live in `src/components/ui/` (Checkbox, Toggle, Dropdown, Slider…)
 and `reusables/` (OverlayScrollArea, ViewHeader, ScanButton…). Shared logic goes in `src/lib/` or `src/hooks/`.
 
 ---
@@ -265,7 +289,7 @@ but do mention which platform you *did* test on in the PR.
 - Follow the patterns already in the file you're editing (state shape,
   error handling, naming).
 - Components use the existing primitives in
-  `src/interface/components/ui/` (Checkbox, Toggle, Dropdown, Tooltip…)
+  `src/components/ui/` (Checkbox, Toggle, Dropdown, Slider…)
   and `reusables/` (OverlayScrollArea, ViewHeader, ScanButton…) instead of
   re-implementing them inline. If the shared component doesn't fit, extend it,
   don't fork it.
@@ -332,7 +356,8 @@ src/i18n/
     │   ├── onboarding.json   #   Onboarding flow
     │   ├── nav.json          #   Sidebar navigation labels
     │   ├── changelog.json    #   Changelog view
-    │   └── dashboard.json    #   Dashboard greetings
+    │   ├── dashboard.json    #   Dashboard greetings
+    │   └── todos.json        #   Project Next Steps (todos)
     └── ar-MA/
     ├── es-MX/
     ├── fr-FR/

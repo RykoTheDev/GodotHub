@@ -337,5 +337,7 @@
   "cli_tool_uninstall": "卸载",
   "cli_tool_installing": "安装中...",
   "cli_tool_installed_msg": "安装完成. 打开一个新的终端, 然后运行: godothub",
-  "cli_tool_uninstalled_msg": "卸载完成. godothub 命令已不再在您的 PATH 中."
+  "cli_tool_uninstalled_msg": "卸载完成. godothub 命令已不再在您的 PATH 中.",
+  "motion": "Motion",
+  "data": "Data & Backup"
 }
