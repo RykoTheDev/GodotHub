@@ -510,6 +510,7 @@ pub fn run() {
             git::git_stash_drop,
             git::git_changed_files,
             git::git_discard_changes,
+            git::git_discard_dry_run,
             git::git_discard_file,
             git::git_init,
             git::git_init_project,

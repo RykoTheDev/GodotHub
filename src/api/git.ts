@@ -56,8 +56,10 @@ export const gitApi = {
     invoke<void>('git_stash_drop', { path, index }),
   changedFiles: (path: string) =>
     invoke<GitChangedFile[]>('git_changed_files', { path }),
-  discardChanges: (path: string) =>
-    invoke<void>('git_discard_changes', { path }),
+  discardChanges: (path: string, removeUntracked: boolean) =>
+    invoke<void>('git_discard_changes', { path, removeUntracked }),
+  discardDryRun: (path: string) =>
+    invoke<string[]>('git_discard_dry_run', { path }),
   discardFile: (path: string, filePath: string) =>
     invoke<void>('git_discard_file', { path, filePath }),
   init: (path: string) =>

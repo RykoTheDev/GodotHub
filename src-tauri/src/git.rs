@@ -980,14 +980,41 @@ pub async fn git_changed_files(path: String) -> Result<Vec<GitChangedFile>, Stri
 }
 
 #[tauri::command]
-pub async fn git_discard_changes(path: String) -> Result<(), String> {
+pub async fn git_discard_changes(path: String, remove_untracked: bool) -> Result<(), String> {
     tokio::task::spawn_blocking(move || {
         if !check_is_repo(&path) {
             return Err("Not a git repository".into());
         }
-        git_helpers::git_cmd(&path, ["restore", "."]).map_err(|e| e.to_string())?;
-        let _ = git_helpers::git_cmd(&path, ["clean", "-fd"]);
+        // Revert tracked files (staged and unstaged) to HEAD. Fall back to a
+        // worktree-only restore when there is no HEAD yet (unborn branch).
+        if git_helpers::git_cmd(&path, ["restore", "--staged", "--worktree", "."]).is_err() {
+            git_helpers::git_cmd(&path, ["restore", "."]).map_err(|e| e.to_string())?;
+        }
+        if remove_untracked {
+            git_helpers::git_cmd(&path, ["clean", "-fd"]).map_err(|e| e.to_string())?;
+        }
         Ok(())
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+/// Lists the untracked files and directories that `git clean -fd` would delete,
+/// without touching anything, so the UI can confirm before any destructive step.
+#[tauri::command]
+pub async fn git_discard_dry_run(path: String) -> Result<Vec<String>, String> {
+    tokio::task::spawn_blocking(move || {
+        if !check_is_repo(&path) {
+            return Err("Not a git repository".into());
+        }
+        let out = git_helpers::git_cmd(&path, ["clean", "-nd"]).map_err(|e| e.to_string())?;
+        let files = out
+            .lines()
+            .filter_map(|line| line.strip_prefix("Would remove "))
+            .map(|s| s.trim_end().to_string())
+            .filter(|s| !s.is_empty())
+            .collect();
+        Ok(files)
     })
     .await
     .map_err(|e| e.to_string())?

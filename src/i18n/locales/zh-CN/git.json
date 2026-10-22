@@ -109,5 +109,16 @@
   "switch_worktree_named": "切换到 {{name}}",
   "remove_worktree_named": "删除 {{name}}",
   "worktree_discard_changes": "丢弃未提交的更改",
-  "worktree_discard_warning": "此工作树有未提交的更改。使用此选项删除它将永久丢弃这些更改。"
+  "worktree_discard_warning": "此工作树有未提交的更改。使用此选项删除它将永久丢弃这些更改。",
+  "discard_dialog_title": "Discard changes?",
+  "discard_dialog_tracked_desc": "This reverts all tracked files to the last commit.",
+  "discard_dialog_untracked_heading": "These untracked files would be permanently deleted ({{n}}):",
+  "discard_dialog_no_untracked": "No untracked files will be affected.",
+  "discard_opt_tracked": "Discard tracked changes",
+  "discard_opt_tracked_hint": "Reverts tracked files. Leaves untracked files untouched.",
+  "discard_opt_untracked": "Also remove untracked files",
+  "discard_opt_untracked_hint": "Permanently deletes the files listed above. This cannot be undone.",
+  "discard_opt_stash": "Stash everything instead",
+  "discard_opt_stash_hint": "Saves tracked and untracked changes to a stash you can restore later.",
+  "discard_tracked_ok": "Discarded tracked changes."
 }

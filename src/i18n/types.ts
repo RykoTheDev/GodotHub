@@ -1087,7 +1087,18 @@ export type gitKeys =
   | 'switch_worktree_named'
   | 'remove_worktree_named'
   | 'worktree_discard_changes'
-  | 'worktree_discard_warning';
+  | 'worktree_discard_warning'
+  | 'discard_dialog_title'
+  | 'discard_dialog_tracked_desc'
+  | 'discard_dialog_untracked_heading'
+  | 'discard_dialog_no_untracked'
+  | 'discard_opt_tracked'
+  | 'discard_opt_tracked_hint'
+  | 'discard_opt_untracked'
+  | 'discard_opt_untracked_hint'
+  | 'discard_opt_stash'
+  | 'discard_opt_stash_hint'
+  | 'discard_tracked_ok';
 
 /** Keys from nav.json */
 export type navKeys =

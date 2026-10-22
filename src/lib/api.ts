@@ -157,6 +157,7 @@ export const api = {
   gitStashDrop: gitApi.stashDrop,
   gitChangedFiles: gitApi.changedFiles,
   gitDiscardChanges: gitApi.discardChanges,
+  gitDiscardDryRun: gitApi.discardDryRun,
   gitDiscardFile: gitApi.discardFile,
   gitInit: gitApi.init,
   gitInitProject: gitApi.initProject,
