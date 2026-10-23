@@ -533,6 +533,7 @@ fn probe_version(exe: &Path) -> Option<(String, String, bool)> {
     }
 
     let mut cmd = Command::new(exe);
+    crate::terminal::sanitize_child_env(&mut cmd);
     cmd.arg("--version");
     #[cfg(target_os = "windows")]
     cmd.creation_flags(crate::terminal::CREATE_NO_WINDOW);

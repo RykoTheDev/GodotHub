@@ -325,7 +325,9 @@ fn cmd_run(path: Option<PathBuf>) -> Result<i32, String> {
         accent(&engine.tag),
         dim(source_label(engine.source))
     );
-    let status = Command::new(&engine.executable_path)
+    let mut cmd = Command::new(&engine.executable_path);
+    crate::terminal::sanitize_child_env(&mut cmd);
+    let status = cmd
         .arg("--path")
         .arg(&root)
         .status()
@@ -429,7 +431,9 @@ fn cmd_export(
         accent(&engine.tag),
         dim(source_label(engine.source))
     );
-    let status = Command::new(&engine.executable_path)
+    let mut cmd = Command::new(&engine.executable_path);
+    crate::terminal::sanitize_child_env(&mut cmd);
+    let status = cmd
         .args(&args)
         .status()
         .map_err(|e| format!("Failed to launch Godot: {e}"))?;
@@ -491,8 +495,9 @@ fn spawn_detached(exe: &str, args: &[String]) -> Result<(), String> {
 
 #[cfg(not(windows))]
 fn spawn_detached(exe: &str, args: &[String]) -> Result<(), String> {
-    Command::new(exe)
-        .args(args)
+    let mut cmd = Command::new(exe);
+    crate::terminal::sanitize_child_env(&mut cmd);
+    cmd.args(args)
         .spawn()
         .map(|_| ())
         .map_err(|e| format!("Failed to launch Godot: {e}"))

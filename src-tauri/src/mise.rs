@@ -100,6 +100,7 @@ pub fn mise_binary() -> Option<PathBuf> {
 
 fn mise_command(bin: &Path) -> std::process::Command {
     let mut cmd = std::process::Command::new(bin);
+    crate::terminal::sanitize_child_env(&mut cmd);
     cmd.env("MISE_YES", "1");
     #[cfg(target_os = "windows")]
     cmd.creation_flags(crate::terminal::CREATE_NO_WINDOW);

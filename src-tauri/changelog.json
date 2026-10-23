@@ -1608,5 +1608,18 @@
     ],
     "known_issues": [],
     "created_at": 1792422007
+  },
+  {
+    "id": "f241a563-b3b2-45c3-8f41-85fc9a50e46e",
+    "version": "v1.5.1",
+    "date": "2026-10-24",
+    "notes": [
+      {
+        "category": "fix",
+        "text": "Fixed C# projects failing to build or run when opened from the Linux AppImage (\"Unable to load shared library libSystem.Security.Cryptography.Native.OpenSsl\"): Godot, git and mise no longer inherit GodotHub's bundled libraries (#208)"
+      }
+    ],
+    "known_issues": [],
+    "created_at": 1792782868
   }
 ]

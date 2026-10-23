@@ -1,3 +1,4 @@
+use std::ffi::{OsStr, OsString};
 use std::path::Path;
 use std::process::{Child, Command};
 
@@ -181,9 +182,83 @@ fn flags_for(binary: &str) -> &'static [&'static str] {
 }
 
 #[cfg(all(unix, not(target_os = "macos")))]
+const APPIMAGE_PATH_VARS: &[&str] = &[
+    "LD_LIBRARY_PATH",
+    "LD_PRELOAD",
+    "PATH",
+    "XDG_DATA_DIRS",
+    "XDG_CONFIG_DIRS",
+    "GIO_EXTRA_MODULES",
+    "GIO_MODULE_DIR",
+    "GDK_PIXBUF_MODULEDIR",
+    "GDK_PIXBUF_MODULE_FILE",
+    "GTK_PATH",
+    "GTK_EXE_PREFIX",
+    "GTK_DATA_PREFIX",
+    "GTK_IM_MODULE_FILE",
+    "GSETTINGS_SCHEMA_DIR",
+    "GST_PLUGIN_PATH",
+    "GST_PLUGIN_SYSTEM_PATH",
+    "GST_PLUGIN_SYSTEM_PATH_1_0",
+    "GST_PLUGIN_SCANNER",
+    "QT_PLUGIN_PATH",
+    "PYTHONHOME",
+    "PYTHONPATH",
+    "PERLLIB",
+];
+
+#[cfg(all(unix, not(target_os = "macos")))]
+const APPIMAGE_MARKER_VARS: &[&str] = &["APPIMAGE", "APPDIR", "ARGV0", "OWD"];
+
+#[cfg_attr(not(all(unix, not(target_os = "macos"))), allow(dead_code))]
+pub(crate) fn without_bundle_entries(value: &OsStr, bundle: &Path) -> Option<OsString> {
+    let kept: Vec<PathBuf> = std::env::split_paths(value)
+        .filter(|entry| !entry.as_os_str().is_empty() && !entry.starts_with(bundle))
+        .collect();
+    if kept.is_empty() {
+        return None;
+    }
+    std::env::join_paths(kept).ok()
+}
+
+#[cfg_attr(not(all(unix, not(target_os = "macos"))), allow(dead_code))]
+fn appimage_bundle_dir() -> Option<PathBuf> {
+    std::env::var_os("APPIMAGE")?;
+    if let Some(dir) = std::env::var_os("APPDIR").filter(|dir| !dir.is_empty()) {
+        return Some(PathBuf::from(dir));
+    }
+    std::env::current_exe()
+        .ok()?
+        .ancestors()
+        .find(|dir| {
+            dir.file_name()
+                .map(|name| name.to_string_lossy().starts_with(".mount_"))
+                .unwrap_or(false)
+        })
+        .map(Path::to_path_buf)
+}
+
+#[cfg(all(unix, not(target_os = "macos")))]
 pub fn sanitize_child_env(cmd: &mut Command) {
-    if std::env::var_os("APPIMAGE").is_some() {
-        cmd.env_remove("LD_LIBRARY_PATH");
+    let Some(bundle) = appimage_bundle_dir() else {
+        return;
+    };
+    for var in APPIMAGE_PATH_VARS {
+        let Some(value) = std::env::var_os(var) else {
+            continue;
+        };
+        match without_bundle_entries(&value, &bundle) {
+            Some(clean) => {
+                cmd.env(var, clean);
+            }
+            None if *var == "PATH" => {}
+            None => {
+                cmd.env_remove(var);
+            }
+        }
+    }
+    for var in APPIMAGE_MARKER_VARS {
+        cmd.env_remove(var);
     }
 }
 
@@ -353,4 +428,42 @@ pub fn spawn_program_in_console(
         .creation_flags(CREATE_NO_WINDOW)
         .spawn()
         .map_err(|e| format!("Failed to open a console window: {e}"))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn joined(parts: &[&str]) -> OsString {
+        std::env::join_paths(parts.iter().map(PathBuf::from)).unwrap()
+    }
+
+    #[test]
+    fn bundle_entries_are_dropped_and_user_entries_kept() {
+        let bundle = Path::new("/tmp/.mount_GodotHfgdGDg");
+        let value = joined(&[
+            "/tmp/.mount_GodotHfgdGDg/usr/lib",
+            "/opt/custom/lib",
+            "/tmp/.mount_GodotHfgdGDg/usr/lib/x86_64-linux-gnu",
+        ]);
+        assert_eq!(without_bundle_entries(&value, bundle), Some(joined(&["/opt/custom/lib"])));
+    }
+
+    #[test]
+    fn variable_with_only_bundle_entries_is_removed() {
+        let bundle = Path::new("/tmp/.mount_abc");
+        let value = joined(&["/tmp/.mount_abc/usr/lib", "/tmp/.mount_abc/usr/lib64"]);
+        assert_eq!(without_bundle_entries(&value, bundle), None);
+        assert_eq!(without_bundle_entries(OsStr::new(""), bundle), None);
+    }
+
+    #[test]
+    fn paths_that_merely_share_a_prefix_are_kept() {
+        let bundle = Path::new("/tmp/.mount_abc");
+        let value = joined(&["/tmp/.mount_abcdef/usr/lib", "/usr/lib"]);
+        assert_eq!(
+            without_bundle_entries(&value, bundle),
+            Some(joined(&["/tmp/.mount_abcdef/usr/lib", "/usr/lib"]))
+        );
+    }
 }

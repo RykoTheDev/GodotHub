@@ -1631,8 +1631,9 @@ pub fn spawn_editor(
 }
 
 fn spawn_plain(exe: &Path, args: &[String]) -> Result<LaunchedEditor, String> {
-    std::process::Command::new(exe)
-        .args(args)
+    let mut cmd = std::process::Command::new(exe);
+    crate::terminal::sanitize_child_env(&mut cmd);
+    cmd.args(args)
         .spawn()
         .map(|child| LaunchedEditor {
             child,

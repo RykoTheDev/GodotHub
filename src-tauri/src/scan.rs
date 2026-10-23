@@ -279,6 +279,7 @@ fn extract_version_line(raw: &str) -> Option<&str> {
 
 fn probe_version(exe: &Path) -> String {
     let mut cmd = std::process::Command::new(exe);
+    crate::terminal::sanitize_child_env(&mut cmd);
     cmd.arg("--version");
     #[cfg(target_os = "windows")]
     cmd.creation_flags(CREATE_NO_WINDOW);

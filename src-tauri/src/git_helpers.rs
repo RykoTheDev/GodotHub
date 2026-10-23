@@ -33,6 +33,7 @@ fn credential_store_arg() -> Option<String> {
 pub fn git_command() -> Command {
     #[allow(unused_mut)]
     let mut cmd = Command::new("git");
+    crate::terminal::sanitize_child_env(&mut cmd);
     #[cfg(target_os = "windows")]
     cmd.creation_flags(CREATE_NO_WINDOW);
     if let Some(helper) = credential_store_arg() {
