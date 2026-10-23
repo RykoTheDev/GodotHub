@@ -12,7 +12,7 @@
   "dashboard_rename_aria": "重命名问候名称",
   "dashboard_rename_save": "保存名称",
   "dashboard_rename_reset": "使用系统名称",
-  "dashboard_name_placeholder": "您的名称",
+  "dashboard_name_placeholder": "你的名称",
   "dashboard_clock_aria": "当前时间",
   "dashboard_new_project": "新建项目",
   "dashboard_import_project": "导入项目",
@@ -81,7 +81,7 @@
   "dashboard_preset_save_hint": "为此布局命名，以便随时切换回来。",
   "dashboard_preset_name_placeholder": "预设名称",
   "dashboard_preset_delete": "删除预设",
-  "dashboard_custom_presets": "您的预设",
+  "dashboard_custom_presets": "你的预设",
   "dashboard_hidden_tiles": "隐藏的磁贴",
-  "dashboard_todos": "Due to-dos"
+  "dashboard_todos": "到期事项"
 }
