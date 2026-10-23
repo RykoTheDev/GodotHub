@@ -66,7 +66,7 @@ export function TodoDueTile({ tall = false }: { tall?: boolean }) {
       <p className="text-[11px] text-muted">
         {t("tile_summary", { overdue: overdue.length, soon: soon.length })}
       </p>
-      <div className="flex flex-col gap-1.5">
+      <div className="ui-stagger flex flex-col gap-1.5">
         {rows.map((open) => {
           const isOverdue = open.todo.dueDate! < today;
 
@@ -75,7 +75,7 @@ export function TodoDueTile({ tall = false }: { tall?: boolean }) {
               key={`${open.projectId}:${open.todo.id}`}
               type="button"
               onClick={() => requestTodoFocus(open.projectId)}
-              className="focus-ring cursor-pointer flex items-center gap-3 rounded-item bg-overlay border border-outline/50 px-3 py-2 text-start transition-colors hover:bg-raised hover:border-accent-dim/60"
+              className="ui-lift focus-ring cursor-pointer flex items-center gap-3 rounded-item bg-overlay border border-outline/50 px-3 py-2 text-start transition-colors hover:bg-raised hover:border-accent-dim/60"
             >
               {open.todo.priority && (
                 <span

@@ -878,5 +878,6 @@
   "optional": "（可选）",
   "language_label": "语言",
   "n_projects_one": "{{count}} 个项目",
-  "n_projects_other": "{{count}} 个项目"
+  "n_projects_other": "{{count}} 个项目",
+  "unlocalized_badge": "Unlocalized"
 }

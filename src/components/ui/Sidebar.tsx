@@ -221,7 +221,7 @@ export function Sidebar({
           />
         )}
         <Icon
-          className={`relative w-4 h-4 shrink-0 transition-colors duration-200 ${active ? 'text-accent' : 'text-muted'}`}
+          className={`ui-nav-icon relative w-4 h-4 shrink-0 ${active ? 'text-accent' : 'text-muted'}`}
         />
         {!hideLabel && (
           <span className={`relative transition-colors duration-200 ${active ? 'text-ink' : ''}`}>{tab.label}</span>

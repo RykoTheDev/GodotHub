@@ -29,7 +29,7 @@ function ToastCard({ toast }: { toast: ToastItem }) {
     <motion.div
       layout={reduced || instant ? false : 'position'}
       {...surface('popover', 'translateY(12px)')}
-      className="flex items-start gap-2.5 w-80 rounded-menu border border-outline/50 bg-surface/95 backdrop-blur shadow-lg shadow-black/20 px-3.5 py-3"
+      className="pointer-events-auto flex items-start gap-2.5 w-80 rounded-menu border border-outline/50 bg-surface/95 backdrop-blur shadow-lg shadow-black/20 px-3.5 py-3"
     >
       <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${color}`} />
       <p className="flex-1 min-w-0 text-xs text-ink leading-snug wrap-break-word">
@@ -68,9 +68,7 @@ export function ToastContainer() {
     <div className="fixed bottom-4 end-4 z-9999 flex flex-col gap-2 items-end pointer-events-none">
       <AnimatePresence>
         {toasts.map((t) => (
-          <div key={t.id} className="pointer-events-auto">
-            <ToastCard toast={t} />
-          </div>
+          <ToastCard key={t.id} toast={t} />
         ))}
       </AnimatePresence>
     </div>,

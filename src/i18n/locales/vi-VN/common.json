@@ -891,5 +891,6 @@
   "optional": "(optional)",
   "language_label": "Ngôn ngữ",
   "n_projects_one": "{{count}} dự án",
-  "n_projects_other": "{{count}} dự án"
+  "n_projects_other": "{{count}} dự án",
+  "unlocalized_badge": "Unlocalized"
 }

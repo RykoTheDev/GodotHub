@@ -891,5 +891,6 @@
   "optional": "(optional)",
   "language_label": "Язык",
   "n_projects_one": "{{count}} проект",
-  "n_projects_other": "{{count}} проектов"
+  "n_projects_other": "{{count}} проектов",
+  "unlocalized_badge": "Unlocalized"
 }

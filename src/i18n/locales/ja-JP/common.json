@@ -876,5 +876,6 @@
   "optional": "（任意）",
   "language_label": "言語",
   "n_projects_one": "{{count}} 件のプロジェクト",
-  "n_projects_other": "{{count}} 件のプロジェクト"
+  "n_projects_other": "{{count}} 件のプロジェクト",
+  "unlocalized_badge": "Unlocalized"
 }

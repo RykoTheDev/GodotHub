@@ -90,7 +90,7 @@ function SortableRow({
         position: "relative",
         zIndex: isDragging ? 10 : undefined,
       }}
-      className={`${className} ${isDragging ? "bg-raised shadow-md" : ""}`}
+      className={`ui-rise ${className} ${isDragging ? "bg-raised shadow-md" : ""}`}
     >
       {children(grip)}
     </div>
@@ -396,7 +396,7 @@ export function ProjectTodoList({
               className="focus-ring flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-btn disabled:cursor-not-allowed disabled:opacity-50"
             >
               {completed ? (
-                <span className="text-mint">✓</span>
+                <span className="ui-pop text-mint">✓</span>
               ) : (
                 <span className="h-3.5 w-3.5 rounded border border-outline transition-colors hover:border-mint" />
               )}

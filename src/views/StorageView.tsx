@@ -156,7 +156,7 @@ function SizeBar({ size, max }: { size: number; max: number }) {
   const pct = max > 0 ? Math.max(2, Math.round((size / max) * 100)) : 0
   return (
     <div className="h-1 w-full rounded-full bg-raised overflow-hidden">
-      <div className="h-full rounded-full bg-accent/60" style={{ width: `${pct}%` }} />
+      <div className="ui-grow-x h-full rounded-full bg-accent/60" style={{ width: `${pct}%` }} />
     </div>
   )
 }
@@ -253,6 +253,11 @@ export function StorageView({
         connected={connected}
         className="mb-4"
         title={tc('cleanup_title')}
+        leadingAction={
+          <span className="inline-flex items-center px-2 py-0.5 rounded-tag bg-amber/15 text-amber text-[10px] font-semibold uppercase tracking-wider">
+            {tc('unlocalized_badge')}
+          </span>
+        }
         metric={
           <>
             <h2 className="text-4xl font-bold text-muted tabular-nums">
@@ -282,7 +287,7 @@ export function StorageView({
         hideThumb={!settings.show_scrollbars}
         topButtonBottom={'bottom-16'}
       >
-        <div className={`${connected ? 'ps-3' : ''} pe-5 pb-4 flex flex-col gap-3`}>
+        <div className={`ui-stagger ${connected ? 'ps-3' : ''} pe-5 pb-4 flex flex-col gap-3`}>
           {error && !report ? (
             <div className="border border-dashed border-danger/30 rounded-item py-16 flex flex-col items-center gap-4 text-center">
               <p className="text-sm text-muted max-w-sm leading-relaxed">
@@ -304,7 +309,7 @@ export function StorageView({
             </div>
           ) : (
             <>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="ui-stagger grid grid-cols-2 lg:grid-cols-4 gap-3">
                 {[
                   { label: tc('installed_versions_section'), value: totals.versions },
                   { label: tc('cleanup_templates_title'), value: totals.templates },

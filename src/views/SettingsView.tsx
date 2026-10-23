@@ -3274,6 +3274,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               ) : (
                 <motion.div
                   key={cat}
+                  className="ui-stagger-nested"
                   {...viewTransition(
                     settings.view_entrance,
                     settings.animation_intensity,

@@ -37,7 +37,7 @@ function NewsCard({ item }: { item: NewsItem }) {
       type="button"
       onClick={() => openUrl(item.link).catch(() => {})}
 
-      className="group focus-ring cursor-pointer text-start w-full flex flex-col gap-3 rounded-item border border-outline/50 bg-overlay p-5 mb-3 break-inside-avoid overflow-hidden hover:border-accent-dim/70 hover:bg-raised transition-colors"
+      className="ui-lift group focus-ring cursor-pointer text-start w-full flex flex-col gap-3 rounded-item border border-outline/50 bg-overlay p-5 mb-3 break-inside-avoid overflow-hidden hover:border-accent-dim/70 hover:bg-raised transition-colors"
     >
       {item.image && !imageFailed && (
         <div className="relative -mx-5 -mt-5 h-36 shrink-0 overflow-hidden">
@@ -196,7 +196,7 @@ export function NewsView({ connected = false }: { connected?: boolean }) {
             </div>
           ) : (
             <>
-              <div className="columns-1 lg:columns-2 gap-3">
+              <div className="ui-stagger columns-1 lg:columns-2 gap-3">
                 {items.map((item) => (
                   <NewsCard key={item.id} item={item} />
                 ))}

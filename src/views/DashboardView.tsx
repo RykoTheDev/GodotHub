@@ -241,7 +241,7 @@ function ProjectRow({ project }: { project: Project }) {
     <motion.button
       type="button"
       onClick={() => dispatch('app:open-project', project.id)}
-      className="group focus-ring cursor-pointer w-full flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 transition-colors text-start"
+      className="ui-lift group focus-ring cursor-pointer w-full flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 transition-colors text-start"
     >
       <span className="w-9 h-9 shrink-0 rounded-btn bg-surface border border-outline/60 flex items-center justify-center overflow-hidden">
         <IconNode className="w-4 h-4 text-muted/60" />
@@ -379,7 +379,7 @@ function StatsRow({
     },
   ]
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div className="ui-stagger grid grid-cols-2 lg:grid-cols-4 gap-3">
       {stats.map(({ key, ...s }, i) => (
         <StatCard key={key} index={i} {...s} />
       ))}
@@ -415,7 +415,7 @@ function StatCard({
 
       data-press-feedback
       onClick={tab ? () => dispatch('app:set-tab', tab) : undefined}
-      className={`group relative overflow-hidden text-start cursor-pointer focus-ring rounded-card bg-overlay border border-outline/50 px-5 py-4 flex flex-col transition-colors duration-200 hover:border-outline ${hoverBorder}`}
+      className={`ui-lift group relative overflow-hidden text-start cursor-pointer focus-ring rounded-card bg-overlay border border-outline/50 px-5 py-4 flex flex-col transition-colors duration-200 hover:border-outline ${hoverBorder}`}
     >
       <Icon
         aria-hidden="true"
@@ -1599,7 +1599,7 @@ export function DashboardView({
         className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
       >
-        <div className={`flex flex-col gap-6 ${connected ? 'ps-3' : ''} pe-5 pb-4`}>
+        <div className={`ui-stagger flex flex-col gap-6 ${connected ? 'ps-3' : ''} pe-5 pb-4`}>
           <div className="mt-1.5 flex items-center justify-between gap-3 flex-wrap">
             {isEnabled('quick_actions') ? (
               <QuickActions />

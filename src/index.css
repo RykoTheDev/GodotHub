@@ -270,6 +270,99 @@ textarea::placeholder {
 }
 
 /* Independent scale preserves any positioning transform on the control. */
+@keyframes ui-rise {
+  from {
+    opacity: 0;
+    translate: 0 6px;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes ui-pop {
+  0% {
+    opacity: 0;
+    scale: 0.4;
+  }
+  60% {
+    opacity: 1;
+    scale: 1.18;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+@keyframes ui-grow-x {
+  from {
+    scale: 0 1;
+  }
+  to {
+    scale: 1 1;
+  }
+}
+
+.ui-rise,
+.ui-stagger > *,
+.ui-stagger-nested > * > * {
+  animation: ui-rise 320ms var(--ease-out) both;
+}
+
+.ui-stagger > :nth-child(2), .ui-stagger-nested > * > :nth-child(2) { animation-delay: 35ms; }
+.ui-stagger > :nth-child(3), .ui-stagger-nested > * > :nth-child(3) { animation-delay: 70ms; }
+.ui-stagger > :nth-child(4), .ui-stagger-nested > * > :nth-child(4) { animation-delay: 105ms; }
+.ui-stagger > :nth-child(5), .ui-stagger-nested > * > :nth-child(5) { animation-delay: 140ms; }
+.ui-stagger > :nth-child(6), .ui-stagger-nested > * > :nth-child(6) { animation-delay: 175ms; }
+.ui-stagger > :nth-child(7), .ui-stagger-nested > * > :nth-child(7) { animation-delay: 210ms; }
+.ui-stagger > :nth-child(8), .ui-stagger-nested > * > :nth-child(8) { animation-delay: 245ms; }
+.ui-stagger > :nth-child(n + 9), .ui-stagger-nested > * > :nth-child(n + 9) { animation-delay: 280ms; }
+
+.ui-pop {
+  animation: ui-pop 280ms var(--ease-out) both;
+}
+
+.ui-grow-x {
+  transform-origin: left center;
+  animation: ui-grow-x 520ms var(--ease-out) both;
+}
+[dir='rtl'] .ui-grow-x {
+  transform-origin: right center;
+}
+
+.ui-lift {
+  transition-property: translate, box-shadow, color, background-color, border-color, opacity;
+  transition-duration: 180ms;
+  transition-timing-function: var(--ease-out);
+}
+.ui-lift:hover {
+  translate: 0 -2px;
+  box-shadow: 0 10px 24px -14px rgb(0 0 0 / 0.45);
+}
+
+.ui-nav-icon {
+  transition-property: scale, color;
+  transition-duration: 180ms;
+  transition-timing-function: var(--ease-out);
+}
+:hover > .ui-nav-icon {
+  scale: 1.12;
+}
+
+.reduce-motion .ui-lift:hover,
+.motion-subtle .ui-lift:hover,
+.motion-none .ui-lift:hover,
+.keyboard-input .ui-lift:hover {
+  translate: none;
+}
+.reduce-motion :hover > .ui-nav-icon,
+.motion-subtle :hover > .ui-nav-icon,
+.motion-none :hover > .ui-nav-icon,
+.keyboard-input :hover > .ui-nav-icon {
+  scale: 1;
+}
+
 [data-press-feedback] {
   transition-property: scale, color, background-color, border-color, opacity, box-shadow;
   transition-duration: 160ms;

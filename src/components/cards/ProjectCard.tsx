@@ -363,6 +363,8 @@ export function ProjectCard({
         onMouseEnter={() => setCardHovered(window.matchMedia('(hover: hover) and (pointer: fine)').matches)}
         onMouseLeave={() => setCardHovered(false)}
         className={`group relative flex items-end gap-3.5 border p-3.5 transition-colors duration-150 ${
+          showTodoPanel ? "" : "ui-lift"
+        } ${
           projectTodosEnabled ? "cursor-pointer" : ""
         } ${showTodoPanel ? "rounded-t-item" : "rounded-item"} ${
           selected

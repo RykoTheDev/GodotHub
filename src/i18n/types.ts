@@ -888,7 +888,8 @@ export type commonKeys =
   | 'optional'
   | 'language_label'
   | 'n_projects_one'
-  | 'n_projects_other';
+  | 'n_projects_other'
+  | 'unlocalized_badge';
 
 /** Keys from dashboard.json */
 export type dashboardKeys =
@@ -2601,6 +2602,7 @@ export type TranslationKey =
   | 'common:language_label'
   | 'common:n_projects_one'
   | 'common:n_projects_other'
+  | 'common:unlocalized_badge'
   | 'dashboard:greeting_morning'
   | 'dashboard:greeting_afternoon'
   | 'dashboard:greeting_evening'
