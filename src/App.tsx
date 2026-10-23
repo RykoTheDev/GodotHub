@@ -81,6 +81,7 @@ import {
 } from './lib/uiTransition'
 import { setPendingSettingsCategory } from './lib/settingsCategoryNav'
 import { isRtl } from './lib/locale'
+import { isMac } from './lib/platform'
 import {
   IconBookOpen,
   IconCloudArrowDown,
@@ -239,30 +240,27 @@ export function App() {
 
   // Flush debounced settings before the window closes. This only guarantees the
   // save runs first; the backend still decides whether to close or hide to tray.
+  const keepAliveOnCloseRef = useRef(false)
+  keepAliveOnCloseRef.current = isMac || settings.minimize_to_tray
   useEffect(() => {
     const win = getCurrentWindow()
     let unlisten: (() => void) | undefined
-    let flushing = false
+    let disposed = false
     win
       .onCloseRequested(async (event) => {
-        if (flushing) {
-          // Our own re-triggered close; let the backend decide close vs. tray.
-          flushing = false
-          return
-        }
-        flushing = true
         event.preventDefault()
-        try {
-          await flushPendingSave()
-        } finally {
-          void win.close()
+        await flushPendingSave().catch(() => {})
+        if (!keepAliveOnCloseRef.current) {
+          await win.destroy().catch(() => {})
         }
       })
       .then((u) => {
-        unlisten = u
+        if (disposed) u()
+        else unlisten = u
       })
       .catch(() => {})
     return () => {
+      disposed = true
       unlisten?.()
     }
   }, [])
