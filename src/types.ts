@@ -296,6 +296,7 @@ export interface ProjectUpdate {
   pinned?: boolean
   launch_arguments?: string
   tags?: string[]
+  path?: string
 }
 
 export interface GitStatus {

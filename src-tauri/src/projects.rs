@@ -1164,10 +1164,22 @@ pub fn update_project(
     updates: ProjectUpdate,
 ) -> Result<Project, String> {
     let mut projects = read_projects(&app);
+    if let Some(path) = updates.path.as_deref().map(str::trim).filter(|p| !p.is_empty()) {
+        let dir = std::path::Path::new(path);
+        if !dir.join("project.godot").is_file() {
+            return Err("That folder doesn't contain a Godot project.".into());
+        }
+        if projects.iter().any(|p| p.id != id && contains_path(&[p.path.clone()], path)) {
+            return Err("That folder is already in your library as another project.".into());
+        }
+    }
     let project = projects
         .iter_mut()
         .find(|p| p.id == id)
         .ok_or("Project not found")?;
+    if let Some(path) = updates.path.map(|p| p.trim().to_string()).filter(|p| !p.is_empty()) {
+        project.path = path;
+    }
     if let Some(name) = updates.name {
         project.name = name;
     }

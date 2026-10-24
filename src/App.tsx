@@ -701,10 +701,12 @@ export function App() {
                         onClose={() => setGitSidebarProject(null)}
                         onRefresh={() => refreshProjects()}
                         onSwitchProject={async (p) => {
-                          const status = await api.getGitStatus(p.path).catch(() => null)
-                          setGitSidebarProject((prev) => prev && prev.project.path === gitSidebarProject.project.path
-                            ? { project: p, gitStatus: status }
+                          const updated = await api.updateProject(p.id, { path: p.path })
+                          const status = await api.getGitStatus(updated.path).catch(() => null)
+                          setGitSidebarProject((prev) => prev && prev.project.id === updated.id
+                            ? { project: updated, gitStatus: status }
                             : prev)
+                          await refreshProjects()
                         }}
                         connected={!cardLayout}
                         opened={gitPanelOpened}

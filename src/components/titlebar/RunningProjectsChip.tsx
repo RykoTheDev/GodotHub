@@ -7,6 +7,7 @@ import {
   useState,
 } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../lib/api'
 import { pushToast } from '../../lib/toast'
@@ -38,6 +39,7 @@ export function RunningProjectsChip() {
   }, [running.length])
   const [openUp, setOpenUp] = useState(false)
   const [openLeft, setOpenLeft] = useState(false)
+  const [anchor, setAnchor] = useState<DOMRect | null>(null)
   const ref = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
 
@@ -80,6 +82,7 @@ export function RunningProjectsChip() {
     const el = ref.current
     if (!el) return
     const r = el.getBoundingClientRect()
+    setAnchor(r)
     const mh = menuRef.current?.offsetHeight ?? 220
     const spaceBelow = window.innerHeight - r.bottom
     const spaceAbove = r.top
@@ -108,7 +111,12 @@ export function RunningProjectsChip() {
   useEffect(() => {
     if (!open) return
     const onDown = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
+      const target = e.target as Node
+      if (
+        ref.current &&
+        !ref.current.contains(target) &&
+        !menuRef.current?.contains(target)
+      ) {
         setOpen(false)
       }
     }
@@ -185,8 +193,9 @@ export function RunningProjectsChip() {
                 </span>
               </motion.button>
 
+            {createPortal(
             <AnimatePresence>
-              {open && (
+              {open && anchor && (
                 <motion.div key="div-163"
                   ref={menuRef}
                   {...uiMotion.surface('popover', `translateY(${openUp ? 6 : -6}px) scale(0.96)`)}
@@ -194,11 +203,17 @@ export function RunningProjectsChip() {
                   onMouseDown={noDrag}
                   role="menu"
                   onKeyDown={handleMenuKey}
-                  className={`absolute z-50 w-72 rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 p-1.5 ${
+                  style={{
+                    top: openUp ? undefined : anchor.bottom + 8,
+                    bottom: openUp ? window.innerHeight - anchor.top + 8 : undefined,
+                    left: openLeft ? undefined : anchor.left,
+                    right: openLeft ? window.innerWidth - anchor.right : undefined,
+                  }}
+                  className={`fixed z-[70] w-72 rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 p-1.5 ${
                     openUp
-                      ? `bottom-full mb-2 ${openLeft ? 'origin-bottom-right' : 'origin-bottom-left'}`
-                      : `top-full mt-2 ${openLeft ? 'origin-top-right' : 'origin-top-left'}`
-                  } ${openLeft ? 'right-0' : 'left-0'}`}
+                      ? openLeft ? 'origin-bottom-right' : 'origin-bottom-left'
+                      : openLeft ? 'origin-top-right' : 'origin-top-left'
+                  }`}
                 >
                   <div className="px-2.5 py-2 border-b border-outline/50 mb-1">
                     <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">
@@ -260,7 +275,9 @@ export function RunningProjectsChip() {
                   </div>
                 </motion.div>
               )}
-            </AnimatePresence>
+            </AnimatePresence>,
+            document.body,
+            )}
           </motion.div>
         )}
       </AnimatePresence>

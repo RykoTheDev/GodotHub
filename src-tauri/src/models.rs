@@ -125,6 +125,8 @@ pub struct ProjectUpdate {
     pub launch_arguments: Option<String>,
     #[serde(default)]
     pub tags: Option<Vec<String>>,
+    #[serde(default)]
+    pub path: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

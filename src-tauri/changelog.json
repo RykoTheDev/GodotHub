@@ -1645,6 +1645,14 @@
       {
         "category": "add",
         "text": "Custom engine builds: Import on the Versions page now has an Add custom build option, so an engine compiled from source (any file name) shows up in the versions list and works like an official version (#209)"
+      },
+      {
+        "category": "fix",
+        "text": "Fixed the running projects menu in the titlebar opening behind the sidebar"
+      },
+      {
+        "category": "fix",
+        "text": "Fixed switching Git worktrees reverting to the main worktree: the project now remembers the worktree you switched to"
       }
     ],
     "known_issues": [],
