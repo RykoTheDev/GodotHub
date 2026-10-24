@@ -314,10 +314,10 @@
   "cli_tool_installing": "インストール中…",
   "cli_tool_installed_msg": "インストールしました。新しいターミナルを開いて godothub を実行してください。",
   "cli_tool_uninstalled_msg": "削除しました。godothub コマンドは PATH から外れました。",
-  "motion": "Motion",
-  "data": "Data & Backup",
-  "restore_modal_todos_one": "Includes {{count}} to-do",
-  "restore_modal_todos_other": "Includes {{count}} to-dos",
-  "rtl_layout_label": "Mirror layout for right-to-left languages",
-  "rtl_layout_desc": "Flip the whole interface, including the sidebar, panels and arrows, when using a right-to-left language like Arabic. When off, only the text reads right to left and the layout stays as it is."
+  "motion": "アニメーション",
+  "data": "データとバックアップ",
+  "restore_modal_todos_one": "{{count}} 件のタスクを含みます",
+  "restore_modal_todos_other": "{{count}} 件のタスクを含みます",
+  "rtl_layout_label": "右から左に書く言語でレイアウトを左右反転",
+  "rtl_layout_desc": "アラビア語などの右から左に書く言語を使用する場合に、サイドバー、パネル、矢印を含む画面全体を左右反転します。オフの場合は、テキストのみが右から左に表示され、レイアウトはそのままになります。"
 }
