@@ -1653,6 +1653,10 @@
       {
         "category": "fix",
         "text": "Fixed switching Git worktrees reverting to the main worktree: the project now remembers the worktree you switched to"
+      },
+      {
+        "category": "fix",
+        "text": "Fixed the delete and switch buttons in the Git worktrees list often being unclickable: the list no longer refreshes itself in a loop while Git is running"
       }
     ],
     "known_issues": [],

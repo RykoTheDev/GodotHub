@@ -21,10 +21,15 @@ fn is_ignored_watcher_event(event: &Event) -> bool {
             {
                 return true;
             }
-            matches!(
-                p.file_name().and_then(|n| n.to_str()),
-                Some(".godotrc") | Some("global.json")
-            )
+            let name = p.file_name().and_then(|n| n.to_str()).unwrap_or("");
+            if name.ends_with(".lock") {
+                return true;
+            }
+            let in_git_dir = p.components().any(|part| part.as_os_str() == ".git");
+            if in_git_dir && name == "index" {
+                return true;
+            }
+            matches!(name, ".godotrc" | "global.json")
         })
 }
 

@@ -125,13 +125,13 @@ export function GitWorktrees({ project, onSwitchProject, onChanged }: Props) {
                 ) : <div className="flex shrink-0 items-center gap-0.5">
                   {onSwitchProject && <Tooltip content={t('switch_worktree')}>
                     <button type="button" aria-label={t('switch_worktree_named', { name: wt.branch ?? wt.path })}
-                      onClick={() => void switchTo(wt)} disabled={!!busy || loading} className={`${sectionActionClass} hover:text-accent-bright`}>
+                      onClick={() => void switchTo(wt)} disabled={!!busy || (loading && worktrees.length === 0)} className={`${sectionActionClass} hover:text-accent-bright`}>
                       {switching ? <IconSpinner className="w-3.5 h-3.5 animate-spin" /> : <IconChevronRight className="w-3.5 h-3.5 rtl:rotate-180" />}
                     </button>
                   </Tooltip>}
                   {!wt.is_main && <Tooltip content={t('remove_worktree')}>
                     <button type="button" aria-label={t('remove_category_aria', { name: wt.branch ?? wt.path })}
-                      onClick={() => { setRemoval(wt); setDiscardChanges(false); setRemoveError(null) }} disabled={!!busy || loading}
+                      onClick={() => { setRemoval(wt); setDiscardChanges(false); setRemoveError(null) }} disabled={!!busy || (loading && worktrees.length === 0)}
                       className={`${sectionActionClass} hover:text-danger opacity-60 group-hover:opacity-100 group-focus-within:opacity-100`}>
                       <IconTrash className="w-3.5 h-3.5" />
                     </button>
