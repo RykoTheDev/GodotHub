@@ -173,7 +173,7 @@ fn status_cache() -> &'static Mutex<Option<(Instant, MiseStatus)>> {
 }
 
 pub fn clear_status_cache() {
-    *status_cache().lock().unwrap() = None;
+    *status_cache().lock().unwrap_or_else(std::sync::PoisonError::into_inner) = None;
 }
 
 fn compute_status() -> MiseStatus {
@@ -195,7 +195,7 @@ fn compute_status() -> MiseStatus {
 
 pub fn status() -> MiseStatus {
     let cache = status_cache();
-    let mut cached = cache.lock().unwrap();
+    let mut cached = cache.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
     if let Some((at, status)) = cached.as_ref() {
         if at.elapsed() < STATUS_CACHE_TTL {
             return status.clone();
@@ -827,12 +827,12 @@ fn forget_version(app: &AppHandle, tag: &str) {
 }
 
 #[tauri::command]
-pub fn mise_status() -> MiseStatus {
+pub async fn mise_status() -> MiseStatus {
     status()
 }
 
 #[tauri::command]
-pub fn mise_refresh_status() -> MiseStatus {
+pub async fn mise_refresh_status() -> MiseStatus {
     clear_status_cache();
     status()
 }

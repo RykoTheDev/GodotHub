@@ -8,7 +8,7 @@ import type {
   InstalledGodotVersion,
 } from '../../types'
 import { api } from '../../lib/api'
-import { pushToast } from '../../lib/toast'
+import { pushToast, reportError } from '../../lib/toast'
 import { formatBytes } from '../../lib/formatBytes'
 import { ConfirmDialog } from '../modals/ConfirmDialog'
 import { ExportTemplatesModal } from '../modals/ExportTemplatesModal'
@@ -134,7 +134,7 @@ export function InstalledVersionCard({
 
   const openInstallFolder = () => {
     const dir = installedDir(v.executable_path)
-    if (dir) api.openProjectFolder(dir).catch(() => {})
+    if (dir) api.openProjectFolder(dir).catch(reportError)
   }
 
   return (
@@ -193,6 +193,11 @@ export function InstalledVersionCard({
                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-accent/15 text-accent-bright border border-accent-dim/40 text-[10px] font-semibold shrink-0">
                     <IconPin className="w-2.5 h-2.5" />
                     {tv('cleanup_current_badge')}
+                  </span>
+                )}
+                {v.managed_by === 'custom' && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-accent/15 text-accent-bright border border-accent-dim/40 text-[10px] font-semibold shrink-0">
+                    {tv('custom_build_badge')}
                   </span>
                 )}
                 {v.managed_by === 'mise' && (

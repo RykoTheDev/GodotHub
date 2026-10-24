@@ -184,7 +184,7 @@ pub fn start_git_fs_watcher(app: AppHandle, path: String) -> Result<(), String> 
         return Err("Path is not a directory".into());
     }
     if let Some(state) = app.try_state::<GitWatcher>() {
-        *state.0.lock().unwrap() = None;
+        *state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner) = None;
     }
     let watcher = create_debounced_watcher(
         app.clone(),
@@ -196,7 +196,7 @@ pub fn start_git_fs_watcher(app: AppHandle, path: String) -> Result<(), String> 
     );
     if let Some(w) = watcher {
         if let Some(state) = app.try_state::<GitWatcher>() {
-            *state.0.lock().unwrap() = Some(w);
+            *state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner) = Some(w);
         }
     }
     Ok(())
@@ -205,7 +205,7 @@ pub fn start_git_fs_watcher(app: AppHandle, path: String) -> Result<(), String> 
 #[tauri::command]
 pub fn stop_git_fs_watcher(app: AppHandle) {
     if let Some(state) = app.try_state::<GitWatcher>() {
-        *state.0.lock().unwrap() = None;
+        *state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner) = None;
     }
 }
 
@@ -223,7 +223,7 @@ pub fn start_template_watcher(app: AppHandle, scan_dir: PathBuf, debounce_ms: u6
 
     if let Some(w) = watcher {
         if let Some(state) = app.try_state::<ActiveWatchers>() {
-            state.0.lock().unwrap().push(w);
+            state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner).push(w);
         }
     }
 }
@@ -242,7 +242,7 @@ pub fn start_alias_watcher(app: AppHandle) {
     );
 
     if let Some(state) = app.try_state::<AliasWatcher>() {
-        *state.0.lock().unwrap() = watcher;
+        *state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner) = watcher;
     }
 }
 
@@ -270,7 +270,7 @@ pub fn start_project_watchers(app: AppHandle, dirs: Vec<PathBuf>, depth: u32, de
 
     if let Some(w) = watcher {
         if let Some(state) = app_clone.try_state::<ActiveWatchers>() {
-            state.0.lock().unwrap().push(w);
+            state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner).push(w);
         }
     }
 }
@@ -299,7 +299,7 @@ pub fn start_version_watchers(app: AppHandle, dirs: Vec<PathBuf>, depth: u32, de
 
     if let Some(w) = watcher {
         if let Some(state) = app_clone.try_state::<ActiveWatchers>() {
-            state.0.lock().unwrap().push(w);
+            state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner).push(w);
         }
     }
 }
@@ -307,7 +307,7 @@ pub fn start_version_watchers(app: AppHandle, dirs: Vec<PathBuf>, depth: u32, de
 #[tauri::command]
 pub fn restart_watchers(app: AppHandle) -> Result<(), String> {
     if let Some(state) = app.try_state::<ActiveWatchers>() {
-        state.0.lock().unwrap().clear();
+        state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner).clear();
     }
 
     let s = crate::settings::read_settings(&app);

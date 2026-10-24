@@ -92,6 +92,7 @@ import type { IconProps } from "../lib/icons";
 import type { AppSettings, GitAuthState, MiseStatus } from "../types";
 import { GitAuthModal } from "../components/modals/GitAuthModal";
 import { Tooltip } from "../components/reusables/Tooltip";
+import { reportError } from '../lib/toast'
 
 type SettingsCat =
   | "appearance"
@@ -2502,7 +2503,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               .miseRefreshStatus()
               .then((status) => setMiseStatus(status))
               .catch(() => setMiseStatus(null));
-            if (checked) api.miseSyncVersions().catch(() => {});
+            if (checked) api.miseSyncVersions().catch(reportError);
           }}
           label={ts("mise_label")}
         />

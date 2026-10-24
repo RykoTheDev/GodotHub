@@ -129,5 +129,8 @@
   "download_failed_asset_label": "Archivo",
   "download_failed_error_label": "Detalles del error",
   "download_failed_copy": "Copiar detalles",
-  "download_failed_hint": "Causas comunes: una red o proxy bloqueado, un antivirus que bloquea la descarga, una carpeta de descargas inexistente o de solo lectura, o poco espacio en disco."
+  "download_failed_hint": "Causas comunes: una red o proxy bloqueado, un antivirus que bloquea la descarga, una carpeta de descargas inexistente o de solo lectura, o poco espacio en disco.",
+  "custom_build_badge": "Custom build",
+  "add_custom_build": "Add custom build…",
+  "adding_custom_build": "Adding custom build…"
 }

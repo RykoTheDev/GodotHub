@@ -5,6 +5,8 @@ import { api } from '../../lib/api'
 import { IconCheck, IconCopy, IconExternalLink, IconPin } from '../../lib/icons'
 import { ModalShell } from './ModalShell'
 
+
+import { reportError } from '../../lib/toast'
 type CopyTarget = 'alias' | 'dir'
 
 export function CurrentVersionModal({
@@ -63,7 +65,7 @@ export function CurrentVersionModal({
         <>
           <button
             type="button"
-            onClick={() => api.openProjectFolder(info.aliases_dir).catch(() => {})}
+            onClick={() => api.openProjectFolder(info.aliases_dir).catch(reportError)}
             className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors"
           >
             <IconExternalLink className="w-4 h-4" />

@@ -36,6 +36,9 @@ export const versionsApi = {
   listAliases: () => invoke<VersionAliases>('list_version_aliases'),
   createAliases: (entries: AliasRequest[]) =>
     invoke<AliasBatchResult>('create_version_aliases', { entries }),
+  pickExecutable: () => invoke<string | null>('pick_executable'),
+  addCustomBuild: (path: string, name: string | null) =>
+    invoke<InstalledGodotVersion>('add_custom_build', { path, name }),
   deleteAlias: (name: string) =>
     invoke<void>('delete_version_alias', { name }),
   open: (tag: string, withConsole?: boolean) =>

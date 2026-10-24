@@ -12,6 +12,8 @@ import {
 } from '../../lib/gitGraph'
 import type { GitLogEntry } from '../../types'
 
+
+import { reportError } from '../../lib/toast'
 interface Props {
   commits: GitLogEntry[]
   remoteUrl?: string | null
@@ -105,7 +107,7 @@ export function CommitGraph({ commits, remoteUrl, onOpenDetails }: Props) {
                     if (onOpenDetails) {
                       onOpenDetails(c.hash)
                     } else if (url) {
-                      void openUrl(url).catch(() => {})
+                      void openUrl(url).catch(reportError)
                     }
                   }}
                   className={`flex items-center gap-2 pe-2 rounded-md transition-colors ${

@@ -24,7 +24,7 @@ pub fn read_settings(app: &AppHandle) -> AppSettings {
 pub fn write_settings_to(dir: &Path, settings: &AppSettings) -> AppResult<()> {
     let mut settings = settings.clone();
     settings.schema_version = <AppSettings as persist::Versioned>::VERSION;
-    persist::write_json_with_backup(&settings_path(dir), &settings)
+    persist::write_json_with_backup_private(&settings_path(dir), &settings)
 }
 
 pub fn write_settings(app: &AppHandle, settings: &AppSettings) -> AppResult<()> {
@@ -44,7 +44,7 @@ pub fn update_settings(app: AppHandle, mut settings: AppSettings) -> Result<AppS
 }
 
 #[tauri::command]
-pub fn reset_app_data(app: AppHandle) -> Result<(), String> {
+pub async fn reset_app_data(app: AppHandle) -> Result<(), String> {
     let dir = app.path().app_data_dir().map_err(|e| e.to_string())?;
     if dir.exists() {
         std::fs::remove_dir_all(&dir).map_err(|e| e.to_string())?;
@@ -89,7 +89,7 @@ pub fn export_settings(app: AppHandle, path: String) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub fn import_settings(app: AppHandle, path: String) -> Result<AppSettings, String> {
+pub async fn import_settings(app: AppHandle, path: String) -> Result<AppSettings, String> {
     let data: Option<SettingsExport> = persist::read_json_opt(Path::new(&path));
     let Some(data) = data else {
         return Err("Couldn't read the settings backup file".into());

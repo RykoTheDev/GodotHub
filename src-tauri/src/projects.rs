@@ -29,7 +29,7 @@ pub struct TrackedProcess {
 
 pub(crate) fn tracked_pid(app: &AppHandle, id: &str) -> Option<u32> {
     let state = app.try_state::<ActiveProcesses>()?;
-    let active = state.0.lock().unwrap();
+    let active = state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
     match &active.get(id)?.handle {
         TrackedHandle::Child(child) => Some(child.id()),
         TrackedHandle::Pid { pid, .. } => Some(*pid),
@@ -158,14 +158,14 @@ pub(crate) fn update_projects(
 /// Reports whether the project registry loaded cleanly, had to fall back to its
 /// backup, or is corrupt, so the UI can warn instead of showing an empty library.
 #[tauri::command]
-pub fn get_projects_health(app: AppHandle) -> persist::LoadStatus {
+pub async fn get_projects_health(app: AppHandle) -> persist::LoadStatus {
     load_projects_from(&crate::workspace::active_workspace_dir(&app)).status
 }
 
 /// Restores the project registry from its `.bak` file after corruption. Returns
 /// the number of projects recovered.
 #[tauri::command]
-pub fn restore_projects_from_backup(app: AppHandle) -> Result<usize, String> {
+pub async fn restore_projects_from_backup(app: AppHandle) -> Result<usize, String> {
     let dir = crate::workspace::active_workspace_dir(&app);
     let backup = persist::backup_path(&projects_path(&dir));
     let loaded = persist::load_json::<ProjectStore>(&backup);
@@ -259,7 +259,7 @@ fn settle_stale_sessions_inner(
         let Some(state) = app.try_state::<ActiveProcesses>() else {
             return;
         };
-        let active = state.0.lock().unwrap();
+        let active = state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         active.keys().cloned().collect()
     };
     let projects = read_projects(app);
@@ -311,7 +311,7 @@ fn retrack_stale_session(app: &AppHandle, project: &Project, handle: TrackedHand
                     .saturating_sub(SESSION_START_DELAY_MS),
             ),
     };
-    state.0.lock().unwrap().insert(id.clone(), tracked);
+    state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner).insert(id.clone(), tracked);
 
     std::thread::spawn(move || {
         wait_until_exited(&app_clone, &id);
@@ -535,7 +535,7 @@ pub(crate) fn apply_naming_convention(name: &str, convention: &str) -> String {
 }
 
 #[tauri::command]
-pub fn create_project(
+pub async fn create_project(
     app: AppHandle,
     name: String,
     location: String,
@@ -667,7 +667,7 @@ pub fn create_project(
 }
 
 #[tauri::command]
-pub fn duplicate_project(
+pub async fn duplicate_project(
     app: AppHandle,
     id: String,
     name: String,
@@ -1079,7 +1079,7 @@ fn relocate_project_entry(
 }
 
 #[tauri::command]
-pub fn import_project(
+pub async fn import_project(
     app: AppHandle,
     path: String,
     godot_version: String,
@@ -1216,7 +1216,7 @@ pub fn reorder_projects(app: AppHandle, ordered_ids: Vec<String>) -> Result<(), 
 }
 
 #[tauri::command]
-pub fn set_project_version(app: AppHandle, id: String, tag: String) -> Result<(), String> {
+pub async fn set_project_version(app: AppHandle, id: String, tag: String) -> Result<(), String> {
     if !crate::godot_versions::read_registry(&app)
         .iter()
         .any(|v| v.tag == tag)
@@ -1242,7 +1242,7 @@ pub(crate) fn split_launch_args(raw: &str) -> Vec<String> {
 }
 
 #[tauri::command]
-pub fn open_project(
+pub async fn open_project(
     app: AppHandle,
     id: String,
     editor: bool,
@@ -1324,7 +1324,7 @@ pub(crate) fn launch_project(
     let _ = crate::tray::refresh_tray_menu(app.clone());
 
     if let Some(state) = app.try_state::<ActiveProcesses>() {
-        state.0.lock().unwrap().insert(
+        state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner).insert(
             id.clone(),
             TrackedProcess {
                 handle: TrackedHandle::Child(launched.child),
@@ -1396,7 +1396,7 @@ fn adopt_terminal_pid(app: &AppHandle, id: &str, pid_file: &Path) {
                 let Some(state) = app.try_state::<ActiveProcesses>() else {
                     return;
                 };
-                let mut active = state.0.lock().unwrap();
+                let mut active = state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
                 active.get_mut(id).map(|tracked| {
                     std::mem::replace(
                         &mut tracked.handle,
@@ -1430,7 +1430,7 @@ fn wait_until_exited(app: &AppHandle, id: &str) {
         };
 
         let exited = {
-            let mut active = state.0.lock().unwrap();
+            let mut active = state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
             let Some(tracked) = active.get_mut(id) else {
                 return;
             };
@@ -1500,7 +1500,7 @@ pub fn list_running_projects(app: AppHandle) -> Vec<RunningProjectInfo> {
         let Some(state) = app.try_state::<ActiveProcesses>() else {
             return vec![];
         };
-        let active = state.0.lock().unwrap();
+        let active = state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         active
             .iter()
             .map(|(id, p)| (id.clone(), p.launched_at))
@@ -1536,7 +1536,7 @@ pub fn stop_project(app: AppHandle, id: String) -> Result<(), String> {
         .ok_or("No running process found for this project")?;
 
     let mut tracked = {
-        let mut active = state.0.lock().unwrap();
+        let mut active = state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         active
             .remove(&id)
             .ok_or("No running process found for this project")?
@@ -1945,7 +1945,7 @@ struct TimeStatsExport {
 }
 
 #[tauri::command]
-pub fn export_project_stats(app: AppHandle, path: String) -> Result<(), String> {
+pub async fn export_project_stats(app: AppHandle, path: String) -> Result<(), String> {
     let projects = read_projects(&app);
     let store = crate::time_stats::read_stats(&app);
     let stats = TimeStatsExport {
@@ -1965,7 +1965,7 @@ pub fn export_project_stats(app: AppHandle, path: String) -> Result<(), String> 
 }
 
 #[tauri::command]
-pub fn import_project_stats(app: AppHandle, path: String) -> Result<usize, String> {
+pub async fn import_project_stats(app: AppHandle, path: String) -> Result<usize, String> {
     let stats: Option<TimeStatsExport> = persist::read_json_opt(Path::new(&path));
     let Some(stats) = stats else {
         return Err("Couldn't read the stats backup file".into());
@@ -2053,7 +2053,7 @@ pub async fn get_project_icon(path: String, app: AppHandle) -> Option<String> {
             .and_then(|m| m.modified())
             .ok();
 
-        if let Some(cached) = icon_cache().lock().unwrap().get(&path) {
+        if let Some(cached) = icon_cache().lock().unwrap_or_else(std::sync::PoisonError::into_inner).get(&path) {
             if cached.project_godot_mtime == mtime && cached.icon_scan_depth == icon_scan_depth {
                 return cached.data.clone();
             }
@@ -2062,7 +2062,7 @@ pub async fn get_project_icon(path: String, app: AppHandle) -> Option<String> {
         let (bytes, mime) = match resolve_project_icon(&path, icon_scan_depth) {
             Some(v) => v,
             None => {
-                icon_cache().lock().unwrap().insert(
+                icon_cache().lock().unwrap_or_else(std::sync::PoisonError::into_inner).insert(
                     path.clone(),
                     CachedIcon {
                         project_godot_mtime: mtime,
@@ -2077,7 +2077,7 @@ pub async fn get_project_icon(path: String, app: AppHandle) -> Option<String> {
         let encoded = general_purpose::STANDARD.encode(bytes);
         let data_url = format!("data:{};base64,{}", mime, encoded);
 
-        icon_cache().lock().unwrap().insert(
+        icon_cache().lock().unwrap_or_else(std::sync::PoisonError::into_inner).insert(
             path.clone(),
             CachedIcon {
                 project_godot_mtime: mtime,
@@ -2158,7 +2158,7 @@ pub async fn get_project_size(path: String) -> Result<ProjectSizeInfo, String> {
 
         let dir_mtime = fs::metadata(&dir).and_then(|m| m.modified()).ok();
 
-        if let Some(cached) = size_cache().lock().unwrap().get(&path) {
+        if let Some(cached) = size_cache().lock().unwrap_or_else(std::sync::PoisonError::into_inner).get(&path) {
             if cached.dir_mtime == dir_mtime {
                 return match &cached.data {
                     Ok(data) => Ok(data.clone()),
@@ -2256,7 +2256,7 @@ pub async fn get_project_size(path: String) -> Result<ProjectSizeInfo, String> {
             categories: cat_vec,
         });
 
-        size_cache().lock().unwrap().insert(
+        size_cache().lock().unwrap_or_else(std::sync::PoisonError::into_inner).insert(
             path.clone(),
             CachedSize {
                 dir_mtime,

@@ -66,7 +66,7 @@ interface SlashMenuState {
 import { useSettings } from '../hooks/useSettings'
 import { useScrollCompensation } from '../hooks/useScrollCompensation'
 import { api } from '../lib/api'
-import { pushToast } from '../lib/toast'
+import { pushToast, reportError } from '../lib/toast'
 import type { Category, GitStatus, Project } from '../types'
 import {
   comparatorFor,
@@ -764,7 +764,7 @@ export function ProjectsView({
       for (const p of removed) {
         void api
           .importProject(p.path, p.godot_version, p.category)
-          .catch(() => {})
+          .catch(reportError)
       }
     },
     [],

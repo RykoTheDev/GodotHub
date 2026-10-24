@@ -407,3 +407,139 @@ fn import_version_blocking(
     let _ = app.emit("watcher:project-scan-done", ());
     Ok(imported)
 }
+
+fn slugify_build_name(name: &str) -> String {
+    let mut slug = String::new();
+    for c in name.trim().to_lowercase().chars() {
+        if c.is_ascii_alphanumeric() || c == '.' {
+            slug.push(c);
+        } else if !slug.ends_with('-') {
+            slug.push('-');
+        }
+    }
+    let slug = slug.trim_matches('-').to_string();
+    if slug.is_empty() {
+        "build".to_string()
+    } else {
+        slug
+    }
+}
+
+fn unique_custom_tag(name: &str, is_mono: bool, taken: &[String]) -> String {
+    let suffix = if is_mono { "-mono" } else { "" };
+    let base = format!("custom-{}", slugify_build_name(name));
+    let mut tag = format!("{base}{suffix}");
+    let mut n = 2;
+    while taken.iter().any(|t| t == &tag) {
+        tag = format!("{base}-{n}{suffix}");
+        n += 1;
+    }
+    tag
+}
+
+#[tauri::command]
+pub async fn pick_executable(app: AppHandle) -> Option<String> {
+    use tauri_plugin_dialog::DialogExt;
+    let (tx, rx) = std::sync::mpsc::channel();
+    let dialog = app.dialog().file();
+    #[cfg(target_os = "macos")]
+    dialog.pick_folder(move |folder| {
+        let _ = tx.send(folder);
+    });
+    #[cfg(not(target_os = "macos"))]
+    dialog.pick_file(move |file| {
+        let _ = tx.send(file);
+    });
+    rx.recv().ok().flatten().map(|p| p.to_string())
+}
+
+#[tauri::command]
+pub async fn add_custom_build(
+    app: AppHandle,
+    path: String,
+    name: Option<String>,
+) -> Result<InstalledGodotVersion, String> {
+    tokio::task::spawn_blocking(move || add_custom_build_blocking(app, path, name))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+fn add_custom_build_blocking(
+    app: AppHandle,
+    path: String,
+    name: Option<String>,
+) -> Result<InstalledGodotVersion, String> {
+    let candidate = PathBuf::from(&path);
+    let exe_path = if candidate.is_dir() {
+        resolve_macos_bundle_exe(&candidate)
+            .ok_or("Couldn't find a Godot executable inside that app bundle.")?
+    } else if candidate.is_file() {
+        candidate.clone()
+    } else {
+        return Err("That file doesn't exist.".into());
+    };
+    let exe_str = exe_path.to_string_lossy().to_string();
+
+    let existing = godot_versions::read_registry(&app);
+    if existing.iter().any(|v| v.executable_path == exe_str) {
+        return Err("That build is already in your list.".into());
+    }
+
+    let raw_version = probe_version(&exe_path);
+    if raw_version.is_empty() {
+        return Err(
+            "Couldn't read a Godot version from that file. Pick the Godot editor executable you built."
+                .into(),
+        );
+    }
+
+    let display_name = name
+        .map(|n| n.trim().to_string())
+        .filter(|n| !n.is_empty())
+        .or_else(|| {
+            candidate
+                .file_stem()
+                .map(|s| s.to_string_lossy().to_string())
+        })
+        .unwrap_or_else(|| "Custom build".to_string());
+    let is_mono = raw_version.to_lowercase().contains("mono")
+        || exe_str.to_lowercase().contains("mono");
+    let taken: Vec<String> = existing.iter().map(|v| v.tag.clone()).collect();
+    let tag = unique_custom_tag(&display_name, is_mono, &taken);
+
+    let installed = InstalledGodotVersion {
+        tag,
+        version: raw_version,
+        executable_path: exe_str,
+        is_mono,
+        installed_at: chrono::Utc::now().to_rfc3339(),
+        custom_name: Some(display_name),
+        install_root: None,
+        supports_console: false,
+        managed_by: Some(godot_versions::CUSTOM_BUILD.to_string()),
+    };
+    if !godot_versions::register_version(&app, installed.clone())? {
+        return Err("That build is already in your list.".into());
+    }
+    let _ = app.emit("watcher:version-scan-done", ());
+    Ok(installed)
+}
+
+#[cfg(test)]
+mod custom_build_tests {
+    use super::*;
+
+    #[test]
+    fn slugs_are_lowercase_and_dash_separated() {
+        assert_eq!(slugify_build_name("My Engine (4.5)"), "my-engine-4.5");
+        assert_eq!(slugify_build_name("  "), "build");
+        assert_eq!(slugify_build_name("godot.linuxbsd.editor.x86_64"), "godot.linuxbsd.editor.x86-64");
+    }
+
+    #[test]
+    fn custom_tags_stay_unique() {
+        let taken = vec!["custom-my-engine".to_string()];
+        assert_eq!(unique_custom_tag("My Engine", false, &taken), "custom-my-engine-2");
+        assert_eq!(unique_custom_tag("My Engine", true, &taken), "custom-my-engine-mono");
+    }
+}

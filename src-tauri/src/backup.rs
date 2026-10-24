@@ -198,13 +198,13 @@ fn apply_workspace_backup_in(dir: &Path, backup: WorkspaceBackup) -> Result<AppS
 }
 
 #[tauri::command]
-pub fn export_workspace_backup(app: AppHandle, path: String) -> Result<(), String> {
+pub async fn export_workspace_backup(app: AppHandle, path: String) -> Result<(), String> {
     let backup = build_workspace_backup(&app)?;
     persist::write_json(Path::new(&path), &backup).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-pub fn import_workspace_backup(app: AppHandle, path: String) -> Result<AppSettings, String> {
+pub async fn import_workspace_backup(app: AppHandle, path: String) -> Result<AppSettings, String> {
     let backup: Option<WorkspaceBackup> = persist::read_json_opt(Path::new(&path));
     let Some(backup) = backup else {
         return Err("Couldn't read the workspace backup file".into());
@@ -314,13 +314,13 @@ pub(crate) fn apply_app_backup(app: &AppHandle, backup: AppBackup) -> Result<App
 }
 
 #[tauri::command]
-pub fn export_app_backup(app: AppHandle, path: String) -> Result<(), String> {
+pub async fn export_app_backup(app: AppHandle, path: String) -> Result<(), String> {
     let backup = build_app_backup(&app)?;
     persist::write_json(Path::new(&path), &backup).map_err(|e| e.to_string())
 }
 
 #[tauri::command]
-pub fn import_app_backup(app: AppHandle, path: String) -> Result<AppSettings, String> {
+pub async fn import_app_backup(app: AppHandle, path: String) -> Result<AppSettings, String> {
     let backup: Option<AppBackup> = persist::read_json_opt(Path::new(&path));
     let Some(backup) = backup else {
         return Err("Couldn't read the app backup file".into());

@@ -1601,12 +1601,14 @@ pub async fn git_log(_app: tauri::AppHandle, path: String) -> Result<(), String>
 
         #[cfg(target_os = "macos")]
         {
+            let quoted = format!("'{}'", path.replace('\'', "'\\''"));
+            let command = format!("cd {quoted} && git log --oneline --graph -25 --all");
             let script = format!(
                 r#"tell application "Terminal"
                     activate
-                    do script "cd \"{}\" && git log --oneline --graph -25 --all"
+                    do script "{}"
                 end tell"#,
-                path.replace('"', "\\\"")
+                command.replace('\\', "\\\\").replace('"', "\\\"")
             );
             Command::new("osascript")
                 .arg("-e")

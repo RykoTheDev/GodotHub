@@ -577,7 +577,7 @@ fn start(
         started_at_ms: crate::projects::epoch_ms(),
     };
     {
-        let mut jobs = store.lock().unwrap();
+        let mut jobs = store.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         if jobs
             .values()
             .any(|j| j.root == root && j.run.status == "running")
@@ -623,7 +623,7 @@ fn start(
     let (mut child, mut console) = match spawned {
         Ok(result) => result,
         Err(error) => {
-            store.lock().unwrap().remove(&run.id);
+            store.lock().unwrap_or_else(std::sync::PoisonError::into_inner).remove(&run.id);
             return Err(error);
         }
     };
@@ -681,7 +681,7 @@ fn start(
             completed.error = Some(message.clone());
         }
         console.finish(&app, completed.exit_code, &message);
-        if let Some(job) = store.lock().unwrap().get_mut(&completed.id) {
+        if let Some(job) = store.lock().unwrap_or_else(std::sync::PoisonError::into_inner).get_mut(&completed.id) {
             job.run = completed.clone();
         }
         let _ = app.emit("export:finished", completed);
@@ -705,7 +705,7 @@ pub async fn start_project_export(
 #[tauri::command]
 pub fn get_project_export(app: AppHandle, run_id: String) -> Result<ExportRun, String> {
     let state = app.state::<ExportRuns>();
-    let jobs = state.0.lock().unwrap();
+    let jobs = state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
     jobs.get(&run_id)
         .map(|j| j.run.clone())
         .ok_or_else(|| "Export run not found".into())
@@ -730,7 +730,7 @@ pub fn get_project_exports(app: AppHandle, id: String) -> Vec<ExportRun> {
 #[tauri::command]
 pub fn cancel_project_export(app: AppHandle, run_id: String) -> Result<(), String> {
     get_project_export(app.clone(), run_id.clone())?;
-    if let Some(job) = app.state::<ExportRuns>().0.lock().unwrap().get(&run_id) {
+    if let Some(job) = app.state::<ExportRuns>().0.lock().unwrap_or_else(std::sync::PoisonError::into_inner).get(&run_id) {
         job.cancel.store(true, Ordering::Relaxed);
     }
     Ok(())

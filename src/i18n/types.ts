@@ -1712,7 +1712,10 @@ export type versionsKeys =
   | 'download_failed_asset_label'
   | 'download_failed_error_label'
   | 'download_failed_copy'
-  | 'download_failed_hint';
+  | 'download_failed_hint'
+  | 'custom_build_badge'
+  | 'add_custom_build'
+  | 'adding_custom_build';
 
 /** All namespace names */
 export type Namespace = 'changelog' | 'common' | 'dashboard' | 'git' | 'nav' | 'onboarding' | 'settings' | 'todos' | 'versions';
@@ -3404,4 +3407,7 @@ export type TranslationKey =
   | 'versions:download_failed_asset_label'
   | 'versions:download_failed_error_label'
   | 'versions:download_failed_copy'
-  | 'versions:download_failed_hint';
+  | 'versions:download_failed_hint'
+  | 'versions:custom_build_badge'
+  | 'versions:add_custom_build'
+  | 'versions:adding_custom_build';

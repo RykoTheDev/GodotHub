@@ -37,6 +37,13 @@ export function pushToast(
   }, ttlMs)
 }
 
+export function reportError(error: unknown) {
+  console.error(error)
+  const message =
+    error instanceof Error ? error.message : typeof error === 'string' ? error : ''
+  pushToast('error', message || 'Something went wrong', 6000)
+}
+
 export function dismissToast(id: number) {
   toasts = toasts.filter((t) => t.id !== id)
   emit()

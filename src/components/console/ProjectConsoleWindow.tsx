@@ -36,7 +36,7 @@ import {
 import { Tooltip } from '../reusables/Tooltip'
 import type { ConsoleLine, ProjectExportRun } from '../../types'
 import {formatBytes} from '../../lib/formatBytes'
-import {pushToast} from '../../lib/toast'
+import {pushToast, reportError } from '../../lib/toast'
 
 const POLL_MS = 180
 const POLL_MS_IDLE = 1000
@@ -429,7 +429,7 @@ export function ProjectConsoleWindow() {
         ? { ...prev, [activeId]: { ...prev[activeId], lines: [] } }
         : prev,
     )
-    void api.clearProjectConsole(activeId).catch(() => {})
+    void api.clearProjectConsole(activeId).catch(reportError)
   }
 
   const stopProject = () => {

@@ -129,5 +129,8 @@
   "download_failed_asset_label": "ファイル",
   "download_failed_error_label": "エラーの詳細",
   "download_failed_copy": "詳細をコピー",
-  "download_failed_hint": "よくある原因: ネットワークやプロキシのブロック、アンチウイルスによるダウンロードのブロック、ダウンロードフォルダーが存在しないか読み取り専用、またはディスク容量不足。"
+  "download_failed_hint": "よくある原因: ネットワークやプロキシのブロック、アンチウイルスによるダウンロードのブロック、ダウンロードフォルダーが存在しないか読み取り専用、またはディスク容量不足。",
+  "custom_build_badge": "Custom build",
+  "add_custom_build": "Add custom build…",
+  "adding_custom_build": "Adding custom build…"
 }

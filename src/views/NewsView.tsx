@@ -17,6 +17,8 @@ import {
 import { formatLocaleDate } from '../lib/locale'
 import type { NewsItem } from '../types'
 
+
+import { reportError } from '../lib/toast'
 function formatDate(iso: string | null): string | null {
   if (!iso) return null
   const d = new Date(iso)
@@ -35,7 +37,7 @@ function NewsCard({ item }: { item: NewsItem }) {
   return (
     <button
       type="button"
-      onClick={() => openUrl(item.link).catch(() => {})}
+      onClick={() => openUrl(item.link).catch(reportError)}
 
       className="ui-lift group focus-ring cursor-pointer text-start w-full flex flex-col gap-3 rounded-item border border-outline/50 bg-overlay p-5 mb-3 break-inside-avoid overflow-hidden hover:border-accent-dim/70 hover:bg-raised transition-colors"
     >

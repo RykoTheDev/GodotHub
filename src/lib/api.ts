@@ -116,6 +116,8 @@ export const api = {
   getGithubRateLimit: versionsApi.getGithubRateLimit,
   scanForVersions: versionsApi.scan,
   importVersion: versionsApi.import,
+  pickExecutable: versionsApi.pickExecutable,
+  addCustomBuild: versionsApi.addCustomBuild,
   importVersionZip: versionsApi.importZip,
   validateGodotFolder: versionsApi.validateFolder,
   getExportTemplatesState: versionsApi.exportTemplatesState,

@@ -10,7 +10,7 @@ import { Tooltip } from '../components/reusables/Tooltip'
 import { ModalShell } from '../components/modals/ModalShell'
 import { api } from '../lib/api'
 import { formatBytes } from '../lib/formatBytes'
-import { pushToast } from '../lib/toast'
+import { pushToast, reportError } from '../lib/toast'
 import {
   IconCloudArrowDown,
   IconFolder,
@@ -107,7 +107,7 @@ function OpenFolderButton({ path }: { path: string }) {
       <button
         type="button"
         aria-label={tc('open_folder')}
-        onClick={() => void api.openProjectFolder(path).catch(() => {})}
+        onClick={() => void api.openProjectFolder(path).catch(reportError)}
         className="focus-ring cursor-pointer shrink-0 p-1.5 rounded-btn text-muted/60 hover:text-ink hover:bg-raised transition-colors"
       >
         <IconFolder className="w-3.5 h-3.5" />

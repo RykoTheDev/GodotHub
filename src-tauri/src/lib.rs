@@ -464,6 +464,8 @@ pub fn run() {
             scan::scan_for_projects_with_info,
             scan::scan_for_versions,
             scan::import_version,
+            scan::add_custom_build,
+            scan::pick_executable,
             projects::reintroduce_dismissed_projects,
             news::fetch_godot_news,
             templates::list_templates,

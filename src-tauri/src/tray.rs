@@ -113,14 +113,14 @@ pub fn setup_tray(app: &AppHandle) -> Result<(), tauri::Error> {
         })
         .build(app)?;
 
-    app.state::<TrayState>().0.lock().unwrap().replace(tray);
+    app.state::<TrayState>().0.lock().unwrap_or_else(std::sync::PoisonError::into_inner).replace(tray);
     Ok(())
 }
 
 #[tauri::command]
 pub fn refresh_tray_menu(app: AppHandle) -> Result<(), String> {
     let state = app.state::<TrayState>();
-    let guard = state.0.lock().unwrap();
+    let guard = state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
     if let Some(ref tray) = *guard {
         let new_menu = build_tray_menu(&app).map_err(|e| e.to_string())?;
         tray.set_menu(Some(new_menu)).map_err(|e| e.to_string())?;

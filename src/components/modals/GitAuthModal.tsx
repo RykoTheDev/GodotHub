@@ -13,6 +13,8 @@ import {
   IconX,
 } from '../../lib/icons'
 
+
+import { reportError } from '../../lib/toast'
 type Provider = 'github' | 'gitlab'
 
 interface Props {
@@ -127,7 +129,7 @@ export function GitAuthModal({
     if (!flow) return
     const url =
       flow.verification_uri_complete || flow.verification_uri
-    if (url) openUrl(url).catch(() => {})
+    if (url) openUrl(url).catch(reportError)
   }
 
   const copyLink = async () => {

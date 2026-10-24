@@ -20,6 +20,8 @@ import {
   IconTrash,
 } from '../../lib/icons'
 
+
+import { reportError } from '../../lib/toast'
 export function VersionAliasesModal({
   versions,
   aliases,
@@ -118,7 +120,7 @@ export function VersionAliasesModal({
             {folder && (
               <button
                 type="button"
-                onClick={() => api.openProjectFolder(folder).catch(() => {})}
+                onClick={() => api.openProjectFolder(folder).catch(reportError)}
                 className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors"
               >
                 <IconExternalLink className="w-4 h-4" />

@@ -303,7 +303,10 @@ fn build_report(app: &AppHandle) -> StorageReport {
     let mut versions: Vec<StorageVersion> = registry
         .iter()
         .map(|v| {
-            let mise = v.managed_by.as_deref() == Some(crate::mise::MANAGED_BY);
+            let mise = matches!(
+                v.managed_by.as_deref(),
+                Some(crate::mise::MANAGED_BY) | Some(crate::godot_versions::CUSTOM_BUILD)
+            );
             let (path, external) = version_location(v, &versions_dir);
             let size_bytes = if mise { 0 } else { version_size(&path) };
             let projects = usage.projects.remove(&v.tag).unwrap_or_default();

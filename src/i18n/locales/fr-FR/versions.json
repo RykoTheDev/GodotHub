@@ -129,5 +129,8 @@
   "download_failed_asset_label": "Fichier",
   "download_failed_error_label": "Détails de l'erreur",
   "download_failed_copy": "Copier les détails",
-  "download_failed_hint": "Causes fréquentes : un réseau ou un proxy bloqué, un antivirus qui bloque le téléchargement, un dossier de téléchargement manquant ou en lecture seule, ou un espace disque insuffisant."
+  "download_failed_hint": "Causes fréquentes : un réseau ou un proxy bloqué, un antivirus qui bloque le téléchargement, un dossier de téléchargement manquant ou en lecture seule, ou un espace disque insuffisant.",
+  "custom_build_badge": "Custom build",
+  "add_custom_build": "Add custom build…",
+  "adding_custom_build": "Adding custom build…"
 }

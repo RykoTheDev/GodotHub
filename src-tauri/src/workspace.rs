@@ -367,7 +367,7 @@ pub fn create_workspace(
 }
 
 #[tauri::command]
-pub fn switch_workspace(app: AppHandle, id: String) -> Result<WorkspacesState, String> {
+pub async fn switch_workspace(app: AppHandle, id: String) -> Result<WorkspacesState, String> {
     let mut state = read_state(&app);
     if !state.workspaces.iter().any(|w| w.id == id) {
         return Err("Workspace not found".into());
@@ -418,7 +418,7 @@ pub fn update_workspace(
 }
 
 #[tauri::command]
-pub fn delete_workspace(app: AppHandle, id: String) -> Result<WorkspacesState, String> {
+pub async fn delete_workspace(app: AppHandle, id: String) -> Result<WorkspacesState, String> {
     let mut state = read_state(&app);
     if state.workspaces.len() <= 1 {
         return Err("Can't delete your only workspace".into());

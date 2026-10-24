@@ -11,7 +11,7 @@ import { useTaskTray } from '../hooks/useTaskTray'
 import { useUiMotion } from '../hooks/useUiMotion'
 import { api } from '../lib/api'
 import { formatBytes } from '../lib/formatBytes'
-import { pushToast } from '../lib/toast'
+import { pushToast, reportError } from '../lib/toast'
 import type {
   ExportTemplatesOrphan,
   ExportTemplatesVersionInfo,
@@ -35,6 +35,7 @@ import {
   IconFolder,
   IconPause,
   IconPlay,
+  IconPlus,
   IconSearch,
   IconSpinner,
   IconTrash,
@@ -290,6 +291,29 @@ export function VersionsView({
     }
   }
 
+  const handleAddCustomBuild = async () => {
+    const file = await api.pickExecutable()
+    if (!file) return
+    const taskId = `custom-build-${Date.now()}`
+    registerTask({
+      id: taskId,
+      type: 'import-versions',
+      label: tv('adding_custom_build'),
+      description: file,
+      progress: null,
+      status: 'running',
+    })
+    try {
+      await api.addCustomBuild(file, null)
+      await refreshInstalled()
+      updateTask(taskId, { status: 'completed' })
+      setTimeout(() => unregisterTask(taskId), 3000)
+    } catch (e) {
+      updateTask(taskId, { status: 'error', errorMessage: String(e) })
+      setTimeout(() => unregisterTask(taskId), 6000)
+    }
+  }
+
   const handleScanNow = async () => {
     if (scanning) return
     if (!settings.version_scan_dirs.length) {
@@ -443,6 +467,14 @@ export function VersionsView({
               <ImportButton
                 onImport={handleImportVersion}
                 disabled={scanning}
+                options={[
+                  {
+                    key: 'add-custom-build',
+                    label: tv('add_custom_build'),
+                    icon: IconPlus,
+                    onClick: () => void handleAddCustomBuild(),
+                  },
+                ]}
                 importEvent="app:import-version"
               />
               <ScanButton
@@ -521,7 +553,7 @@ export function VersionsView({
                     type="button"
 
                     data-press-feedback
-                    onClick={() => syncMise().catch(() => {})}
+                    onClick={() => syncMise().catch(reportError)}
                     className="focus-ring cursor-pointer flex items-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors font-mono"
                   >
                     <span className="text-[12px] text-muted">mise</span>

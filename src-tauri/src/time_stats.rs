@@ -202,7 +202,7 @@ fn days_in_month(year: i32, month: u32) -> u32 {
 }
 
 #[tauri::command]
-pub fn get_activity(app: AppHandle, range: String) -> Vec<(String, u64)> {
+pub async fn get_activity(app: AppHandle, range: String) -> Vec<(String, u64)> {
     let store = read_stats(&app);
     let now = chrono::Local::now();
     match range.as_str() {
@@ -323,7 +323,7 @@ pub struct TimeInsights {
 }
 
 #[tauri::command]
-pub fn get_time_insights(app: AppHandle) -> TimeInsights {
+pub async fn get_time_insights(app: AppHandle) -> TimeInsights {
     let store = read_stats(&app);
     let now = chrono::Local::now();
 

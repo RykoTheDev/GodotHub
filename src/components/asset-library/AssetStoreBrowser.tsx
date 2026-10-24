@@ -28,6 +28,8 @@ import {
   IconStore,
 } from '../../lib/icons'
 
+
+import { reportError } from '../../lib/toast'
 const PAGE_SIZE = 12
 
 const VERSION_OPTIONS = [
@@ -216,7 +218,7 @@ export function AssetStoreBrowser({
     try {
       const path = await api.downloadAsset(asset.asset_id)
       setDownloaded((prev) => new Set(prev).add(asset.asset_id))
-      api.openProjectFolder(dirname(path)).catch(() => {})
+      api.openProjectFolder(dirname(path)).catch(reportError)
       showNotice(`${t('asset_downloaded_to')} ${dirname(path)}`)
     } catch {
       showNotice(t('asset_download_error'))
@@ -236,7 +238,7 @@ export function AssetStoreBrowser({
         asset.title,
       )
       setDownloaded((prev) => new Set(prev).add(asset.asset_id))
-      api.openProjectFolder(dirname(path)).catch(() => {})
+      api.openProjectFolder(dirname(path)).catch(reportError)
       showNotice(`${t('asset_downloaded_to')} ${dirname(path)}`)
     } catch {
       showNotice(t('asset_download_error'))
@@ -319,7 +321,7 @@ export function AssetStoreBrowser({
                     asset={asset}
                     onOpenPage={
                       asset.browse_url
-                        ? () => openUrl(asset.browse_url!).catch(() => {})
+                        ? () => openUrl(asset.browse_url!).catch(reportError)
                         : undefined
                     }
                     actions={

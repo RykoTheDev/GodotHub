@@ -230,7 +230,7 @@ pub(crate) fn consolidate_legacy_templates(app: &AppHandle) {
 }
 
 #[tauri::command]
-pub fn save_project_as_template(
+pub async fn save_project_as_template(
     app: AppHandle,
     project_id: String,
     name: String,
@@ -331,7 +331,7 @@ pub(crate) fn resolve_template_dir(app: &AppHandle, id: &str) -> Option<PathBuf>
 }
 
 #[tauri::command]
-pub fn delete_template(app: AppHandle, template_id: String) -> Result<(), String> {
+pub async fn delete_template(app: AppHandle, template_id: String) -> Result<(), String> {
     let dir = resolve_template_dir(&app, &template_id).ok_or("Template not found")?;
 
     if let Some(t) = read_template_json(&dir) {
@@ -358,7 +358,7 @@ pub fn delete_template(app: AppHandle, template_id: String) -> Result<(), String
 }
 
 #[tauri::command]
-pub fn get_template_preview(
+pub async fn get_template_preview(
     app: AppHandle,
     template_id: String,
 ) -> Result<Vec<TemplateFileEntry>, String> {
@@ -429,7 +429,7 @@ fn delete_template_dir(app: &AppHandle, id: &str) {
 }
 
 #[tauri::command]
-pub fn sync_templates_with_scan_dir(app: AppHandle) -> Result<TemplateSyncResult, String> {
+pub async fn sync_templates_with_scan_dir(app: AppHandle) -> Result<TemplateSyncResult, String> {
     let settings = crate::settings::read_settings(&app);
     let scan_dir = match &settings.template_scan_dir {
         Some(d) if !d.trim().is_empty() => PathBuf::from(d.trim()),

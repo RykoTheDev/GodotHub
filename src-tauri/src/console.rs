@@ -325,7 +325,7 @@ fn restore_console(app: &AppHandle, id: &str) {
     };
     let store = state.0.clone();
     {
-        let mut map = store.lock().unwrap();
+        let mut map = store.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         if map.contains_key(id) {
             return;
         }
@@ -359,10 +359,10 @@ pub fn get_project_console(app: AppHandle, id: String, since: Option<u64>) -> Co
     let Some(state) = app.try_state::<ConsoleBuffers>() else {
         return ConsoleSnapshot::empty(id);
     };
-    if !state.0.lock().unwrap().contains_key(&id) {
+    if !state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner).contains_key(&id) {
         restore_console(&app, &id);
     }
-    let map = state.0.lock().unwrap();
+    let map = state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
     let Some(entry) = map.get(&id) else {
         return ConsoleSnapshot::empty(id);
     };
@@ -387,7 +387,7 @@ pub fn clear_project_console(app: AppHandle, id: String) {
         return;
     };
     {
-        let mut map = state.0.lock().unwrap();
+        let mut map = state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         if let Some(entry) = map.get_mut(&id) {
             entry.lines.clear();
         }
@@ -402,7 +402,7 @@ pub fn forget_console(app: &AppHandle, id: &str) {
         return;
     };
     {
-        let mut map = state.0.lock().unwrap();
+        let mut map = state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         map.remove(id);
     }
     let _ = std::fs::remove_file(log_path(app, id));
@@ -584,7 +584,7 @@ pub(crate) fn spawn_job_console(
         .spawn()
         .map_err(|e| format!("Could not start Godot export: {e}"))?;
     let session = next_session();
-    store.lock().unwrap().insert(
+    store.lock().unwrap_or_else(std::sync::PoisonError::into_inner).insert(
         id.into(),
         ConsoleEntry {
             running: true,

@@ -1617,6 +1617,34 @@
       {
         "category": "fix",
         "text": "Fixed C# projects failing to build or run when opened from the Linux AppImage (\"Unable to load shared library libSystem.Security.Cryptography.Native.OpenSsl\"): Godot, git and mise no longer inherit GodotHub's bundled libraries (#208)"
+      },
+      {
+        "category": "improve",
+        "text": "Saved git credentials, git auth data and settings files are now readable only by your user account on Linux and macOS"
+      },
+      {
+        "category": "fix",
+        "text": "Failing to save git credentials now shows an error instead of silently leaving git unauthenticated"
+      },
+      {
+        "category": "fix",
+        "text": "Fixed the app becoming unresponsive after an internal error by making shared state recover instead of panicking"
+      },
+      {
+        "category": "improve",
+        "text": "Heavy actions such as creating, importing and opening projects, templates, backups and mise checks no longer freeze the window while they run"
+      },
+      {
+        "category": "fix",
+        "text": "Failures when opening folders and links, controlling downloads, clearing the console, undoing a project removal or syncing mise now show an error message instead of failing silently"
+      },
+      {
+        "category": "fix",
+        "text": "Fixed the macOS \"git log\" terminal button mishandling project paths containing special characters"
+      },
+      {
+        "category": "add",
+        "text": "Custom engine builds: Import on the Versions page now has an Add custom build option, so an engine compiled from source (any file name) shows up in the versions list and works like an official version (#209)"
       }
     ],
     "known_issues": [],

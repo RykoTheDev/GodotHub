@@ -313,7 +313,7 @@ fn clean_text(text: &str) -> String {
 }
 
 #[tauri::command]
-pub fn list_git_tags() -> Result<Vec<String>, String> {
+pub async fn list_git_tags() -> Result<Vec<String>, String> {
     #[cfg(not(debug_assertions))]
     {
         return Err("Changelog tooling is only available in development builds.".into());
@@ -327,7 +327,7 @@ pub fn list_git_tags() -> Result<Vec<String>, String> {
 }
 
 #[tauri::command]
-pub fn generate_changelog_draft(_from: String, _to: String) -> Result<ChangelogDraft, String> {
+pub async fn generate_changelog_draft(_from: String, _to: String) -> Result<ChangelogDraft, String> {
     #[cfg(not(debug_assertions))]
     {
         return Err("Changelog tooling is only available in development builds.".into());

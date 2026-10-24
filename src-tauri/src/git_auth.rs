@@ -117,7 +117,7 @@ fn host_from_base_url(base_url: &str) -> String {
     }
 }
 
-fn rewrite_credentials_store(app: &AppHandle, auth: &GitAuthFile) {
+fn rewrite_credentials_store(app: &AppHandle, auth: &GitAuthFile) -> Result<(), String> {
     let mut lines: Vec<String> = Vec::new();
     if let Some(g) = &auth.github {
         lines.push(format!(
@@ -146,13 +146,13 @@ fn rewrite_credentials_store(app: &AppHandle, auth: &GitAuthFile) {
             p.host
         ));
     }
-    let _ = std::fs::write(credentials_store_file(app), lines.join("\n"));
+    persist::write_private_bytes(&credentials_store_file(app), lines.join("\n").as_bytes())
+        .map_err(|e| format!("Could not save git credentials: {e}"))
 }
 
 fn write_auth(app: &AppHandle, auth: &GitAuthFile) -> Result<(), String> {
-    persist::write_json(&auth_file(app), auth).map_err(|e| e.to_string())?;
-    rewrite_credentials_store(app, auth);
-    Ok(())
+    persist::write_json_private(&auth_file(app), auth).map_err(|e| e.to_string())?;
+    rewrite_credentials_store(app, auth)
 }
 
 fn github_client_id() -> Option<String> {

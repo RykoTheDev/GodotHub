@@ -56,15 +56,56 @@ pub fn write_json_with_backup<T: Serialize>(path: &Path, data: &T) -> AppResult<
     write_bytes(path, json.as_bytes())
 }
 
+pub fn write_json_with_backup_private<T: Serialize>(path: &Path, data: &T) -> AppResult<()> {
+    let json = serde_json::to_string_pretty(data)?;
+    if let Ok(previous) = fs::read(path) {
+        if !previous.is_empty() {
+            let _ = write_private_bytes(&backup_path(path), &previous);
+        }
+    }
+    write_private_bytes(path, json.as_bytes())
+}
+
 pub fn write_json<T: Serialize>(path: &Path, data: &T) -> AppResult<()> {
     let json = serde_json::to_string_pretty(data)?;
     write_bytes(path, json.as_bytes())
 }
 
+pub fn write_json_private<T: Serialize>(path: &Path, data: &T) -> AppResult<()> {
+    let json = serde_json::to_string_pretty(data)?;
+    write_private_bytes(path, json.as_bytes())
+}
+
+pub(crate) fn write_private_bytes(path: &Path, bytes: &[u8]) -> AppResult<()> {
+    write_bytes_with(path, bytes, true)
+}
+
 pub(crate) fn write_bytes(path: &Path, bytes: &[u8]) -> AppResult<()> {
+    write_bytes_with(path, bytes, false)
+}
+
+fn create_file(path: &Path, private: bool) -> std::io::Result<File> {
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+        let mut options = fs::OpenOptions::new();
+        options.write(true).create(true).truncate(true);
+        if private {
+            options.mode(0o600);
+        }
+        options.open(path)
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = private;
+        File::create(path)
+    }
+}
+
+fn write_bytes_with(path: &Path, bytes: &[u8], private: bool) -> AppResult<()> {
     let tmp = tmp_path(path);
     {
-        let mut file = File::create(&tmp)?;
+        let mut file = create_file(&tmp, private)?;
         file.write_all(bytes)?;
         file.sync_all()?;
     }

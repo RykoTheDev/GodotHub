@@ -130,5 +130,8 @@
   "download_failed_asset_label": "الملف",
   "download_failed_error_label": "تفاصيل الخطأ",
   "download_failed_copy": "نسخ التفاصيل",
-  "download_failed_hint": "الأسباب الشائعة: شبكة أو وكيل محجوب، برنامج مكافحة فيروسات يحجب التنزيل، مجلد تنزيل غير موجود أو للقراءة فقط، أو مساحة قرص منخفضة."
+  "download_failed_hint": "الأسباب الشائعة: شبكة أو وكيل محجوب، برنامج مكافحة فيروسات يحجب التنزيل، مجلد تنزيل غير موجود أو للقراءة فقط، أو مساحة قرص منخفضة.",
+  "custom_build_badge": "Custom build",
+  "add_custom_build": "Add custom build…",
+  "adding_custom_build": "Adding custom build…"
 }

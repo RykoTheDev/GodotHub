@@ -73,12 +73,12 @@ fn status_for(app: &AppHandle, needs_new_terminal: bool) -> CliToolStatus {
 }
 
 #[tauri::command]
-pub fn cli_tool_status(app: AppHandle) -> CliToolStatus {
+pub async fn cli_tool_status(app: AppHandle) -> CliToolStatus {
     status_for(&app, false)
 }
 
 #[tauri::command]
-pub fn install_cli_tool(app: AppHandle) -> Result<CliToolStatus, String> {
+pub async fn install_cli_tool(app: AppHandle) -> Result<CliToolStatus, String> {
     let target = std::env::current_exe().map_err(|e| e.to_string())?;
     let bin = crate::current_version::aliases_dir(&app);
     write_shim(&shim_path(&bin), &target)?;

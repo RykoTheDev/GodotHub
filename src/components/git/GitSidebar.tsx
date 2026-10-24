@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { useTauriEvent } from '../../lib/useTauriEvent'
 import { useSettings } from '../../hooks/useSettings'
-import { pushToast } from '../../lib/toast'
+import { pushToast, reportError } from '../../lib/toast'
 import type {
   GitAheadBehind,
   GitAuthState,
@@ -1422,7 +1422,7 @@ export function GitSidebar({
                   <Tooltip content={remotes[0].web_url} className="w-full">
                   <button
                     type="button"
-                    onClick={() => void openUrl(remotes[0].web_url).catch(() => {})}
+                    onClick={() => void openUrl(remotes[0].web_url).catch(reportError)}
                     className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-2.5 py-2 text-start min-w-0 transition-colors hover:bg-raised/60"
                   >
                     <ProviderBadge webUrl={remotes[0].web_url} />
@@ -1462,7 +1462,7 @@ export function GitSidebar({
                       <Tooltip content={r.web_url} className="w-full">
                       <button
                         type="button"
-                        onClick={() => void openUrl(r.web_url).catch(() => {})}
+                        onClick={() => void openUrl(r.web_url).catch(reportError)}
                         className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-2.5 py-2 rounded-item border border-line/60 bg-base/40 hover:bg-raised hover:border-accent/40 transition-colors text-start min-w-0"
                       >
                         <IconGitBranch className="w-3 h-3 text-accent shrink-0" />

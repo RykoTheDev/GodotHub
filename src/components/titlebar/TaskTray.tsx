@@ -32,6 +32,8 @@ import {
 import { Tooltip } from '../reusables/Tooltip'
 import { useUiMotion } from '../../hooks/useUiMotion'
 
+
+import { reportError } from '../../lib/toast'
 function TaskIcon({ task }: { task: Task }) {
   const iconClass = 'w-4 h-4 shrink-0'
   switch (task.type) {
@@ -155,7 +157,7 @@ function TaskItem({ task }: { task: Task }) {
                     <button
                         type="button"
                         onClick={() =>
-                          api.reorderDownloadQueue(downloadKey, -1).catch(() => {})
+                          api.reorderDownloadQueue(downloadKey, -1).catch(reportError)
                         }
                         aria-label={t('download_queue_move_up')}
                         className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-ink hover:bg-raised transition-colors"
@@ -165,7 +167,7 @@ function TaskItem({ task }: { task: Task }) {
                     <button
                         type="button"
                         onClick={() =>
-                          api.reorderDownloadQueue(downloadKey, 1).catch(() => {})
+                          api.reorderDownloadQueue(downloadKey, 1).catch(reportError)
                         }
                         aria-label={t('download_queue_move_down')}
                         className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-ink hover:bg-raised transition-colors"
@@ -178,7 +180,7 @@ function TaskItem({ task }: { task: Task }) {
                     <button
                       type="button"
                       onClick={() =>
-                        api.pauseDownload(downloadKey).catch(() => {})
+                        api.pauseDownload(downloadKey).catch(reportError)
                       }
                       aria-label={t('pause_download')}
                       className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-ink hover:bg-raised transition-colors"
@@ -192,7 +194,7 @@ function TaskItem({ task }: { task: Task }) {
                         <button
                           type="button"
                           onClick={() =>
-                            api.resumeDownload(downloadKey).catch(() => {})
+                            api.resumeDownload(downloadKey).catch(reportError)
                           }
                           aria-label={t('resume_download')}
                           className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-mint hover:bg-mint/10 transition-colors"
@@ -203,7 +205,7 @@ function TaskItem({ task }: { task: Task }) {
                     <button
                         type="button"
                         onClick={() =>
-                          api.cancelDownload(downloadKey).catch(() => {})
+                          api.cancelDownload(downloadKey).catch(reportError)
                         }
                         aria-label={t('cancel_download')}
                         className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-danger hover:bg-danger/10 transition-colors"
@@ -219,7 +221,7 @@ function TaskItem({ task }: { task: Task }) {
                 <button
                   type="button"
                   onClick={() =>
-                    api.cancelExportTemplates(templateTag).catch(() => {})
+                    api.cancelExportTemplates(templateTag).catch(reportError)
                   }
                   aria-label={t('cancel')}
                   className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-danger hover:bg-danger/10 transition-colors"

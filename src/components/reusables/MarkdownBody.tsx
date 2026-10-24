@@ -3,6 +3,8 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { openUrl } from '@tauri-apps/plugin-opener'
 
+
+import { reportError } from '../../lib/toast'
 type AnchorProps = AnchorHTMLAttributes<HTMLAnchorElement>
 
 function ExternalAnchor({ href, children, ...rest }: AnchorProps) {
@@ -12,7 +14,7 @@ function ExternalAnchor({ href, children, ...rest }: AnchorProps) {
   ) => {
     if (!url || !/^https?:\/\//i.test(url)) return
     e.preventDefault()
-    openUrl(url).catch(() => {})
+    openUrl(url).catch(reportError)
   }
   return (
     <a

@@ -144,5 +144,8 @@
   "download_failed_asset_label": "Файл",
   "download_failed_error_label": "Подробности ошибки",
   "download_failed_copy": "Копировать сведения",
-  "download_failed_hint": "Частые причины: заблокированная сеть или прокси, антивирус, блокирующий загрузку, отсутствующая или доступная только для чтения папка загрузки, или нехватка места на диске."
+  "download_failed_hint": "Частые причины: заблокированная сеть или прокси, антивирус, блокирующий загрузку, отсутствующая или доступная только для чтения папка загрузки, или нехватка места на диске.",
+  "custom_build_badge": "Custom build",
+  "add_custom_build": "Add custom build…",
+  "adding_custom_build": "Adding custom build…"
 }

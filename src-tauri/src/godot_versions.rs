@@ -347,6 +347,8 @@ pub fn write_registry(app: &AppHandle, list: &Vec<InstalledGodotVersion>) -> Res
     persist::write_json(&registry_file(app), list).map_err(|e| e.to_string())
 }
 
+pub const CUSTOM_BUILD: &str = "custom";
+
 pub fn register_version(app: &AppHandle, version: InstalledGodotVersion) -> Result<bool, String> {
     let mut list = read_registry(app);
     if list
@@ -779,7 +781,7 @@ fn dm() -> &'static Mutex<DownloadManager> {
 }
 
 pub(crate) fn active_download_keys() -> HashSet<String> {
-    let mgr = dm().lock().unwrap();
+    let mgr = dm().lock().unwrap_or_else(std::sync::PoisonError::into_inner);
     mgr.handles
         .keys()
         .chain(mgr.state.keys())
@@ -798,7 +800,7 @@ fn download_key(tag: &str, asset_name: &str) -> String {
 
 fn release_slot(app: &AppHandle, key: &str, remove_handle: bool) {
     let next = {
-        let mut mgr = dm().lock().unwrap();
+        let mut mgr = dm().lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         if remove_handle {
             mgr.handles.remove(key);
             mgr.state.remove(key);
@@ -868,7 +870,7 @@ pub fn download_godot_version(
         return Err("Version already installed".into());
     }
 
-    let mut mgr = dm().lock().unwrap();
+    let mut mgr = dm().lock().unwrap_or_else(std::sync::PoisonError::into_inner);
     if mgr.handles.contains_key(&key) {
         return Err("Already downloading or queued".into());
     }
@@ -906,7 +908,7 @@ pub fn download_godot_version(
 #[tauri::command]
 pub fn reorder_download_queue(app: AppHandle, key: String, direction: i8) -> Result<(), String> {
     let order = {
-        let mut mgr = dm().lock().unwrap();
+        let mut mgr = dm().lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         let idx = mgr
             .queue
             .iter()
@@ -926,7 +928,7 @@ pub fn reorder_download_queue(app: AppHandle, key: String, direction: i8) -> Res
 
 #[tauri::command]
 pub fn pause_download(key: String) -> Result<(), String> {
-    let mgr = dm().lock().unwrap();
+    let mgr = dm().lock().unwrap_or_else(std::sync::PoisonError::into_inner);
     match mgr.handles.get(&key) {
         Some(h) => {
             h.pause.store(true, Ordering::SeqCst);
@@ -938,7 +940,7 @@ pub fn pause_download(key: String) -> Result<(), String> {
 
 #[tauri::command]
 pub fn cancel_download(app: AppHandle, key: String) -> Result<(), String> {
-    let mut mgr = dm().lock().unwrap();
+    let mut mgr = dm().lock().unwrap_or_else(std::sync::PoisonError::into_inner);
     match mgr.state.get(&key).cloned() {
         Some(SlotState::Queued) => {
             mgr.queue.retain(|k| k != &key);
@@ -969,7 +971,7 @@ pub fn cancel_download(app: AppHandle, key: String) -> Result<(), String> {
 
 #[tauri::command]
 pub fn resume_download(app: AppHandle, key: String) -> Result<(), String> {
-    let mut mgr = dm().lock().unwrap();
+    let mut mgr = dm().lock().unwrap_or_else(std::sync::PoisonError::into_inner);
     if mgr.state.get(&key) != Some(&SlotState::Paused) {
         return Err("Not paused".into());
     }
@@ -1164,7 +1166,7 @@ async fn verify_download(
 
 async fn run_download(app: AppHandle, key: String) {
     let (job, cancel, pause) = {
-        let mgr = dm().lock().unwrap();
+        let mgr = dm().lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         match mgr.handles.get(&key) {
             Some(h) => (h.job.clone(), h.cancel.clone(), h.pause.clone()),
             None => return,
@@ -1255,7 +1257,7 @@ async fn run_download(app: AppHandle, key: String) {
             if pause.load(Ordering::SeqCst) {
                 drop(file);
                 {
-                    let mut mgr = dm().lock().unwrap();
+                    let mut mgr = dm().lock().unwrap_or_else(std::sync::PoisonError::into_inner);
                     mgr.state.insert(key.clone(), SlotState::Paused);
                 }
                 release_slot(&app, &key, false);
@@ -1523,7 +1525,7 @@ pub fn list_installed_godot_versions(app: AppHandle) -> Result<Vec<InstalledGodo
     let sig = registry_signature(&raw);
 
     let needs_reconcile = {
-        let sig_lock = installed_signature().lock().unwrap();
+        let sig_lock = installed_signature().lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         match sig_lock.as_ref() {
             Some(cached) => cached != &sig,
             None => true,
@@ -1534,7 +1536,7 @@ pub fn list_installed_godot_versions(app: AppHandle) -> Result<Vec<InstalledGodo
         migrate_mono_tags(&app);
         crate::projects::rebind_projects_to_installed(&app);
         let raw = fs::read_to_string(&file).unwrap_or_default();
-        *installed_signature().lock().unwrap() = Some(registry_signature(&raw));
+        *installed_signature().lock().unwrap_or_else(std::sync::PoisonError::into_inner) = Some(registry_signature(&raw));
     }
 
     Ok(prune_missing(&app))
@@ -1681,7 +1683,7 @@ fn spawn_with_console(
 }
 
 #[tauri::command]
-pub fn open_godot_version(
+pub async fn open_godot_version(
     app: AppHandle,
     tag: String,
     console: Option<bool>,
@@ -1718,7 +1720,7 @@ pub fn delete_godot_version(app: AppHandle, tag: String) -> Result<(), String> {
     crate::current_version::clear_if_current(&app, &removed.tag);
     crate::current_version::remove_aliases_for_tag(&app, &removed.tag);
 
-    if removed.managed_by.as_deref() == Some(crate::mise::MANAGED_BY) {
+    if matches!(removed.managed_by.as_deref(), Some(crate::mise::MANAGED_BY) | Some(CUSTOM_BUILD)) {
         return Ok(());
     }
 
