@@ -36,9 +36,37 @@ fn workspaces_root(app: &AppHandle) -> PathBuf {
 }
 
 fn ensure_dir(dir: &Path) {
+    static ENSURED: OnceLock<Mutex<std::collections::HashSet<PathBuf>>> = OnceLock::new();
+    let ensured = ENSURED.get_or_init(|| Mutex::new(std::collections::HashSet::new()));
+    if ensured
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .contains(dir)
+        && dir.is_dir()
+    {
+        return;
+    }
     if !dir.exists() {
         let _ = fs::create_dir_all(dir);
     }
+    if dir.is_dir() {
+        ensured
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .insert(dir.to_path_buf());
+    }
+}
+
+type FileStamp = (std::time::SystemTime, u64);
+
+fn state_cache() -> &'static Mutex<Option<(PathBuf, FileStamp, WorkspacesState)>> {
+    static CACHE: OnceLock<Mutex<Option<(PathBuf, FileStamp, WorkspacesState)>>> = OnceLock::new();
+    CACHE.get_or_init(|| Mutex::new(None))
+}
+
+fn file_stamp(path: &Path) -> Option<FileStamp> {
+    let meta = fs::metadata(path).ok()?;
+    Some((meta.modified().ok()?, meta.len()))
 }
 
 pub fn workspace_dir_in(base: &Path, id: &str) -> PathBuf {
@@ -56,6 +84,7 @@ pub(crate) fn write_state(app: &AppHandle, state: &WorkspacesState) -> Result<()
 }
 
 fn write_state_in(base: &Path, state: &WorkspacesState) -> Result<(), String> {
+    *state_cache().lock().unwrap_or_else(|e| e.into_inner()) = None;
     for ws in &state.workspaces {
         let dir = workspace_dir_in(base, &ws.id);
         let _ = persist::write_json(&dir.join(META_FILE), ws);
@@ -225,10 +254,23 @@ pub fn read_state_in(base: &Path) -> WorkspacesState {
     ensure_dir(base);
     let file = workspaces_file_in(base);
 
+    let stamp = file_stamp(&file);
+    if let Some(stamp) = stamp {
+        let cache = state_cache().lock().unwrap_or_else(|e| e.into_inner());
+        if let Some((cached_file, cached_stamp, state)) = cache.as_ref() {
+            if *cached_file == file && *cached_stamp == stamp {
+                return state.clone();
+            }
+        }
+    }
+
     if let Some(mut state) = read_state_file(&file) {
         if !state.workspaces.iter().any(|w| w.id == state.active_id) {
             state.active_id = state.workspaces[0].id.clone();
             let _ = write_state_in(base, &state);
+        } else if let Some(stamp) = stamp {
+            *state_cache().lock().unwrap_or_else(|e| e.into_inner()) =
+                Some((file.clone(), stamp, state.clone()));
         }
         return state;
     }

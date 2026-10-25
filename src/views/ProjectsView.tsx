@@ -67,7 +67,7 @@ import { useSettings } from '../hooks/useSettings'
 import { useScrollCompensation } from '../hooks/useScrollCompensation'
 import { api } from '../lib/api'
 import { pushToast, reportError } from '../lib/toast'
-import type { Category, GitStatus, Project } from '../types'
+import type { Category, Project } from '../types'
 import {
   comparatorFor,
   SORT_OPTIONS,
@@ -86,6 +86,7 @@ import {
   type ProjectSearchToken,
 } from '../lib/projectSearch'
 import { ViewHeader } from '../components/reusables/ViewHeader'
+import { useGitStatusMap } from '../hooks/useGitStatusMap'
 import { CreateProjectModal } from '../components/modals/CreateProjectModal'
 import { CloneRepoModal } from '../components/modals/CloneRepoModal'
 import { BulkTagModal } from '../components/modals/BulkTagModal'
@@ -444,11 +445,11 @@ export function ProjectsView({
     if (!active || sortBy !== 'time_desc') return
     if (!projects.some((p) => p.session_started_at_ms)) return
     setSortNow(Date.now())
-    const id = setInterval(() => setSortNow(Date.now()), 1000)
+    const id = setInterval(() => {
+      if (!document.hidden) setSortNow(Date.now())
+    }, 30_000)
     return () => clearInterval(id)
   }, [active, sortBy, projects])
-  const [gitStatusMap, setGitStatusMap] = useState<Record<string, GitStatus>>({})
-  const fetchingGitRef = useRef(false)
   const { viewportRef, restoreScroll } = useScrollCompensation()
   const pinnedSignature = useMemo(
     () => projects.filter((p) => p.pinned).map((p) => p.id).join(','),
@@ -464,39 +465,8 @@ export function ProjectsView({
     [projects],
   )
 
-  const fetchGitStatuses = useCallback(async () => {
-    if (fetchingGitRef.current) return
-    const list = projectsRef.current
-    if (list.length === 0) return
-    fetchingGitRef.current = true
-    try {
-      const statuses = await api.batchGitStatus(list.map((p) => p.path))
-      setGitStatusMap(statuses)
-    } catch {
-    } finally {
-      fetchingGitRef.current = false
-    }
-  }, [])
-
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  useEffect(() => {
-    if (!active) return
-    fetchGitStatuses()
-    const interval = setInterval(fetchGitStatuses, 30000)
-    const handleRefresh = () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current)
-      debounceRef.current = setTimeout(fetchGitStatuses, 300)
-    }
-    const handleFocus = () => void fetchGitStatuses()
-    window.addEventListener('app:refresh-git-status', handleRefresh)
-    window.addEventListener('focus', handleFocus)
-    return () => {
-      clearInterval(interval)
-      if (debounceRef.current) clearTimeout(debounceRef.current)
-      window.removeEventListener('app:refresh-git-status', handleRefresh)
-      window.removeEventListener('focus', handleFocus)
-    }
-  }, [active, fetchGitStatuses, projectPathsKey])
+  const projectPaths = useMemo(() => (projectPathsKey ? projectPathsKey.split('|') : []), [projectPathsKey])
+  const { statusMap: gitStatusMap } = useGitStatusMap(projectPaths, active)
 
   useEffect(() => {
     try {

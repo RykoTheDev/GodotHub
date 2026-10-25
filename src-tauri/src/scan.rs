@@ -164,7 +164,7 @@ pub fn scan_for_projects_blocking(
     depth: u32,
     include_dismissed: bool,
 ) -> Result<ScanProjectsResult, String> {
-    let existing = projects::list_projects(app.clone());
+    let existing = projects::list_projects_blocking(&app);
     let existing_paths: Vec<String> = existing.iter().map(|p| p.path.clone()).collect();
     let max_depth = depth as usize;
 

@@ -92,6 +92,66 @@ fn icon_cache() -> &'static Mutex<HashMap<String, CachedIcon>> {
     CACHE.get_or_init(|| Mutex::new(HashMap::new()))
 }
 
+#[derive(Clone)]
+struct ProjectFileInfo {
+    mtime: Option<SystemTime>,
+    name: Option<String>,
+    tags: Vec<String>,
+}
+
+fn project_file_cache() -> &'static Mutex<HashMap<String, ProjectFileInfo>> {
+    static CACHE: OnceLock<Mutex<HashMap<String, ProjectFileInfo>>> = OnceLock::new();
+    CACHE.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn ensured_identities() -> &'static Mutex<HashMap<String, (String, Option<String>)>> {
+    static CACHE: OnceLock<Mutex<HashMap<String, (String, Option<String>)>>> = OnceLock::new();
+    CACHE.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn cached_project_file_info(project_path: &str) -> Option<ProjectFileInfo> {
+    let godot_file = Path::new(project_path).join("project.godot");
+    let meta = fs::metadata(&godot_file).ok()?;
+    if !meta.is_file() {
+        return None;
+    }
+    let mtime = meta.modified().ok();
+    {
+        let cache = project_file_cache().lock().unwrap_or_else(|e| e.into_inner());
+        if let Some(hit) = cache.get(project_path) {
+            if mtime.is_some() && hit.mtime == mtime {
+                return Some(hit.clone());
+            }
+        }
+    }
+    let info = ProjectFileInfo {
+        mtime,
+        name: resolve_project_name(project_path),
+        tags: resolve_project_tags(project_path),
+    };
+    project_file_cache()
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .insert(project_path.to_string(), info.clone());
+    Some(info)
+}
+
+fn ensure_project_identity_cached(project_path: &str, id: &str, category: Option<&str>) {
+    let wanted = (id.to_string(), category.map(str::to_string));
+    {
+        let cache = ensured_identities().lock().unwrap_or_else(|e| e.into_inner());
+        if cache.get(project_path) == Some(&wanted) {
+            return;
+        }
+    }
+    if crate::project_identity::ensure_project_identity(project_path, id, category) {
+        ensured_identities()
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .insert(project_path.to_string(), wanted);
+    }
+}
+
 #[derive(serde::Serialize, serde::Deserialize, Default)]
 pub(crate) struct ProjectStore {
     #[serde(default)]
@@ -403,44 +463,47 @@ fn next_sort_order(projects: &[Project], category: &Option<String>) -> i64 {
 }
 
 #[tauri::command]
-pub fn list_projects(app: AppHandle) -> Vec<Project> {
+pub async fn list_projects(app: AppHandle) -> Vec<Project> {
+    tokio::task::spawn_blocking(move || list_projects_blocking(&app))
+        .await
+        .unwrap_or_default()
+}
+
+pub(crate) fn list_projects_blocking(app: &AppHandle) -> Vec<Project> {
+    let app = app.clone();
     let start = std::time::Instant::now();
     settle_stale_sessions(&app);
     let projects = read_projects(&app);
-    let (mut kept, removed): (Vec<Project>, Vec<Project>) = projects
-        .into_iter()
-        .partition(|p| Path::new(&p.path).join("project.godot").exists());
-
+    let mut kept: Vec<Project> = Vec::with_capacity(projects.len());
+    let mut any_removed = false;
     let mut tags_changed = false;
     let mut names_changed = false;
-    for p in kept.iter_mut() {
-        if p.tags.is_empty() {
-            let disk_tags = resolve_project_tags(&p.path);
-            if !disk_tags.is_empty() {
-                p.tags = disk_tags;
-                tags_changed = true;
-            }
+    for mut p in projects {
+        let Some(info) = cached_project_file_info(&p.path) else {
+            any_removed = true;
+            continue;
+        };
+        if p.tags.is_empty() && !info.tags.is_empty() {
+            p.tags = info.tags;
+            tags_changed = true;
         }
         let folder = Path::new(&p.path)
             .file_name()
             .map(|n| n.to_string_lossy().to_string());
-        if let Some(folder_name) = folder {
-            if p.name == folder_name {
-                if let Some(resolved) = resolve_project_name(&p.path) {
-                    if !resolved.trim().is_empty() && resolved != p.name {
-                        p.name = resolved;
-                        names_changed = true;
-                    }
-                }
+        if let (Some(folder_name), Some(resolved)) = (folder, info.name) {
+            if p.name == folder_name && !resolved.trim().is_empty() && resolved != p.name {
+                p.name = resolved;
+                names_changed = true;
             }
         }
+        kept.push(p);
     }
 
-    if !removed.is_empty() || tags_changed || names_changed {
+    if any_removed || tags_changed || names_changed {
         let _ = write_projects(&app, &kept);
     }
     for p in &kept {
-        crate::project_identity::ensure_project_identity(&p.path, &p.id, p.category.as_deref());
+        ensure_project_identity_cached(&p.path, &p.id, p.category.as_deref());
     }
     let stats = crate::time_stats::read_stats(&app);
     let now = chrono::Local::now();
@@ -1286,7 +1349,7 @@ pub(crate) fn launch_project(
         return Err("No Godot version bound to this project".into());
     }
 
-    let versions = crate::godot_versions::list_installed_godot_versions(app.clone())?;
+    let versions = crate::godot_versions::list_installed_godot_versions_blocking(&app)?;
     let version = versions
         .iter()
         .find(|v| v.tag == project_version)
@@ -1506,7 +1569,13 @@ fn kill_tracked(tracked: &mut TrackedProcess) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub fn list_running_projects(app: AppHandle) -> Vec<RunningProjectInfo> {
+pub async fn list_running_projects(app: AppHandle) -> Vec<RunningProjectInfo> {
+    tokio::task::spawn_blocking(move || list_running_projects_blocking(app))
+        .await
+        .unwrap_or_default()
+}
+
+fn list_running_projects_blocking(app: AppHandle) -> Vec<RunningProjectInfo> {
     settle_stale_sessions(&app);
     let entries: Vec<(String, std::time::SystemTime)> = {
         let Some(state) = app.try_state::<ActiveProcesses>() else {
@@ -1542,7 +1611,13 @@ pub fn list_running_projects(app: AppHandle) -> Vec<RunningProjectInfo> {
 }
 
 #[tauri::command]
-pub fn stop_project(app: AppHandle, id: String) -> Result<(), String> {
+pub async fn stop_project(app: AppHandle, id: String) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || stop_project_blocking(app, id))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+fn stop_project_blocking(app: AppHandle, id: String) -> Result<(), String> {
     let state = app
         .try_state::<ActiveProcesses>()
         .ok_or("No running process found for this project")?;
@@ -1633,7 +1708,13 @@ fn open_folder_linux(path: &str, dir: &Path) -> Result<(), String> {
 }
 
 #[tauri::command]
-pub fn open_project_folder(path: String) -> Result<(), String> {
+pub async fn open_project_folder(path: String) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || open_project_folder_blocking(path))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+pub(crate) fn open_project_folder_blocking(path: String) -> Result<(), String> {
     let dir = PathBuf::from(&path);
     if !dir.exists() {
         return Err("This folder no longer exists".into());
@@ -2042,8 +2123,11 @@ pub(crate) fn resolve_project_name(project_path: &str) -> Option<String> {
 }
 
 #[tauri::command]
-pub fn get_project_name(path: String) -> Option<String> {
-    resolve_project_name(&path)
+pub async fn get_project_name(path: String) -> Option<String> {
+    tokio::task::spawn_blocking(move || cached_project_file_info(&path).and_then(|info| info.name))
+        .await
+        .ok()
+        .flatten()
 }
 
 #[tauri::command]

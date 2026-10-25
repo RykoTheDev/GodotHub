@@ -437,7 +437,7 @@ fn steam_godot_binaries() -> Vec<PathBuf> {
 pub async fn detect_godot_installs(app: AppHandle) -> Result<Vec<DiscoveredInstall>, String> {
     tokio::task::spawn_blocking(move || {
         let registered: BTreeSet<PathBuf> =
-            crate::godot_versions::list_installed_godot_versions(app.clone())
+            crate::godot_versions::list_installed_godot_versions_blocking(&app)
                 .unwrap_or_default()
                 .into_iter()
                 .filter_map(|v| std::fs::canonicalize(&v.executable_path).ok())

@@ -64,8 +64,9 @@ import {
   toggleTileTall,
   type DashboardTileId,
 } from '../lib/dashboardSections'
-import type { GitStatus, Project, TimeInsights } from '../types'
+import type { Project, TimeInsights } from '../types'
 import { Tooltip } from '../components/reusables/Tooltip'
+import { useGitStatusMap } from '../hooks/useGitStatusMap'
 
 function dispatch(event: string, detail?: unknown) {
   window.dispatchEvent(
@@ -754,46 +755,8 @@ function TopProjectsByTime({
 function GitOverview({ tall = false, active = true }: { tall?: boolean; active?: boolean }) {
   const { t: tc } = useTranslation('dashboard')
   const { projects } = useProjectsContext()
-  const [statusMap, setStatusMap] = useState<Record<string, GitStatus>>({})
-  const [loading, setLoading] = useState(true)
-  const fetchingRef = useRef(false)
-
-  const fetchStatuses = useCallback(async () => {
-    if (fetchingRef.current) return
-    if (projects.length === 0) {
-      setLoading(false)
-      return
-    }
-    fetchingRef.current = true
-    try {
-      const statuses = await api.batchGitStatus(projects.map((p) => p.path))
-      setStatusMap(statuses)
-    } catch {
-    } finally {
-      fetchingRef.current = false
-      setLoading(false)
-    }
-  }, [projects])
-
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  useEffect(() => {
-    if (!active) return
-    fetchStatuses()
-    const interval = setInterval(fetchStatuses, 30000)
-    const handleRefresh = () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current)
-      debounceRef.current = setTimeout(fetchStatuses, 300)
-    }
-    const handleFocus = () => void fetchStatuses()
-    window.addEventListener('app:refresh-git-status', handleRefresh)
-    window.addEventListener('focus', handleFocus)
-    return () => {
-      clearInterval(interval)
-      if (debounceRef.current) clearTimeout(debounceRef.current)
-      window.removeEventListener('app:refresh-git-status', handleRefresh)
-      window.removeEventListener('focus', handleFocus)
-    }
-  }, [active, fetchStatuses])
+  const paths = useMemo(() => projects.map((p) => p.path), [projects])
+  const { statusMap, loading } = useGitStatusMap(paths, active)
 
   const dirty = useMemo(
     () =>

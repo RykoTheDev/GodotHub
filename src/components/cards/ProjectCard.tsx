@@ -56,6 +56,7 @@ import {
 
 import { ProjectTodoPanel } from "./ProjectTodoPanel";
 import { consumeTodoFocus, localDateValue, useOpenTodos } from "../../lib/openTodos";
+import { withStableCallbacks } from "../../lib/stableCallbacks";
 
 interface ProjectCardProps {
   project: Project;
@@ -96,7 +97,7 @@ function formatBytes(bytes: number): string {
   return `${bytes} B`;
 }
 
-export function ProjectCard({
+function ProjectCardInner({
   project,
   installedVersions,
 
@@ -1193,3 +1194,5 @@ export function ProjectCard({
     </div>
   );
 }
+
+export const ProjectCard = withStableCallbacks(ProjectCardInner);

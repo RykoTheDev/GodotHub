@@ -10,6 +10,8 @@ import type {
 
 const iconCache = new Map<string, string | null>()
 const nameCache = new Map<string, string | null>()
+const iconRequests = new Map<string, Promise<string | null>>()
+const nameRequests = new Map<string, Promise<string | null>>()
 
 let resolutionEpoch = 0
 const epochListeners = new Set<() => void>()
@@ -89,19 +91,29 @@ export const projectsApi = {
   getIcon: (path: string) => {
     const cached = iconCache.get(path)
     if (cached !== undefined) return Promise.resolve(cached)
-    return invoke<string | null>('get_project_icon', { path })
+    const pending = iconRequests.get(path)
+    if (pending) return pending
+    const request = invoke<string | null>('get_project_icon', { path })
       .then((data) => { iconCache.set(path, data); return data })
+      .finally(() => { iconRequests.delete(path) })
+    iconRequests.set(path, request)
+    return request
   },
   getName: (path: string) => {
     const cached = nameCache.get(path)
     if (cached !== undefined) return Promise.resolve(cached)
-    return invoke<string | null>('get_project_name', { path })
+    const pending = nameRequests.get(path)
+    if (pending) return pending
+    const request = invoke<string | null>('get_project_name', { path })
       .then((data) => { nameCache.set(path, data); return data })
+      .finally(() => { nameRequests.delete(path) })
+    nameRequests.set(path, request)
+    return request
   },
   reintroduceDismissed: (paths: string[]) =>
     invoke<Project[]>('reintroduce_dismissed_projects', { paths }),
   getHealth: () => invoke<ProjectsHealth>('get_projects_health'),
   restoreFromBackup: () => invoke<number>('restore_projects_from_backup'),
-  clearIconCache: () => { iconCache.clear(); bumpResolutionEpoch() },
-  clearNameCache: () => { nameCache.clear(); bumpResolutionEpoch() },
+  clearIconCache: () => { iconCache.clear(); iconRequests.clear(); bumpResolutionEpoch() },
+  clearNameCache: () => { nameCache.clear(); nameRequests.clear(); bumpResolutionEpoch() },
 }

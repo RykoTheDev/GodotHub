@@ -1519,7 +1519,18 @@ fn registry_signature(raw: &str) -> String {
 }
 
 #[tauri::command]
-pub fn list_installed_godot_versions(app: AppHandle) -> Result<Vec<InstalledGodotVersion>, String> {
+pub async fn list_installed_godot_versions(
+    app: AppHandle,
+) -> Result<Vec<InstalledGodotVersion>, String> {
+    tokio::task::spawn_blocking(move || list_installed_godot_versions_blocking(&app))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+pub(crate) fn list_installed_godot_versions_blocking(
+    app: &AppHandle,
+) -> Result<Vec<InstalledGodotVersion>, String> {
+    let app = app.clone();
     let file = registry_file(&app);
     let raw = fs::read_to_string(&file).unwrap_or_default();
     let sig = registry_signature(&raw);

@@ -46,24 +46,45 @@ pub fn read_json_opt_with_backup<T: DeserializeOwned>(path: &Path) -> Option<T> 
     read_json_opt(path).or_else(|| read_json_opt(&backup_path(path)))
 }
 
-pub fn write_json_with_backup<T: Serialize>(path: &Path, data: &T) -> AppResult<()> {
-    let json = serde_json::to_string_pretty(data)?;
+const BACKUP_INTERVAL: std::time::Duration = std::time::Duration::from_secs(60);
+
+fn backup_due(path: &Path) -> bool {
+    static LAST: OnceLock<Mutex<HashMap<PathBuf, std::time::Instant>>> = OnceLock::new();
+    let mut last = LAST
+        .get_or_init(|| Mutex::new(HashMap::new()))
+        .lock()
+        .unwrap_or_else(|e| e.into_inner());
+    let now = std::time::Instant::now();
+    let due = last
+        .get(path)
+        .is_none_or(|t| now.saturating_duration_since(*t) >= BACKUP_INTERVAL)
+        || !backup_path(path).is_file();
+    if due {
+        last.insert(path.to_path_buf(), now);
+    }
+    due
+}
+
+fn write_with_backup(path: &Path, json: &[u8], private: bool) -> AppResult<()> {
     if let Ok(previous) = fs::read(path) {
-        if !previous.is_empty() {
-            let _ = write_bytes(&backup_path(path), &previous);
+        if previous == json {
+            return Ok(());
+        }
+        if !previous.is_empty() && backup_due(path) {
+            let _ = write_bytes_with(&backup_path(path), &previous, private);
         }
     }
-    write_bytes(path, json.as_bytes())
+    write_bytes_with(path, json, private)
+}
+
+pub fn write_json_with_backup<T: Serialize>(path: &Path, data: &T) -> AppResult<()> {
+    let json = serde_json::to_string_pretty(data)?;
+    write_with_backup(path, json.as_bytes(), false)
 }
 
 pub fn write_json_with_backup_private<T: Serialize>(path: &Path, data: &T) -> AppResult<()> {
     let json = serde_json::to_string_pretty(data)?;
-    if let Ok(previous) = fs::read(path) {
-        if !previous.is_empty() {
-            let _ = write_private_bytes(&backup_path(path), &previous);
-        }
-    }
-    write_private_bytes(path, json.as_bytes())
+    write_with_backup(path, json.as_bytes(), true)
 }
 
 pub fn write_json<T: Serialize>(path: &Path, data: &T) -> AppResult<()> {

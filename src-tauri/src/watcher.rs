@@ -13,6 +13,13 @@ pub struct GitWatcher(pub Mutex<Option<RecommendedWatcher>>);
 
 pub struct AliasWatcher(pub Mutex<Option<RecommendedWatcher>>);
 
+struct BusyReset(Arc<AtomicBool>);
+impl Drop for BusyReset {
+    fn drop(&mut self) {
+        self.0.store(false, Ordering::SeqCst);
+    }
+}
+
 fn is_ignored_watcher_event(event: &Event) -> bool {
     !event.paths.is_empty()
         && event.paths.iter().all(|p| {
@@ -21,13 +28,28 @@ fn is_ignored_watcher_event(event: &Event) -> bool {
             {
                 return true;
             }
+            if p.components().any(|part| {
+                matches!(
+                    part.as_os_str().to_str(),
+                    Some(".godot" | ".import" | "node_modules")
+                )
+            }) {
+                return true;
+            }
             let name = p.file_name().and_then(|n| n.to_str()).unwrap_or("");
             if name.ends_with(".lock") {
                 return true;
             }
-            let in_git_dir = p.components().any(|part| part.as_os_str() == ".git");
-            if in_git_dir && name == "index" {
-                return true;
+            let mut components = p.components().map(|part| part.as_os_str());
+            if components.any(|part| part == ".git") {
+                if name == "index" || name == "FETCH_HEAD" || name == "ORIG_HEAD" {
+                    return true;
+                }
+                if let Some(next) = components.next() {
+                    if matches!(next.to_str(), Some("objects" | "logs" | "lfs" | "hooks")) {
+                        return true;
+                    }
+                }
             }
             matches!(name, ".godotrc" | "global.json")
         })
@@ -63,6 +85,7 @@ fn create_debounced_watcher(
 
     let running = Arc::new(AtomicBool::new(true));
     let r = running.clone();
+    let busy = Arc::new(AtomicBool::new(false));
 
     std::thread::spawn(move || {
         let mut last_event = Instant::now();
@@ -84,14 +107,20 @@ fn create_debounced_watcher(
                     eprintln!("[watcher] Event error: {e}");
                 }
                 Err(RecvTimeoutError::Timeout) => {
-                    if pending && last_event.elapsed() >= debounce_duration {
+                    if pending
+                        && last_event.elapsed() >= debounce_duration
+                        && !busy.load(Ordering::SeqCst)
+                    {
                         pending = false;
                         if !extra_delay.is_zero() {
                             std::thread::sleep(extra_delay);
                         }
+                        busy.store(true, Ordering::SeqCst);
                         let app = app.clone();
                         let action = action.clone();
+                        let busy = busy.clone();
                         std::thread::spawn(move || {
+                            let _reset = BusyReset(busy);
                             action(app.clone());
                             let _ = app.emit(event_name, ());
                         });
@@ -141,6 +170,7 @@ fn create_debounced_multi_watcher(
 
     let running = Arc::new(AtomicBool::new(true));
     let r = running.clone();
+    let busy = Arc::new(AtomicBool::new(false));
 
     std::thread::spawn(move || {
         let mut last_event = Instant::now();
@@ -162,14 +192,20 @@ fn create_debounced_multi_watcher(
                     eprintln!("[watcher] Event error: {e}");
                 }
                 Err(RecvTimeoutError::Timeout) => {
-                    if pending && last_event.elapsed() >= debounce_duration {
+                    if pending
+                        && last_event.elapsed() >= debounce_duration
+                        && !busy.load(Ordering::SeqCst)
+                    {
                         pending = false;
                         if !extra_delay.is_zero() {
                             std::thread::sleep(extra_delay);
                         }
+                        busy.store(true, Ordering::SeqCst);
                         let app = app.clone();
                         let action = action.clone();
+                        let busy = busy.clone();
                         std::thread::spawn(move || {
+                            let _reset = BusyReset(busy);
                             action(app);
                         });
                     }

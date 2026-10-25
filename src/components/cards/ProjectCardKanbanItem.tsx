@@ -1,5 +1,8 @@
+import { withStableCallbacks } from '../../lib/stableCallbacks'
 import { ProjectTile, type ProjectTileProps } from './ProjectTile'
 
-export function ProjectCardKanbanItem(props: ProjectTileProps) {
+function ProjectCardKanbanItemInner(props: ProjectTileProps) {
   return <ProjectTile {...props} viewMode={props.viewMode ?? 'kanban'} />
 }
+
+export const ProjectCardKanbanItem = withStableCallbacks(ProjectCardKanbanItemInner)

@@ -1661,5 +1661,50 @@
     ],
     "known_issues": [],
     "created_at": 1792782868
+  },
+  {
+    "id": "90b1ccca-555d-4888-9cc7-d04fe28a2203",
+    "version": "v1.5.2",
+    "date": "2026-10-25",
+    "notes": [
+      {
+        "category": "improve",
+        "text": "Opening the project list, checking which projects are running, stopping a project, opening a project folder and loading installed versions no longer briefly freeze the window"
+      },
+      {
+        "category": "improve",
+        "text": "Having a project open in the Godot editor no longer makes GodotHub refresh Git and rescan your projects every second: changes inside .godot/, .import/ and Git's internal folders are now ignored, and automatic scans no longer overlap"
+      },
+      {
+        "category": "improve",
+        "text": "The project list loads faster: project names and tags are only read again from project.godot when that file changes"
+      },
+      {
+        "category": "improve",
+        "text": "Settings and workspace data are now kept in memory instead of being read from disk for every action"
+      },
+      {
+        "category": "improve",
+        "text": "Saving skips the write entirely when nothing changed, and the .bak backup copy is refreshed at most once a minute instead of on every save"
+      },
+      {
+        "category": "improve",
+        "text": "The Projects page no longer re-sorts and redraws every second while a project is running and you sort by time spent"
+      },
+      {
+        "category": "improve",
+        "text": "Project cards only redraw when their own project changes, so large libraries are smoother to scroll, filter and select"
+      },
+      {
+        "category": "improve",
+        "text": "Git status checks pause while GitHub is hidden or minimized to the tray, and the Dashboard and Projects page now share one refresh instead of each running their own"
+      },
+      {
+        "category": "improve",
+        "text": "Very large diffs in the diff viewer and commit details now open and scroll smoothly"
+      }
+    ],
+    "known_issues": [],
+    "created_at": 1792933221
   }
 ]

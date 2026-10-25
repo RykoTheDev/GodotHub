@@ -996,7 +996,7 @@ pub fn open_export_templates_folder(app: AppHandle, tag: Option<String>) -> Resu
             .ok_or_else(|| "Could not locate Godot's data folder on this system".to_string())?,
     };
     fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
-    crate::projects::open_project_folder(dir.to_string_lossy().to_string())
+    crate::projects::open_project_folder_blocking(dir.to_string_lossy().to_string())
 }
 
 #[cfg(test)]

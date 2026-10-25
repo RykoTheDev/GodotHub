@@ -287,7 +287,7 @@ fn project_version(
         .into_iter()
         .find(|p| p.id == id)
         .ok_or("Project not found")?;
-    let version = crate::godot_versions::list_installed_godot_versions(app.clone())?
+    let version = crate::godot_versions::list_installed_godot_versions_blocking(app)?
         .into_iter()
         .find(|v| v.tag == project.godot_version);
     Ok((project, version))
@@ -746,7 +746,7 @@ pub fn open_export_artifact_folder(app: AppHandle, run_id: String) -> Result<(),
     if !path.exists() {
         return Err("The export artifact has been moved or deleted".into());
     }
-    crate::projects::open_project_folder(
+    crate::projects::open_project_folder_blocking(
         path.parent()
             .ok_or("Invalid artifact path")?
             .to_string_lossy()

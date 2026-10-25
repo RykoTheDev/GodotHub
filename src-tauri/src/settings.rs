@@ -1,7 +1,9 @@
 use crate::error::AppResult;
 use crate::models::AppSettings;
 use crate::persist;
-use std::path::Path;
+use std::collections::HashMap;
+use std::path::{Path, PathBuf};
+use std::sync::{Mutex, OnceLock};
 use tauri::{AppHandle, Manager};
 
 impl persist::Versioned for AppSettings {
@@ -13,8 +15,37 @@ fn settings_path(dir: &Path) -> std::path::PathBuf {
     dir.join("settings.json")
 }
 
+type FileStamp = (std::time::SystemTime, u64);
+
+fn file_stamp(path: &Path) -> Option<FileStamp> {
+    let meta = std::fs::metadata(path).ok()?;
+    Some((meta.modified().ok()?, meta.len()))
+}
+
+fn settings_cache() -> &'static Mutex<HashMap<PathBuf, (FileStamp, AppSettings)>> {
+    static CACHE: OnceLock<Mutex<HashMap<PathBuf, (FileStamp, AppSettings)>>> = OnceLock::new();
+    CACHE.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
 pub fn read_settings_from(dir: &Path) -> AppSettings {
-    persist::load_json(&settings_path(dir)).value
+    let path = settings_path(dir);
+    let stamp = file_stamp(&path);
+    if let Some(stamp) = stamp {
+        let cache = settings_cache().lock().unwrap_or_else(|e| e.into_inner());
+        if let Some((cached_stamp, value)) = cache.get(&path) {
+            if *cached_stamp == stamp {
+                return value.clone();
+            }
+        }
+    }
+    let loaded = persist::load_json::<AppSettings>(&path);
+    if let (Some(stamp), persist::LoadStatus::Ok) = (stamp, &loaded.status) {
+        settings_cache()
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .insert(path, (stamp, loaded.value.clone()));
+    }
+    loaded.value
 }
 
 pub fn read_settings(app: &AppHandle) -> AppSettings {
@@ -24,7 +55,12 @@ pub fn read_settings(app: &AppHandle) -> AppSettings {
 pub fn write_settings_to(dir: &Path, settings: &AppSettings) -> AppResult<()> {
     let mut settings = settings.clone();
     settings.schema_version = <AppSettings as persist::Versioned>::VERSION;
-    persist::write_json_with_backup_private(&settings_path(dir), &settings)
+    let path = settings_path(dir);
+    settings_cache()
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .remove(&path);
+    persist::write_json_with_backup_private(&path, &settings)
 }
 
 pub fn write_settings(app: &AppHandle, settings: &AppSettings) -> AppResult<()> {
