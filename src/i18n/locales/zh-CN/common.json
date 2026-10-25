@@ -669,7 +669,7 @@
     "summary_warnings_one": "{{count}} 个警告需要审核",
     "summary_warnings_other": "{{count}} 个警告需要审核",
     "summary_ready": "未发现阻塞性问题",
-    "summary_counts": "{{passed}} 项检查通过 · {{findings}} 个发现项",
+    "summary_counts": "{{passed}} 项检查通过 · {{findings}} 个问题",
     "passed_checks_one": "{{count}} 项检查通过",
     "passed_checks_other": "{{count}} 项检查通过",
     "local_checks": "检查在本地运行。修复设置前会先保存备份。",
@@ -879,5 +879,5 @@
   "language_label": "语言",
   "n_projects_one": "{{count}} 个项目",
   "n_projects_other": "{{count}} 个项目",
-  "unlocalized_badge": "Unlocalized"
+  "unlocalized_badge": "未本地化"
 }
