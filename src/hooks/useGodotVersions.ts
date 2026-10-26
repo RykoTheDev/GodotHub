@@ -191,6 +191,34 @@ export function useGodotVersions() {
     refreshAvailable()
   }, [refreshAvailable, activeId])
 
+  const reloadAvailableQuietly = useCallback(async () => {
+    const current = sourceRef.current
+    try {
+      const releases = await api.fetchAvailableGodotVersions(current)
+      if (sourceRef.current === current) setAvailable(releases)
+    } catch {}
+  }, [])
+
+  useTauriEvent<string>('versions:available-updated', (updated) => {
+    if (updated === sourceRef.current) void reloadAvailableQuietly()
+  })
+
+  useEffect(() => {
+    let lastCheck = Date.now()
+    const onVisibility = () => {
+      if (document.visibilityState !== 'visible') return
+      if (Date.now() - lastCheck < 10 * 60 * 1000) return
+      lastCheck = Date.now()
+      if (sourceRef.current !== 'mise') void reloadAvailableQuietly()
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    window.addEventListener('focus', onVisibility)
+    return () => {
+      document.removeEventListener('visibilitychange', onVisibility)
+      window.removeEventListener('focus', onVisibility)
+    }
+  }, [reloadAvailableQuietly])
+
   useTauriEvent<[number, number]>('version-scan-progress', ([current, total]) => {
     setScanProgress({ current, total })
     if (current >= total) {

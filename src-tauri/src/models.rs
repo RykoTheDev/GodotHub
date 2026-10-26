@@ -293,6 +293,8 @@ pub struct AppSettings {
     pub card_show_play: bool,
     #[serde(default = "default_true")]
     pub card_show_console: bool,
+    #[serde(default = "default_true")]
+    pub card_show_session_timer: bool,
     #[serde(default)]
     pub card_view_overrides: std::collections::HashMap<String, CardViewOverride>,
     #[serde(default)]
@@ -329,6 +331,8 @@ pub struct CardViewOverride {
     pub show_play: bool,
     #[serde(default = "default_true")]
     pub show_console: bool,
+    #[serde(default = "default_true")]
+    pub show_session_timer: bool,
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
@@ -624,6 +628,7 @@ impl Default for AppSettings {
             card_show_last_opened: true,
             card_show_play: true,
             card_show_console: true,
+            card_show_session_timer: true,
             card_view_overrides: std::collections::HashMap::new(),
             customize_view_enabled: false,
             fixed_sidebar_resize_knob: false,

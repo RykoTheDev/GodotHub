@@ -672,6 +672,7 @@ export interface AppSettings {
   card_show_last_opened: boolean
   card_show_play: boolean
   card_show_console: boolean
+  card_show_session_timer: boolean
   card_view_overrides: Record<string, Partial<CardViewSettings>>
   customize_view_enabled: boolean
   fixed_sidebar_resize_knob: boolean
@@ -691,6 +692,7 @@ export interface CardViewSettings {
   show_last_opened: boolean
   show_play: boolean
   show_console: boolean
+  show_session_timer: boolean
 }
 
 export type ProjectViewMode = 'list' | 'grid' | 'kanban'

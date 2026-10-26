@@ -86,6 +86,7 @@ export function ProjectTile({
   const running = !!project.session_started_at_ms
   const sessionMs = Math.max(0, now - (project.session_started_at_ms ?? now))
   const timeLabel = formatDuration(running ? sessionMs : effectiveTotalMs(project, now))
+  const showTime = running ? options.show_session_timer : options.show_time && effectiveTotalMs(project, now) > 0
   const lastOpened = formatLastOpened(project.last_opened, settings.last_opened_time_format, settings.last_opened_date_format)
   const iconButton = 'focus-ring cursor-pointer flex shrink-0 h-7 w-7 items-center justify-center rounded-btn transition-colors disabled:cursor-not-allowed disabled:opacity-40'
   const launch = (console?: boolean) => window.dispatchEvent(new CustomEvent('app:open-project', { detail: { id: project.id, console } }))
@@ -144,8 +145,8 @@ export function ProjectTile({
         {gitStatus.has_uncommitted && <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber" />}
       </button>}
 
-      {(options.show_time || options.show_size || (options.show_last_opened && lastOpened)) && <div className="flex min-h-5 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted/70">
-        {options.show_time && (running || effectiveTotalMs(project, now) > 0) && <span title={running ? t('running') : t('project_card_total_time', { time: timeLabel })} className={`inline-flex items-center gap-1.5 font-mono ${running ? 'text-accent-bright' : ''}`}>
+      {(showTime || options.show_size || (options.show_last_opened && lastOpened)) && <div className="flex min-h-5 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted/70">
+        {showTime && <span title={running ? t('running') : t('project_card_total_time', { time: timeLabel })} className={`inline-flex items-center gap-1.5 font-mono ${running ? 'text-accent-bright' : ''}`}>
           {running ? <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent-bright animate-pulse" /> : <IconClock className="h-3 w-3" />}{timeLabel}
         </span>}
         {options.show_size && <button type="button" onClick={() => setDialog('size')} disabled={preview} aria-label={t('project_size')} title={t('project_size')}

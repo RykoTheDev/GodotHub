@@ -1710,5 +1710,22 @@
     ],
     "known_issues": [],
     "created_at": 1792933221
+  },
+  {
+    "id": "3c88b6e9-644f-4da1-b564-710e38e2ab66",
+    "version": "v1.5.3",
+    "date": "2026-10-26",
+    "notes": [
+      {
+        "category": "add",
+        "text": "New Show Session Timer option in Customize View: hide the live timer that counts up next to the Open button while a project is running, separately from Show Time Tracked (#215)"
+      },
+      {
+        "category": "fix",
+        "text": "Fixed the Versions page showing an outdated list of Godot releases (for example stopping at an older beta): newly published releases now appear as soon as GodotHub fetches them, and the list refreshes when you come back to the window instead of only on the next launch"
+      }
+    ],
+    "known_issues": [],
+    "created_at": 1793028498
   }
 ]

@@ -907,7 +907,7 @@ function ProjectCardInner({
             )}
           </div>
         </div>
-        {sessionMs > 0 && (
+        {sessionMs > 0 && cardSettings.show_session_timer && (
           <motion.div
             {...uiMotion.surface('tooltip', 'none')}
             className="flex items-center shrink-0 -me-5 mb-1 overflow-hidden"

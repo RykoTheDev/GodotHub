@@ -892,5 +892,6 @@
   "language_label": "Langue",
   "n_projects_one": "{{count}} projet",
   "n_projects_other": "{{count}} projets",
-  "unlocalized_badge": "Unlocalized"
+  "unlocalized_badge": "Unlocalized",
+  "customize_card_show_session_timer": "Show Session Timer"
 }

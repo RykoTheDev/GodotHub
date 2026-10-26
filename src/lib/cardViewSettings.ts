@@ -9,6 +9,7 @@ const LIST_KEY_MAP: Record<keyof CardViewSettings, keyof AppSettings> = {
   show_last_opened: 'card_show_last_opened',
   show_play: 'card_show_play',
   show_console: 'card_show_console',
+  show_session_timer: 'card_show_session_timer',
 }
 
 export function getCardViewSettings(
@@ -24,6 +25,7 @@ export function getCardViewSettings(
     show_last_opened: settings.card_show_last_opened,
     show_play: settings.card_show_play,
     show_console: settings.card_show_console,
+    show_session_timer: settings.card_show_session_timer ?? true,
   }
   if (viewMode === 'list') return result
   const override = settings.card_view_overrides?.[viewMode]

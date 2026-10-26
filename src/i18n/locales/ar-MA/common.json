@@ -892,5 +892,6 @@
   "language_label": "اللغة",
   "n_projects_one": "{{count}} امشروع",
   "n_projects_other": "{{count}} مشاريع",
-  "unlocalized_badge": "Unlocalized"
+  "unlocalized_badge": "Unlocalized",
+  "customize_card_show_session_timer": "Show Session Timer"
 }

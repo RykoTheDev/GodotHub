@@ -113,6 +113,7 @@ const DEFAULTS: AppSettings = {
   card_show_last_opened: true,
   card_show_play: true,
   card_show_console: true,
+  card_show_session_timer: true,
   card_view_overrides: {},
   customize_view_enabled: false,
   fixed_sidebar_resize_knob: false,

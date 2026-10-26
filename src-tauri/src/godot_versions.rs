@@ -467,14 +467,38 @@ pub async fn fetch_available_godot_versions(
     }
 }
 
+static REFRESHING_GITHUB: AtomicBool = AtomicBool::new(false);
+static REFRESHING_ARCHIVE: AtomicBool = AtomicBool::new(false);
+
+fn spawn_background_refresh(app: AppHandle, source: &'static str) {
+    let flag = if source == "archive" {
+        &REFRESHING_ARCHIVE
+    } else {
+        &REFRESHING_GITHUB
+    };
+    if flag.swap(true, Ordering::SeqCst) {
+        return;
+    }
+    tauri::async_runtime::spawn(async move {
+        let before = read_cache_allow_stale(&app, source).map(|(_, fetched_at)| fetched_at);
+        let result = if source == "archive" {
+            refresh_archive_releases(app.clone()).await
+        } else {
+            refresh_releases_cache(app.clone()).await
+        };
+        flag.store(false, Ordering::SeqCst);
+        let after = read_cache_allow_stale(&app, source).map(|(_, fetched_at)| fetched_at);
+        if result.is_ok() && after != before {
+            let _ = app.emit("versions:available-updated", source);
+        }
+    });
+}
+
 async fn fetch_github_versions(app: AppHandle) -> Result<Vec<GodotRelease>, String> {
     if let Some((cached, fetched_at)) = read_cache_allow_stale(&app, "github") {
         let now = chrono::Utc::now().timestamp();
         if now - fetched_at >= CACHE_TTL_SECS {
-            let app_clone = app.clone();
-            tauri::async_runtime::spawn(async move {
-                let _ = refresh_releases_cache(app_clone).await;
-            });
+            spawn_background_refresh(app.clone(), "github");
         }
         return Ok(cached);
     }
@@ -486,10 +510,7 @@ async fn fetch_archive_versions(app: AppHandle) -> Result<Vec<GodotRelease>, Str
     if let Some((cached, fetched_at)) = read_cache_allow_stale(&app, "archive") {
         let now = chrono::Utc::now().timestamp();
         if now - fetched_at >= CACHE_TTL_SECS {
-            let app_clone = app.clone();
-            tauri::async_runtime::spawn(async move {
-                let _ = refresh_archive_releases(app_clone).await;
-            });
+            spawn_background_refresh(app.clone(), "archive");
         }
         return Ok(cached);
     }

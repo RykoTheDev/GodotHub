@@ -892,5 +892,6 @@
   "language_label": "Ngôn ngữ",
   "n_projects_one": "{{count}} dự án",
   "n_projects_other": "{{count}} dự án",
-  "unlocalized_badge": "Unlocalized"
+  "unlocalized_badge": "Unlocalized",
+  "customize_card_show_session_timer": "Show Session Timer"
 }

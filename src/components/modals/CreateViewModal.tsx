@@ -68,6 +68,7 @@ const CARD_TOGGLE_OPTIONS: {
 }[] = [
   { key: 'show_size', icon: IconHardDrive, labelKey: 'customize_card_show_size' },
   { key: 'show_time', icon: IconStopwatch, labelKey: 'customize_card_show_time' },
+  { key: 'show_session_timer', icon: IconStopwatch, labelKey: 'customize_card_show_session_timer' },
   { key: 'blur_path', icon: IconEyeSlash, labelKey: 'customize_card_blur_path' },
   { key: 'show_path', icon: IconFolder, labelKey: 'customize_card_show_path' },
   { key: 'show_tags', icon: IconTags, labelKey: 'customize_card_show_tags' },
