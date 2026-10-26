@@ -12,7 +12,8 @@ export function isWithinWorktree(projectPath: string, worktreePath: string): boo
 export function worktreeProjectPath(projectPath: string, currentRoot: string, nextRoot: string): string {
   const project = projectPath.replace(/\\/g, '/').replace(/\/+$/, '')
   const root = currentRoot.replace(/\\/g, '/').replace(/\/+$/, '')
-  return `${nextRoot.replace(/\\/g, '/').replace(/\/+$/, '')}${project.slice(root.length)}`
+  const joined = `${nextRoot.replace(/\\/g, '/').replace(/\/+$/, '')}${project.slice(root.length)}`
+  return projectPath.includes('\\') ? joined.replace(/\//g, '\\') : joined
 }
 
 export function defaultWorktreePath(projectPath: string): string {

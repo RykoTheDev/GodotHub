@@ -1702,6 +1702,10 @@
       {
         "category": "improve",
         "text": "Very large diffs in the diff viewer and commit details now open and scroll smoothly"
+      },
+      {
+        "category": "fix",
+        "text": "Fixed clicking a project's folder location opening the Documents folder on Windows after switching Git worktrees: worktree paths are now saved with Windows path separators, and projects already affected are repaired automatically"
       }
     ],
     "known_issues": [],

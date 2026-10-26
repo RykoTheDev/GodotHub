@@ -136,6 +136,14 @@ fn cached_project_file_info(project_path: &str) -> Option<ProjectFileInfo> {
     Some(info)
 }
 
+pub(crate) fn native_path(path: &str) -> String {
+    if cfg!(windows) {
+        path.replace('/', "\\")
+    } else {
+        path.to_string()
+    }
+}
+
 fn ensure_project_identity_cached(project_path: &str, id: &str, category: Option<&str>) {
     let wanted = (id.to_string(), category.map(str::to_string));
     {
@@ -478,7 +486,13 @@ pub(crate) fn list_projects_blocking(app: &AppHandle) -> Vec<Project> {
     let mut any_removed = false;
     let mut tags_changed = false;
     let mut names_changed = false;
+    let mut paths_changed = false;
     for mut p in projects {
+        let native = native_path(&p.path);
+        if native != p.path {
+            p.path = native;
+            paths_changed = true;
+        }
         let Some(info) = cached_project_file_info(&p.path) else {
             any_removed = true;
             continue;
@@ -499,7 +513,7 @@ pub(crate) fn list_projects_blocking(app: &AppHandle) -> Vec<Project> {
         kept.push(p);
     }
 
-    if any_removed || tags_changed || names_changed {
+    if any_removed || tags_changed || names_changed || paths_changed {
         let _ = write_projects(&app, &kept);
     }
     for p in &kept {
@@ -1241,7 +1255,7 @@ pub fn update_project(
         .find(|p| p.id == id)
         .ok_or("Project not found")?;
     if let Some(path) = updates.path.map(|p| p.trim().to_string()).filter(|p| !p.is_empty()) {
-        project.path = path;
+        project.path = native_path(&path);
     }
     if let Some(name) = updates.name {
         project.name = name;
@@ -1715,6 +1729,7 @@ pub async fn open_project_folder(path: String) -> Result<(), String> {
 }
 
 pub(crate) fn open_project_folder_blocking(path: String) -> Result<(), String> {
+    let path = native_path(&path);
     let dir = PathBuf::from(&path);
     if !dir.exists() {
         return Err("This folder no longer exists".into());
