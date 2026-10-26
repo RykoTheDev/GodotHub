@@ -878,5 +878,5 @@
   "n_projects_one": "{{count}} 件のプロジェクト",
   "n_projects_other": "{{count}} 件のプロジェクト",
   "unlocalized_badge": "未翻訳",
-  "customize_card_show_session_timer": "Show Session Timer"
+  "customize_card_show_session_timer": "セッションタイマーを表示"
 }
