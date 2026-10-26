@@ -73,6 +73,14 @@
 
 ---
 
+## Documentation
+
+The full docs live at **[ryko.is-a.dev/godothub-docs](https://ryko.is-a.dev/godothub-docs)**: installation, every feature, the settings reference, keyboard shortcuts, custom CSS, and troubleshooting.
+
+Want to build GodotHub or contribute? See [Build from source](https://ryko.is-a.dev/godothub-docs/contributing/build-from-source) and [Architecture](https://ryko.is-a.dev/godothub-docs/contributing/architecture).
+
+---
+
 ## Features
 
 ### Project Management

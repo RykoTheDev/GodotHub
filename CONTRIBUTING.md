@@ -220,7 +220,6 @@ godothub/
 │   ├── tauri.conf.json             # Tauri config (+ tauri.macos.conf.json overrides)
 │   └── Cargo.toml
 ├── scripts/                        # i18n tooling (check, sync, types, dupes, unused…)
-├── docs/                           # Architecture notes + wiki pages
 ├── assets/                         # README screenshots & banners
 ├── .githooks/                      # pre-commit & commit-msg hooks
 ├── .github/workflows/              # CI + release pipelines
