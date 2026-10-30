@@ -880,5 +880,5 @@
   "n_projects_one": "{{count}} 个项目",
   "n_projects_other": "{{count}} 个项目",
   "unlocalized_badge": "未本地化",
-  "customize_card_show_session_timer": "Show Session Timer"
+  "customize_card_show_session_timer": "显示会话计时器"
 }

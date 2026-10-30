@@ -318,6 +318,6 @@
   "data": "数据与备份",
   "restore_modal_todos_one": "包含 {{count}} 个待办事项",
   "restore_modal_todos_other": "包含 {{count}} 个待办事项",
-  "rtl_layout_label": "为从右到左语言镜像布局",
+  "rtl_layout_label": "从右到左语言镜像布局",
   "rtl_layout_desc": "使用阿拉伯语等从右到左语言时，翻转整个界面，包括侧边栏、面板和箭头。关闭时，仅文字按从右到左阅读，布局保持不变。"
 }
