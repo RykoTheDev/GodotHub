@@ -27,7 +27,7 @@ reqwest = { version = "0.13.4", features = ["json", "stream"] }
 url = "2"
 tokio = { version = "1.52.3", features = ["full"] }
 futures-util = "0.3.32"
-zip = "8.6.0"
+zip = "9.0.5"
 uuid = { version = "1.23.4", features = ["v4", "serde"] }
 chrono = { version = "0.4.45", features = ["serde"] }
 base64 = "0.22.1"
