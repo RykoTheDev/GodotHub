@@ -1124,7 +1124,7 @@ fn extract_zip_reader<R: Read + Seek>(
             if mode & 0o170000 == 0o120000 {
                 return Err(format!(
                     "Archive contains a symlink entry ({}); refusing to extract",
-                    file.name()
+                    file.name().unwrap_or_default()
                 ));
             }
         }
@@ -1134,7 +1134,7 @@ fn extract_zip_reader<R: Read + Seek>(
         let Some(rel) = file.enclosed_name() else {
             return Err(format!(
                 "Archive contains an unsafe path ({}); refusing to extract",
-                file.name()
+                file.name().unwrap_or_default()
             ));
         };
         let out_path = dest.join(&rel);
