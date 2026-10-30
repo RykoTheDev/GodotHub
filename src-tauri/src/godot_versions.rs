@@ -417,9 +417,11 @@ fn dedupe_releases(releases: Vec<GodotRelease>) -> Vec<GodotRelease> {
         .filter(|r| seen_tags.insert(r.tag.clone()))
         .map(|mut r| {
             let mut seen_assets = std::collections::HashSet::new();
-            r.assets.retain(|a| seen_assets.insert(a.name.clone()));
+            r.assets
+                .retain(|a| platform_asset_matcher(&a.name) && seen_assets.insert(a.name.clone()));
             r
         })
+        .filter(|r| !r.assets.is_empty())
         .collect()
 }
 
@@ -438,7 +440,7 @@ const LINUX_ARCH_TOKEN: Option<&str> = if cfg!(target_arch = "x86_64") {
 
 fn platform_asset_matcher(name: &str) -> bool {
     let n = name.to_lowercase();
-    if !n.ends_with(".zip") || n.contains("console") {
+    if !n.ends_with(".zip") || n.contains("console") || n.contains(".debugsymbols.") {
         return false;
     }
     #[cfg(target_os = "windows")]
@@ -885,9 +887,14 @@ pub fn download_godot_version(
     asset_name: String,
     download_url: String,
 ) -> Result<(), String> {
+    if !platform_asset_matcher(&asset_name) {
+        return Err("The selected asset is not a Godot editor build for this platform".into());
+    }
     let key = download_key(&tag, &asset_name);
     let target_dir = versions_dir(&app).join(&key);
-    if target_dir.exists() && fs::metadata(target_dir.join(&asset_name)).is_err() {
+    if read_registry(&app).iter().any(|version| version.tag == key)
+        || (!target_dir.join(&asset_name).exists() && find_executable(&target_dir).is_some())
+    {
         return Err("Version already installed".into());
     }
 
@@ -2013,6 +2020,78 @@ fn supports_console(_exe: &Path) -> bool {
 #[cfg(test)]
 mod download_tests {
     use super::*;
+
+    #[test]
+    fn editor_assets_exclude_debug_symbols() {
+        for (slug, _) in archive_asset_slugs() {
+            let editor = format!("Godot_v4.8-beta2_{slug}");
+            let symbols = editor.replace(".zip", ".debugsymbols.zip");
+            assert!(platform_asset_matcher(&editor), "{editor}");
+            assert!(!platform_asset_matcher(&symbols), "{symbols}");
+        }
+        assert!(!platform_asset_matcher(
+            "Godot_v4.8-beta2_mono_win64.exe.debugsymbols.zip"
+        ));
+    }
+
+    #[test]
+    fn cached_releases_discard_symbols_and_keep_editor_variants() {
+        let mut assets = Vec::new();
+        for (slug, _) in archive_asset_slugs() {
+            let name = format!("Godot_v4.8-beta2_{slug}");
+            let editor = GodotReleaseAsset {
+                is_mono: name.contains("mono"),
+                name: name.clone(),
+                download_url: String::new(),
+                size: 1,
+            };
+            assets.push(GodotReleaseAsset {
+                name: name.replace(".zip", ".debugsymbols.zip"),
+                ..editor.clone()
+            });
+            assets.push(editor.clone());
+            assets.push(editor);
+        }
+        let releases = dedupe_releases(vec![GodotRelease {
+            tag: "4.8-beta2".into(),
+            assets,
+        }]);
+        assert_eq!(releases.len(), 1);
+        assert_eq!(releases[0].assets.len(), archive_asset_slugs().len());
+        assert!(releases[0]
+            .assets
+            .iter()
+            .all(|a| !a.name.contains("debugsymbols")));
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn failed_symbols_install_can_be_replaced_with_editor() {
+        let base =
+            std::env::temp_dir().join(format!("godothub-install-test-{}", uuid::Uuid::new_v4()));
+        let target = base.join("4.8-beta2");
+        fs::create_dir_all(&target).unwrap();
+        fs::write(target.join("Godot_v4.8-beta2_win64.pdb"), b"symbols").unwrap();
+        assert!(find_executable(&target).is_none());
+
+        let name = "Godot_v4.8-beta2_win64.exe.zip";
+        let zip_path = target.join(name);
+        let file = fs::File::create(&zip_path).unwrap();
+        let mut archive = zip::ZipWriter::new(file);
+        archive
+            .start_file(
+                "Godot_v4.8-beta2_win64.exe",
+                zip::write::SimpleFileOptions::default(),
+            )
+            .unwrap();
+        archive.write_all(b"test executable").unwrap();
+        archive.finish().unwrap();
+
+        let installed = extract_and_register(&base, "4.8-beta2", name, &zip_path, &target).unwrap();
+        assert!(Path::new(&installed.executable_path).is_file());
+        assert_eq!(read_registry_at(&base).len(), 1);
+        fs::remove_dir_all(&base).unwrap();
+    }
 
     fn sha512_hex(bytes: &[u8]) -> String {
         let mut hasher = Sha512::new();
