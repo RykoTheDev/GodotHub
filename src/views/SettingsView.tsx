@@ -57,6 +57,8 @@ import { defaultCornerRadius, isMac, isWindows } from "../lib/platform";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { flushPendingSave } from "../lib/pendingSave";
 import { consumePendingSettingsCategory } from '../lib/settingsCategoryNav'
+import { useDebugUnlocked } from '../lib/debugMode'
+import { DebugSettings } from '../components/debug/DebugSettings'
 import {
   IconCheck,
   IconPalette,
@@ -105,6 +107,7 @@ type SettingsCat =
   | "data"
   | "advanced"
   | "experimental"
+  | "debug"
   | "credits";
 
 interface CatDef {
@@ -124,6 +127,8 @@ const CATEGORIES: CatDef[] = [
   { id: "advanced", icon: IconCode },
   { id: "experimental", icon: IconFlask },
 ];
+
+const DEBUG_CATEGORIES: CatDef[] = [...CATEGORIES, { id: "debug", icon: IconBug }];
 
 const DEFAULT_RADIUS = defaultCornerRadius;
 const DEFAULT_DENSITY = 1.05;
@@ -228,6 +233,10 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
   const { refresh: refreshCategories } = useCategoriesContext();
   const { refresh: refreshWorkspaces } = useWorkspaces();
   const [cat, setCat] = useState<SettingsCat>("appearance");
+  const debugUnlocked = useDebugUnlocked();
+  useEffect(() => {
+    if (!debugUnlocked && cat === "debug") setCat("appearance");
+  }, [debugUnlocked, cat]);
   const [presetModal, setPresetModal] = useState<"light" | "dark" | null>(null);
   const [statsBusy, setStatsBusy] = useState<"export" | "import" | null>(null);
   const [statsMessage, setStatsMessage] = useState<string | null>(null);
@@ -3115,12 +3124,16 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         return renderAdvanced();
       case "experimental":
         return renderExperimental();
+      case "debug":
+        return <DebugSettings />;
       case "credits":
         return renderCredits();
     }
   };
 
-  const activeDef = CATEGORIES.find((c) => c.id === cat);
+  const categories = debugUnlocked ? DEBUG_CATEGORIES : CATEGORIES;
+  const catLabel = (id: SettingsCat) => (id === "debug" ? "Debug" : ts(id));
+  const activeDef = categories.find((c) => c.id === cat);
   const railRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   const handleCatChange = (next: SettingsCat) => {
@@ -3131,13 +3144,13 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
   const handleRailKeyDown = (e: React.KeyboardEvent) => {
     if (e.key !== "ArrowUp" && e.key !== "ArrowDown") return;
     e.preventDefault();
-    const idx = CATEGORIES.findIndex((c) => c.id === cat);
+    const idx = categories.findIndex((c) => c.id === cat);
     const next =
       e.key === "ArrowDown"
-        ? CATEGORIES[(idx + 1) % CATEGORIES.length]
-        : CATEGORIES[(idx - 1 + CATEGORIES.length) % CATEGORIES.length];
+        ? categories[(idx + 1) % categories.length]
+        : categories[(idx - 1 + categories.length) % categories.length];
     handleCatChange(next.id);
-    railRefs.current[CATEGORIES.findIndex((c) => c.id === next.id)]?.focus();
+    railRefs.current[categories.findIndex((c) => c.id === next.id)]?.focus();
   };
 
   return (
@@ -3157,7 +3170,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           aria-label={ts("settings_title")}
           className={`shrink-0 w-52 flex flex-col gap-1 ${connected ? "ps-3" : ""}`}
         >
-          {CATEGORIES.map(({ id, icon: Icon }, railIndex) => {
+          {categories.map(({ id, icon: Icon }, railIndex) => {
             const active = cat === id;
             return (
               <button
@@ -3202,7 +3215,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 <span
                   className={`relative ${active ? (id === "experimental" ? "text-danger" : "text-ink") : ""}`}
                 >
-                  {ts(id)}
+                  {catLabel(id)}
                 </span>
               </button>
             );
@@ -3251,7 +3264,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 )}
                 <div className="min-w-0">
                   <h2 className="font-display text-3xl font-black uppercase text-ink/40 leading-tight">
-                    {ts(cat)}
+                    {catLabel(cat)}
                   </h2>
                 </div>
               </div>

@@ -11,6 +11,7 @@ import { useUpdateAvailable } from '../../hooks/useUpdateAvailable'
 import { Tooltip } from '../reusables/Tooltip'
 import { useUiMotion } from '../../hooks/useUiMotion'
 import { isRtl } from '../../lib/locale'
+import { registerSettingsClick } from '../../lib/debugMode'
 
 export interface SidebarTab {
   id: string
@@ -197,6 +198,7 @@ export function Sidebar({
         type="button"
         onClick={() => {
           if (tab.id === 'changelog') markChangelogSeen()
+          if (tab.id === 'settings') registerSettingsClick()
           if (tab.isNew) markTabSeen(tab.id)
           onTabChange(tab.id)
         }}

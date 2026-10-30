@@ -1727,5 +1727,26 @@
     ],
     "known_issues": [],
     "created_at": 1793028498
+  },
+  {
+    "id": "84416811-280e-448d-85cc-747f9c88d974",
+    "version": "v1.5.4",
+    "date": "2026-10-30",
+    "notes": [
+      {
+        "category": "add",
+        "text": "The command line can now open a project by its folder path, not just its name: `godothub open <path>`. If the folder is already in GodotHub it opens with its usual version and launch arguments; if it isn't, you can pick a Godot version and optionally add it to GodotHub (#219)"
+      },
+      {
+        "category": "add",
+        "text": "`godothub open` takes --godot <version>, --add and --no-add so it can open a folder without prompting, which makes it easy to wire into a git client or other tool"
+      },
+      {
+        "category": "add",
+        "text": "Hidden Debug tab in Settings"
+      }
+    ],
+    "known_issues": [],
+    "created_at": 1793379000
   }
 ]

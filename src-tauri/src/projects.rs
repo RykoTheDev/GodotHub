@@ -210,6 +210,56 @@ pub(crate) fn write_projects(app: &AppHandle, projects: &Vec<Project>) -> Result
     write_projects_to(&crate::workspace::active_workspace_dir(app), projects)
 }
 
+/// Registers a project folder into a workspace's registry without needing an
+/// `AppHandle`, so the CLI can add a project it opened by path. If a project
+/// with the same path is already registered, that one is returned unchanged.
+pub(crate) fn register_project_in_workspace(
+    workspace_dir: &std::path::Path,
+    project_path: &str,
+    godot_version: String,
+) -> Result<Project, String> {
+    let project_path = native_path(project_path);
+    let mut projects = read_projects_from(workspace_dir);
+    if let Some(existing) = projects
+        .iter()
+        .find(|project| same_path(&project.path, &project_path))
+    {
+        return Ok(existing.clone());
+    }
+
+    let name = resolve_project_name(&project_path).unwrap_or_else(|| {
+        Path::new(&project_path)
+            .file_name()
+            .map(|n| n.to_string_lossy().to_string())
+            .unwrap_or_else(|| project_path.clone())
+    });
+    let project = Project {
+        id: Uuid::new_v4().to_string(),
+        name,
+        path: project_path.clone(),
+        godot_version,
+        created_at: chrono::Utc::now().to_rfc3339(),
+        last_opened: None,
+        category: None,
+        pinned: false,
+        sort_order: next_sort_order(&projects, &None),
+        launch_arguments: String::new(),
+        tags: resolve_project_tags(&project_path),
+        total_time_seconds: 0,
+        session_started_at_ms: None,
+        time_today_seconds: 0,
+        time_week_seconds: 0,
+    };
+    projects.push(project.clone());
+    write_projects_to(workspace_dir, &projects)?;
+    let _ = crate::project_identity::ensure_project_identity(
+        &project.path,
+        &project.id,
+        project.category.as_deref(),
+    );
+    Ok(project)
+}
+
 /// Serializes read-modify-write on the project registry so the UI, the watcher,
 /// and the session-settle thread cannot clobber each other's updates. The vec is
 /// read from disk under the lock, mutated, and written back atomically.

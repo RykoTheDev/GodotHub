@@ -1,6 +1,6 @@
 use std::cell::Cell;
 use std::io::{IsTerminal, Write};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::atomic::{AtomicBool, Ordering};
 
@@ -110,10 +110,20 @@ pub struct Cli {
 
 #[derive(Subcommand, Debug)]
 pub enum Commands {
-    /// Open a registered project by name in the editor.
+    /// Open a project in the editor, by its registered name or a folder path.
     Open {
-        /// Project name as shown in the app.
-        name: String,
+        /// Project name as shown in the app, or a path to a project folder.
+        target: String,
+        /// Godot version to use when the folder isn't registered yet
+        /// (for example 4.4.1-stable). Defaults to the pin or current version.
+        #[arg(long)]
+        godot: Option<String>,
+        /// When opening an unregistered folder, add it to GodotHub without asking.
+        #[arg(long)]
+        add: bool,
+        /// When opening an unregistered folder, don't add it and don't ask.
+        #[arg(long, conflicts_with = "add")]
+        no_add: bool,
     },
     /// Run the project in the current directory (play, not the editor).
     Run {
@@ -205,7 +215,12 @@ fn attach_console() {}
 fn run(command: Commands) -> i32 {
     let result = match command {
         Commands::Versions => cmd_versions(),
-        Commands::Open { name } => cmd_open(&name),
+        Commands::Open {
+            target,
+            godot,
+            add,
+            no_add,
+        } => cmd_open(&target, godot, add, no_add),
         Commands::Run { path } => cmd_run(path),
         Commands::Install { version, mono } => cmd_install(&version, mono),
         Commands::Export {
@@ -283,16 +298,53 @@ fn cmd_versions() -> Result<i32, String> {
     Ok(0)
 }
 
-fn cmd_open(name: &str) -> Result<i32, String> {
+/// Decide whether an `open` argument is a folder path rather than a project
+/// name. Anything with a path separator, a leading `.`/`~`, or that already
+/// exists as a directory is treated as a path; bare words are names.
+fn looks_like_path(target: &str) -> bool {
+    target.contains('/')
+        || target.contains('\\')
+        || target == "."
+        || target == ".."
+        || target.starts_with('~')
+        || Path::new(target).is_dir()
+}
+
+fn cmd_open(target: &str, godot: Option<String>, add: bool, no_add: bool) -> Result<i32, String> {
     let base = base_dir()?;
     let workspace = resolve::active_workspace_dir(&base);
     let projects = crate::projects::read_projects_from(&workspace);
+
+    if looks_like_path(target) {
+        let root = project_root_from(Some(PathBuf::from(target)))?;
+        let root_str = root.to_string_lossy().to_string();
+        if let Some(project) = projects
+            .iter()
+            .find(|project| crate::projects::same_path(&project.path, &root_str))
+        {
+            return open_registered(&base, &workspace, project);
+        }
+        return open_unregistered(&base, &workspace, &root, godot, add, no_add);
+    }
+
     let project = projects
         .iter()
-        .find(|project| project.name.eq_ignore_ascii_case(name))
-        .ok_or_else(|| format!("No registered project named {name:?}."))?;
+        .find(|project| project.name.eq_ignore_ascii_case(target))
+        .ok_or_else(|| {
+            format!(
+                "No registered project named {target:?}. Pass a folder path to open a project by location."
+            )
+        })?;
+    open_registered(&base, &workspace, project)
+}
+
+fn open_registered(
+    base: &Path,
+    workspace: &Path,
+    project: &crate::models::Project,
+) -> Result<i32, String> {
     let root = PathBuf::from(&project.path);
-    let engine = resolve::resolve_engine(&base, &workspace, &root)?;
+    let engine = resolve::resolve_engine(base, workspace, &root)?;
 
     let mut args = vec!["--path".to_string(), project.path.clone(), "-e".to_string()];
     args.extend(
@@ -310,6 +362,131 @@ fn cmd_open(name: &str) -> Result<i32, String> {
         dim(source_label(engine.source))
     );
     Ok(0)
+}
+
+fn open_unregistered(
+    base: &Path,
+    workspace: &Path,
+    root: &Path,
+    godot: Option<String>,
+    add: bool,
+    no_add: bool,
+) -> Result<i32, String> {
+    let root_str = root.to_string_lossy().to_string();
+    let interactive = std::io::stdin().is_terminal() && std::io::stdout().is_terminal();
+
+    let engine = match godot {
+        Some(tag) => find_installed_version(base, &tag)?,
+        None => match resolve::resolve_engine(base, workspace, root) {
+            Ok(engine) => engine,
+            Err(_) if interactive => prompt_select_version(base)?,
+            Err(err) => {
+                return Err(format!(
+                    "{err} Pass --godot <version> to choose one (see `godothub versions`)."
+                ));
+            }
+        },
+    };
+
+    let args = vec!["--path".to_string(), root_str.clone(), "-e".to_string()];
+    spawn_detached(&engine.executable_path, &args)?;
+    println!(
+        "{} {} in Godot {}.",
+        green("Opening"),
+        dim(&root_str),
+        accent(&engine.tag)
+    );
+
+    let should_add = if add {
+        true
+    } else if no_add {
+        false
+    } else if interactive {
+        prompt_yes_no("Add this project to GodotHub?")?
+    } else {
+        false
+    };
+    if should_add {
+        let project =
+            crate::projects::register_project_in_workspace(workspace, &root_str, engine.tag.clone())?;
+        println!("{} {} to GodotHub.", green("Added"), bold(&project.name));
+    }
+    Ok(0)
+}
+
+/// Look up an installed version by tag, tolerating a bare `4.4.1` for
+/// `4.4.1-stable`, for the `--godot` flag.
+fn find_installed_version(base: &Path, tag: &str) -> Result<resolve::Engine, String> {
+    let registry = crate::godot_versions::read_registry_at(base);
+    let wanted = tag.trim();
+    let version = registry
+        .iter()
+        .find(|version| version.tag.eq_ignore_ascii_case(wanted))
+        .or_else(|| {
+            registry
+                .iter()
+                .find(|version| version.tag.eq_ignore_ascii_case(&format!("{wanted}-stable")))
+        })
+        .ok_or_else(|| {
+            format!(
+                "Godot {wanted:?} is not installed. Run `godothub versions` to list installed versions, or `godothub install {wanted}`."
+            )
+        })?;
+    engine_from(version)
+}
+
+fn prompt_select_version(base: &Path) -> Result<resolve::Engine, String> {
+    let list = resolve::installed_sorted(base);
+    if list.is_empty() {
+        return Err("No Godot versions are installed. Run `godothub install <version>` first.".into());
+    }
+    eprintln!("{}", bold("Select a Godot version:"));
+    for (index, version) in list.iter().enumerate() {
+        let mono = if version.is_mono {
+            dim(" (mono)")
+        } else {
+            String::new()
+        };
+        eprintln!("  {}. {}{}", index + 1, bold(&version.tag), mono);
+    }
+    eprint!("Version [1-{}]: ", list.len());
+    std::io::stderr().flush().map_err(|e| e.to_string())?;
+    let mut line = String::new();
+    std::io::stdin()
+        .read_line(&mut line)
+        .map_err(|e| e.to_string())?;
+    let choice: usize = line
+        .trim()
+        .parse()
+        .map_err(|_| "That isn't a valid selection.".to_string())?;
+    let version = list
+        .get(choice.wrapping_sub(1))
+        .ok_or_else(|| "That selection is out of range.".to_string())?;
+    engine_from(version)
+}
+
+fn engine_from(version: &crate::models::InstalledGodotVersion) -> Result<resolve::Engine, String> {
+    if !Path::new(&version.executable_path).is_file() {
+        return Err(format!(
+            "The Godot executable for {} is missing at {}.",
+            version.tag, version.executable_path
+        ));
+    }
+    Ok(resolve::Engine {
+        tag: version.tag.clone(),
+        executable_path: version.executable_path.clone(),
+        source: EngineSource::Current,
+    })
+}
+
+fn prompt_yes_no(question: &str) -> Result<bool, String> {
+    eprint!("{question} [y/N]: ");
+    std::io::stderr().flush().map_err(|e| e.to_string())?;
+    let mut line = String::new();
+    std::io::stdin()
+        .read_line(&mut line)
+        .map_err(|e| e.to_string())?;
+    Ok(matches!(line.trim().to_lowercase().as_str(), "y" | "yes"))
 }
 
 fn cmd_run(path: Option<PathBuf>) -> Result<i32, String> {
@@ -529,10 +706,43 @@ mod tests {
     }
 
     #[test]
-    fn open_requires_a_name() {
+    fn open_requires_a_target() {
         assert!(Cli::try_parse_from(["godothub", "open"]).is_err());
         let cli = parse(&["godothub", "open", "My Game"]);
-        assert!(matches!(cli.command, Some(Commands::Open { name }) if name == "My Game"));
+        assert!(matches!(cli.command, Some(Commands::Open { target, .. }) if target == "My Game"));
+    }
+
+    #[test]
+    fn open_parses_path_with_version_and_add() {
+        let cli = parse(&["godothub", "open", "/tmp/game", "--godot", "4.4.1-stable", "--add"]);
+        match cli.command {
+            Some(Commands::Open {
+                target,
+                godot,
+                add,
+                no_add,
+            }) => {
+                assert_eq!(target, "/tmp/game");
+                assert_eq!(godot.as_deref(), Some("4.4.1-stable"));
+                assert!(add);
+                assert!(!no_add);
+            }
+            other => panic!("expected open, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn open_add_and_no_add_conflict() {
+        assert!(Cli::try_parse_from(["godothub", "open", "/tmp/game", "--add", "--no-add"]).is_err());
+    }
+
+    #[test]
+    fn looks_like_path_detects_paths_but_not_names() {
+        assert!(looks_like_path("/home/me/game"));
+        assert!(looks_like_path("./game"));
+        assert!(looks_like_path("."));
+        assert!(!looks_like_path("My Game"));
+        assert!(!looks_like_path("MyGame"));
     }
 
     #[test]
