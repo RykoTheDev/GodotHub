@@ -36,19 +36,24 @@
   --font-body: 'Inter Variable', sans-serif;
   --font-mono: 'Google Sans Code', monospace;
 
+  --text-4xs: 0.5625rem;
+  --text-3xs: 0.625rem;
+  --text-2xs: 0.6875rem;
+
   --radius-sm: 9.6px;
   --radius-md: 12px;
   --radius-lg: 16.8px;
   --radius-xl: 24px;
-  --radius-tag: 12px;
-  --radius-btn: 19.2px;
-  --radius-dropdown-btn: 15.6px;
   --radius-dropdown: 15.6px;
+  --radius-btn: 19.2px;
   --radius-item: 26.4px;
-  --radius-tile: 19.2px;
-  --radius-menu: 28.8px;
   --radius-card: 28.8px;
   --radius-modal: 36px;
+
+  --radius-tag: var(--radius-md);
+  --radius-dropdown-btn: var(--radius-dropdown);
+  --radius-tile: var(--radius-btn);
+  --radius-menu: var(--radius-card);
 
   --spacing: 4.5px;
 }

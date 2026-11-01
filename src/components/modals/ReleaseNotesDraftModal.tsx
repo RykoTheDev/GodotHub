@@ -182,7 +182,7 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
       <div className="flex flex-col gap-2.5 p-6">
         <div className="flex items-end gap-3">
           <div className="flex flex-col gap-1.5 flex-1">
-            <span className="text-[11px] font-medium text-muted">
+            <span className="text-2xs font-medium text-muted">
               {t('changelog_draft_from')}
             </span>
             <Dropdown
@@ -194,7 +194,7 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
                   onClick={toggle}
                   className="focus-ring cursor-pointer w-full inline-flex items-center justify-between gap-2 h-9 px-3 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:border-accent-dim transition-colors"
                 >
-                  <span className="font-mono text-[11px] truncate">
+                  <span className="font-mono text-2xs truncate">
                     {from || '…'}
                   </span>
                   <IconGitBranch className="w-3 h-3 shrink-0 opacity-60" />
@@ -210,7 +210,7 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
           </div>
           <span className="text-xs text-muted pb-2.5">→</span>
           <div className="flex flex-col gap-1.5 flex-1">
-            <span className="text-[11px] font-medium text-muted">
+            <span className="text-2xs font-medium text-muted">
               {t('changelog_draft_to')}
             </span>
             <Dropdown
@@ -222,7 +222,7 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
                   onClick={toggle}
                   className="focus-ring cursor-pointer w-full inline-flex items-center justify-between gap-2 h-9 px-3 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:border-accent-dim transition-colors"
                 >
-                  <span className="font-mono text-[11px] truncate">{to}</span>
+                  <span className="font-mono text-2xs truncate">{to}</span>
                   <IconGitBranch className="w-3 h-3 shrink-0 opacity-60" />
                 </button>
               )}
@@ -264,7 +264,7 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
               <span className="text-xs font-medium text-ink">
                 {t('changelog_draft_commits', { count: draft.count })}
               </span>
-              <span className="text-[11px] font-mono text-muted/60">
+              <span className="text-2xs font-mono text-muted/60">
                 {draft.from} → {draft.to}
               </span>
             </div>
@@ -302,7 +302,7 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
                     className="focus-ring flex-1 min-w-0 bg-base border border-outline/50 rounded-btn px-3 py-1.5 text-xs text-ink focus:border-accent-dim transition-colors"
                   />
                   {row.hash && (
-                    <span className="font-mono text-[10px] text-muted/50 shrink-0">
+                    <span className="font-mono text-3xs text-muted/50 shrink-0">
                       {row.hash}
                     </span>
                   )}
@@ -312,14 +312,14 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
 
             {draft.skipped.length > 0 && (
               <div className="mt-2 pt-3 border-t border-outline/40">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted/60">
+                <span className="text-2xs font-semibold uppercase tracking-wider text-muted/60">
                   {t('skipped')}
                 </span>
                 <div className="flex flex-col gap-1 mt-1.5">
                   {draft.skipped.map((s, i) => (
                     <div
                       key={s.hash}
-                      className="flex items-center gap-2 text-[11px] text-muted/70"
+                      className="flex items-center gap-2 text-2xs text-muted/70"
                     >
                       <button
                         type="button"
@@ -335,9 +335,9 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
                       >
                         {skippedChecked[i] && <IconCheck className="w-2.5 h-2.5" />}
                       </button>
-                      <span className="font-mono text-[10px] shrink-0">{s.hash}</span>
+                      <span className="font-mono text-3xs shrink-0">{s.hash}</span>
                       <span className="truncate">{s.subject}</span>
-                      <span className="ms-auto shrink-0 text-[10px] uppercase tracking-wide text-muted/40">
+                      <span className="ms-auto shrink-0 text-3xs uppercase tracking-wide text-muted/40">
                         {s.reason}
                       </span>
                     </div>

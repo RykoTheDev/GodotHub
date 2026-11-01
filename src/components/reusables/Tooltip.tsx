@@ -228,7 +228,7 @@ export function Tooltip({
               <div style={arrowStyle(arrow)} />
 
               <div
-                className="relative px-3 py-1.5 rounded-tag bg-raised border border-line text-[11px] text-muted font-medium leading-snug shadow-md shadow-base"
+                className="relative px-3 py-1.5 rounded-tag bg-raised border border-line text-2xs text-muted font-medium leading-snug shadow-md shadow-base"
                 style={{
                   maxWidth: effectiveMax,
                   wordBreak: 'break-word',

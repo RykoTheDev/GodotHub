@@ -324,7 +324,7 @@ export function CheckForUpdatesModal({
         <div className="flex flex-col items-center gap-5 p-6">
           {isPreview && (
             <div className="w-full flex flex-col items-center gap-2.5">
-              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-tag bg-amber/15 text-amber text-[10px] font-semibold uppercase tracking-wider">
+              <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-tag bg-amber/15 text-amber text-3xs font-semibold uppercase tracking-wider">
                 {t('check_updates_preview_badge')}
               </span>
               <div className="flex flex-wrap items-center justify-center gap-1.5">
@@ -333,7 +333,7 @@ export function CheckForUpdatesModal({
                     key={s}
                     type="button"
                     onClick={() => switchPreviewState(s)}
-                    className={`focus-ring cursor-pointer px-2.5 py-1 rounded-item text-[10px] font-medium border transition-colors ${
+                    className={`focus-ring cursor-pointer px-2.5 py-1 rounded-item text-3xs font-medium border transition-colors ${
                       state.type === s
                         ? 'bg-accent/15 border-accent-dim/40 text-ink'
                         : 'bg-raised border-line text-muted hover:text-ink hover:border-accent-dim'
@@ -456,7 +456,7 @@ export function CheckForUpdatesModal({
 
                   {knownIssues.length > 0 && (
                     <div className="w-full rounded-item border border-amber/30 bg-amber/10 p-4">
-                      <p className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-amber mb-2">
+                      <p className="flex items-center gap-1.5 text-2xs font-semibold uppercase tracking-wider text-amber mb-2">
                         <IconAlertTriangle className="w-3.5 h-3.5 shrink-0" />
                         {t('changelog_known_issues')}
                       </p>
@@ -481,7 +481,7 @@ export function CheckForUpdatesModal({
                   {notes && hasReleaseNotesContent && (
                     <div className="w-full bg-raised rounded-item border border-line overflow-hidden">
                       <div className="px-4 py-2.5 border-b border-line/70 bg-raised">
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+                        <p className="text-2xs font-semibold uppercase tracking-wider text-muted">
                           {t('check_updates_release_notes')}
                         </p>
                       </div>
@@ -498,7 +498,7 @@ export function CheckForUpdatesModal({
                               key={i}
                               className="px-4 py-3 border-b border-line/50 last:border-b-0"
                             >
-                              <p className="text-[10px] font-semibold uppercase tracking-wide mb-1.5 text-muted">
+                              <p className="text-3xs font-semibold uppercase tracking-wide mb-1.5 text-muted">
                                 {section.title}
                               </p>
                               <ul className="flex flex-col gap-1.5">
@@ -566,7 +566,7 @@ export function CheckForUpdatesModal({
                 <p className="text-sm font-medium text-ink">{t('update_downloaded')}</p>
                 <p className="text-xs text-muted mt-1">{t('restart_to_apply')}</p>
               </div>
-              <p className="text-[11px] text-muted/70 text-center max-w-xs">
+              <p className="text-2xs text-muted/70 text-center max-w-xs">
                 {t('update_applied_desc')}
               </p>
             </div>
@@ -594,7 +594,7 @@ export function CheckForUpdatesModal({
                   </div>
                   {hint && (
                     <div className="w-full bg-raised rounded-xl border border-line p-4 flex flex-col gap-3">
-                      <p className="text-[11px] text-muted leading-relaxed">
+                      <p className="text-2xs text-muted leading-relaxed">
                         {hint === 'token-rejected'
                           ? t('check_updates_rate_limited_token_hint')
                           : t('check_updates_rate_limited_hint')}

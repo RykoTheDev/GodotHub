@@ -251,12 +251,12 @@ function ProjectRow({ project }: { project: Project }) {
         <span className="block text-sm font-medium text-ink truncate">
           {project.name}
         </span>
-        <span className="block text-[11px] text-muted/70 truncate font-mono">
+        <span className="block text-2xs text-muted/70 truncate font-mono">
           {project.path}
         </span>
       </span>
       {openedAt && (
-        <span className="shrink-0 text-[10px] text-muted/60 tabular-nums">
+        <span className="shrink-0 text-3xs text-muted/60 tabular-nums">
           {tc('dashboard_opened_at', { time: openedAt })}
         </span>
       )}
@@ -424,7 +424,7 @@ function StatCard({
       />
 
       <div className="relative z-10 flex items-start justify-between gap-2">
-        <span className="pt-1 truncate text-[10px] font-semibold uppercase tracking-wider text-muted/70">
+        <span className="pt-1 truncate text-3xs font-semibold uppercase tracking-wider text-muted/70">
           {label}
         </span>
         <span
@@ -442,7 +442,7 @@ function StatCard({
         className={`relative z-10 mt-2.5 block h-1 w-8 origin-left rtl:origin-right rounded-full bg-linear-to-r ${grad}`}
       />
 
-      <span className="relative z-10 mt-auto pt-3 inline-flex items-center gap-1 text-[10px] font-medium text-muted/40 transition-colors duration-200 group-hover:text-muted">
+      <span className="relative z-10 mt-auto pt-3 inline-flex items-center gap-1 text-3xs font-medium text-muted/40 transition-colors duration-200 group-hover:text-muted">
         {hint ?? label}
         {tab && (
           <IconChevronRight className="rtl:rotate-180 w-3 h-3" />
@@ -556,7 +556,7 @@ function ActivityChart({
                   })}
                 />
             </div>
-            <span className="text-[9px] text-muted/60 shrink-0">{label}</span>
+            <span className="text-4xs text-muted/60 shrink-0">{label}</span>
           </div>
         )
       })}
@@ -673,14 +673,14 @@ function InsightsTile({ active = true }: { active?: boolean }) {
             <s.Icon className={`w-3.5 h-3.5 ${s.accent}`} />
           </span>
           <span className="min-w-0">
-            <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted/60 truncate">
+            <span className="block text-3xs font-semibold uppercase tracking-wider text-muted/60 truncate">
               {s.label}
             </span>
             <span className="block text-sm font-semibold text-ink truncate mt-0.5">
               {s.value}
             </span>
             {s.sub && (
-              <span className="block text-[10px] text-muted/60 truncate mt-0.5">
+              <span className="block text-3xs text-muted/60 truncate mt-0.5">
                 {s.sub}
               </span>
             )}
@@ -733,7 +733,7 @@ function TopProjectsByTime({
               <span className="block text-sm font-medium text-ink truncate">
                 {p.name}
               </span>
-              <span className="shrink-0 text-[11px] text-muted/70 tabular-nums">
+              <span className="shrink-0 text-2xs text-muted/70 tabular-nums">
                 {formatDuration((p.total_time_seconds ?? 0) * 1000)}
               </span>
             </span>
@@ -786,7 +786,7 @@ function GitOverview({ tall = false, active = true }: { tall?: boolean; active?:
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-[11px] text-muted/70">
+      <p className="text-2xs text-muted/70">
         {dirty.length === 0
           ? tc('dashboard_git_clean')
           : dirty.length === 1
@@ -814,7 +814,7 @@ function GitOverview({ tall = false, active = true }: { tall?: boolean; active?:
                   {p.name}
                 </span>
                 {statusMap[p.path]?.branch && (
-                  <span className="block text-[11px] text-muted/70 truncate font-mono">
+                  <span className="block text-2xs text-muted/70 truncate font-mono">
                     {tc('dashboard_git_branch', {
                       branch: statusMap[p.path]!.branch!,
                     })}
@@ -884,7 +884,7 @@ function StorageUsage({ tall = false, active = true }: { tall?: boolean; active?
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-[11px] text-muted/70">
+      <p className="text-2xs text-muted/70">
         {tc('dashboard_storage_total', { size: formatBytes(total) })}
       </p>
       <div className="flex flex-col gap-2">
@@ -899,7 +899,7 @@ function StorageUsage({ tall = false, active = true }: { tall?: boolean; active?
                 <span className="block text-sm font-medium text-ink truncate">
                   {project.name}
                 </span>
-                <span className="shrink-0 text-[11px] text-muted/70 tabular-nums">
+                <span className="shrink-0 text-2xs text-muted/70 tabular-nums">
                   {formatBytes(size)}
                 </span>
               </span>
@@ -994,7 +994,7 @@ function RunningNow({
                 <span className="block text-sm font-medium text-ink truncate">
                   {p.name}
                 </span>
-                <span className="block text-[11px] text-muted/70 tabular-nums">
+                <span className="block text-2xs text-muted/70 tabular-nums">
                   {p.version ? `Godot ${p.version} · ` : ''}
                   {formatDuration(now - p.startedAt)}
                 </span>
@@ -1424,7 +1424,7 @@ export function DashboardView({
                       <span className="block text-sm font-medium text-ink truncate font-mono">
                         {v.custom_name || v.tag}
                       </span>
-                      <span className="block text-[11px] text-muted/70 truncate font-mono">
+                      <span className="block text-2xs text-muted/70 truncate font-mono">
                         {v.executable_path}
                       </span>
                     </span>
@@ -1596,11 +1596,11 @@ export function DashboardView({
 
           {editingTiles && (
             <div className="rounded-item bg-overlay border border-outline/50 p-4 flex flex-col gap-3">
-              <p className="text-[11px] text-muted/70 leading-relaxed">
+              <p className="text-2xs text-muted/70 leading-relaxed">
                 {tc('dashboard_customize_hint')}
               </p>
               <div className="flex flex-col gap-2.5">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+                <p className="text-2xs font-semibold uppercase tracking-wider text-muted">
                   {tc('dashboard_presets')}
                 </p>
                 <div className="flex flex-wrap gap-2">
@@ -1637,7 +1637,7 @@ export function DashboardView({
 
               {settings.dashboard_custom_presets.length > 0 && (
                 <div className="flex flex-col gap-2.5">
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+                  <p className="text-2xs font-semibold uppercase tracking-wider text-muted">
                     {tc('dashboard_custom_presets')}
                   </p>
                   <div className="flex flex-wrap gap-2">
@@ -1693,7 +1693,7 @@ export function DashboardView({
               )}
 
               <div className="flex flex-col gap-2 pt-2 border-t border-outline/50">
-                <label className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+                <label className="text-2xs font-semibold uppercase tracking-wider text-muted">
                   {tc('dashboard_preset_save')}
                 </label>
                 <div className="flex gap-2">
@@ -1716,7 +1716,7 @@ export function DashboardView({
                     {tc('dashboard_preset_save')}
                   </motion.button>
                 </div>
-                <p className="text-[11px] text-muted/60">
+                <p className="text-2xs text-muted/60">
                   {tc('dashboard_preset_save_hint')}
                 </p>
               </div>
@@ -1747,7 +1747,7 @@ export function DashboardView({
 
           {editingTiles && hiddenTiles.length > 0 && (
             <div className="rounded-item bg-overlay border border-dashed border-outline/60 p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-muted mb-2.5">
+              <p className="text-2xs font-semibold uppercase tracking-wider text-muted mb-2.5">
                 {tc('dashboard_hidden_tiles')}
               </p>
               <div className="flex flex-wrap gap-2">

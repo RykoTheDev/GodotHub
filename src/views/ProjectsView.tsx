@@ -1010,13 +1010,15 @@ export function ProjectsView({
                     : 'bg-overlay text-muted hover:text-ink hover:bg-raised'
                 }`}
               >
-                <IconArrowUpDown className="w-3 h-3" />
-                <span className="text-[16px] font-medium">{tc('sort')}</span>
-                {activeSortLabel && (
-                  <span className="text-[12px] tabular-nums text-muted/80 max-w-30 truncate leading-none">
-                    {tc(activeSortLabel.labelKey)}
-                  </span>
-                )}
+                <IconArrowUpDown className="w-3 h-3 shrink-0" />
+                <span className="flex min-w-0 items-baseline gap-1">
+                  <span className="text-base font-medium text-ink">{tc('sort')}</span>
+                  {activeSortLabel && (
+                    <span className="text-xs tabular-nums text-muted max-w-30 truncate">
+                      {tc(activeSortLabel.labelKey)}
+                    </span>
+                  )}
+                </span>
               </motion.button>
             )
           }}
@@ -1052,13 +1054,15 @@ export function ProjectsView({
                       : 'bg-overlay text-muted hover:text-ink hover:bg-raised'
                   }`}
                 >
-                  <IconFilter className="w-3 h-3" />
-                  <span className="text-[16px] font-medium">{tc('filter')}</span>
-                  {hasCategoryFilter && (
-                    <span className="text-[12px] tabular-nums text-muted/80 max-w-30 truncate">
-                      {activeLabel}
-                    </span>
-                  )}
+                  <IconFilter className="w-3 h-3 shrink-0" />
+                  <span className="flex min-w-0 items-baseline gap-1">
+                    <span className="text-base font-medium text-ink">{tc('filter')}</span>
+                    {hasCategoryFilter && (
+                      <span className="text-xs tabular-nums text-muted max-w-30 truncate">
+                        {activeLabel}
+                      </span>
+                    )}
+                  </span>
                 </motion.button>
               )
             }}
@@ -1120,7 +1124,7 @@ export function ProjectsView({
                 className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 transition-colors"
               >
                 <IconPlus className="w-3 h-3" />
-                <span className="text-[13px] font-medium">{tc('manage_views')}</span>
+                <span className="text-sm font-medium">{tc('manage_views')}</span>
               </motion.button>
             )}
           </>
@@ -1137,7 +1141,7 @@ export function ProjectsView({
                 className="w-1.5 h-1.5 rounded-full shrink-0"
                 style={{ backgroundColor: tagColor(tagFilter) }}
               />
-              <span className="text-[16px] font-medium">{tagFilter}</span>
+              <span className="text-base font-medium">{tagFilter}</span>
               <IconX className="w-3 h-3" />
             </button>
         )}

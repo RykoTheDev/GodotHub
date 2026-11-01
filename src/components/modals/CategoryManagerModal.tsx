@@ -160,7 +160,7 @@ function SortableCategoryItem({
               <div className="flex-1 min-w-0">
                 <span className="text-sm font-medium truncate text-ink block">{category.name}</span>
                 {projects.length > 0 && (
-                  <span className="text-[11px] text-muted/60">
+                  <span className="text-2xs text-muted/60">
                     {projects.length} {projects.length === 1 ? 'project' : 'projects'}
                   </span>
                 )}
@@ -195,7 +195,7 @@ function SortableCategoryItem({
               >
                 <IconFolder className="w-3 h-3 text-muted/60 shrink-0" />
                 <span
-                  className="text-[11px] text-muted truncate font-mono"
+                  className="text-2xs text-muted truncate font-mono"
                   title={folder}
                 >
                   {folder}
@@ -216,7 +216,7 @@ function SortableCategoryItem({
               disabled={busy}
               onClick={onAssignFolder}
               aria-label={t('assign_folder_to_category', { name: category.name })}
-              className="focus-ring cursor-pointer flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-dashed border-outline/50 text-[11px] text-muted hover:text-accent-bright hover:border-accent-dim transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-dashed border-outline/50 text-2xs text-muted hover:text-accent-bright hover:border-accent-dim transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <IconFolderPlus className="w-3 h-3" />
               {t('assign_folder')}
@@ -233,12 +233,12 @@ function SortableCategoryItem({
                 className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-overlay/60 border border-outline/20 max-w-[160px] hover:bg-overlay transition-colors"
               >
                 <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: category.color }} />
-                <span className="text-[11px] text-muted truncate">{p.name}</span>
+                <span className="text-2xs text-muted truncate">{p.name}</span>
               </div>
             ))}
             {projects.length > 8 && (
               <div className="flex items-center px-2.5 py-1">
-                <span className="text-[11px] text-muted/50">+{projects.length - 8} more</span>
+                <span className="text-2xs text-muted/50">+{projects.length - 8} more</span>
               </div>
             )}
           </div>
@@ -495,7 +495,7 @@ export function CategoryManagerModal({
         {categories.length > 0 && (
           <div className="flex items-start gap-2.5 px-3.5 py-2.5 rounded-lg bg-overlay/40 border border-outline/25">
             <IconFolder className="w-3.5 h-3.5 text-muted/60 shrink-0 mt-0.5" />
-            <p className="text-[11px] text-muted leading-relaxed">
+            <p className="text-2xs text-muted leading-relaxed">
               {t('category_folders_hint')}
             </p>
           </div>

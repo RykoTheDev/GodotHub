@@ -177,7 +177,7 @@ export function VersionAliasesModal({
                       key={v.tag}
                       type="button"
                       onClick={() => setTag(v.tag)}
-                      className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 rounded-tag text-[11px] font-medium border transition-colors ${
+                      className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 rounded-tag text-2xs font-medium border transition-colors ${
                         active
                           ? 'bg-accent/15 text-accent-bright border-accent-dim/50'
                           : 'bg-overlay text-muted border-outline/50 hover:text-ink hover:bg-raised'
@@ -185,7 +185,7 @@ export function VersionAliasesModal({
                     >
                       {active && <IconCheck className="w-2.5 h-2.5" />}
                       {v.is_mono && (
-                        <span className="text-[9px] font-bold uppercase tracking-wider">
+                        <span className="text-4xs font-bold uppercase tracking-wider">
                           {tv('mono_short')}
                         </span>
                       )}
@@ -199,7 +199,7 @@ export function VersionAliasesModal({
             )}
 
             {needsMonoScriptNote(tag) && (
-              <p className="text-[11px] text-muted leading-relaxed">
+              <p className="text-2xs text-muted leading-relaxed">
                 {tv('alias_mono_script_note')}
               </p>
             )}
@@ -209,7 +209,7 @@ export function VersionAliasesModal({
                 {queue.map((entry) => (
                   <div key={entry.name} className="flex items-center gap-2 min-w-0">
                     <p className="font-mono text-xs text-ink truncate">{entry.name}</p>
-                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-tag bg-black/15 text-muted border border-outline/40 shrink-0">
+                    <span className="text-3xs font-semibold px-1.5 py-0.5 rounded-tag bg-black/15 text-muted border border-outline/40 shrink-0">
                       {entry.tag}
                     </span>
                     <button
@@ -256,7 +256,7 @@ export function VersionAliasesModal({
                   {outcome.skipped.map((skip) => (
                     <p
                       key={skip.name}
-                      className="font-mono text-[11px] text-muted truncate"
+                      className="font-mono text-2xs text-muted truncate"
                       title={`${skip.name} - ${skip.reason}`}
                     >
                       {skip.name} - {skip.reason}
@@ -287,7 +287,7 @@ export function VersionAliasesModal({
                       <p className="font-mono text-sm text-ink truncate">
                         {alias.name}
                       </p>
-                      <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-tag bg-black/15 text-muted border border-outline/40 shrink-0">
+                      <span className="text-3xs font-semibold px-1.5 py-0.5 rounded-tag bg-black/15 text-muted border border-outline/40 shrink-0">
                         {alias.tag}
                       </span>
                       {alias.method === 'shim' && (
@@ -297,14 +297,14 @@ export function VersionAliasesModal({
                               ? tv('alias_mono_script_note')
                               : undefined
                           }
-                          className="text-[10px] font-semibold px-1.5 py-0.5 rounded-tag bg-amber/10 text-amber border border-amber/30 shrink-0"
+                          className="text-3xs font-semibold px-1.5 py-0.5 rounded-tag bg-amber/10 text-amber border border-amber/30 shrink-0"
                         >
                           {tv('alias_shim_badge')}
                         </span>
                       )}
                     </div>
                     <p
-                      className="font-mono text-[11px] text-muted truncate mt-0.5"
+                      className="font-mono text-2xs text-muted truncate mt-0.5"
                       title={alias.alias_path}
                     >
                       {alias.alias_path}

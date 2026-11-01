@@ -208,7 +208,7 @@ function SettingRow({
       <div>
         <span className="text-xs font-medium text-muted block">{label}</span>
         {description && (
-          <p className="text-[11px] text-muted mt-1 leading-relaxed">
+          <p className="text-2xs text-muted mt-1 leading-relaxed">
             {description}
           </p>
         )}
@@ -751,7 +751,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             >
               <Icon className="w-4 h-4 text-muted shrink-0" />
               <span className="text-xs font-medium text-ink">{label}</span>
-              <span className="text-[10px] font-medium text-muted/60">
+              <span className="text-3xs font-medium text-muted/60">
                 {presets.length}
               </span>
               <IconChevronDown className="w-3.5 h-3.5 text-muted -rotate-90 rtl:rotate-90 ms-auto" />
@@ -786,7 +786,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 {ts("theme")}
               </span>
               {settings.theme_mode === "system" && (
-                <p className="text-[11px] text-muted leading-relaxed">
+                <p className="text-2xs text-muted leading-relaxed">
                   {ts("theme_follow_desc")}
                 </p>
               )}
@@ -838,7 +838,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 }
               />
             </div>
-            <p className="text-[11px] text-muted leading-relaxed">
+            <p className="text-2xs text-muted leading-relaxed">
               {ts("background_color_desc")}
             </p>
 
@@ -861,7 +861,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   update({ ...settings, raised_contrast: value })
                 }
               />
-              <p className="text-[11px] text-muted leading-relaxed">
+              <p className="text-2xs text-muted leading-relaxed">
                 {ts("raised_contrast_desc")}
               </p>
             </div>
@@ -1288,7 +1288,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               }
               defaultLabel={ts("new_project_default")}
             />
-            <p className="text-[11px] text-muted leading-relaxed">
+            <p className="text-2xs text-muted leading-relaxed">
               {ts("projects_desc")}
             </p>
           </div>
@@ -1312,7 +1312,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               showFallbackDescription
               fallbackDownloadPath="AppData/Ryko.GodotHub/godot-versions/"
             />
-            <p className="text-[11px] text-muted leading-relaxed">
+            <p className="text-2xs text-muted leading-relaxed">
               {ts("godot_versions_desc")}
             </p>
           </div>
@@ -1358,7 +1358,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 {ts("browse")}
               </button>
             </div>
-            <p className="text-[11px] text-muted leading-relaxed">
+            <p className="text-2xs text-muted leading-relaxed">
               {ts("template_scan_desc")}
             </p>
           </div>
@@ -1620,7 +1620,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 api.refreshTrayMenu().catch(() => {});
               }}
             />
-            <p className="text-[11px] text-muted leading-relaxed">
+            <p className="text-2xs text-muted leading-relaxed">
               {ts("tray_recent_desc")}
             </p>
           </div>
@@ -1735,7 +1735,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 />
               );
             })()}
-            <p className="text-[11px] text-muted leading-relaxed">
+            <p className="text-2xs text-muted leading-relaxed">
               {ts("naming_convention_desc")}
             </p>
           </div>
@@ -1822,7 +1822,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             />
           </SettingRow>
 
-          <p className="text-[10px] text-muted/50 mt-1 leading-relaxed">
+          <p className="text-3xs text-muted/50 mt-1 leading-relaxed">
             {ts("watcher_footer_desc")}
           </p>
         </div>
@@ -1875,7 +1875,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 <IconGithub className="w-4 h-4 text-ink shrink-0" />
                 <span className="text-xs font-medium text-ink">GitHub</span>
                 {gitAuth?.github && (
-                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-tag bg-mint/15 text-mint border border-mint/30">
+                  <span className="text-3xs font-semibold px-1.5 py-0.5 rounded-tag bg-mint/15 text-mint border border-mint/30">
                     {ts("git_connected_as", {
                       username: gitAuth.github.username,
                     })}
@@ -1904,7 +1904,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               )}
             </div>
             {!gitAuth?.github && (
-              <p className="text-[11px] text-muted leading-relaxed">
+              <p className="text-2xs text-muted leading-relaxed">
                 {ts("git_oauth_hint")}
               </p>
             )}
@@ -1916,7 +1916,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 <IconGitlab className="w-4 h-4 text-amber shrink-0" />
                 <span className="text-xs font-medium text-ink">GitLab</span>
                 {gitAuth?.gitlab && (
-                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-tag bg-mint/15 text-mint border border-mint/30">
+                  <span className="text-3xs font-semibold px-1.5 py-0.5 rounded-tag bg-mint/15 text-mint border border-mint/30">
                     {gitAuth.gitlab.host
                       ? ts("git_connected_to", {
                           host: gitAuth.gitlab.host,
@@ -1950,7 +1950,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               )}
             </div>
             {!gitAuth?.gitlab && (
-              <p className="text-[11px] text-muted leading-relaxed">
+              <p className="text-2xs text-muted leading-relaxed">
                 {ts("git_oauth_hint")}
               </p>
             )}
@@ -1963,7 +1963,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 {ts("git_self_hosted_title")}
               </span>
             </div>
-            <p className="text-[11px] text-muted leading-relaxed">
+            <p className="text-2xs text-muted leading-relaxed">
               {ts("git_self_hosted_desc")}
             </p>
             <div className="grid grid-cols-2 gap-2">
@@ -2003,7 +2003,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 {ts("git_pat_title")}
               </span>
             </div>
-            <p className="text-[11px] text-muted leading-relaxed">
+            <p className="text-2xs text-muted leading-relaxed">
               {ts("git_pat_desc")}
             </p>
 
@@ -2023,7 +2023,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                     <span className="text-xs font-medium text-ink font-mono">
                       {pat.host}
                     </span>
-                    <span className="text-[11px] text-muted">
+                    <span className="text-2xs text-muted">
                       {pat.username}
                     </span>
                   </div>
@@ -2068,7 +2068,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
                 />
                 {patMsg && (
-                  <span className="text-[11px] text-danger">{patMsg}</span>
+                  <span className="text-2xs text-danger">{patMsg}</span>
                 )}
                 <div className="flex items-center gap-2">
                   <button
@@ -2132,7 +2132,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               </div>
               {tokenTestMsg && (
                 <span
-                  className={`text-[11px] ${
+                  className={`text-2xs ${
                     tokenTestState === "success"
                       ? "text-mint"
                       : tokenTestState === "warning"
@@ -2145,7 +2145,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   {tokenTestMsg}
                 </span>
               )}
-              <p className="text-[11px] text-muted leading-relaxed">
+              <p className="text-2xs text-muted leading-relaxed">
                 {ts("token_help_desc")}{" "}
                 <a
                   href="https://github.com/settings/tokens"
@@ -2195,7 +2195,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   </button>
                 )}
                 {lastPushedAt && (
-                  <p className="text-[11px] text-muted mt-1">
+                  <p className="text-2xs text-muted mt-1">
                     {ts("sync_last_pushed", { time: lastPushedAt })}
                   </p>
                 )}
@@ -2283,11 +2283,11 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm font-mono focus:border-accent-dim transition-colors"
             />
             {!settings.discord_app_id?.trim() && (
-              <span className="text-[11px] text-mint font-medium">
+              <span className="text-2xs text-mint font-medium">
                 {ts("discord_builtin_hint")}
               </span>
             )}
-            <p className="text-[11px] text-muted leading-relaxed">
+            <p className="text-2xs text-muted leading-relaxed">
               {ts("discord_app_id_desc")}{" "}
               <a
                 href="https://discord.com/developers/applications"
@@ -2311,7 +2311,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 label={ts("discord_show_projects_label")}
               />
             </SettingRow>
-            <p className="text-[11px] text-muted leading-relaxed">
+            <p className="text-2xs text-muted leading-relaxed">
               {ts("discord_show_projects_desc")}
             </p>
           </div>
@@ -2320,7 +2320,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <span className="text-xs font-medium text-muted">
               {ts("discord_excluded_label")}
             </span>
-            <p className="text-[11px] text-muted leading-relaxed">
+            <p className="text-2xs text-muted leading-relaxed">
               {ts("discord_excluded_desc")}
             </p>
             <Dropdown
@@ -2384,7 +2384,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 })}
               </div>
             ) : (
-              <p className="text-[11px] text-muted/70">
+              <p className="text-2xs text-muted/70">
                 {ts("discord_excluded_empty")}
               </p>
             )}
@@ -2394,7 +2394,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <span className="text-xs font-medium text-muted">
               {ts("discord_custom_label")}
             </span>
-            <p className="text-[11px] text-muted leading-relaxed">
+            <p className="text-2xs text-muted leading-relaxed">
               {ts("discord_custom_desc")}
             </p>
             <Dropdown
@@ -2517,7 +2517,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           label={ts("mise_label")}
         />
         {settings.use_mise && (
-          <p className="text-[11px] text-muted">
+          <p className="text-2xs text-muted">
             {miseStatus?.available
               ? ts("mise_detected", {
                   version: miseStatus.version ?? miseStatus.path ?? "",
@@ -2630,7 +2630,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           }
           label={ts("screen_reader_label")}
         />
-        <p className="text-[11px] text-amber/90 leading-relaxed mt-1">
+        <p className="text-2xs text-amber/90 leading-relaxed mt-1">
           {ts("screen_reader_beta_desc")}
         </p>
       </Subsection>
@@ -2973,7 +2973,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
     <div className="flex flex-col gap-3">
       <section className="flex flex-col gap-5 rounded-item bg-overlay px-5 py-5">
         <div>
-          <p className="text-[11px] text-muted mt-1">
+          <p className="text-2xs text-muted mt-1">
             {ts("experimental_desc")}
           </p>
         </div>
@@ -3013,7 +3013,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           <h3 className="font-display font-semibold text-sm">
             {ts("credits")}
           </h3>
-          <p className="text-[11px] text-muted mt-1">{ts("credits_desc")}</p>
+          <p className="text-2xs text-muted mt-1">{ts("credits_desc")}</p>
         </div>
 
         <button
@@ -3037,19 +3037,19 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           </span>
           <div className="min-w-0">
             <p className="text-sm font-semibold text-ink">RykoTheDev</p>
-            <p className="text-[11px] text-muted">{ts("credits_developer")}</p>
+            <p className="text-2xs text-muted">{ts("credits_developer")}</p>
           </div>
         </button>
 
         <div className="grid grid-cols-2 gap-3">
           <div className="flex flex-col gap-1 px-4 py-3 rounded-item border border-outline/50 bg-raised/30">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted/50">
+            <span className="text-3xs font-semibold uppercase tracking-wider text-muted/50">
               {ts("git_option_license")}
             </span>
             <span className="text-sm font-medium text-ink">MIT</span>
           </div>
           <div className="flex flex-col gap-1 px-4 py-3 rounded-item border border-outline/50 bg-raised/30">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted/50">
+            <span className="text-3xs font-semibold uppercase tracking-wider text-muted/50">
               {ts("credits_built_with")}
             </span>
             <span className="text-sm font-medium text-ink">
@@ -3059,7 +3059,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         </div>
 
         <div className="flex flex-col gap-2">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-muted/50">
+          <span className="text-3xs font-semibold uppercase tracking-wider text-muted/50">
             {ts("credits_contributors")}
           </span>
           <div className="flex flex-wrap gap-2">
@@ -3088,7 +3088,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                       if (fallback) fallback.style.display = "flex";
                     }}
                   />
-                  <span className="w-5 h-5 rounded-full bg-accent/15 border border-accent-dim/30 items-center justify-center text-[9px] font-bold text-accent hidden">
+                  <span className="w-5 h-5 rounded-full bg-accent/15 border border-accent-dim/30 items-center justify-center text-4xs font-bold text-accent hidden">
                     {c.login[0].toUpperCase()}
                   </span>
                   <span className="text-xs font-medium text-ink">
@@ -3225,7 +3225,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               <button
                 type="button"
                 onClick={() => handleCatChange("credits" as SettingsCat)}
-                className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 ${connected ? "mb-3" : ""} rounded-full border border-outline/50 bg-raised/60 hover:bg-raised text-[10px] font-mono text-muted/60 hover:text-muted transition-colors`}
+                className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 ${connected ? "mb-3" : ""} rounded-full border border-outline/50 bg-raised/60 hover:bg-raised text-3xs font-mono text-muted/60 hover:text-muted transition-colors`}
               >
                 {ts("app_version_label", { version: appVersion })}
               </button>

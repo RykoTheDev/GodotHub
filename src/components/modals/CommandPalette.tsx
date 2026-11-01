@@ -614,7 +614,7 @@ export function CommandPalette({
             placeholder={tc('command_palette_placeholder')}
             className="flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-muted/50"
           />
-          <kbd className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-overlay border border-outline/50 text-muted/60 shrink-0">
+          <kbd className="text-3xs font-mono px-1.5 py-0.5 rounded bg-overlay border border-outline/50 text-muted/60 shrink-0">
             ESC
           </kbd>
         </div>
@@ -630,7 +630,7 @@ export function CommandPalette({
           ) : (
             filteredSections.map(([section, items]) => (
               <div key={section}>
-                <div className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted/50">
+                <div className="px-2 py-1.5 text-3xs font-semibold uppercase tracking-wider text-muted/50">
                   {section}
                 </div>
                 {items.map((item) => {
@@ -669,13 +669,13 @@ export function CommandPalette({
                             : item.label}
                         </span>
                         {isDynamic && (
-                          <span className="block text-[10px] text-muted/50 truncate">
+                          <span className="block text-3xs text-muted/50 truncate">
                             {(item as DynamicItem).sublabel}
                           </span>
                         )}
                       </div>
                       {shortcut && (
-                        <kbd className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-overlay border border-outline/50 text-muted/50 shrink-0">
+                        <kbd className="text-3xs font-mono px-1.5 py-0.5 rounded bg-overlay border border-outline/50 text-muted/50 shrink-0">
                           {shortcut}
                         </kbd>
                       )}
@@ -687,7 +687,7 @@ export function CommandPalette({
           )}
         </div>
 
-        <div className="px-4 py-2 border-t border-line flex items-center gap-4 text-[10px] text-muted/50">
+        <div className="px-4 py-2 border-t border-line flex items-center gap-4 text-3xs text-muted/50">
           <span>
             <kbd className="font-mono px-1 bg-overlay rounded border border-outline/50">
               ↑↓

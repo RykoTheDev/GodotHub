@@ -269,7 +269,7 @@ export function BugReportModal({ onClose }: Props) {
         <div className="flex flex-col gap-1.5">
           <label
             htmlFor="bug-report-description"
-            className="text-[11px] font-semibold uppercase tracking-wider text-muted"
+            className="text-2xs font-semibold uppercase tracking-wider text-muted"
           >
             {t('bug_report_describe_label')}
           </label>
@@ -286,10 +286,10 @@ export function BugReportModal({ onClose }: Props) {
 
         <div className="flex flex-col gap-1.5">
           <div className="flex items-center justify-between gap-3">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+            <span className="text-2xs font-semibold uppercase tracking-wider text-muted">
               {t('bug_report_diagnostics_label')}
             </span>
-            <span className="text-[10px] text-muted/50 shrink-0">
+            <span className="text-3xs text-muted/50 shrink-0">
               {t('bug_report_diagnostics_hint')}
             </span>
           </div>
@@ -298,7 +298,7 @@ export function BugReportModal({ onClose }: Props) {
               <IconRefresh className="w-5 h-5 animate-spin text-muted" />
             </div>
           ) : (
-            <div className="rounded-item bg-base border border-line p-3.5 font-mono text-[11px] text-muted whitespace-pre-wrap break-all leading-relaxed max-h-[200px] overflow-y-auto select-all">
+            <div className="rounded-item bg-base border border-line p-3.5 font-mono text-2xs text-muted whitespace-pre-wrap break-all leading-relaxed max-h-[200px] overflow-y-auto select-all">
               {report}
             </div>
           )}

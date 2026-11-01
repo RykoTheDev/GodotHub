@@ -163,7 +163,7 @@ export function WorkspaceSwitcher({ collapsed = false }: { collapsed?: boolean }
               } rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 p-1.5`}
               style={{ left: pos?.left, top: pos?.top, width: MENU_WIDTH }}
             >
-              <div className="px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted/50">
+              <div className="px-2.5 pt-1.5 pb-1 text-3xs font-semibold uppercase tracking-wider text-muted/50">
                 {t('current_workspace')}
               </div>
               {workspaces.map((w) => {

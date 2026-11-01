@@ -36,7 +36,7 @@ export function SlashMenu({
       )}`}
     >
       <div className="flex items-center gap-2 px-2 pb-1 pt-0.5">
-        <span className="text-[10px] font-semibold uppercase tracking-wider text-muted/60">
+        <span className="text-3xs font-semibold uppercase tracking-wider text-muted/60">
           {title}
         </span>
         <div className="flex-1 h-px bg-outline/40" />
@@ -73,7 +73,7 @@ export function SlashMenu({
               <span className="flex-1 text-start truncate">{item.label}</span>
               {item.hint && (
                 <span
-                  className={`shrink-0 font-mono text-[10px] ${
+                  className={`shrink-0 font-mono text-3xs ${
                     active ? 'text-ink/70' : 'text-muted/50'
                   }`}
                 >
@@ -85,7 +85,7 @@ export function SlashMenu({
         })
       )}
       {footer && (
-        <p className="px-2 pb-1 pt-2 text-[10px] text-muted/60">{footer}</p>
+        <p className="px-2 pb-1 pt-2 text-3xs text-muted/60">{footer}</p>
       )}
     </div>
   )

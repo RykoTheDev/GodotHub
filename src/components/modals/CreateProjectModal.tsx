@@ -327,7 +327,7 @@ export function CreateProjectModal({
                 className={`${inputClass(nameInvalid)} w-full`}
                 placeholder={projectNamePlaceholder}
               />
-              <div className="flex items-center ms-2 mt-1 gap-1.5 text-[10px] font-mono text-muted/60">
+              <div className="flex items-center ms-2 mt-1 gap-1.5 text-3xs font-mono text-muted/60">
                 <IconFolderPlus className="w-3 h-3 text-accent-bright/70 shrink-0" />
                 <span className="truncate">
                   {name.trim()
@@ -478,7 +478,7 @@ export function CreateProjectModal({
                         <span className="w-1.5 h-1.5 rounded-full bg-mint shrink-0" />
                         {v.custom_name || v.tag}
                         {v.is_mono && (
-                          <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-tag bg-mint/15 text-mint border border-mint/25 shrink-0">
+                          <span className="text-4xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-tag bg-mint/15 text-mint border border-mint/25 shrink-0">
                             Mono
                           </span>
                         )}
@@ -530,11 +530,11 @@ export function CreateProjectModal({
                   )}
                 </div>
                 {iconPath && (
-                  <p className="text-[10px] text-muted/60 font-mono truncate">
+                  <p className="text-3xs text-muted/60 font-mono truncate">
                     {iconPath}
                   </p>
                 )}
-                <p className="text-[10px] text-muted/40">
+                <p className="text-3xs text-muted/40">
                   {t('icon_format_desc')}
                 </p>
               </div>
@@ -549,7 +549,7 @@ export function CreateProjectModal({
                   <span className="text-xs font-medium text-ink block">
                     {t('init_git_label')}
                   </span>
-                  <p className="text-[11px] text-muted mt-1 leading-relaxed">
+                  <p className="text-2xs text-muted mt-1 leading-relaxed">
                     {gitAvailable ? t('init_git_desc') : t('init_git_unavailable')}
                   </p>
                 </div>
@@ -631,7 +631,7 @@ export function CreateProjectModal({
                       <span className="text-xs font-medium text-ink block">
                         {t('create_remote_label')}
                       </span>
-                      <p className="text-[11px] text-muted mt-1 leading-relaxed">
+                      <p className="text-2xs text-muted mt-1 leading-relaxed">
                         {t('create_remote_desc')}
                       </p>
                     </div>

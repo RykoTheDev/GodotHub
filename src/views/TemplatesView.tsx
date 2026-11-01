@@ -370,8 +370,8 @@ export function TemplatesView({
                           onClick={toggle}
                           className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
                         >
-                          <span className="text-[12px] text-muted">{tc('sort')}:</span>
-                          <span className="text-[13px] font-medium text-ink">
+                          <span className="text-xs text-muted">{tc('sort')}:</span>
+                          <span className="text-sm font-medium text-ink">
                             {activeOption ? tc(activeOption.labelKey) : tc('sort')}
                           </span>
                           <IconChevronDown className="w-3 h-3 text-muted" />
@@ -422,7 +422,7 @@ export function TemplatesView({
                             </p>
                           )}
                         </div>
-                        <div className="flex items-center gap-1.5 text-[10px] text-muted/50 font-mono">
+                        <div className="flex items-center gap-1.5 text-3xs text-muted/50 font-mono">
                           {tmpl.godot_version && (
                             <span>
                               {tc('godot')} {tmpl.godot_version}

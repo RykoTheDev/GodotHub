@@ -114,7 +114,7 @@ function FileTree({
           <span className="truncate">{node.name}</span>
 
           {!node.is_dir && node.size > 0 && (
-            <span className="ms-auto text-[10px] text-muted/50 font-mono shrink-0">
+            <span className="ms-auto text-3xs text-muted/50 font-mono shrink-0">
               {formatSize(node.size)}
             </span>
           )}
@@ -180,7 +180,7 @@ export function TemplatePreviewModal({ template, onClose }: Props) {
             </div>
           ) : (
             <>
-              <div className="flex items-center gap-2 px-1 pb-2 text-[10px] text-muted/50 font-mono">
+              <div className="flex items-center gap-2 px-1 pb-2 text-3xs text-muted/50 font-mono">
                 <IconInfo className="w-3 h-3" />
                 {t('file_count', { count: fileCount })}
                 {dirCount > 0 && ` · ${t('folder_count', { count: dirCount })}`}

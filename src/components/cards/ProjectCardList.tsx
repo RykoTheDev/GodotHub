@@ -207,10 +207,10 @@ export function ProjectCardList({
       className="mt-1 mb-0.5 flex items-center gap-2 px-1 rounded-item"
     >
       <IconPin className="w-3 h-3 text-accent-bright" fill="currentColor" />
-      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted">
+      <span className="text-3xs font-semibold uppercase tracking-wider text-muted">
         {t('pinned_section')}
       </span>
-      <span className="text-[10px] font-medium text-muted/50 tabular-nums">
+      <span className="text-3xs font-medium text-muted/50 tabular-nums">
         · <AnimatedNumber value={pinnedProjects.length} />
       </span>
       <div className="flex-1 h-px bg-outline/50" />

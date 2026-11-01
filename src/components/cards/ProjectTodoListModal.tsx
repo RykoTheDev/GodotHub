@@ -88,7 +88,7 @@ export function ProjectTodoListModal({
 
         <div className="flex min-h-0 flex-1 flex-col p-6 pt-4">
           <div className="mb-4 flex shrink-0 items-center justify-between gap-4">
-            <span className="text-[11px] font-mono text-muted">
+            <span className="text-2xs font-mono text-muted">
               {t("pending_count", { count: pendingCount })}
               <span className="mx-2 text-muted/40">•</span>
               {t("completed_count", { count: completedCount })}
@@ -101,7 +101,7 @@ export function ProjectTodoListModal({
                 onChange={(event) => onSearchChange(event.target.value)}
                 placeholder={t("search_tasks_placeholder")}
                 aria-label={t("search_tasks_placeholder")}
-                className="focus-ring w-full max-w-64 rounded-btn border border-outline/50 bg-overlay px-3 py-1.5 text-[11px] text-ink placeholder:text-muted/60 transition-colors focus:border-accent-dim"
+                className="focus-ring w-full max-w-64 rounded-btn border border-outline/50 bg-overlay px-3 py-1.5 text-2xs text-ink placeholder:text-muted/60 transition-colors focus:border-accent-dim"
               />
 
               <Dropdown
@@ -112,7 +112,7 @@ export function ProjectTodoListModal({
                     type="button"
                     onClick={toggle}
                     aria-expanded={open}
-                    className="focus-ring inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-btn border border-outline/50 bg-overlay px-3 py-1.5 text-[11px] font-medium text-ink transition-colors hover:border-accent-dim"
+                    className="focus-ring inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-btn border border-outline/50 bg-overlay px-3 py-1.5 text-2xs font-medium text-ink transition-colors hover:border-accent-dim"
                   >
                     {areaFilter === "all" ? t("all_areas") : t(`area_${areaFilter}`)}
                     <IconChevronDown className="h-3 w-3 text-muted" />
@@ -139,7 +139,7 @@ export function ProjectTodoListModal({
               type="button"
               disabled={createDisabled}
               onClick={onCreate}
-              className="focus-ring inline-flex cursor-pointer items-center gap-1.5 rounded-btn border border-accent/30 bg-accent/10 px-3 py-1.5 text-[11px] font-medium text-accent-bright transition-colors hover:border-accent/50 hover:bg-accent/20 disabled:cursor-not-allowed disabled:opacity-50"
+              className="focus-ring inline-flex cursor-pointer items-center gap-1.5 rounded-btn border border-accent/30 bg-accent/10 px-3 py-1.5 text-2xs font-medium text-accent-bright transition-colors hover:border-accent/50 hover:bg-accent/20 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <span className="text-xs font-semibold">+</span>
               {t("new_task")}

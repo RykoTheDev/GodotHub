@@ -84,7 +84,7 @@ export function CommitGraph({ commits, remoteUrl, onOpenDetails }: Props) {
   if (commits.length === 0) {
     return (
       <div className="px-3 py-2.5">
-        <span className="text-[11px] text-muted/50">
+        <span className="text-2xs text-muted/50">
           {t('no_commits_found')}
         </span>
       </div>
@@ -117,7 +117,7 @@ export function CommitGraph({ commits, remoteUrl, onOpenDetails }: Props) {
                   }`}
                   style={{ height: ROW_H }}
                 >
-                  <span className="font-mono text-[10px] font-semibold text-accent-bright shrink-0">
+                  <span className="font-mono text-3xs font-semibold text-accent-bright shrink-0">
                     {shortHash(c.hash)}
                   </span>
                   <div className="min-w-0 flex-1 max-w-[180px]">
@@ -125,7 +125,7 @@ export function CommitGraph({ commits, remoteUrl, onOpenDetails }: Props) {
                       {c.message}
                     </p>
                     {(c.author || c.date) && (
-                      <p className="text-[10px] text-muted truncate mt-0.5">
+                      <p className="text-3xs text-muted truncate mt-0.5">
                         {[c.author, c.date].filter(Boolean).join(' · ')}
                       </p>
                     )}

@@ -63,7 +63,7 @@ export function TodoDueTile({ tall = false }: { tall?: boolean }) {
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-[11px] text-muted">
+      <p className="text-2xs text-muted">
         {t("tile_summary", { overdue: overdue.length, soon: soon.length })}
       </p>
       <div className="ui-stagger flex flex-col gap-1.5">
@@ -85,10 +85,10 @@ export function TodoDueTile({ tall = false }: { tall?: boolean }) {
               )}
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-sm text-ink">{open.todo.title}</span>
-                <span className="block truncate text-[11px] text-muted/70">{open.projectName}</span>
+                <span className="block truncate text-2xs text-muted/70">{open.projectName}</span>
               </span>
               <span
-                className={`shrink-0 text-[11px] tabular-nums ${
+                className={`shrink-0 text-2xs tabular-nums ${
                   isOverdue ? "font-medium text-danger" : "text-muted"
                 }`}
               >
@@ -99,7 +99,7 @@ export function TodoDueTile({ tall = false }: { tall?: boolean }) {
         })}
       </div>
       {hidden > 0 && (
-        <p className="text-[10px] text-muted/70">{t("due_notification_more", { count: hidden })}</p>
+        <p className="text-3xs text-muted/70">{t("due_notification_more", { count: hidden })}</p>
       )}
     </div>
   );

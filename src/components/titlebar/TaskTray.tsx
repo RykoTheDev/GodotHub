@@ -68,34 +68,34 @@ function StatusBadge({ status }: { status: Task['status'] }) {
   switch (status) {
     case 'queued':
       return (
-        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-muted/10 text-muted/70 border border-line/50">
+        <span className="text-3xs font-medium px-2 py-0.5 rounded-full bg-muted/10 text-muted/70 border border-line/50">
           {t('queued')}
         </span>
       )
     case 'running':
       return (
-        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-accent/10 text-accent-bright border border-accent-dim/30 flex items-center gap-1">
+        <span className="text-3xs font-medium px-2 py-0.5 rounded-full bg-accent/10 text-accent-bright border border-accent-dim/30 flex items-center gap-1">
           <IconRefresh className="w-2.5 h-2.5 animate-spin" />
           {t('active')}
         </span>
       )
     case 'paused':
       return (
-        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-amber/10 text-amber border border-amber/30 flex items-center gap-1">
+        <span className="text-3xs font-medium px-2 py-0.5 rounded-full bg-amber/10 text-amber border border-amber/30 flex items-center gap-1">
           <IconPause className="w-2.5 h-2.5" />
           {t('paused')}
         </span>
       )
     case 'completed':
       return (
-        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-mint/10 text-mint border border-mint/30 flex items-center gap-1">
+        <span className="text-3xs font-medium px-2 py-0.5 rounded-full bg-mint/10 text-mint border border-mint/30 flex items-center gap-1">
           <IconCircleCheck className="w-2.5 h-2.5" />
           {t('done')}
         </span>
       )
     case 'error':
       return (
-        <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-danger/10 text-danger border border-danger/30 flex items-center gap-1">
+        <span className="text-3xs font-medium px-2 py-0.5 rounded-full bg-danger/10 text-danger border border-danger/30 flex items-center gap-1">
           <IconCircleX className="w-2.5 h-2.5" />
           {t('task_error_status')}
         </span>
@@ -233,12 +233,12 @@ function TaskItem({ task }: { task: Task }) {
           </div>
         </div>
         {task.description && (
-          <p className="text-[11px] text-muted mt-0.5 truncate">
+          <p className="text-2xs text-muted mt-0.5 truncate">
             {task.description}
           </p>
         )}
         {task.errorMessage && (
-          <p className="text-[11px] text-danger mt-0.5 truncate">
+          <p className="text-2xs text-danger mt-0.5 truncate">
             {task.errorMessage}
           </p>
         )}
@@ -337,7 +337,7 @@ export function TaskTray() {
             {hasActivity && (
               <motion.span
                 {...surface('tooltip', 'scale(0.97)')}
-                className="absolute -top-1.5 -inset-e-2 w-4 h-4 rounded-full bg-amber text-[9px] font-bold text-white flex items-center justify-center shadow-sm"
+                className="absolute -top-1.5 -inset-e-2 w-4 h-4 rounded-full bg-amber text-4xs font-bold text-white flex items-center justify-center shadow-sm"
               >
                 {activeCount > 9 ? '9+' : activeCount}
               </motion.span>
@@ -362,7 +362,7 @@ export function TaskTray() {
               <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">
                 {t('task_tray_title')}
               </h3>
-              <p className="text-[10px] text-muted/50 mt-0.5">
+              <p className="text-3xs text-muted/50 mt-0.5">
                 {hasActivity
                   ? t('task_tray_active_count', {
                       active: activeCount,
@@ -391,7 +391,7 @@ export function TaskTray() {
                       <p className="text-xs text-muted font-medium">
                         {t('no_tasks_running')}
                       </p>
-                      <p className="text-[10px] text-muted/50 mt-2 leading-relaxed max-w-[220px]">
+                      <p className="text-3xs text-muted/50 mt-2 leading-relaxed max-w-[220px]">
                         {t('no_tasks_desc')}
                       </p>
                     </div>
@@ -403,7 +403,7 @@ export function TaskTray() {
             </div>
             {!empty && (
               <div className="border-t border-outline/50 mt-1 pt-1.5 px-1 flex items-center justify-between">
-                <p className="text-[9px] text-muted/40">
+                <p className="text-4xs text-muted/40">
                   {t('task_tray_auto_dismiss')}
                 </p>
                 {dismissibleCount > 0 && (
@@ -413,7 +413,7 @@ export function TaskTray() {
                     data-press-feedback
                     onMouseDown={noDrag}
                     onClick={clearCompleted}
-                    className="focus-ring cursor-pointer flex items-center gap-1 px-2.5 py-1 rounded-item text-[10px] font-medium text-muted hover:text-ink hover:bg-raised transition-colors"
+                    className="focus-ring cursor-pointer flex items-center gap-1 px-2.5 py-1 rounded-item text-3xs font-medium text-muted hover:text-ink hover:bg-raised transition-colors"
                   >
                     <IconX className="w-3 h-3" />
                     {t('task_tray_dismiss', { count: dismissibleCount })}

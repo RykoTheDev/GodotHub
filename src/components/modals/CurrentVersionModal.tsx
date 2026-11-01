@@ -31,7 +31,7 @@ export function CurrentVersionModal({
   const pathRow = (target: CopyTarget, label: string, value: string) => (
     <div className="flex items-center gap-3 px-3 py-2.5 rounded-item bg-overlay border border-outline/50">
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+        <p className="text-2xs font-semibold uppercase tracking-wider text-muted">
           {label}
         </p>
         <p className="font-mono text-xs text-ink truncate mt-0.5" title={value}>

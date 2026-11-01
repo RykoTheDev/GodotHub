@@ -117,7 +117,7 @@ export function ProjectTile({
           {icon && icon !== brokenIcon ? <img src={icon} onError={() => setBrokenIcon(icon)} alt="" draggable={false} decoding="async" className="h-full w-full object-contain p-1" />
             : <span className="select-none font-display text-sm font-semibold text-accent-bright/80">{initials(displayName)}</span>}
         </div>
-        <h3 title={displayName} className={`min-w-0 flex-1 line-clamp-2 wrap-break-word font-display font-semibold leading-snug text-ink ${grid ? 'text-base' : compact ? 'text-[13px]' : 'text-[15px]'}`}>{displayName}</h3>
+        <h3 title={displayName} className={`min-w-0 flex-1 line-clamp-2 wrap-break-word font-display font-semibold leading-snug text-ink ${grid ? 'text-base' : compact ? 'text-sm' : 'text-base'}`}>{displayName}</h3>
         <div className="flex shrink-0 flex-col items-center gap-1">
           <button type="button" onClick={onTogglePin} disabled={preview} aria-label={t(project.pinned ? 'project_unpin_aria' : 'project_pin_aria')} aria-pressed={project.pinned}
             title={t(project.pinned ? 'project_unpin_aria' : 'project_pin_aria')}
@@ -133,19 +133,19 @@ export function ProjectTile({
 
       {options.show_path && <Tooltip content={project.path} className="w-full min-w-0">
         <button type="button" dir="ltr" onClick={openFolder} disabled={preview} aria-label={t('open_folder')}
-          className={`focus-ring min-w-0 w-full cursor-pointer truncate rounded-btn px-1 py-0.5 text-start font-mono text-[11px] text-muted/70 transition-colors hover:text-accent-bright ${options.blur_path ? 'blur-sm hover:blur-none focus-visible:blur-none' : ''}`}>
+          className={`focus-ring min-w-0 w-full cursor-pointer truncate rounded-btn px-1 py-0.5 text-start font-mono text-2xs text-muted/70 transition-colors hover:text-accent-bright ${options.blur_path ? 'blur-sm hover:blur-none focus-visible:blur-none' : ''}`}>
           {project.path}
         </button>
       </Tooltip>}
 
       {gitStatus?.is_repo && onShowGitSidebar && <button type="button" onClick={onShowGitSidebar} disabled={preview} aria-label={t('git_sidebar')}
         title={`${gitStatus.branch ?? ''} · ${t(gitStatus.has_uncommitted ? 'git_uncommitted' : 'git_clean')}`}
-        className={`focus-ring flex w-fit max-w-full min-w-0 cursor-pointer items-center gap-1.5 rounded-tag px-2 py-1 text-[11px] transition-colors ${gitStatus.has_uncommitted ? 'bg-amber/10 text-amber hover:bg-amber/15' : 'bg-raised text-muted hover:text-ink'}`}>
+        className={`focus-ring flex w-fit max-w-full min-w-0 cursor-pointer items-center gap-1.5 rounded-tag px-2 py-1 text-2xs transition-colors ${gitStatus.has_uncommitted ? 'bg-amber/10 text-amber hover:bg-amber/15' : 'bg-raised text-muted hover:text-ink'}`}>
         <IconGitBranch className="h-3 w-3 shrink-0" /><span className="min-w-0 truncate">{gitStatus.branch || t('git_sidebar')}</span>
         {gitStatus.has_uncommitted && <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber" />}
       </button>}
 
-      {(showTime || options.show_size || (options.show_last_opened && lastOpened)) && <div className="flex min-h-5 flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted/70">
+      {(showTime || options.show_size || (options.show_last_opened && lastOpened)) && <div className="flex min-h-5 flex-wrap items-center gap-x-3 gap-y-1 text-2xs text-muted/70">
         {showTime && <span title={running ? t('running') : t('project_card_total_time', { time: timeLabel })} className={`inline-flex items-center gap-1.5 font-mono ${running ? 'text-accent-bright' : ''}`}>
           {running ? <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent-bright animate-pulse" /> : <IconClock className="h-3 w-3" />}{timeLabel}
         </span>}
@@ -163,15 +163,15 @@ export function ProjectTile({
         <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
           {project.tags.slice(0, grid ? 3 : 2).map(tag => <button key={tag} type="button" disabled={preview} onClick={() => onTagClick ? onTagClick(tag) : setDialog('tags')}
             aria-pressed={activeTag === tag} title={tag}
-            className={`focus-ring cursor-pointer flex h-6 max-w-28 min-w-0 items-center gap-1.5 rounded-tag px-2 text-[10px] font-medium transition-[filter] hover:brightness-125 ${activeTag === tag ? 'ring-1 ring-accent-dim' : ''}`}
+            className={`focus-ring cursor-pointer flex h-6 max-w-28 min-w-0 items-center gap-1.5 rounded-tag px-2 text-3xs font-medium transition-[filter] hover:brightness-125 ${activeTag === tag ? 'ring-1 ring-accent-dim' : ''}`}
             style={{ backgroundColor: `${tagColor(tag)}18`, color: tagColor(tag) }}>
             <span className="h-1 w-1 shrink-0 rounded-full" style={{ backgroundColor: tagColor(tag) }} /><span className="min-w-0 truncate">{tag}</span>
           </button>)}
           {project.tags.length > (grid ? 3 : 2) && <button type="button" disabled={preview} onClick={() => setDialog('tags')}
             aria-label={t('project_card_more_tags', { count: project.tags.length - (grid ? 3 : 2) })}
-            className="focus-ring cursor-pointer h-6 rounded-tag bg-raised px-2 text-[10px] text-muted hover:text-ink">+{project.tags.length - (grid ? 3 : 2)}</button>}
+            className="focus-ring cursor-pointer h-6 rounded-tag bg-raised px-2 text-3xs text-muted hover:text-ink">+{project.tags.length - (grid ? 3 : 2)}</button>}
           {project.tags.length === 0 && <button type="button" disabled={preview} onClick={() => setDialog('tags')}
-            className="focus-ring cursor-pointer inline-flex h-6 items-center gap-1 rounded-btn border border-dashed border-outline/50 px-2 text-[10px] text-muted/70 hover:text-ink hover:bg-raised transition-colors">
+            className="focus-ring cursor-pointer inline-flex h-6 items-center gap-1 rounded-btn border border-dashed border-outline/50 px-2 text-3xs text-muted/70 hover:text-ink hover:bg-raised transition-colors">
             <IconPlus className="h-2.5 w-2.5" />{t('add_tag')}
           </button>}
         </div>
@@ -182,10 +182,10 @@ export function ProjectTile({
       <div className="mt-auto flex min-w-0 flex-col gap-2 border-t border-outline/30 pt-3">
         <Dropdown align="left" className="w-full min-w-0" trigger={({ open, toggle }) => <button type="button" onClick={toggle} disabled={preview || installedVersions.length === 0} aria-label={t('godot_version_label')} aria-expanded={open}
           title={!version ? unavailableHint : t('godot_version_label')}
-          className={`focus-ring flex w-full min-w-0 cursor-pointer items-center gap-2 rounded-btn border border-outline/50 bg-raised px-2.5 py-2 text-[11px] transition-colors hover:border-accent-dim disabled:cursor-not-allowed disabled:opacity-60 ${unavailable ? 'text-amber' : 'text-muted'}`}>
+          className={`focus-ring flex w-full min-w-0 cursor-pointer items-center gap-2 rounded-btn border border-outline/50 bg-raised px-2.5 py-2 text-2xs transition-colors hover:border-accent-dim disabled:cursor-not-allowed disabled:opacity-60 ${unavailable ? 'text-amber' : 'text-muted'}`}>
           <IconNode className="h-3 w-3 shrink-0" /><span className="min-w-0 flex-1 truncate text-start">{versionLabel}</span><IconChevronDown className="h-2.5 w-2.5 shrink-0" />
         </button>} items={installedVersions.map(entry => ({ key: entry.tag, label: entry.custom_name || entry.tag, badge: entry.custom_name && entry.custom_name !== entry.tag ? entry.tag : undefined, active: entry.tag === project.godot_version, onClick: () => onVersionChange(entry.tag) }))} />
-        {!version && <p className="px-1 text-[10px] leading-relaxed text-muted/70">{unavailableHint}</p>}
+        {!version && <p className="px-1 text-3xs leading-relaxed text-muted/70">{unavailableHint}</p>}
         <div className="flex min-w-0 items-stretch gap-1.5">
           {options.show_play && <button type="button" onClick={() => runAction(() => api.openProject(project.id, false))} disabled={!version || preview}
             aria-label={t('play_project_tooltip')} title={!version ? unavailableHint : t('play_project_tooltip')}

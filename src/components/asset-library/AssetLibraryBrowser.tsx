@@ -326,7 +326,7 @@ export function AssetLibraryBrowser({
               onClick={toggle}
               className={dropBtnClass}
             >
-              <span className="text-[16px] font-medium text-ink">
+              <span className="text-base font-medium text-ink">
                 {t(`asset_store_${sort}`)}
               </span>
               <IconChevronDown className="w-3 h-3 text-muted" />
@@ -350,7 +350,7 @@ export function AssetLibraryBrowser({
               onClick={toggle}
               className={dropBtnClass}
             >
-              <span className="text-[16px] font-medium text-ink">
+              <span className="text-base font-medium text-ink">
                 {version ? `Godot ${version}` : t('asset_all_versions')}
               </span>
               <IconChevronDown className="w-3 h-3 text-muted" />
@@ -372,7 +372,7 @@ export function AssetLibraryBrowser({
           ]}
         />
         {!loading && (
-          <span className="text-[11px] text-muted/60 shrink-0 ms-auto">
+          <span className="text-2xs text-muted/60 shrink-0 ms-auto">
             {t('asset_result_count', { count: total })}
           </span>
         )}

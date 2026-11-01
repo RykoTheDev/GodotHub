@@ -148,7 +148,7 @@ export function CreateViewModal({
               })}
             </div>
 
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted/50 px-1">
+            <span className="text-3xs font-semibold uppercase tracking-wider text-muted/50 px-1">
               {t('customize_card_section')}
             </span>
             <div className="rounded-item border border-outline/50 bg-raised/40 divide-y divide-outline/30">
@@ -182,7 +182,7 @@ export function CreateViewModal({
           <div className="flex flex-col gap-2 min-w-0 flex-1">
             {active.length > 0 && (
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted/50 px-1">
+                <span className="text-3xs font-semibold uppercase tracking-wider text-muted/50 px-1">
                   {t('active_views')}
                 </span>
                 {active.map((opt) => {
@@ -217,7 +217,7 @@ export function CreateViewModal({
                             {customName ?? t(opt.labelKey)}
                           </span>
                           {customName && customName !== t(opt.labelKey) && (
-                            <span className="block text-[10px] text-muted/50 mt-0.5 truncate">
+                            <span className="block text-3xs text-muted/50 mt-0.5 truncate">
                               {t(opt.labelKey)}
                             </span>
                           )}
@@ -253,7 +253,7 @@ export function CreateViewModal({
 
             {available.length > 0 && (
               <div className="flex flex-col gap-1">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted/50 px-1">
+                <span className="text-3xs font-semibold uppercase tracking-wider text-muted/50 px-1">
                   {t('available_views')}
                 </span>
                 {available.map((opt) => {
@@ -274,7 +274,7 @@ export function CreateViewModal({
                         <span className="block text-sm font-medium text-ink truncate">
                           {t(opt.labelKey)}
                         </span>
-                        <span className="block text-[11px] text-muted/60 mt-0.5 truncate">
+                        <span className="block text-2xs text-muted/60 mt-0.5 truncate">
                           {opt.description}
                         </span>
                       </div>
