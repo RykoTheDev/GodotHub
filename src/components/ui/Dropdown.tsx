@@ -343,7 +343,7 @@ export function Dropdown({
                         >
                           <motion.div
                             {...surface('popover', `translateX(${submenuSide === 'left' ? 6 : -6}px) scale(0.97)`)}
-                            className={`min-w-52 rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/15 p-1 ${
+                            className={`${menuSurfaceClass(compact)} ${
                               submenuSide === 'left'
                                 ? 'origin-right'
                                 : 'origin-left'

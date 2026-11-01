@@ -38,6 +38,7 @@ export function ContextMenu({
   const menuRef = useRef<HTMLDivElement>(null)
   const [pos, setPos] = useState<{ left: number; top: number } | null>(null)
   const [flipped, setFlipped] = useState(false)
+  const [flippedX, setFlippedX] = useState(false)
 
   const measure = useCallback(() => {
     const height = menuRef.current?.offsetHeight ?? FALLBACK_HEIGHT
@@ -64,6 +65,7 @@ export function ContextMenu({
     )
 
     setFlipped(up)
+    setFlippedX(leftwards)
     setPos({ left, top })
   }, [x, y])
 
@@ -142,7 +144,7 @@ export function ContextMenu({
       aria-label={label}
       onKeyDown={handleMenuKey}
       onContextMenu={(e) => e.preventDefault()}
-      style={{ left: pos?.left, top: pos?.top, transformOrigin: flipped ? 'bottom left' : 'top left' }}
+      style={{ left: pos?.left, top: pos?.top, transformOrigin: `${flipped ? 'bottom' : 'top'} ${flippedX ? 'right' : 'left'}` }}
       className={`fixed z-50 ${menuSurfaceClass(compact)} ${
         flipped ? 'origin-bottom' : 'origin-top'
       }`}
