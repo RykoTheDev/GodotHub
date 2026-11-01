@@ -507,7 +507,7 @@ export function VersionsView({
       <OverlayScrollArea
         className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
-        topButtonBottom="bottom-18"
+        topButtonBottom="bottom-17"
       >
         <div
           className={`h-full ${connected ? 'ps-5' : ''} pe-5 pb-4 flex flex-col gap-2`}

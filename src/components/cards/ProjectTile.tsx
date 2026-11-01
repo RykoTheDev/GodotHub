@@ -159,7 +159,7 @@ export function ProjectTile({
         </span>}
       </div>}
 
-      {options.show_tags && <div className="flex items-start gap-1.5 min-w-0">
+      {options.show_tags && <div className="flex items-center gap-1.5 min-w-0">
         <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
           {project.tags.slice(0, grid ? 3 : 2).map(tag => <button key={tag} type="button" disabled={preview} onClick={() => onTagClick ? onTagClick(tag) : setDialog('tags')}
             aria-pressed={activeTag === tag} title={tag}
@@ -171,7 +171,7 @@ export function ProjectTile({
             aria-label={t('project_card_more_tags', { count: project.tags.length - (grid ? 3 : 2) })}
             className="focus-ring cursor-pointer h-6 rounded-tag bg-raised px-2 text-[10px] text-muted hover:text-ink">+{project.tags.length - (grid ? 3 : 2)}</button>}
           {project.tags.length === 0 && <button type="button" disabled={preview} onClick={() => setDialog('tags')}
-            className="focus-ring cursor-pointer inline-flex h-7 items-center gap-1 rounded-btn border border-dashed border-outline/50 px-2 text-[11px] text-muted/70 hover:text-ink hover:bg-raised transition-colors">
+            className="focus-ring cursor-pointer inline-flex h-6 items-center gap-1 rounded-btn border border-dashed border-outline/50 px-2 text-[10px] text-muted/70 hover:text-ink hover:bg-raised transition-colors">
             <IconPlus className="h-2.5 w-2.5" />{t('add_tag')}
           </button>}
         </div>

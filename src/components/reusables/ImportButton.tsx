@@ -6,7 +6,7 @@ import { api } from '../../lib/api'
 import { Dropdown, type NewDropdownItem } from '../ui/Dropdown'
 
 const TOOL_BUTTON_CLASS =
-  'text-muted hover:text-ink font-semibold text-[17px] bg-overlay shadow-md shadow-black/10 border border-outline/50 hover:bg-raised cursor-pointer h-10 flex items-center transition-colors'
+  'focus-ring text-muted hover:text-ink font-semibold text-[17px] bg-overlay shadow-md shadow-black/10 border border-outline/50 hover:bg-raised cursor-pointer h-10 flex items-center transition-colors'
 
 const TOOL_BUTTON_ANIMATION = {
   'data-press-feedback': true,
@@ -87,7 +87,7 @@ export function ImportButton({
               className={`${TOOL_BUTTON_CLASS} px-[5px] rounded-e-dropdown rounded-s-[4px]`}
             >
               <IconChevronDown
-                className={`w-3 h-3 transition-transform duration-200 ${
+                className={`w-4 h-4 transition-transform duration-200 ${
                   open ? 'rotate-180 text-ink' : ''
                 }`}
               />

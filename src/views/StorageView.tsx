@@ -248,10 +248,9 @@ export function StorageView({
   const maxVersion = Math.max(0, ...(report?.versions.map((v) => v.size_bytes) ?? []))
 
   return (
-    <div className="flex-1 min-w-0 h-full flex flex-col">
+    <div className="flex-1 min-w-0 h-full flex flex-col gap-2">
       <ViewHeader
         connected={connected}
-        className="mb-4"
         title={tc('cleanup_title')}
         leadingAction={
           <span className="inline-flex items-center px-2 py-0.5 rounded-tag bg-amber/15 text-amber text-[10px] font-semibold uppercase tracking-wider">
@@ -285,9 +284,9 @@ export function StorageView({
       <OverlayScrollArea
         className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
-        topButtonBottom={'bottom-16'}
+        topButtonBottom={'bottom-17'}
       >
-        <div className={`ui-stagger ${connected ? 'ps-3' : ''} pe-5 pb-4 flex flex-col gap-3`}>
+        <div className={`ui-stagger ${connected ? 'ps-5' : ''} pe-5 pb-4 flex flex-col gap-2`}>
           {error && !report ? (
             <div className="border border-dashed border-danger/30 rounded-item py-16 flex flex-col items-center gap-4 text-center">
               <p className="text-sm text-muted max-w-sm leading-relaxed">

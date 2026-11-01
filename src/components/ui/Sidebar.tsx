@@ -327,7 +327,7 @@ export function Sidebar({
         </div>
       )}
 
-      <nav className={`flex-1 p-3 pt-2 flex flex-col gap-1 ${collapsed ? 'items-center' : ''}`}>
+      <nav className={`flex-1 p-3 pt-2 flex flex-col ${collapsed ? 'items-center gap-1' : 'gap-1.5'}`}>
         {mainTabs.map((tab) =>
           renderTabButton(
             tab,
@@ -348,7 +348,7 @@ export function Sidebar({
                 <button
                   type="button"
                   onClick={onOpenCommandPalette}
-                  className="focus-ring cursor-pointer w-full flex items-center gap-2 px-3 py-2 rounded-item border border-dashed border-outline/50 text-[11px] font-medium text-muted/60 hover:text-muted hover:border-outline hover:bg-raised/50 transition-colors"
+                  className="focus-ring cursor-pointer w-full flex items-center gap-2.5 px-3 py-2.5 rounded-item border border-dashed border-outline/50 text-xs font-medium text-muted/60 hover:text-muted hover:border-outline hover:bg-raised/50 transition-colors"
                 >
                   <kbd className="font-mono text-[9px] px-1.5 py-0.5 rounded-tag bg-overlay border border-outline/50">
                     {navigator.platform.includes('Mac')
@@ -381,7 +381,7 @@ export function Sidebar({
               <button
                 type="button"
                 onClick={onOpenUpdatesModal}
-                className="focus-ring cursor-pointer w-full flex items-center gap-2 px-3 py-2 rounded-item bg-accent/10 border border-accent/30 text-xs font-medium text-accent-bright hover:bg-accent/20 transition-colors"
+                className="focus-ring cursor-pointer w-full flex items-center gap-2.5 px-3 py-2.5 rounded-item bg-accent/10 border border-accent/30 text-xs font-medium text-accent-bright hover:bg-accent/20 transition-colors"
               >
                 <span className="relative flex w-2 h-2">
                   <span className="absolute inline-flex h-full w-full rounded-full bg-accent-bright opacity-75 animate-attention-ping" />

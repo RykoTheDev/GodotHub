@@ -199,7 +199,7 @@ export function ScanButton({
               ? 'bg-mint text-overlay'
               : phase === 'error'
                 ? 'bg-danger text-overlay'
-                : 'bg-accent text-overlay',
+                : 'bg-accent text-white',
         ].join(' ')}
       >
         <span role="status" aria-live="polite" className="sr-only">
