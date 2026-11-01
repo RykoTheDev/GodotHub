@@ -165,7 +165,7 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
           <div className="flex-1 min-w-0 min-h-9 text-xs text-muted" aria-live="polite">
             <p className="font-medium text-ink">{t('export_templates_selected', { count: chosen.length })}</p>
             {chosen.length > 0 && (
-              <p className="mt-1 text-[11px]">{t('export_templates_size_summary', {
+              <p className="mt-1 text-2xs">{t('export_templates_size_summary', {
                 download: formatBytes(downloadBytes), installed: formatBytes(installedBytes),
               })}</p>
             )}
@@ -259,10 +259,10 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
                                 className="focus-ring cursor-pointer flex flex-1 min-w-0 items-center gap-2 rounded-btn text-start">
                                 <span className="flex-1 min-w-0">
                                   <span className="block text-sm font-medium text-ink">{option.label}</span>
-                                  <span className="block text-[11px] text-muted mt-0.5">{t('export_templates_files', { count: option.files.length })}</span>
+                                  <span className="block text-2xs text-muted mt-0.5">{t('export_templates_files', { count: option.files.length })}</span>
                                 </span>
-                                {installedCount > 0 && <span className="shrink-0 rounded-tag border border-mint/30 bg-mint/10 px-2 py-0.5 text-[10px] font-medium text-mint">{!fullyInstalled && `${installedCount}/${option.files.length} `}{t('export_templates_option_installed')}</span>}
-                                {selectedCount > 0 && <span className="text-[10px] text-accent-bright tabular-nums">{selectedCount}/{available.length}</span>}
+                                {installedCount > 0 && <span className="shrink-0 rounded-tag border border-mint/30 bg-mint/10 px-2 py-0.5 text-3xs font-medium text-mint">{!fullyInstalled && `${installedCount}/${option.files.length} `}{t('export_templates_option_installed')}</span>}
+                                {selectedCount > 0 && <span className="text-3xs text-accent-bright tabular-nums">{selectedCount}/{available.length}</span>}
                                 <span className="text-xs text-muted tabular-nums shrink-0">{formatBytes(fullyInstalled ? option.size_bytes : available.reduce((sum, file) => sum + file.download_bytes, 0))}</span>
                                 <TemplateDisclosureChevron open={open} animate={animateDisclosures} />
                               </button>
@@ -296,8 +296,8 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
                                             }}
                                             className="focus-ring cursor-pointer flex flex-1 min-w-0 items-center gap-2 rounded-btn text-start py-1">
                                             <span className="flex-1 text-xs font-medium text-ink">{groupLabel}</span>
-                                            {installedCount > 0 && <span className="text-[10px] text-mint">{!fullyInstalled && `${installedCount}/${group.files.length} `}{t('export_templates_option_installed')}</span>}
-                                            {!fullyInstalled && <span className="text-[10px] text-muted tabular-nums">{count}/{available.length}</span>}
+                                            {installedCount > 0 && <span className="text-3xs text-mint">{!fullyInstalled && `${installedCount}/${group.files.length} `}{t('export_templates_option_installed')}</span>}
+                                            {!fullyInstalled && <span className="text-3xs text-muted tabular-nums">{count}/{available.length}</span>}
                                             <TemplateDisclosureChevron open={groupOpen} animate={animateDisclosures} />
                                           </button>
                                           {uninstallButton(group.files, groupName)}
@@ -307,13 +307,13 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
                                         <div key={file.name} className={`flex items-center gap-3 rounded-btn border px-3 py-2.5 ${group.label ? 'ms-5' : ''} ${selectedNames.has(file.name) ? 'border-accent-dim/40 bg-accent/5' : 'border-transparent bg-base/30 hover:bg-raised/70'} transition-colors`}>
                                           {file.installed ? <div className="flex flex-1 min-w-0 items-center gap-2.5">
                                             <InstalledMark label={`${file.name} · ${t('export_templates_option_installed')}`} />
-                                            <span title={file.name} className="block min-w-0 truncate font-mono text-[11px] text-ink">{file.name}</span>
+                                            <span title={file.name} className="block min-w-0 truncate font-mono text-2xs text-ink">{file.name}</span>
                                           </div> : <Checkbox checked={selectedNames.has(file.name)} disabled={busy} label={file.name} className="flex-1 min-w-0"
                                             onChange={(checked) => setSelected((previous) => toggleTemplateFiles(previous, [file], checked))}>
-                                            <span title={file.name} className="block truncate font-mono text-[11px] font-normal">{file.name}</span>
+                                            <span title={file.name} className="block truncate font-mono text-2xs font-normal">{file.name}</span>
                                           </Checkbox>}
-                                          {file.installed && <span className="shrink-0 text-[10px] text-mint">{t('export_templates_option_installed')}</span>}
-                                          <span className="text-[11px] text-muted tabular-nums shrink-0">{formatBytes(file.installed ? file.size_bytes : file.download_bytes)}</span>
+                                          {file.installed && <span className="shrink-0 text-3xs text-mint">{t('export_templates_option_installed')}</span>}
+                                          <span className="text-2xs text-muted tabular-nums shrink-0">{formatBytes(file.installed ? file.size_bytes : file.download_bytes)}</span>
                                           {uninstallButton([file], file.name)}
                                         </div>
                                       ))}</TemplateDisclosure>
@@ -329,7 +329,7 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
                 )
               })}
             </div>
-            <p className="text-[11px] text-muted/70 leading-relaxed">{t('export_templates_keep_existing')}</p>
+            <p className="text-2xs text-muted/70 leading-relaxed">{t('export_templates_keep_existing')}</p>
           </>
         )}
       </div>

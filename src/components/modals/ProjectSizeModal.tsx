@@ -147,7 +147,7 @@ function FileTree({
           <span className="truncate">{node.name}</span>
 
           {node.size > 0 && (
-            <span className="ms-auto text-[10px] text-muted/50 font-mono shrink-0">
+            <span className="ms-auto text-3xs text-muted/50 font-mono shrink-0">
               {formatSize(node.size)}
             </span>
           )}
@@ -206,7 +206,7 @@ export function ProjectSizeModal({ projectPath, projectName, onClose }: Props) {
       description={
         <>
           <span className="block">{projectName}</span>
-          <span className="flex items-center gap-2 mt-1 text-[10px] text-muted/50 font-mono">
+          <span className="flex items-center gap-2 mt-1 text-3xs text-muted/50 font-mono">
             {fileCount.toLocaleString()} files
             {dirCount > 0 && ` · ${dirCount.toLocaleString()} folders`}
             {totalSize > 0 && ` · ${formatSize(totalSize)}`}

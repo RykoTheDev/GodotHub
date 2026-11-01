@@ -229,7 +229,7 @@ export function Sidebar({
           <span className={`relative transition-colors duration-200 ${active ? 'text-ink' : ''}`}>{tab.label}</span>
         )}
         {showNew && !hideLabel && (
-          <span className="relative ms-auto shrink-0 px-1.5 py-0.5 rounded-tag bg-accent text-white text-[10px] font-semibold leading-none">
+          <span className="relative ms-auto shrink-0 px-1.5 py-0.5 rounded-tag bg-accent text-white text-3xs font-semibold leading-none">
             {tc('new_badge')}
           </span>
         )}
@@ -327,7 +327,7 @@ export function Sidebar({
         </div>
       )}
 
-      <nav className={`flex-1 p-3 pt-2 flex flex-col gap-1 ${collapsed ? 'items-center' : ''}`}>
+      <nav className={`flex-1 p-3 pt-2 flex flex-col ${collapsed ? 'items-center gap-1' : 'gap-1.5'}`}>
         {mainTabs.map((tab) =>
           renderTabButton(
             tab,
@@ -348,9 +348,9 @@ export function Sidebar({
                 <button
                   type="button"
                   onClick={onOpenCommandPalette}
-                  className="focus-ring cursor-pointer w-full flex items-center gap-2 px-3 py-2 rounded-item border border-dashed border-outline/50 text-[11px] font-medium text-muted/60 hover:text-muted hover:border-outline hover:bg-raised/50 transition-colors"
+                  className="focus-ring cursor-pointer w-full flex items-center gap-2.5 px-3 py-2.5 rounded-item border border-dashed border-outline/50 text-xs font-medium text-muted/60 hover:text-muted hover:border-outline hover:bg-raised/50 transition-colors"
                 >
-                  <kbd className="font-mono text-[9px] px-1.5 py-0.5 rounded-tag bg-overlay border border-outline/50">
+                  <kbd className="font-mono text-4xs px-1.5 py-0.5 rounded-tag bg-overlay border border-outline/50">
                     {navigator.platform.includes('Mac')
                       ? `⌘${paletteKey.toUpperCase()}`
                       : `Ctrl+${paletteKey.toUpperCase()}`}
@@ -381,7 +381,7 @@ export function Sidebar({
               <button
                 type="button"
                 onClick={onOpenUpdatesModal}
-                className="focus-ring cursor-pointer w-full flex items-center gap-2 px-3 py-2 rounded-item bg-accent/10 border border-accent/30 text-xs font-medium text-accent-bright hover:bg-accent/20 transition-colors"
+                className="focus-ring cursor-pointer w-full flex items-center gap-2.5 px-3 py-2.5 rounded-item bg-accent/10 border border-accent/30 text-xs font-medium text-accent-bright hover:bg-accent/20 transition-colors"
               >
                 <span className="relative flex w-2 h-2">
                   <span className="absolute inline-flex h-full w-full rounded-full bg-accent-bright opacity-75 animate-attention-ping" />
@@ -477,7 +477,7 @@ export function Sidebar({
             }
           >
           <div
-            className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-tag bg-raised border border-line shadow-md shadow-base text-[10px] font-mono text-muted tabular-nums whitespace-nowrap transition-[translate,opacity] duration-200 ${
+            className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-tag bg-raised border border-line shadow-md shadow-base text-3xs font-mono text-muted tabular-nums whitespace-nowrap transition-[translate,opacity] duration-200 ${
               dragging ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
             }`}
           >

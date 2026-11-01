@@ -51,11 +51,11 @@ export function GitSection({
             open ? '' : '-rotate-90 rtl:rotate-90'
           }`}
         />
-        <span className="flex-1 text-[10px] font-semibold uppercase tracking-wider text-muted/50 group-hover:text-muted transition-colors">
+        <span className="flex-1 text-3xs font-semibold uppercase tracking-wider text-muted/50 group-hover:text-muted transition-colors">
           {title}
         </span>
         {typeof count === 'number' && count > 0 && (
-          <span className="text-[10px] font-mono font-medium tabular-nums text-muted/60 bg-overlay border border-outline/50 rounded-tag px-1.5 py-0.5 shrink-0">
+          <span className="text-3xs font-mono font-medium tabular-nums text-muted/60 bg-overlay border border-outline/50 rounded-tag px-1.5 py-0.5 shrink-0">
             {count}
           </span>
         )}

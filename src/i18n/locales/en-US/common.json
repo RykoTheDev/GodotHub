@@ -407,8 +407,6 @@
   "time_week_total": "{{total}} this week",
   "time_weekly_empty": "No tracked time in the last 7 days.",
   "project_more_aria": "More actions",
-  "manage_views": "Customize View",
-  "manage_views_desc": "Choose which layouts appear in the view switcher, rename views, and customize what shows on project cards.",
   "customize_card_section": "Project Card",
   "customize_card_show_size": "Show Project Size",
   "customize_card_show_time": "Show Time Tracked",
@@ -419,11 +417,6 @@
   "customize_card_show_last_opened": "Show Last Opened",
   "customize_card_show_play": "Show Play Button",
   "customize_card_show_console": "Show Open with Console",
-  "active_views": "Active",
-  "available_views": "Available",
-  "remove_view": "Remove view",
-  "rename_view": "Rename view",
-  "all_views_created": "All view types have been added.",
   "project_card_remove_library": "Remove from Library",
   "project_card_delete_files": "Delete Files",
   "manage_tags": "Manage Tags",
@@ -877,5 +870,6 @@
   "language_label": "Language",
   "n_projects_one": "{{count}} project",
   "n_projects_other": "{{count}} projects",
-  "unlocalized_badge": "Unlocalized"
+  "unlocalized_badge": "Unlocalized",
+  "new": "New"
 }

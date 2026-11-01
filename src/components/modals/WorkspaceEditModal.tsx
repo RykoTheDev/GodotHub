@@ -112,7 +112,7 @@ export function WorkspaceEditModal({
                 <span className="block font-display font-semibold text-base text-ink truncate">
                   {previewName}
                 </span>
-                <span className="block text-[10px] font-semibold uppercase tracking-wider text-muted/60 mt-0.5">
+                <span className="block text-3xs font-semibold uppercase tracking-wider text-muted/60 mt-0.5">
                   {t('section_workspaces')}
                 </span>
               </div>

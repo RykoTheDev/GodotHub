@@ -222,7 +222,7 @@ export function ProjectDragOverlay({
     >
       {children}
       {count > 1 && (
-        <span className="pointer-events-none absolute -top-2 -end-2 z-30 min-w-6 h-6 px-1.5 rounded-full bg-accent-bright text-white text-[11px] font-semibold flex items-center justify-center shadow-md shadow-black/30">
+        <span className="pointer-events-none absolute -top-2 -end-2 z-30 min-w-6 h-6 px-1.5 rounded-full bg-accent-bright text-white text-2xs font-semibold flex items-center justify-center shadow-md shadow-black/30">
           {count}
         </span>
       )}

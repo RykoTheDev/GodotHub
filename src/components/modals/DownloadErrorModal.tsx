@@ -147,10 +147,10 @@ export function DownloadErrorModal({ error, onRetry, onClose }: Props) {
         </div>
 
         <div className="flex flex-col gap-1.5">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+          <span className="text-2xs font-semibold uppercase tracking-wider text-muted">
             {tv('download_failed_error_label')}
           </span>
-          <div className="rounded-item bg-base border border-line p-3.5 font-mono text-[11px] text-muted whitespace-pre-wrap break-all leading-relaxed max-h-[200px] overflow-y-auto select-all">
+          <div className="rounded-item bg-base border border-line p-3.5 font-mono text-2xs text-muted whitespace-pre-wrap break-all leading-relaxed max-h-[200px] overflow-y-auto select-all">
             {error.message}
           </div>
         </div>

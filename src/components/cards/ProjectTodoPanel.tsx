@@ -422,7 +422,7 @@ export function ProjectTodoPanel({
     <div className="rounded-b-item border-x border-b border-outline/50 bg-overlay">
       <div className="flex items-center justify-between px-3.5 py-2.5">
         <div className="flex items-center gap-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-muted">
+          <span className="text-2xs font-semibold uppercase tracking-wide text-muted">
             {t("next_steps")}
           </span>
         </div>
@@ -436,7 +436,7 @@ export function ProjectTodoPanel({
           )}
         </span>
         <div className="flex items-center gap-3">
-          <span className="text-[10px] font-mono text-muted">
+          <span className="text-3xs font-mono text-muted">
             {t("pending_count", { count: pendingCount })}
           </span>
 
@@ -445,7 +445,7 @@ export function ProjectTodoPanel({
             disabled={saving || scanning || !loaded || !!error}
             onClick={() => void scanCode()}
             title={t("scan_code_hint")}
-            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 rounded-btn border border-outline/50 px-2.5 py-1.5 text-[10px] font-medium text-muted transition-colors hover:border-accent-dim hover:bg-raised hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
+            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 rounded-btn border border-outline/50 px-2.5 py-1.5 text-3xs font-medium text-muted transition-colors hover:border-accent-dim hover:bg-raised hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
           >
             <IconCode className={`h-3 w-3 ${scanning ? "animate-pulse" : ""}`} />
             {scanning ? t("scanning") : t("scan_code")}
@@ -455,7 +455,7 @@ export function ProjectTodoPanel({
             type="button"
             disabled={saving}
             onClick={() => setIsCreating(true)}
-            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 rounded-btn border border-accent/30 bg-accent/10 px-2.5 py-1.5 text-[10px] font-medium text-accent-bright transition-colors hover:border-accent/50 hover:bg-accent/20 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-accent/30 disabled:hover:bg-accent/10"
+            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 rounded-btn border border-accent/30 bg-accent/10 px-2.5 py-1.5 text-3xs font-medium text-accent-bright transition-colors hover:border-accent/50 hover:bg-accent/20 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-accent/30 disabled:hover:bg-accent/10"
           >
             <span className="text-xs font-semibold">+</span>
             {t("new_task")}
@@ -476,7 +476,7 @@ export function ProjectTodoPanel({
         <div
           role="alert"
           title={saveError}
-          className="mx-3.5 mb-2 flex items-center justify-between gap-3 rounded-item border border-danger/30 bg-danger/5 px-3 py-2 text-[11px] text-danger"
+          className="mx-3.5 mb-2 flex items-center justify-between gap-3 rounded-item border border-danger/30 bg-danger/5 px-3 py-2 text-2xs text-danger"
         >
           <span>{t("save_changes_failed")}</span>
 
@@ -506,7 +506,7 @@ export function ProjectTodoPanel({
             onChange={(event) => setQuickTitle(event.target.value)}
             placeholder={t("quick_add_placeholder")}
             aria-label={t("quick_add_placeholder")}
-            className="focus-ring w-full rounded-item border border-dashed border-outline/60 bg-base/40 px-3 py-2 text-[11px] text-ink placeholder:text-muted/60 transition-colors focus:border-solid focus:border-accent-dim disabled:opacity-50"
+            className="focus-ring w-full rounded-item border border-dashed border-outline/60 bg-base/40 px-3 py-2 text-2xs text-ink placeholder:text-muted/60 transition-colors focus:border-solid focus:border-accent-dim disabled:opacity-50"
           />
         </form>
       )}
@@ -514,7 +514,7 @@ export function ProjectTodoPanel({
       {/* Tarefas */}
       {loading ? (
         <div className="mx-3.5 mb-2 flex items-center justify-center rounded-item border border-outline/50 px-4 py-10">
-          <span className="text-[11px] text-muted">{t("loading_tasks")}</span>
+          <span className="text-2xs text-muted">{t("loading_tasks")}</span>
         </div>
       ) : error ? (
         <div
@@ -525,12 +525,12 @@ export function ProjectTodoPanel({
             {t("load_tasks_failed")}
           </p>
 
-          <p className="mt-1 text-[11px] text-muted">{t("data_unchanged")}</p>
+          <p className="mt-1 text-2xs text-muted">{t("data_unchanged")}</p>
 
           <button
             type="button"
             onClick={() => void refresh()}
-            className="focus-ring mt-4 cursor-pointer rounded-btn border border-outline/50 px-3 py-1.5 text-[11px] text-muted transition-colors hover:bg-raised hover:text-ink"
+            className="focus-ring mt-4 cursor-pointer rounded-btn border border-outline/50 px-3 py-1.5 text-2xs text-muted transition-colors hover:bg-raised hover:text-ink"
           >
             {t("try_again", { ns: "common" })}
           </button>
@@ -543,7 +543,7 @@ export function ProjectTodoPanel({
 
           <p className="text-sm font-medium text-ink">{t("empty_title")}</p>
 
-          <p className="mt-1 text-[11px] text-muted">
+          <p className="mt-1 text-2xs text-muted">
             {t("empty_description")}
           </p>
 
@@ -551,7 +551,7 @@ export function ProjectTodoPanel({
             type="button"
             disabled={saving}
             onClick={() => setIsCreating(true)}
-            className="focus-ring mt-4 inline-flex cursor-pointer items-center gap-1.5 rounded-btn border border-accent/30 bg-accent/10 px-3 py-1.5 text-[11px] font-medium text-accent-bright transition-colors hover:border-accent/50 hover:bg-accent/20"
+            className="focus-ring mt-4 inline-flex cursor-pointer items-center gap-1.5 rounded-btn border border-accent/30 bg-accent/10 px-3 py-1.5 text-2xs font-medium text-accent-bright transition-colors hover:border-accent/50 hover:bg-accent/20"
           >
             <span className="text-xs font-semibold">+</span>
             {t("create_task")}
@@ -569,7 +569,7 @@ export function ProjectTodoPanel({
                 {t("all_completed_title")}
               </p>
 
-              <p className="mt-1 text-[11px] text-muted">
+              <p className="mt-1 text-2xs text-muted">
                 {t("all_completed_description")}
               </p>
             </div>
@@ -598,11 +598,11 @@ export function ProjectTodoPanel({
           )}
           {/* Rodapé */}
           <div className="flex items-center justify-between px-3.5 pb-2.5">
-            <span className="text-[10px] text-muted">{t("footer_hint")}</span>
+            <span className="text-3xs text-muted">{t("footer_hint")}</span>
 
             <button
               type="button"
-              className="focus-ring cursor-pointer rounded-btn border border-outline/50 px-2.5 py-1.5 text-[10px] text-muted transition-colors hover:border-accent-dim hover:bg-raised hover:text-ink"
+              className="focus-ring cursor-pointer rounded-btn border border-outline/50 px-2.5 py-1.5 text-3xs text-muted transition-colors hover:border-accent-dim hover:bg-raised hover:text-ink"
               onClick={() => setShowAllTodos(true)}
             >
               {t("view_all")}
@@ -627,7 +627,7 @@ export function ProjectTodoPanel({
             onAreaFilterChange={setAreaFilter}
           >
             {visibleAllTodos.length === 0 ? (
-              <p className="py-10 text-center text-[11px] text-muted">
+              <p className="py-10 text-center text-2xs text-muted">
                 {t("no_matching_tasks")}
               </p>
             ) : (

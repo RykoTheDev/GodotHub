@@ -57,7 +57,7 @@ function rowHeight(row: DiffRow): number {
 function DiffRowView({ row }: { row: DiffRow }) {
   if (row.type === 'header') {
     return (
-      <div className="flex h-7 items-center px-4 text-[11px] font-medium text-accent-bright bg-accent/5 border-y border-accent/10">
+      <div className="flex h-7 items-center px-4 text-2xs font-medium text-accent-bright bg-accent/5 border-y border-accent/10">
         {row.text}
       </div>
     )
@@ -149,7 +149,7 @@ export function DiffBody({ diff }: { diff: GitDiffResult }) {
 
   if (!windowed) {
     return (
-      <div className="py-2 text-[12px] font-mono leading-5">
+      <div className="py-2 text-xs font-mono leading-5">
         {rows.map((row, i) => (
           <DiffRowView key={i} row={row} />
         ))}
@@ -159,7 +159,7 @@ export function DiffBody({ diff }: { diff: GitDiffResult }) {
 
   const [start, end] = range
   return (
-    <div ref={containerRef} className="py-2 text-[12px] font-mono leading-5">
+    <div ref={containerRef} className="py-2 text-xs font-mono leading-5">
       <div style={{ height: offsets[start] }} />
       {rows.slice(start, end).map((row, i) => (
         <DiffRowView key={start + i} row={row} />

@@ -69,7 +69,7 @@ export function SearchBar({
                 onChange('')
                 requestAnimationFrame(() => ownRef.current?.focus())
               }}
-              className="cursor-pointer flex items-center justify-center w-6 h-6 rounded-btn text-muted hover:text-ink hover:bg-raised transition-colors"
+              className="focus-ring cursor-pointer flex items-center justify-center w-6 h-6 rounded-btn text-muted hover:text-ink hover:bg-raised transition-colors"
             >
               <IconX className="w-3.5 h-3.5" />
             </button>

@@ -65,14 +65,14 @@ export function CommitDetailsModal({ project, hash, onClose }: Props) {
       <div className="flex flex-col">
         {details && (
           <div className="flex items-center gap-3 px-5 pt-3 pb-2.5 border-b border-line/60">
-            <span className="font-mono text-[11px] text-accent-bright shrink-0">
+            <span className="font-mono text-2xs text-accent-bright shrink-0">
               {shortHash(details.hash)}
             </span>
-            <span className="flex items-center gap-1 text-[11px] text-muted">
+            <span className="flex items-center gap-1 text-2xs text-muted">
               <IconUser className="w-3 h-3" />
               {details.author}
             </span>
-            <span className="text-[11px] text-muted/60">{details.date}</span>
+            <span className="text-2xs text-muted/60">{details.date}</span>
           </div>
         )}
 
@@ -99,11 +99,11 @@ export function CommitDetailsModal({ project, hash, onClose }: Props) {
                         className="flex items-center gap-2 px-1.5 py-1 rounded"
                       >
                         <span
-                          className={`w-3 shrink-0 text-[9px] font-mono font-bold ${meta.color}`}
+                          className={`w-3 shrink-0 text-4xs font-mono font-bold ${meta.color}`}
                         >
                           {meta.badge}
                         </span>
-                        <span className="flex-1 min-w-0 text-[11px] font-mono text-muted truncate">
+                        <span className="flex-1 min-w-0 text-2xs font-mono text-muted truncate">
                           {f.path}
                         </span>
                       </div>
@@ -114,7 +114,7 @@ export function CommitDetailsModal({ project, hash, onClose }: Props) {
               {details.diff.hunks.length > 0 ? (
                 <DiffBody diff={details.diff} />
               ) : (
-                <div className="px-5 py-8 text-center text-[12px] text-muted/60">
+                <div className="px-5 py-8 text-center text-xs text-muted/60">
                   {t('diff_no_diff')}
                 </div>
               )}

@@ -38,6 +38,7 @@ mod terminal;
 mod time_stats;
 mod todo_sync;
 mod tray;
+mod vault;
 mod watcher;
 mod workspace;
 
@@ -481,6 +482,11 @@ pub fn run() {
             asset_library::install_store_asset,
             asset_library::get_asset_library_categories,
             templates::get_template_preview,
+            vault::list_vault_items,
+            vault::save_to_vault,
+            vault::add_vault_item_to_project,
+            vault::delete_vault_item,
+            vault::update_vault_item,
             changelog::list_changelog_entries,
             changelog::add_changelog_entry,
             changelog::update_changelog_entry,

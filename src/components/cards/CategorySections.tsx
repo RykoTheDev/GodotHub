@@ -146,11 +146,11 @@ export function ProjectCategorySection({
         </span>
         <div className="flex-1 h-px bg-outline/30 mx-1.5" />
         {headerIsZone && isOver && (
-          <span className="text-[10px] font-medium text-accent-bright shrink-0">
+          <span className="text-3xs font-medium text-accent-bright shrink-0">
             {t('release_to_drop')}
           </span>
         )}
-        <span className="text-[10px] font-medium text-muted/50 tabular-nums shrink-0">
+        <span className="text-3xs font-medium text-muted/50 tabular-nums shrink-0">
           · <AnimatedNumber value={count} />
         </span>
       </button>
@@ -200,7 +200,7 @@ export function HiddenCategoriesSection({
           {t('hidden_categories')}
         </span>
         <div className="flex-1 h-px bg-outline/30 mx-1.5" />
-        <span className="text-[10px] font-medium text-muted/50 tabular-nums shrink-0">
+        <span className="text-3xs font-medium text-muted/50 tabular-nums shrink-0">
           · <AnimatedNumber value={entries.length} />
         </span>
       </button>
@@ -212,7 +212,7 @@ export function HiddenCategoriesSection({
       >
         <div className="overflow-hidden min-h-0">
           <div className="flex flex-col gap-1.5 pt-2 pb-0.5">
-            <p className="px-1 text-[11px] text-muted/70">
+            <p className="px-1 text-2xs text-muted/70">
               {t('hidden_categories_hint')}
             </p>
             {entries.map(({ category, count }) => (
@@ -227,14 +227,14 @@ export function HiddenCategoriesSection({
                 <span className="flex-1 min-w-0 text-xs text-ink truncate">
                   {category.name}
                 </span>
-                <span className="text-[11px] tabular-nums text-muted/70 shrink-0">
+                <span className="text-2xs tabular-nums text-muted/70 shrink-0">
                   {t('hidden_category_projects', { count })}
                 </span>
                 <button
                   type="button"
                   onClick={() => onUnhide(category.id)}
                   aria-label={t('unhide_category_aria', { name: category.name })}
-                  className="focus-ring cursor-pointer shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-btn border border-line text-[11px] text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors"
+                  className="focus-ring cursor-pointer shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-btn border border-line text-2xs text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors"
                 >
                   <IconEye className="w-3 h-3" />
                   {t('unhide')}

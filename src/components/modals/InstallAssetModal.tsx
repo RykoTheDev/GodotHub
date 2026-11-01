@@ -226,7 +226,7 @@ export function InstallAssetModal({ asset, onClose, onInstalled }: Props) {
                 <span className="block text-xs font-semibold text-ink">
                   {t('asset_new_template_btn')}
                 </span>
-                <span className="block text-[11px] text-muted/70 mt-0.5 leading-snug">
+                <span className="block text-2xs text-muted/70 mt-0.5 leading-snug">
                   {t('asset_new_template_hint')}
                 </span>
               </span>
@@ -292,7 +292,7 @@ export function InstallAssetModal({ asset, onClose, onInstalled }: Props) {
                       <span className="block text-xs font-semibold text-ink truncate">
                         {item.name}
                       </span>
-                      <span className="block text-[10px] text-muted/60 truncate mt-0.5 font-mono">
+                      <span className="block text-3xs text-muted/60 truncate mt-0.5 font-mono">
                         {tab === 'project'
                           ? `${item.godot_version ? `Godot ${item.godot_version} · ` : ''}${item.path ?? ''}`
                           : item.description || ''}

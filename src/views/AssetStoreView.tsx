@@ -126,7 +126,7 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
               onClick={toggle}
               className={dropBtnClass}
             >
-              <span className="text-[16px] font-medium text-ink">
+              <span className="text-base font-medium text-ink">
                 {tc(SOURCE_OPTIONS.find((o) => o.value === source)!.labelKey)}
               </span>
               <IconChevronDown className="w-3 h-3 text-muted" />
@@ -151,7 +151,7 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
                 onClick={toggle}
                 className={dropBtnClass}
               >
-                <span className="text-[16px] font-medium text-ink max-w-32 truncate">
+                <span className="text-base font-medium text-ink max-w-32 truncate">
                   {categoryId
                     ? (categoryOptions.find((c) => c.value === categoryId)
                         ?.label ?? categoryId)
@@ -187,7 +187,7 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
               onClick={toggle}
               className={dropBtnClass}
             >
-              <span className="text-[16px] font-medium text-ink">
+              <span className="text-base font-medium text-ink">
                 {source === 'store' ? tc(`asset_store_${sort}`) : tc(`asset_sort_${sort}`)}
               </span>
               <IconChevronDown className="w-3 h-3 text-muted" />
@@ -211,7 +211,7 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
               onClick={toggle}
               className={dropBtnClass}
             >
-              <span className="text-[16px] font-medium text-ink">
+              <span className="text-base font-medium text-ink">
                 {version ? `Godot ${version}` : tc('asset_all_versions')}
               </span>
               <IconChevronDown className="w-3 h-3 text-muted" />

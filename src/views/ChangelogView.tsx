@@ -97,7 +97,7 @@ function EntryCard({
                 {entry.version}
               </h3>
               {entry.date && (
-                <p className="text-[11px] text-muted mt-1 flex items-center gap-1">
+                <p className="text-2xs text-muted mt-1 flex items-center gap-1">
                   <IconClock className="w-3 h-3" />
                   {formatDate(entry.date)}
                 </p>
@@ -137,7 +137,7 @@ function EntryCard({
                 return (
                   <span
                     key={g.key}
-                    className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-tag text-[10px] font-semibold ${g.chip}`}
+                    className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-tag text-3xs font-semibold ${g.chip}`}
                   >
                     <span className={`w-1.5 h-1.5 rounded-full ${g.dot}`} />
                     {count} {t(g.i18nKey)}
@@ -145,7 +145,7 @@ function EntryCard({
                 )
               })}
               {issueCount > 0 && (
-                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-tag text-[10px] font-semibold bg-amber/10 text-amber">
+                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-tag text-3xs font-semibold bg-amber/10 text-amber">
                   <IconAlertTriangle className="w-2.5 h-2.5" />
                   {issueCount} {t('changelog_known_issues')}
                 </span>
@@ -163,7 +163,7 @@ function EntryCard({
                 return (
                   <div key={g.key}>
                     <p
-                      className={`text-[10px] font-semibold uppercase tracking-wider mb-1.5 ${g.label}`}
+                      className={`text-3xs font-semibold uppercase tracking-wider mb-1.5 ${g.label}`}
                     >
                       {t(g.i18nKey)}
                     </p>
@@ -188,7 +188,7 @@ function EntryCard({
 
           {entry.known_issues?.length > 0 && (
             <div className="mt-4 pt-4 border-t border-outline/40">
-              <p className="text-[10px] font-semibold uppercase tracking-wider mb-1.5 text-amber">
+              <p className="text-3xs font-semibold uppercase tracking-wider mb-1.5 text-amber">
                 <IconAlertTriangle className="w-3 h-3 inline -mt-0.5 me-1" />
                 {t('changelog_known_issues')}
               </p>

@@ -260,7 +260,7 @@ export function ProjectTodoDetailsModal({
                 <button
                   type="button"
                   onClick={() => onOpenLink(todo)}
-                  className="focus-ring inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-btn border border-outline/50 px-2.5 py-1.5 text-[11px] font-medium text-muted transition-colors hover:border-accent-dim hover:bg-raised hover:text-ink"
+                  className="focus-ring inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-btn border border-outline/50 px-2.5 py-1.5 text-2xs font-medium text-muted transition-colors hover:border-accent-dim hover:bg-raised hover:text-ink"
                 >
                   <IconExternalLink className="h-3 w-3" />
                   {t("open_file")}
@@ -387,7 +387,7 @@ export function ProjectTodoDetailsModal({
                             <span
                               key={branch}
                               dir="ltr"
-                              className={`rounded-tag border px-2 py-0.5 font-mono text-[10px] ${
+                              className={`rounded-tag border px-2 py-0.5 font-mono text-3xs ${
                                 branch === activity.currentBranch
                                   ? "border-accent/40 bg-accent/10 text-accent-bright"
                                   : "border-outline/50 bg-raised text-ink"
@@ -411,7 +411,7 @@ export function ProjectTodoDetailsModal({
                             {commit.subject}
                           </span>
                           {commit.closes && (
-                            <span className="shrink-0 rounded-tag border border-mint/30 bg-mint/15 px-1.5 py-0.5 text-[10px] text-mint">
+                            <span className="shrink-0 rounded-tag border border-mint/30 bg-mint/15 px-1.5 py-0.5 text-3xs text-mint">
                               {t("git_commit_closes")}
                             </span>
                           )}

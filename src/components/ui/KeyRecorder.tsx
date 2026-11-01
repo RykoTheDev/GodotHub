@@ -70,15 +70,15 @@ export function KeyRecorder({ value, onChange, onReset }: Props) {
               if (confirmTimer.current) clearTimeout(confirmTimer.current)
               confirmTimer.current = setTimeout(() => setConfirmMsg(null), 1500)
             }}
-            className="focus-ring cursor-pointer text-[10px] font-medium text-muted/60 hover:text-accent transition-colors"
+            className="focus-ring cursor-pointer text-3xs font-medium text-muted/60 hover:text-accent transition-colors"
           >
             {t('reset_to_default')}
           </button>
         )}
       </div>
-      <p className="text-[11px] text-muted mt-0.5 leading-relaxed">
+      <p className="text-2xs text-muted mt-0.5 leading-relaxed">
         {t('keybind_instruction')} {t('press')}{' '}
-        <kbd className="font-mono text-[10px] px-1 py-0.5 rounded bg-base border border-line">
+        <kbd className="font-mono text-3xs px-1 py-0.5 rounded bg-base border border-line">
           Esc
         </kbd>{' '}
         {t('to_cancel')}.

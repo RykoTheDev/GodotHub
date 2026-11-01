@@ -535,6 +535,39 @@ pub struct TemplateFileEntry {
     pub size: u64,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VaultFileEntry {
+    pub path: String,
+    pub is_dir: bool,
+    pub size: u64,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VaultItem {
+    pub id: String,
+    pub name: String,
+    #[serde(default)]
+    pub description: String,
+    #[serde(default)]
+    pub godot_version: String,
+    #[serde(default)]
+    pub created_at: String,
+    #[serde(default)]
+    pub source_project_id: Option<String>,
+    #[serde(default)]
+    pub tags: Vec<String>,
+    #[serde(default)]
+    pub files: Vec<VaultFileEntry>,
+    pub path: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VaultImportResult {
+    pub installed: Vec<String>,
+    pub conflicts: Vec<String>,
+    pub skipped: bool,
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct GodotFolderPreview {
     pub name: String,

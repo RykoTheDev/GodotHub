@@ -57,7 +57,7 @@ function NewsCard({ item }: { item: NewsItem }) {
 
       <div className="flex items-center justify-between gap-3">
         {item.category ? (
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-accent-bright bg-accent/10 border border-accent-dim/30 rounded-tag px-2.5 py-1">
+          <span className="text-3xs font-semibold uppercase tracking-wider text-accent-bright bg-accent/10 border border-accent-dim/30 rounded-tag px-2.5 py-1">
             {item.category}
           </span>
         ) : (
@@ -76,7 +76,7 @@ function NewsCard({ item }: { item: NewsItem }) {
         </p>
       )}
 
-      <div className="mt-auto pt-1 flex items-center gap-3 text-[11px] text-muted">
+      <div className="mt-auto pt-1 flex items-center gap-3 text-2xs text-muted">
         {date && (
           <span className="inline-flex items-center gap-1.5">
             <IconClock className="w-3 h-3" />
@@ -151,7 +151,7 @@ export function NewsView({ connected = false }: { connected?: boolean }) {
         <p className="text-xs text-muted flex items-center gap-1.5 flex-wrap">
           <span>{tc('news_subtitle')}</span>
           {fromCache && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-overlay border border-outline/50 text-[10px] text-muted/70">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-overlay border border-outline/50 text-3xs text-muted/70">
               <IconWifiOff className="w-3 h-3" />
               {tc('news_cached')}
             </span>

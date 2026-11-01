@@ -747,7 +747,7 @@ export function App() {
                         }
                       >
                         <div
-                          className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-tag bg-raised border border-line shadow-md shadow-base text-[10px] font-mono text-muted tabular-nums whitespace-nowrap transition-[translate,opacity] duration-200 ${
+                          className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-tag bg-raised border border-line shadow-md shadow-base text-3xs font-mono text-muted tabular-nums whitespace-nowrap transition-[translate,opacity] duration-200 ${
                             gitDragging ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
                           }`}
                         >

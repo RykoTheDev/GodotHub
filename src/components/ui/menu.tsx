@@ -79,15 +79,7 @@ export function MenuButton({
                 : 'bg-transparent'
           }`}
         >
-          <item.icon
-            className={`${iconSize} ${
-              item.danger
-                ? 'text-red-400'
-                : item.active
-                  ? 'text-accent-bright'
-                  : 'text-muted'
-            }`}
-          />
+          <item.icon className={iconSize} />
         </span>
       )}
       {item.dotColor && (
@@ -100,7 +92,7 @@ export function MenuButton({
       <span className="flex-1 text-start truncate">{item.label}</span>
       {item.badge && (
         <span
-          className={`shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded-tag border ${
+          className={`shrink-0 text-3xs font-semibold px-1.5 py-0.5 rounded-tag border ${
             item.active
               ? 'bg-black/15 text-ink border-black/10'
               : 'bg-accent/10 text-accent-bright border-accent-dim/40'
@@ -110,7 +102,7 @@ export function MenuButton({
         </span>
       )}
       {item.shortcut && (
-        <span className="text-[10px] text-muted font-mono shrink-0">
+        <span className="text-3xs text-muted font-mono shrink-0">
           {item.shortcut}
         </span>
       )}

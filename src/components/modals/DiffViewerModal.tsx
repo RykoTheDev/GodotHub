@@ -60,10 +60,10 @@ export function DiffViewerModal({ title, subtitle, fetchDiff, onClose }: Props) 
         <div className="flex items-center gap-2 px-5 pt-3 pb-2.5 border-b border-line/60">
           {!loading && !empty && (
             <>
-              <span className="text-[11px] font-mono text-mint font-medium">
+              <span className="text-2xs font-mono text-mint font-medium">
                 +{adds}
               </span>
-              <span className="text-[11px] font-mono text-danger font-medium">
+              <span className="text-2xs font-mono text-danger font-medium">
                 -{dels}
               </span>
             </>

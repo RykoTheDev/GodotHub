@@ -24,7 +24,7 @@ function Section({
     <section className="flex flex-col gap-5 rounded-item bg-overlay px-5 py-5">
       <div>
         <h3 className="font-display font-semibold text-sm">{title}</h3>
-        {description && <p className="text-[11px] text-muted mt-1">{description}</p>}
+        {description && <p className="text-2xs text-muted mt-1">{description}</p>}
       </div>
       {children}
     </section>
@@ -45,7 +45,7 @@ function Row({
       <div>
         <span className="text-xs font-medium text-muted block">{label}</span>
         {description && (
-          <p className="text-[11px] text-muted mt-1 leading-relaxed">{description}</p>
+          <p className="text-2xs text-muted mt-1 leading-relaxed">{description}</p>
         )}
       </div>
       <div className="flex shrink-0 items-center gap-2">{children}</div>

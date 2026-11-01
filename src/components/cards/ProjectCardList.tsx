@@ -31,6 +31,7 @@ interface ProjectCardListProps {
   projects: Project[]
   renderCard: (project: Project) => ReactNode
   hasActiveFilters: boolean
+  searchActive?: boolean
   totalCount: number
   animationThreshold?: number
   categories?: Category[]
@@ -54,6 +55,7 @@ export function ProjectCardList({
   projects,
   renderCard,
   hasActiveFilters,
+  searchActive = false,
   totalCount,
   animationThreshold = DEFAULT_ANIMATION_THRESHOLD,
   categories = [],
@@ -72,7 +74,7 @@ export function ProjectCardList({
   const animateList = totalCount <= animationThreshold
   const layoutTransition: Transition = uiMotion.transition('press')
 
-  const showPinnedSection = projects.some((p) => p.pinned)
+  const showPinnedSection = !searchActive && projects.some((p) => p.pinned)
   const pinnedProjects = showPinnedSection
     ? projects.filter((p) => p.pinned)
     : []
@@ -80,7 +82,7 @@ export function ProjectCardList({
     ? projects.filter((p) => !p.pinned)
     : projects
 
-  const grouped = categoriesEnabled && categories.length > 0
+  const grouped = !searchActive && categoriesEnabled && categories.length > 0
 
   const groups = useMemo(() => {
     const map = new Map<string, Project[]>()
@@ -207,10 +209,10 @@ export function ProjectCardList({
       className="mt-1 mb-0.5 flex items-center gap-2 px-1 rounded-item"
     >
       <IconPin className="w-3 h-3 text-accent-bright" fill="currentColor" />
-      <span className="text-[10px] font-semibold uppercase tracking-wider text-muted">
+      <span className="text-3xs font-semibold uppercase tracking-wider text-muted">
         {t('pinned_section')}
       </span>
-      <span className="text-[10px] font-medium text-muted/50 tabular-nums">
+      <span className="text-3xs font-medium text-muted/50 tabular-nums">
         · <AnimatedNumber value={pinnedProjects.length} />
       </span>
       <div className="flex-1 h-px bg-outline/50" />

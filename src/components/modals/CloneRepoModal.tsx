@@ -327,7 +327,7 @@ export function CloneRepoModal({
                               setRepoSearch('')
                             }
                           }}
-                          className={`px-2.5 py-1 rounded-btn text-[11px] font-medium capitalize transition-colors ${
+                          className={`px-2.5 py-1 rounded-btn text-2xs font-medium capitalize transition-colors ${
                             browseProvider === p
                               ? 'bg-accent/15 text-accent-bright border border-accent/30'
                               : 'text-muted hover:text-ink hover:bg-raised border border-transparent'
@@ -413,7 +413,7 @@ export function CloneRepoModal({
                                 {repo.full_name}
                               </span>
                               <span
-                                className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                                className={`text-3xs px-1.5 py-0.5 rounded font-medium ${
                                   repo.private
                                     ? 'bg-warning/15 text-warning'
                                     : 'bg-success/15 text-success'
@@ -424,7 +424,7 @@ export function CloneRepoModal({
                                   : t('remote_public')}
                               </span>
                               {repo.language && (
-                                <span className="text-[10px] text-muted bg-overlay px-1.5 py-0.5 rounded">
+                                <span className="text-3xs text-muted bg-overlay px-1.5 py-0.5 rounded">
                                   {repo.language}
                                 </span>
                               )}

@@ -66,7 +66,7 @@ export function DirList({
                     {dir}
                   </span>
                   {isDefault && (
-                    <span className="shrink-0 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-tag bg-accent/15 text-accent-bright border border-accent-dim/40">
+                    <span className="shrink-0 text-4xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-tag bg-accent/15 text-accent-bright border border-accent-dim/40">
                       {t('default_folder')}
                     </span>
                   )}
@@ -118,7 +118,7 @@ export function DirList({
                   </label>
 
                   {!isDefault && showFallbackDescription && (
-                    <p className="text-[10px] text-muted mt-1.5 leading-relaxed px-0.5">
+                    <p className="text-3xs text-muted mt-1.5 leading-relaxed px-0.5">
                       {hasDefault
                         ? t('downloads_will_go_to', { path: defaultDir })
                         : t('default_downloads_go_to', { path: fallbackDownloadPath })}

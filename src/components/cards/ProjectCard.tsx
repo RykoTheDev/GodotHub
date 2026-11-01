@@ -460,7 +460,7 @@ function ProjectCardInner({
             </h3>
             {projectOpenTodos.length > 0 && (
               <span
-                className={`shrink-0 rounded-tag border px-1.5 py-0.5 text-[10px] font-medium tabular-nums ${
+                className={`shrink-0 rounded-tag border px-1.5 py-0.5 text-3xs font-medium tabular-nums ${
                   overdueTodoCount > 0
                     ? "border-danger/30 bg-danger/10 text-danger"
                     : "border-outline/50 bg-raised text-muted"
@@ -484,21 +484,21 @@ function ProjectCardInner({
               >
                 <IconGitBranch className="w-3 h-3 shrink-0" />
                 {gitStatus.branch && (
-                  <span className="text-[10px] font-mono font-medium truncate max-w-24">
+                  <span className="text-3xs font-mono font-medium truncate max-w-24">
                     {gitStatus.branch}
                   </span>
                 )}
               </button>
             )}
             {lastOpenedLabel && cardSettings.show_last_opened && (
-              <span className="inline-flex items-center gap-1 ps-1.5 pe-1 py-0.5 rounded-tag font-mono text-[10px] font-medium tracking-tight shrink-0 text-muted">
+              <span className="inline-flex items-center gap-1 ps-1.5 pe-1 py-0.5 rounded-tag font-mono text-3xs font-medium tracking-tight shrink-0 text-muted">
                 <IconClock className="w-2.5 h-2.5 text-muted/60 shrink-0" />
                 {lastOpenedLabel}
               </span>
             )}
             {addingTag ? (
               <span
-                className={`inline-flex items-center px-1.5 py-0.5 rounded-tag font-mono text-[10px] font-medium tracking-tight shrink-0 border ${
+                className={`inline-flex items-center px-1.5 py-0.5 rounded-tag font-mono text-3xs font-medium tracking-tight shrink-0 border ${
                   tagError
                     ? "bg-danger/10 border-danger/50"
                     : "bg-accent/10 border-accent/30"
@@ -533,7 +533,7 @@ function ProjectCardInner({
                         setTagError(null);
                       }
                     }}
-                    className={`w-16 bg-transparent outline-none text-[10px] font-mono font-medium ${
+                    className={`w-16 bg-transparent outline-none text-3xs font-mono font-medium ${
                       tagError
                         ? "text-danger placeholder:text-danger/40"
                         : "text-accent-bright placeholder:text-accent/40"
@@ -570,7 +570,7 @@ function ProjectCardInner({
                         setTagError(null);
                       }
                     }}
-                    className={`w-16 bg-transparent outline-none text-[10px] font-mono font-medium ${
+                    className={`w-16 bg-transparent outline-none text-3xs font-mono font-medium ${
                       tagError
                         ? "text-danger placeholder:text-danger/40"
                         : "text-accent-bright placeholder:text-accent/40"
@@ -593,7 +593,7 @@ function ProjectCardInner({
                     setTagError(null);
                   }}
                   aria-label={t("add_tag")}
-                  className="focus-ring cursor-pointer inline-flex items-center px-2 py-0.5 rounded-tag text-[10px] font-mono font-medium tracking-tight whitespace-nowrap text-muted hover:text-accent-bright hover:bg-raised transition-colors shrink-0 border border-dashed border-outline/50"
+                  className="focus-ring cursor-pointer inline-flex items-center px-2 py-0.5 rounded-tag text-3xs font-mono font-medium tracking-tight whitespace-nowrap text-muted hover:text-accent-bright hover:bg-raised transition-colors shrink-0 border border-dashed border-outline/50"
                 >
                   {t("add_tag")}
                 </button>
@@ -618,7 +618,7 @@ function ProjectCardInner({
                   return (
                     <span
                       key={`${tag}-${index}`}
-                      className={`project-tag group/tag inline-flex items-center ps-1.5 pe-1 py-0.5 rounded-tag font-mono text-[10px] font-medium tracking-tight shrink-0 transition-[filter,box-shadow] duration-100 ${
+                      className={`project-tag group/tag inline-flex items-center ps-1.5 pe-1 py-0.5 rounded-tag font-mono text-3xs font-medium tracking-tight shrink-0 transition-[filter,box-shadow] duration-100 ${
                         isActive
                           ? "ring-1 ring-accent-dim/70 brightness-110"
                           : ""
@@ -653,7 +653,7 @@ function ProjectCardInner({
                               }
                             }}
                             onBlur={() => handleRenameTag(index)}
-                            className={`w-16 bg-transparent outline-none text-[10px] font-mono font-medium ${
+                            className={`w-16 bg-transparent outline-none text-3xs font-mono font-medium ${
                               tagError ? "text-danger" : ""
                             }`}
                             style={tagError ? undefined : { color }}
@@ -681,7 +681,7 @@ function ProjectCardInner({
                               }
                             }}
                             onBlur={() => handleRenameTag(index)}
-                            className={`w-16 bg-transparent outline-none text-[10px] font-mono font-medium ${
+                            className={`w-16 bg-transparent outline-none text-3xs font-mono font-medium ${
                               tagError ? "text-danger" : ""
                             }`}
                             style={tagError ? undefined : { color }}
@@ -734,7 +734,7 @@ function ProjectCardInner({
                   type="button"
                   onClick={() => setTagsExpanded(true)}
                   aria-label={t("show_more_tags")}
-                  className="focus-ring cursor-pointer inline-flex items-center px-2 py-0.5 rounded-tag text-[10px] font-mono font-medium tracking-tight text-muted hover:text-ink hover:bg-raised transition-colors shrink-0 border border-dashed border-outline/50"
+                  className="focus-ring cursor-pointer inline-flex items-center px-2 py-0.5 rounded-tag text-3xs font-mono font-medium tracking-tight text-muted hover:text-ink hover:bg-raised transition-colors shrink-0 border border-dashed border-outline/50"
                 >
                   +{project.tags.length - 2}
                 </button>
@@ -744,7 +744,7 @@ function ProjectCardInner({
                   type="button"
                   onClick={() => setTagsExpanded(false)}
                   aria-label={t("show_fewer_tags")}
-                  className="focus-ring cursor-pointer inline-flex items-center px-2 py-0.5 rounded-tag text-[10px] font-mono font-medium tracking-tight text-muted hover:text-ink hover:bg-raised transition-colors shrink-0 border border-dashed border-outline/50"
+                  className="focus-ring cursor-pointer inline-flex items-center px-2 py-0.5 rounded-tag text-3xs font-mono font-medium tracking-tight text-muted hover:text-ink hover:bg-raised transition-colors shrink-0 border border-dashed border-outline/50"
                 >
                   -{project.tags.length - 2}
                 </button>
@@ -756,7 +756,7 @@ function ProjectCardInner({
             <button
               type="button"
               onClick={openFolder}
-              className={`block bg-black/15 px-3 py-1 rounded-tag text-[11px] font-mono text-muted truncate hover:text-accent-bright cursor-pointer transition-colors w-fit max-w-full ${cardSettings.blur_path ? "blur-sm hover:blur-none transition-[filter]" : ""}`}
+              className={`block bg-black/15 px-3 py-1 rounded-tag text-2xs font-mono text-muted truncate hover:text-accent-bright cursor-pointer transition-colors w-fit max-w-full ${cardSettings.blur_path ? "blur-sm hover:blur-none transition-[filter]" : ""}`}
             >
               {project.path}
             </button>
@@ -771,14 +771,14 @@ function ProjectCardInner({
                     type="button"
                     aria-expanded={open}
                     onClick={toggle}
-                    className="inline-flex items-center gap-1.5 px-3 py-3 rounded-btn bg-raised border border-outline/50 font-mono text-[10px] text-muted hover:text-ink hover:border-accent-dim cursor-pointer transition-colors shrink-0"
+                    className="inline-flex items-center gap-1.5 px-3 py-3 rounded-btn bg-raised border border-outline/50 font-mono text-3xs text-muted hover:text-ink hover:border-accent-dim cursor-pointer transition-colors shrink-0"
                   >
                     <IconNode className="w-2.5 h-2.5" />
                     {boundVersion ? (
                       <>
                         {boundVersion.custom_name || boundVersion.tag}
                         {boundVersion.is_mono && (
-                          <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-tag bg-accent/10 text-accent-bright border border-accent-dim/40 shrink-0">
+                          <span className="text-3xs font-semibold px-1.5 py-0.5 rounded-tag bg-accent/10 text-accent-bright border border-accent-dim/40 shrink-0">
                             {t("version_mono_badge")}
                           </span>
                         )}
@@ -825,7 +825,7 @@ function ProjectCardInner({
                         onClick={onTogglePin}
                         onFocus={() => setPinFocused(true)}
                         onBlur={() => setPinFocused(false)}
-                        className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-3 rounded-btn border font-mono text-[10px] transition-colors shrink-0 bg-raised border-outline/50 text-muted hover:text-ink hover:border-accent-dim"
+                        className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-3 rounded-btn border font-mono text-3xs transition-colors shrink-0 bg-raised border-outline/50 text-muted hover:text-ink hover:border-accent-dim"
                       >
                         <IconPin className="w-3 h-3" />
                         {t("project_pin_aria")}
@@ -840,7 +840,7 @@ function ProjectCardInner({
                 type="button"
                 onClick={() => setTimeTrackerOpen(true)}
                 aria-label={t("time_tracked_title")}
-                className="focus-ring border border-outline/50 cursor-pointer inline-flex items-center gap-1.5 rounded-btn px-3 py-3 bg-black/10 font-mono text-[10px] text-muted hover:text-ink hover:bg-raised transition-colors shrink-0"
+                className="focus-ring border border-outline/50 cursor-pointer inline-flex items-center gap-1.5 rounded-btn px-3 py-3 bg-black/10 font-mono text-3xs text-muted hover:text-ink hover:bg-raised transition-colors shrink-0"
               >
                 <IconStopwatch className="w-3 h-3 text-muted/60 shrink-0" />
                 {formatDuration(allMs)}
@@ -853,7 +853,7 @@ function ProjectCardInner({
                   type="button"
                   onClick={() => setSizeModalOpen(true)}
                   aria-label={t("project_size")}
-                  className="focus-ring cursor-pointer border border-outline/50 inline-flex items-center gap-1.5 rounded-btn px-3 py-3 bg-black/10 font-mono text-[10px] text-muted hover:text-ink hover:bg-raised transition-colors shrink-0"
+                  className="focus-ring cursor-pointer border border-outline/50 inline-flex items-center gap-1.5 rounded-btn px-3 py-3 bg-black/10 font-mono text-3xs text-muted hover:text-ink hover:bg-raised transition-colors shrink-0"
                 >
                   <IconHardDrive className="w-3 h-3 text-muted/60 shrink-0" />
                   {formatBytes(projectSize)}
@@ -872,7 +872,7 @@ function ProjectCardInner({
                       type="button"
                       aria-expanded={open}
                       onClick={toggle}
-                      className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-3 rounded-btn bg-raised border border-outline/50 font-mono text-[10px] text-muted hover:text-ink hover:border-accent-dim transition-colors shrink-0"
+                      className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-3 rounded-btn bg-raised border border-outline/50 font-mono text-3xs text-muted hover:text-ink hover:border-accent-dim transition-colors shrink-0"
                     >
                       <span
                         className="w-1.5 h-1.5 rounded-full shrink-0 ring-1 ring-black/20"
@@ -935,7 +935,7 @@ function ProjectCardInner({
                         type="button"
                         onClick={playProject}
                         aria-label={t("play_project")}
-                        className="focus-ring inline-flex h-12 w-full shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-btn border border-outline/50 bg-overlay text-[18px] font-medium text-muted shadow-md shadow-black/10 transition-colors hover:bg-raised hover:text-ink"
+                        className="focus-ring inline-flex h-12 w-full shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-btn border border-outline/50 bg-overlay text-lg font-medium text-muted shadow-md shadow-black/10 transition-colors hover:bg-raised hover:text-ink"
                       >
                         <IconPlay className="h-4 w-4" />
                         {t("play_project")}

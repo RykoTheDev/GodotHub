@@ -191,10 +191,10 @@ export function ProjectDoctorModal({ project, installedVersions, onClose }: Prop
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
           <h4 className="text-sm font-medium text-ink">{t(`${finding.code}_title`, values)}</h4>
-          <span className={`text-[10px] font-medium ${tone}`}>{t(`severity_${finding.severity}`)}</span>
+          <span className={`text-3xs font-medium ${tone}`}>{t(`severity_${finding.severity}`)}</span>
         </div>
         <p className="mt-1 text-xs leading-relaxed text-muted max-w-prose">{t(`${finding.code}_description`, values)}</p>
-        {finding.details.length > 0 && <ul className="mt-2 space-y-1 text-[11px] text-muted/80">
+        {finding.details.length > 0 && <ul className="mt-2 space-y-1 text-2xs text-muted/80">
           {finding.details.map((detail, index) => <li key={index} className="break-all font-mono">{detail}</li>)}
         </ul>}
         {finding.action && <div className="mt-3">{action(finding)}</div>}
@@ -227,7 +227,7 @@ export function ProjectDoctorModal({ project, installedVersions, onClose }: Prop
         else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus() }
       }}
       footer={<>
-        <p className="flex-1 text-[11px] text-muted leading-relaxed">{t(busy === 'templates' ? 'templates_downloading' : 'local_checks')}</p>
+        <p className="flex-1 text-2xs text-muted leading-relaxed">{t(busy === 'templates' ? 'templates_downloading' : 'local_checks')}</p>
         <button type="button" className={actionButton} onClick={() => { onClose(); window.dispatchEvent(new CustomEvent('app:set-tab', {detail:'versions'})) }}>{t('action_manage_versions')}</button>
         {busy === 'templates' && <button type="button" className={actionButton} title={tc('cancel')} aria-label={tc('cancel')} onClick={() => void api.cancelExportTemplates(project.godot_version).catch(e => setError(String(e)))}><IconX className="h-3 w-3" /></button>}
         <button type="button" onClick={onClose} className={actionButton}>{tc('close')}</button>

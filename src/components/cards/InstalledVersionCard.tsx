@@ -181,7 +181,7 @@ export function InstalledVersionCard({
                     <IconPencil className="w-3.5 h-3.5" />
                   </motion.button>
                 <span
-                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-tag text-[10px] font-semibold shrink-0 border ${
+                  className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-tag text-3xs font-semibold shrink-0 border ${
                     v.is_mono
                       ? 'bg-accent/10 text-accent-bright border-accent-dim/40'
                       : 'bg-black/15 text-muted border-outline/40'
@@ -190,23 +190,23 @@ export function InstalledVersionCard({
                   {v.is_mono ? tv('mono') : tv('standard')}
                 </span>
                 {isCurrent && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-accent/15 text-accent-bright border border-accent-dim/40 text-[10px] font-semibold shrink-0">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-accent/15 text-accent-bright border border-accent-dim/40 text-3xs font-semibold shrink-0">
                     <IconPin className="w-2.5 h-2.5" />
                     {tv('cleanup_current_badge')}
                   </span>
                 )}
                 {v.managed_by === 'custom' && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-accent/15 text-accent-bright border border-accent-dim/40 text-[10px] font-semibold shrink-0">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-accent/15 text-accent-bright border border-accent-dim/40 text-3xs font-semibold shrink-0">
                     {tv('custom_build_badge')}
                   </span>
                 )}
                 {v.managed_by === 'mise' && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-mint/10 text-mint border border-mint/30 text-[10px] font-semibold shrink-0 font-mono">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-mint/10 text-mint border border-mint/30 text-3xs font-semibold shrink-0 font-mono">
                     {tv('managed_by_mise')}
                   </span>
                 )}
                 {v.supports_console && (
-                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-mint/10 text-mint border border-mint/30 text-[10px] font-semibold shrink-0">
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-mint/10 text-mint border border-mint/30 text-3xs font-semibold shrink-0">
                     {tv('console_title')}
                   </span>
                 )}
@@ -214,7 +214,7 @@ export function InstalledVersionCard({
                   <span className="inline-flex items-center gap-1 shrink-0">
                     <span
                       title={[templateDownload?.platforms?.join(', '), templateDownload?.file].filter(Boolean).join(' · ')}
-                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-amber/10 text-amber border border-amber/30 text-[10px] font-semibold"
+                      className="inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-amber/10 text-amber border border-amber/30 text-3xs font-semibold"
                     >
                       <IconSpinner className="w-2.5 h-2.5 animate-spin" />
                       {templateStatusLabel}
@@ -239,7 +239,7 @@ export function InstalledVersionCard({
                     <button
                       type="button"
                       onClick={() => setTemplateDialog('install')}
-                      className="focus-ring cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-mint/10 text-mint border border-mint/30 text-[10px] font-semibold shrink-0 hover:bg-mint/20 transition-colors"
+                      className="focus-ring cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-mint/10 text-mint border border-mint/30 text-3xs font-semibold shrink-0 hover:bg-mint/20 transition-colors"
                     >
                       <IconCheck className="w-2.5 h-2.5" />
                       {tv('export_templates_installed')}{templates.platforms?.length ? ` · ${templates.platforms.join(', ')}` : ''}
@@ -250,7 +250,7 @@ export function InstalledVersionCard({
                     type="button"
                     onClick={() => setTemplateDialog('install')}
                     title={tv('export_templates_install')}
-                    className="focus-ring cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-overlay text-muted border border-outline/50 text-[10px] font-semibold shrink-0 hover:text-amber hover:border-amber/40 transition-colors"
+                    className="focus-ring cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-overlay text-muted border border-outline/50 text-3xs font-semibold shrink-0 hover:text-amber hover:border-amber/40 transition-colors"
                   >
                     <IconDownload className="w-2.5 h-2.5" />
                     {tv('export_templates_missing')}

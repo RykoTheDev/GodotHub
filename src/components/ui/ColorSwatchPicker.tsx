@@ -79,7 +79,7 @@ export function ColorSwatchPicker({ label, value, onChange, presets }: Props) {
           </div>
 
           <div className="border-s border-line ps-3 flex flex-col">
-            <span className="text-[10px] font-medium text-muted/60 uppercase tracking-wider mb-2 block">Presets</span>
+            <span className="text-3xs font-medium text-muted/60 uppercase tracking-wider mb-2 block">Presets</span>
             <div className="grid grid-cols-6 gap-1.5">
               {presets.map((preset) => {
                 const isSelected = preset.toLowerCase() === value.toLowerCase()
