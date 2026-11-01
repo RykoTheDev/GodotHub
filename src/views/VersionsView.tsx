@@ -624,7 +624,7 @@ export function VersionsView({
             </div>
 
             {exportTemplates && exportTemplates.orphans.length > 0 && (
-              <div className="rounded-item border border-outline/40 bg-overlay px-3.5 py-3 flex flex-col gap-2">
+              <div className="rounded-item border border-outline/40 bg-overlay px-4 py-3 flex flex-col gap-2">
                 <div>
                   <p className="text-2xs font-semibold uppercase tracking-wider text-muted">
                     {tv('export_templates_orphans_title')}
@@ -812,8 +812,8 @@ export function VersionsView({
           </div>
 
           {loadingAvailable ? (
-            <div className="flex items-center gap-2 py-8 justify-center">
-              <IconSpinner className="w-4 h-4 animate-spin text-muted" />
+            <div className="flex items-center gap-2 py-16 justify-center">
+              <IconSpinner className="w-5 h-5 animate-spin text-muted" />
               <span className="text-sm text-muted">{tv('fetching')}</span>
             </div>
           ) : availableError ? (

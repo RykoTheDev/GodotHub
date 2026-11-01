@@ -747,7 +747,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               key={mode}
               type="button"
               onClick={() => setPresetModal(mode)}
-              className="focus-ring cursor-pointer flex items-center gap-3 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised px-4 py-3.5 transition-colors"
+              className="focus-ring cursor-pointer flex items-center gap-3 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised p-4 transition-colors"
             >
               <Icon className="w-4 h-4 text-muted shrink-0" />
               <span className="text-xs font-medium text-ink">{label}</span>
@@ -761,7 +761,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           <button
             type="button"
             onClick={selectCustom}
-            className={`focus-ring cursor-pointer flex items-center gap-3 rounded-btn border px-4 py-3.5 transition-colors ${
+            className={`focus-ring cursor-pointer flex items-center gap-3 rounded-btn border p-4 transition-colors ${
               settings.theme_preset === "custom"
                 ? "border-accent bg-accent/10"
                 : "border-outline/50 hover:border-accent-dim hover:bg-raised"
@@ -1269,7 +1269,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         onMatch={reportMatch}
       >
         <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
+          <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 p-4">
             <div className="flex items-center gap-2">
               <IconFolder className="w-4 h-4 text-accent shrink-0" />
               <span className="text-xs font-medium text-ink">
@@ -1293,7 +1293,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             </p>
           </div>
 
-          <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
+          <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 p-4">
             <div className="flex items-center gap-2">
               <IconCloudArrowDown className="w-4 h-4 text-mint shrink-0" />
               <span className="text-xs font-medium text-ink">
@@ -1317,7 +1317,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             </p>
           </div>
 
-          <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
+          <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 p-4">
             <div className="flex items-center gap-2">
               <IconRocket className="w-4 h-4 text-amber shrink-0" />
               <span className="text-xs font-medium text-ink">
@@ -1869,7 +1869,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         onMatch={reportMatch}
       >
         <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
+          <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 p-4">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
                 <IconGithub className="w-4 h-4 text-ink shrink-0" />
@@ -1910,7 +1910,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             )}
           </div>
 
-          <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
+          <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 p-4">
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-2">
                 <IconGitlab className="w-4 h-4 text-amber shrink-0" />
@@ -1956,7 +1956,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             )}
           </div>
 
-          <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
+          <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 p-4">
             <div className="flex items-center gap-2">
               <IconPlug className="w-4 h-4 text-accent-bright shrink-0" />
               <span className="text-xs font-medium text-ink">
@@ -1996,7 +1996,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             </button>
           </div>
 
-          <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 px-4 py-3.5">
+          <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 p-4">
             <div className="flex items-center gap-2">
               <IconCode className="w-4 h-4 text-danger shrink-0" />
               <span className="text-xs font-medium text-ink">

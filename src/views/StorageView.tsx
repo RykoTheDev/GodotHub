@@ -302,7 +302,7 @@ export function StorageView({
               </button>
             </div>
           ) : !report ? (
-            <div className="py-24 flex flex-col items-center gap-3 text-center">
+            <div className="py-16 flex flex-col items-center gap-3 text-center">
               <IconSpinner className="w-5 h-5 animate-spin text-muted" />
               <p className="text-xs text-muted">{tc('cleanup_scanning')}</p>
             </div>

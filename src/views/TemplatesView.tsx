@@ -392,7 +392,7 @@ export function TemplatesView({
                       <div
                         key={tmpl.id}
 
-                        className="relative border border-outline/50 rounded-item bg-overlay p-5 flex flex-col gap-3 group cursor-pointer hover:border-accent-dim transition-colors"
+                        className="relative border border-outline/50 rounded-item bg-overlay p-4 flex flex-col gap-3 group cursor-pointer hover:border-accent-dim transition-colors"
                         onClick={() => setPreviewTemplate(tmpl)}
                       >
                         <div className="flex items-start justify-between gap-3">
