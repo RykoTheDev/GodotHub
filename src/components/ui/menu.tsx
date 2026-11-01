@@ -79,15 +79,7 @@ export function MenuButton({
                 : 'bg-transparent'
           }`}
         >
-          <item.icon
-            className={`${iconSize} ${
-              item.danger
-                ? 'text-red-400'
-                : item.active
-                  ? 'text-accent-bright'
-                  : 'text-muted'
-            }`}
-          />
+          <item.icon className={iconSize} />
         </span>
       )}
       {item.dotColor && (

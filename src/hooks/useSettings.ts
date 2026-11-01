@@ -36,7 +36,7 @@ import type { AppSettings } from '../types'
 
 const SAVE_DEBOUNCE_MS = 250
 
-const DEFAULTS: AppSettings = {
+export const DEFAULTS: AppSettings = {
   download_dir: null,
   default_project_location: null,
   project_scan_dirs: [],

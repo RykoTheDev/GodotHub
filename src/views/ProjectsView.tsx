@@ -16,22 +16,32 @@ import { useCategoriesContext } from '../hooks/categoriesContext'
 import {
   IconArrowUpDown,
   IconCheck,
+  IconChevronDown,
+  IconClock,
   IconEyeSlash,
   IconFilter,
   IconFolder,
-  IconGear,
   IconGitBranch,
+  IconHardDrive,
+  IconKanban,
+  IconLayoutGrid,
+  IconLayoutList,
   IconNode,
   IconPin,
   IconPlay,
   IconPlus,
+  IconStopwatch,
   IconTags,
+  IconTerminal,
   IconTrash,
   IconX,
 } from '../lib/icons'
 import { tagColor } from '../lib/colors'
-import { Segmented } from '../components/reusables/Segmented'
-import { CreateViewModal } from '../components/modals/CreateViewModal'
+import { Toggle } from '../components/ui/Toggle'
+import {
+  getCardViewSettings,
+  setCardViewOverride,
+} from '../lib/cardViewSettings'
 import { Dropdown } from '../components/ui/Dropdown'
 import { ContextMenu } from '../components/ui/ContextMenu'
 import type { MenuItem } from '../components/ui/menu'
@@ -54,6 +64,32 @@ const PROJECT_FIELD_ICONS: Record<ProjectSearchField, typeof IconNode> = {
   path: IconFolder,
   pinned: IconPin,
 }
+
+const VIEW_MODE_OPTIONS: {
+  value: ProjectViewMode
+  labelKey: string
+  icon: typeof IconLayoutList
+}[] = [
+  { value: 'list', labelKey: 'view_list', icon: IconLayoutList },
+  { value: 'grid', labelKey: 'view_grid', icon: IconLayoutGrid },
+  { value: 'kanban', labelKey: 'view_kanban', icon: IconKanban },
+]
+
+const CARD_TOGGLE_OPTIONS: {
+  key: keyof ReturnType<typeof getCardViewSettings>
+  icon: typeof IconHardDrive
+  labelKey: string
+}[] = [
+  { key: 'show_size', icon: IconHardDrive, labelKey: 'customize_card_show_size' },
+  { key: 'show_time', icon: IconStopwatch, labelKey: 'customize_card_show_time' },
+  { key: 'show_session_timer', icon: IconStopwatch, labelKey: 'customize_card_show_session_timer' },
+  { key: 'blur_path', icon: IconEyeSlash, labelKey: 'customize_card_blur_path' },
+  { key: 'show_path', icon: IconFolder, labelKey: 'customize_card_show_path' },
+  { key: 'show_tags', icon: IconTags, labelKey: 'customize_card_show_tags' },
+  { key: 'show_last_opened', icon: IconClock, labelKey: 'customize_card_show_last_opened' },
+  { key: 'show_play', icon: IconPlay, labelKey: 'customize_card_show_play' },
+  { key: 'show_console', icon: IconTerminal, labelKey: 'customize_card_show_console' },
+]
 
 interface SlashMenuState {
   mode: 'field' | 'value'
@@ -131,7 +167,7 @@ export function ProjectsView({
     unassignFolder: unassignCategoryFolder,
   } = useCategoriesContext()
   const { installed } = useGodotVersionsContext()
-  const { settings } = useSettings()
+  const { settings, update } = useSettings()
   const searchRef = useRef<HTMLInputElement | null>(null)
   const [createProjectOpen, setCreateProjectOpen] = useState(false)
   const [cloneRepoOpen, setCloneRepoOpen] = useState(false)
@@ -379,43 +415,11 @@ export function ProjectsView({
     window.addEventListener('app:switch-view', handler)
     return () => window.removeEventListener('app:switch-view', handler)
   }, [])
-  const [savedViews, setSavedViews] = useState<ProjectViewMode[]>(() => {
-    try {
-      const raw = localStorage.getItem('godothub_saved_views')
-      if (raw) {
-        const parsed = JSON.parse(raw)
-        if (Array.isArray(parsed) && parsed.every((v: string) => ['list', 'grid', 'kanban'].includes(v))) {
-          return parsed
-        }
-      }
-    } catch {}
-    return []
-  })
-  useEffect(() => {
-    try {
-      localStorage.setItem('godothub_saved_views', JSON.stringify(savedViews))
-    } catch {}
-  }, [savedViews])
-  const [viewNames, setViewNames] = useState<Record<string, string>>(() => {
-    try {
-      const raw = localStorage.getItem('godothub_view_names')
-      if (raw) return JSON.parse(raw)
-    } catch {}
-    return {}
-  })
-  useEffect(() => {
-    try {
-      localStorage.setItem('godothub_view_names', JSON.stringify(viewNames))
-    } catch {}
-  }, [viewNames])
   useEffect(() => {
     if (!settings.customize_view_enabled) {
-      setSavedViews([])
-      setViewNames({})
       setViewMode('list')
     }
   }, [settings.customize_view_enabled])
-  const [createViewModalOpen, setCreateViewModalOpen] = useState(false)
   const [tagFilter, setTagFilter] = useState<string | null>(() => {
     try {
       const raw = sessionStorage.getItem('godothub_projects_tag_filter')
@@ -1091,85 +1095,123 @@ export function ProjectsView({
           />
         )}
 
-        {settings.customize_view_enabled && (
-          <>
-            <div className="w-px h-5 bg-outline/50 shrink-0" />
-            {savedViews.length >= 2 ? (
-              <div className="flex items-center gap-1.5">
-                <Segmented
-                  value={viewMode}
-                  onChange={(v) => setViewMode(v as ProjectViewMode)}
-                  options={savedViews.map((v) => ({
-                    value: v,
-                    label: viewNames[v] ?? (v === 'list' ? tc('view_list') : v === 'grid' ? tc('view_grid') : tc('view_kanban')),
-                  }))}
-                />
-                <motion.button
-                  type="button"
-
-                  data-press-feedback
-                  onClick={() => setCreateViewModalOpen(true)}
-                  aria-label={tc('manage_views')}
-                  className="focus-ring cursor-pointer flex items-center justify-center w-8 h-8 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 transition-colors"
-                >
-                  <IconGear className="w-3.5 h-3.5" />
-                </motion.button>
-              </div>
-            ) : (
-              <motion.button
-                type="button"
-
-                data-press-feedback
-                onClick={() => setCreateViewModalOpen(true)}
-                className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 transition-colors"
-              >
-                <IconPlus className="w-3 h-3" />
-                <span className="text-sm font-medium">{tc('manage_views')}</span>
-              </motion.button>
-            )}
-          </>
+        {tagFilter && (
+          <button
+            type="button"
+            onClick={() => setTagFilter(null)}
+            title={tc('clear_tag_filter')}
+            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-item bg-accent/15 text-accent-bright ring-1 ring-accent-dim/70 hover:bg-accent/25 transition-colors"
+          >
+            <span
+              className="w-1.5 h-1.5 rounded-full shrink-0"
+              style={{ backgroundColor: tagColor(tagFilter) }}
+            />
+            <span className="text-base font-medium">{tagFilter}</span>
+            <IconX className="w-3 h-3" />
+          </button>
         )}
 
-        {tagFilter && (
-            <button
-              type="button"
-              onClick={() => setTagFilter(null)}
-              title={tc('clear_tag_filter')}
-              className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-item bg-accent/15 text-accent-bright ring-1 ring-accent-dim/70 hover:bg-accent/25 transition-colors"
+        {settings.customize_view_enabled && (
+          <div className="ms-auto flex items-center gap-2">
+            <Dropdown
+              align="right"
+              compact
+              trigger={({ open, toggle }) => (
+                <motion.button
+                  type="button"
+                  aria-expanded={open}
+                  data-press-feedback
+                  onClick={toggle}
+                  className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 transition-colors"
+                >
+                  <span className="text-sm font-medium">{tc('customize_card_section')}</span>
+                  <IconChevronDown
+                    className={`w-2.5 h-2.5 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+                  />
+                </motion.button>
+              )}
             >
-              <span
-                className="w-1.5 h-1.5 rounded-full shrink-0"
-                style={{ backgroundColor: tagColor(tagFilter) }}
-              />
-              <span className="text-base font-medium">{tagFilter}</span>
-              <IconX className="w-3 h-3" />
-            </button>
+              {(() => {
+                const cardOptions = getCardViewSettings(settings, viewMode)
+                return (
+                  <div className="flex flex-col gap-0.5">
+                    {CARD_TOGGLE_OPTIONS.map((opt) => {
+                      const Icon = opt.icon
+                      const checked = cardOptions[opt.key]
+                      const disabled =
+                        opt.key === 'blur_path' && !cardOptions.show_path
+                      return (
+                        <div
+                          key={opt.key}
+                          className="flex items-center gap-2.5 rounded-item px-2.5 py-1.5"
+                        >
+                          <Icon
+                            className={`w-3.5 h-3.5 shrink-0 text-muted/70 ${disabled ? 'opacity-50' : ''}`}
+                          />
+                          <span
+                            className={`flex-1 text-start text-xs font-medium truncate ${disabled ? 'text-muted/50' : 'text-ink'}`}
+                          >
+                            {tc(opt.labelKey)}
+                          </span>
+                          <Toggle
+                            checked={checked}
+                            disabled={disabled}
+                            onChange={(v) =>
+                              update(setCardViewOverride(settings, viewMode, opt.key, v))
+                            }
+                            label={tc(opt.labelKey)}
+                          />
+                        </div>
+                      )
+                    })}
+                  </div>
+                )
+              })()}
+            </Dropdown>
+            <Dropdown
+              align="right"
+              compact
+              trigger={({ open, toggle }) => {
+                const ViewIcon =
+                  viewMode === 'grid'
+                    ? IconLayoutGrid
+                    : viewMode === 'kanban'
+                      ? IconKanban
+                      : IconLayoutList
+                const viewLabel = tc(
+                  viewMode === 'grid'
+                    ? 'view_grid'
+                    : viewMode === 'kanban'
+                      ? 'view_kanban'
+                      : 'view_list',
+                )
+                return (
+                  <motion.button
+                    type="button"
+                    aria-expanded={open}
+                    aria-label={viewLabel}
+                    title={viewLabel}
+                    data-press-feedback
+                    onClick={toggle}
+                    className="focus-ring cursor-pointer flex items-center justify-center w-8 h-8 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 transition-colors"
+                  >
+                    <ViewIcon className="w-3.5 h-3.5" />
+                  </motion.button>
+                )
+              }}
+              items={VIEW_MODE_OPTIONS.map((opt) => ({
+                key: opt.value,
+                label: tc(opt.labelKey),
+                icon: opt.icon,
+                active: viewMode === opt.value,
+                onClick: () => setViewMode(opt.value),
+              }))}
+            />
+          </div>
         )}
 
       </div>
 
-      <AnimatePresence>
-        {createViewModalOpen && (
-          <CreateViewModal
-            savedViews={savedViews}
-            viewNames={viewNames}
-            onAdd={(mode) => {
-              setSavedViews((prev) => [...prev, mode])
-              setViewMode(mode)
-            }}
-            onRemove={(mode) => {
-              setSavedViews((prev) => prev.filter((v) => v !== mode))
-              if (viewMode === mode) {
-                setViewMode(savedViews.find((v) => v !== mode) ?? 'list')
-              }
-            }}
-            onRename={(mode, name) => {
-              setViewNames((prev) => ({ ...prev, [mode]: name }))
-            }}
-            onClose={() => setCreateViewModalOpen(false)}
-          />
-        )}
-      </AnimatePresence>
       <AnimatePresence>
         {selectedIds.size > 0 && (
           <motion.div key="selection-bar"
