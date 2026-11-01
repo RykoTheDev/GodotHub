@@ -141,59 +141,72 @@ pub fn list_vault_items(app: AppHandle) -> Vec<VaultItem> {
 #[tauri::command]
 pub async fn save_to_vault(
     app: AppHandle,
-    project_id: String,
     name: String,
     description: String,
     tags: Vec<String>,
-    paths: Vec<String>,
+    sources: Vec<VaultSaveSource>,
 ) -> Result<VaultItem, String> {
     let trimmed = name.trim().to_string();
     if trimmed.is_empty() {
         return Err("Vault item name can't be empty".into());
     }
-    if paths.is_empty() {
+    if sources.is_empty() {
+        return Err("Select at least one project to save from".into());
+    }
+    if sources.iter().all(|s| s.paths.is_empty()) {
         return Err("Select at least one file or folder to save".into());
     }
 
     let projects = crate::projects::read_projects(&app);
-    let project = projects
-        .iter()
-        .find(|p| p.id == project_id)
-        .ok_or("Project not found")?;
-
-    let project_root = PathBuf::from(&project.path);
-    if !project_root.exists() {
-        return Err("Project folder no longer exists on disk".into());
-    }
 
     let id = Uuid::new_v4().to_string();
     let dir = vault_item_dir(&app, &id);
     let files_dir = item_files_dir(&dir);
     fs::create_dir_all(&files_dir).map_err(|e| e.to_string())?;
 
+    let mut godot_version = String::new();
+    let mut source_project_ids: Vec<String> = Vec::new();
+
     let result = (|| -> Result<(), String> {
-        for raw in &paths {
-            let normalized = raw
-                .replace("\\", "/")
-                .trim_start_matches("res://")
-                .trim_start_matches('/')
-                .to_string();
-            let rel = Path::new(&normalized);
-            if normalized.is_empty() || !is_safe_relative(rel) {
-                return Err(format!("Unsafe path: {raw}"));
+        for source in &sources {
+            let project = projects
+                .iter()
+                .find(|p| p.id == source.project_id)
+                .ok_or("Project not found")?;
+            let project_root = PathBuf::from(&project.path);
+            if !project_root.exists() {
+                return Err("Project folder no longer exists on disk".into());
             }
-            let src = project_root.join(rel);
-            if !src.exists() {
-                return Err(format!("Path does not exist in project: {raw}"));
+            if godot_version.is_empty() {
+                godot_version = project.godot_version.clone();
             }
-            let dst = files_dir.join(rel);
-            if let Some(parent) = dst.parent() {
-                fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+            if !source_project_ids.contains(&source.project_id) {
+                source_project_ids.push(source.project_id.clone());
             }
-            if src.is_dir() {
-                copy_dir(&src, &dst, SKIP_DIRS)?;
-            } else {
-                fs::copy(&src, &dst).map_err(|e| e.to_string())?;
+
+            for raw in &source.paths {
+                let normalized = raw
+                    .replace("\\", "/")
+                    .trim_start_matches("res://")
+                    .trim_start_matches('/')
+                    .to_string();
+                let rel = Path::new(&normalized);
+                if normalized.is_empty() || !is_safe_relative(rel) {
+                    return Err(format!("Unsafe path: {raw}"));
+                }
+                let src = project_root.join(rel);
+                if !src.exists() {
+                    return Err(format!("Path does not exist in project: {raw}"));
+                }
+                let dst = files_dir.join(rel);
+                if let Some(parent) = dst.parent() {
+                    fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+                }
+                if src.is_dir() {
+                    copy_dir(&src, &dst, SKIP_DIRS)?;
+                } else {
+                    fs::copy(&src, &dst).map_err(|e| e.to_string())?;
+                }
             }
         }
         Ok(())
@@ -208,9 +221,10 @@ pub async fn save_to_vault(
         id: id.clone(),
         name: trimmed,
         description,
-        godot_version: project.godot_version.clone(),
+        godot_version,
         created_at: chrono::Utc::now().to_rfc3339(),
-        source_project_id: Some(project_id),
+        source_project_id: source_project_ids.first().cloned(),
+        source_project_ids,
         tags,
         files: collect_files(&files_dir),
         path: dir.to_string_lossy().to_string(),
@@ -280,6 +294,73 @@ pub async fn add_vault_item_to_project(
         conflicts,
         skipped: false,
     })
+}
+
+#[tauri::command]
+pub async fn add_vault_item_to_projects(
+    app: AppHandle,
+    item_id: String,
+    project_ids: Vec<String>,
+    overwrite: bool,
+) -> Result<Vec<VaultProjectImportResult>, String> {
+    let dir = resolve_item_dir(&app, &item_id).ok_or("Vault item not found")?;
+    let files_dir = item_files_dir(&dir);
+
+    let file_paths: Vec<String> = collect_files(&files_dir)
+        .into_iter()
+        .filter(|e| !e.is_dir)
+        .map(|e| e.path)
+        .collect();
+
+    let projects = crate::projects::read_projects(&app);
+    let mut results = Vec::new();
+
+    for project_id in &project_ids {
+        let project = projects
+            .iter()
+            .find(|p| &p.id == project_id)
+            .ok_or("Project not found")?;
+        let project_root = PathBuf::from(&project.path);
+        if !project_root.exists() {
+            return Err("Project folder no longer exists on disk".into());
+        }
+
+        let conflicts: Vec<String> = file_paths
+            .iter()
+            .filter(|rel| project_root.join(rel).exists())
+            .cloned()
+            .collect();
+
+        if !overwrite {
+            results.push(VaultProjectImportResult {
+                project_id: project_id.clone(),
+                installed: Vec::new(),
+                conflicts,
+                skipped: true,
+            });
+            continue;
+        }
+
+        let mut installed = Vec::new();
+        for rel in &file_paths {
+            let src = files_dir.join(rel);
+            let dst = project_root.join(rel);
+            if let Some(parent) = dst.parent() {
+                fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+            }
+            fs::copy(&src, &dst).map_err(|e| e.to_string())?;
+            installed.push(rel.clone());
+        }
+
+        results.push(VaultProjectImportResult {
+            project_id: project_id.clone(),
+            installed,
+            conflicts,
+            skipped: false,
+        });
+    }
+
+    Ok(results)
 }
 
 #[tauri::command]

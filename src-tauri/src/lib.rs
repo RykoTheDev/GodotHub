@@ -485,6 +485,7 @@ pub fn run() {
             vault::list_vault_items,
             vault::save_to_vault,
             vault::add_vault_item_to_project,
+            vault::add_vault_item_to_projects,
             vault::delete_vault_item,
             vault::update_vault_item,
             changelog::list_changelog_entries,

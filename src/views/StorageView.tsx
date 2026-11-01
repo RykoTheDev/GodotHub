@@ -253,11 +253,6 @@ export function StorageView({
         connected={connected}
         className="mb-4"
         title={tc('cleanup_title')}
-        leadingAction={
-          <span className="inline-flex items-center px-2 py-0.5 rounded-tag bg-amber/15 text-amber text-[10px] font-semibold uppercase tracking-wider">
-            {tc('unlocalized_badge')}
-          </span>
-        }
         metric={
           <>
             <h2 className="text-4xl font-bold text-muted tabular-nums">

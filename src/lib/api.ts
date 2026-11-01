@@ -7,6 +7,7 @@ import { gitApi } from '../api/git'
 import { gitAuthApi } from '../api/gitAuth'
 import { settingsApi } from '../api/settings'
 import { templatesApi } from '../api/templates'
+import { vaultApi } from '../api/vault'
 import { categoriesApi } from '../api/categories'
 import { workspacesApi } from '../api/workspaces'
 import { changelogApi } from '../api/changelog'
@@ -212,6 +213,13 @@ export const api = {
   deleteTemplate: templatesApi.delete,
   getTemplatePreview: templatesApi.getPreview,
   syncTemplatesWithScanDir: templatesApi.syncWithScanDir,
+
+  listVaultItems: vaultApi.list,
+  saveToVault: vaultApi.saveToVault,
+  addVaultItemToProject: vaultApi.addToProject,
+  addVaultItemToProjects: vaultApi.addToProjects,
+  deleteVaultItem: vaultApi.delete,
+  updateVaultItem: vaultApi.update,
 
   listCategories: categoriesApi.list,
   createCategory: categoriesApi.create,

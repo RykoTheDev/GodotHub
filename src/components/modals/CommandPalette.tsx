@@ -99,6 +99,14 @@ function buildCommands(
       action: () => onNavigate('templates'),
     },
     {
+      id: 'go-vault',
+      labelKey: 'vault',
+      labelNs: 'nav',
+      icon: <IconBriefcase className="w-4 h-4" />,
+      sectionKey: 'section_navigation',
+      action: () => onNavigate('vault'),
+    },
+    {
       id: 'go-asset-store',
       labelKey: 'asset_store',
       labelNs: 'nav',

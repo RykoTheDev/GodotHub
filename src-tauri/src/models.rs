@@ -543,6 +543,12 @@ pub struct VaultFileEntry {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VaultSaveSource {
+    pub project_id: String,
+    pub paths: Vec<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VaultItem {
     pub id: String,
     pub name: String,
@@ -555,6 +561,8 @@ pub struct VaultItem {
     #[serde(default)]
     pub source_project_id: Option<String>,
     #[serde(default)]
+    pub source_project_ids: Vec<String>,
+    #[serde(default)]
     pub tags: Vec<String>,
     #[serde(default)]
     pub files: Vec<VaultFileEntry>,
@@ -563,6 +571,14 @@ pub struct VaultItem {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VaultImportResult {
+    pub installed: Vec<String>,
+    pub conflicts: Vec<String>,
+    pub skipped: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct VaultProjectImportResult {
+    pub project_id: String,
     pub installed: Vec<String>,
     pub conflicts: Vec<String>,
     pub skipped: bool,

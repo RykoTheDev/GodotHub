@@ -10,5 +10,6 @@
   "dashboard": "Dashboard",
   "projects_count_one": "Project",
   "projects_count_other": "Projects",
-  "storage_view": "Storage"
+  "storage_view": "Storage",
+  "vault": "Vault"
 }
