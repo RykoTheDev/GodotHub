@@ -4,7 +4,9 @@
   </a>
 </p>
 <p align="center">
-  <img width="800" height="210" alt="warning-cover" src="https://github.com/user-attachments/assets/cc3c0d68-57a3-4ab6-b025-61f5b0bcef61" />
+  <a href="https://github.com/ivan-hc/AM">
+  <img width="800" height="251" alt="Group 176(1)" src="https://github.com/user-attachments/assets/57e24df7-9046-431f-b550-3d885549580f" />
+  </a>
 </p>
 <p align="center">
   <a href="https://patreon.com/TheRyko">
