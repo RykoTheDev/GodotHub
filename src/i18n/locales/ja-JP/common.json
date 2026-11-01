@@ -517,13 +517,6 @@
   "section_views": "ビュー",
   "play_project": "実行",
   "play_project_tooltip": "エディタを開かずにゲームを実行します",
-  "manage_views": "ビューをカスタマイズ",
-  "manage_views_desc": "ビュー切り替えに表示するレイアウトを選び、ビューの名前を変更したり、プロジェクトカードに表示する項目をカスタマイズしたりできます。",
-  "active_views": "使用中",
-  "available_views": "追加可能",
-  "remove_view": "ビューを削除",
-  "rename_view": "ビューの名前を変更",
-  "all_views_created": "すべてのビューを追加済みです。",
   "file_count_one": "{{count}} 個のファイル",
   "file_count_other": "{{count}} 個のファイル",
   "folder_count_one": "{{count}} 個のフォルダ",
@@ -878,5 +871,6 @@
   "n_projects_one": "{{count}} 件のプロジェクト",
   "n_projects_other": "{{count}} 件のプロジェクト",
   "unlocalized_badge": "未翻訳",
-  "customize_card_show_session_timer": "セッションタイマーを表示"
+  "customize_card_show_session_timer": "セッションタイマーを表示",
+  "new": "新規"
 }

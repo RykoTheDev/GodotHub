@@ -893,18 +893,22 @@ export function ProjectsView({
         connected={connected}
         title={t('projects')}
         leadingAction={
-          <Tooltip content={tc('new_project')} side="bottom">
-            <motion.button
-              type="button"
-              onClick={() => setCreateProjectOpen(true)}
-
-              data-press-feedback
-
-              className="w-9 h-9 cursor-pointer flex items-center justify-center rounded-full bg-accent text-ink hover:bg-accent-bright transition-colors"
-            >
-              <IconPlus className="w-10 h-10" strokeWidth={3} />
-            </motion.button>
-          </Tooltip>
+          <motion.button
+            type="button"
+            onClick={() => setCreateProjectOpen(true)}
+            data-press-feedback
+            aria-label={tc('new_project')}
+            className="group h-9 min-w-9 cursor-pointer inline-flex items-center justify-center rounded-full bg-accent text-ink hover:bg-accent-bright transition-colors"
+          >
+            <IconPlus className="w-5 h-5 shrink-0" strokeWidth={3} />
+            <span className="grid grid-cols-[0fr] transition-[grid-template-columns] duration-300 ease-out group-hover:grid-cols-[1fr]">
+              <span className="overflow-hidden">
+                <span className="block whitespace-nowrap ps-1 pe-2 text-sm font-semibold">
+                  {tc('new')}
+                </span>
+              </span>
+            </span>
+          </motion.button>
         }
         metric={
           <>
@@ -1407,6 +1411,7 @@ export function ProjectsView({
             totalCount={projects.length}
             animationThreshold={settings.animation_threshold}
             hasActiveFilters={hasActiveFilters}
+            searchActive={parsedQuery.active}
             categories={surfaceCategories}
             categoriesEnabled={groupingEnabled}
             onReorder={dragEnabled ? handleListReorder : undefined}

@@ -31,6 +31,7 @@ interface ProjectCardListProps {
   projects: Project[]
   renderCard: (project: Project) => ReactNode
   hasActiveFilters: boolean
+  searchActive?: boolean
   totalCount: number
   animationThreshold?: number
   categories?: Category[]
@@ -54,6 +55,7 @@ export function ProjectCardList({
   projects,
   renderCard,
   hasActiveFilters,
+  searchActive = false,
   totalCount,
   animationThreshold = DEFAULT_ANIMATION_THRESHOLD,
   categories = [],
@@ -72,7 +74,7 @@ export function ProjectCardList({
   const animateList = totalCount <= animationThreshold
   const layoutTransition: Transition = uiMotion.transition('press')
 
-  const showPinnedSection = projects.some((p) => p.pinned)
+  const showPinnedSection = !searchActive && projects.some((p) => p.pinned)
   const pinnedProjects = showPinnedSection
     ? projects.filter((p) => p.pinned)
     : []
@@ -80,7 +82,7 @@ export function ProjectCardList({
     ? projects.filter((p) => !p.pinned)
     : projects
 
-  const grouped = categoriesEnabled && categories.length > 0
+  const grouped = !searchActive && categoriesEnabled && categories.length > 0
 
   const groups = useMemo(() => {
     const map = new Map<string, Project[]>()
