@@ -79,7 +79,26 @@ const PROJECTS: Project[] = [
   }),
 ]
 
+const WORKSPACES = {
+  workspaces: [
+    {
+      id: 'default',
+      name: 'Default',
+      icon: 'briefcase',
+      color: '#4f7cff',
+      created_at: hoursAgo(1000),
+    },
+  ],
+  active_id: 'default',
+}
+
 const HANDLERS: Record<string, (args: Record<string, unknown>) => unknown> = {
+  list_workspaces: () => WORKSPACES,
+  switch_workspace: () => WORKSPACES,
+  create_workspace: () => WORKSPACES,
+  update_workspace: () => WORKSPACES,
+  delete_workspace: () => WORKSPACES,
+  list_workspace_scan_dirs: () => [],
   get_settings: () => SETTINGS,
   update_settings: (a) => (a?.settings as unknown) ?? SETTINGS,
   reset_settings: () => SETTINGS,
@@ -109,5 +128,14 @@ export function installDevMocks(): void {
       ? handler((args ?? {}) as Record<string, unknown>)
       : fallback(cmd)
   })
+  const internals = (
+    window as unknown as { __TAURI_INTERNALS__?: Record<string, unknown> }
+  ).__TAURI_INTERNALS__
+  if (internals) {
+    internals.metadata = {
+      currentWindow: { label: 'main' },
+      currentWebview: { windowLabel: 'main', label: 'main' },
+    }
+  }
   console.info('[dev-mock] Tauri invoke mocked >> browser preview mode')
 }
