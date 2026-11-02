@@ -31,7 +31,7 @@ export function TemplateDisclosure({ id, open, animate, className, children }: P
     const changed = previousOpen.current !== open
     previousOpen.current = open
     let observer: ResizeObserver | undefined
-    let timer: ReturnType<typeof setTimeout> | undefined
+    let timer: number | undefined
     let finished = false
     const finish = () => {
       finished = true
