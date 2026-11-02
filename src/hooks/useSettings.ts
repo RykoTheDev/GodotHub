@@ -108,6 +108,7 @@ export const DEFAULTS: AppSettings = {
   card_show_size: true,
   card_show_time: true,
   card_blur_path: false,
+  privacy_mode: false,
   card_show_path: true,
   card_show_tags: true,
   card_show_last_opened: true,

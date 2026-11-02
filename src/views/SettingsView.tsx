@@ -1312,7 +1312,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <div className="flex flex-col gap-2.5">
               {settings.template_scan_dir ? (
                 <div className="flex items-center gap-2.5">
-                  <span className="flex-1 min-w-0 bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono text-ink truncate">
+                  <span className="sensitive flex-1 min-w-0 bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono text-ink truncate">
                     {settings.template_scan_dir}
                   </span>
                   <button
@@ -1860,7 +1860,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 <IconGithub className="w-4 h-4 text-ink shrink-0" />
                 <span className="text-xs font-medium text-ink">GitHub</span>
                 {gitAuth?.github && (
-                  <span className="text-3xs font-semibold px-1.5 py-0.5 rounded-tag bg-mint/15 text-mint border border-mint/30">
+                  <span className="sensitive text-3xs font-semibold px-1.5 py-0.5 rounded-tag bg-mint/15 text-mint border border-mint/30">
                     {ts("git_connected_as", {
                       username: gitAuth.github.username,
                     })}
@@ -1901,7 +1901,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 <IconGitlab className="w-4 h-4 text-amber shrink-0" />
                 <span className="text-xs font-medium text-ink">GitLab</span>
                 {gitAuth?.gitlab && (
-                  <span className="text-3xs font-semibold px-1.5 py-0.5 rounded-tag bg-mint/15 text-mint border border-mint/30">
+                  <span className="sensitive text-3xs font-semibold px-1.5 py-0.5 rounded-tag bg-mint/15 text-mint border border-mint/30">
                     {gitAuth.gitlab.host
                       ? ts("git_connected_to", {
                           host: gitAuth.gitlab.host,
@@ -2008,7 +2008,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                     <span className="text-xs font-medium text-ink font-mono">
                       {pat.host}
                     </span>
-                    <span className="text-2xs text-muted">
+                    <span className="sensitive text-2xs text-muted">
                       {pat.username}
                     </span>
                   </div>

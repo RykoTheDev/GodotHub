@@ -62,11 +62,8 @@ export function useKeyboardShortcuts(
             h.current.onFocusSearch?.()
           }
           break
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-          if (!isInput) {
+        default:
+          if (!isInput && /^[1-9]$/.test(e.key)) {
             e.preventDefault()
             h.current.onSwitchTab(parseInt(e.key) - 1)
           }

@@ -74,7 +74,7 @@ const Onboarding = lazy(() =>
 )
 import { useTauriEvent } from './lib/useTauriEvent'
 import { useDiscordRpc } from './hooks/useDiscordRpc'
-import { ChangelogBadgeProvider } from './hooks/useChangelogBadge'
+import { useNewsBadge } from './hooks/useNewsBadge'
 import { ScreenReaderAnnouncer } from './lib/screenReader'
 import { relaunch } from '@tauri-apps/plugin-process'
 import {
@@ -92,29 +92,36 @@ import {
   IconCloudArrowDown,
   IconFolder,
   IconGear,
+  IconCode,
+  IconEye,
   IconHardDrive,
+  IconLayoutGrid,
   IconHouse,
   IconNews,
   IconRocket,
   IconStore,
 } from './lib/icons'
 
+const TAB_GROUP_ICONS = { workspace: IconCode, resources: IconLayoutGrid, explore: IconEye }
+
 const TABS = [
   { id: 'dashboard', navKey: 'dashboard', icon: IconHouse, hidden: true },
-  { id: 'projects', navKey: 'projects', icon: IconFolder },
-  { id: 'versions', navKey: 'versions', icon: IconCloudArrowDown },
-  { id: 'templates', navKey: 'templates', icon: IconRocket },
-  { id: 'vault', navKey: 'vault', icon: IconBriefcase, isNew: true },
-  { id: 'storage', navKey: 'storage_view', icon: IconHardDrive, isNew: true },
-  { id: 'asset-store', navKey: 'asset_store', icon: IconStore },
-  { id: 'news', navKey: 'news', icon: IconNews },
-  { id: 'settings', navKey: 'settings', icon: IconGear, footer: true },
-  { id: 'changelog', navKey: 'changelog', icon: IconBookOpen, footer: true, iconOnly: true },
+  { id: 'projects', navKey: 'projects', icon: IconFolder, group: 'workspace' },
+  { id: 'versions', navKey: 'versions', icon: IconCloudArrowDown, group: 'workspace' },
+  { id: 'templates', navKey: 'templates', icon: IconRocket, group: 'workspace' },
+  { id: 'vault', navKey: 'vault', icon: IconBriefcase, isNew: true, group: 'resources' },
+  { id: 'storage', navKey: 'storage_view', icon: IconHardDrive, isNew: true, group: 'resources' },
+  { id: 'asset-store', navKey: 'asset_store', icon: IconStore, group: 'explore' },
+  { id: 'news', navKey: 'news', icon: IconNews, group: 'explore' },
+  { id: 'settings', navKey: 'settings', icon: IconGear, hidden: true },
+  { id: 'changelog', navKey: 'changelog', icon: IconBookOpen, hidden: true },
 ] as const
 
 const DEFAULT_GIT_SIDEBAR_WIDTH = 320
 
 export type NewTab = (typeof TABS)[number]['id']
+
+const SHORTCUT_TABS: NewTab[] = TABS.filter((tab) => !('hidden' in tab)).map((tab) => tab.id).slice(0, 9)
 
 function preloadViewChunks() {
   const chunks = [
@@ -231,6 +238,11 @@ export function App() {
   const [uiSwitchIntent] = useState(() => shouldOpenSettingsAfterSwitch())
   const [projectsCorrupt, setProjectsCorrupt] = useState(false)
   const [tab, setTab] = useState<NewTab>(uiSwitchIntent ? 'settings' : 'projects')
+  const newsUnread = useNewsBadge(tab === 'news')
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('privacy-mode', settings.privacy_mode)
+  }, [settings.privacy_mode])
   const [mountedTabs, setMountedTabs] = useState<NewTab[]>(() => [tab])
   if (!mountedTabs.includes(tab)) setMountedTabs([...mountedTabs, tab])
   const openSettingsTab = useCallback(() => setTab('settings'), [])
@@ -568,8 +580,7 @@ export function App() {
       onNewProject: () => setCreateProjectOpen(true),
       onOpenSettings: () => setTab('settings'),
       onSwitchTab: (i: number) => {
-        const tabs: NewTab[] = ['projects', 'versions', 'news', 'templates']
-        if (tabs[i]) setTab(tabs[i])
+        if (SHORTCUT_TABS[i]) setTab(SHORTCUT_TABS[i])
       },
       onCommandPalette: () => setCommandPaletteOpen((o) => !o),
       onRestart: () => {
@@ -606,9 +617,10 @@ export function App() {
     id: tab.id,
     label: t(tab.navKey),
     icon: tab.icon,
-    footer: 'footer' in tab ? tab.footer : undefined,
-    iconOnly: 'iconOnly' in tab ? tab.iconOnly : undefined,
     isNew: 'isNew' in tab ? tab.isNew : undefined,
+    group: 'group' in tab ? { id: tab.group, label: t(`group_${tab.group}`), icon: TAB_GROUP_ICONS[tab.group] } : undefined,
+    shortcut: SHORTCUT_TABS.indexOf(tab.id) + 1 || undefined,
+    badge: tab.id === 'news' && newsUnread > 0 ? newsUnread : undefined,
   }))
 
   if (settingsLoaded && !settings.setup_complete) {
@@ -631,7 +643,7 @@ export function App() {
   }
 
   return (
-    <ChangelogBadgeProvider>
+    <>
     <div className="new-ui h-screen w-screen flex flex-col bg-base text-ink font-body">
       <ScreenReaderAnnouncer enabled={settings.screen_reader_announcements} />
       <ToastContainer />
@@ -689,7 +701,7 @@ export function App() {
                 onAnimationComplete={() => {
                   if (gitSidebarOpenRef.current) setGitPanelOpened(true)
                 }}
-                className={`absolute top-2 end-2 bottom-2 z-50 ${gitDragging ? 'select-none' : ''}`}
+                className={`absolute top-2 inset-e-2 bottom-2 z-50 ${gitDragging ? 'select-none' : ''}`}
               >
                 <div
                   className="relative h-full w-full"
@@ -738,7 +750,7 @@ export function App() {
                     role="separator"
                     aria-orientation="vertical"
                     style={{ touchAction: 'none' }}
-                    className="absolute inset-y-0 -start-3.5 w-7 cursor-col-resize group/edge z-10"
+                    className="absolute inset-y-0 -inset-s-3.5 w-7 cursor-col-resize group/edge z-10"
                   >
                     <div
                       className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none transition-opacity duration-200 ease-out ${
@@ -902,6 +914,6 @@ export function App() {
 
     </div>
     {splashPhase !== 'done' && <SplashScreen phase={splashPhase} />}
-    </ChangelogBadgeProvider>
+    </>
   )
 }

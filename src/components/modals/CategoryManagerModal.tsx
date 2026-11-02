@@ -27,6 +27,7 @@ import { ColorSwatchPicker } from '../ui/ColorSwatchPicker'
 import { CATEGORY_COLORS } from '../../lib/categoryColors'
 import { DragHandle } from '../reusables/DragHandle'
 import { api } from '../../lib/api'
+import { useSettings } from '../../hooks/useSettings'
 import {
   IconCheck,
   IconFolder,
@@ -74,6 +75,7 @@ function SortableCategoryItem({
   onAssignFolder: () => void
   onRemoveFolder: (folder: string) => void
 }) {
+  const { settings } = useSettings()
   const { t } = useTranslation('common')
   const {
     attributes,
@@ -198,8 +200,8 @@ function SortableCategoryItem({
               >
                 <IconFolder className="w-3 h-3 text-muted/60 shrink-0" />
                 <span
-                  className="text-2xs text-muted truncate font-mono"
-                  title={folder}
+                  className="sensitive text-2xs text-muted truncate font-mono"
+                  title={settings.privacy_mode ? undefined : folder}
                 >
                   {folder}
                 </span>

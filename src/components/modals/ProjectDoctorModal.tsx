@@ -11,7 +11,7 @@ import { Dropdown } from '../ui/Dropdown'
 import { ModalShell } from './ModalShell'
 import { ConfirmDialog } from './ConfirmDialog'
 import { ExportTemplatesModal } from './ExportTemplatesModal'
-import { TemplateDisclosure, TemplateDisclosureChevron } from './TemplateDisclosure'
+import { Disclosure, DisclosureChevron } from '../reusables/Disclosure'
 
 interface Props {
   project: Project
@@ -256,9 +256,9 @@ export function ProjectDoctorModal({ project, installedVersions, onClose }: Prop
             <button type="button" aria-expanded={showPassed} aria-controls="doctor-passed-checks" onClick={event => { setAnimatePassed(event.detail > 0); setShowPassed(!showPassed) }}
               className="focus-ring cursor-pointer flex w-full items-center gap-2 rounded-btn text-xs text-muted hover:text-ink transition-colors">
               <IconCheckCircle className="h-3.5 w-3.5 text-mint" /><span className="flex-1 text-start">{t('passed_checks', {count:passed.length})}</span>
-              <TemplateDisclosureChevron open={showPassed} animate={animatePassed} />
+              <DisclosureChevron open={showPassed} animate={animatePassed} />
             </button>
-            <TemplateDisclosure id="doctor-passed-checks" open={showPassed} animate={animatePassed}>{passed.map(row)}</TemplateDisclosure>
+            <Disclosure id="doctor-passed-checks" open={showPassed} animate={animatePassed}>{passed.map(row)}</Disclosure>
           </section>}
         </div>}
       </div>

@@ -10,5 +10,10 @@
   "projects_count_one": "プロジェクト",
   "projects_count_other": "プロジェクト",
   "storage_view": "ストレージ",
-  "vault": "Vault"
+  "vault": "Vault",
+  "group_workspace": "ワークスペース",
+  "group_resources": "リソース",
+  "group_explore": "探索",
+  "you": "You",
+  "account_manage": "Manage accounts"
 }

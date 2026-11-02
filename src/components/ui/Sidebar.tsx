@@ -1,14 +1,16 @@
 import { motion } from 'framer-motion'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
-import { IconArrowUp, IconChevronsLeft, IconHouse, IconSearch, IconX } from '../../lib/icons'
+import { IconArrowUp, IconChevronRight, IconChevronsLeft, IconGear, IconHouse, IconSearch, IconUser } from '../../lib/icons'
 import type { IconProps } from '../../lib/icons'
-import { WorkspaceSwitcher } from './WorkspaceSwitcher'
+import { WorkspaceModals } from './WorkspaceSwitcher'
+import { AccountMenu } from './AccountMenu'
+import { Disclosure, DisclosureChevron } from '../reusables/Disclosure'
 import { useSettings } from '../../hooks/useSettings'
-import { useChangelogBadge } from '../../hooks/useChangelogBadge'
 import { useUpdateAvailable } from '../../hooks/useUpdateAvailable'
 import { Tooltip } from '../reusables/Tooltip'
+import { OverlayScrollArea } from '../reusables/OverlayScrollArea'
 import { useUiMotion } from '../../hooks/useUiMotion'
 import { isRtl } from '../../lib/locale'
 import { registerSettingsClick } from '../../lib/debugMode'
@@ -17,13 +19,15 @@ export interface SidebarTab {
   id: string
   label: string
   icon: ComponentType<IconProps>
-  footer?: boolean
-  iconOnly?: boolean
   isNew?: boolean
+  group?: { id: string; label: string; icon: ComponentType<IconProps> }
+  shortcut?: number
+  badge?: number
 }
 
 const COLLAPSED_WIDTH = 68
 const DEFAULT_SIDEBAR_WIDTH = 256
+const MIN_SIDEBAR_WIDTH = 195
 const KNOB_HEIGHT = 40
 const KNOB_MIN_TOP = 36
 const KNOB_TRACK_DIST = 56
@@ -50,13 +54,12 @@ export function Sidebar({
   const { t: tc } = useTranslation('common')
   const { settings } = useSettings()
   const {instant, reduced, transition} = useUiMotion()
-  const { hasNewEntry: hasNewChangelogEntry, markSeen: markChangelogSeen } = useChangelogBadge()
   const { updateAvailable, previewUpdate } = useUpdateAvailable()
   const [width, setWidth] = useState(() => {
     try {
       return Math.min(
         350,
-        Math.max(180, Number(localStorage.getItem('new_ui_sidebar_width')) || DEFAULT_SIDEBAR_WIDTH),
+        Math.max(MIN_SIDEBAR_WIDTH, Number(localStorage.getItem('new_ui_sidebar_width')) || DEFAULT_SIDEBAR_WIDTH),
       )
     } catch {
       return DEFAULT_SIDEBAR_WIDTH
@@ -65,13 +68,6 @@ export function Sidebar({
   const [collapsed, setCollapsed] = useState(() => {
     try {
       return localStorage.getItem('new_ui_sidebar_collapsed') === '1'
-    } catch {
-      return false
-    }
-  })
-  const [paletteHintDismissed, setPaletteHintDismissed] = useState(() => {
-    try {
-      return localStorage.getItem('new_ui_sidebar_palette_hint_dismissed') === '1'
     } catch {
       return false
     }
@@ -92,6 +88,33 @@ export function Sidebar({
       localStorage.setItem('new_ui_sidebar_seen_new_tabs', JSON.stringify(next))
     } catch {}
   }
+  const [closedGroups, setClosedGroups] = useState<string[]>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('new_ui_sidebar_closed_groups') ?? '[]')
+      return Array.isArray(saved) ? saved.filter((id): id is string => typeof id === 'string') : []
+    } catch {
+      return []
+    }
+  })
+  const [animateGroups, setAnimateGroups] = useState(false)
+  const saveClosedGroups = (next: string[]) => {
+    setAnimateGroups(true)
+    setClosedGroups(next)
+    try {
+      localStorage.setItem('new_ui_sidebar_closed_groups', JSON.stringify(next))
+    } catch {}
+  }
+  const toggleGroup = (id: string) =>
+    saveClosedGroups(closedGroups.includes(id) ? closedGroups.filter((g) => g !== id) : [...closedGroups, id])
+  const activeGroupId = tabs.find((tab) => tab.id === activeTab)?.group?.id
+  const previousActiveTab = useRef(activeTab)
+  useEffect(() => {
+    if (previousActiveTab.current === activeTab) return
+    previousActiveTab.current = activeTab
+    if (activeGroupId && closedGroups.includes(activeGroupId)) {
+      saveClosedGroups(closedGroups.filter((g) => g !== activeGroupId))
+    }
+  }, [activeTab])
   const [dragging, setDragging] = useState(false)
   const [revealed, setRevealed] = useState(false)
   const [knobY, setKnobY] = useState<number | null>(null)
@@ -111,8 +134,13 @@ export function Sidebar({
   const startXRef = useRef(0)
   const startWidthRef = useRef(0)
 
-  const mainTabs = tabs.filter((t) => !t.footer)
-  const footerTabs = tabs.filter((t) => t.footer)
+  const tabGroups = tabs.reduce<{ id: string; group?: SidebarTab['group']; tabs: SidebarTab[] }[]>((groups, tab) => {
+    const id = tab.group?.id ?? tab.id
+    const last = groups[groups.length - 1]
+    if (last && tab.group && last.id === id) last.tabs.push(tab)
+    else groups.push({ id, group: tab.group, tabs: [tab] })
+    return groups
+  }, [])
 
   const beginDrag = (e: React.PointerEvent) => {
     const now = Date.now()
@@ -159,7 +187,7 @@ export function Sidebar({
       }
       const delta = e.clientX - startXRef.current
       const next = startWidthRef.current + (isRtl() ? -delta : delta)
-      setWidth(Math.min(350, Math.max(180, Math.round(next))))
+      setWidth(Math.min(350, Math.max(MIN_SIDEBAR_WIDTH, Math.round(next))))
       return
     }
     if (settings.fixed_sidebar_resize_knob) return
@@ -187,32 +215,40 @@ export function Sidebar({
     }
   }
 
-  const renderTabButton = (tab: SidebarTab, layoutClass: string, collapsedView = false) => {
+  const badgeLabel = (count: number) => (count > 9 ? '9+' : String(count))
+  const modLabel = (key: string) => (navigator.platform.includes('Mac') ? `⌘${key}` : `Ctrl+${key}`)
+
+  const renderTabButton = (
+    tab: SidebarTab,
+    layoutClass: string,
+    collapsedView = false,
+    menu?: { open: boolean; toggle: () => void },
+  ) => {
     const active = activeTab === tab.id
     const Icon = tab.icon
-    const hideLabel = collapsedView || !!tab.iconOnly
+    const hideLabel = collapsedView
     const showNew = !!tab.isNew && !seenNewTabs.includes(tab.id)
+    const shortcut = tab.shortcut ? modLabel(String(tab.shortcut)) : undefined
     const btn = (
       <button
         key={tab.id}
         type="button"
+        aria-haspopup={menu ? 'menu' : undefined}
+        aria-expanded={menu?.open}
         onClick={() => {
-          if (tab.id === 'changelog') markChangelogSeen()
+          if (menu) return menu.toggle()
           if (tab.id === 'settings') registerSettingsClick()
           if (tab.isNew) markTabSeen(tab.id)
           onTabChange(tab.id)
         }}
-        aria-label={hideLabel ? tab.label : undefined}
-        className={`focus-ring cursor-pointer relative flex items-center rounded-item text-sm font-medium transition-colors ${layoutClass} ${
+        aria-label={hideLabel || tab.badge ? (tab.badge ? `${tab.label} (${tab.badge})` : tab.label) : undefined}
+        aria-keyshortcuts={tab.shortcut ? `${navigator.platform.includes('Mac') ? 'Meta' : 'Control'}+${tab.shortcut}` : undefined}
+        className={`group/tab focus-ring cursor-pointer relative flex items-center rounded-item text-sm font-medium transition-colors ${layoutClass} ${
           showNew ? 'border border-dashed border-accent/70' : 'border border-transparent'
         } ${
           active
             ? 'text-ink'
             : 'text-muted hover:text-ink hover:bg-raised/60'
-        } ${
-          hasNewChangelogEntry && tab.id === 'changelog' && !active
-            ? 'changelog-shine'
-            : ''
         }`}
       >
         {active && (
@@ -233,14 +269,41 @@ export function Sidebar({
             {tc('new_badge')}
           </span>
         )}
+        {!!tab.badge && !showNew && !hideLabel && (
+          <span className="relative ms-auto shrink-0 min-w-5 h-5 px-1.5 inline-flex items-center justify-center rounded-full bg-accent text-white text-3xs font-semibold tabular-nums leading-none">
+            {badgeLabel(tab.badge)}
+          </span>
+        )}
+        {!!tab.badge && !showNew && hideLabel && (
+          <span className="absolute top-0.5 inset-e-0.5 min-w-4 h-4 px-1 inline-flex items-center justify-center rounded-full bg-accent text-white text-4xs font-semibold tabular-nums leading-none" aria-hidden="true">
+            {badgeLabel(tab.badge)}
+          </span>
+        )}
+        {shortcut && !tab.badge && !showNew && !hideLabel && (
+          <kbd className="relative ms-auto shrink-0 font-mono text-4xs px-1.5 py-0.5 rounded-tag bg-raised border border-outline/50 text-muted/70 opacity-0 transition-opacity group-hover/tab:opacity-100 group-focus-visible/tab:opacity-100">
+            {shortcut}
+          </kbd>
+        )}
         {showNew && hideLabel && (
-          <span className="absolute top-1 end-1 w-2 h-2 rounded-full bg-accent" aria-hidden="true" />
+          <span className="absolute top-1 inset-e-1 w-2 h-2 rounded-full bg-accent" aria-hidden="true" />
         )}
       </button>
     )
     return collapsedView ? (
       <span key={tab.id} className="contents">
-        <Tooltip content={tab.label} side="right">
+        <Tooltip
+          content={
+            shortcut ? (
+              <span className="inline-flex items-center gap-2">
+                {tab.label}
+                <kbd className="font-mono text-4xs text-muted">{shortcut}</kbd>
+              </span>
+            ) : (
+              tab.label
+            )
+          }
+          side="right"
+        >
           {btn}
         </Tooltip>
       </span>
@@ -256,7 +319,7 @@ export function Sidebar({
       onClick={toggleCollapsed}
       className={`focus-ring cursor-pointer flex items-center justify-center rounded-item text-sm font-medium transition-colors text-muted hover:text-ink hover:bg-raised/60 border ${
         collapsed
-          ? `absolute top-2 -end-4 w-8 h-8 shrink-0 bg-raised border-line shadow-md shadow-black/10 transition-opacity duration-200 ease-out ${
+          ? `absolute top-2 -inset-e-4 w-8 h-8 shrink-0 bg-raised border-line shadow-md shadow-black/10 transition-opacity duration-200 ease-out ${
               revealed ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`
           : 'border-transparent w-9 h-9 ms-auto shrink-0'
@@ -292,20 +355,10 @@ export function Sidebar({
         }`}
       >
       <div
-        className={`shrink-0 flex items-center gap-2 h-12 border-b border-line ${
+        className={`shrink-0 flex items-center gap-2 ${
           collapsed ? 'justify-center px-0' : 'px-3'
-        }`}
+        } h-14`}
       >
-        {!collapsed && (              <Tooltip content={t('dashboard')}>
-              <button
-                type="button"
-                onClick={() => onTabChange('dashboard')}
-                className="focus-ring cursor-pointer font-display ps-2 font-black text-2xl tracking-tight text-ink/50 hover:text-ink min-w-0 truncate text-start transition-colors"
-              >
-                GodotHub
-              </button>
-              </Tooltip>
-        )}
         {collapsed ? (
           <Tooltip content={t('dashboard')}>
           <button
@@ -317,125 +370,160 @@ export function Sidebar({
             </button>
             </Tooltip>
         ) : (
-          collapseBtn
+          <Tooltip content={t('dashboard')}>
+            <button
+              type="button"
+              onClick={() => onTabChange('dashboard')}
+              className="focus-ring cursor-pointer font-display ps-2 font-black text-3xl leading-none tracking-tight text-ink/50 hover:text-ink min-w-0 truncate text-start transition-colors"
+            >
+              GodotHub
+            </button>
+          </Tooltip>
         )}
+        {!collapsed && collapseBtn}
       </div>
 
-      {settings.workspaces_enabled && (
-        <div className={`shrink-0 ${collapsed ? 'flex justify-center px-0 py-2' : 'px-3 pb-1'}`}>
-          <WorkspaceSwitcher collapsed={collapsed} />
+      {onOpenCommandPalette && (
+        <div className={`shrink-0 ${collapsed ? 'flex justify-center px-0 pt-2' : 'px-3 pt-2.5 pb-0.5'}`}>
+          {collapsed ? (
+            <Tooltip content={tc('search')} side="right">
+              <button
+                type="button"
+                onClick={onOpenCommandPalette}
+                aria-label={tc('search')}
+                className="focus-ring cursor-pointer w-11 h-11 shrink-0 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised/60 transition-colors"
+              >
+                <IconSearch className="w-4 h-4" />
+              </button>
+            </Tooltip>
+          ) : (
+            <button
+              type="button"
+              onClick={onOpenCommandPalette}
+              className="focus-ring cursor-pointer w-full flex items-center gap-2 px-3 h-9 rounded-item bg-overlay/60 border border-outline/50 text-sm text-muted hover:text-ink hover:border-outline hover:bg-overlay transition-colors"
+            >
+              <IconSearch className="w-4 h-4 shrink-0" />
+              <span className="flex-1 text-start truncate">{tc('search')}</span>
+              <kbd className="font-mono text-4xs px-1.5 py-0.5 rounded-tag bg-raised border border-outline/50 text-muted/70">
+                {modLabel(paletteKey.toUpperCase())}
+              </kbd>
+            </button>
+          )}
         </div>
       )}
 
-      <nav className={`flex-1 p-3 pt-2 flex flex-col ${collapsed ? 'items-center gap-1' : 'gap-1.5'}`}>
-        {mainTabs.map((tab) =>
-          renderTabButton(
-            tab,
-            collapsed ? 'w-11 h-11 shrink-0 justify-center' : 'w-full gap-2.5 px-3 py-2.5',
-            collapsed,
-          ),
-        )}
-      </nav>
-      {footerTabs.length > 0 && (
-        <nav className={`shrink-0 p-3 flex flex-col gap-1.5 ${collapsed ? 'items-center' : 'items-stretch'}`}>
-          <div
-            className={`flex flex-col ${
-              collapsed ? 'gap-1 items-center' : 'gap-1.5 items-stretch'
-            }`}
-          >
-            {!collapsed && onOpenCommandPalette && !paletteHintDismissed && (
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={onOpenCommandPalette}
-                  className="focus-ring cursor-pointer w-full flex items-center gap-2.5 px-3 py-2.5 rounded-item border border-dashed border-outline/50 text-xs font-medium text-muted/60 hover:text-muted hover:border-outline hover:bg-raised/50 transition-colors"
-                >
-                  <kbd className="font-mono text-4xs px-1.5 py-0.5 rounded-tag bg-overlay border border-outline/50">
-                    {navigator.platform.includes('Mac')
-                      ? `⌘${paletteKey.toUpperCase()}`
-                      : `Ctrl+${paletteKey.toUpperCase()}`}
-                  </kbd>
-                  <span className="flex items-center gap-1.5">
-                    <IconSearch className="w-3 h-3" />
-                    {tc('quick_commands')}
-                  </span>
-                </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      try {
-                        localStorage.setItem(
-                          'new_ui_sidebar_palette_hint_dismissed',
-                          '1',
-                        )
-                      } catch {}
-                      setPaletteHintDismissed(true)
-                    }}
-                    className="focus-ring cursor-pointer w-4 h-4 rounded-full bg-raised border border-outline/60 text-muted/60 hover:text-ink hover:border-outline flex items-center justify-center transition-colors absolute -top-1.5 -end-1.5"
-                  >
-                    <IconX className="w-2.5 h-2.5" />
-                  </button>
+      {settings.workspaces_enabled && <WorkspaceModals />}
+
+      <OverlayScrollArea className="flex-1 min-h-0" hideTopButton>
+      <nav className={`p-3 pt-2 flex flex-col ${collapsed ? 'items-center gap-1' : 'gap-1.5'}`}>
+        {tabGroups.map((group) => {
+          const buttons = group.tabs.map((tab) =>
+            renderTabButton(
+              tab,
+              collapsed ? 'w-11 h-11 shrink-0 justify-center' : 'w-full gap-2 px-3 py-2',
+              collapsed,
+            ),
+          )
+          if (collapsed) {
+            return (
+              <div key={group.id} className="contents">
+                {buttons}
               </div>
-            )}
-            {(updateAvailable || previewUpdate) && onOpenUpdatesModal && !collapsed && (
+            )
+          }
+          if (!group.group) return <div key={group.id} className="contents">{buttons}</div>
+          const GroupIcon = group.group.icon
+          const activeInGroup = group.tabs.find((tab) => tab.id === activeTab)
+          const hasActive = !!activeInGroup
+          const groupBadge = group.tabs.reduce((sum, tab) => sum + (tab.badge ?? 0), 0)
+          const open = !closedGroups.includes(group.id)
+          const panelId = `sidebar-group-${group.id}`
+          return (
+            <div key={group.id} className="flex flex-col">
+              <button
+                type="button"
+                onClick={() => toggleGroup(group.id)}
+                aria-expanded={open}
+                aria-controls={panelId}
+                className={`focus-ring cursor-pointer w-full flex items-center gap-2 px-2 py-2 rounded-item border text-sm font-medium transition-colors ${
+                  hasActive
+                    ? 'bg-overlay/50 border-outline/30 text-ink'
+                    : 'border-transparent text-muted hover:text-ink hover:bg-raised/60'
+                }`}
+              >
+                <GroupIcon className={`ui-nav-icon w-4 h-4 shrink-0 ${hasActive ? 'text-ink' : 'text-muted'}`} />
+                <span className="shrink-0">{group.group.label}</span>
+                {!open && activeInGroup && (
+                  <>
+                    <IconChevronRight className="w-2 h-2 shrink-0 text-muted rtl:rotate-180" aria-hidden="true" />
+                    <span className="truncate text-xs text-muted">{activeInGroup.label}</span>
+                  </>
+                )}
+                <span className="ms-auto inline-flex items-center gap-2">
+                  {!open && groupBadge > 0 && (
+                    <span className="min-w-5 h-5 px-1.5 inline-flex items-center justify-center rounded-full bg-accent text-white text-3xs font-semibold tabular-nums leading-none">
+                      {badgeLabel(groupBadge)}
+                    </span>
+                  )}
+                  <DisclosureChevron open={open} animate={animateGroups} />
+                </span>
+              </button>
+              <Disclosure id={panelId} open={open} animate={animateGroups} className="flex flex-col gap-0.5 ms-5 ps-2 border-s border-line pt-1 pb-1">
+                {buttons}
+              </Disclosure>
+            </div>
+          )
+        })}
+      </nav>
+      </OverlayScrollArea>
+      <div className={`shrink-0 p-3 flex flex-col ${collapsed ? 'items-center gap-1' : 'items-stretch gap-1.5'}`}>
+        {(updateAvailable || previewUpdate) && onOpenUpdatesModal && (collapsed ? (
+            <Tooltip content={tc('update_available')}>
               <button
                 type="button"
                 onClick={onOpenUpdatesModal}
-                className="focus-ring cursor-pointer w-full flex items-center gap-2.5 px-3 py-2.5 rounded-item bg-accent/10 border border-accent/30 text-xs font-medium text-accent-bright hover:bg-accent/20 transition-colors"
+                className="focus-ring cursor-pointer w-11 h-11 shrink-0 flex items-center justify-center rounded-item relative text-muted hover:text-ink hover:bg-raised/60 transition-colors"
               >
-                <span className="relative flex w-2 h-2">
+                <IconArrowUp className="w-4 h-4" />
+                <span className="absolute top-2 inset-e-2 flex w-2 h-2" aria-hidden="true">
                   <span className="absolute inline-flex h-full w-full rounded-full bg-accent-bright opacity-75 animate-attention-ping" />
-                  <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-bright" />
+                  <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-bright shadow-[0_0_6px_2px] shadow-accent/50" />
                 </span>
-                {tc('update_available')}
               </button>
-            )}
-            {(updateAvailable || previewUpdate) && onOpenUpdatesModal && collapsed && (
-                <Tooltip content={tc('update_available')}>
-                <button
-                  type="button"
-                  onClick={onOpenUpdatesModal}
-                  className="focus-ring cursor-pointer w-11 h-11 shrink-0 flex items-center justify-center rounded-item relative text-muted hover:text-ink hover:bg-raised/60 transition-colors"
-                >
-                  <IconArrowUp className="w-4 h-4" />
-                  <span className="absolute top-2 end-2 flex w-2 h-2" aria-hidden="true">
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-accent-bright opacity-75 animate-attention-ping" />
-                    <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-bright shadow-[0_0_6px_2px] shadow-accent/50" />
-                  </span>
-                </button>
-                </Tooltip>
-            )}
-            {footerTabs.slice(0, -2).map((tab) =>
+            </Tooltip>
+          ) : (
+            <button
+              type="button"
+              onClick={onOpenUpdatesModal}
+              className="focus-ring cursor-pointer w-full flex items-center gap-2.5 px-3 py-2.5 rounded-item bg-accent/10 border border-accent/30 text-xs font-medium text-accent-bright hover:bg-accent/20 transition-colors"
+            >
+              <span className="relative flex w-2 h-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-accent-bright opacity-75 animate-attention-ping" />
+                <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-bright" />
+              </span>
+              {tc('update_available')}
+            </button>
+          ))}
+        <div className={`flex ${collapsed ? 'flex-col gap-1 items-center' : 'flex-row gap-1.5 items-stretch'}`}>
+          <AccountMenu
+            className={collapsed ? 'w-fit' : 'flex-1 min-w-0'}
+            onNavigate={onTabChange}
+            trigger={(menu) =>
               renderTabButton(
-                tab,
-                collapsed || tab.iconOnly
-                  ? 'w-11 h-11 shrink-0 justify-center'
-                  : 'w-full gap-2.5 px-3 py-2.5',
+                { id: 'account', label: t('you'), icon: IconUser },
+                `bg-overlay/40 ${collapsed ? 'w-11 h-11 shrink-0 justify-center' : 'w-full gap-2 px-3 py-2'}`,
                 collapsed,
-              ),
-            )}
-            {footerTabs.length >= 2 && (
-              <div
-                className={`flex ${
-                  collapsed
-                    ? 'flex-col gap-1 items-center'
-                    : 'flex-row gap-1.5 items-stretch'
-                }`}
-              >
-                {footerTabs.slice(-2).map((tab) =>
-                  renderTabButton(
-                    tab,
-                    collapsed || tab.iconOnly
-                      ? 'w-11 h-11 shrink-0 justify-center'
-                      : 'flex-1 gap-2.5 px-3 py-2.5',
-                    collapsed,
-                  ),
-                )}
-              </div>
-            )}
-          </div>
-        </nav>
-      )}
+                menu,
+              )
+            }
+          />
+          {renderTabButton(
+            { id: 'settings', label: t('settings'), icon: IconGear },
+            `bg-overlay/40 w-11 shrink-0 justify-center ${collapsed ? 'h-11' : ''}`,
+            true,
+          )}
+        </div>
+      </div>
       </div>
       {collapsed && (
         <span title={t('expand_sidebar')} className="contents">
@@ -457,7 +545,7 @@ export function Sidebar({
           setRevealed(false)
           setKnobY(null)
         }}
-        className="absolute inset-y-0 -end-3.5 w-7 cursor-col-resize group/edge z-10"
+        className="absolute inset-y-0 -inset-e-3.5 w-7 cursor-col-resize group/edge z-10"
       >
         <div
           className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none transition-opacity duration-200 ease-out ${

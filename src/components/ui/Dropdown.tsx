@@ -44,7 +44,7 @@ interface NewDropdownProps {
   className?: string
   activeItemClassName?: string
   compact?: boolean
-  children?: ReactNode
+  children?: ReactNode | ((close: () => void) => ReactNode)
   onOpenChange?: (open: boolean) => void
 }
 
@@ -177,7 +177,13 @@ export function Dropdown({
   }, [])
 
   useLayoutEffect(() => {
-    if (open) measure()
+    if (!open) return
+    measure()
+    const menu = menuRef.current
+    if (!menu) return
+    const observer = new ResizeObserver(() => measure())
+    observer.observe(menu)
+    return () => observer.disconnect()
   }, [open, measure])
 
   useEffect(() => {
@@ -264,6 +270,8 @@ export function Dropdown({
   ) => {
     if (item.children?.length) {
       e.preventDefault()
+      setOpenSubmenuKey(item.key)
+      measureSubmenu(item.key)
       return
     }
     closeAll()
@@ -306,14 +314,14 @@ export function Dropdown({
                   ))}
                 </div>
               )}
-              {children}
+              {typeof children === 'function' ? children(closeAll) : children}
               {items.map((item) => (
                 <div
                   key={item.key}
                   ref={(el) => {
                     itemRefs.current[item.key] = el
                   }}
-                  className="relative"
+                  className={`relative ${item.action ? 'flex items-center gap-0.5' : ''}`}
                   onMouseEnter={() => {
                     if (item.children?.length) {
                       setOpenSubmenuKey(item.key)
@@ -330,6 +338,22 @@ export function Dropdown({
                     caret={Boolean(item.children?.length)}
                     activeItemClassName={activeItemClassName}
                   />
+                  {item.action && (
+                    <Tooltip content={item.action.label} side="top">
+                      <button
+                        type="button"
+                        role="menuitem"
+                        aria-label={item.action.label}
+                        onClick={() => {
+                          closeAll()
+                          item.action?.onClick()
+                        }}
+                        className="focus-ring cursor-pointer shrink-0 w-8 h-8 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised transition-colors"
+                      >
+                        <item.action.icon className="w-3.5 h-3.5" />
+                      </button>
+                    </Tooltip>
+                  )}
                   {item.children?.length && (
                     <AnimatePresence>
                       {openSubmenuKey === item.key && (
@@ -343,7 +367,7 @@ export function Dropdown({
                         >
                           <motion.div
                             {...surface('popover', `translateX(${submenuSide === 'left' ? 6 : -6}px) scale(0.97)`)}
-                            className={`${menuSurfaceClass(compact)} ${
+                            className={`${menuSurfaceClass(compact, 'max-h-[70vh] overflow-y-auto')} ${
                               submenuSide === 'left'
                                 ? 'origin-right'
                                 : 'origin-left'

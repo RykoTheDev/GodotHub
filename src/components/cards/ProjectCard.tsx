@@ -756,7 +756,7 @@ function ProjectCardInner({
             <button
               type="button"
               onClick={openFolder}
-              className={`block bg-black/15 px-3 py-1 rounded-tag text-2xs font-mono text-muted truncate hover:text-accent-bright cursor-pointer transition-colors w-fit max-w-full ${cardSettings.blur_path ? "blur-sm hover:blur-none transition-[filter]" : ""}`}
+              className={`sensitive block bg-black/15 px-3 py-1 rounded-tag text-2xs font-mono text-muted truncate hover:text-accent-bright cursor-pointer transition-colors w-fit max-w-full ${cardSettings.blur_path ? "blur-sm hover:blur-none transition-[filter]" : ""}`}
             >
               {project.path}
             </button>

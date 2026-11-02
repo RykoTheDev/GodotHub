@@ -563,7 +563,7 @@ export function StorageView({
                   >
                     <div className="min-w-0">
                       <p className="text-xs font-medium text-ink truncate">{e.label}</p>
-                      <p className="text-2xs text-muted truncate" title={e.path}>
+                      <p className="sensitive text-2xs text-muted truncate" title={settings.privacy_mode ? undefined : e.path}>
                         {e.path}
                       </p>
                     </div>
