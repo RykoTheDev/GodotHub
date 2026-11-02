@@ -931,8 +931,7 @@ export type commonKeys =
   | 'vault_added_toast_other'
   | 'vault_added_to_projects_toast_one'
   | 'vault_added_to_projects_toast_other'
-  | 'vault_item_empty';
-  | 'unlocalized_badge'
+  | 'vault_item_empty'
   | 'new';
 
 /** Keys from dashboard.json */
@@ -2693,7 +2692,6 @@ export type TranslationKey =
   | 'common:vault_added_to_projects_toast_one'
   | 'common:vault_added_to_projects_toast_other'
   | 'common:vault_item_empty'
-  | 'common:unlocalized_badge'
   | 'common:new'
   | 'dashboard:greeting_morning'
   | 'dashboard:greeting_afternoon'

@@ -872,7 +872,6 @@
   "language_label": "语言",
   "n_projects_one": "{{count}} 个项目",
   "n_projects_other": "{{count}} 个项目",
-  "customize_card_show_session_timer": "显示会话计时器",
   "vault_item_count_one": "Item",
   "vault_item_count_other": "Items",
   "vault_search_placeholder": "Search vault…",
@@ -918,8 +917,7 @@
   "vault_conflict_summary_desc_one": "{{count}} file already exists across the selected projects. Overwrite it?",
   "vault_conflict_summary_desc_other": "{{count}} files already exist across the selected projects. Overwrite them?",
   "vault_added_to_projects_toast_one": "Added to {{count}} project",
-  "vault_added_to_projects_toast_other": "Added to {{count}} projects"
-  "unlocalized_badge": "未本地化",
+  "vault_added_to_projects_toast_other": "Added to {{count}} projects",
   "customize_card_show_session_timer": "显示会话计时器",
   "new": "新建",
   "view_error_title": "This view couldn't load",

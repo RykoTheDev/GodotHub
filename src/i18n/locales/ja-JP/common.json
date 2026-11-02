@@ -916,9 +916,7 @@
   "vault_conflict_summary_desc_one": "{{count}} file already exists across the selected projects. Overwrite it?",
   "vault_conflict_summary_desc_other": "{{count}} files already exist across the selected projects. Overwrite them?",
   "vault_added_to_projects_toast_one": "Added to {{count}} project",
-  "vault_added_to_projects_toast_other": "Added to {{count}} projects"
-  "unlocalized_badge": "未翻訳",
-  "customize_card_show_session_timer": "セッションタイマーを表示",
+  "vault_added_to_projects_toast_other": "Added to {{count}} projects",
   "new": "新規",
   "view_error_title": "This view couldn't load",
   "view_error_desc": "The rest of GodotHub still works. Try loading this view again, or switch to another one.",
