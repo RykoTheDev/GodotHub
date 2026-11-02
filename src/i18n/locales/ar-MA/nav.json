@@ -11,5 +11,8 @@
   "projects_count_one": "مشروع",
   "projects_count_other": "مشاريع",
   "storage_view": "Storage",
-  "vault": "Vault"
+  "vault": "Vault",
+  "group_workspace": "مساحة العمل",
+  "group_resources": "الموارد",
+  "group_explore": "استكشاف"
 }

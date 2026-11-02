@@ -1154,7 +1154,10 @@ export type navKeys =
   | 'news'
   | 'storage_view'
   | 'settings'
-  | 'changelog';
+  | 'changelog'
+  | 'group_workspace'
+  | 'group_resources'
+  | 'group_explore';
 
 /** Keys from onboarding.json */
 export type onboardingKeys =
@@ -2904,6 +2907,9 @@ export type TranslationKey =
   | 'nav:storage_view'
   | 'nav:settings'
   | 'nav:changelog'
+  | 'nav:group_workspace'
+  | 'nav:group_resources'
+  | 'nav:group_explore'
   | 'onboarding:welcome'
   | 'onboarding:customize'
   | 'onboarding:finish'

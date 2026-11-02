@@ -9,7 +9,7 @@ import { pushToast } from '../../lib/toast'
 import type { ExportTemplateOption } from '../../types'
 import { Checkbox } from '../ui/Checkbox'
 import { ModalShell } from './ModalShell'
-import { TemplateDisclosure, TemplateDisclosureChevron } from './TemplateDisclosure'
+import { Disclosure, DisclosureChevron } from '../reusables/Disclosure'
 
 interface Props {
   tag: string
@@ -233,10 +233,10 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
                         }}
                         className="focus-ring cursor-pointer flex flex-1 items-center gap-2 rounded-btn text-start text-sm font-medium text-muted hover:text-ink transition-colors">
                         <span className="flex-1">{label}</span>
-                        <TemplateDisclosureChevron open={open} animate={animateDisclosures} />
+                        <DisclosureChevron open={open} animate={animateDisclosures} />
                       </button>
                     </div>
-                    <TemplateDisclosure id={categoryId} open={open} animate={animateDisclosures} className="flex flex-col gap-2.5 pt-2.5">{category.options.map((option) => {
+                    <Disclosure id={categoryId} open={open} animate={animateDisclosures} className="flex flex-col gap-2.5 pt-2.5">{category.options.map((option) => {
                         const available = option.files.filter((file) => !file.installed)
                         const installedCount = option.files.length - available.length
                         const selectedCount = available.filter((file) => selectedNames.has(file.name)).length
@@ -264,11 +264,11 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
                                 {installedCount > 0 && <span className="shrink-0 rounded-tag border border-mint/30 bg-mint/10 px-2 py-0.5 text-3xs font-medium text-mint">{!fullyInstalled && `${installedCount}/${option.files.length} `}{t('export_templates_option_installed')}</span>}
                                 {selectedCount > 0 && <span className="text-3xs text-accent-bright tabular-nums">{selectedCount}/{available.length}</span>}
                                 <span className="text-xs text-muted tabular-nums shrink-0">{formatBytes(fullyInstalled ? option.size_bytes : available.reduce((sum, file) => sum + file.download_bytes, 0))}</span>
-                                <TemplateDisclosureChevron open={open} animate={animateDisclosures} />
+                                <DisclosureChevron open={open} animate={animateDisclosures} />
                               </button>
                               {uninstallButton(option.files, option.label)}
                             </div>
-                            <TemplateDisclosure id={panelId} open={open} animate={animateDisclosures} className="pt-3">
+                            <Disclosure id={panelId} open={open} animate={animateDisclosures} className="pt-3">
                               <div className="pt-3 border-t border-outline/50 flex flex-col gap-3">
                                 {groupTemplateFiles(option.files).map((group, groupIndex) => {
                                   const groupLabel = group.labelKey ? t(group.labelKey) : group.label
@@ -298,12 +298,12 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
                                             <span className="flex-1 text-xs font-medium text-ink">{groupLabel}</span>
                                             {installedCount > 0 && <span className="text-3xs text-mint">{!fullyInstalled && `${installedCount}/${group.files.length} `}{t('export_templates_option_installed')}</span>}
                                             {!fullyInstalled && <span className="text-3xs text-muted tabular-nums">{count}/{available.length}</span>}
-                                            <TemplateDisclosureChevron open={groupOpen} animate={animateDisclosures} />
+                                            <DisclosureChevron open={groupOpen} animate={animateDisclosures} />
                                           </button>
                                           {uninstallButton(group.files, groupName)}
                                         </div>
                                       )}
-                                      <TemplateDisclosure id={groupPanelId} open={groupOpen} animate={animateDisclosures} className={`flex flex-col gap-1.5 ${group.label ? 'pt-1.5' : ''}`}>{group.files.map((file) => (
+                                      <Disclosure id={groupPanelId} open={groupOpen} animate={animateDisclosures} className={`flex flex-col gap-1.5 ${group.label ? 'pt-1.5' : ''}`}>{group.files.map((file) => (
                                         <div key={file.name} className={`flex items-center gap-3 rounded-btn border px-3 py-2.5 ${group.label ? 'ms-5' : ''} ${selectedNames.has(file.name) ? 'border-accent-dim/40 bg-accent/5' : 'border-transparent bg-base/30 hover:bg-raised/70'} transition-colors`}>
                                           {file.installed ? <div className="flex flex-1 min-w-0 items-center gap-2.5">
                                             <InstalledMark label={`${file.name} · ${t('export_templates_option_installed')}`} />
@@ -316,15 +316,15 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
                                           <span className="text-2xs text-muted tabular-nums shrink-0">{formatBytes(file.installed ? file.size_bytes : file.download_bytes)}</span>
                                           {uninstallButton([file], file.name)}
                                         </div>
-                                      ))}</TemplateDisclosure>
+                                      ))}</Disclosure>
                                     </div>
                                   )
                                 })}
                               </div>
-                            </TemplateDisclosure>
+                            </Disclosure>
                           </div>
                         )
-                    })}</TemplateDisclosure>
+                    })}</Disclosure>
                   </section>
                 )
               })}

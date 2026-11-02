@@ -2,9 +2,10 @@ import { motion } from 'framer-motion'
 import { useRef, useState } from 'react'
 import type { ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
-import { IconArrowUp, IconChevronsLeft, IconHouse, IconSearch } from '../../lib/icons'
+import { IconArrowUp, IconChevronRight, IconChevronsLeft, IconHouse, IconSearch } from '../../lib/icons'
 import type { IconProps } from '../../lib/icons'
 import { WorkspaceSwitcher } from './WorkspaceSwitcher'
+import { Disclosure, DisclosureChevron } from '../reusables/Disclosure'
 import { useSettings } from '../../hooks/useSettings'
 import { useChangelogBadge } from '../../hooks/useChangelogBadge'
 import { useUpdateAvailable } from '../../hooks/useUpdateAvailable'
@@ -20,10 +21,12 @@ export interface SidebarTab {
   footer?: boolean
   iconOnly?: boolean
   isNew?: boolean
+  group?: { id: string; label: string; icon: ComponentType<IconProps> }
 }
 
 const COLLAPSED_WIDTH = 68
 const DEFAULT_SIDEBAR_WIDTH = 256
+const MIN_SIDEBAR_WIDTH = 195
 const KNOB_HEIGHT = 40
 const KNOB_MIN_TOP = 36
 const KNOB_TRACK_DIST = 56
@@ -56,7 +59,7 @@ export function Sidebar({
     try {
       return Math.min(
         350,
-        Math.max(180, Number(localStorage.getItem('new_ui_sidebar_width')) || DEFAULT_SIDEBAR_WIDTH),
+        Math.max(MIN_SIDEBAR_WIDTH, Number(localStorage.getItem('new_ui_sidebar_width')) || DEFAULT_SIDEBAR_WIDTH),
       )
     } catch {
       return DEFAULT_SIDEBAR_WIDTH
@@ -85,6 +88,23 @@ export function Sidebar({
       localStorage.setItem('new_ui_sidebar_seen_new_tabs', JSON.stringify(next))
     } catch {}
   }
+  const [closedGroups, setClosedGroups] = useState<string[]>(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem('new_ui_sidebar_closed_groups') ?? '[]')
+      return Array.isArray(saved) ? saved.filter((id): id is string => typeof id === 'string') : []
+    } catch {
+      return []
+    }
+  })
+  const [animateGroups, setAnimateGroups] = useState(false)
+  const toggleGroup = (id: string) => {
+    setAnimateGroups(true)
+    const next = closedGroups.includes(id) ? closedGroups.filter((g) => g !== id) : [...closedGroups, id]
+    setClosedGroups(next)
+    try {
+      localStorage.setItem('new_ui_sidebar_closed_groups', JSON.stringify(next))
+    } catch {}
+  }
   const [dragging, setDragging] = useState(false)
   const [revealed, setRevealed] = useState(false)
   const [knobY, setKnobY] = useState<number | null>(null)
@@ -105,6 +125,13 @@ export function Sidebar({
   const startWidthRef = useRef(0)
 
   const mainTabs = tabs.filter((t) => !t.footer)
+  const tabGroups = mainTabs.reduce<{ id: string; group?: SidebarTab['group']; tabs: SidebarTab[] }[]>((groups, tab) => {
+    const id = tab.group?.id ?? tab.id
+    const last = groups[groups.length - 1]
+    if (last && tab.group && last.id === id) last.tabs.push(tab)
+    else groups.push({ id, group: tab.group, tabs: [tab] })
+    return groups
+  }, [])
   const footerTabs = tabs.filter((t) => t.footer)
   const headerWorkspace = !collapsed && settings.workspaces_enabled
 
@@ -153,7 +180,7 @@ export function Sidebar({
       }
       const delta = e.clientX - startXRef.current
       const next = startWidthRef.current + (isRtl() ? -delta : delta)
-      setWidth(Math.min(350, Math.max(180, Math.round(next))))
+      setWidth(Math.min(350, Math.max(MIN_SIDEBAR_WIDTH, Math.round(next))))
       return
     }
     if (settings.fixed_sidebar_resize_knob) return
@@ -365,13 +392,58 @@ export function Sidebar({
       )}
 
       <nav className={`flex-1 p-3 pt-2 flex flex-col ${collapsed ? 'items-center gap-1' : 'gap-1.5'}`}>
-        {mainTabs.map((tab) =>
-          renderTabButton(
-            tab,
-            collapsed ? 'w-11 h-11 shrink-0 justify-center' : 'w-full gap-2.5 px-3 py-2.5',
-            collapsed,
-          ),
-        )}
+        {tabGroups.map((group) => {
+          const buttons = group.tabs.map((tab) =>
+            renderTabButton(
+              tab,
+              collapsed ? 'w-11 h-11 shrink-0 justify-center' : 'w-full gap-2 px-3 py-2',
+              collapsed,
+            ),
+          )
+          if (collapsed) {
+            return (
+              <div key={group.id} className="contents">
+                {buttons}
+              </div>
+            )
+          }
+          if (!group.group) return <div key={group.id} className="contents">{buttons}</div>
+          const GroupIcon = group.group.icon
+          const activeInGroup = group.tabs.find((tab) => tab.id === activeTab)
+          const hasActive = !!activeInGroup
+          const open = !closedGroups.includes(group.id)
+          const panelId = `sidebar-group-${group.id}`
+          return (
+            <div key={group.id} className="flex flex-col">
+              <button
+                type="button"
+                onClick={() => toggleGroup(group.id)}
+                aria-expanded={open}
+                aria-controls={panelId}
+                className={`focus-ring cursor-pointer w-full flex items-center gap-2 px-2 py-2 rounded-item border text-sm font-medium transition-colors ${
+                  hasActive
+                    ? 'bg-overlay/50 border-outline/30 text-ink'
+                    : 'border-transparent text-muted hover:text-ink hover:bg-raised/60'
+                }`}
+              >
+                <GroupIcon className={`ui-nav-icon w-4 h-4 shrink-0 ${hasActive ? 'text-ink' : 'text-muted'}`} />
+                <span className="shrink-0">{group.group.label}</span>
+                {!open && activeInGroup && (
+                  <>
+                    <IconChevronRight className="w-2 h-2 shrink-0 text-muted rtl:rotate-180" aria-hidden="true" />
+                    <span className="truncate text-xs text-muted">{activeInGroup.label}</span>
+                  </>
+                )}
+                <span className="ms-auto inline-flex">
+                  <DisclosureChevron open={open} animate={animateGroups} />
+                </span>
+              </button>
+              <Disclosure id={panelId} open={open} animate={animateGroups} className="flex flex-col gap-0.5 ms-5 ps-2 border-s border-line pt-1 pb-1">
+                {buttons}
+              </Disclosure>
+            </div>
+          )
+        })}
       </nav>
       {footerTabs.length > 0 && (
         <nav className={`shrink-0 p-3 flex flex-col gap-1.5 ${collapsed ? 'items-center' : 'items-stretch'}`}>

@@ -11,5 +11,8 @@
   "projects_count_one": "Project",
   "projects_count_other": "Projects",
   "storage_view": "Storage",
-  "vault": "Vault"
+  "vault": "Vault",
+  "group_workspace": "Không gian làm việc",
+  "group_resources": "Tài nguyên",
+  "group_explore": "Khám phá"
 }

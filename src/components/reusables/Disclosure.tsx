@@ -12,9 +12,7 @@ interface Props {
   children: ReactNode
 }
 
-/** Measure explicit heights so transitions can reverse from their current
- * position. Open panels return to natural height for nested disclosures. */
-export function TemplateDisclosure({ id, open, animate, className, children }: Props) {
+export function Disclosure({ id, open, animate, className, children }: Props) {
   const { instant, reduced } = useUiMotion()
   const panel = useRef<HTMLDivElement>(null)
   const content = useRef<HTMLDivElement>(null)
@@ -51,7 +49,6 @@ export function TemplateDisclosure({ id, open, animate, className, children }: P
     element.style.transition = 'none'
     element.style.height = `${height}px`
     element.style.opacity = opacity
-    // Commit the current frame before retargeting, including interrupted exits.
     void element.offsetHeight
     const { durationMs, easing } = disclosureMotion
     element.style.transition = `height ${durationMs}ms ${easing}, opacity ${durationMs}ms ${easing}`
@@ -59,8 +56,6 @@ export function TemplateDisclosure({ id, open, animate, className, children }: P
     element.style.opacity = open ? '1' : '0'
     const fallback = () => {
       window.clearTimeout(timer)
-      // Actual completion comes from transitionend; this only covers cancelled
-      // transitions and hidden windows, rather than cutting the last frame off.
       timer = window.setTimeout(finish, durationMs * 2)
     }
     if (open) {
@@ -92,7 +87,7 @@ export function TemplateDisclosure({ id, open, animate, className, children }: P
   )
 }
 
-export function TemplateDisclosureChevron({ open, animate }: Pick<Props, 'open' | 'animate'>) {
+export function DisclosureChevron({ open, animate }: Pick<Props, 'open' | 'animate'>) {
   const { instant, reduced } = useUiMotion()
   const { durationMs, easing } = disclosureMotion
   return (

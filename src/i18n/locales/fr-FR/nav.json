@@ -11,5 +11,8 @@
   "projects_count_one": "Project",
   "projects_count_other": "Projects",
   "storage_view": "Storage",
-  "vault": "Vault"
+  "vault": "Vault",
+  "group_workspace": "Espace de travail",
+  "group_resources": "Ressources",
+  "group_explore": "Explorer"
 }

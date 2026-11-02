@@ -10,5 +10,8 @@
   "settings": "设置",
   "changelog": "更新日志",
   "storage_view": "存储",
-  "vault": "储藏库"
+  "vault": "储藏库",
+  "group_workspace": "工作区",
+  "group_resources": "资源",
+  "group_explore": "探索"
 }

@@ -92,22 +92,27 @@ import {
   IconCloudArrowDown,
   IconFolder,
   IconGear,
+  IconCode,
+  IconEye,
   IconHardDrive,
+  IconLayoutGrid,
   IconHouse,
   IconNews,
   IconRocket,
   IconStore,
 } from './lib/icons'
 
+const TAB_GROUP_ICONS = { workspace: IconCode, resources: IconLayoutGrid, explore: IconEye }
+
 const TABS = [
   { id: 'dashboard', navKey: 'dashboard', icon: IconHouse, hidden: true },
-  { id: 'projects', navKey: 'projects', icon: IconFolder },
-  { id: 'versions', navKey: 'versions', icon: IconCloudArrowDown },
-  { id: 'templates', navKey: 'templates', icon: IconRocket },
-  { id: 'vault', navKey: 'vault', icon: IconBriefcase, isNew: true },
-  { id: 'storage', navKey: 'storage_view', icon: IconHardDrive, isNew: true },
-  { id: 'asset-store', navKey: 'asset_store', icon: IconStore },
-  { id: 'news', navKey: 'news', icon: IconNews },
+  { id: 'projects', navKey: 'projects', icon: IconFolder, group: 'workspace' },
+  { id: 'versions', navKey: 'versions', icon: IconCloudArrowDown, group: 'workspace' },
+  { id: 'templates', navKey: 'templates', icon: IconRocket, group: 'workspace' },
+  { id: 'vault', navKey: 'vault', icon: IconBriefcase, isNew: true, group: 'resources' },
+  { id: 'storage', navKey: 'storage_view', icon: IconHardDrive, isNew: true, group: 'resources' },
+  { id: 'asset-store', navKey: 'asset_store', icon: IconStore, group: 'explore' },
+  { id: 'news', navKey: 'news', icon: IconNews, group: 'explore' },
   { id: 'settings', navKey: 'settings', icon: IconGear, footer: true },
   { id: 'changelog', navKey: 'changelog', icon: IconBookOpen, footer: true, iconOnly: true },
 ] as const
@@ -115,6 +120,8 @@ const TABS = [
 const DEFAULT_GIT_SIDEBAR_WIDTH = 320
 
 export type NewTab = (typeof TABS)[number]['id']
+
+const SHORTCUT_TABS: NewTab[] = TABS.filter((tab) => !('hidden' in tab) && !('footer' in tab)).map((tab) => tab.id)
 
 function preloadViewChunks() {
   const chunks = [
@@ -568,8 +575,7 @@ export function App() {
       onNewProject: () => setCreateProjectOpen(true),
       onOpenSettings: () => setTab('settings'),
       onSwitchTab: (i: number) => {
-        const tabs: NewTab[] = ['projects', 'versions', 'news', 'templates']
-        if (tabs[i]) setTab(tabs[i])
+        if (SHORTCUT_TABS[i]) setTab(SHORTCUT_TABS[i])
       },
       onCommandPalette: () => setCommandPaletteOpen((o) => !o),
       onRestart: () => {
@@ -609,6 +615,7 @@ export function App() {
     footer: 'footer' in tab ? tab.footer : undefined,
     iconOnly: 'iconOnly' in tab ? tab.iconOnly : undefined,
     isNew: 'isNew' in tab ? tab.isNew : undefined,
+    group: 'group' in tab ? { id: tab.group, label: t(`group_${tab.group}`), icon: TAB_GROUP_ICONS[tab.group] } : undefined,
   }))
 
   if (settingsLoaded && !settings.setup_complete) {

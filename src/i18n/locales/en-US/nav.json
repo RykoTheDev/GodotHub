@@ -10,5 +10,8 @@
   "news": "Godot News",
   "storage_view": "Storage",
   "settings": "Settings",
-  "changelog": "Changelog"
+  "changelog": "Changelog",
+  "group_workspace": "Workspace",
+  "group_resources": "Resources",
+  "group_explore": "Explore"
 }
