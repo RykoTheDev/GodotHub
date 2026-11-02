@@ -251,7 +251,7 @@ function ProjectRow({ project }: { project: Project }) {
         <span className="block text-sm font-medium text-ink truncate">
           {project.name}
         </span>
-        <span className="block text-2xs text-muted/70 truncate font-mono">
+        <span className="sensitive block text-2xs text-muted/70 truncate font-mono">
           {project.path}
         </span>
       </span>
@@ -1424,7 +1424,7 @@ export function DashboardView({
                       <span className="block text-sm font-medium text-ink truncate font-mono">
                         {v.custom_name || v.tag}
                       </span>
-                      <span className="block text-2xs text-muted/70 truncate font-mono">
+                      <span className="sensitive block text-2xs text-muted/70 truncate font-mono">
                         {v.executable_path}
                       </span>
                     </span>
@@ -1516,7 +1516,7 @@ export function DashboardView({
                   <>
                     {greeting}
                     {', '}
-                    <span className="text-accent-bright">{displayName}</span>                    </>
+                    <span className="sensitive text-accent-bright">{displayName}</span>                    </>
                 ) : (
                   greeting
                 )}

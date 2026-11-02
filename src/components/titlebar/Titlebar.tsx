@@ -8,10 +8,12 @@ import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { isMac } from '../../lib/platform'
 import { useSettings } from '../../hooks/useSettings'
+import { useChangelogBadge } from '../../hooks/useChangelogBadge'
 import { RunningProjectsChip } from '../titlebar/RunningProjectsChip'
 import { TaskTray } from '../titlebar/TaskTray'
 import { LanguageMenu } from '../titlebar/LanguageMenu'
 import {
+  IconBookOpen,
   IconHeart,
   IconStar,
   IconBug,
@@ -24,7 +26,9 @@ import { Tooltip } from '../reusables/Tooltip'
 
 export function Titlebar({ minimal = false }: { minimal?: boolean }) {
   const { t } = useTranslation('common')
+  const { t: tn } = useTranslation('nav')
   const { settings } = useSettings()
+  const { hasNewEntry: hasNewChangelogEntry } = useChangelogBadge()
   const [appWindow, setAppWindow] = useState<TauriWindow | null>(null)
   const [isMaximized, setIsMaximized] = useState(false)
 
@@ -80,7 +84,8 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
     settings.show_star_button ||
     settings.show_bug_button ||
     settings.show_language_button ||
-    settings.show_tray_button
+    settings.show_tray_button ||
+    (!minimal && hasNewChangelogEntry)
 
   if (useOsDec && !hasAnyTitlebarButton) return null
 
@@ -100,6 +105,32 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
       {!minimal && <RunningProjectsChip />}
 
       <div className="ms-auto flex items-center gap-1.5 self-stretch ">
+        {!minimal && (
+          <Tooltip content={tn('changelog')}>
+            <motion.button
+              type="button"
+              data-press-feedback
+              onMouseDown={noDrag}
+              onClick={() => window.dispatchEvent(new CustomEvent('app:set-tab', { detail: 'changelog' }))}
+              aria-label={hasNewChangelogEntry ? `${tn('changelog')} (${t('new_badge')})` : tn('changelog')}
+              className={`focus-ring cursor-pointer inline-flex items-center justify-center rounded-item transition-colors ${
+                hasNewChangelogEntry
+                  ? 'changelog-shine gap-1.5 h-6.5 px-3 bg-accent/10 border border-accent/30 text-accent-bright hover:bg-accent/20 text-xs font-semibold'
+                  : 'w-8 h-8 text-muted hover:text-ink hover:bg-ink/10'
+              }`}
+            >
+              {hasNewChangelogEntry && (
+                <span className="relative flex w-2 h-2" aria-hidden="true">
+                  <span className="absolute inline-flex h-full w-full rounded-full bg-accent-bright opacity-75 animate-attention-ping" />
+                  <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-bright" />
+                </span>
+              )}
+              <IconBookOpen className="w-3.5 h-3.5" />
+              {hasNewChangelogEntry && tn('changelog')}
+            </motion.button>
+          </Tooltip>
+        )}
+
         {!minimal && settings.show_support_button && (
             <Tooltip content={t('support_dev')}>
             <motion.button

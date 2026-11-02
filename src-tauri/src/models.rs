@@ -283,6 +283,8 @@ pub struct AppSettings {
     pub card_show_time: bool,
     #[serde(default)]
     pub card_blur_path: bool,
+    #[serde(default)]
+    pub privacy_mode: bool,
     #[serde(default = "default_true")]
     pub card_show_path: bool,
     #[serde(default = "default_true")]
@@ -659,6 +661,7 @@ impl Default for AppSettings {
             card_show_size: true,
             card_show_time: true,
             card_blur_path: false,
+            privacy_mode: false,
             card_show_path: true,
             card_show_tags: true,
             card_show_last_opened: true,

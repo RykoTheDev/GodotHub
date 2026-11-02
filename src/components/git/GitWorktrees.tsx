@@ -114,8 +114,8 @@ export function GitWorktrees({ project, onSwitchProject, onChanged }: Props) {
                         className={`block shrink-0 w-1.5 h-1.5 rounded-full ${wt.has_uncommitted ? 'bg-amber' : 'bg-mint/60'}`} />
                     </Tooltip>
                   </div>
-                  <Tooltip content={wt.path} className="w-full min-w-0">
-                    <p dir="ltr" className="min-w-0 flex-1 truncate text-3xs font-mono text-muted/60">{wt.path}</p>
+                  <Tooltip content={<span className="sensitive">{wt.path}</span>} className="w-full min-w-0">
+                    <p dir="ltr" className="sensitive min-w-0 flex-1 truncate text-3xs font-mono text-muted/60">{wt.path}</p>
                   </Tooltip>
                 </div>
                 {current ? (
@@ -175,7 +175,7 @@ export function GitWorktrees({ project, onSwitchProject, onChanged }: Props) {
           <div className="flex flex-col gap-3 p-6 pt-0">
             <div className="rounded-item bg-raised px-3 py-2.5">
               <p className="text-xs font-medium text-ink wrap-break-word">{removal.branch ?? t('worktree_detached', { hash: removal.head.slice(0, 7) })}</p>
-              <p dir="ltr" className="mt-1 text-2xs font-mono text-muted wrap-break-word">{removal.path}</p>
+              <p dir="ltr" className="sensitive mt-1 text-2xs font-mono text-muted wrap-break-word">{removal.path}</p>
             </div>
             {removal.has_uncommitted && <div className="rounded-item border border-danger/25 bg-danger/5 p-3">
               <p className="mb-3 text-xs text-danger leading-relaxed">{t('worktree_discard_warning')}</p>

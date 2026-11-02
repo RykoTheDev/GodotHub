@@ -792,7 +792,7 @@ export function ProjectConsoleWindow() {
               <footer className="shrink-0 flex items-center gap-3 border-t border-line bg-overlay px-3 py-3">
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-medium text-ink">{tb(activeState.exportRun.status)}{activeState.exportRun.size_bytes!==null?` · ${formatBytes(activeState.exportRun.size_bytes)}`:''}</p>
-                  <p className="mt-1 text-2xs font-mono text-muted break-all">{activeState.exportRun.output_path}</p>
+                  <p className="sensitive mt-1 text-2xs font-mono text-muted break-all">{activeState.exportRun.output_path}</p>
                   {activeState.exportRun.error&&<p className="mt-1 text-2xs text-danger">{activeState.exportRun.error}</p>}
                   {activeState.exportRun.status==='cancelled'&&<p className="mt-1 text-2xs text-muted">{tb('cancel_hint')}</p>}
                 </div>

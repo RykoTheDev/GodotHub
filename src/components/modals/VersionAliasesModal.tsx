@@ -8,6 +8,7 @@ import type {
   InstalledGodotVersion,
 } from '../../types'
 import { api } from '../../lib/api'
+import { useSettings } from '../../hooks/useSettings'
 import { isWindows } from '../../lib/platform'
 import { ConfirmDialog } from './ConfirmDialog'
 import { ModalShell } from './ModalShell'
@@ -39,6 +40,7 @@ export function VersionAliasesModal({
   onCreateMany: (entries: AliasRequest[]) => Promise<AliasBatchResult>
   onDelete: (name: string) => Promise<void>
 }) {
+  const { settings } = useSettings()
   const { t: tv } = useTranslation('versions')
   const { t: tc } = useTranslation('common')
 
@@ -304,8 +306,8 @@ export function VersionAliasesModal({
                       )}
                     </div>
                     <p
-                      className="font-mono text-2xs text-muted truncate mt-0.5"
-                      title={alias.alias_path}
+                      className="sensitive font-mono text-2xs text-muted truncate mt-0.5"
+                      title={settings.privacy_mode ? undefined : alias.alias_path}
                     >
                       {alias.alias_path}
                     </p>

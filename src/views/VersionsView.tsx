@@ -640,7 +640,7 @@ export function VersionsView({
                       className="flex items-center gap-2 rounded-btn bg-raised/60 px-2.5 py-1.5"
                     >
                       <IconFolder className="w-3.5 h-3.5 text-muted shrink-0" />
-                      <span className="font-mono text-xs text-ink truncate min-w-0 flex-1">
+                      <span className="sensitive font-mono text-xs text-ink truncate min-w-0 flex-1">
                         {orphan.folder}
                       </span>
                       <span className="text-2xs font-mono text-muted shrink-0">

@@ -14,5 +14,7 @@
   "vault": "Vault",
   "group_workspace": "مساحة العمل",
   "group_resources": "الموارد",
-  "group_explore": "استكشاف"
+  "group_explore": "استكشاف",
+  "you": "You",
+  "account_manage": "Manage accounts"
 }

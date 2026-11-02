@@ -131,9 +131,9 @@ export function ProjectTile({
         </div>
       </div>
 
-      {options.show_path && <Tooltip content={project.path} className="w-full min-w-0">
+      {options.show_path && <Tooltip content={<span className="sensitive">{project.path}</span>} className="w-full min-w-0">
         <button type="button" dir="ltr" onClick={openFolder} disabled={preview} aria-label={t('open_folder')}
-          className={`focus-ring min-w-0 w-full cursor-pointer truncate rounded-btn px-1 py-0.5 text-start font-mono text-2xs text-muted/70 transition-colors hover:text-accent-bright ${options.blur_path ? 'blur-sm hover:blur-none focus-visible:blur-none' : ''}`}>
+          className={`sensitive focus-ring min-w-0 w-full cursor-pointer truncate rounded-btn px-1 py-0.5 text-start font-mono text-2xs text-muted/70 transition-colors hover:text-accent-bright ${options.blur_path ? 'blur-sm hover:blur-none focus-visible:blur-none' : ''}`}>
           {project.path}
         </button>
       </Tooltip>}

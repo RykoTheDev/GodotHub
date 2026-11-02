@@ -11,6 +11,8 @@ import { useApiData } from '../lib/useApiData'
 import { api } from '../lib/api'
 import type { ChangelogEntry } from '../types'
 
+const SEEN_KEY = 'changelog_seen_ids'
+
 interface ChangelogBadgeContextValue {
   hasNewEntry: boolean
   markSeen: () => void
@@ -20,37 +22,45 @@ const ChangelogBadgeContext = createContext<ChangelogBadgeContextValue | null>(
   null,
 )
 
-export function ChangelogBadgeProvider({ children }: { children: ReactNode }) {
-  const [hasNewEntry, setHasNewEntry] = useState(false)
-  const [previousCount, setPreviousCount] = useState<number | null>(null)
+function readSeen(): string[] | null {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SEEN_KEY) ?? 'null')
+    return Array.isArray(saved) ? saved.filter((id): id is string => typeof id === 'string') : null
+  } catch {
+    return null
+  }
+}
 
-  const { data: entries } = useApiData(
+export function ChangelogBadgeProvider({ children }: { children: ReactNode }) {
+  const [seen, setSeen] = useState(readSeen)
+
+  const { data: entries, loaded, refresh } = useApiData(
     () => api.listChangelogEntries(),
     [],
     [] as ChangelogEntry[],
   )
 
-  useEffect(() => {
-    if (previousCount === null) {
-      setPreviousCount(entries.length)
-      return
-    }
-    if (entries.length > previousCount) {
-      setHasNewEntry(true)
-    }
-    setPreviousCount(entries.length)
-  }, [entries.length, previousCount])
+  const markSeen = useCallback(() => {
+    if (!loaded) return
+    const ids = entries.map((entry) => entry.id)
+    setSeen(ids)
+    try {
+      localStorage.setItem(SEEN_KEY, JSON.stringify(ids))
+    } catch {}
+  }, [entries, loaded])
 
   useEffect(() => {
-    const handleEntryAdded = () => setHasNewEntry(true)
+    if (loaded && seen === null) markSeen()
+  }, [loaded, seen, markSeen])
+
+  useEffect(() => {
+    const handleEntryAdded = () => refresh()
     window.addEventListener('app:changelog-entry-added', handleEntryAdded)
     return () =>
       window.removeEventListener('app:changelog-entry-added', handleEntryAdded)
-  }, [])
+  }, [refresh])
 
-  const markSeen = useCallback(() => {
-    setHasNewEntry(false)
-  }, [])
+  const hasNewEntry = !!seen && entries.some((entry) => !seen.includes(entry.id))
 
   return createElement(
     ChangelogBadgeContext.Provider,

@@ -553,6 +553,15 @@ textarea::placeholder {
   animation: changelog-shine 2s ease-in-out 4;
 }
 
+.sensitive {
+  transition: filter 150ms ease-out;
+}
+
+.privacy-mode .sensitive {
+  filter: blur(5px);
+  user-select: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .changelog-shine::after,
   .animate-attention-ping {

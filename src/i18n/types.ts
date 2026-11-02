@@ -932,7 +932,9 @@ export type commonKeys =
   | 'vault_added_to_projects_toast_one'
   | 'vault_added_to_projects_toast_other'
   | 'vault_item_empty'
-  | 'new';
+  | 'new'
+  | 'privacy_mode_enable'
+  | 'privacy_mode_disable';
 
 /** Keys from dashboard.json */
 export type dashboardKeys =
@@ -1157,7 +1159,9 @@ export type navKeys =
   | 'changelog'
   | 'group_workspace'
   | 'group_resources'
-  | 'group_explore';
+  | 'group_explore'
+  | 'you'
+  | 'account_manage';
 
 /** Keys from onboarding.json */
 export type onboardingKeys =
@@ -1212,10 +1216,7 @@ export type settingsKeys =
   | 'motion'
   | 'data'
   | 'git_auth_title'
-  | 'git_auth_instructions'
-  | 'git_auth_enter_code'
   | 'git_auth_copy_code'
-  | 'git_auth_open_browser'
   | 'git_auth_copy_link'
   | 'git_auth_waiting'
   | 'git_oauth_hint'
@@ -1511,7 +1512,17 @@ export type settingsKeys =
   | 'cli_tool_install'
   | 'cli_tool_installing'
   | 'cli_tool_installed_msg'
-  | 'cli_tool_uninstalled_msg';
+  | 'cli_tool_uninstalled_msg'
+  | 'git_auth_step_copy'
+  | 'git_auth_step_paste'
+  | 'git_auth_step_approve'
+  | 'git_auth_copy_and_open'
+  | 'git_auth_copied'
+  | 'git_auth_expires_in'
+  | 'git_auth_expired'
+  | 'git_auth_failed'
+  | 'git_auth_try_again'
+  | 'git_auth_success_hint';
 
 /** Keys from todos.json */
 export type todosKeys =
@@ -2694,6 +2705,8 @@ export type TranslationKey =
   | 'common:vault_added_to_projects_toast_other'
   | 'common:vault_item_empty'
   | 'common:new'
+  | 'common:privacy_mode_enable'
+  | 'common:privacy_mode_disable'
   | 'dashboard:greeting_morning'
   | 'dashboard:greeting_afternoon'
   | 'dashboard:greeting_evening'
@@ -2910,6 +2923,8 @@ export type TranslationKey =
   | 'nav:group_workspace'
   | 'nav:group_resources'
   | 'nav:group_explore'
+  | 'nav:you'
+  | 'nav:account_manage'
   | 'onboarding:welcome'
   | 'onboarding:customize'
   | 'onboarding:finish'
@@ -2958,10 +2973,7 @@ export type TranslationKey =
   | 'settings:motion'
   | 'settings:data'
   | 'settings:git_auth_title'
-  | 'settings:git_auth_instructions'
-  | 'settings:git_auth_enter_code'
   | 'settings:git_auth_copy_code'
-  | 'settings:git_auth_open_browser'
   | 'settings:git_auth_copy_link'
   | 'settings:git_auth_waiting'
   | 'settings:git_oauth_hint'
@@ -3258,6 +3270,16 @@ export type TranslationKey =
   | 'settings:cli_tool_installing'
   | 'settings:cli_tool_installed_msg'
   | 'settings:cli_tool_uninstalled_msg'
+  | 'settings:git_auth_step_copy'
+  | 'settings:git_auth_step_paste'
+  | 'settings:git_auth_step_approve'
+  | 'settings:git_auth_copy_and_open'
+  | 'settings:git_auth_copied'
+  | 'settings:git_auth_expires_in'
+  | 'settings:git_auth_expired'
+  | 'settings:git_auth_failed'
+  | 'settings:git_auth_try_again'
+  | 'settings:git_auth_success_hint'
   | 'todos:next_steps'
   | 'todos:all_tasks_description'
   | 'todos:saving_tasks'

@@ -20,6 +20,7 @@ export interface MenuItem {
   dividerAfter?: boolean
   badge?: string
   children?: MenuItem[]
+  action?: { icon: ComponentType<IconProps>; label: string; onClick: () => void }
 }
 
 export const MENU_VIEWPORT_PAD = 8

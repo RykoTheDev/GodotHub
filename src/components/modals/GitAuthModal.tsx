@@ -1,21 +1,26 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
+import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { api } from '../../lib/api'
-import { ModalShell } from './ModalShell'
+import { useUiMotion } from '../../hooks/useUiMotion'
 import type { DeviceFlowStart } from '../../types'
 import {
+  IconAlertTriangle,
   IconCheck,
   IconCopy,
   IconExternalLink,
-  IconGitBranch,
+  IconGithub,
+  IconGitlab,
+  IconRefresh,
   IconSpinner,
   IconX,
 } from '../../lib/icons'
-
-
 import { reportError } from '../../lib/toast'
+
 type Provider = 'github' | 'gitlab'
+type Status = 'starting' | 'waiting' | 'success' | 'error' | 'expired'
 
 interface Props {
   provider: Provider
@@ -23,6 +28,53 @@ interface Props {
   clientId?: string | null
   onClose: () => void
   onConnected: (username: string) => void
+}
+
+const FOCUSABLE = 'button:not(:disabled), a[href], [tabindex]:not([tabindex="-1"])'
+
+function formatRemaining(seconds: number) {
+  const m = Math.floor(seconds / 60)
+  const s = seconds % 60
+  return `${m}:${String(s).padStart(2, '0')}`
+}
+
+function Step({
+  index,
+  title,
+  done,
+  active,
+  last = false,
+  children,
+}: {
+  index: number
+  title: string
+  done: boolean
+  active: boolean
+  last?: boolean
+  children?: ReactNode
+}) {
+  return (
+    <li className={`relative flex gap-3.5 ${last ? '' : 'pb-5'}`}>
+      {!last && (
+        <span aria-hidden="true" className="absolute start-3.5 top-8 bottom-1 w-px bg-outline/40" />
+      )}
+      <span
+        className={`relative z-10 w-7 h-7 shrink-0 rounded-full flex items-center justify-center text-xs font-semibold transition-colors ${
+          done
+            ? 'bg-mint/15 text-mint'
+            : active
+              ? 'bg-accent text-white'
+              : 'bg-raised text-muted border border-outline/50'
+        }`}
+      >
+        {done ? <IconCheck className="w-3 h-3" /> : index}
+      </span>
+      <div className="flex-1 min-w-0 pt-1 flex flex-col gap-2.5">
+        <p className={`text-sm font-medium ${active || done ? 'text-ink' : 'text-muted'}`}>{title}</p>
+        {children}
+      </div>
+    </li>
+  )
 }
 
 export function GitAuthModal({
@@ -34,13 +86,18 @@ export function GitAuthModal({
 }: Props) {
   const { t: tc } = useTranslation('common')
   const { t: ts } = useTranslation('settings')
+  const { instant, transition, surface } = useUiMotion()
+  const titleId = useId()
+  const dialogRef = useRef<HTMLDivElement>(null)
+  const [returnFocus] = useState(() => document.activeElement as HTMLElement | null)
+  const [attempt, setAttempt] = useState(0)
   const [flow, setFlow] = useState<DeviceFlowStart | null>(null)
-  const [status, setStatus] = useState<'starting' | 'waiting' | 'success' | 'error'>(
-    'starting',
-  )
+  const [status, setStatus] = useState<Status>('starting')
   const [message, setMessage] = useState<string | null>(null)
   const [copied, setCopied] = useState(false)
   const [linkCopied, setLinkCopied] = useState(false)
+  const [opened, setOpened] = useState(false)
+  const [remaining, setRemaining] = useState<number | null>(null)
   const stopRef = useRef(false)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const onConnectedRef = useRef(onConnected)
@@ -52,12 +109,32 @@ export function GitAuthModal({
   const clientIdRef = useRef(clientId)
   clientIdRef.current = clientId
 
-  const providerLabel =
-    provider === 'github' ? 'GitHub' : 'GitLab'
+  const providerLabel = provider === 'github' ? 'GitHub' : 'GitLab'
+  const ProviderIcon = provider === 'github' ? IconGithub : IconGitlab
+  const host = provider === 'gitlab' && baseUrl ? baseUrl.replace(/^https?:\/\//, '') : null
+
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('app:dialog-open'))
+    return () => {
+      window.dispatchEvent(new CustomEvent('app:dialog-close'))
+    }
+  }, [])
+
+  useEffect(() => {
+    dialogRef.current?.focus({ preventScroll: true })
+    return () => {
+      if (returnFocus?.isConnected) returnFocus.focus({ preventScroll: true })
+    }
+  }, [returnFocus])
 
   useEffect(() => {
     stopRef.current = false
     let cancelled = false
+    setFlow(null)
+    setStatus('starting')
+    setMessage(null)
+    setOpened(false)
+    setRemaining(null)
 
     const poll = async (flowInfo: DeviceFlowStart) => {
       if (stopRef.current) return
@@ -75,7 +152,7 @@ export function GitAuthModal({
           onConnectedRef.current(result.username)
           setTimeout(() => {
             if (!stopRef.current) onCloseRef.current()
-          }, 1200)
+          }, 1600)
           return
         }
         if (result.status === 'error') {
@@ -83,11 +160,7 @@ export function GitAuthModal({
           setMessage(result.message)
           return
         }
-        setStatus('waiting')
-        timerRef.current = setTimeout(
-          () => poll(flowInfo),
-          flowInfo.interval * 1000,
-        )
+        timerRef.current = setTimeout(() => poll(flowInfo), flowInfo.interval * 1000)
       } catch (e) {
         if (cancelled || stopRef.current) return
         setStatus('error')
@@ -101,6 +174,7 @@ export function GitAuthModal({
         if (cancelled || stopRef.current) return
         setFlow(info)
         setStatus('waiting')
+        setRemaining(info.expires_in)
         timerRef.current = setTimeout(() => poll(info), info.interval * 1000)
       })
       .catch((e) => {
@@ -114,176 +188,245 @@ export function GitAuthModal({
       stopRef.current = true
       if (timerRef.current) clearTimeout(timerRef.current)
     }
-  }, [provider])
+  }, [provider, attempt])
+
+  useEffect(() => {
+    if (status !== 'waiting' || remaining === null) return
+    if (remaining <= 0) {
+      stopRef.current = true
+      if (timerRef.current) clearTimeout(timerRef.current)
+      setStatus('expired')
+      return
+    }
+    const tick = setTimeout(() => setRemaining((r) => (r === null ? r : r - 1)), 1000)
+    return () => clearTimeout(tick)
+  }, [status, remaining])
+
+  const verificationUrl = flow?.verification_uri_complete || flow?.verification_uri
 
   const copyCode = async () => {
-    if (!flow) return
+    if (!flow) return false
     try {
       await navigator.clipboard.writeText(flow.user_code)
       setCopied(true)
       setTimeout(() => setCopied(false), 1600)
-    } catch {}
+      return true
+    } catch {
+      return false
+    }
   }
 
-  const reopenBrowser = () => {
-    if (!flow) return
-    const url =
-      flow.verification_uri_complete || flow.verification_uri
-    if (url) openUrl(url).catch(reportError)
+  const copyAndOpen = async () => {
+    await copyCode()
+    if (!verificationUrl) return
+    openUrl(verificationUrl).catch(reportError)
+    setOpened(true)
   }
 
   const copyLink = async () => {
-    if (!flow) return
-    const url =
-      flow.verification_uri_complete || flow.verification_uri
-    if (!url) return
+    if (!verificationUrl) return
     try {
-      await navigator.clipboard.writeText(url)
+      await navigator.clipboard.writeText(verificationUrl)
       setLinkCopied(true)
       setTimeout(() => setLinkCopied(false), 1600)
     } catch {}
   }
 
-  const verificationUrl =
-    flow?.verification_uri_complete || flow?.verification_uri
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      e.stopPropagation()
+      return
+    }
+    if (e.key !== 'Tab') return
+    const dialog = dialogRef.current
+    if (!dialog) return
+    const focusable = [...dialog.querySelectorAll<HTMLElement>(FOCUSABLE)].filter(
+      (el) => el.getClientRects().length > 0,
+    )
+    if (focusable.length === 0) {
+      e.preventDefault()
+      return
+    }
+    const first = focusable[0]
+    const last = focusable[focusable.length - 1]
+    const active = document.activeElement
+    if (e.shiftKey && (active === first || active === dialog)) {
+      e.preventDefault()
+      last.focus()
+    } else if (!e.shiftKey && active === last) {
+      e.preventDefault()
+      first.focus()
+    }
+  }
 
-  return (
-    <ModalShell
-      icon={<IconGitBranch className="w-5 h-5 text-accent-bright" />}
-      title={ts('git_auth_title', { provider: providerLabel })}
-      description={
-        provider === 'gitlab' && baseUrl
-          ? baseUrl.replace(/^https?:\/\//, '')
-          : providerLabel
-      }
-      maxWidth="max-w-md"
-      onClose={onClose}
-      showClose={false}
-      footer={
-        status === 'waiting' ? (
-          <div className="w-full">
-            <button
-              type="button"
-              onClick={onClose}
-              className="focus-ring cursor-pointer w-full px-4 py-2.5 rounded-item border border-outline/50 text-muted hover:text-ink hover:bg-raised text-sm font-medium transition-colors"
-            >
-              {tc('cancel')}
-            </button>
-          </div>
-        ) : undefined
-      }
+  const codeGroups = flow?.user_code.split('-') ?? []
+  const expiringSoon = remaining !== null && remaining <= 60
+
+  return createPortal(
+    <motion.div
+      initial={instant ? false : { opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, transition: transition('modal', true) }}
+      transition={transition('modal')}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+      onClick={(e) => e.stopPropagation()}
     >
-        <div className="p-6 flex flex-col gap-4">
-          {status === 'starting' && (
-            <div className="flex items-center gap-2 py-6 justify-center">
-              <IconSpinner className="w-4 h-4 animate-spin text-muted" />
-              <span className="text-sm text-muted">{ts('starting')}</span>
-            </div>
-          )}
+      <motion.div
+        {...surface('modal')}
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        onKeyDown={handleKeyDown}
+        className="relative w-full max-w-md rounded-[28px] bg-surface border border-outline/40 shadow-2xl overflow-hidden outline-none"
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          aria-label={tc('close')}
+          className="focus-ring cursor-pointer absolute top-4 end-4 z-10 w-8 h-8 flex items-center justify-center rounded-full text-muted hover:text-ink hover:bg-ink/10 transition-colors"
+        >
+          <IconX className="w-3.5 h-3.5" />
+        </button>
 
-          {status === 'error' && (
-            <div className="flex flex-col items-center gap-3 py-6 text-center">
-              <div className="w-11 h-11 rounded-tile bg-danger/10 border border-danger/30 flex items-center justify-center">
-                <IconX className="w-5 h-5 text-danger" />
-              </div>
-              <p className="text-sm text-danger max-w-xs break-all leading-relaxed">
-                {message}
-              </p>
-              <button
-                type="button"
-                onClick={onClose}
-                className="focus-ring cursor-pointer px-4 py-2 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
-              >
-                {tc('close')}
-              </button>
+        <div className="relative px-7 pt-9 pb-6 flex flex-col items-center text-center gap-3">
+          <div className="relative">
+            <span className="w-16 h-16 rounded-full bg-raised border border-outline/50 flex items-center justify-center">
+              <ProviderIcon className="w-8 h-8 text-ink" />
+            </span>
+            {status === 'success' && (
+              <span className="absolute -bottom-1 -end-1 w-6 h-6 rounded-full bg-mint text-white flex items-center justify-center ring-4 ring-surface">
+                <IconCheck className="w-3 h-3" />
+              </span>
+            )}
+          </div>
+          <div className="flex flex-col gap-1">
+            <h2 id={titleId} className="font-display text-xl font-black tracking-tight text-ink">
+              {ts('git_auth_title', { provider: providerLabel })}
+            </h2>
+            {host && <p dir="ltr" className="text-xs text-muted">{host}</p>}
+          </div>
+        </div>
+
+        <div className="relative px-7 pb-9">
+          {status === 'starting' && (
+            <div className="flex flex-col items-center gap-3 py-8">
+              <IconSpinner className="w-5 h-5 animate-spin text-accent-bright" />
+              <p className="text-sm text-muted">{tc('starting')}</p>
             </div>
           )}
 
           {status === 'success' && (
-            <div className="flex flex-col items-center gap-3 py-6 text-center">
-              <div className="w-11 h-11 rounded-tile bg-mint/10 border border-mint/30 flex items-center justify-center">
-                <IconCheck className="w-5 h-5 text-mint" />
-              </div>
-              <p className="text-sm text-ink">
+            <div className="flex flex-col items-center gap-1.5 py-6 text-center">
+              <p className="text-base font-semibold text-ink">
                 {ts('git_connected_as', { username: message })}
               </p>
+              <p className="text-xs text-muted">{ts('git_auth_success_hint')}</p>
             </div>
           )}
 
-          {(status === 'waiting' || status === 'success') && flow && status === 'waiting' && (
-            <div className="flex flex-col gap-4">
-              <p className="text-sm text-muted leading-relaxed text-center">
-                {ts('git_auth_instructions')}
-              </p>
-
-              <div className="flex flex-col items-center gap-2">
-                <span className="text-3xs font-semibold uppercase tracking-wider text-muted">
-                  {ts('git_auth_enter_code')}
-                </span>
-                <div className="flex items-center gap-2">
-                  <code className="font-mono text-2xl font-semibold tracking-[0.3em] text-ink bg-base border border-outline/50 rounded-btn px-5 py-3">
-                    {flow.user_code}
-                  </code>
-                    <button
-                      type="button"
-                      onClick={copyCode}
-                      aria-label={ts('git_auth_copy_code')}
-                      className="focus-ring cursor-pointer p-2.5 rounded-btn border border-outline/50 text-muted hover:text-ink hover:border-accent-dim transition-colors shrink-0"
-                      >
-                      {copied ? (
-                        <IconCheck className="w-4 h-4 text-mint" />
-                      ) : (
-                        <IconCopy className="w-4 h-4" />
-                      )}
-                    </button>
-                </div>
+          {(status === 'error' || status === 'expired') && (
+            <div className="flex flex-col items-center gap-4 py-2 text-center">
+              <span className="w-11 h-11 rounded-full bg-danger/10 text-danger flex items-center justify-center">
+                <IconAlertTriangle className="w-5 h-5" />
+              </span>
+              <div className="flex flex-col gap-1">
+                <p className="text-sm font-semibold text-ink">
+                  {status === 'expired' ? ts('git_auth_expired') : ts('git_auth_failed')}
+                </p>
+                {status === 'error' && message && (
+                  <p className="text-xs text-muted break-all leading-relaxed max-w-xs">{message}</p>
+                )}
               </div>
+              <motion.button
+                type="button"
+                data-press-feedback
+                onClick={() => setAttempt((a) => a + 1)}
+                className="focus-ring cursor-pointer w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-btn bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
+              >
+                <IconRefresh className="w-4 h-4" />
+                {ts('git_auth_try_again')}
+              </motion.button>
+            </div>
+          )}
 
-              <div className="flex items-center justify-center gap-2">
+          {status === 'waiting' && flow && (
+            <ol className="flex flex-col">
+              <Step index={1} title={ts('git_auth_step_copy')} done={copied || opened} active={!copied && !opened}>
                 <button
                   type="button"
-                  onClick={reopenBrowser}
-                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-4 py-2 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
+                  onClick={copyCode}
+                  aria-label={`${ts('git_auth_copy_code')}: ${flow.user_code}`}
+                  className="group focus-ring cursor-pointer w-full flex items-center justify-between gap-3 ps-4 pe-3 py-3 rounded-2xl bg-base border border-outline/50 hover:border-accent-dim transition-colors"
                 >
-                  <IconExternalLink className="w-3.5 h-3.5" />
-                  {ts('git_auth_open_browser')}
+                  <span dir="ltr" className="flex items-center gap-2 font-mono text-2xl font-semibold tracking-[0.2em] text-ink">
+                    {codeGroups.map((group, i) => (
+                      <span key={i} className="flex items-center gap-2">
+                        {i > 0 && <span className="text-muted/50">–</span>}
+                        {group}
+                      </span>
+                    ))}
+                  </span>
+                  <span
+                    className={`shrink-0 inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-2xs font-semibold transition-colors ${
+                      copied ? 'bg-mint/15 text-mint' : 'bg-raised text-muted group-hover:text-ink'
+                    }`}
+                  >
+                    {copied ? <IconCheck className="w-3 h-3" /> : <IconCopy className="w-3 h-3" />}
+                    {copied ? ts('git_auth_copied') : ts('git_auth_copy_code')}
+                  </span>
                 </button>
-              </div>
+              </Step>
 
-              {verificationUrl && (
-                <div className="flex items-center justify-center gap-2">
-                  <a
-                    href={verificationUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-accent hover:text-accent-bright underline break-all transition-colors"
-                  >
-                    {verificationUrl}
-                  </a>
-                  <button
+              <Step
+                index={2}
+                title={ts('git_auth_step_paste', { provider: providerLabel })}
+                done={opened}
+                active={!opened}
+              >
+                <div className="flex flex-col gap-2">
+                  <motion.button
                     type="button"
-                    onClick={copyLink}
-                    aria-label={ts('git_auth_copy_link')}
-                    className="focus-ring cursor-pointer p-1.5 rounded-btn border border-outline/50 text-muted hover:text-ink hover:border-accent-dim transition-colors shrink-0"
+                    data-press-feedback
+                    onClick={copyAndOpen}
+                    className="focus-ring cursor-pointer w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-btn bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
                   >
-                    {linkCopied ? (
-                      <IconCheck className="w-3.5 h-3.5 text-mint" />
-                    ) : (
-                      <IconCopy className="w-3.5 h-3.5" />
-                    )}
-                  </button>
+                    <IconExternalLink className="w-4 h-4" />
+                    {ts('git_auth_copy_and_open', { provider: providerLabel })}
+                  </motion.button>
+                  {verificationUrl && (
+                    <button
+                      type="button"
+                      onClick={copyLink}
+                      className="focus-ring cursor-pointer w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-item border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors"
+                    >
+                      {linkCopied ? <IconCheck className="w-4 h-4 text-mint shrink-0" /> : <IconCopy className="w-4 h-4 shrink-0" />}
+                      <span dir="ltr" className="truncate">{verificationUrl.replace(/^https?:\/\//, '')}</span>
+                      <span className="sr-only">{ts('git_auth_copy_link')}</span>
+                    </button>
+                  )}
                 </div>
-              )}
+              </Step>
 
-              <div className="flex items-center justify-center gap-2 py-1">
-                <IconSpinner className="w-3.5 h-3.5 animate-spin text-muted" />
-                <span className="text-xs text-muted">
-                  {ts('git_auth_waiting')}
-                </span>
-              </div>
-            </div>
+              <Step index={3} title={ts('git_auth_step_approve')} done={false} active={opened} last>
+                <div className="flex items-center justify-between gap-3 text-xs" role="status">
+                  <span className="inline-flex items-center gap-2 text-muted">
+                    <IconSpinner className="w-3.5 h-3.5 animate-spin" />
+                    {ts('git_auth_waiting')}
+                  </span>
+                  {remaining !== null && (
+                    <span className={`tabular-nums ${expiringSoon ? 'text-danger' : 'text-muted/70'}`}>
+                      {ts('git_auth_expires_in', { time: formatRemaining(remaining) })}
+                    </span>
+                  )}
+                </div>
+              </Step>
+            </ol>
           )}
         </div>
-    </ModalShell>
+      </motion.div>
+    </motion.div>,
+    document.body,
   )
 }

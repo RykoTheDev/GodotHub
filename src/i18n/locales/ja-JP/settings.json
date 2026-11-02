@@ -317,5 +317,15 @@
   "motion": "アニメーション",
   "data": "データとバックアップ",
   "restore_modal_todos_one": "{{count}} 件のタスクを含みます",
-  "restore_modal_todos_other": "{{count}} 件のタスクを含みます"
+  "restore_modal_todos_other": "{{count}} 件のタスクを含みます",
+  "git_auth_step_copy": "Copy your code",
+  "git_auth_step_paste": "Paste it on {{provider}}",
+  "git_auth_step_approve": "Approve GodotHub",
+  "git_auth_copy_and_open": "Copy code & open {{provider}}",
+  "git_auth_copied": "Copied",
+  "git_auth_expires_in": "Expires in {{time}}",
+  "git_auth_expired": "This code has expired",
+  "git_auth_failed": "Couldn’t connect",
+  "git_auth_try_again": "Try again",
+  "git_auth_success_hint": "You can close this window."
 }

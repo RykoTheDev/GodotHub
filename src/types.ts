@@ -698,6 +698,7 @@ export interface AppSettings {
   card_show_size: boolean
   card_show_time: boolean
   card_blur_path: boolean
+  privacy_mode: boolean
   card_show_path: boolean
   card_show_tags: boolean
   card_show_last_opened: boolean

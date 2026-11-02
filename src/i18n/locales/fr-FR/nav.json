@@ -14,5 +14,7 @@
   "vault": "Vault",
   "group_workspace": "Espace de travail",
   "group_resources": "Ressources",
-  "group_explore": "Explorer"
+  "group_explore": "Explorer",
+  "you": "You",
+  "account_manage": "Manage accounts"
 }

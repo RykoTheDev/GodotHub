@@ -74,7 +74,7 @@ const Onboarding = lazy(() =>
 )
 import { useTauriEvent } from './lib/useTauriEvent'
 import { useDiscordRpc } from './hooks/useDiscordRpc'
-import { ChangelogBadgeProvider } from './hooks/useChangelogBadge'
+import { useNewsBadge } from './hooks/useNewsBadge'
 import { ScreenReaderAnnouncer } from './lib/screenReader'
 import { relaunch } from '@tauri-apps/plugin-process'
 import {
@@ -113,15 +113,15 @@ const TABS = [
   { id: 'storage', navKey: 'storage_view', icon: IconHardDrive, isNew: true, group: 'resources' },
   { id: 'asset-store', navKey: 'asset_store', icon: IconStore, group: 'explore' },
   { id: 'news', navKey: 'news', icon: IconNews, group: 'explore' },
-  { id: 'settings', navKey: 'settings', icon: IconGear, footer: true },
-  { id: 'changelog', navKey: 'changelog', icon: IconBookOpen, footer: true, iconOnly: true },
+  { id: 'settings', navKey: 'settings', icon: IconGear, hidden: true },
+  { id: 'changelog', navKey: 'changelog', icon: IconBookOpen, hidden: true },
 ] as const
 
 const DEFAULT_GIT_SIDEBAR_WIDTH = 320
 
 export type NewTab = (typeof TABS)[number]['id']
 
-const SHORTCUT_TABS: NewTab[] = TABS.filter((tab) => !('hidden' in tab) && !('footer' in tab)).map((tab) => tab.id)
+const SHORTCUT_TABS: NewTab[] = TABS.filter((tab) => !('hidden' in tab)).map((tab) => tab.id).slice(0, 9)
 
 function preloadViewChunks() {
   const chunks = [
@@ -238,6 +238,11 @@ export function App() {
   const [uiSwitchIntent] = useState(() => shouldOpenSettingsAfterSwitch())
   const [projectsCorrupt, setProjectsCorrupt] = useState(false)
   const [tab, setTab] = useState<NewTab>(uiSwitchIntent ? 'settings' : 'projects')
+  const newsUnread = useNewsBadge(tab === 'news')
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('privacy-mode', settings.privacy_mode)
+  }, [settings.privacy_mode])
   const [mountedTabs, setMountedTabs] = useState<NewTab[]>(() => [tab])
   if (!mountedTabs.includes(tab)) setMountedTabs([...mountedTabs, tab])
   const openSettingsTab = useCallback(() => setTab('settings'), [])
@@ -420,6 +425,7 @@ export function App() {
     finishGitDrag(e)
   }
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
+  const [paletteOrigin, setPaletteOrigin] = useState<DOMRect | null>(null)
   const [bugReportOpen, setBugReportOpen] = useState(false)
   const [confirmingRestart, setConfirmingRestart] = useState(false)
   const [createProjectOpen, setCreateProjectOpen] = useState(false)
@@ -577,7 +583,10 @@ export function App() {
       onSwitchTab: (i: number) => {
         if (SHORTCUT_TABS[i]) setTab(SHORTCUT_TABS[i])
       },
-      onCommandPalette: () => setCommandPaletteOpen((o) => !o),
+      onCommandPalette: () => {
+        setPaletteOrigin(null)
+        setCommandPaletteOpen((o) => !o)
+      },
       onRestart: () => {
         setConfirmingRestart(true)
       },
@@ -612,10 +621,10 @@ export function App() {
     id: tab.id,
     label: t(tab.navKey),
     icon: tab.icon,
-    footer: 'footer' in tab ? tab.footer : undefined,
-    iconOnly: 'iconOnly' in tab ? tab.iconOnly : undefined,
     isNew: 'isNew' in tab ? tab.isNew : undefined,
     group: 'group' in tab ? { id: tab.group, label: t(`group_${tab.group}`), icon: TAB_GROUP_ICONS[tab.group] } : undefined,
+    shortcut: SHORTCUT_TABS.indexOf(tab.id) + 1 || undefined,
+    badge: tab.id === 'news' && newsUnread > 0 ? newsUnread : undefined,
   }))
 
   if (settingsLoaded && !settings.setup_complete) {
@@ -638,7 +647,7 @@ export function App() {
   }
 
   return (
-    <ChangelogBadgeProvider>
+    <>
     <div className="new-ui h-screen w-screen flex flex-col bg-base text-ink font-body">
       <ScreenReaderAnnouncer enabled={settings.screen_reader_announcements} />
       <ToastContainer />
@@ -658,7 +667,10 @@ export function App() {
           }}
           connected={!cardLayout}
           paletteKey={paletteKey}
-          onOpenCommandPalette={() => setCommandPaletteOpen(true)}
+          onOpenCommandPalette={(origin) => {
+            setPaletteOrigin(origin ?? null)
+            setCommandPaletteOpen(true)
+          }}
           onOpenUpdatesModal={() => {
             setUpdatesModalMode('manual')
             setUpdatesModalOpen(true)
@@ -850,6 +862,7 @@ export function App() {
         {commandPaletteOpen && (
           <CommandPalette
             onClose={() => setCommandPaletteOpen(false)}
+            origin={paletteOrigin}
             currentTab={tab}
             onNavigate={(id) => setTab(id as NewTab)}
             projects={projects}
@@ -909,6 +922,6 @@ export function App() {
 
     </div>
     {splashPhase !== 'done' && <SplashScreen phase={splashPhase} />}
-    </ChangelogBadgeProvider>
+    </>
   )
 }

@@ -1,15 +1,16 @@
 import { motion } from 'framer-motion'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
-import { IconArrowUp, IconChevronRight, IconChevronsLeft, IconHouse, IconSearch } from '../../lib/icons'
+import { IconArrowUp, IconChevronRight, IconChevronsLeft, IconGear, IconHouse, IconSearch, IconUser } from '../../lib/icons'
 import type { IconProps } from '../../lib/icons'
-import { WorkspaceSwitcher } from './WorkspaceSwitcher'
+import { WorkspaceModals } from './WorkspaceSwitcher'
+import { AccountMenu } from './AccountMenu'
 import { Disclosure, DisclosureChevron } from '../reusables/Disclosure'
 import { useSettings } from '../../hooks/useSettings'
-import { useChangelogBadge } from '../../hooks/useChangelogBadge'
 import { useUpdateAvailable } from '../../hooks/useUpdateAvailable'
 import { Tooltip } from '../reusables/Tooltip'
+import { OverlayScrollArea } from '../reusables/OverlayScrollArea'
 import { useUiMotion } from '../../hooks/useUiMotion'
 import { isRtl } from '../../lib/locale'
 import { registerSettingsClick } from '../../lib/debugMode'
@@ -18,10 +19,10 @@ export interface SidebarTab {
   id: string
   label: string
   icon: ComponentType<IconProps>
-  footer?: boolean
-  iconOnly?: boolean
   isNew?: boolean
   group?: { id: string; label: string; icon: ComponentType<IconProps> }
+  shortcut?: number
+  badge?: number
 }
 
 const COLLAPSED_WIDTH = 68
@@ -46,14 +47,13 @@ export function Sidebar({
   onTabChange: (id: string) => void
   connected?: boolean
   paletteKey?: string
-  onOpenCommandPalette?: () => void
+  onOpenCommandPalette?: (origin?: DOMRect) => void
   onOpenUpdatesModal?: () => void
 }) {
   const { t } = useTranslation('nav')
   const { t: tc } = useTranslation('common')
   const { settings } = useSettings()
   const {instant, reduced, transition} = useUiMotion()
-  const { hasNewEntry: hasNewChangelogEntry, markSeen: markChangelogSeen } = useChangelogBadge()
   const { updateAvailable, previewUpdate } = useUpdateAvailable()
   const [width, setWidth] = useState(() => {
     try {
@@ -97,14 +97,24 @@ export function Sidebar({
     }
   })
   const [animateGroups, setAnimateGroups] = useState(false)
-  const toggleGroup = (id: string) => {
+  const saveClosedGroups = (next: string[]) => {
     setAnimateGroups(true)
-    const next = closedGroups.includes(id) ? closedGroups.filter((g) => g !== id) : [...closedGroups, id]
     setClosedGroups(next)
     try {
       localStorage.setItem('new_ui_sidebar_closed_groups', JSON.stringify(next))
     } catch {}
   }
+  const toggleGroup = (id: string) =>
+    saveClosedGroups(closedGroups.includes(id) ? closedGroups.filter((g) => g !== id) : [...closedGroups, id])
+  const activeGroupId = tabs.find((tab) => tab.id === activeTab)?.group?.id
+  const previousActiveTab = useRef(activeTab)
+  useEffect(() => {
+    if (previousActiveTab.current === activeTab) return
+    previousActiveTab.current = activeTab
+    if (activeGroupId && closedGroups.includes(activeGroupId)) {
+      saveClosedGroups(closedGroups.filter((g) => g !== activeGroupId))
+    }
+  }, [activeTab])
   const [dragging, setDragging] = useState(false)
   const [revealed, setRevealed] = useState(false)
   const [knobY, setKnobY] = useState<number | null>(null)
@@ -124,16 +134,13 @@ export function Sidebar({
   const startXRef = useRef(0)
   const startWidthRef = useRef(0)
 
-  const mainTabs = tabs.filter((t) => !t.footer)
-  const tabGroups = mainTabs.reduce<{ id: string; group?: SidebarTab['group']; tabs: SidebarTab[] }[]>((groups, tab) => {
+  const tabGroups = tabs.reduce<{ id: string; group?: SidebarTab['group']; tabs: SidebarTab[] }[]>((groups, tab) => {
     const id = tab.group?.id ?? tab.id
     const last = groups[groups.length - 1]
     if (last && tab.group && last.id === id) last.tabs.push(tab)
     else groups.push({ id, group: tab.group, tabs: [tab] })
     return groups
   }, [])
-  const footerTabs = tabs.filter((t) => t.footer)
-  const headerWorkspace = !collapsed && settings.workspaces_enabled
 
   const beginDrag = (e: React.PointerEvent) => {
     const now = Date.now()
@@ -208,32 +215,40 @@ export function Sidebar({
     }
   }
 
-  const renderTabButton = (tab: SidebarTab, layoutClass: string, collapsedView = false) => {
+  const badgeLabel = (count: number) => (count > 9 ? '9+' : String(count))
+  const modLabel = (key: string) => (navigator.platform.includes('Mac') ? `⌘${key}` : `Ctrl+${key}`)
+
+  const renderTabButton = (
+    tab: SidebarTab,
+    layoutClass: string,
+    collapsedView = false,
+    menu?: { open: boolean; toggle: () => void },
+  ) => {
     const active = activeTab === tab.id
     const Icon = tab.icon
-    const hideLabel = collapsedView || !!tab.iconOnly
+    const hideLabel = collapsedView
     const showNew = !!tab.isNew && !seenNewTabs.includes(tab.id)
+    const shortcut = tab.shortcut ? modLabel(String(tab.shortcut)) : undefined
     const btn = (
       <button
         key={tab.id}
         type="button"
+        aria-haspopup={menu ? 'menu' : undefined}
+        aria-expanded={menu?.open}
         onClick={() => {
-          if (tab.id === 'changelog') markChangelogSeen()
+          if (menu) return menu.toggle()
           if (tab.id === 'settings') registerSettingsClick()
           if (tab.isNew) markTabSeen(tab.id)
           onTabChange(tab.id)
         }}
-        aria-label={hideLabel ? tab.label : undefined}
-        className={`focus-ring cursor-pointer relative flex items-center rounded-item text-sm font-medium transition-colors ${layoutClass} ${
+        aria-label={hideLabel || tab.badge ? (tab.badge ? `${tab.label} (${tab.badge})` : tab.label) : undefined}
+        aria-keyshortcuts={tab.shortcut ? `${navigator.platform.includes('Mac') ? 'Meta' : 'Control'}+${tab.shortcut}` : undefined}
+        className={`group/tab focus-ring cursor-pointer relative flex items-center rounded-item text-sm font-medium transition-colors ${layoutClass} ${
           showNew ? 'border border-dashed border-accent/70' : 'border border-transparent'
         } ${
           active
             ? 'text-ink'
             : 'text-muted hover:text-ink hover:bg-raised/60'
-        } ${
-          hasNewChangelogEntry && tab.id === 'changelog' && !active
-            ? 'changelog-shine'
-            : ''
         }`}
       >
         {active && (
@@ -254,6 +269,21 @@ export function Sidebar({
             {tc('new_badge')}
           </span>
         )}
+        {!!tab.badge && !showNew && !hideLabel && (
+          <span className="relative ms-auto shrink-0 min-w-5 h-5 px-1.5 inline-flex items-center justify-center rounded-full bg-accent text-white text-3xs font-semibold tabular-nums leading-none">
+            {badgeLabel(tab.badge)}
+          </span>
+        )}
+        {!!tab.badge && !showNew && hideLabel && (
+          <span className="absolute top-0.5 end-0.5 min-w-4 h-4 px-1 inline-flex items-center justify-center rounded-full bg-accent text-white text-4xs font-semibold tabular-nums leading-none" aria-hidden="true">
+            {badgeLabel(tab.badge)}
+          </span>
+        )}
+        {shortcut && !tab.badge && !showNew && !hideLabel && (
+          <kbd className="relative ms-auto shrink-0 font-mono text-4xs px-1.5 py-0.5 rounded-tag bg-raised border border-outline/50 text-muted/70 opacity-0 transition-opacity group-hover/tab:opacity-100 group-focus-visible/tab:opacity-100">
+            {shortcut}
+          </kbd>
+        )}
         {showNew && hideLabel && (
           <span className="absolute top-1 end-1 w-2 h-2 rounded-full bg-accent" aria-hidden="true" />
         )}
@@ -261,7 +291,19 @@ export function Sidebar({
     )
     return collapsedView ? (
       <span key={tab.id} className="contents">
-        <Tooltip content={tab.label} side="right">
+        <Tooltip
+          content={
+            shortcut ? (
+              <span className="inline-flex items-center gap-2">
+                {tab.label}
+                <kbd className="font-mono text-4xs text-muted">{shortcut}</kbd>
+              </span>
+            ) : (
+              tab.label
+            )
+          }
+          side="right"
+        >
           {btn}
         </Tooltip>
       </span>
@@ -313,9 +355,9 @@ export function Sidebar({
         }`}
       >
       <div
-        className={`shrink-0 flex items-center gap-2 border-b border-line ${
-          collapsed ? 'justify-center px-0 h-12' : 'px-3'
-        } ${headerWorkspace ? 'py-2' : 'h-12'}`}
+        className={`shrink-0 flex items-center gap-2 ${
+          collapsed ? 'justify-center px-0' : 'px-3'
+        } h-14`}
       >
         {collapsed ? (
           <Tooltip content={t('dashboard')}>
@@ -327,25 +369,12 @@ export function Sidebar({
               <IconHouse className="w-4 h-4" />
             </button>
             </Tooltip>
-        ) : headerWorkspace ? (
-          <div className="flex-1 min-w-0 flex flex-col gap-0.5">
-            <Tooltip content={t('dashboard')}>
-              <button
-                type="button"
-                onClick={() => onTabChange('dashboard')}
-                className="focus-ring cursor-pointer font-display font-black text-lg leading-tight tracking-tight text-ink/50 hover:text-ink min-w-0 truncate text-start transition-colors"
-              >
-                GodotHub
-              </button>
-            </Tooltip>
-            <WorkspaceSwitcher variant="header" />
-          </div>
         ) : (
           <Tooltip content={t('dashboard')}>
             <button
               type="button"
               onClick={() => onTabChange('dashboard')}
-              className="focus-ring cursor-pointer font-display ps-2 font-black text-2xl tracking-tight text-ink/50 hover:text-ink min-w-0 truncate text-start transition-colors"
+              className="focus-ring cursor-pointer font-display ps-2 font-black text-3xl leading-none tracking-tight text-ink/50 hover:text-ink min-w-0 truncate text-start transition-colors"
             >
               GodotHub
             </button>
@@ -360,7 +389,7 @@ export function Sidebar({
             <Tooltip content={tc('search')} side="right">
               <button
                 type="button"
-                onClick={onOpenCommandPalette}
+                onClick={(e) => onOpenCommandPalette(e.currentTarget.getBoundingClientRect())}
                 aria-label={tc('search')}
                 className="focus-ring cursor-pointer w-11 h-11 shrink-0 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised/60 transition-colors"
               >
@@ -370,28 +399,23 @@ export function Sidebar({
           ) : (
             <button
               type="button"
-              onClick={onOpenCommandPalette}
+              onClick={(e) => onOpenCommandPalette(e.currentTarget.getBoundingClientRect())}
               className="focus-ring cursor-pointer w-full flex items-center gap-2 px-3 h-9 rounded-item bg-overlay/60 border border-outline/50 text-sm text-muted hover:text-ink hover:border-outline hover:bg-overlay transition-colors"
             >
               <IconSearch className="w-4 h-4 shrink-0" />
               <span className="flex-1 text-start truncate">{tc('search')}</span>
               <kbd className="font-mono text-4xs px-1.5 py-0.5 rounded-tag bg-raised border border-outline/50 text-muted/70">
-                {navigator.platform.includes('Mac')
-                  ? `⌘${paletteKey.toUpperCase()}`
-                  : `Ctrl+${paletteKey.toUpperCase()}`}
+                {modLabel(paletteKey.toUpperCase())}
               </kbd>
             </button>
           )}
         </div>
       )}
 
-      {settings.workspaces_enabled && collapsed && (
-        <div className="shrink-0 flex justify-center px-0 py-2">
-          <WorkspaceSwitcher collapsed />
-        </div>
-      )}
+      {settings.workspaces_enabled && <WorkspaceModals />}
 
-      <nav className={`flex-1 p-3 pt-2 flex flex-col ${collapsed ? 'items-center gap-1' : 'gap-1.5'}`}>
+      <OverlayScrollArea className="flex-1 min-h-0" hideTopButton>
+      <nav className={`p-3 pt-2 flex flex-col ${collapsed ? 'items-center gap-1' : 'gap-1.5'}`}>
         {tabGroups.map((group) => {
           const buttons = group.tabs.map((tab) =>
             renderTabButton(
@@ -411,6 +435,7 @@ export function Sidebar({
           const GroupIcon = group.group.icon
           const activeInGroup = group.tabs.find((tab) => tab.id === activeTab)
           const hasActive = !!activeInGroup
+          const groupBadge = group.tabs.reduce((sum, tab) => sum + (tab.badge ?? 0), 0)
           const open = !closedGroups.includes(group.id)
           const panelId = `sidebar-group-${group.id}`
           return (
@@ -434,7 +459,12 @@ export function Sidebar({
                     <span className="truncate text-xs text-muted">{activeInGroup.label}</span>
                   </>
                 )}
-                <span className="ms-auto inline-flex">
+                <span className="ms-auto inline-flex items-center gap-2">
+                  {!open && groupBadge > 0 && (
+                    <span className="min-w-5 h-5 px-1.5 inline-flex items-center justify-center rounded-full bg-accent text-white text-3xs font-semibold tabular-nums leading-none">
+                      {badgeLabel(groupBadge)}
+                    </span>
+                  )}
                   <DisclosureChevron open={open} animate={animateGroups} />
                 </span>
               </button>
@@ -445,72 +475,55 @@ export function Sidebar({
           )
         })}
       </nav>
-      {footerTabs.length > 0 && (
-        <nav className={`shrink-0 p-3 flex flex-col gap-1.5 ${collapsed ? 'items-center' : 'items-stretch'}`}>
-          <div
-            className={`flex flex-col ${
-              collapsed ? 'gap-1 items-center' : 'gap-1.5 items-stretch'
-            }`}
-          >
-            {(updateAvailable || previewUpdate) && onOpenUpdatesModal && !collapsed && (
+      </OverlayScrollArea>
+      <div className={`shrink-0 p-3 flex flex-col ${collapsed ? 'items-center gap-1' : 'items-stretch gap-1.5'}`}>
+        {(updateAvailable || previewUpdate) && onOpenUpdatesModal && (collapsed ? (
+            <Tooltip content={tc('update_available')}>
               <button
                 type="button"
                 onClick={onOpenUpdatesModal}
-                className="focus-ring cursor-pointer w-full flex items-center gap-2.5 px-3 py-2.5 rounded-item bg-accent/10 border border-accent/30 text-xs font-medium text-accent-bright hover:bg-accent/20 transition-colors"
+                className="focus-ring cursor-pointer w-11 h-11 shrink-0 flex items-center justify-center rounded-item relative text-muted hover:text-ink hover:bg-raised/60 transition-colors"
               >
-                <span className="relative flex w-2 h-2">
+                <IconArrowUp className="w-4 h-4" />
+                <span className="absolute top-2 end-2 flex w-2 h-2" aria-hidden="true">
                   <span className="absolute inline-flex h-full w-full rounded-full bg-accent-bright opacity-75 animate-attention-ping" />
-                  <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-bright" />
+                  <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-bright shadow-[0_0_6px_2px] shadow-accent/50" />
                 </span>
-                {tc('update_available')}
               </button>
-            )}
-            {(updateAvailable || previewUpdate) && onOpenUpdatesModal && collapsed && (
-                <Tooltip content={tc('update_available')}>
-                <button
-                  type="button"
-                  onClick={onOpenUpdatesModal}
-                  className="focus-ring cursor-pointer w-11 h-11 shrink-0 flex items-center justify-center rounded-item relative text-muted hover:text-ink hover:bg-raised/60 transition-colors"
-                >
-                  <IconArrowUp className="w-4 h-4" />
-                  <span className="absolute top-2 end-2 flex w-2 h-2" aria-hidden="true">
-                    <span className="absolute inline-flex h-full w-full rounded-full bg-accent-bright opacity-75 animate-attention-ping" />
-                    <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-bright shadow-[0_0_6px_2px] shadow-accent/50" />
-                  </span>
-                </button>
-                </Tooltip>
-            )}
-            {footerTabs.slice(0, -2).map((tab) =>
+            </Tooltip>
+          ) : (
+            <button
+              type="button"
+              onClick={onOpenUpdatesModal}
+              className="focus-ring cursor-pointer w-full flex items-center gap-2.5 px-3 py-2.5 rounded-item bg-accent/10 border border-accent/30 text-xs font-medium text-accent-bright hover:bg-accent/20 transition-colors"
+            >
+              <span className="relative flex w-2 h-2">
+                <span className="absolute inline-flex h-full w-full rounded-full bg-accent-bright opacity-75 animate-attention-ping" />
+                <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-bright" />
+              </span>
+              {tc('update_available')}
+            </button>
+          ))}
+        <div className={`flex ${collapsed ? 'flex-col gap-1 items-center' : 'flex-row gap-1.5 items-stretch'}`}>
+          <AccountMenu
+            className={collapsed ? 'w-fit' : 'flex-1 min-w-0'}
+            onNavigate={onTabChange}
+            trigger={(menu) =>
               renderTabButton(
-                tab,
-                collapsed || tab.iconOnly
-                  ? 'w-11 h-11 shrink-0 justify-center'
-                  : 'w-full gap-2.5 px-3 py-2.5',
+                { id: 'account', label: t('you'), icon: IconUser },
+                `bg-overlay/40 ${collapsed ? 'w-11 h-11 shrink-0 justify-center' : 'w-full gap-2 px-3 py-2'}`,
                 collapsed,
-              ),
-            )}
-            {footerTabs.length >= 2 && (
-              <div
-                className={`flex ${
-                  collapsed
-                    ? 'flex-col gap-1 items-center'
-                    : 'flex-row gap-1.5 items-stretch'
-                }`}
-              >
-                {footerTabs.slice(-2).map((tab) =>
-                  renderTabButton(
-                    tab,
-                    collapsed || tab.iconOnly
-                      ? 'w-11 h-11 shrink-0 justify-center'
-                      : 'flex-1 gap-2.5 px-3 py-2.5',
-                    collapsed,
-                  ),
-                )}
-              </div>
-            )}
-          </div>
-        </nav>
-      )}
+                menu,
+              )
+            }
+          />
+          {renderTabButton(
+            { id: 'settings', label: t('settings'), icon: IconGear },
+            `bg-overlay/40 w-11 shrink-0 justify-center ${collapsed ? 'h-11' : ''}`,
+            true,
+          )}
+        </div>
+      </div>
       </div>
       {collapsed && (
         <span title={t('expand_sidebar')} className="contents">

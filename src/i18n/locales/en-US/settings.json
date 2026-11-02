@@ -18,10 +18,7 @@
   "motion": "Motion",
   "data": "Data & Backup",
   "git_auth_title": "Sign in with {{provider}}",
-  "git_auth_instructions": "Authorize GodotHub in your browser. A verification page should have opened. If not, use the button below.",
-  "git_auth_enter_code": "Enter this code",
   "git_auth_copy_code": "Copy code",
-  "git_auth_open_browser": "Open browser",
   "git_auth_copy_link": "Copy link",
   "git_auth_waiting": "Waiting for you to authorize…",
   "git_oauth_hint": "Sign in to authenticate HTTPS push, pull, fetch, and clone.",
@@ -317,5 +314,15 @@
   "cli_tool_install": "Install",
   "cli_tool_installing": "Installing...",
   "cli_tool_installed_msg": "Installed. Open a new terminal, then run: godothub",
-  "cli_tool_uninstalled_msg": "Removed. The godothub command is no longer on your PATH."
+  "cli_tool_uninstalled_msg": "Removed. The godothub command is no longer on your PATH.",
+  "git_auth_step_copy": "Copy your code",
+  "git_auth_step_paste": "Paste it on {{provider}}",
+  "git_auth_step_approve": "Approve GodotHub",
+  "git_auth_copy_and_open": "Copy code & open {{provider}}",
+  "git_auth_copied": "Copied",
+  "git_auth_expires_in": "Expires in {{time}}",
+  "git_auth_expired": "This code has expired",
+  "git_auth_failed": "Couldn’t connect",
+  "git_auth_try_again": "Try again",
+  "git_auth_success_hint": "You can close this window."
 }

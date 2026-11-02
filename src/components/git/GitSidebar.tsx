@@ -975,7 +975,7 @@ export function GitSidebar({
                 </span>
                 <div className="min-w-0">
                   <p className="text-xs font-medium text-ink">GitHub</p>
-                  <p className="text-3xs font-mono text-muted truncate">
+                  <p className="sensitive text-3xs font-mono text-muted truncate">
                     @{gitAuth.github.username}
                   </p>
                 </div>
@@ -998,7 +998,7 @@ export function GitSidebar({
                 </span>
                 <div className="min-w-0">
                   <p className="text-xs font-medium text-ink">GitLab</p>
-                  <p className="text-3xs font-mono text-muted truncate">
+                  <p className="sensitive text-3xs font-mono text-muted truncate">
                     @{gitAuth.gitlab.username}
                   </p>
                 </div>
@@ -1024,7 +1024,7 @@ export function GitSidebar({
                     <span className="text-3xs font-mono text-muted truncate flex-1">
                       {pat.host}
                     </span>
-                    <span className="text-3xs text-muted/60 truncate">
+                    <span className="sensitive text-3xs text-muted/60 truncate">
                       @{pat.username}
                     </span>
                   </div>

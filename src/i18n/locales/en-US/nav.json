@@ -13,5 +13,7 @@
   "changelog": "Changelog",
   "group_workspace": "Workspace",
   "group_resources": "Resources",
-  "group_explore": "Explore"
+  "group_explore": "Explore",
+  "you": "You",
+  "account_manage": "Manage accounts"
 }

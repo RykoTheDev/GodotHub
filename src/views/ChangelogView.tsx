@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useChangelog } from '../hooks/useChangelog'
+import { useChangelogBadge } from '../hooks/useChangelogBadge'
 import { useSettings } from '../hooks/useSettings'
 import { ChangelogEntryModal } from '../components/modals/ChangelogEntryModal'
 import { ReleaseNotesDraftModal } from '../components/modals/ReleaseNotesDraftModal'
@@ -218,6 +219,8 @@ export function ChangelogView({
 }) {
   const { t } = useTranslation('changelog')
   const { t: tc } = useTranslation('common')
+  const { markSeen } = useChangelogBadge()
+  useEffect(() => markSeen(), [markSeen])
   const { settings } = useSettings()
   const { entries, loading, addEntry, updateEntry, removeEntry } =
     useChangelog()

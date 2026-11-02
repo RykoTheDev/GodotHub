@@ -9,6 +9,7 @@ import { CategoriesProvider } from './hooks/categoriesContext'
 import { UpdateAvailableProvider } from './hooks/useUpdateAvailable'
 import { GodotVersionsProvider } from './hooks/godotVersionsContext'
 import { TaskTrayProvider } from './hooks/useTaskTray'
+import { ChangelogBadgeProvider } from './hooks/useChangelogBadge'
 import '@fontsource-variable/inter'
 import '@fontsource/google-sans-code/400.css'
 import '@fontsource/google-sans-code/500.css'
@@ -32,7 +33,9 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
                 <UpdateAvailableProvider>
                   <GodotVersionsProvider>
                     <TaskTrayProvider>
-                      <App />
+                      <ChangelogBadgeProvider>
+                        <App />
+                      </ChangelogBadgeProvider>
                     </TaskTrayProvider>
                   </GodotVersionsProvider>
                 </UpdateAvailableProvider>
