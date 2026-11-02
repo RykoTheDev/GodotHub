@@ -24,6 +24,7 @@ import {
   faTableCellsLarge,
   faListUl,
   faLanguage,
+  faRightLeft,
   faSun,
   faMoon,
   faPen,
@@ -207,6 +208,7 @@ export const IconLayoutGrid = solid(faTableCellsLarge)
 export const IconLayoutList = solid(faListUl)
 export const IconKanban = solid(faTableColumns)
 export const IconLanguage = solid(faLanguage, M.swivel)
+export const IconTextDirection = solid(faRightLeft)
 export const IconSun = solid(faSun, M.spin)
 export const IconMoon = solid(faMoon, M.swivel)
 export const IconPencil = solid(faPen, M.swivel)

@@ -317,7 +317,5 @@
   "motion": "アニメーション",
   "data": "データとバックアップ",
   "restore_modal_todos_one": "{{count}} 件のタスクを含みます",
-  "restore_modal_todos_other": "{{count}} 件のタスクを含みます",
-  "rtl_layout_label": "右から左に書く言語でレイアウトを左右反転",
-  "rtl_layout_desc": "アラビア語などの右から左に書く言語を使用する場合に、サイドバー、パネル、矢印を含む画面全体を左右反転します。オフの場合は、テキストのみが右から左に表示され、レイアウトはそのままになります。"
+  "restore_modal_todos_other": "{{count}} 件のタスクを含みます"
 }

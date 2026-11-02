@@ -1508,9 +1508,7 @@ export type settingsKeys =
   | 'cli_tool_install'
   | 'cli_tool_installing'
   | 'cli_tool_installed_msg'
-  | 'cli_tool_uninstalled_msg'
-  | 'rtl_layout_label'
-  | 'rtl_layout_desc';
+  | 'cli_tool_uninstalled_msg';
 
 /** Keys from todos.json */
 export type todosKeys =
@@ -3254,8 +3252,6 @@ export type TranslationKey =
   | 'settings:cli_tool_installing'
   | 'settings:cli_tool_installed_msg'
   | 'settings:cli_tool_uninstalled_msg'
-  | 'settings:rtl_layout_label'
-  | 'settings:rtl_layout_desc'
   | 'todos:next_steps'
   | 'todos:all_tasks_description'
   | 'todos:saving_tasks'

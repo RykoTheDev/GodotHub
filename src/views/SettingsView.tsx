@@ -1148,21 +1148,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         </div>
       </Subsection>
 
-      <Subsection
-        id="display-rtl-layout"
-        title={ts("rtl_layout_label")}
-        description={ts("rtl_layout_desc")}
-        searchText={`${ts("rtl_layout_label")} ${ts("rtl_layout_desc")} RTL`}
-        query={searchQuery}
-        onMatch={reportMatch}
-      >
-        <Toggle
-          checked={settings.rtl_layout ?? false}
-          onChange={(checked) => update({ ...settings, rtl_layout: checked })}
-          label={ts("rtl_layout_label")}
-        />
-      </Subsection>
-
       {!isMac && (
         <Subsection
           id="display-os-decorations"

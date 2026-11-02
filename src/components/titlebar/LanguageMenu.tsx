@@ -16,7 +16,7 @@ import {
   languageStatusLabelKey,
   type LanguageStatus,
 } from '../../i18n/languages'
-import { IconLanguage, IconCheck } from '../../lib/icons'
+import { IconLanguage, IconCheck, IconTextDirection } from '../../lib/icons'
 import { useSettings } from '../../hooks/useSettings'
 import { LanguageFlag } from '../reusables/LanguageFlag'
 import { Tooltip } from '../reusables/Tooltip'
@@ -241,7 +241,10 @@ export function LanguageMenu() {
                 const isSystem =
                   lang.value === SYSTEM_LANGUAGE
 
-                return (
+                const showLayoutToggle =
+                  active && i18n.dir(i18n.language) === 'rtl'
+
+                const item = (
                   <button
                     key={lang.value}
                     type="button"
@@ -249,7 +252,11 @@ export function LanguageMenu() {
                     onClick={() =>
                       select(lang.value)
                     }
-                    className={`focus-ring cursor-pointer w-full flex items-center justify-between gap-2 text-start px-2.5 py-2 rounded-item text-xs transition-colors ${
+                    className={`focus-ring cursor-pointer flex items-center justify-between gap-2 text-start px-2.5 py-2 text-xs transition-colors ${
+                      showLayoutToggle
+                        ? 'flex-1 min-w-0 rounded-s-item rounded-e-sm'
+                        : 'w-full rounded-item'
+                    } ${
                       active
                         ? 'bg-accent/15 text-accent-bright'
                         : 'text-muted hover:bg-raised hover:text-ink'
@@ -272,6 +279,43 @@ export function LanguageMenu() {
                       <IconCheck className="w-3.5 h-3.5" />
                     )}
                   </button>
+                )
+
+                if (!showLayoutToggle) return item
+
+                const mirrored = settings.rtl_layout ?? false
+                const layoutLabel = mirrored
+                  ? 'التبديل إلى التخطيط من اليسار إلى اليمين'
+                  : 'التبديل إلى التخطيط من اليمين إلى اليسار'
+
+                return (
+                  <div
+                    key={lang.value}
+                    className="flex items-stretch gap-0.5"
+                  >
+                    {item}
+                    <Tooltip content={layoutLabel}>
+                      <button
+                        type="button"
+                        role="menuitemcheckbox"
+                        aria-checked={mirrored}
+                        aria-label={layoutLabel}
+                        onClick={() =>
+                          update({
+                            ...settings,
+                            rtl_layout: !mirrored,
+                          })
+                        }
+                        className={`focus-ring cursor-pointer w-9 shrink-0 flex items-center justify-center rounded-s-sm rounded-e-item transition-colors ${
+                          mirrored
+                            ? 'bg-accent/25 text-accent-bright hover:bg-accent/35'
+                            : 'bg-accent/15 text-accent-bright/70 hover:bg-accent/25 hover:text-accent-bright'
+                        }`}
+                      >
+                        <IconTextDirection className="w-3.5 h-3.5" />
+                      </button>
+                    </Tooltip>
+                  </div>
                 )
               })}
             </motion.div>
