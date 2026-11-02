@@ -1,3 +1,5 @@
+import { useId } from 'react'
+
 interface SegmentedProps {
   value: string
   onChange: (value: string) => void
@@ -5,6 +7,7 @@ interface SegmentedProps {
 }
 
 export function Segmented({ value, onChange, options }: SegmentedProps) {
+  const sharedKey = `segmented-${useId()}`
   return (
     <div className="inline-flex self-start rounded-btn border border-outline/50 bg-overlay p-1 gap-1 relative isolate">
       {options.map(({ value: v, label, mono }) => {
@@ -19,7 +22,7 @@ export function Segmented({ value, onChange, options }: SegmentedProps) {
             } ${active ? 'text-white' : 'text-muted hover:text-ink hover:bg-raised/50'}`}
           >
             {active && (
-              <div className="absolute inset-0 z-0 rounded-btn bg-accent" />
+              <div data-motion-shared={sharedKey} className="absolute inset-0 z-0 rounded-btn bg-accent" />
             )}
             <span className="relative z-10">{label}</span>
           </button>

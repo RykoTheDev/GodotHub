@@ -47,6 +47,12 @@
   --radius-menu: var(--radius-card);
 
   --spacing: 4.5px;
+
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-badge-pop: badge-pop 0.6s var(--ease-spring) both;
+  --animate-dot-pulse: dot-pulse 1.8s ease-out infinite;
 }
 
 :root {
@@ -230,6 +236,198 @@ textarea::placeholder {
 }
 .focus-ring:focus-visible {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 45%, transparent);
+  animation: ring-pop 0.45s var(--ease-spring);
+}
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, box-shadow;
+    transition-duration: 260ms;
+    transition-timing-function: var(--ease-out-expo);
+  }
+
+  :where(button, a, input, textarea, select, summary, kbd, label, [role], [tabindex], [class*="hover:"], [class*="group-"], [class*="focus"], [class*="peer-"], [class*="opacity-"]) {
+    transition-property: color, background-color, border-color, outline-color, outline-offset, text-decoration-color, fill, stroke, box-shadow, opacity, filter, backdrop-filter, translate, scale, rotate;
+    transition-duration: 280ms;
+  }
+
+  :where([style*="background"], [style*="color"]) {
+    transition-property: opacity, translate, scale, rotate;
+  }
+
+  :where([role="progressbar"] *, [class*="rounded-full"][style*="width"]) {
+    transition-property: width, background-color, opacity;
+    transition-duration: 600ms;
+  }
+
+  :focus-visible {
+    animation: focus-pop 0.45s var(--ease-spring);
+  }
+
+  :where(input:not([type="checkbox"], [type="radio"], [type="range"]), textarea) {
+    caret-color: var(--color-accent-bright);
+  }
+
+  :where(input, textarea)[class*="border"]:focus {
+    border-color: color-mix(in srgb, var(--color-accent) 60%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 18%, transparent);
+  }
+
+  svg {
+    transition:
+      transform 500ms var(--ease-spring),
+      color 260ms var(--ease-out-expo),
+      fill 260ms var(--ease-out-expo),
+      stroke 260ms var(--ease-out-expo),
+      opacity 260ms var(--ease-out-expo);
+  }
+
+  :where(button, a, [role="menuitem"], [role="tab"], [role="option"]):not(:disabled):hover > svg,
+  :where(button, a, [role="menuitem"], [role="tab"], [role="option"]):not(:disabled):hover > span > svg:only-child {
+    transform: scale(1.16);
+  }
+
+  :where(button, a, [role="menuitem"]):not(:disabled):active > svg {
+    transform: scale(0.86);
+    transition-duration: 120ms;
+  }
+
+  :where(button, a, [role="button"]):not(:disabled)[class*="hover:bg-"]:hover {
+    box-shadow: 0 6px 18px -12px rgb(0 0 0 / 0.6);
+  }
+
+  :where(img) {
+    transition: opacity 400ms var(--ease-out-expo), filter 400ms var(--ease-out-expo), transform 600ms var(--ease-spring);
+  }
+
+  :where(kbd) {
+    transition-duration: 200ms;
+  }
+}
+
+[data-motion-busy],
+[data-motion-ghost],
+[data-motion-ghost] * {
+  transition: none !important;
+}
+
+[data-motion-ghost] {
+  pointer-events: none !important;
+}
+
+.motion-ripple {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+}
+.motion-ripple > span {
+  position: absolute;
+  border-radius: 9999px;
+  background: color-mix(in srgb, currentColor 18%, transparent);
+}
+
+[role="checkbox"][aria-checked="true"] svg,
+[role="checkbox"][aria-checked="mixed"] svg {
+  animation: check-pop 0.5s var(--ease-spring);
+}
+
+[role="checkbox"][aria-checked="true"] > span:first-child,
+[role="checkbox"][aria-checked="mixed"] > span:first-child {
+  animation: check-box 0.45s var(--ease-spring);
+}
+
+span.rounded-full.bg-accent,
+span[class*="rounded-tag"][class~="bg-accent"] {
+  animation: var(--animate-badge-pop);
+}
+
+span.w-2.h-2.rounded-full:is(.bg-accent, .bg-accent-bright, .bg-mint, .bg-amber, .bg-danger) {
+  animation: var(--animate-badge-pop), var(--animate-dot-pulse);
+}
+
+span.w-2.h-2.rounded-full.bg-accent,
+span.w-2.h-2.rounded-full.bg-accent-bright {
+  --pulse: var(--color-accent);
+}
+span.w-2.h-2.rounded-full.bg-mint {
+  --pulse: var(--color-mint);
+}
+span.w-2.h-2.rounded-full.bg-amber {
+  --pulse: var(--color-amber);
+}
+span.w-2.h-2.rounded-full.bg-danger {
+  --pulse: var(--color-danger);
+}
+
+.animate-spin {
+  animation-timing-function: cubic-bezier(0.55, 0.15, 0.45, 0.85);
+}
+
+@keyframes focus-pop {
+  from {
+    outline-offset: 8px;
+    outline-color: transparent;
+  }
+}
+
+@keyframes ring-pop {
+  from {
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+
+@keyframes check-pop {
+  0% {
+    transform: scale(0) rotate(-45deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes check-box {
+  0% {
+    scale: 0.7;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+@keyframes badge-pop {
+  0% {
+    scale: 0;
+    opacity: 0;
+  }
+  100% {
+    scale: 1;
+    opacity: 1;
+  }
+}
+
+@keyframes dot-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--pulse, var(--color-accent)) 70%, transparent);
+  }
+  80%,
+  100% {
+    box-shadow: 0 0 0 7px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 .markdown-body {

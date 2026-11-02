@@ -590,7 +590,7 @@ export function CommandPalette({
       onClick={onClose}
     >
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/60"
       />
 
       <div

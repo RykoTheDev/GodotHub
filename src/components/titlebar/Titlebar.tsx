@@ -101,6 +101,20 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
         settings.card_layout ? 'bg-raised/80' : 'bg-raised border-b border-line'
       } ${isMac ? 'ps-20' : 'ps-4'} ${showWindowControls ? '' : 'pe-4'}`}
     >
+      {!minimal && (
+        <Tooltip content={tn('dashboard')}>
+          <button
+            type="button"
+            data-no-ripple
+            onMouseDown={noDrag}
+            onClick={() => window.dispatchEvent(new CustomEvent('app:set-tab', { detail: 'dashboard' }))}
+            className="focus-ring cursor-pointer shrink-0 font-display font-black text-lg leading-none tracking-tight text-ink/50 hover:text-ink"
+          >
+            GodotHub
+          </button>
+        </Tooltip>
+      )}
+
       {!minimal && <RunningProjectsChip />}
 
       <div className="ms-auto flex items-center gap-1.5 self-stretch ">

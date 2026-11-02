@@ -209,7 +209,7 @@ export function Tooltip({
           open && (
             <div key="div-237"
               ref={tipRef}
-
+              data-motion="tooltip"
               className="fixed z-9999 pointer-events-none"
               style={{ left: pos.x, top: pos.y, transformOrigin: ORIGIN_BY_SIDE[arrow] }}
             >

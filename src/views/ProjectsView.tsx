@@ -120,6 +120,7 @@ import {
   type ProjectSearchToken,
 } from '../lib/projectSearch'
 import { ViewHeader } from '../components/reusables/ViewHeader'
+import { spin } from '../lib/motion'
 import { useGitStatusMap } from '../hooks/useGitStatusMap'
 import { CreateProjectModal } from '../components/modals/CreateProjectModal'
 import { CloneRepoModal } from '../components/modals/CloneRepoModal'
@@ -893,15 +894,17 @@ export function ProjectsView({
         leadingAction={
           <button
             type="button"
-            onClick={() => setCreateProjectOpen(true)}
-
+            onClick={(e) => {
+              spin(e.currentTarget.querySelector('svg'))
+              setCreateProjectOpen(true)
+            }}
             aria-label={tc('new_project')}
             className="group h-9 min-w-9 ps-2 cursor-pointer inline-flex items-center justify-start rounded-full bg-accent text-ink hover:bg-accent-bright "
           >
-            <IconPlus className="w-5 h-5 shrink-0" strokeWidth={3} />
-            <span className="grid grid-cols-[0fr] group-hover:grid-cols-[1fr]">
+            <IconPlus className="w-5 h-5 shrink-0 transition-[rotate,transform] duration-500 ease-spring group-hover:rotate-90" strokeWidth={3} />
+            <span className="grid grid-cols-[0fr] group-hover:grid-cols-[1fr] transition-[grid-template-columns] duration-500 ease-out-expo">
               <span className="overflow-hidden">
-                <span className="block whitespace-nowrap ps-1 pe-3 text-sm font-semibold">
+                <span className="block whitespace-nowrap ps-1 pe-3 text-sm font-semibold opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-[opacity,translate] duration-500 ease-out-expo">
                   {tc('new')}
                 </span>
               </span>

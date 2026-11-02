@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
-import { IconArrowUp, IconChevronRight, IconChevronsLeft, IconGear, IconHouse, IconSearch, IconUser } from '../../lib/icons'
+import { IconArrowUp, IconChevronRight, IconChevronsLeft, IconGear, IconSearch, IconUser } from '../../lib/icons'
 import type { IconProps } from '../../lib/icons'
 import { WorkspaceModals } from './WorkspaceSwitcher'
 import { AccountMenu } from './AccountMenu'
@@ -12,6 +12,7 @@ import { Tooltip } from '../reusables/Tooltip'
 import { OverlayScrollArea } from '../reusables/OverlayScrollArea'
 import { isRtl } from '../../lib/locale'
 import { registerSettingsClick } from '../../lib/debugMode'
+import { busy, ease, gsap } from '../../lib/motion'
 
 export interface SidebarTab {
   id: string
@@ -115,8 +116,34 @@ export function Sidebar({
   const [knobY, setKnobY] = useState<number | null>(null)
   const showKnob = revealed || dragging
   const lastDownRef = useRef(0)
+  const [widthAnimating, setWidthAnimating] = useState(false)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const wasCollapsed = useRef(collapsed)
+  useLayoutEffect(() => {
+    const panel = panelRef.current
+    const expanded = wasCollapsed.current && !collapsed
+    wasCollapsed.current = collapsed
+    if (!expanded || !panel) return
+    const labels = Array.from(
+      panel.querySelectorAll<HTMLElement>('button > :not(svg, [data-motion-shared], .absolute, .opacity-0)'),
+    )
+    if (!labels.length) return
+    const release = busy(...labels)
+    gsap.from(labels, {
+      opacity: 0,
+      x: isRtl() ? 10 : -10,
+      duration: 0.4,
+      delay: 0.08,
+      stagger: { amount: Math.min(0.2, labels.length * 0.012) },
+      ease: ease.out,
+      clearProps: 'opacity,transform',
+      onComplete: release,
+      onInterrupt: release,
+    })
+  }, [collapsed])
   const toggleCollapsed = () => {
     setKnobY(null)
+    setWidthAnimating(true)
     setCollapsed((prev) => {
       try {
         localStorage.setItem('new_ui_sidebar_collapsed', prev ? '0' : '1')
@@ -248,8 +275,7 @@ export function Sidebar({
       >
         {active && (
           <span
-
-
+            data-motion-shared="sidebar-tab"
             className="absolute inset-0 rounded-item bg-overlay border border-outline/50 shadow-md shadow-black/10 pointer-events-none"
           />
         )}
@@ -321,7 +347,7 @@ export function Sidebar({
       }`}
     >
       <span
-        className=" inline-flex"
+        className="inline-flex transition-transform duration-500 ease-spring"
         style={{ transform: collapsed ? 'rotate(180deg)' : 'rotate(0deg)' }}
       >
         <IconChevronsLeft className={`w-4 h-4 rtl:-scale-x-100 ${collapsed ? 'pe-0' : 'pe-2'}`} />
@@ -342,68 +368,48 @@ export function Sidebar({
       }}
     >
       <div
+        ref={panelRef}
         style={{width:collapsed ? COLLAPSED_WIDTH : width}}
-        className={`flex flex-col h-full overflow-hidden ${
+        onTransitionEnd={(e) => {
+          if (e.target === e.currentTarget && e.propertyName === 'width') setWidthAnimating(false)
+        }}
+        className={`flex flex-col h-full overflow-hidden ${widthAnimating ? 'whitespace-nowrap' : ''} ${dragging ? '' : 'transition-[width] duration-500 ease-out-expo'} ${
           connected
             ? 'rounded-none border-e border-line bg-raised'
             : 'rounded-card bg-raised'
         }`}
       >
-      <div
-        className={`shrink-0 flex items-center gap-2 ${
-          collapsed ? 'justify-center px-0' : 'px-3'
-        } h-14`}
-      >
-        {collapsed ? (
-          <Tooltip content={t('dashboard')}>
-          <button
-              type="button"
-              onClick={() => onTabChange('dashboard')}
-              className="focus-ring cursor-pointer w-6 h-6 shrink-0 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised/60 "
-            >
-              <IconHouse className="w-4 h-4" />
-            </button>
-            </Tooltip>
-        ) : (
-          <Tooltip content={t('dashboard')}>
-            <button
-              type="button"
-              onClick={() => onTabChange('dashboard')}
-              className="focus-ring cursor-pointer font-display ps-2 font-black text-3xl leading-none tracking-tight text-ink/50 hover:text-ink min-w-0 truncate text-start "
-            >
-              GodotHub
-            </button>
-          </Tooltip>
-        )}
-        {!collapsed && collapseBtn}
-      </div>
-
-      {onOpenCommandPalette && (
-        <div className={`shrink-0 ${collapsed ? 'flex justify-center px-0 pt-2' : 'px-3 pt-2.5 pb-0.5'}`}>
-          {collapsed ? (
-            <Tooltip content={tc('search')} side="right">
+      {!collapsed && (
+        <div className="shrink-0 flex items-center justify-end gap-2 px-3 h-14">
+            {onOpenCommandPalette && (
               <button
                 type="button"
                 onClick={onOpenCommandPalette}
-                aria-label={tc('search')}
-                className="focus-ring cursor-pointer w-11 h-11 shrink-0 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised/60 "
+                className="focus-ring cursor-pointer flex-1 min-w-0 flex items-center gap-2 px-3 h-9 rounded-item bg-overlay/60 border border-outline/50 text-sm text-muted hover:text-ink hover:border-outline hover:bg-overlay "
               >
-                <IconSearch className="w-4 h-4" />
+                <IconSearch className="w-4 h-4 shrink-0" />
+                <span className="flex-1 text-start truncate">{tc('search')}</span>
+                <kbd className="font-mono text-4xs px-1.5 py-0.5 rounded-tag bg-raised border border-outline/50 text-muted/70">
+                  {modLabel(paletteKey.toUpperCase())}
+                </kbd>
               </button>
-            </Tooltip>
-          ) : (
+            )}
+            {collapseBtn}
+        </div>
+      )}
+
+      {onOpenCommandPalette && collapsed && (
+        <div className="shrink-0 flex justify-center px-0 pt-3">
+          <Tooltip content={tc('search')} side="right">
             <button
               type="button"
               onClick={onOpenCommandPalette}
-              className="focus-ring cursor-pointer w-full flex items-center gap-2 px-3 h-9 rounded-item bg-overlay/60 border border-outline/50 text-sm text-muted hover:text-ink hover:border-outline hover:bg-overlay "
+              aria-label={tc('search')}
+              className="focus-ring cursor-pointer w-11 h-11 shrink-0 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised/60 "
             >
-              <IconSearch className="w-4 h-4 shrink-0" />
-              <span className="flex-1 text-start truncate">{tc('search')}</span>
-              <kbd className="font-mono text-4xs px-1.5 py-0.5 rounded-tag bg-raised border border-outline/50 text-muted/70">
-                {modLabel(paletteKey.toUpperCase())}
-              </kbd>
+              <IconSearch className="w-4 h-4" />
             </button>
-          )}
+          </Tooltip>
         </div>
       )}
 

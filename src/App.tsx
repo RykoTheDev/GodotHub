@@ -1,4 +1,4 @@
-import { lazy, memo, Suspense, useCallback, useEffect, useRef, useState } from 'react'
+import { lazy, memo, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useProjectsContext } from './hooks/projectsContext'
 import { useGodotVersionsContext } from './hooks/godotVersionsContext'
@@ -77,6 +77,7 @@ import {
 import { setPendingSettingsCategory } from './lib/settingsCategoryNav'
 import { isRtl } from './lib/locale'
 import { isMac } from './lib/platform'
+import { enableLiveReveal, introShell, revealView } from './lib/motion'
 import {
   IconBookOpen,
   IconBriefcase,
@@ -184,8 +185,14 @@ const ViewPane = memo(function ViewPane({
   gitSidebarOpen,
   onOpenSettings,
 }: ViewPaneProps) {
+  const paneRef = useRef<HTMLDivElement>(null)
+  useLayoutEffect(() => {
+    if (active && paneRef.current) revealView(paneRef.current)
+  }, [active])
   return (
     <div
+      ref={paneRef}
+      data-view-pane
       className="flex-1 min-w-0 h-full"
       style={{ display: active ? 'block' : 'none' }}
       aria-hidden={!active}
@@ -582,14 +589,31 @@ export function App() {
     badge: tab.id === 'news' && newsUnread > 0 ? newsUnread : undefined,
   }))
 
-  if (settingsLoaded && !settings.setup_complete) {
+  const shellRef = useRef<HTMLDivElement>(null)
+  const mainRef = useRef<HTMLDivElement>(null)
+  const onboarding = settingsLoaded && !settings.setup_complete
+  const shellReady = settingsLoaded && settings.setup_complete
+  useEffect(() => {
+    if (onboarding) enableLiveReveal()
+  }, [onboarding])
+  useLayoutEffect(() => {
+    if (!shellReady) return
+    introShell(
+      shellRef.current?.querySelector<HTMLElement>(':scope > header') ?? null,
+      (mainRef.current?.firstElementChild as HTMLElement | null) ?? null,
+    )
+  }, [shellReady])
+
+  if (onboarding) {
     return (
-      <Suspense fallback={null}>
-        <Onboarding
-          settings={settings}
-          onComplete={updateSettings}
-        />
-      </Suspense>
+      <div data-view-pane className="contents">
+        <Suspense fallback={null}>
+          <Onboarding
+            settings={settings}
+            onComplete={updateSettings}
+          />
+        </Suspense>
+      </div>
     )
   }
 
@@ -603,12 +627,13 @@ export function App() {
 
   return (
     <>
-    <div className="new-ui h-screen w-screen flex flex-col bg-base text-ink font-body">
+    <div ref={shellRef} className="new-ui h-screen w-screen flex flex-col bg-base text-ink font-body">
       <ScreenReaderAnnouncer enabled={settings.screen_reader_announcements} />
       <ToastContainer />
       <Titlebar />
 
       <div
+        ref={mainRef}
         className={`relative flex-1 flex min-h-0 overflow-hidden ${
           cardLayout ? 'p-4 pt-3 gap-4' : 'gap-0'
         }`}
@@ -645,15 +670,13 @@ export function App() {
             <>
               <div
                 key="git-backdrop"
-
-
+                data-motion="backdrop"
                 className="absolute inset-0 z-40 bg-black/30"
                 onClick={() => setGitSidebarProject(null)}
               />
               <div
                 key="git-panel"
-
-
+                data-motion="panel"
                 className={`absolute top-2 inset-e-2 bottom-2 z-50 ${gitDragging ? 'select-none' : ''}`}
               >
                 <div
