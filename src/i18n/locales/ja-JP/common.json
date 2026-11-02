@@ -872,5 +872,8 @@
   "n_projects_other": "{{count}} 件のプロジェクト",
   "unlocalized_badge": "未翻訳",
   "customize_card_show_session_timer": "セッションタイマーを表示",
-  "new": "新規"
+  "new": "新規",
+  "view_error_title": "This view couldn't load",
+  "view_error_desc": "The rest of GodotHub still works. Try loading this view again, or switch to another one.",
+  "error_details": "Technical details"
 }

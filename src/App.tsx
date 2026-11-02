@@ -23,6 +23,7 @@ const GitSidebar = lazy(() =>
   import('./components/git/GitSidebar').then((m) => ({ default: m.GitSidebar })),
 )
 import { Titlebar } from './components/titlebar/Titlebar'
+import { ViewErrorBoundary } from './ErrorBoundary'
 import { ConfirmDialog } from './components/modals/ConfirmDialog'
 import { reportLaunchError } from './lib/launchErrors'
 import { CreateProjectModal } from './components/modals/CreateProjectModal'
@@ -198,9 +199,11 @@ const ViewPane = memo(function ViewPane({
       animate={active ? 'shown' : 'hidden'}
       aria-hidden={!active}
     >
-      <Suspense fallback={null}>
-        {renderTabView(id, active, connected, gitSidebarOpen, onOpenSettings)}
-      </Suspense>
+      <ViewErrorBoundary>
+        <Suspense fallback={null}>
+          {renderTabView(id, active, connected, gitSidebarOpen, onOpenSettings)}
+        </Suspense>
+      </ViewErrorBoundary>
     </motion.div>
   )
 })

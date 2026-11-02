@@ -898,12 +898,12 @@ export function ProjectsView({
             onClick={() => setCreateProjectOpen(true)}
             data-press-feedback
             aria-label={tc('new_project')}
-            className="group h-9 min-w-9 cursor-pointer inline-flex items-center justify-center rounded-full bg-accent text-ink hover:bg-accent-bright transition-colors"
+            className="group h-9 min-w-9 ps-2 cursor-pointer inline-flex items-center justify-start rounded-full bg-accent text-ink hover:bg-accent-bright transition-colors"
           >
             <IconPlus className="w-5 h-5 shrink-0" strokeWidth={3} />
             <span className="grid grid-cols-[0fr] transition-[grid-template-columns] duration-300 ease-out group-hover:grid-cols-[1fr]">
               <span className="overflow-hidden">
-                <span className="block whitespace-nowrap ps-1 pe-2 text-sm font-semibold">
+                <span className="block whitespace-nowrap ps-1 pe-3 text-sm font-semibold">
                   {tc('new')}
                 </span>
               </span>

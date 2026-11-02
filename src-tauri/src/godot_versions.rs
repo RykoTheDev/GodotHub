@@ -11,6 +11,7 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, OnceLock};
 use std::time::Duration;
+use std::time::Instant;
 use tauri::{AppHandle, Emitter, Manager};
 
 pub fn parse_godot_tag_from_filename(filename: &str) -> Option<String> {
@@ -1274,6 +1275,7 @@ async fn run_download(app: AppHandle, key: String) {
         let mut downloaded = start_offset;
         let mut stream = resp.bytes_stream();
         let mut stream_err: Option<String> = None;
+        let mut last_emit = Instant::now();
         loop {
             if cancel.load(Ordering::SeqCst) {
                 drop(file);
@@ -1298,14 +1300,19 @@ async fn run_download(app: AppHandle, key: String) {
                         return finish_with_error(&app, &key, e.to_string());
                     }
                     downloaded += chunk.len() as u64;
-                    let _ = app.emit(
-                        "godot-download-progress",
-                        DownloadProgress {
-                            tag: key.clone(),
-                            downloaded,
-                            total,
-                        },
-                    );
+                    if last_emit.elapsed() >= Duration::from_millis(150)
+                        || (total > 0 && downloaded >= total)
+                    {
+                        last_emit = Instant::now();
+                        let _ = app.emit(
+                            "godot-download-progress",
+                            DownloadProgress {
+                                tag: key.clone(),
+                                downloaded,
+                                total,
+                            },
+                        );
+                    }
                 }
                 Some(Err(e)) => {
                     stream_err = Some(e.to_string());
@@ -1748,7 +1755,13 @@ pub async fn open_godot_version(
 }
 
 #[tauri::command]
-pub fn delete_godot_version(app: AppHandle, tag: String) -> Result<(), String> {
+pub async fn delete_godot_version(app: AppHandle, tag: String) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || delete_godot_version_blocking(app, tag))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+pub(crate) fn delete_godot_version_blocking(app: AppHandle, tag: String) -> Result<(), String> {
     let mut list = read_registry(&app);
     let idx = list
         .iter()

@@ -188,7 +188,8 @@ export function StorageView({
         new Set(reclaimEntries(next, tc).filter((e) => e.defaultOn).map((e) => e.key)),
       )
     } catch (e) {
-      setError(String(e))
+      console.error(e)
+      setError(e instanceof Error ? e.message : String(e))
     } finally {
       setLoading(false)
     }
@@ -232,7 +233,7 @@ export function StorageView({
       }
       if (chosen.some((e) => e.group === 'versions')) await refreshInstalled()
     } catch (e) {
-      pushToast('error', String(e))
+      reportError(e)
     } finally {
       setReclaiming(false)
       await load()

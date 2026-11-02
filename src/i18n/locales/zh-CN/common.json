@@ -874,5 +874,8 @@
   "n_projects_other": "{{count}} 个项目",
   "unlocalized_badge": "未本地化",
   "customize_card_show_session_timer": "显示会话计时器",
-  "new": "新建"
+  "new": "新建",
+  "view_error_title": "This view couldn't load",
+  "view_error_desc": "The rest of GodotHub still works. Try loading this view again, or switch to another one.",
+  "error_details": "Technical details"
 }

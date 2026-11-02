@@ -108,7 +108,7 @@ body {
 
 input::placeholder,
 textarea::placeholder {
-  color: color-mix(in srgb, var(--color-muted) 30%, transparent);
+  color: color-mix(in srgb, var(--color-muted) 85%, transparent);
 }
 
 ::-webkit-scrollbar {
@@ -419,10 +419,15 @@ textarea::placeholder {
   transform: scale(0.92) rotate(0deg);
 }
 
-*:focus,
-*:focus-visible,
-*:focus-within {
-  outline: none !important;
+@layer base {
+  :focus:not(:focus-visible),
+  [tabindex='-1']:focus {
+    outline: none;
+  }
+  :focus-visible {
+    outline: 2px solid color-mix(in srgb, var(--color-accent) 70%, transparent);
+    outline-offset: 2px;
+  }
 }
 
 .focus-ring {

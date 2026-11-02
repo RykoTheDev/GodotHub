@@ -9,6 +9,44 @@ interface State {
   error: Error | null
 }
 
+export class ViewErrorBoundary extends Component<Props, State> {
+  state: State = { error: null }
+
+  static getDerivedStateFromError(error: Error): State {
+    return { error }
+  }
+
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
+    console.error('GodotHub view crashed:', error, info.componentStack)
+  }
+
+  render() {
+    const { error } = this.state
+    if (!error) return this.props.children
+
+    return (
+      <div role="alert" className="h-full flex flex-col items-center justify-center gap-3 p-6 text-center">
+        <h2 className="text-base font-semibold text-ink">{i18n.t('common:view_error_title')}</h2>
+        <p className="text-sm text-muted max-w-md">{i18n.t('common:view_error_desc')}</p>
+        <button
+          onClick={() => this.setState({ error: null })}
+          className="focus-ring cursor-pointer mt-1 px-4 py-2.5 rounded-btn text-sm font-medium bg-raised hover:brightness-110 text-ink border border-outline/50 transition-[filter]"
+        >
+          {i18n.t('common:retry')}
+        </button>
+        <details className="mt-2 max-w-lg text-start">
+          <summary className="focus-ring cursor-pointer rounded-item px-2 py-1 text-xs text-muted hover:text-ink">
+            {i18n.t('common:error_details')}
+          </summary>
+          <pre className="mt-2 p-3 rounded-item bg-base text-xs text-muted font-mono whitespace-pre-wrap break-words">
+            {error.message}
+          </pre>
+        </details>
+      </div>
+    )
+  }
+}
+
 export class ErrorBoundary extends Component<Props, State> {
   state: State = { error: null }
 

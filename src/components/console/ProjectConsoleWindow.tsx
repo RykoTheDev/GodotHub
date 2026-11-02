@@ -41,6 +41,7 @@ import {pushToast, reportError } from '../../lib/toast'
 const POLL_MS = 180
 const POLL_MS_IDLE = 1000
 const MAX_RENDERED_LINES = 2000
+const MAX_STORED_LINES = 5000
 const PILL_STORAGE_KEY = 'new_ui_console_pill'
 const PILL_MARGIN = 10
 const SNAP_DISTANCE = 56
@@ -327,9 +328,29 @@ export function ProjectConsoleWindow() {
           const restarted = existing
             ? snapshot.next_seq < existing.nextSeq
             : false
-          const lines = restarted || !existing
-            ? snapshot.lines
-            : [...existing.lines, ...snapshot.lines]
+          const done =
+            !snapshot.running && (!exportRun || exportRun.status !== 'running')
+          if (
+            existing &&
+            !restarted &&
+            snapshot.lines.length === 0 &&
+            snapshot.running === existing.running &&
+            snapshot.exit_code === existing.exitCode &&
+            snapshot.restored === existing.restored &&
+            done === existing.done &&
+            JSON.stringify(exportRun ?? existing.exportRun) ===
+              JSON.stringify(existing.exportRun)
+          ) {
+            return prev
+          }
+          const merged =
+            restarted || !existing
+              ? snapshot.lines
+              : [...existing.lines, ...snapshot.lines]
+          const lines =
+            merged.length > MAX_STORED_LINES
+              ? merged.slice(-MAX_STORED_LINES)
+              : merged
           return {
             ...prev,
             [activeId]: {
@@ -338,7 +359,7 @@ export function ProjectConsoleWindow() {
               nextSeq: snapshot.next_seq,
               running: snapshot.running,
               exitCode: snapshot.exit_code,
-              done: !snapshot.running && (!exportRun || exportRun.status !== 'running'),
+              done,
               restored: snapshot.restored,
               name: existing?.name ?? activeId,
               exportRun: exportRun ?? existing?.exportRun,

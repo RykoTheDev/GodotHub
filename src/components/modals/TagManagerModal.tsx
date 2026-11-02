@@ -102,6 +102,7 @@ export function TagManagerModal({ project, onClose, onSaved }: Props) {
       }
     }
     if (e.key === 'Escape') {
+      e.stopPropagation()
       if (editingIndex !== null) {
         setEditingIndex(null)
         setEditValue('')
