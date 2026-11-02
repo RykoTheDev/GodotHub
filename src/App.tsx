@@ -425,7 +425,6 @@ export function App() {
     finishGitDrag(e)
   }
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
-  const [paletteOrigin, setPaletteOrigin] = useState<DOMRect | null>(null)
   const [bugReportOpen, setBugReportOpen] = useState(false)
   const [confirmingRestart, setConfirmingRestart] = useState(false)
   const [createProjectOpen, setCreateProjectOpen] = useState(false)
@@ -583,10 +582,7 @@ export function App() {
       onSwitchTab: (i: number) => {
         if (SHORTCUT_TABS[i]) setTab(SHORTCUT_TABS[i])
       },
-      onCommandPalette: () => {
-        setPaletteOrigin(null)
-        setCommandPaletteOpen((o) => !o)
-      },
+      onCommandPalette: () => setCommandPaletteOpen((o) => !o),
       onRestart: () => {
         setConfirmingRestart(true)
       },
@@ -667,10 +663,7 @@ export function App() {
           }}
           connected={!cardLayout}
           paletteKey={paletteKey}
-          onOpenCommandPalette={(origin) => {
-            setPaletteOrigin(origin ?? null)
-            setCommandPaletteOpen(true)
-          }}
+          onOpenCommandPalette={() => setCommandPaletteOpen(true)}
           onOpenUpdatesModal={() => {
             setUpdatesModalMode('manual')
             setUpdatesModalOpen(true)
@@ -862,7 +855,6 @@ export function App() {
         {commandPaletteOpen && (
           <CommandPalette
             onClose={() => setCommandPaletteOpen(false)}
-            origin={paletteOrigin}
             currentTab={tab}
             onNavigate={(id) => setTab(id as NewTab)}
             projects={projects}

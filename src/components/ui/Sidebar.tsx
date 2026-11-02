@@ -47,7 +47,7 @@ export function Sidebar({
   onTabChange: (id: string) => void
   connected?: boolean
   paletteKey?: string
-  onOpenCommandPalette?: (origin?: DOMRect) => void
+  onOpenCommandPalette?: () => void
   onOpenUpdatesModal?: () => void
 }) {
   const { t } = useTranslation('nav')
@@ -275,7 +275,7 @@ export function Sidebar({
           </span>
         )}
         {!!tab.badge && !showNew && hideLabel && (
-          <span className="absolute top-0.5 end-0.5 min-w-4 h-4 px-1 inline-flex items-center justify-center rounded-full bg-accent text-white text-4xs font-semibold tabular-nums leading-none" aria-hidden="true">
+          <span className="absolute top-0.5 inset-e-0.5 min-w-4 h-4 px-1 inline-flex items-center justify-center rounded-full bg-accent text-white text-4xs font-semibold tabular-nums leading-none" aria-hidden="true">
             {badgeLabel(tab.badge)}
           </span>
         )}
@@ -285,7 +285,7 @@ export function Sidebar({
           </kbd>
         )}
         {showNew && hideLabel && (
-          <span className="absolute top-1 end-1 w-2 h-2 rounded-full bg-accent" aria-hidden="true" />
+          <span className="absolute top-1 inset-e-1 w-2 h-2 rounded-full bg-accent" aria-hidden="true" />
         )}
       </button>
     )
@@ -319,7 +319,7 @@ export function Sidebar({
       onClick={toggleCollapsed}
       className={`focus-ring cursor-pointer flex items-center justify-center rounded-item text-sm font-medium transition-colors text-muted hover:text-ink hover:bg-raised/60 border ${
         collapsed
-          ? `absolute top-2 -end-4 w-8 h-8 shrink-0 bg-raised border-line shadow-md shadow-black/10 transition-opacity duration-200 ease-out ${
+          ? `absolute top-2 -inset-e-4 w-8 h-8 shrink-0 bg-raised border-line shadow-md shadow-black/10 transition-opacity duration-200 ease-out ${
               revealed ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`
           : 'border-transparent w-9 h-9 ms-auto shrink-0'
@@ -389,7 +389,7 @@ export function Sidebar({
             <Tooltip content={tc('search')} side="right">
               <button
                 type="button"
-                onClick={(e) => onOpenCommandPalette(e.currentTarget.getBoundingClientRect())}
+                onClick={onOpenCommandPalette}
                 aria-label={tc('search')}
                 className="focus-ring cursor-pointer w-11 h-11 shrink-0 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised/60 transition-colors"
               >
@@ -399,7 +399,7 @@ export function Sidebar({
           ) : (
             <button
               type="button"
-              onClick={(e) => onOpenCommandPalette(e.currentTarget.getBoundingClientRect())}
+              onClick={onOpenCommandPalette}
               className="focus-ring cursor-pointer w-full flex items-center gap-2 px-3 h-9 rounded-item bg-overlay/60 border border-outline/50 text-sm text-muted hover:text-ink hover:border-outline hover:bg-overlay transition-colors"
             >
               <IconSearch className="w-4 h-4 shrink-0" />
@@ -485,7 +485,7 @@ export function Sidebar({
                 className="focus-ring cursor-pointer w-11 h-11 shrink-0 flex items-center justify-center rounded-item relative text-muted hover:text-ink hover:bg-raised/60 transition-colors"
               >
                 <IconArrowUp className="w-4 h-4" />
-                <span className="absolute top-2 end-2 flex w-2 h-2" aria-hidden="true">
+                <span className="absolute top-2 inset-e-2 flex w-2 h-2" aria-hidden="true">
                   <span className="absolute inline-flex h-full w-full rounded-full bg-accent-bright opacity-75 animate-attention-ping" />
                   <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-bright shadow-[0_0_6px_2px] shadow-accent/50" />
                 </span>
@@ -545,7 +545,7 @@ export function Sidebar({
           setRevealed(false)
           setKnobY(null)
         }}
-        className="absolute inset-y-0 -end-3.5 w-7 cursor-col-resize group/edge z-10"
+        className="absolute inset-y-0 -inset-e-3.5 w-7 cursor-col-resize group/edge z-10"
       >
         <div
           className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none transition-opacity duration-200 ease-out ${
