@@ -122,7 +122,10 @@ function SortableCategoryItem({
                 onChange={(e) => onEditValueChange(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') onSubmitEdit()
-                  if (e.key === 'Escape') onCancelEdit()
+                  if (e.key === 'Escape') {
+                    e.stopPropagation()
+                    onCancelEdit()
+                  }
                 }}
                 className="focus-ring w-full bg-base border border-accent/40 rounded-lg px-3 py-2 text-sm focus:border-accent-dim transition-colors outline-none"
               />

@@ -1,5 +1,5 @@
 import { useUiMotion } from '../../hooks/useUiMotion'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -46,6 +46,7 @@ export function CloneRepoModal({
   onCloned,
 }: Props) {
   const uiMotion = useUiMotion()
+  const titleId = useId()
 
   const { t } = useTranslation('common')
   const { settings, update: updateSettings } = useSettings()
@@ -278,7 +279,9 @@ export function CloneRepoModal({
     >
       <motion.div
         {...uiMotion.surface('modal', `scale(0.96)`)}
-
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
         className="bg-surface rounded-modal w-full max-w-2xl max-h-[88vh] flex flex-col shadow-2xl overflow-clip"
         onClick={(e) => e.stopPropagation()}
       >
@@ -287,6 +290,7 @@ export function CloneRepoModal({
           title={t('clone_repo_title')}
           description={t('clone_repo_desc')}
           autoFocusBanner={false}
+          titleId={titleId}
         />
 
         {hasAnyProvider && (

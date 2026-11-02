@@ -431,7 +431,7 @@ pub async fn reclaim_storage(
                 let delete_app = app.clone();
                 let delete_tag = tag.clone();
                 let outcome = tokio::task::spawn_blocking(move || {
-                    crate::godot_versions::delete_godot_version(delete_app, delete_tag)
+                    crate::godot_versions::delete_godot_version_blocking(delete_app, delete_tag)
                 })
                 .await
                 .map_err(|e| e.to_string())

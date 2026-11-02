@@ -1,5 +1,5 @@
 import { useUiMotion } from '../../hooks/useUiMotion'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
@@ -60,6 +60,7 @@ export function CreateProjectModal({
   onCreated,
 }: Props) {
   const uiMotion = useUiMotion()
+  const titleId = useId()
 
   const { t } = useTranslation('common')
   const { settings } = useSettings()
@@ -297,7 +298,9 @@ export function CreateProjectModal({
     >
       <motion.div
         {...uiMotion.surface('modal', `scale(0.96)`)}
-
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
         className="bg-surface rounded-modal w-full max-w-2xl max-h-[88vh] flex flex-col shadow-2xl overflow-clip"
         onClick={(e) => e.stopPropagation()}
       >
@@ -306,6 +309,7 @@ export function CreateProjectModal({
           title={t('new_project')}
           description={t('create_project_desc')}
           autoFocusBanner={false}
+          titleId={titleId}
         />
 
         <div className="gap-6 p-6 flex-1 overflow-y-auto">

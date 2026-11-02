@@ -85,19 +85,24 @@ export function useGodotVersions() {
 
   const refreshCurrent = useCallback(async () => {
     try {
-      setCurrent(await api.getCurrentGodotVersion())
+      const next = await api.getCurrentGodotVersion()
+      setCurrent((prev) =>
+        JSON.stringify(prev) === JSON.stringify(next) ? prev : next,
+      )
     } catch {
-      setCurrent(null)
+      setCurrent((prev) => (prev === null ? prev : null))
     }
   }, [])
 
   const refreshAliases = useCallback(async () => {
     try {
       const next = await api.listVersionAliases()
-      setAliases(next.aliases)
-      setAliasesDir(next.aliases_dir)
+      setAliases((prev) =>
+        JSON.stringify(prev) === JSON.stringify(next.aliases) ? prev : next.aliases,
+      )
+      setAliasesDir((prev) => (prev === next.aliases_dir ? prev : next.aliases_dir))
     } catch {
-      setAliases([])
+      setAliases((prev) => (prev.length === 0 ? prev : []))
     }
   }, [])
 
@@ -168,12 +173,6 @@ export function useGodotVersions() {
   useEffect(() => {
     refreshInstalled()
 
-    const interval = setInterval(() => {
-      if (document.visibilityState === 'visible') {
-        refreshInstalled()
-      }
-    }, 15000)
-
     const onVisibility = () => {
       if (document.visibilityState === 'visible') {
         refreshInstalled()
@@ -182,7 +181,6 @@ export function useGodotVersions() {
     document.addEventListener('visibilitychange', onVisibility)
 
     return () => {
-      clearInterval(interval)
       document.removeEventListener('visibilitychange', onVisibility)
     }
   }, [refreshInstalled, activeId])

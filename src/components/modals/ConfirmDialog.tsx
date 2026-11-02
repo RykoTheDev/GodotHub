@@ -41,7 +41,7 @@ export function ConfirmDialog({
       footer={
         <div className="ms-auto flex items-center gap-2.5">
           <motion.button
-
+            data-autofocus={variant === 'danger' ? true : undefined}
             data-press-feedback
             onClick={onCancel}
             className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
@@ -49,7 +49,7 @@ export function ConfirmDialog({
             {cancelLabel || t('cancel')}
           </motion.button>
           <motion.button
-
+            data-autofocus={variant === 'danger' ? undefined : true}
             data-press-feedback
             onClick={onConfirm}
             className={`focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm font-medium transition-colors ${
