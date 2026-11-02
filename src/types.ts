@@ -505,6 +505,43 @@ export interface TemplateSyncResult {
   removed: string[]
 }
 
+export interface VaultFileEntry {
+  path: string
+  is_dir: boolean
+  size: number
+}
+
+export interface VaultSaveSource {
+  project_id: string
+  paths: string[]
+}
+
+export interface VaultItem {
+  id: string
+  name: string
+  description: string
+  godot_version: string
+  created_at: string
+  source_project_id: string | null
+  source_project_ids: string[]
+  tags: string[]
+  files: VaultFileEntry[]
+  path: string
+}
+
+export interface VaultImportResult {
+  installed: string[]
+  conflicts: string[]
+  skipped: boolean
+}
+
+export interface VaultProjectImportResult {
+  project_id: string
+  installed: string[]
+  conflicts: string[]
+  skipped: boolean
+}
+
 export interface FileSizeCategory {
   label: string
   size: number

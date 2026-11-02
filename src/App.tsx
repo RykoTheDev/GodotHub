@@ -46,6 +46,9 @@ const VersionsView = lazy(() =>
 const TemplatesView = lazy(() =>
   import('./views/TemplatesView').then((m) => ({ default: m.TemplatesView })),
 )
+const VaultView = lazy(() =>
+  import('./views/VaultView').then((m) => ({ default: m.VaultView })),
+)
 const SettingsView = lazy(() =>
   import('./views/SettingsView').then((m) => ({ default: m.SettingsView })),
 )
@@ -85,6 +88,7 @@ import { isRtl } from './lib/locale'
 import { isMac } from './lib/platform'
 import {
   IconBookOpen,
+  IconBriefcase,
   IconCloudArrowDown,
   IconFolder,
   IconGear,
@@ -100,6 +104,7 @@ const TABS = [
   { id: 'projects', navKey: 'projects', icon: IconFolder },
   { id: 'versions', navKey: 'versions', icon: IconCloudArrowDown },
   { id: 'templates', navKey: 'templates', icon: IconRocket },
+  { id: 'vault', navKey: 'vault', icon: IconBriefcase, isNew: true },
   { id: 'storage', navKey: 'storage_view', icon: IconHardDrive, isNew: true },
   { id: 'asset-store', navKey: 'asset_store', icon: IconStore },
   { id: 'news', navKey: 'news', icon: IconNews },
@@ -117,6 +122,7 @@ function preloadViewChunks() {
     import('./views/ProjectsView'),
     import('./views/VersionsView'),
     import('./views/TemplatesView'),
+    import('./views/VaultView'),
     import('./views/AssetStoreView'),
     import('./views/NewsView'),
     import('./views/SettingsView'),
@@ -152,6 +158,8 @@ function renderTabView(
       return <NewsView connected={connected} />
     case 'templates':
       return <TemplatesView onOpenSettings={onOpenSettings} connected={connected} />
+    case 'vault':
+      return <VaultView connected={connected} />
     case 'asset-store':
       return <AssetStoreView connected={connected} />
     case 'storage':

@@ -9,5 +9,6 @@
   "changelog": "変更履歴",
   "projects_count_one": "プロジェクト",
   "projects_count_other": "プロジェクト",
-  "storage_view": "ストレージ"
+  "storage_view": "ストレージ",
+  "vault": "Vault"
 }
