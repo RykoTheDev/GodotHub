@@ -112,7 +112,7 @@ export function SaveToVaultModal({
           <button
             type="button"
             onClick={onClose}
-            className="focus-ring cursor-pointer px-4 py-2.5 rounded-item text-xs font-medium text-muted hover:text-ink hover:bg-raised transition-colors"
+            className="focus-ring cursor-pointer px-4 py-2.5 rounded-item text-xs font-medium text-muted hover:text-ink hover:bg-raised "
           >
             {t('cancel')}
           </button>
@@ -120,7 +120,7 @@ export function SaveToVaultModal({
             type="button"
             onClick={() => void handleSave()}
             disabled={!canSave}
-            className="focus-ring cursor-pointer flex-1 px-4 py-2.5 rounded-item bg-accent hover:bg-accent-bright disabled:opacity-50 disabled:cursor-not-allowed text-xs font-semibold text-white transition-colors"
+            className="focus-ring cursor-pointer flex-1 px-4 py-2.5 rounded-item bg-accent hover:bg-accent-bright disabled:opacity-50 disabled:cursor-not-allowed text-xs font-semibold text-white "
           >
             {busy ? t('saving') : t('vault_save_btn')}
           </button>
@@ -150,7 +150,7 @@ export function SaveToVaultModal({
           <button
             type="button"
             onClick={addSource}
-            className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 px-3 py-2 rounded-item border border-dashed border-outline/60 text-xs font-medium text-muted hover:text-ink hover:border-accent-dim transition-colors"
+            className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 px-3 py-2 rounded-item border border-dashed border-outline/60 text-xs font-medium text-muted hover:text-ink hover:border-accent-dim "
           >
             <IconPlus className="w-3.5 h-3.5" />
             {t('vault_add_source')}
@@ -165,7 +165,7 @@ export function SaveToVaultModal({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder={t('vault_item_name_placeholder')}
-            className="focus-ring w-full bg-raised border border-outline/50 rounded-item px-3.5 py-2.5 text-sm text-ink placeholder:text-muted focus:border-accent-dim outline-none transition-colors"
+            className="focus-ring w-full bg-raised border border-outline/50 rounded-item px-3.5 py-2.5 text-sm text-ink placeholder:text-muted focus:border-accent-dim outline-none "
           />
         </div>
 
@@ -179,7 +179,7 @@ export function SaveToVaultModal({
             onChange={(e) => setDesc(e.target.value)}
             placeholder={t('vault_item_desc_placeholder')}
             rows={2}
-            className="focus-ring w-full bg-raised border border-outline/50 rounded-item px-3.5 py-2.5 text-sm text-ink placeholder:text-muted focus:border-accent-dim outline-none transition-colors resize-none"
+            className="focus-ring w-full bg-raised border border-outline/50 rounded-item px-3.5 py-2.5 text-sm text-ink placeholder:text-muted focus:border-accent-dim outline-none resize-none"
           />
         </div>
 

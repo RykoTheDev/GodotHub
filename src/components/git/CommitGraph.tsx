@@ -110,7 +110,7 @@ export function CommitGraph({ commits, remoteUrl, onOpenDetails }: Props) {
                       void openUrl(url).catch(reportError)
                     }
                   }}
-                  className={`flex items-center gap-2 pe-2 rounded-md transition-colors ${
+                  className={`flex items-center gap-2 pe-2 rounded-md  ${
                     onOpenDetails || url
                       ? 'cursor-pointer hover:bg-raised/60'
                       : 'cursor-default'

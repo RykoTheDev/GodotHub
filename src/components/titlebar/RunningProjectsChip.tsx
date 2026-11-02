@@ -1,4 +1,3 @@
-import { useUiMotion } from '../../hooks/useUiMotion'
 import {
   useCallback,
   useEffect,
@@ -6,7 +5,6 @@ import {
   useRef,
   useState,
 } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../lib/api'
@@ -26,7 +24,6 @@ interface RunningProject {
 }
 
 export function RunningProjectsChip() {
-  const uiMotion = useUiMotion()
 
   const { t } = useTranslation('common')
   const [running, setRunning] = useState<RunningProject[]>([])
@@ -165,40 +162,39 @@ export function RunningProjectsChip() {
 
   return (
     <div ref={ref} className="relative shrink-0">
-      <AnimatePresence>
+
         {running.length > 0 && (
-          <motion.div key="div-133"
-            {...uiMotion.surface('tooltip', 'scale(0.97)')}
+          <div key="div-133"
+
 
             onMouseDown={noDrag}
             className="relative"
           >
-            <motion.button key="button-141"
+            <button key="button-141"
                 type="button"
                 onClick={() => setOpen((o) => !o)}
                 aria-label={t('running')}
                 aria-haspopup="menu"
                 aria-expanded={open}
 
-                data-press-feedback
 
-                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-6 px-2.5 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:border-accent-dim transition-colors"
+
+                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-6 px-2.5 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:border-accent-dim "
               >
                 <span className="relative flex w-2 h-2">
-                  <span className="absolute inline-flex h-full w-full rounded-full bg-mint opacity-60 animate-attention-ping" />
                   <span className="relative inline-flex rounded-full w-2 h-2 bg-mint" />
                 </span>
                 <span className="text-sm font-semibold tabular-nums">
                   {running.length}
                 </span>
-              </motion.button>
+              </button>
 
             {createPortal(
-            <AnimatePresence>
-              {open && anchor && (
-                <motion.div key="div-163"
+
+              open && anchor && (
+                <div key="div-163"
                   ref={menuRef}
-                  {...uiMotion.surface('popover', `translateY(${openUp ? 6 : -6}px) scale(0.96)`)}
+
 
                   onMouseDown={noDrag}
                   role="menu"
@@ -224,14 +220,14 @@ export function RunningProjectsChip() {
                     </p>
                   </div>
                   <div className="flex flex-col max-h-[min(60vh,26rem)] overflow-y-auto">
-                    <AnimatePresence mode="popLayout">
-                      {running.map((p) => (
-                        <motion.div
-                          key={p.id}
-                          layout={uiMotion.reduced || uiMotion.instant ? false : 'position'}
-                          {...uiMotion.surface('tooltip', 'none')}
 
-                          className="flex items-center gap-1 px-2.5 py-2 rounded-item text-muted transition-colors hover:bg-raised"
+                      {running.map((p) => (
+                        <div
+                          key={p.id}
+
+
+
+                          className="flex items-center gap-1 px-2.5 py-2 rounded-item text-muted hover:bg-raised"
                         >
                           <button
                             type="button"
@@ -245,7 +241,7 @@ export function RunningProjectsChip() {
                               )
                             }}
                             aria-label={`${t('console_title')} - ${p.name}`}
-                            className="focus-ring cursor-pointer flex-1 min-w-0 flex items-center gap-1 rounded-btn text-start transition-opacity hover:opacity-80"
+                            className="focus-ring cursor-pointer flex-1 min-w-0 flex items-center gap-1 rounded-btn text-start hover:opacity-80"
                           >
                           <span className="w-7 h-7 rounded-btn flex items-center justify-center shrink-0 bg-mint/10">
                             <IconTerminal className="w-3.5 h-3.5 text-mint" />
@@ -265,22 +261,22 @@ export function RunningProjectsChip() {
                               role="menuitem"
                               onClick={() => stop(p.id)}
                               aria-label={`${t('stop')} ${p.name}`}
-                              className="focus-ring cursor-pointer w-6 h-6 rounded-btn inline-flex items-center justify-center text-muted/50 hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
+                              className="focus-ring cursor-pointer w-6 h-6 rounded-btn inline-flex items-center justify-center text-muted/50 hover:text-danger hover:bg-danger/10 shrink-0"
                             >
                               <IconX className="w-3.5 h-3.5" />
                             </button>
-                        </motion.div>
+                        </div>
                       ))}
-                    </AnimatePresence>
+
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>,
+                </div>
+              )
+            ,
             document.body,
             )}
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+
     </div>
   )
 }

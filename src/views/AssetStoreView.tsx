@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { motion } from 'framer-motion'
-import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 import { api } from '../lib/api'
 import { useSettings } from '../hooks/useSettings'
 import type { AssetLibraryCategory } from '../types'
@@ -42,7 +40,7 @@ const STORE_SORT_KEYS: AssetSortKey[] = [
 ]
 
 const dropBtnClass =
-  'focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors'
+  'focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised '
 
 export function AssetStoreView({ connected = false }: { connected?: boolean }) {
   const { t } = useTranslation('nav')
@@ -98,7 +96,7 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
         metric={
           <>
             <h2 className="text-4xl font-bold text-muted">
-              <AnimatedNumber value={stats.total} />
+              {stats.total}
             </h2>
             <p className="text-lg font-medium uppercase text-muted">
               {tc('asset_store_count', { count: stats.total })}
@@ -118,11 +116,11 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
         <Dropdown
           align="left"
           trigger={({ open, toggle }) => (
-            <motion.button
+            <button
               type="button"
               aria-expanded={open}
 
-              data-press-feedback
+
               onClick={toggle}
               className={dropBtnClass}
             >
@@ -130,7 +128,7 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
                 {tc(SOURCE_OPTIONS.find((o) => o.value === source)!.labelKey)}
               </span>
               <IconChevronDown className="w-3 h-3 text-muted" />
-            </motion.button>
+            </button>
           )}
           items={SOURCE_OPTIONS.map((o) => ({
             key: o.value,
@@ -143,11 +141,11 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
           <Dropdown
             align="left"
             trigger={({ open, toggle }) => (
-              <motion.button
+              <button
                 type="button"
                 aria-expanded={open}
 
-                data-press-feedback
+
                 onClick={toggle}
                 className={dropBtnClass}
               >
@@ -158,7 +156,7 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
                     : tc('all_categories')}
                 </span>
                 <IconChevronDown className="w-3 h-3 text-muted" />
-              </motion.button>
+              </button>
             )}
             items={[
               {
@@ -179,11 +177,11 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
         <Dropdown
           align="left"
           trigger={({ open, toggle }) => (
-            <motion.button
+            <button
               type="button"
               aria-expanded={open}
 
-              data-press-feedback
+
               onClick={toggle}
               className={dropBtnClass}
             >
@@ -191,7 +189,7 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
                 {source === 'store' ? tc(`asset_store_${sort}`) : tc(`asset_sort_${sort}`)}
               </span>
               <IconChevronDown className="w-3 h-3 text-muted" />
-            </motion.button>
+            </button>
           )}
           items={(source === 'store' ? STORE_SORT_KEYS : sortKeysForSource(source)).map((k) => ({
             key: k,
@@ -203,11 +201,11 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
         <Dropdown
           align="left"
           trigger={({ open, toggle }) => (
-            <motion.button
+            <button
               type="button"
               aria-expanded={open}
 
-              data-press-feedback
+
               onClick={toggle}
               className={dropBtnClass}
             >
@@ -215,7 +213,7 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
                 {version ? `Godot ${version}` : tc('asset_all_versions')}
               </span>
               <IconChevronDown className="w-3 h-3 text-muted" />
-            </motion.button>
+            </button>
           )}
           items={[
             {

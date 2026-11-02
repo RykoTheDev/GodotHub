@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import {
   WORKSPACE_ICON_KEYS,
@@ -52,30 +51,30 @@ export function CreateWorkspaceModal({ onClose, onCreate }: Props) {
       showClose={false}
       footer={
         <div className="ms-auto flex justify-end gap-2.5">
-          <motion.button
+          <button
 
-            data-press-feedback
+
             onClick={onClose}
-            className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
+            className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised "
           >
             {t('cancel')}
-          </motion.button>
-          <motion.button
+          </button>
+          <button
 
-            data-press-feedback={busy ? undefined : true}
+
             onClick={submit}
             disabled={busy}
-            className="focus-ring px-5 cursor-pointer py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white transition-colors"
+            className="focus-ring px-5 cursor-pointer py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white "
           >
             {busy ? t('creating') : t('create_workspace')}
-          </motion.button>
+          </button>
         </div>
       }
     >
         <div className="flex flex-col gap-5 p-6">
           <div className="relative overflow-hidden rounded-btn border border-outline/50 bg-overlay p-4 flex items-center gap-3">
             <div
-              className="absolute -top-10 -end-10 w-32 h-32 rounded-full blur-2xl opacity-40 transition-colors duration-300"
+              className="absolute -top-10 -end-10 w-32 h-32 rounded-full blur-2xl opacity-40 "
               style={{ backgroundColor: color }}
               aria-hidden="true"
             />
@@ -106,7 +105,7 @@ export function CreateWorkspaceModal({ onClose, onCreate }: Props) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && submit()}
-              className="focus-ring bg-raised border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm focus:border-accent-dim transition-colors"
+              className="focus-ring bg-raised border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm focus:border-accent-dim "
               placeholder={t('workspace_name_placeholder')}
             />
           </div>

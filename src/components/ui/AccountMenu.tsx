@@ -98,7 +98,7 @@ export function AccountMenu({
               close()
               window.dispatchEvent(new CustomEvent('app:open-settings-category', { detail: 'integrations' }))
             }}
-            className="focus-ring cursor-pointer h-7 min-w-0 flex items-center gap-2 px-3 text-muted hover:text-ink hover:bg-raised transition-colors"
+            className="focus-ring cursor-pointer h-7 min-w-0 flex items-center gap-2 px-3 text-muted hover:text-ink hover:bg-raised "
           >
             <IconPlug className="w-3.5 h-3.5 shrink-0" />
             <span className="truncate">{t('account_manage')}</span>

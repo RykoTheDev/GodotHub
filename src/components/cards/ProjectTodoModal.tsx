@@ -1,7 +1,5 @@
-import { useUiMotion } from '../../hooks/useUiMotion'
 import { useEffect, useId, useState } from "react";
 import { createPortal } from "react-dom";
-import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { ModalHeader } from "../modals/ModalHeader";
 import { IconCheckCircle, IconPencil, IconX } from "../../lib/icons";
@@ -29,7 +27,6 @@ export function ProjectTodoModal({
   onSubmit,
   todo,
 }: ProjectTodoModalProps) {
-  const uiMotion = useUiMotion()
 
   const editing = !!todo;
   const { t, i18n } = useTranslation(["todos", "common"]);
@@ -187,23 +184,23 @@ export function ProjectTodoModal({
   }, []);
 
   const optionButtonClass = (active: boolean) =>
-    `focus-ring cursor-pointer px-3 py-2 rounded-btn border text-xs font-medium transition-colors ${
+    `focus-ring cursor-pointer px-3 py-2 rounded-btn border text-xs font-medium  ${
       active
         ? "border-accent bg-accent/10 text-accent-bright"
         : "border-outline/50 text-muted hover:border-accent-dim hover:text-ink hover:bg-raised"
     }`;
 
   return createPortal(
-    <motion.div
-      {...uiMotion.surface('modal', `none`)}
+    <div
+
 
       className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
-      <motion.div
+      <div
         role="dialog"
         aria-modal="true"
-        {...uiMotion.surface('modal', `scale(0.96)`)}
+
 
         className="bg-surface rounded-modal w-full max-w-lg max-h-[88vh] flex flex-col shadow-2xl overflow-clip"
         onClick={(event) => event.stopPropagation()}
@@ -236,7 +233,7 @@ export function ProjectTodoModal({
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder={t("title_placeholder")}
-              className="focus-ring bg-overlay border border-outline/50 focus:border-accent-dim rounded-item px-3.5 py-2.5 text-sm font-mono text-ink placeholder:text-muted/70 transition-colors"
+              className="focus-ring bg-overlay border border-outline/50 focus:border-accent-dim rounded-item px-3.5 py-2.5 text-sm font-mono text-ink placeholder:text-muted/70 "
             />
           </div>
 
@@ -331,7 +328,7 @@ export function ProjectTodoModal({
               value={description}
               onChange={(event) => setDescription(event.target.value)}
               placeholder={t("description_placeholder")}
-              className="focus-ring bg-overlay border border-outline/50 focus:border-accent-dim rounded-item px-3.5 py-2.5 text-sm text-ink placeholder:text-muted/70 transition-colors resize-none"
+              className="focus-ring bg-overlay border border-outline/50 focus:border-accent-dim rounded-item px-3.5 py-2.5 text-sm text-ink placeholder:text-muted/70 resize-none"
             />
           </div>
 
@@ -365,7 +362,7 @@ export function ProjectTodoModal({
                     setChecklist((items) => items.filter((entry) => entry.id !== item.id))
                   }
                   aria-label={t("checklist_remove")}
-                  className="focus-ring shrink-0 cursor-pointer rounded-btn p-1 text-muted transition-colors hover:bg-raised hover:text-danger"
+                  className="focus-ring shrink-0 cursor-pointer rounded-btn p-1 text-muted hover:bg-raised hover:text-danger"
                 >
                   <IconX className="h-3 w-3" />
                 </button>
@@ -383,7 +380,7 @@ export function ProjectTodoModal({
                 }
               }}
               placeholder={t("checklist_add_placeholder")}
-              className="focus-ring bg-overlay border border-dashed border-outline/60 focus:border-accent-dim rounded-item px-3.5 py-2 text-sm text-ink placeholder:text-muted/70 transition-colors"
+              className="focus-ring bg-overlay border border-dashed border-outline/60 focus:border-accent-dim rounded-item px-3.5 py-2 text-sm text-ink placeholder:text-muted/70 "
             />
           </div>
 
@@ -418,7 +415,7 @@ export function ProjectTodoModal({
               value={linkPath}
               onChange={(event) => setLinkPath(event.target.value)}
               placeholder={t("linked_file_placeholder")}
-              className={`focus-ring bg-overlay border rounded-item px-3.5 py-2.5 text-sm font-mono text-ink placeholder:text-muted/70 transition-colors ${
+              className={`focus-ring bg-overlay border rounded-item px-3.5 py-2.5 text-sm font-mono text-ink placeholder:text-muted/70  ${
                 linkInvalid
                   ? "border-danger/50 focus:border-danger"
                   : "border-outline/50 focus:border-accent-dim"
@@ -450,20 +447,20 @@ export function ProjectTodoModal({
 
         {/* Rodapé */}
         <div className="flex justify-end gap-2 p-5 pt-2">
-          <motion.button
+          <button
             type="button"
 
-            data-press-feedback
+
             onClick={onClose}
-            className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm text-muted hover:text-ink transition-colors"
+            className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm text-muted hover:text-ink "
           >
             {t("cancel", { ns: "common" })}
-          </motion.button>
+          </button>
 
-          <motion.button
+          <button
             type="button"
 
-            data-press-feedback={canSubmit ? true : undefined}
+
             onClick={submit}
             disabled={!canSubmit}
             className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn bg-accent text-white text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed"
@@ -473,10 +470,10 @@ export function ProjectTodoModal({
               : editing
                 ? t("save_changes", { ns: "common" })
                 : t("add_task")}
-          </motion.button>
+          </button>
         </div>
-      </motion.div>
-    </motion.div>,
+      </div>
+    </div>,
     document.body,
   );
 }

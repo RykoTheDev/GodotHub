@@ -44,14 +44,14 @@ export function GitSection({
         onClick={toggle}
         onContextMenu={onContextMenu}
         aria-expanded={open}
-        className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-1 py-1 rounded-item text-start hover:bg-raised/60 transition-colors group"
+        className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-1 py-1 rounded-item text-start hover:bg-raised/60 group"
       >
         <IconChevronDown
-          className={`w-3 h-3 text-muted/50 shrink-0 transition-transform duration-200 ${
+          className={`w-3 h-3 text-muted/50 shrink-0  ${
             open ? '' : '-rotate-90 rtl:rotate-90'
           }`}
         />
-        <span className="flex-1 text-3xs font-semibold uppercase tracking-wider text-muted/50 group-hover:text-muted transition-colors">
+        <span className="flex-1 text-3xs font-semibold uppercase tracking-wider text-muted/50 group-hover:text-muted ">
           {title}
         </span>
         {typeof count === 'number' && count > 0 && (
@@ -62,7 +62,7 @@ export function GitSection({
       </button>
 
       <div
-        className={`grid transition-[grid-template-rows] duration-200 ease-out ${
+        className={`grid  ${
           open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
         }`}
       >

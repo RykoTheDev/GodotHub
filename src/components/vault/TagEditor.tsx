@@ -36,13 +36,13 @@ export function TagEditor({ tags, onChange }: Props) {
             }
           }}
           placeholder={t('vault_tag_input_placeholder')}
-          className="focus-ring flex-1 min-w-0 bg-raised border border-outline/50 rounded-item px-3 py-2 text-xs text-ink placeholder:text-muted focus:border-accent-dim outline-none transition-colors"
+          className="focus-ring flex-1 min-w-0 bg-raised border border-outline/50 rounded-item px-3 py-2 text-xs text-ink placeholder:text-muted focus:border-accent-dim outline-none "
         />
         <button
           type="button"
           onClick={addTag}
           disabled={!input.trim()}
-          className="focus-ring cursor-pointer shrink-0 inline-flex items-center gap-1.5 px-3 rounded-item bg-accent/15 border border-accent/40 text-accent-bright hover:bg-accent/25 text-xs font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="focus-ring cursor-pointer shrink-0 inline-flex items-center gap-1.5 px-3 rounded-item bg-accent/15 border border-accent/40 text-accent-bright hover:bg-accent/25 text-xs font-medium disabled:opacity-40 disabled:cursor-not-allowed"
         >
           <IconPlus className="w-3 h-3" />
           {t('add_tag')}
@@ -61,7 +61,7 @@ export function TagEditor({ tags, onChange }: Props) {
                 type="button"
                 onClick={() => removeTag(tag)}
                 aria-label={t('remove_tag')}
-                className="focus-ring cursor-pointer p-0.5 rounded text-muted/60 hover:text-danger hover:bg-danger/10 transition-colors"
+                className="focus-ring cursor-pointer p-0.5 rounded text-muted/60 hover:text-danger hover:bg-danger/10 "
               >
                 <IconX className="w-2.5 h-2.5" />
               </button>

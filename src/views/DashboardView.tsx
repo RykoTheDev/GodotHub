@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { TodoDueTile } from '../components/cards/TodoDueTile'
 import { IconCheckCircle } from '../lib/icons'
-import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import Masonry from 'react-masonry-css'
 import { useProjectsContext } from '../hooks/projectsContext'
@@ -18,7 +17,6 @@ import {
 } from '../lib/lastOpened'
 import { formatDuration } from '../lib/duration'
 import { formatLocaleDate } from '../lib/locale'
-import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 import { OverlayScrollArea } from '../components/reusables/OverlayScrollArea'
 import {
   IconArrowUpDown,
@@ -114,12 +112,12 @@ function Section({
             type="button"
             onClick={onTitleClick}
             aria-label={titleHint}
-            className="focus-ring group/title flex items-center gap-1.5 cursor-pointer rounded-btn -mx-1 px-1 py-0.5 transition-colors hover:text-ink"
+            className="focus-ring group/title flex items-center gap-1.5 cursor-pointer rounded-btn -mx-1 px-1 py-0.5 hover:text-ink"
           >
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted group-hover/title:text-ink transition-colors">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted group-hover/title:text-ink ">
               {title}
             </h2>
-            <IconRefresh className="w-3 h-3 text-muted/40 group-hover/title:text-accent-bright transition-colors duration-150 shrink-0" />
+            <IconRefresh className="w-3 h-3 text-muted/40 group-hover/title:text-accent-bright shrink-0" />
           </button>
         ) : (
           <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">
@@ -167,9 +165,9 @@ function TileEditControls({
 }) {
   const { t: tc } = useTranslation('dashboard')
   const btnClass =
-    'focus-ring cursor-pointer p-1 rounded-btn text-muted/50 hover:text-ink hover:bg-raised transition-colors'
+    'focus-ring cursor-pointer p-1 rounded-btn text-muted/50 hover:text-ink hover:bg-raised '
   const activeBtnClass =
-    'focus-ring cursor-pointer p-1 rounded-btn text-accent-bright bg-accent/10 hover:bg-accent/20 transition-colors'
+    'focus-ring cursor-pointer p-1 rounded-btn text-accent-bright bg-accent/10 hover:bg-accent/20 '
   return (
     <div className="flex items-center gap-0.5 shrink-0">
       <Tooltip content={tc('dashboard_tile_move_up')} side="top">
@@ -225,7 +223,7 @@ function TileEditControls({
             type="button"
             onClick={onRemove}
             aria-label={tc('dashboard_tile_remove')}
-            className="focus-ring cursor-pointer p-1 rounded-btn text-muted/50 hover:text-danger hover:bg-danger/10 transition-colors"
+            className="focus-ring cursor-pointer p-1 rounded-btn text-muted/50 hover:text-danger hover:bg-danger/10 "
           >
             <IconX className="w-3 h-3" />
           </button>
@@ -239,10 +237,10 @@ function ProjectRow({ project }: { project: Project }) {
   const openedAt = formatLastOpened(project.last_opened)
 
   return (
-    <motion.button
+    <button
       type="button"
       onClick={() => dispatch('app:open-project', project.id)}
-      className="ui-lift group focus-ring cursor-pointer w-full flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 transition-colors text-start"
+      className=" group focus-ring cursor-pointer w-full flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 text-start"
     >
       <span className="w-9 h-9 shrink-0 rounded-btn bg-surface border border-outline/60 flex items-center justify-center overflow-hidden">
         <IconNode className="w-4 h-4 text-muted/60" />
@@ -260,7 +258,7 @@ function ProjectRow({ project }: { project: Project }) {
           {tc('dashboard_opened_at', { time: openedAt })}
         </span>
       )}
-    </motion.button>
+    </button>
   )
 }
 
@@ -290,13 +288,13 @@ function QuickActions() {
   return (
     <div className="flex items-center gap-2.5 flex-wrap">
       {actions.map((a) => (
-        <motion.button
+        <button
           key={a.key}
           type="button"
 
-          data-press-feedback
+
           onClick={a.onClick}
-          className={`focus-ring cursor-pointer inline-flex items-center gap-2 h-11 px-5 rounded-item font-semibold text-sm shadow-md shadow-black/10 border transition-colors ${
+          className={`focus-ring cursor-pointer inline-flex items-center gap-2 h-11 px-5 rounded-item font-semibold text-sm shadow-md shadow-black/10 border  ${
             a.primary
               ? 'bg-accent text-ink hover:bg-accent-bright border-outline/50'
               : 'bg-overlay text-ink hover:bg-raised hover:border-accent-dim/60 border-outline/50'
@@ -306,7 +304,7 @@ function QuickActions() {
             className={`w-4 h-4 ${a.primary ? 'text-ink' : 'text-accent-bright'}`}
           />
           {a.label}
-        </motion.button>
+        </button>
       ))}
     </div>
   )
@@ -380,7 +378,7 @@ function StatsRow({
     },
   ]
   return (
-    <div className="ui-stagger grid grid-cols-2 lg:grid-cols-4 gap-3">
+    <div className=" grid grid-cols-2 lg:grid-cols-4 gap-3">
       {stats.map(({ key, ...s }, i) => (
         <StatCard key={key} index={i} {...s} />
       ))}
@@ -414,9 +412,9 @@ function StatCard({
     <button
       type="button"
 
-      data-press-feedback
+
       onClick={tab ? () => dispatch('app:set-tab', tab) : undefined}
-      className={`ui-lift group relative overflow-hidden text-start cursor-pointer focus-ring rounded-card bg-overlay border border-outline/50 px-5 py-4 flex flex-col transition-colors duration-200 hover:border-outline ${hoverBorder}`}
+      className={` group relative overflow-hidden text-start cursor-pointer focus-ring rounded-card bg-overlay border border-outline/50 px-5 py-4 flex flex-col hover:border-outline ${hoverBorder}`}
     >
       <Icon
         aria-hidden="true"
@@ -435,14 +433,14 @@ function StatCard({
       </div>
 
       <span className="relative z-10 mt-3 block text-[26px] leading-none font-bold tabular-nums text-ink">
-        {display ?? <AnimatedNumber value={value} />}
+        {display ?? value}
       </span>
       <span
         aria-hidden="true"
         className={`relative z-10 mt-2.5 block h-1 w-8 origin-left rtl:origin-right rounded-full bg-linear-to-r ${grad}`}
       />
 
-      <span className="relative z-10 mt-auto pt-3 inline-flex items-center gap-1 text-3xs font-medium text-muted/40 transition-colors duration-200 group-hover:text-muted">
+      <span className="relative z-10 mt-auto pt-3 inline-flex items-center gap-1 text-3xs font-medium text-muted/40 group-hover:text-muted">
         {hint ?? label}
         {tab && (
           <IconChevronRight className="rtl:rotate-180 w-3 h-3" />
@@ -525,7 +523,7 @@ function ActivityChart({
   if (loading) {
     const bars = range === 'monthly' ? 30 : range === 'yearly' ? 12 : range === 'daily' ? 24 : 7
     return (
-      <div className={`flex items-end gap-1.5 animate-pulse ${tall ? 'h-48' : 'h-32'}`}>
+      <div className={`flex items-end gap-1.5  ${tall ? 'h-48' : 'h-32'}`}>
         {Array.from({ length: bars }).map((_, i) => (
           <div key={i} className="flex-1 flex flex-col items-center gap-1 h-full">
             <div className="flex-1 w-full rounded bg-raised" />
@@ -548,7 +546,7 @@ function ActivityChart({
           <div key={key} className="flex-1 flex flex-col items-center gap-1 h-full min-w-0">
             <div className="flex-1 w-full flex items-end rounded-md overflow-hidden bg-raised">
               <div
-                  className="w-full rounded-t bg-accent/50 hover:bg-accent-bright transition-colors"
+                  className="w-full rounded-t bg-accent/50 hover:bg-accent-bright "
                   style={{ height: `${pct}%` }}
                   title={formatDuration(seconds * 1000)}
                   aria-label={tc('dashboard_weekly_aria', {
@@ -595,7 +593,7 @@ function InsightsTile({ active = true }: { active?: boolean }) {
 
   if (loading) {
     return (
-      <div className="grid grid-cols-2 gap-2 animate-pulse">
+      <div className="grid grid-cols-2 gap-2 ">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="h-20 rounded-item bg-raised" />
         ))}
@@ -722,11 +720,11 @@ function TopProjectsByTime({
       }`}
     >
       {top.map((p) => (
-        <motion.button
+        <button
           key={p.id}
           type="button"
           onClick={() => dispatch('app:open-project', p.id)}
-          className="group focus-ring cursor-pointer w-full flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 transition-colors text-start"
+          className="group focus-ring cursor-pointer w-full flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 text-start"
         >
           <span className="min-w-0 flex-1">
             <span className="flex items-center justify-between gap-2">
@@ -746,7 +744,7 @@ function TopProjectsByTime({
               />
             </span>
           </span>
-        </motion.button>
+        </button>
       ))}
     </div>
   )
@@ -773,7 +771,7 @@ function GitOverview({ tall = false, active = true }: { tall?: boolean; active?:
 
   if (loading) {
     return (
-      <div className="flex flex-col gap-2 animate-pulse">
+      <div className="flex flex-col gap-2 ">
         <div className="h-10 rounded-item bg-raised" />
         <div className="h-10 rounded-item bg-raised" />
       </div>
@@ -806,7 +804,7 @@ function GitOverview({ tall = false, active = true }: { tall?: boolean; active?:
                   }),
                 )
               }
-              className="focus-ring cursor-pointer w-full flex items-center gap-3 p-3 rounded-item bg-overlay border border-amber/25 hover:bg-raised hover:border-amber/40 transition-colors text-start"
+              className="focus-ring cursor-pointer w-full flex items-center gap-3 p-3 rounded-item bg-overlay border border-amber/25 hover:bg-raised hover:border-amber/40 text-start"
             >
               <IconGitBranch className="w-3.5 h-3.5 text-amber shrink-0" />
               <span className="min-w-0 flex-1">
@@ -891,7 +889,7 @@ function StorageUsage({ tall = false, active = true }: { tall?: boolean; active?
         {rows.map(({ project, size }) => (
           <div
             key={project.id}
-            className="w-full flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised transition-colors"
+            className="w-full flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised "
           >
             <IconHardDrive className="w-3.5 h-3.5 text-muted/50 shrink-0" />
             <span className="min-w-0 flex-1">
@@ -984,10 +982,9 @@ function RunningNow({
           {running.map((p) => (
             <div
               key={p.id}
-              className="flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised transition-colors"
+              className="flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised "
             >
               <span className="relative flex w-2 h-2 shrink-0">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-mint opacity-60 animate-attention-ping" />
                 <span className="relative inline-flex rounded-full w-2 h-2 bg-mint" />
               </span>
               <span className="min-w-0 flex-1">
@@ -1003,7 +1000,7 @@ function RunningNow({
                   type="button"
                   onClick={() => onStop(p.id)}
                   aria-label={`${tc('stop')} ${p.name}`}
-                  className="focus-ring cursor-pointer w-6 h-6 rounded-btn inline-flex items-center justify-center text-muted/50 hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
+                  className="focus-ring cursor-pointer w-6 h-6 rounded-btn inline-flex items-center justify-center text-muted/50 hover:text-danger hover:bg-danger/10 shrink-0"
                 >
                   <IconX className="w-3.5 h-3.5" />
                 </button>
@@ -1418,7 +1415,7 @@ export function DashboardView({
                 {installed.slice(0, 3).map((v) => (
                   <div
                     key={v.tag}
-                    className="flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 transition-colors"
+                    className="flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 "
                   >
                     <span className="min-w-0 flex-1">
                       <span className="block text-sm font-medium text-ink truncate font-mono">
@@ -1428,14 +1425,14 @@ export function DashboardView({
                         {v.executable_path}
                       </span>
                     </span>
-                      <motion.button
+                      <button
                         type="button"
-                        data-press-feedback
+
                         onClick={() => openEngine(v.tag)}
-                        className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/60 hover:text-ink hover:bg-raised transition-colors"
+                        className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/60 hover:text-ink hover:bg-raised "
                       >
                         <IconTerminal className="w-3.5 h-3.5" />
-                      </motion.button>
+                      </button>
                   </div>
                 ))}
               </div>
@@ -1488,26 +1485,26 @@ export function DashboardView({
                   className="focus-ring w-64 bg-base border border-accent rounded-btn px-3 py-2 text-xl font-medium text-ink outline-none"
                 />
                   <Tooltip content={tc('dashboard_rename_save')} side="top">
-                    <motion.button
+                    <button
                       type="button"
-                      data-press-feedback
+
                       onClick={commitName}
                       aria-label={tc('dashboard_rename_save')}
-                      className="focus-ring cursor-pointer p-1.5 rounded-btn text-accent hover:bg-accent/10 transition-colors"
+                      className="focus-ring cursor-pointer p-1.5 rounded-btn text-accent hover:bg-accent/10 "
                     >
                       <IconCheck className="w-4 h-4" />
-                    </motion.button>
+                    </button>
                   </Tooltip>
                   <Tooltip content={tc('cancel')} side="top">
-                    <motion.button
+                    <button
                       type="button"
-                      data-press-feedback
+
                       onClick={cancelNameEdit}
                       aria-label={tc('cancel')}
-                      className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/60 hover:text-ink hover:bg-raised transition-colors"
+                      className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/60 hover:text-ink hover:bg-raised "
                     >
                       <IconX className="w-4 h-4" />
-                    </motion.button>
+                    </button>
                   </Tooltip>
               </div>
             ) : (
@@ -1530,7 +1527,7 @@ export function DashboardView({
                       type="button"
                       onClick={startEditingName}
                       aria-label={tc('dashboard_rename_aria')}
-                      className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 hover:text-ink hover:bg-raised shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150"
+                      className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 hover:text-ink hover:bg-raised shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 "
                     >
                       <IconPencil className="w-3.5 h-3.5" />
                     </button>
@@ -1543,7 +1540,7 @@ export function DashboardView({
                           update({ ...settings, dashboard_custom_name: null })
                         }
                         aria-label={tc('dashboard_rename_reset')}
-                        className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 hover:text-danger hover:bg-danger/10 shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150"
+                        className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 hover:text-danger hover:bg-danger/10 shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 "
                       >
                         <IconX className="w-3.5 h-3.5" />
                       </button>
@@ -1562,19 +1559,19 @@ export function DashboardView({
         className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
       >
-        <div className={`ui-stagger flex flex-col gap-6 ${connected ? 'ps-3' : ''} pe-5 pb-4`}>
+        <div className={` flex flex-col gap-6 ${connected ? 'ps-3' : ''} pe-5 pb-4`}>
           <div className="mt-1.5 flex items-center justify-between gap-3 flex-wrap">
             {isEnabled('quick_actions') ? (
               <QuickActions />
             ) : (
               <span />
             )}
-              <motion.button
+              <button
                 type="button"
-                data-press-feedback
+
                 onClick={() => setEditingTiles((v) => !v)}
                 aria-label={tc(editingTiles ? 'dashboard_done_customizing' : 'dashboard_customize')}
-                className={`focus-ring cursor-pointer flex items-center gap-1.5 h-11 px-5 rounded-item text-sm font-semibold border transition-colors ${
+                className={`focus-ring cursor-pointer flex items-center gap-1.5 h-11 px-5 rounded-item text-sm font-semibold border  ${
                   editingTiles
                     ? 'bg-accent text-ink border-outline/50'
                     : 'text-muted hover:text-ink hover:bg-raised border-outline/50'
@@ -1582,7 +1579,7 @@ export function DashboardView({
               >
                 <IconGear className="w-4 h-4" />
                 {tc(editingTiles ? 'dashboard_done_customizing' : 'dashboard_customize')}
-              </motion.button>
+              </button>
           </div>
 
           {isEnabled('stats') && (
@@ -1621,7 +1618,7 @@ export function DashboardView({
                             update({ ...settings, ...next })
                           }}
                           aria-pressed={active}
-                          className={`focus-ring cursor-pointer flex items-center gap-1.5 px-3 h-8 rounded-btn text-xs font-semibold border transition-colors ${
+                          className={`focus-ring cursor-pointer flex items-center gap-1.5 px-3 h-8 rounded-btn text-xs font-semibold border  ${
                             active
                               ? 'bg-accent text-ink border-outline/50'
                               : 'text-muted hover:text-ink hover:bg-raised border-outline/50'
@@ -1652,7 +1649,7 @@ export function DashboardView({
                       return (
                         <span
                           key={preset.id}
-                          className="inline-flex items-center rounded-btn border border-outline/50 transition-colors"
+                          className="inline-flex items-center rounded-btn border border-outline/50 "
                         >
                           <button
                             type="button"
@@ -1666,7 +1663,7 @@ export function DashboardView({
                               update({ ...settings, ...next })
                             }}
                             aria-pressed={active}
-                            className={`focus-ring cursor-pointer flex items-center gap-1.5 ps-3 pe-1.5 h-8 rounded-btn text-xs font-semibold transition-colors ${
+                            className={`focus-ring cursor-pointer flex items-center gap-1.5 ps-3 pe-1.5 h-8 rounded-btn text-xs font-semibold  ${
                               active
                                 ? 'bg-accent text-ink'
                                 : 'text-muted hover:text-ink hover:bg-raised'
@@ -1680,7 +1677,7 @@ export function DashboardView({
                                 type="button"
                                 onClick={() => removePreset(preset.id)}
                                 aria-label={tc('dashboard_preset_delete')}
-                                className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/50 hover:text-danger hover:bg-danger/10 transition-colors"
+                                className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/50 hover:text-danger hover:bg-danger/10 "
                               >
                                 <IconX className="w-3 h-3" />
                               </button>
@@ -1704,17 +1701,17 @@ export function DashboardView({
                       if (e.key === 'Enter') savePreset()
                     }}
                     placeholder={tc('dashboard_preset_name_placeholder')}
-                    className="focus-ring bg-overlay border border-outline/50 rounded-item px-3.5 py-2 text-sm font-body text-ink placeholder:text-muted/70 transition-colors focus:border-accent-dim flex-1 min-w-0"
+                    className="focus-ring bg-overlay border border-outline/50 rounded-item px-3.5 py-2 text-sm font-body text-ink placeholder:text-muted/70 focus:border-accent-dim flex-1 min-w-0"
                   />
-                  <motion.button
+                  <button
                     type="button"
-                    data-press-feedback
+
                     onClick={savePreset}
                     disabled={!presetDraft.trim()}
-                    className="focus-ring cursor-pointer px-4 py-2 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-40 disabled:cursor-default text-xs font-semibold text-ink transition-colors shrink-0"
+                    className="focus-ring cursor-pointer px-4 py-2 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-40 disabled:cursor-default text-xs font-semibold text-ink shrink-0"
                   >
                     {tc('dashboard_preset_save')}
-                  </motion.button>
+                  </button>
                 </div>
                 <p className="text-2xs text-muted/60">
                   {tc('dashboard_preset_save_hint')}
@@ -1756,7 +1753,7 @@ export function DashboardView({
                     key={id}
                     type="button"
                     onClick={() => addTile(id)}
-                    className="focus-ring cursor-pointer flex items-center gap-1.5 px-3 h-8 rounded-tag text-xs font-medium text-muted hover:text-accent-bright hover:bg-raised border border-outline/50 transition-colors"
+                    className="focus-ring cursor-pointer flex items-center gap-1.5 px-3 h-8 rounded-tag text-xs font-medium text-muted hover:text-accent-bright hover:bg-raised border border-outline/50 "
                   >
                     <IconPlus className="w-3 h-3" />
                     {tileTitle[id]}

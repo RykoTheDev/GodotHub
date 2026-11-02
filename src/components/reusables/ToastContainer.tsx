@@ -1,18 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { createPortal } from 'react-dom'
-import { AnimatePresence, motion } from 'framer-motion'
 import {
   dismissToast,
   subscribeToasts,
   type ToastItem,
 } from '../../lib/toast'
 import { IconCheckCircle, IconX, IconAlertTriangle } from '../../lib/icons'
-import { useUiMotion } from '../../hooks/useUiMotion'
 
 function ToastCard({ toast }: { toast: ToastItem }) {
   const { t } = useTranslation('common')
-  const { surface, reduced, instant } = useUiMotion()
   const Icon =
     toast.type === 'success'
       ? IconCheckCircle
@@ -26,9 +23,9 @@ function ToastCard({ toast }: { toast: ToastItem }) {
         ? 'text-danger'
         : 'text-accent-bright'
   return (
-    <motion.div
-      layout={reduced || instant ? false : 'position'}
-      {...surface('popover', 'translateY(12px)')}
+    <div
+
+
       className="pointer-events-auto flex items-start gap-2.5 w-80 rounded-menu border border-outline/50 bg-surface/95 backdrop-blur shadow-lg shadow-black/20 px-3.5 py-3"
     >
       <Icon className={`w-4 h-4 mt-0.5 shrink-0 ${color}`} />
@@ -42,7 +39,7 @@ function ToastCard({ toast }: { toast: ToastItem }) {
             dismissToast(toast.id)
             toast.action?.onClick()
           }}
-          className="cursor-pointer shrink-0 text-xs font-semibold text-accent-bright hover:text-ink hover:bg-raised px-2 py-1 rounded-tag transition-colors"
+          className="cursor-pointer shrink-0 text-xs font-semibold text-accent-bright hover:text-ink hover:bg-raised px-2 py-1 rounded-tag "
         >
           {toast.action.label}
         </button>
@@ -51,11 +48,11 @@ function ToastCard({ toast }: { toast: ToastItem }) {
         type="button"
         onClick={() => dismissToast(toast.id)}
         aria-label={t('dismiss')}
-        className="cursor-pointer shrink-0 p-0.5 rounded text-muted/50 hover:text-ink hover:bg-raised transition-colors"
+        className="cursor-pointer shrink-0 p-0.5 rounded text-muted/50 hover:text-ink hover:bg-raised "
       >
         <IconX className="w-3.5 h-3.5" />
       </button>
-    </motion.div>
+    </div>
   )
 }
 
@@ -66,11 +63,11 @@ export function ToastContainer() {
 
   return createPortal(
     <div className="fixed bottom-4 end-4 z-9999 flex flex-col gap-2 items-end pointer-events-none">
-      <AnimatePresence>
+
         {toasts.map((t) => (
           <ToastCard key={t.id} toast={t} />
         ))}
-      </AnimatePresence>
+
     </div>,
     document.body,
   )

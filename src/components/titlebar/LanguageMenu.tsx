@@ -6,7 +6,6 @@ import {
   useState,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import i18n from '../../i18n'
 import {
@@ -20,7 +19,6 @@ import { IconLanguage, IconCheck, IconTextDirection } from '../../lib/icons'
 import { useSettings } from '../../hooks/useSettings'
 import { LanguageFlag } from '../reusables/LanguageFlag'
 import { Tooltip } from '../reusables/Tooltip'
-import { useUiMotion } from '../../hooks/useUiMotion'
 
 const STATUS_BADGE_CLASS: Record<LanguageStatus, string> = {
   complete: 'bg-mint/10 text-mint border-mint/30',
@@ -34,7 +32,6 @@ const MENU_WIDTH = 240
 const OPEN_UP_THRESHOLD = 220
 
 export function LanguageMenu() {
-  const {surface} = useUiMotion()
   const { t: ts } = useTranslation('settings')
   const { settings, update } = useSettings()
 
@@ -196,7 +193,7 @@ export function LanguageMenu() {
         className="flex items-stretch shrink-0"
       >
         <Tooltip content={ts('language_label')}>
-          <motion.button
+          <button
             type="button"
             onClick={() => setOpen((o) => !o)}
             onMouseDown={noDrag}
@@ -204,21 +201,21 @@ export function LanguageMenu() {
             aria-expanded={open}
             aria-haspopup="menu"
 
-            data-press-feedback
 
-            className="focus-ring cursor-pointer relative w-9 h-8 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised transition-colors shrink-0"
+
+            className="focus-ring cursor-pointer relative w-9 h-8 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised shrink-0"
           >
             <IconLanguage className="w-4 h-4" />
-          </motion.button>
+          </button>
         </Tooltip>
       </div>
 
       {createPortal(
-        <AnimatePresence>
-          {open && (
-            <motion.div key="div-220"
+
+          open && (
+            <div key="div-220"
               ref={listRef}
-              {...surface('popover', `translateY(${dir ? 6 : -6}px) scale(0.96)`)}
+
               role="menu"
               className={`fixed z-50 ${
                 dir
@@ -252,7 +249,7 @@ export function LanguageMenu() {
                     onClick={() =>
                       select(lang.value)
                     }
-                    className={`focus-ring cursor-pointer flex items-center justify-between gap-2 text-start px-2.5 py-2 text-xs transition-colors ${
+                    className={`focus-ring cursor-pointer flex items-center justify-between gap-2 text-start px-2.5 py-2 text-xs  ${
                       showLayoutToggle
                         ? 'flex-1 min-w-0 rounded-s-item rounded-e-sm'
                         : 'w-full rounded-item'
@@ -306,7 +303,7 @@ export function LanguageMenu() {
                             rtl_layout: !mirrored,
                           })
                         }
-                        className={`focus-ring cursor-pointer w-9 shrink-0 flex items-center justify-center rounded-s-sm rounded-e-item transition-colors ${
+                        className={`focus-ring cursor-pointer w-9 shrink-0 flex items-center justify-center rounded-s-sm rounded-e-item  ${
                           mirrored
                             ? 'bg-accent/25 text-accent-bright hover:bg-accent/35'
                             : 'bg-accent/15 text-accent-bright/70 hover:bg-accent/25 hover:text-accent-bright'
@@ -318,9 +315,9 @@ export function LanguageMenu() {
                   </div>
                 )
               })}
-            </motion.div>
-          )}
-        </AnimatePresence>,
+            </div>
+          )
+        ,
         document.body,
       )}
     </>

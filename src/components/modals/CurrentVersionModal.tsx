@@ -42,7 +42,7 @@ export function CurrentVersionModal({
         type="button"
         onClick={() => copy(target, value)}
         aria-label={tv(`current_copy_${target}`)}
-        className="focus-ring cursor-pointer shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-btn border border-line text-xs text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors"
+        className="focus-ring cursor-pointer shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-btn border border-line text-xs text-muted hover:text-ink hover:border-accent-dim hover:bg-raised "
       >
         {copied === target ? (
           <IconCheck className="w-3.5 h-3.5 text-mint" />
@@ -66,7 +66,7 @@ export function CurrentVersionModal({
           <button
             type="button"
             onClick={() => api.openProjectFolder(info.aliases_dir).catch(reportError)}
-            className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors"
+            className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised "
           >
             <IconExternalLink className="w-4 h-4" />
             {tv('current_open_folder')}
@@ -74,7 +74,7 @@ export function CurrentVersionModal({
           <button
             type="button"
             onClick={onClose}
-            className="focus-ring cursor-pointer ms-auto px-4 py-2.5 rounded-item bg-accent hover:bg-accent/90 text-sm font-medium text-white transition-colors"
+            className="focus-ring cursor-pointer ms-auto px-4 py-2.5 rounded-item bg-accent hover:bg-accent/90 text-sm font-medium text-white "
           >
             {tc('close')}
           </button>

@@ -38,7 +38,7 @@ export function AssetCard({
 
   return (
     <div
-      className="group relative flex flex-col rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 transition-colors"
+      className="group relative flex flex-col rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 "
     >
       <div className="relative h-24 shrink-0 bg-raised flex items-center justify-center overflow-hidden rounded-t-item">
         {asset.icon_url && (
@@ -47,14 +47,14 @@ export function AssetCard({
             alt=""
             loading="lazy"
             decoding="async"
-            className="absolute inset-0 w-full h-full object-cover opacity-15 group-hover:opacity-0 transition-opacity duration-300"
+            className="absolute inset-0 w-full h-full object-cover opacity-15 group-hover:opacity-0 "
             onError={(e) => {
               e.currentTarget.style.display = 'none'
             }}
           />
         )}
-        <div className="absolute inset-x-0 bottom-0 h-10 bg-linear-to-t from-overlay to-transparent transition-opacity duration-300 group-hover:opacity-0" />
-        <div className="relative w-14 h-14 rounded-tile bg-surface/90 border border-outline/60 flex items-center justify-center overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+        <div className="absolute inset-x-0 bottom-0 h-10 bg-linear-to-t from-overlay to-transparent group-hover:opacity-0" />
+        <div className="relative w-14 h-14 rounded-tile bg-surface/90 border border-outline/60 flex items-center justify-center overflow-hidden opacity-0 group-hover:opacity-100 ">
           <IconStore className="w-5 h-5 text-muted/50" />
           {asset.icon_url && (
             <img
@@ -79,7 +79,7 @@ export function AssetCard({
           {onOpenPage && (
             <button
               onClick={onOpenPage}
-              className="focus-ring cursor-pointer p-1 rounded-btn text-muted/40 opacity-0 group-hover:opacity-100 hover:text-ink hover:bg-raised transition-[opacity,color,background-color] shrink-0"
+              className="focus-ring cursor-pointer p-1 rounded-btn text-muted/40 opacity-0 group-hover:opacity-100 hover:text-ink hover:bg-raised shrink-0"
               aria-label={t('asset_open_page')}
             >
               <IconExternalLink className="w-3.5 h-3.5" />

@@ -59,7 +59,7 @@ export function MenuButton({
       role="menuitem"
       disabled={item.disabled}
       onClick={onSelect}
-      className={`w-full flex items-center gap-1 rounded-item text-xs font-medium transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+      className={`w-full flex items-center gap-1 rounded-item text-xs font-medium cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
         compact ? 'px-2 py-1.5' : 'px-2.5 py-2'
       } ${
         item.danger

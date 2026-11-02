@@ -186,7 +186,6 @@ export function ProjectCardGrid({
             color={cat.color}
             count={catProjects.length}
             defaultOpen={catProjects.length > 0}
-            disableAnimation={isDndEnabled}
             droppableId={`grid-cat-${cat.id}`}
             onContextMenu={
               onCategoryContextMenu
@@ -204,7 +203,7 @@ export function ProjectCardGrid({
         .filter(([name]) => name !== UNCATEGORIZED && !categories.some(category => category.name === name))
         .map(([name, list]) => (
           <ProjectCategorySection key={name} variant="grid" title={name} count={list.length}
-            defaultOpen disableAnimation={isDndEnabled} droppableId={`grid-cat-${name}`}>
+            defaultOpen droppableId={`grid-cat-${name}`}>
             <SortableContext items={list.map(project => project.id)} strategy={rectSortingStrategy}>
               {cardGrid(list)}
             </SortableContext>
@@ -218,7 +217,6 @@ export function ProjectCardGrid({
             title={tc('uncategorized')}
             count={uncategorizedProjects.length}
             defaultOpen={uncategorizedProjects.length > 0}
-            disableAnimation={isDndEnabled}
             droppableId="grid-cat-uncategorized"
           >
             <SortableContext items={uncategorizedProjects.map((p) => p.id)} strategy={rectSortingStrategy}>
@@ -252,14 +250,12 @@ export function ProjectCardGrid({
           collisionDetection={dnd.collisionDetection ?? closestCenter}
           autoScroll={AUTO_SCROLL_CONFIG}
           onDragStart={dnd.handleDragStart}
-          onDragMove={dnd.handleDragMove}
           onDragEnd={dnd.handleDragEnd}
           onDragCancel={dnd.handleDragCancel}
         >
           <SortableContext items={sortableIds} strategy={rectSortingStrategy}>{allContent}</SortableContext>
           <ProjectDropLine ignorePrefix="grid-cat-" placement={dnd.placementRef} activeIds={dnd.activeIds} />
-          <DragOverlay
-            dropAnimation={dnd.dropAnimation}
+          <DragOverlay dropAnimation={null}
           >
             {activeProject ? (
               <ProjectDragOverlay

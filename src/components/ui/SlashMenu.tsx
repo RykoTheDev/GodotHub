@@ -55,7 +55,7 @@ export function SlashMenu({
               onMouseEnter={() => onHighlight(index)}
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => onSelect(item, index)}
-              className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-item text-xs font-medium transition-colors cursor-pointer ${
+              className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-item text-xs font-medium cursor-pointer ${
                 active
                   ? 'text-ink bg-accent hover:bg-accent'
                   : 'text-muted hover:bg-raised hover:text-ink'

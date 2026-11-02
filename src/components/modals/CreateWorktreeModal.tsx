@@ -62,9 +62,9 @@ export function CreateWorktreeModal({ repositoryPath, onClose, onCreated }: Prop
       }}
       footer={<div className="ms-auto flex items-center gap-2.5">
         <button type="button" onClick={onClose} disabled={busy || picking}
-          className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed">{tc('cancel')}</button>
+          className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised disabled:opacity-40 disabled:cursor-not-allowed">{tc('cancel')}</button>
         <button type="submit" form={formId} disabled={!path.trim() || busy || picking}
-          className="focus-ring cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-btn bg-accent text-sm font-medium text-white hover:bg-accent-bright transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+          className="focus-ring cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-btn bg-accent text-sm font-medium text-white hover:bg-accent-bright disabled:opacity-40 disabled:cursor-not-allowed">
           {busy && <IconSpinner className="w-3.5 h-3.5 animate-spin" />}
           {busy ? t('creating') : t('add_worktree_btn')}
         </button>
@@ -76,9 +76,9 @@ export function CreateWorktreeModal({ repositoryPath, onClose, onCreated }: Prop
           <div className="flex gap-2">
             <input id={pathId} dir="ltr" autoFocus required value={path} onChange={e => setPath(e.target.value)} disabled={busy || picking}
               aria-describedby={`${pathId}-hint`} placeholder={t('worktree_path_placeholder')}
-              className="focus-ring min-w-0 flex-1 bg-raised border border-line rounded-item px-3.5 py-2.5 text-sm font-mono text-ink placeholder:text-muted/50 focus:border-accent-dim transition-colors disabled:opacity-50" />
+              className="focus-ring min-w-0 flex-1 bg-raised border border-line rounded-item px-3.5 py-2.5 text-sm font-mono text-ink placeholder:text-muted/50 focus:border-accent-dim disabled:opacity-50" />
             <button type="button" onClick={() => void browse()} disabled={busy || picking} title={t('worktree_browse_parent')} aria-label={t('worktree_browse_parent')}
-              className="focus-ring cursor-pointer flex items-center justify-center w-11 shrink-0 rounded-item border border-line text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+              className="focus-ring cursor-pointer flex items-center justify-center w-11 shrink-0 rounded-item border border-line text-muted hover:text-ink hover:bg-raised disabled:opacity-40 disabled:cursor-not-allowed">
               {picking ? <IconSpinner className="w-4 h-4 animate-spin" /> : <IconFolder className="w-4 h-4" />}
             </button>
           </div>
@@ -88,7 +88,7 @@ export function CreateWorktreeModal({ repositoryPath, onClose, onCreated }: Prop
           <label htmlFor={branchId} className="text-xs font-medium text-muted">{t('worktree_branch_label')}</label>
           <input id={branchId} dir="ltr" value={branch} onChange={e => setBranch(e.target.value)} disabled={busy}
             aria-describedby={`${branchId}-hint`} placeholder={t('worktree_branch_placeholder')}
-            className="focus-ring bg-raised border border-line rounded-item px-3.5 py-2.5 text-sm text-ink placeholder:text-muted/50 focus:border-accent-dim transition-colors disabled:opacity-50" />
+            className="focus-ring bg-raised border border-line rounded-item px-3.5 py-2.5 text-sm text-ink placeholder:text-muted/50 focus:border-accent-dim disabled:opacity-50" />
           <p id={`${branchId}-hint`} className="text-2xs text-muted/70 leading-relaxed">{t('worktree_branch_hint')}</p>
         </div>
         {error && <p role="alert" className="rounded-item border border-danger/25 bg-danger/10 p-3 text-xs text-danger wrap-break-word">{error}</p>}

@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { IconAlertTriangle, IconTrash } from '../../lib/icons'
 import { ModalShell } from './ModalShell'
@@ -40,26 +39,26 @@ export function ConfirmDialog({
       showClose={false}
       footer={
         <div className="ms-auto flex items-center gap-2.5">
-          <motion.button
+          <button
             data-autofocus={variant === 'danger' ? true : undefined}
-            data-press-feedback
+
             onClick={onCancel}
-            className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
+            className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised "
           >
             {cancelLabel || t('cancel')}
-          </motion.button>
-          <motion.button
+          </button>
+          <button
             data-autofocus={variant === 'danger' ? undefined : true}
-            data-press-feedback
+
             onClick={onConfirm}
-            className={`focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm font-medium transition-colors ${
+            className={`focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm font-medium  ${
               variant === 'danger'
                 ? 'bg-danger hover:brightness-110 text-white'
                 : 'bg-accent hover:bg-accent-bright text-white'
             }`}
           >
             {confirmLabel}
-          </motion.button>
+          </button>
         </div>
       }
     >

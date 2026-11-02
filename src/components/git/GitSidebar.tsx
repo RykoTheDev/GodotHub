@@ -1,11 +1,9 @@
-import { useUiMotion } from '../../hooks/useUiMotion'
 import { GitSection as Section } from './GitSection'
 import { GitWorktrees } from './GitWorktrees'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 const AUTO_FETCH_INTERVAL_MS = 180_000
 import { createPortal } from 'react-dom'
-import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { useTauriEvent } from '../../lib/useTauriEvent'
@@ -56,7 +54,6 @@ interface Props {
   onRefresh: () => void
   onSwitchProject?: (project: Project) => void
   connected?: boolean
-  opened: boolean
 }
 
 function TruncatedPath({ path, deleted = false }: { path: string; deleted?: boolean }) {
@@ -101,14 +98,14 @@ function TruncatedPath({ path, deleted = false }: { path: string; deleted?: bool
 
 function Spinner() {
   return (
-    <motion.svg
+    <svg
       width={16}
       height={16}
       viewBox="0 0 24 24"
       fill="none"
       className="block"
-      animate={{ rotate: 360 }}
-      transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}
+
+
     >
       <path
         d="M21 12a9 9 0 1 1-6.219-8.56"
@@ -116,7 +113,7 @@ function Spinner() {
         strokeWidth={2}
         strokeLinecap="round"
       />
-    </motion.svg>
+    </svg>
   )
 }
 
@@ -175,7 +172,7 @@ function ChangedFileRow({
   return (
     <div
       onClick={onOpen}
-      className={`group relative flex items-center gap-1.5 px-2.5 py-1.5 hover:bg-raised/60 transition-colors ${
+      className={`group relative flex items-center gap-1.5 px-2.5 py-1.5 hover:bg-raised/60  ${
         onOpen ? 'cursor-pointer' : ''
       }`}
     >
@@ -187,14 +184,14 @@ function ChangedFileRow({
       </div>
       <div
         onClick={(e) => e.stopPropagation()}
-        className="absolute end-1.5 top-1/2 -translate-y-1/2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity bg-base/80 rounded-md px-0.5 py-0.5"
+        className="absolute end-1.5 top-1/2 -translate-y-1/2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 bg-base/80 rounded-md px-0.5 py-0.5"
       >
         {onStage && (
           <Tooltip content={stageLabel}>
           <button
               type="button"
               onClick={onStage}
-              className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-mint hover:bg-raised transition-colors"
+              className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-mint hover:bg-raised "
             >
               <IconPlus className="w-3 h-3" />
             </button>
@@ -205,7 +202,7 @@ function ChangedFileRow({
           <button
               type="button"
               onClick={onUnstage}
-              className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-amber hover:bg-raised transition-colors"
+              className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-amber hover:bg-raised "
             >
               <IconChevronUp className="w-3 h-3" />
             </button>
@@ -216,7 +213,7 @@ function ChangedFileRow({
           <button
               type="button"
               onClick={onDiscard}
-              className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-danger hover:bg-raised transition-colors"
+              className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-danger hover:bg-raised "
             >
               <IconTrash className="w-3 h-3" />
             </button>
@@ -234,9 +231,7 @@ export function GitSidebar({
   onRefresh,
   onSwitchProject,
   connected = false,
-  opened,
 }: Props) {
-  const uiMotion = useUiMotion()
 
   const { t } = useTranslation('git')
   const { t: tc } = useTranslation('common')
@@ -286,7 +281,7 @@ export function GitSidebar({
   const [deletingBranch, setDeletingBranch] = useState<string | null>(null)
   const [publishingBranch, setPublishingBranch] = useState(false)
   const branchMenuRef = useRef<HTMLDivElement>(null)
-  const ready = opened
+  const ready = true
 
   const notifyGitStatusChanged = useCallback(() => {
     window.dispatchEvent(new Event('app:refresh-git-status'))
@@ -914,10 +909,10 @@ export function GitSidebar({
         connected ? 'rounded-none border-s border-line bg-raised' : 'rounded-card bg-raised'
       }`}
     >
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
+
+        <div
           key={project.path}
-          {...uiMotion.surface('tooltip', 'none')}
+
 
           className="flex flex-col h-full min-h-0"
         >
@@ -929,7 +924,7 @@ export function GitSidebar({
           <button
             type="button"
             onClick={onClose}
-            className="focus-ring cursor-pointer w-9 h-9 shrink-0 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised/60 transition-colors"
+            className="focus-ring cursor-pointer w-9 h-9 shrink-0 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised/60 "
           >
             <IconX className="w-4 h-4" />
           </button>
@@ -939,8 +934,8 @@ export function GitSidebar({
       <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden new-ui-scroll-viewport">
         {!ready ? (
           <div className="flex-1 flex items-center justify-center h-full">
-            <motion.div key="div-938"
-              {...uiMotion.surface('tooltip', 'none')}
+            <div key="div-938"
+
 
               className="flex flex-col items-center gap-3"
             >
@@ -948,7 +943,7 @@ export function GitSidebar({
               <span className="text-2xs text-muted/50">
                 {tc('loading')}
               </span>
-            </motion.div>
+            </div>
           </div>
         ) : (
         <div className="px-3 py-3 flex flex-col gap-3">
@@ -983,7 +978,7 @@ export function GitSidebar({
               <button
                 type="button"
                 onClick={() => handleDisconnect('github')}
-                className="focus-ring cursor-pointer inline-flex items-center gap-1 px-2 py-1 rounded-tag text-3xs font-medium text-muted hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
+                className="focus-ring cursor-pointer inline-flex items-center gap-1 px-2 py-1 rounded-tag text-3xs font-medium text-muted hover:text-danger hover:bg-danger/10 shrink-0"
               >
                 {t('git_disconnect')}
               </button>
@@ -1006,7 +1001,7 @@ export function GitSidebar({
               <button
                 type="button"
                 onClick={() => handleDisconnect('gitlab')}
-                className="focus-ring cursor-pointer inline-flex items-center gap-1 px-2 py-1 rounded-tag text-3xs font-medium text-muted hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
+                className="focus-ring cursor-pointer inline-flex items-center gap-1 px-2 py-1 rounded-tag text-3xs font-medium text-muted hover:text-danger hover:bg-danger/10 shrink-0"
               >
                 {t('git_disconnect')}
               </button>
@@ -1058,7 +1053,7 @@ export function GitSidebar({
                           type="button"
                           onClick={() => void handleResolveConflict('ours', f)}
                           disabled={!!mergeBusy}
-                          className="focus-ring cursor-pointer flex-1 px-1.5 py-1 rounded-tag text-3xs font-medium text-mint bg-mint/10 hover:bg-mint/20 transition-colors disabled:opacity-40 disabled:cursor-wait"
+                          className="focus-ring cursor-pointer flex-1 px-1.5 py-1 rounded-tag text-3xs font-medium text-mint bg-mint/10 hover:bg-mint/20 disabled:opacity-40 disabled:cursor-wait"
                         >
                           {t('use_ours')}
                         </button>
@@ -1066,7 +1061,7 @@ export function GitSidebar({
                           type="button"
                           onClick={() => void handleResolveConflict('theirs', f)}
                           disabled={!!mergeBusy}
-                          className="focus-ring cursor-pointer flex-1 px-1.5 py-1 rounded-tag text-3xs font-medium text-amber bg-amber/10 hover:bg-amber/20 transition-colors disabled:opacity-40 disabled:cursor-wait"
+                          className="focus-ring cursor-pointer flex-1 px-1.5 py-1 rounded-tag text-3xs font-medium text-amber bg-amber/10 hover:bg-amber/20 disabled:opacity-40 disabled:cursor-wait"
                         >
                           {t('use_theirs')}
                         </button>
@@ -1074,7 +1069,7 @@ export function GitSidebar({
                           type="button"
                           onClick={() => void handleResolveConflict('manual', f)}
                           disabled={!!mergeBusy}
-                          className="focus-ring cursor-pointer flex-1 px-1.5 py-1 rounded-tag text-3xs font-medium text-accent-bright bg-accent/10 hover:bg-accent/20 transition-colors disabled:opacity-40 disabled:cursor-wait"
+                          className="focus-ring cursor-pointer flex-1 px-1.5 py-1 rounded-tag text-3xs font-medium text-accent-bright bg-accent/10 hover:bg-accent/20 disabled:opacity-40 disabled:cursor-wait"
                         >
                           {t('i_resolved')}
                         </button>
@@ -1087,7 +1082,7 @@ export function GitSidebar({
                 type="button"
                 onClick={() => void handleAbortMerge()}
                 disabled={!!mergeBusy}
-                className="focus-ring cursor-pointer w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-item border border-danger/30 text-danger hover:bg-danger/10 transition-colors disabled:opacity-40 disabled:cursor-wait text-2xs font-medium"
+                className="focus-ring cursor-pointer w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-item border border-danger/30 text-danger hover:bg-danger/10 disabled:opacity-40 disabled:cursor-wait text-2xs font-medium"
               >
                 <IconTrash
                   className={`w-3.5 h-3.5 ${
@@ -1134,7 +1129,7 @@ export function GitSidebar({
                     : actionLabel
               return (
                   <Tooltip content={tooltip} className="flex-1 min-w-0">
-                  <motion.button
+                  <button
                     type="button"
                     onClick={() => void handleRemoteAction(key)}
                     onContextMenu={(e) => {
@@ -1145,7 +1140,7 @@ export function GitSidebar({
                     disabled={!!remotePhase}
                     aria-label={actionLabel}
                     className={["w-full",
-                      'relative w-full h-8 inline-flex items-center justify-center rounded-item border border-outline/50 shadow-md shadow-black/10 select-none focus-ring transition-colors duration-300',
+                      'relative w-full h-8 inline-flex items-center justify-center rounded-item border border-outline/50 shadow-md shadow-black/10 select-none focus-ring ',
                       state === 'running'
                         ? 'bg-accent text-overlay'
                         : state === 'done'
@@ -1166,11 +1161,11 @@ export function GitSidebar({
                         {pending > 99 ? '99+' : pending}
                       </span>
                     )}
-                    <AnimatePresence mode="popLayout" initial={false}>
-                      <motion.span
+
+                      <span
                         key={state}
                         className="inline-flex"
-                        {...uiMotion.surface('tooltip', 'none')}
+
 
                       >
                         {state === 'running' ? (
@@ -1186,9 +1181,9 @@ export function GitSidebar({
                         ) : (
                           <Icon className="w-3.5 h-3.5" />
                         )}
-                      </motion.span>
-                    </AnimatePresence>
-                  </motion.button>
+                      </span>
+
+                  </button>
                   </Tooltip>
               )
             })}
@@ -1233,7 +1228,7 @@ export function GitSidebar({
                   type="button"
                   onClick={() => setBranchMenuOpen((v) => !v)}
                   aria-expanded={branchMenuOpen}
-                  className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-2.5 py-2 text-start min-w-0 transition-colors hover:bg-raised rounded-item"
+                  className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-2.5 py-2 text-start min-w-0 hover:bg-raised rounded-item"
                 >
                   <IconGitBranch className="w-3 h-3 text-accent shrink-0" />
                   <span className="flex-1 text-2xs font-semibold text-ink truncate">
@@ -1255,16 +1250,16 @@ export function GitSidebar({
                       </span>
                     )}
                   <IconChevronDown
-                    className={`w-3 h-3 text-muted/60 shrink-0 transition-transform duration-200 ${
+                    className={`w-3 h-3 text-muted/60 shrink-0  ${
                       branchMenuOpen ? 'rotate-180' : ''
                     }`}
                   />
                 </button>
-                <AnimatePresence>
+
                   {branchMenuOpen && (
-                    <motion.div
+                    <div
                       key="branch-menu"
-                      {...uiMotion.surface('popover', `translateY(-4px) scale(0.97)`)}
+
 
                       className="absolute start-0 end-0 top-full z-20 mt-1 origin-top-left rtl:origin-top-right rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 p-1.5 max-h-56 overflow-y-auto new-ui-scroll-viewport"
                     >
@@ -1296,7 +1291,7 @@ export function GitSidebar({
                                   setBranchMenuOpen(false)
                                   void handleSwitchBranch(b.name)
                                 }}
-                                className={`flex-1 min-w-0 flex items-center gap-1.5 ps-2 pe-1 py-1.5 rounded-item text-2xs font-medium transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed text-start ${
+                                className={`flex-1 min-w-0 flex items-center gap-1.5 ps-2 pe-1 py-1.5 rounded-item text-2xs font-medium cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed text-start ${
                                   isCurrent
                                     ? 'text-ink bg-accent/10'
                                     : 'text-muted hover:bg-raised hover:text-ink'
@@ -1311,7 +1306,7 @@ export function GitSidebar({
                                   {b.name}
                                 </span>
                                 {isSwitching && (
-                                  <span className="text-3xs text-muted/50 animate-pulse">
+                                  <span className="text-3xs text-muted/50 ">
                                     {t('switching')}
                                   </span>
                                 )}
@@ -1325,7 +1320,7 @@ export function GitSidebar({
                                     type="button"
                                     onClick={() => void handlePublishBranch(b.name)}
                                     disabled={publishingBranch}
-                                    className="cursor-pointer shrink-0 p-1 me-1 rounded text-muted/50 hover:text-accent hover:bg-raised transition-colors disabled:opacity-40"
+                                    className="cursor-pointer shrink-0 p-1 me-1 rounded text-muted/50 hover:text-accent hover:bg-raised disabled:opacity-40"
                                   >
                                     <IconArrowUp
                                       className={`w-3 h-3 ${
@@ -1341,7 +1336,7 @@ export function GitSidebar({
                                     type="button"
                                     onClick={() => void handleDeleteBranch(b.name)}
                                     disabled={!!deletingBranch}
-                                    className={`cursor-pointer shrink-0 p-1 me-1 rounded transition-colors disabled:opacity-40 ${
+                                    className={`cursor-pointer shrink-0 p-1 me-1 rounded disabled:opacity-40 ${
                                       b.has_upstream
                                         ? 'text-muted/50 hover:text-danger hover:bg-raised opacity-0 group-hover:opacity-100'
                                         : 'text-muted/60 hover:text-danger hover:bg-raised'
@@ -1377,14 +1372,14 @@ export function GitSidebar({
                                 }
                               }}
                               placeholder={t('new_branch_placeholder')}
-                              className="flex-1 min-w-0 bg-base border border-outline/50 rounded-item px-2 py-1.5 text-2xs text-ink placeholder:text-muted focus:border-accent-dim outline-none transition-colors"
+                              className="flex-1 min-w-0 bg-base border border-outline/50 rounded-item px-2 py-1.5 text-2xs text-ink placeholder:text-muted focus:border-accent-dim outline-none "
                             />
                             <Tooltip content={t('new_branch_btn')} side="top">
                               <button
                                 type="button"
                                 onClick={() => void handleCreateBranch()}
                                 disabled={!newBranchName.trim()}
-                                className="focus-ring cursor-pointer shrink-0 p-1.5 rounded text-muted hover:text-mint hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                                className="focus-ring cursor-pointer shrink-0 p-1.5 rounded text-muted hover:text-mint hover:bg-raised disabled:opacity-40 disabled:cursor-not-allowed"
                               >
                                 <IconCheck className="w-3.5 h-3.5" />
                               </button>
@@ -1394,23 +1389,23 @@ export function GitSidebar({
                           <button
                             type="button"
                             onClick={() => setNewBranchMode(true)}
-                            className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-2 py-1.5 rounded-item text-2xs font-medium text-muted hover:bg-raised hover:text-ink transition-colors"
+                            className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-2 py-1.5 rounded-item text-2xs font-medium text-muted hover:bg-raised hover:text-ink "
                           >
                             <IconPlus className="w-3 h-3 text-accent shrink-0" />
                             {t('new_branch_btn')}
                           </button>
                         )}
                       </div>
-                    </motion.div>
+                    </div>
                   )}
-                </AnimatePresence>
+
               </div>
                 <Tooltip content={syncing ? t('syncing') : t('sync')}>
                 <button
                   type="button"
                   onClick={() => void handleSync()}
                   disabled={syncing}
-                  className="focus-ring cursor-pointer h-full inline-flex items-center justify-center px-3.5 rounded-item border border-outline/50 bg-raised/60 text-muted transition-colors hover:text-accent hover:bg-raised disabled:opacity-50 disabled:cursor-wait"
+                  className="focus-ring cursor-pointer h-full inline-flex items-center justify-center px-3.5 rounded-item border border-outline/50 bg-raised/60 text-muted hover:text-accent hover:bg-raised disabled:opacity-50 disabled:cursor-wait"
                 >
                   <IconRefresh className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
                 </button>
@@ -1423,7 +1418,7 @@ export function GitSidebar({
                   <button
                     type="button"
                     onClick={() => void openUrl(remotes[0].web_url).catch(reportError)}
-                    className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-2.5 py-2 text-start min-w-0 transition-colors hover:bg-raised/60"
+                    className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-2.5 py-2 text-start min-w-0 hover:bg-raised/60"
                   >
                     <ProviderBadge webUrl={remotes[0].web_url} />
                     <span className="text-2xs font-medium text-ink truncate flex-1">
@@ -1444,7 +1439,7 @@ export function GitSidebar({
                     void handleCommit()
                   }
                 }}
-                className={`w-full bg-transparent px-2.5 py-2 text-xs text-ink placeholder:text-muted transition-colors focus:bg-raised focus:border-accent-dim outline-none resize-none ${
+                className={`w-full bg-transparent px-2.5 py-2 text-xs text-ink placeholder:text-muted focus:bg-raised focus:border-accent-dim outline-none resize-none ${
                   !remotesLoading && remotes.length > 0
                     ? 'border-t border-outline/50'
                     : ''
@@ -1463,7 +1458,7 @@ export function GitSidebar({
                       <button
                         type="button"
                         onClick={() => void openUrl(r.web_url).catch(reportError)}
-                        className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-2.5 py-2 rounded-item border border-line/60 bg-base/40 hover:bg-raised hover:border-accent/40 transition-colors text-start min-w-0"
+                        className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-2.5 py-2 rounded-item border border-line/60 bg-base/40 hover:bg-raised hover:border-accent/40 text-start min-w-0"
                       >
                         <IconGitBranch className="w-3 h-3 text-accent shrink-0" />
                         <span className="text-2xs font-medium text-ink truncate flex-1">
@@ -1482,7 +1477,7 @@ export function GitSidebar({
                 type="button"
                 onClick={() => void handleCommit()}
                 disabled={!commitMessage.trim() || committing}
-                className="focus-ring cursor-pointer w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-item bg-accent hover:bg-accent-bright disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium text-white transition-colors"
+                className="focus-ring cursor-pointer w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-item bg-accent hover:bg-accent-bright disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium text-white "
               >
                 <IconCheck className="w-3.5 h-3.5" />
                 {committing ? t('committing') : t('commit')}
@@ -1504,7 +1499,7 @@ export function GitSidebar({
                 type="button"
                 onClick={() => void handleStashPush()}
                 disabled={!!stashBusy}
-                className="focus-ring cursor-pointer w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-item border border-dashed border-outline/60 bg-base/40 text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-50 disabled:cursor-wait text-2xs font-medium"
+                className="focus-ring cursor-pointer w-full inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-item border border-dashed border-outline/60 bg-base/40 text-muted hover:text-ink hover:bg-raised disabled:opacity-50 disabled:cursor-wait text-2xs font-medium"
               >
                 <IconDownload
                   className={`w-3.5 h-3.5 shrink-0 ${
@@ -1518,7 +1513,7 @@ export function GitSidebar({
                   <div
                     key={s.index}
                     onClick={() => setStashDiff({ index: s.index, message: s.message })}
-                    className="group relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-item border border-line/60 bg-base/40 hover:bg-raised/60 transition-colors cursor-pointer"
+                    className="group relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-item border border-line/60 bg-base/40 hover:bg-raised/60 cursor-pointer"
                   >
                     <IconDownload className="w-3 h-3 text-muted/40 shrink-0" />
                     <div className="flex-1 min-w-0">
@@ -1535,14 +1530,14 @@ export function GitSidebar({
                     </div>
                     <div
                       onClick={(e) => e.stopPropagation()}
-                      className="absolute end-1.5 top-1/2 -translate-y-1/2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity bg-base/80 rounded-md px-0.5 py-0.5"
+                      className="absolute end-1.5 top-1/2 -translate-y-1/2 flex items-center gap-0.5 opacity-0 group-hover:opacity-100 bg-base/80 rounded-md px-0.5 py-0.5"
                     >
                         <Tooltip content={t('apply_stash')}>
                         <button
                           type="button"
                           onClick={() => void handleStashApply(s.index)}
                           disabled={!!stashBusy}
-                          className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-mint hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-wait"
+                          className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-mint hover:bg-raised disabled:opacity-40 disabled:cursor-wait"
                         >
                           <IconPlay
                             className={`w-3 h-3 ${
@@ -1558,7 +1553,7 @@ export function GitSidebar({
                           type="button"
                           onClick={() => void handleStashPop(s.index)}
                           disabled={!!stashBusy}
-                          className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-amber hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-wait"
+                          className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-amber hover:bg-raised disabled:opacity-40 disabled:cursor-wait"
                         >
                           <IconChevronUp
                             className={`w-3 h-3 ${
@@ -1574,7 +1569,7 @@ export function GitSidebar({
                           type="button"
                           onClick={() => void handleStashDrop(s.index)}
                           disabled={!!stashBusy}
-                          className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-danger hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-wait"
+                          className="focus-ring cursor-pointer p-1 rounded text-muted/60 hover:text-danger hover:bg-raised disabled:opacity-40 disabled:cursor-wait"
                         >
                           <IconTrash
                             className={`w-3 h-3 ${
@@ -1608,7 +1603,7 @@ export function GitSidebar({
                 value={changesQuery}
                 onChange={(e) => setChangesQuery(e.target.value)}
                 placeholder={t('filter_changes')}
-                className="w-full bg-base/50 border border-outline/50 rounded-item px-2.5 py-1.5 text-2xs text-ink placeholder:text-muted focus:border-accent-dim outline-none transition-colors mb-1.5"
+                className="w-full bg-base/50 border border-outline/50 rounded-item px-2.5 py-1.5 text-2xs text-ink placeholder:text-muted focus:border-accent-dim outline-none mb-1.5"
               />
             )}
             <div className="bg-base/50 border border-outline/50 rounded-item overflow-hidden">
@@ -1719,8 +1714,8 @@ export function GitSidebar({
         </div>
         )}
       </div>
-        </motion.div>
-      </AnimatePresence>
+        </div>
+
 
       {gitAuthFlow && (
         <GitAuthModal
@@ -1771,13 +1766,13 @@ export function GitSidebar({
       )}
 
       {createPortal(
-        <AnimatePresence>
-          {ctxMenu && (
-            <motion.div
+
+          ctxMenu && (
+            <div
               key="ctx-menu"
               ref={ctxMenuRef}
               role="menu"
-              {...uiMotion.surface('popover', `translateY(-4px) scale(0.97)`)}
+
 
               style={{ left: ctxMenu.x, top: ctxMenu.y, transformOrigin: 'top left' }}
               className="fixed z-50 w-48 rounded-menu border border-outline/50 bg-overlay shadow-md shadow-black/10 p-1.5"
@@ -1787,7 +1782,7 @@ export function GitSidebar({
                   type="button"
                   role="menuitem"
                   onClick={() => void handleUnstageAll()}
-                  className="focus-ring cursor-pointer w-full flex items-center gap-2 px-2.5 py-2 rounded-item text-xs font-medium text-muted hover:bg-raised hover:text-ink transition-colors"
+                  className="focus-ring cursor-pointer w-full flex items-center gap-2 px-2.5 py-2 rounded-item text-xs font-medium text-muted hover:bg-raised hover:text-ink "
                 >
                   <IconChevronUp className="w-3.5 h-3.5 text-amber shrink-0" />
                   {t('unstage_all_changes')}
@@ -1797,7 +1792,7 @@ export function GitSidebar({
                 type="button"
                 role="menuitem"
                 onClick={() => void handleStageAll()}
-                className="focus-ring cursor-pointer w-full flex items-center gap-2 px-2.5 py-2 rounded-item text-xs font-medium text-muted hover:bg-raised hover:text-ink transition-colors"
+                className="focus-ring cursor-pointer w-full flex items-center gap-2 px-2.5 py-2 rounded-item text-xs font-medium text-muted hover:bg-raised hover:text-ink "
               >
                 <IconPlus className="w-3.5 h-3.5 text-mint shrink-0" />
                 {t('stage_all')}
@@ -1809,7 +1804,7 @@ export function GitSidebar({
                   setCtxMenu(null)
                   void handleStashPush()
                 }}
-                className="focus-ring cursor-pointer w-full flex items-center gap-2 px-2.5 py-2 rounded-item text-xs font-medium text-muted hover:bg-raised hover:text-ink transition-colors"
+                className="focus-ring cursor-pointer w-full flex items-center gap-2 px-2.5 py-2 rounded-item text-xs font-medium text-muted hover:bg-raised hover:text-ink "
               >
                 <IconDownload className="w-3.5 h-3.5 text-amber shrink-0" />
                 {t('stash')}
@@ -1818,7 +1813,7 @@ export function GitSidebar({
                 type="button"
                 role="menuitem"
                 onClick={() => void handleDiscardAll()}
-                className="focus-ring cursor-pointer w-full flex items-center gap-2 px-2.5 py-2 rounded-item text-xs font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-colors"
+                className="focus-ring cursor-pointer w-full flex items-center gap-2 px-2.5 py-2 rounded-item text-xs font-medium text-red-400 hover:bg-red-500/10 hover:text-red-300 "
               >
                 <IconTrash className="w-3.5 h-3.5 shrink-0" />
                 {t('discard_all')}
@@ -1828,7 +1823,7 @@ export function GitSidebar({
                 type="button"
                 role="menuitem"
                 onClick={() => void handleUndoCommit()}
-                className="focus-ring cursor-pointer w-full flex items-center gap-2 px-2.5 py-2 rounded-item text-xs font-medium text-muted hover:bg-raised hover:text-ink transition-colors"
+                className="focus-ring cursor-pointer w-full flex items-center gap-2 px-2.5 py-2 rounded-item text-xs font-medium text-muted hover:bg-raised hover:text-ink "
               >
                 <IconHistory className="w-3.5 h-3.5 shrink-0" />
                 {t('undo_last_commit')}
@@ -1837,14 +1832,14 @@ export function GitSidebar({
                 type="button"
                 role="menuitem"
                 onClick={() => void handleUndoPull()}
-                className="focus-ring cursor-pointer w-full flex items-center gap-2 px-2.5 py-2 rounded-item text-xs font-medium text-muted hover:bg-raised hover:text-ink transition-colors"
+                className="focus-ring cursor-pointer w-full flex items-center gap-2 px-2.5 py-2 rounded-item text-xs font-medium text-muted hover:bg-raised hover:text-ink "
               >
                 <IconCloudArrowDown className="w-3.5 h-3.5 shrink-0" />
                 {t('undo_pull')}
               </button>
-            </motion.div>
-          )}
-        </AnimatePresence>,
+            </div>
+          )
+        ,
         document.body,
       )}
     </div>

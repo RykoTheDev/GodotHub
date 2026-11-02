@@ -1,11 +1,9 @@
-import { useId, useMemo, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react'
-import { AnimatePresence, LayoutGroup, motion, type Transition } from 'framer-motion'
+import { useMemo, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react'
 import { DndContext, DragOverlay, closestCenter } from '@dnd-kit/core'
 import {
   SortableContext,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable'
-import { AnimatedNumber } from '../reusables/AnimatedNumber'
 import { useTranslation } from 'react-i18next'
 import { IconNode, IconPin } from '../../lib/icons'
 import {
@@ -13,7 +11,6 @@ import {
   ProjectCategorySection,
   type HiddenCategoryEntry,
 } from './CategorySections'
-import { useUiMotion } from '../../hooks/useUiMotion'
 import { hasOnlyPinnedProjects, UNCATEGORIZED_KEY } from '../../lib/projectDrag'
 import { AUTO_SCROLL_CONFIG } from '../../lib/dragFeel'
 import { useProjectDnd } from '../../hooks/useProjectDnd'
@@ -24,7 +21,6 @@ import {
 } from '../dnd/ProjectDnd'
 import type { Category, Project } from '../../types'
 
-const DEFAULT_ANIMATION_THRESHOLD = 20
 const UNCATEGORIZED = UNCATEGORIZED_KEY
 
 interface ProjectCardListProps {
@@ -32,8 +28,6 @@ interface ProjectCardListProps {
   renderCard: (project: Project) => ReactNode
   hasActiveFilters: boolean
   searchActive?: boolean
-  totalCount: number
-  animationThreshold?: number
   categories?: Category[]
   categoriesEnabled?: boolean
   onReorder?: (orderedIds: string[]) => Promise<void>
@@ -56,8 +50,6 @@ export function ProjectCardList({
   renderCard,
   hasActiveFilters,
   searchActive = false,
-  totalCount,
-  animationThreshold = DEFAULT_ANIMATION_THRESHOLD,
   categories = [],
   categoriesEnabled = false,
   onReorder,
@@ -68,11 +60,6 @@ export function ProjectCardList({
   selectedIds,
 }: ProjectCardListProps) {
   const { t } = useTranslation('common')
-  const layoutGroupId = useId()
-
-  const uiMotion = useUiMotion()
-  const animateList = totalCount <= animationThreshold
-  const layoutTransition: Transition = uiMotion.transition('press')
 
   const showPinnedSection = !searchActive && projects.some((p) => p.pinned)
   const pinnedProjects = showPinnedSection
@@ -135,44 +122,13 @@ export function ProjectCardList({
 
   const cardBody = (p: Project) => renderCard(p)
 
-  const animatedCard = (p: Project) =>
-    animateList ? (
-      <motion.div
-        key={p.id}
-        layoutId={dnd.activeId ? undefined : p.id}
-        initial={false}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0, transition: { duration: 0.12 } }}
-        transition={layoutTransition}
-        className="min-w-0"
-      >
-        {cardBody(p)}
-      </motion.div>
-    ) : (
-      <div key={p.id} className="min-w-0">
-        {cardBody(p)}
-      </div>
-    )
+  const animatedCard = (p: Project) => (
+    <div key={p.id} className="min-w-0">
+      {cardBody(p)}
+    </div>
+  )
 
-  const pinnedCard = (p: Project) =>
-    animateList ? (
-      <motion.div
-        key={p.id}
-        layout
-        layoutId={p.id}
-        initial={false}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0, transition: { duration: 0.12 } }}
-        transition={layoutTransition}
-        className="min-w-0"
-      >
-        {cardBody(p)}
-      </motion.div>
-    ) : (
-      <div key={p.id} className="min-w-0">
-        {cardBody(p)}
-      </div>
-    )
+  const pinnedCard = animatedCard
 
   const sortableCard = (p: Project) => (
     <SortableProjectItem
@@ -189,19 +145,9 @@ export function ProjectCardList({
 
   const cardFor = isDndEnabled ? sortableCard : animatedCard
 
-  // Exiting sections leave the flex layout immediately while their card transfers.
-  const categorySection = (key: string, children: ReactNode) => animateList ? (
-    <motion.div
-      key={key}
-      layout="position"
-      initial={false}
-      exit={{ opacity: 0, transition: { duration: 0.12 } }}
-      transition={layoutTransition}
-      className="min-w-0"
-    >
-      {children}
-    </motion.div>
-  ) : <div key={key} className="min-w-0">{children}</div>
+  const categorySection = (key: string, children: ReactNode) => (
+    <div key={key} className="min-w-0">{children}</div>
+  )
 
   const pinnedHeader = (
     <div
@@ -213,31 +159,14 @@ export function ProjectCardList({
         {t('pinned_section')}
       </span>
       <span className="text-3xs font-medium text-muted/50 tabular-nums">
-        · <AnimatedNumber value={pinnedProjects.length} />
+        · {pinnedProjects.length}
       </span>
       <div className="flex-1 h-px bg-outline/50" />
     </div>
   )
 
-  const emptyState = animateList ? (
-    <motion.div
-      key="empty"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.15 }}
-      className="h-full flex flex-col items-center justify-center gap-2 text-center"
-    >
-      <IconNode className="w-5 h-5 text-muted/50" />
-      <p className="text-sm text-muted">
-        {hasActiveFilters ? t('no_projects_match') : t('no_projects_yet')}
-      </p>
-    </motion.div>
-  ) : (
-    <div
-      key="empty"
-      className="h-full flex flex-col items-center justify-center gap-2 text-center"
-    >
+  const emptyState = (
+    <div key="empty" className="h-full flex flex-col items-center justify-center gap-2 text-center">
       <IconNode className="w-5 h-5 text-muted/50" />
       <p className="text-sm text-muted">
         {hasActiveFilters ? t('no_projects_match') : t('no_projects_yet')}
@@ -257,7 +186,6 @@ export function ProjectCardList({
           color={cat.color}
           count={projs.length}
           defaultOpen={projs.length > 0}
-          disableAnimation={isDndEnabled}
           droppableId={`list-cat-${cat.id}`}
           onContextMenu={
             onCategoryContextMenu
@@ -278,7 +206,6 @@ export function ProjectCardList({
         title={t('uncategorized')}
         count={uncategorized.length}
         defaultOpen={uncategorized.length > 0}
-        disableAnimation={isDndEnabled}
         droppableId="list-cat-uncategorized"
       >
         <SortableContext items={uncategorized.map((p) => p.id)} strategy={verticalListSortingStrategy}>
@@ -297,7 +224,6 @@ export function ProjectCardList({
           title={key}
           count={projs.length}
           defaultOpen={projs.length > 0}
-          disableAnimation={isDndEnabled}
           droppableId={`list-cat-${key}`}
         >
           <SortableContext items={projs.map((p) => p.id)} strategy={verticalListSortingStrategy}>
@@ -345,13 +271,7 @@ export function ProjectCardList({
           ]
         : [...unpinnedContent, hiddenSection]
 
-  const list = animateList ? (
-    <LayoutGroup id={layoutGroupId}>
-      <AnimatePresence initial={false} mode="popLayout">{listChildren}</AnimatePresence>
-    </LayoutGroup>
-  ) : (
-    listChildren
-  )
+  const list = listChildren
 
   return (
     <div className="flex-1 min-h-0 relative flex flex-col gap-2">
@@ -361,7 +281,6 @@ export function ProjectCardList({
           collisionDetection={dnd.collisionDetection ?? closestCenter}
           autoScroll={AUTO_SCROLL_CONFIG}
           onDragStart={dnd.handleDragStart}
-          onDragMove={dnd.handleDragMove}
           onDragEnd={dnd.handleDragEnd}
           onDragCancel={dnd.handleDragCancel}
         >
@@ -372,8 +291,7 @@ export function ProjectCardList({
             {list}
           </SortableContext>
           <ProjectDropLine ignorePrefix="list-cat-" placement={dnd.placementRef} activeIds={dnd.activeIds} />
-          <DragOverlay
-            dropAnimation={dnd.dropAnimation}
+          <DragOverlay dropAnimation={null}
           >
             {dnd.activeProject ? (
               <ProjectDragOverlay

@@ -30,7 +30,7 @@ export function ColorSwatchPicker({ label, value, onChange, presets }: Props) {
             type="button"
             onClick={toggle}
             aria-expanded={open}
-            className="focus-ring cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-btn bg-overlay border border-outline/50 hover:border-accent-dim transition-colors w-full"
+            className="focus-ring cursor-pointer flex items-center gap-3 px-3 py-2.5 rounded-btn bg-overlay border border-outline/50 hover:border-accent-dim w-full"
           >
             <span
               className="w-8 h-8 rounded-tile border border-line shadow-inner shrink-0"
@@ -73,7 +73,7 @@ export function ColorSwatchPicker({ label, value, onChange, presets }: Props) {
                 }}
                 spellCheck={false}
                 placeholder="#000000"
-                className="focus-ring w-20 bg-overlay border border-outline/50 rounded-item px-2.5 py-2 text-xs font-mono text-ink focus:border-accent-dim transition-colors"
+                className="focus-ring w-20 bg-overlay border border-outline/50 rounded-item px-2.5 py-2 text-xs font-mono text-ink focus:border-accent-dim "
               />
             </div>
           </div>
@@ -93,7 +93,7 @@ export function ColorSwatchPicker({ label, value, onChange, presets }: Props) {
                     }}
                     aria-label={preset}
                     title={preset}
-                    className={`relative w-7 h-7 rounded-btn cursor-pointer border transition-transform hover:z-10 ${
+                    className={`relative w-7 h-7 rounded-btn cursor-pointer border hover:z-10 ${
                       isSelected
                         ? 'ring-2 ring-offset-1 ring-offset-surface ring-ink scale-110'
                         : 'border-black/20 hover:border-white/40'

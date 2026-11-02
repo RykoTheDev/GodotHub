@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState, type MouseEvent } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../lib/api'
 import { formatBytes } from '../../lib/formatBytes'
@@ -37,7 +37,6 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
   const [loading, setLoading] = useState(() => !getCachedTemplateOptions(tag))
   const [checking, setChecking] = useState(true)
   const [collapsedCategories, setCollapsedCategories] = useState<string[]>([])
-  const [animateDisclosures, setAnimateDisclosures] = useState(false)
   const [error, setError] = useState('')
   const [attempt, setAttempt] = useState(0)
   const [removing, setRemoving] = useState<string[]>([])
@@ -92,10 +91,6 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
   const allSelected = availableFiles.length > 0 && chosen.length === availableFiles.length
   const busy = removing.length > 0 || checking
 
-  const prepareDisclosure = (event: MouseEvent<HTMLButtonElement>) => {
-    setAnimateDisclosures(event.detail > 0)
-  }
-
   const uninstall = async (files: ExportTemplateFile[], label: string) => {
     const names = files.filter((file) => file.installed).map((file) => file.name)
     if (mutationPending.current || names.length === 0) return
@@ -132,7 +127,7 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
     <button type="button" disabled={busy} onClick={() => void uninstall(files, label)}
       aria-label={t('export_templates_uninstall_named', { name: label })}
       title={t('export_templates_uninstall_named', { name: label })}
-      className="focus-ring cursor-pointer shrink-0 p-1.5 rounded-btn text-muted/60 hover:text-danger hover:bg-danger/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+      className="focus-ring cursor-pointer shrink-0 p-1.5 rounded-btn text-muted/60 hover:text-danger hover:bg-danger/10 disabled:opacity-40 disabled:cursor-not-allowed">
       {files.some((file) => removing.includes(file.name))
         ? <IconSpinner className="w-3 h-3 animate-spin" />
         : <IconTrash className="w-3 h-3" />}
@@ -171,12 +166,12 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
             )}
           </div>
           <button type="button" onClick={onClose}
-            className="focus-ring cursor-pointer px-4 py-2.5 rounded-item border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors">
+            className="focus-ring cursor-pointer px-4 py-2.5 rounded-item border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised ">
             {tc('cancel')}
           </button>
           <button type="button" disabled={loading || !!error || busy || chosen.length === 0}
             onClick={() => onDownload(chosen.map((file) => file.name))}
-            className="focus-ring cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 inline-flex items-center gap-2 px-4 py-2.5 rounded-item text-sm font-medium bg-accent hover:bg-accent/90 text-white transition-colors">
+            className="focus-ring cursor-pointer disabled:cursor-not-allowed disabled:opacity-40 inline-flex items-center gap-2 px-4 py-2.5 rounded-item text-sm font-medium bg-accent hover:bg-accent/90 text-white ">
             <IconDownload className="w-3.5 h-3.5" />{t('export_templates_download_selected')}
           </button>
         </>
@@ -202,12 +197,12 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
               <span>{t('export_templates_available', { count: options.length })}</span>
               <button type="button" disabled={busy} onClick={() => setAttempt((value) => value + 1)}
                 aria-label={t('export_templates_refresh')} title={t('export_templates_refresh')}
-                className="focus-ring cursor-pointer ms-auto p-1.5 rounded-btn text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                className="focus-ring cursor-pointer ms-auto p-1.5 rounded-btn text-muted hover:text-ink hover:bg-raised disabled:opacity-40 disabled:cursor-not-allowed">
                 <IconRefresh className={`w-3 h-3 ${checking ? 'animate-spin' : ''}`} />
               </button>
               <button type="button" disabled={busy || availableFiles.length === 0}
                 onClick={() => setSelected(allSelected ? [] : availableFiles.map((file) => file.name))}
-                className="focus-ring cursor-pointer rounded-btn px-3 py-1.5 text-accent-bright hover:bg-accent/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+                className="focus-ring cursor-pointer rounded-btn px-3 py-1.5 text-accent-bright hover:bg-accent/10 disabled:opacity-40 disabled:cursor-not-allowed">
                 {t(allSelected ? 'clear_selection' : 'export_templates_select_all')}
               </button>
             </div>
@@ -227,16 +222,15 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
                         indeterminate={selectedCount > 0 && selectedCount < available.length}
                         label={label} onChange={(checked) => setSelected((previous) => toggleTemplateFiles(previous, files, checked))} />}
                       <button type="button" aria-expanded={open} aria-controls={categoryId}
-                        onClick={(event) => {
-                          prepareDisclosure(event)
+                        onClick={() => {
                           setCollapsedCategories((previous) => open ? [...previous, category.id] : previous.filter((key) => key !== category.id))
                         }}
-                        className="focus-ring cursor-pointer flex flex-1 items-center gap-2 rounded-btn text-start text-sm font-medium text-muted hover:text-ink transition-colors">
+                        className="focus-ring cursor-pointer flex flex-1 items-center gap-2 rounded-btn text-start text-sm font-medium text-muted hover:text-ink ">
                         <span className="flex-1">{label}</span>
-                        <DisclosureChevron open={open} animate={animateDisclosures} />
+                        <DisclosureChevron open={open} />
                       </button>
                     </div>
-                    <Disclosure id={categoryId} open={open} animate={animateDisclosures} className="flex flex-col gap-2.5 pt-2.5">{category.options.map((option) => {
+                    <Disclosure id={categoryId} open={open} className="flex flex-col gap-2.5 pt-2.5">{category.options.map((option) => {
                         const available = option.files.filter((file) => !file.installed)
                         const installedCount = option.files.length - available.length
                         const selectedCount = available.filter((file) => selectedNames.has(file.name)).length
@@ -252,8 +246,7 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
                                 label={option.label}
                                 onChange={(checked) => setSelected((previous) => toggleTemplateFiles(previous, option.files, checked))} />}
                               <button type="button" aria-expanded={open} aria-controls={panelId}
-                                onClick={(event) => {
-                                  prepareDisclosure(event)
+                                onClick={() => {
                                   setExpanded((previous) => open ? previous.filter((key) => key !== option.id) : [...previous, option.id])
                                 }}
                                 className="focus-ring cursor-pointer flex flex-1 min-w-0 items-center gap-2 rounded-btn text-start">
@@ -264,11 +257,11 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
                                 {installedCount > 0 && <span className="shrink-0 rounded-tag border border-mint/30 bg-mint/10 px-2 py-0.5 text-3xs font-medium text-mint">{!fullyInstalled && `${installedCount}/${option.files.length} `}{t('export_templates_option_installed')}</span>}
                                 {selectedCount > 0 && <span className="text-3xs text-accent-bright tabular-nums">{selectedCount}/{available.length}</span>}
                                 <span className="text-xs text-muted tabular-nums shrink-0">{formatBytes(fullyInstalled ? option.size_bytes : available.reduce((sum, file) => sum + file.download_bytes, 0))}</span>
-                                <DisclosureChevron open={open} animate={animateDisclosures} />
+                                <DisclosureChevron open={open} />
                               </button>
                               {uninstallButton(option.files, option.label)}
                             </div>
-                            <Disclosure id={panelId} open={open} animate={animateDisclosures} className="pt-3">
+                            <Disclosure id={panelId} open={open} className="pt-3">
                               <div className="pt-3 border-t border-outline/50 flex flex-col gap-3">
                                 {groupTemplateFiles(option.files).map((group, groupIndex) => {
                                   const groupLabel = group.labelKey ? t(group.labelKey) : group.label
@@ -290,21 +283,20 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
                                             label={groupName}
                                             onChange={(checked) => setSelected((previous) => toggleTemplateFiles(previous, group.files, checked))} />}
                                           <button type="button" aria-expanded={groupOpen} aria-controls={groupPanelId}
-                                            onClick={(event) => {
-                                              prepareDisclosure(event)
+                                            onClick={() => {
                                               setExpandedArchitectures((previous) => groupOpen ? previous.filter((key) => key !== groupKey) : [...previous, groupKey])
                                             }}
                                             className="focus-ring cursor-pointer flex flex-1 min-w-0 items-center gap-2 rounded-btn text-start py-1">
                                             <span className="flex-1 text-xs font-medium text-ink">{groupLabel}</span>
                                             {installedCount > 0 && <span className="text-3xs text-mint">{!fullyInstalled && `${installedCount}/${group.files.length} `}{t('export_templates_option_installed')}</span>}
                                             {!fullyInstalled && <span className="text-3xs text-muted tabular-nums">{count}/{available.length}</span>}
-                                            <DisclosureChevron open={groupOpen} animate={animateDisclosures} />
+                                            <DisclosureChevron open={groupOpen} />
                                           </button>
                                           {uninstallButton(group.files, groupName)}
                                         </div>
                                       )}
-                                      <Disclosure id={groupPanelId} open={groupOpen} animate={animateDisclosures} className={`flex flex-col gap-1.5 ${group.label ? 'pt-1.5' : ''}`}>{group.files.map((file) => (
-                                        <div key={file.name} className={`flex items-center gap-3 rounded-btn border px-3 py-2.5 ${group.label ? 'ms-5' : ''} ${selectedNames.has(file.name) ? 'border-accent-dim/40 bg-accent/5' : 'border-transparent bg-base/30 hover:bg-raised/70'} transition-colors`}>
+                                      <Disclosure id={groupPanelId} open={groupOpen} className={`flex flex-col gap-1.5 ${group.label ? 'pt-1.5' : ''}`}>{group.files.map((file) => (
+                                        <div key={file.name} className={`flex items-center gap-3 rounded-btn border px-3 py-2.5 ${group.label ? 'ms-5' : ''} ${selectedNames.has(file.name) ? 'border-accent-dim/40 bg-accent/5' : 'border-transparent bg-base/30 hover:bg-raised/70'} `}>
                                           {file.installed ? <div className="flex flex-1 min-w-0 items-center gap-2.5">
                                             <InstalledMark label={`${file.name} · ${t('export_templates_option_installed')}`} />
                                             <span title={file.name} className="block min-w-0 truncate font-mono text-2xs text-ink">{file.name}</span>

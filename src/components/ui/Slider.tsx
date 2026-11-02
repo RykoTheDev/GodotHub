@@ -2,7 +2,6 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IconRefresh } from '../../lib/icons'
 import { Tooltip } from '../reusables/Tooltip'
-import { beginScaleSmoothing } from '../../lib/appearance'
 
 interface Props {
   value: number
@@ -45,12 +44,11 @@ export function Slider({
               type="button"
               onClick={() => {
                 if (defaultValue === undefined) return
-                beginScaleSmoothing()
                 onChange(defaultValue)
               }}
               disabled={disabled || !canReset}
               aria-label={t('reset_to_default')}
-              className={`focus-ring cursor-pointer h-6 w-6 flex items-center justify-center rounded-full border transition-colors duration-150 overflow-hidden shrink-0 ${canReset ? 'bg-raised border-outline/50 text-muted hover:text-accent-bright hover:border-accent-dim/70 hover:bg-overlay' : 'bg-transparent border-transparent text-transparent'}`}
+              className={`focus-ring cursor-pointer h-6 w-6 flex items-center justify-center rounded-full border overflow-hidden shrink-0 ${canReset ? 'bg-raised border-outline/50 text-muted hover:text-accent-bright hover:border-accent-dim/70 hover:bg-overlay' : 'bg-transparent border-transparent text-transparent'}`}
             >
               <IconRefresh className="w-3 h-3" />
             </button>
@@ -68,7 +66,7 @@ export function Slider({
         className={`group relative flex items-center w-full h-5 ${disabled ? 'opacity-40' : ''}`}
       >
         <div
-          className={`pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 h-6 rounded-md bg-raised border overflow-hidden transition-colors ${
+          className={`pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 h-6 rounded-md bg-raised border overflow-hidden  ${
             disabled ? 'border-line' : 'border-outline/50 group-hover:border-accent-dim'
           }`}
         >
@@ -78,7 +76,7 @@ export function Slider({
           />
         </div>
         <div
-          className="pointer-events-none absolute top-1/2 -translate-y-1/2 w-4 h-8 rounded-lg bg-white shadow-md border border-line transition-transform duration-150 "
+          className="pointer-events-none absolute top-1/2 -translate-y-1/2 w-4 h-8 rounded-lg bg-white shadow-md border border-line  "
           style={{ left: `calc(${percent}% - ${(percent / 100) * thumbSize}px)` }}
         />
         <input
@@ -90,7 +88,6 @@ export function Slider({
           disabled={disabled}
           aria-label={label}
           onChange={(e) => {
-            beginScaleSmoothing()
             onChange(Number(e.target.value))
           }}
           className="focus-ring relative z-10 m-0 w-full h-6 appearance-none bg-transparent disabled:cursor-not-allowed cursor-pointer

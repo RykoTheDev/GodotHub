@@ -6,9 +6,7 @@ import React, {
   useRef,
   useState,
 } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
-import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 import { useProjectsContext } from '../hooks/projectsContext'
 import { useGodotVersionsContext } from '../hooks/godotVersionsContext'
 import { useCategoriesContext } from '../hooks/categoriesContext'
@@ -893,27 +891,27 @@ export function ProjectsView({
         connected={connected}
         title={t('projects')}
         leadingAction={
-          <motion.button
+          <button
             type="button"
             onClick={() => setCreateProjectOpen(true)}
-            data-press-feedback
+
             aria-label={tc('new_project')}
-            className="group h-9 min-w-9 ps-2 cursor-pointer inline-flex items-center justify-start rounded-full bg-accent text-ink hover:bg-accent-bright transition-colors"
+            className="group h-9 min-w-9 ps-2 cursor-pointer inline-flex items-center justify-start rounded-full bg-accent text-ink hover:bg-accent-bright "
           >
             <IconPlus className="w-5 h-5 shrink-0" strokeWidth={3} />
-            <span className="grid grid-cols-[0fr] transition-[grid-template-columns] duration-300 ease-out group-hover:grid-cols-[1fr]">
+            <span className="grid grid-cols-[0fr] group-hover:grid-cols-[1fr]">
               <span className="overflow-hidden">
                 <span className="block whitespace-nowrap ps-1 pe-3 text-sm font-semibold">
                   {tc('new')}
                 </span>
               </span>
             </span>
-          </motion.button>
+          </button>
         }
         metric={
           <>
             <h2 className="text-4xl font-bold text-muted">
-              <AnimatedNumber value={filtered.length} />
+              {filtered.length}
             </h2>
             <p className="text-lg font-medium uppercase text-muted">
               {t('projects_count', { count: filtered.length })}
@@ -954,16 +952,16 @@ export function ProjectsView({
             />
             {settings.categories_enabled && (
               <Tooltip content={tc('manage_categories')} side="bottom">
-                <motion.button
+                <button
                   type="button"
 
-                  data-press-feedback
+
                   onClick={() => setCategoryManagerOpen(true)}
                   aria-label={tc('manage_categories')}
-                  className="focus-ring cursor-pointer inline-flex items-center justify-center shadow-md shadow-black/10 border border-outline/50 w-10 h-10 shrink-0 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
+                  className="focus-ring cursor-pointer inline-flex items-center justify-center shadow-md shadow-black/10 border border-outline/50 w-10 h-10 shrink-0 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised "
               >
                   <IconTags className="w-4 h-4" />
-                </motion.button>
+                </button>
               </Tooltip>
             )}
           </>
@@ -1006,13 +1004,13 @@ export function ProjectsView({
               (o) => o.value === effectiveSortBy,
             )
             return (
-              <motion.button
+              <button
                 type="button"
                 aria-expanded={open}
 
-                data-press-feedback
+
                 onClick={toggle}
-                className={`focus-ring cursor-pointer flex items-center justify-center gap-1 h-8 px-4 rounded-item transition-colors ${
+                className={`focus-ring cursor-pointer flex items-center justify-center gap-1 h-8 px-4 rounded-item  ${
                   isCustomSort
                     ? 'bg-accent/15 text-accent-bright ring-1 ring-accent-dim/70'
                     : 'bg-overlay text-muted hover:text-ink hover:bg-raised'
@@ -1027,7 +1025,7 @@ export function ProjectsView({
                     </span>
                   )}
                 </span>
-              </motion.button>
+              </button>
             )
           }}
           items={SORT_OPTIONS.filter(
@@ -1050,13 +1048,13 @@ export function ProjectsView({
                   ? tc('uncategorized')
                   : categoryFilter
               return (
-                <motion.button
+                <button
                   type="button"
                   aria-expanded={open}
 
-                  data-press-feedback
+
                   onClick={toggle}
-                  className={`focus-ring cursor-pointer flex items-center justify-center gap-1 h-8 px-4 rounded-item transition-colors ${
+                  className={`focus-ring cursor-pointer flex items-center justify-center gap-1 h-8 px-4 rounded-item  ${
                     hasCategoryFilter
                       ? 'bg-accent/15 text-accent-bright ring-1 ring-accent-dim/70'
                       : 'bg-overlay text-muted hover:text-ink hover:bg-raised'
@@ -1071,7 +1069,7 @@ export function ProjectsView({
                       </span>
                     )}
                   </span>
-                </motion.button>
+                </button>
               )
             }}
             items={[
@@ -1104,7 +1102,7 @@ export function ProjectsView({
             type="button"
             onClick={() => setTagFilter(null)}
             title={tc('clear_tag_filter')}
-            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-item bg-accent/15 text-accent-bright ring-1 ring-accent-dim/70 hover:bg-accent/25 transition-colors"
+            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-item bg-accent/15 text-accent-bright ring-1 ring-accent-dim/70 hover:bg-accent/25 "
           >
             <span
               className="w-1.5 h-1.5 rounded-full shrink-0"
@@ -1121,18 +1119,18 @@ export function ProjectsView({
               align="right"
               compact
               trigger={({ open, toggle }) => (
-                <motion.button
+                <button
                   type="button"
                   aria-expanded={open}
-                  data-press-feedback
+
                   onClick={toggle}
-                  className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 transition-colors"
+                  className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 "
                 >
                   <span className="text-sm font-medium">{tc('customize_card_section')}</span>
                   <IconChevronDown
-                    className={`w-2.5 h-2.5 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
+                    className={`w-2.5 h-2.5  ${open ? 'rotate-180' : ''}`}
                   />
-                </motion.button>
+                </button>
               )}
             >
               {(() => {
@@ -1190,17 +1188,17 @@ export function ProjectsView({
                       : 'view_list',
                 )
                 return (
-                  <motion.button
+                  <button
                     type="button"
                     aria-expanded={open}
                     aria-label={viewLabel}
                     title={viewLabel}
-                    data-press-feedback
+
                     onClick={toggle}
-                    className="focus-ring cursor-pointer flex items-center justify-center w-8 h-8 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 transition-colors"
+                    className="focus-ring cursor-pointer flex items-center justify-center w-8 h-8 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised border border-outline/50 "
                   >
                     <ViewIcon className="w-3.5 h-3.5" />
-                  </motion.button>
+                  </button>
                 )
               }}
               items={VIEW_MODE_OPTIONS.map((opt) => ({
@@ -1216,13 +1214,11 @@ export function ProjectsView({
 
       </div>
 
-      <AnimatePresence>
+
         {selectedIds.size > 0 && (
-          <motion.div key="selection-bar"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.18, ease: 'easeOut' }}
+          <div key="selection-bar"
+
+
             className="overflow-hidden shrink-0"
           >
             <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-item bg-accent/10 border border-accent-dim/40">
@@ -1231,7 +1227,7 @@ export function ProjectsView({
                   type="button"
                   onClick={toggleSelectAllVisible}
                   aria-label={tc('select_all_visible')}
-                  className={`focus-ring cursor-pointer w-5 h-5 rounded-item border-2 flex items-center justify-center transition-colors ${
+                  className={`focus-ring cursor-pointer w-5 h-5 rounded-item border-2 flex items-center justify-center  ${
                     allVisibleSelected
                       ? 'bg-accent border-accent text-white'
                       : 'border-muted/40 text-transparent hover:border-accent/60'
@@ -1247,7 +1243,7 @@ export function ProjectsView({
               <button
                 type="button"
                 onClick={batchLaunch}
-                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-accent text-ink hover:bg-accent-bright transition-colors"
+                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-accent text-ink hover:bg-accent-bright "
               >
                 <IconPlay className="w-3 h-3" />
                 <span className="text-xs font-medium">{tc('bulk_launch')}</span>
@@ -1255,7 +1251,7 @@ export function ProjectsView({
               <button
                 type="button"
                 onClick={batchPin}
-                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-raised text-muted hover:text-ink hover:bg-overlay transition-colors"
+                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-raised text-muted hover:text-ink hover:bg-overlay "
               >
                 <IconPin className="w-3 h-3" />
                 <span className="text-xs font-medium">
@@ -1265,7 +1261,7 @@ export function ProjectsView({
               <button
                 type="button"
                 onClick={() => setBulkTagsOpen(true)}
-                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-raised text-muted hover:text-ink hover:bg-overlay transition-colors"
+                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-raised text-muted hover:text-ink hover:bg-overlay "
               >
                 <IconTags className="w-3 h-3" />
                 <span className="text-xs font-medium">
@@ -1275,7 +1271,7 @@ export function ProjectsView({
               <button
                 type="button"
                 onClick={() => setConfirmBatchAction('remove')}
-                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-raised text-muted hover:text-ink hover:bg-overlay transition-colors"
+                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-raised text-muted hover:text-ink hover:bg-overlay "
               >
                 <IconX className="w-3 h-3" />
                 <span className="text-xs font-medium">
@@ -1285,7 +1281,7 @@ export function ProjectsView({
               <button
                 type="button"
                 onClick={() => setConfirmBatchAction('delete')}
-                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-danger/10 text-danger hover:bg-danger/20 transition-colors"
+                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-danger/10 text-danger hover:bg-danger/20 "
               >
                 <IconTrash className="w-3 h-3" />
                 <span className="text-xs font-medium">
@@ -1297,15 +1293,15 @@ export function ProjectsView({
                   type="button"
                   onClick={clearSelection}
                   aria-label={tc('clear_selection')}
-                  className="focus-ring cursor-pointer w-8 h-8 rounded-btn flex items-center justify-center text-muted hover:text-ink hover:bg-overlay transition-colors"
+                  className="focus-ring cursor-pointer w-8 h-8 rounded-btn flex items-center justify-center text-muted hover:text-ink hover:bg-overlay "
                 >
                   <IconX className="w-3.5 h-3.5" />
                 </button>
               </Tooltip>
             </div>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+
       </div>
 
       <OverlayScrollArea
@@ -1324,9 +1320,9 @@ export function ProjectsView({
             </p>
             <button
               type="button"
-              data-press-feedback
+
               onClick={() => void refresh()}
-              className="focus-ring cursor-pointer px-4 py-2 rounded-btn text-sm bg-accent text-ink hover:bg-accent-bright transition-colors"
+              className="focus-ring cursor-pointer px-4 py-2 rounded-btn text-sm bg-accent text-ink hover:bg-accent-bright "
             >
               {tc('retry')}
             </button>
@@ -1408,8 +1404,6 @@ export function ProjectsView({
         ) : (
           <ProjectCardList
             projects={filtered}
-            totalCount={projects.length}
-            animationThreshold={settings.animation_threshold}
             hasActiveFilters={hasActiveFilters}
             searchActive={parsedQuery.active}
             categories={surfaceCategories}
@@ -1457,7 +1451,7 @@ export function ProjectsView({
           />
         )}
 
-      <AnimatePresence>
+
         {createProjectOpen && (
           <CreateProjectModal
             installedVersions={installed}
@@ -1471,9 +1465,9 @@ export function ProjectsView({
             }}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {cloneRepoOpen && (
           <CloneRepoModal
             defaultLocation={settings.default_project_location}
@@ -1486,9 +1480,9 @@ export function ProjectsView({
             }}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {categoryManagerOpen && (
           <CategoryManagerModal
             categories={categories}
@@ -1510,9 +1504,9 @@ export function ProjectsView({
             }}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {duplicateProject && (
           <DuplicateProjectModal
             project={duplicateProject}
@@ -1520,9 +1514,9 @@ export function ProjectsView({
             onDuplicated={() => void refresh()}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {bulkTagsOpen && (
           <BulkTagModal
             projects={[...selectedIds]
@@ -1532,9 +1526,9 @@ export function ProjectsView({
             onApplied={() => void refresh()}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {confirmBatchAction === 'remove' && (
           <ConfirmDialog
             title={tc('bulk_remove_title', {
@@ -1548,9 +1542,9 @@ export function ProjectsView({
             onCancel={() => setConfirmBatchAction(null)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {confirmBatchAction === 'delete' && (
           <ConfirmDialog
             title={tc('bulk_delete_title', { count: selectedIds.size })}
@@ -1563,9 +1557,9 @@ export function ProjectsView({
             onCancel={() => setConfirmBatchAction(null)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {categoryMenu && (
           <ContextMenu
             key="category-context-menu"
@@ -1577,7 +1571,7 @@ export function ProjectsView({
             onClose={() => setCategoryMenu(null)}
           />
         )}
-      </AnimatePresence>
+
       </div>
       </OverlayScrollArea>
     </div>

@@ -4,7 +4,6 @@ import {
   type Window as TauriWindow,
 } from '@tauri-apps/api/window'
 import { openUrl } from '@tauri-apps/plugin-opener'
-import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { isMac } from '../../lib/platform'
 import { useSettings } from '../../hooks/useSettings'
@@ -90,7 +89,7 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
   if (useOsDec && !hasAnyTitlebarButton) return null
 
   const windowDot =
-    'w-4.5 h-4.5 rounded-xl transition-[filter] duration-150 group-hover/win:brightness-125'
+    'w-4.5 h-4.5 rounded-xl group-hover/win:brightness-125'
 
   return (
     <header
@@ -107,82 +106,81 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
       <div className="ms-auto flex items-center gap-1.5 self-stretch ">
         {!minimal && (
           <Tooltip content={tn('changelog')}>
-            <motion.button
+            <button
               type="button"
-              data-press-feedback
+
               onMouseDown={noDrag}
               onClick={() => window.dispatchEvent(new CustomEvent('app:set-tab', { detail: 'changelog' }))}
               aria-label={hasNewChangelogEntry ? `${tn('changelog')} (${t('new_badge')})` : tn('changelog')}
-              className={`focus-ring cursor-pointer inline-flex items-center justify-center rounded-item transition-colors ${
+              className={`focus-ring cursor-pointer inline-flex items-center justify-center rounded-item  ${
                 hasNewChangelogEntry
-                  ? 'changelog-shine gap-1.5 h-6.5 px-3 bg-accent/10 border border-accent/30 text-accent-bright hover:bg-accent/20 text-xs font-semibold'
+                  ? ' gap-1.5 h-6.5 px-3 bg-accent/10 border border-accent/30 text-accent-bright hover:bg-accent/20 text-xs font-semibold'
                   : 'w-8 h-8 text-muted hover:text-ink hover:bg-ink/10'
               }`}
             >
               {hasNewChangelogEntry && (
                 <span className="relative flex w-2 h-2" aria-hidden="true">
-                  <span className="absolute inline-flex h-full w-full rounded-full bg-accent-bright opacity-75 animate-attention-ping" />
                   <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-bright" />
                 </span>
               )}
               <IconBookOpen className="w-3.5 h-3.5" />
               {hasNewChangelogEntry && tn('changelog')}
-            </motion.button>
+            </button>
           </Tooltip>
         )}
 
         {!minimal && settings.show_support_button && (
             <Tooltip content={t('support_dev')}>
-            <motion.button
+            <button
               type="button"
 
-              data-press-feedback
+
 
               onMouseDown={noDrag}
               onClick={() =>
                 openUrl('https://www.patreon.com/cw/TheRyko/membership')
               }
-              className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-6.5 px-3 rounded-item bg-danger/10 text-danger hover:bg-danger/20 transition-colors text-xs font-semibold"
+              className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-6.5 px-3 rounded-item bg-danger/10 text-danger hover:bg-danger/20 text-xs font-semibold"
             >
               <IconHeart className="w-3.5 h-3.5" />
               {t('support')}
-            </motion.button>
+            </button>
             </Tooltip>
         )}
 
         {!minimal && settings.show_star_button && (
             <Tooltip content={t('star_on_github')}>
-            <motion.button
+            <button
               type="button"
 
-              data-press-feedback
+
 
               onMouseDown={noDrag}
               onClick={() => openUrl('https://github.com/RykoTheDev/GodotHub')}
               aria-label={t('star_on_github')}
-              className="focus-ring cursor-pointer w-8 h-8 flex items-center justify-center rounded-item text-muted hover:text-amber hover:bg-amber/10 transition-colors"
+              className="focus-ring cursor-pointer w-8 h-8 flex items-center justify-center rounded-item text-muted hover:text-amber hover:bg-amber/10 "
             >
               <IconStar className="w-3.5 h-3.5" />
-            </motion.button>
+            </button>
             </Tooltip>
         )}
 
         {!minimal && settings.show_bug_button && (
             <Tooltip content={t('report_a_bug')}>
-            <motion.button
+            <button
               type="button"
 
-              data-press-feedback
+
 
               onMouseDown={noDrag}
               onClick={() =>
                 window.dispatchEvent(new Event('app:report-bug'))
               }
               aria-label={t('report_a_bug')}
-              className="focus-ring cursor-pointer w-6 h-6 flex items-center justify-center rounded-item text-muted hover:text-danger hover:bg-danger/10 transition-colors"
+              className="focus-ring cursor-pointer w-6 h-6 flex items-center justify-center rounded-item text-muted hover:text-danger hover:bg-danger/10 "
             >
               <IconBug className="w-3.5 h-3.5" />
-            </motion.button>
+            </button>
             </Tooltip>
         )}
 
@@ -208,9 +206,9 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
                   onClick={() => safe((w) => w.minimize())}
                   className="focus-ring cursor-pointer group/win w-9 h-full flex items-center justify-center"
                 >
-                  <motion.span
+                  <span
 
-                    data-press-feedback
+
 
                     className={`${windowDot} -me-3 bg-mint`}
                   />
@@ -224,9 +222,9 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
                   onClick={() => safe((w) => w.toggleMaximize())}
                   className="focus-ring cursor-pointer group/win w-9 h-full flex items-center justify-center"
                 >
-                  <motion.span
+                  <span
 
-                    data-press-feedback
+
 
                     className={`${windowDot} bg-amber`}
                   />
@@ -240,9 +238,9 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
                   onClick={() => safe((w) => w.close())}
                   className="focus-ring cursor-pointer group/win w-9 h-full flex items-center justify-center"
                 >
-                  <motion.span
+                  <span
 
-                    data-press-feedback
+
 
                     className={`${windowDot} me-3 bg-danger`}
                   />
@@ -257,7 +255,7 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
                   aria-label={t('minimize')}
                   onMouseDown={noDrag}
                   onClick={() => safe((w) => w.minimize())}
-                  className="focus-ring cursor-pointer group/win w-11 h-full flex items-center justify-center text-ink/55 hover:bg-ink/10 hover:text-ink transition-colors"
+                  className="focus-ring cursor-pointer group/win w-11 h-full flex items-center justify-center text-ink/55 hover:bg-ink/10 hover:text-ink "
                 >
                   <IconMinus className="w-2.5 h-2.5" />
                 </button>
@@ -269,7 +267,7 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
                   aria-label={isMaximized ? t('restore') : t('maximize')}
                   onMouseDown={noDrag}
                   onClick={() => safe((w) => w.toggleMaximize())}
-                  className="focus-ring cursor-pointer group/win w-11 h-full flex items-center justify-center text-ink/55 hover:bg-ink/10 hover:text-ink transition-colors"
+                  className="focus-ring cursor-pointer group/win w-11 h-full flex items-center justify-center text-ink/55 hover:bg-ink/10 hover:text-ink "
                 >
                   {isMaximized ? (
                     <IconWindowRestore className="w-2.5 h-2.5" />
@@ -285,7 +283,7 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
                   aria-label={t('close')}
                   onMouseDown={noDrag}
                   onClick={() => safe((w) => w.close())}
-                  className="focus-ring cursor-pointer group/win w-11 h-full flex items-center justify-center text-ink/55 hover:bg-danger hover:text-white transition-colors"
+                  className="focus-ring cursor-pointer group/win w-11 h-full flex items-center justify-center text-ink/55 hover:bg-danger hover:text-white "
                 >
                   <IconX className="w-3 h-3" />
                 </button>

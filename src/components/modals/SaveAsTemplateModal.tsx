@@ -46,7 +46,7 @@ export function SaveAsTemplateModal({ project, onClose }: Props) {
           <button
             type="button"
             onClick={onClose}
-            className="focus-ring cursor-pointer px-4 py-2.5 rounded-item text-xs font-medium text-muted hover:text-ink hover:bg-raised transition-colors"
+            className="focus-ring cursor-pointer px-4 py-2.5 rounded-item text-xs font-medium text-muted hover:text-ink hover:bg-raised "
           >
             {t('cancel')}
           </button>
@@ -54,7 +54,7 @@ export function SaveAsTemplateModal({ project, onClose }: Props) {
             type="button"
             onClick={() => void handleSave()}
             disabled={busy || !name.trim()}
-            className="focus-ring cursor-pointer flex-1 px-4 py-2.5 rounded-item bg-accent hover:bg-accent-bright disabled:opacity-50 disabled:cursor-not-allowed text-xs font-semibold text-white transition-colors"
+            className="focus-ring cursor-pointer flex-1 px-4 py-2.5 rounded-item bg-accent hover:bg-accent-bright disabled:opacity-50 disabled:cursor-not-allowed text-xs font-semibold text-white "
           >
             {busy ? t('saving') : t('project_save_template_btn')}
           </button>
@@ -74,7 +74,7 @@ export function SaveAsTemplateModal({ project, onClose }: Props) {
               if (e.key === 'Enter' && name.trim()) void handleSave()
             }}
             placeholder={displayName}
-            className="focus-ring w-full bg-raised border border-outline/50 rounded-item px-3.5 py-2.5 text-sm text-ink placeholder:text-muted focus:border-accent-dim outline-none transition-colors"
+            className="focus-ring w-full bg-raised border border-outline/50 rounded-item px-3.5 py-2.5 text-sm text-ink placeholder:text-muted focus:border-accent-dim outline-none "
           />
         </div>
 
@@ -90,7 +90,7 @@ export function SaveAsTemplateModal({ project, onClose }: Props) {
             onChange={(e) => setDesc(e.target.value)}
             placeholder={t('project_template_desc_placeholder')}
             rows={3}
-            className="focus-ring w-full bg-raised border border-outline/50 rounded-item px-3.5 py-2.5 text-sm text-ink placeholder:text-muted focus:border-accent-dim outline-none transition-colors resize-none"
+            className="focus-ring w-full bg-raised border border-outline/50 rounded-item px-3.5 py-2.5 text-sm text-ink placeholder:text-muted focus:border-accent-dim outline-none resize-none"
           />
         </div>
       </div>

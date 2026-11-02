@@ -1,7 +1,5 @@
-import { useUiMotion } from '../../hooks/useUiMotion'
 import { useEffect, type ReactNode } from "react";
 import { createPortal } from "react-dom";
-import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
 import { IconCheckCircle, IconChevronDown } from "../../lib/icons";
@@ -36,7 +34,6 @@ export function ProjectTodoListModal({
   onAreaFilterChange,
   children,
 }: ProjectTodoListModalProps) {
-  const uiMotion = useUiMotion()
 
   const completedCount = totalCount - pendingCount;
   const { t } = useTranslation("todos");
@@ -64,16 +61,16 @@ export function ProjectTodoListModal({
   }, []);
 
   return createPortal(
-    <motion.div
-      {...uiMotion.surface('modal', `none`)}
+    <div
+
 
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
-      <motion.div
+      <div
         role="dialog"
         aria-modal="true"
-        {...uiMotion.surface('modal', `scale(0.96)`)}
+
 
         className="flex h-[min(760px,90vh)] w-full max-w-6xl flex-col overflow-clip rounded-modal bg-surface shadow-2xl"
         onClick={(event) => event.stopPropagation()}
@@ -101,7 +98,7 @@ export function ProjectTodoListModal({
                 onChange={(event) => onSearchChange(event.target.value)}
                 placeholder={t("search_tasks_placeholder")}
                 aria-label={t("search_tasks_placeholder")}
-                className="focus-ring w-full max-w-64 rounded-btn border border-outline/50 bg-overlay px-3 py-1.5 text-2xs text-ink placeholder:text-muted/60 transition-colors focus:border-accent-dim"
+                className="focus-ring w-full max-w-64 rounded-btn border border-outline/50 bg-overlay px-3 py-1.5 text-2xs text-ink placeholder:text-muted/60 focus:border-accent-dim"
               />
 
               <Dropdown
@@ -112,7 +109,7 @@ export function ProjectTodoListModal({
                     type="button"
                     onClick={toggle}
                     aria-expanded={open}
-                    className="focus-ring inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-btn border border-outline/50 bg-overlay px-3 py-1.5 text-2xs font-medium text-ink transition-colors hover:border-accent-dim"
+                    className="focus-ring inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-btn border border-outline/50 bg-overlay px-3 py-1.5 text-2xs font-medium text-ink hover:border-accent-dim"
                   >
                     {areaFilter === "all" ? t("all_areas") : t(`area_${areaFilter}`)}
                     <IconChevronDown className="h-3 w-3 text-muted" />
@@ -139,7 +136,7 @@ export function ProjectTodoListModal({
               type="button"
               disabled={createDisabled}
               onClick={onCreate}
-              className="focus-ring inline-flex cursor-pointer items-center gap-1.5 rounded-btn border border-accent/30 bg-accent/10 px-3 py-1.5 text-2xs font-medium text-accent-bright transition-colors hover:border-accent/50 hover:bg-accent/20 disabled:cursor-not-allowed disabled:opacity-50"
+              className="focus-ring inline-flex cursor-pointer items-center gap-1.5 rounded-btn border border-accent/30 bg-accent/10 px-3 py-1.5 text-2xs font-medium text-accent-bright hover:border-accent/50 hover:bg-accent/20 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <span className="text-xs font-semibold">+</span>
               {t("new_task")}
@@ -148,8 +145,8 @@ export function ProjectTodoListModal({
 
           <div className="min-h-0 flex-1 overflow-auto pe-1">{children}</div>
         </div>
-      </motion.div>
-    </motion.div>,
+      </div>
+    </div>,
     document.body,
   );
 }

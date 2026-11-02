@@ -1,99 +1,29 @@
-import { useLayoutEffect, useRef, type ReactNode } from 'react'
-import { useUiMotion } from '../../hooks/useUiMotion'
-import { disclosureMotion } from '../../lib/motion'
+import type { ReactNode } from 'react'
 import { IconChevronRight } from '../../lib/icons'
 import { isRtl } from '../../lib/locale'
 
 interface Props {
   id: string
   open: boolean
-  animate: boolean
   className?: string
   children: ReactNode
 }
 
-export function Disclosure({ id, open, animate, className, children }: Props) {
-  const { instant, reduced } = useUiMotion()
-  const panel = useRef<HTMLDivElement>(null)
-  const content = useRef<HTMLDivElement>(null)
-  const initialOpen = useRef(open)
-  const mounted = useRef(false)
-  const previousOpen = useRef(open)
-  const animateRef = useRef(animate)
-  animateRef.current = animate
-
-  useLayoutEffect(() => {
-    const element = panel.current
-    const inner = content.current
-    if (!element || !inner) return
-    const changed = previousOpen.current !== open
-    previousOpen.current = open
-    let observer: ResizeObserver | undefined
-    let timer: number | undefined
-    let finished = false
-    const finish = () => {
-      finished = true
-      observer?.disconnect()
-      window.clearTimeout(timer)
-      element.style.height = open ? 'auto' : '0px'
-      element.style.opacity = open ? '1' : '0'
-    }
-    if (!mounted.current || !changed || !animateRef.current || instant || reduced) {
-      mounted.current = true
-      element.style.transition = 'none'
-      finish()
-      return
-    }
-    const height = element.getBoundingClientRect().height
-    const opacity = getComputedStyle(element).opacity
-    element.style.transition = 'none'
-    element.style.height = `${height}px`
-    element.style.opacity = opacity
-    void element.offsetHeight
-    const { durationMs, easing } = disclosureMotion
-    element.style.transition = `height ${durationMs}ms ${easing}, opacity ${durationMs}ms ${easing}`
-    element.style.height = open ? `${inner.getBoundingClientRect().height}px` : '0px'
-    element.style.opacity = open ? '1' : '0'
-    const fallback = () => {
-      window.clearTimeout(timer)
-      timer = window.setTimeout(finish, durationMs * 2)
-    }
-    if (open) {
-      observer = new ResizeObserver(() => {
-        if (finished) return
-        const height = `${inner.getBoundingClientRect().height}px`
-        if (element.style.height !== height) { element.style.height = height; fallback() }
-      })
-      observer.observe(inner)
-    }
-    const completed = (event: TransitionEvent) => {
-      if (event.target === element && event.propertyName === 'height') finish()
-    }
-    element.addEventListener('transitionend', completed)
-    fallback()
-    return () => {
-      element.removeEventListener('transitionend', completed)
-      window.clearTimeout(timer)
-      observer?.disconnect()
-    }
-  }, [open, instant, reduced])
-
+export function Disclosure({ id, open, className, children }: Props) {
   return (
-    <div ref={panel} id={id} inert={!open} aria-hidden={!open}
-      className="overflow-hidden"
-      style={{ height: initialOpen.current ? 'auto' : 0, opacity: initialOpen.current ? 1 : 0 }}>
-      <div ref={content} className={className}>{children}</div>
+    <div id={id} hidden={!open} className="overflow-hidden">
+      <div className={className}>{children}</div>
     </div>
   )
 }
 
-export function DisclosureChevron({ open, animate }: Pick<Props, 'open' | 'animate'>) {
-  const { instant, reduced } = useUiMotion()
-  const { durationMs, easing } = disclosureMotion
+export function DisclosureChevron({ open }: Pick<Props, 'open'>) {
   return (
-    <span aria-hidden="true" className="inline-flex shrink-0 text-muted"
-      style={{ transform: open ? (isRtl() ? 'rotate(-90deg)' : 'rotate(90deg)') : 'rotate(0deg)',
-        transition: animate && !instant && !reduced ? `transform ${durationMs}ms ${easing}` : 'none' }}>
+    <span
+      aria-hidden="true"
+      className="inline-flex shrink-0 text-muted"
+      style={{ transform: open ? (isRtl() ? 'rotate(-90deg)' : 'rotate(90deg)') : 'rotate(0deg)' }}
+    >
       <IconChevronRight className="w-3 h-3 rtl:rotate-180" />
     </span>
   )

@@ -242,7 +242,7 @@ export function DatePicker({
             <button
               type="button"
               onClick={() => changeMonth(-1)}
-              className="focus-ring cursor-pointer rounded-btn px-2 py-1 text-muted transition-colors hover:bg-raised hover:text-ink"
+              className="focus-ring cursor-pointer rounded-btn px-2 py-1 text-muted hover:bg-raised hover:text-ink"
               aria-label="Mês anterior"
             >
               ‹
@@ -259,7 +259,7 @@ export function DatePicker({
             <button
               type="button"
               onClick={() => changeMonth(1)}
-              className="focus-ring cursor-pointer rounded-btn px-2 py-1 text-muted transition-colors hover:bg-raised hover:text-ink"
+              className="focus-ring cursor-pointer rounded-btn px-2 py-1 text-muted hover:bg-raised hover:text-ink"
               aria-label="Próximo mês"
             >
               ›
@@ -288,7 +288,7 @@ export function DatePicker({
                   key={dateValue}
                   type="button"
                   onClick={() => selectDate(date)}
-                  className={`focus-ring aspect-square cursor-pointer rounded-btn text-xs transition-colors ${
+                  className={`focus-ring aspect-square cursor-pointer rounded-btn text-xs  ${
                     selected
                       ? "bg-accent text-white"
                       : currentMonth
@@ -309,7 +309,7 @@ export function DatePicker({
               <button
                 type="button"
                 onClick={clearDate}
-                className="focus-ring w-full cursor-pointer rounded-btn px-3 py-2 text-xs text-muted transition-colors hover:bg-raised hover:text-ink"
+                className="focus-ring w-full cursor-pointer rounded-btn px-3 py-2 text-xs text-muted hover:bg-raised hover:text-ink"
               >
                 {clearLabel}
               </button>
@@ -343,8 +343,8 @@ export function DatePicker({
           }}
           className={
             compact
-              ? "focus-ring min-w-[48px] cursor-pointer whitespace-nowrap rounded-btn px-1 py-1 text-end text-3xs tabular-nums text-muted transition-colors hover:bg-raised hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
-              : `focus-ring w-full cursor-pointer rounded-item border px-3.5 py-2.5 text-start text-sm font-mono transition-colors ${
+              ? "focus-ring min-w-[48px] cursor-pointer whitespace-nowrap rounded-btn px-1 py-1 text-end text-3xs tabular-nums text-muted hover:bg-raised hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
+              : `focus-ring w-full cursor-pointer rounded-item border px-3.5 py-2.5 text-start text-sm font-mono  ${
                   value
                     ? "bg-overlay border-outline/50 text-ink hover:border-accent-dim"
                     : "bg-overlay border-outline/50 text-muted hover:border-accent-dim"

@@ -140,7 +140,7 @@ export function TimeTrackerModal({ project, onClose }: Props) {
           </div>
 
           {loading ? (
-            <div className="flex items-end gap-1.5 h-32 animate-pulse">
+            <div className="flex items-end gap-1.5 h-32 ">
               {Array.from({ length: 7 }).map((_, i) => (
                 <div key={i} className="flex-1 flex flex-col items-center gap-1 h-full">
                   <div className="flex-1 w-full rounded bg-raised" />
@@ -161,7 +161,7 @@ export function TimeTrackerModal({ project, onClose }: Props) {
                     <div className="relative flex-1 w-full min-h-0 flex items-end rounded-md overflow-hidden bg-raised">
                       {seconds > 0 ? (
                         <div
-                          className="relative w-full rounded-t bg-accent/50 hover:bg-accent-bright transition-colors"
+                          className="relative w-full rounded-t bg-accent/50 hover:bg-accent-bright "
                           style={{ height: `${pct}%` }}
                         >
                           {/* Time sits in the bar itself; short bars let it spill

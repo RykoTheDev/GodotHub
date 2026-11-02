@@ -6,7 +6,6 @@ import {
 } from 'react'
 import { useDndContext, useDroppable } from '@dnd-kit/core'
 import { useTranslation } from 'react-i18next'
-import { AnimatedNumber } from '../reusables/AnimatedNumber'
 import { IconChevronDown, IconEye, IconEyeSlash } from '../../lib/icons'
 import type { Category } from '../../types'
 
@@ -20,7 +19,6 @@ export function ProjectCategorySection({
   color,
   count,
   defaultOpen = true,
-  disableAnimation = false,
   droppableId,
   variant = 'list',
   onContextMenu,
@@ -30,7 +28,6 @@ export function ProjectCategorySection({
   color?: string
   count: number
   defaultOpen?: boolean
-  disableAnimation?: boolean
   droppableId?: string
   variant?: 'list' | 'grid'
   onContextMenu?: (e: ReactMouseEvent<HTMLElement>) => void
@@ -79,12 +76,12 @@ export function ProjectCategorySection({
     <div
       className={
         variant === 'grid'
-          ? `rounded-item transition-colors duration-150 ${
+          ? `rounded-item  ${
               bodyIsZone && isOver
                 ? 'bg-accent/10 border-2 border-dashed border-accent/50 min-h-[100px] flex items-center justify-center'
                 : ''
             }`
-          : `flex flex-col gap-2 pt-2 pb-0.5 rounded-item transition-colors duration-150 ${
+          : `flex flex-col gap-2 pt-2 pb-0.5 rounded-item  ${
               bodyIsZone && isOver ? 'bg-accent/10 ring-1 ring-accent/30' : ''
             }`
       }
@@ -109,7 +106,7 @@ export function ProjectCategorySection({
 
   return (
     <div ref={setNodeRef} data-project-category={droppableId}
-      className={`${variant === 'grid' ? 'flex flex-col mb-6' : 'flex flex-col'} rounded-item transition-colors duration-150 ${active && containsTarget ? 'bg-accent/5' : ''}`}>
+      className={`${variant === 'grid' ? 'flex flex-col mb-6' : 'flex flex-col'} rounded-item  ${active && containsTarget ? 'bg-accent/5' : ''}`}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -122,7 +119,7 @@ export function ProjectCategorySection({
             : undefined
         }
         aria-expanded={open}
-        className={`focus-ring cursor-pointer w-full flex items-center gap-1.5 rounded-item text-start transition-colors group ${
+        className={`focus-ring cursor-pointer w-full flex items-center gap-1.5 rounded-item text-start group ${
           variant === 'grid' ? 'px-1 py-1.5 mb-1' : 'px-1 py-1'
         } ${
           headerIsZone && isOver
@@ -131,7 +128,7 @@ export function ProjectCategorySection({
         }`}
       >
         <IconChevronDown
-          className={`w-3 h-3 text-muted/50 shrink-0 transition-transform duration-200 ${
+          className={`w-3 h-3 text-muted/50 shrink-0  ${
             open ? '' : '-rotate-90 rtl:rotate-90'
           }`}
         />
@@ -141,7 +138,7 @@ export function ProjectCategorySection({
             style={{ backgroundColor: color }}
           />
         )}
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted/50 group-hover:text-muted transition-colors truncate">
+        <span className="text-xs font-semibold uppercase tracking-wider text-muted/50 group-hover:text-muted truncate">
           {title}
         </span>
         <div className="flex-1 h-px bg-outline/30 mx-1.5" />
@@ -151,17 +148,11 @@ export function ProjectCategorySection({
           </span>
         )}
         <span className="text-3xs font-medium text-muted/50 tabular-nums shrink-0">
-          · <AnimatedNumber value={count} />
+          · {count}
         </span>
       </button>
 
-      <div
-        className={`grid ${
-          disableAnimation
-            ? ''
-            : 'transition-[grid-template-rows] duration-200 ease-out'
-        } ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}
-      >
+      <div className={`grid ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
         <div className="overflow-hidden min-h-0">{body}</div>
       </div>
     </div>
@@ -188,25 +179,25 @@ export function HiddenCategoriesSection({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-1 py-1 rounded-item text-start hover:bg-raised/60 transition-colors group"
+        className="focus-ring cursor-pointer w-full flex items-center gap-1.5 px-1 py-1 rounded-item text-start hover:bg-raised/60 group"
       >
         <IconChevronDown
-          className={`w-3 h-3 text-muted/50 shrink-0 transition-transform duration-200 ${
+          className={`w-3 h-3 text-muted/50 shrink-0  ${
             open ? '' : '-rotate-90 rtl:rotate-90'
           }`}
         />
         <IconEyeSlash className="w-3 h-3 text-muted/60 shrink-0" />
-        <span className="text-xs font-semibold uppercase tracking-wider text-muted/50 group-hover:text-muted transition-colors">
+        <span className="text-xs font-semibold uppercase tracking-wider text-muted/50 group-hover:text-muted ">
           {t('hidden_categories')}
         </span>
         <div className="flex-1 h-px bg-outline/30 mx-1.5" />
         <span className="text-3xs font-medium text-muted/50 tabular-nums shrink-0">
-          · <AnimatedNumber value={entries.length} />
+          · {entries.length}
         </span>
       </button>
 
       <div
-        className={`grid transition-[grid-template-rows] duration-200 ease-out ${
+        className={`grid  ${
           open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'
         }`}
       >
@@ -234,7 +225,7 @@ export function HiddenCategoriesSection({
                   type="button"
                   onClick={() => onUnhide(category.id)}
                   aria-label={t('unhide_category_aria', { name: category.name })}
-                  className="focus-ring cursor-pointer shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-btn border border-line text-2xs text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors"
+                  className="focus-ring cursor-pointer shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-btn border border-line text-2xs text-muted hover:text-ink hover:border-accent-dim hover:bg-raised "
                 >
                   <IconEye className="w-3 h-3" />
                   {t('unhide')}

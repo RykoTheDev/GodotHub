@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { ModalShell } from './ModalShell'
 import { Dropdown } from '../ui/Dropdown'
@@ -158,23 +157,23 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
             <p className="text-xs text-danger self-start max-w-64">{error}</p>
           )}
           <div className="ms-auto flex items-center gap-2.5">
-            <motion.button
+            <button
 
-              data-press-feedback
+
               onClick={onClose}
-              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
+              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised "
             >
               {t('cancel')}
-            </motion.button>
-            <motion.button
+            </button>
+            <button
 
-              data-press-feedback={rows.length === 0 ? undefined : true}
+
               onClick={useDraft}
               disabled={rows.length === 0}
-              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-40 text-sm font-medium text-white transition-colors"
+              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-40 text-sm font-medium text-white "
             >
               {t('changelog_draft_use')}
-            </motion.button>
+            </button>
           </div>
         </>
       }
@@ -192,7 +191,7 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
                   type="button"
                   aria-expanded={open}
                   onClick={toggle}
-                  className="focus-ring cursor-pointer w-full inline-flex items-center justify-between gap-2 h-9 px-3 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:border-accent-dim transition-colors"
+                  className="focus-ring cursor-pointer w-full inline-flex items-center justify-between gap-2 h-9 px-3 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:border-accent-dim "
                 >
                   <span className="font-mono text-2xs truncate">
                     {from || '…'}
@@ -220,7 +219,7 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
                   type="button"
                   aria-expanded={open}
                   onClick={toggle}
-                  className="focus-ring cursor-pointer w-full inline-flex items-center justify-between gap-2 h-9 px-3 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:border-accent-dim transition-colors"
+                  className="focus-ring cursor-pointer w-full inline-flex items-center justify-between gap-2 h-9 px-3 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:border-accent-dim "
                 >
                   <span className="font-mono text-2xs truncate">{to}</span>
                   <IconGitBranch className="w-3 h-3 shrink-0 opacity-60" />
@@ -242,19 +241,19 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
               ]}
             />
           </div>
-            <motion.button
+            <button
               type="button"
 
-              data-press-feedback
+
               onClick={generate}
               disabled={loading || !from || !to}
               title={t('changelog_draft_generate')}
-              className="focus-ring cursor-pointer h-9 w-9 rounded-item bg-accent hover:bg-accent-bright disabled:opacity-40 text-white flex items-center justify-center transition-colors"
+              className="focus-ring cursor-pointer h-9 w-9 rounded-item bg-accent hover:bg-accent-bright disabled:opacity-40 text-white flex items-center justify-center "
             >
               <IconRefresh
                 className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`}
               />
-            </motion.button>
+            </button>
         </div>
 
         {draft && (
@@ -283,7 +282,7 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
                         key={c.value}
                         type="button"
                         onClick={() => setRow(i, { category: c.value })}
-                        className={`focus-ring cursor-pointer px-2 py-1.5 transition-colors ${
+                        className={`focus-ring cursor-pointer px-2 py-1.5  ${
                           row.category === c.value
                             ? c.activeClass
                             : 'text-muted hover:bg-raised/50'
@@ -299,7 +298,7 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
                   <input
                     value={row.text}
                     onChange={(e) => setRow(i, { text: e.target.value })}
-                    className="focus-ring flex-1 min-w-0 bg-base border border-outline/50 rounded-btn px-3 py-1.5 text-xs text-ink focus:border-accent-dim transition-colors"
+                    className="focus-ring flex-1 min-w-0 bg-base border border-outline/50 rounded-btn px-3 py-1.5 text-xs text-ink focus:border-accent-dim "
                   />
                   {row.hash && (
                     <span className="font-mono text-3xs text-muted/50 shrink-0">
@@ -327,7 +326,7 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
                         aria-checked={Boolean(skippedChecked[i])}
                         onClick={() => toggleSkipped(i)}
                         aria-label={t('changelog_draft_include')}
-                        className={`focus-ring cursor-pointer w-4 h-4 rounded-item border flex items-center justify-center transition-colors shrink-0 ${
+                        className={`focus-ring cursor-pointer w-4 h-4 rounded-item border flex items-center justify-center shrink-0 ${
                           skippedChecked[i]
                             ? 'bg-accent border-accent text-white'
                             : 'border-muted/40 hover:border-accent/60'
@@ -356,7 +355,7 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
             <input
               value={version}
               onChange={(e) => setVersion(e.target.value)}
-              className="focus-ring bg-base border border-outline/50 rounded-btn px-3.5 py-2 text-sm text-ink focus:border-accent-dim transition-colors"
+              className="focus-ring bg-base border border-outline/50 rounded-btn px-3.5 py-2 text-sm text-ink focus:border-accent-dim "
               placeholder={draft?.next_version || t('changelog_version_placeholder')}
             />
           </div>
@@ -367,7 +366,7 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
             <input
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="focus-ring bg-base border border-outline/50 rounded-btn px-3.5 py-2 text-sm text-ink focus:border-accent-dim transition-colors"
+              className="focus-ring bg-base border border-outline/50 rounded-btn px-3.5 py-2 text-sm text-ink focus:border-accent-dim "
             />
           </div>
         </div>

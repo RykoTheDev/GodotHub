@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import type { Project } from '../../types'
 import { api } from '../../lib/api'
@@ -143,20 +142,20 @@ export function TagManagerModal({ project, onClose, onSaved }: Props) {
               : t('tag_count', { count: tags.length })}
           </span>
           <div className="ms-auto flex items-center gap-2.5">
-            <motion.button
+            <button
 
-              data-press-feedback
+
               onClick={onClose}
-              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
+              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised "
             >
               {t('cancel')}
-            </motion.button>
-            <motion.button
+            </button>
+            <button
 
-              data-press-feedback={saving ? undefined : true}
+
               onClick={handleSave}
               disabled={saving}
-              className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-5 py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white transition-colors"
+              className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-5 py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white "
             >
               {saving ? (
                 <>
@@ -169,24 +168,23 @@ export function TagManagerModal({ project, onClose, onSaved }: Props) {
                   {t('save')}
                 </>
               )}
-            </motion.button>
+            </button>
           </div>
         </>
       }
     >
       <div className="p-6 pt-0 flex flex-col gap-4">
-        <AnimatePresence>
+
           {error && (
-            <motion.div key="error"
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
+            <div key="error"
+
+
               className="px-3 py-2 rounded-lg bg-danger/10 border border-danger/20 text-danger text-xs"
             >
               {error}
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+
 
         <div className="flex items-center gap-2">
           <input
@@ -204,18 +202,18 @@ export function TagManagerModal({ project, onClose, onSaved }: Props) {
               }
             }}
             placeholder={t('tag_input_placeholder')}
-            className="focus-ring flex-1 bg-raised border border-line rounded-lg px-3.5 py-2.5 text-sm focus:border-accent-dim transition-colors outline-none"
+            className="focus-ring flex-1 bg-raised border border-line rounded-lg px-3.5 py-2.5 text-sm focus:border-accent-dim outline-none"
           />
-          <motion.button key="button-207"
+          <button key="button-207"
 
-            data-press-feedback
+
             onClick={addTag}
             disabled={!newTag.trim()}
-            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-accent hover:bg-accent-bright disabled:opacity-40 text-sm font-medium text-white transition-colors shrink-0"
+            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg bg-accent hover:bg-accent-bright disabled:opacity-40 text-sm font-medium text-white shrink-0"
           >
             <IconPlus className="w-3.5 h-3.5" />
             {t('add')}
-          </motion.button>
+          </button>
         </div>
 
         <div className="flex flex-col gap-2 max-h-64 overflow-y-auto min-h-0">
@@ -229,13 +227,11 @@ export function TagManagerModal({ project, onClose, onSaved }: Props) {
               const color = tagColor(tag)
               const isEditing = editingIndex === index
               return (
-                <motion.div
+                <div
                   key={`${tag}-${index}`}
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 8, height: 0 }}
-                  transition={{ duration: 0.15 }}
-                  className="group flex items-center gap-2 px-3 py-2 rounded-xl bg-raised border border-line/60 hover:border-accent-dim/40 transition-colors"
+
+
+                  className="group flex items-center gap-2 px-3 py-2 rounded-xl bg-raised border border-line/60 hover:border-accent-dim/40 "
                 >
 
                   <span
@@ -260,7 +256,7 @@ export function TagManagerModal({ project, onClose, onSaved }: Props) {
                         }
                       }}
                       onBlur={saveEdit}
-                      className="focus-ring flex-1 bg-base border border-accent/40 rounded-md px-2 py-1 text-sm font-medium font-mono outline-none transition-colors"
+                      className="focus-ring flex-1 bg-base border border-accent/40 rounded-md px-2 py-1 text-sm font-medium font-mono outline-none "
                       style={{ color }}
                       autoFocus
                     />
@@ -275,11 +271,11 @@ export function TagManagerModal({ project, onClose, onSaved }: Props) {
                       </span>
                   )}
 
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 ">
                     {!isEditing && (
                       <button
                         onClick={() => startEdit(index)}
-                        className="focus-ring cursor-pointer p-1.5 rounded-md text-muted/50 hover:text-ink hover:bg-base transition-colors"
+                        className="focus-ring cursor-pointer p-1.5 rounded-md text-muted/50 hover:text-ink hover:bg-base "
                         aria-label={t('tag_rename_aria')}
                       >
                         <IconPencil className="w-3 h-3" />
@@ -287,13 +283,13 @@ export function TagManagerModal({ project, onClose, onSaved }: Props) {
                     )}
                     <button
                       onClick={() => removeTag(index)}
-                      className="focus-ring cursor-pointer p-1.5 rounded-md text-muted/50 hover:text-danger hover:bg-danger/10 transition-colors"
+                      className="focus-ring cursor-pointer p-1.5 rounded-md text-muted/50 hover:text-danger hover:bg-danger/10 "
                       aria-label={t('remove_tag', { tag })}
                     >
                       <IconX className="w-3 h-3" />
                     </button>
                   </div>
-                </motion.div>
+                </div>
               )
             })
           )}

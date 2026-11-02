@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useWorkspaces } from '../../hooks/useWorkspaces'
 import { getWorkspaceIcon } from '../../lib/workspaceIcons'
@@ -91,7 +90,7 @@ export function WorkspaceModals() {
 
   return (
     <>
-      <AnimatePresence>
+
         {creating && (
           <CreateWorkspaceModal
             onClose={() => setCreating(false)}
@@ -101,9 +100,9 @@ export function WorkspaceModals() {
             }}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {editing && (
           <WorkspaceEditModal
             workspace={editing}
@@ -127,7 +126,7 @@ export function WorkspaceModals() {
             }}
           />
         )}
-      </AnimatePresence>
+
     </>
   )
 }

@@ -1,7 +1,5 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { motion } from 'framer-motion'
-import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { useNews } from '../hooks/useNews'
 import { useSettings } from '../hooks/useSettings'
@@ -39,7 +37,7 @@ function NewsCard({ item }: { item: NewsItem }) {
       type="button"
       onClick={() => openUrl(item.link).catch(reportError)}
 
-      className="ui-lift group focus-ring cursor-pointer text-start w-full flex flex-col gap-3 rounded-item border border-outline/50 bg-overlay p-5 mb-3 break-inside-avoid overflow-hidden hover:border-accent-dim/70 hover:bg-raised transition-colors"
+      className=" group focus-ring cursor-pointer text-start w-full flex flex-col gap-3 rounded-item border border-outline/50 bg-overlay p-5 mb-3 break-inside-avoid overflow-hidden hover:border-accent-dim/70 hover:bg-raised "
     >
       {item.image && !imageFailed && (
         <div className="relative -mx-5 -mt-5 h-36 shrink-0 overflow-hidden">
@@ -63,7 +61,7 @@ function NewsCard({ item }: { item: NewsItem }) {
         ) : (
           <span />
         )}
-        <IconExternalLink className="w-3 h-3 text-muted opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
+        <IconExternalLink className="w-3 h-3 text-muted opacity-0 group-hover:opacity-100 shrink-0" />
       </div>
 
       <h3 className="font-display font-medium text-lg leading-snug line-clamp-2">
@@ -91,7 +89,7 @@ function NewsCard({ item }: { item: NewsItem }) {
 
 function NewsCardSkeleton() {
   return (
-    <div className="flex flex-col gap-3 rounded-item border border-outline/50 bg-overlay p-5 mb-3 break-inside-avoid overflow-hidden animate-pulse">
+    <div className="flex flex-col gap-3 rounded-item border border-outline/50 bg-overlay p-5 mb-3 break-inside-avoid overflow-hidden ">
       <div className="-mx-5 -mt-5 h-36 bg-raised" />
       <div className="h-4 w-16 rounded-tag bg-raised" />
       <div className="h-4 w-4/5 rounded bg-raised" />
@@ -125,7 +123,7 @@ export function NewsView({ connected = false }: { connected?: boolean }) {
         metric={
           <>
             <h2 className="text-4xl font-bold text-muted">
-              <AnimatedNumber value={total} />
+              {total}
             </h2>
             <p className="text-lg font-medium uppercase text-muted">
               {tc('news_count')}
@@ -133,19 +131,19 @@ export function NewsView({ connected = false }: { connected?: boolean }) {
           </>
         }
         actions={
-          <motion.button
+          <button
             type="button"
 
-            data-press-feedback
+
             onClick={reload}
             disabled={loading}
-            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-overlay border border-outline/50 text-xs font-medium text-muted hover:text-ink hover:bg-raised hover:border-accent-dim transition-colors disabled:opacity-40 disabled:cursor-default"
+            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-overlay border border-outline/50 text-xs font-medium text-muted hover:text-ink hover:bg-raised hover:border-accent-dim disabled:opacity-40 disabled:cursor-default"
           >
             <IconRefresh
               className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`}
             />
             {tc('refresh')}
-          </motion.button>
+          </button>
         }
       >
         <p className="text-xs text-muted flex items-center gap-1.5 flex-wrap">
@@ -181,7 +179,7 @@ export function NewsView({ connected = false }: { connected?: boolean }) {
               </p>
               <button
                 onClick={reload}
-                className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2 rounded-item border border-outline/50 hover:bg-raised text-xs font-medium text-ink transition-colors"
+                className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2 rounded-item border border-outline/50 hover:bg-raised text-xs font-medium text-ink "
               >
                 <IconRefresh className="w-3.5 h-3.5" />
                 {tc('try_again')}
@@ -198,7 +196,7 @@ export function NewsView({ connected = false }: { connected?: boolean }) {
             </div>
           ) : (
             <>
-              <div className="ui-stagger columns-1 lg:columns-2 gap-3">
+              <div className=" columns-1 lg:columns-2 gap-3">
                 {items.map((item) => (
                   <NewsCard key={item.id} item={item} />
                 ))}
@@ -206,15 +204,15 @@ export function NewsView({ connected = false }: { connected?: boolean }) {
 
               {hasMore && (
                 <div className="flex justify-center mt-6">
-                  <motion.button
+                  <button
                     type="button"
 
-                    data-press-feedback
+
                     onClick={showMore}
-                    className="focus-ring cursor-pointer h-9 px-5 rounded-item bg-overlay border border-outline/50 text-sm font-medium text-ink hover:bg-raised hover:border-accent-dim transition-colors"
+                    className="focus-ring cursor-pointer h-9 px-5 rounded-item bg-overlay border border-outline/50 text-sm font-medium text-ink hover:bg-raised hover:border-accent-dim "
                   >
                     {tc('show_more')}
-                  </motion.button>
+                  </button>
                 </div>
               )}
             </>

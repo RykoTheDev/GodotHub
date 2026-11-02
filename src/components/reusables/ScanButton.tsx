@@ -1,29 +1,22 @@
-import { motion, AnimatePresence } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IconRefresh } from '../../lib/icons'
-import { isReducedMotion } from '../../lib/appearance'
 import { ConfirmDialog } from '../modals/ConfirmDialog'
 import { Tooltip } from './Tooltip'
-import { useUiMotion } from '../../hooks/useUiMotion'
 
 type Phase = 'idle' | 'scanning' | 'done' | 'error'
 const MIN_SCAN_TIME = 800
 
-function Spinner({ reduced, size = 20 }: { reduced: boolean; size?: number }) {
+function Spinner({ size = 20 }: { size?: number }) {
   return (
-    <motion.svg key="error"
+    <svg key="error"
       width={size}
       height={size}
       viewBox="0 0 24 24"
       fill="none"
-      className="block"
-      animate={reduced ? undefined : { rotate: 360 }}
-      transition={
-        reduced
-          ? { duration: 0 }
-          : { repeat: Infinity, duration: 0.8, ease: 'linear' }
-      }
+      className="block animate-spin"
+
+
     >
       <path
         d="M21 12a9 9 0 1 1-6.219-8.56"
@@ -31,7 +24,7 @@ function Spinner({ reduced, size = 20 }: { reduced: boolean; size?: number }) {
         strokeWidth={2}
         strokeLinecap="round"
       />
-    </motion.svg>
+    </svg>
   )
 }
 
@@ -83,12 +76,10 @@ export function ScanButton({
   disabled = false,
   requiresDirs = true,
 }: ScanButtonProps) {
-  const {surface} = useUiMotion()
   const { t } = useTranslation('common')
   const [phase, setPhase] = useState<Phase>('idle')
   const phaseTimerRef = useRef<number | null>(null)
   const [foundDismissed, setFoundDismissed] = useState<string[] | null>(null)
-  const reduced = isReducedMotion()
 
   useEffect(
     () => () => {
@@ -101,12 +92,9 @@ export function ScanButton({
 
   useEffect(() => {
     if (phase !== 'done' && phase !== 'error') return
-    const timer = window.setTimeout(
-      () => setPhase('idle'),
-      reduced ? 600 : 1500,
-    )
+    const timer = window.setTimeout(() => setPhase('idle'), 1500)
     return () => window.clearTimeout(timer)
-  }, [phase, reduced])
+  }, [phase])
 
   const handleScan = async () => {
     if (phase !== 'idle') return
@@ -120,7 +108,7 @@ export function ScanButton({
     const hold = (next: Phase) => {
       const remaining = MIN_SCAN_TIME - (performance.now() - start)
       const go = () => setPhase(next)
-      if (!reduced && remaining > 0) {
+      if (remaining > 0) {
         phaseTimerRef.current = window.setTimeout(go, remaining)
       } else {
         go()
@@ -158,7 +146,7 @@ export function ScanButton({
 
   const glyph = {
     idle: <IconRefresh className="w-5 h-5" />,
-    scanning: <Spinner reduced={reduced} />,
+    scanning: <Spinner />,
     done: <DrawGlyph paths={['M20 6 9 17l-5-5']} />,
     error: <DrawGlyph paths={['M18 6 6 18', 'M6 6l12 12']} />,
   } as const
@@ -177,7 +165,7 @@ export function ScanButton({
         }
         side="bottom"
       >
-      <motion.button
+      <button
         type="button"
         onClick={handleScan}
         disabled={phase !== 'idle' || disabled}
@@ -192,7 +180,7 @@ export function ScanButton({
         }
         className={[
           'relative inline-flex items-center justify-center shadow-md shadow-black/10 border border-outline/50 w-10 h-10 shrink-0 grow-0 overflow-hidden rounded-item',
-          'select-none focus-ring transition-colors duration-300',
+          'select-none focus-ring ',
           phase === 'idle'
             ? 'bg-overlay text-muted hover:text-ink hover:bg-raised cursor-pointer'
             : phase === 'done'
@@ -211,19 +199,19 @@ export function ScanButton({
                 ? t('scan_failed')
                 : t('scanning')}
         </span>
-        <AnimatePresence mode="popLayout">
-          <motion.span
+
+          <span
             key={phase}
             className="inline-flex"
-            {...surface('tooltip', 'scale(0.97)')}
+
           >
             {glyph[phase]}
-          </motion.span>
-        </AnimatePresence>
-      </motion.button>
+          </span>
+
+      </button>
       </Tooltip>
 
-      <AnimatePresence>
+
         {foundDismissed && (
           <ConfirmDialog
             title={t('found_dismissed_title', { count: foundDismissed.length })}
@@ -250,7 +238,7 @@ export function ScanButton({
             onCancel={() => setFoundDismissed(null)}
           />
         )}
-      </AnimatePresence>
+
     </>
   )
 }

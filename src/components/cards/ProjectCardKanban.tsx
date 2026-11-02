@@ -270,14 +270,12 @@ export function ProjectCardKanban({
           collisionDetection={dnd.collisionDetection ?? closestCorners}
           autoScroll={AUTO_SCROLL_CONFIG}
           onDragStart={dnd.handleDragStart}
-          onDragMove={dnd.handleDragMove}
           onDragEnd={dnd.handleDragEnd}
           onDragCancel={dnd.handleDragCancel}
         >
           {columnContent}
           <ProjectDropLine ignorePrefix="kanban-cat-" placement={dnd.placementRef} activeIds={dnd.activeIds} />
-          <DragOverlay
-            dropAnimation={dnd.dropAnimation}
+          <DragOverlay dropAnimation={null}
           >
             {activeProject ? (
               <ProjectDragOverlay
@@ -371,7 +369,7 @@ function KanbanColumn({
       </div>
       <div
         ref={setNodeRef}
-        className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden rounded-item border transition-colors duration-150 ${
+        className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden rounded-item border  ${
           isOver
             ? 'bg-accent/10 border-accent/50'
             : 'bg-overlay/50 border-outline/30'

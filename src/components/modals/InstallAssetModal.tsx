@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../lib/api'
 import { useProjectsContext } from '../../hooks/projectsContext'
@@ -141,7 +140,7 @@ export function InstallAssetModal({ asset, onClose, onInstalled }: Props) {
         setTab(v)
         setSelectedId(null)
       }}
-      className={`focus-ring cursor-pointer flex-1 flex items-center justify-center gap-2 px-3 h-8 rounded-btn text-xs font-medium transition-colors ${
+      className={`focus-ring cursor-pointer flex-1 flex items-center justify-center gap-2 px-3 h-8 rounded-btn text-xs font-medium  ${
         tab === v
           ? 'bg-accent text-white'
           : 'text-muted hover:text-ink hover:bg-raised'
@@ -179,16 +178,16 @@ export function InstallAssetModal({ asset, onClose, onInstalled }: Props) {
           <button
             onClick={onClose}
             disabled={installing}
-            className="focus-ring cursor-pointer px-4 py-2 rounded-item text-sm text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-40"
+            className="focus-ring cursor-pointer px-4 py-2 rounded-item text-sm text-muted hover:text-ink hover:bg-raised disabled:opacity-40"
           >
             {t('cancel')}
           </button>
-          <motion.button
+          <button
 
-            data-press-feedback={!selectedId || installing ? undefined : true}
+
             onClick={() => selectedId && install(selectedId, selectedName ?? '')}
             disabled={!selectedId || installing}
-            className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2 rounded-item bg-accent hover:bg-accent-bright text-white text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2 rounded-item bg-accent hover:bg-accent-bright text-white text-sm font-medium disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {installing ? (
               <>
@@ -203,7 +202,7 @@ export function InstallAssetModal({ asset, onClose, onInstalled }: Props) {
             ) : (
               <>{t('asset_install')}</>
             )}
-          </motion.button>
+          </button>
         </>
       }
     >
@@ -217,7 +216,7 @@ export function InstallAssetModal({ asset, onClose, onInstalled }: Props) {
               type="button"
               onClick={saveAsNewTemplate}
               disabled={installing}
-              className="focus-ring cursor-pointer w-full flex items-center gap-3 p-3 rounded-item border border-dashed border-mint/30 bg-mint/5 hover:bg-mint/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-start"
+              className="focus-ring cursor-pointer w-full flex items-center gap-3 p-3 rounded-item border border-dashed border-mint/30 bg-mint/5 hover:bg-mint/10 disabled:opacity-50 disabled:cursor-not-allowed text-start"
             >
               <span className="w-8 h-8 rounded-tile bg-mint/10 text-mint flex items-center justify-center shrink-0">
                 <IconDownload className="w-4 h-4" />
@@ -236,7 +235,7 @@ export function InstallAssetModal({ asset, onClose, onInstalled }: Props) {
             </button>
           )}
 
-          <div className="shrink-0 flex items-center gap-2 px-3 h-10 rounded-item bg-overlay border border-outline/50 focus-within:border-accent-dim focus-within:bg-raised transition-colors">
+          <div className="shrink-0 flex items-center gap-2 px-3 h-10 rounded-item bg-overlay border border-outline/50 focus-within:border-accent-dim focus-within:bg-raised ">
             <IconSearch className="w-3.5 h-3.5 text-muted shrink-0" />
             <input
               type="text"
@@ -269,7 +268,7 @@ export function InstallAssetModal({ asset, onClose, onInstalled }: Props) {
                     key={item.id}
                     type="button"
                     onClick={() => setSelectedId(item.id)}
-                    className={`focus-ring cursor-pointer w-full flex items-center gap-3 p-2.5 rounded-item border text-start transition-colors ${
+                    className={`focus-ring cursor-pointer w-full flex items-center gap-3 p-2.5 rounded-item border text-start  ${
                       selected
                         ? 'border-accent-dim/60 bg-accent/10'
                         : 'border-transparent hover:bg-raised hover:border-outline/50'

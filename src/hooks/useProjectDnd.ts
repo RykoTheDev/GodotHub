@@ -5,18 +5,14 @@ import {
   closestCenter,
   pointerWithin,
   rectIntersection,
-  defaultDropAnimationSideEffects,
   useSensor,
   useSensors,
   type CollisionDetection,
   type Collision,
   type DragEndEvent,
-  type DragMoveEvent,
   type DragStartEvent,
-  type DropAnimation,
 } from '@dnd-kit/core'
 import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
-import { isReducedMotion } from '../lib/appearance'
 import { DRAG_FEEL } from '../lib/dragFeel'
 import { pushToast } from '../lib/toast'
 import {
@@ -50,7 +46,6 @@ export function useProjectDnd({
   onReorder,
   onMoveProjects,
 }: UseProjectDndOptions) {
-  const reducedMotion = isReducedMotion()
   const overlayRef = useRef<HTMLDivElement | null>(null)
 
   const sensors = useSensors(
@@ -65,20 +60,11 @@ export function useProjectDnd({
   const [activeIds, setActiveIds] = useState<string[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
   const placementRef = useRef<DropPlacement>('before')
-  const settleTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const byId = useMemo(
     () => new Map(projects.map((p) => [p.id, p])),
     [projects],
   )
-
-  const motion = useRef({ x: 0, t: 0, angle: 0 })
-
-  const paintTilt = useCallback((angle: number) => {
-    const el = overlayRef.current
-    if (!el) return
-    el.style.transform = `rotate(${angle}deg) scale(${DRAG_FEEL.lift.scale})`
-  }, [])
 
   const collisionDetection = useCallback<CollisionDetection>((args) => {
     const zones = args.droppableContainers.filter((c) => String(c.id).startsWith(prefixes.category))
@@ -140,12 +126,6 @@ export function useProjectDnd({
     return hits
   }, [prefixes.category, byId, activeIds.length, grouped, projects])
 
-  const dropAnimation: DropAnimation | null = reducedMotion ? null : {
-    duration: DRAG_FEEL.drop.duration,
-    easing: DRAG_FEEL.drop.easing,
-    sideEffects: defaultDropAnimationSideEffects({ styles: { active: { opacity: '0' } } }),
-  }
-
   const handleDragStart = useCallback(
     (e: DragStartEvent) => {
       const id = String(e.active.id)
@@ -162,40 +142,14 @@ export function useProjectDnd({
           ? projects.filter((p) => selectedIds.has(p.id)).map((p) => p.id)
           : [id],
       )
-      motion.current = { x: 0, t: performance.now(), angle: 0 }
     },
     [projects, selectedIds],
-  )
-
-  const handleDragMove = useCallback(
-    (e: DragMoveEvent) => {
-      if (reducedMotion) return
-      const now = performance.now()
-      const dt = now - motion.current.t
-      if (dt < DRAG_FEEL.tilt.sampleMs) return
-      const vx = (e.delta.x - motion.current.x) / dt
-      const { maxDeg, velocityScale, damping } = DRAG_FEEL.tilt
-      const target = Math.max(-maxDeg, Math.min(maxDeg, vx * velocityScale))
-      motion.current.x = e.delta.x
-      motion.current.t = now
-      motion.current.angle += (target - motion.current.angle) * damping
-      paintTilt(motion.current.angle)
-      if (settleTimer.current) clearTimeout(settleTimer.current)
-      settleTimer.current = setTimeout(() => {
-        motion.current.angle = 0
-        paintTilt(0)
-      }, 100)
-    },
-    [reducedMotion, paintTilt],
   )
 
   const reset = useCallback(() => {
     setActiveIds([])
     setActiveId(null)
-    if (settleTimer.current) clearTimeout(settleTimer.current)
-    motion.current = { x: 0, t: 0, angle: 0 }
-    paintTilt(0)
-  }, [paintTilt])
+  }, [])
 
   const handleDragCancel = useCallback(() => reset(), [reset])
 
@@ -254,10 +208,6 @@ export function useProjectDnd({
     }
   }, [activeIds.length])
 
-  useEffect(() => () => {
-    if (settleTimer.current) clearTimeout(settleTimer.current)
-  }, [])
-
   const activeProject = activeId ? byId.get(activeId) ?? null : null
 
   return {
@@ -268,9 +218,7 @@ export function useProjectDnd({
     overlayRef,
     collisionDetection,
     placementRef,
-    dropAnimation,
     handleDragStart,
-    handleDragMove,
     handleDragEnd,
     handleDragCancel,
   }

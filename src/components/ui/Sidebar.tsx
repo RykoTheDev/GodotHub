@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import type { ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -11,7 +10,6 @@ import { useSettings } from '../../hooks/useSettings'
 import { useUpdateAvailable } from '../../hooks/useUpdateAvailable'
 import { Tooltip } from '../reusables/Tooltip'
 import { OverlayScrollArea } from '../reusables/OverlayScrollArea'
-import { useUiMotion } from '../../hooks/useUiMotion'
 import { isRtl } from '../../lib/locale'
 import { registerSettingsClick } from '../../lib/debugMode'
 
@@ -53,7 +51,6 @@ export function Sidebar({
   const { t } = useTranslation('nav')
   const { t: tc } = useTranslation('common')
   const { settings } = useSettings()
-  const {instant, reduced, transition} = useUiMotion()
   const { updateAvailable, previewUpdate } = useUpdateAvailable()
   const [width, setWidth] = useState(() => {
     try {
@@ -96,9 +93,7 @@ export function Sidebar({
       return []
     }
   })
-  const [animateGroups, setAnimateGroups] = useState(false)
   const saveClosedGroups = (next: string[]) => {
-    setAnimateGroups(true)
     setClosedGroups(next)
     try {
       localStorage.setItem('new_ui_sidebar_closed_groups', JSON.stringify(next))
@@ -243,7 +238,7 @@ export function Sidebar({
         }}
         aria-label={hideLabel || tab.badge ? (tab.badge ? `${tab.label} (${tab.badge})` : tab.label) : undefined}
         aria-keyshortcuts={tab.shortcut ? `${navigator.platform.includes('Mac') ? 'Meta' : 'Control'}+${tab.shortcut}` : undefined}
-        className={`group/tab focus-ring cursor-pointer relative flex items-center rounded-item text-sm font-medium transition-colors ${layoutClass} ${
+        className={`group/tab focus-ring cursor-pointer relative flex items-center rounded-item text-sm font-medium  ${layoutClass} ${
           showNew ? 'border border-dashed border-accent/70' : 'border border-transparent'
         } ${
           active
@@ -252,17 +247,17 @@ export function Sidebar({
         }`}
       >
         {active && (
-          <motion.span
-            layoutId={instant || reduced ? undefined : 'new-ui-nav-pill'}
-            transition={transition('press')}
+          <span
+
+
             className="absolute inset-0 rounded-item bg-overlay border border-outline/50 shadow-md shadow-black/10 pointer-events-none"
           />
         )}
         <Icon
-          className={`ui-nav-icon relative w-4 h-4 shrink-0 ${active ? 'text-accent' : 'text-muted'}`}
+          className={` relative w-4 h-4 shrink-0 ${active ? 'text-accent' : 'text-muted'}`}
         />
         {!hideLabel && (
-          <span className={`relative transition-colors duration-200 ${active ? 'text-ink' : ''}`}>{tab.label}</span>
+          <span className={`relative  ${active ? 'text-ink' : ''}`}>{tab.label}</span>
         )}
         {showNew && !hideLabel && (
           <span className="relative ms-auto shrink-0 px-1.5 py-0.5 rounded-tag bg-accent text-white text-3xs font-semibold leading-none">
@@ -280,7 +275,7 @@ export function Sidebar({
           </span>
         )}
         {shortcut && !tab.badge && !showNew && !hideLabel && (
-          <kbd className="relative ms-auto shrink-0 font-mono text-4xs px-1.5 py-0.5 rounded-tag bg-raised border border-outline/50 text-muted/70 opacity-0 transition-opacity group-hover/tab:opacity-100 group-focus-visible/tab:opacity-100">
+          <kbd className="relative ms-auto shrink-0 font-mono text-4xs px-1.5 py-0.5 rounded-tag bg-raised border border-outline/50 text-muted/70 opacity-0 group-hover/tab:opacity-100 group-focus-visible/tab:opacity-100">
             {shortcut}
           </kbd>
         )}
@@ -317,17 +312,17 @@ export function Sidebar({
     <button
       type="button"
       onClick={toggleCollapsed}
-      className={`focus-ring cursor-pointer flex items-center justify-center rounded-item text-sm font-medium transition-colors text-muted hover:text-ink hover:bg-raised/60 border ${
+      className={`focus-ring cursor-pointer flex items-center justify-center rounded-item text-sm font-medium text-muted hover:text-ink hover:bg-raised/60 border ${
         collapsed
-          ? `absolute top-2 -inset-e-4 w-8 h-8 shrink-0 bg-raised border-line shadow-md shadow-black/10 transition-opacity duration-200 ease-out ${
+          ? `absolute top-2 -inset-e-4 w-8 h-8 shrink-0 bg-raised border-line shadow-md shadow-black/10  ${
               revealed ? 'opacity-100' : 'opacity-0 pointer-events-none'
             }`
           : 'border-transparent w-9 h-9 ms-auto shrink-0'
       }`}
     >
       <span
-        className="ui-control-indicator inline-flex"
-        style={{transform:collapsed ? 'rotate(180deg)' : 'rotate(0deg)', transitionDuration:instant || reduced ? '0ms' : undefined}}
+        className=" inline-flex"
+        style={{ transform: collapsed ? 'rotate(180deg)' : 'rotate(0deg)' }}
       >
         <IconChevronsLeft className={`w-4 h-4 rtl:-scale-x-100 ${collapsed ? 'pe-0' : 'pe-2'}`} />
       </span>
@@ -364,7 +359,7 @@ export function Sidebar({
           <button
               type="button"
               onClick={() => onTabChange('dashboard')}
-              className="focus-ring cursor-pointer w-6 h-6 shrink-0 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised/60 transition-colors"
+              className="focus-ring cursor-pointer w-6 h-6 shrink-0 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised/60 "
             >
               <IconHouse className="w-4 h-4" />
             </button>
@@ -374,7 +369,7 @@ export function Sidebar({
             <button
               type="button"
               onClick={() => onTabChange('dashboard')}
-              className="focus-ring cursor-pointer font-display ps-2 font-black text-3xl leading-none tracking-tight text-ink/50 hover:text-ink min-w-0 truncate text-start transition-colors"
+              className="focus-ring cursor-pointer font-display ps-2 font-black text-3xl leading-none tracking-tight text-ink/50 hover:text-ink min-w-0 truncate text-start "
             >
               GodotHub
             </button>
@@ -391,7 +386,7 @@ export function Sidebar({
                 type="button"
                 onClick={onOpenCommandPalette}
                 aria-label={tc('search')}
-                className="focus-ring cursor-pointer w-11 h-11 shrink-0 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised/60 transition-colors"
+                className="focus-ring cursor-pointer w-11 h-11 shrink-0 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised/60 "
               >
                 <IconSearch className="w-4 h-4" />
               </button>
@@ -400,7 +395,7 @@ export function Sidebar({
             <button
               type="button"
               onClick={onOpenCommandPalette}
-              className="focus-ring cursor-pointer w-full flex items-center gap-2 px-3 h-9 rounded-item bg-overlay/60 border border-outline/50 text-sm text-muted hover:text-ink hover:border-outline hover:bg-overlay transition-colors"
+              className="focus-ring cursor-pointer w-full flex items-center gap-2 px-3 h-9 rounded-item bg-overlay/60 border border-outline/50 text-sm text-muted hover:text-ink hover:border-outline hover:bg-overlay "
             >
               <IconSearch className="w-4 h-4 shrink-0" />
               <span className="flex-1 text-start truncate">{tc('search')}</span>
@@ -445,13 +440,13 @@ export function Sidebar({
                 onClick={() => toggleGroup(group.id)}
                 aria-expanded={open}
                 aria-controls={panelId}
-                className={`focus-ring cursor-pointer w-full flex items-center gap-2 px-2 py-2 rounded-item border text-sm font-medium transition-colors ${
+                className={`focus-ring cursor-pointer w-full flex items-center gap-2 px-2 py-2 rounded-item border text-sm font-medium  ${
                   hasActive
                     ? 'bg-overlay/50 border-outline/30 text-ink'
                     : 'border-transparent text-muted hover:text-ink hover:bg-raised/60'
                 }`}
               >
-                <GroupIcon className={`ui-nav-icon w-4 h-4 shrink-0 ${hasActive ? 'text-ink' : 'text-muted'}`} />
+                <GroupIcon className={` w-4 h-4 shrink-0 ${hasActive ? 'text-ink' : 'text-muted'}`} />
                 <span className="shrink-0">{group.group.label}</span>
                 {!open && activeInGroup && (
                   <>
@@ -465,10 +460,10 @@ export function Sidebar({
                       {badgeLabel(groupBadge)}
                     </span>
                   )}
-                  <DisclosureChevron open={open} animate={animateGroups} />
+                  <DisclosureChevron open={open} />
                 </span>
               </button>
-              <Disclosure id={panelId} open={open} animate={animateGroups} className="flex flex-col gap-0.5 ms-5 ps-2 border-s border-line pt-1 pb-1">
+              <Disclosure id={panelId} open={open} className="flex flex-col gap-0.5 ms-5 ps-2 border-s border-line pt-1 pb-1">
                 {buttons}
               </Disclosure>
             </div>
@@ -482,11 +477,10 @@ export function Sidebar({
               <button
                 type="button"
                 onClick={onOpenUpdatesModal}
-                className="focus-ring cursor-pointer w-11 h-11 shrink-0 flex items-center justify-center rounded-item relative text-muted hover:text-ink hover:bg-raised/60 transition-colors"
+                className="focus-ring cursor-pointer w-11 h-11 shrink-0 flex items-center justify-center rounded-item relative text-muted hover:text-ink hover:bg-raised/60 "
               >
                 <IconArrowUp className="w-4 h-4" />
                 <span className="absolute top-2 inset-e-2 flex w-2 h-2" aria-hidden="true">
-                  <span className="absolute inline-flex h-full w-full rounded-full bg-accent-bright opacity-75 animate-attention-ping" />
                   <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-bright shadow-[0_0_6px_2px] shadow-accent/50" />
                 </span>
               </button>
@@ -495,10 +489,9 @@ export function Sidebar({
             <button
               type="button"
               onClick={onOpenUpdatesModal}
-              className="focus-ring cursor-pointer w-full flex items-center gap-2.5 px-3 py-2.5 rounded-item bg-accent/10 border border-accent/30 text-xs font-medium text-accent-bright hover:bg-accent/20 transition-colors"
+              className="focus-ring cursor-pointer w-full flex items-center gap-2.5 px-3 py-2.5 rounded-item bg-accent/10 border border-accent/30 text-xs font-medium text-accent-bright hover:bg-accent/20 "
             >
               <span className="relative flex w-2 h-2">
-                <span className="absolute inline-flex h-full w-full rounded-full bg-accent-bright opacity-75 animate-attention-ping" />
                 <span className="relative inline-flex rounded-full w-2 h-2 bg-accent-bright" />
               </span>
               {tc('update_available')}
@@ -548,7 +541,7 @@ export function Sidebar({
         className="absolute inset-y-0 -inset-e-3.5 w-7 cursor-col-resize group/edge z-10"
       >
         <div
-          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none transition-opacity duration-200 ease-out ${
+          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none  ${
             showKnob ? 'opacity-100' : 'opacity-0'
           }`}
         >
@@ -556,7 +549,7 @@ export function Sidebar({
             className={`flex flex-col items-center ${
               knobY != null && !settings.fixed_sidebar_resize_knob
                 ? ''
-                : 'transition-transform duration-200 ease-out'
+                : ' '
             }`}
             style={
               knobY != null && !settings.fixed_sidebar_resize_knob
@@ -565,14 +558,14 @@ export function Sidebar({
             }
           >
           <div
-            className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-tag bg-raised border border-line shadow-md shadow-base text-3xs font-mono text-muted tabular-nums whitespace-nowrap transition-[translate,opacity] duration-200 ${
+            className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-tag bg-raised border border-line shadow-md shadow-base text-3xs font-mono text-muted tabular-nums whitespace-nowrap  ${
               dragging ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
             }`}
           >
             {width}px
           </div>
           <div
-            className={`flex items-center justify-center w-5 h-10 rounded-full border shadow-md shadow-base transition-[scale,background-color,border-color,box-shadow] duration-200 ${
+            className={`flex items-center justify-center w-5 h-10 rounded-full border shadow-md shadow-base  ${
             dragging
               ? 'bg-accent border-accent scale-110 shadow-accent/30'
               : 'bg-raised border-line shadow-base group-hover/edge:border-accent-dim'
@@ -580,17 +573,17 @@ export function Sidebar({
         >
             <div className="flex flex-col items-center justify-center gap-1">
           <div
-            className={`w-1 h-1 rounded-full transition-colors duration-200 ${
+            className={`w-1 h-1 rounded-full  ${
               dragging ? 'bg-white' : 'bg-line group-hover/edge:bg-accent'
             }`}
           />
           <div
-            className={`w-1 h-1 rounded-full transition-colors duration-200 ${
+            className={`w-1 h-1 rounded-full  ${
               dragging ? 'bg-white' : 'bg-line group-hover/edge:bg-accent'
             }`}
           />
           <div
-            className={`w-1 h-1 rounded-full transition-colors duration-200 ${
+            className={`w-1 h-1 rounded-full  ${
               dragging ? 'bg-white' : 'bg-line group-hover/edge:bg-accent'
             }`}
           />

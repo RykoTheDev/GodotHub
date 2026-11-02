@@ -1,5 +1,4 @@
 import { useEffect, useId, useRef } from 'react'
-import { motion, type Variants } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { IconX } from '../../lib/icons'
 
@@ -8,7 +7,6 @@ interface Props {
   title: string
   description?: React.ReactNode
   onClose?: () => void
-  variants?: Variants
   titleId?: string
   autoFocusBanner?: boolean
   titleClassName?: string
@@ -19,7 +17,6 @@ export function ModalHeader({
   title,
   description,
   onClose,
-  variants,
   titleId,
   titleClassName = 'line-clamp-2 wrap-break-word',
   autoFocusBanner = true,
@@ -39,10 +36,7 @@ export function ModalHeader({
   }, [autoFocusBanner])
 
   return (
-    <motion.div
-      variants={variants}
-      className="flex items-start justify-between gap-3 p-4 pb-2 shrink-0"
-    >
+    <div className="flex items-start justify-between gap-3 p-4 pb-2 shrink-0">
       <div
         ref={bannerRef}
         tabIndex={-1}
@@ -65,11 +59,11 @@ export function ModalHeader({
           type="button"
           onClick={onClose}
           aria-label={t('close')}
-          className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/50 hover:text-ink hover:bg-raised transition-colors shrink-0"
+          className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/50 hover:text-ink hover:bg-raised shrink-0"
         >
           <IconX className="w-4 h-4" />
         </button>
       )}
-    </motion.div>
+    </div>
   )
 }

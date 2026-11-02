@@ -66,7 +66,7 @@ export function VaultSourceSection({
             type="button"
             onClick={onRemove}
             aria-label={t('vault_remove_source')}
-            className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/50 hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
+            className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/50 hover:text-danger hover:bg-danger/10 shrink-0"
           >
             <IconTrash className="w-3.5 h-3.5" />
           </button>

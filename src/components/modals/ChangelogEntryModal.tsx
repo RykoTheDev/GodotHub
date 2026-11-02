@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { ModalShell } from './ModalShell'
 import {
@@ -108,23 +107,23 @@ export function ChangelogEntryModal({ entry, initial, onClose, onSave }: Props) 
         <>
           {error && <p className="text-xs text-danger">{error}</p>}
           <div className="ms-auto flex justify-end gap-2.5">
-            <motion.button
+            <button
 
-              data-press-feedback
+
               onClick={onClose}
-              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
+              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised "
             >
               {t('cancel')}
-            </motion.button>
-            <motion.button
+            </button>
+            <button
 
-              data-press-feedback={busy ? undefined : true}
+
               onClick={submit}
               disabled={busy}
-              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white transition-colors"
+              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white "
             >
               {busy ? t('saving') : entry ? t('save_changes') : t('add_entry')}
-            </motion.button>
+            </button>
           </div>
         </>
       }
@@ -139,7 +138,7 @@ export function ChangelogEntryModal({ entry, initial, onClose, onSave }: Props) 
                 autoFocus
                 value={version}
                 onChange={(e) => setVersion(e.target.value)}
-                className="focus-ring bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm text-ink focus:border-accent-dim transition-colors"
+                className="focus-ring bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm text-ink focus:border-accent-dim "
                 placeholder={t('changelog_version_placeholder')}
               />
             </div>
@@ -150,7 +149,7 @@ export function ChangelogEntryModal({ entry, initial, onClose, onSave }: Props) 
               <input
                 value={date}
                 onChange={(e) => setDate(e.target.value)}
-                className="focus-ring bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm text-ink focus:border-accent-dim transition-colors"
+                className="focus-ring bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm text-ink focus:border-accent-dim "
                 placeholder={t('changelog_date_placeholder')}
               />
             </div>
@@ -169,7 +168,7 @@ export function ChangelogEntryModal({ entry, initial, onClose, onSave }: Props) 
                         type="button"
                         onClick={() => setNote(i, { category: c.value })}
                         title={t(c.label)}
-                        className={`focus-ring cursor-pointer px-2 py-1.5 text-3xs font-medium transition-colors ${
+                        className={`focus-ring cursor-pointer px-2 py-1.5 text-3xs font-medium  ${
                           note.category === c.value
                             ? c.activeClass
                             : 'text-muted hover:bg-raised/50'
@@ -191,7 +190,7 @@ export function ChangelogEntryModal({ entry, initial, onClose, onSave }: Props) 
                       addNote()
                     }
                   }}
-                  className="focus-ring flex-1 bg-base border border-outline/50 rounded-btn px-3.5 py-2 text-sm text-ink focus:border-accent-dim transition-colors"
+                  className="focus-ring flex-1 bg-base border border-outline/50 rounded-btn px-3.5 py-2 text-sm text-ink focus:border-accent-dim "
                   placeholder={t('changelog_placeholder_note')}
                 />
                 {notes.length > 1 && (
@@ -199,7 +198,7 @@ export function ChangelogEntryModal({ entry, initial, onClose, onSave }: Props) 
                     type="button"
                     onClick={() => removeNote(i)}
                     aria-label={t('changelog_remove_line_aria')}
-                    className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted hover:text-danger hover:bg-danger/10 transition-colors"
+                    className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted hover:text-danger hover:bg-danger/10 "
                   >
                     <IconX className="w-3 h-3" />
                   </button>
@@ -207,16 +206,16 @@ export function ChangelogEntryModal({ entry, initial, onClose, onSave }: Props) 
               </div>
             ))}
           </div>
-          <motion.button
+          <button
             type="button"
 
-            data-press-feedback
+
             onClick={addNote}
-            className="focus-ring cursor-pointer self-start flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs text-muted hover:text-ink hover:bg-raised transition-colors"
+            className="focus-ring cursor-pointer self-start flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs text-muted hover:text-ink hover:bg-raised "
           >
             <IconPlus className="w-3 h-3" />
             {t('changelog_add_line')}
-          </motion.button>
+          </button>
 
           <div className="flex items-center gap-1.5 mt-4">
             <IconAlertTriangle className="w-3.5 h-3.5 text-amber" />
@@ -242,14 +241,14 @@ export function ChangelogEntryModal({ entry, initial, onClose, onSave }: Props) 
                         addIssue()
                       }
                     }}
-                    className="focus-ring flex-1 bg-base border border-outline/50 rounded-btn px-3.5 py-2 text-sm text-ink focus:border-amber/60 transition-colors"
+                    className="focus-ring flex-1 bg-base border border-outline/50 rounded-btn px-3.5 py-2 text-sm text-ink focus:border-amber/60 "
                     placeholder={t('changelog_known_issue_placeholder')}
                   />
                   <button
                     type="button"
                     onClick={() => removeIssue(i)}
                     aria-label={t('changelog_remove_known_issue_aria')}
-                    className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted hover:text-danger hover:bg-danger/10 transition-colors"
+                    className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted hover:text-danger hover:bg-danger/10 "
                   >
                     <IconX className="w-3 h-3" />
                   </button>
@@ -257,16 +256,16 @@ export function ChangelogEntryModal({ entry, initial, onClose, onSave }: Props) 
               ))
             )}
           </div>
-          <motion.button
+          <button
             type="button"
 
-            data-press-feedback
+
             onClick={addIssue}
-            className="focus-ring cursor-pointer self-start flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs text-muted hover:text-ink hover:bg-raised transition-colors"
+            className="focus-ring cursor-pointer self-start flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs text-muted hover:text-ink hover:bg-raised "
           >
             <IconPlus className="w-3 h-3" />
             {t('changelog_add_known_issue')}
-          </motion.button>
+          </button>
         </div>
     </ModalShell>
   )

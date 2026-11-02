@@ -1,7 +1,5 @@
 import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useUiMotion } from '../hooks/useUiMotion'
-import { motion, AnimatePresence } from 'framer-motion'
 import {
   ACCENT_PRESETS_DARK,
   ACCENT_PRESETS_LIGHT,
@@ -26,7 +24,6 @@ import {
 import { CATEGORY_COLORS } from '../lib/categoryColors'
 import { api } from '../lib/api'
 import { pushToast } from '../lib/toast'
-import { isRtl } from '../lib/locale'
 import type { DiscoveredInstall, DiscoveredProject } from '../types'
 import { Titlebar } from '../components/titlebar/Titlebar'
 import { useDiscordRpc } from '../hooks/useDiscordRpc'
@@ -135,18 +132,15 @@ function ProgressRow({
       </div>
       <div className="h-1.5 w-full rounded-full bg-line/40 overflow-hidden">
         {hasProgress ? (
-          <motion.div
-            className="h-full w-full origin-left rtl:origin-right rounded-full bg-accent"
-            initial={{ transform: 'scaleX(0)' }}
-            animate={{ transform: `scaleX(${pct / 100})` }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
+          <div
+            className="h-full origin-left rtl:origin-right rounded-full bg-accent"
+            style={{ width: `${pct}%` }}
           />
         ) : running ? (
-          <motion.div
+          <div
             className="h-full rounded-full bg-accent/60"
-            initial={{ transform: 'translateX(-100%)' }}
-            animate={{ transform: 'translateX(400%)' }}
-            transition={{ repeat: Infinity, duration: 1.4, ease: 'linear' }}
+
+
             style={{ width: '30%' }}
           />
         ) : (
@@ -289,7 +283,7 @@ function DiscoveryList({
         type="button"
         onClick={onAdd}
         disabled={busy || selectableCount === 0}
-        className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 px-3 py-1.5 rounded-btn bg-accent hover:bg-accent-bright text-white text-2xs font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 px-3 py-1.5 rounded-btn bg-accent hover:bg-accent-bright text-white text-2xs font-medium disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {busy ? (
           <IconRefresh className="w-3 h-3 animate-spin" />
@@ -309,7 +303,6 @@ export function OnboardingView({
   settings,
   onComplete,
 }: Props) {
-  const uiMotion = useUiMotion()
   const { t } = useTranslation('onboarding')
   const { t: tc, i18n } = useTranslation('common')
   const { t: ts } = useTranslation('settings')
@@ -486,7 +479,7 @@ export function OnboardingView({
                   key={s.id}
                   type="button"
                   onClick={() => jumpTo(i)}
-                  className={`focus-ring cursor-pointer relative flex items-center gap-2.5 px-3 py-2.5 rounded-item text-sm font-medium transition-colors ${
+                  className={`focus-ring cursor-pointer relative flex items-center gap-2.5 px-3 py-2.5 rounded-item text-sm font-medium  ${
                     active
                       ? 'text-ink'
                       : done
@@ -495,14 +488,14 @@ export function OnboardingView({
                   }`}
                 >
                   {active && (
-                    <motion.span
-                      layoutId={uiMotion.instant || uiMotion.reduced ? undefined : 'new-ui-onboarding-pill'}
-                      transition={uiMotion.transition('press')}
+                    <span
+
+
                       className="absolute inset-0 rounded-item bg-overlay border border-outline/50 shadow-md shadow-black/10 pointer-events-none"
                     />
                   )}
                   <span
-                    className={`relative w-6 h-6 shrink-0 flex items-center justify-center rounded-tag text-3xs font-bold border transition-colors ${
+                    className={`relative w-6 h-6 shrink-0 flex items-center justify-center rounded-tag text-3xs font-bold border  ${
                       done
                         ? 'bg-accent/15 text-accent-bright border-accent-dim/40'
                         : active
@@ -523,13 +516,10 @@ export function OnboardingView({
 
           <div className="shrink-0 p-4 border-t border-line flex flex-col gap-2">
             <div className="h-1.5 w-full rounded-full bg-line/40 overflow-hidden">
-              <motion.div
+              <div
                 className="h-full w-full origin-left rtl:origin-right rounded-full bg-accent"
-                initial={false}
-                animate={{
-                  transform: `scaleX(${(stepIndex + 1) / STEPS.length})`,
-                }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
+
+
               />
             </div>
             <span className="text-3xs font-medium text-muted/70 text-center tabular-nums">
@@ -546,13 +536,11 @@ export function OnboardingView({
               hideTopButton
             >
               <div className="min-h-full px-6 py-6 sm:px-10 sm:py-8">
-                <AnimatePresence mode="wait">
-                  <motion.div
+
+                  <div
                     key={step.id}
-                    initial={{ opacity: 0, x: isRtl() ? -16 : 16 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: isRtl() ? 16 : -16 }}
-                    transition={{ duration: 0.2, ease: 'easeOut' }}
+
+
                     className="w-full flex flex-col items-center"
                   >
                     {step.id === 'welcome' && (
@@ -577,7 +565,7 @@ export function OnboardingView({
                                     type="button"
                                     aria-expanded={open}
                                     onClick={toggle}
-                                    className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-btn border border-outline/50 bg-overlay text-sm font-medium text-ink hover:border-accent-dim transition-colors"
+                                    className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-btn border border-outline/50 bg-overlay text-sm font-medium text-ink hover:border-accent-dim "
                                   >
                                     {current && <LanguageFlag country={current.country} />}
                                     {current
@@ -585,7 +573,7 @@ export function OnboardingView({
                                         ? i18n.t(`settings:${current.labelKey}`)
                                         : current.label
                                       : i18n.language}
-                                    <IconChevronDown className={`w-3 h-3 text-muted transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+                                    <IconChevronDown className={`w-3 h-3 text-muted  ${open ? 'rotate-180' : ''}`} />
                                   </button>
                                 )
                               }}
@@ -728,7 +716,7 @@ export function OnboardingView({
                                         ])
                                       }}
                                       disabled={added}
-                                      className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-tag border text-2xs font-mono transition-colors disabled:cursor-default ${
+                                      className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-tag border text-2xs font-mono disabled:cursor-default ${
                                         added
                                           ? 'border-accent-dim/40 bg-accent/10 text-accent-bright'
                                           : 'border-dashed border-outline/60 text-muted hover:text-accent-bright hover:border-accent-dim'
@@ -817,7 +805,7 @@ export function OnboardingView({
                                         ])
                                       }}
                                       disabled={added}
-                                      className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-tag border text-2xs font-mono transition-colors disabled:cursor-default ${
+                                      className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-tag border text-2xs font-mono disabled:cursor-default ${
                                         added
                                           ? 'border-accent-dim/40 bg-accent/10 text-accent-bright'
                                           : 'border-dashed border-outline/60 text-muted hover:text-accent-bright hover:border-accent-dim'
@@ -870,7 +858,7 @@ export function OnboardingView({
                                 if (folder)
                                   setField('template_scan_dir', folder)
                               }}
-                              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn border border-outline/50 text-sm hover:border-accent-dim hover:bg-overlay transition-colors"
+                              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn border border-outline/50 text-sm hover:border-accent-dim hover:bg-overlay "
                             >
                               {tc('browse')}
                             </button>
@@ -878,7 +866,7 @@ export function OnboardingView({
                               <button
                                 type="button"
                                 onClick={() => setField('template_scan_dir', null)}
-                                className="focus-ring cursor-pointer px-3 py-2.5 rounded-btn border border-outline/50 text-xs text-muted hover:text-danger hover:border-danger/30 hover:bg-danger/10 transition-colors"
+                                className="focus-ring cursor-pointer px-3 py-2.5 rounded-btn border border-outline/50 text-xs text-muted hover:text-danger hover:border-danger/30 hover:bg-danger/10 "
                               >
                                 {tc('clear')}
                               </button>
@@ -897,7 +885,7 @@ export function OnboardingView({
                                   onClick={() =>
                                     setField('template_scan_dir', s.path)
                                   }
-                                  className="focus-ring cursor-pointer flex items-center gap-2 px-3 py-2 rounded-item border border-dashed border-outline/60 text-start hover:border-accent-dim hover:bg-overlay/60 transition-colors"
+                                  className="focus-ring cursor-pointer flex items-center gap-2 px-3 py-2 rounded-item border border-dashed border-outline/60 text-start hover:border-accent-dim hover:bg-overlay/60 "
                                 >
                                   <span className="shrink-0 flex items-center justify-center w-4 h-4 rounded-tag bg-accent/15 text-accent-bright">
                                     <IconCopy className="w-3 h-3" />
@@ -930,13 +918,13 @@ export function OnboardingView({
                               const color =
                                 STARTER_CATEGORY_COLORS[name] ?? CATEGORY_COLORS[0]
                               return (
-                                <motion.button
+                                <button
                                   key={name}
 
-                                  data-press-feedback={added ? undefined : true}
+
                                   disabled={added || categoryBusy}
                                   onClick={() => addStarterCategory(name)}
-                                  className={`focus-ring cursor-pointer flex items-center gap-1.5 px-3.5 py-2 rounded-btn border text-xs font-medium transition-colors disabled:cursor-default ${
+                                  className={`focus-ring cursor-pointer flex items-center gap-1.5 px-3.5 py-2 rounded-btn border text-xs font-medium disabled:cursor-default ${
                                     added
                                       ? 'border-accent-dim/50 bg-accent/10 text-accent-bright'
                                       : 'border-dashed border-outline/50 text-muted hover:text-accent-bright hover:border-accent-dim'
@@ -952,7 +940,7 @@ export function OnboardingView({
                                     style={{ backgroundColor: color }}
                                   />
                                   {categoryLabels[name] || name}
-                                </motion.button>
+                                </button>
                               )
                             })}
                           </div>
@@ -966,18 +954,18 @@ export function OnboardingView({
                                   e.key === 'Enter' && addCustomCategory()
                                 }
                                 placeholder={t('onboarding_custom_category_placeholder', { ns: 'common' })}
-                                className="focus-ring flex-1 bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm focus:border-accent-dim outline-none transition-colors"
+                                className="focus-ring flex-1 bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm focus:border-accent-dim outline-none "
                               />
-                              <motion.button
+                              <button
 
-                                data-press-feedback={categoryBusy ? undefined : true}
+
                                 onClick={addCustomCategory}
                                 disabled={categoryBusy || !categoryDraft.trim()}
-                                className="focus-ring cursor-pointer shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium text-white transition-colors"
+                                className="focus-ring cursor-pointer shrink-0 flex items-center gap-1.5 px-4 py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium text-white "
                               >
                                 <IconPlus className="w-3.5 h-3.5" />
                                 {tc('add')}
-                              </motion.button>
+                              </button>
                             </div>
                             <ColorSwatchPicker
                               label={tc('color_label')}
@@ -1008,7 +996,7 @@ export function OnboardingView({
                                     <button
                                       onClick={() => removeCategory(c.id)}
                                       aria-label={tc('remove_category_aria', { name: c.name })}
-                                      className="focus-ring cursor-pointer text-muted opacity-0 group-hover:opacity-100 hover:text-danger transition-colors"
+                                      className="focus-ring cursor-pointer text-muted opacity-0 group-hover:opacity-100 hover:text-danger "
                                     >
                                       <IconTrash className="w-3.5 h-3.5" />
                                     </button>
@@ -1051,7 +1039,7 @@ export function OnboardingView({
                                   key={mode}
                                   type="button"
                                   onClick={() => setPresetModal(mode)}
-                                  className="focus-ring cursor-pointer flex items-center gap-3 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-overlay px-4 py-3.5 transition-colors"
+                                  className="focus-ring cursor-pointer flex items-center gap-3 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-overlay px-4 py-3.5 "
                                 >
                                   <Icon className="w-4 h-4 text-muted shrink-0" />
                                   <span className="text-xs font-medium text-ink">
@@ -1067,7 +1055,7 @@ export function OnboardingView({
                               <button
                                 type="button"
                                 onClick={() => selectPreset('custom')}
-                                className={`focus-ring cursor-pointer flex items-center gap-3 rounded-btn border px-4 py-3.5 transition-colors ${
+                                className={`focus-ring cursor-pointer flex items-center gap-3 rounded-btn border px-4 py-3.5  ${
                                   !presetActive
                                     ? 'border-accent bg-accent/10'
                                     : 'border-outline/50 hover:border-accent-dim hover:bg-overlay'
@@ -1128,7 +1116,7 @@ export function OnboardingView({
                                       key={mode}
                                       type="button"
                                       onClick={() => setThemeMode(mode)}
-                                      className={`focus-ring cursor-pointer flex items-center gap-2 px-3.5 py-1.5 rounded-btn text-sm font-medium transition-colors ${
+                                      className={`focus-ring cursor-pointer flex items-center gap-2 px-3.5 py-1.5 rounded-btn text-sm font-medium  ${
                                         active
                                           ? 'bg-accent text-white'
                                           : 'text-muted hover:text-ink hover:bg-raised'
@@ -1288,8 +1276,8 @@ export function OnboardingView({
                         )}
                       </StepShell>
                     )}
-                  </motion.div>
-                </AnimatePresence>
+                  </div>
+
               </div>
             </OverlayScrollArea>
           </div>
@@ -1299,7 +1287,7 @@ export function OnboardingView({
               type="button"
               onClick={() => (stepIndex === 0 ? finish(true) : goBack())}
               disabled={finishing}
-              className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-4 py-2.5 rounded-item text-sm text-muted hover:text-ink hover:bg-overlay transition-colors disabled:opacity-50"
+              className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-4 py-2.5 rounded-item text-sm text-muted hover:text-ink hover:bg-overlay disabled:opacity-50"
             >
               {stepIndex === 0 ? (
                 tc('skip_setup')
@@ -1316,7 +1304,7 @@ export function OnboardingView({
                 type="button"
                 onClick={() => finish(false)}
                 disabled={finishing}
-                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-6 py-2.5 rounded-item bg-accent hover:bg-accent-bright disabled:opacity-60 text-sm font-medium text-white transition-colors"
+                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-6 py-2.5 rounded-item bg-accent hover:bg-accent-bright disabled:opacity-60 text-sm font-medium text-white "
               >
                 {finishing ? tc('finishing') : tc('get_started')}
               </button>
@@ -1324,7 +1312,7 @@ export function OnboardingView({
               <button
                 type="button"
                 onClick={goNext}
-                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-6 py-2.5 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
+                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-6 py-2.5 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white "
               >
                 {t('onboarding_continue', { ns: 'common' })}
                 <IconChevronRight className="rtl:rotate-180 w-3.5 h-3.5" />
@@ -1334,7 +1322,7 @@ export function OnboardingView({
         </main>
       </div>
 
-      <AnimatePresence>
+
         {presetModal && (
           <ThemePresetsModal
             mode={presetModal}
@@ -1346,7 +1334,7 @@ export function OnboardingView({
             onClose={() => setPresetModal(null)}
           />
         )}
-      </AnimatePresence>
+
     </div>
   )
 }
@@ -1383,7 +1371,7 @@ function OnboardingCloudBackup() {
           <button
             type="button"
             onClick={() => setShowGitAuth(true)}
-            className="focus-ring cursor-pointer self-start inline-flex items-center gap-2 px-4 py-2 rounded-btn bg-overlay border border-outline/50 hover:border-accent-dim hover:bg-raised text-xs font-medium transition-colors"
+            className="focus-ring cursor-pointer self-start inline-flex items-center gap-2 px-4 py-2 rounded-btn bg-overlay border border-outline/50 hover:border-accent-dim hover:bg-raised text-xs font-medium "
           >
             {t('git_sign_in_github')}
           </button>
@@ -1397,7 +1385,7 @@ function OnboardingCloudBackup() {
             <button
               type="button"
               onClick={() => setShowRestoreModal(true)}
-              className="focus-ring cursor-pointer self-start inline-flex items-center gap-2 px-4 py-2.5 rounded-btn bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors"
+              className="focus-ring cursor-pointer self-start inline-flex items-center gap-2 px-4 py-2.5 rounded-btn bg-accent hover:bg-accent-bright text-xs font-medium text-white "
             >
               <IconCloudArrowDown className="w-3.5 h-3.5" />
               {ts('sync_pull_btn')}
@@ -1410,13 +1398,13 @@ function OnboardingCloudBackup() {
 
       </div>
 
-      <AnimatePresence>
+
         {showRestoreModal && (
           <RestoreProgressModal onClose={() => setShowRestoreModal(false)} />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {showGitAuth && (
           <GitAuthModal
             provider="github"
@@ -1424,7 +1412,7 @@ function OnboardingCloudBackup() {
             onConnected={handleConnected}
           />
         )}
-      </AnimatePresence>
+
     </div>
   )
 }

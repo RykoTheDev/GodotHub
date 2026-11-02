@@ -6,12 +6,9 @@ import {
   type ReactNode,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { useUiMotion } from '../hooks/useUiMotion'
-import { motion, AnimatePresence } from "framer-motion";
 import { Toggle } from "../components/ui/Toggle";
 import { Segmented } from "../components/reusables/Segmented";
 import { Slider } from "../components/ui/Slider";
-import { viewTransition } from "../lib/motion";
 import { formatLocaleDateTime } from "../lib/locale";
 import { useSettings } from "../hooks/useSettings";
 import { openUrl } from "@tauri-apps/plugin-opener";
@@ -86,7 +83,6 @@ import {
   IconRocket,
   IconGithub,
   IconGitlab,
-  IconPlay,
   IconMonitor,
   IconHistory,
 } from "../lib/icons";
@@ -98,7 +94,6 @@ import { reportError } from '../lib/toast'
 
 type SettingsCat =
   | "appearance"
-  | "motion"
   | "display"
   | "accessibility"
   | "behavior"
@@ -117,7 +112,6 @@ interface CatDef {
 
 const CATEGORIES: CatDef[] = [
   { id: "appearance", icon: IconPalette },
-  { id: "motion", icon: IconPlay },
   { id: "display", icon: IconMonitor },
   { id: "accessibility", icon: IconUniversalAccess },
   { id: "behavior", icon: IconGear },
@@ -219,7 +213,6 @@ function SettingRow({
 }
 
 export function SettingsView({ connected = false }: { connected?: boolean }) {
-  const uiMotion = useUiMotion()
   const { t } = useTranslation("nav");
   const { t: ts } = useTranslation("settings");
   const { settings, update, resetToDefaults } = useSettings();
@@ -747,7 +740,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               key={mode}
               type="button"
               onClick={() => setPresetModal(mode)}
-              className="focus-ring cursor-pointer flex items-center gap-3 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised p-4 transition-colors"
+              className="focus-ring cursor-pointer flex items-center gap-3 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised p-4 "
             >
               <Icon className="w-4 h-4 text-muted shrink-0" />
               <span className="text-xs font-medium text-ink">{label}</span>
@@ -761,7 +754,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           <button
             type="button"
             onClick={selectCustom}
-            className={`focus-ring cursor-pointer flex items-center gap-3 rounded-btn border p-4 transition-colors ${
+            className={`focus-ring cursor-pointer flex items-center gap-3 rounded-btn border p-4  ${
               settings.theme_preset === "custom"
                 ? "border-accent bg-accent/10"
                 : "border-outline/50 hover:border-accent-dim hover:bg-raised"
@@ -806,7 +799,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   type="button"
                   onClick={resetThemeColors}
                   aria-label={ts("reset_colors")}
-                  className="focus-ring cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-medium text-muted hover:text-ink hover:bg-raised transition-colors"
+                  className="focus-ring cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-medium text-muted hover:text-ink hover:bg-raised "
                 >
                   <IconHeart className="w-3.5 h-3.5" />
                   {ts("reset")}
@@ -951,13 +944,13 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             }}
             spellCheck={false}
             placeholder={ts("custom_css_placeholder")}
-            className="focus-ring w-full h-40 resize-y bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono text-ink placeholder:text-muted/50 transition-colors focus:border-accent-dim"
+            className="focus-ring w-full h-40 resize-y bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono text-ink placeholder:text-muted/50 focus:border-accent-dim"
           />
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handleApplyCss}
-              className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn bg-accent text-white text-xs font-medium hover:bg-accent-dim transition-colors"
+              className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn bg-accent text-white text-xs font-medium hover:bg-accent-dim "
             >
               {ts("custom_css_apply")}
             </button>
@@ -970,7 +963,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   setCssStatus("applied");
                   setTimeout(() => setCssStatus("idle"), 1500);
                 }}
-                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3.5 rounded-btn bg-overlay border border-outline/50 text-muted text-xs font-medium hover:text-ink hover:bg-raised transition-colors"
+                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3.5 rounded-btn bg-overlay border border-outline/50 text-muted text-xs font-medium hover:text-ink hover:bg-raised "
               >
                 {ts("clear")}
               </button>
@@ -987,110 +980,11 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <button
         type="button"
         onClick={resetAppearance}
-        className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 px-4 py-2 rounded-btn border border-outline/50 text-muted hover:text-ink hover:bg-raised text-xs font-medium transition-colors"
+        className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 px-4 py-2 rounded-btn border border-outline/50 text-muted hover:text-ink hover:bg-raised text-xs font-medium "
       >
         <IconRefresh className="w-3.5 h-3.5" />
         {ts("reset_appearance")}
       </button>
-    </div>
-  );
-
-  const renderMotion = () => (
-    <div className="flex flex-col gap-3">
-      <Subsection
-        id="motion-intensity"
-        title={ts("animation_intensity_label")}
-        description={ts("animation_intensity_desc")}
-        searchText={`${ts("animation_intensity_label")} ${ts("animation_intensity_desc")} ${ts("animation_full")} ${ts("animation_subtle")} ${ts("animation_none")}`}
-        query={searchQuery}
-        onMatch={reportMatch}
-      >
-        <Segmented
-          value={settings.animation_intensity}
-          onChange={(v) =>
-            update({
-              ...settings,
-              animation_intensity: v as AppSettings["animation_intensity"],
-            })
-          }
-          options={[
-            { value: "full", label: ts("animation_full") },
-            { value: "subtle", label: ts("animation_subtle") },
-            { value: "none", label: ts("animation_none") },
-          ]}
-        />
-      </Subsection>
-
-      <Subsection
-        id="motion-view-entrance"
-        title={ts("view_entrance_label")}
-        description={ts("view_entrance_desc")}
-        searchText={`${ts("view_entrance_label")} ${ts("view_entrance_desc")} ${ts("entrance_fade")} ${ts("entrance_slide")} ${ts("entrance_scale")} ${ts("entrance_none")}`}
-        query={searchQuery}
-        onMatch={reportMatch}
-      >
-        <div className="flex flex-col gap-3">
-          <Segmented
-            value={settings.view_entrance}
-            onChange={(v) =>
-              update({
-                ...settings,
-                view_entrance: v as AppSettings["view_entrance"],
-              })
-            }
-            options={[
-              { value: "fade", label: ts("entrance_fade") },
-              { value: "slide", label: ts("entrance_slide") },
-              { value: "scale", label: ts("entrance_scale") },
-              { value: "none", label: ts("entrance_none") },
-            ]}
-          />
-        </div>
-      </Subsection>
-
-      <Subsection
-        id="motion-animation-threshold"
-        title={ts("animation_threshold_label")}
-        description={ts("animation_threshold_desc")}
-        searchText={`${ts("animation_threshold_label")} ${ts("animation_threshold_desc")}`}
-        query={searchQuery}
-        onMatch={reportMatch}
-      >
-        <div className="flex flex-col gap-2">
-          <Slider
-            display={
-              <span className="text-xs font-medium text-ink tabular-nums">
-                {ts("n_projects", { count: settings.animation_threshold })}
-              </span>
-            }
-            value={settings.animation_threshold}
-            min={10}
-            max={100}
-            step={5}
-            defaultValue={20}
-            onChange={(value) =>
-              update({ ...settings, animation_threshold: value })
-            }
-          />
-        </div>
-      </Subsection>
-
-      <Subsection
-        id="motion-animated-numbers"
-        title={ts("animated_numbers_label")}
-        description={ts("animated_numbers_desc")}
-        searchText={`${ts("animated_numbers_label")} ${ts("animated_numbers_desc")}`}
-        query={searchQuery}
-        onMatch={reportMatch}
-      >
-        <Toggle
-          checked={settings.animated_numbers}
-          onChange={(checked) =>
-            update({ ...settings, animated_numbers: checked })
-          }
-          label={ts("animated_numbers_label")}
-        />
-      </Subsection>
     </div>
   );
 
@@ -1320,7 +1214,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                     onClick={() =>
                       update({ ...settings, template_scan_dir: null })
                     }
-                    className="focus-ring cursor-pointer px-3 py-2 rounded-btn border border-outline/50 text-xs text-muted hover:text-danger hover:border-danger/30 hover:bg-danger/10 transition-colors"
+                    className="focus-ring cursor-pointer px-3 py-2 rounded-btn border border-outline/50 text-xs text-muted hover:text-danger hover:border-danger/30 hover:bg-danger/10 "
                   >
                     {ts("clear")}
                   </button>
@@ -1337,7 +1231,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   if (folder)
                     update({ ...settings, template_scan_dir: folder });
                 }}
-                className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 px-3.5 py-2 rounded-btn border border-dashed border-outline/60 text-xs text-muted hover:text-accent-bright hover:border-accent-dim transition-colors"
+                className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 px-3.5 py-2 rounded-btn border border-dashed border-outline/60 text-xs text-muted hover:text-accent-bright hover:border-accent-dim "
               >
                 <IconPlus className="w-3 h-3" />
                 {ts("browse")}
@@ -1432,7 +1326,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         <button
           type="button"
           onClick={runScan}
-          className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+          className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium "
         >
           <IconRefresh className="w-4 h-4" />
           {ts("scan_now")}
@@ -1461,14 +1355,14 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={toggle}
               aria-expanded={open}
-              className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-btn bg-overlay border border-outline/50 text-xs font-medium text-ink hover:border-accent-dim transition-colors"
+              className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-btn bg-overlay border border-outline/50 text-xs font-medium text-ink hover:border-accent-dim "
             >
               {ts(
                 LANDING_TABS.find((l) => l.id === settings.default_landing_tab)
                   ?.labelKey ?? LANDING_TABS[0].labelKey,
               )}
               <IconChevronDown
-                className={`w-3 h-3 text-muted transition-transform duration-200 ${
+                className={`w-3 h-3 text-muted  ${
                   open ? "rotate-180" : ""
                 }`}
               />
@@ -1554,14 +1448,12 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             </SettingRow>
           )}
 
-          <AnimatePresence initial={false}>
+
             {settings.close_on_project_open &&
               (isMac || settings.minimize_to_tray) && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
+                <div
+
+
                   className="overflow-hidden"
                 >
                   <SettingRow
@@ -1582,9 +1474,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                       label={ts("reopen_label")}
                     />
                   </SettingRow>
-                </motion.div>
+                </div>
               )}
-          </AnimatePresence>
+
 
           <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
             <Slider
@@ -1697,11 +1589,11 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                       type="button"
                       onClick={toggle}
                       aria-expanded={open}
-                      className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-btn bg-overlay border border-outline/50 text-xs font-medium text-ink hover:border-accent-dim transition-colors"
+                      className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-btn bg-overlay border border-outline/50 text-xs font-medium text-ink hover:border-accent-dim "
                     >
                       {currentLabel}
                       <IconChevronDown
-                        className={`w-3 h-3 text-muted transition-transform duration-200 ${
+                        className={`w-3 h-3 text-muted  ${
                           open ? "rotate-180" : ""
                         }`}
                       />
@@ -1874,7 +1766,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                     await api.gitAuthDisconnect("github");
                     await refreshGitAuth();
                   }}
-                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn border border-outline/50 text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-xs font-medium transition-colors"
+                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn border border-outline/50 text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-xs font-medium "
                 >
                   {ts("git_disconnect")}
                 </button>
@@ -1882,7 +1774,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 <button
                   type="button"
                   onClick={() => setGitAuthFlow("github")}
-                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors"
+                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn bg-accent hover:bg-accent-bright text-xs font-medium text-white "
                 >
                   {ts("git_sign_in_github")}
                 </button>
@@ -1920,7 +1812,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                     await api.gitAuthDisconnect("gitlab");
                     await refreshGitAuth();
                   }}
-                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn border border-outline/50 text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-xs font-medium transition-colors"
+                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn border border-outline/50 text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-xs font-medium "
                 >
                   {ts("git_disconnect")}
                 </button>
@@ -1928,7 +1820,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 <button
                   type="button"
                   onClick={() => setGitAuthFlow("gitlab")}
-                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors"
+                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn bg-accent hover:bg-accent-bright text-xs font-medium text-white "
                 >
                   {ts("git_sign_in_gitlab")}
                 </button>
@@ -1956,13 +1848,13 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 value={gitlabUrl}
                 onChange={(e) => setGitlabUrl(e.target.value)}
                 placeholder={ts("git_self_hosted_url_placeholder")}
-                className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
+                className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim outline-none"
               />
               <input
                 value={gitlabClientId}
                 onChange={(e) => setGitlabClientId(e.target.value)}
                 placeholder={ts("git_self_hosted_client_id")}
-                className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
+                className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim outline-none"
               />
             </div>
             <button
@@ -1975,7 +1867,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 });
                 setGitAuthFlow("gitlab");
               }}
-              className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 h-8 px-4 rounded-btn border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium transition-colors"
+              className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 h-8 px-4 rounded-btn border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium "
             >
               {ts("git_sign_in_self_hosted")}
             </button>
@@ -2020,7 +1912,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                         await api.gitAuthRemovePat(pat.host);
                         await refreshGitAuth();
                       }}
-                      className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/60 hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
+                      className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/60 hover:text-danger hover:bg-danger/10 shrink-0"
                     >
                       <IconTrash className="w-3.5 h-3.5" />
                     </button>
@@ -2036,13 +1928,13 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                     value={patHost}
                     onChange={(e) => setPatHost(e.target.value)}
                     placeholder={ts("git_pat_host_placeholder")}
-                    className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
+                    className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim outline-none"
                   />
                   <input
                     value={patUser}
                     onChange={(e) => setPatUser(e.target.value)}
                     placeholder={ts("git_pat_username")}
-                    className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
+                    className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim outline-none"
                   />
                 </div>
                 <input
@@ -2050,7 +1942,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   value={patToken}
                   onChange={(e) => setPatToken(e.target.value)}
                   placeholder={ts("git_pat_token")}
-                  className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
+                  className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim outline-none"
                 />
                 {patMsg && (
                   <span className="text-2xs text-danger">{patMsg}</span>
@@ -2059,7 +1951,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   <button
                     type="button"
                     onClick={handleSavePat}
-                    className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors"
+                    className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-accent hover:bg-accent-bright text-xs font-medium text-white "
                   >
                     {ts("git_pat_save")}
                   </button>
@@ -2069,7 +1961,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                       setPatOpen(false);
                       setPatMsg(null);
                     }}
-                    className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3.5 rounded-item border border-outline/50 text-muted hover:text-ink hover:bg-raised text-xs font-medium transition-colors"
+                    className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3.5 rounded-item border border-outline/50 text-muted hover:text-ink hover:bg-raised text-xs font-medium "
                   >
                     {ts("cancel", { ns: "common" })}
                   </button>
@@ -2079,7 +1971,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               <button
                 type="button"
                 onClick={() => setPatOpen(true)}
-                className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 h-8 px-4 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised text-xs font-medium transition-colors"
+                className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 h-8 px-4 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised text-xs font-medium "
               >
                 <IconPlus className="w-3.5 h-3.5" />
                 {ts("git_pat_add")}
@@ -2105,12 +1997,12 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   placeholder={ts("setting_token_placeholder", {
                     ns: "common",
                   })}
-                  className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm font-mono focus:border-accent-dim transition-colors pe-20"
+                  className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm font-mono focus:border-accent-dim pe-20"
                 />
                 <button
                   type="button"
                   onClick={testGithubToken}
-                  className="focus-ring cursor-pointer absolute end-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md bg-overlay border border-outline/50 text-xs font-medium text-muted hover:text-ink hover:border-accent-dim transition-colors"
+                  className="focus-ring cursor-pointer absolute end-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md bg-overlay border border-outline/50 text-xs font-medium text-muted hover:text-ink hover:border-accent-dim "
                 >
                   {tokenTestState === "testing" ? ts("testing") : ts("test")}
                 </button>
@@ -2190,7 +2082,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   type="button"
                   onClick={handleSyncPush}
                   disabled={syncBusy !== null}
-                  className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <IconCloudArrowDown className="w-4 h-4" />
                   {syncBusy === "push" ? ts("saving") : ts("sync_push_btn")}
@@ -2199,7 +2091,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   type="button"
                   onClick={handleSyncPull}
                   disabled={syncBusy !== null}
-                  className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <IconCloudArrowDown className="w-4 h-4" />
                   {syncBusy === "pull" ? ts("saving") : ts("sync_pull_btn")}
@@ -2219,13 +2111,13 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleManualPull();
                   }}
-                  className="focus-ring flex-1 bg-base border border-outline/50 rounded-btn px-3 py-2 text-xs focus:border-accent-dim transition-colors"
+                  className="focus-ring flex-1 bg-base border border-outline/50 rounded-btn px-3 py-2 text-xs focus:border-accent-dim "
                 />
                 <button
                   type="button"
                   onClick={handleManualPull}
                   disabled={manualPullBusy || !manualGistUrl.trim()}
-                  className="focus-ring cursor-pointer px-4 py-2 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="focus-ring cursor-pointer px-4 py-2 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {manualPullBusy ? ts("saving") : ts("sync_manual_pull_btn")}
                 </button>
@@ -2265,7 +2157,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 update({ ...settings, discord_app_id: e.target.value || null })
               }
               placeholder={ts("discord_app_id_placeholder")}
-              className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm font-mono focus:border-accent-dim transition-colors"
+              className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm font-mono focus:border-accent-dim "
             />
             {!settings.discord_app_id?.trim() && (
               <span className="text-2xs text-mint font-medium">
@@ -2313,7 +2205,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 <button
                   type="button"
                   onClick={toggle}
-                  className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 h-8 px-4 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised text-xs font-medium transition-colors"
+                  className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 h-8 px-4 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised text-xs font-medium "
                 >
                   <IconPlus className="w-3.5 h-3.5" />
                   {ts("discord_exclude_project")}
@@ -2360,7 +2252,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                           })
                         }
                         aria-label={ts("discord_excluded_remove")}
-                        className="focus-ring cursor-pointer shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-muted hover:text-danger hover:bg-danger/10 transition-colors"
+                        className="focus-ring cursor-pointer shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-muted hover:text-danger hover:bg-danger/10 "
                       >
                         <IconX className="w-3.5 h-3.5" />
                       </button>
@@ -2387,7 +2279,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 <button
                   type="button"
                   onClick={toggle}
-                  className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 h-8 px-4 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised text-xs font-medium transition-colors"
+                  className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 h-8 px-4 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised text-xs font-medium "
                 >
                   <IconPlus className="w-3.5 h-3.5" />
                   {ts("discord_custom_add")}
@@ -2449,7 +2341,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                             })
                           }
                           aria-label={ts("discord_custom_remove")}
-                          className="focus-ring cursor-pointer shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-muted hover:text-danger hover:bg-danger/10 transition-colors"
+                          className="focus-ring cursor-pointer shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-muted hover:text-danger hover:bg-danger/10 "
                         >
                           <IconX className="w-3.5 h-3.5" />
                         </button>
@@ -2462,14 +2354,14 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                             setPresence("details", e.target.value)
                           }
                           placeholder={ts("discord_custom_details_placeholder")}
-                          className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3 py-2 text-xs focus:border-accent-dim transition-colors"
+                          className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3 py-2 text-xs focus:border-accent-dim "
                         />
                         <input
                           type="text"
                           value={pr.state ?? ""}
                           onChange={(e) => setPresence("state", e.target.value)}
                           placeholder={ts("discord_custom_state_placeholder")}
-                          className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3 py-2 text-xs focus:border-accent-dim transition-colors"
+                          className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3 py-2 text-xs focus:border-accent-dim "
                         />
                       </div>
                     </div>
@@ -2526,7 +2418,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={handleUninstallCli}
               disabled={cliBusy}
-              className="focus-ring cursor-pointer self-start flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer self-start flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {cliBusy ? ts("cli_tool_installing") : ts("version_uninstall_confirm")}
             </button>
@@ -2535,7 +2427,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={handleInstallCli}
               disabled={cliBusy}
-              className="focus-ring cursor-pointer self-start flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer self-start flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {cliBusy ? ts("cli_tool_installing") : ts("cli_tool_install")}
             </button>
@@ -2695,7 +2587,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           <button
             type="button"
             onClick={() => update({ ...settings, setup_complete: false })}
-            className="focus-ring cursor-pointer shrink-0 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+            className="focus-ring cursor-pointer shrink-0 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium "
           >
             {ts("open_setup")}
           </button>
@@ -2715,7 +2607,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           <button
             type="button"
             onClick={() => setShowUpdates(true)}
-            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium "
           >
             <IconRefresh className="w-4 h-4" />
             {ts("check_updates_title_modal")}
@@ -2734,7 +2626,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           <button
             type="button"
             onClick={() => setConfirmingRestart(true)}
-            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium "
           >
             <IconRefresh className="w-4 h-4" />
             {ts("restart_app")}
@@ -2753,7 +2645,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           <button
             type="button"
             onClick={() => setShowBugReport(true)}
-            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium "
           >
             <IconBug className="w-4 h-4" />
             {ts("report_bug")}
@@ -2772,7 +2664,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           <button
             type="button"
             onClick={() => setConfirmingReset(true)}
-            className="focus-ring cursor-pointer shrink-0 px-5 py-2.5 rounded-item border border-outline/50 text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-sm font-medium transition-colors"
+            className="focus-ring cursor-pointer shrink-0 px-5 py-2.5 rounded-item border border-outline/50 text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-sm font-medium "
           >
             {ts("reset")}
           </button>
@@ -2790,7 +2682,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           <button
             type="button"
             onClick={() => setConfirmingWipe(true)}
-            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-danger/40 text-danger hover:bg-danger/10 text-sm font-medium transition-colors"
+            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-danger/40 text-danger hover:bg-danger/10 text-sm font-medium "
           >
             <IconBomb className="w-4 h-4" />
             {ts("delete_all")}
@@ -2822,7 +2714,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={handleExportSettings}
               disabled={settingsBusy !== null}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {settingsBusy === "export"
                 ? ts("saving")
@@ -2832,7 +2724,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={handleImportSettings}
               disabled={settingsBusy !== null}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {settingsBusy === "import"
                 ? ts("saving")
@@ -2860,7 +2752,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={handleExportWorkspace}
               disabled={wsBackupBusy !== null}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {wsBackupBusy === "export"
                 ? ts("saving")
@@ -2870,7 +2762,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={handleImportWorkspace}
               disabled={wsBackupBusy !== null}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {wsBackupBusy === "import"
                 ? ts("saving")
@@ -2898,7 +2790,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={handleExportApp}
               disabled={appBackupBusy !== null}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {appBackupBusy === "export"
                 ? ts("saving")
@@ -2908,7 +2800,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={handleImportApp}
               disabled={appBackupBusy !== null}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {appBackupBusy === "import"
                 ? ts("saving")
@@ -2936,7 +2828,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={handleExportStats}
               disabled={statsBusy !== null}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {statsBusy === "export" ? ts("saving") : ts("export_stats_btn")}
             </button>
@@ -2944,7 +2836,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={handleImportStats}
               disabled={statsBusy !== null}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {statsBusy === "import" ? ts("saving") : ts("import_stats_btn")}
             </button>
@@ -3004,7 +2896,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         <button
           type="button"
           onClick={() => openUrl("https://github.com/RykoTheDev")}
-          className="focus-ring cursor-pointer flex items-center gap-4 px-5 py-4 rounded-item border border-outline/50 bg-raised/40 hover:bg-raised transition-colors text-start w-full"
+          className="focus-ring cursor-pointer flex items-center gap-4 px-5 py-4 rounded-item border border-outline/50 bg-raised/40 hover:bg-raised text-start w-full"
         >
           <img
             src="https://github.com/RykoTheDev.png?size=80"
@@ -3060,7 +2952,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                       avatar_url: c.avatar_url,
                     })
                   }
-                  className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-outline/50 bg-raised/60 hover:bg-raised transition-colors"
+                  className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-outline/50 bg-raised/60 hover:bg-raised "
                 >
                   <img
                     src={c.avatar_url}
@@ -3091,8 +2983,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
     switch (cat) {
       case "appearance":
         return renderAppearance();
-      case "motion":
-        return renderMotion();
       case "display":
         return renderDisplay();
       case "accessibility":
@@ -3165,7 +3055,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 }}
                 type="button"
                 onClick={() => handleCatChange(id)}
-                className={`focus-ring cursor-pointer relative flex items-center gap-2.5 px-3 py-2.5 rounded-item text-sm font-medium transition-colors ${
+                className={`focus-ring cursor-pointer relative flex items-center gap-2.5 px-3 py-2.5 rounded-item text-sm font-medium  ${
                   active
                     ? id === "experimental"
                       ? "text-ink"
@@ -3176,9 +3066,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 }`}
               >
                 {active && (
-                  <motion.span
-                    layoutId={uiMotion.instant || uiMotion.reduced ? undefined : 'new-ui-settings-cat-pill'}
-                    transition={uiMotion.transition('press')}
+                  <span
+
+
                     className={`absolute inset-0 rounded-item border shadow-md shadow-black/10 pointer-events-none ${
                       id === "experimental"
                         ? "bg-danger/10 border-danger/30"
@@ -3187,7 +3077,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   />
                 )}
                 <Icon
-                  className={`relative w-4 h-4 shrink-0 transition-colors duration-200 ${
+                  className={`relative w-4 h-4 shrink-0  ${
                     active
                       ? id === "experimental"
                         ? "text-danger"
@@ -3210,7 +3100,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               <button
                 type="button"
                 onClick={() => handleCatChange("credits" as SettingsCat)}
-                className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 ${connected ? "mb-3" : ""} rounded-full border border-outline/50 bg-raised/60 hover:bg-raised text-3xs font-mono text-muted/60 hover:text-muted transition-colors`}
+                className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 ${connected ? "mb-3" : ""} rounded-full border border-outline/50 bg-raised/60 hover:bg-raised text-3xs font-mono text-muted/60 hover:text-muted `}
               >
                 {ts("app_version_label", { version: appVersion })}
               </button>
@@ -3265,29 +3155,26 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   <button
                     type="button"
                     onClick={clearSearch}
-                    className="focus-ring cursor-pointer text-xs font-medium text-accent hover:text-accent-bright transition-colors"
+                    className="focus-ring cursor-pointer text-xs font-medium text-accent hover:text-accent-bright "
                   >
                     {ts("clear")}
                   </button>
                 </div>
               ) : (
-                <motion.div
+                <div
                   key={cat}
-                  className="ui-stagger-nested"
-                  {...viewTransition(
-                    settings.view_entrance,
-                    settings.animation_intensity,
-                  )}
+                  className=""
+
                 >
                   {renderContent()}
-                </motion.div>
+                </div>
               )}
             </div>
           </OverlayScrollArea>
         </div>
       </div>
 
-      <AnimatePresence>
+
         {presetModal && (
           <ThemePresetsModal
             mode={presetModal}
@@ -3296,9 +3183,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             onClose={() => setPresetModal(null)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {confirmingReset && (
           <ConfirmDialog
             title={ts("reset_all_title")}
@@ -3309,9 +3196,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             onCancel={() => setConfirmingReset(false)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {confirmingWipe && (
           <ConfirmDialog
             title={ts("delete_all_title")}
@@ -3322,9 +3209,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             onCancel={() => setConfirmingWipe(false)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {confirmingOsDec !== null && (
           <ConfirmDialog
             title={ts("restart_required_title", { ns: "common" })}
@@ -3335,9 +3222,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             onCancel={() => setConfirmingOsDec(null)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {confirmingRestart && (
           <ConfirmDialog
             title={ts("restart_app_confirm_title")}
@@ -3348,9 +3235,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             onCancel={() => setConfirmingRestart(false)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {confirmClearStats && (
           <ConfirmDialog
             title={ts("clear_stats_confirm_title")}
@@ -3361,9 +3248,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             onCancel={() => setConfirmClearStats(false)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {showUpdates && (
           <CheckForUpdatesModal
             onClose={() => setShowUpdates(false)}
@@ -3373,15 +3260,15 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             }}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {showBugReport && (
           <BugReportModal onClose={() => setShowBugReport(false)} />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {gitAuthFlow && (
           <GitAuthModal
             provider={gitAuthFlow}
@@ -3396,7 +3283,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             }}
           />
         )}
-      </AnimatePresence>
+
 
       {selectedContributor && (
         <ContributorPRsModal
@@ -3406,11 +3293,11 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         />
       )}
 
-      <AnimatePresence>
+
         {showRestoreModal && (
           <RestoreProgressModal onClose={() => setShowRestoreModal(false)} />
         )}
-      </AnimatePresence>
+
     </div>
   );
 }

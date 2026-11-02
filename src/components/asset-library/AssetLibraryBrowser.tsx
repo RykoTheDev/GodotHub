@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { motion, AnimatePresence } from 'framer-motion'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { api } from '../../lib/api'
 import type {
@@ -8,7 +7,6 @@ import type {
   AssetLibraryResponse,
 } from '../../types'
 import { cachedAssetSearch } from '../../lib/assetSearchCache'
-import { isReducedMotion } from '../../lib/appearance'
 import {
   ASSET_SORT_KEYS,
   assetSortParams,
@@ -260,7 +258,7 @@ export function AssetLibraryBrowser({
     const viewport = rootRef.current?.closest('.new-ui-scroll-viewport')
     viewport?.scrollTo({
       top: 0,
-      behavior: isReducedMotion() ? 'auto' : 'smooth',
+      behavior: 'auto',
     })
   }
 
@@ -294,7 +292,7 @@ export function AssetLibraryBrowser({
   }
 
   const dropBtnClass =
-    'focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors'
+    'focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised '
 
   const pageItems = (): (number | 'ellipsis')[] => {
     const items: (number | 'ellipsis')[] = []
@@ -318,11 +316,11 @@ export function AssetLibraryBrowser({
         <Dropdown
           align="left"
           trigger={({ open, toggle }) => (
-            <motion.button
+            <button
               type="button"
               aria-expanded={open}
 
-              data-press-feedback
+
               onClick={toggle}
               className={dropBtnClass}
             >
@@ -330,7 +328,7 @@ export function AssetLibraryBrowser({
                 {t(`asset_store_${sort}`)}
               </span>
               <IconChevronDown className="w-3 h-3 text-muted" />
-            </motion.button>
+            </button>
           )}
           items={ASSET_SORT_KEYS.map((k) => ({
             key: k,
@@ -342,11 +340,11 @@ export function AssetLibraryBrowser({
         <Dropdown
           align="left"
           trigger={({ open, toggle }) => (
-            <motion.button
+            <button
               type="button"
               aria-expanded={open}
 
-              data-press-feedback
+
               onClick={toggle}
               className={dropBtnClass}
             >
@@ -354,7 +352,7 @@ export function AssetLibraryBrowser({
                 {version ? `Godot ${version}` : t('asset_all_versions')}
               </span>
               <IconChevronDown className="w-3 h-3 text-muted" />
-            </motion.button>
+            </button>
           )}
           items={[
             {
@@ -383,7 +381,7 @@ export function AssetLibraryBrowser({
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="border border-outline/50 rounded-item bg-overlay overflow-hidden flex flex-col animate-pulse"
+              className="border border-outline/50 rounded-item bg-overlay overflow-hidden flex flex-col "
             >
               <div className="h-24 bg-raised" />
               <div className="p-4 flex flex-col gap-2.5 flex-1">
@@ -408,7 +406,7 @@ export function AssetLibraryBrowser({
           <p className="text-sm text-muted max-w-xs leading-relaxed">{t('asset_load_error')}</p>
           <button
             onClick={() => runSearch()}
-            className="focus-ring cursor-pointer px-4 py-2 rounded-item border border-outline/50 hover:bg-raised text-xs font-medium text-ink transition-colors"
+            className="focus-ring cursor-pointer px-4 py-2 rounded-item border border-outline/50 hover:bg-raised text-xs font-medium text-ink "
           >
             {t('retry')}
           </button>
@@ -421,7 +419,7 @@ export function AssetLibraryBrowser({
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            <AnimatePresence mode="popLayout">
+
               {assets.map((asset) => {
                 const isInstalled = installed.has(asset.asset_id)
                 const isAlreadyPresent = isAlreadyInstalled(asset)
@@ -436,13 +434,13 @@ export function AssetLibraryBrowser({
                         : undefined
                     }
                     actions={
-                      <motion.button key="button-440"
+                      <button key="button-440"
 
-                        data-press-feedback={isInstalled || isInstalling ? undefined : true}
+
 
                         onClick={() => install(asset)}
                         disabled={isInstalling}
-                        className={`focus-ring cursor-pointer flex items-center justify-center gap-1.5 w-full h-12 px-6 rounded-dropdown-btn font-semibold text-[17px] shadow-md shadow-black/10 border transition-colors disabled:cursor-default ${
+                        className={`focus-ring cursor-pointer flex items-center justify-center gap-1.5 w-full h-12 px-6 rounded-dropdown-btn font-semibold text-[17px] shadow-md shadow-black/10 border disabled:cursor-default ${
                           isInstalled || isAlreadyPresent
                             ? 'bg-mint/10 text-mint border-mint/20'
                             : 'bg-accent text-ink hover:bg-accent-bright border-outline/50'
@@ -464,27 +462,27 @@ export function AssetLibraryBrowser({
                             {t('asset_install')}
                           </>
                         )}
-                      </motion.button>
+                      </button>
                     }
                   />
                 )
               })}
-            </AnimatePresence>
+
           </div>
 
           {version === '' ? (
             (page > 0 || page + 1 < pages) && (
               <div className="flex items-center justify-center gap-1.5 flex-wrap">
-                <motion.button key="button-479"
+                <button key="button-479"
                     type="button"
-                    data-press-feedback
+
                     onClick={() => navigate(page - 1)}
                     disabled={page <= 0 || paging}
                     aria-label={t('asset_prev_page')}
-                    className="focus-ring cursor-pointer flex items-center justify-center w-9 h-9 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                    className="focus-ring cursor-pointer flex items-center justify-center w-9 h-9 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:bg-raised disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                   >
                     <IconChevronLeft className="rtl:rotate-180 w-4 h-4" />
-                  </motion.button>
+                  </button>
                 {pageItems().map((item, i) =>
                   item === 'ellipsis' ? (
                     <span
@@ -495,10 +493,10 @@ export function AssetLibraryBrowser({
                       …
                     </span>
                   ) : (
-                    <motion.button
+                    <button
                       key={item}
                       type="button"
-                      data-press-feedback
+
                       onClick={() => navigate(item)}
                       disabled={paging}
                       aria-label={t('asset_page_x_of_y', {
@@ -506,51 +504,51 @@ export function AssetLibraryBrowser({
                         total: pages,
                       })}
                       aria-current={item === page ? 'page' : undefined}
-                      className={`focus-ring cursor-pointer min-w-9 h-9 px-2.5 flex items-center justify-center rounded-item text-xs font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0 ${
+                      className={`focus-ring cursor-pointer min-w-9 h-9 px-2.5 flex items-center justify-center rounded-item text-xs font-medium disabled:opacity-40 disabled:cursor-not-allowed shrink-0 ${
                         item === page
                           ? 'bg-accent text-white'
                           : 'bg-overlay border border-outline/50 text-muted hover:text-ink hover:bg-raised'
                       }`}
                     >
                       {item + 1}
-                    </motion.button>
+                    </button>
                   ),
                 )}
-                <motion.button
+                <button
                     type="button"
-                    data-press-feedback
+
                     onClick={() => navigate(page + 1)}
                     disabled={page + 1 >= pages || paging}
                     aria-label={t('asset_next_page')}
-                    className="focus-ring cursor-pointer flex items-center justify-center w-9 h-9 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                    className="focus-ring cursor-pointer flex items-center justify-center w-9 h-9 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:bg-raised disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                   >
                     <IconChevronRight className="rtl:rotate-180 w-4 h-4" />
-                  </motion.button>
+                  </button>
               </div>
             )
           ) : (
             (canPrev || canNext) && (
               <div className="flex items-center justify-center gap-1.5">
-                <motion.button
+                <button
                     type="button"
-                    data-press-feedback
+
                     onClick={() => navigate(page - 1)}
                     disabled={!canPrev || paging}
                     aria-label={t('asset_prev_page')}
-                    className="focus-ring cursor-pointer flex items-center justify-center w-9 h-9 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                    className="focus-ring cursor-pointer flex items-center justify-center w-9 h-9 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:bg-raised disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                   >
                     <IconChevronLeft className="rtl:rotate-180 w-4 h-4" />
-                  </motion.button>
-                <motion.button
+                  </button>
+                <button
                     type="button"
-                    data-press-feedback
+
                     onClick={() => navigate(page + 1)}
                     disabled={!canNext || paging}
                     aria-label={t('asset_next_page')}
-                    className="focus-ring cursor-pointer flex items-center justify-center w-9 h-9 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                    className="focus-ring cursor-pointer flex items-center justify-center w-9 h-9 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:bg-raised disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                   >
                     <IconChevronRight className="rtl:rotate-180 w-4 h-4" />
-                  </motion.button>
+                  </button>
               </div>
             )
           )}

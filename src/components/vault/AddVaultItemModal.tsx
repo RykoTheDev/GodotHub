@@ -83,7 +83,7 @@ export function AddVaultItemModal({ item, projects, onClose }: Props) {
             <button
               type="button"
               onClick={() => setConflicts(null)}
-              className="focus-ring cursor-pointer px-4 py-2.5 rounded-item text-xs font-medium text-muted hover:text-ink hover:bg-raised transition-colors"
+              className="focus-ring cursor-pointer px-4 py-2.5 rounded-item text-xs font-medium text-muted hover:text-ink hover:bg-raised "
             >
               {t('cancel')}
             </button>
@@ -91,7 +91,7 @@ export function AddVaultItemModal({ item, projects, onClose }: Props) {
               type="button"
               onClick={() => void runAdd(true)}
               disabled={busy}
-              className="focus-ring cursor-pointer flex-1 px-4 py-2.5 rounded-item bg-danger hover:bg-danger/90 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-semibold text-white transition-colors"
+              className="focus-ring cursor-pointer flex-1 px-4 py-2.5 rounded-item bg-danger hover:bg-danger/90 disabled:opacity-50 disabled:cursor-not-allowed text-xs font-semibold text-white "
             >
               {busy ? t('vault_adding') : t('vault_overwrite_btn')}
             </button>
@@ -101,7 +101,7 @@ export function AddVaultItemModal({ item, projects, onClose }: Props) {
             <button
               type="button"
               onClick={onClose}
-              className="focus-ring cursor-pointer px-4 py-2.5 rounded-item text-xs font-medium text-muted hover:text-ink hover:bg-raised transition-colors"
+              className="focus-ring cursor-pointer px-4 py-2.5 rounded-item text-xs font-medium text-muted hover:text-ink hover:bg-raised "
             >
               {t('cancel')}
             </button>
@@ -109,7 +109,7 @@ export function AddVaultItemModal({ item, projects, onClose }: Props) {
               type="button"
               onClick={() => void runAdd(false)}
               disabled={selectedIds.size === 0 || busy}
-              className="focus-ring cursor-pointer flex-1 px-4 py-2.5 rounded-item bg-accent hover:bg-accent-bright disabled:opacity-50 disabled:cursor-not-allowed text-xs font-semibold text-white transition-colors"
+              className="focus-ring cursor-pointer flex-1 px-4 py-2.5 rounded-item bg-accent hover:bg-accent-bright disabled:opacity-50 disabled:cursor-not-allowed text-xs font-semibold text-white "
             >
               {busy ? t('vault_adding') : t('vault_add_btn')}
             </button>
@@ -168,10 +168,10 @@ export function AddVaultItemModal({ item, projects, onClose }: Props) {
                       type="button"
                       onClick={() => toggleProject(p.id)}
                       aria-pressed={checked}
-                      className="focus-ring cursor-pointer flex items-center gap-2 px-2 py-1.5 rounded-item text-xs hover:bg-raised/60 transition-colors text-start"
+                      className="focus-ring cursor-pointer flex items-center gap-2 px-2 py-1.5 rounded-item text-xs hover:bg-raised/60 text-start"
                     >
                       <span
-                        className={`shrink-0 w-4 h-4 rounded-[5px] border flex items-center justify-center transition-colors ${
+                        className={`shrink-0 w-4 h-4 rounded-[5px] border flex items-center justify-center  ${
                           checked
                             ? 'bg-accent border-accent text-white'
                             : 'bg-base border-outline/60'

@@ -78,7 +78,7 @@ export function CommitDetailsModal({ project, hash, onClose }: Props) {
 
         <div className="">
           {loading || !details ? (
-            <div className="flex flex-col gap-1.5 p-5 animate-pulse">
+            <div className="flex flex-col gap-1.5 p-5 ">
               {Array.from({ length: 14 }).map((_, i) => (
                 <div
                   key={i}

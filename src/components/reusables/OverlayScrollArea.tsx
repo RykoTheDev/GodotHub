@@ -8,10 +8,8 @@ import {
   type ReactNode,
   type RefObject,
 } from 'react'
-import { AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { IconChevronUp } from '../../lib/icons'
-import { isReducedMotion } from '../../lib/appearance'
 import { Tooltip } from './Tooltip'
 
 interface OverlayScrollAreaProps {
@@ -63,7 +61,7 @@ export function OverlayScrollArea({
     prevScrollToTopOn.current = scrollToTopOn
     viewportRef.current?.scrollTo({
       top: 0,
-      behavior: isReducedMotion() ? 'auto' : 'smooth',
+      behavior: 'auto',
     })
   }, [scrollToTopOn])
 
@@ -186,7 +184,7 @@ export function OverlayScrollArea({
   const scrollToTop = () => {
     viewportRef.current?.scrollTo({
       top: 0,
-      behavior: isReducedMotion() ? 'auto' : 'smooth',
+      behavior: 'auto',
     })
   }
 
@@ -221,7 +219,7 @@ export function OverlayScrollArea({
             transform: `translateY(${metrics.offset}px)`,
             opacity: showThumb ? 1 : 0,
           }}
-          className={`w-[5px] rounded-full pointer-events-none transition-[opacity,background-color] duration-200 ease-out ${
+          className={`w-[5px] rounded-full pointer-events-none  ${
             dragging
               ? 'bg-accent shadow-md shadow-accent/40'
               : 'bg-line group-hover:bg-accent-dim'
@@ -229,7 +227,7 @@ export function OverlayScrollArea({
         />
       </div>
 
-      <AnimatePresence>
+
         {!hideTopButton && showTopBtn && !overlayOpen && (
           <Tooltip content={t('scroll_to_top')} side="top">
             <button
@@ -238,14 +236,14 @@ export function OverlayScrollArea({
               aria-label={t('scroll_to_top')}
               onClick={scrollToTop}
 
-              className={`focus-ring cursor-pointer absolute left-1/2 -ml-2 z-30 inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-raised border border-outline/50 text-muted shadow-lg shadow-black/40 transition-colors duration-150 hover:text-ink hover:border-accent-dim/70 hover:bg-overlay ${topButtonBottom}`} style={{transform:"translateX(-50%)"}}
+              className={`focus-ring cursor-pointer absolute left-1/2 -ml-2 z-30 inline-flex items-center gap-1.5 h-9 px-4 rounded-full bg-raised border border-outline/50 text-muted shadow-lg shadow-black/40 hover:text-ink hover:border-accent-dim/70 hover:bg-overlay ${topButtonBottom}`} style={{transform:"translateX(-50%)"}}
             >
               <IconChevronUp className="w-3.5 h-3.5" />
               <span className="text-xs font-medium">{t('scroll_to_top')}</span>
             </button>
           </Tooltip>
         )}
-      </AnimatePresence>
+
     </div>
   )
 }

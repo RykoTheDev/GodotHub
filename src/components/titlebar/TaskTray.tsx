@@ -6,7 +6,6 @@ import {
   useRef,
   useState,
 } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { useTaskTray, type Task } from '../../hooks/useTaskTray'
 import { api } from '../../lib/api'
@@ -30,7 +29,6 @@ import {
   IconX,
 } from '../../lib/icons'
 import { Tooltip } from '../reusables/Tooltip'
-import { useUiMotion } from '../../hooks/useUiMotion'
 
 
 import { reportError } from '../../lib/toast'
@@ -112,18 +110,15 @@ function ProgressBar({
   const pct = Math.min((progress.current / progress.total) * 100, 100)
   return (
     <div className="h-1.5 w-full rounded-full bg-line/60 overflow-hidden mt-2">
-      <motion.div
-        className="h-full w-full origin-left rtl:origin-right rounded-full bg-accent"
-        initial={{ transform: 'scaleX(0)' }}
-        animate={{ transform: `scaleX(${pct / 100})` }}
-        transition={{ duration: 0.2, ease: 'easeOut' }}
+      <div
+        className="h-full origin-left rtl:origin-right rounded-full bg-accent"
+        style={{ width: `${pct}%` }}
       />
     </div>
   )
 }
 
 function TaskItem({ task }: { task: Task }) {
-  const { surface, reduced, instant } = useUiMotion()
   const { t } = useTranslation('common')
   const isGodotDownload = task.type === 'download-godot'
   const isQueuedGodotDownload = isGodotDownload && task.status === 'queued'
@@ -136,10 +131,10 @@ function TaskItem({ task }: { task: Task }) {
       : null
 
   return (
-    <motion.div
-      layout={reduced || instant ? false : 'position'}
-      {...surface('popover', 'translateY(-8px)')}
-      className="flex items-start gap-3 px-4 py-3 rounded-item hover:bg-raised/60 transition-colors"
+    <div
+
+
+      className="flex items-start gap-3 px-4 py-3 rounded-item hover:bg-raised/60 "
     >
       <div className="w-8 h-8 rounded-btn bg-raised border border-outline/50 flex items-center justify-center shrink-0 mt-0.5">
         <TaskIcon task={task} />
@@ -160,7 +155,7 @@ function TaskItem({ task }: { task: Task }) {
                           api.reorderDownloadQueue(downloadKey, -1).catch(reportError)
                         }
                         aria-label={t('download_queue_move_up')}
-                        className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-ink hover:bg-raised transition-colors"
+                        className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-ink hover:bg-raised "
                       >
                         <IconChevronUp className="w-3 h-3" />
                       </button>
@@ -170,7 +165,7 @@ function TaskItem({ task }: { task: Task }) {
                           api.reorderDownloadQueue(downloadKey, 1).catch(reportError)
                         }
                         aria-label={t('download_queue_move_down')}
-                        className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-ink hover:bg-raised transition-colors"
+                        className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-ink hover:bg-raised "
                       >
                         <IconChevronDown className="w-3 h-3" />
                       </button>
@@ -183,7 +178,7 @@ function TaskItem({ task }: { task: Task }) {
                         api.pauseDownload(downloadKey).catch(reportError)
                       }
                       aria-label={t('pause_download')}
-                      className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-ink hover:bg-raised transition-colors"
+                      className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-ink hover:bg-raised "
                     >
                       <IconPause className="w-3 h-3" />
                     </button>
@@ -197,7 +192,7 @@ function TaskItem({ task }: { task: Task }) {
                             api.resumeDownload(downloadKey).catch(reportError)
                           }
                           aria-label={t('resume_download')}
-                          className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-mint hover:bg-mint/10 transition-colors"
+                          className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-mint hover:bg-mint/10 "
                         >
                           <IconPlay className="w-3 h-3" />
                         </button>
@@ -208,7 +203,7 @@ function TaskItem({ task }: { task: Task }) {
                           api.cancelDownload(downloadKey).catch(reportError)
                         }
                         aria-label={t('cancel_download')}
-                        className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-danger hover:bg-danger/10 transition-colors"
+                        className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-danger hover:bg-danger/10 "
                       >
                         <IconX className="w-3 h-3" />
                       </button>
@@ -224,7 +219,7 @@ function TaskItem({ task }: { task: Task }) {
                     api.cancelExportTemplates(templateTag).catch(reportError)
                   }
                   aria-label={t('cancel')}
-                  className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-danger hover:bg-danger/10 transition-colors"
+                  className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-danger hover:bg-danger/10 "
                 >
                   <IconX className="w-3 h-3" />
                 </button>
@@ -244,12 +239,11 @@ function TaskItem({ task }: { task: Task }) {
         )}
         <ProgressBar progress={task.progress} />
       </div>
-    </motion.div>
+    </div>
   )
 }
 
 export function TaskTray() {
-  const { surface } = useUiMotion()
   const { t } = useTranslation('common')
   const { tasks, activeCount, clearCompleted } = useTaskTray()
   const [open, setOpen] = useState(false)
@@ -320,7 +314,7 @@ export function TaskTray() {
   return (
     <div ref={ref} className="relative mt-1 flex items-stretch shrink-0">
         <Tooltip content={t('task_tray_aria')}>
-        <motion.button
+        <button
           type="button"
           onMouseDown={noDrag}
           onClick={() => setOpen((o) => !o)}
@@ -328,29 +322,29 @@ export function TaskTray() {
           aria-haspopup="menu"
           aria-expanded={open}
 
-          data-press-feedback
 
-          className="focus-ring cursor-pointer relative w-9 h-8 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised transition-colors shrink-0"
+
+          className="focus-ring cursor-pointer relative w-9 h-8 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised shrink-0"
         >
           <span className="relative">
             <IconBell className="w-4 h-4" />
             {hasActivity && (
-              <motion.span
-                {...surface('tooltip', 'scale(0.97)')}
+              <span
+
                 className="absolute -top-1.5 -inset-e-2 w-4 h-4 rounded-full bg-amber text-4xs font-bold text-white flex items-center justify-center shadow-sm"
               >
                 {activeCount > 9 ? '9+' : activeCount}
-              </motion.span>
+              </span>
             )}
           </span>
-        </motion.button>
+        </button>
         </Tooltip>
 
-      <AnimatePresence>
+
         {open && (
-          <motion.div key="div-332"
+          <div key="div-332"
             ref={menuRef}
-            {...surface('popover', `translateY(${openUp ? 6 : -6}px) scale(0.96)`)}
+
             style={{transformOrigin:`${openUp ? 'bottom' : 'top'} right`}}
             onMouseDown={noDrag}
             role="menu"
@@ -376,12 +370,11 @@ export function TaskTray() {
               </p>
             </div>
             <div className="flex flex-col">
-              <AnimatePresence mode="popLayout">
+
                 {empty ? (
-                  <motion.div key="empty"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
+                  <div key="empty"
+
+
                     className="flex flex-col items-center gap-3 py-8 px-4 text-center"
                   >
                     <div className="w-10 h-10 rounded-btn bg-raised border border-outline/50 flex items-center justify-center">
@@ -395,11 +388,11 @@ export function TaskTray() {
                         {t('no_tasks_desc')}
                       </p>
                     </div>
-                  </motion.div>
+                  </div>
                 ) : (
                   tasks.map((task) => <TaskItem key={task.id} task={task} />)
                 )}
-              </AnimatePresence>
+
             </div>
             {!empty && (
               <div className="border-t border-outline/50 mt-1 pt-1.5 px-1 flex items-center justify-between">
@@ -407,23 +400,23 @@ export function TaskTray() {
                   {t('task_tray_auto_dismiss')}
                 </p>
                 {dismissibleCount > 0 && (
-                  <motion.button key="empty"
+                  <button key="empty"
                     type="button"
 
-                    data-press-feedback
+
                     onMouseDown={noDrag}
                     onClick={clearCompleted}
-                    className="focus-ring cursor-pointer flex items-center gap-1 px-2.5 py-1 rounded-item text-3xs font-medium text-muted hover:text-ink hover:bg-raised transition-colors"
+                    className="focus-ring cursor-pointer flex items-center gap-1 px-2.5 py-1 rounded-item text-3xs font-medium text-muted hover:text-ink hover:bg-raised "
                   >
                     <IconX className="w-3 h-3" />
                     {t('task_tray_dismiss', { count: dismissibleCount })}
-                  </motion.button>
+                  </button>
                 )}
               </div>
             )}
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+
     </div>
   )
 }

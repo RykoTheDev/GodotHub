@@ -1,5 +1,4 @@
 import type { ReactNode } from 'react'
-import { useUiMotion } from '../../hooks/useUiMotion'
 import { IconCheck, IconMinus } from '../../lib/icons'
 
 interface Props {
@@ -14,7 +13,6 @@ interface Props {
 
 export function Checkbox({ checked, indeterminate = false, onChange, label, disabled, children, className = '' }: Props) {
   const active = checked || indeterminate
-  const { reduced, instant } = useUiMotion()
   return (
     <button
       type="button"
@@ -23,20 +21,20 @@ export function Checkbox({ checked, indeterminate = false, onChange, label, disa
       aria-label={label}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`focus-ring inline-flex items-center gap-2.5 select-none rounded-md -m-1 p-1 transition-colors ${
+      className={`focus-ring inline-flex items-center gap-2.5 select-none rounded-md -m-1 p-1  ${
         disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'
       } ${className}`}
     >
       <span
-        className={`shrink-0 inline-flex items-center justify-center w-[18px] h-[18px] rounded-sm border transition-colors duration-150 ${
+        className={`shrink-0 inline-flex items-center justify-center w-[18px] h-[18px] rounded-sm border  ${
           active
             ? 'bg-accent border-accent-dim text-white'
             : 'bg-raised border-line text-transparent hover:border-accent-dim'
         }`}
       >
         <span
-          style={{ opacity: active ? 1 : 0, transform: reduced || instant || active ? 'scale(1)' : 'scale(0.97)', transitionDuration: instant ? '0ms' : undefined }}
-          className="ui-control-indicator flex items-center justify-center"
+          style={{ opacity: active ? 1 : 0 }}
+          className="flex items-center justify-center"
         >
           {indeterminate ? <IconMinus className="w-3 h-3" /> : <IconCheck className="w-3 h-3" />}
         </span>

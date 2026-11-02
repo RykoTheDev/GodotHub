@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { isReducedMotion } from '../../lib/appearance'
 import { formatLastOpened } from '../../lib/lastOpened'
 import { useWorkspaces } from '../../hooks/useWorkspaces'
 import { useSettings } from '../../hooks/useSettings'
@@ -285,8 +284,6 @@ const SETTINGS_SEARCH_ITEMS: SettingSearchEntry[] = [
   { key: 'corner_radius', tab: 'appearance' },
   { key: 'ui_density', tab: 'appearance' },
   { key: 'font_scale', tab: 'appearance' },
-  { key: 'animation_intensity', tab: 'accessibility' },
-  { key: 'view_entrance', tab: 'appearance' },
   { key: 'custom_css', tab: 'appearance' },
   { key: 'project_icon_opacity', tab: 'appearance' },
   { key: 'show_scrollbars', tab: 'accessibility' },
@@ -580,7 +577,7 @@ export function CommandPalette({
     if (item) {
       item.scrollIntoView({
         block: 'nearest',
-        behavior: isReducedMotion() ? 'auto' : 'smooth',
+        behavior: 'auto',
       })
     }
   }, [selectedIndex])
@@ -655,7 +652,7 @@ export function CommandPalette({
                         onClose()
                       }}
                       onMouseEnter={() => setSelectedIndex(idx)}
-                      className={`focus-ring cursor-pointer w-full flex items-center gap-3 px-3 py-2.5 rounded-item text-sm transition-colors ${
+                      className={`focus-ring cursor-pointer w-full flex items-center gap-3 px-3 py-2.5 rounded-item text-sm  ${
                         selected
                           ? 'bg-accent/15 text-ink'
                           : 'text-muted hover:text-ink hover:bg-raised'

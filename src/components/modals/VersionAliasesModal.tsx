@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import type {
   AliasBatchResult,
@@ -123,7 +122,7 @@ export function VersionAliasesModal({
               <button
                 type="button"
                 onClick={() => api.openProjectFolder(folder).catch(reportError)}
-                className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors"
+                className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised "
               >
                 <IconExternalLink className="w-4 h-4" />
                 {tv('current_open_folder')}
@@ -132,7 +131,7 @@ export function VersionAliasesModal({
             <button
               type="button"
               onClick={onClose}
-              className="focus-ring cursor-pointer ms-auto px-4 py-2.5 rounded-item bg-accent hover:bg-accent/90 text-sm font-medium text-white transition-colors"
+              className="focus-ring cursor-pointer ms-auto px-4 py-2.5 rounded-item bg-accent hover:bg-accent/90 text-sm font-medium text-white "
             >
               {tc('close')}
             </button>
@@ -154,12 +153,12 @@ export function VersionAliasesModal({
                 spellCheck={false}
                 className="focus-ring flex-1 min-w-0 bg-raised border border-line rounded-btn px-3 py-2 text-sm font-mono text-ink outline-none placeholder:text-muted/60"
               />
-              <motion.button
-                data-press-feedback
+              <button
+
                 type="button"
                 disabled={!name.trim() || !tag || busy}
                 onClick={addToQueue}
-                className={`focus-ring flex items-center gap-1.5 px-4 py-2 rounded-btn text-sm font-medium border transition-colors ${
+                className={`focus-ring flex items-center gap-1.5 px-4 py-2 rounded-btn text-sm font-medium border  ${
                   !name.trim() || !tag || busy
                     ? 'bg-raised text-muted/40 border-line cursor-not-allowed'
                     : 'bg-accent text-white border-accent hover:bg-accent-bright cursor-pointer'
@@ -167,7 +166,7 @@ export function VersionAliasesModal({
               >
                 <IconPlus className="w-3.5 h-3.5" />
                 {tv('alias_add')}
-              </motion.button>
+              </button>
             </div>
 
             {versions.length > 0 ? (
@@ -179,7 +178,7 @@ export function VersionAliasesModal({
                       key={v.tag}
                       type="button"
                       onClick={() => setTag(v.tag)}
-                      className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 rounded-tag text-2xs font-medium border transition-colors ${
+                      className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 rounded-tag text-2xs font-medium border  ${
                         active
                           ? 'bg-accent/15 text-accent-bright border-accent-dim/50'
                           : 'bg-overlay text-muted border-outline/50 hover:text-ink hover:bg-raised'
@@ -218,7 +217,7 @@ export function VersionAliasesModal({
                       type="button"
                       onClick={() => removeQueued(entry)}
                       aria-label={tv('alias_remove')}
-                      className="focus-ring cursor-pointer ms-auto shrink-0 p-1.5 rounded-btn text-muted/70 hover:text-danger hover:bg-danger/10 transition-colors"
+                      className="focus-ring cursor-pointer ms-auto shrink-0 p-1.5 rounded-btn text-muted/70 hover:text-danger hover:bg-danger/10 "
                     >
                       <IconTrash className="w-3 h-3" />
                     </button>
@@ -227,12 +226,12 @@ export function VersionAliasesModal({
               </div>
             )}
 
-            <motion.button
-              data-press-feedback
+            <button
+
               type="button"
               disabled={queue.length === 0 || busy}
               onClick={() => void createQueued()}
-              className={`focus-ring flex items-center justify-center gap-1.5 px-4 py-2 rounded-btn text-sm font-medium border transition-colors ${
+              className={`focus-ring flex items-center justify-center gap-1.5 px-4 py-2 rounded-btn text-sm font-medium border  ${
                 queue.length === 0 || busy
                   ? 'bg-raised text-muted/40 border-line cursor-not-allowed'
                   : 'bg-accent text-white border-accent hover:bg-accent-bright cursor-pointer'
@@ -240,7 +239,7 @@ export function VersionAliasesModal({
             >
               <IconCheck className="w-3.5 h-3.5" />
               {tv('alias_create_all', { count: queue.length })}
-            </motion.button>
+            </button>
           </div>
 
           {outcome && (
@@ -316,7 +315,7 @@ export function VersionAliasesModal({
                     type="button"
                     onClick={() => copy(alias.name, alias.alias_path)}
                     aria-label={tv('alias_copy_path')}
-                    className="focus-ring cursor-pointer shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-btn border border-line text-xs text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors"
+                    className="focus-ring cursor-pointer shrink-0 flex items-center gap-1.5 px-2.5 py-1.5 rounded-btn border border-line text-xs text-muted hover:text-ink hover:border-accent-dim hover:bg-raised "
                   >
                     {copied === alias.name ? (
                       <IconCheck className="w-3.5 h-3.5 text-mint" />
@@ -329,7 +328,7 @@ export function VersionAliasesModal({
                     type="button"
                     onClick={() => setPendingDelete(alias)}
                     aria-label={tv('alias_remove')}
-                    className="focus-ring cursor-pointer shrink-0 p-2 rounded-btn text-muted/70 hover:text-danger hover:bg-danger/10 transition-colors"
+                    className="focus-ring cursor-pointer shrink-0 p-2 rounded-btn text-muted/70 hover:text-danger hover:bg-danger/10 "
                   >
                     <IconTrash className="w-3.5 h-3.5" />
                   </button>
@@ -346,7 +345,7 @@ export function VersionAliasesModal({
         </div>
       </ModalShell>
 
-      <AnimatePresence>
+
         {pendingDelete && (
           <ConfirmDialog
             title={tv('alias_remove_title')}
@@ -357,7 +356,7 @@ export function VersionAliasesModal({
             onCancel={() => setPendingDelete(null)}
           />
         )}
-      </AnimatePresence>
+
     </>
   )
 }

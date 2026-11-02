@@ -445,9 +445,9 @@ export function ProjectTodoPanel({
             disabled={saving || scanning || !loaded || !!error}
             onClick={() => void scanCode()}
             title={t("scan_code_hint")}
-            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 rounded-btn border border-outline/50 px-2.5 py-1.5 text-3xs font-medium text-muted transition-colors hover:border-accent-dim hover:bg-raised hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
+            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 rounded-btn border border-outline/50 px-2.5 py-1.5 text-3xs font-medium text-muted hover:border-accent-dim hover:bg-raised hover:text-ink disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <IconCode className={`h-3 w-3 ${scanning ? "animate-pulse" : ""}`} />
+            <IconCode className={`h-3 w-3 ${scanning ? "" : ""}`} />
             {scanning ? t("scanning") : t("scan_code")}
           </button>
 
@@ -455,7 +455,7 @@ export function ProjectTodoPanel({
             type="button"
             disabled={saving}
             onClick={() => setIsCreating(true)}
-            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 rounded-btn border border-accent/30 bg-accent/10 px-2.5 py-1.5 text-3xs font-medium text-accent-bright transition-colors hover:border-accent/50 hover:bg-accent/20 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-accent/30 disabled:hover:bg-accent/10"
+            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 rounded-btn border border-accent/30 bg-accent/10 px-2.5 py-1.5 text-3xs font-medium text-accent-bright hover:border-accent/50 hover:bg-accent/20 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-accent/30 disabled:hover:bg-accent/10"
           >
             <span className="text-xs font-semibold">+</span>
             {t("new_task")}
@@ -484,7 +484,7 @@ export function ProjectTodoPanel({
             type="button"
             onClick={() => void retrySave()}
             disabled={saving}
-            className="focus-ring shrink-0 cursor-pointer rounded-btn border border-danger/30 px-2.5 py-1 transition-colors hover:bg-danger/10 disabled:cursor-not-allowed disabled:opacity-50"
+            className="focus-ring shrink-0 cursor-pointer rounded-btn border border-danger/30 px-2.5 py-1 hover:bg-danger/10 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {t("try_again", { ns: "common" })}
           </button>
@@ -506,7 +506,7 @@ export function ProjectTodoPanel({
             onChange={(event) => setQuickTitle(event.target.value)}
             placeholder={t("quick_add_placeholder")}
             aria-label={t("quick_add_placeholder")}
-            className="focus-ring w-full rounded-item border border-dashed border-outline/60 bg-base/40 px-3 py-2 text-2xs text-ink placeholder:text-muted/60 transition-colors focus:border-solid focus:border-accent-dim disabled:opacity-50"
+            className="focus-ring w-full rounded-item border border-dashed border-outline/60 bg-base/40 px-3 py-2 text-2xs text-ink placeholder:text-muted/60 focus:border-solid focus:border-accent-dim disabled:opacity-50"
           />
         </form>
       )}
@@ -530,7 +530,7 @@ export function ProjectTodoPanel({
           <button
             type="button"
             onClick={() => void refresh()}
-            className="focus-ring mt-4 cursor-pointer rounded-btn border border-outline/50 px-3 py-1.5 text-2xs text-muted transition-colors hover:bg-raised hover:text-ink"
+            className="focus-ring mt-4 cursor-pointer rounded-btn border border-outline/50 px-3 py-1.5 text-2xs text-muted hover:bg-raised hover:text-ink"
           >
             {t("try_again", { ns: "common" })}
           </button>
@@ -551,7 +551,7 @@ export function ProjectTodoPanel({
             type="button"
             disabled={saving}
             onClick={() => setIsCreating(true)}
-            className="focus-ring mt-4 inline-flex cursor-pointer items-center gap-1.5 rounded-btn border border-accent/30 bg-accent/10 px-3 py-1.5 text-2xs font-medium text-accent-bright transition-colors hover:border-accent/50 hover:bg-accent/20"
+            className="focus-ring mt-4 inline-flex cursor-pointer items-center gap-1.5 rounded-btn border border-accent/30 bg-accent/10 px-3 py-1.5 text-2xs font-medium text-accent-bright hover:border-accent/50 hover:bg-accent/20"
           >
             <span className="text-xs font-semibold">+</span>
             {t("create_task")}
@@ -602,7 +602,7 @@ export function ProjectTodoPanel({
 
             <button
               type="button"
-              className="focus-ring cursor-pointer rounded-btn border border-outline/50 px-2.5 py-1.5 text-3xs text-muted transition-colors hover:border-accent-dim hover:bg-raised hover:text-ink"
+              className="focus-ring cursor-pointer rounded-btn border border-outline/50 px-2.5 py-1.5 text-3xs text-muted hover:border-accent-dim hover:bg-raised hover:text-ink"
               onClick={() => setShowAllTodos(true)}
             >
               {t("view_all")}

@@ -1,7 +1,5 @@
-import { useUiMotion } from '../../hooks/useUiMotion'
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import type {
   Category,
@@ -59,7 +57,6 @@ export function CreateProjectModal({
   onClose,
   onCreated,
 }: Props) {
-  const uiMotion = useUiMotion()
   const titleId = useId()
 
   const { t } = useTranslation('common')
@@ -273,7 +270,7 @@ export function CreateProjectModal({
   }
 
   const inputClass = (invalid: boolean) =>
-    `focus-ring bg-overlay border rounded-item px-3.5 py-2.5 text-sm font-mono text-ink placeholder:text-muted/70 transition-colors ${
+    `focus-ring bg-overlay border rounded-item px-3.5 py-2.5 text-sm font-mono text-ink placeholder:text-muted/70  ${
       invalid ? 'border-danger/70 focus:border-danger' : 'border-outline/50 focus:border-accent-dim'
     }`
 
@@ -286,18 +283,18 @@ export function CreateProjectModal({
 
   const chipClass = (active: boolean) =>
     active
-      ? 'focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-btn border text-xs font-medium transition-colors'
-      : 'focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-btn border border-outline/50 text-muted hover:border-accent-dim hover:text-ink hover:bg-raised text-xs font-medium transition-colors'
+      ? 'focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-btn border text-xs font-medium '
+      : 'focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-btn border border-outline/50 text-muted hover:border-accent-dim hover:text-ink hover:bg-raised text-xs font-medium '
 
   return createPortal(
-    <motion.div
-      {...uiMotion.surface('modal', `none`)}
+    <div
+
 
       className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={dismiss}
     >
-      <motion.div
-        {...uiMotion.surface('modal', `scale(0.96)`)}
+      <div
+
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -353,14 +350,14 @@ export function CreateProjectModal({
                   className={`${inputClass(locationInvalid)} flex-1 font-mono text-muted truncate`}
                   placeholder={t('choose_folder_placeholder')}
                 />
-                <motion.button
+                <button
 
-                  data-press-feedback
+
                   onClick={pickLocation}
-                  className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm transition-colors shrink-0"
+                  className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm shrink-0"
                 >
                   {t('browse')}
-                </motion.button>
+                </button>
               </div>
             </div>
 
@@ -449,7 +446,7 @@ export function CreateProjectModal({
                         type="button"
                         onClick={() => setPreviewTemplate(tpl)}
                         aria-label={t('template_preview_aria', { name: tpl.name })}
-                        className="focus-ring cursor-pointer absolute -top-2 -end-2 w-5 h-5 rounded-full bg-surface border border-line text-muted hover:text-accent-bright hover:border-accent-dim shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-[opacity,color,border-color]"
+                        className="focus-ring cursor-pointer absolute -top-2 -end-2 w-5 h-5 rounded-full bg-surface border border-line text-muted hover:text-accent-bright hover:border-accent-dim shadow-md flex items-center justify-center opacity-0 group-hover:opacity-100 "
                       >
                         <IconBookOpen className="w-3 h-3" />
                       </button>
@@ -513,24 +510,24 @@ export function CreateProjectModal({
               </div>
               <div className="flex flex-col gap-1.5 flex-1 min-w-0">
                 <div className="flex gap-2">
-                  <motion.button
+                  <button
 
-                    data-press-feedback
+
                     onClick={pickIcon}
-                    className="focus-ring cursor-pointer px-3 py-2 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised text-xs transition-colors"
+                    className="focus-ring cursor-pointer px-3 py-2 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised text-xs "
                   >
                     {iconPath ? t('change_icon') : t('choose_icon')}
-                  </motion.button>
+                  </button>
                   {iconPath && (
-                    <motion.button
-                      {...uiMotion.surface('tooltip', 'none')}
+                    <button
 
-                      data-press-feedback
+
+
                       onClick={clearIcon}
-                      className="focus-ring cursor-pointer px-3 py-2 rounded-btn border border-outline/50 text-muted hover:text-danger hover:border-danger/30 hover:bg-danger/10 text-xs transition-colors"
+                      className="focus-ring cursor-pointer px-3 py-2 rounded-btn border border-outline/50 text-muted hover:text-danger hover:border-danger/30 hover:bg-danger/10 text-xs "
                     >
                       {t('reset')}
-                    </motion.button>
+                    </button>
                   )}
                 </div>
                 {iconPath && (
@@ -690,7 +687,7 @@ export function CreateProjectModal({
                         <button
                           type="button"
                           onClick={() => setRemotePrivate(true)}
-                          className={`flex-1 px-3 py-1.5 rounded-btn border text-xs font-medium transition-colors ${
+                          className={`flex-1 px-3 py-1.5 rounded-btn border text-xs font-medium  ${
                             remotePrivate
                               ? 'border-mint bg-mint/10 text-mint'
                               : 'border-outline/50 text-muted hover:border-accent-dim hover:text-ink'
@@ -701,7 +698,7 @@ export function CreateProjectModal({
                         <button
                           type="button"
                           onClick={() => setRemotePrivate(false)}
-                          className={`flex-1 px-3 py-1.5 rounded-btn border text-xs font-medium transition-colors ${
+                          className={`flex-1 px-3 py-1.5 rounded-btn border text-xs font-medium  ${
                             !remotePrivate
                               ? 'border-mint bg-mint/10 text-mint'
                               : 'border-outline/50 text-muted hover:border-accent-dim hover:text-ink'
@@ -719,10 +716,10 @@ export function CreateProjectModal({
 
         </div>
 
-        <AnimatePresence>
+
           {error && (
-            <motion.div key="error"
-              {...uiMotion.surface('tooltip', 'none')}
+            <div key="error"
+
 
               className="px-6 overflow-hidden"
             >
@@ -730,14 +727,14 @@ export function CreateProjectModal({
                 <IconAlertTriangle className="w-4 h-4 text-danger shrink-0 mt-0.5" />
                 <p className="text-xs text-danger leading-relaxed">{error}</p>
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
 
-        <AnimatePresence>
+
+
           {gitWarning && (
-            <motion.div key="git-warning"
-              {...uiMotion.surface('tooltip', 'none')}
+            <div key="git-warning"
+
 
               className="px-6 overflow-hidden"
             >
@@ -752,14 +749,14 @@ export function CreateProjectModal({
                   </p>
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
 
-        <AnimatePresence>
+
+
           {remoteSuccess && (
-            <motion.div key="div-760"
-              {...uiMotion.surface('tooltip', 'none')}
+            <div key="div-760"
+
 
               className="px-6 overflow-hidden"
             >
@@ -774,34 +771,34 @@ export function CreateProjectModal({
                   </p>
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+
 
         <div className="flex justify-end gap-2.5 p-6 pt-4 border-t border-line">
           {gitWarning || remoteSuccess ? (
-            <motion.button key="git-warning"
-              data-press-feedback
+            <button key="git-warning"
+
               onClick={onCreated}
-              className="focus-ring px-5 cursor-pointer py-2.5 rounded-btn bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
+              className="focus-ring px-5 cursor-pointer py-2.5 rounded-btn bg-accent hover:bg-accent-bright text-sm font-medium text-white "
             >
               {t('create_project_done')}
-            </motion.button>
+            </button>
           ) : (
             <>
-              <motion.button key="button-793"
-                data-press-feedback
+              <button key="button-793"
+
                 onClick={onClose}
                 disabled={busy}
-                className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-50"
+                className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised disabled:opacity-50"
               >
                 {t('cancel')}
-              </motion.button>
-              <motion.button key="button-801"
-                data-press-feedback={busy ? undefined : true}
+              </button>
+              <button key="button-801"
+
                 onClick={submit}
                 disabled={busy}
-                className="focus-ring px-5 cursor-pointer py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white transition-colors flex items-center gap-2"
+                className="focus-ring px-5 cursor-pointer py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white flex items-center gap-2"
               >
                 {busy ? (
                   <>
@@ -815,13 +812,13 @@ export function CreateProjectModal({
                 ) : (
                   t('create_project_btn')
                 )}
-              </motion.button>
+              </button>
             </>
           )}
         </div>
-      </motion.div>
+      </div>
 
-      <AnimatePresence>
+
         {previewTemplate && (
           <div onClick={(e) => e.stopPropagation()} className="fixed inset-0 z-60">
             <TemplatePreviewModal
@@ -830,8 +827,8 @@ export function CreateProjectModal({
             />
           </div>
         )}
-      </AnimatePresence>
-    </motion.div>,
+
+    </div>,
     document.body,
   )
 }

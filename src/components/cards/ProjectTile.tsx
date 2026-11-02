@@ -1,5 +1,4 @@
 import { useState, type MouseEvent } from 'react'
-import { AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import type { Category, GitStatus, InstalledGodotVersion, Project, ProjectViewMode } from '../../types'
 import { api } from '../../lib/api'
@@ -88,7 +87,7 @@ export function ProjectTile({
   const timeLabel = formatDuration(running ? sessionMs : effectiveTotalMs(project, now))
   const showTime = running ? options.show_session_timer : options.show_time && effectiveTotalMs(project, now) > 0
   const lastOpened = formatLastOpened(project.last_opened, settings.last_opened_time_format, settings.last_opened_date_format)
-  const iconButton = 'focus-ring cursor-pointer flex shrink-0 h-7 w-7 items-center justify-center rounded-btn transition-colors disabled:cursor-not-allowed disabled:opacity-40'
+  const iconButton = 'focus-ring cursor-pointer flex shrink-0 h-7 w-7 items-center justify-center rounded-btn disabled:cursor-not-allowed disabled:opacity-40'
   const launch = (console?: boolean) => window.dispatchEvent(new CustomEvent('app:open-project', { detail: { id: project.id, console } }))
   const runAction = (action: () => Promise<unknown>) => { void action().catch(error => pushToast('error', String(error))) }
   const openFolder = () => runAction(() => api.openProjectFolder(project.path))
@@ -111,7 +110,7 @@ export function ProjectTile({
 
   return (
     <article ref={cardRef} aria-label={displayName} data-card-view={viewMode} data-card-id={project.id}
-      className={`group/tile relative flex min-w-0 flex-col gap-3 rounded-item border transition-colors duration-150 ${grid ? 'h-full min-h-[260px] p-4' : compact ? 'p-3' : 'p-3.5'} ${selected ? 'border-accent bg-accent/5 ring-1 ring-accent/25' : 'border-outline/50 bg-overlay hover:border-accent-dim/50'}`}>
+      className={`group/tile relative flex min-w-0 flex-col gap-3 rounded-item border  ${grid ? 'h-full min-h-[260px] p-4' : compact ? 'p-3' : 'p-3.5'} ${selected ? 'border-accent bg-accent/5 ring-1 ring-accent/25' : 'border-outline/50 bg-overlay hover:border-accent-dim/50'}`}>
       <div className="flex items-start gap-3 min-w-0">
         <div aria-hidden="true" className={`flex shrink-0 items-center justify-center overflow-hidden rounded-tile border border-outline/40 bg-raised ${grid ? 'h-12 w-12' : compact ? 'h-9 w-9' : 'h-10 w-10'}`}>
           {icon && icon !== brokenIcon ? <img src={icon} onError={() => setBrokenIcon(icon)} alt="" draggable={false} decoding="async" className="h-full w-full object-contain p-1" />
@@ -133,24 +132,24 @@ export function ProjectTile({
 
       {options.show_path && <Tooltip content={<span className="sensitive">{project.path}</span>} className="w-full min-w-0">
         <button type="button" dir="ltr" onClick={openFolder} disabled={preview} aria-label={t('open_folder')}
-          className={`sensitive focus-ring min-w-0 w-full cursor-pointer truncate rounded-btn px-1 py-0.5 text-start font-mono text-2xs text-muted/70 transition-colors hover:text-accent-bright ${options.blur_path ? 'blur-sm hover:blur-none focus-visible:blur-none' : ''}`}>
+          className={`sensitive focus-ring min-w-0 w-full cursor-pointer truncate rounded-btn px-1 py-0.5 text-start font-mono text-2xs text-muted/70 hover:text-accent-bright ${options.blur_path ? 'blur-sm hover:blur-none focus-visible:blur-none' : ''}`}>
           {project.path}
         </button>
       </Tooltip>}
 
       {gitStatus?.is_repo && onShowGitSidebar && <button type="button" onClick={onShowGitSidebar} disabled={preview} aria-label={t('git_sidebar')}
         title={`${gitStatus.branch ?? ''} · ${t(gitStatus.has_uncommitted ? 'git_uncommitted' : 'git_clean')}`}
-        className={`focus-ring flex w-fit max-w-full min-w-0 cursor-pointer items-center gap-1.5 rounded-tag px-2 py-1 text-2xs transition-colors ${gitStatus.has_uncommitted ? 'bg-amber/10 text-amber hover:bg-amber/15' : 'bg-raised text-muted hover:text-ink'}`}>
+        className={`focus-ring flex w-fit max-w-full min-w-0 cursor-pointer items-center gap-1.5 rounded-tag px-2 py-1 text-2xs  ${gitStatus.has_uncommitted ? 'bg-amber/10 text-amber hover:bg-amber/15' : 'bg-raised text-muted hover:text-ink'}`}>
         <IconGitBranch className="h-3 w-3 shrink-0" /><span className="min-w-0 truncate">{gitStatus.branch || t('git_sidebar')}</span>
         {gitStatus.has_uncommitted && <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber" />}
       </button>}
 
       {(showTime || options.show_size || (options.show_last_opened && lastOpened)) && <div className="flex min-h-5 flex-wrap items-center gap-x-3 gap-y-1 text-2xs text-muted/70">
         {showTime && <span title={running ? t('running') : t('project_card_total_time', { time: timeLabel })} className={`inline-flex items-center gap-1.5 font-mono ${running ? 'text-accent-bright' : ''}`}>
-          {running ? <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent-bright animate-pulse" /> : <IconClock className="h-3 w-3" />}{timeLabel}
+          {running ? <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent-bright " /> : <IconClock className="h-3 w-3" />}{timeLabel}
         </span>}
         {options.show_size && <button type="button" onClick={() => setDialog('size')} disabled={preview} aria-label={t('project_size')} title={t('project_size')}
-          className="focus-ring cursor-pointer inline-flex items-center gap-1.5 rounded-btn px-1 py-0.5 hover:text-ink transition-colors">
+          className="focus-ring cursor-pointer inline-flex items-center gap-1.5 rounded-btn px-1 py-0.5 hover:text-ink ">
           <IconHardDrive className="h-3 w-3 shrink-0" />
           {size === undefined ? <span aria-hidden="true" className="inline-block h-2.5 w-10 rounded bg-raised" /> : size === null ? ':' : formatSize(size)}
         </button>}
@@ -163,7 +162,7 @@ export function ProjectTile({
         <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
           {project.tags.slice(0, grid ? 3 : 2).map(tag => <button key={tag} type="button" disabled={preview} onClick={() => onTagClick ? onTagClick(tag) : setDialog('tags')}
             aria-pressed={activeTag === tag} title={tag}
-            className={`focus-ring cursor-pointer flex h-6 max-w-28 min-w-0 items-center gap-1.5 rounded-tag px-2 text-3xs font-medium transition-[filter] hover:brightness-125 ${activeTag === tag ? 'ring-1 ring-accent-dim' : ''}`}
+            className={`focus-ring cursor-pointer flex h-6 max-w-28 min-w-0 items-center gap-1.5 rounded-tag px-2 text-3xs font-medium hover:brightness-125 ${activeTag === tag ? 'ring-1 ring-accent-dim' : ''}`}
             style={{ backgroundColor: `${tagColor(tag)}18`, color: tagColor(tag) }}>
             <span className="h-1 w-1 shrink-0 rounded-full" style={{ backgroundColor: tagColor(tag) }} /><span className="min-w-0 truncate">{tag}</span>
           </button>)}
@@ -171,7 +170,7 @@ export function ProjectTile({
             aria-label={t('project_card_more_tags', { count: project.tags.length - (grid ? 3 : 2) })}
             className="focus-ring cursor-pointer h-6 rounded-tag bg-raised px-2 text-3xs text-muted hover:text-ink">+{project.tags.length - (grid ? 3 : 2)}</button>}
           {project.tags.length === 0 && <button type="button" disabled={preview} onClick={() => setDialog('tags')}
-            className="focus-ring cursor-pointer inline-flex h-6 items-center gap-1 rounded-btn border border-dashed border-outline/50 px-2 text-3xs text-muted/70 hover:text-ink hover:bg-raised transition-colors">
+            className="focus-ring cursor-pointer inline-flex h-6 items-center gap-1 rounded-btn border border-dashed border-outline/50 px-2 text-3xs text-muted/70 hover:text-ink hover:bg-raised ">
             <IconPlus className="h-2.5 w-2.5" />{t('add_tag')}
           </button>}
         </div>
@@ -182,14 +181,14 @@ export function ProjectTile({
       <div className="mt-auto flex min-w-0 flex-col gap-2 border-t border-outline/30 pt-3">
         <Dropdown align="left" className="w-full min-w-0" trigger={({ open, toggle }) => <button type="button" onClick={toggle} disabled={preview || installedVersions.length === 0} aria-label={t('godot_version_label')} aria-expanded={open}
           title={!version ? unavailableHint : t('godot_version_label')}
-          className={`focus-ring flex w-full min-w-0 cursor-pointer items-center gap-2 rounded-btn border border-outline/50 bg-raised px-2.5 py-2 text-2xs transition-colors hover:border-accent-dim disabled:cursor-not-allowed disabled:opacity-60 ${unavailable ? 'text-amber' : 'text-muted'}`}>
+          className={`focus-ring flex w-full min-w-0 cursor-pointer items-center gap-2 rounded-btn border border-outline/50 bg-raised px-2.5 py-2 text-2xs hover:border-accent-dim disabled:cursor-not-allowed disabled:opacity-60 ${unavailable ? 'text-amber' : 'text-muted'}`}>
           <IconNode className="h-3 w-3 shrink-0" /><span className="min-w-0 flex-1 truncate text-start">{versionLabel}</span><IconChevronDown className="h-2.5 w-2.5 shrink-0" />
         </button>} items={installedVersions.map(entry => ({ key: entry.tag, label: entry.custom_name || entry.tag, badge: entry.custom_name && entry.custom_name !== entry.tag ? entry.tag : undefined, active: entry.tag === project.godot_version, onClick: () => onVersionChange(entry.tag) }))} />
         {!version && <p className="px-1 text-3xs leading-relaxed text-muted/70">{unavailableHint}</p>}
         <div className="flex min-w-0 items-stretch gap-1.5">
           {options.show_play && <button type="button" onClick={() => runAction(() => api.openProject(project.id, false))} disabled={!version || preview}
             aria-label={t('play_project_tooltip')} title={!version ? unavailableHint : t('play_project_tooltip')}
-            className="focus-ring flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-btn border border-outline/50 bg-raised text-muted hover:text-mint hover:border-mint/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+            className="focus-ring flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-btn border border-outline/50 bg-raised text-muted hover:text-mint hover:border-mint/40 disabled:opacity-40 disabled:cursor-not-allowed">
             <IconPlay className="h-3 w-3" />
           </button>}
           <OpenButton label={t('open_project')} disabled={!version || preview} disabledReason={unavailableHint} size="compact" onOpen={launch}
@@ -203,7 +202,7 @@ export function ProjectTile({
         </div>
       </div>
 
-      <AnimatePresence>
+
         {dialog === 'remove' && <ConfirmDialog title={t('project_remove_title')} description={t('project_remove_desc', { name: displayName })} confirmLabel={t('bulk_remove')}
           onConfirm={() => { setDialog(null); onRemove() }} onCancel={() => setDialog(null)} />}
         {dialog === 'delete' && onDelete && <ConfirmDialog title={t('project_delete_title')} description={t('project_delete_desc', { name: displayName })} confirmLabel={t('project_delete_confirm')} variant="danger"
@@ -214,7 +213,7 @@ export function ProjectTile({
         {dialog === 'size' && <ProjectSizeModal projectPath={project.path} projectName={displayName} onClose={() => setDialog(null)} />}
         {dialog === 'doctor' && <ProjectDoctorModal project={project} installedVersions={installedVersions} onClose={() => setDialog(null)} />}
         {dialog === 'build' && <ProjectBuildModal project={project} onClose={() => setDialog(null)} />}
-      </AnimatePresence>
+
     </article>
   )
 }

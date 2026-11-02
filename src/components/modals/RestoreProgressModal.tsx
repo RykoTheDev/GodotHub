@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import {
   IconCloudArrowDown,
@@ -104,53 +103,53 @@ export function RestoreProgressModal({ onClose }: Props) {
       footer={
         phase === 'preview' ? (
           <div className="ms-auto flex items-center gap-2.5">
-            <motion.button
+            <button
 
-              data-press-feedback
+
               onClick={onClose}
-              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
+              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised "
             >
               {tc('cancel')}
-            </motion.button>
-            <motion.button
+            </button>
+            <button
 
-              data-press-feedback
+
               onClick={handleApplyAndRestart}
-              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm font-medium bg-accent hover:bg-accent-bright text-white transition-colors"
+              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm font-medium bg-accent hover:bg-accent-bright text-white "
             >
               {t('restore_modal_apply_btn')}
-            </motion.button>
+            </button>
           </div>
         ) : phase === 'error' ? (
           <div className="ms-auto flex items-center gap-2.5">
-            <motion.button
+            <button
 
-              data-press-feedback
+
               onClick={onClose}
-              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
+              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised "
             >
               {tc('cancel')}
-            </motion.button>
-            <motion.button
+            </button>
+            <button
 
-              data-press-feedback
+
               onClick={handleRetry}
-              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm font-medium border border-outline/50 hover:border-accent-dim hover:bg-raised transition-colors"
+              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm font-medium border border-outline/50 hover:border-accent-dim hover:bg-raised "
             >
               {tc('retry')}
-            </motion.button>
+            </button>
           </div>
         ) : phase === 'done' ? (
           <div className="ms-auto">
-            <motion.button
+            <button
 
-              data-press-feedback
+
               onClick={() => window.location.reload()}
-              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm font-medium bg-accent hover:bg-accent-bright text-white transition-colors inline-flex items-center gap-2"
+              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm font-medium bg-accent hover:bg-accent-bright text-white inline-flex items-center gap-2"
             >
               <IconRefresh className="w-4 h-4" />
               {t('restart_app')}
-            </motion.button>
+            </button>
           </div>
         ) : undefined
       }
