@@ -1,8 +1,8 @@
-import { ease, gsap, isRtlDocument, prefersReducedMotion } from './core'
+import { ease, gsap, isRtlDocument, motionOff } from './core'
 import { enableLiveReveal } from './reveal'
 
 export function introShell(titlebar: HTMLElement | null, sidebar: HTMLElement | null) {
-  if (prefersReducedMotion()) {
+  if (motionOff()) {
     enableLiveReveal()
     return
   }

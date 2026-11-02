@@ -245,13 +245,13 @@ textarea::placeholder {
   ::before,
   ::after {
     transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, box-shadow;
-    transition-duration: 260ms;
+    transition-duration: calc(260ms / var(--motion-speed, 1));
     transition-timing-function: var(--ease-out-expo);
   }
 
   :where(button, a, input, textarea, select, summary, kbd, label, [role], [tabindex], [class*="hover:"], [class*="group-"], [class*="focus"], [class*="peer-"], [class*="opacity-"]) {
     transition-property: color, background-color, border-color, outline-color, outline-offset, text-decoration-color, fill, stroke, box-shadow, opacity, filter, backdrop-filter, translate, scale, rotate;
-    transition-duration: 280ms;
+    transition-duration: calc(280ms / var(--motion-speed, 1));
   }
 
   :where([style*="background"], [style*="color"]) {
@@ -260,7 +260,7 @@ textarea::placeholder {
 
   :where([role="progressbar"] *, [class*="rounded-full"][style*="width"]) {
     transition-property: width, background-color, opacity;
-    transition-duration: 600ms;
+    transition-duration: calc(600ms / var(--motion-speed, 1));
   }
 
   :focus-visible {
@@ -278,11 +278,11 @@ textarea::placeholder {
 
   svg {
     transition:
-      transform 500ms var(--ease-spring),
-      color 260ms var(--ease-out-expo),
-      fill 260ms var(--ease-out-expo),
-      stroke 260ms var(--ease-out-expo),
-      opacity 260ms var(--ease-out-expo);
+      transform calc(500ms / var(--motion-speed, 1)) var(--ease-spring),
+      color calc(260ms / var(--motion-speed, 1)) var(--ease-out-expo),
+      fill calc(260ms / var(--motion-speed, 1)) var(--ease-out-expo),
+      stroke calc(260ms / var(--motion-speed, 1)) var(--ease-out-expo),
+      opacity calc(260ms / var(--motion-speed, 1)) var(--ease-out-expo);
   }
 
   :where(button, a, [role="menuitem"], [role="tab"], [role="option"]):not(:disabled):hover > svg,
@@ -292,7 +292,7 @@ textarea::placeholder {
 
   :where(button, a, [role="menuitem"]):not(:disabled):active > svg {
     transform: scale(0.86);
-    transition-duration: 120ms;
+    transition-duration: calc(120ms / var(--motion-speed, 1));
   }
 
   :where(button, a, [role="button"]):not(:disabled)[class*="hover:bg-"]:hover {
@@ -300,11 +300,11 @@ textarea::placeholder {
   }
 
   :where(img) {
-    transition: opacity 400ms var(--ease-out-expo), filter 400ms var(--ease-out-expo), transform 600ms var(--ease-spring);
+    transition: opacity calc(400ms / var(--motion-speed, 1)) var(--ease-out-expo), filter calc(400ms / var(--motion-speed, 1)) var(--ease-out-expo), transform calc(600ms / var(--motion-speed, 1)) var(--ease-spring);
   }
 
   :where(kbd) {
-    transition-duration: 200ms;
+    transition-duration: calc(200ms / var(--motion-speed, 1));
   }
 }
 
@@ -441,6 +441,14 @@ span.w-2.h-2.rounded-full.bg-danger {
   }
 }
 
+.motion-off *,
+.motion-off ::before,
+.motion-off ::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
 .markdown-body {
   font-size: 0.875rem;
   line-height: 1.65;
@@ -537,9 +545,4 @@ span.w-2.h-2.rounded-full.bg-danger {
   margin: 0.9rem 0;
   border: none;
   border-top: 1px solid var(--color-line);
-}
-
-.privacy-mode .sensitive {
-  filter: blur(5px);
-  user-select: none;
 }

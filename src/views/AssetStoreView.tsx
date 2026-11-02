@@ -14,6 +14,7 @@ import { SearchBar } from '../components/ui/SearchBar'
 import { Dropdown } from '../components/ui/Dropdown'
 import { AssetStoreBrowser } from '../components/asset-library/AssetStoreBrowser'
 import { IconChevronDown } from '../lib/icons'
+import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 
 const VERSION_OPTIONS = [
   '4.7',
@@ -96,7 +97,7 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
         metric={
           <>
             <h2 className="text-4xl font-bold text-muted">
-              {stats.total}
+              <AnimatedNumber value={stats.total} />
             </h2>
             <p className="text-lg font-medium uppercase text-muted">
               {tc('asset_store_count', { count: stats.total })}

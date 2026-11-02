@@ -6,7 +6,7 @@ import { api } from '../../lib/api'
 import { useChangelogBadge } from '../../hooks/useChangelogBadge'
 import { useSettings } from '../../hooks/useSettings'
 import { useWorkspaceMenuItem } from './WorkspaceSwitcher'
-import { IconBookOpen, IconBug, IconEye, IconEyeSlash, IconChevronRight, IconGithub, IconGitlab, IconHeart, IconPlug } from '../../lib/icons'
+import { IconBookOpen, IconBug, IconChevronRight, IconGithub, IconGitlab, IconHeart, IconPlug } from '../../lib/icons'
 import type { GitAuthState } from '../../types'
 
 export function AccountMenu({
@@ -21,7 +21,7 @@ export function AccountMenu({
   const { t } = useTranslation('nav')
   const { t: tc } = useTranslation('common')
   const { hasNewEntry } = useChangelogBadge()
-  const { settings, update } = useSettings()
+  const { settings } = useSettings()
   const workspaceItem = useWorkspaceMenuItem()
   const [osName, setOsName] = useState<string | null>(null)
   const [gitAuth, setGitAuth] = useState<GitAuthState | null>(null)
@@ -48,13 +48,6 @@ export function AccountMenu({
       items={[
         ...(settings.workspaces_enabled && workspaceItem ? [workspaceItem] : []),
         {
-          key: 'privacy',
-          label: settings.privacy_mode ? tc('privacy_mode_disable') : tc('privacy_mode_enable'),
-          icon: settings.privacy_mode ? IconEyeSlash : IconEye,
-          dividerAfter: true,
-          onClick: () => update({ ...settings, privacy_mode: !settings.privacy_mode }),
-        },
-        {
           key: 'changelog',
           label: t('changelog'),
           icon: IconBookOpen,
@@ -78,7 +71,7 @@ export function AccountMenu({
     >
       {(close) => (
       <div className="flex flex-col gap-2 pt-1.5 pb-2.5 mb-1 border-b border-white/6">
-        <span className="sensitive px-2.5 font-display text-xl font-black tracking-tight text-ink truncate">{name}</span>
+        <span className="px-2.5 font-display text-xl font-black tracking-tight text-ink truncate">{name}</span>
         {accounts.length > 0 && (
         <div className="flex flex-col rounded-2xl border border-outline/40 bg-raised/60 overflow-hidden divide-y divide-outline/40 text-xs">
           {accounts.map(({ key, icon: Icon, label, account }) => (
@@ -88,7 +81,7 @@ export function AccountMenu({
             >
               <Icon className="w-3.5 h-3.5 shrink-0 text-ink" />
               <span className="text-muted shrink-0">{label}</span>
-              <span className="sensitive ms-auto truncate text-ink">@{account.username}</span>
+              <span className="ms-auto truncate text-ink">@{account.username}</span>
             </div>
           ))}
           <button

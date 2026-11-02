@@ -5,7 +5,9 @@ import {
   GHOST_SELECTOR,
   gsap,
   hold,
-  prefersReducedMotion,
+  flourishesOn,
+  motionOff,
+  motionPrefs,
   setPointerHeld,
   settle,
 } from './core'
@@ -139,14 +141,15 @@ function onPointerDown(e: PointerEvent) {
   const target = e.target as Element
   const el = target.closest<HTMLElement>(PRESSABLE) ?? target.closest<HTMLElement>(CARD)
   if (!el || disabled(el)) return
-  press(el)
-  ripple(el, e)
+  if (motionOff()) return
+  if (motionPrefs().press) press(el)
+  if (motionPrefs().ripple && flourishesOn()) ripple(el, e)
 }
 
 function onPointerMove(e: PointerEvent) {
   if (e.pointerType !== 'mouse' || e.buttons) return
   const target = e.target as Element
-  const card = target.closest<HTMLElement>(CARD)
+  const card = motionPrefs().tilt && flourishesOn() ? target.closest<HTMLElement>(CARD) : null
   if (card !== hovered) {
     leaveCard()
     if (card && !card.closest(GHOST_SELECTOR)) enterCard(card)
@@ -157,11 +160,11 @@ function onPointerMove(e: PointerEvent) {
 function onKeyDown(e: KeyboardEvent) {
   if (e.key !== 'Enter' && e.key !== ' ') return
   const el = document.activeElement
+  if (motionOff() || !motionPrefs().press) return
   if (el instanceof HTMLElement && el.matches(PRESSABLE) && !disabled(el)) pulse(el)
 }
 
 export function installInteractions() {
-  if (prefersReducedMotion()) return
   document.addEventListener('pointerdown', onPointerDown, { passive: true })
   document.addEventListener('pointerup', release, { passive: true })
   document.addEventListener('pointercancel', release, { passive: true })
@@ -171,7 +174,7 @@ export function installInteractions() {
 }
 
 export function spin(el: Element | null) {
-  if (!(el instanceof SVGElement) || prefersReducedMotion()) return
+  if (!(el instanceof SVGElement) || motionOff()) return
   el.setAttribute('data-motion-busy', '')
   const release = () => el.removeAttribute('data-motion-busy')
   gsap.fromTo(

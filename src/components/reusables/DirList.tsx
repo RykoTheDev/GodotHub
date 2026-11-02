@@ -59,7 +59,7 @@ export function DirList({
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="sensitive text-xs font-mono text-ink truncate">
+                  <span className="text-xs font-mono text-ink truncate">
                     {dir}
                   </span>
                   {isDefault && (

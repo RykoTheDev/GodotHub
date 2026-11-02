@@ -1,4 +1,4 @@
-import { busy, canTransform, ease, GHOST_SELECTOR, gsap, isPointerHeld, prefersReducedMotion } from './core'
+import { busy, canTransform, ease, GHOST_SELECTOR, gsap, isPointerHeld, motionOff, motionPrefs } from './core'
 
 const REVEAL = [
   'section',
@@ -65,12 +65,15 @@ function play(el: HTMLElement, delay: number, fromScroll = false) {
     vars.opacity = 0
     cleared.push('opacity')
   }
-  if (move) {
+  const entrance = motionPrefs().entrance
+  if (move && entrance !== 'fade') {
     cleared.push('transform')
     if (el.matches('[class*="rounded-tile"]')) {
       Object.assign(vars, { scale: 0.3, rotation: '-=16', ease: ease.pop, duration: 0.85 })
     } else if (el.matches('h1, h2, h3')) {
-      Object.assign(vars, { y: 20, clipPath: 'inset(0% 0% 100% 0%)' })
+      Object.assign(vars, entrance === 'slide' ? { y: 20, clipPath: 'inset(0% 0% 100% 0%)' } : { scale: 0.96 })
+    } else if (entrance === 'scale') {
+      Object.assign(vars, { scale: 0.92, ease: ease.spring })
     } else {
       Object.assign(vars, { y: fromScroll ? 40 : 26, scale: 0.96, filter: 'blur(4px)' })
     }
@@ -86,6 +89,14 @@ function defer(el: HTMLElement) {
   watcher.observe(el)
 }
 
+export function flushPending() {
+  for (const el of pending) {
+    watcher.unobserve(el)
+    gsap.set(el, { clearProps: 'opacity' })
+  }
+  pending.clear()
+}
+
 function prune() {
   for (const el of pending) {
     if (el.isConnected) continue
@@ -95,7 +106,10 @@ function prune() {
 }
 
 export function animateIn(elements: HTMLElement[], baseDelay = 0) {
-  if (prefersReducedMotion()) return
+  const { entrance, threshold, scrollReveal } = motionPrefs()
+  if (motionOff() || entrance === 'none') return
+  const projects = new Set(elements.map((el) => el.closest('[data-project-id]')).filter(Boolean))
+  if (projects.size > threshold) elements = elements.filter((el) => !el.closest('[data-project-id]'))
   prune()
   const vh = window.innerHeight
   const vw = window.innerWidth
@@ -105,7 +119,7 @@ export function animateIn(elements: HTMLElement[], baseDelay = 0) {
     const r = el.getBoundingClientRect()
     if (r.width === 0 || r.height === 0) continue
     if (r.top > vh || r.bottom < 0 || r.left > vw || r.right < 0) {
-      defer(el)
+      if (scrollReveal) defer(el)
       continue
     }
     play(el, baseDelay + Math.min(index * 0.035, 0.8))
@@ -114,7 +128,7 @@ export function animateIn(elements: HTMLElement[], baseDelay = 0) {
 }
 
 export function revealView(pane: HTMLElement) {
-  if (prefersReducedMotion() || gsap.isTweening(pane)) return
+  if (motionOff() || motionPrefs().entrance === 'none' || gsap.isTweening(pane)) return
   if (getComputedStyle(pane).display !== 'contents') {
     gsap.from(pane, { opacity: 0, duration: 0.4, ease: ease.soft, clearProps: 'opacity' })
   }

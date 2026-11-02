@@ -59,6 +59,7 @@ import { DebugSettings } from '../components/debug/DebugSettings'
 import {
   IconCheck,
   IconPalette,
+  IconPlay,
   IconSun,
   IconMoon,
   IconHardDrive,
@@ -94,6 +95,7 @@ import { reportError } from '../lib/toast'
 
 type SettingsCat =
   | "appearance"
+  | "motion"
   | "display"
   | "accessibility"
   | "behavior"
@@ -112,6 +114,7 @@ interface CatDef {
 
 const CATEGORIES: CatDef[] = [
   { id: "appearance", icon: IconPalette },
+  { id: "motion", icon: IconPlay },
   { id: "display", icon: IconMonitor },
   { id: "accessibility", icon: IconUniversalAccess },
   { id: "behavior", icon: IconGear },
@@ -1206,7 +1209,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <div className="flex flex-col gap-2.5">
               {settings.template_scan_dir ? (
                 <div className="flex items-center gap-2.5">
-                  <span className="sensitive flex-1 min-w-0 bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono text-ink truncate">
+                  <span className="flex-1 min-w-0 bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono text-ink truncate">
                     {settings.template_scan_dir}
                   </span>
                   <button
@@ -1752,7 +1755,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 <IconGithub className="w-4 h-4 text-ink shrink-0" />
                 <span className="text-xs font-medium text-ink">GitHub</span>
                 {gitAuth?.github && (
-                  <span className="sensitive text-3xs font-semibold px-1.5 py-0.5 rounded-tag bg-mint/15 text-mint border border-mint/30">
+                  <span className="text-3xs font-semibold px-1.5 py-0.5 rounded-tag bg-mint/15 text-mint border border-mint/30">
                     {ts("git_connected_as", {
                       username: gitAuth.github.username,
                     })}
@@ -1793,7 +1796,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 <IconGitlab className="w-4 h-4 text-amber shrink-0" />
                 <span className="text-xs font-medium text-ink">GitLab</span>
                 {gitAuth?.gitlab && (
-                  <span className="sensitive text-3xs font-semibold px-1.5 py-0.5 rounded-tag bg-mint/15 text-mint border border-mint/30">
+                  <span className="text-3xs font-semibold px-1.5 py-0.5 rounded-tag bg-mint/15 text-mint border border-mint/30">
                     {gitAuth.gitlab.host
                       ? ts("git_connected_to", {
                           host: gitAuth.gitlab.host,
@@ -1900,7 +1903,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                     <span className="text-xs font-medium text-ink font-mono">
                       {pat.host}
                     </span>
-                    <span className="sensitive text-2xs text-muted">
+                    <span className="text-2xs text-muted">
                       {pat.username}
                     </span>
                   </div>
@@ -2436,6 +2439,189 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <span className="text-xs text-muted">{cliMessage}</span>
           )}
         </div>
+      </Subsection>
+    </div>
+  );
+
+  const renderMotion = () => (
+    <div className="flex flex-col gap-3">
+      <Subsection
+        id="motion-intensity"
+        title={ts("animation_intensity_label")}
+        description={ts("animation_intensity_desc")}
+        searchText={`${ts("animation_intensity_label")} ${ts("animation_intensity_desc")} ${ts("animation_full")} ${ts("animation_subtle")} ${ts("animation_none")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <Segmented
+          value={settings.animation_intensity}
+          onChange={(v) =>
+            update({
+              ...settings,
+              animation_intensity: v as AppSettings["animation_intensity"],
+            })
+          }
+          options={[
+            { value: "full", label: ts("animation_full") },
+            { value: "subtle", label: ts("animation_subtle") },
+            { value: "none", label: ts("animation_none") },
+          ]}
+        />
+      </Subsection>
+
+      <Subsection
+        id="motion-speed"
+        title={ts("animation_speed_label")}
+        description={ts("animation_speed_desc")}
+        searchText={`${ts("animation_speed_label")} ${ts("animation_speed_desc")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-2">
+          <Slider
+            display={
+              <span className="text-xs font-mono text-ink tabular-nums">
+                {settings.animation_speed.toFixed(1)}×
+              </span>
+            }
+            value={settings.animation_speed}
+            min={0.5}
+            max={2}
+            step={0.1}
+            defaultValue={1.5}
+            onChange={(v) => update({ ...settings, animation_speed: v })}
+          />
+        </div>
+      </Subsection>
+
+      <Subsection
+        id="motion-view-entrance"
+        title={ts("view_entrance_label")}
+        description={ts("view_entrance_desc")}
+        searchText={`${ts("view_entrance_label")} ${ts("view_entrance_desc")} ${ts("entrance_fade")} ${ts("entrance_slide")} ${ts("entrance_scale")} ${ts("entrance_none")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <Segmented
+          value={settings.view_entrance}
+          onChange={(v) =>
+            update({
+              ...settings,
+              view_entrance: v as AppSettings["view_entrance"],
+            })
+          }
+          options={[
+            { value: "slide", label: ts("entrance_slide") },
+            { value: "fade", label: ts("entrance_fade") },
+            { value: "scale", label: ts("entrance_scale") },
+            { value: "none", label: ts("entrance_none") },
+          ]}
+        />
+      </Subsection>
+
+      <Subsection
+        id="motion-scroll-reveal"
+        title={ts("scroll_reveal_label")}
+        description={ts("scroll_reveal_desc")}
+        searchText={`${ts("scroll_reveal_label")} ${ts("scroll_reveal_desc")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <Toggle
+          checked={settings.motion_scroll_reveal}
+          onChange={(checked) => update({ ...settings, motion_scroll_reveal: checked })}
+          label={ts("scroll_reveal_label")}
+          disabled={settings.animation_intensity === "none"}
+        />
+      </Subsection>
+
+      <Subsection
+        id="motion-animation-threshold"
+        title={ts("animation_threshold_label")}
+        description={ts("animation_threshold_desc")}
+        searchText={`${ts("animation_threshold_label")} ${ts("animation_threshold_desc")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-2">
+          <Slider
+            display={
+              <span className="text-xs font-medium text-ink tabular-nums">
+                {ts("n_projects", { count: settings.animation_threshold })}
+              </span>
+            }
+            value={settings.animation_threshold}
+            min={10}
+            max={100}
+            step={5}
+            defaultValue={20}
+            onChange={(value) => update({ ...settings, animation_threshold: value })}
+          />
+        </div>
+      </Subsection>
+
+      <Subsection
+        id="motion-card-tilt"
+        title={ts("card_tilt_label")}
+        description={ts("card_tilt_desc")}
+        searchText={`${ts("card_tilt_label")} ${ts("card_tilt_desc")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <Toggle
+          checked={settings.motion_card_tilt}
+          onChange={(checked) => update({ ...settings, motion_card_tilt: checked })}
+          label={ts("card_tilt_label")}
+          disabled={settings.animation_intensity === "none"}
+        />
+      </Subsection>
+
+      <Subsection
+        id="motion-click-ripple"
+        title={ts("click_ripple_label")}
+        description={ts("click_ripple_desc")}
+        searchText={`${ts("click_ripple_label")} ${ts("click_ripple_desc")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <Toggle
+          checked={settings.motion_click_ripple}
+          onChange={(checked) => update({ ...settings, motion_click_ripple: checked })}
+          label={ts("click_ripple_label")}
+          disabled={settings.animation_intensity === "none"}
+        />
+      </Subsection>
+
+      <Subsection
+        id="motion-press-bounce"
+        title={ts("press_bounce_label")}
+        description={ts("press_bounce_desc")}
+        searchText={`${ts("press_bounce_label")} ${ts("press_bounce_desc")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <Toggle
+          checked={settings.motion_press_bounce}
+          onChange={(checked) => update({ ...settings, motion_press_bounce: checked })}
+          label={ts("press_bounce_label")}
+          disabled={settings.animation_intensity === "none"}
+        />
+      </Subsection>
+
+      <Subsection
+        id="motion-animated-numbers"
+        title={ts("animated_numbers_label")}
+        description={ts("animated_numbers_desc")}
+        searchText={`${ts("animated_numbers_label")} ${ts("animated_numbers_desc")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <Toggle
+          checked={settings.animated_numbers}
+          onChange={(checked) => update({ ...settings, animated_numbers: checked })}
+          label={ts("animated_numbers_label")}
+          disabled={settings.animation_intensity === "none"}
+        />
       </Subsection>
     </div>
   );
@@ -2983,6 +3169,8 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
     switch (cat) {
       case "appearance":
         return renderAppearance();
+      case "motion":
+        return renderMotion();
       case "display":
         return renderDisplay();
       case "accessibility":

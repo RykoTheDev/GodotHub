@@ -17,6 +17,8 @@ import type { NewsItem } from '../types'
 
 
 import { reportError } from '../lib/toast'
+import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
+
 function formatDate(iso: string | null): string | null {
   if (!iso) return null
   const d = new Date(iso)
@@ -123,7 +125,7 @@ export function NewsView({ connected = false }: { connected?: boolean }) {
         metric={
           <>
             <h2 className="text-4xl font-bold text-muted">
-              {total}
+              <AnimatedNumber value={total} />
             </h2>
             <p className="text-lg font-medium uppercase text-muted">
               {tc('news_count')}

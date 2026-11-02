@@ -5,7 +5,7 @@ import {
   GHOST_ATTR,
   gsap,
   isRtlDocument,
-  prefersReducedMotion,
+  motionOff,
 } from './core'
 import { revealLive } from './reveal'
 
@@ -120,7 +120,7 @@ function enterPopover(el: HTMLElement) {
 }
 
 function enter(kind: Kind, el: HTMLElement) {
-  if (prefersReducedMotion()) return
+  if (motionOff()) return
   switch (kind) {
     case 'modal':
       enterModal(el)
@@ -201,7 +201,7 @@ function exit(kind: Kind, ghost: HTMLElement) {
 }
 
 function exitTree(el: HTMLElement, parent: Node, next: Node | null) {
-  if (prefersReducedMotion()) return
+  if (motionOff()) return
   const kind = detachedKindOf(el)
   if (kind) {
     if (kind !== 'none' && kind !== 'toast') exit(kind, ghostOf(el, parent, next))
@@ -240,7 +240,7 @@ function enterShared(el: HTMLElement) {
   const prev = sharedRects.get(key)
   sharedLive.set(key, el)
   sharedRects.set(key, rect)
-  if (!prev || prefersReducedMotion() || !rect.width || !rect.height || !prev.width || !prev.height) return
+  if (!prev || motionOff() || !rect.width || !rect.height || !prev.width || !prev.height) return
   const dx = prev.left - rect.left
   const dy = prev.top - rect.top
   if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return
@@ -264,7 +264,7 @@ function enterShared(el: HTMLElement) {
 function enterImages(el: HTMLElement) {
   const images: HTMLImageElement[] = el instanceof HTMLImageElement ? [el] : Array.from(el.querySelectorAll('img'))
   for (const img of images) {
-    if (img.complete || img.style.opacity !== '' || prefersReducedMotion()) continue
+    if (img.complete || img.style.opacity !== '' || motionOff()) continue
     gsap.set(img, { opacity: 0 })
     const show = () => gsap.fromTo(img, { opacity: 0, scale: 1.06, filter: 'blur(8px)' }, { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.7, ease: ease.out, clearProps: 'opacity,transform,filter' })
     img.addEventListener('load', show, { once: true })

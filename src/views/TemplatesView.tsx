@@ -34,6 +34,7 @@ import {
   IconTrash,
   type IconProps,
 } from '../lib/icons'
+import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 
 const TEMPLATE_SORT_KEY = 'godothub_template_sort'
 
@@ -245,7 +246,7 @@ export function TemplatesView({
           tab === 'local' ? (
             <>
               <h2 className="text-4xl font-bold text-muted">
-                {templates.length}
+                <AnimatedNumber value={templates.length} />
               </h2>
               <p className="text-lg font-medium uppercase text-muted">
                 {tc('template_your_templates', { count: templates.length })}
@@ -254,7 +255,7 @@ export function TemplatesView({
           ) : (
             <>
               <h2 className="text-4xl font-bold text-muted">
-                {assetStats.total}
+                <AnimatedNumber value={assetStats.total} />
               </h2>
               <p className="text-lg font-medium uppercase text-muted">
                 {tc('asset_store_count', { count: assetStats.total })}

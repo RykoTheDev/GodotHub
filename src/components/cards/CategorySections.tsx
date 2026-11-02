@@ -8,6 +8,7 @@ import { useDndContext, useDroppable } from '@dnd-kit/core'
 import { useTranslation } from 'react-i18next'
 import { IconChevronDown, IconEye, IconEyeSlash } from '../../lib/icons'
 import type { Category } from '../../types'
+import { AnimatedNumber } from '../reusables/AnimatedNumber'
 
 export interface HiddenCategoryEntry {
   category: Category
@@ -148,7 +149,7 @@ export function ProjectCategorySection({
           </span>
         )}
         <span className="text-3xs font-medium text-muted/50 tabular-nums shrink-0">
-          · {count}
+          · <AnimatedNumber value={count} />
         </span>
       </button>
 
@@ -192,7 +193,7 @@ export function HiddenCategoriesSection({
         </span>
         <div className="flex-1 h-px bg-outline/30 mx-1.5" />
         <span className="text-3xs font-medium text-muted/50 tabular-nums shrink-0">
-          · {entries.length}
+          · <AnimatedNumber value={entries.length} />
         </span>
       </button>
 

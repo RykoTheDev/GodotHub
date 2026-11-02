@@ -65,6 +65,7 @@ import {
 import type { Project, TimeInsights } from '../types'
 import { Tooltip } from '../components/reusables/Tooltip'
 import { useGitStatusMap } from '../hooks/useGitStatusMap'
+import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 
 function dispatch(event: string, detail?: unknown) {
   window.dispatchEvent(
@@ -249,7 +250,7 @@ function ProjectRow({ project }: { project: Project }) {
         <span className="block text-sm font-medium text-ink truncate">
           {project.name}
         </span>
-        <span className="sensitive block text-2xs text-muted/70 truncate font-mono">
+        <span className="block text-2xs text-muted/70 truncate font-mono">
           {project.path}
         </span>
       </span>
@@ -433,7 +434,7 @@ function StatCard({
       </div>
 
       <span className="relative z-10 mt-3 block text-[1.625rem] leading-none font-bold tabular-nums text-ink">
-        {display ?? value}
+        {display ?? <AnimatedNumber value={value} />}
       </span>
       <span
         aria-hidden="true"
@@ -1421,7 +1422,7 @@ export function DashboardView({
                       <span className="block text-sm font-medium text-ink truncate font-mono">
                         {v.custom_name || v.tag}
                       </span>
-                      <span className="sensitive block text-2xs text-muted/70 truncate font-mono">
+                      <span className="block text-2xs text-muted/70 truncate font-mono">
                         {v.executable_path}
                       </span>
                     </span>
@@ -1513,7 +1514,7 @@ export function DashboardView({
                   <>
                     {greeting}
                     {', '}
-                    <span className="sensitive text-accent-bright">{displayName}</span>                    </>
+                    <span className="text-accent-bright">{displayName}</span>                    </>
                 ) : (
                   greeting
                 )}

@@ -14,16 +14,61 @@ export const ease = {
 export const GHOST_ATTR = 'data-motion-ghost'
 export const GHOST_SELECTOR = `[${GHOST_ATTR}]`
 
+export type MotionIntensity = 'full' | 'subtle' | 'none'
+export type ViewEntrance = 'fade' | 'slide' | 'scale' | 'none'
+
+export interface MotionPrefs {
+  intensity: MotionIntensity
+  speed: number
+  entrance: ViewEntrance
+  threshold: number
+  scrollReveal: boolean
+  tilt: boolean
+  ripple: boolean
+  press: boolean
+}
+
+let prefs: MotionPrefs = {
+  intensity: 'full',
+  speed: 1.5,
+  entrance: 'slide',
+  threshold: 20,
+  scrollReveal: true,
+  tilt: true,
+  ripple: true,
+  press: true,
+}
+
 const reduceQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
 
-export function prefersReducedMotion() {
-  return reduceQuery.matches
+export function motionPrefs() {
+  return prefs
+}
+
+export function motionOff() {
+  return reduceQuery.matches || prefs.intensity === 'none'
+}
+
+export function flourishesOn() {
+  return !motionOff() && prefs.intensity === 'full'
+}
+
+function applyTiming() {
+  const root = document.documentElement
+  const speed = (prefs.intensity === 'subtle' ? 1.8 : 1) * prefs.speed
+  gsap.globalTimeline.timeScale(motionOff() ? 40 : speed)
+  root.style.setProperty('--motion-speed', String(speed))
+  root.classList.toggle('motion-off', prefs.intensity === 'none')
+}
+
+export function setMotionPrefs(next: Partial<MotionPrefs>) {
+  prefs = { ...prefs, ...next }
+  applyTiming()
 }
 
 export function syncReducedMotion() {
-  const apply = () => gsap.globalTimeline.timeScale(reduceQuery.matches ? 40 : 1)
-  apply()
-  reduceQuery.addEventListener('change', apply)
+  applyTiming()
+  reduceQuery.addEventListener('change', applyTiming)
 }
 
 export function isRtlDocument() {

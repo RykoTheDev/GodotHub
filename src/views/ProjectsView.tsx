@@ -129,6 +129,7 @@ import { BulkTagModal } from '../components/modals/BulkTagModal'
 import { DuplicateProjectModal } from '../components/modals/DuplicateProjectModal'
 import { ConfirmDialog } from '../components/modals/ConfirmDialog'
 import { CategoryManagerModal } from '../components/modals/CategoryManagerModal'
+import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 
 export function ProjectsView({
   onOpenSettings,
@@ -898,7 +899,7 @@ export function ProjectsView({
         metric={
           <>
             <h2 className="text-4xl font-bold text-muted">
-              {filtered.length}
+              <AnimatedNumber value={filtered.length} />
             </h2>
             <p className="text-lg font-medium uppercase text-muted">
               {t('projects_count', { count: filtered.length })}

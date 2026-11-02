@@ -220,9 +220,6 @@ export function App() {
   const [tab, setTab] = useState<NewTab>(uiSwitchIntent ? 'settings' : 'projects')
   const newsUnread = useNewsBadge(tab === 'news')
 
-  useEffect(() => {
-    document.documentElement.classList.toggle('privacy-mode', settings.privacy_mode)
-  }, [settings.privacy_mode])
   const [mountedTabs, setMountedTabs] = useState<NewTab[]>(() => [tab])
   if (!mountedTabs.includes(tab)) setMountedTabs([...mountedTabs, tab])
   const openSettingsTab = useCallback(() => setTab('settings'), [])

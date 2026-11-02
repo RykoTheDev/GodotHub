@@ -232,7 +232,7 @@ export function InstalledVersionCard({
                   </span>
                 ) : templates?.installed ? (
                   <Tooltip
-                    content={<><span className="sensitive">{templates.folder}</span>{` · ${templates.platforms?.join(', ') || ''} · ${formatBytes(templates.size_bytes)}`}</>}
+                    content={<><span>{templates.folder}</span>{` · ${templates.platforms?.join(', ') || ''} · ${formatBytes(templates.size_bytes)}`}</>}
                     side="top"
                   >
                     <button

@@ -26,6 +26,7 @@ import {
   IconSearch,
   IconTrash,
 } from '../lib/icons'
+import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 
 const VAULT_SORT_KEY = 'godothub_vault_sort'
 
@@ -156,7 +157,7 @@ export function VaultView({
         metric={
           <>
             <h2 className="text-4xl font-bold text-muted">
-              {items.length}
+              <AnimatedNumber value={items.length} />
             </h2>
             <p className="text-lg font-medium uppercase text-muted">
               {tc('vault_item_count', { count: items.length })}

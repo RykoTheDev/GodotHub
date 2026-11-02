@@ -38,6 +38,7 @@ import {
   IconTrash,
   IconX,
 } from '../lib/icons'
+import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 
 const VERSION_FILTERS_KEY = 'godothub_version_filters'
 const VERSION_SORT_KEY = 'godothub_version_sort'
@@ -441,7 +442,7 @@ export function VersionsView({
           metric={
             <>
               <h2 className="text-4xl font-bold text-muted">
-                {installed.length}
+                <AnimatedNumber value={installed.length} />
               </h2>
               <p className="text-lg font-medium uppercase text-muted">
                 {tv('installed_count', { count: installed.length })}
@@ -636,7 +637,7 @@ export function VersionsView({
                       className="flex items-center gap-2 rounded-btn bg-raised/60 px-2.5 py-1.5"
                     >
                       <IconFolder className="w-3.5 h-3.5 text-muted shrink-0" />
-                      <span className="sensitive font-mono text-xs text-ink truncate min-w-0 flex-1">
+                      <span className="font-mono text-xs text-ink truncate min-w-0 flex-1">
                         {orphan.folder}
                       </span>
                       <span className="text-2xs font-mono text-muted shrink-0">

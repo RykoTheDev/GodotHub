@@ -337,5 +337,15 @@
   "git_auth_expired": "This code has expired",
   "git_auth_failed": "Couldn’t connect",
   "git_auth_try_again": "Try again",
-  "git_auth_success_hint": "You can close this window."
+  "git_auth_success_hint": "You can close this window.",
+  "animation_speed_label": "Animation speed",
+  "animation_speed_desc": "Speeds up or slows down every animation and transition in the app.",
+  "scroll_reveal_label": "Scroll reveal",
+  "scroll_reveal_desc": "Fade cards in as they scroll into view. Turn off to show everything at once.",
+  "card_tilt_label": "Card tilt on hover",
+  "card_tilt_desc": "Cards tilt slightly toward the cursor when you hover them. Only plays at Full intensity.",
+  "click_ripple_label": "Click ripple",
+  "click_ripple_desc": "Show a ripple from the point you click on buttons and cards. Only plays at Full intensity.",
+  "press_bounce_label": "Press bounce",
+  "press_bounce_desc": "Buttons and cards squish when pressed and spring back on release."
 }

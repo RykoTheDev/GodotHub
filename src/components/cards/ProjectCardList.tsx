@@ -21,6 +21,7 @@ import {
   SortableProjectItem,
 } from '../dnd/ProjectDnd'
 import type { Category, Project } from '../../types'
+import { AnimatedNumber } from '../reusables/AnimatedNumber'
 
 const UNCATEGORIZED = UNCATEGORIZED_KEY
 
@@ -213,7 +214,7 @@ export function ProjectCardList({
         {t('pinned_section')}
       </span>
       <span className="text-3xs font-medium text-muted/50 tabular-nums">
-        · {pinnedProjects.length}
+        · <AnimatedNumber value={pinnedProjects.length} />
       </span>
       <div className="flex-1 h-px bg-outline/50" />
     </div>
