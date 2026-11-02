@@ -176,24 +176,6 @@ textarea::placeholder {
   scrollbar-width: none;
 }
 
-.project-list-cv > * {
-  content-visibility: auto;
-  contain-intrinsic-size: auto 120px;
-}
-
-.masonry {
-  display: flex;
-  width: auto;
-  margin-inline-start: -1.25rem;
-}
-.masonry-column {
-  padding-inline-start: 1.25rem;
-  background-clip: padding-box;
-}
-.masonry-column > * {
-  margin-bottom: 1.25rem;
-}
-
 .new-ui {
   --font-display: var(--app-font-display, 'Inter Variable'), var(--font-cjk);
   --font-body: var(--app-font-body, 'Inter Variable'), var(--font-cjk);
@@ -435,23 +417,6 @@ textarea::placeholder {
 }
 .focus-ring:focus-visible {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 45%, transparent);
-}
-
-.setting-highlight {
-  animation: setting-pulse 1.5s ease-out;
-  border-radius: inherit;
-}
-
-@keyframes setting-pulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(69, 127, 242, 0.4);
-  }
-  30% {
-    box-shadow: 0 0 0 6px rgba(69, 127, 242, 0.15);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(69, 127, 242, 0);
-  }
 }
 
 .markdown-body {

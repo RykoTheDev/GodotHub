@@ -570,24 +570,11 @@ pub struct VaultItem {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct VaultImportResult {
-    pub installed: Vec<String>,
-    pub conflicts: Vec<String>,
-    pub skipped: bool,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct VaultProjectImportResult {
     pub project_id: String,
     pub installed: Vec<String>,
     pub conflicts: Vec<String>,
     pub skipped: bool,
-}
-
-#[derive(Debug, Clone, Serialize)]
-pub struct GodotFolderPreview {
-    pub name: String,
-    pub icon: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

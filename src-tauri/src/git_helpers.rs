@@ -1,5 +1,5 @@
 use std::ffi::OsStr;
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 use std::process::Command;
 use std::sync::OnceLock;
 
@@ -78,39 +78,4 @@ pub fn output_stdout(output: &std::process::Output) -> String {
 
 pub fn output_stderr(output: &std::process::Output) -> String {
     String::from_utf8_lossy(&output.stderr).to_string()
-}
-
-#[allow(dead_code)]
-pub fn git_lines(working_dir: &str, args: &[&str]) -> AppResult<Vec<String>> {
-    let out = git_cmd(working_dir, args)?;
-    Ok(out
-        .lines()
-        .filter(|l| !l.is_empty())
-        .map(String::from)
-        .collect())
-}
-
-#[allow(dead_code)]
-pub fn open_in_os(path: &Path) -> AppResult<()> {
-    let path_str = path.to_string_lossy();
-    let _path_s: &str = &path_str;
-
-    #[cfg(target_os = "windows")]
-    let result = Command::new("explorer").arg(path).spawn();
-
-    #[cfg(target_os = "macos")]
-    let result = Command::new("open").arg(path).spawn();
-
-    #[cfg(all(unix, not(target_os = "macos")))]
-    let result = Command::new("xdg-open")
-        .arg(path)
-        .spawn()
-        .or_else(|_| Command::new("gio").args(["open", _path_s]).spawn())
-        .or_else(|_| Command::new("nautilus").arg(_path_s).spawn())
-        .or_else(|_| Command::new("dolphin").arg(_path_s).spawn())
-        .or_else(|_| Command::new("thunar").arg(_path_s).spawn());
-
-    result
-        .map(|_| ())
-        .map_err(|e| format!("Failed to open: {e}").into())
 }

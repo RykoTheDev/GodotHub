@@ -340,7 +340,6 @@ pub fn list_workspace_scan_dirs(app: AppHandle) -> Vec<WorkspaceScanDirs> {
         .collect()
 }
 
-#[tauri::command]
 pub fn create_workspace_silent(
     app: &AppHandle,
     name: String,

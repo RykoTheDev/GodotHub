@@ -43,8 +43,6 @@ import {
   faFolder,
   faNewspaper,
   faAnglesLeft,
-  faAnglesRight,
-  faArrowDown,
   faArrowUp,
   faArrowUpRightFromSquare,
   faArrowRotateRight,
@@ -77,7 +75,6 @@ import {
   faStar,
   faStore,
   faStopwatch,
-  faFont,
   faDesktop,
   faUniversalAccess,
   faMinus,
@@ -220,8 +217,6 @@ export const IconArrowUpDown = solid(faSort)
 export const IconTags = solid(faTags, M.swivel)
 export const IconNews = solid(faNewspaper)
 export const IconChevronsLeft = solid(faAnglesLeft, M.nudgeLeft)
-export const IconChevronsRight = solid(faAnglesRight, M.nudgeRight)
-export const IconArrowDown = solid(faArrowDown, M.nudgeDown)
 export const IconArrowUp = solid(faArrowUp, M.nudgeUp)
 export const IconExternalLink = solid(faArrowUpRightFromSquare, M.nudgeUpRight)
 export const IconRefresh = solid(faArrowRotateRight, M.spin)
@@ -259,7 +254,6 @@ export const IconCircleX = solid(faCircleXmark, M.rotate90)
 export const IconStar = solid(faStar, M.beat)
 export const IconStore = solid(faStore)
 export const IconStopwatch = solid(faStopwatch, M.spin)
-export const IconType = solid(faFont)
 export const IconMonitor = solid(faDesktop)
 export const IconFolder = solid(faFolder)
 export const IconMinus = solid(faMinus)

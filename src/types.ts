@@ -529,12 +529,6 @@ export interface VaultItem {
   path: string
 }
 
-export interface VaultImportResult {
-  installed: string[]
-  conflicts: string[]
-  skipped: boolean
-}
-
 export interface VaultProjectImportResult {
   project_id: string
   installed: string[]

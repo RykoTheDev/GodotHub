@@ -48,28 +48,6 @@ pub fn read_project_version(project_path: &str) -> Option<String> {
         .filter(|version| !version.is_empty())
 }
 
-pub fn set_project_version(project_path: &str, tag: Option<&str>) -> bool {
-    let root = Path::new(project_path);
-    let _ = project_metadata::migrate(root);
-    if project_metadata::prepare(root).is_err() {
-        return false;
-    }
-    let mut identity = read_identity_any(project_path).unwrap_or_default();
-    identity.godot_version = tag
-        .map(str::trim)
-        .filter(|tag| !tag.is_empty())
-        .map(str::to_string);
-    if identity.comment.is_empty() && !identity.id.trim().is_empty() {
-        identity.comment = IDENTITY_COMMENT.to_string();
-    }
-    let path = identity_file(project_path);
-    if persist::write_json(&path, &identity).is_err() {
-        return false;
-    }
-    project_metadata::hide(&path);
-    true
-}
-
 pub fn read_project_identity(project_path: &str) -> Option<String> {
     let identity = read_identity(project_path)?;
     let id = identity.id.trim();

@@ -25,10 +25,6 @@ export function orderedTileIds(order: string[]): DashboardTileId[] {
   return [...(order.filter((id) => DASHBOARD_TILE_IDS.includes(id as DashboardTileId)) as DashboardTileId[]), ...extras]
 }
 
-export function materializeEnabled(enabled: string[]): DashboardTileId[] {
-  return enabledTileIds(enabled)
-}
-
 export function removeTileId(enabled: string[], id: DashboardTileId): DashboardTileId[] {
   return enabledTileIds(enabled).filter((x) => x !== id)
 }

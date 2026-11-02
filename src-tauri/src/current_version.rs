@@ -523,15 +523,6 @@ pub fn list_version_aliases(app: AppHandle) -> VersionAliases {
 }
 
 #[tauri::command]
-pub fn create_version_alias(
-    app: AppHandle,
-    name: String,
-    tag: String,
-) -> Result<AliasInfo, String> {
-    create_named_alias(&app, &name, &tag)
-}
-
-#[tauri::command]
 pub fn create_version_aliases(app: AppHandle, entries: Vec<AliasRequest>) -> AliasBatchResult {
     let mut created = Vec::new();
     let mut skipped = Vec::new();

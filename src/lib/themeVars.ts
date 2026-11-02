@@ -28,10 +28,3 @@ export function setThemeVars(vars: Record<string, string>) {
   themeVars = { ...themeVars, ...vars }
   flushThemeVars()
 }
-
-export function removeThemeVars(keys: string[]) {
-  for (const key of keys) {
-    delete themeVars[key]
-  }
-  flushThemeVars()
-}

@@ -15,17 +15,3 @@ export function useTauriEvent<T = unknown>(
     }
   }, [event, ...deps])
 }
-
-export function useTauriEvents(
-  handlers: [string, (payload: unknown) => void][],
-  deps: unknown[] = [],
-) {
-  useEffect(() => {
-    const unlisteners = handlers.map(([event, handler]) =>
-      listen(event, (e) => handler(e.payload)),
-    )
-    return () => {
-      unlisteners.forEach((p) => p.then((fn) => fn()))
-    }
-  }, [deps])
-}

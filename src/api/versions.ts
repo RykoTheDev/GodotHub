@@ -45,12 +45,8 @@ export const versionsApi = {
     invoke<void>('open_godot_version', { tag, console: withConsole ?? null }),
   import: (path: string) =>
     invoke<InstalledGodotVersion[]>('import_version', { path }),
-  importZip: (zipPath: string) =>
-    invoke<InstalledGodotVersion>('import_version_zip', { zipPath }),
   scan: (dirs: string[], depth: number) =>
     invoke<InstalledGodotVersion[]>('scan_for_versions', { dirs, depth }),
-  validateFolder: (path: string) =>
-    invoke<{ name: string; icon: string | null } | null>('validate_godot_folder', { path }),
   testGithubToken: () =>
     invoke<{ remaining: number; limit: number; reset_at: number; used_token: boolean }>('test_github_token'),
   getGithubRateLimit: () =>

@@ -1,10 +1,6 @@
 let splashConsumed = false
 let switchToSettings = false
 
-export function markUiSwitchToSettings() {
-  switchToSettings = true
-}
-
 export function shouldOpenSettingsAfterSwitch(): boolean {
   return switchToSettings
 }

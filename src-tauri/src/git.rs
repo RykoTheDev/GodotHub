@@ -641,26 +641,6 @@ pub async fn git_list_remotes(path: String) -> Result<Vec<GitRemoteInfo>, String
 }
 
 #[tauri::command]
-pub async fn git_remote_url(path: String) -> Result<String, String> {
-    tokio::task::spawn_blocking(move || {
-        if !check_is_repo(&path) {
-            return Err("Not a git repository".into());
-        }
-
-        let raw = git_helpers::git_cmd(&path, ["remote", "get-url", "origin"])
-            .map_err(|_| "No remote 'origin' configured".to_string())?;
-
-        if raw.is_empty() {
-            return Err("No remote 'origin' configured".into());
-        }
-
-        Ok(to_web_url(&raw))
-    })
-    .await
-    .map_err(|e| e.to_string())?
-}
-
-#[tauri::command]
 pub async fn git_fetch(path: String) -> Result<String, String> {
     tokio::task::spawn_blocking(move || {
         if !check_is_repo(&path) {
@@ -1020,27 +1000,6 @@ pub async fn git_discard_changes(path: String, remove_untracked: bool) -> Result
     .map_err(|e| e.to_string())?
 }
 
-/// Lists the untracked files and directories that `git clean -fd` would delete,
-/// without touching anything, so the UI can confirm before any destructive step.
-#[tauri::command]
-pub async fn git_discard_dry_run(path: String) -> Result<Vec<String>, String> {
-    tokio::task::spawn_blocking(move || {
-        if !check_is_repo(&path) {
-            return Err("Not a git repository".into());
-        }
-        let out = git_helpers::git_cmd(&path, ["clean", "-nd"]).map_err(|e| e.to_string())?;
-        let files = out
-            .lines()
-            .filter_map(|line| line.strip_prefix("Would remove "))
-            .map(|s| s.trim_end().to_string())
-            .filter(|s| !s.is_empty())
-            .collect();
-        Ok(files)
-    })
-    .await
-    .map_err(|e| e.to_string())?
-}
-
 #[tauri::command]
 pub async fn git_discard_file(path: String, file_path: String) -> Result<(), String> {
     tokio::task::spawn_blocking(move || {
@@ -1050,34 +1009,6 @@ pub async fn git_discard_file(path: String, file_path: String) -> Result<(), Str
         git_helpers::git_cmd(&path, ["restore", "--staged", "--worktree", &file_path])
             .map_err(|e| e.to_string())?;
         Ok(())
-    })
-    .await
-    .map_err(|e| e.to_string())?
-}
-
-#[tauri::command]
-pub async fn git_init(path: String) -> Result<String, String> {
-    tokio::task::spawn_blocking(move || {
-        let dir = PathBuf::from(&path);
-        if !dir.exists() {
-            return Err("Path does not exist".into());
-        }
-        if check_is_repo(&path) {
-            return Err("Already a git repository".into());
-        }
-
-        let stdout = git_helpers::git_command()
-            .args(["init", &path])
-            .output()
-            .map_err(|e| format!("Failed to init git: {e}"))
-            .and_then(|out| {
-                if !out.status.success() {
-                    let stderr = String::from_utf8_lossy(&out.stderr).trim().to_string();
-                    return Err(format!("Git init failed: {stderr}"));
-                }
-                Ok(String::from_utf8_lossy(&out.stdout).trim().to_string())
-            })?;
-        Ok(stdout)
     })
     .await
     .map_err(|e| e.to_string())?
@@ -1347,38 +1278,6 @@ pub async fn git_commit(path: String, message: String, amend: bool) -> Result<St
     .map_err(|e| e.to_string())?
 }
 #[tauri::command]
-pub async fn git_set_remote(path: String, url: String) -> Result<(), String> {
-    tokio::task::spawn_blocking(move || {
-        if !check_is_repo(&path) {
-            return Err("Not a git repository".into());
-        }
-
-        let remotes = git_helpers::git_cmd(&path, ["remote"]).unwrap_or_default();
-        let has_origin = remotes.lines().any(|l| l.trim() == "origin");
-
-        let verb = if has_origin { "set-url" } else { "add" };
-        git_helpers::git_cmd(&path, ["remote", verb, "origin", &url]).map_err(|e| e.to_string())?;
-
-        Ok(())
-    })
-    .await
-    .map_err(|e| e.to_string())?
-}
-
-#[tauri::command]
-pub async fn git_remove_remote(path: String) -> Result<(), String> {
-    tokio::task::spawn_blocking(move || {
-        if !check_is_repo(&path) {
-            return Err("Not a git repository".into());
-        }
-        git_helpers::git_cmd(&path, ["remote", "remove", "origin"]).map_err(|e| e.to_string())?;
-        Ok(())
-    })
-    .await
-    .map_err(|e| e.to_string())?
-}
-
-#[tauri::command]
 pub async fn git_undo_commit(path: String) -> Result<(), String> {
     tokio::task::spawn_blocking(move || {
         if !check_is_repo(&path) {
@@ -1561,66 +1460,6 @@ pub async fn open_terminal(_app: tauri::AppHandle, path: String) -> Result<(), S
         {
             let script = format!(
                 "#!/bin/sh\ncd '{}' && exec ${{SHELL:-bash}}\n",
-                path.replace('\'', "'\\''")
-            );
-            crate::terminal::spawn_shell_script_in_terminal(&_app, &script)?;
-        }
-
-        Ok(())
-    })
-    .await
-    .map_err(|e| e.to_string())?
-}
-
-#[tauri::command]
-pub async fn git_log(_app: tauri::AppHandle, path: String) -> Result<(), String> {
-    tokio::task::spawn_blocking(move || {
-        let dir = PathBuf::from(&path);
-        if !dir.exists() {
-            return Err("Path does not exist".into());
-        }
-        if !check_is_repo(&path) {
-            return Err("Not a git repository".into());
-        }
-
-        #[cfg(target_os = "windows")]
-        {
-            Command::new("cmd")
-                .args([
-                    "/C",
-                    "start",
-                    "Git Log",
-                    "cmd",
-                    "/K",
-                    "git log --oneline --graph -25 --all",
-                ])
-                .current_dir(&dir)
-                .spawn()
-                .map_err(|e| e.to_string())?;
-        }
-
-        #[cfg(target_os = "macos")]
-        {
-            let quoted = format!("'{}'", path.replace('\'', "'\\''"));
-            let command = format!("cd {quoted} && git log --oneline --graph -25 --all");
-            let script = format!(
-                r#"tell application "Terminal"
-                    activate
-                    do script "{}"
-                end tell"#,
-                command.replace('\\', "\\\\").replace('"', "\\\"")
-            );
-            Command::new("osascript")
-                .arg("-e")
-                .arg(&script)
-                .spawn()
-                .map_err(|e| e.to_string())?;
-        }
-
-        #[cfg(all(unix, not(target_os = "macos")))]
-        {
-            let script = format!(
-                "#!/bin/sh\ncd '{}' && git log --oneline --graph -25 --all\nexec sh\n",
                 path.replace('\'', "'\\''")
             );
             crate::terminal::spawn_shell_script_in_terminal(&_app, &script)?;

@@ -1,6 +1,5 @@
 import { invoke } from '@tauri-apps/api/core'
 import type {
-  VaultImportResult,
   VaultItem,
   VaultProjectImportResult,
   VaultSaveSource,
@@ -19,12 +18,6 @@ export const vaultApi = {
       description,
       tags,
       sources,
-    }),
-  addToProject: (itemId: string, projectId: string, overwrite: boolean) =>
-    invoke<VaultImportResult>('add_vault_item_to_project', {
-      itemId,
-      projectId,
-      overwrite,
     }),
   addToProjects: (itemId: string, projectIds: string[], overwrite: boolean) =>
     invoke<VaultProjectImportResult[]>('add_vault_item_to_projects', {

@@ -16,8 +16,6 @@ export const gitApi = {
     invoke<string>('git_push', { path, force: force ?? false }),
   pushForce: (path: string) =>
     invoke<string>('git_push', { path, force: true }),
-  log: (path: string) =>
-    invoke<void>('git_log', { path }),
   logEntries: (path: string) =>
     invoke<GitLogEntry[]>('git_log_entries', { path }),
   listRemotes: (path: string) =>
@@ -30,8 +28,6 @@ export const gitApi = {
     invoke<void>('start_git_fs_watcher', { path }),
   stopFsWatcher: () =>
     invoke<void>('stop_git_fs_watcher'),
-  remoteUrl: (path: string) =>
-    invoke<string>('git_remote_url', { path }),
   listBranches: (path: string) =>
     invoke<GitBranchInfo[]>('git_list_branches', { path }),
   switchBranch: (path: string, name: string) =>
@@ -58,12 +54,8 @@ export const gitApi = {
     invoke<GitChangedFile[]>('git_changed_files', { path }),
   discardChanges: (path: string, removeUntracked: boolean) =>
     invoke<void>('git_discard_changes', { path, removeUntracked }),
-  discardDryRun: (path: string) =>
-    invoke<string[]>('git_discard_dry_run', { path }),
   discardFile: (path: string, filePath: string) =>
     invoke<void>('git_discard_file', { path, filePath }),
-  init: (path: string) =>
-    invoke<string>('git_init', { path }),
   initProject: (path: string, options?: GitInitOptions) =>
     invoke<GitInitOutcome>('git_init_project', {
       path,
@@ -77,10 +69,6 @@ export const gitApi = {
     invoke<void>('git_unstage_file', { path, filePath }),
   commit: (path: string, message: string, amend?: boolean) =>
     invoke<string>('git_commit', { path, message, amend: amend ?? false }),
-  setRemote: (path: string, url: string) =>
-    invoke<void>('git_set_remote', { path, url }),
-  removeRemote: (path: string) =>
-    invoke<void>('git_remove_remote', { path }),
   fileDiff: (path: string, filePath: string) =>
     invoke<GitDiffResult>('git_file_diff', { path, filePath }),
   undoCommit: (path: string) =>

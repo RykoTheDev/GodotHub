@@ -8,15 +8,6 @@ export type ProjectSearchField =
   | 'path'
   | 'pinned'
 
-export const PROJECT_SEARCH_FIELDS: ProjectSearchField[] = [
-  'name',
-  'tag',
-  'category',
-  'version',
-  'path',
-  'pinned',
-]
-
 const FIELD_ALIASES: Record<string, ProjectSearchField> = {
   name: 'name',
   tag: 'tag',

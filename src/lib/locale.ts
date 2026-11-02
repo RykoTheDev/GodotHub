@@ -22,13 +22,6 @@ export function formatLocaleDate(
   return date.toLocaleDateString(uiLocale(), options)
 }
 
-export function formatLocaleTime(
-  date: Date,
-  options?: Intl.DateTimeFormatOptions,
-): string {
-  return date.toLocaleTimeString(uiLocale(), options)
-}
-
 export function formatLocaleDateTime(
   date: Date,
   options?: Intl.DateTimeFormatOptions,
@@ -36,12 +29,3 @@ export function formatLocaleDateTime(
   return date.toLocaleString(uiLocale(), options)
 }
 
-export function formatRelativeTime(
-  value: number,
-  unit: Intl.RelativeTimeFormatUnit,
-): string {
-  return new Intl.RelativeTimeFormat(uiLocale(), { numeric: 'auto' }).format(
-    value,
-    unit,
-  )
-}

@@ -1354,28 +1354,6 @@ pub fn reorder_projects(app: AppHandle, ordered_ids: Vec<String>) -> Result<(), 
     write_projects(&app, &projects)
 }
 
-#[tauri::command]
-pub async fn set_project_version(app: AppHandle, id: String, tag: String) -> Result<(), String> {
-    if !crate::godot_versions::read_registry(&app)
-        .iter()
-        .any(|v| v.tag == tag)
-    {
-        return Err("That Godot version is not installed".into());
-    }
-    let mut projects = read_projects(&app);
-    let project = projects
-        .iter_mut()
-        .find(|p| p.id == id)
-        .ok_or("Project not found")?;
-    project.godot_version = tag.clone();
-    let path = project.path.clone();
-    write_projects(&app, &projects)?;
-    if !crate::project_identity::set_project_version(&path, Some(&tag)) {
-        return Err("Could not write the project version pin".into());
-    }
-    Ok(())
-}
-
 pub(crate) fn split_launch_args(raw: &str) -> Vec<String> {
     shlex::split(raw).unwrap_or_else(|| raw.split_whitespace().map(str::to_string).collect())
 }
@@ -2193,17 +2171,6 @@ pub async fn get_project_name(path: String) -> Option<String> {
         .await
         .ok()
         .flatten()
-}
-
-#[tauri::command]
-pub async fn validate_godot_folder(path: String, app: AppHandle) -> Option<GodotFolderPreview> {
-    let godot_path = std::path::PathBuf::from(&path).join("project.godot");
-    if !godot_path.exists() {
-        return None;
-    }
-    let name = resolve_project_name(&path)?;
-    let icon = get_project_icon(path, app).await;
-    Some(GodotFolderPreview { name, icon })
 }
 
 #[tauri::command]
