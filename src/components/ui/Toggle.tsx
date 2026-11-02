@@ -20,8 +20,8 @@ export function Toggle({ checked, onChange, label, disabled }: Props) {
       } ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:brightness-110'}`}
     >
       <span
-        style={{ left: checked ? 23 : 3 }}
-        className="absolute top-[3px] block w-5 h-5 rounded-full bg-white shadow-md transition-[left,scale] duration-500 ease-spring group-active/toggle:scale-x-125 group-active/toggle:scale-y-90"
+        style={{ left: checked ? 'calc(100% - var(--spacing) * 5 - 3px)' : 3 }}
+        className="absolute top-1/2 -translate-y-1/2 block w-5 h-5 rounded-full bg-white shadow-md transition-[left,scale] duration-500 ease-spring group-active/toggle:scale-x-125 group-active/toggle:scale-y-90"
       />
     </button>
   )

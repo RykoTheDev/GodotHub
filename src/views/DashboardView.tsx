@@ -432,7 +432,7 @@ function StatCard({
         </span>
       </div>
 
-      <span className="relative z-10 mt-3 block text-[26px] leading-none font-bold tabular-nums text-ink">
+      <span className="relative z-10 mt-3 block text-[1.625rem] leading-none font-bold tabular-nums text-ink">
         {display ?? value}
       </span>
       <span
@@ -1556,10 +1556,10 @@ export function DashboardView({
       </section>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
+        className={`flex-1 min-w-0 ${connected ? '' : '-ms-2 -me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
       >
-        <div className={` flex flex-col gap-6 ${connected ? 'ps-3' : ''} pe-5 pb-4`}>
+        <div className={` flex flex-col gap-6 ${connected ? 'ps-3' : 'ps-2'} pe-5 pb-4`}>
           <div className="mt-1.5 flex items-center justify-between gap-3 flex-wrap">
             {isEnabled('quick_actions') ? (
               <QuickActions />

@@ -350,7 +350,7 @@ export function Sidebar({
         className="inline-flex transition-transform duration-500 ease-spring"
         style={{ transform: collapsed ? 'rotate(180deg)' : 'rotate(0deg)' }}
       >
-        <IconChevronsLeft className={`w-4 h-4 rtl:-scale-x-100 ${collapsed ? 'pe-0' : 'pe-2'}`} />
+        <IconChevronsLeft className="w-4 h-4 rtl:-scale-x-100" />
       </span>
     </button>
     </Tooltip>

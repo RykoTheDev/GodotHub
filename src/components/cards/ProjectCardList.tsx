@@ -15,6 +15,7 @@ import { hasOnlyPinnedProjects, UNCATEGORIZED_KEY } from '../../lib/projectDrag'
 import { AUTO_SCROLL_CONFIG } from '../../lib/dragFeel'
 import { useProjectDnd } from '../../hooks/useProjectDnd'
 import {
+  PROJECT_DROP_ANIMATION,
   ProjectDragOverlay,
   ProjectDropLine,
   SortableProjectItem,
@@ -31,6 +32,7 @@ interface ProjectCardListProps {
   categories?: Category[]
   categoriesEnabled?: boolean
   onReorder?: (orderedIds: string[]) => Promise<void>
+  onReorderPinned?: (orderedIds: string[]) => Promise<void>
   onMoveProjects?: (
     ids: string[],
     category: string,
@@ -53,6 +55,7 @@ export function ProjectCardList({
   categories = [],
   categoriesEnabled = false,
   onReorder,
+  onReorderPinned,
   onMoveProjects,
   hiddenCategories = [],
   onUnhideCategory,
@@ -120,6 +123,15 @@ export function ProjectCardList({
     onMoveProjects,
   })
 
+  const pinnedDnd = useProjectDnd({
+    projects: pinnedProjects,
+    categories,
+    grouped: false,
+    prefixes: { category: 'list-pinned-cat-' },
+    selectedIds,
+    onReorder: onReorderPinned,
+  })
+
   const cardBody = (p: Project) => renderCard(p)
 
   const animatedCard = (p: Project) => (
@@ -128,7 +140,51 @@ export function ProjectCardList({
     </div>
   )
 
-  const pinnedCard = animatedCard
+  const pinnedCard = (p: Project) =>
+    onReorderPinned ? (
+      <SortableProjectItem
+        key={p.id}
+        id={p.id}
+        carried={pinnedDnd.activeIds.includes(p.id)}
+        static={pinnedDnd.activeIds.length > 1}
+      >
+        {animatedCard(p)}
+      </SortableProjectItem>
+    ) : (
+      animatedCard(p)
+    )
+
+  const pinnedBlock = onReorderPinned ? (
+    <DndContext
+      key="pinned-projects"
+      sensors={pinnedDnd.sensors}
+      collisionDetection={pinnedDnd.collisionDetection ?? closestCenter}
+      autoScroll={AUTO_SCROLL_CONFIG}
+      onDragStart={pinnedDnd.handleDragStart}
+      onDragEnd={pinnedDnd.handleDragEnd}
+      onDragCancel={pinnedDnd.handleDragCancel}
+    >
+      <SortableContext
+        items={pinnedProjects.map((p) => p.id)}
+        strategy={verticalListSortingStrategy}
+      >
+        {pinnedProjects.map((p) => pinnedCard(p))}
+      </SortableContext>
+      <ProjectDropLine placement={pinnedDnd.placementRef} activeIds={pinnedDnd.activeIds} reflows={pinnedDnd.reflows} />
+      <DragOverlay dropAnimation={PROJECT_DROP_ANIMATION}>
+        {pinnedDnd.activeProject ? (
+          <ProjectDragOverlay
+            innerRef={pinnedDnd.overlayRef}
+            count={pinnedDnd.activeIds.length}
+          >
+            {cardBody(pinnedDnd.activeProject)}
+          </ProjectDragOverlay>
+        ) : null}
+      </DragOverlay>
+    </DndContext>
+  ) : (
+    pinnedProjects.map((p) => pinnedCard(p))
+  )
 
   const sortableCard = (p: Project) => (
     <SortableProjectItem
@@ -136,8 +192,6 @@ export function ProjectCardList({
       id={p.id}
       carried={dnd.activeIds.includes(p.id)}
       static={dnd.activeIds.length > 1}
-      className="px-2"
-      gripClassName="start-0.5"
     >
       {animatedCard(p)}
     </SortableProjectItem>
@@ -260,7 +314,7 @@ export function ProjectCardList({
               style={{ backgroundColor: 'var(--color-outline)' }}
             />,
             pinnedHeader,
-            ...pinnedProjects.map((p) => pinnedCard(p)),
+            pinnedBlock,
             <div
               key="pinned-bottom-divider"
               className="h-0.5 my-1 bg-outline"
@@ -290,15 +344,15 @@ export function ProjectCardList({
           >
             {list}
           </SortableContext>
-          <ProjectDropLine ignorePrefix="list-cat-" placement={dnd.placementRef} activeIds={dnd.activeIds} />
-          <DragOverlay dropAnimation={null}
+          <ProjectDropLine ignorePrefix="list-cat-" placement={dnd.placementRef} activeIds={dnd.activeIds} reflows={dnd.reflows} />
+          <DragOverlay dropAnimation={PROJECT_DROP_ANIMATION}
           >
             {dnd.activeProject ? (
               <ProjectDragOverlay
                 innerRef={dnd.overlayRef}
                 count={dnd.activeIds.length}
               >
-                <div className="px-2">{cardBody(dnd.activeProject)}</div>
+                {cardBody(dnd.activeProject)}
               </ProjectDragOverlay>
             ) : null}
           </DragOverlay>

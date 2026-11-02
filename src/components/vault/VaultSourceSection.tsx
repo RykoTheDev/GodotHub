@@ -51,7 +51,7 @@ export function VaultSourceSection({
   return (
     <div className="flex flex-col gap-2 rounded-item border border-outline/50 bg-overlay/40 p-3">
       <div className="flex items-center gap-2">
-        <span className="text-[10px] font-mono uppercase text-muted/60 shrink-0">
+        <span className="text-3xs font-mono uppercase text-muted/60 shrink-0">
           {t('vault_source_n', { index: index + 1 })}
         </span>
         <div className="flex-1 min-w-0">
@@ -79,7 +79,7 @@ export function VaultSourceSection({
             <label className="text-xs font-medium text-muted">
               {t('vault_select_files_label')}
             </label>
-            <span className="text-[10px] text-muted/60 font-mono">
+            <span className="text-3xs text-muted/60 font-mono">
               {t('vault_selected_count', { count: selected.size })}
             </span>
           </div>

@@ -153,7 +153,7 @@ export function ProjectCategorySection({
       </button>
 
       <div className={`grid ${open ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
-        <div className="overflow-hidden min-h-0">{body}</div>
+        <div className="overflow-hidden min-h-0 -mx-2 px-2">{body}</div>
       </div>
     </div>
   )

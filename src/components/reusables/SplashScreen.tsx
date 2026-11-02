@@ -30,7 +30,7 @@ export function SplashScreen() {
         <div className="flex flex-col items-center gap-3">
           <h1
             aria-label="GodotHub"
-            className="flex font-black italic tracking-tight leading-none text-ink text-[56px] perspective-[600px]"
+            className="flex font-black italic tracking-tight leading-none text-ink text-[3.5rem] perspective-[600px]"
           >
             {'GodotHub'.split('').map((letter, i) => (
               <span key={i} data-splash-letter aria-hidden="true" className="inline-block">

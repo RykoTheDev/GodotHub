@@ -292,10 +292,10 @@ export function ChangelogView({
       </ViewHeader>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
+        className={`flex-1 min-w-0 ${connected ? '' : '-ms-2 -me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
       >
-        <div className={`h-full ${connected ? 'ps-3' : ''} pe-5 pb-4`}>
+        <div className={`h-full ${connected ? 'ps-3' : 'ps-2'} pe-5 pb-4`}>
           {loading && entries.length === 0 ? (
             <div className="flex flex-col gap-4">
               {Array.from({ length: 3 }).map((_, i) => (

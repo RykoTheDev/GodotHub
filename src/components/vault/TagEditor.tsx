@@ -54,7 +54,7 @@ export function TagEditor({ tags, onChange }: Props) {
           {tags.map((tag) => (
             <span
               key={tag}
-              className="inline-flex items-center gap-1 pl-2.5 pr-1.5 py-1 rounded-tag bg-raised border border-outline/50 text-[11px] font-mono text-ink"
+              className="inline-flex items-center gap-1 pl-2.5 pr-1.5 py-1 rounded-tag bg-raised border border-outline/50 text-2xs font-mono text-ink"
             >
               {tag}
               <button

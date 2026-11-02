@@ -116,7 +116,7 @@ export function VaultFileTree({ entries }: { entries: VaultFileEntry[] }) {
           <span className="truncate">{node.name}</span>
 
           {!node.is_dir && node.size > 0 && (
-            <span className="ms-auto text-[10px] text-muted/50 font-mono shrink-0">
+            <span className="ms-auto text-3xs text-muted/50 font-mono shrink-0">
               {formatSize(node.size)}
             </span>
           )}
@@ -221,7 +221,7 @@ export function SelectableVaultFileTree({
           </span>
 
           {!node.is_dir && node.size > 0 && (
-            <span className="ms-auto text-[10px] text-muted/50 font-mono shrink-0">
+            <span className="ms-auto text-3xs text-muted/50 font-mono shrink-0">
               {formatSize(node.size)}
             </span>
           )}

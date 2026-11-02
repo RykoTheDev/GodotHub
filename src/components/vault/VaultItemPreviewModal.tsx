@@ -31,7 +31,7 @@ export function VaultItemPreviewModal({ item, onClose }: Props) {
             {item.tags.map((tag) => (
               <span
                 key={tag}
-                className="inline-flex items-center px-2 py-0.5 rounded-tag bg-raised border border-outline/50 text-[11px] font-mono text-muted"
+                className="inline-flex items-center px-2 py-0.5 rounded-tag bg-raised border border-outline/50 text-2xs font-mono text-muted"
               >
                 {tag}
               </span>
@@ -45,7 +45,7 @@ export function VaultItemPreviewModal({ item, onClose }: Props) {
           </div>
         ) : (
           <>
-            <div className="flex items-center gap-2 px-1 pb-2 text-[10px] text-muted/50 font-mono">
+            <div className="flex items-center gap-2 px-1 pb-2 text-3xs text-muted/50 font-mono">
               <IconInfo className="w-3 h-3" />
               {t('file_count', { count: fileCount })}
               {dirCount > 0 && ` · ${t('folder_count', { count: dirCount })}`}

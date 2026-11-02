@@ -21,7 +21,7 @@ import { ProjectSizeModal } from '../modals/ProjectSizeModal'
 import { ProjectDoctorModal } from '../modals/ProjectDoctorModal'
 import { ProjectBuildModal } from '../modals/ProjectBuildModal'
 import {
-  IconCheck, IconChevronDown, IconClock, IconCode, IconCopy, IconExternalLink,
+  IconChevronDown, IconClock, IconCode, IconCopy, IconExternalLink,
   IconGitBranch, IconHardDrive, IconHistory, IconNode, IconPin, IconPlay,
   IconPlus, IconRocket, IconTags, IconTerminal, IconTrash, IconX,
   IconBug,
@@ -110,7 +110,12 @@ export function ProjectTile({
 
   return (
     <article ref={cardRef} aria-label={displayName} data-card-view={viewMode} data-card-id={project.id}
-      className={`group/tile relative flex min-w-0 flex-col gap-3 rounded-item border  ${grid ? 'h-full min-h-[260px] p-4' : compact ? 'p-3' : 'p-3.5'} ${selected ? 'border-accent bg-accent/5 ring-1 ring-accent/25' : 'border-outline/50 bg-overlay hover:border-accent-dim/50'}`}>
+      onClick={(event) => {
+        if (preview || !(event.ctrlKey || event.metaKey || event.shiftKey)) return
+        if ((event.target as HTMLElement).closest("button, a, input, textarea, select, [role='button'], [role='menuitem']")) return
+        onToggleSelect?.(event)
+      }}
+      className={`group/tile relative flex min-w-0 flex-col gap-3 rounded-item border  ${grid ? 'h-full min-h-[260px] p-4' : compact ? 'p-3' : 'p-3.5'} ${selected ? 'border-accent bg-accent/5 ring-1 ring-accent/60' : 'border-outline/50 bg-overlay hover:border-accent-dim/50'}`}>
       <div className="flex items-start gap-3 min-w-0">
         <div aria-hidden="true" className={`flex shrink-0 items-center justify-center overflow-hidden rounded-tile border border-outline/40 bg-raised ${grid ? 'h-12 w-12' : compact ? 'h-9 w-9' : 'h-10 w-10'}`}>
           {icon && icon !== brokenIcon ? <img src={icon} onError={() => setBrokenIcon(icon)} alt="" draggable={false} decoding="async" className="h-full w-full object-contain p-1" />
@@ -123,10 +128,6 @@ export function ProjectTile({
             className={`${iconButton} ${project.pinned ? 'bg-accent/10 text-accent-bright hover:bg-accent/20' : 'text-muted/70 hover:bg-raised hover:text-ink'}`}>
             <IconPin className="h-3.5 w-3.5" />
           </button>
-          {onToggleSelect && <button type="button" disabled={preview} onClick={onToggleSelect} aria-label={t(selected ? 'project_deselect_aria' : 'project_select_aria')} aria-pressed={selected}
-            className={`${iconButton} ${selected ? 'bg-accent text-white' : 'border border-line bg-raised text-muted/60 hover:border-accent-dim hover:text-ink'}`}>
-            <IconCheck className={`h-3.5 w-3.5 ${selected ? '' : 'opacity-30'}`} />
-          </button>}
         </div>
       </div>
 

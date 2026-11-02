@@ -120,6 +120,7 @@ import {
   type ProjectSearchToken,
 } from '../lib/projectSearch'
 import { ViewHeader } from '../components/reusables/ViewHeader'
+import { Disclosure } from '../components/reusables/Disclosure'
 import { spin } from '../lib/motion'
 import { useGitStatusMap } from '../hooks/useGitStatusMap'
 import { CreateProjectModal } from '../components/modals/CreateProjectModal'
@@ -366,26 +367,6 @@ export function ProjectsView({
   }
 
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  const [selecting, setSelecting] = useState(false)
-
-  useEffect(() => {
-    const down = (e: KeyboardEvent) => {
-      if (e.key === 'Control') {
-        setSelecting(true)
-      }
-    }
-    const up = (e: KeyboardEvent) => {
-      if (e.key === 'Control') {
-        setSelecting(false)
-      }
-    }
-    window.addEventListener('keydown', down)
-    window.addEventListener('keyup', up)
-    return () => {
-      window.removeEventListener('keydown', down)
-      window.removeEventListener('keyup', up)
-    }
-  }, [])
 
   const [bulkTagsOpen, setBulkTagsOpen] = useState(false)
   const [duplicateProject, setDuplicateProject] = useState<Project | null>(null)
@@ -604,7 +585,7 @@ export function ProjectsView({
     const cmp = comparatorFor(effectiveSortBy, sortNow)
     return [...list].sort((a, b) => {
       if (a.pinned !== b.pinned) return a.pinned ? -1 : 1
-      if (a.pinned) return a.name.localeCompare(b.name)
+      if (a.pinned) return a.sort_order - b.sort_order || a.name.localeCompare(b.name)
       if (parsedQuery.active) {
         const scoreA = searchScores.get(a.id) ?? 0
         const scoreB = searchScores.get(b.id) ?? 0
@@ -694,8 +675,11 @@ export function ProjectsView({
   useEffect(() => {
     if (active) return
     clearSelection()
-    setSelecting(false)
   }, [active, clearSelection])
+
+  const lastSelectionCount = useRef(0)
+  if (selectedIds.size > 0) lastSelectionCount.current = selectedIds.size
+  const shownSelectionCount = selectedIds.size || lastSelectionCount.current
 
   const allVisibleSelected =
     filtered.length > 0 && filtered.every((p) => selectedIds.has(p.id))
@@ -1218,103 +1202,99 @@ export function ProjectsView({
       </div>
 
 
-        {selectedIds.size > 0 && (
-          <div key="selection-bar"
-
-
-            className="overflow-hidden shrink-0"
+        <Disclosure
+          id="project-selection-bar"
+          open={selectedIds.size > 0}
+          className="flex items-center gap-2 mb-3 px-3 py-2 rounded-item bg-accent/10 border border-accent-dim/40"
+        >
+          <Tooltip content={tc('select_all_visible')} side="bottom">
+            <button
+              type="button"
+              onClick={toggleSelectAllVisible}
+              aria-label={tc('select_all_visible')}
+              className={`focus-ring cursor-pointer w-5 h-5 rounded-item border-2 flex items-center justify-center  ${
+                allVisibleSelected
+                  ? 'bg-accent border-accent text-white'
+                  : 'border-muted/40 text-transparent hover:border-accent/60'
+              }`}
+            >
+              <IconCheck className="w-3 h-3" />
+            </button>
+          </Tooltip>
+          <span className="text-sm font-medium text-ink tabular-nums">
+            {tc('selected_count', { count: shownSelectionCount })}
+          </span>
+          <div className="flex-1" />
+          <button
+            type="button"
+            onClick={batchLaunch}
+            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-accent text-ink hover:bg-accent-bright "
           >
-            <div className="flex items-center gap-2 mb-3 px-3 py-2 rounded-item bg-accent/10 border border-accent-dim/40">
-              <Tooltip content={tc('select_all_visible')} side="bottom">
-                <button
-                  type="button"
-                  onClick={toggleSelectAllVisible}
-                  aria-label={tc('select_all_visible')}
-                  className={`focus-ring cursor-pointer w-5 h-5 rounded-item border-2 flex items-center justify-center  ${
-                    allVisibleSelected
-                      ? 'bg-accent border-accent text-white'
-                      : 'border-muted/40 text-transparent hover:border-accent/60'
-                  }`}
-                >
-                  <IconCheck className="w-3 h-3" />
-                </button>
-              </Tooltip>
-              <span className="text-sm font-medium text-ink tabular-nums">
-                {tc('selected_count', { count: selectedIds.size })}
-              </span>
-              <div className="flex-1" />
-              <button
-                type="button"
-                onClick={batchLaunch}
-                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-accent text-ink hover:bg-accent-bright "
-              >
-                <IconPlay className="w-3 h-3" />
-                <span className="text-xs font-medium">{tc('bulk_launch')}</span>
-              </button>
-              <button
-                type="button"
-                onClick={batchPin}
-                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-raised text-muted hover:text-ink hover:bg-overlay "
-              >
-                <IconPin className="w-3 h-3" />
-                <span className="text-xs font-medium">
-                  {tc('bulk_pin')}
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setBulkTagsOpen(true)}
-                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-raised text-muted hover:text-ink hover:bg-overlay "
-              >
-                <IconTags className="w-3 h-3" />
-                <span className="text-xs font-medium">
-                  {tc('bulk_tags')}
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setConfirmBatchAction('remove')}
-                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-raised text-muted hover:text-ink hover:bg-overlay "
-              >
-                <IconX className="w-3 h-3" />
-                <span className="text-xs font-medium">
-                  {tc('bulk_remove')}
-                </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setConfirmBatchAction('delete')}
-                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-danger/10 text-danger hover:bg-danger/20 "
-              >
-                <IconTrash className="w-3 h-3" />
-                <span className="text-xs font-medium">
-                  {tc('delete')}
-                </span>
-              </button>
-              <Tooltip content={tc('clear_selection')} side="bottom">
-                <button
-                  type="button"
-                  onClick={clearSelection}
-                  aria-label={tc('clear_selection')}
-                  className="focus-ring cursor-pointer w-8 h-8 rounded-btn flex items-center justify-center text-muted hover:text-ink hover:bg-overlay "
-                >
-                  <IconX className="w-3.5 h-3.5" />
-                </button>
-              </Tooltip>
-            </div>
-          </div>
-        )}
+            <IconPlay className="w-3 h-3" />
+            <span className="text-xs font-medium">{tc('bulk_launch')}</span>
+          </button>
+          <button
+            type="button"
+            onClick={batchPin}
+            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-raised text-muted hover:text-ink hover:bg-overlay "
+          >
+            <IconPin className="w-3 h-3" />
+            <span className="text-xs font-medium">
+              {tc('bulk_pin')}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setBulkTagsOpen(true)}
+            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-raised text-muted hover:text-ink hover:bg-overlay "
+          >
+            <IconTags className="w-3 h-3" />
+            <span className="text-xs font-medium">
+              {tc('bulk_tags')}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setConfirmBatchAction('remove')}
+            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-raised text-muted hover:text-ink hover:bg-overlay "
+          >
+            <IconX className="w-3 h-3" />
+            <span className="text-xs font-medium">
+              {tc('bulk_remove')}
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setConfirmBatchAction('delete')}
+            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3 rounded-btn bg-danger/10 text-danger hover:bg-danger/20 "
+          >
+            <IconTrash className="w-3 h-3" />
+            <span className="text-xs font-medium">
+              {tc('delete')}
+            </span>
+          </button>
+          <Tooltip content={tc('clear_selection')} side="bottom">
+            <button
+              type="button"
+              onClick={clearSelection}
+              aria-label={tc('clear_selection')}
+              className="focus-ring cursor-pointer w-8 h-8 rounded-btn flex items-center justify-center text-muted hover:text-ink hover:bg-overlay "
+            >
+              <IconX className="w-3.5 h-3.5" />
+            </button>
+          </Tooltip>
+        </Disclosure>
 
       </div>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
+        className={`flex-1 min-w-0 ${connected ? '' : '-ms-2 -me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
         scrollToTopOn={`${tagFilter ?? ''}-${categoryFilter ?? ''}`}
         scrollRef={viewportRef}
       >
         <div
-          className={`h-full ${connected ? 'ps-5' : ''} pe-5 pb-4 flex flex-col gap-2`}
+          className={`h-full ${connected ? 'ps-5' : 'ps-2'} pe-5 pb-4 flex flex-col gap-2`}
         >
         {error && projects.length === 0 ? (
           <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center py-16">
@@ -1357,7 +1337,6 @@ export function ProjectsView({
             activeTag={tagFilter}
             selectedIds={selectedIds}
             onToggleSelect={(id, e) => toggleSelect(id, e)}
-            selecting={selecting}
             onReorder={dragEnabled ? handleKanbanReorder : undefined}
             onMoveProjects={
               dragEnabled && settings.categories_enabled
@@ -1395,7 +1374,6 @@ export function ProjectsView({
             activeTag={tagFilter}
             selectedIds={selectedIds}
             onToggleSelect={(id, e) => toggleSelect(id, e)}
-            selecting={selecting}
             onReorder={dragEnabled ? handleListReorder : undefined}
             onMoveProjects={
               dragEnabled && categoriesEnabled ? handleMoveProjects : undefined
@@ -1412,6 +1390,7 @@ export function ProjectsView({
             categories={surfaceCategories}
             categoriesEnabled={groupingEnabled}
             onReorder={dragEnabled ? handleListReorder : undefined}
+            onReorderPinned={dragEnabled ? reorder : undefined}
             onMoveProjects={
               dragEnabled && categoriesEnabled ? handleMoveProjects : undefined
             }
@@ -1447,7 +1426,7 @@ export function ProjectsView({
                 }
                 activeTag={tagFilter}
                 selected={selectedIds.has(p.id)}
-                onToggleSelect={(selecting || selectedIds.size > 0) ? (e) => toggleSelect(p.id, e) : undefined}
+                onToggleSelect={(e) => toggleSelect(p.id, e)}
                 viewMode={viewMode}
               />
             )}

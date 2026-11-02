@@ -210,6 +210,17 @@ export function useProjectDnd({
 
   const activeProject = activeId ? byId.get(activeId) ?? null : null
 
+  const reflows = useCallback(
+    (dragId: string, overId: string) => {
+      if (activeIds.length > 1) return false
+      const dragged = byId.get(dragId)
+      const over = byId.get(overId)
+      if (!dragged || !over) return false
+      return !grouped || categoryKeyOf(dragged) === categoryKeyOf(over)
+    },
+    [activeIds.length, byId, grouped],
+  )
+
   return {
     sensors,
     activeId,
@@ -218,6 +229,7 @@ export function useProjectDnd({
     overlayRef,
     collisionDetection,
     placementRef,
+    reflows,
     handleDragStart,
     handleDragEnd,
     handleDragCancel,

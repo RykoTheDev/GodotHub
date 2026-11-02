@@ -168,7 +168,7 @@ export function VaultView({
             type="button"
 
             onClick={() => setSaveOpen(true)}
-            className="focus-ring cursor-pointer flex items-center gap-1.5 px-6 h-10 rounded-item bg-accent hover:bg-accent-bright text-white font-semibold text-[17px] "
+            className="focus-ring cursor-pointer flex items-center gap-1.5 px-6 h-10 rounded-item bg-accent hover:bg-accent-bright text-white font-semibold text-[1.0625rem] "
           >
             <IconPlus className="w-4 h-4" />
             {tc('vault_save_btn')}
@@ -193,7 +193,7 @@ export function VaultView({
                   key={tag}
                   type="button"
                   onClick={() => toggleTag(tag)}
-                  className={`focus-ring cursor-pointer px-2.5 py-1 rounded-tag text-[11px] font-mono  ${
+                  className={`focus-ring cursor-pointer px-2.5 py-1 rounded-tag text-2xs font-mono  ${
                     active
                       ? 'bg-accent text-white'
                       : 'bg-overlay text-muted hover:text-ink hover:bg-raised'
@@ -208,12 +208,12 @@ export function VaultView({
       </ViewHeader>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
+        className={`flex-1 min-w-0 ${connected ? '' : '-ms-2 -me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
         topButtonBottom="bottom-17"
       >
         <div
-          className={`h-full ${connected ? 'ps-5' : ''} pe-5 pb-4 flex flex-col gap-2`}
+          className={`h-full ${connected ? 'ps-5' : 'ps-2'} pe-5 pb-4 flex flex-col gap-2`}
         >
           {!loaded ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -257,8 +257,8 @@ export function VaultView({
                         onClick={toggle}
                         className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised "
                       >
-                        <span className="text-[12px] text-muted">{tc('sort')}:</span>
-                        <span className="text-[13px] font-medium text-ink">
+                        <span className="text-[0.75rem] text-muted">{tc('sort')}:</span>
+                        <span className="text-[0.8125rem] font-medium text-ink">
                           {activeOption ? tc(activeOption.labelKey) : tc('sort')}
                         </span>
                         <IconChevronDown className="w-3 h-3 text-muted" />
@@ -327,19 +327,19 @@ export function VaultView({
                           {item.tags.slice(0, 4).map((tag) => (
                             <span
                               key={tag}
-                              className="inline-flex items-center px-1.5 py-0.5 rounded-tag bg-raised border border-outline/50 text-[10px] font-mono text-muted"
+                              className="inline-flex items-center px-1.5 py-0.5 rounded-tag bg-raised border border-outline/50 text-3xs font-mono text-muted"
                             >
                               {tag}
                             </span>
                           ))}
                           {item.tags.length > 4 && (
-                            <span className="text-[10px] text-muted/50 font-mono">
+                            <span className="text-3xs text-muted/50 font-mono">
                               +{item.tags.length - 4}
                             </span>
                           )}
                         </div>
                       )}
-                      <div className="flex items-center gap-1.5 text-[10px] text-muted/50 font-mono">
+                      <div className="flex items-center gap-1.5 text-3xs text-muted/50 font-mono">
                         {item.godot_version && (
                           <span>
                             {tc('godot')} {item.godot_version}

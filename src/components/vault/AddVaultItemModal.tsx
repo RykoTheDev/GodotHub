@@ -129,13 +129,13 @@ export function AddVaultItemModal({ item, projects, onClose }: Props) {
             <div className="rounded-item border border-outline/50 bg-base max-h-56 overflow-y-auto p-2 flex flex-col gap-2">
               {conflictProjects.map((result) => (
                 <div key={result.project_id} className="flex flex-col gap-0.5">
-                  <span className="text-[11px] font-semibold text-ink px-1">
+                  <span className="text-2xs font-semibold text-ink px-1">
                     {projectName(result.project_id)}
                   </span>
                   {result.conflicts.map((path) => (
                     <span
                       key={path}
-                      className="text-[11px] font-mono text-muted truncate px-1 py-0.5 ps-3"
+                      className="text-2xs font-mono text-muted truncate px-1 py-0.5 ps-3"
                     >
                       {path}
                     </span>
@@ -150,7 +150,7 @@ export function AddVaultItemModal({ item, projects, onClose }: Props) {
               <label className="text-xs font-medium text-muted">
                 {t('vault_target_projects_label')}
               </label>
-              <span className="text-[10px] text-muted/60 font-mono">
+              <span className="text-3xs text-muted/60 font-mono">
                 {t('vault_selected_count', { count: selectedIds.size })}
               </span>
             </div>

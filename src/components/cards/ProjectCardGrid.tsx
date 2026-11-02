@@ -18,6 +18,7 @@ import { UNCATEGORIZED_KEY } from '../../lib/projectDrag'
 import { AUTO_SCROLL_CONFIG } from '../../lib/dragFeel'
 import { useProjectDnd } from '../../hooks/useProjectDnd'
 import {
+  PROJECT_DROP_ANIMATION,
   ProjectDragOverlay,
   ProjectDropLine,
   SortableProjectItem,
@@ -43,7 +44,6 @@ interface ProjectCardGridProps {
   activeTag?: string | null
   selectedIds: Set<string>
   onToggleSelect?: (id: string, e: React.MouseEvent) => void
-  selecting: boolean
   onReorder?: (orderedIds: string[]) => Promise<void>
   onMoveProjects?: (
     ids: string[],
@@ -80,7 +80,6 @@ export function ProjectCardGrid({
   activeTag,
   selectedIds,
   onToggleSelect,
-  selecting,
   onReorder,
   onMoveProjects,
   hiddenCategories = [],
@@ -141,11 +140,7 @@ export function ProjectCardGrid({
           onShowGitSidebar={onShowGitSidebar ? () => onShowGitSidebar(p, gitStatusMap[p.path] ?? null) : undefined}
           activeTag={activeTag}
           selected={selectedIds.has(p.id)}
-          onToggleSelect={
-            selecting || selectedIds.size > 0
-              ? (e) => onToggleSelect?.(p.id, e)
-              : undefined
-          }
+          onToggleSelect={(e) => onToggleSelect?.(p.id, e)}
         />
       </div>
     )
@@ -158,7 +153,6 @@ export function ProjectCardGrid({
           className="h-full min-w-0"
           static={dnd.activeIds.length > 1}
           carried={dnd.activeIds.includes(p.id)}
-          gripClassName="start-1"
         >
           {card}
         </SortableProjectItem>
@@ -254,8 +248,8 @@ export function ProjectCardGrid({
           onDragCancel={dnd.handleDragCancel}
         >
           <SortableContext items={sortableIds} strategy={rectSortingStrategy}>{allContent}</SortableContext>
-          <ProjectDropLine ignorePrefix="grid-cat-" placement={dnd.placementRef} activeIds={dnd.activeIds} />
-          <DragOverlay dropAnimation={null}
+          <ProjectDropLine ignorePrefix="grid-cat-" placement={dnd.placementRef} activeIds={dnd.activeIds} reflows={dnd.reflows} />
+          <DragOverlay dropAnimation={PROJECT_DROP_ANIMATION}
           >
             {activeProject ? (
               <ProjectDragOverlay
@@ -270,7 +264,6 @@ export function ProjectCardGrid({
                   gitStatus={gitStatusMap[activeProject.path] ?? null}
                   launchWithConsole={launchWithConsole}
                   selected={selectedIds.has(activeProject.id)}
-                  onToggleSelect={selecting || selectedIds.size > 0 ? () => {} : undefined}
                   onShowGitSidebar={onShowGitSidebar ? () => {} : undefined}
                   activeTag={activeTag}
                   onTogglePin={() => {}}

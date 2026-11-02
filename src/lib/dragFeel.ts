@@ -3,6 +3,20 @@ export const DRAG_FEEL = {
 
   ghostOpacity: 0.22,
 
+  reflow: {
+    duration: 220,
+    easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+  },
+
+  drop: {
+    duration: 260,
+    easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+  },
+
+  lift: {
+    scale: 1.02,
+  },
+
   dropLine: {
     height: 2,
     dot: 4,

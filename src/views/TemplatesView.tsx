@@ -273,7 +273,7 @@ export function TemplatesView({
                   onClick={() =>
                     api.openProjectFolder(settings.template_scan_dir!)
                   }
-                  className="focus-ring cursor-pointer flex items-center justify-center px-6 h-10 rounded-item bg-overlay shadow-md shadow-black/10 border border-outline/50 hover:bg-raised text-muted hover:text-ink font-semibold text-[17px] "
+                  className="focus-ring cursor-pointer flex items-center justify-center px-6 h-10 rounded-item bg-overlay shadow-md shadow-black/10 border border-outline/50 hover:bg-raised text-muted hover:text-ink font-semibold text-[1.0625rem] "
                 >
                   {tc('open_folder')}
                 </button>
@@ -313,12 +313,12 @@ export function TemplatesView({
       </ViewHeader>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
+        className={`flex-1 min-w-0 ${connected ? '' : '-ms-2 -me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
         topButtonBottom="bottom-17"
       >
         <div
-          className={`h-full ${connected ? 'ps-5' : ''} pe-5 pb-4 flex flex-col gap-2`}
+          className={`h-full ${connected ? 'ps-5' : 'ps-2'} pe-5 pb-4 flex flex-col gap-2`}
         >
           {tab === 'local' ? (
             <>

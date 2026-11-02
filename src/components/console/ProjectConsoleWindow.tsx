@@ -749,7 +749,7 @@ export function ProjectConsoleWindow() {
             <div
               ref={scrollRef}
               onScroll={handleScroll}
-              className="flex-1 min-h-0 overflow-y-auto bg-black/35 px-3 py-2 font-mono text-[11.5px] leading-[1.55] text-[#d7dae0]"
+              className="flex-1 min-h-0 overflow-y-auto bg-black/35 px-3 py-2 font-mono text-[0.71875rem] leading-[1.55] text-[#d7dae0]"
             >
               {activeState?.restored && (
                 <p className="pb-2 text-3xs text-muted/60">

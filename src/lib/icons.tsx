@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import type { IconDefinition } from '@fortawesome/fontawesome-svg-core'
+import { config, type IconDefinition } from '@fortawesome/fontawesome-svg-core'
 import {
   faGithub as faGithubBrand,
   faGitlab as faGitlabBrand,
@@ -85,6 +85,8 @@ import {
   faEye,
   faEyeSlash,
 } from '@fortawesome/free-solid-svg-icons'
+
+config.autoAddCss = false
 
 export interface IconProps extends Omit<React.SVGProps<SVGSVGElement>, 'ref'> {
   fill?: string

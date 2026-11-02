@@ -5,7 +5,7 @@ import { api } from '../../lib/api'
 import { Dropdown, type NewDropdownItem } from '../ui/Dropdown'
 
 const TOOL_BUTTON_CLASS =
-  'focus-ring text-muted hover:text-ink font-semibold text-[17px] bg-overlay shadow-md shadow-black/10 border border-outline/50 hover:bg-raised cursor-pointer h-10 flex items-center '
+  'focus-ring text-muted hover:text-ink font-semibold text-[1.0625rem] bg-overlay shadow-md shadow-black/10 border border-outline/50 hover:bg-raised cursor-pointer h-10 flex items-center '
 
 interface ImportButtonProps {
   onImport: (folder: string) => Promise<void>

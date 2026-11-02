@@ -440,7 +440,7 @@ export function AssetLibraryBrowser({
 
                         onClick={() => install(asset)}
                         disabled={isInstalling}
-                        className={`focus-ring cursor-pointer flex items-center justify-center gap-1.5 w-full h-12 px-6 rounded-dropdown-btn font-semibold text-[17px] shadow-md shadow-black/10 border disabled:cursor-default ${
+                        className={`focus-ring cursor-pointer flex items-center justify-center gap-1.5 w-full h-12 px-6 rounded-dropdown-btn font-semibold text-[1.0625rem] shadow-md shadow-black/10 border disabled:cursor-default ${
                           isInstalled || isAlreadyPresent
                             ? 'bg-mint/10 text-mint border-mint/20'
                             : 'bg-accent text-ink hover:bg-accent-bright border-outline/50'

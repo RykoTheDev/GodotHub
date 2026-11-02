@@ -456,7 +456,7 @@ export function VersionsView({
 
 
                 onClick={() => setAliasModal({})}
-                className="focus-ring text-muted hover:text-ink font-semibold text-[17px] bg-overlay shadow-md shadow-black/10 border border-outline/50 hover:bg-raised cursor-pointer h-10 flex items-center px-6 rounded-item "
+                className="focus-ring text-muted hover:text-ink font-semibold text-[1.0625rem] bg-overlay shadow-md shadow-black/10 border border-outline/50 hover:bg-raised cursor-pointer h-10 flex items-center px-6 rounded-item "
               >
                 {tv('aliases_manage')}
               </button>
@@ -501,12 +501,12 @@ export function VersionsView({
       </ViewHeader>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
+        className={`flex-1 min-w-0 ${connected ? '' : '-ms-2 -me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
         topButtonBottom="bottom-17"
       >
         <div
-          className={`h-full ${connected ? 'ps-5' : ''} pe-5 pb-4 flex flex-col gap-2`}
+          className={`h-full ${connected ? 'ps-5' : 'ps-2'} pe-5 pb-4 flex flex-col gap-2`}
         >
         {installed.length === 0 && !isSearching ? (
           <div className="rounded-item border border-dashed border-outline/50 py-20 flex flex-col items-center gap-3 text-center px-6">

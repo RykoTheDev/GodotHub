@@ -233,11 +233,11 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
       </div>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
+        className={`flex-1 min-w-0 ${connected ? '' : '-ms-2 -me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
         topButtonBottom="bottom-14"
       >
-        <div className={`h-full ${connected ? 'ps-3' : ''} pe-5 pb-4`}>
+        <div className={`h-full ${connected ? 'ps-3' : 'ps-2'} pe-5 pb-4`}>
           <AssetStoreBrowser
             query={query}
             source={source}

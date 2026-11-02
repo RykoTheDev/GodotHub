@@ -26,7 +26,7 @@ export function Checkbox({ checked, indeterminate = false, onChange, label, disa
       } ${className}`}
     >
       <span
-        className={`shrink-0 inline-flex items-center justify-center w-[18px] h-[18px] rounded-sm border  ${
+        className={`shrink-0 inline-flex items-center justify-center size-4 rounded-sm border  ${
           active
             ? 'bg-accent border-accent-dim text-white'
             : 'bg-raised border-line text-transparent hover:border-accent-dim'

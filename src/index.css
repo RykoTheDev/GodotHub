@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import '@fortawesome/fontawesome-svg-core/styles.css' layer(base);
 
 @custom-variant rtl (&:where([dir="rtl"], [dir="rtl"] *));
 
@@ -366,6 +367,16 @@ span.w-2.h-2.rounded-full.bg-danger {
 
 .animate-spin {
   animation-timing-function: cubic-bezier(0.55, 0.15, 0.45, 0.85);
+}
+
+.motion-drag-lift {
+  animation: drag-lift 240ms var(--ease-spring) forwards;
+}
+
+@keyframes drag-lift {
+  to {
+    scale: var(--drag-lift, 1.02);
+  }
 }
 
 @keyframes focus-pop {
