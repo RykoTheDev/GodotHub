@@ -31,7 +31,6 @@
   "done": "已完成",
   "paused": "已暂停",
   "no_tasks_running": "没有正在运行的任务",
-  "no_tasks_desc": "后台操作（如下载 Godot 版本、扫描项目和版本、同步模板、克隆仓库）会显示在此处。",
   "checking_changes": "正在检查变更…",
   "cloning": "克隆中…",
   "clone_import": "克隆并导入",

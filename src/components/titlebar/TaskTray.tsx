@@ -380,14 +380,9 @@ export function TaskTray() {
                     <div className="w-10 h-10 rounded-btn bg-raised border border-outline/50 flex items-center justify-center">
                       <IconBell className="w-4 h-4 text-muted/50" />
                     </div>
-                    <div>
-                      <p className="text-xs text-muted font-medium">
-                        {t('no_tasks_running')}
-                      </p>
-                      <p className="text-3xs text-muted/50 mt-2 leading-relaxed max-w-[220px]">
-                        {t('no_tasks_desc')}
-                      </p>
-                    </div>
+                    <p className="text-xs text-muted font-medium">
+                      {t('no_tasks_running')}
+                    </p>
                   </div>
                 ) : (
                   tasks.map((task) => <TaskItem key={task.id} task={task} />)

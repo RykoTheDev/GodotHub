@@ -33,7 +33,6 @@
   "done": "Terminé",
   "paused": "En pause",
   "no_tasks_running": "Aucune tâche en cours",
-  "no_tasks_desc": "Les opérations en arrière-plan comme le téléchargement de versions de Godot, le scan des projets et des versions, la synchronisation des modèles et le clonage de dépôts apparaissent ici.",
   "checking_changes": "Vérification des modifications…",
   "cloning": "Clonage…",
   "clone_import": "Cloner et importer",

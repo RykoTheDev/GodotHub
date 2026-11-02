@@ -33,7 +33,6 @@
   "done": "Xong",
   "paused": "Tạm dừng",
   "no_tasks_running": "Không tác vụ nào đang chạy",
-  "no_tasks_desc": "Các thao tác nền như tải xuống phiên bản Godot, quét dự án và phiên bản, đồng bộ hóa mẫu và sao chép kho lưu trữ đều hiển thị ở đây.",
   "checking_changes": "Kiểm tra các thay đổi...",
   "cloning": "Đang sao chép…",
   "clone_import": "Sao chép & Nhập",

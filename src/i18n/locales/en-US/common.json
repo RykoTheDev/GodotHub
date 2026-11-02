@@ -33,7 +33,6 @@
   "done": "Done",
   "paused": "Paused",
   "no_tasks_running": "No tasks running",
-  "no_tasks_desc": "Background operations like downloading Godot versions, scanning for projects & versions, syncing templates, and cloning repos show up here.",
   "checking_changes": "Checking changes…",
   "cloning": "Cloning…",
   "clone_import": "Clone & Import",
