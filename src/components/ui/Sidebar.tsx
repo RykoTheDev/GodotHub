@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 import { useRef, useState } from 'react'
 import type { ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
-import { IconArrowUp, IconChevronsLeft, IconHouse, IconSearch, IconX } from '../../lib/icons'
+import { IconArrowUp, IconChevronsLeft, IconHouse, IconSearch } from '../../lib/icons'
 import type { IconProps } from '../../lib/icons'
 import { WorkspaceSwitcher } from './WorkspaceSwitcher'
 import { useSettings } from '../../hooks/useSettings'
@@ -65,13 +65,6 @@ export function Sidebar({
   const [collapsed, setCollapsed] = useState(() => {
     try {
       return localStorage.getItem('new_ui_sidebar_collapsed') === '1'
-    } catch {
-      return false
-    }
-  })
-  const [paletteHintDismissed, setPaletteHintDismissed] = useState(() => {
-    try {
-      return localStorage.getItem('new_ui_sidebar_palette_hint_dismissed') === '1'
     } catch {
       return false
     }
@@ -321,6 +314,37 @@ export function Sidebar({
         )}
       </div>
 
+      {onOpenCommandPalette && (
+        <div className={`shrink-0 ${collapsed ? 'flex justify-center px-0 pt-2' : 'px-3 pt-2.5 pb-0.5'}`}>
+          {collapsed ? (
+            <Tooltip content={tc('search')} side="right">
+              <button
+                type="button"
+                onClick={onOpenCommandPalette}
+                aria-label={tc('search')}
+                className="focus-ring cursor-pointer w-11 h-11 shrink-0 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised/60 transition-colors"
+              >
+                <IconSearch className="w-4 h-4" />
+              </button>
+            </Tooltip>
+          ) : (
+            <button
+              type="button"
+              onClick={onOpenCommandPalette}
+              className="focus-ring cursor-pointer w-full flex items-center gap-2 px-3 h-9 rounded-item bg-overlay/60 border border-outline/50 text-sm text-muted hover:text-ink hover:border-outline hover:bg-overlay transition-colors"
+            >
+              <IconSearch className="w-4 h-4 shrink-0" />
+              <span className="flex-1 text-start truncate">{tc('search')}</span>
+              <kbd className="font-mono text-4xs px-1.5 py-0.5 rounded-tag bg-raised border border-outline/50 text-muted/70">
+                {navigator.platform.includes('Mac')
+                  ? `⌘${paletteKey.toUpperCase()}`
+                  : `Ctrl+${paletteKey.toUpperCase()}`}
+              </kbd>
+            </button>
+          )}
+        </div>
+      )}
+
       {settings.workspaces_enabled && (
         <div className={`shrink-0 ${collapsed ? 'flex justify-center px-0 py-2' : 'px-3 pb-1'}`}>
           <WorkspaceSwitcher collapsed={collapsed} />
@@ -343,40 +367,6 @@ export function Sidebar({
               collapsed ? 'gap-1 items-center' : 'gap-1.5 items-stretch'
             }`}
           >
-            {!collapsed && onOpenCommandPalette && !paletteHintDismissed && (
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={onOpenCommandPalette}
-                  className="focus-ring cursor-pointer w-full flex items-center gap-2.5 px-3 py-2.5 rounded-item border border-dashed border-outline/50 text-xs font-medium text-muted/60 hover:text-muted hover:border-outline hover:bg-raised/50 transition-colors"
-                >
-                  <kbd className="font-mono text-4xs px-1.5 py-0.5 rounded-tag bg-overlay border border-outline/50">
-                    {navigator.platform.includes('Mac')
-                      ? `⌘${paletteKey.toUpperCase()}`
-                      : `Ctrl+${paletteKey.toUpperCase()}`}
-                  </kbd>
-                  <span className="flex items-center gap-1.5">
-                    <IconSearch className="w-3 h-3" />
-                    {tc('quick_commands')}
-                  </span>
-                </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      try {
-                        localStorage.setItem(
-                          'new_ui_sidebar_palette_hint_dismissed',
-                          '1',
-                        )
-                      } catch {}
-                      setPaletteHintDismissed(true)
-                    }}
-                    className="focus-ring cursor-pointer w-4 h-4 rounded-full bg-raised border border-outline/60 text-muted/60 hover:text-ink hover:border-outline flex items-center justify-center transition-colors absolute -top-1.5 -end-1.5"
-                  >
-                    <IconX className="w-2.5 h-2.5" />
-                  </button>
-              </div>
-            )}
             {(updateAvailable || previewUpdate) && onOpenUpdatesModal && !collapsed && (
               <button
                 type="button"
