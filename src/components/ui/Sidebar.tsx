@@ -106,6 +106,7 @@ export function Sidebar({
 
   const mainTabs = tabs.filter((t) => !t.footer)
   const footerTabs = tabs.filter((t) => t.footer)
+  const headerWorkspace = !collapsed && settings.workspaces_enabled
 
   const beginDrag = (e: React.PointerEvent) => {
     const now = Date.now()
@@ -285,20 +286,10 @@ export function Sidebar({
         }`}
       >
       <div
-        className={`shrink-0 flex items-center gap-2 h-12 border-b border-line ${
-          collapsed ? 'justify-center px-0' : 'px-3'
-        }`}
+        className={`shrink-0 flex items-center gap-2 border-b border-line ${
+          collapsed ? 'justify-center px-0 h-12' : 'px-3'
+        } ${headerWorkspace ? 'py-2' : 'h-12'}`}
       >
-        {!collapsed && (              <Tooltip content={t('dashboard')}>
-              <button
-                type="button"
-                onClick={() => onTabChange('dashboard')}
-                className="focus-ring cursor-pointer font-display ps-2 font-black text-2xl tracking-tight text-ink/50 hover:text-ink min-w-0 truncate text-start transition-colors"
-              >
-                GodotHub
-              </button>
-              </Tooltip>
-        )}
         {collapsed ? (
           <Tooltip content={t('dashboard')}>
           <button
@@ -309,9 +300,31 @@ export function Sidebar({
               <IconHouse className="w-4 h-4" />
             </button>
             </Tooltip>
+        ) : headerWorkspace ? (
+          <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+            <Tooltip content={t('dashboard')}>
+              <button
+                type="button"
+                onClick={() => onTabChange('dashboard')}
+                className="focus-ring cursor-pointer font-display font-black text-lg leading-tight tracking-tight text-ink/50 hover:text-ink min-w-0 truncate text-start transition-colors"
+              >
+                GodotHub
+              </button>
+            </Tooltip>
+            <WorkspaceSwitcher variant="header" />
+          </div>
         ) : (
-          collapseBtn
+          <Tooltip content={t('dashboard')}>
+            <button
+              type="button"
+              onClick={() => onTabChange('dashboard')}
+              className="focus-ring cursor-pointer font-display ps-2 font-black text-2xl tracking-tight text-ink/50 hover:text-ink min-w-0 truncate text-start transition-colors"
+            >
+              GodotHub
+            </button>
+          </Tooltip>
         )}
+        {!collapsed && collapseBtn}
       </div>
 
       {onOpenCommandPalette && (
@@ -345,9 +358,9 @@ export function Sidebar({
         </div>
       )}
 
-      {settings.workspaces_enabled && (
-        <div className={`shrink-0 ${collapsed ? 'flex justify-center px-0 py-2' : 'px-3 pb-1'}`}>
-          <WorkspaceSwitcher collapsed={collapsed} />
+      {settings.workspaces_enabled && collapsed && (
+        <div className="shrink-0 flex justify-center px-0 py-2">
+          <WorkspaceSwitcher collapsed />
         </div>
       )}
 

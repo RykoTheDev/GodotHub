@@ -20,7 +20,13 @@ const EDGE_PADDING = 8
 const MENU_WIDTH = 232
 const OPEN_UP_THRESHOLD = 300
 
-export function WorkspaceSwitcher({ collapsed = false }: { collapsed?: boolean }) {
+export function WorkspaceSwitcher({
+  collapsed = false,
+  variant = 'row',
+}: {
+  collapsed?: boolean
+  variant?: 'row' | 'header'
+}) {
   const uiMotion = useUiMotion()
 
   const { t } = useTranslation('common')
@@ -115,35 +121,48 @@ export function WorkspaceSwitcher({ collapsed = false }: { collapsed?: boolean }
     )
   }
 
+  const header = variant === 'header' && !collapsed
+
   return (
     <>
-      <div ref={ref} className="w-full">
+      <div ref={ref} className={header ? 'min-w-0 max-w-full' : 'w-full'}>
         <button
           type="button"
           onClick={() => setOpen((o) => !o)}
-          aria-label={t('switch_workspace')}
+          aria-label={`${t('switch_workspace')} > ${active.name}`}
           aria-expanded={open}
           aria-haspopup="menu"
-          className={`focus-ring cursor-pointer w-full flex items-center gap-2 rounded-item text-sm font-medium border border-transparent transition-colors hover:bg-raised/60 hover:text-ink ${
-            collapsed ? 'w-11 h-11 shrink-0 justify-center' : 'px-3 py-2.5'
-          } ${open ? 'text-ink bg-raised/60' : 'text-muted'}`}
+          className={
+            header
+              ? `focus-ring cursor-pointer max-w-full flex items-center gap-1.5 -ms-1 px-1 py-0.5 rounded-item text-xs font-medium border border-transparent transition-colors hover:bg-raised/60 hover:text-ink ${
+                  open ? 'text-ink bg-raised/60' : 'text-muted'
+                }`
+              : `focus-ring cursor-pointer w-full flex items-center gap-2 rounded-item text-sm font-medium border border-transparent transition-colors hover:bg-raised/60 hover:text-ink ${
+                  collapsed ? 'w-11 h-11 shrink-0 justify-center' : 'px-3 py-2.5'
+                } ${open ? 'text-ink bg-raised/60' : 'text-muted'}`
+          }
         >
           <span
-            className="w-6 h-6 rounded-full flex items-center justify-center border shrink-0"
+            className={`rounded-full flex items-center justify-center border shrink-0 ${
+              header ? 'w-4 h-4' : 'w-6 h-6'
+            }`}
             style={{
               backgroundColor: `${active.color}26`,
               borderColor: `${active.color}55`,
             }}
           >
-            <ActiveIcon className="w-3 h-3" style={{ color: active.color }} />
+            <ActiveIcon
+              className={header ? 'w-2 h-2' : 'w-3 h-3'}
+              style={{ color: active.color }}
+            />
           </span>
           {!collapsed && (
             <>
               <span className="truncate">{active.name}</span>
               <IconChevronDown
-                className={`w-3.5 h-3.5 ms-auto shrink-0 transition-transform duration-200 ${
-                  open ? 'rotate-180' : ''
-                }`}
+                className={`shrink-0 transition-transform duration-200 ${
+                  header ? 'w-3 h-3' : 'w-3.5 h-3.5 ms-auto'
+                } ${open ? 'rotate-180' : ''}`}
               />
             </>
           )}

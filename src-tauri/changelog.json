@@ -1809,6 +1809,10 @@
       {
         "category": "fix",
         "text": "Fixed duplicate design tokens and small layout spacing issues across the app"
+      },
+      {
+        "category": "improve",
+        "text": "Search Bar in Sidebar that opens command palette for easier access"
       }
     ],
     "known_issues": [],
