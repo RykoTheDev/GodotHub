@@ -363,7 +363,6 @@ bun tauri build
 |---|---|
 | **Frontend Framework** | [React 19](https://react.dev) + [TypeScript](https://www.typescriptlang.org/) |
 | **Styling** | [Tailwind CSS 4](https://tailwindcss.com) |
-| **Animations** | [Framer Motion](https://www.framer.com/motion/) |
 | **Drag & Drop** | [@dnd-kit](https://dndkit.com/) |
 | **Desktop Framework** | [Tauri 2](https://v2.tauri.app/) (Rust) |
 | **Icons** | [Font Awesome Free](https://fontawesome.com) via [react-fontawesome](https://github.com/FortAwesome/react-fontawesome) |
