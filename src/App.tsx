@@ -696,7 +696,7 @@ export function App() {
                 onAnimationComplete={() => {
                   if (gitSidebarOpenRef.current) setGitPanelOpened(true)
                 }}
-                className={`absolute top-2 end-2 bottom-2 z-50 ${gitDragging ? 'select-none' : ''}`}
+                className={`absolute top-2 inset-e-2 bottom-2 z-50 ${gitDragging ? 'select-none' : ''}`}
               >
                 <div
                   className="relative h-full w-full"
@@ -745,7 +745,7 @@ export function App() {
                     role="separator"
                     aria-orientation="vertical"
                     style={{ touchAction: 'none' }}
-                    className="absolute inset-y-0 -start-3.5 w-7 cursor-col-resize group/edge z-10"
+                    className="absolute inset-y-0 -inset-s-3.5 w-7 cursor-col-resize group/edge z-10"
                   >
                     <div
                       className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none transition-opacity duration-200 ease-out ${
