@@ -271,7 +271,7 @@ textarea::placeholder {
     caret-color: var(--color-accent-bright);
   }
 
-  :where(input, textarea)[class*="border"]:focus {
+  :where(input:not([type="range"], [type="checkbox"], [type="radio"]), textarea)[class*="border"]:focus {
     border-color: color-mix(in srgb, var(--color-accent) 60%, transparent);
     box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 18%, transparent);
   }

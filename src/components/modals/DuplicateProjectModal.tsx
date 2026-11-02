@@ -54,7 +54,6 @@ export function DuplicateProjectModal({
     <ModalShell
       icon={<IconCopy className="w-5 h-5" />}
       title={t('duplicate_project_title')}
-      description={t('duplicate_project_desc')}
       maxWidth="max-w-md"
       onClose={onClose}
       footer={

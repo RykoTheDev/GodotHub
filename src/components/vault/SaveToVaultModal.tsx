@@ -104,7 +104,6 @@ export function SaveToVaultModal({
     <ModalShell
       icon={<IconBriefcase className="w-4 h-4" />}
       title={t('vault_save_title')}
-      description={t('vault_save_desc')}
       maxWidth="max-w-lg"
       onClose={onClose}
       footer={

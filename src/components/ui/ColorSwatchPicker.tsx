@@ -1,20 +1,21 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 import { IconCheck } from '../../lib/icons'
 import { HsvColorPicker } from './HsvColorPicker'
 import { Dropdown } from './Dropdown'
 
 interface Props {
-  label: string
+  label?: string
   value: string
   onChange: (hex: string) => void
   presets: string[]
+  trigger?: (props: { open: boolean; toggle: () => void }) => ReactNode
 }
 
 function isValidHex(hex: string) {
   return /^#([0-9a-fA-F]{6})$/.test(hex)
 }
 
-export function ColorSwatchPicker({ label, value, onChange, presets }: Props) {
+export function ColorSwatchPicker({ label, value, onChange, presets, trigger }: Props) {
   const [hexDraft, setHexDraft] = useState(value)
 
   useEffect(() => setHexDraft(value), [value])
@@ -23,9 +24,9 @@ export function ColorSwatchPicker({ label, value, onChange, presets }: Props) {
     <Dropdown
       align="left"
       side="bottom"
-      trigger={({ open, toggle }) => (
+      trigger={trigger ?? (({ open, toggle }) => (
         <div className="flex flex-col gap-2 min-w-0 w-full">
-          <span className="text-xs font-medium text-muted">{label}</span>
+          {label && <span className="text-xs font-medium text-muted">{label}</span>}
           <button
             type="button"
             onClick={toggle}
@@ -41,7 +42,7 @@ export function ColorSwatchPicker({ label, value, onChange, presets }: Props) {
             </span>
           </button>
         </div>
-      )}
+      ))}
     >
       <div className="p-3 flex flex-col gap-3 min-w-[440px]">
         <div className="flex gap-3">

@@ -1731,7 +1731,6 @@ export function GitSidebar({
       {diffFile && (
         <DiffViewerModal
           title={diffFile.path}
-          subtitle={project.name}
           fetchDiff={() => api.gitFileDiff(project.path, diffFile.path)}
           onClose={() => setDiffFile(null)}
         />
@@ -1740,7 +1739,6 @@ export function GitSidebar({
       {stashDiff && (
         <DiffViewerModal
           title={`stash@{${stashDiff.index}}`}
-          subtitle={stashDiff.message || undefined}
           fetchDiff={() => api.gitStashShow(project.path, stashDiff.index)}
           onClose={() => setStashDiff(null)}
         />

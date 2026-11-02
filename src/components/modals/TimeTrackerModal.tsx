@@ -94,7 +94,6 @@ export function TimeTrackerModal({ project, onClose }: Props) {
     <ModalShell
       icon={<IconStopwatch className="w-5 h-5 text-accent-bright" />}
       title={t('time_tracked_title')}
-      description={project.name}
       maxWidth="max-w-xl"
       onClose={onClose}
     >

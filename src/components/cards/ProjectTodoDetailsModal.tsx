@@ -170,7 +170,6 @@ export function ProjectTodoDetailsModal({
           icon={<IconCheckCircle className="h-5 w-5 text-accent-bright" />}
           title={todo.title}
           titleClassName="line-clamp-2 leading-tight"
-          description={t("task_details")}
           onClose={onClose}
           autoFocusBanner={false}
         />

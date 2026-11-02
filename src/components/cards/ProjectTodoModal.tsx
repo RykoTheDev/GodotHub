@@ -214,9 +214,6 @@ export function ProjectTodoModal({
             )
           }
           title={editing ? t("edit_task") : t("new_task")}
-          description={
-            editing ? t("edit_task_description") : t("new_task_description")
-          }
           onClose={onClose}
           autoFocusBanner={false}
         />

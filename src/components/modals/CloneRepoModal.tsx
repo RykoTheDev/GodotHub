@@ -285,7 +285,6 @@ export function CloneRepoModal({
         <ModalHeader
           icon={<IconGitBranch className="w-5 h-5 text-accent-bright" />}
           title={t('clone_repo_title')}
-          description={t('clone_repo_desc')}
           autoFocusBanner={false}
           titleId={titleId}
         />

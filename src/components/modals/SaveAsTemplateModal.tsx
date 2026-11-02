@@ -38,7 +38,6 @@ export function SaveAsTemplateModal({ project, onClose }: Props) {
     <ModalShell
       icon={<IconCopy className="w-4 h-4" />}
       title={t('save_as_template')}
-      description={t('project_save_template_desc', { name: displayName })}
       maxWidth="max-w-sm"
       onClose={onClose}
       footer={

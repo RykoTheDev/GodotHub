@@ -1097,7 +1097,6 @@ function ProjectCardInner({
 
           {showLaunchArgs && (
             <LaunchArgsModal
-              projectName={displayName}
               currentArgs={project.launch_arguments}
               onSave={(args) => {
                 onLaunchArgsChange?.(args);
@@ -1121,7 +1120,6 @@ function ProjectCardInner({
           {sizeModalOpen && (
             <ProjectSizeModal
               projectPath={project.path}
-              projectName={displayName}
               onClose={() => setSizeModalOpen(false)}
             />
           )}

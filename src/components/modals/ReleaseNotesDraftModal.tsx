@@ -147,7 +147,6 @@ export function ReleaseNotesDraftModal({ onClose, onUseDraft }: Props) {
     <ModalShell
       icon={<IconRocket className="w-5 h-5 text-accent-bright" />}
       title={t('changelog_draft_title')}
-      description={t('changelog_draft_desc')}
       maxWidth="max-w-lg"
       onClose={onClose}
       showClose={false}

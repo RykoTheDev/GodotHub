@@ -138,7 +138,6 @@ export function ExportTemplatesModal({ tag, onClose, onDownload, onChanged }: Pr
     <ModalShell
       icon={<IconDownload className="w-5 h-5 text-accent-bright" />}
       title={t('export_templates_choose')}
-      description={t('export_templates_choose_desc', { tag })}
       maxWidth="max-w-2xl"
       bodyClassName="h-[min(60vh,34rem)] shrink"
       onClose={onClose}

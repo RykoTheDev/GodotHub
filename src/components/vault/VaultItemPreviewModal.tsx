@@ -21,11 +21,13 @@ export function VaultItemPreviewModal({ item, onClose }: Props) {
     <ModalShell
       icon={<IconBriefcase className="w-5 h-5 text-accent-bright" />}
       title={item.name}
-      description={item.description || undefined}
       maxWidth="max-w-lg"
       onClose={onClose}
     >
       <div className="p-6">
+        {item.description && (
+          <p className="pb-3 text-sm text-muted leading-relaxed wrap-break-word">{item.description}</p>
+        )}
         {item.tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 pb-3">
             {item.tags.map((tag) => (

@@ -111,7 +111,6 @@ export function VersionAliasesModal({
       <ModalShell
         icon={<IconTerminal className="w-5 h-5 text-accent-bright" />}
         title={tv('aliases_title')}
-        description={tv('aliases_desc')}
         maxWidth="max-w-xl"
         onClose={onClose}
         footer={

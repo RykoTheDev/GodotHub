@@ -58,7 +58,6 @@ export function CurrentVersionModal({
     <ModalShell
       icon={<IconPin className="w-5 h-5 text-accent-bright" />}
       title={tv('current_set_title')}
-      description={tv('current_set_desc', { tag: info.tag })}
       maxWidth="max-w-xl"
       onClose={onClose}
       footer={

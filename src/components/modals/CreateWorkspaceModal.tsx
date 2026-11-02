@@ -45,7 +45,6 @@ export function CreateWorkspaceModal({ onClose, onCreate }: Props) {
     <ModalShell
       icon={<IconPlus className="w-5 h-5 text-accent-bright" />}
       title={t('create_workspace_title')}
-      description={t('create_workspace_desc')}
       maxWidth="max-w-md"
       onClose={onClose}
       showClose={false}

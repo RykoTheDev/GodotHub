@@ -129,7 +129,6 @@ export function TagManagerModal({ project, onClose, onSaved }: Props) {
     <ModalShell
       icon={<IconTags className="w-5 h-5 text-accent-bright" />}
       title={t('manage_tags')}
-      description={project.name}
       maxWidth="max-w-lg"
       onClose={onClose}
       showClose={false}

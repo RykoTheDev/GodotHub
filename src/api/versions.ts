@@ -65,4 +65,5 @@ export const versionsApi = {
     invoke<void>('uninstall_export_template_files', { tag, files }),
   openExportTemplatesFolder: (tag?: string | null) =>
     invoke<void>('open_export_templates_folder', { tag: tag ?? null }),
+  openFolder: () => invoke<void>('open_versions_folder'),
 }

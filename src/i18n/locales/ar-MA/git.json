@@ -97,7 +97,6 @@
   "commits_to_push": "{{count}} commit(s) to push",
   "commits_to_pull": "{{count}} commit(s) to pull",
   "publish_branch_to": "Publish branch to {{remote}}",
-  "create_worktree_desc": "Work on another branch in a separate directory.",
   "worktree_location_label": "Directory",
   "worktree_location_hint": "Use a new directory. Relative paths are resolved from the current repository.",
   "worktree_branch_label": "New branch (optional)",

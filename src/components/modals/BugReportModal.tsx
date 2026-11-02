@@ -221,7 +221,6 @@ export function BugReportModal({ onClose }: Props) {
     <ModalShell
       icon={<IconBug className="w-5 h-5 text-danger" />}
       title={t('report_a_bug')}
-      description={t('bug_report_desc', { version })}
       maxWidth="max-w-lg"
       onClose={onClose}
       footer={

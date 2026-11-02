@@ -5,7 +5,6 @@ import { ModalHeader } from './ModalHeader'
 interface Props {
   icon: React.ReactNode
   title: string
-  description?: React.ReactNode
   maxWidth?: string
   onClose?: () => void
   showClose?: boolean
@@ -21,7 +20,6 @@ const FOCUSABLE =
 export function ModalShell({
   icon,
   title,
-  description,
   maxWidth = 'max-w-2xl',
   onClose,
   showClose = true,
@@ -120,7 +118,6 @@ export function ModalShell({
         <ModalHeader
           icon={icon}
           title={title}
-          description={description}
           onClose={showClose ? onClose : undefined}
           titleId={titleId}
         />

@@ -54,7 +54,6 @@ export function WorkspaceEditModal({
     <ModalShell
         icon={<IconPencil className="w-5 h-5 text-accent-bright" />}
         title={t('edit_workspace_title')}
-        description={t('workspace_edit_desc')}
         maxWidth="max-w-md"
         onClose={onClose}
         showClose={false}

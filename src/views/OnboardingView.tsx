@@ -1070,9 +1070,6 @@ export function OnboardingView({
                                 )}
                               </button>
                             </div>
-                            <p className="text-2xs text-muted leading-relaxed">
-                              {ts('theme_preset_desc')}
-                            </p>
                           </div>
 
                           {!presetActive && (

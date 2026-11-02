@@ -92,7 +92,6 @@
   "commits_to_push": "{{count}} 个提交待推送",
   "commits_to_pull": "{{count}} 个提交待拉取",
   "publish_branch_to": "将分支发布到 {{remote}}",
-  "create_worktree_desc": "在单独的目录中处理另一个分支。",
   "worktree_location_label": "目录",
   "worktree_location_hint": "使用新的目录。相对路径从当前存储库解析。",
   "worktree_branch_label": "新分支 (可选)",

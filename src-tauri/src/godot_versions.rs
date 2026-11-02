@@ -63,6 +63,11 @@ pub fn versions_dir(app: &AppHandle) -> PathBuf {
     dir
 }
 
+#[tauri::command]
+pub fn open_versions_folder(app: AppHandle) -> Result<(), String> {
+    crate::projects::open_project_folder_blocking(versions_dir(&app).to_string_lossy().to_string())
+}
+
 fn registry_file(app: &AppHandle) -> PathBuf {
     let base = app.path().app_data_dir().expect("no app data dir");
     if !base.exists() {

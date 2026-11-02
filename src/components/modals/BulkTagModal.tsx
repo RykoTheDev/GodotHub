@@ -52,7 +52,6 @@ export function BulkTagModal({ projects, onClose, onApplied }: Props) {
     <ModalShell
       icon={<IconTags className="w-5 h-5" />}
       title={t('bulk_tags_title')}
-      description={t('bulk_tags_desc')}
       maxWidth="max-w-md"
       onClose={onClose}
     >

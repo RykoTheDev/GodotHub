@@ -187,7 +187,7 @@ function SortableCategoryItem({
         )}
       </div>
       {!editing && (
-        <div className="px-12 pb-1 pt-0">
+        <div className={`px-12 pt-0 ${projects.length > 0 ? 'pb-1' : 'pb-3'}`}>
           <div className="flex flex-wrap items-center gap-1.5">
             {category.folders.map((folder) => (
               <span
@@ -443,7 +443,6 @@ export function CategoryManagerModal({
     <ModalShell
       icon={<IconTags className="w-5 h-5 text-accent-bright" />}
       title={t('manage_categories')}
-      description={t('manage_categories_desc')}
       maxWidth="max-w-2xl"
       onClose={onClose}
       footer={
@@ -457,17 +456,43 @@ export function CategoryManagerModal({
       }
     >
       <div className="p-6 pt-0 flex flex-col gap-5">
+        {categories.length > 0 && (
+          <div className="flex items-start gap-2.5 px-3.5 py-2.5 rounded-lg bg-overlay/40 border border-outline/25">
+            <IconFolder className="w-3.5 h-3.5 text-muted/60 shrink-0 mt-0.5" />
+            <p className="text-2xs text-muted leading-relaxed">
+              {t('category_folders_hint')}
+            </p>
+          </div>
+        )}
+
         <div className="flex flex-col gap-3">
           <div className="flex gap-2.5">
-            <input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') submitNew()
-              }}
-              placeholder={t('new_category_placeholder')}
-              className="focus-ring flex-1 bg-raised border border-line rounded-xl px-4 py-3 text-sm focus:border-accent-dim outline-none"
-            />
+            <div className="flex-1 min-w-0 flex items-center bg-raised border border-line rounded-xl focus-within:border-accent-dim">
+              <ColorSwatchPicker
+                value={newColor}
+                onChange={setNewColor}
+                presets={CATEGORY_COLORS}
+                trigger={({ open, toggle }) => (
+                  <button
+                    type="button"
+                    onClick={toggle}
+                    aria-expanded={open}
+                    aria-label={t('color_label')}
+                    className="focus-ring cursor-pointer ms-3 w-6 h-6 rounded-full border border-black/20 shadow-inner shrink-0 hover:scale-110"
+                    style={{ backgroundColor: newColor }}
+                  />
+                )}
+              />
+              <input
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') submitNew()
+                }}
+                placeholder={t('new_category_placeholder')}
+                className="flex-1 min-w-0 bg-transparent px-3 py-3 text-sm outline-none"
+              />
+            </div>
             <button
 
 
@@ -479,26 +504,11 @@ export function CategoryManagerModal({
               {t('add')}
             </button>
           </div>
-          <ColorSwatchPicker
-            label={t('color_label')}
-            value={newColor}
-            onChange={setNewColor}
-            presets={CATEGORY_COLORS}
-          />
         </div>
 
         {error && (
           <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-danger/10 border border-danger/20">
             <p className="text-xs text-danger">{error}</p>
-          </div>
-        )}
-
-        {categories.length > 0 && (
-          <div className="flex items-start gap-2.5 px-3.5 py-2.5 rounded-lg bg-overlay/40 border border-outline/25">
-            <IconFolder className="w-3.5 h-3.5 text-muted/60 shrink-0 mt-0.5" />
-            <p className="text-2xs text-muted leading-relaxed">
-              {t('category_folders_hint')}
-            </p>
           </div>
         )}
 

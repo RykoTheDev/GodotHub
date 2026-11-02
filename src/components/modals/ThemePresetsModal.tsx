@@ -31,7 +31,6 @@ export function ThemePresetsModal({
     <ModalShell
       icon={<Icon className="w-5 h-5 text-accent-bright" />}
       title={title}
-      description={String(presets.length)}
       maxWidth="max-w-2xl"
       onClose={onClose}
     >

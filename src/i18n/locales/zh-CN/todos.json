@@ -1,6 +1,5 @@
 {
   "next_steps": "事项列表",
-  "all_tasks_description": "查看并管理此项目的所有事项。",
   "saving_tasks": "正在保存事项",
   "pending_count_one": "{{count}} 个待处理",
   "pending_count_other": "{{count}} 个待处理",
@@ -45,8 +44,6 @@
   "area_narrative": "叙事",
   "area_other": "其他",
   "edit_task": "编辑事项",
-  "edit_task_description": "更新此事项的信息。",
-  "new_task_description": "为此项目添加一个事项。",
   "title": "标题",
   "title_placeholder": "例如：创建主菜单",
   "description_placeholder": "添加更多关于需要完成事项的详细信息...",
@@ -55,7 +52,6 @@
   "past_due_date": "此截止日期已过",
   "save_task_failed": "无法保存事项。请重试。",
   "add_task": "添加事项",
-  "task_details": "事项详情",
   "no_description": "无描述",
   "tomorrow": "明天",
   "due_in_days_one": "{{count}} 天后到期",

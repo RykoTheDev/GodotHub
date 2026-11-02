@@ -164,7 +164,7 @@ export function NewsView({ connected = false }: { connected?: boolean }) {
         hideThumb={!settings.show_scrollbars}
         topButtonBottom={'bottom-16'}
       >
-        <div className={`h-full ${connected ? 'ps-3' : 'ps-2'} pe-5 pb-4`}>
+        <div className={`h-full ${connected ? 'ps-3' : 'ps-2'} pe-5 pb-4 pt-2`}>
           {loading && items.length === 0 ? (
             <div className="columns-1 lg:columns-2 gap-3">
               {Array.from({ length: 6 }).map((_, i) => (

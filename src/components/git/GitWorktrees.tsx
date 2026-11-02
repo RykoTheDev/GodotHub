@@ -160,7 +160,7 @@ export function GitWorktrees({ project, onSwitchProject, onChanged }: Props) {
             setCreating(false); void refresh(); onChanged(); pushToast('success', t('worktree_created_ok'))
           }} />}
         {removal && <ModalShell icon={<IconTrash className="w-5 h-5 text-danger" />} title={t('remove_worktree')}
-          description={t('remove_worktree_confirm_desc', { path: removal.path })} maxWidth="max-w-sm"
+          maxWidth="max-w-sm"
           onClose={busy ? undefined : () => setRemoval(null)}
           onKeyDown={event => { if (event.key === 'Escape' && !busy) { event.stopPropagation(); setRemoval(null) } }}
           footer={<div className="ms-auto flex items-center gap-2.5">
@@ -172,6 +172,7 @@ export function GitWorktrees({ project, onSwitchProject, onChanged }: Props) {
             </button>
           </div>}>
           <div className="flex flex-col gap-3 p-6 pt-0">
+            <p className="text-xs text-muted leading-relaxed wrap-break-word">{t('remove_worktree_confirm_desc', { path: removal.path })}</p>
             <div className="rounded-item bg-raised px-3 py-2.5">
               <p className="text-xs font-medium text-ink wrap-break-word">{removal.branch ?? t('worktree_detached', { hash: removal.head.slice(0, 7) })}</p>
               <p dir="ltr" className="mt-1 text-2xs font-mono text-muted wrap-break-word">{removal.path}</p>

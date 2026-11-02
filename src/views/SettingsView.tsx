@@ -50,7 +50,7 @@ import { CheckForUpdatesModal } from "../components/modals/CheckForUpdatesModal"
 import { BugReportModal } from "../components/modals/BugReportModal";
 import { ThemePresetsModal } from "../components/modals/ThemePresetsModal";
 import { RestoreProgressModal } from "../components/modals/RestoreProgressModal";
-import { defaultCornerRadius, isMac, isWindows } from "../lib/platform";
+import { defaultCornerRadius, isMac } from "../lib/platform";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { flushPendingSave } from "../lib/pendingSave";
 import { consumePendingSettingsCategory } from '../lib/settingsCategoryNav'
@@ -142,15 +142,17 @@ const LANDING_TABS: { id: string; labelKey: string }[] = [
 function Subsection({
   id,
   title,
-  description,
+  inline = false,
+  fill = false,
   children,
   searchText,
   query,
   onMatch,
 }: {
   id: string;
-  title: ReactNode;
-  description?: string;
+  title?: ReactNode;
+  inline?: boolean;
+  fill?: boolean;
   children: ReactNode;
   searchText?: string;
   query: string;
@@ -159,7 +161,6 @@ function Subsection({
   const matches = matchesSearch(
     query,
     typeof title === "string" ? title : undefined,
-    description,
     searchText,
   );
 
@@ -171,46 +172,44 @@ function Subsection({
   if (!matches) return null;
 
   return (
-    <section className="flex flex-col gap-2 rounded-item bg-overlay px-4 py-4">
-      <div>
-        <h3 className="text-sm font-medium text-ink">{title}</h3>
-        {description && (
-          <p className="text-xs text-muted mt-1 leading-relaxed">
-            {description}
-          </p>
-        )}
-      </div>
-      {children}
+    <section
+      className={`rounded-item bg-overlay px-4 py-4 ${inline ? "flex items-center gap-4" : "flex flex-col gap-2"}`}
+    >
+      {title && (
+        <h3 className={`text-sm font-medium text-ink ${inline ? "shrink-0" : ""}`}>{title}</h3>
+      )}
+      {!inline ? (
+        children
+      ) : fill ? (
+        <div className="flex-1 min-w-0">{children}</div>
+      ) : (
+        <>
+          <div aria-hidden="true" className="flex-1 h-px bg-outline/40" />
+          <div className="shrink-0">{children}</div>
+        </>
+      )}
     </section>
   );
 }
 
 function SettingRow({
   label,
-  description,
   children,
   divider = false,
 }: {
   label: string;
-  description?: string;
   children: ReactNode;
   divider?: boolean;
 }) {
   return (
     <div
-      className={`flex items-center justify-between gap-4 ${
+      className={`flex items-center gap-4 ${
         divider ? "pt-4 border-t border-line" : ""
       }`}
     >
-      <div>
-        <span className="text-xs font-medium text-muted block">{label}</span>
-        {description && (
-          <p className="text-2xs text-muted mt-1 leading-relaxed">
-            {description}
-          </p>
-        )}
-      </div>
-      {children}
+      <span className="text-xs font-medium text-muted block">{label}</span>
+      <div aria-hidden="true" className="flex-1 h-px bg-outline/40" />
+      <div className="shrink-0">{children}</div>
     </div>
   );
 }
@@ -719,7 +718,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="appearance-presets"
         title={ts("theme_preset_label")}
-        description={ts("theme_preset_desc")}
         searchText={`${ts("theme_preset_label")} ${ts("theme_preset_custom")} ${ts("preset_light_group")} ${ts("preset_dark_group")}`}
         query={searchQuery}
         onMatch={reportMatch}
@@ -781,11 +779,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               <span className="text-xs font-medium text-muted">
                 {ts("theme")}
               </span>
-              {settings.theme_mode === "system" && (
-                <p className="text-2xs text-muted leading-relaxed">
-                  {ts("theme_follow_desc")}
-                </p>
-              )}
               <div className="flex items-center gap-2 flex-wrap">
                 <Segmented
                   value={settings.theme_mode}
@@ -834,10 +827,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 }
               />
             </div>
-            <p className="text-2xs text-muted leading-relaxed">
-              {ts("background_color_desc")}
-            </p>
-
             <div className="flex flex-col gap-2">
               <Slider
                 label={ts("raised_contrast_label")}
@@ -857,9 +846,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   update({ ...settings, raised_contrast: value })
                 }
               />
-              <p className="text-2xs text-muted leading-relaxed">
-                {ts("raised_contrast_desc")}
-              </p>
             </div>
           </div>
         )}
@@ -867,9 +853,10 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="appearance-radius"
+        inline
+        fill
         title={ts("onboarding_corner_radius")}
-        description={ts("corner_radius_desc")}
-        searchText={`${ts("onboarding_corner_radius")} ${ts("corner_radius_desc")}`}
+        searchText={`${ts("onboarding_corner_radius")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -892,9 +879,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="appearance-layout"
+        inline
         title={ts("card_layout_label")}
-        description={ts("card_layout_desc")}
-        searchText={`${ts("card_layout_label")} ${ts("card_layout_desc")}`}
+        searchText={`${ts("card_layout_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -907,9 +894,10 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="appearance-icon-opacity"
+        inline
+        fill
         title={ts("project_icon_opacity_label")}
-        description={ts("icon_opacity_desc")}
-        searchText={`${ts("project_icon_opacity_label")} ${ts("icon_opacity_desc")}`}
+        searchText={`${ts("project_icon_opacity_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -933,8 +921,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="appearance-css"
         title={ts("custom_css_label")}
-        description={ts("custom_css_desc")}
-        searchText={`${ts("custom_css_label")} ${ts("custom_css_desc")} ${ts("custom_css_apply")} ${ts("clear")}`}
+        searchText={`${ts("custom_css_label")} ${ts("custom_css_apply")} ${ts("clear")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -996,8 +983,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="display-formats"
         title={ts("last_opened_title")}
-        description={ts("last_opened_desc")}
-        searchText={`${ts("last_opened_title")} ${ts("last_opened_desc")} ${ts("time_format_label")} ${ts("date_format_label")} ${ts("12h")} ${ts("24h")} ${ts("dd_mm_yyyy")} ${ts("mm_dd_yyyy")} ${ts("yyyy_mm_dd")}`}
+        searchText={`${ts("last_opened_title")} ${ts("time_format_label")} ${ts("date_format_label")} ${ts("12h")} ${ts("24h")} ${ts("dd_mm_yyyy")} ${ts("mm_dd_yyyy")} ${ts("yyyy_mm_dd")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -1048,9 +1034,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       {!isMac && (
         <Subsection
           id="display-os-decorations"
+          inline
           title={ts("use_os_decorations")}
-          description={ts("use_os_decorations_desc")}
-          searchText={`${ts("use_os_decorations")} ${ts("use_os_decorations_desc")}`}
+          searchText={`${ts("use_os_decorations")}`}
           query={searchQuery}
           onMatch={reportMatch}
         >
@@ -1065,9 +1051,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       {!isMac && (
         <Subsection
           id="display-colored-titlebar-buttons"
+          inline
           title={ts('colored_titlebar_buttons_label')}
-          description={ts('colored_titlebar_buttons_desc')}
-          searchText={`${ts('colored_titlebar_buttons_label')} ${ts('colored_titlebar_buttons_desc')}`}
+          searchText={`${ts('colored_titlebar_buttons_label')}`}
           query={searchQuery}
           onMatch={reportMatch}
         >
@@ -1084,8 +1070,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="display-titlebar"
         title={ts("titlebar_buttons")}
-        description={ts("titlebar_buttons_desc")}
-        searchText={`${ts("titlebar_buttons")} ${ts("titlebar_buttons_desc")} ${ts("show_support_label")} ${ts("show_star_label")}`}
+        searchText={`${ts("titlebar_buttons")} ${ts("show_support_label")} ${ts("show_star_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -1145,8 +1130,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="storage-folders"
         title={ts("storage_title")}
-        description={ts("storage_desc")}
-        searchText={`${ts("storage_title")} ${ts("storage_desc")} ${ts("section_projects")} ${ts("section_godot_versions")} ${ts("section_templates")} ${ts("new_project_default")} ${ts("download_folder")}`}
+        searchText={`${ts("storage_title")} ${ts("section_projects")} ${ts("section_godot_versions")} ${ts("section_templates")} ${ts("new_project_default")} ${ts("download_folder")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -1170,9 +1154,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               }
               defaultLabel={ts("new_project_default")}
             />
-            <p className="text-2xs text-muted leading-relaxed">
-              {ts("projects_desc")}
-            </p>
           </div>
 
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 p-4">
@@ -1194,9 +1175,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               showFallbackDescription
               fallbackDownloadPath="AppData/Ryko.GodotHub/godot-versions/"
             />
-            <p className="text-2xs text-muted leading-relaxed">
-              {ts("godot_versions_desc")}
-            </p>
           </div>
 
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 p-4">
@@ -1240,18 +1218,16 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 {ts("browse")}
               </button>
             </div>
-            <p className="text-2xs text-muted leading-relaxed">
-              {ts("template_scan_desc")}
-            </p>
           </div>
         </div>
       </Subsection>
 
       <Subsection
         id="storage-scan-depth"
+        inline
+        fill
         title={ts("scan_depth_label")}
-        description={ts("scan_depth_desc")}
-        searchText={`${ts("scan_depth_label")} ${ts("scan_depth_desc")}`}
+        searchText={`${ts("scan_depth_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -1273,9 +1249,10 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="storage-icon-scan-depth"
+        inline
+        fill
         title={ts("icon_scan_depth_label")}
-        description={ts("icon_scan_depth_desc")}
-        searchText={`${ts("icon_scan_depth_label")} ${ts("icon_scan_depth_desc")}`}
+        searchText={`${ts("icon_scan_depth_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -1299,9 +1276,10 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="storage-concurrency"
+        inline
+        fill
         title={ts("download_concurrency_label")}
-        description={ts("download_concurrency_desc")}
-        searchText={`${ts("download_concurrency_label")} ${ts("download_concurrency_desc")}`}
+        searchText={`${ts("download_concurrency_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -1345,9 +1323,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
     <div className="flex flex-col gap-3">
       <Subsection
         id="behavior-landing"
+        inline
         title={ts("landing_tab_label")}
-        description={ts("landing_tab_desc")}
-        searchText={`${ts("landing_tab_label")} ${ts("landing_tab_desc")} ${LANDING_TABS.map((l) => ts(l.labelKey)).join(" ")}`}
+        searchText={`${ts("landing_tab_label")} ${LANDING_TABS.map((l) => ts(l.labelKey)).join(" ")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -1383,19 +1361,13 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="behavior-launch"
         title={ts("behavior")}
-        description={ts("behavior_desc")}
-        searchText={`${ts("behavior")} ${ts("behavior_desc")} ${ts("launch_console_label")} ${ts("close_on_open_label")} ${ts("minimize_tray_label")} ${ts("reopen_label")} ${ts("tray_recent_label")} ${ts("palette_shortcut")}`}
+        searchText={`${ts("behavior")} ${ts("launch_console_label")} ${ts("close_on_open_label")} ${ts("minimize_tray_label")} ${ts("reopen_label")} ${ts("tray_recent_label")} ${ts("palette_shortcut")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
         <div className="flex flex-col gap-5">
           <SettingRow
             label={ts("launch_console_label")}
-            description={
-              isWindows
-                ? ts("launch_console_desc_windows")
-                : ts("launch_console_desc")
-            }
           >
             <Toggle
               checked={settings.launch_with_console}
@@ -1408,7 +1380,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
           <SettingRow
             label={ts("builtin_console_label")}
-            description={ts("builtin_console_desc")}
           >
             <Toggle
               checked={settings.builtin_console}
@@ -1421,9 +1392,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
           <SettingRow
             label={ts("close_on_open_label")}
-            description={
-              isMac ? ts("close_on_open_desc_mac") : ts("close_on_open_desc")
-            }
             divider
           >
             <Toggle
@@ -1438,7 +1406,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           {!isMac && (
             <SettingRow
               label={ts("minimize_tray_label")}
-              description={ts("minimize_tray_desc")}
               divider
             >
               <Toggle
@@ -1461,9 +1428,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 >
                   <SettingRow
                     label={ts("reopen_label")}
-                    description={
-                      isMac ? ts("reopen_desc_mac") : ts("reopen_desc")
-                    }
                     divider
                   >
                     <Toggle
@@ -1500,9 +1464,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 api.refreshTrayMenu().catch(() => {});
               }}
             />
-            <p className="text-2xs text-muted leading-relaxed">
-              {ts("tray_recent_desc")}
-            </p>
           </div>
 
           <KeyRecorder
@@ -1520,15 +1481,13 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="behavior-projects"
         title={ts("behavior_projects_title")}
-        description={ts("behavior_projects_desc")}
-        searchText={`${ts("behavior_projects_title")} ${ts("behavior_projects_desc")} ${ts("auto_scan_label")} ${ts("use_workspaces_label")} ${ts("init_git_label")} ${ts("naming_convention_label")}`}
+        searchText={`${ts("behavior_projects_title")} ${ts("auto_scan_label")} ${ts("use_workspaces_label")} ${ts("init_git_label")} ${ts("naming_convention_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
         <div className="flex flex-col gap-5">
           <SettingRow
             label={ts("auto_scan_label")}
-            description={ts("auto_scan_desc")}
           >
             <Toggle
               checked={settings.auto_scan_on_startup}
@@ -1541,7 +1500,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
           <SettingRow
             label={ts("use_workspaces_label")}
-            description={ts("workspaces_off_desc")}
             divider
           >
             <Toggle
@@ -1555,7 +1513,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
           <SettingRow
             label={ts("init_git_label")}
-            description={ts("git_init_new_projects_desc")}
             divider
           >
             <Toggle
@@ -1567,73 +1524,68 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             />
           </SettingRow>
 
-          <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
-            <span className="text-xs font-medium text-muted">
-              {ts("naming_convention_label")}
-            </span>
+          <SettingRow
+            label={ts("naming_convention_label")}
+            divider
+          >
             {(() => {
-              const conventionOptions = [
-                { value: "keep" as const, label: ts("naming_keep") },
-                { value: "kebab-case" as const, label: ts("naming_kebab") },
-                { value: "snake_case" as const, label: ts("naming_snake") },
-                { value: "camelCase" as const, label: ts("naming_camel") },
-                { value: "PascalCase" as const, label: ts("naming_pascal") },
-                { value: "Title Case" as const, label: ts("naming_title") },
-              ];
-              const currentLabel =
-                conventionOptions.find(
-                  (o) => o.value === settings.directory_naming_convention,
-                )?.label ?? conventionOptions[0].label;
-              return (
-                <Dropdown
-                  align="right"
-                  trigger={({ open, toggle }) => (
-                    <button
-                      type="button"
-                      onClick={toggle}
-                      aria-expanded={open}
-                      className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-btn bg-overlay border border-outline/50 text-xs font-medium text-ink hover:border-accent-dim "
-                    >
-                      {currentLabel}
-                      <IconChevronDown
-                        className={`w-3 h-3 text-muted  ${
-                          open ? "rotate-180" : ""
-                        }`}
-                      />
-                    </button>
-                  )}
-                  items={conventionOptions.map(({ value, label }) => ({
-                    key: value,
-                    label,
-                    active: settings.directory_naming_convention === value,
-                    onClick: () =>
-                      update({
-                        ...settings,
-                        directory_naming_convention: value,
-                      }),
-                  }))}
-                />
-              );
-            })()}
-            <p className="text-2xs text-muted leading-relaxed">
-              {ts("naming_convention_desc")}
-            </p>
-          </div>
+                const conventionOptions = [
+                  { value: "keep" as const, label: ts("naming_keep") },
+                  { value: "kebab-case" as const, label: ts("naming_kebab") },
+                  { value: "snake_case" as const, label: ts("naming_snake") },
+                  { value: "camelCase" as const, label: ts("naming_camel") },
+                  { value: "PascalCase" as const, label: ts("naming_pascal") },
+                  { value: "Title Case" as const, label: ts("naming_title") },
+                ];
+                const currentLabel =
+                  conventionOptions.find(
+                    (o) => o.value === settings.directory_naming_convention,
+                  )?.label ?? conventionOptions[0].label;
+                return (
+                  <Dropdown
+                    align="right"
+                    trigger={({ open, toggle }) => (
+                      <button
+                        type="button"
+                        onClick={toggle}
+                        aria-expanded={open}
+                        className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-btn bg-overlay border border-outline/50 text-xs font-medium text-ink hover:border-accent-dim "
+                      >
+                        {currentLabel}
+                        <IconChevronDown
+                          className={`w-3 h-3 text-muted  ${
+                            open ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+                    )}
+                    items={conventionOptions.map(({ value, label }) => ({
+                      key: value,
+                      label,
+                      active: settings.directory_naming_convention === value,
+                      onClick: () =>
+                        update({
+                          ...settings,
+                          directory_naming_convention: value,
+                        }),
+                    }))}
+                  />
+                );
+              })()}
+          </SettingRow>
         </div>
       </Subsection>
 
       <Subsection
         id="behavior-notifications"
         title={ts('desktop_notifications_label')}
-        description={ts('desktop_notifications_desc')}
-        searchText={`${ts('desktop_notifications_label')} ${ts('desktop_notifications_desc')} ${ts('behavior')} ${ts('behavior_desc')}`}
+        searchText={`${ts('desktop_notifications_label')} ${ts('behavior')}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
         <div className="flex flex-col gap-5">
           <SettingRow
             label={ts('desktop_notifications_label')}
-            description={ts('desktop_notifications_desc')}
           >
             <Toggle
               checked={settings.desktop_notifications_enabled}
@@ -1652,15 +1604,13 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="storage-watchers"
         title={ts("file_watchers_title")}
-        description={ts("file_watchers_desc")}
-        searchText={`${ts("file_watchers_title")} ${ts("file_watchers_desc")} ${ts("watch_projects_label")} ${ts("watch_versions_label")} ${ts("watch_template_label")}`}
+        searchText={`${ts("file_watchers_title")} ${ts("watch_projects_label")} ${ts("watch_versions_label")} ${ts("watch_template_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
         <div className="flex flex-col gap-5">
           <SettingRow
             label={ts("watch_projects_label")}
-            description={ts("watch_projects_desc")}
           >
             <Toggle
               checked={settings.auto_watch_project_dirs}
@@ -1674,7 +1624,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
           <SettingRow
             label={ts("watch_versions_label")}
-            description={ts("watch_versions_desc")}
             divider
           >
             <Toggle
@@ -1689,7 +1638,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
           <SettingRow
             label={ts("watch_template_label")}
-            description={ts("watch_template_desc")}
             divider
           >
             <Toggle
@@ -1702,9 +1650,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             />
           </SettingRow>
 
-          <p className="text-3xs text-muted/50 mt-1 leading-relaxed">
-            {ts("watcher_footer_desc")}
-          </p>
         </div>
       </Subsection>
   );
@@ -1743,8 +1688,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             Git
           </span>
         }
-        description={ts("github_token_desc")}
-        searchText={`${ts("git_sign_in_github")} ${ts("git_sign_in_gitlab")} ${ts("git_pat_title")} ${ts("github_token_title")} ${ts("github_token_desc")} ${ts("test")}`}
+        searchText={`${ts("git_sign_in_github")} ${ts("git_sign_in_gitlab")} ${ts("git_pat_title")} ${ts("github_token_title")} ${ts("test")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -1783,11 +1727,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 </button>
               )}
             </div>
-            {!gitAuth?.github && (
-              <p className="text-2xs text-muted leading-relaxed">
-                {ts("git_oauth_hint")}
-              </p>
-            )}
           </div>
 
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 p-4">
@@ -1829,11 +1768,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 </button>
               )}
             </div>
-            {!gitAuth?.gitlab && (
-              <p className="text-2xs text-muted leading-relaxed">
-                {ts("git_oauth_hint")}
-              </p>
-            )}
           </div>
 
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 p-4">
@@ -1883,9 +1817,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 {ts("git_pat_title")}
               </span>
             </div>
-            <p className="text-2xs text-muted leading-relaxed">
-              {ts("git_pat_desc")}
-            </p>
 
             {(gitAuth?.pats.length ?? 0) === 0 && !patOpen && (
               <span className="text-xs text-muted/60">
@@ -2051,8 +1982,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               {ts("sync_title")}
             </span>
           }
-          description={ts("sync_desc")}
-          searchText={`${ts("sync_title")} ${ts("sync_desc")} ${ts("sync_push_btn")} ${ts("sync_pull_btn")}`}
+          searchText={`${ts("sync_title")} ${ts("sync_push_btn")} ${ts("sync_pull_btn")}`}
           query={searchQuery}
           onMatch={reportMatch}
         >
@@ -2133,8 +2063,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="integrations-discord"
         title={ts("onboarding_discord_rpc")}
-        description={ts("discord_rpc_desc")}
-        searchText={`${ts("onboarding_discord_rpc")} ${ts("discord_rpc_desc")} ${ts("discord_app_id_label")} ${ts("discord_app_id_desc")} ${ts("discord_developer_portal")} ${ts("discord_show_projects_label")} ${ts("discord_show_projects_desc")} ${ts("discord_excluded_label")} ${ts("discord_excluded_desc")} ${ts("discord_custom_label")} ${ts("discord_custom_desc")}`}
+        searchText={`${ts("onboarding_discord_rpc")} ${ts("discord_app_id_label")} ${ts("discord_app_id_desc")} ${ts("discord_developer_portal")} ${ts("discord_show_projects_label")} ${ts("discord_excluded_label")} ${ts("discord_custom_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2191,18 +2120,12 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 label={ts("discord_show_projects_label")}
               />
             </SettingRow>
-            <p className="text-2xs text-muted leading-relaxed">
-              {ts("discord_show_projects_desc")}
-            </p>
           </div>
 
           <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
             <span className="text-xs font-medium text-muted">
               {ts("discord_excluded_label")}
             </span>
-            <p className="text-2xs text-muted leading-relaxed">
-              {ts("discord_excluded_desc")}
-            </p>
             <Dropdown
               trigger={({ toggle }) => (
                 <button
@@ -2274,9 +2197,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <span className="text-xs font-medium text-muted">
               {ts("discord_custom_label")}
             </span>
-            <p className="text-2xs text-muted leading-relaxed">
-              {ts("discord_custom_desc")}
-            </p>
             <Dropdown
               trigger={({ toggle }) => (
                 <button
@@ -2379,8 +2299,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="integrations-mise"
         title={ts("mise_label")}
-        description={ts("mise_desc")}
-        searchText={`${ts("mise_label")} ${ts("mise_desc")} mise`}
+        searchText={`${ts("mise_label")} mise`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2410,8 +2329,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="integrations-cli"
         title={ts("cli_tool_title")}
-        description={ts("cli_tool_desc")}
-        searchText={`${ts("cli_tool_title")} ${ts("cli_tool_desc")}`}
+        searchText={`${ts("cli_tool_title")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2447,9 +2365,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
     <div className="flex flex-col gap-3">
       <Subsection
         id="motion-intensity"
+        inline
         title={ts("animation_intensity_label")}
-        description={ts("animation_intensity_desc")}
-        searchText={`${ts("animation_intensity_label")} ${ts("animation_intensity_desc")} ${ts("animation_full")} ${ts("animation_subtle")} ${ts("animation_none")}`}
+        searchText={`${ts("animation_intensity_label")} ${ts("animation_full")} ${ts("animation_subtle")} ${ts("animation_none")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2471,9 +2389,10 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="motion-speed"
+        inline
+        fill
         title={ts("animation_speed_label")}
-        description={ts("animation_speed_desc")}
-        searchText={`${ts("animation_speed_label")} ${ts("animation_speed_desc")}`}
+        searchText={`${ts("animation_speed_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2496,9 +2415,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="motion-view-entrance"
+        inline
         title={ts("view_entrance_label")}
-        description={ts("view_entrance_desc")}
-        searchText={`${ts("view_entrance_label")} ${ts("view_entrance_desc")} ${ts("entrance_fade")} ${ts("entrance_slide")} ${ts("entrance_scale")} ${ts("entrance_none")}`}
+        searchText={`${ts("view_entrance_label")} ${ts("entrance_fade")} ${ts("entrance_slide")} ${ts("entrance_scale")} ${ts("entrance_none")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2521,9 +2440,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="motion-scroll-reveal"
+        inline
         title={ts("scroll_reveal_label")}
-        description={ts("scroll_reveal_desc")}
-        searchText={`${ts("scroll_reveal_label")} ${ts("scroll_reveal_desc")}`}
+        searchText={`${ts("scroll_reveal_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2537,9 +2456,10 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="motion-animation-threshold"
+        inline
+        fill
         title={ts("animation_threshold_label")}
-        description={ts("animation_threshold_desc")}
-        searchText={`${ts("animation_threshold_label")} ${ts("animation_threshold_desc")}`}
+        searchText={`${ts("animation_threshold_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2562,9 +2482,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="motion-card-tilt"
+        inline
         title={ts("card_tilt_label")}
-        description={ts("card_tilt_desc")}
-        searchText={`${ts("card_tilt_label")} ${ts("card_tilt_desc")}`}
+        searchText={`${ts("card_tilt_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2578,9 +2498,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="motion-click-ripple"
+        inline
         title={ts("click_ripple_label")}
-        description={ts("click_ripple_desc")}
-        searchText={`${ts("click_ripple_label")} ${ts("click_ripple_desc")}`}
+        searchText={`${ts("click_ripple_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2594,9 +2514,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="motion-press-bounce"
+        inline
         title={ts("press_bounce_label")}
-        description={ts("press_bounce_desc")}
-        searchText={`${ts("press_bounce_label")} ${ts("press_bounce_desc")}`}
+        searchText={`${ts("press_bounce_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2610,9 +2530,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="motion-animated-numbers"
+        inline
         title={ts("animated_numbers_label")}
-        description={ts("animated_numbers_desc")}
-        searchText={`${ts("animated_numbers_label")} ${ts("animated_numbers_desc")}`}
+        searchText={`${ts("animated_numbers_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2630,9 +2550,10 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
     <div className="flex flex-col gap-3">
       <Subsection
         id="accessibility-density"
+        inline
+        fill
         title={ts("ui_density_label")}
-        description={ts("density_desc")}
-        searchText={`${ts("ui_density_label")} ${ts("density_desc")}`}
+        searchText={`${ts("ui_density_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2655,9 +2576,10 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="accessibility-text-size"
+        inline
+        fill
         title={ts("text_size_label")}
-        description={ts("text_size_desc")}
-        searchText={`${ts("text_size_label")} ${ts("text_size_desc")}`}
+        searchText={`${ts("text_size_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2680,9 +2602,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="accessibility-screen-reader"
+        inline
         title={ts("screen_reader_label")}
-        description={ts("screen_reader_desc")}
-        searchText={`${ts("screen_reader_label")} ${ts("screen_reader_desc")} ${ts("screen_reader_beta_desc")} ${ts("accessibility")} ${ts("accessibility_desc")}`}
+        searchText={`${ts("screen_reader_label")} ${ts("accessibility")} ${ts("accessibility_desc")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2693,16 +2615,13 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           }
           label={ts("screen_reader_label")}
         />
-        <p className="text-2xs text-amber/90 leading-relaxed mt-1">
-          {ts("screen_reader_beta_desc")}
-        </p>
       </Subsection>
 
       <Subsection
         id="accessibility-scrollbars"
+        inline
         title={ts("show_scrollbar_label")}
-        description={ts("scrollbar_desc")}
-        searchText={`${ts("show_scrollbar_label")} ${ts("scrollbar_desc")}`}
+        searchText={`${ts("show_scrollbar_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2717,9 +2636,10 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="accessibility-tooltip-delay"
+        inline
+        fill
         title={ts("tooltip_delay_label")}
-        description={ts("tooltip_delay_desc")}
-        searchText={`${ts("tooltip_delay_label")} ${ts("tooltip_delay_desc")}`}
+        searchText={`${ts("tooltip_delay_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2742,9 +2662,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="accessibility-sidebar-resize-knob"
+        inline
         title={ts('fixed_sidebar_resize_knob_label')}
-        description={ts('fixed_sidebar_resize_knob_desc')}
-        searchText={`${ts('fixed_sidebar_resize_knob_label')} ${ts('fixed_sidebar_resize_knob_desc')} ${ts('accessibility')} ${ts('accessibility_desc')}`}
+        searchText={`${ts('fixed_sidebar_resize_knob_label')} ${ts('accessibility')} ${ts('accessibility_desc')}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2763,9 +2683,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
     <div className="flex flex-col gap-3">
       <Subsection
         id="advanced-setup"
+        inline
         title={ts("setup_wizard_again")}
-        description={ts("setup_wizard_desc")}
-        searchText={`${ts("setup_wizard_again")} ${ts("setup_wizard_desc")} ${ts("open_setup")}`}
+        searchText={`${ts("setup_wizard_again")} ${ts("open_setup")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2786,9 +2706,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <h3 className="text-sm font-medium text-ink">
               {ts("check_updates_title_modal")}
             </h3>
-            <p className="text-xs text-muted mt-1.5 leading-relaxed">
-              {ts("updates_desc")}
-            </p>
           </div>
           <button
             type="button"
@@ -2805,9 +2722,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <h3 className="text-sm font-medium text-ink">
               {ts("restart_app")}
             </h3>
-            <p className="text-xs text-muted mt-1.5 leading-relaxed">
-              {ts("restart_app_desc")}
-            </p>
           </div>
           <button
             type="button"
@@ -2824,9 +2738,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <h3 className="text-sm font-medium text-ink">
               {ts("report_a_bug")}
             </h3>
-            <p className="text-xs text-muted mt-1.5 leading-relaxed">
-              {ts("report_bug_desc")}
-            </p>
           </div>
           <button
             type="button"
@@ -2843,9 +2754,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <h3 className="text-sm font-medium text-ink">
               {ts("reset_settings")}
             </h3>
-            <p className="text-xs text-muted mt-1.5 leading-relaxed">
-              {ts("reset_settings_desc")}
-            </p>
           </div>
           <button
             type="button"
@@ -2861,9 +2769,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <h3 className="text-sm font-medium text-danger">
               {ts("delete_app_data")}
             </h3>
-            <p className="text-xs text-muted mt-1.5 leading-relaxed">
-              {ts("delete_data_desc")}
-            </p>
           </div>
           <button
             type="button"
@@ -2886,9 +2791,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <h3 className="text-sm font-medium text-ink">
               {ts("settings_backup_title")}
             </h3>
-            <p className="text-xs text-muted mt-1.5 leading-relaxed">
-              {ts("settings_backup_desc")}
-            </p>
             {settingsMessage && (
               <span className="text-xs text-muted block mt-1.5">
                 {settingsMessage}
@@ -2924,9 +2826,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <h3 className="text-sm font-medium text-ink">
               {ts("workspace_backup_title")}
             </h3>
-            <p className="text-xs text-muted mt-1.5 leading-relaxed">
-              {ts("workspace_backup_desc")}
-            </p>
             {wsBackupMessage && (
               <span className="text-xs text-muted block mt-1.5">
                 {wsBackupMessage}
@@ -2962,9 +2861,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <h3 className="text-sm font-medium text-ink">
               {ts("app_backup_title")}
             </h3>
-            <p className="text-xs text-muted mt-1.5 leading-relaxed">
-              {ts("app_backup_desc")}
-            </p>
             {appBackupMessage && (
               <span className="text-xs text-muted block mt-1.5">
                 {appBackupMessage}
@@ -3000,9 +2896,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <h3 className="text-sm font-medium text-ink">
               {ts("time_tracking_title")}
             </h3>
-            <p className="text-xs text-muted mt-1.5 leading-relaxed">
-              {ts("time_tracking_desc")}
-            </p>
             {statsMessage && (
               <span className="text-xs text-muted block mt-1.5">
                 {statsMessage}
@@ -3035,14 +2928,8 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
   const renderExperimental = () => (
     <div className="flex flex-col gap-3">
       <section className="flex flex-col gap-5 rounded-item bg-overlay px-5 py-5">
-        <div>
-          <p className="text-2xs text-muted mt-1">
-            {ts("experimental_desc")}
-          </p>
-        </div>
         <SettingRow
           label={ts("customize_view_label")}
-          description={ts("customize_view_desc")}
         >
           <Toggle
             checked={settings.customize_view_enabled}
@@ -3055,7 +2942,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
         <SettingRow
           label={ts("project_todos_label")}
-          description={ts("project_todos_desc")}
         >
           <Toggle
             checked={settings.project_todos_enabled}
@@ -3076,7 +2962,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           <h3 className="font-display font-semibold text-sm">
             {ts("credits")}
           </h3>
-          <p className="text-2xs text-muted mt-1">{ts("credits_desc")}</p>
         </div>
 
         <button

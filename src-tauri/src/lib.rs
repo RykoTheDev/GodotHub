@@ -340,6 +340,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             godot_versions::fetch_available_godot_versions,
+            godot_versions::open_versions_folder,
             godot_versions::download_godot_version,
             godot_versions::download_version_for_tag,
             discovery::scan_godot_recent_projects,

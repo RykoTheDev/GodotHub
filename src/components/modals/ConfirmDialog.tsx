@@ -33,7 +33,6 @@ export function ConfirmDialog({
         )
       }
       title={title}
-      description={description}
       maxWidth="max-w-sm"
       onClose={onCancel}
       showClose={false}
@@ -62,7 +61,9 @@ export function ConfirmDialog({
         </div>
       }
     >
-      <div className="p-6 pt-0" />
+      <div className="px-6 pb-4">
+        <p className="text-sm text-muted leading-relaxed wrap-break-word">{description}</p>
+      </div>
     </ModalShell>
   )
 }

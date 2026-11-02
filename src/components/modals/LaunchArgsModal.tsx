@@ -4,7 +4,6 @@ import { ModalShell } from './ModalShell'
 import { IconCode } from '../../lib/icons'
 
 interface Props {
-  projectName: string
   currentArgs: string
   onSave: (args: string) => void
   onClose: () => void
@@ -23,7 +22,6 @@ const SUGGESTIONS = [
 ]
 
 export function LaunchArgsModal({
-  projectName,
   currentArgs,
   onSave,
   onClose,
@@ -42,13 +40,6 @@ export function LaunchArgsModal({
     <ModalShell
       icon={<IconCode className="w-5 h-5" />}
       title={t('launch_arguments')}
-      description={
-        <>
-          {t('args_desc_custom_flags_before')}{' '}
-          <span className="font-medium text-ink">{projectName}</span>
-          {t('args_desc_custom_flags_after')}
-        </>
-      }
       maxWidth="max-w-lg"
       onClose={onClose}
       footer={

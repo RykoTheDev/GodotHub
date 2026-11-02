@@ -600,7 +600,6 @@ export function CommandPalette({
         <ModalHeader
           icon={<IconSearch className="w-5 h-5 text-accent-bright" />}
           title={tc('command_palette_title')}
-          description={tc('command_palette_desc')}
           onClose={onClose}
           autoFocusBanner={false}
         />

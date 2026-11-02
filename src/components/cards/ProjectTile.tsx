@@ -209,9 +209,9 @@ export function ProjectTile({
         {dialog === 'delete' && onDelete && <ConfirmDialog title={t('project_delete_title')} description={t('project_delete_desc', { name: displayName })} confirmLabel={t('project_delete_confirm')} variant="danger"
           onConfirm={() => { setDialog(null); onDelete() }} onCancel={() => setDialog(null)} />}
         {dialog === 'tags' && <TagManagerModal project={project} onClose={() => setDialog(null)} onSaved={updated => onTagsSaved?.(updated)} />}
-        {dialog === 'args' && <LaunchArgsModal projectName={displayName} currentArgs={project.launch_arguments} onSave={args => { onLaunchArgsChange?.(args); setDialog(null) }} onClose={() => setDialog(null)} />}
+        {dialog === 'args' && <LaunchArgsModal currentArgs={project.launch_arguments} onSave={args => { onLaunchArgsChange?.(args); setDialog(null) }} onClose={() => setDialog(null)} />}
         {dialog === 'template' && <SaveAsTemplateModal project={project} onClose={() => setDialog(null)} />}
-        {dialog === 'size' && <ProjectSizeModal projectPath={project.path} projectName={displayName} onClose={() => setDialog(null)} />}
+        {dialog === 'size' && <ProjectSizeModal projectPath={project.path} onClose={() => setDialog(null)} />}
         {dialog === 'doctor' && <ProjectDoctorModal project={project} installedVersions={installedVersions} onClose={() => setDialog(null)} />}
         {dialog === 'build' && <ProjectBuildModal project={project} onClose={() => setDialog(null)} />}
 

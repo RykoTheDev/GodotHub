@@ -126,6 +126,7 @@ export const api = {
   deleteExportTemplates: versionsApi.deleteExportTemplates,
   uninstallExportTemplateFiles: versionsApi.uninstallExportTemplateFiles,
   openExportTemplatesFolder: versionsApi.openExportTemplatesFolder,
+  openVersionsFolder: versionsApi.openFolder,
   miseStatus: miseApi.status,
   miseRefreshStatus: miseApi.refreshStatus,
   miseSyncVersions: miseApi.syncVersions,

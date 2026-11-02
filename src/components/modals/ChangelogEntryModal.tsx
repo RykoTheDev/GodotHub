@@ -99,7 +99,6 @@ export function ChangelogEntryModal({ entry, initial, onClose, onSave }: Props) 
     <ModalShell
       icon={<IconPencil className="w-5 h-5 text-accent-bright" />}
       title={entry ? t('edit_entry') : t('new_entry')}
-      description={t('changelog_entry_desc')}
       maxWidth="max-w-lg"
       onClose={onClose}
       showClose={false}

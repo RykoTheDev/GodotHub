@@ -214,8 +214,7 @@ export function ProjectDoctorModal({ project, installedVersions, onClose }: Prop
     }} />
 
   return <>
-    <ModalShell title={t('title')} icon={<IconBug className="h-5 w-5 text-accent-bright" />}
-      description={project.name} maxWidth="max-w-3xl" bodyClassName="h-[min(60vh,34rem)] shrink" onClose={confirm ? undefined : onClose}
+    <ModalShell title={t('title')} icon={<IconBug className="h-5 w-5 text-accent-bright" />} maxWidth="max-w-3xl" bodyClassName="h-[min(60vh,34rem)] shrink" onClose={confirm ? undefined : onClose}
       onKeyDown={event => {
         if (confirm) return
         if (event.key === 'Escape') { event.stopPropagation(); onClose() }

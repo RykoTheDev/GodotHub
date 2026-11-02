@@ -92,11 +92,6 @@ export function RestoreProgressModal({ onClose }: Props) {
           ? t('restore_modal_done_title')
           : t('restore_modal_title')
       }
-      description={
-        phase === 'done'
-          ? t('restore_modal_done_desc')
-          : t('restore_modal_desc')
-      }
       maxWidth="max-w-md"
       onClose={onClose}
       showClose={phase === 'preview' || phase === 'error'}

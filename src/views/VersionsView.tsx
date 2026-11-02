@@ -502,12 +502,12 @@ export function VersionsView({
       </ViewHeader>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-ms-2 -me-4 -mb-4'}`}
+        className={`flex-1 min-w-0 -mt-2 ${connected ? '' : '-ms-2 -me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
         topButtonBottom="bottom-17"
       >
         <div
-          className={`h-full ${connected ? 'ps-5' : 'ps-2'} pe-5 pb-4 flex flex-col gap-2`}
+          className={`h-full ${connected ? 'ps-5' : 'ps-2'} pe-5 pb-4 pt-2 flex flex-col gap-2`}
         >
         {installed.length === 0 && !isSearching ? (
           <div className="rounded-item border border-dashed border-outline/50 py-20 flex flex-col items-center gap-3 text-center px-6">
@@ -532,18 +532,20 @@ export function VersionsView({
                 {tv('installed_versions_section')}
               </h3>
               <div className="flex items-center gap-2">
-              <Tooltip content={tv('export_templates_open_folder')} side="top">
-                <button
-                  type="button"
-
-
-                  onClick={() => openTemplatesFolder()}
-                  aria-label={tv('export_templates_open_folder')}
-                  className="focus-ring cursor-pointer flex items-center justify-center h-7 w-7 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised "
-                >
-                  <IconFolder className="w-3.5 h-3.5" />
-                </button>
-              </Tooltip>
+              <button
+                type="button"
+                onClick={() => openTemplatesFolder()}
+                className="focus-ring cursor-pointer flex items-center h-7 px-3 rounded-item bg-overlay text-xs font-medium text-muted hover:text-ink hover:bg-raised"
+              >
+                {tv('templates_folder')}
+              </button>
+              <button
+                type="button"
+                onClick={() => api.openVersionsFolder().catch((error) => pushToast('error', String(error), 6000))}
+                className="focus-ring cursor-pointer flex items-center h-7 px-3 rounded-item bg-overlay text-xs font-medium text-muted hover:text-ink hover:bg-raised"
+              >
+                {tv('versions_folder')}
+              </button>
               {settings.use_mise && (
                 <Tooltip content={tv('mise_sync_title')} side="top">
                   <button
@@ -664,7 +666,6 @@ export function VersionsView({
           <h3 className="text-2xs font-semibold uppercase tracking-wider text-muted px-1">
             {tv('available_title')}
           </h3>
-          <p className="text-xs text-muted px-1 -mt-1">{tv('available_subtitle')}</p>
 
           <div className="shrink-0 flex items-center gap-2">
             <Dropdown
@@ -882,11 +883,7 @@ export function VersionsView({
                       </button>
 
                         {!isCollapsed && (
-                          <div
-
-
-                            className="overflow-hidden"
-                          >
+                          <div>
                             <div className="flex flex-col gap-2">
                               {rows.map(({ tag, asset }) => {
                                 const progressKey = downloadKey(tag, asset.name)

@@ -74,7 +74,6 @@ export function AddVaultItemModal({ item, projects, onClose }: Props) {
     <ModalShell
       icon={<IconFolderPlus className="w-4 h-4" />}
       title={t('vault_add_title')}
-      description={t('vault_add_desc', { name: item.name })}
       maxWidth="max-w-md"
       onClose={onClose}
       footer={

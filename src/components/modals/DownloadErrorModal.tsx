@@ -93,7 +93,6 @@ export function DownloadErrorModal({ error, onRetry, onClose }: Props) {
     <ModalShell
       icon={<IconAlertTriangle className="w-5 h-5 text-danger" />}
       title={tv('download_failed_title')}
-      description={tv('download_failed_desc', { tag: error.tag })}
       maxWidth="max-w-lg"
       onClose={onClose}
       footer={

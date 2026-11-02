@@ -45,7 +45,6 @@ export function EditVaultItemModal({ item, onClose, onSaved }: Props) {
     <ModalShell
       icon={<IconPencil className="w-4 h-4" />}
       title={t('vault_edit_title')}
-      description={t('vault_edit_desc', { name: item.name })}
       maxWidth="max-w-sm"
       onClose={onClose}
       footer={

@@ -5,7 +5,6 @@ import { IconX } from '../../lib/icons'
 interface Props {
   icon: React.ReactNode
   title: string
-  description?: React.ReactNode
   onClose?: () => void
   titleId?: string
   autoFocusBanner?: boolean
@@ -15,7 +14,6 @@ interface Props {
 export function ModalHeader({
   icon,
   title,
-  description,
   onClose,
   titleId,
   titleClassName = 'line-clamp-2 wrap-break-word',
@@ -40,18 +38,15 @@ export function ModalHeader({
       <div
         ref={bannerRef}
         tabIndex={-1}
-        className="flex items-start gap-2 min-w-0 flex-1 bg-black/15 px-3 py-3 rounded-btn outline-none"
+        className="flex items-center gap-2 min-w-0 flex-1 bg-black/15 px-3 py-3 rounded-btn outline-none"
       >
         <div className="w-9 h-9 rounded-tile flex items-center justify-center shrink-0">
           {icon}
         </div>
         <div className="min-w-0">
-          <h3 id={id} title={title} className={`uppercase font-semibold text-xl text-ink ${titleClassName}`}>
+          <h3 id={id} title={title} className={`uppercase font-semibold text-2xl leading-tight text-ink ${titleClassName}`}>
             {title}
           </h3>
-          {description && (
-            <p className="text-xs text-muted mt-0.5 leading-relaxed wrap-break-word">{description}</p>
-          )}
         </div>
       </div>
       {onClose && (

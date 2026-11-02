@@ -169,7 +169,6 @@ export function InstallAssetModal({ asset, onClose, onInstalled }: Props) {
         )
       }
       title={t('asset_install_modal_title', { title: asset.title })}
-      description={t('asset_install_modal_desc')}
       maxWidth="max-w-md"
       onClose={() => !installing && onClose()}
       showClose={false}

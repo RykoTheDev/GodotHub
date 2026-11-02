@@ -277,11 +277,11 @@ export function StorageView({
       </ViewHeader>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-ms-2 -me-4 -mb-4'}`}
+        className={`flex-1 min-w-0 -mt-2 ${connected ? '' : '-ms-2 -me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
         topButtonBottom={'bottom-17'}
       >
-        <div className={` ${connected ? 'ps-5' : 'ps-2'} pe-5 pb-4 flex flex-col gap-2`}>
+        <div className={` ${connected ? 'ps-5' : 'ps-2'} pe-5 pb-4 pt-2 flex flex-col gap-2`}>
           {error && !report ? (
             <div className="border border-dashed border-danger/30 rounded-item py-16 flex flex-col items-center gap-4 text-center">
               <p className="text-sm text-muted max-w-sm leading-relaxed">
@@ -530,7 +530,6 @@ export function StorageView({
           <ModalShell
             icon={<IconTrash className="w-5 h-5 text-danger" />}
             title={tc('cleanup_confirm_title', { size: formatBytes(chosenSize) })}
-            description={tc('cleanup_confirm_desc')}
             maxWidth="max-w-md"
             onClose={() => setConfirming(false)}
             showClose={false}
@@ -554,6 +553,7 @@ export function StorageView({
             }
           >
             <div className="flex flex-col gap-3">
+              <p className="text-xs text-muted">{tc('cleanup_confirm_desc')}</p>
               <ul className="flex flex-col gap-1 max-h-64 overflow-y-auto">
                 {chosen.map((e) => (
                   <li

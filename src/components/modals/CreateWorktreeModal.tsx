@@ -54,7 +54,6 @@ export function CreateWorktreeModal({ repositoryPath, onClose, onCreated }: Prop
     <ModalShell
       icon={<IconClone className="w-5 h-5" />}
       title={t('add_worktree')}
-      description={t('create_worktree_desc')}
       maxWidth="max-w-lg"
       onClose={busy || picking ? undefined : onClose}
       onKeyDown={(event) => {

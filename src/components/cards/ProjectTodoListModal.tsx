@@ -78,7 +78,6 @@ export function ProjectTodoListModal({
         <ModalHeader
           icon={<IconCheckCircle className="h-5 w-5 text-accent-bright" />}
           title={t("next_steps")}
-          description={t("all_tasks_description")}
           onClose={onClose}
           autoFocusBanner={false}
         />

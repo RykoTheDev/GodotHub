@@ -135,11 +135,16 @@ function tilt(card: HTMLElement, e: PointerEvent) {
   })
 }
 
+function cardAt(target: Element) {
+  const card = target.closest<HTMLElement>(CARD)
+  return card && !card.closest('[role="dialog"]') ? card : null
+}
+
 function onPointerDown(e: PointerEvent) {
   setPointerHeld(true)
   if (e.button !== 0) return
   const target = e.target as Element
-  const el = target.closest<HTMLElement>(PRESSABLE) ?? target.closest<HTMLElement>(CARD)
+  const el = target.closest<HTMLElement>(PRESSABLE) ?? cardAt(target)
   if (!el || disabled(el)) return
   if (motionOff()) return
   if (motionPrefs().press) press(el)
@@ -149,7 +154,7 @@ function onPointerDown(e: PointerEvent) {
 function onPointerMove(e: PointerEvent) {
   if (e.pointerType !== 'mouse' || e.buttons) return
   const target = e.target as Element
-  const card = motionPrefs().tilt && flourishesOn() ? target.closest<HTMLElement>(CARD) : null
+  const card = motionPrefs().tilt && flourishesOn() ? cardAt(target) : null
   if (card !== hovered) {
     leaveCard()
     if (card && !card.closest(GHOST_SELECTOR)) enterCard(card)

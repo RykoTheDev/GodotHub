@@ -304,7 +304,6 @@ export function CreateProjectModal({
         <ModalHeader
           icon={<IconFolderPlus className="w-5 h-5 text-accent-bright" />}
           title={t('new_project')}
-          description={t('create_project_desc')}
           autoFocusBanner={false}
           titleId={titleId}
         />
