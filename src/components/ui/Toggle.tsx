@@ -22,8 +22,8 @@ export function Toggle({ checked, onChange, label, disabled }: Props) {
       } ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:brightness-110'}`}
     >
       <span
-        style={{transform: checked ? 'translateX(27px)' : 'translateX(0px)', transitionDuration: reduced || instant ? '0ms' : undefined}}
-        className="ui-control-indicator ms-0.5 block w-5 h-5 rounded-full bg-white shadow-md"
+        style={{left: checked ? 23 : 3, transition: reduced || instant ? 'none' : 'left 160ms var(--ease-out)'}}
+        className="absolute top-[3px] block w-5 h-5 rounded-full bg-white shadow-md"
       />
     </button>
   )

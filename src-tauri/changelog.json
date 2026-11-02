@@ -1760,5 +1760,58 @@
     ],
     "known_issues": [],
     "created_at": 1793379000
+  },
+  {
+    "id": "3caf4d34-ac76-45b1-a39e-48e32d43299e",
+    "version": "v1.5.5",
+    "date": "2026-11-02",
+    "notes": [
+      {
+        "category": "add",
+        "text": "New Vault: save files and folders from one or more projects as a reusable item with a name, description and tags, then add it to any project later. Adding to several projects at once is supported, and you get a prompt before existing files are overwritten"
+      },
+      {
+        "category": "add",
+        "text": "Customize View is now a dropdown on the Projects page: switch between List, Grid and Kanban and toggle what shows on project cards (size, time tracked, session timer, path, tags, last opened, play and console buttons) without opening a separate dialog"
+      },
+      {
+        "category": "add",
+        "text": "If a view fails to load, GodotHub now shows a message with a Retry button and technical details instead of a blank page. The rest of the app keeps working"
+      },
+      {
+        "category": "improve",
+        "text": "Dialogs now keep keyboard focus inside them, close with Escape, and return focus to where you were when they close. Focus rings were also added to more controls for keyboard navigation"
+      },
+      {
+        "category": "improve",
+        "text": "The New Project button expands on hover, and the Sort and Filter buttons and the active tag filter chip are easier to read"
+      },
+      {
+        "category": "improve",
+        "text": "Consistent spacing across view panels, loading states, dropdowns and context menus, and standardized small text sizes"
+      },
+      {
+        "category": "improve",
+        "text": "Smoother performance: Godot download progress updates are throttled, the project console keeps only the latest 5000 lines and skips redundant updates, and the installed versions list no longer re-checks every 15 seconds"
+      },
+      {
+        "category": "improve",
+        "text": "Uninstalling a Godot version no longer freezes the app while files are being deleted"
+      },
+      {
+        "category": "improve",
+        "text": "Project scans use less disk access and only refresh the list when new projects are actually found"
+      },
+      {
+        "category": "fix",
+        "text": "Fixed the Customize View experimental button and several search UI bugs"
+      },
+      {
+        "category": "fix",
+        "text": "Fixed duplicate design tokens and small layout spacing issues across the app"
+      }
+    ],
+    "known_issues": [],
+    "created_at": 1793638200
   }
 ]
