@@ -46,6 +46,7 @@ import { ConfirmDialog } from '../modals/ConfirmDialog'
 import { CommitGraph } from './CommitGraph'
 import { Tooltip } from '../reusables/Tooltip'
 import { Checkbox } from '../ui/Checkbox'
+import { useExclusivePopup } from '../../hooks/useExclusivePopup'
 
 interface Props {
   project: Project
@@ -281,6 +282,8 @@ export function GitSidebar({
   const [deletingBranch, setDeletingBranch] = useState<string | null>(null)
   const [publishingBranch, setPublishingBranch] = useState(false)
   const branchMenuRef = useRef<HTMLDivElement>(null)
+  useExclusivePopup(branchMenuOpen, () => setBranchMenuOpen(false), () => branchMenuRef.current)
+  useExclusivePopup(!!ctxMenu, () => setCtxMenu(null), () => ctxMenuRef.current)
   const ready = true
 
   const notifyGitStatusChanged = useCallback(() => {

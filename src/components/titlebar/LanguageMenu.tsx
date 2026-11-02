@@ -19,6 +19,7 @@ import { IconLanguage, IconCheck, IconTextDirection } from '../../lib/icons'
 import { useSettings } from '../../hooks/useSettings'
 import { LanguageFlag } from '../reusables/LanguageFlag'
 import { Tooltip } from '../reusables/Tooltip'
+import { useExclusivePopup } from '../../hooks/useExclusivePopup'
 
 const STATUS_BADGE_CLASS: Record<LanguageStatus, string> = {
   complete: 'bg-mint/10 text-mint border-mint/30',
@@ -52,6 +53,7 @@ export function LanguageMenu() {
 
   const ref = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
+  useExclusivePopup(open, () => setOpen(false), () => listRef.current, () => ref.current)
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {

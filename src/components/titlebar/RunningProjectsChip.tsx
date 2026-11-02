@@ -13,6 +13,7 @@ import { useTauriEvent } from '../../lib/useTauriEvent'
 import { fetchRunningProjects } from '../../lib/runningProjects'
 import { formatDuration } from '../../lib/duration'
 import { IconTerminal, IconX } from '../../lib/icons'
+import { useExclusivePopup } from '../../hooks/useExclusivePopup'
 
 const TIMER_START_DELAY_MS = 3000
 
@@ -39,6 +40,7 @@ export function RunningProjectsChip() {
   const [anchor, setAnchor] = useState<DOMRect | null>(null)
   const ref = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
+  useExclusivePopup(open, () => setOpen(false), () => menuRef.current, () => ref.current)
 
   useTauriEvent<RunningProject>('project:launched', (p) => {
     setRunning((prev) =>

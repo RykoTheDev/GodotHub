@@ -14,6 +14,7 @@ import {
   MENU_VIEWPORT_PAD,
   type MenuItem,
 } from './menu'
+import { useExclusivePopup } from '../../hooks/useExclusivePopup'
 
 const FALLBACK_HEIGHT = 160
 const FALLBACK_WIDTH = 240
@@ -71,12 +72,7 @@ export function ContextMenu({
     measure()
   }, [measure])
 
-  useEffect(() => {
-    window.dispatchEvent(new CustomEvent('app:dropdown-open'))
-    return () => {
-      window.dispatchEvent(new CustomEvent('app:dropdown-close'))
-    }
-  }, [])
+  useExclusivePopup(true, onClose, () => menuRef.current)
 
   useEffect(() => {
     const onScroll = () => onClose()

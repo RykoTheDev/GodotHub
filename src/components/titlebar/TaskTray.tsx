@@ -32,6 +32,7 @@ import { Tooltip } from '../reusables/Tooltip'
 
 
 import { reportError } from '../../lib/toast'
+import { useExclusivePopup } from '../../hooks/useExclusivePopup'
 function TaskIcon({ task }: { task: Task }) {
   const iconClass = 'w-4 h-4 shrink-0'
   switch (task.type) {
@@ -250,6 +251,7 @@ export function TaskTray() {
   const [openUp, setOpenUp] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
+  useExclusivePopup(open, () => setOpen(false), () => menuRef.current, () => ref.current)
 
   const measure = useCallback(() => {
     const el = ref.current

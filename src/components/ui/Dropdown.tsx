@@ -21,6 +21,7 @@ import {
   MENU_VIEWPORT_PAD,
   type MenuItem,
 } from './menu'
+import { useExclusivePopup } from '../../hooks/useExclusivePopup'
 
 export type NewDropdownItem = MenuItem
 
@@ -98,13 +99,7 @@ export function Dropdown({
     onOpenChange?.(false)
   }, [onOpenChange])
 
-  useEffect(() => {
-    if (!open) return
-    window.dispatchEvent(new CustomEvent('app:dropdown-open'))
-    return () => {
-      window.dispatchEvent(new CustomEvent('app:dropdown-close'))
-    }
-  }, [open])
+  useExclusivePopup(open, closeAll, () => menuRef.current, () => ref.current)
 
   const measure = useCallback(() => {
     const el = ref.current
