@@ -14,7 +14,6 @@ export default defineConfig(async () => ({
           if (!id.includes("node_modules")) return
           if (/[\\/]node_modules[\\/](react|react-dom|scheduler)[\\/]/.test(id))
             return "react-vendor"
-          if (id.includes("framer-motion")) return "motion"
           if (id.includes("i18next")) return "i18n"
           if (
             /react-markdown|remark|micromark|mdast|hast|unist|vfile|unified|property-information|character-entities|space-separated-tokens|comma-separated-tokens|decode-named-character-reference|trough|bail|zwitch|html-void-elements|web-namespaces|ccount|markdown-table|longest-streak|devlop/.test(

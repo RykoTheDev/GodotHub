@@ -1,99 +1,90 @@
-import { useLayoutEffect, useRef, type ReactNode } from 'react'
-import { useUiMotion } from '../../hooks/useUiMotion'
-import { disclosureMotion } from '../../lib/motion'
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
 import { IconChevronRight } from '../../lib/icons'
 import { isRtl } from '../../lib/locale'
+import { busy, ease, gsap } from '../../lib/motion'
 
 interface Props {
   id: string
   open: boolean
-  animate: boolean
   className?: string
   children: ReactNode
 }
 
-export function Disclosure({ id, open, animate, className, children }: Props) {
-  const { instant, reduced } = useUiMotion()
-  const panel = useRef<HTMLDivElement>(null)
-  const content = useRef<HTMLDivElement>(null)
-  const initialOpen = useRef(open)
-  const mounted = useRef(false)
-  const previousOpen = useRef(open)
-  const animateRef = useRef(animate)
-  animateRef.current = animate
+export function Disclosure({ id, open, className, children }: Props) {
+  const ref = useRef<HTMLDivElement>(null)
+  const innerRef = useRef<HTMLDivElement>(null)
+  const prevOpen = useRef(open)
+  const closing = useRef(false)
+  const [shown, setShown] = useState(open)
+  if (open && !shown) setShown(true)
 
   useLayoutEffect(() => {
-    const element = panel.current
-    const inner = content.current
-    if (!element || !inner) return
-    const changed = previousOpen.current !== open
-    previousOpen.current = open
-    let observer: ResizeObserver | undefined
-    let timer: number | undefined
-    let finished = false
-    const finish = () => {
-      finished = true
-      observer?.disconnect()
-      window.clearTimeout(timer)
-      element.style.height = open ? 'auto' : '0px'
-      element.style.opacity = open ? '1' : '0'
-    }
-    if (!mounted.current || !changed || !animateRef.current || instant || reduced) {
-      mounted.current = true
-      element.style.transition = 'none'
-      finish()
-      return
-    }
-    const height = element.getBoundingClientRect().height
-    const opacity = getComputedStyle(element).opacity
-    element.style.transition = 'none'
-    element.style.height = `${height}px`
-    element.style.opacity = opacity
-    void element.offsetHeight
-    const { durationMs, easing } = disclosureMotion
-    element.style.transition = `height ${durationMs}ms ${easing}, opacity ${durationMs}ms ${easing}`
-    element.style.height = open ? `${inner.getBoundingClientRect().height}px` : '0px'
-    element.style.opacity = open ? '1' : '0'
-    const fallback = () => {
-      window.clearTimeout(timer)
-      timer = window.setTimeout(finish, durationMs * 2)
-    }
+    const el = ref.current
+    if (!el || prevOpen.current === open) return
+    prevOpen.current = open
+    gsap.killTweensOf(el)
     if (open) {
-      observer = new ResizeObserver(() => {
-        if (finished) return
-        const height = `${inner.getBoundingClientRect().height}px`
-        if (element.style.height !== height) { element.style.height = height; fallback() }
+      const start = closing.current ? el.offsetHeight : 0
+      closing.current = false
+      const items = innerRef.current ? (Array.from(innerRef.current.children) as HTMLElement[]).slice(0, 16) : []
+      const release = busy(el)
+      gsap.fromTo(
+        el,
+        { height: start, opacity: start ? gsap.getProperty(el, 'opacity') : 0 },
+        { height: 'auto', opacity: 1, duration: 0.4, ease: ease.out, lazy: false, clearProps: 'height,opacity', onComplete: release, onInterrupt: release },
+      )
+      if (items.length && !start) {
+        const releaseItems = busy(...items)
+        gsap.fromTo(
+          items,
+          { y: -6, opacity: 0 },
+          {
+            y: 0,
+            opacity: 1,
+            duration: 0.32,
+            stagger: { amount: Math.min(0.1, items.length * 0.012) },
+            ease: ease.out,
+            lazy: false,
+            clearProps: 'opacity,transform',
+            onComplete: releaseItems,
+            onInterrupt: releaseItems,
+          },
+        )
+      }
+    } else {
+      closing.current = true
+      const release = busy(el)
+      gsap.to(el, {
+        height: 0,
+        opacity: 0,
+        duration: 0.26,
+        ease: 'power3.out',
+        onInterrupt: release,
+        onComplete: () => {
+          closing.current = false
+          el.hidden = true
+          setShown(false)
+          gsap.set(el, { clearProps: 'height,opacity' })
+          release()
+        },
       })
-      observer.observe(inner)
     }
-    const completed = (event: TransitionEvent) => {
-      if (event.target === element && event.propertyName === 'height') finish()
-    }
-    element.addEventListener('transitionend', completed)
-    fallback()
-    return () => {
-      element.removeEventListener('transitionend', completed)
-      window.clearTimeout(timer)
-      observer?.disconnect()
-    }
-  }, [open, instant, reduced])
+  }, [open])
 
   return (
-    <div ref={panel} id={id} inert={!open} aria-hidden={!open}
-      className="overflow-hidden"
-      style={{ height: initialOpen.current ? 'auto' : 0, opacity: initialOpen.current ? 1 : 0 }}>
-      <div ref={content} className={className}>{children}</div>
+    <div ref={ref} id={id} hidden={!shown} className="overflow-hidden">
+      <div ref={innerRef} className={className}>{children}</div>
     </div>
   )
 }
 
-export function DisclosureChevron({ open, animate }: Pick<Props, 'open' | 'animate'>) {
-  const { instant, reduced } = useUiMotion()
-  const { durationMs, easing } = disclosureMotion
+export function DisclosureChevron({ open }: Pick<Props, 'open'>) {
   return (
-    <span aria-hidden="true" className="inline-flex shrink-0 text-muted"
-      style={{ transform: open ? (isRtl() ? 'rotate(-90deg)' : 'rotate(90deg)') : 'rotate(0deg)',
-        transition: animate && !instant && !reduced ? `transform ${durationMs}ms ${easing}` : 'none' }}>
+    <span
+      aria-hidden="true"
+      className="inline-flex shrink-0 text-muted transition-transform duration-500 ease-spring"
+      style={{ transform: open ? (isRtl() ? 'rotate(-90deg)' : 'rotate(90deg)') : 'rotate(0deg)' }}
+    >
       <IconChevronRight className="w-3 h-3 rtl:rotate-180" />
     </span>
   )

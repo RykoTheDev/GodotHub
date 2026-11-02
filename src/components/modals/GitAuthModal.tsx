@@ -1,10 +1,8 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { api } from '../../lib/api'
-import { useUiMotion } from '../../hooks/useUiMotion'
 import type { DeviceFlowStart } from '../../types'
 import {
   IconAlertTriangle,
@@ -59,7 +57,7 @@ function Step({
         <span aria-hidden="true" className="absolute start-3.5 top-8 bottom-1 w-px bg-outline/40" />
       )}
       <span
-        className={`relative z-10 w-7 h-7 shrink-0 rounded-full flex items-center justify-center text-xs font-semibold transition-colors ${
+        className={`relative z-10 w-7 h-7 shrink-0 rounded-full flex items-center justify-center text-xs font-semibold  ${
           done
             ? 'bg-mint/15 text-mint'
             : active
@@ -86,7 +84,6 @@ export function GitAuthModal({
 }: Props) {
   const { t: tc } = useTranslation('common')
   const { t: ts } = useTranslation('settings')
-  const { instant, transition, surface } = useUiMotion()
   const titleId = useId()
   const dialogRef = useRef<HTMLDivElement>(null)
   const [returnFocus] = useState(() => document.activeElement as HTMLElement | null)
@@ -263,16 +260,14 @@ export function GitAuthModal({
   const expiringSoon = remaining !== null && remaining <= 60
 
   return createPortal(
-    <motion.div
-      initial={instant ? false : { opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: transition('modal', true) }}
-      transition={transition('modal')}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+    <div
+
+
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
       onClick={(e) => e.stopPropagation()}
     >
-      <motion.div
-        {...surface('modal')}
+      <div
+
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
@@ -285,7 +280,7 @@ export function GitAuthModal({
           type="button"
           onClick={onClose}
           aria-label={tc('close')}
-          className="focus-ring cursor-pointer absolute top-4 end-4 z-10 w-8 h-8 flex items-center justify-center rounded-full text-muted hover:text-ink hover:bg-ink/10 transition-colors"
+          className="focus-ring cursor-pointer absolute top-4 end-4 z-10 w-8 h-8 flex items-center justify-center rounded-full text-muted hover:text-ink hover:bg-ink/10 "
         >
           <IconX className="w-3.5 h-3.5" />
         </button>
@@ -339,15 +334,15 @@ export function GitAuthModal({
                   <p className="text-xs text-muted break-all leading-relaxed max-w-xs">{message}</p>
                 )}
               </div>
-              <motion.button
+              <button
                 type="button"
-                data-press-feedback
+
                 onClick={() => setAttempt((a) => a + 1)}
-                className="focus-ring cursor-pointer w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-btn bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
+                className="focus-ring cursor-pointer w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-btn bg-accent hover:bg-accent-bright text-sm font-medium text-white "
               >
                 <IconRefresh className="w-4 h-4" />
                 {ts('git_auth_try_again')}
-              </motion.button>
+              </button>
             </div>
           )}
 
@@ -358,7 +353,7 @@ export function GitAuthModal({
                   type="button"
                   onClick={copyCode}
                   aria-label={`${ts('git_auth_copy_code')}: ${flow.user_code}`}
-                  className="group focus-ring cursor-pointer w-full flex items-center justify-between gap-3 ps-4 pe-3 py-3 rounded-2xl bg-base border border-outline/50 hover:border-accent-dim transition-colors"
+                  className="group focus-ring cursor-pointer w-full flex items-center justify-between gap-3 ps-4 pe-3 py-3 rounded-2xl bg-base border border-outline/50 hover:border-accent-dim "
                 >
                   <span dir="ltr" className="flex items-center gap-2 font-mono text-2xl font-semibold tracking-[0.2em] text-ink">
                     {codeGroups.map((group, i) => (
@@ -369,7 +364,7 @@ export function GitAuthModal({
                     ))}
                   </span>
                   <span
-                    className={`shrink-0 inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-2xs font-semibold transition-colors ${
+                    className={`shrink-0 inline-flex items-center gap-1 h-7 px-2.5 rounded-full text-2xs font-semibold  ${
                       copied ? 'bg-mint/15 text-mint' : 'bg-raised text-muted group-hover:text-ink'
                     }`}
                   >
@@ -386,20 +381,20 @@ export function GitAuthModal({
                 active={!opened}
               >
                 <div className="flex flex-col gap-2">
-                  <motion.button
+                  <button
                     type="button"
-                    data-press-feedback
+
                     onClick={copyAndOpen}
-                    className="focus-ring cursor-pointer w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-btn bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
+                    className="focus-ring cursor-pointer w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-btn bg-accent hover:bg-accent-bright text-sm font-medium text-white "
                   >
                     <IconExternalLink className="w-4 h-4" />
                     {ts('git_auth_copy_and_open', { provider: providerLabel })}
-                  </motion.button>
+                  </button>
                   {verificationUrl && (
                     <button
                       type="button"
                       onClick={copyLink}
-                      className="focus-ring cursor-pointer w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-item border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors"
+                      className="focus-ring cursor-pointer w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-item border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised "
                     >
                       {linkCopied ? <IconCheck className="w-4 h-4 text-mint shrink-0" /> : <IconCopy className="w-4 h-4 shrink-0" />}
                       <span dir="ltr" className="truncate">{verificationUrl.replace(/^https?:\/\//, '')}</span>
@@ -425,8 +420,8 @@ export function GitAuthModal({
             </ol>
           )}
         </div>
-      </motion.div>
-    </motion.div>,
+      </div>
+    </div>,
     document.body,
   )
 }

@@ -1,10 +1,8 @@
 import NumberFlow from '@number-flow/react'
 import { useSettings } from '../../hooks/useSettings'
-import { useUiMotion } from '../../hooks/useUiMotion'
 
 export function AnimatedNumber({ value }: { value: number }) {
   const { settings } = useSettings()
-  const {instant, reduced} = useUiMotion()
-  if (!settings.animated_numbers || instant || reduced) return <span>{value}</span>
+  if (!settings.animated_numbers || settings.animation_intensity === 'none') return <>{value}</>
   return <NumberFlow value={value} />
 }

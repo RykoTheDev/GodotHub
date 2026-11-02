@@ -31,7 +31,6 @@ export function ThemePresetsModal({
     <ModalShell
       icon={<Icon className="w-5 h-5 text-accent-bright" />}
       title={title}
-      description={String(presets.length)}
       maxWidth="max-w-2xl"
       onClose={onClose}
     >
@@ -44,7 +43,7 @@ export function ThemePresetsModal({
                   key={preset.id}
                   type="button"
                   onClick={() => onSelect(preset.id)}
-                  className={`focus-ring cursor-pointer flex flex-col items-start gap-2 rounded-btn border p-3 text-start transition-colors ${
+                  className={`focus-ring cursor-pointer flex flex-col items-start gap-2 rounded-btn border p-3 text-start  ${
                     active
                       ? 'border-accent bg-accent/10'
                       : 'border-outline/50 hover:border-accent-dim hover:bg-raised'

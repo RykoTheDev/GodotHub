@@ -1,8 +1,6 @@
-import { useUiMotion } from '../../hooks/useUiMotion'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { createPortal } from 'react-dom'
-import { motion, AnimatePresence } from 'framer-motion'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { formatLocaleDate } from '../../lib/locale'
 
@@ -52,7 +50,6 @@ function formatDate(iso: string) {
 }
 
 export function ContributorPRsModal({ login, avatarUrl, onClose }: Props) {
-  const uiMotion = useUiMotion()
 
   const { t } = useTranslation('common')
   const [prs, setPrs] = useState<PR[]>([])
@@ -96,15 +93,15 @@ export function ContributorPRsModal({ login, avatarUrl, onClose }: Props) {
   }, [login])
 
   return createPortal(
-    <AnimatePresence>
-      <motion.div
-        {...uiMotion.surface('modal', `none`)}
 
-        className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      <div
+
+
+        className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
         onClick={onClose}
       >
-        <motion.div
-          {...uiMotion.surface('modal', `scale(0.96)`)}
+        <div
+
 
           role="dialog"
           aria-modal="true"
@@ -124,7 +121,7 @@ export function ContributorPRsModal({ login, avatarUrl, onClose }: Props) {
               <button
                 type="button"
                 onClick={() => openUrl(`https://github.com/${login}`)}
-                className="focus-ring cursor-pointer text-sm font-semibold text-ink hover:text-accent transition-colors"
+                className="focus-ring cursor-pointer text-sm font-semibold text-ink hover:text-accent "
               >
                 {login}
               </button>
@@ -137,7 +134,7 @@ export function ContributorPRsModal({ login, avatarUrl, onClose }: Props) {
             <button
               type="button"
               onClick={onClose}
-              className="focus-ring cursor-pointer p-1.5 rounded-md text-muted hover:text-ink hover:bg-raised transition-colors"
+              className="focus-ring cursor-pointer p-1.5 rounded-md text-muted hover:text-ink hover:bg-raised "
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round">
                 <path d="M18 6L6 18M6 6l12 12" />
@@ -148,13 +145,13 @@ export function ContributorPRsModal({ login, avatarUrl, onClose }: Props) {
           <div className="flex-1 min-h-0 overflow-y-auto">
             {loading ? (
               <div className="flex items-center justify-center py-12">
-                <motion.svg
+                <svg
                   width={20}
                   height={20}
                   viewBox="0 0 24 24"
                   fill="none"
-                  animate={{ rotate: 360 }}
-                  transition={{ repeat: Infinity, duration: 0.8, ease: 'linear' }}
+
+
                 >
                   <path
                     d="M21 12a9 9 0 11-6.219-8.56"
@@ -162,7 +159,7 @@ export function ContributorPRsModal({ login, avatarUrl, onClose }: Props) {
                     strokeWidth={2}
                     strokeLinecap="round"
                   />
-                </motion.svg>
+                </svg>
               </div>
             ) : error ? (
               <div className="flex flex-col items-center justify-center gap-2 py-12 text-muted text-sm">
@@ -180,7 +177,7 @@ export function ContributorPRsModal({ login, avatarUrl, onClose }: Props) {
                     key={pr.number}
                     type="button"
                     onClick={() => openUrl(pr.html_url)}
-                    className="focus-ring cursor-pointer flex items-start gap-3 px-5 py-3 text-start hover:bg-raised/60 transition-colors border-b border-line/50 last:border-b-0"
+                    className="focus-ring cursor-pointer flex items-start gap-3 px-5 py-3 text-start hover:bg-raised/60 border-b border-line/50 last:border-b-0"
                   >
                     <span className="text-2xs font-mono text-muted/50 shrink-0 mt-0.5">
                       #{pr.number}
@@ -195,9 +192,9 @@ export function ContributorPRsModal({ login, avatarUrl, onClose }: Props) {
               </div>
             )}
           </div>
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>,
+        </div>
+      </div>
+    ,
     document.body,
   )
 }

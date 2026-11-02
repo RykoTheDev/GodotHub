@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { version } from '../../../package.json'
@@ -222,7 +221,6 @@ export function BugReportModal({ onClose }: Props) {
     <ModalShell
       icon={<IconBug className="w-5 h-5 text-danger" />}
       title={t('report_a_bug')}
-      description={t('bug_report_desc', { version })}
       maxWidth="max-w-lg"
       onClose={onClose}
       footer={
@@ -231,7 +229,7 @@ export function BugReportModal({ onClose }: Props) {
             type="button"
             onClick={handleCopy}
             disabled={!report}
-            className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {copied ? (
               <IconCheck className="w-4 h-4 text-mint" />
@@ -241,26 +239,26 @@ export function BugReportModal({ onClose }: Props) {
             {copied ? t('bug_report_copied') : t('bug_report_copy_log')}
           </button>
           <div className="ms-auto flex items-center gap-2.5">
-            <motion.button
+            <button
 
-              data-press-feedback
+
               onClick={() => report && downloadReport(report)}
               disabled={!report}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <IconDownload className="w-4 h-4" />
               {t('bug_report_download_log')}
-            </motion.button>
-            <motion.button
+            </button>
+            <button
 
-              data-press-feedback
+
               onClick={openGithubIssue}
               disabled={!report}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item bg-danger hover:bg-danger/90 text-sm font-medium text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item bg-danger hover:bg-danger/90 text-sm font-medium text-white disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <IconExternalLink className="w-4 h-4" />
               {t('bug_report_open_github')}
-            </motion.button>
+            </button>
           </div>
         </>
       }
@@ -280,7 +278,7 @@ export function BugReportModal({ onClose }: Props) {
             placeholder={t('bug_report_describe_placeholder')}
             rows={3}
             maxLength={2000}
-            className="focus-ring w-full resize-none bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm text-ink placeholder:text-muted/50 focus:border-accent-dim transition-colors"
+            className="focus-ring w-full resize-none bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm text-ink placeholder:text-muted/50 focus:border-accent-dim "
           />
         </div>
 

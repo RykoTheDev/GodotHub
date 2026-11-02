@@ -6,12 +6,9 @@ import {
   type ReactNode,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { useUiMotion } from '../hooks/useUiMotion'
-import { motion, AnimatePresence } from "framer-motion";
 import { Toggle } from "../components/ui/Toggle";
 import { Segmented } from "../components/reusables/Segmented";
 import { Slider } from "../components/ui/Slider";
-import { viewTransition } from "../lib/motion";
 import { formatLocaleDateTime } from "../lib/locale";
 import { useSettings } from "../hooks/useSettings";
 import { openUrl } from "@tauri-apps/plugin-opener";
@@ -53,7 +50,7 @@ import { CheckForUpdatesModal } from "../components/modals/CheckForUpdatesModal"
 import { BugReportModal } from "../components/modals/BugReportModal";
 import { ThemePresetsModal } from "../components/modals/ThemePresetsModal";
 import { RestoreProgressModal } from "../components/modals/RestoreProgressModal";
-import { defaultCornerRadius, isMac, isWindows } from "../lib/platform";
+import { defaultCornerRadius, isMac } from "../lib/platform";
 import { relaunch } from "@tauri-apps/plugin-process";
 import { flushPendingSave } from "../lib/pendingSave";
 import { consumePendingSettingsCategory } from '../lib/settingsCategoryNav'
@@ -62,6 +59,7 @@ import { DebugSettings } from '../components/debug/DebugSettings'
 import {
   IconCheck,
   IconPalette,
+  IconPlay,
   IconSun,
   IconMoon,
   IconHardDrive,
@@ -86,7 +84,6 @@ import {
   IconRocket,
   IconGithub,
   IconGitlab,
-  IconPlay,
   IconMonitor,
   IconHistory,
 } from "../lib/icons";
@@ -145,15 +142,17 @@ const LANDING_TABS: { id: string; labelKey: string }[] = [
 function Subsection({
   id,
   title,
-  description,
+  inline = false,
+  fill = false,
   children,
   searchText,
   query,
   onMatch,
 }: {
   id: string;
-  title: ReactNode;
-  description?: string;
+  title?: ReactNode;
+  inline?: boolean;
+  fill?: boolean;
   children: ReactNode;
   searchText?: string;
   query: string;
@@ -162,7 +161,6 @@ function Subsection({
   const matches = matchesSearch(
     query,
     typeof title === "string" ? title : undefined,
-    description,
     searchText,
   );
 
@@ -174,52 +172,49 @@ function Subsection({
   if (!matches) return null;
 
   return (
-    <section className="flex flex-col gap-2 rounded-item bg-overlay px-4 py-4">
-      <div>
-        <h3 className="text-sm font-medium text-ink">{title}</h3>
-        {description && (
-          <p className="text-xs text-muted mt-1 leading-relaxed">
-            {description}
-          </p>
-        )}
-      </div>
-      {children}
+    <section
+      className={`rounded-item bg-overlay px-4 py-4 ${inline ? "flex items-center gap-4" : "flex flex-col gap-2"}`}
+    >
+      {title && (
+        <h3 className={`text-sm font-medium text-ink ${inline ? "shrink-0" : ""}`}>{title}</h3>
+      )}
+      {!inline ? (
+        children
+      ) : fill ? (
+        <div className="flex-1 min-w-0">{children}</div>
+      ) : (
+        <>
+          <div aria-hidden="true" className="flex-1 h-px bg-outline/40" />
+          <div className="shrink-0">{children}</div>
+        </>
+      )}
     </section>
   );
 }
 
 function SettingRow({
   label,
-  description,
   children,
   divider = false,
 }: {
   label: string;
-  description?: string;
   children: ReactNode;
   divider?: boolean;
 }) {
   return (
     <div
-      className={`flex items-center justify-between gap-4 ${
+      className={`flex items-center gap-4 ${
         divider ? "pt-4 border-t border-line" : ""
       }`}
     >
-      <div>
-        <span className="text-xs font-medium text-muted block">{label}</span>
-        {description && (
-          <p className="text-2xs text-muted mt-1 leading-relaxed">
-            {description}
-          </p>
-        )}
-      </div>
-      {children}
+      <span className="text-xs font-medium text-muted block">{label}</span>
+      <div aria-hidden="true" className="flex-1 h-px bg-outline/40" />
+      <div className="shrink-0">{children}</div>
     </div>
   );
 }
 
 export function SettingsView({ connected = false }: { connected?: boolean }) {
-  const uiMotion = useUiMotion()
   const { t } = useTranslation("nav");
   const { t: ts } = useTranslation("settings");
   const { settings, update, resetToDefaults } = useSettings();
@@ -723,7 +718,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="appearance-presets"
         title={ts("theme_preset_label")}
-        description={ts("theme_preset_desc")}
         searchText={`${ts("theme_preset_label")} ${ts("theme_preset_custom")} ${ts("preset_light_group")} ${ts("preset_dark_group")}`}
         query={searchQuery}
         onMatch={reportMatch}
@@ -747,7 +741,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               key={mode}
               type="button"
               onClick={() => setPresetModal(mode)}
-              className="focus-ring cursor-pointer flex items-center gap-3 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised p-4 transition-colors"
+              className="focus-ring cursor-pointer flex items-center gap-3 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised p-4 "
             >
               <Icon className="w-4 h-4 text-muted shrink-0" />
               <span className="text-xs font-medium text-ink">{label}</span>
@@ -761,7 +755,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           <button
             type="button"
             onClick={selectCustom}
-            className={`focus-ring cursor-pointer flex items-center gap-3 rounded-btn border p-4 transition-colors ${
+            className={`focus-ring cursor-pointer flex items-center gap-3 rounded-btn border p-4  ${
               settings.theme_preset === "custom"
                 ? "border-accent bg-accent/10"
                 : "border-outline/50 hover:border-accent-dim hover:bg-raised"
@@ -785,11 +779,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               <span className="text-xs font-medium text-muted">
                 {ts("theme")}
               </span>
-              {settings.theme_mode === "system" && (
-                <p className="text-2xs text-muted leading-relaxed">
-                  {ts("theme_follow_desc")}
-                </p>
-              )}
               <div className="flex items-center gap-2 flex-wrap">
                 <Segmented
                   value={settings.theme_mode}
@@ -806,7 +795,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   type="button"
                   onClick={resetThemeColors}
                   aria-label={ts("reset_colors")}
-                  className="focus-ring cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-medium text-muted hover:text-ink hover:bg-raised transition-colors"
+                  className="focus-ring cursor-pointer flex items-center gap-1.5 px-3 py-1.5 rounded-btn text-xs font-medium text-muted hover:text-ink hover:bg-raised "
                 >
                   <IconHeart className="w-3.5 h-3.5" />
                   {ts("reset")}
@@ -838,10 +827,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 }
               />
             </div>
-            <p className="text-2xs text-muted leading-relaxed">
-              {ts("background_color_desc")}
-            </p>
-
             <div className="flex flex-col gap-2">
               <Slider
                 label={ts("raised_contrast_label")}
@@ -861,9 +846,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   update({ ...settings, raised_contrast: value })
                 }
               />
-              <p className="text-2xs text-muted leading-relaxed">
-                {ts("raised_contrast_desc")}
-              </p>
             </div>
           </div>
         )}
@@ -871,9 +853,10 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="appearance-radius"
+        inline
+        fill
         title={ts("onboarding_corner_radius")}
-        description={ts("corner_radius_desc")}
-        searchText={`${ts("onboarding_corner_radius")} ${ts("corner_radius_desc")}`}
+        searchText={`${ts("onboarding_corner_radius")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -896,9 +879,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="appearance-layout"
+        inline
         title={ts("card_layout_label")}
-        description={ts("card_layout_desc")}
-        searchText={`${ts("card_layout_label")} ${ts("card_layout_desc")}`}
+        searchText={`${ts("card_layout_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -911,9 +894,10 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="appearance-icon-opacity"
+        inline
+        fill
         title={ts("project_icon_opacity_label")}
-        description={ts("icon_opacity_desc")}
-        searchText={`${ts("project_icon_opacity_label")} ${ts("icon_opacity_desc")}`}
+        searchText={`${ts("project_icon_opacity_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -937,8 +921,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="appearance-css"
         title={ts("custom_css_label")}
-        description={ts("custom_css_desc")}
-        searchText={`${ts("custom_css_label")} ${ts("custom_css_desc")} ${ts("custom_css_apply")} ${ts("clear")}`}
+        searchText={`${ts("custom_css_label")} ${ts("custom_css_apply")} ${ts("clear")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -951,13 +934,13 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             }}
             spellCheck={false}
             placeholder={ts("custom_css_placeholder")}
-            className="focus-ring w-full h-40 resize-y bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono text-ink placeholder:text-muted/50 transition-colors focus:border-accent-dim"
+            className="focus-ring w-full h-40 resize-y bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono text-ink placeholder:text-muted/50 focus:border-accent-dim"
           />
           <div className="flex items-center gap-2">
             <button
               type="button"
               onClick={handleApplyCss}
-              className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn bg-accent text-white text-xs font-medium hover:bg-accent-dim transition-colors"
+              className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn bg-accent text-white text-xs font-medium hover:bg-accent-dim "
             >
               {ts("custom_css_apply")}
             </button>
@@ -970,7 +953,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   setCssStatus("applied");
                   setTimeout(() => setCssStatus("idle"), 1500);
                 }}
-                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3.5 rounded-btn bg-overlay border border-outline/50 text-muted text-xs font-medium hover:text-ink hover:bg-raised transition-colors"
+                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3.5 rounded-btn bg-overlay border border-outline/50 text-muted text-xs font-medium hover:text-ink hover:bg-raised "
               >
                 {ts("clear")}
               </button>
@@ -987,110 +970,11 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <button
         type="button"
         onClick={resetAppearance}
-        className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 px-4 py-2 rounded-btn border border-outline/50 text-muted hover:text-ink hover:bg-raised text-xs font-medium transition-colors"
+        className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 px-4 py-2 rounded-btn border border-outline/50 text-muted hover:text-ink hover:bg-raised text-xs font-medium "
       >
         <IconRefresh className="w-3.5 h-3.5" />
         {ts("reset_appearance")}
       </button>
-    </div>
-  );
-
-  const renderMotion = () => (
-    <div className="flex flex-col gap-3">
-      <Subsection
-        id="motion-intensity"
-        title={ts("animation_intensity_label")}
-        description={ts("animation_intensity_desc")}
-        searchText={`${ts("animation_intensity_label")} ${ts("animation_intensity_desc")} ${ts("animation_full")} ${ts("animation_subtle")} ${ts("animation_none")}`}
-        query={searchQuery}
-        onMatch={reportMatch}
-      >
-        <Segmented
-          value={settings.animation_intensity}
-          onChange={(v) =>
-            update({
-              ...settings,
-              animation_intensity: v as AppSettings["animation_intensity"],
-            })
-          }
-          options={[
-            { value: "full", label: ts("animation_full") },
-            { value: "subtle", label: ts("animation_subtle") },
-            { value: "none", label: ts("animation_none") },
-          ]}
-        />
-      </Subsection>
-
-      <Subsection
-        id="motion-view-entrance"
-        title={ts("view_entrance_label")}
-        description={ts("view_entrance_desc")}
-        searchText={`${ts("view_entrance_label")} ${ts("view_entrance_desc")} ${ts("entrance_fade")} ${ts("entrance_slide")} ${ts("entrance_scale")} ${ts("entrance_none")}`}
-        query={searchQuery}
-        onMatch={reportMatch}
-      >
-        <div className="flex flex-col gap-3">
-          <Segmented
-            value={settings.view_entrance}
-            onChange={(v) =>
-              update({
-                ...settings,
-                view_entrance: v as AppSettings["view_entrance"],
-              })
-            }
-            options={[
-              { value: "fade", label: ts("entrance_fade") },
-              { value: "slide", label: ts("entrance_slide") },
-              { value: "scale", label: ts("entrance_scale") },
-              { value: "none", label: ts("entrance_none") },
-            ]}
-          />
-        </div>
-      </Subsection>
-
-      <Subsection
-        id="motion-animation-threshold"
-        title={ts("animation_threshold_label")}
-        description={ts("animation_threshold_desc")}
-        searchText={`${ts("animation_threshold_label")} ${ts("animation_threshold_desc")}`}
-        query={searchQuery}
-        onMatch={reportMatch}
-      >
-        <div className="flex flex-col gap-2">
-          <Slider
-            display={
-              <span className="text-xs font-medium text-ink tabular-nums">
-                {ts("n_projects", { count: settings.animation_threshold })}
-              </span>
-            }
-            value={settings.animation_threshold}
-            min={10}
-            max={100}
-            step={5}
-            defaultValue={20}
-            onChange={(value) =>
-              update({ ...settings, animation_threshold: value })
-            }
-          />
-        </div>
-      </Subsection>
-
-      <Subsection
-        id="motion-animated-numbers"
-        title={ts("animated_numbers_label")}
-        description={ts("animated_numbers_desc")}
-        searchText={`${ts("animated_numbers_label")} ${ts("animated_numbers_desc")}`}
-        query={searchQuery}
-        onMatch={reportMatch}
-      >
-        <Toggle
-          checked={settings.animated_numbers}
-          onChange={(checked) =>
-            update({ ...settings, animated_numbers: checked })
-          }
-          label={ts("animated_numbers_label")}
-        />
-      </Subsection>
     </div>
   );
 
@@ -1099,8 +983,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="display-formats"
         title={ts("last_opened_title")}
-        description={ts("last_opened_desc")}
-        searchText={`${ts("last_opened_title")} ${ts("last_opened_desc")} ${ts("time_format_label")} ${ts("date_format_label")} ${ts("12h")} ${ts("24h")} ${ts("dd_mm_yyyy")} ${ts("mm_dd_yyyy")} ${ts("yyyy_mm_dd")}`}
+        searchText={`${ts("last_opened_title")} ${ts("time_format_label")} ${ts("date_format_label")} ${ts("12h")} ${ts("24h")} ${ts("dd_mm_yyyy")} ${ts("mm_dd_yyyy")} ${ts("yyyy_mm_dd")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -1151,9 +1034,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       {!isMac && (
         <Subsection
           id="display-os-decorations"
+          inline
           title={ts("use_os_decorations")}
-          description={ts("use_os_decorations_desc")}
-          searchText={`${ts("use_os_decorations")} ${ts("use_os_decorations_desc")}`}
+          searchText={`${ts("use_os_decorations")}`}
           query={searchQuery}
           onMatch={reportMatch}
         >
@@ -1168,9 +1051,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       {!isMac && (
         <Subsection
           id="display-colored-titlebar-buttons"
+          inline
           title={ts('colored_titlebar_buttons_label')}
-          description={ts('colored_titlebar_buttons_desc')}
-          searchText={`${ts('colored_titlebar_buttons_label')} ${ts('colored_titlebar_buttons_desc')}`}
+          searchText={`${ts('colored_titlebar_buttons_label')}`}
           query={searchQuery}
           onMatch={reportMatch}
         >
@@ -1187,8 +1070,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="display-titlebar"
         title={ts("titlebar_buttons")}
-        description={ts("titlebar_buttons_desc")}
-        searchText={`${ts("titlebar_buttons")} ${ts("titlebar_buttons_desc")} ${ts("show_support_label")} ${ts("show_star_label")}`}
+        searchText={`${ts("titlebar_buttons")} ${ts("show_support_label")} ${ts("show_star_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -1248,8 +1130,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="storage-folders"
         title={ts("storage_title")}
-        description={ts("storage_desc")}
-        searchText={`${ts("storage_title")} ${ts("storage_desc")} ${ts("section_projects")} ${ts("section_godot_versions")} ${ts("section_templates")} ${ts("new_project_default")} ${ts("download_folder")}`}
+        searchText={`${ts("storage_title")} ${ts("section_projects")} ${ts("section_godot_versions")} ${ts("section_templates")} ${ts("new_project_default")} ${ts("download_folder")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -1273,9 +1154,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               }
               defaultLabel={ts("new_project_default")}
             />
-            <p className="text-2xs text-muted leading-relaxed">
-              {ts("projects_desc")}
-            </p>
           </div>
 
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 p-4">
@@ -1297,9 +1175,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               showFallbackDescription
               fallbackDownloadPath="AppData/Ryko.GodotHub/godot-versions/"
             />
-            <p className="text-2xs text-muted leading-relaxed">
-              {ts("godot_versions_desc")}
-            </p>
           </div>
 
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 p-4">
@@ -1312,7 +1187,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <div className="flex flex-col gap-2.5">
               {settings.template_scan_dir ? (
                 <div className="flex items-center gap-2.5">
-                  <span className="sensitive flex-1 min-w-0 bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono text-ink truncate">
+                  <span className="flex-1 min-w-0 bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono text-ink truncate">
                     {settings.template_scan_dir}
                   </span>
                   <button
@@ -1320,7 +1195,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                     onClick={() =>
                       update({ ...settings, template_scan_dir: null })
                     }
-                    className="focus-ring cursor-pointer px-3 py-2 rounded-btn border border-outline/50 text-xs text-muted hover:text-danger hover:border-danger/30 hover:bg-danger/10 transition-colors"
+                    className="focus-ring cursor-pointer px-3 py-2 rounded-btn border border-outline/50 text-xs text-muted hover:text-danger hover:border-danger/30 hover:bg-danger/10 "
                   >
                     {ts("clear")}
                   </button>
@@ -1337,24 +1212,22 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   if (folder)
                     update({ ...settings, template_scan_dir: folder });
                 }}
-                className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 px-3.5 py-2 rounded-btn border border-dashed border-outline/60 text-xs text-muted hover:text-accent-bright hover:border-accent-dim transition-colors"
+                className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 px-3.5 py-2 rounded-btn border border-dashed border-outline/60 text-xs text-muted hover:text-accent-bright hover:border-accent-dim "
               >
                 <IconPlus className="w-3 h-3" />
                 {ts("browse")}
               </button>
             </div>
-            <p className="text-2xs text-muted leading-relaxed">
-              {ts("template_scan_desc")}
-            </p>
           </div>
         </div>
       </Subsection>
 
       <Subsection
         id="storage-scan-depth"
+        inline
+        fill
         title={ts("scan_depth_label")}
-        description={ts("scan_depth_desc")}
-        searchText={`${ts("scan_depth_label")} ${ts("scan_depth_desc")}`}
+        searchText={`${ts("scan_depth_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -1376,9 +1249,10 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="storage-icon-scan-depth"
+        inline
+        fill
         title={ts("icon_scan_depth_label")}
-        description={ts("icon_scan_depth_desc")}
-        searchText={`${ts("icon_scan_depth_label")} ${ts("icon_scan_depth_desc")}`}
+        searchText={`${ts("icon_scan_depth_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -1402,9 +1276,10 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="storage-concurrency"
+        inline
+        fill
         title={ts("download_concurrency_label")}
-        description={ts("download_concurrency_desc")}
-        searchText={`${ts("download_concurrency_label")} ${ts("download_concurrency_desc")}`}
+        searchText={`${ts("download_concurrency_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -1432,7 +1307,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         <button
           type="button"
           onClick={runScan}
-          className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+          className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium "
         >
           <IconRefresh className="w-4 h-4" />
           {ts("scan_now")}
@@ -1448,9 +1323,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
     <div className="flex flex-col gap-3">
       <Subsection
         id="behavior-landing"
+        inline
         title={ts("landing_tab_label")}
-        description={ts("landing_tab_desc")}
-        searchText={`${ts("landing_tab_label")} ${ts("landing_tab_desc")} ${LANDING_TABS.map((l) => ts(l.labelKey)).join(" ")}`}
+        searchText={`${ts("landing_tab_label")} ${LANDING_TABS.map((l) => ts(l.labelKey)).join(" ")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -1461,14 +1336,14 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={toggle}
               aria-expanded={open}
-              className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-btn bg-overlay border border-outline/50 text-xs font-medium text-ink hover:border-accent-dim transition-colors"
+              className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-btn bg-overlay border border-outline/50 text-xs font-medium text-ink hover:border-accent-dim "
             >
               {ts(
                 LANDING_TABS.find((l) => l.id === settings.default_landing_tab)
                   ?.labelKey ?? LANDING_TABS[0].labelKey,
               )}
               <IconChevronDown
-                className={`w-3 h-3 text-muted transition-transform duration-200 ${
+                className={`w-3 h-3 text-muted  ${
                   open ? "rotate-180" : ""
                 }`}
               />
@@ -1486,19 +1361,13 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="behavior-launch"
         title={ts("behavior")}
-        description={ts("behavior_desc")}
-        searchText={`${ts("behavior")} ${ts("behavior_desc")} ${ts("launch_console_label")} ${ts("close_on_open_label")} ${ts("minimize_tray_label")} ${ts("reopen_label")} ${ts("tray_recent_label")} ${ts("palette_shortcut")}`}
+        searchText={`${ts("behavior")} ${ts("launch_console_label")} ${ts("close_on_open_label")} ${ts("minimize_tray_label")} ${ts("reopen_label")} ${ts("tray_recent_label")} ${ts("palette_shortcut")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
         <div className="flex flex-col gap-5">
           <SettingRow
             label={ts("launch_console_label")}
-            description={
-              isWindows
-                ? ts("launch_console_desc_windows")
-                : ts("launch_console_desc")
-            }
           >
             <Toggle
               checked={settings.launch_with_console}
@@ -1511,7 +1380,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
           <SettingRow
             label={ts("builtin_console_label")}
-            description={ts("builtin_console_desc")}
           >
             <Toggle
               checked={settings.builtin_console}
@@ -1524,9 +1392,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
           <SettingRow
             label={ts("close_on_open_label")}
-            description={
-              isMac ? ts("close_on_open_desc_mac") : ts("close_on_open_desc")
-            }
             divider
           >
             <Toggle
@@ -1541,7 +1406,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           {!isMac && (
             <SettingRow
               label={ts("minimize_tray_label")}
-              description={ts("minimize_tray_desc")}
               divider
             >
               <Toggle
@@ -1554,21 +1418,16 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             </SettingRow>
           )}
 
-          <AnimatePresence initial={false}>
+
             {settings.close_on_project_open &&
               (isMac || settings.minimize_to_tray) && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
+                <div
+
+
                   className="overflow-hidden"
                 >
                   <SettingRow
                     label={ts("reopen_label")}
-                    description={
-                      isMac ? ts("reopen_desc_mac") : ts("reopen_desc")
-                    }
                     divider
                   >
                     <Toggle
@@ -1582,9 +1441,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                       label={ts("reopen_label")}
                     />
                   </SettingRow>
-                </motion.div>
+                </div>
               )}
-          </AnimatePresence>
+
 
           <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
             <Slider
@@ -1605,9 +1464,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 api.refreshTrayMenu().catch(() => {});
               }}
             />
-            <p className="text-2xs text-muted leading-relaxed">
-              {ts("tray_recent_desc")}
-            </p>
           </div>
 
           <KeyRecorder
@@ -1625,15 +1481,13 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="behavior-projects"
         title={ts("behavior_projects_title")}
-        description={ts("behavior_projects_desc")}
-        searchText={`${ts("behavior_projects_title")} ${ts("behavior_projects_desc")} ${ts("auto_scan_label")} ${ts("use_workspaces_label")} ${ts("init_git_label")} ${ts("naming_convention_label")}`}
+        searchText={`${ts("behavior_projects_title")} ${ts("auto_scan_label")} ${ts("use_workspaces_label")} ${ts("init_git_label")} ${ts("naming_convention_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
         <div className="flex flex-col gap-5">
           <SettingRow
             label={ts("auto_scan_label")}
-            description={ts("auto_scan_desc")}
           >
             <Toggle
               checked={settings.auto_scan_on_startup}
@@ -1646,7 +1500,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
           <SettingRow
             label={ts("use_workspaces_label")}
-            description={ts("workspaces_off_desc")}
             divider
           >
             <Toggle
@@ -1660,7 +1513,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
           <SettingRow
             label={ts("init_git_label")}
-            description={ts("git_init_new_projects_desc")}
             divider
           >
             <Toggle
@@ -1672,73 +1524,68 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             />
           </SettingRow>
 
-          <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
-            <span className="text-xs font-medium text-muted">
-              {ts("naming_convention_label")}
-            </span>
+          <SettingRow
+            label={ts("naming_convention_label")}
+            divider
+          >
             {(() => {
-              const conventionOptions = [
-                { value: "keep" as const, label: ts("naming_keep") },
-                { value: "kebab-case" as const, label: ts("naming_kebab") },
-                { value: "snake_case" as const, label: ts("naming_snake") },
-                { value: "camelCase" as const, label: ts("naming_camel") },
-                { value: "PascalCase" as const, label: ts("naming_pascal") },
-                { value: "Title Case" as const, label: ts("naming_title") },
-              ];
-              const currentLabel =
-                conventionOptions.find(
-                  (o) => o.value === settings.directory_naming_convention,
-                )?.label ?? conventionOptions[0].label;
-              return (
-                <Dropdown
-                  align="right"
-                  trigger={({ open, toggle }) => (
-                    <button
-                      type="button"
-                      onClick={toggle}
-                      aria-expanded={open}
-                      className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-btn bg-overlay border border-outline/50 text-xs font-medium text-ink hover:border-accent-dim transition-colors"
-                    >
-                      {currentLabel}
-                      <IconChevronDown
-                        className={`w-3 h-3 text-muted transition-transform duration-200 ${
-                          open ? "rotate-180" : ""
-                        }`}
-                      />
-                    </button>
-                  )}
-                  items={conventionOptions.map(({ value, label }) => ({
-                    key: value,
-                    label,
-                    active: settings.directory_naming_convention === value,
-                    onClick: () =>
-                      update({
-                        ...settings,
-                        directory_naming_convention: value,
-                      }),
-                  }))}
-                />
-              );
-            })()}
-            <p className="text-2xs text-muted leading-relaxed">
-              {ts("naming_convention_desc")}
-            </p>
-          </div>
+                const conventionOptions = [
+                  { value: "keep" as const, label: ts("naming_keep") },
+                  { value: "kebab-case" as const, label: ts("naming_kebab") },
+                  { value: "snake_case" as const, label: ts("naming_snake") },
+                  { value: "camelCase" as const, label: ts("naming_camel") },
+                  { value: "PascalCase" as const, label: ts("naming_pascal") },
+                  { value: "Title Case" as const, label: ts("naming_title") },
+                ];
+                const currentLabel =
+                  conventionOptions.find(
+                    (o) => o.value === settings.directory_naming_convention,
+                  )?.label ?? conventionOptions[0].label;
+                return (
+                  <Dropdown
+                    align="right"
+                    trigger={({ open, toggle }) => (
+                      <button
+                        type="button"
+                        onClick={toggle}
+                        aria-expanded={open}
+                        className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-btn bg-overlay border border-outline/50 text-xs font-medium text-ink hover:border-accent-dim "
+                      >
+                        {currentLabel}
+                        <IconChevronDown
+                          className={`w-3 h-3 text-muted  ${
+                            open ? "rotate-180" : ""
+                          }`}
+                        />
+                      </button>
+                    )}
+                    items={conventionOptions.map(({ value, label }) => ({
+                      key: value,
+                      label,
+                      active: settings.directory_naming_convention === value,
+                      onClick: () =>
+                        update({
+                          ...settings,
+                          directory_naming_convention: value,
+                        }),
+                    }))}
+                  />
+                );
+              })()}
+          </SettingRow>
         </div>
       </Subsection>
 
       <Subsection
         id="behavior-notifications"
         title={ts('desktop_notifications_label')}
-        description={ts('desktop_notifications_desc')}
-        searchText={`${ts('desktop_notifications_label')} ${ts('desktop_notifications_desc')} ${ts('behavior')} ${ts('behavior_desc')}`}
+        searchText={`${ts('desktop_notifications_label')} ${ts('behavior')}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
         <div className="flex flex-col gap-5">
           <SettingRow
             label={ts('desktop_notifications_label')}
-            description={ts('desktop_notifications_desc')}
           >
             <Toggle
               checked={settings.desktop_notifications_enabled}
@@ -1757,15 +1604,13 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="storage-watchers"
         title={ts("file_watchers_title")}
-        description={ts("file_watchers_desc")}
-        searchText={`${ts("file_watchers_title")} ${ts("file_watchers_desc")} ${ts("watch_projects_label")} ${ts("watch_versions_label")} ${ts("watch_template_label")}`}
+        searchText={`${ts("file_watchers_title")} ${ts("watch_projects_label")} ${ts("watch_versions_label")} ${ts("watch_template_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
         <div className="flex flex-col gap-5">
           <SettingRow
             label={ts("watch_projects_label")}
-            description={ts("watch_projects_desc")}
           >
             <Toggle
               checked={settings.auto_watch_project_dirs}
@@ -1779,7 +1624,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
           <SettingRow
             label={ts("watch_versions_label")}
-            description={ts("watch_versions_desc")}
             divider
           >
             <Toggle
@@ -1794,7 +1638,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
           <SettingRow
             label={ts("watch_template_label")}
-            description={ts("watch_template_desc")}
             divider
           >
             <Toggle
@@ -1807,9 +1650,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             />
           </SettingRow>
 
-          <p className="text-3xs text-muted/50 mt-1 leading-relaxed">
-            {ts("watcher_footer_desc")}
-          </p>
         </div>
       </Subsection>
   );
@@ -1848,8 +1688,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             Git
           </span>
         }
-        description={ts("github_token_desc")}
-        searchText={`${ts("git_sign_in_github")} ${ts("git_sign_in_gitlab")} ${ts("git_pat_title")} ${ts("github_token_title")} ${ts("github_token_desc")} ${ts("test")}`}
+        searchText={`${ts("git_sign_in_github")} ${ts("git_sign_in_gitlab")} ${ts("git_pat_title")} ${ts("github_token_title")} ${ts("test")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -1860,7 +1699,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 <IconGithub className="w-4 h-4 text-ink shrink-0" />
                 <span className="text-xs font-medium text-ink">GitHub</span>
                 {gitAuth?.github && (
-                  <span className="sensitive text-3xs font-semibold px-1.5 py-0.5 rounded-tag bg-mint/15 text-mint border border-mint/30">
+                  <span className="text-3xs font-semibold px-1.5 py-0.5 rounded-tag bg-mint/15 text-mint border border-mint/30">
                     {ts("git_connected_as", {
                       username: gitAuth.github.username,
                     })}
@@ -1874,7 +1713,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                     await api.gitAuthDisconnect("github");
                     await refreshGitAuth();
                   }}
-                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn border border-outline/50 text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-xs font-medium transition-colors"
+                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn border border-outline/50 text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-xs font-medium "
                 >
                   {ts("git_disconnect")}
                 </button>
@@ -1882,17 +1721,12 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 <button
                   type="button"
                   onClick={() => setGitAuthFlow("github")}
-                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors"
+                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn bg-accent hover:bg-accent-bright text-xs font-medium text-white "
                 >
                   {ts("git_sign_in_github")}
                 </button>
               )}
             </div>
-            {!gitAuth?.github && (
-              <p className="text-2xs text-muted leading-relaxed">
-                {ts("git_oauth_hint")}
-              </p>
-            )}
           </div>
 
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 p-4">
@@ -1901,7 +1735,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 <IconGitlab className="w-4 h-4 text-amber shrink-0" />
                 <span className="text-xs font-medium text-ink">GitLab</span>
                 {gitAuth?.gitlab && (
-                  <span className="sensitive text-3xs font-semibold px-1.5 py-0.5 rounded-tag bg-mint/15 text-mint border border-mint/30">
+                  <span className="text-3xs font-semibold px-1.5 py-0.5 rounded-tag bg-mint/15 text-mint border border-mint/30">
                     {gitAuth.gitlab.host
                       ? ts("git_connected_to", {
                           host: gitAuth.gitlab.host,
@@ -1920,7 +1754,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                     await api.gitAuthDisconnect("gitlab");
                     await refreshGitAuth();
                   }}
-                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn border border-outline/50 text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-xs font-medium transition-colors"
+                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn border border-outline/50 text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-xs font-medium "
                 >
                   {ts("git_disconnect")}
                 </button>
@@ -1928,17 +1762,12 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 <button
                   type="button"
                   onClick={() => setGitAuthFlow("gitlab")}
-                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors"
+                  className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-btn bg-accent hover:bg-accent-bright text-xs font-medium text-white "
                 >
                   {ts("git_sign_in_gitlab")}
                 </button>
               )}
             </div>
-            {!gitAuth?.gitlab && (
-              <p className="text-2xs text-muted leading-relaxed">
-                {ts("git_oauth_hint")}
-              </p>
-            )}
           </div>
 
           <div className="flex flex-col gap-2.5 rounded-item border border-outline/50 p-4">
@@ -1956,13 +1785,13 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 value={gitlabUrl}
                 onChange={(e) => setGitlabUrl(e.target.value)}
                 placeholder={ts("git_self_hosted_url_placeholder")}
-                className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
+                className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim outline-none"
               />
               <input
                 value={gitlabClientId}
                 onChange={(e) => setGitlabClientId(e.target.value)}
                 placeholder={ts("git_self_hosted_client_id")}
-                className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
+                className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim outline-none"
               />
             </div>
             <button
@@ -1975,7 +1804,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 });
                 setGitAuthFlow("gitlab");
               }}
-              className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 h-8 px-4 rounded-btn border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium transition-colors"
+              className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 h-8 px-4 rounded-btn border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium "
             >
               {ts("git_sign_in_self_hosted")}
             </button>
@@ -1988,9 +1817,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 {ts("git_pat_title")}
               </span>
             </div>
-            <p className="text-2xs text-muted leading-relaxed">
-              {ts("git_pat_desc")}
-            </p>
 
             {(gitAuth?.pats.length ?? 0) === 0 && !patOpen && (
               <span className="text-xs text-muted/60">
@@ -2008,7 +1834,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                     <span className="text-xs font-medium text-ink font-mono">
                       {pat.host}
                     </span>
-                    <span className="sensitive text-2xs text-muted">
+                    <span className="text-2xs text-muted">
                       {pat.username}
                     </span>
                   </div>
@@ -2020,7 +1846,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                         await api.gitAuthRemovePat(pat.host);
                         await refreshGitAuth();
                       }}
-                      className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/60 hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
+                      className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/60 hover:text-danger hover:bg-danger/10 shrink-0"
                     >
                       <IconTrash className="w-3.5 h-3.5" />
                     </button>
@@ -2036,13 +1862,13 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                     value={patHost}
                     onChange={(e) => setPatHost(e.target.value)}
                     placeholder={ts("git_pat_host_placeholder")}
-                    className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
+                    className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim outline-none"
                   />
                   <input
                     value={patUser}
                     onChange={(e) => setPatUser(e.target.value)}
                     placeholder={ts("git_pat_username")}
-                    className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
+                    className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim outline-none"
                   />
                 </div>
                 <input
@@ -2050,7 +1876,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   value={patToken}
                   onChange={(e) => setPatToken(e.target.value)}
                   placeholder={ts("git_pat_token")}
-                  className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim transition-colors outline-none"
+                  className="focus-ring bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono focus:border-accent-dim outline-none"
                 />
                 {patMsg && (
                   <span className="text-2xs text-danger">{patMsg}</span>
@@ -2059,7 +1885,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   <button
                     type="button"
                     onClick={handleSavePat}
-                    className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors"
+                    className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-accent hover:bg-accent-bright text-xs font-medium text-white "
                   >
                     {ts("git_pat_save")}
                   </button>
@@ -2069,7 +1895,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                       setPatOpen(false);
                       setPatMsg(null);
                     }}
-                    className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3.5 rounded-item border border-outline/50 text-muted hover:text-ink hover:bg-raised text-xs font-medium transition-colors"
+                    className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-3.5 rounded-item border border-outline/50 text-muted hover:text-ink hover:bg-raised text-xs font-medium "
                   >
                     {ts("cancel", { ns: "common" })}
                   </button>
@@ -2079,7 +1905,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               <button
                 type="button"
                 onClick={() => setPatOpen(true)}
-                className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 h-8 px-4 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised text-xs font-medium transition-colors"
+                className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 h-8 px-4 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised text-xs font-medium "
               >
                 <IconPlus className="w-3.5 h-3.5" />
                 {ts("git_pat_add")}
@@ -2105,12 +1931,12 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   placeholder={ts("setting_token_placeholder", {
                     ns: "common",
                   })}
-                  className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm font-mono focus:border-accent-dim transition-colors pe-20"
+                  className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm font-mono focus:border-accent-dim pe-20"
                 />
                 <button
                   type="button"
                   onClick={testGithubToken}
-                  className="focus-ring cursor-pointer absolute end-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md bg-overlay border border-outline/50 text-xs font-medium text-muted hover:text-ink hover:border-accent-dim transition-colors"
+                  className="focus-ring cursor-pointer absolute end-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md bg-overlay border border-outline/50 text-xs font-medium text-muted hover:text-ink hover:border-accent-dim "
                 >
                   {tokenTestState === "testing" ? ts("testing") : ts("test")}
                 </button>
@@ -2156,8 +1982,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               {ts("sync_title")}
             </span>
           }
-          description={ts("sync_desc")}
-          searchText={`${ts("sync_title")} ${ts("sync_desc")} ${ts("sync_push_btn")} ${ts("sync_pull_btn")}`}
+          searchText={`${ts("sync_title")} ${ts("sync_push_btn")} ${ts("sync_pull_btn")}`}
           query={searchQuery}
           onMatch={reportMatch}
         >
@@ -2190,7 +2015,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   type="button"
                   onClick={handleSyncPush}
                   disabled={syncBusy !== null}
-                  className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <IconCloudArrowDown className="w-4 h-4" />
                   {syncBusy === "push" ? ts("saving") : ts("sync_push_btn")}
@@ -2199,7 +2024,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   type="button"
                   onClick={handleSyncPull}
                   disabled={syncBusy !== null}
-                  className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <IconCloudArrowDown className="w-4 h-4" />
                   {syncBusy === "pull" ? ts("saving") : ts("sync_pull_btn")}
@@ -2219,13 +2044,13 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleManualPull();
                   }}
-                  className="focus-ring flex-1 bg-base border border-outline/50 rounded-btn px-3 py-2 text-xs focus:border-accent-dim transition-colors"
+                  className="focus-ring flex-1 bg-base border border-outline/50 rounded-btn px-3 py-2 text-xs focus:border-accent-dim "
                 />
                 <button
                   type="button"
                   onClick={handleManualPull}
                   disabled={manualPullBusy || !manualGistUrl.trim()}
-                  className="focus-ring cursor-pointer px-4 py-2 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="focus-ring cursor-pointer px-4 py-2 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {manualPullBusy ? ts("saving") : ts("sync_manual_pull_btn")}
                 </button>
@@ -2238,8 +2063,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="integrations-discord"
         title={ts("onboarding_discord_rpc")}
-        description={ts("discord_rpc_desc")}
-        searchText={`${ts("onboarding_discord_rpc")} ${ts("discord_rpc_desc")} ${ts("discord_app_id_label")} ${ts("discord_app_id_desc")} ${ts("discord_developer_portal")} ${ts("discord_show_projects_label")} ${ts("discord_show_projects_desc")} ${ts("discord_excluded_label")} ${ts("discord_excluded_desc")} ${ts("discord_custom_label")} ${ts("discord_custom_desc")}`}
+        searchText={`${ts("onboarding_discord_rpc")} ${ts("discord_app_id_label")} ${ts("discord_app_id_desc")} ${ts("discord_developer_portal")} ${ts("discord_show_projects_label")} ${ts("discord_excluded_label")} ${ts("discord_custom_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2265,7 +2089,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 update({ ...settings, discord_app_id: e.target.value || null })
               }
               placeholder={ts("discord_app_id_placeholder")}
-              className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm font-mono focus:border-accent-dim transition-colors"
+              className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm font-mono focus:border-accent-dim "
             />
             {!settings.discord_app_id?.trim() && (
               <span className="text-2xs text-mint font-medium">
@@ -2296,24 +2120,18 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 label={ts("discord_show_projects_label")}
               />
             </SettingRow>
-            <p className="text-2xs text-muted leading-relaxed">
-              {ts("discord_show_projects_desc")}
-            </p>
           </div>
 
           <div className="flex flex-col gap-2.5 pt-5 border-t border-line">
             <span className="text-xs font-medium text-muted">
               {ts("discord_excluded_label")}
             </span>
-            <p className="text-2xs text-muted leading-relaxed">
-              {ts("discord_excluded_desc")}
-            </p>
             <Dropdown
               trigger={({ toggle }) => (
                 <button
                   type="button"
                   onClick={toggle}
-                  className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 h-8 px-4 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised text-xs font-medium transition-colors"
+                  className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 h-8 px-4 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised text-xs font-medium "
                 >
                   <IconPlus className="w-3.5 h-3.5" />
                   {ts("discord_exclude_project")}
@@ -2360,7 +2178,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                           })
                         }
                         aria-label={ts("discord_excluded_remove")}
-                        className="focus-ring cursor-pointer shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-muted hover:text-danger hover:bg-danger/10 transition-colors"
+                        className="focus-ring cursor-pointer shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-muted hover:text-danger hover:bg-danger/10 "
                       >
                         <IconX className="w-3.5 h-3.5" />
                       </button>
@@ -2379,15 +2197,12 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <span className="text-xs font-medium text-muted">
               {ts("discord_custom_label")}
             </span>
-            <p className="text-2xs text-muted leading-relaxed">
-              {ts("discord_custom_desc")}
-            </p>
             <Dropdown
               trigger={({ toggle }) => (
                 <button
                   type="button"
                   onClick={toggle}
-                  className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 h-8 px-4 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised text-xs font-medium transition-colors"
+                  className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 h-8 px-4 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised text-xs font-medium "
                 >
                   <IconPlus className="w-3.5 h-3.5" />
                   {ts("discord_custom_add")}
@@ -2449,7 +2264,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                             })
                           }
                           aria-label={ts("discord_custom_remove")}
-                          className="focus-ring cursor-pointer shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-muted hover:text-danger hover:bg-danger/10 transition-colors"
+                          className="focus-ring cursor-pointer shrink-0 w-6 h-6 rounded-md flex items-center justify-center text-muted hover:text-danger hover:bg-danger/10 "
                         >
                           <IconX className="w-3.5 h-3.5" />
                         </button>
@@ -2462,14 +2277,14 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                             setPresence("details", e.target.value)
                           }
                           placeholder={ts("discord_custom_details_placeholder")}
-                          className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3 py-2 text-xs focus:border-accent-dim transition-colors"
+                          className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3 py-2 text-xs focus:border-accent-dim "
                         />
                         <input
                           type="text"
                           value={pr.state ?? ""}
                           onChange={(e) => setPresence("state", e.target.value)}
                           placeholder={ts("discord_custom_state_placeholder")}
-                          className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3 py-2 text-xs focus:border-accent-dim transition-colors"
+                          className="focus-ring w-full bg-base border border-outline/50 rounded-btn px-3 py-2 text-xs focus:border-accent-dim "
                         />
                       </div>
                     </div>
@@ -2484,8 +2299,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="integrations-mise"
         title={ts("mise_label")}
-        description={ts("mise_desc")}
-        searchText={`${ts("mise_label")} ${ts("mise_desc")} mise`}
+        searchText={`${ts("mise_label")} mise`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2515,8 +2329,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="integrations-cli"
         title={ts("cli_tool_title")}
-        description={ts("cli_tool_desc")}
-        searchText={`${ts("cli_tool_title")} ${ts("cli_tool_desc")}`}
+        searchText={`${ts("cli_tool_title")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2526,7 +2339,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={handleUninstallCli}
               disabled={cliBusy}
-              className="focus-ring cursor-pointer self-start flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer self-start flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {cliBusy ? ts("cli_tool_installing") : ts("version_uninstall_confirm")}
             </button>
@@ -2535,7 +2348,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={handleInstallCli}
               disabled={cliBusy}
-              className="focus-ring cursor-pointer self-start flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer self-start flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {cliBusy ? ts("cli_tool_installing") : ts("cli_tool_install")}
             </button>
@@ -2548,13 +2361,199 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
     </div>
   );
 
+  const renderMotion = () => (
+    <div className="flex flex-col gap-3">
+      <Subsection
+        id="motion-intensity"
+        inline
+        title={ts("animation_intensity_label")}
+        searchText={`${ts("animation_intensity_label")} ${ts("animation_full")} ${ts("animation_subtle")} ${ts("animation_none")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <Segmented
+          value={settings.animation_intensity}
+          onChange={(v) =>
+            update({
+              ...settings,
+              animation_intensity: v as AppSettings["animation_intensity"],
+            })
+          }
+          options={[
+            { value: "full", label: ts("animation_full") },
+            { value: "subtle", label: ts("animation_subtle") },
+            { value: "none", label: ts("animation_none") },
+          ]}
+        />
+      </Subsection>
+
+      <Subsection
+        id="motion-speed"
+        inline
+        fill
+        title={ts("animation_speed_label")}
+        searchText={`${ts("animation_speed_label")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-2">
+          <Slider
+            display={
+              <span className="text-xs font-mono text-ink tabular-nums">
+                {settings.animation_speed.toFixed(1)}×
+              </span>
+            }
+            value={settings.animation_speed}
+            min={0.5}
+            max={2}
+            step={0.1}
+            defaultValue={1.5}
+            onChange={(v) => update({ ...settings, animation_speed: v })}
+          />
+        </div>
+      </Subsection>
+
+      <Subsection
+        id="motion-view-entrance"
+        inline
+        title={ts("view_entrance_label")}
+        searchText={`${ts("view_entrance_label")} ${ts("entrance_fade")} ${ts("entrance_slide")} ${ts("entrance_scale")} ${ts("entrance_none")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <Segmented
+          value={settings.view_entrance}
+          onChange={(v) =>
+            update({
+              ...settings,
+              view_entrance: v as AppSettings["view_entrance"],
+            })
+          }
+          options={[
+            { value: "slide", label: ts("entrance_slide") },
+            { value: "fade", label: ts("entrance_fade") },
+            { value: "scale", label: ts("entrance_scale") },
+            { value: "none", label: ts("entrance_none") },
+          ]}
+        />
+      </Subsection>
+
+      <Subsection
+        id="motion-scroll-reveal"
+        inline
+        title={ts("scroll_reveal_label")}
+        searchText={`${ts("scroll_reveal_label")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <Toggle
+          checked={settings.motion_scroll_reveal}
+          onChange={(checked) => update({ ...settings, motion_scroll_reveal: checked })}
+          label={ts("scroll_reveal_label")}
+          disabled={settings.animation_intensity === "none"}
+        />
+      </Subsection>
+
+      <Subsection
+        id="motion-animation-threshold"
+        inline
+        fill
+        title={ts("animation_threshold_label")}
+        searchText={`${ts("animation_threshold_label")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <div className="flex flex-col gap-2">
+          <Slider
+            display={
+              <span className="text-xs font-medium text-ink tabular-nums">
+                {ts("n_projects", { count: settings.animation_threshold })}
+              </span>
+            }
+            value={settings.animation_threshold}
+            min={10}
+            max={100}
+            step={5}
+            defaultValue={20}
+            onChange={(value) => update({ ...settings, animation_threshold: value })}
+          />
+        </div>
+      </Subsection>
+
+      <Subsection
+        id="motion-card-tilt"
+        inline
+        title={ts("card_tilt_label")}
+        searchText={`${ts("card_tilt_label")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <Toggle
+          checked={settings.motion_card_tilt}
+          onChange={(checked) => update({ ...settings, motion_card_tilt: checked })}
+          label={ts("card_tilt_label")}
+          disabled={settings.animation_intensity === "none"}
+        />
+      </Subsection>
+
+      <Subsection
+        id="motion-click-ripple"
+        inline
+        title={ts("click_ripple_label")}
+        searchText={`${ts("click_ripple_label")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <Toggle
+          checked={settings.motion_click_ripple}
+          onChange={(checked) => update({ ...settings, motion_click_ripple: checked })}
+          label={ts("click_ripple_label")}
+          disabled={settings.animation_intensity === "none"}
+        />
+      </Subsection>
+
+      <Subsection
+        id="motion-press-bounce"
+        inline
+        title={ts("press_bounce_label")}
+        searchText={`${ts("press_bounce_label")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <Toggle
+          checked={settings.motion_press_bounce}
+          onChange={(checked) => update({ ...settings, motion_press_bounce: checked })}
+          label={ts("press_bounce_label")}
+          disabled={settings.animation_intensity === "none"}
+        />
+      </Subsection>
+
+      <Subsection
+        id="motion-animated-numbers"
+        inline
+        title={ts("animated_numbers_label")}
+        searchText={`${ts("animated_numbers_label")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <Toggle
+          checked={settings.animated_numbers}
+          onChange={(checked) => update({ ...settings, animated_numbers: checked })}
+          label={ts("animated_numbers_label")}
+          disabled={settings.animation_intensity === "none"}
+        />
+      </Subsection>
+    </div>
+  );
+
   const renderAccessibility = () => (
     <div className="flex flex-col gap-3">
       <Subsection
         id="accessibility-density"
+        inline
+        fill
         title={ts("ui_density_label")}
-        description={ts("density_desc")}
-        searchText={`${ts("ui_density_label")} ${ts("density_desc")}`}
+        searchText={`${ts("ui_density_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2577,9 +2576,10 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="accessibility-text-size"
+        inline
+        fill
         title={ts("text_size_label")}
-        description={ts("text_size_desc")}
-        searchText={`${ts("text_size_label")} ${ts("text_size_desc")}`}
+        searchText={`${ts("text_size_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2602,9 +2602,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="accessibility-screen-reader"
+        inline
         title={ts("screen_reader_label")}
-        description={ts("screen_reader_desc")}
-        searchText={`${ts("screen_reader_label")} ${ts("screen_reader_desc")} ${ts("screen_reader_beta_desc")} ${ts("accessibility")} ${ts("accessibility_desc")}`}
+        searchText={`${ts("screen_reader_label")} ${ts("accessibility")} ${ts("accessibility_desc")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2615,16 +2615,13 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           }
           label={ts("screen_reader_label")}
         />
-        <p className="text-2xs text-amber/90 leading-relaxed mt-1">
-          {ts("screen_reader_beta_desc")}
-        </p>
       </Subsection>
 
       <Subsection
         id="accessibility-scrollbars"
+        inline
         title={ts("show_scrollbar_label")}
-        description={ts("scrollbar_desc")}
-        searchText={`${ts("show_scrollbar_label")} ${ts("scrollbar_desc")}`}
+        searchText={`${ts("show_scrollbar_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2639,9 +2636,10 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="accessibility-tooltip-delay"
+        inline
+        fill
         title={ts("tooltip_delay_label")}
-        description={ts("tooltip_delay_desc")}
-        searchText={`${ts("tooltip_delay_label")} ${ts("tooltip_delay_desc")}`}
+        searchText={`${ts("tooltip_delay_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2664,9 +2662,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
       <Subsection
         id="accessibility-sidebar-resize-knob"
+        inline
         title={ts('fixed_sidebar_resize_knob_label')}
-        description={ts('fixed_sidebar_resize_knob_desc')}
-        searchText={`${ts('fixed_sidebar_resize_knob_label')} ${ts('fixed_sidebar_resize_knob_desc')} ${ts('accessibility')} ${ts('accessibility_desc')}`}
+        searchText={`${ts('fixed_sidebar_resize_knob_label')} ${ts('accessibility')} ${ts('accessibility_desc')}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2685,9 +2683,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
     <div className="flex flex-col gap-3">
       <Subsection
         id="advanced-setup"
+        inline
         title={ts("setup_wizard_again")}
-        description={ts("setup_wizard_desc")}
-        searchText={`${ts("setup_wizard_again")} ${ts("setup_wizard_desc")} ${ts("open_setup")}`}
+        searchText={`${ts("setup_wizard_again")} ${ts("open_setup")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -2695,7 +2693,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           <button
             type="button"
             onClick={() => update({ ...settings, setup_complete: false })}
-            className="focus-ring cursor-pointer shrink-0 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+            className="focus-ring cursor-pointer shrink-0 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium "
           >
             {ts("open_setup")}
           </button>
@@ -2708,14 +2706,11 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <h3 className="text-sm font-medium text-ink">
               {ts("check_updates_title_modal")}
             </h3>
-            <p className="text-xs text-muted mt-1.5 leading-relaxed">
-              {ts("updates_desc")}
-            </p>
           </div>
           <button
             type="button"
             onClick={() => setShowUpdates(true)}
-            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium "
           >
             <IconRefresh className="w-4 h-4" />
             {ts("check_updates_title_modal")}
@@ -2727,14 +2722,11 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <h3 className="text-sm font-medium text-ink">
               {ts("restart_app")}
             </h3>
-            <p className="text-xs text-muted mt-1.5 leading-relaxed">
-              {ts("restart_app_desc")}
-            </p>
           </div>
           <button
             type="button"
             onClick={() => setConfirmingRestart(true)}
-            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium "
           >
             <IconRefresh className="w-4 h-4" />
             {ts("restart_app")}
@@ -2746,14 +2738,11 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <h3 className="text-sm font-medium text-ink">
               {ts("report_a_bug")}
             </h3>
-            <p className="text-xs text-muted mt-1.5 leading-relaxed">
-              {ts("report_bug_desc")}
-            </p>
           </div>
           <button
             type="button"
             onClick={() => setShowBugReport(true)}
-            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium "
           >
             <IconBug className="w-4 h-4" />
             {ts("report_bug")}
@@ -2765,14 +2754,11 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <h3 className="text-sm font-medium text-ink">
               {ts("reset_settings")}
             </h3>
-            <p className="text-xs text-muted mt-1.5 leading-relaxed">
-              {ts("reset_settings_desc")}
-            </p>
           </div>
           <button
             type="button"
             onClick={() => setConfirmingReset(true)}
-            className="focus-ring cursor-pointer shrink-0 px-5 py-2.5 rounded-item border border-outline/50 text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-sm font-medium transition-colors"
+            className="focus-ring cursor-pointer shrink-0 px-5 py-2.5 rounded-item border border-outline/50 text-muted hover:text-danger hover:border-danger/40 hover:bg-danger/5 text-sm font-medium "
           >
             {ts("reset")}
           </button>
@@ -2783,14 +2769,11 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <h3 className="text-sm font-medium text-danger">
               {ts("delete_app_data")}
             </h3>
-            <p className="text-xs text-muted mt-1.5 leading-relaxed">
-              {ts("delete_data_desc")}
-            </p>
           </div>
           <button
             type="button"
             onClick={() => setConfirmingWipe(true)}
-            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-danger/40 text-danger hover:bg-danger/10 text-sm font-medium transition-colors"
+            className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-2.5 rounded-item border border-danger/40 text-danger hover:bg-danger/10 text-sm font-medium "
           >
             <IconBomb className="w-4 h-4" />
             {ts("delete_all")}
@@ -2808,9 +2791,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <h3 className="text-sm font-medium text-ink">
               {ts("settings_backup_title")}
             </h3>
-            <p className="text-xs text-muted mt-1.5 leading-relaxed">
-              {ts("settings_backup_desc")}
-            </p>
             {settingsMessage && (
               <span className="text-xs text-muted block mt-1.5">
                 {settingsMessage}
@@ -2822,7 +2802,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={handleExportSettings}
               disabled={settingsBusy !== null}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {settingsBusy === "export"
                 ? ts("saving")
@@ -2832,7 +2812,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={handleImportSettings}
               disabled={settingsBusy !== null}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {settingsBusy === "import"
                 ? ts("saving")
@@ -2846,9 +2826,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <h3 className="text-sm font-medium text-ink">
               {ts("workspace_backup_title")}
             </h3>
-            <p className="text-xs text-muted mt-1.5 leading-relaxed">
-              {ts("workspace_backup_desc")}
-            </p>
             {wsBackupMessage && (
               <span className="text-xs text-muted block mt-1.5">
                 {wsBackupMessage}
@@ -2860,7 +2837,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={handleExportWorkspace}
               disabled={wsBackupBusy !== null}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {wsBackupBusy === "export"
                 ? ts("saving")
@@ -2870,7 +2847,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={handleImportWorkspace}
               disabled={wsBackupBusy !== null}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {wsBackupBusy === "import"
                 ? ts("saving")
@@ -2884,9 +2861,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <h3 className="text-sm font-medium text-ink">
               {ts("app_backup_title")}
             </h3>
-            <p className="text-xs text-muted mt-1.5 leading-relaxed">
-              {ts("app_backup_desc")}
-            </p>
             {appBackupMessage && (
               <span className="text-xs text-muted block mt-1.5">
                 {appBackupMessage}
@@ -2898,7 +2872,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={handleExportApp}
               disabled={appBackupBusy !== null}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {appBackupBusy === "export"
                 ? ts("saving")
@@ -2908,7 +2882,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={handleImportApp}
               disabled={appBackupBusy !== null}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {appBackupBusy === "import"
                 ? ts("saving")
@@ -2922,9 +2896,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             <h3 className="text-sm font-medium text-ink">
               {ts("time_tracking_title")}
             </h3>
-            <p className="text-xs text-muted mt-1.5 leading-relaxed">
-              {ts("time_tracking_desc")}
-            </p>
             {statsMessage && (
               <span className="text-xs text-muted block mt-1.5">
                 {statsMessage}
@@ -2936,7 +2907,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={handleExportStats}
               disabled={statsBusy !== null}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {statsBusy === "export" ? ts("saving") : ts("export_stats_btn")}
             </button>
@@ -2944,7 +2915,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               type="button"
               onClick={handleImportStats}
               disabled={statsBusy !== null}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {statsBusy === "import" ? ts("saving") : ts("import_stats_btn")}
             </button>
@@ -2957,14 +2928,8 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
   const renderExperimental = () => (
     <div className="flex flex-col gap-3">
       <section className="flex flex-col gap-5 rounded-item bg-overlay px-5 py-5">
-        <div>
-          <p className="text-2xs text-muted mt-1">
-            {ts("experimental_desc")}
-          </p>
-        </div>
         <SettingRow
           label={ts("customize_view_label")}
-          description={ts("customize_view_desc")}
         >
           <Toggle
             checked={settings.customize_view_enabled}
@@ -2977,7 +2942,6 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
 
         <SettingRow
           label={ts("project_todos_label")}
-          description={ts("project_todos_desc")}
         >
           <Toggle
             checked={settings.project_todos_enabled}
@@ -2998,13 +2962,12 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           <h3 className="font-display font-semibold text-sm">
             {ts("credits")}
           </h3>
-          <p className="text-2xs text-muted mt-1">{ts("credits_desc")}</p>
         </div>
 
         <button
           type="button"
           onClick={() => openUrl("https://github.com/RykoTheDev")}
-          className="focus-ring cursor-pointer flex items-center gap-4 px-5 py-4 rounded-item border border-outline/50 bg-raised/40 hover:bg-raised transition-colors text-start w-full"
+          className="focus-ring cursor-pointer flex items-center gap-4 px-5 py-4 rounded-item border border-outline/50 bg-raised/40 hover:bg-raised text-start w-full"
         >
           <img
             src="https://github.com/RykoTheDev.png?size=80"
@@ -3060,7 +3023,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                       avatar_url: c.avatar_url,
                     })
                   }
-                  className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-outline/50 bg-raised/60 hover:bg-raised transition-colors"
+                  className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-outline/50 bg-raised/60 hover:bg-raised "
                 >
                   <img
                     src={c.avatar_url}
@@ -3165,7 +3128,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 }}
                 type="button"
                 onClick={() => handleCatChange(id)}
-                className={`focus-ring cursor-pointer relative flex items-center gap-2.5 px-3 py-2.5 rounded-item text-sm font-medium transition-colors ${
+                className={`focus-ring cursor-pointer relative flex items-center gap-2.5 px-3 py-2.5 rounded-item text-sm font-medium  ${
                   active
                     ? id === "experimental"
                       ? "text-ink"
@@ -3176,9 +3139,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 }`}
               >
                 {active && (
-                  <motion.span
-                    layoutId={uiMotion.instant || uiMotion.reduced ? undefined : 'new-ui-settings-cat-pill'}
-                    transition={uiMotion.transition('press')}
+                  <span
+
+
                     className={`absolute inset-0 rounded-item border shadow-md shadow-black/10 pointer-events-none ${
                       id === "experimental"
                         ? "bg-danger/10 border-danger/30"
@@ -3187,7 +3150,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   />
                 )}
                 <Icon
-                  className={`relative w-4 h-4 shrink-0 transition-colors duration-200 ${
+                  className={`relative w-4 h-4 shrink-0  ${
                     active
                       ? id === "experimental"
                         ? "text-danger"
@@ -3210,7 +3173,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               <button
                 type="button"
                 onClick={() => handleCatChange("credits" as SettingsCat)}
-                className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 ${connected ? "mb-3" : ""} rounded-full border border-outline/50 bg-raised/60 hover:bg-raised text-3xs font-mono text-muted/60 hover:text-muted transition-colors`}
+                className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1 ${connected ? "mb-3" : ""} rounded-full border border-outline/50 bg-raised/60 hover:bg-raised text-3xs font-mono text-muted/60 hover:text-muted `}
               >
                 {ts("app_version_label", { version: appVersion })}
               </button>
@@ -3265,29 +3228,26 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                   <button
                     type="button"
                     onClick={clearSearch}
-                    className="focus-ring cursor-pointer text-xs font-medium text-accent hover:text-accent-bright transition-colors"
+                    className="focus-ring cursor-pointer text-xs font-medium text-accent hover:text-accent-bright "
                   >
                     {ts("clear")}
                   </button>
                 </div>
               ) : (
-                <motion.div
+                <div
                   key={cat}
-                  className="ui-stagger-nested"
-                  {...viewTransition(
-                    settings.view_entrance,
-                    settings.animation_intensity,
-                  )}
+                  className=""
+
                 >
                   {renderContent()}
-                </motion.div>
+                </div>
               )}
             </div>
           </OverlayScrollArea>
         </div>
       </div>
 
-      <AnimatePresence>
+
         {presetModal && (
           <ThemePresetsModal
             mode={presetModal}
@@ -3296,9 +3256,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             onClose={() => setPresetModal(null)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {confirmingReset && (
           <ConfirmDialog
             title={ts("reset_all_title")}
@@ -3309,9 +3269,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             onCancel={() => setConfirmingReset(false)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {confirmingWipe && (
           <ConfirmDialog
             title={ts("delete_all_title")}
@@ -3322,9 +3282,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             onCancel={() => setConfirmingWipe(false)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {confirmingOsDec !== null && (
           <ConfirmDialog
             title={ts("restart_required_title", { ns: "common" })}
@@ -3335,9 +3295,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             onCancel={() => setConfirmingOsDec(null)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {confirmingRestart && (
           <ConfirmDialog
             title={ts("restart_app_confirm_title")}
@@ -3348,9 +3308,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             onCancel={() => setConfirmingRestart(false)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {confirmClearStats && (
           <ConfirmDialog
             title={ts("clear_stats_confirm_title")}
@@ -3361,9 +3321,9 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             onCancel={() => setConfirmClearStats(false)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {showUpdates && (
           <CheckForUpdatesModal
             onClose={() => setShowUpdates(false)}
@@ -3373,15 +3333,15 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             }}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {showBugReport && (
           <BugReportModal onClose={() => setShowBugReport(false)} />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {gitAuthFlow && (
           <GitAuthModal
             provider={gitAuthFlow}
@@ -3396,7 +3356,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
             }}
           />
         )}
-      </AnimatePresence>
+
 
       {selectedContributor && (
         <ContributorPRsModal
@@ -3406,11 +3366,11 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         />
       )}
 
-      <AnimatePresence>
+
         {showRestoreModal && (
           <RestoreProgressModal onClose={() => setShowRestoreModal(false)} />
         )}
-      </AnimatePresence>
+
     </div>
   );
 }

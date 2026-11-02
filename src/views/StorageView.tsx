@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AnimatePresence, motion } from 'framer-motion'
 import { useSettings } from '../hooks/useSettings'
 import { useGodotVersionsContext } from '../hooks/godotVersionsContext'
 import { OverlayScrollArea } from '../components/reusables/OverlayScrollArea'
@@ -108,7 +107,7 @@ function OpenFolderButton({ path }: { path: string }) {
         type="button"
         aria-label={tc('open_folder')}
         onClick={() => void api.openProjectFolder(path).catch(reportError)}
-        className="focus-ring cursor-pointer shrink-0 p-1.5 rounded-btn text-muted/60 hover:text-ink hover:bg-raised transition-colors"
+        className="focus-ring cursor-pointer shrink-0 p-1.5 rounded-btn text-muted/60 hover:text-ink hover:bg-raised "
       >
         <IconFolder className="w-3.5 h-3.5" />
       </button>
@@ -156,7 +155,7 @@ function SizeBar({ size, max }: { size: number; max: number }) {
   const pct = max > 0 ? Math.max(2, Math.round((size / max) * 100)) : 0
   return (
     <div className="h-1 w-full rounded-full bg-raised overflow-hidden">
-      <div className="ui-grow-x h-full rounded-full bg-accent/60" style={{ width: `${pct}%` }} />
+      <div className=" h-full rounded-full bg-accent/60" style={{ width: `${pct}%` }} />
     </div>
   )
 }
@@ -262,27 +261,27 @@ export function StorageView({
           </>
         }
         actions={
-          <motion.button
+          <button
             type="button"
-            data-press-feedback
+
             onClick={() => void load()}
             disabled={loading || reclaiming}
-            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-overlay border border-outline/50 text-xs font-medium text-muted hover:text-ink hover:bg-raised hover:border-accent-dim transition-colors disabled:opacity-40 disabled:cursor-default"
+            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-overlay border border-outline/50 text-xs font-medium text-muted hover:text-ink hover:bg-raised hover:border-accent-dim disabled:opacity-40 disabled:cursor-default"
           >
             <IconRefresh className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
             {tc('refresh')}
-          </motion.button>
+          </button>
         }
       >
         <p className="text-xs text-muted">{tc('cleanup_subtitle')}</p>
       </ViewHeader>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
+        className={`flex-1 min-w-0 -mt-2 ${connected ? '' : '-ms-2 -me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
         topButtonBottom={'bottom-17'}
       >
-        <div className={`ui-stagger ${connected ? 'ps-5' : ''} pe-5 pb-4 flex flex-col gap-2`}>
+        <div className={` ${connected ? 'ps-5' : 'ps-2'} pe-5 pb-4 pt-2 flex flex-col gap-2`}>
           {error && !report ? (
             <div className="border border-dashed border-danger/30 rounded-item py-16 flex flex-col items-center gap-4 text-center">
               <p className="text-sm text-muted max-w-sm leading-relaxed">
@@ -291,7 +290,7 @@ export function StorageView({
               <button
                 type="button"
                 onClick={() => void load()}
-                className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2 rounded-item border border-outline/50 hover:bg-raised text-xs font-medium text-ink transition-colors"
+                className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2 rounded-item border border-outline/50 hover:bg-raised text-xs font-medium text-ink "
               >
                 <IconRefresh className="w-3.5 h-3.5" />
                 {tc('try_again')}
@@ -304,7 +303,7 @@ export function StorageView({
             </div>
           ) : (
             <>
-              <div className="ui-stagger grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className=" grid grid-cols-2 lg:grid-cols-4 gap-3">
                 {[
                   { label: tc('installed_versions_section'), value: totals.versions },
                   { label: tc('cleanup_templates_title'), value: totals.templates },
@@ -381,12 +380,12 @@ export function StorageView({
                       )
                     })}
                     <div className="flex items-center justify-end gap-3 pt-2 border-t border-line">
-                      <motion.button
+                      <button
                         type="button"
-                        data-press-feedback
+
                         disabled={chosen.length === 0 || reclaiming || loading}
                         onClick={() => setConfirming(true)}
-                        className="focus-ring cursor-pointer inline-flex items-center gap-2 h-9 px-5 rounded-item bg-danger text-white text-sm font-medium hover:brightness-110 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                        className="focus-ring cursor-pointer inline-flex items-center gap-2 h-9 px-5 rounded-item bg-danger text-white text-sm font-medium hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed"
                       >
                         {reclaiming ? (
                           <IconSpinner className="w-4 h-4 animate-spin" />
@@ -394,7 +393,7 @@ export function StorageView({
                           <IconTrash className="w-4 h-4" />
                         )}
                         {tc('cleanup_reclaim_btn', { size: formatBytes(chosenSize) })}
-                      </motion.button>
+                      </button>
                     </div>
                   </>
                 )}
@@ -526,35 +525,35 @@ export function StorageView({
         </div>
       </OverlayScrollArea>
 
-      <AnimatePresence>
+
         {confirming && (
           <ModalShell
             icon={<IconTrash className="w-5 h-5 text-danger" />}
             title={tc('cleanup_confirm_title', { size: formatBytes(chosenSize) })}
-            description={tc('cleanup_confirm_desc')}
             maxWidth="max-w-md"
             onClose={() => setConfirming(false)}
             showClose={false}
             footer={
               <div className="ms-auto flex items-center gap-2.5">
-                <motion.button
-                  data-press-feedback
+                <button
+
                   onClick={() => setConfirming(false)}
-                  className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
+                  className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised "
                 >
                   {tc('cancel')}
-                </motion.button>
-                <motion.button
-                  data-press-feedback
+                </button>
+                <button
+
                   onClick={() => void reclaim()}
-                  className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm font-medium bg-danger hover:brightness-110 text-white transition-colors"
+                  className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm font-medium bg-danger hover:brightness-110 text-white "
                 >
                   {tc('cleanup_confirm_btn', { count: chosen.length })}
-                </motion.button>
+                </button>
               </div>
             }
           >
             <div className="flex flex-col gap-3">
+              <p className="text-xs text-muted">{tc('cleanup_confirm_desc')}</p>
               <ul className="flex flex-col gap-1 max-h-64 overflow-y-auto">
                 {chosen.map((e) => (
                   <li
@@ -563,7 +562,7 @@ export function StorageView({
                   >
                     <div className="min-w-0">
                       <p className="text-xs font-medium text-ink truncate">{e.label}</p>
-                      <p className="sensitive text-2xs text-muted truncate" title={settings.privacy_mode ? undefined : e.path}>
+                      <p className="text-2xs text-muted truncate" title={e.path}>
                         {e.path}
                       </p>
                     </div>
@@ -579,7 +578,7 @@ export function StorageView({
             </div>
           </ModalShell>
         )}
-      </AnimatePresence>
+
     </div>
   )
 }

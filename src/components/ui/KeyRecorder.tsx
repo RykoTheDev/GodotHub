@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AnimatePresence, motion } from 'framer-motion'
 import { IconCheck } from '../../lib/icons'
 
 interface Props {
@@ -70,7 +69,7 @@ export function KeyRecorder({ value, onChange, onReset }: Props) {
               if (confirmTimer.current) clearTimeout(confirmTimer.current)
               confirmTimer.current = setTimeout(() => setConfirmMsg(null), 1500)
             }}
-            className="focus-ring cursor-pointer text-3xs font-medium text-muted/60 hover:text-accent transition-colors"
+            className="focus-ring cursor-pointer text-3xs font-medium text-muted/60 hover:text-accent "
           >
             {t('reset_to_default')}
           </button>
@@ -87,7 +86,7 @@ export function KeyRecorder({ value, onChange, onReset }: Props) {
         <button
           type="button"
           onClick={() => setListening((l) => !l)}
-          className={`focus-ring cursor-pointer relative flex items-center justify-center gap-2 px-5 py-3 rounded-item border text-sm font-mono font-semibold transition-colors ${
+          className={`focus-ring cursor-pointer relative flex items-center justify-center gap-2 px-5 py-3 rounded-item border text-sm font-mono font-semibold  ${
             listening
               ? 'border-accent bg-accent/10 text-accent-bright'
               : 'border-outline/50 bg-overlay text-ink hover:border-accent-dim hover:bg-raised'
@@ -95,7 +94,7 @@ export function KeyRecorder({ value, onChange, onReset }: Props) {
         >
           {listening ? (
             <>
-              <span className="inline-block w-2 h-2 rounded-full bg-accent animate-pulse" />
+              <span className="inline-block w-2 h-2 rounded-full bg-accent " />
               <span>{t('press_key')}</span>
             </>
           ) : (
@@ -111,21 +110,19 @@ export function KeyRecorder({ value, onChange, onReset }: Props) {
           )}
         </button>
 
-        <AnimatePresence mode="wait">
+
           {confirmMsg && (
-            <motion.span
+            <span
               key={confirmMsg}
-              initial={{ opacity: 0, x: -4 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: 4 }}
-              transition={{ duration: 0.2, ease: 'easeOut' }}
+
+
               className="flex items-center gap-1 text-xs text-accent font-medium shrink-0"
             >
               <IconCheck className="w-3 h-3" />
               {confirmMsg}
-            </motion.span>
+            </span>
           )}
-        </AnimatePresence>
+
       </div>
     </div>
   )

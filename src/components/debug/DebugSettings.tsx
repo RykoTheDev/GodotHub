@@ -7,9 +7,9 @@ import { useSettings } from '../../hooks/useSettings'
 import { useAppVersion } from '../../hooks/useAppVersion'
 
 const buttonClass =
-  'focus-ring cursor-pointer shrink-0 px-3 py-1.5 rounded-item border border-outline/50 bg-raised/40 hover:bg-raised text-xs font-medium text-ink transition-colors'
+  'focus-ring cursor-pointer shrink-0 px-3 py-1.5 rounded-item border border-outline/50 bg-raised/40 hover:bg-raised text-xs font-medium text-ink '
 const dangerButtonClass =
-  'focus-ring cursor-pointer shrink-0 px-3 py-1.5 rounded-item border border-danger/30 bg-danger/10 hover:bg-danger/20 text-xs font-medium text-danger transition-colors'
+  'focus-ring cursor-pointer shrink-0 px-3 py-1.5 rounded-item border border-danger/30 bg-danger/10 hover:bg-danger/20 text-xs font-medium text-danger '
 
 function Section({
   title,

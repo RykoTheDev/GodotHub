@@ -1,5 +1,4 @@
-import { lazy, memo, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { lazy, memo, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useProjectsContext } from './hooks/projectsContext'
 import { useGodotVersionsContext } from './hooks/godotVersionsContext'
@@ -8,14 +7,6 @@ import { useOpenTodosSync, useTodoDueNotifications } from './hooks/useOpenTodosS
 import { api } from './lib/api'
 import { flushPendingSave } from './lib/pendingSave'
 import { getCurrentWindow } from '@tauri-apps/api/window'
-import {
-  overlayTransition,
-  viewTransition,
-  type AnimationIntensity,
-  type ViewEntrance,
-} from './lib/motion'
-import { motionDuration } from './lib/motion'
-import { useUiMotion } from './hooks/useUiMotion'
 import type { GitStatus, Project } from './types'
 
 import { Sidebar } from './components/ui/Sidebar'
@@ -31,7 +22,7 @@ import { BugReportModal } from './components/modals/BugReportModal'
 import { CheckForUpdatesModal } from './components/modals/CheckForUpdatesModal'
 import { CommandPalette } from './components/modals/CommandPalette'
 import { ToastContainer } from './components/reusables/ToastContainer'
-import { SplashScreen, type SplashPhase } from './components/reusables/SplashScreen'
+import { SplashScreen } from './components/reusables/SplashScreen'
 const ProjectConsoleWindow = lazy(() =>
   import('./components/console/ProjectConsoleWindow').then((m) => ({
     default: m.ProjectConsoleWindow,
@@ -86,6 +77,7 @@ import {
 import { setPendingSettingsCategory } from './lib/settingsCategoryNav'
 import { isRtl } from './lib/locale'
 import { isMac } from './lib/platform'
+import { enableLiveReveal, introShell, revealView } from './lib/motion'
 import {
   IconBookOpen,
   IconBriefcase,
@@ -183,8 +175,6 @@ interface ViewPaneProps {
   active: boolean
   connected: boolean
   gitSidebarOpen: boolean
-  entrance: ViewEntrance
-  intensity: AnimationIntensity
   onOpenSettings: () => void
 }
 
@@ -193,25 +183,18 @@ const ViewPane = memo(function ViewPane({
   active,
   connected,
   gitSidebarOpen,
-  entrance,
-  intensity,
   onOpenSettings,
 }: ViewPaneProps) {
-  const variants = useMemo(() => {
-    const { initial, animate, transition } = viewTransition(entrance, intensity)
-    const from = typeof initial === 'object' ? initial : animate
-    return {
-      shown: { ...animate, display: 'block', transition },
-      hidden: { ...from, display: 'none', transition: { duration: 0 } },
-    }
-  }, [entrance, intensity])
-
+  const paneRef = useRef<HTMLDivElement>(null)
+  useLayoutEffect(() => {
+    if (active && paneRef.current) revealView(paneRef.current)
+  }, [active])
   return (
-    <motion.div
+    <div
+      ref={paneRef}
+      data-view-pane
       className="flex-1 min-w-0 h-full"
-      variants={variants}
-      initial="hidden"
-      animate={active ? 'shown' : 'hidden'}
+      style={{ display: active ? 'block' : 'none' }}
       aria-hidden={!active}
     >
       <ViewErrorBoundary>
@@ -219,12 +202,11 @@ const ViewPane = memo(function ViewPane({
           {renderTabView(id, active, connected, gitSidebarOpen, onOpenSettings)}
         </Suspense>
       </ViewErrorBoundary>
-    </motion.div>
+    </div>
   )
 })
 
 export function App() {
-  const uiMotion = useUiMotion()
   const { t } = useTranslation('nav')
   const { t: tc } = useTranslation('common')
   const { settings, loaded: settingsLoaded, update: updateSettings } = useSettings()
@@ -232,17 +214,12 @@ export function App() {
   const { projects, refresh: refreshProjects } = useProjectsContext()
   const projectsRef = useRef(projects)
   projectsRef.current = projects
-  const [splashPhase, setSplashPhase] = useState<SplashPhase | 'done'>(() =>
-    shouldShowSplash() ? 'enter' : 'done',
-  )
+  const [splashDone, setSplashDone] = useState(() => !shouldShowSplash())
   const [uiSwitchIntent] = useState(() => shouldOpenSettingsAfterSwitch())
   const [projectsCorrupt, setProjectsCorrupt] = useState(false)
   const [tab, setTab] = useState<NewTab>(uiSwitchIntent ? 'settings' : 'projects')
   const newsUnread = useNewsBadge(tab === 'news')
 
-  useEffect(() => {
-    document.documentElement.classList.toggle('privacy-mode', settings.privacy_mode)
-  }, [settings.privacy_mode])
   const [mountedTabs, setMountedTabs] = useState<NewTab[]>(() => [tab])
   if (!mountedTabs.includes(tab)) setMountedTabs([...mountedTabs, tab])
   const openSettingsTab = useCallback(() => setTab('settings'), [])
@@ -324,11 +301,6 @@ export function App() {
   const gitSidebarOpen = !!gitSidebarProject
   const gitSidebarOpenRef = useRef(gitSidebarOpen)
   gitSidebarOpenRef.current = gitSidebarOpen
-  const [gitPanelOpened, setGitPanelOpened] = useState(false)
-  useEffect(() => {
-    if (!gitSidebarOpen) setGitPanelOpened(false)
-    else if (uiMotion.instant) setGitPanelOpened(true)
-  }, [gitSidebarOpen, uiMotion.instant])
   const [gitSidebarWidth, setGitSidebarWidth] = useState(() => {
     try {
       return Math.min(
@@ -479,17 +451,8 @@ export function App() {
   }, [uiSwitchIntent])
 
   useEffect(() => {
-    if (!settingsLoaded) return
-    if (splashPhase === 'enter') {
-      setSplashPhase('fade')
-    }
-    if (splashPhase === 'fade') {
-      const t = setTimeout(() => {
-        setSplashPhase('done')
-      }, uiMotion.instant ? 0 : (uiMotion.reduced ? motionDuration.exit : motionDuration.modal) * 1000)
-      return () => clearTimeout(t)
-    }
-  }, [splashPhase, settingsLoaded, uiMotion.instant, uiMotion.reduced])
+    if (settingsLoaded) setSplashDone(true)
+  }, [settingsLoaded])
 
   useEffect(() => {
     const handleOpenSetting = () => setTab('settings')
@@ -623,14 +586,31 @@ export function App() {
     badge: tab.id === 'news' && newsUnread > 0 ? newsUnread : undefined,
   }))
 
-  if (settingsLoaded && !settings.setup_complete) {
+  const shellRef = useRef<HTMLDivElement>(null)
+  const mainRef = useRef<HTMLDivElement>(null)
+  const onboarding = settingsLoaded && !settings.setup_complete
+  const shellReady = settingsLoaded && settings.setup_complete
+  useEffect(() => {
+    if (onboarding) enableLiveReveal()
+  }, [onboarding])
+  useLayoutEffect(() => {
+    if (!shellReady) return
+    introShell(
+      shellRef.current?.querySelector<HTMLElement>(':scope > header') ?? null,
+      (mainRef.current?.firstElementChild as HTMLElement | null) ?? null,
+    )
+  }, [shellReady])
+
+  if (onboarding) {
     return (
-      <Suspense fallback={null}>
-        <Onboarding
-          settings={settings}
-          onComplete={updateSettings}
-        />
-      </Suspense>
+      <div data-view-pane className="contents">
+        <Suspense fallback={null}>
+          <Onboarding
+            settings={settings}
+            onComplete={updateSettings}
+          />
+        </Suspense>
+      </div>
     )
   }
 
@@ -644,12 +624,13 @@ export function App() {
 
   return (
     <>
-    <div className="new-ui h-screen w-screen flex flex-col bg-base text-ink font-body">
+    <div ref={shellRef} className="new-ui h-screen w-screen flex flex-col bg-base text-ink font-body">
       <ScreenReaderAnnouncer enabled={settings.screen_reader_announcements} />
       <ToastContainer />
       <Titlebar />
 
       <div
+        ref={mainRef}
         className={`relative flex-1 flex min-h-0 overflow-hidden ${
           cardLayout ? 'p-4 pt-3 gap-4' : 'gap-0'
         }`}
@@ -677,30 +658,22 @@ export function App() {
             active={id === tab}
             connected={!cardLayout}
             gitSidebarOpen={id === 'projects' && !!gitSidebarProject}
-            entrance={settings.view_entrance}
-            intensity={settings.animation_intensity}
             onOpenSettings={openSettingsTab}
           />
         ))}
 
-        <AnimatePresence>
+
           {gitSidebarProject && (
             <>
-              <motion.div
+              <div
                 key="git-backdrop"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={overlayTransition}
+                data-motion="backdrop"
                 className="absolute inset-0 z-40 bg-black/30"
                 onClick={() => setGitSidebarProject(null)}
               />
-              <motion.div
+              <div
                 key="git-panel"
-                {...uiMotion.surface('modal', isRtl() ? 'translateX(-100%)' : 'translateX(100%)')}
-                onAnimationComplete={() => {
-                  if (gitSidebarOpenRef.current) setGitPanelOpened(true)
-                }}
+                data-motion="panel"
                 className={`absolute top-2 inset-e-2 bottom-2 z-50 ${gitDragging ? 'select-none' : ''}`}
               >
                 <div
@@ -732,7 +705,6 @@ export function App() {
                           await refreshProjects()
                         }}
                         connected={!cardLayout}
-                        opened={gitPanelOpened}
                       />
                     </Suspense>
                   </aside>
@@ -753,7 +725,7 @@ export function App() {
                     className="absolute inset-y-0 -inset-s-3.5 w-7 cursor-col-resize group/edge z-10"
                   >
                     <div
-                      className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none transition-opacity duration-200 ease-out ${
+                      className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none  ${
                         showGitKnob ? 'opacity-100' : 'opacity-0'
                       }`}
                     >
@@ -761,7 +733,7 @@ export function App() {
                         className={`flex flex-col items-center ${
                           gitKnobY != null && !fixedKnob
                             ? ''
-                            : 'transition-transform duration-200 ease-out'
+                            : ' '
                         }`}
                         style={
                           gitKnobY != null && !fixedKnob
@@ -770,14 +742,14 @@ export function App() {
                         }
                       >
                         <div
-                          className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-tag bg-raised border border-line shadow-md shadow-base text-3xs font-mono text-muted tabular-nums whitespace-nowrap transition-[translate,opacity] duration-200 ${
+                          className={`absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 rounded-tag bg-raised border border-line shadow-md shadow-base text-3xs font-mono text-muted tabular-nums whitespace-nowrap  ${
                             gitDragging ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-1'
                           }`}
                         >
                           {gitSidebarWidth}px
                         </div>
                         <div
-                          className={`flex items-center justify-center w-5 h-10 rounded-full border shadow-md shadow-base transition-[scale,background-color,border-color,box-shadow] duration-200 ${
+                          className={`flex items-center justify-center w-5 h-10 rounded-full border shadow-md shadow-base  ${
                             gitDragging
                               ? 'bg-accent border-accent scale-110 shadow-accent/30'
                               : 'bg-raised border-line shadow-base group-hover/edge:border-accent-dim'
@@ -785,17 +757,17 @@ export function App() {
                         >
                           <div className="flex flex-col items-center justify-center gap-1">
                             <div
-                              className={`w-1 h-1 rounded-full transition-colors duration-200 ${
+                              className={`w-1 h-1 rounded-full  ${
                                 gitDragging ? 'bg-white' : 'bg-line group-hover/edge:bg-accent'
                               }`}
                             />
                             <div
-                              className={`w-1 h-1 rounded-full transition-colors duration-200 ${
+                              className={`w-1 h-1 rounded-full  ${
                                 gitDragging ? 'bg-white' : 'bg-line group-hover/edge:bg-accent'
                               }`}
                             />
                             <div
-                              className={`w-1 h-1 rounded-full transition-colors duration-200 ${
+                              className={`w-1 h-1 rounded-full  ${
                                 gitDragging ? 'bg-white' : 'bg-line group-hover/edge:bg-accent'
                               }`}
                             />
@@ -805,10 +777,10 @@ export function App() {
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             </>
           )}
-        </AnimatePresence>
+
 
         <Suspense fallback={null}>
           <ProjectConsoleWindow />
@@ -816,7 +788,7 @@ export function App() {
 
       </div>
 
-      <AnimatePresence>
+
         {pendingLaunch && (
           <ConfirmDialog
             title={tc('project_already_open_title')}
@@ -834,9 +806,9 @@ export function App() {
             onCancel={() => setPendingLaunch(null)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {confirmingRestart && (
           <ConfirmDialog
             title="Reload GodotHub?"
@@ -849,9 +821,9 @@ export function App() {
             onCancel={() => setConfirmingRestart(false)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {commandPaletteOpen && (
           <CommandPalette
             onClose={() => setCommandPaletteOpen(false)}
@@ -861,9 +833,9 @@ export function App() {
             installedVersions={installed}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {createProjectOpen && (
           <CreateProjectModal
             installedVersions={installed}
@@ -877,13 +849,13 @@ export function App() {
             }}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {bugReportOpen && <BugReportModal onClose={() => setBugReportOpen(false)} />}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {updatesModalOpen && (
           <CheckForUpdatesModal
             mode={updatesModalMode}
@@ -910,10 +882,10 @@ export function App() {
             onCancel={() => setProjectsCorrupt(false)}
           />
         )}
-      </AnimatePresence>
+
 
     </div>
-    {splashPhase !== 'done' && <SplashScreen phase={splashPhase} />}
+    {!splashDone && <SplashScreen />}
     </>
   )
 }

@@ -1,19 +1,11 @@
 import { setThemeVars } from './themeVars'
 import { radiusVars } from './colors'
 import { setRtlLayout } from '../i18n'
+import { configureMotion } from './motion'
+import type { AppSettings } from '../types'
 
 export function applyRadius(mdPx: number) {
   setThemeVars(radiusVars(mdPx))
-}
-
-let scaleSmoothTimer: ReturnType<typeof setTimeout> | null = null
-
-export function beginScaleSmoothing() {
-  document.documentElement.classList.add('ui-scaling')
-  if (scaleSmoothTimer) clearTimeout(scaleSmoothTimer)
-  scaleSmoothTimer = setTimeout(() => {
-    document.documentElement.classList.remove('ui-scaling')
-  }, 200)
 }
 
 export function applyDensity(scale: number) {
@@ -22,53 +14,6 @@ export function applyDensity(scale: number) {
 
 export function applyFontScale(scale: number) {
   setThemeVars({ 'font-size': `${scale * 100}%` })
-}
-
-import { MotionGlobalConfig } from 'framer-motion'
-import type { AnimationIntensity } from './motion'
-
-let animationIntensity: AnimationIntensity = 'full'
-let reducedMotionQuery: MediaQueryList | null = null
-let keyboardInput = false
-const motionListeners = new Set<() => void>()
-
-export function subscribeMotionPreferences(listener: () => void) {
-  motionListeners.add(listener)
-  return () => { motionListeners.delete(listener) }
-}
-
-export function getMotionSnapshot() {
-  return `${animationIntensity}|${osPrefersReducedMotion()}|${keyboardInput}`
-}
-
-export function motionIsInstant() { return keyboardInput || animationIntensity === 'none' }
-
-function reducedMotionMediaQuery(): MediaQueryList {
-  reducedMotionQuery ??= window.matchMedia('(prefers-reduced-motion: reduce)')
-  return reducedMotionQuery
-}
-
-function osPrefersReducedMotion(): boolean {
-  return reducedMotionMediaQuery().matches
-}
-
-function shouldReduceMotion(): boolean {
-  return osPrefersReducedMotion() || animationIntensity === 'none'
-}
-
-function applyReduceMotionState() {
-  const enabled = shouldReduceMotion()
-  document.documentElement.classList.toggle('reduce-motion', enabled)
-  document.documentElement.classList.toggle('motion-subtle', animationIntensity === 'subtle')
-  document.documentElement.classList.toggle('motion-none', animationIntensity === 'none')
-  document.documentElement.classList.toggle('keyboard-input', keyboardInput)
-  MotionGlobalConfig.instantAnimations = motionIsInstant()
-  motionListeners.forEach(listener => listener())
-}
-
-export function applyAnimationIntensity(intensity: AnimationIntensity) {
-  animationIntensity = intensity
-  applyReduceMotionState()
 }
 
 const USER_CSS_ID = 'app-user-css'
@@ -93,43 +38,6 @@ export function applyCustomCss(css: string) {
   style.textContent = css
 }
 
-export function initReducedMotionDetection() {
-  const mq = reducedMotionMediaQuery()
-  const handler = () => applyReduceMotionState()
-  const keydown = (event: KeyboardEvent) => {
-    if (['Shift', 'Control', 'Alt', 'Meta'].includes(event.key) || keyboardInput) return
-    keyboardInput = true; applyReduceMotionState()
-  }
-  const pointerdown = () => {
-    if (!keyboardInput) return
-    keyboardInput = false; applyReduceMotionState()
-  }
-  const click = (event: MouseEvent) => { if (event.detail === 0 && !keyboardInput) { keyboardInput = true; applyReduceMotionState() } }
-  document.addEventListener('keydown', keydown, true)
-  document.addEventListener('pointerdown', pointerdown, true)
-  document.addEventListener('click', click, true)
-  if (typeof mq.addEventListener === 'function') {
-    mq.addEventListener('change', handler)
-  } else {
-    mq.addListener(handler)
-  }
-  applyReduceMotionState()
-  return () => {
-    document.removeEventListener('keydown', keydown, true)
-    document.removeEventListener('pointerdown', pointerdown, true)
-    document.removeEventListener('click', click, true)
-    if (typeof mq.removeEventListener === 'function') {
-      mq.removeEventListener('change', handler)
-    } else {
-      mq.removeListener(handler)
-    }
-  }
-}
-
-export function isReducedMotion(): boolean {
-  return shouldReduceMotion() || animationIntensity === 'subtle' || keyboardInput
-}
-
 export function applyScrollbars(enabled: boolean) {
   document.documentElement.classList.toggle('hide-scrollbars', !enabled)
 }
@@ -139,12 +47,49 @@ export function applyProjectIconOpacity(opacity: number) {
   setThemeVars({ '--project-icon-opacity': String(clamped / 100) })
 }
 
-export function applyAppearance(settings: {
+type MotionSettings = Pick<
+  AppSettings,
+  | 'animation_intensity'
+  | 'animation_speed'
+  | 'view_entrance'
+  | 'animation_threshold'
+  | 'motion_scroll_reveal'
+  | 'motion_card_tilt'
+  | 'motion_click_ripple'
+  | 'motion_press_bounce'
+>
+
+export function applyMotion(settings: MotionSettings) {
+  configureMotion({
+    intensity: settings.animation_intensity,
+    speed: settings.animation_speed,
+    entrance: settings.view_entrance,
+    threshold: settings.animation_threshold,
+    scrollReveal: settings.motion_scroll_reveal,
+    tilt: settings.motion_card_tilt,
+    ripple: settings.motion_click_ripple,
+    press: settings.motion_press_bounce,
+  })
+}
+
+export function motionSettingsChanged(prev: MotionSettings, next: MotionSettings) {
+  return (
+    prev.animation_intensity !== next.animation_intensity ||
+    prev.animation_speed !== next.animation_speed ||
+    prev.view_entrance !== next.view_entrance ||
+    prev.animation_threshold !== next.animation_threshold ||
+    prev.motion_scroll_reveal !== next.motion_scroll_reveal ||
+    prev.motion_card_tilt !== next.motion_card_tilt ||
+    prev.motion_click_ripple !== next.motion_click_ripple ||
+    prev.motion_press_bounce !== next.motion_press_bounce
+  )
+}
+
+export function applyAppearance(settings: MotionSettings & {
   corner_radius: number
   ui_density: number
   font_scale: number
   custom_css: string
-  animation_intensity: AnimationIntensity
   show_scrollbars: boolean
   project_icon_opacity: number
   rtl_layout?: boolean
@@ -152,9 +97,9 @@ export function applyAppearance(settings: {
   applyRadius(settings.corner_radius)
   applyDensity(settings.ui_density)
   applyFontScale(settings.font_scale)
-  applyAnimationIntensity(settings.animation_intensity)
   applyCustomCss(settings.custom_css)
   applyScrollbars(settings.show_scrollbars)
   applyProjectIconOpacity(settings.project_icon_opacity)
   setRtlLayout(settings.rtl_layout ?? false)
+  applyMotion(settings)
 }

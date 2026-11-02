@@ -1,14 +1,11 @@
 import { useEffect, useId, useRef } from 'react'
-import { motion, type Variants } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { IconX } from '../../lib/icons'
 
 interface Props {
   icon: React.ReactNode
   title: string
-  description?: React.ReactNode
   onClose?: () => void
-  variants?: Variants
   titleId?: string
   autoFocusBanner?: boolean
   titleClassName?: string
@@ -17,9 +14,7 @@ interface Props {
 export function ModalHeader({
   icon,
   title,
-  description,
   onClose,
-  variants,
   titleId,
   titleClassName = 'line-clamp-2 wrap-break-word',
   autoFocusBanner = true,
@@ -39,25 +34,19 @@ export function ModalHeader({
   }, [autoFocusBanner])
 
   return (
-    <motion.div
-      variants={variants}
-      className="flex items-start justify-between gap-3 p-4 pb-2 shrink-0"
-    >
+    <div className="flex items-start justify-between gap-3 p-4 pb-2 shrink-0">
       <div
         ref={bannerRef}
         tabIndex={-1}
-        className="flex items-start gap-2 min-w-0 flex-1 bg-black/15 px-3 py-3 rounded-btn outline-none"
+        className="flex items-center gap-2 min-w-0 flex-1 bg-black/15 px-3 py-3 rounded-btn outline-none"
       >
         <div className="w-9 h-9 rounded-tile flex items-center justify-center shrink-0">
           {icon}
         </div>
         <div className="min-w-0">
-          <h3 id={id} title={title} className={`uppercase font-semibold text-xl text-ink ${titleClassName}`}>
+          <h3 id={id} title={title} className={`uppercase font-semibold text-2xl leading-tight text-ink ${titleClassName}`}>
             {title}
           </h3>
-          {description && (
-            <p className="text-xs text-muted mt-0.5 leading-relaxed wrap-break-word">{description}</p>
-          )}
         </div>
       </div>
       {onClose && (
@@ -65,11 +54,11 @@ export function ModalHeader({
           type="button"
           onClick={onClose}
           aria-label={t('close')}
-          className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/50 hover:text-ink hover:bg-raised transition-colors shrink-0"
+          className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/50 hover:text-ink hover:bg-raised shrink-0"
         >
           <IconX className="w-4 h-4" />
         </button>
       )}
-    </motion.div>
+    </div>
   )
 }

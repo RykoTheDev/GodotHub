@@ -1,4 +1,3 @@
-import { motion, AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../lib/api'
 import { IconPlus, IconTrash, IconCheck } from '../../lib/icons'
@@ -46,23 +45,21 @@ export function DirList({
   return (
     <div className="flex flex-col gap-2.5">
       {dirs.length === 0 && <p className="text-xs text-muted">{emptyHint}</p>}
-      <AnimatePresence initial={false}>
+
         {dirs.map((dir) => {
           const isDefault = onSetDefault ? defaultDir === dir : false
           return (
-            <motion.div
+            <div
               key={dir}
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.15 }}
-              className={`flex flex-col gap-2.5 px-3.5 py-2.5 rounded-item bg-base border transition-colors ${
+
+
+              className={`flex flex-col gap-2.5 px-3.5 py-2.5 rounded-item bg-base border  ${
                 isDefault ? 'border-accent-dim/60 bg-accent/5' : 'border-outline/50'
               }`}
             >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
-                  <span className="sensitive text-xs font-mono text-ink truncate">
+                  <span className="text-xs font-mono text-ink truncate">
                     {dir}
                   </span>
                   {isDefault && (
@@ -74,7 +71,7 @@ export function DirList({
                 <button
                   type="button"
                   onClick={() => removeDir(dir)}
-                  className="cursor-pointer text-muted hover:text-danger transition-colors shrink-0"
+                  className="cursor-pointer text-muted hover:text-danger shrink-0"
                   aria-label={t('remove_folder')}
                 >
                   <IconTrash className="w-3.5 h-3.5" />
@@ -83,7 +80,7 @@ export function DirList({
               {onSetDefault && (
                 <div className="pt-2 border-t border-outline/50">
                   <label
-                    className={`flex items-center gap-2.5 cursor-pointer select-none rounded-item px-2.5 py-2 -mx-2.5 transition-colors ${
+                    className={`flex items-center gap-2.5 cursor-pointer select-none rounded-item px-2.5 py-2 -mx-2.5  ${
                       isDefault ? 'bg-accent/10' : 'hover:bg-overlay/50'
                     }`}
                   >
@@ -95,7 +92,7 @@ export function DirList({
                         label: defaultLabel.toLowerCase(),
                       })}
                       onClick={() => toggleDefault(dir)}
-                      className={`focus-ring shrink-0 flex items-center justify-center w-5 h-5 rounded-md border-2 transition-[background-color,border-color,box-shadow] ${
+                      className={`focus-ring shrink-0 flex items-center justify-center w-5 h-5 rounded-md border-2  ${
                         isDefault
                           ? 'bg-accent border-accent shadow-sm shadow-accent/40'
                           : 'bg-transparent border-outline/60 hover:border-accent-dim'
@@ -107,7 +104,7 @@ export function DirList({
                     </button>
                     <span
                       onClick={() => toggleDefault(dir)}
-                      className={`text-xs font-medium transition-colors ${
+                      className={`text-xs font-medium  ${
                         isDefault ? 'text-accent-bright' : 'text-muted hover:text-ink'
                       }`}
                     >
@@ -126,21 +123,21 @@ export function DirList({
                   )}
                 </div>
               )}
-            </motion.div>
+            </div>
           )
         })}
-      </AnimatePresence>
 
-      <motion.button key="button-133"
+
+      <button key="button-133"
         type="button"
 
-        data-press-feedback
+
         onClick={addDir}
-        className="icon-wiggle cursor-pointer focus-ring flex items-center gap-1.5 self-start px-3.5 py-2 rounded-item border border-dashed border-outline/60 text-xs text-muted hover:text-accent-bright hover:border-accent-dim transition-colors"
+        className=" cursor-pointer focus-ring flex items-center gap-1.5 self-start px-3.5 py-2 rounded-item border border-dashed border-outline/60 text-xs text-muted hover:text-accent-bright hover:border-accent-dim "
       >
         <IconPlus className="w-3 h-3" />
         {t('add_folder')}
-      </motion.button>
+      </button>
     </div>
   )
 }

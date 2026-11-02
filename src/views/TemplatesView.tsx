@@ -5,8 +5,6 @@ import {
   type ComponentType,
 } from 'react'
 import { useTranslation, Trans } from 'react-i18next'
-import { motion, AnimatePresence } from 'framer-motion'
-import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 import { api } from '../lib/api'
 import { pushToast } from '../lib/toast'
 import { consumePendingAction } from '../lib/pendingAction'
@@ -36,6 +34,7 @@ import {
   IconTrash,
   type IconProps,
 } from '../lib/icons'
+import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 
 const TEMPLATE_SORT_KEY = 'godothub_template_sort'
 
@@ -70,7 +69,7 @@ function TabSwitcher({
             key={v}
             type="button"
             onClick={() => onChange(v)}
-            className={`focus-ring cursor-pointer h-full flex items-center gap-1.5 px-3.5 rounded-btn text-xs font-medium transition-colors ${
+            className={`focus-ring cursor-pointer h-full flex items-center gap-1.5 px-3.5 rounded-btn text-xs font-medium  ${
               active
                 ? 'bg-accent text-white'
                 : 'text-muted hover:text-ink hover:bg-raised'
@@ -267,18 +266,18 @@ export function TemplatesView({
         actions={
           <>
             {settings.template_scan_dir && (
-                <motion.button
+                <button
                   type="button"
 
-                  data-press-feedback
+
 
                   onClick={() =>
                     api.openProjectFolder(settings.template_scan_dir!)
                   }
-                  className="focus-ring cursor-pointer flex items-center justify-center px-6 h-10 rounded-item bg-overlay shadow-md shadow-black/10 border border-outline/50 hover:bg-raised text-muted hover:text-ink font-semibold text-[17px] transition-colors"
+                  className="focus-ring cursor-pointer flex items-center justify-center px-6 h-10 rounded-item bg-overlay shadow-md shadow-black/10 border border-outline/50 hover:bg-raised text-muted hover:text-ink font-semibold text-[1.0625rem] "
                 >
                   {tc('open_folder')}
-                </motion.button>
+                </button>
             )}
             <ScanButton
               onOpenSettings={onOpenSettings}
@@ -315,12 +314,12 @@ export function TemplatesView({
       </ViewHeader>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
+        className={`flex-1 min-w-0 -mt-2 ${connected ? '' : '-ms-2 -me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
         topButtonBottom="bottom-17"
       >
         <div
-          className={`h-full ${connected ? 'ps-5' : ''} pe-5 pb-4 flex flex-col gap-2`}
+          className={`h-full ${connected ? 'ps-5' : 'ps-2'} pe-5 pb-4 pt-2 flex flex-col gap-2`}
         >
           {tab === 'local' ? (
             <>
@@ -329,7 +328,7 @@ export function TemplatesView({
                   {Array.from({ length: 3 }).map((_, i) => (
                     <div
                       key={i}
-                      className="h-52 rounded-item border border-outline/50 bg-overlay animate-pulse"
+                      className="h-52 rounded-item border border-outline/50 bg-overlay "
                     />
                   ))}
                 </div>
@@ -362,20 +361,20 @@ export function TemplatesView({
                     trigger={({ open, toggle }) => {
                       const activeOption = TEMPLATE_SORT_OPTIONS.find((o) => o.value === sortBy)
                       return (
-                        <motion.button
+                        <button
                           type="button"
                           aria-expanded={open}
 
-                          data-press-feedback
+
                           onClick={toggle}
-                          className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
+                          className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised "
                         >
                           <span className="text-xs text-muted">{tc('sort')}:</span>
                           <span className="text-sm font-medium text-ink">
                             {activeOption ? tc(activeOption.labelKey) : tc('sort')}
                           </span>
                           <IconChevronDown className="w-3 h-3 text-muted" />
-                        </motion.button>
+                        </button>
                       )
                     }}
                     items={TEMPLATE_SORT_OPTIONS.map((opt) => ({
@@ -387,12 +386,12 @@ export function TemplatesView({
                   />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  <AnimatePresence>
+
                     {filteredTemplates.map((tmpl) => (
                       <div
                         key={tmpl.id}
 
-                        className="relative border border-outline/50 rounded-item bg-overlay p-4 flex flex-col gap-3 group cursor-pointer hover:border-accent-dim transition-colors"
+                        className="relative border border-outline/50 rounded-item bg-overlay p-4 flex flex-col gap-3 group cursor-pointer hover:border-accent-dim "
                         onClick={() => setPreviewTemplate(tmpl)}
                       >
                         <div className="flex items-start justify-between gap-3">
@@ -405,7 +404,7 @@ export function TemplatesView({
                                 e.stopPropagation()
                                 setConfirmDelete(tmpl.id)
                               }}
-                              className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 opacity-0 group-hover:opacity-100 hover:text-danger hover:bg-danger/10 transition-[opacity,color,background-color]"
+                              className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 opacity-0 group-hover:opacity-100 hover:text-danger hover:bg-danger/10 "
                               aria-label={tc('delete_template', { name: tmpl.name })}
                             >
                               <IconTrash className="w-3.5 h-3.5" />
@@ -437,21 +436,21 @@ export function TemplatesView({
                             </>
                           )}
                         </div>
-                        <motion.button
+                        <button
 
-                          data-press-feedback
+
                           onClick={(e) => {
                             e.stopPropagation()
                             setCreateTemplate(tmpl)
                           }}
-                          className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 px-3 py-2 rounded-item bg-accent/10 border border-accent-dim/30 text-accent-bright text-xs font-semibold hover:bg-accent/20 transition-colors"
+                          className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 px-3 py-2 rounded-item bg-accent/10 border border-accent-dim/30 text-accent-bright text-xs font-semibold hover:bg-accent/20 "
                         >
                           <IconFolderPlus className="w-3.5 h-3.5" />
                           {tc('create_project_btn')}
-                        </motion.button>
+                        </button>
                       </div>
                     ))}
-                  </AnimatePresence>
+
                 </div>
                 </>
               )}
@@ -463,16 +462,16 @@ export function TemplatesView({
         </div>
       </OverlayScrollArea>
 
-      <AnimatePresence>
+
         {previewTemplate && (
           <TemplatePreviewModal
             template={previewTemplate}
             onClose={() => setPreviewTemplate(null)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {createTemplate && (
           <CreateProjectModal
             installedVersions={installed}
@@ -485,9 +484,9 @@ export function TemplatesView({
             }}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {confirmDelete && (
           <ConfirmDialog
             variant="danger"
@@ -504,7 +503,7 @@ export function TemplatesView({
             onCancel={() => setConfirmDelete(null)}
           />
         )}
-      </AnimatePresence>
+
     </div>
   )
 }

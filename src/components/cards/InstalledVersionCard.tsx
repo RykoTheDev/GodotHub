@@ -1,5 +1,4 @@
 import { useRef, useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import type {
   CurrentVersionInfo,
@@ -138,7 +137,7 @@ export function InstalledVersionCard({
   }
 
   return (
-    <div className="group relative flex items-center gap-3.5 p-3.5 rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 transition-colors">
+    <div className="group relative flex items-center gap-3.5 p-3.5 rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 ">
       <div className="min-w-0 flex-1">
         {editing ? (
           <div className="flex items-center gap-1.5">
@@ -154,15 +153,15 @@ export function InstalledVersionCard({
               onBlur={commitEdit}
               className="focus-ring w-48 bg-raised border border-accent rounded-btn px-3 py-2 text-sm font-mono text-ink outline-none"
             />
-            <motion.button
+            <button
               type="button"
-              data-press-feedback
+
               onClick={commitEdit}
               aria-label={tc('version_save_name_aria')}
-              className="focus-ring cursor-pointer p-1.5 rounded-btn text-accent hover:bg-accent/10 transition-colors"
+              className="focus-ring cursor-pointer p-1.5 rounded-btn text-accent hover:bg-accent/10 "
             >
               <IconCheck className="w-4 h-4" />
-            </motion.button>
+            </button>
           </div>
         ) : (
           <>
@@ -171,15 +170,15 @@ export function InstalledVersionCard({
                 <h3 className="font-display font-medium text-xl text-ink truncate">
                   {v.custom_name || v.tag}
                 </h3>
-                  <motion.button
+                  <button
                     type="button"
-                    data-press-feedback
+
                     onClick={startEditing}
                     aria-label={tc('version_rename_aria')}
-                    className="focus-ring cursor-pointer p-1 rounded-btn text-muted/60 hover:text-ink hover:bg-raised transition-colors shrink-0"
+                    className="focus-ring cursor-pointer p-1 rounded-btn text-muted/60 hover:text-ink hover:bg-raised shrink-0"
                   >
                     <IconPencil className="w-3.5 h-3.5" />
-                  </motion.button>
+                  </button>
                 <span
                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-tag text-3xs font-semibold shrink-0 border ${
                     v.is_mono
@@ -225,7 +224,7 @@ export function InstalledVersionCard({
                         onClick={onCancelTemplates}
                         aria-label={tv('cancel_download')}
                         title={tv('cancel_download')}
-                        className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-danger hover:bg-danger/10 transition-colors"
+                        className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-danger hover:bg-danger/10 "
                       >
                         <IconX className="w-3 h-3" />
                       </button>
@@ -233,13 +232,13 @@ export function InstalledVersionCard({
                   </span>
                 ) : templates?.installed ? (
                   <Tooltip
-                    content={<><span className="sensitive">{templates.folder}</span>{` · ${templates.platforms?.join(', ') || ''} · ${formatBytes(templates.size_bytes)}`}</>}
+                    content={<><span>{templates.folder}</span>{` · ${templates.platforms?.join(', ') || ''} · ${formatBytes(templates.size_bytes)}`}</>}
                     side="top"
                   >
                     <button
                       type="button"
                       onClick={() => setTemplateDialog('install')}
-                      className="focus-ring cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-mint/10 text-mint border border-mint/30 text-3xs font-semibold shrink-0 hover:bg-mint/20 transition-colors"
+                      className="focus-ring cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-mint/10 text-mint border border-mint/30 text-3xs font-semibold shrink-0 hover:bg-mint/20 "
                     >
                       <IconCheck className="w-2.5 h-2.5" />
                       {tv('export_templates_installed')}{templates.platforms?.length ? ` · ${templates.platforms.join(', ')}` : ''}
@@ -250,7 +249,7 @@ export function InstalledVersionCard({
                     type="button"
                     onClick={() => setTemplateDialog('install')}
                     title={tv('export_templates_install')}
-                    className="focus-ring cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-overlay text-muted border border-outline/50 text-3xs font-semibold shrink-0 hover:text-amber hover:border-amber/40 transition-colors"
+                    className="focus-ring cursor-pointer inline-flex items-center gap-1 px-2 py-0.5 rounded-tag bg-overlay text-muted border border-outline/50 text-3xs font-semibold shrink-0 hover:text-amber hover:border-amber/40 "
                   >
                     <IconDownload className="w-2.5 h-2.5" />
                     {tv('export_templates_missing')}
@@ -362,7 +361,7 @@ export function InstalledVersionCard({
         ]}
       />
 
-      <AnimatePresence>
+
         {confirmingUninstall && (
           <ConfirmDialog
             title={tc('version_uninstall_title')}
@@ -380,18 +379,18 @@ export function InstalledVersionCard({
             onCancel={() => setConfirmingUninstall(false)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {aliasInfo && (
           <CurrentVersionModal
             info={aliasInfo}
             onClose={() => setAliasInfo(null)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {templateDialog === 'install' && (
           <ExportTemplatesModal
             tag={v.tag}
@@ -403,9 +402,9 @@ export function InstalledVersionCard({
             onClose={() => setTemplateDialog(null)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {templateDialog === 'remove' && (
           <ConfirmDialog
             title={tv('export_templates_remove_title')}
@@ -419,7 +418,7 @@ export function InstalledVersionCard({
             onCancel={() => setTemplateDialog(null)}
           />
         )}
-      </AnimatePresence>
+
     </div>
   )
 }

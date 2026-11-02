@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { ModalShell } from './ModalShell'
 import { IconCopy, IconFolder } from '../../lib/icons'
@@ -55,28 +54,27 @@ export function DuplicateProjectModal({
     <ModalShell
       icon={<IconCopy className="w-5 h-5" />}
       title={t('duplicate_project_title')}
-      description={t('duplicate_project_desc')}
       maxWidth="max-w-md"
       onClose={onClose}
       footer={
         <>
-          <motion.button
+          <button
 
-            data-press-feedback
+
             onClick={onClose}
-            className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg text-sm text-muted hover:text-ink hover:bg-raised transition-colors ms-auto"
+            className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg text-sm text-muted hover:text-ink hover:bg-raised ms-auto"
           >
             {t('cancel')}
-          </motion.button>
-          <motion.button
+          </button>
+          <button
 
-            data-press-feedback
+
             onClick={() => void duplicate()}
             disabled={!name.trim() || busy}
-            className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg bg-accent hover:bg-accent-bright text-sm font-medium text-white disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {t('duplicate')}
-          </motion.button>
+          </button>
         </>
       }
     >
@@ -90,7 +88,7 @@ export function DuplicateProjectModal({
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder={t('new_project_name')}
-            className="focus-ring w-full bg-base border border-outline/50 rounded-item px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-accent-dim outline-none transition-colors"
+            className="focus-ring w-full bg-base border border-outline/50 rounded-item px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-accent-dim outline-none "
           />
         </div>
         <div className="flex flex-col gap-2">
@@ -105,7 +103,7 @@ export function DuplicateProjectModal({
             <button
               type="button"
               onClick={() => void pickDest()}
-              className="focus-ring cursor-pointer shrink-0 px-3 rounded-item bg-raised border border-outline/50 text-xs font-medium text-muted hover:text-ink hover:border-accent-dim transition-colors"
+              className="focus-ring cursor-pointer shrink-0 px-3 rounded-item bg-raised border border-outline/50 text-xs font-medium text-muted hover:text-ink hover:border-accent-dim "
             >
               {t('browse')}
             </button>

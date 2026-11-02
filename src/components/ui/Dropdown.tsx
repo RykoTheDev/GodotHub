@@ -1,4 +1,3 @@
-import { AnimatePresence, motion } from 'framer-motion'
 import {
   useCallback,
   useEffect,
@@ -13,7 +12,6 @@ import {
 import { createPortal } from 'react-dom'
 import type { IconProps } from '../../lib/icons'
 import { Tooltip } from '../reusables/Tooltip'
-import { useUiMotion } from '../../hooks/useUiMotion'
 import { mirrorSide } from '../../lib/locale'
 import {
   MenuButton,
@@ -23,6 +21,7 @@ import {
   MENU_VIEWPORT_PAD,
   type MenuItem,
 } from './menu'
+import { useExclusivePopup } from '../../hooks/useExclusivePopup'
 
 export type NewDropdownItem = MenuItem
 
@@ -73,7 +72,6 @@ export function Dropdown({
   children,
   onOpenChange,
 }: NewDropdownProps) {
-  const { surface } = useUiMotion()
   const [open, setOpen] = useState(false)
   const [openUp, setOpenUp] = useState(false)
   const [openSubmenuKey, setOpenSubmenuKey] = useState<string | null>(null)
@@ -101,13 +99,7 @@ export function Dropdown({
     onOpenChange?.(false)
   }, [onOpenChange])
 
-  useEffect(() => {
-    if (!open) return
-    window.dispatchEvent(new CustomEvent('app:dropdown-open'))
-    return () => {
-      window.dispatchEvent(new CustomEvent('app:dropdown-close'))
-    }
-  }, [open])
+  useExclusivePopup(open, closeAll, () => menuRef.current, () => ref.current)
 
   const measure = useCallback(() => {
     const el = ref.current
@@ -285,11 +277,11 @@ export function Dropdown({
       </div>
 
       {createPortal(
-        <AnimatePresence>
-          {open && (
-            <motion.div key="div-269"
+
+          open && (
+            <div key="div-269"
               ref={menuRef}
-              {...surface('popover', `translateY(${openUp ? 6 : -6}px) scale(0.96)`)}
+
               role="menu"
               onKeyDown={handleMenuKey}
               style={{ left: pos?.left, top: pos?.top, width: pos?.width,
@@ -306,7 +298,7 @@ export function Dropdown({
                       <button
                         type="button"
                         onClick={() => { closeAll(); h.onClick() }}
-                        className="focus-ring cursor-pointer flex items-center justify-center w-8 h-8 rounded-item text-muted hover:text-ink hover:bg-raised transition-colors"
+                        className="focus-ring cursor-pointer flex items-center justify-center w-8 h-8 rounded-item text-muted hover:text-ink hover:bg-raised "
                       >
                         <h.icon className="w-4 h-4" />
                       </button>
@@ -348,15 +340,14 @@ export function Dropdown({
                           closeAll()
                           item.action?.onClick()
                         }}
-                        className="focus-ring cursor-pointer shrink-0 w-8 h-8 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised transition-colors"
+                        className="focus-ring cursor-pointer shrink-0 w-8 h-8 flex items-center justify-center rounded-item text-muted hover:text-ink hover:bg-raised "
                       >
                         <item.action.icon className="w-3.5 h-3.5" />
                       </button>
                     </Tooltip>
                   )}
                   {item.children?.length && (
-                    <AnimatePresence>
-                      {openSubmenuKey === item.key && (
+                    openSubmenuKey === item.key && (
                         <div
                           className={`absolute top-0 z-60 ${
                             submenuSide === 'left'
@@ -365,8 +356,8 @@ export function Dropdown({
                           }`}
                           style={{ transform: `translateY(${submenuOffsetY}px)` }}
                         >
-                          <motion.div
-                            {...surface('popover', `translateX(${submenuSide === 'left' ? 6 : -6}px) scale(0.97)`)}
+                          <div
+
                             className={`${menuSurfaceClass(compact, 'max-h-[70vh] overflow-y-auto')} ${
                               submenuSide === 'left'
                                 ? 'origin-right'
@@ -389,19 +380,18 @@ export function Dropdown({
                                 )}
                               </div>
                             ))}
-                          </motion.div>
+                          </div>
                         </div>
-                      )}
-                    </AnimatePresence>
+                    )
                   )}
                   {item.dividerAfter && (
                     <MenuDivider compact={compact} />
                   )}
                 </div>
               ))}
-            </motion.div>
-          )}
-        </AnimatePresence>,
+            </div>
+          )
+        ,
         document.body,
       )}
     </>

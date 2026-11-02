@@ -7,8 +7,6 @@ import {
   type KeyboardEvent,
 } from 'react'
 import { createPortal } from 'react-dom'
-import { motion } from 'framer-motion'
-import { useUiMotion } from '../../hooks/useUiMotion'
 import {
   MenuButton,
   MenuDivider,
@@ -16,6 +14,7 @@ import {
   MENU_VIEWPORT_PAD,
   type MenuItem,
 } from './menu'
+import { useExclusivePopup } from '../../hooks/useExclusivePopup'
 
 const FALLBACK_HEIGHT = 160
 const FALLBACK_WIDTH = 240
@@ -73,12 +72,7 @@ export function ContextMenu({
     measure()
   }, [measure])
 
-  useEffect(() => {
-    window.dispatchEvent(new CustomEvent('app:dropdown-open'))
-    return () => {
-      window.dispatchEvent(new CustomEvent('app:dropdown-close'))
-    }
-  }, [])
+  useExclusivePopup(true, onClose, () => menuRef.current)
 
   useEffect(() => {
     const onScroll = () => onClose()
@@ -135,11 +129,10 @@ export function ContextMenu({
     entries[next]?.focus()
   }
 
-  const { surface } = useUiMotion()
   return createPortal(
-    <motion.div
+    <div
       ref={menuRef}
-      {...surface('popover', `translateY(${flipped ? 6 : -6}px) scale(0.96)`)}
+
       role="menu"
       aria-label={label}
       onKeyDown={handleMenuKey}
@@ -163,7 +156,7 @@ export function ContextMenu({
           {item.dividerAfter && <MenuDivider compact={compact} />}
         </div>
       ))}
-    </motion.div>,
+    </div>,
     document.body,
   )
 }

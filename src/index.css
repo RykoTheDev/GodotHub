@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import '@fortawesome/fontawesome-svg-core/styles.css' layer(base);
 
 @custom-variant rtl (&:where([dir="rtl"], [dir="rtl"] *));
 
@@ -8,15 +9,6 @@
 }
 
 @theme {
-  --animate-attention-ping: attention-ping 1s cubic-bezier(0, 0, 0.2, 1) 6;
-  @keyframes attention-ping {
-    75%,
-    100% {
-      transform: scale(2);
-      opacity: 0;
-    }
-  }
-
   --color-base: #17181c;
   --color-surface: #212228;
   --color-raised: #292b32;
@@ -56,10 +48,15 @@
   --radius-menu: var(--radius-card);
 
   --spacing: 4.5px;
+
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-badge-pop: badge-pop 0.6s var(--ease-spring) both;
+  --animate-dot-pulse: dot-pulse 1.8s ease-out infinite;
 }
 
 :root {
-  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --font-cjk: sans-serif;
   --font-cjk-mono: monospace;
 
@@ -85,10 +82,6 @@ html:lang(zh) {
   syntax: '<length>';
   inherits: true;
   initial-value: 4.5px;
-}
-
-html.ui-scaling {
-  transition: --spacing 0.1s ease, font-size 0.1s ease;
 }
 
 * {
@@ -133,14 +126,12 @@ textarea::placeholder {
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
-  transition: background 0.2s ease;
 }
 ::-webkit-scrollbar-thumb:horizontal {
   background: var(--color-line);
   border-radius: 999px;
   border: 2px solid transparent;
   background-clip: padding-box;
-  transition: background 0.2s ease;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-accent-dim);
@@ -207,7 +198,6 @@ textarea::placeholder {
   grid-template-columns: 0fr;
   opacity: 0;
   pointer-events: none;
-  transition: grid-template-columns 160ms var(--ease-out), opacity 160ms var(--ease-out);
 }
 .project-tag:focus-within .project-tag-actions,
 .project-pin-action:focus-within,
@@ -231,176 +221,6 @@ textarea::placeholder {
   }
 }
 
-.motion-subtle,
-.motion-subtle *,
-.motion-subtle *::before,
-.motion-subtle *::after,
-.reduce-motion,
-.reduce-motion *,
-.reduce-motion *::before,
-.reduce-motion *::after {
-  transition-property: opacity, color, background-color, border-color, fill, stroke, box-shadow !important;
-  transition-duration: 125ms !important;
-  transition-timing-function: var(--ease-out) !important;
-  animation: none !important;
-  scroll-behavior: auto !important;
-}
-
-.motion-none *, .motion-none *::before, .motion-none *::after,
-.keyboard-input *, .keyboard-input *::before, .keyboard-input *::after {
-  transition-duration: 0ms !important;
-  scroll-behavior: auto !important;
-}
-.motion-none *, .motion-none *::before, .motion-none *::after,
-.keyboard-input *:not(.animate-spin), .keyboard-input *::before, .keyboard-input *::after {
-  animation: none !important;
-}
-
-/* Independent scale preserves any positioning transform on the control. */
-@keyframes ui-rise {
-  from {
-    opacity: 0;
-    translate: 0 6px;
-  }
-  to {
-    opacity: 1;
-    translate: 0 0;
-  }
-}
-
-@keyframes ui-pop {
-  0% {
-    opacity: 0;
-    scale: 0.4;
-  }
-  60% {
-    opacity: 1;
-    scale: 1.18;
-  }
-  100% {
-    scale: 1;
-  }
-}
-
-@keyframes ui-grow-x {
-  from {
-    scale: 0 1;
-  }
-  to {
-    scale: 1 1;
-  }
-}
-
-.ui-rise,
-.ui-stagger > *,
-.ui-stagger-nested > * > * {
-  animation: ui-rise 320ms var(--ease-out) both;
-}
-
-.ui-stagger > :nth-child(2), .ui-stagger-nested > * > :nth-child(2) { animation-delay: 35ms; }
-.ui-stagger > :nth-child(3), .ui-stagger-nested > * > :nth-child(3) { animation-delay: 70ms; }
-.ui-stagger > :nth-child(4), .ui-stagger-nested > * > :nth-child(4) { animation-delay: 105ms; }
-.ui-stagger > :nth-child(5), .ui-stagger-nested > * > :nth-child(5) { animation-delay: 140ms; }
-.ui-stagger > :nth-child(6), .ui-stagger-nested > * > :nth-child(6) { animation-delay: 175ms; }
-.ui-stagger > :nth-child(7), .ui-stagger-nested > * > :nth-child(7) { animation-delay: 210ms; }
-.ui-stagger > :nth-child(8), .ui-stagger-nested > * > :nth-child(8) { animation-delay: 245ms; }
-.ui-stagger > :nth-child(n + 9), .ui-stagger-nested > * > :nth-child(n + 9) { animation-delay: 280ms; }
-
-.ui-pop {
-  animation: ui-pop 280ms var(--ease-out) both;
-}
-
-.ui-grow-x {
-  transform-origin: left center;
-  animation: ui-grow-x 520ms var(--ease-out) both;
-}
-[dir='rtl'] .ui-grow-x {
-  transform-origin: right center;
-}
-
-.ui-lift {
-  transition-property: translate, box-shadow, color, background-color, border-color, opacity;
-  transition-duration: 180ms;
-  transition-timing-function: var(--ease-out);
-}
-.ui-lift:hover {
-  translate: 0 -2px;
-  box-shadow: 0 10px 24px -14px rgb(0 0 0 / 0.45);
-}
-
-.ui-nav-icon {
-  transition-property: scale, color;
-  transition-duration: 180ms;
-  transition-timing-function: var(--ease-out);
-}
-:hover > .ui-nav-icon {
-  scale: 1.12;
-}
-
-.reduce-motion .ui-lift:hover,
-.motion-subtle .ui-lift:hover,
-.motion-none .ui-lift:hover,
-.keyboard-input .ui-lift:hover {
-  translate: none;
-}
-.reduce-motion :hover > .ui-nav-icon,
-.motion-subtle :hover > .ui-nav-icon,
-.motion-none :hover > .ui-nav-icon,
-.keyboard-input :hover > .ui-nav-icon {
-  scale: 1;
-}
-
-[data-press-feedback] {
-  transition-property: scale, color, background-color, border-color, opacity, box-shadow;
-  transition-duration: 160ms;
-  transition-timing-function: var(--ease-out);
-}
-[data-press-feedback]:not(:disabled):active { scale: 0.97; }
-.keyboard-input [data-press-feedback]:active,
-.reduce-motion [data-press-feedback]:active,
-.motion-subtle [data-press-feedback]:active,
-.motion-none [data-press-feedback]:active { scale: 1; }
-
-.ui-control-indicator {
-  transition: transform 160ms var(--ease-out), opacity 160ms var(--ease-out);
-}
-
-.theme-transitioning,
-.theme-transitioning * {
-  transition: background-color 0.2s ease,
-              border-color 0.2s ease,
-              color 0.2s ease,
-              fill 0.2s ease,
-              stroke 0.2s ease,
-              box-shadow 0.2s ease !important;
-}
-
-.theme-transitioning.reduce-motion,
-.theme-transitioning.reduce-motion *,
-.theme-transitioning.motion-subtle,
-.theme-transitioning.motion-subtle * {
-  transition-duration: 125ms !important;
-}
-.theme-transitioning.keyboard-input,
-.theme-transitioning.keyboard-input *,
-.theme-transitioning.motion-none,
-.theme-transitioning.motion-none * {
-  transition-duration: 0ms !important;
-}
-
-.icon-wiggle svg {
-  transform: scale(1) rotate(0deg);
-  transition: transform 200ms cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-@media (hover: hover) and (pointer: fine) {
-  .icon-wiggle:hover svg {
-    transform: scale(1.1) rotate(-6deg);
-  }
-}
-.icon-wiggle:active svg {
-  transform: scale(0.92) rotate(0deg);
-}
-
 @layer base {
   :focus:not(:focus-visible),
   [tabindex='-1']:focus {
@@ -417,6 +237,216 @@ textarea::placeholder {
 }
 .focus-ring:focus-visible {
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 45%, transparent);
+  animation: ring-pop 0.45s var(--ease-spring);
+}
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    transition-property: color, background-color, border-color, outline-color, text-decoration-color, fill, stroke, box-shadow;
+    transition-duration: calc(260ms / var(--motion-speed, 1));
+    transition-timing-function: var(--ease-out-expo);
+  }
+
+  :where(button, a, input, textarea, select, summary, kbd, label, [role], [tabindex], [class*="hover:"], [class*="group-"], [class*="focus"], [class*="peer-"], [class*="opacity-"]) {
+    transition-property: color, background-color, border-color, outline-color, outline-offset, text-decoration-color, fill, stroke, box-shadow, opacity, filter, backdrop-filter, translate, scale, rotate;
+    transition-duration: calc(280ms / var(--motion-speed, 1));
+  }
+
+  :where([style*="background"], [style*="color"]) {
+    transition-property: opacity, translate, scale, rotate;
+  }
+
+  :where([role="progressbar"] *, [class*="rounded-full"][style*="width"]) {
+    transition-property: width, background-color, opacity;
+    transition-duration: calc(600ms / var(--motion-speed, 1));
+  }
+
+  :focus-visible {
+    animation: focus-pop 0.45s var(--ease-spring);
+  }
+
+  :where(input:not([type="checkbox"], [type="radio"], [type="range"]), textarea) {
+    caret-color: var(--color-accent-bright);
+  }
+
+  :where(input:not([type="range"], [type="checkbox"], [type="radio"]), textarea)[class*="border"]:focus {
+    border-color: color-mix(in srgb, var(--color-accent) 60%, transparent);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 18%, transparent);
+  }
+
+  svg {
+    transition:
+      transform calc(500ms / var(--motion-speed, 1)) var(--ease-spring),
+      color calc(260ms / var(--motion-speed, 1)) var(--ease-out-expo),
+      fill calc(260ms / var(--motion-speed, 1)) var(--ease-out-expo),
+      stroke calc(260ms / var(--motion-speed, 1)) var(--ease-out-expo),
+      opacity calc(260ms / var(--motion-speed, 1)) var(--ease-out-expo);
+  }
+
+  :where(button, a, [role="menuitem"], [role="tab"], [role="option"]):not(:disabled):hover > svg,
+  :where(button, a, [role="menuitem"], [role="tab"], [role="option"]):not(:disabled):hover > span > svg:only-child {
+    transform: scale(1.16);
+  }
+
+  :where(button, a, [role="menuitem"]):not(:disabled):active > svg {
+    transform: scale(0.86);
+    transition-duration: calc(120ms / var(--motion-speed, 1));
+  }
+
+  :where(button, a, [role="button"]):not(:disabled)[class*="hover:bg-"]:hover {
+    box-shadow: 0 6px 18px -12px rgb(0 0 0 / 0.6);
+  }
+
+  :where(img) {
+    transition: opacity calc(400ms / var(--motion-speed, 1)) var(--ease-out-expo), filter calc(400ms / var(--motion-speed, 1)) var(--ease-out-expo), transform calc(600ms / var(--motion-speed, 1)) var(--ease-spring);
+  }
+
+  :where(kbd) {
+    transition-duration: calc(200ms / var(--motion-speed, 1));
+  }
+}
+
+[data-motion-busy],
+[data-motion-ghost],
+[data-motion-ghost] * {
+  transition: none !important;
+}
+
+[data-motion-ghost] {
+  pointer-events: none !important;
+}
+
+.motion-ripple {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 1;
+}
+.motion-ripple > span {
+  position: absolute;
+  border-radius: 9999px;
+  background: color-mix(in srgb, currentColor 18%, transparent);
+}
+
+[role="checkbox"][aria-checked="true"] svg,
+[role="checkbox"][aria-checked="mixed"] svg {
+  animation: check-pop 0.5s var(--ease-spring);
+}
+
+[role="checkbox"][aria-checked="true"] > span:first-child,
+[role="checkbox"][aria-checked="mixed"] > span:first-child {
+  animation: check-box 0.45s var(--ease-spring);
+}
+
+span.rounded-full.bg-accent,
+span[class*="rounded-tag"][class~="bg-accent"] {
+  animation: var(--animate-badge-pop);
+}
+
+span.w-2.h-2.rounded-full:is(.bg-accent, .bg-accent-bright, .bg-mint, .bg-amber, .bg-danger) {
+  animation: var(--animate-badge-pop), var(--animate-dot-pulse);
+}
+
+span.w-2.h-2.rounded-full.bg-accent,
+span.w-2.h-2.rounded-full.bg-accent-bright {
+  --pulse: var(--color-accent);
+}
+span.w-2.h-2.rounded-full.bg-mint {
+  --pulse: var(--color-mint);
+}
+span.w-2.h-2.rounded-full.bg-amber {
+  --pulse: var(--color-amber);
+}
+span.w-2.h-2.rounded-full.bg-danger {
+  --pulse: var(--color-danger);
+}
+
+.animate-spin {
+  animation-timing-function: cubic-bezier(0.55, 0.15, 0.45, 0.85);
+}
+
+.motion-drag-lift {
+  animation: drag-lift 240ms var(--ease-spring) forwards;
+}
+
+@keyframes drag-lift {
+  to {
+    scale: var(--drag-lift, 1.02);
+  }
+}
+
+@keyframes focus-pop {
+  from {
+    outline-offset: 8px;
+    outline-color: transparent;
+  }
+}
+
+@keyframes ring-pop {
+  from {
+    box-shadow: 0 0 0 10px transparent;
+  }
+}
+
+@keyframes check-pop {
+  0% {
+    transform: scale(0) rotate(-45deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes check-box {
+  0% {
+    scale: 0.7;
+  }
+  100% {
+    scale: 1;
+  }
+}
+
+@keyframes badge-pop {
+  0% {
+    scale: 0;
+    opacity: 0;
+  }
+  100% {
+    scale: 1;
+    opacity: 1;
+  }
+}
+
+@keyframes dot-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--pulse, var(--color-accent)) 70%, transparent);
+  }
+  80%,
+  100% {
+    box-shadow: 0 0 0 7px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+.motion-off *,
+.motion-off ::before,
+.motion-off ::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
 }
 
 .markdown-body {
@@ -515,56 +545,4 @@ textarea::placeholder {
   margin: 0.9rem 0;
   border: none;
   border-top: 1px solid var(--color-line);
-}
-
-@keyframes changelog-shine {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(200%);
-  }
-}
-
-.changelog-shine {
-  position: relative;
-  overflow: hidden;
-}
-
-.changelog-shine::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  border-radius: inherit;
-  pointer-events: none;
-  /* Rests off-screen so `animation: none` (reduced motion) leaves the button clean. */
-  transform: translateX(-100%);
-  will-change: transform;
-  background: linear-gradient(
-    110deg,
-    transparent 25%,
-    rgba(var(--color-accent-rgb, 99 102 241), 0.25) 50%,
-    transparent 75%
-  );
-  background-size: 200% 100%;
-  animation: changelog-shine 2s ease-in-out 4;
-}
-
-.sensitive {
-  transition: filter 150ms ease-out;
-}
-
-.privacy-mode .sensitive {
-  filter: blur(5px);
-  user-select: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .changelog-shine::after,
-  .animate-attention-ping {
-    animation: none;
-  }
 }

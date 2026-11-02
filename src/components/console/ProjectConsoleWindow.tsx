@@ -1,4 +1,3 @@
-import { useUiMotion } from '../../hooks/useUiMotion'
 import {
   memo,
   useCallback,
@@ -7,7 +6,6 @@ import {
   useRef,
   useState,
 } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../lib/api'
 import { useSettings } from '../../hooks/useSettings'
@@ -155,7 +153,6 @@ function emptyState(name: string): ConsoleState {
 }
 
 export function ProjectConsoleWindow() {
-  const uiMotion = useUiMotion()
 
   const { t } = useTranslation('common')
   const { t: tb } = useTranslation('common', { keyPrefix: 'build_export' })
@@ -558,10 +555,10 @@ export function ProjectConsoleWindow() {
 
   return (
     <div ref={wrapRef} className="absolute inset-0 z-50 pointer-events-none">
-      <AnimatePresence>
+
         {open && !minimized && (
-          <motion.section
-            {...uiMotion.surface('popover', `translateY(12px) scale(0.97)`)}
+          <section
+
 
             aria-label={t('console_title')}
             className={`pointer-events-auto absolute flex flex-col overflow-hidden rounded-xl border border-outline/60 bg-raised shadow-2xl shadow-black/40 ${
@@ -589,7 +586,6 @@ export function ProjectConsoleWindow() {
                 >
                   {status.tone === 'running' && (
                     <span className="relative flex w-1.5 h-1.5">
-                      <span className="absolute inline-flex h-full w-full rounded-full bg-mint opacity-60 animate-attention-ping" />
                       <span className="relative inline-flex rounded-full w-1.5 h-1.5 bg-mint" />
                     </span>
                   )}
@@ -603,7 +599,7 @@ export function ProjectConsoleWindow() {
                     type="button"
                     onClick={stopProject}
                     aria-label={activeState?.exportRun?tb('cancel_export'):t('stop')}
-                    className="focus-ring cursor-pointer w-7 h-7 rounded-btn inline-flex items-center justify-center text-muted hover:text-danger hover:bg-danger/10 transition-colors"
+                    className="focus-ring cursor-pointer w-7 h-7 rounded-btn inline-flex items-center justify-center text-muted hover:text-danger hover:bg-danger/10 "
                   >
                     <IconSquare className="w-3 h-3" />
                   </button>
@@ -614,7 +610,7 @@ export function ProjectConsoleWindow() {
                   type="button"
                   onClick={clearLog}
                   aria-label={t('console_clear')}
-                  className="focus-ring cursor-pointer w-7 h-7 rounded-btn inline-flex items-center justify-center text-muted hover:text-ink hover:bg-raised transition-colors"
+                  className="focus-ring cursor-pointer w-7 h-7 rounded-btn inline-flex items-center justify-center text-muted hover:text-ink hover:bg-raised "
                 >
                   <IconTrash className="w-3 h-3" />
                 </button>
@@ -624,7 +620,7 @@ export function ProjectConsoleWindow() {
                   type="button"
                   onClick={copyLog}
                   aria-label={t('console_copy')}
-                  className="focus-ring cursor-pointer w-7 h-7 rounded-btn inline-flex items-center justify-center text-muted hover:text-ink hover:bg-raised transition-colors"
+                  className="focus-ring cursor-pointer w-7 h-7 rounded-btn inline-flex items-center justify-center text-muted hover:text-ink hover:bg-raised "
                 >
                   <IconClone className="w-3 h-3" />
                 </button>
@@ -639,7 +635,7 @@ export function ProjectConsoleWindow() {
                   aria-label={
                     fullscreen ? t('collapse') : t('expand')
                   }
-                  className="focus-ring cursor-pointer w-7 h-7 rounded-btn inline-flex items-center justify-center text-muted hover:text-ink hover:bg-raised transition-colors"
+                  className="focus-ring cursor-pointer w-7 h-7 rounded-btn inline-flex items-center justify-center text-muted hover:text-ink hover:bg-raised "
                 >
                   {fullscreen ? (
                     <IconWindowRestore className="w-3 h-3" />
@@ -653,7 +649,7 @@ export function ProjectConsoleWindow() {
                   type="button"
                   onClick={() => setMinimized(true)}
                   aria-label={t('console_minimize')}
-                  className="focus-ring cursor-pointer w-7 h-7 rounded-btn inline-flex items-center justify-center text-muted hover:text-ink hover:bg-raised transition-colors"
+                  className="focus-ring cursor-pointer w-7 h-7 rounded-btn inline-flex items-center justify-center text-muted hover:text-ink hover:bg-raised "
                 >
                   <IconMinus className="w-3 h-3" />
                 </button>
@@ -663,7 +659,7 @@ export function ProjectConsoleWindow() {
                   type="button"
                   onClick={() => setOpen(false)}
                   aria-label={t('close')}
-                  className="focus-ring cursor-pointer w-7 h-7 rounded-btn inline-flex items-center justify-center text-muted hover:text-ink hover:bg-raised transition-colors"
+                  className="focus-ring cursor-pointer w-7 h-7 rounded-btn inline-flex items-center justify-center text-muted hover:text-ink hover:bg-raised "
                 >
                   <IconX className="w-3.5 h-3.5" />
                 </button>
@@ -681,7 +677,7 @@ export function ProjectConsoleWindow() {
                         setActiveId(id)
                         pinnedRef.current = true
                       }}
-                      className={`cursor-pointer shrink-0 inline-flex items-center gap-1.5 h-6 px-2 rounded-btn text-2xs font-medium transition-colors ${
+                      className={`cursor-pointer shrink-0 inline-flex items-center gap-1.5 h-6 px-2 rounded-btn text-2xs font-medium  ${
                         id === activeId
                           ? 'bg-accent/15 text-accent-bright'
                           : 'text-muted hover:text-ink hover:bg-raised'
@@ -723,7 +719,7 @@ export function ProjectConsoleWindow() {
                         onClick={() => toggleLevel(level)}
                         aria-pressed={active}
                         aria-label={label}
-                        className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 h-6 px-2 rounded-full border text-3xs font-semibold transition-colors ${
+                        className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 h-6 px-2 rounded-full border text-3xs font-semibold  ${
                           active
                             ? LEVEL_PILL_ACTIVE[level]
                             : 'bg-transparent text-muted/45 border-line/50 hover:text-muted'
@@ -753,7 +749,7 @@ export function ProjectConsoleWindow() {
             <div
               ref={scrollRef}
               onScroll={handleScroll}
-              className="flex-1 min-h-0 overflow-y-auto bg-black/35 px-3 py-2 font-mono text-[11.5px] leading-[1.55] text-[#d7dae0]"
+              className="flex-1 min-h-0 overflow-y-auto bg-black/35 px-3 py-2 font-mono text-[0.71875rem] leading-[1.55] text-[#d7dae0]"
             >
               {activeState?.restored && (
                 <p className="pb-2 text-3xs text-muted/60">
@@ -792,7 +788,7 @@ export function ProjectConsoleWindow() {
               <footer className="shrink-0 flex items-center gap-3 border-t border-line bg-overlay px-3 py-3">
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-medium text-ink">{tb(activeState.exportRun.status)}{activeState.exportRun.size_bytes!==null?` · ${formatBytes(activeState.exportRun.size_bytes)}`:''}</p>
-                  <p className="sensitive mt-1 text-2xs font-mono text-muted break-all">{activeState.exportRun.output_path}</p>
+                  <p className="mt-1 text-2xs font-mono text-muted break-all">{activeState.exportRun.output_path}</p>
                   {activeState.exportRun.error&&<p className="mt-1 text-2xs text-danger">{activeState.exportRun.error}</p>}
                   {activeState.exportRun.status==='cancelled'&&<p className="mt-1 text-2xs text-muted">{tb('cancel_hint')}</p>}
                 </div>
@@ -810,16 +806,16 @@ export function ProjectConsoleWindow() {
                   </span>
                 </footer>
               )}
-          </motion.section>
+          </section>
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {open && minimized && (
-          <motion.button
+          <button
             ref={pillRef}
             type="button"
-            {...uiMotion.surface('popover', `translateY(12px) scale(0.97)`)}
+
 
             onPointerDown={pillDragStart}
             onPointerMove={pillDragMove}
@@ -833,9 +829,6 @@ export function ProjectConsoleWindow() {
           >
             <IconGrip className="w-2.5 h-3.5 text-muted/40 shrink-0" />
             <span className="relative flex w-1.5 h-1.5 shrink-0">
-              {activeState?.running && (
-                <span className="absolute inline-flex h-full w-full rounded-full bg-mint opacity-60 animate-attention-ping" />
-              )}
               <span
                 className={`relative inline-flex rounded-full w-1.5 h-1.5 ${
                   activeState?.running
@@ -869,9 +862,9 @@ export function ProjectConsoleWindow() {
               </span>
             )}
             <IconWindowMaximize className="w-3 h-3 text-muted/50 shrink-0" />
-          </motion.button>
+          </button>
         )}
-      </AnimatePresence>
+
     </div>
   )
 }

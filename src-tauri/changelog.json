@@ -1813,6 +1813,66 @@
       {
         "category": "improve",
         "text": "Search Bar in Sidebar that opens command palette for easier access"
+      },
+      {
+        "category": "improve",
+        "text": "New and Improved Animations throughout the app"
+      },
+      {
+        "category": "add",
+        "text": "Drag pinned projects to reorder them. Their order is saved"
+      },
+      {
+        "category": "add",
+        "text": "Ctrl/Cmd + click a project card to select it, or Shift + click to select a range. Selected cards get a blue outline instead of showing checkboxes, and the selection bar slides in and out"
+      },
+      {
+        "category": "improve",
+        "text": "Templates folder and Versions folder buttons in the Versions view"
+      },
+      {
+        "category": "improve",
+        "text": "Pick a category's color right from the new category name field"
+      },
+      {
+        "category": "improve",
+        "text": "Smoother project drag and drop: cards slide out of the way, the dragged card lifts and glides into place, and you can grab a card from anywhere instead of using a drag handle"
+      },
+      {
+        "category": "improve",
+        "text": "Less clutter: descriptions were removed from modal headers and settings, and each setting now sits on one line with its control"
+      },
+      {
+        "category": "improve",
+        "text": "Modals open faster, have larger titles, and no longer blur the app behind them"
+      },
+      {
+        "category": "improve",
+        "text": "Sidebar: Add Categories, 'You' Button, the GodotHub title moved to the titlebar, search sits at the top next to the collapse button, and tab labels fade in when you expand the sidebar"
+      },
+      {
+        "category": "improve",
+        "text": "Slider reset buttons only appear when a value differs from its default"
+      },
+      {
+        "category": "fix",
+        "text": "Fixed icons being stretched to the text height, which left many icons and labels misaligned"
+      },
+      {
+        "category": "fix",
+        "text": "Fixed the toggle knob sitting off-center, and checkboxes and some text not following the density and text size settings"
+      },
+      {
+        "category": "fix",
+        "text": "Fixed the sidebar collapse button icon being off-center"
+      },
+      {
+        "category": "fix",
+        "text": "Fixed project and version cards being cut off at the edges"
+      },
+      {
+        "category": "fix",
+        "text": "Fixed too little spacing under categories with no projects in Manage Categories"
       }
     ],
     "known_issues": [],

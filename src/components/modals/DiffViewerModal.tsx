@@ -7,12 +7,11 @@ import { IconCode } from '../../lib/icons'
 
 interface Props {
   title: string
-  subtitle?: string
   fetchDiff: () => Promise<GitDiffResult>
   onClose: () => void
 }
 
-export function DiffViewerModal({ title, subtitle, fetchDiff, onClose }: Props) {
+export function DiffViewerModal({ title, fetchDiff, onClose }: Props) {
   const { t } = useTranslation('git')
   const [diff, setDiff] = useState<GitDiffResult | null>(null)
   const [loading, setLoading] = useState(true)
@@ -52,7 +51,6 @@ export function DiffViewerModal({ title, subtitle, fetchDiff, onClose }: Props) 
     <ModalShell
       icon={<IconCode className="w-5 h-5 text-accent-bright" />}
       title={title}
-      description={subtitle}
       maxWidth="max-w-3xl"
       onClose={onClose}
     >
@@ -72,7 +70,7 @@ export function DiffViewerModal({ title, subtitle, fetchDiff, onClose }: Props) 
 
         <div className="">
           {loading ? (
-            <div className="flex flex-col gap-1.5 p-5 animate-pulse">
+            <div className="flex flex-col gap-1.5 p-5 ">
               {Array.from({ length: 14 }).map((_, i) => (
                 <div
                   key={i}

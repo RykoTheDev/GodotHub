@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { motion } from 'framer-motion'
-import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 import { api } from '../lib/api'
 import { useSettings } from '../hooks/useSettings'
 import type { AssetLibraryCategory } from '../types'
@@ -16,6 +14,7 @@ import { SearchBar } from '../components/ui/SearchBar'
 import { Dropdown } from '../components/ui/Dropdown'
 import { AssetStoreBrowser } from '../components/asset-library/AssetStoreBrowser'
 import { IconChevronDown } from '../lib/icons'
+import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 
 const VERSION_OPTIONS = [
   '4.7',
@@ -42,7 +41,7 @@ const STORE_SORT_KEYS: AssetSortKey[] = [
 ]
 
 const dropBtnClass =
-  'focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors'
+  'focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised '
 
 export function AssetStoreView({ connected = false }: { connected?: boolean }) {
   const { t } = useTranslation('nav')
@@ -118,11 +117,11 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
         <Dropdown
           align="left"
           trigger={({ open, toggle }) => (
-            <motion.button
+            <button
               type="button"
               aria-expanded={open}
 
-              data-press-feedback
+
               onClick={toggle}
               className={dropBtnClass}
             >
@@ -130,7 +129,7 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
                 {tc(SOURCE_OPTIONS.find((o) => o.value === source)!.labelKey)}
               </span>
               <IconChevronDown className="w-3 h-3 text-muted" />
-            </motion.button>
+            </button>
           )}
           items={SOURCE_OPTIONS.map((o) => ({
             key: o.value,
@@ -143,11 +142,11 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
           <Dropdown
             align="left"
             trigger={({ open, toggle }) => (
-              <motion.button
+              <button
                 type="button"
                 aria-expanded={open}
 
-                data-press-feedback
+
                 onClick={toggle}
                 className={dropBtnClass}
               >
@@ -158,7 +157,7 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
                     : tc('all_categories')}
                 </span>
                 <IconChevronDown className="w-3 h-3 text-muted" />
-              </motion.button>
+              </button>
             )}
             items={[
               {
@@ -179,11 +178,11 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
         <Dropdown
           align="left"
           trigger={({ open, toggle }) => (
-            <motion.button
+            <button
               type="button"
               aria-expanded={open}
 
-              data-press-feedback
+
               onClick={toggle}
               className={dropBtnClass}
             >
@@ -191,7 +190,7 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
                 {source === 'store' ? tc(`asset_store_${sort}`) : tc(`asset_sort_${sort}`)}
               </span>
               <IconChevronDown className="w-3 h-3 text-muted" />
-            </motion.button>
+            </button>
           )}
           items={(source === 'store' ? STORE_SORT_KEYS : sortKeysForSource(source)).map((k) => ({
             key: k,
@@ -203,11 +202,11 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
         <Dropdown
           align="left"
           trigger={({ open, toggle }) => (
-            <motion.button
+            <button
               type="button"
               aria-expanded={open}
 
-              data-press-feedback
+
               onClick={toggle}
               className={dropBtnClass}
             >
@@ -215,7 +214,7 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
                 {version ? `Godot ${version}` : tc('asset_all_versions')}
               </span>
               <IconChevronDown className="w-3 h-3 text-muted" />
-            </motion.button>
+            </button>
           )}
           items={[
             {
@@ -235,11 +234,11 @@ export function AssetStoreView({ connected = false }: { connected?: boolean }) {
       </div>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
+        className={`flex-1 min-w-0 -mt-2 ${connected ? '' : '-ms-2 -me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
         topButtonBottom="bottom-14"
       >
-        <div className={`h-full ${connected ? 'ps-3' : ''} pe-5 pb-4`}>
+        <div className={`h-full ${connected ? 'ps-3' : 'ps-2'} pe-5 pb-4 pt-2`}>
           <AssetStoreBrowser
             query={query}
             source={source}

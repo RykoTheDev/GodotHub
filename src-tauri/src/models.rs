@@ -245,6 +245,16 @@ pub struct AppSettings {
     pub project_icon_opacity: u32,
     #[serde(default = "default_animation_threshold")]
     pub animation_threshold: u32,
+    #[serde(default = "default_animation_speed")]
+    pub animation_speed: f64,
+    #[serde(default = "default_true")]
+    pub motion_scroll_reveal: bool,
+    #[serde(default = "default_true")]
+    pub motion_card_tilt: bool,
+    #[serde(default = "default_true")]
+    pub motion_click_ripple: bool,
+    #[serde(default = "default_true")]
+    pub motion_press_bounce: bool,
     #[serde(default = "default_language")]
     pub language: String,
     #[serde(default = "default_os_decorations")]
@@ -283,8 +293,6 @@ pub struct AppSettings {
     pub card_show_time: bool,
     #[serde(default)]
     pub card_blur_path: bool,
-    #[serde(default)]
-    pub privacy_mode: bool,
     #[serde(default = "default_true")]
     pub card_show_path: bool,
     #[serde(default = "default_true")]
@@ -371,6 +379,10 @@ fn default_animation_threshold() -> u32 {
     20
 }
 
+fn default_animation_speed() -> f64 {
+    1.5
+}
+
 fn default_true() -> bool {
     true
 }
@@ -428,7 +440,7 @@ fn default_animation_intensity() -> String {
     "full".to_string()
 }
 fn default_view_entrance() -> String {
-    "fade".to_string()
+    "slide".to_string()
 }
 fn default_last_opened_time_format() -> String {
     "12h".to_string()
@@ -642,6 +654,11 @@ impl Default for AppSettings {
             screen_reader_announcements: true,
             project_icon_opacity: 14,
             animation_threshold: default_animation_threshold(),
+            animation_speed: default_animation_speed(),
+            motion_scroll_reveal: true,
+            motion_card_tilt: true,
+            motion_click_ripple: true,
+            motion_press_bounce: true,
             language: default_language(),
             use_os_decorations: default_os_decorations(),
             dismissed_project_paths: vec![],
@@ -661,7 +678,6 @@ impl Default for AppSettings {
             card_show_size: true,
             card_show_time: true,
             card_blur_path: false,
-            privacy_mode: false,
             card_show_path: true,
             card_show_tags: true,
             card_show_last_opened: true,

@@ -79,7 +79,7 @@ function FileTree({
     return (
       <div key={node.path}>
         <div
-          className={`flex items-center gap-2 px-2 py-1 rounded-item text-xs hover:bg-raised/60 transition-colors cursor-default ${
+          className={`flex items-center gap-2 px-2 py-1 rounded-item text-xs hover:bg-raised/60 cursor-default ${
             depth === 0 ? 'font-medium text-ink' : 'text-muted'
           }`}
           style={{ paddingLeft: `${depth * 16 + 8}px` }}
@@ -87,7 +87,7 @@ function FileTree({
           {hasChildren ? (
             <button
               onClick={() => toggle(node.path)}
-              className="focus-ring cursor-pointer p-0.5 text-muted hover:text-ink transition-colors"
+              className="focus-ring cursor-pointer p-0.5 text-muted hover:text-ink "
               aria-label={isCollapsed ? t('expand') : t('collapse')}
             >
               {isCollapsed ? (
@@ -161,11 +161,13 @@ export function TemplatePreviewModal({ template, onClose }: Props) {
     <ModalShell
       icon={<IconCopy className="w-5 h-5 text-accent-bright" />}
       title={template.name}
-      description={template.description || undefined}
       maxWidth="max-w-lg"
       onClose={onClose}
     >
         <div className="p-6">
+          {template.description && (
+            <p className="pb-3 text-sm text-muted leading-relaxed wrap-break-word">{template.description}</p>
+          )}
           {loading ? (
             <div className="flex items-center justify-center py-12 text-sm text-muted">
               {t('loading')}

@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { AnimatePresence } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import type { GitWorktree, Project } from '../../types'
 import { api } from '../../lib/api'
@@ -85,7 +84,7 @@ export function GitWorktrees({ project, onSwitchProject, onChanged }: Props) {
     finally { if (mounted.current) setBusy(null) }
   }
 
-  const sectionActionClass = 'focus-ring cursor-pointer shrink-0 flex h-7 w-7 items-center justify-center rounded-btn text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed'
+  const sectionActionClass = 'focus-ring cursor-pointer shrink-0 flex h-7 w-7 items-center justify-center rounded-btn text-muted hover:text-ink hover:bg-raised disabled:opacity-40 disabled:cursor-not-allowed'
 
   return (
     <>
@@ -101,7 +100,7 @@ export function GitWorktrees({ project, onSwitchProject, onChanged }: Props) {
             const current = wt === currentWorktree
             const switching = busy?.action === 'switch' && busy.path === wt.path
             return (
-              <div key={wt.path} className={`group grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-item border px-2.5 py-2 transition-colors ${current ? 'border-accent/30 bg-accent/5' : 'border-outline/50 bg-base/40 hover:bg-raised/60'}`}>
+              <div key={wt.path} className={`group grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 rounded-item border px-2.5 py-2  ${current ? 'border-accent/30 bg-accent/5' : 'border-outline/50 bg-base/40 hover:bg-raised/60'}`}>
                 <IconClone className={`w-3.5 h-3.5 shrink-0 ${current ? 'text-accent-bright' : 'text-muted/60'}`} />
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
@@ -114,8 +113,8 @@ export function GitWorktrees({ project, onSwitchProject, onChanged }: Props) {
                         className={`block shrink-0 w-1.5 h-1.5 rounded-full ${wt.has_uncommitted ? 'bg-amber' : 'bg-mint/60'}`} />
                     </Tooltip>
                   </div>
-                  <Tooltip content={<span className="sensitive">{wt.path}</span>} className="w-full min-w-0">
-                    <p dir="ltr" className="sensitive min-w-0 flex-1 truncate text-3xs font-mono text-muted/60">{wt.path}</p>
+                  <Tooltip content={<span>{wt.path}</span>} className="w-full min-w-0">
+                    <p dir="ltr" className="min-w-0 flex-1 truncate text-3xs font-mono text-muted/60">{wt.path}</p>
                   </Tooltip>
                 </div>
                 {current ? (
@@ -149,33 +148,34 @@ export function GitWorktrees({ project, onSwitchProject, onChanged }: Props) {
             </button>
           </div>}
           <button type="button" onClick={() => setCreating(true)} disabled={!!busy}
-            className="focus-ring cursor-pointer w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-item border border-dashed border-outline/60 bg-base/40 text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed text-2xs font-medium">
+            className="focus-ring cursor-pointer w-full inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-item border border-dashed border-outline/60 bg-base/40 text-muted hover:text-ink hover:bg-raised disabled:opacity-40 disabled:cursor-not-allowed text-2xs font-medium">
             <IconPlus className="w-3.5 h-3.5 text-accent-bright" />{t('add_worktree')}
           </button>
         </div>
       </GitSection>
-      <AnimatePresence>
+
         {creating && <CreateWorktreeModal repositoryPath={currentWorktree?.path ?? project.path}
           onClose={() => setCreating(false)} onCreated={() => {
             if (!mounted.current) return
             setCreating(false); void refresh(); onChanged(); pushToast('success', t('worktree_created_ok'))
           }} />}
         {removal && <ModalShell icon={<IconTrash className="w-5 h-5 text-danger" />} title={t('remove_worktree')}
-          description={t('remove_worktree_confirm_desc', { path: removal.path })} maxWidth="max-w-sm"
+          maxWidth="max-w-sm"
           onClose={busy ? undefined : () => setRemoval(null)}
           onKeyDown={event => { if (event.key === 'Escape' && !busy) { event.stopPropagation(); setRemoval(null) } }}
           footer={<div className="ms-auto flex items-center gap-2.5">
             <button type="button" onClick={() => setRemoval(null)} disabled={!!busy}
-              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-40">{tc('cancel')}</button>
+              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised disabled:opacity-40">{tc('cancel')}</button>
             <button type="button" onClick={() => void remove()} disabled={!!busy || (removal.has_uncommitted && !discardChanges)}
-              className="focus-ring cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-btn text-sm font-medium bg-danger text-white hover:brightness-110 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+              className="focus-ring cursor-pointer inline-flex items-center gap-2 px-4 py-2.5 rounded-btn text-sm font-medium bg-danger text-white hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed">
               {busy && <IconSpinner className="w-3.5 h-3.5 animate-spin" />}{busy ? t('worktree_removing') : t('remove_worktree')}
             </button>
           </div>}>
           <div className="flex flex-col gap-3 p-6 pt-0">
+            <p className="text-xs text-muted leading-relaxed wrap-break-word">{t('remove_worktree_confirm_desc', { path: removal.path })}</p>
             <div className="rounded-item bg-raised px-3 py-2.5">
               <p className="text-xs font-medium text-ink wrap-break-word">{removal.branch ?? t('worktree_detached', { hash: removal.head.slice(0, 7) })}</p>
-              <p dir="ltr" className="sensitive mt-1 text-2xs font-mono text-muted wrap-break-word">{removal.path}</p>
+              <p dir="ltr" className="mt-1 text-2xs font-mono text-muted wrap-break-word">{removal.path}</p>
             </div>
             {removal.has_uncommitted && <div className="rounded-item border border-danger/25 bg-danger/5 p-3">
               <p className="mb-3 text-xs text-danger leading-relaxed">{t('worktree_discard_warning')}</p>
@@ -186,7 +186,7 @@ export function GitWorktrees({ project, onSwitchProject, onChanged }: Props) {
             {removeError && <p role="alert" className="text-xs text-danger wrap-break-word">{removeError}</p>}
           </div>
         </ModalShell>}
-      </AnimatePresence>
+
     </>
   )
 }

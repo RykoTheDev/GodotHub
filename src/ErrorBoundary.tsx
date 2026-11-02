@@ -30,7 +30,7 @@ export class ViewErrorBoundary extends Component<Props, State> {
         <p className="text-sm text-muted max-w-md">{i18n.t('common:view_error_desc')}</p>
         <button
           onClick={() => this.setState({ error: null })}
-          className="focus-ring cursor-pointer mt-1 px-4 py-2.5 rounded-btn text-sm font-medium bg-raised hover:brightness-110 text-ink border border-outline/50 transition-[filter]"
+          className="focus-ring cursor-pointer mt-1 px-4 py-2.5 rounded-btn text-sm font-medium bg-raised hover:brightness-110 text-ink border border-outline/50 "
         >
           {i18n.t('common:retry')}
         </button>

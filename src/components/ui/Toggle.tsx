@@ -1,4 +1,3 @@
-import { useUiMotion } from '../../hooks/useUiMotion'
 
 interface Props {
   checked: boolean
@@ -8,7 +7,6 @@ interface Props {
 }
 
 export function Toggle({ checked, onChange, label, disabled }: Props) {
-  const {reduced, instant} = useUiMotion()
   return (
     <button
       type="button"
@@ -17,13 +15,13 @@ export function Toggle({ checked, onChange, label, disabled }: Props) {
       aria-label={label}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`focus-ring relative shrink-0 inline-flex items-center h-7 w-12 rounded-full border transition-colors duration-200 rtl:-scale-x-100 ${
+      className={`group/toggle focus-ring relative shrink-0 inline-flex items-center h-7 w-12 rounded-full border rtl:-scale-x-100 ${
         checked ? 'bg-accent border-accent-dim' : 'bg-raised border-line'
       } ${disabled ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:brightness-110'}`}
     >
       <span
-        style={{left: checked ? 23 : 3, transition: reduced || instant ? 'none' : 'left 160ms var(--ease-out)'}}
-        className="absolute top-[3px] block w-5 h-5 rounded-full bg-white shadow-md"
+        style={{ left: checked ? 'calc(100% - var(--spacing) * 5 - 3px)' : 3 }}
+        className="absolute top-1/2 -translate-y-1/2 block w-5 h-5 rounded-full bg-white shadow-md transition-[left,scale] duration-500 ease-spring group-active/toggle:scale-x-125 group-active/toggle:scale-y-90"
       />
     </button>
   )

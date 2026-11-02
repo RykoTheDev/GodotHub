@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import {
   WORKSPACE_COLOR_PRESETS,
@@ -30,22 +29,22 @@ export function WorkspaceStylePicker({
             const Icon = getWorkspaceIcon(key)
             const active = icon === key
             return (
-              <motion.button
+              <button
                 key={key}
                 type="button"
 
-                data-press-feedback
+
                 onClick={() => onIconChange(key)}
                 aria-label={key}
                 aria-pressed={active}
-                className={`focus-ring cursor-pointer aspect-square rounded-tile flex items-center justify-center border transition-colors ${
+                className={`focus-ring cursor-pointer aspect-square rounded-tile flex items-center justify-center border  ${
                   active
                     ? 'border-accent bg-raised text-ink shadow-sm shadow-black/10'
                     : 'border-outline text-muted hover:text-ink hover:bg-raised'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
-              </motion.button>
+              </button>
             )
           })}
         </div>
@@ -57,15 +56,15 @@ export function WorkspaceStylePicker({
           {WORKSPACE_COLOR_PRESETS.map((c) => {
             const active = color === c
             return (
-              <motion.button
+              <button
                 key={c}
                 type="button"
 
-                data-press-feedback
+
                 onClick={() => onColorChange(c)}
                 aria-label={c}
                 aria-pressed={active}
-                className={`focus-ring cursor-pointer aspect-square rounded-full border-2 transition-transform ${
+                className={`focus-ring cursor-pointer aspect-square rounded-full border-2  ${
                   active
                     ? 'border-ink scale-110'
                     : 'border-transparent'

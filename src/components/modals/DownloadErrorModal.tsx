@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react'
-import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { version } from '../../../package.json'
@@ -94,7 +93,6 @@ export function DownloadErrorModal({ error, onRetry, onClose }: Props) {
     <ModalShell
       icon={<IconAlertTriangle className="w-5 h-5 text-danger" />}
       title={tv('download_failed_title')}
-      description={tv('download_failed_desc', { tag: error.tag })}
       maxWidth="max-w-lg"
       onClose={onClose}
       footer={
@@ -102,7 +100,7 @@ export function DownloadErrorModal({ error, onRetry, onClose }: Props) {
           <button
             type="button"
             onClick={handleCopy}
-            className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors"
+            className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised "
           >
             {copied ? (
               <IconCheck className="w-4 h-4 text-mint" />
@@ -112,22 +110,22 @@ export function DownloadErrorModal({ error, onRetry, onClose }: Props) {
             {copied ? tc('bug_report_copied') : tv('download_failed_copy')}
           </button>
           <div className="ms-auto flex items-center gap-2.5">
-            <motion.button
-              data-press-feedback
+            <button
+
               onClick={onRetry}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors"
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item border border-line text-sm text-muted hover:text-ink hover:border-accent-dim hover:bg-raised "
             >
               <IconRefresh className="w-4 h-4" />
               {tc('retry')}
-            </motion.button>
-            <motion.button
-              data-press-feedback
+            </button>
+            <button
+
               onClick={openIssue}
-              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item bg-danger hover:bg-danger/90 text-sm font-medium text-white transition-colors"
+              className="focus-ring cursor-pointer flex items-center gap-2 px-4 py-2.5 rounded-item bg-danger hover:bg-danger/90 text-sm font-medium text-white "
             >
               <IconExternalLink className="w-4 h-4" />
               {tc('bug_report_open_github')}
-            </motion.button>
+            </button>
           </div>
         </>
       }

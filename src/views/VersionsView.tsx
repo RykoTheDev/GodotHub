@@ -1,14 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { useTranslation } from 'react-i18next'
-import { motion, AnimatePresence } from 'framer-motion'
-import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 import { useGodotVersionsContext } from '../hooks/godotVersionsContext'
 import { useExportTemplateDownloads } from '../hooks/useExportTemplateDownloads'
 import { setTemplateFilesInstalled } from '../lib/exportTemplateCatalog'
 import { useSettings } from '../hooks/useSettings'
 import { useTaskTray } from '../hooks/useTaskTray'
-import { useUiMotion } from '../hooks/useUiMotion'
 import { api } from '../lib/api'
 import { formatBytes } from '../lib/formatBytes'
 import { pushToast, reportError } from '../lib/toast'
@@ -41,6 +38,7 @@ import {
   IconTrash,
   IconX,
 } from '../lib/icons'
+import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 
 const VERSION_FILTERS_KEY = 'godothub_version_filters'
 const VERSION_SORT_KEY = 'godothub_version_sort'
@@ -130,7 +128,7 @@ function VersionTag({
   return (
     <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-item bg-overlay border border-outline/50 font-mono text-xs text-ink shrink-0">
       <span
-        className={`w-1.5 h-1.5 rounded-full ${STATE_DOT[state]} ${state === 'downloading' ? 'animate-pulse' : ''}`}
+        className={`w-1.5 h-1.5 rounded-full ${STATE_DOT[state]} ${state === 'downloading' ? '' : ''}`}
       />
       {customName ? (
         <>
@@ -159,7 +157,6 @@ export function VersionsView({
   onOpenSettings?: () => void
   connected?: boolean
 }) {
-  const uiMotion = useUiMotion()
   const { t } = useTranslation('nav')
   const { t: tv } = useTranslation('versions')
   const { t: tc } = useTranslation('common')
@@ -454,16 +451,16 @@ export function VersionsView({
           }
           actions={
             <>
-              <motion.button
+              <button
                 type="button"
 
-                data-press-feedback
+
 
                 onClick={() => setAliasModal({})}
-                className="focus-ring text-muted hover:text-ink font-semibold text-[17px] bg-overlay shadow-md shadow-black/10 border border-outline/50 hover:bg-raised cursor-pointer h-10 flex items-center px-6 rounded-item transition-colors"
+                className="focus-ring text-muted hover:text-ink font-semibold text-[1.0625rem] bg-overlay shadow-md shadow-black/10 border border-outline/50 hover:bg-raised cursor-pointer h-10 flex items-center px-6 rounded-item "
               >
                 {tv('aliases_manage')}
-              </motion.button>
+              </button>
               <ImportButton
                 onImport={handleImportVersion}
                 disabled={scanning}
@@ -505,12 +502,12 @@ export function VersionsView({
       </ViewHeader>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
+        className={`flex-1 min-w-0 -mt-2 ${connected ? '' : '-ms-2 -me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
         topButtonBottom="bottom-17"
       >
         <div
-          className={`h-full ${connected ? 'ps-5' : ''} pe-5 pb-4 flex flex-col gap-2`}
+          className={`h-full ${connected ? 'ps-5' : 'ps-2'} pe-5 pb-4 pt-2 flex flex-col gap-2`}
         >
         {installed.length === 0 && !isSearching ? (
           <div className="rounded-item border border-dashed border-outline/50 py-20 flex flex-col items-center gap-3 text-center px-6">
@@ -535,32 +532,34 @@ export function VersionsView({
                 {tv('installed_versions_section')}
               </h3>
               <div className="flex items-center gap-2">
-              <Tooltip content={tv('export_templates_open_folder')} side="top">
-                <motion.button
-                  type="button"
-
-                  data-press-feedback
-                  onClick={() => openTemplatesFolder()}
-                  aria-label={tv('export_templates_open_folder')}
-                  className="focus-ring cursor-pointer flex items-center justify-center h-7 w-7 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
-                >
-                  <IconFolder className="w-3.5 h-3.5" />
-                </motion.button>
-              </Tooltip>
+              <button
+                type="button"
+                onClick={() => openTemplatesFolder()}
+                className="focus-ring cursor-pointer flex items-center h-7 px-3 rounded-item bg-overlay text-xs font-medium text-muted hover:text-ink hover:bg-raised"
+              >
+                {tv('templates_folder')}
+              </button>
+              <button
+                type="button"
+                onClick={() => api.openVersionsFolder().catch((error) => pushToast('error', String(error), 6000))}
+                className="focus-ring cursor-pointer flex items-center h-7 px-3 rounded-item bg-overlay text-xs font-medium text-muted hover:text-ink hover:bg-raised"
+              >
+                {tv('versions_folder')}
+              </button>
               {settings.use_mise && (
                 <Tooltip content={tv('mise_sync_title')} side="top">
-                  <motion.button
+                  <button
                     type="button"
 
-                    data-press-feedback
+
                     onClick={() => syncMise().catch(reportError)}
-                    className="focus-ring cursor-pointer flex items-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors font-mono"
+                    className="focus-ring cursor-pointer flex items-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised font-mono"
                   >
                     <span className="text-xs text-muted">mise</span>
                     <span className="text-sm font-medium text-ink">
                       {miseStatus?.available ? tv('mise_sync') : tv('mise_missing')}
                     </span>
-                  </motion.button>
+                  </button>
                 </Tooltip>
               )}
               <Dropdown
@@ -568,20 +567,20 @@ export function VersionsView({
                 trigger={({ open, toggle }) => {
                   const activeOption = VERSION_SORT_OPTIONS.find((o) => o.value === installedSortBy)
                   return (
-                    <motion.button
+                    <button
                       type="button"
                       aria-expanded={open}
 
-                      data-press-feedback
+
                       onClick={toggle}
-                      className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
+                      className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised "
                     >
                       <span className="text-xs text-muted">{tc('sort')}:</span>
                       <span className="text-sm font-medium text-ink">
                         {activeOption ? tv(activeOption.labelKey) : tc('sort')}
                       </span>
                       <IconChevronDown className="w-3 h-3 text-muted" />
-                    </motion.button>
+                    </button>
                   )
                 }}
                 items={VERSION_SORT_OPTIONS.map((opt) => ({
@@ -640,7 +639,7 @@ export function VersionsView({
                       className="flex items-center gap-2 rounded-btn bg-raised/60 px-2.5 py-1.5"
                     >
                       <IconFolder className="w-3.5 h-3.5 text-muted shrink-0" />
-                      <span className="sensitive font-mono text-xs text-ink truncate min-w-0 flex-1">
+                      <span className="font-mono text-xs text-ink truncate min-w-0 flex-1">
                         {orphan.folder}
                       </span>
                       <span className="text-2xs font-mono text-muted shrink-0">
@@ -651,7 +650,7 @@ export function VersionsView({
                         onClick={() => setOrphanToDelete(orphan)}
                         title={tv('export_templates_orphan_delete')}
                         aria-label={tv('export_templates_orphan_delete')}
-                        className="focus-ring cursor-pointer p-1 rounded-btn text-muted hover:text-danger hover:bg-danger/10 transition-colors shrink-0"
+                        className="focus-ring cursor-pointer p-1 rounded-btn text-muted hover:text-danger hover:bg-danger/10 shrink-0"
                       >
                         <IconTrash className="w-3.5 h-3.5" />
                       </button>
@@ -667,19 +666,18 @@ export function VersionsView({
           <h3 className="text-2xs font-semibold uppercase tracking-wider text-muted px-1">
             {tv('available_title')}
           </h3>
-          <p className="text-xs text-muted px-1 -mt-1">{tv('available_subtitle')}</p>
 
           <div className="shrink-0 flex items-center gap-2">
             <Dropdown
               align="left"
               trigger={({ open, toggle }) => (
-                <motion.button
+                <button
                   type="button"
                   aria-expanded={open}
 
-                  data-press-feedback
+
                   onClick={toggle}
-                  className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
+                  className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised "
                 >
                   <span className="text-sm text-muted">{tv('source')}:</span>
                   <span className="text-base font-medium text-ink">
@@ -690,7 +688,7 @@ export function VersionsView({
                         : tv('source_github')}
                   </span>
                   <IconChevronDown className="w-3 h-3 text-muted" />
-                </motion.button>
+                </button>
               )}
               items={[
                 {
@@ -726,13 +724,13 @@ export function VersionsView({
             <Dropdown
               align="left"
               trigger={({ open, toggle }) => (
-                <motion.button
+                <button
                   type="button"
                   aria-expanded={open}
 
-                  data-press-feedback
+
                   onClick={toggle}
-                  className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
+                  className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised "
                 >
                   <span className="text-sm text-muted">{tv('type')}:</span>
                   <span className="text-base font-medium text-ink">
@@ -743,7 +741,7 @@ export function VersionsView({
                         : tv('standard')}
                   </span>
                   <IconChevronDown className="w-3 h-3 text-muted" />
-                </motion.button>
+                </button>
               )}
               items={[
                 { key: 'standard', label: tv('standard'), active: filters.buildType === 'standard', onClick: () => setFilters((p) => ({ ...p, buildType: 'standard' })) },
@@ -755,13 +753,13 @@ export function VersionsView({
             <Dropdown
               align="left"
               trigger={({ open, toggle }) => (
-                <motion.button
+                <button
                   type="button"
                   aria-expanded={open}
 
-                  data-press-feedback
+
                   onClick={toggle}
-                  className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
+                  className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised "
                 >
                   <span className="text-sm text-muted">{tv('channel')}:</span>
                   <span className="text-base font-medium text-ink">
@@ -772,7 +770,7 @@ export function VersionsView({
                         : tv('unstable')}
                   </span>
                   <IconChevronDown className="w-3 h-3 text-muted" />
-                </motion.button>
+                </button>
               )}
               items={[
                 { key: 'stable', label: tv('stable'), active: filters.channel === 'stable', onClick: () => setFilters((p) => ({ ...p, channel: 'stable' })) },
@@ -786,20 +784,20 @@ export function VersionsView({
               trigger={({ open, toggle }) => {
                 const activeOption = VERSION_SORT_OPTIONS.find((o) => o.value === sortBy)
                 return (
-                  <motion.button
+                  <button
                     type="button"
                     aria-expanded={open}
 
-                    data-press-feedback
+
                     onClick={toggle}
-                    className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
+                    className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised "
                   >
                     <span className="text-sm text-muted">{tc('sort')}:</span>
                     <span className="text-base font-medium text-ink">
                       {activeOption ? tv(activeOption.labelKey) : tc('sort')}
                     </span>
                     <IconChevronDown className="w-3 h-3 text-muted" />
-                  </motion.button>
+                  </button>
                 )
               }}
               items={AVAILABLE_SORT_OPTIONS.map((opt) => ({
@@ -825,25 +823,25 @@ export function VersionsView({
               <p className="text-xs text-muted font-mono break-all max-w-md">
                 {availableError}
               </p>
-              <motion.button
+              <button
                 type="button"
 
-                data-press-feedback
+
                 onClick={() => refreshAvailable()}
-                className="focus-ring cursor-pointer px-4 py-2 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+                className="focus-ring cursor-pointer px-4 py-2 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium "
               >
                 {tv('retry')}
-              </motion.button>
+              </button>
               {rateLimited && (
-                <motion.button
+                <button
                   type="button"
 
-                  data-press-feedback
+
                   onClick={() => refreshAvailable('archive')}
-                  className="focus-ring cursor-pointer px-4 py-2 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
+                  className="focus-ring cursor-pointer px-4 py-2 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white "
                 >
                   {tv('switch_to_archive')}
-                </motion.button>
+                </button>
               )}
             </div>
           ) : isSearching && filteredAvailable.length === 0 ? (
@@ -871,10 +869,10 @@ export function VersionsView({
                           }))
                         }
                         aria-expanded={!isCollapsed}
-                        className="focus-ring cursor-pointer flex items-center gap-1.5 w-fit text-2xs font-semibold uppercase tracking-wider text-muted hover:text-ink transition-colors"
+                        className="focus-ring cursor-pointer flex items-center gap-1.5 w-fit text-2xs font-semibold uppercase tracking-wider text-muted hover:text-ink "
                       >
                         <IconChevronDown
-                          className={`w-3 h-3 transition-transform duration-200 ${
+                          className={`w-3 h-3  ${
                             isCollapsed ? '-rotate-90 rtl:rotate-90' : ''
                           }`}
                         />
@@ -883,15 +881,9 @@ export function VersionsView({
                           {rows.length}
                         </span>
                       </button>
-                      <AnimatePresence initial={false}>
+
                         {!isCollapsed && (
-                          <motion.div
-                            initial={{ height: 0, opacity: 0 }}
-                            animate={{ height: 'auto', opacity: 1 }}
-                            exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.18, ease: 'easeOut' }}
-                            className="overflow-hidden"
-                          >
+                          <div>
                             <div className="flex flex-col gap-2">
                               {rows.map(({ tag, asset }) => {
                                 const progressKey = downloadKey(tag, asset.name)
@@ -909,7 +901,7 @@ export function VersionsView({
 
                                   >
                                   <div
-                                    className="flex items-center justify-between gap-3 rounded-item bg-overlay border border-outline/50 px-4 py-3 hover:border-accent-dim transition-colors"
+                                    className="flex items-center justify-between gap-3 rounded-item bg-overlay border border-outline/50 px-4 py-3 hover:border-accent-dim "
                                   >
                                     <div className="flex items-center gap-2.5 min-w-0">
                                       <VersionTag
@@ -946,19 +938,14 @@ export function VersionsView({
                                         ) : (
                                           <div className="w-56">
                                             <div className="h-1.5 bg-raised rounded-full overflow-hidden">
-                                              <motion.div
+                                              <div
                                                 className={`h-full w-full origin-left rtl:origin-right rounded-full ${
                                                   dl.status === 'paused'
                                                     ? 'bg-muted'
                                                     : 'bg-amber'
                                                 }`}
-                                                animate={{
-                                                  transform: `scaleX(${dl.total ? Math.min(1, Math.max(0, dl.downloaded / dl.total)) : 0.06})`,
-                                                }}
-                                                transition={{
-                                                  ease: 'linear',
-                                                  duration: uiMotion.instant || uiMotion.reduced ? 0 : 0.2,
-                                                }}
+
+
                                               />
                                             </div>
                                             <p className="text-2xs text-muted font-mono mt-1 tabular-nums">
@@ -975,36 +962,36 @@ export function VersionsView({
                                         )}
                                         {dl.status === 'paused' ? (
                                           <Tooltip content={tv('resume_download')} side="top">
-                                            <motion.button
+                                            <button
                                               type="button"
-                                              data-press-feedback
+
                                               onClick={() => resume(progressKey)}
-                                              className="focus-ring cursor-pointer p-2 rounded-btn border border-outline/50 text-muted hover:text-mint hover:border-mint/40 transition-colors"
+                                              className="focus-ring cursor-pointer p-2 rounded-btn border border-outline/50 text-muted hover:text-mint hover:border-mint/40 "
                                             >
                                               <IconPlay className="w-4 h-4" />
-                                            </motion.button>
+                                            </button>
                                           </Tooltip>
                                         ) : dl.status === 'downloading' ? (
                                           <Tooltip content={tv('pause_download')} side="top">
-                                            <motion.button
+                                            <button
                                               type="button"
-                                              data-press-feedback
+
                                               onClick={() => pause(progressKey)}
-                                              className="focus-ring cursor-pointer p-2 rounded-btn border border-outline/50 text-muted hover:text-ink hover:border-accent-dim transition-colors"
+                                              className="focus-ring cursor-pointer p-2 rounded-btn border border-outline/50 text-muted hover:text-ink hover:border-accent-dim "
                                             >
                                               <IconPause className="w-4 h-4" />
-                                            </motion.button>
+                                            </button>
                                           </Tooltip>
                                         ) : null}
                                         <Tooltip content={tv('cancel_download')} side="top">
-                                          <motion.button
+                                          <button
                                             type="button"
-                                            data-press-feedback
+
                                             onClick={() => cancel(progressKey)}
-                                            className="focus-ring cursor-pointer p-2 rounded-btn border border-outline/50 text-muted hover:text-danger hover:border-danger/40 transition-colors"
+                                            className="focus-ring cursor-pointer p-2 rounded-btn border border-outline/50 text-muted hover:text-danger hover:border-danger/40 "
                                           >
                                             <IconX className="w-4 h-4" />
-                                          </motion.button>
+                                          </button>
                                         </Tooltip>
                                       </div>
                                     ) : isInstalled ? (
@@ -1013,21 +1000,21 @@ export function VersionsView({
                                       </span>
                                     ) : (
                                       <div className="flex items-center gap-2 shrink-0">
-                                          <motion.button
+                                          <button
                                             type="button"
 
-                                            data-press-feedback
+
                                             onClick={() =>
                                               openUrl(sourcePageUrl(source, tag, miseStatus?.source_url))
                                             }
-                                            className="focus-ring cursor-pointer flex items-center gap-1.5 h-9 px-3.5 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+                                            className="focus-ring cursor-pointer flex items-center gap-1.5 h-9 px-3.5 rounded-item border border-outline/50 text-muted hover:text-ink hover:border-accent-dim hover:bg-raised text-sm font-medium "
                                           >
                                             <IconExternalLink className="w-3.5 h-3.5" />
-                                          </motion.button>
-                                        <motion.button
+                                          </button>
+                                        <button
                                           type="button"
 
-                                          data-press-feedback
+
                                           onClick={() =>
                                             download(
                                               tag,
@@ -1035,11 +1022,11 @@ export function VersionsView({
                                               asset.download_url,
                                             ).catch(() => {})
                                           }
-                                          className="focus-ring cursor-pointer flex items-center gap-1.5 h-9 px-4 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
+                                          className="focus-ring cursor-pointer flex items-center gap-1.5 h-9 px-4 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white "
                                         >
                                           <IconDownload className="w-3.5 h-3.5" />
                                           {tv('install')}
-                                        </motion.button>
+                                        </button>
                                       </div>
                                     )}
                                   </div>
@@ -1047,24 +1034,24 @@ export function VersionsView({
                                 )
                               })}
                             </div>
-                          </motion.div>
+                          </div>
                         )}
-                      </AnimatePresence>
+
                     </div>
                   )
                 })}
               </div>
               {visibleGroups < groupEntries.length && (
                 <div className="flex justify-center">
-                  <motion.button
+                  <button
                     type="button"
 
-                    data-press-feedback
+
                     onClick={() => setVisibleGroups((v) => v + 5)}
-                    className="focus-ring cursor-pointer px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium transition-colors"
+                    className="focus-ring cursor-pointer px-5 py-2.5 rounded-item border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm font-medium "
                   >
                     {tv('show_more')}
-                  </motion.button>
+                  </button>
                 </div>
               )}
             </>
@@ -1074,7 +1061,7 @@ export function VersionsView({
         </div>
       </OverlayScrollArea>
 
-      <AnimatePresence>
+
         {aliasModal && (
           <VersionAliasesModal
             versions={installed}
@@ -1086,9 +1073,9 @@ export function VersionsView({
             onDelete={deleteAlias}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {orphanToDelete && (
           <ConfirmDialog
             title={tv('export_templates_orphan_delete_title')}
@@ -1105,9 +1092,9 @@ export function VersionsView({
             onCancel={() => setOrphanToDelete(null)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {downloadError && (
           <DownloadErrorModal
             error={downloadError}
@@ -1115,7 +1102,7 @@ export function VersionsView({
             onClose={dismissDownloadError}
           />
         )}
-      </AnimatePresence>
+
 
     </div>
   )

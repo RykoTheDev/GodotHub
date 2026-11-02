@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import type {
   Category,
@@ -17,7 +16,6 @@ import { formatLastOpened } from "../../lib/lastOpened";
 import { formatDuration } from "../../lib/duration";
 import { effectiveTotalMs } from "../../lib/projectSort";
 import { tagColor } from "../../lib/colors";
-import { useUiMotion } from "../../hooks/useUiMotion";
 import { useSettings } from "../../hooks/useSettings";
 import { useProjectResolutionEpoch } from "../../hooks/useProjectResolutionEpoch";
 import { ConfirmDialog } from "../modals/ConfirmDialog";
@@ -165,7 +163,7 @@ function ProjectCardInner({
     const openPanel = () => {
       setShowTodoPanel(true);
       requestAnimationFrame(() =>
-        cardRef.current?.scrollIntoView({ block: "center", behavior: "smooth" }),
+        cardRef.current?.scrollIntoView({ block: "center", behavior: "auto" }),
       );
     };
 
@@ -192,7 +190,6 @@ function ProjectCardInner({
 
   const displayName = settingsName ?? project.name;
   const pinButtonVisible = project.pinned || cardHovered || pinFocused;
-  const uiMotion = useUiMotion();
   const boundVersion = installedVersions.find(
     (v) => v.tag === project.godot_version,
   );
@@ -348,8 +345,6 @@ function ProjectCardInner({
     <div ref={cardRef}>
       <div
         onClick={(event) => {
-          if (!projectTodosEnabled) return;
-
           const target = event.target as HTMLElement;
 
           const interactiveElement = target.closest(
@@ -358,74 +353,45 @@ function ProjectCardInner({
 
           if (interactiveElement) return;
 
+          if (event.ctrlKey || event.metaKey || event.shiftKey) {
+            onToggleSelect?.(event);
+            return;
+          }
+
+          if (!projectTodosEnabled) return;
+
           setTodoPanelLoaded(false);
           setShowTodoPanel((current) => !current);
         }}
         onMouseEnter={() => setCardHovered(window.matchMedia('(hover: hover) and (pointer: fine)').matches)}
         onMouseLeave={() => setCardHovered(false)}
-        className={`group relative flex items-end gap-3.5 border p-3.5 transition-colors duration-150 ${
-          showTodoPanel ? "" : "ui-lift"
+        className={`group relative flex items-end gap-3.5 border p-3.5  ${
+          showTodoPanel ? "" : ""
         } ${
           projectTodosEnabled ? "cursor-pointer" : ""
         } ${showTodoPanel ? "rounded-t-item" : "rounded-item"} ${
           selected
-            ? "bg-accent/5 border-accent ring-1 ring-accent/30"
+            ? "bg-accent/5 border-accent ring-1 ring-accent/60"
             : "bg-overlay border-outline/50 hover:bg-raised hover:border-accent-dim/60"
         }`}
       >
         {showTodoPanel && !todoPanelLoaded && (
           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-0.5 overflow-hidden bg-accent/15">
-            <motion.span
+            <span
               className="block h-full w-1/3 bg-accent"
-              initial={{ transform: 'translateX(-100%)' }}
-              animate={{ transform: 'translateX(300%)' }}
-              transition={{
-                duration: 0.9,
-                repeat: Infinity,
-                ease: 'linear',
-              }}
+
+
             />
           </div>
         )}
 
-        {onToggleSelect && (
-          <div className="absolute top-2.5 start-2.5 z-20">
-            <Tooltip
-              content={
-                selected ? t("project_deselect_aria") : t("project_select_aria")
-              }
-              side="right"
-            >
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleSelect(e);
-                }}
-                aria-pressed={selected}
-                className={`focus-ring cursor-pointer w-5 h-5 rounded-full border-2 flex items-center justify-center transition-[background-color,border-color,scale] duration-150 ${
-                  selected
-                    ? "bg-accent border-accent text-white scale-100 opacity-100"
-                    : "border-muted/40 bg-black/20 opacity-100 hover:border-accent/60"
-                }`}
-              >
-                {selected && (
-                  <IconCheckCircle
-                    className="w-3.5 h-3.5"
-                    fill="currentColor"
-                  />
-                )}
-              </button>
-            </Tooltip>
-          </div>
-        )}
         <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-item isolate">
           {icon ? (
             <img
               src={icon}
               alt=""
               aria-hidden="true"
-              className="select-none absolute -start-6 top-1/2 -translate-y-1/2 -rotate-6 h-35 w-35 object-contain grayscale group-hover:grayscale-0 contrast-125 transition-opacity duration-150"
+              className="select-none absolute -start-6 top-1/2 -translate-y-1/2 -rotate-6 h-35 w-35 object-contain grayscale group-hover:grayscale-0 contrast-125 "
               style={{
                 opacity: "var(--project-icon-opacity, 0.14)",
                 maskImage:
@@ -437,7 +403,7 @@ function ProjectCardInner({
           ) : (
             <span
               aria-hidden="true"
-              className="select-none absolute -start-3 top-1/2 -translate-y-1/2 -rotate-6 font-display font-black text-muted group-hover:text-accent-bright transition-colors duration-150"
+              className="select-none absolute -start-3 top-1/2 -translate-y-1/2 -rotate-6 font-display font-black text-muted group-hover:text-accent-bright "
               style={{
                 fontSize: "72px",
                 lineHeight: 1,
@@ -453,7 +419,7 @@ function ProjectCardInner({
           )}
         </div>
 
-        <div className={`min-w-0 flex-1 ${onToggleSelect ? "ps-8" : ""}`}>
+        <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5 flex-wrap min-w-0">
             <h3 className="font-display font-medium text-xl text-ink truncate">
               {displayName}
@@ -476,7 +442,7 @@ function ProjectCardInner({
                 type="button"
                 onClick={onShowGitSidebar}
                 aria-label={t("git_sidebar")}
-                className={`shrink-0 inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-tag transition-colors cursor-pointer ${
+                className={`shrink-0 inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-tag cursor-pointer ${
                   gitStatus.has_uncommitted
                     ? "bg-amber/10 text-amber"
                     : "text-muted hover:text-ink hover:bg-raised"
@@ -583,7 +549,7 @@ function ProjectCardInner({
               </span>
             ) : (
               <span
-                className={`overflow-hidden inline-flex items-center shrink-0 me-1.5 transition-opacity duration-150 focus-within:opacity-100 ${cardHovered ? 'opacity-100' : 'opacity-0'}`}
+                className={`overflow-hidden inline-flex items-center shrink-0 me-1.5 focus-within:opacity-100 ${cardHovered ? 'opacity-100' : 'opacity-0'}`}
               >
                 <button
                   type="button"
@@ -593,7 +559,7 @@ function ProjectCardInner({
                     setTagError(null);
                   }}
                   aria-label={t("add_tag")}
-                  className="focus-ring cursor-pointer inline-flex items-center px-2 py-0.5 rounded-tag text-3xs font-mono font-medium tracking-tight whitespace-nowrap text-muted hover:text-accent-bright hover:bg-raised transition-colors shrink-0 border border-dashed border-outline/50"
+                  className="focus-ring cursor-pointer inline-flex items-center px-2 py-0.5 rounded-tag text-3xs font-mono font-medium tracking-tight whitespace-nowrap text-muted hover:text-accent-bright hover:bg-raised shrink-0 border border-dashed border-outline/50"
                 >
                   {t("add_tag")}
                 </button>
@@ -618,7 +584,7 @@ function ProjectCardInner({
                   return (
                     <span
                       key={`${tag}-${index}`}
-                      className={`project-tag group/tag inline-flex items-center ps-1.5 pe-1 py-0.5 rounded-tag font-mono text-3xs font-medium tracking-tight shrink-0 transition-[filter,box-shadow] duration-100 ${
+                      className={`project-tag group/tag inline-flex items-center ps-1.5 pe-1 py-0.5 rounded-tag font-mono text-3xs font-medium tracking-tight shrink-0  ${
                         isActive
                           ? "ring-1 ring-accent-dim/70 brightness-110"
                           : ""
@@ -694,7 +660,7 @@ function ProjectCardInner({
                           <button
                             type="button"
                             onClick={() => onTagClick?.(tag)}
-                            className="cursor-pointer hover:brightness-125 transition-[filter] duration-100"
+                            className="cursor-pointer hover:brightness-125 "
                           >
                             {tag}
                           </button>
@@ -709,7 +675,7 @@ function ProjectCardInner({
                                     setTagError(null);
                                   }}
                                   aria-label={t("tag_rename_aria")}
-                                  className="focus-ring cursor-pointer w-3 h-3 rounded-full flex items-center justify-center transition-colors duration-150 hover:text-ink shrink-0"
+                                  className="focus-ring cursor-pointer w-3 h-3 rounded-full flex items-center justify-center hover:text-ink shrink-0"
                                 >
                                   <IconPencil className="w-2.5 h-2.5 shrink-0" />
                                 </button>
@@ -717,7 +683,7 @@ function ProjectCardInner({
                                   type="button"
                                   onClick={() => handleRemoveTag(index)}
                                   aria-label={t("remove_tag", { tag })}
-                                  className="focus-ring cursor-pointer w-3 h-3 rounded-full flex items-center justify-center transition-colors duration-150 hover:text-danger shrink-0"
+                                  className="focus-ring cursor-pointer w-3 h-3 rounded-full flex items-center justify-center hover:text-danger shrink-0"
                                 >
                                   <IconX className="w-2.5 h-2.5 shrink-0" />
                                 </button>
@@ -734,7 +700,7 @@ function ProjectCardInner({
                   type="button"
                   onClick={() => setTagsExpanded(true)}
                   aria-label={t("show_more_tags")}
-                  className="focus-ring cursor-pointer inline-flex items-center px-2 py-0.5 rounded-tag text-3xs font-mono font-medium tracking-tight text-muted hover:text-ink hover:bg-raised transition-colors shrink-0 border border-dashed border-outline/50"
+                  className="focus-ring cursor-pointer inline-flex items-center px-2 py-0.5 rounded-tag text-3xs font-mono font-medium tracking-tight text-muted hover:text-ink hover:bg-raised shrink-0 border border-dashed border-outline/50"
                 >
                   +{project.tags.length - 2}
                 </button>
@@ -744,7 +710,7 @@ function ProjectCardInner({
                   type="button"
                   onClick={() => setTagsExpanded(false)}
                   aria-label={t("show_fewer_tags")}
-                  className="focus-ring cursor-pointer inline-flex items-center px-2 py-0.5 rounded-tag text-3xs font-mono font-medium tracking-tight text-muted hover:text-ink hover:bg-raised transition-colors shrink-0 border border-dashed border-outline/50"
+                  className="focus-ring cursor-pointer inline-flex items-center px-2 py-0.5 rounded-tag text-3xs font-mono font-medium tracking-tight text-muted hover:text-ink hover:bg-raised shrink-0 border border-dashed border-outline/50"
                 >
                   -{project.tags.length - 2}
                 </button>
@@ -756,7 +722,7 @@ function ProjectCardInner({
             <button
               type="button"
               onClick={openFolder}
-              className={`sensitive block bg-black/15 px-3 py-1 rounded-tag text-2xs font-mono text-muted truncate hover:text-accent-bright cursor-pointer transition-colors w-fit max-w-full ${cardSettings.blur_path ? "blur-sm hover:blur-none transition-[filter]" : ""}`}
+              className={`block bg-black/15 px-3 py-1 rounded-tag text-2xs font-mono text-muted truncate hover:text-accent-bright cursor-pointer w-fit max-w-full ${cardSettings.blur_path ? "blur-sm hover:blur-none " : ""}`}
             >
               {project.path}
             </button>
@@ -771,7 +737,7 @@ function ProjectCardInner({
                     type="button"
                     aria-expanded={open}
                     onClick={toggle}
-                    className="inline-flex items-center gap-1.5 px-3 py-3 rounded-btn bg-raised border border-outline/50 font-mono text-3xs text-muted hover:text-ink hover:border-accent-dim cursor-pointer transition-colors shrink-0"
+                    className="inline-flex items-center gap-1.5 px-3 py-3 rounded-btn bg-raised border border-outline/50 font-mono text-3xs text-muted hover:text-ink hover:border-accent-dim cursor-pointer shrink-0"
                   >
                     <IconNode className="w-2.5 h-2.5" />
                     {boundVersion ? (
@@ -787,7 +753,7 @@ function ProjectCardInner({
                       t("no_version_selected")
                     )}
                     <IconChevronDown
-                      className={`w-2.5 h-2.5 transition-transform duration-200 ${
+                      className={`w-2.5 h-2.5  ${
                         open ? "rotate-180 text-ink" : ""
                       }`}
                     />
@@ -814,7 +780,7 @@ function ProjectCardInner({
                           onClick={onTogglePin}
                           onFocus={() => setPinFocused(true)}
                           onBlur={() => setPinFocused(false)}
-                          className="focus-ring cursor-pointer inline-flex items-center px-2.5 py-2.5 rounded-btn border font-mono transition-colors shrink-0 bg-accent/10 border-accent-dim/40 text-accent-bright hover:bg-accent/20 hover:border-accent-dim"
+                          className="focus-ring cursor-pointer inline-flex items-center px-2.5 py-2.5 rounded-btn border font-mono shrink-0 bg-accent/10 border-accent-dim/40 text-accent-bright hover:bg-accent/20 hover:border-accent-dim"
                         >
                           <IconPin className="w-3 h-3" fill="currentColor" />
                         </button>
@@ -825,7 +791,7 @@ function ProjectCardInner({
                         onClick={onTogglePin}
                         onFocus={() => setPinFocused(true)}
                         onBlur={() => setPinFocused(false)}
-                        className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-3 rounded-btn border font-mono text-3xs transition-colors shrink-0 bg-raised border-outline/50 text-muted hover:text-ink hover:border-accent-dim"
+                        className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-3 rounded-btn border font-mono text-3xs shrink-0 bg-raised border-outline/50 text-muted hover:text-ink hover:border-accent-dim"
                       >
                         <IconPin className="w-3 h-3" />
                         {t("project_pin_aria")}
@@ -840,7 +806,7 @@ function ProjectCardInner({
                 type="button"
                 onClick={() => setTimeTrackerOpen(true)}
                 aria-label={t("time_tracked_title")}
-                className="focus-ring border border-outline/50 cursor-pointer inline-flex items-center gap-1.5 rounded-btn px-3 py-3 bg-black/10 font-mono text-3xs text-muted hover:text-ink hover:bg-raised transition-colors shrink-0"
+                className="focus-ring border border-outline/50 cursor-pointer inline-flex items-center gap-1.5 rounded-btn px-3 py-3 bg-black/10 font-mono text-3xs text-muted hover:text-ink hover:bg-raised shrink-0"
               >
                 <IconStopwatch className="w-3 h-3 text-muted/60 shrink-0" />
                 {formatDuration(allMs)}
@@ -853,7 +819,7 @@ function ProjectCardInner({
                   type="button"
                   onClick={() => setSizeModalOpen(true)}
                   aria-label={t("project_size")}
-                  className="focus-ring cursor-pointer border border-outline/50 inline-flex items-center gap-1.5 rounded-btn px-3 py-3 bg-black/10 font-mono text-3xs text-muted hover:text-ink hover:bg-raised transition-colors shrink-0"
+                  className="focus-ring cursor-pointer border border-outline/50 inline-flex items-center gap-1.5 rounded-btn px-3 py-3 bg-black/10 font-mono text-3xs text-muted hover:text-ink hover:bg-raised shrink-0"
                 >
                   <IconHardDrive className="w-3 h-3 text-muted/60 shrink-0" />
                   {formatBytes(projectSize)}
@@ -872,7 +838,7 @@ function ProjectCardInner({
                       type="button"
                       aria-expanded={open}
                       onClick={toggle}
-                      className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-3 rounded-btn bg-raised border border-outline/50 font-mono text-3xs text-muted hover:text-ink hover:border-accent-dim transition-colors shrink-0"
+                      className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-3 rounded-btn bg-raised border border-outline/50 font-mono text-3xs text-muted hover:text-ink hover:border-accent-dim shrink-0"
                     >
                       <span
                         className="w-1.5 h-1.5 rounded-full shrink-0 ring-1 ring-black/20"
@@ -880,7 +846,7 @@ function ProjectCardInner({
                       />
                       {project.category ?? t("uncategorized")}
                       <IconChevronDown
-                        className={`w-2.5 h-2.5 transition-transform duration-200 ${
+                        className={`w-2.5 h-2.5  ${
                           open ? "rotate-180 text-ink" : ""
                         }`}
                       />
@@ -908,41 +874,41 @@ function ProjectCardInner({
           </div>
         </div>
         {sessionMs > 0 && cardSettings.show_session_timer && (
-          <motion.div
-            {...uiMotion.surface('tooltip', 'none')}
+          <div
+
             className="flex items-center shrink-0 -me-5 mb-1 overflow-hidden"
           >
             <div className="flex items-center gap-2 px-4 h-10 bg-base/50 border-e-0 rounded-s-dropdown-btn font-mono text-xs text-accent-bright whitespace-nowrap">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent-bright animate-pulse shrink-0" />
+              <span className="w-1.5 h-1.5 rounded-full bg-accent-bright shrink-0" />
               {formatDuration(sessionMs)}
             </div>
-          </motion.div>
+          </div>
         )}
         <div className="flex items-stretch shrink-0 relative -me-2">
           <div className="flex flex-col justify-end gap-1.5">
             {cardSettings.show_play && (
               <div className="flex h-12 w-full">
-                <AnimatePresence>
+
                   {versionInstalled && cardHovered && (
                     <Tooltip
                       content={t("play_project_tooltip")}
                       side="left"
                       className="w-full"
                     >
-                      <motion.button
+                      <button
                         key="button-787"
-                        {...uiMotion.surface('tooltip', 'none')}
+
                         type="button"
                         onClick={playProject}
                         aria-label={t("play_project")}
-                        className="focus-ring inline-flex h-12 w-full shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-btn border border-outline/50 bg-overlay text-lg font-medium text-muted shadow-md shadow-black/10 transition-colors hover:bg-raised hover:text-ink"
+                        className="focus-ring inline-flex h-12 w-full shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-btn border border-outline/50 bg-overlay text-lg font-medium text-muted shadow-md shadow-black/10 hover:bg-raised hover:text-ink"
                       >
                         <IconPlay className="h-4 w-4" />
                         {t("play_project")}
-                      </motion.button>
+                      </button>
                     </Tooltip>
                   )}
-                </AnimatePresence>
+
               </div>
             )}
             <OpenButton
@@ -1078,7 +1044,7 @@ function ProjectCardInner({
           </div>
         </div>
 
-        <AnimatePresence>
+
           {confirmAction === "remove" && (
             <ConfirmDialog
               title={t("project_remove_title")}
@@ -1091,9 +1057,9 @@ function ProjectCardInner({
               onCancel={() => setConfirmAction(null)}
             />
           )}
-        </AnimatePresence>
 
-        <AnimatePresence>
+
+
           {confirmAction === "delete" && (
             <ConfirmDialog
               title={t("project_delete_title")}
@@ -1107,9 +1073,9 @@ function ProjectCardInner({
               onCancel={() => setConfirmAction(null)}
             />
           )}
-        </AnimatePresence>
 
-        <AnimatePresence>
+
+
           {tagManagerOpen && (
             <TagManagerModal
               project={project}
@@ -1117,21 +1083,20 @@ function ProjectCardInner({
               onSaved={(updated) => onTagsSaved?.(updated)}
             />
           )}
-        </AnimatePresence>
 
-        <AnimatePresence>
+
+
           {timeTrackerOpen && (
             <TimeTrackerModal
               project={project}
               onClose={() => setTimeTrackerOpen(false)}
             />
           )}
-        </AnimatePresence>
 
-        <AnimatePresence>
+
+
           {showLaunchArgs && (
             <LaunchArgsModal
-              projectName={displayName}
               currentArgs={project.launch_arguments}
               onSave={(args) => {
                 onLaunchArgsChange?.(args);
@@ -1140,44 +1105,36 @@ function ProjectCardInner({
               onClose={() => setShowLaunchArgs(false)}
             />
           )}
-        </AnimatePresence>
 
-        <AnimatePresence>
+
+
           {templateSaveOpen && (
             <SaveAsTemplateModal
               project={project}
               onClose={() => setTemplateSaveOpen(false)}
             />
           )}
-        </AnimatePresence>
 
-        <AnimatePresence>
+
+
           {sizeModalOpen && (
             <ProjectSizeModal
               projectPath={project.path}
-              projectName={displayName}
               onClose={() => setSizeModalOpen(false)}
             />
           )}
-        </AnimatePresence>
-        <AnimatePresence>
+
           {doctorOpen && <ProjectDoctorModal project={project} installedVersions={installedVersions} onClose={() => setDoctorOpen(false)} />}
           {buildOpen && <ProjectBuildModal project={project} onClose={() => setBuildOpen(false)} />}
-        </AnimatePresence>
+
       </div>
 
-      <AnimatePresence initial={false}>
+
         {projectTodosEnabled && showTodoPanel && (
-          <motion.div
+          <div
             key="project-todo-panel"
-            initial={{ height: 0, opacity: 0 }}
-            animate={
-              todoPanelLoaded
-                ? { height: "auto", opacity: 1 }
-                : { height: 0, opacity: 0 }
-            }
-            exit={{ height: 0, opacity: 0 }}
-            transition={uiMotion.transition('popover')}
+
+
             className="overflow-hidden"
           >
             <ProjectTodoPanel
@@ -1188,9 +1145,9 @@ function ProjectCardInner({
                 setShowTodoPanel(false);
               }}
             />
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+
     </div>
   );
 }

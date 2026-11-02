@@ -1,13 +1,10 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { motion } from 'framer-motion'
-import { useUiMotion } from '../../hooks/useUiMotion'
 import { ModalHeader } from './ModalHeader'
 
 interface Props {
   icon: React.ReactNode
   title: string
-  description?: React.ReactNode
   maxWidth?: string
   onClose?: () => void
   showClose?: boolean
@@ -23,7 +20,6 @@ const FOCUSABLE =
 export function ModalShell({
   icon,
   title,
-  description,
   maxWidth = 'max-w-2xl',
   onClose,
   showClose = true,
@@ -32,7 +28,6 @@ export function ModalShell({
   footer,
   bodyClassName,
 }: Props) {
-  const { instant, transition, surface } = useUiMotion()
   const titleId = useId()
   const dialogRef = useRef<HTMLDivElement>(null)
   const openMenus = useRef(0)
@@ -100,19 +95,17 @@ export function ModalShell({
   }
 
   return createPortal(
-    <motion.div
-      initial={instant ? false : { opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0, transition: transition('modal', true) }}
-      transition={transition('modal')}
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+    <div
+
+
+      className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
       onClick={(e) => {
         e.stopPropagation()
         onClose?.()
       }}
     >
-      <motion.div
-        {...surface('modal')}
+      <div
+
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
@@ -125,7 +118,6 @@ export function ModalShell({
         <ModalHeader
           icon={icon}
           title={title}
-          description={description}
           onClose={showClose ? onClose : undefined}
           titleId={titleId}
         />
@@ -141,8 +133,8 @@ export function ModalShell({
             {footer}
           </div>
         )}
-      </motion.div>
-    </motion.div>,
+      </div>
+    </div>,
     document.body,
   )
 }

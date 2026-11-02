@@ -21,17 +21,19 @@ export function VaultItemPreviewModal({ item, onClose }: Props) {
     <ModalShell
       icon={<IconBriefcase className="w-5 h-5 text-accent-bright" />}
       title={item.name}
-      description={item.description || undefined}
       maxWidth="max-w-lg"
       onClose={onClose}
     >
       <div className="p-6">
+        {item.description && (
+          <p className="pb-3 text-sm text-muted leading-relaxed wrap-break-word">{item.description}</p>
+        )}
         {item.tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 pb-3">
             {item.tags.map((tag) => (
               <span
                 key={tag}
-                className="inline-flex items-center px-2 py-0.5 rounded-tag bg-raised border border-outline/50 text-[11px] font-mono text-muted"
+                className="inline-flex items-center px-2 py-0.5 rounded-tag bg-raised border border-outline/50 text-2xs font-mono text-muted"
               >
                 {tag}
               </span>
@@ -45,7 +47,7 @@ export function VaultItemPreviewModal({ item, onClose }: Props) {
           </div>
         ) : (
           <>
-            <div className="flex items-center gap-2 px-1 pb-2 text-[10px] text-muted/50 font-mono">
+            <div className="flex items-center gap-2 px-1 pb-2 text-3xs text-muted/50 font-mono">
               <IconInfo className="w-3 h-3" />
               {t('file_count', { count: fileCount })}
               {dirCount > 0 && ` · ${t('folder_count', { count: dirCount })}`}

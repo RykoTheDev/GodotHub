@@ -1,6 +1,5 @@
 {
   "next_steps": "Next steps",
-  "all_tasks_description": "View and manage all tasks for this project.",
   "saving_tasks": "Saving tasks",
   "pending_count_one": "{{count}} pending",
   "pending_count_other": "{{count}} pending",
@@ -45,8 +44,6 @@
   "area_narrative": "Narrative",
   "area_other": "Other",
   "edit_task": "Edit task",
-  "edit_task_description": "Update this task's information.",
-  "new_task_description": "Add a next step for this project.",
   "title": "Title",
   "title_placeholder": "E.g.: Create main menu",
   "description_placeholder": "Add more details about what needs to be done...",
@@ -55,7 +52,6 @@
   "past_due_date": "This due date has passed",
   "save_task_failed": "Could not save the task. Try again.",
   "add_task": "Add task",
-  "task_details": "Task details",
   "no_description": "No description",
   "tomorrow": "Tomorrow",
   "due_in_days_one": "Due in {{count}} day",

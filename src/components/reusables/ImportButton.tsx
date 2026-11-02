@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { IconChevronDown } from '../../lib/icons'
@@ -6,11 +5,7 @@ import { api } from '../../lib/api'
 import { Dropdown, type NewDropdownItem } from '../ui/Dropdown'
 
 const TOOL_BUTTON_CLASS =
-  'focus-ring text-muted hover:text-ink font-semibold text-[17px] bg-overlay shadow-md shadow-black/10 border border-outline/50 hover:bg-raised cursor-pointer h-10 flex items-center transition-colors'
-
-const TOOL_BUTTON_ANIMATION = {
-  'data-press-feedback': true,
-} as const
+  'focus-ring text-muted hover:text-ink font-semibold text-[1.0625rem] bg-overlay shadow-md shadow-black/10 border border-outline/50 hover:bg-raised cursor-pointer h-10 flex items-center '
 
 interface ImportButtonProps {
   onImport: (folder: string) => Promise<void>
@@ -63,9 +58,8 @@ export function ImportButton({
 
   return (
     <div className="flex items-stretch gap-1">
-      <motion.button
+      <button
         type="button"
-        {...(!busy ? TOOL_BUTTON_ANIMATION : {})}
         onClick={handleImport}
         disabled={busy || disabled}
         className={`${TOOL_BUTTON_CLASS} px-6 ${
@@ -73,25 +67,24 @@ export function ImportButton({
         } disabled:opacity-40 disabled:cursor-not-allowed`}
       >
         {t('import')}
-      </motion.button>
+      </button>
       {hasOptions && (
         <Dropdown
           align="right"
           trigger={({ open, toggle }) => (
-            <motion.button
+            <button
               type="button"
               aria-label={t('more_import_options')}
               aria-expanded={open}
-              {...TOOL_BUTTON_ANIMATION}
               onClick={toggle}
               className={`${TOOL_BUTTON_CLASS} px-[5px] rounded-e-dropdown rounded-s-[4px]`}
             >
               <IconChevronDown
-                className={`w-4 h-4 transition-transform duration-200 ${
+                className={`w-4 h-4  ${
                   open ? 'rotate-180 text-ink' : ''
                 }`}
               />
-            </motion.button>
+            </button>
           )}
           items={options}
         />

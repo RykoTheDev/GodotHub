@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import type { Workspace } from '../../types'
 import { getWorkspaceIcon } from '../../lib/workspaceIcons'
@@ -55,40 +54,39 @@ export function WorkspaceEditModal({
     <ModalShell
         icon={<IconPencil className="w-5 h-5 text-accent-bright" />}
         title={t('edit_workspace_title')}
-        description={t('workspace_edit_desc')}
         maxWidth="max-w-md"
         onClose={onClose}
         showClose={false}
         footer={
           <>
-            <motion.button
+            <button
 
-              data-press-feedback={canDelete ? true : undefined}
+
               onClick={() => canDelete && setConfirmingDelete(true)}
               disabled={!canDelete}
               title={canDelete ? undefined : t('cant_delete_only_workspace')}
-              className="focus-ring cursor-pointer disabled:cursor-not-allowed px-4 py-2.5 rounded-btn text-sm text-muted hover:text-danger hover:bg-danger/5 disabled:opacity-40 disabled:hover:text-muted disabled:hover:bg-transparent transition-colors"
+              className="focus-ring cursor-pointer disabled:cursor-not-allowed px-4 py-2.5 rounded-btn text-sm text-muted hover:text-danger hover:bg-danger/5 disabled:opacity-40 disabled:hover:text-muted disabled:hover:bg-transparent "
             >
               {t('delete')}
-            </motion.button>
+            </button>
             <div className="ms-auto flex gap-2.5">
-              <motion.button
+              <button
 
-                data-press-feedback
+
                 onClick={onClose}
-                className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors"
+                className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised "
               >
                 {t('cancel')}
-              </motion.button>
-              <motion.button
+              </button>
+              <button
 
-                data-press-feedback={busy ? undefined : true}
+
                 onClick={submit}
                 disabled={busy}
-                className="focus-ring px-5 cursor-pointer py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white transition-colors"
+                className="focus-ring px-5 cursor-pointer py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white "
               >
                 {t('save')}
-              </motion.button>
+              </button>
             </div>
           </>
         }
@@ -96,7 +94,7 @@ export function WorkspaceEditModal({
           <div className="flex flex-col gap-5 p-6">
             <div className="relative overflow-hidden rounded-btn border border-outline/50 bg-overlay p-4 flex items-center gap-3">
               <div
-                className="absolute -top-10 -end-10 w-32 h-32 rounded-full blur-2xl opacity-40 transition-colors duration-300"
+                className="absolute -top-10 -end-10 w-32 h-32 rounded-full blur-2xl opacity-40 "
                 style={{ backgroundColor: color }}
                 aria-hidden="true"
               />
@@ -127,7 +125,7 @@ export function WorkspaceEditModal({
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && submit()}
-                className="focus-ring bg-raised border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm focus:border-accent-dim transition-colors"
+                className="focus-ring bg-raised border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm focus:border-accent-dim "
               />
             </div>
 
@@ -142,7 +140,7 @@ export function WorkspaceEditModal({
           </div>
     </ModalShell>
 
-    <AnimatePresence>
+
       {confirmingDelete && (
         <ConfirmDialog
           title={t('delete_workspace_title')}
@@ -156,7 +154,7 @@ export function WorkspaceEditModal({
           onCancel={() => setConfirmingDelete(false)}
         />
       )}
-    </AnimatePresence>
+
     </>
   )
 }

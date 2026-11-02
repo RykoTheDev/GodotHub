@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { check } from '@tauri-apps/plugin-updater'
 import { getVersion } from '@tauri-apps/api/app'
@@ -311,13 +310,13 @@ export function CheckForUpdatesModal({
       showClose={false}
       footer={
         <div className="w-full flex items-center justify-end">
-          <motion.button
-            data-press-feedback
+          <button
+
             onClick={onClose}
-            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-4 py-2 rounded-item border border-outline/50 text-xs font-medium text-muted hover:text-ink hover:border-accent-dim hover:bg-raised transition-colors"
+            className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-4 py-2 rounded-item border border-outline/50 text-xs font-medium text-muted hover:text-ink hover:border-accent-dim hover:bg-raised "
           >
             {t('close')}
-          </motion.button>
+          </button>
         </div>
       }
     >
@@ -333,7 +332,7 @@ export function CheckForUpdatesModal({
                     key={s}
                     type="button"
                     onClick={() => switchPreviewState(s)}
-                    className={`focus-ring cursor-pointer px-2.5 py-1 rounded-item text-3xs font-medium border transition-colors ${
+                    className={`focus-ring cursor-pointer px-2.5 py-1 rounded-item text-3xs font-medium border  ${
                       state.type === s
                         ? 'bg-accent/15 border-accent-dim/40 text-ink'
                         : 'bg-raised border-line text-muted hover:text-ink hover:border-accent-dim'
@@ -346,13 +345,11 @@ export function CheckForUpdatesModal({
             </div>
           )}
 
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
+
+            <div
               key={state.type}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ duration: 0.16, ease: 'easeOut' }}
+
+
               className="w-full flex flex-col items-center gap-5"
             >
               {state.type === 'checking' && (
@@ -402,17 +399,17 @@ export function CheckForUpdatesModal({
                       {t('check_updates_version_available', { version: state.version })}
                     </span>
                   </div>
-                  <motion.a
+                  <a
 
-                    data-press-feedback
+
                     href="https://github.com/RykoTheDev/GodotHub/releases/latest"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="focus-ring cursor-pointer flex items-center justify-center gap-2 px-5 py-2.5 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors no-underline"
+                    className="focus-ring cursor-pointer flex items-center justify-center gap-2 px-5 py-2.5 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white no-underline"
                   >
                     <IconExternalLink className="w-4 h-4" />
                     {t('check_updates_download_from_github')}
-                  </motion.a>
+                  </a>
                 </div>
               </div>
             </div>
@@ -447,7 +444,7 @@ export function CheckForUpdatesModal({
                     </span>
                     <IconRefresh className="w-3 h-3 text-muted/40 rotate-180 shrink-0" />
                     <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-item bg-accent/15 border border-accent/30">
-                      <span className="w-1.5 h-1.5 rounded-full bg-accent-bright animate-pulse" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-accent-bright " />
                       <span className="font-mono text-xs font-semibold text-accent-bright">
                         v{state.version}
                       </span>
@@ -523,22 +520,22 @@ export function CheckForUpdatesModal({
                   )}
                 </div>
               </div>
-              <motion.button
+              <button
 
-                data-press-feedback
+
                 onClick={handleInstall}
-                className="focus-ring cursor-pointer flex items-center gap-2 px-6 py-2.5 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
+                className="focus-ring cursor-pointer flex items-center gap-2 px-6 py-2.5 rounded-item bg-accent hover:bg-accent-bright text-sm font-medium text-white "
               >
                 <IconDownload className="w-4 h-4" />
                 {t('install_update')}
-              </motion.button>
+              </button>
             </div>
           )}
 
           {state.type === 'downloading' && (
             <div className="flex flex-col items-center gap-4 w-full">
               <div className="w-14 h-14 rounded-full bg-accent/10 flex items-center justify-center">
-                <IconDownload className="w-6 h-6 text-accent animate-pulse" />
+                <IconDownload className="w-6 h-6 text-accent " />
               </div>
               <div className="text-center w-full">
                 <p className="text-sm font-medium text-ink">{t('downloading_update')}</p>
@@ -547,11 +544,10 @@ export function CheckForUpdatesModal({
                 </p>
               </div>
               <div className="w-full h-2 rounded-full bg-line overflow-hidden">
-                <motion.div
+                <div
                   className="h-full w-full origin-left rtl:origin-right bg-accent rounded-full"
-                  initial={{ transform: 'scaleX(0)' }}
-                  animate={{ transform: `scaleX(${Math.round(state.progress * 100) / 100})` }}
-                  transition={{ duration: 0.2, ease: 'easeOut' }}
+
+
                 />
               </div>
             </div>
@@ -599,32 +595,32 @@ export function CheckForUpdatesModal({
                           ? t('check_updates_rate_limited_token_hint')
                           : t('check_updates_rate_limited_hint')}
                       </p>
-                      <motion.button
+                      <button
 
-                        data-press-feedback
+
                         onClick={openTokenSettings}
-                        className="focus-ring cursor-pointer self-start px-4 py-2 rounded-item bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors"
+                        className="focus-ring cursor-pointer self-start px-4 py-2 rounded-item bg-accent hover:bg-accent-bright text-xs font-medium text-white "
                       >
                         {hint === 'token-rejected'
                           ? t('check_updates_open_token_settings')
                           : t('check_updates_add_token')}
-                      </motion.button>
+                      </button>
                     </div>
                   )}
-                  <motion.button
+                  <button
 
-                    data-press-feedback
+
                     onClick={doCheck}
-                    className="focus-ring cursor-pointer flex items-center gap-2 px-5 py-2.5 rounded-item border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium text-ink transition-colors"
+                    className="focus-ring cursor-pointer flex items-center gap-2 px-5 py-2.5 rounded-item border border-line hover:border-accent-dim hover:bg-raised text-sm font-medium text-ink "
                   >
                     <IconRefresh className="w-4 h-4" />
                     {t('try_again')}
-                  </motion.button>
+                  </button>
                 </div>
               )
             })()}
-            </motion.div>
-          </AnimatePresence>
+            </div>
+
         </div>
     </ModalShell>
   )

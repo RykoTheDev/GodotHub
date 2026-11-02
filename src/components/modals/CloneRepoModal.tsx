@@ -1,8 +1,6 @@
-import { useUiMotion } from '../../hooks/useUiMotion'
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
-import { motion, AnimatePresence } from 'framer-motion'
 import type { Category, GitAuthState, UserRepoInfo } from '../../types'
 import { api } from '../../lib/api'
 import { reportLaunchError } from '../../lib/launchErrors'
@@ -45,7 +43,6 @@ export function CloneRepoModal({
   onClose,
   onCloned,
 }: Props) {
-  const uiMotion = useUiMotion()
   const titleId = useId()
 
   const { t } = useTranslation('common')
@@ -259,26 +256,26 @@ export function CloneRepoModal({
   }
 
   const inputClass = (invalid: boolean) =>
-    `focus-ring bg-overlay border rounded-item px-3.5 py-2.5 text-sm font-mono transition-colors ${
+    `focus-ring bg-overlay border rounded-item px-3.5 py-2.5 text-sm font-mono  ${
       invalid ? 'border-danger/70 focus:border-danger' : 'border-outline/50 focus:border-accent-dim'
     }`
 
   const tabClass = (active: boolean) =>
-    `px-3 py-1.5 rounded-btn text-xs font-medium transition-colors ${
+    `px-3 py-1.5 rounded-btn text-xs font-medium  ${
       active
         ? 'bg-accent/15 text-accent-bright border border-accent/30'
         : 'text-muted hover:text-ink hover:bg-raised border border-transparent'
     }`
 
   return createPortal(
-    <motion.div
-      {...uiMotion.surface('modal', `none`)}
+    <div
 
-      className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+
+      className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
       onClick={onClose}
     >
-      <motion.div
-        {...uiMotion.surface('modal', `scale(0.96)`)}
+      <div
+
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
@@ -288,7 +285,6 @@ export function CloneRepoModal({
         <ModalHeader
           icon={<IconGitBranch className="w-5 h-5 text-accent-bright" />}
           title={t('clone_repo_title')}
-          description={t('clone_repo_desc')}
           autoFocusBanner={false}
           titleId={titleId}
         />
@@ -331,7 +327,7 @@ export function CloneRepoModal({
                               setRepoSearch('')
                             }
                           }}
-                          className={`px-2.5 py-1 rounded-btn text-2xs font-medium capitalize transition-colors ${
+                          className={`px-2.5 py-1 rounded-btn text-2xs font-medium capitalize  ${
                             browseProvider === p
                               ? 'bg-accent/15 text-accent-bright border border-accent/30'
                               : 'text-muted hover:text-ink hover:bg-raised border border-transparent'
@@ -359,7 +355,7 @@ export function CloneRepoModal({
                       fetchRepos(1, false)
                     }}
                     disabled={reposLoading}
-                    className="ms-auto text-xs text-muted hover:text-accent-bright transition-colors"
+                    className="ms-auto text-xs text-muted hover:text-accent-bright "
                   >
                     {t('refresh')}
                   </button>
@@ -402,12 +398,12 @@ export function CloneRepoModal({
                     filteredRepos.map((repo) => {
                       const isSelected = selectedRepo?.clone_url === repo.clone_url
                       return (
-                        <motion.button
+                        <button
                           key={repo.clone_url}
                           type="button"
-                          whileHover={{ backgroundColor: 'var(--color-raised)' }}
+
                           onClick={() => selectRepo(repo)}
-                          className={`w-full text-start px-4 py-3 flex items-start gap-3 transition-colors cursor-pointer ${
+                          className={`w-full text-start px-4 py-3 flex items-start gap-3 cursor-pointer ${
                             isSelected ? 'bg-accent/10' : ''
                           }`}
                         >
@@ -442,11 +438,11 @@ export function CloneRepoModal({
                           {isSelected ? (
                             <IconCheck className="w-4 h-4 text-accent-bright shrink-0 mt-0.5" />
                           ) : (
-                            <span className="text-xs text-accent opacity-0 group-hover:opacity-100 shrink-0 mt-0.5 transition-opacity">
+                            <span className="text-xs text-accent opacity-0 group-hover:opacity-100 shrink-0 mt-0.5 ">
                               {t('clone_repo_select')}
                             </span>
                           )}
-                        </motion.button>
+                        </button>
                       )
                     })
                   )}
@@ -462,7 +458,7 @@ export function CloneRepoModal({
                         <button
                           type="button"
                           onClick={loadMoreRepos}
-                          className="w-full py-3 text-xs font-medium text-accent-bright hover:bg-raised transition-colors cursor-pointer"
+                          className="w-full py-3 text-xs font-medium text-accent-bright hover:bg-raised cursor-pointer"
                         >
                           {t('load_more')}
                         </button>
@@ -524,14 +520,14 @@ export function CloneRepoModal({
                   className={`${inputClass(locationInvalid)} flex-1 text-muted truncate`}
                   placeholder={t('choose_folder_placeholder')}
                 />
-                <motion.button
+                <button
 
-                  data-press-feedback
+
                   onClick={pickLocation}
-                  className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm transition-colors shrink-0"
+                  className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn border border-outline/50 hover:border-accent-dim hover:bg-raised text-sm shrink-0"
                 >
                   {t('browse')}
-                </motion.button>
+                </button>
               </div>
             </div>
 
@@ -544,7 +540,7 @@ export function CloneRepoModal({
                   <button
                     type="button"
                     onClick={() => setCategory(null)}
-                    className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-btn border text-xs font-medium transition-colors ${
+                    className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-btn border text-xs font-medium  ${
                       category === null
                         ? 'border-accent bg-accent/10 text-accent-bright'
                         : 'border-outline/50 text-muted hover:border-accent-dim hover:text-ink hover:bg-raised'
@@ -560,7 +556,7 @@ export function CloneRepoModal({
                       key={cat.id}
                       type="button"
                       onClick={() => setCategory(cat.name)}
-                      className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-btn border text-xs font-medium transition-colors ${
+                      className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-btn border text-xs font-medium  ${
                         category === cat.name
                           ? 'border-accent bg-accent/10 text-accent-bright'
                           : 'border-outline/50 text-muted hover:border-accent-dim hover:text-ink hover:bg-raised'
@@ -593,10 +589,10 @@ export function CloneRepoModal({
           </div>
         </div>
 
-        <AnimatePresence>
+
           {error && (
-            <motion.div key="error"
-              {...uiMotion.surface('tooltip', 'none')}
+            <div key="error"
+
 
               className="px-6 overflow-hidden"
             >
@@ -604,24 +600,24 @@ export function CloneRepoModal({
                 <IconAlertTriangle className="w-4 h-4 text-danger shrink-0 mt-0.5" />
                 <p className="text-xs text-danger leading-relaxed">{error}</p>
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+
 
         <div className="flex justify-end gap-2.5 p-6 pt-4 border-t border-line">
-          <motion.button key="error"
-            data-press-feedback
+          <button key="error"
+
             onClick={onClose}
             disabled={busy}
-            className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-50"
+            className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised disabled:opacity-50"
           >
             {t('cancel')}
-          </motion.button>
-          <motion.button key="error"
-            data-press-feedback={busy ? undefined : true}
+          </button>
+          <button key="error"
+
             onClick={submit}
             disabled={busy}
-            className="focus-ring px-5 cursor-pointer py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white transition-colors flex items-center gap-2"
+            className="focus-ring px-5 cursor-pointer py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white flex items-center gap-2"
           >
             {busy ? (
               <>
@@ -631,10 +627,10 @@ export function CloneRepoModal({
             ) : (
               t('clone_import')
             )}
-          </motion.button>
+          </button>
         </div>
-      </motion.div>
-    </motion.div>,
+      </div>
+    </div>,
     document.body,
   )
 }

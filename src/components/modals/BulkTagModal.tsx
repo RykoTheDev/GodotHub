@@ -52,7 +52,6 @@ export function BulkTagModal({ projects, onClose, onApplied }: Props) {
     <ModalShell
       icon={<IconTags className="w-5 h-5" />}
       title={t('bulk_tags_title')}
-      description={t('bulk_tags_desc')}
       maxWidth="max-w-md"
       onClose={onClose}
     >
@@ -66,13 +65,13 @@ export function BulkTagModal({ projects, onClose, onApplied }: Props) {
               if (e.key === 'Enter') void addTag()
             }}
             placeholder={t('tag_input_placeholder')}
-            className="focus-ring flex-1 min-w-0 bg-base border border-outline/50 rounded-item px-3 py-2 text-xs text-ink placeholder:text-muted focus:border-accent-dim outline-none transition-colors"
+            className="focus-ring flex-1 min-w-0 bg-base border border-outline/50 rounded-item px-3 py-2 text-xs text-ink placeholder:text-muted focus:border-accent-dim outline-none "
           />
           <button
             type="button"
             onClick={() => void addTag()}
             disabled={!tagInput.trim()}
-            className="focus-ring cursor-pointer shrink-0 inline-flex items-center gap-1.5 px-3 rounded-item bg-accent/15 border border-accent/40 text-accent-bright hover:bg-accent/25 text-xs font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            className="focus-ring cursor-pointer shrink-0 inline-flex items-center gap-1.5 px-3 rounded-item bg-accent/15 border border-accent/40 text-accent-bright hover:bg-accent/25 text-xs font-medium disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <IconPlus className="w-3 h-3" />
             {t('add_tag')}
@@ -98,7 +97,7 @@ export function BulkTagModal({ projects, onClose, onApplied }: Props) {
                   type="button"
                   onClick={() => void removeTag(tag)}
                   aria-label={t('remove_tag')}
-                  className="focus-ring cursor-pointer shrink-0 p-1 rounded text-muted/60 hover:text-danger hover:bg-danger/10 transition-colors"
+                  className="focus-ring cursor-pointer shrink-0 p-1 rounded text-muted/60 hover:text-danger hover:bg-danger/10 "
                 >
                   <IconX className="w-3 h-3" />
                 </button>

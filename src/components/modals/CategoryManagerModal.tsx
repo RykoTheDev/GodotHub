@@ -1,6 +1,5 @@
 import { useState, useCallback, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { motion, AnimatePresence } from 'framer-motion'
 import {
   DndContext,
   DragOverlay,
@@ -27,7 +26,6 @@ import { ColorSwatchPicker } from '../ui/ColorSwatchPicker'
 import { CATEGORY_COLORS } from '../../lib/categoryColors'
 import { DragHandle } from '../reusables/DragHandle'
 import { api } from '../../lib/api'
-import { useSettings } from '../../hooks/useSettings'
 import {
   IconCheck,
   IconFolder,
@@ -75,7 +73,6 @@ function SortableCategoryItem({
   onAssignFolder: () => void
   onRemoveFolder: (folder: string) => void
 }) {
-  const { settings } = useSettings()
   const { t } = useTranslation('common')
   const {
     attributes,
@@ -83,16 +80,15 @@ function SortableCategoryItem({
     setNodeRef,
     setActivatorNodeRef,
     transform,
-    transition,
     isDragging,
   } = useSortable({
     id: category.id,
     disabled: editing,
+    transition: null,
   })
 
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
-    transition,
     opacity: isDragging ? 0.4 : 1,
   }
 
@@ -100,7 +96,7 @@ function SortableCategoryItem({
     <div
       ref={setNodeRef}
       style={style}
-      className={`group flex flex-col rounded-xl border transition-[border-color,box-shadow,scale] ${
+      className={`group flex flex-col rounded-xl border  ${
         isDragging
           ? 'border-accent shadow-lg shadow-accent/10 scale-[1.02] z-10'
           : 'border-line/60 hover:border-accent-dim/50 hover:shadow-sm'
@@ -129,7 +125,7 @@ function SortableCategoryItem({
                     onCancelEdit()
                   }
                 }}
-                className="focus-ring w-full bg-base border border-accent/40 rounded-lg px-3 py-2 text-sm focus:border-accent-dim transition-colors outline-none"
+                className="focus-ring w-full bg-base border border-accent/40 rounded-lg px-3 py-2 text-sm focus:border-accent-dim outline-none"
               />
               <ColorSwatchPicker
                 label=""
@@ -142,14 +138,14 @@ function SortableCategoryItem({
               <button
                 onClick={onSubmitEdit}
                 aria-label={t('save')}
-                className="focus-ring cursor-pointer p-2 rounded-lg text-green-500 hover:bg-green-500/10 transition-colors"
+                className="focus-ring cursor-pointer p-2 rounded-lg text-green-500 hover:bg-green-500/10 "
               >
                 <IconCheck className="w-4 h-4" />
               </button>
               <button
                 onClick={onCancelEdit}
                 aria-label={t('cancel')}
-                className="focus-ring cursor-pointer p-2 rounded-lg text-muted hover:bg-raised transition-colors"
+                className="focus-ring cursor-pointer p-2 rounded-lg text-muted hover:bg-raised "
               >
                 <IconX className="w-3.5 h-3.5" />
               </button>
@@ -171,18 +167,18 @@ function SortableCategoryItem({
                 )}
               </div>
             </div>
-            <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 ">
               <button
                 onClick={onStartEdit}
                 aria-label={t('edit_category', { name: category.name })}
-                className="focus-ring cursor-pointer p-2 rounded-lg text-muted hover:text-ink hover:bg-base transition-colors"
+                className="focus-ring cursor-pointer p-2 rounded-lg text-muted hover:text-ink hover:bg-base "
               >
                 <IconPencil className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={onConfirmDelete}
                 aria-label={t('delete_category', { name: category.name })}
-                className="focus-ring cursor-pointer p-2 rounded-lg text-muted hover:text-danger hover:bg-danger/10 transition-colors"
+                className="focus-ring cursor-pointer p-2 rounded-lg text-muted hover:text-danger hover:bg-danger/10 "
               >
                 <IconTrash className="w-3.5 h-3.5" />
               </button>
@@ -191,7 +187,7 @@ function SortableCategoryItem({
         )}
       </div>
       {!editing && (
-        <div className="px-12 pb-1 pt-0">
+        <div className={`px-12 pt-0 ${projects.length > 0 ? 'pb-1' : 'pb-3'}`}>
           <div className="flex flex-wrap items-center gap-1.5">
             {category.folders.map((folder) => (
               <span
@@ -200,8 +196,8 @@ function SortableCategoryItem({
               >
                 <IconFolder className="w-3 h-3 text-muted/60 shrink-0" />
                 <span
-                  className="sensitive text-2xs text-muted truncate font-mono"
-                  title={settings.privacy_mode ? undefined : folder}
+                  className="text-2xs text-muted truncate font-mono"
+                  title={folder}
                 >
                   {folder}
                 </span>
@@ -210,7 +206,7 @@ function SortableCategoryItem({
                   disabled={busy}
                   onClick={() => onRemoveFolder(folder)}
                   aria-label={t('unassign_folder_aria', { folder })}
-                  className="focus-ring cursor-pointer shrink-0 p-1 rounded-md text-muted/50 hover:text-danger hover:bg-danger/10 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="focus-ring cursor-pointer shrink-0 p-1 rounded-md text-muted/50 hover:text-danger hover:bg-danger/10 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   <IconX className="w-2.5 h-2.5" />
                 </button>
@@ -221,7 +217,7 @@ function SortableCategoryItem({
               disabled={busy}
               onClick={onAssignFolder}
               aria-label={t('assign_folder_to_category', { name: category.name })}
-              className="focus-ring cursor-pointer flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-dashed border-outline/50 text-2xs text-muted hover:text-accent-bright hover:border-accent-dim transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="focus-ring cursor-pointer flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-dashed border-outline/50 text-2xs text-muted hover:text-accent-bright hover:border-accent-dim disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <IconFolderPlus className="w-3 h-3" />
               {t('assign_folder')}
@@ -235,7 +231,7 @@ function SortableCategoryItem({
             {projects.slice(0, 8).map((p) => (
               <div
                 key={p.id}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-overlay/60 border border-outline/20 max-w-[160px] hover:bg-overlay transition-colors"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-overlay/60 border border-outline/20 max-w-[160px] hover:bg-overlay "
               >
                 <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: category.color }} />
                 <span className="text-2xs text-muted truncate">{p.name}</span>
@@ -447,7 +443,6 @@ export function CategoryManagerModal({
     <ModalShell
       icon={<IconTags className="w-5 h-5 text-accent-bright" />}
       title={t('manage_categories')}
-      description={t('manage_categories_desc')}
       maxWidth="max-w-2xl"
       onClose={onClose}
       footer={
@@ -461,48 +456,59 @@ export function CategoryManagerModal({
       }
     >
       <div className="p-6 pt-0 flex flex-col gap-5">
-        <div className="flex flex-col gap-3">
-          <div className="flex gap-2.5">
-            <input
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') submitNew()
-              }}
-              placeholder={t('new_category_placeholder')}
-              className="focus-ring flex-1 bg-raised border border-line rounded-xl px-4 py-3 text-sm focus:border-accent-dim transition-colors outline-none"
-            />
-            <motion.button
-
-              data-press-feedback={busy ? undefined : true}
-              onClick={submitNew}
-              disabled={busy || !newName.trim()}
-              className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-3 rounded-xl bg-accent hover:bg-accent-bright disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium text-white transition-colors"
-            >
-              <IconPlus className="w-4 h-4" />
-              {t('add')}
-            </motion.button>
-          </div>
-          <ColorSwatchPicker
-            label={t('color_label')}
-            value={newColor}
-            onChange={setNewColor}
-            presets={CATEGORY_COLORS}
-          />
-        </div>
-
-        {error && (
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-danger/10 border border-danger/20">
-            <p className="text-xs text-danger">{error}</p>
-          </div>
-        )}
-
         {categories.length > 0 && (
           <div className="flex items-start gap-2.5 px-3.5 py-2.5 rounded-lg bg-overlay/40 border border-outline/25">
             <IconFolder className="w-3.5 h-3.5 text-muted/60 shrink-0 mt-0.5" />
             <p className="text-2xs text-muted leading-relaxed">
               {t('category_folders_hint')}
             </p>
+          </div>
+        )}
+
+        <div className="flex flex-col gap-3">
+          <div className="flex gap-2.5">
+            <div className="flex-1 min-w-0 flex items-center bg-raised border border-line rounded-xl focus-within:border-accent-dim">
+              <ColorSwatchPicker
+                value={newColor}
+                onChange={setNewColor}
+                presets={CATEGORY_COLORS}
+                trigger={({ open, toggle }) => (
+                  <button
+                    type="button"
+                    onClick={toggle}
+                    aria-expanded={open}
+                    aria-label={t('color_label')}
+                    className="focus-ring cursor-pointer ms-3 w-6 h-6 rounded-full border border-black/20 shadow-inner shrink-0 hover:scale-110"
+                    style={{ backgroundColor: newColor }}
+                  />
+                )}
+              />
+              <input
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') submitNew()
+                }}
+                placeholder={t('new_category_placeholder')}
+                className="flex-1 min-w-0 bg-transparent px-3 py-3 text-sm outline-none"
+              />
+            </div>
+            <button
+
+
+              onClick={submitNew}
+              disabled={busy || !newName.trim()}
+              className="focus-ring cursor-pointer shrink-0 flex items-center gap-2 px-5 py-3 rounded-xl bg-accent hover:bg-accent-bright disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium text-white "
+            >
+              <IconPlus className="w-4 h-4" />
+              {t('add')}
+            </button>
+          </div>
+        </div>
+
+        {error && (
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-danger/10 border border-danger/20">
+            <p className="text-xs text-danger">{error}</p>
           </div>
         )}
 
@@ -528,8 +534,7 @@ export function CategoryManagerModal({
                   </div>
                 </div>
               ) : (
-                <AnimatePresence initial={false}>
-                  {items.map((id) => {
+                items.map((id) => {
                     const cat = categories.find((c) => c.id === id)
                     if (!cat) return null
                     return (
@@ -551,18 +556,12 @@ export function CategoryManagerModal({
                         onRemoveFolder={(folder) => void removeFolder(cat, folder)}
                       />
                     )
-                  })}
-                </AnimatePresence>
+                  })
               )}
             </div>
           </SortableContext>
 
-          <DragOverlay
-            dropAnimation={{
-              duration: 250,
-              easing: 'cubic-bezier(0.34, 1.56, 0.64, 1)',
-            }}
-          >
+          <DragOverlay dropAnimation={null}>
             {draggedCategory ? (
               <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-accent bg-raised shadow-xl shadow-accent/10">
                 <IconGrip className="w-4 h-4 text-muted/50 shrink-0" />

@@ -680,6 +680,11 @@ export interface AppSettings {
   screen_reader_announcements: boolean
   project_icon_opacity: number
   animation_threshold: number
+  animation_speed: number
+  motion_scroll_reveal: boolean
+  motion_card_tilt: boolean
+  motion_click_ripple: boolean
+  motion_press_bounce: boolean
   language: string
   use_os_decorations: boolean
   directory_naming_convention: NamingConvention
@@ -698,7 +703,6 @@ export interface AppSettings {
   card_show_size: boolean
   card_show_time: boolean
   card_blur_path: boolean
-  privacy_mode: boolean
   card_show_path: boolean
   card_show_tags: boolean
   card_show_last_opened: boolean

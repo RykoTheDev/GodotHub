@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { motion, AnimatePresence } from 'framer-motion'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { api } from '../../lib/api'
 import { useProjectsContext } from '../../hooks/projectsContext'
@@ -12,7 +11,6 @@ import {
 } from '../../lib/assetSort'
 import type { AssetLibraryAsset } from '../../types'
 import { cachedAssetSearch } from '../../lib/assetSearchCache'
-import { isReducedMotion } from '../../lib/appearance'
 import { OpenButton } from '../reusables/OpenButton'
 import { AssetCard } from './AssetCard'
 import {
@@ -178,7 +176,7 @@ export function AssetStoreBrowser({
     const viewport = rootRef.current?.closest('.new-ui-scroll-viewport')
     viewport?.scrollTo({
       top: 0,
-      behavior: isReducedMotion() ? 'auto' : 'smooth',
+      behavior: 'auto',
     })
   }
 
@@ -249,26 +247,25 @@ export function AssetStoreBrowser({
 
   return (
     <div ref={rootRef} className="flex flex-col gap-3">
-      <AnimatePresence>
+
         {notice && (
-          <motion.div key="div-251"
-            initial={{ opacity: 0, y: -6 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -6 }}
+          <div key="div-251"
+
+
             className="flex items-center gap-2 px-3.5 py-2.5 rounded-item border border-mint/20 bg-mint/10 text-xs text-mint"
           >
             <IconCheck className="w-3.5 h-3.5 shrink-0" />
             <span className="min-w-0 wrap-break-word">{notice}</span>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+
 
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <div
               key={i}
-              className="border border-outline/50 rounded-item bg-overlay overflow-hidden flex flex-col animate-pulse"
+              className="border border-outline/50 rounded-item bg-overlay overflow-hidden flex flex-col "
             >
               <div className="h-24 bg-raised" />
               <div className="p-4 flex flex-col gap-2.5 flex-1">
@@ -294,7 +291,7 @@ export function AssetStoreBrowser({
           </p>
           <button
             onClick={() => load(0)}
-            className="focus-ring cursor-pointer px-4 py-2 rounded-item border border-outline/50 hover:bg-raised text-xs font-medium text-ink transition-colors"
+            className="focus-ring cursor-pointer px-4 py-2 rounded-item border border-outline/50 hover:bg-raised text-xs font-medium text-ink "
           >
             {t('retry')}
           </button>
@@ -309,7 +306,7 @@ export function AssetStoreBrowser({
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            <AnimatePresence mode="popLayout">
+
               {assets.map((asset) => {
                 const isInstalled = installed.has(asset.asset_id)
                 const isDownloaded = downloaded.has(asset.asset_id)
@@ -358,21 +355,21 @@ export function AssetStoreBrowser({
                   />
                 )
               })}
-            </AnimatePresence>
+
           </div>
 
           {(page > 0 || page + 1 < pages) && (
             <div className="flex items-center justify-center gap-1.5 flex-wrap">
-                <motion.button key="button-363"
+                <button key="button-363"
                   type="button"
-                  data-press-feedback
+
                   onClick={() => navigate(page - 1)}
                   disabled={page <= 0 || paging}
                   aria-label={t('asset_prev_page')}
-                  className="focus-ring cursor-pointer flex items-center justify-center w-9 h-9 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                  className="focus-ring cursor-pointer flex items-center justify-center w-9 h-9 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:bg-raised disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                 >
                   <IconChevronLeft className="rtl:rotate-180 w-4 h-4" />
-                </motion.button>
+                </button>
               {pageItems().map((item, i) =>
                 item === 'ellipsis' ? (
                   <span
@@ -383,10 +380,10 @@ export function AssetStoreBrowser({
                     …
                   </span>
                 ) : (
-                  <motion.button
+                  <button
                     key={item}
                     type="button"
-                    data-press-feedback
+
                     onClick={() => navigate(item)}
                     disabled={paging}
                     aria-label={t('asset_page_x_of_y', {
@@ -394,32 +391,32 @@ export function AssetStoreBrowser({
                       total: pages,
                     })}
                     aria-current={item === page ? 'page' : undefined}
-                    className={`focus-ring cursor-pointer min-w-9 h-9 px-2.5 flex items-center justify-center rounded-item text-xs font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0 ${
+                    className={`focus-ring cursor-pointer min-w-9 h-9 px-2.5 flex items-center justify-center rounded-item text-xs font-medium disabled:opacity-40 disabled:cursor-not-allowed shrink-0 ${
                       item === page
                         ? 'bg-accent text-white'
                         : 'bg-overlay border border-outline/50 text-muted hover:text-ink hover:bg-raised'
                     }`}
                   >
                     {item + 1}
-                  </motion.button>
+                  </button>
                 ),
               )}
-                <motion.button
+                <button
                   type="button"
-                  data-press-feedback
+
                   onClick={() => navigate(page + 1)}
                   disabled={page + 1 >= pages || paging}
                   aria-label={t('asset_next_page')}
-                  className="focus-ring cursor-pointer flex items-center justify-center w-9 h-9 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:bg-raised transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+                  className="focus-ring cursor-pointer flex items-center justify-center w-9 h-9 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:bg-raised disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
                 >
                   <IconChevronRight className="rtl:rotate-180 w-4 h-4" />
-                </motion.button>
+                </button>
             </div>
           )}
         </>
       )}
 
-      <AnimatePresence>
+
         {installAsset && (
           <InstallAssetModal
             asset={installAsset}
@@ -427,7 +424,7 @@ export function AssetStoreBrowser({
             onInstalled={handleInstalled}
           />
         )}
-      </AnimatePresence>
+
     </div>
   )
 }

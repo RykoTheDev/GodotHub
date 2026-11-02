@@ -44,7 +44,7 @@ export function SearchBar({
   return (
     <div className="relative">
       <div
-        className={`shrink-0 flex items-center gap-2 px-3.5 h-12 rounded-item bg-overlay border border-outline/50 focus-within:border-accent-dim focus-within:bg-raised transition-colors ${className}`}
+        className={`shrink-0 flex items-center gap-2 px-3.5 h-12 rounded-item bg-overlay border border-outline/50 focus-within:border-accent-dim focus-within:bg-raised  ${className}`}
       >
         <IconSearch className="w-4 h-4 text-muted shrink-0" />
         <input
@@ -69,7 +69,7 @@ export function SearchBar({
                 onChange('')
                 requestAnimationFrame(() => ownRef.current?.focus())
               }}
-              className="focus-ring cursor-pointer flex items-center justify-center w-6 h-6 rounded-btn text-muted hover:text-ink hover:bg-raised transition-colors"
+              className="focus-ring cursor-pointer flex items-center justify-center w-6 h-6 rounded-btn text-muted hover:text-ink hover:bg-raised "
             >
               <IconX className="w-3.5 h-3.5" />
             </button>

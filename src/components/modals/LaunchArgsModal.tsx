@@ -1,11 +1,9 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import { ModalShell } from './ModalShell'
 import { IconCode } from '../../lib/icons'
 
 interface Props {
-  projectName: string
   currentArgs: string
   onSave: (args: string) => void
   onClose: () => void
@@ -24,7 +22,6 @@ const SUGGESTIONS = [
 ]
 
 export function LaunchArgsModal({
-  projectName,
   currentArgs,
   onSave,
   onClose,
@@ -43,33 +40,26 @@ export function LaunchArgsModal({
     <ModalShell
       icon={<IconCode className="w-5 h-5" />}
       title={t('launch_arguments')}
-      description={
-        <>
-          {t('args_desc_custom_flags_before')}{' '}
-          <span className="font-medium text-ink">{projectName}</span>
-          {t('args_desc_custom_flags_after')}
-        </>
-      }
       maxWidth="max-w-lg"
       onClose={onClose}
       footer={
         <>
-          <motion.button
+          <button
 
-            data-press-feedback
+
             onClick={onClose}
-            className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg text-sm text-muted hover:text-ink hover:bg-raised transition-colors ms-auto"
+            className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg text-sm text-muted hover:text-ink hover:bg-raised ms-auto"
           >
             {t('cancel')}
-          </motion.button>
-          <motion.button
+          </button>
+          <button
 
-            data-press-feedback
+
             onClick={() => onSave(args.trim())}
-            className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg bg-accent hover:bg-accent-bright text-sm font-medium text-white transition-colors"
+            className="focus-ring cursor-pointer px-4 py-2.5 rounded-lg bg-accent hover:bg-accent-bright text-sm font-medium text-white "
           >
             {t('save')}
-          </motion.button>
+          </button>
         </>
       }
     >
@@ -80,7 +70,7 @@ export function LaunchArgsModal({
             value={args}
             onChange={(e) => setArgs(e.target.value)}
             placeholder={t('args_placeholder')}
-            className="focus-ring bg-raised border border-line rounded-lg px-3.5 py-2.5 text-sm font-mono text-ink focus:border-accent-dim transition-colors"
+            className="focus-ring bg-raised border border-line rounded-lg px-3.5 py-2.5 text-sm font-mono text-ink focus:border-accent-dim "
           />
           <p className="text-2xs text-muted/60">
             {t('args_desc_separate_prefix')}{' '}
@@ -98,7 +88,7 @@ export function LaunchArgsModal({
                 type="button"
                 onClick={() => append(t(s.labelKey))}
                 title={t(s.descKey)}
-                className="focus-ring cursor-pointer px-2.5 py-1 rounded-md bg-raised border border-line text-2xs font-mono text-muted hover:text-ink hover:border-accent-dim transition-colors"
+                className="focus-ring cursor-pointer px-2.5 py-1 rounded-md bg-raised border border-line text-2xs font-mono text-muted hover:text-ink hover:border-accent-dim "
               >
                 {t(s.labelKey)}
               </button>

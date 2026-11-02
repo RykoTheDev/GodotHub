@@ -1,7 +1,5 @@
-import { useUiMotion } from '../../hooks/useUiMotion'
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 
 import { IconCheckCircle, IconExternalLink, IconGitBranch } from "../../lib/icons";
@@ -41,7 +39,6 @@ export function ProjectTodoDetailsModal({
   onUpdate,
   onClose,
 }: ProjectTodoDetailsModalProps) {
-  const uiMotion = useUiMotion()
 
   const { t, i18n } = useTranslation(["todos", "common"]);
   const locale = i18n.resolvedLanguage ?? i18n.language;
@@ -155,16 +152,16 @@ export function ProjectTodoDetailsModal({
   }, []);
 
   return createPortal(
-    <motion.div
-      {...uiMotion.surface('modal', `none`)}
+    <div
 
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
       onClick={onClose}
     >
-      <motion.div
+      <div
         role="dialog"
         aria-modal="true"
-        {...uiMotion.surface('modal', `scale(0.96)`)}
+
 
         className="flex h-[min(720px,88vh)] w-full max-w-lg flex-col overflow-clip rounded-modal bg-surface shadow-2xl"
         onClick={(event) => event.stopPropagation()}
@@ -173,7 +170,6 @@ export function ProjectTodoDetailsModal({
           icon={<IconCheckCircle className="h-5 w-5 text-accent-bright" />}
           title={todo.title}
           titleClassName="line-clamp-2 leading-tight"
-          description={t("task_details")}
           onClose={onClose}
           autoFocusBanner={false}
         />
@@ -260,7 +256,7 @@ export function ProjectTodoDetailsModal({
                 <button
                   type="button"
                   onClick={() => onOpenLink(todo)}
-                  className="focus-ring inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-btn border border-outline/50 px-2.5 py-1.5 text-2xs font-medium text-muted transition-colors hover:border-accent-dim hover:bg-raised hover:text-ink"
+                  className="focus-ring inline-flex shrink-0 cursor-pointer items-center gap-1.5 rounded-btn border border-outline/50 px-2.5 py-1.5 text-2xs font-medium text-muted hover:border-accent-dim hover:bg-raised hover:text-ink"
                 >
                   <IconExternalLink className="h-3 w-3" />
                   {t("open_file")}
@@ -426,18 +422,18 @@ export function ProjectTodoDetailsModal({
         </div>
 
         <div className="flex justify-end p-5 pt-2">
-          <motion.button
+          <button
             type="button"
 
-            data-press-feedback
+
             onClick={onClose}
-            className="focus-ring cursor-pointer rounded-btn border border-outline/50 px-4 py-2.5 text-sm text-muted transition-colors hover:border-accent-dim hover:bg-raised hover:text-ink"
+            className="focus-ring cursor-pointer rounded-btn border border-outline/50 px-4 py-2.5 text-sm text-muted hover:border-accent-dim hover:bg-raised hover:text-ink"
           >
             {t("close", { ns: "common" })}
-          </motion.button>
+          </button>
         </div>
-      </motion.div>
-    </motion.div>,
+      </div>
+    </div>,
     document.body,
   );
 }

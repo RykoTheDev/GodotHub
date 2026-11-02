@@ -19,7 +19,8 @@ import {
 } from '../lib/colors'
 import {
   applyAppearance,
-  applyAnimationIntensity,
+  applyMotion,
+  motionSettingsChanged,
   applyCustomCss,
   applyDensity,
   applyFontScale,
@@ -53,7 +54,7 @@ export const DEFAULTS: AppSettings = {
   theme_mode: 'dark',
   custom_css: '',
   animation_intensity: 'full',
-  view_entrance: 'fade',
+  view_entrance: 'slide',
   launch_with_console: false,
   builtin_console: true,
   git_auto_fetch: false,
@@ -90,6 +91,11 @@ export const DEFAULTS: AppSettings = {
   screen_reader_announcements: true,
   project_icon_opacity: 14,
   animation_threshold: 20,
+  animation_speed: 1.5,
+  motion_scroll_reveal: true,
+  motion_card_tilt: true,
+  motion_click_ripple: true,
+  motion_press_bounce: true,
   language: 'en-US',
   use_os_decorations: false,
   directory_naming_convention: 'keep',
@@ -108,7 +114,6 @@ export const DEFAULTS: AppSettings = {
   card_show_size: true,
   card_show_time: true,
   card_blur_path: false,
-  privacy_mode: false,
   card_show_path: true,
   card_show_tags: true,
   card_show_last_opened: true,
@@ -154,14 +159,12 @@ function applySettingsAppearance(prev: AppSettings, next: AppSettings) {
   if (next.corner_radius !== prev.corner_radius) applyRadius(next.corner_radius)
   if (next.ui_density !== prev.ui_density) applyDensity(next.ui_density)
   if (next.font_scale !== prev.font_scale) applyFontScale(next.font_scale)
-  if (next.animation_intensity !== prev.animation_intensity) {
-    applyAnimationIntensity(next.animation_intensity)
-  }
   if (next.custom_css !== prev.custom_css) applyCustomCss(next.custom_css)
   if (next.show_scrollbars !== prev.show_scrollbars) applyScrollbars(next.show_scrollbars)
   if (next.project_icon_opacity !== prev.project_icon_opacity) {
     applyProjectIconOpacity(next.project_icon_opacity)
   }
+  if (motionSettingsChanged(prev, next)) applyMotion(next)
   if (next.language && next.language !== prev.language) {
     const resolvedLanguage = resolveLanguage(next.language)
     localStorage.setItem('i18nextLng', resolvedLanguage)

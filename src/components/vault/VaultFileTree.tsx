@@ -90,7 +90,7 @@ export function VaultFileTree({ entries }: { entries: VaultFileEntry[] }) {
     return (
       <div key={node.path}>
         <div
-          className={`flex items-center gap-2 px-2 py-1 rounded-item text-xs hover:bg-raised/60 transition-colors cursor-default ${
+          className={`flex items-center gap-2 px-2 py-1 rounded-item text-xs hover:bg-raised/60 cursor-default ${
             depth === 0 ? 'font-medium text-ink' : 'text-muted'
           }`}
           style={{ paddingLeft: `${depth * 16 + 8}px` }}
@@ -98,7 +98,7 @@ export function VaultFileTree({ entries }: { entries: VaultFileEntry[] }) {
           {hasChildren ? (
             <button
               onClick={() => toggle(node.path)}
-              className="focus-ring cursor-pointer p-0.5 text-muted hover:text-ink transition-colors"
+              className="focus-ring cursor-pointer p-0.5 text-muted hover:text-ink "
               aria-label={isCollapsed ? t('expand') : t('collapse')}
             >
               {isCollapsed ? (
@@ -116,7 +116,7 @@ export function VaultFileTree({ entries }: { entries: VaultFileEntry[] }) {
           <span className="truncate">{node.name}</span>
 
           {!node.is_dir && node.size > 0 && (
-            <span className="ms-auto text-[10px] text-muted/50 font-mono shrink-0">
+            <span className="ms-auto text-3xs text-muted/50 font-mono shrink-0">
               {formatSize(node.size)}
             </span>
           )}
@@ -173,14 +173,14 @@ export function SelectableVaultFileTree({
     return (
       <div key={node.path}>
         <div
-          className="flex items-center gap-2 px-2 py-1 rounded-item text-xs hover:bg-raised/60 transition-colors"
+          className="flex items-center gap-2 px-2 py-1 rounded-item text-xs hover:bg-raised/60 "
           style={{ paddingLeft: `${depth * 16 + 8}px` }}
         >
           {hasChildren ? (
             <button
               type="button"
               onClick={() => toggleCollapse(node.path)}
-              className="focus-ring cursor-pointer p-0.5 text-muted hover:text-ink transition-colors"
+              className="focus-ring cursor-pointer p-0.5 text-muted hover:text-ink "
               aria-label={isCollapsed ? t('expand') : t('collapse')}
             >
               {isCollapsed ? (
@@ -198,7 +198,7 @@ export function SelectableVaultFileTree({
             disabled={covered}
             onClick={() => onToggle(node.rel)}
             aria-pressed={checked}
-            className={`focus-ring shrink-0 w-4 h-4 rounded-[5px] border flex items-center justify-center transition-colors ${
+            className={`focus-ring shrink-0 w-4 h-4 rounded-[5px] border flex items-center justify-center  ${
               checked
                 ? 'bg-accent border-accent text-white'
                 : 'bg-base border-outline/60 hover:border-accent-dim'
@@ -221,7 +221,7 @@ export function SelectableVaultFileTree({
           </span>
 
           {!node.is_dir && node.size > 0 && (
-            <span className="ms-auto text-[10px] text-muted/50 font-mono shrink-0">
+            <span className="ms-auto text-3xs text-muted/50 font-mono shrink-0">
               {formatSize(node.size)}
             </span>
           )}

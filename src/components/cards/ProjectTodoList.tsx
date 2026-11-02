@@ -66,7 +66,7 @@ function SortableRow({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id, disabled: !enabled });
+  } = useSortable({ id, disabled: !enabled, transition: null });
 
   const grip = enabled ? (
     <button
@@ -75,7 +75,7 @@ function SortableRow({
       {...attributes}
       {...listeners}
       aria-label={label}
-      className="focus-ring flex h-5 w-3.5 shrink-0 cursor-grab touch-none items-center justify-center rounded-btn text-muted/50 transition-colors hover:text-ink active:cursor-grabbing"
+      className="focus-ring flex h-5 w-3.5 shrink-0 cursor-grab touch-none items-center justify-center rounded-btn text-muted/50 hover:text-ink active:cursor-grabbing"
     >
       <IconGrip className="h-2.5 w-2.5" />
     </button>
@@ -90,7 +90,7 @@ function SortableRow({
         position: "relative",
         zIndex: isDragging ? 10 : undefined,
       }}
-      className={`ui-rise ${className} ${isDragging ? "bg-raised shadow-md" : ""}`}
+      className={` ${className} ${isDragging ? "bg-raised shadow-md" : ""}`}
     >
       {children(grip)}
     </div>
@@ -169,7 +169,7 @@ export function ProjectTodoList({
     <button
       type="button"
       onClick={onToggleStatusSort}
-      className={`focus-ring cursor-pointer rounded-btn text-center text-4xs font-medium uppercase tracking-wide text-muted/60 transition-colors hover:bg-raised hover:text-ink ${
+      className={`focus-ring cursor-pointer rounded-btn text-center text-4xs font-medium uppercase tracking-wide text-muted/60 hover:bg-raised hover:text-ink ${
         showArea ? "w-28" : "min-w-[88px]"
       }`}
       title={t("sort_by_status")}
@@ -187,7 +187,7 @@ export function ProjectTodoList({
     <button
       type="button"
       onClick={onToggleDueDateSort}
-      className={`focus-ring cursor-pointer rounded-btn text-4xs font-medium uppercase tracking-wide text-muted/60 transition-colors hover:bg-raised hover:text-ink ${
+      className={`focus-ring cursor-pointer rounded-btn text-4xs font-medium uppercase tracking-wide text-muted/60 hover:bg-raised hover:text-ink ${
         showArea ? "w-28 text-center" : "w-24 text-center"
       }`}
       title={t("sort_by_due_date")}
@@ -265,7 +265,7 @@ export function ProjectTodoList({
                 onClick={toggle}
                 aria-label={t("change_status", { status: status.label })}
                 aria-expanded={open}
-                className={`focus-ring shrink-0 cursor-pointer rounded-tag border px-2 py-1 text-center text-3xs transition-[filter,background-color,color,border-color,box-shadow] hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50 ${status.className} ${
+                className={`focus-ring shrink-0 cursor-pointer rounded-tag border px-2 py-1 text-center text-3xs hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50 ${status.className} ${
                   showArea ? "w-28" : "min-w-[88px]"
                 } ${open ? "ring-1 ring-accent/40" : ""}`}
               >
@@ -396,9 +396,9 @@ export function ProjectTodoList({
               className="focus-ring flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-btn disabled:cursor-not-allowed disabled:opacity-50"
             >
               {completed ? (
-                <span className="ui-pop text-mint">✓</span>
+                <span className=" text-mint">✓</span>
               ) : (
-                <span className="h-3.5 w-3.5 rounded border border-outline transition-colors hover:border-mint" />
+                <span className="h-3.5 w-3.5 rounded border border-outline hover:border-mint" />
               )}
             </button>
 
@@ -424,7 +424,7 @@ export function ProjectTodoList({
               onClick={() => onView(todo)}
               title={todo.title}
               aria-label={t("view_task_details", { title: todo.title })}
-              className={`focus-ring min-w-0 flex-1 cursor-pointer truncate rounded-btn text-start text-2xs transition-colors ${
+              className={`focus-ring min-w-0 flex-1 cursor-pointer truncate rounded-btn text-start text-2xs  ${
                 completed
                   ? "text-muted line-through hover:text-ink"
                   : "text-ink hover:text-accent-bright"
@@ -455,7 +455,7 @@ export function ProjectTodoList({
                     : todo.link.path,
                 })}
                 aria-label={t("open_linked_file", { path: todo.link.path })}
-                className="focus-ring flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-btn text-muted transition-colors hover:bg-raised hover:text-accent-bright"
+                className="focus-ring flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-btn text-muted hover:bg-raised hover:text-accent-bright"
               >
                 <IconCode className="h-3 w-3" />
               </button>
@@ -492,7 +492,7 @@ export function ProjectTodoList({
                     aria-label={t("task_actions")}
                     aria-expanded={open}
                     onClick={toggle}
-                    className={`focus-ring flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-btn transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+                    className={`focus-ring flex h-6 w-6 shrink-0 cursor-pointer items-center justify-center rounded-btn disabled:cursor-not-allowed disabled:opacity-50 ${
                       open
                         ? "bg-raised text-ink"
                         : "text-muted hover:bg-raised hover:text-ink"

@@ -92,7 +92,6 @@
   "auto_fetch_hint": "数分ごとに git fetch を実行し、プルのバッジに未取得のコミット数を常に表示します。マージは行いません。オフにすると、「フェッチ」をクリックしたときだけフェッチします。",
   "commits_to_push": "プッシュするコミット: {{count}} 件",
   "commits_to_pull": "プルするコミット: {{count}} 件",
-  "create_worktree_desc": "別のディレクトリで別のブランチの作業を行います。",
   "worktree_location_label": "ディレクトリ",
   "worktree_location_hint": "新しいディレクトリを指定してください。相対パスは現在のリポジトリを基準に解決されます。",
   "worktree_branch_label": "新しいブランチ（任意）",

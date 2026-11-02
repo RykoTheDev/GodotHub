@@ -21,7 +21,7 @@ interface Props {
 
 const categories = ['engine', 'templates', 'cache', 'scenes', 'addons', 'git', 'exports', 'registrations']
 const rank = { error: 0, warning: 1, info: 2, ok: 3 }
-const actionButton = 'focus-ring cursor-pointer inline-flex shrink-0 items-center justify-center gap-2 rounded-btn border border-line bg-raised px-3 py-2 text-xs font-medium text-ink hover:border-accent-dim hover:bg-overlay transition-colors disabled:opacity-40 disabled:cursor-not-allowed'
+const actionButton = 'focus-ring cursor-pointer inline-flex shrink-0 items-center justify-center gap-2 rounded-btn border border-line bg-raised px-3 py-2 text-xs font-medium text-ink hover:border-accent-dim hover:bg-overlay disabled:opacity-40 disabled:cursor-not-allowed'
 
 export function ProjectDoctorModal({ project, installedVersions, onClose }: Props) {
   const { t } = useTranslation('common', { keyPrefix: 'project_doctor' })
@@ -33,7 +33,6 @@ export function ProjectDoctorModal({ project, installedVersions, onClose }: Prop
   const [confirm, setConfirm] = useState<ProjectHealthCheck | null>(null)
   const [templatesOpen, setTemplatesOpen] = useState(false)
   const [showPassed, setShowPassed] = useState(false)
-  const [animatePassed, setAnimatePassed] = useState(false)
   const [queuedVersion, setQueuedVersion] = useState(false)
   const dialogContent = useRef<HTMLDivElement>(null)
   const refreshButton = useRef<HTMLButtonElement>(null)
@@ -215,8 +214,7 @@ export function ProjectDoctorModal({ project, installedVersions, onClose }: Prop
     }} />
 
   return <>
-    <ModalShell title={t('title')} icon={<IconBug className="h-5 w-5 text-accent-bright" />}
-      description={project.name} maxWidth="max-w-3xl" bodyClassName="h-[min(60vh,34rem)] shrink" onClose={confirm ? undefined : onClose}
+    <ModalShell title={t('title')} icon={<IconBug className="h-5 w-5 text-accent-bright" />} maxWidth="max-w-3xl" bodyClassName="h-[min(60vh,34rem)] shrink" onClose={confirm ? undefined : onClose}
       onKeyDown={event => {
         if (confirm) return
         if (event.key === 'Escape') { event.stopPropagation(); onClose() }
@@ -253,12 +251,12 @@ export function ProjectDoctorModal({ project, installedVersions, onClose }: Prop
             </section>
           })}
           {passed.length > 0 && <section className="mt-5 border-t border-line pt-4">
-            <button type="button" aria-expanded={showPassed} aria-controls="doctor-passed-checks" onClick={event => { setAnimatePassed(event.detail > 0); setShowPassed(!showPassed) }}
-              className="focus-ring cursor-pointer flex w-full items-center gap-2 rounded-btn text-xs text-muted hover:text-ink transition-colors">
+            <button type="button" aria-expanded={showPassed} aria-controls="doctor-passed-checks" onClick={() => setShowPassed(!showPassed)}
+              className="focus-ring cursor-pointer flex w-full items-center gap-2 rounded-btn text-xs text-muted hover:text-ink ">
               <IconCheckCircle className="h-3.5 w-3.5 text-mint" /><span className="flex-1 text-start">{t('passed_checks', {count:passed.length})}</span>
-              <DisclosureChevron open={showPassed} animate={animatePassed} />
+              <DisclosureChevron open={showPassed} />
             </button>
-            <Disclosure id="doctor-passed-checks" open={showPassed} animate={animatePassed}>{passed.map(row)}</Disclosure>
+            <Disclosure id="doctor-passed-checks" open={showPassed}>{passed.map(row)}</Disclosure>
           </section>}
         </div>}
       </div>

@@ -25,6 +25,7 @@ import { UNCATEGORIZED_KEY } from '../../lib/projectDrag'
 import { AUTO_SCROLL_CONFIG } from '../../lib/dragFeel'
 import { useProjectDnd } from '../../hooks/useProjectDnd'
 import {
+  PROJECT_DROP_ANIMATION,
   ProjectDragOverlay,
   ProjectDropLine,
   SortableProjectItem,
@@ -50,7 +51,6 @@ interface ProjectCardKanbanProps {
   activeTag?: string | null
   selectedIds: Set<string>
   onToggleSelect?: (id: string, e: React.MouseEvent) => void
-  selecting: boolean
   onReorder?: (orderedIds: string[]) => Promise<void>
   onMoveProjects?: (
     ids: string[],
@@ -87,7 +87,6 @@ export function ProjectCardKanban({
   activeTag,
   selectedIds,
   onToggleSelect,
-  selecting,
   onReorder,
   onMoveProjects,
   hiddenCategories = [],
@@ -165,11 +164,7 @@ export function ProjectCardKanban({
           onShowGitSidebar={onShowGitSidebar ? () => onShowGitSidebar(p, gitStatusMap[p.path] ?? null) : undefined}
           activeTag={activeTag}
           selected={selectedIds.has(p.id)}
-          onToggleSelect={
-            selecting || selectedIds.size > 0
-              ? (e) => onToggleSelect?.(p.id, e)
-              : undefined
-          }
+          onToggleSelect={(e) => onToggleSelect?.(p.id, e)}
         />
       )
 
@@ -182,7 +177,6 @@ export function ProjectCardKanban({
             static={dnd.activeIds.length > 1}
             carried={dnd.activeIds.includes(p.id)}
             className="mb-3"
-            gripClassName="start-1"
           >
             {card}
           </SortableProjectItem>
@@ -214,7 +208,6 @@ export function ProjectCardKanban({
       activeTag,
       selectedIds,
       onToggleSelect,
-      selecting,
       isDndEnabled,
       dnd.activeIds,
     ],
@@ -270,14 +263,12 @@ export function ProjectCardKanban({
           collisionDetection={dnd.collisionDetection ?? closestCorners}
           autoScroll={AUTO_SCROLL_CONFIG}
           onDragStart={dnd.handleDragStart}
-          onDragMove={dnd.handleDragMove}
           onDragEnd={dnd.handleDragEnd}
           onDragCancel={dnd.handleDragCancel}
         >
           {columnContent}
-          <ProjectDropLine ignorePrefix="kanban-cat-" placement={dnd.placementRef} activeIds={dnd.activeIds} />
-          <DragOverlay
-            dropAnimation={dnd.dropAnimation}
+          <ProjectDropLine ignorePrefix="kanban-cat-" placement={dnd.placementRef} activeIds={dnd.activeIds} reflows={dnd.reflows} />
+          <DragOverlay dropAnimation={PROJECT_DROP_ANIMATION}
           >
             {activeProject ? (
               <ProjectDragOverlay
@@ -292,7 +283,6 @@ export function ProjectCardKanban({
                   gitStatus={gitStatusMap[activeProject.path] ?? null}
                   launchWithConsole={launchWithConsole}
                   selected={selectedIds.has(activeProject.id)}
-                  onToggleSelect={selecting || selectedIds.size > 0 ? () => {} : undefined}
                   onShowGitSidebar={onShowGitSidebar ? () => {} : undefined}
                   activeTag={activeTag}
                   compact={compact}
@@ -371,7 +361,7 @@ function KanbanColumn({
       </div>
       <div
         ref={setNodeRef}
-        className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden rounded-item border transition-colors duration-150 ${
+        className={`flex-1 min-h-0 overflow-y-auto overflow-x-hidden rounded-item border  ${
           isOver
             ? 'bg-accent/10 border-accent/50'
             : 'bg-overlay/50 border-outline/30'

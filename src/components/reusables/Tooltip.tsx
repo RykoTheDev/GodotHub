@@ -1,9 +1,6 @@
 import { useRef, useState, useCallback, useEffect, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { AnimatePresence, motion } from 'framer-motion'
 import { useSettings } from '../../hooks/useSettings'
-import { useUiMotion } from '../../hooks/useUiMotion'
-import { motionIsInstant } from '../../lib/appearance'
 import { mirrorSide } from '../../lib/locale'
 
 interface TooltipProps {
@@ -18,9 +15,6 @@ interface TooltipProps {
 const VIEWPORT_PAD = 12
 const GAP = 8
 
-const INSTANT_AFTER_SHOWN_MS = 500
-let lastTooltipShownAt = 0
-
 export function Tooltip({
   content,
   children,
@@ -30,7 +24,6 @@ export function Tooltip({
   delay: delayProp,
 }: TooltipProps) {
   const { settings } = useSettings()
-  const { surface } = useUiMotion()
   const delay = delayProp ?? settings.tooltip_delay ?? 350
 
   const [open, setOpen] = useState(false)
@@ -41,7 +34,6 @@ export function Tooltip({
   const tipRef = useRef<HTMLDivElement>(null)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const positioned = useRef(false)
-  const instantRef = useRef(false)
 
   const calc = useCallback(
     (tr: DOMRect, tw: number, th: number) => {
@@ -109,15 +101,12 @@ export function Tooltip({
 
   const show = useCallback(() => {
     if (timer.current) clearTimeout(timer.current)
-    const instant = motionIsInstant() || (lastTooltipShownAt > 0 && performance.now() - lastTooltipShownAt < INSTANT_AFTER_SHOWN_MS)
-    instantRef.current = instant
     timer.current = setTimeout(() => {
       const tr = getTriggerRect()
       if (!tr) return
       positioned.current = false
       setPos({ x: -9999, y: -9999 })
       setOpen(true)
-      lastTooltipShownAt = performance.now()
 
       requestAnimationFrame(() => {
         if (!tipRef.current) return
@@ -128,15 +117,14 @@ export function Tooltip({
         setArrow(r.side)
         positioned.current = true
       })
-    }, instant ? 0 : delay)
+    }, delay)
   }, [getTriggerRect, calc, delay])
 
   const hide = useCallback(() => {
     if (timer.current) clearTimeout(timer.current)
-    if (open) lastTooltipShownAt = performance.now()
     setOpen(false)
     positioned.current = false
-  }, [open])
+  }, [])
 
   useEffect(() => {
     if (!open) return
@@ -217,11 +205,11 @@ export function Tooltip({
       {children}
 
       {createPortal(
-        <AnimatePresence>
-          {open && (
-            <motion.div key="div-237"
+
+          open && (
+            <div key="div-237"
               ref={tipRef}
-              {...surface('tooltip', 'scale(0.97)', instantRef.current)}
+              data-motion="tooltip"
               className="fixed z-9999 pointer-events-none"
               style={{ left: pos.x, top: pos.y, transformOrigin: ORIGIN_BY_SIDE[arrow] }}
             >
@@ -237,9 +225,9 @@ export function Tooltip({
               >
                 {content}
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>,
+            </div>
+          )
+        ,
         document.body,
       )}
     </div>

@@ -1,6 +1,5 @@
 {
   "next_steps": "次のステップ",
-  "all_tasks_description": "このプロジェクトのすべてのタスクを表示・管理します。",
   "saving_tasks": "タスクを保存中",
   "pending_count_one": "未完了 {{count}} 件",
   "pending_count_other": "未完了 {{count}} 件",
@@ -45,8 +44,6 @@
   "area_narrative": "シナリオ",
   "area_other": "その他",
   "edit_task": "タスクを編集",
-  "edit_task_description": "このタスクの情報を更新します。",
-  "new_task_description": "このプロジェクトに次のステップを追加します。",
   "title": "タイトル",
   "title_placeholder": "例: メインメニューを作成",
   "description_placeholder": "やるべきことの詳細を入力…",
@@ -55,7 +52,6 @@
   "past_due_date": "この期限はすでに過ぎています",
   "save_task_failed": "タスクを保存できませんでした。もう一度お試しください。",
   "add_task": "タスクを追加",
-  "task_details": "タスクの詳細",
   "no_description": "説明はありません",
   "tomorrow": "明日",
   "due_in_days_one": "期限まであと {{count}} 日",

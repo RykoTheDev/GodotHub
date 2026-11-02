@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation, Trans } from 'react-i18next'
-import { motion, AnimatePresence } from 'framer-motion'
-import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 import { api } from '../lib/api'
 import { pushToast } from '../lib/toast'
 import { formatLocaleDate } from '../lib/locale'
@@ -28,6 +26,7 @@ import {
   IconSearch,
   IconTrash,
 } from '../lib/icons'
+import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 
 const VAULT_SORT_KEY = 'godothub_vault_sort'
 
@@ -166,15 +165,15 @@ export function VaultView({
           </>
         }
         actions={
-          <motion.button
+          <button
             type="button"
-            data-press-feedback
+
             onClick={() => setSaveOpen(true)}
-            className="focus-ring cursor-pointer flex items-center gap-1.5 px-6 h-10 rounded-item bg-accent hover:bg-accent-bright text-white font-semibold text-[17px] transition-colors"
+            className="focus-ring cursor-pointer flex items-center gap-1.5 px-6 h-10 rounded-item bg-accent hover:bg-accent-bright text-white font-semibold text-[1.0625rem] "
           >
             <IconPlus className="w-4 h-4" />
             {tc('vault_save_btn')}
-          </motion.button>
+          </button>
         }
       >
         <div className="flex items-center gap-2">
@@ -195,7 +194,7 @@ export function VaultView({
                   key={tag}
                   type="button"
                   onClick={() => toggleTag(tag)}
-                  className={`focus-ring cursor-pointer px-2.5 py-1 rounded-tag text-[11px] font-mono transition-colors ${
+                  className={`focus-ring cursor-pointer px-2.5 py-1 rounded-tag text-2xs font-mono  ${
                     active
                       ? 'bg-accent text-white'
                       : 'bg-overlay text-muted hover:text-ink hover:bg-raised'
@@ -210,19 +209,19 @@ export function VaultView({
       </ViewHeader>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
+        className={`flex-1 min-w-0 -mt-2 ${connected ? '' : '-ms-2 -me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
         topButtonBottom="bottom-17"
       >
         <div
-          className={`h-full ${connected ? 'ps-5' : ''} pe-5 pb-4 flex flex-col gap-2`}
+          className={`h-full ${connected ? 'ps-5' : 'ps-2'} pe-5 pb-4 pt-2 flex flex-col gap-2`}
         >
           {!loaded ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={i}
-                  className="h-52 rounded-item border border-outline/50 bg-overlay animate-pulse"
+                  className="h-52 rounded-item border border-outline/50 bg-overlay "
                 />
               ))}
             </div>
@@ -252,19 +251,19 @@ export function VaultView({
                   trigger={({ open, toggle }) => {
                     const activeOption = VAULT_SORT_OPTIONS.find((o) => o.value === sortBy)
                     return (
-                      <motion.button
+                      <button
                         type="button"
                         aria-expanded={open}
-                        data-press-feedback
+
                         onClick={toggle}
-                        className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
+                        className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised "
                       >
-                        <span className="text-[12px] text-muted">{tc('sort')}:</span>
-                        <span className="text-[13px] font-medium text-ink">
+                        <span className="text-[0.75rem] text-muted">{tc('sort')}:</span>
+                        <span className="text-[0.8125rem] font-medium text-ink">
                           {activeOption ? tc(activeOption.labelKey) : tc('sort')}
                         </span>
                         <IconChevronDown className="w-3 h-3 text-muted" />
-                      </motion.button>
+                      </button>
                     )
                   }}
                   items={VAULT_SORT_OPTIONS.map((opt) => ({
@@ -276,25 +275,25 @@ export function VaultView({
                 />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                <AnimatePresence>
+
                   {filteredItems.map((item) => (
                     <div
                       key={item.id}
-                      className="relative border border-outline/50 rounded-item bg-overlay p-5 flex flex-col gap-3 group cursor-pointer hover:border-accent-dim transition-colors"
+                      className="relative border border-outline/50 rounded-item bg-overlay p-5 flex flex-col gap-3 group cursor-pointer hover:border-accent-dim "
                       onClick={() => setPreviewItem(item)}
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="w-10 h-10 rounded-tile bg-raised border border-outline/50 flex items-center justify-center shrink-0">
                           <IconBriefcase className="w-4 h-4 text-muted" />
                         </div>
-                        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 ">
                           <Tooltip content={tc('vault_edit_action')} side="top">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation()
                                 setEditItem(item)
                               }}
-                              className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 hover:text-ink hover:bg-raised transition-colors"
+                              className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 hover:text-ink hover:bg-raised "
                               aria-label={tc('vault_edit_action')}
                             >
                               <IconPencil className="w-3.5 h-3.5" />
@@ -306,7 +305,7 @@ export function VaultView({
                                 e.stopPropagation()
                                 setConfirmDelete(item.id)
                               }}
-                              className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 hover:text-danger hover:bg-danger/10 transition-colors"
+                              className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 hover:text-danger hover:bg-danger/10 "
                               aria-label={tc('vault_delete_action', { name: item.name })}
                             >
                               <IconTrash className="w-3.5 h-3.5" />
@@ -329,19 +328,19 @@ export function VaultView({
                           {item.tags.slice(0, 4).map((tag) => (
                             <span
                               key={tag}
-                              className="inline-flex items-center px-1.5 py-0.5 rounded-tag bg-raised border border-outline/50 text-[10px] font-mono text-muted"
+                              className="inline-flex items-center px-1.5 py-0.5 rounded-tag bg-raised border border-outline/50 text-3xs font-mono text-muted"
                             >
                               {tag}
                             </span>
                           ))}
                           {item.tags.length > 4 && (
-                            <span className="text-[10px] text-muted/50 font-mono">
+                            <span className="text-3xs text-muted/50 font-mono">
                               +{item.tags.length - 4}
                             </span>
                           )}
                         </div>
                       )}
-                      <div className="flex items-center gap-1.5 text-[10px] text-muted/50 font-mono">
+                      <div className="flex items-center gap-1.5 text-3xs text-muted/50 font-mono">
                         {item.godot_version && (
                           <span>
                             {tc('godot')} {item.godot_version}
@@ -354,20 +353,20 @@ export function VaultView({
                           </>
                         )}
                       </div>
-                      <motion.button
-                        data-press-feedback
+                      <button
+
                         onClick={(e) => {
                           e.stopPropagation()
                           setAddItem(item)
                         }}
-                        className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 px-3 py-2 rounded-item bg-accent/10 border border-accent-dim/30 text-accent-bright text-xs font-semibold hover:bg-accent/20 transition-colors"
+                        className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 px-3 py-2 rounded-item bg-accent/10 border border-accent-dim/30 text-accent-bright text-xs font-semibold hover:bg-accent/20 "
                       >
                         <IconFolderPlus className="w-3.5 h-3.5" />
                         {tc('vault_add_btn')}
-                      </motion.button>
+                      </button>
                     </div>
                   ))}
-                </AnimatePresence>
+
               </div>
             </>
           )}
@@ -375,16 +374,16 @@ export function VaultView({
         </div>
       </OverlayScrollArea>
 
-      <AnimatePresence>
+
         {previewItem && (
           <VaultItemPreviewModal
             item={previewItem}
             onClose={() => setPreviewItem(null)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {saveOpen && (
           <SaveToVaultModal
             projects={projects}
@@ -392,9 +391,9 @@ export function VaultView({
             onSaved={() => load()}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {editItem && (
           <EditVaultItemModal
             item={editItem}
@@ -406,9 +405,9 @@ export function VaultView({
             }}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {addItem && (
           <AddVaultItemModal
             item={addItem}
@@ -416,9 +415,9 @@ export function VaultView({
             onClose={() => setAddItem(null)}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {confirmDelete && (
           <ConfirmDialog
             variant="danger"
@@ -435,7 +434,7 @@ export function VaultView({
             onCancel={() => setConfirmDelete(null)}
           />
         )}
-      </AnimatePresence>
+
     </div>
   )
 }

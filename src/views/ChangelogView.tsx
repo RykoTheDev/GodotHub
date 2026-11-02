@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { AnimatePresence, motion } from 'framer-motion'
 import { useChangelog } from '../hooks/useChangelog'
 import { useChangelogBadge } from '../hooks/useChangelogBadge'
 import { useSettings } from '../hooks/useSettings'
@@ -91,7 +90,7 @@ function EntryCard({
       </div>
 
       <div className="flex-1 min-w-0 pb-9">
-        <div className="rounded-item border border-outline/50 bg-overlay p-5 hover:border-accent-dim/70 hover:bg-raised transition-colors">
+        <div className="rounded-item border border-outline/50 bg-overlay p-5 hover:border-accent-dim/70 hover:bg-raised ">
           <div className="flex items-start justify-between gap-4">
             <div className="min-w-0">
               <h3 className="font-display font-semibold text-lg text-ink truncate">
@@ -105,12 +104,12 @@ function EntryCard({
               )}
             </div>
             {IS_DEV && (
-              <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+              <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 ">
                 <Tooltip content={t('edit_entry_aria', { version: entry.version })} side="top">
                   <button
                     onClick={onEdit}
                     aria-label={t('edit_entry_aria', { version: entry.version })}
-                    className="focus-ring cursor-pointer p-2 rounded-btn text-muted hover:text-ink hover:bg-raised transition-colors"
+                    className="focus-ring cursor-pointer p-2 rounded-btn text-muted hover:text-ink hover:bg-raised "
                   >
                     <IconPencil className="w-3.5 h-3.5" />
                   </button>
@@ -119,7 +118,7 @@ function EntryCard({
                   <button
                     onClick={onDelete}
                     aria-label={t('delete_entry_aria', { version: entry.version })}
-                    className="focus-ring cursor-pointer p-2 rounded-btn text-muted hover:text-danger hover:bg-danger/10 transition-colors"
+                    className="focus-ring cursor-pointer p-2 rounded-btn text-muted hover:text-danger hover:bg-danger/10 "
                   >
                     <IconTrash className="w-3.5 h-3.5" />
                   </button>
@@ -265,26 +264,26 @@ export function ChangelogView({
         actions={
           IS_DEV ? (
             <div className="flex items-center gap-2">
-              <motion.button
+              <button
                 type="button"
 
-                data-press-feedback
+
                 onClick={() => setDraftOpen(true)}
-                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:border-accent-dim text-xs font-medium transition-colors"
+                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-overlay border border-outline/50 text-muted hover:text-ink hover:border-accent-dim text-xs font-medium "
               >
                 <IconRocket className="w-3.5 h-3.5" />
                 {tc('changelog_generate_from_git')}
-              </motion.button>
-              <motion.button
+              </button>
+              <button
                 type="button"
 
-                data-press-feedback
+
                 onClick={openCreate}
-                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-accent hover:bg-accent-bright text-xs font-medium text-white transition-colors"
+                className="focus-ring cursor-pointer inline-flex items-center gap-1.5 h-8 px-4 rounded-item bg-accent hover:bg-accent-bright text-xs font-medium text-white "
               >
                 <IconPlus className="w-3.5 h-3.5" />
                 {tc('add_entry')}
-              </motion.button>
+              </button>
             </div>
           ) : undefined
         }
@@ -293,16 +292,16 @@ export function ChangelogView({
       </ViewHeader>
 
       <OverlayScrollArea
-        className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
+        className={`flex-1 min-w-0 ${connected ? '' : '-ms-2 -me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
       >
-        <div className={`h-full ${connected ? 'ps-3' : ''} pe-5 pb-4`}>
+        <div className={`h-full ${connected ? 'ps-3' : 'ps-2'} pe-5 pb-4 pt-2`}>
           {loading && entries.length === 0 ? (
             <div className="flex flex-col gap-4">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={i}
-                  className="h-28 rounded-item border border-outline/50 bg-overlay animate-pulse"
+                  className="h-28 rounded-item border border-outline/50 bg-overlay "
                 />
               ))}
             </div>
@@ -317,7 +316,7 @@ export function ChangelogView({
             </div>
           ) : (
             <div className="flex flex-col">
-              <AnimatePresence>
+
                 {entries.map((entry, i) => (
                   <EntryCard
                     key={entry.id}
@@ -327,13 +326,13 @@ export function ChangelogView({
                     onDelete={() => setConfirmingDeleteId(entry.id)}
                   />
                 ))}
-              </AnimatePresence>
+
             </div>
           )}
         </div>
       </OverlayScrollArea>
 
-      <AnimatePresence>
+
         {modalOpen && (
           <ChangelogEntryModal
             entry={editingEntry ?? undefined}
@@ -356,18 +355,18 @@ export function ChangelogView({
             }}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {draftOpen && (
           <ReleaseNotesDraftModal
             onClose={() => setDraftOpen(false)}
             onUseDraft={openFromDraft}
           />
         )}
-      </AnimatePresence>
 
-      <AnimatePresence>
+
+
         {confirmingDeleteId && (
           <ConfirmDialog
             title={t('delete_entry_title')}
@@ -381,7 +380,7 @@ export function ChangelogView({
             onCancel={() => setConfirmingDeleteId(null)}
           />
         )}
-      </AnimatePresence>
+
     </div>
   )
 }

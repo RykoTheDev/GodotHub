@@ -1,6 +1,5 @@
 {
   "next_steps": "Próximos passos",
-  "all_tasks_description": "Visualize e gerencie todas as tarefas deste projeto.",
   "saving_tasks": "Salvando tarefas",
   "pending_count_one": "{{count}} pendente",
   "pending_count_other": "{{count}} pendentes",
@@ -45,8 +44,6 @@
   "area_narrative": "Narrativa",
   "area_other": "Outro",
   "edit_task": "Editar tarefa",
-  "edit_task_description": "Atualize as informações desta tarefa.",
-  "new_task_description": "Adicione um próximo passo para este projeto.",
   "title": "Título",
   "title_placeholder": "Ex.: Criar menu principal",
   "description_placeholder": "Adicione mais detalhes sobre o que precisa ser feito...",
@@ -55,7 +52,6 @@
   "past_due_date": "Este prazo já venceu",
   "save_task_failed": "Não foi possível salvar a tarefa. Tente novamente.",
   "add_task": "Adicionar tarefa",
-  "task_details": "Detalhes da tarefa",
   "no_description": "Sem descrição",
   "tomorrow": "Amanhã",
   "due_in_days_one": "Vence em {{count}} dia",

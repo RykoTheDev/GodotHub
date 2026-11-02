@@ -1,5 +1,4 @@
 import {useCallback,useEffect,useRef,useState} from 'react'
-import {AnimatePresence} from 'framer-motion'
 import {useTranslation} from 'react-i18next'
 import {api} from '../../lib/api'
 import {pushToast} from '../../lib/toast'
@@ -13,7 +12,7 @@ import {ConfirmDialog} from './ConfirmDialog'
 import {ExportTemplatesModal} from './ExportTemplatesModal'
 import {formatBytes} from '../../lib/formatBytes'
 
-const button = 'focus-ring cursor-pointer inline-flex items-center gap-2 rounded-btn border border-line bg-raised px-3 py-2 text-xs font-medium text-ink hover:border-accent-dim hover:bg-overlay transition-colors disabled:opacity-40 disabled:cursor-not-allowed'
+const button = 'focus-ring cursor-pointer inline-flex items-center gap-2 rounded-btn border border-line bg-raised px-3 py-2 text-xs font-medium text-ink hover:border-accent-dim hover:bg-overlay disabled:opacity-40 disabled:cursor-not-allowed'
 
 export function ProjectBuildModal({project,onClose}: {project: Project;onClose:()=>void}) {
   const {t} = useTranslation('common', {keyPrefix:'build_export'})
@@ -129,9 +128,9 @@ export function ProjectBuildModal({project,onClose}: {project: Project;onClose:(
     catch(reason){pushToast('error',String(reason))}
   }
   return <>
-    <ModalShell icon={<IconRocket className="w-5 h-5 text-accent-bright"/>} title={t('title')} description={t('project_template_desc_label',{name:project.name})} onClose={onClose} maxWidth="max-w-2xl" bodyClassName="h-[min(60vh,34rem)] shrink" footer={<>
+    <ModalShell icon={<IconRocket className="w-5 h-5 text-accent-bright"/>} title={t('title')} onClose={onClose} maxWidth="max-w-2xl" bodyClassName="h-[min(60vh,34rem)] shrink" footer={<>
       {run&&<button className={button} onClick={()=>{openConsole(run);onClose()}}><IconTerminal className="w-3.5 h-3.5"/>{t('open_console')}</button>}
-      <div className="ms-auto flex gap-2"><button ref={initialFocus} className={button} onClick={onClose}>{tc('close')}</button><button data-press-feedback className="focus-ring cursor-pointer inline-flex items-center justify-center gap-2 rounded-btn border border-accent-dim bg-accent px-4 py-2 text-xs font-medium text-white hover:bg-accent-bright transition-colors disabled:opacity-40 disabled:cursor-not-allowed" disabled={blocked} onClick={()=>void start()}>{starting?<IconSpinner className="w-3.5 h-3.5 animate-spin"/>:<IconRocket className="w-3.5 h-3.5"/>}{starting?t('starting'):t('start')}</button></div>
+      <div className="ms-auto flex gap-2"><button ref={initialFocus} className={button} onClick={onClose}>{tc('close')}</button><button className="focus-ring cursor-pointer inline-flex items-center justify-center gap-2 rounded-btn border border-accent-dim bg-accent px-4 py-2 text-xs font-medium text-white hover:bg-accent-bright disabled:opacity-40 disabled:cursor-not-allowed" disabled={blocked} onClick={()=>void start()}>{starting?<IconSpinner className="w-3.5 h-3.5 animate-spin"/>:<IconRocket className="w-3.5 h-3.5"/>}{starting?t('starting'):t('start')}</button></div>
     </>}>
       <div ref={content} className="p-6 flex flex-col gap-5">
         <div className="flex items-center justify-between gap-3"><span className="text-xs text-muted">{catalog?.version_tag?t('engine',{version:catalog.version_tag}):t('release')}</span><button className={button} disabled={loading||starting||running} onClick={()=>void refresh()} aria-label={t('refresh')}><IconRefresh className={`w-3.5 h-3.5 ${loading?'animate-spin':''}`}/>{t('refresh')}</button></div>
@@ -145,11 +144,11 @@ export function ProjectBuildModal({project,onClose}: {project: Project;onClose:(
           </>}
         </>}
         {error&&<p role="alert" className="text-xs text-danger rounded-item border border-danger/20 bg-danger/10 p-3 whitespace-pre-wrap">{error}</p>}
-        {run&&<div role="status" className="rounded-item border border-line bg-overlay p-4"><h3 className={`text-sm font-medium ${run.status==='failed'?'text-danger':run.status==='succeeded'?'text-mint':'text-ink'}`}>{run.status==='running'?t('running',{preset:run.preset_name}):t(run.status)}</h3><p className="sensitive mt-2 text-xs font-mono break-all text-muted">{run.output_path}{run.size_bytes!==null?` · ${formatBytes(run.size_bytes)}`:''}</p>{run.error&&<p className="mt-2 text-xs text-danger whitespace-pre-wrap">{run.error}</p>}{run.status==='cancelled'&&<p className="mt-2 text-xs text-muted">{t('cancel_hint')}</p>}<div className="mt-3 flex gap-2">{running&&<button className={button} onClick={()=>void api.cancelProjectExport(run.id).catch(reason=>pushToast('error',String(reason)))}>{t('cancel_export')}</button>}{run.status==='succeeded'&&<button className={button} onClick={()=>void api.openExportArtifactFolder(run.id).catch(reason=>pushToast('error',String(reason)))}><IconFolder className="w-3.5 h-3.5"/>{t('open_folder')}</button>}</div></div>}
+        {run&&<div role="status" className="rounded-item border border-line bg-overlay p-4"><h3 className={`text-sm font-medium ${run.status==='failed'?'text-danger':run.status==='succeeded'?'text-mint':'text-ink'}`}>{run.status==='running'?t('running',{preset:run.preset_name}):t(run.status)}</h3><p className="mt-2 text-xs font-mono break-all text-muted">{run.output_path}{run.size_bytes!==null?` · ${formatBytes(run.size_bytes)}`:''}</p>{run.error&&<p className="mt-2 text-xs text-danger whitespace-pre-wrap">{run.error}</p>}{run.status==='cancelled'&&<p className="mt-2 text-xs text-muted">{t('cancel_hint')}</p>}<div className="mt-3 flex gap-2">{running&&<button className={button} onClick={()=>void api.cancelProjectExport(run.id).catch(reason=>pushToast('error',String(reason)))}>{t('cancel_export')}</button>}{run.status==='succeeded'&&<button className={button} onClick={()=>void api.openExportArtifactFolder(run.id).catch(reason=>pushToast('error',String(reason)))}><IconFolder className="w-3.5 h-3.5"/>{t('open_folder')}</button>}</div></div>}
         <p className="text-2xs text-muted leading-relaxed">{t('run_hint')} {t('platform_tools')}</p>
       </div>
     </ModalShell>
-    <AnimatePresence>{templates&&catalog&&<ExportTemplatesModal tag={catalog.version_tag} onClose={()=>setTemplates(false)} onChanged={refresh} onDownload={files=>{setTemplates(false);void install(catalog.version_tag,files)}}/>}</AnimatePresence>
-    <AnimatePresence>{overwrite&&<ConfirmDialog title={t('overwrite_title')} description={t('overwrite_description',{path:output})} confirmLabel={t('overwrite')} onConfirm={()=>void start(true)} onCancel={()=>setOverwrite(false)}/>}</AnimatePresence>
+    {templates&&catalog&&<ExportTemplatesModal tag={catalog.version_tag} onClose={()=>setTemplates(false)} onChanged={refresh} onDownload={files=>{setTemplates(false);void install(catalog.version_tag,files)}}/>}
+    {overwrite&&<ConfirmDialog title={t('overwrite_title')} description={t('overwrite_description',{path:output})} confirmLabel={t('overwrite')} onConfirm={()=>void start(true)} onCancel={()=>setOverwrite(false)}/>}
   </>
 }
