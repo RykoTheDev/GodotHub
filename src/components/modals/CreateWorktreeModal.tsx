@@ -82,14 +82,14 @@ export function CreateWorktreeModal({ repositoryPath, onClose, onCreated }: Prop
               {picking ? <IconSpinner className="w-4 h-4 animate-spin" /> : <IconFolder className="w-4 h-4" />}
             </button>
           </div>
-          <p id={`${pathId}-hint`} className="text-[11px] text-muted/70 leading-relaxed">{t('worktree_location_hint')}</p>
+          <p id={`${pathId}-hint`} className="text-2xs text-muted/70 leading-relaxed">{t('worktree_location_hint')}</p>
         </div>
         <div className="flex flex-col gap-2">
           <label htmlFor={branchId} className="text-xs font-medium text-muted">{t('worktree_branch_label')}</label>
           <input id={branchId} dir="ltr" value={branch} onChange={e => setBranch(e.target.value)} disabled={busy}
             aria-describedby={`${branchId}-hint`} placeholder={t('worktree_branch_placeholder')}
             className="focus-ring bg-raised border border-line rounded-item px-3.5 py-2.5 text-sm text-ink placeholder:text-muted/50 focus:border-accent-dim transition-colors disabled:opacity-50" />
-          <p id={`${branchId}-hint`} className="text-[11px] text-muted/70 leading-relaxed">{t('worktree_branch_hint')}</p>
+          <p id={`${branchId}-hint`} className="text-2xs text-muted/70 leading-relaxed">{t('worktree_branch_hint')}</p>
         </div>
         {error && <p role="alert" className="rounded-item border border-danger/25 bg-danger/10 p-3 text-xs text-danger wrap-break-word">{error}</p>}
       </form>

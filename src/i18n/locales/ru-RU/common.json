@@ -533,13 +533,6 @@
   "section_views": "Views",
   "play_project": "Play",
   "play_project_tooltip": "Play the game without opening editor",
-  "manage_views": "Manage Views",
-  "manage_views_desc": "Choose which layouts appear in the view switcher. Rename views to keep things organized.",
-  "active_views": "Active",
-  "available_views": "Available",
-  "remove_view": "Remove view",
-  "rename_view": "Rename view",
-  "all_views_created": "All view types have been added.",
   "file_count_one": "{{count}} file",
   "file_count_other": "{{count}} files",
   "folder_count_one": "{{count}} folder",
@@ -939,4 +932,10 @@
   "vault_conflict_summary_desc_other": "{{count}} files already exist across the selected projects. Overwrite them?",
   "vault_added_to_projects_toast_one": "Added to {{count}} project",
   "vault_added_to_projects_toast_other": "Added to {{count}} projects"
+  "unlocalized_badge": "Unlocalized",
+  "customize_card_show_session_timer": "Show Session Timer",
+  "new": "Новый",
+  "view_error_title": "This view couldn't load",
+  "view_error_desc": "The rest of GodotHub still works. Try loading this view again, or switch to another one.",
+  "error_details": "Technical details"
 }

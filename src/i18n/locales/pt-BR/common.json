@@ -531,13 +531,6 @@
   "section_views": "Modos de exibição",
   "play_project": "Jogar",
   "play_project_tooltip": "Jogue sem abrir o editor",
-  "manage_views": "Gerenciar modos de exibição",
-  "manage_views_desc": "Escolha quais layouts aparecem ao alternar os modos de exibição. Renomeie os modos para deixar tudo do seu jeito.",
-  "active_views": "Ativos",
-  "available_views": "Disponíveis",
-  "remove_view": "Remover modo de exibição",
-  "rename_view": "Renomear modo de exibição",
-  "all_views_created": "Todos os modos de exibição disponíveis já foram adicionados.",
   "file_count_one": "{{count}} arquivo",
   "file_count_other": "{{count}} arquivos",
   "folder_count_one": "{{count}} pasta",
@@ -938,4 +931,10 @@
   "vault_conflict_summary_desc_other": "{{count}} files already exist across the selected projects. Overwrite them?",
   "vault_added_to_projects_toast_one": "Added to {{count}} project",
   "vault_added_to_projects_toast_other": "Added to {{count}} projects"
+  "unlocalized_badge": "Unlocalized",
+  "customize_card_show_session_timer": "Show Session Timer",
+  "new": "Novo",
+  "view_error_title": "This view couldn't load",
+  "view_error_desc": "The rest of GodotHub still works. Try loading this view again, or switch to another one.",
+  "error_details": "Technical details"
 }

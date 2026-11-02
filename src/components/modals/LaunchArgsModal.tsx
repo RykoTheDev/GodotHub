@@ -82,7 +82,7 @@ export function LaunchArgsModal({
             placeholder={t('args_placeholder')}
             className="focus-ring bg-raised border border-line rounded-lg px-3.5 py-2.5 text-sm font-mono text-ink focus:border-accent-dim transition-colors"
           />
-          <p className="text-[11px] text-muted/60">
+          <p className="text-2xs text-muted/60">
             {t('args_desc_separate_prefix')}{' '}
             <code className="text-muted">--rendering-driver opengl3</code>{' '}
             {t('args_desc_separate_suffix')}
@@ -98,7 +98,7 @@ export function LaunchArgsModal({
                 type="button"
                 onClick={() => append(t(s.labelKey))}
                 title={t(s.descKey)}
-                className="focus-ring cursor-pointer px-2.5 py-1 rounded-md bg-raised border border-line text-[11px] font-mono text-muted hover:text-ink hover:border-accent-dim transition-colors"
+                className="focus-ring cursor-pointer px-2.5 py-1 rounded-md bg-raised border border-line text-2xs font-mono text-muted hover:text-ink hover:border-accent-dim transition-colors"
               >
                 {t(s.labelKey)}
               </button>

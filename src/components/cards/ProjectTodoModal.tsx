@@ -430,7 +430,7 @@ export function ProjectTodoModal({
               ))}
             </datalist>
             <p
-              className={`ps-3 mt-1 text-[11px] ${
+              className={`ps-3 mt-1 text-2xs ${
                 linkInvalid ? "text-danger" : "text-muted/70"
               }`}
             >
@@ -442,7 +442,7 @@ export function ProjectTodoModal({
         {submitError && (
           <div
             role="alert"
-            className="mx-6 rounded-item border border-danger/30 bg-danger/5 px-3 py-2 text-[11px] text-danger"
+            className="mx-6 rounded-item border border-danger/30 bg-danger/5 px-3 py-2 text-2xs text-danger"
           >
             {t("save_task_failed")}
           </div>

@@ -17,9 +17,13 @@ fn walk<F: FnMut(&Path)>(dir: &Path, depth: usize, max_depth: usize, visit: &mut
         Err(_) => return,
     };
     for entry in entries.flatten() {
+        let is_dir = match entry.file_type() {
+            Ok(ft) => ft.is_dir(),
+            Err(_) => entry.path().is_dir(),
+        };
         let path = entry.path();
-        let name = entry.file_name().to_string_lossy().to_string();
-        if path.is_dir() {
+        if is_dir {
+            let name = entry.file_name().to_string_lossy().to_string();
             if SKIP_DIRS.contains(&name.as_str()) {
                 continue;
             }
@@ -216,7 +220,9 @@ pub fn scan_for_projects_blocking(
         }
         let _ = app.emit("project-scan-progress", (added.len(), total));
     }
-    let _ = app.emit("watcher:project-scan-done", ());
+    if !added.is_empty() {
+        let _ = app.emit("watcher:project-scan-done", ());
+    }
     Ok(ScanProjectsResult {
         added,
         found_dismissed,

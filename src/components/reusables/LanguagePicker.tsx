@@ -68,7 +68,7 @@ export function LanguagePicker({
                 <LanguageFlag country={lang.country} className="w-5 h-3.5" />
                 <span className="truncate">{lang.labelKey ? ts(lang.labelKey) : lang.label}</span>
                 {lang.status !== 'complete' && (
-                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-tag border bg-black/15 text-muted border-outline/40">
+                  <span className="text-3xs font-semibold px-1.5 py-0.5 rounded-tag border bg-black/15 text-muted border-outline/40">
                     {statusLabel(lang.status, ts)}
                   </span>
                 )}

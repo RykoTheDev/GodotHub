@@ -64,6 +64,9 @@
   "app_error_title": "Something went wrong",
   "app_error_desc": "GodotHub hit an unexpected error and couldn't render. Details below, check the console (right-click → Inspect) for the full stack trace.",
   "reload": "Reload",
+  "view_error_title": "This view couldn't load",
+  "view_error_desc": "The rest of GodotHub still works. Try loading this view again, or switch to another one.",
+  "error_details": "Technical details",
   "remove_folder": "Remove folder",
   "make_this_default": "Make this the {{label}}",
   "suggested_from_workspaces": "Suggested from other workspaces",
@@ -407,8 +410,6 @@
   "time_week_total": "{{total}} this week",
   "time_weekly_empty": "No tracked time in the last 7 days.",
   "project_more_aria": "More actions",
-  "manage_views": "Customize View",
-  "manage_views_desc": "Choose which layouts appear in the view switcher, rename views, and customize what shows on project cards.",
   "customize_card_section": "Project Card",
   "customize_card_show_size": "Show Project Size",
   "customize_card_show_time": "Show Time Tracked",
@@ -419,11 +420,6 @@
   "customize_card_show_last_opened": "Show Last Opened",
   "customize_card_show_play": "Show Play Button",
   "customize_card_show_console": "Show Open with Console",
-  "active_views": "Active",
-  "available_views": "Available",
-  "remove_view": "Remove view",
-  "rename_view": "Rename view",
-  "all_views_created": "All view types have been added.",
   "project_card_remove_library": "Remove from Library",
   "project_card_delete_files": "Delete Files",
   "manage_tags": "Manage Tags",
@@ -923,4 +919,6 @@
   "vault_added_to_projects_toast_one": "Added to {{count}} project",
   "vault_added_to_projects_toast_other": "Added to {{count}} projects",
   "vault_item_empty": "This item has no files."
+  "unlocalized_badge": "Unlocalized",
+  "new": "New"
 }

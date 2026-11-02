@@ -119,7 +119,7 @@ function ProgressRow({
       <div className="flex items-center justify-between gap-3">
         <span className="text-xs text-muted">{label}</span>
         {hasProgress ? (
-          <span className="font-mono text-[11px] text-muted shrink-0">
+          <span className="font-mono text-2xs text-muted shrink-0">
             {progress.current} / {progress.total}
           </span>
         ) : running ? (
@@ -128,7 +128,7 @@ function ProgressRow({
             <span className="font-mono">…</span>
           </span>
         ) : (
-          <span className="font-mono text-[11px] text-muted shrink-0">
+          <span className="font-mono text-2xs text-muted shrink-0">
             {t('none')}
           </span>
         )}
@@ -183,7 +183,7 @@ function SummarySection({
 }) {
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-muted/70 px-1">
+      <span className="text-3xs font-semibold uppercase tracking-wide text-muted/70 px-1">
         {title}
       </span>
       <div className="flex flex-col gap-1.5">{children}</div>
@@ -226,10 +226,10 @@ function DiscoveryList({
   if (loading && rows.length === 0) {
     return (
       <div className="flex flex-col gap-1.5">
-        <span className="text-[10px] font-semibold uppercase tracking-wide text-muted/70">
+        <span className="text-3xs font-semibold uppercase tracking-wide text-muted/70">
           {heading}
         </span>
-        <div className="flex items-center gap-2 px-2.5 py-2 rounded-item border border-dashed border-line/60 text-[11px] text-muted">
+        <div className="flex items-center gap-2 px-2.5 py-2 rounded-item border border-dashed border-line/60 text-2xs text-muted">
           <IconRefresh className="w-3 h-3 animate-spin shrink-0" />
           {loadingLabel}
         </div>
@@ -242,7 +242,7 @@ function DiscoveryList({
   ).length
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-[10px] font-semibold uppercase tracking-wide text-muted/70">
+      <span className="text-3xs font-semibold uppercase tracking-wide text-muted/70">
         {heading}
       </span>
       <div className="flex flex-col gap-1 max-h-56 overflow-y-auto">
@@ -263,9 +263,9 @@ function DiscoveryList({
                 className="accent-accent shrink-0"
               />
               <div className="flex-1 min-w-0">
-                <p className="text-[12px] text-ink truncate">{r.primary}</p>
+                <p className="text-xs text-ink truncate">{r.primary}</p>
                 {r.secondary && (
-                  <p className="text-[10px] font-mono text-muted/60 truncate">
+                  <p className="text-3xs font-mono text-muted/60 truncate">
                     {r.secondary}
                   </p>
                 )}
@@ -273,7 +273,7 @@ function DiscoveryList({
               {r.badges?.map((badge) => (
                 <span
                   key={badge}
-                  className="shrink-0 text-[9px] font-semibold px-1.5 py-0.5 rounded bg-overlay border border-outline/50 text-muted"
+                  className="shrink-0 text-4xs font-semibold px-1.5 py-0.5 rounded bg-overlay border border-outline/50 text-muted"
                 >
                   {badge}
                 </span>
@@ -289,7 +289,7 @@ function DiscoveryList({
         type="button"
         onClick={onAdd}
         disabled={busy || selectableCount === 0}
-        className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 px-3 py-1.5 rounded-btn bg-accent hover:bg-accent-bright text-white text-[11px] font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 px-3 py-1.5 rounded-btn bg-accent hover:bg-accent-bright text-white text-2xs font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {busy ? (
           <IconRefresh className="w-3 h-3 animate-spin" />
@@ -299,7 +299,7 @@ function DiscoveryList({
         {addLabel(selectableCount)}
       </button>
       {hint && (
-        <p className="text-[10px] text-muted/70 leading-relaxed">{hint}</p>
+        <p className="text-3xs text-muted/70 leading-relaxed">{hint}</p>
       )}
     </div>
   )
@@ -467,7 +467,7 @@ export function OnboardingView({
                 GodotHub
               </span>
             </div>
-            <p className="text-[11px] text-muted/70 mt-2 leading-relaxed">
+            <p className="text-2xs text-muted/70 mt-2 leading-relaxed">
               {t('welcome_desc')}
             </p>
           </div>
@@ -502,7 +502,7 @@ export function OnboardingView({
                     />
                   )}
                   <span
-                    className={`relative w-6 h-6 shrink-0 flex items-center justify-center rounded-tag text-[10px] font-bold border transition-colors ${
+                    className={`relative w-6 h-6 shrink-0 flex items-center justify-center rounded-tag text-3xs font-bold border transition-colors ${
                       done
                         ? 'bg-accent/15 text-accent-bright border-accent-dim/40'
                         : active
@@ -532,7 +532,7 @@ export function OnboardingView({
                 transition={{ duration: 0.3, ease: 'easeOut' }}
               />
             </div>
-            <span className="text-[10px] font-medium text-muted/70 text-center tabular-nums">
+            <span className="text-3xs font-medium text-muted/70 text-center tabular-nums">
               {stepIndex + 1} / {STEPS.length}
             </span>
           </div>
@@ -618,7 +618,7 @@ export function OnboardingView({
                               <p className="text-xs font-medium text-ink">
                                 {tc('onboarding_discord_rpc')}
                               </p>
-                              <p className="text-[11px] text-muted mt-0.5 leading-relaxed">
+                              <p className="text-2xs text-muted mt-0.5 leading-relaxed">
                                 {tc('onboarding_discord_rpc_desc')}
                               </p>
                             </div>
@@ -637,7 +637,7 @@ export function OnboardingView({
                               <span className="text-xs font-medium text-ink">
                                 {tc('section_projects')}
                               </span>
-                              <p className="text-[11px] text-muted leading-relaxed">
+                              <p className="text-2xs text-muted leading-relaxed">
                                 {t('onboarding_keep_organized', { ns: 'common' })}
                               </p>
                             </div>
@@ -646,7 +646,7 @@ export function OnboardingView({
                               <span className="text-xs font-medium text-ink">
                                 {tc('section_versions')}
                               </span>
-                              <p className="text-[11px] text-muted leading-relaxed">
+                              <p className="text-2xs text-muted leading-relaxed">
                                 {t('onboarding_download_manage', { ns: 'common' })}
                               </p>
                             </div>
@@ -655,7 +655,7 @@ export function OnboardingView({
                               <span className="text-xs font-medium text-ink">
                                 {tc('section_news')}
                               </span>
-                              <p className="text-[11px] text-muted leading-relaxed">
+                              <p className="text-2xs text-muted leading-relaxed">
                                 {t('onboarding_stay_current', { ns: 'common' })}
                               </p>
                             </div>
@@ -708,7 +708,7 @@ export function OnboardingView({
                           />
                           {projectSuggestions.length > 0 && (
                             <div className="flex flex-col gap-1.5">
-                              <span className="text-[10px] font-semibold uppercase tracking-wide text-muted/70">
+                              <span className="text-3xs font-semibold uppercase tracking-wide text-muted/70">
                                 {tc('suggested_from_workspaces')}
                               </span>
                               <div className="flex flex-wrap gap-1.5">
@@ -728,7 +728,7 @@ export function OnboardingView({
                                         ])
                                       }}
                                       disabled={added}
-                                      className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-tag border text-[11px] font-mono transition-colors disabled:cursor-default ${
+                                      className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-tag border text-2xs font-mono transition-colors disabled:cursor-default ${
                                         added
                                           ? 'border-accent-dim/40 bg-accent/10 text-accent-bright'
                                           : 'border-dashed border-outline/60 text-muted hover:text-accent-bright hover:border-accent-dim'
@@ -742,7 +742,7 @@ export function OnboardingView({
                                       <span className="max-w-48 truncate">
                                         {s.path}
                                       </span>
-                                      <span className="shrink-0 text-[10px] text-muted">
+                                      <span className="shrink-0 text-3xs text-muted">
                                         {tc('from_workspace', { name: s.source })}
                                       </span>
                                     </button>
@@ -797,7 +797,7 @@ export function OnboardingView({
                           />
                           {versionSuggestions.length > 0 && (
                             <div className="flex flex-col gap-1.5">
-                              <span className="text-[10px] font-semibold uppercase tracking-wide text-muted/70">
+                              <span className="text-3xs font-semibold uppercase tracking-wide text-muted/70">
                                 {tc('suggested_from_workspaces')}
                               </span>
                               <div className="flex flex-wrap gap-1.5">
@@ -817,7 +817,7 @@ export function OnboardingView({
                                         ])
                                       }}
                                       disabled={added}
-                                      className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-tag border text-[11px] font-mono transition-colors disabled:cursor-default ${
+                                      className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-tag border text-2xs font-mono transition-colors disabled:cursor-default ${
                                         added
                                           ? 'border-accent-dim/40 bg-accent/10 text-accent-bright'
                                           : 'border-dashed border-outline/60 text-muted hover:text-accent-bright hover:border-accent-dim'
@@ -831,7 +831,7 @@ export function OnboardingView({
                                       <span className="max-w-48 truncate">
                                         {s.path}
                                       </span>
-                                      <span className="shrink-0 text-[10px] text-muted">
+                                      <span className="shrink-0 text-3xs text-muted">
                                         {tc('from_workspace', { name: s.source })}
                                       </span>
                                     </button>
@@ -887,7 +887,7 @@ export function OnboardingView({
 
                           {pendingTemplateSuggestions.length > 0 && (
                             <div className="flex flex-col gap-1.5">
-                              <span className="text-[10px] font-semibold uppercase tracking-wide text-muted/70">
+                              <span className="text-3xs font-semibold uppercase tracking-wide text-muted/70">
                                 {tc('suggested_from_workspaces')}
                               </span>
                               {pendingTemplateSuggestions.map((s) => (
@@ -902,10 +902,10 @@ export function OnboardingView({
                                   <span className="shrink-0 flex items-center justify-center w-4 h-4 rounded-tag bg-accent/15 text-accent-bright">
                                     <IconCopy className="w-3 h-3" />
                                   </span>
-                                  <span className="text-[11px] font-mono text-ink truncate">
+                                  <span className="text-2xs font-mono text-ink truncate">
                                     {s.path}
                                   </span>
-                                  <span className="shrink-0 text-[10px] text-muted truncate max-w-32">
+                                  <span className="shrink-0 text-3xs text-muted truncate max-w-32">
                                     {tc('from_workspace', { name: s.source })}
                                   </span>
                                 </button>
@@ -989,7 +989,7 @@ export function OnboardingView({
 
                           {categories.length > 0 && (
                             <div className="flex flex-col gap-2">
-                              <span className="text-[11px] font-medium text-muted uppercase tracking-wide">
+                              <span className="text-2xs font-medium text-muted uppercase tracking-wide">
                                 {t('onboarding_your_categories', { ns: 'common' })}
                               </span>
                               <div className="flex flex-col gap-1.5 max-h-40 overflow-y-auto">
@@ -1057,7 +1057,7 @@ export function OnboardingView({
                                   <span className="text-xs font-medium text-ink">
                                     {label}
                                   </span>
-                                  <span className="text-[10px] font-medium text-muted/60">
+                                  <span className="text-3xs font-medium text-muted/60">
                                     {presets.length}
                                   </span>
                                   <IconChevronRight className="rtl:rotate-180 w-3.5 h-3.5 text-muted ms-auto" />
@@ -1082,7 +1082,7 @@ export function OnboardingView({
                                 )}
                               </button>
                             </div>
-                            <p className="text-[11px] text-muted leading-relaxed">
+                            <p className="text-2xs text-muted leading-relaxed">
                               {ts('theme_preset_desc')}
                             </p>
                           </div>
@@ -1376,7 +1376,7 @@ function OnboardingCloudBackup() {
         {t('onboard_cloud_heading')}
       </span>
       <div className="rounded-item bg-overlay border border-outline/50 p-4 flex flex-col gap-3">
-        <p className="text-[11px] text-muted leading-relaxed">
+        <p className="text-2xs text-muted leading-relaxed">
           {t('onboard_cloud_desc')}
         </p>
         {!gitUser ? (
@@ -1402,7 +1402,7 @@ function OnboardingCloudBackup() {
               <IconCloudArrowDown className="w-3.5 h-3.5" />
               {ts('sync_pull_btn')}
             </button>
-            <p className="text-[11px] text-muted leading-relaxed">
+            <p className="text-2xs text-muted leading-relaxed">
               {ts('sync_manual_hint')}
             </p>
           </div>

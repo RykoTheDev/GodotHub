@@ -24,20 +24,20 @@ interface Props {
 function stateBadge(pr: PR, t: (key: string) => string) {
   if (pr.merged_at) {
     return (
-      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-accent/15 text-accent">
+      <span className="text-4xs font-semibold px-1.5 py-0.5 rounded bg-accent/15 text-accent">
         {t('contributor_pr_merged')}
       </span>
     )
   }
   if (pr.state === 'open') {
     return (
-      <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-mint/15 text-mint">
+      <span className="text-4xs font-semibold px-1.5 py-0.5 rounded bg-mint/15 text-mint">
         {t('contributor_pr_open')}
       </span>
     )
   }
   return (
-    <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded bg-danger/15 text-danger">
+    <span className="text-4xs font-semibold px-1.5 py-0.5 rounded bg-danger/15 text-danger">
       {t('contributor_pr_closed')}
     </span>
   )
@@ -128,7 +128,7 @@ export function ContributorPRsModal({ login, avatarUrl, onClose }: Props) {
               >
                 {login}
               </button>
-              <p className="text-[11px] text-muted">
+              <p className="text-2xs text-muted">
                 {loading
                   ? t('contributor_pr_loading')
                   : t(prs.length === 1 ? 'contributor_pr_count_one' : 'contributor_pr_count_other', { count: prs.length })}
@@ -182,12 +182,12 @@ export function ContributorPRsModal({ login, avatarUrl, onClose }: Props) {
                     onClick={() => openUrl(pr.html_url)}
                     className="focus-ring cursor-pointer flex items-start gap-3 px-5 py-3 text-start hover:bg-raised/60 transition-colors border-b border-line/50 last:border-b-0"
                   >
-                    <span className="text-[11px] font-mono text-muted/50 shrink-0 mt-0.5">
+                    <span className="text-2xs font-mono text-muted/50 shrink-0 mt-0.5">
                       #{pr.number}
                     </span>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium text-ink truncate">{pr.title}</p>
-                      <p className="text-[10px] text-muted mt-0.5">{formatDate(pr.created_at)}</p>
+                      <p className="text-3xs text-muted mt-0.5">{formatDate(pr.created_at)}</p>
                     </div>
                     {stateBadge(pr, t)}
                   </button>

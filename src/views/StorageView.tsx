@@ -94,7 +94,7 @@ function Badge({ tone, children }: { tone: 'accent' | 'mint' | 'amber' | 'muted'
     danger: 'bg-danger/10 text-danger border-danger/30',
   }
   return (
-    <span className={`shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded-tag border ${tones[tone]}`}>
+    <span className={`shrink-0 text-3xs font-semibold px-1.5 py-0.5 rounded-tag border ${tones[tone]}`}>
       {children}
     </span>
   )
@@ -138,7 +138,7 @@ function Section({
             {title}
           </h3>
           {description && (
-            <p className="text-[11px] text-muted mt-1 leading-relaxed">{description}</p>
+            <p className="text-2xs text-muted mt-1 leading-relaxed">{description}</p>
           )}
         </div>
         {total !== undefined && (
@@ -188,7 +188,8 @@ export function StorageView({
         new Set(reclaimEntries(next, tc).filter((e) => e.defaultOn).map((e) => e.key)),
       )
     } catch (e) {
-      setError(String(e))
+      console.error(e)
+      setError(e instanceof Error ? e.message : String(e))
     } finally {
       setLoading(false)
     }
@@ -232,7 +233,7 @@ export function StorageView({
       }
       if (chosen.some((e) => e.group === 'versions')) await refreshInstalled()
     } catch (e) {
-      pushToast('error', String(e))
+      reportError(e)
     } finally {
       setReclaiming(false)
       await load()
@@ -248,11 +249,15 @@ export function StorageView({
   const maxVersion = Math.max(0, ...(report?.versions.map((v) => v.size_bytes) ?? []))
 
   return (
-    <div className="flex-1 min-w-0 h-full flex flex-col">
+    <div className="flex-1 min-w-0 h-full flex flex-col gap-2">
       <ViewHeader
         connected={connected}
-        className="mb-4"
         title={tc('cleanup_title')}
+        leadingAction={
+          <span className="inline-flex items-center px-2 py-0.5 rounded-tag bg-amber/15 text-amber text-3xs font-semibold uppercase tracking-wider">
+            {tc('unlocalized_badge')}
+          </span>
+        }
         metric={
           <>
             <h2 className="text-4xl font-bold text-muted tabular-nums">
@@ -280,9 +285,9 @@ export function StorageView({
       <OverlayScrollArea
         className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
-        topButtonBottom={'bottom-16'}
+        topButtonBottom={'bottom-17'}
       >
-        <div className={`ui-stagger ${connected ? 'ps-3' : ''} pe-5 pb-4 flex flex-col gap-3`}>
+        <div className={`ui-stagger ${connected ? 'ps-5' : ''} pe-5 pb-4 flex flex-col gap-2`}>
           {error && !report ? (
             <div className="border border-dashed border-danger/30 rounded-item py-16 flex flex-col items-center gap-4 text-center">
               <p className="text-sm text-muted max-w-sm leading-relaxed">
@@ -298,7 +303,7 @@ export function StorageView({
               </button>
             </div>
           ) : !report ? (
-            <div className="py-24 flex flex-col items-center gap-3 text-center">
+            <div className="py-16 flex flex-col items-center gap-3 text-center">
               <IconSpinner className="w-5 h-5 animate-spin text-muted" />
               <p className="text-xs text-muted">{tc('cleanup_scanning')}</p>
             </div>
@@ -315,7 +320,7 @@ export function StorageView({
                     key={card.label}
                     className="flex flex-col gap-1 px-4 py-3 rounded-item border border-outline/50 bg-overlay"
                   >
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-muted/60">
+                    <span className="text-3xs font-semibold uppercase tracking-wider text-muted/60">
                       {card.label}
                     </span>
                     <span className="text-lg font-semibold text-ink tabular-nums">
@@ -350,12 +355,12 @@ export function StorageView({
                             >
                               <span className="text-xs font-medium text-ink">{group.title}</span>
                             </Checkbox>
-                            <span className="text-[11px] font-mono text-muted tabular-nums">
+                            <span className="text-2xs font-mono text-muted tabular-nums">
                               {formatBytes(sum(rows.map((r) => r.size)))}
                             </span>
                           </div>
                           {group.hint && (
-                            <p className="text-[11px] text-amber/90 leading-relaxed">{group.hint}</p>
+                            <p className="text-2xs text-amber/90 leading-relaxed">{group.hint}</p>
                           )}
                           {rows.map((row) => (
                             <div
@@ -369,7 +374,7 @@ export function StorageView({
                               />
                               <div className="min-w-0 flex-1">
                                 <p className="text-xs font-medium text-ink truncate">{row.label}</p>
-                                <p className="text-[11px] text-muted truncate">{row.detail}</p>
+                                <p className="text-2xs text-muted truncate">{row.detail}</p>
                               </div>
                               <span className="shrink-0 text-xs font-mono text-ink tabular-nums">
                                 {formatBytes(row.size)}
@@ -419,7 +424,7 @@ export function StorageView({
                           <div className="min-w-0 flex-1 flex items-center gap-1.5 flex-wrap">
                             <span className="text-xs font-medium text-ink truncate">{v.name}</span>
                             {v.name !== v.tag && (
-                              <span className="text-[11px] text-muted font-mono">{v.tag}</span>
+                              <span className="text-2xs text-muted font-mono">{v.tag}</span>
                             )}
                             {v.is_current && <Badge tone="accent">{tc('cleanup_current_badge')}</Badge>}
                             {v.aliases.length > 0 && (
@@ -477,7 +482,7 @@ export function StorageView({
                       >
                         <div className="min-w-0 flex-1">
                           <p className="text-xs font-medium text-ink truncate">{t.name}</p>
-                          <p className="text-[11px] text-muted truncate">{t.workspace}</p>
+                          <p className="text-2xs text-muted truncate">{t.workspace}</p>
                         </div>
                         <span className="shrink-0 text-xs font-mono text-ink tabular-nums">
                           {formatBytes(t.size_bytes)}
@@ -563,7 +568,7 @@ export function StorageView({
                   >
                     <div className="min-w-0">
                       <p className="text-xs font-medium text-ink truncate">{e.label}</p>
-                      <p className="text-[11px] text-muted truncate" title={e.path}>
+                      <p className="text-2xs text-muted truncate" title={e.path}>
                         {e.path}
                       </p>
                     </div>
@@ -573,7 +578,7 @@ export function StorageView({
                   </li>
                 ))}
               </ul>
-              <p className="text-[11px] text-muted leading-relaxed">
+              <p className="text-2xs text-muted leading-relaxed">
                 {tc('cleanup_confirm_trash_note')}
               </p>
             </div>

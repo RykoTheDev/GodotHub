@@ -42,8 +42,8 @@ export function CategoryFilterBar({
         }`}
       >
         <IconTags className="w-3 h-3" />
-        <span className="text-[16px] font-medium">{t('all')}</span>
-        <span className="text-[12px] tabular-nums text-muted/80">{allCount}</span>
+        <span className="text-base font-medium">{t('all')}</span>
+        <span className="text-xs tabular-nums text-muted/80">{allCount}</span>
       </motion.button>
 
       <motion.button
@@ -58,8 +58,8 @@ export function CategoryFilterBar({
         }`}
       >
         <span className="w-2 h-2 rounded-full shrink-0 ring-1 ring-black/10 bg-[#949ba4]" />
-        <span className="text-[16px] font-medium">{uncategorizedLabel}</span>
-        <span className="text-[12px] tabular-nums text-muted/80">{uncategorizedCount}</span>
+        <span className="text-base font-medium">{uncategorizedLabel}</span>
+        <span className="text-xs tabular-nums text-muted/80">{uncategorizedCount}</span>
         {activeCategory === '' && <IconX className="w-3 h-3 ms-0.5" />}
       </motion.button>
 
@@ -82,8 +82,8 @@ export function CategoryFilterBar({
               className="w-2 h-2 rounded-full shrink-0 ring-1 ring-black/10"
               style={{ backgroundColor: cat.color }}
             />
-            <span className="text-[16px] font-medium">{cat.name}</span>
-            <span className="text-[12px] tabular-nums text-muted/80">
+            <span className="text-base font-medium">{cat.name}</span>
+            <span className="text-xs tabular-nums text-muted/80">
               {counts?.[cat.name] ?? 0}
             </span>
             {isActive && <IconX className="w-3 h-3 ms-0.5" />}

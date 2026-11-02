@@ -146,7 +146,7 @@ function VersionTag({
 
 function MonoBadge() {
   return (
-    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-tag bg-accent/10 text-accent-bright border border-accent-dim/40 shrink-0">
+    <span className="text-3xs font-semibold px-2 py-0.5 rounded-tag bg-accent/10 text-accent-bright border border-accent-dim/40 shrink-0">
       .NET
     </span>
   )
@@ -507,7 +507,7 @@ export function VersionsView({
       <OverlayScrollArea
         className={`flex-1 min-w-0 ${connected ? '' : '-me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
-        topButtonBottom="bottom-18"
+        topButtonBottom="bottom-17"
       >
         <div
           className={`h-full ${connected ? 'ps-5' : ''} pe-5 pb-4 flex flex-col gap-2`}
@@ -531,7 +531,7 @@ export function VersionsView({
         ) : (
           <div className="flex flex-col gap-2">
             <div className="flex items-center justify-between">
-              <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted px-1">
+              <h3 className="text-2xs font-semibold uppercase tracking-wider text-muted px-1">
                 {tv('installed_versions_section')}
               </h3>
               <div className="flex items-center gap-2">
@@ -556,8 +556,8 @@ export function VersionsView({
                     onClick={() => syncMise().catch(reportError)}
                     className="focus-ring cursor-pointer flex items-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors font-mono"
                   >
-                    <span className="text-[12px] text-muted">mise</span>
-                    <span className="text-[13px] font-medium text-ink">
+                    <span className="text-xs text-muted">mise</span>
+                    <span className="text-sm font-medium text-ink">
                       {miseStatus?.available ? tv('mise_sync') : tv('mise_missing')}
                     </span>
                   </motion.button>
@@ -576,8 +576,8 @@ export function VersionsView({
                       onClick={toggle}
                       className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-7 px-3 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
                     >
-                      <span className="text-[12px] text-muted">{tc('sort')}:</span>
-                      <span className="text-[13px] font-medium text-ink">
+                      <span className="text-xs text-muted">{tc('sort')}:</span>
+                      <span className="text-sm font-medium text-ink">
                         {activeOption ? tv(activeOption.labelKey) : tc('sort')}
                       </span>
                       <IconChevronDown className="w-3 h-3 text-muted" />
@@ -624,9 +624,9 @@ export function VersionsView({
             </div>
 
             {exportTemplates && exportTemplates.orphans.length > 0 && (
-              <div className="rounded-item border border-outline/40 bg-overlay px-3.5 py-3 flex flex-col gap-2">
+              <div className="rounded-item border border-outline/40 bg-overlay px-4 py-3 flex flex-col gap-2">
                 <div>
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-muted">
+                  <p className="text-2xs font-semibold uppercase tracking-wider text-muted">
                     {tv('export_templates_orphans_title')}
                   </p>
                   <p className="text-xs text-muted/80 mt-0.5">
@@ -643,7 +643,7 @@ export function VersionsView({
                       <span className="font-mono text-xs text-ink truncate min-w-0 flex-1">
                         {orphan.folder}
                       </span>
-                      <span className="text-[11px] font-mono text-muted shrink-0">
+                      <span className="text-2xs font-mono text-muted shrink-0">
                         {formatBytes(orphan.size_bytes)}
                       </span>
                       <button
@@ -664,7 +664,7 @@ export function VersionsView({
         )}
 
         <section className="flex flex-col gap-2">
-          <h3 className="text-[11px] font-semibold uppercase tracking-wider text-muted px-1">
+          <h3 className="text-2xs font-semibold uppercase tracking-wider text-muted px-1">
             {tv('available_title')}
           </h3>
           <p className="text-xs text-muted px-1 -mt-1">{tv('available_subtitle')}</p>
@@ -681,8 +681,8 @@ export function VersionsView({
                   onClick={toggle}
                   className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
                 >
-                  <span className="text-[13px] text-muted">{tv('source')}:</span>
-                  <span className="text-[16px] font-medium text-ink">
+                  <span className="text-sm text-muted">{tv('source')}:</span>
+                  <span className="text-base font-medium text-ink">
                     {source === 'archive'
                       ? tv('source_archive')
                       : source === 'mise'
@@ -734,8 +734,8 @@ export function VersionsView({
                   onClick={toggle}
                   className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
                 >
-                  <span className="text-[13px] text-muted">{tv('type')}:</span>
-                  <span className="text-[16px] font-medium text-ink">
+                  <span className="text-sm text-muted">{tv('type')}:</span>
+                  <span className="text-base font-medium text-ink">
                     {filters.buildType === 'both'
                       ? tv('both')
                       : filters.buildType === 'mono'
@@ -763,8 +763,8 @@ export function VersionsView({
                   onClick={toggle}
                   className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
                 >
-                  <span className="text-[13px] text-muted">{tv('channel')}:</span>
-                  <span className="text-[16px] font-medium text-ink">
+                  <span className="text-sm text-muted">{tv('channel')}:</span>
+                  <span className="text-base font-medium text-ink">
                     {filters.channel === 'both'
                       ? tv('both')
                       : filters.channel === 'stable'
@@ -794,8 +794,8 @@ export function VersionsView({
                     onClick={toggle}
                     className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 h-8 px-4 rounded-item bg-overlay text-muted hover:text-ink hover:bg-raised transition-colors"
                   >
-                    <span className="text-[13px] text-muted">{tc('sort')}:</span>
-                    <span className="text-[16px] font-medium text-ink">
+                    <span className="text-sm text-muted">{tc('sort')}:</span>
+                    <span className="text-base font-medium text-ink">
                       {activeOption ? tv(activeOption.labelKey) : tc('sort')}
                     </span>
                     <IconChevronDown className="w-3 h-3 text-muted" />
@@ -812,8 +812,8 @@ export function VersionsView({
           </div>
 
           {loadingAvailable ? (
-            <div className="flex items-center gap-2 py-8 justify-center">
-              <IconSpinner className="w-4 h-4 animate-spin text-muted" />
+            <div className="flex items-center gap-2 py-16 justify-center">
+              <IconSpinner className="w-5 h-5 animate-spin text-muted" />
               <span className="text-sm text-muted">{tv('fetching')}</span>
             </div>
           ) : availableError ? (
@@ -871,7 +871,7 @@ export function VersionsView({
                           }))
                         }
                         aria-expanded={!isCollapsed}
-                        className="focus-ring cursor-pointer flex items-center gap-1.5 w-fit text-[11px] font-semibold uppercase tracking-wider text-muted hover:text-ink transition-colors"
+                        className="focus-ring cursor-pointer flex items-center gap-1.5 w-fit text-2xs font-semibold uppercase tracking-wider text-muted hover:text-ink transition-colors"
                       >
                         <IconChevronDown
                           className={`w-3 h-3 transition-transform duration-200 ${
@@ -879,7 +879,7 @@ export function VersionsView({
                           }`}
                         />
                         {group === 'Other' ? tv('other') : group}
-                        <span className="text-[10px] font-medium text-muted/60">
+                        <span className="text-3xs font-medium text-muted/60">
                           {rows.length}
                         </span>
                       </button>
@@ -961,7 +961,7 @@ export function VersionsView({
                                                 }}
                                               />
                                             </div>
-                                            <p className="text-[11px] text-muted font-mono mt-1 tabular-nums">
+                                            <p className="text-2xs text-muted font-mono mt-1 tabular-nums">
                                               {dl.status === 'paused'
                                                 ? tv('paused_dot')
                                                 : ''}

@@ -217,7 +217,7 @@ export function GitAuthModal({
               </p>
 
               <div className="flex flex-col items-center gap-2">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted">
+                <span className="text-3xs font-semibold uppercase tracking-wider text-muted">
                   {ts('git_auth_enter_code')}
                 </span>
                 <div className="flex items-center gap-2">

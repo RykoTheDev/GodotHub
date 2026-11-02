@@ -16,7 +16,9 @@ import './i18n'
 import './index.css'
 import { initReducedMotionDetection } from './lib/appearance'
 import { UiMotionProvider } from './hooks/useUiMotion'
+import { installDevMocks } from './lib/devMock'
 
+installDevMocks()
 initReducedMotionDetection()
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(

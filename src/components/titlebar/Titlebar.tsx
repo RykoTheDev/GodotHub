@@ -128,6 +128,7 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
 
               onMouseDown={noDrag}
               onClick={() => openUrl('https://github.com/RykoTheDev/GodotHub')}
+              aria-label={t('star_on_github')}
               className="focus-ring cursor-pointer w-8 h-8 flex items-center justify-center rounded-item text-muted hover:text-amber hover:bg-amber/10 transition-colors"
             >
               <IconStar className="w-3.5 h-3.5" />
@@ -146,6 +147,7 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
               onClick={() =>
                 window.dispatchEvent(new Event('app:report-bug'))
               }
+              aria-label={t('report_a_bug')}
               className="focus-ring cursor-pointer w-6 h-6 flex items-center justify-center rounded-item text-muted hover:text-danger hover:bg-danger/10 transition-colors"
             >
               <IconBug className="w-3.5 h-3.5" />

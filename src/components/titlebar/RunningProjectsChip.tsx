@@ -188,7 +188,7 @@ export function RunningProjectsChip() {
                   <span className="absolute inline-flex h-full w-full rounded-full bg-mint opacity-60 animate-attention-ping" />
                   <span className="relative inline-flex rounded-full w-2 h-2 bg-mint" />
                 </span>
-                <span className="text-[13px] font-semibold tabular-nums">
+                <span className="text-sm font-semibold tabular-nums">
                   {running.length}
                 </span>
               </motion.button>
@@ -219,7 +219,7 @@ export function RunningProjectsChip() {
                     <h3 className="text-xs font-semibold text-muted uppercase tracking-wide">
                       {t('running')}
                     </h3>
-                    <p className="text-[10px] text-muted/50 mt-0.5">
+                    <p className="text-3xs text-muted/50 mt-0.5">
                       {t('running_projects_desc', { count: running.length })}
                     </p>
                   </div>
@@ -254,7 +254,7 @@ export function RunningProjectsChip() {
                             <p className="text-xs font-medium text-ink truncate">
                               {p.name}
                             </p>
-                            <p className="text-[10px] text-muted/60 font-mono truncate">
+                            <p className="text-3xs text-muted/60 font-mono truncate">
                               {p.version ? `Godot ${p.version} · ` : ''}
                               {formatDuration(now - p.startedAt)}
                             </p>

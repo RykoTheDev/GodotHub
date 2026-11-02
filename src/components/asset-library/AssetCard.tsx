@@ -88,23 +88,23 @@ export function AssetCard({
         </div>
 
         <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-          <p className="text-[11px] text-muted/70 truncate min-w-0">
+          <p className="text-2xs text-muted/70 truncate min-w-0">
             {t('asset_by_author', { author: asset.author })}
           </p>
           {showSource && asset.source && (
-            <span className="shrink-0 inline-flex items-center px-2 py-0.5 rounded-tag text-[10px] font-semibold border border-accent-dim/30 bg-accent/10 text-accent-bright">
+            <span className="shrink-0 inline-flex items-center px-2 py-0.5 rounded-tag text-3xs font-semibold border border-accent-dim/30 bg-accent/10 text-accent-bright">
               {t(`asset_source_${asset.source}`)}
             </span>
           )}
           {hasRating && (
-            <span className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-tag text-[10px] font-semibold border border-amber/25 bg-amber/10 text-amber">
+            <span className="shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-tag text-3xs font-semibold border border-amber/25 bg-amber/10 text-amber">
               <IconStar className="w-2.5 h-2.5" />
               {rating.toFixed(1)}
             </span>
           )}
           {asset.support_level && (
             <span
-              className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded-tag text-[10px] font-semibold border ${
+              className={`shrink-0 inline-flex items-center px-2 py-0.5 rounded-tag text-3xs font-semibold border ${
                 SUPPORT_BADGE[asset.support_level] ??
                 'bg-raised text-muted border-outline/50'
               }`}
@@ -125,7 +125,7 @@ export function AssetCard({
             {metaParts.map((part, i) => (
               <span
                 key={i}
-                className="inline-flex items-center px-2.5 py-1 rounded-tag bg-black/15 border border-outline/50 font-mono text-[10px] text-muted"
+                className="inline-flex items-center px-2.5 py-1 rounded-tag bg-black/15 border border-outline/50 font-mono text-3xs text-muted"
               >
                 {part}
               </span>

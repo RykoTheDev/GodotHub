@@ -101,7 +101,7 @@ export function TimeTrackerModal({ project, onClose }: Props) {
       <div className="p-6 pt-4 flex flex-col gap-6">
         <div className="grid grid-cols-3 gap-3">
           <div className="flex flex-col gap-1.5 px-4 py-3.5 rounded-xl bg-raised border border-line/60">
-            <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted/60">
+            <span className="flex items-center gap-1.5 text-3xs font-semibold uppercase tracking-wider text-muted/60">
               <IconClock className="w-3 h-3" />
               {t('time_today')}
             </span>
@@ -110,7 +110,7 @@ export function TimeTrackerModal({ project, onClose }: Props) {
             </span>
           </div>
           <div className="flex flex-col gap-1.5 px-4 py-3.5 rounded-xl bg-raised border border-line/60">
-            <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted/60">
+            <span className="flex items-center gap-1.5 text-3xs font-semibold uppercase tracking-wider text-muted/60">
               <IconHistory className="w-3 h-3" />
               {t('time_this_week')}
             </span>
@@ -119,7 +119,7 @@ export function TimeTrackerModal({ project, onClose }: Props) {
             </span>
           </div>
           <div className="flex flex-col gap-1.5 px-4 py-3.5 rounded-xl bg-raised border border-line/60">
-            <span className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted/60">
+            <span className="flex items-center gap-1.5 text-3xs font-semibold uppercase tracking-wider text-muted/60">
               <IconStopwatch className="w-3 h-3" />
               {t('time_all_time')}
             </span>
@@ -131,10 +131,10 @@ export function TimeTrackerModal({ project, onClose }: Props) {
 
         <div className="flex flex-col gap-3">
           <div className="flex items-center justify-between">
-            <h4 className="text-[11px] font-semibold uppercase tracking-wider text-muted/60">
+            <h4 className="text-2xs font-semibold uppercase tracking-wider text-muted/60">
               {t('time_weekly_chart')}
             </h4>
-            <span className="text-[11px] text-muted/60 tabular-nums">
+            <span className="text-2xs text-muted/60 tabular-nums">
               {t('time_week_total', { total: formatDuration(weekTotal * 1000) })}
             </span>
           </div>
@@ -166,17 +166,17 @@ export function TimeTrackerModal({ project, onClose }: Props) {
                         >
                           {/* Time sits in the bar itself; short bars let it spill
                               into the column above instead of clipping. */}
-                          <span className="absolute inset-x-0 bottom-1 text-center text-[9px] font-semibold tabular-nums text-ink">
+                          <span className="absolute inset-x-0 bottom-1 text-center text-4xs font-semibold tabular-nums text-ink">
                             {formatDuration(seconds * 1000)}
                           </span>
                         </div>
                       ) : (
-                        <span className="w-full pb-1 text-center text-[9px] tabular-nums text-muted/60">
+                        <span className="w-full pb-1 text-center text-4xs tabular-nums text-muted/60">
                           {formatDuration(seconds * 1000)}
                         </span>
                       )}
                     </div>
-                    <span className="text-[9px] text-muted/60 shrink-0">
+                    <span className="text-4xs text-muted/60 shrink-0">
                       {dayLabel(key)}
                     </span>
                   </div>

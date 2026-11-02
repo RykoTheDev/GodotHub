@@ -193,7 +193,7 @@ export function RestoreProgressModal({ onClose }: Props) {
                 <p className="text-lg font-semibold text-ink">
                   {preview.workspace_count}
                 </p>
-                <p className="text-[11px] text-muted">
+                <p className="text-2xs text-muted">
                   {t('restore_modal_workspaces', { count: preview.workspace_count })}
                 </p>
               </div>
@@ -201,7 +201,7 @@ export function RestoreProgressModal({ onClose }: Props) {
                 <p className="text-lg font-semibold text-ink">
                   {preview.project_count}
                 </p>
-                <p className="text-[11px] text-muted">
+                <p className="text-2xs text-muted">
                   {t('restore_modal_projects', { count: preview.project_count })}
                 </p>
               </div>
@@ -209,7 +209,7 @@ export function RestoreProgressModal({ onClose }: Props) {
                 <p className="text-lg font-semibold text-ink">
                   {preview.category_count}
                 </p>
-                <p className="text-[11px] text-muted">
+                <p className="text-2xs text-muted">
                   {t('restore_modal_categories', { count: preview.category_count })}
                 </p>
               </div>
@@ -217,7 +217,7 @@ export function RestoreProgressModal({ onClose }: Props) {
                 <p className="text-lg font-semibold text-ink">
                   {preview.template_count}
                 </p>
-                <p className="text-[11px] text-muted">
+                <p className="text-2xs text-muted">
                   {t('restore_modal_templates', { count: preview.template_count })}
                 </p>
               </div>

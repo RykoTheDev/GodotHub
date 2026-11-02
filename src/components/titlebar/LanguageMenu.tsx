@@ -40,7 +40,7 @@ export function LanguageMenu() {
 
   const badge = (status: LanguageStatus) => (
     <span
-      className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-tag border shrink-0 ${STATUS_BADGE_CLASS[status]}`}
+      className={`text-3xs font-semibold px-1.5 py-0.5 rounded-tag border shrink-0 ${STATUS_BADGE_CLASS[status]}`}
     >
       {ts(languageStatusLabelKey(status))}
     </span>
@@ -232,7 +232,7 @@ export function LanguageMenu() {
                 transformOrigin: `${dir ? 'bottom' : 'top'} right`,
               }}
             >
-              <div className="px-2.5 pt-1.5 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted/50">
+              <div className="px-2.5 pt-1.5 pb-1 text-3xs font-semibold uppercase tracking-wider text-muted/50">
                 {ts('language_label')}
               </div>
 

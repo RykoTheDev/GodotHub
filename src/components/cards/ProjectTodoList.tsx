@@ -169,7 +169,7 @@ export function ProjectTodoList({
     <button
       type="button"
       onClick={onToggleStatusSort}
-      className={`focus-ring cursor-pointer rounded-btn text-center text-[9px] font-medium uppercase tracking-wide text-muted/60 transition-colors hover:bg-raised hover:text-ink ${
+      className={`focus-ring cursor-pointer rounded-btn text-center text-4xs font-medium uppercase tracking-wide text-muted/60 transition-colors hover:bg-raised hover:text-ink ${
         showArea ? "w-28" : "min-w-[88px]"
       }`}
       title={t("sort_by_status")}
@@ -187,7 +187,7 @@ export function ProjectTodoList({
     <button
       type="button"
       onClick={onToggleDueDateSort}
-      className={`focus-ring cursor-pointer rounded-btn text-[9px] font-medium uppercase tracking-wide text-muted/60 transition-colors hover:bg-raised hover:text-ink ${
+      className={`focus-ring cursor-pointer rounded-btn text-4xs font-medium uppercase tracking-wide text-muted/60 transition-colors hover:bg-raised hover:text-ink ${
         showArea ? "w-28 text-center" : "w-24 text-center"
       }`}
       title={t("sort_by_due_date")}
@@ -211,12 +211,12 @@ export function ProjectTodoList({
         {reorderable && <span className="w-3.5 shrink-0" />}
         <span className="w-3.5 shrink-0" />
 
-        <span className="min-w-0 flex-1 text-[9px] font-medium uppercase tracking-wide text-muted/60">
+        <span className="min-w-0 flex-1 text-4xs font-medium uppercase tracking-wide text-muted/60">
           {t("task")}
         </span>
 
         {showArea && (
-          <span className="w-28 shrink-0 text-center text-[9px] font-medium uppercase tracking-wide text-muted/60">
+          <span className="w-28 shrink-0 text-center text-4xs font-medium uppercase tracking-wide text-muted/60">
             {t("area")}
           </span>
         )}
@@ -265,7 +265,7 @@ export function ProjectTodoList({
                 onClick={toggle}
                 aria-label={t("change_status", { status: status.label })}
                 aria-expanded={open}
-                className={`focus-ring shrink-0 cursor-pointer rounded-tag border px-2 py-1 text-center text-[10px] transition-[filter,background-color,color,border-color,box-shadow] hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50 ${status.className} ${
+                className={`focus-ring shrink-0 cursor-pointer rounded-tag border px-2 py-1 text-center text-3xs transition-[filter,background-color,color,border-color,box-shadow] hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50 ${status.className} ${
                   showArea ? "w-28" : "min-w-[88px]"
                 } ${open ? "ring-1 ring-accent/40" : ""}`}
               >
@@ -331,7 +331,7 @@ export function ProjectTodoList({
 
         const dueDateControl = completed ? (
           <span
-            className={`shrink-0 truncate text-center text-[10px] text-mint/80 ${showArea ? "w-28" : "w-24"}`}
+            className={`shrink-0 truncate text-center text-3xs text-mint/80 ${showArea ? "w-28" : "w-24"}`}
             title={todo.completedAt ? new Date(todo.completedAt).toLocaleString(locale) : undefined}
           >
             {todo.completedAt
@@ -413,7 +413,7 @@ export function ProjectTodoList({
             {todo.number !== undefined && (
               <span
                 dir="ltr"
-                className="shrink-0 font-mono text-[9px] text-muted/50"
+                className="shrink-0 font-mono text-4xs text-muted/50"
               >
                 #{todo.number}
               </span>
@@ -424,7 +424,7 @@ export function ProjectTodoList({
               onClick={() => onView(todo)}
               title={todo.title}
               aria-label={t("view_task_details", { title: todo.title })}
-              className={`focus-ring min-w-0 flex-1 cursor-pointer truncate rounded-btn text-start text-[11px] transition-colors ${
+              className={`focus-ring min-w-0 flex-1 cursor-pointer truncate rounded-btn text-start text-2xs transition-colors ${
                 completed
                   ? "text-muted line-through hover:text-ink"
                   : "text-ink hover:text-accent-bright"
@@ -439,7 +439,7 @@ export function ProjectTodoList({
                   done: todo.checklist.filter((item) => item.done).length,
                   total: todo.checklist.length,
                 })}
-                className="shrink-0 font-mono text-[9px] text-muted"
+                className="shrink-0 font-mono text-4xs text-muted"
               >
                 {todo.checklist.filter((item) => item.done).length}/{todo.checklist.length}
               </span>
@@ -463,7 +463,7 @@ export function ProjectTodoList({
 
             {showArea && (
               <span className="w-28 shrink-0 text-center">
-                <span className="inline-flex w-full justify-center truncate rounded-tag border border-outline/50 bg-raised px-2 py-1 text-[10px] font-medium text-ink">
+                <span className="inline-flex w-full justify-center truncate rounded-tag border border-outline/50 bg-raised px-2 py-1 text-3xs font-medium text-ink">
                   {areaLabels[todo.area ?? "other"]}
                 </span>
               </span>

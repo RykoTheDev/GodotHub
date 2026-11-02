@@ -41,6 +41,7 @@ import {pushToast, reportError } from '../../lib/toast'
 const POLL_MS = 180
 const POLL_MS_IDLE = 1000
 const MAX_RENDERED_LINES = 2000
+const MAX_STORED_LINES = 5000
 const PILL_STORAGE_KEY = 'new_ui_console_pill'
 const PILL_MARGIN = 10
 const SNAP_DISTANCE = 56
@@ -327,9 +328,29 @@ export function ProjectConsoleWindow() {
           const restarted = existing
             ? snapshot.next_seq < existing.nextSeq
             : false
-          const lines = restarted || !existing
-            ? snapshot.lines
-            : [...existing.lines, ...snapshot.lines]
+          const done =
+            !snapshot.running && (!exportRun || exportRun.status !== 'running')
+          if (
+            existing &&
+            !restarted &&
+            snapshot.lines.length === 0 &&
+            snapshot.running === existing.running &&
+            snapshot.exit_code === existing.exitCode &&
+            snapshot.restored === existing.restored &&
+            done === existing.done &&
+            JSON.stringify(exportRun ?? existing.exportRun) ===
+              JSON.stringify(existing.exportRun)
+          ) {
+            return prev
+          }
+          const merged =
+            restarted || !existing
+              ? snapshot.lines
+              : [...existing.lines, ...snapshot.lines]
+          const lines =
+            merged.length > MAX_STORED_LINES
+              ? merged.slice(-MAX_STORED_LINES)
+              : merged
           return {
             ...prev,
             [activeId]: {
@@ -338,7 +359,7 @@ export function ProjectConsoleWindow() {
               nextSeq: snapshot.next_seq,
               running: snapshot.running,
               exitCode: snapshot.exit_code,
-              done: !snapshot.running && (!exportRun || exportRun.status !== 'running'),
+              done,
               restored: snapshot.restored,
               name: existing?.name ?? activeId,
               exportRun: exportRun ?? existing?.exportRun,
@@ -556,7 +577,7 @@ export function ProjectConsoleWindow() {
               </span>
               {status && (
                 <span
-                  className={`shrink-0 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-tag text-[10px] font-semibold ${
+                  className={`shrink-0 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-tag text-3xs font-semibold ${
                     status.tone === 'running'
                       ? 'bg-mint/10 text-mint'
                       : status.tone === 'ok'
@@ -660,7 +681,7 @@ export function ProjectConsoleWindow() {
                         setActiveId(id)
                         pinnedRef.current = true
                       }}
-                      className={`cursor-pointer shrink-0 inline-flex items-center gap-1.5 h-6 px-2 rounded-btn text-[11px] font-medium transition-colors ${
+                      className={`cursor-pointer shrink-0 inline-flex items-center gap-1.5 h-6 px-2 rounded-btn text-2xs font-medium transition-colors ${
                         id === activeId
                           ? 'bg-accent/15 text-accent-bright'
                           : 'text-muted hover:text-ink hover:bg-raised'
@@ -702,7 +723,7 @@ export function ProjectConsoleWindow() {
                         onClick={() => toggleLevel(level)}
                         aria-pressed={active}
                         aria-label={label}
-                        className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 h-6 px-2 rounded-full border text-[10px] font-semibold transition-colors ${
+                        className={`focus-ring cursor-pointer inline-flex items-center gap-1.5 h-6 px-2 rounded-full border text-3xs font-semibold transition-colors ${
                           active
                             ? LEVEL_PILL_ACTIVE[level]
                             : 'bg-transparent text-muted/45 border-line/50 hover:text-muted'
@@ -735,14 +756,14 @@ export function ProjectConsoleWindow() {
               className="flex-1 min-h-0 overflow-y-auto bg-black/35 px-3 py-2 font-mono text-[11.5px] leading-[1.55] text-[#d7dae0]"
             >
               {activeState?.restored && (
-                <p className="pb-2 text-[10px] text-muted/60">
+                <p className="pb-2 text-3xs text-muted/60">
                   {activeState.running
                     ? t('console_resumed_hint')
                     : t('console_previous_hint')}
                 </p>
               )}
               {trimmed > 0 && (
-                <p className="pb-2 text-[10px] text-muted/60">
+                <p className="pb-2 text-3xs text-muted/60">
                   {t('console_trimmed', { count: trimmed })}
                 </p>
               )}
@@ -771,9 +792,9 @@ export function ProjectConsoleWindow() {
               <footer className="shrink-0 flex items-center gap-3 border-t border-line bg-overlay px-3 py-3">
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-medium text-ink">{tb(activeState.exportRun.status)}{activeState.exportRun.size_bytes!==null?` · ${formatBytes(activeState.exportRun.size_bytes)}`:''}</p>
-                  <p className="mt-1 text-[11px] font-mono text-muted break-all">{activeState.exportRun.output_path}</p>
-                  {activeState.exportRun.error&&<p className="mt-1 text-[11px] text-danger">{activeState.exportRun.error}</p>}
-                  {activeState.exportRun.status==='cancelled'&&<p className="mt-1 text-[11px] text-muted">{tb('cancel_hint')}</p>}
+                  <p className="mt-1 text-2xs font-mono text-muted break-all">{activeState.exportRun.output_path}</p>
+                  {activeState.exportRun.error&&<p className="mt-1 text-2xs text-danger">{activeState.exportRun.error}</p>}
+                  {activeState.exportRun.status==='cancelled'&&<p className="mt-1 text-2xs text-muted">{tb('cancel_hint')}</p>}
                 </div>
                 {activeState.exportRun.status==='succeeded'&&<button type="button" className="focus-ring cursor-pointer inline-flex shrink-0 items-center gap-2 rounded-btn border border-line bg-raised px-3 py-2 text-xs text-ink hover:bg-overlay" onClick={()=>void api.openExportArtifactFolder(activeState.exportRun!.id).catch(error=>pushToast('error',String(error)))}><IconFolder className="w-3.5 h-3.5"/>{tb('open_folder')}</button>}
               </footer>
@@ -782,7 +803,7 @@ export function ProjectConsoleWindow() {
               !activeState.running &&
               activeState.exitCode != null &&
               activeState.exitCode !== 0 && (
-                <footer className="shrink-0 flex items-center gap-2 px-3 h-8 border-t border-danger/30 bg-danger/10 text-[11px] text-danger">
+                <footer className="shrink-0 flex items-center gap-2 px-3 h-8 border-t border-danger/30 bg-danger/10 text-2xs text-danger">
                   <IconChevronDown className="w-3 h-3 rotate-180 shrink-0" />
                   <span className="truncate">
                     {t('console_crash_hint', { code: activeState.exitCode })}
@@ -828,7 +849,7 @@ export function ProjectConsoleWindow() {
             <span className="truncate text-xs font-medium text-ink max-w-40">
               {activeState?.name ?? t('console_title')}
             </span>
-            <span className="shrink-0 text-[10px] text-muted/70">
+            <span className="shrink-0 text-3xs text-muted/70">
               {activeState?.running
                 ? t('running')
                 : activeState?.exitCode == null
@@ -838,12 +859,12 @@ export function ProjectConsoleWindow() {
                     : t('console_exit_code', { code: activeState.exitCode })}
             </span>
             {counts.error > 0 && (
-              <span className="shrink-0 min-w-4 h-4 px-1 inline-flex items-center justify-center rounded-full bg-danger/20 text-danger text-[10px] font-bold tabular-nums">
+              <span className="shrink-0 min-w-4 h-4 px-1 inline-flex items-center justify-center rounded-full bg-danger/20 text-danger text-3xs font-bold tabular-nums">
                 {counts.error}
               </span>
             )}
             {counts.error === 0 && counts.warning > 0 && (
-              <span className="shrink-0 min-w-4 h-4 px-1 inline-flex items-center justify-center rounded-full bg-amber/20 text-amber text-[10px] font-bold tabular-nums">
+              <span className="shrink-0 min-w-4 h-4 px-1 inline-flex items-center justify-center rounded-full bg-amber/20 text-amber text-3xs font-bold tabular-nums">
                 {counts.warning}
               </span>
             )}

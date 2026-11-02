@@ -80,7 +80,7 @@ export function BulkTagModal({ projects, onClose, onApplied }: Props) {
         </div>
 
         {allTags.length === 0 ? (
-          <p className="text-[11px] text-muted/50">{t('no_common_tags')}</p>
+          <p className="text-2xs text-muted/50">{t('no_common_tags')}</p>
         ) : (
           <div className="flex flex-col gap-1">
             {allTags.map(([tag, count]) => (
@@ -91,7 +91,7 @@ export function BulkTagModal({ projects, onClose, onApplied }: Props) {
                 <span className="flex-1 min-w-0 text-xs font-mono text-ink truncate">
                   {tag}
                 </span>
-                <span className="text-[10px] font-mono text-muted/50 tabular-nums shrink-0">
+                <span className="text-3xs font-mono text-muted/50 tabular-nums shrink-0">
                   {count}/{projects.length}
                 </span>
                 <button

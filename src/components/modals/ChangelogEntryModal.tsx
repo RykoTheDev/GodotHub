@@ -169,7 +169,7 @@ export function ChangelogEntryModal({ entry, initial, onClose, onSave }: Props) 
                         type="button"
                         onClick={() => setNote(i, { category: c.value })}
                         title={t(c.label)}
-                        className={`focus-ring cursor-pointer px-2 py-1.5 text-[10px] font-medium transition-colors ${
+                        className={`focus-ring cursor-pointer px-2 py-1.5 text-3xs font-medium transition-colors ${
                           note.category === c.value
                             ? c.activeClass
                             : 'text-muted hover:bg-raised/50'
@@ -226,7 +226,7 @@ export function ChangelogEntryModal({ entry, initial, onClose, onSave }: Props) 
           </div>
           <div className="flex flex-col gap-2">
             {knownIssues.length === 0 ? (
-              <p className="text-[11px] text-muted/60 italic">
+              <p className="text-2xs text-muted/60 italic">
                 {t('changelog_known_issues_none')}
               </p>
             ) : (
