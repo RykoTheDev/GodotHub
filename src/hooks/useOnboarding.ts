@@ -28,7 +28,6 @@ export type OnboardingStepId =
   | 'versions'
   | 'templates'
   | 'categories'
-  | 'workspaces'
   | 'appearance'
   | 'finish'
 
@@ -54,7 +53,6 @@ export const ALL_STEPS: { id: OnboardingStepId; feature?: FeatureId; firstRunOnl
   { id: 'versions' },
   { id: 'templates', feature: 'templates' },
   { id: 'categories', feature: 'categories' },
-  { id: 'workspaces', feature: 'workspaces', firstRunOnly: true },
   { id: 'appearance' },
   { id: 'finish' },
 ]
@@ -325,8 +323,6 @@ export function useOnboarding({ settings, onComplete }: UseOnboardingOptions) {
         return tc('section_templates')
       case 'categories':
         return t('categories')
-      case 'workspaces':
-        return tc('section_workspaces')
       case 'appearance':
         return ts('appearance')
       case 'finish':

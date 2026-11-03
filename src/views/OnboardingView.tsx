@@ -39,10 +39,7 @@ import { ThemePresetsModal } from '../components/modals/ThemePresetsModal'
 import { RestoreProgressModal } from '../components/modals/RestoreProgressModal'
 import { GitAuthModal } from '../components/modals/GitAuthModal'
 import { ViewHeader } from '../components/reusables/ViewHeader'
-import { CreateWorkspaceModal } from '../components/modals/CreateWorkspaceModal'
-import { WorkspaceEditModal } from '../components/modals/WorkspaceEditModal'
 import { useWorkspaces } from '../hooks/useWorkspaces'
-import { getWorkspaceIcon } from '../lib/workspaceIcons'
 import { WorkspaceForm, workspaceNameError, type WorkspaceDraft } from '../components/ui/WorkspaceForm'
 import { WelcomeIntro } from '../components/onboarding/WelcomeIntro'
 import { MiniAppPreview } from '../components/onboarding/MiniAppPreview'
@@ -66,7 +63,6 @@ import {
   IconMonitor,
   IconMoon,
   IconPalette,
-  IconPencil,
   IconPlus,
   IconRefresh,
   IconSun,
@@ -1040,16 +1036,6 @@ export function OnboardingView({
                       </StepShell>
                     )}
 
-                    {step.id === 'workspaces' && (
-                      <StepShell
-                        icon={<IconLayoutGrid className="w-5 h-5" />}
-                        title={t('workspaces_title')}
-                        description={t('workspaces_desc')}
-                      >
-                        <OnboardingWorkspaces />
-                      </StepShell>
-                    )}
-
                     {step.id === 'appearance' && (
                       <StepShell
                         icon={<IconPalette className="w-5 h-5" />}
@@ -1621,98 +1607,6 @@ function OnboardingFirstWorkspace() {
       onSubmit={commitName}
       onNameBlur={commitName}
     />
-  )
-}
-
-function OnboardingWorkspaces() {
-  const { t } = useTranslation('common')
-  const {
-    workspaces,
-    activeId,
-    addWorkspace,
-    renameWorkspace,
-    updateWorkspaceStyle,
-    deleteWorkspace,
-  } = useWorkspaces()
-  const [added, setAdded] = useState<Set<string>>(new Set())
-  const [creating, setCreating] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const editing = workspaces.find((w) => w.id === editingId) ?? null
-
-  return (
-    <div className="flex flex-col gap-1.5 w-full">
-      {workspaces.map((ws) => {
-        const Icon = getWorkspaceIcon(ws.icon)
-        return (
-          <button
-            key={ws.id}
-            type="button"
-            onClick={() => setEditingId(ws.id)}
-            aria-label={`${t('edit_workspace_title')}: ${ws.name}`}
-            className="focus-ring cursor-pointer group flex items-center gap-3 px-3 py-2.5 rounded-item border border-outline/50 bg-base/40 text-start hover:border-accent-dim hover:bg-overlay/60"
-          >
-            <span
-              className="w-9 h-9 shrink-0 rounded-full border-2 flex items-center justify-center"
-              style={{ backgroundColor: `${ws.color}26`, borderColor: ws.color }}
-            >
-              <Icon className="w-4 h-4" style={{ color: ws.color }} />
-            </span>
-            <span className="flex-1 min-w-0 text-sm font-medium text-ink truncate">
-              {ws.name}
-            </span>
-            {ws.id === activeId && (
-              <span className="shrink-0 text-4xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-tag bg-accent/15 text-accent-bright">
-                {t('current_workspace')}
-              </span>
-            )}
-            <IconPencil className="w-3.5 h-3.5 shrink-0 text-muted opacity-0 group-hover:opacity-100" />
-          </button>
-        )
-      })}
-
-      <button
-        type="button"
-        onClick={() => setCreating(true)}
-        className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-item border border-dashed border-outline/60 text-xs text-muted hover:text-accent-bright hover:border-accent-dim hover:bg-overlay/40"
-      >
-        <IconPlus className="w-3.5 h-3.5" />
-        {t('create_workspace')}
-      </button>
-
-      {creating && (
-        <CreateWorkspaceModal
-          takenNames={workspaces.map((w) => w.name)}
-          onClose={() => setCreating(false)}
-          onCreate={async ({ name, icon, color }) => {
-            const id = await addWorkspace(name, icon, color)
-            if (id) setAdded((prev) => new Set(prev).add(id))
-            setCreating(false)
-          }}
-        />
-      )}
-
-      {editing && (
-        <WorkspaceEditModal
-          workspace={editing}
-          takenNames={workspaces.filter((w) => w.id !== editing.id).map((w) => w.name)}
-          canDelete={added.has(editing.id) && editing.id !== activeId}
-          onClose={() => setEditingId(null)}
-          onSave={async (name, icon, color) => {
-            await Promise.all([
-              name.trim() !== editing.name ? renameWorkspace(editing.id, name) : null,
-              icon !== editing.icon || color !== editing.color
-                ? updateWorkspaceStyle(editing.id, icon, color)
-                : null,
-            ])
-            setEditingId(null)
-          }}
-          onDelete={async () => {
-            await deleteWorkspace(editing.id)
-            setEditingId(null)
-          }}
-        />
-      )}
-    </div>
   )
 }
 
