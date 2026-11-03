@@ -59,6 +59,8 @@ const SUBMENU_FALLBACK_WIDTH = 220
 
 const GAP = MENU_GAP
 
+const SUBMENU_HOVER_DELAY = 160
+
 export function Dropdown({
   trigger,
   items = [],
@@ -78,6 +80,8 @@ export function Dropdown({
   const [submenuSide, setSubmenuSide] = useState<'left' | 'right'>('right')
   const physicalAlign = mirrorSide(align)
   const [submenuOffsetY, setSubmenuOffsetY] = useState(0)
+  const submenuTimerRef = useRef<number | undefined>(undefined)
+  const submenuInset = (compact ? 8 : 10) + GAP
   const [pos, setPos] = useState<{
     left: number
     top: number
@@ -94,6 +98,7 @@ export function Dropdown({
   }), [onOpenChange])
 
   const closeAll = useCallback(() => {
+    window.clearTimeout(submenuTimerRef.current)
     setOpen(false)
     setOpenSubmenuKey(null)
     onOpenChange?.(false)
@@ -153,8 +158,8 @@ export function Dropdown({
     if (!itemEl) return
 
     const r = itemEl.getBoundingClientRect()
-    const spaceRight = window.innerWidth - r.right - GAP
-    const spaceLeft = r.left - GAP
+    const spaceRight = window.innerWidth - r.right - submenuInset
+    const spaceLeft = r.left - submenuInset
     const side: 'left' | 'right' =
       spaceRight < SUBMENU_FALLBACK_WIDTH && spaceLeft > spaceRight
         ? 'left'
@@ -166,7 +171,17 @@ export function Dropdown({
 
     setSubmenuSide(side)
     setSubmenuOffsetY(clampedTop - r.top)
-  }, [])
+  }, [submenuInset])
+
+  const scheduleSubmenu = (key: string | null) => {
+    window.clearTimeout(submenuTimerRef.current)
+    submenuTimerRef.current = window.setTimeout(() => {
+      setOpenSubmenuKey(key)
+      if (key) measureSubmenu(key)
+    }, SUBMENU_HOVER_DELAY)
+  }
+
+  useEffect(() => () => window.clearTimeout(submenuTimerRef.current), [])
 
   useLayoutEffect(() => {
     if (!open) return
@@ -262,6 +277,7 @@ export function Dropdown({
   ) => {
     if (item.children?.length) {
       e.preventDefault()
+      window.clearTimeout(submenuTimerRef.current)
       setOpenSubmenuKey(item.key)
       measureSubmenu(item.key)
       return
@@ -289,7 +305,7 @@ export function Dropdown({
               className={`fixed z-50 ${menuSurfaceClass(compact)} ${
                 openUp ? 'origin-bottom' : 'origin-top'
               } ${menuClassName}`}
-              onMouseLeave={() => setOpenSubmenuKey(null)}
+              onMouseLeave={() => scheduleSubmenu(null)}
             >
               {header && header.length > 0 && (
                 <div className={`flex items-center gap-1 ${compact ? 'p-0.5' : 'p-1'} border-b border-white/6 mb-1`}>
@@ -314,14 +330,7 @@ export function Dropdown({
                     itemRefs.current[item.key] = el
                   }}
                   className={`relative ${item.action ? 'flex items-center gap-0.5' : ''}`}
-                  onMouseEnter={() => {
-                    if (item.children?.length) {
-                      setOpenSubmenuKey(item.key)
-                      measureSubmenu(item.key)
-                    } else {
-                      setOpenSubmenuKey(null)
-                    }
-                  }}
+                  onMouseEnter={() => scheduleSubmenu(item.children?.length ? item.key : null)}
                 >
                   <MenuButton
                     item={item}
@@ -350,15 +359,16 @@ export function Dropdown({
                     openSubmenuKey === item.key && (
                         <div
                           className={`absolute top-0 z-60 ${
-                            submenuSide === 'left'
-                              ? 'right-full mr-1'
-                              : 'left-full ml-1'
+                            submenuSide === 'left' ? 'right-full' : 'left-full'
                           }`}
-                          style={{ transform: `translateY(${submenuOffsetY}px)` }}
+                          style={{
+                            transform: `translateY(${submenuOffsetY}px)`,
+                            [submenuSide === 'left' ? 'marginRight' : 'marginLeft']: submenuInset,
+                          }}
                         >
                           <div
-
-                            className={`${menuSurfaceClass(compact, 'max-h-[70vh] overflow-y-auto')} ${
+                            data-motion="popover"
+                            className={`${menuSurfaceClass(true, 'max-h-[70vh] overflow-y-auto')} ${
                               submenuSide === 'left'
                                 ? 'origin-right'
                                 : 'origin-left'
@@ -368,7 +378,7 @@ export function Dropdown({
                               <div key={child.key}>
                                 <MenuButton
                                   item={child}
-                                  compact={compact}
+                                  compact
                                   onSelect={() => {
                                     closeAll()
                                     child.onClick?.()
@@ -376,7 +386,7 @@ export function Dropdown({
                                   activeItemClassName={activeItemClassName}
                                 />
                                 {child.dividerAfter && (
-                                  <MenuDivider compact={compact} />
+                                  <MenuDivider compact />
                                 )}
                               </div>
                             ))}

@@ -13,17 +13,15 @@ const requestEdit = (id: string) =>
 
 const requestCreate = () => window.dispatchEvent(new CustomEvent('app:create-workspace-request'))
 
-function WorkspaceBadge({ workspace }: { workspace: Workspace }) {
+function WorkspaceBadge({ workspace, active = false }: { workspace: Workspace; active?: boolean }) {
   const Icon = getWorkspaceIcon(workspace.icon)
   return (
     <span
-      className="w-6 h-6 rounded-full flex items-center justify-center border shrink-0"
-      style={{
-        backgroundColor: `${workspace.color}26`,
-        borderColor: `${workspace.color}55`,
-      }}
+      className={`w-6 h-6 rounded-full flex items-center justify-center border shrink-0 ${
+        active ? 'bg-white/15 border-white/20 text-white' : 'bg-raised border-outline/50 text-muted'
+      }`}
     >
-      <Icon className="w-3 h-3" style={{ color: workspace.color }} />
+      <Icon className="w-3 h-3" />
     </span>
   )
 }
@@ -52,7 +50,7 @@ export function useWorkspaceMenuItem(): MenuItem | null {
       ...workspaces.map((w, index) => ({
         key: w.id,
         label: w.name,
-        leading: <MenuBadge workspace={w} />,
+        leading: <WorkspaceBadge workspace={w} active={w.id === active.id} />,
         active: w.id === active.id,
         dividerAfter: index === workspaces.length - 1,
         onClick: () => switchWorkspace(w.id),
@@ -65,6 +63,7 @@ export function useWorkspaceMenuItem(): MenuItem | null {
 export function WorkspaceModals() {
   const {
     workspaces,
+    activeId,
     createWorkspace,
     renameWorkspace,
     updateWorkspaceStyle,
@@ -93,9 +92,11 @@ export function WorkspaceModals() {
 
         {creating && (
           <CreateWorkspaceModal
+            takenNames={workspaces.map((w) => w.name)}
+            copySource={workspaces.find((w) => w.id === activeId) ?? null}
             onClose={() => setCreating(false)}
-            onCreate={async (name, icon, color) => {
-              await createWorkspace(name, icon, color)
+            onCreate={async ({ name, icon, color }, start) => {
+              await createWorkspace(name, icon, color, start === 'copy' ? activeId : null)
               setCreating(false)
             }}
           />
@@ -106,6 +107,7 @@ export function WorkspaceModals() {
         {editing && (
           <WorkspaceEditModal
             workspace={editing}
+            takenNames={workspaces.filter((w) => w.id !== editing.id).map((w) => w.name)}
             canDelete={workspaces.length > 1}
             onClose={() => setEditingId(null)}
             onSave={async (name, icon, color) => {

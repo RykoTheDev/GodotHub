@@ -15,11 +15,11 @@ import { hasOnlyPinnedProjects, UNCATEGORIZED_KEY } from '../../lib/projectDrag'
 import { AUTO_SCROLL_CONFIG } from '../../lib/dragFeel'
 import { useProjectDnd } from '../../hooks/useProjectDnd'
 import {
-  PROJECT_DROP_ANIMATION,
-  ProjectDragOverlay,
-  ProjectDropLine,
-  SortableProjectItem,
-} from '../dnd/ProjectDnd'
+  DROP_ANIMATION,
+  DragLiftOverlay,
+  DropLine,
+  SortableItem,
+} from '../dnd/SortableDnd'
 import type { Category, Project } from '../../types'
 import { AnimatedNumber } from '../reusables/AnimatedNumber'
 
@@ -143,14 +143,14 @@ export function ProjectCardList({
 
   const pinnedCard = (p: Project) =>
     onReorderPinned ? (
-      <SortableProjectItem
+      <SortableItem
         key={p.id}
         id={p.id}
         carried={pinnedDnd.activeIds.includes(p.id)}
         static={pinnedDnd.activeIds.length > 1}
       >
         {animatedCard(p)}
-      </SortableProjectItem>
+      </SortableItem>
     ) : (
       animatedCard(p)
     )
@@ -171,15 +171,15 @@ export function ProjectCardList({
       >
         {pinnedProjects.map((p) => pinnedCard(p))}
       </SortableContext>
-      <ProjectDropLine placement={pinnedDnd.placementRef} activeIds={pinnedDnd.activeIds} reflows={pinnedDnd.reflows} />
-      <DragOverlay dropAnimation={PROJECT_DROP_ANIMATION}>
+      <DropLine placement={pinnedDnd.placementRef} activeIds={pinnedDnd.activeIds} reflows={pinnedDnd.reflows} />
+      <DragOverlay dropAnimation={DROP_ANIMATION}>
         {pinnedDnd.activeProject ? (
-          <ProjectDragOverlay
+          <DragLiftOverlay
             innerRef={pinnedDnd.overlayRef}
             count={pinnedDnd.activeIds.length}
           >
             {cardBody(pinnedDnd.activeProject)}
-          </ProjectDragOverlay>
+          </DragLiftOverlay>
         ) : null}
       </DragOverlay>
     </DndContext>
@@ -188,14 +188,14 @@ export function ProjectCardList({
   )
 
   const sortableCard = (p: Project) => (
-    <SortableProjectItem
+    <SortableItem
       key={p.id}
       id={p.id}
       carried={dnd.activeIds.includes(p.id)}
       static={dnd.activeIds.length > 1}
     >
       {animatedCard(p)}
-    </SortableProjectItem>
+    </SortableItem>
   )
 
   const cardFor = isDndEnabled ? sortableCard : animatedCard
@@ -345,16 +345,16 @@ export function ProjectCardList({
           >
             {list}
           </SortableContext>
-          <ProjectDropLine ignorePrefix="list-cat-" placement={dnd.placementRef} activeIds={dnd.activeIds} reflows={dnd.reflows} />
-          <DragOverlay dropAnimation={PROJECT_DROP_ANIMATION}
+          <DropLine ignorePrefix="list-cat-" placement={dnd.placementRef} activeIds={dnd.activeIds} reflows={dnd.reflows} />
+          <DragOverlay dropAnimation={DROP_ANIMATION}
           >
             {dnd.activeProject ? (
-              <ProjectDragOverlay
+              <DragLiftOverlay
                 innerRef={dnd.overlayRef}
                 count={dnd.activeIds.length}
               >
                 {cardBody(dnd.activeProject)}
-              </ProjectDragOverlay>
+              </DragLiftOverlay>
             ) : null}
           </DragOverlay>
         </DndContext>

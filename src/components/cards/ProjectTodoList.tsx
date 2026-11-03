@@ -1,24 +1,11 @@
 import { DatePicker } from "../ui/DatePicker";
 import { Dropdown } from "../ui/Dropdown";
-import { IconCode, IconGrip, IconMore, IconPencil, IconTrash } from "../../lib/icons";
+import { IconCode, IconMore, IconPencil, IconTrash } from "../../lib/icons";
 import { useTranslation } from "react-i18next";
-import type { ReactNode } from "react";
-import {
-  DndContext,
-  KeyboardSensor,
-  PointerSensor,
-  closestCenter,
-  useSensor,
-  useSensors,
-  type DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { DndContext, DragOverlay } from "@dnd-kit/core";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { DROP_ANIMATION, DragLiftOverlay, SortableItem } from "../dnd/SortableDnd";
+import { useSortableList } from "../../hooks/useSortableList";
 import { localDateValue } from "../../lib/openTodos";
 
 import type {
@@ -44,58 +31,6 @@ const PRIORITY_DOT = {
   medium: "bg-amber",
   low: "bg-muted/40",
 } as const;
-
-function SortableRow({
-  id,
-  enabled,
-  label,
-  className,
-  children,
-}: {
-  id: string;
-  enabled: boolean;
-  label: string;
-  className: string;
-  children: (grip: ReactNode) => ReactNode;
-}) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    setActivatorNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id, disabled: !enabled, transition: null });
-
-  const grip = enabled ? (
-    <button
-      type="button"
-      ref={setActivatorNodeRef}
-      {...attributes}
-      {...listeners}
-      aria-label={label}
-      className="focus-ring flex h-5 w-3.5 shrink-0 cursor-grab touch-none items-center justify-center rounded-btn text-muted/50 hover:text-ink active:cursor-grabbing"
-    >
-      <IconGrip className="h-2.5 w-2.5" />
-    </button>
-  ) : null;
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={{
-        transform: CSS.Translate.toString(transform),
-        transition,
-        position: "relative",
-        zIndex: isDragging ? 10 : undefined,
-      }}
-      className={` ${className} ${isDragging ? "bg-raised shadow-md" : ""}`}
-    >
-      {children(grip)}
-    </div>
-  );
-}
 
 type ProjectTodoListProps = {
   todos: ProjectTodo[];
@@ -142,18 +77,11 @@ export function ProjectTodoList({
   reorderable = false,
   onReorder,
 }: ProjectTodoListProps) {
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-
-    if (over && active.id !== over.id) {
-      onReorder?.(String(active.id), String(over.id));
-    }
-  };
+  const sortable = useSortableList({
+    items: todos,
+    getId: (todo) => todo.id,
+    onReorder: (_ids, activeId, overId) => onReorder?.(activeId, overId),
+  });
 
   const { t, i18n } = useTranslation(["todos", "common"]);
   const locale = i18n.resolvedLanguage ?? i18n.language;
@@ -201,53 +129,7 @@ export function ProjectTodoList({
     </button>
   );
 
-  return (
-    <div
-      className={`overflow-hidden rounded-item border border-outline/50 ${
-        showArea ? "min-w-[640px]" : ""
-      } ${className}`}
-    >
-      <div className="flex items-center gap-3 border-b border-outline/40 px-3 py-3">
-        {reorderable && <span className="w-3.5 shrink-0" />}
-        <span className="w-3.5 shrink-0" />
-
-        <span className="min-w-0 flex-1 text-4xs font-medium uppercase tracking-wide text-muted/60">
-          {t("task")}
-        </span>
-
-        {showArea && (
-          <span className="w-28 shrink-0 text-center text-4xs font-medium uppercase tracking-wide text-muted/60">
-            {t("area")}
-          </span>
-        )}
-
-        <div className="flex shrink-0 items-center gap-2">
-          {showArea ? (
-            <>
-              {dueDateHeader}
-              {statusHeader}
-            </>
-          ) : (
-            <>
-              {statusHeader}
-              {dueDateHeader}
-            </>
-          )}
-
-          <span className="w-6 shrink-0" />
-        </div>
-      </div>
-
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-      <SortableContext
-        items={todos.map((todo) => todo.id)}
-        strategy={verticalListSortingStrategy}
-      >
-      {todos.map((todo, index) => {
+  const renderRow = (todo: ProjectTodo, index: number) => {
         const status = statusConfig[todo.status];
         const completed = todo.status === "done";
         const overdue = !!todo.dueDate && todo.dueDate < today && !completed;
@@ -374,18 +256,11 @@ export function ProjectTodoList({
         );
 
         return (
-          <SortableRow
-            key={todo.id}
-            id={todo.id}
-            enabled={reorderable}
-            label={t("drag_to_reorder")}
+          <div
             className={`flex items-center gap-3 px-3 py-2 ${
               index < todos.length - 1 ? "border-b border-outline/40" : ""
             }`}
           >
-            {(grip) => (
-          <>
-            {grip}
             <button
               type="button"
               disabled={disabled}
@@ -419,19 +294,21 @@ export function ProjectTodoList({
               </span>
             )}
 
-            <button
-              type="button"
-              onClick={() => onView(todo)}
-              title={todo.title}
-              aria-label={t("view_task_details", { title: todo.title })}
-              className={`focus-ring min-w-0 flex-1 cursor-pointer truncate rounded-btn text-start text-2xs  ${
-                completed
-                  ? "text-muted line-through hover:text-ink"
-                  : "text-ink hover:text-accent-bright"
-              }`}
-            >
-              {todo.title}
-            </button>
+            <span className="flex min-w-0 flex-1">
+              <button
+                type="button"
+                onClick={() => onView(todo)}
+                title={todo.title}
+                aria-label={t("view_task_details", { title: todo.title })}
+                className={`focus-ring max-w-full cursor-pointer truncate rounded-btn text-start text-2xs  ${
+                  completed
+                    ? "text-muted line-through hover:text-ink"
+                    : "text-ink hover:text-accent-bright"
+                }`}
+              >
+                {todo.title}
+              </button>
+            </span>
 
             {todo.checklist && todo.checklist.length > 0 && (
               <span
@@ -519,12 +396,60 @@ export function ProjectTodoList({
                 ]}
               />
             </div>
-          </>
-            )}
-          </SortableRow>
+          </div>
         );
-      })}
+  };
+
+  return (
+    <div
+      className={`overflow-hidden rounded-item border border-outline/50 ${
+        showArea ? "min-w-[640px]" : ""
+      } ${className}`}
+    >
+      <div className="flex items-center gap-3 border-b border-outline/40 px-3 py-3">
+        <span className="w-3.5 shrink-0" />
+
+        <span className="min-w-0 flex-1 text-4xs font-medium uppercase tracking-wide text-muted/60">
+          {t("task")}
+        </span>
+
+        {showArea && (
+          <span className="w-28 shrink-0 text-center text-4xs font-medium uppercase tracking-wide text-muted/60">
+            {t("area")}
+          </span>
+        )}
+
+        <div className="flex shrink-0 items-center gap-2">
+          {showArea ? (
+            <>
+              {dueDateHeader}
+              {statusHeader}
+            </>
+          ) : (
+            <>
+              {statusHeader}
+              {dueDateHeader}
+            </>
+          )}
+
+          <span className="w-6 shrink-0" />
+        </div>
+      </div>
+
+      <DndContext {...sortable.contextProps}>
+      <SortableContext items={sortable.ids} strategy={verticalListSortingStrategy}>
+
+      {todos.map((todo, index) => (
+        <SortableItem key={todo.id} id={todo.id} disabled={!reorderable} fillHeight={false}>
+          {renderRow(todo, index)}
+        </SortableItem>
+      ))}
       </SortableContext>
+      <DragOverlay dropAnimation={DROP_ANIMATION}>
+        {sortable.activeItem ? (
+          <DragLiftOverlay>{renderRow(sortable.activeItem, todos.length - 1)}</DragLiftOverlay>
+        ) : null}
+      </DragOverlay>
       </DndContext>
     </div>
   );

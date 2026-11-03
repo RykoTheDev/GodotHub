@@ -4,8 +4,14 @@ import type { WorkspacesState, WorkspaceScanDirs } from '../types'
 export const workspacesApi = {
   list: () => invoke<WorkspacesState>('list_workspaces'),
   scanDirs: () => invoke<WorkspaceScanDirs[]>('list_workspace_scan_dirs'),
-  create: (name: string, icon: string, color: string) =>
-    invoke<WorkspacesState>('create_workspace', { name, icon, color }),
+  create: (
+    name: string,
+    icon: string,
+    color: string,
+    activate = true,
+    copySettingsFrom: string | null = null,
+  ) =>
+    invoke<WorkspacesState>('create_workspace', { name, icon, color, activate, copySettingsFrom }),
   switch: (id: string) =>
     invoke<WorkspacesState>('switch_workspace', { id }),
   update: (id: string, name: string | null, icon: string | null, color: string | null) =>

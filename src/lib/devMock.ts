@@ -7,7 +7,7 @@ const hoursAgo = (h: number) => new Date(now - h * 3600_000).toISOString()
 
 const SETTINGS = {
   ...DEFAULTS,
-  setup_complete: true,
+  setup_complete: typeof window === 'undefined' || !new URLSearchParams(window.location.search).has('onboarding'),
   customize_view_enabled: true,
   categories_enabled: true,
   workspaces_enabled: true,

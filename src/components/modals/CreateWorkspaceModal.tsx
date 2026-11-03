@@ -1,39 +1,41 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import {
-  WORKSPACE_ICON_KEYS,
-  WORKSPACE_COLOR_PRESETS,
-  getWorkspaceIcon,
-} from '../../lib/workspaceIcons'
+import { WORKSPACE_ICON_KEYS, WORKSPACE_COLOR_PRESETS } from '../../lib/workspaceIcons'
 import { ModalShell } from './ModalShell'
-import { IconPlus } from '../../lib/icons'
-import { WorkspaceStylePicker } from '../ui/WorkspaceStylePicker'
+import { IconCheck, IconCopy, IconPlus, IconRocket } from '../../lib/icons'
+import { WorkspaceForm, workspaceNameError, type WorkspaceDraft } from '../ui/WorkspaceForm'
+import type { Workspace } from '../../types'
+
+export type WorkspaceStart = 'copy' | 'fresh'
 
 interface Props {
+  takenNames: string[]
+  copySource?: Workspace | null
   onClose: () => void
-  onCreate: (name: string, icon: string, color: string) => Promise<void>
+  onCreate: (draft: WorkspaceDraft, start: WorkspaceStart) => Promise<void>
 }
 
-export function CreateWorkspaceModal({ onClose, onCreate }: Props) {
+export function CreateWorkspaceModal({ takenNames, copySource = null, onClose, onCreate }: Props) {
   const { t } = useTranslation('common')
-  const [name, setName] = useState('')
-  const [icon, setIcon] = useState<string>(WORKSPACE_ICON_KEYS[0])
-  const [color, setColor] = useState(WORKSPACE_COLOR_PRESETS[0])
+  const [draft, setDraft] = useState<WorkspaceDraft>({
+    name: '',
+    icon: WORKSPACE_ICON_KEYS[0],
+    color: WORKSPACE_COLOR_PRESETS[0],
+  })
+  const [start, setStart] = useState<WorkspaceStart>(copySource ? 'copy' : 'fresh')
+  const [touched, setTouched] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
 
-  const PreviewIcon = getWorkspaceIcon(icon)
-  const previewName = name.trim() || t('create_workspace_title')
+  const invalid = workspaceNameError(draft.name, takenNames, t) !== null
 
   const submit = async () => {
-    if (!name.trim()) {
-      setError(t('workspace_name_required_error'))
-      return
-    }
+    setTouched(true)
+    if (invalid || busy) return
     setBusy(true)
     setError(null)
     try {
-      await onCreate(name, icon, color)
+      await onCreate({ ...draft, name: draft.name.trim() }, start)
     } catch (e) {
       setError(String(e))
     } finally {
@@ -41,83 +43,106 @@ export function CreateWorkspaceModal({ onClose, onCreate }: Props) {
     }
   }
 
+  const options: { id: WorkspaceStart; icon: typeof IconCopy; title: string; desc: string }[] = copySource
+    ? [
+        {
+          id: 'copy',
+          icon: IconCopy,
+          title: t('workspace_start_copy', { name: copySource.name }),
+          desc: t('workspace_start_copy_desc'),
+        },
+        {
+          id: 'fresh',
+          icon: IconRocket,
+          title: t('workspace_start_fresh'),
+          desc: t('workspace_start_fresh_desc'),
+        },
+      ]
+    : []
+
   return (
     <ModalShell
       icon={<IconPlus className="w-5 h-5 text-accent-bright" />}
       title={t('create_workspace_title')}
-      maxWidth="max-w-md"
+      maxWidth="max-w-lg"
       onClose={onClose}
       showClose={false}
       footer={
-        <div className="ms-auto flex justify-end gap-2.5">
+        <div className="ms-auto flex items-center gap-2.5">
+          {error && <p className="me-2 text-xs text-danger">{error}</p>}
           <button
-
-
+            type="button"
             onClick={onClose}
-            className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised "
+            className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised"
           >
             {t('cancel')}
           </button>
           <button
-
-
+            type="button"
             onClick={submit}
-            disabled={busy}
-            className="focus-ring px-5 cursor-pointer py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white "
+            disabled={busy || (touched && invalid)}
+            className="focus-ring cursor-pointer px-5 py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium text-white"
           >
             {busy ? t('creating') : t('create_workspace')}
           </button>
         </div>
       }
     >
-        <div className="flex flex-col gap-5 p-6">
-          <div className="relative overflow-hidden rounded-btn border border-outline/50 bg-overlay p-4 flex items-center gap-3">
-            <div
-              className="absolute -top-10 -end-10 w-32 h-32 rounded-full blur-2xl opacity-40 "
-              style={{ backgroundColor: color }}
-              aria-hidden="true"
-            />
-            <span
-              key={icon}
+      <div className="flex flex-col gap-6 p-6">
+        <WorkspaceForm
+          value={draft}
+          onChange={setDraft}
+          takenNames={takenNames}
+          showErrors={touched}
+          autoFocus
+          onSubmit={submit}
+          onNameBlur={() => draft.name && setTouched(true)}
+        />
 
-              className="relative w-12 h-12 rounded-full border-2 flex items-center justify-center shrink-0"
-              style={{ backgroundColor: `${color}26`, borderColor: color }}
-            >
-              <PreviewIcon className="w-5 h-5" style={{ color }} />
-            </span>
-            <div className="relative min-w-0">
-              <span className="block font-display font-semibold text-base text-ink truncate">
-                {previewName}
-              </span>
-              <span className="block text-3xs font-semibold uppercase tracking-wider text-muted/60 mt-0.5">
-                {t('section_workspaces')}
-              </span>
+        {options.length > 0 && (
+          <div className="flex flex-col gap-2">
+            <span className="text-xs font-medium text-muted">{t('workspace_start_label')}</span>
+            <div role="radiogroup" aria-label={t('workspace_start_label')} className="flex flex-col gap-1.5">
+              {options.map(({ id, icon: OptionIcon, title, desc }) => {
+                const active = start === id
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    role="radio"
+                    aria-checked={active}
+                    onClick={() => setStart(id)}
+                    className={`focus-ring cursor-pointer flex items-center gap-3 px-3.5 py-3 rounded-item border text-start ${
+                      active
+                        ? 'border-accent bg-accent/10'
+                        : 'border-outline/50 bg-base/40 hover:border-accent-dim hover:bg-overlay/60'
+                    }`}
+                  >
+                    <span
+                      className={`w-8 h-8 shrink-0 rounded-tile flex items-center justify-center ${
+                        active ? 'bg-accent/15 text-accent-bright' : 'bg-overlay text-muted'
+                      }`}
+                    >
+                      <OptionIcon className="w-3.5 h-3.5" />
+                    </span>
+                    <span className="flex-1 min-w-0">
+                      <span className="block text-sm font-medium text-ink truncate">{title}</span>
+                      <span className="block text-2xs text-muted leading-relaxed">{desc}</span>
+                    </span>
+                    <span
+                      className={`w-4.5 h-4.5 shrink-0 rounded-full border flex items-center justify-center ${
+                        active ? 'bg-accent border-accent text-white' : 'border-outline/60'
+                      }`}
+                    >
+                      {active && <IconCheck className="w-2.5 h-2.5" />}
+                    </span>
+                  </button>
+                )
+              })}
             </div>
           </div>
-
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-medium text-muted">
-              {t('workspace_name_label')}
-            </label>
-            <input
-              autoFocus
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && submit()}
-              className="focus-ring bg-raised border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm focus:border-accent-dim "
-              placeholder={t('workspace_name_placeholder')}
-            />
-          </div>
-
-          <WorkspaceStylePicker
-            icon={icon}
-            onIconChange={setIcon}
-            color={color}
-            onColorChange={setColor}
-          />
-
-          {error && <p className="text-xs text-danger">{error}</p>}
-        </div>
+        )}
+      </div>
     </ModalShell>
   )
 }

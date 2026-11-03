@@ -67,10 +67,12 @@ const Onboarding = lazy(() =>
 import { useTauriEvent } from './lib/useTauriEvent'
 import { useDiscordRpc } from './hooks/useDiscordRpc'
 import { useNewsBadge } from './hooks/useNewsBadge'
+import { isFeatureEnabled } from './lib/features'
 import { ScreenReaderAnnouncer } from './lib/screenReader'
 import { relaunch } from '@tauri-apps/plugin-process'
 import {
   clearUiSwitchToSettings,
+  consumeShellIntroHandOff,
   markSplashConsumed,
   shouldOpenSettingsAfterSwitch,
   shouldShowSplash,
@@ -114,22 +116,21 @@ const DEFAULT_GIT_SIDEBAR_WIDTH = 320
 
 export type NewTab = (typeof TABS)[number]['id']
 
-const SHORTCUT_TABS: NewTab[] = TABS.filter((tab) => !('hidden' in tab)).map((tab) => tab.id).slice(0, 9)
+const VIEW_CHUNKS: Record<NewTab, () => Promise<unknown>> = {
+  dashboard: () => import('./views/DashboardView'),
+  projects: () => import('./views/ProjectsView'),
+  versions: () => import('./views/VersionsView'),
+  templates: () => import('./views/TemplatesView'),
+  vault: () => import('./views/VaultView'),
+  'asset-store': () => import('./views/AssetStoreView'),
+  news: () => import('./views/NewsView'),
+  settings: () => import('./views/SettingsView'),
+  changelog: () => import('./views/ChangelogView'),
+  storage: () => import('./views/StorageView'),
+}
 
-function preloadViewChunks() {
-  const chunks = [
-    import('./views/DashboardView'),
-    import('./views/ProjectsView'),
-    import('./views/VersionsView'),
-    import('./views/TemplatesView'),
-    import('./views/VaultView'),
-    import('./views/AssetStoreView'),
-    import('./views/NewsView'),
-    import('./views/SettingsView'),
-    import('./views/ChangelogView'),
-    import('./views/StorageView'),
-    import('./components/git/GitSidebar'),
-  ]
+function preloadViewChunks(ids: NewTab[]) {
+  const chunks = [...ids.map((id) => VIEW_CHUNKS[id]()), import('./components/git/GitSidebar')]
   chunks.forEach((c) => c.catch(() => {}))
 }
 
@@ -218,11 +219,18 @@ export function App() {
   const [splashDone, setSplashDone] = useState(() => !shouldShowSplash())
   const [uiSwitchIntent] = useState(() => shouldOpenSettingsAfterSwitch())
   const [projectsCorrupt, setProjectsCorrupt] = useState(false)
-  const [tab, setTab] = useState<NewTab>(uiSwitchIntent ? 'settings' : 'projects')
-  const newsUnread = useNewsBadge(tab === 'news')
+  const [requestedTab, setTab] = useState<NewTab>(uiSwitchIntent ? 'settings' : 'projects')
+  const enabledTabs = TABS.filter((entry) => isFeatureEnabled(settings, entry.id))
+  const enabledTabIds = enabledTabs.map((entry) => entry.id).join('|')
+  const tab: NewTab = enabledTabs.some((entry) => entry.id === requestedTab) ? requestedTab : 'projects'
+  const shortcutTabs = enabledTabs.filter((entry) => !('hidden' in entry)).map((entry) => entry.id).slice(0, 9)
+  const newsUnread = useNewsBadge(tab === 'news', settingsLoaded && isFeatureEnabled(settings, 'news'))
 
   const [mountedTabs, setMountedTabs] = useState<NewTab[]>(() => [tab])
-  if (!mountedTabs.includes(tab)) setMountedTabs([...mountedTabs, tab])
+  const liveMountedTabs = mountedTabs.filter((id) => isFeatureEnabled(settings, id))
+  if (!liveMountedTabs.includes(tab) || liveMountedTabs.length !== mountedTabs.length) {
+    setMountedTabs(liveMountedTabs.includes(tab) ? liveMountedTabs : [...liveMountedTabs, tab])
+  }
   const openSettingsTab = useCallback(() => setTab('settings'), [])
   const todosEnabled = settingsLoaded && settings.project_todos_enabled
   useOpenTodosSync(todosEnabled, projects.map((p) => p.id).join('|'))
@@ -230,13 +238,14 @@ export function App() {
 
   useEffect(() => {
     if (!settingsLoaded) return
+    const preload = () => preloadViewChunks(enabledTabIds.split('|') as NewTab[])
     if (typeof window.requestIdleCallback === 'function') {
-      const id = window.requestIdleCallback(preloadViewChunks, { timeout: 2000 })
+      const id = window.requestIdleCallback(preload, { timeout: 2000 })
       return () => window.cancelIdleCallback(id)
     }
-    const id = window.setTimeout(preloadViewChunks, 1000)
+    const id = window.setTimeout(preload, 1000)
     return () => window.clearTimeout(id)
-  }, [settingsLoaded])
+  }, [settingsLoaded, enabledTabIds])
   const landingTabRef = useRef<string | null>(null)
 
   // Flush debounced settings before the window closes. This only guarantees the
@@ -544,7 +553,7 @@ export function App() {
       onNewProject: () => setCreateProjectOpen(true),
       onOpenSettings: () => setTab('settings'),
       onSwitchTab: (i: number) => {
-        if (SHORTCUT_TABS[i]) setTab(SHORTCUT_TABS[i])
+        if (shortcutTabs[i]) setTab(shortcutTabs[i])
       },
       onCommandPalette: () => setCommandPaletteOpen((o) => !o),
       onRestart: () => {
@@ -577,13 +586,13 @@ export function App() {
       window.removeEventListener('app:show-git-sidebar', handleShowGitSidebar)
   }, [])
 
-  const tabs = TABS.filter((tab) => !('hidden' in tab) || !tab.hidden).map((tab) => ({
+  const tabs = enabledTabs.filter((tab) => !('hidden' in tab) || !tab.hidden).map((tab) => ({
     id: tab.id,
     label: t(tab.navKey),
     icon: tab.icon,
     isNew: 'isNew' in tab ? tab.isNew : undefined,
     group: 'group' in tab ? { id: tab.group, label: t(`group_${tab.group}`), icon: TAB_GROUP_ICONS[tab.group] } : undefined,
-    shortcut: SHORTCUT_TABS.indexOf(tab.id) + 1 || undefined,
+    shortcut: shortcutTabs.indexOf(tab.id) + 1 || undefined,
     badge: tab.id === 'news' && newsUnread > 0 ? newsUnread : undefined,
   }))
 
@@ -596,6 +605,10 @@ export function App() {
   }, [onboarding])
   useLayoutEffect(() => {
     if (!shellReady) return
+    if (consumeShellIntroHandOff()) {
+      enableLiveReveal()
+      return
+    }
     introShell(
       shellRef.current?.querySelector<HTMLElement>(':scope > header') ?? null,
       (mainRef.current?.firstElementChild as HTMLElement | null) ?? null,
@@ -652,7 +665,7 @@ export function App() {
           }}
         />
 
-        <div className="relative flex-1 flex min-w-0 min-h-0">
+        <div data-app-main className="relative flex-1 flex min-w-0 min-h-0">
           {mountedTabs.map((id) => (
             <ViewPane
               key={id}

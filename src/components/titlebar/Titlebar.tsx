@@ -7,6 +7,7 @@ import { openUrl } from '@tauri-apps/plugin-opener'
 import { useTranslation } from 'react-i18next'
 import { isMac } from '../../lib/platform'
 import { useSettings } from '../../hooks/useSettings'
+import { isFeatureEnabled } from '../../lib/features'
 import { useChangelogBadge } from '../../hooks/useChangelogBadge'
 import { RunningProjectsChip } from '../titlebar/RunningProjectsChip'
 import { TaskTray } from '../titlebar/TaskTray'
@@ -101,7 +102,7 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
         settings.card_layout ? 'bg-raised/80' : 'bg-raised border-b border-line'
       } ${isMac ? 'ps-20' : 'ps-4'} ${showWindowControls ? '' : 'pe-4'}`}
     >
-      {!minimal && (
+      {!minimal && isFeatureEnabled(settings, 'dashboard') && (
         <Tooltip content={tn('dashboard')}>
           <button
             type="button"
@@ -113,6 +114,11 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
             GodotHub
           </button>
         </Tooltip>
+      )}
+      {!minimal && !isFeatureEnabled(settings, 'dashboard') && (
+        <span className="shrink-0 font-display font-black text-lg leading-none tracking-tight text-ink/50">
+          GodotHub
+        </span>
       )}
 
       {!minimal && <RunningProjectsChip />}

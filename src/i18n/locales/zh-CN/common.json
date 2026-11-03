@@ -904,5 +904,11 @@
   "vault_item_empty": "此条目没有文件。",
   "new": "新建",
   "announcement_support_title": "支持 GodotHub",
-  "announcement_support_body": "GodotHub 是免费的，是我利用业余时间开发的。如果它对你的工作流程有帮助，请考虑捐赠以支持开发。"
+  "announcement_support_body": "GodotHub 是免费的，是我利用业余时间开发的。如果它对你的工作流程有帮助，请考虑捐赠以支持开发。",
+  "workspace_name_taken_error": "Another workspace already uses this name.",
+  "workspace_start_label": "Start with",
+  "workspace_start_copy": "Copy settings from {{name}}",
+  "workspace_start_copy_desc": "Theme, language, features, and version folders carry over. Project folders start empty, and you go straight in.",
+  "workspace_start_fresh": "Start fresh",
+  "workspace_start_fresh_desc": "Walk through setup for this workspace from scratch."
 }

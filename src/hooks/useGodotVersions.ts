@@ -217,6 +217,8 @@ export function useGodotVersions() {
     }
   }, [reloadAvailableQuietly])
 
+  useTauriEvent('watcher:version-scan-done', () => void refreshInstalled(), [refreshInstalled])
+
   useTauriEvent<[number, number]>('version-scan-progress', ([current, total]) => {
     setScanProgress({ current, total })
     if (current >= total) {

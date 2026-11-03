@@ -20,11 +20,11 @@ function writeSeen(ids: string[]) {
   } catch {}
 }
 
-export function useNewsBadge(viewing: boolean) {
+export function useNewsBadge(viewing: boolean, enabled: boolean) {
   const [seen, setSeen] = useState(readSeen)
   const { data: items } = useApiData(
-    async () => (await api.fetchGodotNews())?.items ?? [],
-    [],
+    async () => (enabled ? (await api.fetchGodotNews())?.items ?? [] : []),
+    [enabled],
     [] as NewsItem[],
   )
 

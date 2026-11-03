@@ -270,7 +270,27 @@ pub fn run() {
                         .await;
                 }
 
-                if s.template_scan_dir.is_some() {
+                if s.setup_complete && s.auto_scan_on_startup {
+                    let scan_handle = handle.clone();
+                    let project_dirs = s.project_scan_dirs.clone();
+                    let version_dirs = s.version_scan_dirs.clone();
+                    let depth = s.scan_depth;
+                    let _ = tokio::task::spawn_blocking(move || {
+                        if !version_dirs.is_empty() {
+                            if let Err(e) = scan::scan_for_versions_blocking(scan_handle.clone(), version_dirs, depth) {
+                                eprintln!("Startup version scan failed: {e}");
+                            }
+                        }
+                        if !project_dirs.is_empty() {
+                            if let Err(e) = scan::scan_for_projects_blocking(scan_handle, project_dirs, depth, false) {
+                                eprintln!("Startup project scan failed: {e}");
+                            }
+                        }
+                    })
+                    .await;
+                }
+
+                if s.feature_enabled("templates") && s.template_scan_dir.is_some() {
                     let _ = templates::sync_templates_with_scan_dir(handle.clone());
                 }
 
@@ -290,7 +310,7 @@ pub fn run() {
                         .collect();
                     watcher::start_version_watchers(handle.clone(), dirs, s.scan_depth, 2000);
                 }
-                if s.auto_watch_template_dir {
+                if s.feature_enabled("templates") && s.auto_watch_template_dir {
                     if let Some(ref tdir) = s.template_scan_dir {
                         let dir = std::path::PathBuf::from(tdir);
                         if dir.exists() {

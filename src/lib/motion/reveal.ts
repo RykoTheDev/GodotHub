@@ -108,8 +108,8 @@ function prune() {
 export function animateIn(elements: HTMLElement[], baseDelay = 0) {
   const { entrance, threshold, scrollReveal } = motionPrefs()
   if (motionOff() || entrance === 'none') return
-  const projects = new Set(elements.map((el) => el.closest('[data-project-id]')).filter(Boolean))
-  if (projects.size > threshold) elements = elements.filter((el) => !el.closest('[data-project-id]'))
+  const projects = new Set(elements.map((el) => el.closest('[data-sortable-id]')).filter(Boolean))
+  if (projects.size > threshold) elements = elements.filter((el) => !el.closest('[data-sortable-id]'))
   prune()
   const vh = window.innerHeight
   const vw = window.innerWidth
