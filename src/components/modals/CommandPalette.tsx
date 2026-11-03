@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { formatLastOpened } from '../../lib/lastOpened'
 import { useWorkspaces } from '../../hooks/useWorkspaces'
 import { useSettings } from '../../hooks/useSettings'
+import { isFeatureEnabled } from '../../lib/features'
 import { useCategoriesContext } from '../../hooks/categoriesContext'
 import { getWorkspaceIcon } from '../../lib/workspaceIcons'
 import { THEME_PRESETS } from '../../lib/colors'
@@ -335,9 +336,11 @@ export function CommandPalette({
         onNavigate,
         () => dispatch('app:create-workspace-request'),
       ).filter(
-        (cmd) => settings.workspaces_enabled || cmd.id !== 'create-workspace',
+        (cmd) =>
+          (settings.workspaces_enabled || cmd.id !== 'create-workspace') &&
+          (!cmd.id.startsWith('go-') || isFeatureEnabled(settings, cmd.id.slice(3))),
       ),
-    [onNavigate, settings.workspaces_enabled],
+    [onNavigate, settings],
   )
 
   const visibleCommands = useMemo(

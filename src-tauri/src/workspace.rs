@@ -378,30 +378,29 @@ pub fn create_workspace(
     name: String,
     icon: String,
     color: String,
+    activate: Option<bool>,
+    copy_settings_from: Option<String>,
 ) -> Result<WorkspacesState, String> {
-    let trimmed = name.trim().to_string();
-    if trimmed.is_empty() {
-        return Err("Workspace name can't be empty".into());
+    if let Some(source) = &copy_settings_from {
+        if !read_state(&app).workspaces.iter().any(|w| &w.id == source) {
+            return Err("Workspace not found".into());
+        }
+    }
+    let workspace = create_workspace_silent(&app, name, icon, color)?;
+    if let Some(source) = copy_settings_from {
+        let mut settings = crate::settings::read_settings_from(&workspace_dir(&app, &source));
+        settings.project_scan_dirs.clear();
+        settings.default_project_location = None;
+        settings.dismissed_project_paths.clear();
+        settings.setup_complete = true;
+        crate::settings::write_settings_to(&workspace_dir(&app, &workspace.id), &settings)
+            .map_err(|e| e.to_string())?;
+    }
+    if activate == Some(false) {
+        return Ok(read_state(&app));
     }
     let mut state = read_state(&app);
-    if state
-        .workspaces
-        .iter()
-        .any(|w| w.name.eq_ignore_ascii_case(&trimmed))
-    {
-        return Err("A workspace with this name already exists".into());
-    }
-    let id = Uuid::new_v4().to_string();
-    workspace_dir(&app, &id);
-    let workspace = Workspace {
-        id: id.clone(),
-        name: trimmed,
-        icon,
-        color,
-        created_at: chrono::Utc::now().to_rfc3339(),
-    };
-    state.workspaces.push(workspace);
-    state.active_id = id;
+    state.active_id = workspace.id;
     write_state(&app, &state)?;
     let _ = crate::watcher::restart_watchers(app);
     Ok(state)

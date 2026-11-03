@@ -1873,6 +1873,14 @@
       {
         "category": "fix",
         "text": "Fixed too little spacing under categories with no projects in Manage Categories"
+      },
+      {
+        "category": "improve",
+        "text": "Revamped whole Onboarding experience"
+      },
+      {
+        "category": "improve",
+        "text": "Revamped Workspace creation experience"
       }
     ],
     "known_issues": [],

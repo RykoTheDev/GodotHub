@@ -91,6 +91,8 @@ import type { IconProps } from "../lib/icons";
 import type { AppSettings, GitAuthState, MiseStatus } from "../types";
 import { GitAuthModal } from "../components/modals/GitAuthModal";
 import { Tooltip } from "../components/reusables/Tooltip";
+import { FeatureSetupPicker } from "../components/ui/FeatureSetupPicker";
+import { isFeatureEnabled } from "../lib/features";
 import { reportError } from '../lib/toast'
 
 type SettingsCat =
@@ -1193,40 +1195,14 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 {ts("section_templates")}
               </span>
             </div>
-            <div className="flex flex-col gap-2.5">
-              {settings.template_scan_dir ? (
-                <div className="flex items-center gap-2.5">
-                  <span className="flex-1 min-w-0 bg-overlay border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono text-ink truncate">
-                    {settings.template_scan_dir}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      update({ ...settings, template_scan_dir: null })
-                    }
-                    className="focus-ring cursor-pointer px-3 py-2 rounded-btn border border-outline/50 text-xs text-muted hover:text-danger hover:border-danger/30 hover:bg-danger/10 "
-                  >
-                    {ts("clear")}
-                  </button>
-                </div>
-              ) : (
-                <span className="text-xs text-muted">
-                  {ts("no_folder_set")}
-                </span>
-              )}
-              <button
-                type="button"
-                onClick={async () => {
-                  const folder = await api.pickFolder();
-                  if (folder)
-                    update({ ...settings, template_scan_dir: folder });
-                }}
-                className="focus-ring cursor-pointer self-start inline-flex items-center gap-1.5 px-3.5 py-2 rounded-btn border border-dashed border-outline/60 text-xs text-muted hover:text-accent-bright hover:border-accent-dim "
-              >
-                <IconPlus className="w-3 h-3" />
-                {ts("browse")}
-              </button>
-            </div>
+            <DirList
+              single
+              dirs={settings.template_scan_dir ? [settings.template_scan_dir] : []}
+              onChange={(dirs) =>
+                update({ ...settings, template_scan_dir: dirs[0] ?? null })
+              }
+              emptyHint={ts("no_folder_set")}
+            />
           </div>
         </div>
       </Subsection>
@@ -1328,13 +1304,31 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
     </div>
   );
 
+  const landingTabs = LANDING_TABS.filter((l) => isFeatureEnabled(settings, l.id));
+
   const renderBehavior = () => (
     <div className="flex flex-col gap-3">
+      <Subsection
+        id="behavior-features"
+        title={ts("features_title")}
+        searchText={`${ts("features_title")} ${ts("features_desc")} ${ts("setup_profile_minimal")} ${ts("setup_profile_essentials")} ${ts("setup_profile_studio")} ${ts("setup_profile_complete")} ${ts("setup_profile_custom")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <p className="text-2xs text-muted leading-relaxed mb-1">{ts("features_desc")}</p>
+        <FeatureSetupPicker
+          value={settings}
+          onChange={(next) => {
+            void update(next).then(() => api.restartWatchers()).catch(() => {});
+          }}
+        />
+      </Subsection>
+
       <Subsection
         id="behavior-landing"
         inline
         title={ts("landing_tab_label")}
-        searchText={`${ts("landing_tab_label")} ${LANDING_TABS.map((l) => ts(l.labelKey)).join(" ")}`}
+        searchText={`${ts("landing_tab_label")} ${landingTabs.map((l) => ts(l.labelKey)).join(" ")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -1348,8 +1342,8 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               className="focus-ring cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-btn bg-overlay border border-outline/50 text-xs font-medium text-ink hover:border-accent-dim "
             >
               {ts(
-                LANDING_TABS.find((l) => l.id === settings.default_landing_tab)
-                  ?.labelKey ?? LANDING_TABS[0].labelKey,
+                landingTabs.find((l) => l.id === settings.default_landing_tab)
+                  ?.labelKey ?? "landing_projects",
               )}
               <IconChevronDown
                 className={`w-3 h-3 text-muted  ${
@@ -1358,7 +1352,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               />
             </button>
           )}
-          items={LANDING_TABS.map((l) => ({
+          items={landingTabs.map((l) => ({
             key: l.id,
             label: ts(l.labelKey),
             active: settings.default_landing_tab === l.id,
@@ -1945,7 +1939,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
                 <button
                   type="button"
                   onClick={testGithubToken}
-                  className="focus-ring cursor-pointer absolute end-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md bg-overlay border border-outline/50 text-xs font-medium text-muted hover:text-ink hover:border-accent-dim "
+                  className="focus-ring cursor-pointer absolute inset-e-1.5 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-md bg-overlay border border-outline/50 text-xs font-medium text-muted hover:text-ink hover:border-accent-dim "
                 >
                   {tokenTestState === "testing" ? ts("testing") : ts("test")}
                 </button>

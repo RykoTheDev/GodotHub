@@ -718,6 +718,7 @@ export interface AppSettings {
   rtl_layout: boolean
   project_todos_enabled: boolean
   use_mise: boolean
+  disabled_features: string[]
 }
 
 export interface CardViewSettings {

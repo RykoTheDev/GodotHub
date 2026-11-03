@@ -382,6 +382,7 @@ export function Sidebar({
     >
       <div
         ref={panelRef}
+        data-app-sidebar
         style={{width:collapsed ? COLLAPSED_WIDTH : width}}
         onTransitionEnd={(e) => {
           if (e.target === e.currentTarget && e.propertyName === 'width') setWidthAnimating(false)
@@ -540,7 +541,7 @@ export function Sidebar({
             trigger={(menu) =>
               renderTabButton(
                 { id: 'account', label: t('you'), icon: IconUser },
-                `bg-overlay/40 ${collapsed ? 'w-11 h-11 shrink-0 justify-center' : 'w-full gap-2 px-3 py-2'}`,
+                `bg-overlay/80 border border-outline/50 hover:bg-overlay! hover:border-outline ${collapsed ? 'w-11 h-11 shrink-0 justify-center' : 'w-full gap-2 px-3 py-2'}`,
                 collapsed,
                 menu,
               )
@@ -548,7 +549,7 @@ export function Sidebar({
           />
           {renderTabButton(
             { id: 'settings', label: t('settings'), icon: IconGear },
-            `bg-overlay/40 w-11 shrink-0 justify-center ${collapsed ? 'h-11' : ''}`,
+            `bg-overlay/80 border border-outline/50 hover:bg-overlay! hover:border-outline w-11 shrink-0 justify-center ${collapsed ? 'h-11' : ''}`,
             true,
           )}
         </div>

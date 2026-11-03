@@ -1,19 +1,14 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import {
-  KeyboardSensor,
-  PointerSensor,
   closestCenter,
   pointerWithin,
   rectIntersection,
-  useSensor,
-  useSensors,
   type CollisionDetection,
   type Collision,
   type DragEndEvent,
   type DragStartEvent,
 } from '@dnd-kit/core'
-import { sortableKeyboardCoordinates } from '@dnd-kit/sortable'
-import { DRAG_FEEL } from '../lib/dragFeel'
+import { useDragSensors, useGrabbingCursor } from './useSortableList'
 import { pushToast } from '../lib/toast'
 import {
   resolveProjectDrop,
@@ -48,14 +43,7 @@ export function useProjectDnd({
 }: UseProjectDndOptions) {
   const overlayRef = useRef<HTMLDivElement | null>(null)
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: { distance: DRAG_FEEL.activationDistance },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
-  )
+  const sensors = useDragSensors()
 
   const [activeIds, setActiveIds] = useState<string[]>([])
   const [activeId, setActiveId] = useState<string | null>(null)
@@ -195,18 +183,7 @@ export function useProjectDnd({
     ],
   )
 
-  useEffect(() => {
-    if (activeIds.length === 0) return
-    const { body } = document
-    const prevCursor = body.style.cursor
-    const prevSelect = body.style.userSelect
-    body.style.cursor = 'grabbing'
-    body.style.userSelect = 'none'
-    return () => {
-      body.style.cursor = prevCursor
-      body.style.userSelect = prevSelect
-    }
-  }, [activeIds.length])
+  useGrabbingCursor(activeIds.length > 0)
 
   const activeProject = activeId ? byId.get(activeId) ?? null : null
 

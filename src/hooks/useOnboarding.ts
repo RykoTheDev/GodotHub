@@ -17,15 +17,19 @@ import {
   resolveThemeMode,
   type ThemeModeSetting,
 } from '../lib/colors'
+import { isFeatureEnabled, type FeatureId } from '../lib/features'
 import type { AppSettings, WorkspaceScanDirs } from '../types'
 
 export type OnboardingStepId =
+  | 'workspace'
   | 'welcome'
+  | 'setup'
   | 'projects'
   | 'versions'
   | 'templates'
   | 'categories'
-  | 'customize'
+  | 'workspaces'
+  | 'appearance'
   | 'finish'
 
 export const STARTER_CATEGORIES = [
@@ -42,13 +46,16 @@ export const STARTER_CATEGORY_COLORS: Record<string, string> = {
   'Game Jams': CATEGORY_COLORS[3],
 }
 
-export const ALL_STEPS: { id: OnboardingStepId }[] = [
+export const ALL_STEPS: { id: OnboardingStepId; feature?: FeatureId; firstRunOnly?: boolean }[] = [
+  { id: 'workspace', firstRunOnly: true },
   { id: 'welcome' },
+  { id: 'setup' },
   { id: 'projects' },
   { id: 'versions' },
-  { id: 'templates' },
-  { id: 'categories' },
-  { id: 'customize' },
+  { id: 'templates', feature: 'templates' },
+  { id: 'categories', feature: 'categories' },
+  { id: 'workspaces', feature: 'workspaces', firstRunOnly: true },
+  { id: 'appearance' },
   { id: 'finish' },
 ]
 
@@ -71,16 +78,14 @@ const dedupePaths = (
 export function useOnboarding({ settings, onComplete }: UseOnboardingOptions) {
   const { t } = useTranslation('onboarding')
   const { t: tc } = useTranslation('common')
-  const { activeId } = useWorkspaces()
-  const STEPS = useMemo(
-    () =>
-      ALL_STEPS.filter(
-        (s) => s.id !== 'categories' || settings.categories_enabled,
-      ),
-    [settings.categories_enabled],
-  )
-  const [stepIndex, setStepIndex] = useState(0)
+  const { t: ts } = useTranslation('settings')
+  const { activeId, workspaces } = useWorkspaces()
   const [draft, setDraft] = useState<AppSettings>(settings)
+  const isFirstRun = workspaces.length <= 1
+  const STEPS = ALL_STEPS.filter(
+    (s) => (!s.feature || isFeatureEnabled(draft, s.feature)) && (!s.firstRunOnly || isFirstRun),
+  )
+  const [stepId, setStepId] = useState<OnboardingStepId>('workspace')
   const [finishing, setFinishing] = useState(false)
   const [workspaceSuggestions, setWorkspaceSuggestions] = useState<
     WorkspaceScanDirs[]
@@ -151,11 +156,16 @@ export function useOnboarding({ settings, onComplete }: UseOnboardingOptions) {
     categories,
     create: createCategory,
     remove: removeCategory,
+    update: updateCategory,
+    reorder: reorderCategories,
+    assignFolder: assignCategoryFolder,
+    unassignFolder: unassignCategoryFolder,
   } = useCategoriesContext()
   const [categoryDraft, setCategoryDraft] = useState('')
   const [categoryColor, setCategoryColor] = useState<string>(CATEGORY_COLORS[0])
   const [categoryBusy, setCategoryBusy] = useState(false)
 
+  const stepIndex = Math.max(STEPS.findIndex((s) => s.id === stepId), 0)
   const step = STEPS[stepIndex]
 
   const setField = <K extends keyof AppSettings>(
@@ -235,10 +245,10 @@ export function useOnboarding({ settings, onComplete }: UseOnboardingOptions) {
     applyRadius(value)
   }
 
-  const goNext = () => setStepIndex((i) => Math.min(i + 1, STEPS.length - 1))
-  const goBack = () => setStepIndex((i) => Math.max(i - 1, 0))
   const jumpTo = (i: number) =>
-    setStepIndex(Math.min(Math.max(i, 0), STEPS.length - 1))
+    setStepId(STEPS[Math.min(Math.max(i, 0), STEPS.length - 1)].id)
+  const goNext = () => jumpTo(stepIndex + 1)
+  const goBack = () => jumpTo(stepIndex - 1)
 
   const categoryLabels: Record<string, string> = useMemo(() => ({
     'In Progress': t('in_progress'),
@@ -271,7 +281,11 @@ export function useOnboarding({ settings, onComplete }: UseOnboardingOptions) {
     }
   }
 
-  const finish = async (skip: boolean) => {
+  const finish = async (
+    skip: boolean,
+    beforeComplete?: () => Promise<void>,
+    afterComplete?: () => Promise<void>,
+  ) => {
     setFinishing(true)
     setScanProgress({ projects: null, versions: null })
     const final: AppSettings = skip
@@ -284,18 +298,25 @@ export function useOnboarding({ settings, onComplete }: UseOnboardingOptions) {
       final.version_scan_dirs.length
         ? api.scanForVersions(final.version_scan_dirs, final.scan_depth)
         : Promise.resolve(),
-      final.template_scan_dir
+      final.template_scan_dir && isFeatureEnabled(final, 'templates')
         ? api.syncTemplatesWithScanDir().catch(() => {})
         : Promise.resolve(),
     ])
+    if (!skip) await beforeComplete?.()
     await onComplete(final)
+    if (!skip) void afterComplete?.()
+    await api.restartWatchers().catch(() => {})
     setFinishing(false)
   }
 
   const stepLabel = (id: OnboardingStepId) => {
     switch (id) {
+      case 'workspace':
+        return t('workspace_step')
       case 'welcome':
-        return t('welcome')
+        return t('basics')
+      case 'setup':
+        return t('setup')
       case 'projects':
         return tc('section_projects')
       case 'versions':
@@ -304,8 +325,10 @@ export function useOnboarding({ settings, onComplete }: UseOnboardingOptions) {
         return tc('section_templates')
       case 'categories':
         return t('categories')
-      case 'customize':
-        return t('customize')
+      case 'workspaces':
+        return tc('section_workspaces')
+      case 'appearance':
+        return ts('appearance')
       case 'finish':
         return t('finish')
     }
@@ -336,6 +359,10 @@ export function useOnboarding({ settings, onComplete }: UseOnboardingOptions) {
     scanProgress,
     categories,
     removeCategory,
+    updateCategory,
+    reorderCategories,
+    assignCategoryFolder,
+    unassignCategoryFolder,
     categoryDraft,
     setCategoryDraft,
     categoryColor,

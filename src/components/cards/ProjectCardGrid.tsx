@@ -18,11 +18,11 @@ import { UNCATEGORIZED_KEY } from '../../lib/projectDrag'
 import { AUTO_SCROLL_CONFIG } from '../../lib/dragFeel'
 import { useProjectDnd } from '../../hooks/useProjectDnd'
 import {
-  PROJECT_DROP_ANIMATION,
-  ProjectDragOverlay,
-  ProjectDropLine,
-  SortableProjectItem,
-} from '../dnd/ProjectDnd'
+  DROP_ANIMATION,
+  DragLiftOverlay,
+  DropLine,
+  SortableItem,
+} from '../dnd/SortableDnd'
 
 interface ProjectCardGridProps {
   projects: Project[]
@@ -147,7 +147,7 @@ export function ProjectCardGrid({
 
     if (isDndEnabled) {
       return (
-        <SortableProjectItem
+        <SortableItem
           key={p.id}
           id={p.id}
           className="h-full min-w-0"
@@ -155,7 +155,7 @@ export function ProjectCardGrid({
           carried={dnd.activeIds.includes(p.id)}
         >
           {card}
-        </SortableProjectItem>
+        </SortableItem>
       )
     }
 
@@ -248,11 +248,11 @@ export function ProjectCardGrid({
           onDragCancel={dnd.handleDragCancel}
         >
           <SortableContext items={sortableIds} strategy={rectSortingStrategy}>{allContent}</SortableContext>
-          <ProjectDropLine ignorePrefix="grid-cat-" placement={dnd.placementRef} activeIds={dnd.activeIds} reflows={dnd.reflows} />
-          <DragOverlay dropAnimation={PROJECT_DROP_ANIMATION}
+          <DropLine ignorePrefix="grid-cat-" placement={dnd.placementRef} activeIds={dnd.activeIds} reflows={dnd.reflows} />
+          <DragOverlay dropAnimation={DROP_ANIMATION}
           >
             {activeProject ? (
-              <ProjectDragOverlay
+              <DragLiftOverlay
                 innerRef={dnd.overlayRef}
                 count={dnd.activeIds.length}
                 className="h-full"
@@ -270,7 +270,7 @@ export function ProjectCardGrid({
                   onVersionChange={() => {}}
                   onRemove={() => {}}
                 />
-              </ProjectDragOverlay>
+              </DragLiftOverlay>
             ) : null}
           </DragOverlay>
         </DndContext>

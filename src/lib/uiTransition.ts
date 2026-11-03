@@ -16,3 +16,15 @@ export function shouldShowSplash(): boolean {
 export function markSplashConsumed() {
   splashConsumed = true
 }
+
+let shellIntroHandedOff = false
+
+export function handOffShellIntro() {
+  shellIntroHandedOff = true
+}
+
+export function consumeShellIntroHandOff(): boolean {
+  const handedOff = shellIntroHandedOff
+  shellIntroHandedOff = false
+  return handedOff
+}

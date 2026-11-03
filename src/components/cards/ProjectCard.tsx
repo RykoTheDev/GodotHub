@@ -391,7 +391,7 @@ function ProjectCardInner({
               src={icon}
               alt=""
               aria-hidden="true"
-              className="select-none absolute -start-6 top-1/2 -translate-y-1/2 -rotate-6 h-35 w-35 object-contain grayscale group-hover:grayscale-0 contrast-125 "
+              className="select-none absolute -inset-s-6 top-1/2 -translate-y-1/2 -rotate-6 group-hover:rotate-0 transition-[rotate,filter] duration-500 ease-out-expo h-40 w-40 object-contain grayscale group-hover:grayscale-0 contrast-125"
               style={{
                 opacity: "var(--project-icon-opacity, 0.14)",
                 maskImage:
@@ -403,9 +403,9 @@ function ProjectCardInner({
           ) : (
             <span
               aria-hidden="true"
-              className="select-none absolute -start-3 top-1/2 -translate-y-1/2 -rotate-6 font-display font-black text-muted group-hover:text-accent-bright "
+              className="select-none absolute -inset-s-3 top-1/2 -translate-y-1/2 -rotate-6 group-hover:rotate-0 transition-[rotate,color] duration-500 ease-out-expo font-display font-black text-muted group-hover:text-accent-bright"
               style={{
-                fontSize: "72px",
+                fontSize: "84px",
                 lineHeight: 1,
                 opacity: "var(--project-icon-opacity, 0.14)",
                 maskImage:

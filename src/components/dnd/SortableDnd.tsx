@@ -13,7 +13,7 @@ import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { DRAG_FEEL } from '../../lib/dragFeel'
 
-export const PROJECT_DROP_ANIMATION: DropAnimation = {
+export const DROP_ANIMATION: DropAnimation = {
   duration: DRAG_FEEL.drop.duration,
   easing: DRAG_FEEL.drop.easing,
   keyframes: ({ transform }) => [
@@ -26,7 +26,7 @@ export const PROJECT_DROP_ANIMATION: DropAnimation = {
 const NO_DRAG_SELECTOR =
   'button, a, input, textarea, select, [role="button"], [contenteditable="true"], [data-drag-ignore]'
 
-export interface SortableProjectItemProps {
+export interface SortableItemProps {
   ref?: Ref<HTMLDivElement>
   id: string
   disabled?: boolean
@@ -37,7 +37,7 @@ export interface SortableProjectItemProps {
   fillHeight?: boolean
 }
 
-export function SortableProjectItem({
+export function SortableItem({
   ref,
   id,
   disabled = false,
@@ -46,7 +46,7 @@ export function SortableProjectItem({
   static: isStatic = false,
   carried = false,
   fillHeight = true,
-}: SortableProjectItemProps) {
+}: SortableItemProps) {
   const {
     attributes,
     listeners,
@@ -87,7 +87,7 @@ export function SortableProjectItem({
   }
 
   return (
-    <div ref={setRefs} style={style} className={`group/drag relative ${className}`} data-project-id={id}>
+    <div ref={setRefs} style={style} className={`group/drag relative ${className}`} data-sortable-id={id}>
       <div
         ref={disabled ? undefined : setActivatorNodeRef}
         {...(disabled ? {} : attributes)}
@@ -105,7 +105,7 @@ export function SortableProjectItem({
   )
 }
 
-export function ProjectDropLine({ ignorePrefix, placement, activeIds = [], reflows }: {
+export function DropLine({ ignorePrefix, placement, activeIds = [], reflows }: {
   ignorePrefix?: string
   placement?: React.RefObject<'before' | 'after'>
   activeIds?: string[]
@@ -159,13 +159,13 @@ export function ProjectDropLine({ ignorePrefix, placement, activeIds = [], reflo
   )
 }
 
-export function ProjectDragOverlay({
+export function DragLiftOverlay({
   innerRef,
   children,
   count = 1,
   className = '',
 }: {
-  innerRef: React.RefObject<HTMLDivElement | null>
+  innerRef?: React.RefObject<HTMLDivElement | null>
   children: ReactNode
   count?: number
   className?: string

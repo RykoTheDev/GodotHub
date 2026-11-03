@@ -902,5 +902,11 @@
   "view_error_desc": "GodotHub のほかの機能は引き続き使用できます。この画面を再読み込みするか、別の画面に切り替えてください。",
   "error_details": "技術的な詳細",
   "announcement_support_title": "GodotHub を支援",
-  "announcement_support_body": "GodotHub は無料で、開発者が余暇を使って開発しています。日々の作業に役立っているようでしたら、寄付による開発の支援をご検討ください。"
+  "announcement_support_body": "GodotHub は無料で、開発者が余暇を使って開発しています。日々の作業に役立っているようでしたら、寄付による開発の支援をご検討ください。",
+  "workspace_name_taken_error": "Another workspace already uses this name.",
+  "workspace_start_label": "Start with",
+  "workspace_start_copy": "Copy settings from {{name}}",
+  "workspace_start_copy_desc": "Theme, language, features, and version folders carry over. Project folders start empty, and you go straight in.",
+  "workspace_start_fresh": "Start fresh",
+  "workspace_start_fresh_desc": "Walk through setup for this workspace from scratch."
 }

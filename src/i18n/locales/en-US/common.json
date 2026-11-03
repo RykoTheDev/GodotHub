@@ -71,7 +71,6 @@
   "from_workspace": "from {{name}}",
   "add_folder": "Add folder",
   "default_folder": "Default",
-  "downloads_will_go_to": "Downloads will go to \"{{path}}\"",
   "default_downloads_go_to": "Default Downloads will go to \"{{path}}\"",
   "open_terminal": "Open Terminal",
   "downloading_version": "Downloading {{version}}",
@@ -574,7 +573,6 @@
   "gpu_webgl_unavailable": "WebGL not available",
   "gpu_info_unavailable": "GPU info unavailable",
   "update_available": "Update available",
-  "drag_to_reorder": "Drag to reorder",
   "dismiss": "Dismiss",
   "system_language": "System language",
   "category_empty_hint": "Create one above to organize your projects",
@@ -901,5 +899,11 @@
   "vault_item_empty": "This item has no files.",
   "new": "New",
   "announcement_support_title": "Support GodotHub",
-  "announcement_support_body": "GodotHub is free and made in my spare time. If it helps your workflow, please consider supporting development with a donation."
+  "announcement_support_body": "GodotHub is free and made in my spare time. If it helps your workflow, please consider supporting development with a donation.",
+  "workspace_name_taken_error": "Another workspace already uses this name.",
+  "workspace_start_label": "Start with",
+  "workspace_start_copy": "Copy settings from {{name}}",
+  "workspace_start_copy_desc": "Theme, language, features, and version folders carry over. Project folders start empty, and you go straight in.",
+  "workspace_start_fresh": "Start fresh",
+  "workspace_start_fresh_desc": "Walk through setup for this workspace from scratch."
 }

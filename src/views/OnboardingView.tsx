@@ -1,4 +1,4 @@
-import { useEffect, useState, type Dispatch, type SetStateAction } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type Dispatch, type SetStateAction } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ACCENT_PRESETS_DARK,
@@ -24,10 +24,11 @@ import {
 import { CATEGORY_COLORS } from '../lib/categoryColors'
 import { api } from '../lib/api'
 import { pushToast } from '../lib/toast'
-import type { DiscoveredInstall, DiscoveredProject } from '../types'
+import type { DiscoveredInstall, DiscoveredProject, Project } from '../types'
 import { Titlebar } from '../components/titlebar/Titlebar'
 import { useDiscordRpc } from '../hooks/useDiscordRpc'
 import { DirList } from '../components/reusables/DirList'
+import { SortableCategoryList } from '../components/reusables/SortableCategoryList'
 import { ColorSwatchPicker } from '../components/ui/ColorSwatchPicker'
 import { Slider } from '../components/ui/Slider'
 import { OverlayScrollArea } from '../components/reusables/OverlayScrollArea'
@@ -37,6 +38,24 @@ import { Toggle } from '../components/ui/Toggle'
 import { ThemePresetsModal } from '../components/modals/ThemePresetsModal'
 import { RestoreProgressModal } from '../components/modals/RestoreProgressModal'
 import { GitAuthModal } from '../components/modals/GitAuthModal'
+import { ViewHeader } from '../components/reusables/ViewHeader'
+import { CreateWorkspaceModal } from '../components/modals/CreateWorkspaceModal'
+import { WorkspaceEditModal } from '../components/modals/WorkspaceEditModal'
+import { useWorkspaces } from '../hooks/useWorkspaces'
+import { getWorkspaceIcon } from '../lib/workspaceIcons'
+import { WorkspaceForm, workspaceNameError, type WorkspaceDraft } from '../components/ui/WorkspaceForm'
+import { WelcomeIntro } from '../components/onboarding/WelcomeIntro'
+import { MiniAppPreview } from '../components/onboarding/MiniAppPreview'
+import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
+import { useProjectsContext } from '../hooks/projectsContext'
+import { useGodotVersionsContext } from '../hooks/godotVersionsContext'
+import { ease, gsap, motionOff } from '../lib/motion'
+import { handOffShellIntro } from '../lib/uiTransition'
+import {
+  FeatureSetupPicker,
+  featureLabel,
+} from '../components/ui/FeatureSetupPicker'
+import { CORE_FEATURES, FEATURES, isFeatureEnabled } from '../lib/features'
 import {
   IconCheck,
   IconCopy,
@@ -46,8 +65,8 @@ import {
   IconLayoutGrid,
   IconMonitor,
   IconMoon,
-  IconNews,
   IconPalette,
+  IconPencil,
   IconPlus,
   IconRefresh,
   IconSun,
@@ -55,8 +74,8 @@ import {
   IconChevronLeft,
   IconChevronRight,
   IconHouse,
+  IconBriefcase,
   IconTags,
-  IconTrash,
 } from '../lib/icons'
 import type { AppSettings } from '../types'
 
@@ -69,15 +88,17 @@ function StepShell({
   icon,
   title,
   description,
+  wide = false,
   children,
 }: {
   icon: React.ReactNode
   title: string
   description: string
+  wide?: boolean
   children: React.ReactNode
 }) {
   return (
-    <div className="flex flex-col gap-6 w-full max-w-xl">
+    <div className={`flex flex-col gap-6 w-full ${wide ? 'max-w-3xl' : 'max-w-xl'}`}>
       <div className="flex items-start gap-4">
         <div className="w-11 h-11 shrink-0 rounded-tile bg-accent/10 border border-accent-dim/30 flex items-center justify-center text-accent-bright">
           {icon}
@@ -307,6 +328,40 @@ export function OnboardingView({
   const { t: tc, i18n } = useTranslation('common')
   const { t: ts } = useTranslation('settings')
   const [presetModal, setPresetModal] = useState<'light' | 'dark' | null>(null)
+  const [celebrating, setCelebrating] = useState(false)
+  const shellRef = useRef<HTMLDivElement>(null)
+  const previewRef = useRef<HTMLDivElement>(null)
+  const liftedRef = useRef<LiftedPreview | null>(null)
+  const { projects, refresh: refreshProjects } = useProjectsContext()
+  const { installed, refreshInstalled } = useGodotVersionsContext()
+  const { workspaces, activeId } = useWorkspaces()
+  const currentWorkspace = workspaces.find((w) => w.id === activeId) ?? null
+  const [intro, setIntro] = useState(() => workspaces.length <= 1)
+
+  const celebrate = async () => {
+    await Promise.all([refreshProjects(), refreshInstalled()]).catch(() => {})
+    setCelebrating(true)
+    if (motionOff()) return
+    await new Promise((resolve) => window.setTimeout(resolve, CELEBRATION_HOLD_MS))
+    liftedRef.current = await liftPreview(previewRef.current, shellRef.current)
+    if (liftedRef.current) handOffShellIntro()
+  }
+
+  const morph = () => morphIntoApp(liftedRef.current)
+
+  const revealShell = () => {
+    const shell = shellRef.current
+    if (!shell || motionOff()) return
+    gsap.from(shell.children, {
+      opacity: 0,
+      y: 24,
+      scale: 0.985,
+      duration: 0.7,
+      stagger: 0.08,
+      ease: ease.out,
+      clearProps: 'opacity,transform',
+    })
+  }
 
   // Discovery: recent projects from Godot's project manager + detected installs.
   const [recentProjects, setRecentProjects] = useState<DiscoveredProject[]>([])
@@ -384,6 +439,7 @@ export function OnboardingView({
       }
     }
     setImportingProjects(false)
+    void refreshProjects()
     if (added > 0) {
       pushToast('success', t('discovery_added_projects', { count: added }))
     }
@@ -406,6 +462,7 @@ export function OnboardingView({
       }
     }
     setImportingInstalls(false)
+    void refreshInstalled()
     if (added > 0) {
       pushToast('success', t('discovery_added_versions', { count: added }))
     }
@@ -436,6 +493,10 @@ export function OnboardingView({
     scanProgress,
     categories,
     removeCategory,
+    updateCategory,
+    reorderCategories,
+    assignCategoryFolder,
+    unassignCategoryFolder,
     categoryDraft,
     setCategoryDraft,
     categoryColor,
@@ -448,21 +509,26 @@ export function OnboardingView({
 
   useDiscordRpc(draft, [])
 
+  const sidebarPreview = [
+    ...CORE_FEATURES,
+    ...FEATURES.filter((f) => !f.flag && isFeatureEnabled(draft, f.id)),
+  ]
+
   return (
     <div className="new-ui h-screen w-screen flex flex-col bg-base text-ink font-body select-none">
       <Titlebar minimal />
 
-      <div className="flex-1 min-h-0 flex gap-4 p-4 pt-2">
+      {intro && <WelcomeIntro onLeave={revealShell} onDone={() => setIntro(false)} />}
+
+      <div ref={shellRef} className="flex-1 min-h-0 flex gap-4 p-4 pt-2">
         <aside className="shrink-0 w-60 flex flex-col rounded-card bg-raised overflow-hidden">
-          <div className="p-5 pb-4 border-b border-line">
-            <div className="flex items-center gap-2.5">
-              <span className="font-display font-black text-xl tracking-tight text-ink">
-                GodotHub
-              </span>
-            </div>
-            <p className="text-2xs text-muted/70 mt-2 leading-relaxed">
-              {t('welcome_desc')}
-            </p>
+          <div className="shrink-0 flex items-center gap-2 px-5 h-14">
+            <span data-onboarding-wordmark className="font-display font-black text-xl tracking-tight text-ink">
+              GodotHub
+            </span>
+            <span className="ms-auto text-4xs font-semibold uppercase tracking-wide px-2 py-0.5 rounded-tag bg-accent/15 text-accent-bright">
+              {t('setup')}
+            </span>
           </div>
 
           <OverlayScrollArea
@@ -470,65 +536,78 @@ export function OnboardingView({
             hideThumb={!settings.show_scrollbars}
             hideTopButton
           >
-            <div className="p-3 flex flex-col gap-1">
-            {STEPS.map((s, i) => {
-              const active = i === stepIndex
-              const done = i < stepIndex
-              return (
-                <button
-                  key={s.id}
-                  type="button"
-                  onClick={() => jumpTo(i)}
-                  className={`focus-ring cursor-pointer relative flex items-center gap-2.5 px-3 py-2.5 rounded-item text-sm font-medium  ${
-                    active
-                      ? 'text-ink'
-                      : done
-                        ? 'text-accent-bright'
-                        : 'text-muted hover:text-ink hover:bg-overlay/60'
-                  }`}
-                >
-                  {active && (
-                    <span
-
-
-                      className="absolute inset-0 rounded-item bg-overlay border border-outline/50 shadow-md shadow-black/10 pointer-events-none"
-                    />
-                  )}
-                  <span
-                    className={`relative w-6 h-6 shrink-0 flex items-center justify-center rounded-tag text-3xs font-bold border  ${
-                      done
-                        ? 'bg-accent/15 text-accent-bright border-accent-dim/40'
-                        : active
-                          ? 'bg-accent/15 text-accent-bright border-accent-dim/40'
-                          : 'bg-overlay text-muted border-outline/50'
+            <nav className="p-3 pt-1 flex flex-col gap-0.5" aria-label={t('setup')}>
+              {STEPS.map((s, i) => {
+                const active = i === stepIndex
+                const done = i < stepIndex
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => jumpTo(i)}
+                    disabled={finishing}
+                    aria-current={active ? 'step' : undefined}
+                    className={`focus-ring cursor-pointer flex items-center gap-2.5 px-3 py-2 rounded-item border text-sm font-medium disabled:cursor-default ${
+                      active
+                        ? 'bg-overlay border-outline/50 text-ink shadow-md shadow-black/10'
+                        : done
+                          ? 'border-transparent text-ink/80 hover:bg-overlay/60'
+                          : 'border-transparent text-muted hover:text-ink hover:bg-overlay/60'
                     }`}
                   >
-                    {done ? <IconCheck className="w-3 h-3" /> : i + 1}
-                  </span>
-                  <span className="relative min-w-0 truncate">
-                    {stepLabel(s.id)}
-                  </span>
-                </button>
-              )
-            })}
-            </div>
+                    <span
+                      className={`w-6 h-6 shrink-0 flex items-center justify-center rounded-tag text-3xs font-bold tabular-nums ${
+                        done
+                          ? 'bg-accent text-white'
+                          : active
+                            ? 'bg-accent/15 text-accent-bright'
+                            : 'bg-overlay text-muted'
+                      }`}
+                    >
+                      {done ? <IconCheck className="w-3 h-3" /> : i + 1}
+                    </span>
+                    <span className="min-w-0 truncate">{stepLabel(s.id)}</span>
+                  </button>
+                )
+              })}
+            </nav>
           </OverlayScrollArea>
 
-          <div className="shrink-0 p-4 border-t border-line flex flex-col gap-2">
-            <div className="h-1.5 w-full rounded-full bg-line/40 overflow-hidden">
-              <div
-                className="h-full w-full origin-left rtl:origin-right rounded-full bg-accent"
-
-
-              />
-            </div>
-            <span className="text-3xs font-medium text-muted/70 text-center tabular-nums">
-              {stepIndex + 1} / {STEPS.length}
-            </span>
-          </div>
+          <MiniAppPreview
+            ref={previewRef}
+            settings={draft}
+            workspace={currentWorkspace}
+            projects={projects}
+            versionCount={installed.length}
+          />
         </aside>
 
-        <main className="flex-1 min-w-0 flex flex-col rounded-card bg-raised overflow-hidden">
+        <div className="flex-1 min-w-0 flex flex-col gap-4">
+          <ViewHeader
+            title={stepLabel(step.id)}
+            metric={
+              <span className="text-xs font-medium text-muted tabular-nums">
+                {t('step_of', { current: stepIndex + 1, total: STEPS.length })}
+              </span>
+            }
+          >
+            <div className="flex gap-1" aria-hidden="true">
+              {STEPS.map((s, i) => (
+                <span
+                  key={s.id}
+                  className={`h-1 flex-1 rounded-full ${
+                    i < stepIndex
+                      ? 'bg-accent'
+                      : i === stepIndex
+                        ? 'bg-accent-bright'
+                        : 'bg-line/50'
+                  }`}
+                />
+              ))}
+            </div>
+          </ViewHeader>
+
+        <main className="flex-1 min-h-0 flex flex-col rounded-card bg-raised overflow-hidden">
           <div className="flex-1 min-h-0 flex flex-col">
             <OverlayScrollArea
               className="flex-1 min-w-0"
@@ -536,18 +615,25 @@ export function OnboardingView({
               hideTopButton
             >
               <div className="min-h-full px-6 py-6 sm:px-10 sm:py-8">
-
                   <div
                     key={step.id}
-
-
                     className="w-full flex flex-col items-center"
                   >
+                    {step.id === 'workspace' && (
+                      <StepShell
+                        icon={<IconBriefcase className="w-5 h-5" />}
+                        title={t('first_workspace_title')}
+                        description={t('first_workspace_desc')}
+                      >
+                        <OnboardingFirstWorkspace />
+                      </StepShell>
+                    )}
+
                     {step.id === 'welcome' && (
                       <StepShell
                         icon={<IconHouse className="w-5 h-5" />}
-                        title={t('welcome_title')}
-                        description={t('welcome_desc')}
+                        title={t('basics_title')}
+                        description={t('basics_desc')}
                       >
                         <div className="flex flex-col gap-6">
                           <div className="flex flex-col gap-2.5">
@@ -619,36 +705,18 @@ export function OnboardingView({
                             />
                           </div>
 
-                          <div className="grid grid-cols-3 gap-3">
-                            <div className="flex flex-col gap-2 p-4 rounded-item bg-overlay border border-outline/50">
-                              <IconLayoutGrid className="w-4 h-4 text-accent-bright" />
-                              <span className="text-xs font-medium text-ink">
-                                {tc('section_projects')}
-                              </span>
-                              <p className="text-2xs text-muted leading-relaxed">
-                                {t('onboarding_keep_organized', { ns: 'common' })}
-                              </p>
-                            </div>
-                            <div className="flex flex-col gap-2 p-4 rounded-item bg-overlay border border-outline/50">
-                              <IconCloudArrowDown className="w-4 h-4 text-accent-bright" />
-                              <span className="text-xs font-medium text-ink">
-                                {tc('section_versions')}
-                              </span>
-                              <p className="text-2xs text-muted leading-relaxed">
-                                {t('onboarding_download_manage', { ns: 'common' })}
-                              </p>
-                            </div>
-                            <div className="flex flex-col gap-2 p-4 rounded-item bg-overlay border border-outline/50">
-                              <IconNews className="w-4 h-4 text-accent-bright" />
-                              <span className="text-xs font-medium text-ink">
-                                {tc('section_news')}
-                              </span>
-                              <p className="text-2xs text-muted leading-relaxed">
-                                {t('onboarding_stay_current', { ns: 'common' })}
-                              </p>
-                            </div>
-                          </div>
                         </div>
+                      </StepShell>
+                    )}
+
+                    {step.id === 'setup' && (
+                      <StepShell
+                        wide
+                        icon={<IconLayoutGrid className="w-5 h-5" />}
+                        title={t('setup_title')}
+                        description={t('setup_desc')}
+                      >
+                        <FeatureSetupPicker value={draft} onChange={setDraft} />
                       </StepShell>
                     )}
 
@@ -839,39 +907,14 @@ export function OnboardingView({
                         description={t('onboarding_templates_desc', { ns: 'common' })}
                       >
                         <div className="flex flex-col gap-3 w-full">
-                          <div className="flex items-center gap-2.5">
-                            {draft.template_scan_dir ? (
-                              <input
-                                readOnly
-                                value={draft.template_scan_dir}
-                                className="flex-1 bg-base border border-outline/50 rounded-btn px-3.5 py-2.5 text-xs font-mono text-ink"
-                              />
-                            ) : (
-                              <span className="text-xs text-muted">
-                                {t('onboard_no_template_folder')}
-                              </span>
-                            )}
-                            <button
-                              type="button"
-                              onClick={async () => {
-                                const folder = await api.pickFolder()
-                                if (folder)
-                                  setField('template_scan_dir', folder)
-                              }}
-                              className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn border border-outline/50 text-sm hover:border-accent-dim hover:bg-overlay "
-                            >
-                              {tc('browse')}
-                            </button>
-                            {draft.template_scan_dir && (
-                              <button
-                                type="button"
-                                onClick={() => setField('template_scan_dir', null)}
-                                className="focus-ring cursor-pointer px-3 py-2.5 rounded-btn border border-outline/50 text-xs text-muted hover:text-danger hover:border-danger/30 hover:bg-danger/10 "
-                              >
-                                {tc('clear')}
-                              </button>
-                            )}
-                          </div>
+                          <DirList
+                            single
+                            dirs={draft.template_scan_dir ? [draft.template_scan_dir] : []}
+                            onChange={(dirs) =>
+                              setField('template_scan_dir', dirs[0] ?? null)
+                            }
+                            emptyHint={t('onboard_no_template_folder')}
+                          />
 
                           {pendingTemplateSuggestions.length > 0 && (
                             <div className="flex flex-col gap-1.5">
@@ -980,36 +1023,34 @@ export function OnboardingView({
                               <span className="text-2xs font-medium text-muted uppercase tracking-wide">
                                 {t('onboarding_your_categories', { ns: 'common' })}
                               </span>
-                              <div className="flex flex-col gap-1.5 max-h-40 overflow-y-auto">
-                                {categories.map((c) => (
-                                  <div
-                                    key={c.id}
-                                    className="group flex items-center justify-between gap-2 px-3.5 py-2 rounded-btn bg-raised border border-outline/50"
-                                  >
-                                    <span className="flex items-center gap-2 min-w-0">
-                                      <span
-                                        className="w-2.5 h-2.5 rounded-full shrink-0 border border-black/20"
-                                        style={{ backgroundColor: c.color }}
-                                      />
-                                      <span className="text-xs text-ink truncate">{c.name}</span>
-                                    </span>
-                                    <button
-                                      onClick={() => removeCategory(c.id)}
-                                      aria-label={tc('remove_category_aria', { name: c.name })}
-                                      className="focus-ring cursor-pointer text-muted opacity-0 group-hover:opacity-100 hover:text-danger "
-                                    >
-                                      <IconTrash className="w-3.5 h-3.5" />
-                                    </button>
-                                  </div>
-                                ))}
-                              </div>
+                              <SortableCategoryList
+                                categories={categories}
+                                onUpdate={updateCategory}
+                                onDelete={removeCategory}
+                                onReorder={reorderCategories}
+                                onAssignFolder={assignCategoryFolder}
+                                onUnassignFolder={unassignCategoryFolder}
+                                onError={(message) => {
+                                  if (message) pushToast('error', message)
+                                }}
+                              />
                             </div>
                           )}
                         </div>
                       </StepShell>
                     )}
 
-                    {step.id === 'customize' && (
+                    {step.id === 'workspaces' && (
+                      <StepShell
+                        icon={<IconLayoutGrid className="w-5 h-5" />}
+                        title={t('workspaces_title')}
+                        description={t('workspaces_desc')}
+                      >
+                        <OnboardingWorkspaces />
+                      </StepShell>
+                    )}
+
+                    {step.id === 'appearance' && (
                       <StepShell
                         icon={<IconPalette className="w-5 h-5" />}
                         title={t('onboarding_customize_title', { ns: 'common' })}
@@ -1150,7 +1191,17 @@ export function OnboardingView({
                       </StepShell>
                     )}
 
-                    {step.id === 'finish' && (
+                    {step.id === 'finish' && celebrating && (
+                      <StepShell
+                        icon={<IconCheck className="w-5 h-5" />}
+                        title={t('found_title')}
+                        description={t('found_desc')}
+                      >
+                        <FinishCelebration projects={projects} versionCount={installed.length} />
+                      </StepShell>
+                    )}
+
+                    {step.id === 'finish' && !celebrating && (
                       <StepShell
                         icon={<IconCheck className="w-5 h-5" />}
                         title={t(
@@ -1193,7 +1244,7 @@ export function OnboardingView({
                               }
                               running={draft.version_scan_dirs.length > 0}
                             />
-                            {draft.template_scan_dir && (
+                            {draft.template_scan_dir && isFeatureEnabled(draft, 'templates') && (
                               <ProgressRow
                                 label={tc('syncing')}
                                 progress={null}
@@ -1230,6 +1281,13 @@ export function OnboardingView({
                               />
                             </SummarySection>
 
+                            <SummarySection title={t('setup')}>
+                              <SummaryRow
+                                label={t('preview_heading')}
+                                value={sidebarPreview.map(({ id }) => featureLabel(ts, id)).join(', ')}
+                              />
+                            </SummarySection>
+
                             <SummarySection title={ts('appearance')}>
                               <SummaryRow
                                 label={ts('theme')}
@@ -1261,12 +1319,14 @@ export function OnboardingView({
                                   draft.version_scan_dirs.length || tc('none')
                                 }
                               />
-                              <SummaryRow
-                                label={tc('section_templates')}
-                                value={
-                                  draft.template_scan_dir || tc('none')
-                                }
-                              />
+                              {isFeatureEnabled(draft, 'templates') && (
+                                <SummaryRow
+                                  label={tc('section_templates')}
+                                  value={
+                                    draft.template_scan_dir || tc('none')
+                                  }
+                                />
+                              )}
                             </SummarySection>
 
                           </div>
@@ -1299,7 +1359,7 @@ export function OnboardingView({
             {step.id === 'finish' ? (
               <button
                 type="button"
-                onClick={() => finish(false)}
+                onClick={() => finish(false, celebrate, morph)}
                 disabled={finishing}
                 className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-6 py-2.5 rounded-item bg-accent hover:bg-accent-bright disabled:opacity-60 text-sm font-medium text-white "
               >
@@ -1317,6 +1377,7 @@ export function OnboardingView({
             )}
           </div>
         </main>
+        </div>
       </div>
 
 
@@ -1332,6 +1393,325 @@ export function OnboardingView({
           />
         )}
 
+    </div>
+  )
+}
+
+const CELEBRATION_HOLD_MS = 2400
+const MAX_CELEBRATION_TILES = 12
+
+interface LiftedPreview {
+  clone: HTMLElement
+  cover: HTMLElement
+}
+
+function liftPreview(preview: HTMLElement | null, shell: HTMLElement | null) {
+  return new Promise<LiftedPreview | null>((resolve) => {
+    if (!preview) {
+      resolve(null)
+      return
+    }
+    const r = preview.getBoundingClientRect()
+    const clone = preview.cloneNode(true) as HTMLElement
+    clone.querySelectorAll('.dash-rise').forEach((n) => n.classList.remove('dash-rise'))
+    clone.setAttribute('data-motion-skip', '')
+    Object.assign(clone.style, {
+      position: 'fixed',
+      left: `${r.left}px`,
+      top: `${r.top}px`,
+      width: `${r.width}px`,
+      height: `${r.height}px`,
+      margin: '0',
+      zIndex: '200',
+      pointerEvents: 'none',
+    })
+    const cover = document.createElement('div')
+    cover.setAttribute('data-motion-skip', '')
+    cover.className = 'bg-base'
+    Object.assign(cover.style, { position: 'fixed', inset: '0', zIndex: '199', pointerEvents: 'none', opacity: '0' })
+    document.body.append(cover, clone)
+    preview.style.visibility = 'hidden'
+    const tl = gsap.timeline({ onComplete: () => resolve({ clone, cover }) })
+    tl.to(cover, { opacity: 1, duration: 0.4, ease: ease.in }, 0)
+    if (shell) tl.to(shell, { opacity: 0, duration: 0.4, ease: ease.in }, 0)
+    tl.to(clone, { scale: 1.06, duration: 0.4, ease: ease.soft }, 0)
+  })
+}
+
+function restingRect(el: HTMLElement) {
+  const moved: [HTMLElement, string][] = []
+  for (let node: HTMLElement | null = el; node && node !== document.body; node = node.parentElement) {
+    if (getComputedStyle(node).transform !== 'none') {
+      moved.push([node, node.style.transform])
+      node.style.transform = 'none'
+    }
+  }
+  const rect = el.getBoundingClientRect()
+  for (const [node, transform] of moved) node.style.transform = transform
+  return rect
+}
+
+function waitForElements<T>(find: () => T | null, frames = 90) {
+  return new Promise<T | null>((resolve) => {
+    let left = frames
+    const check = () => {
+      const found = find()
+      if (found || left-- <= 0) resolve(found)
+      else window.setTimeout(check, 16)
+    }
+    check()
+  })
+}
+
+async function morphIntoApp(lifted: LiftedPreview | null) {
+  if (!lifted) return
+  const { clone, cover } = lifted
+  const cleanup = () => {
+    clone.remove()
+    cover.remove()
+  }
+  const target = await waitForElements(() => {
+    const sidebar = document.querySelector<HTMLElement>('[data-app-sidebar]')
+    const main = document.querySelector<HTMLElement>('[data-app-main]')
+    return sidebar && main ? { sidebar, main } : null
+  })
+  const [miniSidebar, miniMain] = Array.from(clone.children) as HTMLElement[]
+  if (!target || !miniSidebar || !miniMain) {
+    gsap.to([clone, cover], { opacity: 0, duration: 0.4, ease: 'power2.out', onComplete: cleanup })
+    return
+  }
+
+  gsap.set(clone, { scale: 1, borderWidth: 0 })
+  const origin = clone.getBoundingClientRect()
+  for (const piece of [miniSidebar, miniMain]) {
+    const r = piece.getBoundingClientRect()
+    Object.assign(piece.style, {
+      position: 'absolute',
+      left: `${r.left - origin.left}px`,
+      top: `${r.top - origin.top}px`,
+      width: `${r.width}px`,
+      height: `${r.height}px`,
+      margin: '0',
+    })
+  }
+
+  const sidebarRect = restingRect(target.sidebar)
+  const mainRect = restingRect(target.main)
+  const sidebarRadius = getComputedStyle(target.sidebar).borderTopLeftRadius
+  const box = (r: DOMRect) => ({ left: r.left, top: r.top, width: r.width, height: r.height })
+
+  const tl = gsap.timeline({ onComplete: cleanup })
+  tl.to([...Array.from(miniSidebar.children), ...Array.from(miniMain.children)], {
+    opacity: 0,
+    duration: 0.2,
+    ease: 'power2.out',
+  }, 0)
+  tl.to(clone, {
+    left: 0,
+    top: 0,
+    width: window.innerWidth,
+    height: window.innerHeight,
+    borderRadius: 0,
+    padding: 0,
+    duration: 0.85,
+    ease: 'power3.inOut',
+  }, 0)
+  tl.to(miniSidebar, { ...box(sidebarRect), borderRadius: sidebarRadius, duration: 0.85, ease: 'power3.inOut' }, 0)
+  tl.to(miniMain, { ...box(mainRect), duration: 0.85, ease: 'power3.inOut' }, 0)
+  tl.to([clone, cover], { opacity: 0, duration: 0.4, ease: 'power2.out' }, 0.8)
+}
+
+function FinishCelebration({ projects, versionCount }: { projects: Project[]; versionCount: number }) {
+  const { t: tc } = useTranslation('common')
+  const gridRef = useRef<HTMLDivElement>(null)
+  const [counts, setCounts] = useState({ projects: 0, versions: 0 })
+
+  useEffect(() => {
+    const id = window.setTimeout(() => setCounts({ projects: projects.length, versions: versionCount }), 120)
+    return () => window.clearTimeout(id)
+  }, [projects.length, versionCount])
+
+  useLayoutEffect(() => {
+    const grid = gridRef.current
+    if (!grid || motionOff()) return
+    const tween = gsap.from(grid.children, {
+      y: -36,
+      opacity: 0,
+      rotation: () => gsap.utils.random(-12, 12),
+      duration: 0.7,
+      stagger: 0.06,
+      delay: 0.25,
+      ease: ease.spring,
+      clearProps: 'all',
+    })
+    return () => {
+      tween.revert()
+    }
+  }, [])
+
+  const stats = [
+    { key: 'projects', label: tc('section_projects'), value: counts.projects },
+    { key: 'versions', label: tc('section_versions'), value: counts.versions },
+  ]
+
+  return (
+    <div className="flex flex-col gap-5 w-full">
+      <div className="grid grid-cols-2 gap-3">
+        {stats.map((stat) => (
+          <div key={stat.key} className="flex flex-col gap-1 px-5 py-4 rounded-item bg-base/40 border border-outline/50">
+            <span className="font-display font-bold text-4xl tracking-tight text-ink tabular-nums">
+              <AnimatedNumber value={stat.value} />
+            </span>
+            <span className="text-xs font-medium text-muted">{stat.label}</span>
+          </div>
+        ))}
+      </div>
+      {projects.length > 0 && (
+        <div ref={gridRef} className="grid grid-cols-4 gap-2">
+          {projects.slice(0, MAX_CELEBRATION_TILES).map((p) => (
+            <div
+              key={p.id}
+              className="flex items-center gap-2 px-2.5 py-2 rounded-item bg-base/40 border border-outline/50 min-w-0"
+            >
+              <span className="w-6 h-6 shrink-0 rounded-tag bg-accent/15 text-accent-bright flex items-center justify-center text-3xs font-bold">
+                {p.name.trim().charAt(0).toUpperCase() || '?'}
+              </span>
+              <span className="min-w-0 truncate text-2xs text-ink">{p.name}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function OnboardingFirstWorkspace() {
+  const { t } = useTranslation('common')
+  const { workspaces, activeId, renameWorkspace, updateWorkspaceStyle } = useWorkspaces()
+  const current = workspaces.find((w) => w.id === activeId) ?? null
+  const [draft, setDraft] = useState<WorkspaceDraft | null>(current)
+  const [synced, setSynced] = useState(current?.id ?? null)
+  if (current && synced !== current.id) {
+    setSynced(current.id)
+    setDraft(current)
+  }
+
+  if (!current || !draft) return null
+  const takenNames = workspaces.filter((w) => w.id !== current.id).map((w) => w.name)
+
+  const commitName = () => {
+    const trimmed = draft.name.trim()
+    if (workspaceNameError(trimmed, takenNames, t) || trimmed === current.name) return
+    renameWorkspace(current.id, trimmed).catch((e) => pushToast('error', String(e)))
+  }
+
+  const change = (next: WorkspaceDraft) => {
+    setDraft(next)
+    if (next.icon !== current.icon || next.color !== current.color) {
+      updateWorkspaceStyle(current.id, next.icon, next.color).catch((e) => pushToast('error', String(e)))
+    }
+  }
+
+  return (
+    <WorkspaceForm
+      value={draft}
+      onChange={change}
+      takenNames={takenNames}
+      showErrors
+      onSubmit={commitName}
+      onNameBlur={commitName}
+    />
+  )
+}
+
+function OnboardingWorkspaces() {
+  const { t } = useTranslation('common')
+  const {
+    workspaces,
+    activeId,
+    addWorkspace,
+    renameWorkspace,
+    updateWorkspaceStyle,
+    deleteWorkspace,
+  } = useWorkspaces()
+  const [added, setAdded] = useState<Set<string>>(new Set())
+  const [creating, setCreating] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const editing = workspaces.find((w) => w.id === editingId) ?? null
+
+  return (
+    <div className="flex flex-col gap-1.5 w-full">
+      {workspaces.map((ws) => {
+        const Icon = getWorkspaceIcon(ws.icon)
+        return (
+          <button
+            key={ws.id}
+            type="button"
+            onClick={() => setEditingId(ws.id)}
+            aria-label={`${t('edit_workspace_title')}: ${ws.name}`}
+            className="focus-ring cursor-pointer group flex items-center gap-3 px-3 py-2.5 rounded-item border border-outline/50 bg-base/40 text-start hover:border-accent-dim hover:bg-overlay/60"
+          >
+            <span
+              className="w-9 h-9 shrink-0 rounded-full border-2 flex items-center justify-center"
+              style={{ backgroundColor: `${ws.color}26`, borderColor: ws.color }}
+            >
+              <Icon className="w-4 h-4" style={{ color: ws.color }} />
+            </span>
+            <span className="flex-1 min-w-0 text-sm font-medium text-ink truncate">
+              {ws.name}
+            </span>
+            {ws.id === activeId && (
+              <span className="shrink-0 text-4xs font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-tag bg-accent/15 text-accent-bright">
+                {t('current_workspace')}
+              </span>
+            )}
+            <IconPencil className="w-3.5 h-3.5 shrink-0 text-muted opacity-0 group-hover:opacity-100" />
+          </button>
+        )
+      })}
+
+      <button
+        type="button"
+        onClick={() => setCreating(true)}
+        className="focus-ring cursor-pointer flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-item border border-dashed border-outline/60 text-xs text-muted hover:text-accent-bright hover:border-accent-dim hover:bg-overlay/40"
+      >
+        <IconPlus className="w-3.5 h-3.5" />
+        {t('create_workspace')}
+      </button>
+
+      {creating && (
+        <CreateWorkspaceModal
+          takenNames={workspaces.map((w) => w.name)}
+          onClose={() => setCreating(false)}
+          onCreate={async ({ name, icon, color }) => {
+            const id = await addWorkspace(name, icon, color)
+            if (id) setAdded((prev) => new Set(prev).add(id))
+            setCreating(false)
+          }}
+        />
+      )}
+
+      {editing && (
+        <WorkspaceEditModal
+          workspace={editing}
+          takenNames={workspaces.filter((w) => w.id !== editing.id).map((w) => w.name)}
+          canDelete={added.has(editing.id) && editing.id !== activeId}
+          onClose={() => setEditingId(null)}
+          onSave={async (name, icon, color) => {
+            await Promise.all([
+              name.trim() !== editing.name ? renameWorkspace(editing.id, name) : null,
+              icon !== editing.icon || color !== editing.color
+                ? updateWorkspaceStyle(editing.id, icon, color)
+                : null,
+            ])
+            setEditingId(null)
+          }}
+          onDelete={async () => {
+            await deleteWorkspace(editing.id)
+            setEditingId(null)
+          }}
+        />
+      )}
     </div>
   )
 }

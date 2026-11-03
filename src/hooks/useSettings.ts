@@ -129,6 +129,7 @@ export const DEFAULTS: AppSettings = {
   rtl_layout: false,
   project_todos_enabled: false,
   use_mise: false,
+  disabled_features: [],
 }
 
 interface SettingsContextValue {

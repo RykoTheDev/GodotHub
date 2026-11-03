@@ -361,7 +361,7 @@ pub fn restart_watchers(app: AppHandle) -> Result<(), String> {
         let dirs: Vec<PathBuf> = s.version_scan_dirs.iter().map(PathBuf::from).collect();
         start_version_watchers(app.clone(), dirs, s.scan_depth, 2000);
     }
-    if s.auto_watch_template_dir {
+    if s.feature_enabled("templates") && s.auto_watch_template_dir {
         if let Some(ref tdir) = s.template_scan_dir {
             let dir = PathBuf::from(tdir);
             if dir.exists() {

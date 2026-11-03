@@ -1,14 +1,14 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import type { Workspace } from '../../types'
-import { getWorkspaceIcon } from '../../lib/workspaceIcons'
 import { ModalShell } from './ModalShell'
 import { IconPencil } from '../../lib/icons'
 import { ConfirmDialog } from './ConfirmDialog'
-import { WorkspaceStylePicker } from '../ui/WorkspaceStylePicker'
+import { WorkspaceForm, workspaceNameError, type WorkspaceDraft } from '../ui/WorkspaceForm'
 
 interface Props {
   workspace: Workspace
+  takenNames: string[]
   canDelete: boolean
   onClose: () => void
   onSave: (name: string, icon: string, color: string) => Promise<void>
@@ -17,31 +17,32 @@ interface Props {
 
 export function WorkspaceEditModal({
   workspace,
+  takenNames,
   canDelete,
   onClose,
   onSave,
   onDelete,
 }: Props) {
   const { t } = useTranslation('common')
-  const [name, setName] = useState(workspace.name)
-  const [icon, setIcon] = useState(workspace.icon)
-  const [color, setColor] = useState(workspace.color)
+  const [draft, setDraft] = useState<WorkspaceDraft>({
+    name: workspace.name,
+    icon: workspace.icon,
+    color: workspace.color,
+  })
+  const [touched, setTouched] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [confirmingDelete, setConfirmingDelete] = useState(false)
 
-  const PreviewIcon = getWorkspaceIcon(icon)
-  const previewName = name.trim() || workspace.name
+  const invalid = workspaceNameError(draft.name, takenNames, t) !== null
 
   const submit = async () => {
-    if (!name.trim()) {
-      setError(t('workspace_name_required_error'))
-      return
-    }
+    setTouched(true)
+    if (invalid || busy) return
     setBusy(true)
     setError(null)
     try {
-      await onSave(name, icon, color)
+      await onSave(draft.name.trim(), draft.icon, draft.color)
     } catch (e) {
       setError(String(e))
     } finally {
@@ -51,39 +52,37 @@ export function WorkspaceEditModal({
 
   return (
     <>
-    <ModalShell
+      <ModalShell
         icon={<IconPencil className="w-5 h-5 text-accent-bright" />}
         title={t('edit_workspace_title')}
-        maxWidth="max-w-md"
+        maxWidth="max-w-lg"
         onClose={onClose}
         showClose={false}
         footer={
           <>
             <button
-
-
+              type="button"
               onClick={() => canDelete && setConfirmingDelete(true)}
               disabled={!canDelete}
               title={canDelete ? undefined : t('cant_delete_only_workspace')}
-              className="focus-ring cursor-pointer disabled:cursor-not-allowed px-4 py-2.5 rounded-btn text-sm text-muted hover:text-danger hover:bg-danger/5 disabled:opacity-40 disabled:hover:text-muted disabled:hover:bg-transparent "
+              className="focus-ring cursor-pointer disabled:cursor-not-allowed px-4 py-2.5 rounded-btn text-sm text-muted hover:text-danger hover:bg-danger/5 disabled:opacity-40 disabled:hover:text-muted disabled:hover:bg-transparent"
             >
               {t('delete')}
             </button>
-            <div className="ms-auto flex gap-2.5">
+            <div className="ms-auto flex items-center gap-2.5">
+              {error && <p className="me-2 text-xs text-danger">{error}</p>}
               <button
-
-
+                type="button"
                 onClick={onClose}
-                className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised "
+                className="focus-ring cursor-pointer px-4 py-2.5 rounded-btn text-sm text-muted hover:text-ink hover:bg-raised"
               >
                 {t('cancel')}
               </button>
               <button
-
-
+                type="button"
                 onClick={submit}
-                disabled={busy}
-                className="focus-ring px-5 cursor-pointer py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 text-sm font-medium text-white "
+                disabled={busy || (touched && invalid)}
+                className="focus-ring cursor-pointer px-5 py-2.5 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium text-white"
               >
                 {t('save')}
               </button>
@@ -91,55 +90,18 @@ export function WorkspaceEditModal({
           </>
         }
       >
-          <div className="flex flex-col gap-5 p-6">
-            <div className="relative overflow-hidden rounded-btn border border-outline/50 bg-overlay p-4 flex items-center gap-3">
-              <div
-                className="absolute -top-10 -end-10 w-32 h-32 rounded-full blur-2xl opacity-40 "
-                style={{ backgroundColor: color }}
-                aria-hidden="true"
-              />
-              <span
-                key={icon}
-
-                className="relative w-12 h-12 rounded-full border-2 flex items-center justify-center shrink-0"
-                style={{ backgroundColor: `${color}26`, borderColor: color }}
-              >
-                <PreviewIcon className="w-5 h-5" style={{ color }} />
-              </span>
-              <div className="relative min-w-0">
-                <span className="block font-display font-semibold text-base text-ink truncate">
-                  {previewName}
-                </span>
-                <span className="block text-3xs font-semibold uppercase tracking-wider text-muted/60 mt-0.5">
-                  {t('section_workspaces')}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-medium text-muted">
-                {t('workspace_name_label')}
-              </label>
-              <input
-                autoFocus
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && submit()}
-                className="focus-ring bg-raised border border-outline/50 rounded-btn px-3.5 py-2.5 text-sm focus:border-accent-dim "
-              />
-            </div>
-
-            <WorkspaceStylePicker
-              icon={icon}
-              onIconChange={setIcon}
-              color={color}
-              onColorChange={setColor}
-            />
-
-            {error && <p className="text-xs text-danger">{error}</p>}
-          </div>
-    </ModalShell>
-
+        <div className="p-6">
+          <WorkspaceForm
+            value={draft}
+            onChange={setDraft}
+            takenNames={takenNames}
+            showErrors={touched}
+            autoFocus
+            onSubmit={submit}
+            onNameBlur={() => setTouched(true)}
+          />
+        </div>
+      </ModalShell>
 
       {confirmingDelete && (
         <ConfirmDialog
@@ -154,7 +116,6 @@ export function WorkspaceEditModal({
           onCancel={() => setConfirmingDelete(false)}
         />
       )}
-
     </>
   )
 }

@@ -323,6 +323,14 @@ pub struct AppSettings {
     pub project_todos_enabled: bool,
     #[serde(default)]
     pub use_mise: bool,
+    #[serde(default)]
+    pub disabled_features: Vec<String>,
+}
+
+impl AppSettings {
+    pub fn feature_enabled(&self, id: &str) -> bool {
+        !self.disabled_features.iter().any(|f| f == id)
+    }
 }
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize, Default)]
@@ -695,6 +703,7 @@ impl Default for AppSettings {
             rtl_layout: false,
             project_todos_enabled: false,
             use_mise: false,
+            disabled_features: vec![],
         }
     }
 }
