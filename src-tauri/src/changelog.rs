@@ -1,7 +1,10 @@
 use serde::Serialize;
 
-use crate::error::AppResult;
 use crate::models::{ChangelogEntry, ChangelogNote};
+
+#[cfg(debug_assertions)]
+use crate::error::AppResult;
+#[cfg(debug_assertions)]
 use crate::persist;
 
 #[cfg(debug_assertions)]
