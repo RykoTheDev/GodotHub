@@ -35,7 +35,8 @@ export function ProjectCategorySection({
   children: ReactNode
 }) {
   const { t } = useTranslation('common')
-  const [open, setOpen] = useState(defaultOpen)
+  const [toggled, setToggled] = useState<boolean | null>(null)
+  const open = toggled ?? defaultOpen
   const [dropOpen, setDropOpen] = useState(false)
   const isEmpty = count === 0
   const { active, over } = useDndContext()
@@ -58,7 +59,7 @@ export function ProjectCategorySection({
     if (!isOver || open) return
     const timer = setTimeout(() => {
       setDropOpen(true)
-      setOpen(true)
+      setToggled(true)
     }, 450)
     return () => clearTimeout(timer)
   }, [active, isOver, open])
@@ -110,7 +111,7 @@ export function ProjectCategorySection({
       className={`${variant === 'grid' ? 'flex flex-col mb-6' : 'flex flex-col'} rounded-item  ${active && containsTarget ? 'bg-accent/5' : ''}`}>
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => setToggled(!open)}
         onContextMenu={
           onContextMenu
             ? (e) => {

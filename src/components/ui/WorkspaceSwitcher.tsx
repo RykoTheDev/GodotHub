@@ -7,6 +7,7 @@ import { CreateWorkspaceModal } from '../modals/CreateWorkspaceModal'
 import { WorkspaceEditModal } from '../modals/WorkspaceEditModal'
 import type { Workspace } from '../../types'
 import type { MenuItem } from './menu'
+import { isMac } from '../../lib/platform'
 
 const requestEdit = (id: string) =>
   window.dispatchEvent(new CustomEvent('app:edit-workspace-request', { detail: id }))
@@ -52,6 +53,7 @@ export function useWorkspaceMenuItem(): MenuItem | null {
         label: w.name,
         leading: <WorkspaceBadge workspace={w} active={w.id === active.id} />,
         active: w.id === active.id,
+        shortcut: index < 9 ? `${isMac ? '⌥' : 'Alt+'}${index + 1}` : undefined,
         dividerAfter: index === workspaces.length - 1,
         onClick: () => switchWorkspace(w.id),
       })),

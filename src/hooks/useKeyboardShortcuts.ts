@@ -4,6 +4,7 @@ export interface ShortcutHandlers {
   onNewProject: () => void
   onOpenSettings: () => void
   onSwitchTab: (tabIndex: number) => void
+  onSwitchWorkspace?: (workspaceIndex: number) => void
   onCommandPalette: () => void
   onRestart: () => void
   onEscape: () => void
@@ -69,6 +70,12 @@ export function useKeyboardShortcuts(
           }
           break
       }
+      return
+    }
+
+    if (e.altKey && !e.shiftKey && !isInput && /^Digit[1-9]$/.test(e.code)) {
+      e.preventDefault()
+      h.current.onSwitchWorkspace?.(parseInt(e.code.slice(5)) - 1)
       return
     }
 

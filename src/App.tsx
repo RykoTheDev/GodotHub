@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useProjectsContext } from './hooks/projectsContext'
 import { useGodotVersionsContext } from './hooks/godotVersionsContext'
 import { useKeyboardShortcuts } from './hooks/useKeyboardShortcuts'
+import { useWorkspaces } from './hooks/useWorkspaces'
 import { useOpenTodosSync, useTodoDueNotifications } from './hooks/useOpenTodosSync'
 import { api } from './lib/api'
 import { flushPendingSave } from './lib/pendingSave'
@@ -11,6 +12,7 @@ import type { GitStatus, Project } from './types'
 
 import { Sidebar } from './components/ui/Sidebar'
 import { AnnouncementBanner } from './components/ui/AnnouncementBanner'
+import { WorkspaceSwitchNotice } from './components/ui/WorkspaceSwitchNotice'
 const GitSidebar = lazy(() =>
   import('./components/git/GitSidebar').then((m) => ({ default: m.GitSidebar })),
 )
@@ -415,6 +417,7 @@ export function App() {
     'manual' | 'preview'
   >('manual')
   const { installed } = useGodotVersionsContext()
+  const { workspaces, switchWorkspace } = useWorkspaces()
   const { categories } = useCategoriesContext()
   const settingsRef = useRef(settings)
   settingsRef.current = settings
@@ -555,6 +558,10 @@ export function App() {
       onSwitchTab: (i: number) => {
         if (shortcutTabs[i]) setTab(shortcutTabs[i])
       },
+      onSwitchWorkspace: (i: number) => {
+        const target = workspaces[i]
+        if (settings.workspaces_enabled && target) void switchWorkspace(target.id)
+      },
       onCommandPalette: () => setCommandPaletteOpen((o) => !o),
       onRestart: () => {
         setConfirmingRestart(true)
@@ -641,6 +648,7 @@ export function App() {
     <div ref={shellRef} className="new-ui h-screen w-screen flex flex-col bg-base text-ink font-body">
       <ScreenReaderAnnouncer enabled={settings.screen_reader_announcements} />
       <ToastContainer />
+      {settings.workspaces_enabled && <WorkspaceSwitchNotice />}
       <Titlebar />
 
       <div

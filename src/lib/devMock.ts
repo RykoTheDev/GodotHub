@@ -212,7 +212,7 @@ const WORKSPACES = {
 
 const HANDLERS: Record<string, (args: Record<string, unknown>) => unknown> = {
   list_workspaces: () => WORKSPACES,
-  switch_workspace: () => WORKSPACES,
+  switch_workspace: (a) => ({ ...WORKSPACES, active_id: String(a.id ?? WORKSPACES.active_id) }),
   create_workspace: () => WORKSPACES,
   update_workspace: () => WORKSPACES,
   delete_workspace: () => WORKSPACES,
