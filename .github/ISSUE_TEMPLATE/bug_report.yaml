@@ -83,7 +83,8 @@ body:
         - 1.5.2
         - 1.5.3
         - 1.5.4
-      default: 19
+        - 1.5.5
+      default: 20
     validations:
       required: true
   - type: checkboxes
@@ -98,10 +99,7 @@ body:
         - label: "[Linux] AppImage (xx.AppImage)"
         - label: "[Linux] Debian (xx.deb)"
         - label: "[Linux] RPM (xx.rpm)"
-        - label: "[Linux] Snap (xx.snap)"
-        - label: "[Linux] Flatpak (xx.flatpak)"
         - label: "[Mac] DMG (xx.dmg)"
-        - label: "[Mac] Homebrew (brew install xx)"
         - label: "Built from source"
     validations:
       required: true

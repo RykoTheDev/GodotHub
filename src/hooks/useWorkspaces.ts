@@ -22,7 +22,6 @@ interface WorkspacesContextValue {
     color: string,
     copySettingsFrom?: string | null,
   ) => Promise<void>
-  addWorkspace: (name: string, icon: string, color: string) => Promise<string | null>
   renameWorkspace: (id: string, name: string) => Promise<void>
   updateWorkspaceStyle: (
     id: string,
@@ -67,14 +66,7 @@ export function WorkspacesProvider({ children }: { children: ReactNode }) {
     copySettingsFrom: string | null = null,
   ) => {
     await flushPendingSave()
-    setState(await api.createWorkspace(name, icon, color, true, copySettingsFrom))
-  }
-
-  const addWorkspace = async (name: string, icon: string, color: string) => {
-    const before = new Set(state.workspaces.map((w) => w.id))
-    const next = await api.createWorkspace(name, icon, color, false)
-    setState(next)
-    return next.workspaces.find((w) => !before.has(w.id))?.id ?? null
+    setState(await api.createWorkspace(name, icon, color, copySettingsFrom))
   }
 
   const renameWorkspace = async (id: string, name: string) => {
@@ -104,7 +96,6 @@ export function WorkspacesProvider({ children }: { children: ReactNode }) {
         refresh,
         switchWorkspace,
         createWorkspace,
-        addWorkspace,
         renameWorkspace,
         updateWorkspaceStyle,
         deleteWorkspace,

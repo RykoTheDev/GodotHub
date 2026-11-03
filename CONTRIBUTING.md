@@ -108,7 +108,7 @@ your PR I'm happy to discuss it.
 | **Node.js 20+** | Frontend tooling | Any recent LTS works. |
 | **Bun** | Package manager & build tool | Install from [bun.sh](https://bun.sh). The repo's lockfile is `bun.lock`. |
 | **Rust (stable)** | Tauri backend | Install via [rustup](https://rustup.rs). |
-| **Tauri system deps** | Native webview | **Linux** needs `libwebkit2gtk-4.1-dev`, `libgtk-3-dev`, `librsvg2-dev`, `patchelf`, and friends. **Windows/macOS** need nothing extra (see [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/)). |
+| **Tauri system deps** | Native webview | **Linux** needs `libwebkit2gtk-4.1-dev`, `libgtk-3-dev`, `librsvg2-dev`, `libappindicator3-dev`, `libsoup-3.0-dev`, `libjavascriptcoregtk-4.1-dev`, `patchelf`, and friends (the full list is in `ci.yml`). **Windows/macOS** need nothing extra (see [Tauri prerequisites](https://v2.tauri.app/start/prerequisites/)). |
 | **Git** | Version control | Also required by the app's Git features. |
 
 ### 1. Clone & install
@@ -148,11 +148,11 @@ The app window opens with the GodotHub UI.
 bun run tauri:build
 ```
 
-On Linux this also runs the AppImage Wayland patch script. The output lands in
+The build output lands in
 `src-tauri/target/release/`.
 
 Local builds keep Tauri's default bundle names (for example
-`GodotHub_1.4.4_amd64.AppImage`). The release workflow uploads the same files
+`GodotHub_1.5.5_amd64.AppImage`). The release workflow uploads the same files
 under a friendlier `GodotHub-<version>-<platform>-<arch>` pattern, so the names
 on the releases page differ from the ones you get locally. See the
 `Resolve release asset names` step in `.github/workflows/release.yml`.
@@ -217,7 +217,7 @@ godothub/
 │   ├── icons/                      # App icons for every platform
 │   ├── licenses/                   # License texts (MIT, Apache-2.0, GPL-3.0, Unlicense)
 │   ├── changelog.json              # In-app changelog entries
-│   ├── tauri.conf.json             # Tauri config (+ tauri.macos.conf.json overrides)
+│   ├── tauri.conf.json             # Tauri config
 │   └── Cargo.toml
 ├── scripts/                        # i18n tooling (check, sync, types, dupes, unused…)
 ├── assets/                         # README screenshots & banners
@@ -255,7 +255,7 @@ cd src-tauri && cargo check
 ```
 
 The CI (`ci.yml`) runs all of these on Windows, macOS, and Linux for every push
-and PR, so don't worry about cross-platform issues you can't test locally,
+and PR to `main`, so don't worry about cross-platform issues you can't test locally,
 but do mention which platform you *did* test on in the PR.
 
 ### ⚠️ The locale rule (important!)
@@ -292,13 +292,15 @@ but do mention which platform you *did* test on in the PR.
   and `reusables/` (OverlayScrollArea, ViewHeader, ScanButton…) instead of
   re-implementing them inline. If the shared component doesn't fit, extend it,
   don't fork it.
-- ESLint config lives in `eslint.config.js`. Run `bun run lint` after edits.
+- `eslint.config.js` has only ignore patterns and no rules yet, so `bun run lint`
+  checks almost nothing. Run it after edits anyway.
 
 ### Rust
 
 - `cargo fmt` style (run `cargo fmt` before committing).
-- Errors are `Result<_, String>` for Tauri command boundaries, matching the
-  existing convention in the file.
+- Command errors are `Result<_, String>` in most modules, such as `git.rs`.
+  `error.rs` defines `AppError` and `AppResult`, which some modules use. Match
+  the file you are editing.
 - Blocking work (git subprocesses, file IO) must run inside
   `tokio::task::spawn_blocking` so the UI thread never freezes. Most git
   commands in `git.rs` already follow this pattern, keep it that way.
@@ -306,8 +308,8 @@ but do mention which platform you *did* test on in the PR.
 
 ### Naming
 
-- Frontend: `camelCase` for variables/functions, `PascalCase` for components,
-  `kebab-case` for files (`InstalledVersionCard.tsx`, `useSettings.ts`).
+- Frontend: `camelCase` for variables and functions, `PascalCase` for components
+  (`InstalledVersionCard.tsx`), `camelCase` for hook and lib files (`useSettings.ts`).
 - Rust: `snake_case` for functions/variables, `PascalCase` for types, files
   match the module they contain (`git_auth.rs`).
 - Tauri command names are `snake_case` on the Rust side and are invoked from
@@ -335,9 +337,9 @@ and all other namespaces (`git`, `settings`, `versions`, etc.) fall back to
 | `pt-BR` | Português (Brasil) | 🧪 Beta |
 | `ru-RU` | Русский | 🚧 Incomplete |
 | `vi-VN` | Tiếng Việt | ✅ Complete |
-| `zh-CN` | 简体中文 | 🧪 Beta |
+| `zh-CN` | 简体中文 | ✅ Complete |
 
-**Total keys:** ~1,321 across 8 namespaces
+**Total keys:** 1,698 in en-US across 9 namespaces (counted 2026-11-03)
 
 ### How it's organized
 
@@ -378,7 +380,8 @@ src/i18n/
 | `onboarding` | First-run setup wizard | ~17 |
 | `nav` | Navigation sidebar | ~11 |
 | `changelog` | Changelog management | ~9 |
-| `dashboard` | Dashboard greetings | ~5 |
+| `dashboard` | Dashboard greetings | 91 |
+| `todos` | Project Next Steps | 106 |
 
 ### Duplicate key policy
 
@@ -484,7 +487,7 @@ This automatically:
 - Adds the language to `languages.ts`
 
 **Option B: Manual setup**
-1. **Create the locale folder** with all 8 namespace files, copied from English
+1. **Create the locale folder** with all 9 namespace files, copied from English
    so the key structure is identical:
    ```bash
    mkdir src/i18n/locales/ja-JP
@@ -500,6 +503,7 @@ This automatically:
   import jaJPOnboarding from './locales/ja-JP/onboarding.json'
   import jaJPVersions from './locales/ja-JP/versions.json'
   import jaJPDashboard from './locales/ja-JP/dashboard.json'
+  import jaJPTodos from './locales/ja-JP/todos.json'
 
   const resources = {
     'en-US': { … },
@@ -588,6 +592,7 @@ from every locale, `bun run i18n:types` shrinks the generated types to match.
 | `bun run i18n:sync -- --apply` | Add missing keys (copies English values) |
 | `bun run i18n:sync -- --apply --empty` | Add missing keys (empty for translation) |
 | `bun run i18n:unused` | List en-US keys that no source file references |
+| `bun run i18n:remove-unused` | Remove unreferenced en-US keys (review the list first) |
 | `bun run i18n:dupes` | Find duplicate keys across namespace files |
 | `bun run i18n:dupes -- --same` | Only same-value duplicates (safe to remove) |
 | `bun run i18n:dupes -- --diff` | Only different-value duplicates (need review) |
@@ -614,23 +619,22 @@ chmod +x .githooks/*
 Two hooks are installed:
 
 - **`pre-commit`** blocks em-dashes (U+2014, the long dash) in staged source
-  files, and, when you stage anything under `src/i18n/locales/`, runs
-  `i18n:check -- --check-values` on the locales.
-- **`commit-msg`** enforces the commit message format.
+  files.
+- **`commit-msg`** blocks AI or bot co-author trailers, AI attribution terms and
+  em-dashes in commit messages. Human co-authors are allowed.
 
 Bypass a hook with `git commit --no-verify` only when you know what you are doing.
 
 ### Automatic validation
 
-The **`pre-commit` hook** runs `i18n:check -- --check-values` automatically when
-you commit changes to `src/i18n/locales/`. This checks for:
+The i18n check runs in CI and flags these problems:
 - Missing keys (in en-US but not in your locale)
 - Extra keys (in your locale but not in en-US)
 - Untranslated keys (same value as English)
 
-If any issues are found, the commit is blocked with instructions to fix it. Skip with `git commit --no-verify` (not recommended).
+Run `bun run i18n:check -- --check-values` locally before you push, so CI does not fail.
 
-**CI** (`.github/workflows/ci.yml`) runs `i18n:check -- --check-values` on every PR to `main`. PRs with missing, extra, or untranslated keys will fail the check.
+**CI** (`.github/workflows/ci.yml`) runs `i18n:check -- --check-values` on every push and PR to `main`. PRs with missing, extra, or untranslated keys will fail the check.
 
 CI also runs `i18n:unused`, which annotates unreferenced keys on the line they sit on in `en-US`. It never fails the build, since static analysis cannot prove a key is dead.
 
@@ -679,12 +683,14 @@ For languages like Arabic, Urdu, etc.:
 
 ## 🧪 Testing & CI
 
-- **CI** (`.github/workflows/ci.yml`) runs on every push/PR to `main` on
+- **CI** (`.github/workflows/ci.yml`) runs on every push and PR to `main` on
   **Windows, Ubuntu, and macOS**:
   1. TypeScript typecheck (`tsc --noEmit`)
-  2. Rust `cargo check`
-  3. Vite production build
-- There's no unit-test suite yet, verification is typecheck + lint + manual
+  2. i18n checks (`i18n:check -- --check-values`, and `i18n:unused` as a report)
+  3. ESLint (`bun run lint`)
+  4. Rust `cargo check`
+  5. Vite production build
+- No unit tests run in CI. `scripts/cardViewSettings.test.mjs` exists, but no script or workflow runs it. Verification is typecheck, lint and manual
   testing. If you add a Rust module with non-trivial logic, `#[cfg(test)]`
   unit tests are very welcome.
 - **Manual testing matters.** Before opening a PR, exercise the feature you

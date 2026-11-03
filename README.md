@@ -211,7 +211,7 @@ Want to build GodotHub or contribute? See [Build from source](https://ryko.is-a.
 | Feature | Description |
 |---|---|
 | **Dark / Light Mode** | Switch between dark and light themes. |
-| **Accent Color** | 18 preset accent colors, or any custom hex color. |
+| **Accent Color** | 19 preset accent colors, or any custom hex color. |
 | **Background Color** | Presets, or generate one at random. |
 | **"Feeling Lucky"** | Randomly generate a whole color scheme in one click. |
 | **Corner Radius** | 0 (sharp) to 20px (rounded), applied everywhere. |
@@ -256,10 +256,13 @@ Want to build GodotHub or contribute? See [Build from source](https://ryko.is-a.
 | **System Tray** | Minimize to tray with a right-click menu of recently opened projects. |
 | **Custom Titlebar** | Frameless window, custom title bar. |
 | **Splash Screen** | An animated splash screen on startup. |
-| **Onboarding Wizard** | Guided first-time setup for scan folders, categories, and appearance. |
+| **Onboarding Wizard** | Guided first-time setup for workspaces, projects, versions, templates, categories, and appearance. |
 | **Auto-Updates** | Checks for updates on startup, downloads them via the Tauri updater. |
 | **Bug Reporting** | Report issues directly from the app. |
 | **Changelog Viewer** | See what changed in each release. |
+| **Vault** | Save a project as a reusable item in the workspace's vault, with tags, a Godot version and its files. |
+| **Command Line** | `godothub open <path>` opens a project. Options: `--godot`, `--add`, `--no-add`. |
+| **Discord Rich Presence** | Show the project you are working on in Discord. |
 | **Keyboard Shortcuts** | Full shortcut cheatsheet, available anytime. |
 
 </details>
@@ -363,6 +366,8 @@ bun tauri build
 |---|---|
 | **Frontend Framework** | [React 19](https://react.dev) + [TypeScript](https://www.typescriptlang.org/) |
 | **Styling** | [Tailwind CSS 4](https://tailwindcss.com) |
+| **Animation** | [GSAP](https://gsap.com) |
+| **Localization** | [i18next](https://www.i18next.com) + [react-i18next](https://react.i18next.com) |
 | **Drag & Drop** | [@dnd-kit](https://dndkit.com/) |
 | **Desktop Framework** | [Tauri 2](https://v2.tauri.app/) (Rust) |
 | **Icons** | [Font Awesome Free](https://fontawesome.com) via [react-fontawesome](https://github.com/FortAwesome/react-fontawesome) |

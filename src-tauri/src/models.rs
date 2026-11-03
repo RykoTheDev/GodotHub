@@ -432,7 +432,7 @@ fn default_background() -> String {
     theme_defaults().background.clone()
 }
 fn default_corner_radius() -> f64 {
-    10.0
+    7.0
 }
 fn default_raised_contrast() -> u32 {
     8

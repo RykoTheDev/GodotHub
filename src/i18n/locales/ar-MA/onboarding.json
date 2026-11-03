@@ -33,8 +33,6 @@
   "setup_desc": "Pick a starting point. Anything you leave out is hidden and never loads, so GodotHub stays quick. You can change this anytime in Settings, under Behavior.",
   "preview_heading": "Preview",
   "step_of": "Step {{current}} of {{total}}",
-  "workspaces_title": "Separate your work with workspaces",
-  "workspaces_desc": "Each workspace keeps its own projects, categories, and settings, so you can split work, personal, and game jam projects apart. Workspaces you add here get their own setup the first time you switch to them.",
   "dive_in": "Dive In",
   "workspace_step": "Workspace",
   "first_workspace_title": "Create your first workspace",

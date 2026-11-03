@@ -378,7 +378,6 @@ pub fn create_workspace(
     name: String,
     icon: String,
     color: String,
-    activate: Option<bool>,
     copy_settings_from: Option<String>,
 ) -> Result<WorkspacesState, String> {
     if let Some(source) = &copy_settings_from {
@@ -395,9 +394,6 @@ pub fn create_workspace(
         settings.setup_complete = true;
         crate::settings::write_settings_to(&workspace_dir(&app, &workspace.id), &settings)
             .map_err(|e| e.to_string())?;
-    }
-    if activate == Some(false) {
-        return Ok(read_state(&app));
     }
     let mut state = read_state(&app);
     state.active_id = workspace.id;
