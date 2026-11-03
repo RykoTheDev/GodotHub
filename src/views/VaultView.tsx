@@ -8,6 +8,7 @@ import { useWorkspaces } from '../hooks/useWorkspaces'
 import { useProjectsContext } from '../hooks/projectsContext'
 import type { VaultItem } from '../types'
 import { ViewHeader } from '../components/reusables/ViewHeader'
+import { UnlocalizedBadge } from '../components/reusables/UnlocalizedBadge'
 import { SearchBar } from '../components/ui/SearchBar'
 import { Dropdown } from '../components/ui/Dropdown'
 import { OverlayScrollArea } from '../components/reusables/OverlayScrollArea'
@@ -154,6 +155,15 @@ export function VaultView({
       <ViewHeader
         connected={connected}
         title={t('vault')}
+        badge={
+          <UnlocalizedBadge
+            checks={[
+              ['common', 'vault_save_btn'],
+              ['common', 'vault_add_btn'],
+              ['common', 'vault_no_match'],
+            ]}
+          />
+        }
         metric={
           <>
             <h2 className="text-4xl font-bold text-muted">

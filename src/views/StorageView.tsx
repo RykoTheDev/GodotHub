@@ -4,6 +4,7 @@ import { useSettings } from '../hooks/useSettings'
 import { useGodotVersionsContext } from '../hooks/godotVersionsContext'
 import { OverlayScrollArea } from '../components/reusables/OverlayScrollArea'
 import { ViewHeader } from '../components/reusables/ViewHeader'
+import { UnlocalizedBadge } from '../components/reusables/UnlocalizedBadge'
 import { Checkbox } from '../components/ui/Checkbox'
 import { Tooltip } from '../components/reusables/Tooltip'
 import { ModalShell } from '../components/modals/ModalShell'
@@ -252,6 +253,15 @@ export function StorageView({
       <ViewHeader
         connected={connected}
         title={tc('cleanup_title')}
+        badge={
+          <UnlocalizedBadge
+            checks={[
+              ['common', 'cleanup_title'],
+              ['common', 'cleanup_templates_title'],
+              ['common', 'cleanup_reclaimable_title'],
+            ]}
+          />
+        }
         metric={
           <>
             <h2 className="text-4xl font-bold text-muted tabular-nums">

@@ -191,6 +191,20 @@ textarea::placeholder {
   margin-bottom: 1.5rem;
 }
 
+.new-ui .dash-rise {
+  animation: dash-rise 0.5s var(--ease-out-expo) both;
+}
+@keyframes dash-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* Collapse the track as well as the controls. Keep spacing inside its clipped
  * child so hidden tag actions and pin buttons leave no empty flex gap. */
 .project-hover-reveal {

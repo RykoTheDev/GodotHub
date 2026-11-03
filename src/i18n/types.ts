@@ -1000,7 +1000,13 @@ export type dashboardKeys =
   | 'dashboard_preset_delete'
   | 'dashboard_custom_presets'
   | 'dashboard_hidden_tiles'
-  | 'dashboard_todos';
+  | 'dashboard_todos'
+  | 'dashboard_range_daily'
+  | 'dashboard_range_weekly'
+  | 'dashboard_range_monthly'
+  | 'dashboard_range_yearly'
+  | 'dashboard_activity_tracked'
+  | 'dashboard_activity_peak';
 
 /** Keys from git.json */
 export type gitKeys =
@@ -1138,7 +1144,10 @@ export type navKeys =
   | 'group_resources'
   | 'group_explore'
   | 'you'
-  | 'account_manage';
+  | 'account_manage'
+  | 'workspace_tip_title'
+  | 'workspace_tip_body'
+  | 'workspace_tip_dismiss';
 
 /** Keys from onboarding.json */
 export type onboardingKeys =
@@ -2668,6 +2677,12 @@ export type TranslationKey =
   | 'dashboard:dashboard_custom_presets'
   | 'dashboard:dashboard_hidden_tiles'
   | 'dashboard:dashboard_todos'
+  | 'dashboard:dashboard_range_daily'
+  | 'dashboard:dashboard_range_weekly'
+  | 'dashboard:dashboard_range_monthly'
+  | 'dashboard:dashboard_range_yearly'
+  | 'dashboard:dashboard_activity_tracked'
+  | 'dashboard:dashboard_activity_peak'
   | 'git:remove'
   | 'git:changes_title'
   | 'git:pull'
@@ -2800,6 +2815,9 @@ export type TranslationKey =
   | 'nav:group_explore'
   | 'nav:you'
   | 'nav:account_manage'
+  | 'nav:workspace_tip_title'
+  | 'nav:workspace_tip_body'
+  | 'nav:workspace_tip_dismiss'
   | 'onboarding:welcome'
   | 'onboarding:customize'
   | 'onboarding:finish'

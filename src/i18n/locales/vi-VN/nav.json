@@ -16,5 +16,8 @@
   "group_resources": "Tài nguyên",
   "group_explore": "Khám phá",
   "you": "You",
-  "account_manage": "Manage accounts"
+  "account_manage": "Manage accounts",
+  "workspace_tip_title": "Bộ chuyển khu vực làm việc đã chuyển",
+  "workspace_tip_body": "Chuyển và quản lý khu vực làm việc từ menu tài khoản bên dưới.",
+  "workspace_tip_dismiss": "Đã hiểu"
 }

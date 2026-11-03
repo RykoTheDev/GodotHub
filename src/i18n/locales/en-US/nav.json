@@ -15,5 +15,7 @@
   "group_resources": "Resources",
   "group_explore": "Explore",
   "you": "You",
-  "account_manage": "Manage accounts"
+  "account_manage": "Manage accounts",
+  "workspace_tip_title": "Workspace switcher moved",
+  "workspace_tip_body": "Workspace switcher moved to new section, Click 'You' button down below to access it."
 }

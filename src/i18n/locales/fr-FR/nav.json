@@ -16,5 +16,8 @@
   "group_resources": "Ressources",
   "group_explore": "Explorer",
   "you": "You",
-  "account_manage": "Manage accounts"
+  "account_manage": "Manage accounts",
+  "workspace_tip_title": "Le sélecteur d'espaces a été déplacé",
+  "workspace_tip_body": "Changez et gérez les espaces de travail depuis le menu du compte ci-dessous.",
+  "workspace_tip_dismiss": "Compris"
 }

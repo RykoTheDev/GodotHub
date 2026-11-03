@@ -1,13 +1,18 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { TodoDueTile } from '../components/cards/TodoDueTile'
-import { IconCheckCircle } from '../lib/icons'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react'
 import { useTranslation } from 'react-i18next'
-import Masonry from 'react-masonry-css'
+import { TodoDueTile } from '../components/cards/TodoDueTile'
 import { useProjectsContext } from '../hooks/projectsContext'
 import { useGodotVersionsContext } from '../hooks/godotVersionsContext'
 import { useSettings } from '../hooks/useSettings'
 import { useTauriEvent } from '../lib/useTauriEvent'
-import { api } from '../lib/api'
+import { api, getCachedProjectIcon } from '../lib/api'
 import { pushToast } from '../lib/toast'
 import {
   formatDate,
@@ -18,54 +23,30 @@ import {
 import { formatDuration } from '../lib/duration'
 import { formatLocaleDate } from '../lib/locale'
 import { OverlayScrollArea } from '../components/reusables/OverlayScrollArea'
+import { Tooltip } from '../components/reusables/Tooltip'
+import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 import {
   IconArrowUpDown,
   IconCheck,
-  IconChevronDown,
+  IconCheckCircle,
   IconChevronRight,
-  IconChevronUp,
   IconClock,
-  IconCopy,
   IconFolder,
   IconFolderPlus,
   IconGamepad,
-  IconGear,
-  IconGitBranch,
-  IconHardDrive,
+  IconHistory,
   IconImport,
-  IconLayoutGrid,
-  IconNode,
   IconPencil,
   IconPin,
-  IconPlus,
+  IconPlay,
   IconRefresh,
   IconRocket,
+  IconStar,
+  IconStopwatch,
   IconTerminal,
   IconX,
 } from '../lib/icons'
-import {
-  DASHBOARD_PRESETS,
-  DASHBOARD_TILE_IDS,
-  addTileId,
-  buildDashboardSegments,
-  createCustomPreset,
-  deleteCustomPreset,
-  enabledTileIds,
-  moveTileId,
-  orderedTileIds,
-  presetToSettings,
-  removeTileId,
-  settingsMatchPreset,
-  tileCanSpan,
-  tileCanTall,
-  toggleTileSpan,
-  toggleTileTall,
-  type DashboardTileId,
-} from '../lib/dashboardSections'
 import type { Project, TimeInsights } from '../types'
-import { Tooltip } from '../components/reusables/Tooltip'
-import { useGitStatusMap } from '../hooks/useGitStatusMap'
-import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
 
 function dispatch(event: string, detail?: unknown) {
   window.dispatchEvent(
@@ -82,50 +63,62 @@ function greetingKey(hour: number): 'morning' | 'afternoon' | 'evening' | 'night
   return 'night'
 }
 
-function formatBytes(bytes: number): string {
-  if (bytes >= 1024 ** 3) return `${(bytes / 1024 ** 3).toFixed(1)} GB`
-  if (bytes >= 1024 ** 2) return `${(bytes / 1024 ** 2).toFixed(1)} MB`
-  if (bytes >= 1024) return `${(bytes / 1024).toFixed(0)} KB`
-  return `${bytes} B`
+function weekdayName(weekday: number): string {
+  return formatLocaleDate(new Date(2026, 0, 5 + weekday), { weekday: 'long' })
 }
 
-function Section({
+const ACTIVITY_RANGES = ['daily', 'weekly', 'monthly', 'yearly'] as const
+type ActivityRange = (typeof ACTIVITY_RANGES)[number]
+
+function activityLabel(
+  range: ActivityRange,
+  key: string,
+  timeFormat: LastOpenedTimeFormat,
+): string {
+  if (range === 'daily') {
+    const hour = Number(key.slice(11, 13))
+    if (timeFormat === '24h') return `${String(hour).padStart(2, '0')}`
+    const suffix = hour >= 12 ? 'p' : 'a'
+    const h12 = hour % 12 === 0 ? 12 : hour % 12
+    return `${h12}${suffix}`
+  }
+  if (range === 'yearly') {
+    return formatLocaleDate(new Date(`${key}-01T00:00:00`), { month: 'short' })
+  }
+  const d = new Date(`${key}T00:00:00`)
+  return range === 'weekly'
+    ? formatLocaleDate(d, { weekday: 'short' })
+    : String(d.getDate())
+}
+
+function Panel({
   title,
   icon,
   action,
-  onTitleClick,
-  titleHint,
+  delay = 0,
+  className = '',
   children,
 }: {
   title: string
-  icon?: React.ReactNode
-  action?: React.ReactNode
-  onTitleClick?: () => void
-  titleHint?: string
-  children: React.ReactNode
+  icon: ReactNode
+  action?: ReactNode
+  delay?: number
+  className?: string
+  children: ReactNode
 }) {
   return (
-    <section className="flex flex-col gap-2.5 min-w-0">
-      <header className="flex items-center gap-2">
-        {icon && <span className="text-accent-bright">{icon}</span>}
-        {onTitleClick ? (
-          <button
-            type="button"
-            onClick={onTitleClick}
-            aria-label={titleHint}
-            className="focus-ring group/title flex items-center gap-1.5 cursor-pointer rounded-btn -mx-1 px-1 py-0.5 hover:text-ink"
-          >
-            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted group-hover/title:text-ink ">
-              {title}
-            </h2>
-            <IconRefresh className="w-3 h-3 text-muted/40 group-hover/title:text-accent-bright shrink-0" />
-          </button>
-        ) : (
-          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted">
-            {title}
-          </h2>
-        )}
-        <div className="flex-1 h-px bg-outline/50" />
+    <section
+      style={{ animationDelay: `${delay}ms` }}
+      className={`dash-rise flex flex-col gap-4 rounded-card bg-surface border border-outline/40 p-5 shadow-sm shadow-black/10 ${className}`}
+    >
+      <header className="flex items-center gap-2.5 min-w-0">
+        <span className="grid place-items-center w-7 h-7 shrink-0 rounded-tile bg-overlay border border-outline/50 text-accent-bright">
+          {icon}
+        </span>
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted truncate">
+          {title}
+        </h2>
+        <div className="flex-1 h-px bg-outline/40 min-w-2" />
         {action}
       </header>
       {children}
@@ -135,117 +128,65 @@ function Section({
 
 function EmptyCard({ text }: { text: string }) {
   return (
-    <p className="text-xs text-muted/70 leading-relaxed rounded-item bg-overlay border border-dashed border-outline/50 px-4 py-6 text-center">
+    <p className="text-xs text-muted/70 leading-relaxed rounded-item bg-overlay border border-dashed border-outline/50 px-4 py-8 text-center">
       {text}
     </p>
   )
 }
 
-function TileEditControls({
-  index,
-  total,
-  canSpan,
-  spanning,
-  onToggleSpan,
-  canTall,
-  tall,
-  onToggleTall,
-  onMove,
-  onRemove,
-}: {
-  index: number
-  total: number
-  canSpan: boolean
-  spanning: boolean
-  onToggleSpan: () => void
-  canTall: boolean
-  tall: boolean
-  onToggleTall: () => void
-  onMove: (dir: -1 | 1) => void
-  onRemove: () => void
-}) {
-  const { t: tc } = useTranslation('dashboard')
-  const btnClass =
-    'focus-ring cursor-pointer p-1 rounded-btn text-muted/50 hover:text-ink hover:bg-raised '
-  const activeBtnClass =
-    'focus-ring cursor-pointer p-1 rounded-btn text-accent-bright bg-accent/10 hover:bg-accent/20 '
+function ProjectAvatar({ project }: { project: Project }) {
+  const [icon, setIcon] = useState<string | null>(() =>
+    getCachedProjectIcon(project.path),
+  )
+
+  useEffect(() => {
+    let cancelled = false
+    setIcon(getCachedProjectIcon(project.path))
+    api
+      .getProjectIcon(project.path)
+      .then((value) => {
+        if (!cancelled) setIcon(value)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [project.path])
+
+  if (icon) {
+    return (
+      <span className="relative w-9 h-9 shrink-0 rounded-tile overflow-hidden bg-surface border border-outline/50 shadow-sm shadow-black/20">
+        <img src={icon} alt="" aria-hidden="true" className="w-full h-full object-cover" />
+      </span>
+    )
+  }
+
+  const letter = (project.name.trim()[0] || '?').toUpperCase()
   return (
-    <div className="flex items-center gap-0.5 shrink-0">
-      <Tooltip content={tc('dashboard_tile_move_up')} side="top">
-          <button
-            type="button"
-            onClick={() => onMove(-1)}
-            disabled={index === 0}
-            aria-label={tc('dashboard_tile_move_up')}
-            className={`${btnClass} disabled:opacity-30 disabled:cursor-not-allowed`}
-          >
-            <IconChevronUp className="w-3 h-3" />
-          </button>
-        </Tooltip>
-      <Tooltip content={tc('dashboard_tile_move_down')} side="top">
-          <button
-            type="button"
-            onClick={() => onMove(1)}
-            disabled={index === total - 1}
-            aria-label={tc('dashboard_tile_move_down')}
-            className={`${btnClass} disabled:opacity-30 disabled:cursor-not-allowed`}
-          >
-            <IconChevronDown className="w-3 h-3" />
-          </button>
-        </Tooltip>
-      {canSpan && (
-        <Tooltip content={tc(spanning ? 'dashboard_tile_span_off' : 'dashboard_tile_span')} side="top">
-          <button
-              type="button"
-              onClick={onToggleSpan}
-              aria-label={tc(spanning ? 'dashboard_tile_span_off' : 'dashboard_tile_span')}
-              aria-pressed={spanning}
-              className={spanning ? activeBtnClass : btnClass}
-            >
-              <IconLayoutGrid className="w-3 h-3" />
-            </button>
-        </Tooltip>
-      )}
-      {canTall && (
-        <Tooltip content={tc(tall ? 'dashboard_tile_tall_off' : 'dashboard_tile_tall')} side="top">
-          <button
-              type="button"
-              onClick={onToggleTall}
-              aria-label={tc(tall ? 'dashboard_tile_tall_off' : 'dashboard_tile_tall')}
-              aria-pressed={tall}
-              className={tall ? activeBtnClass : btnClass}
-            >
-              <IconArrowUpDown className="w-3 h-3" />
-            </button>
-        </Tooltip>
-      )}
-      <Tooltip content={tc('dashboard_tile_remove')} side="top">
-          <button
-            type="button"
-            onClick={onRemove}
-            aria-label={tc('dashboard_tile_remove')}
-            className="focus-ring cursor-pointer p-1 rounded-btn text-muted/50 hover:text-danger hover:bg-danger/10 "
-          >
-            <IconX className="w-3 h-3" />
-          </button>
-        </Tooltip>
-    </div>
+    <span className="relative w-9 h-9 shrink-0 grid place-items-center rounded-tile bg-linear-to-br from-accent to-accent-dim text-ink text-sm font-bold border border-accent-bright/30 shadow-sm shadow-accent/20">
+      {letter}
+    </span>
   )
 }
 
-function ProjectRow({ project }: { project: Project }) {
+function ProjectRow({
+  project,
+  timeFormat,
+  showOpened = true,
+}: {
+  project: Project
+  timeFormat: LastOpenedTimeFormat
+  showOpened?: boolean
+}) {
   const { t: tc } = useTranslation('dashboard')
-  const openedAt = formatLastOpened(project.last_opened)
-
+  const openedAt = showOpened ? formatLastOpened(project.last_opened, timeFormat) : null
   return (
     <button
       type="button"
       onClick={() => dispatch('app:open-project', project.id)}
-      className=" group focus-ring cursor-pointer w-full flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 text-start"
+      className="group focus-ring cursor-pointer w-full flex items-center gap-3 p-2.5 rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 text-start"
     >
-      <span className="w-9 h-9 shrink-0 rounded-btn bg-surface border border-outline/60 flex items-center justify-center overflow-hidden">
-        <IconNode className="w-4 h-4 text-muted/60" />
-      </span>
+      <ProjectAvatar project={project} />
       <span className="min-w-0 flex-1">
         <span className="block text-sm font-medium text-ink truncate">
           {project.name}
@@ -259,6 +200,7 @@ function ProjectRow({ project }: { project: Project }) {
           {tc('dashboard_opened_at', { time: openedAt })}
         </span>
       )}
+      <IconChevronRight className="rtl:rotate-180 w-3.5 h-3.5 shrink-0 text-muted/30 group-hover:text-accent-bright" />
     </button>
   )
 }
@@ -269,21 +211,23 @@ function QuickActions() {
     {
       key: 'new',
       label: tc('dashboard_new_project'),
-      icon: IconFolderPlus,
+      Icon: IconFolderPlus,
       onClick: () => dispatch('app:new-project-request'),
       primary: true,
     },
     {
       key: 'import',
       label: tc('dashboard_import_project'),
-      icon: IconImport,
+      Icon: IconImport,
       onClick: () => dispatch('app:import-project-request'),
+      primary: false,
     },
     {
       key: 'scan',
       label: tc('dashboard_scan_projects'),
-      icon: IconRefresh,
+      Icon: IconRefresh,
       onClick: () => dispatch('app:scan-projects'),
+      primary: false,
     },
   ]
   return (
@@ -292,18 +236,14 @@ function QuickActions() {
         <button
           key={a.key}
           type="button"
-
-
           onClick={a.onClick}
-          className={`focus-ring cursor-pointer inline-flex items-center gap-2 h-11 px-5 rounded-item font-semibold text-sm shadow-md shadow-black/10 border  ${
+          className={`focus-ring cursor-pointer inline-flex items-center gap-2 h-11 px-5 rounded-item font-semibold text-sm shadow-md shadow-black/10 border border-outline/50 ${
             a.primary
-              ? 'bg-accent text-ink hover:bg-accent-bright border-outline/50'
-              : 'bg-overlay text-ink hover:bg-raised hover:border-accent-dim/60 border-outline/50'
+              ? 'bg-accent text-ink hover:bg-accent-bright'
+              : 'bg-overlay text-ink hover:bg-raised hover:border-accent-dim/60'
           }`}
         >
-          <a.icon
-            className={`w-4 h-4 ${a.primary ? 'text-ink' : 'text-accent-bright'}`}
-          />
+          <a.Icon className={`w-4 h-4 ${a.primary ? 'text-ink' : 'text-accent-bright'}`} />
           {a.label}
         </button>
       ))}
@@ -311,204 +251,101 @@ function QuickActions() {
   )
 }
 
-function StatsRow({
-  projects,
-  templates,
-  engines,
-  totalMs,
-}: {
-  projects: number
-  templates: number
-  engines: number
-  totalMs: number
-}) {
-  const { t: tc } = useTranslation('dashboard')
-  const stats: Array<{
-    key: string
-    label: string
-    value: number
-    display?: string
-    tab: 'projects' | 'templates' | 'versions' | null
-    hint?: string
-    Icon: React.ComponentType<{ className?: string }>
-    grad: string
-    sticker: string
-    hoverBorder: string
-  }> = [
-    {
-      key: 'projects',
-      label: tc('dashboard_stat_projects'),
-      value: projects,
-      tab: 'projects',
-      Icon: IconFolder,
-      grad: 'from-[#7aa0ff] to-[#4f7cff]',
-      sticker: 'text-accent-bright bg-accent/10 border-accent-dim/40',
-      hoverBorder: 'group-hover:border-accent/60',
-    },
-    {
-      key: 'templates',
-      label: tc('dashboard_stat_templates'),
-      value: templates,
-      tab: 'templates',
-      Icon: IconCopy,
-      grad: 'from-[#4ade80] to-[#2fbf71]',
-      sticker: 'text-mint bg-mint/10 border-mint/40',
-      hoverBorder: 'group-hover:border-mint/60',
-    },
-    {
-      key: 'engines',
-      label: tc('dashboard_stat_engines'),
-      value: engines,
-      tab: 'versions',
-      Icon: IconRocket,
-      grad: 'from-[#fbbf24] to-[#f0b132]',
-      sticker: 'text-amber bg-amber/10 border-amber/40',
-      hoverBorder: 'group-hover:border-amber/60',
-    },
-    {
-      key: 'time',
-      label: tc('dashboard_stat_total_time'),
-      value: totalMs,
-      display: formatDuration(totalMs),
-      tab: null,
-      hint: tc('dashboard_stat_total_time_hint'),
-      Icon: IconClock,
-      grad: 'from-[#a78bfa] to-[#8b5cf6]',
-      sticker: 'text-violet-400 bg-violet-400/10 border-violet-400/40',
-      hoverBorder: 'group-hover:border-violet-400/60',
-    },
-  ]
-  return (
-    <div className=" grid grid-cols-2 lg:grid-cols-4 gap-3">
-      {stats.map(({ key, ...s }, i) => (
-        <StatCard key={key} index={i} {...s} />
-      ))}
-    </div>
-  )
-}
-
-function StatCard({
+function KpiCard({
   label,
-  value,
-  display,
-  tab,
   hint,
   Icon,
+  value,
+  animate,
+  sub,
+  subTone,
   grad,
-  sticker,
-  hoverBorder,
+  onClick,
+  delay = 0,
 }: {
-  index: number
   label: string
-  value: number
-  display?: string
-  tab: 'projects' | 'templates' | 'versions' | null
   hint?: string
   Icon: React.ComponentType<{ className?: string }>
+  value: ReactNode
+  animate?: number
+  sub?: string
+  subTone?: 'up' | 'down'
   grad: string
-  sticker: string
-  hoverBorder: string
+  onClick?: () => void
+  delay?: number
 }) {
+  const Tag = onClick ? 'button' : 'div'
   return (
-    <button
-      type="button"
-
-
-      onClick={tab ? () => dispatch('app:set-tab', tab) : undefined}
-      className={` group relative overflow-hidden text-start cursor-pointer focus-ring rounded-card bg-overlay border border-outline/50 px-5 py-4 flex flex-col hover:border-outline ${hoverBorder}`}
+    <Tag
+      {...(onClick ? { type: 'button' as const, onClick } : {})}
+      style={{ animationDelay: `${delay}ms` }}
+      className={`dash-rise group relative overflow-hidden text-start rounded-card bg-surface border border-outline/40 px-5 py-4 flex flex-col shadow-sm shadow-black/10 ${
+        onClick ? 'focus-ring cursor-pointer hover:border-outline hover:-translate-y-0.5' : ''
+      }`}
     >
-      <Icon
-        aria-hidden="true"
-        className="pointer-events-none absolute -bottom-8 -end-8 w-32 h-32 rotate-12 text-ink/5"
-      />
-
+      <Icon className="pointer-events-none absolute -bottom-7 -inset-e-7 w-28 h-28 rotate-12 text-ink/4.5" />
       <div className="relative z-10 flex items-start justify-between gap-2">
         <span className="pt-1 truncate text-3xs font-semibold uppercase tracking-wider text-muted/70">
           {label}
         </span>
-        <span
-          className={`w-9 h-9 shrink-0 -rotate-6 rounded-tile border flex items-center justify-center ${sticker}`}
-        >
+        <span className="grid place-items-center w-9 h-9 shrink-0 -rotate-6 rounded-tile bg-overlay border border-outline/50 text-accent-bright group-hover:rotate-0">
           <Icon className="w-4 h-4" />
         </span>
       </div>
-
-      <span className="relative z-10 mt-3 block text-[1.625rem] leading-none font-bold tabular-nums text-ink">
-        {display ?? <AnimatedNumber value={value} />}
+      <span className="relative z-10 mt-3 block text-[1.6rem] leading-none font-bold tabular-nums text-ink">
+        {animate !== undefined ? <AnimatedNumber value={animate} /> : value}
       </span>
       <span
         aria-hidden="true"
-        className={`relative z-10 mt-2.5 block h-1 w-8 origin-left rtl:origin-right rounded-full bg-linear-to-r ${grad}`}
+        className={`relative z-10 mt-2.5 block h-1 w-9 origin-left rtl:origin-right rounded-full bg-linear-to-r ${grad}`}
       />
-
-      <span className="relative z-10 mt-auto pt-3 inline-flex items-center gap-1 text-3xs font-medium text-muted/40 group-hover:text-muted">
-        {hint ?? label}
-        {tab && (
-          <IconChevronRight className="rtl:rotate-180 w-3 h-3" />
-        )}
+      <span
+        className={`relative z-10 mt-auto pt-3 inline-flex items-center gap-1 text-3xs font-medium ${
+          sub
+            ? subTone === 'down'
+              ? 'text-danger'
+              : 'text-mint'
+            : 'text-muted/40 group-hover:text-muted'
+        }`}
+      >
+        {sub ?? hint ?? label}
+        {onClick && !sub && <IconChevronRight className="rtl:rotate-180 w-3 h-3" />}
       </span>
-    </button>
+    </Tag>
   )
 }
 
-type ActivityRange = 'weekly' | 'monthly' | 'yearly' | 'daily'
-
-const ACTIVITY_RANGE_CYCLE: ActivityRange[] = [
-  'weekly',
-  'monthly',
-  'yearly',
-  'daily',
-]
-
-function activityLabel(
-  range: ActivityRange,
-  key: string,
-  timeFormat: LastOpenedTimeFormat,
-): string {
-  if (range === 'daily') {
-    const hour = Number(key.slice(11, 13))
-    if (timeFormat === '24h') {
-      return `${String(hour).padStart(2, '0')}h`
-    }
-    const suffix = hour >= 12 ? 'PM' : 'AM'
-    const h12 = hour % 12 === 0 ? 12 : hour % 12
-    return `${h12} ${suffix}`
-  }
-  if (range === 'yearly') {
-    return formatLocaleDate(new Date(`${key}-01T00:00:00`), {
-      month: 'short',
-    })
-  }
-  const d = new Date(`${key}T00:00:00`)
-  return range === 'weekly'
-    ? formatLocaleDate(d, { weekday: 'short' })
-    : String(d.getDate())
-}
-
-function ActivityChart({
-  range,
-  tall = false,
-  active = true,
+function ActivityPanel({
+  insights,
+  timeFormat,
+  active,
 }: {
-  range: ActivityRange
-  tall?: boolean
-  active?: boolean
+  insights: TimeInsights | null
+  timeFormat: LastOpenedTimeFormat
+  active: boolean
 }) {
   const { t: tc } = useTranslation('dashboard')
-  const { settings } = useSettings()
+  const [range, setRange] = useState<ActivityRange>('weekly')
   const [data, setData] = useState<[string, number][]>([])
   const [loading, setLoading] = useState(true)
+  const [revealed, setRevealed] = useState(false)
 
   useEffect(() => {
     if (!active) return
     let cancelled = false
     setLoading(true)
+    setRevealed(false)
     api
       .getActivity(range)
       .then((d) => {
         if (cancelled) return
-        setData(d)
+        setData(Array.isArray(d) ? d : [])
         setLoading(false)
+        requestAnimationFrame(() =>
+          requestAnimationFrame(() => {
+            if (!cancelled) setRevealed(true)
+          }),
+        )
       })
       .catch(() => {
         if (!cancelled) setLoading(false)
@@ -520,399 +357,220 @@ function ActivityChart({
 
   const total = data.reduce((acc, [, s]) => acc + s, 0)
   const max = Math.max(...data.map(([, s]) => s), 1)
+  const labelStep = data.length > 14 ? Math.ceil(data.length / 7) : 1
 
-  if (loading) {
-    const bars = range === 'monthly' ? 30 : range === 'yearly' ? 12 : range === 'daily' ? 24 : 7
-    return (
-      <div className={`flex items-end gap-1.5  ${tall ? 'h-48' : 'h-32'}`}>
-        {Array.from({ length: bars }).map((_, i) => (
-          <div key={i} className="flex-1 flex flex-col items-center gap-1 h-full">
-            <div className="flex-1 w-full rounded bg-raised" />
-          </div>
-        ))}
-      </div>
-    )
-  }
-
-  if (total === 0) {
-    return <EmptyCard text={tc(`dashboard_${range}_empty`)} />
-  }
-
-  return (
-    <div className={`flex items-end gap-1.5 ${tall ? 'h-68' : 'h-45'}`}>
-      {data.map(([key, seconds]) => {
-        const label = activityLabel(range, key, settings.last_opened_time_format)
-        const pct = seconds > 0 ? Math.max((seconds / max) * 100, 6) : 0
-        return (
-          <div key={key} className="flex-1 flex flex-col items-center gap-1 h-full min-w-0">
-            <div className="flex-1 w-full flex items-end rounded-md overflow-hidden bg-raised">
-              <div
-                  className="w-full rounded-t bg-accent/50 hover:bg-accent-bright "
-                  style={{ height: `${pct}%` }}
-                  title={formatDuration(seconds * 1000)}
-                  aria-label={tc('dashboard_weekly_aria', {
-                    label: formatDuration(seconds * 1000),
-                  })}
-                />
-            </div>
-            <span className="text-4xs text-muted/60 shrink-0">{label}</span>
-          </div>
-        )
-      })}
-    </div>
-  )
-}
-
-function weekdayName(weekday: number): string {
-  return formatLocaleDate(new Date(2026, 0, 5 + weekday), {
-    weekday: 'long',
-  })
-}
-
-function InsightsTile({ active = true }: { active?: boolean }) {
-  const { t: tc } = useTranslation('dashboard')
-  const [insights, setInsights] = useState<TimeInsights | null>(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    if (!active) return
-    let cancelled = false
-    api
-      .getTimeInsights()
-      .then((d) => {
-        if (cancelled) return
-        setInsights(d)
-        setLoading(false)
-      })
-      .catch(() => {
-        if (!cancelled) setLoading(false)
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [active])
-
-  if (loading) {
-    return (
-      <div className="grid grid-cols-2 gap-2 ">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="h-20 rounded-item bg-raised" />
-        ))}
-      </div>
-    )
-  }
-
-  if (!insights || insights.total_seconds === 0) {
-    return <EmptyCard text={tc('dashboard_insights_empty')} />
-  }
-
-  const delta =
-    insights.last_month_seconds > 0
-      ? Math.round(
-          ((insights.this_month_seconds - insights.last_month_seconds) /
-            insights.last_month_seconds) *
-            100,
-        )
-      : null
-
-  const stats: Array<{
-    label: string
-    value: string
-    sub?: string
-    Icon: React.ComponentType<{ className?: string }>
-    accent: string
-  }> = [
-    {
-      label: tc('dashboard_insights_longest_streak'),
-      value: tc('dashboard_insights_days', {
-        count: insights.longest_streak_days,
-      }),
-      Icon: IconRocket,
-      accent: 'text-amber',
-    },
-    {
-      label: tc('dashboard_insights_current_streak'),
-      value: tc('dashboard_insights_days', {
-        count: insights.current_streak_days,
-      }),
-      Icon: IconClock,
-      accent: 'text-mint',
-    },
-    {
-      label: tc('dashboard_insights_productive_day'),
-      value:
-        insights.most_productive_weekday === null
-          ? '-'
-          : weekdayName(insights.most_productive_weekday),
-      Icon: IconGamepad,
-      accent: 'text-accent-bright',
-    },
-    {
-      label: tc('dashboard_insights_this_month'),
-      value: formatDuration(insights.this_month_seconds * 1000),
-      sub:
-        delta === null
-          ? undefined
-          : delta >= 0
-            ? tc('dashboard_insights_delta_up', { pct: delta })
-            : tc('dashboard_insights_delta_down', { pct: Math.abs(delta) }),
-      Icon: IconArrowUpDown,
-      accent: delta !== null && delta < 0 ? 'text-danger' : 'text-violet-400',
-    },
-  ]
-
-  return (
-    <div className="grid grid-cols-2 gap-2">
-      {stats.map((s) => (
-        <div
-          key={s.label}
-          className="flex items-start gap-2.5 p-3 rounded-item bg-overlay border border-outline/50"
+  const toggle = (
+    <div className="flex items-center gap-1 p-1 rounded-btn bg-overlay border border-outline/50">
+      {ACTIVITY_RANGES.map((r) => (
+        <button
+          key={r}
+          type="button"
+          onClick={() => setRange(r)}
+          aria-pressed={range === r}
+          className={`focus-ring cursor-pointer px-2.5 h-7 rounded-btn text-2xs font-semibold ${
+            range === r
+              ? 'bg-accent text-ink shadow-sm shadow-black/20'
+              : 'text-muted hover:text-ink hover:bg-raised'
+          }`}
         >
-          <span className="w-7 h-7 shrink-0 rounded-btn bg-raised border border-outline/50 flex items-center justify-center">
-            <s.Icon className={`w-3.5 h-3.5 ${s.accent}`} />
-          </span>
-          <span className="min-w-0">
-            <span className="block text-3xs font-semibold uppercase tracking-wider text-muted/60 truncate">
-              {s.label}
-            </span>
-            <span className="block text-sm font-semibold text-ink truncate mt-0.5">
-              {s.value}
-            </span>
-            {s.sub && (
-              <span className="block text-3xs text-muted/60 truncate mt-0.5">
-                {s.sub}
-              </span>
-            )}
-          </span>
-        </div>
+          {tc(`dashboard_range_${r}`)}
+        </button>
       ))}
     </div>
   )
+
+  const bars = range === 'monthly' ? 30 : range === 'yearly' ? 12 : range === 'daily' ? 24 : 7
+
+  return (
+    <Panel
+      title={tc(`dashboard_${range}`)}
+      icon={<IconClock className="w-3.5 h-3.5" />}
+      action={toggle}
+      delay={120}
+    >
+      {loading ? (
+        <div className="flex items-end gap-1.5 h-56">
+          {Array.from({ length: bars }).map((_, i) => (
+            <div key={i} className="flex-1 h-full rounded-md bg-raised animate-pulse" />
+          ))}
+        </div>
+      ) : total === 0 ? (
+        <EmptyCard text={tc(`dashboard_${range}_empty`)} />
+      ) : (
+        <div className="relative">
+          <div
+            aria-hidden="true"
+            className="absolute inset-x-0 top-0 bottom-5 flex flex-col justify-between pointer-events-none"
+          >
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="h-px w-full bg-outline/25" />
+            ))}
+          </div>
+          <div className="relative flex items-end gap-1.5 h-56">
+            {data.map(([key, seconds], i) => {
+              const pct = seconds > 0 ? Math.max((seconds / max) * 100, 3) : 0
+              const show = i % labelStep === 0
+              return (
+                <Tooltip
+                  key={key}
+                  side="top"
+                  delay={80}
+                  className="flex-1 min-w-0 h-full"
+                  content={
+                    <span className="flex items-center gap-1.5 tabular-nums">
+                      <span className="text-muted/70">
+                        {activityLabel(range, key, timeFormat)}
+                      </span>
+                      <span className="font-semibold text-ink">
+                        {formatDuration(seconds * 1000)}
+                      </span>
+                    </span>
+                  }
+                >
+                  <div className="group/bar w-full h-full flex flex-col justify-end items-center gap-2">
+                    <div className="relative w-full flex-1 flex items-end">
+                      <div
+                        className="w-full rounded-t-md bg-linear-to-t from-accent-dim to-accent-bright opacity-80 group-hover/bar:opacity-100"
+                        style={{
+                          height: revealed ? `${pct}%` : '0%',
+                          transition: 'height 700ms var(--ease-out-expo)',
+                          transitionDelay: `${i * 16}ms`,
+                        }}
+                        aria-label={tc('dashboard_weekly_aria', {
+                          label: formatDuration(seconds * 1000),
+                        })}
+                      />
+                    </div>
+                    <span className="h-3 text-4xs text-muted/60 shrink-0 tabular-nums truncate max-w-full">
+                      {show ? activityLabel(range, key, timeFormat) : ''}
+                    </span>
+                  </div>
+                </Tooltip>
+              )
+            })}
+          </div>
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
+        <InsightChip
+          icon={<IconClock className="w-3.5 h-3.5" />}
+          label={tc('dashboard_activity_tracked')}
+          value={total > 0 ? formatDuration(total * 1000) : '-'}
+          tone="text-accent-bright"
+        />
+        <InsightChip
+          icon={<IconStopwatch className="w-3.5 h-3.5" />}
+          label={tc('dashboard_activity_peak')}
+          value={total > 0 ? formatDuration(max * 1000) : '-'}
+          tone="text-violet-400"
+        />
+        <InsightChip
+          icon={<IconStar className="w-3.5 h-3.5" />}
+          label={tc('dashboard_insights_longest_streak')}
+          value={tc('dashboard_insights_days', {
+            count: insights?.longest_streak_days ?? 0,
+          })}
+          tone="text-amber"
+        />
+        <InsightChip
+          icon={<IconGamepad className="w-3.5 h-3.5" />}
+          label={tc('dashboard_insights_productive_day')}
+          value={
+            insights == null || insights.most_productive_weekday === null
+              ? '-'
+              : weekdayName(insights.most_productive_weekday)
+          }
+          tone="text-mint"
+        />
+      </div>
+    </Panel>
+  )
 }
 
-function TopProjectsByTime({
-  projects,
-  tall = false,
-  spanning = false,
+function InsightChip({
+  icon,
+  label,
+  value,
+  tone,
 }: {
-  projects: Project[]
-  tall?: boolean
-  spanning?: boolean
+  icon: ReactNode
+  label: string
+  value: string
+  tone: string
 }) {
+  return (
+    <div className="flex items-start gap-2.5 p-3 rounded-item bg-overlay border border-outline/50">
+      <span className={`grid place-items-center w-7 h-7 shrink-0 rounded-btn bg-raised border border-outline/50 ${tone}`}>
+        {icon}
+      </span>
+      <span className="min-w-0">
+        <span className="block text-3xs font-semibold uppercase tracking-wider text-muted/60 truncate">
+          {label}
+        </span>
+        <span className="block text-sm font-semibold text-ink truncate mt-0.5">
+          {value}
+        </span>
+      </span>
+    </div>
+  )
+}
+
+function TopByTime({ projects }: { projects: Project[] }) {
   const { t: tc } = useTranslation('dashboard')
   const top = useMemo(
     () =>
       [...projects]
         .filter((p) => (p.total_time_seconds ?? 0) > 0)
         .sort((a, b) => (b.total_time_seconds ?? 0) - (a.total_time_seconds ?? 0))
-        .slice(0, tall ? 8 : 5),
-    [projects, tall],
+        .slice(0, 6),
+    [projects],
   )
   const max = Math.max(...top.map((p) => p.total_time_seconds ?? 0), 1)
 
-  if (top.length === 0) {
-    return <EmptyCard text={tc('dashboard_top_time_empty')} />
-  }
-
   return (
-    <div
-      className={`gap-2 ${
-        spanning ? 'grid grid-cols-1 md:grid-cols-2' : 'flex flex-col'
-      }`}
+    <Panel
+      title={tc('dashboard_top_time')}
+      icon={<IconStopwatch className="w-3.5 h-3.5" />}
+      delay={180}
     >
-      {top.map((p) => (
-        <button
-          key={p.id}
-          type="button"
-          onClick={() => dispatch('app:open-project', p.id)}
-          className="group focus-ring cursor-pointer w-full flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 text-start"
-        >
-          <span className="min-w-0 flex-1">
-            <span className="flex items-center justify-between gap-2">
-              <span className="block text-sm font-medium text-ink truncate">
-                {p.name}
-              </span>
-              <span className="shrink-0 text-2xs text-muted/70 tabular-nums">
-                {formatDuration((p.total_time_seconds ?? 0) * 1000)}
-              </span>
-            </span>
-            <span className="block h-1.5 rounded-full bg-raised mt-1.5 overflow-hidden">
-              <span
-                className="block h-full rounded-full bg-accent/50"
-                style={{
-                  width: `${Math.max(((p.total_time_seconds ?? 0) / max) * 100, 2)}%`,
-                }}
-              />
-            </span>
-          </span>
-        </button>
-      ))}
-    </div>
-  )
-}
-
-function GitOverview({ tall = false, active = true }: { tall?: boolean; active?: boolean }) {
-  const { t: tc } = useTranslation('dashboard')
-  const { projects } = useProjectsContext()
-  const paths = useMemo(() => projects.map((p) => p.path), [projects])
-  const { statusMap, loading } = useGitStatusMap(paths, active)
-
-  const dirty = useMemo(
-    () =>
-      projects.filter((p) => {
-        const s = statusMap[p.path]
-        return s && s.is_repo && s.has_uncommitted
-      }),
-    [projects, statusMap],
-  )
-  const repoCount = useMemo(
-    () => projects.filter((p) => statusMap[p.path]?.is_repo).length,
-    [projects, statusMap],
-  )
-
-  if (loading) {
-    return (
-      <div className="flex flex-col gap-2 ">
-        <div className="h-10 rounded-item bg-raised" />
-        <div className="h-10 rounded-item bg-raised" />
-      </div>
-    )
-  }
-
-  if (repoCount === 0) {
-    return <EmptyCard text={tc('dashboard_git_empty')} />
-  }
-
-  return (
-    <div className="flex flex-col gap-2">
-      <p className="text-2xs text-muted/70">
-        {dirty.length === 0
-          ? tc('dashboard_git_clean')
-          : dirty.length === 1
-            ? tc('dashboard_git_dirty_one')
-            : tc('dashboard_git_dirty', { count: dirty.length })}
-      </p>
-      {dirty.length > 0 && (
-        <div className="flex flex-col gap-2">
-          {dirty.slice(0, tall ? 8 : 5).map((p) => (
+      {top.length === 0 ? (
+        <EmptyCard text={tc('dashboard_top_time_empty')} />
+      ) : (
+        <div className="flex flex-col gap-2.5">
+          {top.map((p, i) => (
             <button
               key={p.id}
               type="button"
-              onClick={() =>
-                window.dispatchEvent(
-                  new CustomEvent('app:show-git-sidebar', {
-                    detail: { project: p, gitStatus: statusMap[p.path] ?? null },
-                  }),
-                )
-              }
-              className="focus-ring cursor-pointer w-full flex items-center gap-3 p-3 rounded-item bg-overlay border border-amber/25 hover:bg-raised hover:border-amber/40 text-start"
+              onClick={() => dispatch('app:open-project', p.id)}
+              className="group focus-ring cursor-pointer w-full flex items-center gap-3 p-2.5 rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 text-start"
             >
-              <IconGitBranch className="w-3.5 h-3.5 text-amber shrink-0" />
+              <span className="grid place-items-center w-6 h-6 shrink-0 rounded-btn bg-raised border border-outline/50 text-3xs font-bold tabular-nums text-muted group-hover:text-accent-bright">
+                {i + 1}
+              </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-medium text-ink truncate">
-                  {p.name}
-                </span>
-                {statusMap[p.path]?.branch && (
-                  <span className="block text-2xs text-muted/70 truncate font-mono">
-                    {tc('dashboard_git_branch', {
-                      branch: statusMap[p.path]!.branch!,
-                    })}
+                <span className="flex items-center justify-between gap-2">
+                  <span className="block text-sm font-medium text-ink truncate">
+                    {p.name}
                   </span>
-                )}
+                  <span className="shrink-0 text-2xs text-muted/70 tabular-nums">
+                    {formatDuration((p.total_time_seconds ?? 0) * 1000)}
+                  </span>
+                </span>
+                <span className="block h-1.5 rounded-full bg-raised mt-2 overflow-hidden">
+                  <span
+                    className="block h-full rounded-full bg-linear-to-r from-accent-dim to-accent-bright"
+                    style={{
+                      width: `${Math.max(((p.total_time_seconds ?? 0) / max) * 100, 3)}%`,
+                    }}
+                  />
+                </span>
               </span>
             </button>
           ))}
         </div>
       )}
-    </div>
-  )
-}
-
-function StorageUsage({ tall = false, active = true }: { tall?: boolean; active?: boolean }) {
-  const { t: tc } = useTranslation('dashboard')
-  const { projects } = useProjectsContext()
-  const [sizes, setSizes] = useState<Record<string, number>>({})
-  const [measuring, setMeasuring] = useState(true)
-  const measuredRef = useRef(false)
-
-  const targets = useMemo(() => projects.slice(0, 8), [projects])
-
-  useEffect(() => {
-    if (!active) return
-    let cancelled = false
-    if (!measuredRef.current) setMeasuring(true)
-    Promise.all(
-      targets.map(async (p) => {
-        try {
-          const info = await api.getProjectSize(p.path)
-          return [p.id, info.total_size] as const
-        } catch {
-          return [p.id, 0] as const
-        }
-      }),
-    ).then((entries) => {
-      if (cancelled) return
-      measuredRef.current = true
-      setSizes(Object.fromEntries(entries))
-      setMeasuring(false)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [active, targets])
-
-  const rows = useMemo(
-    () =>
-      targets
-        .map((p) => ({ project: p, size: sizes[p.id] ?? 0 }))
-        .filter((r) => r.size > 0)
-        .sort((a, b) => b.size - a.size)
-        .slice(0, tall ? 8 : 5),
-    [targets, sizes, tall],
-  )
-  const max = Math.max(...rows.map((r) => r.size), 1)
-  const total = rows.reduce((acc, r) => acc + r.size, 0)
-
-  if (measuring) {
-    return <EmptyCard text={tc('dashboard_storage_loading')} />
-  }
-
-  if (rows.length === 0) {
-    return <EmptyCard text={tc('dashboard_storage_empty')} />
-  }
-
-  return (
-    <div className="flex flex-col gap-2">
-      <p className="text-2xs text-muted/70">
-        {tc('dashboard_storage_total', { size: formatBytes(total) })}
-      </p>
-      <div className="flex flex-col gap-2">
-        {rows.map(({ project, size }) => (
-          <div
-            key={project.id}
-            className="w-full flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised "
-          >
-            <IconHardDrive className="w-3.5 h-3.5 text-muted/50 shrink-0" />
-            <span className="min-w-0 flex-1">
-              <span className="flex items-center justify-between gap-2">
-                <span className="block text-sm font-medium text-ink truncate">
-                  {project.name}
-                </span>
-                <span className="shrink-0 text-2xs text-muted/70 tabular-nums">
-                  {formatBytes(size)}
-                </span>
-              </span>
-              <span className="block h-1.5 rounded-full bg-raised mt-1.5 overflow-hidden">
-                <span
-                  className="block h-full rounded-full bg-accent/50"
-                  style={{ width: `${Math.max((size / max) * 100, 2)}%` }}
-                />
-              </span>
-            </span>
-          </div>
-        ))}
-      </div>
-    </div>
+    </Panel>
   )
 }
 
@@ -923,47 +581,16 @@ interface RunningProject {
   startedAt: number
 }
 
-function Clock({ active = true }: { active?: boolean }) {
-  const { t: tc } = useTranslation('dashboard')
-  const { settings } = useSettings()
-  const [now, setNow] = useState(() => new Date())
-
-  useEffect(() => {
-    if (!active) return
-    const id = setInterval(() => setNow(new Date()), 1000)
-    return () => clearInterval(id)
-  }, [active])
-
-  const timeString = formatTime(now, settings.last_opened_time_format)
-  const dateString = formatDate(now, settings.last_opened_date_format)
-
-  return (
-    <div className="ms-auto shrink-0 flex flex-col items-end gap-1">
-      <span
-        className="font-display text-3xl font-semibold text-ink leading-none"
-        aria-label={tc('dashboard_clock_aria')}
-      >
-        {timeString}
-      </span>
-      <span className="text-sm text-muted/70 leading-none">
-        {dateString}
-      </span>
-    </div>
-  )
-}
-
-function RunningNow({
+function RunningPanel({
   running,
   onStop,
-  editControls,
-  active = true,
+  active,
 }: {
   running: RunningProject[]
   onStop: (id: string) => void
-  editControls?: React.ReactNode
-  active?: boolean
+  active: boolean
 }) {
-  const { t: tc } = useTranslation(['dashboard'])
+  const { t: tc } = useTranslation('dashboard')
   const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
@@ -973,17 +600,19 @@ function RunningNow({
   }, [active, running.length])
 
   return (
-    <Section
+    <Panel
       title={tc('dashboard_running')}
-      icon={<IconFolder className="w-3.5 h-3.5" />}
-      action={editControls}
+      icon={<IconPlay className="w-3.5 h-3.5" />}
+      delay={220}
     >
-      {running.length > 0 ? (
+      {running.length === 0 ? (
+        <EmptyCard text={tc('dashboard_running_empty')} />
+      ) : (
         <div className="flex flex-col gap-2">
           {running.map((p) => (
             <div
               key={p.id}
-              className="flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised "
+              className="flex items-center gap-3 p-2.5 rounded-item bg-overlay border border-mint/25"
             >
               <span className="relative flex w-2 h-2 shrink-0">
                 <span className="relative inline-flex rounded-full w-2 h-2 bg-mint" />
@@ -997,21 +626,52 @@ function RunningNow({
                   {formatDuration(now - p.startedAt)}
                 </span>
               </span>
-                <button
-                  type="button"
-                  onClick={() => onStop(p.id)}
-                  aria-label={`${tc('stop')} ${p.name}`}
-                  className="focus-ring cursor-pointer w-6 h-6 rounded-btn inline-flex items-center justify-center text-muted/50 hover:text-danger hover:bg-danger/10 shrink-0"
-                >
-                  <IconX className="w-3.5 h-3.5" />
-                </button>
+              <button
+                type="button"
+                onClick={() => onStop(p.id)}
+                aria-label={`${tc('stop')} ${p.name}`}
+                className="focus-ring cursor-pointer w-6 h-6 rounded-btn inline-flex items-center justify-center text-muted/50 hover:text-danger hover:bg-danger/10 shrink-0"
+              >
+                <IconX className="w-3.5 h-3.5" />
+              </button>
             </div>
           ))}
         </div>
-      ) : (
-        <EmptyCard text={tc('dashboard_running_empty')} />
       )}
-    </Section>
+    </Panel>
+  )
+}
+
+function Clock({
+  active,
+  timeFormat,
+  dateFormat,
+}: {
+  active: boolean
+  timeFormat: LastOpenedTimeFormat
+  dateFormat: 'DD-MM-YYYY' | 'MM-DD-YYYY' | 'YYYY-MM-DD'
+}) {
+  const { t: tc } = useTranslation('dashboard')
+  const [now, setNow] = useState(() => new Date())
+
+  useEffect(() => {
+    if (!active) return
+    const id = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(id)
+  }, [active])
+
+  return (
+    <div className="ms-auto shrink-0 flex flex-col items-end gap-1">
+      <span
+        className="font-display text-3xl font-semibold text-ink leading-none tabular-nums"
+        aria-label={tc('dashboard_clock_aria')}
+      >
+        {formatTime(now, timeFormat)}
+      </span>
+      <span className="text-sm text-muted/70 leading-none">
+        {formatDate(now, dateFormat)}
+      </span>
+    </div>
   )
 }
 
@@ -1028,34 +688,32 @@ export function DashboardView({
   const { installed } = useGodotVersionsContext()
 
   const [osName, setOsName] = useState<string | null>(null)
-  const [templates, setTemplates] = useState(0)
   const [greetingHour, setGreetingHour] = useState(() => new Date().getHours())
+  const [insights, setInsights] = useState<TimeInsights | null>(null)
+  const [running, setRunning] = useState<RunningProject[]>([])
+
   const [editingName, setEditingName] = useState(false)
   const [nameDraft, setNameDraft] = useState('')
   const nameInputRef = useRef<HTMLInputElement>(null)
   const nameCancelRef = useRef(false)
-  const [editingTiles, setEditingTiles] = useState(false)
-  const [presetDraft, setPresetDraft] = useState('')
-  const [running, setRunning] = useState<RunningProject[]>([])
-  const [activityRange, setActivityRange] = useState<ActivityRange>('weekly')
-
-  const cycleActivityRange = useCallback(() => {
-    setActivityRange((prev) => {
-      const i = ACTIVITY_RANGE_CYCLE.indexOf(prev)
-      return ACTIVITY_RANGE_CYCLE[(i + 1) % ACTIVITY_RANGE_CYCLE.length]
-    })
-  }, [])
 
   useEffect(() => {
     api.getOsUsername().then(setOsName).catch(() => setOsName(null))
   }, [])
 
   useEffect(() => {
+    if (!active) return
+    let cancelled = false
     api
-      .listTemplates()
-      .then((list) => setTemplates(Array.isArray(list) ? list.length : 0))
-      .catch(() => setTemplates(0))
-  }, [])
+      .getTimeInsights()
+      .then((d) => {
+        if (!cancelled) setInsights(d)
+      })
+      .catch(() => {})
+    return () => {
+      cancelled = true
+    }
+  }, [active])
 
   useEffect(() => {
     if (!active) return
@@ -1065,18 +723,6 @@ export function DashboardView({
     }, 30000)
     return () => clearInterval(id)
   }, [active])
-
-  useEffect(() => {
-    const handleRefreshTemplates = () => {
-      api
-        .listTemplates()
-        .then((list) => setTemplates(Array.isArray(list) ? list.length : 0))
-        .catch(() => {})
-    }
-    window.addEventListener('app:refresh-templates', handleRefreshTemplates)
-    return () =>
-      window.removeEventListener('app:refresh-templates', handleRefreshTemplates)
-  }, [])
 
   useEffect(() => {
     if (!active) return
@@ -1118,127 +764,13 @@ export function DashboardView({
     api.stopProject(id).catch((e) => pushToast('error', String(e)))
   }, [])
 
+  const openEngine = (tag: string) => {
+    api.openGodotVersion(tag).catch((err) => pushToast('error', String(err)))
+  }
+
+  const timeFormat = settings.last_opened_time_format
   const displayName = (settings.dashboard_custom_name || osName || '').slice(0, 40)
   const greeting = tc(`greeting_${greetingKey(greetingHour)}`)
-
-  const isEnabled = (id: string) =>
-    settings.dashboard_sections.length === 0 ||
-    settings.dashboard_sections.includes(id)
-
-  const enabledTiles = useMemo(
-    () => enabledTileIds(settings.dashboard_sections),
-    [settings.dashboard_sections],
-  )
-  const orderedTiles = useMemo(() => {
-    const all = orderedTileIds(settings.dashboard_section_order)
-    return all.filter(
-      (id) => enabledTiles.includes(id) && (id !== 'todos' || settings.project_todos_enabled),
-    )
-  }, [settings.dashboard_section_order, enabledTiles, settings.project_todos_enabled])
-  const hiddenTiles = useMemo(
-    () =>
-      DASHBOARD_TILE_IDS.filter(
-        (id) => !enabledTiles.includes(id) && (id !== 'todos' || settings.project_todos_enabled),
-      ),
-    [enabledTiles, settings.project_todos_enabled],
-  )
-
-  const activityTitle: Record<ActivityRange, string> = {
-    weekly: tc('dashboard_weekly'),
-    monthly: tc('dashboard_monthly'),
-    yearly: tc('dashboard_yearly'),
-    daily: tc('dashboard_daily'),
-  }
-  const nextActivityRange =
-    ACTIVITY_RANGE_CYCLE[
-      (ACTIVITY_RANGE_CYCLE.indexOf(activityRange) + 1) %
-        ACTIVITY_RANGE_CYCLE.length
-    ]
-
-  const tileTitle: Record<DashboardTileId, string> = {
-    weekly: activityTitle[activityRange],
-    top_time: tc('dashboard_top_time'),
-    insights: tc('dashboard_insights'),
-    git: tc('dashboard_git'),
-    storage: tc('dashboard_storage'),
-    recent: tc('dashboard_recent'),
-    pinned: tc('dashboard_pinned'),
-    engines: tc('dashboard_engines'),
-    running: tc('dashboard_running'),
-    todos: tc('dashboard_todos'),
-  }
-
-  const spanSet = useMemo(
-    () => new Set(settings.dashboard_section_spans),
-    [settings.dashboard_section_spans],
-  )
-  const tallSet = useMemo(
-    () => new Set(settings.dashboard_tall_sections),
-    [settings.dashboard_tall_sections],
-  )
-
-  const moveTile = (id: DashboardTileId, dir: -1 | 1) => {
-    update({
-      ...settings,
-      dashboard_section_order: moveTileId(
-        settings.dashboard_section_order,
-        id,
-        dir,
-      ),
-    })
-  }
-  const removeTile = (id: DashboardTileId) => {
-    update({
-      ...settings,
-      dashboard_sections: removeTileId(settings.dashboard_sections, id),
-    })
-  }
-  const addTile = (id: DashboardTileId) => {
-    update({
-      ...settings,
-      dashboard_sections: addTileId(settings.dashboard_sections, id),
-    })
-  }
-  const toggleSpan = (id: DashboardTileId) => {
-    update({
-      ...settings,
-      dashboard_section_spans: toggleTileSpan(
-        settings.dashboard_section_spans,
-        id,
-      ),
-    })
-  }
-  const toggleTall = (id: DashboardTileId) => {
-    update({
-      ...settings,
-      dashboard_tall_sections: toggleTileTall(
-        settings.dashboard_tall_sections,
-        id,
-      ),
-    })
-  }
-  const savePreset = () => {
-    const next = createCustomPreset(
-      settings.dashboard_custom_presets,
-      presetDraft,
-      settings.dashboard_sections,
-      settings.dashboard_section_order,
-      settings.dashboard_section_spans,
-      settings.dashboard_tall_sections,
-    )
-    if (next.length === settings.dashboard_custom_presets.length) return
-    update({ ...settings, dashboard_custom_presets: next })
-    setPresetDraft('')
-  }
-  const removePreset = (id: string) => {
-    update({
-      ...settings,
-      dashboard_custom_presets: deleteCustomPreset(
-        settings.dashboard_custom_presets,
-        id,
-      ),
-    })
-  }
 
   const recent = useMemo(
     () =>
@@ -1246,24 +778,25 @@ export function DashboardView({
         .filter((p) => p.last_opened)
         .sort(
           (a, b) =>
-            new Date(b.last_opened!).getTime() -
-            new Date(a.last_opened!).getTime(),
+            new Date(b.last_opened!).getTime() - new Date(a.last_opened!).getTime(),
         )
-        .slice(0, 3),
+        .slice(0, 6),
     [projects],
   )
-  const pinned = useMemo(
-    () => projects.filter((p) => p.pinned).slice(0, 3),
-    [projects],
-  )
+  const pinned = useMemo(() => projects.filter((p) => p.pinned).slice(0, 6), [projects])
   const totalMs = useMemo(
-    () =>
-      projects.reduce(
-        (acc, p) => acc + (p.total_time_seconds ?? 0) * 1000,
-        0,
-      ),
+    () => projects.reduce((acc, p) => acc + (p.total_time_seconds ?? 0) * 1000, 0),
     [projects],
   )
+
+  const monthDelta =
+    insights && insights.last_month_seconds > 0
+      ? Math.round(
+          ((insights.this_month_seconds - insights.last_month_seconds) /
+            insights.last_month_seconds) *
+            100,
+        )
+      : null
 
   const commitName = () => {
     setEditingName(false)
@@ -1271,15 +804,12 @@ export function DashboardView({
       nameCancelRef.current = false
       return
     }
-    const trimmed = nameDraft.trim()
-    update({ ...settings, dashboard_custom_name: trimmed || null })
+    update({ ...settings, dashboard_custom_name: nameDraft.trim() || null })
   }
-
   const cancelNameEdit = () => {
     nameCancelRef.current = true
     setEditingName(false)
   }
-
   const startEditingName = () => {
     setNameDraft(settings.dashboard_custom_name || osName || '')
     setEditingName(true)
@@ -1289,209 +819,42 @@ export function DashboardView({
     })
   }
 
-  const openEngine = (tag: string, console?: boolean) => {
-    api.openGodotVersion(tag, console).catch((err) => pushToast('error', String(err)))
-  }
-
-  const editControls = (id: DashboardTileId, index: number) =>
-    editingTiles ? (
-      <TileEditControls
-        index={index}
-        total={orderedTiles.length}
-        canSpan={tileCanSpan(id)}
-        spanning={spanSet.has(id)}
-        onToggleSpan={() => toggleSpan(id)}
-        canTall={tileCanTall(id)}
-        tall={tallSet.has(id)}
-        onToggleTall={() => toggleTall(id)}
-        onMove={(dir) => moveTile(id, dir)}
-        onRemove={() => removeTile(id)}
-      />
-    ) : undefined
-
-  const renderTile = (id: DashboardTileId, index: number): React.ReactNode => {
-    const controls = editControls(id, index)
-    const spanning = spanSet.has(id)
-    const tall = tallSet.has(id)
-    switch (id) {
-      case 'weekly':
-        return (
-          <Section
-            title={activityTitle[activityRange]}
-            icon={<IconClock className="w-3.5 h-3.5" />}
-            onTitleClick={cycleActivityRange}
-            titleHint={tc('dashboard_activity_cycle', {
-              next: activityTitle[nextActivityRange],
-            })}
-            action={controls}
-          >
-            <ActivityChart range={activityRange} tall={tall} active={active} />
-          </Section>
-        )
-      case 'top_time':
-        return (
-          <Section
-            title={tc('dashboard_top_time')}
-            icon={<IconNode className="w-3.5 h-3.5" />}
-            action={controls}
-          >
-            <TopProjectsByTime projects={projects} tall={tall} spanning={spanning} />
-          </Section>
-        )
-      case 'insights':
-        return (
-          <Section
-            title={tc('dashboard_insights')}
-            icon={<IconRocket className="w-3.5 h-3.5" />}
-            action={controls}
-          >
-            <InsightsTile active={active} />
-          </Section>
-        )
-      case 'git':
-        return (
-          <Section
-            title={tc('dashboard_git')}
-            icon={<IconGitBranch className="w-3.5 h-3.5" />}
-            action={controls}
-          >
-            <GitOverview tall={tall} active={active} />
-          </Section>
-        )
-      case 'storage':
-        return (
-          <Section
-            title={tc('dashboard_storage')}
-            icon={<IconHardDrive className="w-3.5 h-3.5" />}
-            action={controls}
-          >
-            <StorageUsage tall={tall} active={active} />
-          </Section>
-        )
-      case 'recent':
-        return (
-          <Section
-            title={tc('dashboard_recent')}
-            icon={<IconClock className="w-3.5 h-3.5" />}
-            action={controls}
-          >
-            {recent.length > 0 ? (
-              <div className="flex flex-col gap-2">
-                {recent.map((p) => (
-                  <ProjectRow key={p.id} project={p} />
-                ))}
-              </div>
-            ) : (
-              <EmptyCard text={tc('dashboard_recent_empty')} />
-            )}
-          </Section>
-        )
-      case 'pinned':
-        return (
-          <Section
-            title={tc('dashboard_pinned')}
-            icon={<IconPin className="w-3.5 h-3.5" />}
-            action={controls}
-          >
-            {pinned.length > 0 ? (
-              <div className="flex flex-col gap-2">
-                {pinned.map((p) => (
-                  <ProjectRow key={p.id} project={p} />
-                ))}
-              </div>
-            ) : (
-              <EmptyCard text={tc('dashboard_pinned_empty')} />
-            )}
-          </Section>
-        )
-      case 'engines':
-        return (
-          <Section
-            title={tc('dashboard_engines')}
-            icon={<IconRocket className="w-3.5 h-3.5" />}
-            action={controls}
-          >
-            {installed.length > 0 ? (
-              <div className="flex flex-col gap-2">
-                {installed.slice(0, 3).map((v) => (
-                  <div
-                    key={v.tag}
-                    className="flex items-center gap-3 p-3 rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60 "
-                  >
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-medium text-ink truncate font-mono">
-                        {v.custom_name || v.tag}
-                      </span>
-                      <span className="block text-2xs text-muted/70 truncate font-mono">
-                        {v.executable_path}
-                      </span>
-                    </span>
-                      <button
-                        type="button"
-
-                        onClick={() => openEngine(v.tag)}
-                        className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/60 hover:text-ink hover:bg-raised "
-                      >
-                        <IconTerminal className="w-3.5 h-3.5" />
-                      </button>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <EmptyCard text={tc('dashboard_engines_empty')} />
-            )}
-          </Section>
-        )
-      case 'todos':
-        return (
-          <Section
-            title={tc('dashboard_todos')}
-            icon={<IconCheckCircle className="w-3.5 h-3.5" />}
-            action={controls}
-          >
-            <TodoDueTile tall={tall} />
-          </Section>
-        )
-      case 'running':
-        return (
-          <RunningNow running={running} onStop={stopProject} editControls={controls} active={active} />
-        )
-    }
-  }
-
   return (
     <div className="flex-1 min-w-0 h-full flex flex-col">
       <section
-        className={`shrink-0 px-6 py-7 flex flex-col gap-2 ${
+        className={`shrink-0 relative overflow-hidden px-6 py-7 flex flex-col gap-2 bg-raised mb-4 ${
           connected ? 'rounded-none' : 'rounded-card'
-        } bg-raised mb-4`}
+        }`}
       >
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-accent/60 to-transparent"
+        />
         <header className="shrink-0 flex flex-row items-center gap-3">
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="group relative flex items-center gap-1.5 min-w-0">
-            {editingName ? (
-              <div className="flex items-center gap-1.5">
-                <input
-                  ref={nameInputRef}
-                  type="text"
-                  value={nameDraft}
-                  onChange={(e) => setNameDraft(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') commitName()
-                    if (e.key === 'Escape') cancelNameEdit()
-                  }}
-                  onBlur={commitName}
-                  maxLength={15}
-                  placeholder={tc('dashboard_name_placeholder')}
-                  className="focus-ring w-64 bg-base border border-accent rounded-btn px-3 py-2 text-xl font-medium text-ink outline-none"
-                />
+              {editingName ? (
+                <div className="flex items-center gap-1.5">
+                  <input
+                    ref={nameInputRef}
+                    type="text"
+                    value={nameDraft}
+                    onChange={(e) => setNameDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') commitName()
+                      if (e.key === 'Escape') cancelNameEdit()
+                    }}
+                    onBlur={commitName}
+                    maxLength={15}
+                    placeholder={tc('dashboard_name_placeholder')}
+                    className="focus-ring w-64 bg-base border border-accent rounded-btn px-3 py-2 text-xl font-medium text-ink outline-none"
+                  />
                   <Tooltip content={tc('dashboard_rename_save')} side="top">
                     <button
                       type="button"
-
                       onClick={commitName}
                       aria-label={tc('dashboard_rename_save')}
-                      className="focus-ring cursor-pointer p-1.5 rounded-btn text-accent hover:bg-accent/10 "
+                      className="focus-ring cursor-pointer p-1.5 rounded-btn text-accent hover:bg-accent/10"
                     >
                       <IconCheck className="w-4 h-4" />
                     </button>
@@ -1499,60 +862,62 @@ export function DashboardView({
                   <Tooltip content={tc('cancel')} side="top">
                     <button
                       type="button"
-
                       onClick={cancelNameEdit}
                       aria-label={tc('cancel')}
-                      className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/60 hover:text-ink hover:bg-raised "
+                      className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/60 hover:text-ink hover:bg-surface"
                     >
                       <IconX className="w-4 h-4" />
                     </button>
                   </Tooltip>
-              </div>
-            ) : (
-              <h1 className="font-display text-5xl font-bold leading-13 text-ink min-w-0">
-                {displayName ? (
-                  <>
-                    {greeting}
-                    {', '}
-                    <span className="text-accent-bright">{displayName}</span>                    </>
-                ) : (
-                  greeting
-                )}
-              </h1>
-            )}
+                </div>
+              ) : (
+                <h1 className="font-display text-5xl font-bold leading-tight text-ink min-w-0">
+                  {displayName ? (
+                    <>
+                      {greeting}
+                      {', '}
+                      <span className="text-accent-bright">{displayName}</span>
+                    </>
+                  ) : (
+                    greeting
+                  )}
+                </h1>
+              )}
 
-            {!editingName && (
-              <>
+              {!editingName && (
+                <>
                   <Tooltip content={tc('dashboard_rename_aria')} side="right">
                     <button
                       type="button"
                       onClick={startEditingName}
                       aria-label={tc('dashboard_rename_aria')}
-                      className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 hover:text-ink hover:bg-raised shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 "
+                      className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 hover:text-ink hover:bg-surface shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
                     >
                       <IconPencil className="w-3.5 h-3.5" />
                     </button>
                   </Tooltip>
-                {settings.dashboard_custom_name && (
+                  {settings.dashboard_custom_name && (
                     <Tooltip content={tc('dashboard_rename_reset')} side="right">
                       <button
                         type="button"
-                        onClick={() =>
-                          update({ ...settings, dashboard_custom_name: null })
-                        }
+                        onClick={() => update({ ...settings, dashboard_custom_name: null })}
                         aria-label={tc('dashboard_rename_reset')}
-                        className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 hover:text-danger hover:bg-danger/10 shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 "
+                        className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/40 hover:text-danger hover:bg-danger/10 shrink-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100"
                       >
                         <IconX className="w-3.5 h-3.5" />
                       </button>
                     </Tooltip>
-                )}
-              </>
-            )}
+                  )}
+                </>
+              )}
             </span>
           </div>
 
-          <Clock active={active} />
+          <Clock
+            active={active}
+            timeFormat={timeFormat}
+            dateFormat={settings.last_opened_date_format}
+          />
         </header>
       </section>
 
@@ -1560,209 +925,152 @@ export function DashboardView({
         className={`flex-1 min-w-0 ${connected ? '' : '-ms-2 -me-4 -mb-4'}`}
         hideThumb={!settings.show_scrollbars}
       >
-        <div className={` flex flex-col gap-6 ${connected ? 'ps-3' : 'ps-2'} pe-5 pb-4`}>
-          <div className="mt-1.5 flex items-center justify-between gap-3 flex-wrap">
-            {isEnabled('quick_actions') ? (
-              <QuickActions />
-            ) : (
-              <span />
-            )}
-              <button
-                type="button"
-
-                onClick={() => setEditingTiles((v) => !v)}
-                aria-label={tc(editingTiles ? 'dashboard_done_customizing' : 'dashboard_customize')}
-                className={`focus-ring cursor-pointer flex items-center gap-1.5 h-11 px-5 rounded-item text-sm font-semibold border  ${
-                  editingTiles
-                    ? 'bg-accent text-ink border-outline/50'
-                    : 'text-muted hover:text-ink hover:bg-raised border-outline/50'
-                }`}
-              >
-                <IconGear className="w-4 h-4" />
-                {tc(editingTiles ? 'dashboard_done_customizing' : 'dashboard_customize')}
-              </button>
+        <div className={`flex flex-col gap-5 ${connected ? 'ps-3' : 'ps-2'} pe-5 pb-4`}>
+          <div className="mt-1.5">
+            <QuickActions />
           </div>
 
-          {isEnabled('stats') && (
-            <StatsRow
-              projects={projects.length}
-              templates={templates}
-              engines={installed.length}
-              totalMs={totalMs}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <KpiCard
+              label={tc('dashboard_stat_projects')}
+              Icon={IconFolder}
+              value={projects.length}
+              animate={projects.length}
+              grad="from-[#7aa0ff] to-[#4f7cff]"
+              onClick={() => dispatch('app:set-tab', 'projects')}
+              delay={0}
             />
+            <KpiCard
+              label={tc('dashboard_stat_total_time')}
+              hint={tc('dashboard_stat_total_time_hint')}
+              Icon={IconClock}
+              value={formatDuration(totalMs)}
+              grad="from-[#a78bfa] to-[#8b5cf6]"
+              delay={40}
+            />
+            <KpiCard
+              label={tc('dashboard_insights_current_streak')}
+              Icon={IconRocket}
+              value={tc('dashboard_insights_days', {
+                count: insights?.current_streak_days ?? 0,
+              })}
+              grad="from-[#4ade80] to-[#2fbf71]"
+              delay={80}
+            />
+            <KpiCard
+              label={tc('dashboard_insights_this_month')}
+              Icon={IconArrowUpDown}
+              value={formatDuration((insights?.this_month_seconds ?? 0) * 1000)}
+              sub={
+                monthDelta === null
+                  ? undefined
+                  : monthDelta >= 0
+                    ? tc('dashboard_insights_delta_up', { pct: monthDelta })
+                    : tc('dashboard_insights_delta_down', { pct: Math.abs(monthDelta) })
+              }
+              subTone={monthDelta !== null && monthDelta < 0 ? 'down' : 'up'}
+              grad="from-[#fbbf24] to-[#f0b132]"
+              delay={120}
+            />
+          </div>
+
+          <ActivityPanel insights={insights} timeFormat={timeFormat} active={active} />
+
+          {settings.project_todos_enabled && (
+            <Panel
+              title={tc('dashboard_todos')}
+              icon={<IconCheckCircle className="w-3.5 h-3.5" />}
+              delay={160}
+            >
+              <TodoDueTile />
+            </Panel>
           )}
 
-          {editingTiles && (
-            <div className="rounded-item bg-overlay border border-outline/50 p-4 flex flex-col gap-3">
-              <p className="text-2xs text-muted/70 leading-relaxed">
-                {tc('dashboard_customize_hint')}
-              </p>
-              <div className="flex flex-col gap-2.5">
-                <p className="text-2xs font-semibold uppercase tracking-wider text-muted">
-                  {tc('dashboard_presets')}
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {DASHBOARD_PRESETS.map((preset) => {
-                    const active = settingsMatchPreset(
-                      preset,
-                      settings.dashboard_sections,
-                      settings.dashboard_section_order,
-                      settings.dashboard_section_spans,
-                      settings.dashboard_tall_sections,
-                    )
-                    return (
-                        <button
-                          key={preset.id}
-                          type="button"
-                          onClick={() => {
-                            const next = presetToSettings(preset)
-                            update({ ...settings, ...next })
-                          }}
-                          aria-pressed={active}
-                          className={`focus-ring cursor-pointer flex items-center gap-1.5 px-3 h-8 rounded-btn text-xs font-semibold border  ${
-                            active
-                              ? 'bg-accent text-ink border-outline/50'
-                              : 'text-muted hover:text-ink hover:bg-raised border-outline/50'
-                          }`}
-                        >
-                          {active && <IconCheck className="w-3 h-3" />}
-                          {tc(preset.labelKey)}
-                        </button>
-                    )
-                  })}
-                </div>
-              </div>
-
-              {settings.dashboard_custom_presets.length > 0 && (
-                <div className="flex flex-col gap-2.5">
-                  <p className="text-2xs font-semibold uppercase tracking-wider text-muted">
-                    {tc('dashboard_custom_presets')}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {settings.dashboard_custom_presets.map((preset) => {
-                      const active = settingsMatchPreset(
-                        preset,
-                        settings.dashboard_sections,
-                        settings.dashboard_section_order,
-                        settings.dashboard_section_spans,
-                        settings.dashboard_tall_sections,
-                      )
-                      return (
-                        <span
-                          key={preset.id}
-                          className="inline-flex items-center rounded-btn border border-outline/50 "
-                        >
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const next = presetToSettings({
-                                sections: preset.sections,
-                                order: preset.order,
-                                spans: preset.spans,
-                                tall: preset.tall,
-                              })
-                              update({ ...settings, ...next })
-                            }}
-                            aria-pressed={active}
-                            className={`focus-ring cursor-pointer flex items-center gap-1.5 ps-3 pe-1.5 h-8 rounded-btn text-xs font-semibold  ${
-                              active
-                                ? 'bg-accent text-ink'
-                                : 'text-muted hover:text-ink hover:bg-raised'
-                            }`}
-                          >
-                            {active && <IconCheck className="w-3 h-3" />}
-                            {preset.name}
-                          </button>
-                            <Tooltip content={tc('dashboard_preset_delete')} side="left">
-                              <button
-                                type="button"
-                                onClick={() => removePreset(preset.id)}
-                                aria-label={tc('dashboard_preset_delete')}
-                                className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/50 hover:text-danger hover:bg-danger/10 "
-                              >
-                                <IconX className="w-3 h-3" />
-                              </button>
-                            </Tooltip>
-                        </span>
-                      )
-                    })}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <div className="lg:col-span-7">
+              <TopByTime projects={projects} />
+            </div>
+            <div className="lg:col-span-5">
+              <Panel
+                title={tc('dashboard_recent')}
+                icon={<IconHistory className="w-3.5 h-3.5" />}
+                delay={200}
+              >
+                {recent.length > 0 ? (
+                  <div className="flex flex-col gap-2">
+                    {recent.map((p) => (
+                      <ProjectRow key={p.id} project={p} timeFormat={timeFormat} />
+                    ))}
                   </div>
-                </div>
-              )}
-
-              <div className="flex flex-col gap-2 pt-2 border-t border-outline/50">
-                <label className="text-2xs font-semibold uppercase tracking-wider text-muted">
-                  {tc('dashboard_preset_save')}
-                </label>
-                <div className="flex gap-2">
-                  <input
-                    value={presetDraft}
-                    onChange={(e) => setPresetDraft(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') savePreset()
-                    }}
-                    placeholder={tc('dashboard_preset_name_placeholder')}
-                    className="focus-ring bg-overlay border border-outline/50 rounded-item px-3.5 py-2 text-sm font-body text-ink placeholder:text-muted/70 focus:border-accent-dim flex-1 min-w-0"
-                  />
-                  <button
-                    type="button"
-
-                    onClick={savePreset}
-                    disabled={!presetDraft.trim()}
-                    className="focus-ring cursor-pointer px-4 py-2 rounded-btn bg-accent hover:bg-accent-bright disabled:opacity-40 disabled:cursor-default text-xs font-semibold text-ink shrink-0"
-                  >
-                    {tc('dashboard_preset_save')}
-                  </button>
-                </div>
-                <p className="text-2xs text-muted/60">
-                  {tc('dashboard_preset_save_hint')}
-                </p>
-              </div>
+                ) : (
+                  <EmptyCard text={tc('dashboard_recent_empty')} />
+                )}
+              </Panel>
             </div>
-          )}
 
-          {buildDashboardSegments(orderedTiles, settings.dashboard_section_spans).map(
-            (segment) =>
-              segment.span ? (
-                <div key={segment.tiles[0].id} className="w-full min-w-0">
-                  {renderTile(segment.tiles[0].id, segment.tiles[0].index)}
-                </div>
-              ) : (
-                <Masonry
-                  key={segment.tiles[0].id}
-                  breakpointCols={{ default: 2, 1024: 1 }}
-                  className="dashboard-masonry"
-                  columnClassName="dashboard-masonry-column"
-                >
-                  {segment.tiles.map((t) => (
-                    <div key={t.id} className="min-w-0">
-                      {renderTile(t.id, t.index)}
-                    </div>
-                  ))}
-                </Masonry>
-              ),
-          )}
-
-          {editingTiles && hiddenTiles.length > 0 && (
-            <div className="rounded-item bg-overlay border border-dashed border-outline/60 p-4">
-              <p className="text-2xs font-semibold uppercase tracking-wider text-muted mb-2.5">
-                {tc('dashboard_hidden_tiles')}
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {hiddenTiles.map((id) => (
-                  <button
-                    key={id}
-                    type="button"
-                    onClick={() => addTile(id)}
-                    className="focus-ring cursor-pointer flex items-center gap-1.5 px-3 h-8 rounded-tag text-xs font-medium text-muted hover:text-accent-bright hover:bg-raised border border-outline/50 "
-                  >
-                    <IconPlus className="w-3 h-3" />
-                    {tileTitle[id]}
-                  </button>
-                ))}
-              </div>
+            <div className="lg:col-span-4">
+              <RunningPanel running={running} onStop={stopProject} active={active} />
             </div>
-          )}
+            <div className="lg:col-span-4">
+              <Panel
+                title={tc('dashboard_pinned')}
+                icon={<IconPin className="w-3.5 h-3.5" />}
+                delay={260}
+              >
+                {pinned.length > 0 ? (
+                  <div className="flex flex-col gap-2">
+                    {pinned.map((p) => (
+                      <ProjectRow
+                        key={p.id}
+                        project={p}
+                        timeFormat={timeFormat}
+                        showOpened={false}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyCard text={tc('dashboard_pinned_empty')} />
+                )}
+              </Panel>
+            </div>
+            <div className="lg:col-span-4">
+              <Panel
+                title={tc('dashboard_engines')}
+                icon={<IconRocket className="w-3.5 h-3.5" />}
+                delay={300}
+              >
+                {installed.length > 0 ? (
+                  <div className="flex flex-col gap-2">
+                    {installed.slice(0, 4).map((v) => (
+                      <div
+                        key={v.tag}
+                        className="group flex items-center gap-3 p-2.5 rounded-item bg-overlay border border-outline/50 hover:bg-raised hover:border-accent-dim/60"
+                      >
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-medium text-ink truncate font-mono">
+                            {v.custom_name || v.tag}
+                          </span>
+                          <span className="block text-2xs text-muted/70 truncate font-mono">
+                            {v.executable_path}
+                          </span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => openEngine(v.tag)}
+                          aria-label={v.custom_name || v.tag}
+                          className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/60 hover:text-ink hover:bg-surface shrink-0"
+                        >
+                          <IconTerminal className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <EmptyCard text={tc('dashboard_engines_empty')} />
+                )}
+              </Panel>
+            </div>
+          </div>
 
           <div className="shrink-0 h-2" aria-hidden="true" />
         </div>

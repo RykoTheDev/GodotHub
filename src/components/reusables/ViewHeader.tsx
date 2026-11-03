@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 
 export function ViewHeader({
   title,
+  badge,
   leadingAction,
   metric,
   actions,
@@ -10,6 +11,7 @@ export function ViewHeader({
   connected = false,
 }: {
   title: ReactNode
+  badge?: ReactNode
   leadingAction?: ReactNode
   metric?: ReactNode
   actions?: ReactNode
@@ -24,10 +26,11 @@ export function ViewHeader({
       } bg-raised ${className}`}
     >
       <header className="shrink-0 flex flex-row items-center gap-3">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           <h1 className="font-display text-4xl font-bold tracking-wide text-ink uppercase">
             {title}
           </h1>
+          {badge}
           {leadingAction}
         </div>
 
