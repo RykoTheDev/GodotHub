@@ -252,5 +252,6 @@
   "git_auth_expired": "This code has expired",
   "git_auth_failed": "Couldn’t connect",
   "git_auth_try_again": "Try again",
-  "git_auth_success_hint": "You can close this window."
+  "git_auth_success_hint": "You can close this window.",
+  "show_changelog_label": "Show changelog button"
 }

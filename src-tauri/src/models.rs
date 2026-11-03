@@ -236,6 +236,8 @@ pub struct AppSettings {
     #[serde(default = "default_true")]
     pub show_language_button: bool,
     #[serde(default = "default_true")]
+    pub show_changelog_button: bool,
+    #[serde(default = "default_true")]
     pub show_scrollbars: bool,
     #[serde(default = "default_true")]
     pub animated_numbers: bool,
@@ -649,6 +651,7 @@ impl Default for AppSettings {
             show_bug_button: true,
             show_tray_button: true,
             show_language_button: true,
+            show_changelog_button: true,
             show_scrollbars: true,
             animated_numbers: true,
             screen_reader_announcements: true,

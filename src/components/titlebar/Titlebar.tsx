@@ -84,7 +84,7 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
     settings.show_bug_button ||
     settings.show_language_button ||
     settings.show_tray_button ||
-    (!minimal && hasNewChangelogEntry)
+    (!minimal && settings.show_changelog_button)
 
   if (useOsDec && !hasAnyTitlebarButton) return null
 
@@ -118,7 +118,7 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
       {!minimal && <RunningProjectsChip />}
 
       <div className="ms-auto flex items-center gap-1.5 self-stretch ">
-        {!minimal && (
+        {!minimal && settings.show_changelog_button && (
           <Tooltip content={tn('changelog')}>
             <button
               type="button"

@@ -912,7 +912,9 @@ export type commonKeys =
   | 'vault_added_to_projects_toast_one'
   | 'vault_added_to_projects_toast_other'
   | 'vault_item_empty'
-  | 'new';
+  | 'new'
+  | 'announcement_support_title'
+  | 'announcement_support_body';
 
 /** Keys from dashboard.json */
 export type dashboardKeys =
@@ -1146,8 +1148,7 @@ export type navKeys =
   | 'you'
   | 'account_manage'
   | 'workspace_tip_title'
-  | 'workspace_tip_body'
-  | 'workspace_tip_dismiss';
+  | 'workspace_tip_body';
 
 /** Keys from onboarding.json */
 export type onboardingKeys =
@@ -1436,7 +1437,8 @@ export type settingsKeys =
   | 'git_auth_expired'
   | 'git_auth_failed'
   | 'git_auth_try_again'
-  | 'git_auth_success_hint';
+  | 'git_auth_success_hint'
+  | 'show_changelog_label';
 
 /** Keys from todos.json */
 export type todosKeys =
@@ -2592,6 +2594,8 @@ export type TranslationKey =
   | 'common:vault_added_to_projects_toast_other'
   | 'common:vault_item_empty'
   | 'common:new'
+  | 'common:announcement_support_title'
+  | 'common:announcement_support_body'
   | 'dashboard:greeting_morning'
   | 'dashboard:greeting_afternoon'
   | 'dashboard:greeting_evening'
@@ -2817,7 +2821,6 @@ export type TranslationKey =
   | 'nav:account_manage'
   | 'nav:workspace_tip_title'
   | 'nav:workspace_tip_body'
-  | 'nav:workspace_tip_dismiss'
   | 'onboarding:welcome'
   | 'onboarding:customize'
   | 'onboarding:finish'
@@ -3101,6 +3104,7 @@ export type TranslationKey =
   | 'settings:git_auth_failed'
   | 'settings:git_auth_try_again'
   | 'settings:git_auth_success_hint'
+  | 'settings:show_changelog_label'
   | 'todos:next_steps'
   | 'todos:saving_tasks'
   | 'todos:pending_count_one'
