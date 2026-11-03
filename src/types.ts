@@ -675,6 +675,7 @@ export interface AppSettings {
   show_bug_button: boolean
   show_tray_button: boolean
   show_language_button: boolean
+  show_changelog_button: boolean
   show_scrollbars: boolean
   animated_numbers: boolean
   screen_reader_announcements: boolean

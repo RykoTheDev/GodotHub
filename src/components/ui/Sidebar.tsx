@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { ComponentType } from 'react'
 import { useTranslation } from 'react-i18next'
-import { IconArrowUp, IconChevronRight, IconChevronsLeft, IconGear, IconSearch, IconUser } from '../../lib/icons'
+import { IconArrowUp, IconChevronRight, IconChevronsLeft, IconGear, IconInfo, IconSearch, IconUser, IconX } from '../../lib/icons'
 import type { IconProps } from '../../lib/icons'
 import { WorkspaceModals } from './WorkspaceSwitcher'
 import { AccountMenu } from './AccountMenu'
@@ -84,6 +84,19 @@ export function Sidebar({
     setSeenNewTabs(next)
     try {
       localStorage.setItem('new_ui_sidebar_seen_new_tabs', JSON.stringify(next))
+    } catch {}
+  }
+  const [workspaceTipSeen, setWorkspaceTipSeen] = useState(() => {
+    try {
+      return localStorage.getItem('new_ui_sidebar_workspace_tip_seen') === '1'
+    } catch {
+      return true
+    }
+  })
+  const dismissWorkspaceTip = () => {
+    setWorkspaceTipSeen(true)
+    try {
+      localStorage.setItem('new_ui_sidebar_workspace_tip_seen', '1')
     } catch {}
   }
   const [closedGroups, setClosedGroups] = useState<string[]>(() => {
@@ -283,7 +296,7 @@ export function Sidebar({
           className={` relative w-4 h-4 shrink-0 ${active ? 'text-accent' : 'text-muted'}`}
         />
         {!hideLabel && (
-          <span className={`relative  ${active ? 'text-ink' : ''}`}>{tab.label}</span>
+          <span className={`relative min-w-0 flex-1 truncate text-start ${active ? 'text-ink' : ''}`}>{tab.label}</span>
         )}
         {showNew && !hideLabel && (
           <span className="relative ms-auto shrink-0 px-1.5 py-0.5 rounded-tag bg-accent text-white text-3xs font-semibold leading-none">
@@ -503,6 +516,23 @@ export function Sidebar({
               {tc('update_available')}
             </button>
           ))}
+        {settings.workspaces_enabled && !collapsed && !workspaceTipSeen && (
+          <div className="flex items-start gap-2.5 rounded-item bg-accent/10 border border-accent/30 p-3 text-start">
+            <IconInfo className="w-4 h-4 shrink-0 text-accent-bright mt-0.5" />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-semibold text-ink">{t('workspace_tip_title')}</p>
+              <p className="text-2xs text-muted leading-relaxed mt-0.5">{t('workspace_tip_body')}</p>
+            </div>
+            <button
+              type="button"
+              onClick={dismissWorkspaceTip}
+              aria-label={t('workspace_tip_dismiss')}
+              className="focus-ring cursor-pointer -m-1 p-1 rounded-btn text-muted/50 hover:text-ink shrink-0"
+            >
+              <IconX className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
         <div className={`flex ${collapsed ? 'flex-col gap-1 items-center' : 'flex-row gap-1.5 items-stretch'}`}>
           <AccountMenu
             className={collapsed ? 'w-fit' : 'flex-1 min-w-0'}

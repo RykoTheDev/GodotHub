@@ -902,5 +902,7 @@
   "vault_added_to_projects_toast_one": "已添加到 {{count}} 个项目",
   "vault_added_to_projects_toast_other": "已添加到 {{count}} 个项目",
   "vault_item_empty": "此条目没有文件。",
-  "new": "新建"
+  "new": "新建",
+  "announcement_support_title": "Support GodotHub",
+  "announcement_support_body": "GodotHub is free and made in my spare time. If it helps your workflow, please consider supporting development with a donation."
 }

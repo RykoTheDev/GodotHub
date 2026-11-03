@@ -173,6 +173,38 @@ export function DebugSettings() {
         </Row>
       </Section>
 
+      <Section title="Tips & banners" description="Re-trigger one-time UI hints.">
+        <Row
+          label="Re-show workspace tip"
+          description="Clears the dismissed flag for the sidebar workspace-switcher tip and reloads the window so it appears again."
+        >
+          <button
+            type="button"
+            className={buttonClass}
+            onClick={() => {
+              try {
+                localStorage.removeItem('new_ui_sidebar_workspace_tip_seen')
+              } catch {}
+              window.location.reload()
+            }}
+          >
+            Show
+          </button>
+        </Row>
+        <Row
+          label="Show announcement banner"
+          description="Displays the one-time bottom banner now, ignoring the 30-minute usage timer and the dismissed flag."
+        >
+          <button
+            type="button"
+            className={buttonClass}
+            onClick={() => window.dispatchEvent(new Event('app:show-announcement'))}
+          >
+            Show
+          </button>
+        </Row>
+      </Section>
+
       <Section title="App">
         <Row
           label="Show onboarding"

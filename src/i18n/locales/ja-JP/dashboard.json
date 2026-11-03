@@ -83,5 +83,11 @@
   "dashboard_preset_delete": "プリセットを削除",
   "dashboard_custom_presets": "保存したプリセット",
   "dashboard_hidden_tiles": "非表示のタイル",
-  "dashboard_todos": "期限のあるタスク"
+  "dashboard_todos": "期限のあるタスク",
+  "dashboard_range_daily": "日",
+  "dashboard_range_weekly": "週",
+  "dashboard_range_monthly": "月",
+  "dashboard_range_yearly": "年",
+  "dashboard_activity_tracked": "記録",
+  "dashboard_activity_peak": "ピーク"
 }

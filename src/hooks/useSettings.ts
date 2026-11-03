@@ -86,6 +86,7 @@ export const DEFAULTS: AppSettings = {
   show_bug_button: true,
   show_tray_button: true,
   show_language_button: true,
+  show_changelog_button: true,
   show_scrollbars: true,
   animated_numbers: true,
   screen_reader_announcements: true,

@@ -83,5 +83,11 @@
   "dashboard_preset_delete": "Delete preset",
   "dashboard_custom_presets": "Your presets",
   "dashboard_hidden_tiles": "Hidden tiles",
-  "dashboard_todos": "Due to-dos"
+  "dashboard_todos": "Due to-dos",
+  "dashboard_range_daily": "Day",
+  "dashboard_range_weekly": "Week",
+  "dashboard_range_monthly": "Month",
+  "dashboard_range_yearly": "Year",
+  "dashboard_activity_tracked": "Tracked",
+  "dashboard_activity_peak": "Peak"
 }

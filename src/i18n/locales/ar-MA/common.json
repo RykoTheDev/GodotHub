@@ -915,5 +915,7 @@
   "new": "جديد",
   "view_error_title": "This view couldn't load",
   "view_error_desc": "The rest of GodotHub still works. Try loading this view again, or switch to another one.",
-  "error_details": "Technical details"
+  "error_details": "Technical details",
+  "announcement_support_title": "Support GodotHub",
+  "announcement_support_body": "GodotHub is free and made in my spare time. If it helps your workflow, please consider supporting development with a donation."
 }

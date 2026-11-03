@@ -448,7 +448,7 @@ function ProjectCardInner({
                     : "text-muted hover:text-ink hover:bg-raised"
                 }`}
               >
-                <IconGitBranch className="w-3 h-3 shrink-0" />
+                <IconGitBranch className="w-3 h-3 shrink-0 group-hover:scale-110 group-hover:rotate-6" />
                 {gitStatus.branch && (
                   <span className="text-3xs font-mono font-medium truncate max-w-24">
                     {gitStatus.branch}
@@ -458,7 +458,7 @@ function ProjectCardInner({
             )}
             {lastOpenedLabel && cardSettings.show_last_opened && (
               <span className="inline-flex items-center gap-1 ps-1.5 pe-1 py-0.5 rounded-tag font-mono text-3xs font-medium tracking-tight shrink-0 text-muted">
-                <IconClock className="w-2.5 h-2.5 text-muted/60 shrink-0" />
+                <IconClock className="w-2.5 h-2.5 text-muted/60 shrink-0 group-hover:scale-110 group-hover:rotate-6" />
                 {lastOpenedLabel}
               </span>
             )}
@@ -739,7 +739,7 @@ function ProjectCardInner({
                     onClick={toggle}
                     className="inline-flex items-center gap-1.5 px-3 py-3 rounded-btn bg-raised border border-outline/50 font-mono text-3xs text-muted hover:text-ink hover:border-accent-dim cursor-pointer shrink-0"
                   >
-                    <IconNode className="w-2.5 h-2.5" />
+                    <IconNode className="w-2.5 h-2.5 group-hover:scale-110 group-hover:rotate-6" />
                     {boundVersion ? (
                       <>
                         {boundVersion.custom_name || boundVersion.tag}
@@ -808,7 +808,7 @@ function ProjectCardInner({
                 aria-label={t("time_tracked_title")}
                 className="focus-ring border border-outline/50 cursor-pointer inline-flex items-center gap-1.5 rounded-btn px-3 py-3 bg-black/10 font-mono text-3xs text-muted hover:text-ink hover:bg-raised shrink-0"
               >
-                <IconStopwatch className="w-3 h-3 text-muted/60 shrink-0" />
+                <IconStopwatch className="w-3 h-3 text-muted/60 shrink-0 group-hover:scale-110 group-hover:rotate-6" />
                 {formatDuration(allMs)}
               </button>
             )}
@@ -821,7 +821,7 @@ function ProjectCardInner({
                   aria-label={t("project_size")}
                   className="focus-ring cursor-pointer border border-outline/50 inline-flex items-center gap-1.5 rounded-btn px-3 py-3 bg-black/10 font-mono text-3xs text-muted hover:text-ink hover:bg-raised shrink-0"
                 >
-                  <IconHardDrive className="w-3 h-3 text-muted/60 shrink-0" />
+                  <IconHardDrive className="w-3 h-3 text-muted/60 shrink-0 group-hover:scale-110 group-hover:rotate-6" />
                   {formatBytes(projectSize)}
                 </button>
               )}

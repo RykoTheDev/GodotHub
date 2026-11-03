@@ -10,9 +10,127 @@ const SETTINGS = {
   setup_complete: true,
   customize_view_enabled: true,
   categories_enabled: true,
-  workspaces_enabled: false,
+  workspaces_enabled: true,
   auto_scan_on_startup: false,
+  default_landing_tab: 'dashboard',
+  project_todos_enabled: true,
 }
+
+const pad2 = (n: number) => String(n).padStart(2, '0')
+const fmtDay = (d: Date) =>
+  `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+
+function activitySeries(range: string): [string, number][] {
+  const base = new Date()
+  const out: [string, number][] = []
+  if (range === 'daily') {
+    for (let h = 0; h < 24; h++) {
+      const load = h >= 9 && h <= 23 ? Math.sin(h / 2) * 0.5 + 0.6 : 0
+      out.push([`${fmtDay(base)}T${pad2(h)}:00:00`, Math.max(0, Math.round(load * 3600))])
+    }
+  } else if (range === 'monthly') {
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(base)
+      d.setDate(base.getDate() - i)
+      out.push([fmtDay(d), Math.max(0, Math.round((Math.cos(i / 3) * 0.5 + 0.6) * 3 * 3600))])
+    }
+  } else if (range === 'yearly') {
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(base.getFullYear(), base.getMonth() - i, 1)
+      out.push([`${d.getFullYear()}-${pad2(d.getMonth() + 1)}`, Math.round((Math.sin(i / 2) * 0.5 + 0.7) * 48 * 3600)])
+    }
+  } else {
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(base)
+      d.setDate(base.getDate() - i)
+      out.push([fmtDay(d), Math.round((Math.sin(i) * 0.4 + 0.7) * 4 * 3600)])
+    }
+  }
+  return out
+}
+
+const TIME_INSIGHTS = {
+  total_seconds: 227 * 3600,
+  longest_streak_days: 18,
+  current_streak_days: 4,
+  most_productive_weekday: 2,
+  this_month_seconds: 41 * 3600,
+  last_month_seconds: 33 * 3600,
+}
+
+const ICON_PALETTE = ['#4f7cff', '#2fbf71', '#f0b132', '#a78bfa', '#f2555a', '#38bdf8']
+function mockIcon(seed: string): string {
+  let h = 0
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0
+  const color = ICON_PALETTE[h % ICON_PALETTE.length]
+  const svg =
+    `<svg xmlns='http://www.w3.org/2000/svg' width='128' height='128'>` +
+    `<defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>` +
+    `<stop offset='0' stop-color='${color}'/><stop offset='1' stop-color='#17181c'/>` +
+    `</linearGradient></defs>` +
+    `<rect width='128' height='128' rx='30' fill='url(#g)'/>` +
+    `<circle cx='64' cy='64' r='27' fill='none' stroke='#f4f5f7' stroke-width='9'/>` +
+    `<circle cx='64' cy='64' r='7' fill='#f4f5f7'/></svg>`
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`
+}
+
+const RUNNING = [
+  {
+    id: 'dev-1',
+    name: 'Barely a Driver',
+    version: '4.8',
+    launched_at_ms: now - 23 * 60_000,
+    console: false,
+  },
+]
+
+const todoDate = (offset: number) => {
+  const d = new Date()
+  d.setDate(d.getDate() + offset)
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`
+}
+
+const OPEN_TODOS = [
+  {
+    projectId: 'dev-1',
+    projectName: 'Barely a Driver',
+    todo: {
+      id: 't1',
+      title: 'Fix multiplayer desync on late join',
+      status: 'todo',
+      area: 'programming',
+      dueDate: todoDate(-1),
+      createdAt: hoursAgo(200),
+      priority: 'high',
+    },
+  },
+  {
+    projectId: 'dev-2',
+    projectName: 'TVP-2.0',
+    todo: {
+      id: 't2',
+      title: 'Polish arena lighting pass',
+      status: 'todo',
+      area: 'art',
+      dueDate: todoDate(0),
+      createdAt: hoursAgo(100),
+      priority: 'medium',
+    },
+  },
+  {
+    projectId: 'dev-1',
+    projectName: 'Barely a Driver',
+    todo: {
+      id: 't3',
+      title: 'Record engine SFX variations',
+      status: 'todo',
+      area: 'audio',
+      dueDate: todoDate(3),
+      createdAt: hoursAgo(50),
+      priority: 'low',
+    },
+  },
+]
 
 const VERSIONS: InstalledGodotVersion[] = [
   {
@@ -109,6 +227,12 @@ const HANDLERS: Record<string, (args: Record<string, unknown>) => unknown> = {
   list_categories: () => [],
   get_os_username: () => 'dev',
   get_git_status: () => null,
+  get_activity: (a) => activitySeries(String(a?.range ?? 'weekly')),
+  get_time_insights: () => TIME_INSIGHTS,
+  list_running_projects: () => RUNNING,
+  get_project_icon: (a) => mockIcon(String(a?.path ?? '')),
+  get_project_name: () => null,
+  list_open_todos: () => OPEN_TODOS,
 }
 
 function fallback(cmd: string): unknown {

@@ -255,5 +255,6 @@
   "scroll_reveal_label": "Scroll reveal",
   "card_tilt_label": "Card tilt on hover",
   "click_ripple_label": "Click ripple",
-  "press_bounce_label": "Press bounce"
+  "press_bounce_label": "Press bounce",
+  "show_changelog_label": "Show changelog button"
 }

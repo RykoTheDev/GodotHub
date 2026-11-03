@@ -1070,7 +1070,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="display-titlebar"
         title={ts("titlebar_buttons")}
-        searchText={`${ts("titlebar_buttons")} ${ts("show_support_label")} ${ts("show_star_label")}`}
+        searchText={`${ts("titlebar_buttons")} ${ts("show_support_label")} ${ts("show_star_label")} ${ts("show_changelog_label")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >
@@ -1111,13 +1111,22 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
               label={ts("show_tray_label")}
             />
           </SettingRow>
-          <SettingRow label={ts("show_language_label")} divider>
+          <SettingRow label={ts("show_language_label")}>
             <Toggle
               checked={settings.show_language_button}
               onChange={(checked) =>
                 update({ ...settings, show_language_button: checked })
               }
               label={ts("show_language_label")}
+            />
+          </SettingRow>
+          <SettingRow label={ts("show_changelog_label")}>
+            <Toggle
+              checked={settings.show_changelog_button}
+              onChange={(checked) =>
+                update({ ...settings, show_changelog_button: checked })
+              }
+              label={ts("show_changelog_label")}
             />
           </SettingRow>
         </div>

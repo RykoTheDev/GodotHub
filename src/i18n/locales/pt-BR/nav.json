@@ -16,5 +16,8 @@
   "group_resources": "Recursos",
   "group_explore": "Explorar",
   "you": "You",
-  "account_manage": "Manage accounts"
+  "account_manage": "Manage accounts",
+  "workspace_tip_title": "O seletor de espaços foi movido",
+  "workspace_tip_body": "Troque e gerencie espaços de trabalho pelo menu da conta abaixo.",
+  "workspace_tip_dismiss": "Entendi"
 }

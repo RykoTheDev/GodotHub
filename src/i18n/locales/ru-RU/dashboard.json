@@ -83,5 +83,11 @@
   "dashboard_preset_delete": "Delete preset",
   "dashboard_custom_presets": "Your presets",
   "dashboard_hidden_tiles": "Hidden tiles",
-  "dashboard_todos": "Due to-dos"
+  "dashboard_todos": "Due to-dos",
+  "dashboard_range_daily": "День",
+  "dashboard_range_weekly": "Неделя",
+  "dashboard_range_monthly": "Месяц",
+  "dashboard_range_yearly": "Год",
+  "dashboard_activity_tracked": "Записано",
+  "dashboard_activity_peak": "Пик"
 }

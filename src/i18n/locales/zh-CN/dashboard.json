@@ -83,5 +83,11 @@
   "dashboard_preset_delete": "删除预设",
   "dashboard_custom_presets": "你的预设",
   "dashboard_hidden_tiles": "隐藏的磁贴",
-  "dashboard_todos": "到期事项"
+  "dashboard_todos": "到期事项",
+  "dashboard_range_daily": "日",
+  "dashboard_range_weekly": "周",
+  "dashboard_range_monthly": "月",
+  "dashboard_range_yearly": "年",
+  "dashboard_activity_tracked": "已记录",
+  "dashboard_activity_peak": "峰值"
 }

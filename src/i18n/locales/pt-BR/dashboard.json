@@ -83,5 +83,11 @@
   "dashboard_preset_delete": "Excluir predefinição",
   "dashboard_custom_presets": "Suas predefinições",
   "dashboard_hidden_tiles": "Blocos ocultos",
-  "dashboard_todos": "Due to-dos"
+  "dashboard_todos": "Due to-dos",
+  "dashboard_range_daily": "Dia",
+  "dashboard_range_weekly": "Semana",
+  "dashboard_range_monthly": "Mês",
+  "dashboard_range_yearly": "Ano",
+  "dashboard_activity_tracked": "Registrado",
+  "dashboard_activity_peak": "Pico"
 }

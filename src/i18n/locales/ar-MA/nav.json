@@ -16,5 +16,8 @@
   "group_resources": "الموارد",
   "group_explore": "استكشاف",
   "you": "You",
-  "account_manage": "Manage accounts"
+  "account_manage": "Manage accounts",
+  "workspace_tip_title": "انتقل مُبدّل مساحات العمل",
+  "workspace_tip_body": "بدّل مساحات العمل وأدِرها من قائمة الحساب بالأسفل.",
+  "workspace_tip_dismiss": "فهمت"
 }

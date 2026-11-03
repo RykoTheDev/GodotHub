@@ -83,5 +83,11 @@
   "dashboard_preset_delete": "Xóa mẫu bố cục",
   "dashboard_custom_presets": "Mẫu bố cục của bạn",
   "dashboard_hidden_tiles": "Thẻ đã ẩn",
-  "dashboard_todos": "Due to-dos"
+  "dashboard_todos": "Due to-dos",
+  "dashboard_range_daily": "Ngày",
+  "dashboard_range_weekly": "Tuần",
+  "dashboard_range_monthly": "Tháng",
+  "dashboard_range_yearly": "Năm",
+  "dashboard_activity_tracked": "Đã ghi",
+  "dashboard_activity_peak": "Đỉnh"
 }

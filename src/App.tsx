@@ -10,6 +10,7 @@ import { getCurrentWindow } from '@tauri-apps/api/window'
 import type { GitStatus, Project } from './types'
 
 import { Sidebar } from './components/ui/Sidebar'
+import { AnnouncementBanner } from './components/ui/AnnouncementBanner'
 const GitSidebar = lazy(() =>
   import('./components/git/GitSidebar').then((m) => ({ default: m.GitSidebar })),
 )
@@ -651,16 +652,19 @@ export function App() {
           }}
         />
 
-        {mountedTabs.map((id) => (
-          <ViewPane
-            key={id}
-            id={id}
-            active={id === tab}
-            connected={!cardLayout}
-            gitSidebarOpen={id === 'projects' && !!gitSidebarProject}
-            onOpenSettings={openSettingsTab}
-          />
-        ))}
+        <div className="relative flex-1 flex min-w-0 min-h-0">
+          {mountedTabs.map((id) => (
+            <ViewPane
+              key={id}
+              id={id}
+              active={id === tab}
+              connected={!cardLayout}
+              gitSidebarOpen={id === 'projects' && !!gitSidebarProject}
+              onOpenSettings={openSettingsTab}
+            />
+          ))}
+          <AnnouncementBanner />
+        </div>
 
 
           {gitSidebarProject && (
