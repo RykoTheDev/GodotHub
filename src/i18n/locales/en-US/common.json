@@ -905,5 +905,6 @@
   "workspace_start_copy": "Copy settings from {{name}}",
   "workspace_start_copy_desc": "Theme, language, features, and version folders carry over. Project folders start empty, and you go straight in.",
   "workspace_start_fresh": "Start fresh",
-  "workspace_start_fresh_desc": "Walk through setup for this workspace from scratch."
+  "workspace_start_fresh_desc": "Walk through setup for this workspace from scratch.",
+  "workspace_switched_to": "Switched to"
 }

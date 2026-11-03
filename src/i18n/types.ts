@@ -918,7 +918,8 @@ export type commonKeys =
   | 'workspace_start_copy'
   | 'workspace_start_copy_desc'
   | 'workspace_start_fresh'
-  | 'workspace_start_fresh_desc';
+  | 'workspace_start_fresh_desc'
+  | 'workspace_switched_to';
 
 /** Keys from dashboard.json */
 export type dashboardKeys =
@@ -2642,6 +2643,7 @@ export type TranslationKey =
   | 'common:workspace_start_copy_desc'
   | 'common:workspace_start_fresh'
   | 'common:workspace_start_fresh_desc'
+  | 'common:workspace_switched_to'
   | 'dashboard:greeting_morning'
   | 'dashboard:greeting_afternoon'
   | 'dashboard:greeting_evening'
