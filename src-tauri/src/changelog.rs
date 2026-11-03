@@ -1,8 +1,6 @@
 use serde::Serialize;
 
-use crate::error::AppResult;
 use crate::models::{ChangelogEntry, ChangelogNote};
-use crate::persist;
 
 #[cfg(debug_assertions)]
 use std::path::{Path, PathBuf};
