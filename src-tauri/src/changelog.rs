@@ -3,6 +3,11 @@ use serde::Serialize;
 use crate::models::{ChangelogEntry, ChangelogNote};
 
 #[cfg(debug_assertions)]
+use crate::error::AppResult;
+#[cfg(debug_assertions)]
+use crate::persist;
+
+#[cfg(debug_assertions)]
 use std::path::{Path, PathBuf};
 #[cfg(debug_assertions)]
 use uuid::Uuid;
