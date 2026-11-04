@@ -903,11 +903,11 @@
   "error_details": "技術的な詳細",
   "announcement_support_title": "GodotHub を支援",
   "announcement_support_body": "GodotHub は無料で、開発者が余暇を使って開発しています。日々の作業に役立っているようでしたら、寄付による開発の支援をご検討ください。",
-  "workspace_name_taken_error": "Another workspace already uses this name.",
-  "workspace_start_label": "Start with",
-  "workspace_start_copy": "Copy settings from {{name}}",
-  "workspace_start_copy_desc": "Theme, language, features, and version folders carry over. Project folders start empty, and you go straight in.",
-  "workspace_start_fresh": "Start fresh",
-  "workspace_start_fresh_desc": "Walk through setup for this workspace from scratch.",
-  "workspace_switched_to": "Switched to"
+  "workspace_name_taken_error": "この名前は別のワークスペースですでに使われています。",
+  "workspace_start_label": "設定方法",
+  "workspace_start_copy": "{{name}} から設定をコピー",
+  "workspace_start_copy_desc": "テーマ、言語、有効な機能、Godot のバージョンを保存するフォルダの設定を引き継ぎ、すぐに使い始められます。プロジェクトのフォルダ設定は引き継ぎません。",
+  "workspace_start_fresh": "最初から設定",
+  "workspace_start_fresh_desc": "このワークスペースのセットアップを最初から行います。",
+  "workspace_switched_to": "ワークスペースを切り替えました"
 }
