@@ -24,7 +24,7 @@ jobs:
         include:
           - os: windows-latest
           - os: ubuntu-latest
-          - os: macos-15-intel
+          - os: macos-latest
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
