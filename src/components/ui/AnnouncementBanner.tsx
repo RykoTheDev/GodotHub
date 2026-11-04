@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { IconHeart, IconX } from '../../lib/icons'
@@ -12,26 +12,26 @@ const SUPPORT_URL = 'https://www.patreon.com/cw/TheRyko/membership'
 export function AnnouncementBanner() {
   const { t } = useTranslation('common')
   const [visible, setVisible] = useState(false)
+  const dismissedRef = useRef(false)
 
   useEffect(() => {
-    let dismissed = false
     try {
-      dismissed = localStorage.getItem(DISMISS_KEY) === '1'
+      dismissedRef.current = localStorage.getItem(DISMISS_KEY) === '1'
     } catch {}
     let usage = 0
     try {
       usage = Number(localStorage.getItem(USAGE_KEY)) || 0
     } catch {}
 
-    if (!dismissed && usage >= USAGE_THRESHOLD) setVisible(true)
+    if (!dismissedRef.current && usage >= USAGE_THRESHOLD) setVisible(true)
 
     const id = window.setInterval(() => {
-      if (document.hidden) return
+      if (document.hidden || dismissedRef.current) return
       usage += TICK_SECONDS
       try {
         localStorage.setItem(USAGE_KEY, String(usage))
       } catch {}
-      if (!dismissed && usage >= USAGE_THRESHOLD) setVisible(true)
+      if (usage >= USAGE_THRESHOLD) setVisible(true)
     }, TICK_SECONDS * 1000)
 
     const onShow = () => setVisible(true)
@@ -46,6 +46,7 @@ export function AnnouncementBanner() {
   if (!visible) return null
 
   const dismiss = () => {
+    dismissedRef.current = true
     setVisible(false)
     try {
       localStorage.setItem(DISMISS_KEY, '1')
