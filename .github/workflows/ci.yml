@@ -12,17 +12,19 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - os: windows-latest
-          - os: ubuntu-latest
-          - os: macos-latest
+        os: ${{ fromJSON(github.event_name == 'pull_request' && '["windows-latest","ubuntu-latest","macos-latest"]' || '["windows-latest","ubuntu-latest"]') }}
 
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repository
