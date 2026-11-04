@@ -1764,7 +1764,7 @@
   {
     "id": "3caf4d34-ac76-45b1-a39e-48e32d43299e",
     "version": "v1.5.5",
-    "date": "2026-11-02",
+    "date": "2026-11-04",
     "notes": [
       {
         "category": "add",
@@ -1891,7 +1891,9 @@
         "text": "Git: the Commit button shows a lock when the current branch is protected on GitHub or GitLab, and asks whether to commit anyway or move the changes to a new branch, push it, and open a pull request"
       }
     ],
-    "known_issues": [],
+    "known_issues": [
+      "macOS: the macOS build may arrive later than Windows and Linux because GitHub's macOS build servers are currently overloaded. Mac users will get the update in the app once the macOS build is published"
+    ],
     "created_at": 1793638200
   }
 ]
