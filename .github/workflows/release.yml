@@ -17,7 +17,7 @@ jobs:
           - os: windows-latest
             rust_targets: x86_64-pc-windows-msvc
             args: ''
-          - os: macos-latest
+          - os: macos-15-intel
             rust_targets: aarch64-apple-darwin,x86_64-apple-darwin
             args: '--target universal-apple-darwin'
           - os: ubuntu-latest
@@ -25,6 +25,7 @@ jobs:
             args: ''
 
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
 
     steps:
       - name: Checkout repository
