@@ -113,5 +113,13 @@
   "discard_opt_untracked": "未追跡ファイルも削除",
   "discard_opt_untracked_hint": "上記のファイルを完全に削除します。この操作は元に戻せません。",
   "discard_opt_stash": "代わりにすべてをスタッシュ",
-  "discard_opt_stash_hint": "追跡済みファイルと未追跡ファイルの変更をスタッシュに保存し、あとで復元できるようにします。"
+  "discard_opt_stash_hint": "追跡済みファイルと未追跡ファイルの変更をスタッシュに保存し、あとで復元できるようにします。",
+  "protected_branch_tooltip": "{{branch}} is protected on the remote",
+  "protected_branch_title": "Protected branch",
+  "protected_branch_desc": "{{branch}} is protected on the remote, so pushing commits to it directly may be rejected. Commit anyway, or move these changes to a new branch and open a pull request.",
+  "protected_branch_new_label": "New branch name",
+  "protected_branch_commit_anyway": "Commit anyway",
+  "protected_branch_create_pr": "Create branch & open PR",
+  "protected_branch_creating_pr": "Opening pull request…",
+  "pr_opened_ok": "Pushed {{branch}} and opened a pull request."
 }

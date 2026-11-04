@@ -807,3 +807,249 @@ pub async fn create_remote_repo(
         slug,
     })
 }
+
+enum RemoteHost {
+    GitHub,
+    GitLab { api_base: String, token: Option<String> },
+    Other,
+}
+
+struct RemoteRepo {
+    web_url: String,
+    repo_path: String,
+    branch: String,
+}
+
+fn encode_component(s: &str) -> String {
+    url::form_urlencoded::byte_serialize(s.as_bytes()).collect()
+}
+
+fn resolve_remote_repo(path: &str, local_branch: Option<&str>) -> Option<RemoteRepo> {
+    let git = |args: &[&str]| {
+        crate::git_helpers::git_cmd(path, args)
+            .ok()
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty())
+    };
+    let branch = match local_branch {
+        Some(b) => b.to_string(),
+        None => git(&["rev-parse", "--abbrev-ref", "HEAD"]).filter(|b| b != "HEAD")?,
+    };
+    let remote = git(&["config", &format!("branch.{branch}.remote")]).or_else(|| {
+        let remotes = git(&["remote"])?;
+        let names: Vec<&str> = remotes.lines().map(str::trim).collect();
+        names
+            .iter()
+            .find(|r| **r == "origin")
+            .or_else(|| names.first())
+            .map(|r| r.to_string())
+    })?;
+    let url = git(&["remote", "get-url", &remote])?;
+    let remote_branch = git(&["config", &format!("branch.{branch}.merge")])
+        .and_then(|m| m.strip_prefix("refs/heads/").map(str::to_string))
+        .unwrap_or(branch);
+    let web_url = crate::git::to_web_url(&url);
+    let (scheme, rest) = web_url.split_once("://")?;
+    let (authority, repo_path) = rest.split_once('/')?;
+    let host = authority.rsplit_once('@').map(|(_, h)| h).unwrap_or(authority);
+    let repo_path = repo_path.trim_matches('/').to_string();
+    Some(RemoteRepo {
+        web_url: format!("{scheme}://{host}/{repo_path}"),
+        repo_path,
+        branch: remote_branch,
+    })
+}
+
+fn remote_host(app: &AppHandle, web_url: &str) -> RemoteHost {
+    let host = host_from_base_url(web_url).to_ascii_lowercase();
+    if host == "github.com" {
+        return RemoteHost::GitHub;
+    }
+    if let Some((token, base)) = gitlab_oauth_info(app) {
+        if host_from_base_url(&base).eq_ignore_ascii_case(&host) {
+            return RemoteHost::GitLab {
+                api_base: base.trim_end_matches('/').to_string(),
+                token: Some(token),
+            };
+        }
+    }
+    if host == "gitlab.com" {
+        return RemoteHost::GitLab {
+            api_base: "https://gitlab.com".to_string(),
+            token: None,
+        };
+    }
+    RemoteHost::Other
+}
+
+fn api_client() -> Result<reqwest::Client, String> {
+    reqwest::Client::builder()
+        .user_agent("godot-hub/1.0")
+        .timeout(std::time::Duration::from_secs(10))
+        .build()
+        .map_err(|e| e.to_string())
+}
+
+async fn get_json(
+    client: &reqwest::Client,
+    url: &str,
+    token: Option<&str>,
+) -> Result<Option<serde_json::Value>, String> {
+    let mut req = client
+        .get(url)
+        .header("Accept", "application/vnd.github+json");
+    if let Some(t) = token {
+        req = req.header("Authorization", format!("Bearer {t}"));
+    }
+    let resp = req.send().await.map_err(|e| e.to_string())?;
+    if !resp.status().is_success() {
+        return Ok(None);
+    }
+    resp.json().await.map(Some).map_err(|e| e.to_string())
+}
+
+async fn post_json(
+    client: &reqwest::Client,
+    url: &str,
+    token: &str,
+    body: serde_json::Value,
+    provider: &str,
+) -> Result<serde_json::Value, String> {
+    let resp = client
+        .post(url)
+        .header("Accept", "application/vnd.github+json")
+        .header("Authorization", format!("Bearer {token}"))
+        .json(&body)
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+    let status = resp.status();
+    let text = resp.text().await.unwrap_or_default();
+    if !status.is_success() {
+        return Err(format!(
+            "{provider} could not open the pull request ({status}). {}",
+            text.trim()
+        ));
+    }
+    serde_json::from_str(&text).map_err(|e| e.to_string())
+}
+
+fn compare_url(repo: &RemoteRepo, base: &str) -> String {
+    format!(
+        "{}/compare/{}...{}?expand=1",
+        repo.web_url,
+        encode_component(base),
+        encode_component(&repo.branch)
+    )
+}
+
+#[tauri::command]
+pub async fn git_branch_protection(app: AppHandle, path: String) -> Result<bool, String> {
+    let Some(repo) = tokio::task::spawn_blocking(move || resolve_remote_repo(&path, None))
+        .await
+        .map_err(|e| e.to_string())?
+    else {
+        return Ok(false);
+    };
+    let client = api_client()?;
+    match remote_host(&app, &repo.web_url) {
+        RemoteHost::GitHub => {
+            let token = github_oauth_token(&app);
+            let base = format!("https://api.github.com/repos/{}", repo.repo_path);
+            let branch = encode_component(&repo.branch).replace("%2F", "/");
+            let protected = get_json(&client, &format!("{base}/branches/{branch}"), token.as_deref())
+                .await?
+                .and_then(|b| b["protected"].as_bool())
+                .unwrap_or(false);
+            if protected {
+                return Ok(true);
+            }
+            let rules = get_json(&client, &format!("{base}/rules/branches/{branch}"), token.as_deref())
+                .await?
+                .and_then(|r| r.as_array().cloned())
+                .unwrap_or_default();
+            Ok(rules
+                .iter()
+                .any(|r| matches!(r["type"].as_str(), Some("pull_request" | "update"))))
+        }
+        RemoteHost::GitLab { api_base, token } => {
+            let url = format!(
+                "{}/api/v4/projects/{}/repository/branches/{}",
+                api_base,
+                encode_component(&repo.repo_path),
+                encode_component(&repo.branch)
+            );
+            Ok(get_json(&client, &url, token.as_deref())
+                .await?
+                .and_then(|b| b["protected"].as_bool())
+                .unwrap_or(false))
+        }
+        RemoteHost::Other => Ok(false),
+    }
+}
+
+#[tauri::command]
+pub async fn git_open_pull_request(
+    app: AppHandle,
+    path: String,
+    branch: String,
+    base: String,
+    title: String,
+) -> Result<String, String> {
+    let repo = tokio::task::spawn_blocking(move || resolve_remote_repo(&path, Some(&branch)))
+        .await
+        .map_err(|e| e.to_string())?
+        .ok_or("No git remote is configured for this project")?;
+    let client = api_client()?;
+    match remote_host(&app, &repo.web_url) {
+        RemoteHost::GitHub => {
+            let Some(token) = github_oauth_token(&app) else {
+                return Ok(compare_url(&repo, &base));
+            };
+            let json = post_json(
+                &client,
+                &format!("https://api.github.com/repos/{}/pulls", repo.repo_path),
+                &token,
+                serde_json::json!({ "title": title, "head": repo.branch, "base": base }),
+                "GitHub",
+            )
+            .await?;
+            json["html_url"]
+                .as_str()
+                .map(str::to_string)
+                .ok_or_else(|| "GitHub response missing html_url".to_string())
+        }
+        RemoteHost::GitLab {
+            api_base,
+            token: Some(token),
+        } => {
+            let json = post_json(
+                &client,
+                &format!(
+                    "{}/api/v4/projects/{}/merge_requests",
+                    api_base,
+                    encode_component(&repo.repo_path)
+                ),
+                &token,
+                serde_json::json!({
+                    "source_branch": repo.branch,
+                    "target_branch": base,
+                    "title": title,
+                }),
+                "GitLab",
+            )
+            .await?;
+            json["web_url"]
+                .as_str()
+                .map(str::to_string)
+                .ok_or_else(|| "GitLab response missing web_url".to_string())
+        }
+        RemoteHost::GitLab { token: None, .. } => Ok(format!(
+            "{}/-/merge_requests/new?merge_request%5Bsource_branch%5D={}&merge_request%5Btarget_branch%5D={}",
+            repo.web_url,
+            encode_component(&repo.branch),
+            encode_component(&base)
+        )),
+        RemoteHost::Other => Ok(compare_url(&repo, &base)),
+    }
+}

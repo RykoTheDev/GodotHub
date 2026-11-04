@@ -52,6 +52,7 @@ import {
   faUser,
   faCode,
   faCodeBranch,
+  faLock,
   faTerminal,
   faCloudArrowDown,
   faHistory,
@@ -144,6 +145,7 @@ export const IconUser = solid(faUser)
 export const IconUniversalAccess = solid(faUniversalAccess)
 export const IconCode = solid(faCode)
 export const IconGitBranch = solid(faCodeBranch)
+export const IconLock = solid(faLock)
 export const IconTerminal = solid(faTerminal)
 export const IconCloudArrowDown = solid(faCloudArrowDown)
 export const IconHistory = solid(faHistory)

@@ -503,7 +503,7 @@ pub async fn git_log_entries(path: String) -> Result<Vec<GitLogEntry>, String> {
     .map_err(|e| e.to_string())?
 }
 
-fn to_web_url(url: &str) -> String {
+pub(crate) fn to_web_url(url: &str) -> String {
     let url = url.trim_end_matches(".git").trim_end_matches('/');
     if let Some(rest) = url.strip_prefix("git@") {
         if let Some((host, path)) = rest.split_once(':') {

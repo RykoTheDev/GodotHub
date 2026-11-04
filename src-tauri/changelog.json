@@ -1889,5 +1889,18 @@
     ],
     "known_issues": [],
     "created_at": 1793638200
+  },
+  {
+    "id": "b6d7f354-a86e-4c9a-9363-6f223710b9a4",
+    "version": "v1.5.6",
+    "date": "2026-11-04",
+    "notes": [
+      {
+        "category": "add",
+        "text": "Git: the Commit button shows a lock when the current branch is protected on GitHub or GitLab, and asks whether to commit anyway or move the changes to a new branch, push it, and open a pull request"
+      }
+    ],
+    "known_issues": [],
+    "created_at": 1793805091
   }
 ]

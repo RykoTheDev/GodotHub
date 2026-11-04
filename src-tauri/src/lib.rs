@@ -390,6 +390,8 @@ pub fn run() {
             git_auth::remove_git_pat,
             git_auth::create_remote_repo,
             git_auth::list_user_repos,
+            git_auth::git_branch_protection,
+            git_auth::git_open_pull_request,
             export_templates::get_export_templates_state,
             storage::get_storage_report,
             storage::reclaim_storage,
