@@ -113,5 +113,13 @@
   "discard_opt_untracked": "Also remove untracked files",
   "discard_opt_untracked_hint": "Permanently deletes the files listed above. This cannot be undone.",
   "discard_opt_stash": "Stash everything instead",
-  "discard_opt_stash_hint": "Saves tracked and untracked changes to a stash you can restore later."
+  "discard_opt_stash_hint": "Saves tracked and untracked changes to a stash you can restore later.",
+  "protected_branch_tooltip": "{{branch}} is protected on the remote",
+  "protected_branch_title": "Protected branch",
+  "protected_branch_desc": "{{branch}} is protected on the remote, so pushing commits to it directly may be rejected. Commit anyway, or move these changes to a new branch and open a pull request.",
+  "protected_branch_new_label": "New branch name",
+  "protected_branch_commit_anyway": "Commit anyway",
+  "protected_branch_create_pr": "Create branch & open PR",
+  "protected_branch_creating_pr": "Opening pull request…",
+  "pr_opened_ok": "Pushed {{branch}} and opened a pull request."
 }

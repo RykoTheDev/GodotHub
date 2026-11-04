@@ -113,5 +113,13 @@
   "discard_opt_untracked": "同时移除未跟踪文件",
   "discard_opt_untracked_hint": "永久删除上方列出的文件。此操作无法撤销。",
   "discard_opt_stash": "改为全部贮藏",
-  "discard_opt_stash_hint": "将已跟踪和未跟踪的更改保存到贮藏中，稍后可以恢复。"
+  "discard_opt_stash_hint": "将已跟踪和未跟踪的更改保存到贮藏中，稍后可以恢复。",
+  "protected_branch_tooltip": "{{branch}} is protected on the remote",
+  "protected_branch_title": "Protected branch",
+  "protected_branch_desc": "{{branch}} is protected on the remote, so pushing commits to it directly may be rejected. Commit anyway, or move these changes to a new branch and open a pull request.",
+  "protected_branch_new_label": "New branch name",
+  "protected_branch_commit_anyway": "Commit anyway",
+  "protected_branch_create_pr": "Create branch & open PR",
+  "protected_branch_creating_pr": "Opening pull request…",
+  "pr_opened_ok": "Pushed {{branch}} and opened a pull request."
 }

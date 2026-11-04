@@ -32,6 +32,7 @@ import {
   IconGitBranch,
   IconHistory,
   IconInfo,
+  IconLock,
   IconPlay,
   IconPlus,
   IconRefresh,
@@ -43,6 +44,7 @@ import { GitAuthModal } from '../modals/GitAuthModal'
 import { DiffViewerModal } from '../modals/DiffViewerModal'
 import { CommitDetailsModal } from '../modals/CommitDetailsModal'
 import { ConfirmDialog } from '../modals/ConfirmDialog'
+import { ProtectedBranchModal } from '../modals/ProtectedBranchModal'
 import { CommitGraph } from './CommitGraph'
 import { Tooltip } from '../reusables/Tooltip'
 import { Checkbox } from '../ui/Checkbox'
@@ -281,6 +283,8 @@ export function GitSidebar({
   const [newBranchName, setNewBranchName] = useState('')
   const [deletingBranch, setDeletingBranch] = useState<string | null>(null)
   const [publishingBranch, setPublishingBranch] = useState(false)
+  const [branchProtected, setBranchProtected] = useState(false)
+  const [protectedPromptOpen, setProtectedPromptOpen] = useState(false)
   const branchMenuRef = useRef<HTMLDivElement>(null)
   useExclusivePopup(branchMenuOpen, () => setBranchMenuOpen(false), () => branchMenuRef.current)
   useExclusivePopup(!!ctxMenu, () => setCtxMenu(null), () => ctxMenuRef.current)
@@ -359,6 +363,7 @@ export function GitSidebar({
     setStashDiff(null)
     setCommitHash(null)
     setForcePushOpen(false)
+    setProtectedPromptOpen(false)
     setNewBranchMode(false)
     setNewBranchName('')
     setCommitMessage('')
@@ -749,9 +754,14 @@ export function GitSidebar({
     } catch {}
   }
 
-  const handleCommit = async () => {
+  const handleCommit = async (force = false) => {
     const msg = commitMessage.trim()
     if (!msg || committing) return
+    if (branchProtected && !force) {
+      setProtectedPromptOpen(true)
+      return
+    }
+    setProtectedPromptOpen(false)
     setCommitting(true)
     try {
       if (stagedFiles.length === 0) {
@@ -769,6 +779,35 @@ export function GitSidebar({
       pushToast('error', String(e))
     } finally {
       setCommitting(false)
+    }
+  }
+
+  const handleCommitToPullRequest = async (branch: string) => {
+    const msg = commitMessage.trim()
+    const base = currentBranchInfo?.name
+    if (!msg || !base || committing) return
+    setCommitting(true)
+    try {
+      await api.gitCreateBranch(project.path, branch)
+      await api.gitSwitchBranch(project.path, branch)
+      if (stagedFiles.length === 0) {
+        await api.gitStageFile(project.path, '.')
+      }
+      await api.gitCommit(project.path, msg, false)
+      setCommitMessage('')
+      await api.gitBranchPublish(project.path, branch)
+      const url = await api.gitOpenPullRequest(project.path, branch, base, msg.split('\n')[0])
+      setProtectedPromptOpen(false)
+      pushToast('success', t('pr_opened_ok', { branch }))
+      void openUrl(url).catch(reportError)
+    } finally {
+      setCommitting(false)
+      setBranches(await api.gitListBranches(project.path).catch(() => branches))
+      onRefresh()
+      notifyGitStatusChanged()
+      void refreshChanges()
+      void refreshLog()
+      void refreshAheadBehind()
     }
   }
 
@@ -898,8 +937,29 @@ export function GitSidebar({
     !!currentBranchInfo &&
     !currentBranchInfo.has_upstream &&
     remotes.length > 0
+  const suggestedPrBranch =
+    commitMessage
+      .split('\n')[0]
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 48)
+      .replace(/-+$/, '') || 'changes'
   const publishRemote =
     remotes.find((r) => r.name === 'origin')?.name ?? remotes[0]?.name ?? null
+
+  const hasRemote = remotes.length > 0
+  const providerAuthKey = `${gitAuth?.github?.username ?? ''}|${gitAuth?.gitlab?.username ?? ''}`
+
+  useEffect(() => {
+    setBranchProtected(false)
+    if (!currentBranchInfo?.name || !hasRemote) return
+    let cancelled = false
+    api.gitBranchProtection(project.path)
+      .then((value) => { if (!cancelled) setBranchProtected(value) })
+      .catch(() => {})
+    return () => { cancelled = true }
+  }, [project.path, currentBranchInfo?.name, hasRemote, providerAuthKey])
 
   const connectedCount =
     (gitAuth?.github ? 1 : 0) +
@@ -1475,14 +1535,14 @@ export function GitSidebar({
               </div>
             )}
 
-              <Tooltip content={commitMessage.trim() ? t('commit') : tc('git_commit_placeholder')} side="top">
+              <Tooltip content={branchProtected ? t('protected_branch_tooltip', { branch: currentBranch }) : commitMessage.trim() ? t('commit') : tc('git_commit_placeholder')} side="top">
               <button
                 type="button"
                 onClick={() => void handleCommit()}
                 disabled={!commitMessage.trim() || committing}
                 className="focus-ring cursor-pointer w-full inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded-item bg-accent hover:bg-accent-bright disabled:opacity-40 disabled:cursor-not-allowed text-xs font-medium text-white "
               >
-                <IconCheck className="w-3.5 h-3.5" />
+                {branchProtected ? <IconLock className="w-3.5 h-3.5" /> : <IconCheck className="w-3.5 h-3.5" />}
                 {committing ? t('committing') : t('commit')}
               </button>
               </Tooltip>
@@ -1752,6 +1812,16 @@ export function GitSidebar({
           project={project}
           hash={commitHash}
           onClose={() => setCommitHash(null)}
+        />
+      )}
+
+      {protectedPromptOpen && currentBranchInfo && (
+        <ProtectedBranchModal
+          branch={currentBranchInfo.name}
+          suggestedBranch={suggestedPrBranch}
+          onCommitAnyway={() => void handleCommit(true)}
+          onCreatePullRequest={handleCommitToPullRequest}
+          onClose={() => setProtectedPromptOpen(false)}
         />
       )}
 

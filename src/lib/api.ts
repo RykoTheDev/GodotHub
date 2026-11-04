@@ -188,6 +188,8 @@ export const api = {
   gitAuthSavePat: gitAuthApi.savePat,
   gitAuthRemovePat: gitAuthApi.removePat,
   gitAuthListUserRepos: gitAuthApi.listUserRepos,
+  gitBranchProtection: gitAuthApi.branchProtection,
+  gitOpenPullRequest: gitAuthApi.openPullRequest,
 
 
   getSettings: settingsApi.get,

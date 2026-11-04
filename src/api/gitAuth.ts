@@ -50,4 +50,8 @@ export const gitAuthApi = {
   savePat: (host: string, username: string, token: string) =>
     invoke<void>('save_git_pat', { host, username, token }),
   removePat: (host: string) => invoke<void>('remove_git_pat', { host }),
+  branchProtection: (path: string) =>
+    invoke<boolean>('git_branch_protection', { path }),
+  openPullRequest: (path: string, branch: string, base: string, title: string) =>
+    invoke<string>('git_open_pull_request', { path, branch, base, title }),
 }

@@ -1131,7 +1131,15 @@ export type gitKeys =
   | 'discard_opt_untracked'
   | 'discard_opt_untracked_hint'
   | 'discard_opt_stash'
-  | 'discard_opt_stash_hint';
+  | 'discard_opt_stash_hint'
+  | 'protected_branch_tooltip'
+  | 'protected_branch_title'
+  | 'protected_branch_desc'
+  | 'protected_branch_new_label'
+  | 'protected_branch_commit_anyway'
+  | 'protected_branch_create_pr'
+  | 'protected_branch_creating_pr'
+  | 'pr_opened_ok';
 
 /** Keys from nav.json */
 export type navKeys =
@@ -2850,6 +2858,14 @@ export type TranslationKey =
   | 'git:discard_opt_untracked_hint'
   | 'git:discard_opt_stash'
   | 'git:discard_opt_stash_hint'
+  | 'git:protected_branch_tooltip'
+  | 'git:protected_branch_title'
+  | 'git:protected_branch_desc'
+  | 'git:protected_branch_new_label'
+  | 'git:protected_branch_commit_anyway'
+  | 'git:protected_branch_create_pr'
+  | 'git:protected_branch_creating_pr'
+  | 'git:pr_opened_ok'
   | 'nav:dashboard'
   | 'nav:projects'
   | 'nav:projects_count_one'
