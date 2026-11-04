@@ -161,6 +161,7 @@ jobs:
     
   generate-latest-json:
     needs: build
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
       - name: Generate latest.json in the working updater format
@@ -298,6 +299,10 @@ jobs:
           if (Object.keys(platforms).length === 0) {
             throw new Error('could not derive any platform entries from the release signatures');
           }
+          const missing = ['windows-x86_64', 'linux-x86_64'].filter((key) => !platforms[key]);
+          if (missing.length) {
+            throw new Error(`required platforms missing from the release: ${missing.join(', ')}`);
+          }
           const manifest = { version, notes: NOTES, pub_date: new Date().toISOString(), platforms };
           fs.writeFileSync('latest.json', JSON.stringify(manifest, null, 2));
           console.log(`wrote latest.json with ${Object.keys(platforms).length} platform entries`);
@@ -307,7 +312,7 @@ jobs:
   publish-to-winget:
     needs: [build, generate-latest-json]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
+    if: ${{ !cancelled() && needs.generate-latest-json.result == 'success' && startsWith(github.ref, 'refs/tags/') }}
 
     steps:
       - name: Strip 'v' prefix from tag
