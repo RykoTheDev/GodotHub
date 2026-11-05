@@ -561,6 +561,123 @@ fn export_checks(root: &Path) -> Vec<HealthCheck> {
     }
 }
 
+fn android_checks(
+    root: &Path,
+    fields: &[Setting],
+    engine: Option<&InstalledGodotVersion>,
+) -> Vec<HealthCheck> {
+    let presets_text = read_config(&root.join("export_presets.cfg")).unwrap_or_default();
+    let target = crate::android::detect(root, fields, &presets_text);
+    let targeted = target.targeted();
+    if !targeted && target.hints.is_empty() {
+        return vec![];
+    }
+    let need = if targeted { "warning" } else { "info" };
+    let mut checks = vec![];
+    if targeted {
+        let mut c = check("android", "info", "android_targeted");
+        c.details = target.presets.iter().map(|p| p.name.clone()).collect();
+        if target.gradle_template {
+            c.details.push("res://android/build".into());
+        }
+        checks.push(c);
+    } else {
+        let mut c = check("android", "info", "android_possible");
+        c.details = target.hints.iter().map(|h| h.to_string()).collect();
+        checks.push(c);
+    }
+
+    let tools = crate::android::toolchain(engine);
+    checks.push(match &tools.sdk {
+        None => check("android", need, "android_sdk_missing").action("open_editor", None, false),
+        Some(sdk) if !sdk.missing.is_empty() => {
+            let mut c = check("android", need, "android_sdk_incomplete")
+                .value("path", sdk.path.display())
+                .action("open_editor", None, false);
+            c.details = sdk.missing.iter().map(|m| format!("sdk_part_{m}")).collect();
+            c
+        }
+        Some(sdk) => check("android", "ok", "android_sdk_ready")
+            .value("path", sdk.path.display())
+            .value("source", match sdk.source {
+                crate::android::Source::Editor => "editor",
+                crate::android::Source::Environment => "environment",
+            }),
+    });
+
+    let required = crate::android::required_jdk(engine);
+    checks.push(match &tools.jdk {
+        None => check("android", need, "android_jdk_missing")
+            .value("required", required)
+            .action("open_editor", None, false),
+        Some(jdk) if !jdk.valid => check("android", need, "android_jdk_invalid")
+            .value("path", jdk.path.display())
+            .value("required", required)
+            .action("open_editor", None, false),
+        Some(jdk) if jdk.major.is_some_and(|m| m < required) => check("android", need, "android_jdk_old")
+            .value("version", jdk.major.unwrap_or_default())
+            .value("required", required)
+            .value("path", jdk.path.display())
+            .action("open_editor", None, false),
+        Some(jdk) => check("android", "ok", "android_jdk_ready")
+            .value("version", jdk.major.map_or_else(|| "?".into(), |m| m.to_string()))
+            .value("path", jdk.path.display())
+            .value("source", match jdk.source {
+                crate::android::Source::Editor => "editor",
+                crate::android::Source::Environment => "environment",
+            }),
+    });
+
+    if let Some(keystore) = tools.debug_keystore.filter(|k| !k.is_file()) {
+        checks.push(
+            check("android", need, "android_debug_keystore_missing")
+                .detail(keystore.display().to_string())
+                .action("open_editor", None, false),
+        );
+    }
+
+    let gradle: Vec<_> = target
+        .presets
+        .iter()
+        .filter(|p| p.gradle_build)
+        .map(|p| p.name.clone())
+        .collect();
+    if !gradle.is_empty() && !target.gradle_template {
+        let mut c = check("android", "error", "android_gradle_template_missing")
+            .action("open_editor", None, false);
+        c.details = gradle;
+        checks.push(c);
+    }
+
+    let missing_keystores: Vec<_> = target
+        .presets
+        .iter()
+        .filter_map(|p| {
+            let value = p.release_keystore.as_ref()?;
+            let path = crate::android::resolve_keystore(root, value);
+            (!path.is_file()).then(|| format!("{} → {value}", p.name))
+        })
+        .collect();
+    if !missing_keystores.is_empty() {
+        let mut c = check("android", "warning", "android_release_keystore_missing")
+            .action("open_presets", None, false);
+        c.details = missing_keystores;
+        checks.push(c);
+    }
+    let unset: Vec<_> = target
+        .presets
+        .iter()
+        .filter(|p| p.release_keystore.is_none())
+        .map(|p| p.name.clone())
+        .collect();
+    if !unset.is_empty() {
+        let mut c = check("android", "info", "android_release_keystore_unset");
+        c.details = unset;
+        checks.push(c);
+    }
+    checks
+}
+
 fn required_template_platforms(root: &Path) -> HashSet<String> {
     let text = read_config(&root.join("export_presets.cfg")).unwrap_or_default();
     settings(&text)
@@ -855,6 +972,11 @@ pub(crate) fn diagnose_local(
     }
     checks.extend(addon_checks(root, &fields));
     checks.extend(export_checks(root));
+    checks.extend(android_checks(
+        root,
+        &fields,
+        versions.iter().find(|v| v.tag == project.godot_version),
+    ));
     let tree = walk(root, false);
     checks.extend(git_checks(root, &tree.large));
     if !tree.complete {

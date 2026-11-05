@@ -1902,6 +1902,10 @@
     "date": "2026-11-05",
     "notes": [
       {
+        "category": "add",
+        "text": "Project Doctor now checks Android setups: projects with an Android export preset or Gradle build template get checks for the Android SDK (platform tools, build tools, command-line tools), the Java JDK version, the debug keystore, release keystores and the Android build template. Projects that only look mobile (Mobile renderer, ETC2/ASTC textures, screen orientation, touch emulation) get the same checks as notes, since many desktop games use the Mobile renderer too"
+      },
+      {
         "category": "fix",
         "text": "Templates in your template scan folder now sync automatically at startup, when files in that folder change, and after pulling a cloud sync. Before, they only synced when you pressed Sync"
       },
