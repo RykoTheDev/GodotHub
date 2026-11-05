@@ -114,12 +114,12 @@
   "discard_opt_untracked_hint": "永久删除上方列出的文件。此操作无法撤销。",
   "discard_opt_stash": "改为全部贮藏",
   "discard_opt_stash_hint": "将已跟踪和未跟踪的更改保存到贮藏中，稍后可以恢复。",
-  "protected_branch_tooltip": "{{branch}} is protected on the remote",
-  "protected_branch_title": "Protected branch",
-  "protected_branch_desc": "{{branch}} is protected on the remote, so pushing commits to it directly may be rejected. Commit anyway, or move these changes to a new branch and open a pull request.",
-  "protected_branch_new_label": "New branch name",
-  "protected_branch_commit_anyway": "Commit anyway",
-  "protected_branch_create_pr": "Create branch & open PR",
-  "protected_branch_creating_pr": "Opening pull request…",
-  "pr_opened_ok": "Pushed {{branch}} and opened a pull request."
+  "protected_branch_tooltip": "{{branch}} 是远程受保护分支",
+  "protected_branch_title": "受保护分支",
+  "protected_branch_desc": "{{branch}} 是远程受保护分支，直接向其推送提交可能会被拒绝。仍要提交，或将更改移至新分支并打开拉取请求。",
+  "protected_branch_new_label": "新分支名称",
+  "protected_branch_commit_anyway": "仍然提交",
+  "protected_branch_create_pr": "创建分支并打开 PR",
+  "protected_branch_creating_pr": "正在打开拉取请求…",
+  "pr_opened_ok": "已推送 {{branch}} 并打开拉取请求。"
 }
