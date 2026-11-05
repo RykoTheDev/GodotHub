@@ -109,9 +109,15 @@ fn delete_dir_best_effort(dir: &Path) -> bool {
 }
 
 #[tauri::command]
-pub fn list_vault_items(app: AppHandle) -> Vec<VaultItem> {
+pub async fn list_vault_items(app: AppHandle) -> Result<Vec<VaultItem>, String> {
+    tokio::task::spawn_blocking(move || read_vault_items(&app))
+        .await
+        .map_err(|e| e.to_string())
+}
+
+fn read_vault_items(app: &AppHandle) -> Vec<VaultItem> {
     let mut items: Vec<VaultItem> = Vec::new();
-    let root = vault_root(&app);
+    let root = vault_root(app);
     if !root.exists() {
         return items;
     }

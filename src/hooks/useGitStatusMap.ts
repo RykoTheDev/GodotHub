@@ -17,11 +17,15 @@ let pollTimer: ReturnType<typeof setInterval> | null = null
 
 function mergeStatuses(next: Record<string, GitStatus>): Record<string, GitStatus> {
   const merged: Record<string, GitStatus> = {}
-  for (const [path, status] of Object.entries(next)) {
+  const entries = Object.entries(next)
+  let changed = entries.length !== Object.keys(statusMap).length
+  for (const [path, status] of entries) {
     const previous = statusMap[path]
-    merged[path] = previous && JSON.stringify(previous) === JSON.stringify(status) ? previous : status
+    const same = previous !== undefined && JSON.stringify(previous) === JSON.stringify(status)
+    merged[path] = same ? previous : status
+    if (!same) changed = true
   }
-  return merged
+  return changed ? merged : statusMap
 }
 
 function wantedPaths(): string[] {

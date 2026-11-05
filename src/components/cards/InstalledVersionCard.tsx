@@ -26,6 +26,7 @@ import {
   IconTrash,
   IconX,
 } from '../../lib/icons'
+import { withStableCallbacks } from '../../lib/stableCallbacks'
 
 interface InstalledVersionCardProps {
   version: InstalledGodotVersion
@@ -45,7 +46,7 @@ interface InstalledVersionCardProps {
   onTemplatesChanged?: () => void | Promise<void>
 }
 
-export function InstalledVersionCard({
+function InstalledVersionCardInner({
   version: v,
   isCurrent,
   onOpen,
@@ -422,3 +423,5 @@ export function InstalledVersionCard({
     </div>
   )
 }
+
+export const InstalledVersionCard = withStableCallbacks(InstalledVersionCardInner)

@@ -20,10 +20,22 @@ import { Titlebar } from './components/titlebar/Titlebar'
 import { ViewErrorBoundary } from './ErrorBoundary'
 import { ConfirmDialog } from './components/modals/ConfirmDialog'
 import { reportLaunchError } from './lib/launchErrors'
-import { CreateProjectModal } from './components/modals/CreateProjectModal'
-import { BugReportModal } from './components/modals/BugReportModal'
-import { CheckForUpdatesModal } from './components/modals/CheckForUpdatesModal'
-import { CommandPalette } from './components/modals/CommandPalette'
+const loadCreateProjectModal = () => import('./components/modals/CreateProjectModal')
+const loadBugReportModal = () => import('./components/modals/BugReportModal')
+const loadCheckForUpdatesModal = () => import('./components/modals/CheckForUpdatesModal')
+const loadCommandPalette = () => import('./components/modals/CommandPalette')
+const CreateProjectModal = lazy(() =>
+  loadCreateProjectModal().then((m) => ({ default: m.CreateProjectModal })),
+)
+const BugReportModal = lazy(() =>
+  loadBugReportModal().then((m) => ({ default: m.BugReportModal })),
+)
+const CheckForUpdatesModal = lazy(() =>
+  loadCheckForUpdatesModal().then((m) => ({ default: m.CheckForUpdatesModal })),
+)
+const CommandPalette = lazy(() =>
+  loadCommandPalette().then((m) => ({ default: m.CommandPalette })),
+)
 import { ToastContainer } from './components/reusables/ToastContainer'
 import { SplashScreen } from './components/reusables/SplashScreen'
 const ProjectConsoleWindow = lazy(() =>
@@ -132,7 +144,14 @@ const VIEW_CHUNKS: Record<NewTab, () => Promise<unknown>> = {
 }
 
 function preloadViewChunks(ids: NewTab[]) {
-  const chunks = [...ids.map((id) => VIEW_CHUNKS[id]()), import('./components/git/GitSidebar')]
+  const chunks = [
+    ...ids.map((id) => VIEW_CHUNKS[id]()),
+    import('./components/git/GitSidebar'),
+    loadCommandPalette(),
+    loadCreateProjectModal(),
+    loadCheckForUpdatesModal(),
+    loadBugReportModal(),
+  ]
   chunks.forEach((c) => c.catch(() => {}))
 }
 
@@ -416,7 +435,7 @@ export function App() {
   const [updatesModalMode, setUpdatesModalMode] = useState<
     'manual' | 'preview'
   >('manual')
-  const { installed } = useGodotVersionsContext()
+  const installed = useGodotVersionsContext((v) => v.installed)
   const { workspaces, switchWorkspace } = useWorkspaces()
   const { categories } = useCategoriesContext()
   const settingsRef = useRef(settings)
@@ -849,6 +868,7 @@ export function App() {
 
 
 
+        <Suspense fallback={null}>
         {commandPaletteOpen && (
           <CommandPalette
             onClose={() => setCommandPaletteOpen(false)}
@@ -887,6 +907,7 @@ export function App() {
             onClose={() => setUpdatesModalOpen(false)}
           />
         )}
+        </Suspense>
         {projectsCorrupt && (
           <ConfirmDialog
             title={tc('projects_corrupt_title')}

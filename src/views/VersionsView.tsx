@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { useTranslation } from 'react-i18next'
 import { useGodotVersionsContext } from '../hooks/godotVersionsContext'
 import { useExportTemplateDownloads } from '../hooks/useExportTemplateDownloads'
 import { setTemplateFilesInstalled } from '../lib/exportTemplateCatalog'
 import { useSettings } from '../hooks/useSettings'
-import { useTaskTray } from '../hooks/useTaskTray'
+import { useTaskTrayActions } from '../hooks/useTaskTray'
 import { api } from '../lib/api'
 import { formatBytes } from '../lib/formatBytes'
 import { pushToast, reportError } from '../lib/toast'
@@ -193,7 +193,7 @@ export function VersionsView({
     syncMise,
   } = useGodotVersionsContext()
   const { settings } = useSettings()
-  const { registerTask, updateTask, unregisterTask } = useTaskTray()
+  const { registerTask, updateTask, unregisterTask } = useTaskTrayActions()
 
   const [query, setQuery] = useState('')
   const [filters, setFilters] = useState<VersionFilters>(loadVersionFilters)
@@ -360,80 +360,91 @@ export function VersionsView({
   const rateLimited =
     source === 'github' && /rate\s*limit/i.test(availableError || '')
 
-  const filteredInstalled = (isSearching
-    ? installed.filter(
-        (v) =>
-          v.tag.toLowerCase().includes(q) ||
-          (v.custom_name && v.custom_name.toLowerCase().includes(q)),
-      )
-    : installed
-  ).slice().sort((a, b) => {
-    const tagA = a.custom_name || a.tag
-    const tagB = b.custom_name || b.tag
-    switch (installedSortBy) {
-      case 'oldest':
-        return a.tag.localeCompare(b.tag, undefined, { numeric: true })
-      case 'name_asc':
-        return tagA.localeCompare(tagB)
-      case 'name_desc':
-        return tagB.localeCompare(tagA)
-      case 'recently_installed':
-        return new Date(b.installed_at).getTime() - new Date(a.installed_at).getTime()
-      case 'oldest_installed':
-        return new Date(a.installed_at).getTime() - new Date(b.installed_at).getTime()
-      case 'latest':
-      default:
-        return b.tag.localeCompare(a.tag, undefined, { numeric: true })
-    }
-  })
-
-  const filteredAvailable = isSearching
-    ? available
-        .map((r) => ({
-          ...r,
-          assets: r.assets.filter(() => r.tag.toLowerCase().includes(q)),
-        }))
-        .filter((r) => r.assets.length > 0)
-    : available
-
-  const groupEntries = Object.entries(
-    filteredAvailable
-      .flatMap((r) => {
-        const isStable = r.tag.toLowerCase().includes('stable')
-        if (
-          filters.channel !== 'both' &&
-          (filters.channel === 'stable') !== isStable
-        )
-          return []
-        return r.assets
-          .filter(
-            (a) =>
-              filters.buildType === 'both' ||
-              (filters.buildType === 'mono') === a.is_mono,
+  const filteredInstalled = useMemo(
+    () =>
+      (isSearching
+        ? installed.filter(
+            (v) =>
+              v.tag.toLowerCase().includes(q) ||
+              (v.custom_name && v.custom_name.toLowerCase().includes(q)),
           )
-          .map((asset) => ({ tag: r.tag, asset }))
-      })
-      .reduce<Record<string, { tag: string; asset: GodotReleaseAsset }[]>>(
-        (groups, row) => {
-          ;(groups[minorGroup(row.tag)] ??= []).push(row)
-          return groups
-        },
-        {},
-      ),
-  ).sort(([a], [b]) => {
-    switch (sortBy) {
-      case 'oldest':
-        return a.localeCompare(b, undefined, { numeric: true })
-      case 'name_asc':
-        return a.localeCompare(b, undefined, { numeric: true })
-      case 'name_desc':
-        return b.localeCompare(a, undefined, { numeric: true })
-      case 'latest':
-      default:
-        return b.localeCompare(a, undefined, { numeric: true })
-    }
-  })
+        : installed
+      ).slice().sort((a, b) => {
+        const tagA = a.custom_name || a.tag
+        const tagB = b.custom_name || b.tag
+        switch (installedSortBy) {
+          case 'oldest':
+            return a.tag.localeCompare(b.tag, undefined, { numeric: true })
+          case 'name_asc':
+            return tagA.localeCompare(tagB)
+          case 'name_desc':
+            return tagB.localeCompare(tagA)
+          case 'recently_installed':
+            return new Date(b.installed_at).getTime() - new Date(a.installed_at).getTime()
+          case 'oldest_installed':
+            return new Date(a.installed_at).getTime() - new Date(b.installed_at).getTime()
+          case 'latest':
+          default:
+            return b.tag.localeCompare(a.tag, undefined, { numeric: true })
+        }
+      }),
+    [installed, isSearching, q, installedSortBy],
+  )
 
+  const filteredAvailable = useMemo(
+    () =>
+      isSearching
+        ? available
+            .map((r) => ({
+              ...r,
+              assets: r.assets.filter(() => r.tag.toLowerCase().includes(q)),
+            }))
+            .filter((r) => r.assets.length > 0)
+        : available,
+    [available, isSearching, q],
+  )
+
+  const groupEntries = useMemo(
+    () =>
+      Object.entries(
+        filteredAvailable
+          .flatMap((r) => {
+            const isStable = r.tag.toLowerCase().includes('stable')
+            if (
+              filters.channel !== 'both' &&
+              (filters.channel === 'stable') !== isStable
+            )
+              return []
+            return r.assets
+              .filter(
+                (a) =>
+                  filters.buildType === 'both' ||
+                  (filters.buildType === 'mono') === a.is_mono,
+              )
+              .map((asset) => ({ tag: r.tag, asset }))
+          })
+          .reduce<Record<string, { tag: string; asset: GodotReleaseAsset }[]>>(
+            (groups, row) => {
+              ;(groups[minorGroup(row.tag)] ??= []).push(row)
+              return groups
+            },
+            {},
+          ),
+      ).sort(([a], [b]) => {
+        switch (sortBy) {
+          case 'oldest':
+            return a.localeCompare(b, undefined, { numeric: true })
+          case 'name_asc':
+            return a.localeCompare(b, undefined, { numeric: true })
+          case 'name_desc':
+            return b.localeCompare(a, undefined, { numeric: true })
+          case 'latest':
+          default:
+            return b.localeCompare(a, undefined, { numeric: true })
+        }
+      }),
+    [filteredAvailable, filters.channel, filters.buildType, sortBy],
+  )
   return (
     <div className="flex-1 min-w-0 h-full flex flex-col gap-2">
       <ViewHeader

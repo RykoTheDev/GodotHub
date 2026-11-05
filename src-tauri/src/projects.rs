@@ -84,7 +84,12 @@ const DEFAULT_ICON_SVG: &[u8] = include_bytes!("../icon.svg");
 struct CachedIcon {
     project_godot_mtime: Option<SystemTime>,
     icon_scan_depth: u32,
+    icon_file: Option<(PathBuf, Option<SystemTime>)>,
     data: Option<String>,
+}
+
+fn file_mtime(path: &Path) -> Option<SystemTime> {
+    fs::metadata(path).and_then(|m| m.modified()).ok()
 }
 
 fn icon_cache() -> &'static Mutex<HashMap<String, CachedIcon>> {
@@ -1912,7 +1917,7 @@ fn find_resource_by_uid(
 fn resolve_project_icon(
     project_path: &str,
     icon_scan_depth: u32,
-) -> Option<(Vec<u8>, &'static str)> {
+) -> Option<(Vec<u8>, &'static str, PathBuf)> {
     let dir = PathBuf::from(project_path);
     let godot_file = dir.join("project.godot");
     let mut icon_rel: Option<String> = None;
@@ -1970,7 +1975,7 @@ fn resolve_project_icon(
                 } else {
                     continue;
                 };
-                return Some((bytes, mime));
+                return Some((bytes, mime, full));
             }
         }
     }
@@ -2182,12 +2187,19 @@ pub async fn get_project_icon(path: String, app: AppHandle) -> Option<String> {
             .ok();
 
         if let Some(cached) = icon_cache().lock().unwrap_or_else(std::sync::PoisonError::into_inner).get(&path) {
-            if cached.project_godot_mtime == mtime && cached.icon_scan_depth == icon_scan_depth {
+            let icon_unchanged = cached
+                .icon_file
+                .as_ref()
+                .is_none_or(|(file, file_mtime_then)| file_mtime(file) == *file_mtime_then);
+            if cached.project_godot_mtime == mtime
+                && cached.icon_scan_depth == icon_scan_depth
+                && icon_unchanged
+            {
                 return cached.data.clone();
             }
         }
 
-        let (bytes, mime) = match resolve_project_icon(&path, icon_scan_depth) {
+        let (bytes, mime, icon_path) = match resolve_project_icon(&path, icon_scan_depth) {
             Some(v) => v,
             None => {
                 icon_cache().lock().unwrap_or_else(std::sync::PoisonError::into_inner).insert(
@@ -2195,12 +2207,14 @@ pub async fn get_project_icon(path: String, app: AppHandle) -> Option<String> {
                     CachedIcon {
                         project_godot_mtime: mtime,
                         icon_scan_depth,
+                        icon_file: None,
                         data: None,
                     },
                 );
                 return None;
             }
         };
+        let icon_file = Some((icon_path.clone(), file_mtime(&icon_path)));
         use base64::{engine::general_purpose, Engine as _};
         let encoded = general_purpose::STANDARD.encode(bytes);
         let data_url = format!("data:{};base64,{}", mime, encoded);
@@ -2210,6 +2224,7 @@ pub async fn get_project_icon(path: String, app: AppHandle) -> Option<String> {
             CachedIcon {
                 project_godot_mtime: mtime,
                 icon_scan_depth,
+                icon_file,
                 data: Some(data_url.clone()),
             },
         );
@@ -2236,8 +2251,11 @@ pub struct ProjectSizeInfo {
 
 struct CachedSize {
     dir_mtime: Option<SystemTime>,
+    computed_at: Instant,
     data: Result<ProjectSizeInfo, String>,
 }
+
+const SIZE_CACHE_TTL: Duration = Duration::from_secs(300);
 
 fn size_cache() -> &'static Mutex<HashMap<String, CachedSize>> {
     static CACHE: OnceLock<Mutex<HashMap<String, CachedSize>>> = OnceLock::new();
@@ -2287,7 +2305,7 @@ pub async fn get_project_size(path: String) -> Result<ProjectSizeInfo, String> {
         let dir_mtime = fs::metadata(&dir).and_then(|m| m.modified()).ok();
 
         if let Some(cached) = size_cache().lock().unwrap_or_else(std::sync::PoisonError::into_inner).get(&path) {
-            if cached.dir_mtime == dir_mtime {
+            if cached.dir_mtime == dir_mtime && cached.computed_at.elapsed() < SIZE_CACHE_TTL {
                 return match &cached.data {
                     Ok(data) => Ok(data.clone()),
                     Err(e) => Err(e.clone()),
@@ -2388,6 +2406,7 @@ pub async fn get_project_size(path: String) -> Result<ProjectSizeInfo, String> {
             path.clone(),
             CachedSize {
                 dir_mtime,
+                computed_at: Instant::now(),
                 data: result.clone(),
             },
         );

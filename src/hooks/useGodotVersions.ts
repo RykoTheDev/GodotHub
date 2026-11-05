@@ -123,8 +123,7 @@ export function useGodotVersions() {
       refreshExportTemplates(),
     ])
     setInstalled((prev) => (sameInstalled(prev, next) ? prev : next))
-    await refreshCurrent()
-    await refreshAliases()
+    await Promise.all([refreshCurrent(), refreshAliases()])
   }, [refreshCurrent, refreshAliases, refreshExportTemplates])
 
   const refreshMiseStatus = useCallback(async () => {
@@ -172,11 +171,13 @@ export function useGodotVersions() {
 
   useEffect(() => {
     refreshInstalled()
+    let lastRefresh = Date.now()
 
     const onVisibility = () => {
-      if (document.visibilityState === 'visible') {
-        refreshInstalled()
-      }
+      if (document.visibilityState !== 'visible') return
+      if (Date.now() - lastRefresh < 15 * 1000) return
+      lastRefresh = Date.now()
+      refreshInstalled()
     }
     document.addEventListener('visibilitychange', onVisibility)
 

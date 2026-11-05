@@ -685,7 +685,7 @@ export function DashboardView({
   const { t: tc } = useTranslation(['dashboard'])
   const { settings, update } = useSettings()
   const { projects } = useProjectsContext()
-  const { installed } = useGodotVersionsContext()
+  const installed = useGodotVersionsContext((v) => v.installed)
 
   const [osName, setOsName] = useState<string | null>(null)
   const [greetingHour, setGreetingHour] = useState(() => new Date().getHours())

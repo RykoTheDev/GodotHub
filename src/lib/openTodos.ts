@@ -60,6 +60,41 @@ export function useOpenTodos(): OpenTodosSnapshot {
   return useSyncExternalStore(subscribe, () => snapshot, () => snapshot);
 }
 
+type TodoCounts = { open: number; overdue: number };
+
+const NO_TODOS: TodoCounts = { open: 0, overdue: 0 };
+let countsCache: {
+  snapshot: OpenTodosSnapshot;
+  today: string;
+  byProject: Map<string, TodoCounts>;
+} | null = null;
+
+function todoCountsFor(projectId: string, today: string): TodoCounts {
+  if (!countsCache || countsCache.snapshot !== snapshot || countsCache.today !== today) {
+    const previous = countsCache?.byProject;
+    const byProject = new Map<string, TodoCounts>();
+    for (const open of snapshot.todos) {
+      const counts = byProject.get(open.projectId) ?? { open: 0, overdue: 0 };
+      counts.open += 1;
+      if (open.todo.dueDate && open.todo.dueDate < today) counts.overdue += 1;
+      byProject.set(open.projectId, counts);
+    }
+    for (const [id, counts] of byProject) {
+      const prior = previous?.get(id);
+      if (prior && prior.open === counts.open && prior.overdue === counts.overdue) {
+        byProject.set(id, prior);
+      }
+    }
+    countsCache = { snapshot, today, byProject };
+  }
+  return countsCache.byProject.get(projectId) ?? NO_TODOS;
+}
+
+export function useProjectTodoCounts(projectId: string | null, today: string): TodoCounts {
+  const read = () => (projectId ? todoCountsFor(projectId, today) : NO_TODOS);
+  return useSyncExternalStore(subscribe, read, read);
+}
+
 export function notifyTodosChanged() {
   window.dispatchEvent(new Event("app:todos-changed"));
 }

@@ -6,7 +6,6 @@ const readline = require('readline');
 
 const LOCALES_DIR = 'src/i18n/locales';
 const LANGUAGES_FILE = 'src/i18n/languages.ts';
-const INDEX_FILE = 'src/i18n/index.ts';
 const SOURCE_LOCALE = 'en-US';
 
 const c = {
@@ -132,54 +131,6 @@ async function main() {
       console.log(color('  ✅ Updated languages.ts', c.green));
     }
   }
-
-  let indexContent = fs.readFileSync(INDEX_FILE, 'utf8');
-
-  const nsNames = sourceFiles.map(f => f.replace('.json', ''));
-  const importLines = nsNames.map(ns => {
-    const nsPascal = ns.charAt(0).toUpperCase() + ns.slice(1);
-    const prefix = locale.replace('-', '');
-    return `import ${prefix}${nsPascal} from './locales/${locale}/${ns}.json'`;
-  }).join('\n');
-
-  const lastImportMatch = indexContent.match(/import\s+\w+\s+from\s+'\.\/locales\/[^']+'[^;]*;/g);
-  if (lastImportMatch) {
-    const lastImport = lastImportMatch[lastImportMatch.length - 1];
-    if (!indexContent.includes(`'./locales/${locale}/`)) {
-      indexContent = indexContent.replace(
-        lastImport,
-        lastImport + '\n' + importLines
-      );
-    }
-  }
-
-  const prefix = locale.replace('-', '');
-  const resourceEntries = nsNames.map(ns => `  ${ns}: ${prefix}${ns.charAt(0).toUpperCase() + ns.slice(1)},`).join('\n');
-  const newResources = `const ${prefix}Resources = {\n${resourceEntries}\n}`;
-
-  const lastResourceMatch = indexContent.match(/const\s+\w+Resources\s*=\s*\{[^}]+\}/g);
-  if (lastResourceMatch) {
-    const lastResource = lastResourceMatch[lastResourceMatch.length - 1];
-    if (!indexContent.includes(`${prefix}Resources`)) {
-      indexContent = indexContent.replace(
-        lastResource,
-        lastResource + '\n\n' + newResources
-      );
-    }
-  }
-
-  const shortCode = locale.split('-')[0];
-  const resourceAddition = `  '${locale}': ${prefix}Resources,\n  ${shortCode}: ${prefix}Resources,`;
-
-  if (!indexContent.includes(`'${locale}'`)) {
-    indexContent = indexContent.replace(
-      /(\}\s*\n\s*i18n)/,
-      resourceAddition + '\n$1'
-    );
-  }
-
-  fs.writeFileSync(INDEX_FILE, indexContent);
-  console.log(color('  ✅ Updated index.ts', c.green));
 
   console.log('');
   console.log(color('  🎉 Language added successfully!', c.green, c.bold));

@@ -312,7 +312,7 @@ export function ProjectConsoleWindow() {
 
     const tick = async () => {
       const current = statesRef.current[activeId]
-      if (current?.done || fetching) return
+      if (current?.done || fetching || document.hidden) return
       fetching = true
       try {
         const [snapshot, exportRun] = await Promise.all([
@@ -381,9 +381,14 @@ export function ProjectConsoleWindow() {
       () => void tick(),
       minimized ? POLL_MS_IDLE : POLL_MS,
     )
+    const onVisible = () => {
+      if (!document.hidden) void tick()
+    }
+    document.addEventListener('visibilitychange', onVisible)
     return () => {
       cancelled = true
       clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisible)
     }
   }, [open, minimized, activeId])
 

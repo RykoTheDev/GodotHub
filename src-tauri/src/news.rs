@@ -132,10 +132,7 @@ pub async fn fetch_godot_news(app: AppHandle) -> Result<NewsResponse, String> {
 }
 
 async fn fetch_live() -> Result<Vec<NewsItem>, String> {
-    let client = reqwest::Client::builder()
-        .user_agent("godot-hub")
-        .build()
-        .map_err(|e| e.to_string())?;
+    let client = crate::http::client()?;
     let resp = client
         .get(FEED_URL)
         .send()

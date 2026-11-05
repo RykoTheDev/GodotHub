@@ -36,6 +36,7 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
   const showWindowControls = !isMac && !useOsDec
 
   useEffect(() => {
+    let disposed = false
     let unlisten: (() => void) | undefined
     try {
       const w = getCurrentWindow()
@@ -49,11 +50,15 @@ export function Titlebar({ minimal = false }: { minimal?: boolean }) {
           .catch(() => {})
       })
         .then((f) => {
-          unlisten = f
+          if (disposed) f()
+          else unlisten = f
         })
         .catch(() => {})
     } catch {}
-    return () => unlisten?.()
+    return () => {
+      disposed = true
+      unlisten?.()
+    }
   }, [])
 
   useEffect(() => {

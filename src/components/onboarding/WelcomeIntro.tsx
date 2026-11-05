@@ -55,7 +55,7 @@ export function WelcomeIntro({ onLeave, onDone }: { onLeave: () => void; onDone:
       tl.call(() => {
         const button = root.querySelector<HTMLElement>('[data-intro-button]')
         const radius = button ? parseFloat(getComputedStyle(button).borderTopLeftRadius) || 0 : 0
-        gsap.fromTo(
+        ctx.add(() => gsap.fromTo(
           '[data-intro-ring]',
           { inset: 0, borderRadius: radius, opacity: 0.75 },
           {
@@ -66,7 +66,7 @@ export function WelcomeIntro({ onLeave, onDone }: { onLeave: () => void; onDone:
             ease: 'power2.out',
             stagger: { each: 1.2, repeat: -1 },
           },
-        )
+        ))
       })
     }, root)
 

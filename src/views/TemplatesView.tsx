@@ -14,7 +14,7 @@ import { useWorkspaces } from '../hooks/useWorkspaces'
 import type { ProjectTemplate, TemplateSyncResult } from '../types'
 import { useGodotVersionsContext } from '../hooks/godotVersionsContext'
 import { useProjectsContext } from '../hooks/projectsContext'
-import { useTaskTray } from '../hooks/useTaskTray'
+import { useTaskTrayActions } from '../hooks/useTaskTray'
 import { ViewHeader } from '../components/reusables/ViewHeader'
 import { SearchBar } from '../components/ui/SearchBar'
 import { Dropdown } from '../components/ui/Dropdown'
@@ -95,9 +95,9 @@ export function TemplatesView({
   const { t: tc } = useTranslation('common')
   const { settings } = useSettings()
   const { activeId } = useWorkspaces()
-  const { installed } = useGodotVersionsContext()
+  const installed = useGodotVersionsContext((v) => v.installed)
   const { refresh: refreshProjects } = useProjectsContext()
-  const { registerTask, updateTask, unregisterTask } = useTaskTray()
+  const { registerTask, updateTask, unregisterTask } = useTaskTrayActions()
 
   const [tab, setTab] = useState<'local' | 'asset'>('local')
   const [templates, setTemplates] = useState<ProjectTemplate[]>([])

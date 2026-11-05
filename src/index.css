@@ -220,11 +220,21 @@ textarea::placeholder {
   opacity: 1;
   pointer-events: auto;
 }
+.project-card-hover-only {
+  visibility: hidden;
+}
 @media (hover: hover) and (pointer: fine) {
-  .project-tag:hover .project-tag-actions {
+  .project-tag:hover .project-tag-actions,
+  .project-card:hover .project-pin-action {
     grid-template-columns: 1fr;
     opacity: 1;
     pointer-events: auto;
+  }
+  .project-card:hover .project-card-reveal {
+    opacity: 1;
+  }
+  .project-card:hover .project-card-hover-only {
+    visibility: visible;
   }
 }
 @media (hover: none), (pointer: coarse) {
@@ -362,7 +372,27 @@ span[class*="rounded-tag"][class~="bg-accent"] {
 }
 
 span.w-2.h-2.rounded-full:is(.bg-accent, .bg-accent-bright, .bg-mint, .bg-amber, .bg-danger) {
-  animation: var(--animate-badge-pop), var(--animate-dot-pulse);
+  animation: var(--animate-badge-pop);
+  isolation: isolate;
+}
+span.w-2.h-2.rounded-full:is(.bg-accent, .bg-accent-bright, .bg-mint, .bg-amber, .bg-danger):not(.absolute, .fixed, .sticky) {
+  position: relative;
+}
+span.w-2.h-2.rounded-full:is(.bg-accent, .bg-accent-bright, .bg-mint, .bg-amber, .bg-danger)::before,
+span.w-2.h-2.rounded-full:is(.bg-accent, .bg-accent-bright, .bg-mint, .bg-amber, .bg-danger)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+span.w-2.h-2.rounded-full:is(.bg-accent, .bg-accent-bright, .bg-mint, .bg-amber, .bg-danger)::before {
+  background: inherit;
+  z-index: 1;
+}
+span.w-2.h-2.rounded-full:is(.bg-accent, .bg-accent-bright, .bg-mint, .bg-amber, .bg-danger)::after {
+  background: color-mix(in srgb, var(--pulse, var(--color-accent)) 70%, transparent);
+  animation: var(--animate-dot-pulse);
 }
 
 span.w-2.h-2.rounded-full.bg-accent,
@@ -437,11 +467,13 @@ span.w-2.h-2.rounded-full.bg-danger {
 
 @keyframes dot-pulse {
   0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--pulse, var(--color-accent)) 70%, transparent);
+    transform: scale(1);
+    opacity: 1;
   }
   80%,
   100% {
-    box-shadow: 0 0 0 7px transparent;
+    transform: scale(2.75);
+    opacity: 0;
   }
 }
 

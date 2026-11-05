@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { api, getCachedProjectIcon, getCachedProjectName } from '../lib/api'
 import { useProjectResolutionEpoch } from './useProjectResolutionEpoch'
+import { useNow } from './useNow'
 import type { Project } from '../types'
 
 const sizes = new Map<string, number>()
@@ -13,7 +14,6 @@ export function useProjectTileData(project: Project, showSize: boolean, preview:
   const [icon, setIcon] = useState(() => getCachedProjectIcon(project.path))
   const [name, setName] = useState(() => getCachedProjectName(project.path))
   const [size, setSize] = useState<number | null | undefined>(() => sizes.get(sizeKey))
-  const [now, setNow] = useState(() => Date.now())
 
   useEffect(() => {
     let cancelled = false
@@ -50,12 +50,7 @@ export function useProjectTileData(project: Project, showSize: boolean, preview:
     return () => { cancelled = true; observer.disconnect() }
   }, [project.path, sizeKey, showSize, preview])
 
-  useEffect(() => {
-    setNow(Date.now())
-    if (!project.session_started_at_ms || preview) return
-    const timer = setInterval(() => setNow(Date.now()), 1000)
-    return () => clearInterval(timer)
-  }, [project.session_started_at_ms, preview])
+  const now = useNow(!!project.session_started_at_ms && !preview)
 
   return { cardRef, icon, displayName: name ?? project.name, size, now }
 }

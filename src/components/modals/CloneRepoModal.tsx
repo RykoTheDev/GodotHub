@@ -5,7 +5,7 @@ import type { Category, GitAuthState, UserRepoInfo } from '../../types'
 import { api } from '../../lib/api'
 import { reportLaunchError } from '../../lib/launchErrors'
 import { useSettings } from '../../hooks/useSettings'
-import { useTaskTray } from '../../hooks/useTaskTray'
+import { useTaskTrayActions } from '../../hooks/useTaskTray'
 import { Checkbox } from '../ui/Checkbox'
 import {
   IconGitBranch,
@@ -47,7 +47,7 @@ export function CloneRepoModal({
 
   const { t } = useTranslation('common')
   const { settings, update: updateSettings } = useSettings()
-  const { registerTask, updateTask, unregisterTask } = useTaskTray()
+  const { registerTask, updateTask, unregisterTask } = useTaskTrayActions()
   const [url, setUrl] = useState('')
   const [location, setLocation] = useState(defaultLocation ?? '')
   const [error, setError] = useState<string | null>(null)

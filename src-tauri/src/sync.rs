@@ -65,10 +65,7 @@ fn github_token(app: &AppHandle) -> Option<String> {
 }
 
 fn client() -> Result<reqwest::Client, String> {
-    reqwest::Client::builder()
-        .user_agent("godot-hub")
-        .build()
-        .map_err(|e| e.to_string())
+    crate::http::client()
 }
 
 fn gist_error_message(status: reqwest::StatusCode, context: &str) -> String {
@@ -510,7 +507,7 @@ pub async fn gist_sync_pull(app: AppHandle) -> Result<crate::models::AppSettings
             let _ = crate::scan::scan_for_versions_blocking(app2.clone(), version_dirs, scan_depth);
         }
         if template_dir.is_some() {
-            let _ = crate::templates::sync_templates_with_scan_dir(app2);
+            let _ = crate::templates::sync_templates_with_scan_dir_blocking(&app2);
         }
     })
     .await;
@@ -606,7 +603,7 @@ pub async fn gist_sync_pull_by_url(
             let _ = crate::scan::scan_for_versions_blocking(app2.clone(), version_dirs, scan_depth);
         }
         if template_dir.is_some() {
-            let _ = crate::templates::sync_templates_with_scan_dir(app2);
+            let _ = crate::templates::sync_templates_with_scan_dir_blocking(&app2);
         }
     })
     .await;

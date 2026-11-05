@@ -53,7 +53,7 @@ import {
 } from "../../lib/icons";
 
 import { ProjectTodoPanel } from "./ProjectTodoPanel";
-import { consumeTodoFocus, localDateValue, useOpenTodos } from "../../lib/openTodos";
+import { consumeTodoFocus, localDateValue, useProjectTodoCounts } from "../../lib/openTodos";
 import { withStableCallbacks } from "../../lib/stableCallbacks";
 
 interface ProjectCardProps {
@@ -145,18 +145,11 @@ function ProjectCardInner({
   const [newTagValue, setNewTagValue] = useState("");
   const [savingTags, setSavingTags] = useState(false);
   const [tagError, setTagError] = useState<string | null>(null);
-  const [cardHovered, setCardHovered] = useState(false);
-  const [pinFocused, setPinFocused] = useState(false);
   const [showTodoPanel, setShowTodoPanel] = useState(false);
   const [todoPanelLoaded, setTodoPanelLoaded] = useState(false);
-  const { todos: openTodos } = useOpenTodos();
-  const todayValue = localDateValue();
-  const projectOpenTodos = projectTodosEnabled
-    ? openTodos.filter((open) => open.projectId === project.id)
-    : [];
-  const overdueTodoCount = projectOpenTodos.filter(
-    (open) => open.todo.dueDate && open.todo.dueDate < todayValue,
-  ).length;
+  const todoCounts = useProjectTodoCounts(projectTodosEnabled ? project.id : null, localDateValue());
+  const openTodoCount = todoCounts.open;
+  const overdueTodoCount = todoCounts.overdue;
   useEffect(() => {
     if (!projectTodosEnabled) return;
 
@@ -189,7 +182,7 @@ function ProjectCardInner({
   const addInputRef = useRef<HTMLInputElement>(null);
 
   const displayName = settingsName ?? project.name;
-  const pinButtonVisible = project.pinned || cardHovered || pinFocused;
+  const pinButtonVisible = project.pinned;
   const boundVersion = installedVersions.find(
     (v) => v.tag === project.godot_version,
   );
@@ -363,9 +356,7 @@ function ProjectCardInner({
           setTodoPanelLoaded(false);
           setShowTodoPanel((current) => !current);
         }}
-        onMouseEnter={() => setCardHovered(window.matchMedia('(hover: hover) and (pointer: fine)').matches)}
-        onMouseLeave={() => setCardHovered(false)}
-        className={`group relative flex items-end gap-3.5 border p-3.5  ${
+        className={`project-card group relative flex items-end gap-3.5 border p-3.5  ${
           showTodoPanel ? "" : ""
         } ${
           projectTodosEnabled ? "cursor-pointer" : ""
@@ -424,7 +415,7 @@ function ProjectCardInner({
             <h3 className="font-display font-medium text-xl text-ink truncate">
               {displayName}
             </h3>
-            {projectOpenTodos.length > 0 && (
+            {openTodoCount > 0 && (
               <span
                 className={`shrink-0 rounded-tag border px-1.5 py-0.5 text-3xs font-medium tabular-nums ${
                   overdueTodoCount > 0
@@ -434,7 +425,7 @@ function ProjectCardInner({
               >
                 {overdueTodoCount > 0
                   ? t("overdue_count", { ns: "todos", count: overdueTodoCount })
-                  : t("open_count", { ns: "todos", count: projectOpenTodos.length })}
+                  : t("open_count", { ns: "todos", count: openTodoCount })}
               </span>
             )}
             {gitStatus?.is_repo && (
@@ -549,7 +540,7 @@ function ProjectCardInner({
               </span>
             ) : (
               <span
-                className={`overflow-hidden inline-flex items-center shrink-0 me-1.5 focus-within:opacity-100 ${cardHovered ? 'opacity-100' : 'opacity-0'}`}
+                className={`overflow-hidden inline-flex items-center shrink-0 me-1.5 focus-within:opacity-100 opacity-0 project-card-reveal`}
               >
                 <button
                   type="button"
@@ -778,8 +769,6 @@ function ProjectCardInner({
                         <button
                           type="button"
                           onClick={onTogglePin}
-                          onFocus={() => setPinFocused(true)}
-                          onBlur={() => setPinFocused(false)}
                           className="focus-ring cursor-pointer inline-flex items-center px-2.5 py-2.5 rounded-btn border font-mono shrink-0 bg-accent/10 border-accent-dim/40 text-accent-bright hover:bg-accent/20 hover:border-accent-dim"
                         >
                           <IconPin className="w-3 h-3" fill="currentColor" />
@@ -789,8 +778,6 @@ function ProjectCardInner({
                       <button
                         type="button"
                         onClick={onTogglePin}
-                        onFocus={() => setPinFocused(true)}
-                        onBlur={() => setPinFocused(false)}
                         className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-3 rounded-btn border font-mono text-3xs shrink-0 bg-raised border-outline/50 text-muted hover:text-ink hover:border-accent-dim"
                       >
                         <IconPin className="w-3 h-3" />
@@ -889,7 +876,7 @@ function ProjectCardInner({
             {cardSettings.show_play && (
               <div className="flex h-12 w-full">
 
-                  {versionInstalled && cardHovered && (
+                  {versionInstalled && (
                     <Tooltip
                       content={t("play_project_tooltip")}
                       side="left"
@@ -901,7 +888,7 @@ function ProjectCardInner({
                         type="button"
                         onClick={playProject}
                         aria-label={t("play_project")}
-                        className="focus-ring inline-flex h-12 w-full shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-btn border border-outline/50 bg-overlay text-lg font-medium text-muted shadow-md shadow-black/10 hover:bg-raised hover:text-ink"
+                        className="project-card-hover-only focus-ring inline-flex h-12 w-full shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-btn border border-outline/50 bg-overlay text-lg font-medium text-muted shadow-md shadow-black/10 hover:bg-raised hover:text-ink"
                       >
                         <IconPlay className="h-4 w-4" />
                         {t("play_project")}

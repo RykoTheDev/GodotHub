@@ -1,6 +1,6 @@
 [package]
 name = "godothub"
-version = "1.5.5"
+version = "1.5.6"
 description = "Godot Version and Project Management"
 authors = ["Ryko"]
 edition = "2021"
@@ -23,7 +23,7 @@ serde_json = "1"
 sha2 = "0.10"
 shlex = "1"
 tauri-plugin-dialog = "2.7.1"
-reqwest = { version = "0.13.4", features = ["json", "stream"] }
+reqwest = { version = "0.13.4", features = ["json", "stream", "gzip"] }
 url = "2"
 tokio = { version = "1.52.3", features = ["full"] }
 futures-util = "0.3.32"
@@ -41,7 +41,7 @@ tauri-plugin-window-state = "2"
 tauri-plugin-notification = "2"
 trash = "3"
 thiserror = "2"
-tauri-plugin-discord-rpc = { git = "https://github.com/Youwes09/tauri-plugin-discord-rpc" }
+tauri-plugin-discord-rpc = { git = "https://github.com/Youwes09/tauri-plugin-discord-rpc", rev = "e0ad152c29b5b8e372e108a7b868707e5f72e1cc" }
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-single-instance = "2"
@@ -52,3 +52,8 @@ libc = "0.2"
 [target.'cfg(windows)'.dependencies]
 windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_System_Threading", "Win32_Storage_FileSystem", "Win32_System_Console", "Win32_UI_WindowsAndMessaging"] }
 winreg = "0.55"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true

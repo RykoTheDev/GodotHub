@@ -170,7 +170,7 @@ export function StorageView({
 }) {
   const { t: tc } = useTranslation('common')
   const { settings } = useSettings()
-  const { refreshInstalled } = useGodotVersionsContext()
+  const refreshInstalled = useGodotVersionsContext((v) => v.refreshInstalled)
   const [report, setReport] = useState<StorageReport | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
