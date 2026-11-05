@@ -974,5 +974,31 @@
   "workspace_start_copy_desc": "Theme, language, features, and version folders carry over. Project folders start empty, and you go straight in.",
   "workspace_start_fresh": "Start fresh",
   "workspace_start_fresh_desc": "Walk through setup for this workspace from scratch.",
-  "workspace_switched_to": "Switched to"
+  "workspace_switched_to": "Switched to",
+  "project_addons": {
+    "title": "Addons",
+    "loading": "Reading addons…",
+    "count_one": "{{count}} addon installed",
+    "count_other": "{{count}} addons installed",
+    "empty": "This project has no addons folder. Install addons from the Asset Store or copy them into res://addons.",
+    "check_updates": "Check for updates",
+    "checking": "Checking…",
+    "updates_available_one": "{{count}} update available",
+    "updates_available_other": "{{count}} updates available",
+    "all_current": "No updates found in the Asset Library",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "library": "Library",
+    "from_library": "Asset Library",
+    "not_found": "Not found in the Asset Library",
+    "update_to": "Version {{version}} is available",
+    "current": "Up to date ({{version}})",
+    "matched_by_name": "matched by name to “{{title}}”",
+    "update": "Update",
+    "updating": "Updating…",
+    "updated": "{{name}} was updated",
+    "confirm_title": "Update {{name}}?",
+    "confirm_description": "This replaces res://addons/{{folder}} with version {{version}} from the Asset Library. The old folder is moved to the Trash, so any changes you made to the addon are kept there. Close the project in Godot first.",
+    "footer_hint": "Addons installed through GodotHub are matched exactly. Others are matched by name, so check the result before updating."
+  }
 }

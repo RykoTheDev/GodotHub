@@ -618,6 +618,28 @@ export interface InstallAssetResult {
   target_type: 'project' | 'template'
   target_name: string
   path: string
+  addon_folders: string[]
+}
+
+export interface ProjectAddon {
+  folder: string
+  name: string
+  description: string
+  author: string
+  version: string
+  has_plugin: boolean
+  enabled: boolean
+  asset_id: string | null
+}
+
+export interface AddonUpdate {
+  folder: string
+  asset_id: string
+  title: string
+  latest_version: string
+  update_available: boolean
+  matched_by: 'install' | 'name'
+  browse_url: string | null
 }
 
 export type NamingConvention =

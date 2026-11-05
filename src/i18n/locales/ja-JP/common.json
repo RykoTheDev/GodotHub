@@ -960,5 +960,31 @@
   "workspace_start_copy_desc": "テーマ、言語、有効な機能、Godot のバージョンを保存するフォルダの設定を引き継ぎ、すぐに使い始められます。プロジェクトのフォルダ設定は引き継ぎません。",
   "workspace_start_fresh": "最初から設定",
   "workspace_start_fresh_desc": "このワークスペースのセットアップを最初から行います。",
-  "workspace_switched_to": "ワークスペースを切り替えました"
+  "workspace_switched_to": "ワークスペースを切り替えました",
+  "project_addons": {
+    "title": "Addons",
+    "loading": "Reading addons…",
+    "count_one": "{{count}} addon installed",
+    "count_other": "{{count}} addons installed",
+    "empty": "This project has no addons folder. Install addons from the Asset Store or copy them into res://addons.",
+    "check_updates": "Check for updates",
+    "checking": "Checking…",
+    "updates_available_one": "{{count}} update available",
+    "updates_available_other": "{{count}} updates available",
+    "all_current": "No updates found in the Asset Library",
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "library": "Library",
+    "from_library": "Asset Library",
+    "not_found": "Not found in the Asset Library",
+    "update_to": "Version {{version}} is available",
+    "current": "Up to date ({{version}})",
+    "matched_by_name": "matched by name to “{{title}}”",
+    "update": "Update",
+    "updating": "Updating…",
+    "updated": "{{name}} was updated",
+    "confirm_title": "Update {{name}}?",
+    "confirm_description": "This replaces res://addons/{{folder}} with version {{version}} from the Asset Library. The old folder is moved to the Trash, so any changes you made to the addon are kept there. Close the project in Godot first.",
+    "footer_hint": "Addons installed through GodotHub are matched exactly. Others are matched by name, so check the result before updating."
+  }
 }

@@ -27,12 +27,14 @@ import { TimeTrackerModal } from "../modals/TimeTrackerModal";
 import { SaveAsTemplateModal } from "../modals/SaveAsTemplateModal";
 import { ProjectSizeModal } from "../modals/ProjectSizeModal";
 import { ProjectDoctorModal } from "../modals/ProjectDoctorModal";
+import { ProjectAddonsModal } from "../modals/ProjectAddonsModal";
 import { ProjectBuildModal } from "../modals/ProjectBuildModal";
 import { OpenButton } from "../reusables/OpenButton";
 import { Tooltip } from "../reusables/Tooltip";
 import {
   IconCheckCircle,
   IconBug,
+  IconPlug,
   IconChevronDown,
   IconClock,
   IconCode,
@@ -137,6 +139,7 @@ function ProjectCardInner({
   const [templateSaveOpen, setTemplateSaveOpen] = useState(false);
   const [sizeModalOpen, setSizeModalOpen] = useState(false);
   const [doctorOpen, setDoctorOpen] = useState(false);
+  const [addonsOpen, setAddonsOpen] = useState(false);
   const [buildOpen, setBuildOpen] = useState(false);
   const [showLaunchArgs, setShowLaunchArgs] = useState(false);
   const [editingTagIndex, setEditingTagIndex] = useState<number | null>(null);
@@ -958,6 +961,12 @@ function ProjectCardInner({
                   onClick: () => setDoctorOpen(true),
                 },
                 {
+                  key: "project-addons",
+                  label: t("project_addons.title"),
+                  icon: IconPlug,
+                  onClick: () => setAddonsOpen(true),
+                },
+                {
                   key: "launch-arguments",
                   label: t("launch_arguments"),
                   icon: IconRocket,
@@ -1112,6 +1121,7 @@ function ProjectCardInner({
           )}
 
           {doctorOpen && <ProjectDoctorModal project={project} installedVersions={installedVersions} onClose={() => setDoctorOpen(false)} />}
+          {addonsOpen && <ProjectAddonsModal project={project} onClose={() => setAddonsOpen(false)} />}
           {buildOpen && <ProjectBuildModal project={project} onClose={() => setBuildOpen(false)} />}
 
       </div>

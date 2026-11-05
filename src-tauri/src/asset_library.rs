@@ -10,7 +10,7 @@ use std::sync::{Arc, Mutex};
 use std::time::{Duration, Instant};
 use tauri::{AppHandle, Emitter, Manager};
 
-const ASSET_LIB_API: &str = "https://godotengine.org/asset-library/api";
+pub(crate) const ASSET_LIB_API: &str = "https://godotengine.org/asset-library/api";
 const ASSET_STORE_API: &str = "https://store.godotengine.org/api/v1";
 const ALLOWED_TYPES: &[&str] = &["project"];
 const MAX_PAGE_SKIP: u32 = 8;
@@ -30,7 +30,7 @@ struct AssetSearchResponse {
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
-struct AssetDetail {
+pub(crate) struct AssetDetail {
     #[serde(rename = "asset_id")]
     asset_id: String,
     #[serde(default, rename = "type")]
@@ -59,6 +59,29 @@ struct AssetDetail {
     modify_date: Option<String>,
     #[serde(default)]
     rating: String,
+    #[serde(default)]
+    version: serde_json::Value,
+    #[serde(default, rename = "version_string")]
+    version_string: String,
+}
+
+impl AssetDetail {
+    pub(crate) fn revision(&self) -> Option<u64> {
+        match &self.version {
+            serde_json::Value::Number(n) => n.as_u64(),
+            serde_json::Value::String(s) => s.trim().parse().ok(),
+            _ => None,
+        }
+    }
+    pub(crate) fn version_string(&self) -> &str {
+        &self.version_string
+    }
+    pub(crate) fn title(&self) -> &str {
+        &self.title
+    }
+    pub(crate) fn browse_url(&self) -> Option<&str> {
+        self.browse_url.as_deref()
+    }
 }
 
 #[derive(Debug, Clone, serde::Serialize)]
@@ -103,6 +126,7 @@ pub struct InstallAssetResult {
     pub target_type: String,
     pub target_name: String,
     pub path: String,
+    pub addon_folders: Vec<String>,
 }
 
 #[derive(Debug, Clone, serde::Serialize)]
@@ -124,7 +148,7 @@ fn client() -> Result<reqwest::Client, String> {
     crate::http::client()
 }
 
-async fn fetch_detail(http: &reqwest::Client, asset_id: &str) -> Option<AssetDetail> {
+pub(crate) async fn fetch_detail(http: &reqwest::Client, asset_id: &str) -> Option<AssetDetail> {
     http.get(format!("{ASSET_LIB_API}/asset/{asset_id}"))
         .send()
         .await
@@ -761,7 +785,12 @@ pub async fn install_asset(
     let result = download_and_merge(&app, &http, &detail, &asset_id, &download_url, &target).await;
 
     match &result {
-        Ok(_) => emit_asset_complete(&app, &detail),
+        Ok(installed) => {
+            if let InstallTarget::Project { dir, .. } = &target {
+                crate::addons::record_install(&app, dir, &asset_id, &detail, &installed.addon_folders);
+            }
+            emit_asset_complete(&app, &detail)
+        }
         Err(message) => {
             emit_asset_error(&app, &asset_id, &detail.title, message);
         }
@@ -798,14 +827,16 @@ async fn download_and_merge(
     .and_then(|_| extract_zip(&zip_path, &temp_dir))
     .and_then(|_| {
         let root = find_content_root(&temp_dir);
-        merge_asset_into(&root, target.dir())
+        let folders = addon_folders(&root);
+        merge_asset_into(&root, target.dir()).map(|_| folders)
     })
-    .map(|_| InstallAssetResult {
+    .map(|addon_folders| InstallAssetResult {
         asset_id: asset_id.to_string(),
         title: detail.title.clone(),
         target_type: target.type_str().to_string(),
         target_name: target.name().to_string(),
         path: target.dir().to_string_lossy().to_string(),
+        addon_folders,
     });
 
     let _ = fs::remove_file(&zip_path);
@@ -1170,6 +1201,20 @@ fn find_project_root(dir: &Path) -> Result<PathBuf, String> {
         }
     }
     Ok(dir.to_path_buf())
+}
+
+fn addon_folders(root: &Path) -> Vec<String> {
+    let mut folders: Vec<String> = fs::read_dir(root.join("addons"))
+        .map(|entries| {
+            entries
+                .flatten()
+                .filter(|e| e.file_type().is_ok_and(|t| t.is_dir()))
+                .map(|e| e.file_name().to_string_lossy().to_string())
+                .collect()
+        })
+        .unwrap_or_default();
+    folders.sort();
+    folders
 }
 
 fn find_content_root(dir: &Path) -> PathBuf {

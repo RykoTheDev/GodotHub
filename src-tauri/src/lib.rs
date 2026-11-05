@@ -1,3 +1,4 @@
+mod addons;
 mod android;
 mod asset_library;
 mod backup;
@@ -495,6 +496,9 @@ pub fn run() {
             templates::save_project_as_template,
             templates::delete_template,
             templates::sync_templates_with_scan_dir,
+            addons::list_project_addons,
+            addons::check_addon_updates,
+            addons::update_project_addon,
             tool_runner::list_project_tools,
             tool_runner::run_project_tool,
             tool_runner::stop_project_tool,

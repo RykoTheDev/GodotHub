@@ -1910,6 +1910,10 @@
         "text": "Tests and lint in Build & Export: run GUT or gdUnit4 tests headless, gdlint, or a gdformat check with one click. Output streams to the built-in console, and Stop ends the run"
       },
       {
+        "category": "add",
+        "text": "New Addons window in the project menu lists every addon in res://addons with its version, author and whether it is enabled, and checks the Godot Asset Library for newer versions. Addons installed through GodotHub are matched exactly; others are matched by name. Updating moves the old addon folder to the Trash and restores it if the update fails"
+      },
+      {
         "category": "fix",
         "text": "Templates in your template scan folder now sync automatically at startup, when files in that folder change, and after pulling a cloud sync. Before, they only synced when you pressed Sync"
       },
