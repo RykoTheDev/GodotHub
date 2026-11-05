@@ -1354,6 +1354,7 @@ export function ProjectsView({
             installedVersions={installed}
             categories={surfaceCategories}
             categoriesEnabled={groupingEnabled}
+            searchActive={parsedQuery.active}
             gitStatusMap={gitStatusMap}
             launchWithConsole={settings.launch_with_console}
             onTogglePin={(id) => setPinned(id, !projects.find((p) => p.id === id)?.pinned)}
@@ -1376,6 +1377,7 @@ export function ProjectsView({
             selectedIds={selectedIds}
             onToggleSelect={(id, e) => toggleSelect(id, e)}
             onReorder={dragEnabled ? handleListReorder : undefined}
+            onReorderPinned={dragEnabled ? reorder : undefined}
             onMoveProjects={
               dragEnabled && categoriesEnabled ? handleMoveProjects : undefined
             }
