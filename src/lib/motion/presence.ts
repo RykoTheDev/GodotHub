@@ -266,7 +266,10 @@ function enterImages(el: HTMLElement) {
   for (const img of images) {
     if (img.complete || img.style.opacity !== '' || motionOff()) continue
     gsap.set(img, { opacity: 0 })
-    const show = () => gsap.fromTo(img, { opacity: 0, scale: 1.06, filter: 'blur(8px)' }, { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.7, ease: ease.out, clearProps: 'opacity,transform,filter' })
+    const show = () => {
+      const release = busy(img)
+      gsap.fromTo(img, { opacity: 0, scale: 1.06, filter: 'blur(8px)' }, { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.7, ease: ease.out, clearProps: 'opacity,transform,filter', onComplete: release, onInterrupt: release })
+    }
     img.addEventListener('load', show, { once: true })
     img.addEventListener('error', () => gsap.set(img, { clearProps: 'opacity' }), { once: true })
   }

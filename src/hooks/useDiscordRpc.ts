@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { invoke } from '@tauri-apps/api/core'
-import { listen } from '@tauri-apps/api/event'
+import { useTauriEvent } from '../lib/useTauriEvent'
 import { api } from '../lib/api'
 import type { AppSettings, Project } from '../types'
 
@@ -117,17 +117,7 @@ export function useDiscordRpc(settings: AppSettings, projects: Project[]) {
     }
   }, [enabled, appId])
 
-  useEffect(() => {
-    let unlisten: (() => void) | undefined
-    listen<boolean>('discord-rpc://connected', (e) => {
-      setConnected(e.payload)
-    }).then((un) => {
-      unlisten = un
-    })
-    return () => {
-      unlisten?.()
-    }
-  }, [])
+  useTauriEvent<boolean>('discord-rpc://connected', setConnected)
 
   const running = useMemo(() => {
     return projects

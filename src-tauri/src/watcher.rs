@@ -257,7 +257,7 @@ pub fn start_template_watcher(app: AppHandle, scan_dir: PathBuf, debounce_ms: u6
         Duration::from_millis(debounce_ms),
         Duration::from_millis(800),
         Arc::new(move |a| {
-            let _ = templates::sync_templates_with_scan_dir(a);
+            let _ = templates::sync_templates_with_scan_dir_blocking(&a);
         }) as Arc<dyn Fn(AppHandle) + Send + Sync + 'static>,
         "watcher:template-synced",
     );

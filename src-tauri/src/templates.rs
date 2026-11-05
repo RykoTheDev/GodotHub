@@ -150,10 +150,16 @@ pub(crate) fn install_downloaded_asset(
 }
 
 #[tauri::command]
-pub fn list_templates(app: AppHandle) -> Vec<ProjectTemplate> {
+pub async fn list_templates(app: AppHandle) -> Result<Vec<ProjectTemplate>, String> {
+    tokio::task::spawn_blocking(move || read_templates(&app))
+        .await
+        .map_err(|e| e.to_string())
+}
+
+pub(crate) fn read_templates(app: &AppHandle) -> Vec<ProjectTemplate> {
     let mut templates: Vec<ProjectTemplate> = Vec::new();
 
-    let root = templates_root(&app);
+    let root = templates_root(app);
     if !root.exists() {
         return templates;
     }
@@ -430,7 +436,13 @@ fn delete_template_dir(app: &AppHandle, id: &str) {
 
 #[tauri::command]
 pub async fn sync_templates_with_scan_dir(app: AppHandle) -> Result<TemplateSyncResult, String> {
-    let settings = crate::settings::read_settings(&app);
+    tokio::task::spawn_blocking(move || sync_templates_with_scan_dir_blocking(&app))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+pub fn sync_templates_with_scan_dir_blocking(app: &AppHandle) -> Result<TemplateSyncResult, String> {
+    let settings = crate::settings::read_settings(app);
     let scan_dir = match &settings.template_scan_dir {
         Some(d) if !d.trim().is_empty() => PathBuf::from(d.trim()),
         _ => {
@@ -470,15 +482,15 @@ pub async fn sync_templates_with_scan_dir(app: AppHandle) -> Result<TemplateSync
         .map(|(path, name)| (name.clone(), path.clone()))
         .collect();
 
-    let existing = read_all_templates(&app);
+    let existing = read_all_templates(app);
     let mut updated_names: Vec<String> = Vec::new();
     let mut removed_names: Vec<String> = Vec::new();
     let mut imported: Vec<ProjectTemplate> = Vec::new();
 
     for mut t in existing {
         if t.source_path.is_none() {
-            if let Some(scan_dir) = configured_scan_dir(&app) {
-                let src_dir = template_dir(&app, &t.id);
+            if let Some(scan_dir) = configured_scan_dir(app) {
+                let src_dir = template_dir(app, &t.id);
                 let folder_name = unique_folder_name(&scan_dir, &sanitize_folder_name(&t.name));
                 let scan_copy = scan_dir.join(&folder_name);
                 if fs::create_dir_all(&scan_copy).is_ok()
@@ -507,7 +519,7 @@ pub async fn sync_templates_with_scan_dir(app: AppHandle) -> Result<TemplateSync
 
         if source_to_folder.contains_key(src_path) {
             let src = PathBuf::from(src_path);
-            let dst = template_dir(&app, &t.id);
+            let dst = template_dir(app, &t.id);
             if let Err(e) = mirror_dir(&src, &dst, &[".godot", ".git", "node_modules"]) {
                 eprintln!("Failed to update template '{}': {}", t.name, e);
                 continue;
@@ -536,11 +548,11 @@ pub async fn sync_templates_with_scan_dir(app: AppHandle) -> Result<TemplateSync
             if let Some(new_path) = name_to_path.get(&folder_name) {
                 t.source_path = Some(new_path.clone());
                 let src = PathBuf::from(new_path);
-                let dst = template_dir(&app, &t.id);
+                let dst = template_dir(app, &t.id);
 
                 if let Err(e) = mirror_dir(&src, &dst, &[".godot", ".git", "node_modules"]) {
                     eprintln!("Failed to update template '{}' after rename: {}", t.name, e);
-                    delete_template_dir(&app, &t.id);
+                    delete_template_dir(app, &t.id);
                     removed_names.push(t.name.clone());
                     continue;
                 }
@@ -556,16 +568,16 @@ pub async fn sync_templates_with_scan_dir(app: AppHandle) -> Result<TemplateSync
                 let _ = write_template_json(&dst, &t);
                 updated_names.push(format!("{} (moved)", t.name));
             } else {
-                delete_template_dir(&app, &t.id);
+                delete_template_dir(app, &t.id);
                 removed_names.push(t.name.clone());
             }
         } else {
-            delete_template_dir(&app, &t.id);
+            delete_template_dir(app, &t.id);
             removed_names.push(t.name.clone());
         }
     }
 
-    let remaining = read_all_templates(&app);
+    let remaining = read_all_templates(app);
     let existing_sources: std::collections::HashSet<String> = remaining
         .iter()
         .filter_map(|t| t.source_path.clone())
@@ -578,7 +590,7 @@ pub async fn sync_templates_with_scan_dir(app: AppHandle) -> Result<TemplateSync
 
         let src = PathBuf::from(full_path);
         let id = Uuid::new_v4().to_string();
-        let dst = template_dir(&app, &id);
+        let dst = template_dir(app, &id);
 
         if let Err(e) = copy_dir(&src, &dst, &[".godot", ".git", "node_modules"]) {
             eprintln!("Failed to import template '{}': {}", folder_name, e);

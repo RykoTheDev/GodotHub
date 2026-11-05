@@ -13,7 +13,7 @@ import { ChangelogBadgeProvider } from './hooks/useChangelogBadge'
 import '@fontsource-variable/inter'
 import '@fontsource/google-sans-code/400.css'
 import '@fontsource/google-sans-code/500.css'
-import './i18n'
+import { i18nReady } from './i18n'
 import './index.css'
 import { installDevMocks } from './lib/devMock'
 import { installMotion } from './lib/motion'
@@ -21,26 +21,30 @@ import { installMotion } from './lib/motion'
 installDevMocks()
 installMotion()
 
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <React.StrictMode>
-    <ErrorBoundary>
-        <WorkspacesProvider>
-          <SettingsProvider>
-            <ProjectsProvider>
-              <CategoriesProvider>
-                <UpdateAvailableProvider>
-                  <GodotVersionsProvider>
-                    <TaskTrayProvider>
-                      <ChangelogBadgeProvider>
-                        <App />
-                      </ChangelogBadgeProvider>
-                    </TaskTrayProvider>
-                  </GodotVersionsProvider>
-                </UpdateAvailableProvider>
-              </CategoriesProvider>
-            </ProjectsProvider>
-          </SettingsProvider>
-        </WorkspacesProvider>
-    </ErrorBoundary>
-  </React.StrictMode>,
-)
+function render() {
+  ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+    <React.StrictMode>
+      <ErrorBoundary>
+          <WorkspacesProvider>
+            <SettingsProvider>
+              <ProjectsProvider>
+                <CategoriesProvider>
+                  <UpdateAvailableProvider>
+                    <GodotVersionsProvider>
+                      <TaskTrayProvider>
+                        <ChangelogBadgeProvider>
+                          <App />
+                        </ChangelogBadgeProvider>
+                      </TaskTrayProvider>
+                    </GodotVersionsProvider>
+                  </UpdateAvailableProvider>
+                </CategoriesProvider>
+              </ProjectsProvider>
+            </SettingsProvider>
+          </WorkspacesProvider>
+      </ErrorBoundary>
+    </React.StrictMode>,
+  )
+}
+
+i18nReady.then(render, render)

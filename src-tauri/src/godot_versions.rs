@@ -194,10 +194,7 @@ pub async fn install_version_headless(
     mono: bool,
     progress: impl Fn(u64, u64),
 ) -> Result<InstalledGodotVersion, String> {
-    let client = reqwest::Client::builder()
-        .user_agent("godot-hub")
-        .build()
-        .map_err(|e| e.to_string())?;
+    let client = crate::http::client()?;
 
     let mut found: Option<(String, GithubAsset)> = None;
     'pages: for page in 1..=5 {
@@ -306,7 +303,8 @@ fn extract_and_register(
     target_dir: &Path,
 ) -> Result<InstalledGodotVersion, String> {
     let zip_file = fs::File::open(zip_path).map_err(|e| e.to_string())?;
-    let mut archive = zip::ZipArchive::new(zip_file).map_err(|e| e.to_string())?;
+    let mut archive = zip::ZipArchive::new(std::io::BufReader::with_capacity(256 * 1024, zip_file))
+        .map_err(|e| e.to_string())?;
     archive.extract(target_dir).map_err(|e| e.to_string())?;
     let _ = fs::remove_file(zip_path);
 
@@ -531,11 +529,7 @@ async fn refresh_releases_cache(app: AppHandle) -> Result<Vec<GodotRelease>, Str
     let token = crate::git_auth::github_oauth_token(&app)
         .or_else(|| settings.github_token.filter(|t| !t.trim().is_empty()));
 
-    let mut client_builder = reqwest::Client::builder().user_agent("godot-hub");
-    if token.is_some() {
-        client_builder = client_builder.user_agent("godot-hub/1.0");
-    }
-    let client = client_builder.build().map_err(|e| e.to_string())?;
+    let client = crate::http::client()?;
 
     let mut releases: Vec<GodotRelease> = vec![];
     let mut page = 1;
@@ -634,10 +628,7 @@ async fn refresh_releases_cache(app: AppHandle) -> Result<Vec<GodotRelease>, Str
 }
 
 async fn refresh_archive_releases(app: AppHandle) -> Result<Vec<GodotRelease>, String> {
-    let client = reqwest::Client::builder()
-        .user_agent("godot-hub")
-        .build()
-        .map_err(|e| e.to_string())?;
+    let client = crate::http::client()?;
 
     let index_html = client
         .get("https://godotengine.org/download/archive/")
@@ -1213,7 +1204,7 @@ async fn run_download(app: AppHandle, key: String) {
         return;
     }
     let zip_path = target_dir.join(&job.asset_name);
-    let client = match reqwest::Client::builder().user_agent("godot-hub").build() {
+    let client = match crate::http::client() {
         Ok(c) => c,
         Err(e) => return finish_with_error(&app, &key, e.to_string()),
     };
@@ -1221,7 +1212,9 @@ async fn run_download(app: AppHandle, key: String) {
     let mut attempt: u32 = 0;
     let resolved_url: String = loop {
         let existing: u64 = fs::metadata(&zip_path).map(|m| m.len()).unwrap_or(0);
-        let mut req = client.get(&job.download_url);
+        let mut req = client
+            .get(&job.download_url)
+            .header(reqwest::header::ACCEPT_ENCODING, "identity");
         if existing > 0 {
             req = req.header(reqwest::header::RANGE, format!("bytes={existing}-"));
         }
@@ -1273,7 +1266,7 @@ async fn run_download(app: AppHandle, key: String) {
             .truncate(truncate)
             .open(&zip_path)
         {
-            Ok(f) => f,
+            Ok(f) => std::io::BufWriter::with_capacity(256 * 1024, f),
             Err(e) => return finish_with_error(&app, &key, e.to_string()),
         };
 
@@ -1324,6 +1317,11 @@ async fn run_download(app: AppHandle, key: String) {
                     break;
                 }
                 None => break,
+            }
+        }
+        if stream_err.is_none() {
+            if let Err(e) = file.flush() {
+                return finish_with_error(&app, &key, e.to_string());
             }
         }
         drop(file);
@@ -1387,7 +1385,8 @@ fn install_version_archive(
     target_dir: &Path,
 ) -> Result<(), String> {
     let zip_file = fs::File::open(zip_path).map_err(|e| e.to_string())?;
-    let mut archive = zip::ZipArchive::new(zip_file).map_err(|e| e.to_string())?;
+    let mut archive = zip::ZipArchive::new(std::io::BufReader::with_capacity(256 * 1024, zip_file))
+        .map_err(|e| e.to_string())?;
     archive.extract(&target_dir).map_err(|e| e.to_string())?;
     let _ = fs::remove_file(zip_path);
 
@@ -1872,10 +1871,7 @@ pub async fn test_github_token(app: AppHandle) -> Result<RateLimitInfo, String> 
     let token = crate::git_auth::github_oauth_token(&app)
         .or_else(|| settings.github_token.filter(|t| !t.trim().is_empty()));
 
-    let client = reqwest::Client::builder()
-        .user_agent("godot-hub/1.0")
-        .build()
-        .map_err(|e| e.to_string())?;
+    let client = crate::http::client()?;
 
     let mut req = client.get("https://api.github.com/rate_limit");
     if let Some(ref t) = token {

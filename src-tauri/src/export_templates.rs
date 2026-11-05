@@ -452,12 +452,13 @@ fn hash_file(path: &Path) -> Result<String, String> {
 }
 
 async fn expected_checksum(tag: &str, file_name: &str) -> Option<String> {
-    let client = reqwest::Client::builder()
-        .user_agent("godot-hub")
+    let client = crate::http::client().ok()?;
+    let response = client
+        .get(sums_url(tag))
         .timeout(Duration::from_secs(20))
-        .build()
+        .send()
+        .await
         .ok()?;
-    let response = client.get(sums_url(tag)).send().await.ok()?;
     if !response.status().is_success() {
         return None;
     }
@@ -485,17 +486,15 @@ async fn download_tpz(
         fs::create_dir_all(parent).map_err(|e| e.to_string())?;
     }
 
-    let client = reqwest::Client::builder()
-        .user_agent("godot-hub")
-        .connect_timeout(Duration::from_secs(30))
-        .build()
-        .map_err(|e| e.to_string())?;
+    let client = crate::http::client()?;
 
     let mut existing = fs::metadata(destination).map(|m| m.len()).unwrap_or(0);
     let mut restarts = 0u8;
 
     loop {
-        let mut request = client.get(url);
+        let mut request = client
+            .get(url)
+            .header(reqwest::header::ACCEPT_ENCODING, "identity");
         if existing > 0 {
             request = request.header(reqwest::header::RANGE, format!("bytes={existing}-"));
         }
@@ -636,7 +635,8 @@ fn strip_templates_prefix(path: &Path) -> PathBuf {
 fn extract_tpz(archive_path: &Path, destination: &Path) -> Result<(u64, usize), String> {
     let file = fs::File::open(archive_path).map_err(|e| e.to_string())?;
     let mut archive =
-        zip::ZipArchive::new(file).map_err(|e| format!("Invalid template archive: {e}"))?;
+        zip::ZipArchive::new(std::io::BufReader::with_capacity(256 * 1024, file))
+            .map_err(|e| format!("Invalid template archive: {e}"))?;
 
     fs::create_dir_all(destination).map_err(|e| e.to_string())?;
 

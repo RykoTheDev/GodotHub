@@ -1895,5 +1895,78 @@
       "macOS: the macOS build may arrive later than Windows and Linux because GitHub's macOS build servers are currently overloaded. Mac users will get the update in the app once the macOS build is published"
     ],
     "created_at": 1793638200
+  },
+  {
+    "id": "58e9d0cf-a581-453d-b2b0-f6d2514a82d8",
+    "version": "v1.5.6",
+    "date": "2026-11-05",
+    "notes": [
+      {
+        "category": "fix",
+        "text": "Templates in your template scan folder now sync automatically at startup, when files in that folder change, and after pulling a cloud sync. Before, they only synced when you pressed Sync"
+      },
+      {
+        "category": "fix",
+        "text": "Project sizes no longer stay out of date after files deep inside a project change"
+      },
+      {
+        "category": "fix",
+        "text": "Project icons now update when you replace the icon file itself"
+      },
+      {
+        "category": "fix",
+        "text": "The splash screen loading bar no longer flickers rapidly when Reduce Motion is on"
+      },
+      {
+        "category": "fix",
+        "text": "The onboarding intro animation no longer keeps running in the background after you leave it"
+      },
+      {
+        "category": "fix",
+        "text": "Fixed window and Discord status listeners that could be left behind after their part of the app closed"
+      },
+      {
+        "category": "improve",
+        "text": "Faster startup: only the language you use is loaded, and rarely used dialogs load when first needed. The startup code is about half its previous size"
+      },
+      {
+        "category": "improve",
+        "text": "The app stays smooth while Godot versions download. Download progress no longer redraws every page"
+      },
+      {
+        "category": "improve",
+        "text": "Asset Library downloads send progress updates far less often and write to disk faster"
+      },
+      {
+        "category": "improve",
+        "text": "Godot and export template downloads and installs use buffered disk access"
+      },
+      {
+        "category": "improve",
+        "text": "Network requests share one connection pool and use compression, so GitHub and other online lookups respond faster"
+      },
+      {
+        "category": "improve",
+        "text": "The Templates and Vault pages load their lists without briefly freezing the window"
+      },
+      {
+        "category": "improve",
+        "text": "Project cards, the versions list and running-project timers redraw less often, which makes hovering and scrolling lighter"
+      },
+      {
+        "category": "improve",
+        "text": "Status dot pulses, card entrance animations and tooltips use less GPU and CPU while looking the same"
+      },
+      {
+        "category": "improve",
+        "text": "Background checks (git auto-fetch, console and export updates) pause while the window is hidden, and news and contributors are cached instead of fetched on every visit"
+      },
+      {
+        "category": "improve",
+        "text": "Smaller and faster release builds"
+      }
+    ],
+    "known_issues": [],
+    "created_at": 1793857733
   }
 ]

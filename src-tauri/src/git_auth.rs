@@ -246,10 +246,7 @@ pub async fn start_device_flow(
         _ => return Err(format!("Unknown provider: {}", provider)),
     };
 
-    let client = reqwest::Client::builder()
-        .user_agent("godot-hub")
-        .build()
-        .map_err(|e| e.to_string())?;
+    let client = crate::http::client()?;
 
     let body = url::form_urlencoded::Serializer::new(String::new())
         .append_pair("client_id", &client_id)
@@ -375,10 +372,7 @@ pub async fn poll_device_flow(
             _ => return Err(format!("Unknown provider: {}", provider)),
         };
 
-    let client = reqwest::Client::builder()
-        .user_agent("godot-hub")
-        .build()
-        .map_err(|e| e.to_string())?;
+    let client = crate::http::client()?;
 
     let body = url::form_urlencoded::Serializer::new(String::new())
         .append_pair("client_id", &client_id)
@@ -597,10 +591,7 @@ pub async fn list_user_repos(
     provider: String,
     page: u32,
 ) -> Result<UserRepoPage, String> {
-    let client = reqwest::Client::builder()
-        .user_agent("godot-hub/1.0")
-        .build()
-        .map_err(|e| e.to_string())?;
+    let client = crate::http::client()?;
 
     match provider.as_str() {
         "github" => {
@@ -704,10 +695,7 @@ pub async fn create_remote_repo(
         return Err("Repository name is empty after cleaning".into());
     }
 
-    let client = reqwest::Client::builder()
-        .user_agent("godot-hub/1.0")
-        .build()
-        .map_err(|e| e.to_string())?;
+    let client = crate::http::client()?;
 
     let (repo_url, token, api_base) = match provider.as_str() {
         "github" => {
@@ -883,12 +871,10 @@ fn remote_host(app: &AppHandle, web_url: &str) -> RemoteHost {
 }
 
 fn api_client() -> Result<reqwest::Client, String> {
-    reqwest::Client::builder()
-        .user_agent("godot-hub/1.0")
-        .timeout(std::time::Duration::from_secs(10))
-        .build()
-        .map_err(|e| e.to_string())
+    crate::http::client()
 }
+
+const API_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(10);
 
 async fn get_json(
     client: &reqwest::Client,
@@ -897,6 +883,7 @@ async fn get_json(
 ) -> Result<Option<serde_json::Value>, String> {
     let mut req = client
         .get(url)
+        .timeout(API_TIMEOUT)
         .header("Accept", "application/vnd.github+json");
     if let Some(t) = token {
         req = req.header("Authorization", format!("Bearer {t}"));
@@ -917,6 +904,7 @@ async fn post_json(
 ) -> Result<serde_json::Value, String> {
     let resp = client
         .post(url)
+        .timeout(API_TIMEOUT)
         .header("Accept", "application/vnd.github+json")
         .header("Authorization", format!("Bearer {token}"))
         .json(&body)

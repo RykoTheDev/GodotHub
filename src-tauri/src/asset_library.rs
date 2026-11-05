@@ -121,10 +121,7 @@ pub(crate) struct AssetDownloadError {
 }
 
 fn client() -> Result<reqwest::Client, String> {
-    reqwest::Client::builder()
-        .user_agent("godot-hub")
-        .build()
-        .map_err(|e| e.to_string())
+    crate::http::client()
 }
 
 async fn fetch_detail(http: &reqwest::Client, asset_id: &str) -> Option<AssetDetail> {
@@ -236,16 +233,20 @@ fn emit_asset_complete(app: &AppHandle, detail: &AssetDetail) {
     );
 }
 
-async fn stream_download_to_file(
+const PROGRESS_INTERVAL: Duration = Duration::from_millis(150);
+
+async fn download_to_file(
     app: &AppHandle,
     http: &reqwest::Client,
-    detail: &AssetDetail,
-    download_url: &str,
+    url: &str,
     dest: &Path,
-    max_bytes: u64,
+    asset_id: &str,
+    title: &str,
+    max_bytes: Option<u64>,
 ) -> Result<(), String> {
     let resp = http
-        .get(download_url)
+        .get(url)
+        .header(reqwest::header::ACCEPT_ENCODING, "identity")
         .send()
         .await
         .map_err(|e| e.to_string())?;
@@ -253,31 +254,40 @@ async fn stream_download_to_file(
         return Err(format!("Asset download returned HTTP {}", resp.status()));
     }
     let total = resp.content_length().unwrap_or(0);
-    let mut file = fs::File::create(dest).map_err(|e| e.to_string())?;
+    let file = fs::File::create(dest).map_err(|e| e.to_string())?;
+    let mut writer = std::io::BufWriter::with_capacity(256 * 1024, file);
     let mut downloaded: u64 = 0;
+    let mut last_emit = Instant::now() - PROGRESS_INTERVAL;
     let mut stream = resp.bytes_stream();
-    while let Some(chunk) = stream.next().await {
-        let chunk = chunk.map_err(|e| e.to_string())?;
-        downloaded += chunk.len() as u64;
-        if downloaded > max_bytes {
-            drop(file);
-            let _ = fs::remove_file(dest);
-            return Err(format!(
-                "Asset download exceeds the maximum allowed size ({max_bytes} bytes)"
-            ));
-        }
-        file.write_all(&chunk).map_err(|e| e.to_string())?;
+    let emit = |downloaded: u64| {
         let _ = app.emit(
             "asset-download-progress",
             AssetDownloadProgress {
-                asset_id: detail.asset_id.clone(),
-                title: detail.title.clone(),
+                asset_id: asset_id.to_string(),
+                title: title.to_string(),
                 downloaded,
                 total,
             },
         );
+    };
+    while let Some(chunk) = stream.next().await {
+        let chunk = chunk.map_err(|e| e.to_string())?;
+        downloaded += chunk.len() as u64;
+        if let Some(max) = max_bytes.filter(|max| downloaded > *max) {
+            drop(writer);
+            let _ = fs::remove_file(dest);
+            return Err(format!(
+                "Asset download exceeds the maximum allowed size ({max} bytes)"
+            ));
+        }
+        writer.write_all(&chunk).map_err(|e| e.to_string())?;
+        if last_emit.elapsed() >= PROGRESS_INTERVAL {
+            last_emit = Instant::now();
+            emit(downloaded);
+        }
     }
-    file.flush().map_err(|e| e.to_string())?;
+    writer.flush().map_err(|e| e.to_string())?;
+    emit(downloaded);
     Ok(())
 }
 
@@ -708,7 +718,7 @@ fn resolve_install_target(
         (None, Some(tid)) => {
             let dir =
                 crate::templates::resolve_template_dir(app, tid).ok_or("Template not found")?;
-            let name = crate::templates::list_templates(app.clone())
+            let name = crate::templates::read_templates(app)
                 .into_iter()
                 .find(|t| t.id == *tid)
                 .map(|t| t.name)
@@ -775,13 +785,14 @@ async fn download_and_merge(
     let _ = fs::remove_file(&zip_path);
     fs::create_dir_all(&temp_dir).map_err(|e| e.to_string())?;
 
-    let merge_result = stream_download_to_file(
+    let merge_result = download_to_file(
         app,
         http,
-        detail,
         download_url,
         &zip_path,
-        MAX_ASSET_DOWNLOAD_BYTES,
+        &detail.asset_id,
+        &detail.title,
+        Some(MAX_ASSET_DOWNLOAD_BYTES),
     )
     .await
     .and_then(|_| extract_zip(&zip_path, &temp_dir))
@@ -841,7 +852,7 @@ pub async fn download_asset(
     emit_asset_queued(&app, &detail);
 
     let result =
-        download_to_file(&app, &http, &download_url, &dest, &asset_id, &detail.title).await;
+        download_to_file(&app, &http, &download_url, &dest, &asset_id, &detail.title, None).await;
 
     match &result {
         Ok(_) => emit_asset_complete(&app, &detail),
@@ -852,39 +863,6 @@ pub async fn download_asset(
     }
 
     result.map(|_| dest.to_string_lossy().to_string())
-}
-
-async fn download_to_file(
-    app: &AppHandle,
-    http: &reqwest::Client,
-    url: &str,
-    dest: &Path,
-    asset_id: &str,
-    title: &str,
-) -> Result<(), String> {
-    let resp = http.get(url).send().await.map_err(|e| e.to_string())?;
-    if !resp.status().is_success() {
-        return Err(format!("Asset download returned HTTP {}", resp.status()));
-    }
-    let total = resp.content_length().unwrap_or(0);
-    let mut file = fs::File::create(dest).map_err(|e| e.to_string())?;
-    let mut downloaded: u64 = 0;
-    let mut stream = resp.bytes_stream();
-    while let Some(chunk) = stream.next().await {
-        let chunk = chunk.map_err(|e| e.to_string())?;
-        downloaded += chunk.len() as u64;
-        file.write_all(&chunk).map_err(|e| e.to_string())?;
-        let _ = app.emit(
-            "asset-download-progress",
-            AssetDownloadProgress {
-                asset_id: asset_id.to_string(),
-                title: title.to_string(),
-                downloaded,
-                total,
-            },
-        );
-    }
-    Ok(())
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -997,7 +975,7 @@ pub async fn download_store_asset(
     };
     emit_asset_queued(&app, &detail);
 
-    let result = download_to_file(&app, &http, &download_url, &dest, &asset_id, &base).await;
+    let result = download_to_file(&app, &http, &download_url, &dest, &asset_id, &base, None).await;
 
     match &result {
         Ok(_) => emit_asset_complete(&app, &detail),
@@ -1046,13 +1024,14 @@ async fn download_and_install(
     let _ = fs::remove_file(&zip_path);
     fs::create_dir_all(&temp_dir).map_err(|e| e.to_string())?;
 
-    let extract_result = stream_download_to_file(
+    let extract_result = download_to_file(
         app,
         http,
-        detail,
         download_url,
         &zip_path,
-        MAX_ASSET_DOWNLOAD_BYTES,
+        &detail.asset_id,
+        &detail.title,
+        Some(MAX_ASSET_DOWNLOAD_BYTES),
     )
     .await
     .and_then(|_| extract_zip(&zip_path, &temp_dir))
@@ -1096,7 +1075,7 @@ impl Default for ExtractLimits {
 
 fn extract_zip(zip_path: &Path, dest: &Path) -> Result<(), String> {
     let file = fs::File::open(zip_path).map_err(|e| e.to_string())?;
-    extract_zip_reader(file, dest, &ExtractLimits::default())
+    extract_zip_reader(std::io::BufReader::with_capacity(256 * 1024, file), dest, &ExtractLimits::default())
 }
 
 /// Extracts a zip archive into `dest`, streaming each entry to disk. Rejects

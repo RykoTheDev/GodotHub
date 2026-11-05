@@ -839,8 +839,10 @@ export function GitSidebar({
   useEffect(() => {
     if (!ready || !settings.git_auto_fetch || remotes.length === 0) return
     let cancelled = false
+    let lastFetch = 0
     const run = async () => {
-      if (remotePhaseRef.current) return
+      if (remotePhaseRef.current || document.hidden) return
+      lastFetch = Date.now()
       try {
         await api.gitFetch(project.path)
       } catch {
@@ -848,11 +850,16 @@ export function GitSidebar({
       }
       if (!cancelled) void refreshAheadBehind()
     }
+    const onVisible = () => {
+      if (!document.hidden && Date.now() - lastFetch >= AUTO_FETCH_INTERVAL_MS) void run()
+    }
     void run()
     const id = window.setInterval(() => void run(), AUTO_FETCH_INTERVAL_MS)
+    document.addEventListener('visibilitychange', onVisible)
     return () => {
       cancelled = true
       window.clearInterval(id)
+      document.removeEventListener('visibilitychange', onVisible)
     }
   }, [
     ready,

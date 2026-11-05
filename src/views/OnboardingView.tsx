@@ -329,7 +329,8 @@ export function OnboardingView({
   const previewRef = useRef<HTMLDivElement>(null)
   const liftedRef = useRef<LiftedPreview | null>(null)
   const { projects, refresh: refreshProjects } = useProjectsContext()
-  const { installed, refreshInstalled } = useGodotVersionsContext()
+  const installed = useGodotVersionsContext((v) => v.installed)
+  const refreshInstalled = useGodotVersionsContext((v) => v.refreshInstalled)
   const { workspaces, activeId } = useWorkspaces()
   const currentWorkspace = workspaces.find((w) => w.id === activeId) ?? null
   const [intro, setIntro] = useState(() => workspaces.length <= 1)

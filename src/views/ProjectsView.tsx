@@ -167,7 +167,7 @@ export function ProjectsView({
     assignFolder: assignCategoryFolder,
     unassignFolder: unassignCategoryFolder,
   } = useCategoriesContext()
-  const { installed } = useGodotVersionsContext()
+  const installed = useGodotVersionsContext((v) => v.installed)
   const { settings, update } = useSettings()
   const searchRef = useRef<HTMLInputElement | null>(null)
   const [createProjectOpen, setCreateProjectOpen] = useState(false)

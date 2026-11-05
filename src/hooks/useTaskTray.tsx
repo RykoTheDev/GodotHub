@@ -3,6 +3,7 @@ import {
   createElement,
   useCallback,
   useContext,
+  useMemo,
   useRef,
   useState,
   type ReactNode,
@@ -39,16 +40,20 @@ export interface Task {
   errorMessage?: string
 }
 
-interface TaskTrayContextValue {
-  tasks: Task[]
-  activeCount: number
+interface TaskTrayActions {
   registerTask: (task: Task) => void
   updateTask: (id: string, partial: Partial<Task>) => void
   unregisterTask: (id: string) => void
   clearCompleted: () => void
 }
 
+interface TaskTrayContextValue extends TaskTrayActions {
+  tasks: Task[]
+  activeCount: number
+}
+
 const TaskTrayContext = createContext<TaskTrayContextValue | null>(null)
+const TaskTrayActionsContext = createContext<TaskTrayActions | null>(null)
 
 export function TaskTrayProvider({ children }: { children: ReactNode }) {
   const { settings } = useSettings()
@@ -345,19 +350,19 @@ export function TaskTrayProvider({ children }: { children: ReactNode }) {
     (t) => t.status === 'queued' || t.status === 'running',
   ).length
 
+  const actions = useMemo(
+    () => ({ registerTask, updateTask, unregisterTask, clearCompleted }),
+    [registerTask, updateTask, unregisterTask, clearCompleted],
+  )
+  const value = useMemo(
+    () => ({ tasks, activeCount, ...actions }),
+    [tasks, activeCount, actions],
+  )
+
   return createElement(
-    TaskTrayContext.Provider,
-    {
-      value: {
-        tasks,
-        activeCount,
-        registerTask,
-        updateTask,
-        unregisterTask,
-        clearCompleted,
-      },
-    },
-    children,
+    TaskTrayActionsContext.Provider,
+    { value: actions },
+    createElement(TaskTrayContext.Provider, { value }, children),
   )
 }
 
@@ -365,5 +370,12 @@ export function useTaskTray() {
   const ctx = useContext(TaskTrayContext)
   if (!ctx)
     throw new Error('useTaskTray must be used within a <TaskTrayProvider>')
+  return ctx
+}
+
+export function useTaskTrayActions() {
+  const ctx = useContext(TaskTrayActionsContext)
+  if (!ctx)
+    throw new Error('useTaskTrayActions must be used within a <TaskTrayProvider>')
   return ctx
 }

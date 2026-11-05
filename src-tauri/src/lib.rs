@@ -15,6 +15,7 @@ mod git_auth;
 mod git_helpers;
 mod godot_versions;
 mod godotenv;
+mod http;
 mod install_mode;
 mod licenses;
 mod mise;
@@ -291,7 +292,7 @@ pub fn run() {
                 }
 
                 if s.feature_enabled("templates") && s.template_scan_dir.is_some() {
-                    let _ = templates::sync_templates_with_scan_dir(handle.clone());
+                    let _ = templates::sync_templates_with_scan_dir(handle.clone()).await;
                 }
 
                 if s.auto_watch_project_dirs && !s.project_scan_dirs.is_empty() {

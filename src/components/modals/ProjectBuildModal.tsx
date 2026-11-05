@@ -97,9 +97,12 @@ export function ProjectBuildModal({project,onClose}: {project: Project;onClose:(
   useEffect(()=>{
     if(!run || run.status!=='running')return
     let active=true
-    const tick=()=>api.getProjectExport(run.id).then(next=>{if(active)setRun(next)}).catch(()=>{})
-    void tick()
-    const timer=setInterval(()=>void tick(),700)
+    const tick=()=>{
+      if(document.hidden)return
+      void api.getProjectExport(run.id).then(next=>{if(active)setRun(prev=>prev&&JSON.stringify(prev)===JSON.stringify(next)?prev:next)}).catch(()=>{})
+    }
+    tick()
+    const timer=setInterval(tick,700)
     return()=>{active=false;clearInterval(timer)}
   },[run?.id,run?.status])
   const {downloads,install}=useExportTemplateDownloads(refresh)

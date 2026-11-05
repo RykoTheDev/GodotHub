@@ -1,18 +1,8 @@
-import i18n from 'i18next'
+import i18n, { type BackendModule } from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 
 import { SYSTEM_LANGUAGE, getSystemLanguage } from './languages'
-
-import arMANav from './locales/ar-MA/nav.json'
-import arMACommon from './locales/ar-MA/common.json'
-import arMASettings from './locales/ar-MA/settings.json'
-import arMAGit from './locales/ar-MA/git.json'
-import arMAChangelog from './locales/ar-MA/changelog.json'
-import arMAOnboarding from './locales/ar-MA/onboarding.json'
-import arMAVersions from './locales/ar-MA/versions.json'
-import arMADashboard from './locales/ar-MA/dashboard.json'
-import arMATodos from './locales/ar-MA/todos.json'
 
 import enUSNav from './locales/en-US/nav.json'
 import enUSCommon from './locales/en-US/common.json'
@@ -24,183 +14,36 @@ import enUSVersions from './locales/en-US/versions.json'
 import enUSDashboard from './locales/en-US/dashboard.json'
 import enUSTodos from './locales/en-US/todos.json'
 
-import esMXNav from "./locales/es-MX/nav.json"
-import esMXCommon from './locales/es-MX/common.json'
-import esMXSettings from './locales/es-MX/settings.json'
-import esMXGit from './locales/es-MX/git.json'
-import esMXChangelog from './locales/es-MX/changelog.json'
-import esMXOnboarding from './locales/es-MX/onboarding.json'
-import esMXVersions from './locales/es-MX/versions.json'
-import esMXDashboard from './locales/es-MX/dashboard.json'
-import esMXTodos from './locales/es-MX/todos.json'
+const enUS = {
+  nav: enUSNav,
+  common: enUSCommon,
+  settings: enUSSettings,
+  git: enUSGit,
+  changelog: enUSChangelog,
+  onboarding: enUSOnboarding,
+  versions: enUSVersions,
+  dashboard: enUSDashboard,
+  todos: enUSTodos,
+}
 
-import frFRNav from './locales/fr-FR/nav.json'
-import frFRCommon from './locales/fr-FR/common.json'
-import frFRSettings from './locales/fr-FR/settings.json'
-import frFRGit from './locales/fr-FR/git.json'
-import frFRChangelog from './locales/fr-FR/changelog.json'
-import frFROnboarding from './locales/fr-FR/onboarding.json'
-import frFRVersions from './locales/fr-FR/versions.json'
-import frFRDashboard from './locales/fr-FR/dashboard.json'
-import frFRTodos from './locales/fr-FR/todos.json'
+const localeLoaders = import.meta.glob<{ default: Record<string, string> }>([
+  './locales/*/*.json',
+  '!./locales/en-US/*.json',
+])
 
-import jaJPNav from './locales/ja-JP/nav.json'
-import jaJPCommon from './locales/ja-JP/common.json'
-import jaJPSettings from './locales/ja-JP/settings.json'
-import jaJPGit from './locales/ja-JP/git.json'
-import jaJPChangelog from './locales/ja-JP/changelog.json'
-import jaJPOnboarding from './locales/ja-JP/onboarding.json'
-import jaJPVersions from './locales/ja-JP/versions.json'
-import jaJPDashboard from './locales/ja-JP/dashboard.json'
-import jaJPTodos from './locales/ja-JP/todos.json'
-
-import ptBRNav from './locales/pt-BR/nav.json'
-import ptBRCommon from './locales/pt-BR/common.json'
-import ptBRSettings from './locales/pt-BR/settings.json'
-import ptBRGit from './locales/pt-BR/git.json'
-import ptBRChangelog from './locales/pt-BR/changelog.json'
-import ptBROnboarding from './locales/pt-BR/onboarding.json'
-import ptBRVersions from './locales/pt-BR/versions.json'
-import ptBRDashboard from './locales/pt-BR/dashboard.json'
-import ptBRTodos from './locales/pt-BR/todos.json'
-
-import ruRUNav from './locales/ru-RU/nav.json'
-import ruRuCommon from './locales/ru-RU/common.json'
-import ruRUSettings from './locales/ru-RU/settings.json'
-import ruRUGit from './locales/ru-RU/git.json'
-import ruRUChangelog from './locales/ru-RU/changelog.json'
-import ruRUOnboarding from './locales/ru-RU/onboarding.json'
-import ruRUVersions from './locales/ru-RU/versions.json'
-import ruRUDashboard from './locales/ru-RU/dashboard.json'
-import ruRUTodos from './locales/ru-RU/todos.json'
-
-import viVNChangelog from './locales/vi-VN/changelog.json'
-import viVNCommon from './locales/vi-VN/common.json'
-import viVNDashboard from './locales/vi-VN/dashboard.json'
-import viVNGit from './locales/vi-VN/git.json'
-import viVNNav from './locales/vi-VN/nav.json'
-import viVNOnboarding from './locales/vi-VN/onboarding.json'
-import viVNSettings from './locales/vi-VN/settings.json'
-import viVNVersions from './locales/vi-VN/versions.json'
-import viVNTodos from './locales/vi-VN/todos.json'
-
-import zhCNNav from './locales/zh-CN/nav.json'
-import zhCNCommon from './locales/zh-CN/common.json'
-import zhCNSettings from './locales/zh-CN/settings.json'
-import zhCNGit from './locales/zh-CN/git.json'
-import zhCNChangelog from './locales/zh-CN/changelog.json'
-import zhCNOnboarding from './locales/zh-CN/onboarding.json'
-import zhCNVersions from './locales/zh-CN/versions.json'
-import zhCNDashboard from './locales/zh-CN/dashboard.json'
-import zhCNTodos from './locales/zh-CN/todos.json'
-
-const resources = {
-  'ar-MA': {
-    nav: arMANav,
-    common: arMACommon,
-    settings: arMASettings,
-    git: arMAGit,
-    changelog: arMAChangelog,
-    onboarding: arMAOnboarding,
-    versions: arMAVersions,
-    dashboard: arMADashboard,
-    todos: arMATodos,
-  },
-
-  'en-US': {
-    nav: enUSNav,
-    common: enUSCommon,
-    settings: enUSSettings,
-    git: enUSGit,
-    changelog: enUSChangelog,
-    onboarding: enUSOnboarding,
-    versions: enUSVersions,
-    dashboard: enUSDashboard,
-    todos: enUSTodos,
-  },
-
-  'es-MX': {
-    nav: esMXNav,
-    common: esMXCommon,
-    settings: esMXSettings,
-    git: esMXGit,
-    changelog: esMXChangelog,
-    onboarding: esMXOnboarding,
-    versions: esMXVersions,
-    dashboard: esMXDashboard,
-    todos: esMXTodos,
-  },
-
-  'fr-FR': {
-    nav: frFRNav,
-    common: frFRCommon,
-    settings: frFRSettings,
-    git: frFRGit,
-    changelog: frFRChangelog,
-    onboarding: frFROnboarding,
-    versions: frFRVersions,
-    dashboard: frFRDashboard,
-    todos: frFRTodos,
-  },
-
-  'ja-JP': {
-    nav: jaJPNav,
-    common: jaJPCommon,
-    settings: jaJPSettings,
-    git: jaJPGit,
-    changelog: jaJPChangelog,
-    onboarding: jaJPOnboarding,
-    versions: jaJPVersions,
-    dashboard: jaJPDashboard,
-    todos: jaJPTodos,
-  },
-
-  'pt-BR': {
-    nav: ptBRNav,
-    common: ptBRCommon,
-    settings: ptBRSettings,
-    git: ptBRGit,
-    changelog: ptBRChangelog,
-    onboarding: ptBROnboarding,
-    versions: ptBRVersions,
-    dashboard: ptBRDashboard,
-    todos: ptBRTodos,
-  },
-
-  'ru-RU': {
-    nav: ruRUNav,
-    common: ruRuCommon,
-    settings: ruRUSettings,
-    git: ruRUGit,
-    changelog: ruRUChangelog,
-    onboarding: ruRUOnboarding,
-    versions: ruRUVersions,
-    dashboard: ruRUDashboard,
-    todos: ruRUTodos,
-  },
-
-  'vi-VN': {
-    changelog: viVNChangelog,
-    common: viVNCommon,
-    dashboard: viVNDashboard,
-    git: viVNGit,
-    nav: viVNNav,
-    onboarding: viVNOnboarding,
-    settings: viVNSettings,
-    versions: viVNVersions,
-    todos: viVNTodos,
-  },
-
-  'zh-CN': {
-    nav: zhCNNav,
-    common: zhCNCommon,
-    settings: zhCNSettings,
-    git: zhCNGit,
-    changelog: zhCNChangelog,
-    onboarding: zhCNOnboarding,
-    versions: zhCNVersions,
-    dashboard: zhCNDashboard,
-    todos: zhCNTodos,
+const localeBackend: BackendModule = {
+  type: 'backend',
+  init() {},
+  read(language, namespace, callback) {
+    const load = localeLoaders[`./locales/${language}/${namespace}.json`]
+    if (!load) {
+      callback(null, {})
+      return
+    }
+    load().then(
+      (module) => callback(null, module.default),
+      (error: Error) => callback(error, false),
+    )
   },
 }
 
@@ -210,11 +53,14 @@ try {
   }
 } catch {}
 
-i18n
+export const i18nReady = i18n
+  .use(localeBackend)
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources,
+    resources: { 'en-US': enUS },
+    partialBundledLanguages: true,
+    ns: Object.keys(enUS),
     fallbackLng: 'en-US',
     fallbackNS: ['common'],
     defaultNS: 'common',

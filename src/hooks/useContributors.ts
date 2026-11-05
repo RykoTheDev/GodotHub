@@ -40,12 +40,12 @@ export function useContributors(): {
   contributors: Contributor[]
   loading: boolean
 } {
-  const [contributors, setContributors] = useState<Contributor[]>(() => {
-    return readCache() ?? []
-  })
-  const [loading, setLoading] = useState(true)
+  const [cached] = useState(readCache)
+  const [contributors, setContributors] = useState<Contributor[]>(cached ?? [])
+  const [loading, setLoading] = useState(cached === null)
 
   useEffect(() => {
+    if (cached) return
     let cancelled = false
 
     fetch(
@@ -70,7 +70,7 @@ export function useContributors(): {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [cached])
 
   return { contributors, loading }
 }

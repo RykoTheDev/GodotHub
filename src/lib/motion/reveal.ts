@@ -22,6 +22,7 @@ const REVEAL = [
 
 const SKIP = `${GHOST_SELECTOR}, [data-motion-skip]`
 const MAX_BATCH = 120
+const BLUR_LIMIT = 24
 
 let live = false
 const pending = new Set<HTMLElement>()
@@ -34,7 +35,7 @@ const watcher = new IntersectionObserver((entries) => {
     watcher.unobserve(el)
     pending.delete(el)
     gsap.set(el, { clearProps: 'opacity' })
-    play(el, Math.min(index * 0.06, 0.5), true)
+    play(el, Math.min(index * 0.06, 0.5), true, index < BLUR_LIMIT)
     index += 1
   }
 })
@@ -49,7 +50,7 @@ function collect(root: HTMLElement) {
   return list.filter((el) => !el.closest(SKIP))
 }
 
-function play(el: HTMLElement, delay: number, fromScroll = false) {
+function play(el: HTMLElement, delay: number, fromScroll = false, blur = true) {
   const release = busy(el)
   const ownOpacity = el.style.opacity !== ''
   const move = canTransform(el)
@@ -75,7 +76,7 @@ function play(el: HTMLElement, delay: number, fromScroll = false) {
     } else if (entrance === 'scale') {
       Object.assign(vars, { scale: 0.92, ease: ease.spring })
     } else {
-      Object.assign(vars, { y: fromScroll ? 40 : 26, scale: 0.96, filter: 'blur(4px)' })
+      Object.assign(vars, { y: fromScroll ? 40 : 26, scale: 0.96 }, blur ? { filter: 'blur(4px)' } : {})
     }
   }
   vars.clearProps = cleared.join(',')
@@ -113,18 +114,19 @@ export function animateIn(elements: HTMLElement[], baseDelay = 0) {
   prune()
   const vh = window.innerHeight
   const vw = window.innerWidth
+  const batch = elements.slice(0, MAX_BATCH).filter((el) => !pending.has(el) && !gsap.isTweening(el))
+  const rects = batch.map((el) => el.getBoundingClientRect())
   let index = 0
-  for (const el of elements.slice(0, MAX_BATCH)) {
-    if (pending.has(el) || gsap.isTweening(el)) continue
-    const r = el.getBoundingClientRect()
-    if (r.width === 0 || r.height === 0) continue
+  batch.forEach((el, i) => {
+    const r = rects[i]
+    if (r.width === 0 || r.height === 0) return
     if (r.top > vh || r.bottom < 0 || r.left > vw || r.right < 0) {
       if (scrollReveal) defer(el)
-      continue
+      return
     }
-    play(el, baseDelay + Math.min(index * 0.035, 0.8))
+    play(el, baseDelay + Math.min(index * 0.035, 0.8), false, index < BLUR_LIMIT)
     index += 1
-  }
+  })
 }
 
 export function revealView(pane: HTMLElement) {

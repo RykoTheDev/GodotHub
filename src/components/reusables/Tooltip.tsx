@@ -128,7 +128,9 @@ export function Tooltip({
 
   useEffect(() => {
     if (!open) return
-    const reposition = () => {
+    let frame = 0
+    const update = () => {
+      frame = 0
       if (!tipRef.current || !positioned.current) return
       const tr = getTriggerRect()
       if (!tr) return
@@ -138,9 +140,13 @@ export function Tooltip({
       setPos({ x: r.x, y: r.y })
       setArrow(r.side)
     }
+    const reposition = () => {
+      if (!frame) frame = requestAnimationFrame(update)
+    }
     window.addEventListener('scroll', reposition, true)
     window.addEventListener('resize', reposition)
     return () => {
+      cancelAnimationFrame(frame)
       window.removeEventListener('scroll', reposition, true)
       window.removeEventListener('resize', reposition)
     }

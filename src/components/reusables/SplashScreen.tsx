@@ -1,5 +1,5 @@
 import { useLayoutEffect, useRef } from 'react'
-import { ease, gsap } from '../../lib/motion'
+import { ease, gsap, motionOff } from '../../lib/motion'
 
 export function SplashScreen() {
   const rootRef = useRef<HTMLDivElement>(null)
@@ -19,7 +19,9 @@ export function SplashScreen() {
         ease: ease.out,
       })
       tl.from('[data-splash-track]', { scaleX: 0, opacity: 0, duration: 0.6, ease: ease.out }, 0.25)
-      gsap.fromTo('[data-splash-bar]', { xPercent: -120 }, { xPercent: 220, duration: 1.1, ease: 'power2.inOut', repeat: -1 })
+      if (!motionOff()) {
+        gsap.fromTo('[data-splash-bar]', { xPercent: -120 }, { xPercent: 220, duration: 1.1, ease: 'power2.inOut', repeat: -1 })
+      }
     }, root)
     return () => ctx.revert()
   }, [])
