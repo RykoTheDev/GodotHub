@@ -1,12 +1,18 @@
 import { invoke } from '@tauri-apps/api/core'
 import type {
+  AddonUpdate,
   AssetLibraryCategory,
   AssetLibraryResponse,
   InstallAssetResult,
+  ProjectAddon,
   ProjectTemplate,
 } from '../types'
 
 export const assetLibraryApi = {
+  projectAddons: (id: string) => invoke<ProjectAddon[]>('list_project_addons', { id }),
+  addonUpdates: (id: string) => invoke<AddonUpdate[]>('check_addon_updates', { id }),
+  updateAddon: (id: string, folder: string, assetId: string) =>
+    invoke<void>('update_project_addon', { id, folder, assetId }),
   search: (
     filter: string | null,
     godotVersion: string | null,

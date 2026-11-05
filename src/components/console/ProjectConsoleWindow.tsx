@@ -8,6 +8,7 @@ import {
 } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../../lib/api'
+import { TOOL_CONSOLE_PREFIX } from '../../api/exports'
 import { useSettings } from '../../hooks/useSettings'
 import { fetchRunningProjects } from '../../lib/runningProjects'
 import { useTauriEvent } from '../../lib/useTauriEvent'
@@ -457,7 +458,11 @@ export function ProjectConsoleWindow() {
 
   const stopProject = () => {
     if (!activeId) return
-    const action = activeState?.exportRun ? api.cancelProjectExport(activeId) : api.stopProject(activeId)
+    const action = activeState?.exportRun
+      ? api.cancelProjectExport(activeId)
+      : activeId.startsWith(TOOL_CONSOLE_PREFIX)
+        ? api.stopProjectTool(activeId)
+        : api.stopProject(activeId)
     void action.catch((e) => pushToast('error',String(e)))
   }
 

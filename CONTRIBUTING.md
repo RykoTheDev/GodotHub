@@ -151,8 +151,12 @@ bun run tauri:build
 The build output lands in
 `src-tauri/target/release/`.
 
+The release profile in `src-tauri/Cargo.toml` uses thin LTO, a single codegen
+unit and stripped symbols. That makes the binary smaller and faster, but release
+builds take longer than debug builds. Use `bun run tauri dev` while iterating.
+
 Local builds keep Tauri's default bundle names (for example
-`GodotHub_1.5.5_amd64.AppImage`). The release workflow uploads the same files
+`GodotHub_1.5.6_amd64.AppImage`). The release workflow uploads the same files
 under a friendlier `GodotHub-<version>-<platform>-<arch>` pattern, so the names
 on the releases page differ from the ones you get locally. See the
 `Resolve release asset names` step in `.github/workflows/release.yml`.
@@ -210,7 +214,13 @@ godothub/
 │   │   ├── git_auth.rs             # OAuth device flow, PATs, remote repo creation
 │   │   ├── backup.rs / persist.rs  # Backups, crash-safe persistence
 │   │   ├── project_health.rs       # Project Doctor checks
+│   │   ├── android.rs              # Android SDK/JDK/keystore detection for the Doctor
 │   │   ├── export_*.rs             # Export templates & build runner
+│   │   ├── tool_runner.rs          # GUT, gdUnit4, gdlint & gdformat runs in the console
+│   │   ├── addons.rs               # Addon inventory & Asset Library update checks
+│   │   ├── asset_library.rs        # Asset Library / Asset Store search & installs
+│   │   ├── http.rs                 # Shared reqwest client (connection pool, gzip)
+│   │   ├── recent_menu.rs          # Windows Jump List & macOS Dock menu
 │   │   ├── cli.rs / cli_shim.rs    # Command-line tool
 │   │   └── …                       # settings, workspace, scan, watcher, tray, news, sync…
 │   ├── capabilities/               # Tauri permission capabilities
@@ -287,6 +297,13 @@ but do mention which platform you *did* test on in the PR.
 - React function components with hooks; no class components.
 - Follow the patterns already in the file you're editing (state shape,
   error handling, naming).
+- Contexts built with `createContextProvider` accept a selector:
+  `useGodotVersionsContext((v) => v.installed)`. Use one when you only need part
+  of a context whose value changes often (download progress, for example), so
+  the component re-renders only when that part changes. Selectors must return a
+  value that already exists in the context, not a new object or array.
+- Keep animations on `transform` and `opacity` where possible. Avoid
+  animating `box-shadow`, `filter` or layout properties on many elements at once.
 - Components use the existing primitives in
   `src/components/ui/` (Checkbox, Toggle, Dropdown, Slider…)
   and `reusables/` (OverlayScrollArea, ViewHeader, ScanButton…) instead of
@@ -305,6 +322,13 @@ but do mention which platform you *did* test on in the PR.
   `tokio::task::spawn_blocking` so the UI thread never freezes. Most git
   commands in `git.rs` already follow this pattern, keep it that way.
 - Add new Tauri commands to the `invoke_handler` list in `lib.rs`.
+- Never call an `async fn` from Rust as `let _ = some_command(app)`. The future
+  is dropped and nothing runs, with no warning. Either `.await` it, spawn it with
+  `tauri::async_runtime::spawn`, or split the work into a plain blocking function
+  that both the command and other Rust callers use (see
+  `templates::sync_templates_with_scan_dir_blocking`).
+- Use `crate::http::client()` for network requests instead of building a new
+  `reqwest::Client`, so connections are reused.
 
 ### Naming
 
@@ -339,13 +363,13 @@ and all other namespaces (`git`, `settings`, `versions`, etc.) fall back to
 | `vi-VN` | Tiếng Việt | ✅ Complete |
 | `zh-CN` | 简体中文 | ✅ Complete |
 
-**Total keys:** 1,698 in en-US across 9 namespaces (counted 2026-11-03)
+**Total keys:** 1,742 in en-US across 9 namespaces (counted 2026-11-05)
 
 ### How it's organized
 
 ```
 src/i18n/
-├── index.ts              # i18n setup: registers all locales & namespaces
+├── index.ts              # i18n setup: bundles en-US, loads other locales on demand
 ├── languages.ts          # Language options & status badges
 ├── types.ts              # Auto-generated TypeScript types
 └── locales/
@@ -483,8 +507,10 @@ bun run i18n:add ja-JP "日本語"
 ```
 This automatically:
 - Creates the locale folder with all namespace files
-- Registers imports in `index.ts`
 - Adds the language to `languages.ts`
+
+There's nothing to register in `index.ts`. Every folder under `locales/` is
+picked up automatically and loaded only when someone switches to that language.
 
 **Option B: Manual setup**
 1. **Create the locale folder** with all 9 namespace files, copied from English
@@ -493,46 +519,20 @@ This automatically:
    mkdir src/i18n/locales/ja-JP
    cp src/i18n/locales/en-US/*.json src/i18n/locales/ja-JP/
    ```
-2. **Register the resources** in `src/i18n/index.ts`:
-   ```ts
-  import jaJPNav from './locales/ja-JP/nav.json'
-  import jaJPCommon from './locales/ja-JP/common.json'
-  import jaJPSettings from './locales/ja-JP/settings.json'
-  import jaJPGit from './locales/ja-JP/git.json'
-  import jaJPChangelog from './locales/ja-JP/changelog.json'
-  import jaJPOnboarding from './locales/ja-JP/onboarding.json'
-  import jaJPVersions from './locales/ja-JP/versions.json'
-  import jaJPDashboard from './locales/ja-JP/dashboard.json'
-  import jaJPTodos from './locales/ja-JP/todos.json'
-
-  const resources = {
-    'en-US': { … },
-    'ja-JP': {
-      nav: jaJPNav,
-      common: jaJPCommon,
-      settings: jaJPSettings,
-      git: jaJPGit,
-      changelog: jaJPChangelog,
-      onboarding: jaJPOnboarding,
-      versions: jaJPVersions,
-      dashboard: jaJPDashboard,
-    }
-  }
-   ```
-3. **Add it to the language picker** in `src/i18n/languages.ts`:
+2. **Add it to the language picker** in `src/i18n/languages.ts`:
    ```ts
    { value: 'ja-JP', label: '日本語', country: 'JP', status: 'incomplete' },
    ```
 
 **Then for both options:**
-4. **Translate** the values (not the keys!) in each file. Untranslated strings
+3. **Translate** the values (not the keys!) in each file. Untranslated strings
    can be left in English, they fall back, but try to cover the common
    namespaces first (`common`, `nav`, `settings`).
-5. **Set a status badge.** `status` is one of:
+4. **Set a status badge.** `status` is one of:
    - `complete`, every key translated and verified.
    - `beta`, mostly translated; minor gaps or needs a native-speaker review.
    - `incomplete`, new or partially translated; falls back to English in places.
-6. **Verify** and open a PR:
+5. **Verify** and open a PR:
    ```bash
    bun run i18n:check -- ja-JP   # Check your locale
    bun run i18n:types            # Regenerate TypeScript types

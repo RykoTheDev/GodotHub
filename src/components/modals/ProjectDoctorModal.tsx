@@ -19,7 +19,8 @@ interface Props {
   onClose: () => void
 }
 
-const categories = ['engine', 'templates', 'cache', 'scenes', 'addons', 'git', 'exports', 'registrations']
+const categories = ['engine', 'templates', 'android', 'cache', 'scenes', 'addons', 'git', 'exports', 'registrations']
+const translatedDetails = new Set(['android_possible', 'android_sdk_incomplete'])
 const rank = { error: 0, warning: 1, info: 2, ok: 3 }
 const actionButton = 'focus-ring cursor-pointer inline-flex shrink-0 items-center justify-center gap-2 rounded-btn border border-line bg-raised px-3 py-2 text-xs font-medium text-ink hover:border-accent-dim hover:bg-overlay disabled:opacity-40 disabled:cursor-not-allowed'
 
@@ -194,7 +195,9 @@ export function ProjectDoctorModal({ project, installedVersions, onClose }: Prop
         </div>
         <p className="mt-1 text-xs leading-relaxed text-muted max-w-prose">{t(`${finding.code}_description`, values)}</p>
         {finding.details.length > 0 && <ul className="mt-2 space-y-1 text-2xs text-muted/80">
-          {finding.details.map((detail, index) => <li key={index} className="break-all font-mono">{detail}</li>)}
+          {finding.details.map((detail, index) => translatedDetails.has(finding.code)
+            ? <li key={index} className="break-words">{t(detail)}</li>
+            : <li key={index} className="break-all font-mono">{detail}</li>)}
         </ul>}
         {finding.action && <div className="mt-3">{action(finding)}</div>}
         {finding.action?.kind === 'choose_version' && installedVersions.length === 0 && <button type="button" className={`${actionButton} mt-2`}

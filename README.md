@@ -102,6 +102,11 @@ Want to build GodotHub or contribute? See [Build from source](https://ryko.is-a.
 | **Project Properties** | A file breakdown by type (scripts, scenes, images, audio, 3D models, etc.) with sizes and counts. |
 | **Custom Launch Args** | Add custom command-line arguments when launching a project. |
 | **Quick Actions** | Open the project folder, open in an external editor, or open a terminal at the project path, all from the project card. |
+| **Build & Export** | Export a release build from any export preset with the project's bound Godot version. Output streams to the built-in console. |
+| **Tests & Lint** | Run GUT or gdUnit4 tests headless, gdlint, or a gdformat check from the Build & Export window, with output in the built-in console. |
+| **Project Doctor** | Checks the engine binding, export templates, main scene, import cache, addons, export presets, Git setup and duplicate registrations, with one-click fixes where possible. |
+| **Android Checks** | Projects with an Android export preset get checks for the Android SDK, Java JDK version, keystores and the Gradle build template. Projects that only look mobile (Mobile renderer, ETC2/ASTC textures) get the same checks as notes. |
+| **Addons** | Lists every addon in `res://addons` with its version and whether it's enabled, and checks the Godot Asset Library for newer versions. Updating moves the old folder to the Trash and restores it if the update fails. |
 
 </details>
 
@@ -198,7 +203,7 @@ Want to build GodotHub or contribute? See [Build from source](https://ryko.is-a.
 | Feature | Description |
 |---|---|
 | **RSS Feed** | Godot-related news and updates. |
-| **Cached** | Feed data is cached for performance. |
+| **Cached** | The feed is cached for 15 minutes, and the last copy is shown when you're offline. |
 | **Open in Browser** | Click a news item to open the full article. |
 
 </details>
@@ -236,7 +241,7 @@ Want to build GodotHub or contribute? See [Build from source](https://ryko.is-a.
 | **Scan Depth** | How deep to scan folders (1-10 levels). |
 | **Close on Launch** | Quit or minimize to tray when launching a project. |
 | **Reopen After Godot Closes** | Restore GodotHub automatically when the editor closes. |
-| **Tray Menu** | Recent projects in the system tray context menu (configurable count). |
+| **Tray Menu** | Recent projects in the system tray, the Windows Jump List and the macOS Dock menu (configurable count). |
 | **Tooltip Delay** | 100ms to 1000ms. |
 | **Command Palette Keybind** | Rebind `Ctrl/Cmd + <key>` to whatever you want. |
 | **Export / Import** | Back up or transfer all settings as JSON. |
@@ -254,6 +259,7 @@ Want to build GodotHub or contribute? See [Build from source](https://ryko.is-a.
 | **Drag & Drop Import** | Drag project folders or `.zip` version archives straight into the app window. |
 | **Command Palette** | `Ctrl/Cmd + P` (or your own keybind) for quick navigation. |
 | **System Tray** | Minimize to tray with a right-click menu of recently opened projects. |
+| **Jump List & Dock Menu** | Right-click GodotHub in the Windows taskbar or the macOS Dock to open a recent project. |
 | **Custom Titlebar** | Frameless window, custom title bar. |
 | **Splash Screen** | An animated splash screen on startup. |
 | **Onboarding Wizard** | Guided first-time setup for workspaces, projects, versions, templates, categories, and appearance. |
@@ -261,7 +267,7 @@ Want to build GodotHub or contribute? See [Build from source](https://ryko.is-a.
 | **Bug Reporting** | Report issues directly from the app. |
 | **Changelog Viewer** | See what changed in each release. |
 | **Vault** | Save a project as a reusable item in the workspace's vault, with tags, a Godot version and its files. |
-| **Command Line** | `godothub open <path>` opens a project. Options: `--godot`, `--add`, `--no-add`. |
+| **Command Line** | `godothub open <path>` opens a project (options: `--godot`, `--add`, `--no-add`). Also `run`, `versions`, `install`, `export` and `doctor`. |
 | **Discord Rich Presence** | Show the project you are working on in Discord. |
 | **Keyboard Shortcuts** | Full shortcut cheatsheet, available anytime. |
 
