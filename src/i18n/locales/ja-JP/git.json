@@ -114,12 +114,12 @@
   "discard_opt_untracked_hint": "上記のファイルを完全に削除します。この操作は元に戻せません。",
   "discard_opt_stash": "代わりにすべてをスタッシュ",
   "discard_opt_stash_hint": "追跡済みファイルと未追跡ファイルの変更をスタッシュに保存し、あとで復元できるようにします。",
-  "protected_branch_tooltip": "{{branch}} is protected on the remote",
-  "protected_branch_title": "Protected branch",
-  "protected_branch_desc": "{{branch}} is protected on the remote, so pushing commits to it directly may be rejected. Commit anyway, or move these changes to a new branch and open a pull request.",
-  "protected_branch_new_label": "New branch name",
-  "protected_branch_commit_anyway": "Commit anyway",
-  "protected_branch_create_pr": "Create branch & open PR",
-  "protected_branch_creating_pr": "Opening pull request…",
-  "pr_opened_ok": "Pushed {{branch}} and opened a pull request."
+  "protected_branch_tooltip": "{{branch}} はリモートで保護されています",
+  "protected_branch_title": "保護されたブランチ",
+  "protected_branch_desc": "{{branch}} はリモートで保護されているため、直接プッシュすると拒否される場合があります。このままコミットするか、変更を新しいブランチに移してプルリクエストを作成してください。",
+  "protected_branch_new_label": "新しいブランチ名",
+  "protected_branch_commit_anyway": "このままコミット",
+  "protected_branch_create_pr": "ブランチと PR を作成",
+  "protected_branch_creating_pr": "PR を作成中…",
+  "pr_opened_ok": "{{branch}} をプッシュし、プルリクエストを作成しました。"
 }
