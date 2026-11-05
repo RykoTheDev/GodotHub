@@ -548,7 +548,17 @@ pub(crate) fn spawn_job_console(
     workspace: &Path,
     id: &str,
 ) -> Result<(Child, JobConsole), String> {
-    let target = console_target(exe)?;
+    spawn_job_program(app, &console_target(exe)?, args, cwd, workspace, id)
+}
+
+pub(crate) fn spawn_job_program(
+    app: &AppHandle,
+    target: &Path,
+    args: &[String],
+    cwd: &Path,
+    workspace: &Path,
+    id: &str,
+) -> Result<(Child, JobConsole), String> {
     let store = app
         .try_state::<ConsoleBuffers>()
         .ok_or("Console is unavailable")?
@@ -582,7 +592,13 @@ pub(crate) fn spawn_job_console(
     crate::terminal::sanitize_child_env(&mut command);
     let child = command
         .spawn()
-        .map_err(|e| format!("Could not start Godot export: {e}"))?;
+        .map_err(|e| {
+            let name = target
+                .file_name()
+                .map(|n| n.to_string_lossy().to_string())
+                .unwrap_or_else(|| target.display().to_string());
+            format!("Could not start {name}: {e}")
+        })?;
     let session = next_session();
     store.lock().unwrap_or_else(std::sync::PoisonError::into_inner).insert(
         id.into(),

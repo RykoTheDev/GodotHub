@@ -126,7 +126,7 @@ fn suggested_output(project: &str, preset: &str, platform: &str) -> String {
     format!("builds/{}/{}.{}", slug(preset), slug(project), ext)
 }
 
-fn legacy(version: &InstalledGodotVersion) -> bool {
+pub(crate) fn legacy(version: &InstalledGodotVersion) -> bool {
     version.version.trim_start_matches('v').starts_with("3.")
         || version.tag.trim_start_matches('v').starts_with("3.")
 }
@@ -444,10 +444,10 @@ fn artifact_size(path: &Path) -> Result<Option<u64>, String> {
     Ok(Some(bytes))
 }
 
-struct ProcessOutcome {
-    code: Option<i32>,
-    cancelled: bool,
-    error: Option<String>,
+pub(crate) struct ProcessOutcome {
+    pub(crate) code: Option<i32>,
+    pub(crate) cancelled: bool,
+    pub(crate) error: Option<String>,
 }
 
 fn file_stamp(path: &Path) -> Option<(u64, std::time::SystemTime)> {
@@ -470,7 +470,7 @@ fn completed_artifact(
     artifact_size(path)
 }
 
-fn wait_for_export(
+pub(crate) fn wait_for_export(
     child: &mut std::process::Child,
     cancel: &AtomicBool,
     mut drain: impl FnMut(),

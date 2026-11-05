@@ -38,6 +38,7 @@ mod template_files;
 mod templates;
 mod terminal;
 mod time_stats;
+mod tool_runner;
 mod todo_sync;
 mod tray;
 mod vault;
@@ -494,6 +495,9 @@ pub fn run() {
             templates::save_project_as_template,
             templates::delete_template,
             templates::sync_templates_with_scan_dir,
+            tool_runner::list_project_tools,
+            tool_runner::run_project_tool,
+            tool_runner::stop_project_tool,
             asset_library::search_asset_library,
             asset_library::install_asset_as_template,
             asset_library::install_asset,

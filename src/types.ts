@@ -272,6 +272,14 @@ export interface ProjectExportRun {
   started_at_ms: number
 }
 
+export interface ProjectTool {
+  id: 'gut' | 'gdunit' | 'gdlint' | 'gdformat'
+  kind: 'test' | 'lint'
+  available: boolean
+  reason: 'engine_missing' | 'no_test_folder' | 'not_installed' | null
+  detail: string | null
+}
+
 export interface ConsoleSnapshot {
   id: string
   lines: ConsoleLine[]
