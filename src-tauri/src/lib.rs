@@ -30,6 +30,7 @@ mod project_identity;
 mod project_metadata;
 mod project_todos;
 mod projects;
+mod recent_menu;
 mod resolve;
 mod scan;
 mod settings;
@@ -217,8 +218,10 @@ pub fn run_cli() -> Option<i32> {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-            tray::show_main_window(app);
+        .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
+            if !recent_menu::open_from_args(app, &args) {
+                tray::show_main_window(app);
+            }
         }))
         .plugin(tauri_plugin_discord_rpc::init())
         .plugin(tauri_plugin_dialog::init())
@@ -333,6 +336,8 @@ pub fn run() {
 
             tray::setup_tray(app.handle())?;
             tray::show_main_window(app.handle());
+            let launch_args: Vec<String> = std::env::args().collect();
+            recent_menu::open_from_args(app.handle(), &launch_args);
 
             Ok(())
         })

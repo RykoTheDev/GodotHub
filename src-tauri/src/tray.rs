@@ -3,6 +3,7 @@ use tauri::tray::{MouseButton, MouseButtonState, TrayIcon, TrayIconBuilder, Tray
 use tauri::{AppHandle, Manager};
 
 use crate::models::Project;
+use crate::recent_menu::RecentProject;
 use crate::{projects, settings};
 
 pub struct TrayState(pub std::sync::Mutex<Option<TrayIcon>>);
@@ -14,15 +15,8 @@ pub fn show_main_window(app: &AppHandle) {
     }
 }
 
-fn build_tray_menu(app: &AppHandle) -> Result<Menu<tauri::Wry>, tauri::Error> {
-    let show_item = MenuItem::with_id(app, "show", "Show GodotHub", true, None::<&str>)?;
-    let quit_item = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
-    let sep1 = PredefinedMenuItem::separator(app)?;
-    let sep2 = PredefinedMenuItem::separator(app)?;
-
-    let settings = settings::read_settings(app);
-    let count = settings.tray_recent_projects_count as usize;
-
+pub(crate) fn recent_projects(app: &AppHandle) -> Vec<RecentProject> {
+    let count = settings::read_settings(app).tray_recent_projects_count as usize;
     let projects = projects::read_projects(app);
     let mut recent: Vec<&Project> = projects
         .iter()
@@ -34,7 +28,35 @@ fn build_tray_menu(app: &AppHandle) -> Result<Menu<tauri::Wry>, tauri::Error> {
             .unwrap()
             .cmp(a.last_opened.as_deref().unwrap())
     });
-    let recent = recent.into_iter().take(count).collect::<Vec<_>>();
+    recent
+        .into_iter()
+        .take(count)
+        .map(|p| {
+            let resolved = projects::resolve_project_name(&p.path)
+                .filter(|n| !n.trim().is_empty())
+                .unwrap_or_else(|| p.name.clone());
+            let label = if resolved.chars().count() > 48 {
+                format!("{}…", resolved.chars().take(47).collect::<String>())
+            } else {
+                resolved
+            };
+            RecentProject {
+                id: p.id.clone(),
+                label,
+                path: p.path.clone(),
+            }
+        })
+        .collect()
+}
+
+fn build_tray_menu(app: &AppHandle) -> Result<Menu<tauri::Wry>, tauri::Error> {
+    let show_item = MenuItem::with_id(app, "show", "Show GodotHub", true, None::<&str>)?;
+    let quit_item = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
+    let sep1 = PredefinedMenuItem::separator(app)?;
+    let sep2 = PredefinedMenuItem::separator(app)?;
+
+    let recent = recent_projects(app);
+    crate::recent_menu::refresh(app, recent.clone());
 
     let recent_submenu = if recent.is_empty() {
         let no_recent_item =
@@ -48,16 +70,7 @@ fn build_tray_menu(app: &AppHandle) -> Result<Menu<tauri::Wry>, tauri::Error> {
     } else {
         let mut recent_items = Vec::new();
         for p in &recent {
-            let resolved = projects::resolve_project_name(&p.path)
-                .filter(|n| !n.trim().is_empty())
-                .unwrap_or_else(|| p.name.clone());
-            let label = if resolved.chars().count() > 48 {
-                format!("{}…", resolved.chars().take(47).collect::<String>())
-            } else {
-                resolved
-            };
-            let item = MenuItem::with_id(app, &p.id, &label, true, None::<&str>)?;
-            recent_items.push(item);
+            recent_items.push(MenuItem::with_id(app, &p.id, &p.label, true, None::<&str>)?);
         }
         let recent_refs: Vec<&dyn IsMenuItem<_>> = recent_items
             .iter()
@@ -98,7 +111,12 @@ pub fn setup_tray(app: &AppHandle) -> Result<(), tauri::Error> {
             "quit" => app.exit(0),
             "no_recent" => {}
             id => {
-                let _ = projects::open_project(app.clone(), id.to_string(), true, None);
+                tauri::async_runtime::spawn(projects::open_project(
+                    app.clone(),
+                    id.to_string(),
+                    true,
+                    None,
+                ));
             }
         })
         .on_tray_icon_event(|tray, event| {
