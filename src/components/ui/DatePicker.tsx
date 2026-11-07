@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import {
   useEffect,
   useLayoutEffect,
@@ -10,15 +11,16 @@ import { createPortal } from "react-dom";
 type DatePickerProps = {
   value: string;
   onChange: (value: string) => void;
-  placeholder?: string;
-  clearLabel?: string;
+  clearLabel: string;
   locale?: string;
   markPastDates?: boolean;
   pastDateMessage?: string;
   compact?: boolean;
-  displayValue?: ReactNode;
   disabled?: boolean;
-};
+} & (
+  | { placeholder: string; displayValue?: ReactNode }
+  | { placeholder?: string; displayValue: NonNullable<ReactNode> }
+);
 
 type PopoverPosition = {
   top: number;
@@ -44,15 +46,17 @@ function toValue(date: Date) {
 export function DatePicker({
   value,
   onChange,
-  placeholder = "Selecionar data",
-  clearLabel = "Remover data",
-  locale = "pt-BR",
+  placeholder,
+  clearLabel,
+  locale: localeProp,
   markPastDates = false,
   pastDateMessage,
   compact = false,
   displayValue,
   disabled = false,
 }: DatePickerProps) {
+  const { t, i18n } = useTranslation("common");
+  const locale = localeProp ?? i18n.resolvedLanguage ?? i18n.language;
   const containerRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -243,7 +247,7 @@ export function DatePicker({
               type="button"
               onClick={() => changeMonth(-1)}
               className="focus-ring cursor-pointer rounded-btn px-2 py-1 text-muted hover:bg-raised hover:text-ink"
-              aria-label="Mês anterior"
+              aria-label={t("date_previous_month")}
             >
               ‹
             </button>
@@ -260,7 +264,7 @@ export function DatePicker({
               type="button"
               onClick={() => changeMonth(1)}
               className="focus-ring cursor-pointer rounded-btn px-2 py-1 text-muted hover:bg-raised hover:text-ink"
-              aria-label="Próximo mês"
+              aria-label={t("date_next_month")}
             >
               ›
             </button>
@@ -330,8 +334,8 @@ export function DatePicker({
           aria-label={
             compact
               ? value
-                ? `Alterar prazo: ${formatValue(value)}`
-                : "Adicionar prazo"
+                ? t("date_change_due", { date: formatValue(value) })
+                : t("date_add_due")
               : undefined
           }
           onClick={() => {

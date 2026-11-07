@@ -855,9 +855,9 @@ export function App() {
 
         {confirmingRestart && (
           <ConfirmDialog
-            title="Reload GodotHub?"
-            description="Any unsaved changes in open forms will be lost."
-            confirmLabel="Reload"
+            title={tc('reload_confirm_title')}
+            description={tc('reload_confirm_desc')}
+            confirmLabel={tc('reload')}
             onConfirm={() => {
               setConfirmingRestart(false)
               void relaunch()

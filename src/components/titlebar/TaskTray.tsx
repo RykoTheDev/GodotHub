@@ -178,7 +178,7 @@ function TaskItem({ task }: { task: Task }) {
                       onClick={() =>
                         api.pauseDownload(downloadKey).catch(reportError)
                       }
-                      aria-label={t('pause_download')}
+                      aria-label={t('versions:pause_download')}
                       className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-ink hover:bg-raised "
                     >
                       <IconPause className="w-3 h-3" />
@@ -192,7 +192,7 @@ function TaskItem({ task }: { task: Task }) {
                           onClick={() =>
                             api.resumeDownload(downloadKey).catch(reportError)
                           }
-                          aria-label={t('resume_download')}
+                          aria-label={t('versions:resume_download')}
                           className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-mint hover:bg-mint/10 "
                         >
                           <IconPlay className="w-3 h-3" />
@@ -203,7 +203,7 @@ function TaskItem({ task }: { task: Task }) {
                         onClick={() =>
                           api.cancelDownload(downloadKey).catch(reportError)
                         }
-                        aria-label={t('cancel_download')}
+                        aria-label={t('versions:cancel_download')}
                         className="focus-ring cursor-pointer w-5 h-5 rounded-btn flex items-center justify-center text-muted/50 hover:text-danger hover:bg-danger/10 "
                       >
                         <IconX className="w-3 h-3" />

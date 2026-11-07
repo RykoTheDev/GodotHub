@@ -994,7 +994,14 @@ export type commonKeys =
   | 'project_addons.updated'
   | 'project_addons.confirm_title'
   | 'project_addons.confirm_description'
-  | 'project_addons.footer_hint';
+  | 'project_addons.footer_hint'
+  | 'reload_confirm_title'
+  | 'reload_confirm_desc'
+  | 'color_presets'
+  | 'date_previous_month'
+  | 'date_next_month'
+  | 'date_change_due'
+  | 'date_add_due';
 
 /** Keys from dashboard.json */
 export type dashboardKeys =
@@ -1236,7 +1243,8 @@ export type navKeys =
   | 'you'
   | 'account_manage'
   | 'workspace_tip_title'
-  | 'workspace_tip_body';
+  | 'workspace_tip_body'
+  | 'workspace_tip_dismiss';
 
 /** Keys from onboarding.json */
 export type onboardingKeys =
@@ -2802,6 +2810,13 @@ export type TranslationKey =
   | 'common:project_addons.confirm_title'
   | 'common:project_addons.confirm_description'
   | 'common:project_addons.footer_hint'
+  | 'common:reload_confirm_title'
+  | 'common:reload_confirm_desc'
+  | 'common:color_presets'
+  | 'common:date_previous_month'
+  | 'common:date_next_month'
+  | 'common:date_change_due'
+  | 'common:date_add_due'
   | 'dashboard:greeting_morning'
   | 'dashboard:greeting_afternoon'
   | 'dashboard:greeting_evening'
@@ -3035,6 +3050,7 @@ export type TranslationKey =
   | 'nav:account_manage'
   | 'nav:workspace_tip_title'
   | 'nav:workspace_tip_body'
+  | 'nav:workspace_tip_dismiss'
   | 'onboarding:welcome'
   | 'onboarding:finish'
   | 'onboarding:in_progress'

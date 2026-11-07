@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import { useEffect, useState, type ReactNode } from 'react'
 import { IconCheck } from '../../lib/icons'
 import { HsvColorPicker } from './HsvColorPicker'
@@ -16,6 +17,7 @@ function isValidHex(hex: string) {
 }
 
 export function ColorSwatchPicker({ label, value, onChange, presets, trigger }: Props) {
+  const { t } = useTranslation('common')
   const [hexDraft, setHexDraft] = useState(value)
 
   useEffect(() => setHexDraft(value), [value])
@@ -80,7 +82,7 @@ export function ColorSwatchPicker({ label, value, onChange, presets, trigger }: 
           </div>
 
           <div className="border-s border-line ps-3 flex flex-col">
-            <span className="text-3xs font-medium text-muted/60 uppercase tracking-wider mb-2 block">Presets</span>
+            <span className="text-3xs font-medium text-muted/60 uppercase tracking-wider mb-2 block">{t('color_presets')}</span>
             <div className="grid grid-cols-6 gap-1.5">
               {presets.map((preset) => {
                 const isSelected = preset.toLowerCase() === value.toLowerCase()
