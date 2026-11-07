@@ -983,5 +983,12 @@
     "confirm_title": "Update {{name}}?",
     "confirm_description": "This replaces res://addons/{{folder}} with version {{version}} from the Asset Library. The old folder is moved to the Trash, so any changes you made to the addon are kept there. Close the project in Godot first.",
     "footer_hint": "Addons installed through GodotHub are matched exactly. Others are matched by name, so check the result before updating."
-  }
+  },
+  "reload_confirm_title": "Reload GodotHub?",
+  "reload_confirm_desc": "Any unsaved changes in open forms will be lost.",
+  "color_presets": "Presets",
+  "date_previous_month": "Previous month",
+  "date_next_month": "Next month",
+  "date_change_due": "Change due date: {{date}}",
+  "date_add_due": "Add due date"
 }

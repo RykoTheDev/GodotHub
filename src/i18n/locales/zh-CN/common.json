@@ -988,5 +988,12 @@
     "confirm_title": "更新 {{name}}？",
     "confirm_description": "这将用资源库中的版本 {{version}} 替换 res://addons/{{folder}}。旧文件夹会被移到回收站，因此你对插件所做的任何更改都会保留在那里。请先在 Godot 中关闭项目。",
     "footer_hint": "通过 GodotHub 安装的插件会精确匹配。其他插件按名称匹配，因此更新前请检查结果。"
-  }
+  },
+  "reload_confirm_title": "Reload GodotHub?",
+  "reload_confirm_desc": "Any unsaved changes in open forms will be lost.",
+  "color_presets": "Presets",
+  "date_previous_month": "Previous month",
+  "date_next_month": "Next month",
+  "date_change_due": "Change due date: {{date}}",
+  "date_add_due": "Add due date"
 }

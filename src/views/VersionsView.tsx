@@ -823,7 +823,7 @@ export function VersionsView({
           {loadingAvailable ? (
             <div className="flex items-center gap-2 py-16 justify-center">
               <IconSpinner className="w-5 h-5 animate-spin text-muted" />
-              <span className="text-sm text-muted">{tv('fetching')}</span>
+              <span className="text-sm text-muted">{tv('common:loading')}</span>
             </div>
           ) : availableError ? (
             <div className="rounded-item border border-dashed border-danger/30 py-16 flex flex-col items-center gap-3 text-center px-6">
