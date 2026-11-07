@@ -164,7 +164,10 @@ jobs:
     if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
     steps:
-      - name: Generate latest.json in the working updater format
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Generate latest-v2.json and upload the frozen legacy latest.json
         shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -304,11 +307,11 @@ jobs:
             throw new Error(`required platforms missing from the release: ${missing.join(', ')}`);
           }
           const manifest = { version, notes: NOTES, pub_date: new Date().toISOString(), platforms };
-          fs.writeFileSync('latest.json', JSON.stringify(manifest, null, 2));
-          console.log(`wrote latest.json with ${Object.keys(platforms).length} platform entries`);
+          fs.writeFileSync('latest-v2.json', JSON.stringify(manifest, null, 2));
+          console.log(`wrote latest-v2.json with ${Object.keys(platforms).length} platform entries`);
           EOF
-          cp latest.json latest-v2.json
-          gh release upload "$TAG" latest.json latest-v2.json --repo "$REPO" --clobber
+          cp .github/updater/legacy-latest.json latest.json
+          gh release upload "$TAG" latest-v2.json latest.json --repo "$REPO" --clobber
 
   publish-to-winget:
     needs: [build, generate-latest-json]
