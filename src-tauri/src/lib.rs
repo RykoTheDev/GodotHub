@@ -1,153 +1,13 @@
-mod addons;
-mod android;
-mod asset_library;
-mod backup;
-mod categories;
-mod changelog;
-mod cli;
-mod cli_shim;
-mod console;
-mod current_version;
-mod discovery;
-mod error;
-mod export_runner;
-mod export_templates;
-mod git;
-mod git_auth;
-mod git_helpers;
-mod godot_versions;
-mod godotenv;
-mod http;
-mod install_mode;
-mod licenses;
-mod mise;
-mod models;
-mod news;
-mod persist;
-mod process;
-mod project_health;
-mod project_identity;
-mod project_metadata;
-mod project_todos;
-mod projects;
+mod commands;
+mod dialogs;
+mod host;
+mod lane;
 mod recent_menu;
-mod resolve;
-mod scan;
-mod settings;
-mod storage;
-mod sync;
-mod template_files;
-mod templates;
-mod terminal;
-mod time_stats;
-mod tool_runner;
-mod todo_sync;
 mod tray;
-mod vault;
-mod watcher;
-mod workspace;
 
-use std::fs;
-use std::path::Path;
 use tauri::{Manager, WindowEvent};
 
-const LEGACY_IDENTIFIER: &str = "com.ryko.godothub";
-
-const IDENTIFIER_MIGRATION_MARKER: &str = "identifier-migration.done";
-
-#[derive(Debug, Default, PartialEq, Eq)]
-pub(crate) struct IdentifierMigration {
-    pub moved: usize,
-    pub kept: usize,
-    pub failed: usize,
-}
-
-pub(crate) fn migrate_app_data(new_dir: &Path, old_dir: &Path) -> IdentifierMigration {
-    let mut result = IdentifierMigration::default();
-    let Ok(entries) = fs::read_dir(old_dir) else {
-        return result;
-    };
-
-    for entry in entries.flatten() {
-        let from = entry.path();
-        let Some(name) = from.file_name().map(|n| n.to_string_lossy().to_string()) else {
-            continue;
-        };
-
-        let dest = new_dir.join(&name);
-        if !dest.exists() {
-            match fs::rename(&from, &dest) {
-                Ok(()) => result.moved += 1,
-                Err(_) => result.failed += 1,
-            }
-            continue;
-        }
-
-        let aside = {
-            let mut counter = 0;
-            loop {
-                let candidate = if counter == 0 {
-                    new_dir.join(format!("{name}.legacy"))
-                } else {
-                    new_dir.join(format!("{name}.legacy-{counter}"))
-                };
-                if !candidate.exists() {
-                    break candidate;
-                }
-                counter += 1;
-            }
-        };
-        match fs::rename(&from, &aside) {
-            Ok(()) => result.kept += 1,
-            Err(_) => result.failed += 1,
-        }
-    }
-
-    result
-}
-
-fn migrate_identifier(app: &tauri::App) {
-    let Ok(new_dir) = app.path().app_data_dir() else {
-        return;
-    };
-
-    let marker = new_dir.join(IDENTIFIER_MIGRATION_MARKER);
-    if marker.exists() {
-        return;
-    }
-
-    let old_dir = new_dir
-        .parent()
-        .map(|p| p.join(LEGACY_IDENTIFIER))
-        .unwrap_or_default();
-
-    if old_dir == new_dir || !old_dir.exists() {
-        return;
-    }
-
-    let _ = fs::create_dir_all(&new_dir);
-    let result = migrate_app_data(&new_dir, &old_dir);
-
-    let emptied = fs::read_dir(&old_dir)
-        .map(|mut entries| entries.next().is_none())
-        .unwrap_or(false);
-    if emptied {
-        let _ = fs::remove_dir(&old_dir);
-    }
-
-    let _ = fs::write(
-        &marker,
-        format!(
-            "{} legacy={} moved={} kept={} failed={} old_folder_removed={}\n",
-            chrono::Utc::now().to_rfc3339(),
-            LEGACY_IDENTIFIER,
-            result.moved,
-            result.kept,
-            result.failed,
-            emptied
-        ),
-    );
-}
+pub(crate) use host::core_handle;
 
 #[tauri::command]
 fn notify(app: tauri::AppHandle, title: String, body: String) {
@@ -157,69 +17,20 @@ fn notify(app: tauri::AppHandle, title: String, body: String) {
 
 #[tauri::command]
 fn get_os_username() -> Option<String> {
-    for var in ["USERNAME", "USER", "LOGNAME"] {
-        if let Ok(v) = std::env::var(var) {
-            if !v.trim().is_empty() {
-                return Some(v);
-            }
-        }
-    }
-    let home = std::env::var("HOME")
-        .or_else(|_| std::env::var("USERPROFILE"))
-        .ok()?;
-    std::path::Path::new(&home)
-        .file_name()
-        .map(|s| s.to_string_lossy().to_string())
+    godothub_core::system::get_os_username()
 }
 
-#[tauri::command]
-async fn pick_folder(app: tauri::AppHandle) -> Option<String> {
-    use tauri_plugin_dialog::DialogExt;
-    let (tx, rx) = std::sync::mpsc::channel();
-    app.dialog().file().pick_folder(move |folder| {
-        let _ = tx.send(folder);
-    });
-    rx.recv().ok().flatten().map(|p| p.to_string())
-}
-
-#[tauri::command]
-async fn pick_save_path(app: tauri::AppHandle, default_name: String) -> Option<String> {
-    use tauri_plugin_dialog::DialogExt;
-    let (tx, rx) = std::sync::mpsc::channel();
-    app.dialog()
-        .file()
-        .set_file_name(&default_name)
-        .save_file(move |file| {
-            let _ = tx.send(file);
-        });
-    rx.recv().ok().flatten().map(|p| p.to_string())
-}
-
-#[tauri::command]
-async fn pick_data_file(app: tauri::AppHandle) -> Option<String> {
-    use tauri_plugin_dialog::DialogExt;
-    let (tx, rx) = std::sync::mpsc::channel();
-    app.dialog()
-        .file()
-        .add_filter("JSON", &["json"])
-        .pick_file(move |file| {
-            let _ = tx.send(file);
-        });
-    rx.recv().ok().flatten().map(|p| p.to_string())
-}
-
-/// Entry point for command-line use. Returns `Some(exit_code)` when a
-/// subcommand was given (the GUI should not launch), or `None` to launch the
-/// GUI as usual.
 pub fn run_cli() -> Option<i32> {
-    cli::dispatch()
+    godothub_core::set_app_version(env!("CARGO_PKG_VERSION"));
+    godothub_core::cli::dispatch(host::CHANNEL)
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    godothub_core::set_app_version(env!("CARGO_PKG_VERSION"));
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, args, _cwd| {
-            if !recent_menu::open_from_args(app, &args) {
+            if !godothub_core::recent::open_from_args(&core_handle(app), &args) {
                 tray::show_main_window(app);
             }
         }))
@@ -240,104 +51,26 @@ pub fn run() {
                 .build(),
         )
         .setup(|app| {
-            migrate_identifier(app);
-
-            if let Ok(dir) = app.path().app_data_dir() {
-                git_helpers::set_credential_store(dir.join("git-credentials"));
-            }
-
-            app.manage(std::sync::Arc::new(
-                asset_library::AssetResponseCache::default(),
-            ));
-            app.manage(watcher::ActiveWatchers(std::sync::Mutex::new(Vec::new())));
-            app.manage(watcher::GitWatcher(std::sync::Mutex::new(None)));
-            app.manage(watcher::AliasWatcher(std::sync::Mutex::new(None)));
-
-            watcher::start_alias_watcher(app.handle().clone());
-
-            godot_versions::migrate_registry_to_global(app.handle());
+            let core = host::create(app.handle());
+            app.manage(core.clone());
+            godothub_core::startup::initialize(&core);
 
             #[cfg(not(target_os = "macos"))]
             {
-                let settings = settings::read_settings(app.handle());
+                let settings = godothub_core::settings::read_settings(&core);
                 if let Some(window) = app.get_webview_window("main") {
                     let _ = window.set_decorations(settings.use_os_decorations);
                 }
             }
 
-            let handle = app.handle().clone();
-            tauri::async_runtime::spawn(async move {
-                templates::consolidate_legacy_templates(&handle);
-
-                let s = settings::read_settings(&handle);
-
-                if s.use_mise {
-                    let mise_handle = handle.clone();
-                    let _ = tokio::task::spawn_blocking(move || mise::sync_installed(&mise_handle))
-                        .await;
-                }
-
-                if s.setup_complete && s.auto_scan_on_startup {
-                    let scan_handle = handle.clone();
-                    let project_dirs = s.project_scan_dirs.clone();
-                    let version_dirs = s.version_scan_dirs.clone();
-                    let depth = s.scan_depth;
-                    let _ = tokio::task::spawn_blocking(move || {
-                        if !version_dirs.is_empty() {
-                            if let Err(e) = scan::scan_for_versions_blocking(scan_handle.clone(), version_dirs, depth) {
-                                eprintln!("Startup version scan failed: {e}");
-                            }
-                        }
-                        if !project_dirs.is_empty() {
-                            if let Err(e) = scan::scan_for_projects_blocking(scan_handle, project_dirs, depth, false) {
-                                eprintln!("Startup project scan failed: {e}");
-                            }
-                        }
-                    })
-                    .await;
-                }
-
-                if s.feature_enabled("templates") && s.template_scan_dir.is_some() {
-                    let _ = templates::sync_templates_with_scan_dir(handle.clone()).await;
-                }
-
-                if s.auto_watch_project_dirs && !s.project_scan_dirs.is_empty() {
-                    let dirs: Vec<std::path::PathBuf> = s
-                        .project_scan_dirs
-                        .iter()
-                        .map(std::path::PathBuf::from)
-                        .collect();
-                    watcher::start_project_watchers(handle.clone(), dirs, s.scan_depth, 2000);
-                }
-                if s.auto_watch_version_dirs && !s.version_scan_dirs.is_empty() {
-                    let dirs: Vec<std::path::PathBuf> = s
-                        .version_scan_dirs
-                        .iter()
-                        .map(std::path::PathBuf::from)
-                        .collect();
-                    watcher::start_version_watchers(handle.clone(), dirs, s.scan_depth, 2000);
-                }
-                if s.feature_enabled("templates") && s.auto_watch_template_dir {
-                    if let Some(ref tdir) = s.template_scan_dir {
-                        let dir = std::path::PathBuf::from(tdir);
-                        if dir.exists() {
-                            watcher::start_template_watcher(handle.clone(), dir, 2000);
-                        }
-                    }
-                }
-            });
+            tauri::async_runtime::spawn(godothub_core::startup::background_tasks(core.clone()));
 
             app.manage(tray::TrayState(std::sync::Mutex::new(None)));
-            app.manage(projects::ActiveProcesses(std::sync::Mutex::new(
-                std::collections::HashMap::new(),
-            )));
-            app.manage(console::ConsoleBuffers::default());
-            app.manage(export_runner::ExportRuns::default());
 
             tray::setup_tray(app.handle())?;
             tray::show_main_window(app.handle());
             let launch_args: Vec<String> = std::env::args().collect();
-            recent_menu::open_from_args(app.handle(), &launch_args);
+            godothub_core::recent::open_from_args(&core, &launch_args);
 
             Ok(())
         })
@@ -359,7 +92,8 @@ pub fn run() {
                 #[cfg(target_os = "macos")]
                 let keep_alive = true;
                 #[cfg(not(target_os = "macos"))]
-                let keep_alive = settings::read_settings(window.app_handle()).minimize_to_tray;
+                let keep_alive =
+                    godothub_core::settings::read_settings(&core_handle(window.app_handle())).minimize_to_tray;
 
                 if keep_alive {
                     api.prevent_close();
@@ -368,221 +102,221 @@ pub fn run() {
             }
         })
         .invoke_handler(tauri::generate_handler![
-            godot_versions::fetch_available_godot_versions,
-            godot_versions::open_versions_folder,
-            godot_versions::download_godot_version,
-            godot_versions::download_version_for_tag,
-            discovery::scan_godot_recent_projects,
-            discovery::detect_godot_installs,
-            discovery::import_detected_install,
-            godot_versions::pause_download,
-            godot_versions::resume_download,
-            godot_versions::cancel_download,
-            godot_versions::reorder_download_queue,
-            godot_versions::list_installed_godot_versions,
-            godot_versions::rename_godot_version,
-            godot_versions::delete_godot_version,
-            godot_versions::open_godot_version,
-            godot_versions::test_github_token,
-            godot_versions::get_github_rate_limit,
-            current_version::get_current_version,
-            current_version::set_current_version,
-            current_version::clear_current_version,
-            current_version::list_version_aliases,
-            current_version::create_version_aliases,
-            current_version::delete_version_alias,
-            git_auth::start_device_flow,
-            git_auth::poll_device_flow,
-            git_auth::get_git_auth_state,
-            git_auth::disconnect_git_auth,
-            git_auth::save_git_pat,
-            git_auth::remove_git_pat,
-            git_auth::create_remote_repo,
-            git_auth::list_user_repos,
-            git_auth::git_branch_protection,
-            git_auth::git_open_pull_request,
-            export_templates::get_export_templates_state,
-            storage::get_storage_report,
-            storage::reclaim_storage,
-            export_templates::get_export_template_options,
-            export_templates::install_export_templates,
-            export_templates::cancel_export_templates_download,
-            export_templates::delete_export_templates,
-            export_templates::uninstall_export_template_files,
-            export_templates::open_export_templates_folder,
+            commands::godot_versions::fetch_available_godot_versions,
+            commands::godot_versions::open_versions_folder,
+            commands::godot_versions::download_godot_version,
+            commands::godot_versions::download_version_for_tag,
+            commands::godot_versions::pause_download,
+            commands::godot_versions::resume_download,
+            commands::godot_versions::cancel_download,
+            commands::godot_versions::reorder_download_queue,
+            commands::godot_versions::list_installed_godot_versions,
+            commands::godot_versions::rename_godot_version,
+            commands::godot_versions::delete_godot_version,
+            commands::godot_versions::open_godot_version,
+            commands::godot_versions::test_github_token,
+            commands::godot_versions::get_github_rate_limit,
+            commands::discovery::scan_godot_recent_projects,
+            commands::discovery::detect_godot_installs,
+            commands::discovery::import_detected_install,
+            commands::current_version::get_current_version,
+            commands::current_version::set_current_version,
+            commands::current_version::clear_current_version,
+            commands::current_version::list_version_aliases,
+            commands::current_version::create_version_aliases,
+            commands::current_version::delete_version_alias,
+            commands::git_auth::start_device_flow,
+            commands::git_auth::poll_device_flow,
+            commands::git_auth::get_git_auth_state,
+            commands::git_auth::disconnect_git_auth,
+            commands::git_auth::save_git_pat,
+            commands::git_auth::remove_git_pat,
+            commands::git_auth::create_remote_repo,
+            commands::git_auth::list_user_repos,
+            commands::git_auth::git_branch_protection,
+            commands::git_auth::git_open_pull_request,
+            commands::export_templates::get_export_templates_state,
+            commands::export_templates::get_export_template_options,
+            commands::export_templates::install_export_templates,
+            commands::export_templates::cancel_export_templates_download,
+            commands::export_templates::delete_export_templates,
+            commands::export_templates::uninstall_export_template_files,
+            commands::export_templates::open_export_templates_folder,
+            commands::storage::get_storage_report,
+            commands::storage::reclaim_storage,
+            commands::projects::list_projects,
+            commands::projects::get_projects_health,
+            commands::projects::restore_projects_from_backup,
+            commands::projects::create_project,
+            commands::projects::duplicate_project,
+            commands::projects::import_project,
+            commands::projects::remove_project,
+            commands::projects::update_project,
+            commands::projects::reorder_projects,
+            commands::projects::open_project,
+            commands::projects::open_project_folder,
+            commands::projects::open_in_editor,
+            commands::projects::get_project_icon,
+            commands::projects::get_project_size,
+            commands::projects::get_project_file_tree,
+            commands::projects::get_project_name,
+            commands::projects::stop_project,
+            commands::projects::list_running_projects,
+            commands::projects::read_image_file,
+            commands::projects::write_project_tags,
+            commands::projects::export_project_stats,
+            commands::projects::import_project_stats,
+            commands::projects::reintroduce_dismissed_projects,
+            commands::project_todos::list_project_todos,
+            commands::project_todos::save_project_todos,
+            commands::project_todos::list_open_todos,
+            commands::todo_sync::sync_project_todos,
+            commands::todo_sync::todo_git_activity,
+            commands::todo_sync::list_project_resources,
+            commands::todo_sync::open_todo_link,
+            commands::cli_shim::cli_tool_status,
+            commands::cli_shim::install_cli_tool,
+            commands::cli_shim::uninstall_cli_tool,
+            commands::project_health::diagnose_project,
+            commands::project_health::fix_project_health,
+            commands::console::get_project_console,
+            commands::console::clear_project_console,
+            commands::export_runner::get_project_export_presets,
+            commands::export_runner::start_project_export,
+            commands::export_runner::get_project_export,
+            commands::export_runner::get_project_exports,
+            commands::export_runner::cancel_project_export,
+            commands::export_runner::open_export_artifact_folder,
+            commands::time_stats::get_activity,
+            commands::time_stats::get_project_activity,
+            commands::time_stats::get_time_insights,
+            commands::time_stats::clear_time_stats,
+            commands::categories::list_categories,
+            commands::categories::create_category,
+            commands::categories::update_category,
+            commands::categories::rename_category,
+            commands::categories::delete_category,
+            commands::categories::reorder_categories,
+            commands::categories::add_category_folder,
+            commands::categories::remove_category_folder,
+            commands::settings::get_settings,
+            commands::settings::update_settings,
+            commands::settings::reset_settings,
+            commands::settings::export_settings,
+            commands::settings::import_settings,
+            commands::settings::reset_app_data,
+            commands::backup::export_workspace_backup,
+            commands::backup::import_workspace_backup,
+            commands::backup::export_app_backup,
+            commands::backup::import_app_backup,
+            commands::sync::gist_sync_push,
+            commands::sync::gist_sync_pull,
+            commands::sync::gist_sync_get_info,
+            commands::sync::gist_sync_pull_by_url,
+            commands::sync::gist_sync_fetch_backup,
+            commands::sync::gist_sync_save_gist_url,
+            commands::workspace::list_workspaces,
+            commands::workspace::list_workspace_scan_dirs,
+            commands::workspace::create_workspace,
+            commands::workspace::switch_workspace,
+            commands::workspace::update_workspace,
+            commands::workspace::delete_workspace,
+            commands::scan::scan_for_projects,
+            commands::scan::scan_for_projects_with_info,
+            commands::scan::scan_for_versions,
+            commands::scan::import_version,
+            commands::scan::add_custom_build,
+            commands::news::fetch_godot_news,
+            commands::templates::list_templates,
+            commands::templates::save_project_as_template,
+            commands::templates::delete_template,
+            commands::templates::sync_templates_with_scan_dir,
+            commands::templates::get_template_preview,
+            commands::addons::list_project_addons,
+            commands::addons::check_addon_updates,
+            commands::addons::update_project_addon,
+            commands::tool_runner::list_project_tools,
+            commands::tool_runner::run_project_tool,
+            commands::tool_runner::stop_project_tool,
+            commands::asset_library::search_asset_library,
+            commands::asset_library::install_asset_as_template,
+            commands::asset_library::install_asset,
+            commands::asset_library::download_asset,
+            commands::asset_library::search_asset_store,
+            commands::asset_library::download_store_asset,
+            commands::asset_library::install_store_asset,
+            commands::asset_library::get_asset_library_categories,
+            commands::vault::list_vault_items,
+            commands::vault::save_to_vault,
+            commands::vault::add_vault_item_to_projects,
+            commands::vault::delete_vault_item,
+            commands::vault::update_vault_item,
+            commands::changelog::list_changelog_entries,
+            commands::changelog::add_changelog_entry,
+            commands::changelog::update_changelog_entry,
+            commands::changelog::delete_changelog_entry,
+            commands::changelog::list_git_tags,
+            commands::changelog::generate_changelog_draft,
+            commands::install_mode::is_portable_install,
+            commands::mise::mise_status,
+            commands::mise::mise_refresh_status,
+            commands::mise::mise_sync_godot_versions,
+            commands::mise::mise_install_godot_version,
+            commands::mise::mise_uninstall_godot_version,
+            commands::git::clone_repo,
+            commands::git::get_git_status,
+            commands::git::batch_git_status,
+            commands::git::open_terminal,
+            commands::git::git_pull,
+            commands::git::git_fetch,
+            commands::git::git_push,
+            commands::git::git_log_entries,
+            commands::git::git_list_remotes,
+            commands::git::git_ahead_behind,
+            commands::git::git_show_commit,
+            commands::git::git_list_branches,
+            commands::git::git_branch_publish,
+            commands::git::git_switch_branch,
+            commands::git::git_create_branch,
+            commands::git::git_delete_branch,
+            commands::git::git_stash_push,
+            commands::git::git_stash_list,
+            commands::git::git_stash_apply,
+            commands::git::git_stash_show,
+            commands::git::git_stash_pop,
+            commands::git::git_stash_drop,
+            commands::git::git_changed_files,
+            commands::git::git_discard_changes,
+            commands::git::git_discard_file,
+            commands::git::git_init_project,
+            commands::git::git_is_available,
+            commands::git::git_stage_file,
+            commands::git::git_unstage_file,
+            commands::git::git_commit,
+            commands::git::git_file_diff,
+            commands::git::git_undo_commit,
+            commands::git::git_undo_pull,
+            commands::git::git_merge_conflict_files,
+            commands::git::git_resolve_conflict_ours,
+            commands::git::git_resolve_conflict_theirs,
+            commands::git::git_resolve_conflict_manual,
+            commands::git::git_abort_merge,
+            commands::git::git_is_merging,
+            commands::git::git_worktree_list,
+            commands::git::git_worktree_switch,
+            commands::git::git_worktree_add,
+            commands::git::git_worktree_remove,
+            commands::watcher::restart_watchers,
+            commands::watcher::start_git_fs_watcher,
+            commands::watcher::stop_git_fs_watcher,
             notify,
-            projects::list_projects,
-            projects::get_projects_health,
-            projects::restore_projects_from_backup,
-            project_todos::list_project_todos,
-            project_todos::save_project_todos,
-            project_todos::list_open_todos,
-            todo_sync::sync_project_todos,
-            todo_sync::todo_git_activity,
-            todo_sync::list_project_resources,
-            todo_sync::open_todo_link,
-            projects::create_project,
-            projects::duplicate_project,
-            projects::import_project,
-            projects::remove_project,
-            projects::update_project,
-            cli_shim::cli_tool_status,
-            cli_shim::install_cli_tool,
-            cli_shim::uninstall_cli_tool,
-            project_health::diagnose_project,
-            project_health::fix_project_health,
-            projects::reorder_projects,
-            projects::open_project,
-            projects::open_project_folder,
-            console::get_project_console,
-            console::clear_project_console,
-            export_runner::get_project_export_presets,
-            export_runner::start_project_export,
-            export_runner::get_project_export,
-            export_runner::get_project_exports,
-            export_runner::cancel_project_export,
-            export_runner::open_export_artifact_folder,
-            projects::open_in_editor,
-            projects::get_project_icon,
-            projects::get_project_size,
-            projects::get_project_file_tree,
-            projects::get_project_name,
-            projects::stop_project,
-            projects::list_running_projects,
-            projects::pick_file,
-            projects::read_image_file,
-            projects::write_project_tags,
-            projects::export_project_stats,
-            projects::import_project_stats,
-            time_stats::get_activity,
-            time_stats::get_project_activity,
-            time_stats::get_time_insights,
-            time_stats::clear_time_stats,
-            categories::list_categories,
-            categories::create_category,
-            categories::update_category,
-            categories::rename_category,
-            categories::delete_category,
-            categories::reorder_categories,
-            categories::add_category_folder,
-            categories::remove_category_folder,
-            settings::get_settings,
-            settings::update_settings,
-            settings::reset_settings,
-            settings::export_settings,
-            settings::import_settings,
-            backup::export_workspace_backup,
-            backup::import_workspace_backup,
-            backup::export_app_backup,
-            backup::import_app_backup,
-            sync::gist_sync_push,
-            sync::gist_sync_pull,
-            sync::gist_sync_get_info,
-            sync::gist_sync_pull_by_url,
-            sync::gist_sync_fetch_backup,
-            sync::gist_sync_save_gist_url,
-            settings::reset_app_data,
             get_os_username,
-            workspace::list_workspaces,
-            workspace::list_workspace_scan_dirs,
-            workspace::create_workspace,
-            workspace::switch_workspace,
-            workspace::update_workspace,
-            workspace::delete_workspace,
-            scan::scan_for_projects,
-            scan::scan_for_projects_with_info,
-            scan::scan_for_versions,
-            scan::import_version,
-            scan::add_custom_build,
-            scan::pick_executable,
-            projects::reintroduce_dismissed_projects,
-            news::fetch_godot_news,
-            templates::list_templates,
-            templates::save_project_as_template,
-            templates::delete_template,
-            templates::sync_templates_with_scan_dir,
-            addons::list_project_addons,
-            addons::check_addon_updates,
-            addons::update_project_addon,
-            tool_runner::list_project_tools,
-            tool_runner::run_project_tool,
-            tool_runner::stop_project_tool,
-            asset_library::search_asset_library,
-            asset_library::install_asset_as_template,
-            asset_library::install_asset,
-            asset_library::download_asset,
-            asset_library::search_asset_store,
-            asset_library::download_store_asset,
-            asset_library::install_store_asset,
-            asset_library::get_asset_library_categories,
-            templates::get_template_preview,
-            vault::list_vault_items,
-            vault::save_to_vault,
-            vault::add_vault_item_to_projects,
-            vault::delete_vault_item,
-            vault::update_vault_item,
-            changelog::list_changelog_entries,
-            changelog::add_changelog_entry,
-            changelog::update_changelog_entry,
-            changelog::delete_changelog_entry,
-            changelog::list_git_tags,
-            changelog::generate_changelog_draft,
-            install_mode::is_portable_install,
-            mise::mise_status,
-            mise::mise_refresh_status,
-            mise::mise_sync_godot_versions,
-            mise::mise_install_godot_version,
-            mise::mise_uninstall_godot_version,
-            git::clone_repo,
-            git::get_git_status,
-            git::batch_git_status,
-            git::open_terminal,
-            git::git_pull,
-            git::git_fetch,
-            git::git_push,
-            git::git_log_entries,
-            git::git_list_remotes,
-            git::git_ahead_behind,
-            git::git_show_commit,
-            git::git_list_branches,
-            git::git_branch_publish,
-            git::git_switch_branch,
-            git::git_create_branch,
-            git::git_delete_branch,
-            git::git_stash_push,
-            git::git_stash_list,
-            git::git_stash_apply,
-            git::git_stash_show,
-            git::git_stash_pop,
-            git::git_stash_drop,
-            git::git_changed_files,
-            git::git_discard_changes,
-            git::git_discard_file,
-            git::git_init_project,
-            git::git_is_available,
-            git::git_stage_file,
-            git::git_unstage_file,
-            git::git_commit,
-            git::git_file_diff,
-            git::git_undo_commit,
-            git::git_undo_pull,
-            git::git_merge_conflict_files,
-            git::git_resolve_conflict_ours,
-            git::git_resolve_conflict_theirs,
-            git::git_resolve_conflict_manual,
-            git::git_abort_merge,
-            git::git_is_merging,
-            git::git_worktree_list,
-            git::git_worktree_switch,
-            git::git_worktree_add,
-            git::git_worktree_remove,
+            dialogs::pick_folder,
+            dialogs::pick_save_path,
+            dialogs::pick_data_file,
+            dialogs::pick_file,
+            dialogs::pick_executable,
             tray::refresh_tray_menu,
-            pick_folder,
-            pick_save_path,
-            pick_data_file,
-            watcher::restart_watchers,
-            watcher::start_git_fs_watcher,
-            watcher::stop_git_fs_watcher,
         ])
         .build(tauri::generate_context!())
         .expect("error while building tauri application")
@@ -592,4 +326,40 @@ pub fn run() {
                 tray::show_main_window(_app);
             }
         });
+}
+
+#[cfg(test)]
+mod tests {
+    use godothub_core::{Channel, Paths};
+    use tauri::Manager;
+
+    fn tauri_app() -> tauri::App<tauri::test::MockRuntime> {
+        tauri::test::mock_builder()
+            .build(tauri::generate_context!())
+            .expect("failed to build the mock app")
+    }
+
+    #[test]
+    fn stable_paths_match_tauri_path_resolution() {
+        let app = tauri_app();
+        let tauri_paths = app.path();
+        let core = Paths::for_channel(Channel::Stable);
+        assert_eq!(core.app_data_dir().ok(), tauri_paths.app_data_dir().ok());
+        assert_eq!(core.app_config_dir().ok(), tauri_paths.app_config_dir().ok());
+        assert_eq!(core.app_cache_dir().ok(), tauri_paths.app_cache_dir().ok());
+        assert_eq!(core.download_dir().ok(), tauri_paths.download_dir().ok());
+        assert_eq!(core.home_dir().ok(), tauri_paths.home_dir().ok());
+    }
+
+    #[test]
+    fn stable_channel_matches_the_tauri_config() {
+        let app = tauri_app();
+        let config = app.config();
+        let stable = Channel::Stable.info();
+        assert_eq!(config.identifier, stable.identifier);
+        assert_eq!(config.product_name.as_deref(), Some(stable.display_name));
+        let updater = config.plugins.0.get("updater").expect("updater config");
+        assert_eq!(updater["pubkey"].as_str(), stable.updater_public_keys.first().copied());
+        assert_eq!(updater["endpoints"][0].as_str(), Some(stable.update_endpoint));
+    }
 }

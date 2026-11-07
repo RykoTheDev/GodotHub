@@ -9,49 +9,32 @@ edition = "2021"
 name = "godothub_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
+[dev-dependencies]
+tauri = { version = "2", features = ["tray-icon", "test"] }
+
 [build-dependencies]
 tauri-build = { version = "2", features = [] }
 
 [dependencies]
-clap = { version = "4", features = ["derive"] }
-dirs = "6"
 tauri = { version = "2", features = ["tray-icon"] }
 tauri-plugin-opener = "2"
 tauri-plugin-process = "2"
 serde = { version = "1", features = ["derive"] }
-serde_json = "1"
-sha2 = "0.10"
-shlex = "1"
+serde_json = { version = "1", features = ["raw_value"] }
+godothub-core = { path = "../crates/godothub-core" }
 tauri-plugin-dialog = "2.7.1"
-reqwest = { version = "0.13.4", features = ["json", "stream", "gzip"] }
-url = "2"
 tokio = { version = "1.52.3", features = ["full"] }
-futures-util = "0.3.32"
-zip = "9.1.3"
-uuid = { version = "1.23.4", features = ["v4", "serde"] }
-chrono = { version = "0.4.45", features = ["serde"] }
-base64 = "0.22.1"
 tauri-plugin-prevent-default = "5"
-feed-rs = "2"
-quick-xml = "0.41"
 tauri-plugin-single-instance = "2.0.0"
-notify = "6"
 tauri-plugin-updater = "2.10.1"
 tauri-plugin-window-state = "2"
 tauri-plugin-notification = "2"
-trash = "3"
-thiserror = "2"
 tauri-plugin-discord-rpc = { git = "https://github.com/Youwes09/tauri-plugin-discord-rpc", rev = "e0ad152c29b5b8e372e108a7b868707e5f72e1cc" }
 
 [target.'cfg(not(any(target_os = "android", target_os = "ios")))'.dependencies]
 tauri-plugin-single-instance = "2"
 
-[target.'cfg(unix)'.dependencies]
-libc = "0.2"
-
 [target.'cfg(windows)'.dependencies]
-windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_System_Threading", "Win32_Storage_FileSystem", "Win32_System_Console", "Win32_UI_WindowsAndMessaging"] }
-winreg = "0.55"
 windows = { version = "0.62", features = ["Win32_Foundation", "Win32_Storage_EnhancedStorage", "Win32_System_Com", "Win32_System_Com_StructuredStorage", "Win32_System_Variant", "Win32_UI_Shell", "Win32_UI_Shell_Common", "Win32_UI_Shell_PropertiesSystem"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
@@ -59,7 +42,3 @@ objc2 = "0.6"
 objc2-app-kit = { version = "0.3", features = ["NSApplication", "NSMenu", "NSMenuItem", "NSResponder"] }
 objc2-foundation = { version = "0.3", features = ["NSString"] }
 
-[profile.release]
-lto = "thin"
-codegen-units = 1
-strip = true

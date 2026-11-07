@@ -1,0 +1,469 @@
+use std::ffi::{OsStr, OsString};
+use std::path::Path;
+use std::process::{Child, Command};
+
+#[cfg(target_os = "windows")]
+use std::os::windows::process::CommandExt;
+
+#[cfg(target_os = "windows")]
+pub const CREATE_NO_WINDOW: u32 = 0x0800_0000;
+
+use std::path::PathBuf;
+
+use crate::AppHandle;
+
+#[cfg(all(unix, not(target_os = "macos")))]
+const TERMINALS: [(&str, &[&str]); 23] = [
+    ("xdg-terminal-exec", &[]),
+    ("x-terminal-emulator", &["-e"]),
+    ("gnome-terminal", &["--"]),
+    ("konsole", &["-e"]),
+    ("kgx", &["--"]),
+    ("ptyxis", &["-x"]),
+    ("xfce4-terminal", &["-x"]),
+    ("tilix", &["-e"]),
+    ("mate-terminal", &["-x"]),
+    ("deepin-terminal", &["-e"]),
+    ("cosmic-term", &["-e"]),
+    ("qterminal", &["-e"]),
+    ("lxterminal", &["-e"]),
+    ("kitty", &[]),
+    ("alacritty", &["-e"]),
+    ("wezterm", &["start", "--"]),
+    ("foot", &[]),
+    ("ghostty", &["-e"]),
+    ("terminator", &["-x"]),
+    ("urxvt", &["-e"]),
+    ("rxvt", &["-e"]),
+    ("st", &["-e"]),
+    ("xterm", &["-e"]),
+];
+
+#[cfg(unix)]
+fn sh_quote(value: &str) -> String {
+    format!("'{}'", value.replace('\'', "'\\''"))
+}
+
+fn prune_stale_scripts(dir: &Path) {
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return;
+    };
+    let cutoff = std::time::Duration::from_secs(60 * 60 * 24);
+    for entry in entries.flatten() {
+        let stale = entry
+            .metadata()
+            .and_then(|m| m.modified())
+            .map(|m| m.elapsed().map(|age| age > cutoff).unwrap_or(false))
+            .unwrap_or(false);
+        if stale {
+            let _ = std::fs::remove_file(entry.path());
+        }
+    }
+}
+
+fn launch_dir(app: &AppHandle) -> Result<PathBuf, String> {
+    let dir = app
+        .path()
+        .app_cache_dir()
+        .map_err(|e| e.to_string())?
+        .join("launch");
+
+    if !dir.exists() {
+        if let Some(parent) = dir.parent() {
+            std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
+        }
+
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::DirBuilderExt;
+            std::fs::DirBuilder::new()
+                .mode(0o700)
+                .create(&dir)
+                .map_err(|e| e.to_string())?;
+        }
+
+        #[cfg(not(unix))]
+        {
+            std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
+        }
+    } else {
+        #[cfg(unix)]
+        {
+            use std::os::unix::fs::PermissionsExt;
+            std::fs::set_permissions(&dir, std::fs::Permissions::from_mode(0o700))
+                .map_err(|e| e.to_string())?;
+        }
+    }
+
+    Ok(dir)
+}
+
+fn launch_stamp() -> u128 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_nanos())
+        .unwrap_or(0)
+}
+
+fn write_launch_script(
+    app: &AppHandle,
+    body: &str,
+    extension: &str,
+    stamp: u128,
+) -> Result<PathBuf, String> {
+    let dir = launch_dir(app)?;
+    prune_stale_scripts(&dir);
+
+    let script = dir.join(format!("launch-{stamp}.{extension}"));
+
+    std::fs::write(&script, body).map_err(|e| e.to_string())?;
+
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        std::fs::set_permissions(&script, std::fs::Permissions::from_mode(0o700))
+            .map_err(|e| e.to_string())?;
+    }
+
+    Ok(script)
+}
+
+#[cfg(unix)]
+fn program_script_body(program: &Path, args: &[String], pid_file: &Path) -> String {
+    let quoted_pid_file = sh_quote(&pid_file.to_string_lossy());
+    let mut body = String::from("#!/bin/sh\n");
+    body.push_str(&sh_quote(&program.to_string_lossy()));
+    for arg in args {
+        body.push(' ');
+        body.push_str(&sh_quote(arg));
+    }
+    body.push_str(" &\n");
+    body.push_str("godothub_child=$!\n");
+    body.push_str(&format!(
+        "printf '%s\\n' \"$godothub_child\" > {quoted_pid_file}.tmp && mv {quoted_pid_file}.tmp {quoted_pid_file}\n"
+    ));
+    body.push_str("wait \"$godothub_child\"\n");
+    body.push_str("godothub_status=$?\n");
+    body.push_str("if [ \"$godothub_status\" -ne 0 ]; then\n");
+    body.push_str(
+        "  printf '\\n[GodotHub] Godot exited with status %s.\\n' \"$godothub_status\"\n",
+    );
+    body.push_str(
+        "  printf '[GodotHub] This window stays open so you can read the output above.\\n'\n",
+    );
+    body.push_str("  printf 'Press Enter to close this window.'\n");
+    body.push_str("  read -r _\n");
+    body.push_str("fi\n");
+    body
+}
+
+#[cfg(all(unix, not(target_os = "macos")))]
+fn find_on_path(binary: &str) -> Option<PathBuf> {
+    if binary.contains('/') {
+        let direct = PathBuf::from(binary);
+        return direct.is_file().then_some(direct);
+    }
+    std::env::split_paths(&std::env::var_os("PATH")?)
+        .map(|dir| dir.join(binary))
+        .find(|candidate| candidate.is_file())
+}
+
+#[cfg(all(unix, not(target_os = "macos")))]
+fn flags_for(binary: &str) -> &'static [&'static str] {
+    let name = Path::new(binary)
+        .file_name()
+        .and_then(|s| s.to_str())
+        .unwrap_or(binary);
+    TERMINALS
+        .iter()
+        .find(|(known, _)| *known == name)
+        .map(|(_, flags)| *flags)
+        .unwrap_or(&["-e"])
+}
+
+#[cfg(all(unix, not(target_os = "macos")))]
+const APPIMAGE_PATH_VARS: &[&str] = &[
+    "LD_LIBRARY_PATH",
+    "LD_PRELOAD",
+    "PATH",
+    "XDG_DATA_DIRS",
+    "XDG_CONFIG_DIRS",
+    "GIO_EXTRA_MODULES",
+    "GIO_MODULE_DIR",
+    "GDK_PIXBUF_MODULEDIR",
+    "GDK_PIXBUF_MODULE_FILE",
+    "GTK_PATH",
+    "GTK_EXE_PREFIX",
+    "GTK_DATA_PREFIX",
+    "GTK_IM_MODULE_FILE",
+    "GSETTINGS_SCHEMA_DIR",
+    "GST_PLUGIN_PATH",
+    "GST_PLUGIN_SYSTEM_PATH",
+    "GST_PLUGIN_SYSTEM_PATH_1_0",
+    "GST_PLUGIN_SCANNER",
+    "QT_PLUGIN_PATH",
+    "PYTHONHOME",
+    "PYTHONPATH",
+    "PERLLIB",
+];
+
+#[cfg(all(unix, not(target_os = "macos")))]
+const APPIMAGE_MARKER_VARS: &[&str] = &["APPIMAGE", "APPDIR", "ARGV0", "OWD"];
+
+#[cfg_attr(not(all(unix, not(target_os = "macos"))), allow(dead_code))]
+pub(crate) fn without_bundle_entries(value: &OsStr, bundle: &Path) -> Option<OsString> {
+    let kept: Vec<PathBuf> = std::env::split_paths(value)
+        .filter(|entry| !entry.as_os_str().is_empty() && !entry.starts_with(bundle))
+        .collect();
+    if kept.is_empty() {
+        return None;
+    }
+    std::env::join_paths(kept).ok()
+}
+
+#[cfg_attr(not(all(unix, not(target_os = "macos"))), allow(dead_code))]
+fn appimage_bundle_dir() -> Option<PathBuf> {
+    std::env::var_os("APPIMAGE")?;
+    if let Some(dir) = std::env::var_os("APPDIR").filter(|dir| !dir.is_empty()) {
+        return Some(PathBuf::from(dir));
+    }
+    std::env::current_exe()
+        .ok()?
+        .ancestors()
+        .find(|dir| {
+            dir.file_name()
+                .map(|name| name.to_string_lossy().starts_with(".mount_"))
+                .unwrap_or(false)
+        })
+        .map(Path::to_path_buf)
+}
+
+#[cfg(all(unix, not(target_os = "macos")))]
+pub fn sanitize_child_env(cmd: &mut Command) {
+    let Some(bundle) = appimage_bundle_dir() else {
+        return;
+    };
+    for var in APPIMAGE_PATH_VARS {
+        let Some(value) = std::env::var_os(var) else {
+            continue;
+        };
+        match without_bundle_entries(&value, &bundle) {
+            Some(clean) => {
+                cmd.env(var, clean);
+            }
+            None if *var == "PATH" => {}
+            None => {
+                cmd.env_remove(var);
+            }
+        }
+    }
+    for var in APPIMAGE_MARKER_VARS {
+        cmd.env_remove(var);
+    }
+}
+
+#[cfg(not(all(unix, not(target_os = "macos"))))]
+pub fn sanitize_child_env(_cmd: &mut Command) {}
+
+#[cfg(all(unix, not(target_os = "macos")))]
+fn spawn_script(script: &Path) -> Result<Child, String> {
+    if let Some(preferred) = std::env::var("TERMINAL").ok().filter(|t| !t.is_empty()) {
+        if let Some(binary) = find_on_path(&preferred) {
+            let mut cmd = Command::new(binary);
+            sanitize_child_env(&mut cmd);
+            if let Ok(child) = cmd.args(flags_for(&preferred)).arg(script).spawn() {
+                return Ok(child);
+            }
+        }
+    }
+
+    for (binary, flags) in TERMINALS {
+        let Some(resolved) = find_on_path(binary) else {
+            continue;
+        };
+        let mut cmd = Command::new(resolved);
+        sanitize_child_env(&mut cmd);
+        if let Ok(child) = cmd.args(flags).arg(script).spawn() {
+            return Ok(child);
+        }
+    }
+
+    Err("Could not find a terminal emulator".into())
+}
+
+#[cfg(all(unix, not(target_os = "macos")))]
+pub fn spawn_shell_script_in_terminal(app: &AppHandle, body: &str) -> Result<Child, String> {
+    let script = write_launch_script(app, body, "sh", launch_stamp())?;
+    spawn_script(&script)
+}
+
+#[cfg(target_os = "macos")]
+fn spawn_script(script: &Path) -> Result<Child, String> {
+    Command::new("open")
+        .arg(script)
+        .spawn()
+        .or_else(|_| {
+            Command::new("open")
+                .args(["-a", "Terminal"])
+                .arg(script)
+                .spawn()
+        })
+        .map_err(|e| format!("Failed to open a terminal: {e}"))
+}
+
+#[cfg(unix)]
+pub fn spawn_program_in_terminal(
+    app: &AppHandle,
+    program: &Path,
+    args: &[String],
+) -> Result<(Child, PathBuf), String> {
+    let extension = if cfg!(target_os = "macos") {
+        "command"
+    } else {
+        "sh"
+    };
+    let stamp = launch_stamp();
+    let pid_file = launch_dir(app)?.join(format!("launch-{stamp}.pid"));
+    let script = write_launch_script(
+        app,
+        &program_script_body(program, args, &pid_file),
+        extension,
+        stamp,
+    )?;
+    spawn_script(&script).map(|child| (child, pid_file))
+}
+
+#[cfg(unix)]
+pub fn read_pid_file(path: &Path) -> Option<u32> {
+    std::fs::read_to_string(path)
+        .ok()?
+        .trim()
+        .parse::<u32>()
+        .ok()
+        .filter(|pid| *pid > 1)
+}
+
+#[cfg(target_os = "windows")]
+fn console_title(raw: &str) -> String {
+    let cleaned: String = raw
+        .lines()
+        .next()
+        .unwrap_or_default()
+        .chars()
+        .filter(|c| !c.is_control() && *c != '"' && *c != '%')
+        .take(60)
+        .collect();
+
+    match cleaned.trim() {
+        "" => "Godot".to_string(),
+        trimmed => trimmed.to_string(),
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn quote_arg(arg: &str) -> String {
+    let sanitized = arg.replace('"', "'");
+    let trailing = sanitized.len() - sanitized.trim_end_matches('\\').len();
+    format!("\"{}{}\"", sanitized, "\\".repeat(trailing))
+}
+
+#[cfg(target_os = "windows")]
+fn quote_script_arg(arg: &str) -> String {
+    quote_arg(&arg.replace('%', "%%"))
+}
+
+#[cfg(target_os = "windows")]
+fn script_title(raw: &str) -> String {
+    let cleaned: String = console_title(raw)
+        .chars()
+        .filter(|c| !matches!(c, '&' | '|' | '<' | '>' | '^' | '(' | ')' | '!'))
+        .collect();
+
+    match cleaned.trim() {
+        "" => "Godot".to_string(),
+        trimmed => trimmed.to_string(),
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn console_script_body(program: &Path, args: &[String], title: &str) -> String {
+    let mut body = String::from("@echo off\r\n");
+    body.push_str(&format!("title {}\r\n", script_title(title)));
+    body.push_str(&quote_script_arg(&program.display().to_string()));
+    for arg in args {
+        body.push(' ');
+        body.push_str(&quote_script_arg(arg));
+    }
+    body.push_str("\r\n");
+    body.push_str("set \"godothub_status=%errorlevel%\"\r\n");
+    body.push_str("if not \"%godothub_status%\"==\"0\" (\r\n");
+    body.push_str("  echo.\r\n");
+    body.push_str("  echo [GodotHub] Godot exited with code %godothub_status%.\r\n");
+    body.push_str("  echo [GodotHub] This window stays open so you can read the output above.\r\n");
+    body.push_str("  pause\r\n");
+    body.push_str(")\r\n");
+    body
+}
+
+#[cfg(target_os = "windows")]
+pub fn spawn_program_in_console(
+    app: &AppHandle,
+    program: &Path,
+    args: &[String],
+    title: &str,
+) -> Result<Child, String> {
+    let script = write_launch_script(
+        app,
+        &console_script_body(program, args, title),
+        "cmd",
+        launch_stamp(),
+    )?;
+
+    Command::new("cmd")
+        .raw_arg(format!(
+            "/C start \"{}\" /WAIT {}",
+            console_title(title),
+            quote_arg(&script.display().to_string())
+        ))
+        .creation_flags(CREATE_NO_WINDOW)
+        .spawn()
+        .map_err(|e| format!("Failed to open a console window: {e}"))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn joined(parts: &[&str]) -> OsString {
+        std::env::join_paths(parts.iter().map(PathBuf::from)).unwrap()
+    }
+
+    #[test]
+    fn bundle_entries_are_dropped_and_user_entries_kept() {
+        let bundle = Path::new("/tmp/.mount_GodotHfgdGDg");
+        let value = joined(&[
+            "/tmp/.mount_GodotHfgdGDg/usr/lib",
+            "/opt/custom/lib",
+            "/tmp/.mount_GodotHfgdGDg/usr/lib/x86_64-linux-gnu",
+        ]);
+        assert_eq!(without_bundle_entries(&value, bundle), Some(joined(&["/opt/custom/lib"])));
+    }
+
+    #[test]
+    fn variable_with_only_bundle_entries_is_removed() {
+        let bundle = Path::new("/tmp/.mount_abc");
+        let value = joined(&["/tmp/.mount_abc/usr/lib", "/tmp/.mount_abc/usr/lib64"]);
+        assert_eq!(without_bundle_entries(&value, bundle), None);
+        assert_eq!(without_bundle_entries(OsStr::new(""), bundle), None);
+    }
+
+    #[test]
+    fn paths_that_merely_share_a_prefix_are_kept() {
+        let bundle = Path::new("/tmp/.mount_abc");
+        let value = joined(&["/tmp/.mount_abcdef/usr/lib", "/usr/lib"]);
+        assert_eq!(
+            without_bundle_entries(&value, bundle),
+            Some(joined(&["/tmp/.mount_abcdef/usr/lib", "/usr/lib"]))
+        );
+    }
+}

@@ -1,0 +1,2481 @@
+use crate::models::*;
+use crate::persist;
+use crate::process::{self, ProcessLiveness};
+use crate::settings;
+use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::process::Child;
+use crate::AppHandle;
+use uuid::Uuid;
+
+use std::collections::HashMap;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Mutex, OnceLock};
+use std::time::{Duration, Instant, SystemTime};
+
+pub enum TrackedHandle {
+    Child(Child),
+    Pid { pid: u32, project_path: String },
+}
+
+pub struct TrackedProcess {
+    pub handle: TrackedHandle,
+    pub kill_tree: bool,
+    pub launched_at: std::time::SystemTime,
+    pid_revalidated: bool,
+}
+
+pub(crate) fn tracked_pid(app: &AppHandle, id: &str) -> Option<u32> {
+    let state = app.try_state::<ActiveProcesses>()?;
+    let active = state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+    match &active.get(id)?.handle {
+        TrackedHandle::Child(child) => Some(child.id()),
+        TrackedHandle::Pid { pid, .. } => Some(*pid),
+    }
+}
+
+impl TrackedProcess {
+    fn is_running(&mut self) -> bool {
+        match &mut self.handle {
+            TrackedHandle::Child(child) => matches!(child.try_wait(), Ok(None)),
+            TrackedHandle::Pid { pid, project_path } => match process::process_liveness(*pid) {
+                ProcessLiveness::Alive => true,
+                ProcessLiveness::Exited => {
+                    if self.pid_revalidated {
+                        return false;
+                    }
+                    self.pid_revalidated = true;
+                    match process::find_running_godot_processes() {
+                        Ok(processes) => processes.iter().any(|running| {
+                            !running.is_export
+                                && running.pid == *pid
+                                && same_path(&running.project_path, project_path)
+                        }),
+                        Err(_) => true,
+                    }
+                }
+                ProcessLiveness::Unknown => true,
+            },
+        }
+    }
+}
+
+pub struct ActiveProcesses(pub Mutex<HashMap<String, TrackedProcess>>);
+
+#[derive(Debug, Clone, Serialize)]
+pub struct RunningProjectInfo {
+    pub id: String,
+    pub name: String,
+    pub version: String,
+    pub launched_at_ms: u64,
+    pub console: bool,
+}
+
+const SESSION_START_DELAY_MS: u64 = 3000;
+const SETTLE_OK_TTL: Duration = Duration::from_secs(60);
+
+static LAST_SETTLE_OK: Mutex<Option<Instant>> = Mutex::new(None);
+static SETTLE_IN_FLIGHT: AtomicBool = AtomicBool::new(false);
+
+const DEFAULT_ICON_SVG: &[u8] = include_bytes!("../../../src-tauri/icon.svg");
+
+struct CachedIcon {
+    project_godot_mtime: Option<SystemTime>,
+    icon_scan_depth: u32,
+    icon_file: Option<(PathBuf, Option<SystemTime>)>,
+    data: Option<String>,
+}
+
+fn file_mtime(path: &Path) -> Option<SystemTime> {
+    fs::metadata(path).and_then(|m| m.modified()).ok()
+}
+
+fn icon_cache() -> &'static Mutex<HashMap<String, CachedIcon>> {
+    static CACHE: OnceLock<Mutex<HashMap<String, CachedIcon>>> = OnceLock::new();
+    CACHE.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+#[derive(Clone)]
+struct ProjectFileInfo {
+    mtime: Option<SystemTime>,
+    name: Option<String>,
+    tags: Vec<String>,
+}
+
+fn project_file_cache() -> &'static Mutex<HashMap<String, ProjectFileInfo>> {
+    static CACHE: OnceLock<Mutex<HashMap<String, ProjectFileInfo>>> = OnceLock::new();
+    CACHE.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn ensured_identities() -> &'static Mutex<HashMap<String, (String, Option<String>)>> {
+    static CACHE: OnceLock<Mutex<HashMap<String, (String, Option<String>)>>> = OnceLock::new();
+    CACHE.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn cached_project_file_info(project_path: &str) -> Option<ProjectFileInfo> {
+    let godot_file = Path::new(project_path).join("project.godot");
+    let meta = fs::metadata(&godot_file).ok()?;
+    if !meta.is_file() {
+        return None;
+    }
+    let mtime = meta.modified().ok();
+    {
+        let cache = project_file_cache().lock().unwrap_or_else(|e| e.into_inner());
+        if let Some(hit) = cache.get(project_path) {
+            if mtime.is_some() && hit.mtime == mtime {
+                return Some(hit.clone());
+            }
+        }
+    }
+    let info = ProjectFileInfo {
+        mtime,
+        name: resolve_project_name(project_path),
+        tags: resolve_project_tags(project_path),
+    };
+    project_file_cache()
+        .lock()
+        .unwrap_or_else(|e| e.into_inner())
+        .insert(project_path.to_string(), info.clone());
+    Some(info)
+}
+
+pub(crate) fn native_path(path: &str) -> String {
+    if cfg!(windows) {
+        path.replace('/', "\\")
+    } else {
+        path.to_string()
+    }
+}
+
+fn ensure_project_identity_cached(project_path: &str, id: &str, category: Option<&str>) {
+    let wanted = (id.to_string(), category.map(str::to_string));
+    {
+        let cache = ensured_identities().lock().unwrap_or_else(|e| e.into_inner());
+        if cache.get(project_path) == Some(&wanted) {
+            return;
+        }
+    }
+    if crate::project_identity::ensure_project_identity(project_path, id, category) {
+        ensured_identities()
+            .lock()
+            .unwrap_or_else(|e| e.into_inner())
+            .insert(project_path.to_string(), wanted);
+    }
+}
+
+#[derive(serde::Serialize, serde::Deserialize, Default)]
+pub(crate) struct ProjectStore {
+    #[serde(default)]
+    pub schema_version: u32,
+    #[serde(default)]
+    pub projects: Vec<Project>,
+}
+
+impl persist::Versioned for ProjectStore {
+    const VERSION: u32 = 1;
+    fn migrate(value: serde_json::Value, _from: u32) -> serde_json::Value {
+        // Version 0 stored a bare array of projects at the top level.
+        if value.is_array() {
+            return serde_json::json!({ "schema_version": 1, "projects": value });
+        }
+        value
+    }
+}
+
+fn projects_path(dir: &std::path::Path) -> std::path::PathBuf {
+    dir.join("projects.json")
+}
+
+pub(crate) fn load_projects_from(dir: &std::path::Path) -> persist::Loaded<ProjectStore> {
+    persist::load_json::<ProjectStore>(&projects_path(dir))
+}
+
+pub(crate) fn read_projects_from(dir: &std::path::Path) -> Vec<Project> {
+    load_projects_from(dir).value.projects
+}
+
+pub(crate) fn read_projects(app: &AppHandle) -> Vec<Project> {
+    read_projects_from(&crate::workspace::active_workspace_dir(app))
+}
+
+pub(crate) fn write_projects_to(
+    dir: &std::path::Path,
+    projects: &Vec<Project>,
+) -> Result<(), String> {
+    let store = ProjectStore {
+        schema_version: <ProjectStore as persist::Versioned>::VERSION,
+        projects: projects.clone(),
+    };
+    persist::write_json_with_backup(&projects_path(dir), &store).map_err(|e| e.to_string())
+}
+
+pub(crate) fn write_projects(app: &AppHandle, projects: &Vec<Project>) -> Result<(), String> {
+    write_projects_to(&crate::workspace::active_workspace_dir(app), projects)
+}
+
+/// Registers a project folder into a workspace's registry without needing an
+/// `AppHandle`, so the CLI can add a project it opened by path. If a project
+/// with the same path is already registered, that one is returned unchanged.
+pub(crate) fn register_project_in_workspace(
+    workspace_dir: &std::path::Path,
+    project_path: &str,
+    godot_version: String,
+) -> Result<Project, String> {
+    let project_path = native_path(project_path);
+    let mut projects = read_projects_from(workspace_dir);
+    if let Some(existing) = projects
+        .iter()
+        .find(|project| same_path(&project.path, &project_path))
+    {
+        return Ok(existing.clone());
+    }
+
+    let name = resolve_project_name(&project_path).unwrap_or_else(|| {
+        Path::new(&project_path)
+            .file_name()
+            .map(|n| n.to_string_lossy().to_string())
+            .unwrap_or_else(|| project_path.clone())
+    });
+    let project = Project {
+        id: Uuid::new_v4().to_string(),
+        name,
+        path: project_path.clone(),
+        godot_version,
+        created_at: chrono::Utc::now().to_rfc3339(),
+        last_opened: None,
+        category: None,
+        pinned: false,
+        sort_order: next_sort_order(&projects, &None),
+        launch_arguments: String::new(),
+        tags: resolve_project_tags(&project_path),
+        total_time_seconds: 0,
+        session_started_at_ms: None,
+        time_today_seconds: 0,
+        time_week_seconds: 0,
+    };
+    projects.push(project.clone());
+    write_projects_to(workspace_dir, &projects)?;
+    let _ = crate::project_identity::ensure_project_identity(
+        &project.path,
+        &project.id,
+        project.category.as_deref(),
+    );
+    Ok(project)
+}
+
+/// Serializes read-modify-write on the project registry so the UI, the watcher,
+/// and the session-settle thread cannot clobber each other's updates. The vec is
+/// read from disk under the lock, mutated, and written back atomically.
+pub(crate) fn update_projects(
+    app: &AppHandle,
+    mutate: impl FnOnce(&mut Vec<Project>),
+) -> Result<Vec<Project>, String> {
+    let path = projects_path(&crate::workspace::active_workspace_dir(app));
+    persist::update_json::<ProjectStore, _>(&path, |store| mutate(&mut store.projects))
+        .map(|store| store.projects)
+        .map_err(|e| e.to_string())
+}
+
+/// Reports whether the project registry loaded cleanly, had to fall back to its
+/// backup, or is corrupt, so the UI can warn instead of showing an empty library.
+pub async fn get_projects_health(app: AppHandle) -> persist::LoadStatus {
+    load_projects_from(&crate::workspace::active_workspace_dir(&app)).status
+}
+
+/// Restores the project registry from its `.bak` file after corruption. Returns
+/// the number of projects recovered.
+pub async fn restore_projects_from_backup(app: AppHandle) -> Result<usize, String> {
+    let dir = crate::workspace::active_workspace_dir(&app);
+    let backup = persist::backup_path(&projects_path(&dir));
+    let loaded = persist::load_json::<ProjectStore>(&backup);
+    if loaded.status != persist::LoadStatus::Ok {
+        return Err("No usable backup to restore from.".into());
+    }
+    write_projects_to(&dir, &loaded.value.projects)?;
+    Ok(loaded.value.projects.len())
+}
+
+pub(crate) fn epoch_ms() -> u64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(0)
+}
+
+fn settle_project_session(app: &AppHandle, id: &str, active_elapsed: Option<std::time::Duration>) {
+    let mut added_ms = 0u64;
+    let mut session_start_ms: Option<u64> = None;
+    let _ = update_projects(app, |projects| {
+        let Some(project) = projects.iter_mut().find(|p| p.id == id) else {
+            return;
+        };
+        match active_elapsed {
+            Some(d) => {
+                let marker = project.session_started_at_ms.take();
+                added_ms = (d.as_millis() as u64).saturating_sub(SESSION_START_DELAY_MS);
+                session_start_ms =
+                    Some(marker.unwrap_or_else(|| epoch_ms().saturating_sub(added_ms)));
+            }
+            None => {
+                if let Some(start) = project.session_started_at_ms.take() {
+                    let observed_end = crate::time_stats::last_active_ms(app).max(start);
+                    let end = epoch_ms().min(observed_end);
+                    let elapsed_ms = end.saturating_sub(start);
+                    added_ms = elapsed_ms.saturating_sub(SESSION_START_DELAY_MS);
+                    session_start_ms = Some(start);
+                }
+            }
+        }
+        if added_ms > 0 {
+            project.total_time_seconds += added_ms / 1000;
+        }
+    });
+    if let Some(start_ms) = session_start_ms {
+        crate::time_stats::record_session(app, id, start_ms, added_ms / 1000);
+    }
+}
+
+pub(crate) fn settle_stale_sessions(app: &AppHandle) {
+    settle_stale_sessions_inner(app, &LAST_SETTLE_OK, &SETTLE_IN_FLIGHT, || {
+        process::find_running_godot_processes()
+    });
+}
+
+fn settle_due(last_ok: Option<Instant>, now: Instant) -> bool {
+    match last_ok {
+        None => true,
+        Some(t) => now.saturating_duration_since(t) > SETTLE_OK_TTL,
+    }
+}
+
+struct SettleFlightGuard<'a>(&'a AtomicBool);
+impl Drop for SettleFlightGuard<'_> {
+    fn drop(&mut self) {
+        self.0.store(false, Ordering::SeqCst);
+    }
+}
+
+fn settle_stale_sessions_inner(
+    app: &AppHandle,
+    last_ok: &Mutex<Option<Instant>>,
+    in_flight: &AtomicBool,
+    find_processes: impl FnOnce() -> Result<Vec<process::RunningProcess>, String>,
+) {
+    if in_flight.swap(true, Ordering::SeqCst) {
+        return;
+    }
+    let _flight = SettleFlightGuard(in_flight);
+
+    let need = {
+        let guard = last_ok.lock().unwrap_or_else(|e| e.into_inner());
+        settle_due(*guard, Instant::now())
+    };
+    if !need {
+        return;
+    }
+
+    let running: std::collections::HashSet<String> = {
+        let Some(state) = app.try_state::<ActiveProcesses>() else {
+            return;
+        };
+        let active = state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        active.keys().cloned().collect()
+    };
+    let projects = read_projects(app);
+
+    let Ok(os_running) = find_processes() else {
+        return;
+    };
+
+    for p in projects {
+        if p.session_started_at_ms.is_some() && !running.contains(&p.id) {
+            if let Some(running_process) = os_running
+                .iter()
+                .find(|process| !process.is_export && same_path(&process.project_path, &p.path))
+            {
+                retrack_stale_session(
+                    app,
+                    &p,
+                    TrackedHandle::Pid {
+                        pid: running_process.pid,
+                        project_path: p.path.clone(),
+                    },
+                );
+            } else {
+                settle_project_session(app, &p.id, None);
+            }
+        }
+    }
+
+    *last_ok.lock().unwrap_or_else(|e| e.into_inner()) = Some(Instant::now());
+}
+
+fn retrack_stale_session(app: &AppHandle, project: &Project, handle: TrackedHandle) {
+    let Some(state) = app.try_state::<ActiveProcesses>() else {
+        return;
+    };
+
+    let id = project.id.clone();
+    let app_clone = app.clone();
+
+    let tracked = TrackedProcess {
+        handle,
+        kill_tree: false,
+        pid_revalidated: false,
+        launched_at: std::time::UNIX_EPOCH
+            + std::time::Duration::from_millis(
+                project
+                    .session_started_at_ms
+                    .unwrap_or_else(|| epoch_ms())
+                    .saturating_sub(SESSION_START_DELAY_MS),
+            ),
+    };
+    state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner).insert(id.clone(), tracked);
+
+    std::thread::spawn(move || {
+        wait_until_exited(&app_clone, &id);
+    });
+}
+
+#[cfg(target_os = "linux")]
+fn case_fold(path: &str) -> String {
+    path.to_string()
+}
+
+#[cfg(not(target_os = "linux"))]
+fn case_fold(path: &str) -> String {
+    path.to_lowercase()
+}
+
+fn normalize_path(path: &str) -> String {
+    let trimmed = path.trim_end_matches(['/', '\\']);
+    case_fold(if trimmed.is_empty() { path } else { trimmed })
+}
+
+pub fn same_path(a: &str, b: &str) -> bool {
+    normalize_path(a) == normalize_path(b)
+}
+
+pub fn path_is_within(path: &str, folder: &str) -> bool {
+    fn normalize_candidate(value: &str) -> String {
+        let trimmed = value.trim_end_matches(['/', '\\']);
+        let trimmed = if trimmed.is_empty() { value } else { trimmed };
+        case_fold(&trimmed.replace('\\', "/"))
+    }
+
+    let path = normalize_candidate(path);
+    let folder = normalize_candidate(folder);
+    if folder.is_empty() {
+        return false;
+    }
+    if path == folder {
+        return true;
+    }
+    match path.strip_prefix(&folder) {
+        Some(rest) => rest.starts_with('/'),
+        None => false,
+    }
+}
+
+pub fn contains_path(paths: &[String], path: &str) -> bool {
+    let target = normalize_path(path);
+    paths.iter().any(|p| normalize_path(p) == target)
+}
+
+fn undismiss(app: &AppHandle, path: &str) {
+    let mut s = settings::read_settings(app);
+    let before = s.dismissed_project_paths.len();
+    s.dismissed_project_paths.retain(|p| !same_path(p, path));
+    if s.dismissed_project_paths.len() != before {
+        let _ = settings::write_settings(app, &s);
+    }
+    let mut archive = read_dismissed_archive(app);
+    if archive.remove(&normalize_path(path)).is_some() {
+        write_dismissed_archive(app, &archive);
+    }
+}
+
+fn dismissed_archive_file(app: &AppHandle) -> PathBuf {
+    crate::workspace::active_workspace_dir(app).join("dismissed_projects.json")
+}
+
+fn read_dismissed_archive(app: &AppHandle) -> BTreeMap<String, Project> {
+    let file = dismissed_archive_file(app);
+    if !file.exists() {
+        return BTreeMap::new();
+    }
+    serde_json::from_str(&fs::read_to_string(&file).unwrap_or_default()).unwrap_or_default()
+}
+
+fn write_dismissed_archive(app: &AppHandle, archive: &BTreeMap<String, Project>) {
+    let _ = persist::write_json(&dismissed_archive_file(app), archive);
+}
+
+fn next_sort_order(projects: &[Project], category: &Option<String>) -> i64 {
+    projects
+        .iter()
+        .filter(|p| !p.pinned && &p.category == category)
+        .map(|p| p.sort_order)
+        .max()
+        .map(|m| m + 1)
+        .unwrap_or(0)
+}
+
+pub async fn list_projects(app: AppHandle) -> Vec<Project> {
+    tokio::task::spawn_blocking(move || list_projects_blocking(&app))
+        .await
+        .unwrap_or_default()
+}
+
+pub(crate) fn list_projects_blocking(app: &AppHandle) -> Vec<Project> {
+    let app = app.clone();
+    let start = std::time::Instant::now();
+    settle_stale_sessions(&app);
+    let projects = read_projects(&app);
+    let mut kept: Vec<Project> = Vec::with_capacity(projects.len());
+    let mut any_removed = false;
+    let mut tags_changed = false;
+    let mut names_changed = false;
+    let mut paths_changed = false;
+    for mut p in projects {
+        let native = native_path(&p.path);
+        if native != p.path {
+            p.path = native;
+            paths_changed = true;
+        }
+        let Some(info) = cached_project_file_info(&p.path) else {
+            any_removed = true;
+            continue;
+        };
+        if p.tags.is_empty() && !info.tags.is_empty() {
+            p.tags = info.tags;
+            tags_changed = true;
+        }
+        let folder = Path::new(&p.path)
+            .file_name()
+            .map(|n| n.to_string_lossy().to_string());
+        if let (Some(folder_name), Some(resolved)) = (folder, info.name) {
+            if p.name == folder_name && !resolved.trim().is_empty() && resolved != p.name {
+                p.name = resolved;
+                names_changed = true;
+            }
+        }
+        kept.push(p);
+    }
+
+    if any_removed || tags_changed || names_changed || paths_changed {
+        let _ = write_projects(&app, &kept);
+    }
+    for p in &kept {
+        ensure_project_identity_cached(&p.path, &p.id, p.category.as_deref());
+    }
+    let stats = crate::time_stats::read_stats(&app);
+    let now = chrono::Local::now();
+    for p in kept.iter_mut() {
+        let (today, week) = crate::time_stats::breakdown(&stats, &p.id, now);
+        p.time_today_seconds = today;
+        p.time_week_seconds = week;
+    }
+    eprintln!(
+        "[timing] list_projects total={}ms projects={}",
+        start.elapsed().as_millis(),
+        kept.len()
+    );
+    kept
+}
+
+fn capitalize_word(word: &str) -> String {
+    let mut chars = word.chars();
+    match chars.next() {
+        Some(first) => first.to_uppercase().collect::<String>() + &chars.as_str().to_lowercase(),
+        None => String::new(),
+    }
+}
+
+fn split_naming_words(name: &str) -> Vec<String> {
+    let mut words: Vec<String> = Vec::new();
+    let mut current = String::new();
+    let chars: Vec<char> = name.chars().collect();
+    let n = chars.len();
+    for (i, &c) in chars.iter().enumerate() {
+        if !c.is_ascii_alphanumeric() {
+            if !current.is_empty() {
+                words.push(std::mem::take(&mut current));
+            }
+            continue;
+        }
+        if !current.is_empty() {
+            let last = current.chars().last().unwrap();
+            let split = (last.is_ascii_lowercase() || last.is_ascii_digit())
+                && c.is_ascii_uppercase()
+                || last.is_ascii_uppercase()
+                    && c.is_ascii_uppercase()
+                    && i + 1 < n
+                    && chars[i + 1].is_ascii_lowercase();
+            if split {
+                words.push(std::mem::take(&mut current));
+            }
+        }
+        current.push(c);
+    }
+    if !current.is_empty() {
+        words.push(current);
+    }
+    words
+}
+
+pub(crate) fn apply_naming_convention(name: &str, convention: &str) -> String {
+    let words = split_naming_words(name);
+    if words.is_empty() {
+        return name.trim().to_string();
+    }
+    match convention {
+        "kebab-case" => words
+            .iter()
+            .map(|w| w.to_lowercase())
+            .collect::<Vec<_>>()
+            .join("-"),
+        "snake_case" => words
+            .iter()
+            .map(|w| w.to_lowercase())
+            .collect::<Vec<_>>()
+            .join("_"),
+        "camelCase" => {
+            let mut out = String::new();
+            for (i, w) in words.iter().enumerate() {
+                if i == 0 {
+                    out.push_str(&w.to_lowercase());
+                } else {
+                    out.push_str(&capitalize_word(w));
+                }
+            }
+            out
+        }
+        "PascalCase" => words.iter().map(|w| capitalize_word(w)).collect::<String>(),
+        "Title Case" => words
+            .iter()
+            .map(|w| capitalize_word(w))
+            .collect::<Vec<_>>()
+            .join(" "),
+        _ => name.to_string(),
+    }
+}
+
+pub async fn create_project(
+    app: AppHandle,
+    name: String,
+    location: String,
+    godot_version: String,
+    icon_path: Option<String>,
+    template_id: Option<String>,
+    category: Option<String>,
+) -> Result<Project, String> {
+    let settings = settings::read_settings(&app);
+    let folder_name = apply_naming_convention(&name, &settings.directory_naming_convention);
+    let project_dir = PathBuf::from(&location).join(&folder_name);
+    if project_dir.exists() {
+        return Err(format!(
+            "A folder named '{}' already exists at this location",
+            folder_name
+        ));
+    }
+
+    if let Some(ref tid) = template_id {
+        let template_src = crate::templates::template_dir(&app, tid);
+        if !template_src.exists() {
+            return Err("Template not found".into());
+        }
+        crate::templates::copy_dir(&template_src, &project_dir, &[".git", ".godot"])?;
+        let _ = fs::remove_file(project_dir.join("template.json"));
+    } else {
+        fs::create_dir_all(&project_dir).map_err(|e| e.to_string())?;
+    }
+
+    let feature_tag = version_feature_tag(&godot_version);
+    let mut project_godot = format!(
+        "; Engine configuration file.\n\n[application]\n\nconfig/name=\"{}\"\nconfig/icon=\"res://icon.svg\"\nconfig/features=PackedStringArray(\"{}\")\n",
+        name, feature_tag
+    );
+
+    if let Some(icon) = &icon_path {
+        let src = PathBuf::from(icon);
+        if src.is_file() {
+            let ext = src.extension().and_then(|e| e.to_str()).unwrap_or("svg");
+            let icon_name = format!("icon.{ext}");
+            let dest = project_dir.join(&icon_name);
+            fs::copy(&src, dest).map_err(|e| e.to_string())?;
+            if ext != "svg" {
+                project_godot =
+                    project_godot.replace("res://icon.svg", &format!("res://icon.{ext}"));
+            }
+        }
+    } else if template_id.is_none() {
+        fs::write(project_dir.join("icon.svg"), DEFAULT_ICON_SVG).map_err(|e| e.to_string())?;
+    }
+
+    if project_dir.join("project.godot").exists() {
+        let existing = fs::read_to_string(project_dir.join("project.godot")).unwrap_or_default();
+        let mut lines: Vec<String> = existing
+            .lines()
+            .map(|l| {
+                let trimmed = l.trim();
+                if trimmed.starts_with("config/name=") {
+                    format!("config/name=\"{}\"", name)
+                } else {
+                    l.to_string()
+                }
+            })
+            .collect();
+
+        if !lines.iter().any(|l| l.trim().starts_with("config/name=")) {
+            if let Some(idx) = lines.iter().position(|l| l.trim() == "[application]") {
+                lines.insert(idx + 1, format!("config/name=\"{}\"", name));
+            } else {
+                lines.push(String::new());
+                lines.push("[application]".to_string());
+                lines.push(format!("config/name=\"{}\"", name));
+            }
+        }
+
+        fs::write(project_dir.join("project.godot"), lines.join("\n"))
+            .map_err(|e| e.to_string())?;
+    } else {
+        fs::write(project_dir.join("project.godot"), &project_godot).map_err(|e| e.to_string())?;
+        let _ = fs::create_dir(project_dir.join(".godot"));
+    }
+
+    let mut projects = read_projects(&app);
+    let project_path = project_dir.to_string_lossy().to_string();
+    let mut effective_category = category.as_ref().and_then(|c| {
+        if c.trim().is_empty() {
+            None
+        } else {
+            Some(c.clone())
+        }
+    });
+    if effective_category.is_none() {
+        effective_category = crate::categories::category_for_path(&app, &project_path);
+    }
+    let tags = resolve_project_tags(&project_path);
+    let project = Project {
+        id: Uuid::new_v4().to_string(),
+        name,
+        path: project_path,
+        godot_version,
+        created_at: chrono::Utc::now().to_rfc3339(),
+        last_opened: None,
+        category: effective_category.clone(),
+        pinned: false,
+        sort_order: next_sort_order(&projects, &effective_category),
+        launch_arguments: String::new(),
+        tags,
+        total_time_seconds: 0,
+        session_started_at_ms: None,
+        time_today_seconds: 0,
+        time_week_seconds: 0,
+    };
+
+    projects.push(project.clone());
+    write_projects(&app, &projects)?;
+    // Stamp the folder with its identity so a later rename keeps tracking and
+    // category.
+    let _ = crate::project_identity::ensure_project_identity(
+        &project.path,
+        &project.id,
+        project.category.as_deref(),
+    );
+    undismiss(&app, &project.path);
+    if !project.godot_version.is_empty() {
+        let _ =
+            crate::godotenv::pin_version(&project.path, &project.godot_version, settings.use_mise);
+    }
+    Ok(project)
+}
+
+pub async fn duplicate_project(
+    app: AppHandle,
+    id: String,
+    name: String,
+    dest_dir: Option<String>,
+) -> Result<Project, String> {
+    let settings = settings::read_settings(&app);
+    let projects = read_projects(&app);
+    let source = projects
+        .iter()
+        .find(|p| p.id == id)
+        .ok_or_else(|| "Project not found".to_string())?;
+    let source_dir = PathBuf::from(&source.path);
+    if !source_dir.is_dir() {
+        return Err("Source project folder not found".into());
+    }
+
+    let dest = match dest_dir {
+        Some(d) if !d.trim().is_empty() => PathBuf::from(d),
+        _ => source_dir.parent().unwrap_or(&source_dir).to_path_buf(),
+    };
+    let folder_name = apply_naming_convention(&name, &settings.directory_naming_convention);
+    let target_dir = dest.join(&folder_name);
+    if target_dir.exists() {
+        return Err(format!(
+            "A folder named '{}' already exists at this location",
+            folder_name
+        ));
+    }
+
+    crate::templates::copy_dir(&source_dir, &target_dir, &[".git", ".godot"])?;
+
+    let godot_path = target_dir.join("project.godot");
+    if godot_path.exists() {
+        let existing = fs::read_to_string(&godot_path).unwrap_or_default();
+        let lines: Vec<String> = existing
+            .lines()
+            .map(|l| {
+                let trimmed = l.trim();
+                if trimmed.starts_with("config/name=") {
+                    format!("config/name=\"{}\"", name)
+                } else {
+                    l.to_string()
+                }
+            })
+            .collect();
+        if !lines.iter().any(|l| l.trim().starts_with("config/name=")) {
+            if let Some(idx) = lines.iter().position(|l| l.trim() == "[application]") {
+                let mut updated = lines;
+                updated.insert(idx + 1, format!("config/name=\"{}\"", name));
+                fs::write(&godot_path, updated.join("\n")).map_err(|e| e.to_string())?;
+            }
+        } else {
+            fs::write(&godot_path, lines.join("\n")).map_err(|e| e.to_string())?;
+        }
+    }
+
+    let mut projects = read_projects(&app);
+    let project_path = target_dir.to_string_lossy().to_string();
+    let tags = resolve_project_tags(&project_path);
+    let category = source
+        .category
+        .clone()
+        .or_else(|| crate::categories::category_for_path(&app, &project_path));
+    let project = Project {
+        id: Uuid::new_v4().to_string(),
+        name,
+        path: project_path,
+        godot_version: source.godot_version.clone(),
+        created_at: chrono::Utc::now().to_rfc3339(),
+        last_opened: None,
+        category: category.clone(),
+        pinned: false,
+        sort_order: next_sort_order(&projects, &category),
+        launch_arguments: String::new(),
+        tags,
+        total_time_seconds: 0,
+        session_started_at_ms: None,
+        time_today_seconds: 0,
+        time_week_seconds: 0,
+    };
+
+    projects.push(project.clone());
+    write_projects(&app, &projects)?;
+    if let Err(error) = crate::project_todos::copy_project_todos(&app, &id, &project.id) {
+        eprintln!("Could not copy to-dos to the duplicated project: {error}");
+    }
+    // Copies exclude identity markers; stamp a new identity so the two projects
+    // track time independently.
+    let _ = crate::project_identity::ensure_project_identity(
+        &project.path,
+        &project.id,
+        project.category.as_deref(),
+    );
+    undismiss(&app, &project.path);
+    if !project.godot_version.is_empty() {
+        let _ =
+            crate::godotenv::pin_version(&project.path, &project.godot_version, settings.use_mise);
+    }
+    Ok(project)
+}
+
+pub(crate) fn project_has_main_scene(project_path: &str) -> bool {
+    let Ok(content) = fs::read_to_string(Path::new(project_path).join("project.godot")) else {
+        return true;
+    };
+    let mut in_application = false;
+    for line in content.lines() {
+        let trimmed = line.trim();
+        if trimmed.starts_with('[') {
+            in_application = trimmed.trim_matches(['[', ']']) == "application";
+            continue;
+        }
+        if !in_application {
+            continue;
+        }
+        let Some((key, value)) = trimmed.split_once('=') else {
+            continue;
+        };
+        if key.trim() != "run/main_scene" {
+            continue;
+        }
+        if !value.trim().trim_matches('"').is_empty() {
+            return true;
+        }
+    }
+    false
+}
+
+fn version_feature_tag(tag: &str) -> String {
+    let cleaned = tag.trim().trim_start_matches('v');
+    let mut parts = cleaned.split(['.', '-']);
+    let is_num = |s: &str| !s.is_empty() && s.bytes().all(|b| b.is_ascii_digit());
+    match (parts.next(), parts.next()) {
+        (Some(m), Some(n)) if is_num(m) && is_num(n) => format!("{}.{}", m, n),
+        _ => "4.3".to_string(),
+    }
+}
+
+fn rebind_project_to_spec(
+    p: &mut Project,
+    spec: &crate::godotenv::DetectedVersion,
+    installed: &[InstalledGodotVersion],
+) -> bool {
+    let Some(v) = crate::godotenv::best_match(spec, installed) else {
+        return false;
+    };
+    if p.godot_version == v.tag {
+        return false;
+    }
+    if !p.godot_version.is_empty() {
+        let bound_is_mono = p.godot_version.trim_end().ends_with("-mono");
+        if bound_is_mono == spec.is_dotnet {
+            return false;
+        }
+    }
+    p.godot_version = v.tag.clone();
+    true
+}
+
+pub fn rebind_projects_to_version(app: &AppHandle, version: &InstalledGodotVersion) {
+    let installed = crate::godot_versions::read_registry(app);
+    let mut projects = read_projects(app);
+    let mut changed = false;
+    for p in projects.iter_mut() {
+        let Some(spec) = crate::godotenv::detect_version(&p.path) else {
+            continue;
+        };
+        if !crate::godotenv::matches_detected(&spec, &version.tag) {
+            continue;
+        }
+        if rebind_project_to_spec(p, &spec, &installed) {
+            changed = true;
+        }
+    }
+    if changed {
+        let _ = write_projects(app, &projects);
+    }
+}
+
+pub fn rebind_projects_to_installed(app: &AppHandle) {
+    let installed = crate::godot_versions::read_registry(app);
+    let mut projects = read_projects(app);
+    let mut changed = false;
+    for p in projects.iter_mut() {
+        let Some(spec) = crate::godotenv::detect_version(&p.path) else {
+            continue;
+        };
+        if rebind_project_to_spec(p, &spec, &installed) {
+            changed = true;
+        }
+    }
+    if changed {
+        let _ = write_projects(app, &projects);
+    }
+}
+
+pub fn register_project(
+    app: AppHandle,
+    path: String,
+    godot_version: String,
+    category: Option<String>,
+) -> Result<Project, String> {
+    if !PathBuf::from(&path).join("project.godot").exists() {
+        return Err("No project.godot found in the selected folder".into());
+    }
+    let folder_name = PathBuf::from(&path)
+        .file_name()
+        .map(|n| n.to_string_lossy().to_string())
+        .unwrap_or_else(|| "Untitled".into());
+    let name = resolve_project_name(&path).unwrap_or(folder_name);
+
+    let category = category.filter(|c| !c.trim().is_empty());
+    let rule_category = if category.is_none() {
+        crate::categories::category_for_path(&app, &path)
+    } else {
+        None
+    };
+
+    let mut projects = read_projects(&app);
+    if projects.iter().any(|p| same_path(&p.path, &path)) {
+        return Err("This project is already in your library".into());
+    }
+
+    // A project folder carries its own identity marker, so we can recognize it
+    // again after it is renamed or moved. When its previous location no longer
+    // exists this is the same project at a new path: repoint the existing entry
+    // instead of adding a duplicate that would restart time tracking at zero.
+    let carried_id = crate::project_identity::read_project_identity(&path);
+    let carried_category = crate::project_identity::read_project_category(&path);
+    if let Some(id) = &carried_id {
+        if let Some(idx) = projects.iter().position(|p| &p.id == id) {
+            let old_path_exists = Path::new(&projects[idx].path)
+                .join("project.godot")
+                .exists();
+            if !same_path(&projects[idx].path, &path) && !old_path_exists {
+                return relocate_project_entry(
+                    app,
+                    projects,
+                    idx,
+                    path,
+                    godot_version,
+                    category,
+                    rule_category,
+                );
+            }
+        }
+    }
+
+    let mut archive = read_dismissed_archive(&app);
+    if let Some(mut archived) = archive.remove(&normalize_path(&path)) {
+        archived.session_started_at_ms = None;
+        archived.time_today_seconds = 0;
+        archived.time_week_seconds = 0;
+        let folder_name = PathBuf::from(&path)
+            .file_name()
+            .map(|n| n.to_string_lossy().to_string());
+        if let Some(folder) = folder_name {
+            if archived.name == folder {
+                if let Some(resolved) = resolve_project_name(&path) {
+                    if !resolved.trim().is_empty() {
+                        archived.name = resolved;
+                    }
+                }
+            }
+        }
+        if !godot_version.is_empty() {
+            archived.godot_version = godot_version;
+        }
+        if let Some(cat) = &category {
+            archived.category = Some(cat.clone());
+        } else if archived.category.is_none() {
+            archived.category = rule_category.clone();
+        }
+        if archived.godot_version.is_empty() {
+            if let Some(spec) = crate::godotenv::detect_version(&path) {
+                let installed = crate::godot_versions::read_registry(&app);
+                if let Some(v) = crate::godotenv::best_match(&spec, &installed) {
+                    archived.godot_version = v.tag.clone();
+                }
+            }
+        }
+        if archived.godot_version.is_empty() {
+            if let Some(tag) = crate::discovery::engine_match_tag(&app, &path) {
+                archived.godot_version = tag;
+            }
+        }
+        write_dismissed_archive(&app, &archive);
+        projects.push(archived.clone());
+        write_projects(&app, &projects)?;
+        let _ = crate::project_identity::ensure_project_identity(
+            &path,
+            &archived.id,
+            archived.category.as_deref(),
+        );
+        undismiss(&app, &path);
+        return Ok(archived);
+    }
+
+    let mut godot_version = godot_version;
+    if godot_version.is_empty() {
+        if let Some(spec) = crate::godotenv::detect_version(&path) {
+            let installed = crate::godot_versions::read_registry(&app);
+            if let Some(v) = crate::godotenv::best_match(&spec, &installed) {
+                godot_version = v.tag.clone();
+            }
+        }
+    }
+    if godot_version.is_empty() {
+        if let Some(tag) = crate::discovery::engine_match_tag(&app, &path) {
+            godot_version = tag;
+        }
+    }
+    let tags = resolve_project_tags(&path);
+    // Reuse the id carried by the folder when it is free (for example the
+    // project was dropped from the library but its stats survive). A folder
+    // copied from a tracked project keeps a marker whose id is still in use, so
+    // that copy gets a fresh id instead.
+    let project_id = match carried_id {
+        Some(id) if !projects.iter().any(|p| p.id == id) => id,
+        _ => Uuid::new_v4().to_string(),
+    };
+    // When the project is recognized again after being dropped from the library
+    // (renamed/moved folder), restore the category it carried with it so it
+    // doesn't fall back to Uncategorized.
+    let category = category.or(carried_category).or(rule_category);
+    let project = Project {
+        id: project_id.clone(),
+        name,
+        path: path.clone(),
+        godot_version,
+        created_at: chrono::Utc::now().to_rfc3339(),
+        last_opened: None,
+        sort_order: next_sort_order(&projects, &category),
+        category,
+        pinned: false,
+        launch_arguments: String::new(),
+        tags,
+        total_time_seconds: crate::time_stats::total_seconds_for(&app, &project_id),
+        session_started_at_ms: None,
+        time_today_seconds: 0,
+        time_week_seconds: 0,
+    };
+    projects.push(project.clone());
+    write_projects(&app, &projects)?;
+    let _ = crate::project_identity::ensure_project_identity(
+        &path,
+        &project.id,
+        project.category.as_deref(),
+    );
+    Ok(project)
+}
+
+/// Repoint an existing tracked project to a new path after its folder was
+/// renamed or moved. Time tracking is stored per project id, so keeping the
+/// same entry preserves all of its stats.
+fn relocate_project_entry(
+    app: AppHandle,
+    mut projects: Vec<Project>,
+    idx: usize,
+    path: String,
+    godot_version: String,
+    category: Option<String>,
+    rule_category: Option<String>,
+) -> Result<Project, String> {
+    {
+        let project = &mut projects[idx];
+        project.path = path.clone();
+        let folder_name = PathBuf::from(&path)
+            .file_name()
+            .map(|n| n.to_string_lossy().to_string());
+        if let Some(folder) = folder_name {
+            if project.name == folder {
+                if let Some(resolved) = resolve_project_name(&path) {
+                    if !resolved.trim().is_empty() {
+                        project.name = resolved;
+                    }
+                }
+            }
+        }
+        if !godot_version.is_empty() {
+            project.godot_version = godot_version;
+        } else if project.godot_version.is_empty() {
+            if let Some(spec) = crate::godotenv::detect_version(&path) {
+                let installed = crate::godot_versions::read_registry(&app);
+                if let Some(v) = crate::godotenv::best_match(&spec, &installed) {
+                    project.godot_version = v.tag.clone();
+                }
+            }
+        }
+        if let Some(cat) = category {
+            project.category = Some(cat);
+        } else if project.category.is_none() {
+            project.category = rule_category;
+        }
+        let tags = resolve_project_tags(&path);
+        if !tags.is_empty() {
+            project.tags = tags;
+        }
+    }
+    let updated = projects[idx].clone();
+    write_projects(&app, &projects)?;
+    let _ = crate::project_identity::ensure_project_identity(
+        &path,
+        &updated.id,
+        updated.category.as_deref(),
+    );
+    undismiss(&app, &path);
+    Ok(updated)
+}
+
+pub async fn import_project(
+    app: AppHandle,
+    path: String,
+    godot_version: String,
+    category: Option<String>,
+) -> Result<Project, String> {
+    let effective_category = category.as_ref().and_then(|c| {
+        if c.trim().is_empty() {
+            None
+        } else {
+            Some(c.clone())
+        }
+    });
+    let project = register_project(app.clone(), path.clone(), godot_version, effective_category)?;
+    undismiss(&app, &path);
+    Ok(project)
+}
+
+pub async fn remove_project(app: AppHandle, id: String, delete_files: bool) -> Result<(), String> {
+    let mut projects = read_projects(&app);
+    let idx = projects
+        .iter()
+        .position(|p| p.id == id)
+        .ok_or("Project not found")?;
+    let project = projects.remove(idx);
+    write_projects(&app, &projects)?;
+
+    if !delete_files {
+        let mut s = crate::settings::read_settings(&app);
+        if !contains_path(&s.dismissed_project_paths, &project.path) {
+            s.dismissed_project_paths.push(project.path.clone());
+            let _ = crate::settings::write_settings(&app, &s);
+        }
+
+        let mut snapshot = project.clone();
+        snapshot.session_started_at_ms = None;
+        snapshot.time_today_seconds = 0;
+        snapshot.time_week_seconds = 0;
+        let mut archive = read_dismissed_archive(&app);
+        archive.insert(normalize_path(&project.path), snapshot);
+        write_dismissed_archive(&app, &archive);
+    }
+
+    crate::console::forget_console(&app, &id);
+
+    if delete_files {
+        if let Err(error) = crate::project_todos::remove_project_todos(&app, &project.id) {
+            eprintln!(
+                "Failed to remove todos for project {}: {}",
+                project.id, error
+            );
+        }
+
+        let path = project.path.clone();
+        tokio::task::spawn_blocking(move || {
+            let _ = trash::delete_all([&path]);
+        });
+    }
+
+    Ok(())
+}
+
+pub fn reintroduce_dismissed_projects(
+    app: AppHandle,
+    paths: Vec<String>,
+) -> Result<Vec<Project>, String> {
+    let mut added = vec![];
+    for path in &paths {
+        if let Ok(p) = register_project(app.clone(), path.clone(), String::new(), None) {
+            undismiss(&app, path);
+            added.push(p);
+        }
+    }
+    Ok(added)
+}
+
+pub fn update_project(
+    app: AppHandle,
+    id: String,
+    updates: ProjectUpdate,
+) -> Result<Project, String> {
+    let mut projects = read_projects(&app);
+    if let Some(path) = updates.path.as_deref().map(str::trim).filter(|p| !p.is_empty()) {
+        let dir = std::path::Path::new(path);
+        if !dir.join("project.godot").is_file() {
+            return Err("That folder doesn't contain a Godot project.".into());
+        }
+        if projects.iter().any(|p| p.id != id && contains_path(&[p.path.clone()], path)) {
+            return Err("That folder is already in your library as another project.".into());
+        }
+    }
+    let project = projects
+        .iter_mut()
+        .find(|p| p.id == id)
+        .ok_or("Project not found")?;
+    if let Some(path) = updates.path.map(|p| p.trim().to_string()).filter(|p| !p.is_empty()) {
+        project.path = native_path(&path);
+    }
+    if let Some(name) = updates.name {
+        project.name = name;
+    }
+    if let Some(v) = updates.godot_version {
+        if project.godot_version != v {
+            project.godot_version = v.clone();
+            if !v.is_empty() {
+                let use_mise = settings::read_settings(&app).use_mise;
+                let _ = crate::godotenv::pin_version(&project.path, &v, use_mise);
+            }
+        }
+    }
+    if let Some(category) = updates.category {
+        project.category = if category.trim().is_empty() {
+            None
+        } else {
+            Some(category)
+        };
+    }
+    if let Some(pinned) = updates.pinned {
+        project.pinned = pinned;
+    }
+    if let Some(launch_arguments) = updates.launch_arguments {
+        project.launch_arguments = launch_arguments;
+    }
+    let updated = project.clone();
+    write_projects(&app, &projects)?;
+    // Keep the folder's marker in sync so a later rename restores the category.
+    let _ = crate::project_identity::ensure_project_identity(
+        &updated.path,
+        &updated.id,
+        updated.category.as_deref(),
+    );
+    Ok(updated)
+}
+
+pub fn reorder_projects(app: AppHandle, ordered_ids: Vec<String>) -> Result<(), String> {
+    let mut projects = read_projects(&app);
+    for (i, id) in ordered_ids.iter().enumerate() {
+        if let Some(p) = projects.iter_mut().find(|p| &p.id == id) {
+            p.sort_order = i as i64;
+        }
+    }
+    write_projects(&app, &projects)
+}
+
+pub(crate) fn split_launch_args(raw: &str) -> Vec<String> {
+    shlex::split(raw).unwrap_or_else(|| raw.split_whitespace().map(str::to_string).collect())
+}
+
+pub async fn open_project(
+    app: AppHandle,
+    id: String,
+    editor: bool,
+    console: Option<bool>,
+) -> Result<(), String> {
+    launch_project(app, id, editor, console, None)
+}
+
+pub(crate) fn launch_project(
+    app: AppHandle,
+    id: String,
+    editor: bool,
+    console: Option<bool>,
+    target: Option<String>,
+) -> Result<(), String> {
+    let mut projects = read_projects(&app);
+    let project = projects
+        .iter_mut()
+        .find(|p| p.id == id)
+        .ok_or("Project not found")?;
+    let project_name = resolve_project_name(&project.path).unwrap_or_else(|| project.name.clone());
+    // A project-local pin takes precedence over the app binding so the editor
+    // launches the same engine terminals and CI resolve.
+    let project_version = crate::project_identity::read_project_version(&project.path)
+        .filter(|tag| !tag.is_empty())
+        .unwrap_or_else(|| project.godot_version.clone());
+
+    if project_version.is_empty() {
+        return Err("No Godot version bound to this project".into());
+    }
+
+    let versions = crate::godot_versions::list_installed_godot_versions_blocking(&app)?;
+    let version = versions
+        .iter()
+        .find(|v| v.tag == project_version)
+        .ok_or_else(|| format!("Godot {project_version} is not installed"))?;
+
+    let mut args = vec!["--path".to_string(), project.path.clone()];
+    if editor {
+        args.push("-e".to_string());
+    }
+    if let Some(target) = &target {
+        args.push(target.clone());
+    }
+    args.extend(split_launch_args(&project.launch_arguments));
+
+    if !editor
+        && project.launch_arguments.trim().is_empty()
+        && !project_has_main_scene(&project.path)
+    {
+        return Err("This project has no main scene to run yet. Open it in the editor and set application/run/main_scene under Project Settings.".into());
+    }
+
+    let settings = settings::read_settings(&app);
+    let use_console = console.unwrap_or(settings.launch_with_console);
+    let exe = Path::new(&version.executable_path);
+
+    let mut in_app_console = false;
+    let launched = if use_console && settings.builtin_console {
+        match crate::console::spawn_in_app_console(&app, exe, &args, &id) {
+            Ok(launched) => {
+                in_app_console = true;
+                launched
+            }
+            Err(_) => crate::godot_versions::spawn_editor(&app, exe, &args, &project_name, true)?,
+        }
+    } else {
+        crate::godot_versions::spawn_editor(&app, exe, &args, &project_name, use_console)?
+    };
+    #[cfg(unix)]
+    let pid_file = launched.pid_file.clone();
+    let kill_tree = launched.kill_tree;
+
+    project.last_opened = Some(chrono::Utc::now().to_rfc3339());
+    project.session_started_at_ms = Some(epoch_ms() + SESSION_START_DELAY_MS);
+    write_projects(&app, &projects)?;
+    crate::time_stats::touch_activity(&app);
+
+    app.host().refresh_menus();
+
+    if let Some(state) = app.try_state::<ActiveProcesses>() {
+        state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner).insert(
+            id.clone(),
+            TrackedProcess {
+                handle: TrackedHandle::Child(launched.child),
+                kill_tree,
+                pid_revalidated: false,
+                launched_at: std::time::SystemTime::now(),
+            },
+        );
+    }
+
+    let _ = app.emit(
+        "project:launched",
+        serde_json::json!({
+            "id": id.clone(),
+            "name": project_name,
+            "version": project_version,
+            "console": in_app_console,
+        }),
+    );
+
+    let mut reopen_when_closed = false;
+
+    if settings.close_on_project_open {
+        #[cfg(target_os = "macos")]
+        let keep_alive = true;
+        #[cfg(not(target_os = "macos"))]
+        let keep_alive = settings.minimize_to_tray;
+
+        if keep_alive {
+            app.host().hide_main_window();
+            reopen_when_closed = settings.reopen_after_godot_closes;
+        } else {
+            app.host().exit(0);
+        }
+    }
+
+    let app_clone = app.clone();
+    let watched = id.clone();
+    std::thread::spawn(move || {
+        #[cfg(unix)]
+        if let Some(file) = pid_file {
+            adopt_terminal_pid(&app_clone, &watched, &file);
+        }
+
+        wait_until_exited(&app_clone, &watched);
+
+        if reopen_when_closed {
+            app_clone.host().show_main_window();
+        }
+    });
+
+    Ok(())
+}
+
+#[cfg(unix)]
+fn adopt_terminal_pid(app: &AppHandle, id: &str, pid_file: &Path) {
+    const ATTEMPTS: u32 = 200;
+
+    for _ in 0..ATTEMPTS {
+        if let Some(pid) = crate::terminal::read_pid_file(pid_file) {
+            let _ = fs::remove_file(pid_file);
+
+            let replaced = {
+                let Some(state) = app.try_state::<ActiveProcesses>() else {
+                    return;
+                };
+                let mut active = state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+                active.get_mut(id).map(|tracked| {
+                    std::mem::replace(
+                        &mut tracked.handle,
+                        TrackedHandle::Pid {
+                            pid,
+                            project_path: read_projects(app)
+                                .into_iter()
+                                .find(|project| project.id == id)
+                                .map(|project| project.path)
+                                .unwrap_or_default(),
+                        },
+                    )
+                })
+            };
+
+            if let Some(TrackedHandle::Child(mut launcher)) = replaced {
+                let _ = launcher.wait();
+            }
+            return;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(50));
+    }
+}
+
+fn wait_until_exited(app: &AppHandle, id: &str) {
+    const POLL: std::time::Duration = std::time::Duration::from_millis(500);
+    loop {
+        crate::time_stats::touch_activity(app);
+        let Some(state) = app.try_state::<ActiveProcesses>() else {
+            return;
+        };
+
+        let exited = {
+            let mut active = state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+            let Some(tracked) = active.get_mut(id) else {
+                return;
+            };
+            if tracked.is_running() {
+                None
+            } else {
+                let elapsed = tracked.launched_at.elapsed().ok();
+                active.remove(id);
+                Some(elapsed)
+            }
+        };
+
+        if let Some(elapsed) = exited {
+            settle_project_session(app, id, elapsed);
+            let _ = app.emit("project:exited", serde_json::json!({ "id": id }));
+            return;
+        }
+
+        std::thread::sleep(POLL);
+    }
+}
+
+fn kill_tracked(tracked: &mut TrackedProcess) -> Result<(), String> {
+    match &mut tracked.handle {
+        TrackedHandle::Child(child) => {
+            if tracked.kill_tree {
+                #[cfg(target_os = "windows")]
+                {
+                    use std::os::windows::process::CommandExt;
+
+                    return std::process::Command::new("taskkill")
+                        .args(["/PID", &child.id().to_string(), "/T", "/F"])
+                        .creation_flags(crate::terminal::CREATE_NO_WINDOW)
+                        .status()
+                        .map(|_| ())
+                        .map_err(|e| format!("Failed to kill process: {e}"));
+                }
+            }
+
+            child
+                .kill()
+                .map_err(|e| format!("Failed to kill process: {e}"))?;
+            child.wait().ok();
+            Ok(())
+        }
+        TrackedHandle::Pid { pid, project_path } => {
+            let processes = process::find_running_godot_processes()
+                .map_err(|error| format!("Could not verify Godot process identity: {error}"))?;
+            if !processes.iter().any(|running| {
+                !running.is_export
+                    && running.pid == *pid
+                    && same_path(&running.project_path, project_path)
+            }) {
+                return Err(
+                    "Refusing to terminate a PID whose Godot identity no longer matches".into(),
+                );
+            }
+            process::terminate_process(*pid)
+        }
+    }
+}
+
+pub async fn list_running_projects(app: AppHandle) -> Vec<RunningProjectInfo> {
+    tokio::task::spawn_blocking(move || list_running_projects_blocking(app))
+        .await
+        .unwrap_or_default()
+}
+
+fn list_running_projects_blocking(app: AppHandle) -> Vec<RunningProjectInfo> {
+    settle_stale_sessions(&app);
+    let entries: Vec<(String, std::time::SystemTime)> = {
+        let Some(state) = app.try_state::<ActiveProcesses>() else {
+            return vec![];
+        };
+        let active = state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        active
+            .iter()
+            .map(|(id, p)| (id.clone(), p.launched_at))
+            .collect()
+    };
+    if entries.is_empty() {
+        return vec![];
+    }
+    let projects = read_projects(&app);
+    entries
+        .into_iter()
+        .filter_map(|(id, launched_at)| {
+            let project = projects.iter().find(|p| p.id == id)?;
+            let launched_at_ms = launched_at
+                .duration_since(std::time::UNIX_EPOCH)
+                .map(|d| d.as_millis() as u64)
+                .unwrap_or(0);
+            Some(RunningProjectInfo {
+                console: crate::console::has_console_log(&app, &id),
+                id,
+                name: project.name.clone(),
+                version: project.godot_version.clone(),
+                launched_at_ms,
+            })
+        })
+        .collect()
+}
+
+pub async fn stop_project(app: AppHandle, id: String) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || stop_project_blocking(app, id))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+fn stop_project_blocking(app: AppHandle, id: String) -> Result<(), String> {
+    let state = app
+        .try_state::<ActiveProcesses>()
+        .ok_or("No running process found for this project")?;
+
+    let mut tracked = {
+        let mut active = state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
+        active
+            .remove(&id)
+            .ok_or("No running process found for this project")?
+    };
+
+    let elapsed = tracked.launched_at.elapsed().ok();
+    let kill_result = kill_tracked(&mut tracked);
+    settle_project_session(&app, &id, elapsed);
+    let _ = app.emit("project:exited", serde_json::json!({ "id": id }));
+    kill_result
+}
+
+#[cfg(all(unix, not(target_os = "macos")))]
+fn spawn_detached_checked(bin: &str, args: &[std::ffi::OsString]) -> Result<(), String> {
+    let mut cmd = std::process::Command::new(bin);
+    crate::terminal::sanitize_child_env(&mut cmd);
+    cmd.args(args);
+    let mut child = cmd.spawn().map_err(|e| format!("{bin}: {e}"))?;
+
+    let deadline = std::time::Instant::now() + std::time::Duration::from_millis(1500);
+    loop {
+        match child.try_wait() {
+            Ok(Some(status)) if status.success() => return Ok(()),
+            Ok(Some(_)) => return Err(format!("{bin} exited with an error")),
+            Ok(None) if std::time::Instant::now() >= deadline => return Ok(()),
+            Ok(None) => std::thread::sleep(std::time::Duration::from_millis(50)),
+            Err(e) => return Err(format!("{bin}: {e}")),
+        }
+    }
+}
+
+#[cfg(all(unix, not(target_os = "macos")))]
+fn open_folder_linux(path: &str, dir: &Path) -> Result<(), String> {
+    let dir_arg = dir.as_os_str().to_os_string();
+    let path_arg = std::ffi::OsString::from(path);
+
+    let mut last_err = String::from("no file manager could open the folder");
+
+    for (bin, args) in [("xdg-open", vec![dir_arg.clone()])] {
+        match spawn_detached_checked(bin, &args) {
+            Ok(()) => return Ok(()),
+            Err(e) => last_err = e,
+        }
+    }
+
+    let file_managers: [(&str, Vec<std::ffi::OsString>); 12] = [
+        (
+            "gio",
+            vec![std::ffi::OsString::from("open"), path_arg.clone()],
+        ),
+        ("nautilus", vec![path_arg.clone()]),
+        ("org.gnome.Nautilus", vec![path_arg.clone()]),
+        ("dolphin", vec![path_arg.clone()]),
+        ("thunar", vec![path_arg.clone()]),
+        ("pcmanfm", vec![path_arg.clone()]),
+        ("pcmanfm-qt", vec![path_arg.clone()]),
+        ("nemo", vec![path_arg.clone()]),
+        ("caja", vec![path_arg.clone()]),
+        ("konqueror", vec![path_arg.clone()]),
+        (
+            "exo-open",
+            vec![
+                std::ffi::OsString::from("--launch"),
+                std::ffi::OsString::from("FileManager"),
+                path_arg.clone(),
+            ],
+        ),
+        ("gnome-open", vec![path_arg.clone()]),
+    ];
+    for (bin, args) in file_managers {
+        match spawn_detached_checked(bin, &args) {
+            Ok(()) => return Ok(()),
+            Err(e) => last_err = e,
+        }
+    }
+
+    Err(format!(
+        "{last_err}.\n\nNo file manager was found. Install one (e.g. `sudo pacman -S nautilus` \
+         on Arch) or register your default folder handler:\n  xdg-mime default <file-manager>.desktop \
+         inode/directory"
+    ))
+}
+
+pub async fn open_project_folder(path: String) -> Result<(), String> {
+    tokio::task::spawn_blocking(move || open_project_folder_blocking(path))
+        .await
+        .map_err(|e| e.to_string())?
+}
+
+pub(crate) fn open_project_folder_blocking(path: String) -> Result<(), String> {
+    let path = native_path(&path);
+    let dir = PathBuf::from(&path);
+    if !dir.exists() {
+        return Err("This folder no longer exists".into());
+    }
+
+    #[cfg(target_os = "windows")]
+    let result = std::process::Command::new("explorer").arg(&dir).spawn();
+
+    #[cfg(target_os = "macos")]
+    let result = std::process::Command::new("open").arg(&dir).spawn();
+
+    #[cfg(all(unix, not(target_os = "macos")))]
+    return open_folder_linux(&path, &dir);
+
+    #[cfg(any(target_os = "windows", target_os = "macos"))]
+    result.map(|_| ()).map_err(|e| e.to_string())
+}
+
+pub fn open_in_editor(app: AppHandle, path: String) -> Result<(), String> {
+    let dir = PathBuf::from(&path);
+    if !dir.exists() {
+        return Err("This folder no longer exists".into());
+    }
+
+    let settings = settings::read_settings(&app);
+    if let Some(editor_path) = &settings.external_editor_path {
+        if !editor_path.trim().is_empty() {
+            let mut cmd = std::process::Command::new(editor_path.trim());
+            crate::terminal::sanitize_child_env(&mut cmd);
+            let result = cmd.arg(&dir).spawn();
+            if result.is_ok() {
+                return Ok(());
+            }
+        }
+    }
+
+    for editor in &["code", "rider", "idea", "code-insiders", "codium", "zed"] {
+        let mut cmd = std::process::Command::new(editor);
+        crate::terminal::sanitize_child_env(&mut cmd);
+        if cmd.arg(&dir).spawn().is_ok() {
+            return Ok(());
+        }
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        let username = std::env::var("USERNAME").unwrap_or_else(|_| "default".into());
+        let common_paths = [
+            format!("C:\\Users\\{username}\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe"),
+            "C:\\Program Files\\Microsoft VS Code\\Code.exe".into(),
+            "C:\\Program Files (x86)\\Microsoft VS Code\\Code.exe".into(),
+        ];
+        for exe_path in &common_paths {
+            let p = std::path::Path::new(exe_path);
+            if p.exists() && std::process::Command::new(p).arg(&dir).spawn().is_ok() {
+                return Ok(());
+            }
+        }
+    }
+
+    Err("No supported IDE found. Install VS Code, Rider, or configure your editor path in Settings.".into())
+}
+
+pub async fn read_image_file(path: String) -> Option<String> {
+    tokio::task::spawn_blocking(move || {
+        let bytes = std::fs::read(&path).ok()?;
+        let lower = path.to_lowercase();
+        let mime = if lower.ends_with(".png") {
+            "image/png"
+        } else if lower.ends_with(".jpg") || lower.ends_with(".jpeg") {
+            "image/jpeg"
+        } else if lower.ends_with(".webp") {
+            "image/webp"
+        } else {
+            "image/svg+xml"
+        };
+        use base64::{engine::general_purpose, Engine as _};
+        Some(format!(
+            "data:{};base64,{}",
+            mime,
+            general_purpose::STANDARD.encode(bytes)
+        ))
+    })
+    .await
+    .ok()
+    .flatten()
+}
+
+fn find_resource_by_uid(
+    dir: &Path,
+    target_uid: &str,
+    depth: usize,
+    max_depth: usize,
+    budget: &mut usize,
+) -> Option<PathBuf> {
+    if depth > max_depth || *budget == 0 {
+        return None;
+    }
+    let entries = match fs::read_dir(dir) {
+        Ok(e) => e,
+        Err(_) => return None,
+    };
+
+    let mut subdirs: Vec<PathBuf> = Vec::new();
+    for entry in entries.flatten() {
+        if *budget == 0 {
+            break;
+        }
+        *budget -= 1;
+        let path = entry.path();
+        if path.is_dir() {
+            let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
+            if name == ".git" || name == ".godot" || name == "node_modules" {
+                continue;
+            }
+            subdirs.push(path);
+        } else if path.extension().and_then(|e| e.to_str()) == Some("import") {
+            if let Ok(content) = fs::read_to_string(&path) {
+                let target_line = format!("uid=\"{}\"", target_uid);
+                if content.lines().any(|l| l.trim() == target_line) {
+                    let mut src = path.clone();
+                    src.set_extension("");
+                    return Some(src);
+                }
+            }
+        }
+    }
+
+    for sub in subdirs {
+        if let Some(found) = find_resource_by_uid(&sub, target_uid, depth + 1, max_depth, budget) {
+            return Some(found);
+        }
+    }
+    None
+}
+
+fn resolve_project_icon(
+    project_path: &str,
+    icon_scan_depth: u32,
+) -> Option<(Vec<u8>, &'static str, PathBuf)> {
+    let dir = PathBuf::from(project_path);
+    let godot_file = dir.join("project.godot");
+    let mut icon_rel: Option<String> = None;
+    let mut icon_uid: Option<String> = None;
+
+    if let Ok(content) = fs::read_to_string(&godot_file) {
+        for line in content.lines() {
+            let line = line.trim();
+            if let Some(rest) = line.strip_prefix("config/icon=") {
+                let cleaned = rest.trim().trim_matches('"');
+                if let Some(uid) = cleaned.strip_prefix("uid://") {
+                    icon_uid = Some(format!("uid://{uid}"));
+                } else {
+                    icon_rel = Some(cleaned.trim_start_matches("res://").to_string());
+                }
+                break;
+            }
+        }
+    }
+
+    let mut candidates: Vec<String> = Vec::new();
+    if let Some(p) = icon_rel {
+        candidates.push(p);
+    }
+    if let Some(uid) = icon_uid {
+        let mut budget = 8000usize;
+        if let Some(found) =
+            find_resource_by_uid(&dir, &uid, 0, icon_scan_depth.max(1) as usize, &mut budget)
+        {
+            if let Ok(rel) = found.strip_prefix(&dir) {
+                if let Some(rel_str) = rel.to_str() {
+                    candidates.push(rel_str.to_string());
+                }
+            }
+        }
+    }
+
+    for fallback in ["icon.svg", "icon.png"] {
+        if !candidates.iter().any(|c| c == fallback) {
+            candidates.push(fallback.to_string());
+        }
+    }
+
+    for rel in candidates {
+        let full = dir.join(&rel);
+        if full.is_file() {
+            if let Ok(bytes) = fs::read(&full) {
+                let lower = rel.to_lowercase();
+                let mime = if lower.ends_with(".svg") {
+                    "image/svg+xml"
+                } else if lower.ends_with(".png") {
+                    "image/png"
+                } else if lower.ends_with(".jpg") || lower.ends_with(".jpeg") {
+                    "image/jpeg"
+                } else {
+                    continue;
+                };
+                return Some((bytes, mime, full));
+            }
+        }
+    }
+    None
+}
+
+pub fn write_project_tags(
+    app: AppHandle,
+    id: String,
+    path: String,
+    tags: Vec<String>,
+) -> Result<Project, String> {
+    let godot_file = PathBuf::from(&path).join("project.godot");
+    let content = fs::read_to_string(&godot_file).map_err(|e| e.to_string())?;
+    let mut lines: Vec<String> = content.lines().map(|l| l.to_string()).collect();
+
+    if tags.is_empty() {
+        lines.retain(|l| !l.trim().starts_with("config/tags="));
+    } else {
+        let tag_line = format!(
+            "config/tags=PackedStringArray({})",
+            tags.iter()
+                .map(|t| format!("\"{}\"", t))
+                .collect::<Vec<_>>()
+                .join(", ")
+        );
+
+        let mut found = false;
+        for line in lines.iter_mut() {
+            if line.trim().starts_with("config/tags=") {
+                *line = tag_line.clone();
+                found = true;
+                break;
+            }
+        }
+
+        if !found {
+            if let Some(idx) = lines.iter().position(|l| l.trim() == "[application]") {
+                lines.insert(idx + 1, tag_line.clone());
+            } else {
+                lines.push(String::new());
+                lines.push("[application]".to_string());
+                lines.push(tag_line.clone());
+            }
+        }
+    }
+
+    fs::write(&godot_file, lines.join("\n")).map_err(|e| e.to_string())?;
+
+    let mut projects = read_projects(&app);
+    let project = projects
+        .iter_mut()
+        .find(|p| p.id == id)
+        .ok_or("Project not found")?;
+    project.tags = tags;
+    let updated = project.clone();
+    write_projects(&app, &projects)?;
+    Ok(updated)
+}
+
+pub(crate) fn resolve_project_tags(project_path: &str) -> Vec<String> {
+    let godot_file = PathBuf::from(project_path).join("project.godot");
+    let content = match fs::read_to_string(&godot_file) {
+        Ok(c) => c,
+        Err(_) => return vec![],
+    };
+    for line in content.lines() {
+        let line = line.trim();
+        if let Some(rest) = line.strip_prefix("config/tags=") {
+            if let Some(inner) = rest
+                .strip_prefix("PackedStringArray(")
+                .and_then(|s| s.strip_suffix(')'))
+            {
+                let tags: Vec<String> = inner
+                    .split(',')
+                    .filter_map(|t| {
+                        let t = t.trim().trim_matches('"');
+                        if t.is_empty() {
+                            None
+                        } else {
+                            Some(t.to_string())
+                        }
+                    })
+                    .collect();
+                return tags;
+            }
+        }
+    }
+    vec![]
+}
+
+#[derive(Serialize, Deserialize)]
+struct ProjectTimeStats {
+    id: String,
+    path: String,
+    total_time_seconds: u64,
+    #[serde(default)]
+    sessions: Vec<crate::time_stats::SessionRecord>,
+    #[serde(default)]
+    daily: std::collections::BTreeMap<String, u64>,
+}
+
+#[derive(Serialize, Deserialize)]
+struct TimeStatsExport {
+    exported_at: String,
+    projects: Vec<ProjectTimeStats>,
+}
+
+pub async fn export_project_stats(app: AppHandle, path: String) -> Result<(), String> {
+    let projects = read_projects(&app);
+    let store = crate::time_stats::read_stats(&app);
+    let stats = TimeStatsExport {
+        exported_at: chrono::Utc::now().to_rfc3339(),
+        projects: projects
+            .iter()
+            .map(|p| ProjectTimeStats {
+                id: p.id.clone(),
+                path: p.path.clone(),
+                total_time_seconds: p.total_time_seconds,
+                sessions: store.projects.get(&p.id).cloned().unwrap_or_default(),
+                daily: store.daily.get(&p.id).cloned().unwrap_or_default(),
+            })
+            .collect(),
+    };
+    persist::write_json(Path::new(&path), &stats).map_err(|e| e.to_string())
+}
+
+pub async fn import_project_stats(app: AppHandle, path: String) -> Result<usize, String> {
+    let stats: Option<TimeStatsExport> = persist::read_json_opt(Path::new(&path));
+    let Some(stats) = stats else {
+        return Err("Couldn't read the stats backup file".into());
+    };
+    let mut projects = read_projects(&app);
+    let mut imported = 0usize;
+    let mut restored: Vec<(
+        String,
+        Vec<crate::time_stats::SessionRecord>,
+        std::collections::BTreeMap<String, u64>,
+    )> = Vec::new();
+    for s in &stats.projects {
+        let idx = projects
+            .iter()
+            .position(|p| p.id == s.id)
+            .or_else(|| projects.iter().position(|p| same_path(&p.path, &s.path)));
+        if let Some(idx) = idx {
+            projects[idx].total_time_seconds = s.total_time_seconds;
+            restored.push((
+                projects[idx].id.clone(),
+                s.sessions.clone(),
+                s.daily.clone(),
+            ));
+            imported += 1;
+        }
+    }
+    if imported > 0 {
+        write_projects(&app, &projects)?;
+        let mut store = crate::time_stats::read_stats(&app);
+        let mut changed = false;
+        for (id, sessions, daily) in &restored {
+            if !sessions.is_empty() {
+                store.projects.insert(id.clone(), sessions.clone());
+                changed = true;
+            }
+            if !daily.is_empty() {
+                store.daily.insert(id.clone(), daily.clone());
+                changed = true;
+            }
+        }
+        if changed {
+            crate::time_stats::write_stats(&app, &store);
+        }
+    }
+    Ok(imported)
+}
+
+pub(crate) fn resolve_project_name(project_path: &str) -> Option<String> {
+    let godot_file = PathBuf::from(project_path).join("project.godot");
+    let content = fs::read_to_string(&godot_file).ok()?;
+    for line in content.lines() {
+        let line = line.trim();
+        if let Some(rest) = line.strip_prefix("config/name=") {
+            let cleaned = rest.trim().trim_matches('"');
+            if !cleaned.is_empty() {
+                return Some(cleaned.to_string());
+            }
+            break;
+        }
+    }
+    None
+}
+
+pub async fn get_project_name(path: String) -> Option<String> {
+    tokio::task::spawn_blocking(move || cached_project_file_info(&path).and_then(|info| info.name))
+        .await
+        .ok()
+        .flatten()
+}
+
+pub async fn get_project_icon(path: String, app: AppHandle) -> Option<String> {
+    let icon_scan_depth = crate::settings::read_settings(&app).icon_scan_depth;
+    tokio::task::spawn_blocking(move || {
+        let mtime = fs::metadata(PathBuf::from(&path).join("project.godot"))
+            .and_then(|m| m.modified())
+            .ok();
+
+        if let Some(cached) = icon_cache().lock().unwrap_or_else(std::sync::PoisonError::into_inner).get(&path) {
+            let icon_unchanged = cached
+                .icon_file
+                .as_ref()
+                .is_none_or(|(file, file_mtime_then)| file_mtime(file) == *file_mtime_then);
+            if cached.project_godot_mtime == mtime
+                && cached.icon_scan_depth == icon_scan_depth
+                && icon_unchanged
+            {
+                return cached.data.clone();
+            }
+        }
+
+        let (bytes, mime, icon_path) = match resolve_project_icon(&path, icon_scan_depth) {
+            Some(v) => v,
+            None => {
+                icon_cache().lock().unwrap_or_else(std::sync::PoisonError::into_inner).insert(
+                    path.clone(),
+                    CachedIcon {
+                        project_godot_mtime: mtime,
+                        icon_scan_depth,
+                        icon_file: None,
+                        data: None,
+                    },
+                );
+                return None;
+            }
+        };
+        let icon_file = Some((icon_path.clone(), file_mtime(&icon_path)));
+        use base64::{engine::general_purpose, Engine as _};
+        let encoded = general_purpose::STANDARD.encode(bytes);
+        let data_url = format!("data:{};base64,{}", mime, encoded);
+
+        icon_cache().lock().unwrap_or_else(std::sync::PoisonError::into_inner).insert(
+            path.clone(),
+            CachedIcon {
+                project_godot_mtime: mtime,
+                icon_scan_depth,
+                icon_file,
+                data: Some(data_url.clone()),
+            },
+        );
+        Some(data_url)
+    })
+    .await
+    .ok()
+    .flatten()
+}
+
+#[derive(Clone, Serialize)]
+pub struct FileSizeCategory {
+    pub label: String,
+    pub size: u64,
+    pub count: usize,
+}
+
+#[derive(Clone, Serialize)]
+pub struct ProjectSizeInfo {
+    pub total_size: u64,
+    pub categories: Vec<FileSizeCategory>,
+    pub file_count: usize,
+}
+
+struct CachedSize {
+    dir_mtime: Option<SystemTime>,
+    computed_at: Instant,
+    data: Result<ProjectSizeInfo, String>,
+}
+
+const SIZE_CACHE_TTL: Duration = Duration::from_secs(300);
+
+fn size_cache() -> &'static Mutex<HashMap<String, CachedSize>> {
+    static CACHE: OnceLock<Mutex<HashMap<String, CachedSize>>> = OnceLock::new();
+    CACHE.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn classify_extension(ext: &str) -> Option<&'static str> {
+    match ext.to_lowercase().as_str() {
+        "gd" => Some("Scripts"),
+        "cs" => Some("C# Scripts"),
+        "tscn" => Some("Scenes"),
+        "scn" => Some("Scenes"),
+        "escn" => Some("Scenes"),
+        "tres" => Some("Resources"),
+        "res" => Some("Resources"),
+        "theme" => Some("Themes"),
+        "png" => Some("Images"),
+        "svg" => Some("Images"),
+        "jpg" | "jpeg" => Some("Images"),
+        "webp" => Some("Images"),
+        "bmp" => Some("Images"),
+        "tga" => Some("Images"),
+        "ktx" => Some("Images"),
+        "ogg" | "oga" => Some("Audio"),
+        "wav" => Some("Audio"),
+        "mp3" => Some("Audio"),
+        "flac" => Some("Audio"),
+        "glb" | "gltf" => Some("3D Models"),
+        "obj" => Some("3D Models"),
+        "fbx" => Some("3D Models"),
+        "dae" => Some("3D Models"),
+        "gdshader" | "gdshaderinc" => Some("Shaders"),
+        "godot" => Some("Engine Files"),
+        "import" => Some("Imports"),
+        _ => None,
+    }
+}
+
+pub async fn get_project_size(path: String) -> Result<ProjectSizeInfo, String> {
+    tokio::task::spawn_blocking(move || -> Result<ProjectSizeInfo, String> {
+        let dir = PathBuf::from(&path);
+        if !dir.exists() {
+            return Err("Project folder does not exist".into());
+        }
+
+        let dir_mtime = fs::metadata(&dir).and_then(|m| m.modified()).ok();
+
+        if let Some(cached) = size_cache().lock().unwrap_or_else(std::sync::PoisonError::into_inner).get(&path) {
+            if cached.dir_mtime == dir_mtime && cached.computed_at.elapsed() < SIZE_CACHE_TTL {
+                return match &cached.data {
+                    Ok(data) => Ok(data.clone()),
+                    Err(e) => Err(e.clone()),
+                };
+            }
+        }
+
+        let mut total_size: u64 = 0;
+        let mut total_count: usize = 0;
+        let mut categories: BTreeMap<&'static str, (u64, usize)> = BTreeMap::new();
+        let mut other_size: u64 = 0;
+        let mut other_count: usize = 0;
+
+        fn walk(
+            dir: &Path,
+            total_size: &mut u64,
+            total_count: &mut usize,
+            categories: &mut BTreeMap<&'static str, (u64, usize)>,
+            other_size: &mut u64,
+            other_count: &mut usize,
+        ) {
+            let entries = match fs::read_dir(dir) {
+                Ok(e) => e,
+                Err(_) => return,
+            };
+
+            for entry in entries.flatten() {
+                let path = entry.path();
+                if path.is_dir() {
+                    let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
+                    if name == ".git" || name == "node_modules" || name == ".import" {
+                        continue;
+                    }
+                    walk(
+                        &path,
+                        total_size,
+                        total_count,
+                        categories,
+                        other_size,
+                        other_count,
+                    );
+                } else if path.is_file() {
+                    if let Ok(meta) = fs::metadata(&path) {
+                        let size = meta.len();
+                        *total_size += size;
+                        *total_count += 1;
+
+                        let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("");
+
+                        if let Some(cat) = classify_extension(ext) {
+                            let entry = categories.entry(cat).or_insert((0, 0));
+                            entry.0 += size;
+                            entry.1 += 1;
+                        } else {
+                            *other_size += size;
+                            *other_count += 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        walk(
+            &dir,
+            &mut total_size,
+            &mut total_count,
+            &mut categories,
+            &mut other_size,
+            &mut other_count,
+        );
+
+        let mut cat_vec: Vec<FileSizeCategory> = categories
+            .into_iter()
+            .map(|(label, (size, count))| FileSizeCategory {
+                label: label.to_string(),
+                size,
+                count,
+            })
+            .collect();
+
+        if other_count > 0 || other_size > 0 {
+            cat_vec.push(FileSizeCategory {
+                label: "Other".to_string(),
+                size: other_size,
+                count: other_count,
+            });
+        }
+
+        cat_vec.sort_by_key(|a| std::cmp::Reverse(a.size));
+
+        let result = Ok(ProjectSizeInfo {
+            total_size,
+            file_count: total_count,
+            categories: cat_vec,
+        });
+
+        size_cache().lock().unwrap_or_else(std::sync::PoisonError::into_inner).insert(
+            path.clone(),
+            CachedSize {
+                dir_mtime,
+                computed_at: Instant::now(),
+                data: result.clone(),
+            },
+        );
+
+        result
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+#[derive(Clone, Serialize)]
+pub struct ProjectFileEntry {
+    pub path: String,
+    pub is_dir: bool,
+    pub size: u64,
+}
+
+pub async fn get_project_file_tree(path: String) -> Result<Vec<ProjectFileEntry>, String> {
+    tokio::task::spawn_blocking(move || -> Result<Vec<ProjectFileEntry>, String> {
+        let dir = PathBuf::from(&path);
+        if !dir.exists() {
+            return Err("Project folder does not exist".into());
+        }
+
+        let mut entries = Vec::new();
+        let skip = [".git", "node_modules", ".import", ".godot"];
+
+        fn walk(dir: &Path, base: &Path, entries: &mut Vec<ProjectFileEntry>, skip: &[&str]) {
+            let read = match fs::read_dir(dir) {
+                Ok(r) => r,
+                Err(_) => return,
+            };
+
+            for entry in read.flatten() {
+                let path = entry.path();
+                let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
+
+                if skip.contains(&name) {
+                    continue;
+                }
+
+                let rel = path.strip_prefix(base).unwrap_or(&path);
+                let rel_str = rel.to_string_lossy().replace('\\', "/");
+
+                if path.is_dir() {
+                    entries.push(ProjectFileEntry {
+                        path: format!("{}/", rel_str),
+                        is_dir: true,
+                        size: 0,
+                    });
+                    walk(&path, base, entries, skip);
+                } else if path.is_file() {
+                    let size = fs::metadata(&path).map(|m| m.len()).unwrap_or(0);
+                    entries.push(ProjectFileEntry {
+                        path: rel_str,
+                        is_dir: false,
+                        size,
+                    });
+                }
+            }
+        }
+
+        walk(&dir, &dir, &mut entries, &skip);
+        Ok(entries)
+    })
+    .await
+    .map_err(|e| e.to_string())?
+}
+
+#[cfg(test)]
+mod launch_arg_tests {
+    use super::split_launch_args;
+
+    #[test]
+    fn keeps_quoted_path_as_one_argument() {
+        assert_eq!(
+            split_launch_args(r#"--write-movie "my clip.avi""#),
+            vec!["--write-movie".to_string(), "my clip.avi".to_string()]
+        );
+    }
+
+    #[test]
+    fn splits_plain_arguments_on_whitespace() {
+        assert_eq!(
+            split_launch_args("--headless --quit"),
+            vec!["--headless".to_string(), "--quit".to_string()]
+        );
+    }
+
+    #[test]
+    fn empty_input_yields_no_arguments() {
+        assert!(split_launch_args("   ").is_empty());
+        assert!(split_launch_args("").is_empty());
+    }
+
+    #[test]
+    fn single_quotes_group_too() {
+        assert_eq!(
+            split_launch_args("--path '/tmp/My Game'"),
+            vec!["--path".to_string(), "/tmp/My Game".to_string()]
+        );
+    }
+
+    #[test]
+    fn unbalanced_quotes_fall_back_to_whitespace() {
+        // shlex returns None on an unterminated quote; we must not drop the args.
+        assert_eq!(
+            split_launch_args(r#"--write-movie "oops"#),
+            vec!["--write-movie".to_string(), "\"oops".to_string()]
+        );
+    }
+}
