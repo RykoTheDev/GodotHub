@@ -7,9 +7,7 @@
   <a href="https://github.com/ivan-hc/AM">
   <img width="800" height="251" alt="Group 176(1)" src="https://github.com/user-attachments/assets/57e24df7-9046-431f-b550-3d885549580f" />
   </a>
-  <a href="https://github.com/RykoTheDev/GodotHub/tree/migration/tauri-to-flutter">
-    <img width="800" height="232" alt="Frame 101" src="https://github.com/user-attachments/assets/fca28678-8d3f-4b51-9e88-744c0fdc46b3" />
-  </a>
+  <img width="800" height="232" alt="Frame 101 (2)" src="https://github.com/user-attachments/assets/1f05b9c6-0c0e-4dd6-92b0-ae4a35751dde" />
 </p>
 <p align="center">
   <a href="https://patreon.com/TheRyko">
