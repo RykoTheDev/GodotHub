@@ -987,11 +987,11 @@
     "confirm_description": "res://addons/{{folder}} を、アセットライブラリのバージョン {{version}} に置き換えます。元のフォルダはゴミ箱に移動するため、アドオンに加えた変更はそちらに残ります。先に Godot でプロジェクトを閉じてください。",
     "footer_hint": "GodotHub 経由でインストールしたアドオンは正確に照合されます。それ以外は名前で判定するため、更新前に結果を確認してください。"
   },
-  "reload_confirm_title": "Reload GodotHub?",
-  "reload_confirm_desc": "Any unsaved changes in open forms will be lost.",
-  "color_presets": "Presets",
-  "date_previous_month": "Previous month",
-  "date_next_month": "Next month",
-  "date_change_due": "Change due date: {{date}}",
-  "date_add_due": "Add due date"
+  "reload_confirm_title": "GodotHub を再読み込みしますか？",
+  "reload_confirm_desc": "入力中の未保存の変更は失われます。",
+  "color_presets": "プリセット",
+  "date_previous_month": "前の月",
+  "date_next_month": "次の月",
+  "date_change_due": "期限を変更: {{date}}",
+  "date_add_due": "期限を追加"
 }
