@@ -74,28 +74,86 @@ jobs:
         shell: bash
         env:
           RELEASE_TAG: ${{ github.ref_name }}
+          REPO: ${{ github.repository }}
         run: |
+          set -euo pipefail
+          export RELEASE_TAGS="$(git ls-remote --tags --refs origin 'v*' 2>/dev/null | sed 's#.*refs/tags/##' || true)"
           BODY=$(node - <<'EOF'
           const fs = require('fs');
           const tag = process.env.RELEASE_TAG;
+          const repo = process.env.REPO;
+          const version = tag.replace(/^v/i, '');
           const entries = JSON.parse(fs.readFileSync('src-tauri/changelog.json', 'utf8'));
-          const entry = entries.find((e) => (e.version || '').trim().split(' ')[0] === tag)
-            || entries.find((e) => (e.version || '').trim().split(' ')[0].startsWith(tag));
-          const HEADERS = { add: '🚀 New', fix: '🐛 Fixes', improve: '✨ Improvements' };
-          if (!entry) {
-            console.log('See the assets below for the installer and updater files for your platform.');
-            process.exit(0);
+          const tagOf = (e) => (e.version || '').trim().split(' ')[0];
+          const entry = entries.find((e) => tagOf(e) === tag) || entries.find((e) => tagOf(e).startsWith(tag));
+          const semver = (v) => {
+            const m = /^v?(\d+)\.(\d+)\.(\d+)$/.exec(v);
+            return m ? m.slice(1).map(Number) : null;
+          };
+          const compare = (a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
+          const current = semver(tag);
+          const previous = current
+            ? (process.env.RELEASE_TAGS || '')
+                .split('\n')
+                .map((t) => t.trim())
+                .filter((t) => semver(t) && compare(semver(t), current) < 0)
+                .sort((a, b) => compare(semver(b), semver(a)))[0]
+            : undefined;
+          const blocks = [];
+          if (entry) {
+            blocks.push(`## What's new in ${tag}`);
+            const HEADERS = { add: 'New', fix: 'Fixes', improve: 'Improvements' };
+            for (const key of ['add', 'fix', 'improve']) {
+              const items = (entry.notes || []).filter((n) => n.category === key).map((n) => n.text);
+              if (items.length) blocks.push(`### ${HEADERS[key]}\n\n` + items.map((t) => `- ${t}`).join('\n'));
+            }
+            const known = (entry.known_issues || []).filter(Boolean);
+            if (known.length) blocks.push('### Known issues\n\n' + known.map((t) => `- ${t}`).join('\n'));
+            blocks.push('---');
           }
-          const sections = ['add', 'fix', 'improve']
-            .map((k) => ({ k, items: (entry.notes || []).filter((n) => n.category === k).map((n) => n.text) }))
-            .filter((s) => s.items.length)
-            .map((s) => `## ${HEADERS[s.k]}\n\n` + s.items.map((t) => `- ${t}`).join('\n'))
-            .join('\n\n');
-          const known = (entry.known_issues || []).filter(Boolean);
-          const knownSection = known.length
-            ? `\n\n## ⚠️ Known Issues\n\n` + known.map((t) => `- ${t}`).join('\n')
-            : '';
-          console.log(`## What's new in ${entry.version}\n\n${sections}${knownSection}`);
+          const downloadUrl = (name) =>
+            `https://github.com/${repo}/releases/download/${tag}/${encodeURIComponent(name)}`;
+          const rows = [
+            ['Windows', 'x64', 'Installer (recommended)', `GodotHub-${version}-windows-x64-setup.exe`],
+            ['Windows', 'x64', 'MSI installer', `GodotHub-${version}-windows-x64.msi`],
+            ['Windows', 'x64', 'Portable, no install', `GodotHub-${version}-windows-x64-portable.exe`],
+            ['macOS', 'Apple Silicon and Intel', 'Disk image', `GodotHub-${version}-darwin-universal.dmg`],
+            ['Linux', 'x64', 'AppImage', `GodotHub-${version}-linux-amd64.AppImage`],
+            ['Linux', 'x64', 'Debian, Ubuntu (.deb)', `GodotHub-${version}-linux-amd64.deb`],
+            ['Linux', 'x64', 'Fedora, openSUSE (.rpm)', `GodotHub-${version}-linux-x86_64.rpm`],
+          ];
+          blocks.push(
+            '## Downloads\n\n' +
+              '| Platform | Architecture | Package | Download |\n' +
+              '| --- | --- | --- | --- |\n' +
+              rows.map(([p, a, k, f]) => `| ${p} | ${a} | ${k} | [${f}](${downloadUrl(f)}) |`).join('\n'),
+          );
+          blocks.push(
+            '**Package managers**\n\n' +
+              '- winget: `winget install Ryko.GodotHub`\n' +
+              '- Scoop: `scoop bucket add extras` then `scoop install godothub`\n' +
+              '- AM (Linux): `am -i godothub`\n\n' +
+              'Already using GodotHub? It offers this update in the app.',
+          );
+          blocks.push(
+            '**AppImage not starting on Linux?**\n\n' +
+              'The AppImage does not run on every Linux setup. If it fails to start, install it with ' +
+              '[AM](https://github.com/ivan-hc/AM) instead. AM downloads the same AppImage from this page, ' +
+              'adds GodotHub to your app menu, and updates it with `am -u godothub`.\n\n' +
+              '1. Install AM:\n\n' +
+              '```bash\n' +
+              'wget -q https://raw.githubusercontent.com/ivan-hc/AM/main/AM-INSTALLER && chmod a+x ./AM-INSTALLER && ./AM-INSTALLER && rm ./AM-INSTALLER\n' +
+              '```\n\n' +
+              '2. Install GodotHub:\n\n' +
+              '```bash\n' +
+              'am -i godothub\n' +
+              '```\n\n' +
+              'If you chose AppMan in the AM installer, use `appman -i godothub` instead.',
+          );
+          if (previous) {
+            blocks.push(`**Full changelog:** [${previous}...${tag}](https://github.com/${repo}/compare/${previous}...${tag})`);
+          }
+          console.log(blocks.join('\n\n'));
           EOF
           )
           {
@@ -195,7 +253,9 @@ jobs:
           const fs = require('fs');
           const TAG = process.env.TAG;
           const REPO = process.env.REPO;
-          const NOTES = process.env.NOTES || '';
+          const NOTES = (process.env.NOTES || '')
+            .replace(/(^|\r?\n)(?:---[ \t]*\r?\n(?:[ \t]*\r?\n)*)?## Downloads[\s\S]*$/, '')
+            .trimEnd();
           const version = TAG.replace(/^v/i, '');
           const assets = JSON.parse(fs.readFileSync('assets.json', 'utf8'));
           const sigAssets = assets.filter((a) => a.name.endsWith('.sig'));
