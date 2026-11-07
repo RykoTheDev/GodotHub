@@ -307,7 +307,8 @@ jobs:
           fs.writeFileSync('latest.json', JSON.stringify(manifest, null, 2));
           console.log(`wrote latest.json with ${Object.keys(platforms).length} platform entries`);
           EOF
-          gh release upload "$TAG" latest.json --repo "$REPO" --clobber
+          cp latest.json latest-v2.json
+          gh release upload "$TAG" latest.json latest-v2.json --repo "$REPO" --clobber
 
   publish-to-winget:
     needs: [build, generate-latest-json]

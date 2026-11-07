@@ -50,9 +50,9 @@
   },
   "plugins": {
     "updater": {
-      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEE4NjcyMjk0NjBCOTg3OUMKUldTY2g3bGdsQ0pucUo1Rkk5UUtxZGpydDhmRzZYbDhHL0N6WGxCNTFUYkYxbFBQeEpIVE83cTkK",
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDQ2NUUyOUY1RUExQTIyMTQKUldRVUlocnE5U2xlUmtpOVRDZTAvWWtwM2dkUWpSb0ZadTkzeS8xOEhFVkU1UVlMUWRwN0h3VW8K",
       "endpoints": [
-        "https://github.com/RykoTheDev/godothub/releases/latest/download/latest.json"
+        "https://github.com/RykoTheDev/godothub/releases/latest/download/latest-v2.json"
       ]
     }
   }
