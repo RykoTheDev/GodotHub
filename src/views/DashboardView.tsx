@@ -595,6 +595,7 @@ function RunningPanel({
 
   useEffect(() => {
     if (!active || running.length === 0) return
+    setNow(Date.now())
     const id = setInterval(() => setNow(Date.now()), 1000)
     return () => clearInterval(id)
   }, [active, running.length])
@@ -656,6 +657,7 @@ function Clock({
 
   useEffect(() => {
     if (!active) return
+    setNow(new Date())
     const id = setInterval(() => setNow(new Date()), 1000)
     return () => clearInterval(id)
   }, [active])

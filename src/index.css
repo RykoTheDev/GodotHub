@@ -192,7 +192,7 @@ textarea::placeholder {
 }
 
 .new-ui .dash-rise {
-  animation: dash-rise 0.5s var(--ease-out-expo) both;
+  animation: dash-rise 0.5s var(--ease-out-expo) backwards;
 }
 @keyframes dash-rise {
   from {
