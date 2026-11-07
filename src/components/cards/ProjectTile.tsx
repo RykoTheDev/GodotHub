@@ -21,12 +21,14 @@ import { ProjectSizeModal } from '../modals/ProjectSizeModal'
 import { ProjectDoctorModal } from '../modals/ProjectDoctorModal'
 import { ProjectAddonsModal } from '../modals/ProjectAddonsModal'
 import { ProjectBuildModal } from '../modals/ProjectBuildModal'
+import { TimeTrackerModal } from '../modals/TimeTrackerModal'
 import {
   IconChevronDown, IconClock, IconCode, IconCopy, IconExternalLink,
   IconGitBranch, IconHardDrive, IconHistory, IconNode, IconPin, IconPlay,
   IconPlus, IconRocket, IconTags, IconTerminal, IconTrash, IconX,
   IconBug,
   IconPlug,
+  IconAlertTriangle,
 } from '../../lib/icons'
 
 export interface ProjectTileProps {
@@ -58,6 +60,13 @@ function initials(name: string): string {
   return words.length > 1 ? `${words[0][0]}${words[1][0]}`.toUpperCase() : name.slice(0, 2).toUpperCase()
 }
 
+function shortPath(path: string): string {
+  const parts = path.split(/[\\/]/).filter(Boolean)
+  return parts.length > 2 ? `…/${parts.slice(-2).join('/')}` : path
+}
+
+const hoverReveal = 'opacity-0 group-hover/tile:opacity-100 group-focus-within/tile:opacity-100 focus-visible:opacity-100 [@media(hover:none)]:opacity-100'
+
 function formatSize(bytes: number): string {
   if (bytes >= 1024 ** 3) return `${(bytes / 1024 ** 3).toFixed(1)} GB`
   if (bytes >= 1024 ** 2) return `${(bytes / 1024 ** 2).toFixed(1)} MB`
@@ -75,7 +84,7 @@ export function ProjectTile({
   const { settings } = useSettings()
   const options = getCardViewSettings(settings, viewMode)
   const { cardRef, icon, displayName, size, now } = useProjectTileData(project, options.show_size, preview)
-  const [dialog, setDialog] = useState<'remove' | 'delete' | 'tags' | 'args' | 'template' | 'size' | 'doctor' | 'addons' | 'build' | null>(null)
+  const [dialog, setDialog] = useState<'remove' | 'delete' | 'tags' | 'args' | 'template' | 'size' | 'doctor' | 'addons' | 'build' | 'time' | null>(null)
   const [brokenIcon, setBrokenIcon] = useState<string | null>(null)
   const grid = viewMode === 'grid'
   const version = installedVersions.find(entry => entry.tag === project.godot_version)
@@ -86,8 +95,10 @@ export function ProjectTile({
     : unavailable ? t('project_card_version_unavailable', { version: project.godot_version }) : t('no_version_selected')
   const running = !!project.session_started_at_ms
   const sessionMs = Math.max(0, now - (project.session_started_at_ms ?? now))
-  const timeLabel = formatDuration(running ? sessionMs : effectiveTotalMs(project, now))
-  const showTime = running ? options.show_session_timer : options.show_time && effectiveTotalMs(project, now) > 0
+  const totalMs = effectiveTotalMs(project, now)
+  const timeLabel = formatDuration(totalMs)
+  const showTime = options.show_time && totalMs > 0
+  const hasGit = !!gitStatus?.is_repo && !!onShowGitSidebar
   const lastOpened = formatLastOpened(project.last_opened, settings.last_opened_time_format, settings.last_opened_date_format)
   const iconButton = 'focus-ring cursor-pointer flex shrink-0 h-7 w-7 items-center justify-center rounded-btn disabled:cursor-not-allowed disabled:opacity-40'
   const launch = (console?: boolean) => window.dispatchEvent(new CustomEvent('app:open-project', { detail: { id: project.id, console } }))
@@ -118,44 +129,64 @@ export function ProjectTile({
         if ((event.target as HTMLElement).closest("button, a, input, textarea, select, [role='button'], [role='menuitem']")) return
         onToggleSelect?.(event)
       }}
-      className={`group/tile relative flex min-w-0 flex-col gap-3 rounded-item border  ${grid ? 'h-full min-h-[260px] p-4' : compact ? 'p-3' : 'p-3.5'} ${selected ? 'border-accent bg-accent/5 ring-1 ring-accent/60' : 'border-outline/50 bg-overlay hover:border-accent-dim/50'}`}>
+      onDoubleClick={(event) => {
+        if (preview || !version || event.ctrlKey || event.metaKey || event.shiftKey) return
+        if ((event.target as HTMLElement).closest("button, a, input, textarea, select, [role='button'], [role='menuitem'], [role='dialog']")) return
+        launch()
+      }}
+      className={`group/tile relative isolate flex min-w-0 flex-col gap-3 rounded-item border ${grid ? 'h-full min-h-[240px] p-4' : compact ? 'p-3' : 'p-3.5'} ${selected ? 'border-accent bg-accent/5 ring-1 ring-accent/60' : running ? 'border-accent-dim/50 bg-overlay hover:border-accent-dim' : 'border-outline/50 bg-overlay hover:border-accent-dim/50'}`}>
+      {grid && <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden rounded-item">
+        {icon && icon !== brokenIcon
+          ? <img src={icon} alt="" draggable={false} decoding="async"
+              className="absolute -end-10 -top-10 h-44 w-44 -rotate-12 select-none object-contain grayscale contrast-125 transition-[rotate,filter] duration-500 ease-out-expo group-hover/tile:-rotate-3 group-hover/tile:grayscale-0"
+              style={{ opacity: 'var(--project-icon-opacity, 0.14)', maskImage: 'radial-gradient(circle at 70% 30%, black 25%, transparent 70%)', WebkitMaskImage: 'radial-gradient(circle at 70% 30%, black 25%, transparent 70%)' }} />
+          : <span className="absolute -end-3 -top-5 -rotate-12 select-none font-display font-black leading-none text-muted transition-[rotate,color] duration-500 ease-out-expo group-hover/tile:-rotate-3 group-hover/tile:text-accent-bright"
+              style={{ fontSize: '112px', opacity: 'var(--project-icon-opacity, 0.14)', maskImage: 'radial-gradient(circle at 70% 30%, black 25%, transparent 70%)', WebkitMaskImage: 'radial-gradient(circle at 70% 30%, black 25%, transparent 70%)' }}>
+              {initials(displayName)}
+            </span>}
+      </div>}
       <div className="flex items-start gap-3 min-w-0">
         <div aria-hidden="true" className={`flex shrink-0 items-center justify-center overflow-hidden rounded-tile border border-outline/40 bg-raised ${grid ? 'h-12 w-12' : compact ? 'h-9 w-9' : 'h-10 w-10'}`}>
           {icon && icon !== brokenIcon ? <img src={icon} onError={() => setBrokenIcon(icon)} alt="" draggable={false} decoding="async" className="h-full w-full object-contain p-1" />
             : <span className="select-none font-display text-sm font-semibold text-accent-bright/80">{initials(displayName)}</span>}
         </div>
-        <h3 title={displayName} className={`min-w-0 flex-1 line-clamp-2 wrap-break-word font-display font-semibold leading-snug text-ink ${grid ? 'text-base' : compact ? 'text-sm' : 'text-base'}`}>{displayName}</h3>
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <h3 title={displayName} className={`min-w-0 line-clamp-2 wrap-break-word font-display font-semibold leading-snug text-ink ${grid ? 'text-base' : compact ? 'text-sm' : 'text-base'}`}>{displayName}</h3>
+          {options.show_path && <Tooltip content={<span>{project.path}</span>} className="w-full min-w-0">
+            <button type="button" dir="ltr" onClick={openFolder} disabled={preview} aria-label={t('open_folder')}
+              className={`focus-ring -mx-1 min-w-0 max-w-full cursor-pointer truncate rounded-btn px-1 py-0.5 text-start font-mono text-2xs text-muted/70 hover:text-accent-bright ${options.blur_path ? 'blur-sm hover:blur-none focus-visible:blur-none' : ''}`}>
+              {grid ? shortPath(project.path) : project.path}
+            </button>
+          </Tooltip>}
+          {running && <span title={t('running')} className="inline-flex w-fit items-center gap-1.5 rounded-tag bg-accent/10 px-2 py-0.5 text-3xs font-medium text-accent-bright">
+            <span aria-hidden="true" className="w-2 h-2 rounded-full bg-accent-bright shrink-0" />
+            {t('running')}{options.show_session_timer && <span className="font-mono tabular-nums">{formatDuration(sessionMs)}</span>}
+          </span>}
+        </div>
         <div className="flex shrink-0 flex-col items-center gap-1">
           <button type="button" onClick={onTogglePin} disabled={preview} aria-label={t(project.pinned ? 'project_unpin_aria' : 'project_pin_aria')} aria-pressed={project.pinned}
             title={t(project.pinned ? 'project_unpin_aria' : 'project_pin_aria')}
-            className={`${iconButton} ${project.pinned ? 'bg-accent/10 text-accent-bright hover:bg-accent/20' : 'text-muted/70 hover:bg-raised hover:text-ink'}`}>
+            className={`${iconButton} ${project.pinned ? 'bg-accent/10 text-accent-bright hover:bg-accent/20' : `text-muted/70 hover:bg-raised hover:text-ink ${grid ? hoverReveal : ''}`}`}>
             <IconPin className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
 
-      {options.show_path && <Tooltip content={<span>{project.path}</span>} className="w-full min-w-0">
-        <button type="button" dir="ltr" onClick={openFolder} disabled={preview} aria-label={t('open_folder')}
-          className={`focus-ring min-w-0 w-full cursor-pointer truncate rounded-btn px-1 py-0.5 text-start font-mono text-2xs text-muted/70 hover:text-accent-bright ${options.blur_path ? 'blur-sm hover:blur-none focus-visible:blur-none' : ''}`}>
-          {project.path}
-        </button>
-      </Tooltip>}
-
-      {gitStatus?.is_repo && onShowGitSidebar && <button type="button" onClick={onShowGitSidebar} disabled={preview} aria-label={t('git_sidebar')}
-        title={`${gitStatus.branch ?? ''} · ${t(gitStatus.has_uncommitted ? 'git_uncommitted' : 'git_clean')}`}
-        className={`focus-ring flex w-fit max-w-full min-w-0 cursor-pointer items-center gap-1.5 rounded-tag px-2 py-1 text-2xs  ${gitStatus.has_uncommitted ? 'bg-amber/10 text-amber hover:bg-amber/15' : 'bg-raised text-muted hover:text-ink'}`}>
-        <IconGitBranch className="h-3 w-3 shrink-0" /><span className="min-w-0 truncate">{gitStatus.branch || t('git_sidebar')}</span>
-        {gitStatus.has_uncommitted && <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber" />}
-      </button>}
-
-      {(showTime || options.show_size || (options.show_last_opened && lastOpened)) && <div className="flex min-h-5 flex-wrap items-center gap-x-3 gap-y-1 text-2xs text-muted/70">
-        {showTime && <span title={running ? t('running') : t('project_card_total_time', { time: timeLabel })} className={`inline-flex items-center gap-1.5 font-mono ${running ? 'text-accent-bright' : ''}`}>
-          {running ? <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-accent-bright " /> : <IconClock className="h-3 w-3" />}{timeLabel}
-        </span>}
-        {options.show_size && <button type="button" onClick={() => setDialog('size')} disabled={preview} aria-label={t('project_size')} title={t('project_size')}
+      {(hasGit || showTime || (options.show_size && size !== null) || (options.show_last_opened && lastOpened)) && <div className="flex min-h-6 flex-wrap items-center gap-x-3 gap-y-1.5 text-2xs text-muted/70">
+        {hasGit && <button type="button" onClick={onShowGitSidebar} disabled={preview} aria-label={t('git_sidebar')}
+          title={`${gitStatus.branch ?? ''} · ${t(gitStatus.has_uncommitted ? 'git_uncommitted' : 'git_clean')}`}
+          className={`focus-ring flex max-w-full min-w-0 cursor-pointer items-center gap-1.5 rounded-tag px-2 py-1 text-2xs ${gitStatus.has_uncommitted ? 'bg-amber/10 text-amber hover:bg-amber/15' : 'bg-raised text-muted hover:text-ink'}`}>
+          <IconGitBranch className="h-3 w-3 shrink-0" /><span className="min-w-0 truncate">{gitStatus.branch || t('git_sidebar')}</span>
+          {gitStatus.has_uncommitted && <span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full bg-amber" />}
+        </button>}
+        {showTime && <button type="button" onClick={() => setDialog('time')} disabled={preview} aria-label={t('time_tracked_title')} title={t('project_card_total_time', { time: timeLabel })}
+          className="focus-ring cursor-pointer inline-flex items-center gap-1.5 rounded-btn px-1 py-0.5 font-mono tabular-nums hover:text-ink">
+          <IconClock className="h-3 w-3" />{timeLabel}
+        </button>}
+        {options.show_size && size !== null && <button type="button" onClick={() => setDialog('size')} disabled={preview} aria-label={t('project_size')} title={t('project_size')}
           className="focus-ring cursor-pointer inline-flex items-center gap-1.5 rounded-btn px-1 py-0.5 hover:text-ink ">
           <IconHardDrive className="h-3 w-3 shrink-0" />
-          {size === undefined ? <span aria-hidden="true" className="inline-block h-2.5 w-10 rounded bg-raised" /> : size === null ? ':' : formatSize(size)}
+          {size === undefined ? <span aria-hidden="true" className="inline-block h-2.5 w-10 rounded bg-raised" /> : formatSize(size)}
         </button>}
         {options.show_last_opened && lastOpened && <span title={t('project_card_last_opened', { date: new Date(project.last_opened!).toLocaleString() })} className="inline-flex items-center gap-1.5">
           <IconHistory className="h-3 w-3 shrink-0" />{lastOpened}
@@ -163,32 +194,34 @@ export function ProjectTile({
       </div>}
 
       {options.show_tags && <div className="flex items-center gap-1.5 min-w-0">
-        <div className="flex min-w-0 flex-1 flex-wrap gap-1.5">
-          {project.tags.slice(0, grid ? 3 : 2).map(tag => <button key={tag} type="button" disabled={preview} onClick={() => onTagClick ? onTagClick(tag) : setDialog('tags')}
+        <div className={`flex min-w-0 flex-1 gap-1.5 ${grid ? 'overflow-hidden' : 'flex-wrap'}`}>
+          {project.tags.slice(0, 2).map(tag => <button key={tag} type="button" disabled={preview} onClick={() => onTagClick ? onTagClick(tag) : setDialog('tags')}
             aria-pressed={activeTag === tag} title={tag}
-            className={`focus-ring cursor-pointer flex h-6 max-w-28 min-w-0 items-center gap-1.5 rounded-tag px-2 text-3xs font-medium hover:brightness-125 ${activeTag === tag ? 'ring-1 ring-accent-dim' : ''}`}
+            className={`focus-ring cursor-pointer flex h-6 max-w-28 min-w-0 items-center gap-1.5 rounded-tag px-2 text-3xs font-medium hover:brightness-125 ${activeTag === tag ? 'ring-1 ring-inset ring-accent-dim' : ''}`}
             style={{ backgroundColor: `${tagColor(tag)}18`, color: tagColor(tag) }}>
             <span className="h-1 w-1 shrink-0 rounded-full" style={{ backgroundColor: tagColor(tag) }} /><span className="min-w-0 truncate">{tag}</span>
           </button>)}
-          {project.tags.length > (grid ? 3 : 2) && <button type="button" disabled={preview} onClick={() => setDialog('tags')}
-            aria-label={t('project_card_more_tags', { count: project.tags.length - (grid ? 3 : 2) })}
-            className="focus-ring cursor-pointer h-6 rounded-tag bg-raised px-2 text-3xs text-muted hover:text-ink">+{project.tags.length - (grid ? 3 : 2)}</button>}
+          {project.tags.length > 2 && <button type="button" disabled={preview} onClick={() => setDialog('tags')}
+            aria-label={t('project_card_more_tags', { count: project.tags.length - 2 })}
+            className="focus-ring cursor-pointer h-6 shrink-0 rounded-tag bg-raised px-2 text-3xs text-muted hover:text-ink">+{project.tags.length - 2}</button>}
           {project.tags.length === 0 && <button type="button" disabled={preview} onClick={() => setDialog('tags')}
-            className="focus-ring cursor-pointer inline-flex h-6 items-center gap-1 rounded-btn border border-dashed border-outline/50 px-2 text-3xs text-muted/70 hover:text-ink hover:bg-raised ">
+            className={`focus-ring cursor-pointer inline-flex h-6 shrink-0 items-center gap-1 rounded-btn border border-dashed border-outline/50 px-2 text-3xs text-muted/70 hover:text-ink hover:bg-raised ${grid ? hoverReveal : ''}`}>
             <IconPlus className="h-2.5 w-2.5" />{t('add_tag')}
           </button>}
         </div>
         {project.tags.length > 0 && <button type="button" disabled={preview} onClick={() => setDialog('tags')} aria-label={t('manage_tags')} title={t('manage_tags')}
-          className={`${iconButton} text-muted/60 hover:bg-raised hover:text-ink`}><IconTags className="h-3 w-3" /></button>}
+          className={`${iconButton} text-muted/60 hover:bg-raised hover:text-ink ${grid ? hoverReveal : ''}`}><IconTags className="h-3 w-3" /></button>}
       </div>}
 
-      <div className="mt-auto flex min-w-0 flex-col gap-2 border-t border-outline/30 pt-3">
+      <div className={`mt-auto flex min-w-0 flex-col gap-2 ${grid ? '-mx-4 -mb-4 rounded-b-item border-t border-outline/30 bg-base/30 px-4 pb-4 pt-3' : 'border-t border-outline/30 pt-3'}`}>
         <Dropdown align="left" className="w-full min-w-0" trigger={({ open, toggle }) => <button type="button" onClick={toggle} disabled={preview || installedVersions.length === 0} aria-label={t('godot_version_label')} aria-expanded={open}
           title={!version ? unavailableHint : t('godot_version_label')}
           className={`focus-ring flex w-full min-w-0 cursor-pointer items-center gap-2 rounded-btn border border-outline/50 bg-raised px-2.5 py-2 text-2xs hover:border-accent-dim disabled:cursor-not-allowed disabled:opacity-60 ${unavailable ? 'text-amber' : 'text-muted'}`}>
           <IconNode className="h-3 w-3 shrink-0" /><span className="min-w-0 flex-1 truncate text-start">{versionLabel}</span><IconChevronDown className="h-2.5 w-2.5 shrink-0" />
         </button>} items={installedVersions.map(entry => ({ key: entry.tag, label: entry.custom_name || entry.tag, badge: entry.custom_name && entry.custom_name !== entry.tag ? entry.tag : undefined, active: entry.tag === project.godot_version, onClick: () => onVersionChange(entry.tag) }))} />
-        {!version && <p className="px-1 text-3xs leading-relaxed text-muted/70">{unavailableHint}</p>}
+        {!version && <p title={unavailableHint} className="flex items-start gap-1.5 px-1 text-3xs leading-relaxed text-amber/80">
+          <IconAlertTriangle className="mt-0.5 h-2.5 w-2.5 shrink-0" /><span className="line-clamp-2">{unavailableHint}</span>
+        </p>}
         <div className="flex min-w-0 items-stretch gap-1.5">
           {options.show_play && <button type="button" onClick={() => runAction(() => api.openProject(project.id, false))} disabled={!version || preview}
             aria-label={t('play_project_tooltip')} title={!version ? unavailableHint : t('play_project_tooltip')}
@@ -218,6 +251,7 @@ export function ProjectTile({
         {dialog === 'doctor' && <ProjectDoctorModal project={project} installedVersions={installedVersions} onClose={() => setDialog(null)} />}
         {dialog === 'addons' && <ProjectAddonsModal project={project} onClose={() => setDialog(null)} />}
         {dialog === 'build' && <ProjectBuildModal project={project} onClose={() => setDialog(null)} />}
+        {dialog === 'time' && <TimeTrackerModal project={project} onClose={() => setDialog(null)} />}
 
     </article>
   )

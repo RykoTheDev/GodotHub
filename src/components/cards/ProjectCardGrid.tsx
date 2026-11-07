@@ -1,5 +1,7 @@
 import { useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
+import { IconPin } from '../../lib/icons'
+import { AnimatedNumber } from '../reusables/AnimatedNumber'
 import { DndContext, DragOverlay, closestCenter } from '@dnd-kit/core'
 import { SortableContext, rectSortingStrategy } from '@dnd-kit/sortable'
 import type {
@@ -14,7 +16,7 @@ import {
   ProjectCategorySection,
   type HiddenCategoryEntry,
 } from './CategorySections'
-import { UNCATEGORIZED_KEY } from '../../lib/projectDrag'
+import { hasOnlyPinnedProjects, UNCATEGORIZED_KEY } from '../../lib/projectDrag'
 import { AUTO_SCROLL_CONFIG } from '../../lib/dragFeel'
 import { useProjectDnd } from '../../hooks/useProjectDnd'
 import {
@@ -29,6 +31,7 @@ interface ProjectCardGridProps {
   installedVersions: InstalledGodotVersion[]
   categories?: Category[]
   categoriesEnabled?: boolean
+  searchActive?: boolean
   gitStatusMap: Record<string, GitStatus | null>
   launchWithConsole: boolean
   onTogglePin: (id: string) => void
@@ -45,6 +48,7 @@ interface ProjectCardGridProps {
   selectedIds: Set<string>
   onToggleSelect?: (id: string, e: React.MouseEvent) => void
   onReorder?: (orderedIds: string[]) => Promise<void>
+  onReorderPinned?: (orderedIds: string[]) => Promise<void>
   onMoveProjects?: (
     ids: string[],
     category: string,
@@ -65,6 +69,7 @@ export function ProjectCardGrid({
   installedVersions,
   categories = [],
   categoriesEnabled = false,
+  searchActive = false,
   gitStatusMap,
   launchWithConsole,
   onTogglePin,
@@ -81,6 +86,7 @@ export function ProjectCardGrid({
   selectedIds,
   onToggleSelect,
   onReorder,
+  onReorderPinned,
   onMoveProjects,
   hiddenCategories = [],
   onUnhideCategory,
@@ -91,10 +97,20 @@ export function ProjectCardGrid({
   const grouped = categoriesEnabled && categories.length > 0
   const isDndEnabled = Boolean(onReorder)
 
-  const sortableIds = useMemo(() => projects.map((p) => p.id), [projects])
+  const showPinnedSection = !searchActive && projects.some((p) => p.pinned)
+  const pinnedProjects = useMemo(
+    () => (showPinnedSection ? projects.filter((p) => p.pinned) : []),
+    [projects, showPinnedSection],
+  )
+  const unpinnedProjects = useMemo(
+    () => (showPinnedSection ? projects.filter((p) => !p.pinned) : projects),
+    [projects, showPinnedSection],
+  )
+
+  const sortableIds = useMemo(() => unpinnedProjects.map((p) => p.id), [unpinnedProjects])
 
   const dnd = useProjectDnd({
-    projects,
+    projects: unpinnedProjects,
     categories,
     grouped,
     prefixes: { category: 'grid-cat-' },
@@ -103,47 +119,58 @@ export function ProjectCardGrid({
     onMoveProjects,
   })
 
+  const pinnedDnd = useProjectDnd({
+    projects: pinnedProjects,
+    categories,
+    grouped: false,
+    prefixes: { category: 'grid-pinned-cat-' },
+    selectedIds,
+    onReorder: onReorderPinned,
+  })
+
   const groupedProjects = useMemo(() => {
     if (!grouped) return null
     const map = new Map<string, Project[]>()
-    for (const p of projects) {
+    for (const p of unpinnedProjects) {
       const key = p.category || UNCATEGORIZED
       const list = map.get(key)
       if (list) list.push(p)
       else map.set(key, [p])
     }
     return map
-  }, [projects, grouped])
+  }, [unpinnedProjects, grouped])
+
+  const cardContent = (p: Project) => (
+    <div className="h-full min-w-0">
+      <ProjectCardGridItem
+        project={p}
+        installedVersions={installedVersions}
+        categories={categories}
+        gitStatus={gitStatusMap[p.path] ?? null}
+        launchWithConsole={launchWithConsole}
+        onTogglePin={() => onTogglePin(p.id)}
+        onVersionChange={(tag) => onVersionChange(p.id, tag)}
+        onRemove={() => onRemove(p.id)}
+        onDelete={onDelete ? () => onDelete(p.id) : undefined}
+        onCategoryChange={
+          onCategoryChange ? (cat) => onCategoryChange(p.id, cat) : undefined
+        }
+        onDuplicate={onDuplicate ? () => onDuplicate(p) : undefined}
+        onLaunchArgsChange={
+          onLaunchArgsChange ? (args) => onLaunchArgsChange(p.id, args) : undefined
+        }
+        onTagsSaved={onTagsSaved}
+        onTagClick={onTagClick}
+        onShowGitSidebar={onShowGitSidebar ? () => onShowGitSidebar(p, gitStatusMap[p.path] ?? null) : undefined}
+        activeTag={activeTag}
+        selected={selectedIds.has(p.id)}
+        onToggleSelect={(e) => onToggleSelect?.(p.id, e)}
+      />
+    </div>
+  )
 
   const renderCard = (p: Project) => {
-    const card = (
-      <div className="h-full min-w-0">
-        <ProjectCardGridItem
-          project={p}
-          installedVersions={installedVersions}
-          categories={categories}
-          gitStatus={gitStatusMap[p.path] ?? null}
-          launchWithConsole={launchWithConsole}
-          onTogglePin={() => onTogglePin(p.id)}
-          onVersionChange={(tag) => onVersionChange(p.id, tag)}
-          onRemove={() => onRemove(p.id)}
-          onDelete={onDelete ? () => onDelete(p.id) : undefined}
-          onCategoryChange={
-            onCategoryChange ? (cat) => onCategoryChange(p.id, cat) : undefined
-          }
-          onDuplicate={onDuplicate ? () => onDuplicate(p) : undefined}
-          onLaunchArgsChange={
-            onLaunchArgsChange ? (args) => onLaunchArgsChange(p.id, args) : undefined
-          }
-          onTagsSaved={onTagsSaved}
-          onTagClick={onTagClick}
-          onShowGitSidebar={onShowGitSidebar ? () => onShowGitSidebar(p, gitStatusMap[p.path] ?? null) : undefined}
-          activeTag={activeTag}
-          selected={selectedIds.has(p.id)}
-          onToggleSelect={(e) => onToggleSelect?.(p.id, e)}
-        />
-      </div>
-    )
+    const card = cardContent(p)
 
     if (isDndEnabled) {
       return (
@@ -162,8 +189,67 @@ export function ProjectCardGrid({
     return <div key={p.id} className="h-full min-w-0">{card}</div>
   }
 
+  const renderPinnedCard = (p: Project) =>
+    onReorderPinned ? (
+      <SortableItem
+        key={p.id}
+        id={p.id}
+        className="h-full min-w-0"
+        static={pinnedDnd.activeIds.length > 1}
+        carried={pinnedDnd.activeIds.includes(p.id)}
+      >
+        {cardContent(p)}
+      </SortableItem>
+    ) : (
+      <div key={p.id} className="h-full min-w-0">{cardContent(p)}</div>
+    )
+
+  const pinnedGrid = (
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] items-stretch gap-3 pt-1 pb-1">
+      {pinnedProjects.map(renderPinnedCard)}
+    </div>
+  )
+
+  const pinnedSection = showPinnedSection ? (
+    <div className="pb-2">
+      <div className="mt-1 mb-0.5 flex items-center gap-2 px-1 rounded-item">
+        <IconPin className="w-3 h-3 text-accent-bright" fill="currentColor" />
+        <span className="text-3xs font-semibold uppercase tracking-wider text-muted">
+          {tc('pinned_section')}
+        </span>
+        <span className="text-3xs font-medium text-muted/50 tabular-nums">
+          · <AnimatedNumber value={pinnedProjects.length} />
+        </span>
+        <div className="flex-1 h-px bg-outline/50" />
+      </div>
+      {onReorderPinned ? (
+        <DndContext
+          sensors={pinnedDnd.sensors}
+          collisionDetection={pinnedDnd.collisionDetection ?? closestCenter}
+          autoScroll={AUTO_SCROLL_CONFIG}
+          onDragStart={pinnedDnd.handleDragStart}
+          onDragEnd={pinnedDnd.handleDragEnd}
+          onDragCancel={pinnedDnd.handleDragCancel}
+        >
+          <SortableContext items={pinnedProjects.map((p) => p.id)} strategy={rectSortingStrategy}>
+            {pinnedGrid}
+          </SortableContext>
+          <DropLine placement={pinnedDnd.placementRef} activeIds={pinnedDnd.activeIds} reflows={pinnedDnd.reflows} />
+          <DragOverlay dropAnimation={DROP_ANIMATION}>
+            {pinnedDnd.activeProject ? (
+              <DragLiftOverlay innerRef={pinnedDnd.overlayRef} count={pinnedDnd.activeIds.length} className="h-full">
+                {cardContent(pinnedDnd.activeProject)}
+              </DragLiftOverlay>
+            ) : null}
+          </DragOverlay>
+        </DndContext>
+      ) : pinnedGrid}
+      <div className="mt-2 h-0.5 bg-outline" style={{ backgroundColor: 'var(--color-outline)' }} />
+    </div>
+  ) : null
+
   const cardGrid = (list: Project[]) => (
-    <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] items-stretch gap-3 pb-4">
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,260px),1fr))] items-stretch gap-3 pt-1 pb-4">
       {list.map(renderCard)}
     </div>
   )
@@ -172,6 +258,7 @@ export function ProjectCardGrid({
     <>
       {categories.map((cat) => {
         const catProjects = groupedProjects?.get(cat.name) ?? []
+        if (!dnd.activeId && hasOnlyPinnedProjects(projects, cat.name)) return null
         return (
           <ProjectCategorySection
             key={cat.id}
@@ -205,6 +292,7 @@ export function ProjectCardGrid({
         ))}
       {(() => {
         const uncategorizedProjects = groupedProjects?.get(UNCATEGORIZED) ?? []
+        if (!dnd.activeId && hasOnlyPinnedProjects(projects, UNCATEGORIZED)) return null
         return (
           <ProjectCategorySection
             variant="grid"
@@ -224,7 +312,8 @@ export function ProjectCardGrid({
 
   const allContent = (
     <>
-      {grouped ? categoryContent : cardGrid(projects)}
+      {pinnedSection}
+      {grouped ? categoryContent : cardGrid(unpinnedProjects)}
       {hiddenCategories.length > 0 && (
         <HiddenCategoriesSection
           entries={hiddenCategories}

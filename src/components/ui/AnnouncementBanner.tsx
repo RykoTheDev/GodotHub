@@ -56,7 +56,7 @@ export function AnnouncementBanner() {
   return (
     <div className="pointer-events-none absolute inset-x-0 bottom-0 z-40 px-4 pb-4">
       <div
-        style={{ animation: 'dash-rise 0.45s var(--ease-out-expo) both' }}
+        style={{ animation: 'dash-rise 0.45s var(--ease-out-expo) backwards' }}
         className="pointer-events-auto w-full flex items-center gap-3.5 rounded-item bg-raised border border-outline/60 shadow-lg shadow-black/40 ps-5 pe-3 py-3"
       >
         <span className="grid place-items-center w-9 h-9 shrink-0 rounded-tile bg-danger/10 border border-danger/30 text-danger">
