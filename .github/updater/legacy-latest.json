@@ -1,0 +1,59 @@
+{
+  "version": "1.5.6",
+  "notes": "## What's new in v1.5.6\n\n## 🚀 New\n\n- Project Doctor now checks Android setups: projects with an Android export preset or Gradle build template get checks for the Android SDK (platform tools, build tools, command-line tools), the Java JDK version, the debug keystore, release keystores and the Android build template. Projects that only look mobile (Mobile renderer, ETC2/ASTC textures, screen orientation, touch emulation) get the same checks as notes, since many desktop games use the Mobile renderer too\n- Tests and lint in Build & Export: run GUT or gdUnit4 tests headless, gdlint, or a gdformat check with one click. Output streams to the built-in console, and Stop ends the run\n- New Addons window in the project menu lists every addon in res://addons with its version, author and whether it is enabled, and checks the Godot Asset Library for newer versions. Addons installed through GodotHub are matched exactly; others are matched by name. Updating moves the old addon folder to the Trash and restores it if the update fails\n- Windows: right-click GodotHub in the taskbar to open recent projects from the Jump List. macOS: right-click the Dock icon for the same list\n\n## 🐛 Fixes\n\n- Choosing a project under Open Recent in the tray menu now opens it. Before, nothing happened\n- Templates in your template scan folder now sync automatically at startup, when files in that folder change, and after pulling a cloud sync. Before, they only synced when you pressed Sync\n- Project sizes no longer stay out of date after files deep inside a project change\n- Project icons now update when you replace the icon file itself\n- The splash screen loading bar no longer flickers rapidly when Reduce Motion is on\n- The onboarding intro animation no longer keeps running in the background after you leave it\n- Fixed window and Discord status listeners that could be left behind after their part of the app closed\n\n## ✨ Improvements\n\n- Faster startup: only the language you use is loaded, and rarely used dialogs load when first needed. The startup code is about half its previous size\n- The app stays smooth while Godot versions download. Download progress no longer redraws every page\n- Asset Library downloads send progress updates far less often and write to disk faster\n- Godot and export template downloads and installs use buffered disk access\n- Network requests share one connection pool and use compression, so GitHub and other online lookups respond faster\n- The Templates and Vault pages load their lists without briefly freezing the window\n- Project cards, the versions list and running-project timers redraw less often, which makes hovering and scrolling lighter\n- Status dot pulses, card entrance animations and tooltips use less GPU and CPU while looking the same\n- Background checks (git auto-fetch, console and export updates) pause while the window is hidden, and news and contributors are cached instead of fetched on every visit\n- Smaller and faster release builds",
+  "pub_date": "2026-11-07T17:19:59.956Z",
+  "platforms": {
+    "darwin-aarch64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTY2g3bGdsQ0pucUgrZzRWQzg0VEEyZll0a1ZJeFVvYVEwdnBZTFJpQWpnbHFUM0VKTzRHa3ZYcDRFdXdEdjhwNklKeGx6clJKN080c1J3UUNMVC9Gay91SkZ4cFZNZEFjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0MDcxOTQ3CWZpbGU6R29kb3RIdWIuYXBwLnRhci5negl2ZXJzaW9uOjEuNS42CmFyd0FTVVZxd1lXaDFtL2Q0ZEw4a3YwY0pnTytRWUd6Sm13MUJhdWJiam1OanlYQ0FHOFZKU2NsdHZpZVlRQmtoOUtselY0Q1NJTUdhQXpyL0xnZEFnPT0K",
+      "url": "https://github.com/RykoTheDev/GodotHub/releases/download/v1.5.6/GodotHub-1.5.6-darwin-universal.app.tar.gz"
+    },
+    "darwin-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTY2g3bGdsQ0pucUgrZzRWQzg0VEEyZll0a1ZJeFVvYVEwdnBZTFJpQWpnbHFUM0VKTzRHa3ZYcDRFdXdEdjhwNklKeGx6clJKN080c1J3UUNMVC9Gay91SkZ4cFZNZEFjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0MDcxOTQ3CWZpbGU6R29kb3RIdWIuYXBwLnRhci5negl2ZXJzaW9uOjEuNS42CmFyd0FTVVZxd1lXaDFtL2Q0ZEw4a3YwY0pnTytRWUd6Sm13MUJhdWJiam1OanlYQ0FHOFZKU2NsdHZpZVlRQmtoOUtselY0Q1NJTUdhQXpyL0xnZEFnPT0K",
+      "url": "https://github.com/RykoTheDev/GodotHub/releases/download/v1.5.6/GodotHub-1.5.6-darwin-universal.app.tar.gz"
+    },
+    "darwin-universal": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTY2g3bGdsQ0pucUgrZzRWQzg0VEEyZll0a1ZJeFVvYVEwdnBZTFJpQWpnbHFUM0VKTzRHa3ZYcDRFdXdEdjhwNklKeGx6clJKN080c1J3UUNMVC9Gay91SkZ4cFZNZEFjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0MDcxOTQ3CWZpbGU6R29kb3RIdWIuYXBwLnRhci5negl2ZXJzaW9uOjEuNS42CmFyd0FTVVZxd1lXaDFtL2Q0ZEw4a3YwY0pnTytRWUd6Sm13MUJhdWJiam1OanlYQ0FHOFZKU2NsdHZpZVlRQmtoOUtselY0Q1NJTUdhQXpyL0xnZEFnPT0K",
+      "url": "https://github.com/RykoTheDev/GodotHub/releases/download/v1.5.6/GodotHub-1.5.6-darwin-universal.app.tar.gz"
+    },
+    "darwin-aarch64-app": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTY2g3bGdsQ0pucUgrZzRWQzg0VEEyZll0a1ZJeFVvYVEwdnBZTFJpQWpnbHFUM0VKTzRHa3ZYcDRFdXdEdjhwNklKeGx6clJKN080c1J3UUNMVC9Gay91SkZ4cFZNZEFjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0MDcxOTQ3CWZpbGU6R29kb3RIdWIuYXBwLnRhci5negl2ZXJzaW9uOjEuNS42CmFyd0FTVVZxd1lXaDFtL2Q0ZEw4a3YwY0pnTytRWUd6Sm13MUJhdWJiam1OanlYQ0FHOFZKU2NsdHZpZVlRQmtoOUtselY0Q1NJTUdhQXpyL0xnZEFnPT0K",
+      "url": "https://github.com/RykoTheDev/GodotHub/releases/download/v1.5.6/GodotHub-1.5.6-darwin-universal.app.tar.gz"
+    },
+    "darwin-x86_64-app": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTY2g3bGdsQ0pucUgrZzRWQzg0VEEyZll0a1ZJeFVvYVEwdnBZTFJpQWpnbHFUM0VKTzRHa3ZYcDRFdXdEdjhwNklKeGx6clJKN080c1J3UUNMVC9Gay91SkZ4cFZNZEFjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0MDcxOTQ3CWZpbGU6R29kb3RIdWIuYXBwLnRhci5negl2ZXJzaW9uOjEuNS42CmFyd0FTVVZxd1lXaDFtL2Q0ZEw4a3YwY0pnTytRWUd6Sm13MUJhdWJiam1OanlYQ0FHOFZKU2NsdHZpZVlRQmtoOUtselY0Q1NJTUdhQXpyL0xnZEFnPT0K",
+      "url": "https://github.com/RykoTheDev/GodotHub/releases/download/v1.5.6/GodotHub-1.5.6-darwin-universal.app.tar.gz"
+    },
+    "darwin-universal-app": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTY2g3bGdsQ0pucUgrZzRWQzg0VEEyZll0a1ZJeFVvYVEwdnBZTFJpQWpnbHFUM0VKTzRHa3ZYcDRFdXdEdjhwNklKeGx6clJKN080c1J3UUNMVC9Gay91SkZ4cFZNZEFjPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0MDcxOTQ3CWZpbGU6R29kb3RIdWIuYXBwLnRhci5negl2ZXJzaW9uOjEuNS42CmFyd0FTVVZxd1lXaDFtL2Q0ZEw4a3YwY0pnTytRWUd6Sm13MUJhdWJiam1OanlYQ0FHOFZKU2NsdHZpZVlRQmtoOUtselY0Q1NJTUdhQXpyL0xnZEFnPT0K",
+      "url": "https://github.com/RykoTheDev/GodotHub/releases/download/v1.5.6/GodotHub-1.5.6-darwin-universal.app.tar.gz"
+    },
+    "linux-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTY2g3bGdsQ0pucVBTdEFuWGdXZmNyNXpsWEdwMXJpVG9YeFBnc3R5OTBNaGtWMkpYelk4NXdDYXA0WlJSY3RmUDU0YjZ2bGR3cmJLTVB2NTRYY2pGLzEwQ0ZnVUQ0V2djPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0MDcxMzU5CWZpbGU6R29kb3RIdWJfMS41LjZfYW1kNjQuQXBwSW1hZ2UJdmVyc2lvbjoxLjUuNgpuUkVVcFJ6UnhDTDQzbnRPRFdWQU1MY01HSGlFME04alQ0VE5ZeU9oM1dSQlc3dXJVMTB1OVJ1VmltdmFqYldFWUc2MnJhRExiQmxwZ3RueFhNY2hEQT09Cg==",
+      "url": "https://github.com/RykoTheDev/GodotHub/releases/download/v1.5.6/GodotHub-1.5.6-linux-amd64.AppImage"
+    },
+    "linux-x86_64-appimage": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTY2g3bGdsQ0pucVBTdEFuWGdXZmNyNXpsWEdwMXJpVG9YeFBnc3R5OTBNaGtWMkpYelk4NXdDYXA0WlJSY3RmUDU0YjZ2bGR3cmJLTVB2NTRYY2pGLzEwQ0ZnVUQ0V2djPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0MDcxMzU5CWZpbGU6R29kb3RIdWJfMS41LjZfYW1kNjQuQXBwSW1hZ2UJdmVyc2lvbjoxLjUuNgpuUkVVcFJ6UnhDTDQzbnRPRFdWQU1MY01HSGlFME04alQ0VE5ZeU9oM1dSQlc3dXJVMTB1OVJ1VmltdmFqYldFWUc2MnJhRExiQmxwZ3RueFhNY2hEQT09Cg==",
+      "url": "https://github.com/RykoTheDev/GodotHub/releases/download/v1.5.6/GodotHub-1.5.6-linux-amd64.AppImage"
+    },
+    "linux-x86_64-deb": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTY2g3bGdsQ0pucUZ3bTB2L1FqL1FKRi8xT1ZzN2JwMUFnTnFZQmZpb2NocU1zYXRuS0VlQTduTHc3VE1ra1c5NXRhK1I4LzBsbXZXbE4vQ21ob2NoLzVKak1tcHBuZ3dFPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0MDcxMzU5CWZpbGU6R29kb3RIdWJfMS41LjZfYW1kNjQuZGViCXZlcnNpb246MS41LjYKa3hxU21lVXdIakRhQ2dQT2piaUVFZVFQWGJNdWdsSWgrcnJKQ1FhL2RaKzFLNFlwcHFldkVpdUwvbHhPQkIwN3V0TWxOTk9jZnRlWWcySmZOdlQrQ2c9PQo=",
+      "url": "https://github.com/RykoTheDev/GodotHub/releases/download/v1.5.6/GodotHub-1.5.6-linux-amd64.deb"
+    },
+    "linux-x86_64-rpm": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTY2g3bGdsQ0pucUM1dnhVT1Y2WEdnVTVHLys0WW5pY0FXRDRBY0tBL0xZSVVkRmhIb3diZ2hMbFNBdkJGSWdpMlZvUXZvQXVqR0NJYXhZRm44Y3FYQlRvYjkwMjRtR0FNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0MDcxMzU5CWZpbGU6R29kb3RIdWItMS41LjYtMS54ODZfNjQucnBtCXZlcnNpb246MS41LjYKZm1WeW5jLzNIcWprbFkvSVNDSE43WmozR0pCa2VXWGtDYW40TDFCdDhsK2gvb1o0YmR4bzc5UHlMQTkweU9xSDZEZG9XbkdQamhQM0RKTVF1M2taQXc9PQo=",
+      "url": "https://github.com/RykoTheDev/GodotHub/releases/download/v1.5.6/GodotHub-1.5.6-linux-x86_64.rpm"
+    },
+    "windows-x86_64": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTY2g3bGdsQ0pucUhhTkdXbmROWmZTaEtTVzQzMVc4aW5oVjVubzNCc0xTU2hEYXhPMWQwUEZ2T0xoaFpMSjVqK2krSW5CMFpiS2w4blRqSXR1dTFNY1RLR2ROOHN4ZWdNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0MDcxNjI2CWZpbGU6R29kb3RIdWJfMS41LjZfeDY0LXNldHVwLmV4ZQl2ZXJzaW9uOjEuNS42ClBHTGtxbWFmZ2puMklnWmd0QkJJUTFQbGprL1NuRkR0Z1dMeGxINE1GVXgySG8yanJwQjNqdjc2V3JlSjZVM0tQby96OS9JYkFBUGUraFpIMTluNUNRPT0K",
+      "url": "https://github.com/RykoTheDev/GodotHub/releases/download/v1.5.6/GodotHub-1.5.6-windows-x64-setup.exe"
+    },
+    "windows-x86_64-nsis": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTY2g3bGdsQ0pucUhhTkdXbmROWmZTaEtTVzQzMVc4aW5oVjVubzNCc0xTU2hEYXhPMWQwUEZ2T0xoaFpMSjVqK2krSW5CMFpiS2w4blRqSXR1dTFNY1RLR2ROOHN4ZWdNPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0MDcxNjI2CWZpbGU6R29kb3RIdWJfMS41LjZfeDY0LXNldHVwLmV4ZQl2ZXJzaW9uOjEuNS42ClBHTGtxbWFmZ2puMklnWmd0QkJJUTFQbGprL1NuRkR0Z1dMeGxINE1GVXgySG8yanJwQjNqdjc2V3JlSjZVM0tQby96OS9JYkFBUGUraFpIMTluNUNRPT0K",
+      "url": "https://github.com/RykoTheDev/GodotHub/releases/download/v1.5.6/GodotHub-1.5.6-windows-x64-setup.exe"
+    },
+    "windows-x86_64-msi": {
+      "signature": "dW50cnVzdGVkIGNvbW1lbnQ6IHNpZ25hdHVyZSBmcm9tIHRhdXJpIHNlY3JldCBrZXkKUlVTY2g3bGdsQ0pucUdKdmNDSjEvbTdTem5aZGxuaWRCYXZrZHFCNFZwQkhDTDFETExndlRGSUptVm5pK21nM3hEN1EwdlNJbmtOeURQdXdXR1J5VEhFWlhLQ3podHQyeEFvPQp0cnVzdGVkIGNvbW1lbnQ6IHRpbWVzdGFtcDoxNzk0MDcxNjI2CWZpbGU6R29kb3RIdWJfMS41LjZfeDY0X2VuLVVTLm1zaQl2ZXJzaW9uOjEuNS42Cm5WZXlNVExRVVIvUHlUOVNjMTZVMEFTemFZME9vYlRPbHQyWDFJWEUyWU45S2dOdGpUYldmRzlMd3JML1JPc1BXL2d4NEdVTHN4ZHhpbFVoVEFMbkFBPT0K",
+      "url": "https://github.com/RykoTheDev/GodotHub/releases/download/v1.5.6/GodotHub-1.5.6-windows-x64.msi"
+    }
+  }
+}
