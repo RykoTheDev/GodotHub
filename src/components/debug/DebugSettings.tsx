@@ -5,6 +5,7 @@ import { pushToast } from '../../lib/toast'
 import { setDebugUnlocked } from '../../lib/debugMode'
 import { useSettings } from '../../hooks/useSettings'
 import { useAppVersion } from '../../hooks/useAppVersion'
+import { flushUiPrefs, uiPrefs } from '../../lib/uiPrefs'
 
 const buttonClass =
   'focus-ring cursor-pointer shrink-0 px-3 py-1.5 rounded-item border border-outline/50 bg-raised/40 hover:bg-raised text-xs font-medium text-ink '
@@ -182,10 +183,8 @@ export function DebugSettings() {
             type="button"
             className={buttonClass}
             onClick={() => {
-              try {
-                localStorage.removeItem('new_ui_sidebar_workspace_tip_seen')
-              } catch {}
-              window.location.reload()
+              uiPrefs.removeItem('new_ui_sidebar_workspace_tip_seen')
+              void flushUiPrefs().then(() => window.location.reload())
             }}
           >
             Show

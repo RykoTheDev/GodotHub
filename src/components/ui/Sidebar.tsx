@@ -13,6 +13,7 @@ import { OverlayScrollArea } from '../reusables/OverlayScrollArea'
 import { isRtl } from '../../lib/locale'
 import { registerSettingsClick } from '../../lib/debugMode'
 import { busy, ease, gsap } from '../../lib/motion'
+import { uiPrefs } from '../../lib/uiPrefs'
 
 export interface SidebarTab {
   id: string
@@ -57,7 +58,7 @@ export function Sidebar({
     try {
       return Math.min(
         350,
-        Math.max(MIN_SIDEBAR_WIDTH, Number(localStorage.getItem('new_ui_sidebar_width')) || DEFAULT_SIDEBAR_WIDTH),
+        Math.max(MIN_SIDEBAR_WIDTH, Number(uiPrefs.getItem('new_ui_sidebar_width')) || DEFAULT_SIDEBAR_WIDTH),
       )
     } catch {
       return DEFAULT_SIDEBAR_WIDTH
@@ -65,14 +66,14 @@ export function Sidebar({
   })
   const [collapsed, setCollapsed] = useState(() => {
     try {
-      return localStorage.getItem('new_ui_sidebar_collapsed') === '1'
+      return uiPrefs.getItem('new_ui_sidebar_collapsed') === '1'
     } catch {
       return false
     }
   })
   const [seenNewTabs, setSeenNewTabs] = useState<string[]>(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem('new_ui_sidebar_seen_new_tabs') ?? '[]')
+      const saved = JSON.parse(uiPrefs.getItem('new_ui_sidebar_seen_new_tabs') ?? '[]')
       return Array.isArray(saved) ? saved.filter((id): id is string => typeof id === 'string') : []
     } catch {
       return []
@@ -83,12 +84,12 @@ export function Sidebar({
     const next = [...seenNewTabs, id]
     setSeenNewTabs(next)
     try {
-      localStorage.setItem('new_ui_sidebar_seen_new_tabs', JSON.stringify(next))
+      uiPrefs.setItem('new_ui_sidebar_seen_new_tabs', JSON.stringify(next))
     } catch {}
   }
   const [workspaceTipSeen, setWorkspaceTipSeen] = useState(() => {
     try {
-      return localStorage.getItem('new_ui_sidebar_workspace_tip_seen') === '1'
+      return uiPrefs.getItem('new_ui_sidebar_workspace_tip_seen') === '1'
     } catch {
       return true
     }
@@ -96,12 +97,12 @@ export function Sidebar({
   const dismissWorkspaceTip = () => {
     setWorkspaceTipSeen(true)
     try {
-      localStorage.setItem('new_ui_sidebar_workspace_tip_seen', '1')
+      uiPrefs.setItem('new_ui_sidebar_workspace_tip_seen', '1')
     } catch {}
   }
   const [closedGroups, setClosedGroups] = useState<string[]>(() => {
     try {
-      const saved = JSON.parse(localStorage.getItem('new_ui_sidebar_closed_groups') ?? '[]')
+      const saved = JSON.parse(uiPrefs.getItem('new_ui_sidebar_closed_groups') ?? '[]')
       return Array.isArray(saved) ? saved.filter((id): id is string => typeof id === 'string') : []
     } catch {
       return []
@@ -110,7 +111,7 @@ export function Sidebar({
   const saveClosedGroups = (next: string[]) => {
     setClosedGroups(next)
     try {
-      localStorage.setItem('new_ui_sidebar_closed_groups', JSON.stringify(next))
+      uiPrefs.setItem('new_ui_sidebar_closed_groups', JSON.stringify(next))
     } catch {}
   }
   const toggleGroup = (id: string) =>
@@ -159,7 +160,7 @@ export function Sidebar({
     setWidthAnimating(true)
     setCollapsed((prev) => {
       try {
-        localStorage.setItem('new_ui_sidebar_collapsed', prev ? '0' : '1')
+        uiPrefs.setItem('new_ui_sidebar_collapsed', prev ? '0' : '1')
       } catch {}
       return !prev
     })
@@ -184,7 +185,7 @@ export function Sidebar({
       setWidth(DEFAULT_SIDEBAR_WIDTH)
       setKnobY(null)
       try {
-        localStorage.setItem('new_ui_sidebar_width', String(DEFAULT_SIDEBAR_WIDTH))
+        uiPrefs.setItem('new_ui_sidebar_width', String(DEFAULT_SIDEBAR_WIDTH))
       } catch {}
       return
     }
@@ -204,7 +205,7 @@ export function Sidebar({
       e.currentTarget.releasePointerCapture(e.pointerId)
     } catch {}
     try {
-      localStorage.setItem('new_ui_sidebar_width', String(widthRef.current))
+      uiPrefs.setItem('new_ui_sidebar_width', String(widthRef.current))
     } catch {}
   }
 

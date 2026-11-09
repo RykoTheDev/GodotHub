@@ -28,6 +28,7 @@ import {
   IconTrash,
 } from '../lib/icons'
 import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
+import { uiPrefs } from '../lib/uiPrefs'
 
 const VAULT_SORT_KEY = 'godothub_vault_sort'
 
@@ -63,7 +64,7 @@ export function VaultView({
   const [saveOpen, setSaveOpen] = useState(false)
   const [sortBy, setSortBy] = useState<VaultSortOption>(() => {
     try {
-      const raw = localStorage.getItem(VAULT_SORT_KEY)
+      const raw = uiPrefs.getItem(VAULT_SORT_KEY)
       if (raw === 'name_asc' || raw === 'name_desc' || raw === 'newest' || raw === 'oldest') return raw
     } catch {}
     return 'name_asc'
@@ -82,7 +83,7 @@ export function VaultView({
 
   useEffect(() => {
     try {
-      localStorage.setItem(VAULT_SORT_KEY, sortBy)
+      uiPrefs.setItem(VAULT_SORT_KEY, sortBy)
     } catch {}
   }, [sortBy])
 

@@ -34,6 +34,7 @@ import { useWorkspaces } from './useWorkspaces'
 import { defaultCornerRadius } from '../lib/platform'
 import i18n from 'i18next'
 import type { AppSettings } from '../types'
+import { uiPrefs } from '../lib/uiPrefs'
 
 const SAVE_DEBOUNCE_MS = 250
 
@@ -169,7 +170,7 @@ function applySettingsAppearance(prev: AppSettings, next: AppSettings) {
   if (motionSettingsChanged(prev, next)) applyMotion(next)
   if (next.language && next.language !== prev.language) {
     const resolvedLanguage = resolveLanguage(next.language)
-    localStorage.setItem('i18nextLng', resolvedLanguage)
+    uiPrefs.setItem('i18nextLng', resolvedLanguage)
     if (resolvedLanguage !== i18n.language) {
       i18n.changeLanguage(resolvedLanguage)
     }
@@ -285,7 +286,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
             saved.raised_contrast,
           )
           if (saved.language) {
-            localStorage.setItem('i18nextLng', resolveLanguage(saved.language))
+            uiPrefs.setItem('i18nextLng', resolveLanguage(saved.language))
           }
           applyAppearance(saved)
         }

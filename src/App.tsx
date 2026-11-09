@@ -13,6 +13,7 @@ import type { GitStatus, Project } from './types'
 import { Sidebar } from './components/ui/Sidebar'
 import { AnnouncementBanner } from './components/ui/AnnouncementBanner'
 import { WorkspaceSwitchNotice } from './components/ui/WorkspaceSwitchNotice'
+import { uiPrefs } from './lib/uiPrefs'
 const GitSidebar = lazy(() =>
   import('./components/git/GitSidebar').then((m) => ({ default: m.GitSidebar })),
 )
@@ -336,7 +337,7 @@ export function App() {
     try {
       return Math.min(
         560,
-        Math.max(280, Number(localStorage.getItem('new_ui_git_sidebar_width')) || DEFAULT_GIT_SIDEBAR_WIDTH),
+        Math.max(280, Number(uiPrefs.getItem('new_ui_git_sidebar_width')) || DEFAULT_GIT_SIDEBAR_WIDTH),
       )
     } catch {
       return DEFAULT_GIT_SIDEBAR_WIDTH
@@ -361,7 +362,7 @@ export function App() {
   const resetGitWidth = () => {
     setGitSidebarWidth(DEFAULT_GIT_SIDEBAR_WIDTH)
     try {
-      localStorage.setItem('new_ui_git_sidebar_width', String(DEFAULT_GIT_SIDEBAR_WIDTH))
+      uiPrefs.setItem('new_ui_git_sidebar_width', String(DEFAULT_GIT_SIDEBAR_WIDTH))
     } catch {}
   }
 
@@ -388,7 +389,7 @@ export function App() {
       e.currentTarget.releasePointerCapture(e.pointerId)
     } catch {}
     try {
-      localStorage.setItem('new_ui_git_sidebar_width', String(gitWidthRef.current))
+      uiPrefs.setItem('new_ui_git_sidebar_width', String(gitWidthRef.current))
     } catch {}
   }
 

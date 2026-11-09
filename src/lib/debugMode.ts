@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react'
 import { pushToast } from './toast'
+import { uiPrefs } from './uiPrefs'
 
 const STORAGE_KEY = 'godothub_debug_unlocked'
 const CLICKS_TO_UNLOCK = 5
@@ -10,7 +11,7 @@ let clicks: number[] = []
 
 function readUnlocked(): boolean {
   try {
-    return localStorage.getItem(STORAGE_KEY) === '1'
+    return uiPrefs.getItem(STORAGE_KEY) === '1'
   } catch {
     return false
   }
@@ -21,8 +22,8 @@ let unlocked = readUnlocked()
 export function setDebugUnlocked(value: boolean) {
   unlocked = value
   try {
-    if (value) localStorage.setItem(STORAGE_KEY, '1')
-    else localStorage.removeItem(STORAGE_KEY)
+    if (value) uiPrefs.setItem(STORAGE_KEY, '1')
+    else uiPrefs.removeItem(STORAGE_KEY)
   } catch {}
   listeners.forEach((fn) => fn())
 }

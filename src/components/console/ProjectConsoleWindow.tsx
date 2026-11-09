@@ -36,6 +36,7 @@ import { Tooltip } from '../reusables/Tooltip'
 import type { ConsoleLine, ProjectExportRun } from '../../types'
 import {formatBytes} from '../../lib/formatBytes'
 import {pushToast, reportError } from '../../lib/toast'
+import { uiPrefs } from '../../lib/uiPrefs'
 
 const POLL_MS = 180
 const POLL_MS_IDLE = 1000
@@ -168,7 +169,7 @@ export function ProjectConsoleWindow() {
   )
   const [pillPos, setPillPos] = useState<Point | null>(() => {
     try {
-      const raw = localStorage.getItem(PILL_STORAGE_KEY)
+      const raw = uiPrefs.getItem(PILL_STORAGE_KEY)
       if (!raw) return null
       const parsed = JSON.parse(raw) as Point
       return typeof parsed?.x === 'number' && typeof parsed?.y === 'number'
@@ -468,7 +469,7 @@ export function ProjectConsoleWindow() {
 
   const persistPill = useCallback((pos: Point) => {
     try {
-      localStorage.setItem(PILL_STORAGE_KEY, JSON.stringify(pos))
+      uiPrefs.setItem(PILL_STORAGE_KEY, JSON.stringify(pos))
     } catch {}
   }, [])
 

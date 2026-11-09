@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { openUrl } from '@tauri-apps/plugin-opener'
 import { IconHeart, IconX } from '../../lib/icons'
+import { uiPrefs } from '../../lib/uiPrefs'
 
 const DISMISS_KEY = 'godothub_announcement_dismissed'
 const USAGE_KEY = 'godothub_announcement_usage_seconds'
@@ -16,11 +17,11 @@ export function AnnouncementBanner() {
 
   useEffect(() => {
     try {
-      dismissedRef.current = localStorage.getItem(DISMISS_KEY) === '1'
+      dismissedRef.current = uiPrefs.getItem(DISMISS_KEY) === '1'
     } catch {}
     let usage = 0
     try {
-      usage = Number(localStorage.getItem(USAGE_KEY)) || 0
+      usage = Number(uiPrefs.getItem(USAGE_KEY)) || 0
     } catch {}
 
     if (!dismissedRef.current && usage >= USAGE_THRESHOLD) setVisible(true)
@@ -29,7 +30,7 @@ export function AnnouncementBanner() {
       if (document.hidden || dismissedRef.current) return
       usage += TICK_SECONDS
       try {
-        localStorage.setItem(USAGE_KEY, String(usage))
+        uiPrefs.setItem(USAGE_KEY, String(usage))
       } catch {}
       if (usage >= USAGE_THRESHOLD) setVisible(true)
     }, TICK_SECONDS * 1000)
@@ -49,7 +50,7 @@ export function AnnouncementBanner() {
     dismissedRef.current = true
     setVisible(false)
     try {
-      localStorage.setItem(DISMISS_KEY, '1')
+      uiPrefs.setItem(DISMISS_KEY, '1')
     } catch {}
   }
 

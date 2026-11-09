@@ -15,6 +15,7 @@ import type {
   InstalledGodotVersion,
   MiseStatus,
 } from '../types'
+import { uiPrefs } from '../lib/uiPrefs'
 
 export interface DownloadState extends DownloadProgress {
   status: 'queued' | 'downloading' | 'paused'
@@ -53,7 +54,7 @@ export function useGodotVersions() {
   const [availableError, setAvailableError] = useState<string | null>(null)
   const [source, setSource] = useState<VersionSource>(() => {
     try {
-      const saved = localStorage.getItem('godothub_version_source')
+      const saved = uiPrefs.getItem('godothub_version_source')
       return saved === 'archive' || saved === 'mise' ? saved : 'github'
     } catch {
       return 'github'
@@ -64,7 +65,7 @@ export function useGodotVersions() {
 
   useEffect(() => {
     try {
-      localStorage.setItem('godothub_version_source', source)
+      uiPrefs.setItem('godothub_version_source', source)
     } catch {}
   }, [source])
 

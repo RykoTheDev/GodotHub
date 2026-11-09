@@ -50,6 +50,7 @@ pub mod terminal;
 pub mod time_stats;
 pub mod todo_sync;
 pub mod tool_runner;
+pub mod ui_prefs;
 pub mod vault;
 pub mod watcher;
 pub mod workspace;

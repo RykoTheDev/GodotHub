@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { uiPrefs } from '../lib/uiPrefs'
 
 interface Contributor {
   login: string
@@ -14,7 +15,7 @@ const REPO_NAME = 'GodotHub'
 
 function readCache(): Contributor[] | null {
   try {
-    const raw = localStorage.getItem(CACHE_KEY)
+    const raw = uiPrefs.getItem(CACHE_KEY)
     if (!raw) return null
     const { data, timestamp } = JSON.parse(raw) as {
       data: Contributor[]
@@ -29,7 +30,7 @@ function readCache(): Contributor[] | null {
 
 function writeCache(data: Contributor[]) {
   try {
-    localStorage.setItem(
+    uiPrefs.setItem(
       CACHE_KEY,
       JSON.stringify({ data, timestamp: Date.now() }),
     )

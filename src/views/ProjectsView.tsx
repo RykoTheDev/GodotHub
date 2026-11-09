@@ -51,6 +51,7 @@ import { ProjectCard } from '../components/cards/ProjectCard'
 import { ProjectCardList } from '../components/cards/ProjectCardList'
 import { ProjectCardKanban } from '../components/cards/ProjectCardKanban'
 import { ProjectCardGrid } from '../components/cards/ProjectCardGrid'
+import { uiPrefs } from '../lib/uiPrefs'
 
 type ProjectViewMode = 'list' | 'grid' | 'kanban'
 
@@ -376,14 +377,14 @@ export function ProjectsView({
   >(null)
   const [viewMode, setViewMode] = useState<ProjectViewMode>(() => {
     try {
-      const raw = localStorage.getItem('godothub_projects_view_mode')
+      const raw = uiPrefs.getItem('godothub_projects_view_mode')
       if (raw === 'list' || raw === 'grid' || raw === 'kanban') return raw
     } catch {}
     return 'list'
   })
   useEffect(() => {
     try {
-      localStorage.setItem('godothub_projects_view_mode', viewMode)
+      uiPrefs.setItem('godothub_projects_view_mode', viewMode)
     } catch {}
   }, [viewMode])
   useEffect(() => {
@@ -420,7 +421,7 @@ export function ProjectsView({
 
   const [sortBy, setSortBy] = useState<ProjectSortOption>(() => {
     try {
-      const raw = localStorage.getItem('godothub_projects_sort_by')
+      const raw = uiPrefs.getItem('godothub_projects_sort_by')
       if (raw) return raw as ProjectSortOption
     } catch {}
     return 'categories'
@@ -455,7 +456,7 @@ export function ProjectsView({
 
   useEffect(() => {
     try {
-      localStorage.setItem('godothub_projects_sort_by', sortBy)
+      uiPrefs.setItem('godothub_projects_sort_by', sortBy)
     } catch {}
   }, [sortBy])
 
@@ -485,7 +486,7 @@ export function ProjectsView({
 
   useEffect(() => {
     try {
-      localStorage.removeItem('godothub_projects_tag_filter')
+      uiPrefs.removeItem('godothub_projects_tag_filter')
     } catch {}
   }, [])
 

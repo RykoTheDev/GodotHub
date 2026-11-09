@@ -29,3 +29,4 @@ pub mod install_mode;
 pub mod mise;
 pub mod git;
 pub mod watcher;
+pub mod ui_prefs;

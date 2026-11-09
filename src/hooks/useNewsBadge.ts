@@ -2,12 +2,13 @@ import { useCallback, useEffect, useState } from 'react'
 import { api } from '../lib/api'
 import { useApiData } from '../lib/useApiData'
 import type { NewsItem } from '../types'
+import { uiPrefs } from '../lib/uiPrefs'
 
 const SEEN_KEY = 'news_seen_ids'
 
 function readSeen(): string[] | null {
   try {
-    const saved = JSON.parse(localStorage.getItem(SEEN_KEY) ?? 'null')
+    const saved = JSON.parse(uiPrefs.getItem(SEEN_KEY) ?? 'null')
     return Array.isArray(saved) ? saved.filter((id): id is string => typeof id === 'string') : null
   } catch {
     return null
@@ -16,7 +17,7 @@ function readSeen(): string[] | null {
 
 function writeSeen(ids: string[]) {
   try {
-    localStorage.setItem(SEEN_KEY, JSON.stringify(ids))
+    uiPrefs.setItem(SEEN_KEY, JSON.stringify(ids))
   } catch {}
 }
 

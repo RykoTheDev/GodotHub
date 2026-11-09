@@ -7,6 +7,7 @@ import {
   refreshOpenTodos,
   useOpenTodos,
 } from "../lib/openTodos";
+import { uiPrefs } from "../lib/uiPrefs";
 
 const NOTIFIED_KEY = "godothub_todo_due_notified";
 const RECHECK_MS = 60 * 60 * 1000;
@@ -15,7 +16,7 @@ type NotifiedState = { date: string; ids: string[] };
 
 function readNotified(today: string): NotifiedState {
   try {
-    const parsed = JSON.parse(localStorage.getItem(NOTIFIED_KEY) ?? "null");
+    const parsed = JSON.parse(uiPrefs.getItem(NOTIFIED_KEY) ?? "null");
 
     if (parsed && parsed.date === today && Array.isArray(parsed.ids)) {
       return { date: today, ids: parsed.ids.filter((id: unknown) => typeof id === "string") };
@@ -27,7 +28,7 @@ function readNotified(today: string): NotifiedState {
 
 function writeNotified(state: NotifiedState) {
   try {
-    localStorage.setItem(NOTIFIED_KEY, JSON.stringify(state));
+    uiPrefs.setItem(NOTIFIED_KEY, JSON.stringify(state));
   } catch {}
 }
 
