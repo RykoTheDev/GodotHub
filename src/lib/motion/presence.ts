@@ -1,4 +1,5 @@
 import {
+  blurMotion,
   busy,
   canTransform,
   ease,
@@ -193,7 +194,7 @@ function exit(kind: Kind, ghost: HTMLElement) {
       gsap.to(ghost, { opacity: 0, duration: 0.35, onComplete: done })
       break
     case 'splash':
-      gsap.to(ghost, { opacity: 0, scale: 1.08, filter: 'blur(12px)', duration: 0.75, ease: 'power2.inOut', onComplete: done })
+      gsap.to(ghost, { opacity: 0, scale: 1.08, ...(blurMotion ? { filter: 'blur(12px)' } : {}), duration: 0.75, ease: 'power2.inOut', onComplete: done })
       break
     default:
       done()
@@ -268,7 +269,7 @@ function enterImages(el: HTMLElement) {
     gsap.set(img, { opacity: 0 })
     const show = () => {
       const release = busy(img)
-      gsap.fromTo(img, { opacity: 0, scale: 1.06, filter: 'blur(8px)' }, { opacity: 1, scale: 1, filter: 'blur(0px)', duration: 0.7, ease: ease.out, clearProps: 'opacity,transform,filter', onComplete: release, onInterrupt: release })
+      gsap.fromTo(img, { opacity: 0, scale: 1.06, ...(blurMotion ? { filter: 'blur(8px)' } : {}) }, { opacity: 1, scale: 1, ...(blurMotion ? { filter: 'blur(0px)' } : {}), duration: 0.7, ease: ease.out, clearProps: 'opacity,transform,filter', onComplete: release, onInterrupt: release })
     }
     img.addEventListener('load', show, { once: true })
     img.addEventListener('error', () => gsap.set(img, { clearProps: 'opacity' }), { once: true })

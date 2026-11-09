@@ -610,6 +610,7 @@ export function OnboardingView({
               className="flex-1 min-w-0"
               hideThumb={!settings.show_scrollbars}
               hideTopButton
+              scrollToTopOn={step.id}
             >
               <div className="min-h-full px-6 py-6 sm:px-10 sm:py-8">
                   <div
