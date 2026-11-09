@@ -2,8 +2,6 @@ use serde::Serialize;
 use std::path::{Path, PathBuf};
 use crate::AppHandle;
 
-const SHIM_STEM: &str = "godothub";
-
 #[derive(Debug, Clone, Serialize)]
 pub struct CliToolStatus {
     pub installed: bool,
@@ -31,14 +29,18 @@ fn platform_name() -> &'static str {
     }
 }
 
-fn shim_path(bin: &Path) -> PathBuf {
+fn shim_name(app: &AppHandle) -> &'static str {
+    app.channel().info().cli_shim_name
+}
+
+fn shim_path(bin: &Path, name: &str) -> PathBuf {
     #[cfg(windows)]
     {
-        bin.join(format!("{SHIM_STEM}.cmd"))
+        bin.join(format!("{name}.cmd"))
     }
     #[cfg(not(windows))]
     {
-        bin.join(SHIM_STEM)
+        bin.join(name)
     }
 }
 
@@ -61,7 +63,7 @@ fn dir_on_path(dir: &Path) -> bool {
 
 fn status_for(app: &AppHandle, needs_new_terminal: bool) -> CliToolStatus {
     let bin = crate::current_version::aliases_dir(app);
-    let shim = shim_path(&bin);
+    let shim = shim_path(&bin, shim_name(app));
     CliToolStatus {
         installed: shim_exists(&shim),
         on_path: dir_on_path(&bin),
@@ -79,18 +81,18 @@ pub async fn cli_tool_status(app: AppHandle) -> CliToolStatus {
 pub async fn install_cli_tool(app: AppHandle) -> Result<CliToolStatus, String> {
     let target = std::env::current_exe().map_err(|e| e.to_string())?;
     let bin = crate::current_version::aliases_dir(&app);
-    write_shim(&shim_path(&bin), &target)?;
-    let path_changed = add_bin_to_path(&bin)?;
+    write_shim(&shim_path(&bin, shim_name(&app)), &target)?;
+    let path_changed = add_bin_to_path(&bin, shim_name(&app))?;
     Ok(status_for(&app, path_changed))
 }
 
 pub fn uninstall_cli_tool(app: AppHandle) -> Result<CliToolStatus, String> {
     let bin = crate::current_version::aliases_dir(&app);
-    let shim = shim_path(&bin);
+    let shim = shim_path(&bin, shim_name(&app));
     if shim_exists(&shim) {
         std::fs::remove_file(&shim).map_err(|e| e.to_string())?;
     }
-    remove_bin_from_path(&bin)?;
+    remove_bin_from_path(&bin, shim_name(&app))?;
     Ok(status_for(&app, false))
 }
 
@@ -111,7 +113,7 @@ fn write_shim(shim: &Path, target: &Path) -> Result<(), String> {
 // Windows: the user PATH lives in the registry under HKCU\Environment. We edit
 // it there and broadcast the change so new shells pick it up.
 #[cfg(windows)]
-fn add_bin_to_path(bin: &Path) -> Result<bool, String> {
+fn add_bin_to_path(bin: &Path, _name: &str) -> Result<bool, String> {
     let dir = bin.to_string_lossy().to_string();
     with_environment_key(|current| {
         if path_list_contains(current, &dir) {
@@ -128,7 +130,7 @@ fn add_bin_to_path(bin: &Path) -> Result<bool, String> {
 }
 
 #[cfg(windows)]
-fn remove_bin_from_path(bin: &Path) -> Result<bool, String> {
+fn remove_bin_from_path(bin: &Path, _name: &str) -> Result<bool, String> {
     let dir = bin.to_string_lossy().to_string();
     with_environment_key(|current| {
         if !path_list_contains(current, &dir) {
@@ -233,9 +235,14 @@ fn broadcast_environment_change() {
 // Unix: there is no central user PATH, so we add an export line to the shell
 // startup files, fenced by markers so it can be added and removed cleanly.
 #[cfg(not(windows))]
-const BLOCK_START: &str = "# >>> godothub >>>";
+fn block_start(name: &str) -> String {
+    format!("# >>> {name} >>>")
+}
+
 #[cfg(not(windows))]
-const BLOCK_END: &str = "# <<< godothub <<<";
+fn block_end(name: &str) -> String {
+    format!("# <<< {name} <<<")
+}
 
 #[cfg(not(windows))]
 fn profile_files(create_missing: bool) -> Vec<PathBuf> {
@@ -258,13 +265,14 @@ fn profile_files(create_missing: bool) -> Vec<PathBuf> {
 }
 
 #[cfg(not(windows))]
-fn add_bin_to_path(bin: &Path) -> Result<bool, String> {
+fn add_bin_to_path(bin: &Path, name: &str) -> Result<bool, String> {
     let dir = bin.to_string_lossy().to_string();
-    let block = format!("\n{BLOCK_START}\nexport PATH=\"{dir}:$PATH\"\n{BLOCK_END}\n");
+    let (start, end) = (block_start(name), block_end(name));
+    let block = format!("\n{start}\nexport PATH=\"{dir}:$PATH\"\n{end}\n");
     let mut changed = false;
     for rc in profile_files(true) {
         let existing = std::fs::read_to_string(&rc).unwrap_or_default();
-        if existing.contains(BLOCK_START) {
+        if existing.contains(&start) {
             continue;
         }
         let mut content = existing;
@@ -279,30 +287,32 @@ fn add_bin_to_path(bin: &Path) -> Result<bool, String> {
 }
 
 #[cfg(not(windows))]
-fn remove_bin_from_path(_bin: &Path) -> Result<bool, String> {
+fn remove_bin_from_path(_bin: &Path, name: &str) -> Result<bool, String> {
+    let start = block_start(name);
     let mut changed = false;
     for rc in profile_files(false) {
         let content = std::fs::read_to_string(&rc).unwrap_or_default();
-        if !content.contains(BLOCK_START) {
+        if !content.contains(&start) {
             continue;
         }
-        std::fs::write(&rc, strip_block(&content)).map_err(|e| e.to_string())?;
+        std::fs::write(&rc, strip_block(&content, name)).map_err(|e| e.to_string())?;
         changed = true;
     }
     Ok(changed)
 }
 
 #[cfg(not(windows))]
-fn strip_block(content: &str) -> String {
+fn strip_block(content: &str, name: &str) -> String {
+    let (start, end) = (block_start(name), block_end(name));
     let mut out: Vec<&str> = Vec::new();
     let mut skipping = false;
     for line in content.lines() {
         let trimmed = line.trim();
-        if trimmed == BLOCK_START {
+        if trimmed == start {
             skipping = true;
             continue;
         }
-        if trimmed == BLOCK_END {
+        if trimmed == end {
             skipping = false;
             continue;
         }
@@ -324,12 +334,21 @@ mod tests {
     fn strip_block_removes_only_the_fenced_region() {
         let content =
             "a=1\n# >>> godothub >>>\nexport PATH=\"/x:$PATH\"\n# <<< godothub <<<\nb=2\n";
-        assert_eq!(strip_block(content), "a=1\nb=2\n");
+        assert_eq!(strip_block(content, "godothub"), "a=1\nb=2\n");
     }
 
     #[test]
     fn strip_block_is_a_noop_without_markers() {
         let content = "a=1\nb=2\n";
-        assert_eq!(strip_block(content), "a=1\nb=2\n");
+        assert_eq!(strip_block(content, "godothub"), "a=1\nb=2\n");
+    }
+
+    #[test]
+    fn strip_block_leaves_the_other_channel_alone() {
+        let content = "a=1\n# >>> godothub >>>\nexport PATH=\"/stable:$PATH\"\n# <<< godothub <<<\n# >>> godothub-beta >>>\nexport PATH=\"/beta:$PATH\"\n# <<< godothub-beta <<<\n";
+        assert_eq!(
+            strip_block(content, "godothub-beta"),
+            "a=1\n# >>> godothub >>>\nexport PATH=\"/stable:$PATH\"\n# <<< godothub <<<\n"
+        );
     }
 }
