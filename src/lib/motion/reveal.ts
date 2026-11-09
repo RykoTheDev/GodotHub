@@ -1,4 +1,4 @@
-import { busy, canTransform, ease, GHOST_SELECTOR, gsap, isPointerHeld, motionOff, motionPrefs } from './core'
+import { blurMotion, busy, canTransform, ease, GHOST_SELECTOR, gsap, isPointerHeld, motionOff, motionPrefs } from './core'
 
 const REVEAL = [
   'section',
@@ -76,7 +76,7 @@ function play(el: HTMLElement, delay: number, fromScroll = false, blur = true) {
     } else if (entrance === 'scale') {
       Object.assign(vars, { scale: 0.92, ease: ease.spring })
     } else {
-      Object.assign(vars, { y: fromScroll ? 40 : 26, scale: 0.96 }, blur ? { filter: 'blur(4px)' } : {})
+      Object.assign(vars, { y: fromScroll ? 40 : 26, scale: 0.96 }, blur && blurMotion ? { filter: 'blur(4px)' } : {})
     }
   }
   vars.clearProps = cleared.join(',')

@@ -1,6 +1,9 @@
 import gsap from 'gsap'
+import { isLinux } from '../platform'
 
 export { gsap }
+
+export const blurMotion = !isLinux
 
 export const ease = {
   out: 'expo.out',
