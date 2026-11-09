@@ -195,12 +195,16 @@ export function Dropdown({
 
   useEffect(() => {
     if (!open) return
-    const onScroll = () => closeAll()
+    const onScroll = (e: Event) => {
+      if (e.target instanceof Node && menuRef.current?.contains(e.target)) return
+      closeAll()
+    }
+    const onResize = () => closeAll()
     window.addEventListener('scroll', onScroll, true)
-    window.addEventListener('resize', onScroll)
+    window.addEventListener('resize', onResize)
     return () => {
       window.removeEventListener('scroll', onScroll, true)
-      window.removeEventListener('resize', onScroll)
+      window.removeEventListener('resize', onResize)
     }
   }, [open, closeAll])
 

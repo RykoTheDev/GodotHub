@@ -430,10 +430,11 @@ function ActivityPanel({
                   <div className="group/bar w-full h-full flex flex-col justify-end items-center gap-2">
                     <div className="relative w-full flex-1 flex items-end">
                       <div
-                        className="w-full rounded-t-md bg-linear-to-t from-accent-dim to-accent-bright opacity-80 group-hover/bar:opacity-100"
+                        className="w-full origin-bottom rounded-t-md bg-linear-to-t from-accent-dim to-accent-bright opacity-80 group-hover/bar:opacity-100"
                         style={{
-                          height: revealed ? `${pct}%` : '0%',
-                          transition: 'height 700ms var(--ease-out-expo)',
+                          height: `${pct}%`,
+                          transform: revealed ? 'scaleY(1)' : 'scaleY(0)',
+                          transition: 'transform 700ms var(--ease-out-expo)',
                           transitionDelay: `${i * 16}ms`,
                         }}
                         aria-label={tc('dashboard_weekly_aria', {
