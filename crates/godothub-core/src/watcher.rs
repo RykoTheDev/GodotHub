@@ -1,0 +1,371 @@
+use crate::templates;
+use notify::{Config, Event, EventKind, RecommendedWatcher, RecursiveMode, Watcher};
+use std::path::PathBuf;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::mpsc::{channel, RecvTimeoutError};
+use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
+use crate::AppHandle;
+
+pub struct ActiveWatchers(pub Mutex<Vec<RecommendedWatcher>>);
+
+pub struct GitWatcher(pub Mutex<Option<RecommendedWatcher>>);
+
+pub struct AliasWatcher(pub Mutex<Option<RecommendedWatcher>>);
+
+struct BusyReset(Arc<AtomicBool>);
+impl Drop for BusyReset {
+    fn drop(&mut self) {
+        self.0.store(false, Ordering::SeqCst);
+    }
+}
+
+fn is_ignored_watcher_event(event: &Event) -> bool {
+    !event.paths.is_empty()
+        && event.paths.iter().all(|p| {
+            if p.components()
+                .any(|part| part.as_os_str() == crate::project_metadata::METADATA_DIR)
+            {
+                return true;
+            }
+            if p.components().any(|part| {
+                matches!(
+                    part.as_os_str().to_str(),
+                    Some(".godot" | ".import" | "node_modules")
+                )
+            }) {
+                return true;
+            }
+            let name = p.file_name().and_then(|n| n.to_str()).unwrap_or("");
+            if name.ends_with(".lock") {
+                return true;
+            }
+            let mut components = p.components().map(|part| part.as_os_str());
+            if components.any(|part| part == ".git") {
+                if name == "index" || name == "FETCH_HEAD" || name == "ORIG_HEAD" {
+                    return true;
+                }
+                if let Some(next) = components.next() {
+                    if matches!(next.to_str(), Some("objects" | "logs" | "lfs" | "hooks")) {
+                        return true;
+                    }
+                }
+            }
+            matches!(name, ".godotrc" | "global.json")
+        })
+}
+
+fn create_debounced_watcher(
+    app: AppHandle,
+    path: PathBuf,
+    debounce_duration: Duration,
+    extra_delay: Duration,
+    action: Arc<dyn Fn(AppHandle) + Send + Sync + 'static>,
+    event_name: &'static str,
+) -> Option<RecommendedWatcher> {
+    let (tx, rx) = channel::<Result<Event, notify::Error>>();
+
+    let mut watcher = match RecommendedWatcher::new(
+        move |res: Result<Event, notify::Error>| {
+            let _ = tx.send(res);
+        },
+        Config::default(),
+    ) {
+        Ok(w) => w,
+        Err(e) => {
+            eprintln!("[watcher] Failed to create watcher: {e}");
+            return None;
+        }
+    };
+
+    if let Err(e) = watcher.watch(&path, RecursiveMode::Recursive) {
+        eprintln!("[watcher] Failed to watch '{}': {e}", path.display());
+        return None;
+    }
+
+    let running = Arc::new(AtomicBool::new(true));
+    let r = running.clone();
+    let busy = Arc::new(AtomicBool::new(false));
+
+    std::thread::spawn(move || {
+        let mut last_event = Instant::now();
+        let mut pending = false;
+
+        while r.load(Ordering::SeqCst) {
+            match rx.recv_timeout(Duration::from_millis(500)) {
+                Ok(Ok(event)) => match event.kind {
+                    EventKind::Access(_) | EventKind::Other | EventKind::Any => continue,
+                    _ => {
+                        if is_ignored_watcher_event(&event) {
+                            continue;
+                        }
+                        last_event = Instant::now();
+                        pending = true;
+                    }
+                },
+                Ok(Err(e)) => {
+                    eprintln!("[watcher] Event error: {e}");
+                }
+                Err(RecvTimeoutError::Timeout) => {
+                    if pending
+                        && last_event.elapsed() >= debounce_duration
+                        && !busy.load(Ordering::SeqCst)
+                    {
+                        pending = false;
+                        if !extra_delay.is_zero() {
+                            std::thread::sleep(extra_delay);
+                        }
+                        busy.store(true, Ordering::SeqCst);
+                        let app = app.clone();
+                        let action = action.clone();
+                        let busy = busy.clone();
+                        std::thread::spawn(move || {
+                            let _reset = BusyReset(busy);
+                            action(app.clone());
+                            let _ = app.emit(event_name, ());
+                        });
+                    }
+                }
+                Err(RecvTimeoutError::Disconnected) => break,
+            }
+        }
+    });
+
+    Some(watcher)
+}
+
+fn create_debounced_multi_watcher(
+    app: AppHandle,
+    dirs: Vec<PathBuf>,
+    debounce_duration: Duration,
+    extra_delay: Duration,
+    action: Arc<dyn Fn(AppHandle) + Send + Sync + 'static>,
+) -> Option<RecommendedWatcher> {
+    if dirs.is_empty() {
+        return None;
+    }
+
+    let (tx, rx) = channel::<Result<Event, notify::Error>>();
+
+    let mut watcher = match RecommendedWatcher::new(
+        move |res: Result<Event, notify::Error>| {
+            let _ = tx.send(res);
+        },
+        Config::default(),
+    ) {
+        Ok(w) => w,
+        Err(e) => {
+            eprintln!("[watcher] Failed to create watcher: {e}");
+            return None;
+        }
+    };
+
+    for dir in &dirs {
+        if dir.exists() {
+            if let Err(e) = watcher.watch(dir, RecursiveMode::Recursive) {
+                eprintln!("[watcher] Failed to watch '{}': {e}", dir.display());
+            }
+        }
+    }
+
+    let running = Arc::new(AtomicBool::new(true));
+    let r = running.clone();
+    let busy = Arc::new(AtomicBool::new(false));
+
+    std::thread::spawn(move || {
+        let mut last_event = Instant::now();
+        let mut pending = false;
+
+        while r.load(Ordering::SeqCst) {
+            match rx.recv_timeout(Duration::from_millis(500)) {
+                Ok(Ok(event)) => match event.kind {
+                    EventKind::Access(_) | EventKind::Other | EventKind::Any => continue,
+                    _ => {
+                        if is_ignored_watcher_event(&event) {
+                            continue;
+                        }
+                        last_event = Instant::now();
+                        pending = true;
+                    }
+                },
+                Ok(Err(e)) => {
+                    eprintln!("[watcher] Event error: {e}");
+                }
+                Err(RecvTimeoutError::Timeout) => {
+                    if pending
+                        && last_event.elapsed() >= debounce_duration
+                        && !busy.load(Ordering::SeqCst)
+                    {
+                        pending = false;
+                        if !extra_delay.is_zero() {
+                            std::thread::sleep(extra_delay);
+                        }
+                        busy.store(true, Ordering::SeqCst);
+                        let app = app.clone();
+                        let action = action.clone();
+                        let busy = busy.clone();
+                        std::thread::spawn(move || {
+                            let _reset = BusyReset(busy);
+                            action(app);
+                        });
+                    }
+                }
+                Err(RecvTimeoutError::Disconnected) => break,
+            }
+        }
+    });
+
+    Some(watcher)
+}
+
+pub fn start_git_fs_watcher(app: AppHandle, path: String) -> Result<(), String> {
+    let dir = PathBuf::from(&path);
+    if !dir.is_dir() {
+        return Err("Path is not a directory".into());
+    }
+    if let Some(state) = app.try_state::<GitWatcher>() {
+        *state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner) = None;
+    }
+    let watcher = create_debounced_watcher(
+        app.clone(),
+        dir,
+        Duration::from_millis(800),
+        Duration::from_millis(300),
+        Arc::new(|_a: AppHandle| {}) as Arc<dyn Fn(AppHandle) + Send + Sync + 'static>,
+        "git:project-changed",
+    );
+    if let Some(w) = watcher {
+        if let Some(state) = app.try_state::<GitWatcher>() {
+            *state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner) = Some(w);
+        }
+    }
+    Ok(())
+}
+
+pub fn stop_git_fs_watcher(app: AppHandle) {
+    if let Some(state) = app.try_state::<GitWatcher>() {
+        *state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner) = None;
+    }
+}
+
+pub fn start_template_watcher(app: AppHandle, scan_dir: PathBuf, debounce_ms: u64) {
+    let watcher = create_debounced_watcher(
+        app.clone(),
+        scan_dir,
+        Duration::from_millis(debounce_ms),
+        Duration::from_millis(800),
+        Arc::new(move |a| {
+            let _ = templates::sync_templates_with_scan_dir_blocking(&a);
+        }) as Arc<dyn Fn(AppHandle) + Send + Sync + 'static>,
+        "watcher:template-synced",
+    );
+
+    if let Some(w) = watcher {
+        if let Some(state) = app.try_state::<ActiveWatchers>() {
+            state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner).push(w);
+        }
+    }
+}
+
+pub fn start_alias_watcher(app: AppHandle) {
+    let dir = crate::current_version::aliases_dir(&app);
+    let watcher = create_debounced_watcher(
+        app.clone(),
+        dir,
+        Duration::from_millis(500),
+        Duration::from_millis(0),
+        Arc::new(|a: AppHandle| {
+            let _ = crate::current_version::list_named_aliases(&a);
+        }) as Arc<dyn Fn(AppHandle) + Send + Sync + 'static>,
+        "versions:aliases-changed",
+    );
+
+    if let Some(state) = app.try_state::<AliasWatcher>() {
+        *state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner) = watcher;
+    }
+}
+
+pub fn start_project_watchers(app: AppHandle, dirs: Vec<PathBuf>, depth: u32, debounce_ms: u64) {
+    let app_clone = app.clone();
+    let workspace_id = crate::workspace::active_workspace_id(&app);
+    let watcher = create_debounced_multi_watcher(
+        app,
+        dirs,
+        Duration::from_millis(debounce_ms),
+        Duration::from_millis(1500),
+        Arc::new(move |a: AppHandle| {
+            if crate::workspace::active_workspace_id(&a) != workspace_id {
+                return;
+            }
+            let dirs: Vec<String> = crate::settings::read_settings(&a).project_scan_dirs;
+            if !dirs.is_empty() {
+                let result = crate::scan::scan_for_projects_blocking(a.clone(), dirs, depth, false);
+                if let Err(e) = result {
+                    eprintln!("[watcher] Project auto-scan failed: {e}");
+                }
+            }
+        }) as Arc<dyn Fn(AppHandle) + Send + Sync + 'static>,
+    );
+
+    if let Some(w) = watcher {
+        if let Some(state) = app_clone.try_state::<ActiveWatchers>() {
+            state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner).push(w);
+        }
+    }
+}
+
+pub fn start_version_watchers(app: AppHandle, dirs: Vec<PathBuf>, depth: u32, debounce_ms: u64) {
+    let app_clone = app.clone();
+    let workspace_id = crate::workspace::active_workspace_id(&app);
+    let watcher = create_debounced_multi_watcher(
+        app,
+        dirs,
+        Duration::from_millis(debounce_ms),
+        Duration::from_millis(1500),
+        Arc::new(move |a: AppHandle| {
+            if crate::workspace::active_workspace_id(&a) != workspace_id {
+                return;
+            }
+            let dirs: Vec<String> = crate::settings::read_settings(&a).version_scan_dirs;
+            if !dirs.is_empty() {
+                let result = crate::scan::scan_for_versions_blocking(a.clone(), dirs, depth);
+                if let Err(e) = result {
+                    eprintln!("[watcher] Version auto-scan failed: {e}");
+                }
+            }
+        }) as Arc<dyn Fn(AppHandle) + Send + Sync + 'static>,
+    );
+
+    if let Some(w) = watcher {
+        if let Some(state) = app_clone.try_state::<ActiveWatchers>() {
+            state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner).push(w);
+        }
+    }
+}
+
+pub fn restart_watchers(app: AppHandle) -> Result<(), String> {
+    if let Some(state) = app.try_state::<ActiveWatchers>() {
+        state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner).clear();
+    }
+
+    let s = crate::settings::read_settings(&app);
+
+    if s.auto_watch_project_dirs && !s.project_scan_dirs.is_empty() {
+        let dirs: Vec<PathBuf> = s.project_scan_dirs.iter().map(PathBuf::from).collect();
+        start_project_watchers(app.clone(), dirs, s.scan_depth, 2000);
+    }
+    if s.auto_watch_version_dirs && !s.version_scan_dirs.is_empty() {
+        let dirs: Vec<PathBuf> = s.version_scan_dirs.iter().map(PathBuf::from).collect();
+        start_version_watchers(app.clone(), dirs, s.scan_depth, 2000);
+    }
+    if s.feature_enabled("templates") && s.auto_watch_template_dir {
+        if let Some(ref tdir) = s.template_scan_dir {
+            let dir = PathBuf::from(tdir);
+            if dir.exists() {
+                start_template_watcher(app.clone(), dir, 2000);
+            }
+        }
+    }
+
+    Ok(())
+}

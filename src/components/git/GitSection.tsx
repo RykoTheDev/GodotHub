@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react'
 import { IconChevronDown } from '../../lib/icons'
+import { uiPrefs } from '../../lib/uiPrefs'
 
 export function GitSection({
   title,
@@ -21,7 +22,7 @@ export function GitSection({
   const [open, setOpen] = useState(() => {
     if (!storageKey) return defaultOpen ?? true
     try {
-      const saved = localStorage.getItem(storageKey)
+      const saved = uiPrefs.getItem(storageKey)
       return saved === null ? (defaultOpen ?? true) : saved !== '0'
     } catch {
       return defaultOpen ?? true
@@ -31,7 +32,7 @@ export function GitSection({
     const next = !v
     if (storageKey) {
       try {
-        localStorage.setItem(storageKey, v ? '0' : '1')
+        uiPrefs.setItem(storageKey, v ? '0' : '1')
       } catch {}
     }
     onOpenChange?.(next)

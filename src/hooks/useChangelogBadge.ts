@@ -10,6 +10,7 @@ import {
 import { useApiData } from '../lib/useApiData'
 import { api } from '../lib/api'
 import type { ChangelogEntry } from '../types'
+import { uiPrefs } from '../lib/uiPrefs'
 
 const SEEN_KEY = 'changelog_seen_ids'
 
@@ -24,7 +25,7 @@ const ChangelogBadgeContext = createContext<ChangelogBadgeContextValue | null>(
 
 function readSeen(): string[] | null {
   try {
-    const saved = JSON.parse(localStorage.getItem(SEEN_KEY) ?? 'null')
+    const saved = JSON.parse(uiPrefs.getItem(SEEN_KEY) ?? 'null')
     return Array.isArray(saved) ? saved.filter((id): id is string => typeof id === 'string') : null
   } catch {
     return null
@@ -45,7 +46,7 @@ export function ChangelogBadgeProvider({ children }: { children: ReactNode }) {
     const ids = entries.map((entry) => entry.id)
     setSeen(ids)
     try {
-      localStorage.setItem(SEEN_KEY, JSON.stringify(ids))
+      uiPrefs.setItem(SEEN_KEY, JSON.stringify(ids))
     } catch {}
   }, [entries, loaded])
 

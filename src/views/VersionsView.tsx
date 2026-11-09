@@ -39,6 +39,7 @@ import {
   IconX,
 } from '../lib/icons'
 import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
+import { uiPrefs } from '../lib/uiPrefs'
 
 const VERSION_FILTERS_KEY = 'godothub_version_filters'
 const VERSION_SORT_KEY = 'godothub_version_sort'
@@ -67,7 +68,7 @@ const DEFAULT_FILTERS: VersionFilters = { buildType: 'both', channel: 'both' }
 
 function loadVersionFilters(): VersionFilters {
   try {
-    const raw = localStorage.getItem(VERSION_FILTERS_KEY)
+    const raw = uiPrefs.getItem(VERSION_FILTERS_KEY)
     if (raw) return { ...DEFAULT_FILTERS, ...JSON.parse(raw) }
   } catch {}
   return DEFAULT_FILTERS
@@ -199,14 +200,14 @@ export function VersionsView({
   const [filters, setFilters] = useState<VersionFilters>(loadVersionFilters)
   const [sortBy, setSortBy] = useState<VersionSortOption>(() => {
     try {
-      const raw = localStorage.getItem(VERSION_SORT_KEY)
+      const raw = uiPrefs.getItem(VERSION_SORT_KEY)
       if (raw === 'latest' || raw === 'oldest' || raw === 'name_asc' || raw === 'name_desc') return raw
     } catch {}
     return 'latest'
   })
   const [installedSortBy, setInstalledSortBy] = useState<VersionSortOption>(() => {
     try {
-      const raw = localStorage.getItem(VERSION_SORT_KEY + '_installed')
+      const raw = uiPrefs.getItem(VERSION_SORT_KEY + '_installed')
       if (raw === 'latest' || raw === 'oldest' || raw === 'name_asc' || raw === 'name_desc' || raw === 'recently_installed' || raw === 'oldest_installed') return raw
     } catch {}
     return 'latest'
@@ -251,19 +252,19 @@ export function VersionsView({
 
   useEffect(() => {
     try {
-      localStorage.setItem(VERSION_FILTERS_KEY, JSON.stringify(filters))
+      uiPrefs.setItem(VERSION_FILTERS_KEY, JSON.stringify(filters))
     } catch {}
   }, [filters])
 
   useEffect(() => {
     try {
-      localStorage.setItem(VERSION_SORT_KEY, sortBy)
+      uiPrefs.setItem(VERSION_SORT_KEY, sortBy)
     } catch {}
   }, [sortBy])
 
   useEffect(() => {
     try {
-      localStorage.setItem(VERSION_SORT_KEY + '_installed', installedSortBy)
+      uiPrefs.setItem(VERSION_SORT_KEY + '_installed', installedSortBy)
     } catch {}
   }, [installedSortBy])
 

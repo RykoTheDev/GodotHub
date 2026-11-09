@@ -233,6 +233,9 @@ const HANDLERS: Record<string, (args: Record<string, unknown>) => unknown> = {
   get_project_icon: (a) => mockIcon(String(a?.path ?? '')),
   get_project_name: () => null,
   list_open_todos: () => OPEN_TODOS,
+  get_ui_prefs: () => ({ migrated_from_local_storage: true, values: { ...localStorage } }),
+  set_ui_pref: (a) => localStorage.setItem(String(a.key), String(a.value)),
+  remove_ui_pref: (a) => localStorage.removeItem(String(a.key)),
 }
 
 function fallback(cmd: string): unknown {

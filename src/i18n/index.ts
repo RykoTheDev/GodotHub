@@ -3,6 +3,7 @@ import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 
 import { SYSTEM_LANGUAGE, getSystemLanguage } from './languages'
+import { uiPrefs } from '../lib/uiPrefs'
 
 import enUSNav from './locales/en-US/nav.json'
 import enUSCommon from './locales/en-US/common.json'
@@ -47,15 +48,22 @@ const localeBackend: BackendModule = {
   },
 }
 
-try {
-  if (localStorage.getItem('i18nextLng') === SYSTEM_LANGUAGE) {
-    localStorage.setItem('i18nextLng', getSystemLanguage())
-  }
-} catch {}
+const LANGUAGE_KEY = 'i18nextLng'
+
+if (uiPrefs.getItem(LANGUAGE_KEY) === SYSTEM_LANGUAGE) {
+  uiPrefs.setItem(LANGUAGE_KEY, getSystemLanguage())
+}
+
+const languageDetector = new LanguageDetector()
+languageDetector.addDetector({
+  name: 'uiPrefs',
+  lookup: () => uiPrefs.getItem(LANGUAGE_KEY) ?? undefined,
+  cacheUserLanguage: (lng) => uiPrefs.setItem(LANGUAGE_KEY, lng),
+})
 
 export const i18nReady = i18n
   .use(localeBackend)
-  .use(LanguageDetector)
+  .use(languageDetector)
   .use(initReactI18next)
   .init({
     resources: { 'en-US': enUS },
@@ -68,20 +76,14 @@ export const i18nReady = i18n
       escapeValue: false,
     },
     detection: {
-      order: ['localStorage', 'navigator'],
-      caches: ['localStorage'],
+      order: ['uiPrefs', 'navigator'],
+      caches: ['uiPrefs'],
     },
   })
 
 const RTL_LAYOUT_KEY = 'godothub_rtl_layout'
 
-let rtlLayout = (() => {
-  try {
-    return localStorage.getItem(RTL_LAYOUT_KEY) === '1'
-  } catch {
-    return false
-  }
-})()
+let rtlLayout = uiPrefs.getItem(RTL_LAYOUT_KEY) === '1'
 
 function syncDocumentLanguage(lng: string): void {
   const textDir = i18n.dir(lng)
@@ -93,9 +95,7 @@ function syncDocumentLanguage(lng: string): void {
 export function setRtlLayout(enabled: boolean): void {
   if (enabled === rtlLayout) return
   rtlLayout = enabled
-  try {
-    localStorage.setItem(RTL_LAYOUT_KEY, enabled ? '1' : '0')
-  } catch {}
+  uiPrefs.setItem(RTL_LAYOUT_KEY, enabled ? '1' : '0')
   syncDocumentLanguage(i18n.resolvedLanguage || i18n.language || 'en-US')
 }
 

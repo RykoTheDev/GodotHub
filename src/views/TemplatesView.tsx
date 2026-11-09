@@ -35,6 +35,7 @@ import {
   type IconProps,
 } from '../lib/icons'
 import { AnimatedNumber } from '../components/reusables/AnimatedNumber'
+import { uiPrefs } from '../lib/uiPrefs'
 
 const TEMPLATE_SORT_KEY = 'godothub_template_sort'
 
@@ -112,7 +113,7 @@ export function TemplatesView({
   const [assetStats, setAssetStats] = useState({ loading: true, total: 0 })
   const [sortBy, setSortBy] = useState<TemplateSortOption>(() => {
     try {
-      const raw = localStorage.getItem(TEMPLATE_SORT_KEY)
+      const raw = uiPrefs.getItem(TEMPLATE_SORT_KEY)
       if (raw === 'name_asc' || raw === 'name_desc' || raw === 'newest' || raw === 'oldest') return raw
     } catch {}
     return 'name_asc'
@@ -131,7 +132,7 @@ export function TemplatesView({
 
   useEffect(() => {
     try {
-      localStorage.setItem(TEMPLATE_SORT_KEY, sortBy)
+      uiPrefs.setItem(TEMPLATE_SORT_KEY, sortBy)
     } catch {}
   }, [sortBy])
 

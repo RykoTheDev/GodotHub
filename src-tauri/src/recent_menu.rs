@@ -1,29 +1,7 @@
 use std::sync::{Mutex, OnceLock};
 use tauri::AppHandle;
 
-pub(crate) const OPEN_PROJECT_ARG: &str = "--open-project=";
-
-#[derive(Clone, PartialEq)]
-pub(crate) struct RecentProject {
-    pub id: String,
-    pub label: String,
-    pub path: String,
-}
-
-pub(crate) fn project_from_args(args: &[String]) -> Option<String> {
-    args.iter()
-        .find_map(|arg| arg.strip_prefix(OPEN_PROJECT_ARG))
-        .map(str::to_string)
-        .filter(|id| !id.is_empty())
-}
-
-pub(crate) fn open_from_args(app: &AppHandle, args: &[String]) -> bool {
-    let Some(id) = project_from_args(args) else {
-        return false;
-    };
-    tauri::async_runtime::spawn(crate::projects::open_project(app.clone(), id, true, None));
-    true
-}
+use godothub_core::recent::RecentProject;
 
 pub(crate) fn refresh(app: &AppHandle, projects: Vec<RecentProject>) {
     static LAST: OnceLock<Mutex<Option<Vec<RecentProject>>>> = OnceLock::new();
@@ -41,7 +19,8 @@ pub(crate) fn refresh(app: &AppHandle, projects: Vec<RecentProject>) {
 
 #[cfg(windows)]
 mod platform {
-    use super::{RecentProject, OPEN_PROJECT_ARG};
+    use super::RecentProject;
+    use godothub_core::recent::OPEN_PROJECT_ARG;
     use tauri::AppHandle;
     use windows::core::{Interface, HSTRING};
     use windows::Win32::Storage::EnhancedStorage::PKEY_Title;
@@ -168,8 +147,8 @@ mod platform {
         let guard = state().lock().unwrap_or_else(std::sync::PoisonError::into_inner);
         if let Some(dock) = guard.as_ref() {
             if let Some(id) = usize::try_from(tag).ok().and_then(|i| dock.ids.get(i)) {
-                tauri::async_runtime::spawn(crate::projects::open_project(
-                    dock.app.clone(),
+                tauri::async_runtime::spawn(godothub_core::projects::open_project(
+                    crate::core_handle(&dock.app),
                     id.clone(),
                     true,
                     None,
@@ -235,17 +214,4 @@ mod platform {
     use tauri::AppHandle;
 
     pub(super) fn apply(_app: &AppHandle, _projects: Vec<RecentProject>) {}
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn reads_project_id_from_launch_arguments() {
-        let args = vec!["GodotHub.exe".to_string(), "--open-project=abc-123".to_string()];
-        assert_eq!(project_from_args(&args).as_deref(), Some("abc-123"));
-        assert_eq!(project_from_args(&["--open-project=".to_string()]), None);
-        assert_eq!(project_from_args(&["versions".to_string()]), None);
-    }
 }
