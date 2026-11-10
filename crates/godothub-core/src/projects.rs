@@ -77,7 +77,8 @@ const SESSION_START_DELAY_MS: u64 = 3000;
 const SETTLE_OK_TTL: Duration = Duration::from_secs(60);
 
 static LAST_SETTLE_OK: Mutex<Option<Instant>> = Mutex::new(None);
-static SETTLE_IN_FLIGHT: AtomicBool = AtomicBool::new(false);
+static SETTLE_LOCK: Mutex<()> = Mutex::new(());
+static EXIT_WHEN_EDITORS_CLOSE: AtomicBool = AtomicBool::new(false);
 
 const DEFAULT_ICON_SVG: &[u8] = include_bytes!("../../../src-tauri/icon.svg");
 
@@ -338,7 +339,7 @@ fn settle_project_session(app: &AppHandle, id: &str, active_elapsed: Option<std:
 }
 
 pub(crate) fn settle_stale_sessions(app: &AppHandle) {
-    settle_stale_sessions_inner(app, &LAST_SETTLE_OK, &SETTLE_IN_FLIGHT, || {
+    settle_stale_sessions_inner(app, &LAST_SETTLE_OK, &SETTLE_LOCK, || {
         process::find_running_godot_processes()
     });
 }
@@ -350,23 +351,13 @@ fn settle_due(last_ok: Option<Instant>, now: Instant) -> bool {
     }
 }
 
-struct SettleFlightGuard<'a>(&'a AtomicBool);
-impl Drop for SettleFlightGuard<'_> {
-    fn drop(&mut self) {
-        self.0.store(false, Ordering::SeqCst);
-    }
-}
-
 fn settle_stale_sessions_inner(
     app: &AppHandle,
     last_ok: &Mutex<Option<Instant>>,
-    in_flight: &AtomicBool,
+    settle_lock: &Mutex<()>,
     find_processes: impl FnOnce() -> Result<Vec<process::RunningProcess>, String>,
 ) {
-    if in_flight.swap(true, Ordering::SeqCst) {
-        return;
-    }
-    let _flight = SettleFlightGuard(in_flight);
+    let _settling = settle_lock.lock().unwrap_or_else(std::sync::PoisonError::into_inner);
 
     let need = {
         let guard = last_ok.lock().unwrap_or_else(|e| e.into_inner());
@@ -1467,6 +1458,9 @@ pub(crate) fn launch_project(
         if keep_alive {
             app.host().hide_main_window();
             reopen_when_closed = settings.reopen_after_godot_closes;
+        } else if app.host().main_window_visible().is_some() {
+            EXIT_WHEN_EDITORS_CLOSE.store(true, Ordering::SeqCst);
+            app.host().hide_main_window();
         } else {
             app.host().exit(0);
         }
@@ -1527,6 +1521,21 @@ fn adopt_terminal_pid(app: &AppHandle, id: &str, pid_file: &Path) {
     }
 }
 
+fn exit_if_hidden_and_idle(app: &AppHandle) {
+    if !EXIT_WHEN_EDITORS_CLOSE.load(Ordering::SeqCst) {
+        return;
+    }
+    if app.host().main_window_visible() != Some(false) {
+        return;
+    }
+    let idle = app.try_state::<ActiveProcesses>().is_none_or(|state| {
+        state.0.lock().unwrap_or_else(std::sync::PoisonError::into_inner).is_empty()
+    });
+    if idle {
+        app.host().exit(0);
+    }
+}
+
 fn wait_until_exited(app: &AppHandle, id: &str) {
     const POLL: std::time::Duration = std::time::Duration::from_millis(500);
     loop {
@@ -1552,6 +1561,7 @@ fn wait_until_exited(app: &AppHandle, id: &str) {
         if let Some(elapsed) = exited {
             settle_project_session(app, id, elapsed);
             let _ = app.emit("project:exited", serde_json::json!({ "id": id }));
+            exit_if_hidden_and_idle(app);
             return;
         }
 

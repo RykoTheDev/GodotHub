@@ -26,7 +26,7 @@ impl Host for FlutterHost {
     fn refresh_menus(&self) {}
 }
 
-pub fn start(channel: Channel, paths: Paths) -> Result<(), CoreError> {
+pub fn start(channel: Channel, paths: Paths, single_instance: bool) -> Result<(), CoreError> {
     if let Some(app) = APP.get() {
         return if app.channel() == channel {
             Ok(())
@@ -40,6 +40,14 @@ pub fn start(channel: Channel, paths: Paths) -> Result<(), CoreError> {
     let host = Arc::new(FlutterHost);
     let app = APP.get_or_init(|| AppHandle::new(channel, paths, host.clone(), host));
     godothub_core::startup::initialize(app);
+    if single_instance {
+        let events = app.clone();
+        if let Err(error) = godothub_core::single_instance::listen_for_other_instances(channel, move |args| {
+            let _ = events.emit("app:second-instance", args);
+        }) {
+            eprintln!("single instance listener unavailable: {error}");
+        }
+    }
     godothub_core::runtime::spawn(godothub_core::startup::background_tasks(app.clone()));
     Ok(())
 }

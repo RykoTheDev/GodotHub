@@ -11,17 +11,21 @@
 namespace {
 
 using CliDispatch = bool (*)(uint32_t, const char*, int32_t*);
+using ForwardToRunningInstance = bool (*)(uint32_t);
 
-bool RunCli(int* exit_code) {
+HMODULE LoadBridge() {
   wchar_t module_path[MAX_PATH];
   const DWORD length = ::GetModuleFileNameW(nullptr, module_path, MAX_PATH);
   if (length == 0 || length == MAX_PATH) {
-    return false;
+    return nullptr;
   }
   std::wstring library_path(module_path, length);
   library_path = library_path.substr(0, library_path.find_last_of(L"\\/") + 1) +
                  L"godothub_bridge.dll";
-  HMODULE library = ::LoadLibraryW(library_path.c_str());
+  return ::LoadLibraryW(library_path.c_str());
+}
+
+bool RunCli(HMODULE library, int* exit_code) {
   if (library == nullptr) {
     return false;
   }
@@ -36,13 +40,26 @@ bool RunCli(int* exit_code) {
   return true;
 }
 
+bool ForwardedToRunningInstance(HMODULE library) {
+  if (library == nullptr) {
+    return false;
+  }
+  const auto forward = reinterpret_cast<ForwardToRunningInstance>(
+      ::GetProcAddress(library, "godothub_forward_to_running_instance"));
+  return forward != nullptr && forward(GODOTHUB_CHANNEL);
+}
+
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
                       _In_ wchar_t *command_line, _In_ int show_command) {
+  HMODULE bridge = LoadBridge();
   int cli_exit_code = 0;
-  if (RunCli(&cli_exit_code)) {
+  if (RunCli(bridge, &cli_exit_code)) {
     return cli_exit_code;
+  }
+  if (ForwardedToRunningInstance(bridge)) {
+    return EXIT_SUCCESS;
   }
 
   // Attach to console when present (e.g., 'flutter run') or create a

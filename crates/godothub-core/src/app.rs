@@ -117,6 +117,9 @@ pub trait Host: Send + Sync {
     fn hide_main_window(&self);
     fn exit(&self, code: i32);
     fn refresh_menus(&self);
+    fn main_window_visible(&self) -> Option<bool> {
+        None
+    }
 }
 
 type StateMap = HashMap<TypeId, Arc<dyn Any + Send + Sync>>;

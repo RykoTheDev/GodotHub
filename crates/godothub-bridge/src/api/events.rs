@@ -42,6 +42,7 @@ pub enum AppEventKind {
     VersionScanDone,
     TemplateSynced,
     GitProjectChanged,
+    SecondInstance,
     Unknown,
 }
 
@@ -89,6 +90,7 @@ pub struct AppEvent {
     pub json: String,
     pub text: Option<String>,
     pub queue: Option<Vec<String>>,
+    pub args: Option<Vec<String>>,
     pub scan_progress: Option<ScanProgress>,
     pub project_launched: Option<ProjectLaunched>,
     pub project_exited: Option<ProjectExited>,
@@ -112,6 +114,7 @@ impl AppEvent {
             json: json.to_string(),
             text: None,
             queue: None,
+            args: None,
             scan_progress: None,
             project_launched: None,
             project_exited: None,
@@ -163,6 +166,7 @@ fn kind_of(name: &str) -> AppEventKind {
         "watcher:version-scan-done" => VersionScanDone,
         "watcher:template-synced" => TemplateSynced,
         "git:project-changed" => GitProjectChanged,
+        "app:second-instance" => SecondInstance,
         _ => Unknown,
     }
 }
@@ -181,6 +185,7 @@ pub(crate) fn decode(name: &str, json: &str) -> AppEvent {
         ProjectConsoleExit => event.console_exit = parse(json),
         ExportStarted | ExportFinished => event.export_run = parse(json),
         GodotDownloadQueue => event.queue = parse(json),
+        SecondInstance => event.args = parse(json),
         GodotDownloadProgress => event.download_progress = parse(json),
         GodotDownloadError => event.download_failure = parse(json),
         GodotDownloadUnverified => event.download_unverified = parse(json),
@@ -256,6 +261,7 @@ mod tests {
             "watcher:version-scan-done",
             "watcher:template-synced",
             "git:project-changed",
+            "app:second-instance",
         ] {
             assert_ne!(kind_of(name), AppEventKind::Unknown, "{name}");
         }
@@ -286,6 +292,8 @@ mod tests {
             decode("godot-download-queue", r#"["a","b"]"#).queue,
             Some(vec!["a".to_string(), "b".to_string()])
         );
+        let second = decode("app:second-instance", r#"["GodotHub Beta","--open-project=abc"]"#);
+        assert_eq!(second.args, Some(vec!["GodotHub Beta".to_string(), "--open-project=abc".to_string()]));
         let done = decode("watcher:project-scan-done", "null");
         assert_eq!(done.kind, AppEventKind::ProjectScanDone);
         assert_eq!(done.json, "null");

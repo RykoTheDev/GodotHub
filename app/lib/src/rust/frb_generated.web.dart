@@ -42,6 +42,7 @@ import 'api/types.dart';
 import 'api/ui_prefs.dart';
 import 'api/vault.dart';
 import 'api/watcher.dart';
+import 'api/window.dart';
 import 'api/workspace.dart';
 
 import 'dart:async';
@@ -222,6 +223,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   BigInt dco_decode_box_autoadd_u_64(dynamic raw);
+
+  @protected
+  WindowState dco_decode_box_autoadd_window_state(dynamic raw);
 
   @protected
   CardViewOverride dco_decode_card_view_override(dynamic raw);
@@ -767,6 +771,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   BigInt? dco_decode_opt_box_autoadd_u_64(dynamic raw);
 
   @protected
+  WindowState? dco_decode_opt_box_autoadd_window_state(dynamic raw);
+
+  @protected
   List<String>? dco_decode_opt_list_String(dynamic raw);
 
   @protected
@@ -938,6 +945,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   VersionAliases dco_decode_version_aliases(dynamic raw);
+
+  @protected
+  WindowState dco_decode_window_state(dynamic raw);
 
   @protected
   Workspace dco_decode_workspace(dynamic raw);
@@ -1159,6 +1169,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer);
+
+  @protected
+  WindowState sse_decode_box_autoadd_window_state(SseDeserializer deserializer);
 
   @protected
   CardViewOverride sse_decode_card_view_override(SseDeserializer deserializer);
@@ -1834,6 +1847,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer);
 
   @protected
+  WindowState? sse_decode_opt_box_autoadd_window_state(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   List<String>? sse_decode_opt_list_String(SseDeserializer deserializer);
 
   @protected
@@ -2023,6 +2041,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   VersionAliases sse_decode_version_aliases(SseDeserializer deserializer);
+
+  @protected
+  WindowState sse_decode_window_state(SseDeserializer deserializer);
 
   @protected
   Workspace sse_decode_workspace(SseDeserializer deserializer);
@@ -2298,6 +2319,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_window_state(
+    WindowState self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_card_view_override(
@@ -3173,6 +3200,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_opt_box_autoadd_u_64(BigInt? self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_box_autoadd_window_state(
+    WindowState? self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_opt_list_String(List<String>? self, SseSerializer serializer);
 
   @protected
@@ -3420,6 +3453,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     VersionAliases self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_window_state(WindowState self, SseSerializer serializer);
 
   @protected
   void sse_encode_workspace(Workspace self, SseSerializer serializer);

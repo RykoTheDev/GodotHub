@@ -32,6 +32,12 @@ impl Host for TauriHost {
     fn refresh_menus(&self) {
         let _ = crate::tray::refresh_tray_menu_now(&self.0);
     }
+
+    fn main_window_visible(&self) -> Option<bool> {
+        self.0
+            .get_webview_window("main")
+            .and_then(|window| window.is_visible().ok())
+    }
 }
 
 pub fn create(app: &AppHandle) -> godothub_core::AppHandle {

@@ -951,13 +951,14 @@ export function VersionsView({
                                           <div className="w-56">
                                             <div className="h-1.5 bg-raised rounded-full overflow-hidden">
                                               <div
-                                                className={`h-full w-full origin-left rtl:origin-right rounded-full ${
+                                                className={`h-full rounded-full ${
                                                   dl.status === 'paused'
                                                     ? 'bg-muted'
                                                     : 'bg-amber'
                                                 }`}
-
-
+                                                style={{
+                                                  width: `${dl.total ? Math.min(100, Math.max(0, (dl.downloaded / dl.total) * 100)) : 6}%`,
+                                                }}
                                               />
                                             </div>
                                             <p className="text-2xs text-muted font-mono mt-1 tabular-nums">

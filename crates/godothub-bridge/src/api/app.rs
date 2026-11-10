@@ -32,7 +32,7 @@ pub async fn start_core(channel: String) -> Result<String, CoreError> {
             &Paths::for_channel(Channel::Beta),
         )?;
     }
-    crate::host::start(channel, Paths::for_channel(channel))?;
+    crate::host::start(channel, Paths::for_channel(channel), true)?;
     Ok(channel.info().display_name.to_string())
 }
 
@@ -43,7 +43,7 @@ pub async fn start_core_in(
     cache_dir: String,
 ) -> Result<String, CoreError> {
     let channel = parse_channel(&channel)?;
-    crate::host::start(channel, Paths::at(data_dir.into(), config_dir.into(), cache_dir.into()))?;
+    crate::host::start(channel, Paths::at(data_dir.into(), config_dir.into(), cache_dir.into()), false)?;
     Ok(channel.info().display_name.to_string())
 }
 
