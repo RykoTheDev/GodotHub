@@ -14,6 +14,7 @@ clap = { version = "4", features = ["derive"] }
 dirs = "6"
 feed-rs = "2"
 futures-util = "0.3.32"
+interprocess = "2"
 notify = "6"
 quick-xml = "0.41"
 reqwest = { version = "0.13.4", features = ["json", "stream", "gzip"] }

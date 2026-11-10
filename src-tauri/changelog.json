@@ -1988,5 +1988,34 @@
     ],
     "known_issues": [],
     "created_at": 1793857733
+  },
+  {
+    "id": "d60b6b7d-ce56-42ba-9bda-2cddff0f7c76",
+    "version": "v1.5.8",
+    "date": "2026-11-10",
+    "notes": [
+      {
+        "category": "fix",
+        "text": "Projects no longer show as still running when you reopen GodotHub after the editor was already closed, and opening them no longer warns that they are already open (#289)"
+      },
+      {
+        "category": "fix",
+        "text": "With Close on Project Open turned on, time spent in the editor is now tracked. GodotHub hides its window instead of quitting, keeps timing the session in the background, and quits on its own once the editor closes. Before, the whole session was lost (#289)"
+      },
+      {
+        "category": "fix",
+        "text": "Dropdown menus with long lists, like the project picker in Save to Vault, no longer close when you scroll them, so every item can be picked (#282)"
+      },
+      {
+        "category": "fix",
+        "text": "Each setup step now opens scrolled to the top instead of keeping the previous step's scroll position (#284)"
+      },
+      {
+        "category": "improve",
+        "text": "Linux: page entrance animations skip the blur effect and the Dashboard activity chart animates more cheaply, which should reduce lag on the Dashboard. Windows and macOS look the same as before (#271)"
+      }
+    ],
+    "known_issues": [],
+    "created_at": 1794318759
   }
 ]

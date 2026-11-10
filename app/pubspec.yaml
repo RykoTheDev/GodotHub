@@ -38,6 +38,9 @@ dependencies:
     path: rust_builder
   flutter_rust_bridge: 2.13.0
   flutter_riverpod: ^3.5.0
+  window_manager: ^0.6.0
+  nativeapi: ^0.5.10
+  path_parsing: ^1.1.0
 
 dev_dependencies:
   flutter_test:
@@ -51,6 +54,7 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   integration_test:
     sdk: flutter
+  win_plugin_link_repair: ^0.1.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -62,6 +66,64 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+  fonts:
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/inter-latin.ttf
+    - family: InterLatinExt
+      fonts:
+        - asset: assets/fonts/inter-latin-ext.ttf
+    - family: InterCyrillic
+      fonts:
+        - asset: assets/fonts/inter-cyrillic.ttf
+    - family: InterCyrillicExt
+      fonts:
+        - asset: assets/fonts/inter-cyrillic-ext.ttf
+    - family: InterGreek
+      fonts:
+        - asset: assets/fonts/inter-greek.ttf
+    - family: InterGreekExt
+      fonts:
+        - asset: assets/fonts/inter-greek-ext.ttf
+    - family: InterVietnamese
+      fonts:
+        - asset: assets/fonts/inter-vietnamese.ttf
+    - family: GoogleSansCode
+      fonts:
+        - asset: assets/fonts/gsc-latin-400.ttf
+          weight: 400
+        - asset: assets/fonts/gsc-latin-500.ttf
+          weight: 500
+    - family: GoogleSansCodeLatinExt
+      fonts:
+        - asset: assets/fonts/gsc-latin-ext-400.ttf
+          weight: 400
+        - asset: assets/fonts/gsc-latin-ext-500.ttf
+          weight: 500
+    - family: GoogleSansCodeVietnamese
+      fonts:
+        - asset: assets/fonts/gsc-vietnamese-400.ttf
+          weight: 400
+        - asset: assets/fonts/gsc-vietnamese-500.ttf
+          weight: 500
+    - family: GoogleSansCodeSymbols
+      fonts:
+        - asset: assets/fonts/gsc-symbols-400.ttf
+          weight: 400
+        - asset: assets/fonts/gsc-symbols-500.ttf
+          weight: 500
+    - family: GoogleSansCodeSymbols2
+      fonts:
+        - asset: assets/fonts/gsc-symbols2-400.ttf
+          weight: 400
+        - asset: assets/fonts/gsc-symbols2-500.ttf
+          weight: 500
+    - family: GoogleSansCodeMath
+      fonts:
+        - asset: assets/fonts/gsc-math-400.ttf
+          weight: 400
+        - asset: assets/fonts/gsc-math-500.ttf
+          weight: 500
 
   # To add assets to your application, add an assets section, like this:
   # assets:

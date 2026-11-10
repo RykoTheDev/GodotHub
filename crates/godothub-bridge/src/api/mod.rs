@@ -34,4 +34,5 @@ pub mod types;
 pub mod ui_prefs;
 pub mod vault;
 pub mod watcher;
+pub mod window;
 pub mod workspace;

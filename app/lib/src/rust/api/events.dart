@@ -20,6 +20,7 @@ class AppEvent {
   final String json;
   final String? text;
   final List<String>? queue;
+  final List<String>? args;
   final ScanProgress? scanProgress;
   final ProjectLaunched? projectLaunched;
   final ProjectExited? projectExited;
@@ -40,6 +41,7 @@ class AppEvent {
     required this.json,
     this.text,
     this.queue,
+    this.args,
     this.scanProgress,
     this.projectLaunched,
     this.projectExited,
@@ -62,6 +64,7 @@ class AppEvent {
       json.hashCode ^
       text.hashCode ^
       queue.hashCode ^
+      args.hashCode ^
       scanProgress.hashCode ^
       projectLaunched.hashCode ^
       projectExited.hashCode ^
@@ -86,6 +89,7 @@ class AppEvent {
           json == other.json &&
           text == other.text &&
           queue == other.queue &&
+          args == other.args &&
           scanProgress == other.scanProgress &&
           projectLaunched == other.projectLaunched &&
           projectExited == other.projectExited &&
@@ -133,6 +137,7 @@ enum AppEventKind {
   versionScanDone,
   templateSynced,
   gitProjectChanged,
+  secondInstance,
   unknown,
 }
 

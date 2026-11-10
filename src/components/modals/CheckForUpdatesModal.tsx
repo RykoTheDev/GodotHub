@@ -545,9 +545,8 @@ export function CheckForUpdatesModal({
               </div>
               <div className="w-full h-2 rounded-full bg-line overflow-hidden">
                 <div
-                  className="h-full w-full origin-left rtl:origin-right bg-accent rounded-full"
-
-
+                  className="h-full bg-accent rounded-full"
+                  style={{ width: `${Math.min(100, Math.max(0, state.progress * 100))}%` }}
                 />
               </div>
             </div>

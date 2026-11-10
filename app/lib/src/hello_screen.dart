@@ -5,9 +5,10 @@ import 'providers.dart';
 import 'rust/api/types.dart';
 
 class HelloScreen extends ConsumerWidget {
-  const HelloScreen({super.key, required this.title});
+  const HelloScreen({super.key, required this.title, this.onOpenGallery});
 
   final String title;
+  final VoidCallback? onOpenGallery;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -16,7 +17,13 @@ class HelloScreen extends ConsumerWidget {
     final actions = ref.read(cliToolActionsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text('$title: Hello from core')),
+      appBar: AppBar(
+        title: Text('$title: Hello from core'),
+        actions: [
+          if (onOpenGallery != null)
+            TextButton(onPressed: onOpenGallery, child: const Text('Widget gallery')),
+        ],
+      ),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
