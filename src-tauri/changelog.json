@@ -2013,6 +2013,90 @@
       {
         "category": "improve",
         "text": "Linux: page entrance animations skip the blur effect and the Dashboard activity chart animates more cheaply, which should reduce lag on the Dashboard. Windows and macOS look the same as before (#271)"
+      },
+      {
+        "category": "improve",
+        "text": "Other git worktrees of a project no longer show up as separate projects. Each repository shows once and you switch worktrees from its Git sidebar. Worktrees that were already listed separately are merged into one entry and keep their tracked time"
+      },
+      {
+        "category": "fix",
+        "text": "Switching between light and dark system theme no longer undoes settings you changed since the last switch"
+      },
+      {
+        "category": "fix",
+        "text": "A settings change made while an earlier one was still saving is no longer lost"
+      },
+      {
+        "category": "fix",
+        "text": "Pressing Enter in a dialog while projects are selected no longer launches them, and Delete or Backspace on a button no longer asks to remove them"
+      },
+      {
+        "category": "fix",
+        "text": "Escape now closes only the open menu or date picker instead of the whole task editor, task list, Project Doctor or Git sidebar, so typed text isn't lost"
+      },
+      {
+        "category": "fix",
+        "text": "Cancel on the Dashboard greeting editor now discards the name instead of saving it"
+      },
+      {
+        "category": "fix",
+        "text": "Undo after removing a project now shows it in the list again right away"
+      },
+      {
+        "category": "fix",
+        "text": "Selecting text in a dialog and letting go of the mouse outside it no longer closes the dialog"
+      },
+      {
+        "category": "fix",
+        "text": "Shift-click in the Kanban view now selects the cards between your clicks as they appear in the columns, instead of picking cards from other columns"
+      },
+      {
+        "category": "fix",
+        "text": "The command palette shortcut recorder stops listening when you click elsewhere, so it no longer grabs the next key you type"
+      },
+      {
+        "category": "fix",
+        "text": "Switching the release source quickly on the Versions page no longer shows the other source's list"
+      },
+      {
+        "category": "fix",
+        "text": "Asset Library search no longer shows results for an older query after you keep typing"
+      },
+      {
+        "category": "fix",
+        "text": "Vault tag filters clear once their last item is gone, so the list no longer stays empty with no way to reset it"
+      },
+      {
+        "category": "fix",
+        "text": "Sort: Oldest for available versions now orders the versions inside each group oldest first too"
+      },
+      {
+        "category": "fix",
+        "text": "Project cards show the new git status right after a commit or pull from the Git sidebar"
+      },
+      {
+        "category": "fix",
+        "text": "A failed Storage refresh now shows an error instead of silently keeping the old numbers"
+      },
+      {
+        "category": "improve",
+        "text": "The search bars on the Vault and Templates pages now fill the whole row"
+      },
+      {
+        "category": "improve",
+        "text": "Date picker weekday names are readable in Arabic and Vietnamese"
+      },
+      {
+        "category": "fix",
+        "text": "Enter works on the buttons in Manage Tags again"
+      },
+      {
+        "category": "fix",
+        "text": "The focus search shortcut now works on the Templates page"
+      },
+      {
+        "category": "improve",
+        "text": "More text is translated: the project size scan, the GitHub token reset time, the clone task status and the starter categories you add during setup"
       }
     ],
     "known_issues": [],

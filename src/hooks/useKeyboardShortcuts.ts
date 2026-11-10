@@ -1,4 +1,8 @@
 import { useEffect, useCallback, useRef } from 'react'
+import { isPopupOpen } from '../lib/openPopups'
+
+const NON_SELECTION_TARGETS =
+  'button, a, select, summary, [role="button"], [role="menuitem"], [role="option"], [role="dialog"], [aria-modal="true"], [role="menu"], [role="listbox"]'
 
 export interface ShortcutHandlers {
   onNewProject: () => void
@@ -24,6 +28,7 @@ export function useKeyboardShortcuts(
     const mod = e.metaKey || e.ctrlKey
 
     if (e.key === 'Escape') {
+      if (e.defaultPrevented || isPopupOpen()) return
       e.preventDefault()
       h.current.onEscape()
       return
@@ -79,11 +84,12 @@ export function useKeyboardShortcuts(
       return
     }
 
-    if (e.key === 'Enter' && !isInput) {
+    const selectionTarget = !isInput && !target.closest?.(NON_SELECTION_TARGETS) && !isPopupOpen()
+    if (e.key === 'Enter' && selectionTarget) {
       h.current.onLaunchSelection?.()
       return
     }
-    if ((e.key === 'Delete' || e.key === 'Backspace') && !isInput) {
+    if ((e.key === 'Delete' || e.key === 'Backspace') && selectionTarget) {
       e.preventDefault()
       h.current.onDeleteSelection?.()
       return

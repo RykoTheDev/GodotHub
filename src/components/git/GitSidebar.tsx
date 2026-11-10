@@ -1437,6 +1437,7 @@ export function GitSidebar({
                                 if (e.key === 'Enter') {
                                   void handleCreateBranch()
                                 } else if (e.key === 'Escape') {
+                                  e.stopPropagation()
                                   setNewBranchMode(false)
                                   setNewBranchName('')
                                 }

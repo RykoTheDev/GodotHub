@@ -993,5 +993,7 @@
   "date_previous_month": "前の月",
   "date_next_month": "次の月",
   "date_change_due": "期限を変更: {{date}}",
-  "date_add_due": "期限を追加"
+  "date_add_due": "期限を追加",
+  "project_size_scanning": "Scanning project files…",
+  "project_size_empty": "No files found"
 }

@@ -289,5 +289,6 @@
   "feature_desc_storage": "See how much disk space projects and engines use.",
   "feature_desc_asset_store": "Browse and install addons and demos from the Godot Asset Library.",
   "feature_desc_categories": "Group your project list into folders.",
-  "feature_desc_workspaces": "Switch between separate sets of projects and settings."
+  "feature_desc_workspaces": "Switch between separate sets of projects and settings.",
+  "token_resets_in": "(resets ~{{minutes}} min)"
 }

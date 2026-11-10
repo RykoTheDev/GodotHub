@@ -3,9 +3,11 @@ import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 
 import { IconCheckCircle, IconChevronDown } from "../../lib/icons";
+import { isPopupOpen } from "../../lib/openPopups";
 import { ModalHeader } from "../modals/ModalHeader";
 import { Dropdown } from "../ui/Dropdown";
 import type { TodoArea } from "../../types/projectTodo";
+import { useBackdropDismiss } from "../../hooks/useBackdropDismiss";
 
 const AREAS: TodoArea[] = ["programming", "art", "audio", "design", "narrative", "other"];
 
@@ -40,7 +42,7 @@ export function ProjectTodoListModal({
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+      if (event.key === "Escape" && !isPopupOpen()) {
         onClose();
       }
     };
@@ -60,12 +62,14 @@ export function ProjectTodoListModal({
     };
   }, []);
 
+  const backdrop = useBackdropDismiss(onClose);
+
   return createPortal(
     <div
 
 
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-      onClick={onClose}
+      {...backdrop}
     >
       <div
         role="dialog"

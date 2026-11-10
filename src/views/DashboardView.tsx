@@ -855,6 +855,7 @@ export function DashboardView({
                   <Tooltip content={tc('dashboard_rename_save')} side="top">
                     <button
                       type="button"
+                      onMouseDown={(e) => e.preventDefault()}
                       onClick={commitName}
                       aria-label={tc('dashboard_rename_save')}
                       className="focus-ring cursor-pointer p-1.5 rounded-btn text-accent hover:bg-accent/10"
@@ -865,6 +866,7 @@ export function DashboardView({
                   <Tooltip content={tc('cancel')} side="top">
                     <button
                       type="button"
+                      onMouseDown={(e) => e.preventDefault()}
                       onClick={cancelNameEdit}
                       aria-label={tc('cancel')}
                       className="focus-ring cursor-pointer p-1.5 rounded-btn text-muted/60 hover:text-ink hover:bg-surface"

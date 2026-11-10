@@ -100,6 +100,13 @@ export function VaultView({
     return [...set].sort((a, b) => a.localeCompare(b))
   }, [items])
 
+  useEffect(() => {
+    setActiveTags((prev) => {
+      const next = prev.filter((tag) => allTags.includes(tag))
+      return next.length === prev.length ? prev : next
+    })
+  }, [allTags])
+
   const toggleTag = (tag: string) => {
     setActiveTags((prev) =>
       prev.includes(tag) ? prev.filter((x) => x !== tag) : [...prev, tag],

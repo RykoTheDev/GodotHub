@@ -111,6 +111,8 @@
   "category": "Category",
   "none": "None",
   "project_size": "Project Size",
+  "project_size_scanning": "Scanning project files…",
+  "project_size_empty": "No files found",
   "launch_arguments": "Launch Arguments",
   "save_as_template": "Save as Template",
   "git": "Git",

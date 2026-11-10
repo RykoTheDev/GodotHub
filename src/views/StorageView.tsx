@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useSettings } from '../hooks/useSettings'
 import { useGodotVersionsContext } from '../hooks/godotVersionsContext'
@@ -172,6 +172,8 @@ export function StorageView({
   const { settings } = useSettings()
   const refreshInstalled = useGodotVersionsContext((v) => v.refreshInstalled)
   const [report, setReport] = useState<StorageReport | null>(null)
+  const hasReportRef = useRef(false)
+  hasReportRef.current = report !== null
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [selected, setSelected] = useState<Set<string>>(new Set())
@@ -189,7 +191,9 @@ export function StorageView({
       )
     } catch (e) {
       console.error(e)
-      setError(e instanceof Error ? e.message : String(e))
+      const message = e instanceof Error ? e.message : String(e)
+      setError(message)
+      if (hasReportRef.current) pushToast('error', tc('cleanup_load_error', { error: message }))
     } finally {
       setLoading(false)
     }

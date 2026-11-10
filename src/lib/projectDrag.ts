@@ -22,6 +22,25 @@ export function categoryKeyOf(project: Pick<Project, 'category'>): string {
   return project.category || UNCATEGORIZED_KEY
 }
 
+export function kanbanColumnOrder(projects: Project[], categories: Category[]): Project[] {
+  if (categories.length === 0) return projects
+  const groups = new Map<string, Project[]>()
+  for (const project of projects) {
+    const key = categoryKeyOf(project)
+    const list = groups.get(key)
+    if (list) list.push(project)
+    else groups.set(key, [project])
+  }
+  const known = new Set(categories.map((category) => category.name))
+  const ordered: Project[] = []
+  for (const category of categories) ordered.push(...(groups.get(category.name) ?? []))
+  for (const [key, list] of groups) {
+    if (key !== UNCATEGORIZED_KEY && !known.has(key)) ordered.push(...list)
+  }
+  ordered.push(...(groups.get(UNCATEGORIZED_KEY) ?? []))
+  return ordered
+}
+
 // Pinning never changes a category's saved visibility or its project membership.
 export function hasOnlyPinnedProjects(projects: Project[], categoryKey: string): boolean {
   const members = projects.filter((p) => categoryKeyOf(p) === categoryKey)

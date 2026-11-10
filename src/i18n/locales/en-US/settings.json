@@ -76,6 +76,7 @@
   "test": "Test",
   "testing": "Testing…",
   "token_valid": "Token valid! Rate limit: {{status}}",
+  "token_resets_in": "(resets ~{{minutes}} min)",
   "test_failed": "Test failed: {{error}}",
   "key_space": "Space",
   "no_settings_match": "No settings match",

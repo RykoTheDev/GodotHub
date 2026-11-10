@@ -301,6 +301,7 @@ export function TemplatesView({
                 ? 'template_search_placeholder'
                 : 'asset_search_placeholder'
             }
+            inputRef={searchRef}
             className="flex-1"
           />
           <TabSwitcher

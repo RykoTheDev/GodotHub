@@ -16,6 +16,7 @@ import {
   IconPlug,
 } from '../../lib/icons'
 import { ModalHeader } from './ModalHeader'
+import { useBackdropDismiss } from '../../hooks/useBackdropDismiss'
 
 function repoBaseName(url: string): string {
   let cleaned = url.trim().replace(/\/+$/, '')
@@ -234,7 +235,7 @@ export function CloneRepoModal({
         status: 'running',
       })
       const project = await api.importProject(clonedPath, '', category)
-      updateTask(taskId, { status: 'completed', description: 'Done' })
+      updateTask(taskId, { status: 'completed', description: t('done') })
       setTimeout(() => unregisterTask(taskId), 3000)
       onCloned(project.id)
       if (settings.desktop_notifications_enabled) {
@@ -267,12 +268,14 @@ export function CloneRepoModal({
         : 'text-muted hover:text-ink hover:bg-raised border border-transparent'
     }`
 
+  const backdrop = useBackdropDismiss(onClose)
+
   return createPortal(
     <div
 
 
       className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-      onClick={onClose}
+      {...backdrop}
     >
       <div
 

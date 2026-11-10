@@ -669,7 +669,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
         Math.round((info.reset_at - Date.now() / 1000) / 60),
       );
       const status = info.used_token
-        ? `${info.remaining}/${info.limit} (resets ~${mins}min)`
+        ? `${info.remaining}/${info.limit} ${ts("token_resets_in", { minutes: mins })}`
         : `${info.remaining}/${info.limit}`;
       setTokenTestState(info.remaining > 0 ? "success" : "warning");
       setTokenTestMsg(ts("token_valid", { status }));

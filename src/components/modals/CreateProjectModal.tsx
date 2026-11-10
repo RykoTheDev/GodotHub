@@ -21,6 +21,7 @@ import {
   IconSpinner,
 } from '../../lib/icons'
 import { ModalHeader } from './ModalHeader'
+import { useBackdropDismiss } from '../../hooks/useBackdropDismiss'
 
 interface Props {
   installedVersions: InstalledGodotVersion[]
@@ -286,12 +287,14 @@ export function CreateProjectModal({
       ? 'focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-btn border text-xs font-medium '
       : 'focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 rounded-btn border border-outline/50 text-muted hover:border-accent-dim hover:text-ink hover:bg-raised text-xs font-medium '
 
+  const backdrop = useBackdropDismiss(dismiss)
+
   return createPortal(
     <div
 
 
       className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-      onClick={dismiss}
+      {...backdrop}
     >
       <div
 

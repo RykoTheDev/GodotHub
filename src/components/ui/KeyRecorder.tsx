@@ -21,6 +21,10 @@ export function KeyRecorder({ value, onChange, onReset }: Props) {
     if (!listening) return
 
     const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Tab') {
+        setListening(false)
+        return
+      }
       e.preventDefault()
       e.stopPropagation()
 
@@ -86,6 +90,7 @@ export function KeyRecorder({ value, onChange, onReset }: Props) {
         <button
           type="button"
           onClick={() => setListening((l) => !l)}
+          onBlur={() => setListening(false)}
           className={`focus-ring cursor-pointer relative flex items-center justify-center gap-2 px-5 py-3 rounded-item border text-sm font-mono font-semibold  ${
             listening
               ? 'border-accent bg-accent/10 text-accent-bright'

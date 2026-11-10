@@ -1007,5 +1007,7 @@
   "date_previous_month": "Previous month",
   "date_next_month": "Next month",
   "date_change_due": "Change due date: {{date}}",
-  "date_add_due": "Add due date"
+  "date_add_due": "Add due date",
+  "project_size_scanning": "Scanning project files…",
+  "project_size_empty": "No files found"
 }

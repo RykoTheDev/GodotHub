@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { ModalHeader } from './ModalHeader'
+import { useBackdropDismiss } from '../../hooks/useBackdropDismiss'
 
 interface Props {
   icon: React.ReactNode
@@ -31,6 +32,7 @@ export function ModalShell({
   const titleId = useId()
   const dialogRef = useRef<HTMLDivElement>(null)
   const openMenus = useRef(0)
+  const backdrop = useBackdropDismiss(onClose)
   const [returnFocus] = useState(() => document.activeElement as HTMLElement | null)
 
   useEffect(() => {
@@ -99,10 +101,7 @@ export function ModalShell({
 
 
       className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-      onClick={(e) => {
-        e.stopPropagation()
-        onClose?.()
-      }}
+      {...backdrop}
     >
       <div
 

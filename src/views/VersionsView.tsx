@@ -91,6 +91,16 @@ function versionCore(raw: string): string {
   return `${numeric.join('.')}-${channel}`
 }
 
+function reverseTagOrder<T extends { tag: string }>(rows: T[]): T[] {
+  const blocks: T[][] = []
+  for (const row of rows) {
+    const last = blocks[blocks.length - 1]
+    if (last && last[0].tag === row.tag) last.push(row)
+    else blocks.push([row])
+  }
+  return blocks.reverse().flat()
+}
+
 function minorGroup(tag: string): string {
   const m = tag.trim().replace(/^v/, '').match(/^(\d+)\.(\d+)/)
   return m ? `${m[1]}.${m[2]}` : 'Other'
@@ -443,7 +453,11 @@ export function VersionsView({
           default:
             return b.localeCompare(a, undefined, { numeric: true })
         }
-      }),
+      }).map(([group, rows]): [string, typeof rows] =>
+        sortBy === 'oldest' || sortBy === 'name_asc'
+          ? [group, reverseTagOrder(rows)]
+          : [group, rows],
+      ),
     [filteredAvailable, filters.channel, filters.buildType, sortBy],
   )
   return (

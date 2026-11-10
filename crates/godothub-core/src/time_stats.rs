@@ -164,6 +164,26 @@ pub fn total_seconds_for(app: &AppHandle, project_id: &str) -> u64 {
     from_daily.max(from_sessions)
 }
 
+pub fn merge_project_stats(app: &AppHandle, from_id: &str, into_id: &str) {
+    if from_id == into_id {
+        return;
+    }
+    let path = stats_path(&crate::workspace::active_workspace_dir(app));
+    let _ = persist::update_json::<TimeStatsStore, _>(&path, |store| {
+        if let Some(sessions) = store.projects.remove(from_id) {
+            let target = store.projects.entry(into_id.to_string()).or_default();
+            target.extend(sessions);
+            target.sort_by_key(|s| s.start_ms);
+        }
+        if let Some(days) = store.daily.remove(from_id) {
+            let target = store.daily.entry(into_id.to_string()).or_default();
+            for (day, seconds) in days {
+                *target.entry(day).or_insert(0) += seconds;
+            }
+        }
+    });
+}
+
 pub fn record_session(app: &AppHandle, project_id: &str, start_ms: u64, seconds: u64) {
     if seconds == 0 {
         return;

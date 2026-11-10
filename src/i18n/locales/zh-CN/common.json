@@ -995,5 +995,7 @@
   "date_previous_month": "上个月",
   "date_next_month": "下个月",
   "date_change_due": "更改截止日期: {{date}}",
-  "date_add_due": "添加截止日期"
+  "date_add_due": "添加截止日期",
+  "project_size_scanning": "Scanning project files…",
+  "project_size_empty": "No files found"
 }
