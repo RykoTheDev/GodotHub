@@ -422,6 +422,8 @@ fn dedupe_releases(releases: Vec<GodotRelease>) -> Vec<GodotRelease> {
             let mut seen_assets = std::collections::HashSet::new();
             r.assets
                 .retain(|a| platform_asset_matcher(&a.name) && seen_assets.insert(a.name.clone()));
+            #[cfg(target_os = "macos")]
+            prefer_macos_assets(&mut r.assets, std::env::consts::ARCH);
             r
         })
         .filter(|r| !r.assets.is_empty())
@@ -441,6 +443,46 @@ const LINUX_ARCH_TOKEN: Option<&str> = if cfg!(target_arch = "x86_64") {
     None
 };
 
+#[cfg(any(target_os = "macos", test))]
+fn macos_editor_asset_matches(name: &str, arch: &str) -> bool {
+    let name = name.to_ascii_lowercase();
+    name.ends_with("_macos.universal.zip")
+        || match arch {
+            "aarch64" => name.ends_with("_macos.arm64.zip"),
+            "x86_64" => name.ends_with("_macos.x86_64.zip"),
+            _ => false,
+        }
+}
+
+#[cfg(any(target_os = "macos", test))]
+fn prefer_macos_assets(assets: &mut Vec<GodotReleaseAsset>, arch: &str) {
+    let mut selected = [None, None];
+    for (index, asset) in assets.iter().enumerate() {
+        if !macos_editor_asset_matches(&asset.name, arch) {
+            continue;
+        }
+        let variant = usize::from(asset.is_mono);
+        let universal = asset
+            .name
+            .to_ascii_lowercase()
+            .ends_with("_macos.universal.zip");
+        match selected[variant] {
+            None => selected[variant] = Some((index, universal)),
+            Some((_, true)) if !universal => selected[variant] = Some((index, false)),
+            _ => {}
+        }
+    }
+    let mut index = 0;
+    assets.retain(|_| {
+        let keep = selected
+            .iter()
+            .flatten()
+            .any(|(chosen, _)| *chosen == index);
+        index += 1;
+        keep
+    });
+}
+
 fn platform_asset_matcher(name: &str) -> bool {
     let n = name.to_lowercase();
     if !n.ends_with(".zip") || n.contains("console") || n.contains(".debugsymbols.") {
@@ -449,7 +491,7 @@ fn platform_asset_matcher(name: &str) -> bool {
     #[cfg(target_os = "windows")]
     return n.contains("win64");
     #[cfg(target_os = "macos")]
-    return n.contains("macos");
+    return macos_editor_asset_matches(&n, std::env::consts::ARCH);
     #[cfg(target_os = "linux")]
     return LINUX_ARCH_TOKEN.is_some_and(|arch| {
         n.split_once("linux.")
@@ -570,7 +612,7 @@ async fn refresh_releases_cache(app: AppHandle) -> Result<Vec<GodotRelease>, Str
             if let Ok(raw) = fs::read_to_string(releases_cache_file(&app, "github")) {
                 if let Ok(stale) = serde_json::from_str::<ReleasesCache>(&raw) {
                     if stale.asset_target == asset_target() {
-                        return Ok(stale.releases);
+                        return Ok(dedupe_releases(stale.releases));
                     }
                 }
             }
@@ -621,6 +663,7 @@ async fn refresh_releases_cache(app: AppHandle) -> Result<Vec<GodotRelease>, Str
         page += 1;
     }
 
+    let releases = dedupe_releases(releases);
     write_releases_cache(&app, "github", &releases);
     Ok(releases)
 }
@@ -656,6 +699,7 @@ async fn refresh_archive_releases(app: AppHandle) -> Result<Vec<GodotRelease>, S
             .collect()
             .await;
 
+    let releases = dedupe_releases(releases);
     write_releases_cache(&app, "archive", &releases);
     Ok(releases)
 }
@@ -699,6 +743,17 @@ fn archive_asset_slugs() -> Vec<(&'static str, &'static str)> {
     }
     #[cfg(target_os = "macos")]
     {
+        match std::env::consts::ARCH {
+            "aarch64" => {
+                slugs.push(("macos.arm64.zip", "macos.arm64"));
+                slugs.push(("mono_macos.arm64.zip", "macos.arm64"));
+            }
+            "x86_64" => {
+                slugs.push(("macos.x86_64.zip", "macos.x86_64"));
+                slugs.push(("mono_macos.x86_64.zip", "macos.x86_64"));
+            }
+            _ => {}
+        }
         slugs.push(("macos.universal.zip", "macos.universal"));
         slugs.push(("mono_macos.universal.zip", "macos.universal"));
     }
@@ -1932,6 +1987,73 @@ mod download_tests {
     use super::*;
 
     #[test]
+    fn macos_prefers_native_per_variant_and_falls_back_to_universal() {
+        for arch in ["aarch64", "x86_64"] {
+            let cpu = if arch == "aarch64" { "arm64" } else { "x86_64" };
+            let make = |suffix: &str, is_mono| GodotReleaseAsset {
+                name: format!("Godot_v4.8-beta3_{suffix}"),
+                download_url: String::new(),
+                size: 0,
+                is_mono,
+            };
+            let universal = make("macos.universal.zip", false);
+            let mono = make("mono_macos.universal.zip", true);
+            let native = make(&format!("macos.{cpu}.zip"), false);
+            for mut assets in [
+                vec![universal.clone(), native.clone(), mono.clone()],
+                vec![native.clone(), mono.clone(), universal.clone()],
+            ] {
+                prefer_macos_assets(&mut assets, arch);
+                assert_eq!(assets.len(), 2);
+                assert!(assets.iter().any(|a| a.name == native.name));
+                assert!(assets.iter().any(|a| a.name == mono.name));
+            }
+            let mut old = vec![universal.clone(), mono.clone(), universal];
+            prefer_macos_assets(&mut old, arch);
+            assert_eq!(old.len(), 2);
+            let native_mono = make(&format!("mono_macos.{cpu}.zip"), true);
+            let mut assets = vec![mono, native_mono.clone()];
+            prefer_macos_assets(&mut assets, arch);
+            assert_eq!(assets.len(), 1);
+            assert_eq!(assets[0].name, native_mono.name);
+        }
+    }
+
+    #[test]
+    fn macos_assets_match_architecture_and_exclude_symbols() {
+        for mono in ["", "mono_"] {
+            let prefix = format!("Godot_v4.8-beta3_{mono}");
+            for arch in ["aarch64", "x86_64"] {
+                assert!(macos_editor_asset_matches(
+                    &format!("{prefix}macos.universal.zip"),
+                    arch
+                ));
+                for cpu in ["arm64", "x86_64"] {
+                    let expected = (cpu == "arm64" && arch == "aarch64") || cpu == arch;
+                    assert_eq!(
+                        macos_editor_asset_matches(&format!("{prefix}macos.{cpu}.zip"), arch),
+                        expected
+                    );
+                    for suffix in [
+                        format!("macos.{cpu}.dSYM.zip"),
+                        format!("debugsymbols_macos_debug.{cpu}.zip"),
+                        format!("debugsymbols_macos_release.{cpu}.zip"),
+                    ] {
+                        assert!(!macos_editor_asset_matches(
+                            &format!("{prefix}{suffix}"),
+                            arch
+                        ));
+                    }
+                }
+                assert!(!macos_editor_asset_matches(
+                    &format!("{prefix}macos.universal.debugsymbols.zip"),
+                    arch
+                ));
+            }
+        }
+    }
+
+    #[test]
     fn editor_assets_exclude_debug_symbols() {
         for (slug, _) in archive_asset_slugs() {
             let editor = format!("Godot_v4.8-beta2_{slug}");
@@ -1967,7 +2089,10 @@ mod download_tests {
             assets,
         }]);
         assert_eq!(releases.len(), 1);
-        assert_eq!(releases[0].assets.len(), archive_asset_slugs().len());
+        assert_eq!(
+            releases[0].assets.len(),
+            if cfg!(target_os = "macos") { 2 } else { archive_asset_slugs().len() }
+        );
         assert!(releases[0]
             .assets
             .iter()
