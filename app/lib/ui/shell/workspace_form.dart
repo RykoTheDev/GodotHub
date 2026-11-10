@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../design/design.dart';
 import '../core/interaction.dart';
-import '../core/ui_settings.dart';
 import 'strings.dart';
+import '../../motion/motion.dart';
 
 @immutable
 class GhWorkspaceDraft {
@@ -312,7 +312,7 @@ class _NameInputState extends State<_NameInput> {
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
-    final speed = GhUiSettings.of(context).motionSpeed;
+    final motion = GhMotion.of(context);
     final focused = _focused || (GhForcedStates.maybeOf(context)?.focused ?? false);
     final hasError = widget.error != null;
     final border = hasError
@@ -322,7 +322,7 @@ class _NameInputState extends State<_NameInput> {
         : theme.outline.withValues(alpha: 0.5);
     final style = theme.text(size: GhTextSize.sm, color: theme.ink);
     return GhAnimatedBox(
-      duration: GhDurations.scaled(GhDurations.interactive, speed),
+      duration: motion.css(GhDurations.interactive),
       color: theme.base,
       borderRadius: BorderRadius.circular(theme.radiusBtn),
       border: Border.all(color: border),
@@ -457,7 +457,7 @@ class _ColorOption extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
-    final speed = GhUiSettings.of(context).motionSpeed;
+    final motion = GhMotion.of(context);
     final radius = BorderRadius.circular(9999);
     return GhPressable(
       onPressed: onPressed,
@@ -468,10 +468,10 @@ class _ColorOption extends StatelessWidget {
         final hover = states.active && !active;
         return AnimatedScale(
           scale: hover ? 1.1 : 1,
-          duration: GhDurations.scaled(GhDurations.interactive, speed),
+          duration: motion.css(GhDurations.interactive),
           curve: GhCurves.outExpo,
           child: GhAnimatedBox(
-            duration: GhDurations.scaled(GhDurations.interactive, speed),
+            duration: motion.css(GhDurations.interactive),
             alignment: Alignment.center,
             color: colorFromHex(color),
             borderRadius: radius,

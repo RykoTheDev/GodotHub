@@ -9,6 +9,7 @@ import '../core/ui_settings.dart';
 import '../feedback/modal_events.dart';
 import '../overlays/popup_registry.dart';
 import 'strings.dart';
+import '../../motion/motion.dart';
 
 const double _showTopAfter = 200;
 const double _minThumb = 32;
@@ -165,7 +166,7 @@ class _GhOverlayScrollAreaState extends State<GhOverlayScrollArea> {
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
-    final speed = GhUiSettings.of(context).motionSpeed;
+    final motion = GhMotion.of(context);
     final showThumb = _visible && !widget.hideThumb;
     final thumbColor = _dragging ? theme.accent : (_trackHovered ? theme.accentDim : theme.line);
     final viewport = NotificationListener<ScrollMetricsNotification>(
@@ -201,10 +202,10 @@ class _GhOverlayScrollAreaState extends State<GhOverlayScrollArea> {
                 offset: Offset(0, _offset),
                 child: AnimatedOpacity(
                   opacity: showThumb ? 1 : 0,
-                  duration: GhDurations.scaled(GhDurations.interactive, speed),
+                  duration: motion.css(GhDurations.interactive),
                   curve: GhCurves.outExpo,
                   child: GhAnimatedBox(
-                    duration: GhDurations.scaled(GhDurations.interactive, speed),
+                    duration: motion.css(GhDurations.interactive),
                     width: _thumbWidth,
                     height: _thumbHeight,
                     color: thumbColor,

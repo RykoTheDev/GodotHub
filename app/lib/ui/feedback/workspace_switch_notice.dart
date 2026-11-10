@@ -1,6 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../design/design.dart';
+import '../../motion/ease.dart';
+import '../../motion/motion.dart';
+import '../../motion/tween.dart';
 import 'strings.dart';
 
 @immutable
@@ -13,12 +18,7 @@ class GhWorkspaceRef {
 }
 
 class GhWorkspaceSwitchCard extends StatelessWidget {
-  const GhWorkspaceSwitchCard({
-    super.key,
-    required this.icon,
-    required this.name,
-    this.label = GhFeedbackStrings.workspaceSwitchedTo,
-  });
+  const GhWorkspaceSwitchCard({super.key, required this.icon, required this.name, this.label = GhFeedbackStrings.workspaceSwitchedTo});
 
   final FaIconData icon;
   final String name;
@@ -78,9 +78,12 @@ class GhWorkspaceSwitchNotice extends StatefulWidget {
     this.label = GhFeedbackStrings.workspaceSwitchedTo,
   });
 
-  static const hold = Duration(milliseconds: 1100);
-  static const enter = Duration(milliseconds: 400);
-  static const exit = Duration(milliseconds: 300);
+  static const enterSeconds = 0.4;
+  static const holdSeconds = 1.1;
+  static const exitSeconds = 0.3;
+  static const offHold = Duration(milliseconds: 1500);
+  static const enterFrom = GhPose(opacity: 0, scale: 0.9, y: 12);
+  static const exitTo = GhPose(opacity: 0, scale: 0.96, y: -8);
 
   final String? activeId;
   final List<GhWorkspaceRef> workspaces;
@@ -91,33 +94,28 @@ class GhWorkspaceSwitchNotice extends StatefulWidget {
 }
 
 class _GhWorkspaceSwitchNoticeState extends State<GhWorkspaceSwitchNotice> with SingleTickerProviderStateMixin {
-  static final _total = GhWorkspaceSwitchNotice.enter + GhWorkspaceSwitchNotice.hold + GhWorkspaceSwitchNotice.exit;
-
-  late final AnimationController _controller = AnimationController(vsync: this, duration: _total)
-    ..addStatusListener((status) {
-      if (status == AnimationStatus.completed && mounted) {
-        setState(() => _notice = null);
-      }
-    });
-  late final Animation<double> _opacity = TweenSequence<double>([
-    TweenSequenceItem(
-      tween: Tween<double>(begin: 0, end: 1).chain(CurveTween(curve: GhCurves.outExpo)),
-      weight: GhWorkspaceSwitchNotice.enter.inMilliseconds.toDouble(),
-    ),
-    TweenSequenceItem(tween: ConstantTween<double>(1), weight: GhWorkspaceSwitchNotice.hold.inMilliseconds.toDouble()),
-    TweenSequenceItem(
-      tween: Tween<double>(begin: 1, end: 0).chain(CurveTween(curve: GhCurves.easeIn)),
-      weight: GhWorkspaceSwitchNotice.exit.inMilliseconds.toDouble(),
-    ),
-  ]).animate(_controller);
+  late final GhTimeline _timeline = GhTimeline(vsync: this);
+  late final Animation<double> _in;
+  late final Animation<double> _out;
 
   String? _previousId;
   GhWorkspaceRef? _notice;
+  Timer? _timer;
   int _key = 0;
+  int _run = 0;
 
   @override
   void initState() {
     super.initState();
+    _in = _timeline.add(GhTrack(start: 0, duration: GhWorkspaceSwitchNotice.enterSeconds, ease: GhEase.spring));
+    _out = _timeline.add(
+      GhTrack(
+        start: GhWorkspaceSwitchNotice.enterSeconds + GhWorkspaceSwitchNotice.holdSeconds,
+        duration: GhWorkspaceSwitchNotice.exitSeconds,
+        ease: GhEase.easeIn,
+      ),
+    );
+    _timeline.finish();
     _previousId = widget.activeId;
   }
 
@@ -137,15 +135,39 @@ class _GhWorkspaceSwitchNoticeState extends State<GhWorkspaceSwitchNotice> with 
       if (workspace.id == activeId) {
         _notice = workspace;
         _key += 1;
-        _controller.forward(from: 0);
+        _play();
         return;
       }
     }
   }
 
+  void _play() {
+    final run = ++_run;
+    _timer?.cancel();
+    final motion = GhMotion.of(context);
+    if (motion.off) {
+      _timeline.controller.value = GhWorkspaceSwitchNotice.enterSeconds / _timeline.length;
+      _timer = Timer(GhWorkspaceSwitchNotice.offHold, () => _hide(run));
+      return;
+    }
+    _timeline.play(motion).whenCompleteOrCancel(() {
+      if (_timeline.controller.isCompleted) {
+        _hide(run);
+      }
+    });
+  }
+
+  void _hide(int run) {
+    if (!mounted || run != _run) {
+      return;
+    }
+    setState(() => _notice = null);
+  }
+
   @override
   void dispose() {
-    _controller.dispose();
+    _timer?.cancel();
+    _timeline.dispose();
     super.dispose();
   }
 
@@ -159,10 +181,14 @@ class _GhWorkspaceSwitchNoticeState extends State<GhWorkspaceSwitchNotice> with 
       child: Semantics(
         liveRegion: true,
         child: Center(
-          child: FadeTransition(
+          child: AnimatedBuilder(
             key: ValueKey(_key),
-            opacity: _opacity,
+            animation: _timeline.controller,
             child: GhWorkspaceSwitchCard(icon: workspaceIcon(notice.icon), name: notice.name, label: widget.label),
+            builder: (context, child) {
+              final entered = GhPose.lerp(GhWorkspaceSwitchNotice.enterFrom, GhPose.identity, _in.value);
+              return GhPoseView(allowBlur: false, pose: GhPose.lerp(entered, GhWorkspaceSwitchNotice.exitTo, _out.value), child: child!);
+            },
           ),
         ),
       ),

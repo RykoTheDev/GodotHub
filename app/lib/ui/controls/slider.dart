@@ -10,6 +10,7 @@ import '../core/tooltip.dart';
 import '../core/ui_settings.dart';
 import 'negative_margin.dart';
 import 'strings.dart' as s;
+import '../../motion/motion.dart';
 
 const double _thumbOffset = 16;
 
@@ -330,8 +331,7 @@ class _GhSliderState extends State<GhSlider> {
       ),
     );
 
-    final speed = GhUiSettings.of(context).motionSpeed;
-    final resetDuration = GhDurations.scaled(const Duration(milliseconds: 300), speed);
+    final resetDuration = GhMotion.of(context).css(const Duration(milliseconds: 300));
     final resetSize = theme.space(6);
     final resetEnabled = !widget.disabled && canReset && widget.onChanged != null;
     final reset = ExcludeSemantics(

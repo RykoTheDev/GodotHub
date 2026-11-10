@@ -3,17 +3,9 @@ import 'dart:math' as math;
 import 'package:flutter/widgets.dart';
 
 import '../../design/design.dart';
-import '../core/ui_settings.dart';
-
-class GhExpoOutCurve extends Curve {
-  const GhExpoOutCurve();
-
-  @override
-  double transformInternal(double t) => t >= 1 ? 1 : 1 - math.pow(2, -10 * t).toDouble();
-}
-
-const ghGsapExpoOut = GhExpoOutCurve();
-const ghGsapPower3Out = Curves.easeOutCubic;
+import '../../motion/motion.dart';
+import '../../motion/ease.dart';
+import '../../motion/presence.dart';
 
 class GhDisclosure extends StatefulWidget {
   const GhDisclosure({super.key, required this.open, required this.child});
@@ -21,8 +13,8 @@ class GhDisclosure extends StatefulWidget {
   final bool open;
   final Widget child;
 
-  static const openDuration = Duration(milliseconds: 400);
-  static const closeDuration = Duration(milliseconds: 260);
+  static const openSeconds = 0.4;
+  static const closeSeconds = 0.26;
 
   @override
   State<GhDisclosure> createState() => _GhDisclosureState();
@@ -30,6 +22,7 @@ class GhDisclosure extends StatefulWidget {
 
 class _GhDisclosureState extends State<GhDisclosure> with SingleTickerProviderStateMixin {
   late final AnimationController _controller = AnimationController(vsync: this, value: widget.open ? 1 : 0);
+  int _stagger = 0;
 
   @override
   void didUpdateWidget(GhDisclosure oldWidget) {
@@ -37,11 +30,14 @@ class _GhDisclosureState extends State<GhDisclosure> with SingleTickerProviderSt
     if (oldWidget.open == widget.open) {
       return;
     }
-    final speed = GhUiSettings.of(context).motionSpeed;
+    final motion = GhMotion.of(context);
     if (widget.open) {
-      _controller.animateTo(1, duration: GhDurations.scaled(GhDisclosure.openDuration, speed), curve: ghGsapExpoOut);
+      if (_controller.value <= 0) {
+        _stagger += 1;
+      }
+      _controller.animateTo(1, duration: motion.gsap(GhDisclosure.openSeconds), curve: GhEase.out);
     } else {
-      _controller.animateTo(0, duration: GhDurations.scaled(GhDisclosure.closeDuration, speed), curve: ghGsapPower3Out);
+      _controller.animateTo(0, duration: motion.gsap(GhDisclosure.closeSeconds), curve: GhEase.soft);
     }
   }
 
@@ -55,26 +51,41 @@ class _GhDisclosureState extends State<GhDisclosure> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _controller,
-      child: widget.child,
+      child: GhCascadeHost(
+        cascade: GhPresenceSpecs.disclosureItems,
+        replay: _stagger,
+        resetOnReplay: false,
+        child: widget.child,
+      ),
       builder: (context, child) {
-        final value = _controller.value;
+        final value = _controller.value.clamp(0.0, 1.0);
         final hidden = value <= 0 && !widget.open;
-        if (hidden) {
-          return Visibility(visible: false, maintainState: true, child: child!);
-        }
-        if (value >= 1) {
-          return child!;
-        }
-        return ClipRect(
-          child: Align(
-            alignment: AlignmentDirectional.topStart,
-            heightFactor: value.clamp(0.0, 1.0),
-            child: Opacity(opacity: value.clamp(0.0, 1.0), child: child),
+        final settled = value >= 1;
+        return Visibility(
+          visible: !hidden,
+          maintainState: true,
+          child: ClipRect(
+            clipBehavior: settled ? Clip.none : Clip.hardEdge,
+            child: Align(
+              alignment: AlignmentDirectional.topStart,
+              widthFactor: 1,
+              heightFactor: value,
+              child: Opacity(opacity: value, child: child),
+            ),
           ),
         );
       },
     );
   }
+}
+
+class GhDisclosureItem extends StatelessWidget {
+  const GhDisclosureItem({super.key, required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => GhCascadeItem(role: GhCascadeRole.disclosure, child: child);
 }
 
 class GhDisclosureChevron extends StatelessWidget {
@@ -86,11 +97,11 @@ class GhDisclosureChevron extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
     final rtl = Directionality.of(context) == TextDirection.rtl;
-    final speed = GhUiSettings.of(context).motionSpeed;
+    final motion = GhMotion.of(context);
     return ExcludeSemantics(
       child: AnimatedRotation(
         turns: open ? (rtl ? -0.25 : 0.25) : 0,
-        duration: GhDurations.scaled(GhDurations.iconTransform, speed),
+        duration: motion.css(GhDurations.iconTransform),
         curve: GhCurves.spring,
         child: Transform.rotate(
           angle: rtl ? math.pi : 0,

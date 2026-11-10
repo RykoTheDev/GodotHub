@@ -6,6 +6,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 import '../../design/design.dart';
+import '../../motion/presence.dart';
 import '../core/interaction.dart';
 import '../core/tooltip.dart';
 import '../core/ui_settings.dart';
@@ -21,7 +22,13 @@ typedef GhDropdownContentBuilder = Widget Function(BuildContext context, VoidCal
 
 @immutable
 class GhDropdownHeaderItem {
-  const GhDropdownHeaderItem({required this.id, required this.icon, required this.label, required this.onPressed, this.tooltip});
+  const GhDropdownHeaderItem({
+    required this.id,
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+    this.tooltip,
+  });
 
   final String id;
   final FaIconData icon;
@@ -75,6 +82,8 @@ class _GhDropdownState extends State<GhDropdown> with WidgetsBindingObserver {
   Timer? _submenuTimer;
   String? _openSubmenu;
   bool _open = false;
+  bool _up = false;
+  final Map<String, bool> _submenuOnLeft = {};
 
   @override
   void initState() {
@@ -138,16 +147,68 @@ class _GhDropdownState extends State<GhDropdown> with WidgetsBindingObserver {
     _handle?.release();
     _handle = null;
     _detachScroll();
-    if (_portal.isShowing) {
-      _portal.hide();
-    }
-    _submenus.clear();
     if (mounted) {
       setState(() {
         _open = false;
         _openSubmenu = null;
       });
     }
+  }
+
+  void _onMenuExited() {
+    if (_open) {
+      return;
+    }
+    if (_portal.isShowing) {
+      _portal.hide();
+    }
+    for (final portal in _submenus.values) {
+      if (portal.isShowing) {
+        portal.hide();
+      }
+    }
+  }
+
+  void _onSubmenuExited(String id) {
+    if (_open && _openSubmenu == id) {
+      return;
+    }
+    final portal = _submenus[id];
+    if (portal != null && portal.isShowing) {
+      portal.hide();
+    }
+  }
+
+  void _placed(bool up) {
+    if (up == _up) {
+      return;
+    }
+    _up = up;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  void _placedSubmenu(String id, bool onLeft) {
+    if (_submenuOnLeft[id] == onLeft) {
+      return;
+    }
+    _submenuOnLeft[id] = onLeft;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  Alignment _menuOrigin(BuildContext context) {
+    if (widget.side == GhSide.left) {
+      return Alignment.topRight;
+    }
+    final right = mirrorSide(widget.align, Directionality.of(context)) == GhSide.right;
+    return Alignment(right ? 1 : -1, _up ? 1 : -1);
   }
 
   void _closeAll() {
@@ -186,13 +247,6 @@ class _GhDropdownState extends State<GhDropdown> with WidgetsBindingObserver {
   void _setSubmenu(String? id) {
     if (!mounted || !_open || id == _openSubmenu) {
       return;
-    }
-    final previous = _openSubmenu;
-    if (previous != null) {
-      final portal = _submenus[previous];
-      if (portal != null && portal.isShowing) {
-        portal.hide();
-      }
     }
     if (id != null) {
       _submenuPortal(id).show();
@@ -257,17 +311,22 @@ class _GhDropdownState extends State<GhDropdown> with WidgetsBindingObserver {
         anchor: anchor,
         side: widget.side,
         align: mirrorSide(widget.align, Directionality.of(context)),
+        onPlaced: _placed,
       ),
-      child: TapRegion(
-        groupId: _group,
-        onTapOutside: (_) => _closeAll(),
-        child: Focus(
-          canRequestFocus: false,
-          skipTraversal: true,
-          onKeyEvent: _onMenuKey,
-          child: MouseRegion(
-            onExit: (_) => _scheduleSubmenu(null),
-            child: _menu(context),
+      child: GhPresence(
+        visible: _open,
+        kind: GhPresenceKind.popover,
+        up: _up,
+        origin: _menuOrigin(context),
+        onExited: _onMenuExited,
+        child: TapRegion(
+          groupId: _group,
+          onTapOutside: (_) => _closeAll(),
+          child: Focus(
+            canRequestFocus: false,
+            skipTraversal: true,
+            onKeyEvent: _onMenuKey,
+            child: MouseRegion(onExit: (_) => _scheduleSubmenu(null), child: _menu(context)),
           ),
         ),
       ),
@@ -292,11 +351,7 @@ class _GhDropdownState extends State<GhDropdown> with WidgetsBindingObserver {
         key: _surfaceKey,
         compact: widget.compact,
         minWidth: widget.menuMinWidth,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: rows,
-        ),
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: rows),
       ),
     );
   }
@@ -326,7 +381,9 @@ class _GhDropdownState extends State<GhDropdown> with WidgetsBindingObserver {
     return Container(
       margin: EdgeInsets.only(bottom: theme.space(1)),
       padding: EdgeInsets.all(theme.space(widget.compact ? 0.5 : 1)),
-      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: GhMenuColors.divider))),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: GhMenuColors.divider)),
+      ),
       child: Row(children: buttons),
     );
   }
@@ -348,18 +405,21 @@ class _GhDropdownState extends State<GhDropdown> with WidgetsBindingObserver {
         children: [
           Expanded(child: button),
           SizedBox(width: theme.space(0.5)),
-          GhTooltip(
-            message: action.label,
-            side: GhSide.top,
-            child: GhMenuIconButton(
-              icon: action.icon,
-              iconSize: theme.space(3.5),
-              semanticLabel: action.label,
-              focusNode: _node('${item.id}\u0000action'),
-              onPressed: () {
-                _closeAll();
-                action.onPressed();
-              },
+          GhCascadeItem(
+            role: GhCascadeRole.menuItem,
+            child: GhTooltip(
+              message: action.label,
+              side: GhSide.top,
+              child: GhMenuIconButton(
+                icon: action.icon,
+                iconSize: theme.space(3.5),
+                semanticLabel: action.label,
+                focusNode: _node('${item.id}\u0000action'),
+                onPressed: () {
+                  _closeAll();
+                  action.onPressed();
+                },
+              ),
             ),
           ),
         ],
@@ -368,7 +428,10 @@ class _GhDropdownState extends State<GhDropdown> with WidgetsBindingObserver {
     Widget wrapper = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [row, if (item.dividerAfter) GhMenuDivider(compact: compact)],
+      children: [
+        row,
+        if (item.dividerAfter) GhMenuDivider(compact: compact),
+      ],
     );
     if (item.hasChildren) {
       wrapper = OverlayPortal.overlayChildLayoutBuilder(
@@ -378,10 +441,7 @@ class _GhDropdownState extends State<GhDropdown> with WidgetsBindingObserver {
         child: wrapper,
       );
     }
-    return MouseRegion(
-      onEnter: (_) => _scheduleSubmenu(item.hasChildren ? item.id : null),
-      child: wrapper,
-    );
+    return MouseRegion(onEnter: (_) => _scheduleSubmenu(item.hasChildren ? item.id : null), child: wrapper);
   }
 
   Widget _submenu(BuildContext context, GhMenuItem item, OverlayChildLayoutInfo info) {
@@ -405,19 +465,29 @@ class _GhDropdownState extends State<GhDropdown> with WidgetsBindingObserver {
       }
     }
     return CustomSingleChildLayout(
-      delegate: _SubmenuLayout(anchor: anchor, inset: (widget.compact ? 8 : 10) + ghMenuGap),
-      child: TapRegion(
-        groupId: _group,
-        child: MouseRegion(
-          onEnter: (_) => _scheduleSubmenu(item.id),
-          onExit: (_) => _scheduleSubmenu(null),
-          child: GhMenuSurface(
-            compact: true,
-            maxHeight: info.overlaySize.height * 0.7,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: children,
+      delegate: _SubmenuLayout(
+        anchor: anchor,
+        inset: (widget.compact ? 8 : 10) + ghMenuGap,
+        onPlaced: (onLeft) => _placedSubmenu(item.id, onLeft),
+      ),
+      child: GhPresence(
+        visible: _open && _openSubmenu == item.id,
+        kind: GhPresenceKind.popover,
+        origin: _submenuOnLeft[item.id] == true ? Alignment.centerRight : Alignment.centerLeft,
+        onExited: () => _onSubmenuExited(item.id),
+        child: TapRegion(
+          groupId: _group,
+          child: MouseRegion(
+            onEnter: (_) => _scheduleSubmenu(item.id),
+            onExit: (_) => _scheduleSubmenu(null),
+            child: GhMenuSurface(
+              compact: true,
+              maxHeight: info.overlaySize.height * 0.7,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: children,
+              ),
             ),
           ),
         ),
@@ -472,22 +542,34 @@ class GhMenuIconButton extends StatelessWidget {
 }
 
 class _DropdownLayout extends SingleChildLayoutDelegate {
-  _DropdownLayout({required this.anchor, required this.side, required this.align});
+  _DropdownLayout({required this.anchor, required this.side, required this.align, this.onPlaced});
 
   final Rect anchor;
   final GhSide side;
   final GhSide align;
+  final ValueChanged<bool>? onPlaced;
 
   @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) => BoxConstraints(maxWidth: constraints.maxWidth);
 
   @override
-  Offset getPositionForChild(Size size, Size childSize) =>
-      ghDropdownPosition(anchor: anchor, menu: childSize, viewport: size, side: side, align: align);
+  Offset getPositionForChild(Size size, Size childSize) {
+    onPlaced?.call(ghDropdownOpensUp(anchor: anchor, menu: childSize, viewport: size, side: side));
+    return ghDropdownPosition(anchor: anchor, menu: childSize, viewport: size, side: side, align: align);
+  }
 
   @override
   bool shouldRelayout(_DropdownLayout oldDelegate) =>
       oldDelegate.anchor != anchor || oldDelegate.side != side || oldDelegate.align != align;
+}
+
+bool ghDropdownOpensUp({required Rect anchor, required Size menu, required Size viewport, required GhSide side}) {
+  if (side == GhSide.left) {
+    return false;
+  }
+  final spaceBelow = viewport.height - anchor.bottom;
+  final spaceAbove = anchor.top;
+  return side == GhSide.top || (spaceBelow < menu.height && spaceAbove > spaceBelow);
 }
 
 Offset ghDropdownPosition({
@@ -537,10 +619,11 @@ Offset ghDropdownPosition({
 }
 
 class _SubmenuLayout extends SingleChildLayoutDelegate {
-  _SubmenuLayout({required this.anchor, required this.inset});
+  _SubmenuLayout({required this.anchor, required this.inset, this.onPlaced});
 
   final Rect anchor;
   final double inset;
+  final ValueChanged<bool>? onPlaced;
 
   @override
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) => BoxConstraints(maxWidth: constraints.maxWidth);
@@ -550,6 +633,7 @@ class _SubmenuLayout extends SingleChildLayoutDelegate {
     final spaceRight = size.width - anchor.right - inset;
     final spaceLeft = anchor.left - inset;
     final onLeft = spaceRight < _submenuFallbackWidth && spaceLeft > spaceRight;
+    onPlaced?.call(onLeft);
     const minTop = ghMenuGap;
     final maxTop = size.height - _submenuFallbackHeight - ghMenuGap;
     final top = math.min(math.max(anchor.top, minTop), math.max(minTop, maxTop));

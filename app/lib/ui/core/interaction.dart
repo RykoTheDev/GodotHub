@@ -1,7 +1,14 @@
+import 'dart:math' as math;
+
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
 import '../../design/design.dart';
+import '../../motion/ease.dart';
+import '../../motion/intro.dart';
+import '../../motion/motion.dart';
 
 @immutable
 class GhStates {
@@ -63,6 +70,9 @@ class GhPressable extends StatefulWidget {
     this.canRequestFocus = true,
     this.disabledOpacity = 0.4,
     this.shortcuts,
+    this.pressMotion = true,
+    this.ripple = true,
+    this.rippleColor,
   });
 
   final Widget Function(BuildContext context, GhStates states) builder;
@@ -86,6 +96,9 @@ class GhPressable extends StatefulWidget {
   final bool canRequestFocus;
   final double? disabledOpacity;
   final Map<ShortcutActivator, Intent>? shortcuts;
+  final bool pressMotion;
+  final bool ripple;
+  final Color? rippleColor;
 
   @override
   State<GhPressable> createState() => _GhPressableState();
@@ -95,6 +108,7 @@ class _GhPressableState extends State<GhPressable> {
   bool _hovered = false;
   bool _pressed = false;
   bool _focused = false;
+  int _pulse = 0;
 
   bool get _enabled => widget.onPressed != null;
 
@@ -102,6 +116,16 @@ class _GhPressableState extends State<GhPressable> {
     if (_enabled) {
       widget.onPressed!();
     }
+  }
+
+  void _keyActivate() {
+    if (!_enabled) {
+      return;
+    }
+    if (widget.pressMotion) {
+      setState(() => _pulse += 1);
+    }
+    widget.onPressed!();
   }
 
   @override
@@ -126,6 +150,14 @@ class _GhPressableState extends State<GhPressable> {
         child: child,
       );
     }
+    child = GhPressMotion(
+      enabled: enabled && widget.pressMotion,
+      ripple: widget.ripple,
+      rippleColor: widget.rippleColor,
+      borderRadius: widget.borderRadius,
+      pulse: _pulse,
+      child: child,
+    );
     if (!enabled && widget.disabledOpacity != null) {
       child = Opacity(opacity: widget.disabledOpacity!, child: child);
     }
@@ -140,11 +172,11 @@ class _GhPressableState extends State<GhPressable> {
       onShowFocusHighlight: (value) => setState(() => _focused = value),
       actions: {
         ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) {
-          _activate();
+          _keyActivate();
           return null;
         }),
         ButtonActivateIntent: CallbackAction<ButtonActivateIntent>(onInvoke: (_) {
-          _activate();
+          _keyActivate();
           return null;
         }),
       },
@@ -176,6 +208,9 @@ class _GhPressableState extends State<GhPressable> {
     final tooltip = widget.tooltip;
     if (tooltip != null && tooltip.isNotEmpty) {
       child = Tooltip(message: tooltip, excludeFromSemantics: true, child: child);
+    }
+    if (GhIntroItem.participates(context)) {
+      child = GhIntroItem(child: child);
     }
     return child;
   }
@@ -264,7 +299,7 @@ class GhIconMotionScale extends StatelessWidget {
                 : 1.0;
     return AnimatedScale(
       scale: scale,
-      duration: states.pressed ? GhDurations.iconPress : GhDurations.iconTransform,
+      duration: GhMotion.of(context).css(states.pressed ? GhDurations.iconPress : GhDurations.iconTransform),
       curve: GhCurves.spring,
       child: child,
     );
@@ -327,7 +362,7 @@ class GhAnimatedBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedContainer(
-      duration: duration,
+      duration: GhMotion.of(context).css(duration),
       curve: GhCurves.outExpo,
       width: width,
       height: height,
@@ -354,7 +389,7 @@ class GhAnimatedText extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedDefaultTextStyle(
       style: style,
-      duration: GhDurations.color,
+      duration: GhMotion.of(context).css(GhDurations.color),
       curve: GhCurves.outExpo,
       child: Text(text, maxLines: maxLines, overflow: overflow, textAlign: textAlign),
     );
@@ -373,7 +408,7 @@ class GhAnimatedIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return TweenAnimationBuilder<Color?>(
       tween: ColorTween(end: color),
-      duration: GhDurations.color,
+      duration: GhMotion.of(context).css(GhDurations.color),
       curve: GhCurves.outExpo,
       builder: (context, value, _) => GhIcon(icon, size: size, color: value, faded: faded),
     );
@@ -385,3 +420,483 @@ const ghActivateShortcuts = <ShortcutActivator, Intent>{
   SingleActivator(LogicalKeyboardKey.numpadEnter): ActivateIntent(),
   SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
 };
+
+abstract final class GhPressTiming {
+  static double pressScale(double width) => width > 260 ? 0.985 : (width > 90 ? 0.955 : 0.88);
+  static const press = 0.14;
+  static final pressEase = GsapEase('power2.out');
+  static const release = 0.8;
+  static final releaseEase = GsapEase('elastic.out(1.15, 0.32)');
+  static const pulseFrom = 0.92;
+  static const pulse = 0.7;
+  static const ripple = 0.6;
+  static final rippleEase = GsapEase('power2.out');
+  static const rippleAlpha = 0.18;
+  static const rippleMinWidth = 18.0;
+  static const rippleMinHeight = 14.0;
+}
+
+double ghRippleDiameter(Size size) => math.sqrt(size.width * size.width + size.height * size.height) * 2;
+
+class GhNoRipple extends InheritedWidget {
+  const GhNoRipple({super.key, required super.child});
+
+  static bool of(BuildContext context) => context.getInheritedWidgetOfExactType<GhNoRipple>() != null;
+
+  @override
+  bool updateShouldNotify(GhNoRipple oldWidget) => false;
+}
+
+class GhPressMotion extends StatefulWidget {
+  const GhPressMotion({
+    super.key,
+    required this.child,
+    this.enabled = true,
+    this.press = true,
+    this.ripple = true,
+    this.rippleColor,
+    this.borderRadius,
+    this.pulse = 0,
+  });
+
+  final Widget child;
+  final bool enabled;
+  final bool press;
+  final bool ripple;
+  final Color? rippleColor;
+  final BorderRadius? borderRadius;
+  final int pulse;
+
+  @override
+  State<GhPressMotion> createState() => GhPressMotionState();
+}
+
+class _Ripple {
+  _Ripple(this.center, this.diameter, this.controller);
+
+  final Offset center;
+  final double diameter;
+  final AnimationController controller;
+}
+
+class GhPressMotionState extends State<GhPressMotion> with TickerProviderStateMixin {
+  static int? _claimedPointer;
+
+  AnimationController? _scale;
+  double _from = 1;
+  double _to = 1;
+  Curve _curve = Curves.linear;
+  bool _held = false;
+  final List<_Ripple> _ripples = [];
+  GhMotionData _motion = const GhMotionData();
+
+  double get scale {
+    final controller = _scale;
+    if (controller == null) {
+      return 1;
+    }
+    if (controller.isCompleted) {
+      return _to;
+    }
+    return _from + (_to - _from) * _curve.transform(controller.value);
+  }
+
+  int get rippleCount => _ripples.length;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _motion = GhMotion.of(context);
+  }
+
+  @override
+  void didUpdateWidget(GhPressMotion oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.pulse != oldWidget.pulse && widget.enabled && widget.press && _motion.pressOn) {
+      _tween(1, GhPressTiming.pulse, GhEase.elastic, from: GhPressTiming.pulseFrom);
+    }
+  }
+
+  @override
+  void dispose() {
+    _scale?.dispose();
+    final ripples = _ripples.toList();
+    _ripples.clear();
+    for (final ripple in ripples) {
+      ripple.controller.dispose();
+    }
+    super.dispose();
+  }
+
+  void _tween(double to, double seconds, Curve curve, {double? from}) {
+    final start = from ?? scale;
+    final controller = _scale ??= AnimationController(vsync: this)..addListener(_onScale);
+    _from = start;
+    _to = to;
+    _curve = curve;
+    controller.duration = _motion.gsap(seconds);
+    controller.forward(from: 0);
+  }
+
+  void _onScale() => setState(() {});
+
+  void _onDown(PointerDownEvent event) {
+    if (_claimedPointer == event.pointer) {
+      return;
+    }
+    _claimedPointer = event.pointer;
+    if (!widget.enabled || (event.buttons & kPrimaryButton) == 0 || _motion.off) {
+      return;
+    }
+    if (widget.press && _motion.prefs.press) {
+      _held = true;
+      _tween(GhPressTiming.pressScale(context.size?.width ?? 0), GhPressTiming.press, GhPressTiming.pressEase);
+    }
+    if (widget.ripple && _motion.rippleOn && !GhNoRipple.of(context)) {
+      _addRipple(event.localPosition);
+    }
+  }
+
+  void _onUp(PointerEvent event) {
+    if (!_held) {
+      return;
+    }
+    _held = false;
+    _tween(1, GhPressTiming.release, GhPressTiming.releaseEase);
+  }
+
+  void _addRipple(Offset position) {
+    final size = context.size;
+    if (size == null || size.width < GhPressTiming.rippleMinWidth || size.height < GhPressTiming.rippleMinHeight) {
+      return;
+    }
+    final controller = AnimationController(vsync: this, duration: _motion.gsap(GhPressTiming.ripple));
+    final ripple = _Ripple(position, ghRippleDiameter(size), controller);
+    setState(() => _ripples.add(ripple));
+    controller.forward().whenCompleteOrCancel(() {
+      if (!_ripples.remove(ripple)) {
+        return;
+      }
+      controller.dispose();
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final color = widget.rippleColor ?? DefaultTextStyle.of(context).style.color ?? GhTheme.of(context).ink;
+    return _PressScale(
+      scale: scale,
+      child: Listener(
+        behavior: HitTestBehavior.opaque,
+        onPointerDown: _onDown,
+        onPointerUp: _onUp,
+        onPointerCancel: _onUp,
+        child: CustomPaint(
+          foregroundPainter: _ripples.isEmpty
+              ? null
+              : _RipplePainter(
+                  ripples: _ripples.toList(),
+                  color: color,
+                  borderRadius: widget.borderRadius ?? BorderRadius.zero,
+                ),
+          child: widget.child,
+        ),
+      ),
+    );
+  }
+}
+
+class _PressScale extends SingleChildRenderObjectWidget {
+  const _PressScale({required this.scale, super.child});
+
+  final double scale;
+
+  Matrix4 get _matrix => Matrix4.diagonal3Values(scale, scale, 1);
+
+  @override
+  RenderTransform createRenderObject(BuildContext context) =>
+      RenderTransform(transform: _matrix, alignment: Alignment.center, textDirection: Directionality.maybeOf(context));
+
+  @override
+  void updateRenderObject(BuildContext context, RenderTransform renderObject) {
+    renderObject
+      ..transform = _matrix
+      ..textDirection = Directionality.maybeOf(context);
+  }
+}
+
+class _RipplePainter extends CustomPainter {
+  _RipplePainter({required this.ripples, required this.color, required this.borderRadius})
+      : super(repaint: Listenable.merge([for (final ripple in ripples) ripple.controller]));
+
+  final List<_Ripple> ripples;
+  final Color color;
+  final BorderRadius borderRadius;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    canvas.save();
+    canvas.clipRRect(borderRadius.toRRect(Offset.zero & size));
+    for (final ripple in ripples) {
+      final t = GhPressTiming.rippleEase.transform(ripple.controller.value.clamp(0.0, 1.0));
+      final alpha = color.a * GhPressTiming.rippleAlpha * (1 - t);
+      if (alpha <= 0) {
+        continue;
+      }
+      canvas.drawCircle(ripple.center, ripple.diameter / 2 * t, Paint()..color = color.withValues(alpha: alpha));
+    }
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_RipplePainter oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.borderRadius != borderRadius || oldDelegate.ripples.length != ripples.length;
+}
+
+abstract final class GhTiltTiming {
+  static const perspective = 900.0;
+  static const maxStrength = 7.0;
+  static const lift = -4.0;
+  static const move = 0.5;
+  static final moveEase = GhEase.soft;
+  static const leave = 1.0;
+  static final leaveEase = GsapEase('elastic.out(1, 0.5)');
+}
+
+double ghTiltStrength(Size size) {
+  if (size.width < 120 || size.height < 64 || size.width > 1400 || size.height > 640) {
+    return 0;
+  }
+  return math.min(GhTiltTiming.maxStrength, 2400 / size.width);
+}
+
+GhTiltAngles? ghTiltAngles(Size size, Offset local) {
+  final strength = ghTiltStrength(size);
+  if (strength == 0) {
+    return null;
+  }
+  final px = (local.dx / size.width).clamp(0.0, 1.0);
+  final py = (local.dy / size.height).clamp(0.0, 1.0);
+  return GhTiltAngles(rotationX: (0.5 - py) * strength, rotationY: (px - 0.5) * strength, y: GhTiltTiming.lift);
+}
+
+@immutable
+class GhTiltAngles {
+  const GhTiltAngles({this.rotationX = 0, this.rotationY = 0, this.y = 0});
+
+  static const rest = GhTiltAngles();
+
+  final double rotationX;
+  final double rotationY;
+  final double y;
+
+  static GhTiltAngles lerp(GhTiltAngles a, GhTiltAngles b, double t) => GhTiltAngles(
+        rotationX: a.rotationX + (b.rotationX - a.rotationX) * t,
+        rotationY: a.rotationY + (b.rotationY - a.rotationY) * t,
+        y: a.y + (b.y - a.y) * t,
+      );
+
+  bool get isRest => rotationX == 0 && rotationY == 0 && y == 0;
+
+  Matrix4 toMatrix() {
+    if (isRest) {
+      return Matrix4.identity();
+    }
+    return Matrix4.identity()
+      ..setEntry(3, 2, -1 / GhTiltTiming.perspective)
+      ..translateByDouble(0, y, 0, 1)
+      ..rotateY(rotationY * math.pi / 180)
+      ..rotateX(rotationX * math.pi / 180);
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is GhTiltAngles && other.rotationX == rotationX && other.rotationY == rotationY && other.y == y;
+
+  @override
+  int get hashCode => Object.hash(rotationX, rotationY, y);
+}
+
+class GhNoTilt extends InheritedWidget {
+  const GhNoTilt({super.key, required super.child});
+
+  static bool of(BuildContext context) => context.getInheritedWidgetOfExactType<GhNoTilt>() != null;
+
+  @override
+  bool updateShouldNotify(GhNoTilt oldWidget) => false;
+}
+
+class GhTiltCard extends StatefulWidget {
+  const GhTiltCard({
+    super.key,
+    required this.child,
+    this.borderRadius,
+    this.press = true,
+    this.ripple = true,
+    this.rippleColor,
+  });
+
+  final Widget child;
+  final BorderRadius? borderRadius;
+  final bool press;
+  final bool ripple;
+  final Color? rippleColor;
+
+  @override
+  State<GhTiltCard> createState() => GhTiltCardState();
+}
+
+class GhTiltCardState extends State<GhTiltCard> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(vsync: this)..addListener(() => setState(() {}));
+  GhTiltAngles _from = GhTiltAngles.rest;
+  GhTiltAngles _to = GhTiltAngles.rest;
+  Curve _curve = Curves.linear;
+  bool _hovered = false;
+
+  GhTiltAngles get angles {
+    if (_controller.isCompleted) {
+      return _to;
+    }
+    return GhTiltAngles.lerp(_from, _to, _curve.transform(_controller.value.clamp(0.0, 1.0)));
+  }
+
+  bool get hovered => _hovered;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  bool _allowed() {
+    if (!GhMotion.of(context).tiltOn || GhNoTilt.of(context)) {
+      return false;
+    }
+    return ModalRoute.of(context) is! PopupRoute;
+  }
+
+  void _tween(GhTiltAngles to, double seconds, Curve curve) {
+    _from = angles;
+    _to = to;
+    _curve = curve;
+    _controller.duration = GhMotion.of(context).gsap(seconds);
+    _controller.forward(from: 0);
+  }
+
+  void _onHover(PointerHoverEvent event) {
+    if (event.kind != PointerDeviceKind.mouse || event.buttons != 0) {
+      return;
+    }
+    if (!_allowed()) {
+      _leave();
+      return;
+    }
+    _hovered = true;
+    final size = context.size;
+    if (size == null) {
+      return;
+    }
+    final target = ghTiltAngles(size, event.localPosition);
+    if (target == null) {
+      return;
+    }
+    _tween(target, GhTiltTiming.move, GhTiltTiming.moveEase);
+  }
+
+  void _leave() {
+    if (!_hovered) {
+      return;
+    }
+    _hovered = false;
+    _tween(GhTiltAngles.rest, GhTiltTiming.leave, GhTiltTiming.leaveEase);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MouseRegion(
+      opaque: false,
+      onHover: _onHover,
+      onExit: (_) => _leave(),
+      child: Transform(
+        alignment: Alignment.center,
+        transform: angles.toMatrix(),
+        child: GhPressMotion(
+          enabled: widget.press,
+          ripple: widget.ripple,
+          rippleColor: widget.rippleColor,
+          borderRadius: widget.borderRadius,
+          child: widget.child,
+        ),
+      ),
+    );
+  }
+}
+
+abstract final class GhSpinTiming {
+  static const duration = 0.9;
+  static const rotation = 180.0;
+  static const fromScale = 0.6;
+}
+
+class GhSpin extends StatefulWidget {
+  const GhSpin({super.key, required this.child, this.trigger});
+
+  final Widget child;
+  final Object? trigger;
+
+  @override
+  State<GhSpin> createState() => GhSpinState();
+}
+
+class GhSpinState extends State<GhSpin> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(vsync: this);
+
+  @override
+  void didUpdateWidget(GhSpin oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.trigger != oldWidget.trigger) {
+      spin();
+    }
+  }
+
+  void spin() {
+    final motion = GhMotion.of(context);
+    if (motion.off) {
+      return;
+    }
+    _controller.duration = motion.gsap(GhSpinTiming.duration);
+    _controller.forward(from: 0).whenCompleteOrCancel(() {
+      if (mounted) {
+        _controller.value = 0;
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _controller,
+      child: widget.child,
+      builder: (context, child) {
+        final matrix = Matrix4.identity();
+        if (_controller.isAnimating) {
+          final t = GhEase.elastic.transform(_controller.value);
+          final scale = GhSpinTiming.fromScale + (1 - GhSpinTiming.fromScale) * t;
+          matrix
+            ..rotateZ(GhSpinTiming.rotation * t * math.pi / 180)
+            ..scaleByDouble(scale, scale, 1, 1);
+        }
+        return Transform(alignment: Alignment.center, transform: matrix, child: child);
+      },
+    );
+  }
+}

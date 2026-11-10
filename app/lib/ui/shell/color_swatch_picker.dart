@@ -7,6 +7,7 @@ import '../core/tooltip.dart';
 import '../core/ui_settings.dart';
 import '../overlays/dropdown.dart';
 import 'strings.dart';
+import '../../motion/motion.dart';
 
 final _hexPattern = RegExp(r'^#([0-9a-fA-F]{6})$');
 
@@ -206,7 +207,7 @@ class _SwatchPanelState extends State<_SwatchPanel> {
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
-    final speed = GhUiSettings.of(context).motionSpeed;
+    final motion = GhMotion.of(context);
     final hexStyle = theme.text(size: GhTextSize.xs, mono: true, color: theme.ink);
     final left = Column(
       mainAxisSize: MainAxisSize.min,
@@ -220,7 +221,7 @@ class _SwatchPanelState extends State<_SwatchPanel> {
             _Swatch(color: widget.value, size: theme.space(7), radius: theme.radiusItem),
             SizedBox(width: theme.space(2)),
             GhAnimatedBox(
-              duration: GhDurations.scaled(GhDurations.interactive, speed),
+              duration: motion.css(GhDurations.interactive),
               width: theme.space(20),
               padding: EdgeInsets.symmetric(horizontal: theme.space(2.5), vertical: theme.space(2)),
               color: theme.overlay,
@@ -325,7 +326,7 @@ class _PresetSwatch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
-    final speed = GhUiSettings.of(context).motionSpeed;
+    final motion = GhMotion.of(context);
     final radius = BorderRadius.circular(theme.radiusBtn);
     return GhTooltip(
       message: preset,
@@ -339,10 +340,10 @@ class _PresetSwatch extends StatelessWidget {
           final hover = states.active;
           return AnimatedScale(
             scale: selected ? 1.1 : 1,
-            duration: GhDurations.scaled(GhDurations.interactive, speed),
+            duration: motion.css(GhDurations.interactive),
             curve: GhCurves.outExpo,
             child: GhAnimatedBox(
-              duration: GhDurations.scaled(GhDurations.interactive, speed),
+              duration: motion.css(GhDurations.interactive),
               width: theme.space(7),
               height: theme.space(7),
               alignment: Alignment.center,

@@ -1,6 +1,9 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../../design/design.dart';
+import '../../motion/presence.dart';
 import '../core/interaction.dart';
 import 'strings.dart';
 import 'toast.dart';
@@ -11,15 +14,18 @@ class GhToastCard extends StatelessWidget {
     required this.toast,
     required this.onDismiss,
     this.dismissLabel = GhFeedbackStrings.dismiss,
+    this.collapse = 0,
   });
 
   final GhToastItem toast;
   final VoidCallback onDismiss;
   final String dismissLabel;
+  final double collapse;
 
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
+    final open = (1 - collapse).clamp(0.0, 1.0);
     final radius = BorderRadius.circular(theme.radiusMenu);
     final (icon, color) = switch (toast.type) {
       GhToastType.success => (GhIcons.checkCircle, theme.mint),
@@ -35,36 +41,43 @@ class GhToastCard extends StatelessWidget {
         child: BackdropFilter(
           filter: GhBlur.filter(GhBlur.backdrop),
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: theme.space(3.5), vertical: theme.space(3)),
+            padding: EdgeInsets.symmetric(horizontal: theme.space(3.5), vertical: theme.space(3) * open),
             decoration: BoxDecoration(
               color: theme.surface.withValues(alpha: 0.95),
               borderRadius: radius,
               border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: theme.space(2.5),
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(top: theme.space(0.5)),
-                  child: GhIcon(icon, size: theme.space(4), color: color),
+            child: ClipRect(
+              clipBehavior: collapse > 0 ? Clip.hardEdge : Clip.none,
+              child: Align(
+                alignment: AlignmentDirectional.topStart,
+                heightFactor: open,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: theme.space(2.5),
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top: theme.space(0.5)),
+                      child: GhIcon(icon, size: theme.space(4), color: color),
+                    ),
+                    Expanded(
+                      child: Text(
+                        toast.message,
+                        style: theme.text(size: GhTextSize.xs, color: theme.ink, lineHeight: 1.375),
+                      ),
+                    ),
+                    if (action != null)
+                      _ToastActionButton(
+                        label: action.label,
+                        onPressed: () {
+                          onDismiss();
+                          action.onClick();
+                        },
+                      ),
+                    _ToastDismissButton(label: dismissLabel, onPressed: onDismiss),
+                  ],
                 ),
-                Expanded(
-                  child: Text(
-                    toast.message,
-                    style: theme.text(size: GhTextSize.xs, color: theme.ink, lineHeight: 1.375),
-                  ),
-                ),
-                if (action != null)
-                  _ToastActionButton(
-                    label: action.label,
-                    onPressed: () {
-                      onDismiss();
-                      action.onClick();
-                    },
-                  ),
-                _ToastDismissButton(label: dismissLabel, onPressed: onDismiss),
-              ],
+              ),
             ),
           ),
         ),
@@ -139,17 +152,16 @@ class _ToastDismissButton extends StatelessWidget {
 }
 
 class _ToastEntry {
-  _ToastEntry(this.item, this.controller);
+  _ToastEntry(this.item);
 
   final GhToastItem item;
-  final AnimationController controller;
   bool leaving = false;
 }
 
 class GhToastHost extends StatefulWidget {
   const GhToastHost({super.key, this.store, this.child});
 
-  static const leaveDuration = Duration(milliseconds: 200);
+  static const leaveMarginTop = -9.0;
 
   final GhToastStore? store;
   final Widget? child;
@@ -158,7 +170,14 @@ class GhToastHost extends StatefulWidget {
   State<GhToastHost> createState() => _GhToastHostState();
 }
 
-class _GhToastHostState extends State<GhToastHost> with TickerProviderStateMixin {
+double ghToastCollapse(GhPresenceClock? clock) {
+  if (clock == null || !clock.exiting) {
+    return 0;
+  }
+  return GhPresenceSpecs.toastLeave.progress(clock.time);
+}
+
+class _GhToastHostState extends State<GhToastHost> {
   final Map<int, _ToastEntry> _entries = {};
   final OverlayPortalController _portal = OverlayPortalController();
   VoidCallback? _unsubscribe;
@@ -196,17 +215,13 @@ class _GhToastHostState extends State<GhToastHost> with TickerProviderStateMixin
   void _onToasts(List<GhToastItem> toasts) {
     final ids = {for (final toast in toasts) toast.id};
     for (final toast in toasts) {
-      _entries.putIfAbsent(
-        toast.id,
-        () => _ToastEntry(toast, AnimationController(vsync: this, duration: GhToastHost.leaveDuration, value: 1)),
-      );
+      _entries.putIfAbsent(toast.id, () => _ToastEntry(toast));
     }
     for (final entry in _entries.values) {
       if (entry.leaving || ids.contains(entry.item.id)) {
         continue;
       }
       entry.leaving = true;
-      entry.controller.reverse().whenCompleteOrCancel(() => _remove(entry.item.id));
     }
     if (_subscribed && mounted) {
       setState(() {});
@@ -217,22 +232,44 @@ class _GhToastHostState extends State<GhToastHost> with TickerProviderStateMixin
     if (!mounted) {
       return;
     }
-    final entry = _entries.remove(id);
-    if (entry == null) {
+    final entry = _entries[id];
+    if (entry == null || !entry.leaving) {
       return;
     }
-    entry.controller.dispose();
-    setState(() {});
+    setState(() => _entries.remove(id));
   }
 
   @override
   void dispose() {
     _unsubscribe?.call();
-    for (final entry in _entries.values) {
-      entry.controller.dispose();
-    }
     _entries.clear();
     super.dispose();
+  }
+
+  Widget _toast(GhTheme theme, _ToastEntry entry, bool first) {
+    final id = entry.item.id;
+    final gap = theme.space(2);
+    return GhPresence(
+      key: ValueKey(id),
+      visible: !entry.leaving,
+      kind: GhPresenceKind.toast,
+      onExited: () => _remove(id),
+      frame: (context, clock, child) => AnimatedBuilder(
+        animation: clock,
+        child: child,
+        builder: (context, child) {
+          final top = first ? 0.0 : math.max(0.0, gap + GhToastHost.leaveMarginTop * ghToastCollapse(clock));
+          return Padding(
+            padding: EdgeInsets.only(top: top),
+            child: child,
+          );
+        },
+      ),
+      child: GhPresenceBuilder(
+        builder: (context, clock, _) =>
+            GhToastCard(toast: entry.item, collapse: ghToastCollapse(clock), onDismiss: () => _store.dismissToast(id)),
+      ),
+    );
   }
 
   Widget _stack(BuildContext context) {
@@ -246,30 +283,7 @@ class _GhToastHostState extends State<GhToastHost> with TickerProviderStateMixin
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            for (var i = 0; i < ordered.length; i++)
-              KeyedSubtree(
-                key: ValueKey(ordered[i].item.id),
-                child: SizeTransition(
-                  sizeFactor: CurvedAnimation(parent: ordered[i].controller, curve: Curves.easeIn),
-                  alignment: AlignmentDirectional.topEnd,
-                  fixedCrossAxisSizeFactor: 1,
-                  child: FadeTransition(
-                    opacity: ordered[i].controller,
-                    child: IgnorePointer(
-                      ignoring: ordered[i].leaving,
-                      child: Padding(
-                        padding: EdgeInsets.only(top: i == 0 ? 0 : theme.space(2)),
-                        child: GhToastCard(
-                          toast: ordered[i].item,
-                          onDismiss: () => _store.dismissToast(ordered[i].item.id),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-          ],
+          children: [for (var i = 0; i < ordered.length; i++) _toast(theme, ordered[i], i == 0)],
         ),
       ),
     );

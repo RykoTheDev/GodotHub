@@ -219,6 +219,7 @@ void main() {
       expect(find.text('Child X'), findsOneWidget);
       await gesture.moveTo(tester.getCenter(find.text('Plain')));
       await tester.pump(const Duration(milliseconds: 200));
+      await tester.pumpAndSettle();
       expect(find.text('Child X'), findsNothing);
       await gesture.removePointer();
       await tester.tap(find.text('More'));

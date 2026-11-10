@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import '../design/design.dart';
+import '../motion/motion.dart';
 import '../ui/core/ui_settings.dart';
 import 'rust/api/types.dart';
 
@@ -23,4 +24,18 @@ GhTheme ghThemeFromSettings(AppSettings settings, Brightness platformBrightness)
 
 GhUiSettingsData ghUiSettingsFrom(AppSettings settings) {
   return GhUiSettingsData(tooltipDelay: Duration(milliseconds: settings.tooltipDelay));
+}
+
+GhMotionPrefs ghMotionPrefsFrom(AppSettings settings) {
+  return GhMotionPrefs(
+    intensity: GhMotionIntensity.parse(settings.animationIntensity),
+    speed: settings.animationSpeed,
+    entrance: GhViewEntrance.parse(settings.viewEntrance),
+    threshold: settings.animationThreshold,
+    scrollReveal: settings.motionScrollReveal,
+    tilt: settings.motionCardTilt,
+    ripple: settings.motionClickRipple,
+    press: settings.motionPressBounce,
+    animatedNumbers: settings.animatedNumbers,
+  );
 }

@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../design/design.dart';
+import '../../motion/motion.dart';
+import '../../motion/presence.dart';
 import '../core/ui_settings.dart';
 import 'modal_events.dart';
 import 'modal_header.dart';
@@ -78,6 +80,7 @@ class _GhModalShellState extends State<GhModalShell> {
   FocusNode? _returnFocus;
   ModalRoute<Object?>? _route;
   bool _initialized = false;
+  bool _released = false;
 
   @override
   void didChangeDependencies() {
@@ -93,6 +96,26 @@ class _GhModalShellState extends State<GhModalShell> {
     _returnFocus = GhModalReturnFocus.maybeOf(context) ?? FocusManager.instance.primaryFocus;
     scheduleMicrotask(() => GhModalEvents.openDialogs.value += 1);
     WidgetsBinding.instance.addPostFrameCallback((_) => scheduleMicrotask(_applyInitialFocus));
+    _route?.popped.then((_) => _release());
+  }
+
+  void _release() {
+    if (_released || widget.staticPreview) {
+      return;
+    }
+    _released = true;
+    scheduleMicrotask(() {
+      final value = GhModalEvents.openDialogs.value;
+      GhModalEvents.openDialogs.value = value > 0 ? value - 1 : 0;
+    });
+    final target = _returnFocus;
+    if (target != null) {
+      scheduleMicrotask(() {
+        if (target.context?.mounted == true && target.canRequestFocus) {
+          target.requestFocus();
+        }
+      });
+    }
   }
 
   void _applyInitialFocus() {
@@ -112,20 +135,7 @@ class _GhModalShellState extends State<GhModalShell> {
 
   @override
   void dispose() {
-    if (!widget.staticPreview) {
-      scheduleMicrotask(() {
-        final value = GhModalEvents.openDialogs.value;
-        GhModalEvents.openDialogs.value = value > 0 ? value - 1 : 0;
-      });
-      final target = _returnFocus;
-      if (target != null) {
-        scheduleMicrotask(() {
-          if (target.context?.mounted == true && target.canRequestFocus) {
-            target.requestFocus();
-          }
-        });
-      }
-    }
+    _release();
     _scope.dispose();
     super.dispose();
   }
@@ -186,7 +196,7 @@ class _GhModalShellState extends State<GhModalShell> {
     final pad = theme.space(4);
     final footer = widget.footer;
     final bodyHeight = widget.bodyHeight;
-    final dialog = Container(
+    Widget dialog = Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: theme.surface,
@@ -203,21 +213,28 @@ class _GhModalShellState extends State<GhModalShell> {
             onClose: widget.showClose && widget.onClose != null ? _close : null,
           ),
           Flexible(
-            child: bodyHeight != null
-                ? SizedBox(height: bodyHeight, child: widget.child)
-                : SingleChildScrollView(child: widget.child),
+            child: GhCascadeItem(
+              child: bodyHeight != null
+                  ? SizedBox(height: bodyHeight, child: widget.child)
+                  : SingleChildScrollView(child: widget.child),
+            ),
           ),
           if (footer != null)
             DecoratedBox(
-              decoration: BoxDecoration(border: Border(top: BorderSide(color: theme.line))),
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: theme.line)),
+              ),
               child: Padding(
                 padding: EdgeInsets.all(theme.space(4)),
-                child: Row(spacing: theme.space(2.5), children: footer),
+                child: Row(spacing: theme.space(2.5), children: [for (final part in footer) ghModalPart(part)]),
               ),
             ),
         ],
       ),
     );
+    if (!widget.staticPreview) {
+      dialog = GhPresenceLayerView(layer: GhPresenceSpecs.modalPanel, child: dialog);
+    }
     return GhModalFocusProvider(
       handle: _handle,
       child: DefaultTextStyle(
@@ -264,10 +281,28 @@ class _GhModalShellState extends State<GhModalShell> {
   }
 }
 
+Widget ghModalPart(Widget part) {
+  if (part is Spacer) {
+    return part;
+  }
+  if (part is Flexible) {
+    return Flexible(
+      key: part.key,
+      flex: part.flex,
+      fit: part.fit,
+      child: GhCascadeItem(child: part.child),
+    );
+  }
+  return GhCascadeItem(child: part);
+}
+
 class GhModalRoute<T> extends PopupRoute<T> {
-  GhModalRoute({required this.builder, super.settings});
+  GhModalRoute({required this.builder, super.settings, this.motion = const GhMotionData()});
 
   final WidgetBuilder builder;
+  final GhMotionData motion;
+
+  static GhPresenceSpec get spec => GhPresenceSpecs.modal;
 
   @override
   Color? get barrierColor => null;
@@ -279,11 +314,28 @@ class GhModalRoute<T> extends PopupRoute<T> {
   String? get barrierLabel => null;
 
   @override
-  Duration get transitionDuration => const Duration(milliseconds: 150);
+  Duration get transitionDuration => motion.off ? Duration.zero : motion.gsap(spec.enterLength);
 
   @override
-  Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) =>
-      builder(context);
+  Duration get reverseTransitionDuration => motion.off ? Duration.zero : motion.gsap(spec.exitLength);
+
+  @override
+  bool didPop(T? result) {
+    final controller = this.controller;
+    if (controller != null && !motion.off && controller.value > 0 && controller.value < 1) {
+      controller.reverseDuration = Duration(
+        microseconds: (reverseTransitionDuration.inMicroseconds / controller.value).round(),
+      );
+    }
+    return super.didPop(result);
+  }
+
+  @override
+  Widget buildPage(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) => GhMotion(
+    prefs: motion.prefs,
+    osReduced: motion.osReduced,
+    child: Builder(builder: builder),
+  );
 
   @override
   Widget buildTransitions(
@@ -292,7 +344,118 @@ class GhModalRoute<T> extends PopupRoute<T> {
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
-    return FadeTransition(opacity: CurvedAnimation(parent: animation, curve: GhCurves.outExpo), child: child);
+    return _GhModalTransition(animation: animation, child: child);
+  }
+}
+
+class _GhRouteClock extends ChangeNotifier implements GhPresenceClock {
+  _GhRouteClock(this.animation) {
+    animation.addListener(notifyListeners);
+    animation.addStatusListener(_onStatus);
+    if (animation.status == AnimationStatus.reverse) {
+      _exitFrom = animation.value;
+    }
+  }
+
+  final Animation<double> animation;
+  double? _exitFrom;
+
+  GhPresenceSpec get _spec => GhModalRoute.spec;
+
+  void _onStatus(AnimationStatus status) {
+    if (status == AnimationStatus.reverse) {
+      _exitFrom ??= animation.value;
+    } else if (status == AnimationStatus.forward) {
+      _exitFrom = null;
+    }
+  }
+
+  @override
+  bool get exiting => _exitFrom != null;
+
+  @override
+  double get time {
+    final from = _exitFrom;
+    if (from == null) {
+      return animation.value * _spec.enterLength;
+    }
+    if (from <= 0) {
+      return _spec.exitLength;
+    }
+    return ((from - animation.value) / from).clamp(0.0, 1.0) * _spec.exitLength;
+  }
+
+  @override
+  double get enteredAt => (_exitFrom ?? animation.value) * _spec.enterLength;
+
+  @override
+  void dispose() {
+    animation.removeListener(notifyListeners);
+    animation.removeStatusListener(_onStatus);
+    super.dispose();
+  }
+}
+
+class _GhModalTransition extends StatefulWidget {
+  const _GhModalTransition({required this.animation, required this.child});
+
+  final Animation<double> animation;
+  final Widget child;
+
+  @override
+  State<_GhModalTransition> createState() => _GhModalTransitionState();
+}
+
+class _GhModalTransitionState extends State<_GhModalTransition> {
+  late _GhRouteClock _clock = _GhRouteClock(widget.animation);
+  final GhCascadeRegistry _registry = GhCascadeRegistry();
+
+  @override
+  void initState() {
+    super.initState();
+    widget.animation.addStatusListener(_onStatus);
+  }
+
+  @override
+  void didUpdateWidget(_GhModalTransition oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.animation != widget.animation) {
+      oldWidget.animation.removeStatusListener(_onStatus);
+      widget.animation.addStatusListener(_onStatus);
+      _clock.dispose();
+      _clock = _GhRouteClock(widget.animation);
+    }
+  }
+
+  void _onStatus(AnimationStatus status) {
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.animation.removeStatusListener(_onStatus);
+    _clock.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final exiting = _clock.exiting;
+    return GhPresenceScope(
+      clock: _clock,
+      spec: GhModalRoute.spec,
+      registry: _registry,
+      parent: GhPresenceScope.maybeOf(context),
+      child: IgnorePointer(
+        ignoring: exiting,
+        child: ExcludeFocus(
+          excluding: exiting,
+          child: GhPresenceLayerView(layer: GhModalRoute.spec.layer, child: widget.child),
+        ),
+      ),
+    );
   }
 }
 
@@ -307,15 +470,20 @@ Future<T?> showGhModal<T>(
   final themes = InheritedTheme.capture(from: context, to: navigator.context);
   final direction = Directionality.maybeOf(context) ?? TextDirection.ltr;
   final uiSettings = GhUiSettings.of(context);
+  final motion = GhMotion.of(context);
   return navigator.push(
     GhModalRoute<T>(
       settings: settings,
+      motion: motion,
       builder: (routeContext) => themes.wrap(
         GhUiSettings(
           data: uiSettings,
           child: Directionality(
             textDirection: direction,
-            child: GhModalReturnFocus(node: returnFocus, child: Builder(builder: builder)),
+            child: GhModalReturnFocus(
+              node: returnFocus,
+              child: Builder(builder: builder),
+            ),
           ),
         ),
       ),
