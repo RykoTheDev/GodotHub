@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+import { useExclusivePopup } from "../../hooks/useExclusivePopup";
 
 type DatePickerProps = {
   value: string;
@@ -84,15 +85,26 @@ export function DatePicker({
     month: "long",
   });
 
-  const weekdayFormatter = new Intl.DateTimeFormat(locale, {
+  const weekDates = Array.from(
+    { length: 7 },
+    (_, index) => new Date(2026, 0, 4 + index),
+  );
+
+  const shortWeekdayFormatter = new Intl.DateTimeFormat(locale, {
     weekday: "short",
   });
 
-  const weekDays = Array.from({ length: 7 }, (_, index) => {
-    const date = new Date(2026, 0, 4 + index);
+  const shortWeekDays = weekDates.map((date) =>
+    shortWeekdayFormatter.format(date).replace(".", ""),
+  );
 
-    return weekdayFormatter.format(date).replace(".", "").slice(0, 3);
+  const narrowWeekdayFormatter = new Intl.DateTimeFormat(locale, {
+    weekday: "narrow",
   });
+
+  const weekDays = shortWeekDays.every((day) => day.length <= 3)
+    ? shortWeekDays
+    : weekDates.map((date) => narrowWeekdayFormatter.format(date));
 
   const updatePosition = () => {
     const button = buttonRef.current;
@@ -143,6 +155,30 @@ export function DatePicker({
 
     updatePosition();
   }, [open, viewDate, value]);
+
+  useExclusivePopup(
+    open,
+    () => setOpen(false),
+    () => popoverRef.current,
+    () => containerRef.current,
+  );
+
+  useEffect(() => {
+    if (!open) return;
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.stopPropagation();
+      setOpen(false);
+      buttonRef.current?.focus();
+    };
+
+    window.addEventListener("keydown", handleEscape, true);
+
+    return () => {
+      window.removeEventListener("keydown", handleEscape, true);
+    };
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -271,9 +307,9 @@ export function DatePicker({
           </div>
 
           <div className="mb-1 grid grid-cols-7">
-            {weekDays.map((day) => (
+            {weekDays.map((day, index) => (
               <span
-                key={day}
+                key={index}
                 className="py-1 text-center text-3xs text-muted"
               >
                 {day}

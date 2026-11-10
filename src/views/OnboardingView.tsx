@@ -500,6 +500,7 @@ export function OnboardingView({
     setCategoryColor,
     categoryBusy,
     addStarterCategory,
+    isStarterCategoryAdded,
     addCustomCategory,
     categoryLabels,
   } = useOnboarding({ settings, onComplete })
@@ -953,9 +954,7 @@ export function OnboardingView({
                         <div className="flex flex-col gap-4 w-full">
                           <div className="flex flex-wrap gap-2">
                             {STARTER_CATEGORIES.map((name) => {
-                              const added = categories.some(
-                                (c) => c.name.toLowerCase() === name.toLowerCase(),
-                              )
+                              const added = isStarterCategoryAdded(name)
                               const color =
                                 STARTER_CATEGORY_COLORS[name] ?? CATEGORY_COLORS[0]
                               return (

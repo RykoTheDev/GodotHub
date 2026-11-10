@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 
 import { IconCheckCircle, IconExternalLink, IconGitBranch } from "../../lib/icons";
+import { isPopupOpen } from "../../lib/openPopups";
 import { projectTodosApi } from "../../api/projectTodos";
 import type {
   ProjectTodo,
@@ -11,6 +12,7 @@ import type {
 } from "../../types/projectTodo";
 
 import { ModalHeader } from "../modals/ModalHeader";
+import { useBackdropDismiss } from "../../hooks/useBackdropDismiss";
 
 type ProjectTodoDetailsModalProps = {
   projectId: string;
@@ -131,7 +133,7 @@ export function ProjectTodoDetailsModal({
   }, [projectId, todo.number]);
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+      if (event.key === "Escape" && !isPopupOpen()) {
         onClose();
       }
     };
@@ -151,12 +153,14 @@ export function ProjectTodoDetailsModal({
     };
   }, []);
 
+  const backdrop = useBackdropDismiss(onClose);
+
   return createPortal(
     <div
 
 
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
-      onClick={onClose}
+      {...backdrop}
     >
       <div
         role="dialog"

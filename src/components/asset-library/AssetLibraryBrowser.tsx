@@ -93,9 +93,10 @@ export function AssetLibraryBrowser({
 
   const pagesRef = useRef(pages)
   pagesRef.current = pages
+  const searchSeq = useRef(0)
 
   const fetchPage = useCallback(
-    async (nextPage: number): Promise<AssetLibraryResponse | null> => {
+    async (nextPage: number, seq: number): Promise<AssetLibraryResponse | null> => {
       try {
         const { sort: sortParam, reverse } = assetSortParams(sort)
         return await cachedAssetSearch(
@@ -113,7 +114,7 @@ export function AssetLibraryBrowser({
             ),
         )
       } catch (e) {
-        setError(String(e))
+        if (seq === searchSeq.current) setError(String(e))
         return null
       }
     },
@@ -121,9 +122,9 @@ export function AssetLibraryBrowser({
   )
 
   const load = useCallback(
-    async (nextPage: number): Promise<AssetLibraryResponse | null> => {
-      const res = await fetchPage(nextPage)
-      if (!res) return null
+    async (nextPage: number, seq: number): Promise<AssetLibraryResponse | null> => {
+      const res = await fetchPage(nextPage, seq)
+      if (!res || seq !== searchSeq.current) return null
       const filtered = res.assets.filter(isExactVersion)
       setAssets(
         sort === 'relevance' && query.trim()
@@ -143,7 +144,7 @@ export function AssetLibraryBrowser({
   const [canNext, setCanNext] = useState(false)
 
   const probeNeighbors = useCallback(
-    async (cursor: number) => {
+    async (cursor: number, seq: number) => {
       if (version === '') {
         setCanPrev(cursor > 0)
         setCanNext(cursor + 1 < pagesRef.current)
@@ -153,14 +154,15 @@ export function AssetLibraryBrowser({
       let next = false
       for (let i = 1; i <= PROBE_DEPTH && !(prev && next); i++) {
         if (!prev && cursor - i >= 0) {
-          const r = await fetchPage(cursor - i)
+          const r = await fetchPage(cursor - i, seq)
           if (r && r.assets.some(isExactVersion)) prev = true
         }
         if (!next && cursor + i < pagesRef.current) {
-          const r = await fetchPage(cursor + i)
+          const r = await fetchPage(cursor + i, seq)
           if (r && r.assets.some(isExactVersion)) next = true
         }
       }
+      if (seq !== searchSeq.current) return
       setCanPrev(prev)
       setCanNext(next)
     },
@@ -168,7 +170,7 @@ export function AssetLibraryBrowser({
   )
 
   const gatherAll = useCallback(
-    async (startPage: number) => {
+    async (startPage: number, seq: number) => {
       let collected: AssetLibraryAsset[] = []
       let emptyRun = 0
       let cursor = startPage
@@ -177,7 +179,7 @@ export function AssetLibraryBrowser({
         i <= MAX_EMPTY_SKIP && collected.length < GATHER_LIMIT;
         i++
       ) {
-        const res = await fetchPage(cursor)
+        const res = await fetchPage(cursor, seq)
         if (!res) break
         const matched = res.assets.filter(isExactVersion)
         if (matched.length > 0) {
@@ -190,6 +192,7 @@ export function AssetLibraryBrowser({
         cursor += 1
         if (cursor >= res.pages) break
       }
+      if (seq !== searchSeq.current) return
       setAssets(
         sort === 'relevance' && query.trim()
           ? rankByRelevance(collected, query)
@@ -205,12 +208,13 @@ export function AssetLibraryBrowser({
   )
 
   const runSearch = useCallback(async () => {
+    const seq = ++searchSeq.current
     setLoading(true)
     let cursor = 0
     let landedPage = 0
     let landedRes: AssetLibraryResponse | null = null
     for (let i = 0; i <= MAX_EMPTY_SKIP; i++) {
-      const res = await load(cursor)
+      const res = await load(cursor, seq)
       if (res) {
         landedPage = Math.min(res.page, Math.max(0, res.pages - 1))
         landedRes = res
@@ -218,16 +222,17 @@ export function AssetLibraryBrowser({
       if (!res || res.assets.some(isExactVersion)) break
       cursor += 1
     }
+    if (seq !== searchSeq.current) return
     if (version !== '' && landedRes) {
       const firstCount = landedRes.assets.filter(isExactVersion).length
       if (firstCount > 0 && firstCount < PAGE_SIZE) {
-        await gatherAll(landedPage)
-        setLoading(false)
+        await gatherAll(landedPage, seq)
+        if (seq === searchSeq.current) setLoading(false)
         return
       }
     }
     setLoading(false)
-    await probeNeighbors(landedPage)
+    await probeNeighbors(landedPage, seq)
   }, [load, isExactVersion, version, gatherAll, probeNeighbors])
 
   useEffect(() => {
@@ -244,16 +249,17 @@ export function AssetLibraryBrowser({
     const clamped = Math.max(0, Math.min(target, pages - 1))
     const dir = clamped >= page ? 1 : -1
     setPaging(true)
+    const seq = searchSeq.current
     let cursor = clamped
     let landedPage = clamped
     for (let i = 0; i <= MAX_EMPTY_SKIP; i++) {
-      const res = await load(cursor)
+      const res = await load(cursor, seq)
       if (res) landedPage = Math.min(res.page, Math.max(0, res.pages - 1))
       if (!res || res.assets.some(isExactVersion)) break
       cursor += dir
       if (cursor < 0 || cursor >= pages) break
     }
-    await probeNeighbors(landedPage)
+    await probeNeighbors(landedPage, seq)
     setPaging(false)
     const viewport = rootRef.current?.closest('.new-ui-scroll-viewport')
     viewport?.scrollTo({

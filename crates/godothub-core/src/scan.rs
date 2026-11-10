@@ -201,9 +201,28 @@ pub fn scan_for_projects_blocking(
         })
         .collect();
 
-    let project_dirs: Vec<PathBuf> = new_dirs
+    let mut taken: std::collections::HashSet<crate::repo_identity::RepoIdentity> = existing
+        .iter()
+        .filter_map(|p| crate::repo_identity::identity(Path::new(&p.path)))
+        .collect();
+    let mut candidates: Vec<(PathBuf, Option<crate::repo_identity::RepoLocation>)> = new_dirs
         .into_iter()
         .filter_map(|p| p.parent().map(|pp| pp.to_path_buf()))
+        .map(|dir| {
+            let location = crate::repo_identity::locate(&dir);
+            (dir, location)
+        })
+        .collect();
+    candidates.sort_by_key(|(_, location)| {
+        !location.as_ref().is_some_and(|l| l.is_main_worktree)
+    });
+    let project_dirs: Vec<PathBuf> = candidates
+        .into_iter()
+        .filter(|(_, location)| match location {
+            Some(l) => taken.insert(l.identity.clone()),
+            None => true,
+        })
+        .map(|(dir, _)| dir)
         .collect();
 
     let total = project_dirs.len();

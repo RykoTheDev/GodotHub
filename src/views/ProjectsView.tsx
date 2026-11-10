@@ -35,6 +35,7 @@ import {
   IconX,
 } from '../lib/icons'
 import { tagColor } from '../lib/colors'
+import { kanbanColumnOrder } from '../lib/projectDrag'
 import { Toggle } from '../components/ui/Toggle'
 import {
   getCardViewSettings,
@@ -611,6 +612,7 @@ export function ProjectsView({
   const dragEnabled = !hasActiveFilters
 
   const visualOrder = useMemo(() => {
+    if (viewMode === 'kanban') return kanbanColumnOrder(filtered, surfaceCategories)
     if (!groupingEnabled) return filtered
     const pinned = filtered.filter((p) => p.pinned)
     const unpinned = filtered.filter((p) => !p.pinned)
@@ -629,7 +631,7 @@ export function ProjectsView({
     const uncategorized = groups.get(UNCATEGORIZED_KEY)
     if (uncategorized) ordered.push(...uncategorized)
     return ordered
-  }, [filtered, groupingEnabled, visibleCategories])
+  }, [filtered, groupingEnabled, visibleCategories, viewMode, surfaceCategories])
 
   const lastClickedIndexRef = useRef<number | null>(null)
 
@@ -719,14 +721,15 @@ export function ProjectsView({
   }, [selectedIds, projects, setPinned, clearSelection])
 
   const reimportForUndo = useCallback(
-    (removed: Project[]) => {
-      for (const p of removed) {
-        void api
-          .importProject(p.path, p.godot_version, p.category)
-          .catch(reportError)
-      }
+    async (removed: Project[]) => {
+      await Promise.all(
+        removed.map((p) =>
+          api.importProject(p.path, p.godot_version, p.category).catch(reportError),
+        ),
+      )
+      await refresh()
     },
-    [],
+    [refresh],
   )
 
   const removeWithUndo = useCallback(

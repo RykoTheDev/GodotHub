@@ -218,7 +218,7 @@ export function ProjectSizeModal({ projectPath, onClose }: Props) {
                 strokeLinecap="round"
               />
             </svg>
-            Scanning project files…
+            {t('project_size_scanning')}
           </div>
         ) : error ? (
           <div className="flex items-center justify-center py-12 text-sm text-danger">
@@ -226,7 +226,7 @@ export function ProjectSizeModal({ projectPath, onClose }: Props) {
           </div>
         ) : entries.length === 0 ? (
           <div className="flex items-center justify-center py-12 text-sm text-muted">
-            No files found
+            {t('project_size_empty')}
           </div>
         ) : (
           <FileTree entries={entries} t={t} />

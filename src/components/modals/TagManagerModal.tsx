@@ -92,7 +92,7 @@ export function TagManagerModal({ project, onClose, onSaved }: Props) {
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' && (e.target as HTMLElement).tagName === 'INPUT') {
       e.preventDefault()
       if (editingIndex !== null) {
         saveEdit()

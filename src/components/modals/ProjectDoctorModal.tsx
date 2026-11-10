@@ -220,7 +220,6 @@ export function ProjectDoctorModal({ project, installedVersions, onClose }: Prop
     <ModalShell title={t('title')} icon={<IconBug className="h-5 w-5 text-accent-bright" />} maxWidth="max-w-3xl" bodyClassName="h-[min(60vh,34rem)] shrink" onClose={confirm ? undefined : onClose}
       onKeyDown={event => {
         if (confirm) return
-        if (event.key === 'Escape') { event.stopPropagation(); onClose() }
         if (event.key !== 'Tab') return
         const elements = [...event.currentTarget.querySelectorAll<HTMLElement>('button:not(:disabled), [tabindex="0"]')].filter(e => !e.closest('[inert]'))
         const first = elements[0], last = elements[elements.length-1]

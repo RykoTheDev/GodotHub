@@ -556,6 +556,10 @@ pub(crate) fn list_projects_blocking(app: &AppHandle) -> Vec<Project> {
         kept.push(p);
     }
 
+    if fold_worktree_duplicates(&app, &mut kept) {
+        any_removed = true;
+    }
+
     if any_removed || tags_changed || names_changed || paths_changed {
         let _ = write_projects(&app, &kept);
     }
@@ -575,6 +579,59 @@ pub(crate) fn list_projects_blocking(app: &AppHandle) -> Vec<Project> {
         kept.len()
     );
     kept
+}
+
+fn merge_project_into(target: &mut Project, duplicate: Project) {
+    target.total_time_seconds += duplicate.total_time_seconds;
+    target.pinned |= duplicate.pinned;
+    for tag in duplicate.tags {
+        if !target.tags.contains(&tag) {
+            target.tags.push(tag);
+        }
+    }
+    if duplicate.last_opened > target.last_opened {
+        target.last_opened = duplicate.last_opened;
+    }
+}
+
+fn fold_worktree_duplicates(app: &AppHandle, projects: &mut Vec<Project>) -> bool {
+    let running: std::collections::HashSet<String> = app
+        .try_state::<ActiveProcesses>()
+        .map(|state| {
+            state
+                .0
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+                .keys()
+                .cloned()
+                .collect()
+        })
+        .unwrap_or_default();
+
+    let mut owners: HashMap<crate::repo_identity::RepoIdentity, usize> = HashMap::new();
+    let mut folded: Vec<Project> = Vec::with_capacity(projects.len());
+    let mut merges: Vec<(String, String)> = Vec::new();
+    for project in projects.drain(..) {
+        let identity = crate::repo_identity::identity(Path::new(&project.path));
+        let busy = project.session_started_at_ms.is_some() || running.contains(&project.id);
+        match identity.as_ref().and_then(|id| owners.get(id).copied()) {
+            Some(owner) if !busy => {
+                merges.push((project.id.clone(), folded[owner].id.clone()));
+                merge_project_into(&mut folded[owner], project);
+            }
+            _ => {
+                if let Some(id) = identity {
+                    owners.entry(id).or_insert(folded.len());
+                }
+                folded.push(project);
+            }
+        }
+    }
+    *projects = folded;
+    for (from, into) in &merges {
+        crate::time_stats::merge_project_stats(app, from, into);
+    }
+    !merges.is_empty()
 }
 
 fn capitalize_word(word: &str) -> String {
@@ -1007,6 +1064,16 @@ pub fn register_project(
     let mut projects = read_projects(&app);
     if projects.iter().any(|p| same_path(&p.path, &path)) {
         return Err("This project is already in your library".into());
+    }
+    if let Some(identity) = crate::repo_identity::identity(Path::new(&path)) {
+        if let Some(existing) = projects.iter().find(|p| {
+            crate::repo_identity::identity(Path::new(&p.path)).as_ref() == Some(&identity)
+        }) {
+            return Err(format!(
+                "This is another worktree of \"{}\", which is already in your library. Switch worktrees from its Git sidebar.",
+                existing.name
+            ));
+        }
     }
 
     // A project folder carries its own identity marker, so we can recognize it

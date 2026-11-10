@@ -11,6 +11,7 @@ let statusMap: Record<string, GitStatus> = {}
 let lastFetchedAt = 0
 let lastFetchedKey = ''
 let inFlight: Promise<void> | null = null
+let queuedForced: Promise<void> | null = null
 const listeners = new Set<Listener>()
 const activePaths = new Map<symbol, string[]>()
 let pollTimer: ReturnType<typeof setInterval> | null = null
@@ -35,7 +36,14 @@ function wantedPaths(): string[] {
 }
 
 function refresh(force: boolean): Promise<void> {
-  if (inFlight) return inFlight.then(() => refresh(false))
+  if (inFlight) {
+    if (!force) return inFlight
+    queuedForced ??= inFlight.then(() => {
+      queuedForced = null
+      return refresh(true)
+    })
+    return queuedForced
+  }
   const paths = wantedPaths()
   if (paths.length === 0) return Promise.resolve()
   const key = paths.join('|')

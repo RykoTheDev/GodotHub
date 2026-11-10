@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { ModalHeader } from "../modals/ModalHeader";
 import { IconCheckCircle, IconPencil, IconX } from "../../lib/icons";
+import { isPopupOpen } from "../../lib/openPopups";
 
 import type {
   ProjectTodo,
@@ -13,6 +14,7 @@ import type {
 } from "../../types/projectTodo";
 import { DatePicker } from "../ui/DatePicker";
 import { projectTodosApi } from "../../api/projectTodos";
+import { useBackdropDismiss } from "../../hooks/useBackdropDismiss";
 
 type ProjectTodoModalProps = {
   projectId: string;
@@ -163,7 +165,7 @@ export function ProjectTodoModal({
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+      if (event.key === "Escape" && !isPopupOpen()) {
         onClose();
       }
     };
@@ -190,12 +192,14 @@ export function ProjectTodoModal({
         : "border-outline/50 text-muted hover:border-accent-dim hover:text-ink hover:bg-raised"
     }`;
 
+  const backdrop = useBackdropDismiss(onClose);
+
   return createPortal(
     <div
 
 
       className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4"
-      onClick={onClose}
+      {...backdrop}
     >
       <div
         role="dialog"

@@ -180,6 +180,8 @@ function applySettingsAppearance(prev: AppSettings, next: AppSettings) {
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const { activeId } = useWorkspaces()
   const [settings, setSettings] = useState<AppSettings>(DEFAULTS)
+  const settingsRef = useRef(settings)
+  settingsRef.current = settings
   const [loaded, setLoaded] = useState(false)
   const [settingsWorkspaceId, setSettingsWorkspaceId] = useState('')
 
@@ -232,7 +234,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
         isDarkColor(settings.background_color) !== targetDark
       if (clash) {
         update({
-          ...settings,
+          ...settingsRef.current,
           background_color: targetDark ? DEFAULT_BG : DEFAULT_BG_LIGHT,
         })
         return
@@ -267,7 +269,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       saveTimerRef.current = null
     }
     if (savingSettingsRef.current) {
-      return savePromiseRef.current ?? Promise.resolve()
+      return (savePromiseRef.current ?? Promise.resolve()).then(() => flushPending())
     }
     const pending = pendingSettingsRef.current
     if (!pending) return Promise.resolve()
@@ -299,8 +301,10 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   }
 
   const update = async (next: AppSettings) => {
+    const prev = settingsRef.current
+    settingsRef.current = next
     setSettings(next)
-    applySettingsAppearance(settings, next)
+    applySettingsAppearance(prev, next)
 
     pendingSettingsRef.current = next
     registerPendingSave(flushPending)

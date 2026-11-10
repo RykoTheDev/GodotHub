@@ -255,12 +255,22 @@ export function useOnboarding({ settings, onComplete }: UseOnboardingOptions) {
     'Game Jams': t('game_jams'),
   }), [t])
 
+  const isStarterCategoryAdded = (name: string) => {
+    const label = (categoryLabels[name] || name).toLowerCase()
+    return categories.some((c) => {
+      const existing = c.name.toLowerCase()
+      return existing === name.toLowerCase() || existing === label
+    })
+  }
+
   const addStarterCategory = async (name: string) => {
-    if (categories.some((c) => c.name.toLowerCase() === name.toLowerCase()))
-      return
+    if (isStarterCategoryAdded(name)) return
     setCategoryBusy(true)
     try {
-      await createCategory(name, STARTER_CATEGORY_COLORS[name] ?? categoryColor)
+      await createCategory(
+        categoryLabels[name] || name,
+        STARTER_CATEGORY_COLORS[name] ?? categoryColor,
+      )
     } finally {
       setCategoryBusy(false)
     }
@@ -365,6 +375,7 @@ export function useOnboarding({ settings, onComplete }: UseOnboardingOptions) {
     setCategoryColor,
     categoryBusy,
     addStarterCategory,
+    isStarterCategoryAdded,
     addCustomCategory,
     categoryLabels,
   }

@@ -62,6 +62,7 @@ export function useGodotVersions() {
   })
   const sourceRef = useRef(source)
   sourceRef.current = source
+  const availableRequestRef = useRef(0)
 
   useEffect(() => {
     try {
@@ -146,14 +147,16 @@ export function useGodotVersions() {
         : sourceRef.current
     setSource(next)
     sourceRef.current = next
+    const request = ++availableRequestRef.current
     setLoadingAvailable(true)
     setAvailableError(null)
     try {
-      setAvailable(await api.fetchAvailableGodotVersions(next))
+      const list = await api.fetchAvailableGodotVersions(next)
+      if (request === availableRequestRef.current) setAvailable(list)
     } catch (e) {
-      setAvailableError(String(e))
+      if (request === availableRequestRef.current) setAvailableError(String(e))
     } finally {
-      setLoadingAvailable(false)
+      if (request === availableRequestRef.current) setLoadingAvailable(false)
     }
   }, [])
 
