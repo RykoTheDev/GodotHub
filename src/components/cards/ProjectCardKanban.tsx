@@ -36,6 +36,7 @@ interface ProjectCardKanbanProps {
   categories: Category[]
   installedVersions: InstalledGodotVersion[]
   gitStatusMap: Record<string, GitStatus | null>
+  gitStatusLoading?: boolean
   launchWithConsole: boolean
   compact?: boolean
   onTogglePin: (id: string) => void
@@ -72,6 +73,7 @@ export function ProjectCardKanban({
   categories,
   installedVersions,
   gitStatusMap,
+  gitStatusLoading = false,
   launchWithConsole,
   compact = false,
   onTogglePin,
@@ -146,6 +148,7 @@ export function ProjectCardKanban({
           installedVersions={installedVersions}
           categories={categories}
           gitStatus={gitStatusMap[p.path] ?? null}
+          gitLoading={gitStatusLoading && !gitStatusMap[p.path]}
           launchWithConsole={launchWithConsole}
           compact={compact}
           onTogglePin={() => onTogglePin(p.id)}
@@ -193,6 +196,7 @@ export function ProjectCardKanban({
       installedVersions,
       categories,
       gitStatusMap,
+      gitStatusLoading,
       launchWithConsole,
       compact,
       onTogglePin,

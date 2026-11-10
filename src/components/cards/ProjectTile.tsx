@@ -29,6 +29,7 @@ import {
   IconBug,
   IconPlug,
   IconAlertTriangle,
+  IconSpinner,
 } from '../../lib/icons'
 
 export interface ProjectTileProps {
@@ -36,6 +37,7 @@ export interface ProjectTileProps {
   installedVersions: InstalledGodotVersion[]
   categories?: Category[]
   gitStatus?: GitStatus | null
+  gitLoading?: boolean
   launchWithConsole?: boolean
   compact?: boolean
   onTogglePin: () => void
@@ -75,7 +77,7 @@ function formatSize(bytes: number): string {
 }
 
 export function ProjectTile({
-  project, installedVersions, categories = [], gitStatus, launchWithConsole = false,
+  project, installedVersions, categories = [], gitStatus, gitLoading = false, launchWithConsole = false,
   compact = false, onTogglePin, onVersionChange, onRemove, onDelete, onCategoryChange,
   onDuplicate, onTagsSaved, onTagClick, onLaunchArgsChange, onShowGitSidebar,
   activeTag, selected = false, onToggleSelect, viewMode = 'grid', preview = false,
@@ -99,6 +101,7 @@ export function ProjectTile({
   const timeLabel = formatDuration(totalMs)
   const showTime = options.show_time && totalMs > 0
   const hasGit = !!gitStatus?.is_repo && !!onShowGitSidebar
+  const gitPending = gitLoading && !gitStatus && !!onShowGitSidebar
   const lastOpened = formatLastOpened(project.last_opened, settings.last_opened_time_format, settings.last_opened_date_format)
   const iconButton = 'focus-ring cursor-pointer flex shrink-0 h-7 w-7 items-center justify-center rounded-btn disabled:cursor-not-allowed disabled:opacity-40'
   const launch = (console?: boolean) => window.dispatchEvent(new CustomEvent('app:open-project', { detail: { id: project.id, console } }))
@@ -172,7 +175,11 @@ export function ProjectTile({
         </div>
       </div>
 
-      {(hasGit || showTime || (options.show_size && size !== null) || (options.show_last_opened && lastOpened)) && <div className="flex min-h-6 flex-wrap items-center gap-x-3 gap-y-1.5 text-2xs text-muted/70">
+      {(hasGit || gitPending || showTime || (options.show_size && size !== null) || (options.show_last_opened && lastOpened)) && <div className="flex min-h-6 flex-wrap items-center gap-x-3 gap-y-1.5 text-2xs text-muted/70">
+        {gitPending && <button type="button" disabled aria-busy="true" aria-label={t('git_sidebar')}
+          className="flex shrink-0 cursor-default items-center gap-1.5 rounded-tag bg-raised px-2 py-1 text-2xs text-muted">
+          <IconSpinner className="h-3 w-3 shrink-0 animate-spin" />
+        </button>}
         {hasGit && <button type="button" onClick={onShowGitSidebar} disabled={preview} aria-label={t('git_sidebar')}
           title={`${gitStatus.branch ?? ''} · ${t(gitStatus.has_uncommitted ? 'git_uncommitted' : 'git_clean')}`}
           className={`focus-ring flex max-w-full min-w-0 cursor-pointer items-center gap-1.5 rounded-tag px-2 py-1 text-2xs ${gitStatus.has_uncommitted ? 'bg-amber/10 text-amber hover:bg-amber/15' : 'bg-raised text-muted hover:text-ink'}`}>

@@ -41,6 +41,7 @@ import {
   IconCopy,
   IconExternalLink,
   IconGitBranch,
+  IconSpinner,
   IconHardDrive,
   IconNode,
   IconPencil,
@@ -63,6 +64,7 @@ interface ProjectCardProps {
   installedVersions: InstalledGodotVersion[];
   categories?: Category[];
   gitStatus?: GitStatus | null;
+  gitLoading?: boolean;
   launchWithConsole?: boolean;
   onTogglePin: () => void;
   onVersionChange: (tag: string) => void;
@@ -103,6 +105,7 @@ function ProjectCardInner({
 
   categories = [],
   gitStatus,
+  gitLoading = false,
   launchWithConsole = false,
   onTogglePin,
   onVersionChange,
@@ -430,6 +433,17 @@ function ProjectCardInner({
                   ? t("overdue_count", { ns: "todos", count: overdueTodoCount })
                   : t("open_count", { ns: "todos", count: openTodoCount })}
               </span>
+            )}
+            {gitLoading && !gitStatus && (
+              <button
+                type="button"
+                disabled
+                aria-busy="true"
+                aria-label={t("git_sidebar")}
+                className="shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-tag text-muted cursor-default"
+              >
+                <IconSpinner className="w-3 h-3 shrink-0 animate-spin" />
+              </button>
             )}
             {gitStatus?.is_repo && (
               <button

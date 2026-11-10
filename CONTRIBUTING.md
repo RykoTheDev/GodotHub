@@ -156,7 +156,7 @@ unit and stripped symbols. That makes the binary smaller and faster, but release
 builds take longer than debug builds. Use `bun run tauri dev` while iterating.
 
 Local builds keep Tauri's default bundle names (for example
-`GodotHub_1.5.7_amd64.AppImage`). The release workflow uploads the same files
+`GodotHub_1.5.9_amd64.AppImage`). The release workflow uploads the same files
 under a friendlier `GodotHub-<version>-<platform>-<arch>` pattern, so the names
 on the releases page differ from the ones you get locally. See the
 `Resolve release asset names` step in `.github/workflows/release.yml`.

@@ -33,6 +33,7 @@ interface ProjectCardGridProps {
   categoriesEnabled?: boolean
   searchActive?: boolean
   gitStatusMap: Record<string, GitStatus | null>
+  gitStatusLoading?: boolean
   launchWithConsole: boolean
   onTogglePin: (id: string) => void
   onVersionChange: (id: string, tag: string) => void
@@ -71,6 +72,7 @@ export function ProjectCardGrid({
   categoriesEnabled = false,
   searchActive = false,
   gitStatusMap,
+  gitStatusLoading = false,
   launchWithConsole,
   onTogglePin,
   onVersionChange,
@@ -147,6 +149,7 @@ export function ProjectCardGrid({
         installedVersions={installedVersions}
         categories={categories}
         gitStatus={gitStatusMap[p.path] ?? null}
+        gitLoading={gitStatusLoading && !gitStatusMap[p.path]}
         launchWithConsole={launchWithConsole}
         onTogglePin={() => onTogglePin(p.id)}
         onVersionChange={(tag) => onVersionChange(p.id, tag)}
