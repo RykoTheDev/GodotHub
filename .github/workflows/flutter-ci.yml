@@ -15,6 +15,7 @@ on:
       - 'Cargo.toml'
       - 'Cargo.lock'
       - '.github/workflows/flutter-ci.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -28,7 +29,57 @@ env:
   RUST_VERSION: '1.99.1'
 
 jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: app
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust ${{ env.RUST_VERSION }}
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+
+      - name: Install Flutter ${{ env.FLUTTER_VERSION }}
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-flutter-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-flutter-
+
+      - name: Rust tests for core and bridge
+        working-directory: .
+        run: cargo test -p godothub_core -p godothub_bridge --locked
+
+      - name: Get Flutter packages
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Widget tests
+        run: flutter test
+
   build:
+    if: github.event_name != 'push'
+    needs: checks
     strategy:
       fail-fast: false
       matrix:
@@ -87,21 +138,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-flutter-
 
-      - name: Rust tests for core and bridge
-        if: runner.os == 'Linux'
-        working-directory: .
-        run: cargo test -p godothub-core -p godothub_bridge --locked
-
       - name: Get Flutter packages
         run: flutter pub get
-
-      - name: Analyze
-        if: runner.os == 'Linux'
-        run: flutter analyze
-
-      - name: Widget tests
-        if: runner.os == 'Linux'
-        run: flutter test
 
       - name: Build release
         run: flutter build ${{ matrix.target }} --release

@@ -21,7 +21,7 @@ tauri-plugin-opener = "2"
 tauri-plugin-process = "2"
 serde = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["raw_value"] }
-godothub-core = { path = "../crates/godothub-core" }
+godothub_core = { path = "../crates/godothub-core" }
 tauri-plugin-dialog = "2.7.1"
 tokio = { version = "1.52.3", features = ["full"] }
 tauri-plugin-prevent-default = "5"

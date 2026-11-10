@@ -1,10 +1,12 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'rust/api/core.dart' as core;
+import 'rust/api/cli_shim.dart' as cli;
+import 'rust/api/settings.dart' as settings;
+import 'rust/api/types.dart';
 
-final settingsJsonProvider = FutureProvider<String>((ref) => core.getSettingsJson());
+final settingsProvider = FutureProvider<AppSettings>((ref) => settings.getSettings());
 
-final cliToolStatusProvider = FutureProvider<String>((ref) => core.cliToolStatusJson());
+final cliToolStatusProvider = FutureProvider<CliToolStatus>((ref) => cli.cliToolStatus());
 
 final cliToolActionsProvider = Provider<CliToolActions>((ref) => CliToolActions(ref));
 
@@ -14,12 +16,12 @@ class CliToolActions {
   final Ref _ref;
 
   Future<void> install() async {
-    await core.installCliToolJson();
+    await cli.installCliTool();
     _ref.invalidate(cliToolStatusProvider);
   }
 
   Future<void> uninstall() async {
-    await core.uninstallCliToolJson();
+    await cli.uninstallCliTool();
     _ref.invalidate(cliToolStatusProvider);
   }
 }

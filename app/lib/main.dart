@@ -3,13 +3,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'src/channel.dart';
 import 'src/hello_screen.dart';
-import 'src/rust/api/core.dart' as core;
+import 'src/rust/api/app.dart' as core;
 import 'src/rust/frb_generated.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await RustLib.init();
-  final title = core.startCore(channel: buildChannel);
+  final title = await core.startCore(channel: buildChannel);
   runApp(ProviderScope(child: GodotHubApp(title: title)));
 }
 

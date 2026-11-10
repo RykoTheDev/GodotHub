@@ -1,0 +1,258 @@
+import '../src/rust/api/discovery.dart' as discovery_rust;
+import '../src/rust/api/godot_versions.dart' as versions_rust;
+import '../src/rust/api/projects.dart' as projects_rust;
+import '../src/rust/api/time_stats.dart' as time_stats_rust;
+import '../src/rust/api/types.dart';
+import 'asset_library.dart';
+import 'categories.dart';
+import 'changelog.dart';
+import 'exports.dart';
+import 'git.dart';
+import 'git_auth.dart';
+import 'mise.dart';
+import 'news.dart';
+import 'projects.dart';
+import 'settings.dart';
+import 'storage.dart';
+import 'templates.dart';
+import 'updates.dart';
+import 'vault.dart';
+import 'versions.dart';
+import 'workspaces.dart';
+
+export 'projects.dart' show getCachedProjectIcon, getCachedProjectName;
+
+abstract final class Api {
+  static const getProjectExportPresets = ExportsApi.presets;
+  static const startProjectExport = ExportsApi.start;
+  static const getProjectExport = ExportsApi.get;
+  static const getProjectExports = ExportsApi.list;
+  static const cancelProjectExport = ExportsApi.cancel;
+  static const openExportArtifactFolder = ExportsApi.openFolder;
+  static const listProjectTools = ExportsApi.tools;
+  static const runProjectTool = ExportsApi.runTool;
+  static const stopProjectTool = ExportsApi.stopTool;
+  static const listProjects = ProjectsApi.list;
+  static const diagnoseProject = ProjectsApi.diagnose;
+  static const fixProjectHealth = ProjectsApi.fixHealth;
+  static const createProject = ProjectsApi.create;
+  static const importProject = ProjectsApi.import;
+  static const removeProject = ProjectsApi.remove;
+  static const updateProject = ProjectsApi.update;
+  static const reorderProjects = ProjectsApi.reorder;
+  static const saveProjectTags = ProjectsApi.saveTags;
+  static const duplicateProject = ProjectsApi.duplicate;
+  static const openProject = ProjectsApi.open;
+  static const stopProject = ProjectsApi.stop;
+  static const getProjectConsole = ProjectsApi.getConsole;
+  static const clearProjectConsole = ProjectsApi.clearConsole;
+  static Future<List<RunningProjectInfo>> listRunningProjects() =>
+      projects_rust.listRunningProjects();
+  static const openProjectFolder = ProjectsApi.openFolder;
+  static const openInEditor = ProjectsApi.openInEditor;
+  static const getProjectSize = ProjectsApi.getSize;
+  static const getProjectFileTree = ProjectsApi.getFileTree;
+  static const pickFolder = ProjectsApi.pickFolder;
+  static const pickFile = ProjectsApi.pickFile;
+  static const pickSavePath = ProjectsApi.pickSavePath;
+  static const pickDataFile = ProjectsApi.pickDataFile;
+  static const getOsUsername = SettingsApi.getOsUsername;
+  static const cliToolStatus = SettingsApi.cliToolStatus;
+  static const installCliTool = SettingsApi.installCliTool;
+  static const uninstallCliTool = SettingsApi.uninstallCliTool;
+  static Future<void> notify(String title, String body) async =>
+      throw UnsupportedError('notify is not available in the Flutter app yet');
+  static const exportWorkspaceBackup = SettingsApi.exportWorkspaceBackup;
+  static const importWorkspaceBackup = SettingsApi.importWorkspaceBackup;
+  static const exportAppBackup = SettingsApi.exportAppBackup;
+  static const importAppBackup = SettingsApi.importAppBackup;
+  static const gistSyncPush = SettingsApi.gistSyncPush;
+  static const gistSyncPull = SettingsApi.gistSyncPull;
+  static const gistSyncGetInfo = SettingsApi.gistSyncGetInfo;
+  static const gistSyncPullByUrl = SettingsApi.gistSyncPullByUrl;
+  static const gistSyncSaveGistUrl = SettingsApi.gistSyncSaveGistUrl;
+  static const gistSyncFetchBackup = SettingsApi.gistSyncFetchBackup;
+  static const getTimeInsights = SettingsApi.getTimeInsights;
+  static const exportProjectStats = ProjectsApi.exportProjectStats;
+  static const importProjectStats = ProjectsApi.importProjectStats;
+  static const clearTimeStats = ProjectsApi.clearTimeStats;
+  static Future<List<(String, BigInt)>> getActivity(String range) =>
+      time_stats_rust.getActivity(range: range);
+  static Future<List<(String, BigInt)>> getProjectActivity(String projectId) =>
+      time_stats_rust.getProjectActivity(projectId: projectId);
+  static const readImageFile = ProjectsApi.readImageFile;
+  static const getProjectIcon = ProjectsApi.getIcon;
+  static const getProjectName = ProjectsApi.getName;
+  static const reintroduceDismissedProjects = ProjectsApi.reintroduceDismissed;
+  static const getProjectsHealth = ProjectsApi.getHealth;
+  static const restoreProjectsFromBackup = ProjectsApi.restoreFromBackup;
+  static const clearProjectIconCache = ProjectsApi.clearIconCache;
+  static const clearProjectNameCache = ProjectsApi.clearNameCache;
+
+  static const fetchAvailableGodotVersions = VersionsApi.fetchAvailable;
+  static const downloadGodotVersion = VersionsApi.download;
+  static Future<void> downloadVersionForTag(String tag) =>
+      versions_rust.downloadVersionForTag(tag: tag);
+  static Future<List<DiscoveredProject>> scanGodotRecentProjects() =>
+      discovery_rust.scanGodotRecentProjects();
+  static Future<List<DiscoveredInstall>> detectGodotInstalls() =>
+      discovery_rust.detectGodotInstalls();
+  static Future<InstalledGodotVersion> importDetectedInstall(String path) =>
+      discovery_rust.importDetectedInstall(path: path);
+  static const pauseDownload = VersionsApi.pauseDownload;
+  static const resumeDownload = VersionsApi.resumeDownload;
+  static const reorderDownloadQueue = VersionsApi.reorderDownloadQueue;
+  static const cancelDownload = VersionsApi.cancelDownload;
+  static const listInstalledGodotVersions = VersionsApi.listInstalled;
+  static const renameGodotVersion = VersionsApi.rename;
+  static const deleteGodotVersion = VersionsApi.delete;
+  static const getCurrentGodotVersion = VersionsApi.getCurrent;
+  static const setCurrentGodotVersion = VersionsApi.setCurrent;
+  static const clearCurrentGodotVersion = VersionsApi.clearCurrent;
+  static const listVersionAliases = VersionsApi.listAliases;
+  static const createVersionAliases = VersionsApi.createAliases;
+  static const deleteVersionAlias = VersionsApi.deleteAlias;
+  static const openGodotVersion = VersionsApi.open;
+  static const testGithubToken = VersionsApi.testGithubToken;
+  static const getGithubRateLimit = VersionsApi.getGithubRateLimit;
+  static const scanForVersions = VersionsApi.scan;
+  static const importVersion = VersionsApi.import;
+  static const pickExecutable = VersionsApi.pickExecutable;
+  static const addCustomBuild = VersionsApi.addCustomBuild;
+  static const getExportTemplatesState = VersionsApi.exportTemplatesState;
+  static const getExportTemplateOptions = VersionsApi.getExportTemplateOptions;
+  static const installExportTemplates = VersionsApi.installExportTemplates;
+  static const cancelExportTemplates = VersionsApi.cancelExportTemplates;
+  static const deleteExportTemplates = VersionsApi.deleteExportTemplates;
+  static const uninstallExportTemplateFiles = VersionsApi.uninstallExportTemplateFiles;
+  static const openExportTemplatesFolder = VersionsApi.openExportTemplatesFolder;
+  static const openVersionsFolder = VersionsApi.openFolder;
+  static const miseStatus = MiseApi.status;
+  static const miseRefreshStatus = MiseApi.refreshStatus;
+  static const miseSyncVersions = MiseApi.syncVersions;
+  static const miseInstallGodotVersion = MiseApi.install;
+  static const miseUninstallGodotVersion = MiseApi.uninstall;
+
+  static const cloneRepo = GitApi.clone;
+  static const getGitStatus = GitApi.status;
+  static const batchGitStatus = GitApi.batchStatus;
+  static const openTerminal = GitApi.openTerminal;
+  static const gitPull = GitApi.pull;
+  static const gitFetch = GitApi.fetch;
+  static const gitPush = GitApi.push;
+  static const gitPushForce = GitApi.pushForce;
+  static const gitLogEntries = GitApi.logEntries;
+  static const gitListRemotes = GitApi.listRemotes;
+  static const gitAheadBehind = GitApi.aheadBehind;
+  static const gitShowCommit = GitApi.showCommit;
+  static const gitStartFsWatcher = GitApi.startFsWatcher;
+  static const gitStopFsWatcher = GitApi.stopFsWatcher;
+  static const gitListBranches = GitApi.listBranches;
+  static const gitSwitchBranch = GitApi.switchBranch;
+  static const gitBranchPublish = GitApi.branchPublish;
+  static const gitCreateBranch = GitApi.createBranch;
+  static const gitDeleteBranch = GitApi.deleteBranch;
+  static const gitStashPush = GitApi.stashPush;
+  static const gitStashList = GitApi.stashList;
+  static const gitStashApply = GitApi.stashApply;
+  static const gitStashShow = GitApi.stashShow;
+  static const gitStashPop = GitApi.stashPop;
+  static const gitStashDrop = GitApi.stashDrop;
+  static const gitChangedFiles = GitApi.changedFiles;
+  static const gitDiscardChanges = GitApi.discardChanges;
+  static const gitDiscardFile = GitApi.discardFile;
+  static const gitInitProject = GitApi.initProject;
+  static const gitIsAvailable = GitApi.isAvailable;
+  static const gitStageFile = GitApi.stageFile;
+  static const gitUnstageFile = GitApi.unstageFile;
+  static const gitCommit = GitApi.commit;
+  static const gitFileDiff = GitApi.fileDiff;
+  static const gitUndoCommit = GitApi.undoCommit;
+  static const gitUndoPull = GitApi.undoPull;
+  static const gitMergeConflictFiles = GitApi.mergeConflictFiles;
+  static const gitResolveConflictOurs = GitApi.resolveConflictOurs;
+  static const gitResolveConflictTheirs = GitApi.resolveConflictTheirs;
+  static const gitResolveConflictManual = GitApi.resolveConflictManual;
+  static const gitAbortMerge = GitApi.abortMerge;
+  static const gitIsMerging = GitApi.isMerging;
+  static const gitWorktreeList = GitApi.worktreeList;
+  static const gitWorktreeSwitch = GitApi.worktreeSwitch;
+  static const gitWorktreeAdd = GitApi.worktreeAdd;
+  static const gitWorktreeRemove = GitApi.worktreeRemove;
+
+  static const gitAuthGetState = GitAuthApi.getState;
+  static const gitAuthCreateRemoteRepo = GitAuthApi.createRemoteRepo;
+  static const gitAuthStartDeviceFlow = GitAuthApi.startDeviceFlow;
+  static const gitAuthPollDeviceFlow = GitAuthApi.pollDeviceFlow;
+  static const gitAuthDisconnect = GitAuthApi.disconnect;
+  static const gitAuthSavePat = GitAuthApi.savePat;
+  static const gitAuthRemovePat = GitAuthApi.removePat;
+  static const gitAuthListUserRepos = GitAuthApi.listUserRepos;
+  static const gitBranchProtection = GitAuthApi.branchProtection;
+  static const gitOpenPullRequest = GitAuthApi.openPullRequest;
+
+  static const getSettings = SettingsApi.get;
+  static const updateSettings = SettingsApi.update;
+  static const resetSettings = SettingsApi.reset;
+  static const exportSettings = SettingsApi.exportSettings;
+  static const importSettings = SettingsApi.importSettings;
+  static const resetAppData = SettingsApi.resetData;
+  static const scanForProjects = SettingsApi.scanForProjects;
+  static const scanForProjectsWithInfo = SettingsApi.scanForProjectsWithInfo;
+  static const refreshTrayMenu = SettingsApi.refreshTrayMenu;
+  static const restartWatchers = SettingsApi.restartWatchers;
+
+  static const listTemplates = TemplatesApi.list;
+  static const saveProjectAsTemplate = TemplatesApi.saveAsTemplate;
+  static const deleteTemplate = TemplatesApi.delete;
+  static const getTemplatePreview = TemplatesApi.getPreview;
+  static const syncTemplatesWithScanDir = TemplatesApi.syncWithScanDir;
+
+  static const listVaultItems = VaultApi.list;
+  static const saveToVault = VaultApi.saveToVault;
+  static const addVaultItemToProjects = VaultApi.addToProjects;
+  static const deleteVaultItem = VaultApi.delete;
+  static const updateVaultItem = VaultApi.update;
+
+  static const listCategories = CategoriesApi.list;
+  static const createCategory = CategoriesApi.create;
+  static const renameCategory = CategoriesApi.rename;
+  static const updateCategory = CategoriesApi.update;
+  static const deleteCategory = CategoriesApi.delete;
+  static const reorderCategories = CategoriesApi.reorder;
+  static const addCategoryFolder = CategoriesApi.addFolder;
+  static const removeCategoryFolder = CategoriesApi.removeFolder;
+
+  static const listWorkspaces = WorkspacesApi.list;
+  static const listWorkspaceScanDirs = WorkspacesApi.scanDirs;
+  static const createWorkspace = WorkspacesApi.create;
+  static const switchWorkspace = WorkspacesApi.switchWorkspace;
+  static const updateWorkspace = WorkspacesApi.update;
+  static const deleteWorkspace = WorkspacesApi.delete;
+
+  static const listChangelogEntries = ChangelogApi.list;
+  static const addChangelogEntry = ChangelogApi.add;
+  static const updateChangelogEntry = ChangelogApi.update;
+  static const deleteChangelogEntry = ChangelogApi.delete;
+  static const listGitTags = ChangelogApi.listGitTags;
+  static const generateChangelogDraft = ChangelogApi.generateDraft;
+
+  static const isPortableInstall = UpdatesApi.isPortableInstall;
+
+  static const fetchGodotNews = NewsApi.fetch;
+
+  static const searchAssetLibrary = AssetLibraryApi.search;
+  static const installAssetAsTemplate = AssetLibraryApi.installAsTemplate;
+  static const installAsset = AssetLibraryApi.install;
+  static const listProjectAddons = AssetLibraryApi.projectAddons;
+  static const checkAddonUpdates = AssetLibraryApi.addonUpdates;
+  static const updateProjectAddon = AssetLibraryApi.updateAddon;
+  static const downloadAsset = AssetLibraryApi.download;
+  static const searchAssetStore = AssetLibraryApi.searchStore;
+  static const downloadStoreAsset = AssetLibraryApi.downloadStoreAsset;
+  static const installStoreAsset = AssetLibraryApi.installStoreAsset;
+  static const listAssetLibraryCategories = AssetLibraryApi.listCategories;
+
+  static const getStorageReport = StorageApi.report;
+  static const reclaimStorage = StorageApi.reclaim;
+}

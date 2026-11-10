@@ -1939,7 +1939,7 @@ dependencies = [
 name = "godothub"
 version = "1.5.8"
 dependencies = [
- "godothub-core",
+ "godothub_core",
  "objc2",
  "objc2-app-kit",
  "objc2-foundation",
@@ -1961,7 +1961,18 @@ dependencies = [
 ]
 
 [[package]]
-name = "godothub-core"
+name = "godothub_bridge"
+version = "0.1.0"
+dependencies = [
+ "flutter_rust_bridge",
+ "godothub_core",
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
+name = "godothub_core"
 version = "0.1.0"
 dependencies = [
  "base64 0.22.1",
@@ -1986,16 +1997,6 @@ dependencies = [
  "windows-sys 0.61.2",
  "winreg 0.55.0",
  "zip",
-]
-
-[[package]]
-name = "godothub_bridge"
-version = "0.1.0"
-dependencies = [
- "flutter_rust_bridge",
- "godothub-core",
- "serde",
- "serde_json",
 ]
 
 [[package]]

@@ -1,6 +1,6 @@
 use crate::models::InstalledGodotVersion;
 use futures_util::StreamExt;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha512};
 use std::collections::{HashMap, HashSet};
 use std::fs;
@@ -18,7 +18,7 @@ const TPZ_REPO: &str = "godotengine/godot-builds";
 const MAX_EXTRACTED_BYTES: u64 = 8 * 1024 * 1024 * 1024;
 const PROGRESS_INTERVAL: Duration = Duration::from_millis(250);
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ExportTemplatesProgress {
     pub tag: String,
     pub downloaded: u64,
@@ -27,13 +27,13 @@ pub struct ExportTemplatesProgress {
     pub platforms: Vec<String>,
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ExportTemplatesStage {
     pub tag: String,
     pub stage: String,
 }
 
-#[derive(Clone, Serialize)]
+#[derive(Clone, Serialize, Deserialize)]
 pub struct ExportTemplatesError {
     pub tag: String,
     pub message: String,
