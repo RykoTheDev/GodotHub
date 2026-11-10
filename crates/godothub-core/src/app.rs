@@ -79,6 +79,14 @@ impl Paths {
         }
     }
 
+    pub fn at(data: PathBuf, config: PathBuf, cache: PathBuf) -> Self {
+        Self {
+            data: Some(data),
+            config: Some(config),
+            cache: Some(cache),
+        }
+    }
+
     pub fn app_data_dir(&self) -> Result<PathBuf, UnknownPath> {
         self.data.clone().ok_or(UnknownPath)
     }

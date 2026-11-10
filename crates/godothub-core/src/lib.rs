@@ -7,6 +7,7 @@ pub mod addons;
 pub mod android;
 pub mod asset_library;
 pub mod backup;
+pub mod beta_import;
 pub mod categories;
 pub mod changelog;
 pub mod cli;

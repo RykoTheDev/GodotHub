@@ -129,16 +129,16 @@ pub struct InstallAssetResult {
     pub addon_folders: Vec<String>,
 }
 
-#[derive(Debug, Clone, serde::Serialize)]
-pub(crate) struct AssetDownloadProgress {
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct AssetDownloadProgress {
     pub asset_id: String,
     pub title: String,
     pub downloaded: u64,
     pub total: u64,
 }
 
-#[derive(Debug, Clone, serde::Serialize)]
-pub(crate) struct AssetDownloadError {
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct AssetDownloadError {
     pub asset_id: String,
     pub title: String,
     pub message: String,

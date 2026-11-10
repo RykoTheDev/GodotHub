@@ -1,7 +1,7 @@
 //! Release exports run separately from game/editor sessions and use the built-in console.
 use crate::models::{InstalledGodotVersion, Project};
 use crate::project_health::{setting, settings, strings, Setting};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::fs;
 use std::io::Read;
@@ -32,7 +32,7 @@ pub struct ExportCatalog {
     pub presets: Vec<ExportPreset>,
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ExportRun {
     pub id: String,
     pub project_id: String,
