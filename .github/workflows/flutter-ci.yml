@@ -78,11 +78,14 @@ jobs:
       - name: Get Flutter packages
         run: flutter pub get
 
-      - name: Locale files match src/i18n/locales
+      - name: Regenerate Flutter locale files from src/i18n/locales
         run: |
-          dart run tool/i18n_convert.dart --check
+          dart run tool/i18n_convert.dart
           dart run slang
-          git diff --exit-code -- lib/i18n
+          if [ -n "$(git status --porcelain -- lib/i18n)" ]; then
+            git status --short -- lib/i18n
+            echo "::warning title=Flutter locale files out of date::app/lib/i18n differs from src/i18n/locales. The i18n sync workflow commits the update; this run tests the regenerated files."
+          fi
 
       - name: i18n missing keys and values
         run: dart run tool/i18n/check_keys.dart --check-values
@@ -162,6 +165,11 @@ jobs:
 
       - name: Get Flutter packages
         run: flutter pub get
+
+      - name: Regenerate Flutter locale files from src/i18n/locales
+        run: |
+          dart run tool/i18n_convert.dart
+          dart run slang
 
       - name: Build release
         run: flutter build ${{ matrix.target }} --release

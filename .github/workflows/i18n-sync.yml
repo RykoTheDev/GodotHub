@@ -1,0 +1,107 @@
+name: i18n sync
+
+on:
+  pull_request:
+    paths:
+      - 'src/i18n/locales/**'
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/i18n/locales/**'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.47.9'
+  SYNC_BRANCH: i18n-sync/flutter-locales
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: app
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
+
+      - name: Install Flutter ${{ env.FLUTTER_VERSION }}
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Get Flutter packages
+        run: flutter pub get
+
+      - name: Regenerate Flutter locale files
+        id: regen
+        run: |
+          dart run tool/i18n_convert.dart
+          dart run slang
+          if [ -n "$(git status --porcelain -- lib/i18n)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git status --short -- lib/i18n
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Flutter locale files are already in sync."
+          fi
+
+      - name: Configure git
+        if: steps.regen.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Push the sync to this pull request
+        if: steps.regen.outputs.changed == 'true' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          git add -A -- lib/i18n
+          git commit -m "Sync Flutter locale files with src/i18n/locales"
+          git push origin "HEAD:${{ github.event.pull_request.head.ref }}"
+
+      - name: Note for pull requests from forks
+        if: steps.regen.outputs.changed == 'true' && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository
+        run: |
+          echo "::notice title=Flutter locale files::They will be regenerated in a follow-up pull request after this one is merged."
+          {
+            echo "### Flutter locale files"
+            echo "This pull request changes src/i18n/locales. GitHub does not let workflows push to forks, so app/lib/i18n will be regenerated in a follow-up pull request after merge."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Open or update the sync pull request
+        if: steps.regen.outputs.changed == 'true' && github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BASE: ${{ github.ref_name }}
+        run: |
+          git switch -c "$SYNC_BRANCH"
+          git add -A -- lib/i18n
+          git commit -m "Sync Flutter locale files with src/i18n/locales"
+          git push --force origin "$SYNC_BRANCH"
+          existing=$(gh pr list --head "$SYNC_BRANCH" --base "$BASE" --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            echo "Updated pull request #$existing."
+          else
+            gh pr create --head "$SYNC_BRANCH" --base "$BASE" \
+              --title "Sync Flutter locale files" \
+              --body "Regenerated app/lib/i18n from src/i18n/locales with tool/i18n_convert.dart and slang after locale changes on $BASE."
+          fi
