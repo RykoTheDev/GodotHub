@@ -1,5 +1,4 @@
-import 'dart:io' show Platform;
-
+import 'package:flutter/foundation.dart' show TargetPlatform, defaultTargetPlatform;
 import 'package:flutter/widgets.dart';
 
 enum GhMotionIntensity {
@@ -141,7 +140,7 @@ class GhMotion extends StatelessWidget {
     return GhMotionData(osReduced: MediaQuery.maybeDisableAnimationsOf(context) ?? false, isLinux: _isLinux);
   }
 
-  static final bool _isLinux = Platform.isLinux;
+  static bool get _isLinux => defaultTargetPlatform == TargetPlatform.linux;
 
   @override
   Widget build(BuildContext context) {

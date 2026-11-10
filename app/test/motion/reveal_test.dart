@@ -109,6 +109,13 @@ void main() {
     expect(_settled(tester, 2), isTrue);
   });
 
+  testWidgets('Linux reveals skip the blur', (tester) async {
+    await tester.pumpWidget(_host(GhRevealScope(child: GhReveal(child: _box(0)))));
+    await tester.pump();
+    expect(_from(tester, 0), const GhPose(opacity: 0, y: 26, scale: 0.96));
+    await tester.pump(const Duration(seconds: 1));
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
   testWidgets('entrance none and motion off show items at once', (tester) async {
     await tester.pumpWidget(_host(
       GhRevealScope(child: GhReveal(child: _box(0))),
