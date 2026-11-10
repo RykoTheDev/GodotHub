@@ -6,7 +6,7 @@ import '../../design/design.dart';
 import '../../motion/presence.dart';
 import '../core/button.dart';
 import '../core/tooltip.dart';
-import 'strings.dart';
+import '../core/i18n.dart';
 
 class GhModalFocusHandle {
   GhModalFocusHandle(this.scope);
@@ -35,7 +35,7 @@ class GhModalHeader extends StatefulWidget {
     this.onClose,
     this.autoFocusBanner = true,
     this.titleMaxLines = 2,
-    this.closeLabel = GhFeedbackStrings.close,
+    this.closeLabel,
   });
 
   final Widget icon;
@@ -43,7 +43,7 @@ class GhModalHeader extends StatefulWidget {
   final VoidCallback? onClose;
   final bool autoFocusBanner;
   final int? titleMaxLines;
-  final String closeLabel;
+  final String? closeLabel;
 
   @override
   State<GhModalHeader> createState() => _GhModalHeaderState();
@@ -144,7 +144,7 @@ class _GhModalHeaderState extends State<GhModalHeader> {
                 paddingX: 1.5,
                 paddingY: 1.5,
                 iconSize: theme.space(4),
-                semanticLabel: widget.closeLabel,
+                semanticLabel: widget.closeLabel ?? context.tr.common.close,
               ),
             ),
         ],

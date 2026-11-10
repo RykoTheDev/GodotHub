@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../design/design.dart';
+import '../../i18n/i18n.dart';
+import '../../i18n/i18n_controller.dart';
+import '../../i18n/languages.dart';
 import '../../motion/motion.dart';
 import '../../ui/core/interaction.dart';
 import 'gallery_kit.dart';
@@ -325,6 +328,11 @@ class _Controls extends StatelessWidget {
             () => onChanged(config.copyWith(mode: 'light', background: isDarkColor(config.background) ? defaultBackgroundLight : null)),
           ),
           chip('RTL', config.rtl, () => onChanged(config.copyWith(rtl: !config.rtl))),
+          for (final language in ghLanguages.where((l) => !l.isSystem))
+            chip(language.value, GhI18n.instance.language == language.value, () {
+              GhI18n.instance.setLanguageSetting(language.value);
+              onChanged(config.copyWith(rtl: ghTextDirectionOf(language.value) == TextDirection.rtl ? config.rtl : false));
+            }),
           Wrap(
             spacing: 4,
             children: [

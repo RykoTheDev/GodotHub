@@ -1,0 +1,3867 @@
+///
+/// Generated file. Do not edit.
+///
+// coverage:ignore-file
+// ignore_for_file: type=lint, unused_import
+// dart format off
+
+import 'package:flutter/widgets.dart';
+import 'package:intl/intl.dart';
+import 'package:slang/generated.dart';
+import 'strings.g.dart';
+
+// Path: <root>
+class TranslationsFrFr extends Translations with BaseTranslations<AppLocale, Translations> {
+	/// You can call this constructor and build your own translation instance of this locale.
+	/// Constructing via the enum [AppLocale.build] is preferred.
+	TranslationsFrFr({Map<String, Node>? overrides, PluralResolver? cardinalResolver, PluralResolver? ordinalResolver, TranslationMetadata<AppLocale, Translations>? meta})
+		: assert(overrides == null, 'Set "translation_overrides: true" in order to enable this feature.'),
+		  _meta = meta ?? TranslationMetadata(
+		    locale: AppLocale.frFr,
+		    overrides: overrides ?? {},
+		    cardinalResolver: cardinalResolver,
+		    ordinalResolver: ordinalResolver,
+		  ),
+		  super(cardinalResolver: cardinalResolver, ordinalResolver: ordinalResolver) {
+		_meta.setFlatMapFunction(_flatMapFunction);
+	}
+
+	/// Metadata for the translations of <fr-FR>.
+	final TranslationMetadata<AppLocale, Translations> _meta;
+	@override TranslationMetadata<AppLocale, Translations> get $meta => _meta;
+
+	/// Access flat map
+	@override dynamic operator[](String key) => _meta.getTranslation(key) ?? super[key];
+
+	late final TranslationsFrFr _root = this; // ignore: unused_field
+
+	@override 
+	TranslationsFrFr $copyWith({TranslationMetadata<AppLocale, Translations>? meta}) => TranslationsFrFr(meta: meta ?? this.$meta);
+
+	// Translations
+	@override late final _Translations$changelog$fr_FR changelog = _Translations$changelog$fr_FR._(_root);
+	@override late final _Translations$common$fr_FR common = _Translations$common$fr_FR._(_root);
+	@override late final _Translations$dashboard$fr_FR dashboard = _Translations$dashboard$fr_FR._(_root);
+	@override late final _Translations$git$fr_FR git = _Translations$git$fr_FR._(_root);
+	@override late final _Translations$nav$fr_FR nav = _Translations$nav$fr_FR._(_root);
+	@override late final _Translations$onboarding$fr_FR onboarding = _Translations$onboarding$fr_FR._(_root);
+	@override late final _Translations$settings$fr_FR settings = _Translations$settings$fr_FR._(_root);
+	@override late final _Translations$todos$fr_FR todos = _Translations$todos$fr_FR._(_root);
+	@override late final _Translations$versions$fr_FR versions = _Translations$versions$fr_FR._(_root);
+}
+
+// Path: changelog
+class _Translations$changelog$fr_FR extends Translations$changelog$en_US {
+	_Translations$changelog$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get changelog_title => 'CHANGELOG';
+	@override String get no_entries => 'Aucune entrée de changelog n\'a été trouvée.';
+	@override String get delete_entry_title => 'Supprimer l\'entrée ?';
+	@override String get delete_entry_desc => 'Cela supprime l\'entrée du changelog de manière permanente. Cette action est irréversible.';
+	@override String get changelog_subtitle => 'Un historique des mises à jour de GodotHub.';
+	@override String get edit_entry_aria => 'Edit {{version}}';
+	@override String get delete_entry_aria => 'Delete {{version}}';
+	@override String get added => 'Ajouts';
+	@override String get fixed => 'Corrections';
+	@override String get improved => 'Améliorations';
+}
+
+// Path: common
+class _Translations$common$fr_FR extends Translations$common$en_US {
+	_Translations$common$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get new_project => 'Nouveau projet';
+	@override String get import_project => 'Importer un projet';
+	@override String get search => 'Rechercher';
+	@override String get cancel => 'Annuler';
+	@override String get save => 'Enregistrer';
+	@override String get delete => 'Supprimer';
+	@override String get close => 'Fermer';
+	@override String get loading => 'Chargement...';
+	@override String get retry => 'Réessayer';
+	@override String get stop => 'Arrêter';
+	@override String get refresh => 'Rafraîchir';
+	@override String get scroll_to_top => 'Retour en haut';
+	@override String get quick_commands => 'Commandes rapides';
+	@override String get minimize => 'Réduire';
+	@override String get close_sidebar => 'Fermer la barre latérale';
+	@override String get star_on_github => 'Mettre une étoile sur GitHub';
+	@override String get support_dev => 'Soutenez le développement sur Patreon. Vous pouvez désactiver cette option dans les paramètres';
+	@override String get support => 'Soutenir';
+	@override String get restore => 'Restaurer';
+	@override String get maximize => 'Agrandir';
+	@override String get importing_project => 'Importation du projet…';
+	@override String get importing_version => 'Importation de la version…';
+	@override String get scanning_projects => 'Scan des projets…';
+	@override String get scanning_versions => 'Scan des versions…';
+	@override String get queued => 'Queued…';
+	@override String get download_queue_move_up => 'Avancer dans la file';
+	@override String get download_queue_move_down => 'Reculer dans la file';
+	@override String get running => 'En cours d\'exécution';
+	@override String running_projects_desc({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} projet en cours d\'exécution',
+		many: '${count} projects running',
+		other: '${count} projets en cours d\'exécution',
+	);
+	@override String get active => 'Actif';
+	@override String get done => 'Terminé';
+	@override String get paused => 'En pause';
+	@override String get no_tasks_running => 'Aucune tâche en cours';
+	@override String get checking_changes => 'Vérification des modifications…';
+	@override String get cloning => 'Clonage…';
+	@override String get clone_import => 'Cloner et importer';
+	@override String get import => 'Importer';
+	@override String get syncing => 'Synchronisation…';
+	@override String get edit_entry => 'Modifier l\'entrée du changelog';
+	@override String get new_entry => 'Nouvelle entrée du changelog';
+	@override String get checking_updates => 'Recherche de mises à jour…';
+	@override String get up_to_date => 'À jour';
+	@override String get downloading_update => 'Téléchargement…';
+	@override String get install_update => 'Installer';
+	@override String get restart_now => 'Redémarrer maintenant';
+	@override String get update_downloaded => 'Mise à jour téléchargée !';
+	@override String get restart_to_apply => 'Redémarrez GodotHub pour appliquer la mise à jour.';
+	@override String get update_applied_desc => 'La mise à jour a été téléchargée et sera appliquée au prochain démarrage de GodotHub. Fermez et rouvrez l\'application pour terminer la mise à jour.';
+	@override String get is_latest => 'v{{version}} est la dernière version.';
+	@override String get percent_complete => '{{percent}} % effectués';
+	@override String get expand_sidebar => 'Développer la barre latérale';
+	@override String get collapse_sidebar => 'Rabattre la barre latérale';
+	@override String get saving => 'Enregistrement…';
+	@override String get save_changes => 'Enregistrer les modifications';
+	@override String get add_entry => 'Ajouter une entrée';
+	@override String get scan_for_projects => 'Scanner les projets';
+	@override String get create_workspace => 'Créer un espace de travail';
+	@override String get report_a_bug => 'Signaler un bug';
+	@override String get report_bug => 'Signaler un bug';
+	@override String get app_error_title => 'Une erreur s\'est produite';
+	@override String get app_error_desc => 'GodotHub a rencontré une erreur inattendue et n\'a pas pu s\'afficher. Détails ci-dessous, consultez la console (clic droit → Inspecter) pour la trace complète.';
+	@override String get reload => 'Recharger';
+	@override String get view_error_title => 'This view couldn\'t load';
+	@override String get view_error_desc => 'The rest of GodotHub still works. Try loading this view again, or switch to another one.';
+	@override String get error_details => 'Technical details';
+	@override String get remove_folder => 'Retirer le dossier';
+	@override String get make_this_default => 'Définir comme {{label}}';
+	@override String get suggested_from_workspaces => 'Suggérés depuis d\'autres espaces de travail';
+	@override String get from_workspace => 'depuis {{name}}';
+	@override String get add_folder => 'Ajouter un dossier';
+	@override String get default_folder => 'Par défaut';
+	@override String get default_downloads_go_to => 'Les téléchargements par défaut iront dans "{{path}}"';
+	@override String get open_terminal => 'Ouvrir le terminal';
+	@override String get downloading_version => 'Téléchargement de {{version}}';
+	@override String get downloading_asset => 'Téléchargement de {{title}}';
+	@override String get asset_download_failed => 'Échec du téléchargement du modèle';
+	@override String get scan_for_engines => 'Scanner les moteurs';
+	@override String get import_version => 'Importer une version';
+	@override String get sync_templates_from_directory => 'Synchroniser les modèles depuis un répertoire';
+	@override String get section_navigation => 'Navigation';
+	@override String get section_projects => 'Projets';
+	@override String get section_views => 'Views';
+	@override String get section_workspaces => 'Espaces de travail';
+	@override String get section_help => 'Aide';
+	@override String get section_engines => 'Moteurs';
+	@override String get section_templates => 'Modèles';
+	@override String get section_versions => 'Versions';
+	@override String get section_news => 'Actualités';
+	@override String get skip_setup => 'Passer la configuration';
+	@override String get back => 'Retour';
+	@override String get finishing => 'Finalisation…';
+	@override String get get_started => 'Commencer';
+	@override String get scanning => 'Scan…';
+	@override String get scan_now => 'Scanner maintenant';
+	@override String get scan_complete => 'Scan terminé';
+	@override String get scan_failed => 'Échec du scan';
+	@override String get uncategorized => 'Non catégorisés';
+	@override String get all => 'All';
+	@override String get no_filter => 'Aucun filtre';
+	@override String get cannot_undo => 'Cette action est irréversible.';
+	@override String get deleting => 'Suppression…';
+	@override String get open_project => 'Ouvrir';
+	@override String get play_project => 'Play';
+	@override String get play_project_tooltip => 'Play the game without opening editor';
+	@override String get no_version_selected => 'Aucune version sélectionnée';
+	@override String get open_with_console => 'Ouvrir avec la console';
+	@override String get open_folder => 'Ouvrir le dossier';
+	@override String get open_in_ide => 'Ouvrir dans l\'IDE';
+	@override String get category => 'Catégorie';
+	@override String get none => 'Aucune';
+	@override String get project_size => 'Taille du projet';
+	@override String get project_size_scanning => 'Scanning project files…';
+	@override String get project_size_empty => 'No files found';
+	@override String get launch_arguments => 'Arguments de lancement';
+	@override String get save_as_template => 'Enregistrer comme modèle';
+	@override String get git => 'Git';
+	@override String get add => 'Ajouter';
+	@override String get color_label => 'Couleur';
+	@override String get icon_label => 'Icône';
+	@override String get expand => 'Développer';
+	@override String get collapse => 'Rabattre';
+	@override String file_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} file',
+		many: '${count} fichier',
+		other: '${count} files',
+	);
+	@override String folder_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} folder',
+		many: '${count} dossier',
+		other: '${count} folders',
+	);
+	@override String get template_empty => 'Ce modèle est vide.';
+	@override String get categories => 'Catégories';
+	@override String get category_folders_hint => 'Les projets trouvés dans les dossiers d\'une catégorie y sont assignés automatiquement.';
+	@override String get assign_folder => 'Assigner un dossier';
+	@override String get assign_folder_to_category => 'Assigner un dossier à {{name}}';
+	@override String get unassign_folder_aria => 'Retirer {{folder}} de cette catégorie';
+	@override String get new_category_placeholder => 'Nom de la nouvelle catégorie…';
+	@override String get no_categories_yet => 'Aucune catégorie pour le moment, ajoutez-en une ci-dessus.';
+	@override String get edit_category => 'Modifier {{name}}';
+	@override String get delete_category => 'Supprimer {{name}}';
+	@override String get delete_category_title => 'Supprimer la catégorie ?';
+	@override String get delete_category_desc => '"{{name}}" sera supprimée. Les projets qui y sont classés passent dans Non catégorisés, rien n\'est touché sur le disque.';
+	@override String get project_name_label => 'Nom';
+	@override String get folder_name_preview => 'Convention de rép. : {{name}}';
+	@override String get folder_name_hint => 'Le nom du dossier est dérivé du nom du projet selon votre convention de nommage.';
+	@override String get template_preview_aria => 'Aperçu de {{name}}';
+	@override String get project_location_label => 'Emplacement';
+	@override String get choose_folder_placeholder => 'Choisir un dossier';
+	@override String get browse => 'Parcourir';
+	@override String get blank_template => 'Par défaut';
+	@override String get template_optional => 'Modèle (facultatif)';
+	@override String get category_optional => 'Catégorie (facultatif)';
+	@override String get no_category_label => 'Aucune catégorie';
+	@override String get godot_version_label => 'Version de Godot';
+	@override String get no_engine_warning => 'Aucun moteur installé pour le moment, récupérez-en un depuis l\'onglet Versions d\'abord.';
+	@override String get change_icon => 'Changer';
+	@override String get choose_icon => 'Choisir';
+	@override String get icon_format_desc => 'SVG, PNG ou JPG. Logo Godot par défaut.';
+	@override String get other_settings_label => 'Autres paramètres';
+	@override String get init_git_label => 'Initialiser un dépôt Git';
+	@override String get init_git_desc => 'Ajoute un .gitignore et un .gitattributes Godot, puis crée un commit initial sur main.';
+	@override String get init_git_unavailable => 'Installez Git et redémarrez GodotHub pour utiliser cette option.';
+	@override String get initializing_git => 'Configuration de Git…';
+	@override String get git_init_warning_title => 'Projet créé, Git demande votre attention';
+	@override String get git_option_gitignore => '.gitignore Godot';
+	@override String get git_option_gitattributes => '.gitattributes';
+	@override String get git_option_readme => 'README.md';
+	@override String get git_option_license => 'Licence';
+	@override String get git_option_no_license => 'Aucune licence';
+	@override String get create_remote_label => 'Créer un dépôt sur GitHub/GitLab';
+	@override String get create_remote_desc => 'Crée un dépôt sur votre compte connecté et y push le commit initial.';
+	@override String get remote_private => 'Privé';
+	@override String get remote_public => 'Public';
+	@override String get creating_remote_repo => 'Création du dépôt distant…';
+	@override String get remote_repo_created_title => 'Dépôt distant créé';
+	@override String get create_project_done => 'Terminé';
+	@override String get create_project_btn => 'Créer le projet';
+	@override String get creating => 'Création…';
+	@override String get create_project_error => 'Donnez un nom au projet et un dossier où le créer.';
+	@override String get create_workspace_title => 'Nouvel espace de travail';
+	@override String get workspace_name_label => 'Nom';
+	@override String get workspace_name_placeholder => 'Travail, Perso, Game Jam…';
+	@override String get workspace_name_required_error => 'Donnez un nom à l\'espace de travail.';
+	@override String get edit_workspace_title => 'Modifier l\'espace de travail';
+	@override String get cant_delete_only_workspace => 'Vous ne pouvez pas supprimer votre seul espace de travail';
+	@override String get delete_workspace_title => 'Supprimer l\'espace de travail ?';
+	@override String get delete_workspace_desc => '"{{name}}" et tout ce qui lui est rattaché (ses paramètres, projets et catégories) sera supprimé. Les fichiers de projet sur le disque ne sont jamais touchés. Les versions de Godot installées sont partagées et restent intactes.';
+	@override String get other => 'Autre';
+	@override String get args_label => 'Arguments';
+	@override String get args_placeholder => 'ex. --debug --single-window';
+	@override String get args_suggestions => 'Suggestions';
+	@override String get args_desc_separate_prefix => 'Séparez les arguments par des espaces. Les flags avec valeur comme';
+	@override String get args_desc_separate_suffix => 's\'écrivent en deux parties.';
+	@override String get args_debug => '--debug';
+	@override String get args_debug_desc => 'Lancer avec le débogueur attaché';
+	@override String get args_single_window => '--single-window';
+	@override String get args_single_window_desc => 'Forcer le mode fenêtre unique';
+	@override String get args_opengl3 => '--rendering-driver opengl3';
+	@override String get args_opengl3_desc => 'Utiliser le pilote de rendu OpenGL 3';
+	@override String get args_vulkan => '--rendering-driver vulkan';
+	@override String get args_vulkan_desc => 'Utiliser le pilote de rendu Vulkan';
+	@override String get args_headless => '--headless';
+	@override String get args_headless_desc => 'Lancer sans fenêtre';
+	@override String get args_verbose => '--verbose';
+	@override String get args_verbose_desc => 'Journaliser une sortie de débogage détaillée';
+	@override String get args_editor => '--editor';
+	@override String get args_editor_desc => 'Ouvrir l\'éditeur (identique à -e)';
+	@override String get args_build_solutions => '--build-solutions';
+	@override String get args_build_solutions_desc => 'Compiler les solutions C# à l\'ouverture';
+	@override String get args_gpu_index => '--gpu-index 1';
+	@override String get args_gpu_index_desc => 'Utiliser le GPU d\'index 1 (GPU dédié)';
+	@override String get sort_categories => 'Catégories';
+	@override String get sort_recent => 'Ouverts récemment';
+	@override String get sort_manual => 'Manuel';
+	@override String get sort_name_asc => 'Nom (A–Z)';
+	@override String get sort_name_desc => 'Nom (Z–A)';
+	@override String get sort_created_desc => 'Date d\'ajout (plus récents)';
+	@override String get sort_created_asc => 'Date d\'ajout (plus anciens)';
+	@override String get sort_time_desc => 'Temps total';
+	@override String get filter => 'Filtrer';
+	@override String get no_templates_yet => 'Aucun modèle pour le moment. Faites un clic droit sur un projet ou ouvrez son menu "Plus" et sélectionnez <1>Enregistrer comme modèle</1> pour en créer un, ou téléchargez-en depuis l\'Asset Library.';
+	@override String get godot => 'Godot';
+	@override String get delete_template => 'Supprimer le modèle {{name}}';
+	@override String get news_subtitle => 'Derniers articles du blog officiel de Godot Engine.';
+	@override String get news_cached => 'Impossible de joindre godotengine.org, affichage des articles enregistrés la dernière fois.';
+	@override String get news_error => 'Impossible de charger les actualités Godot.';
+	@override String get news_empty => 'Aucune actualité à afficher pour le moment.';
+	@override String get show_more => 'Afficher plus';
+	@override String get try_again => 'Réessayer';
+	@override String get asset_store_title => 'ASSET STORE';
+	@override String get news_count => 'Articles';
+	@override String asset_store_count_plural({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		zero: 'No assets',
+		one: 'Asset',
+		many: 'Assets',
+		other: 'Assets',
+	);
+	@override String get asset_store_count => 'Assets';
+	@override String get settings_title => 'PARAMÈTRES';
+	@override String get no_templates_match => 'Aucun modèle ne correspond';
+	@override String get no_projects_match => 'Aucun projet ne correspond';
+	@override String get more_import_options => 'Plus d\'options d\'import';
+	@override String get clone_import_repo => 'Cloner et importer depuis un dépôt';
+	@override String get manage_categories => 'Gérer les catégories';
+	@override String get hide_category => 'Hide Category';
+	@override String get category_hidden_toast => '"{{name}}" hidden. Restore it from Hidden Categories.';
+	@override String get hidden_categories => 'Hidden Categories';
+	@override String get hidden_categories_hint => 'Those categories and their projects stay out of the way. Unhide one to bring it back.';
+	@override String get hidden_category_projects => '{{count}} project(s)';
+	@override String get unhide => 'Unhide';
+	@override String get unhide_category_aria => 'Unhide {{name}}';
+	@override String get search_projects_placeholder => 'Rechercher des projets...';
+	@override String get clear_search => 'Effacer la recherche';
+	@override String get search_filter_title => 'Filter projects by';
+	@override String get search_slash_hint => 'Type / to filter by name, tags, categories and more';
+	@override String get search_filter_name => 'Name';
+	@override String get search_filter_tag => 'Tag';
+	@override String get search_filter_version => 'Engine version';
+	@override String get search_filter_path => 'Path';
+	@override String get search_filter_pinned_yes => 'Pinned only';
+	@override String get search_filter_pinned_no => 'Not pinned';
+	@override String get search_filter_no_matches => 'No matching filters';
+	@override String get search_filter_no_values => 'No matching values';
+	@override String get sort => 'Trier';
+	@override String get view_list => 'Vue liste';
+	@override String get view_grid => 'Vue grille';
+	@override String get view_kanban => 'Kanban';
+	@override String get no_projects_yet => 'Rien ici pour le moment. Créez un nouveau projet ou importez-en un que vous avez déjà sur le disque.';
+	@override String get pinned_section => 'Épinglés';
+	@override String get set_category => 'Définir la catégorie…';
+	@override String get clear_selection => 'Effacer la sélection';
+	@override String get starting => 'Démarrage…';
+	@override String get app_loading => 'Chargement…';
+	@override String get changelog_version_label => 'Version';
+	@override String get changelog_version_placeholder => 'v1.0.0';
+	@override String get changelog_date_label => 'Date';
+	@override String get changelog_date_placeholder => '2026-07-13';
+	@override String get changelog_what_changed => 'Ce qui a changé';
+	@override String get changelog_add_line => 'Ajouter une ligne';
+	@override String get changelog_remove_line_aria => 'Supprimer la ligne';
+	@override String get changelog_placeholder_note => 'Ajout du réordonnancement des projets par glisser-déposer';
+	@override String get changelog_error_no_version => 'Donnez une version à l\'entrée.';
+	@override String get changelog_known_issues => 'Problèmes connus';
+	@override String get changelog_known_issues_none => 'Aucun problème connu pour cette version.';
+	@override String get changelog_known_issue_placeholder => 'Décrivez le problème connu...';
+	@override String get changelog_remove_known_issue_aria => 'Supprimer le problème connu';
+	@override String get changelog_add_known_issue => 'Ajouter un problème connu';
+	@override String get changelog_generate_from_git => 'Générer depuis Git';
+	@override String get changelog_draft_title => 'Notes de version depuis Git';
+	@override String get changelog_draft_from => 'De';
+	@override String get changelog_draft_to => 'À';
+	@override String get changelog_draft_generate => 'Générer le brouillon';
+	@override String get changelog_draft_use => 'Utiliser le brouillon';
+	@override String get changelog_draft_commits => '{{count}} commit(s)';
+	@override String get changelog_draft_include => 'Inclure dans le brouillon';
+	@override String get changelog_draft_none => 'Aucun commit trouvé dans cette plage.';
+	@override String get template_search_placeholder => 'Rechercher des modèles…';
+	@override String get template_delete_title => 'Supprimer le modèle ?';
+	@override String get template_delete_desc => '"{{name}}" sera définitivement supprimé.';
+	@override String get templates_tab_local => 'Modèles locaux';
+	@override String get templates_tab_asset => 'Asset Library';
+	@override String get asset_search_placeholder => 'Rechercher des assets…';
+	@override String get asset_all_versions => 'Toutes les versions';
+	@override String get asset_result_count => '{{count}} résultats';
+	@override String get asset_load_error => 'Impossible de charger l\'Asset Library. Vérifiez votre connexion et réessayez.';
+	@override String get asset_no_results => 'Aucun asset trouvé. Essayez une autre recherche.';
+	@override String get asset_by_author => 'par {{author}}';
+	@override String get asset_open_page => 'Ouvrir dans le navigateur';
+	@override String get asset_install => 'Installer';
+	@override String get asset_install_inside => 'Installer dans le projet';
+	@override String get asset_installing => 'Installation…';
+	@override String get asset_installed => 'Installé';
+	@override String get asset_prev_page => 'Page précédente';
+	@override String get asset_next_page => 'Page suivante';
+	@override String get asset_page_x_of_y => 'Page {{page}} sur {{total}}';
+	@override String template_your_templates({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'Template',
+		many: 'Modèles',
+		other: 'Templates',
+	);
+	@override String get template_imported_count => '{{count}} importés';
+	@override String get template_updated_count => '{{count}} mis à jour';
+	@override String get template_removed_count => '{{count}} supprimés';
+	@override String get asset_source_all => 'Toutes les sources';
+	@override String get asset_source_library => 'Ancienne Asset Library';
+	@override String get asset_source_store => 'Nouvel Asset Store';
+	@override String get asset_store_relevance => 'Pertinence';
+	@override String get asset_store_updated_new => 'Mise à jour la plus récente';
+	@override String get asset_store_updated_old => 'Mise à jour la plus ancienne';
+	@override String get asset_store_rating_high => 'Les mieux notés';
+	@override String get asset_store_rating_low => 'Les moins bien notés';
+	@override String get asset_download_outside => 'Télécharger hors du projet';
+	@override String get asset_downloaded => 'Téléchargé';
+	@override String get asset_downloaded_to => 'Téléchargé dans';
+	@override String get asset_download_error => 'Impossible de télécharger l\'asset. Vérifiez votre connexion et réessayez.';
+	@override String get asset_install_modal_title => 'Installer {{title}}';
+	@override String get asset_install_tab_project => 'Dans un projet';
+	@override String get asset_install_tab_template => 'Dans un modèle';
+	@override String get asset_install_search_projects => 'Rechercher des projets…';
+	@override String get asset_install_no_projects => 'Aucun projet pour le moment. Créez-en un ou importez-en un d\'abord.';
+	@override String get asset_install_no_templates => 'Aucun modèle enregistré pour le moment.';
+	@override String get asset_install_into => 'Installer dans {{name}}';
+	@override String get asset_install_success_project => 'Installé dans {{target}}';
+	@override String get asset_install_success_template => 'Ajouté au modèle {{target}}';
+	@override String get asset_new_template_btn => 'Enregistrer comme nouveau modèle';
+	@override String get asset_new_template_hint => 'Crée un nouveau modèle à partir de cet asset de projet';
+	@override String get onboarding_keep_organized => 'Gardez tous vos projets organisés au même endroit.';
+	@override String get onboarding_download_manage => 'Téléchargez et gérez les versions du moteur Godot.';
+	@override String get onboarding_stay_current => 'Restez au courant des nouveautés de Godot.';
+	@override String get onboarding_projects_title => 'Où sont vos projets ?';
+	@override String get onboarding_projects_desc => 'Ajoutez les dossiers que GodotHub doit scanner au démarrage à la recherche de projets Godot existants. Mettez-en un en favori pour en faire l\'emplacement d\'enregistrement par défaut quand vous créez un nouveau projet. Vous pouvez passer cette étape et ajouter des dossiers plus tard dans les Paramètres.';
+	@override String get onboarding_versions_title => 'Où se trouvent les versions de Godot ?';
+	@override String get onboarding_versions_desc => 'Ajoutez les dossiers que GodotHub doit scanner à la recherche d\'exécutables du moteur Godot installés. Mettez-en un en favori pour en faire l\'emplacement de téléchargement des nouvelles versions que vous installez via l\'onglet Versions.';
+	@override String get onboarding_templates_title => 'Répertoire des projets modèles';
+	@override String get onboarding_templates_desc => 'Vous pouvez définir un dossier où vous conservez des modèles de projets réutilisables. Tout sous-dossier qu\'il contient sera importé comme modèle à la fin, pour qu\'ils apparaissent quand vous créez de nouveaux projets. Vous pouvez aussi enregistrer des projets individuels comme modèles à tout moment depuis la vue Projets, ou en importer d\'autres plus tard depuis l\'onglet Modèles.';
+	@override String get onboarding_categories_title => 'Organisez avec des catégories';
+	@override String get onboarding_categories_desc_full => 'Les catégories sont des dossiers pour votre liste de projets, classez-y vos projets comme bon vous semble. Ajoutez-en quelques-unes pour démarrer ou créez les vôtres ; vous pouvez les renommer, les réordonner ou les supprimer à tout moment depuis les Paramètres.';
+	@override String get onboarding_custom_category_placeholder => 'Nom de catégorie personnalisé…';
+	@override String get onboarding_your_categories => 'Vos catégories';
+	@override String get onboarding_customize_title => 'Personnalisez';
+	@override String get onboarding_customize_desc => 'Choisissez un préréglage de thème complet, ou choisissez Personnalisé et définissez vos propres couleurs d\'accentuation et d\'arrière-plan. L\'arrondi des coins, la densité, la taille du texte et le mode clair/sombre sont tous dans les Paramètres si vous voulez affiner davantage.';
+	@override String get onboarding_finish_title => 'Tout est prêt';
+	@override String get onboarding_finish_desc => 'GodotHub est prêt à l\'emploi. Vous pouvez revenir sur tout ça, dossiers, catégories et apparence, depuis l\'onglet Paramètres à tout moment.';
+	@override String get onboarding_setting_up_title => 'Configuration en cours';
+	@override String get onboarding_setting_up_desc => 'Configuration de votre bibliothèque… scan des dossiers à la recherche de projets et de versions de Godot. Cela n\'arrive qu\'une fois, et ce ne sera pas long.';
+	@override String get skipped => 'Ignoré';
+	@override String get onboarding_continue => 'Continuer';
+	@override String get onboarding_accent_color => 'Couleur d\'accentuation';
+	@override String get onboarding_bg_color => 'Couleur d\'arrière-plan';
+	@override String get onboarding_corner_radius => 'Arrondi des coins';
+	@override String get onboarding_discord_rpc => 'Discord Rich Presence';
+	@override String get onboarding_discord_rpc_desc => 'Show what you\'re doing in GodotHub on your Discord profile.';
+	@override String get version_search_placeholder => 'Rechercher des versions…';
+	@override String get version_no_installed => 'Aucune version installée. Téléchargez une version ci-dessous ou glissez-déposez ici votre dossier de version existant.';
+	@override String get version_save_name_aria => 'Enregistrer le nom';
+	@override String get version_rename_aria => 'Renommer la version';
+	@override String get version_mono_badge => 'Mono';
+	@override String get version_uninstall_title => 'Désinstaller la version ?';
+	@override String get version_uninstall_desc => '"{{tag}}" et ses fichiers seront déplacés vers la corbeille de votre système. Vous pourrez la réinstaller plus tard si besoin.';
+	@override String get version_uninstall_confirm => 'Désinstaller';
+	@override String get project_remove_title => 'Retirer de la bibliothèque ?';
+	@override String get project_remove_desc => '"{{name}}" sera retiré de la liste de GodotHub. Ses fichiers restent intacts sur le disque, vous pourrez le réimporter à tout moment.';
+	@override String get project_delete_title => 'Déplacer vers la corbeille ?';
+	@override String get project_delete_desc => '"{{name}}" et tout ce qu\'il contient seront déplacés vers la corbeille de votre système. Vous pourrez le restaurer plus tard si besoin.';
+	@override String get project_delete_confirm => 'Déplacer vers la corbeille';
+	@override String get project_template_name_label => 'Nom du modèle';
+	@override String get project_template_desc_label => 'Description';
+	@override String get project_template_desc_placeholder => 'Qu\'y a-t-il dans ce modèle ?';
+	@override String get project_save_template_btn => 'Enregistrer le modèle';
+	@override String get template_saved_toast => 'Modèle enregistré.';
+	@override String get project_select_aria => 'Sélectionner le projet';
+	@override String get project_deselect_aria => 'Désélectionner le projet';
+	@override String get select_all_visible => 'Sélectionner tous les projets visibles';
+	@override String get selected_count => '{{count}} sélectionnés';
+	@override String get bulk_launch => 'Lancer';
+	@override String get bulk_pin => 'Épingler';
+	@override String get bulk_remove => 'Retirer';
+	@override String get bulk_remove_title => 'Retirer {{count}} projets de la bibliothèque ?';
+	@override String get bulk_remove_desc => 'Les projets sélectionnés seront retirés de votre bibliothèque. Leurs fichiers resteront sur le disque.';
+	@override String get bulk_delete_title => 'Supprimer {{count}} projets ?';
+	@override String get bulk_delete_desc => 'Les fichiers des projets sélectionnés seront définitivement déplacés vers la corbeille. Cette action est irréversible.';
+	@override String get project_pin_aria => 'Épingler le projet';
+	@override String get project_unpin_aria => 'Désépingler le projet';
+	@override String get time_today => 'Aujourd\'hui';
+	@override String get time_this_week => 'Cette semaine';
+	@override String get time_all_time => 'Depuis le début';
+	@override String get time_tracked_title => 'Temps suivi';
+	@override String get time_weekly_chart => '7 derniers jours';
+	@override String get time_week_total => '{{total}} cette semaine';
+	@override String get time_weekly_empty => 'Aucun temps suivi ces 7 derniers jours.';
+	@override String get project_more_aria => 'Plus d\'actions';
+	@override String get customize_card_section => 'Project Card';
+	@override String get customize_card_show_size => 'Show Project Size';
+	@override String get customize_card_show_time => 'Show Time Tracked';
+	@override String get customize_card_show_session_timer => 'Show Session Timer';
+	@override String get customize_card_blur_path => 'Blur Project Directory';
+	@override String get customize_card_show_path => 'Show Project Directory';
+	@override String get customize_card_show_tags => 'Show Tags';
+	@override String get customize_card_show_last_opened => 'Show Last Opened';
+	@override String get customize_card_show_play => 'Show Play Button';
+	@override String get customize_card_show_console => 'Show Open with Console';
+	@override String get project_card_remove_library => 'Retirer de la bibliothèque';
+	@override String get project_card_delete_files => 'Supprimer les fichiers';
+	@override String get manage_tags => 'Gérer les étiquettes';
+	@override String get tag_input_placeholder => 'Nom de la nouvelle étiquette…';
+	@override String get tag_already_exists => 'Une étiquette portant ce nom existe déjà.';
+	@override String get tag_rename_hint => 'Cliquez pour renommer';
+	@override String get tag_rename_aria => 'Renommer l\'étiquette';
+	@override String get show_more_tags => 'Afficher plus d\'étiquettes';
+	@override String get show_fewer_tags => 'Afficher moins d\'étiquettes';
+	@override String get clear_tag_filter => 'Effacer le filtre par étiquette';
+	@override String get saving_tags => 'Enregistrement des étiquettes…';
+	@override String tag_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} tag',
+		many: '${count} étiquette(s)',
+		other: '${count} tags',
+	);
+	@override String get no_tags => 'Aucune étiquette pour le moment';
+	@override String get bug_report_describe_label => 'Que s\'est-il passé ?';
+	@override String get bug_report_describe_placeholder => 'Que faisiez-vous quand le bug est apparu ? Ajoutez les étapes pour le reproduire, ce que vous attendiez et ce qui s\'est réellement passé.';
+	@override String get bug_report_diagnostics_label => 'Informations de diagnostic';
+	@override String get bug_report_diagnostics_hint => 'Collectées automatiquement · incluses dans le rapport';
+	@override String get bug_report_copied => 'Copié !';
+	@override String get bug_report_copy_log => 'Copier le rapport';
+	@override String get bug_report_download_log => 'Télécharger le rapport';
+	@override String get bug_report_open_github => 'Créer une issue GitHub';
+	@override String get check_updates_title_modal => 'Rechercher des mises à jour';
+	@override String get check_updates_version_available => 'Version {{version}} disponible';
+	@override String get check_updates_ask_download => 'Voulez-vous la télécharger et l\'installer maintenant ?';
+	@override String get check_updates_release_notes => 'Notes de version';
+	@override String get check_updates_failed => 'Échec de la recherche de mises à jour';
+	@override String get check_updates_rate_limited => 'Limite de requêtes GitHub atteinte';
+	@override String get check_updates_token_rejected => 'Token GitHub refusé';
+	@override String get check_updates_rate_limited_hint => 'GitHub n\'autorise que 60 requêtes anonymes par heure, partagées avec tout votre réseau. Ajouter un token d\'accès personnel dans les Paramètres fait passer cette limite à 5 000 par heure, et il sert aussi à récupérer les versions de Godot.';
+	@override String get check_updates_rate_limited_token_hint => 'Votre token GitHub enregistré a été refusé. Il a peut-être expiré ou été révoqué. Testez-le dans les Paramètres et remplacez-le si besoin.';
+	@override String get check_updates_add_token => 'Ajouter un token GitHub';
+	@override String get check_updates_open_token_settings => 'Ouvrir les paramètres du token';
+	@override String get check_updates_preview_badge => 'Aperçu';
+	@override String get check_updates_portable_title => 'Manual update required';
+	@override String get check_updates_portable_desc => 'Portable installs cannot auto-update. Download the latest version from GitHub and replace the existing files.';
+	@override String get check_updates_download_from_github => 'Download from GitHub';
+	@override String get preview_state_checking => 'Recherche';
+	@override String get preview_state_available => 'Disponible';
+	@override String get preview_state_downloading => 'Téléchargement';
+	@override String get preview_state_done => 'Terminé';
+	@override String get preview_state_uptodate => 'À jour';
+	@override String get preview_state_error => 'Erreur';
+	@override String get preview_state_portable => 'Portable';
+	@override String get preview_update_modal => 'Aperçu de la fenêtre de mise à jour';
+	@override String get clone_repo_title => 'Cloner un dépôt';
+	@override String get clone_repo_url_label => 'URL du dépôt';
+	@override String get clone_repo_url_placeholder => 'https://github.com/user/my-game.git';
+	@override String get clone_repo_error_url => 'Veuillez saisir l\'URL d\'un dépôt.';
+	@override String get clone_repo_error_location => 'Veuillez choisir où cloner le dépôt.';
+	@override String get clone_repo_open_after => 'L\'ouvrir juste après l\'import';
+	@override String get clone_repo_browse_repos => 'Parcourir vos dépôts';
+	@override String get clone_repo_url_manual => 'Coller l\'URL manuellement';
+	@override String get clone_repo_search_repos => 'Rechercher dans vos dépôts...';
+	@override String get clone_repo_no_repos_found => 'Aucun dépôt ne correspond à votre recherche.';
+	@override String get clone_repo_loading_repos => 'Chargement des dépôts...';
+	@override String get clone_repo_load_error => 'Échec du chargement des dépôts.';
+	@override String get clone_repo_select => 'Sélectionner';
+	@override String get clone_repo_no_account => 'Aucun compte GitHub ou GitLab connecté. Utilisez une URL pour cloner à la place.';
+	@override String get clone_repo_repos_loaded => 'dépôts chargés';
+	@override String get load_more => 'Charger plus';
+	@override String get git_uncommitted => 'non commité';
+	@override String get git_clean => 'Clean';
+	@override String get task_tray_title => 'Tâches';
+	@override String get task_tray_empty => 'Aucune tâche active';
+	@override String get task_tray_active_count => '{{active}} actives, {{recent}} récentes';
+	@override String task_tray_only_recent({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} recent task',
+		many: '${count} tâche récente',
+		other: '${count} recent tasks',
+	);
+	@override String get task_tray_aria => 'Panneau des tâches';
+	@override String get task_tray_auto_dismiss => 'Masquer automatiquement les tâches terminées';
+	@override String get task_tray_dismiss => 'Fermer {{count}}';
+	@override String get task_error_status => 'Erreur';
+	@override String get command_palette_title => 'Palette de commandes';
+	@override String get command_palette_placeholder => 'Rechercher commandes, projets, moteurs, paramètres…';
+	@override String get command_palette_no_results => 'Aucun résultat ne correspond';
+	@override String get command_palette_navigate => 'Naviguer';
+	@override String get command_palette_escape => 'Échap';
+	@override String get setting_token_placeholder => 'ghp_xxxxxxxxxxxxxxxxxxxx';
+	@override String get setting_project_scan_dirs => 'Scan Project Folders';
+	@override String get setting_version_scan_dirs => 'Scan Version Folders';
+	@override String get setting_default_project_location => 'Default Project Location Setting';
+	@override String get setting_download_dir => 'Download Versions Location Setting';
+	@override String get setting_scan_depth => 'Scan Depth';
+	@override String get setting_icon_scan_depth => 'Project Icon Search Depth';
+	@override String get setting_download_concurrency => 'Simultaneous Downloads';
+	@override String get setting_close_on_project_open => 'Close on Project Open';
+	@override String get setting_minimize_to_tray => 'Minimize to System Tray';
+	@override String get setting_reopen_after_godot_closes => 'Reopen After Godot Closes';
+	@override String get setting_auto_scan_on_startup => 'Auto-scan on Startup';
+	@override String get setting_workspaces_enabled => 'Use Workspaces';
+	@override String get setting_directory_naming_convention => 'Directory Naming Convention';
+	@override String get setting_git_init_new_projects => 'Initialize Git for New Projects';
+	@override String get setting_tooltip_delay => 'Tooltip Delay';
+	@override String get setting_command_palette_keybind => 'Command Palette Shortcut';
+	@override String get setting_tray_recent_projects_count => 'Tray Recent Projects';
+	@override String get setting_last_opened_time_format => 'Time Format';
+	@override String get setting_last_opened_date_format => 'Date Format';
+	@override String get setting_theme_mode => 'Theme Mode';
+	@override String get setting_accent_color => 'Accent Color';
+	@override String get setting_background_color => 'Couleur d\'arrière-plan';
+	@override String get setting_corner_radius => 'Corner Radius';
+	@override String get setting_ui_density => 'UI Density';
+	@override String get setting_font_scale => 'Text Size';
+	@override String get setting_animation_intensity => 'Animation Intensity';
+	@override String get setting_view_entrance => 'View Entrance Animation';
+	@override String get setting_custom_css => 'Custom CSS';
+	@override String get setting_project_icon_opacity => 'Project Icon Opacity';
+	@override String get setting_show_scrollbars => 'Show Scrollbar';
+	@override String get setting_setup_wizard => 'Setup Wizard';
+	@override String get setting_reset_settings => 'Reset Settings';
+	@override String get setting_delete_app_data => 'Delete App Data';
+	@override String get setting_check_updates => 'Check for Updates';
+	@override String get setting_show_support_button => 'Show Support Button';
+	@override String get setting_show_star_button => 'Show Star Button';
+	@override String get setting_discord_rpc_enabled => 'Discord Rich Presence';
+	@override String get setting_discord_app_id => 'Discord Application ID';
+	@override String get setting_discord_rpc_show_projects => 'Discord Show Project Names';
+	@override String get setting_discord_rpc_excluded_projects => 'Discord Excluded Projects';
+	@override String get setting_discord_rpc_project_presences => 'Discord Custom Presence';
+	@override String get active_workspace => '{{name}} (actif)';
+	@override String get current_workspace => 'Espace de travail actuel';
+	@override String get switch_workspace => 'Changer d\'espace de travail';
+	@override String get opened_recently => 'Ouvert {{label}}';
+	@override String get recent_section => 'Récents';
+	@override String get installed_versions_section => 'Versions installées';
+	@override String get settings_label => 'Paramètres → {{tab}}';
+	@override String get remove_category_aria => 'Supprimer {{name}}';
+	@override String get git_remove_remote => 'Supprimer la remote';
+	@override String get git_commit_placeholder => 'Message de commit…';
+	@override String get restart_required_title => 'Redémarrage requis';
+	@override String get restart_required_desc => 'Ce changement nécessite le redémarrage de GodotHub pour prendre pleinement effet. Le paramètre a été enregistré et s\'appliquera au prochain lancement de l\'application.';
+	@override String found_dismissed_title({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'Projet précédemment retiré retrouvé',
+		many: '${count} previously removed projects found',
+		other: '${count} projets précédemment retirés retrouvés',
+	);
+	@override String found_dismissed_desc({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'Le scan a trouvé 1 projet que vous aviez retiré de la bibliothèque. Voulez-vous le rajouter ?',
+		many: 'Scanner found ${count} projects that you previously removed from the library. Would you like to re-add them?',
+		other: 'Le scan a trouvé ${count} projets que vous aviez retirés de la bibliothèque. Voulez-vous les rajouter ?',
+	);
+	@override String get readd_all => 'Tout rajouter';
+	@override String get skip_all => 'Tout ignorer';
+	@override String get project_already_open_title => 'Projet déjà ouvert';
+	@override String get project_already_open_desc => '{{name}} est déjà lancé. L\'ouvrir à nouveau lancera une seconde instance de l\'éditeur. Ouvrir quand même ?';
+	@override String get project_open_anyway => 'Ouvrir quand même';
+	@override String get git_sidebar => 'Barre latérale Git';
+	@override String get asset_duplicate_title => 'Template already installed';
+	@override String get asset_duplicate_desc => '"{{name}}" is already in your templates. Install a duplicate anyway?';
+	@override String get empty_category => 'Empty Category';
+	@override String get release_to_drop => 'Release to drop';
+	@override String get preview_release_notes => '## What\'s new in v1.0.0 - The Preview Update\\n\\n## New\\n\\n- Revamped the Check for Updates modal with structured release notes\\n- Added screen reader announcements with an Accessibility settings tab\\n\\n## Fixes\\n\\n- Fixed a crash when switching workspaces with pinned projects\\n- Fixed update checks failing silently when GitHub rate limits are hit\\n\\n## Improvements\\n\\n- Faster startup times across all platforms\\n- Reworked workspace modals with compact style pickers\\n\\n## Known Issues\\n\\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts';
+	@override String get preview_error => 'Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking.';
+	@override String get bug_report_system => 'System';
+	@override String get bug_report_version => 'Version';
+	@override String get bug_report_date => 'Date';
+	@override String get bug_report_os => 'OS';
+	@override String get bug_report_platform => 'Platform';
+	@override String get bug_report_language => 'Language';
+	@override String get bug_report_cpu_cores => 'CPU Cores';
+	@override String get bug_report_ram => 'RAM';
+	@override String get bug_report_screen => 'Screen';
+	@override String get bug_report_gpu => 'GPU';
+	@override String get bug_report_user_agent => 'User Agent';
+	@override String get bug_report_recent_errors => 'Recent Errors';
+	@override String get bug_report_none_captured => 'none captured';
+	@override String get bug_report_description => 'Description';
+	@override String get bug_report_no_description => 'No description provided';
+	@override String get unknown => 'inconnu';
+	@override String get gpu_webgl_unavailable => 'WebGL not available';
+	@override String get gpu_info_unavailable => 'GPU info unavailable';
+	@override String get update_available => 'Update available';
+	@override String get dismiss => 'Dismiss';
+	@override String get system_language => 'Langue du système';
+	@override String get category_empty_hint => 'Create one above to organize your projects';
+	@override String get contributor_pr_merged => 'Merged';
+	@override String get contributor_pr_open => 'Open';
+	@override String get contributor_pr_closed => 'Closed';
+	@override String get contributor_pr_loading => 'Loading PRs...';
+	@override String contributor_pr_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} pull request',
+		many: '${count} pull requests',
+		other: '${count} pull requests',
+	);
+	@override String get contributor_pr_load_failed => 'Failed to load pull requests.';
+	@override String get contributor_pr_network_hint => 'Check your internet connection.';
+	@override String get contributor_pr_empty => 'No pull requests found.';
+	@override String get theme_presets_section => 'Theme presets';
+	@override String get all_categories => 'Toutes les catégories';
+	@override String get clear_category_filter => 'Clear category filter';
+	@override String get filter_by_category => 'Filter by category';
+	@override String get theme_dark => 'Sombre';
+	@override String get theme_light => 'Clair';
+	@override String get bulk_tags => 'Tags';
+	@override String get bulk_tags_title => 'Edit tags';
+	@override String get add_tag => 'Ajouter une étiquette';
+	@override String get remove_tag => 'Supprimer l\'étiquette';
+	@override String get no_common_tags => 'No tags on the selected projects yet.';
+	@override String get tags_added_to_selection => 'Added tag to {{count}} projects.';
+	@override String get tags_removed_from_selection => 'Removed tag from {{count}} projects.';
+	@override String get removed_from_library => 'Removed {{count}} project(s) from library.';
+	@override String get undo => 'Undo';
+	@override String get duplicate_project_title => 'Duplicate project';
+	@override String get copy_suffix => 'copy';
+	@override String get duplicate => 'Duplicate';
+	@override String get destination_folder => 'Dossier de destination';
+	@override String get new_project_name => 'Project name';
+	@override String get project_duplicated => 'Project duplicated.';
+	@override String get notification_version_installed => 'Godot {{tag}} installed';
+	@override String get notification_asset_installed => '{{title}} installed';
+	@override String get notification_clone_done => 'Repository cloned and imported';
+	@override String get console_title => 'Console';
+	@override String get console_finished => 'Finished';
+	@override String get console_exit_ok => 'Exited cleanly';
+	@override String get console_exit_code => 'Exit code {{code}}';
+	@override String get console_clear => 'Clear output';
+	@override String get console_copy => 'Copy output';
+	@override String get console_minimize => 'Minimize to a pill';
+	@override String get console_waiting => 'Waiting for output…';
+	@override String get console_empty => 'No output was captured.';
+	@override String get console_trimmed => '{{count}} older line(s) are hidden, copy or clear to manage the buffer.';
+	@override String get console_crash_hint => 'Godot exited with code {{code}}. The output above is kept so you can read it.';
+	@override String get console_filter_errors => 'Errors';
+	@override String get console_filter_warnings => 'Warnings';
+	@override String get console_filter_info => 'Info';
+	@override String get console_no_matches => 'No lines match the filters ({{count}} hidden).';
+	@override String get console_pill_hint => 'Click to reopen the console, drag to move it.';
+	@override String get console_resumed_hint => 'This project kept running after GodotHub closed, its output is still being captured below.';
+	@override String get console_previous_hint => 'Output kept from the previous session.';
+	@override String get project_card_version_unavailable => 'Godot {{version}} is not installed. Select an installed version to launch this project.';
+	@override String get project_card_total_time => 'Total time: {{time}}';
+	@override String get project_card_last_opened => 'Last opened: {{date}}';
+	@override String get project_card_more_tags => 'Show {{count}} more tags';
+	@override String get downloading_export_templates => 'Downloading export templates for {{tag}}';
+	@override String get export_templates_verifying => 'Verifying download…';
+	@override String get export_templates_extracting => 'Installing templates…';
+	@override late final _Translations$common$project_doctor$fr_FR project_doctor = _Translations$common$project_doctor$fr_FR._(_root);
+	@override late final _Translations$common$build_export$fr_FR build_export = _Translations$common$build_export$fr_FR._(_root);
+	@override String get projects_corrupt_title => 'Project list couldn\'t be read';
+	@override String get projects_corrupt_desc => 'Your projects.json file is corrupt, so your projects can\'t be shown. You can restore the most recent automatic backup, or dismiss this and leave the file untouched.';
+	@override String get projects_corrupt_restore => 'Restore backup';
+	@override String get projects_corrupt_dismiss => 'Not now';
+	@override String get projects_load_error => 'Couldn\'t load your projects. Something went wrong reading them from disk. Try again, and if it keeps failing your project list file may be damaged.';
+	@override String get cleanup_title => 'Storage';
+	@override String get cleanup_subtitle => 'See what GodotHub keeps on disk and free up space you no longer need.';
+	@override String get cleanup_total_label => 'on disk';
+	@override String get cleanup_scanning => 'Measuring folders…';
+	@override String get cleanup_load_error => 'Couldn\'t measure storage: {{error}}';
+	@override String get cleanup_reclaimable_title => 'Reclaimable';
+	@override String get cleanup_reclaimable_desc => 'Versions no project, template or alias uses, unfinished downloads, and export templates no installed version needs. Pick what to remove.';
+	@override String get cleanup_nothing_to_reclaim => 'Nothing to clean up right now.';
+	@override String get cleanup_group_unused_versions => 'Unused versions';
+	@override String get cleanup_group_partials => 'Unfinished downloads';
+	@override String get cleanup_group_orphan_exports => 'Orphaned export templates';
+	@override String get cleanup_orphan_exports_hint => 'No installed version uses these, but a Godot install outside GodotHub might, so they aren\'t selected by default.';
+	@override String get cleanup_external_hint => 'Installed outside GodotHub\'s download folder';
+	@override String get cleanup_kind_version_download => 'Godot version download';
+	@override String get cleanup_kind_export_templates_download => 'Export templates download';
+	@override String get cleanup_reclaim_btn => 'Reclaim {{size}}';
+	@override String get cleanup_confirm_title => 'Reclaim {{size}}?';
+	@override String get cleanup_confirm_desc => 'These items will be removed:';
+	@override String get cleanup_confirm_trash_note => 'Versions and export templates are moved to the system trash, so the space is freed once you empty it. Unfinished downloads are deleted permanently.';
+	@override String cleanup_confirm_btn({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'Remove ${count} item',
+		many: 'Remove ${count} items',
+		other: 'Remove ${count} items',
+	);
+	@override String get cleanup_done => 'Freed {{size}}';
+	@override String get cleanup_failed => 'Couldn\'t remove {{label}}: {{error}}';
+	@override String get cleanup_versions_desc => 'Full size on disk of every installed Godot version.';
+	@override String get cleanup_templates_title => 'Project templates';
+	@override String get cleanup_export_templates_title => 'Export templates';
+	@override String cleanup_used_by_templates({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} template',
+		many: '${count} templates',
+		other: '${count} templates',
+	);
+	@override String get cleanup_current_badge => 'Current';
+	@override String get cleanup_alias_badge => 'Alias';
+	@override String get cleanup_unused_badge => 'Unused';
+	@override String get cleanup_mise_badge => 'Managed by mise';
+	@override String get cleanup_external_badge => 'External';
+	@override String get cleanup_orphan_badge => 'Orphaned';
+	@override String get cleanup_empty => 'Nothing here yet.';
+	@override String get new_badge => 'New';
+	@override String get reset => 'Réinitialiser';
+	@override String get git_disconnect => 'Déconnecter';
+	@override String get git_sign_in_github => 'Se connecter avec GitHub';
+	@override String get git_connected_as => 'Connecté en tant que @{{username}}';
+	@override String get optional => '(optional)';
+	@override String get language_label => 'Langue';
+	@override String n_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} projet',
+		many: '${count} projects',
+		other: '${count} projets',
+	);
+	@override String vault_item_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'Item',
+		many: 'Items',
+		other: 'Items',
+	);
+	@override String get vault_search_placeholder => 'Search vault…';
+	@override String get vault_empty => 'Your vault is empty. Click <1>Save to Vault</1> to pick files or folders from a project and reuse them anywhere.';
+	@override String get vault_no_match => 'No items match your search.';
+	@override String get vault_save_btn => 'Save to Vault';
+	@override String get vault_save_title => 'Save to Vault';
+	@override String get vault_source_project_label => 'Source Project';
+	@override String get vault_source_n => 'Source {{index}}';
+	@override String get vault_add_source => 'Add another project';
+	@override String get vault_remove_source => 'Remove source';
+	@override String get vault_select_project => 'Select a project…';
+	@override String get vault_select_files_label => 'Files & Folders';
+	@override String get vault_selected_count => '{{count}} selected';
+	@override String get vault_project_empty => 'This project has no files.';
+	@override String get vault_item_name_label => 'Name';
+	@override String get vault_item_name_placeholder => 'Item name';
+	@override String get vault_item_desc_label => 'Description';
+	@override String get vault_item_desc_placeholder => 'What\'s in this item?';
+	@override String get vault_item_tags_label => 'Tags';
+	@override String get vault_tag_input_placeholder => 'Add a tag…';
+	@override String get vault_saved_toast => 'Saved to Vault';
+	@override String get vault_edit_action => 'Edit item';
+	@override String get vault_edit_title => 'Edit Item';
+	@override String get vault_item_updated_toast => 'Item updated';
+	@override String get vault_delete_action => 'Delete {{name}}';
+	@override String get vault_delete_title => 'Delete Item?';
+	@override String get vault_delete_desc => '"{{name}}" will be permanently removed from your vault.';
+	@override String get vault_add_btn => 'Add to Project';
+	@override String get vault_add_title => 'Add from Vault';
+	@override String get vault_target_project_label => 'Target Project';
+	@override String get vault_target_projects_label => 'Target Projects';
+	@override String get vault_adding => 'Adding…';
+	@override String get vault_overwrite_btn => 'Overwrite files';
+	@override String vault_conflict_desc({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} file already exists in the project. Overwrite it?',
+		many: '${count} files already exist in the project. Overwrite them?',
+		other: '${count} files already exist in the project. Overwrite them?',
+	);
+	@override String vault_conflict_summary_desc({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} file already exists across the selected projects. Overwrite it?',
+		many: '${count} files already exist across the selected projects. Overwrite them?',
+		other: '${count} files already exist across the selected projects. Overwrite them?',
+	);
+	@override String vault_added_toast({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'Added ${count} file',
+		many: 'Added ${count} files',
+		other: 'Added ${count} files',
+	);
+	@override String vault_added_to_projects_toast({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'Added to ${count} project',
+		many: 'Added to ${count} projects',
+		other: 'Added to ${count} projects',
+	);
+	@override String get vault_item_empty => 'This item has no files.';
+	@override String get kNew => 'Nouveau';
+	@override String get announcement_support_title => 'Support GodotHub';
+	@override String get announcement_support_body => 'GodotHub is free and made in my spare time. If it helps your workflow, please consider supporting development with a donation.';
+	@override String get workspace_name_taken_error => 'Another workspace already uses this name.';
+	@override String get workspace_start_label => 'Start with';
+	@override String get workspace_start_copy => 'Copy settings from {{name}}';
+	@override String get workspace_start_copy_desc => 'Theme, language, features, and version folders carry over. Project folders start empty, and you go straight in.';
+	@override String get workspace_start_fresh => 'Start fresh';
+	@override String get workspace_start_fresh_desc => 'Walk through setup for this workspace from scratch.';
+	@override String get workspace_switched_to => 'Switched to';
+	@override late final _Translations$common$project_addons$fr_FR project_addons = _Translations$common$project_addons$fr_FR._(_root);
+	@override String get reload_confirm_title => 'Reload GodotHub?';
+	@override String get reload_confirm_desc => 'Any unsaved changes in open forms will be lost.';
+	@override String get color_presets => 'Presets';
+	@override String get date_previous_month => 'Previous month';
+	@override String get date_next_month => 'Next month';
+	@override String get date_change_due => 'Change due date: {{date}}';
+	@override String get date_add_due => 'Add due date';
+}
+
+// Path: dashboard
+class _Translations$dashboard$fr_FR extends Translations$dashboard$en_US {
+	_Translations$dashboard$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get greeting_morning => 'Bonjour';
+	@override String get greeting_afternoon => 'Bonjour';
+	@override String get greeting_evening => 'Bonsoir';
+	@override String get greeting_night => 'Bonsoir';
+	@override String get greeting_name => '{{greeting}}, {{name}}';
+	@override String get dashboard_rename_hint => 'Mettre un nom personnalisé';
+	@override String get dashboard_rename_aria => 'Renommer votre nom de salutation';
+	@override String get dashboard_rename_save => 'Enregistrer le nom';
+	@override String get dashboard_rename_reset => 'Utiliser le nom du système';
+	@override String get dashboard_name_placeholder => 'Votre nom';
+	@override String get dashboard_clock_aria => 'Heure actuelle';
+	@override String get dashboard_new_project => 'Nouveau projet';
+	@override String get dashboard_import_project => 'Importer un projet';
+	@override String get dashboard_scan_projects => 'Scanner les projets';
+	@override String get dashboard_stat_projects => 'Projets';
+	@override String get dashboard_stat_templates => 'Modèles';
+	@override String get dashboard_stat_engines => 'Moteurs';
+	@override String get dashboard_stat_total_time => 'Temps total';
+	@override String get dashboard_stat_total_time_hint => 'Temps passé sur les projets';
+	@override String get dashboard_recent => 'Ouvert récemment';
+	@override String get dashboard_recent_empty => 'Rien n\'a encore été ouvert. Ouvrez un projet pour le voir ici.';
+	@override String get dashboard_pinned => 'Épinglés';
+	@override String get dashboard_pinned_empty => 'Aucun projet épinglé pour le moment. Épinglez un projet pour le garder à portée de main.';
+	@override String get dashboard_engines => 'Moteurs installés';
+	@override String get dashboard_engines_empty => 'Aucun moteur installé pour le moment.';
+	@override String get dashboard_running => 'En cours d\'exécution';
+	@override String get dashboard_running_empty => 'Rien n\'est en cours d\'exécution pour le moment.';
+	@override String get dashboard_opened_at => 'Ouvert à {{time}}';
+	@override String get dashboard_daily => 'Activité quotidienne';
+	@override String get dashboard_daily_empty => 'Aucune activité quotidienne pour le moment.';
+	@override String get dashboard_weekly => 'Activité hebdomadaire';
+	@override String get dashboard_weekly_empty => 'Aucune activité hebdomadaire pour le moment.';
+	@override String get dashboard_monthly => 'Activité mensuelle';
+	@override String get dashboard_monthly_empty => 'Aucune activité mensuelle pour le moment.';
+	@override String get dashboard_yearly => 'Activité annuelle';
+	@override String get dashboard_yearly_empty => 'Aucune activité annuelle pour le moment.';
+	@override String get dashboard_activity_cycle => 'Passer à {{next}}';
+	@override String get dashboard_weekly_aria => '{{label}} de temps suivi';
+	@override String get dashboard_top_time => 'Classement des projets par temps suivi';
+	@override String get dashboard_top_time_empty => 'Aucun temps suivi pour le moment. Ouvrez un projet pour commencer à suivre le temps.';
+	@override String get dashboard_insights => 'Statistiques';
+	@override String get dashboard_insights_empty => 'Aucun temps suivi pour le moment. Ouvrez un projet pour commencer une série.';
+	@override String get dashboard_insights_longest_streak => 'Série la plus longue';
+	@override String get dashboard_insights_current_streak => 'Série en cours';
+	@override String get dashboard_insights_days => '{{count}} jours';
+	@override String get dashboard_insights_productive_day => 'Jour le plus productif';
+	@override String get dashboard_insights_this_month => 'Ce mois-ci';
+	@override String get dashboard_insights_delta_up => '{{pct}}% de plus que le mois dernier';
+	@override String get dashboard_insights_delta_down => '{{pct}}% de moins que le mois dernier';
+	@override String get dashboard_git => 'Aperçu Git';
+	@override String get dashboard_git_empty => 'Aucun dépôt git détecté.';
+	@override String get dashboard_git_clean => 'Tout est propre';
+	@override String get dashboard_git_dirty => '{{count}} avec des modifications non validées';
+	@override String dashboard_git_dirty_plural({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '1 avec des modifications non validées',
+		many: '${count} avec des modifications non validées',
+		other: '${count} avec des modifications non validées',
+	);
+	@override String get dashboard_git_branch => 'Sur {{branch}}';
+	@override String get dashboard_storage => 'Utilisation du stockage';
+	@override String get dashboard_storage_empty => 'Aucun projet à mesurer.';
+	@override String get dashboard_storage_loading => 'Mesure en cours…';
+	@override String get dashboard_storage_total => '{{size}} au total';
+	@override String get dashboard_customize => 'Personnaliser';
+	@override String get dashboard_done_customizing => 'Terminé';
+	@override String get dashboard_customize_hint => 'Utilisez les flèches pour réorganiser les tuiles ou masquer celles dont vous n\'avez pas besoin.';
+	@override String get dashboard_tile_move_up => 'Déplacer vers le haut';
+	@override String get dashboard_tile_move_down => 'Déplacer vers le bas';
+	@override String get dashboard_tile_remove => 'Supprimer';
+	@override String get dashboard_tile_span => 'Pleine largeur';
+	@override String get dashboard_tile_span_off => 'Demi-largeur';
+	@override String get dashboard_tile_tall => 'Plus grand';
+	@override String get dashboard_tile_tall_off => 'Hauteur normale';
+	@override String get dashboard_presets => 'Préréglages de disposition';
+	@override String get dashboard_preset_default => 'Par défaut';
+	@override String get dashboard_preset_default_desc => 'Tout activé, dans l\'ordre par défaut, taille standard.';
+	@override String get dashboard_preset_overview => 'Aperçu';
+	@override String get dashboard_preset_overview_desc => 'Projets récemment ouverts, épinglés, moteurs et projets en cours d\'exécution.';
+	@override String get dashboard_preset_analytics => 'Analytique';
+	@override String get dashboard_preset_analytics_desc => 'Activité hebdomadaire, meilleurs projets, stockage et catégories, avec des graphiques plus grands.';
+	@override String get dashboard_preset_development => 'Développement';
+	@override String get dashboard_preset_development_desc => 'Statut Git au centre avec projets en cours et moteurs.';
+	@override String get dashboard_preset_save => 'Enregistrer comme préréglage';
+	@override String get dashboard_preset_save_hint => 'Nommez cette disposition afin de pouvoir y revenir à tout moment.';
+	@override String get dashboard_preset_name_placeholder => 'Nom du préréglage';
+	@override String get dashboard_preset_delete => 'Supprimer le préréglage';
+	@override String get dashboard_custom_presets => 'Vos préréglages';
+	@override String get dashboard_hidden_tiles => 'Tuiles masquées';
+	@override String get dashboard_todos => 'Due to-dos';
+	@override String get dashboard_range_daily => 'Jour';
+	@override String get dashboard_range_weekly => 'Semaine';
+	@override String get dashboard_range_monthly => 'Mois';
+	@override String get dashboard_range_yearly => 'Année';
+	@override String get dashboard_activity_tracked => 'Suivi';
+	@override String get dashboard_activity_peak => 'Pic';
+}
+
+// Path: git
+class _Translations$git$fr_FR extends Translations$git$en_US {
+	_Translations$git$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get remove => 'Supprimer';
+	@override String get changes_title => 'Modifications';
+	@override String get pull => 'Pull';
+	@override String get push => 'Push';
+	@override String get force_push => 'Force';
+	@override String get fetch => 'Fetch';
+	@override String get change => 'Modification';
+	@override String get commit => 'Commit';
+	@override String get committing => 'Commit en cours…';
+	@override String get no_remotes => 'Aucune remote configurée';
+	@override String get switching => 'Basculement…';
+	@override String get no_branches => 'Aucune branche trouvée';
+	@override String get new_branch_placeholder => 'Nom de la branche';
+	@override String get delete_branch => 'Supprimer la branche';
+	@override String get publish_branch => 'Publier la branche';
+	@override String get publish_branch_to => 'Publish branch to {{remote}}';
+	@override String get branch_published => 'Branche publiée.';
+	@override String get use_ours => 'Version locale';
+	@override String get use_theirs => 'Version entrante';
+	@override String get i_resolved => 'Je l\'ai résolu';
+	@override String get undo_last_commit => 'Annuler le dernier commit';
+	@override String get undo_pull => 'Annuler le pull';
+	@override String get force_push_confirm_title => 'Force push ?';
+	@override String get force_push_confirm_desc => 'Cela réécrit l\'historique distant et peut faire perdre les commits d\'autres personnes. Continuer ?';
+	@override String get undo_commit_done => 'Dernier commit annulé.';
+	@override String get undo_pull_done => 'Pull annulé.';
+	@override String get force_pushed => 'Force push effectué.';
+	@override String get synced_ok => 'Synchronisé.';
+	@override String get fetched_ok => 'Fetch effectué.';
+	@override String get pulled_ok => 'Pull effectué.';
+	@override String get pushed_ok => 'Push effectué.';
+	@override String get branch_created => 'Branche créée.';
+	@override String get branch_deleted => 'Branche supprimée.';
+	@override String get changes_stashed_ok => 'Modifications mises en stash.';
+	@override String get stash_applied_ok => 'Stash appliqué.';
+	@override String get stash_popped_ok => 'Stash appliqué et supprimé.';
+	@override String get stash_dropped_ok => 'Stash supprimé.';
+	@override String get staged_ok => 'Fichier ajouté.';
+	@override String get unstaged_ok => 'Fichier retiré.';
+	@override String get discarded_ok => 'Abandonné.';
+	@override String get stage_all_ok => 'Toutes les modifications ajoutées.';
+	@override String get unstage_all_ok => 'Toutes les modifications retirées.';
+	@override String get discard_all_ok => 'Toutes les modifications abandonnées.';
+	@override String get resolved_ours => 'Résolu avec la version locale.';
+	@override String get resolved_theirs => 'Résolu avec la version entrante.';
+	@override String get resolved_manual => 'Marqué comme résolu.';
+	@override String get committed_ok => 'Commit effectué.';
+	@override String get switched_ok => 'Basculé sur {{branch}}.';
+	@override String get sync => 'Sync';
+	@override String get diff_no_diff => 'Aucun diff disponible pour ce fichier.';
+	@override String get fetching => 'Fetch en cours…';
+	@override String get stashes_title => 'Stashes';
+	@override String get stash => 'Stash';
+	@override String get stashing => 'Stash en cours…';
+	@override String get apply_stash => 'Appliquer le stash';
+	@override String get pop_stash => 'Pop le stash';
+	@override String get drop_stash => 'Supprimer le stash';
+	@override String get merge_aborted => 'Merge abandonné. Répertoire de travail restauré.';
+	@override String get new_branch_btn => '+ Nouvelle branche';
+	@override String get abort_merge => 'Abandonner le merge';
+	@override String get merge_in_progress => 'Merge en cours';
+	@override String get working_tree_clean => 'Arbre de travail propre.';
+	@override String get staged_changes => 'Modifications à commiter';
+	@override String get unstage_all_changes => 'Tout retirer';
+	@override String get commits_title => 'Commits';
+	@override String get stage_file => 'Ajouter le fichier';
+	@override String get discard_file => 'Abandonner le fichier';
+	@override String get unstage_file => 'Retirer le fichier';
+	@override String get no_commits_found => 'Aucun commit trouvé.';
+	@override String get stage_all => 'Tout ajouter';
+	@override String get discard_all => 'Tout abandonner';
+	@override String get auth_connected_accounts => 'Comptes connectés';
+	@override String get auth_connect_hint => 'Connectez-vous à l\'hébergeur git de votre choix pour commencer, ou utilisez SSH sans rien connecter.';
+	@override String get worktrees_title => 'Worktrees';
+	@override String get worktree_current => 'Current';
+	@override String get no_worktrees => 'No additional worktrees';
+	@override String get switch_worktree => 'Switch to this worktree';
+	@override String get switched_worktree_ok => 'Switched to worktree.';
+	@override String get add_worktree => 'Nouveau worktree';
+	@override String get add_worktree_btn => 'Add worktree';
+	@override String get worktree_path_placeholder => 'Path (e.g. ../my-feature)';
+	@override String get worktree_branch_placeholder => 'Branch name (optional)';
+	@override String get worktree_created_ok => 'Worktree created.';
+	@override String get worktree_dirty => 'Uncommitted changes';
+	@override String get remove_worktree => 'Remove worktree';
+	@override String get remove_worktree_confirm_desc => 'Supprimer le worktree situé dans {{path}} ? Son répertoire sera supprimé. La branche et les commits seront conservés.';
+	@override String get worktree_removed_ok => 'Worktree removed.';
+	@override String get auto_fetch_label => 'Fetch automatically';
+	@override String get auto_fetch_hint => 'Runs git fetch every few minutes so the pull bubble always shows how many commits you\'re behind, without merging anything. Leave it off to only fetch when you click Fetch.';
+	@override String get commits_to_push => '{{count}} commit(s) to push';
+	@override String get commits_to_pull => '{{count}} commit(s) to pull';
+	@override String get filter_changes => 'Filter changed files…';
+	@override String get no_matching_changes => 'No matching changes.';
+	@override String get worktree_location_label => 'Directory';
+	@override String get worktree_location_hint => 'Use a new directory. Relative paths are resolved from the current repository.';
+	@override String get worktree_branch_label => 'New branch (optional)';
+	@override String get worktree_branch_hint => 'Leave blank to use the directory name as the new branch name.';
+	@override String get worktree_browse_parent => 'Choose parent directory';
+	@override String get worktree_removing => 'Removing…';
+	@override String get worktree_main => 'Main';
+	@override String get worktree_detached => 'Detached HEAD · {{hash}}';
+	@override String get worktrees_load_error => 'Could not load worktrees.';
+	@override String get switch_worktree_named => 'Switch to {{name}}';
+	@override String get worktree_discard_changes => 'Discard uncommitted changes';
+	@override String get worktree_discard_warning => 'This worktree has uncommitted changes. Removing it with this option will permanently discard them.';
+	@override String get discard_dialog_title => 'Discard changes?';
+	@override String get discard_dialog_tracked_desc => 'This reverts all tracked files to the last commit.';
+	@override String get discard_dialog_untracked_heading => 'These untracked files would be permanently deleted ({{n}}):';
+	@override String get discard_dialog_no_untracked => 'No untracked files will be affected.';
+	@override String get discard_opt_tracked => 'Discard tracked changes';
+	@override String get discard_opt_tracked_hint => 'Reverts tracked files. Leaves untracked files untouched.';
+	@override String get discard_opt_untracked => 'Also remove untracked files';
+	@override String get discard_opt_untracked_hint => 'Permanently deletes the files listed above. This cannot be undone.';
+	@override String get discard_opt_stash => 'Stash everything instead';
+	@override String get discard_opt_stash_hint => 'Saves tracked and untracked changes to a stash you can restore later.';
+	@override String get protected_branch_tooltip => '{{branch}} is protected on the remote';
+	@override String get protected_branch_title => 'Protected branch';
+	@override String get protected_branch_desc => '{{branch}} is protected on the remote, so pushing commits to it directly may be rejected. Commit anyway, or move these changes to a new branch and open a pull request.';
+	@override String get protected_branch_new_label => 'New branch name';
+	@override String get protected_branch_commit_anyway => 'Commit anyway';
+	@override String get protected_branch_create_pr => 'Create branch & open PR';
+	@override String get protected_branch_creating_pr => 'Opening pull request…';
+	@override String get pr_opened_ok => 'Pushed {{branch}} and opened a pull request.';
+}
+
+// Path: nav
+class _Translations$nav$fr_FR extends Translations$nav$en_US {
+	_Translations$nav$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get dashboard => 'Tableau de bord';
+	@override String get projects => 'Projets';
+	@override String projects_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'Project',
+		many: 'Projets',
+		other: 'Projects',
+	);
+	@override String get versions => 'Versions';
+	@override String get templates => 'Modèles';
+	@override String get vault => 'Vault';
+	@override String get asset_store => 'Asset Store';
+	@override String get news => 'Godot News';
+	@override String get storage_view => 'Storage';
+	@override String get settings => 'Paramètres';
+	@override String get changelog => 'Changelog';
+	@override String get group_workspace => 'Espace de travail';
+	@override String get group_resources => 'Ressources';
+	@override String get group_explore => 'Explorer';
+	@override String get you => 'You';
+	@override String get account_manage => 'Manage accounts';
+	@override String get workspace_tip_title => 'Le sélecteur d\'espaces a été déplacé';
+	@override String get workspace_tip_body => 'Changez et gérez les espaces de travail depuis le menu du compte ci-dessous.';
+	@override String get workspace_tip_dismiss => 'Compris';
+}
+
+// Path: onboarding
+class _Translations$onboarding$fr_FR extends Translations$onboarding$en_US {
+	_Translations$onboarding$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get welcome => 'Bienvenue';
+	@override String get finish => 'Terminer';
+	@override String get in_progress => 'En cours';
+	@override String get prototypes => 'Prototypes';
+	@override String get finished => 'Terminés';
+	@override String get game_jams => 'Game Jams';
+	@override String get project_folders => 'Dossiers de projets';
+	@override String get version_folders => 'Dossiers de versions';
+	@override String get welcome_title => 'Bienvenue sur GodotHub';
+	@override String get welcome_desc => 'Un endroit pour chaque projet Godot et chaque version du moteur sur cette machine. Configurons quelques éléments pour que ça fonctionne comme vous le souhaitez, cela ne prend qu\'une minute, et tout ici peut être modifié plus tard dans les Paramètres.';
+	@override String get onboard_empty_projects => 'Aucun dossier ajouté pour le moment, GodotHub ne trouvera aucun projet existant tant que vous n\'en ajoutez pas un, ou vous pouvez ajouter des projets manuellement plus tard.';
+	@override String get onboard_empty_versions => 'Aucun dossier ajouté pour le moment, les nouveaux téléchargements de Godot iront dans le dossier des données de l\'application sauf si vous en définissez un ci-dessous.';
+	@override String get onboard_no_template_folder => 'Aucun dossier défini, vous pouvez toujours configurer cela plus tard dans les Paramètres, ou enregistrer les modèles manuellement.';
+	@override String get onboard_cloud_heading => 'Sauvegarde Cloud';
+	@override String get onboard_cloud_desc => 'Vous avez déjà une sauvegarde ? Connectez-vous avec GitHub et restaurez vos espaces de travail, projets et paramètres à partir d\'un gist.';
+	@override String get discovery_recent_heading => 'Recent projects from Godot';
+	@override String get discovery_installs_heading => 'Godot found on this computer';
+	@override String get discovery_scanning_projects => 'Reading Godot\'s project manager list…';
+	@override String get discovery_scanning_installs => 'Looking for Godot on your PATH and in Steam…';
+	@override String get discovery_engine => 'Godot {{version}}';
+	@override String get discovery_favorite => 'Favorite';
+	@override String get discovery_add_selected => 'Add selected';
+	@override String get discovery_add_selected_count => 'Add selected ({{count}})';
+	@override String discovery_added_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'Added ${count} project.',
+		many: 'Added ${count} projects.',
+		other: 'Added ${count} projects.',
+	);
+	@override String discovery_added_versions({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'Added ${count} version.',
+		many: 'Added ${count} versions.',
+		other: 'Added ${count} versions.',
+	);
+	@override String get discovery_link_hint => 'Projects are linked to a matching Godot version automatically, including versions you add in the next step.';
+	@override String get setup => 'Setup';
+	@override String get setup_title => 'How do you want to use GodotHub?';
+	@override String get setup_desc => 'Pick a starting point. Anything you leave out is hidden and never loads, so GodotHub stays quick. You can change this anytime in Settings, under Behavior.';
+	@override String get preview_heading => 'Preview';
+	@override String get step_of => 'Step {{current}} of {{total}}';
+	@override String get dive_in => 'Dive In';
+	@override String get workspace_step => 'Workspace';
+	@override String get first_workspace_title => 'Create your first workspace';
+	@override String get first_workspace_desc => 'A workspace holds your projects, categories, and settings. Give this one a name and a look that feels like yours, you can add more later.';
+	@override String get basics => 'Basics';
+	@override String get basics_title => 'A few basics';
+	@override String get basics_desc => 'Pick your language, bring back a cloud backup if you have one, and choose whether Discord shows what you\'re working on.';
+	@override String get welcome_to => 'Welcome to';
+	@override String get welcome_to_name => 'Hey {{name}}, welcome to';
+	@override String get found_title => 'Your library is ready';
+	@override String get found_desc => 'Here\'s everything GodotHub found on this machine. Taking you in now.';
+}
+
+// Path: settings
+class _Translations$settings$fr_FR extends Translations$settings$en_US {
+	_Translations$settings$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get storage => 'Stockage';
+	@override String get behavior => 'Comportement';
+	@override String get display => 'Affichage';
+	@override String get appearance => 'Apparence';
+	@override String get accessibility => 'Accessibilité';
+	@override String get accessibility_desc => 'Annonces du lecteur d\'écran et options d\'assistance technologique.';
+	@override String get app_version_label => 'GodotHub v{{version}}';
+	@override String get landing_dashboard => 'Dashboard';
+	@override String get landing_projects => 'Projects';
+	@override String get landing_versions => 'Versions';
+	@override String get landing_news => 'Godot News';
+	@override String get screen_reader_label => 'Annonces du lecteur d\'écran';
+	@override String get advanced => 'Avancé';
+	@override String get integrations => 'Intégrations';
+	@override String get motion => 'Motion';
+	@override String get data => 'Data & Backup';
+	@override String get git_auth_title => 'Se connecter avec {{provider}}';
+	@override String get git_auth_copy_code => 'Copier le code';
+	@override String get git_auth_copy_link => 'Copy link';
+	@override String get git_auth_waiting => 'En attente de votre autorisation…';
+	@override String get git_sign_in_gitlab => 'Se connecter avec GitLab';
+	@override String get git_connected_to => 'Connecté à {{host}} en tant que @{{username}}';
+	@override String get git_self_hosted_title => 'GitLab auto-hébergé';
+	@override String get git_self_hosted_desc => 'Connectez-vous à votre propre instance GitLab. Créez une application OAuth sur votre instance (scopes : read_repository, write_repository, read_user) et collez son URL de base et son Application ID.';
+	@override String get git_self_hosted_url_placeholder => 'https://gitlab.example.com';
+	@override String get git_self_hosted_client_id => 'Application ID';
+	@override String get git_sign_in_self_hosted => 'Se connecter avec l\'instance';
+	@override String get git_pat_title => 'Autres hébergeurs (tokens d\'accès personnels)';
+	@override String get git_pat_add => 'Ajouter un token';
+	@override String get git_pat_host_placeholder => 'ex. codeberg.org';
+	@override String get git_pat_username => 'Nom d\'utilisateur';
+	@override String get git_pat_token => 'Token';
+	@override String get git_pat_save => 'Enregistrer le token';
+	@override String get git_pat_empty => 'Aucun token ajouté pour le moment.';
+	@override String get git_pat_remove => 'Supprimer le token';
+	@override String get storage_title => 'Stockage et scan automatique';
+	@override String get behavior_projects_title => 'Projets';
+	@override String get file_watchers_title => 'Surveillance des fichiers';
+	@override String get last_opened_title => 'Affichage de la dernière ouverture';
+	@override String get github_token_title => 'Token d\'API GitHub';
+	@override String get titlebar_buttons => 'Boutons de la barre de titre';
+	@override String get setup_wizard => 'Assistant de configuration';
+	@override String get setup_wizard_again => 'Relancer l\'assistant de configuration';
+	@override String get restart_app => 'Redémarrer l\'application';
+	@override String get restart_app_confirm_title => 'Redémarrer GodotHub ?';
+	@override String get restart_app_confirm_desc => 'L\'application va se fermer et se rouvrir automatiquement. Les opérations en cours peuvent être interrompues.';
+	@override String get reset_settings => 'Réinitialiser les paramètres';
+	@override String get delete_app_data => 'Supprimer les données de l\'application';
+	@override String get new_project_default => 'Défaut pour les nouveaux projets';
+	@override String get download_folder => 'Dossier de téléchargement';
+	@override String get system => 'Système';
+	@override String get k12h => '12 heures (2:30 PM)';
+	@override String get k24h => '24 heures (14:30)';
+	@override String get dd_mm_yyyy => 'JJ-MM-AAAA';
+	@override String get mm_dd_yyyy => 'MM-JJ-AAAA';
+	@override String get yyyy_mm_dd => 'AAAA-MM-JJ';
+	@override String get reset_all_title => 'Réinitialiser tous les paramètres ?';
+	@override String get reset_all_desc => 'Cela restaure tous les paramètres de cette page, dossier de téléchargement, dossiers à scanner, apparence et comportement, à leurs valeurs par défaut. Cette action est irréversible.';
+	@override String get delete_all_title => 'Supprimer toutes les données de l\'application ?';
+	@override String get delete_all_desc => 'Cela supprime définitivement tous les espaces de travail, projets, catégories, enregistrements de versions installées et paramètres stockés par GodotHub, et vous ramène à la configuration initiale. Vos dossiers de projets et vos installations de Godot sur le disque ne sont pas touchés, sauf s\'ils se trouvent dans le dossier de téléchargement par défaut, auquel cas ils sont supprimés aussi. Cette action est irréversible.';
+	@override String get empty_hint_projects => 'Aucun dossier ajouté, rien ne sera scanné au démarrage, et les nouveaux projets demanderont où les enregistrer à chaque fois.';
+	@override String get empty_hint_versions => 'Aucun dossier ajouté, rien ne sera scanné au démarrage, et les nouveaux téléchargements utiliseront le dossier de données de l\'application.';
+	@override String get naming_convention_label => 'Convention de nommage des dossiers';
+	@override String get naming_keep => 'Tel que saisi (My Game)';
+	@override String get naming_kebab => 'kebab-case (my-game)';
+	@override String get naming_snake => 'snake_case (my_game)';
+	@override String get naming_camel => 'camelCase (myGame)';
+	@override String get naming_pascal => 'PascalCase (MyGame)';
+	@override String get naming_title => 'Title Case (My Game)';
+	@override String get theme => 'Thème';
+	@override String get theme_preset_label => 'Préréglage de thème';
+	@override String get theme_preset_custom => 'Personnalisé';
+	@override String get preset_light_group => 'Thèmes clairs';
+	@override String get preset_dark_group => 'Thèmes sombres';
+	@override String get test => 'Tester';
+	@override String get testing => 'Test…';
+	@override String get token_valid => 'Token valide ! Limite de requêtes : {{status}}';
+	@override String get token_resets_in => '(resets ~{{minutes}} min)';
+	@override String get test_failed => 'Échec du test : {{error}}';
+	@override String get key_space => 'Espace';
+	@override String get no_settings_match => 'Aucun paramètre ne correspond';
+	@override String get scan_result => '{{projects}} nouveau(x) projet(s) et {{versions}} nouvelle(s) version(s) trouvé(s).';
+	@override String get palette_shortcut => 'Raccourci de la palette de commandes';
+	@override String get keybind_instruction => 'Cliquez sur le bouton ci-dessous, puis appuyez sur une touche pour réassigner.';
+	@override String get press => 'Appuyez sur';
+	@override String get to_cancel => 'pour annuler';
+	@override String get press_key => 'Appuyez sur une touche…';
+	@override String get click_to_rebind => 'Cliquer pour réassigner';
+	@override String get close_on_open_label => 'Fermer l\'application à l\'ouverture d\'un projet';
+	@override String get launch_console_label => 'Lancer Godot avec la console';
+	@override String get builtin_console_label => 'Use the built-in console';
+	@override String get minimize_tray_label => 'Réduire dans la zone de notification à la fermeture';
+	@override String get reopen_label => 'Rouvrir après la fermeture de Godot';
+	@override String get no_folder_set => 'Aucun dossier défini. Vous pouvez toujours importer manuellement ou utiliser \'Enregistrer comme modèle\'.';
+	@override String get ui_density_label => 'Densité de l\'interface';
+	@override String get text_size_label => 'Taille du texte';
+	@override String get section_godot_versions => 'Versions de Godot';
+	@override String get scan_depth_label => 'Profondeur de scan';
+	@override String get icon_scan_depth_label => 'Profondeur de recherche des icônes de projet';
+	@override String get download_concurrency_label => 'Téléchargements simultanés';
+	@override String get tray_recent_label => 'Projets récents dans la zone de notification';
+	@override String get tooltip_delay_label => 'Délai des infobulles';
+	@override String get project_icon_opacity_label => 'Opacité des icônes de projet';
+	@override String get time_format_label => 'Format de l\'heure (affiché si ouvert aujourd\'hui)';
+	@override String get date_format_label => 'Format de la date (affiché pour tout autre jour)';
+	@override String get auto_scan_label => 'Scan automatique au démarrage';
+	@override String get use_workspaces_label => 'Utiliser les espaces de travail';
+	@override String get watch_projects_label => 'Surveiller les dossiers de projets';
+	@override String get watch_versions_label => 'Surveiller les dossiers de versions';
+	@override String get watch_template_label => 'Surveiller le répertoire des modèles';
+	@override String get show_scrollbar_label => 'Afficher la barre de défilement';
+	@override String get animated_numbers_label => 'Nombres animés';
+	@override String get show_support_label => 'Afficher le bouton Soutenir';
+	@override String get show_star_label => 'Afficher le bouton Star';
+	@override String get show_bug_label => 'Show bug report button';
+	@override String get show_tray_label => 'Show tray button';
+	@override String get show_language_label => 'Show language button';
+	@override String get clear => 'Effacer';
+	@override String get reset_to_default => 'Rétablir la valeur par défaut';
+	@override String get reset_appearance => 'Rétablir l\'apparence par défaut';
+	@override String get delete_all => 'Tout supprimer';
+	@override String get open_setup => 'Ouvrir la configuration';
+	@override String get reset_colors => 'Rétablir les couleurs par défaut';
+	@override String folders_deep({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} dossier de profondeur',
+		many: '${count} folders deep',
+		other: '${count} dossiers de profondeur',
+	);
+	@override String get at_once => '{{count}} à la fois';
+	@override String get animation_speed_label => 'Animation speed';
+	@override String get scroll_reveal_label => 'Scroll reveal';
+	@override String get card_tilt_label => 'Card tilt on hover';
+	@override String get click_ripple_label => 'Click ripple';
+	@override String get press_bounce_label => 'Press bounce';
+	@override String get animation_intensity_label => 'Intensité des animations';
+	@override String get animation_full => 'Complète';
+	@override String get animation_subtle => 'Subtile';
+	@override String get animation_none => 'Aucune';
+	@override String get view_entrance_label => 'Animation d\'entrée des vues';
+	@override String get entrance_fade => 'Fondu';
+	@override String get entrance_slide => 'Glissement';
+	@override String get entrance_scale => 'Zoom';
+	@override String get entrance_none => 'Aucune';
+	@override String get custom_css_label => 'CSS personnalisé';
+	@override String get custom_css_placeholder => '/* Vos styles personnalisés, ex. */\n.card { border-radius: 4px !important; }';
+	@override String get custom_css_apply => 'Appliquer le CSS';
+	@override String get custom_css_applied => 'CSS appliqué';
+	@override String get animation_threshold_label => 'Seuil d\'animation des listes';
+	@override String get time_tracking_title => 'Sauvegarde du suivi du temps';
+	@override String get export_stats_btn => 'Exporter les stats…';
+	@override String get import_stats_btn => 'Importer des stats…';
+	@override String get stats_exported => 'Statistiques de temps exportées.';
+	@override String get clear_stats_confirm_title => 'Effacer toutes les données de temps ?';
+	@override String get clear_stats_confirm_desc => 'Cela supprime définitivement tout l\'historique de suivi du temps, les enregistrements de sessions et les totaux par projet. Cette action est irréversible.';
+	@override String get clear_stats_confirm_btn => 'Tout effacer';
+	@override String get stats_cleared => 'Données de temps effacées.';
+	@override String get settings_backup_title => 'Sauvegarde des paramètres';
+	@override String get export_settings_btn => 'Exporter les paramètres';
+	@override String get import_settings_btn => 'Importer des paramètres';
+	@override String get workspace_backup_title => 'Sauvegarde de l\'espace de travail';
+	@override String get workspace_backup_export_btn => 'Exporter l\'espace de travail';
+	@override String get workspace_backup_restore_btn => 'Restaurer l\'espace de travail';
+	@override String get workspace_backup_exported => 'Sauvegarde de l\'espace de travail exportée.';
+	@override String get workspace_backup_imported => 'Espace de travail restauré.';
+	@override String get app_backup_title => 'Tout sauvegarder (tous les espaces de travail)';
+	@override String get app_backup_export_btn => 'Tout exporter';
+	@override String get app_backup_restore_btn => 'Tout restaurer';
+	@override String get app_backup_exported => 'Sauvegarde complète exportée.';
+	@override String get app_backup_imported => 'Tous les espaces de travail ont été restaurés.';
+	@override String get sync_title => 'Synchronisation cloud (gist GitHub)';
+	@override String get sync_push_btn => 'Push';
+	@override String get sync_pull_btn => 'Pull';
+	@override String get sync_push_done => 'Tous les espaces de travail ont été envoyés vers votre gist.';
+	@override String get sync_open_gist => 'Ouvrir le gist';
+	@override String get sync_last_pushed => 'Dernier push : {{time}}';
+	@override String get sync_manual_hint => 'Vous avez perdu vos données locales ? Saisissez l\'URL ou l\'ID de votre gist pour restaurer depuis n\'importe quelle machine.';
+	@override String get sync_manual_placeholder => 'https://gist.github.com/... ou ID du gist';
+	@override String get sync_manual_pull_btn => 'Restaurer';
+	@override String get restore_modal_title => 'Restaurer depuis le cloud';
+	@override String get restore_modal_fetching => 'Récupération de la sauvegarde depuis GitHub…';
+	@override String get restore_modal_applying => 'Application de la sauvegarde et redémarrage…';
+	@override String get restore_modal_preview_desc => 'Votre sauvegarde gist contient :';
+	@override String restore_modal_workspaces({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'espace de travail',
+		many: 'workspaces',
+		other: 'espaces de travail',
+	);
+	@override String restore_modal_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'projet',
+		many: 'projects',
+		other: 'projets',
+	);
+	@override String restore_modal_categories({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'catégorie',
+		many: 'categories',
+		other: 'catégories',
+	);
+	@override String restore_modal_templates({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'modèle',
+		many: 'templates',
+		other: 'modèles',
+	);
+	@override String get restore_modal_time_stats => 'Inclut les données de suivi du temps';
+	@override String restore_modal_todos({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'Includes ${count} to-do',
+		many: 'Includes ${count} to-dos',
+		other: 'Includes ${count} to-dos',
+	);
+	@override String get restore_modal_project_scan_dirs => '{{count}} dossier(s) de projets à restaurer';
+	@override String get restore_modal_version_scan_dirs => '{{count}} dossier(s) de versions Godot à restaurer';
+	@override String get restore_modal_workspace_list => 'Espaces de travail';
+	@override String get restore_modal_warning => 'Cela écrasera vos paramètres actuels et les données de votre espace de travail. Vous devrez redémarrer l\'application pour appliquer les changements.';
+	@override String get restore_modal_apply_btn => 'Appliquer et redémarrer';
+	@override String get restore_modal_done_title => 'Sauvegarde restaurée';
+	@override String get restore_modal_done_hint => 'Cliquez sur le bouton ci-dessous pour redémarrer et appliquer tous les changements.';
+	@override String get settings_exported => 'Paramètres exportés.';
+	@override String get settings_imported => 'Paramètres importés.';
+	@override String stats_imported({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'Statistiques importées pour ${count} projet.',
+		many: 'Imported stats for ${count} projects.',
+		other: 'Statistiques importées pour ${count} projets.',
+	);
+	@override String get raised_contrast_label => 'Contraste des surfaces surélevées';
+	@override String get raised_contrast_value => '{{value}} %';
+	@override String get token_help_desc => 'Créez un token sur github.com/settings/tokens. Vous n\'avez besoin de cocher le scope repo que si vous voulez accéder à des dépôts privés, sinon laissez tous les scopes décochés. Aucune permission sensible n\'est requise.';
+	@override String get discord_app_id_label => 'Application ID Discord';
+	@override String get discord_app_id_placeholder => 'Laisser vide pour utiliser celui intégré par défaut';
+	@override String get discord_app_id_desc => 'Créez une application dans le Discord Developer Portal et collez son Application ID ici pour utiliser la vôtre au lieu de celle intégrée à GodotHub. L\'activité s\'affiche alors sous le nom de cette application.';
+	@override String get discord_developer_portal => 'Discord Developer Portal';
+	@override String get discord_builtin_hint => 'Utilisation de l\'application GodotHub intégrée.';
+	@override String get discord_show_projects_label => 'Afficher les noms de projets';
+	@override String get discord_excluded_label => 'Projets exclus';
+	@override String get discord_exclude_project => 'Ajouter un projet';
+	@override String get discord_excluded_empty => 'Aucun projet exclu.';
+	@override String get discord_excluded_remove => 'Retirer des projets exclus';
+	@override String get discord_custom_label => 'Présence personnalisée';
+	@override String get discord_custom_add => 'Ajouter un projet';
+	@override String get discord_custom_details_placeholder => 'Ligne Details';
+	@override String get discord_custom_state_placeholder => 'Ligne State';
+	@override String get discord_custom_remove => 'Supprimer la présence personnalisée';
+	@override String get search_placeholder => 'Rechercher dans les paramètres…';
+	@override String get interface_label => 'Interface';
+	@override String get card_layout_label => 'Disposition en cartes';
+	@override String get landing_tab_label => 'Page d\'accueil par défaut';
+	@override String get language_complete => 'Complète';
+	@override String get language_beta => 'Bêta';
+	@override String get language_incomplete => 'Incomplète';
+	@override String get use_os_decorations => 'Utiliser les décorations de fenêtre du système';
+	@override String get credits => 'Crédits';
+	@override String get credits_developer => 'Créé par';
+	@override String get credits_built_with => 'Construit avec';
+	@override String get credits_contributors => 'Contributeurs';
+	@override String get experimental => 'Experimental';
+	@override String get customize_view_label => 'Customize View button';
+	@override String get fixed_sidebar_resize_knob_label => 'Fixed sidebar resize knob';
+	@override String get desktop_notifications_label => 'Desktop notifications';
+	@override String get colored_titlebar_buttons_label => 'Colored window buttons';
+	@override String get project_todos_label => 'Project Next Steps';
+	@override String get mise_label => 'Use mise for Godot versions';
+	@override String get mise_detected => 'Detected mise {{version}}';
+	@override String get mise_not_found => 'mise was not found on your PATH, so this stays off until you install it.';
+	@override String get cli_tool_title => 'Command-line tool';
+	@override String get cli_tool_install => 'Install';
+	@override String get cli_tool_installing => 'Installing...';
+	@override String get cli_tool_installed_msg => 'Installed. Open a new terminal, then run: godothub';
+	@override String get cli_tool_uninstalled_msg => 'Removed. The godothub command is no longer on your PATH.';
+	@override String get git_auth_step_copy => 'Copy your code';
+	@override String get git_auth_step_paste => 'Paste it on {{provider}}';
+	@override String get git_auth_step_approve => 'Approve GodotHub';
+	@override String get git_auth_copy_and_open => 'Copy code & open {{provider}}';
+	@override String get git_auth_copied => 'Copied';
+	@override String get git_auth_expires_in => 'Expires in {{time}}';
+	@override String get git_auth_expired => 'This code has expired';
+	@override String get git_auth_failed => 'Couldn’t connect';
+	@override String get git_auth_try_again => 'Try again';
+	@override String get git_auth_success_hint => 'You can close this window.';
+	@override String get show_changelog_label => 'Show changelog button';
+	@override String get features_title => 'Features';
+	@override String get features_desc => 'Choose which parts of GodotHub you use. Hidden features leave the sidebar and stop loading or running in the background.';
+	@override String get features_always_on => 'Always on';
+	@override String get features_optional => 'Optional';
+	@override String features_enabled_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} feature on',
+		many: '${count} features on',
+		other: '${count} features on',
+	);
+	@override String get setup_profile_minimal => 'Minimal';
+	@override String get setup_profile_minimal_desc => 'Just projects and Godot versions. The lightest, fastest setup.';
+	@override String get setup_profile_essentials => 'Essentials';
+	@override String get setup_profile_essentials_desc => 'Adds the Asset Store, templates, and categories.';
+	@override String get setup_profile_studio => 'Studio';
+	@override String get setup_profile_studio_desc => 'Essentials plus the dashboard, vault, storage, and workspaces.';
+	@override String get setup_profile_complete => 'Everything';
+	@override String get setup_profile_complete_desc => 'Every feature GodotHub has, including Godot news.';
+	@override String get setup_profile_custom => 'Custom';
+	@override String get setup_profile_custom_desc => 'Turn individual features on or off.';
+	@override String get feature_desc_dashboard => 'An overview of your activity, playtime, and recent projects.';
+	@override String get feature_desc_templates => 'Start new projects from your own reusable templates.';
+	@override String get feature_desc_vault => 'Keep reusable scripts, scenes, and assets in one library.';
+	@override String get feature_desc_storage => 'See how much disk space projects and engines use.';
+	@override String get feature_desc_asset_store => 'Browse and install addons and demos from the Godot Asset Library.';
+	@override String get feature_desc_categories => 'Group your project list into folders.';
+	@override String get feature_desc_workspaces => 'Switch between separate sets of projects and settings.';
+}
+
+// Path: todos
+class _Translations$todos$fr_FR extends Translations$todos$en_US {
+	_Translations$todos$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get next_steps => 'Next steps';
+	@override String get saving_tasks => 'Saving tasks';
+	@override String pending_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} pending',
+		many: '${count} pending',
+		other: '${count} pending',
+	);
+	@override String completed_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} completed',
+		many: '${count} completed',
+		other: '${count} completed',
+	);
+	@override String get new_task => 'New task';
+	@override String get hide_next_steps => 'Hide next steps';
+	@override String get save_changes_failed => 'Could not save the changes.';
+	@override String get loading_tasks => 'Loading tasks...';
+	@override String get load_tasks_failed => 'Could not load tasks';
+	@override String get data_unchanged => 'Your data was not modified.';
+	@override String get empty_title => 'No tasks yet';
+	@override String get empty_description => 'Add the first next step for this project.';
+	@override String get create_task => 'Create task';
+	@override String get all_completed_title => 'All done';
+	@override String get all_completed_description => 'You completed all the next steps for this project.';
+	@override String get footer_hint => 'Use the list to keep track of the project\'s next steps.';
+	@override String get view_all => 'View all';
+	@override String get delete_task_title => 'Delete task?';
+	@override String get delete_task_description => 'The task <strong>“{{title}}”</strong> will be deleted. This action cannot be undone.';
+	@override String get task => 'Task';
+	@override String get area => 'Discipline';
+	@override String get status => 'Status';
+	@override String get due_date => 'Due date';
+	@override String get sort_by_status => 'Sort by status';
+	@override String get sort_by_due_date => 'Sort by due date';
+	@override String get change_status => 'Change status: {{status}}';
+	@override String get overdue => 'Overdue';
+	@override String get mark_completed => 'Mark task as completed';
+	@override String get mark_not_completed => 'Mark task as not completed';
+	@override String get view_task_details => 'View task details: {{title}}';
+	@override String get task_actions => 'Task actions';
+	@override String get edit => 'Edit';
+	@override String get status_todo => 'To do';
+	@override String get status_paused => 'Paused';
+	@override String get status_in_progress => 'In progress';
+	@override String get status_done => 'Completed';
+	@override String get area_programming => 'Programming';
+	@override String get area_art => 'Art';
+	@override String get area_audio => 'Audio';
+	@override String get area_design => 'Design';
+	@override String get area_narrative => 'Narrative';
+	@override String get area_other => 'Other';
+	@override String get edit_task => 'Edit task';
+	@override String get title => 'Title';
+	@override String get title_placeholder => 'E.g.: Create main menu';
+	@override String get description_placeholder => 'Add more details about what needs to be done...';
+	@override String get no_due_date => 'No due date';
+	@override String get remove_due_date => 'Remove due date';
+	@override String get past_due_date => 'This due date has passed';
+	@override String get save_task_failed => 'Could not save the task. Try again.';
+	@override String get add_task => 'Add task';
+	@override String get no_description => 'No description';
+	@override String get tomorrow => 'Tomorrow';
+	@override String due_in_days({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'Due in ${count} day',
+		many: 'Due in ${count} days',
+		other: 'Due in ${count} days',
+	);
+	@override String get overdue_yesterday => 'Was due yesterday';
+	@override String overdue_days({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'Overdue by ${count} day',
+		many: 'Overdue by ${count} days',
+		other: 'Overdue by ${count} days',
+	);
+	@override String get scan_code => 'Scan code';
+	@override String get scan_code_hint => 'Import TODO and FIXME comments from scripts and shaders, and complete to-dos whose comment was removed';
+	@override String get comment_scan_summary => 'Code scan: {{imported}} added, {{closed}} completed, {{reopened}} reopened';
+	@override String get comment_scan_none => 'Code scan found no changes';
+	@override String commit_closed({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'Completed ${count} to-do from a commit message',
+		many: 'Completed ${count} to-dos from commit messages',
+		other: 'Completed ${count} to-dos from commit messages',
+	);
+	@override String get linked_file => 'Linked file';
+	@override String get linked_file_placeholder => 'res://scenes/player.tscn';
+	@override String get linked_file_hint => 'Link a scene, script or resource from this project.';
+	@override String get linked_file_invalid => 'Use a res:// path from this project.';
+	@override String get open_linked_file => 'Open {{path}}';
+	@override String get open_file => 'Open';
+	@override String get source_comment => 'Imported from a {{tag}} comment';
+	@override String get closed_by_commit => 'Completed by commit {{hash}}: {{subject}}';
+	@override String get closed_by_comment_removed => 'Completed because its comment was removed from the code';
+	@override String get todo_reference => 'Reference';
+	@override String get todo_reference_hint => 'Write "Fixes {{ref}}" in a commit message to complete it automatically.';
+	@override String get git_activity_loading => 'Looking through Git history…';
+	@override String get git_activity_empty => 'No commits or branches mention {{ref}} yet.';
+	@override String get git_branches => 'Branches';
+	@override String get git_commit_closes => 'Closes';
+	@override String get quick_add_placeholder => 'Add a to-do and press Enter';
+	@override String get priority => 'Priority';
+	@override String get priority_none => 'None';
+	@override String get priority_low => 'Low';
+	@override String get priority_medium => 'Medium';
+	@override String get priority_high => 'High';
+	@override String get priority_label => '{{priority}} priority';
+	@override String get checklist => 'Checklist';
+	@override String get checklist_add_placeholder => 'Add a checklist item and press Enter';
+	@override String get checklist_remove => 'Remove item';
+	@override String get checklist_progress => '{{done}} of {{total}} done';
+	@override String get completed_on => 'Done {{date}}';
+	@override String get completed_on_full => 'Completed {{date}}';
+	@override String get search_tasks_placeholder => 'Search to-dos…';
+	@override String get all_areas => 'All areas';
+	@override String get no_matching_tasks => 'No to-dos match your search.';
+	@override String open_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} to-do',
+		many: '${count} to-dos',
+		other: '${count} to-dos',
+	);
+	@override String overdue_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} overdue',
+		many: '${count} overdue',
+		other: '${count} overdue',
+	);
+	@override String get tile_summary => '{{overdue}} overdue · {{soon}} due this week';
+	@override String get tile_empty => 'Nothing overdue or due this week.';
+	@override String due_notification_title({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'To-do due: {{title}}',
+		many: '${count} to-dos are due',
+		other: '${count} to-dos are due',
+	);
+	@override String get due_notification_more => 'and {{count}} more';
+}
+
+// Path: versions
+class _Translations$versions$fr_FR extends Translations$versions$en_US {
+	_Translations$versions$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get standard => 'Standard';
+	@override String get unbound => 'unbound';
+	@override String get mono => 'Mono';
+	@override String get both => 'Les deux';
+	@override String get stable => 'Stable';
+	@override String get unstable => 'Instable';
+	@override String get rename => 'Renommer';
+	@override String get open_editor => 'Ouvrir l\'éditeur';
+	@override String get open_editor_with_console => 'Ouvrir l\'éditeur avec la console';
+	@override String get more_editor_launch_options => 'Plus d\'options de lancement de l\'éditeur';
+	@override String get open_install_folder => 'Ouvrir le dossier d\'installation';
+	@override String get type => 'Type';
+	@override String get channel => 'Canal';
+	@override String get fetch_error => 'Impossible de récupérer les versions disponibles.';
+	@override String get paused_dot => 'En pause · ';
+	@override String get available_title => 'VERSIONS DISPONIBLES';
+	@override String get no_versions_match => 'Aucune version installée ne correspond';
+	@override String get no_available_versions_match => 'Aucune version disponible ne correspond';
+	@override String get open => 'Ouvrir';
+	@override String get install => 'Installer';
+	@override String get mb => 'MB';
+	@override String get resume_download => 'Reprendre le téléchargement';
+	@override String get pause_download => 'Mettre en pause le téléchargement';
+	@override String get cancel_download => 'Annuler le téléchargement';
+	@override String installed_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		zero: 'No installs',
+		one: 'Installé',
+		many: 'Installed',
+		other: 'Installés',
+	);
+	@override String get installed_label => 'Installé';
+	@override String get original_name => 'Original';
+	@override String get source => 'Source';
+	@override String get source_github => 'GitHub';
+	@override String get source_archive => 'Archive Godot';
+	@override String get source_mise => 'mise';
+	@override String get switch_to_archive => 'Passer à l\'archive Godot';
+	@override String get sort_version_latest => 'Latest';
+	@override String get sort_version_oldest => 'Oldest';
+	@override String get sort_version_recently_installed => 'Recently Installed';
+	@override String get sort_version_oldest_installed => 'Oldest Installed';
+	@override String get set_as_current => 'Set as Current';
+	@override String get unset_current => 'Unset Current';
+	@override String get current_set_title => 'Version Set as Current';
+	@override String get current_dir_label => 'Folder';
+	@override String get current_copy => 'Copy';
+	@override String get current_copied => 'Copied';
+	@override String get current_copy_alias => 'Copy alias path';
+	@override String get current_copy_dir => 'Copy folder path';
+	@override String get current_open_folder => 'Open Alias Folder';
+	@override String get current_path_hint => 'Add the folder above to your PATH to run "Godot" from any terminal, script, or tool. The alias always follows the current version, so pinning another version or uninstalling this one updates it automatically.';
+	@override String get current_shim_note => 'Windows symlinks need Developer Mode or admin rights, so a launcher script was created instead. It behaves the same from the command line.';
+	@override String get mono_short => 'mono';
+	@override String get aliases_manage => 'Aliases';
+	@override String get aliases_title => 'Version Aliases';
+	@override String get aliases_empty => 'No aliases yet. Pick a version above, give the command a name, and it will appear in the aliases folder.';
+	@override String get aliases_no_versions => 'Install a Godot version first to create an alias.';
+	@override String get aliases_path_hint => 'Add the aliases folder to your PATH to run these names from any terminal or tool. The "Godot" command from the current version pin lives in the same folder.';
+	@override String get alias_create => 'Create Alias';
+	@override String get alias_add => 'Add Alias';
+	@override String get alias_name_label => 'Alias name';
+	@override String get alias_name_placeholder => 'godot-mono';
+	@override String get alias_copy_path => 'Copy alias path';
+	@override String get alias_shim_badge => 'script';
+	@override String get alias_mono_script_note => 'Mono builds load GodotSharp from the folder next to the executable, so on Windows the alias is created as a launcher script instead of a link.';
+	@override String alias_create_all({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'Create Alias',
+		many: 'Create ${count} Aliases',
+		other: 'Create ${count} Aliases',
+	);
+	@override String aliases_batch_created({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '1 alias created',
+		many: '${count} aliases created',
+		other: '${count} aliases created',
+	);
+	@override String aliases_batch_skipped({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '1 alias skipped',
+		many: '${count} aliases skipped',
+		other: '${count} aliases skipped',
+	);
+	@override String get alias_queue_duplicate => '"{{name}}" is already in the list';
+	@override String get alias_remove => 'Remove alias';
+	@override String get alias_remove_title => 'Remove this alias?';
+	@override String get alias_remove_desc => 'The command "{{name}}" will stop working. The Godot version itself stays installed.';
+	@override String get managed_by_mise => 'mise';
+	@override String get mise_installing => 'Installing with mise…';
+	@override String get mise_sync => 'Sync';
+	@override String get mise_sync_title => 'Import the Godot versions mise has installed so they show up here.';
+	@override String get mise_missing => 'mise not found';
+	@override String get mise_uninstall_desc => 'mise will uninstall {{tag}} from its own store. Projects that pin it in mise.toml will need it installed again.';
+	@override String get export_templates_installed => 'Templates';
+	@override String get export_templates_missing => 'No templates';
+	@override String get export_templates_install => 'Install export templates';
+	@override String get export_templates_remove => 'Remove export templates';
+	@override String get export_templates_remove_title => 'Remove export templates?';
+	@override String get export_templates_remove_desc => 'The export templates for {{tag}} will be deleted from disk. You can download them again later.';
+	@override String get export_templates_remove_confirm => 'Remove';
+	@override String get export_templates_open_folder => 'Open templates folder';
+	@override String get templates_folder => 'Dossier des modèles';
+	@override String get versions_folder => 'Dossier des versions';
+	@override String get export_templates_installed_toast => 'Export templates installed for {{tag}}';
+	@override String get export_templates_install_failed => 'Couldn\'t install export templates: {{error}}';
+	@override String get export_templates_removed_toast => 'Export templates removed';
+	@override String get export_templates_orphans_title => 'Unused template folders';
+	@override String get export_templates_orphans_desc => 'These folders don\'t match a Godot version managed by GodotHub.';
+	@override String get export_templates_orphan_delete => 'Delete folder';
+	@override String get export_templates_orphan_delete_title => 'Delete this template folder?';
+	@override String get export_templates_orphan_delete_desc => '"{{folder}}" will be deleted from disk.';
+	@override String get export_templates_orphan_deleted => 'Template folder deleted';
+	@override String get export_templates_choose => 'Choose export templates';
+	@override String export_templates_selected({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '1 template selected',
+		many: '${count} templates selected',
+		other: '${count} templates selected',
+	);
+	@override String get export_templates_size_summary => '~{{download}} download · {{installed}} on disk';
+	@override String get export_templates_download_selected => 'Download selected';
+	@override String get export_templates_loading_options => 'Checking this release\'s available templates…';
+	@override String get export_templates_options_failed => 'Couldn\'t load the templates for this release.';
+	@override String export_templates_available({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '1 available template group',
+		many: '${count} available template groups',
+		other: '${count} available template groups',
+	);
+	@override String get export_templates_select_all => 'Select all';
+	@override String export_templates_files({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '1 template file',
+		many: '${count} template files',
+		other: '${count} template files',
+	);
+	@override String get export_templates_option_installed => 'Installed';
+	@override String get export_templates_keep_existing => 'Expand a platform to choose architectures or individual files. Only selected files are downloaded. Your existing templates are kept.';
+	@override String get export_templates_uninstall_named => 'Uninstall {{name}}';
+	@override String get export_templates_uninstall_failed => 'Couldn\'t uninstall templates: {{error}}';
+	@override String get export_templates_category_desktop => 'Desktop';
+	@override String get export_templates_category_mobile => 'Mobile';
+	@override String get export_templates_category_web => 'Web';
+	@override String get export_templates_category_common => 'Common';
+	@override String get export_templates_category_other => 'Other';
+	@override String get export_templates_web_standard => 'Web';
+	@override String get export_templates_web_extensions => 'Web with Extensions';
+	@override String get export_templates_web_single_threaded => 'Web Single-Threaded';
+	@override String get export_templates_web_extensions_single_threaded => 'Web with Extensions Single-Threaded';
+	@override String get export_templates_refresh => 'Refresh available templates';
+	@override String get download_failed_title => 'Échec du téléchargement';
+	@override String get download_failed_asset_label => 'Fichier';
+	@override String get download_failed_error_label => 'Détails de l\'erreur';
+	@override String get download_failed_copy => 'Copier les détails';
+	@override String get download_failed_hint => 'Causes fréquentes : un réseau ou un proxy bloqué, un antivirus qui bloque le téléchargement, un dossier de téléchargement manquant ou en lecture seule, ou un espace disque insuffisant.';
+	@override String get custom_build_badge => 'Custom build';
+	@override String get add_custom_build => 'Add custom build…';
+	@override String get adding_custom_build => 'Adding custom build…';
+}
+
+// Path: common.project_doctor
+class _Translations$common$project_doctor$fr_FR extends Translations$common$project_doctor$en_US {
+	_Translations$common$project_doctor$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Project Doctor';
+	@override String get scanning => 'Checking this project…';
+	@override String get scan_failed => 'Could not check this project';
+	@override String get run_again => 'Run checks again';
+	@override String summary_errors({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} issue needs attention',
+		many: '${count} issues need attention',
+		other: '${count} issues need attention',
+	);
+	@override String summary_warnings({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} warning to review',
+		many: '${count} warnings to review',
+		other: '${count} warnings to review',
+	);
+	@override String get summary_ready => 'No blocking issues found';
+	@override String get summary_counts => '{{passed}} checks passed · {{findings}} findings';
+	@override String passed_checks({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} passed check',
+		many: '${count} passed checks',
+		other: '${count} passed checks',
+	);
+	@override String get local_checks => 'Checks run locally. Fixes to settings save a backup first.';
+	@override String get fix_complete => 'Fix applied. Project checks updated.';
+	@override String get templates_downloading => 'Downloading selected templates. Progress and cancellation are also available in Tasks.';
+	@override String get version_queued => 'Engine download queued. Follow its progress in Tasks.';
+	@override String get version_queued_short => 'Download queued';
+	@override String get version_asset_unavailable => 'No matching download was found for this version and platform. Open Versions to install or locate the engine.';
+	@override String get severity_ok => 'Passed';
+	@override String get severity_info => 'Note';
+	@override String get severity_warning => 'Warning';
+	@override String get severity_error => 'Needs attention';
+	@override String get category_engine => 'Engine and compatibility';
+	@override String get category_templates => 'Export templates';
+	@override String get category_cache => 'Import cache';
+	@override String get category_scenes => 'Main scene';
+	@override String get category_addons => 'Editor addons';
+	@override String get category_git => 'Version control';
+	@override String get category_exports => 'Export presets';
+	@override String get category_registrations => 'Project registration';
+	@override String get action_choose_version => 'Choose installed version';
+	@override String get action_install_version => 'Install bound version';
+	@override String get action_manage_versions => 'Manage engine versions';
+	@override String get action_templates => 'Choose export templates';
+	@override String get action_clear_cache => 'Move cache to Trash';
+	@override String get action_disable_addon => 'Remove missing addon entry';
+	@override String get action_enable_addon => 'Enable addon';
+	@override String get action_add_ignores => 'Add ignore rules';
+	@override String get action_untrack_metadata => 'Stop tracking local metadata';
+	@override String get action_track_lfs => 'Track file with Git LFS';
+	@override String get action_remove_registration => 'Remove registration';
+	@override String get action_open_editor => 'Open in Godot';
+	@override String get action_open_presets => 'Review export presets in IDE';
+	@override String get action_open_addons => 'Review addons in IDE';
+	@override String get confirm_clear_cache => 'Move this project\'s .godot folder to the system Trash? Close the project in Godot first. Godot will reimport assets and rebuild editor state the next time it opens.';
+	@override String get confirm_enable_addon => 'Enable this editor addon? Its script will run the next time you open the project in Godot. A backup of project.godot is saved first.';
+	@override String get confirm_untrack_metadata => 'Remove .godothub.json from Git\'s index while keeping your local file? This stages its removal for your next commit. Existing commits and history stay unchanged.';
+	@override String get confirm_track_lfs => 'Add a Git LFS rule for this file? Git LFS must be installed. This changes .gitattributes; re-add the file in Git to convert its next revision. Existing history stays unchanged.';
+	@override String get confirm_remove_registration => 'Remove this library registration? Project files stay on disk. The registry is backed up first, and you can import the folder again.';
+	@override String get version_unbound_title => 'No engine version is bound';
+	@override String get version_unbound_description => 'Choose an installed engine to open and run this project.';
+	@override String get version_missing_title => 'The bound engine is not installed';
+	@override String get version_missing_description => 'This project is bound to {{version}}, but that version is absent from the installed engine registry.';
+	@override String get version_executable_missing_title => 'The engine executable is missing';
+	@override String get version_executable_missing_description => '{{version}} is registered, but its executable is no longer on disk. Locate or reinstall it in Versions.';
+	@override String get version_ready_title => 'The bound engine is available';
+	@override String get version_ready_description => '{{version}} is installed and its executable exists.';
+	@override String get format_incompatible_title => 'The project format is incompatible';
+	@override String get format_incompatible_description => 'config_version={{format}} cannot be opened by the bound {{version}} engine. Choose a compatible engine and use Godot\'s migration tools if needed.';
+	@override String get major_mismatch_title => 'The project and engine use different Godot generations';
+	@override String get major_mismatch_description => 'This project records a Godot {{major}} format but is bound to {{version}}. Choose a matching engine or migrate the project in Godot.';
+	@override String get feature_mismatch_title => 'The recorded project version differs from its engine';
+	@override String get feature_mismatch_description => 'The project records Godot {{recorded}} features but is bound to {{version}}. Match the binding or open it in the intended engine and review its upgrade changes.';
+	@override String get format_unknown_title => 'The project version could not be confirmed';
+	@override String get format_unknown_description => 'The project format or engine version is missing or unrecognized. Review project.godot before changing engine generations.';
+	@override String get format_ready_title => 'The recorded format matches the bound engine';
+	@override String get format_ready_description => 'The project format and recorded Godot feature version are compatible with this binding.';
+	@override String get templates_missing_title => 'Export templates are missing';
+	@override String get templates_platforms_missing_title => 'Some export targets have no installed templates';
+	@override String get templates_platforms_missing_description => 'These platforms appear in your export presets but have no templates installed for the bound engine. Choose the template files you need.';
+	@override String get templates_missing_description => 'No installed export-template platform was found for {{version}}. Choose the platforms and files you need.';
+	@override String get templates_ready_title => 'Export templates are available';
+	@override String get templates_ready_description => 'These platforms have installed templates for the bound engine. Open the chooser to review individual files.';
+	@override String get templates_unknown_title => 'Install or bind the engine before checking templates';
+	@override String get templates_unknown_description => 'Export templates must match the exact engine version, including standard or .NET builds.';
+	@override String get main_scene_ready_title => 'A main scene is configured';
+	@override String get main_scene_ready_description => 'The project has an application/run/main_scene setting.';
+	@override String get main_scene_missing_title => 'No main scene is configured';
+	@override String get main_scene_missing_description => 'Open the project in Godot and choose a main scene in Project Settings before running the game.';
+	@override String get main_scene_missing_file_title => 'The main scene file is missing';
+	@override String get main_scene_missing_file_description => 'The configured scene path does not exist. Choose an existing main scene in Godot.';
+	@override String get cache_ready_title => 'The import cache is within normal limits';
+	@override String get cache_ready_description => '{{size}} across {{files}} files. Last cache write: {{days}} days ago.';
+	@override String get cache_large_title => 'The import cache uses significant disk space';
+	@override String get cache_large_description => '{{size}} across {{files}} files. Large projects can need a large cache; clearing it causes a full reimport.';
+	@override String get cache_stale_title => 'The import cache has not changed recently';
+	@override String get cache_stale_description => '{{size}} across {{files}} files; last write was {{days}} days ago. Age alone does not mean the cache is broken.';
+	@override String get cache_version_title => 'The cache records a different engine executable';
+	@override String get cache_version_description => 'The editor cache was last associated with a different engine path. If imports misbehave, rebuild its {{size}} cache.';
+	@override String get cache_partial_title => 'The cache scan was incomplete';
+	@override String get cache_partial_description => 'At least {{size}} across {{files}} files. Some entries were unreadable or the scan reached its time or file limit.';
+	@override String get cache_absent_title => 'No local .godot import cache';
+	@override String get cache_absent_description => 'Godot 4 creates this folder when the project opens. Godot 3 uses a different cache layout.';
+	@override String get addon_missing_title => 'An enabled editor addon is missing';
+	@override String get addon_missing_description => 'This editor_plugins entry has no plugin.cfg on disk. Restore the addon or remove the stale enabled entry.';
+	@override String get addon_disabled_title => 'An editor addon is present but disabled';
+	@override String get addon_disabled_description => 'Its plugin.cfg is on disk but not listed in editor_plugins. This can be intentional. Enable it only if you want its editor functionality.';
+	@override String get addon_orphan_title => 'An addon folder has no editor plugin configuration';
+	@override String get addon_orphan_description => 'This folder is not an enabled editor addon. It may be a runtime library or leftover files; review it before removing anything.';
+	@override String get addons_ready_title => 'Enabled editor addons exist on disk';
+	@override String get addons_ready_description => 'No missing or disabled editor-plugin folders were found.';
+	@override String get no_presets_title => 'No export presets configured';
+	@override String get no_presets_description => 'Create export presets in Godot when you are ready to package the project.';
+	@override String get presets_unreadable_title => 'Export presets could not be read';
+	@override String get presets_unreadable_description => 'Review export_presets.cfg and run the checks again.';
+	@override String get exports_ready_title => 'Export resource paths exist';
+	@override String get exports_ready_description => 'Explicit res:// references in the export presets exist on disk. Wildcard filters and output paths are excluded from this check.';
+	@override String get export_resources_missing_title => 'Export presets reference missing resources';
+	@override String get export_resources_missing_description => 'Restore these files or update the references in Godot\'s export settings or export_presets.cfg.';
+	@override String get git_unavailable_title => 'Git checks were skipped';
+	@override String get git_unavailable_description => 'This folder is not in a Git repository, Git is unavailable, or the repository could not be inspected.';
+	@override String get ignore_missing_title => 'Generated or local files are not ignored';
+	@override String get ignore_missing_description => 'The effective Git ignore rules do not cover all of .godot/, .godothub/, and .godothub.json. Add project-local rules to keep them out of future commits.';
+	@override String get ignores_ready_title => 'Generated and local files are ignored';
+	@override String get ignores_ready_description => 'Git ignores the import cache and local GodotHub metadata.';
+	@override String get metadata_tracked_title => 'Local GodotHub metadata is tracked by Git';
+	@override String get metadata_tracked_description => '.godothub.json is in Git\'s index, so ignore rules alone will not keep it out of commits. Remove it from tracking while keeping the local file.';
+	@override String get metadata_private_title => 'Legacy local metadata is not tracked';
+	@override String get metadata_private_description => '.godothub.json is absent from Git\'s tracked-file index.';
+	@override String get lfs_ready_title => 'No large binaries need a Git LFS rule';
+	@override String get lfs_ready_description => 'Scanned binary files of 50 MiB or more are ignored by Git or covered by an LFS filter rule. Existing commit history is not inspected.';
+	@override String get lfs_unknown_title => 'Git LFS attributes could not be checked';
+	@override String get lfs_unknown_description => 'Review the Git error below, then run the checks again.';
+	@override String get binary_without_lfs_title => 'A large binary has no Git LFS rule';
+	@override String get binary_without_lfs_description => 'This binary is at least 50 MiB and is not ignored or covered by filter=lfs. Track it with LFS to keep future revisions out of regular Git blobs.';
+	@override String get scan_partial_title => 'The project file scan was incomplete';
+	@override String get scan_partial_description => 'Some paths were unreadable or the scan reached its 50,000-entry or five-second limit. Large-binary results may be incomplete.';
+	@override String get registration_stale_title => 'This registration no longer points to a project';
+	@override String get registration_stale_description => 'No project.godot was found at this path. Reconnect moved or offline storage, or remove the stale library entry.';
+	@override String get registration_duplicate_title => 'Another registration points to this project';
+	@override String get registration_duplicate_description => 'This additional library entry resolves to the same project folder or a stale copy of its identity. Remove it to keep the current registration.';
+	@override String get registration_ready_title => 'No duplicate registrations found';
+	@override String get registration_ready_description => 'This project has one valid folder registration in the active workspace.';
+	@override String get category_android => 'Android';
+	@override String get android_targeted_title => 'This project exports to Android';
+	@override String get android_targeted_description => 'An Android export preset or Gradle build template was found, so the Android toolchain is checked below.';
+	@override String get android_possible_title => 'This project may target mobile devices';
+	@override String get android_possible_description => 'No Android export preset was found, but some settings suggest mobile use. Many desktop games also use the Mobile renderer, so the toolchain checks below are informational only.';
+	@override String get hint_mobile_renderer => 'Uses the Mobile renderer';
+	@override String get hint_mobile_renderer_override => 'Sets a renderer override for mobile platforms';
+	@override String get hint_etc2_astc => 'Imports ETC2/ASTC textures, which Android requires';
+	@override String get hint_orientation => 'Sets a handheld screen orientation';
+	@override String get hint_touch_emulation => 'Emulates touch input from the mouse';
+	@override String get hint_android_plugins => 'Has an android/plugins folder';
+	@override String get android_sdk_missing_title => 'Android SDK not found';
+	@override String get android_sdk_missing_description => 'Set the Android SDK path in Godot under Editor Settings → Export → Android, or set ANDROID_HOME. Android exports need it.';
+	@override String get android_sdk_incomplete_title => 'The Android SDK is missing components';
+	@override String get android_sdk_incomplete_description => 'The SDK at {{path}} is missing the parts listed below. Install them with Android Studio\'s SDK Manager or sdkmanager.';
+	@override String get sdk_part_sdk_folder => 'The SDK folder does not exist';
+	@override String get sdk_part_platform_tools => 'Platform Tools (adb)';
+	@override String get sdk_part_build_tools => 'Build Tools';
+	@override String get sdk_part_cmdline_tools => 'Command-line Tools';
+	@override String get android_sdk_ready_title => 'Android SDK found';
+	@override String get android_sdk_ready_description => 'Using the SDK at {{path}}.';
+	@override String get android_jdk_missing_title => 'Java JDK not found';
+	@override String get android_jdk_missing_description => 'Android exports need JDK {{required}} or newer. Set it in Godot under Editor Settings → Export → Android, or set JAVA_HOME.';
+	@override String get android_jdk_invalid_title => 'The Java JDK path is invalid';
+	@override String get android_jdk_invalid_description => 'No java executable was found in {{path}}. Point Godot to a JDK {{required}} installation.';
+	@override String get android_jdk_old_title => 'The Java JDK is too old';
+	@override String get android_jdk_old_description => 'JDK {{version}} is installed at {{path}}, but this Godot version needs JDK {{required}} or newer for Android exports.';
+	@override String get android_jdk_ready_title => 'Java JDK found';
+	@override String get android_jdk_ready_description => 'JDK {{version}} at {{path}}.';
+	@override String get android_debug_keystore_missing_title => 'The debug keystore file is missing';
+	@override String get android_debug_keystore_missing_description => 'Godot\'s editor settings point to a debug keystore that no longer exists. Clear the setting so Godot can create a new one, or pick another file.';
+	@override String get android_gradle_template_missing_title => 'The Android build template is not installed';
+	@override String get android_gradle_template_missing_description => 'These presets use a Gradle build, but the project has no android/build folder. In Godot, choose Project → Install Android Build Template.';
+	@override String get android_release_keystore_missing_title => 'A release keystore file is missing';
+	@override String get android_release_keystore_missing_description => 'These presets point to a release keystore that does not exist. Release exports will fail until the path is fixed.';
+	@override String get android_release_keystore_unset_title => 'No release keystore is set';
+	@override String get android_release_keystore_unset_description => 'These presets can only make debug builds until a release keystore is set. You need one to publish on Google Play.';
+}
+
+// Path: common.build_export
+class _Translations$common$build_export$fr_FR extends Translations$common$build_export$en_US {
+	_Translations$common$build_export$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Build & Export';
+	@override String get description => 'Ship a release build of {{name}} using its bound Godot version.';
+	@override String get loading => 'Reading export presets and checking release templates…';
+	@override String get refresh => 'Refresh presets';
+	@override String get preset => 'Export preset';
+	@override String get choose_preset => 'Choose an export preset';
+	@override String get output => 'Output file';
+	@override String get browse => 'Choose output file';
+	@override String get output_hint => 'Relative paths start at the project folder. Parent folders are created automatically. export_presets.cfg is kept unchanged.';
+	@override String get release => 'Release build';
+	@override String get engine => 'Godot {{version}}';
+	@override String get start => 'Export release';
+	@override String get starting => 'Starting export…';
+	@override String get install_templates => 'Install export templates';
+	@override String get missing_templates => 'Templates are missing for this preset. Godot validates debug and release templates before exporting.';
+	@override String get downloading_templates => 'Installing templates… Follow progress in Tasks.';
+	@override String get no_presets => 'No export presets yet';
+	@override String get no_presets_hint => 'Open Project → Export in Godot, add a preset, and save it. Refresh this list when it is ready.';
+	@override String get open_editor => 'Open in Godot';
+	@override String get open_console => 'Open export console';
+	@override String get cancel_export => 'Cancel export';
+	@override String get running => 'Exporting {{preset}}…';
+	@override String get succeeded => 'Export complete';
+	@override String get failed => 'Export failed';
+	@override String get cancelled => 'Export cancelled';
+	@override String get cancel_hint => 'Partial output files may remain in the output folder.';
+	@override String get open_folder => 'Open output folder';
+	@override String get overwrite_title => 'Replace existing export?';
+	@override String get overwrite_description => 'An output file already exists at {{path}}. Replace it with this export?';
+	@override String get overwrite => 'Replace and export';
+	@override String get run_hint => 'Output streams to its own console tab. Exporting does not change the project\'s play-time statistics.';
+	@override String get platform_tools => 'Godot also requires the SDKs, signing settings and export options configured for your target platform.';
+	@override String get scan_failed => 'Could not read export presets';
+	@override String get start_failed => 'Could not start export: {{error}}';
+	@override String get tools_title => 'Tests and lint';
+	@override String get tools_no_tests => 'No test framework found. Install GUT or gdUnit4 from the Asset Library to run tests here.';
+	@override String get tool_run => 'Run';
+	@override String get tool_gut => 'GUT tests';
+	@override String get tool_gut_hint => 'Runs your GUT tests headless with the bound Godot version.';
+	@override String get tool_gdunit => 'gdUnit4 tests';
+	@override String get tool_gdunit_hint => 'Runs the gdUnit4 tests in {{target}} headless.';
+	@override String get tool_gdlint => 'gdlint';
+	@override String get tool_gdlint_hint => 'Lints GDScript outside addons: {{target}}';
+	@override String get tool_gdformat => 'gdformat check';
+	@override String get tool_gdformat_hint => 'Checks formatting without changing files: {{target}}';
+	@override String get tool_reason_engine_missing => 'Install this project\'s Godot version to run tests.';
+	@override String get tool_reason_no_test_folder => 'Add a test or tests folder for gdUnit4.';
+	@override String get tool_reason_not_installed => 'Not found on PATH. Install it with: pip install gdtoolkit';
+}
+
+// Path: common.project_addons
+class _Translations$common$project_addons$fr_FR extends Translations$common$project_addons$en_US {
+	_Translations$common$project_addons$fr_FR._(TranslationsFrFr root) : this._root = root, super.internal(root);
+
+	final TranslationsFrFr _root; // ignore: unused_field
+
+	// Translations
+	@override String get title => 'Addons';
+	@override String get loading => 'Reading addons…';
+	@override String count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} addon installed',
+		many: '${count} addons installed',
+		other: '${count} addons installed',
+	);
+	@override String get empty => 'This project has no addons folder. Install addons from the Asset Store or copy them into res://addons.';
+	@override String get check_updates => 'Check for updates';
+	@override String get checking => 'Checking…';
+	@override String updates_available({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} update available',
+		many: '${count} updates available',
+		other: '${count} updates available',
+	);
+	@override String get all_current => 'No updates found in the Asset Library';
+	@override String get enabled => 'Enabled';
+	@override String get disabled => 'Disabled';
+	@override String get library => 'Library';
+	@override String get from_library => 'Asset Library';
+	@override String get not_found => 'Not found in the Asset Library';
+	@override String get update_to => 'Version {{version}} is available';
+	@override String get current => 'Up to date ({{version}})';
+	@override String get matched_by_name => 'matched by name to “{{title}}”';
+	@override String get update => 'Update';
+	@override String get updating => 'Updating…';
+	@override String get updated => '{{name}} was updated';
+	@override String get confirm_title => 'Update {{name}}?';
+	@override String get confirm_description => 'This replaces res://addons/{{folder}} with version {{version}} from the Asset Library. The old folder is moved to the Trash, so any changes you made to the addon are kept there. Close the project in Godot first.';
+	@override String get footer_hint => 'Addons installed through GodotHub are matched exactly. Others are matched by name, so check the result before updating.';
+}
+
+/// The flat map containing all translations for locale <fr-FR>.
+/// Only for edge cases! For simple maps, use the map function of this library.
+///
+/// The Dart AOT compiler has issues with very large switch statements,
+/// so the map is split into smaller functions (512 entries each).
+extension on TranslationsFrFr {
+	dynamic _flatMapFunction(String path) {
+		return switch (path) {
+			'changelog.changelog_title' => 'CHANGELOG',
+			'changelog.no_entries' => 'Aucune entrée de changelog n\'a été trouvée.',
+			'changelog.delete_entry_title' => 'Supprimer l\'entrée ?',
+			'changelog.delete_entry_desc' => 'Cela supprime l\'entrée du changelog de manière permanente. Cette action est irréversible.',
+			'changelog.changelog_subtitle' => 'Un historique des mises à jour de GodotHub.',
+			'changelog.edit_entry_aria' => 'Edit {{version}}',
+			'changelog.delete_entry_aria' => 'Delete {{version}}',
+			'changelog.added' => 'Ajouts',
+			'changelog.fixed' => 'Corrections',
+			'changelog.improved' => 'Améliorations',
+			'common.new_project' => 'Nouveau projet',
+			'common.import_project' => 'Importer un projet',
+			'common.search' => 'Rechercher',
+			'common.cancel' => 'Annuler',
+			'common.save' => 'Enregistrer',
+			'common.delete' => 'Supprimer',
+			'common.close' => 'Fermer',
+			'common.loading' => 'Chargement...',
+			'common.retry' => 'Réessayer',
+			'common.stop' => 'Arrêter',
+			'common.refresh' => 'Rafraîchir',
+			'common.scroll_to_top' => 'Retour en haut',
+			'common.quick_commands' => 'Commandes rapides',
+			'common.minimize' => 'Réduire',
+			'common.close_sidebar' => 'Fermer la barre latérale',
+			'common.star_on_github' => 'Mettre une étoile sur GitHub',
+			'common.support_dev' => 'Soutenez le développement sur Patreon. Vous pouvez désactiver cette option dans les paramètres',
+			'common.support' => 'Soutenir',
+			'common.restore' => 'Restaurer',
+			'common.maximize' => 'Agrandir',
+			'common.importing_project' => 'Importation du projet…',
+			'common.importing_version' => 'Importation de la version…',
+			'common.scanning_projects' => 'Scan des projets…',
+			'common.scanning_versions' => 'Scan des versions…',
+			'common.queued' => 'Queued…',
+			'common.download_queue_move_up' => 'Avancer dans la file',
+			'common.download_queue_move_down' => 'Reculer dans la file',
+			'common.running' => 'En cours d\'exécution',
+			'common.running_projects_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} projet en cours d\'exécution', many: '${count} projects running', other: '${count} projets en cours d\'exécution', ), 
+			'common.active' => 'Actif',
+			'common.done' => 'Terminé',
+			'common.paused' => 'En pause',
+			'common.no_tasks_running' => 'Aucune tâche en cours',
+			'common.checking_changes' => 'Vérification des modifications…',
+			'common.cloning' => 'Clonage…',
+			'common.clone_import' => 'Cloner et importer',
+			'common.import' => 'Importer',
+			'common.syncing' => 'Synchronisation…',
+			'common.edit_entry' => 'Modifier l\'entrée du changelog',
+			'common.new_entry' => 'Nouvelle entrée du changelog',
+			'common.checking_updates' => 'Recherche de mises à jour…',
+			'common.up_to_date' => 'À jour',
+			'common.downloading_update' => 'Téléchargement…',
+			'common.install_update' => 'Installer',
+			'common.restart_now' => 'Redémarrer maintenant',
+			'common.update_downloaded' => 'Mise à jour téléchargée !',
+			'common.restart_to_apply' => 'Redémarrez GodotHub pour appliquer la mise à jour.',
+			'common.update_applied_desc' => 'La mise à jour a été téléchargée et sera appliquée au prochain démarrage de GodotHub. Fermez et rouvrez l\'application pour terminer la mise à jour.',
+			'common.is_latest' => 'v{{version}} est la dernière version.',
+			'common.percent_complete' => '{{percent}} % effectués',
+			'common.expand_sidebar' => 'Développer la barre latérale',
+			'common.collapse_sidebar' => 'Rabattre la barre latérale',
+			'common.saving' => 'Enregistrement…',
+			'common.save_changes' => 'Enregistrer les modifications',
+			'common.add_entry' => 'Ajouter une entrée',
+			'common.scan_for_projects' => 'Scanner les projets',
+			'common.create_workspace' => 'Créer un espace de travail',
+			'common.report_a_bug' => 'Signaler un bug',
+			'common.report_bug' => 'Signaler un bug',
+			'common.app_error_title' => 'Une erreur s\'est produite',
+			'common.app_error_desc' => 'GodotHub a rencontré une erreur inattendue et n\'a pas pu s\'afficher. Détails ci-dessous, consultez la console (clic droit → Inspecter) pour la trace complète.',
+			'common.reload' => 'Recharger',
+			'common.view_error_title' => 'This view couldn\'t load',
+			'common.view_error_desc' => 'The rest of GodotHub still works. Try loading this view again, or switch to another one.',
+			'common.error_details' => 'Technical details',
+			'common.remove_folder' => 'Retirer le dossier',
+			'common.make_this_default' => 'Définir comme {{label}}',
+			'common.suggested_from_workspaces' => 'Suggérés depuis d\'autres espaces de travail',
+			'common.from_workspace' => 'depuis {{name}}',
+			'common.add_folder' => 'Ajouter un dossier',
+			'common.default_folder' => 'Par défaut',
+			'common.default_downloads_go_to' => 'Les téléchargements par défaut iront dans "{{path}}"',
+			'common.open_terminal' => 'Ouvrir le terminal',
+			'common.downloading_version' => 'Téléchargement de {{version}}',
+			'common.downloading_asset' => 'Téléchargement de {{title}}',
+			'common.asset_download_failed' => 'Échec du téléchargement du modèle',
+			'common.scan_for_engines' => 'Scanner les moteurs',
+			'common.import_version' => 'Importer une version',
+			'common.sync_templates_from_directory' => 'Synchroniser les modèles depuis un répertoire',
+			'common.section_navigation' => 'Navigation',
+			'common.section_projects' => 'Projets',
+			'common.section_views' => 'Views',
+			'common.section_workspaces' => 'Espaces de travail',
+			'common.section_help' => 'Aide',
+			'common.section_engines' => 'Moteurs',
+			'common.section_templates' => 'Modèles',
+			'common.section_versions' => 'Versions',
+			'common.section_news' => 'Actualités',
+			'common.skip_setup' => 'Passer la configuration',
+			'common.back' => 'Retour',
+			'common.finishing' => 'Finalisation…',
+			'common.get_started' => 'Commencer',
+			'common.scanning' => 'Scan…',
+			'common.scan_now' => 'Scanner maintenant',
+			'common.scan_complete' => 'Scan terminé',
+			'common.scan_failed' => 'Échec du scan',
+			'common.uncategorized' => 'Non catégorisés',
+			'common.all' => 'All',
+			'common.no_filter' => 'Aucun filtre',
+			'common.cannot_undo' => 'Cette action est irréversible.',
+			'common.deleting' => 'Suppression…',
+			'common.open_project' => 'Ouvrir',
+			'common.play_project' => 'Play',
+			'common.play_project_tooltip' => 'Play the game without opening editor',
+			'common.no_version_selected' => 'Aucune version sélectionnée',
+			'common.open_with_console' => 'Ouvrir avec la console',
+			'common.open_folder' => 'Ouvrir le dossier',
+			'common.open_in_ide' => 'Ouvrir dans l\'IDE',
+			'common.category' => 'Catégorie',
+			'common.none' => 'Aucune',
+			'common.project_size' => 'Taille du projet',
+			'common.project_size_scanning' => 'Scanning project files…',
+			'common.project_size_empty' => 'No files found',
+			'common.launch_arguments' => 'Arguments de lancement',
+			'common.save_as_template' => 'Enregistrer comme modèle',
+			'common.git' => 'Git',
+			'common.add' => 'Ajouter',
+			'common.color_label' => 'Couleur',
+			'common.icon_label' => 'Icône',
+			'common.expand' => 'Développer',
+			'common.collapse' => 'Rabattre',
+			'common.file_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} file', many: '${count} fichier', other: '${count} files', ), 
+			'common.folder_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} folder', many: '${count} dossier', other: '${count} folders', ), 
+			'common.template_empty' => 'Ce modèle est vide.',
+			'common.categories' => 'Catégories',
+			'common.category_folders_hint' => 'Les projets trouvés dans les dossiers d\'une catégorie y sont assignés automatiquement.',
+			'common.assign_folder' => 'Assigner un dossier',
+			'common.assign_folder_to_category' => 'Assigner un dossier à {{name}}',
+			'common.unassign_folder_aria' => 'Retirer {{folder}} de cette catégorie',
+			'common.new_category_placeholder' => 'Nom de la nouvelle catégorie…',
+			'common.no_categories_yet' => 'Aucune catégorie pour le moment, ajoutez-en une ci-dessus.',
+			'common.edit_category' => 'Modifier {{name}}',
+			'common.delete_category' => 'Supprimer {{name}}',
+			'common.delete_category_title' => 'Supprimer la catégorie ?',
+			'common.delete_category_desc' => '"{{name}}" sera supprimée. Les projets qui y sont classés passent dans Non catégorisés, rien n\'est touché sur le disque.',
+			'common.project_name_label' => 'Nom',
+			'common.folder_name_preview' => 'Convention de rép. : {{name}}',
+			'common.folder_name_hint' => 'Le nom du dossier est dérivé du nom du projet selon votre convention de nommage.',
+			'common.template_preview_aria' => 'Aperçu de {{name}}',
+			'common.project_location_label' => 'Emplacement',
+			'common.choose_folder_placeholder' => 'Choisir un dossier',
+			'common.browse' => 'Parcourir',
+			'common.blank_template' => 'Par défaut',
+			'common.template_optional' => 'Modèle (facultatif)',
+			'common.category_optional' => 'Catégorie (facultatif)',
+			'common.no_category_label' => 'Aucune catégorie',
+			'common.godot_version_label' => 'Version de Godot',
+			'common.no_engine_warning' => 'Aucun moteur installé pour le moment, récupérez-en un depuis l\'onglet Versions d\'abord.',
+			'common.change_icon' => 'Changer',
+			'common.choose_icon' => 'Choisir',
+			'common.icon_format_desc' => 'SVG, PNG ou JPG. Logo Godot par défaut.',
+			'common.other_settings_label' => 'Autres paramètres',
+			'common.init_git_label' => 'Initialiser un dépôt Git',
+			'common.init_git_desc' => 'Ajoute un .gitignore et un .gitattributes Godot, puis crée un commit initial sur main.',
+			'common.init_git_unavailable' => 'Installez Git et redémarrez GodotHub pour utiliser cette option.',
+			'common.initializing_git' => 'Configuration de Git…',
+			'common.git_init_warning_title' => 'Projet créé, Git demande votre attention',
+			'common.git_option_gitignore' => '.gitignore Godot',
+			'common.git_option_gitattributes' => '.gitattributes',
+			'common.git_option_readme' => 'README.md',
+			'common.git_option_license' => 'Licence',
+			'common.git_option_no_license' => 'Aucune licence',
+			'common.create_remote_label' => 'Créer un dépôt sur GitHub/GitLab',
+			'common.create_remote_desc' => 'Crée un dépôt sur votre compte connecté et y push le commit initial.',
+			'common.remote_private' => 'Privé',
+			'common.remote_public' => 'Public',
+			'common.creating_remote_repo' => 'Création du dépôt distant…',
+			'common.remote_repo_created_title' => 'Dépôt distant créé',
+			'common.create_project_done' => 'Terminé',
+			'common.create_project_btn' => 'Créer le projet',
+			'common.creating' => 'Création…',
+			'common.create_project_error' => 'Donnez un nom au projet et un dossier où le créer.',
+			'common.create_workspace_title' => 'Nouvel espace de travail',
+			'common.workspace_name_label' => 'Nom',
+			'common.workspace_name_placeholder' => 'Travail, Perso, Game Jam…',
+			'common.workspace_name_required_error' => 'Donnez un nom à l\'espace de travail.',
+			'common.edit_workspace_title' => 'Modifier l\'espace de travail',
+			'common.cant_delete_only_workspace' => 'Vous ne pouvez pas supprimer votre seul espace de travail',
+			'common.delete_workspace_title' => 'Supprimer l\'espace de travail ?',
+			'common.delete_workspace_desc' => '"{{name}}" et tout ce qui lui est rattaché (ses paramètres, projets et catégories) sera supprimé. Les fichiers de projet sur le disque ne sont jamais touchés. Les versions de Godot installées sont partagées et restent intactes.',
+			'common.other' => 'Autre',
+			'common.args_label' => 'Arguments',
+			'common.args_placeholder' => 'ex. --debug --single-window',
+			'common.args_suggestions' => 'Suggestions',
+			'common.args_desc_separate_prefix' => 'Séparez les arguments par des espaces. Les flags avec valeur comme',
+			'common.args_desc_separate_suffix' => 's\'écrivent en deux parties.',
+			'common.args_debug' => '--debug',
+			'common.args_debug_desc' => 'Lancer avec le débogueur attaché',
+			'common.args_single_window' => '--single-window',
+			'common.args_single_window_desc' => 'Forcer le mode fenêtre unique',
+			'common.args_opengl3' => '--rendering-driver opengl3',
+			'common.args_opengl3_desc' => 'Utiliser le pilote de rendu OpenGL 3',
+			'common.args_vulkan' => '--rendering-driver vulkan',
+			'common.args_vulkan_desc' => 'Utiliser le pilote de rendu Vulkan',
+			'common.args_headless' => '--headless',
+			'common.args_headless_desc' => 'Lancer sans fenêtre',
+			'common.args_verbose' => '--verbose',
+			'common.args_verbose_desc' => 'Journaliser une sortie de débogage détaillée',
+			'common.args_editor' => '--editor',
+			'common.args_editor_desc' => 'Ouvrir l\'éditeur (identique à -e)',
+			'common.args_build_solutions' => '--build-solutions',
+			'common.args_build_solutions_desc' => 'Compiler les solutions C# à l\'ouverture',
+			'common.args_gpu_index' => '--gpu-index 1',
+			'common.args_gpu_index_desc' => 'Utiliser le GPU d\'index 1 (GPU dédié)',
+			'common.sort_categories' => 'Catégories',
+			'common.sort_recent' => 'Ouverts récemment',
+			'common.sort_manual' => 'Manuel',
+			'common.sort_name_asc' => 'Nom (A–Z)',
+			'common.sort_name_desc' => 'Nom (Z–A)',
+			'common.sort_created_desc' => 'Date d\'ajout (plus récents)',
+			'common.sort_created_asc' => 'Date d\'ajout (plus anciens)',
+			'common.sort_time_desc' => 'Temps total',
+			'common.filter' => 'Filtrer',
+			'common.no_templates_yet' => 'Aucun modèle pour le moment. Faites un clic droit sur un projet ou ouvrez son menu "Plus" et sélectionnez <1>Enregistrer comme modèle</1> pour en créer un, ou téléchargez-en depuis l\'Asset Library.',
+			'common.godot' => 'Godot',
+			'common.delete_template' => 'Supprimer le modèle {{name}}',
+			'common.news_subtitle' => 'Derniers articles du blog officiel de Godot Engine.',
+			'common.news_cached' => 'Impossible de joindre godotengine.org, affichage des articles enregistrés la dernière fois.',
+			'common.news_error' => 'Impossible de charger les actualités Godot.',
+			'common.news_empty' => 'Aucune actualité à afficher pour le moment.',
+			'common.show_more' => 'Afficher plus',
+			'common.try_again' => 'Réessayer',
+			'common.asset_store_title' => 'ASSET STORE',
+			'common.news_count' => 'Articles',
+			'common.asset_store_count_plural' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, zero: 'No assets', one: 'Asset', many: 'Assets', other: 'Assets', ), 
+			'common.asset_store_count' => 'Assets',
+			'common.settings_title' => 'PARAMÈTRES',
+			'common.no_templates_match' => 'Aucun modèle ne correspond',
+			'common.no_projects_match' => 'Aucun projet ne correspond',
+			'common.more_import_options' => 'Plus d\'options d\'import',
+			'common.clone_import_repo' => 'Cloner et importer depuis un dépôt',
+			'common.manage_categories' => 'Gérer les catégories',
+			'common.hide_category' => 'Hide Category',
+			'common.category_hidden_toast' => '"{{name}}" hidden. Restore it from Hidden Categories.',
+			'common.hidden_categories' => 'Hidden Categories',
+			'common.hidden_categories_hint' => 'Those categories and their projects stay out of the way. Unhide one to bring it back.',
+			'common.hidden_category_projects' => '{{count}} project(s)',
+			'common.unhide' => 'Unhide',
+			'common.unhide_category_aria' => 'Unhide {{name}}',
+			'common.search_projects_placeholder' => 'Rechercher des projets...',
+			'common.clear_search' => 'Effacer la recherche',
+			'common.search_filter_title' => 'Filter projects by',
+			'common.search_slash_hint' => 'Type / to filter by name, tags, categories and more',
+			'common.search_filter_name' => 'Name',
+			'common.search_filter_tag' => 'Tag',
+			'common.search_filter_version' => 'Engine version',
+			'common.search_filter_path' => 'Path',
+			'common.search_filter_pinned_yes' => 'Pinned only',
+			'common.search_filter_pinned_no' => 'Not pinned',
+			'common.search_filter_no_matches' => 'No matching filters',
+			'common.search_filter_no_values' => 'No matching values',
+			'common.sort' => 'Trier',
+			'common.view_list' => 'Vue liste',
+			'common.view_grid' => 'Vue grille',
+			'common.view_kanban' => 'Kanban',
+			'common.no_projects_yet' => 'Rien ici pour le moment. Créez un nouveau projet ou importez-en un que vous avez déjà sur le disque.',
+			'common.pinned_section' => 'Épinglés',
+			'common.set_category' => 'Définir la catégorie…',
+			'common.clear_selection' => 'Effacer la sélection',
+			'common.starting' => 'Démarrage…',
+			'common.app_loading' => 'Chargement…',
+			'common.changelog_version_label' => 'Version',
+			'common.changelog_version_placeholder' => 'v1.0.0',
+			'common.changelog_date_label' => 'Date',
+			'common.changelog_date_placeholder' => '2026-07-13',
+			'common.changelog_what_changed' => 'Ce qui a changé',
+			'common.changelog_add_line' => 'Ajouter une ligne',
+			'common.changelog_remove_line_aria' => 'Supprimer la ligne',
+			'common.changelog_placeholder_note' => 'Ajout du réordonnancement des projets par glisser-déposer',
+			'common.changelog_error_no_version' => 'Donnez une version à l\'entrée.',
+			'common.changelog_known_issues' => 'Problèmes connus',
+			'common.changelog_known_issues_none' => 'Aucun problème connu pour cette version.',
+			'common.changelog_known_issue_placeholder' => 'Décrivez le problème connu...',
+			'common.changelog_remove_known_issue_aria' => 'Supprimer le problème connu',
+			'common.changelog_add_known_issue' => 'Ajouter un problème connu',
+			'common.changelog_generate_from_git' => 'Générer depuis Git',
+			'common.changelog_draft_title' => 'Notes de version depuis Git',
+			'common.changelog_draft_from' => 'De',
+			'common.changelog_draft_to' => 'À',
+			'common.changelog_draft_generate' => 'Générer le brouillon',
+			'common.changelog_draft_use' => 'Utiliser le brouillon',
+			'common.changelog_draft_commits' => '{{count}} commit(s)',
+			'common.changelog_draft_include' => 'Inclure dans le brouillon',
+			'common.changelog_draft_none' => 'Aucun commit trouvé dans cette plage.',
+			'common.template_search_placeholder' => 'Rechercher des modèles…',
+			'common.template_delete_title' => 'Supprimer le modèle ?',
+			'common.template_delete_desc' => '"{{name}}" sera définitivement supprimé.',
+			'common.templates_tab_local' => 'Modèles locaux',
+			'common.templates_tab_asset' => 'Asset Library',
+			'common.asset_search_placeholder' => 'Rechercher des assets…',
+			'common.asset_all_versions' => 'Toutes les versions',
+			'common.asset_result_count' => '{{count}} résultats',
+			'common.asset_load_error' => 'Impossible de charger l\'Asset Library. Vérifiez votre connexion et réessayez.',
+			'common.asset_no_results' => 'Aucun asset trouvé. Essayez une autre recherche.',
+			'common.asset_by_author' => 'par {{author}}',
+			'common.asset_open_page' => 'Ouvrir dans le navigateur',
+			'common.asset_install' => 'Installer',
+			'common.asset_install_inside' => 'Installer dans le projet',
+			'common.asset_installing' => 'Installation…',
+			'common.asset_installed' => 'Installé',
+			'common.asset_prev_page' => 'Page précédente',
+			'common.asset_next_page' => 'Page suivante',
+			'common.asset_page_x_of_y' => 'Page {{page}} sur {{total}}',
+			'common.template_your_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'Template', many: 'Modèles', other: 'Templates', ), 
+			'common.template_imported_count' => '{{count}} importés',
+			'common.template_updated_count' => '{{count}} mis à jour',
+			'common.template_removed_count' => '{{count}} supprimés',
+			'common.asset_source_all' => 'Toutes les sources',
+			'common.asset_source_library' => 'Ancienne Asset Library',
+			'common.asset_source_store' => 'Nouvel Asset Store',
+			'common.asset_store_relevance' => 'Pertinence',
+			'common.asset_store_updated_new' => 'Mise à jour la plus récente',
+			'common.asset_store_updated_old' => 'Mise à jour la plus ancienne',
+			'common.asset_store_rating_high' => 'Les mieux notés',
+			'common.asset_store_rating_low' => 'Les moins bien notés',
+			'common.asset_download_outside' => 'Télécharger hors du projet',
+			'common.asset_downloaded' => 'Téléchargé',
+			'common.asset_downloaded_to' => 'Téléchargé dans',
+			'common.asset_download_error' => 'Impossible de télécharger l\'asset. Vérifiez votre connexion et réessayez.',
+			'common.asset_install_modal_title' => 'Installer {{title}}',
+			'common.asset_install_tab_project' => 'Dans un projet',
+			'common.asset_install_tab_template' => 'Dans un modèle',
+			'common.asset_install_search_projects' => 'Rechercher des projets…',
+			'common.asset_install_no_projects' => 'Aucun projet pour le moment. Créez-en un ou importez-en un d\'abord.',
+			'common.asset_install_no_templates' => 'Aucun modèle enregistré pour le moment.',
+			'common.asset_install_into' => 'Installer dans {{name}}',
+			'common.asset_install_success_project' => 'Installé dans {{target}}',
+			'common.asset_install_success_template' => 'Ajouté au modèle {{target}}',
+			'common.asset_new_template_btn' => 'Enregistrer comme nouveau modèle',
+			'common.asset_new_template_hint' => 'Crée un nouveau modèle à partir de cet asset de projet',
+			'common.onboarding_keep_organized' => 'Gardez tous vos projets organisés au même endroit.',
+			'common.onboarding_download_manage' => 'Téléchargez et gérez les versions du moteur Godot.',
+			'common.onboarding_stay_current' => 'Restez au courant des nouveautés de Godot.',
+			'common.onboarding_projects_title' => 'Où sont vos projets ?',
+			'common.onboarding_projects_desc' => 'Ajoutez les dossiers que GodotHub doit scanner au démarrage à la recherche de projets Godot existants. Mettez-en un en favori pour en faire l\'emplacement d\'enregistrement par défaut quand vous créez un nouveau projet. Vous pouvez passer cette étape et ajouter des dossiers plus tard dans les Paramètres.',
+			'common.onboarding_versions_title' => 'Où se trouvent les versions de Godot ?',
+			'common.onboarding_versions_desc' => 'Ajoutez les dossiers que GodotHub doit scanner à la recherche d\'exécutables du moteur Godot installés. Mettez-en un en favori pour en faire l\'emplacement de téléchargement des nouvelles versions que vous installez via l\'onglet Versions.',
+			'common.onboarding_templates_title' => 'Répertoire des projets modèles',
+			'common.onboarding_templates_desc' => 'Vous pouvez définir un dossier où vous conservez des modèles de projets réutilisables. Tout sous-dossier qu\'il contient sera importé comme modèle à la fin, pour qu\'ils apparaissent quand vous créez de nouveaux projets. Vous pouvez aussi enregistrer des projets individuels comme modèles à tout moment depuis la vue Projets, ou en importer d\'autres plus tard depuis l\'onglet Modèles.',
+			'common.onboarding_categories_title' => 'Organisez avec des catégories',
+			'common.onboarding_categories_desc_full' => 'Les catégories sont des dossiers pour votre liste de projets, classez-y vos projets comme bon vous semble. Ajoutez-en quelques-unes pour démarrer ou créez les vôtres ; vous pouvez les renommer, les réordonner ou les supprimer à tout moment depuis les Paramètres.',
+			'common.onboarding_custom_category_placeholder' => 'Nom de catégorie personnalisé…',
+			'common.onboarding_your_categories' => 'Vos catégories',
+			'common.onboarding_customize_title' => 'Personnalisez',
+			'common.onboarding_customize_desc' => 'Choisissez un préréglage de thème complet, ou choisissez Personnalisé et définissez vos propres couleurs d\'accentuation et d\'arrière-plan. L\'arrondi des coins, la densité, la taille du texte et le mode clair/sombre sont tous dans les Paramètres si vous voulez affiner davantage.',
+			'common.onboarding_finish_title' => 'Tout est prêt',
+			'common.onboarding_finish_desc' => 'GodotHub est prêt à l\'emploi. Vous pouvez revenir sur tout ça, dossiers, catégories et apparence, depuis l\'onglet Paramètres à tout moment.',
+			'common.onboarding_setting_up_title' => 'Configuration en cours',
+			'common.onboarding_setting_up_desc' => 'Configuration de votre bibliothèque… scan des dossiers à la recherche de projets et de versions de Godot. Cela n\'arrive qu\'une fois, et ce ne sera pas long.',
+			'common.skipped' => 'Ignoré',
+			'common.onboarding_continue' => 'Continuer',
+			'common.onboarding_accent_color' => 'Couleur d\'accentuation',
+			'common.onboarding_bg_color' => 'Couleur d\'arrière-plan',
+			'common.onboarding_corner_radius' => 'Arrondi des coins',
+			'common.onboarding_discord_rpc' => 'Discord Rich Presence',
+			'common.onboarding_discord_rpc_desc' => 'Show what you\'re doing in GodotHub on your Discord profile.',
+			'common.version_search_placeholder' => 'Rechercher des versions…',
+			'common.version_no_installed' => 'Aucune version installée. Téléchargez une version ci-dessous ou glissez-déposez ici votre dossier de version existant.',
+			'common.version_save_name_aria' => 'Enregistrer le nom',
+			'common.version_rename_aria' => 'Renommer la version',
+			'common.version_mono_badge' => 'Mono',
+			'common.version_uninstall_title' => 'Désinstaller la version ?',
+			'common.version_uninstall_desc' => '"{{tag}}" et ses fichiers seront déplacés vers la corbeille de votre système. Vous pourrez la réinstaller plus tard si besoin.',
+			'common.version_uninstall_confirm' => 'Désinstaller',
+			'common.project_remove_title' => 'Retirer de la bibliothèque ?',
+			'common.project_remove_desc' => '"{{name}}" sera retiré de la liste de GodotHub. Ses fichiers restent intacts sur le disque, vous pourrez le réimporter à tout moment.',
+			'common.project_delete_title' => 'Déplacer vers la corbeille ?',
+			'common.project_delete_desc' => '"{{name}}" et tout ce qu\'il contient seront déplacés vers la corbeille de votre système. Vous pourrez le restaurer plus tard si besoin.',
+			'common.project_delete_confirm' => 'Déplacer vers la corbeille',
+			'common.project_template_name_label' => 'Nom du modèle',
+			'common.project_template_desc_label' => 'Description',
+			'common.project_template_desc_placeholder' => 'Qu\'y a-t-il dans ce modèle ?',
+			'common.project_save_template_btn' => 'Enregistrer le modèle',
+			'common.template_saved_toast' => 'Modèle enregistré.',
+			'common.project_select_aria' => 'Sélectionner le projet',
+			'common.project_deselect_aria' => 'Désélectionner le projet',
+			'common.select_all_visible' => 'Sélectionner tous les projets visibles',
+			'common.selected_count' => '{{count}} sélectionnés',
+			'common.bulk_launch' => 'Lancer',
+			'common.bulk_pin' => 'Épingler',
+			'common.bulk_remove' => 'Retirer',
+			'common.bulk_remove_title' => 'Retirer {{count}} projets de la bibliothèque ?',
+			'common.bulk_remove_desc' => 'Les projets sélectionnés seront retirés de votre bibliothèque. Leurs fichiers resteront sur le disque.',
+			'common.bulk_delete_title' => 'Supprimer {{count}} projets ?',
+			'common.bulk_delete_desc' => 'Les fichiers des projets sélectionnés seront définitivement déplacés vers la corbeille. Cette action est irréversible.',
+			'common.project_pin_aria' => 'Épingler le projet',
+			'common.project_unpin_aria' => 'Désépingler le projet',
+			'common.time_today' => 'Aujourd\'hui',
+			'common.time_this_week' => 'Cette semaine',
+			'common.time_all_time' => 'Depuis le début',
+			'common.time_tracked_title' => 'Temps suivi',
+			'common.time_weekly_chart' => '7 derniers jours',
+			'common.time_week_total' => '{{total}} cette semaine',
+			'common.time_weekly_empty' => 'Aucun temps suivi ces 7 derniers jours.',
+			'common.project_more_aria' => 'Plus d\'actions',
+			'common.customize_card_section' => 'Project Card',
+			'common.customize_card_show_size' => 'Show Project Size',
+			'common.customize_card_show_time' => 'Show Time Tracked',
+			'common.customize_card_show_session_timer' => 'Show Session Timer',
+			'common.customize_card_blur_path' => 'Blur Project Directory',
+			'common.customize_card_show_path' => 'Show Project Directory',
+			'common.customize_card_show_tags' => 'Show Tags',
+			'common.customize_card_show_last_opened' => 'Show Last Opened',
+			'common.customize_card_show_play' => 'Show Play Button',
+			'common.customize_card_show_console' => 'Show Open with Console',
+			'common.project_card_remove_library' => 'Retirer de la bibliothèque',
+			'common.project_card_delete_files' => 'Supprimer les fichiers',
+			'common.manage_tags' => 'Gérer les étiquettes',
+			'common.tag_input_placeholder' => 'Nom de la nouvelle étiquette…',
+			'common.tag_already_exists' => 'Une étiquette portant ce nom existe déjà.',
+			'common.tag_rename_hint' => 'Cliquez pour renommer',
+			'common.tag_rename_aria' => 'Renommer l\'étiquette',
+			'common.show_more_tags' => 'Afficher plus d\'étiquettes',
+			'common.show_fewer_tags' => 'Afficher moins d\'étiquettes',
+			'common.clear_tag_filter' => 'Effacer le filtre par étiquette',
+			'common.saving_tags' => 'Enregistrement des étiquettes…',
+			'common.tag_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} tag', many: '${count} étiquette(s)', other: '${count} tags', ), 
+			'common.no_tags' => 'Aucune étiquette pour le moment',
+			'common.bug_report_describe_label' => 'Que s\'est-il passé ?',
+			'common.bug_report_describe_placeholder' => 'Que faisiez-vous quand le bug est apparu ? Ajoutez les étapes pour le reproduire, ce que vous attendiez et ce qui s\'est réellement passé.',
+			'common.bug_report_diagnostics_label' => 'Informations de diagnostic',
+			'common.bug_report_diagnostics_hint' => 'Collectées automatiquement · incluses dans le rapport',
+			'common.bug_report_copied' => 'Copié !',
+			'common.bug_report_copy_log' => 'Copier le rapport',
+			'common.bug_report_download_log' => 'Télécharger le rapport',
+			'common.bug_report_open_github' => 'Créer une issue GitHub',
+			'common.check_updates_title_modal' => 'Rechercher des mises à jour',
+			'common.check_updates_version_available' => 'Version {{version}} disponible',
+			'common.check_updates_ask_download' => 'Voulez-vous la télécharger et l\'installer maintenant ?',
+			'common.check_updates_release_notes' => 'Notes de version',
+			'common.check_updates_failed' => 'Échec de la recherche de mises à jour',
+			'common.check_updates_rate_limited' => 'Limite de requêtes GitHub atteinte',
+			'common.check_updates_token_rejected' => 'Token GitHub refusé',
+			'common.check_updates_rate_limited_hint' => 'GitHub n\'autorise que 60 requêtes anonymes par heure, partagées avec tout votre réseau. Ajouter un token d\'accès personnel dans les Paramètres fait passer cette limite à 5 000 par heure, et il sert aussi à récupérer les versions de Godot.',
+			'common.check_updates_rate_limited_token_hint' => 'Votre token GitHub enregistré a été refusé. Il a peut-être expiré ou été révoqué. Testez-le dans les Paramètres et remplacez-le si besoin.',
+			'common.check_updates_add_token' => 'Ajouter un token GitHub',
+			'common.check_updates_open_token_settings' => 'Ouvrir les paramètres du token',
+			'common.check_updates_preview_badge' => 'Aperçu',
+			'common.check_updates_portable_title' => 'Manual update required',
+			'common.check_updates_portable_desc' => 'Portable installs cannot auto-update. Download the latest version from GitHub and replace the existing files.',
+			'common.check_updates_download_from_github' => 'Download from GitHub',
+			'common.preview_state_checking' => 'Recherche',
+			'common.preview_state_available' => 'Disponible',
+			'common.preview_state_downloading' => 'Téléchargement',
+			'common.preview_state_done' => 'Terminé',
+			'common.preview_state_uptodate' => 'À jour',
+			'common.preview_state_error' => 'Erreur',
+			'common.preview_state_portable' => 'Portable',
+			'common.preview_update_modal' => 'Aperçu de la fenêtre de mise à jour',
+			'common.clone_repo_title' => 'Cloner un dépôt',
+			'common.clone_repo_url_label' => 'URL du dépôt',
+			'common.clone_repo_url_placeholder' => 'https://github.com/user/my-game.git',
+			'common.clone_repo_error_url' => 'Veuillez saisir l\'URL d\'un dépôt.',
+			'common.clone_repo_error_location' => 'Veuillez choisir où cloner le dépôt.',
+			'common.clone_repo_open_after' => 'L\'ouvrir juste après l\'import',
+			'common.clone_repo_browse_repos' => 'Parcourir vos dépôts',
+			'common.clone_repo_url_manual' => 'Coller l\'URL manuellement',
+			'common.clone_repo_search_repos' => 'Rechercher dans vos dépôts...',
+			'common.clone_repo_no_repos_found' => 'Aucun dépôt ne correspond à votre recherche.',
+			'common.clone_repo_loading_repos' => 'Chargement des dépôts...',
+			'common.clone_repo_load_error' => 'Échec du chargement des dépôts.',
+			'common.clone_repo_select' => 'Sélectionner',
+			'common.clone_repo_no_account' => 'Aucun compte GitHub ou GitLab connecté. Utilisez une URL pour cloner à la place.',
+			'common.clone_repo_repos_loaded' => 'dépôts chargés',
+			'common.load_more' => 'Charger plus',
+			'common.git_uncommitted' => 'non commité',
+			'common.git_clean' => 'Clean',
+			'common.task_tray_title' => 'Tâches',
+			'common.task_tray_empty' => 'Aucune tâche active',
+			'common.task_tray_active_count' => '{{active}} actives, {{recent}} récentes',
+			'common.task_tray_only_recent' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} recent task', many: '${count} tâche récente', other: '${count} recent tasks', ), 
+			'common.task_tray_aria' => 'Panneau des tâches',
+			'common.task_tray_auto_dismiss' => 'Masquer automatiquement les tâches terminées',
+			'common.task_tray_dismiss' => 'Fermer {{count}}',
+			'common.task_error_status' => 'Erreur',
+			'common.command_palette_title' => 'Palette de commandes',
+			'common.command_palette_placeholder' => 'Rechercher commandes, projets, moteurs, paramètres…',
+			'common.command_palette_no_results' => 'Aucun résultat ne correspond',
+			'common.command_palette_navigate' => 'Naviguer',
+			'common.command_palette_escape' => 'Échap',
+			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
+			'common.setting_project_scan_dirs' => 'Scan Project Folders',
+			'common.setting_version_scan_dirs' => 'Scan Version Folders',
+			'common.setting_default_project_location' => 'Default Project Location Setting',
+			'common.setting_download_dir' => 'Download Versions Location Setting',
+			'common.setting_scan_depth' => 'Scan Depth',
+			'common.setting_icon_scan_depth' => 'Project Icon Search Depth',
+			'common.setting_download_concurrency' => 'Simultaneous Downloads',
+			'common.setting_close_on_project_open' => 'Close on Project Open',
+			'common.setting_minimize_to_tray' => 'Minimize to System Tray',
+			'common.setting_reopen_after_godot_closes' => 'Reopen After Godot Closes',
+			'common.setting_auto_scan_on_startup' => 'Auto-scan on Startup',
+			'common.setting_workspaces_enabled' => 'Use Workspaces',
+			'common.setting_directory_naming_convention' => 'Directory Naming Convention',
+			'common.setting_git_init_new_projects' => 'Initialize Git for New Projects',
+			'common.setting_tooltip_delay' => 'Tooltip Delay',
+			'common.setting_command_palette_keybind' => 'Command Palette Shortcut',
+			'common.setting_tray_recent_projects_count' => 'Tray Recent Projects',
+			'common.setting_last_opened_time_format' => 'Time Format',
+			'common.setting_last_opened_date_format' => 'Date Format',
+			'common.setting_theme_mode' => 'Theme Mode',
+			'common.setting_accent_color' => 'Accent Color',
+			_ => null,
+		} ?? switch (path) {
+			'common.setting_background_color' => 'Couleur d\'arrière-plan',
+			'common.setting_corner_radius' => 'Corner Radius',
+			'common.setting_ui_density' => 'UI Density',
+			'common.setting_font_scale' => 'Text Size',
+			'common.setting_animation_intensity' => 'Animation Intensity',
+			'common.setting_view_entrance' => 'View Entrance Animation',
+			'common.setting_custom_css' => 'Custom CSS',
+			'common.setting_project_icon_opacity' => 'Project Icon Opacity',
+			'common.setting_show_scrollbars' => 'Show Scrollbar',
+			'common.setting_setup_wizard' => 'Setup Wizard',
+			'common.setting_reset_settings' => 'Reset Settings',
+			'common.setting_delete_app_data' => 'Delete App Data',
+			'common.setting_check_updates' => 'Check for Updates',
+			'common.setting_show_support_button' => 'Show Support Button',
+			'common.setting_show_star_button' => 'Show Star Button',
+			'common.setting_discord_rpc_enabled' => 'Discord Rich Presence',
+			'common.setting_discord_app_id' => 'Discord Application ID',
+			'common.setting_discord_rpc_show_projects' => 'Discord Show Project Names',
+			'common.setting_discord_rpc_excluded_projects' => 'Discord Excluded Projects',
+			'common.setting_discord_rpc_project_presences' => 'Discord Custom Presence',
+			'common.active_workspace' => '{{name}} (actif)',
+			'common.current_workspace' => 'Espace de travail actuel',
+			'common.switch_workspace' => 'Changer d\'espace de travail',
+			'common.opened_recently' => 'Ouvert {{label}}',
+			'common.recent_section' => 'Récents',
+			'common.installed_versions_section' => 'Versions installées',
+			'common.settings_label' => 'Paramètres → {{tab}}',
+			'common.remove_category_aria' => 'Supprimer {{name}}',
+			'common.git_remove_remote' => 'Supprimer la remote',
+			'common.git_commit_placeholder' => 'Message de commit…',
+			'common.restart_required_title' => 'Redémarrage requis',
+			'common.restart_required_desc' => 'Ce changement nécessite le redémarrage de GodotHub pour prendre pleinement effet. Le paramètre a été enregistré et s\'appliquera au prochain lancement de l\'application.',
+			'common.found_dismissed_title' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'Projet précédemment retiré retrouvé', many: '${count} previously removed projects found', other: '${count} projets précédemment retirés retrouvés', ), 
+			'common.found_dismissed_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'Le scan a trouvé 1 projet que vous aviez retiré de la bibliothèque. Voulez-vous le rajouter ?', many: 'Scanner found ${count} projects that you previously removed from the library. Would you like to re-add them?', other: 'Le scan a trouvé ${count} projets que vous aviez retirés de la bibliothèque. Voulez-vous les rajouter ?', ), 
+			'common.readd_all' => 'Tout rajouter',
+			'common.skip_all' => 'Tout ignorer',
+			'common.project_already_open_title' => 'Projet déjà ouvert',
+			'common.project_already_open_desc' => '{{name}} est déjà lancé. L\'ouvrir à nouveau lancera une seconde instance de l\'éditeur. Ouvrir quand même ?',
+			'common.project_open_anyway' => 'Ouvrir quand même',
+			'common.git_sidebar' => 'Barre latérale Git',
+			'common.asset_duplicate_title' => 'Template already installed',
+			'common.asset_duplicate_desc' => '"{{name}}" is already in your templates. Install a duplicate anyway?',
+			'common.empty_category' => 'Empty Category',
+			'common.release_to_drop' => 'Release to drop',
+			'common.preview_release_notes' => '## What\'s new in v1.0.0 - The Preview Update\\n\\n## New\\n\\n- Revamped the Check for Updates modal with structured release notes\\n- Added screen reader announcements with an Accessibility settings tab\\n\\n## Fixes\\n\\n- Fixed a crash when switching workspaces with pinned projects\\n- Fixed update checks failing silently when GitHub rate limits are hit\\n\\n## Improvements\\n\\n- Faster startup times across all platforms\\n- Reworked workspace modals with compact style pickers\\n\\n## Known Issues\\n\\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts',
+			'common.preview_error' => 'Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking.',
+			'common.bug_report_system' => 'System',
+			'common.bug_report_version' => 'Version',
+			'common.bug_report_date' => 'Date',
+			'common.bug_report_os' => 'OS',
+			'common.bug_report_platform' => 'Platform',
+			'common.bug_report_language' => 'Language',
+			'common.bug_report_cpu_cores' => 'CPU Cores',
+			'common.bug_report_ram' => 'RAM',
+			'common.bug_report_screen' => 'Screen',
+			'common.bug_report_gpu' => 'GPU',
+			'common.bug_report_user_agent' => 'User Agent',
+			'common.bug_report_recent_errors' => 'Recent Errors',
+			'common.bug_report_none_captured' => 'none captured',
+			'common.bug_report_description' => 'Description',
+			'common.bug_report_no_description' => 'No description provided',
+			'common.unknown' => 'inconnu',
+			'common.gpu_webgl_unavailable' => 'WebGL not available',
+			'common.gpu_info_unavailable' => 'GPU info unavailable',
+			'common.update_available' => 'Update available',
+			'common.dismiss' => 'Dismiss',
+			'common.system_language' => 'Langue du système',
+			'common.category_empty_hint' => 'Create one above to organize your projects',
+			'common.contributor_pr_merged' => 'Merged',
+			'common.contributor_pr_open' => 'Open',
+			'common.contributor_pr_closed' => 'Closed',
+			'common.contributor_pr_loading' => 'Loading PRs...',
+			'common.contributor_pr_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} pull request', many: '${count} pull requests', other: '${count} pull requests', ), 
+			'common.contributor_pr_load_failed' => 'Failed to load pull requests.',
+			'common.contributor_pr_network_hint' => 'Check your internet connection.',
+			'common.contributor_pr_empty' => 'No pull requests found.',
+			'common.theme_presets_section' => 'Theme presets',
+			'common.all_categories' => 'Toutes les catégories',
+			'common.clear_category_filter' => 'Clear category filter',
+			'common.filter_by_category' => 'Filter by category',
+			'common.theme_dark' => 'Sombre',
+			'common.theme_light' => 'Clair',
+			'common.bulk_tags' => 'Tags',
+			'common.bulk_tags_title' => 'Edit tags',
+			'common.add_tag' => 'Ajouter une étiquette',
+			'common.remove_tag' => 'Supprimer l\'étiquette',
+			'common.no_common_tags' => 'No tags on the selected projects yet.',
+			'common.tags_added_to_selection' => 'Added tag to {{count}} projects.',
+			'common.tags_removed_from_selection' => 'Removed tag from {{count}} projects.',
+			'common.removed_from_library' => 'Removed {{count}} project(s) from library.',
+			'common.undo' => 'Undo',
+			'common.duplicate_project_title' => 'Duplicate project',
+			'common.copy_suffix' => 'copy',
+			'common.duplicate' => 'Duplicate',
+			'common.destination_folder' => 'Dossier de destination',
+			'common.new_project_name' => 'Project name',
+			'common.project_duplicated' => 'Project duplicated.',
+			'common.notification_version_installed' => 'Godot {{tag}} installed',
+			'common.notification_asset_installed' => '{{title}} installed',
+			'common.notification_clone_done' => 'Repository cloned and imported',
+			'common.console_title' => 'Console',
+			'common.console_finished' => 'Finished',
+			'common.console_exit_ok' => 'Exited cleanly',
+			'common.console_exit_code' => 'Exit code {{code}}',
+			'common.console_clear' => 'Clear output',
+			'common.console_copy' => 'Copy output',
+			'common.console_minimize' => 'Minimize to a pill',
+			'common.console_waiting' => 'Waiting for output…',
+			'common.console_empty' => 'No output was captured.',
+			'common.console_trimmed' => '{{count}} older line(s) are hidden, copy or clear to manage the buffer.',
+			'common.console_crash_hint' => 'Godot exited with code {{code}}. The output above is kept so you can read it.',
+			'common.console_filter_errors' => 'Errors',
+			'common.console_filter_warnings' => 'Warnings',
+			'common.console_filter_info' => 'Info',
+			'common.console_no_matches' => 'No lines match the filters ({{count}} hidden).',
+			'common.console_pill_hint' => 'Click to reopen the console, drag to move it.',
+			'common.console_resumed_hint' => 'This project kept running after GodotHub closed, its output is still being captured below.',
+			'common.console_previous_hint' => 'Output kept from the previous session.',
+			'common.project_card_version_unavailable' => 'Godot {{version}} is not installed. Select an installed version to launch this project.',
+			'common.project_card_total_time' => 'Total time: {{time}}',
+			'common.project_card_last_opened' => 'Last opened: {{date}}',
+			'common.project_card_more_tags' => 'Show {{count}} more tags',
+			'common.downloading_export_templates' => 'Downloading export templates for {{tag}}',
+			'common.export_templates_verifying' => 'Verifying download…',
+			'common.export_templates_extracting' => 'Installing templates…',
+			'common.project_doctor.title' => 'Project Doctor',
+			'common.project_doctor.scanning' => 'Checking this project…',
+			'common.project_doctor.scan_failed' => 'Could not check this project',
+			'common.project_doctor.run_again' => 'Run checks again',
+			'common.project_doctor.summary_errors' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} issue needs attention', many: '${count} issues need attention', other: '${count} issues need attention', ), 
+			'common.project_doctor.summary_warnings' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} warning to review', many: '${count} warnings to review', other: '${count} warnings to review', ), 
+			'common.project_doctor.summary_ready' => 'No blocking issues found',
+			'common.project_doctor.summary_counts' => '{{passed}} checks passed · {{findings}} findings',
+			'common.project_doctor.passed_checks' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} passed check', many: '${count} passed checks', other: '${count} passed checks', ), 
+			'common.project_doctor.local_checks' => 'Checks run locally. Fixes to settings save a backup first.',
+			'common.project_doctor.fix_complete' => 'Fix applied. Project checks updated.',
+			'common.project_doctor.templates_downloading' => 'Downloading selected templates. Progress and cancellation are also available in Tasks.',
+			'common.project_doctor.version_queued' => 'Engine download queued. Follow its progress in Tasks.',
+			'common.project_doctor.version_queued_short' => 'Download queued',
+			'common.project_doctor.version_asset_unavailable' => 'No matching download was found for this version and platform. Open Versions to install or locate the engine.',
+			'common.project_doctor.severity_ok' => 'Passed',
+			'common.project_doctor.severity_info' => 'Note',
+			'common.project_doctor.severity_warning' => 'Warning',
+			'common.project_doctor.severity_error' => 'Needs attention',
+			'common.project_doctor.category_engine' => 'Engine and compatibility',
+			'common.project_doctor.category_templates' => 'Export templates',
+			'common.project_doctor.category_cache' => 'Import cache',
+			'common.project_doctor.category_scenes' => 'Main scene',
+			'common.project_doctor.category_addons' => 'Editor addons',
+			'common.project_doctor.category_git' => 'Version control',
+			'common.project_doctor.category_exports' => 'Export presets',
+			'common.project_doctor.category_registrations' => 'Project registration',
+			'common.project_doctor.action_choose_version' => 'Choose installed version',
+			'common.project_doctor.action_install_version' => 'Install bound version',
+			'common.project_doctor.action_manage_versions' => 'Manage engine versions',
+			'common.project_doctor.action_templates' => 'Choose export templates',
+			'common.project_doctor.action_clear_cache' => 'Move cache to Trash',
+			'common.project_doctor.action_disable_addon' => 'Remove missing addon entry',
+			'common.project_doctor.action_enable_addon' => 'Enable addon',
+			'common.project_doctor.action_add_ignores' => 'Add ignore rules',
+			'common.project_doctor.action_untrack_metadata' => 'Stop tracking local metadata',
+			'common.project_doctor.action_track_lfs' => 'Track file with Git LFS',
+			'common.project_doctor.action_remove_registration' => 'Remove registration',
+			'common.project_doctor.action_open_editor' => 'Open in Godot',
+			'common.project_doctor.action_open_presets' => 'Review export presets in IDE',
+			'common.project_doctor.action_open_addons' => 'Review addons in IDE',
+			'common.project_doctor.confirm_clear_cache' => 'Move this project\'s .godot folder to the system Trash? Close the project in Godot first. Godot will reimport assets and rebuild editor state the next time it opens.',
+			'common.project_doctor.confirm_enable_addon' => 'Enable this editor addon? Its script will run the next time you open the project in Godot. A backup of project.godot is saved first.',
+			'common.project_doctor.confirm_untrack_metadata' => 'Remove .godothub.json from Git\'s index while keeping your local file? This stages its removal for your next commit. Existing commits and history stay unchanged.',
+			'common.project_doctor.confirm_track_lfs' => 'Add a Git LFS rule for this file? Git LFS must be installed. This changes .gitattributes; re-add the file in Git to convert its next revision. Existing history stays unchanged.',
+			'common.project_doctor.confirm_remove_registration' => 'Remove this library registration? Project files stay on disk. The registry is backed up first, and you can import the folder again.',
+			'common.project_doctor.version_unbound_title' => 'No engine version is bound',
+			'common.project_doctor.version_unbound_description' => 'Choose an installed engine to open and run this project.',
+			'common.project_doctor.version_missing_title' => 'The bound engine is not installed',
+			'common.project_doctor.version_missing_description' => 'This project is bound to {{version}}, but that version is absent from the installed engine registry.',
+			'common.project_doctor.version_executable_missing_title' => 'The engine executable is missing',
+			'common.project_doctor.version_executable_missing_description' => '{{version}} is registered, but its executable is no longer on disk. Locate or reinstall it in Versions.',
+			'common.project_doctor.version_ready_title' => 'The bound engine is available',
+			'common.project_doctor.version_ready_description' => '{{version}} is installed and its executable exists.',
+			'common.project_doctor.format_incompatible_title' => 'The project format is incompatible',
+			'common.project_doctor.format_incompatible_description' => 'config_version={{format}} cannot be opened by the bound {{version}} engine. Choose a compatible engine and use Godot\'s migration tools if needed.',
+			'common.project_doctor.major_mismatch_title' => 'The project and engine use different Godot generations',
+			'common.project_doctor.major_mismatch_description' => 'This project records a Godot {{major}} format but is bound to {{version}}. Choose a matching engine or migrate the project in Godot.',
+			'common.project_doctor.feature_mismatch_title' => 'The recorded project version differs from its engine',
+			'common.project_doctor.feature_mismatch_description' => 'The project records Godot {{recorded}} features but is bound to {{version}}. Match the binding or open it in the intended engine and review its upgrade changes.',
+			'common.project_doctor.format_unknown_title' => 'The project version could not be confirmed',
+			'common.project_doctor.format_unknown_description' => 'The project format or engine version is missing or unrecognized. Review project.godot before changing engine generations.',
+			'common.project_doctor.format_ready_title' => 'The recorded format matches the bound engine',
+			'common.project_doctor.format_ready_description' => 'The project format and recorded Godot feature version are compatible with this binding.',
+			'common.project_doctor.templates_missing_title' => 'Export templates are missing',
+			'common.project_doctor.templates_platforms_missing_title' => 'Some export targets have no installed templates',
+			'common.project_doctor.templates_platforms_missing_description' => 'These platforms appear in your export presets but have no templates installed for the bound engine. Choose the template files you need.',
+			'common.project_doctor.templates_missing_description' => 'No installed export-template platform was found for {{version}}. Choose the platforms and files you need.',
+			'common.project_doctor.templates_ready_title' => 'Export templates are available',
+			'common.project_doctor.templates_ready_description' => 'These platforms have installed templates for the bound engine. Open the chooser to review individual files.',
+			'common.project_doctor.templates_unknown_title' => 'Install or bind the engine before checking templates',
+			'common.project_doctor.templates_unknown_description' => 'Export templates must match the exact engine version, including standard or .NET builds.',
+			'common.project_doctor.main_scene_ready_title' => 'A main scene is configured',
+			'common.project_doctor.main_scene_ready_description' => 'The project has an application/run/main_scene setting.',
+			'common.project_doctor.main_scene_missing_title' => 'No main scene is configured',
+			'common.project_doctor.main_scene_missing_description' => 'Open the project in Godot and choose a main scene in Project Settings before running the game.',
+			'common.project_doctor.main_scene_missing_file_title' => 'The main scene file is missing',
+			'common.project_doctor.main_scene_missing_file_description' => 'The configured scene path does not exist. Choose an existing main scene in Godot.',
+			'common.project_doctor.cache_ready_title' => 'The import cache is within normal limits',
+			'common.project_doctor.cache_ready_description' => '{{size}} across {{files}} files. Last cache write: {{days}} days ago.',
+			'common.project_doctor.cache_large_title' => 'The import cache uses significant disk space',
+			'common.project_doctor.cache_large_description' => '{{size}} across {{files}} files. Large projects can need a large cache; clearing it causes a full reimport.',
+			'common.project_doctor.cache_stale_title' => 'The import cache has not changed recently',
+			'common.project_doctor.cache_stale_description' => '{{size}} across {{files}} files; last write was {{days}} days ago. Age alone does not mean the cache is broken.',
+			'common.project_doctor.cache_version_title' => 'The cache records a different engine executable',
+			'common.project_doctor.cache_version_description' => 'The editor cache was last associated with a different engine path. If imports misbehave, rebuild its {{size}} cache.',
+			'common.project_doctor.cache_partial_title' => 'The cache scan was incomplete',
+			'common.project_doctor.cache_partial_description' => 'At least {{size}} across {{files}} files. Some entries were unreadable or the scan reached its time or file limit.',
+			'common.project_doctor.cache_absent_title' => 'No local .godot import cache',
+			'common.project_doctor.cache_absent_description' => 'Godot 4 creates this folder when the project opens. Godot 3 uses a different cache layout.',
+			'common.project_doctor.addon_missing_title' => 'An enabled editor addon is missing',
+			'common.project_doctor.addon_missing_description' => 'This editor_plugins entry has no plugin.cfg on disk. Restore the addon or remove the stale enabled entry.',
+			'common.project_doctor.addon_disabled_title' => 'An editor addon is present but disabled',
+			'common.project_doctor.addon_disabled_description' => 'Its plugin.cfg is on disk but not listed in editor_plugins. This can be intentional. Enable it only if you want its editor functionality.',
+			'common.project_doctor.addon_orphan_title' => 'An addon folder has no editor plugin configuration',
+			'common.project_doctor.addon_orphan_description' => 'This folder is not an enabled editor addon. It may be a runtime library or leftover files; review it before removing anything.',
+			'common.project_doctor.addons_ready_title' => 'Enabled editor addons exist on disk',
+			'common.project_doctor.addons_ready_description' => 'No missing or disabled editor-plugin folders were found.',
+			'common.project_doctor.no_presets_title' => 'No export presets configured',
+			'common.project_doctor.no_presets_description' => 'Create export presets in Godot when you are ready to package the project.',
+			'common.project_doctor.presets_unreadable_title' => 'Export presets could not be read',
+			'common.project_doctor.presets_unreadable_description' => 'Review export_presets.cfg and run the checks again.',
+			'common.project_doctor.exports_ready_title' => 'Export resource paths exist',
+			'common.project_doctor.exports_ready_description' => 'Explicit res:// references in the export presets exist on disk. Wildcard filters and output paths are excluded from this check.',
+			'common.project_doctor.export_resources_missing_title' => 'Export presets reference missing resources',
+			'common.project_doctor.export_resources_missing_description' => 'Restore these files or update the references in Godot\'s export settings or export_presets.cfg.',
+			'common.project_doctor.git_unavailable_title' => 'Git checks were skipped',
+			'common.project_doctor.git_unavailable_description' => 'This folder is not in a Git repository, Git is unavailable, or the repository could not be inspected.',
+			'common.project_doctor.ignore_missing_title' => 'Generated or local files are not ignored',
+			'common.project_doctor.ignore_missing_description' => 'The effective Git ignore rules do not cover all of .godot/, .godothub/, and .godothub.json. Add project-local rules to keep them out of future commits.',
+			'common.project_doctor.ignores_ready_title' => 'Generated and local files are ignored',
+			'common.project_doctor.ignores_ready_description' => 'Git ignores the import cache and local GodotHub metadata.',
+			'common.project_doctor.metadata_tracked_title' => 'Local GodotHub metadata is tracked by Git',
+			'common.project_doctor.metadata_tracked_description' => '.godothub.json is in Git\'s index, so ignore rules alone will not keep it out of commits. Remove it from tracking while keeping the local file.',
+			'common.project_doctor.metadata_private_title' => 'Legacy local metadata is not tracked',
+			'common.project_doctor.metadata_private_description' => '.godothub.json is absent from Git\'s tracked-file index.',
+			'common.project_doctor.lfs_ready_title' => 'No large binaries need a Git LFS rule',
+			'common.project_doctor.lfs_ready_description' => 'Scanned binary files of 50 MiB or more are ignored by Git or covered by an LFS filter rule. Existing commit history is not inspected.',
+			'common.project_doctor.lfs_unknown_title' => 'Git LFS attributes could not be checked',
+			'common.project_doctor.lfs_unknown_description' => 'Review the Git error below, then run the checks again.',
+			'common.project_doctor.binary_without_lfs_title' => 'A large binary has no Git LFS rule',
+			'common.project_doctor.binary_without_lfs_description' => 'This binary is at least 50 MiB and is not ignored or covered by filter=lfs. Track it with LFS to keep future revisions out of regular Git blobs.',
+			'common.project_doctor.scan_partial_title' => 'The project file scan was incomplete',
+			'common.project_doctor.scan_partial_description' => 'Some paths were unreadable or the scan reached its 50,000-entry or five-second limit. Large-binary results may be incomplete.',
+			'common.project_doctor.registration_stale_title' => 'This registration no longer points to a project',
+			'common.project_doctor.registration_stale_description' => 'No project.godot was found at this path. Reconnect moved or offline storage, or remove the stale library entry.',
+			'common.project_doctor.registration_duplicate_title' => 'Another registration points to this project',
+			'common.project_doctor.registration_duplicate_description' => 'This additional library entry resolves to the same project folder or a stale copy of its identity. Remove it to keep the current registration.',
+			'common.project_doctor.registration_ready_title' => 'No duplicate registrations found',
+			'common.project_doctor.registration_ready_description' => 'This project has one valid folder registration in the active workspace.',
+			'common.project_doctor.category_android' => 'Android',
+			'common.project_doctor.android_targeted_title' => 'This project exports to Android',
+			'common.project_doctor.android_targeted_description' => 'An Android export preset or Gradle build template was found, so the Android toolchain is checked below.',
+			'common.project_doctor.android_possible_title' => 'This project may target mobile devices',
+			'common.project_doctor.android_possible_description' => 'No Android export preset was found, but some settings suggest mobile use. Many desktop games also use the Mobile renderer, so the toolchain checks below are informational only.',
+			'common.project_doctor.hint_mobile_renderer' => 'Uses the Mobile renderer',
+			'common.project_doctor.hint_mobile_renderer_override' => 'Sets a renderer override for mobile platforms',
+			'common.project_doctor.hint_etc2_astc' => 'Imports ETC2/ASTC textures, which Android requires',
+			'common.project_doctor.hint_orientation' => 'Sets a handheld screen orientation',
+			'common.project_doctor.hint_touch_emulation' => 'Emulates touch input from the mouse',
+			'common.project_doctor.hint_android_plugins' => 'Has an android/plugins folder',
+			'common.project_doctor.android_sdk_missing_title' => 'Android SDK not found',
+			'common.project_doctor.android_sdk_missing_description' => 'Set the Android SDK path in Godot under Editor Settings → Export → Android, or set ANDROID_HOME. Android exports need it.',
+			'common.project_doctor.android_sdk_incomplete_title' => 'The Android SDK is missing components',
+			'common.project_doctor.android_sdk_incomplete_description' => 'The SDK at {{path}} is missing the parts listed below. Install them with Android Studio\'s SDK Manager or sdkmanager.',
+			'common.project_doctor.sdk_part_sdk_folder' => 'The SDK folder does not exist',
+			'common.project_doctor.sdk_part_platform_tools' => 'Platform Tools (adb)',
+			'common.project_doctor.sdk_part_build_tools' => 'Build Tools',
+			'common.project_doctor.sdk_part_cmdline_tools' => 'Command-line Tools',
+			'common.project_doctor.android_sdk_ready_title' => 'Android SDK found',
+			'common.project_doctor.android_sdk_ready_description' => 'Using the SDK at {{path}}.',
+			'common.project_doctor.android_jdk_missing_title' => 'Java JDK not found',
+			'common.project_doctor.android_jdk_missing_description' => 'Android exports need JDK {{required}} or newer. Set it in Godot under Editor Settings → Export → Android, or set JAVA_HOME.',
+			'common.project_doctor.android_jdk_invalid_title' => 'The Java JDK path is invalid',
+			'common.project_doctor.android_jdk_invalid_description' => 'No java executable was found in {{path}}. Point Godot to a JDK {{required}} installation.',
+			'common.project_doctor.android_jdk_old_title' => 'The Java JDK is too old',
+			'common.project_doctor.android_jdk_old_description' => 'JDK {{version}} is installed at {{path}}, but this Godot version needs JDK {{required}} or newer for Android exports.',
+			'common.project_doctor.android_jdk_ready_title' => 'Java JDK found',
+			'common.project_doctor.android_jdk_ready_description' => 'JDK {{version}} at {{path}}.',
+			'common.project_doctor.android_debug_keystore_missing_title' => 'The debug keystore file is missing',
+			'common.project_doctor.android_debug_keystore_missing_description' => 'Godot\'s editor settings point to a debug keystore that no longer exists. Clear the setting so Godot can create a new one, or pick another file.',
+			'common.project_doctor.android_gradle_template_missing_title' => 'The Android build template is not installed',
+			'common.project_doctor.android_gradle_template_missing_description' => 'These presets use a Gradle build, but the project has no android/build folder. In Godot, choose Project → Install Android Build Template.',
+			'common.project_doctor.android_release_keystore_missing_title' => 'A release keystore file is missing',
+			'common.project_doctor.android_release_keystore_missing_description' => 'These presets point to a release keystore that does not exist. Release exports will fail until the path is fixed.',
+			'common.project_doctor.android_release_keystore_unset_title' => 'No release keystore is set',
+			'common.project_doctor.android_release_keystore_unset_description' => 'These presets can only make debug builds until a release keystore is set. You need one to publish on Google Play.',
+			'common.build_export.title' => 'Build & Export',
+			'common.build_export.description' => 'Ship a release build of {{name}} using its bound Godot version.',
+			'common.build_export.loading' => 'Reading export presets and checking release templates…',
+			'common.build_export.refresh' => 'Refresh presets',
+			'common.build_export.preset' => 'Export preset',
+			'common.build_export.choose_preset' => 'Choose an export preset',
+			'common.build_export.output' => 'Output file',
+			'common.build_export.browse' => 'Choose output file',
+			'common.build_export.output_hint' => 'Relative paths start at the project folder. Parent folders are created automatically. export_presets.cfg is kept unchanged.',
+			'common.build_export.release' => 'Release build',
+			'common.build_export.engine' => 'Godot {{version}}',
+			'common.build_export.start' => 'Export release',
+			'common.build_export.starting' => 'Starting export…',
+			'common.build_export.install_templates' => 'Install export templates',
+			'common.build_export.missing_templates' => 'Templates are missing for this preset. Godot validates debug and release templates before exporting.',
+			'common.build_export.downloading_templates' => 'Installing templates… Follow progress in Tasks.',
+			'common.build_export.no_presets' => 'No export presets yet',
+			'common.build_export.no_presets_hint' => 'Open Project → Export in Godot, add a preset, and save it. Refresh this list when it is ready.',
+			'common.build_export.open_editor' => 'Open in Godot',
+			'common.build_export.open_console' => 'Open export console',
+			'common.build_export.cancel_export' => 'Cancel export',
+			'common.build_export.running' => 'Exporting {{preset}}…',
+			'common.build_export.succeeded' => 'Export complete',
+			'common.build_export.failed' => 'Export failed',
+			'common.build_export.cancelled' => 'Export cancelled',
+			'common.build_export.cancel_hint' => 'Partial output files may remain in the output folder.',
+			'common.build_export.open_folder' => 'Open output folder',
+			'common.build_export.overwrite_title' => 'Replace existing export?',
+			'common.build_export.overwrite_description' => 'An output file already exists at {{path}}. Replace it with this export?',
+			'common.build_export.overwrite' => 'Replace and export',
+			'common.build_export.run_hint' => 'Output streams to its own console tab. Exporting does not change the project\'s play-time statistics.',
+			'common.build_export.platform_tools' => 'Godot also requires the SDKs, signing settings and export options configured for your target platform.',
+			'common.build_export.scan_failed' => 'Could not read export presets',
+			'common.build_export.start_failed' => 'Could not start export: {{error}}',
+			'common.build_export.tools_title' => 'Tests and lint',
+			'common.build_export.tools_no_tests' => 'No test framework found. Install GUT or gdUnit4 from the Asset Library to run tests here.',
+			'common.build_export.tool_run' => 'Run',
+			'common.build_export.tool_gut' => 'GUT tests',
+			'common.build_export.tool_gut_hint' => 'Runs your GUT tests headless with the bound Godot version.',
+			'common.build_export.tool_gdunit' => 'gdUnit4 tests',
+			'common.build_export.tool_gdunit_hint' => 'Runs the gdUnit4 tests in {{target}} headless.',
+			'common.build_export.tool_gdlint' => 'gdlint',
+			'common.build_export.tool_gdlint_hint' => 'Lints GDScript outside addons: {{target}}',
+			'common.build_export.tool_gdformat' => 'gdformat check',
+			'common.build_export.tool_gdformat_hint' => 'Checks formatting without changing files: {{target}}',
+			'common.build_export.tool_reason_engine_missing' => 'Install this project\'s Godot version to run tests.',
+			'common.build_export.tool_reason_no_test_folder' => 'Add a test or tests folder for gdUnit4.',
+			'common.build_export.tool_reason_not_installed' => 'Not found on PATH. Install it with: pip install gdtoolkit',
+			'common.projects_corrupt_title' => 'Project list couldn\'t be read',
+			'common.projects_corrupt_desc' => 'Your projects.json file is corrupt, so your projects can\'t be shown. You can restore the most recent automatic backup, or dismiss this and leave the file untouched.',
+			'common.projects_corrupt_restore' => 'Restore backup',
+			'common.projects_corrupt_dismiss' => 'Not now',
+			'common.projects_load_error' => 'Couldn\'t load your projects. Something went wrong reading them from disk. Try again, and if it keeps failing your project list file may be damaged.',
+			'common.cleanup_title' => 'Storage',
+			'common.cleanup_subtitle' => 'See what GodotHub keeps on disk and free up space you no longer need.',
+			'common.cleanup_total_label' => 'on disk',
+			'common.cleanup_scanning' => 'Measuring folders…',
+			'common.cleanup_load_error' => 'Couldn\'t measure storage: {{error}}',
+			'common.cleanup_reclaimable_title' => 'Reclaimable',
+			'common.cleanup_reclaimable_desc' => 'Versions no project, template or alias uses, unfinished downloads, and export templates no installed version needs. Pick what to remove.',
+			'common.cleanup_nothing_to_reclaim' => 'Nothing to clean up right now.',
+			'common.cleanup_group_unused_versions' => 'Unused versions',
+			'common.cleanup_group_partials' => 'Unfinished downloads',
+			'common.cleanup_group_orphan_exports' => 'Orphaned export templates',
+			'common.cleanup_orphan_exports_hint' => 'No installed version uses these, but a Godot install outside GodotHub might, so they aren\'t selected by default.',
+			'common.cleanup_external_hint' => 'Installed outside GodotHub\'s download folder',
+			'common.cleanup_kind_version_download' => 'Godot version download',
+			'common.cleanup_kind_export_templates_download' => 'Export templates download',
+			'common.cleanup_reclaim_btn' => 'Reclaim {{size}}',
+			'common.cleanup_confirm_title' => 'Reclaim {{size}}?',
+			'common.cleanup_confirm_desc' => 'These items will be removed:',
+			'common.cleanup_confirm_trash_note' => 'Versions and export templates are moved to the system trash, so the space is freed once you empty it. Unfinished downloads are deleted permanently.',
+			'common.cleanup_confirm_btn' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'Remove ${count} item', many: 'Remove ${count} items', other: 'Remove ${count} items', ), 
+			'common.cleanup_done' => 'Freed {{size}}',
+			'common.cleanup_failed' => 'Couldn\'t remove {{label}}: {{error}}',
+			'common.cleanup_versions_desc' => 'Full size on disk of every installed Godot version.',
+			'common.cleanup_templates_title' => 'Project templates',
+			'common.cleanup_export_templates_title' => 'Export templates',
+			'common.cleanup_used_by_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} template', many: '${count} templates', other: '${count} templates', ), 
+			'common.cleanup_current_badge' => 'Current',
+			'common.cleanup_alias_badge' => 'Alias',
+			'common.cleanup_unused_badge' => 'Unused',
+			'common.cleanup_mise_badge' => 'Managed by mise',
+			'common.cleanup_external_badge' => 'External',
+			'common.cleanup_orphan_badge' => 'Orphaned',
+			'common.cleanup_empty' => 'Nothing here yet.',
+			'common.new_badge' => 'New',
+			'common.reset' => 'Réinitialiser',
+			'common.git_disconnect' => 'Déconnecter',
+			'common.git_sign_in_github' => 'Se connecter avec GitHub',
+			'common.git_connected_as' => 'Connecté en tant que @{{username}}',
+			'common.optional' => '(optional)',
+			'common.language_label' => 'Langue',
+			'common.n_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} projet', many: '${count} projects', other: '${count} projets', ), 
+			'common.vault_item_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'Item', many: 'Items', other: 'Items', ), 
+			'common.vault_search_placeholder' => 'Search vault…',
+			'common.vault_empty' => 'Your vault is empty. Click <1>Save to Vault</1> to pick files or folders from a project and reuse them anywhere.',
+			'common.vault_no_match' => 'No items match your search.',
+			'common.vault_save_btn' => 'Save to Vault',
+			'common.vault_save_title' => 'Save to Vault',
+			'common.vault_source_project_label' => 'Source Project',
+			'common.vault_source_n' => 'Source {{index}}',
+			'common.vault_add_source' => 'Add another project',
+			'common.vault_remove_source' => 'Remove source',
+			'common.vault_select_project' => 'Select a project…',
+			'common.vault_select_files_label' => 'Files & Folders',
+			'common.vault_selected_count' => '{{count}} selected',
+			'common.vault_project_empty' => 'This project has no files.',
+			'common.vault_item_name_label' => 'Name',
+			'common.vault_item_name_placeholder' => 'Item name',
+			'common.vault_item_desc_label' => 'Description',
+			'common.vault_item_desc_placeholder' => 'What\'s in this item?',
+			'common.vault_item_tags_label' => 'Tags',
+			'common.vault_tag_input_placeholder' => 'Add a tag…',
+			'common.vault_saved_toast' => 'Saved to Vault',
+			'common.vault_edit_action' => 'Edit item',
+			'common.vault_edit_title' => 'Edit Item',
+			'common.vault_item_updated_toast' => 'Item updated',
+			'common.vault_delete_action' => 'Delete {{name}}',
+			'common.vault_delete_title' => 'Delete Item?',
+			'common.vault_delete_desc' => '"{{name}}" will be permanently removed from your vault.',
+			'common.vault_add_btn' => 'Add to Project',
+			'common.vault_add_title' => 'Add from Vault',
+			'common.vault_target_project_label' => 'Target Project',
+			'common.vault_target_projects_label' => 'Target Projects',
+			'common.vault_adding' => 'Adding…',
+			'common.vault_overwrite_btn' => 'Overwrite files',
+			'common.vault_conflict_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} file already exists in the project. Overwrite it?', many: '${count} files already exist in the project. Overwrite them?', other: '${count} files already exist in the project. Overwrite them?', ), 
+			'common.vault_conflict_summary_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} file already exists across the selected projects. Overwrite it?', many: '${count} files already exist across the selected projects. Overwrite them?', other: '${count} files already exist across the selected projects. Overwrite them?', ), 
+			'common.vault_added_toast' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'Added ${count} file', many: 'Added ${count} files', other: 'Added ${count} files', ), 
+			'common.vault_added_to_projects_toast' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'Added to ${count} project', many: 'Added to ${count} projects', other: 'Added to ${count} projects', ), 
+			'common.vault_item_empty' => 'This item has no files.',
+			'common.kNew' => 'Nouveau',
+			'common.announcement_support_title' => 'Support GodotHub',
+			'common.announcement_support_body' => 'GodotHub is free and made in my spare time. If it helps your workflow, please consider supporting development with a donation.',
+			'common.workspace_name_taken_error' => 'Another workspace already uses this name.',
+			'common.workspace_start_label' => 'Start with',
+			'common.workspace_start_copy' => 'Copy settings from {{name}}',
+			'common.workspace_start_copy_desc' => 'Theme, language, features, and version folders carry over. Project folders start empty, and you go straight in.',
+			'common.workspace_start_fresh' => 'Start fresh',
+			'common.workspace_start_fresh_desc' => 'Walk through setup for this workspace from scratch.',
+			'common.workspace_switched_to' => 'Switched to',
+			'common.project_addons.title' => 'Addons',
+			'common.project_addons.loading' => 'Reading addons…',
+			'common.project_addons.count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} addon installed', many: '${count} addons installed', other: '${count} addons installed', ), 
+			'common.project_addons.empty' => 'This project has no addons folder. Install addons from the Asset Store or copy them into res://addons.',
+			'common.project_addons.check_updates' => 'Check for updates',
+			'common.project_addons.checking' => 'Checking…',
+			'common.project_addons.updates_available' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} update available', many: '${count} updates available', other: '${count} updates available', ), 
+			'common.project_addons.all_current' => 'No updates found in the Asset Library',
+			'common.project_addons.enabled' => 'Enabled',
+			'common.project_addons.disabled' => 'Disabled',
+			'common.project_addons.library' => 'Library',
+			'common.project_addons.from_library' => 'Asset Library',
+			'common.project_addons.not_found' => 'Not found in the Asset Library',
+			'common.project_addons.update_to' => 'Version {{version}} is available',
+			'common.project_addons.current' => 'Up to date ({{version}})',
+			'common.project_addons.matched_by_name' => 'matched by name to “{{title}}”',
+			'common.project_addons.update' => 'Update',
+			'common.project_addons.updating' => 'Updating…',
+			'common.project_addons.updated' => '{{name}} was updated',
+			'common.project_addons.confirm_title' => 'Update {{name}}?',
+			'common.project_addons.confirm_description' => 'This replaces res://addons/{{folder}} with version {{version}} from the Asset Library. The old folder is moved to the Trash, so any changes you made to the addon are kept there. Close the project in Godot first.',
+			'common.project_addons.footer_hint' => 'Addons installed through GodotHub are matched exactly. Others are matched by name, so check the result before updating.',
+			'common.reload_confirm_title' => 'Reload GodotHub?',
+			'common.reload_confirm_desc' => 'Any unsaved changes in open forms will be lost.',
+			'common.color_presets' => 'Presets',
+			'common.date_previous_month' => 'Previous month',
+			'common.date_next_month' => 'Next month',
+			'common.date_change_due' => 'Change due date: {{date}}',
+			'common.date_add_due' => 'Add due date',
+			'dashboard.greeting_morning' => 'Bonjour',
+			'dashboard.greeting_afternoon' => 'Bonjour',
+			'dashboard.greeting_evening' => 'Bonsoir',
+			'dashboard.greeting_night' => 'Bonsoir',
+			'dashboard.greeting_name' => '{{greeting}}, {{name}}',
+			'dashboard.dashboard_rename_hint' => 'Mettre un nom personnalisé',
+			'dashboard.dashboard_rename_aria' => 'Renommer votre nom de salutation',
+			'dashboard.dashboard_rename_save' => 'Enregistrer le nom',
+			'dashboard.dashboard_rename_reset' => 'Utiliser le nom du système',
+			'dashboard.dashboard_name_placeholder' => 'Votre nom',
+			'dashboard.dashboard_clock_aria' => 'Heure actuelle',
+			'dashboard.dashboard_new_project' => 'Nouveau projet',
+			'dashboard.dashboard_import_project' => 'Importer un projet',
+			'dashboard.dashboard_scan_projects' => 'Scanner les projets',
+			'dashboard.dashboard_stat_projects' => 'Projets',
+			'dashboard.dashboard_stat_templates' => 'Modèles',
+			'dashboard.dashboard_stat_engines' => 'Moteurs',
+			'dashboard.dashboard_stat_total_time' => 'Temps total',
+			'dashboard.dashboard_stat_total_time_hint' => 'Temps passé sur les projets',
+			'dashboard.dashboard_recent' => 'Ouvert récemment',
+			'dashboard.dashboard_recent_empty' => 'Rien n\'a encore été ouvert. Ouvrez un projet pour le voir ici.',
+			'dashboard.dashboard_pinned' => 'Épinglés',
+			'dashboard.dashboard_pinned_empty' => 'Aucun projet épinglé pour le moment. Épinglez un projet pour le garder à portée de main.',
+			'dashboard.dashboard_engines' => 'Moteurs installés',
+			'dashboard.dashboard_engines_empty' => 'Aucun moteur installé pour le moment.',
+			'dashboard.dashboard_running' => 'En cours d\'exécution',
+			'dashboard.dashboard_running_empty' => 'Rien n\'est en cours d\'exécution pour le moment.',
+			'dashboard.dashboard_opened_at' => 'Ouvert à {{time}}',
+			'dashboard.dashboard_daily' => 'Activité quotidienne',
+			'dashboard.dashboard_daily_empty' => 'Aucune activité quotidienne pour le moment.',
+			'dashboard.dashboard_weekly' => 'Activité hebdomadaire',
+			'dashboard.dashboard_weekly_empty' => 'Aucune activité hebdomadaire pour le moment.',
+			'dashboard.dashboard_monthly' => 'Activité mensuelle',
+			'dashboard.dashboard_monthly_empty' => 'Aucune activité mensuelle pour le moment.',
+			'dashboard.dashboard_yearly' => 'Activité annuelle',
+			'dashboard.dashboard_yearly_empty' => 'Aucune activité annuelle pour le moment.',
+			'dashboard.dashboard_activity_cycle' => 'Passer à {{next}}',
+			'dashboard.dashboard_weekly_aria' => '{{label}} de temps suivi',
+			'dashboard.dashboard_top_time' => 'Classement des projets par temps suivi',
+			'dashboard.dashboard_top_time_empty' => 'Aucun temps suivi pour le moment. Ouvrez un projet pour commencer à suivre le temps.',
+			'dashboard.dashboard_insights' => 'Statistiques',
+			'dashboard.dashboard_insights_empty' => 'Aucun temps suivi pour le moment. Ouvrez un projet pour commencer une série.',
+			'dashboard.dashboard_insights_longest_streak' => 'Série la plus longue',
+			'dashboard.dashboard_insights_current_streak' => 'Série en cours',
+			'dashboard.dashboard_insights_days' => '{{count}} jours',
+			'dashboard.dashboard_insights_productive_day' => 'Jour le plus productif',
+			'dashboard.dashboard_insights_this_month' => 'Ce mois-ci',
+			'dashboard.dashboard_insights_delta_up' => '{{pct}}% de plus que le mois dernier',
+			'dashboard.dashboard_insights_delta_down' => '{{pct}}% de moins que le mois dernier',
+			_ => null,
+		} ?? switch (path) {
+			'dashboard.dashboard_git' => 'Aperçu Git',
+			'dashboard.dashboard_git_empty' => 'Aucun dépôt git détecté.',
+			'dashboard.dashboard_git_clean' => 'Tout est propre',
+			'dashboard.dashboard_git_dirty' => '{{count}} avec des modifications non validées',
+			'dashboard.dashboard_git_dirty_plural' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '1 avec des modifications non validées', many: '${count} avec des modifications non validées', other: '${count} avec des modifications non validées', ), 
+			'dashboard.dashboard_git_branch' => 'Sur {{branch}}',
+			'dashboard.dashboard_storage' => 'Utilisation du stockage',
+			'dashboard.dashboard_storage_empty' => 'Aucun projet à mesurer.',
+			'dashboard.dashboard_storage_loading' => 'Mesure en cours…',
+			'dashboard.dashboard_storage_total' => '{{size}} au total',
+			'dashboard.dashboard_customize' => 'Personnaliser',
+			'dashboard.dashboard_done_customizing' => 'Terminé',
+			'dashboard.dashboard_customize_hint' => 'Utilisez les flèches pour réorganiser les tuiles ou masquer celles dont vous n\'avez pas besoin.',
+			'dashboard.dashboard_tile_move_up' => 'Déplacer vers le haut',
+			'dashboard.dashboard_tile_move_down' => 'Déplacer vers le bas',
+			'dashboard.dashboard_tile_remove' => 'Supprimer',
+			'dashboard.dashboard_tile_span' => 'Pleine largeur',
+			'dashboard.dashboard_tile_span_off' => 'Demi-largeur',
+			'dashboard.dashboard_tile_tall' => 'Plus grand',
+			'dashboard.dashboard_tile_tall_off' => 'Hauteur normale',
+			'dashboard.dashboard_presets' => 'Préréglages de disposition',
+			'dashboard.dashboard_preset_default' => 'Par défaut',
+			'dashboard.dashboard_preset_default_desc' => 'Tout activé, dans l\'ordre par défaut, taille standard.',
+			'dashboard.dashboard_preset_overview' => 'Aperçu',
+			'dashboard.dashboard_preset_overview_desc' => 'Projets récemment ouverts, épinglés, moteurs et projets en cours d\'exécution.',
+			'dashboard.dashboard_preset_analytics' => 'Analytique',
+			'dashboard.dashboard_preset_analytics_desc' => 'Activité hebdomadaire, meilleurs projets, stockage et catégories, avec des graphiques plus grands.',
+			'dashboard.dashboard_preset_development' => 'Développement',
+			'dashboard.dashboard_preset_development_desc' => 'Statut Git au centre avec projets en cours et moteurs.',
+			'dashboard.dashboard_preset_save' => 'Enregistrer comme préréglage',
+			'dashboard.dashboard_preset_save_hint' => 'Nommez cette disposition afin de pouvoir y revenir à tout moment.',
+			'dashboard.dashboard_preset_name_placeholder' => 'Nom du préréglage',
+			'dashboard.dashboard_preset_delete' => 'Supprimer le préréglage',
+			'dashboard.dashboard_custom_presets' => 'Vos préréglages',
+			'dashboard.dashboard_hidden_tiles' => 'Tuiles masquées',
+			'dashboard.dashboard_todos' => 'Due to-dos',
+			'dashboard.dashboard_range_daily' => 'Jour',
+			'dashboard.dashboard_range_weekly' => 'Semaine',
+			'dashboard.dashboard_range_monthly' => 'Mois',
+			'dashboard.dashboard_range_yearly' => 'Année',
+			'dashboard.dashboard_activity_tracked' => 'Suivi',
+			'dashboard.dashboard_activity_peak' => 'Pic',
+			'git.remove' => 'Supprimer',
+			'git.changes_title' => 'Modifications',
+			'git.pull' => 'Pull',
+			'git.push' => 'Push',
+			'git.force_push' => 'Force',
+			'git.fetch' => 'Fetch',
+			'git.change' => 'Modification',
+			'git.commit' => 'Commit',
+			'git.committing' => 'Commit en cours…',
+			'git.no_remotes' => 'Aucune remote configurée',
+			'git.switching' => 'Basculement…',
+			'git.no_branches' => 'Aucune branche trouvée',
+			'git.new_branch_placeholder' => 'Nom de la branche',
+			'git.delete_branch' => 'Supprimer la branche',
+			'git.publish_branch' => 'Publier la branche',
+			'git.publish_branch_to' => 'Publish branch to {{remote}}',
+			'git.branch_published' => 'Branche publiée.',
+			'git.use_ours' => 'Version locale',
+			'git.use_theirs' => 'Version entrante',
+			'git.i_resolved' => 'Je l\'ai résolu',
+			'git.undo_last_commit' => 'Annuler le dernier commit',
+			'git.undo_pull' => 'Annuler le pull',
+			'git.force_push_confirm_title' => 'Force push ?',
+			'git.force_push_confirm_desc' => 'Cela réécrit l\'historique distant et peut faire perdre les commits d\'autres personnes. Continuer ?',
+			'git.undo_commit_done' => 'Dernier commit annulé.',
+			'git.undo_pull_done' => 'Pull annulé.',
+			'git.force_pushed' => 'Force push effectué.',
+			'git.synced_ok' => 'Synchronisé.',
+			'git.fetched_ok' => 'Fetch effectué.',
+			'git.pulled_ok' => 'Pull effectué.',
+			'git.pushed_ok' => 'Push effectué.',
+			'git.branch_created' => 'Branche créée.',
+			'git.branch_deleted' => 'Branche supprimée.',
+			'git.changes_stashed_ok' => 'Modifications mises en stash.',
+			'git.stash_applied_ok' => 'Stash appliqué.',
+			'git.stash_popped_ok' => 'Stash appliqué et supprimé.',
+			'git.stash_dropped_ok' => 'Stash supprimé.',
+			'git.staged_ok' => 'Fichier ajouté.',
+			'git.unstaged_ok' => 'Fichier retiré.',
+			'git.discarded_ok' => 'Abandonné.',
+			'git.stage_all_ok' => 'Toutes les modifications ajoutées.',
+			'git.unstage_all_ok' => 'Toutes les modifications retirées.',
+			'git.discard_all_ok' => 'Toutes les modifications abandonnées.',
+			'git.resolved_ours' => 'Résolu avec la version locale.',
+			'git.resolved_theirs' => 'Résolu avec la version entrante.',
+			'git.resolved_manual' => 'Marqué comme résolu.',
+			'git.committed_ok' => 'Commit effectué.',
+			'git.switched_ok' => 'Basculé sur {{branch}}.',
+			'git.sync' => 'Sync',
+			'git.diff_no_diff' => 'Aucun diff disponible pour ce fichier.',
+			'git.fetching' => 'Fetch en cours…',
+			'git.stashes_title' => 'Stashes',
+			'git.stash' => 'Stash',
+			'git.stashing' => 'Stash en cours…',
+			'git.apply_stash' => 'Appliquer le stash',
+			'git.pop_stash' => 'Pop le stash',
+			'git.drop_stash' => 'Supprimer le stash',
+			'git.merge_aborted' => 'Merge abandonné. Répertoire de travail restauré.',
+			'git.new_branch_btn' => '+ Nouvelle branche',
+			'git.abort_merge' => 'Abandonner le merge',
+			'git.merge_in_progress' => 'Merge en cours',
+			'git.working_tree_clean' => 'Arbre de travail propre.',
+			'git.staged_changes' => 'Modifications à commiter',
+			'git.unstage_all_changes' => 'Tout retirer',
+			'git.commits_title' => 'Commits',
+			'git.stage_file' => 'Ajouter le fichier',
+			'git.discard_file' => 'Abandonner le fichier',
+			'git.unstage_file' => 'Retirer le fichier',
+			'git.no_commits_found' => 'Aucun commit trouvé.',
+			'git.stage_all' => 'Tout ajouter',
+			'git.discard_all' => 'Tout abandonner',
+			'git.auth_connected_accounts' => 'Comptes connectés',
+			'git.auth_connect_hint' => 'Connectez-vous à l\'hébergeur git de votre choix pour commencer, ou utilisez SSH sans rien connecter.',
+			'git.worktrees_title' => 'Worktrees',
+			'git.worktree_current' => 'Current',
+			'git.no_worktrees' => 'No additional worktrees',
+			'git.switch_worktree' => 'Switch to this worktree',
+			'git.switched_worktree_ok' => 'Switched to worktree.',
+			'git.add_worktree' => 'Nouveau worktree',
+			'git.add_worktree_btn' => 'Add worktree',
+			'git.worktree_path_placeholder' => 'Path (e.g. ../my-feature)',
+			'git.worktree_branch_placeholder' => 'Branch name (optional)',
+			'git.worktree_created_ok' => 'Worktree created.',
+			'git.worktree_dirty' => 'Uncommitted changes',
+			'git.remove_worktree' => 'Remove worktree',
+			'git.remove_worktree_confirm_desc' => 'Supprimer le worktree situé dans {{path}} ? Son répertoire sera supprimé. La branche et les commits seront conservés.',
+			'git.worktree_removed_ok' => 'Worktree removed.',
+			'git.auto_fetch_label' => 'Fetch automatically',
+			'git.auto_fetch_hint' => 'Runs git fetch every few minutes so the pull bubble always shows how many commits you\'re behind, without merging anything. Leave it off to only fetch when you click Fetch.',
+			'git.commits_to_push' => '{{count}} commit(s) to push',
+			'git.commits_to_pull' => '{{count}} commit(s) to pull',
+			'git.filter_changes' => 'Filter changed files…',
+			'git.no_matching_changes' => 'No matching changes.',
+			'git.worktree_location_label' => 'Directory',
+			'git.worktree_location_hint' => 'Use a new directory. Relative paths are resolved from the current repository.',
+			'git.worktree_branch_label' => 'New branch (optional)',
+			'git.worktree_branch_hint' => 'Leave blank to use the directory name as the new branch name.',
+			'git.worktree_browse_parent' => 'Choose parent directory',
+			'git.worktree_removing' => 'Removing…',
+			'git.worktree_main' => 'Main',
+			'git.worktree_detached' => 'Detached HEAD · {{hash}}',
+			'git.worktrees_load_error' => 'Could not load worktrees.',
+			'git.switch_worktree_named' => 'Switch to {{name}}',
+			'git.worktree_discard_changes' => 'Discard uncommitted changes',
+			'git.worktree_discard_warning' => 'This worktree has uncommitted changes. Removing it with this option will permanently discard them.',
+			'git.discard_dialog_title' => 'Discard changes?',
+			'git.discard_dialog_tracked_desc' => 'This reverts all tracked files to the last commit.',
+			'git.discard_dialog_untracked_heading' => 'These untracked files would be permanently deleted ({{n}}):',
+			'git.discard_dialog_no_untracked' => 'No untracked files will be affected.',
+			'git.discard_opt_tracked' => 'Discard tracked changes',
+			'git.discard_opt_tracked_hint' => 'Reverts tracked files. Leaves untracked files untouched.',
+			'git.discard_opt_untracked' => 'Also remove untracked files',
+			'git.discard_opt_untracked_hint' => 'Permanently deletes the files listed above. This cannot be undone.',
+			'git.discard_opt_stash' => 'Stash everything instead',
+			'git.discard_opt_stash_hint' => 'Saves tracked and untracked changes to a stash you can restore later.',
+			'git.protected_branch_tooltip' => '{{branch}} is protected on the remote',
+			'git.protected_branch_title' => 'Protected branch',
+			'git.protected_branch_desc' => '{{branch}} is protected on the remote, so pushing commits to it directly may be rejected. Commit anyway, or move these changes to a new branch and open a pull request.',
+			'git.protected_branch_new_label' => 'New branch name',
+			'git.protected_branch_commit_anyway' => 'Commit anyway',
+			'git.protected_branch_create_pr' => 'Create branch & open PR',
+			'git.protected_branch_creating_pr' => 'Opening pull request…',
+			'git.pr_opened_ok' => 'Pushed {{branch}} and opened a pull request.',
+			'nav.dashboard' => 'Tableau de bord',
+			'nav.projects' => 'Projets',
+			'nav.projects_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'Project', many: 'Projets', other: 'Projects', ), 
+			'nav.versions' => 'Versions',
+			'nav.templates' => 'Modèles',
+			'nav.vault' => 'Vault',
+			'nav.asset_store' => 'Asset Store',
+			'nav.news' => 'Godot News',
+			'nav.storage_view' => 'Storage',
+			'nav.settings' => 'Paramètres',
+			'nav.changelog' => 'Changelog',
+			'nav.group_workspace' => 'Espace de travail',
+			'nav.group_resources' => 'Ressources',
+			'nav.group_explore' => 'Explorer',
+			'nav.you' => 'You',
+			'nav.account_manage' => 'Manage accounts',
+			'nav.workspace_tip_title' => 'Le sélecteur d\'espaces a été déplacé',
+			'nav.workspace_tip_body' => 'Changez et gérez les espaces de travail depuis le menu du compte ci-dessous.',
+			'nav.workspace_tip_dismiss' => 'Compris',
+			'onboarding.welcome' => 'Bienvenue',
+			'onboarding.finish' => 'Terminer',
+			'onboarding.in_progress' => 'En cours',
+			'onboarding.prototypes' => 'Prototypes',
+			'onboarding.finished' => 'Terminés',
+			'onboarding.game_jams' => 'Game Jams',
+			'onboarding.project_folders' => 'Dossiers de projets',
+			'onboarding.version_folders' => 'Dossiers de versions',
+			'onboarding.welcome_title' => 'Bienvenue sur GodotHub',
+			'onboarding.welcome_desc' => 'Un endroit pour chaque projet Godot et chaque version du moteur sur cette machine. Configurons quelques éléments pour que ça fonctionne comme vous le souhaitez, cela ne prend qu\'une minute, et tout ici peut être modifié plus tard dans les Paramètres.',
+			'onboarding.onboard_empty_projects' => 'Aucun dossier ajouté pour le moment, GodotHub ne trouvera aucun projet existant tant que vous n\'en ajoutez pas un, ou vous pouvez ajouter des projets manuellement plus tard.',
+			'onboarding.onboard_empty_versions' => 'Aucun dossier ajouté pour le moment, les nouveaux téléchargements de Godot iront dans le dossier des données de l\'application sauf si vous en définissez un ci-dessous.',
+			'onboarding.onboard_no_template_folder' => 'Aucun dossier défini, vous pouvez toujours configurer cela plus tard dans les Paramètres, ou enregistrer les modèles manuellement.',
+			'onboarding.onboard_cloud_heading' => 'Sauvegarde Cloud',
+			'onboarding.onboard_cloud_desc' => 'Vous avez déjà une sauvegarde ? Connectez-vous avec GitHub et restaurez vos espaces de travail, projets et paramètres à partir d\'un gist.',
+			'onboarding.discovery_recent_heading' => 'Recent projects from Godot',
+			'onboarding.discovery_installs_heading' => 'Godot found on this computer',
+			'onboarding.discovery_scanning_projects' => 'Reading Godot\'s project manager list…',
+			'onboarding.discovery_scanning_installs' => 'Looking for Godot on your PATH and in Steam…',
+			'onboarding.discovery_engine' => 'Godot {{version}}',
+			'onboarding.discovery_favorite' => 'Favorite',
+			'onboarding.discovery_add_selected' => 'Add selected',
+			'onboarding.discovery_add_selected_count' => 'Add selected ({{count}})',
+			'onboarding.discovery_added_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'Added ${count} project.', many: 'Added ${count} projects.', other: 'Added ${count} projects.', ), 
+			'onboarding.discovery_added_versions' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'Added ${count} version.', many: 'Added ${count} versions.', other: 'Added ${count} versions.', ), 
+			'onboarding.discovery_link_hint' => 'Projects are linked to a matching Godot version automatically, including versions you add in the next step.',
+			'onboarding.setup' => 'Setup',
+			'onboarding.setup_title' => 'How do you want to use GodotHub?',
+			'onboarding.setup_desc' => 'Pick a starting point. Anything you leave out is hidden and never loads, so GodotHub stays quick. You can change this anytime in Settings, under Behavior.',
+			'onboarding.preview_heading' => 'Preview',
+			'onboarding.step_of' => 'Step {{current}} of {{total}}',
+			'onboarding.dive_in' => 'Dive In',
+			'onboarding.workspace_step' => 'Workspace',
+			'onboarding.first_workspace_title' => 'Create your first workspace',
+			'onboarding.first_workspace_desc' => 'A workspace holds your projects, categories, and settings. Give this one a name and a look that feels like yours, you can add more later.',
+			'onboarding.basics' => 'Basics',
+			'onboarding.basics_title' => 'A few basics',
+			'onboarding.basics_desc' => 'Pick your language, bring back a cloud backup if you have one, and choose whether Discord shows what you\'re working on.',
+			'onboarding.welcome_to' => 'Welcome to',
+			'onboarding.welcome_to_name' => 'Hey {{name}}, welcome to',
+			'onboarding.found_title' => 'Your library is ready',
+			'onboarding.found_desc' => 'Here\'s everything GodotHub found on this machine. Taking you in now.',
+			'settings.storage' => 'Stockage',
+			'settings.behavior' => 'Comportement',
+			'settings.display' => 'Affichage',
+			'settings.appearance' => 'Apparence',
+			'settings.accessibility' => 'Accessibilité',
+			'settings.accessibility_desc' => 'Annonces du lecteur d\'écran et options d\'assistance technologique.',
+			'settings.app_version_label' => 'GodotHub v{{version}}',
+			'settings.landing_dashboard' => 'Dashboard',
+			'settings.landing_projects' => 'Projects',
+			'settings.landing_versions' => 'Versions',
+			'settings.landing_news' => 'Godot News',
+			'settings.screen_reader_label' => 'Annonces du lecteur d\'écran',
+			'settings.advanced' => 'Avancé',
+			'settings.integrations' => 'Intégrations',
+			'settings.motion' => 'Motion',
+			'settings.data' => 'Data & Backup',
+			'settings.git_auth_title' => 'Se connecter avec {{provider}}',
+			'settings.git_auth_copy_code' => 'Copier le code',
+			'settings.git_auth_copy_link' => 'Copy link',
+			'settings.git_auth_waiting' => 'En attente de votre autorisation…',
+			'settings.git_sign_in_gitlab' => 'Se connecter avec GitLab',
+			'settings.git_connected_to' => 'Connecté à {{host}} en tant que @{{username}}',
+			'settings.git_self_hosted_title' => 'GitLab auto-hébergé',
+			'settings.git_self_hosted_desc' => 'Connectez-vous à votre propre instance GitLab. Créez une application OAuth sur votre instance (scopes : read_repository, write_repository, read_user) et collez son URL de base et son Application ID.',
+			'settings.git_self_hosted_url_placeholder' => 'https://gitlab.example.com',
+			'settings.git_self_hosted_client_id' => 'Application ID',
+			'settings.git_sign_in_self_hosted' => 'Se connecter avec l\'instance',
+			'settings.git_pat_title' => 'Autres hébergeurs (tokens d\'accès personnels)',
+			'settings.git_pat_add' => 'Ajouter un token',
+			'settings.git_pat_host_placeholder' => 'ex. codeberg.org',
+			'settings.git_pat_username' => 'Nom d\'utilisateur',
+			'settings.git_pat_token' => 'Token',
+			'settings.git_pat_save' => 'Enregistrer le token',
+			'settings.git_pat_empty' => 'Aucun token ajouté pour le moment.',
+			'settings.git_pat_remove' => 'Supprimer le token',
+			'settings.storage_title' => 'Stockage et scan automatique',
+			'settings.behavior_projects_title' => 'Projets',
+			'settings.file_watchers_title' => 'Surveillance des fichiers',
+			'settings.last_opened_title' => 'Affichage de la dernière ouverture',
+			'settings.github_token_title' => 'Token d\'API GitHub',
+			'settings.titlebar_buttons' => 'Boutons de la barre de titre',
+			'settings.setup_wizard' => 'Assistant de configuration',
+			'settings.setup_wizard_again' => 'Relancer l\'assistant de configuration',
+			'settings.restart_app' => 'Redémarrer l\'application',
+			'settings.restart_app_confirm_title' => 'Redémarrer GodotHub ?',
+			'settings.restart_app_confirm_desc' => 'L\'application va se fermer et se rouvrir automatiquement. Les opérations en cours peuvent être interrompues.',
+			'settings.reset_settings' => 'Réinitialiser les paramètres',
+			'settings.delete_app_data' => 'Supprimer les données de l\'application',
+			'settings.new_project_default' => 'Défaut pour les nouveaux projets',
+			'settings.download_folder' => 'Dossier de téléchargement',
+			'settings.system' => 'Système',
+			'settings.k12h' => '12 heures (2:30 PM)',
+			'settings.k24h' => '24 heures (14:30)',
+			'settings.dd_mm_yyyy' => 'JJ-MM-AAAA',
+			'settings.mm_dd_yyyy' => 'MM-JJ-AAAA',
+			'settings.yyyy_mm_dd' => 'AAAA-MM-JJ',
+			'settings.reset_all_title' => 'Réinitialiser tous les paramètres ?',
+			'settings.reset_all_desc' => 'Cela restaure tous les paramètres de cette page, dossier de téléchargement, dossiers à scanner, apparence et comportement, à leurs valeurs par défaut. Cette action est irréversible.',
+			'settings.delete_all_title' => 'Supprimer toutes les données de l\'application ?',
+			'settings.delete_all_desc' => 'Cela supprime définitivement tous les espaces de travail, projets, catégories, enregistrements de versions installées et paramètres stockés par GodotHub, et vous ramène à la configuration initiale. Vos dossiers de projets et vos installations de Godot sur le disque ne sont pas touchés, sauf s\'ils se trouvent dans le dossier de téléchargement par défaut, auquel cas ils sont supprimés aussi. Cette action est irréversible.',
+			'settings.empty_hint_projects' => 'Aucun dossier ajouté, rien ne sera scanné au démarrage, et les nouveaux projets demanderont où les enregistrer à chaque fois.',
+			'settings.empty_hint_versions' => 'Aucun dossier ajouté, rien ne sera scanné au démarrage, et les nouveaux téléchargements utiliseront le dossier de données de l\'application.',
+			'settings.naming_convention_label' => 'Convention de nommage des dossiers',
+			'settings.naming_keep' => 'Tel que saisi (My Game)',
+			'settings.naming_kebab' => 'kebab-case (my-game)',
+			'settings.naming_snake' => 'snake_case (my_game)',
+			'settings.naming_camel' => 'camelCase (myGame)',
+			'settings.naming_pascal' => 'PascalCase (MyGame)',
+			'settings.naming_title' => 'Title Case (My Game)',
+			'settings.theme' => 'Thème',
+			'settings.theme_preset_label' => 'Préréglage de thème',
+			'settings.theme_preset_custom' => 'Personnalisé',
+			'settings.preset_light_group' => 'Thèmes clairs',
+			'settings.preset_dark_group' => 'Thèmes sombres',
+			'settings.test' => 'Tester',
+			'settings.testing' => 'Test…',
+			'settings.token_valid' => 'Token valide ! Limite de requêtes : {{status}}',
+			'settings.token_resets_in' => '(resets ~{{minutes}} min)',
+			'settings.test_failed' => 'Échec du test : {{error}}',
+			'settings.key_space' => 'Espace',
+			'settings.no_settings_match' => 'Aucun paramètre ne correspond',
+			'settings.scan_result' => '{{projects}} nouveau(x) projet(s) et {{versions}} nouvelle(s) version(s) trouvé(s).',
+			'settings.palette_shortcut' => 'Raccourci de la palette de commandes',
+			'settings.keybind_instruction' => 'Cliquez sur le bouton ci-dessous, puis appuyez sur une touche pour réassigner.',
+			'settings.press' => 'Appuyez sur',
+			'settings.to_cancel' => 'pour annuler',
+			'settings.press_key' => 'Appuyez sur une touche…',
+			'settings.click_to_rebind' => 'Cliquer pour réassigner',
+			'settings.close_on_open_label' => 'Fermer l\'application à l\'ouverture d\'un projet',
+			'settings.launch_console_label' => 'Lancer Godot avec la console',
+			'settings.builtin_console_label' => 'Use the built-in console',
+			'settings.minimize_tray_label' => 'Réduire dans la zone de notification à la fermeture',
+			'settings.reopen_label' => 'Rouvrir après la fermeture de Godot',
+			'settings.no_folder_set' => 'Aucun dossier défini. Vous pouvez toujours importer manuellement ou utiliser \'Enregistrer comme modèle\'.',
+			'settings.ui_density_label' => 'Densité de l\'interface',
+			'settings.text_size_label' => 'Taille du texte',
+			'settings.section_godot_versions' => 'Versions de Godot',
+			'settings.scan_depth_label' => 'Profondeur de scan',
+			'settings.icon_scan_depth_label' => 'Profondeur de recherche des icônes de projet',
+			'settings.download_concurrency_label' => 'Téléchargements simultanés',
+			'settings.tray_recent_label' => 'Projets récents dans la zone de notification',
+			'settings.tooltip_delay_label' => 'Délai des infobulles',
+			'settings.project_icon_opacity_label' => 'Opacité des icônes de projet',
+			'settings.time_format_label' => 'Format de l\'heure (affiché si ouvert aujourd\'hui)',
+			'settings.date_format_label' => 'Format de la date (affiché pour tout autre jour)',
+			'settings.auto_scan_label' => 'Scan automatique au démarrage',
+			'settings.use_workspaces_label' => 'Utiliser les espaces de travail',
+			'settings.watch_projects_label' => 'Surveiller les dossiers de projets',
+			'settings.watch_versions_label' => 'Surveiller les dossiers de versions',
+			'settings.watch_template_label' => 'Surveiller le répertoire des modèles',
+			'settings.show_scrollbar_label' => 'Afficher la barre de défilement',
+			'settings.animated_numbers_label' => 'Nombres animés',
+			'settings.show_support_label' => 'Afficher le bouton Soutenir',
+			'settings.show_star_label' => 'Afficher le bouton Star',
+			'settings.show_bug_label' => 'Show bug report button',
+			'settings.show_tray_label' => 'Show tray button',
+			'settings.show_language_label' => 'Show language button',
+			'settings.clear' => 'Effacer',
+			'settings.reset_to_default' => 'Rétablir la valeur par défaut',
+			'settings.reset_appearance' => 'Rétablir l\'apparence par défaut',
+			'settings.delete_all' => 'Tout supprimer',
+			'settings.open_setup' => 'Ouvrir la configuration',
+			'settings.reset_colors' => 'Rétablir les couleurs par défaut',
+			'settings.folders_deep' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} dossier de profondeur', many: '${count} folders deep', other: '${count} dossiers de profondeur', ), 
+			'settings.at_once' => '{{count}} à la fois',
+			'settings.animation_speed_label' => 'Animation speed',
+			'settings.scroll_reveal_label' => 'Scroll reveal',
+			'settings.card_tilt_label' => 'Card tilt on hover',
+			'settings.click_ripple_label' => 'Click ripple',
+			'settings.press_bounce_label' => 'Press bounce',
+			'settings.animation_intensity_label' => 'Intensité des animations',
+			'settings.animation_full' => 'Complète',
+			'settings.animation_subtle' => 'Subtile',
+			'settings.animation_none' => 'Aucune',
+			'settings.view_entrance_label' => 'Animation d\'entrée des vues',
+			'settings.entrance_fade' => 'Fondu',
+			'settings.entrance_slide' => 'Glissement',
+			'settings.entrance_scale' => 'Zoom',
+			'settings.entrance_none' => 'Aucune',
+			'settings.custom_css_label' => 'CSS personnalisé',
+			'settings.custom_css_placeholder' => '/* Vos styles personnalisés, ex. */\n.card { border-radius: 4px !important; }',
+			'settings.custom_css_apply' => 'Appliquer le CSS',
+			'settings.custom_css_applied' => 'CSS appliqué',
+			'settings.animation_threshold_label' => 'Seuil d\'animation des listes',
+			'settings.time_tracking_title' => 'Sauvegarde du suivi du temps',
+			'settings.export_stats_btn' => 'Exporter les stats…',
+			'settings.import_stats_btn' => 'Importer des stats…',
+			'settings.stats_exported' => 'Statistiques de temps exportées.',
+			'settings.clear_stats_confirm_title' => 'Effacer toutes les données de temps ?',
+			'settings.clear_stats_confirm_desc' => 'Cela supprime définitivement tout l\'historique de suivi du temps, les enregistrements de sessions et les totaux par projet. Cette action est irréversible.',
+			'settings.clear_stats_confirm_btn' => 'Tout effacer',
+			'settings.stats_cleared' => 'Données de temps effacées.',
+			'settings.settings_backup_title' => 'Sauvegarde des paramètres',
+			'settings.export_settings_btn' => 'Exporter les paramètres',
+			'settings.import_settings_btn' => 'Importer des paramètres',
+			'settings.workspace_backup_title' => 'Sauvegarde de l\'espace de travail',
+			'settings.workspace_backup_export_btn' => 'Exporter l\'espace de travail',
+			'settings.workspace_backup_restore_btn' => 'Restaurer l\'espace de travail',
+			'settings.workspace_backup_exported' => 'Sauvegarde de l\'espace de travail exportée.',
+			'settings.workspace_backup_imported' => 'Espace de travail restauré.',
+			'settings.app_backup_title' => 'Tout sauvegarder (tous les espaces de travail)',
+			'settings.app_backup_export_btn' => 'Tout exporter',
+			'settings.app_backup_restore_btn' => 'Tout restaurer',
+			'settings.app_backup_exported' => 'Sauvegarde complète exportée.',
+			'settings.app_backup_imported' => 'Tous les espaces de travail ont été restaurés.',
+			'settings.sync_title' => 'Synchronisation cloud (gist GitHub)',
+			'settings.sync_push_btn' => 'Push',
+			'settings.sync_pull_btn' => 'Pull',
+			'settings.sync_push_done' => 'Tous les espaces de travail ont été envoyés vers votre gist.',
+			'settings.sync_open_gist' => 'Ouvrir le gist',
+			'settings.sync_last_pushed' => 'Dernier push : {{time}}',
+			'settings.sync_manual_hint' => 'Vous avez perdu vos données locales ? Saisissez l\'URL ou l\'ID de votre gist pour restaurer depuis n\'importe quelle machine.',
+			'settings.sync_manual_placeholder' => 'https://gist.github.com/... ou ID du gist',
+			'settings.sync_manual_pull_btn' => 'Restaurer',
+			'settings.restore_modal_title' => 'Restaurer depuis le cloud',
+			'settings.restore_modal_fetching' => 'Récupération de la sauvegarde depuis GitHub…',
+			'settings.restore_modal_applying' => 'Application de la sauvegarde et redémarrage…',
+			'settings.restore_modal_preview_desc' => 'Votre sauvegarde gist contient :',
+			'settings.restore_modal_workspaces' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'espace de travail', many: 'workspaces', other: 'espaces de travail', ), 
+			'settings.restore_modal_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'projet', many: 'projects', other: 'projets', ), 
+			'settings.restore_modal_categories' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'catégorie', many: 'categories', other: 'catégories', ), 
+			'settings.restore_modal_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'modèle', many: 'templates', other: 'modèles', ), 
+			'settings.restore_modal_time_stats' => 'Inclut les données de suivi du temps',
+			'settings.restore_modal_todos' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'Includes ${count} to-do', many: 'Includes ${count} to-dos', other: 'Includes ${count} to-dos', ), 
+			'settings.restore_modal_project_scan_dirs' => '{{count}} dossier(s) de projets à restaurer',
+			'settings.restore_modal_version_scan_dirs' => '{{count}} dossier(s) de versions Godot à restaurer',
+			'settings.restore_modal_workspace_list' => 'Espaces de travail',
+			'settings.restore_modal_warning' => 'Cela écrasera vos paramètres actuels et les données de votre espace de travail. Vous devrez redémarrer l\'application pour appliquer les changements.',
+			'settings.restore_modal_apply_btn' => 'Appliquer et redémarrer',
+			'settings.restore_modal_done_title' => 'Sauvegarde restaurée',
+			'settings.restore_modal_done_hint' => 'Cliquez sur le bouton ci-dessous pour redémarrer et appliquer tous les changements.',
+			'settings.settings_exported' => 'Paramètres exportés.',
+			'settings.settings_imported' => 'Paramètres importés.',
+			'settings.stats_imported' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'Statistiques importées pour ${count} projet.', many: 'Imported stats for ${count} projects.', other: 'Statistiques importées pour ${count} projets.', ), 
+			'settings.raised_contrast_label' => 'Contraste des surfaces surélevées',
+			'settings.raised_contrast_value' => '{{value}} %',
+			'settings.token_help_desc' => 'Créez un token sur github.com/settings/tokens. Vous n\'avez besoin de cocher le scope repo que si vous voulez accéder à des dépôts privés, sinon laissez tous les scopes décochés. Aucune permission sensible n\'est requise.',
+			'settings.discord_app_id_label' => 'Application ID Discord',
+			'settings.discord_app_id_placeholder' => 'Laisser vide pour utiliser celui intégré par défaut',
+			'settings.discord_app_id_desc' => 'Créez une application dans le Discord Developer Portal et collez son Application ID ici pour utiliser la vôtre au lieu de celle intégrée à GodotHub. L\'activité s\'affiche alors sous le nom de cette application.',
+			'settings.discord_developer_portal' => 'Discord Developer Portal',
+			'settings.discord_builtin_hint' => 'Utilisation de l\'application GodotHub intégrée.',
+			'settings.discord_show_projects_label' => 'Afficher les noms de projets',
+			'settings.discord_excluded_label' => 'Projets exclus',
+			'settings.discord_exclude_project' => 'Ajouter un projet',
+			'settings.discord_excluded_empty' => 'Aucun projet exclu.',
+			'settings.discord_excluded_remove' => 'Retirer des projets exclus',
+			'settings.discord_custom_label' => 'Présence personnalisée',
+			'settings.discord_custom_add' => 'Ajouter un projet',
+			'settings.discord_custom_details_placeholder' => 'Ligne Details',
+			'settings.discord_custom_state_placeholder' => 'Ligne State',
+			'settings.discord_custom_remove' => 'Supprimer la présence personnalisée',
+			'settings.search_placeholder' => 'Rechercher dans les paramètres…',
+			'settings.interface_label' => 'Interface',
+			'settings.card_layout_label' => 'Disposition en cartes',
+			'settings.landing_tab_label' => 'Page d\'accueil par défaut',
+			'settings.language_complete' => 'Complète',
+			'settings.language_beta' => 'Bêta',
+			'settings.language_incomplete' => 'Incomplète',
+			'settings.use_os_decorations' => 'Utiliser les décorations de fenêtre du système',
+			'settings.credits' => 'Crédits',
+			'settings.credits_developer' => 'Créé par',
+			'settings.credits_built_with' => 'Construit avec',
+			'settings.credits_contributors' => 'Contributeurs',
+			'settings.experimental' => 'Experimental',
+			'settings.customize_view_label' => 'Customize View button',
+			'settings.fixed_sidebar_resize_knob_label' => 'Fixed sidebar resize knob',
+			'settings.desktop_notifications_label' => 'Desktop notifications',
+			'settings.colored_titlebar_buttons_label' => 'Colored window buttons',
+			'settings.project_todos_label' => 'Project Next Steps',
+			'settings.mise_label' => 'Use mise for Godot versions',
+			'settings.mise_detected' => 'Detected mise {{version}}',
+			'settings.mise_not_found' => 'mise was not found on your PATH, so this stays off until you install it.',
+			'settings.cli_tool_title' => 'Command-line tool',
+			'settings.cli_tool_install' => 'Install',
+			'settings.cli_tool_installing' => 'Installing...',
+			'settings.cli_tool_installed_msg' => 'Installed. Open a new terminal, then run: godothub',
+			'settings.cli_tool_uninstalled_msg' => 'Removed. The godothub command is no longer on your PATH.',
+			'settings.git_auth_step_copy' => 'Copy your code',
+			'settings.git_auth_step_paste' => 'Paste it on {{provider}}',
+			'settings.git_auth_step_approve' => 'Approve GodotHub',
+			'settings.git_auth_copy_and_open' => 'Copy code & open {{provider}}',
+			'settings.git_auth_copied' => 'Copied',
+			'settings.git_auth_expires_in' => 'Expires in {{time}}',
+			'settings.git_auth_expired' => 'This code has expired',
+			'settings.git_auth_failed' => 'Couldn’t connect',
+			'settings.git_auth_try_again' => 'Try again',
+			'settings.git_auth_success_hint' => 'You can close this window.',
+			'settings.show_changelog_label' => 'Show changelog button',
+			'settings.features_title' => 'Features',
+			'settings.features_desc' => 'Choose which parts of GodotHub you use. Hidden features leave the sidebar and stop loading or running in the background.',
+			'settings.features_always_on' => 'Always on',
+			'settings.features_optional' => 'Optional',
+			'settings.features_enabled_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} feature on', many: '${count} features on', other: '${count} features on', ), 
+			'settings.setup_profile_minimal' => 'Minimal',
+			'settings.setup_profile_minimal_desc' => 'Just projects and Godot versions. The lightest, fastest setup.',
+			'settings.setup_profile_essentials' => 'Essentials',
+			'settings.setup_profile_essentials_desc' => 'Adds the Asset Store, templates, and categories.',
+			'settings.setup_profile_studio' => 'Studio',
+			'settings.setup_profile_studio_desc' => 'Essentials plus the dashboard, vault, storage, and workspaces.',
+			'settings.setup_profile_complete' => 'Everything',
+			'settings.setup_profile_complete_desc' => 'Every feature GodotHub has, including Godot news.',
+			'settings.setup_profile_custom' => 'Custom',
+			'settings.setup_profile_custom_desc' => 'Turn individual features on or off.',
+			'settings.feature_desc_dashboard' => 'An overview of your activity, playtime, and recent projects.',
+			'settings.feature_desc_templates' => 'Start new projects from your own reusable templates.',
+			'settings.feature_desc_vault' => 'Keep reusable scripts, scenes, and assets in one library.',
+			'settings.feature_desc_storage' => 'See how much disk space projects and engines use.',
+			'settings.feature_desc_asset_store' => 'Browse and install addons and demos from the Godot Asset Library.',
+			'settings.feature_desc_categories' => 'Group your project list into folders.',
+			'settings.feature_desc_workspaces' => 'Switch between separate sets of projects and settings.',
+			'todos.next_steps' => 'Next steps',
+			'todos.saving_tasks' => 'Saving tasks',
+			'todos.pending_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} pending', many: '${count} pending', other: '${count} pending', ), 
+			'todos.completed_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} completed', many: '${count} completed', other: '${count} completed', ), 
+			'todos.new_task' => 'New task',
+			'todos.hide_next_steps' => 'Hide next steps',
+			'todos.save_changes_failed' => 'Could not save the changes.',
+			'todos.loading_tasks' => 'Loading tasks...',
+			'todos.load_tasks_failed' => 'Could not load tasks',
+			'todos.data_unchanged' => 'Your data was not modified.',
+			'todos.empty_title' => 'No tasks yet',
+			'todos.empty_description' => 'Add the first next step for this project.',
+			'todos.create_task' => 'Create task',
+			'todos.all_completed_title' => 'All done',
+			'todos.all_completed_description' => 'You completed all the next steps for this project.',
+			_ => null,
+		} ?? switch (path) {
+			'todos.footer_hint' => 'Use the list to keep track of the project\'s next steps.',
+			'todos.view_all' => 'View all',
+			'todos.delete_task_title' => 'Delete task?',
+			'todos.delete_task_description' => 'The task <strong>“{{title}}”</strong> will be deleted. This action cannot be undone.',
+			'todos.task' => 'Task',
+			'todos.area' => 'Discipline',
+			'todos.status' => 'Status',
+			'todos.due_date' => 'Due date',
+			'todos.sort_by_status' => 'Sort by status',
+			'todos.sort_by_due_date' => 'Sort by due date',
+			'todos.change_status' => 'Change status: {{status}}',
+			'todos.overdue' => 'Overdue',
+			'todos.mark_completed' => 'Mark task as completed',
+			'todos.mark_not_completed' => 'Mark task as not completed',
+			'todos.view_task_details' => 'View task details: {{title}}',
+			'todos.task_actions' => 'Task actions',
+			'todos.edit' => 'Edit',
+			'todos.status_todo' => 'To do',
+			'todos.status_paused' => 'Paused',
+			'todos.status_in_progress' => 'In progress',
+			'todos.status_done' => 'Completed',
+			'todos.area_programming' => 'Programming',
+			'todos.area_art' => 'Art',
+			'todos.area_audio' => 'Audio',
+			'todos.area_design' => 'Design',
+			'todos.area_narrative' => 'Narrative',
+			'todos.area_other' => 'Other',
+			'todos.edit_task' => 'Edit task',
+			'todos.title' => 'Title',
+			'todos.title_placeholder' => 'E.g.: Create main menu',
+			'todos.description_placeholder' => 'Add more details about what needs to be done...',
+			'todos.no_due_date' => 'No due date',
+			'todos.remove_due_date' => 'Remove due date',
+			'todos.past_due_date' => 'This due date has passed',
+			'todos.save_task_failed' => 'Could not save the task. Try again.',
+			'todos.add_task' => 'Add task',
+			'todos.no_description' => 'No description',
+			'todos.tomorrow' => 'Tomorrow',
+			'todos.due_in_days' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'Due in ${count} day', many: 'Due in ${count} days', other: 'Due in ${count} days', ), 
+			'todos.overdue_yesterday' => 'Was due yesterday',
+			'todos.overdue_days' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'Overdue by ${count} day', many: 'Overdue by ${count} days', other: 'Overdue by ${count} days', ), 
+			'todos.scan_code' => 'Scan code',
+			'todos.scan_code_hint' => 'Import TODO and FIXME comments from scripts and shaders, and complete to-dos whose comment was removed',
+			'todos.comment_scan_summary' => 'Code scan: {{imported}} added, {{closed}} completed, {{reopened}} reopened',
+			'todos.comment_scan_none' => 'Code scan found no changes',
+			'todos.commit_closed' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'Completed ${count} to-do from a commit message', many: 'Completed ${count} to-dos from commit messages', other: 'Completed ${count} to-dos from commit messages', ), 
+			'todos.linked_file' => 'Linked file',
+			'todos.linked_file_placeholder' => 'res://scenes/player.tscn',
+			'todos.linked_file_hint' => 'Link a scene, script or resource from this project.',
+			'todos.linked_file_invalid' => 'Use a res:// path from this project.',
+			'todos.open_linked_file' => 'Open {{path}}',
+			'todos.open_file' => 'Open',
+			'todos.source_comment' => 'Imported from a {{tag}} comment',
+			'todos.closed_by_commit' => 'Completed by commit {{hash}}: {{subject}}',
+			'todos.closed_by_comment_removed' => 'Completed because its comment was removed from the code',
+			'todos.todo_reference' => 'Reference',
+			'todos.todo_reference_hint' => 'Write "Fixes {{ref}}" in a commit message to complete it automatically.',
+			'todos.git_activity_loading' => 'Looking through Git history…',
+			'todos.git_activity_empty' => 'No commits or branches mention {{ref}} yet.',
+			'todos.git_branches' => 'Branches',
+			'todos.git_commit_closes' => 'Closes',
+			'todos.quick_add_placeholder' => 'Add a to-do and press Enter',
+			'todos.priority' => 'Priority',
+			'todos.priority_none' => 'None',
+			'todos.priority_low' => 'Low',
+			'todos.priority_medium' => 'Medium',
+			'todos.priority_high' => 'High',
+			'todos.priority_label' => '{{priority}} priority',
+			'todos.checklist' => 'Checklist',
+			'todos.checklist_add_placeholder' => 'Add a checklist item and press Enter',
+			'todos.checklist_remove' => 'Remove item',
+			'todos.checklist_progress' => '{{done}} of {{total}} done',
+			'todos.completed_on' => 'Done {{date}}',
+			'todos.completed_on_full' => 'Completed {{date}}',
+			'todos.search_tasks_placeholder' => 'Search to-dos…',
+			'todos.all_areas' => 'All areas',
+			'todos.no_matching_tasks' => 'No to-dos match your search.',
+			'todos.open_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} to-do', many: '${count} to-dos', other: '${count} to-dos', ), 
+			'todos.overdue_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} overdue', many: '${count} overdue', other: '${count} overdue', ), 
+			'todos.tile_summary' => '{{overdue}} overdue · {{soon}} due this week',
+			'todos.tile_empty' => 'Nothing overdue or due this week.',
+			'todos.due_notification_title' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'To-do due: {{title}}', many: '${count} to-dos are due', other: '${count} to-dos are due', ), 
+			'todos.due_notification_more' => 'and {{count}} more',
+			'versions.standard' => 'Standard',
+			'versions.unbound' => 'unbound',
+			'versions.mono' => 'Mono',
+			'versions.both' => 'Les deux',
+			'versions.stable' => 'Stable',
+			'versions.unstable' => 'Instable',
+			'versions.rename' => 'Renommer',
+			'versions.open_editor' => 'Ouvrir l\'éditeur',
+			'versions.open_editor_with_console' => 'Ouvrir l\'éditeur avec la console',
+			'versions.more_editor_launch_options' => 'Plus d\'options de lancement de l\'éditeur',
+			'versions.open_install_folder' => 'Ouvrir le dossier d\'installation',
+			'versions.type' => 'Type',
+			'versions.channel' => 'Canal',
+			'versions.fetch_error' => 'Impossible de récupérer les versions disponibles.',
+			'versions.paused_dot' => 'En pause · ',
+			'versions.available_title' => 'VERSIONS DISPONIBLES',
+			'versions.no_versions_match' => 'Aucune version installée ne correspond',
+			'versions.no_available_versions_match' => 'Aucune version disponible ne correspond',
+			'versions.open' => 'Ouvrir',
+			'versions.install' => 'Installer',
+			'versions.mb' => 'MB',
+			'versions.resume_download' => 'Reprendre le téléchargement',
+			'versions.pause_download' => 'Mettre en pause le téléchargement',
+			'versions.cancel_download' => 'Annuler le téléchargement',
+			'versions.installed_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, zero: 'No installs', one: 'Installé', many: 'Installed', other: 'Installés', ), 
+			'versions.installed_label' => 'Installé',
+			'versions.original_name' => 'Original',
+			'versions.source' => 'Source',
+			'versions.source_github' => 'GitHub',
+			'versions.source_archive' => 'Archive Godot',
+			'versions.source_mise' => 'mise',
+			'versions.switch_to_archive' => 'Passer à l\'archive Godot',
+			'versions.sort_version_latest' => 'Latest',
+			'versions.sort_version_oldest' => 'Oldest',
+			'versions.sort_version_recently_installed' => 'Recently Installed',
+			'versions.sort_version_oldest_installed' => 'Oldest Installed',
+			'versions.set_as_current' => 'Set as Current',
+			'versions.unset_current' => 'Unset Current',
+			'versions.current_set_title' => 'Version Set as Current',
+			'versions.current_dir_label' => 'Folder',
+			'versions.current_copy' => 'Copy',
+			'versions.current_copied' => 'Copied',
+			'versions.current_copy_alias' => 'Copy alias path',
+			'versions.current_copy_dir' => 'Copy folder path',
+			'versions.current_open_folder' => 'Open Alias Folder',
+			'versions.current_path_hint' => 'Add the folder above to your PATH to run "Godot" from any terminal, script, or tool. The alias always follows the current version, so pinning another version or uninstalling this one updates it automatically.',
+			'versions.current_shim_note' => 'Windows symlinks need Developer Mode or admin rights, so a launcher script was created instead. It behaves the same from the command line.',
+			'versions.mono_short' => 'mono',
+			'versions.aliases_manage' => 'Aliases',
+			'versions.aliases_title' => 'Version Aliases',
+			'versions.aliases_empty' => 'No aliases yet. Pick a version above, give the command a name, and it will appear in the aliases folder.',
+			'versions.aliases_no_versions' => 'Install a Godot version first to create an alias.',
+			'versions.aliases_path_hint' => 'Add the aliases folder to your PATH to run these names from any terminal or tool. The "Godot" command from the current version pin lives in the same folder.',
+			'versions.alias_create' => 'Create Alias',
+			'versions.alias_add' => 'Add Alias',
+			'versions.alias_name_label' => 'Alias name',
+			'versions.alias_name_placeholder' => 'godot-mono',
+			'versions.alias_copy_path' => 'Copy alias path',
+			'versions.alias_shim_badge' => 'script',
+			'versions.alias_mono_script_note' => 'Mono builds load GodotSharp from the folder next to the executable, so on Windows the alias is created as a launcher script instead of a link.',
+			'versions.alias_create_all' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'Create Alias', many: 'Create ${count} Aliases', other: 'Create ${count} Aliases', ), 
+			'versions.aliases_batch_created' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '1 alias created', many: '${count} aliases created', other: '${count} aliases created', ), 
+			'versions.aliases_batch_skipped' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '1 alias skipped', many: '${count} aliases skipped', other: '${count} aliases skipped', ), 
+			'versions.alias_queue_duplicate' => '"{{name}}" is already in the list',
+			'versions.alias_remove' => 'Remove alias',
+			'versions.alias_remove_title' => 'Remove this alias?',
+			'versions.alias_remove_desc' => 'The command "{{name}}" will stop working. The Godot version itself stays installed.',
+			'versions.managed_by_mise' => 'mise',
+			'versions.mise_installing' => 'Installing with mise…',
+			'versions.mise_sync' => 'Sync',
+			'versions.mise_sync_title' => 'Import the Godot versions mise has installed so they show up here.',
+			'versions.mise_missing' => 'mise not found',
+			'versions.mise_uninstall_desc' => 'mise will uninstall {{tag}} from its own store. Projects that pin it in mise.toml will need it installed again.',
+			'versions.export_templates_installed' => 'Templates',
+			'versions.export_templates_missing' => 'No templates',
+			'versions.export_templates_install' => 'Install export templates',
+			'versions.export_templates_remove' => 'Remove export templates',
+			'versions.export_templates_remove_title' => 'Remove export templates?',
+			'versions.export_templates_remove_desc' => 'The export templates for {{tag}} will be deleted from disk. You can download them again later.',
+			'versions.export_templates_remove_confirm' => 'Remove',
+			'versions.export_templates_open_folder' => 'Open templates folder',
+			'versions.templates_folder' => 'Dossier des modèles',
+			'versions.versions_folder' => 'Dossier des versions',
+			'versions.export_templates_installed_toast' => 'Export templates installed for {{tag}}',
+			'versions.export_templates_install_failed' => 'Couldn\'t install export templates: {{error}}',
+			'versions.export_templates_removed_toast' => 'Export templates removed',
+			'versions.export_templates_orphans_title' => 'Unused template folders',
+			'versions.export_templates_orphans_desc' => 'These folders don\'t match a Godot version managed by GodotHub.',
+			'versions.export_templates_orphan_delete' => 'Delete folder',
+			'versions.export_templates_orphan_delete_title' => 'Delete this template folder?',
+			'versions.export_templates_orphan_delete_desc' => '"{{folder}}" will be deleted from disk.',
+			'versions.export_templates_orphan_deleted' => 'Template folder deleted',
+			'versions.export_templates_choose' => 'Choose export templates',
+			'versions.export_templates_selected' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '1 template selected', many: '${count} templates selected', other: '${count} templates selected', ), 
+			'versions.export_templates_size_summary' => '~{{download}} download · {{installed}} on disk',
+			'versions.export_templates_download_selected' => 'Download selected',
+			'versions.export_templates_loading_options' => 'Checking this release\'s available templates…',
+			'versions.export_templates_options_failed' => 'Couldn\'t load the templates for this release.',
+			'versions.export_templates_available' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '1 available template group', many: '${count} available template groups', other: '${count} available template groups', ), 
+			'versions.export_templates_select_all' => 'Select all',
+			'versions.export_templates_files' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '1 template file', many: '${count} template files', other: '${count} template files', ), 
+			'versions.export_templates_option_installed' => 'Installed',
+			'versions.export_templates_keep_existing' => 'Expand a platform to choose architectures or individual files. Only selected files are downloaded. Your existing templates are kept.',
+			'versions.export_templates_uninstall_named' => 'Uninstall {{name}}',
+			'versions.export_templates_uninstall_failed' => 'Couldn\'t uninstall templates: {{error}}',
+			'versions.export_templates_category_desktop' => 'Desktop',
+			'versions.export_templates_category_mobile' => 'Mobile',
+			'versions.export_templates_category_web' => 'Web',
+			'versions.export_templates_category_common' => 'Common',
+			'versions.export_templates_category_other' => 'Other',
+			'versions.export_templates_web_standard' => 'Web',
+			'versions.export_templates_web_extensions' => 'Web with Extensions',
+			'versions.export_templates_web_single_threaded' => 'Web Single-Threaded',
+			'versions.export_templates_web_extensions_single_threaded' => 'Web with Extensions Single-Threaded',
+			'versions.export_templates_refresh' => 'Refresh available templates',
+			'versions.download_failed_title' => 'Échec du téléchargement',
+			'versions.download_failed_asset_label' => 'Fichier',
+			'versions.download_failed_error_label' => 'Détails de l\'erreur',
+			'versions.download_failed_copy' => 'Copier les détails',
+			'versions.download_failed_hint' => 'Causes fréquentes : un réseau ou un proxy bloqué, un antivirus qui bloque le téléchargement, un dossier de téléchargement manquant ou en lecture seule, ou un espace disque insuffisant.',
+			'versions.custom_build_badge' => 'Custom build',
+			'versions.add_custom_build' => 'Add custom build…',
+			'versions.adding_custom_build' => 'Adding custom build…',
+			_ => null,
+		};
+	}
+}

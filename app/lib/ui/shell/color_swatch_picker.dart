@@ -6,7 +6,7 @@ import '../core/interaction.dart';
 import '../core/tooltip.dart';
 import '../core/ui_settings.dart';
 import '../overlays/dropdown.dart';
-import 'strings.dart';
+import '../core/i18n.dart';
 import '../../motion/motion.dart';
 
 final _hexPattern = RegExp(r'^#([0-9a-fA-F]{6})$');
@@ -23,7 +23,7 @@ class GhColorSwatchPicker extends StatefulWidget {
     required this.presets,
     this.label,
     this.trigger,
-    this.presetsLabel = GhShellStrings.colorPresets,
+    this.presetsLabel,
     this.onOpenChange,
   });
 
@@ -32,7 +32,7 @@ class GhColorSwatchPicker extends StatefulWidget {
   final List<String> presets;
   final String? label;
   final GhDropdownTriggerBuilder? trigger;
-  final String presetsLabel;
+  final String? presetsLabel;
   final ValueChanged<bool>? onOpenChange;
 
   static const double panelMinWidth = 440;
@@ -51,7 +51,7 @@ class _GhColorSwatchPickerState extends State<GhColorSwatchPicker> {
       onOpenChange: widget.onOpenChange,
       trigger: widget.trigger ?? _defaultTrigger,
       content: (context, close) =>
-          _SwatchPanel(value: widget.value, onChanged: widget.onChanged, presets: widget.presets, presetsLabel: widget.presetsLabel),
+          _SwatchPanel(value: widget.value, onChanged: widget.onChanged, presets: widget.presets, presetsLabel: widget.presetsLabel ?? context.tr.common.color_presets),
     );
   }
 

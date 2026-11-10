@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-import 'strings.dart';
 
 enum GhToastType { success, error, info }
 
@@ -62,7 +61,7 @@ class GhToastStore {
       Exception() || Error() => _errorMessage(error),
       _ => '',
     };
-    pushToast(GhToastType.error, message.isNotEmpty ? message : GhFeedbackStrings.somethingWentWrong, ttlMs: errorTtlMs);
+    pushToast(GhToastType.error, message.isNotEmpty ? message : 'Something went wrong', ttlMs: errorTtlMs);
   }
 
   String _errorMessage(Object? error) {

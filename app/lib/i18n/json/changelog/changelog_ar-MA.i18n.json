@@ -1,0 +1,12 @@
+{
+  "changelog_title": "سجل التغييرات",
+  "no_entries": "لا توجد أي تغييرات حاليا",
+  "delete_entry_title": "هل تريد حذف سجل التغييرات؟",
+  "delete_entry_desc": "هذا سيحذف المدخل كليا. لا يمكن التراجع عن هذا الخيار.",
+  "changelog_subtitle": "تاريخ التغييرات في GodotHub.",
+  "edit_entry_aria": "عدل {{version}}",
+  "delete_entry_aria": "احذف {{version}}",
+  "added": "مُضاف",
+  "fixed": "مُصلّح",
+  "improved": "مُحسّن"
+}

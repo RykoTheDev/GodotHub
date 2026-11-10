@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import '../../design/design.dart';
 import '../core/interaction.dart';
 import 'pulse_dot.dart';
-import 'strings.dart' as s;
+import '../core/i18n.dart';
 
 const _confirmDuration = Duration(milliseconds: 1500);
 
@@ -104,7 +104,7 @@ class _GhKeyRecorderState extends State<GhKeyRecorder> {
     }
     widget.onChanged(captured);
     _setListening(false);
-    final label = captured == ' ' ? s.keySpace : captured.toUpperCase();
+    final label = captured == ' ' ? t.settings.key_space : captured.toUpperCase();
     _showConfirm('✓ $_mod$label');
     return KeyEventResult.handled;
   }
@@ -114,7 +114,8 @@ class _GhKeyRecorderState extends State<GhKeyRecorder> {
     final theme = GhTheme.of(context);
     final mod = _mod;
     final value = widget.value;
-    final displayKey = value == ' ' ? s.keySpace : (value.isNotEmpty ? value.toUpperCase() : s.none);
+    final tr = context.tr;
+    final displayKey = value == ' ' ? tr.settings.key_space : (value.isNotEmpty ? value.toUpperCase() : tr.common.none);
     final onReset = widget.onReset;
     final kbdRadius = BorderRadius.circular(theme.rem(0.25));
     final paragraph = theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625);
@@ -124,7 +125,7 @@ class _GhKeyRecorderState extends State<GhKeyRecorder> {
       children: [
         Flexible(
           child: Text(
-            s.paletteShortcut,
+            tr.settings.palette_shortcut,
             style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.muted),
           ),
         ),
@@ -135,7 +136,7 @@ class _GhKeyRecorderState extends State<GhKeyRecorder> {
               _showConfirm('✓ $mod${widget.defaultKey.toUpperCase()}');
             },
             builder: (context, states) => GhAnimatedText(
-              s.resetToDefault,
+              tr.settings.reset_to_default,
               style: theme.text(
                 size: GhTextSize.x3s,
                 weight: GhWeight.medium,
@@ -152,7 +153,7 @@ class _GhKeyRecorderState extends State<GhKeyRecorder> {
         TextSpan(
           style: paragraph,
           children: [
-            TextSpan(text: '${s.keybindInstruction} ${s.press} '),
+            TextSpan(text: '${tr.settings.keybind_instruction} ${tr.settings.press} '),
             WidgetSpan(
               alignment: PlaceholderAlignment.baseline,
               baseline: TextBaseline.alphabetic,
@@ -169,7 +170,7 @@ class _GhKeyRecorderState extends State<GhKeyRecorder> {
                 ),
               ),
             ),
-            TextSpan(text: ' ${s.toCancel}.'),
+            TextSpan(text: ' ${tr.settings.to_cancel}.'),
           ],
         ),
       ),
@@ -186,7 +187,7 @@ class _GhKeyRecorderState extends State<GhKeyRecorder> {
             GhPulseDot(color: theme.accent),
             SizedBox(width: theme.space(2)),
             GhAnimatedText(
-              s.pressKey,
+              tr.settings.press_key,
               style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, mono: true, color: theme.accentBright),
             ),
           ];
@@ -206,7 +207,7 @@ class _GhKeyRecorderState extends State<GhKeyRecorder> {
             ),
             SizedBox(width: theme.space(2)),
             Text(
-              s.clickToRebind,
+              tr.settings.click_to_rebind,
               style: theme.text(size: GhTextSize.xs, mono: true, color: theme.muted),
             ),
           ];

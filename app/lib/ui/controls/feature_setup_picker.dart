@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 
 import '../../design/design.dart';
+import '../core/i18n.dart';
 import '../core/interaction.dart';
 import 'features.dart';
 import 'keyframe.dart';
-import 'strings.dart' as s;
 import 'toggle.dart';
 
 enum _Card { minimal, essentials, studio, complete, custom }
 
 class GhFeatureSetupPicker extends StatefulWidget {
-  const GhFeatureSetupPicker({super.key, required this.enabled, required this.onChanged, this.groupLabel = s.featuresTitle});
+  const GhFeatureSetupPicker({super.key, required this.enabled, required this.onChanged, this.groupLabel});
 
   final Set<GhFeatureId> enabled;
   final ValueChanged<Set<GhFeatureId>> onChanged;
-  final String groupLabel;
+  final String? groupLabel;
 
   @override
   State<GhFeatureSetupPicker> createState() => _GhFeatureSetupPickerState();
@@ -91,7 +91,7 @@ class _GhFeatureSetupPickerState extends State<GhFeatureSetupPicker> {
       mainAxisSize: MainAxisSize.min,
       children: [
         Semantics(
-          label: widget.groupLabel,
+          label: widget.groupLabel ?? context.tr.settings.features_title,
           container: true,
           explicitChildNodes: true,
           child: Column(
@@ -112,23 +112,23 @@ class _GhFeatureSetupPickerState extends State<GhFeatureSetupPicker> {
           SizedBox(height: theme.space(4)),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: theme.space(1)),
-            child: Text(s.featuresAlwaysOn.toUpperCase(), style: sectionLabel),
+            child: Text(context.tr.settings.features_always_on.toUpperCase(), style: sectionLabel),
           ),
           for (final core in GhCoreFeature.values) ...[
             SizedBox(height: rowGap),
-            _FeatureRow(icon: core.icon, label: core.label, description: core.description, checked: true),
+            _FeatureRow(icon: core.icon, label: core.label(context.tr), description: core.description(context.tr), checked: true),
           ],
           SizedBox(height: rowGap),
           Padding(
             padding: EdgeInsets.only(left: theme.space(1), right: theme.space(1), top: theme.space(2)),
-            child: Text(s.featuresOptional.toUpperCase(), style: sectionLabel),
+            child: Text(context.tr.settings.features_optional.toUpperCase(), style: sectionLabel),
           ),
           for (final feature in GhFeatureId.values) ...[
             SizedBox(height: rowGap),
             _FeatureRow(
               icon: feature.icon,
-              label: feature.label,
-              description: feature.description,
+              label: feature.label(context.tr),
+              description: feature.description(context.tr),
               checked: widget.enabled.contains(feature),
               onChanged: (on) => _toggle(feature, on),
             ),
@@ -160,7 +160,7 @@ class _ProfileCard extends StatelessWidget {
         borderRadius: radius,
         button: false,
         checked: active,
-        semanticLabel: profile.label,
+        semanticLabel: profile.label(context.tr),
         builder: (context, states) {
           final hover = states.hovered && !active;
           return GhAnimatedBox(
@@ -178,7 +178,7 @@ class _ProfileCard extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        profile.label,
+                        profile.label(context.tr),
                         style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.ink),
                       ),
                     ),
@@ -188,7 +188,7 @@ class _ProfileCard extends StatelessWidget {
                 ),
                 SizedBox(height: theme.space(2)),
                 Text(
-                  profile.description,
+                  profile.description(context.tr),
                   style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625),
                 ),
                 SizedBox(height: theme.space(2)),
@@ -261,7 +261,7 @@ class _CustomCard extends StatelessWidget {
         borderRadius: radius,
         button: false,
         checked: active,
-        semanticLabel: s.setupProfileCustom,
+        semanticLabel: context.tr.settings.setup_profile_custom,
         builder: (context, states) {
           final hover = states.hovered && !active;
           final borderColor = active ? theme.accent : (hover ? theme.accentDim : theme.outline.withValues(alpha: 0.6));
@@ -297,11 +297,11 @@ class _CustomCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            s.setupProfileCustom,
+                            context.tr.settings.setup_profile_custom,
                             style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.ink),
                           ),
                           Text(
-                            s.setupProfileCustomDesc,
+                            context.tr.settings.setup_profile_custom_desc,
                             style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625),
                           ),
                         ],
@@ -309,7 +309,7 @@ class _CustomCard extends StatelessWidget {
                     ),
                     SizedBox(width: theme.space(3)),
                     Text(
-                      s.featuresEnabledCount(count),
+                      context.tr.settings.features_enabled_count(count: count),
                       style: theme
                           .text(size: GhTextSize.x3s, weight: GhWeight.medium, color: theme.muted)
                           .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),

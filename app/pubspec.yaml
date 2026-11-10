@@ -41,6 +41,9 @@ dependencies:
   window_manager: ^0.6.0
   nativeapi: ^0.5.10
   path_parsing: ^1.1.0
+  slang: 4.19.2
+  slang_flutter: 4.19.0
+  intl: ^0.20.3
 
 dev_dependencies:
   flutter_test:

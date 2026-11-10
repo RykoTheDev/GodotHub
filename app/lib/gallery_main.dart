@@ -4,9 +4,15 @@ import 'package:flutter/material.dart';
 
 import 'debug/gallery/widget_gallery.dart';
 import 'design/design.dart';
+import 'i18n/i18n.dart';
+import 'i18n/i18n_controller.dart';
+import 'src/ui_prefs.dart';
 
-void main() {
-  runApp(const GalleryApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  UiPrefsStore.instance = UiPrefsStore(MemoryUiPrefsBackend());
+  await GhI18n.init(settingsLanguage: Platform.environment['GH_GALLERY_LANGUAGE'] ?? 'en-US', settingsRtlLayout: false);
+  runApp(TranslationProvider(child: const GalleryApp()));
 }
 
 class GalleryApp extends StatelessWidget {

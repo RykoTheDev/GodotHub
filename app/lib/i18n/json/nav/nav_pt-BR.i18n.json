@@ -1,0 +1,25 @@
+{
+  "dashboard": "Painel",
+  "projects": "Projetos",
+  "projects_count(plural)": {
+    "one": "Projeto",
+    "many": "Projetos",
+    "other": "Projetos"
+  },
+  "versions": "Versões",
+  "templates": "Templates",
+  "vault": "Vault",
+  "asset_store": "Loja de assets",
+  "news": "Notícias do Godot",
+  "storage_view": "Storage",
+  "settings": "Configurações",
+  "changelog": "Histórico de alterações",
+  "group_workspace": "Espaço de trabalho",
+  "group_resources": "Recursos",
+  "group_explore": "Explorar",
+  "you": "You",
+  "account_manage": "Manage accounts",
+  "workspace_tip_title": "O seletor de espaços foi movido",
+  "workspace_tip_body": "Troque e gerencie espaços de trabalho pelo menu da conta abaixo.",
+  "workspace_tip_dismiss": "Entendi"
+}

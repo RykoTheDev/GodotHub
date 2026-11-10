@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../design/design.dart';
 
-import 'strings.dart' as s;
+import '../ui/core/i18n.dart';
 import 'title_bar_theme.dart';
 
 const _menuWidth = 320.0;
@@ -73,7 +73,7 @@ class _TaskTrayState extends State<TaskTray> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        s.taskTrayTitle.toUpperCase(),
+                        context.tr.common.task_tray_title.toUpperCase(),
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -83,7 +83,7 @@ class _TaskTrayState extends State<TaskTray> {
                       ),
                       const SizedBox(height: 2),
                       Text(
-                        s.taskTrayEmpty,
+                        context.tr.common.task_tray_empty,
                         style: TextStyle(fontSize: 10, color: tokens.muted.withValues(alpha: 0.5)),
                       ),
                     ],
@@ -110,7 +110,7 @@ class _TaskTrayState extends State<TaskTray> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        s.noTasksRunning,
+                        context.tr.common.no_tasks_running,
                         textAlign: TextAlign.center,
                         style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: tokens.muted),
                       ),
@@ -123,8 +123,8 @@ class _TaskTrayState extends State<TaskTray> {
         ],
         builder: (context, controller, child) => TitleBarButton(
           key: const ValueKey('task-tray-trigger'),
-          tooltip: s.taskTrayAria,
-          semanticLabel: s.taskTrayAria,
+          tooltip: context.tr.common.task_tray_aria,
+          semanticLabel: context.tr.common.task_tray_aria,
           expanded: _open,
           onPressed: () => controller.isOpen ? controller.close() : controller.open(),
           builder: (context, hovered) => Container(

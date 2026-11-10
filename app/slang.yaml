@@ -1,0 +1,20 @@
+base_locale: en-US
+fallback_strategy: base_locale
+input_directory: lib/i18n/json
+input_file_pattern: .i18n.json
+output_directory: lib/i18n
+output_file_name: strings.g.dart
+namespaces: true
+lazy: false
+locale_handling: true
+flutter_integration: true
+translate_var: t
+enum_name: AppLocale
+class_name: Translations
+string_interpolation: dart
+flat_map: true
+timestamp: false
+statistics: false
+pluralization:
+  auto: off
+  default_parameter: count

@@ -9,7 +9,7 @@ import '../core/interaction.dart';
 import '../core/tooltip.dart';
 import '../core/ui_settings.dart';
 import 'negative_margin.dart';
-import 'strings.dart' as s;
+import '../core/i18n.dart';
 import '../../motion/motion.dart';
 
 const double _thumbOffset = 16;
@@ -50,7 +50,7 @@ class GhSlider extends StatefulWidget {
     this.label,
     this.display,
     this.defaultValue,
-    this.resetLabel = s.resetToDefault,
+    this.resetLabel,
     this.focusNode,
     this.autofocus = false,
   });
@@ -64,7 +64,7 @@ class GhSlider extends StatefulWidget {
   final String? label;
   final Widget? display;
   final double? defaultValue;
-  final String resetLabel;
+  final String? resetLabel;
   final FocusNode? focusNode;
   final bool autofocus;
 
@@ -352,11 +352,11 @@ class _GhSliderState extends State<GhSlider> {
               minWidth: resetSize,
               maxWidth: resetSize,
               child: GhTooltip(
-                message: widget.resetLabel,
+                message: widget.resetLabel ?? context.tr.settings.reset_to_default,
                 side: GhSide.left,
                 child: GhPressable(
                   onPressed: resetEnabled ? () => widget.onChanged!(widget.defaultValue!) : null,
-                  semanticLabel: widget.resetLabel,
+                  semanticLabel: widget.resetLabel ?? context.tr.settings.reset_to_default,
                   borderRadius: BorderRadius.circular(9999),
                   disabledOpacity: null,
                   disabledCursor: SystemMouseCursors.click,

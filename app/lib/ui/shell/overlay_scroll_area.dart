@@ -8,7 +8,7 @@ import '../core/tooltip.dart';
 import '../core/ui_settings.dart';
 import '../feedback/modal_events.dart';
 import '../overlays/popup_registry.dart';
-import 'strings.dart';
+import '../core/i18n.dart';
 import '../../motion/motion.dart';
 
 const double _showTopAfter = 200;
@@ -24,7 +24,7 @@ class GhOverlayScrollArea extends StatefulWidget {
     this.scrollToTopOn,
     this.controller,
     this.topButtonBottom,
-    this.scrollToTopLabel = GhShellStrings.scrollToTop,
+    this.scrollToTopLabel,
   });
 
   final Widget child;
@@ -33,7 +33,7 @@ class GhOverlayScrollArea extends StatefulWidget {
   final Object? scrollToTopOn;
   final ScrollController? controller;
   final double? topButtonBottom;
-  final String scrollToTopLabel;
+  final String? scrollToTopLabel;
 
   @override
   State<GhOverlayScrollArea> createState() => _GhOverlayScrollAreaState();
@@ -235,9 +235,9 @@ class _GhOverlayScrollAreaState extends State<GhOverlayScrollArea> {
                   child: Transform.translate(
                     offset: Offset(-theme.space(2), 0),
                     child: GhTooltip(
-                      message: widget.scrollToTopLabel,
+                      message: widget.scrollToTopLabel ?? context.tr.common.scroll_to_top,
                       side: GhSide.top,
-                      child: _ScrollTopButton(label: widget.scrollToTopLabel, onPressed: _scrollToTop),
+                      child: _ScrollTopButton(label: widget.scrollToTopLabel ?? context.tr.common.scroll_to_top, onPressed: _scrollToTop),
                     ),
                   ),
                 ),

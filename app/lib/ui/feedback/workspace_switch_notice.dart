@@ -6,7 +6,7 @@ import '../../design/design.dart';
 import '../../motion/ease.dart';
 import '../../motion/motion.dart';
 import '../../motion/tween.dart';
-import 'strings.dart';
+import '../core/i18n.dart';
 
 @immutable
 class GhWorkspaceRef {
@@ -18,11 +18,11 @@ class GhWorkspaceRef {
 }
 
 class GhWorkspaceSwitchCard extends StatelessWidget {
-  const GhWorkspaceSwitchCard({super.key, required this.icon, required this.name, this.label = GhFeedbackStrings.workspaceSwitchedTo});
+  const GhWorkspaceSwitchCard({super.key, required this.icon, required this.name, this.label});
 
   final FaIconData icon;
   final String name;
-  final String label;
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +51,7 @@ class GhWorkspaceSwitchCard extends StatelessWidget {
             child: GhIcon(icon, size: theme.space(5), color: theme.ink),
           ),
           Text(
-            label.toUpperCase(),
+            (label ?? context.tr.common.workspace_switched_to).toUpperCase(),
             style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: theme.muted, letterSpacingEm: 0.25),
           ),
           ConstrainedBox(
@@ -75,7 +75,7 @@ class GhWorkspaceSwitchNotice extends StatefulWidget {
     super.key,
     required this.activeId,
     required this.workspaces,
-    this.label = GhFeedbackStrings.workspaceSwitchedTo,
+    this.label,
   });
 
   static const enterSeconds = 0.4;
@@ -87,7 +87,7 @@ class GhWorkspaceSwitchNotice extends StatefulWidget {
 
   final String? activeId;
   final List<GhWorkspaceRef> workspaces;
-  final String label;
+  final String? label;
 
   @override
   State<GhWorkspaceSwitchNotice> createState() => _GhWorkspaceSwitchNoticeState();

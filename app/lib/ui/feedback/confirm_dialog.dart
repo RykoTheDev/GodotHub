@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../design/design.dart';
 import '../core/button.dart';
 import 'modal_shell.dart';
-import 'strings.dart';
+import '../core/i18n.dart';
 
 enum GhConfirmVariant { normal, danger }
 
@@ -74,7 +74,7 @@ class _GhConfirmDialogState extends State<GhConfirmDialog> {
             GhButton(
               onPressed: widget.onCancel,
               focusNode: _cancelNode,
-              label: cancelLabel != null && cancelLabel.isNotEmpty ? cancelLabel : GhFeedbackStrings.cancel,
+              label: cancelLabel != null && cancelLabel.isNotEmpty ? cancelLabel : context.tr.common.cancel,
               variant: GhButtonVariant.ghost,
             ),
             GhButton(

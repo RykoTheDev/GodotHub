@@ -10,9 +10,11 @@ import 'package:godothub/ui/controls/hsv_color_picker.dart';
 import 'package:godothub/ui/controls/key_recorder.dart';
 import 'package:godothub/ui/controls/search_bar.dart';
 import 'package:godothub/ui/controls/slider.dart';
-import 'package:godothub/ui/controls/strings.dart' as s;
+import 'package:godothub/i18n/i18n.dart';
 import 'package:godothub/ui/controls/toggle.dart';
 import 'package:godothub/ui/core/interaction.dart';
+
+import 'i18n_setup.dart';
 
 final theme = GhTheme.defaults();
 
@@ -43,6 +45,7 @@ Future<void> settle(WidgetTester tester) async {
 }
 
 void main() {
+  setUp(setUpTestI18n);
   group('GhToggle', () {
     testWidgets('tap toggles and reports the inverted value', (tester) async {
       final calls = <bool>[];
@@ -289,7 +292,7 @@ void main() {
       final calls = <double>[];
       await tester.pumpWidget(host(slider(value: 30, defaultValue: 50, onChanged: calls.add)));
       await settle(tester);
-      await tester.tap(find.byWidgetPredicate((w) => w is GhPressable && w.semanticLabel == s.resetToDefault));
+      await tester.tap(find.byWidgetPredicate((w) => w is GhPressable && w.semanticLabel == t.settings.reset_to_default));
       expect(calls, [50]);
       await settle(tester);
     });
@@ -322,7 +325,7 @@ void main() {
     testWidgets('typing reports changes and placeholder shows when empty', (tester) async {
       final calls = <String>[];
       await tester.pumpWidget(host(GhSearchBar(value: '', onChanged: calls.add)));
-      expect(find.text(s.searchProjectsPlaceholder), findsOneWidget);
+      expect(find.text(t.common.search_projects_placeholder), findsOneWidget);
       await tester.enterText(find.byType(TextField), 'godot');
       expect(calls.last, 'godot');
     });
@@ -346,7 +349,7 @@ void main() {
           ),
         ),
       );
-      final clear = find.byWidgetPredicate((w) => w is GhPressable && w.semanticLabel == s.clearSearch);
+      final clear = find.byWidgetPredicate((w) => w is GhPressable && w.semanticLabel == t.common.clear_search);
       expect(clear, findsOneWidget);
       await tester.tap(clear);
       await tester.pump();
@@ -414,15 +417,15 @@ void main() {
       final calls = <String>[];
       await tester.pumpWidget(host(GhKeyRecorder(value: 'p', isMac: false, onChanged: calls.add)));
       expect(find.text('Ctrl+P'), findsOneWidget);
-      expect(find.text(s.resetToDefault), findsNothing);
-      await tester.tap(find.text(s.clickToRebind));
+      expect(find.text(t.settings.reset_to_default), findsNothing);
+      await tester.tap(find.text(t.settings.click_to_rebind));
       await tester.pump();
-      expect(find.text(s.pressKey), findsOneWidget);
+      expect(find.text(t.settings.press_key), findsOneWidget);
       await tester.sendKeyEvent(LogicalKeyboardKey.keyK);
       await tester.pump();
       expect(calls, ['k']);
       expect(find.text('✓ Ctrl+K'), findsOneWidget);
-      expect(find.text(s.pressKey), findsNothing);
+      expect(find.text(t.settings.press_key), findsNothing);
       await tester.pump(const Duration(milliseconds: 1600));
       expect(find.text('✓ Ctrl+K'), findsNothing);
     });
@@ -430,34 +433,34 @@ void main() {
     testWidgets('Escape cancels without changing and non-character keys are swallowed', (tester) async {
       final calls = <String>[];
       await tester.pumpWidget(host(GhKeyRecorder(value: 'k', isMac: false, onChanged: calls.add)));
-      await tester.tap(find.text(s.clickToRebind));
+      await tester.tap(find.text(t.settings.click_to_rebind));
       await tester.pump();
       await tester.sendKeyEvent(LogicalKeyboardKey.shiftLeft);
       await tester.sendKeyEvent(LogicalKeyboardKey.f5);
       await tester.pump();
-      expect(find.text(s.pressKey), findsOneWidget);
+      expect(find.text(t.settings.press_key), findsOneWidget);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await tester.pump();
-      expect(find.text(s.pressKey), findsNothing);
+      expect(find.text(t.settings.press_key), findsNothing);
       expect(calls, isEmpty);
     });
 
     testWidgets('space is recorded and labelled', (tester) async {
       final calls = <String>[];
       await tester.pumpWidget(host(GhKeyRecorder(value: 'k', isMac: true, onChanged: calls.add)));
-      await tester.tap(find.text(s.clickToRebind));
+      await tester.tap(find.text(t.settings.click_to_rebind));
       await tester.pump();
       await tester.sendKeyEvent(LogicalKeyboardKey.space);
       await tester.pump();
       expect(calls, [' ']);
-      expect(find.text('✓ ⌘${s.keySpace}'), findsOneWidget);
+      expect(find.text('✓ ⌘${t.settings.key_space}'), findsOneWidget);
       await tester.pump(const Duration(seconds: 2));
     });
 
     testWidgets('reset to default is offered and confirmed', (tester) async {
       var resets = 0;
       await tester.pumpWidget(host(GhKeyRecorder(value: 'k', isMac: false, onChanged: (_) {}, onReset: () => resets++)));
-      await tester.tap(find.text(s.resetToDefault));
+      await tester.tap(find.text(t.settings.reset_to_default));
       await tester.pump();
       expect(resets, 1);
       expect(find.text('✓ Ctrl+P'), findsOneWidget);
@@ -466,9 +469,9 @@ void main() {
 
     testWidgets('shows None and Space labels', (tester) async {
       await tester.pumpWidget(host(GhKeyRecorder(value: '', isMac: false, onChanged: (_) {})));
-      expect(find.text('Ctrl+${s.none}'), findsOneWidget);
+      expect(find.text('Ctrl+${t.common.none}'), findsOneWidget);
       await tester.pumpWidget(host(GhKeyRecorder(value: ' ', isMac: true, onChanged: (_) {})));
-      expect(find.text('⌘${s.keySpace}'), findsOneWidget);
+      expect(find.text('⌘${t.settings.key_space}'), findsOneWidget);
     });
 
     testWidgets('keyboard activation starts listening and clicking again stops', (tester) async {
@@ -476,10 +479,10 @@ void main() {
       await tab(tester);
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.pump();
-      expect(find.text(s.pressKey), findsOneWidget);
-      await tester.tap(find.text(s.pressKey));
+      expect(find.text(t.settings.press_key), findsOneWidget);
+      await tester.tap(find.text(t.settings.press_key));
       await tester.pump();
-      expect(find.text(s.pressKey), findsNothing);
+      expect(find.text(t.settings.press_key), findsNothing);
       await tester.pump(const Duration(seconds: 1));
     });
   });
@@ -544,8 +547,8 @@ void main() {
       final calls = <Set<GhFeatureId>>[];
       await pump(tester, GhSetupProfile.essentials.features.toSet(), calls.add);
       await settle(tester);
-      expect(find.text(s.featuresAlwaysOn.toUpperCase()), findsNothing);
-      await tester.tap(find.text(s.setupProfileStudio));
+      expect(find.text(t.settings.features_always_on.toUpperCase()), findsNothing);
+      await tester.tap(find.text(t.settings.setup_profile_studio));
       expect(calls.single, GhSetupProfile.studio.features.toSet());
       await settle(tester);
     });
@@ -553,13 +556,13 @@ void main() {
     testWidgets('custom opens feature rows and toggles report the new set', (tester) async {
       final calls = <Set<GhFeatureId>>[];
       await pump(tester, {}, calls.add);
-      await tester.tap(find.text(s.setupProfileCustom));
+      await tester.tap(find.text(t.settings.setup_profile_custom));
       await settle(tester);
-      expect(find.text(s.featuresAlwaysOn.toUpperCase()), findsOneWidget);
+      expect(find.text(t.settings.features_always_on.toUpperCase()), findsOneWidget);
       expect(find.byType(GhToggle), findsNWidgets(GhCoreFeature.values.length + GhFeatureId.values.length));
-      await tester.tap(find.byWidgetPredicate((w) => w is GhToggle && w.label == s.navNews));
+      await tester.tap(find.byWidgetPredicate((w) => w is GhToggle && w.label == t.nav.news));
       expect(calls.single, {GhFeatureId.news});
-      await tester.tap(find.byWidgetPredicate((w) => w is GhToggle && w.label == s.navProjects), warnIfMissed: false);
+      await tester.tap(find.byWidgetPredicate((w) => w is GhToggle && w.label == t.nav.projects), warnIfMissed: false);
       expect(calls.length, 1);
       await settle(tester);
     });
@@ -567,18 +570,18 @@ void main() {
     testWidgets('non-matching selection starts in custom mode with a feature count', (tester) async {
       await pump(tester, {GhFeatureId.news, GhFeatureId.vault}, (_) {});
       await settle(tester);
-      expect(find.text(s.featuresOptional.toUpperCase()), findsOneWidget);
-      expect(find.text(s.featuresEnabledCount(4)), findsOneWidget);
-      expect(s.featuresEnabledCount(1), '1 feature on');
+      expect(find.text(t.settings.features_optional.toUpperCase()), findsOneWidget);
+      expect(find.text(t.settings.features_enabled_count(count: 4)), findsOneWidget);
+      expect(t.settings.features_enabled_count(count: 1), '1 feature on');
     });
 
     testWidgets('picking a profile from custom closes the rows', (tester) async {
       final calls = <Set<GhFeatureId>>[];
       await pump(tester, {GhFeatureId.news}, calls.add);
-      await tester.tap(find.text(s.setupProfileMinimal));
+      await tester.tap(find.text(t.settings.setup_profile_minimal));
       await settle(tester);
       expect(calls.single, <GhFeatureId>{});
-      expect(find.text(s.featuresAlwaysOn.toUpperCase()), findsNothing);
+      expect(find.text(t.settings.features_always_on.toUpperCase()), findsNothing);
     });
 
     testWidgets('profiles are keyboard reachable', (tester) async {

@@ -1,0 +1,23 @@
+{
+  "dashboard": "Dashboard",
+  "projects": "Dự Án",
+  "projects_count(plural)": {
+    "other": "Projects"
+  },
+  "versions": "Phiên Bản",
+  "templates": "Mẫu",
+  "vault": "Vault",
+  "asset_store": "Cửa Hàng Asset",
+  "news": "Tin Tức Godot",
+  "storage_view": "Storage",
+  "settings": "Cài Đặt",
+  "changelog": "Changelog",
+  "group_workspace": "Không gian làm việc",
+  "group_resources": "Tài nguyên",
+  "group_explore": "Khám phá",
+  "you": "You",
+  "account_manage": "Manage accounts",
+  "workspace_tip_title": "Bộ chuyển khu vực làm việc đã chuyển",
+  "workspace_tip_body": "Chuyển và quản lý khu vực làm việc từ menu tài khoản bên dưới.",
+  "workspace_tip_dismiss": "Đã hiểu"
+}

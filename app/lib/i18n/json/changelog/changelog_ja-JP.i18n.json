@@ -1,0 +1,12 @@
+{
+  "changelog_title": "変更履歴",
+  "no_entries": "変更履歴はまだありません",
+  "delete_entry_title": "変更履歴のエントリを削除しますか？",
+  "delete_entry_desc": "エントリを完全に削除します。この操作は取り消せません。",
+  "changelog_subtitle": "GodotHub の更新の履歴です。",
+  "edit_entry_aria": "{{version}} を編集",
+  "delete_entry_aria": "{{version}} を削除",
+  "added": "追加",
+  "fixed": "修正",
+  "improved": "改善"
+}
