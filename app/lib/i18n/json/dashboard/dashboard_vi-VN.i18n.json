@@ -55,6 +55,7 @@
   "dashboard_git_dirty_plural(plural)": {
     "other": "${count} repository có thay đổi chưa commit"
   },
+  "dashboard_git_dirty_one": "1 repository có thay đổi chưa commit",
   "dashboard_git_branch": "Đang ở branch {{branch}}",
   "dashboard_storage": "Dung lượng lưu trữ",
   "dashboard_storage_empty": "Không có project nào để đo.",

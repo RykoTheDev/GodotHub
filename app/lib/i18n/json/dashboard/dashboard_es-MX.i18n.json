@@ -57,6 +57,7 @@
     "many": "${count} with uncommitted changes",
     "other": "${count} with uncommitted changes"
   },
+  "dashboard_git_dirty_one": "1 with uncommitted changes",
   "dashboard_git_branch": "On {{branch}}",
   "dashboard_storage": "Storage Usage",
   "dashboard_storage_empty": "No projects to measure.",

@@ -4,9 +4,13 @@
   "pending_count(plural)": {
     "other": "${count} 个待处理"
   },
+  "pending_count_one": "{{count}} 个待处理",
+  "pending_count_other": "{{count}} 个待处理",
   "completed_count(plural)": {
     "other": "${count} 个已完成"
   },
+  "completed_count_one": "{{count}} 个已完成",
+  "completed_count_other": "{{count}} 个已完成",
   "new_task": "新建事项",
   "hide_next_steps": "隐藏事项",
   "save_changes_failed": "无法保存更改。",
@@ -59,10 +63,14 @@
   "due_in_days(plural)": {
     "other": "${count} 天后到期"
   },
+  "due_in_days_one": "{{count}} 天后到期",
+  "due_in_days_other": "{{count}} 天后到期",
   "overdue_yesterday": "昨天已到期",
   "overdue_days(plural)": {
     "other": "已逾期 ${count} 天"
   },
+  "overdue_days_one": "已逾期 {{count}} 天",
+  "overdue_days_other": "已逾期 {{count}} 天",
   "scan_code": "扫描代码",
   "scan_code_hint": "从脚本和着色器中导入 TODO 和 FIXME 注释，并完成注释已被移除的待办事项",
   "comment_scan_summary": "代码扫描：新增 {{imported}} 个，完成 {{closed}} 个，重新打开 {{reopened}} 个",
@@ -70,6 +78,8 @@
   "commit_closed(plural)": {
     "other": "根据提交消息完成了 ${count} 个待办事项"
   },
+  "commit_closed_one": "根据提交消息完成了 {{count}} 个待办事项",
+  "commit_closed_other": "根据提交消息完成了 {{count}} 个待办事项",
   "linked_file": "关联文件",
   "linked_file_placeholder": "res://scenes/player.tscn",
   "linked_file_hint": "关联此项目中的场景、脚本或资源。",
@@ -104,13 +114,19 @@
   "open_count(plural)": {
     "other": "${count} 个待办事项"
   },
+  "open_count_one": "{{count}} 个待办事项",
+  "open_count_other": "{{count}} 个待办事项",
   "overdue_count(plural)": {
     "other": "${count} 个已逾期"
   },
+  "overdue_count_one": "{{count}} 个已逾期",
+  "overdue_count_other": "{{count}} 个已逾期",
   "tile_summary": "{{overdue}} 个已逾期 · {{soon}} 个本周到期",
   "tile_empty": "没有已逾期或本周到期的事项。",
   "due_notification_title(plural)": {
     "other": "${count} 个待办事项已到期"
   },
+  "due_notification_title_one": "待办事项到期：{{title}}",
+  "due_notification_title_other": "{{count}} 个待办事项已到期",
   "due_notification_more": "还有 {{count}} 个"
 }

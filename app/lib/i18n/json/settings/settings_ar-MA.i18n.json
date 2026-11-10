@@ -130,6 +130,8 @@
     "many": "${count} folders deep",
     "other": "${count} مجلدات عميقة"
   },
+  "folders_deep_one": "{{count}} مجلد عميق",
+  "folders_deep_other": "{{count}} مجلدات عميقة",
   "at_once": "{{count}} في المرة",
   "animation_speed_label": "Animation speed",
   "scroll_reveal_label": "Scroll reveal",
@@ -192,6 +194,8 @@
     "many": "workspaces",
     "other": "بيئات العمل"
   },
+  "restore_modal_workspaces_one": "بيئة عمل",
+  "restore_modal_workspaces_other": "بيئات العمل",
   "restore_modal_projects(plural)": {
     "zero": "projects",
     "one": "المشروع",
@@ -200,6 +204,8 @@
     "many": "projects",
     "other": "المشاريع"
   },
+  "restore_modal_projects_one": "المشروع",
+  "restore_modal_projects_other": "المشاريع",
   "restore_modal_categories(plural)": {
     "zero": "categories",
     "one": "التصنيف",
@@ -208,6 +214,8 @@
     "many": "categories",
     "other": "التصنيفات"
   },
+  "restore_modal_categories_one": "التصنيف",
+  "restore_modal_categories_other": "التصنيفات",
   "restore_modal_templates(plural)": {
     "zero": "templates",
     "one": "القالب",
@@ -216,6 +224,8 @@
     "many": "templates",
     "other": "القوالب"
   },
+  "restore_modal_templates_one": "القالب",
+  "restore_modal_templates_other": "القوالب",
   "restore_modal_time_stats": "Includes time tracking data",
   "restore_modal_todos(plural)": {
     "zero": "Includes ${count} to-dos",
@@ -225,6 +235,8 @@
     "many": "Includes ${count} to-dos",
     "other": "Includes ${count} to-dos"
   },
+  "restore_modal_todos_one": "Includes {{count}} to-do",
+  "restore_modal_todos_other": "Includes {{count}} to-dos",
   "restore_modal_project_scan_dirs": "{{count}} project scan folder(s) will be restored",
   "restore_modal_version_scan_dirs": "{{count}} Godot version folder(s) will be restored",
   "restore_modal_workspace_list": "بيئات العمل",
@@ -242,6 +254,8 @@
     "many": "Imported stats for ${count} projects.",
     "other": "تم إستوراد إحصائيات ${count} مشروعا."
   },
+  "stats_imported_one": "تم إستوراد إحصائيات {{count}} مشروعا.",
+  "stats_imported_other": "تم إستوراد إحصائيات {{count}} مشروعا.",
   "raised_contrast_label": "Raised surface contrast",
   "raised_contrast_value": "{{value}}%",
   "token_help_desc": "أنشئ رمزًا مميزًا على github.com/settings/tokens. ما عليك سوى تحديد نطاق repo إذا كنت ترغب في الوصول إلى المستودع الخاص، وإلا فاترك جميع النطاقات غير محددة. لا توجد أذونات حساسة مطلوبة.",
@@ -309,6 +323,8 @@
     "many": "${count} features on",
     "other": "${count} features on"
   },
+  "features_enabled_count_one": "{{count}} feature on",
+  "features_enabled_count_other": "{{count}} features on",
   "setup_profile_minimal": "Minimal",
   "setup_profile_minimal_desc": "Just projects and Godot versions. The lightest, fastest setup.",
   "setup_profile_essentials": "Essentials",

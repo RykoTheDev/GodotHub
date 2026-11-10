@@ -85,6 +85,10 @@ Map<String, dynamic> convertLevel({
       if (emitted.add(base)) {
         out['${pluralKeyName(base, en)}(plural)'] = pluralForms(base: base, language: language, en: en, local: local);
       }
+      final literal = _string(local, key);
+      if (literal != null) {
+        out[key] = _normalize(literal);
+      }
       continue;
     }
     final value = entry.value;

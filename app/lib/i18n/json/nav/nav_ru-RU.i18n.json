@@ -7,6 +7,8 @@
     "many": "Проекты",
     "other": "Projects"
   },
+  "projects_count_one": "Project",
+  "projects_count_other": "Projects",
   "versions": "Версии",
   "templates": "Шаблоны",
   "vault": "Vault",

@@ -30,6 +30,8 @@
   "running_projects_desc(plural)": {
     "other": "${count} đự án đang chạy"
   },
+  "running_projects_desc_one": "{{count}} đự án đang chạy",
+  "running_projects_desc_other": "{{count}} đự án đang chạy",
   "active": "Hoạt Động",
   "done": "Xong",
   "paused": "Tạm dừng",
@@ -125,9 +127,13 @@
   "file_count(plural)": {
     "other": "${count} files"
   },
+  "file_count_one": "{{count}} file",
+  "file_count_other": "{{count}} files",
   "folder_count(plural)": {
     "other": "${count} folders"
   },
+  "folder_count_one": "{{count}} folder",
+  "folder_count_other": "{{count}} folders",
   "template_empty": "Mẫu này trống.",
   "categories": "Danh mục",
   "category_folders_hint": "Các dự án được tìm thấy trong thư mục của danh mục sẽ tự động được gán vào danh mục đó.",
@@ -233,6 +239,8 @@
     "zero": "No assets",
     "other": "Assets"
   },
+  "asset_store_count_one": "Asset",
+  "asset_store_count_other": "Assets",
   "asset_store_count": "Asset",
   "settings_title": "CÀI ĐẶT",
   "no_templates_match": "Không có mẫu nào khớp",
@@ -314,6 +322,8 @@
   "template_your_templates(plural)": {
     "other": "Templates"
   },
+  "template_your_templates_one": "Template",
+  "template_your_templates_other": "Templates",
   "template_imported_count": "Đã nhập {{count}}",
   "template_updated_count": "Đã cập nhật {{count}}",
   "template_removed_count": "Đã xóa {{count}}",
@@ -429,6 +439,8 @@
   "tag_count(plural)": {
     "other": "${count} tags"
   },
+  "tag_count_one": "{{count}} tag",
+  "tag_count_other": "{{count}} tags",
   "no_tags": "Chưa có thẻ",
   "bug_report_describe_label": "Chuyện gì đã xảy ra?",
   "bug_report_describe_placeholder": "Bạn đang làm gì khi lỗi xuất hiện? Thêm các bước tái hiện và điều bạn mong đợi so với thực tế.",
@@ -485,6 +497,8 @@
   "task_tray_only_recent(plural)": {
     "other": "${count} recent tasks"
   },
+  "task_tray_only_recent_one": "{{count}} recent task",
+  "task_tray_only_recent_other": "{{count}} recent tasks",
   "task_tray_aria": "Khay tác vụ",
   "task_tray_auto_dismiss": "Tự ẩn khi hoàn thành",
   "task_tray_dismiss": "Ẩn {{count}}",
@@ -551,9 +565,13 @@
   "found_dismissed_title(plural)": {
     "other": "Tìm thấy ${count} dự án đã xóa trước đây"
   },
+  "found_dismissed_title_one": "Tìm thấy dự án đã xóa trước đây",
+  "found_dismissed_title_other": "Tìm thấy {{count}} dự án đã xóa trước đây",
   "found_dismissed_desc(plural)": {
     "other": "Bộ quét tìm thấy ${count} dự án bạn đã xóa khỏi thư viện trước đây. Bạn có muốn thêm lại không?"
   },
+  "found_dismissed_desc_one": "Bộ quét tìm thấy 1 dự án bạn đã xóa khỏi thư viện trước đây. Bạn có muốn thêm lại không?",
+  "found_dismissed_desc_other": "Bộ quét tìm thấy {{count}} dự án bạn đã xóa khỏi thư viện trước đây. Bạn có muốn thêm lại không?",
   "readd_all": "Thêm lại tất cả",
   "skip_all": "Bỏ qua tất cả",
   "project_already_open_title": "Dự án đã mở",
@@ -595,6 +613,8 @@
   "contributor_pr_count(plural)": {
     "other": "${count} pull requests"
   },
+  "contributor_pr_count_one": "{{count}} pull request",
+  "contributor_pr_count_other": "{{count}} pull requests",
   "contributor_pr_load_failed": "Failed to load pull requests.",
   "contributor_pr_network_hint": "Check your internet connection.",
   "contributor_pr_empty": "No pull requests found.",
@@ -655,14 +675,20 @@
     "summary_errors(plural)": {
       "other": "${count} issues need attention"
     },
+    "summary_errors_one": "{{count}} issue needs attention",
+    "summary_errors_other": "{{count}} issues need attention",
     "summary_warnings(plural)": {
       "other": "${count} warnings to review"
     },
+    "summary_warnings_one": "{{count}} warning to review",
+    "summary_warnings_other": "{{count}} warnings to review",
     "summary_ready": "No blocking issues found",
     "summary_counts": "{{passed}} checks passed · {{findings}} findings",
     "passed_checks(plural)": {
       "other": "${count} passed checks"
     },
+    "passed_checks_one": "{{count}} passed check",
+    "passed_checks_other": "{{count}} passed checks",
     "local_checks": "Checks run locally. Fixes to settings save a backup first.",
     "fix_complete": "Fix applied. Project checks updated.",
     "templates_downloading": "Downloading selected templates. Progress and cancellation are also available in Tasks.",
@@ -899,6 +925,8 @@
   "cleanup_confirm_btn(plural)": {
     "other": "Remove ${count} items"
   },
+  "cleanup_confirm_btn_one": "Remove {{count}} item",
+  "cleanup_confirm_btn_other": "Remove {{count}} items",
   "cleanup_done": "Freed {{size}}",
   "cleanup_failed": "Couldn't remove {{label}}: {{error}}",
   "cleanup_versions_desc": "Full size on disk of every installed Godot version.",
@@ -907,6 +935,8 @@
   "cleanup_used_by_templates(plural)": {
     "other": "${count} templates"
   },
+  "cleanup_used_by_templates_one": "{{count}} template",
+  "cleanup_used_by_templates_other": "{{count}} templates",
   "cleanup_current_badge": "Current",
   "cleanup_alias_badge": "Alias",
   "cleanup_unused_badge": "Unused",
@@ -924,9 +954,13 @@
   "n_projects(plural)": {
     "other": "${count} dự án"
   },
+  "n_projects_one": "{{count}} dự án",
+  "n_projects_other": "{{count}} dự án",
   "vault_item_count(plural)": {
     "other": "Items"
   },
+  "vault_item_count_one": "Item",
+  "vault_item_count_other": "Items",
   "vault_search_placeholder": "Search vault…",
   "vault_empty": "Your vault is empty. Click <1>Save to Vault</1> to pick files or folders from a project and reuse them anywhere.",
   "vault_no_match": "No items match your search.",
@@ -962,15 +996,23 @@
   "vault_conflict_desc(plural)": {
     "other": "${count} files already exist in the project. Overwrite them?"
   },
+  "vault_conflict_desc_one": "{{count}} file already exists in the project. Overwrite it?",
+  "vault_conflict_desc_other": "{{count}} files already exist in the project. Overwrite them?",
   "vault_conflict_summary_desc(plural)": {
     "other": "${count} files already exist across the selected projects. Overwrite them?"
   },
+  "vault_conflict_summary_desc_one": "{{count}} file already exists across the selected projects. Overwrite it?",
+  "vault_conflict_summary_desc_other": "{{count}} files already exist across the selected projects. Overwrite them?",
   "vault_added_toast(plural)": {
     "other": "Added ${count} files"
   },
+  "vault_added_toast_one": "Added {{count}} file",
+  "vault_added_toast_other": "Added {{count}} files",
   "vault_added_to_projects_toast(plural)": {
     "other": "Added to ${count} projects"
   },
+  "vault_added_to_projects_toast_one": "Added to {{count}} project",
+  "vault_added_to_projects_toast_other": "Added to {{count}} projects",
   "vault_item_empty": "This item has no files.",
   "new": "Mới",
   "announcement_support_title": "Support GodotHub",
@@ -988,12 +1030,16 @@
     "count(plural)": {
       "other": "${count} addons installed"
     },
+    "count_one": "{{count}} addon installed",
+    "count_other": "{{count}} addons installed",
     "empty": "This project has no addons folder. Install addons from the Asset Store or copy them into res://addons.",
     "check_updates": "Check for updates",
     "checking": "Checking…",
     "updates_available(plural)": {
       "other": "${count} updates available"
     },
+    "updates_available_one": "{{count}} update available",
+    "updates_available_other": "{{count}} updates available",
     "all_current": "No updates found in the Asset Library",
     "enabled": "Enabled",
     "disabled": "Disabled",

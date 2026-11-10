@@ -127,6 +127,8 @@
     "many": "${count} folders deep",
     "other": "${count} níveis"
   },
+  "folders_deep_one": "{{count}} nível",
+  "folders_deep_other": "{{count}} níveis",
   "at_once": "{{count}} ao mesmo tempo",
   "animation_speed_label": "Animation speed",
   "scroll_reveal_label": "Scroll reveal",
@@ -186,27 +188,37 @@
     "many": "workspaces",
     "other": "espaços de trabalho"
   },
+  "restore_modal_workspaces_one": "espaço de trabalho",
+  "restore_modal_workspaces_other": "espaços de trabalho",
   "restore_modal_projects(plural)": {
     "one": "projeto",
     "many": "projects",
     "other": "projetos"
   },
+  "restore_modal_projects_one": "projeto",
+  "restore_modal_projects_other": "projetos",
   "restore_modal_categories(plural)": {
     "one": "categoria",
     "many": "categories",
     "other": "categorias"
   },
+  "restore_modal_categories_one": "categoria",
+  "restore_modal_categories_other": "categorias",
   "restore_modal_templates(plural)": {
     "one": "template",
     "many": "templates",
     "other": "templates"
   },
+  "restore_modal_templates_one": "template",
+  "restore_modal_templates_other": "templates",
   "restore_modal_time_stats": "Inclui dados de acompanhamento de tempo",
   "restore_modal_todos(plural)": {
     "one": "Includes ${count} to-do",
     "many": "Includes ${count} to-dos",
     "other": "Includes ${count} to-dos"
   },
+  "restore_modal_todos_one": "Includes {{count}} to-do",
+  "restore_modal_todos_other": "Includes {{count}} to-dos",
   "restore_modal_project_scan_dirs": "Pastas configuradas para projetos: {{count}}",
   "restore_modal_version_scan_dirs": "Pastas configuradas para versões: {{count}}",
   "restore_modal_workspace_list": "Espaços de trabalho",
@@ -221,6 +233,8 @@
     "many": "Imported stats for ${count} projects.",
     "other": "Estatísticas importadas para ${count} projetos."
   },
+  "stats_imported_one": "Estatísticas importadas para {{count}} projeto.",
+  "stats_imported_other": "Estatísticas importadas para {{count}} projetos.",
   "raised_contrast_label": "Contraste dos componentes",
   "raised_contrast_value": "{{value}}%",
   "token_help_desc": "Crie um token em github.com/settings/tokens. Você só precisa marcar o escopo repo se quiser acesso a repositórios privados; caso contrário, deixe todos os escopos desmarcados. Nenhuma permissão sensível é necessária.",
@@ -285,6 +299,8 @@
     "many": "${count} features on",
     "other": "${count} features on"
   },
+  "features_enabled_count_one": "{{count}} feature on",
+  "features_enabled_count_other": "{{count}} features on",
   "setup_profile_minimal": "Minimal",
   "setup_profile_minimal_desc": "Just projects and Godot versions. The lightest, fastest setup.",
   "setup_profile_essentials": "Essentials",

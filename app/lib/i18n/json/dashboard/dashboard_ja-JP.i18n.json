@@ -55,6 +55,7 @@
   "dashboard_git_dirty_plural(plural)": {
     "other": "${count} 件に未コミットの変更があります"
   },
+  "dashboard_git_dirty_one": "1 件に未コミットの変更があります",
   "dashboard_git_branch": "ブランチ: {{branch}}",
   "dashboard_storage": "ストレージ使用量",
   "dashboard_storage_empty": "計測できるプロジェクトがありません。",

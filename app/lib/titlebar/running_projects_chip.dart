@@ -6,11 +6,12 @@ import 'package:flutter/material.dart';
 import '../design/design.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../api/api.dart';
 import '../api/events.dart';
 import '../api/projects.dart';
+import '../logic/running_projects.dart';
 import 'providers.dart';
 import '../ui/core/i18n.dart';
+import '../ui/feedback/toast.dart';
 import 'title_bar_theme.dart';
 
 const timerStartDelayMs = 3000;
@@ -30,7 +31,7 @@ class RunningProjectsSource {
   factory RunningProjectsSource.native() {
     return RunningProjectsSource(
       load: () async {
-        final projects = await Api.listRunningProjects();
+        final projects = await fetchRunningProjects();
         return [
           for (final project in projects)
             RunningProject(
@@ -148,8 +149,7 @@ class _RunningProjectsChipState extends ConsumerState<RunningProjectsChip> {
     try {
       await _source.stop(id);
     } on Object catch (error) {
-      if (!mounted) return;
-      ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(error.toString())));
+      pushToast(GhToastType.error, '$error');
     }
   }
 

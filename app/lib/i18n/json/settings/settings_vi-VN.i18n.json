@@ -125,6 +125,8 @@
   "folders_deep(plural)": {
     "other": "${count} tầng thư mục"
   },
+  "folders_deep_one": "{{count}} tầng thư mục",
+  "folders_deep_other": "{{count}} tầng thư mục",
   "at_once": "{{count}} cùng lúc",
   "animation_speed_label": "Animation speed",
   "scroll_reveal_label": "Scroll reveal",
@@ -182,19 +184,29 @@
   "restore_modal_workspaces(plural)": {
     "other": "workspace"
   },
+  "restore_modal_workspaces_one": "workspace",
+  "restore_modal_workspaces_other": "workspace",
   "restore_modal_projects(plural)": {
     "other": "dự án"
   },
+  "restore_modal_projects_one": "dự án",
+  "restore_modal_projects_other": "dự án",
   "restore_modal_categories(plural)": {
     "other": "danh mục"
   },
+  "restore_modal_categories_one": "danh mục",
+  "restore_modal_categories_other": "danh mục",
   "restore_modal_templates(plural)": {
     "other": "mẫu"
   },
+  "restore_modal_templates_one": "mẫu",
+  "restore_modal_templates_other": "mẫu",
   "restore_modal_time_stats": "Bao gồm dữ liệu theo dõi thời gian",
   "restore_modal_todos(plural)": {
     "other": "Includes ${count} to-dos"
   },
+  "restore_modal_todos_one": "Includes {{count}} to-do",
+  "restore_modal_todos_other": "Includes {{count}} to-dos",
   "restore_modal_project_scan_dirs": "{{count}} thư mục quét dự án sẽ được khôi phục",
   "restore_modal_version_scan_dirs": "{{count}} thư mục phiên bản Godot sẽ được khôi phục",
   "restore_modal_workspace_list": "Workspace",
@@ -207,6 +219,8 @@
   "stats_imported(plural)": {
     "other": "Đã nhập thống kê cho ${count} dự án."
   },
+  "stats_imported_one": "Đã nhập thống kê cho {{count}} dự án.",
+  "stats_imported_other": "Đã nhập thống kê cho {{count}} dự án.",
   "raised_contrast_label": "Độ tương phản bề mặt nổi",
   "raised_contrast_value": "{{value}}%",
   "token_help_desc": "Tạo token tại github.com/settings/tokens. Bạn chỉ cần đánh dấu scope repo nếu muốn truy cập repo riêng tư, nếu không hãy để trống mọi scope. Không cần quyền nhạy cảm.",
@@ -269,6 +283,8 @@
   "features_enabled_count(plural)": {
     "other": "${count} features on"
   },
+  "features_enabled_count_one": "{{count}} feature on",
+  "features_enabled_count_other": "{{count}} features on",
   "setup_profile_minimal": "Minimal",
   "setup_profile_minimal_desc": "Just projects and Godot versions. The lightest, fastest setup.",
   "setup_profile_essentials": "Essentials",

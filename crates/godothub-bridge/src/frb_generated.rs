@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 398416937;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1152701974;
 
 // Section: executor
 
@@ -246,6 +246,35 @@ fn wire__crate__api__events__app_events_impl(
                     std::result::Result::Ok(output_ok)
                 })())
             }
+        },
+    )
+}
+fn wire__crate__api__app__app_version_impl(
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "app_version",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            transform_result_sse::<_, ()>((move || {
+                let output_ok = Ok::<_, ()>(crate::api::app::app_version())?;
+                std::result::Result::Ok(output_ok)
+            })())
         },
     )
 }
@@ -13287,646 +13316,646 @@ fn pde_ffi_dispatcher_primary_impl(
             data_len,
         ),
         5 => wire__crate__api__events__app_events_impl(port, ptr, rust_vec_len, data_len),
-        6 => wire__crate__api__git__batch_git_status_impl(port, ptr, rust_vec_len, data_len),
-        7 => wire__crate__api__godot_versions__cancel_download_impl(
+        7 => wire__crate__api__git__batch_git_status_impl(port, ptr, rust_vec_len, data_len),
+        8 => wire__crate__api__godot_versions__cancel_download_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        8 => wire__crate__api__export_templates__cancel_export_templates_download_impl(
+        9 => wire__crate__api__export_templates__cancel_export_templates_download_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        9 => wire__crate__api__export_runner__cancel_project_export_impl(
+        10 => wire__crate__api__export_runner__cancel_project_export_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        10 => wire__crate__api__addons__check_addon_updates_impl(port, ptr, rust_vec_len, data_len),
-        11 => wire__crate__api__current_version__clear_current_version_impl(
+        11 => wire__crate__api__addons__check_addon_updates_impl(port, ptr, rust_vec_len, data_len),
+        12 => wire__crate__api__current_version__clear_current_version_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        12 => {
+        13 => {
             wire__crate__api__console__clear_project_console_impl(port, ptr, rust_vec_len, data_len)
         }
-        13 => {
+        14 => {
             wire__crate__api__time_stats__clear_time_stats_impl(port, ptr, rust_vec_len, data_len)
         }
-        14 => wire__crate__api__cli_shim__cli_tool_status_impl(port, ptr, rust_vec_len, data_len),
-        15 => wire__crate__api__git__clone_repo_impl(port, ptr, rust_vec_len, data_len),
-        16 => wire__crate__api__categories__create_category_impl(port, ptr, rust_vec_len, data_len),
-        17 => wire__crate__api__projects__create_project_impl(port, ptr, rust_vec_len, data_len),
-        18 => {
+        15 => wire__crate__api__cli_shim__cli_tool_status_impl(port, ptr, rust_vec_len, data_len),
+        16 => wire__crate__api__git__clone_repo_impl(port, ptr, rust_vec_len, data_len),
+        17 => wire__crate__api__categories__create_category_impl(port, ptr, rust_vec_len, data_len),
+        18 => wire__crate__api__projects__create_project_impl(port, ptr, rust_vec_len, data_len),
+        19 => {
             wire__crate__api__git_auth__create_remote_repo_impl(port, ptr, rust_vec_len, data_len)
         }
-        19 => wire__crate__api__current_version__create_version_aliases_impl(
+        20 => wire__crate__api__current_version__create_version_aliases_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        20 => wire__crate__api__workspace__create_workspace_impl(port, ptr, rust_vec_len, data_len),
-        21 => wire__crate__api__categories__delete_category_impl(port, ptr, rust_vec_len, data_len),
-        22 => wire__crate__api__changelog__delete_changelog_entry_impl(
+        21 => wire__crate__api__workspace__create_workspace_impl(port, ptr, rust_vec_len, data_len),
+        22 => wire__crate__api__categories__delete_category_impl(port, ptr, rust_vec_len, data_len),
+        23 => wire__crate__api__changelog__delete_changelog_entry_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        23 => wire__crate__api__export_templates__delete_export_templates_impl(
+        24 => wire__crate__api__export_templates__delete_export_templates_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        24 => wire__crate__api__godot_versions__delete_godot_version_impl(
+        25 => wire__crate__api__godot_versions__delete_godot_version_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        25 => wire__crate__api__templates__delete_template_impl(port, ptr, rust_vec_len, data_len),
-        26 => wire__crate__api__vault__delete_vault_item_impl(port, ptr, rust_vec_len, data_len),
-        27 => wire__crate__api__current_version__delete_version_alias_impl(
+        26 => wire__crate__api__templates__delete_template_impl(port, ptr, rust_vec_len, data_len),
+        27 => wire__crate__api__vault__delete_vault_item_impl(port, ptr, rust_vec_len, data_len),
+        28 => wire__crate__api__current_version__delete_version_alias_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        28 => wire__crate__api__workspace__delete_workspace_impl(port, ptr, rust_vec_len, data_len),
-        29 => wire__crate__api__discovery__detect_godot_installs_impl(
+        29 => wire__crate__api__workspace__delete_workspace_impl(port, ptr, rust_vec_len, data_len),
+        30 => wire__crate__api__discovery__detect_godot_installs_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        30 => wire__crate__api__dto__diagnose_project_impl(port, ptr, rust_vec_len, data_len),
-        31 => {
+        31 => wire__crate__api__dto__diagnose_project_impl(port, ptr, rust_vec_len, data_len),
+        32 => {
             wire__crate__api__git_auth__disconnect_git_auth_impl(port, ptr, rust_vec_len, data_len)
         }
-        32 => {
+        33 => {
             wire__crate__api__asset_library__download_asset_impl(port, ptr, rust_vec_len, data_len)
         }
-        33 => wire__crate__api__godot_versions__download_godot_version_impl(
+        34 => wire__crate__api__godot_versions__download_godot_version_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        34 => wire__crate__api__asset_library__download_store_asset_impl(
+        35 => wire__crate__api__asset_library__download_store_asset_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        35 => wire__crate__api__godot_versions__download_version_for_tag_impl(
+        36 => wire__crate__api__godot_versions__download_version_for_tag_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        36 => wire__crate__api__projects__duplicate_project_impl(port, ptr, rust_vec_len, data_len),
-        37 => wire__crate__api__app__emit_event_for_test_impl(port, ptr, rust_vec_len, data_len),
-        38 => wire__crate__api__backup__export_app_backup_impl(port, ptr, rust_vec_len, data_len),
-        39 => {
+        37 => wire__crate__api__projects__duplicate_project_impl(port, ptr, rust_vec_len, data_len),
+        38 => wire__crate__api__app__emit_event_for_test_impl(port, ptr, rust_vec_len, data_len),
+        39 => wire__crate__api__backup__export_app_backup_impl(port, ptr, rust_vec_len, data_len),
+        40 => {
             wire__crate__api__projects__export_project_stats_impl(port, ptr, rust_vec_len, data_len)
         }
-        40 => wire__crate__api__settings__export_settings_impl(port, ptr, rust_vec_len, data_len),
-        41 => wire__crate__api__backup__export_workspace_backup_impl(
+        41 => wire__crate__api__settings__export_settings_impl(port, ptr, rust_vec_len, data_len),
+        42 => wire__crate__api__backup__export_workspace_backup_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        42 => wire__crate__api__godot_versions__fetch_available_godot_versions_impl(
+        43 => wire__crate__api__godot_versions__fetch_available_godot_versions_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        43 => wire__crate__api__news__fetch_godot_news_impl(port, ptr, rust_vec_len, data_len),
-        44 => wire__crate__api__project_health__fix_project_health_impl(
+        44 => wire__crate__api__news__fetch_godot_news_impl(port, ptr, rust_vec_len, data_len),
+        45 => wire__crate__api__project_health__fix_project_health_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        45 => wire__crate__api__changelog__generate_changelog_draft_impl(
+        46 => wire__crate__api__changelog__generate_changelog_draft_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        46 => wire__crate__api__time_stats__get_activity_impl(port, ptr, rust_vec_len, data_len),
-        47 => wire__crate__api__asset_library__get_asset_library_categories_impl(
+        47 => wire__crate__api__time_stats__get_activity_impl(port, ptr, rust_vec_len, data_len),
+        48 => wire__crate__api__asset_library__get_asset_library_categories_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        48 => wire__crate__api__current_version__get_current_version_impl(
+        49 => wire__crate__api__current_version__get_current_version_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        49 => wire__crate__api__export_templates__get_export_template_options_impl(
+        50 => wire__crate__api__export_templates__get_export_template_options_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        50 => wire__crate__api__export_templates__get_export_templates_state_impl(
+        51 => wire__crate__api__export_templates__get_export_templates_state_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        51 => {
+        52 => {
             wire__crate__api__git_auth__get_git_auth_state_impl(port, ptr, rust_vec_len, data_len)
         }
-        52 => wire__crate__api__git__get_git_status_impl(port, ptr, rust_vec_len, data_len),
-        53 => wire__crate__api__godot_versions__get_github_rate_limit_impl(
+        53 => wire__crate__api__git__get_git_status_impl(port, ptr, rust_vec_len, data_len),
+        54 => wire__crate__api__godot_versions__get_github_rate_limit_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        54 => wire__crate__api__app__get_os_username_impl(port, ptr, rust_vec_len, data_len),
-        55 => wire__crate__api__time_stats__get_project_activity_impl(
+        55 => wire__crate__api__app__get_os_username_impl(port, ptr, rust_vec_len, data_len),
+        56 => wire__crate__api__time_stats__get_project_activity_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        56 => {
+        57 => {
             wire__crate__api__console__get_project_console_impl(port, ptr, rust_vec_len, data_len)
         }
-        57 => wire__crate__api__export_runner__get_project_export_impl(
+        58 => wire__crate__api__export_runner__get_project_export_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        58 => wire__crate__api__dto__get_project_export_presets_impl(
+        59 => wire__crate__api__dto__get_project_export_presets_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        59 => wire__crate__api__export_runner__get_project_exports_impl(
+        60 => wire__crate__api__export_runner__get_project_exports_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        60 => wire__crate__api__projects__get_project_file_tree_impl(
+        61 => wire__crate__api__projects__get_project_file_tree_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        61 => wire__crate__api__projects__get_project_icon_impl(port, ptr, rust_vec_len, data_len),
-        62 => wire__crate__api__projects__get_project_name_impl(port, ptr, rust_vec_len, data_len),
-        63 => wire__crate__api__projects__get_project_size_impl(port, ptr, rust_vec_len, data_len),
-        64 => {
+        62 => wire__crate__api__projects__get_project_icon_impl(port, ptr, rust_vec_len, data_len),
+        63 => wire__crate__api__projects__get_project_name_impl(port, ptr, rust_vec_len, data_len),
+        64 => wire__crate__api__projects__get_project_size_impl(port, ptr, rust_vec_len, data_len),
+        65 => {
             wire__crate__api__projects__get_projects_health_impl(port, ptr, rust_vec_len, data_len)
         }
-        65 => wire__crate__api__settings__get_settings_impl(port, ptr, rust_vec_len, data_len),
-        66 => wire__crate__api__storage__get_storage_report_impl(port, ptr, rust_vec_len, data_len),
-        67 => wire__crate__api__templates__get_template_preview_impl(
+        66 => wire__crate__api__settings__get_settings_impl(port, ptr, rust_vec_len, data_len),
+        67 => wire__crate__api__storage__get_storage_report_impl(port, ptr, rust_vec_len, data_len),
+        68 => wire__crate__api__templates__get_template_preview_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        68 => {
+        69 => {
             wire__crate__api__time_stats__get_time_insights_impl(port, ptr, rust_vec_len, data_len)
         }
-        69 => wire__crate__api__dto__get_ui_pref_impl(port, ptr, rust_vec_len, data_len),
-        70 => wire__crate__api__dto__get_ui_prefs_impl(port, ptr, rust_vec_len, data_len),
-        71 => {
+        70 => wire__crate__api__dto__get_ui_pref_impl(port, ptr, rust_vec_len, data_len),
+        71 => wire__crate__api__dto__get_ui_prefs_impl(port, ptr, rust_vec_len, data_len),
+        72 => {
             wire__crate__api__sync__gist_sync_fetch_backup_impl(port, ptr, rust_vec_len, data_len)
         }
-        72 => wire__crate__api__sync__gist_sync_get_info_impl(port, ptr, rust_vec_len, data_len),
-        73 => wire__crate__api__sync__gist_sync_pull_impl(port, ptr, rust_vec_len, data_len),
-        74 => wire__crate__api__sync__gist_sync_pull_by_url_impl(port, ptr, rust_vec_len, data_len),
-        75 => wire__crate__api__sync__gist_sync_push_impl(port, ptr, rust_vec_len, data_len),
-        76 => {
+        73 => wire__crate__api__sync__gist_sync_get_info_impl(port, ptr, rust_vec_len, data_len),
+        74 => wire__crate__api__sync__gist_sync_pull_impl(port, ptr, rust_vec_len, data_len),
+        75 => wire__crate__api__sync__gist_sync_pull_by_url_impl(port, ptr, rust_vec_len, data_len),
+        76 => wire__crate__api__sync__gist_sync_push_impl(port, ptr, rust_vec_len, data_len),
+        77 => {
             wire__crate__api__sync__gist_sync_save_gist_url_impl(port, ptr, rust_vec_len, data_len)
         }
-        77 => wire__crate__api__git__git_abort_merge_impl(port, ptr, rust_vec_len, data_len),
-        78 => wire__crate__api__git__git_ahead_behind_impl(port, ptr, rust_vec_len, data_len),
-        79 => wire__crate__api__git_auth__git_branch_protection_impl(
+        78 => wire__crate__api__git__git_abort_merge_impl(port, ptr, rust_vec_len, data_len),
+        79 => wire__crate__api__git__git_ahead_behind_impl(port, ptr, rust_vec_len, data_len),
+        80 => wire__crate__api__git_auth__git_branch_protection_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        80 => wire__crate__api__git__git_branch_publish_impl(port, ptr, rust_vec_len, data_len),
-        81 => wire__crate__api__git__git_changed_files_impl(port, ptr, rust_vec_len, data_len),
-        82 => wire__crate__api__git__git_commit_impl(port, ptr, rust_vec_len, data_len),
-        83 => wire__crate__api__git__git_create_branch_impl(port, ptr, rust_vec_len, data_len),
-        84 => wire__crate__api__git__git_delete_branch_impl(port, ptr, rust_vec_len, data_len),
-        85 => wire__crate__api__git__git_discard_changes_impl(port, ptr, rust_vec_len, data_len),
-        86 => wire__crate__api__git__git_discard_file_impl(port, ptr, rust_vec_len, data_len),
-        87 => wire__crate__api__git__git_fetch_impl(port, ptr, rust_vec_len, data_len),
-        88 => wire__crate__api__git__git_file_diff_impl(port, ptr, rust_vec_len, data_len),
-        89 => wire__crate__api__git__git_init_project_impl(port, ptr, rust_vec_len, data_len),
-        90 => wire__crate__api__git__git_is_available_impl(port, ptr, rust_vec_len, data_len),
-        91 => wire__crate__api__git__git_is_merging_impl(port, ptr, rust_vec_len, data_len),
-        92 => wire__crate__api__git__git_list_branches_impl(port, ptr, rust_vec_len, data_len),
-        93 => wire__crate__api__git__git_list_remotes_impl(port, ptr, rust_vec_len, data_len),
-        94 => wire__crate__api__git__git_log_entries_impl(port, ptr, rust_vec_len, data_len),
-        95 => {
+        81 => wire__crate__api__git__git_branch_publish_impl(port, ptr, rust_vec_len, data_len),
+        82 => wire__crate__api__git__git_changed_files_impl(port, ptr, rust_vec_len, data_len),
+        83 => wire__crate__api__git__git_commit_impl(port, ptr, rust_vec_len, data_len),
+        84 => wire__crate__api__git__git_create_branch_impl(port, ptr, rust_vec_len, data_len),
+        85 => wire__crate__api__git__git_delete_branch_impl(port, ptr, rust_vec_len, data_len),
+        86 => wire__crate__api__git__git_discard_changes_impl(port, ptr, rust_vec_len, data_len),
+        87 => wire__crate__api__git__git_discard_file_impl(port, ptr, rust_vec_len, data_len),
+        88 => wire__crate__api__git__git_fetch_impl(port, ptr, rust_vec_len, data_len),
+        89 => wire__crate__api__git__git_file_diff_impl(port, ptr, rust_vec_len, data_len),
+        90 => wire__crate__api__git__git_init_project_impl(port, ptr, rust_vec_len, data_len),
+        91 => wire__crate__api__git__git_is_available_impl(port, ptr, rust_vec_len, data_len),
+        92 => wire__crate__api__git__git_is_merging_impl(port, ptr, rust_vec_len, data_len),
+        93 => wire__crate__api__git__git_list_branches_impl(port, ptr, rust_vec_len, data_len),
+        94 => wire__crate__api__git__git_list_remotes_impl(port, ptr, rust_vec_len, data_len),
+        95 => wire__crate__api__git__git_log_entries_impl(port, ptr, rust_vec_len, data_len),
+        96 => {
             wire__crate__api__git__git_merge_conflict_files_impl(port, ptr, rust_vec_len, data_len)
         }
-        96 => wire__crate__api__git_auth__git_open_pull_request_impl(
+        97 => wire__crate__api__git_auth__git_open_pull_request_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        97 => wire__crate__api__git__git_pull_impl(port, ptr, rust_vec_len, data_len),
-        98 => wire__crate__api__git__git_push_impl(port, ptr, rust_vec_len, data_len),
-        99 => wire__crate__api__git__git_resolve_conflict_manual_impl(
+        98 => wire__crate__api__git__git_pull_impl(port, ptr, rust_vec_len, data_len),
+        99 => wire__crate__api__git__git_push_impl(port, ptr, rust_vec_len, data_len),
+        100 => wire__crate__api__git__git_resolve_conflict_manual_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        100 => {
+        101 => {
             wire__crate__api__git__git_resolve_conflict_ours_impl(port, ptr, rust_vec_len, data_len)
         }
-        101 => wire__crate__api__git__git_resolve_conflict_theirs_impl(
+        102 => wire__crate__api__git__git_resolve_conflict_theirs_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        102 => wire__crate__api__git__git_show_commit_impl(port, ptr, rust_vec_len, data_len),
-        103 => wire__crate__api__git__git_stage_file_impl(port, ptr, rust_vec_len, data_len),
-        104 => wire__crate__api__git__git_stash_apply_impl(port, ptr, rust_vec_len, data_len),
-        105 => wire__crate__api__git__git_stash_drop_impl(port, ptr, rust_vec_len, data_len),
-        106 => wire__crate__api__git__git_stash_list_impl(port, ptr, rust_vec_len, data_len),
-        107 => wire__crate__api__git__git_stash_pop_impl(port, ptr, rust_vec_len, data_len),
-        108 => wire__crate__api__git__git_stash_push_impl(port, ptr, rust_vec_len, data_len),
-        109 => wire__crate__api__git__git_stash_show_impl(port, ptr, rust_vec_len, data_len),
-        110 => wire__crate__api__git__git_switch_branch_impl(port, ptr, rust_vec_len, data_len),
-        111 => wire__crate__api__git__git_undo_commit_impl(port, ptr, rust_vec_len, data_len),
-        112 => wire__crate__api__git__git_undo_pull_impl(port, ptr, rust_vec_len, data_len),
-        113 => wire__crate__api__git__git_unstage_file_impl(port, ptr, rust_vec_len, data_len),
-        114 => wire__crate__api__git__git_worktree_add_impl(port, ptr, rust_vec_len, data_len),
-        115 => wire__crate__api__git__git_worktree_list_impl(port, ptr, rust_vec_len, data_len),
-        116 => wire__crate__api__git__git_worktree_remove_impl(port, ptr, rust_vec_len, data_len),
-        117 => wire__crate__api__git__git_worktree_switch_impl(port, ptr, rust_vec_len, data_len),
-        118 => wire__crate__api__backup__import_app_backup_impl(port, ptr, rust_vec_len, data_len),
-        119 => wire__crate__api__discovery__import_detected_install_impl(
+        103 => wire__crate__api__git__git_show_commit_impl(port, ptr, rust_vec_len, data_len),
+        104 => wire__crate__api__git__git_stage_file_impl(port, ptr, rust_vec_len, data_len),
+        105 => wire__crate__api__git__git_stash_apply_impl(port, ptr, rust_vec_len, data_len),
+        106 => wire__crate__api__git__git_stash_drop_impl(port, ptr, rust_vec_len, data_len),
+        107 => wire__crate__api__git__git_stash_list_impl(port, ptr, rust_vec_len, data_len),
+        108 => wire__crate__api__git__git_stash_pop_impl(port, ptr, rust_vec_len, data_len),
+        109 => wire__crate__api__git__git_stash_push_impl(port, ptr, rust_vec_len, data_len),
+        110 => wire__crate__api__git__git_stash_show_impl(port, ptr, rust_vec_len, data_len),
+        111 => wire__crate__api__git__git_switch_branch_impl(port, ptr, rust_vec_len, data_len),
+        112 => wire__crate__api__git__git_undo_commit_impl(port, ptr, rust_vec_len, data_len),
+        113 => wire__crate__api__git__git_undo_pull_impl(port, ptr, rust_vec_len, data_len),
+        114 => wire__crate__api__git__git_unstage_file_impl(port, ptr, rust_vec_len, data_len),
+        115 => wire__crate__api__git__git_worktree_add_impl(port, ptr, rust_vec_len, data_len),
+        116 => wire__crate__api__git__git_worktree_list_impl(port, ptr, rust_vec_len, data_len),
+        117 => wire__crate__api__git__git_worktree_remove_impl(port, ptr, rust_vec_len, data_len),
+        118 => wire__crate__api__git__git_worktree_switch_impl(port, ptr, rust_vec_len, data_len),
+        119 => wire__crate__api__backup__import_app_backup_impl(port, ptr, rust_vec_len, data_len),
+        120 => wire__crate__api__discovery__import_detected_install_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        120 => wire__crate__api__projects__import_project_impl(port, ptr, rust_vec_len, data_len),
-        121 => {
+        121 => wire__crate__api__projects__import_project_impl(port, ptr, rust_vec_len, data_len),
+        122 => {
             wire__crate__api__projects__import_project_stats_impl(port, ptr, rust_vec_len, data_len)
         }
-        122 => wire__crate__api__settings__import_settings_impl(port, ptr, rust_vec_len, data_len),
-        123 => wire__crate__api__dto__import_ui_prefs_impl(port, ptr, rust_vec_len, data_len),
-        124 => wire__crate__api__scan__import_version_impl(port, ptr, rust_vec_len, data_len),
-        125 => wire__crate__api__backup__import_workspace_backup_impl(
+        123 => wire__crate__api__settings__import_settings_impl(port, ptr, rust_vec_len, data_len),
+        124 => wire__crate__api__dto__import_ui_prefs_impl(port, ptr, rust_vec_len, data_len),
+        125 => wire__crate__api__scan__import_version_impl(port, ptr, rust_vec_len, data_len),
+        126 => wire__crate__api__backup__import_workspace_backup_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        126 => wire__crate__api__app__init_app_impl(port, ptr, rust_vec_len, data_len),
-        127 => {
+        127 => wire__crate__api__app__init_app_impl(port, ptr, rust_vec_len, data_len),
+        128 => {
             wire__crate__api__asset_library__install_asset_impl(port, ptr, rust_vec_len, data_len)
         }
-        128 => wire__crate__api__asset_library__install_asset_as_template_impl(
+        129 => wire__crate__api__asset_library__install_asset_as_template_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        129 => wire__crate__api__cli_shim__install_cli_tool_impl(port, ptr, rust_vec_len, data_len),
-        130 => wire__crate__api__export_templates__install_export_templates_impl(
+        130 => wire__crate__api__cli_shim__install_cli_tool_impl(port, ptr, rust_vec_len, data_len),
+        131 => wire__crate__api__export_templates__install_export_templates_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        131 => wire__crate__api__asset_library__install_store_asset_impl(
+        132 => wire__crate__api__asset_library__install_store_asset_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        132 => wire__crate__api__install_mode__is_portable_install_impl(
+        133 => wire__crate__api__install_mode__is_portable_install_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        133 => {
+        134 => {
             wire__crate__api__categories__list_categories_impl(port, ptr, rust_vec_len, data_len)
         }
-        134 => wire__crate__api__changelog__list_changelog_entries_impl(
+        135 => wire__crate__api__changelog__list_changelog_entries_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        135 => wire__crate__api__changelog__list_git_tags_impl(port, ptr, rust_vec_len, data_len),
-        136 => wire__crate__api__godot_versions__list_installed_godot_versions_impl(
+        136 => wire__crate__api__changelog__list_git_tags_impl(port, ptr, rust_vec_len, data_len),
+        137 => wire__crate__api__godot_versions__list_installed_godot_versions_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        137 => {
+        138 => {
             wire__crate__api__project_todos__list_open_todos_impl(port, ptr, rust_vec_len, data_len)
         }
-        138 => {
+        139 => {
             wire__crate__api__addons__list_project_addons_impl(port, ptr, rust_vec_len, data_len)
         }
-        139 => wire__crate__api__todo_sync__list_project_resources_impl(
+        140 => wire__crate__api__todo_sync__list_project_resources_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        140 => wire__crate__api__project_todos__list_project_todos_impl(
+        141 => wire__crate__api__project_todos__list_project_todos_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        141 => wire__crate__api__tool_runner__list_project_tools_impl(
+        142 => wire__crate__api__tool_runner__list_project_tools_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        142 => wire__crate__api__projects__list_projects_impl(port, ptr, rust_vec_len, data_len),
-        143 => wire__crate__api__projects__list_running_projects_impl(
+        143 => wire__crate__api__projects__list_projects_impl(port, ptr, rust_vec_len, data_len),
+        144 => wire__crate__api__projects__list_running_projects_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        144 => wire__crate__api__templates__list_templates_impl(port, ptr, rust_vec_len, data_len),
-        145 => wire__crate__api__git_auth__list_user_repos_impl(port, ptr, rust_vec_len, data_len),
-        146 => wire__crate__api__vault__list_vault_items_impl(port, ptr, rust_vec_len, data_len),
-        147 => wire__crate__api__current_version__list_version_aliases_impl(
+        145 => wire__crate__api__templates__list_templates_impl(port, ptr, rust_vec_len, data_len),
+        146 => wire__crate__api__git_auth__list_user_repos_impl(port, ptr, rust_vec_len, data_len),
+        147 => wire__crate__api__vault__list_vault_items_impl(port, ptr, rust_vec_len, data_len),
+        148 => wire__crate__api__current_version__list_version_aliases_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        148 => wire__crate__api__workspace__list_workspace_scan_dirs_impl(
+        149 => wire__crate__api__workspace__list_workspace_scan_dirs_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        149 => wire__crate__api__workspace__list_workspaces_impl(port, ptr, rust_vec_len, data_len),
-        150 => wire__crate__api__window__load_window_state_impl(port, ptr, rust_vec_len, data_len),
-        151 => wire__crate__api__mise__mise_install_godot_version_impl(
+        150 => wire__crate__api__workspace__list_workspaces_impl(port, ptr, rust_vec_len, data_len),
+        151 => wire__crate__api__window__load_window_state_impl(port, ptr, rust_vec_len, data_len),
+        152 => wire__crate__api__mise__mise_install_godot_version_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        152 => wire__crate__api__mise__mise_refresh_status_impl(port, ptr, rust_vec_len, data_len),
-        153 => wire__crate__api__mise__mise_status_impl(port, ptr, rust_vec_len, data_len),
-        154 => {
+        153 => wire__crate__api__mise__mise_refresh_status_impl(port, ptr, rust_vec_len, data_len),
+        154 => wire__crate__api__mise__mise_status_impl(port, ptr, rust_vec_len, data_len),
+        155 => {
             wire__crate__api__mise__mise_sync_godot_versions_impl(port, ptr, rust_vec_len, data_len)
         }
-        155 => wire__crate__api__mise__mise_uninstall_godot_version_impl(
+        156 => wire__crate__api__mise__mise_uninstall_godot_version_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        156 => wire__crate__api__export_runner__open_export_artifact_folder_impl(
+        157 => wire__crate__api__export_runner__open_export_artifact_folder_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        157 => wire__crate__api__export_templates__open_export_templates_folder_impl(
+        158 => wire__crate__api__export_templates__open_export_templates_folder_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        158 => wire__crate__api__window__open_from_args_impl(port, ptr, rust_vec_len, data_len),
-        159 => wire__crate__api__godot_versions__open_godot_version_impl(
+        159 => wire__crate__api__window__open_from_args_impl(port, ptr, rust_vec_len, data_len),
+        160 => wire__crate__api__godot_versions__open_godot_version_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        160 => wire__crate__api__projects__open_in_editor_impl(port, ptr, rust_vec_len, data_len),
-        161 => wire__crate__api__window__open_launch_args_impl(port, ptr, rust_vec_len, data_len),
-        162 => wire__crate__api__projects__open_project_impl(port, ptr, rust_vec_len, data_len),
-        163 => {
+        161 => wire__crate__api__projects__open_in_editor_impl(port, ptr, rust_vec_len, data_len),
+        162 => wire__crate__api__window__open_launch_args_impl(port, ptr, rust_vec_len, data_len),
+        163 => wire__crate__api__projects__open_project_impl(port, ptr, rust_vec_len, data_len),
+        164 => {
             wire__crate__api__projects__open_project_folder_impl(port, ptr, rust_vec_len, data_len)
         }
-        164 => wire__crate__api__git__open_terminal_impl(port, ptr, rust_vec_len, data_len),
-        165 => wire__crate__api__todo_sync__open_todo_link_impl(port, ptr, rust_vec_len, data_len),
-        166 => wire__crate__api__godot_versions__open_versions_folder_impl(
+        165 => wire__crate__api__git__open_terminal_impl(port, ptr, rust_vec_len, data_len),
+        166 => wire__crate__api__todo_sync__open_todo_link_impl(port, ptr, rust_vec_len, data_len),
+        167 => wire__crate__api__godot_versions__open_versions_folder_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        167 => {
+        168 => {
             wire__crate__api__godot_versions__pause_download_impl(port, ptr, rust_vec_len, data_len)
         }
-        168 => wire__crate__api__dto__poll_device_flow_impl(port, ptr, rust_vec_len, data_len),
-        169 => wire__crate__api__projects__read_image_file_impl(port, ptr, rust_vec_len, data_len),
-        170 => wire__crate__api__dto__reclaim_storage_impl(port, ptr, rust_vec_len, data_len),
-        171 => wire__crate__api__app__reimport_from_stable_impl(port, ptr, rust_vec_len, data_len),
-        172 => wire__crate__api__projects__reintroduce_dismissed_projects_impl(
+        169 => wire__crate__api__dto__poll_device_flow_impl(port, ptr, rust_vec_len, data_len),
+        170 => wire__crate__api__projects__read_image_file_impl(port, ptr, rust_vec_len, data_len),
+        171 => wire__crate__api__dto__reclaim_storage_impl(port, ptr, rust_vec_len, data_len),
+        172 => wire__crate__api__app__reimport_from_stable_impl(port, ptr, rust_vec_len, data_len),
+        173 => wire__crate__api__projects__reintroduce_dismissed_projects_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        173 => wire__crate__api__categories__remove_category_folder_impl(
+        174 => wire__crate__api__categories__remove_category_folder_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        174 => wire__crate__api__git_auth__remove_git_pat_impl(port, ptr, rust_vec_len, data_len),
-        175 => wire__crate__api__projects__remove_project_impl(port, ptr, rust_vec_len, data_len),
-        176 => wire__crate__api__ui_prefs__remove_ui_pref_impl(port, ptr, rust_vec_len, data_len),
-        177 => {
+        175 => wire__crate__api__git_auth__remove_git_pat_impl(port, ptr, rust_vec_len, data_len),
+        176 => wire__crate__api__projects__remove_project_impl(port, ptr, rust_vec_len, data_len),
+        177 => wire__crate__api__ui_prefs__remove_ui_pref_impl(port, ptr, rust_vec_len, data_len),
+        178 => {
             wire__crate__api__categories__rename_category_impl(port, ptr, rust_vec_len, data_len)
         }
-        178 => wire__crate__api__godot_versions__rename_godot_version_impl(
+        179 => wire__crate__api__godot_versions__rename_godot_version_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        179 => {
+        180 => {
             wire__crate__api__categories__reorder_categories_impl(port, ptr, rust_vec_len, data_len)
         }
-        180 => wire__crate__api__godot_versions__reorder_download_queue_impl(
+        181 => wire__crate__api__godot_versions__reorder_download_queue_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        181 => wire__crate__api__projects__reorder_projects_impl(port, ptr, rust_vec_len, data_len),
-        182 => wire__crate__api__settings__reset_app_data_impl(port, ptr, rust_vec_len, data_len),
-        183 => wire__crate__api__settings__reset_settings_impl(port, ptr, rust_vec_len, data_len),
-        184 => wire__crate__api__watcher__restart_watchers_impl(port, ptr, rust_vec_len, data_len),
-        185 => wire__crate__api__projects__restore_projects_from_backup_impl(
+        182 => wire__crate__api__projects__reorder_projects_impl(port, ptr, rust_vec_len, data_len),
+        183 => wire__crate__api__settings__reset_app_data_impl(port, ptr, rust_vec_len, data_len),
+        184 => wire__crate__api__settings__reset_settings_impl(port, ptr, rust_vec_len, data_len),
+        185 => wire__crate__api__watcher__restart_watchers_impl(port, ptr, rust_vec_len, data_len),
+        186 => wire__crate__api__projects__restore_projects_from_backup_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        186 => wire__crate__api__godot_versions__resume_download_impl(
+        187 => wire__crate__api__godot_versions__resume_download_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        187 => {
+        188 => {
             wire__crate__api__tool_runner__run_project_tool_impl(port, ptr, rust_vec_len, data_len)
         }
-        188 => wire__crate__api__git_auth__save_git_pat_impl(port, ptr, rust_vec_len, data_len),
-        189 => wire__crate__api__templates__save_project_as_template_impl(
+        189 => wire__crate__api__git_auth__save_git_pat_impl(port, ptr, rust_vec_len, data_len),
+        190 => wire__crate__api__templates__save_project_as_template_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        190 => wire__crate__api__project_todos__save_project_todos_impl(
+        191 => wire__crate__api__project_todos__save_project_todos_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        191 => wire__crate__api__vault__save_to_vault_impl(port, ptr, rust_vec_len, data_len),
-        192 => wire__crate__api__window__save_window_state_impl(port, ptr, rust_vec_len, data_len),
-        193 => wire__crate__api__scan__scan_for_projects_impl(port, ptr, rust_vec_len, data_len),
-        194 => wire__crate__api__scan__scan_for_projects_with_info_impl(
+        192 => wire__crate__api__vault__save_to_vault_impl(port, ptr, rust_vec_len, data_len),
+        193 => wire__crate__api__window__save_window_state_impl(port, ptr, rust_vec_len, data_len),
+        194 => wire__crate__api__scan__scan_for_projects_impl(port, ptr, rust_vec_len, data_len),
+        195 => wire__crate__api__scan__scan_for_projects_with_info_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        195 => wire__crate__api__scan__scan_for_versions_impl(port, ptr, rust_vec_len, data_len),
-        196 => wire__crate__api__discovery__scan_godot_recent_projects_impl(
+        196 => wire__crate__api__scan__scan_for_versions_impl(port, ptr, rust_vec_len, data_len),
+        197 => wire__crate__api__discovery__scan_godot_recent_projects_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        197 => wire__crate__api__asset_library__search_asset_library_impl(
+        198 => wire__crate__api__asset_library__search_asset_library_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        198 => wire__crate__api__asset_library__search_asset_store_impl(
+        199 => wire__crate__api__asset_library__search_asset_store_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        199 => wire__crate__api__current_version__set_current_version_impl(
+        200 => wire__crate__api__current_version__set_current_version_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        200 => wire__crate__api__dto__set_ui_pref_impl(port, ptr, rust_vec_len, data_len),
-        201 => wire__crate__api__app__start_core_impl(port, ptr, rust_vec_len, data_len),
-        202 => wire__crate__api__app__start_core_in_impl(port, ptr, rust_vec_len, data_len),
-        203 => {
+        201 => wire__crate__api__dto__set_ui_pref_impl(port, ptr, rust_vec_len, data_len),
+        202 => wire__crate__api__app__start_core_impl(port, ptr, rust_vec_len, data_len),
+        203 => wire__crate__api__app__start_core_in_impl(port, ptr, rust_vec_len, data_len),
+        204 => {
             wire__crate__api__git_auth__start_device_flow_impl(port, ptr, rust_vec_len, data_len)
         }
-        204 => {
+        205 => {
             wire__crate__api__watcher__start_git_fs_watcher_impl(port, ptr, rust_vec_len, data_len)
         }
-        205 => wire__crate__api__export_runner__start_project_export_impl(
+        206 => wire__crate__api__export_runner__start_project_export_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        206 => {
+        207 => {
             wire__crate__api__watcher__stop_git_fs_watcher_impl(port, ptr, rust_vec_len, data_len)
         }
-        207 => wire__crate__api__projects__stop_project_impl(port, ptr, rust_vec_len, data_len),
-        208 => {
+        208 => wire__crate__api__projects__stop_project_impl(port, ptr, rust_vec_len, data_len),
+        209 => {
             wire__crate__api__tool_runner__stop_project_tool_impl(port, ptr, rust_vec_len, data_len)
         }
-        209 => {
+        210 => {
             wire__crate__api__workspace__switch_workspace_impl(port, ptr, rust_vec_len, data_len)
         }
-        210 => {
+        211 => {
             wire__crate__api__todo_sync__sync_project_todos_impl(port, ptr, rust_vec_len, data_len)
         }
-        211 => wire__crate__api__templates__sync_templates_with_scan_dir_impl(
+        212 => wire__crate__api__templates__sync_templates_with_scan_dir_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        212 => wire__crate__api__godot_versions__test_github_token_impl(
+        213 => wire__crate__api__godot_versions__test_github_token_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        213 => {
+        214 => {
             wire__crate__api__todo_sync__todo_git_activity_impl(port, ptr, rust_vec_len, data_len)
         }
-        214 => {
+        215 => {
             wire__crate__api__cli_shim__uninstall_cli_tool_impl(port, ptr, rust_vec_len, data_len)
         }
-        215 => wire__crate__api__export_templates__uninstall_export_template_files_impl(
+        216 => wire__crate__api__export_templates__uninstall_export_template_files_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        216 => {
+        217 => {
             wire__crate__api__categories__update_category_impl(port, ptr, rust_vec_len, data_len)
         }
-        217 => wire__crate__api__changelog__update_changelog_entry_impl(
+        218 => wire__crate__api__changelog__update_changelog_entry_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        218 => wire__crate__api__projects__update_project_impl(port, ptr, rust_vec_len, data_len),
-        219 => {
+        219 => wire__crate__api__projects__update_project_impl(port, ptr, rust_vec_len, data_len),
+        220 => {
             wire__crate__api__addons__update_project_addon_impl(port, ptr, rust_vec_len, data_len)
         }
-        220 => wire__crate__api__settings__update_settings_impl(port, ptr, rust_vec_len, data_len),
-        221 => wire__crate__api__vault__update_vault_item_impl(port, ptr, rust_vec_len, data_len),
-        222 => {
+        221 => wire__crate__api__settings__update_settings_impl(port, ptr, rust_vec_len, data_len),
+        222 => wire__crate__api__vault__update_vault_item_impl(port, ptr, rust_vec_len, data_len),
+        223 => {
             wire__crate__api__workspace__update_workspace_impl(port, ptr, rust_vec_len, data_len)
         }
-        223 => {
+        224 => {
             wire__crate__api__projects__write_project_tags_impl(port, ptr, rust_vec_len, data_len)
         }
         _ => unreachable!(),
@@ -13941,6 +13970,7 @@ fn pde_ffi_dispatcher_sync_impl(
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
+        6 => wire__crate__api__app__app_version_impl(ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }

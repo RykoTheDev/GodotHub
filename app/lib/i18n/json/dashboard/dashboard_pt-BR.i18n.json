@@ -57,6 +57,7 @@
     "many": "${count} projetos com alterações ainda sem commit",
     "other": "${count} projetos com alterações ainda sem commit"
   },
+  "dashboard_git_dirty_one": "1 projeto com alterações ainda sem commit",
   "dashboard_git_branch": "Em {{branch}}",
   "dashboard_storage": "Uso do armazenamento",
   "dashboard_storage_empty": "Nenhum projeto para analisar.",

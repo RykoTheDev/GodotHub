@@ -4,6 +4,8 @@
   "projects_count(plural)": {
     "other": "项目"
   },
+  "projects_count_one": "项目",
+  "projects_count_other": "项目",
   "versions": "版本",
   "templates": "模板",
   "vault": "储藏库",

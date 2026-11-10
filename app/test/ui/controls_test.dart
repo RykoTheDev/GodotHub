@@ -5,7 +5,7 @@ import 'package:godothub/debug/gallery/sections/controls.dart';
 import 'package:godothub/design/design.dart';
 import 'package:godothub/ui/controls/checkbox.dart';
 import 'package:godothub/ui/controls/feature_setup_picker.dart';
-import 'package:godothub/ui/controls/features.dart';
+import 'package:godothub/logic/features.dart';
 import 'package:godothub/ui/controls/hsv_color_picker.dart';
 import 'package:godothub/ui/controls/key_recorder.dart';
 import 'package:godothub/ui/controls/search_bar.dart';

@@ -9,6 +9,8 @@
     "many": "مشروعا(مشاريع)",
     "other": "مشاريع"
   },
+  "projects_count_one": "مشروع",
+  "projects_count_other": "مشاريع",
   "versions": "الإصدارات",
   "templates": "القوالب",
   "vault": "Vault",

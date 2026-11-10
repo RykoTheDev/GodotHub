@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../design/design.dart';
 import '../core/i18n.dart';
 import '../core/interaction.dart';
-import 'features.dart';
+import '../../logic/features.dart';
 import 'keyframe.dart';
 import 'toggle.dart';
 

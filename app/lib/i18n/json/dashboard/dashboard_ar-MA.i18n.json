@@ -60,6 +60,7 @@
     "many": "${count} بدون تغيرات منفذة",
     "other": "${count} بدون تغيرات منفذة"
   },
+  "dashboard_git_dirty_one": "1 بدون تغيرات منفذة",
   "dashboard_git_branch": "على {{branch}}",
   "dashboard_storage": "المساحة المستخدمة",
   "dashboard_storage_empty": "لا يوجد مشروع حاليا للقياس.",

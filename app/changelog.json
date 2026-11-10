@@ -1,0 +1,11 @@
+[
+  {
+    "version": "flutter-v0.1.0",
+    "date": "",
+    "notes": [
+      { "category": "add", "text": "First test build of GodotHub Beta, the Flutter rewrite of GodotHub. It installs next to the stable app and starts from a copy of its data." },
+      { "category": "add", "text": "Window, title bar, theme, fonts, icons, animations and all 9 languages are in place. Most screens are not ported yet." }
+    ],
+    "known_issues": ["Most views from the stable app are still missing."]
+  }
+]

@@ -1,10 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'rust/api/cli_shim.dart' as cli;
-import 'rust/api/settings.dart' as settings;
 import 'rust/api/types.dart';
 
-final settingsProvider = FutureProvider<AppSettings>((ref) => settings.getSettings());
+export '../state/settings.dart' show SettingsNotifier, defaultSettings, settingsLoadedProvider, settingsProvider;
 
 final cliToolStatusProvider = FutureProvider<CliToolStatus>((ref) => cli.cliToolStatus());
 

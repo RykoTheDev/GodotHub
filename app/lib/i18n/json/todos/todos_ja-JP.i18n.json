@@ -4,9 +4,13 @@
   "pending_count(plural)": {
     "other": "未完了 ${count} 件"
   },
+  "pending_count_one": "未完了 {{count}} 件",
+  "pending_count_other": "未完了 {{count}} 件",
   "completed_count(plural)": {
     "other": "完了 ${count} 件"
   },
+  "completed_count_one": "完了 {{count}} 件",
+  "completed_count_other": "完了 {{count}} 件",
   "new_task": "新しいタスク",
   "hide_next_steps": "次のステップを非表示",
   "save_changes_failed": "変更を保存できませんでした。",
@@ -59,10 +63,14 @@
   "due_in_days(plural)": {
     "other": "期限まであと ${count} 日"
   },
+  "due_in_days_one": "期限まであと {{count}} 日",
+  "due_in_days_other": "期限まであと {{count}} 日",
   "overdue_yesterday": "期限は昨日でした",
   "overdue_days(plural)": {
     "other": "期限を ${count} 日超過"
   },
+  "overdue_days_one": "期限を {{count}} 日超過",
+  "overdue_days_other": "期限を {{count}} 日超過",
   "scan_code": "コードをスキャン",
   "scan_code_hint": "スクリプトとシェーダーから TODO コメントと FIXME コメントをインポートし、コメントが削除されたタスクを完了にします",
   "comment_scan_summary": "コードのスキャン: {{imported}} 件を追加、{{closed}} 件を完了、{{reopened}} 件を未完了に戻しました",
@@ -70,6 +78,8 @@
   "commit_closed(plural)": {
     "other": "コミットメッセージから ${count} 件のタスクを完了にしました"
   },
+  "commit_closed_one": "コミットメッセージから {{count}} 件のタスクを完了にしました",
+  "commit_closed_other": "コミットメッセージから {{count}} 件のタスクを完了にしました",
   "linked_file": "関連ファイル",
   "linked_file_placeholder": "res://scenes/player.tscn",
   "linked_file_hint": "このプロジェクトのシーン、スクリプト、リソースを関連付けます。",
@@ -104,13 +114,19 @@
   "open_count(plural)": {
     "other": "${count} 件のタスク"
   },
+  "open_count_one": "{{count}} 件のタスク",
+  "open_count_other": "{{count}} 件のタスク",
   "overdue_count(plural)": {
     "other": "${count} 件が期限切れ"
   },
+  "overdue_count_one": "{{count}} 件が期限切れ",
+  "overdue_count_other": "{{count}} 件が期限切れ",
   "tile_summary": "期限切れ {{overdue}} 件 · 今週が期限 {{soon}} 件",
   "tile_empty": "期限切れのタスクや今週が期限のタスクはありません。",
   "due_notification_title(plural)": {
     "other": "${count} 件のタスクが期限を迎えています"
   },
+  "due_notification_title_one": "タスクの期限: {{title}}",
+  "due_notification_title_other": "{{count}} 件のタスクが期限を迎えています",
   "due_notification_more": "ほか {{count}} 件"
 }

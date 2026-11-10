@@ -4,16 +4,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:godothub/design/design.dart';
 import 'package:godothub/i18n/i18n.dart';
 import 'package:godothub/i18n/i18n_controller.dart';
-import 'package:godothub/src/providers.dart';
 import 'package:godothub/src/rust/api/types.dart';
 import 'package:godothub/titlebar/language_menu.dart';
-import 'package:godothub/titlebar/providers.dart';
 import 'package:godothub/titlebar/running_projects_chip.dart';
 import 'package:godothub/ui/controls/feature_setup_picker.dart';
-import 'package:godothub/ui/controls/features.dart';
+import 'package:godothub/logic/features.dart';
 import 'package:godothub/ui/controls/search_bar.dart';
 import 'package:godothub/ui/overlays/date_picker.dart';
 
+import '../support/settings_fakes.dart';
 import '../titlebar_test.dart' show settingsWith;
 import '../ui/i18n_setup.dart';
 
@@ -86,12 +85,14 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            settingsProvider.overrideWith((ref) async => current),
-            titleBarSettingsWriterProvider.overrideWithValue((next) async {
-              saved.add(next);
-              current = next;
-              return next;
-            }),
+            fakeSettings(
+              () => current,
+              onSave: (next) {
+                saved.add(next);
+                current = next;
+                return next;
+              },
+            ),
           ],
           child: _app(const LanguageMenu()),
         ),

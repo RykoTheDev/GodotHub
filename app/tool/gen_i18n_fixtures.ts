@@ -64,6 +64,9 @@ for (const ns of namespaces) {
       seen.add(base)
       const texts = all.flatMap((flat) => Object.entries(flat).filter(([k]) => k === base || k.replace(SUFFIX, '') === base).map(([, v]) => v))
       cases.push({ ns, key: base, plural: true, vars: varsIn(...texts) })
+      for (const literal of Object.keys(en).filter((k) => k !== base && k.replace(SUFFIX, '') === base)) {
+        cases.push({ ns, key: literal, plural: false, vars: varsIn(...all.map((flat) => flat[literal])) })
+      }
       continue
     }
     cases.push({ ns, key, plural: false, vars: varsIn(...all.map((flat) => flat[key])) })

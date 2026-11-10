@@ -31,6 +31,8 @@
     "one": "${count} project running",
     "other": "${count} projects running"
   },
+  "running_projects_desc_one": "{{count}} project running",
+  "running_projects_desc_other": "{{count}} projects running",
   "active": "Active",
   "done": "Done",
   "paused": "Paused",
@@ -127,10 +129,14 @@
     "one": "${count} file",
     "other": "${count} files"
   },
+  "file_count_one": "{{count}} file",
+  "file_count_other": "{{count}} files",
   "folder_count(plural)": {
     "one": "${count} folder",
     "other": "${count} folders"
   },
+  "folder_count_one": "{{count}} folder",
+  "folder_count_other": "{{count}} folders",
   "template_empty": "This template is empty.",
   "categories": "Categories",
   "category_folders_hint": "Projects found in a category's folders are assigned to it automatically.",
@@ -236,6 +242,8 @@
     "one": "Asset",
     "other": "Assets"
   },
+  "asset_store_count_one": "Asset",
+  "asset_store_count_other": "Assets",
   "asset_store_count": "Assets",
   "settings_title": "SETTINGS",
   "no_templates_match": "No templates match",
@@ -318,6 +326,8 @@
     "one": "Template",
     "other": "Templates"
   },
+  "template_your_templates_one": "Template",
+  "template_your_templates_other": "Templates",
   "template_imported_count": "Imported {{count}}",
   "template_updated_count": "Updated {{count}}",
   "template_removed_count": "Removed {{count}}",
@@ -434,6 +444,8 @@
     "one": "${count} tag",
     "other": "${count} tags"
   },
+  "tag_count_one": "{{count}} tag",
+  "tag_count_other": "{{count}} tags",
   "no_tags": "No tags yet",
   "bug_report_describe_label": "What happened?",
   "bug_report_describe_placeholder": "What were you doing when the bug appeared? Add steps to reproduce and what you expected vs. what actually happened.",
@@ -491,6 +503,8 @@
     "one": "${count} recent task",
     "other": "${count} recent tasks"
   },
+  "task_tray_only_recent_one": "{{count}} recent task",
+  "task_tray_only_recent_other": "{{count}} recent tasks",
   "task_tray_aria": "Task Tray",
   "task_tray_auto_dismiss": "Completed auto-dismiss",
   "task_tray_dismiss": "Dismiss {{count}}",
@@ -558,10 +572,14 @@
     "one": "Previously removed project found",
     "other": "${count} previously removed projects found"
   },
+  "found_dismissed_title_one": "Previously removed project found",
+  "found_dismissed_title_other": "{{count}} previously removed projects found",
   "found_dismissed_desc(plural)": {
     "one": "Scanner found 1 project that you previously removed from the library. Would you like to re-add it?",
     "other": "Scanner found ${count} projects that you previously removed from the library. Would you like to re-add them?"
   },
+  "found_dismissed_desc_one": "Scanner found 1 project that you previously removed from the library. Would you like to re-add it?",
+  "found_dismissed_desc_other": "Scanner found {{count}} projects that you previously removed from the library. Would you like to re-add them?",
   "readd_all": "Re-add All",
   "skip_all": "Skip All",
   "project_already_open_title": "Project already open",
@@ -604,6 +622,8 @@
     "one": "${count} pull request",
     "other": "${count} pull requests"
   },
+  "contributor_pr_count_one": "{{count}} pull request",
+  "contributor_pr_count_other": "{{count}} pull requests",
   "contributor_pr_load_failed": "Failed to load pull requests.",
   "contributor_pr_network_hint": "Check your internet connection.",
   "contributor_pr_empty": "No pull requests found.",
@@ -665,16 +685,22 @@
       "one": "${count} issue needs attention",
       "other": "${count} issues need attention"
     },
+    "summary_errors_one": "{{count}} issue needs attention",
+    "summary_errors_other": "{{count}} issues need attention",
     "summary_warnings(plural)": {
       "one": "${count} warning to review",
       "other": "${count} warnings to review"
     },
+    "summary_warnings_one": "{{count}} warning to review",
+    "summary_warnings_other": "{{count}} warnings to review",
     "summary_ready": "No blocking issues found",
     "summary_counts": "{{passed}} checks passed · {{findings}} findings",
     "passed_checks(plural)": {
       "one": "${count} passed check",
       "other": "${count} passed checks"
     },
+    "passed_checks_one": "{{count}} passed check",
+    "passed_checks_other": "{{count}} passed checks",
     "local_checks": "Checks run locally. Fixes to settings save a backup first.",
     "fix_complete": "Fix applied. Project checks updated.",
     "templates_downloading": "Downloading selected templates. Progress and cancellation are also available in Tasks.",
@@ -912,6 +938,8 @@
     "one": "Remove ${count} item",
     "other": "Remove ${count} items"
   },
+  "cleanup_confirm_btn_one": "Remove {{count}} item",
+  "cleanup_confirm_btn_other": "Remove {{count}} items",
   "cleanup_done": "Freed {{size}}",
   "cleanup_failed": "Couldn't remove {{label}}: {{error}}",
   "cleanup_versions_desc": "Full size on disk of every installed Godot version.",
@@ -921,6 +949,8 @@
     "one": "${count} template",
     "other": "${count} templates"
   },
+  "cleanup_used_by_templates_one": "{{count}} template",
+  "cleanup_used_by_templates_other": "{{count}} templates",
   "cleanup_current_badge": "Current",
   "cleanup_alias_badge": "Alias",
   "cleanup_unused_badge": "Unused",
@@ -939,10 +969,14 @@
     "one": "${count} project",
     "other": "${count} projects"
   },
+  "n_projects_one": "{{count}} project",
+  "n_projects_other": "{{count}} projects",
   "vault_item_count(plural)": {
     "one": "Item",
     "other": "Items"
   },
+  "vault_item_count_one": "Item",
+  "vault_item_count_other": "Items",
   "vault_search_placeholder": "Search vault…",
   "vault_empty": "Your vault is empty. Click <1>Save to Vault</1> to pick files or folders from a project and reuse them anywhere.",
   "vault_no_match": "No items match your search.",
@@ -979,18 +1013,26 @@
     "one": "${count} file already exists in the project. Overwrite it?",
     "other": "${count} files already exist in the project. Overwrite them?"
   },
+  "vault_conflict_desc_one": "{{count}} file already exists in the project. Overwrite it?",
+  "vault_conflict_desc_other": "{{count}} files already exist in the project. Overwrite them?",
   "vault_conflict_summary_desc(plural)": {
     "one": "${count} file already exists across the selected projects. Overwrite it?",
     "other": "${count} files already exist across the selected projects. Overwrite them?"
   },
+  "vault_conflict_summary_desc_one": "{{count}} file already exists across the selected projects. Overwrite it?",
+  "vault_conflict_summary_desc_other": "{{count}} files already exist across the selected projects. Overwrite them?",
   "vault_added_toast(plural)": {
     "one": "Added ${count} file",
     "other": "Added ${count} files"
   },
+  "vault_added_toast_one": "Added {{count}} file",
+  "vault_added_toast_other": "Added {{count}} files",
   "vault_added_to_projects_toast(plural)": {
     "one": "Added to ${count} project",
     "other": "Added to ${count} projects"
   },
+  "vault_added_to_projects_toast_one": "Added to {{count}} project",
+  "vault_added_to_projects_toast_other": "Added to {{count}} projects",
   "vault_item_empty": "This item has no files.",
   "new": "New",
   "announcement_support_title": "Support GodotHub",
@@ -1009,6 +1051,8 @@
       "one": "${count} addon installed",
       "other": "${count} addons installed"
     },
+    "count_one": "{{count}} addon installed",
+    "count_other": "{{count}} addons installed",
     "empty": "This project has no addons folder. Install addons from the Asset Store or copy them into res://addons.",
     "check_updates": "Check for updates",
     "checking": "Checking…",
@@ -1016,6 +1060,8 @@
       "one": "${count} update available",
       "other": "${count} updates available"
     },
+    "updates_available_one": "{{count}} update available",
+    "updates_available_other": "{{count}} updates available",
     "all_current": "No updates found in the Asset Library",
     "enabled": "Enabled",
     "disabled": "Disabled",

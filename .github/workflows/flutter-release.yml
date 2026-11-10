@@ -1,0 +1,430 @@
+name: Flutter Beta Release
+
+on:
+  push:
+    tags:
+      - 'flutter-v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version for a dry run (x.y.z). A dry run builds, packages and signs everything but publishes nothing.'
+        required: true
+        default: '0.0.0'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flutter-release
+  cancel-in-progress: false
+
+env:
+  FLUTTER_VERSION: '3.47.9'
+  RUST_VERSION: '1.99.1'
+  TAURI_CLI_VERSION: '2.12.3'
+  NSIS_URL: 'https://github.com/tauri-apps/binary-releases/releases/download/nsis-3.13/nsis-3.13.zip'
+  NSIS_SHA256: 'ba63dffc4410ee89193e1cb5a41989991bd77c61068da17e3156d136b7b0b3d8'
+  APPLICATION_ID_URL: 'https://github.com/tauri-apps/binary-releases/releases/download/nsis-plugins-v0/NSIS-ApplicationID.zip'
+  APPLICATION_ID_SHA256: '1c2772b0edfb0f96a7524734d6c8fac1fc011f26221faf88f3ed2c950f0c06c0'
+  APPIMAGETOOL_URL: 'https://github.com/AppImage/appimagetool/releases/download/1.9.1/appimagetool-x86_64.AppImage'
+  APPIMAGETOOL_SHA256: 'ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0'
+  APPIMAGE_RUNTIME_URL: 'https://github.com/AppImage/type2-runtime/releases/download/20251108/runtime-x86_64'
+  APPIMAGE_RUNTIME_SHA256: '2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d'
+  BETA_POINTER_TAG: 'flutter-beta'
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      tag: ${{ steps.resolve.outputs.tag }}
+      version: ${{ steps.resolve.outputs.version }}
+      dry_run: ${{ steps.resolve.outputs.dry_run }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Resolve tag, version and mode
+        id: resolve
+        shell: bash
+        env:
+          EVENT: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT" = "push" ]; then
+            tag="$REF_NAME"
+            dry_run=false
+          else
+            tag="flutter-v$INPUT_VERSION"
+            dry_run=true
+          fi
+          if ! [[ "$tag" =~ ^flutter-v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "tag $tag must look like flutter-vX.Y.Z" >&2
+            exit 1
+          fi
+          version="${tag#flutter-v}"
+          {
+            echo "tag=$tag"
+            echo "version=$version"
+            echo "dry_run=$dry_run"
+          } >> "$GITHUB_OUTPUT"
+          echo "tag=$tag version=$version dry_run=$dry_run"
+
+      - name: Check the release notes source
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ steps.resolve.outputs.tag }}
+          REPO: ${{ github.repository }}
+          ALLOW_MISSING_NOTES: ${{ steps.resolve.outputs.dry_run }}
+        run: node app/packaging/release/notes.mjs > /dev/null
+
+  build:
+    needs: prepare
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: windows
+            rust_targets: ''
+          - os: macos-latest
+            target: macos
+            rust_targets: aarch64-apple-darwin,x86_64-apple-darwin
+          - os: ubuntu-latest
+            target: linux
+            rust_targets: ''
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+
+    defaults:
+      run:
+        shell: bash
+
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
+      DRY_RUN: ${{ needs.prepare.outputs.dry_run }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust ${{ env.RUST_VERSION }}
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          targets: ${{ matrix.rust_targets }}
+
+      - name: Install Flutter ${{ env.FLUTTER_VERSION }}
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libx11-dev libxi-dev liblzma-dev zip
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-flutter-release-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-flutter-
+
+      - name: Read the beta channel definition from the core
+        run: |
+          set -euo pipefail
+          info=$(cargo run -q --locked -p godothub_core --example channel_info -- beta)
+          echo "$info"
+          {
+            echo "CHANNEL_ID=$(jq -r .identifier <<<"$info")"
+            echo "CHANNEL_NAME=$(jq -r .display_name <<<"$info")"
+            echo "CHANNEL_BIN=$(jq -r .cli_shim_name <<<"$info")"
+          } >> "$GITHUB_ENV"
+
+      - name: Get Flutter packages
+        working-directory: app
+        run: flutter pub get
+
+      - name: Regenerate Flutter locale files from src/i18n/locales
+        working-directory: app
+        run: |
+          dart run tool/i18n_convert.dart
+          dart run slang
+
+      - name: Build the beta app
+        working-directory: app
+        run: flutter build ${{ matrix.target }} --release --dart-define=CHANNEL=beta --build-name="$VERSION" --build-number="${{ github.run_number }}"
+
+      - name: Check the built binary
+        working-directory: app
+        run: |
+          set -euo pipefail
+          case "${{ matrix.target }}" in
+            windows) binary="build/windows/x64/runner/Release/$CHANNEL_BIN.exe" ;;
+            macos) binary="build/macos/Build/Products/Release/$CHANNEL_NAME.app/Contents/MacOS/$CHANNEL_NAME" ;;
+            linux) binary="build/linux/x64/release/bundle/$CHANNEL_BIN" ;;
+          esac
+          output="$("$binary" --version)"
+          echo "$output"
+          test "$output" = "$CHANNEL_BIN $VERSION"
+
+      - name: Package for Windows
+        if: runner.os == 'Windows'
+        run: |
+          set -euo pipefail
+          mkdir -p dist tools
+          curl -fsSL -o tools/ApplicationID.zip "$APPLICATION_ID_URL"
+          echo "$APPLICATION_ID_SHA256  tools/ApplicationID.zip" | sha256sum -c -
+          mkdir -p tools/plugin
+          unzip -q -o -j tools/ApplicationID.zip ReleaseUnicode/ApplicationID.dll -d tools/plugin
+          curl -fsSL -o tools/nsis.zip "$NSIS_URL"
+          echo "$NSIS_SHA256  tools/nsis.zip" | sha256sum -c -
+          unzip -q -o tools/nsis.zip -d tools
+          makensis="tools/nsis-3.13/makensis.exe"
+          "$makensis" -V2 \
+            -DVERSION="$VERSION" \
+            -DSOURCE_DIR="$(cygpath -aw app/build/windows/x64/runner/Release)" \
+            -DOUTFILE="$(cygpath -aw dist)\\GodotHub-Beta-$VERSION-windows-x64-setup.exe" \
+            -DIDENTIFIER="$CHANNEL_ID" \
+            -DDISPLAY_NAME="$CHANNEL_NAME" \
+            -DEXE_NAME="$CHANNEL_BIN.exe" \
+            -DICON="$(cygpath -aw app/windows/runner/resources/app_icon.ico)" \
+            -DPLUGIN_DIR="$(cygpath -aw tools/plugin)" \
+            "$(cygpath -aw app/packaging/windows/installer.nsi)"
+
+      - name: Install and uninstall the Windows package
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          ./app/packaging/windows/smoke_test.ps1 `
+            -Setup "dist/GodotHub-Beta-$env:VERSION-windows-x64-setup.exe" `
+            -DisplayName $env:CHANNEL_NAME -Identifier $env:CHANNEL_ID -ExeName "$env:CHANNEL_BIN.exe" -ExpectedVersion $env:VERSION
+
+      - name: Package for macOS
+        if: runner.os == 'macOS'
+        run: |
+          set -euo pipefail
+          bash app/packaging/macos/package.sh \
+            "app/build/macos/Build/Products/Release/$CHANNEL_NAME.app" "$VERSION" dist "$CHANNEL_ID" "$CHANNEL_NAME"
+
+      - name: Package for Linux
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          mkdir -p dist tools
+          curl -fsSL -o tools/appimagetool "$APPIMAGETOOL_URL"
+          echo "$APPIMAGETOOL_SHA256  tools/appimagetool" | sha256sum -c -
+          curl -fsSL -o tools/runtime-x86_64 "$APPIMAGE_RUNTIME_URL"
+          echo "$APPIMAGE_RUNTIME_SHA256  tools/runtime-x86_64" | sha256sum -c -
+          chmod +x tools/appimagetool
+          bash app/packaging/linux/package.sh \
+            app/build/linux/x64/release/bundle "$VERSION" dist "$CHANNEL_ID" "$CHANNEL_NAME" "$CHANNEL_BIN" \
+            app/linux/runner/resources/app_icon.png "$PWD/tools/appimagetool" "$PWD/tools/runtime-x86_64"
+
+      - name: Sign the update artifacts
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          tauri="npx --yes @tauri-apps/cli@$TAURI_CLI_VERSION"
+          if [ -z "${TAURI_SIGNING_PRIVATE_KEY:-}" ]; then
+            if [ "$DRY_RUN" != "true" ]; then
+              echo "TAURI_SIGNING_PRIVATE_KEY is not set; a real release must be signed with the v2 key" >&2
+              exit 1
+            fi
+            echo "dry run without signing secrets: signing with a throwaway key"
+            $tauri signer generate --ci --password dry-run --write-keys "$RUNNER_TEMP/dry-run.key" --force
+            export TAURI_SIGNING_PRIVATE_KEY="$(cat "$RUNNER_TEMP/dry-run.key")"
+            export TAURI_SIGNING_PRIVATE_KEY_PASSWORD=dry-run
+          fi
+          shopt -s nullglob
+          signed=0
+          for artifact in dist/*-setup.exe dist/*.app.tar.gz dist/*.AppImage.zip; do
+            $tauri signer sign "$artifact"
+            test -s "$artifact.sig"
+            signed=$((signed + 1))
+          done
+          test "$signed" -eq 1
+
+      - name: Check the package names
+        run: |
+          set -euo pipefail
+          ls -la dist
+          if find dist -iname '*.appimage' | grep -q .; then
+            echo "plain AppImage files must never be published" >&2
+            exit 1
+          fi
+          for f in dist/*; do
+            case "$(basename "$f")" in
+              GodotHub-Beta-"$VERSION"-*) ;;
+              *) echo "unexpected file $f" >&2; exit 1 ;;
+            esac
+          done
+
+      - name: Upload the packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: beta-${{ matrix.target }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  assemble:
+    needs: [prepare, build]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+      VERSION: ${{ needs.prepare.outputs.version }}
+      REPO: ${{ github.repository }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download the packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: beta-*
+          path: dist
+          merge-multiple: true
+
+      - name: Check the release assets
+        shell: bash
+        run: |
+          set -euo pipefail
+          ls -la dist
+          expected=(
+            "GodotHub-Beta-$VERSION-windows-x64-setup.exe"
+            "GodotHub-Beta-$VERSION-windows-x64-setup.exe.sig"
+            "GodotHub-Beta-$VERSION-darwin-universal.dmg"
+            "GodotHub-Beta-$VERSION-darwin-universal.app.tar.gz"
+            "GodotHub-Beta-$VERSION-darwin-universal.app.tar.gz.sig"
+            "GodotHub-Beta-$VERSION-linux-amd64.AppImage.zip"
+            "GodotHub-Beta-$VERSION-linux-amd64.AppImage.zip.sig"
+          )
+          for name in "${expected[@]}"; do
+            test -s "dist/$name" || { echo "missing $name" >&2; exit 1; }
+          done
+          actual=$(ls dist | sort)
+          wanted=$(printf '%s\n' "${expected[@]}" | sort)
+          if [ "$actual" != "$wanted" ]; then
+            echo "unexpected assets:" >&2
+            diff <(echo "$wanted") <(echo "$actual") >&2 || true
+            exit 1
+          fi
+          if ls dist | grep -iqE '\.appimage$'; then
+            echo "plain AppImage files must never be published" >&2
+            exit 1
+          fi
+
+      - name: Write the release notes and latest.json
+        shell: bash
+        env:
+          ALLOW_MISSING_NOTES: ${{ needs.prepare.outputs.dry_run }}
+        run: |
+          set -euo pipefail
+          mkdir -p release
+          node app/packaging/release/notes.mjs > release/notes.md
+          NOTES="$(cat release/notes.md)" ASSETS_DIR=dist OUT=release/latest.json node app/packaging/release/latest_json.mjs
+          cat release/notes.md
+          cat release/latest.json
+
+      - name: Upload the release preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-preview
+          path: release/*
+          retention-days: 7
+
+  publish:
+    needs: [prepare, assemble]
+    if: needs.prepare.outputs.dry_run == 'false' && startsWith(github.ref, 'refs/tags/flutter-v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+      VERSION: ${{ needs.prepare.outputs.version }}
+      REPO: ${{ github.repository }}
+    steps:
+      - name: Download the packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: beta-*
+          path: dist
+          merge-multiple: true
+
+      - name: Download the release preview
+        uses: actions/download-artifact@v4
+        with:
+          name: release-preview
+          path: release
+
+      - name: Create the pre-release for ${{ needs.prepare.outputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if ls dist | grep -iqE '\.appimage$'; then
+            echo "plain AppImage files must never be published" >&2
+            exit 1
+          fi
+          gh release create "$RELEASE_TAG" dist/* release/latest.json \
+            --repo "$REPO" \
+            --verify-tag \
+            --prerelease \
+            --latest=false \
+            --title "GodotHub Beta $VERSION" \
+            --notes-file release/notes.md
+
+      - name: Point the ${{ env.BETA_POINTER_TAG }} pre-release at this version
+        shell: bash
+        run: |
+          set -euo pipefail
+          body="Update feed for GodotHub Beta. Latest beta: [$RELEASE_TAG](https://github.com/$REPO/releases/tag/$RELEASE_TAG). Download the beta from that release, not from here."
+          if gh release view "$BETA_POINTER_TAG" --repo "$REPO" > /dev/null 2>&1; then
+            gh release edit "$BETA_POINTER_TAG" --repo "$REPO" --prerelease --latest=false --notes "$body"
+            gh release upload "$BETA_POINTER_TAG" release/latest.json --repo "$REPO" --clobber
+          else
+            gh release create "$BETA_POINTER_TAG" release/latest.json \
+              --repo "$REPO" \
+              --target "$GITHUB_SHA" \
+              --prerelease \
+              --latest=false \
+              --title "GodotHub Beta update feed" \
+              --notes "$body"
+          fi
+
+      - name: Verify nothing became the latest release
+        shell: bash
+        run: |
+          set -euo pipefail
+          for tag in "$RELEASE_TAG" "$BETA_POINTER_TAG"; do
+            test "$(gh release view "$tag" --repo "$REPO" --json isPrerelease --jq .isPrerelease)" = "true"
+            if gh release view "$tag" --repo "$REPO" --json assets --jq '.assets[].name' | grep -iqE '\.appimage$'; then
+              echo "$tag has a plain AppImage asset" >&2
+              exit 1
+            fi
+          done
+          latest=$(gh api "repos/$REPO/releases/latest" --jq .tag_name 2>/dev/null || true)
+          echo "latest release: ${latest:-none}"
+          case "$latest" in
+            flutter-*) echo "a beta release became the latest release" >&2; exit 1 ;;
+          esac
