@@ -22,6 +22,8 @@ env:
   FLUTTER_VERSION: '3.47.9'
   RUST_VERSION: '1.99.1'
   TAURI_CLI_VERSION: '2.12.3'
+  NSIS_URL: 'https://github.com/tauri-apps/binary-releases/releases/download/nsis-3.13/nsis-3.13.zip'
+  NSIS_SHA256: 'ba63dffc4410ee89193e1cb5a41989991bd77c61068da17e3156d136b7b0b3d8'
   APPLICATION_ID_URL: 'https://github.com/tauri-apps/binary-releases/releases/download/nsis-plugins-v0/NSIS-ApplicationID.zip'
   APPLICATION_ID_SHA256: '1c2772b0edfb0f96a7524734d6c8fac1fc011f26221faf88f3ed2c950f0c06c0'
   APPIMAGETOOL_URL: 'https://github.com/AppImage/appimagetool/releases/download/1.9.1/appimagetool-x86_64.AppImage'
@@ -81,7 +83,7 @@ jobs:
   build:
     needs: prepare
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
         include:
           - os: windows-latest
@@ -190,7 +192,10 @@ jobs:
           echo "$APPLICATION_ID_SHA256  tools/ApplicationID.zip" | sha256sum -c -
           mkdir -p tools/plugin
           unzip -q -o -j tools/ApplicationID.zip ReleaseUnicode/ApplicationID.dll -d tools/plugin
-          makensis=$(command -v makensis || echo "/c/Program Files (x86)/NSIS/makensis.exe")
+          curl -fsSL -o tools/nsis.zip "$NSIS_URL"
+          echo "$NSIS_SHA256  tools/nsis.zip" | sha256sum -c -
+          unzip -q -o tools/nsis.zip -d tools
+          makensis="tools/nsis-3.13/makensis.exe"
           "$makensis" -V2 \
             -DVERSION="$VERSION" \
             -DSOURCE_DIR="$(cygpath -aw app/build/windows/x64/runner/Release)" \
