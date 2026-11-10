@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import '../design/design.dart';
+import '../i18n/languages.dart';
 import '../motion/motion.dart';
 import '../ui/core/ui_settings.dart';
 import 'rust/api/types.dart';
@@ -18,7 +19,7 @@ GhTheme ghThemeFromSettings(AppSettings settings, Brightness platformBrightness)
     projectIconOpacity: settings.projectIconOpacity.toDouble(),
     showScrollbars: settings.showScrollbars,
     platformBrightness: platformBrightness,
-    languageCode: settings.language.split(RegExp('[-_]')).first,
+    languageCode: ghResolveLanguage(settings.language).split(RegExp('[-_]')).first,
   );
 }
 

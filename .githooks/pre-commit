@@ -49,4 +49,20 @@ if [ -n "$hits" ]; then
   fail "em-dash found in staged file(s):$(echo -e "$hits")\nuse --, : or , instead of —."
 fi
 
+if git diff --cached --name-only -- 'src/i18n/locales' | grep -q '\.json$'; then
+  root=$(git rev-parse --show-toplevel)
+  skip() {
+    echo "pre-commit: Flutter locale files not regenerated ($1)." >&2
+    echo "pre-commit: the i18n sync workflow will update app/lib/i18n after you push." >&2
+  }
+  if ! command -v dart >/dev/null 2>&1; then
+    skip "Dart SDK not found"
+  elif ! (cd "$root/app" && dart run tool/i18n_convert.dart >/dev/null 2>&1 && dart run slang >/dev/null 2>&1); then
+    skip "generation failed, run: cd app && dart run tool/i18n_convert.dart && dart run slang"
+  else
+    git -C "$root" add -A -- app/lib/i18n
+    echo "pre-commit: regenerated and staged Flutter locale files in app/lib/i18n." >&2
+  fi
+fi
+
 exit 0

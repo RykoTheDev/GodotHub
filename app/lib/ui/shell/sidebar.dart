@@ -16,7 +16,7 @@ import '../overlays/menu.dart';
 import 'account_menu.dart';
 import 'disclosure.dart';
 import 'overlay_scroll_area.dart';
-import 'strings.dart';
+import '../core/i18n.dart';
 import '../../motion/motion.dart';
 import '../../motion/presence.dart';
 import '../../motion/shared.dart';
@@ -106,16 +106,16 @@ class GhSidebar extends StatefulWidget {
     this.onSettingsClick,
     this.accountMenuBuilder,
     this.isMac,
-    this.youLabel = GhShellStrings.you,
-    this.settingsLabel = GhShellStrings.settings,
-    this.searchLabel = GhShellStrings.search,
-    this.expandLabel = GhShellStrings.expandSidebar,
-    this.collapseLabel = GhShellStrings.collapseSidebar,
-    this.newBadgeLabel = GhShellStrings.newBadge,
-    this.updateAvailableLabel = GhShellStrings.updateAvailable,
-    this.workspaceTipTitle = GhShellStrings.workspaceTipTitle,
-    this.workspaceTipBody = GhShellStrings.workspaceTipBody,
-    this.workspaceTipDismiss = GhShellStrings.workspaceTipDismiss,
+    this.youLabel,
+    this.settingsLabel,
+    this.searchLabel,
+    this.expandLabel,
+    this.collapseLabel,
+    this.newBadgeLabel,
+    this.updateAvailableLabel,
+    this.workspaceTipTitle,
+    this.workspaceTipBody,
+    this.workspaceTipDismiss,
   });
 
   final List<GhSidebarTab> tabs;
@@ -141,16 +141,16 @@ class GhSidebar extends StatefulWidget {
   final VoidCallback? onSettingsClick;
   final GhAccountMenuBuilder? accountMenuBuilder;
   final bool? isMac;
-  final String youLabel;
-  final String settingsLabel;
-  final String searchLabel;
-  final String expandLabel;
-  final String collapseLabel;
-  final String newBadgeLabel;
-  final String updateAvailableLabel;
-  final String workspaceTipTitle;
-  final String workspaceTipBody;
-  final String workspaceTipDismiss;
+  final String? youLabel;
+  final String? settingsLabel;
+  final String? searchLabel;
+  final String? expandLabel;
+  final String? collapseLabel;
+  final String? newBadgeLabel;
+  final String? updateAvailableLabel;
+  final String? workspaceTipTitle;
+  final String? workspaceTipBody;
+  final String? workspaceTipDismiss;
 
   static const double collapsedWidth = 68;
   static const double defaultWidth = 256;
@@ -399,12 +399,12 @@ class _GhSidebarState extends State<GhSidebar> {
                         width: theme.space(8),
                         height: theme.space(8),
                         child: GhTooltip(
-                          message: widget.expandLabel,
+                          message: widget.expandLabel ?? context.tr.common.expand_sidebar,
                           side: GhSide.right,
                           child: _CollapseButton(
                             collapsed: true,
                             revealed: _revealed,
-                            label: widget.expandLabel,
+                            label: widget.expandLabel ?? context.tr.common.expand_sidebar,
                             onPressed: _toggleCollapsed,
                           ),
                         ),
@@ -577,7 +577,7 @@ class _GhSidebarState extends State<GhSidebar> {
                   if (palette != null) ...[
                     Expanded(
                       child: _SearchButton(
-                        label: widget.searchLabel,
+                        label: widget.searchLabel ?? context.tr.common.search,
                         shortcut: ghModLabel(widget.paletteKey.toUpperCase(), isMac: _isMac),
                         onPressed: palette,
                       ),
@@ -585,12 +585,12 @@ class _GhSidebarState extends State<GhSidebar> {
                     SizedBox(width: theme.space(2)),
                   ],
                   GhTooltip(
-                    message: widget.collapseLabel,
+                    message: widget.collapseLabel ?? context.tr.common.collapse_sidebar,
                     side: GhSide.right,
                     child: _CollapseButton(
                       collapsed: false,
                       revealed: true,
-                      label: widget.collapseLabel,
+                      label: widget.collapseLabel ?? context.tr.common.collapse_sidebar,
                       onPressed: _toggleCollapsed,
                     ),
                   ),
@@ -603,9 +603,9 @@ class _GhSidebarState extends State<GhSidebar> {
             padding: EdgeInsets.only(top: theme.space(3)),
             child: Center(
               child: GhTooltip(
-                message: widget.searchLabel,
+                message: widget.searchLabel ?? context.tr.common.search,
                 side: GhSide.right,
-                child: _SquareIconButton(icon: GhIcons.search, semanticLabel: widget.searchLabel, onPressed: palette),
+                child: _SquareIconButton(icon: GhIcons.search, semanticLabel: widget.searchLabel ?? context.tr.common.search, onPressed: palette),
               ),
             ),
           ),
@@ -711,7 +711,7 @@ class _GhSidebarState extends State<GhSidebar> {
       hideLabel: collapsedView,
       chrome: chrome,
       shortcut: shortcut,
-      newBadgeLabel: widget.newBadgeLabel,
+      newBadgeLabel: widget.newBadgeLabel ?? context.tr.common.new_badge,
       menuOpen: menuOpen,
       onPressed: onMenuToggle ?? () => _pressTab(tab),
       sharedTag: _sharedTag,
@@ -740,30 +740,30 @@ class _GhSidebarState extends State<GhSidebar> {
         collapsed
             ? _unclamped(
                 GhTooltip(
-                  message: widget.updateAvailableLabel,
+                  message: widget.updateAvailableLabel ?? context.tr.common.update_available,
                   child: _SquareIconButton(
                     icon: GhIcons.arrowUp,
-                    semanticLabel: widget.updateAvailableLabel,
+                    semanticLabel: widget.updateAvailableLabel ?? context.tr.common.update_available,
                     onPressed: updates,
                     dot: true,
                   ),
                 ),
               )
-            : _UpdateButton(label: widget.updateAvailableLabel, onPressed: updates),
+            : _UpdateButton(label: widget.updateAvailableLabel ?? context.tr.common.update_available, onPressed: updates),
       );
     }
     if (widget.workspacesEnabled && !collapsed && !_tipSeen) {
       children.add(
         _WorkspaceTip(
-          title: widget.workspaceTipTitle,
-          body: widget.workspaceTipBody,
-          dismissLabel: widget.workspaceTipDismiss,
+          title: widget.workspaceTipTitle ?? context.tr.nav.workspace_tip_title,
+          body: widget.workspaceTipBody ?? context.tr.nav.workspace_tip_body,
+          dismissLabel: widget.workspaceTipDismiss ?? context.tr.nav.workspace_tip_dismiss,
           onDismiss: _dismissTip,
         ),
       );
     }
-    final accountTab = GhSidebarTab(id: 'account', label: widget.youLabel, icon: GhIcons.user);
-    final settingsTab = GhSidebarTab(id: 'settings', label: widget.settingsLabel, icon: GhIcons.gear);
+    final accountTab = GhSidebarTab(id: 'account', label: widget.youLabel ?? context.tr.nav.you, icon: GhIcons.user);
+    final settingsTab = GhSidebarTab(id: 'settings', label: widget.settingsLabel ?? context.tr.nav.settings, icon: GhIcons.gear);
     Widget trigger(BuildContext context, bool open, VoidCallback toggle) => _tabButton(
       accountTab,
       collapsed ? GhSidebarTabLayout.square : GhSidebarTabLayout.full,
@@ -777,8 +777,8 @@ class _GhSidebarState extends State<GhSidebar> {
         GhAccountMenu(
           trigger: trigger,
           onNavigate: widget.onTabChange,
-          youLabel: widget.youLabel,
-          newBadgeLabel: widget.newBadgeLabel,
+          youLabel: widget.youLabel ?? context.tr.nav.you,
+          newBadgeLabel: widget.newBadgeLabel ?? context.tr.common.new_badge,
         );
     final settings = _tabButton(
       settingsTab,
@@ -926,7 +926,7 @@ class GhSidebarTabButton extends StatelessWidget {
     this.hideLabel = false,
     this.chrome = false,
     this.shortcut,
-    this.newBadgeLabel = GhShellStrings.newBadge,
+    this.newBadgeLabel,
     this.menuOpen,
     this.sharedTag,
   });
@@ -938,7 +938,7 @@ class GhSidebarTabButton extends StatelessWidget {
   final bool hideLabel;
   final bool chrome;
   final String? shortcut;
-  final String newBadgeLabel;
+  final String? newBadgeLabel;
   final bool? menuOpen;
   final Object? sharedTag;
   final VoidCallback onPressed;
@@ -989,7 +989,7 @@ class GhSidebarTabButton extends StatelessWidget {
     final trailing = <Widget>[];
     if (!hideLabel) {
       if (showNew) {
-        trailing.add(_sidebarLabel(_NewBadge(label: newBadgeLabel)));
+        trailing.add(_sidebarLabel(_NewBadge(label: newBadgeLabel ?? context.tr.common.new_badge)));
       } else if (badge > 0) {
         trailing.add(_sidebarLabel(_CountBadge(count: badge)));
       } else if (shortcut != null) {

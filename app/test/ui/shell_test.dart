@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:godothub/debug/gallery/sections/shell.dart';
 import 'package:godothub/design/design.dart';
+import 'package:godothub/i18n/i18n.dart';
 import 'package:godothub/ui/controls/negative_margin.dart';
 import 'package:godothub/ui/core/tooltip.dart';
 import 'package:godothub/ui/overlays/popup_registry.dart';
@@ -11,9 +12,10 @@ import 'package:godothub/ui/shell/color_swatch_picker.dart';
 import 'package:godothub/ui/shell/disclosure.dart';
 import 'package:godothub/ui/shell/overlay_scroll_area.dart';
 import 'package:godothub/ui/shell/sidebar.dart';
-import 'package:godothub/ui/shell/strings.dart';
 import 'package:godothub/ui/shell/workspace_form.dart';
 import 'package:godothub/ui/shell/workspace_switcher.dart';
+
+import 'i18n_setup.dart';
 
 Widget _app(Widget child, {TextDirection direction = TextDirection.ltr}) {
   return MaterialApp(
@@ -65,6 +67,7 @@ const _workspaces = [
 ];
 
 void main() {
+  setUp(setUpTestI18n);
   tearDown(GhPopupRegistry.debugReset);
 
   group('helpers', () {
@@ -96,8 +99,8 @@ void main() {
     });
 
     test('workspace name validation', () {
-      expect(ghWorkspaceNameError('  ', const []), GhShellStrings.workspaceNameRequiredError);
-      expect(ghWorkspaceNameError(' work ', const ['Work']), GhShellStrings.workspaceNameTakenError);
+      expect(ghWorkspaceNameError('  ', const []), t.common.workspace_name_required_error);
+      expect(ghWorkspaceNameError(' work ', const ['Work']), t.common.workspace_name_taken_error);
       expect(ghWorkspaceNameError('Jam', const ['Work']), isNull);
     });
 
@@ -116,8 +119,8 @@ void main() {
       )!;
       expect(item.label, 'Work');
       expect(item.dividerAfter, isTrue);
-      expect(item.action!.label, GhShellStrings.editWorkspaceTitle);
-      expect(item.children.map((c) => c.label), ['Work', 'Personal', GhShellStrings.createWorkspace]);
+      expect(item.action!.label, t.common.edit_workspace_title);
+      expect(item.children.map((c) => c.label), ['Work', 'Personal', t.common.create_workspace]);
       expect(item.children.first.active, isTrue);
       expect(item.children[1].shortcut, 'Alt+2');
       expect(item.children[1].dividerAfter, isTrue);
@@ -150,9 +153,9 @@ void main() {
       );
       expect(find.text('Projects'), findsOneWidget);
       expect(find.text('9+'), findsOneWidget);
-      expect(find.text(GhShellStrings.newBadge), findsOneWidget);
+      expect(find.text(t.common.new_badge), findsOneWidget);
       expect(find.text('Ctrl+P'), findsOneWidget);
-      expect(find.text(GhShellStrings.search), findsOneWidget);
+      expect(find.text(t.common.search), findsOneWidget);
       await tester.tap(find.text('Versions'));
       await tester.tap(find.text('Godot News'));
       await tester.pump();
@@ -160,7 +163,7 @@ void main() {
       expect(seen, [
         ['news'],
       ]);
-      expect(find.text(GhShellStrings.newBadge), findsNothing);
+      expect(find.text(t.common.new_badge), findsNothing);
     });
 
     testWidgets('settings button reports debug clicks and navigates', (tester) async {
@@ -219,19 +222,19 @@ void main() {
         ),
       );
       expect(_sidebarWidth(tester), GhSidebar.defaultWidth);
-      await tester.tap(_tooltip(GhShellStrings.collapseSidebar));
+      await tester.tap(_tooltip(t.common.collapse_sidebar));
       await tester.pumpAndSettle();
       expect(collapsed, [true]);
       expect(_sidebarWidth(tester), GhSidebar.collapsedWidth);
       expect(find.text('Projects'), findsNothing);
       expect(find.text('9+'), findsOneWidget);
       expect(_tooltip('Projects'), findsOneWidget);
-      expect(_tooltip(GhShellStrings.search), findsOneWidget);
+      expect(_tooltip(t.common.search), findsOneWidget);
       final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
       await mouse.addPointer(location: const Offset(600, 300));
       await mouse.moveTo(tester.getCenter(find.text('9+')));
       await tester.pumpAndSettle();
-      await tester.tap(_tooltip(GhShellStrings.expandSidebar));
+      await tester.tap(_tooltip(t.common.expand_sidebar));
       await tester.pumpAndSettle();
       expect(collapsed, [true, false]);
       expect(_sidebarWidth(tester), GhSidebar.defaultWidth);
@@ -297,13 +300,13 @@ void main() {
           ),
         ),
       );
-      await tester.tap(find.text(GhShellStrings.updateAvailable));
+      await tester.tap(find.text(t.common.update_available));
       expect(updates, 1);
-      expect(find.text(GhShellStrings.workspaceTipTitle), findsOneWidget);
-      await tester.tap(find.bySemanticsLabel(GhShellStrings.workspaceTipDismiss));
+      expect(find.text(t.nav.workspace_tip_title), findsOneWidget);
+      await tester.tap(find.bySemanticsLabel(t.nav.workspace_tip_dismiss));
       await tester.pump();
       expect(dismissed, 1);
-      expect(find.text(GhShellStrings.workspaceTipTitle), findsNothing);
+      expect(find.text(t.nav.workspace_tip_title), findsNothing);
     });
 
     testWidgets('account trigger opens the account menu', (tester) async {
@@ -311,9 +314,9 @@ void main() {
       await tester.pumpWidget(_app(_sidebarHost(GhSidebar(tabs: _tabs, activeTab: 'projects', onTabChange: navigated.add))));
       await tester.tap(_tabButton('account'));
       await tester.pumpAndSettle();
-      expect(find.text(GhShellStrings.changelog), findsOneWidget);
+      expect(find.text(t.nav.changelog), findsOneWidget);
       expect(GhPopupRegistry.openMenuCount.value, 1);
-      await tester.tap(find.text(GhShellStrings.changelog));
+      await tester.tap(find.text(t.nav.changelog));
       await tester.pumpAndSettle();
       expect(navigated, ['changelog']);
       expect(GhPopupRegistry.openMenuCount.value, 0);
@@ -356,15 +359,15 @@ void main() {
       expect(find.text('@octo'), findsOneWidget);
       expect(find.text('@lab'), findsOneWidget);
       expect(find.text('Personal'), findsOneWidget);
-      expect(find.text(GhShellStrings.newBadge), findsOneWidget);
-      expect(find.text(GhShellStrings.reportABug), findsOneWidget);
-      await tester.tap(find.text(GhShellStrings.accountManage));
+      expect(find.text(t.common.new_badge), findsOneWidget);
+      expect(find.text(t.common.report_a_bug), findsOneWidget);
+      await tester.tap(find.text(t.nav.account_manage));
       await tester.pumpAndSettle();
       expect(calls, ['manage']);
       expect(find.text('ryko'), findsNothing);
       await tester.tap(find.text('closed'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text(GhShellStrings.reportABug));
+      await tester.tap(find.text(t.common.report_a_bug));
       await tester.pumpAndSettle();
       expect(calls, ['manage', 'bug']);
     });
@@ -382,9 +385,9 @@ void main() {
       );
       await tester.tap(find.text('trigger'));
       await tester.pumpAndSettle();
-      expect(find.text(GhShellStrings.you), findsOneWidget);
-      expect(find.text(GhShellStrings.accountManage), findsNothing);
-      expect(find.text(GhShellStrings.newBadge), findsNothing);
+      expect(find.text(t.nav.you), findsOneWidget);
+      expect(find.text(t.nav.account_manage), findsNothing);
+      expect(find.text(t.common.new_badge), findsNothing);
     });
   });
 
@@ -416,16 +419,16 @@ void main() {
           ),
         ),
       );
-      expect(find.text(GhShellStrings.workspaceNameRequiredError), findsOneWidget);
-      expect(find.text(GhShellStrings.workspaceNamePlaceholder), findsNWidgets(2));
-      expect(find.text(GhShellStrings.sectionWorkspaces.toUpperCase()), findsOneWidget);
+      expect(find.text(t.common.workspace_name_required_error), findsOneWidget);
+      expect(find.text(t.common.workspace_name_placeholder), findsNWidgets(2));
+      expect(find.text(t.common.section_workspaces.toUpperCase()), findsOneWidget);
       await tester.enterText(find.byType(TextField), 'work');
       await tester.pump();
       expect(draft.name, 'work');
-      expect(find.text(GhShellStrings.workspaceNameTakenError), findsOneWidget);
+      expect(find.text(t.common.workspace_name_taken_error), findsOneWidget);
       await tester.enterText(find.byType(TextField), 'Jam');
       await tester.pump();
-      expect(find.text(GhShellStrings.workspaceNameTakenError), findsNothing);
+      expect(find.text(t.common.workspace_name_taken_error), findsNothing);
       expect(find.text('Jam'), findsNWidgets(2));
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pump();
@@ -456,7 +459,7 @@ void main() {
           ),
         ),
       );
-      expect(find.text(GhShellStrings.workspaceNameRequiredError), findsNothing);
+      expect(find.text(t.common.workspace_name_required_error), findsNothing);
     });
   });
 
@@ -481,7 +484,7 @@ void main() {
       expect(find.text('Accent'), findsOneWidget);
       await tester.tap(find.text('#457ff2'));
       await tester.pumpAndSettle();
-      expect(find.text(GhShellStrings.colorPresets.toUpperCase()), findsOneWidget);
+      expect(find.text(t.common.color_presets.toUpperCase()), findsOneWidget);
       await tester.tap(find.bySemanticsLabel('#eb459e'));
       await tester.pumpAndSettle();
       expect(value, '#eb459e');
@@ -546,14 +549,14 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text(GhShellStrings.scrollToTop), findsNothing);
+      expect(find.text(t.common.scroll_to_top), findsNothing);
       controller.jumpTo(400);
       await tester.pumpAndSettle();
-      expect(find.text(GhShellStrings.scrollToTop), findsOneWidget);
-      await tester.tap(find.text(GhShellStrings.scrollToTop));
+      expect(find.text(t.common.scroll_to_top), findsOneWidget);
+      await tester.tap(find.text(t.common.scroll_to_top));
       await tester.pumpAndSettle();
       expect(controller.offset, 0);
-      expect(find.text(GhShellStrings.scrollToTop), findsNothing);
+      expect(find.text(t.common.scroll_to_top), findsNothing);
     });
 
     testWidgets('scroll area thumb drags the viewport', (tester) async {

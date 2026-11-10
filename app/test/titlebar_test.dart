@@ -4,17 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:godothub/design/design.dart';
+import 'package:godothub/i18n/i18n.dart';
+import 'package:godothub/i18n/i18n_controller.dart';
+import 'package:godothub/i18n/languages.dart';
 import 'package:godothub/src/providers.dart';
 import 'package:godothub/src/rust/api/types.dart';
 import 'package:godothub/titlebar/language_menu.dart';
-import 'package:godothub/titlebar/languages.dart';
 import 'package:godothub/titlebar/providers.dart';
 import 'package:godothub/titlebar/running_projects_chip.dart';
 import 'package:godothub/titlebar/settings_copy.dart';
-import 'package:godothub/titlebar/strings.dart' as s;
 import 'package:godothub/titlebar/task_tray.dart';
 import 'package:godothub/titlebar/title_bar.dart';
 import 'package:godothub/titlebar/window_controls.dart';
+
+import 'ui/i18n_setup.dart';
 
 const baseSettings = AppSettings(
   schemaVersion: 1,
@@ -230,6 +233,7 @@ Offset emptyBarSpot(WidgetTester tester) => tester.getRect(find.byKey(const Valu
 Finder byGhIcon(FaIconData icon) => find.byWidgetPredicate((widget) => widget is GhIcon && widget.icon == icon);
 
 void main() {
+  setUp(setUpTestI18n);
   group('visibility rules', () {
     test('custom window controls only off macOS without OS decorations', () {
       expect(showsCustomWindowControls(settingsWith(), isMac: false), isTrue);
@@ -294,7 +298,7 @@ void main() {
       window.listener!();
       await tester.pump();
       expect(byGhIcon(GhIcons.windowRestore), findsOneWidget);
-      expect(find.bySemanticsLabel(s.restore), findsOneWidget);
+      expect(find.bySemanticsLabel(t.common.restore), findsOneWidget);
     });
 
     testWidgets('colored buttons replace the icon controls', (tester) async {
@@ -337,7 +341,7 @@ void main() {
 
       await tester.tap(find.byKey(const ValueKey('titlebar-wordmark')));
       await tester.tap(find.byKey(const ValueKey('titlebar-changelog')));
-      await tester.tap(find.text(s.support));
+      await tester.tap(find.text(t.common.support));
       await tester.tap(find.byKey(const ValueKey('titlebar-star')));
       await tester.tap(find.byKey(const ValueKey('titlebar-bug')));
       await tester.pumpAndSettle();
@@ -402,13 +406,14 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text(s.changelog), findsOneWidget);
-      expect(find.bySemanticsLabel('${s.changelog} (${s.newBadge})'), findsOneWidget);
+      expect(find.text(t.nav.changelog), findsOneWidget);
+      expect(find.bySemanticsLabel('${t.nav.changelog} (${t.common.new_badge})'), findsOneWidget);
     });
   });
 
   group('LanguageMenu', () {
     Future<List<AppSettings>> pumpMenu(WidgetTester tester, AppSettings settings) async {
+      GhI18n.instance.setLanguageSetting(settings.language, systemLocales: const [Locale('en', 'US')]);
       final saved = <AppSettings>[];
       await tester.pumpWidget(
         ProviderScope(
@@ -434,13 +439,13 @@ void main() {
 
     testWidgets('lists every language with native names and status badges', (tester) async {
       await pumpMenu(tester, settingsWith());
-      expect(find.text(s.languageLabel.toUpperCase()), findsOneWidget);
-      for (final language in languages) {
-        expect(find.text(language.label), findsOneWidget);
+      expect(find.text(t.common.language_label.toUpperCase()), findsOneWidget);
+      for (final language in ghLanguages) {
+        expect(find.text(language.displayLabel()), findsOneWidget);
       }
-      expect(find.text(s.languageComplete), findsNWidgets(5));
-      expect(find.text(s.languageBeta), findsNWidgets(2));
-      expect(find.text(s.languageIncomplete), findsNWidgets(2));
+      expect(find.text(t.settings.language_complete), findsNWidgets(5));
+      expect(find.text(t.settings.language_beta), findsNWidgets(2));
+      expect(find.text(t.settings.language_incomplete), findsNWidgets(2));
       final englishRow = find.byKey(const ValueKey('language-en-US'));
       expect(find.descendant(of: englishRow, matching: byGhIcon(GhIcons.check)), findsOneWidget);
       expect(byGhIcon(GhIcons.check), findsOneWidget);
@@ -452,12 +457,14 @@ void main() {
       await tester.tap(find.text('Français'));
       await tester.pumpAndSettle();
       expect(saved.single.language, 'fr-FR');
+      expect(GhI18n.instance.language, 'fr-FR');
+      expect(LocaleSettings.currentLocale, AppLocale.frFr);
       expect(find.text('Français'), findsNothing);
     });
 
     testWidgets('system entry is active when the setting is system', (tester) async {
-      await pumpMenu(tester, settingsWith(lang: systemLanguageValue));
-      final systemRow = find.byKey(const ValueKey('language-$systemLanguageValue'));
+      await pumpMenu(tester, settingsWith(lang: ghSystemLanguage));
+      final systemRow = find.byKey(const ValueKey('language-$ghSystemLanguage'));
       expect(find.descendant(of: systemRow, matching: byGhIcon(GhIcons.check)), findsOneWidget);
       expect(byGhIcon(GhIcons.check), findsOneWidget);
     });
@@ -508,7 +515,7 @@ void main() {
 
       await tester.tap(find.byKey(const ValueKey('running-projects-chip')));
       await tester.pumpAndSettle();
-      expect(find.text(s.running.toUpperCase()), findsOneWidget);
+      expect(find.text(t.common.running.toUpperCase()), findsOneWidget);
       expect(find.text('2 projects running'), findsOneWidget);
       expect(find.text('Alpha'), findsOneWidget);
       expect(find.text('Beta'), findsOneWidget);
@@ -566,13 +573,13 @@ void main() {
       );
       await tester.tap(find.byKey(const ValueKey('task-tray-trigger')));
       await tester.pumpAndSettle();
-      expect(find.text(s.taskTrayTitle.toUpperCase()), findsOneWidget);
-      expect(find.text(s.taskTrayEmpty), findsOneWidget);
-      expect(find.text(s.noTasksRunning), findsOneWidget);
+      expect(find.text(t.common.task_tray_title.toUpperCase()), findsOneWidget);
+      expect(find.text(t.common.task_tray_empty), findsOneWidget);
+      expect(find.text(t.common.no_tasks_running), findsOneWidget);
 
       await tester.pump(const Duration(seconds: 2));
       await tester.pumpAndSettle();
-      expect(find.text(s.noTasksRunning), findsNothing);
+      expect(find.text(t.common.no_tasks_running), findsNothing);
     });
 
     testWidgets('shows the active count badge', (tester) async {

@@ -3,10 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:godothub/debug/gallery/sections/feedback.dart';
 import 'package:godothub/design/design.dart';
+import 'package:godothub/i18n/i18n.dart';
 import 'package:godothub/ui/core/button.dart';
 import 'package:godothub/ui/core/interaction.dart';
 import 'package:godothub/ui/overlays/popup_registry.dart';
 import 'package:godothub/ui/feedback/feedback.dart';
+
+import 'i18n_setup.dart';
 
 Widget _app(Widget Function(BuildContext context) builder) {
   return MaterialApp(
@@ -63,6 +66,7 @@ Widget _shell(BuildContext context, {VoidCallback? onClose, bool showClose = fal
 }
 
 void main() {
+  setUp(setUpTestI18n);
   tearDown(() {
     GhPopupRegistry.debugReset();
   });
@@ -135,7 +139,7 @@ void main() {
       showGhModal<void>(host, (context) => _shell(context, showClose: true, withButtons: false));
       await tester.pumpAndSettle();
 
-      await tester.tap(_pressable(GhFeedbackStrings.close));
+      await tester.tap(_pressable(t.common.close));
       await tester.pumpAndSettle();
       expect(find.text('DIALOG TITLE'), findsNothing);
     });
@@ -244,9 +248,9 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(_focusOf(tester, 'Discard it').hasPrimaryFocus, isTrue);
-      expect(_focusOf(tester, GhFeedbackStrings.cancel).hasPrimaryFocus, isFalse);
+      expect(_focusOf(tester, t.common.cancel).hasPrimaryFocus, isFalse);
       expect(find.byWidgetPredicate((w) => w is GhIcon && w.icon == GhIcons.alertTriangle), findsOneWidget);
-      expect(_pressable(GhFeedbackStrings.close), findsNothing);
+      expect(_pressable(t.common.close), findsNothing);
 
       await tester.tap(find.text('Discard it'));
       await tester.pumpAndSettle();
@@ -279,7 +283,7 @@ void main() {
       final host = await _pumpHost(tester);
       showGhConfirmDialog(host, title: 'T', description: 'D', confirmLabel: 'OK', cancelLabel: '');
       await tester.pumpAndSettle();
-      expect(find.text(GhFeedbackStrings.cancel), findsOneWidget);
+      expect(find.text(t.common.cancel), findsOneWidget);
     });
   });
 
@@ -317,7 +321,7 @@ void main() {
       store.pushToast(GhToastType.error, 'Broken');
       await tester.pumpAndSettle();
 
-      await tester.tap(_pressable(GhFeedbackStrings.dismiss));
+      await tester.tap(_pressable(t.common.dismiss));
       await tester.pumpAndSettle();
       expect(find.text('Broken'), findsNothing);
       expect(store.toasts, isEmpty);
@@ -346,7 +350,7 @@ void main() {
       store.reportError(42);
       await tester.pump();
       expect(find.text('disk full'), findsOneWidget);
-      expect(find.text(GhFeedbackStrings.somethingWentWrong), findsOneWidget);
+      expect(find.text('Something went wrong'), findsOneWidget);
 
       await tester.pump(const Duration(milliseconds: 5999));
       expect(store.toasts, hasLength(2));
@@ -378,19 +382,19 @@ void main() {
       await tester.pumpWidget(_app((context) => GhAnnouncementBanner(controller: controller, onSupport: () => supports++)));
       controller.start();
       await tester.pump();
-      expect(find.text(GhFeedbackStrings.announcementSupportTitle), findsNothing);
+      expect(find.text(t.common.announcement_support_title), findsNothing);
 
       await tester.pump(const Duration(seconds: 15));
       await tester.pumpAndSettle();
-      expect(find.text(GhFeedbackStrings.announcementSupportTitle), findsOneWidget);
+      expect(find.text(t.common.announcement_support_title), findsOneWidget);
       expect(prefs[GhAnnouncement.usageKey], '${GhAnnouncement.usageThresholdSeconds}');
 
-      await tester.tap(find.text(GhFeedbackStrings.support));
+      await tester.tap(find.text(t.common.support));
       expect(supports, 1);
 
-      await tester.tap(_pressable(GhFeedbackStrings.dismiss));
+      await tester.tap(_pressable(t.common.dismiss));
       await tester.pumpAndSettle();
-      expect(find.text(GhFeedbackStrings.announcementSupportTitle), findsNothing);
+      expect(find.text(t.common.announcement_support_title), findsNothing);
       expect(prefs[GhAnnouncement.dismissKey], '1');
       controller.dispose();
     });
@@ -404,7 +408,7 @@ void main() {
       await tester.pumpWidget(build('b'));
       await tester.pump(const Duration(milliseconds: 500));
       expect(find.text('Beta'), findsOneWidget);
-      expect(find.text(GhFeedbackStrings.workspaceSwitchedTo.toUpperCase()), findsOneWidget);
+      expect(find.text(t.common.workspace_switched_to.toUpperCase()), findsOneWidget);
 
       await tester.pump(const Duration(milliseconds: 1400));
       expect(find.text('Beta'), findsNothing);

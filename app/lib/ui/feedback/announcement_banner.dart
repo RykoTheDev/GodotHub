@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../design/design.dart';
 import '../core/interaction.dart';
-import 'strings.dart';
+import '../core/i18n.dart';
 
 abstract final class GhAnnouncement {
   static const dismissKey = 'godothub_announcement_dismissed';
@@ -113,24 +113,25 @@ class GhAnnouncementCard extends StatelessWidget {
     super.key,
     required this.onSupport,
     required this.onDismiss,
-    this.title = GhFeedbackStrings.announcementSupportTitle,
-    this.body = GhFeedbackStrings.announcementSupportBody,
-    this.supportLabel = GhFeedbackStrings.support,
-    this.dismissLabel = GhFeedbackStrings.dismiss,
+    this.title,
+    this.body,
+    this.supportLabel,
+    this.dismissLabel,
     this.animate = true,
   });
 
   final VoidCallback onSupport;
   final VoidCallback onDismiss;
-  final String title;
-  final String body;
-  final String supportLabel;
-  final String dismissLabel;
+  final String? title;
+  final String? body;
+  final String? supportLabel;
+  final String? dismissLabel;
   final bool animate;
 
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
+    final tr = context.tr;
     final card = Container(
       width: double.infinity,
       padding: EdgeInsetsDirectional.fromSTEB(theme.space(5), theme.space(3), theme.space(3), theme.space(3)),
@@ -159,14 +160,14 @@ class GhAnnouncementCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(title, style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.ink)),
+                Text(title ?? tr.common.announcement_support_title, style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.ink)),
                 SizedBox(height: theme.space(0.5)),
-                Text(body, style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625)),
+                Text(body ?? tr.common.announcement_support_body, style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625)),
               ],
             ),
           ),
-          _SupportButton(label: supportLabel, onPressed: onSupport),
-          _DismissButton(label: dismissLabel, onPressed: onDismiss),
+          _SupportButton(label: supportLabel ?? tr.common.support, onPressed: onSupport),
+          _DismissButton(label: dismissLabel ?? tr.common.dismiss, onPressed: onDismiss),
         ],
       ),
     );

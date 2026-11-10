@@ -12,6 +12,8 @@ import 'package:godothub/ui/overlays/menu.dart';
 import 'package:godothub/ui/overlays/popup_registry.dart';
 import 'package:godothub/ui/overlays/slash_menu.dart';
 
+import 'i18n_setup.dart';
+
 Widget _app(Widget child) {
   return MaterialApp(
     theme: GhTheme.defaults().toThemeData(),
@@ -26,6 +28,7 @@ Widget _trigger(String label, bool open, VoidCallback toggle) {
 String? _focusedLabel() => FocusManager.instance.primaryFocus?.debugLabel;
 
 void main() {
+  setUp(setUpTestI18n);
   tearDown(GhPopupRegistry.debugReset);
 
   group('GhDropdown', () {

@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import '../../design/design.dart';
 import '../../motion/presence.dart';
 import '../core/interaction.dart';
-import 'strings.dart';
+import '../core/i18n.dart';
 import 'toast.dart';
 
 class GhToastCard extends StatelessWidget {
@@ -13,13 +13,13 @@ class GhToastCard extends StatelessWidget {
     super.key,
     required this.toast,
     required this.onDismiss,
-    this.dismissLabel = GhFeedbackStrings.dismiss,
+    this.dismissLabel,
     this.collapse = 0,
   });
 
   final GhToastItem toast;
   final VoidCallback onDismiss;
-  final String dismissLabel;
+  final String? dismissLabel;
   final double collapse;
 
   @override
@@ -74,7 +74,7 @@ class GhToastCard extends StatelessWidget {
                           action.onClick();
                         },
                       ),
-                    _ToastDismissButton(label: dismissLabel, onPressed: onDismiss),
+                    _ToastDismissButton(label: dismissLabel ?? context.tr.common.dismiss, onPressed: onDismiss),
                   ],
                 ),
               ),

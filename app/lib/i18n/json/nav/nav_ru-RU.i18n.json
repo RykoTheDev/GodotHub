@@ -1,0 +1,26 @@
+{
+  "dashboard": "Панель управления",
+  "projects": "Проекты",
+  "projects_count(plural)": {
+    "one": "Project",
+    "few": "Проекты",
+    "many": "Проекты",
+    "other": "Projects"
+  },
+  "versions": "Версии",
+  "templates": "Шаблоны",
+  "vault": "Vault",
+  "asset_store": "Магазин ассетов",
+  "news": "Новости",
+  "storage_view": "Storage",
+  "settings": "Настройки",
+  "changelog": "Журнал изменений",
+  "group_workspace": "Рабочая область",
+  "group_resources": "Ресурсы",
+  "group_explore": "Обзор",
+  "you": "You",
+  "account_manage": "Manage accounts",
+  "workspace_tip_title": "Переключатель рабочих областей переехал",
+  "workspace_tip_body": "Переключайте и настраивайте рабочие области в меню аккаунта ниже.",
+  "workspace_tip_dismiss": "Понятно"
+}

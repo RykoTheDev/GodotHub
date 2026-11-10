@@ -1,0 +1,12 @@
+{
+  "changelog_title": "NHẬT KÝ THAY ĐỔI",
+  "no_entries": "Chưa có mục nào trong nhật ký thay đổi",
+  "delete_entry_title": "Xóa mục nhật ký thay đổi??",
+  "delete_entry_desc": "Thao tác này xóa mục nhập vĩnh viễn. Không thể hoàn tác.",
+  "changelog_subtitle": "Lịch sử các bản cập nhật của GodotHub.",
+  "edit_entry_aria": "Edit {{version}}",
+  "delete_entry_aria": "Delete {{version}}",
+  "added": "Đã được thêm",
+  "fixed": "Đã được sửa",
+  "improved": "Đã được cải thiện"
+}

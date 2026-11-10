@@ -9,7 +9,7 @@ import '../src/rust/api/types.dart';
 import 'language_menu.dart';
 import 'providers.dart';
 import 'running_projects_chip.dart';
-import 'strings.dart' as s;
+import '../ui/core/i18n.dart';
 import 'task_tray.dart';
 import 'title_bar_theme.dart';
 import 'window_controls.dart';
@@ -63,8 +63,8 @@ class TitleBar extends ConsumerWidget {
           color: tokens.muted,
           hoverColor: tokens.amber,
           hoverBackground: tokens.amber.withValues(alpha: 0.1),
-          tooltip: s.starOnGithub,
-          semanticLabel: s.starOnGithub,
+          tooltip: context.tr.common.star_on_github,
+          semanticLabel: context.tr.common.star_on_github,
           onPressed: () => emit(TitleBarAction.star),
         ),
       if (!minimal && settings.showBugButton)
@@ -76,8 +76,8 @@ class TitleBar extends ConsumerWidget {
           color: tokens.muted,
           hoverColor: tokens.danger,
           hoverBackground: tokens.danger.withValues(alpha: 0.1),
-          tooltip: s.reportABug,
-          semanticLabel: s.reportABug,
+          tooltip: context.tr.common.report_a_bug,
+          semanticLabel: context.tr.common.report_a_bug,
           onPressed: () => emit(TitleBarAction.bug),
         ),
       if (showTrailingGroup) ...[
@@ -179,7 +179,7 @@ class _Wordmark extends StatelessWidget {
     }
     return TitleBarButton(
       key: const ValueKey('titlebar-wordmark'),
-      tooltip: s.dashboard,
+      tooltip: context.tr.nav.dashboard,
       semanticLabel: 'GodotHub',
       ripple: false,
       onPressed: onPressed,
@@ -206,15 +206,15 @@ class _ChangelogButton extends StatelessWidget {
         color: tokens.muted,
         hoverColor: tokens.ink,
         hoverBackground: tokens.ink.withValues(alpha: 0.1),
-        tooltip: s.changelog,
-        semanticLabel: s.changelog,
+        tooltip: context.tr.nav.changelog,
+        semanticLabel: context.tr.nav.changelog,
         onPressed: onPressed,
       );
     }
     return TitleBarButton(
       key: const ValueKey('titlebar-changelog'),
-      tooltip: s.changelog,
-      semanticLabel: '${s.changelog} (${s.newBadge})',
+      tooltip: context.tr.nav.changelog,
+      semanticLabel: '${context.tr.nav.changelog} (${context.tr.common.new_badge})',
       onPressed: onPressed,
       builder: (context, hovered) => Container(
         height: 26,
@@ -236,7 +236,7 @@ class _ChangelogButton extends StatelessWidget {
             GhIcon(GhIcons.bookOpen, size: 14, color: tokens.accentBright),
             const SizedBox(width: 6),
             Text(
-              s.changelog,
+              context.tr.nav.changelog,
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: tokens.accentBright),
             ),
           ],
@@ -256,8 +256,8 @@ class _SupportButton extends StatelessWidget {
     final tokens = TitleBarTokens.of(context);
     return TitleBarButton(
       key: const ValueKey('titlebar-support'),
-      tooltip: s.supportDev,
-      semanticLabel: s.support,
+      tooltip: context.tr.common.support_dev,
+      semanticLabel: context.tr.common.support,
       onPressed: onPressed,
       builder: (context, hovered) => Container(
         height: 26,
@@ -272,7 +272,7 @@ class _SupportButton extends StatelessWidget {
             GhIcon(GhIcons.heart, size: 14, color: tokens.danger),
             const SizedBox(width: 6),
             Text(
-              s.support,
+              context.tr.common.support,
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: tokens.danger),
             ),
           ],

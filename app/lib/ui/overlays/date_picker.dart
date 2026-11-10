@@ -1,11 +1,12 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../../design/design.dart';
+import '../core/i18n.dart';
 import '../core/interaction.dart';
 import 'menu.dart';
-import 'strings.dart';
 
 String ghDateToValue(DateTime date) {
   final month = date.month.toString().padLeft(2, '0');
@@ -20,6 +21,49 @@ DateTime? ghDateFromValue(String value) {
   final parts = value.split('-').map(int.parse).toList();
   return DateTime(parts[0], parts[1], parts[2]);
 }
+
+String ghIntlLocale(String language) {
+  final normalized = language.replaceAll('-', '_');
+  for (final candidate in {normalized, normalized.split('_').first}) {
+    try {
+      if (DateFormat.localeExists(candidate)) {
+        return candidate;
+      }
+    } on Object {
+      break;
+    }
+  }
+  return 'en_US';
+}
+
+String ghFormatDate(DateTime date, String language) => DateFormat.yMd(ghIntlLocale(language)).format(date);
+
+const _arMaMonths = ['يناير', 'فبراير', 'مارس', 'أبريل', 'ماي', 'يونيو', 'يوليوز', 'غشت', 'شتنبر', 'أكتوبر', 'نونبر', 'دجنبر'];
+
+List<String> ghMonthNames(String language) {
+  if (language.toLowerCase() == 'ar-ma') {
+    return _arMaMonths;
+  }
+  final format = DateFormat('LLLL', ghIntlLocale(language));
+  return List.generate(12, (index) => format.format(DateTime(2026, index + 1, 1)));
+}
+
+List<String> ghWeekdayNames(String language) {
+  final locale = ghIntlLocale(language);
+  final week = List.generate(7, (index) => DateTime(2026, 1, 4 + index));
+  final short = DateFormat('ccc', locale);
+  final shortDays = [for (final date in week) short.format(date).replaceFirst('.', '')];
+  if (shortDays.every((day) => day.length <= 3)) {
+    return shortDays;
+  }
+  final narrow = DateFormat('ccccc', locale);
+  return [for (final date in week) narrow.format(date)];
+}
+
+String ghCapitalizeWords(String text) =>
+    text.replaceAllMapped(RegExp(r'(^|\s)(\S)'), (match) => '${match[1]}${match[2]!.toUpperCase()}');
+
+String _languageOf(BuildContext context, String? locale) => locale ?? context.tr.$meta.locale.languageTag;
 
 List<DateTime> ghCalendarDays(DateTime viewDate) {
   final first = DateTime(viewDate.year, viewDate.month, 1);
@@ -39,13 +83,14 @@ class GhDatePicker extends StatefulWidget {
     this.pastDateMessage,
     this.compact = false,
     this.disabled = false,
-    this.formatDate = GhOverlayStrings.formatDate,
-    this.monthNames = GhOverlayStrings.monthNames,
-    this.weekdayNames = GhOverlayStrings.weekdayNames,
-    this.previousMonthLabel = GhOverlayStrings.datePreviousMonth,
-    this.nextMonthLabel = GhOverlayStrings.dateNextMonth,
-    this.addDueLabel = GhOverlayStrings.dateAddDue,
-    this.changeDueLabel = GhOverlayStrings.dateChangeDue,
+    this.locale,
+    this.formatDate,
+    this.monthNames,
+    this.weekdayNames,
+    this.previousMonthLabel,
+    this.nextMonthLabel,
+    this.addDueLabel,
+    this.changeDueLabel,
     this.today,
   }) : assert(placeholder != null || displayValue != null);
 
@@ -58,13 +103,14 @@ class GhDatePicker extends StatefulWidget {
   final String? pastDateMessage;
   final bool compact;
   final bool disabled;
-  final String Function(DateTime date) formatDate;
-  final List<String> monthNames;
-  final List<String> weekdayNames;
-  final String previousMonthLabel;
-  final String nextMonthLabel;
-  final String addDueLabel;
-  final String Function(String date) changeDueLabel;
+  final String? locale;
+  final String Function(DateTime date)? formatDate;
+  final List<String>? monthNames;
+  final List<String>? weekdayNames;
+  final String? previousMonthLabel;
+  final String? nextMonthLabel;
+  final String? addDueLabel;
+  final String Function(String date)? changeDueLabel;
   final DateTime Function()? today;
 
   @override
@@ -84,7 +130,8 @@ class _GhDatePickerState extends State<GhDatePicker> {
     if (date == null) {
       return widget.placeholder ?? '';
     }
-    return widget.formatDate(date);
+    final format = widget.formatDate;
+    return format != null ? format(date) : ghFormatDate(date, _languageOf(context, widget.locale));
   }
 
   void _toggle() {
@@ -145,6 +192,7 @@ class _GhDatePickerState extends State<GhDatePicker> {
               todayValue: todayValue,
               markPastDates: widget.markPastDates,
               clearLabel: widget.clearLabel,
+              locale: widget.locale,
               monthNames: widget.monthNames,
               weekdayNames: widget.weekdayNames,
               previousMonthLabel: widget.previousMonthLabel,
@@ -179,6 +227,11 @@ class _GhDatePickerState extends State<GhDatePicker> {
     );
   }
 
+  String _changeDueLabel(String date) {
+    final label = widget.changeDueLabel;
+    return label != null ? label(date) : context.tr.common.date_change_due.args({'date': date});
+  }
+
   Widget _compactTrigger(GhTheme theme) {
     final radius = BorderRadius.circular(theme.radiusBtn);
     final value = widget.value;
@@ -187,7 +240,7 @@ class _GhDatePickerState extends State<GhDatePicker> {
       borderRadius: radius,
       disabledOpacity: 0.5,
       disabledCursor: SystemMouseCursors.forbidden,
-      semanticLabel: value.isNotEmpty ? widget.changeDueLabel(_formatValue(value)) : widget.addDueLabel,
+      semanticLabel: value.isNotEmpty ? _changeDueLabel(_formatValue(value)) : widget.addDueLabel ?? context.tr.common.date_add_due,
       builder: (context, states) {
         final hovered = states.hovered && !states.disabled;
         final style = theme.text(size: GhTextSize.x3s, color: hovered ? theme.ink : theme.muted).copyWith(
@@ -252,10 +305,11 @@ class GhDatePickerPanel extends StatelessWidget {
     required this.onNextMonth,
     required this.clearLabel,
     this.markPastDates = false,
-    this.monthNames = GhOverlayStrings.monthNames,
-    this.weekdayNames = GhOverlayStrings.weekdayNames,
-    this.previousMonthLabel = GhOverlayStrings.datePreviousMonth,
-    this.nextMonthLabel = GhOverlayStrings.dateNextMonth,
+    this.locale,
+    this.monthNames,
+    this.weekdayNames,
+    this.previousMonthLabel,
+    this.nextMonthLabel,
   });
 
   final DateTime viewDate;
@@ -263,10 +317,11 @@ class GhDatePickerPanel extends StatelessWidget {
   final String todayValue;
   final bool markPastDates;
   final String clearLabel;
-  final List<String> monthNames;
-  final List<String> weekdayNames;
-  final String previousMonthLabel;
-  final String nextMonthLabel;
+  final String? locale;
+  final List<String>? monthNames;
+  final List<String>? weekdayNames;
+  final String? previousMonthLabel;
+  final String? nextMonthLabel;
   final ValueChanged<DateTime> onSelect;
   final VoidCallback onClear;
   final VoidCallback onPreviousMonth;
@@ -275,6 +330,10 @@ class GhDatePickerPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
+    final tr = context.tr;
+    final language = _languageOf(context, locale);
+    final months = monthNames ?? ghMonthNames(language);
+    final weekdays = weekdayNames ?? ghWeekdayNames(language);
     final days = ghCalendarDays(viewDate);
     final gap = theme.space(0.5);
     final rows = <Widget>[];
@@ -325,16 +384,20 @@ class GhDatePickerPanel extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _PanelButton(label: '‹', semanticLabel: previousMonthLabel, onPressed: onPreviousMonth),
+                _PanelButton(
+                  label: '‹',
+                  semanticLabel: previousMonthLabel ?? tr.common.date_previous_month,
+                  onPressed: onPreviousMonth,
+                ),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(monthNames[viewDate.month - 1], style: theme.text(size: GhTextSize.sm, color: theme.ink)),
+                    Text(ghCapitalizeWords(months[viewDate.month - 1]), style: theme.text(size: GhTextSize.sm, color: theme.ink)),
                     SizedBox(width: theme.space(1)),
                     Text('${viewDate.year}', style: theme.text(size: GhTextSize.sm, color: theme.muted)),
                   ],
                 ),
-                _PanelButton(label: '›', semanticLabel: nextMonthLabel, onPressed: onNextMonth),
+                _PanelButton(label: '›', semanticLabel: nextMonthLabel ?? tr.common.date_next_month, onPressed: onNextMonth),
               ],
             ),
           ),
@@ -342,12 +405,12 @@ class GhDatePickerPanel extends StatelessWidget {
             padding: EdgeInsets.only(bottom: theme.space(1)),
             child: Row(
               children: [
-                for (final day in weekdayNames)
+                for (final day in weekdays)
                   Expanded(
                     child: Padding(
                       padding: EdgeInsets.symmetric(vertical: theme.space(1)),
                       child: Text(
-                        day.length > 3 ? day.substring(0, 3) : day,
+                        day,
                         textAlign: TextAlign.center,
                         style: theme.text(size: GhTextSize.x3s, color: theme.muted),
                       ),

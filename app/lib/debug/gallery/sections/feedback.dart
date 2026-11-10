@@ -72,7 +72,7 @@ class _SampleBody extends StatelessWidget {
 
 List<Widget> _sampleFooter(VoidCallback close) => [
       const Spacer(),
-      GhButton(onPressed: close, label: GhFeedbackStrings.cancel),
+      GhButton(onPressed: close, label: 'Cancel'),
       GhButton(onPressed: close, label: 'Save', variant: GhButtonVariant.primary),
     ];
 
@@ -124,7 +124,7 @@ class _Modals extends StatelessWidget {
         footer: [
           const Spacer(),
           GhButton(onPressed: () => menu.release(), label: 'Close menu'),
-          GhButton(onPressed: close, label: GhFeedbackStrings.close, variant: GhButtonVariant.primary),
+          GhButton(onPressed: close, label: 'Close', variant: GhButtonVariant.primary),
         ],
         child: const _SampleBody(lines: 1),
       );

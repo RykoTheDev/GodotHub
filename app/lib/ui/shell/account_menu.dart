@@ -7,7 +7,7 @@ import '../core/interaction.dart';
 import '../core/ui_settings.dart' show GhSide;
 import '../overlays/dropdown.dart';
 import '../overlays/menu.dart';
-import 'strings.dart';
+import '../core/i18n.dart';
 
 const ghSupportUrl = 'https://www.patreon.com/cw/TheRyko/membership';
 
@@ -25,12 +25,12 @@ class GhAccountMenu extends StatefulWidget {
     this.onReportBug,
     this.onSupport,
     this.onManageAccounts,
-    this.youLabel = GhShellStrings.you,
-    this.changelogLabel = GhShellStrings.changelog,
-    this.reportBugLabel = GhShellStrings.reportABug,
-    this.supportLabel = GhShellStrings.support,
-    this.manageLabel = GhShellStrings.accountManage,
-    this.newBadgeLabel = GhShellStrings.newBadge,
+    this.youLabel,
+    this.changelogLabel,
+    this.reportBugLabel,
+    this.supportLabel,
+    this.manageLabel,
+    this.newBadgeLabel,
   });
 
   final GhDropdownTriggerBuilder trigger;
@@ -44,12 +44,12 @@ class GhAccountMenu extends StatefulWidget {
   final VoidCallback? onReportBug;
   final VoidCallback? onSupport;
   final VoidCallback? onManageAccounts;
-  final String youLabel;
-  final String changelogLabel;
-  final String reportBugLabel;
-  final String supportLabel;
-  final String manageLabel;
-  final String newBadgeLabel;
+  final String? youLabel;
+  final String? changelogLabel;
+  final String? reportBugLabel;
+  final String? supportLabel;
+  final String? manageLabel;
+  final String? newBadgeLabel;
 
   @override
   State<GhAccountMenu> createState() => _GhAccountMenuState();
@@ -68,13 +68,13 @@ class _GhAccountMenuState extends State<GhAccountMenu> {
     if (widget.workspaceItem != null) widget.workspaceItem!,
     GhMenuItem(
       id: 'changelog',
-      label: widget.changelogLabel,
+      label: widget.changelogLabel ?? context.tr.nav.changelog,
       icon: GhIcons.bookOpen,
-      badge: widget.hasNewChangelog ? widget.newBadgeLabel : null,
+      badge: widget.hasNewChangelog ? widget.newBadgeLabel ?? context.tr.common.new_badge : null,
       onSelected: () => widget.onNavigate('changelog'),
     ),
-    GhMenuItem(id: 'bug', label: widget.reportBugLabel, icon: GhIcons.bug, danger: true, onSelected: widget.onReportBug ?? () {}),
-    GhMenuItem(id: 'support', label: widget.supportLabel, icon: GhIcons.heart, onSelected: widget.onSupport ?? () {}),
+    GhMenuItem(id: 'bug', label: widget.reportBugLabel ?? context.tr.common.report_a_bug, icon: GhIcons.bug, danger: true, onSelected: widget.onReportBug ?? () {}),
+    GhMenuItem(id: 'support', label: widget.supportLabel ?? context.tr.common.support, icon: GhIcons.heart, onSelected: widget.onSupport ?? () {}),
   ];
 
   @override
@@ -91,7 +91,7 @@ class _GhAccountMenuState extends State<GhAccountMenu> {
 
   Widget _header(BuildContext context, VoidCallback close) {
     final theme = GhTheme.of(context);
-    final name = (widget.userName?.isNotEmpty ?? false) ? widget.userName! : widget.youLabel;
+    final name = (widget.userName?.isNotEmpty ?? false) ? widget.userName! : widget.youLabel ?? context.tr.nav.you;
     final accounts = <(FaIconData, String, String)>[
       if (widget.githubUsername != null) (GhIcons.github, 'GitHub', widget.githubUsername!),
       if (widget.gitlabUsername != null) (GhIcons.gitlab, 'GitLab', widget.gitlabUsername!),
@@ -119,7 +119,7 @@ class _GhAccountMenuState extends State<GhAccountMenu> {
             SizedBox(height: theme.space(2)),
             _AccountsBox(
               accounts: accounts,
-              manageLabel: widget.manageLabel,
+              manageLabel: widget.manageLabel ?? context.tr.nav.account_manage,
               manageNode: _manageNode,
               onManage: () {
                 close();

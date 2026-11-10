@@ -4,7 +4,7 @@ import '../../design/design.dart';
 import '../core/interaction.dart';
 import '../core/tooltip.dart';
 import '../core/ui_settings.dart';
-import 'strings.dart' as s;
+import '../core/i18n.dart';
 import '../../motion/motion.dart';
 
 class GhSearchBar extends StatefulWidget {
@@ -12,28 +12,28 @@ class GhSearchBar extends StatefulWidget {
     super.key,
     required this.value,
     required this.onChanged,
-    this.placeholder = s.searchProjectsPlaceholder,
+    this.placeholder,
     this.focusNode,
     this.onKeyEvent,
     this.onCaretChange,
     this.onBlur,
     this.overlay,
     this.autofocus = false,
-    this.searchLabel = s.search,
-    this.clearLabel = s.clearSearch,
+    this.searchLabel,
+    this.clearLabel,
   });
 
   final String value;
   final ValueChanged<String> onChanged;
-  final String placeholder;
+  final String? placeholder;
   final FocusNode? focusNode;
   final FocusOnKeyEventCallback? onKeyEvent;
   final ValueChanged<int>? onCaretChange;
   final VoidCallback? onBlur;
   final Widget? overlay;
   final bool autofocus;
-  final String searchLabel;
-  final String clearLabel;
+  final String? searchLabel;
+  final String? clearLabel;
 
   @override
   State<GhSearchBar> createState() => _GhSearchBarState();
@@ -136,7 +136,7 @@ class _GhSearchBarState extends State<GhSearchBar> {
             SizedBox(width: theme.space(2)),
             Expanded(
               child: Semantics(
-                label: widget.searchLabel,
+                label: widget.searchLabel ?? context.tr.common.search,
                 child: Focus(
                   canRequestFocus: false,
                   skipTraversal: true,
@@ -154,7 +154,7 @@ class _GhSearchBarState extends State<GhSearchBar> {
                       cursorColor: theme.caret,
                       cursorWidth: 1,
                       decoration: InputDecoration.collapsed(
-                        hintText: widget.placeholder,
+                        hintText: widget.placeholder ?? context.tr.common.search_projects_placeholder,
                         hintStyle: textStyle.copyWith(color: theme.placeholder),
                       ),
                     ),
@@ -165,11 +165,11 @@ class _GhSearchBarState extends State<GhSearchBar> {
             if (widget.value.isNotEmpty) ...[
               SizedBox(width: theme.space(2)),
               GhTooltip(
-                message: widget.clearLabel,
+                message: widget.clearLabel ?? context.tr.common.clear_search,
                 side: GhSide.top,
                 child: GhPressable(
                   onPressed: _clear,
-                  semanticLabel: widget.clearLabel,
+                  semanticLabel: widget.clearLabel ?? context.tr.common.clear_search,
                   borderRadius: BorderRadius.circular(theme.radiusBtn),
                   builder: (context, states) {
                     final hover = states.hovered && !states.disabled;

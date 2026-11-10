@@ -3,16 +3,25 @@ import 'package:flutter/material.dart';
 import '../design/design.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../i18n/i18n_controller.dart';
+import '../i18n/languages.dart';
 import '../src/providers.dart';
 import '../src/rust/api/types.dart';
-import 'languages.dart';
+import '../ui/core/i18n.dart';
 import 'providers.dart';
 import 'settings_copy.dart';
-import 'strings.dart' as s;
 import 'title_bar_theme.dart';
 
 const _menuWidth = 240.0;
 const _triggerWidth = 36.0;
+const _switchToLtrLayoutLabel = 'التبديل إلى التخطيط من اليسار إلى اليمين';
+const _switchToRtlLayoutLabel = 'التبديل إلى التخطيط من اليمين إلى اليسار';
+
+bool languageMenuItemActive(String value, String setting, String currentLanguage) {
+  if (value == ghSystemLanguage) return setting == ghSystemLanguage;
+  if (setting == ghSystemLanguage) return false;
+  return currentLanguage == value || currentLanguage.startsWith(value.split('-').first);
+}
 
 class LanguageMenu extends ConsumerStatefulWidget {
   const LanguageMenu({super.key});
@@ -37,8 +46,9 @@ class _LanguageMenuState extends ConsumerState<LanguageMenu> {
   }
 
   void _select(AppSettings settings, String value) {
-    _menu.close();
+    GhI18n.instance.setLanguageSetting(value);
     _save(copySettings(settings, language: value));
+    _menu.close();
   }
 
   void _toggleLayout(AppSettings settings) {
@@ -49,6 +59,8 @@ class _LanguageMenuState extends ConsumerState<LanguageMenu> {
   Widget build(BuildContext context) {
     final tokens = TitleBarTokens.of(context);
     final settings = ref.watch(settingsProvider).value;
+    final label = context.tr.common.language_label;
+    final i18n = GhI18n.instance;
     return MenuAnchor(
       controller: _menu,
       style: tokens.menuStyle(),
@@ -59,37 +71,46 @@ class _LanguageMenuState extends ConsumerState<LanguageMenu> {
       },
       menuChildren: [
         if (settings != null)
-          SizedBox(
-            width: _menuWidth - 12,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(10, 6, 10, 4),
-                  child: Text(
-                    s.languageLabel.toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.8,
-                      color: tokens.muted.withValues(alpha: 0.5),
+          ListenableBuilder(
+            listenable: i18n,
+            builder: (context, _) {
+              final tr = context.tr;
+              final current = i18n.language;
+              final rtl = ghTextDirectionOf(current) == TextDirection.rtl;
+              return SizedBox(
+                width: _menuWidth - 12,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 6, 10, 4),
+                      child: Text(
+                        tr.common.language_label.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.8,
+                          color: tokens.muted.withValues(alpha: 0.5),
+                        ),
+                      ),
                     ),
-                  ),
+                    for (final language in ghLanguages)
+                      _LanguageRow(
+                        key: ValueKey('language-${language.value}'),
+                        language: language,
+                        label: language.displayLabel(tr),
+                        statusLabel: ghTr(languageStatusLabelKey(language.status), translations: tr),
+                        active: languageMenuItemActive(language.value, settings.language, current),
+                        showLayoutToggle: rtl && languageMenuItemActive(language.value, settings.language, current),
+                        mirrored: settings.rtlLayout,
+                        onSelect: () => _select(settings, language.value),
+                        onToggleLayout: () => _toggleLayout(settings),
+                      ),
+                  ],
                 ),
-                for (final language in languages)
-                  _LanguageRow(
-                    key: ValueKey('language-${language.value}'),
-                    language: language,
-                    active: isLanguageActive(language.value, settings.language),
-                    showLayoutToggle:
-                        isLanguageActive(language.value, settings.language) && isRtlLanguage(settings.language),
-                    mirrored: settings.rtlLayout,
-                    onSelect: () => _select(settings, language.value),
-                    onToggleLayout: () => _toggleLayout(settings),
-                  ),
-              ],
-            ),
+              );
+            },
           ),
       ],
       builder: (context, controller, child) => TitleBarIconButton(
@@ -101,8 +122,8 @@ class _LanguageMenuState extends ConsumerState<LanguageMenu> {
         color: tokens.muted,
         hoverColor: tokens.ink,
         hoverBackground: tokens.ink.withValues(alpha: 0.08),
-        tooltip: s.languageLabel,
-        semanticLabel: s.languageLabel,
+        tooltip: label,
+        semanticLabel: label,
         expanded: _open,
         onPressed: () => controller.isOpen ? controller.close() : controller.open(),
       ),
@@ -114,6 +135,8 @@ class _LanguageRow extends StatelessWidget {
   const _LanguageRow({
     super.key,
     required this.language,
+    required this.label,
+    required this.statusLabel,
     required this.active,
     required this.showLayoutToggle,
     required this.mirrored,
@@ -121,7 +144,9 @@ class _LanguageRow extends StatelessWidget {
     required this.onToggleLayout,
   });
 
-  final LanguageOption language;
+  final GhLanguageOption language;
+  final String label;
+  final String statusLabel;
   final bool active;
   final bool showLayoutToggle;
   final bool mirrored;
@@ -137,7 +162,7 @@ class _LanguageRow extends StatelessWidget {
         ? BorderRadiusDirectional.horizontal(start: big, end: small)
         : BorderRadiusDirectional.all(big);
     final item = TitleBarButton(
-      semanticLabel: language.label,
+      semanticLabel: label,
       onPressed: onSelect,
       builder: (context, hovered) {
         final foreground = active ? tokens.accentBright : (hovered ? tokens.ink : tokens.muted);
@@ -156,7 +181,7 @@ class _LanguageRow extends StatelessWidget {
                   children: [
                     Flexible(
                       child: Text(
-                        language.label,
+                        label,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(fontSize: 12, color: foreground),
@@ -164,7 +189,7 @@ class _LanguageRow extends StatelessWidget {
                     ),
                     if (!language.isSystem) ...[
                       const SizedBox(width: 6),
-                      LanguageStatusBadge(status: language.status),
+                      LanguageStatusBadge(status: language.status, label: statusLabel),
                     ],
                   ],
                 ),
@@ -179,7 +204,7 @@ class _LanguageRow extends StatelessWidget {
       },
     );
     if (!showLayoutToggle) return item;
-    final label = mirrored ? switchToLtrLayoutLabel : switchToRtlLayoutLabel;
+    final toggleLabel = mirrored ? _switchToLtrLayoutLabel : _switchToRtlLayoutLabel;
     return IntrinsicHeight(
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -188,8 +213,8 @@ class _LanguageRow extends StatelessWidget {
           const SizedBox(width: 2),
           TitleBarButton(
             key: const ValueKey('rtl-layout-toggle'),
-            tooltip: label,
-            semanticLabel: label,
+            tooltip: toggleLabel,
+            semanticLabel: toggleLabel,
             onPressed: onToggleLayout,
             builder: (context, hovered) {
               final alpha = mirrored ? (hovered ? 0.35 : 0.25) : (hovered ? 0.25 : 0.15);
@@ -242,25 +267,26 @@ class LanguageFlag extends StatelessWidget {
 }
 
 class LanguageStatusBadge extends StatelessWidget {
-  const LanguageStatusBadge({super.key, required this.status});
+  const LanguageStatusBadge({super.key, required this.status, required this.label});
 
-  final LanguageStatus status;
+  final GhLanguageStatus status;
+  final String label;
 
   @override
   Widget build(BuildContext context) {
     final tokens = TitleBarTokens.of(context);
     final (background, foreground, border) = switch (status) {
-      LanguageStatus.complete => (
+      GhLanguageStatus.complete => (
         tokens.mint.withValues(alpha: 0.1),
         tokens.mint,
         tokens.mint.withValues(alpha: 0.3),
       ),
-      LanguageStatus.beta => (
+      GhLanguageStatus.beta => (
         tokens.amber.withValues(alpha: 0.1),
         tokens.amber,
         tokens.amber.withValues(alpha: 0.3),
       ),
-      LanguageStatus.incomplete => (
+      GhLanguageStatus.incomplete => (
         Colors.black.withValues(alpha: 0.15),
         tokens.muted,
         tokens.line.withValues(alpha: 0.4),
@@ -274,7 +300,7 @@ class LanguageStatusBadge extends StatelessWidget {
         border: Border.all(color: border),
       ),
       child: Text(
-        languageStatusLabel(status),
+        label,
         style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: foreground),
       ),
     );

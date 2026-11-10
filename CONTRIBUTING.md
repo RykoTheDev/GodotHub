@@ -393,6 +393,12 @@ src/i18n/
     ├── zh-CN/
 ```
 
+The new Flutter app (`app/`) reuses these exact files. Its copies in `app/lib/i18n` are generated, so never edit them by hand: edit `src/i18n/locales` as usual and they follow automatically.
+
+- If you have the Flutter SDK installed, the pre-commit hook regenerates and stages `app/lib/i18n` whenever you commit a locale change.
+- If you don't, the hook just prints a notice and lets the commit through. The **i18n sync** workflow then commits the update to your pull request, or opens a follow-up pull request after merge when your pull request comes from a fork.
+- To regenerate by hand: `cd app && dart run tool/i18n_convert.dart && dart run slang`.
+
 ### Namespace Reference
 
 | Namespace | Description | Keys |

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../design/design.dart';
 import '../core/interaction.dart';
-import 'strings.dart';
+import '../core/i18n.dart';
 import '../../motion/motion.dart';
 
 @immutable
@@ -26,16 +26,16 @@ class GhWorkspaceDraft {
 String? ghWorkspaceNameError(
   String name,
   List<String> takenNames, {
-  String requiredError = GhShellStrings.workspaceNameRequiredError,
-  String takenError = GhShellStrings.workspaceNameTakenError,
+  String? requiredError,
+  String? takenError,
 }) {
   final trimmed = name.trim();
   if (trimmed.isEmpty) {
-    return requiredError;
+    return requiredError ?? t.common.workspace_name_required_error;
   }
   final lower = trimmed.toLowerCase();
   if (takenNames.any((n) => n.trim().toLowerCase() == lower)) {
-    return takenError;
+    return takenError ?? t.common.workspace_name_taken_error;
   }
   return null;
 }
@@ -79,13 +79,13 @@ class GhWorkspaceForm extends StatelessWidget {
     this.onSubmit,
     this.onNameBlur,
     this.nameFocusNode,
-    this.namePlaceholder = GhShellStrings.workspaceNamePlaceholder,
-    this.sectionLabel = GhShellStrings.sectionWorkspaces,
-    this.nameLabel = GhShellStrings.workspaceNameLabel,
-    this.iconLabel = GhShellStrings.iconLabel,
-    this.colorLabel = GhShellStrings.colorLabel,
-    this.requiredError = GhShellStrings.workspaceNameRequiredError,
-    this.takenError = GhShellStrings.workspaceNameTakenError,
+    this.namePlaceholder,
+    this.sectionLabel,
+    this.nameLabel,
+    this.iconLabel,
+    this.colorLabel,
+    this.requiredError,
+    this.takenError,
   });
 
   final GhWorkspaceDraft value;
@@ -96,20 +96,33 @@ class GhWorkspaceForm extends StatelessWidget {
   final VoidCallback? onSubmit;
   final VoidCallback? onNameBlur;
   final FocusNode? nameFocusNode;
-  final String namePlaceholder;
-  final String sectionLabel;
-  final String nameLabel;
-  final String iconLabel;
-  final String colorLabel;
-  final String requiredError;
-  final String takenError;
+  final String? namePlaceholder;
+  final String? sectionLabel;
+  final String? nameLabel;
+  final String? iconLabel;
+  final String? colorLabel;
+  final String? requiredError;
+  final String? takenError;
 
   static const double twoColumnBreakpoint = 640;
 
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
-    final error = showErrors ? ghWorkspaceNameError(value.name, takenNames, requiredError: requiredError, takenError: takenError) : null;
+    final tr = context.tr.common;
+    final namePlaceholder = this.namePlaceholder ?? tr.workspace_name_placeholder;
+    final sectionLabel = this.sectionLabel ?? tr.section_workspaces;
+    final nameLabel = this.nameLabel ?? tr.workspace_name_label;
+    final iconLabel = this.iconLabel ?? tr.icon_label;
+    final colorLabel = this.colorLabel ?? tr.color_label;
+    final error = showErrors
+        ? ghWorkspaceNameError(
+            value.name,
+            takenNames,
+            requiredError: requiredError ?? tr.workspace_name_required_error,
+            takenError: takenError ?? tr.workspace_name_taken_error,
+          )
+        : null;
     final trimmed = value.name.trim();
     final preview = Container(
       padding: EdgeInsets.all(theme.space(4)),

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../../design/design.dart';
 import '../overlays/menu.dart';
-import 'strings.dart';
+import '../core/i18n.dart';
 
 @immutable
 class GhWorkspace {
@@ -73,8 +73,8 @@ GhMenuItem? ghWorkspaceMenuItem({
   required ValueChanged<String> onEdit,
   required VoidCallback onCreate,
   bool? isMac,
-  String editLabel = GhShellStrings.editWorkspaceTitle,
-  String createLabel = GhShellStrings.createWorkspace,
+  String? editLabel,
+  String? createLabel,
 }) {
   if (workspaces.isEmpty) {
     return null;
@@ -85,7 +85,7 @@ GhMenuItem? ghWorkspaceMenuItem({
     label: active.name,
     leading: GhWorkspaceMenuBadge(workspace: active),
     dividerAfter: true,
-    action: GhMenuItemAction(icon: GhIcons.pencil, label: editLabel, onPressed: () => onEdit(active.id)),
+    action: GhMenuItemAction(icon: GhIcons.pencil, label: editLabel ?? t.common.edit_workspace_title, onPressed: () => onEdit(active.id)),
     children: [
       for (var index = 0; index < workspaces.length; index++)
         GhMenuItem(
@@ -97,7 +97,7 @@ GhMenuItem? ghWorkspaceMenuItem({
           dividerAfter: index == workspaces.length - 1,
           onSelected: () => onSwitch(workspaces[index].id),
         ),
-      GhMenuItem(id: 'create', label: createLabel, icon: GhIcons.plus, onSelected: onCreate),
+      GhMenuItem(id: 'create', label: createLabel ?? t.common.create_workspace, icon: GhIcons.plus, onSelected: onCreate),
     ],
   );
 }

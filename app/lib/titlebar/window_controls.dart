@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../design/design.dart';
 import 'package:window_manager/window_manager.dart';
 
-import 'strings.dart' as s;
+import '../ui/core/i18n.dart';
 import 'title_bar_theme.dart';
 
 abstract interface class TitleBarWindow {
@@ -162,7 +162,7 @@ class WindowControls extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = TitleBarTokens.of(context);
-    final maximizeLabel = isMaximized ? s.restore : s.maximize;
+    final maximizeLabel = isMaximized ? context.tr.common.restore : context.tr.common.maximize;
     if (colored) {
       return Row(
         mainAxisSize: MainAxisSize.min,
@@ -172,7 +172,7 @@ class WindowControls extends StatelessWidget {
             key: const ValueKey('window-minimize'),
             color: tokens.mint,
             shift: 6,
-            label: s.minimize,
+            label: context.tr.common.minimize,
             onPressed: onMinimize,
           ),
           _ColoredDot(
@@ -186,7 +186,7 @@ class WindowControls extends StatelessWidget {
             key: const ValueKey('window-close'),
             color: tokens.danger,
             shift: -6,
-            label: s.close,
+            label: context.tr.common.close,
             onPressed: onClose,
           ),
         ],
@@ -208,8 +208,8 @@ class WindowControls extends StatelessWidget {
           color: idle,
           hoverColor: tokens.ink,
           hoverBackground: hoverBackground,
-          tooltip: s.minimize,
-          semanticLabel: s.minimize,
+          tooltip: context.tr.common.minimize,
+          semanticLabel: context.tr.common.minimize,
           onPressed: onMinimize,
         ),
         TitleBarIconButton(
@@ -236,8 +236,8 @@ class WindowControls extends StatelessWidget {
           color: idle,
           hoverColor: Colors.white,
           hoverBackground: tokens.danger,
-          tooltip: s.close,
-          semanticLabel: s.close,
+          tooltip: context.tr.common.close,
+          semanticLabel: context.tr.common.close,
           onPressed: onClose,
         ),
       ],

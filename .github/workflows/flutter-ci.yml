@@ -7,6 +7,7 @@ on:
       - 'crates/**'
       - 'Cargo.toml'
       - 'Cargo.lock'
+      - 'src/i18n/locales/**'
       - '.github/workflows/flutter-ci.yml'
   pull_request:
     paths:
@@ -14,6 +15,7 @@ on:
       - 'crates/**'
       - 'Cargo.toml'
       - 'Cargo.lock'
+      - 'src/i18n/locales/**'
       - '.github/workflows/flutter-ci.yml'
   workflow_dispatch:
 
@@ -75,6 +77,24 @@ jobs:
 
       - name: Get Flutter packages
         run: flutter pub get
+
+      - name: Regenerate Flutter locale files from src/i18n/locales
+        run: |
+          dart run tool/i18n_convert.dart
+          dart run slang
+          if [ -n "$(git status --porcelain -- lib/i18n)" ]; then
+            git status --short -- lib/i18n
+            echo "::warning title=Flutter locale files out of date::app/lib/i18n differs from src/i18n/locales. The i18n sync workflow commits the update; this run tests the regenerated files."
+          fi
+
+      - name: i18n missing keys and values
+        run: dart run tool/i18n/check_keys.dart --check-values
+
+      - name: i18n duplicate keys
+        run: dart run tool/i18n/duplicate_keys.dart
+
+      - name: i18n unused keys
+        run: dart run tool/i18n/unused_keys.dart
 
       - name: Analyze
         run: flutter analyze
@@ -145,6 +165,11 @@ jobs:
 
       - name: Get Flutter packages
         run: flutter pub get
+
+      - name: Regenerate Flutter locale files from src/i18n/locales
+        run: |
+          dart run tool/i18n_convert.dart
+          dart run slang
 
       - name: Build release
         run: flutter build ${{ matrix.target }} --release

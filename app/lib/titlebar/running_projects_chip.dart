@@ -10,7 +10,7 @@ import '../api/api.dart';
 import '../api/events.dart';
 import '../api/projects.dart';
 import 'providers.dart';
-import 'strings.dart' as s;
+import '../ui/core/i18n.dart';
 import 'title_bar_theme.dart';
 
 const timerStartDelayMs = 3000;
@@ -72,8 +72,8 @@ String formatDuration(int ms) {
   return '${seconds}s';
 }
 
-String runningProjectsDescription(int count) =>
-    (count == 1 ? s.runningProjectsDescOne : s.runningProjectsDescOther).replaceAll('{{count}}', '$count');
+String runningProjectsDescription(int count, [Translations? translations]) =>
+    (translations ?? t).common.running_projects_desc(count: count);
 
 class RunningProjectsChip extends ConsumerStatefulWidget {
   const RunningProjectsChip({super.key, this.source, this.onOpenConsole});
@@ -199,7 +199,7 @@ class _RunningProjectsChipState extends ConsumerState<RunningProjectsChip> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      s.running.toUpperCase(),
+                      context.tr.common.running.toUpperCase(),
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -209,7 +209,7 @@ class _RunningProjectsChipState extends ConsumerState<RunningProjectsChip> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      runningProjectsDescription(_running.length),
+                      runningProjectsDescription(_running.length, context.tr),
                       style: TextStyle(fontSize: 10, color: tokens.muted.withValues(alpha: 0.5)),
                     ),
                   ],
@@ -241,7 +241,7 @@ class _RunningProjectsChipState extends ConsumerState<RunningProjectsChip> {
       ],
       builder: (context, controller, child) => TitleBarButton(
         key: const ValueKey('running-projects-chip'),
-        semanticLabel: s.running,
+        semanticLabel: context.tr.common.running,
         expanded: _open,
         onPressed: () => controller.isOpen ? controller.close() : controller.open(),
         builder: (context, hovered) => Container(
@@ -318,7 +318,7 @@ class _RunningProjectRowState extends State<_RunningProjectRow> {
           children: [
             Expanded(
               child: TitleBarButton(
-                semanticLabel: '${s.consoleTitle} - ${project.name}',
+                semanticLabel: '${context.tr.common.console_title} - ${project.name}',
                 onPressed: widget.onOpenConsole,
                 builder: (context, hovered) => Opacity(
                   opacity: hovered ? 0.8 : 1,
@@ -372,7 +372,7 @@ class _RunningProjectRowState extends State<_RunningProjectRow> {
               color: tokens.muted.withValues(alpha: 0.5),
               hoverColor: tokens.danger,
               hoverBackground: tokens.danger.withValues(alpha: 0.1),
-              semanticLabel: '${s.stop} ${project.name}',
+              semanticLabel: '${context.tr.common.stop} ${project.name}',
               onPressed: widget.onStop,
             ),
           ],

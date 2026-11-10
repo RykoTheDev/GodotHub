@@ -8,6 +8,7 @@ import 'package:godothub/motion/motion.dart';
 import 'package:godothub/motion/presence.dart';
 import 'package:godothub/motion/shared.dart';
 import 'package:godothub/motion/tween.dart';
+import 'package:godothub/i18n/i18n.dart';
 import 'package:godothub/ui/core/tooltip.dart';
 import 'package:godothub/ui/core/ui_settings.dart';
 import 'package:godothub/ui/feedback/feedback.dart';
@@ -16,7 +17,6 @@ import 'package:godothub/ui/overlays/menu.dart';
 import 'package:godothub/ui/overlays/popup_registry.dart';
 import 'package:godothub/ui/shell/disclosure.dart';
 import 'package:godothub/ui/shell/sidebar.dart';
-import 'package:godothub/ui/shell/strings.dart';
 
 const _unit = GhMotionPrefs(speed: 1);
 
@@ -493,14 +493,14 @@ void main() {
     final to = tester.getTopLeft(pill());
     expect(to.dy, greaterThan(from.dy + 40));
 
-    await tester.tap(find.byWidgetPredicate((w) => w is GhTooltip && w.message == GhShellStrings.collapseSidebar));
+    await tester.tap(find.byWidgetPredicate((w) => w is GhTooltip && w.message == t.common.collapse_sidebar));
     await tester.pumpAndSettle();
     expect(find.text('First'), findsNothing);
     final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
     await mouse.addPointer(location: const Offset(600, 300));
     await mouse.moveTo(const Offset(30, 300));
     await tester.pumpAndSettle();
-    await tester.tap(find.byWidgetPredicate((w) => w is GhTooltip && w.message == GhShellStrings.expandSidebar));
+    await tester.tap(find.byWidgetPredicate((w) => w is GhTooltip && w.message == t.common.expand_sidebar));
     await tester.pump();
     final label = tester
         .widget<GhPoseView>(find.ancestor(of: find.text('First'), matching: find.byType(GhPoseView)).first)
