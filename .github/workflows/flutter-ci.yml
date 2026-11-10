@@ -1,0 +1,121 @@
+name: Flutter CI
+
+on:
+  push:
+    paths:
+      - 'app/**'
+      - 'crates/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.github/workflows/flutter-ci.yml'
+  pull_request:
+    paths:
+      - 'app/**'
+      - 'crates/**'
+      - 'Cargo.toml'
+      - 'Cargo.lock'
+      - '.github/workflows/flutter-ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.47.9'
+  RUST_VERSION: '1.99.1'
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: windows
+            rust_targets: ''
+            binary: build/windows/x64/runner/Release/godothub-beta.exe
+          - os: macos-latest
+            target: macos
+            rust_targets: aarch64-apple-darwin,x86_64-apple-darwin
+            binary: build/macos/Build/Products/Release/GodotHub Beta.app/Contents/MacOS/GodotHub Beta
+          - os: ubuntu-latest
+            target: linux
+            rust_targets: ''
+            binary: build/linux/x64/release/bundle/godothub-beta
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+
+    defaults:
+      run:
+        shell: bash
+        working-directory: app
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust ${{ env.RUST_VERSION }}
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          targets: ${{ matrix.rust_targets }}
+
+      - name: Install Flutter ${{ env.FLUTTER_VERSION }}
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev liblzma-dev xvfb
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-flutter-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-flutter-
+
+      - name: Rust tests for core and bridge
+        if: runner.os == 'Linux'
+        working-directory: .
+        run: cargo test -p godothub-core -p godothub_bridge --locked
+
+      - name: Get Flutter packages
+        run: flutter pub get
+
+      - name: Analyze
+        if: runner.os == 'Linux'
+        run: flutter analyze
+
+      - name: Widget tests
+        if: runner.os == 'Linux'
+        run: flutter test
+
+      - name: Build release
+        run: flutter build ${{ matrix.target }} --release
+
+      - name: Command line dispatch through the runner
+        run: |
+          output="$("${{ matrix.binary }}" --version)"
+          echo "$output"
+          test "$output" = "godothub-beta 0.1.0"
+
+      - name: Integration test (Linux)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a flutter test integration_test -d linux
+
+      - name: Integration test
+        if: runner.os != 'Linux'
+        run: flutter test integration_test -d ${{ matrix.target }}

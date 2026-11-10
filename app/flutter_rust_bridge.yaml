@@ -1,0 +1,3 @@
+rust_input: crate::api
+rust_root: ../crates/godothub-bridge/
+dart_output: lib/src/rust

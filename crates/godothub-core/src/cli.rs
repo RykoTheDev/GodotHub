@@ -310,7 +310,7 @@ fn source_label(source: EngineSource) -> &'static str {
 }
 
 fn cmd_versions(base: &Path, io: &mut Io) -> Result<i32, String> {
-    let list = resolve::installed_sorted(&base);
+    let list = resolve::installed_sorted(base);
     print_banner(io);
     if list.is_empty() {
         let _ = writeln!(
@@ -319,7 +319,7 @@ fn cmd_versions(base: &Path, io: &mut Io) -> Result<i32, String> {
         );
         return Ok(0);
     }
-    let current = crate::current_version::read_current_tag_at(&base);
+    let current = crate::current_version::read_current_tag_at(base);
     for version in &list {
         let is_current = current.as_deref() == Some(version.tag.as_str());
         let marker = if is_current {
@@ -369,7 +369,7 @@ fn cmd_open(
     no_add: bool,
     io: &mut Io,
 ) -> Result<i32, String> {
-    let workspace = resolve::active_workspace_dir(&base);
+    let workspace = resolve::active_workspace_dir(base);
     let projects = crate::projects::read_projects_from(&workspace);
 
     if looks_like_path(target) {
@@ -561,9 +561,9 @@ fn prompt_yes_no(question: &str, io: &mut Io) -> Result<bool, String> {
 }
 
 fn cmd_run(base: &Path, path: Option<PathBuf>, io: &mut Io) -> Result<i32, String> {
-    let workspace = resolve::active_workspace_dir(&base);
+    let workspace = resolve::active_workspace_dir(base);
     let root = project_root_from(path)?;
-    let engine = resolve::resolve_engine(&base, &workspace, &root)?;
+    let engine = resolve::resolve_engine(base, &workspace, &root)?;
 
     let _ = writeln!(
         io.err,
@@ -584,7 +584,7 @@ fn cmd_run(base: &Path, path: Option<PathBuf>, io: &mut Io) -> Result<i32, Strin
 }
 
 fn cmd_install(base: &Path, version: &str, mono: bool, io: &mut Io) -> Result<i32, String> {
-    let workspace = resolve::active_workspace_dir(&base);
+    let workspace = resolve::active_workspace_dir(base);
     let settings = crate::settings::read_settings_from(&workspace);
     let versions_dir = match settings.download_dir {
         Some(dir) if !dir.trim().is_empty() => PathBuf::from(dir),
@@ -620,14 +620,13 @@ fn cmd_install(base: &Path, version: &str, mono: bool, io: &mut Io) -> Result<i3
         .build()
         .map_err(|e| e.to_string())?;
     let installed = runtime.block_on(crate::godot_versions::install_version_headless(
-        &base,
+        base,
         &versions_dir,
         token,
         version,
         mono,
         progress,
     ))?;
-    drop(progress_err);
     let _ = writeln!(
         io.out,
         "{} Godot {} at {}",
@@ -646,9 +645,9 @@ fn cmd_export(
     overwrite: bool,
     io: &mut Io,
 ) -> Result<i32, String> {
-    let workspace = resolve::active_workspace_dir(&base);
+    let workspace = resolve::active_workspace_dir(base);
     let root = project_root_from(path)?;
-    let engine = resolve::resolve_engine(&base, &workspace, &root)?;
+    let engine = resolve::resolve_engine(base, &workspace, &root)?;
 
     let presets = crate::export_runner::cli_preset_names(&root)?;
     if presets.is_empty() {
@@ -704,10 +703,10 @@ fn cmd_export(
 }
 
 fn cmd_doctor(base: &Path, json: bool, path: Option<PathBuf>, io: &mut Io) -> Result<i32, String> {
-    let workspace = resolve::active_workspace_dir(&base);
+    let workspace = resolve::active_workspace_dir(base);
     let root = project_root_from(path)?;
-    let registry = crate::godot_versions::read_registry_at(&base);
-    let version_tag = resolve::resolve_engine(&base, &workspace, &root)
+    let registry = crate::godot_versions::read_registry_at(base);
+    let version_tag = resolve::resolve_engine(base, &workspace, &root)
         .map(|engine| engine.tag)
         .unwrap_or_default();
 
