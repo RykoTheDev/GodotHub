@@ -5,6 +5,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import '../../design/design.dart';
+import '../../motion/presence.dart';
 import 'ui_settings.dart';
 
 const double _viewportPad = 12;
@@ -39,6 +40,7 @@ class _GhTooltipState extends State<GhTooltip> {
   Rect? _trigger;
   Offset? _position;
   GhSide _side = GhSide.bottom;
+  bool _shown = false;
 
   bool get _hasContent => widget.content != null || (widget.message?.isNotEmpty ?? false);
 
@@ -64,6 +66,7 @@ class _GhTooltipState extends State<GhTooltip> {
       setState(() {
         _trigger = box.localToGlobal(Offset.zero) & box.size;
         _position = null;
+        _shown = true;
       });
       _portal.show();
       WidgetsBinding.instance.addPostFrameCallback((_) => _measure());
@@ -72,6 +75,21 @@ class _GhTooltipState extends State<GhTooltip> {
 
   void _hide() {
     _timer?.cancel();
+    if (!_shown) {
+      return;
+    }
+    if (_position == null) {
+      _shown = false;
+      _removeOverlay();
+      return;
+    }
+    setState(() => _shown = false);
+  }
+
+  void _removeOverlay() {
+    if (_shown) {
+      return;
+    }
     if (_portal.isShowing) {
       _portal.hide();
     }
@@ -97,10 +115,11 @@ class _GhTooltipState extends State<GhTooltip> {
     if (widget.side != null) {
       side = mirrorSide(widget.side!, direction);
     } else {
-      final ranked = [GhSide.bottom, GhSide.top, GhSide.right, GhSide.left]
-          .where((s) => space[s]! >= (s == GhSide.top || s == GhSide.bottom ? size.height : size.width) + _gap)
-          .toList()
-        ..sort((a, b) => space[b]!.compareTo(space[a]!));
+      final ranked =
+          [GhSide.bottom, GhSide.top, GhSide.right, GhSide.left]
+              .where((s) => space[s]! >= (s == GhSide.top || s == GhSide.bottom ? size.height : size.width) + _gap)
+              .toList()
+            ..sort((a, b) => space[b]!.compareTo(space[a]!));
       if (ranked.isNotEmpty) {
         side = ranked.first;
       } else {
@@ -146,20 +165,28 @@ class _GhTooltipState extends State<GhTooltip> {
       ),
     );
     final position = _position;
+    final content = Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Positioned.fill(
+          child: _Arrow(side: _side, color: theme.raised),
+        ),
+        bubble,
+      ],
+    );
     return Positioned(
       left: position?.dx ?? -9999,
       top: position?.dy ?? -9999,
       child: IgnorePointer(
-        child: Opacity(
-          opacity: position == null ? 0 : 1,
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Positioned.fill(child: _Arrow(side: _side, color: theme.raised)),
-              bubble,
-            ],
-          ),
-        ),
+        child: position == null
+            ? Opacity(opacity: 0, child: content)
+            : GhPresence(
+                visible: _shown,
+                kind: GhPresenceKind.tooltip,
+                origin: ghTooltipOrigin(_side),
+                onExited: _removeOverlay,
+                child: content,
+              ),
       ),
     );
   }
@@ -180,15 +207,19 @@ class _GhTooltipState extends State<GhTooltip> {
           canRequestFocus: false,
           skipTraversal: true,
           onFocusChange: (focused) => focused ? _show() : _hide(),
-          child: Listener(
-            onPointerDown: (_) => _hide(),
-            child: widget.child,
-          ),
+          child: Listener(onPointerDown: (_) => _hide(), child: widget.child),
         ),
       ),
     );
   }
 }
+
+Alignment ghTooltipOrigin(GhSide side) => switch (side) {
+  GhSide.top => Alignment.bottomCenter,
+  GhSide.bottom => Alignment.topCenter,
+  GhSide.left => Alignment.centerRight,
+  GhSide.right => Alignment.centerLeft,
+};
 
 class _Arrow extends StatelessWidget {
   const _Arrow({required this.side, required this.color});

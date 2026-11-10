@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../../design/design.dart';
+import '../../motion/presence.dart';
 import '../core/button.dart';
 import '../core/tooltip.dart';
 import 'strings.dart';
@@ -98,46 +99,53 @@ class _GhModalHeaderState extends State<GhModalHeader> {
         spacing: theme.space(3),
         children: [
           Expanded(
-            child: Focus(
-              focusNode: _banner,
-              child: Container(
-                padding: EdgeInsets.all(theme.space(3)),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(theme.radiusBtn),
-                ),
-                child: Row(
-                  spacing: theme.space(2),
-                  children: [
-                    SizedBox.square(dimension: theme.space(9), child: Center(child: widget.icon)),
-                    Flexible(
-                      child: GhTooltip(
-                        message: widget.title,
-                        child: Semantics(
-                          header: true,
-                          child: Text(
-                            widget.title.toUpperCase(),
-                            maxLines: widget.titleMaxLines,
-                            overflow: widget.titleMaxLines == null ? null : TextOverflow.ellipsis,
-                            style: theme.text(size: GhTextSize.x2l, weight: GhWeight.semibold, lineHeight: 1.25),
+            child: GhCascadeItem(
+              child: Focus(
+                focusNode: _banner,
+                child: Container(
+                  padding: EdgeInsets.all(theme.space(3)),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(theme.radiusBtn),
+                  ),
+                  child: Row(
+                    spacing: theme.space(2),
+                    children: [
+                      SizedBox.square(
+                        dimension: theme.space(9),
+                        child: Center(child: widget.icon),
+                      ),
+                      Flexible(
+                        child: GhTooltip(
+                          message: widget.title,
+                          child: Semantics(
+                            header: true,
+                            child: Text(
+                              widget.title.toUpperCase(),
+                              maxLines: widget.titleMaxLines,
+                              overflow: widget.titleMaxLines == null ? null : TextOverflow.ellipsis,
+                              style: theme.text(size: GhTextSize.x2l, weight: GhWeight.semibold, lineHeight: 1.25),
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
           if (onClose != null)
-            GhButton(
-              onPressed: onClose,
-              icon: GhIcons.x,
-              variant: GhButtonVariant.subtle,
-              paddingX: 1.5,
-              paddingY: 1.5,
-              iconSize: theme.space(4),
-              semanticLabel: widget.closeLabel,
+            GhCascadeItem(
+              child: GhButton(
+                onPressed: onClose,
+                icon: GhIcons.x,
+                variant: GhButtonVariant.subtle,
+                paddingX: 1.5,
+                paddingY: 1.5,
+                iconSize: theme.space(4),
+                semanticLabel: widget.closeLabel,
+              ),
             ),
         ],
       ),

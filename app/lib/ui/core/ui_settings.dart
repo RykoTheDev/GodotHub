@@ -2,17 +2,16 @@ import 'package:flutter/widgets.dart';
 
 @immutable
 class GhUiSettingsData {
-  const GhUiSettingsData({this.tooltipDelay = const Duration(milliseconds: 350), this.motionSpeed = 1});
+  const GhUiSettingsData({this.tooltipDelay = const Duration(milliseconds: 350)});
 
   final Duration tooltipDelay;
-  final double motionSpeed;
 
   @override
   bool operator ==(Object other) =>
-      other is GhUiSettingsData && other.tooltipDelay == tooltipDelay && other.motionSpeed == motionSpeed;
+      other is GhUiSettingsData && other.tooltipDelay == tooltipDelay;
 
   @override
-  int get hashCode => Object.hash(tooltipDelay, motionSpeed);
+  int get hashCode => tooltipDelay.hashCode;
 }
 
 class GhUiSettings extends InheritedWidget {

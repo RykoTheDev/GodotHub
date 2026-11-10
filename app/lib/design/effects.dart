@@ -135,9 +135,6 @@ abstract final class GhDurations {
   static const iconPress = Duration(milliseconds: 120);
   static const focusPop = Duration(milliseconds: 450);
   static const themeTransition = Duration(milliseconds: 450);
-
-  static Duration scaled(Duration base, double motionSpeed) =>
-      Duration(microseconds: (base.inMicroseconds / (motionSpeed <= 0 ? 1 : motionSpeed)).round());
 }
 
 abstract final class GhIconMotion {

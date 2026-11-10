@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../design/design.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../motion/intro.dart';
 import '../src/providers.dart';
 import '../src/rust/api/types.dart';
 import 'language_menu.dart';
@@ -114,37 +115,37 @@ class TitleBar extends ConsumerWidget {
                 child: Row(
                   children: [
                     if (!minimal) ...[
-                      _Wordmark(
-                        onPressed: dashboardEnabled ? () => emit(TitleBarAction.wordmark) : null,
-                      ),
+                      GhIntroPart(child: _Wordmark(onPressed: dashboardEnabled ? () => emit(TitleBarAction.wordmark) : null)),
                       const SizedBox(width: 12),
-                      const RunningProjectsChip(),
+                      const GhIntroPart(child: RunningProjectsChip()),
                       const SizedBox(width: 12),
                     ],
                     const Spacer(),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        for (var i = 0; i < trailing.length; i++) ...[
-                          if (i > 0) const SizedBox(width: 6),
-                          Center(widthFactor: 1, child: trailing[i]),
-                        ],
-                        if (showControls) ...[
-                          if (trailing.isNotEmpty) const SizedBox(width: 6),
-                          MaximizedStateBuilder(
-                            window: window,
-                            builder: (context, isMaximized) => WindowControls(
-                              key: const ValueKey('window-controls'),
-                              colored: settings.coloredTitlebarButtons,
-                              isMaximized: isMaximized,
-                              onMinimize: window.minimize,
-                              onToggleMaximize: window.toggleMaximize,
-                              onClose: window.close,
+                    GhIntroPart(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          for (var i = 0; i < trailing.length; i++) ...[
+                            if (i > 0) const SizedBox(width: 6),
+                            Center(widthFactor: 1, child: trailing[i]),
+                          ],
+                          if (showControls) ...[
+                            if (trailing.isNotEmpty) const SizedBox(width: 6),
+                            MaximizedStateBuilder(
+                              window: window,
+                              builder: (context, isMaximized) => WindowControls(
+                                key: const ValueKey('window-controls'),
+                                colored: settings.coloredTitlebarButtons,
+                                isMaximized: isMaximized,
+                                onMinimize: window.minimize,
+                                onToggleMaximize: window.toggleMaximize,
+                                onClose: window.close,
+                              ),
                             ),
-                          ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
                   ],
                 ),
@@ -180,6 +181,7 @@ class _Wordmark extends StatelessWidget {
       key: const ValueKey('titlebar-wordmark'),
       tooltip: s.dashboard,
       semanticLabel: 'GodotHub',
+      ripple: false,
       onPressed: onPressed,
       builder: (context, hovered) => Text('GodotHub', style: style(hovered)),
     );

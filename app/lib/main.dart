@@ -8,6 +8,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'api/events.dart';
 import 'debug/gallery/widget_gallery.dart';
 import 'design/design.dart';
+import 'motion/intro.dart';
+import 'motion/motion.dart';
+import 'motion/reveal.dart';
 import 'src/app_theme.dart';
 import 'src/channel.dart';
 import 'src/hello_screen.dart';
@@ -74,19 +77,25 @@ class _GodotHubAppState extends ConsumerState<GodotHubApp> with WidgetsBindingOb
         theme: theme.toThemeData(),
         themeAnimationDuration: GhDurations.color,
         themeAnimationCurve: GhCurves.outExpo,
+        builder: (context, child) => GhMotion(prefs: ghMotionPrefsFrom(current), child: child!),
         home: Scaffold(
-          body: Column(
-            children: [
-              TitleBar(isMac: Platform.isMacOS),
-              Expanded(
-                child: _gallery
-                    ? WidgetGallery(onClose: () => setState(() => _gallery = false))
-                    : HelloScreen(
-                        title: widget.title,
-                        onOpenGallery: kDebugMode ? () => setState(() => _gallery = true) : null,
-                      ),
-              ),
-            ],
+          body: GhShellIntro(
+            child: Column(
+              children: [
+                GhIntroTitleBar(child: TitleBar(isMac: Platform.isMacOS)),
+                Expanded(
+                  child: GhRevealScope(
+                    replay: _gallery,
+                    child: _gallery
+                        ? WidgetGallery(onClose: () => setState(() => _gallery = false))
+                        : HelloScreen(
+                            title: widget.title,
+                            onOpenGallery: kDebugMode ? () => setState(() => _gallery = true) : null,
+                          ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

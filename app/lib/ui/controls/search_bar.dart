@@ -5,6 +5,7 @@ import '../core/interaction.dart';
 import '../core/tooltip.dart';
 import '../core/ui_settings.dart';
 import 'strings.dart' as s;
+import '../../motion/motion.dart';
 
 class GhSearchBar extends StatefulWidget {
   const GhSearchBar({
@@ -117,13 +118,13 @@ class _GhSearchBarState extends State<GhSearchBar> {
     final forced = GhForcedStates.maybeOf(context);
     final focused = _focusWithin || (forced?.focused ?? false);
     final textStyle = theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink);
-    final speed = GhUiSettings.of(context).motionSpeed;
+    final motion = GhMotion.of(context);
     final bar = Focus(
       canRequestFocus: false,
       skipTraversal: true,
       onFocusChange: (value) => setState(() => _focusWithin = value),
       child: GhAnimatedBox(
-        duration: GhDurations.scaled(GhDurations.interactive, speed),
+        duration: motion.css(GhDurations.interactive),
         height: theme.space(12),
         padding: EdgeInsets.symmetric(horizontal: theme.space(3.5)),
         color: focused ? theme.raised : theme.overlay,

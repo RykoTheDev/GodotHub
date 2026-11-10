@@ -17,6 +17,11 @@ import 'account_menu.dart';
 import 'disclosure.dart';
 import 'overlay_scroll_area.dart';
 import 'strings.dart';
+import '../../motion/motion.dart';
+import '../../motion/presence.dart';
+import '../../motion/shared.dart';
+
+Widget _sidebarLabel(Widget child) => GhCascadeItem(role: GhCascadeRole.label, child: child);
 
 @immutable
 class GhSidebarGroup {
@@ -187,6 +192,14 @@ class _GhSidebarState extends State<GhSidebar> {
   Duration? _lastDown;
   double _startX = 0;
   double _startWidth = 0;
+  final Object _sharedTag = Object();
+  int _expandCount = 0;
+
+  @override
+  void dispose() {
+    GhSharedElements.forget(_sharedTag);
+    super.dispose();
+  }
 
   @override
   void didUpdateWidget(GhSidebar oldWidget) {
@@ -199,7 +212,9 @@ class _GhSidebarState extends State<GhSidebar> {
       if (groupId != null && _closedGroups.contains(groupId)) {
         final next = _closedGroups.where((g) => g != groupId).toList();
         _closedGroups = next;
-        WidgetsBinding.instance.addPostFrameCallback((_) => widget.onClosedGroupsChanged?.call(List.unmodifiable(next)));
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => widget.onClosedGroupsChanged?.call(List.unmodifiable(next)),
+        );
       }
     }
   }
@@ -220,8 +235,9 @@ class _GhSidebarState extends State<GhSidebar> {
     widget.onClosedGroupsChanged?.call(List.unmodifiable(next));
   }
 
-  void _toggleGroup(String id) =>
-      _saveClosedGroups(_closedGroups.contains(id) ? _closedGroups.where((g) => g != id).toList() : [..._closedGroups, id]);
+  void _toggleGroup(String id) => _saveClosedGroups(
+    _closedGroups.contains(id) ? _closedGroups.where((g) => g != id).toList() : [..._closedGroups, id],
+  );
 
   void _markTabSeen(String id) {
     if (_seenNew.contains(id)) {
@@ -240,6 +256,9 @@ class _GhSidebarState extends State<GhSidebar> {
   void _toggleCollapsed() {
     setState(() {
       _knobY = null;
+      if (_collapsed) {
+        _expandCount += 1;
+      }
       _collapsed = !_collapsed;
     });
     widget.onCollapsedChanged?.call(_collapsed);
@@ -270,7 +289,10 @@ class _GhSidebarState extends State<GhSidebar> {
   }
 
   double _knobOffset(double y, double height) {
-    final clamped = math.min(math.max(GhSidebar.knobMinTop, y), math.max(GhSidebar.knobMinTop, height - GhSidebar.knobHeight));
+    final clamped = math.min(
+      math.max(GhSidebar.knobMinTop, y),
+      math.max(GhSidebar.knobMinTop, height - GhSidebar.knobHeight),
+    );
     return clamped - height / 2;
   }
 
@@ -335,13 +357,13 @@ class _GhSidebarState extends State<GhSidebar> {
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
-    final speed = GhUiSettings.of(context).motionSpeed;
+    final motion = GhMotion.of(context);
     final rtl = Directionality.of(context) == TextDirection.rtl;
     final overhang = theme.space(4);
     final target = _collapsed ? GhSidebar.collapsedWidth : _width;
     return TweenAnimationBuilder<double>(
       tween: Tween(end: target),
-      duration: _dragging ? Duration.zero : GhDurations.scaled(GhSidebar.widthDuration, speed),
+      duration: _dragging ? Duration.zero : motion.css(GhSidebar.widthDuration),
       curve: GhCurves.outExpo,
       builder: (context, width, _) => GhNegativeMargin(
         margin: rtl ? EdgeInsets.only(left: overhang) : EdgeInsets.only(right: overhang),
@@ -363,7 +385,13 @@ class _GhSidebarState extends State<GhSidebar> {
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    PositionedDirectional(start: 0, top: 0, bottom: 0, width: width, child: _panel(context, theme, width)),
+                    PositionedDirectional(
+                      start: 0,
+                      top: 0,
+                      bottom: 0,
+                      width: width,
+                      child: _panel(context, theme, width),
+                    ),
                     if (_collapsed)
                       PositionedDirectional(
                         top: theme.space(2),
@@ -400,8 +428,8 @@ class _GhSidebarState extends State<GhSidebar> {
   }
 
   Widget _strip(BuildContext context, GhTheme theme, bool rtl) {
-    final speed = GhUiSettings.of(context).motionSpeed;
-    final duration = GhDurations.scaled(GhDurations.interactive, speed);
+    final motion = GhMotion.of(context);
+    final duration = motion.css(GhDurations.interactive);
     final showKnob = _revealed || _dragging;
     final knobOffset = _knobY != null && !widget.fixedResizeKnob ? _knobY! : 0.0;
     final dotColor = _dragging ? Colors.white : (_edgeHovered ? theme.accent : theme.line);
@@ -521,7 +549,11 @@ class _GhSidebarState extends State<GhSidebar> {
             alignment: AlignmentDirectional.topStart,
             minWidth: layoutWidth - (widget.connected ? 1 : 0),
             maxWidth: layoutWidth - (widget.connected ? 1 : 0),
-            child: _content(context, theme),
+            child: GhCascadeHost(
+              cascade: GhPresenceSpecs.sidebarLabels,
+              replay: _expandCount,
+              child: _content(context, theme),
+            ),
           ),
         ),
       ),
@@ -555,7 +587,12 @@ class _GhSidebarState extends State<GhSidebar> {
                   GhTooltip(
                     message: widget.collapseLabel,
                     side: GhSide.right,
-                    child: _CollapseButton(collapsed: false, revealed: true, label: widget.collapseLabel, onPressed: _toggleCollapsed),
+                    child: _CollapseButton(
+                      collapsed: false,
+                      revealed: true,
+                      label: widget.collapseLabel,
+                      onPressed: _toggleCollapsed,
+                    ),
                   ),
                 ],
               ),
@@ -649,7 +686,7 @@ class _GhSidebarState extends State<GhSidebar> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
-              children: _gapped(buttons, theme.space(0.5)),
+              children: _gapped([for (final button in buttons) GhDisclosureItem(child: button)], theme.space(0.5)),
             ),
           ),
         ),
@@ -677,6 +714,7 @@ class _GhSidebarState extends State<GhSidebar> {
       newBadgeLabel: widget.newBadgeLabel,
       menuOpen: menuOpen,
       onPressed: onMenuToggle ?? () => _pressTab(tab),
+      sharedTag: _sharedTag,
     );
     if (!collapsedView) {
       return button;
@@ -690,7 +728,8 @@ class _GhSidebarState extends State<GhSidebar> {
     return layout == GhSidebarTabLayout.square ? _unclamped(tooltip) : tooltip;
   }
 
-  Widget _unclamped(Widget child) => OverflowBox(fit: OverflowBoxFit.deferToChild, maxWidth: double.infinity, child: child);
+  Widget _unclamped(Widget child) =>
+      OverflowBox(fit: OverflowBoxFit.deferToChild, maxWidth: double.infinity, child: child);
 
   Widget _footer(BuildContext context, GhTheme theme) {
     final collapsed = _collapsed;
@@ -735,7 +774,12 @@ class _GhSidebarState extends State<GhSidebar> {
     );
     final account =
         widget.accountMenuBuilder?.call(context, trigger) ??
-        GhAccountMenu(trigger: trigger, onNavigate: widget.onTabChange, youLabel: widget.youLabel, newBadgeLabel: widget.newBadgeLabel);
+        GhAccountMenu(
+          trigger: trigger,
+          onNavigate: widget.onTabChange,
+          youLabel: widget.youLabel,
+          newBadgeLabel: widget.newBadgeLabel,
+        );
     final settings = _tabButton(
       settingsTab,
       collapsed ? GhSidebarTabLayout.square : GhSidebarTabLayout.narrow,
@@ -806,7 +850,12 @@ class _Kbd extends StatelessWidget {
         label,
         maxLines: 1,
         softWrap: false,
-        style: theme.text(size: GhTextSize.x4s, mono: true, color: theme.muted.withValues(alpha: 0.7), lineHeight: 1.25 / 0.875),
+        style: theme.text(
+          size: GhTextSize.x4s,
+          mono: true,
+          color: theme.muted.withValues(alpha: 0.7),
+          lineHeight: 1.25 / 0.875,
+        ),
       ),
     );
   }
@@ -833,7 +882,12 @@ class _CountBadge extends StatelessWidget {
         maxLines: 1,
         softWrap: false,
         style: theme
-            .text(size: small ? GhTextSize.x4s : GhTextSize.x3s, weight: GhWeight.semibold, color: Colors.white, lineHeight: 1)
+            .text(
+              size: small ? GhTextSize.x4s : GhTextSize.x3s,
+              weight: GhWeight.semibold,
+              color: Colors.white,
+              lineHeight: 1,
+            )
             .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
       ),
     );
@@ -874,6 +928,7 @@ class GhSidebarTabButton extends StatelessWidget {
     this.shortcut,
     this.newBadgeLabel = GhShellStrings.newBadge,
     this.menuOpen,
+    this.sharedTag,
   });
 
   final GhSidebarTab tab;
@@ -885,6 +940,7 @@ class GhSidebarTabButton extends StatelessWidget {
   final String? shortcut;
   final String newBadgeLabel;
   final bool? menuOpen;
+  final Object? sharedTag;
   final VoidCallback onPressed;
 
   @override
@@ -902,8 +958,13 @@ class GhSidebarTabButton extends StatelessWidget {
     );
   }
 
+  Widget _sharedPill(Widget pill) {
+    final tag = sharedTag;
+    return tag == null ? pill : GhShared(tag: tag, child: pill);
+  }
+
   Widget _build(BuildContext context, GhTheme theme, GhStates states, BorderRadius radius, int badge) {
-    final speed = GhUiSettings.of(context).motionSpeed;
+    final motion = GhMotion.of(context);
     final hover = states.active;
     final foreground = active || hover ? theme.ink : theme.muted;
     final Color background;
@@ -916,22 +977,26 @@ class GhSidebarTabButton extends StatelessWidget {
       borderColor = theme.outline.withValues(alpha: 0);
     }
     final lift = hover && (chrome || !active);
-    final icon = GhIconMotionScale(
+    Widget icon = GhIconMotionScale(
       states: states,
       child: GhAnimatedIcon(tab.icon, color: active ? theme.accent : theme.muted, size: theme.space(4)),
     );
+    final tag = sharedTag;
+    if (tag != null) {
+      icon = GhSharedIcon(tag: tag, enabled: active, child: icon);
+    }
     final row = <Widget>[icon];
     final trailing = <Widget>[];
     if (!hideLabel) {
       if (showNew) {
-        trailing.add(_NewBadge(label: newBadgeLabel));
+        trailing.add(_sidebarLabel(_NewBadge(label: newBadgeLabel)));
       } else if (badge > 0) {
-        trailing.add(_CountBadge(count: badge));
+        trailing.add(_sidebarLabel(_CountBadge(count: badge)));
       } else if (shortcut != null) {
         trailing.add(
           AnimatedOpacity(
             opacity: states.hovered || states.focused ? 1 : 0,
-            duration: GhDurations.scaled(const Duration(milliseconds: 200), speed),
+            duration: motion.css(const Duration(milliseconds: 200)),
             curve: GhCurves.outExpo,
             child: _Kbd(label: shortcut!),
           ),
@@ -940,12 +1005,14 @@ class GhSidebarTabButton extends StatelessWidget {
       row.add(SizedBox(width: theme.space(2)));
       row.add(
         Expanded(
-          child: GhAnimatedText(
-            tab.label,
-            style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: foreground),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            textAlign: TextAlign.start,
+          child: _sidebarLabel(
+            GhAnimatedText(
+              tab.label,
+              style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: foreground),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.start,
+            ),
           ),
         ),
       );
@@ -965,12 +1032,14 @@ class GhSidebarTabButton extends StatelessWidget {
       if (active)
         Positioned.fill(
           child: IgnorePointer(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                color: theme.overlay,
-                borderRadius: radius,
-                border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-                boxShadow: GhShadows.md(),
+            child: _sharedPill(
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  color: theme.overlay,
+                  borderRadius: radius,
+                  border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
+                  boxShadow: GhShadows.md(),
+                ),
               ),
             ),
           ),
@@ -1043,11 +1112,17 @@ class _DashedBorderPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_DashedBorderPainter oldDelegate) => oldDelegate.color != color || oldDelegate.borderRadius != borderRadius;
+  bool shouldRepaint(_DashedBorderPainter oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.borderRadius != borderRadius;
 }
 
 class _CollapseButton extends StatelessWidget {
-  const _CollapseButton({required this.collapsed, required this.revealed, required this.label, required this.onPressed});
+  const _CollapseButton({
+    required this.collapsed,
+    required this.revealed,
+    required this.label,
+    required this.onPressed,
+  });
 
   final bool collapsed;
   final bool revealed;
@@ -1057,7 +1132,7 @@ class _CollapseButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
-    final speed = GhUiSettings.of(context).motionSpeed;
+    final motion = GhMotion.of(context);
     final radius = BorderRadius.circular(theme.radiusItem);
     final rtl = Directionality.of(context) == TextDirection.rtl;
     final button = GhPressable(
@@ -1069,7 +1144,7 @@ class _CollapseButton extends StatelessWidget {
         final foreground = hover ? theme.ink : theme.muted;
         final icon = AnimatedRotation(
           turns: collapsed ? 0.5 : 0,
-          duration: GhDurations.scaled(GhDurations.iconTransform, speed),
+          duration: motion.css(GhDurations.iconTransform),
           curve: GhCurves.spring,
           child: GhIconMotionScale(
             states: states,
@@ -1110,7 +1185,7 @@ class _CollapseButton extends StatelessWidget {
       ignoring: !revealed,
       child: AnimatedOpacity(
         opacity: revealed ? 1 : 0,
-        duration: GhDurations.scaled(GhDurations.interactive, speed),
+        duration: motion.css(GhDurations.interactive),
         curve: GhCurves.outExpo,
         child: button,
       ),
@@ -1151,16 +1226,18 @@ class _SearchButton extends StatelessWidget {
               ),
               SizedBox(width: theme.space(2)),
               Expanded(
-                child: GhAnimatedText(
-                  label,
-                  style: theme.text(size: GhTextSize.sm, color: foreground),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.start,
+                child: _sidebarLabel(
+                  GhAnimatedText(
+                    label,
+                    style: theme.text(size: GhTextSize.sm, color: foreground),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.start,
+                  ),
                 ),
               ),
               SizedBox(width: theme.space(2)),
-              _Kbd(label: shortcut),
+              _sidebarLabel(_Kbd(label: shortcut)),
             ],
           ),
         );
@@ -1248,18 +1325,22 @@ class _UpdateButton extends StatelessWidget {
           border: Border.all(color: theme.accent.withValues(alpha: 0.3)),
           child: Row(
             children: [
-              Container(
-                width: theme.space(2),
-                height: theme.space(2),
-                decoration: BoxDecoration(color: theme.accentBright, shape: BoxShape.circle),
+              _sidebarLabel(
+                Container(
+                  width: theme.space(2),
+                  height: theme.space(2),
+                  decoration: BoxDecoration(color: theme.accentBright, shape: BoxShape.circle),
+                ),
               ),
               SizedBox(width: theme.space(2.5)),
               Expanded(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.accentBright),
+                child: _sidebarLabel(
+                  Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.accentBright),
+                  ),
                 ),
               ),
             ],
@@ -1387,7 +1468,9 @@ class GhSidebarGroupHeader extends StatelessWidget {
               ? theme.raised.withValues(alpha: 0.6)
               : theme.raised.withValues(alpha: 0),
           borderRadius: radius,
-          border: Border.all(color: hasActive ? theme.outline.withValues(alpha: 0.3) : theme.outline.withValues(alpha: 0)),
+          border: Border.all(
+            color: hasActive ? theme.outline.withValues(alpha: 0.3) : theme.outline.withValues(alpha: 0),
+          ),
           child: Row(
             children: [
               Expanded(
@@ -1395,15 +1478,21 @@ class GhSidebarGroupHeader extends StatelessWidget {
                   children: [
                     GhIconMotionScale(
                       states: states,
-                      child: GhAnimatedIcon(group.icon, color: hasActive ? theme.ink : theme.muted, size: theme.space(4)),
+                      child: GhAnimatedIcon(
+                        group.icon,
+                        color: hasActive ? theme.ink : theme.muted,
+                        size: theme.space(4),
+                      ),
                     ),
                     SizedBox(width: theme.space(2)),
                     Flexible(
-                      child: GhAnimatedText(
-                        group.label,
-                        style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: foreground),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      child: _sidebarLabel(
+                        GhAnimatedText(
+                          group.label,
+                          style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: foreground),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
                     if (closedActive) ...[
@@ -1417,11 +1506,13 @@ class GhSidebarGroupHeader extends StatelessWidget {
                       ),
                       SizedBox(width: theme.space(2)),
                       Flexible(
-                        child: Text(
-                          activeLabel!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.text(size: GhTextSize.xs, color: theme.muted),
+                        child: _sidebarLabel(
+                          Text(
+                            activeLabel!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.text(size: GhTextSize.xs, color: theme.muted),
+                          ),
                         ),
                       ),
                     ],
@@ -1429,7 +1520,7 @@ class GhSidebarGroupHeader extends StatelessWidget {
                 ),
               ),
               SizedBox(width: theme.space(2)),
-              tail,
+              _sidebarLabel(tail),
             ],
           ),
         );

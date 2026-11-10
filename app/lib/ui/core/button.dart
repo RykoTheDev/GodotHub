@@ -45,6 +45,7 @@ class GhButton extends StatelessWidget {
     final radius = BorderRadius.circular(theme.radiusBtn);
     return GhPressable(
       onPressed: onPressed,
+      rippleColor: variant == GhButtonVariant.primary || variant == GhButtonVariant.danger ? Colors.white : theme.ink,
       autofocus: autofocus,
       focusNode: focusNode,
       borderRadius: radius,

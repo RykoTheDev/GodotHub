@@ -315,7 +315,7 @@ void main() {
     testWidgets('dismiss button removes the toast', (tester) async {
       final store = await pumpToasts(tester);
       store.pushToast(GhToastType.error, 'Broken');
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       await tester.tap(_pressable(GhFeedbackStrings.dismiss));
       await tester.pumpAndSettle();
@@ -331,7 +331,7 @@ void main() {
         'Removed',
         action: GhToastAction(label: 'Undo', onClick: () => clicks++),
       );
-      await tester.pump();
+      await tester.pumpAndSettle();
 
       await tester.tap(find.text('Undo'));
       await tester.pumpAndSettle();

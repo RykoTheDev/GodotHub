@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../design/design.dart';
+import '../ui/core/interaction.dart';
 
 class TitleBarTokens {
   const TitleBarTokens({
@@ -107,6 +108,8 @@ class TitleBarButton extends StatefulWidget {
     this.tooltip,
     this.semanticLabel,
     this.expanded,
+    this.ripple = true,
+    this.borderRadius,
   });
 
   final VoidCallback? onPressed;
@@ -114,6 +117,8 @@ class TitleBarButton extends StatefulWidget {
   final String? tooltip;
   final String? semanticLabel;
   final bool? expanded;
+  final bool ripple;
+  final BorderRadius? borderRadius;
 
   @override
   State<TitleBarButton> createState() => _TitleBarButtonState();
@@ -122,8 +127,17 @@ class TitleBarButton extends StatefulWidget {
 class _TitleBarButtonState extends State<TitleBarButton> {
   bool _hovered = false;
   bool _focused = false;
+  int _pulse = 0;
 
   void _activate() => widget.onPressed?.call();
+
+  void _keyActivate() {
+    if (widget.onPressed == null) {
+      return;
+    }
+    setState(() => _pulse += 1);
+    _activate();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -135,14 +149,20 @@ class _TitleBarButtonState extends State<TitleBarButton> {
       onShowFocusHighlight: (value) => setState(() => _focused = value),
       actions: {
         ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) {
-          _activate();
+          _keyActivate();
           return null;
         }),
       },
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: enabled ? _activate : null,
-        child: widget.builder(context, enabled && (_hovered || _focused)),
+        child: GhPressMotion(
+          enabled: enabled,
+          ripple: widget.ripple,
+          borderRadius: widget.borderRadius ?? BorderRadius.circular(TitleBarTokens.of(context).itemRadius),
+          pulse: _pulse,
+          child: widget.builder(context, enabled && (_hovered || _focused)),
+        ),
       ),
     );
     result = Semantics(
@@ -201,6 +221,7 @@ class TitleBarIconButton extends StatelessWidget {
       tooltip: tooltip,
       semanticLabel: semanticLabel,
       expanded: expanded,
+      borderRadius: BorderRadius.circular(radius ?? tokens.itemRadius),
       builder: (context, hovered) => Container(
         width: width,
         height: height,

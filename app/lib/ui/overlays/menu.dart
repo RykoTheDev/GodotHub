@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../design/design.dart';
+import '../../motion/presence.dart';
 import '../core/interaction.dart';
 
 const double ghMenuViewportPad = 8;
@@ -222,7 +223,7 @@ class _GhMenuButtonState extends State<GhMenuButton> {
         child: result,
       );
     }
-    return result;
+    return GhCascadeItem(role: GhCascadeRole.menuItem, child: result);
   }
 
   Widget _content(BuildContext context, GhTheme theme, GhStates states, BorderRadius radius) {
@@ -283,7 +284,9 @@ class _GhMenuButtonState extends State<GhMenuButton> {
           decoration: BoxDecoration(
             color: item.active ? Colors.black.withValues(alpha: 0.15) : theme.accent.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(theme.radiusTag),
-            border: Border.all(color: item.active ? Colors.black.withValues(alpha: 0.1) : theme.accentDim.withValues(alpha: 0.4)),
+            border: Border.all(
+              color: item.active ? Colors.black.withValues(alpha: 0.1) : theme.accentDim.withValues(alpha: 0.4),
+            ),
           ),
           child: Text(
             item.badge!,
