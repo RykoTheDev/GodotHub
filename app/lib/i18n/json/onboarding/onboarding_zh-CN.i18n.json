@@ -25,9 +25,13 @@
   "discovery_added_projects(plural)": {
     "other": "已添加 ${count} 个项目。"
   },
+  "discovery_added_projects_one": "已添加 {{count}} 个项目。",
+  "discovery_added_projects_other": "已添加 {{count}} 个项目。",
   "discovery_added_versions(plural)": {
     "other": "已添加 ${count} 个版本。"
   },
+  "discovery_added_versions_one": "已添加 {{count}} 个版本。",
+  "discovery_added_versions_other": "已添加 {{count}} 个版本。",
   "discovery_link_hint": "项目会自动关联到匹配的 Godot 版本，包括你在下一步中添加的版本。",
   "setup": "设置",
   "setup_title": "你想如何使用 GodotHub？",

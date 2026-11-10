@@ -31,6 +31,8 @@
     "many": "مثبت",
     "other": "مثبت"
   },
+  "installed_count_one": "مثبت",
+  "installed_count_other": "مثبت",
   "installed_label": "مثبت",
   "original_name": "الأصلي",
   "source": "المصدر",
@@ -74,6 +76,8 @@
     "many": "Create ${count} Aliases",
     "other": "Create ${count} Aliases"
   },
+  "alias_create_all_one": "Create Alias",
+  "alias_create_all_other": "Create {{count}} Aliases",
   "aliases_batch_created(plural)": {
     "zero": "${count} aliases created",
     "one": "1 alias created",
@@ -82,6 +86,8 @@
     "many": "${count} aliases created",
     "other": "${count} aliases created"
   },
+  "aliases_batch_created_one": "1 alias created",
+  "aliases_batch_created_other": "{{count}} aliases created",
   "aliases_batch_skipped(plural)": {
     "zero": "${count} aliases skipped",
     "one": "1 alias skipped",
@@ -90,6 +96,8 @@
     "many": "${count} aliases skipped",
     "other": "${count} aliases skipped"
   },
+  "aliases_batch_skipped_one": "1 alias skipped",
+  "aliases_batch_skipped_other": "{{count}} aliases skipped",
   "alias_queue_duplicate": "\"{{name}}\" is already in the list",
   "alias_remove": "Remove alias",
   "alias_remove_title": "Remove this alias?",
@@ -128,6 +136,8 @@
     "many": "${count} templates selected",
     "other": "${count} templates selected"
   },
+  "export_templates_selected_one": "1 template selected",
+  "export_templates_selected_other": "{{count}} templates selected",
   "export_templates_size_summary": "~{{download}} download · {{installed}} on disk",
   "export_templates_download_selected": "Download selected",
   "export_templates_loading_options": "Checking this release's available templates…",
@@ -140,6 +150,8 @@
     "many": "${count} available template groups",
     "other": "${count} available template groups"
   },
+  "export_templates_available_one": "1 available template group",
+  "export_templates_available_other": "{{count}} available template groups",
   "export_templates_select_all": "Select all",
   "export_templates_files(plural)": {
     "zero": "${count} template files",
@@ -149,6 +161,8 @@
     "many": "${count} template files",
     "other": "${count} template files"
   },
+  "export_templates_files_one": "1 template file",
+  "export_templates_files_other": "{{count}} template files",
   "export_templates_option_installed": "Installed",
   "export_templates_keep_existing": "Expand a platform to choose architectures or individual files. Only selected files are downloaded. Your existing templates are kept.",
   "export_templates_uninstall_named": "Uninstall {{name}}",

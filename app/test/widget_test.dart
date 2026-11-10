@@ -5,6 +5,8 @@ import 'package:godothub/src/hello_screen.dart';
 import 'package:godothub/src/providers.dart';
 import 'package:godothub/src/rust/api/types.dart';
 
+import 'support/settings_fakes.dart';
+
 Finder selectableText(String text) =>
     find.byWidgetPredicate((widget) => widget is SelectableText && widget.data == text);
 
@@ -22,7 +24,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          settingsProvider.overrideWith((ref) => Future<AppSettings>.error('core failed')),
+          fakeSettings(() => Future<AppSettings>.error('core failed')),
           cliToolStatusProvider.overrideWith((ref) async => status),
         ],
         child: const MaterialApp(home: HelloScreen(title: 'GodotHub Beta')),

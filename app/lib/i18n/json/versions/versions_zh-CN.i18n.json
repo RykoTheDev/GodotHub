@@ -26,6 +26,8 @@
   "installed_count(plural)": {
     "other": "已安装"
   },
+  "installed_count_one": "已安装",
+  "installed_count_other": "已安装",
   "installed_label": "已安装",
   "original_name": "原始名称",
   "source": "来源",
@@ -64,12 +66,18 @@
   "alias_create_all(plural)": {
     "other": "创建 ${count} 个别名"
   },
+  "alias_create_all_one": "创建别名",
+  "alias_create_all_other": "创建 {{count}} 个别名",
   "aliases_batch_created(plural)": {
     "other": "${count} 个别名已创建"
   },
+  "aliases_batch_created_one": "1 个别名已创建",
+  "aliases_batch_created_other": "{{count}} 个别名已创建",
   "aliases_batch_skipped(plural)": {
     "other": "${count} 个别名已跳过"
   },
+  "aliases_batch_skipped_one": "1 个别名已跳过",
+  "aliases_batch_skipped_other": "{{count}} 个别名已跳过",
   "alias_queue_duplicate": "\"{{name}}\" 已在列表中",
   "alias_remove": "删除别名",
   "alias_remove_title": "删除这个别名?",
@@ -103,6 +111,8 @@
   "export_templates_selected(plural)": {
     "other": "${count} 个模板已选择"
   },
+  "export_templates_selected_one": "1 个模板已选择",
+  "export_templates_selected_other": "{{count}} 个模板已选择",
   "export_templates_size_summary": "~{{download}} 下载 · {{installed}} 已安装",
   "export_templates_download_selected": "下载所选",
   "export_templates_loading_options": "正在检查此版本的可用模板…",
@@ -110,10 +120,14 @@
   "export_templates_available(plural)": {
     "other": "${count} 个可用模板组"
   },
+  "export_templates_available_one": "1 个可用模板组",
+  "export_templates_available_other": "{{count}} 个可用模板组",
   "export_templates_select_all": "全选",
   "export_templates_files(plural)": {
     "other": "${count} 个模板文件"
   },
+  "export_templates_files_one": "1 个模板文件",
+  "export_templates_files_other": "{{count}} 个模板文件",
   "export_templates_option_installed": "已安装",
   "export_templates_keep_existing": "展开一个平台以选择架构或单个文件。仅下载选中的文件。你的现有模板将被保留。",
   "export_templates_uninstall_named": "卸载 {{name}}",

@@ -125,6 +125,8 @@
   "folders_deep(plural)": {
     "other": "${count} 階層"
   },
+  "folders_deep_one": "{{count}} 階層",
+  "folders_deep_other": "{{count}} 階層",
   "at_once": "同時に {{count}} 件",
   "animation_speed_label": "アニメーションの速度",
   "scroll_reveal_label": "スクロール時の表示アニメーション",
@@ -182,19 +184,29 @@
   "restore_modal_workspaces(plural)": {
     "other": "ワークスペース"
   },
+  "restore_modal_workspaces_one": "ワークスペース",
+  "restore_modal_workspaces_other": "ワークスペース",
   "restore_modal_projects(plural)": {
     "other": "プロジェクト"
   },
+  "restore_modal_projects_one": "プロジェクト",
+  "restore_modal_projects_other": "プロジェクト",
   "restore_modal_categories(plural)": {
     "other": "カテゴリ"
   },
+  "restore_modal_categories_one": "カテゴリ",
+  "restore_modal_categories_other": "カテゴリ",
   "restore_modal_templates(plural)": {
     "other": "テンプレート"
   },
+  "restore_modal_templates_one": "テンプレート",
+  "restore_modal_templates_other": "テンプレート",
   "restore_modal_time_stats": "作業時間のデータを含みます",
   "restore_modal_todos(plural)": {
     "other": "${count} 件のタスクを含みます"
   },
+  "restore_modal_todos_one": "{{count}} 件のタスクを含みます",
+  "restore_modal_todos_other": "{{count}} 件のタスクを含みます",
   "restore_modal_project_scan_dirs": "{{count}} 件のプロジェクトスキャンフォルダが復元されます",
   "restore_modal_version_scan_dirs": "{{count}} 件の Godot バージョンフォルダが復元されます",
   "restore_modal_workspace_list": "ワークスペース",
@@ -207,6 +219,8 @@
   "stats_imported(plural)": {
     "other": "${count} 件のプロジェクトの統計をインポートしました。"
   },
+  "stats_imported_one": "{{count}} 件のプロジェクトの統計をインポートしました。",
+  "stats_imported_other": "{{count}} 件のプロジェクトの統計をインポートしました。",
   "raised_contrast_label": "浮き上がった面のコントラスト",
   "raised_contrast_value": "{{value}}%",
   "token_help_desc": "トークンは github.com/settings/tokens で作成できます。プライベートリポジトリへアクセスしたい場合のみ repo スコープにチェックを入れてください。それ以外の場合は、すべてのスコープをオフのままで構いません。機密性の高い権限は不要です。",
@@ -269,6 +283,8 @@
   "features_enabled_count(plural)": {
     "other": "${count} 個の機能が有効"
   },
+  "features_enabled_count_one": "{{count}} 個の機能が有効",
+  "features_enabled_count_other": "{{count}} 個の機能が有効",
   "setup_profile_minimal": "最小構成",
   "setup_profile_minimal_desc": "プロジェクトと Godot のバージョン管理のみ。最も軽快に動作する構成です。",
   "setup_profile_essentials": "基本構成",

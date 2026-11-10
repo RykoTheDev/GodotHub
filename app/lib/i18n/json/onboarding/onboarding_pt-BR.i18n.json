@@ -27,11 +27,15 @@
     "many": "Added ${count} projects.",
     "other": "Added ${count} projects."
   },
+  "discovery_added_projects_one": "Added {{count}} project.",
+  "discovery_added_projects_other": "Added {{count}} projects.",
   "discovery_added_versions(plural)": {
     "one": "Added ${count} version.",
     "many": "Added ${count} versions.",
     "other": "Added ${count} versions."
   },
+  "discovery_added_versions_one": "Added {{count}} version.",
+  "discovery_added_versions_other": "Added {{count}} versions.",
   "discovery_link_hint": "Projects are linked to a matching Godot version automatically, including versions you add in the next step.",
   "setup": "Setup",
   "setup_title": "How do you want to use GodotHub?",

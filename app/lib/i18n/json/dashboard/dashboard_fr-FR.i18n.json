@@ -57,6 +57,7 @@
     "many": "${count} avec des modifications non validées",
     "other": "${count} avec des modifications non validées"
   },
+  "dashboard_git_dirty_one": "1 avec des modifications non validées",
   "dashboard_git_branch": "Sur {{branch}}",
   "dashboard_storage": "Utilisation du stockage",
   "dashboard_storage_empty": "Aucun projet à mesurer.",

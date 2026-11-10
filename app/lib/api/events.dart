@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+
 import '../src/rust/api/events.dart' as rust;
 
 export '../src/rust/api/events.dart'
@@ -9,6 +11,9 @@ abstract final class AppEvents {
   static Stream<rust.AppEvent>? _all;
 
   static Stream<rust.AppEvent> get all => _all ??= rust.appEvents().asBroadcastStream();
+
+  @visibleForTesting
+  static void debugReset() => _all = null;
 
   static Stream<rust.AppEvent> of(rust.AppEventKind kind) => all.where((event) => event.kind == kind);
 

@@ -125,6 +125,8 @@
   "folders_deep(plural)": {
     "other": "深度：${count} 层"
   },
+  "folders_deep_one": "深度：{{count}} 层",
+  "folders_deep_other": "深度：{{count}} 层",
   "at_once": "同时 {{count}} 个",
   "animation_speed_label": "动画速度",
   "scroll_reveal_label": "滚动显现",
@@ -182,19 +184,29 @@
   "restore_modal_workspaces(plural)": {
     "other": "个工作区"
   },
+  "restore_modal_workspaces_one": "个工作区",
+  "restore_modal_workspaces_other": "个工作区",
   "restore_modal_projects(plural)": {
     "other": "个项目"
   },
+  "restore_modal_projects_one": "个项目",
+  "restore_modal_projects_other": "个项目",
   "restore_modal_categories(plural)": {
     "other": "个分类"
   },
+  "restore_modal_categories_one": "个分类",
+  "restore_modal_categories_other": "个分类",
   "restore_modal_templates(plural)": {
     "other": "个模板"
   },
+  "restore_modal_templates_one": "个模板",
+  "restore_modal_templates_other": "个模板",
   "restore_modal_time_stats": "包含时间跟踪数据",
   "restore_modal_todos(plural)": {
     "other": "包含 ${count} 个待办事项"
   },
+  "restore_modal_todos_one": "包含 {{count}} 个待办事项",
+  "restore_modal_todos_other": "包含 {{count}} 个待办事项",
   "restore_modal_project_scan_dirs": "将恢复 {{count}} 个项目扫描文件夹",
   "restore_modal_version_scan_dirs": "将恢复 {{count}} 个 Godot 版本文件夹",
   "restore_modal_workspace_list": "工作区",
@@ -207,6 +219,8 @@
   "stats_imported(plural)": {
     "other": "已为 ${count} 个项目导入统计。"
   },
+  "stats_imported_one": "已为 {{count}} 个项目导入统计。",
+  "stats_imported_other": "已为 {{count}} 个项目导入统计。",
   "raised_contrast_label": "凸起表面对比度",
   "raised_contrast_value": "{{value}}%",
   "token_help_desc": "在 github.com/settings/tokens 创建令牌。如果你需要私有仓库访问权限，只需勾选 repo 范围，否则保持所有范围不勾选。无需敏感权限。",
@@ -269,6 +283,8 @@
   "features_enabled_count(plural)": {
     "other": "已开启 ${count} 个功能"
   },
+  "features_enabled_count_one": "已开启 {{count}} 个功能",
+  "features_enabled_count_other": "已开启 {{count}} 个功能",
   "setup_profile_minimal": "极简",
   "setup_profile_minimal_desc": "仅包含项目和 Godot 版本。最轻量、最快速的配置。",
   "setup_profile_essentials": "基础",

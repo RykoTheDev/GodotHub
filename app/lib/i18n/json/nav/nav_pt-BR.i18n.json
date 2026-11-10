@@ -6,6 +6,8 @@
     "many": "Projetos",
     "other": "Projetos"
   },
+  "projects_count_one": "Projeto",
+  "projects_count_other": "Projetos",
   "versions": "Versões",
   "templates": "Templates",
   "vault": "Vault",

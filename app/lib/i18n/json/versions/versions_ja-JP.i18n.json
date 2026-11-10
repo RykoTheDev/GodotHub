@@ -27,6 +27,8 @@
     "zero": "インストールなし",
     "other": "インストール済み"
   },
+  "installed_count_one": "インストール済み",
+  "installed_count_other": "インストール済み",
   "installed_label": "インストール済み",
   "original_name": "元の名前",
   "source": "取得元",
@@ -65,12 +67,18 @@
   "alias_create_all(plural)": {
     "other": "${count} 件のエイリアスを作成"
   },
+  "alias_create_all_one": "エイリアスを作成",
+  "alias_create_all_other": "{{count}} 件のエイリアスを作成",
   "aliases_batch_created(plural)": {
     "other": "${count} 件のエイリアスを作成しました"
   },
+  "aliases_batch_created_one": "{{count}} 件のエイリアスを作成しました",
+  "aliases_batch_created_other": "{{count}} 件のエイリアスを作成しました",
   "aliases_batch_skipped(plural)": {
     "other": "${count} 件のエイリアスをスキップしました"
   },
+  "aliases_batch_skipped_one": "{{count}} 件のエイリアスをスキップしました",
+  "aliases_batch_skipped_other": "{{count}} 件のエイリアスをスキップしました",
   "alias_queue_duplicate": "「{{name}}」はすでにリストにあります",
   "alias_remove": "エイリアスを削除",
   "alias_remove_title": "このエイリアスを削除しますか？",
@@ -104,6 +112,8 @@
   "export_templates_selected(plural)": {
     "other": "${count} 個のテンプレートを選択中"
   },
+  "export_templates_selected_one": "1 個のテンプレートを選択中",
+  "export_templates_selected_other": "{{count}} 個のテンプレートを選択中",
   "export_templates_size_summary": "ダウンロード 約 {{download}} · ディスク上 {{installed}}",
   "export_templates_download_selected": "選択したものをダウンロード",
   "export_templates_loading_options": "このリリースで利用できるテンプレートを確認しています…",
@@ -111,10 +121,14 @@
   "export_templates_available(plural)": {
     "other": "利用可能なテンプレートグループ ${count} 個"
   },
+  "export_templates_available_one": "利用可能なテンプレートグループ 1 個",
+  "export_templates_available_other": "利用可能なテンプレートグループ {{count}} 個",
   "export_templates_select_all": "すべて選択",
   "export_templates_files(plural)": {
     "other": "テンプレートファイル ${count} 個"
   },
+  "export_templates_files_one": "テンプレートファイル 1 個",
+  "export_templates_files_other": "テンプレートファイル {{count}} 個",
   "export_templates_option_installed": "インストール済み",
   "export_templates_keep_existing": "プラットフォームを展開すると、アーキテクチャや個々のファイルを選べます。選択したファイルだけがダウンロードされ、既存のテンプレートはそのまま残ります。",
   "export_templates_uninstall_named": "{{name}} をアンインストール",

@@ -30,6 +30,8 @@
   "running_projects_desc(plural)": {
     "other": "${count} 件のプロジェクトが実行中"
   },
+  "running_projects_desc_one": "{{count}} 件のプロジェクトが実行中",
+  "running_projects_desc_other": "{{count}} 件のプロジェクトが実行中",
   "active": "実行中",
   "done": "完了",
   "paused": "一時停止中",
@@ -125,9 +127,13 @@
   "file_count(plural)": {
     "other": "${count} 個のファイル"
   },
+  "file_count_one": "{{count}} 個のファイル",
+  "file_count_other": "{{count}} 個のファイル",
   "folder_count(plural)": {
     "other": "${count} 個のフォルダ"
   },
+  "folder_count_one": "{{count}} 個のフォルダ",
+  "folder_count_other": "{{count}} 個のフォルダ",
   "template_empty": "このテンプレートは空です。",
   "categories": "カテゴリ",
   "category_folders_hint": "カテゴリのフォルダ内にあるプロジェクトは、自動的にそのカテゴリに割り当てられます。",
@@ -233,6 +239,8 @@
     "zero": "アセットなし",
     "other": "アセット"
   },
+  "asset_store_count_one": "アセット",
+  "asset_store_count_other": "アセット",
   "asset_store_count": "アセット",
   "settings_title": "設定",
   "no_templates_match": "一致するテンプレートはありません",
@@ -314,6 +322,8 @@
   "template_your_templates(plural)": {
     "other": "テンプレート"
   },
+  "template_your_templates_one": "テンプレート",
+  "template_your_templates_other": "テンプレート",
   "template_imported_count": "{{count}} 件をインポートしました",
   "template_updated_count": "{{count}} 件を更新しました",
   "template_removed_count": "{{count}} 件を削除しました",
@@ -429,6 +439,8 @@
   "tag_count(plural)": {
     "other": "${count} 個のタグ"
   },
+  "tag_count_one": "{{count}} 個のタグ",
+  "tag_count_other": "{{count}} 個のタグ",
   "no_tags": "タグはまだありません",
   "bug_report_describe_label": "何が起きましたか？",
   "bug_report_describe_placeholder": "バグが発生したとき、何をしていましたか？ 再現手順と、期待した動作・実際の動作も書いてください。",
@@ -485,6 +497,8 @@
   "task_tray_only_recent(plural)": {
     "other": "最近のタスク ${count} 件"
   },
+  "task_tray_only_recent_one": "最近のタスク {{count}} 件",
+  "task_tray_only_recent_other": "最近のタスク {{count}} 件",
   "task_tray_aria": "タスクトレイ",
   "task_tray_auto_dismiss": "完了したものを自動的に消す",
   "task_tray_dismiss": "{{count}} 件を消す",
@@ -551,9 +565,13 @@
   "found_dismissed_title(plural)": {
     "other": "以前に削除したプロジェクトが ${count} 件見つかりました"
   },
+  "found_dismissed_title_one": "以前に削除したプロジェクトが見つかりました",
+  "found_dismissed_title_other": "以前に削除したプロジェクトが {{count}} 件見つかりました",
   "found_dismissed_desc(plural)": {
     "other": "以前ライブラリから削除したプロジェクトが ${count} 件見つかりました。再度追加しますか？"
   },
+  "found_dismissed_desc_one": "以前ライブラリから削除したプロジェクトが 1 件見つかりました。再度追加しますか？",
+  "found_dismissed_desc_other": "以前ライブラリから削除したプロジェクトが {{count}} 件見つかりました。再度追加しますか？",
   "readd_all": "すべて再追加",
   "skip_all": "すべてスキップ",
   "project_already_open_title": "プロジェクトはすでに開いています",
@@ -595,6 +613,8 @@
   "contributor_pr_count(plural)": {
     "other": "プルリクエスト ${count} 件"
   },
+  "contributor_pr_count_one": "プルリクエスト {{count}} 件",
+  "contributor_pr_count_other": "プルリクエスト {{count}} 件",
   "contributor_pr_load_failed": "プルリクエストを読み込めませんでした。",
   "contributor_pr_network_hint": "インターネット接続を確認してください。",
   "contributor_pr_empty": "プルリクエストが見つかりませんでした。",
@@ -655,14 +675,20 @@
     "summary_errors(plural)": {
       "other": "${count} 件の問題に対応が必要です"
     },
+    "summary_errors_one": "{{count}} 件の問題に対応が必要です",
+    "summary_errors_other": "{{count}} 件の問題に対応が必要です",
     "summary_warnings(plural)": {
       "other": "${count} 件の警告を確認してください"
     },
+    "summary_warnings_one": "{{count}} 件の警告を確認してください",
+    "summary_warnings_other": "{{count}} 件の警告を確認してください",
     "summary_ready": "作業を妨げる問題は見つかりませんでした",
     "summary_counts": "{{passed}} 件のチェックに合格 · {{findings}} 件の指摘",
     "passed_checks(plural)": {
       "other": "合格したチェック ${count} 件"
     },
+    "passed_checks_one": "合格したチェック {{count}} 件",
+    "passed_checks_other": "合格したチェック {{count}} 件",
     "local_checks": "チェックはローカルで実行されます。設定を修正するときは、先にバックアップを保存します。",
     "fix_complete": "修正を適用し、プロジェクトのチェック結果を更新しました。",
     "templates_downloading": "選択したテンプレートをダウンロードしています。進行状況の確認とキャンセルは「タスク」からも行えます。",
@@ -899,6 +925,8 @@
   "cleanup_confirm_btn(plural)": {
     "other": "${count} 件を削除"
   },
+  "cleanup_confirm_btn_one": "{{count}} 件を削除",
+  "cleanup_confirm_btn_other": "{{count}} 件を削除",
   "cleanup_done": "{{size}} を解放しました",
   "cleanup_failed": "{{label}} を削除できませんでした: {{error}}",
   "cleanup_versions_desc": "インストール済みのすべての Godot バージョンがディスク上で使用している合計容量です。",
@@ -907,6 +935,8 @@
   "cleanup_used_by_templates(plural)": {
     "other": "${count} 件のテンプレート"
   },
+  "cleanup_used_by_templates_one": "{{count}} 件のテンプレート",
+  "cleanup_used_by_templates_other": "{{count}} 件のテンプレート",
   "cleanup_current_badge": "既定",
   "cleanup_alias_badge": "エイリアス",
   "cleanup_unused_badge": "未使用",
@@ -924,9 +954,13 @@
   "n_projects(plural)": {
     "other": "${count} 件のプロジェクト"
   },
+  "n_projects_one": "{{count}} 件のプロジェクト",
+  "n_projects_other": "{{count}} 件のプロジェクト",
   "vault_item_count(plural)": {
     "other": "アイテム"
   },
+  "vault_item_count_one": "アイテム",
+  "vault_item_count_other": "アイテム",
   "vault_search_placeholder": "保管庫を検索…",
   "vault_empty": "保管庫は空です。<1>保管庫に保存</1>をクリックすると、プロジェクトのファイルやフォルダを選んで保存し、ほかのプロジェクトで再利用できます。",
   "vault_no_match": "検索条件に一致するアイテムはありません。",
@@ -962,15 +996,23 @@
   "vault_conflict_desc(plural)": {
     "other": "プロジェクトにはすでに ${count} 件のファイルが存在します。上書きしますか？"
   },
+  "vault_conflict_desc_one": "プロジェクトにはすでに {{count}} 件のファイルが存在します。上書きしますか？",
+  "vault_conflict_desc_other": "プロジェクトにはすでに {{count}} 件のファイルが存在します。上書きしますか？",
   "vault_conflict_summary_desc(plural)": {
     "other": "選択したプロジェクトには、合計 ${count} 件のファイルがすでに存在します。上書きしますか？"
   },
+  "vault_conflict_summary_desc_one": "選択したプロジェクトには、合計 {{count}} 件のファイルがすでに存在します。上書きしますか？",
+  "vault_conflict_summary_desc_other": "選択したプロジェクトには、合計 {{count}} 件のファイルがすでに存在します。上書きしますか？",
   "vault_added_toast(plural)": {
     "other": "${count} 件のファイルを追加しました"
   },
+  "vault_added_toast_one": "{{count}} 件のファイルを追加しました",
+  "vault_added_toast_other": "{{count}} 件のファイルを追加しました",
   "vault_added_to_projects_toast(plural)": {
     "other": "${count} 件のプロジェクトに追加しました"
   },
+  "vault_added_to_projects_toast_one": "{{count}} 件のプロジェクトに追加しました",
+  "vault_added_to_projects_toast_other": "{{count}} 件のプロジェクトに追加しました",
   "vault_item_empty": "このアイテムにはファイルがありません。",
   "new": "新規",
   "announcement_support_title": "GodotHub を支援",
@@ -988,12 +1030,16 @@
     "count(plural)": {
       "other": "${count} 件のアドオンをインストール済み"
     },
+    "count_one": "{{count}} 件のアドオンをインストール済み",
+    "count_other": "{{count}} 件のアドオンをインストール済み",
     "empty": "このプロジェクトには addons フォルダがありません。アセットストアからアドオンをインストールするか、res://addons にコピーしてください。",
     "check_updates": "更新を確認",
     "checking": "確認中…",
     "updates_available(plural)": {
       "other": "${count} 件の更新があります"
     },
+    "updates_available_one": "{{count}} 件の更新があります",
+    "updates_available_other": "{{count}} 件の更新があります",
     "all_current": "アセットライブラリに更新はありません",
     "enabled": "有効",
     "disabled": "無効",

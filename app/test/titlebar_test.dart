@@ -7,16 +7,21 @@ import 'package:godothub/design/design.dart';
 import 'package:godothub/i18n/i18n.dart';
 import 'package:godothub/i18n/i18n_controller.dart';
 import 'package:godothub/i18n/languages.dart';
-import 'package:godothub/src/providers.dart';
 import 'package:godothub/src/rust/api/types.dart';
 import 'package:godothub/titlebar/language_menu.dart';
 import 'package:godothub/titlebar/providers.dart';
 import 'package:godothub/titlebar/running_projects_chip.dart';
-import 'package:godothub/titlebar/settings_copy.dart';
+import 'package:godothub/logic/settings_copy.dart';
+import 'package:godothub/api/events.dart';
+import 'package:godothub/src/ui_prefs.dart';
+import 'package:godothub/state/app_signals.dart';
+import 'package:godothub/state/task_tray.dart';
 import 'package:godothub/titlebar/task_tray.dart';
 import 'package:godothub/titlebar/title_bar.dart';
 import 'package:godothub/titlebar/window_controls.dart';
 
+import 'support/settings_fakes.dart';
+import 'support/fake_rust.dart';
 import 'ui/i18n_setup.dart';
 
 const baseSettings = AppSettings(
@@ -200,10 +205,9 @@ Future<void> pumpTitleBar(
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
-        settingsProvider.overrideWith((ref) async => settings),
+        fakeSettings(() => settings),
         titleBarWindowProvider.overrideWithValue(window),
         runningProjectsSourceProvider.overrideWithValue(FakeRunningSource().source),
-        titleBarSettingsWriterProvider.overrideWithValue((next) async => next),
       ],
       child: MaterialApp(
         home: Scaffold(
@@ -232,8 +236,17 @@ Offset emptyBarSpot(WidgetTester tester) => tester.getRect(find.byKey(const Valu
 
 Finder byGhIcon(FaIconData icon) => find.byWidgetPredicate((widget) => widget is GhIcon && widget.icon == icon);
 
+class LitChangelogBadge extends ChangelogBadgeNotifier {
+  @override
+  bool build() => true;
+}
+
 void main() {
   setUp(setUpTestI18n);
+  setUp(() {
+    installFakeRust().on('crateApiChangelogListChangelogEntries', () async => <ChangelogEntry>[]);
+    UiPrefsStore.instance = UiPrefsStore(MemoryUiPrefsBackend());
+  });
   group('visibility rules', () {
     test('custom window controls only off macOS without OS decorations', () {
       expect(showsCustomWindowControls(settingsWith(), isMac: false), isTrue);
@@ -392,13 +405,13 @@ void main() {
     testWidgets('changelog badge variant shows the label', (tester) async {
       final container = ProviderContainer(
         overrides: [
-          settingsProvider.overrideWith((ref) async => settingsWith(changelog: true)),
+          fakeSettings(() => settingsWith(changelog: true)),
           titleBarWindowProvider.overrideWithValue(FakeWindow()),
           runningProjectsSourceProvider.overrideWithValue(FakeRunningSource().source),
+          changelogBadgeProvider.overrideWith(LitChangelogBadge.new),
         ],
       );
       addTearDown(container.dispose);
-      container.read(changelogBadgeProvider.notifier).mark(true);
       await tester.pumpWidget(
         UncontrolledProviderScope(
           container: container,
@@ -418,11 +431,13 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
-            settingsProvider.overrideWith((ref) async => settings),
-            titleBarSettingsWriterProvider.overrideWithValue((next) async {
-              saved.add(next);
-              return next;
-            }),
+            fakeSettings(
+              () => settings,
+              onSave: (next) {
+                saved.add(next);
+                return next;
+              },
+            ),
           ],
           child: const MaterialApp(
             home: Scaffold(
@@ -565,9 +580,11 @@ void main() {
   group('TaskTray', () {
     testWidgets('opens an empty state and closes itself after two seconds', (tester) async {
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(
-            body: Align(alignment: Alignment.topRight, child: TaskTray()),
+        const ProviderScope(
+          child: MaterialApp(
+            home: Scaffold(
+              body: Align(alignment: Alignment.topRight, child: TaskTray()),
+            ),
           ),
         ),
       );
@@ -582,13 +599,68 @@ void main() {
       expect(find.text(t.common.no_tasks_running), findsNothing);
     });
 
-    testWidgets('shows the active count badge', (tester) async {
+    testWidgets('shows the active count badge from the task tray provider', (tester) async {
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      for (var i = 0; i < 12; i++) {
+        container
+            .read(taskTrayProvider.notifier)
+            .registerTask(TrayTask(id: '$i', type: TaskType.downloadGodot, label: '$i', status: TaskStatus.queued));
+      }
       await tester.pumpWidget(
-        const MaterialApp(
-          home: Scaffold(body: Center(child: TaskTray(activeCount: 12))),
+        UncontrolledProviderScope(
+          container: container,
+          child: const MaterialApp(
+            home: Scaffold(body: Center(child: TaskTray())),
+          ),
         ),
       );
       expect(find.text('9+'), findsOneWidget);
+    });
+  });
+
+  group('native running projects source', () {
+    test('adopts running projects through the retrying fetch and maps launch and exit events', () async {
+      final rust = installFakeRust();
+      rust.on(
+        'crateApiProjectsListRunningProjects',
+        () async => [RunningProjectInfo(id: 'a', name: 'Alpha', version: '4.3', launchedAtMs: BigInt.from(1000), console: false)],
+      );
+      final source = RunningProjectsSource.native();
+      final loaded = await source.load();
+      expect(loaded.single.id, 'a');
+      expect(loaded.single.startedAtMs, 1000 + timerStartDelayMs);
+
+      final launched = <RunningProject>[];
+      final exited = <String>[];
+      final subs = [source.launched().listen(launched.add), source.exited().listen(exited.add)];
+      addTearDown(() {
+        for (final sub in subs) {
+          sub.cancel();
+        }
+      });
+      rust.emit(
+        AppEvent(
+          kind: AppEventKind.projectLaunched,
+          name: 'project:launched',
+          json: '{}',
+          projectLaunched: const ProjectLaunched(id: 'b', name: 'Beta', version: '4.2', console: true),
+        ),
+      );
+      rust.emit(AppEvent(kind: AppEventKind.projectExited, name: 'project:exited', json: '{}', projectExited: const ProjectExited(id: 'a')));
+      await pumpEventQueue();
+      expect(launched.single.name, 'Beta');
+      expect(launched.single.startedAtMs, greaterThan(DateTime.now().millisecondsSinceEpoch));
+      expect(exited, ['a']);
+    });
+
+    test('the default console opener emits app:open-console', () async {
+      final signals = <AppSignal>[];
+      AppSignals.on(openConsoleSignal).listen(signals.add);
+      final container = ProviderContainer();
+      addTearDown(container.dispose);
+      container.read(titleBarConsoleOpenerProvider)('a', 'Alpha');
+      expect(signals.single.detail, {'id': 'a', 'name': 'Alpha'});
     });
   });
 }

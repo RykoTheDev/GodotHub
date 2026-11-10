@@ -107,6 +107,8 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String running_projects_desc({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 个项目正在运行',
 	);
+	@override String get running_projects_desc_one => '{{count}} 个项目正在运行';
+	@override String get running_projects_desc_other => '{{count}} 个项目正在运行';
 	@override String get active => '执行中';
 	@override String get done => '已完成';
 	@override String get paused => '已暂停';
@@ -202,9 +204,13 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String file_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 个文件',
 	);
+	@override String get file_count_one => '{{count}} 个文件';
+	@override String get file_count_other => '{{count}} 个文件';
 	@override String folder_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 个文件夹',
 	);
+	@override String get folder_count_one => '{{count}} 个文件夹';
+	@override String get folder_count_other => '{{count}} 个文件夹';
 	@override String get template_empty => '此模板为空。';
 	@override String get categories => '分类';
 	@override String get category_folders_hint => '分类文件夹中的项目会自动分配到该分类。';
@@ -309,6 +315,8 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String asset_store_count_plural({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '资源',
 	);
+	@override String get asset_store_count_one => '资源';
+	@override String get asset_store_count_other => '资源';
 	@override String get asset_store_count => '资源';
 	@override String get settings_title => '设置';
 	@override String get no_templates_match => '没有匹配的模板';
@@ -390,6 +398,8 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String template_your_templates({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '模板',
 	);
+	@override String get template_your_templates_one => '模板';
+	@override String get template_your_templates_other => '模板';
 	@override String get template_imported_count => '已导入 {{count}}';
 	@override String get template_updated_count => '已更新 {{count}}';
 	@override String get template_removed_count => '已移除 {{count}}';
@@ -505,6 +515,8 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String tag_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 个标签',
 	);
+	@override String get tag_count_one => '{{count}} 个标签';
+	@override String get tag_count_other => '{{count}} 个标签';
 	@override String get no_tags => '暂无标签';
 	@override String get bug_report_describe_label => '发生了什么？';
 	@override String get bug_report_describe_placeholder => '问题出现时你在做什么？请添加重现步骤以及你期望的结果与实际结果。';
@@ -561,6 +573,8 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String task_tray_only_recent({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 个最近任务',
 	);
+	@override String get task_tray_only_recent_one => '{{count}} 个最近任务';
+	@override String get task_tray_only_recent_other => '{{count}} 个最近任务';
 	@override String get task_tray_aria => '任务托盘';
 	@override String get task_tray_auto_dismiss => '已完成自动关闭';
 	@override String get task_tray_dismiss => '隐藏 {{count}} 个任务';
@@ -627,9 +641,13 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String found_dismissed_title({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '发现 ${count} 个之前移除的项目',
 	);
+	@override String get found_dismissed_title_one => '发现之前移除的项目';
+	@override String get found_dismissed_title_other => '发现 {{count}} 个之前移除的项目';
 	@override String found_dismissed_desc({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '扫描发现 ${count} 个你之前从库中移除的项目。要重新添加吗？',
 	);
+	@override String get found_dismissed_desc_one => '扫描发现 1 个你之前从库中移除的项目。要重新添加吗？';
+	@override String get found_dismissed_desc_other => '扫描发现 {{count}} 个你之前从库中移除的项目。要重新添加吗？';
 	@override String get readd_all => '全部重新添加';
 	@override String get skip_all => '全部跳过';
 	@override String get project_already_open_title => '项目已打开';
@@ -671,6 +689,8 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String contributor_pr_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 个拉取请求',
 	);
+	@override String get contributor_pr_count_one => '{{count}} 个拉取请求';
+	@override String get contributor_pr_count_other => '{{count}} 个拉取请求';
 	@override String get contributor_pr_load_failed => '加载拉取请求失败。';
 	@override String get contributor_pr_network_hint => '请检查网络连接。';
 	@override String get contributor_pr_empty => '未找到拉取请求。';
@@ -752,6 +772,8 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String cleanup_confirm_btn({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '移除 ${count} 个项目',
 	);
+	@override String get cleanup_confirm_btn_one => '移除 {{count}} 个项目';
+	@override String get cleanup_confirm_btn_other => '移除 {{count}} 个项目';
 	@override String get cleanup_done => '已释放 {{size}}';
 	@override String get cleanup_failed => '无法移除 {{label}}：{{error}}';
 	@override String get cleanup_versions_desc => '每个已安装 Godot 版本的完整磁盘占用。';
@@ -760,6 +782,8 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String cleanup_used_by_templates({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 个模板',
 	);
+	@override String get cleanup_used_by_templates_one => '{{count}} 个模板';
+	@override String get cleanup_used_by_templates_other => '{{count}} 个模板';
 	@override String get cleanup_current_badge => '默认';
 	@override String get cleanup_alias_badge => '别名路径';
 	@override String get cleanup_unused_badge => '未使用';
@@ -777,9 +801,13 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String n_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 个项目',
 	);
+	@override String get n_projects_one => '{{count}} 个项目';
+	@override String get n_projects_other => '{{count}} 个项目';
 	@override String vault_item_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '条目',
 	);
+	@override String get vault_item_count_one => '条目';
+	@override String get vault_item_count_other => '条目';
 	@override String get vault_search_placeholder => '搜索储藏库…';
 	@override String get vault_empty => '储藏库是空的。点击 <1>保存到储藏库</1> 从项目中选择文件或文件夹，并在任何地方复用。';
 	@override String get vault_no_match => '没有条目匹配搜索。';
@@ -815,15 +843,23 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String vault_conflict_desc({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '项目中已存在 ${count} 个文件。是否覆盖？',
 	);
+	@override String get vault_conflict_desc_one => '项目中已存在 {{count}} 个文件。是否覆盖？';
+	@override String get vault_conflict_desc_other => '项目中已存在 {{count}} 个文件。是否覆盖？';
 	@override String vault_conflict_summary_desc({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '所选项目中已存在 ${count} 个文件。是否覆盖？',
 	);
+	@override String get vault_conflict_summary_desc_one => '所选项目中已存在 {{count}} 个文件。是否覆盖？';
+	@override String get vault_conflict_summary_desc_other => '所选项目中已存在 {{count}} 个文件。是否覆盖？';
 	@override String vault_added_toast({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '已添加 ${count} 个文件',
 	);
+	@override String get vault_added_toast_one => '已添加 {{count}} 个文件';
+	@override String get vault_added_toast_other => '已添加 {{count}} 个文件';
 	@override String vault_added_to_projects_toast({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '已添加到 ${count} 个项目',
 	);
+	@override String get vault_added_to_projects_toast_one => '已添加到 {{count}} 个项目';
+	@override String get vault_added_to_projects_toast_other => '已添加到 {{count}} 个项目';
 	@override String get vault_item_empty => '此条目没有文件。';
 	@override String get kNew => '新建';
 	@override String get announcement_support_title => '支持 GodotHub';
@@ -908,6 +944,7 @@ class _Translations$dashboard$zh_CN extends Translations$dashboard$en_US {
 	@override String dashboard_git_dirty_plural({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 个仓库有未提交更改',
 	);
+	@override String get dashboard_git_dirty_one => '1 个仓库有未提交更改';
 	@override String get dashboard_git_branch => '在 {{branch}} 分支上';
 	@override String get dashboard_storage => '存储使用';
 	@override String get dashboard_storage_empty => '没有可测量的项目。';
@@ -1091,6 +1128,8 @@ class _Translations$nav$zh_CN extends Translations$nav$en_US {
 	@override String projects_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '项目',
 	);
+	@override String get projects_count_one => '项目';
+	@override String get projects_count_other => '项目';
 	@override String get versions => '版本';
 	@override String get templates => '模板';
 	@override String get vault => '储藏库';
@@ -1142,9 +1181,13 @@ class _Translations$onboarding$zh_CN extends Translations$onboarding$en_US {
 	@override String discovery_added_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '已添加 ${count} 个项目。',
 	);
+	@override String get discovery_added_projects_one => '已添加 {{count}} 个项目。';
+	@override String get discovery_added_projects_other => '已添加 {{count}} 个项目。';
 	@override String discovery_added_versions({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '已添加 ${count} 个版本。',
 	);
+	@override String get discovery_added_versions_one => '已添加 {{count}} 个版本。';
+	@override String get discovery_added_versions_other => '已添加 {{count}} 个版本。';
 	@override String get discovery_link_hint => '项目会自动关联到匹配的 Godot 版本，包括你在下一步中添加的版本。';
 	@override String get setup => '设置';
 	@override String get setup_title => '你想如何使用 GodotHub？';
@@ -1297,6 +1340,8 @@ class _Translations$settings$zh_CN extends Translations$settings$en_US {
 	@override String folders_deep({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '深度：${count} 层',
 	);
+	@override String get folders_deep_one => '深度：{{count}} 层';
+	@override String get folders_deep_other => '深度：{{count}} 层';
 	@override String get at_once => '同时 {{count}} 个';
 	@override String get animation_speed_label => '动画速度';
 	@override String get scroll_reveal_label => '滚动显现';
@@ -1354,19 +1399,29 @@ class _Translations$settings$zh_CN extends Translations$settings$en_US {
 	@override String restore_modal_workspaces({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '个工作区',
 	);
+	@override String get restore_modal_workspaces_one => '个工作区';
+	@override String get restore_modal_workspaces_other => '个工作区';
 	@override String restore_modal_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '个项目',
 	);
+	@override String get restore_modal_projects_one => '个项目';
+	@override String get restore_modal_projects_other => '个项目';
 	@override String restore_modal_categories({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '个分类',
 	);
+	@override String get restore_modal_categories_one => '个分类';
+	@override String get restore_modal_categories_other => '个分类';
 	@override String restore_modal_templates({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '个模板',
 	);
+	@override String get restore_modal_templates_one => '个模板';
+	@override String get restore_modal_templates_other => '个模板';
 	@override String get restore_modal_time_stats => '包含时间跟踪数据';
 	@override String restore_modal_todos({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '包含 ${count} 个待办事项',
 	);
+	@override String get restore_modal_todos_one => '包含 {{count}} 个待办事项';
+	@override String get restore_modal_todos_other => '包含 {{count}} 个待办事项';
 	@override String get restore_modal_project_scan_dirs => '将恢复 {{count}} 个项目扫描文件夹';
 	@override String get restore_modal_version_scan_dirs => '将恢复 {{count}} 个 Godot 版本文件夹';
 	@override String get restore_modal_workspace_list => '工作区';
@@ -1379,6 +1434,8 @@ class _Translations$settings$zh_CN extends Translations$settings$en_US {
 	@override String stats_imported({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '已为 ${count} 个项目导入统计。',
 	);
+	@override String get stats_imported_one => '已为 {{count}} 个项目导入统计。';
+	@override String get stats_imported_other => '已为 {{count}} 个项目导入统计。';
 	@override String get raised_contrast_label => '凸起表面对比度';
 	@override String get raised_contrast_value => '{{value}}%';
 	@override String get token_help_desc => '在 github.com/settings/tokens 创建令牌。如果你需要私有仓库访问权限，只需勾选 repo 范围，否则保持所有范围不勾选。无需敏感权限。';
@@ -1441,6 +1498,8 @@ class _Translations$settings$zh_CN extends Translations$settings$en_US {
 	@override String features_enabled_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '已开启 ${count} 个功能',
 	);
+	@override String get features_enabled_count_one => '已开启 {{count}} 个功能';
+	@override String get features_enabled_count_other => '已开启 {{count}} 个功能';
 	@override String get setup_profile_minimal => '极简';
 	@override String get setup_profile_minimal_desc => '仅包含项目和 Godot 版本。最轻量、最快速的配置。';
 	@override String get setup_profile_essentials => '基础';
@@ -1472,9 +1531,13 @@ class _Translations$todos$zh_CN extends Translations$todos$en_US {
 	@override String pending_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 个待处理',
 	);
+	@override String get pending_count_one => '{{count}} 个待处理';
+	@override String get pending_count_other => '{{count}} 个待处理';
 	@override String completed_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 个已完成',
 	);
+	@override String get completed_count_one => '{{count}} 个已完成';
+	@override String get completed_count_other => '{{count}} 个已完成';
 	@override String get new_task => '新建事项';
 	@override String get hide_next_steps => '隐藏事项';
 	@override String get save_changes_failed => '无法保存更改。';
@@ -1527,10 +1590,14 @@ class _Translations$todos$zh_CN extends Translations$todos$en_US {
 	@override String due_in_days({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 天后到期',
 	);
+	@override String get due_in_days_one => '{{count}} 天后到期';
+	@override String get due_in_days_other => '{{count}} 天后到期';
 	@override String get overdue_yesterday => '昨天已到期';
 	@override String overdue_days({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '已逾期 ${count} 天',
 	);
+	@override String get overdue_days_one => '已逾期 {{count}} 天';
+	@override String get overdue_days_other => '已逾期 {{count}} 天';
 	@override String get scan_code => '扫描代码';
 	@override String get scan_code_hint => '从脚本和着色器中导入 TODO 和 FIXME 注释，并完成注释已被移除的待办事项';
 	@override String get comment_scan_summary => '代码扫描：新增 {{imported}} 个，完成 {{closed}} 个，重新打开 {{reopened}} 个';
@@ -1538,6 +1605,8 @@ class _Translations$todos$zh_CN extends Translations$todos$en_US {
 	@override String commit_closed({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '根据提交消息完成了 ${count} 个待办事项',
 	);
+	@override String get commit_closed_one => '根据提交消息完成了 {{count}} 个待办事项';
+	@override String get commit_closed_other => '根据提交消息完成了 {{count}} 个待办事项';
 	@override String get linked_file => '关联文件';
 	@override String get linked_file_placeholder => 'res://scenes/player.tscn';
 	@override String get linked_file_hint => '关联此项目中的场景、脚本或资源。';
@@ -1572,14 +1641,20 @@ class _Translations$todos$zh_CN extends Translations$todos$en_US {
 	@override String open_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 个待办事项',
 	);
+	@override String get open_count_one => '{{count}} 个待办事项';
+	@override String get open_count_other => '{{count}} 个待办事项';
 	@override String overdue_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 个已逾期',
 	);
+	@override String get overdue_count_one => '{{count}} 个已逾期';
+	@override String get overdue_count_other => '{{count}} 个已逾期';
 	@override String get tile_summary => '{{overdue}} 个已逾期 · {{soon}} 个本周到期';
 	@override String get tile_empty => '没有已逾期或本周到期的事项。';
 	@override String due_notification_title({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 个待办事项已到期',
 	);
+	@override String get due_notification_title_one => '待办事项到期：{{title}}';
+	@override String get due_notification_title_other => '{{count}} 个待办事项已到期';
 	@override String get due_notification_more => '还有 {{count}} 个';
 }
 
@@ -1617,6 +1692,8 @@ class _Translations$versions$zh_CN extends Translations$versions$en_US {
 	@override String installed_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '已安装',
 	);
+	@override String get installed_count_one => '已安装';
+	@override String get installed_count_other => '已安装';
 	@override String get installed_label => '已安装';
 	@override String get original_name => '原始名称';
 	@override String get source => '来源';
@@ -1655,12 +1732,18 @@ class _Translations$versions$zh_CN extends Translations$versions$en_US {
 	@override String alias_create_all({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '创建 ${count} 个别名',
 	);
+	@override String get alias_create_all_one => '创建别名';
+	@override String get alias_create_all_other => '创建 {{count}} 个别名';
 	@override String aliases_batch_created({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 个别名已创建',
 	);
+	@override String get aliases_batch_created_one => '1 个别名已创建';
+	@override String get aliases_batch_created_other => '{{count}} 个别名已创建';
 	@override String aliases_batch_skipped({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 个别名已跳过',
 	);
+	@override String get aliases_batch_skipped_one => '1 个别名已跳过';
+	@override String get aliases_batch_skipped_other => '{{count}} 个别名已跳过';
 	@override String get alias_queue_duplicate => '"{{name}}" 已在列表中';
 	@override String get alias_remove => '删除别名';
 	@override String get alias_remove_title => '删除这个别名?';
@@ -1694,6 +1777,8 @@ class _Translations$versions$zh_CN extends Translations$versions$en_US {
 	@override String export_templates_selected({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 个模板已选择',
 	);
+	@override String get export_templates_selected_one => '1 个模板已选择';
+	@override String get export_templates_selected_other => '{{count}} 个模板已选择';
 	@override String get export_templates_size_summary => '~{{download}} 下载 · {{installed}} 已安装';
 	@override String get export_templates_download_selected => '下载所选';
 	@override String get export_templates_loading_options => '正在检查此版本的可用模板…';
@@ -1701,10 +1786,14 @@ class _Translations$versions$zh_CN extends Translations$versions$en_US {
 	@override String export_templates_available({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 个可用模板组',
 	);
+	@override String get export_templates_available_one => '1 个可用模板组';
+	@override String get export_templates_available_other => '{{count}} 个可用模板组';
 	@override String get export_templates_select_all => '全选';
 	@override String export_templates_files({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 个模板文件',
 	);
+	@override String get export_templates_files_one => '1 个模板文件';
+	@override String get export_templates_files_other => '{{count}} 个模板文件';
 	@override String get export_templates_option_installed => '已安装';
 	@override String get export_templates_keep_existing => '展开一个平台以选择架构或单个文件。仅下载选中的文件。你的现有模板将被保留。';
 	@override String get export_templates_uninstall_named => '卸载 {{name}}';
@@ -1743,14 +1832,20 @@ class _Translations$common$project_doctor$zh_CN extends Translations$common$proj
 	@override String summary_errors({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 个问题需要关注',
 	);
+	@override String get summary_errors_one => '{{count}} 个问题需要关注';
+	@override String get summary_errors_other => '{{count}} 个问题需要关注';
 	@override String summary_warnings({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 个警告需要审核',
 	);
+	@override String get summary_warnings_one => '{{count}} 个警告需要审核';
+	@override String get summary_warnings_other => '{{count}} 个警告需要审核';
 	@override String get summary_ready => '未发现阻塞性问题';
 	@override String get summary_counts => '{{passed}} 项检查通过 · {{findings}} 个问题';
 	@override String passed_checks({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '${count} 项检查通过',
 	);
+	@override String get passed_checks_one => '{{count}} 项检查通过';
+	@override String get passed_checks_other => '{{count}} 项检查通过';
 	@override String get local_checks => '检查在本地运行。修复设置前会先保存备份。';
 	@override String get fix_complete => '修复已应用。项目检查已更新。';
 	@override String get templates_downloading => '正在下载所选模板。进度和取消操作也可在“任务”中查看。';
@@ -1980,12 +2075,16 @@ class _Translations$common$project_addons$zh_CN extends Translations$common$proj
 	@override String count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '已安装 ${count} 个插件',
 	);
+	@override String get count_one => '已安装 {{count}} 个插件';
+	@override String get count_other => '已安装 {{count}} 个插件';
 	@override String get empty => '此项目没有 addons 文件夹。请从资源商店安装插件，或将其复制到 res://addons。';
 	@override String get check_updates => '检查更新';
 	@override String get checking => '正在检查…';
 	@override String updates_available({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: '有 ${count} 个更新可用',
 	);
+	@override String get updates_available_one => '有 {{count}} 个更新可用';
+	@override String get updates_available_other => '有 {{count}} 个更新可用';
 	@override String get all_current => '在资源库中未找到更新';
 	@override String get enabled => '已启用';
 	@override String get disabled => '已禁用';
@@ -2050,6 +2149,8 @@ extension on TranslationsZhCn {
 			'common.download_queue_move_down' => '在队列中下移',
 			'common.running' => '运行中',
 			'common.running_projects_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个项目正在运行', ), 
+			'common.running_projects_desc_one' => '{{count}} 个项目正在运行',
+			'common.running_projects_desc_other' => '{{count}} 个项目正在运行',
 			'common.active' => '执行中',
 			'common.done' => '已完成',
 			'common.paused' => '已暂停',
@@ -2143,7 +2244,11 @@ extension on TranslationsZhCn {
 			'common.expand' => '展开',
 			'common.collapse' => '折叠',
 			'common.file_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个文件', ), 
+			'common.file_count_one' => '{{count}} 个文件',
+			'common.file_count_other' => '{{count}} 个文件',
 			'common.folder_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个文件夹', ), 
+			'common.folder_count_one' => '{{count}} 个文件夹',
+			'common.folder_count_other' => '{{count}} 个文件夹',
 			'common.template_empty' => '此模板为空。',
 			'common.categories' => '分类',
 			'common.category_folders_hint' => '分类文件夹中的项目会自动分配到该分类。',
@@ -2246,6 +2351,8 @@ extension on TranslationsZhCn {
 			'common.asset_store_title' => '资源商店',
 			'common.news_count' => '文章',
 			'common.asset_store_count_plural' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '资源', ), 
+			'common.asset_store_count_one' => '资源',
+			'common.asset_store_count_other' => '资源',
 			'common.asset_store_count' => '资源',
 			'common.settings_title' => '设置',
 			'common.no_templates_match' => '没有匹配的模板',
@@ -2325,6 +2432,8 @@ extension on TranslationsZhCn {
 			'common.asset_next_page' => '下一页',
 			'common.asset_page_x_of_y' => '第 {{page}} 页，共 {{total}} 页',
 			'common.template_your_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '模板', ), 
+			'common.template_your_templates_one' => '模板',
+			'common.template_your_templates_other' => '模板',
 			'common.template_imported_count' => '已导入 {{count}}',
 			'common.template_updated_count' => '已更新 {{count}}',
 			'common.template_removed_count' => '已移除 {{count}}',
@@ -2438,6 +2547,8 @@ extension on TranslationsZhCn {
 			'common.clear_tag_filter' => '清除标签筛选',
 			'common.saving_tags' => '正在保存标签…',
 			'common.tag_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个标签', ), 
+			'common.tag_count_one' => '{{count}} 个标签',
+			'common.tag_count_other' => '{{count}} 个标签',
 			'common.no_tags' => '暂无标签',
 			'common.bug_report_describe_label' => '发生了什么？',
 			'common.bug_report_describe_placeholder' => '问题出现时你在做什么？请添加重现步骤以及你期望的结果与实际结果。',
@@ -2492,6 +2603,8 @@ extension on TranslationsZhCn {
 			'common.task_tray_empty' => '没有正在运行的任务',
 			'common.task_tray_active_count' => '{{active}} 个活动任务，{{recent}} 个最近任务',
 			'common.task_tray_only_recent' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个最近任务', ), 
+			'common.task_tray_only_recent_one' => '{{count}} 个最近任务',
+			'common.task_tray_only_recent_other' => '{{count}} 个最近任务',
 			'common.task_tray_aria' => '任务托盘',
 			'common.task_tray_auto_dismiss' => '已完成自动关闭',
 			'common.task_tray_dismiss' => '隐藏 {{count}} 个任务',
@@ -2509,6 +2622,8 @@ extension on TranslationsZhCn {
 			'common.setting_scan_depth' => '扫描深度',
 			'common.setting_icon_scan_depth' => '项目图标搜索深度',
 			'common.setting_download_concurrency' => '同时下载数',
+			_ => null,
+		} ?? switch (path) {
 			'common.setting_close_on_project_open' => '打开项目时关闭应用',
 			'common.setting_minimize_to_tray' => '最小化到系统托盘',
 			'common.setting_reopen_after_godot_closes' => 'Godot 关闭后重新打开',
@@ -2523,8 +2638,6 @@ extension on TranslationsZhCn {
 			'common.setting_last_opened_date_format' => '日期格式',
 			'common.setting_theme_mode' => '主题模式',
 			'common.setting_accent_color' => '强调色',
-			_ => null,
-		} ?? switch (path) {
 			'common.setting_background_color' => '背景色',
 			'common.setting_corner_radius' => '圆角半径',
 			'common.setting_ui_density' => 'UI 密度',
@@ -2558,7 +2671,11 @@ extension on TranslationsZhCn {
 			'common.restart_required_title' => '需要重启',
 			'common.restart_required_desc' => '此更改需要重启 GodotHub 才能完全生效。设置已保存，重新启动应用后将会应用。',
 			'common.found_dismissed_title' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '发现 ${count} 个之前移除的项目', ), 
+			'common.found_dismissed_title_one' => '发现之前移除的项目',
+			'common.found_dismissed_title_other' => '发现 {{count}} 个之前移除的项目',
 			'common.found_dismissed_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '扫描发现 ${count} 个你之前从库中移除的项目。要重新添加吗？', ), 
+			'common.found_dismissed_desc_one' => '扫描发现 1 个你之前从库中移除的项目。要重新添加吗？',
+			'common.found_dismissed_desc_other' => '扫描发现 {{count}} 个你之前从库中移除的项目。要重新添加吗？',
 			'common.readd_all' => '全部重新添加',
 			'common.skip_all' => '全部跳过',
 			'common.project_already_open_title' => '项目已打开',
@@ -2598,6 +2715,8 @@ extension on TranslationsZhCn {
 			'common.contributor_pr_closed' => '已关闭',
 			'common.contributor_pr_loading' => '正在加载 PR...',
 			'common.contributor_pr_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个拉取请求', ), 
+			'common.contributor_pr_count_one' => '{{count}} 个拉取请求',
+			'common.contributor_pr_count_other' => '{{count}} 个拉取请求',
 			'common.contributor_pr_load_failed' => '加载拉取请求失败。',
 			'common.contributor_pr_network_hint' => '请检查网络连接。',
 			'common.contributor_pr_empty' => '未找到拉取请求。',
@@ -2655,10 +2774,16 @@ extension on TranslationsZhCn {
 			'common.project_doctor.scan_failed' => '无法检查此项目',
 			'common.project_doctor.run_again' => '重新运行检查',
 			'common.project_doctor.summary_errors' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个问题需要关注', ), 
+			'common.project_doctor.summary_errors_one' => '{{count}} 个问题需要关注',
+			'common.project_doctor.summary_errors_other' => '{{count}} 个问题需要关注',
 			'common.project_doctor.summary_warnings' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个警告需要审核', ), 
+			'common.project_doctor.summary_warnings_one' => '{{count}} 个警告需要审核',
+			'common.project_doctor.summary_warnings_other' => '{{count}} 个警告需要审核',
 			'common.project_doctor.summary_ready' => '未发现阻塞性问题',
 			'common.project_doctor.summary_counts' => '{{passed}} 项检查通过 · {{findings}} 个问题',
 			'common.project_doctor.passed_checks' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 项检查通过', ), 
+			'common.project_doctor.passed_checks_one' => '{{count}} 项检查通过',
+			'common.project_doctor.passed_checks_other' => '{{count}} 项检查通过',
 			'common.project_doctor.local_checks' => '检查在本地运行。修复设置前会先保存备份。',
 			'common.project_doctor.fix_complete' => '修复已应用。项目检查已更新。',
 			'common.project_doctor.templates_downloading' => '正在下载所选模板。进度和取消操作也可在“任务”中查看。',
@@ -2890,12 +3015,16 @@ extension on TranslationsZhCn {
 			'common.cleanup_confirm_desc' => '将移除以下项目：',
 			'common.cleanup_confirm_trash_note' => '版本和导出模板会被移到系统回收站，因此清空回收站后才会释放空间。未完成的下载将被永久删除。',
 			'common.cleanup_confirm_btn' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '移除 ${count} 个项目', ), 
+			'common.cleanup_confirm_btn_one' => '移除 {{count}} 个项目',
+			'common.cleanup_confirm_btn_other' => '移除 {{count}} 个项目',
 			'common.cleanup_done' => '已释放 {{size}}',
 			'common.cleanup_failed' => '无法移除 {{label}}：{{error}}',
 			'common.cleanup_versions_desc' => '每个已安装 Godot 版本的完整磁盘占用。',
 			'common.cleanup_templates_title' => '项目模板',
 			'common.cleanup_export_templates_title' => '导出模板',
 			'common.cleanup_used_by_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个模板', ), 
+			'common.cleanup_used_by_templates_one' => '{{count}} 个模板',
+			'common.cleanup_used_by_templates_other' => '{{count}} 个模板',
 			'common.cleanup_current_badge' => '默认',
 			'common.cleanup_alias_badge' => '别名路径',
 			'common.cleanup_unused_badge' => '未使用',
@@ -2911,7 +3040,11 @@ extension on TranslationsZhCn {
 			'common.optional' => '（可选）',
 			'common.language_label' => '语言',
 			'common.n_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个项目', ), 
+			'common.n_projects_one' => '{{count}} 个项目',
+			'common.n_projects_other' => '{{count}} 个项目',
 			'common.vault_item_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '条目', ), 
+			'common.vault_item_count_one' => '条目',
+			'common.vault_item_count_other' => '条目',
 			'common.vault_search_placeholder' => '搜索储藏库…',
 			'common.vault_empty' => '储藏库是空的。点击 <1>保存到储藏库</1> 从项目中选择文件或文件夹，并在任何地方复用。',
 			'common.vault_no_match' => '没有条目匹配搜索。',
@@ -2945,9 +3078,17 @@ extension on TranslationsZhCn {
 			'common.vault_adding' => '正在添加…',
 			'common.vault_overwrite_btn' => '覆盖文件',
 			'common.vault_conflict_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '项目中已存在 ${count} 个文件。是否覆盖？', ), 
+			'common.vault_conflict_desc_one' => '项目中已存在 {{count}} 个文件。是否覆盖？',
+			'common.vault_conflict_desc_other' => '项目中已存在 {{count}} 个文件。是否覆盖？',
 			'common.vault_conflict_summary_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '所选项目中已存在 ${count} 个文件。是否覆盖？', ), 
+			'common.vault_conflict_summary_desc_one' => '所选项目中已存在 {{count}} 个文件。是否覆盖？',
+			'common.vault_conflict_summary_desc_other' => '所选项目中已存在 {{count}} 个文件。是否覆盖？',
 			'common.vault_added_toast' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '已添加 ${count} 个文件', ), 
+			'common.vault_added_toast_one' => '已添加 {{count}} 个文件',
+			'common.vault_added_toast_other' => '已添加 {{count}} 个文件',
 			'common.vault_added_to_projects_toast' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '已添加到 ${count} 个项目', ), 
+			'common.vault_added_to_projects_toast_one' => '已添加到 {{count}} 个项目',
+			'common.vault_added_to_projects_toast_other' => '已添加到 {{count}} 个项目',
 			'common.vault_item_empty' => '此条目没有文件。',
 			'common.kNew' => '新建',
 			'common.announcement_support_title' => '支持 GodotHub',
@@ -2962,10 +3103,14 @@ extension on TranslationsZhCn {
 			'common.project_addons.title' => '插件',
 			'common.project_addons.loading' => '正在读取插件…',
 			'common.project_addons.count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '已安装 ${count} 个插件', ), 
+			'common.project_addons.count_one' => '已安装 {{count}} 个插件',
+			'common.project_addons.count_other' => '已安装 {{count}} 个插件',
 			'common.project_addons.empty' => '此项目没有 addons 文件夹。请从资源商店安装插件，或将其复制到 res://addons。',
 			'common.project_addons.check_updates' => '检查更新',
 			'common.project_addons.checking' => '正在检查…',
 			'common.project_addons.updates_available' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '有 ${count} 个更新可用', ), 
+			'common.project_addons.updates_available_one' => '有 {{count}} 个更新可用',
+			'common.project_addons.updates_available_other' => '有 {{count}} 个更新可用',
 			'common.project_addons.all_current' => '在资源库中未找到更新',
 			'common.project_addons.enabled' => '已启用',
 			'common.project_addons.disabled' => '已禁用',
@@ -2991,6 +3136,8 @@ extension on TranslationsZhCn {
 			'dashboard.greeting_morning' => '早上好',
 			'dashboard.greeting_afternoon' => '下午好',
 			'dashboard.greeting_evening' => '晚上好',
+			_ => null,
+		} ?? switch (path) {
 			'dashboard.greeting_night' => '晚安',
 			'dashboard.greeting_name' => '{{greeting}}, {{name}}',
 			'dashboard.dashboard_rename_hint' => '设置自定义名称',
@@ -3037,13 +3184,12 @@ extension on TranslationsZhCn {
 			'dashboard.dashboard_insights_this_month' => '本月',
 			'dashboard.dashboard_insights_delta_up' => '比上月多 {{pct}}%',
 			'dashboard.dashboard_insights_delta_down' => '比上月少 {{pct}}%',
-			_ => null,
-		} ?? switch (path) {
 			'dashboard.dashboard_git' => 'Git 概览',
 			'dashboard.dashboard_git_empty' => '未检测到 Git 仓库。',
 			'dashboard.dashboard_git_clean' => '所有仓库均无未提交更改',
 			'dashboard.dashboard_git_dirty' => '{{count}} 个仓库有未提交更改',
 			'dashboard.dashboard_git_dirty_plural' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个仓库有未提交更改', ), 
+			'dashboard.dashboard_git_dirty_one' => '1 个仓库有未提交更改',
 			'dashboard.dashboard_git_branch' => '在 {{branch}} 分支上',
 			'dashboard.dashboard_storage' => '存储使用',
 			'dashboard.dashboard_storage_empty' => '没有可测量的项目。',
@@ -3207,6 +3353,8 @@ extension on TranslationsZhCn {
 			'nav.dashboard' => '仪表盘',
 			'nav.projects' => '项目',
 			'nav.projects_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '项目', ), 
+			'nav.projects_count_one' => '项目',
+			'nav.projects_count_other' => '项目',
 			'nav.versions' => '版本',
 			'nav.templates' => '模板',
 			'nav.vault' => '储藏库',
@@ -3247,7 +3395,11 @@ extension on TranslationsZhCn {
 			'onboarding.discovery_add_selected' => '添加所选',
 			'onboarding.discovery_add_selected_count' => '添加所选（{{count}}）',
 			'onboarding.discovery_added_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '已添加 ${count} 个项目。', ), 
+			'onboarding.discovery_added_projects_one' => '已添加 {{count}} 个项目。',
+			'onboarding.discovery_added_projects_other' => '已添加 {{count}} 个项目。',
 			'onboarding.discovery_added_versions' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '已添加 ${count} 个版本。', ), 
+			'onboarding.discovery_added_versions_one' => '已添加 {{count}} 个版本。',
+			'onboarding.discovery_added_versions_other' => '已添加 {{count}} 个版本。',
 			'onboarding.discovery_link_hint' => '项目会自动关联到匹配的 Godot 版本，包括你在下一步中添加的版本。',
 			'onboarding.setup' => '设置',
 			'onboarding.setup_title' => '你想如何使用 GodotHub？',
@@ -3389,6 +3541,8 @@ extension on TranslationsZhCn {
 			'settings.open_setup' => '打开设置向导',
 			'settings.reset_colors' => '重置颜色为默认',
 			'settings.folders_deep' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '深度：${count} 层', ), 
+			'settings.folders_deep_one' => '深度：{{count}} 层',
+			'settings.folders_deep_other' => '深度：{{count}} 层',
 			'settings.at_once' => '同时 {{count}} 个',
 			'settings.animation_speed_label' => '动画速度',
 			'settings.scroll_reveal_label' => '滚动显现',
@@ -3444,11 +3598,21 @@ extension on TranslationsZhCn {
 			'settings.restore_modal_applying' => '正在应用备份并重启…',
 			'settings.restore_modal_preview_desc' => '你的 gist 备份包含：',
 			'settings.restore_modal_workspaces' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '个工作区', ), 
+			'settings.restore_modal_workspaces_one' => '个工作区',
+			'settings.restore_modal_workspaces_other' => '个工作区',
 			'settings.restore_modal_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '个项目', ), 
+			'settings.restore_modal_projects_one' => '个项目',
+			'settings.restore_modal_projects_other' => '个项目',
 			'settings.restore_modal_categories' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '个分类', ), 
+			'settings.restore_modal_categories_one' => '个分类',
+			'settings.restore_modal_categories_other' => '个分类',
 			'settings.restore_modal_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '个模板', ), 
+			'settings.restore_modal_templates_one' => '个模板',
+			'settings.restore_modal_templates_other' => '个模板',
 			'settings.restore_modal_time_stats' => '包含时间跟踪数据',
 			'settings.restore_modal_todos' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '包含 ${count} 个待办事项', ), 
+			'settings.restore_modal_todos_one' => '包含 {{count}} 个待办事项',
+			'settings.restore_modal_todos_other' => '包含 {{count}} 个待办事项',
 			'settings.restore_modal_project_scan_dirs' => '将恢复 {{count}} 个项目扫描文件夹',
 			'settings.restore_modal_version_scan_dirs' => '将恢复 {{count}} 个 Godot 版本文件夹',
 			'settings.restore_modal_workspace_list' => '工作区',
@@ -3459,6 +3623,8 @@ extension on TranslationsZhCn {
 			'settings.settings_exported' => '设置已导出。',
 			'settings.settings_imported' => '设置已导入。',
 			'settings.stats_imported' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '已为 ${count} 个项目导入统计。', ), 
+			'settings.stats_imported_one' => '已为 {{count}} 个项目导入统计。',
+			'settings.stats_imported_other' => '已为 {{count}} 个项目导入统计。',
 			'settings.raised_contrast_label' => '凸起表面对比度',
 			'settings.raised_contrast_value' => '{{value}}%',
 			'settings.token_help_desc' => '在 github.com/settings/tokens 创建令牌。如果你需要私有仓库访问权限，只需勾选 repo 范围，否则保持所有范围不勾选。无需敏感权限。',
@@ -3484,6 +3650,8 @@ extension on TranslationsZhCn {
 			'settings.language_complete' => '完整',
 			'settings.language_beta' => '测试版',
 			'settings.language_incomplete' => '未完成',
+			_ => null,
+		} ?? switch (path) {
 			'settings.use_os_decorations' => '使用系统窗口装饰',
 			'settings.credits' => '致谢',
 			'settings.credits_developer' => '创建者',
@@ -3519,6 +3687,8 @@ extension on TranslationsZhCn {
 			'settings.features_always_on' => '始终开启',
 			'settings.features_optional' => '可选',
 			'settings.features_enabled_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '已开启 ${count} 个功能', ), 
+			'settings.features_enabled_count_one' => '已开启 {{count}} 个功能',
+			'settings.features_enabled_count_other' => '已开启 {{count}} 个功能',
 			'settings.setup_profile_minimal' => '极简',
 			'settings.setup_profile_minimal_desc' => '仅包含项目和 Godot 版本。最轻量、最快速的配置。',
 			'settings.setup_profile_essentials' => '基础',
@@ -3539,7 +3709,11 @@ extension on TranslationsZhCn {
 			'todos.next_steps' => '事项列表',
 			'todos.saving_tasks' => '正在保存事项',
 			'todos.pending_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个待处理', ), 
+			'todos.pending_count_one' => '{{count}} 个待处理',
+			'todos.pending_count_other' => '{{count}} 个待处理',
 			'todos.completed_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个已完成', ), 
+			'todos.completed_count_one' => '{{count}} 个已完成',
+			'todos.completed_count_other' => '{{count}} 个已完成',
 			'todos.new_task' => '新建事项',
 			'todos.hide_next_steps' => '隐藏事项',
 			'todos.save_changes_failed' => '无法保存更改。',
@@ -3551,8 +3725,6 @@ extension on TranslationsZhCn {
 			'todos.create_task' => '创建事项',
 			'todos.all_completed_title' => '全部完成',
 			'todos.all_completed_description' => '你已完成此项目的所有后续步骤。',
-			_ => null,
-		} ?? switch (path) {
 			'todos.footer_hint' => '使用此列表跟踪项目的后续步骤。',
 			'todos.view_all' => '查看全部',
 			'todos.delete_task_title' => '删除事项？',
@@ -3592,13 +3764,19 @@ extension on TranslationsZhCn {
 			'todos.no_description' => '无描述',
 			'todos.tomorrow' => '明天',
 			'todos.due_in_days' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 天后到期', ), 
+			'todos.due_in_days_one' => '{{count}} 天后到期',
+			'todos.due_in_days_other' => '{{count}} 天后到期',
 			'todos.overdue_yesterday' => '昨天已到期',
 			'todos.overdue_days' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '已逾期 ${count} 天', ), 
+			'todos.overdue_days_one' => '已逾期 {{count}} 天',
+			'todos.overdue_days_other' => '已逾期 {{count}} 天',
 			'todos.scan_code' => '扫描代码',
 			'todos.scan_code_hint' => '从脚本和着色器中导入 TODO 和 FIXME 注释，并完成注释已被移除的待办事项',
 			'todos.comment_scan_summary' => '代码扫描：新增 {{imported}} 个，完成 {{closed}} 个，重新打开 {{reopened}} 个',
 			'todos.comment_scan_none' => '代码扫描未发现变更',
 			'todos.commit_closed' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '根据提交消息完成了 ${count} 个待办事项', ), 
+			'todos.commit_closed_one' => '根据提交消息完成了 {{count}} 个待办事项',
+			'todos.commit_closed_other' => '根据提交消息完成了 {{count}} 个待办事项',
 			'todos.linked_file' => '关联文件',
 			'todos.linked_file_placeholder' => 'res://scenes/player.tscn',
 			'todos.linked_file_hint' => '关联此项目中的场景、脚本或资源。',
@@ -3631,10 +3809,16 @@ extension on TranslationsZhCn {
 			'todos.all_areas' => '所有领域',
 			'todos.no_matching_tasks' => '没有匹配搜索的待办事项。',
 			'todos.open_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个待办事项', ), 
+			'todos.open_count_one' => '{{count}} 个待办事项',
+			'todos.open_count_other' => '{{count}} 个待办事项',
 			'todos.overdue_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个已逾期', ), 
+			'todos.overdue_count_one' => '{{count}} 个已逾期',
+			'todos.overdue_count_other' => '{{count}} 个已逾期',
 			'todos.tile_summary' => '{{overdue}} 个已逾期 · {{soon}} 个本周到期',
 			'todos.tile_empty' => '没有已逾期或本周到期的事项。',
 			'todos.due_notification_title' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个待办事项已到期', ), 
+			'todos.due_notification_title_one' => '待办事项到期：{{title}}',
+			'todos.due_notification_title_other' => '{{count}} 个待办事项已到期',
 			'todos.due_notification_more' => '还有 {{count}} 个',
 			'versions.standard' => '标准版 (GDScript)',
 			'versions.unbound' => '未绑定',
@@ -3661,6 +3845,8 @@ extension on TranslationsZhCn {
 			'versions.pause_download' => '暂停下载',
 			'versions.cancel_download' => '取消下载',
 			'versions.installed_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '已安装', ), 
+			'versions.installed_count_one' => '已安装',
+			'versions.installed_count_other' => '已安装',
 			'versions.installed_label' => '已安装',
 			'versions.original_name' => '原始名称',
 			'versions.source' => '来源',
@@ -3697,8 +3883,14 @@ extension on TranslationsZhCn {
 			'versions.alias_shim_badge' => '脚本',
 			'versions.alias_mono_script_note' => 'Mono 版本会从与可执行文件同级的文件夹加载 GodotSharp，因此在 Windows 上，该别名会以启动脚本而非符号链接的形式创建。',
 			'versions.alias_create_all' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '创建 ${count} 个别名', ), 
+			'versions.alias_create_all_one' => '创建别名',
+			'versions.alias_create_all_other' => '创建 {{count}} 个别名',
 			'versions.aliases_batch_created' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个别名已创建', ), 
+			'versions.aliases_batch_created_one' => '1 个别名已创建',
+			'versions.aliases_batch_created_other' => '{{count}} 个别名已创建',
 			'versions.aliases_batch_skipped' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个别名已跳过', ), 
+			'versions.aliases_batch_skipped_one' => '1 个别名已跳过',
+			'versions.aliases_batch_skipped_other' => '{{count}} 个别名已跳过',
 			'versions.alias_queue_duplicate' => '"{{name}}" 已在列表中',
 			'versions.alias_remove' => '删除别名',
 			'versions.alias_remove_title' => '删除这个别名?',
@@ -3730,13 +3922,19 @@ extension on TranslationsZhCn {
 			'versions.export_templates_orphan_deleted' => '已删除模板文件夹',
 			'versions.export_templates_choose' => '选择导出模板',
 			'versions.export_templates_selected' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个模板已选择', ), 
+			'versions.export_templates_selected_one' => '1 个模板已选择',
+			'versions.export_templates_selected_other' => '{{count}} 个模板已选择',
 			'versions.export_templates_size_summary' => '~{{download}} 下载 · {{installed}} 已安装',
 			'versions.export_templates_download_selected' => '下载所选',
 			'versions.export_templates_loading_options' => '正在检查此版本的可用模板…',
 			'versions.export_templates_options_failed' => '无法加载此版本的模板。',
 			'versions.export_templates_available' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个可用模板组', ), 
+			'versions.export_templates_available_one' => '1 个可用模板组',
+			'versions.export_templates_available_other' => '{{count}} 个可用模板组',
 			'versions.export_templates_select_all' => '全选',
 			'versions.export_templates_files' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个模板文件', ), 
+			'versions.export_templates_files_one' => '1 个模板文件',
+			'versions.export_templates_files_other' => '{{count}} 个模板文件',
 			'versions.export_templates_option_installed' => '已安装',
 			'versions.export_templates_keep_existing' => '展开一个平台以选择架构或单个文件。仅下载选中的文件。你的现有模板将被保留。',
 			'versions.export_templates_uninstall_named' => '卸载 {{name}}',

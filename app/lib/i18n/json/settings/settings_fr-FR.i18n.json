@@ -127,6 +127,8 @@
     "many": "${count} folders deep",
     "other": "${count} dossiers de profondeur"
   },
+  "folders_deep_one": "{{count}} dossier de profondeur",
+  "folders_deep_other": "{{count}} dossiers de profondeur",
   "at_once": "{{count}} à la fois",
   "animation_speed_label": "Animation speed",
   "scroll_reveal_label": "Scroll reveal",
@@ -186,27 +188,37 @@
     "many": "workspaces",
     "other": "espaces de travail"
   },
+  "restore_modal_workspaces_one": "espace de travail",
+  "restore_modal_workspaces_other": "espaces de travail",
   "restore_modal_projects(plural)": {
     "one": "projet",
     "many": "projects",
     "other": "projets"
   },
+  "restore_modal_projects_one": "projet",
+  "restore_modal_projects_other": "projets",
   "restore_modal_categories(plural)": {
     "one": "catégorie",
     "many": "categories",
     "other": "catégories"
   },
+  "restore_modal_categories_one": "catégorie",
+  "restore_modal_categories_other": "catégories",
   "restore_modal_templates(plural)": {
     "one": "modèle",
     "many": "templates",
     "other": "modèles"
   },
+  "restore_modal_templates_one": "modèle",
+  "restore_modal_templates_other": "modèles",
   "restore_modal_time_stats": "Inclut les données de suivi du temps",
   "restore_modal_todos(plural)": {
     "one": "Includes ${count} to-do",
     "many": "Includes ${count} to-dos",
     "other": "Includes ${count} to-dos"
   },
+  "restore_modal_todos_one": "Includes {{count}} to-do",
+  "restore_modal_todos_other": "Includes {{count}} to-dos",
   "restore_modal_project_scan_dirs": "{{count}} dossier(s) de projets à restaurer",
   "restore_modal_version_scan_dirs": "{{count}} dossier(s) de versions Godot à restaurer",
   "restore_modal_workspace_list": "Espaces de travail",
@@ -221,6 +233,8 @@
     "many": "Imported stats for ${count} projects.",
     "other": "Statistiques importées pour ${count} projets."
   },
+  "stats_imported_one": "Statistiques importées pour {{count}} projet.",
+  "stats_imported_other": "Statistiques importées pour {{count}} projets.",
   "raised_contrast_label": "Contraste des surfaces surélevées",
   "raised_contrast_value": "{{value}} %",
   "token_help_desc": "Créez un token sur github.com/settings/tokens. Vous n'avez besoin de cocher le scope repo que si vous voulez accéder à des dépôts privés, sinon laissez tous les scopes décochés. Aucune permission sensible n'est requise.",
@@ -285,6 +299,8 @@
     "many": "${count} features on",
     "other": "${count} features on"
   },
+  "features_enabled_count_one": "{{count}} feature on",
+  "features_enabled_count_other": "{{count}} features on",
   "setup_profile_minimal": "Minimal",
   "setup_profile_minimal_desc": "Just projects and Godot versions. The lightest, fastest setup.",
   "setup_profile_essentials": "Essentials",

@@ -9,6 +9,8 @@
     "many": "${count} pending",
     "other": "${count} pending"
   },
+  "pending_count_one": "{{count}} pending",
+  "pending_count_other": "{{count}} pending",
   "completed_count(plural)": {
     "zero": "${count} completed",
     "one": "${count} completed",
@@ -17,6 +19,8 @@
     "many": "${count} completed",
     "other": "${count} completed"
   },
+  "completed_count_one": "{{count}} completed",
+  "completed_count_other": "{{count}} completed",
   "new_task": "New task",
   "hide_next_steps": "Hide next steps",
   "save_changes_failed": "Could not save the changes.",
@@ -74,6 +78,8 @@
     "many": "Due in ${count} days",
     "other": "Due in ${count} days"
   },
+  "due_in_days_one": "Due in {{count}} day",
+  "due_in_days_other": "Due in {{count}} days",
   "overdue_yesterday": "Was due yesterday",
   "overdue_days(plural)": {
     "zero": "Overdue by ${count} days",
@@ -83,6 +89,8 @@
     "many": "Overdue by ${count} days",
     "other": "Overdue by ${count} days"
   },
+  "overdue_days_one": "Overdue by {{count}} day",
+  "overdue_days_other": "Overdue by {{count}} days",
   "scan_code": "Scan code",
   "scan_code_hint": "Import TODO and FIXME comments from scripts and shaders, and complete to-dos whose comment was removed",
   "comment_scan_summary": "Code scan: {{imported}} added, {{closed}} completed, {{reopened}} reopened",
@@ -95,6 +103,8 @@
     "many": "Completed ${count} to-dos from commit messages",
     "other": "Completed ${count} to-dos from commit messages"
   },
+  "commit_closed_one": "Completed {{count}} to-do from a commit message",
+  "commit_closed_other": "Completed {{count}} to-dos from commit messages",
   "linked_file": "Linked file",
   "linked_file_placeholder": "res://scenes/player.tscn",
   "linked_file_hint": "Link a scene, script or resource from this project.",
@@ -134,6 +144,8 @@
     "many": "${count} to-dos",
     "other": "${count} to-dos"
   },
+  "open_count_one": "{{count}} to-do",
+  "open_count_other": "{{count}} to-dos",
   "overdue_count(plural)": {
     "zero": "${count} overdue",
     "one": "${count} overdue",
@@ -142,6 +154,8 @@
     "many": "${count} overdue",
     "other": "${count} overdue"
   },
+  "overdue_count_one": "{{count}} overdue",
+  "overdue_count_other": "{{count}} overdue",
   "tile_summary": "{{overdue}} overdue · {{soon}} due this week",
   "tile_empty": "Nothing overdue or due this week.",
   "due_notification_title(plural)": {
@@ -152,5 +166,7 @@
     "many": "${count} to-dos are due",
     "other": "${count} to-dos are due"
   },
+  "due_notification_title_one": "To-do due: {{title}}",
+  "due_notification_title_other": "{{count}} to-dos are due",
   "due_notification_more": "and {{count}} more"
 }

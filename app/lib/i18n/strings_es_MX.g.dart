@@ -109,6 +109,8 @@ class _Translations$common$es_MX extends Translations$common$en_US {
 		many: '${count} projects running',
 		other: '${count} proyectos en ejecución',
 	);
+	@override String get running_projects_desc_one => '{{count}} proyecto en ejecución';
+	@override String get running_projects_desc_other => '{{count}} proyectos en ejecución';
 	@override String get active => 'Activo';
 	@override String get done => 'Listo';
 	@override String get paused => 'Pausado';
@@ -206,11 +208,15 @@ class _Translations$common$es_MX extends Translations$common$en_US {
 		many: 'un solo archivo',
 		other: '${count} files',
 	);
+	@override String get file_count_one => '{{count}} file';
+	@override String get file_count_other => '{{count}} files';
 	@override String folder_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count,
 		one: '${count} folder',
 		many: 'un solo carpeta',
 		other: '${count} folders',
 	);
+	@override String get folder_count_one => '{{count}} folder';
+	@override String get folder_count_other => '{{count}} folders';
 	@override String get template_empty => 'Esto es una plantilla vacia.';
 	@override String get categories => 'Categorías';
 	@override String get category_folders_hint => 'Los proyectos que estén en las carpetas de una categoría se asignan a ella automáticamente.';
@@ -318,6 +324,8 @@ class _Translations$common$es_MX extends Translations$common$en_US {
 		many: 'Recursos',
 		other: 'Recursos',
 	);
+	@override String get asset_store_count_one => 'Recurso';
+	@override String get asset_store_count_other => 'Recursos';
 	@override String get asset_store_count => 'Recursos';
 	@override String get settings_title => 'CONFIGURACION';
 	@override String get no_templates_match => 'No hay plantillas coincidentes';
@@ -401,6 +409,8 @@ class _Translations$common$es_MX extends Translations$common$en_US {
 		many: 'Tus Plantillas',
 		other: 'Templates',
 	);
+	@override String get template_your_templates_one => 'Template';
+	@override String get template_your_templates_other => 'Templates';
 	@override String get template_imported_count => '{{count}} Importados';
 	@override String get template_updated_count => '{{count}} Actualizados';
 	@override String get template_removed_count => '{{count}} Eleminados';
@@ -518,6 +528,8 @@ class _Translations$common$es_MX extends Translations$common$en_US {
 		many: '${count} Etiqueta(s)',
 		other: '${count} tags',
 	);
+	@override String get tag_count_one => '{{count}} tag';
+	@override String get tag_count_other => '{{count}} tags';
 	@override String get no_tags => 'Aun sin Etiqueta';
 	@override String get bug_report_describe_label => '¿Qué ocurrió?';
 	@override String get bug_report_describe_placeholder => '¿Qué estabas haciendo cuando apareció el error? Añade los pasos para reproducirlo y explica qué esperabas que ocurriera frente a lo que realmente ocurrió.';
@@ -576,6 +588,8 @@ class _Translations$common$es_MX extends Translations$common$en_US {
 		many: '${count} Tarea Reciente',
 		other: '${count} recent tasks',
 	);
+	@override String get task_tray_only_recent_one => '{{count}} recent task';
+	@override String get task_tray_only_recent_other => '{{count}} recent tasks';
 	@override String get task_tray_aria => 'Bandeja de tareas';
 	@override String get task_tray_auto_dismiss => 'Cancelar completado-automatico';
 	@override String get task_tray_dismiss => 'Cancelar {{count}}';
@@ -644,11 +658,15 @@ class _Translations$common$es_MX extends Translations$common$en_US {
 		many: '${count} previously removed projects found',
 		other: '${count} proyectos previamente eliminados encontrados',
 	);
+	@override String get found_dismissed_title_one => 'Proyecto previamente eliminado encontrado';
+	@override String get found_dismissed_title_other => '{{count}} proyectos previamente eliminados encontrados';
 	@override String found_dismissed_desc({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count,
 		one: 'Se encontro 1 proyecto que eliminaste previamente de la libreria. Deseas volver a agregarlo?',
 		many: 'Scanner found ${count} projects that you previously removed from the library. Would you like to re-add them?',
 		other: 'Se encontro ${count} proyectos que eleminaste previamente de la libreria. Deseas volver a agregarlos?',
 	);
+	@override String get found_dismissed_desc_one => 'Se encontro 1 proyecto que eliminaste previamente de la libreria. Deseas volver a agregarlo?';
+	@override String get found_dismissed_desc_other => 'Se encontro {{count}} proyectos que eleminaste previamente de la libreria. Deseas volver a agregarlos?';
 	@override String get readd_all => 'Re-Añadir todo';
 	@override String get skip_all => 'Saltar Todo';
 	@override String get project_already_open_title => 'El Proyecto ya estaba abierto.';
@@ -692,6 +710,8 @@ class _Translations$common$es_MX extends Translations$common$en_US {
 		many: '${count} pull requests',
 		other: '${count} pull requests',
 	);
+	@override String get contributor_pr_count_one => '{{count}} pull request';
+	@override String get contributor_pr_count_other => '{{count}} pull requests';
 	@override String get contributor_pr_load_failed => 'Failed to load pull requests.';
 	@override String get contributor_pr_network_hint => 'Check your internet connection.';
 	@override String get contributor_pr_empty => 'No pull requests found.';
@@ -775,6 +795,8 @@ class _Translations$common$es_MX extends Translations$common$en_US {
 		many: 'Remove ${count} items',
 		other: 'Remove ${count} items',
 	);
+	@override String get cleanup_confirm_btn_one => 'Remove {{count}} item';
+	@override String get cleanup_confirm_btn_other => 'Remove {{count}} items';
 	@override String get cleanup_done => 'Freed {{size}}';
 	@override String get cleanup_failed => 'Couldn\'t remove {{label}}: {{error}}';
 	@override String get cleanup_versions_desc => 'Full size on disk of every installed Godot version.';
@@ -785,6 +807,8 @@ class _Translations$common$es_MX extends Translations$common$en_US {
 		many: '${count} templates',
 		other: '${count} templates',
 	);
+	@override String get cleanup_used_by_templates_one => '{{count}} template';
+	@override String get cleanup_used_by_templates_other => '{{count}} templates';
 	@override String get cleanup_current_badge => 'Current';
 	@override String get cleanup_alias_badge => 'Alias';
 	@override String get cleanup_unused_badge => 'Unused';
@@ -804,11 +828,15 @@ class _Translations$common$es_MX extends Translations$common$en_US {
 		many: '${count} projects',
 		other: '${count} projects',
 	);
+	@override String get n_projects_one => '{{count}} project';
+	@override String get n_projects_other => '{{count}} projects';
 	@override String vault_item_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count,
 		one: 'Item',
 		many: 'Items',
 		other: 'Items',
 	);
+	@override String get vault_item_count_one => 'Item';
+	@override String get vault_item_count_other => 'Items';
 	@override String get vault_search_placeholder => 'Search vault…';
 	@override String get vault_empty => 'Your vault is empty. Click <1>Save to Vault</1> to pick files or folders from a project and reuse them anywhere.';
 	@override String get vault_no_match => 'No items match your search.';
@@ -846,21 +874,29 @@ class _Translations$common$es_MX extends Translations$common$en_US {
 		many: '${count} files already exist in the project. Overwrite them?',
 		other: '${count} files already exist in the project. Overwrite them?',
 	);
+	@override String get vault_conflict_desc_one => '{{count}} file already exists in the project. Overwrite it?';
+	@override String get vault_conflict_desc_other => '{{count}} files already exist in the project. Overwrite them?';
 	@override String vault_conflict_summary_desc({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count,
 		one: '${count} file already exists across the selected projects. Overwrite it?',
 		many: '${count} files already exist across the selected projects. Overwrite them?',
 		other: '${count} files already exist across the selected projects. Overwrite them?',
 	);
+	@override String get vault_conflict_summary_desc_one => '{{count}} file already exists across the selected projects. Overwrite it?';
+	@override String get vault_conflict_summary_desc_other => '{{count}} files already exist across the selected projects. Overwrite them?';
 	@override String vault_added_toast({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count,
 		one: 'Added ${count} file',
 		many: 'Added ${count} files',
 		other: 'Added ${count} files',
 	);
+	@override String get vault_added_toast_one => 'Added {{count}} file';
+	@override String get vault_added_toast_other => 'Added {{count}} files';
 	@override String vault_added_to_projects_toast({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count,
 		one: 'Added to ${count} project',
 		many: 'Added to ${count} projects',
 		other: 'Added to ${count} projects',
 	);
+	@override String get vault_added_to_projects_toast_one => 'Added to {{count}} project';
+	@override String get vault_added_to_projects_toast_other => 'Added to {{count}} projects';
 	@override String get vault_item_empty => 'This item has no files.';
 	@override String get kNew => 'Nuevo';
 	@override String get announcement_support_title => 'Support GodotHub';
@@ -947,6 +983,7 @@ class _Translations$dashboard$es_MX extends Translations$dashboard$en_US {
 		many: '${count} with uncommitted changes',
 		other: '${count} with uncommitted changes',
 	);
+	@override String get dashboard_git_dirty_one => '1 with uncommitted changes';
 	@override String get dashboard_git_branch => 'On {{branch}}';
 	@override String get dashboard_storage => 'Storage Usage';
 	@override String get dashboard_storage_empty => 'No projects to measure.';
@@ -1132,6 +1169,8 @@ class _Translations$nav$es_MX extends Translations$nav$en_US {
 		many: 'Proyectos',
 		other: 'Projects',
 	);
+	@override String get projects_count_one => 'Project';
+	@override String get projects_count_other => 'Projects';
 	@override String get versions => 'Versiones';
 	@override String get templates => 'Plantillas';
 	@override String get vault => 'Vault';
@@ -1185,11 +1224,15 @@ class _Translations$onboarding$es_MX extends Translations$onboarding$en_US {
 		many: 'Added ${count} projects.',
 		other: 'Added ${count} projects.',
 	);
+	@override String get discovery_added_projects_one => 'Added {{count}} project.';
+	@override String get discovery_added_projects_other => 'Added {{count}} projects.';
 	@override String discovery_added_versions({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count,
 		one: 'Added ${count} version.',
 		many: 'Added ${count} versions.',
 		other: 'Added ${count} versions.',
 	);
+	@override String get discovery_added_versions_one => 'Added {{count}} version.';
+	@override String get discovery_added_versions_other => 'Added {{count}} versions.';
 	@override String get discovery_link_hint => 'Projects are linked to a matching Godot version automatically, including versions you add in the next step.';
 	@override String get setup => 'Setup';
 	@override String get setup_title => 'How do you want to use GodotHub?';
@@ -1344,6 +1387,8 @@ class _Translations$settings$es_MX extends Translations$settings$en_US {
 		many: '${count} folders deep',
 		other: '${count} folders deep',
 	);
+	@override String get folders_deep_one => '{{count}} folder deep';
+	@override String get folders_deep_other => '{{count}} folders deep';
 	@override String get at_once => '{{count}} at once';
 	@override String get animation_speed_label => 'Animation speed';
 	@override String get scroll_reveal_label => 'Scroll reveal';
@@ -1403,27 +1448,37 @@ class _Translations$settings$es_MX extends Translations$settings$en_US {
 		many: 'workspaces',
 		other: 'workspaces',
 	);
+	@override String get restore_modal_workspaces_one => 'workspace';
+	@override String get restore_modal_workspaces_other => 'workspaces';
 	@override String restore_modal_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count,
 		one: 'project',
 		many: 'projects',
 		other: 'projects',
 	);
+	@override String get restore_modal_projects_one => 'project';
+	@override String get restore_modal_projects_other => 'projects';
 	@override String restore_modal_categories({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count,
 		one: 'category',
 		many: 'categories',
 		other: 'categories',
 	);
+	@override String get restore_modal_categories_one => 'category';
+	@override String get restore_modal_categories_other => 'categories';
 	@override String restore_modal_templates({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count,
 		one: 'template',
 		many: 'templates',
 		other: 'templates',
 	);
+	@override String get restore_modal_templates_one => 'template';
+	@override String get restore_modal_templates_other => 'templates';
 	@override String get restore_modal_time_stats => 'Includes time tracking data';
 	@override String restore_modal_todos({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count,
 		one: 'Includes ${count} to-do',
 		many: 'Includes ${count} to-dos',
 		other: 'Includes ${count} to-dos',
 	);
+	@override String get restore_modal_todos_one => 'Includes {{count}} to-do';
+	@override String get restore_modal_todos_other => 'Includes {{count}} to-dos';
 	@override String get restore_modal_project_scan_dirs => '{{count}} project scan folder(s) will be restored';
 	@override String get restore_modal_version_scan_dirs => '{{count}} Godot version folder(s) will be restored';
 	@override String get restore_modal_workspace_list => 'Workspaces';
@@ -1438,6 +1493,8 @@ class _Translations$settings$es_MX extends Translations$settings$en_US {
 		many: 'Imported stats for ${count} projects.',
 		other: 'Imported stats for ${count} projects.',
 	);
+	@override String get stats_imported_one => 'Imported stats for {{count}} project.';
+	@override String get stats_imported_other => 'Imported stats for {{count}} projects.';
 	@override String get raised_contrast_label => 'Raised surface contrast';
 	@override String get raised_contrast_value => '{{value}}%';
 	@override String get token_help_desc => 'Create a token at github.com/settings/tokens. You only need to check the repo scope if you want private repo access, otherwise leave all scopes unchecked. No sensitive permissions required.';
@@ -1502,6 +1559,8 @@ class _Translations$settings$es_MX extends Translations$settings$en_US {
 		many: '${count} features on',
 		other: '${count} features on',
 	);
+	@override String get features_enabled_count_one => '{{count}} feature on';
+	@override String get features_enabled_count_other => '{{count}} features on';
 	@override String get setup_profile_minimal => 'Minimal';
 	@override String get setup_profile_minimal_desc => 'Just projects and Godot versions. The lightest, fastest setup.';
 	@override String get setup_profile_essentials => 'Essentials';
@@ -1535,11 +1594,15 @@ class _Translations$todos$es_MX extends Translations$todos$en_US {
 		many: '${count} pending',
 		other: '${count} pending',
 	);
+	@override String get pending_count_one => '{{count}} pending';
+	@override String get pending_count_other => '{{count}} pending';
 	@override String completed_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count,
 		one: '${count} completed',
 		many: '${count} completed',
 		other: '${count} completed',
 	);
+	@override String get completed_count_one => '{{count}} completed';
+	@override String get completed_count_other => '{{count}} completed';
 	@override String get new_task => 'New task';
 	@override String get hide_next_steps => 'Hide next steps';
 	@override String get save_changes_failed => 'Could not save the changes.';
@@ -1594,12 +1657,16 @@ class _Translations$todos$es_MX extends Translations$todos$en_US {
 		many: 'Due in ${count} days',
 		other: 'Due in ${count} days',
 	);
+	@override String get due_in_days_one => 'Due in {{count}} day';
+	@override String get due_in_days_other => 'Due in {{count}} days';
 	@override String get overdue_yesterday => 'Was due yesterday';
 	@override String overdue_days({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count,
 		one: 'Overdue by ${count} day',
 		many: 'Overdue by ${count} days',
 		other: 'Overdue by ${count} days',
 	);
+	@override String get overdue_days_one => 'Overdue by {{count}} day';
+	@override String get overdue_days_other => 'Overdue by {{count}} days';
 	@override String get scan_code => 'Scan code';
 	@override String get scan_code_hint => 'Import TODO and FIXME comments from scripts and shaders, and complete to-dos whose comment was removed';
 	@override String get comment_scan_summary => 'Code scan: {{imported}} added, {{closed}} completed, {{reopened}} reopened';
@@ -1609,6 +1676,8 @@ class _Translations$todos$es_MX extends Translations$todos$en_US {
 		many: 'Completed ${count} to-dos from commit messages',
 		other: 'Completed ${count} to-dos from commit messages',
 	);
+	@override String get commit_closed_one => 'Completed {{count}} to-do from a commit message';
+	@override String get commit_closed_other => 'Completed {{count}} to-dos from commit messages';
 	@override String get linked_file => 'Linked file';
 	@override String get linked_file_placeholder => 'res://scenes/player.tscn';
 	@override String get linked_file_hint => 'Link a scene, script or resource from this project.';
@@ -1645,11 +1714,15 @@ class _Translations$todos$es_MX extends Translations$todos$en_US {
 		many: '${count} to-dos',
 		other: '${count} to-dos',
 	);
+	@override String get open_count_one => '{{count}} to-do';
+	@override String get open_count_other => '{{count}} to-dos';
 	@override String overdue_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count,
 		one: '${count} overdue',
 		many: '${count} overdue',
 		other: '${count} overdue',
 	);
+	@override String get overdue_count_one => '{{count}} overdue';
+	@override String get overdue_count_other => '{{count}} overdue';
 	@override String get tile_summary => '{{overdue}} overdue · {{soon}} due this week';
 	@override String get tile_empty => 'Nothing overdue or due this week.';
 	@override String due_notification_title({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count,
@@ -1657,6 +1730,8 @@ class _Translations$todos$es_MX extends Translations$todos$en_US {
 		many: '${count} to-dos are due',
 		other: '${count} to-dos are due',
 	);
+	@override String get due_notification_title_one => 'To-do due: {{title}}';
+	@override String get due_notification_title_other => '{{count}} to-dos are due';
 	@override String get due_notification_more => 'and {{count}} more';
 }
 
@@ -1697,6 +1772,8 @@ class _Translations$versions$es_MX extends Translations$versions$en_US {
 		many: 'Installed',
 		other: 'Instalados',
 	);
+	@override String get installed_count_one => 'Instalado';
+	@override String get installed_count_other => 'Instalados';
 	@override String get installed_label => 'Installed';
 	@override String get original_name => 'Original';
 	@override String get source => 'Fuente';
@@ -1737,16 +1814,22 @@ class _Translations$versions$es_MX extends Translations$versions$en_US {
 		many: 'Create ${count} Aliases',
 		other: 'Create ${count} Aliases',
 	);
+	@override String get alias_create_all_one => 'Create Alias';
+	@override String get alias_create_all_other => 'Create {{count}} Aliases';
 	@override String aliases_batch_created({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count,
 		one: '1 alias created',
 		many: '${count} aliases created',
 		other: '${count} aliases created',
 	);
+	@override String get aliases_batch_created_one => '1 alias created';
+	@override String get aliases_batch_created_other => '{{count}} aliases created';
 	@override String aliases_batch_skipped({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count,
 		one: '1 alias skipped',
 		many: '${count} aliases skipped',
 		other: '${count} aliases skipped',
 	);
+	@override String get aliases_batch_skipped_one => '1 alias skipped';
+	@override String get aliases_batch_skipped_other => '{{count}} aliases skipped';
 	@override String get alias_queue_duplicate => '"{{name}}" is already in the list';
 	@override String get alias_remove => 'Remove alias';
 	@override String get alias_remove_title => 'Remove this alias?';
@@ -1782,6 +1865,8 @@ class _Translations$versions$es_MX extends Translations$versions$en_US {
 		many: '${count} templates selected',
 		other: '${count} templates selected',
 	);
+	@override String get export_templates_selected_one => '1 template selected';
+	@override String get export_templates_selected_other => '{{count}} templates selected';
 	@override String get export_templates_size_summary => '~{{download}} download · {{installed}} on disk';
 	@override String get export_templates_download_selected => 'Download selected';
 	@override String get export_templates_loading_options => 'Checking this release\'s available templates…';
@@ -1791,12 +1876,16 @@ class _Translations$versions$es_MX extends Translations$versions$en_US {
 		many: '${count} available template groups',
 		other: '${count} available template groups',
 	);
+	@override String get export_templates_available_one => '1 available template group';
+	@override String get export_templates_available_other => '{{count}} available template groups';
 	@override String get export_templates_select_all => 'Select all';
 	@override String export_templates_files({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count,
 		one: '1 template file',
 		many: '${count} template files',
 		other: '${count} template files',
 	);
+	@override String get export_templates_files_one => '1 template file';
+	@override String get export_templates_files_other => '{{count}} template files';
 	@override String get export_templates_option_installed => 'Installed';
 	@override String get export_templates_keep_existing => 'Expand a platform to choose architectures or individual files. Only selected files are downloaded. Your existing templates are kept.';
 	@override String get export_templates_uninstall_named => 'Uninstall {{name}}';
@@ -1837,11 +1926,15 @@ class _Translations$common$project_doctor$es_MX extends Translations$common$proj
 		many: '${count} issues need attention',
 		other: '${count} issues need attention',
 	);
+	@override String get summary_errors_one => '{{count}} issue needs attention';
+	@override String get summary_errors_other => '{{count}} issues need attention';
 	@override String summary_warnings({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count,
 		one: '${count} warning to review',
 		many: '${count} warnings to review',
 		other: '${count} warnings to review',
 	);
+	@override String get summary_warnings_one => '{{count}} warning to review';
+	@override String get summary_warnings_other => '{{count}} warnings to review';
 	@override String get summary_ready => 'No blocking issues found';
 	@override String get summary_counts => '{{passed}} checks passed · {{findings}} findings';
 	@override String passed_checks({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count,
@@ -1849,6 +1942,8 @@ class _Translations$common$project_doctor$es_MX extends Translations$common$proj
 		many: '${count} passed checks',
 		other: '${count} passed checks',
 	);
+	@override String get passed_checks_one => '{{count}} passed check';
+	@override String get passed_checks_other => '{{count}} passed checks';
 	@override String get local_checks => 'Checks run locally. Fixes to settings save a backup first.';
 	@override String get fix_complete => 'Fix applied. Project checks updated.';
 	@override String get templates_downloading => 'Downloading selected templates. Progress and cancellation are also available in Tasks.';
@@ -2080,6 +2175,8 @@ class _Translations$common$project_addons$es_MX extends Translations$common$proj
 		many: '${count} addons installed',
 		other: '${count} addons installed',
 	);
+	@override String get count_one => '{{count}} addon installed';
+	@override String get count_other => '{{count}} addons installed';
 	@override String get empty => 'This project has no addons folder. Install addons from the Asset Store or copy them into res://addons.';
 	@override String get check_updates => 'Check for updates';
 	@override String get checking => 'Checking…';
@@ -2088,6 +2185,8 @@ class _Translations$common$project_addons$es_MX extends Translations$common$proj
 		many: '${count} updates available',
 		other: '${count} updates available',
 	);
+	@override String get updates_available_one => '{{count}} update available';
+	@override String get updates_available_other => '{{count}} updates available';
 	@override String get all_current => 'No updates found in the Asset Library';
 	@override String get enabled => 'Enabled';
 	@override String get disabled => 'Disabled';
@@ -2152,6 +2251,8 @@ extension on TranslationsEsMx {
 			'common.download_queue_move_down' => 'Mover después en la cola',
 			'common.running' => 'Ejecutando',
 			'common.running_projects_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '${count} proyecto en ejecución', many: '${count} projects running', other: '${count} proyectos en ejecución', ), 
+			'common.running_projects_desc_one' => '{{count}} proyecto en ejecución',
+			'common.running_projects_desc_other' => '{{count}} proyectos en ejecución',
 			'common.active' => 'Activo',
 			'common.done' => 'Listo',
 			'common.paused' => 'Pausado',
@@ -2245,7 +2346,11 @@ extension on TranslationsEsMx {
 			'common.expand' => 'Expandir',
 			'common.collapse' => 'Colapsar',
 			'common.file_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '${count} file', many: 'un solo archivo', other: '${count} files', ), 
+			'common.file_count_one' => '{{count}} file',
+			'common.file_count_other' => '{{count}} files',
 			'common.folder_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '${count} folder', many: 'un solo carpeta', other: '${count} folders', ), 
+			'common.folder_count_one' => '{{count}} folder',
+			'common.folder_count_other' => '{{count}} folders',
 			'common.template_empty' => 'Esto es una plantilla vacia.',
 			'common.categories' => 'Categorías',
 			'common.category_folders_hint' => 'Los proyectos que estén en las carpetas de una categoría se asignan a ella automáticamente.',
@@ -2348,6 +2453,8 @@ extension on TranslationsEsMx {
 			'common.asset_store_title' => 'TIENDA DE RECURSOS',
 			'common.news_count' => 'Posts',
 			'common.asset_store_count_plural' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, zero: 'No assets', one: 'Recurso', many: 'Recursos', other: 'Recursos', ), 
+			'common.asset_store_count_one' => 'Recurso',
+			'common.asset_store_count_other' => 'Recursos',
 			'common.asset_store_count' => 'Recursos',
 			'common.settings_title' => 'CONFIGURACION',
 			'common.no_templates_match' => 'No hay plantillas coincidentes',
@@ -2427,6 +2534,8 @@ extension on TranslationsEsMx {
 			'common.asset_next_page' => 'Siguente Pagina',
 			'common.asset_page_x_of_y' => '{{page}} Pagina/s de {{total}} Pagina/s',
 			'common.template_your_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: 'Template', many: 'Tus Plantillas', other: 'Templates', ), 
+			'common.template_your_templates_one' => 'Template',
+			'common.template_your_templates_other' => 'Templates',
 			'common.template_imported_count' => '{{count}} Importados',
 			'common.template_updated_count' => '{{count}} Actualizados',
 			'common.template_removed_count' => '{{count}} Eleminados',
@@ -2540,6 +2649,8 @@ extension on TranslationsEsMx {
 			'common.clear_tag_filter' => 'Limpiar filtro de etiquetas',
 			'common.saving_tags' => 'Guardando etiquetas…',
 			'common.tag_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '${count} tag', many: '${count} Etiqueta(s)', other: '${count} tags', ), 
+			'common.tag_count_one' => '{{count}} tag',
+			'common.tag_count_other' => '{{count}} tags',
 			'common.no_tags' => 'Aun sin Etiqueta',
 			'common.bug_report_describe_label' => '¿Qué ocurrió?',
 			'common.bug_report_describe_placeholder' => '¿Qué estabas haciendo cuando apareció el error? Añade los pasos para reproducirlo y explica qué esperabas que ocurriera frente a lo que realmente ocurrió.',
@@ -2594,6 +2705,8 @@ extension on TranslationsEsMx {
 			'common.task_tray_empty' => 'Sin Tareas Activas',
 			'common.task_tray_active_count' => '{{active}} Activos, {{recent}} Recientes',
 			'common.task_tray_only_recent' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '${count} recent task', many: '${count} Tarea Reciente', other: '${count} recent tasks', ), 
+			'common.task_tray_only_recent_one' => '{{count}} recent task',
+			'common.task_tray_only_recent_other' => '{{count}} recent tasks',
 			'common.task_tray_aria' => 'Bandeja de tareas',
 			'common.task_tray_auto_dismiss' => 'Cancelar completado-automatico',
 			'common.task_tray_dismiss' => 'Cancelar {{count}}',
@@ -2611,6 +2724,8 @@ extension on TranslationsEsMx {
 			'common.setting_scan_depth' => 'Scan Depth',
 			'common.setting_icon_scan_depth' => 'Project Icon Search Depth',
 			'common.setting_download_concurrency' => 'Simultaneous Downloads',
+			_ => null,
+		} ?? switch (path) {
 			'common.setting_close_on_project_open' => 'Close on Project Open',
 			'common.setting_minimize_to_tray' => 'Minimize to System Tray',
 			'common.setting_reopen_after_godot_closes' => 'Reopen After Godot Closes',
@@ -2625,8 +2740,6 @@ extension on TranslationsEsMx {
 			'common.setting_last_opened_date_format' => 'Date Format',
 			'common.setting_theme_mode' => 'Theme Mode',
 			'common.setting_accent_color' => 'Accent Color',
-			_ => null,
-		} ?? switch (path) {
 			'common.setting_background_color' => 'Background Color',
 			'common.setting_corner_radius' => 'Corner Radius',
 			'common.setting_ui_density' => 'UI Density',
@@ -2660,7 +2773,11 @@ extension on TranslationsEsMx {
 			'common.restart_required_title' => 'Reinicio requerido',
 			'common.restart_required_desc' => 'Este cambio requiere que GodotHub se reinicie para que surta efecto por completo. La configuracion se ha guardado y se aplicara cuando vuelva a iniciar la aplicacion.',
 			'common.found_dismissed_title' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: 'Proyecto previamente eliminado encontrado', many: '${count} previously removed projects found', other: '${count} proyectos previamente eliminados encontrados', ), 
+			'common.found_dismissed_title_one' => 'Proyecto previamente eliminado encontrado',
+			'common.found_dismissed_title_other' => '{{count}} proyectos previamente eliminados encontrados',
 			'common.found_dismissed_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: 'Se encontro 1 proyecto que eliminaste previamente de la libreria. Deseas volver a agregarlo?', many: 'Scanner found ${count} projects that you previously removed from the library. Would you like to re-add them?', other: 'Se encontro ${count} proyectos que eleminaste previamente de la libreria. Deseas volver a agregarlos?', ), 
+			'common.found_dismissed_desc_one' => 'Se encontro 1 proyecto que eliminaste previamente de la libreria. Deseas volver a agregarlo?',
+			'common.found_dismissed_desc_other' => 'Se encontro {{count}} proyectos que eleminaste previamente de la libreria. Deseas volver a agregarlos?',
 			'common.readd_all' => 'Re-Añadir todo',
 			'common.skip_all' => 'Saltar Todo',
 			'common.project_already_open_title' => 'El Proyecto ya estaba abierto.',
@@ -2700,6 +2817,8 @@ extension on TranslationsEsMx {
 			'common.contributor_pr_closed' => 'Closed',
 			'common.contributor_pr_loading' => 'Loading PRs...',
 			'common.contributor_pr_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '${count} pull request', many: '${count} pull requests', other: '${count} pull requests', ), 
+			'common.contributor_pr_count_one' => '{{count}} pull request',
+			'common.contributor_pr_count_other' => '{{count}} pull requests',
 			'common.contributor_pr_load_failed' => 'Failed to load pull requests.',
 			'common.contributor_pr_network_hint' => 'Check your internet connection.',
 			'common.contributor_pr_empty' => 'No pull requests found.',
@@ -2757,10 +2876,16 @@ extension on TranslationsEsMx {
 			'common.project_doctor.scan_failed' => 'Could not check this project',
 			'common.project_doctor.run_again' => 'Run checks again',
 			'common.project_doctor.summary_errors' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '${count} issue needs attention', many: '${count} issues need attention', other: '${count} issues need attention', ), 
+			'common.project_doctor.summary_errors_one' => '{{count}} issue needs attention',
+			'common.project_doctor.summary_errors_other' => '{{count}} issues need attention',
 			'common.project_doctor.summary_warnings' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '${count} warning to review', many: '${count} warnings to review', other: '${count} warnings to review', ), 
+			'common.project_doctor.summary_warnings_one' => '{{count}} warning to review',
+			'common.project_doctor.summary_warnings_other' => '{{count}} warnings to review',
 			'common.project_doctor.summary_ready' => 'No blocking issues found',
 			'common.project_doctor.summary_counts' => '{{passed}} checks passed · {{findings}} findings',
 			'common.project_doctor.passed_checks' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '${count} passed check', many: '${count} passed checks', other: '${count} passed checks', ), 
+			'common.project_doctor.passed_checks_one' => '{{count}} passed check',
+			'common.project_doctor.passed_checks_other' => '{{count}} passed checks',
 			'common.project_doctor.local_checks' => 'Checks run locally. Fixes to settings save a backup first.',
 			'common.project_doctor.fix_complete' => 'Fix applied. Project checks updated.',
 			'common.project_doctor.templates_downloading' => 'Downloading selected templates. Progress and cancellation are also available in Tasks.',
@@ -2992,12 +3117,16 @@ extension on TranslationsEsMx {
 			'common.cleanup_confirm_desc' => 'These items will be removed:',
 			'common.cleanup_confirm_trash_note' => 'Versions and export templates are moved to the system trash, so the space is freed once you empty it. Unfinished downloads are deleted permanently.',
 			'common.cleanup_confirm_btn' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: 'Remove ${count} item', many: 'Remove ${count} items', other: 'Remove ${count} items', ), 
+			'common.cleanup_confirm_btn_one' => 'Remove {{count}} item',
+			'common.cleanup_confirm_btn_other' => 'Remove {{count}} items',
 			'common.cleanup_done' => 'Freed {{size}}',
 			'common.cleanup_failed' => 'Couldn\'t remove {{label}}: {{error}}',
 			'common.cleanup_versions_desc' => 'Full size on disk of every installed Godot version.',
 			'common.cleanup_templates_title' => 'Project templates',
 			'common.cleanup_export_templates_title' => 'Export templates',
 			'common.cleanup_used_by_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '${count} template', many: '${count} templates', other: '${count} templates', ), 
+			'common.cleanup_used_by_templates_one' => '{{count}} template',
+			'common.cleanup_used_by_templates_other' => '{{count}} templates',
 			'common.cleanup_current_badge' => 'Current',
 			'common.cleanup_alias_badge' => 'Alias',
 			'common.cleanup_unused_badge' => 'Unused',
@@ -3013,7 +3142,11 @@ extension on TranslationsEsMx {
 			'common.optional' => '(optional)',
 			'common.language_label' => 'Language',
 			'common.n_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '${count} project', many: '${count} projects', other: '${count} projects', ), 
+			'common.n_projects_one' => '{{count}} project',
+			'common.n_projects_other' => '{{count}} projects',
 			'common.vault_item_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: 'Item', many: 'Items', other: 'Items', ), 
+			'common.vault_item_count_one' => 'Item',
+			'common.vault_item_count_other' => 'Items',
 			'common.vault_search_placeholder' => 'Search vault…',
 			'common.vault_empty' => 'Your vault is empty. Click <1>Save to Vault</1> to pick files or folders from a project and reuse them anywhere.',
 			'common.vault_no_match' => 'No items match your search.',
@@ -3047,9 +3180,17 @@ extension on TranslationsEsMx {
 			'common.vault_adding' => 'Adding…',
 			'common.vault_overwrite_btn' => 'Overwrite files',
 			'common.vault_conflict_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '${count} file already exists in the project. Overwrite it?', many: '${count} files already exist in the project. Overwrite them?', other: '${count} files already exist in the project. Overwrite them?', ), 
+			'common.vault_conflict_desc_one' => '{{count}} file already exists in the project. Overwrite it?',
+			'common.vault_conflict_desc_other' => '{{count}} files already exist in the project. Overwrite them?',
 			'common.vault_conflict_summary_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '${count} file already exists across the selected projects. Overwrite it?', many: '${count} files already exist across the selected projects. Overwrite them?', other: '${count} files already exist across the selected projects. Overwrite them?', ), 
+			'common.vault_conflict_summary_desc_one' => '{{count}} file already exists across the selected projects. Overwrite it?',
+			'common.vault_conflict_summary_desc_other' => '{{count}} files already exist across the selected projects. Overwrite them?',
 			'common.vault_added_toast' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: 'Added ${count} file', many: 'Added ${count} files', other: 'Added ${count} files', ), 
+			'common.vault_added_toast_one' => 'Added {{count}} file',
+			'common.vault_added_toast_other' => 'Added {{count}} files',
 			'common.vault_added_to_projects_toast' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: 'Added to ${count} project', many: 'Added to ${count} projects', other: 'Added to ${count} projects', ), 
+			'common.vault_added_to_projects_toast_one' => 'Added to {{count}} project',
+			'common.vault_added_to_projects_toast_other' => 'Added to {{count}} projects',
 			'common.vault_item_empty' => 'This item has no files.',
 			'common.kNew' => 'Nuevo',
 			'common.announcement_support_title' => 'Support GodotHub',
@@ -3064,10 +3205,14 @@ extension on TranslationsEsMx {
 			'common.project_addons.title' => 'Addons',
 			'common.project_addons.loading' => 'Reading addons…',
 			'common.project_addons.count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '${count} addon installed', many: '${count} addons installed', other: '${count} addons installed', ), 
+			'common.project_addons.count_one' => '{{count}} addon installed',
+			'common.project_addons.count_other' => '{{count}} addons installed',
 			'common.project_addons.empty' => 'This project has no addons folder. Install addons from the Asset Store or copy them into res://addons.',
 			'common.project_addons.check_updates' => 'Check for updates',
 			'common.project_addons.checking' => 'Checking…',
 			'common.project_addons.updates_available' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '${count} update available', many: '${count} updates available', other: '${count} updates available', ), 
+			'common.project_addons.updates_available_one' => '{{count}} update available',
+			'common.project_addons.updates_available_other' => '{{count}} updates available',
 			'common.project_addons.all_current' => 'No updates found in the Asset Library',
 			'common.project_addons.enabled' => 'Enabled',
 			'common.project_addons.disabled' => 'Disabled',
@@ -3093,6 +3238,8 @@ extension on TranslationsEsMx {
 			'dashboard.greeting_morning' => 'Good morning',
 			'dashboard.greeting_afternoon' => 'Good afternoon',
 			'dashboard.greeting_evening' => 'Good evening',
+			_ => null,
+		} ?? switch (path) {
 			'dashboard.greeting_night' => 'Good night',
 			'dashboard.greeting_name' => '{{greeting}}, {{name}}',
 			'dashboard.dashboard_rename_hint' => 'Set a custom name',
@@ -3139,13 +3286,12 @@ extension on TranslationsEsMx {
 			'dashboard.dashboard_insights_this_month' => 'This month',
 			'dashboard.dashboard_insights_delta_up' => '{{pct}}% more than last month',
 			'dashboard.dashboard_insights_delta_down' => '{{pct}}% less than last month',
-			_ => null,
-		} ?? switch (path) {
 			'dashboard.dashboard_git' => 'Git Overview',
 			'dashboard.dashboard_git_empty' => 'No git repositories detected.',
 			'dashboard.dashboard_git_clean' => 'All clean',
 			'dashboard.dashboard_git_dirty' => '{{count}} with uncommitted changes',
 			'dashboard.dashboard_git_dirty_plural' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '1 with uncommitted changes', many: '${count} with uncommitted changes', other: '${count} with uncommitted changes', ), 
+			'dashboard.dashboard_git_dirty_one' => '1 with uncommitted changes',
 			'dashboard.dashboard_git_branch' => 'On {{branch}}',
 			'dashboard.dashboard_storage' => 'Storage Usage',
 			'dashboard.dashboard_storage_empty' => 'No projects to measure.',
@@ -3309,6 +3455,8 @@ extension on TranslationsEsMx {
 			'nav.dashboard' => 'Dashboard',
 			'nav.projects' => 'Proyectos',
 			'nav.projects_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: 'Project', many: 'Proyectos', other: 'Projects', ), 
+			'nav.projects_count_one' => 'Project',
+			'nav.projects_count_other' => 'Projects',
 			'nav.versions' => 'Versiones',
 			'nav.templates' => 'Plantillas',
 			'nav.vault' => 'Vault',
@@ -3349,7 +3497,11 @@ extension on TranslationsEsMx {
 			'onboarding.discovery_add_selected' => 'Add selected',
 			'onboarding.discovery_add_selected_count' => 'Add selected ({{count}})',
 			'onboarding.discovery_added_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: 'Added ${count} project.', many: 'Added ${count} projects.', other: 'Added ${count} projects.', ), 
+			'onboarding.discovery_added_projects_one' => 'Added {{count}} project.',
+			'onboarding.discovery_added_projects_other' => 'Added {{count}} projects.',
 			'onboarding.discovery_added_versions' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: 'Added ${count} version.', many: 'Added ${count} versions.', other: 'Added ${count} versions.', ), 
+			'onboarding.discovery_added_versions_one' => 'Added {{count}} version.',
+			'onboarding.discovery_added_versions_other' => 'Added {{count}} versions.',
 			'onboarding.discovery_link_hint' => 'Projects are linked to a matching Godot version automatically, including versions you add in the next step.',
 			'onboarding.setup' => 'Setup',
 			'onboarding.setup_title' => 'How do you want to use GodotHub?',
@@ -3491,6 +3643,8 @@ extension on TranslationsEsMx {
 			'settings.open_setup' => 'Open Setup',
 			'settings.reset_colors' => 'Reset colors to default',
 			'settings.folders_deep' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '${count} folder deep', many: '${count} folders deep', other: '${count} folders deep', ), 
+			'settings.folders_deep_one' => '{{count}} folder deep',
+			'settings.folders_deep_other' => '{{count}} folders deep',
 			'settings.at_once' => '{{count}} at once',
 			'settings.animation_speed_label' => 'Animation speed',
 			'settings.scroll_reveal_label' => 'Scroll reveal',
@@ -3546,11 +3700,21 @@ extension on TranslationsEsMx {
 			'settings.restore_modal_applying' => 'Applying backup and restarting…',
 			'settings.restore_modal_preview_desc' => 'Your gist backup contains:',
 			'settings.restore_modal_workspaces' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: 'workspace', many: 'workspaces', other: 'workspaces', ), 
+			'settings.restore_modal_workspaces_one' => 'workspace',
+			'settings.restore_modal_workspaces_other' => 'workspaces',
 			'settings.restore_modal_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: 'project', many: 'projects', other: 'projects', ), 
+			'settings.restore_modal_projects_one' => 'project',
+			'settings.restore_modal_projects_other' => 'projects',
 			'settings.restore_modal_categories' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: 'category', many: 'categories', other: 'categories', ), 
+			'settings.restore_modal_categories_one' => 'category',
+			'settings.restore_modal_categories_other' => 'categories',
 			'settings.restore_modal_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: 'template', many: 'templates', other: 'templates', ), 
+			'settings.restore_modal_templates_one' => 'template',
+			'settings.restore_modal_templates_other' => 'templates',
 			'settings.restore_modal_time_stats' => 'Includes time tracking data',
 			'settings.restore_modal_todos' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: 'Includes ${count} to-do', many: 'Includes ${count} to-dos', other: 'Includes ${count} to-dos', ), 
+			'settings.restore_modal_todos_one' => 'Includes {{count}} to-do',
+			'settings.restore_modal_todos_other' => 'Includes {{count}} to-dos',
 			'settings.restore_modal_project_scan_dirs' => '{{count}} project scan folder(s) will be restored',
 			'settings.restore_modal_version_scan_dirs' => '{{count}} Godot version folder(s) will be restored',
 			'settings.restore_modal_workspace_list' => 'Workspaces',
@@ -3561,6 +3725,8 @@ extension on TranslationsEsMx {
 			'settings.settings_exported' => 'Settings exported.',
 			'settings.settings_imported' => 'Settings imported.',
 			'settings.stats_imported' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: 'Imported stats for ${count} project.', many: 'Imported stats for ${count} projects.', other: 'Imported stats for ${count} projects.', ), 
+			'settings.stats_imported_one' => 'Imported stats for {{count}} project.',
+			'settings.stats_imported_other' => 'Imported stats for {{count}} projects.',
 			'settings.raised_contrast_label' => 'Raised surface contrast',
 			'settings.raised_contrast_value' => '{{value}}%',
 			'settings.token_help_desc' => 'Create a token at github.com/settings/tokens. You only need to check the repo scope if you want private repo access, otherwise leave all scopes unchecked. No sensitive permissions required.',
@@ -3586,6 +3752,8 @@ extension on TranslationsEsMx {
 			'settings.language_complete' => 'Complete',
 			'settings.language_beta' => 'Beta',
 			'settings.language_incomplete' => 'Incomplete',
+			_ => null,
+		} ?? switch (path) {
 			'settings.use_os_decorations' => 'Use OS window decorations',
 			'settings.credits' => 'Credits',
 			'settings.credits_developer' => 'Created by',
@@ -3621,6 +3789,8 @@ extension on TranslationsEsMx {
 			'settings.features_always_on' => 'Always on',
 			'settings.features_optional' => 'Optional',
 			'settings.features_enabled_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '${count} feature on', many: '${count} features on', other: '${count} features on', ), 
+			'settings.features_enabled_count_one' => '{{count}} feature on',
+			'settings.features_enabled_count_other' => '{{count}} features on',
 			'settings.setup_profile_minimal' => 'Minimal',
 			'settings.setup_profile_minimal_desc' => 'Just projects and Godot versions. The lightest, fastest setup.',
 			'settings.setup_profile_essentials' => 'Essentials',
@@ -3641,7 +3811,11 @@ extension on TranslationsEsMx {
 			'todos.next_steps' => 'Next steps',
 			'todos.saving_tasks' => 'Saving tasks',
 			'todos.pending_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '${count} pending', many: '${count} pending', other: '${count} pending', ), 
+			'todos.pending_count_one' => '{{count}} pending',
+			'todos.pending_count_other' => '{{count}} pending',
 			'todos.completed_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '${count} completed', many: '${count} completed', other: '${count} completed', ), 
+			'todos.completed_count_one' => '{{count}} completed',
+			'todos.completed_count_other' => '{{count}} completed',
 			'todos.new_task' => 'New task',
 			'todos.hide_next_steps' => 'Hide next steps',
 			'todos.save_changes_failed' => 'Could not save the changes.',
@@ -3653,8 +3827,6 @@ extension on TranslationsEsMx {
 			'todos.create_task' => 'Create task',
 			'todos.all_completed_title' => 'All done',
 			'todos.all_completed_description' => 'You completed all the next steps for this project.',
-			_ => null,
-		} ?? switch (path) {
 			'todos.footer_hint' => 'Use the list to keep track of the project\'s next steps.',
 			'todos.view_all' => 'View all',
 			'todos.delete_task_title' => 'Delete task?',
@@ -3694,13 +3866,19 @@ extension on TranslationsEsMx {
 			'todos.no_description' => 'No description',
 			'todos.tomorrow' => 'Tomorrow',
 			'todos.due_in_days' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: 'Due in ${count} day', many: 'Due in ${count} days', other: 'Due in ${count} days', ), 
+			'todos.due_in_days_one' => 'Due in {{count}} day',
+			'todos.due_in_days_other' => 'Due in {{count}} days',
 			'todos.overdue_yesterday' => 'Was due yesterday',
 			'todos.overdue_days' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: 'Overdue by ${count} day', many: 'Overdue by ${count} days', other: 'Overdue by ${count} days', ), 
+			'todos.overdue_days_one' => 'Overdue by {{count}} day',
+			'todos.overdue_days_other' => 'Overdue by {{count}} days',
 			'todos.scan_code' => 'Scan code',
 			'todos.scan_code_hint' => 'Import TODO and FIXME comments from scripts and shaders, and complete to-dos whose comment was removed',
 			'todos.comment_scan_summary' => 'Code scan: {{imported}} added, {{closed}} completed, {{reopened}} reopened',
 			'todos.comment_scan_none' => 'Code scan found no changes',
 			'todos.commit_closed' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: 'Completed ${count} to-do from a commit message', many: 'Completed ${count} to-dos from commit messages', other: 'Completed ${count} to-dos from commit messages', ), 
+			'todos.commit_closed_one' => 'Completed {{count}} to-do from a commit message',
+			'todos.commit_closed_other' => 'Completed {{count}} to-dos from commit messages',
 			'todos.linked_file' => 'Linked file',
 			'todos.linked_file_placeholder' => 'res://scenes/player.tscn',
 			'todos.linked_file_hint' => 'Link a scene, script or resource from this project.',
@@ -3733,10 +3911,16 @@ extension on TranslationsEsMx {
 			'todos.all_areas' => 'All areas',
 			'todos.no_matching_tasks' => 'No to-dos match your search.',
 			'todos.open_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '${count} to-do', many: '${count} to-dos', other: '${count} to-dos', ), 
+			'todos.open_count_one' => '{{count}} to-do',
+			'todos.open_count_other' => '{{count}} to-dos',
 			'todos.overdue_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '${count} overdue', many: '${count} overdue', other: '${count} overdue', ), 
+			'todos.overdue_count_one' => '{{count}} overdue',
+			'todos.overdue_count_other' => '{{count}} overdue',
 			'todos.tile_summary' => '{{overdue}} overdue · {{soon}} due this week',
 			'todos.tile_empty' => 'Nothing overdue or due this week.',
 			'todos.due_notification_title' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: 'To-do due: {{title}}', many: '${count} to-dos are due', other: '${count} to-dos are due', ), 
+			'todos.due_notification_title_one' => 'To-do due: {{title}}',
+			'todos.due_notification_title_other' => '{{count}} to-dos are due',
 			'todos.due_notification_more' => 'and {{count}} more',
 			'versions.standard' => 'Standard',
 			'versions.unbound' => 'unbound',
@@ -3763,6 +3947,8 @@ extension on TranslationsEsMx {
 			'versions.pause_download' => 'Pause download',
 			'versions.cancel_download' => 'Cancel download',
 			'versions.installed_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, zero: 'No installs', one: 'Instalado', many: 'Installed', other: 'Instalados', ), 
+			'versions.installed_count_one' => 'Instalado',
+			'versions.installed_count_other' => 'Instalados',
 			'versions.installed_label' => 'Installed',
 			'versions.original_name' => 'Original',
 			'versions.source' => 'Fuente',
@@ -3799,8 +3985,14 @@ extension on TranslationsEsMx {
 			'versions.alias_shim_badge' => 'script',
 			'versions.alias_mono_script_note' => 'Mono builds load GodotSharp from the folder next to the executable, so on Windows the alias is created as a launcher script instead of a link.',
 			'versions.alias_create_all' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: 'Create Alias', many: 'Create ${count} Aliases', other: 'Create ${count} Aliases', ), 
+			'versions.alias_create_all_one' => 'Create Alias',
+			'versions.alias_create_all_other' => 'Create {{count}} Aliases',
 			'versions.aliases_batch_created' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '1 alias created', many: '${count} aliases created', other: '${count} aliases created', ), 
+			'versions.aliases_batch_created_one' => '1 alias created',
+			'versions.aliases_batch_created_other' => '{{count}} aliases created',
 			'versions.aliases_batch_skipped' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '1 alias skipped', many: '${count} aliases skipped', other: '${count} aliases skipped', ), 
+			'versions.aliases_batch_skipped_one' => '1 alias skipped',
+			'versions.aliases_batch_skipped_other' => '{{count}} aliases skipped',
 			'versions.alias_queue_duplicate' => '"{{name}}" is already in the list',
 			'versions.alias_remove' => 'Remove alias',
 			'versions.alias_remove_title' => 'Remove this alias?',
@@ -3832,13 +4024,19 @@ extension on TranslationsEsMx {
 			'versions.export_templates_orphan_deleted' => 'Template folder deleted',
 			'versions.export_templates_choose' => 'Choose export templates',
 			'versions.export_templates_selected' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '1 template selected', many: '${count} templates selected', other: '${count} templates selected', ), 
+			'versions.export_templates_selected_one' => '1 template selected',
+			'versions.export_templates_selected_other' => '{{count}} templates selected',
 			'versions.export_templates_size_summary' => '~{{download}} download · {{installed}} on disk',
 			'versions.export_templates_download_selected' => 'Download selected',
 			'versions.export_templates_loading_options' => 'Checking this release\'s available templates…',
 			'versions.export_templates_options_failed' => 'Couldn\'t load the templates for this release.',
 			'versions.export_templates_available' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '1 available template group', many: '${count} available template groups', other: '${count} available template groups', ), 
+			'versions.export_templates_available_one' => '1 available template group',
+			'versions.export_templates_available_other' => '{{count}} available template groups',
 			'versions.export_templates_select_all' => 'Select all',
 			'versions.export_templates_files' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('es'))(count, one: '1 template file', many: '${count} template files', other: '${count} template files', ), 
+			'versions.export_templates_files_one' => '1 template file',
+			'versions.export_templates_files_other' => '{{count}} template files',
 			'versions.export_templates_option_installed' => 'Installed',
 			'versions.export_templates_keep_existing' => 'Expand a platform to choose architectures or individual files. Only selected files are downloaded. Your existing templates are kept.',
 			'versions.export_templates_uninstall_named' => 'Uninstall {{name}}',

@@ -107,6 +107,8 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String running_projects_desc({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 件のプロジェクトが実行中',
 	);
+	@override String get running_projects_desc_one => '{{count}} 件のプロジェクトが実行中';
+	@override String get running_projects_desc_other => '{{count}} 件のプロジェクトが実行中';
 	@override String get active => '実行中';
 	@override String get done => '完了';
 	@override String get paused => '一時停止中';
@@ -202,9 +204,13 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String file_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 個のファイル',
 	);
+	@override String get file_count_one => '{{count}} 個のファイル';
+	@override String get file_count_other => '{{count}} 個のファイル';
 	@override String folder_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 個のフォルダ',
 	);
+	@override String get folder_count_one => '{{count}} 個のフォルダ';
+	@override String get folder_count_other => '{{count}} 個のフォルダ';
 	@override String get template_empty => 'このテンプレートは空です。';
 	@override String get categories => 'カテゴリ';
 	@override String get category_folders_hint => 'カテゴリのフォルダ内にあるプロジェクトは、自動的にそのカテゴリに割り当てられます。';
@@ -310,6 +316,8 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 		zero: 'アセットなし',
 		other: 'アセット',
 	);
+	@override String get asset_store_count_one => 'アセット';
+	@override String get asset_store_count_other => 'アセット';
 	@override String get asset_store_count => 'アセット';
 	@override String get settings_title => '設定';
 	@override String get no_templates_match => '一致するテンプレートはありません';
@@ -391,6 +399,8 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String template_your_templates({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: 'テンプレート',
 	);
+	@override String get template_your_templates_one => 'テンプレート';
+	@override String get template_your_templates_other => 'テンプレート';
 	@override String get template_imported_count => '{{count}} 件をインポートしました';
 	@override String get template_updated_count => '{{count}} 件を更新しました';
 	@override String get template_removed_count => '{{count}} 件を削除しました';
@@ -506,6 +516,8 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String tag_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 個のタグ',
 	);
+	@override String get tag_count_one => '{{count}} 個のタグ';
+	@override String get tag_count_other => '{{count}} 個のタグ';
 	@override String get no_tags => 'タグはまだありません';
 	@override String get bug_report_describe_label => '何が起きましたか？';
 	@override String get bug_report_describe_placeholder => 'バグが発生したとき、何をしていましたか？ 再現手順と、期待した動作・実際の動作も書いてください。';
@@ -562,6 +574,8 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String task_tray_only_recent({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '最近のタスク ${count} 件',
 	);
+	@override String get task_tray_only_recent_one => '最近のタスク {{count}} 件';
+	@override String get task_tray_only_recent_other => '最近のタスク {{count}} 件';
 	@override String get task_tray_aria => 'タスクトレイ';
 	@override String get task_tray_auto_dismiss => '完了したものを自動的に消す';
 	@override String get task_tray_dismiss => '{{count}} 件を消す';
@@ -628,9 +642,13 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String found_dismissed_title({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '以前に削除したプロジェクトが ${count} 件見つかりました',
 	);
+	@override String get found_dismissed_title_one => '以前に削除したプロジェクトが見つかりました';
+	@override String get found_dismissed_title_other => '以前に削除したプロジェクトが {{count}} 件見つかりました';
 	@override String found_dismissed_desc({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '以前ライブラリから削除したプロジェクトが ${count} 件見つかりました。再度追加しますか？',
 	);
+	@override String get found_dismissed_desc_one => '以前ライブラリから削除したプロジェクトが 1 件見つかりました。再度追加しますか？';
+	@override String get found_dismissed_desc_other => '以前ライブラリから削除したプロジェクトが {{count}} 件見つかりました。再度追加しますか？';
 	@override String get readd_all => 'すべて再追加';
 	@override String get skip_all => 'すべてスキップ';
 	@override String get project_already_open_title => 'プロジェクトはすでに開いています';
@@ -672,6 +690,8 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String contributor_pr_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: 'プルリクエスト ${count} 件',
 	);
+	@override String get contributor_pr_count_one => 'プルリクエスト {{count}} 件';
+	@override String get contributor_pr_count_other => 'プルリクエスト {{count}} 件';
 	@override String get contributor_pr_load_failed => 'プルリクエストを読み込めませんでした。';
 	@override String get contributor_pr_network_hint => 'インターネット接続を確認してください。';
 	@override String get contributor_pr_empty => 'プルリクエストが見つかりませんでした。';
@@ -753,6 +773,8 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String cleanup_confirm_btn({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 件を削除',
 	);
+	@override String get cleanup_confirm_btn_one => '{{count}} 件を削除';
+	@override String get cleanup_confirm_btn_other => '{{count}} 件を削除';
 	@override String get cleanup_done => '{{size}} を解放しました';
 	@override String get cleanup_failed => '{{label}} を削除できませんでした: {{error}}';
 	@override String get cleanup_versions_desc => 'インストール済みのすべての Godot バージョンがディスク上で使用している合計容量です。';
@@ -761,6 +783,8 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String cleanup_used_by_templates({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 件のテンプレート',
 	);
+	@override String get cleanup_used_by_templates_one => '{{count}} 件のテンプレート';
+	@override String get cleanup_used_by_templates_other => '{{count}} 件のテンプレート';
 	@override String get cleanup_current_badge => '既定';
 	@override String get cleanup_alias_badge => 'エイリアス';
 	@override String get cleanup_unused_badge => '未使用';
@@ -778,9 +802,13 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String n_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 件のプロジェクト',
 	);
+	@override String get n_projects_one => '{{count}} 件のプロジェクト';
+	@override String get n_projects_other => '{{count}} 件のプロジェクト';
 	@override String vault_item_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: 'アイテム',
 	);
+	@override String get vault_item_count_one => 'アイテム';
+	@override String get vault_item_count_other => 'アイテム';
 	@override String get vault_search_placeholder => '保管庫を検索…';
 	@override String get vault_empty => '保管庫は空です。<1>保管庫に保存</1>をクリックすると、プロジェクトのファイルやフォルダを選んで保存し、ほかのプロジェクトで再利用できます。';
 	@override String get vault_no_match => '検索条件に一致するアイテムはありません。';
@@ -816,15 +844,23 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String vault_conflict_desc({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: 'プロジェクトにはすでに ${count} 件のファイルが存在します。上書きしますか？',
 	);
+	@override String get vault_conflict_desc_one => 'プロジェクトにはすでに {{count}} 件のファイルが存在します。上書きしますか？';
+	@override String get vault_conflict_desc_other => 'プロジェクトにはすでに {{count}} 件のファイルが存在します。上書きしますか？';
 	@override String vault_conflict_summary_desc({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '選択したプロジェクトには、合計 ${count} 件のファイルがすでに存在します。上書きしますか？',
 	);
+	@override String get vault_conflict_summary_desc_one => '選択したプロジェクトには、合計 {{count}} 件のファイルがすでに存在します。上書きしますか？';
+	@override String get vault_conflict_summary_desc_other => '選択したプロジェクトには、合計 {{count}} 件のファイルがすでに存在します。上書きしますか？';
 	@override String vault_added_toast({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 件のファイルを追加しました',
 	);
+	@override String get vault_added_toast_one => '{{count}} 件のファイルを追加しました';
+	@override String get vault_added_toast_other => '{{count}} 件のファイルを追加しました';
 	@override String vault_added_to_projects_toast({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 件のプロジェクトに追加しました',
 	);
+	@override String get vault_added_to_projects_toast_one => '{{count}} 件のプロジェクトに追加しました';
+	@override String get vault_added_to_projects_toast_other => '{{count}} 件のプロジェクトに追加しました';
 	@override String get vault_item_empty => 'このアイテムにはファイルがありません。';
 	@override String get kNew => '新規';
 	@override String get announcement_support_title => 'GodotHub を支援';
@@ -909,6 +945,7 @@ class _Translations$dashboard$ja_JP extends Translations$dashboard$en_US {
 	@override String dashboard_git_dirty_plural({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 件に未コミットの変更があります',
 	);
+	@override String get dashboard_git_dirty_one => '1 件に未コミットの変更があります';
 	@override String get dashboard_git_branch => 'ブランチ: {{branch}}';
 	@override String get dashboard_storage => 'ストレージ使用量';
 	@override String get dashboard_storage_empty => '計測できるプロジェクトがありません。';
@@ -1092,6 +1129,8 @@ class _Translations$nav$ja_JP extends Translations$nav$en_US {
 	@override String projects_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: 'プロジェクト',
 	);
+	@override String get projects_count_one => 'プロジェクト';
+	@override String get projects_count_other => 'プロジェクト';
 	@override String get versions => 'バージョン';
 	@override String get templates => 'テンプレート';
 	@override String get vault => '保管庫';
@@ -1143,9 +1182,13 @@ class _Translations$onboarding$ja_JP extends Translations$onboarding$en_US {
 	@override String discovery_added_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 件のプロジェクトを追加しました。',
 	);
+	@override String get discovery_added_projects_one => '{{count}} 件のプロジェクトを追加しました。';
+	@override String get discovery_added_projects_other => '{{count}} 件のプロジェクトを追加しました。';
 	@override String discovery_added_versions({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 件のバージョンを追加しました。',
 	);
+	@override String get discovery_added_versions_one => '{{count}} 件のバージョンを追加しました。';
+	@override String get discovery_added_versions_other => '{{count}} 件のバージョンを追加しました。';
 	@override String get discovery_link_hint => 'プロジェクトは、次のステップで追加するバージョンも含め、対応する Godot バージョンに自動的に関連付けられます。';
 	@override String get setup => 'セットアップ';
 	@override String get setup_title => 'GodotHub をどのように使いますか？';
@@ -1298,6 +1341,8 @@ class _Translations$settings$ja_JP extends Translations$settings$en_US {
 	@override String folders_deep({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 階層',
 	);
+	@override String get folders_deep_one => '{{count}} 階層';
+	@override String get folders_deep_other => '{{count}} 階層';
 	@override String get at_once => '同時に {{count}} 件';
 	@override String get animation_speed_label => 'アニメーションの速度';
 	@override String get scroll_reveal_label => 'スクロール時の表示アニメーション';
@@ -1355,19 +1400,29 @@ class _Translations$settings$ja_JP extends Translations$settings$en_US {
 	@override String restore_modal_workspaces({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: 'ワークスペース',
 	);
+	@override String get restore_modal_workspaces_one => 'ワークスペース';
+	@override String get restore_modal_workspaces_other => 'ワークスペース';
 	@override String restore_modal_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: 'プロジェクト',
 	);
+	@override String get restore_modal_projects_one => 'プロジェクト';
+	@override String get restore_modal_projects_other => 'プロジェクト';
 	@override String restore_modal_categories({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: 'カテゴリ',
 	);
+	@override String get restore_modal_categories_one => 'カテゴリ';
+	@override String get restore_modal_categories_other => 'カテゴリ';
 	@override String restore_modal_templates({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: 'テンプレート',
 	);
+	@override String get restore_modal_templates_one => 'テンプレート';
+	@override String get restore_modal_templates_other => 'テンプレート';
 	@override String get restore_modal_time_stats => '作業時間のデータを含みます';
 	@override String restore_modal_todos({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 件のタスクを含みます',
 	);
+	@override String get restore_modal_todos_one => '{{count}} 件のタスクを含みます';
+	@override String get restore_modal_todos_other => '{{count}} 件のタスクを含みます';
 	@override String get restore_modal_project_scan_dirs => '{{count}} 件のプロジェクトスキャンフォルダが復元されます';
 	@override String get restore_modal_version_scan_dirs => '{{count}} 件の Godot バージョンフォルダが復元されます';
 	@override String get restore_modal_workspace_list => 'ワークスペース';
@@ -1380,6 +1435,8 @@ class _Translations$settings$ja_JP extends Translations$settings$en_US {
 	@override String stats_imported({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 件のプロジェクトの統計をインポートしました。',
 	);
+	@override String get stats_imported_one => '{{count}} 件のプロジェクトの統計をインポートしました。';
+	@override String get stats_imported_other => '{{count}} 件のプロジェクトの統計をインポートしました。';
 	@override String get raised_contrast_label => '浮き上がった面のコントラスト';
 	@override String get raised_contrast_value => '{{value}}%';
 	@override String get token_help_desc => 'トークンは github.com/settings/tokens で作成できます。プライベートリポジトリへアクセスしたい場合のみ repo スコープにチェックを入れてください。それ以外の場合は、すべてのスコープをオフのままで構いません。機密性の高い権限は不要です。';
@@ -1442,6 +1499,8 @@ class _Translations$settings$ja_JP extends Translations$settings$en_US {
 	@override String features_enabled_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 個の機能が有効',
 	);
+	@override String get features_enabled_count_one => '{{count}} 個の機能が有効';
+	@override String get features_enabled_count_other => '{{count}} 個の機能が有効';
 	@override String get setup_profile_minimal => '最小構成';
 	@override String get setup_profile_minimal_desc => 'プロジェクトと Godot のバージョン管理のみ。最も軽快に動作する構成です。';
 	@override String get setup_profile_essentials => '基本構成';
@@ -1473,9 +1532,13 @@ class _Translations$todos$ja_JP extends Translations$todos$en_US {
 	@override String pending_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '未完了 ${count} 件',
 	);
+	@override String get pending_count_one => '未完了 {{count}} 件';
+	@override String get pending_count_other => '未完了 {{count}} 件';
 	@override String completed_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '完了 ${count} 件',
 	);
+	@override String get completed_count_one => '完了 {{count}} 件';
+	@override String get completed_count_other => '完了 {{count}} 件';
 	@override String get new_task => '新しいタスク';
 	@override String get hide_next_steps => '次のステップを非表示';
 	@override String get save_changes_failed => '変更を保存できませんでした。';
@@ -1528,10 +1591,14 @@ class _Translations$todos$ja_JP extends Translations$todos$en_US {
 	@override String due_in_days({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '期限まであと ${count} 日',
 	);
+	@override String get due_in_days_one => '期限まであと {{count}} 日';
+	@override String get due_in_days_other => '期限まであと {{count}} 日';
 	@override String get overdue_yesterday => '期限は昨日でした';
 	@override String overdue_days({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '期限を ${count} 日超過',
 	);
+	@override String get overdue_days_one => '期限を {{count}} 日超過';
+	@override String get overdue_days_other => '期限を {{count}} 日超過';
 	@override String get scan_code => 'コードをスキャン';
 	@override String get scan_code_hint => 'スクリプトとシェーダーから TODO コメントと FIXME コメントをインポートし、コメントが削除されたタスクを完了にします';
 	@override String get comment_scan_summary => 'コードのスキャン: {{imported}} 件を追加、{{closed}} 件を完了、{{reopened}} 件を未完了に戻しました';
@@ -1539,6 +1606,8 @@ class _Translations$todos$ja_JP extends Translations$todos$en_US {
 	@override String commit_closed({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: 'コミットメッセージから ${count} 件のタスクを完了にしました',
 	);
+	@override String get commit_closed_one => 'コミットメッセージから {{count}} 件のタスクを完了にしました';
+	@override String get commit_closed_other => 'コミットメッセージから {{count}} 件のタスクを完了にしました';
 	@override String get linked_file => '関連ファイル';
 	@override String get linked_file_placeholder => 'res://scenes/player.tscn';
 	@override String get linked_file_hint => 'このプロジェクトのシーン、スクリプト、リソースを関連付けます。';
@@ -1573,14 +1642,20 @@ class _Translations$todos$ja_JP extends Translations$todos$en_US {
 	@override String open_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 件のタスク',
 	);
+	@override String get open_count_one => '{{count}} 件のタスク';
+	@override String get open_count_other => '{{count}} 件のタスク';
 	@override String overdue_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 件が期限切れ',
 	);
+	@override String get overdue_count_one => '{{count}} 件が期限切れ';
+	@override String get overdue_count_other => '{{count}} 件が期限切れ';
 	@override String get tile_summary => '期限切れ {{overdue}} 件 · 今週が期限 {{soon}} 件';
 	@override String get tile_empty => '期限切れのタスクや今週が期限のタスクはありません。';
 	@override String due_notification_title({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 件のタスクが期限を迎えています',
 	);
+	@override String get due_notification_title_one => 'タスクの期限: {{title}}';
+	@override String get due_notification_title_other => '{{count}} 件のタスクが期限を迎えています';
 	@override String get due_notification_more => 'ほか {{count}} 件';
 }
 
@@ -1619,6 +1694,8 @@ class _Translations$versions$ja_JP extends Translations$versions$en_US {
 		zero: 'インストールなし',
 		other: 'インストール済み',
 	);
+	@override String get installed_count_one => 'インストール済み';
+	@override String get installed_count_other => 'インストール済み';
 	@override String get installed_label => 'インストール済み';
 	@override String get original_name => '元の名前';
 	@override String get source => '取得元';
@@ -1657,12 +1734,18 @@ class _Translations$versions$ja_JP extends Translations$versions$en_US {
 	@override String alias_create_all({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 件のエイリアスを作成',
 	);
+	@override String get alias_create_all_one => 'エイリアスを作成';
+	@override String get alias_create_all_other => '{{count}} 件のエイリアスを作成';
 	@override String aliases_batch_created({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 件のエイリアスを作成しました',
 	);
+	@override String get aliases_batch_created_one => '{{count}} 件のエイリアスを作成しました';
+	@override String get aliases_batch_created_other => '{{count}} 件のエイリアスを作成しました';
 	@override String aliases_batch_skipped({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 件のエイリアスをスキップしました',
 	);
+	@override String get aliases_batch_skipped_one => '{{count}} 件のエイリアスをスキップしました';
+	@override String get aliases_batch_skipped_other => '{{count}} 件のエイリアスをスキップしました';
 	@override String get alias_queue_duplicate => '「{{name}}」はすでにリストにあります';
 	@override String get alias_remove => 'エイリアスを削除';
 	@override String get alias_remove_title => 'このエイリアスを削除しますか？';
@@ -1696,6 +1779,8 @@ class _Translations$versions$ja_JP extends Translations$versions$en_US {
 	@override String export_templates_selected({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 個のテンプレートを選択中',
 	);
+	@override String get export_templates_selected_one => '1 個のテンプレートを選択中';
+	@override String get export_templates_selected_other => '{{count}} 個のテンプレートを選択中';
 	@override String get export_templates_size_summary => 'ダウンロード 約 {{download}} · ディスク上 {{installed}}';
 	@override String get export_templates_download_selected => '選択したものをダウンロード';
 	@override String get export_templates_loading_options => 'このリリースで利用できるテンプレートを確認しています…';
@@ -1703,10 +1788,14 @@ class _Translations$versions$ja_JP extends Translations$versions$en_US {
 	@override String export_templates_available({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '利用可能なテンプレートグループ ${count} 個',
 	);
+	@override String get export_templates_available_one => '利用可能なテンプレートグループ 1 個';
+	@override String get export_templates_available_other => '利用可能なテンプレートグループ {{count}} 個';
 	@override String get export_templates_select_all => 'すべて選択';
 	@override String export_templates_files({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: 'テンプレートファイル ${count} 個',
 	);
+	@override String get export_templates_files_one => 'テンプレートファイル 1 個';
+	@override String get export_templates_files_other => 'テンプレートファイル {{count}} 個';
 	@override String get export_templates_option_installed => 'インストール済み';
 	@override String get export_templates_keep_existing => 'プラットフォームを展開すると、アーキテクチャや個々のファイルを選べます。選択したファイルだけがダウンロードされ、既存のテンプレートはそのまま残ります。';
 	@override String get export_templates_uninstall_named => '{{name}} をアンインストール';
@@ -1745,14 +1834,20 @@ class _Translations$common$project_doctor$ja_JP extends Translations$common$proj
 	@override String summary_errors({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 件の問題に対応が必要です',
 	);
+	@override String get summary_errors_one => '{{count}} 件の問題に対応が必要です';
+	@override String get summary_errors_other => '{{count}} 件の問題に対応が必要です';
 	@override String summary_warnings({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 件の警告を確認してください',
 	);
+	@override String get summary_warnings_one => '{{count}} 件の警告を確認してください';
+	@override String get summary_warnings_other => '{{count}} 件の警告を確認してください';
 	@override String get summary_ready => '作業を妨げる問題は見つかりませんでした';
 	@override String get summary_counts => '{{passed}} 件のチェックに合格 · {{findings}} 件の指摘';
 	@override String passed_checks({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '合格したチェック ${count} 件',
 	);
+	@override String get passed_checks_one => '合格したチェック {{count}} 件';
+	@override String get passed_checks_other => '合格したチェック {{count}} 件';
 	@override String get local_checks => 'チェックはローカルで実行されます。設定を修正するときは、先にバックアップを保存します。';
 	@override String get fix_complete => '修正を適用し、プロジェクトのチェック結果を更新しました。';
 	@override String get templates_downloading => '選択したテンプレートをダウンロードしています。進行状況の確認とキャンセルは「タスク」からも行えます。';
@@ -1982,12 +2077,16 @@ class _Translations$common$project_addons$ja_JP extends Translations$common$proj
 	@override String count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 件のアドオンをインストール済み',
 	);
+	@override String get count_one => '{{count}} 件のアドオンをインストール済み';
+	@override String get count_other => '{{count}} 件のアドオンをインストール済み';
 	@override String get empty => 'このプロジェクトには addons フォルダがありません。アセットストアからアドオンをインストールするか、res://addons にコピーしてください。';
 	@override String get check_updates => '更新を確認';
 	@override String get checking => '確認中…';
 	@override String updates_available({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
 		other: '${count} 件の更新があります',
 	);
+	@override String get updates_available_one => '{{count}} 件の更新があります';
+	@override String get updates_available_other => '{{count}} 件の更新があります';
 	@override String get all_current => 'アセットライブラリに更新はありません';
 	@override String get enabled => '有効';
 	@override String get disabled => '無効';
@@ -2052,6 +2151,8 @@ extension on TranslationsJaJp {
 			'common.download_queue_move_down' => 'キューの後ろに移動',
 			'common.running' => '実行中',
 			'common.running_projects_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件のプロジェクトが実行中', ), 
+			'common.running_projects_desc_one' => '{{count}} 件のプロジェクトが実行中',
+			'common.running_projects_desc_other' => '{{count}} 件のプロジェクトが実行中',
 			'common.active' => '実行中',
 			'common.done' => '完了',
 			'common.paused' => '一時停止中',
@@ -2145,7 +2246,11 @@ extension on TranslationsJaJp {
 			'common.expand' => '展開',
 			'common.collapse' => '折りたたむ',
 			'common.file_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 個のファイル', ), 
+			'common.file_count_one' => '{{count}} 個のファイル',
+			'common.file_count_other' => '{{count}} 個のファイル',
 			'common.folder_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 個のフォルダ', ), 
+			'common.folder_count_one' => '{{count}} 個のフォルダ',
+			'common.folder_count_other' => '{{count}} 個のフォルダ',
 			'common.template_empty' => 'このテンプレートは空です。',
 			'common.categories' => 'カテゴリ',
 			'common.category_folders_hint' => 'カテゴリのフォルダ内にあるプロジェクトは、自動的にそのカテゴリに割り当てられます。',
@@ -2248,6 +2353,8 @@ extension on TranslationsJaJp {
 			'common.asset_store_title' => 'アセットストア',
 			'common.news_count' => '記事',
 			'common.asset_store_count_plural' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, zero: 'アセットなし', other: 'アセット', ), 
+			'common.asset_store_count_one' => 'アセット',
+			'common.asset_store_count_other' => 'アセット',
 			'common.asset_store_count' => 'アセット',
 			'common.settings_title' => '設定',
 			'common.no_templates_match' => '一致するテンプレートはありません',
@@ -2327,6 +2434,8 @@ extension on TranslationsJaJp {
 			'common.asset_next_page' => '次のページ',
 			'common.asset_page_x_of_y' => '{{total}} ページ中 {{page}} ページ目',
 			'common.template_your_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: 'テンプレート', ), 
+			'common.template_your_templates_one' => 'テンプレート',
+			'common.template_your_templates_other' => 'テンプレート',
 			'common.template_imported_count' => '{{count}} 件をインポートしました',
 			'common.template_updated_count' => '{{count}} 件を更新しました',
 			'common.template_removed_count' => '{{count}} 件を削除しました',
@@ -2440,6 +2549,8 @@ extension on TranslationsJaJp {
 			'common.clear_tag_filter' => 'タグの絞り込みを解除',
 			'common.saving_tags' => 'タグを保存中…',
 			'common.tag_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 個のタグ', ), 
+			'common.tag_count_one' => '{{count}} 個のタグ',
+			'common.tag_count_other' => '{{count}} 個のタグ',
 			'common.no_tags' => 'タグはまだありません',
 			'common.bug_report_describe_label' => '何が起きましたか？',
 			'common.bug_report_describe_placeholder' => 'バグが発生したとき、何をしていましたか？ 再現手順と、期待した動作・実際の動作も書いてください。',
@@ -2494,6 +2605,8 @@ extension on TranslationsJaJp {
 			'common.task_tray_empty' => '実行中のタスクはありません',
 			'common.task_tray_active_count' => '実行中 {{active}} 件、最近 {{recent}} 件',
 			'common.task_tray_only_recent' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '最近のタスク ${count} 件', ), 
+			'common.task_tray_only_recent_one' => '最近のタスク {{count}} 件',
+			'common.task_tray_only_recent_other' => '最近のタスク {{count}} 件',
 			'common.task_tray_aria' => 'タスクトレイ',
 			'common.task_tray_auto_dismiss' => '完了したものを自動的に消す',
 			'common.task_tray_dismiss' => '{{count}} 件を消す',
@@ -2511,6 +2624,8 @@ extension on TranslationsJaJp {
 			'common.setting_scan_depth' => 'スキャン深度',
 			'common.setting_icon_scan_depth' => 'プロジェクトアイコン検索深度',
 			'common.setting_download_concurrency' => '同時ダウンロード数',
+			_ => null,
+		} ?? switch (path) {
 			'common.setting_close_on_project_open' => 'プロジェクト起動時に終了',
 			'common.setting_minimize_to_tray' => 'システムトレイに最小化',
 			'common.setting_reopen_after_godot_closes' => 'Godot 終了後に再表示',
@@ -2525,8 +2640,6 @@ extension on TranslationsJaJp {
 			'common.setting_last_opened_date_format' => '日付フォーマット',
 			'common.setting_theme_mode' => 'テーマモード',
 			'common.setting_accent_color' => 'アクセントカラー',
-			_ => null,
-		} ?? switch (path) {
 			'common.setting_background_color' => '背景色',
 			'common.setting_corner_radius' => '角の丸み',
 			'common.setting_ui_density' => 'UI 密度',
@@ -2560,7 +2673,11 @@ extension on TranslationsJaJp {
 			'common.restart_required_title' => '再起動が必要です',
 			'common.restart_required_desc' => 'この変更を完全に反映するには、GodotHub の再起動が必要です。設定は保存済みで、アプリを起動し直したときに適用されます。',
 			'common.found_dismissed_title' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '以前に削除したプロジェクトが ${count} 件見つかりました', ), 
+			'common.found_dismissed_title_one' => '以前に削除したプロジェクトが見つかりました',
+			'common.found_dismissed_title_other' => '以前に削除したプロジェクトが {{count}} 件見つかりました',
 			'common.found_dismissed_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '以前ライブラリから削除したプロジェクトが ${count} 件見つかりました。再度追加しますか？', ), 
+			'common.found_dismissed_desc_one' => '以前ライブラリから削除したプロジェクトが 1 件見つかりました。再度追加しますか？',
+			'common.found_dismissed_desc_other' => '以前ライブラリから削除したプロジェクトが {{count}} 件見つかりました。再度追加しますか？',
 			'common.readd_all' => 'すべて再追加',
 			'common.skip_all' => 'すべてスキップ',
 			'common.project_already_open_title' => 'プロジェクトはすでに開いています',
@@ -2600,6 +2717,8 @@ extension on TranslationsJaJp {
 			'common.contributor_pr_closed' => 'クローズ',
 			'common.contributor_pr_loading' => 'プルリクエストを読み込み中…',
 			'common.contributor_pr_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: 'プルリクエスト ${count} 件', ), 
+			'common.contributor_pr_count_one' => 'プルリクエスト {{count}} 件',
+			'common.contributor_pr_count_other' => 'プルリクエスト {{count}} 件',
 			'common.contributor_pr_load_failed' => 'プルリクエストを読み込めませんでした。',
 			'common.contributor_pr_network_hint' => 'インターネット接続を確認してください。',
 			'common.contributor_pr_empty' => 'プルリクエストが見つかりませんでした。',
@@ -2657,10 +2776,16 @@ extension on TranslationsJaJp {
 			'common.project_doctor.scan_failed' => 'このプロジェクトをチェックできませんでした',
 			'common.project_doctor.run_again' => 'もう一度チェック',
 			'common.project_doctor.summary_errors' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件の問題に対応が必要です', ), 
+			'common.project_doctor.summary_errors_one' => '{{count}} 件の問題に対応が必要です',
+			'common.project_doctor.summary_errors_other' => '{{count}} 件の問題に対応が必要です',
 			'common.project_doctor.summary_warnings' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件の警告を確認してください', ), 
+			'common.project_doctor.summary_warnings_one' => '{{count}} 件の警告を確認してください',
+			'common.project_doctor.summary_warnings_other' => '{{count}} 件の警告を確認してください',
 			'common.project_doctor.summary_ready' => '作業を妨げる問題は見つかりませんでした',
 			'common.project_doctor.summary_counts' => '{{passed}} 件のチェックに合格 · {{findings}} 件の指摘',
 			'common.project_doctor.passed_checks' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '合格したチェック ${count} 件', ), 
+			'common.project_doctor.passed_checks_one' => '合格したチェック {{count}} 件',
+			'common.project_doctor.passed_checks_other' => '合格したチェック {{count}} 件',
 			'common.project_doctor.local_checks' => 'チェックはローカルで実行されます。設定を修正するときは、先にバックアップを保存します。',
 			'common.project_doctor.fix_complete' => '修正を適用し、プロジェクトのチェック結果を更新しました。',
 			'common.project_doctor.templates_downloading' => '選択したテンプレートをダウンロードしています。進行状況の確認とキャンセルは「タスク」からも行えます。',
@@ -2892,12 +3017,16 @@ extension on TranslationsJaJp {
 			'common.cleanup_confirm_desc' => '以下の項目を削除します:',
 			'common.cleanup_confirm_trash_note' => 'バージョンとエクスポートテンプレートはシステムのごみ箱に移動され、ごみ箱を空にすると容量が解放されます。未完了のダウンロードは完全に削除されます。',
 			'common.cleanup_confirm_btn' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件を削除', ), 
+			'common.cleanup_confirm_btn_one' => '{{count}} 件を削除',
+			'common.cleanup_confirm_btn_other' => '{{count}} 件を削除',
 			'common.cleanup_done' => '{{size}} を解放しました',
 			'common.cleanup_failed' => '{{label}} を削除できませんでした: {{error}}',
 			'common.cleanup_versions_desc' => 'インストール済みのすべての Godot バージョンがディスク上で使用している合計容量です。',
 			'common.cleanup_templates_title' => 'プロジェクトテンプレート',
 			'common.cleanup_export_templates_title' => 'エクスポートテンプレート',
 			'common.cleanup_used_by_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件のテンプレート', ), 
+			'common.cleanup_used_by_templates_one' => '{{count}} 件のテンプレート',
+			'common.cleanup_used_by_templates_other' => '{{count}} 件のテンプレート',
 			'common.cleanup_current_badge' => '既定',
 			'common.cleanup_alias_badge' => 'エイリアス',
 			'common.cleanup_unused_badge' => '未使用',
@@ -2913,7 +3042,11 @@ extension on TranslationsJaJp {
 			'common.optional' => '（任意）',
 			'common.language_label' => '言語',
 			'common.n_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件のプロジェクト', ), 
+			'common.n_projects_one' => '{{count}} 件のプロジェクト',
+			'common.n_projects_other' => '{{count}} 件のプロジェクト',
 			'common.vault_item_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: 'アイテム', ), 
+			'common.vault_item_count_one' => 'アイテム',
+			'common.vault_item_count_other' => 'アイテム',
 			'common.vault_search_placeholder' => '保管庫を検索…',
 			'common.vault_empty' => '保管庫は空です。<1>保管庫に保存</1>をクリックすると、プロジェクトのファイルやフォルダを選んで保存し、ほかのプロジェクトで再利用できます。',
 			'common.vault_no_match' => '検索条件に一致するアイテムはありません。',
@@ -2947,9 +3080,17 @@ extension on TranslationsJaJp {
 			'common.vault_adding' => '追加中…',
 			'common.vault_overwrite_btn' => 'ファイルを上書き',
 			'common.vault_conflict_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: 'プロジェクトにはすでに ${count} 件のファイルが存在します。上書きしますか？', ), 
+			'common.vault_conflict_desc_one' => 'プロジェクトにはすでに {{count}} 件のファイルが存在します。上書きしますか？',
+			'common.vault_conflict_desc_other' => 'プロジェクトにはすでに {{count}} 件のファイルが存在します。上書きしますか？',
 			'common.vault_conflict_summary_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '選択したプロジェクトには、合計 ${count} 件のファイルがすでに存在します。上書きしますか？', ), 
+			'common.vault_conflict_summary_desc_one' => '選択したプロジェクトには、合計 {{count}} 件のファイルがすでに存在します。上書きしますか？',
+			'common.vault_conflict_summary_desc_other' => '選択したプロジェクトには、合計 {{count}} 件のファイルがすでに存在します。上書きしますか？',
 			'common.vault_added_toast' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件のファイルを追加しました', ), 
+			'common.vault_added_toast_one' => '{{count}} 件のファイルを追加しました',
+			'common.vault_added_toast_other' => '{{count}} 件のファイルを追加しました',
 			'common.vault_added_to_projects_toast' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件のプロジェクトに追加しました', ), 
+			'common.vault_added_to_projects_toast_one' => '{{count}} 件のプロジェクトに追加しました',
+			'common.vault_added_to_projects_toast_other' => '{{count}} 件のプロジェクトに追加しました',
 			'common.vault_item_empty' => 'このアイテムにはファイルがありません。',
 			'common.kNew' => '新規',
 			'common.announcement_support_title' => 'GodotHub を支援',
@@ -2964,10 +3105,14 @@ extension on TranslationsJaJp {
 			'common.project_addons.title' => 'アドオン',
 			'common.project_addons.loading' => 'アドオンを読み込み中…',
 			'common.project_addons.count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件のアドオンをインストール済み', ), 
+			'common.project_addons.count_one' => '{{count}} 件のアドオンをインストール済み',
+			'common.project_addons.count_other' => '{{count}} 件のアドオンをインストール済み',
 			'common.project_addons.empty' => 'このプロジェクトには addons フォルダがありません。アセットストアからアドオンをインストールするか、res://addons にコピーしてください。',
 			'common.project_addons.check_updates' => '更新を確認',
 			'common.project_addons.checking' => '確認中…',
 			'common.project_addons.updates_available' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件の更新があります', ), 
+			'common.project_addons.updates_available_one' => '{{count}} 件の更新があります',
+			'common.project_addons.updates_available_other' => '{{count}} 件の更新があります',
 			'common.project_addons.all_current' => 'アセットライブラリに更新はありません',
 			'common.project_addons.enabled' => '有効',
 			'common.project_addons.disabled' => '無効',
@@ -2993,6 +3138,8 @@ extension on TranslationsJaJp {
 			'dashboard.greeting_morning' => 'おはようございます',
 			'dashboard.greeting_afternoon' => 'こんにちは',
 			'dashboard.greeting_evening' => 'こんばんは',
+			_ => null,
+		} ?? switch (path) {
 			'dashboard.greeting_night' => 'お疲れさまです',
 			'dashboard.greeting_name' => '{{greeting}}、{{name}} さん',
 			'dashboard.dashboard_rename_hint' => '表示名を設定',
@@ -3039,13 +3186,12 @@ extension on TranslationsJaJp {
 			'dashboard.dashboard_insights_this_month' => '今月',
 			'dashboard.dashboard_insights_delta_up' => '先月より {{pct}}% 多い',
 			'dashboard.dashboard_insights_delta_down' => '先月より {{pct}}% 少ない',
-			_ => null,
-		} ?? switch (path) {
 			'dashboard.dashboard_git' => 'Git の概要',
 			'dashboard.dashboard_git_empty' => 'Git リポジトリは検出されませんでした。',
 			'dashboard.dashboard_git_clean' => 'すべてクリーン',
 			'dashboard.dashboard_git_dirty' => '{{count}} 件に未コミットの変更があります',
 			'dashboard.dashboard_git_dirty_plural' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件に未コミットの変更があります', ), 
+			'dashboard.dashboard_git_dirty_one' => '1 件に未コミットの変更があります',
 			'dashboard.dashboard_git_branch' => 'ブランチ: {{branch}}',
 			'dashboard.dashboard_storage' => 'ストレージ使用量',
 			'dashboard.dashboard_storage_empty' => '計測できるプロジェクトがありません。',
@@ -3209,6 +3355,8 @@ extension on TranslationsJaJp {
 			'nav.dashboard' => 'ダッシュボード',
 			'nav.projects' => 'プロジェクト',
 			'nav.projects_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: 'プロジェクト', ), 
+			'nav.projects_count_one' => 'プロジェクト',
+			'nav.projects_count_other' => 'プロジェクト',
 			'nav.versions' => 'バージョン',
 			'nav.templates' => 'テンプレート',
 			'nav.vault' => '保管庫',
@@ -3249,7 +3397,11 @@ extension on TranslationsJaJp {
 			'onboarding.discovery_add_selected' => '選択した項目を追加',
 			'onboarding.discovery_add_selected_count' => '選択した項目を追加（{{count}} 件）',
 			'onboarding.discovery_added_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件のプロジェクトを追加しました。', ), 
+			'onboarding.discovery_added_projects_one' => '{{count}} 件のプロジェクトを追加しました。',
+			'onboarding.discovery_added_projects_other' => '{{count}} 件のプロジェクトを追加しました。',
 			'onboarding.discovery_added_versions' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件のバージョンを追加しました。', ), 
+			'onboarding.discovery_added_versions_one' => '{{count}} 件のバージョンを追加しました。',
+			'onboarding.discovery_added_versions_other' => '{{count}} 件のバージョンを追加しました。',
 			'onboarding.discovery_link_hint' => 'プロジェクトは、次のステップで追加するバージョンも含め、対応する Godot バージョンに自動的に関連付けられます。',
 			'onboarding.setup' => 'セットアップ',
 			'onboarding.setup_title' => 'GodotHub をどのように使いますか？',
@@ -3391,6 +3543,8 @@ extension on TranslationsJaJp {
 			'settings.open_setup' => 'セットアップを開く',
 			'settings.reset_colors' => '色を既定値に戻す',
 			'settings.folders_deep' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 階層', ), 
+			'settings.folders_deep_one' => '{{count}} 階層',
+			'settings.folders_deep_other' => '{{count}} 階層',
 			'settings.at_once' => '同時に {{count}} 件',
 			'settings.animation_speed_label' => 'アニメーションの速度',
 			'settings.scroll_reveal_label' => 'スクロール時の表示アニメーション',
@@ -3446,11 +3600,21 @@ extension on TranslationsJaJp {
 			'settings.restore_modal_applying' => 'バックアップを適用して再起動しています…',
 			'settings.restore_modal_preview_desc' => 'gist のバックアップには次の内容が含まれています:',
 			'settings.restore_modal_workspaces' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: 'ワークスペース', ), 
+			'settings.restore_modal_workspaces_one' => 'ワークスペース',
+			'settings.restore_modal_workspaces_other' => 'ワークスペース',
 			'settings.restore_modal_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: 'プロジェクト', ), 
+			'settings.restore_modal_projects_one' => 'プロジェクト',
+			'settings.restore_modal_projects_other' => 'プロジェクト',
 			'settings.restore_modal_categories' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: 'カテゴリ', ), 
+			'settings.restore_modal_categories_one' => 'カテゴリ',
+			'settings.restore_modal_categories_other' => 'カテゴリ',
 			'settings.restore_modal_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: 'テンプレート', ), 
+			'settings.restore_modal_templates_one' => 'テンプレート',
+			'settings.restore_modal_templates_other' => 'テンプレート',
 			'settings.restore_modal_time_stats' => '作業時間のデータを含みます',
 			'settings.restore_modal_todos' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件のタスクを含みます', ), 
+			'settings.restore_modal_todos_one' => '{{count}} 件のタスクを含みます',
+			'settings.restore_modal_todos_other' => '{{count}} 件のタスクを含みます',
 			'settings.restore_modal_project_scan_dirs' => '{{count}} 件のプロジェクトスキャンフォルダが復元されます',
 			'settings.restore_modal_version_scan_dirs' => '{{count}} 件の Godot バージョンフォルダが復元されます',
 			'settings.restore_modal_workspace_list' => 'ワークスペース',
@@ -3461,6 +3625,8 @@ extension on TranslationsJaJp {
 			'settings.settings_exported' => '設定をエクスポートしました。',
 			'settings.settings_imported' => '設定をインポートしました。',
 			'settings.stats_imported' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件のプロジェクトの統計をインポートしました。', ), 
+			'settings.stats_imported_one' => '{{count}} 件のプロジェクトの統計をインポートしました。',
+			'settings.stats_imported_other' => '{{count}} 件のプロジェクトの統計をインポートしました。',
 			'settings.raised_contrast_label' => '浮き上がった面のコントラスト',
 			'settings.raised_contrast_value' => '{{value}}%',
 			'settings.token_help_desc' => 'トークンは github.com/settings/tokens で作成できます。プライベートリポジトリへアクセスしたい場合のみ repo スコープにチェックを入れてください。それ以外の場合は、すべてのスコープをオフのままで構いません。機密性の高い権限は不要です。',
@@ -3486,6 +3652,8 @@ extension on TranslationsJaJp {
 			'settings.language_complete' => '翻訳済み',
 			'settings.language_beta' => 'ベータ',
 			'settings.language_incomplete' => '一部未翻訳',
+			_ => null,
+		} ?? switch (path) {
 			'settings.use_os_decorations' => 'OS のウィンドウ装飾を使う',
 			'settings.credits' => 'クレジット',
 			'settings.credits_developer' => '作成者',
@@ -3521,6 +3689,8 @@ extension on TranslationsJaJp {
 			'settings.features_always_on' => '常に有効',
 			'settings.features_optional' => '任意の機能',
 			'settings.features_enabled_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 個の機能が有効', ), 
+			'settings.features_enabled_count_one' => '{{count}} 個の機能が有効',
+			'settings.features_enabled_count_other' => '{{count}} 個の機能が有効',
 			'settings.setup_profile_minimal' => '最小構成',
 			'settings.setup_profile_minimal_desc' => 'プロジェクトと Godot のバージョン管理のみ。最も軽快に動作する構成です。',
 			'settings.setup_profile_essentials' => '基本構成',
@@ -3541,7 +3711,11 @@ extension on TranslationsJaJp {
 			'todos.next_steps' => '次のステップ',
 			'todos.saving_tasks' => 'タスクを保存中',
 			'todos.pending_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '未完了 ${count} 件', ), 
+			'todos.pending_count_one' => '未完了 {{count}} 件',
+			'todos.pending_count_other' => '未完了 {{count}} 件',
 			'todos.completed_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '完了 ${count} 件', ), 
+			'todos.completed_count_one' => '完了 {{count}} 件',
+			'todos.completed_count_other' => '完了 {{count}} 件',
 			'todos.new_task' => '新しいタスク',
 			'todos.hide_next_steps' => '次のステップを非表示',
 			'todos.save_changes_failed' => '変更を保存できませんでした。',
@@ -3553,8 +3727,6 @@ extension on TranslationsJaJp {
 			'todos.create_task' => 'タスクを作成',
 			'todos.all_completed_title' => 'すべて完了',
 			'todos.all_completed_description' => 'このプロジェクトの次のステップをすべて完了しました。',
-			_ => null,
-		} ?? switch (path) {
 			'todos.footer_hint' => 'リストを使って、プロジェクトの次のステップを管理できます。',
 			'todos.view_all' => 'すべて表示',
 			'todos.delete_task_title' => 'タスクを削除しますか？',
@@ -3594,13 +3766,19 @@ extension on TranslationsJaJp {
 			'todos.no_description' => '説明はありません',
 			'todos.tomorrow' => '明日',
 			'todos.due_in_days' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '期限まであと ${count} 日', ), 
+			'todos.due_in_days_one' => '期限まであと {{count}} 日',
+			'todos.due_in_days_other' => '期限まであと {{count}} 日',
 			'todos.overdue_yesterday' => '期限は昨日でした',
 			'todos.overdue_days' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '期限を ${count} 日超過', ), 
+			'todos.overdue_days_one' => '期限を {{count}} 日超過',
+			'todos.overdue_days_other' => '期限を {{count}} 日超過',
 			'todos.scan_code' => 'コードをスキャン',
 			'todos.scan_code_hint' => 'スクリプトとシェーダーから TODO コメントと FIXME コメントをインポートし、コメントが削除されたタスクを完了にします',
 			'todos.comment_scan_summary' => 'コードのスキャン: {{imported}} 件を追加、{{closed}} 件を完了、{{reopened}} 件を未完了に戻しました',
 			'todos.comment_scan_none' => 'コードのスキャンで変更は見つかりませんでした',
 			'todos.commit_closed' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: 'コミットメッセージから ${count} 件のタスクを完了にしました', ), 
+			'todos.commit_closed_one' => 'コミットメッセージから {{count}} 件のタスクを完了にしました',
+			'todos.commit_closed_other' => 'コミットメッセージから {{count}} 件のタスクを完了にしました',
 			'todos.linked_file' => '関連ファイル',
 			'todos.linked_file_placeholder' => 'res://scenes/player.tscn',
 			'todos.linked_file_hint' => 'このプロジェクトのシーン、スクリプト、リソースを関連付けます。',
@@ -3633,10 +3811,16 @@ extension on TranslationsJaJp {
 			'todos.all_areas' => 'すべての分野',
 			'todos.no_matching_tasks' => '検索条件に一致するタスクはありません。',
 			'todos.open_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件のタスク', ), 
+			'todos.open_count_one' => '{{count}} 件のタスク',
+			'todos.open_count_other' => '{{count}} 件のタスク',
 			'todos.overdue_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件が期限切れ', ), 
+			'todos.overdue_count_one' => '{{count}} 件が期限切れ',
+			'todos.overdue_count_other' => '{{count}} 件が期限切れ',
 			'todos.tile_summary' => '期限切れ {{overdue}} 件 · 今週が期限 {{soon}} 件',
 			'todos.tile_empty' => '期限切れのタスクや今週が期限のタスクはありません。',
 			'todos.due_notification_title' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件のタスクが期限を迎えています', ), 
+			'todos.due_notification_title_one' => 'タスクの期限: {{title}}',
+			'todos.due_notification_title_other' => '{{count}} 件のタスクが期限を迎えています',
 			'todos.due_notification_more' => 'ほか {{count}} 件',
 			'versions.standard' => '標準（GDScript）',
 			'versions.unbound' => '未割り当て',
@@ -3663,6 +3847,8 @@ extension on TranslationsJaJp {
 			'versions.pause_download' => 'ダウンロードを一時停止',
 			'versions.cancel_download' => 'ダウンロードをキャンセル',
 			'versions.installed_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, zero: 'インストールなし', other: 'インストール済み', ), 
+			'versions.installed_count_one' => 'インストール済み',
+			'versions.installed_count_other' => 'インストール済み',
 			'versions.installed_label' => 'インストール済み',
 			'versions.original_name' => '元の名前',
 			'versions.source' => '取得元',
@@ -3699,8 +3885,14 @@ extension on TranslationsJaJp {
 			'versions.alias_shim_badge' => 'スクリプト',
 			'versions.alias_mono_script_note' => 'Mono ビルドは実行ファイルと同じフォルダから GodotSharp を読み込むため、Windows ではエイリアスをリンクではなくランチャースクリプトとして作成します。',
 			'versions.alias_create_all' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件のエイリアスを作成', ), 
+			'versions.alias_create_all_one' => 'エイリアスを作成',
+			'versions.alias_create_all_other' => '{{count}} 件のエイリアスを作成',
 			'versions.aliases_batch_created' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件のエイリアスを作成しました', ), 
+			'versions.aliases_batch_created_one' => '{{count}} 件のエイリアスを作成しました',
+			'versions.aliases_batch_created_other' => '{{count}} 件のエイリアスを作成しました',
 			'versions.aliases_batch_skipped' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件のエイリアスをスキップしました', ), 
+			'versions.aliases_batch_skipped_one' => '{{count}} 件のエイリアスをスキップしました',
+			'versions.aliases_batch_skipped_other' => '{{count}} 件のエイリアスをスキップしました',
 			'versions.alias_queue_duplicate' => '「{{name}}」はすでにリストにあります',
 			'versions.alias_remove' => 'エイリアスを削除',
 			'versions.alias_remove_title' => 'このエイリアスを削除しますか？',
@@ -3732,13 +3924,19 @@ extension on TranslationsJaJp {
 			'versions.export_templates_orphan_deleted' => 'テンプレートフォルダを削除しました',
 			'versions.export_templates_choose' => 'エクスポートテンプレートを選択',
 			'versions.export_templates_selected' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 個のテンプレートを選択中', ), 
+			'versions.export_templates_selected_one' => '1 個のテンプレートを選択中',
+			'versions.export_templates_selected_other' => '{{count}} 個のテンプレートを選択中',
 			'versions.export_templates_size_summary' => 'ダウンロード 約 {{download}} · ディスク上 {{installed}}',
 			'versions.export_templates_download_selected' => '選択したものをダウンロード',
 			'versions.export_templates_loading_options' => 'このリリースで利用できるテンプレートを確認しています…',
 			'versions.export_templates_options_failed' => 'このリリースのテンプレートを読み込めませんでした。',
 			'versions.export_templates_available' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '利用可能なテンプレートグループ ${count} 個', ), 
+			'versions.export_templates_available_one' => '利用可能なテンプレートグループ 1 個',
+			'versions.export_templates_available_other' => '利用可能なテンプレートグループ {{count}} 個',
 			'versions.export_templates_select_all' => 'すべて選択',
 			'versions.export_templates_files' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: 'テンプレートファイル ${count} 個', ), 
+			'versions.export_templates_files_one' => 'テンプレートファイル 1 個',
+			'versions.export_templates_files_other' => 'テンプレートファイル {{count}} 個',
 			'versions.export_templates_option_installed' => 'インストール済み',
 			'versions.export_templates_keep_existing' => 'プラットフォームを展開すると、アーキテクチャや個々のファイルを選べます。選択したファイルだけがダウンロードされ、既存のテンプレートはそのまま残ります。',
 			'versions.export_templates_uninstall_named' => '{{name}} をアンインストール',

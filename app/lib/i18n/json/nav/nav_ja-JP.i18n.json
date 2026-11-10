@@ -4,6 +4,8 @@
   "projects_count(plural)": {
     "other": "プロジェクト"
   },
+  "projects_count_one": "プロジェクト",
+  "projects_count_other": "プロジェクト",
   "versions": "バージョン",
   "templates": "テンプレート",
   "vault": "保管庫",

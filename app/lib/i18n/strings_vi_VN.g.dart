@@ -107,6 +107,8 @@ class _Translations$common$vi_VN extends Translations$common$en_US {
 	@override String running_projects_desc({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} đự án đang chạy',
 	);
+	@override String get running_projects_desc_one => '{{count}} đự án đang chạy';
+	@override String get running_projects_desc_other => '{{count}} đự án đang chạy';
 	@override String get active => 'Hoạt Động';
 	@override String get done => 'Xong';
 	@override String get paused => 'Tạm dừng';
@@ -202,9 +204,13 @@ class _Translations$common$vi_VN extends Translations$common$en_US {
 	@override String file_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} files',
 	);
+	@override String get file_count_one => '{{count}} file';
+	@override String get file_count_other => '{{count}} files';
 	@override String folder_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} folders',
 	);
+	@override String get folder_count_one => '{{count}} folder';
+	@override String get folder_count_other => '{{count}} folders';
 	@override String get template_empty => 'Mẫu này trống.';
 	@override String get categories => 'Danh mục';
 	@override String get category_folders_hint => 'Các dự án được tìm thấy trong thư mục của danh mục sẽ tự động được gán vào danh mục đó.';
@@ -310,6 +316,8 @@ class _Translations$common$vi_VN extends Translations$common$en_US {
 		zero: 'No assets',
 		other: 'Assets',
 	);
+	@override String get asset_store_count_one => 'Asset';
+	@override String get asset_store_count_other => 'Assets';
 	@override String get asset_store_count => 'Asset';
 	@override String get settings_title => 'CÀI ĐẶT';
 	@override String get no_templates_match => 'Không có mẫu nào khớp';
@@ -391,6 +399,8 @@ class _Translations$common$vi_VN extends Translations$common$en_US {
 	@override String template_your_templates({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: 'Templates',
 	);
+	@override String get template_your_templates_one => 'Template';
+	@override String get template_your_templates_other => 'Templates';
 	@override String get template_imported_count => 'Đã nhập {{count}}';
 	@override String get template_updated_count => 'Đã cập nhật {{count}}';
 	@override String get template_removed_count => 'Đã xóa {{count}}';
@@ -506,6 +516,8 @@ class _Translations$common$vi_VN extends Translations$common$en_US {
 	@override String tag_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} tags',
 	);
+	@override String get tag_count_one => '{{count}} tag';
+	@override String get tag_count_other => '{{count}} tags';
 	@override String get no_tags => 'Chưa có thẻ';
 	@override String get bug_report_describe_label => 'Chuyện gì đã xảy ra?';
 	@override String get bug_report_describe_placeholder => 'Bạn đang làm gì khi lỗi xuất hiện? Thêm các bước tái hiện và điều bạn mong đợi so với thực tế.';
@@ -562,6 +574,8 @@ class _Translations$common$vi_VN extends Translations$common$en_US {
 	@override String task_tray_only_recent({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} recent tasks',
 	);
+	@override String get task_tray_only_recent_one => '{{count}} recent task';
+	@override String get task_tray_only_recent_other => '{{count}} recent tasks';
 	@override String get task_tray_aria => 'Khay tác vụ';
 	@override String get task_tray_auto_dismiss => 'Tự ẩn khi hoàn thành';
 	@override String get task_tray_dismiss => 'Ẩn {{count}}';
@@ -628,9 +642,13 @@ class _Translations$common$vi_VN extends Translations$common$en_US {
 	@override String found_dismissed_title({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: 'Tìm thấy ${count} dự án đã xóa trước đây',
 	);
+	@override String get found_dismissed_title_one => 'Tìm thấy dự án đã xóa trước đây';
+	@override String get found_dismissed_title_other => 'Tìm thấy {{count}} dự án đã xóa trước đây';
 	@override String found_dismissed_desc({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: 'Bộ quét tìm thấy ${count} dự án bạn đã xóa khỏi thư viện trước đây. Bạn có muốn thêm lại không?',
 	);
+	@override String get found_dismissed_desc_one => 'Bộ quét tìm thấy 1 dự án bạn đã xóa khỏi thư viện trước đây. Bạn có muốn thêm lại không?';
+	@override String get found_dismissed_desc_other => 'Bộ quét tìm thấy {{count}} dự án bạn đã xóa khỏi thư viện trước đây. Bạn có muốn thêm lại không?';
 	@override String get readd_all => 'Thêm lại tất cả';
 	@override String get skip_all => 'Bỏ qua tất cả';
 	@override String get project_already_open_title => 'Dự án đã mở';
@@ -672,6 +690,8 @@ class _Translations$common$vi_VN extends Translations$common$en_US {
 	@override String contributor_pr_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} pull requests',
 	);
+	@override String get contributor_pr_count_one => '{{count}} pull request';
+	@override String get contributor_pr_count_other => '{{count}} pull requests';
 	@override String get contributor_pr_load_failed => 'Failed to load pull requests.';
 	@override String get contributor_pr_network_hint => 'Check your internet connection.';
 	@override String get contributor_pr_empty => 'No pull requests found.';
@@ -753,6 +773,8 @@ class _Translations$common$vi_VN extends Translations$common$en_US {
 	@override String cleanup_confirm_btn({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: 'Remove ${count} items',
 	);
+	@override String get cleanup_confirm_btn_one => 'Remove {{count}} item';
+	@override String get cleanup_confirm_btn_other => 'Remove {{count}} items';
 	@override String get cleanup_done => 'Freed {{size}}';
 	@override String get cleanup_failed => 'Couldn\'t remove {{label}}: {{error}}';
 	@override String get cleanup_versions_desc => 'Full size on disk of every installed Godot version.';
@@ -761,6 +783,8 @@ class _Translations$common$vi_VN extends Translations$common$en_US {
 	@override String cleanup_used_by_templates({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} templates',
 	);
+	@override String get cleanup_used_by_templates_one => '{{count}} template';
+	@override String get cleanup_used_by_templates_other => '{{count}} templates';
 	@override String get cleanup_current_badge => 'Current';
 	@override String get cleanup_alias_badge => 'Alias';
 	@override String get cleanup_unused_badge => 'Unused';
@@ -778,9 +802,13 @@ class _Translations$common$vi_VN extends Translations$common$en_US {
 	@override String n_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} dự án',
 	);
+	@override String get n_projects_one => '{{count}} dự án';
+	@override String get n_projects_other => '{{count}} dự án';
 	@override String vault_item_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: 'Items',
 	);
+	@override String get vault_item_count_one => 'Item';
+	@override String get vault_item_count_other => 'Items';
 	@override String get vault_search_placeholder => 'Search vault…';
 	@override String get vault_empty => 'Your vault is empty. Click <1>Save to Vault</1> to pick files or folders from a project and reuse them anywhere.';
 	@override String get vault_no_match => 'No items match your search.';
@@ -816,15 +844,23 @@ class _Translations$common$vi_VN extends Translations$common$en_US {
 	@override String vault_conflict_desc({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} files already exist in the project. Overwrite them?',
 	);
+	@override String get vault_conflict_desc_one => '{{count}} file already exists in the project. Overwrite it?';
+	@override String get vault_conflict_desc_other => '{{count}} files already exist in the project. Overwrite them?';
 	@override String vault_conflict_summary_desc({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} files already exist across the selected projects. Overwrite them?',
 	);
+	@override String get vault_conflict_summary_desc_one => '{{count}} file already exists across the selected projects. Overwrite it?';
+	@override String get vault_conflict_summary_desc_other => '{{count}} files already exist across the selected projects. Overwrite them?';
 	@override String vault_added_toast({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: 'Added ${count} files',
 	);
+	@override String get vault_added_toast_one => 'Added {{count}} file';
+	@override String get vault_added_toast_other => 'Added {{count}} files';
 	@override String vault_added_to_projects_toast({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: 'Added to ${count} projects',
 	);
+	@override String get vault_added_to_projects_toast_one => 'Added to {{count}} project';
+	@override String get vault_added_to_projects_toast_other => 'Added to {{count}} projects';
 	@override String get vault_item_empty => 'This item has no files.';
 	@override String get kNew => 'Mới';
 	@override String get announcement_support_title => 'Support GodotHub';
@@ -909,6 +945,7 @@ class _Translations$dashboard$vi_VN extends Translations$dashboard$en_US {
 	@override String dashboard_git_dirty_plural({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} repository có thay đổi chưa commit',
 	);
+	@override String get dashboard_git_dirty_one => '1 repository có thay đổi chưa commit';
 	@override String get dashboard_git_branch => 'Đang ở branch {{branch}}';
 	@override String get dashboard_storage => 'Dung lượng lưu trữ';
 	@override String get dashboard_storage_empty => 'Không có project nào để đo.';
@@ -1092,6 +1129,8 @@ class _Translations$nav$vi_VN extends Translations$nav$en_US {
 	@override String projects_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: 'Projects',
 	);
+	@override String get projects_count_one => 'Project';
+	@override String get projects_count_other => 'Projects';
 	@override String get versions => 'Phiên Bản';
 	@override String get templates => 'Mẫu';
 	@override String get vault => 'Vault';
@@ -1143,9 +1182,13 @@ class _Translations$onboarding$vi_VN extends Translations$onboarding$en_US {
 	@override String discovery_added_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: 'Added ${count} projects.',
 	);
+	@override String get discovery_added_projects_one => 'Added {{count}} project.';
+	@override String get discovery_added_projects_other => 'Added {{count}} projects.';
 	@override String discovery_added_versions({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: 'Added ${count} versions.',
 	);
+	@override String get discovery_added_versions_one => 'Added {{count}} version.';
+	@override String get discovery_added_versions_other => 'Added {{count}} versions.';
 	@override String get discovery_link_hint => 'Projects are linked to a matching Godot version automatically, including versions you add in the next step.';
 	@override String get setup => 'Setup';
 	@override String get setup_title => 'How do you want to use GodotHub?';
@@ -1298,6 +1341,8 @@ class _Translations$settings$vi_VN extends Translations$settings$en_US {
 	@override String folders_deep({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} tầng thư mục',
 	);
+	@override String get folders_deep_one => '{{count}} tầng thư mục';
+	@override String get folders_deep_other => '{{count}} tầng thư mục';
 	@override String get at_once => '{{count}} cùng lúc';
 	@override String get animation_speed_label => 'Animation speed';
 	@override String get scroll_reveal_label => 'Scroll reveal';
@@ -1355,19 +1400,29 @@ class _Translations$settings$vi_VN extends Translations$settings$en_US {
 	@override String restore_modal_workspaces({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: 'workspace',
 	);
+	@override String get restore_modal_workspaces_one => 'workspace';
+	@override String get restore_modal_workspaces_other => 'workspace';
 	@override String restore_modal_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: 'dự án',
 	);
+	@override String get restore_modal_projects_one => 'dự án';
+	@override String get restore_modal_projects_other => 'dự án';
 	@override String restore_modal_categories({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: 'danh mục',
 	);
+	@override String get restore_modal_categories_one => 'danh mục';
+	@override String get restore_modal_categories_other => 'danh mục';
 	@override String restore_modal_templates({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: 'mẫu',
 	);
+	@override String get restore_modal_templates_one => 'mẫu';
+	@override String get restore_modal_templates_other => 'mẫu';
 	@override String get restore_modal_time_stats => 'Bao gồm dữ liệu theo dõi thời gian';
 	@override String restore_modal_todos({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: 'Includes ${count} to-dos',
 	);
+	@override String get restore_modal_todos_one => 'Includes {{count}} to-do';
+	@override String get restore_modal_todos_other => 'Includes {{count}} to-dos';
 	@override String get restore_modal_project_scan_dirs => '{{count}} thư mục quét dự án sẽ được khôi phục';
 	@override String get restore_modal_version_scan_dirs => '{{count}} thư mục phiên bản Godot sẽ được khôi phục';
 	@override String get restore_modal_workspace_list => 'Workspace';
@@ -1380,6 +1435,8 @@ class _Translations$settings$vi_VN extends Translations$settings$en_US {
 	@override String stats_imported({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: 'Đã nhập thống kê cho ${count} dự án.',
 	);
+	@override String get stats_imported_one => 'Đã nhập thống kê cho {{count}} dự án.';
+	@override String get stats_imported_other => 'Đã nhập thống kê cho {{count}} dự án.';
 	@override String get raised_contrast_label => 'Độ tương phản bề mặt nổi';
 	@override String get raised_contrast_value => '{{value}}%';
 	@override String get token_help_desc => 'Tạo token tại github.com/settings/tokens. Bạn chỉ cần đánh dấu scope repo nếu muốn truy cập repo riêng tư, nếu không hãy để trống mọi scope. Không cần quyền nhạy cảm.';
@@ -1442,6 +1499,8 @@ class _Translations$settings$vi_VN extends Translations$settings$en_US {
 	@override String features_enabled_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} features on',
 	);
+	@override String get features_enabled_count_one => '{{count}} feature on';
+	@override String get features_enabled_count_other => '{{count}} features on';
 	@override String get setup_profile_minimal => 'Minimal';
 	@override String get setup_profile_minimal_desc => 'Just projects and Godot versions. The lightest, fastest setup.';
 	@override String get setup_profile_essentials => 'Essentials';
@@ -1473,9 +1532,13 @@ class _Translations$todos$vi_VN extends Translations$todos$en_US {
 	@override String pending_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} pending',
 	);
+	@override String get pending_count_one => '{{count}} pending';
+	@override String get pending_count_other => '{{count}} pending';
 	@override String completed_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} completed',
 	);
+	@override String get completed_count_one => '{{count}} completed';
+	@override String get completed_count_other => '{{count}} completed';
 	@override String get new_task => 'New task';
 	@override String get hide_next_steps => 'Hide next steps';
 	@override String get save_changes_failed => 'Could not save the changes.';
@@ -1528,10 +1591,14 @@ class _Translations$todos$vi_VN extends Translations$todos$en_US {
 	@override String due_in_days({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: 'Due in ${count} days',
 	);
+	@override String get due_in_days_one => 'Due in {{count}} day';
+	@override String get due_in_days_other => 'Due in {{count}} days';
 	@override String get overdue_yesterday => 'Was due yesterday';
 	@override String overdue_days({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: 'Overdue by ${count} days',
 	);
+	@override String get overdue_days_one => 'Overdue by {{count}} day';
+	@override String get overdue_days_other => 'Overdue by {{count}} days';
 	@override String get scan_code => 'Scan code';
 	@override String get scan_code_hint => 'Import TODO and FIXME comments from scripts and shaders, and complete to-dos whose comment was removed';
 	@override String get comment_scan_summary => 'Code scan: {{imported}} added, {{closed}} completed, {{reopened}} reopened';
@@ -1539,6 +1606,8 @@ class _Translations$todos$vi_VN extends Translations$todos$en_US {
 	@override String commit_closed({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: 'Completed ${count} to-dos from commit messages',
 	);
+	@override String get commit_closed_one => 'Completed {{count}} to-do from a commit message';
+	@override String get commit_closed_other => 'Completed {{count}} to-dos from commit messages';
 	@override String get linked_file => 'Linked file';
 	@override String get linked_file_placeholder => 'res://scenes/player.tscn';
 	@override String get linked_file_hint => 'Link a scene, script or resource from this project.';
@@ -1573,14 +1642,20 @@ class _Translations$todos$vi_VN extends Translations$todos$en_US {
 	@override String open_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} to-dos',
 	);
+	@override String get open_count_one => '{{count}} to-do';
+	@override String get open_count_other => '{{count}} to-dos';
 	@override String overdue_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} overdue',
 	);
+	@override String get overdue_count_one => '{{count}} overdue';
+	@override String get overdue_count_other => '{{count}} overdue';
 	@override String get tile_summary => '{{overdue}} overdue · {{soon}} due this week';
 	@override String get tile_empty => 'Nothing overdue or due this week.';
 	@override String due_notification_title({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} to-dos are due',
 	);
+	@override String get due_notification_title_one => 'To-do due: {{title}}';
+	@override String get due_notification_title_other => '{{count}} to-dos are due';
 	@override String get due_notification_more => 'and {{count}} more';
 }
 
@@ -1619,6 +1694,8 @@ class _Translations$versions$vi_VN extends Translations$versions$en_US {
 		zero: 'No installs',
 		other: 'Đã cài đặt',
 	);
+	@override String get installed_count_one => 'Đã cài đặt';
+	@override String get installed_count_other => 'Đã cài đặt';
 	@override String get installed_label => 'Đã cài đặt';
 	@override String get original_name => 'Gốc';
 	@override String get source => 'Nguồn';
@@ -1657,12 +1734,18 @@ class _Translations$versions$vi_VN extends Translations$versions$en_US {
 	@override String alias_create_all({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: 'Create ${count} Aliases',
 	);
+	@override String get alias_create_all_one => 'Create Alias';
+	@override String get alias_create_all_other => 'Create {{count}} Aliases';
 	@override String aliases_batch_created({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} aliases created',
 	);
+	@override String get aliases_batch_created_one => '1 alias created';
+	@override String get aliases_batch_created_other => '{{count}} aliases created';
 	@override String aliases_batch_skipped({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} aliases skipped',
 	);
+	@override String get aliases_batch_skipped_one => '1 alias skipped';
+	@override String get aliases_batch_skipped_other => '{{count}} aliases skipped';
 	@override String get alias_queue_duplicate => '"{{name}}" is already in the list';
 	@override String get alias_remove => 'Remove alias';
 	@override String get alias_remove_title => 'Remove this alias?';
@@ -1696,6 +1779,8 @@ class _Translations$versions$vi_VN extends Translations$versions$en_US {
 	@override String export_templates_selected({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} templates selected',
 	);
+	@override String get export_templates_selected_one => '1 template selected';
+	@override String get export_templates_selected_other => '{{count}} templates selected';
 	@override String get export_templates_size_summary => '~{{download}} download · {{installed}} on disk';
 	@override String get export_templates_download_selected => 'Download selected';
 	@override String get export_templates_loading_options => 'Checking this release\'s available templates…';
@@ -1703,10 +1788,14 @@ class _Translations$versions$vi_VN extends Translations$versions$en_US {
 	@override String export_templates_available({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} available template groups',
 	);
+	@override String get export_templates_available_one => '1 available template group';
+	@override String get export_templates_available_other => '{{count}} available template groups';
 	@override String get export_templates_select_all => 'Select all';
 	@override String export_templates_files({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} template files',
 	);
+	@override String get export_templates_files_one => '1 template file';
+	@override String get export_templates_files_other => '{{count}} template files';
 	@override String get export_templates_option_installed => 'Installed';
 	@override String get export_templates_keep_existing => 'Expand a platform to choose architectures or individual files. Only selected files are downloaded. Your existing templates are kept.';
 	@override String get export_templates_uninstall_named => 'Uninstall {{name}}';
@@ -1745,14 +1834,20 @@ class _Translations$common$project_doctor$vi_VN extends Translations$common$proj
 	@override String summary_errors({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} issues need attention',
 	);
+	@override String get summary_errors_one => '{{count}} issue needs attention';
+	@override String get summary_errors_other => '{{count}} issues need attention';
 	@override String summary_warnings({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} warnings to review',
 	);
+	@override String get summary_warnings_one => '{{count}} warning to review';
+	@override String get summary_warnings_other => '{{count}} warnings to review';
 	@override String get summary_ready => 'No blocking issues found';
 	@override String get summary_counts => '{{passed}} checks passed · {{findings}} findings';
 	@override String passed_checks({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} passed checks',
 	);
+	@override String get passed_checks_one => '{{count}} passed check';
+	@override String get passed_checks_other => '{{count}} passed checks';
 	@override String get local_checks => 'Checks run locally. Fixes to settings save a backup first.';
 	@override String get fix_complete => 'Fix applied. Project checks updated.';
 	@override String get templates_downloading => 'Downloading selected templates. Progress and cancellation are also available in Tasks.';
@@ -1982,12 +2077,16 @@ class _Translations$common$project_addons$vi_VN extends Translations$common$proj
 	@override String count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} addons installed',
 	);
+	@override String get count_one => '{{count}} addon installed';
+	@override String get count_other => '{{count}} addons installed';
 	@override String get empty => 'This project has no addons folder. Install addons from the Asset Store or copy them into res://addons.';
 	@override String get check_updates => 'Check for updates';
 	@override String get checking => 'Checking…';
 	@override String updates_available({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
 		other: '${count} updates available',
 	);
+	@override String get updates_available_one => '{{count}} update available';
+	@override String get updates_available_other => '{{count}} updates available';
 	@override String get all_current => 'No updates found in the Asset Library';
 	@override String get enabled => 'Enabled';
 	@override String get disabled => 'Disabled';
@@ -2052,6 +2151,8 @@ extension on TranslationsViVn {
 			'common.download_queue_move_down' => 'Đưa xuống dưới hàng đợi',
 			'common.running' => 'Đang Chạy',
 			'common.running_projects_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} đự án đang chạy', ), 
+			'common.running_projects_desc_one' => '{{count}} đự án đang chạy',
+			'common.running_projects_desc_other' => '{{count}} đự án đang chạy',
 			'common.active' => 'Hoạt Động',
 			'common.done' => 'Xong',
 			'common.paused' => 'Tạm dừng',
@@ -2145,7 +2246,11 @@ extension on TranslationsViVn {
 			'common.expand' => 'Mở rộng',
 			'common.collapse' => 'Thu gọn',
 			'common.file_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} files', ), 
+			'common.file_count_one' => '{{count}} file',
+			'common.file_count_other' => '{{count}} files',
 			'common.folder_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} folders', ), 
+			'common.folder_count_one' => '{{count}} folder',
+			'common.folder_count_other' => '{{count}} folders',
 			'common.template_empty' => 'Mẫu này trống.',
 			'common.categories' => 'Danh mục',
 			'common.category_folders_hint' => 'Các dự án được tìm thấy trong thư mục của danh mục sẽ tự động được gán vào danh mục đó.',
@@ -2248,6 +2353,8 @@ extension on TranslationsViVn {
 			'common.asset_store_title' => 'CỬA HÀNG ASSET',
 			'common.news_count' => 'Bài viết',
 			'common.asset_store_count_plural' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, zero: 'No assets', other: 'Assets', ), 
+			'common.asset_store_count_one' => 'Asset',
+			'common.asset_store_count_other' => 'Assets',
 			'common.asset_store_count' => 'Asset',
 			'common.settings_title' => 'CÀI ĐẶT',
 			'common.no_templates_match' => 'Không có mẫu nào khớp',
@@ -2327,6 +2434,8 @@ extension on TranslationsViVn {
 			'common.asset_next_page' => 'Trang sau',
 			'common.asset_page_x_of_y' => 'Trang {{page}} / {{total}}',
 			'common.template_your_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'Templates', ), 
+			'common.template_your_templates_one' => 'Template',
+			'common.template_your_templates_other' => 'Templates',
 			'common.template_imported_count' => 'Đã nhập {{count}}',
 			'common.template_updated_count' => 'Đã cập nhật {{count}}',
 			'common.template_removed_count' => 'Đã xóa {{count}}',
@@ -2440,6 +2549,8 @@ extension on TranslationsViVn {
 			'common.clear_tag_filter' => 'Xóa bộ lọc thẻ',
 			'common.saving_tags' => 'Đang lưu thẻ…',
 			'common.tag_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} tags', ), 
+			'common.tag_count_one' => '{{count}} tag',
+			'common.tag_count_other' => '{{count}} tags',
 			'common.no_tags' => 'Chưa có thẻ',
 			'common.bug_report_describe_label' => 'Chuyện gì đã xảy ra?',
 			'common.bug_report_describe_placeholder' => 'Bạn đang làm gì khi lỗi xuất hiện? Thêm các bước tái hiện và điều bạn mong đợi so với thực tế.',
@@ -2494,6 +2605,8 @@ extension on TranslationsViVn {
 			'common.task_tray_empty' => 'Không có tác vụ đang chạy',
 			'common.task_tray_active_count' => '{{active}} đang chạy, {{recent}} gần đây',
 			'common.task_tray_only_recent' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} recent tasks', ), 
+			'common.task_tray_only_recent_one' => '{{count}} recent task',
+			'common.task_tray_only_recent_other' => '{{count}} recent tasks',
 			'common.task_tray_aria' => 'Khay tác vụ',
 			'common.task_tray_auto_dismiss' => 'Tự ẩn khi hoàn thành',
 			'common.task_tray_dismiss' => 'Ẩn {{count}}',
@@ -2511,6 +2624,8 @@ extension on TranslationsViVn {
 			'common.setting_scan_depth' => 'Scan Depth',
 			'common.setting_icon_scan_depth' => 'Project Icon Search Depth',
 			'common.setting_download_concurrency' => 'Simultaneous Downloads',
+			_ => null,
+		} ?? switch (path) {
 			'common.setting_close_on_project_open' => 'Close on Project Open',
 			'common.setting_minimize_to_tray' => 'Minimize to System Tray',
 			'common.setting_reopen_after_godot_closes' => 'Reopen After Godot Closes',
@@ -2525,8 +2640,6 @@ extension on TranslationsViVn {
 			'common.setting_last_opened_date_format' => 'Date Format',
 			'common.setting_theme_mode' => 'Theme Mode',
 			'common.setting_accent_color' => 'Màu nhấn',
-			_ => null,
-		} ?? switch (path) {
 			'common.setting_background_color' => 'Màu nền',
 			'common.setting_corner_radius' => 'Corner Radius',
 			'common.setting_ui_density' => 'UI Density',
@@ -2560,7 +2673,11 @@ extension on TranslationsViVn {
 			'common.restart_required_title' => 'Cần khởi động lại',
 			'common.restart_required_desc' => 'Thay đổi này yêu cầu GodotHub khởi động lại để có hiệu lực đầy đủ. Cài đặt đã được lưu và sẽ áp dụng khi bạn mở lại ứng dụng.',
 			'common.found_dismissed_title' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'Tìm thấy ${count} dự án đã xóa trước đây', ), 
+			'common.found_dismissed_title_one' => 'Tìm thấy dự án đã xóa trước đây',
+			'common.found_dismissed_title_other' => 'Tìm thấy {{count}} dự án đã xóa trước đây',
 			'common.found_dismissed_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'Bộ quét tìm thấy ${count} dự án bạn đã xóa khỏi thư viện trước đây. Bạn có muốn thêm lại không?', ), 
+			'common.found_dismissed_desc_one' => 'Bộ quét tìm thấy 1 dự án bạn đã xóa khỏi thư viện trước đây. Bạn có muốn thêm lại không?',
+			'common.found_dismissed_desc_other' => 'Bộ quét tìm thấy {{count}} dự án bạn đã xóa khỏi thư viện trước đây. Bạn có muốn thêm lại không?',
 			'common.readd_all' => 'Thêm lại tất cả',
 			'common.skip_all' => 'Bỏ qua tất cả',
 			'common.project_already_open_title' => 'Dự án đã mở',
@@ -2600,6 +2717,8 @@ extension on TranslationsViVn {
 			'common.contributor_pr_closed' => 'Closed',
 			'common.contributor_pr_loading' => 'Loading PRs...',
 			'common.contributor_pr_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} pull requests', ), 
+			'common.contributor_pr_count_one' => '{{count}} pull request',
+			'common.contributor_pr_count_other' => '{{count}} pull requests',
 			'common.contributor_pr_load_failed' => 'Failed to load pull requests.',
 			'common.contributor_pr_network_hint' => 'Check your internet connection.',
 			'common.contributor_pr_empty' => 'No pull requests found.',
@@ -2657,10 +2776,16 @@ extension on TranslationsViVn {
 			'common.project_doctor.scan_failed' => 'Could not check this project',
 			'common.project_doctor.run_again' => 'Run checks again',
 			'common.project_doctor.summary_errors' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} issues need attention', ), 
+			'common.project_doctor.summary_errors_one' => '{{count}} issue needs attention',
+			'common.project_doctor.summary_errors_other' => '{{count}} issues need attention',
 			'common.project_doctor.summary_warnings' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} warnings to review', ), 
+			'common.project_doctor.summary_warnings_one' => '{{count}} warning to review',
+			'common.project_doctor.summary_warnings_other' => '{{count}} warnings to review',
 			'common.project_doctor.summary_ready' => 'No blocking issues found',
 			'common.project_doctor.summary_counts' => '{{passed}} checks passed · {{findings}} findings',
 			'common.project_doctor.passed_checks' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} passed checks', ), 
+			'common.project_doctor.passed_checks_one' => '{{count}} passed check',
+			'common.project_doctor.passed_checks_other' => '{{count}} passed checks',
 			'common.project_doctor.local_checks' => 'Checks run locally. Fixes to settings save a backup first.',
 			'common.project_doctor.fix_complete' => 'Fix applied. Project checks updated.',
 			'common.project_doctor.templates_downloading' => 'Downloading selected templates. Progress and cancellation are also available in Tasks.',
@@ -2892,12 +3017,16 @@ extension on TranslationsViVn {
 			'common.cleanup_confirm_desc' => 'These items will be removed:',
 			'common.cleanup_confirm_trash_note' => 'Versions and export templates are moved to the system trash, so the space is freed once you empty it. Unfinished downloads are deleted permanently.',
 			'common.cleanup_confirm_btn' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'Remove ${count} items', ), 
+			'common.cleanup_confirm_btn_one' => 'Remove {{count}} item',
+			'common.cleanup_confirm_btn_other' => 'Remove {{count}} items',
 			'common.cleanup_done' => 'Freed {{size}}',
 			'common.cleanup_failed' => 'Couldn\'t remove {{label}}: {{error}}',
 			'common.cleanup_versions_desc' => 'Full size on disk of every installed Godot version.',
 			'common.cleanup_templates_title' => 'Project templates',
 			'common.cleanup_export_templates_title' => 'Export templates',
 			'common.cleanup_used_by_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} templates', ), 
+			'common.cleanup_used_by_templates_one' => '{{count}} template',
+			'common.cleanup_used_by_templates_other' => '{{count}} templates',
 			'common.cleanup_current_badge' => 'Current',
 			'common.cleanup_alias_badge' => 'Alias',
 			'common.cleanup_unused_badge' => 'Unused',
@@ -2913,7 +3042,11 @@ extension on TranslationsViVn {
 			'common.optional' => '(optional)',
 			'common.language_label' => 'Ngôn ngữ',
 			'common.n_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} dự án', ), 
+			'common.n_projects_one' => '{{count}} dự án',
+			'common.n_projects_other' => '{{count}} dự án',
 			'common.vault_item_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'Items', ), 
+			'common.vault_item_count_one' => 'Item',
+			'common.vault_item_count_other' => 'Items',
 			'common.vault_search_placeholder' => 'Search vault…',
 			'common.vault_empty' => 'Your vault is empty. Click <1>Save to Vault</1> to pick files or folders from a project and reuse them anywhere.',
 			'common.vault_no_match' => 'No items match your search.',
@@ -2947,9 +3080,17 @@ extension on TranslationsViVn {
 			'common.vault_adding' => 'Adding…',
 			'common.vault_overwrite_btn' => 'Overwrite files',
 			'common.vault_conflict_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} files already exist in the project. Overwrite them?', ), 
+			'common.vault_conflict_desc_one' => '{{count}} file already exists in the project. Overwrite it?',
+			'common.vault_conflict_desc_other' => '{{count}} files already exist in the project. Overwrite them?',
 			'common.vault_conflict_summary_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} files already exist across the selected projects. Overwrite them?', ), 
+			'common.vault_conflict_summary_desc_one' => '{{count}} file already exists across the selected projects. Overwrite it?',
+			'common.vault_conflict_summary_desc_other' => '{{count}} files already exist across the selected projects. Overwrite them?',
 			'common.vault_added_toast' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'Added ${count} files', ), 
+			'common.vault_added_toast_one' => 'Added {{count}} file',
+			'common.vault_added_toast_other' => 'Added {{count}} files',
 			'common.vault_added_to_projects_toast' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'Added to ${count} projects', ), 
+			'common.vault_added_to_projects_toast_one' => 'Added to {{count}} project',
+			'common.vault_added_to_projects_toast_other' => 'Added to {{count}} projects',
 			'common.vault_item_empty' => 'This item has no files.',
 			'common.kNew' => 'Mới',
 			'common.announcement_support_title' => 'Support GodotHub',
@@ -2964,10 +3105,14 @@ extension on TranslationsViVn {
 			'common.project_addons.title' => 'Addons',
 			'common.project_addons.loading' => 'Reading addons…',
 			'common.project_addons.count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} addons installed', ), 
+			'common.project_addons.count_one' => '{{count}} addon installed',
+			'common.project_addons.count_other' => '{{count}} addons installed',
 			'common.project_addons.empty' => 'This project has no addons folder. Install addons from the Asset Store or copy them into res://addons.',
 			'common.project_addons.check_updates' => 'Check for updates',
 			'common.project_addons.checking' => 'Checking…',
 			'common.project_addons.updates_available' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} updates available', ), 
+			'common.project_addons.updates_available_one' => '{{count}} update available',
+			'common.project_addons.updates_available_other' => '{{count}} updates available',
 			'common.project_addons.all_current' => 'No updates found in the Asset Library',
 			'common.project_addons.enabled' => 'Enabled',
 			'common.project_addons.disabled' => 'Disabled',
@@ -2993,6 +3138,8 @@ extension on TranslationsViVn {
 			'dashboard.greeting_morning' => 'Chào buổi sáng',
 			'dashboard.greeting_afternoon' => 'Chào buổi chiều',
 			'dashboard.greeting_evening' => 'Chào buổi tối',
+			_ => null,
+		} ?? switch (path) {
 			'dashboard.greeting_night' => 'Chúc ngủ ngon',
 			'dashboard.greeting_name' => '{{greeting}}, {{name}}',
 			'dashboard.dashboard_rename_hint' => 'Đặt tên tùy chỉnh',
@@ -3039,13 +3186,12 @@ extension on TranslationsViVn {
 			'dashboard.dashboard_insights_this_month' => 'Tháng này',
 			'dashboard.dashboard_insights_delta_up' => 'Nhiều hơn {{pct}}% so với tháng trước',
 			'dashboard.dashboard_insights_delta_down' => 'Ít hơn {{pct}}% so với tháng trước',
-			_ => null,
-		} ?? switch (path) {
 			'dashboard.dashboard_git' => 'Tổng quan Git',
 			'dashboard.dashboard_git_empty' => 'Không phát hiện Git repository nào.',
 			'dashboard.dashboard_git_clean' => 'Tất cả đã sạch',
 			'dashboard.dashboard_git_dirty' => '{{count}} repository có thay đổi chưa commit',
 			'dashboard.dashboard_git_dirty_plural' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} repository có thay đổi chưa commit', ), 
+			'dashboard.dashboard_git_dirty_one' => '1 repository có thay đổi chưa commit',
 			'dashboard.dashboard_git_branch' => 'Đang ở branch {{branch}}',
 			'dashboard.dashboard_storage' => 'Dung lượng lưu trữ',
 			'dashboard.dashboard_storage_empty' => 'Không có project nào để đo.',
@@ -3209,6 +3355,8 @@ extension on TranslationsViVn {
 			'nav.dashboard' => 'Dashboard',
 			'nav.projects' => 'Dự Án',
 			'nav.projects_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'Projects', ), 
+			'nav.projects_count_one' => 'Project',
+			'nav.projects_count_other' => 'Projects',
 			'nav.versions' => 'Phiên Bản',
 			'nav.templates' => 'Mẫu',
 			'nav.vault' => 'Vault',
@@ -3249,7 +3397,11 @@ extension on TranslationsViVn {
 			'onboarding.discovery_add_selected' => 'Add selected',
 			'onboarding.discovery_add_selected_count' => 'Add selected ({{count}})',
 			'onboarding.discovery_added_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'Added ${count} projects.', ), 
+			'onboarding.discovery_added_projects_one' => 'Added {{count}} project.',
+			'onboarding.discovery_added_projects_other' => 'Added {{count}} projects.',
 			'onboarding.discovery_added_versions' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'Added ${count} versions.', ), 
+			'onboarding.discovery_added_versions_one' => 'Added {{count}} version.',
+			'onboarding.discovery_added_versions_other' => 'Added {{count}} versions.',
 			'onboarding.discovery_link_hint' => 'Projects are linked to a matching Godot version automatically, including versions you add in the next step.',
 			'onboarding.setup' => 'Setup',
 			'onboarding.setup_title' => 'How do you want to use GodotHub?',
@@ -3391,6 +3543,8 @@ extension on TranslationsViVn {
 			'settings.open_setup' => 'Mở thiết lập',
 			'settings.reset_colors' => 'Đặt lại màu về mặc định',
 			'settings.folders_deep' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} tầng thư mục', ), 
+			'settings.folders_deep_one' => '{{count}} tầng thư mục',
+			'settings.folders_deep_other' => '{{count}} tầng thư mục',
 			'settings.at_once' => '{{count}} cùng lúc',
 			'settings.animation_speed_label' => 'Animation speed',
 			'settings.scroll_reveal_label' => 'Scroll reveal',
@@ -3446,11 +3600,21 @@ extension on TranslationsViVn {
 			'settings.restore_modal_applying' => 'Đang áp dụng sao lưu và khởi động lại…',
 			'settings.restore_modal_preview_desc' => 'Bản sao lưu gist của bạn chứa:',
 			'settings.restore_modal_workspaces' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'workspace', ), 
+			'settings.restore_modal_workspaces_one' => 'workspace',
+			'settings.restore_modal_workspaces_other' => 'workspace',
 			'settings.restore_modal_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'dự án', ), 
+			'settings.restore_modal_projects_one' => 'dự án',
+			'settings.restore_modal_projects_other' => 'dự án',
 			'settings.restore_modal_categories' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'danh mục', ), 
+			'settings.restore_modal_categories_one' => 'danh mục',
+			'settings.restore_modal_categories_other' => 'danh mục',
 			'settings.restore_modal_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'mẫu', ), 
+			'settings.restore_modal_templates_one' => 'mẫu',
+			'settings.restore_modal_templates_other' => 'mẫu',
 			'settings.restore_modal_time_stats' => 'Bao gồm dữ liệu theo dõi thời gian',
 			'settings.restore_modal_todos' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'Includes ${count} to-dos', ), 
+			'settings.restore_modal_todos_one' => 'Includes {{count}} to-do',
+			'settings.restore_modal_todos_other' => 'Includes {{count}} to-dos',
 			'settings.restore_modal_project_scan_dirs' => '{{count}} thư mục quét dự án sẽ được khôi phục',
 			'settings.restore_modal_version_scan_dirs' => '{{count}} thư mục phiên bản Godot sẽ được khôi phục',
 			'settings.restore_modal_workspace_list' => 'Workspace',
@@ -3461,6 +3625,8 @@ extension on TranslationsViVn {
 			'settings.settings_exported' => 'Đã xuất cài đặt.',
 			'settings.settings_imported' => 'Đã nhập cài đặt.',
 			'settings.stats_imported' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'Đã nhập thống kê cho ${count} dự án.', ), 
+			'settings.stats_imported_one' => 'Đã nhập thống kê cho {{count}} dự án.',
+			'settings.stats_imported_other' => 'Đã nhập thống kê cho {{count}} dự án.',
 			'settings.raised_contrast_label' => 'Độ tương phản bề mặt nổi',
 			'settings.raised_contrast_value' => '{{value}}%',
 			'settings.token_help_desc' => 'Tạo token tại github.com/settings/tokens. Bạn chỉ cần đánh dấu scope repo nếu muốn truy cập repo riêng tư, nếu không hãy để trống mọi scope. Không cần quyền nhạy cảm.',
@@ -3486,6 +3652,8 @@ extension on TranslationsViVn {
 			'settings.language_complete' => 'Hoàn chỉnh',
 			'settings.language_beta' => 'Beta',
 			'settings.language_incomplete' => 'Chưa hoàn chỉnh',
+			_ => null,
+		} ?? switch (path) {
 			'settings.use_os_decorations' => 'Dùng trang trí cửa sổ hệ điều hành',
 			'settings.credits' => 'Ghi công',
 			'settings.credits_developer' => 'Tạo bởi',
@@ -3521,6 +3689,8 @@ extension on TranslationsViVn {
 			'settings.features_always_on' => 'Always on',
 			'settings.features_optional' => 'Optional',
 			'settings.features_enabled_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} features on', ), 
+			'settings.features_enabled_count_one' => '{{count}} feature on',
+			'settings.features_enabled_count_other' => '{{count}} features on',
 			'settings.setup_profile_minimal' => 'Minimal',
 			'settings.setup_profile_minimal_desc' => 'Just projects and Godot versions. The lightest, fastest setup.',
 			'settings.setup_profile_essentials' => 'Essentials',
@@ -3541,7 +3711,11 @@ extension on TranslationsViVn {
 			'todos.next_steps' => 'Next steps',
 			'todos.saving_tasks' => 'Saving tasks',
 			'todos.pending_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} pending', ), 
+			'todos.pending_count_one' => '{{count}} pending',
+			'todos.pending_count_other' => '{{count}} pending',
 			'todos.completed_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} completed', ), 
+			'todos.completed_count_one' => '{{count}} completed',
+			'todos.completed_count_other' => '{{count}} completed',
 			'todos.new_task' => 'New task',
 			'todos.hide_next_steps' => 'Hide next steps',
 			'todos.save_changes_failed' => 'Could not save the changes.',
@@ -3553,8 +3727,6 @@ extension on TranslationsViVn {
 			'todos.create_task' => 'Create task',
 			'todos.all_completed_title' => 'All done',
 			'todos.all_completed_description' => 'You completed all the next steps for this project.',
-			_ => null,
-		} ?? switch (path) {
 			'todos.footer_hint' => 'Use the list to keep track of the project\'s next steps.',
 			'todos.view_all' => 'View all',
 			'todos.delete_task_title' => 'Delete task?',
@@ -3594,13 +3766,19 @@ extension on TranslationsViVn {
 			'todos.no_description' => 'No description',
 			'todos.tomorrow' => 'Tomorrow',
 			'todos.due_in_days' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'Due in ${count} days', ), 
+			'todos.due_in_days_one' => 'Due in {{count}} day',
+			'todos.due_in_days_other' => 'Due in {{count}} days',
 			'todos.overdue_yesterday' => 'Was due yesterday',
 			'todos.overdue_days' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'Overdue by ${count} days', ), 
+			'todos.overdue_days_one' => 'Overdue by {{count}} day',
+			'todos.overdue_days_other' => 'Overdue by {{count}} days',
 			'todos.scan_code' => 'Scan code',
 			'todos.scan_code_hint' => 'Import TODO and FIXME comments from scripts and shaders, and complete to-dos whose comment was removed',
 			'todos.comment_scan_summary' => 'Code scan: {{imported}} added, {{closed}} completed, {{reopened}} reopened',
 			'todos.comment_scan_none' => 'Code scan found no changes',
 			'todos.commit_closed' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'Completed ${count} to-dos from commit messages', ), 
+			'todos.commit_closed_one' => 'Completed {{count}} to-do from a commit message',
+			'todos.commit_closed_other' => 'Completed {{count}} to-dos from commit messages',
 			'todos.linked_file' => 'Linked file',
 			'todos.linked_file_placeholder' => 'res://scenes/player.tscn',
 			'todos.linked_file_hint' => 'Link a scene, script or resource from this project.',
@@ -3633,10 +3811,16 @@ extension on TranslationsViVn {
 			'todos.all_areas' => 'All areas',
 			'todos.no_matching_tasks' => 'No to-dos match your search.',
 			'todos.open_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} to-dos', ), 
+			'todos.open_count_one' => '{{count}} to-do',
+			'todos.open_count_other' => '{{count}} to-dos',
 			'todos.overdue_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} overdue', ), 
+			'todos.overdue_count_one' => '{{count}} overdue',
+			'todos.overdue_count_other' => '{{count}} overdue',
 			'todos.tile_summary' => '{{overdue}} overdue · {{soon}} due this week',
 			'todos.tile_empty' => 'Nothing overdue or due this week.',
 			'todos.due_notification_title' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} to-dos are due', ), 
+			'todos.due_notification_title_one' => 'To-do due: {{title}}',
+			'todos.due_notification_title_other' => '{{count}} to-dos are due',
 			'todos.due_notification_more' => 'and {{count}} more',
 			'versions.standard' => 'Standard',
 			'versions.unbound' => 'unbound',
@@ -3663,6 +3847,8 @@ extension on TranslationsViVn {
 			'versions.pause_download' => 'Tạm dừng tải xuống',
 			'versions.cancel_download' => 'Hủy tải xuống',
 			'versions.installed_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, zero: 'No installs', other: 'Đã cài đặt', ), 
+			'versions.installed_count_one' => 'Đã cài đặt',
+			'versions.installed_count_other' => 'Đã cài đặt',
 			'versions.installed_label' => 'Đã cài đặt',
 			'versions.original_name' => 'Gốc',
 			'versions.source' => 'Nguồn',
@@ -3699,8 +3885,14 @@ extension on TranslationsViVn {
 			'versions.alias_shim_badge' => 'script',
 			'versions.alias_mono_script_note' => 'Mono builds load GodotSharp from the folder next to the executable, so on Windows the alias is created as a launcher script instead of a link.',
 			'versions.alias_create_all' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'Create ${count} Aliases', ), 
+			'versions.alias_create_all_one' => 'Create Alias',
+			'versions.alias_create_all_other' => 'Create {{count}} Aliases',
 			'versions.aliases_batch_created' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} aliases created', ), 
+			'versions.aliases_batch_created_one' => '1 alias created',
+			'versions.aliases_batch_created_other' => '{{count}} aliases created',
 			'versions.aliases_batch_skipped' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} aliases skipped', ), 
+			'versions.aliases_batch_skipped_one' => '1 alias skipped',
+			'versions.aliases_batch_skipped_other' => '{{count}} aliases skipped',
 			'versions.alias_queue_duplicate' => '"{{name}}" is already in the list',
 			'versions.alias_remove' => 'Remove alias',
 			'versions.alias_remove_title' => 'Remove this alias?',
@@ -3732,13 +3924,19 @@ extension on TranslationsViVn {
 			'versions.export_templates_orphan_deleted' => 'Template folder deleted',
 			'versions.export_templates_choose' => 'Choose export templates',
 			'versions.export_templates_selected' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} templates selected', ), 
+			'versions.export_templates_selected_one' => '1 template selected',
+			'versions.export_templates_selected_other' => '{{count}} templates selected',
 			'versions.export_templates_size_summary' => '~{{download}} download · {{installed}} on disk',
 			'versions.export_templates_download_selected' => 'Download selected',
 			'versions.export_templates_loading_options' => 'Checking this release\'s available templates…',
 			'versions.export_templates_options_failed' => 'Couldn\'t load the templates for this release.',
 			'versions.export_templates_available' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} available template groups', ), 
+			'versions.export_templates_available_one' => '1 available template group',
+			'versions.export_templates_available_other' => '{{count}} available template groups',
 			'versions.export_templates_select_all' => 'Select all',
 			'versions.export_templates_files' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} template files', ), 
+			'versions.export_templates_files_one' => '1 template file',
+			'versions.export_templates_files_other' => '{{count}} template files',
 			'versions.export_templates_option_installed' => 'Installed',
 			'versions.export_templates_keep_existing' => 'Expand a platform to choose architectures or individual files. Only selected files are downloaded. Your existing templates are kept.',
 			'versions.export_templates_uninstall_named' => 'Uninstall {{name}}',

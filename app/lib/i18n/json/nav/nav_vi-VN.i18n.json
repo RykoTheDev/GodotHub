@@ -4,6 +4,8 @@
   "projects_count(plural)": {
     "other": "Projects"
   },
+  "projects_count_one": "Project",
+  "projects_count_other": "Projects",
   "versions": "Phiên Bản",
   "templates": "Mẫu",
   "vault": "Vault",

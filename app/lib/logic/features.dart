@@ -1,12 +1,15 @@
-import '../../design/design.dart';
-import '../core/i18n.dart';
+import '../design/design.dart';
+import '../i18n/i18n.dart';
+import '../src/rust/api/types.dart';
+import 'settings_copy.dart';
 
 enum GhCoreFeature {
-  projects(GhIcons.folder),
-  versions(GhIcons.cloudArrowDown);
+  projects('projects', GhIcons.folder),
+  versions('versions', GhIcons.cloudArrowDown);
 
-  const GhCoreFeature(this.icon);
+  const GhCoreFeature(this.id, this.icon);
 
+  final String id;
   final FaIconData icon;
 
   String label([Translations? translations]) {
@@ -26,20 +29,23 @@ enum GhCoreFeature {
   }
 }
 
+enum GhFeatureFlag { categoriesEnabled, workspacesEnabled }
+
 enum GhFeatureId {
   assetStore('asset-store', GhIcons.store),
   templates('templates', GhIcons.rocket),
-  categories('categories', GhIcons.tags),
+  categories('categories', GhIcons.tags, GhFeatureFlag.categoriesEnabled),
   dashboard('dashboard', GhIcons.house),
   vault('vault', GhIcons.briefcase),
   storage('storage', GhIcons.hardDrive),
-  workspaces('workspaces', GhIcons.layoutGrid),
+  workspaces('workspaces', GhIcons.layoutGrid, GhFeatureFlag.workspacesEnabled),
   news('news', GhIcons.news);
 
-  const GhFeatureId(this.id, this.icon);
+  const GhFeatureId(this.id, this.icon, [this.flag]);
 
   final String id;
   final FaIconData icon;
+  final GhFeatureFlag? flag;
 
   String label([Translations? translations]) {
     final tr = translations ?? t;
@@ -111,6 +117,34 @@ enum GhSetupProfile {
       complete => tr.settings.setup_profile_complete_desc,
     };
   }
+}
+
+bool _flagValue(AppSettings settings, GhFeatureFlag flag) => switch (flag) {
+  GhFeatureFlag.categoriesEnabled => settings.categoriesEnabled,
+  GhFeatureFlag.workspacesEnabled => settings.workspacesEnabled,
+};
+
+bool isFeatureEnabled(AppSettings settings, String id) {
+  final feature = GhFeatureId.fromId(id);
+  if (feature == null) return true;
+  final flag = feature.flag;
+  return flag != null ? _flagValue(settings, flag) : !settings.disabledFeatures.contains(id);
+}
+
+Set<GhFeatureId> enabledFeatures(AppSettings settings) =>
+    {for (final feature in GhFeatureId.values) if (isFeatureEnabled(settings, feature.id)) feature};
+
+AppSettings withFeatures(AppSettings settings, Iterable<GhFeatureId> enabled) {
+  final on = enabled.toSet();
+  return copySettings(
+    settings,
+    disabledFeatures: [
+      for (final feature in GhFeatureId.values)
+        if (feature.flag == null && !on.contains(feature)) feature.id,
+    ],
+    categoriesEnabled: on.contains(GhFeatureId.categories),
+    workspacesEnabled: on.contains(GhFeatureId.workspaces),
+  );
 }
 
 GhSetupProfile? matchSetupProfile(Set<GhFeatureId> enabled) {

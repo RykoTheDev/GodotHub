@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show OverflowBoxFit;
 
 import '../../design/design.dart';
+import '../../logic/debug_mode.dart' show registerSettingsClick;
 import '../controls/negative_margin.dart';
 import '../core/interaction.dart';
 import '../core/tooltip.dart';
@@ -20,6 +21,8 @@ import '../core/i18n.dart';
 import '../../motion/motion.dart';
 import '../../motion/presence.dart';
 import '../../motion/shared.dart';
+
+export '../../logic/debug_mode.dart' show GhSettingsClickCounter;
 
 Widget _sidebarLabel(Widget child) => GhCascadeItem(role: GhCascadeRole.label, child: child);
 
@@ -51,24 +54,6 @@ class GhSidebarTab {
   final GhSidebarGroup? group;
   final int? shortcut;
   final int? badge;
-}
-
-class GhSettingsClickCounter {
-  GhSettingsClickCounter({this.clicksToUnlock = 5, this.window = const Duration(milliseconds: 2000)});
-
-  final int clicksToUnlock;
-  final Duration window;
-  List<DateTime> _clicks = [];
-
-  bool register([DateTime? now]) {
-    final at = now ?? DateTime.now();
-    _clicks = [..._clicks.where((t) => at.difference(t) < window), at];
-    if (_clicks.length >= clicksToUnlock) {
-      _clicks = [];
-      return true;
-    }
-    return false;
-  }
 }
 
 typedef GhAccountMenuBuilder = Widget Function(BuildContext context, GhDropdownTriggerBuilder trigger);
@@ -266,6 +251,7 @@ class _GhSidebarState extends State<GhSidebar> {
 
   void _pressTab(GhSidebarTab tab) {
     if (tab.id == 'settings') {
+      registerSettingsClick();
       widget.onSettingsClick?.call();
     }
     if (tab.isNew) {

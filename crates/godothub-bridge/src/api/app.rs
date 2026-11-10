@@ -24,6 +24,11 @@ pub fn init_app() {
     flutter_rust_bridge::setup_default_user_utils();
 }
 
+#[frb(sync)]
+pub fn app_version() -> String {
+    godothub_core::app_version().to_string()
+}
+
 pub async fn start_core(channel: String) -> Result<String, CoreError> {
     let channel = parse_channel(&channel)?;
     if channel == Channel::Beta {

@@ -25,9 +25,13 @@
   "discovery_added_projects(plural)": {
     "other": "${count} 件のプロジェクトを追加しました。"
   },
+  "discovery_added_projects_one": "{{count}} 件のプロジェクトを追加しました。",
+  "discovery_added_projects_other": "{{count}} 件のプロジェクトを追加しました。",
   "discovery_added_versions(plural)": {
     "other": "${count} 件のバージョンを追加しました。"
   },
+  "discovery_added_versions_one": "{{count}} 件のバージョンを追加しました。",
+  "discovery_added_versions_other": "{{count}} 件のバージョンを追加しました。",
   "discovery_link_hint": "プロジェクトは、次のステップで追加するバージョンも含め、対応する Godot バージョンに自動的に関連付けられます。",
   "setup": "セットアップ",
   "setup_title": "GodotHub をどのように使いますか？",

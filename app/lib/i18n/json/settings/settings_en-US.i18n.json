@@ -126,6 +126,8 @@
     "one": "${count} folder deep",
     "other": "${count} folders deep"
   },
+  "folders_deep_one": "{{count}} folder deep",
+  "folders_deep_other": "{{count}} folders deep",
   "at_once": "{{count}} at once",
   "animation_speed_label": "Animation speed",
   "scroll_reveal_label": "Scroll reveal",
@@ -184,23 +186,33 @@
     "one": "workspace",
     "other": "workspaces"
   },
+  "restore_modal_workspaces_one": "workspace",
+  "restore_modal_workspaces_other": "workspaces",
   "restore_modal_projects(plural)": {
     "one": "project",
     "other": "projects"
   },
+  "restore_modal_projects_one": "project",
+  "restore_modal_projects_other": "projects",
   "restore_modal_categories(plural)": {
     "one": "category",
     "other": "categories"
   },
+  "restore_modal_categories_one": "category",
+  "restore_modal_categories_other": "categories",
   "restore_modal_templates(plural)": {
     "one": "template",
     "other": "templates"
   },
+  "restore_modal_templates_one": "template",
+  "restore_modal_templates_other": "templates",
   "restore_modal_time_stats": "Includes time tracking data",
   "restore_modal_todos(plural)": {
     "one": "Includes ${count} to-do",
     "other": "Includes ${count} to-dos"
   },
+  "restore_modal_todos_one": "Includes {{count}} to-do",
+  "restore_modal_todos_other": "Includes {{count}} to-dos",
   "restore_modal_project_scan_dirs": "{{count}} project scan folder(s) will be restored",
   "restore_modal_version_scan_dirs": "{{count}} Godot version folder(s) will be restored",
   "restore_modal_workspace_list": "Workspaces",
@@ -214,6 +226,8 @@
     "one": "Imported stats for ${count} project.",
     "other": "Imported stats for ${count} projects."
   },
+  "stats_imported_one": "Imported stats for {{count}} project.",
+  "stats_imported_other": "Imported stats for {{count}} projects.",
   "raised_contrast_label": "Raised surface contrast",
   "raised_contrast_value": "{{value}}%",
   "token_help_desc": "Create a token at github.com/settings/tokens. You only need to check the repo scope if you want private repo access, otherwise leave all scopes unchecked. No sensitive permissions required.",
@@ -277,6 +291,8 @@
     "one": "${count} feature on",
     "other": "${count} features on"
   },
+  "features_enabled_count_one": "{{count}} feature on",
+  "features_enabled_count_other": "{{count}} features on",
   "setup_profile_minimal": "Minimal",
   "setup_profile_minimal_desc": "Just projects and Godot versions. The lightest, fastest setup.",
   "setup_profile_essentials": "Essentials",

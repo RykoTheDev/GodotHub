@@ -55,6 +55,7 @@
   "dashboard_git_dirty_plural(plural)": {
     "other": "${count} 个仓库有未提交更改"
   },
+  "dashboard_git_dirty_one": "1 个仓库有未提交更改",
   "dashboard_git_branch": "在 {{branch}} 分支上",
   "dashboard_storage": "存储使用",
   "dashboard_storage_empty": "没有可测量的项目。",

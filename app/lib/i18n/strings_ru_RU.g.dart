@@ -110,6 +110,8 @@ class _Translations$common$ru_RU extends Translations$common$en_US {
 		many: '${count} projects running',
 		other: '${count} projects running',
 	);
+	@override String get running_projects_desc_one => '{{count}} project running';
+	@override String get running_projects_desc_other => '{{count}} projects running';
 	@override String get active => 'Активные';
 	@override String get done => 'Готово';
 	@override String get paused => 'Пауза';
@@ -208,12 +210,16 @@ class _Translations$common$ru_RU extends Translations$common$en_US {
 		many: '${count} файл',
 		other: '${count} files',
 	);
+	@override String get file_count_one => '{{count}} file';
+	@override String get file_count_other => '{{count}} files';
 	@override String folder_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count,
 		one: '${count} folder',
 		few: '${count} папка',
 		many: '${count} папка',
 		other: '${count} folders',
 	);
+	@override String get folder_count_one => '{{count}} folder';
+	@override String get folder_count_other => '{{count}} folders';
 	@override String get template_empty => 'Этот шаблон пустой.';
 	@override String get categories => 'Категории';
 	@override String get category_folders_hint => 'Проекты, найденные в папках категории, автоматически назначаются ей.';
@@ -322,6 +328,8 @@ class _Translations$common$ru_RU extends Translations$common$en_US {
 		many: 'Assets',
 		other: 'Assets',
 	);
+	@override String get asset_store_count_one => 'Asset';
+	@override String get asset_store_count_other => 'Assets';
 	@override String get asset_store_count => 'Assets';
 	@override String get settings_title => 'НАСТРОЙКИ';
 	@override String get no_templates_match => 'Шаблоны не найдены';
@@ -406,6 +414,8 @@ class _Translations$common$ru_RU extends Translations$common$en_US {
 		many: 'Ваши шаблоны',
 		other: 'Templates',
 	);
+	@override String get template_your_templates_one => 'Template';
+	@override String get template_your_templates_other => 'Templates';
 	@override String get template_imported_count => 'Импортировано {{count}}';
 	@override String get template_updated_count => 'Обновлено {{count}}';
 	@override String get template_removed_count => 'Удалено {{count}}';
@@ -524,6 +534,8 @@ class _Translations$common$ru_RU extends Translations$common$en_US {
 		many: '${count} тег(ов)',
 		other: '${count} tags',
 	);
+	@override String get tag_count_one => '{{count}} tag';
+	@override String get tag_count_other => '{{count}} tags';
 	@override String get no_tags => 'Пока нет тегов';
 	@override String get bug_report_describe_label => 'What happened?';
 	@override String get bug_report_describe_placeholder => 'What were you doing when the bug appeared? Add steps to reproduce and what you expected vs. what actually happened.';
@@ -583,6 +595,8 @@ class _Translations$common$ru_RU extends Translations$common$en_US {
 		many: '${count} недавняя задача',
 		other: '${count} recent tasks',
 	);
+	@override String get task_tray_only_recent_one => '{{count}} recent task';
+	@override String get task_tray_only_recent_other => '{{count}} recent tasks';
 	@override String get task_tray_aria => 'Панель задач';
 	@override String get task_tray_auto_dismiss => 'Завершённые задачи автоматически скрываются';
 	@override String get task_tray_dismiss => 'Скрыть {{count}}';
@@ -652,12 +666,16 @@ class _Translations$common$ru_RU extends Translations$common$en_US {
 		many: '${count} previously removed projects found',
 		other: 'Найдены ${count} ранее удалённых проектов',
 	);
+	@override String get found_dismissed_title_one => 'Найдён ранее удалённый проект';
+	@override String get found_dismissed_title_other => 'Найдены {{count}} ранее удалённых проектов';
 	@override String found_dismissed_desc({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count,
 		one: 'Сканер обнаружил 1 проект, который вы ранее удаляли из библиотеки. Добавить обратно?',
 		few: 'Scanner found ${count} projects that you previously removed from the library. Would you like to re-add them?',
 		many: 'Scanner found ${count} projects that you previously removed from the library. Would you like to re-add them?',
 		other: 'Сканер обнаружил ${count} проектов, которые вы ранее удаляли из библиотеки. Добавить обратно?',
 	);
+	@override String get found_dismissed_desc_one => 'Сканер обнаружил 1 проект, который вы ранее удаляли из библиотеки. Добавить обратно?';
+	@override String get found_dismissed_desc_other => 'Сканер обнаружил {{count}} проектов, которые вы ранее удаляли из библиотеки. Добавить обратно?';
 	@override String get readd_all => 'Добавить все обратно';
 	@override String get skip_all => 'Пропустить всё';
 	@override String get project_already_open_title => 'Project already open';
@@ -702,6 +720,8 @@ class _Translations$common$ru_RU extends Translations$common$en_US {
 		many: '${count} pull requests',
 		other: '${count} pull requests',
 	);
+	@override String get contributor_pr_count_one => '{{count}} pull request';
+	@override String get contributor_pr_count_other => '{{count}} pull requests';
 	@override String get contributor_pr_load_failed => 'Failed to load pull requests.';
 	@override String get contributor_pr_network_hint => 'Check your internet connection.';
 	@override String get contributor_pr_empty => 'No pull requests found.';
@@ -786,6 +806,8 @@ class _Translations$common$ru_RU extends Translations$common$en_US {
 		many: 'Remove ${count} items',
 		other: 'Remove ${count} items',
 	);
+	@override String get cleanup_confirm_btn_one => 'Remove {{count}} item';
+	@override String get cleanup_confirm_btn_other => 'Remove {{count}} items';
 	@override String get cleanup_done => 'Freed {{size}}';
 	@override String get cleanup_failed => 'Couldn\'t remove {{label}}: {{error}}';
 	@override String get cleanup_versions_desc => 'Full size on disk of every installed Godot version.';
@@ -797,6 +819,8 @@ class _Translations$common$ru_RU extends Translations$common$en_US {
 		many: '${count} templates',
 		other: '${count} templates',
 	);
+	@override String get cleanup_used_by_templates_one => '{{count}} template';
+	@override String get cleanup_used_by_templates_other => '{{count}} templates';
 	@override String get cleanup_current_badge => 'Current';
 	@override String get cleanup_alias_badge => 'Alias';
 	@override String get cleanup_unused_badge => 'Unused';
@@ -817,12 +841,16 @@ class _Translations$common$ru_RU extends Translations$common$en_US {
 		many: '${count} projects',
 		other: '${count} проектов',
 	);
+	@override String get n_projects_one => '{{count}} проект';
+	@override String get n_projects_other => '{{count}} проектов';
 	@override String vault_item_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count,
 		one: 'Item',
 		few: 'Items',
 		many: 'Items',
 		other: 'Items',
 	);
+	@override String get vault_item_count_one => 'Item';
+	@override String get vault_item_count_other => 'Items';
 	@override String get vault_search_placeholder => 'Search vault…';
 	@override String get vault_empty => 'Your vault is empty. Click <1>Save to Vault</1> to pick files or folders from a project and reuse them anywhere.';
 	@override String get vault_no_match => 'No items match your search.';
@@ -861,24 +889,32 @@ class _Translations$common$ru_RU extends Translations$common$en_US {
 		many: '${count} files already exist in the project. Overwrite them?',
 		other: '${count} files already exist in the project. Overwrite them?',
 	);
+	@override String get vault_conflict_desc_one => '{{count}} file already exists in the project. Overwrite it?';
+	@override String get vault_conflict_desc_other => '{{count}} files already exist in the project. Overwrite them?';
 	@override String vault_conflict_summary_desc({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count,
 		one: '${count} file already exists across the selected projects. Overwrite it?',
 		few: '${count} files already exist across the selected projects. Overwrite them?',
 		many: '${count} files already exist across the selected projects. Overwrite them?',
 		other: '${count} files already exist across the selected projects. Overwrite them?',
 	);
+	@override String get vault_conflict_summary_desc_one => '{{count}} file already exists across the selected projects. Overwrite it?';
+	@override String get vault_conflict_summary_desc_other => '{{count}} files already exist across the selected projects. Overwrite them?';
 	@override String vault_added_toast({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count,
 		one: 'Added ${count} file',
 		few: 'Added ${count} files',
 		many: 'Added ${count} files',
 		other: 'Added ${count} files',
 	);
+	@override String get vault_added_toast_one => 'Added {{count}} file';
+	@override String get vault_added_toast_other => 'Added {{count}} files';
 	@override String vault_added_to_projects_toast({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count,
 		one: 'Added to ${count} project',
 		few: 'Added to ${count} projects',
 		many: 'Added to ${count} projects',
 		other: 'Added to ${count} projects',
 	);
+	@override String get vault_added_to_projects_toast_one => 'Added to {{count}} project';
+	@override String get vault_added_to_projects_toast_other => 'Added to {{count}} projects';
 	@override String get vault_item_empty => 'This item has no files.';
 	@override String get kNew => 'Новый';
 	@override String get announcement_support_title => 'Support GodotHub';
@@ -966,6 +1002,7 @@ class _Translations$dashboard$ru_RU extends Translations$dashboard$en_US {
 		many: '${count} with uncommitted changes',
 		other: '${count} with uncommitted changes',
 	);
+	@override String get dashboard_git_dirty_one => '1 with uncommitted changes';
 	@override String get dashboard_git_branch => 'On {{branch}}';
 	@override String get dashboard_storage => 'Storage Usage';
 	@override String get dashboard_storage_empty => 'No projects to measure.';
@@ -1152,6 +1189,8 @@ class _Translations$nav$ru_RU extends Translations$nav$en_US {
 		many: 'Проекты',
 		other: 'Projects',
 	);
+	@override String get projects_count_one => 'Project';
+	@override String get projects_count_other => 'Projects';
 	@override String get versions => 'Версии';
 	@override String get templates => 'Шаблоны';
 	@override String get vault => 'Vault';
@@ -1206,12 +1245,16 @@ class _Translations$onboarding$ru_RU extends Translations$onboarding$en_US {
 		many: 'Added ${count} projects.',
 		other: 'Added ${count} projects.',
 	);
+	@override String get discovery_added_projects_one => 'Added {{count}} project.';
+	@override String get discovery_added_projects_other => 'Added {{count}} projects.';
 	@override String discovery_added_versions({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count,
 		one: 'Added ${count} version.',
 		few: 'Added ${count} versions.',
 		many: 'Added ${count} versions.',
 		other: 'Added ${count} versions.',
 	);
+	@override String get discovery_added_versions_one => 'Added {{count}} version.';
+	@override String get discovery_added_versions_other => 'Added {{count}} versions.';
 	@override String get discovery_link_hint => 'Projects are linked to a matching Godot version automatically, including versions you add in the next step.';
 	@override String get setup => 'Setup';
 	@override String get setup_title => 'How do you want to use GodotHub?';
@@ -1367,6 +1410,8 @@ class _Translations$settings$ru_RU extends Translations$settings$en_US {
 		many: '${count} folders deep',
 		other: '${count} папок вглубь',
 	);
+	@override String get folders_deep_one => '{{count}} папку вглубь';
+	@override String get folders_deep_other => '{{count}} папок вглубь';
 	@override String get at_once => '{{count}} одновременно';
 	@override String get animation_speed_label => 'Animation speed';
 	@override String get scroll_reveal_label => 'Scroll reveal';
@@ -1427,24 +1472,32 @@ class _Translations$settings$ru_RU extends Translations$settings$en_US {
 		many: 'workspaces',
 		other: 'workspaces',
 	);
+	@override String get restore_modal_workspaces_one => 'workspace';
+	@override String get restore_modal_workspaces_other => 'workspaces';
 	@override String restore_modal_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count,
 		one: 'project',
 		few: 'projects',
 		many: 'projects',
 		other: 'projects',
 	);
+	@override String get restore_modal_projects_one => 'project';
+	@override String get restore_modal_projects_other => 'projects';
 	@override String restore_modal_categories({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count,
 		one: 'category',
 		few: 'categories',
 		many: 'categories',
 		other: 'categories',
 	);
+	@override String get restore_modal_categories_one => 'category';
+	@override String get restore_modal_categories_other => 'categories';
 	@override String restore_modal_templates({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count,
 		one: 'template',
 		few: 'templates',
 		many: 'templates',
 		other: 'templates',
 	);
+	@override String get restore_modal_templates_one => 'template';
+	@override String get restore_modal_templates_other => 'templates';
 	@override String get restore_modal_time_stats => 'Includes time tracking data';
 	@override String restore_modal_todos({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count,
 		one: 'Includes ${count} to-do',
@@ -1452,6 +1505,8 @@ class _Translations$settings$ru_RU extends Translations$settings$en_US {
 		many: 'Includes ${count} to-dos',
 		other: 'Includes ${count} to-dos',
 	);
+	@override String get restore_modal_todos_one => 'Includes {{count}} to-do';
+	@override String get restore_modal_todos_other => 'Includes {{count}} to-dos';
 	@override String get restore_modal_project_scan_dirs => '{{count}} project scan folder(s) will be restored';
 	@override String get restore_modal_version_scan_dirs => '{{count}} Godot version folder(s) will be restored';
 	@override String get restore_modal_workspace_list => 'Workspaces';
@@ -1467,6 +1522,8 @@ class _Translations$settings$ru_RU extends Translations$settings$en_US {
 		many: 'Imported stats for ${count} projects.',
 		other: 'Imported stats for ${count} projects.',
 	);
+	@override String get stats_imported_one => 'Imported stats for {{count}} project.';
+	@override String get stats_imported_other => 'Imported stats for {{count}} projects.';
 	@override String get raised_contrast_label => 'Raised surface contrast';
 	@override String get raised_contrast_value => '{{value}}%';
 	@override String get token_help_desc => 'Создайте токен на github.com/settings/tokens. You only need to check the repo scope if you want private repo access, otherwise leave all scopes unchecked. No sensitive permissions required.';
@@ -1532,6 +1589,8 @@ class _Translations$settings$ru_RU extends Translations$settings$en_US {
 		many: '${count} features on',
 		other: '${count} features on',
 	);
+	@override String get features_enabled_count_one => '{{count}} feature on';
+	@override String get features_enabled_count_other => '{{count}} features on';
 	@override String get setup_profile_minimal => 'Minimal';
 	@override String get setup_profile_minimal_desc => 'Just projects and Godot versions. The lightest, fastest setup.';
 	@override String get setup_profile_essentials => 'Essentials';
@@ -1566,12 +1625,16 @@ class _Translations$todos$ru_RU extends Translations$todos$en_US {
 		many: '${count} pending',
 		other: '${count} pending',
 	);
+	@override String get pending_count_one => '{{count}} pending';
+	@override String get pending_count_other => '{{count}} pending';
 	@override String completed_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count,
 		one: '${count} completed',
 		few: '${count} completed',
 		many: '${count} completed',
 		other: '${count} completed',
 	);
+	@override String get completed_count_one => '{{count}} completed';
+	@override String get completed_count_other => '{{count}} completed';
 	@override String get new_task => 'New task';
 	@override String get hide_next_steps => 'Hide next steps';
 	@override String get save_changes_failed => 'Could not save the changes.';
@@ -1627,6 +1690,8 @@ class _Translations$todos$ru_RU extends Translations$todos$en_US {
 		many: 'Due in ${count} days',
 		other: 'Due in ${count} days',
 	);
+	@override String get due_in_days_one => 'Due in {{count}} day';
+	@override String get due_in_days_other => 'Due in {{count}} days';
 	@override String get overdue_yesterday => 'Was due yesterday';
 	@override String overdue_days({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count,
 		one: 'Overdue by ${count} day',
@@ -1634,6 +1699,8 @@ class _Translations$todos$ru_RU extends Translations$todos$en_US {
 		many: 'Overdue by ${count} days',
 		other: 'Overdue by ${count} days',
 	);
+	@override String get overdue_days_one => 'Overdue by {{count}} day';
+	@override String get overdue_days_other => 'Overdue by {{count}} days';
 	@override String get scan_code => 'Scan code';
 	@override String get scan_code_hint => 'Import TODO and FIXME comments from scripts and shaders, and complete to-dos whose comment was removed';
 	@override String get comment_scan_summary => 'Code scan: {{imported}} added, {{closed}} completed, {{reopened}} reopened';
@@ -1644,6 +1711,8 @@ class _Translations$todos$ru_RU extends Translations$todos$en_US {
 		many: 'Completed ${count} to-dos from commit messages',
 		other: 'Completed ${count} to-dos from commit messages',
 	);
+	@override String get commit_closed_one => 'Completed {{count}} to-do from a commit message';
+	@override String get commit_closed_other => 'Completed {{count}} to-dos from commit messages';
 	@override String get linked_file => 'Linked file';
 	@override String get linked_file_placeholder => 'res://scenes/player.tscn';
 	@override String get linked_file_hint => 'Link a scene, script or resource from this project.';
@@ -1681,12 +1750,16 @@ class _Translations$todos$ru_RU extends Translations$todos$en_US {
 		many: '${count} to-dos',
 		other: '${count} to-dos',
 	);
+	@override String get open_count_one => '{{count}} to-do';
+	@override String get open_count_other => '{{count}} to-dos';
 	@override String overdue_count({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count,
 		one: '${count} overdue',
 		few: '${count} overdue',
 		many: '${count} overdue',
 		other: '${count} overdue',
 	);
+	@override String get overdue_count_one => '{{count}} overdue';
+	@override String get overdue_count_other => '{{count}} overdue';
 	@override String get tile_summary => '{{overdue}} overdue · {{soon}} due this week';
 	@override String get tile_empty => 'Nothing overdue or due this week.';
 	@override String due_notification_title({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count,
@@ -1695,6 +1768,8 @@ class _Translations$todos$ru_RU extends Translations$todos$en_US {
 		many: '${count} to-dos are due',
 		other: '${count} to-dos are due',
 	);
+	@override String get due_notification_title_one => 'To-do due: {{title}}';
+	@override String get due_notification_title_other => '{{count}} to-dos are due';
 	@override String get due_notification_more => 'and {{count}} more';
 }
 
@@ -1736,6 +1811,8 @@ class _Translations$versions$ru_RU extends Translations$versions$en_US {
 		many: 'Installed',
 		other: 'Установлено',
 	);
+	@override String get installed_count_one => 'Установлено';
+	@override String get installed_count_other => 'Установлено';
 	@override String get installed_label => 'Установлено';
 	@override String get original_name => 'Original';
 	@override String get source => 'Источник';
@@ -1777,18 +1854,24 @@ class _Translations$versions$ru_RU extends Translations$versions$en_US {
 		many: 'Create ${count} Aliases',
 		other: 'Create ${count} Aliases',
 	);
+	@override String get alias_create_all_one => 'Create Alias';
+	@override String get alias_create_all_other => 'Create {{count}} Aliases';
 	@override String aliases_batch_created({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count,
 		one: '1 alias created',
 		few: '${count} aliases created',
 		many: '${count} aliases created',
 		other: '${count} aliases created',
 	);
+	@override String get aliases_batch_created_one => '1 alias created';
+	@override String get aliases_batch_created_other => '{{count}} aliases created';
 	@override String aliases_batch_skipped({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count,
 		one: '1 alias skipped',
 		few: '${count} aliases skipped',
 		many: '${count} aliases skipped',
 		other: '${count} aliases skipped',
 	);
+	@override String get aliases_batch_skipped_one => '1 alias skipped';
+	@override String get aliases_batch_skipped_other => '{{count}} aliases skipped';
 	@override String get alias_queue_duplicate => '"{{name}}" is already in the list';
 	@override String get alias_remove => 'Remove alias';
 	@override String get alias_remove_title => 'Remove this alias?';
@@ -1825,6 +1908,8 @@ class _Translations$versions$ru_RU extends Translations$versions$en_US {
 		many: '${count} templates selected',
 		other: '${count} templates selected',
 	);
+	@override String get export_templates_selected_one => '1 template selected';
+	@override String get export_templates_selected_other => '{{count}} templates selected';
 	@override String get export_templates_size_summary => '~{{download}} download · {{installed}} on disk';
 	@override String get export_templates_download_selected => 'Download selected';
 	@override String get export_templates_loading_options => 'Checking this release\'s available templates…';
@@ -1835,6 +1920,8 @@ class _Translations$versions$ru_RU extends Translations$versions$en_US {
 		many: '${count} available template groups',
 		other: '${count} available template groups',
 	);
+	@override String get export_templates_available_one => '1 available template group';
+	@override String get export_templates_available_other => '{{count}} available template groups';
 	@override String get export_templates_select_all => 'Select all';
 	@override String export_templates_files({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count,
 		one: '1 template file',
@@ -1842,6 +1929,8 @@ class _Translations$versions$ru_RU extends Translations$versions$en_US {
 		many: '${count} template files',
 		other: '${count} template files',
 	);
+	@override String get export_templates_files_one => '1 template file';
+	@override String get export_templates_files_other => '{{count}} template files';
 	@override String get export_templates_option_installed => 'Installed';
 	@override String get export_templates_keep_existing => 'Expand a platform to choose architectures or individual files. Only selected files are downloaded. Your existing templates are kept.';
 	@override String get export_templates_uninstall_named => 'Uninstall {{name}}';
@@ -1883,12 +1972,16 @@ class _Translations$common$project_doctor$ru_RU extends Translations$common$proj
 		many: '${count} issues need attention',
 		other: '${count} issues need attention',
 	);
+	@override String get summary_errors_one => '{{count}} issue needs attention';
+	@override String get summary_errors_other => '{{count}} issues need attention';
 	@override String summary_warnings({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count,
 		one: '${count} warning to review',
 		few: '${count} warnings to review',
 		many: '${count} warnings to review',
 		other: '${count} warnings to review',
 	);
+	@override String get summary_warnings_one => '{{count}} warning to review';
+	@override String get summary_warnings_other => '{{count}} warnings to review';
 	@override String get summary_ready => 'No blocking issues found';
 	@override String get summary_counts => '{{passed}} checks passed · {{findings}} findings';
 	@override String passed_checks({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count,
@@ -1897,6 +1990,8 @@ class _Translations$common$project_doctor$ru_RU extends Translations$common$proj
 		many: '${count} passed checks',
 		other: '${count} passed checks',
 	);
+	@override String get passed_checks_one => '{{count}} passed check';
+	@override String get passed_checks_other => '{{count}} passed checks';
 	@override String get local_checks => 'Checks run locally. Fixes to settings save a backup first.';
 	@override String get fix_complete => 'Fix applied. Project checks updated.';
 	@override String get templates_downloading => 'Downloading selected templates. Progress and cancellation are also available in Tasks.';
@@ -2129,6 +2224,8 @@ class _Translations$common$project_addons$ru_RU extends Translations$common$proj
 		many: '${count} addons installed',
 		other: '${count} addons installed',
 	);
+	@override String get count_one => '{{count}} addon installed';
+	@override String get count_other => '{{count}} addons installed';
 	@override String get empty => 'This project has no addons folder. Install addons from the Asset Store or copy them into res://addons.';
 	@override String get check_updates => 'Check for updates';
 	@override String get checking => 'Checking…';
@@ -2138,6 +2235,8 @@ class _Translations$common$project_addons$ru_RU extends Translations$common$proj
 		many: '${count} updates available',
 		other: '${count} updates available',
 	);
+	@override String get updates_available_one => '{{count}} update available';
+	@override String get updates_available_other => '{{count}} updates available';
 	@override String get all_current => 'No updates found in the Asset Library';
 	@override String get enabled => 'Enabled';
 	@override String get disabled => 'Disabled';
@@ -2202,6 +2301,8 @@ extension on TranslationsRuRu {
 			'common.download_queue_move_down' => 'Move later in queue',
 			'common.running' => 'Выполняется',
 			'common.running_projects_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} project running', few: '${count} projects running', many: '${count} projects running', other: '${count} projects running', ), 
+			'common.running_projects_desc_one' => '{{count}} project running',
+			'common.running_projects_desc_other' => '{{count}} projects running',
 			'common.active' => 'Активные',
 			'common.done' => 'Готово',
 			'common.paused' => 'Пауза',
@@ -2295,7 +2396,11 @@ extension on TranslationsRuRu {
 			'common.expand' => 'Развернуть',
 			'common.collapse' => 'Свернуть',
 			'common.file_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} file', few: '${count} файл', many: '${count} файл', other: '${count} files', ), 
+			'common.file_count_one' => '{{count}} file',
+			'common.file_count_other' => '{{count}} files',
 			'common.folder_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} folder', few: '${count} папка', many: '${count} папка', other: '${count} folders', ), 
+			'common.folder_count_one' => '{{count}} folder',
+			'common.folder_count_other' => '{{count}} folders',
 			'common.template_empty' => 'Этот шаблон пустой.',
 			'common.categories' => 'Категории',
 			'common.category_folders_hint' => 'Проекты, найденные в папках категории, автоматически назначаются ей.',
@@ -2398,6 +2503,8 @@ extension on TranslationsRuRu {
 			'common.asset_store_title' => 'МАГАЗИН АССЕТОВ',
 			'common.news_count' => 'Posts',
 			'common.asset_store_count_plural' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, zero: 'No assets', one: 'Asset', few: 'Assets', many: 'Assets', other: 'Assets', ), 
+			'common.asset_store_count_one' => 'Asset',
+			'common.asset_store_count_other' => 'Assets',
 			'common.asset_store_count' => 'Assets',
 			'common.settings_title' => 'НАСТРОЙКИ',
 			'common.no_templates_match' => 'Шаблоны не найдены',
@@ -2477,6 +2584,8 @@ extension on TranslationsRuRu {
 			'common.asset_next_page' => 'Next page',
 			'common.asset_page_x_of_y' => 'Page {{page}} of {{total}}',
 			'common.template_your_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: 'Template', few: 'Ваши шаблоны', many: 'Ваши шаблоны', other: 'Templates', ), 
+			'common.template_your_templates_one' => 'Template',
+			'common.template_your_templates_other' => 'Templates',
 			'common.template_imported_count' => 'Импортировано {{count}}',
 			'common.template_updated_count' => 'Обновлено {{count}}',
 			'common.template_removed_count' => 'Удалено {{count}}',
@@ -2590,6 +2699,8 @@ extension on TranslationsRuRu {
 			'common.clear_tag_filter' => 'Clear tag filter',
 			'common.saving_tags' => 'Saving tags…',
 			'common.tag_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} tag', few: '${count} тег(ов)', many: '${count} тег(ов)', other: '${count} tags', ), 
+			'common.tag_count_one' => '{{count}} tag',
+			'common.tag_count_other' => '{{count}} tags',
 			'common.no_tags' => 'Пока нет тегов',
 			'common.bug_report_describe_label' => 'What happened?',
 			'common.bug_report_describe_placeholder' => 'What were you doing when the bug appeared? Add steps to reproduce and what you expected vs. what actually happened.',
@@ -2644,6 +2755,8 @@ extension on TranslationsRuRu {
 			'common.task_tray_empty' => 'Нет активных задач',
 			'common.task_tray_active_count' => '{{active}} активных, {{recent}} недавних',
 			'common.task_tray_only_recent' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} recent task', few: '${count} недавняя задача', many: '${count} недавняя задача', other: '${count} recent tasks', ), 
+			'common.task_tray_only_recent_one' => '{{count}} recent task',
+			'common.task_tray_only_recent_other' => '{{count}} recent tasks',
 			'common.task_tray_aria' => 'Панель задач',
 			'common.task_tray_auto_dismiss' => 'Завершённые задачи автоматически скрываются',
 			'common.task_tray_dismiss' => 'Скрыть {{count}}',
@@ -2661,6 +2774,8 @@ extension on TranslationsRuRu {
 			'common.setting_scan_depth' => 'Scan Depth',
 			'common.setting_icon_scan_depth' => 'Project Icon Search Depth',
 			'common.setting_download_concurrency' => 'Simultaneous Downloads',
+			_ => null,
+		} ?? switch (path) {
 			'common.setting_close_on_project_open' => 'Close on Project Open',
 			'common.setting_minimize_to_tray' => 'Minimize to System Tray',
 			'common.setting_reopen_after_godot_closes' => 'Reopen After Godot Closes',
@@ -2675,8 +2790,6 @@ extension on TranslationsRuRu {
 			'common.setting_last_opened_date_format' => 'Date Format',
 			'common.setting_theme_mode' => 'Theme Mode',
 			'common.setting_accent_color' => 'Акцентный цвет',
-			_ => null,
-		} ?? switch (path) {
 			'common.setting_background_color' => 'Цвет фона',
 			'common.setting_corner_radius' => 'Corner Radius',
 			'common.setting_ui_density' => 'UI Density',
@@ -2710,7 +2823,11 @@ extension on TranslationsRuRu {
 			'common.restart_required_title' => 'Требуется перезапуск',
 			'common.restart_required_desc' => 'Чтобы изменение полностью вступило в силу, GodotHub нужно перезапустить. Настройка сохранена и применится при повторном запуске приложения.',
 			'common.found_dismissed_title' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: 'Найдён ранее удалённый проект', few: '${count} previously removed projects found', many: '${count} previously removed projects found', other: 'Найдены ${count} ранее удалённых проектов', ), 
+			'common.found_dismissed_title_one' => 'Найдён ранее удалённый проект',
+			'common.found_dismissed_title_other' => 'Найдены {{count}} ранее удалённых проектов',
 			'common.found_dismissed_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: 'Сканер обнаружил 1 проект, который вы ранее удаляли из библиотеки. Добавить обратно?', few: 'Scanner found ${count} projects that you previously removed from the library. Would you like to re-add them?', many: 'Scanner found ${count} projects that you previously removed from the library. Would you like to re-add them?', other: 'Сканер обнаружил ${count} проектов, которые вы ранее удаляли из библиотеки. Добавить обратно?', ), 
+			'common.found_dismissed_desc_one' => 'Сканер обнаружил 1 проект, который вы ранее удаляли из библиотеки. Добавить обратно?',
+			'common.found_dismissed_desc_other' => 'Сканер обнаружил {{count}} проектов, которые вы ранее удаляли из библиотеки. Добавить обратно?',
 			'common.readd_all' => 'Добавить все обратно',
 			'common.skip_all' => 'Пропустить всё',
 			'common.project_already_open_title' => 'Project already open',
@@ -2750,6 +2867,8 @@ extension on TranslationsRuRu {
 			'common.contributor_pr_closed' => 'Closed',
 			'common.contributor_pr_loading' => 'Loading PRs...',
 			'common.contributor_pr_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} pull request', few: '${count} pull requests', many: '${count} pull requests', other: '${count} pull requests', ), 
+			'common.contributor_pr_count_one' => '{{count}} pull request',
+			'common.contributor_pr_count_other' => '{{count}} pull requests',
 			'common.contributor_pr_load_failed' => 'Failed to load pull requests.',
 			'common.contributor_pr_network_hint' => 'Check your internet connection.',
 			'common.contributor_pr_empty' => 'No pull requests found.',
@@ -2807,10 +2926,16 @@ extension on TranslationsRuRu {
 			'common.project_doctor.scan_failed' => 'Could not check this project',
 			'common.project_doctor.run_again' => 'Run checks again',
 			'common.project_doctor.summary_errors' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} issue needs attention', few: '${count} issues need attention', many: '${count} issues need attention', other: '${count} issues need attention', ), 
+			'common.project_doctor.summary_errors_one' => '{{count}} issue needs attention',
+			'common.project_doctor.summary_errors_other' => '{{count}} issues need attention',
 			'common.project_doctor.summary_warnings' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} warning to review', few: '${count} warnings to review', many: '${count} warnings to review', other: '${count} warnings to review', ), 
+			'common.project_doctor.summary_warnings_one' => '{{count}} warning to review',
+			'common.project_doctor.summary_warnings_other' => '{{count}} warnings to review',
 			'common.project_doctor.summary_ready' => 'No blocking issues found',
 			'common.project_doctor.summary_counts' => '{{passed}} checks passed · {{findings}} findings',
 			'common.project_doctor.passed_checks' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} passed check', few: '${count} passed checks', many: '${count} passed checks', other: '${count} passed checks', ), 
+			'common.project_doctor.passed_checks_one' => '{{count}} passed check',
+			'common.project_doctor.passed_checks_other' => '{{count}} passed checks',
 			'common.project_doctor.local_checks' => 'Checks run locally. Fixes to settings save a backup first.',
 			'common.project_doctor.fix_complete' => 'Fix applied. Project checks updated.',
 			'common.project_doctor.templates_downloading' => 'Downloading selected templates. Progress and cancellation are also available in Tasks.',
@@ -3042,12 +3167,16 @@ extension on TranslationsRuRu {
 			'common.cleanup_confirm_desc' => 'These items will be removed:',
 			'common.cleanup_confirm_trash_note' => 'Versions and export templates are moved to the system trash, so the space is freed once you empty it. Unfinished downloads are deleted permanently.',
 			'common.cleanup_confirm_btn' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: 'Remove ${count} item', few: 'Remove ${count} items', many: 'Remove ${count} items', other: 'Remove ${count} items', ), 
+			'common.cleanup_confirm_btn_one' => 'Remove {{count}} item',
+			'common.cleanup_confirm_btn_other' => 'Remove {{count}} items',
 			'common.cleanup_done' => 'Freed {{size}}',
 			'common.cleanup_failed' => 'Couldn\'t remove {{label}}: {{error}}',
 			'common.cleanup_versions_desc' => 'Full size on disk of every installed Godot version.',
 			'common.cleanup_templates_title' => 'Project templates',
 			'common.cleanup_export_templates_title' => 'Export templates',
 			'common.cleanup_used_by_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} template', few: '${count} templates', many: '${count} templates', other: '${count} templates', ), 
+			'common.cleanup_used_by_templates_one' => '{{count}} template',
+			'common.cleanup_used_by_templates_other' => '{{count}} templates',
 			'common.cleanup_current_badge' => 'Current',
 			'common.cleanup_alias_badge' => 'Alias',
 			'common.cleanup_unused_badge' => 'Unused',
@@ -3063,7 +3192,11 @@ extension on TranslationsRuRu {
 			'common.optional' => '(optional)',
 			'common.language_label' => 'Язык',
 			'common.n_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} проект', few: '${count} projects', many: '${count} projects', other: '${count} проектов', ), 
+			'common.n_projects_one' => '{{count}} проект',
+			'common.n_projects_other' => '{{count}} проектов',
 			'common.vault_item_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: 'Item', few: 'Items', many: 'Items', other: 'Items', ), 
+			'common.vault_item_count_one' => 'Item',
+			'common.vault_item_count_other' => 'Items',
 			'common.vault_search_placeholder' => 'Search vault…',
 			'common.vault_empty' => 'Your vault is empty. Click <1>Save to Vault</1> to pick files or folders from a project and reuse them anywhere.',
 			'common.vault_no_match' => 'No items match your search.',
@@ -3097,9 +3230,17 @@ extension on TranslationsRuRu {
 			'common.vault_adding' => 'Adding…',
 			'common.vault_overwrite_btn' => 'Overwrite files',
 			'common.vault_conflict_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} file already exists in the project. Overwrite it?', few: '${count} files already exist in the project. Overwrite them?', many: '${count} files already exist in the project. Overwrite them?', other: '${count} files already exist in the project. Overwrite them?', ), 
+			'common.vault_conflict_desc_one' => '{{count}} file already exists in the project. Overwrite it?',
+			'common.vault_conflict_desc_other' => '{{count}} files already exist in the project. Overwrite them?',
 			'common.vault_conflict_summary_desc' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} file already exists across the selected projects. Overwrite it?', few: '${count} files already exist across the selected projects. Overwrite them?', many: '${count} files already exist across the selected projects. Overwrite them?', other: '${count} files already exist across the selected projects. Overwrite them?', ), 
+			'common.vault_conflict_summary_desc_one' => '{{count}} file already exists across the selected projects. Overwrite it?',
+			'common.vault_conflict_summary_desc_other' => '{{count}} files already exist across the selected projects. Overwrite them?',
 			'common.vault_added_toast' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: 'Added ${count} file', few: 'Added ${count} files', many: 'Added ${count} files', other: 'Added ${count} files', ), 
+			'common.vault_added_toast_one' => 'Added {{count}} file',
+			'common.vault_added_toast_other' => 'Added {{count}} files',
 			'common.vault_added_to_projects_toast' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: 'Added to ${count} project', few: 'Added to ${count} projects', many: 'Added to ${count} projects', other: 'Added to ${count} projects', ), 
+			'common.vault_added_to_projects_toast_one' => 'Added to {{count}} project',
+			'common.vault_added_to_projects_toast_other' => 'Added to {{count}} projects',
 			'common.vault_item_empty' => 'This item has no files.',
 			'common.kNew' => 'Новый',
 			'common.announcement_support_title' => 'Support GodotHub',
@@ -3114,10 +3255,14 @@ extension on TranslationsRuRu {
 			'common.project_addons.title' => 'Addons',
 			'common.project_addons.loading' => 'Reading addons…',
 			'common.project_addons.count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} addon installed', few: '${count} addons installed', many: '${count} addons installed', other: '${count} addons installed', ), 
+			'common.project_addons.count_one' => '{{count}} addon installed',
+			'common.project_addons.count_other' => '{{count}} addons installed',
 			'common.project_addons.empty' => 'This project has no addons folder. Install addons from the Asset Store or copy them into res://addons.',
 			'common.project_addons.check_updates' => 'Check for updates',
 			'common.project_addons.checking' => 'Checking…',
 			'common.project_addons.updates_available' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} update available', few: '${count} updates available', many: '${count} updates available', other: '${count} updates available', ), 
+			'common.project_addons.updates_available_one' => '{{count}} update available',
+			'common.project_addons.updates_available_other' => '{{count}} updates available',
 			'common.project_addons.all_current' => 'No updates found in the Asset Library',
 			'common.project_addons.enabled' => 'Enabled',
 			'common.project_addons.disabled' => 'Disabled',
@@ -3143,6 +3288,8 @@ extension on TranslationsRuRu {
 			'dashboard.greeting_morning' => 'Good morning',
 			'dashboard.greeting_afternoon' => 'Good afternoon',
 			'dashboard.greeting_evening' => 'Good evening',
+			_ => null,
+		} ?? switch (path) {
 			'dashboard.greeting_night' => 'Good night',
 			'dashboard.greeting_name' => '{{greeting}}, {{name}}',
 			'dashboard.dashboard_rename_hint' => 'Set a custom name',
@@ -3189,13 +3336,12 @@ extension on TranslationsRuRu {
 			'dashboard.dashboard_insights_this_month' => 'This month',
 			'dashboard.dashboard_insights_delta_up' => '{{pct}}% more than last month',
 			'dashboard.dashboard_insights_delta_down' => '{{pct}}% less than last month',
-			_ => null,
-		} ?? switch (path) {
 			'dashboard.dashboard_git' => 'Git Overview',
 			'dashboard.dashboard_git_empty' => 'No git repositories detected.',
 			'dashboard.dashboard_git_clean' => 'All clean',
 			'dashboard.dashboard_git_dirty' => '{{count}} with uncommitted changes',
 			'dashboard.dashboard_git_dirty_plural' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '1 with uncommitted changes', few: '${count} with uncommitted changes', many: '${count} with uncommitted changes', other: '${count} with uncommitted changes', ), 
+			'dashboard.dashboard_git_dirty_one' => '1 with uncommitted changes',
 			'dashboard.dashboard_git_branch' => 'On {{branch}}',
 			'dashboard.dashboard_storage' => 'Storage Usage',
 			'dashboard.dashboard_storage_empty' => 'No projects to measure.',
@@ -3359,6 +3505,8 @@ extension on TranslationsRuRu {
 			'nav.dashboard' => 'Панель управления',
 			'nav.projects' => 'Проекты',
 			'nav.projects_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: 'Project', few: 'Проекты', many: 'Проекты', other: 'Projects', ), 
+			'nav.projects_count_one' => 'Project',
+			'nav.projects_count_other' => 'Projects',
 			'nav.versions' => 'Версии',
 			'nav.templates' => 'Шаблоны',
 			'nav.vault' => 'Vault',
@@ -3399,7 +3547,11 @@ extension on TranslationsRuRu {
 			'onboarding.discovery_add_selected' => 'Add selected',
 			'onboarding.discovery_add_selected_count' => 'Add selected ({{count}})',
 			'onboarding.discovery_added_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: 'Added ${count} project.', few: 'Added ${count} projects.', many: 'Added ${count} projects.', other: 'Added ${count} projects.', ), 
+			'onboarding.discovery_added_projects_one' => 'Added {{count}} project.',
+			'onboarding.discovery_added_projects_other' => 'Added {{count}} projects.',
 			'onboarding.discovery_added_versions' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: 'Added ${count} version.', few: 'Added ${count} versions.', many: 'Added ${count} versions.', other: 'Added ${count} versions.', ), 
+			'onboarding.discovery_added_versions_one' => 'Added {{count}} version.',
+			'onboarding.discovery_added_versions_other' => 'Added {{count}} versions.',
 			'onboarding.discovery_link_hint' => 'Projects are linked to a matching Godot version automatically, including versions you add in the next step.',
 			'onboarding.setup' => 'Setup',
 			'onboarding.setup_title' => 'How do you want to use GodotHub?',
@@ -3541,6 +3693,8 @@ extension on TranslationsRuRu {
 			'settings.open_setup' => 'Открыть Настройки',
 			'settings.reset_colors' => 'Установить цвета по умолчанию',
 			'settings.folders_deep' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} папку вглубь', few: '${count} folders deep', many: '${count} folders deep', other: '${count} папок вглубь', ), 
+			'settings.folders_deep_one' => '{{count}} папку вглубь',
+			'settings.folders_deep_other' => '{{count}} папок вглубь',
 			'settings.at_once' => '{{count}} одновременно',
 			'settings.animation_speed_label' => 'Animation speed',
 			'settings.scroll_reveal_label' => 'Scroll reveal',
@@ -3596,11 +3750,21 @@ extension on TranslationsRuRu {
 			'settings.restore_modal_applying' => 'Applying backup and restarting…',
 			'settings.restore_modal_preview_desc' => 'Your gist backup contains:',
 			'settings.restore_modal_workspaces' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: 'workspace', few: 'workspaces', many: 'workspaces', other: 'workspaces', ), 
+			'settings.restore_modal_workspaces_one' => 'workspace',
+			'settings.restore_modal_workspaces_other' => 'workspaces',
 			'settings.restore_modal_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: 'project', few: 'projects', many: 'projects', other: 'projects', ), 
+			'settings.restore_modal_projects_one' => 'project',
+			'settings.restore_modal_projects_other' => 'projects',
 			'settings.restore_modal_categories' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: 'category', few: 'categories', many: 'categories', other: 'categories', ), 
+			'settings.restore_modal_categories_one' => 'category',
+			'settings.restore_modal_categories_other' => 'categories',
 			'settings.restore_modal_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: 'template', few: 'templates', many: 'templates', other: 'templates', ), 
+			'settings.restore_modal_templates_one' => 'template',
+			'settings.restore_modal_templates_other' => 'templates',
 			'settings.restore_modal_time_stats' => 'Includes time tracking data',
 			'settings.restore_modal_todos' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: 'Includes ${count} to-do', few: 'Includes ${count} to-dos', many: 'Includes ${count} to-dos', other: 'Includes ${count} to-dos', ), 
+			'settings.restore_modal_todos_one' => 'Includes {{count}} to-do',
+			'settings.restore_modal_todos_other' => 'Includes {{count}} to-dos',
 			'settings.restore_modal_project_scan_dirs' => '{{count}} project scan folder(s) will be restored',
 			'settings.restore_modal_version_scan_dirs' => '{{count}} Godot version folder(s) will be restored',
 			'settings.restore_modal_workspace_list' => 'Workspaces',
@@ -3611,6 +3775,8 @@ extension on TranslationsRuRu {
 			'settings.settings_exported' => 'Settings exported.',
 			'settings.settings_imported' => 'Settings imported.',
 			'settings.stats_imported' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: 'Imported stats for ${count} project.', few: 'Imported stats for ${count} projects.', many: 'Imported stats for ${count} projects.', other: 'Imported stats for ${count} projects.', ), 
+			'settings.stats_imported_one' => 'Imported stats for {{count}} project.',
+			'settings.stats_imported_other' => 'Imported stats for {{count}} projects.',
 			'settings.raised_contrast_label' => 'Raised surface contrast',
 			'settings.raised_contrast_value' => '{{value}}%',
 			'settings.token_help_desc' => 'Создайте токен на github.com/settings/tokens. You only need to check the repo scope if you want private repo access, otherwise leave all scopes unchecked. No sensitive permissions required.',
@@ -3636,6 +3802,8 @@ extension on TranslationsRuRu {
 			'settings.language_complete' => 'Complete',
 			'settings.language_beta' => 'Beta',
 			'settings.language_incomplete' => 'Incomplete',
+			_ => null,
+		} ?? switch (path) {
 			'settings.use_os_decorations' => 'Использовать системный вид окна',
 			'settings.credits' => 'Credits',
 			'settings.credits_developer' => 'Created by',
@@ -3671,6 +3839,8 @@ extension on TranslationsRuRu {
 			'settings.features_always_on' => 'Always on',
 			'settings.features_optional' => 'Optional',
 			'settings.features_enabled_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} feature on', few: '${count} features on', many: '${count} features on', other: '${count} features on', ), 
+			'settings.features_enabled_count_one' => '{{count}} feature on',
+			'settings.features_enabled_count_other' => '{{count}} features on',
 			'settings.setup_profile_minimal' => 'Minimal',
 			'settings.setup_profile_minimal_desc' => 'Just projects and Godot versions. The lightest, fastest setup.',
 			'settings.setup_profile_essentials' => 'Essentials',
@@ -3691,7 +3861,11 @@ extension on TranslationsRuRu {
 			'todos.next_steps' => 'Next steps',
 			'todos.saving_tasks' => 'Saving tasks',
 			'todos.pending_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} pending', few: '${count} pending', many: '${count} pending', other: '${count} pending', ), 
+			'todos.pending_count_one' => '{{count}} pending',
+			'todos.pending_count_other' => '{{count}} pending',
 			'todos.completed_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} completed', few: '${count} completed', many: '${count} completed', other: '${count} completed', ), 
+			'todos.completed_count_one' => '{{count}} completed',
+			'todos.completed_count_other' => '{{count}} completed',
 			'todos.new_task' => 'New task',
 			'todos.hide_next_steps' => 'Hide next steps',
 			'todos.save_changes_failed' => 'Could not save the changes.',
@@ -3703,8 +3877,6 @@ extension on TranslationsRuRu {
 			'todos.create_task' => 'Create task',
 			'todos.all_completed_title' => 'All done',
 			'todos.all_completed_description' => 'You completed all the next steps for this project.',
-			_ => null,
-		} ?? switch (path) {
 			'todos.footer_hint' => 'Use the list to keep track of the project\'s next steps.',
 			'todos.view_all' => 'View all',
 			'todos.delete_task_title' => 'Delete task?',
@@ -3744,13 +3916,19 @@ extension on TranslationsRuRu {
 			'todos.no_description' => 'No description',
 			'todos.tomorrow' => 'Tomorrow',
 			'todos.due_in_days' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: 'Due in ${count} day', few: 'Due in ${count} days', many: 'Due in ${count} days', other: 'Due in ${count} days', ), 
+			'todos.due_in_days_one' => 'Due in {{count}} day',
+			'todos.due_in_days_other' => 'Due in {{count}} days',
 			'todos.overdue_yesterday' => 'Was due yesterday',
 			'todos.overdue_days' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: 'Overdue by ${count} day', few: 'Overdue by ${count} days', many: 'Overdue by ${count} days', other: 'Overdue by ${count} days', ), 
+			'todos.overdue_days_one' => 'Overdue by {{count}} day',
+			'todos.overdue_days_other' => 'Overdue by {{count}} days',
 			'todos.scan_code' => 'Scan code',
 			'todos.scan_code_hint' => 'Import TODO and FIXME comments from scripts and shaders, and complete to-dos whose comment was removed',
 			'todos.comment_scan_summary' => 'Code scan: {{imported}} added, {{closed}} completed, {{reopened}} reopened',
 			'todos.comment_scan_none' => 'Code scan found no changes',
 			'todos.commit_closed' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: 'Completed ${count} to-do from a commit message', few: 'Completed ${count} to-dos from commit messages', many: 'Completed ${count} to-dos from commit messages', other: 'Completed ${count} to-dos from commit messages', ), 
+			'todos.commit_closed_one' => 'Completed {{count}} to-do from a commit message',
+			'todos.commit_closed_other' => 'Completed {{count}} to-dos from commit messages',
 			'todos.linked_file' => 'Linked file',
 			'todos.linked_file_placeholder' => 'res://scenes/player.tscn',
 			'todos.linked_file_hint' => 'Link a scene, script or resource from this project.',
@@ -3783,10 +3961,16 @@ extension on TranslationsRuRu {
 			'todos.all_areas' => 'All areas',
 			'todos.no_matching_tasks' => 'No to-dos match your search.',
 			'todos.open_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} to-do', few: '${count} to-dos', many: '${count} to-dos', other: '${count} to-dos', ), 
+			'todos.open_count_one' => '{{count}} to-do',
+			'todos.open_count_other' => '{{count}} to-dos',
 			'todos.overdue_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} overdue', few: '${count} overdue', many: '${count} overdue', other: '${count} overdue', ), 
+			'todos.overdue_count_one' => '{{count}} overdue',
+			'todos.overdue_count_other' => '{{count}} overdue',
 			'todos.tile_summary' => '{{overdue}} overdue · {{soon}} due this week',
 			'todos.tile_empty' => 'Nothing overdue or due this week.',
 			'todos.due_notification_title' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: 'To-do due: {{title}}', few: '${count} to-dos are due', many: '${count} to-dos are due', other: '${count} to-dos are due', ), 
+			'todos.due_notification_title_one' => 'To-do due: {{title}}',
+			'todos.due_notification_title_other' => '{{count}} to-dos are due',
 			'todos.due_notification_more' => 'and {{count}} more',
 			'versions.standard' => 'Стандартная',
 			'versions.unbound' => 'unbound',
@@ -3813,6 +3997,8 @@ extension on TranslationsRuRu {
 			'versions.pause_download' => 'Приостановить загрузку',
 			'versions.cancel_download' => 'Отменить загрузку',
 			'versions.installed_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, zero: 'No installs', one: 'Установлено', few: 'Installed', many: 'Installed', other: 'Установлено', ), 
+			'versions.installed_count_one' => 'Установлено',
+			'versions.installed_count_other' => 'Установлено',
 			'versions.installed_label' => 'Установлено',
 			'versions.original_name' => 'Original',
 			'versions.source' => 'Источник',
@@ -3849,8 +4035,14 @@ extension on TranslationsRuRu {
 			'versions.alias_shim_badge' => 'script',
 			'versions.alias_mono_script_note' => 'Mono builds load GodotSharp from the folder next to the executable, so on Windows the alias is created as a launcher script instead of a link.',
 			'versions.alias_create_all' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: 'Create Alias', few: 'Create ${count} Aliases', many: 'Create ${count} Aliases', other: 'Create ${count} Aliases', ), 
+			'versions.alias_create_all_one' => 'Create Alias',
+			'versions.alias_create_all_other' => 'Create {{count}} Aliases',
 			'versions.aliases_batch_created' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '1 alias created', few: '${count} aliases created', many: '${count} aliases created', other: '${count} aliases created', ), 
+			'versions.aliases_batch_created_one' => '1 alias created',
+			'versions.aliases_batch_created_other' => '{{count}} aliases created',
 			'versions.aliases_batch_skipped' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '1 alias skipped', few: '${count} aliases skipped', many: '${count} aliases skipped', other: '${count} aliases skipped', ), 
+			'versions.aliases_batch_skipped_one' => '1 alias skipped',
+			'versions.aliases_batch_skipped_other' => '{{count}} aliases skipped',
 			'versions.alias_queue_duplicate' => '"{{name}}" is already in the list',
 			'versions.alias_remove' => 'Remove alias',
 			'versions.alias_remove_title' => 'Remove this alias?',
@@ -3882,13 +4074,19 @@ extension on TranslationsRuRu {
 			'versions.export_templates_orphan_deleted' => 'Template folder deleted',
 			'versions.export_templates_choose' => 'Choose export templates',
 			'versions.export_templates_selected' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '1 template selected', few: '${count} templates selected', many: '${count} templates selected', other: '${count} templates selected', ), 
+			'versions.export_templates_selected_one' => '1 template selected',
+			'versions.export_templates_selected_other' => '{{count}} templates selected',
 			'versions.export_templates_size_summary' => '~{{download}} download · {{installed}} on disk',
 			'versions.export_templates_download_selected' => 'Download selected',
 			'versions.export_templates_loading_options' => 'Checking this release\'s available templates…',
 			'versions.export_templates_options_failed' => 'Couldn\'t load the templates for this release.',
 			'versions.export_templates_available' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '1 available template group', few: '${count} available template groups', many: '${count} available template groups', other: '${count} available template groups', ), 
+			'versions.export_templates_available_one' => '1 available template group',
+			'versions.export_templates_available_other' => '{{count}} available template groups',
 			'versions.export_templates_select_all' => 'Select all',
 			'versions.export_templates_files' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '1 template file', few: '${count} template files', many: '${count} template files', other: '${count} template files', ), 
+			'versions.export_templates_files_one' => '1 template file',
+			'versions.export_templates_files_other' => '{{count}} template files',
 			'versions.export_templates_option_installed' => 'Installed',
 			'versions.export_templates_keep_existing' => 'Expand a platform to choose architectures or individual files. Only selected files are downloaded. Your existing templates are kept.',
 			'versions.export_templates_uninstall_named' => 'Uninstall {{name}}',

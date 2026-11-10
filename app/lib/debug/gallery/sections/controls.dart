@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../design/design.dart';
 import '../../../ui/controls/checkbox.dart';
 import '../../../ui/controls/feature_setup_picker.dart';
-import '../../../ui/controls/features.dart';
+import '../../../logic/features.dart';
 import '../../../ui/controls/hsv_color_picker.dart';
 import '../../../ui/controls/key_recorder.dart';
 import '../../../ui/controls/search_bar.dart';

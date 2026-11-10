@@ -8,8 +8,7 @@ import '../i18n/languages.dart';
 import '../src/providers.dart';
 import '../src/rust/api/types.dart';
 import '../ui/core/i18n.dart';
-import 'providers.dart';
-import 'settings_copy.dart';
+import '../logic/settings_copy.dart';
 import 'title_bar_theme.dart';
 
 const _menuWidth = 240.0;
@@ -36,13 +35,11 @@ class _LanguageMenuState extends ConsumerState<LanguageMenu> {
 
   Future<void> _save(AppSettings next) async {
     try {
-      await ref.read(titleBarSettingsWriterProvider)(next);
+      await ref.read(settingsProvider.notifier).save(next);
     } on Object catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.maybeOf(context)?.showSnackBar(SnackBar(content: Text(error.toString())));
-      return;
     }
-    if (mounted) ref.invalidate(settingsProvider);
   }
 
   void _select(AppSettings settings, String value) {
