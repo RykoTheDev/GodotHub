@@ -453,7 +453,7 @@ export function ProjectsView({
   )
 
   const projectPaths = useMemo(() => (projectPathsKey ? projectPathsKey.split('|') : []), [projectPathsKey])
-  const { statusMap: gitStatusMap } = useGitStatusMap(projectPaths, active)
+  const { statusMap: gitStatusMap, loading: gitStatusLoading } = useGitStatusMap(projectPaths, active)
 
   useEffect(() => {
     try {
@@ -1321,6 +1321,7 @@ export function ProjectsView({
             categories={surfaceCategories}
             installedVersions={installed}
             gitStatusMap={gitStatusMap}
+            gitStatusLoading={gitStatusLoading}
             launchWithConsole={settings.launch_with_console}
             compact={gitSidebarOpen}
             onTogglePin={(id) => setPinned(id, !projects.find((p) => p.id === id)?.pinned)}
@@ -1360,6 +1361,7 @@ export function ProjectsView({
             categoriesEnabled={groupingEnabled}
             searchActive={parsedQuery.active}
             gitStatusMap={gitStatusMap}
+            gitStatusLoading={gitStatusLoading}
             launchWithConsole={settings.launch_with_console}
             onTogglePin={(id) => setPinned(id, !projects.find((p) => p.id === id)?.pinned)}
             onVersionChange={(id, tag) => updateVersion(id, tag)}
@@ -1411,6 +1413,7 @@ export function ProjectsView({
                 installedVersions={installed}
                 categories={surfaceCategories}
                 gitStatus={gitStatusMap[p.path] ?? null}
+                gitLoading={gitStatusLoading && !gitStatusMap[p.path]}
                 launchWithConsole={settings.launch_with_console}
                 onTogglePin={() => setPinned(p.id, !p.pinned)}
                 onVersionChange={(tag) => updateVersion(p.id, tag)}

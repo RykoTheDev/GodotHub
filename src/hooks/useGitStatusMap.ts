@@ -127,6 +127,7 @@ export function useGitStatusMap(paths: string[], active: boolean) {
     }
     activePaths.set(id, list)
     setMap(statusMap)
+    if (list.some((path) => !statusMap[path])) setLoading(true)
     startPolling()
     void refresh(false).finally(() => setLoading(false))
     return () => {

@@ -1943,7 +1943,7 @@ dependencies = [
 
 [[package]]
 name = "godothub"
-version = "1.5.8"
+version = "1.5.9"
 dependencies = [
  "godothub_core",
  "objc2",
