@@ -12,6 +12,7 @@ namespace {
 
 using CliDispatch = bool (*)(uint32_t, const char*, int32_t*);
 using ForwardToRunningInstance = bool (*)(uint32_t);
+using SetAppUserModelIdFn = bool (*)(uint32_t);
 
 HMODULE LoadBridge() {
   wchar_t module_path[MAX_PATH];
@@ -49,6 +50,17 @@ bool ForwardedToRunningInstance(HMODULE library) {
   return forward != nullptr && forward(GODOTHUB_CHANNEL);
 }
 
+void SetAppUserModelId(HMODULE library) {
+  if (library == nullptr) {
+    return;
+  }
+  const auto set_id = reinterpret_cast<SetAppUserModelIdFn>(
+      ::GetProcAddress(library, "godothub_set_app_user_model_id"));
+  if (set_id != nullptr) {
+    set_id(GODOTHUB_CHANNEL);
+  }
+}
+
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
@@ -61,6 +73,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   if (ForwardedToRunningInstance(bridge)) {
     return EXIT_SUCCESS;
   }
+  SetAppUserModelId(bridge);
 
   // Attach to console when present (e.g., 'flutter run') or create a
   // new console when running with a debugger.

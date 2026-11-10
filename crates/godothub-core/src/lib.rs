@@ -1,4 +1,5 @@
 mod app;
+pub mod app_user_model;
 pub mod runtime;
 
 pub use app::{app_version, set_app_version, AppHandle, Channel, ChannelInfo, EventSink, Host, Paths, UnknownPath};
