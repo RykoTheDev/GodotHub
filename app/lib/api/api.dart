@@ -11,6 +11,7 @@ import 'git.dart';
 import 'git_auth.dart';
 import 'mise.dart';
 import 'news.dart';
+import 'opener.dart';
 import 'projects.dart';
 import 'settings.dart';
 import 'storage.dart';
@@ -23,6 +24,8 @@ import 'workspaces.dart';
 export 'projects.dart' show getCachedProjectIcon, getCachedProjectName;
 
 abstract final class Api {
+  static const openUrl = OpenerApi.openUrl;
+  static Future<void> relaunch() async => throw UnsupportedError('Relaunching is not available in the Flutter app yet');
   static const getProjectExportPresets = ExportsApi.presets;
   static const startProjectExport = ExportsApi.start;
   static const getProjectExport = ExportsApi.get;

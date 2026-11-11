@@ -205,6 +205,17 @@ textarea::placeholder {
   }
 }
 
+/* One-shot grow that leaves no transform behind, so idle bars are plain
+ * boxes rather than a stacking context each. */
+.activity-bar {
+  animation: activity-bar-grow 700ms var(--ease-out-expo) backwards;
+}
+@keyframes activity-bar-grow {
+  from {
+    transform: scaleY(0);
+  }
+}
+
 /* Collapse the track as well as the controls. Keep spacing inside its clipped
  * child so hidden tag actions and pin buttons leave no empty flex gap. */
 .project-hover-reveal {

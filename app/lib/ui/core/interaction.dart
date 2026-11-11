@@ -209,6 +209,7 @@ class _GhPressableState extends State<GhPressable> {
     if (tooltip != null && tooltip.isNotEmpty) {
       child = Tooltip(message: tooltip, excludeFromSemantics: true, child: child);
     }
+    child = GhNoDrag(child: child);
     if (GhIntroItem.participates(context)) {
       child = GhIntroItem(child: child);
     }
@@ -899,4 +900,27 @@ class GhSpinState extends State<GhSpin> with SingleTickerProviderStateMixin {
       },
     );
   }
+}
+
+class GhNoDrag extends StatelessWidget {
+  const GhNoDrag({super.key, required this.child});
+
+  static const marker = 'gh-no-drag';
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => MetaData(metaData: marker, child: child);
+}
+
+bool ghHitsControl(Offset position, int viewId, RenderObject? self) {
+  final result = HitTestResult();
+  WidgetsBinding.instance.hitTestInView(result, position, viewId);
+  for (final entry in result.path) {
+    final target = entry.target;
+    if (identical(target, self)) return false;
+    if (target is RenderMetaData && target.metaData == GhNoDrag.marker) return true;
+    if (target is RenderEditable) return true;
+  }
+  return false;
 }
