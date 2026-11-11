@@ -8,6 +8,7 @@ import 'package:nativeapi/nativeapi.dart' show DisplayManager;
 import 'package:window_manager/window_manager.dart';
 
 import '../api/events.dart';
+import '../logic/pending_save.dart';
 import '../src/rust/api/window.dart' as rust;
 
 const Size defaultWindowSize = Size(1280, 720);
@@ -106,6 +107,7 @@ class AppWindow {
           return;
         }
         event.request.cancel();
+        await flushPendingSave().catchError((Object _) {});
         await _saveState();
         if (Platform.isMacOS) {
           _window.hide();

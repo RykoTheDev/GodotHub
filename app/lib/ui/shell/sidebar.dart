@@ -17,6 +17,7 @@ import '../overlays/menu.dart';
 import 'account_menu.dart';
 import 'disclosure.dart';
 import 'overlay_scroll_area.dart';
+import 'resize_knob.dart';
 import '../core/i18n.dart';
 import '../../motion/motion.dart';
 import '../../motion/presence.dart';
@@ -141,11 +142,6 @@ class GhSidebar extends StatefulWidget {
   static const double defaultWidth = 256;
   static const double minWidth = 195;
   static const double maxWidth = 350;
-  static const double knobHeight = 40;
-  static const double knobMinTop = 36;
-  static const double knobTrackDistance = 56;
-  static const double knobResetDistance = 72;
-  static const Duration doubleClickWindow = Duration(milliseconds: 350);
   static const Duration widthDuration = Duration(milliseconds: 500);
 
   static double clampWidth(double width) => width.clamp(minWidth, maxWidth).toDouble();
@@ -274,19 +270,11 @@ class _GhSidebarState extends State<GhSidebar> {
     return groups;
   }
 
-  double _knobOffset(double y, double height) {
-    final clamped = math.min(
-      math.max(GhSidebar.knobMinTop, y),
-      math.max(GhSidebar.knobMinTop, height - GhSidebar.knobHeight),
-    );
-    return clamped - height / 2;
-  }
-
   void _onStripDown(PointerDownEvent event) {
     final now = event.timeStamp;
     final last = _lastDown;
     _lastDown = now;
-    if (last != null && now - last < GhSidebar.doubleClickWindow) {
+    if (last != null && now - last < GhResizeKnob.doubleClickWindow) {
       setState(() {
         _width = GhSidebar.defaultWidth;
         _knobY = null;
@@ -329,14 +317,14 @@ class _GhSidebarState extends State<GhSidebar> {
     }
     final x = event.localPosition.dx;
     final dist = rtl ? x - overhang : panelWidth - x;
-    if (dist > GhSidebar.knobResetDistance) {
+    if (dist > GhResizeKnob.resetDistance) {
       if (_knobY != null) {
         setState(() => _knobY = null);
       }
       return;
     }
-    if (dist <= GhSidebar.knobTrackDistance) {
-      setState(() => _knobY = _knobOffset(event.localPosition.dy, height));
+    if (dist <= GhResizeKnob.trackDistance) {
+      setState(() => _knobY = GhResizeKnob.offsetFor(event.localPosition.dy, height));
     }
   }
 
@@ -414,69 +402,6 @@ class _GhSidebarState extends State<GhSidebar> {
   }
 
   Widget _strip(BuildContext context, GhTheme theme, bool rtl) {
-    final motion = GhMotion.of(context);
-    final duration = motion.css(GhDurations.interactive);
-    final showKnob = _revealed || _dragging;
-    final knobOffset = _knobY != null && !widget.fixedResizeKnob ? _knobY! : 0.0;
-    final dotColor = _dragging ? Colors.white : (_edgeHovered ? theme.accent : theme.line);
-    final dots = <Widget>[];
-    for (var i = 0; i < 3; i++) {
-      if (i > 0) {
-        dots.add(SizedBox(height: theme.space(1)));
-      }
-      dots.add(
-        GhAnimatedBox(
-          duration: duration,
-          width: theme.space(1),
-          height: theme.space(1),
-          color: dotColor,
-          borderRadius: BorderRadius.circular(9999),
-          child: null,
-        ),
-      );
-    }
-    final knob = AnimatedScale(
-      scale: _dragging ? 1.1 : 1,
-      duration: duration,
-      curve: GhCurves.outExpo,
-      child: GhAnimatedBox(
-        duration: duration,
-        width: theme.space(5),
-        height: theme.space(10),
-        alignment: Alignment.center,
-        color: _dragging ? theme.accent : theme.raised,
-        borderRadius: BorderRadius.circular(9999),
-        border: Border.all(color: _dragging ? theme.accent : (_edgeHovered ? theme.accentDim : theme.line)),
-        boxShadow: GhShadows.md(_dragging ? theme.accent.withValues(alpha: 0.3) : theme.base),
-        child: Column(mainAxisSize: MainAxisSize.min, children: dots),
-      ),
-    );
-    final label = TweenAnimationBuilder<double>(
-      tween: Tween(end: _dragging ? 1 : 0),
-      duration: duration,
-      curve: GhCurves.outExpo,
-      builder: (context, t, child) => Opacity(
-        opacity: t,
-        child: Transform.translate(offset: Offset(0, theme.space(1) * (1 - t)), child: child),
-      ),
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: theme.space(2), vertical: theme.space(1)),
-        decoration: BoxDecoration(
-          color: theme.raised,
-          borderRadius: BorderRadius.circular(theme.radiusTag),
-          border: Border.all(color: theme.line),
-          boxShadow: GhShadows.md(theme.base),
-        ),
-        child: Text(
-          '${_width.round()}px',
-          maxLines: 1,
-          softWrap: false,
-          style: theme
-              .text(size: GhTextSize.x3s, mono: true, color: theme.muted)
-              .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
-        ),
-      ),
-    );
     return Semantics(
       container: true,
       child: MouseRegion(
@@ -492,25 +417,12 @@ class _GhSidebarState extends State<GhSidebar> {
           onPointerMove: (event) => _onStripMove(event, rtl),
           onPointerUp: (_) => _onStripEnd(),
           onPointerCancel: (_) => _onStripEnd(),
-          child: IgnorePointer(
-            child: Center(
-              child: AnimatedOpacity(
-                opacity: showKnob ? 1 : 0,
-                duration: duration,
-                curve: GhCurves.outExpo,
-                child: Transform.translate(
-                  offset: Offset(0, knobOffset),
-                  child: Stack(
-                    clipBehavior: Clip.none,
-                    alignment: Alignment.center,
-                    children: [
-                      knob,
-                      Positioned(bottom: theme.space(10) + theme.space(2), child: label),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+          child: GhResizeKnob(
+            visible: _revealed || _dragging,
+            dragging: _dragging,
+            hovered: _edgeHovered,
+            offsetY: _knobY != null && !widget.fixedResizeKnob ? _knobY! : 0.0,
+            width: _width,
           ),
         ),
       ),

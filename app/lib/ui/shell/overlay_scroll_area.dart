@@ -18,7 +18,8 @@ const double _thumbWidth = 5;
 class GhOverlayScrollArea extends StatefulWidget {
   const GhOverlayScrollArea({
     super.key,
-    required this.child,
+    this.child,
+    this.slivers,
     this.hideThumb = false,
     this.hideTopButton = false,
     this.scrollToTopOn,
@@ -27,7 +28,8 @@ class GhOverlayScrollArea extends StatefulWidget {
     this.scrollToTopLabel,
   });
 
-  final Widget child;
+  final Widget? child;
+  final List<Widget>? slivers;
   final bool hideThumb;
   final bool hideTopButton;
   final Object? scrollToTopOn;
@@ -176,7 +178,9 @@ class _GhOverlayScrollAreaState extends State<GhOverlayScrollArea> {
       },
       child: ScrollConfiguration(
         behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false, overscroll: false),
-        child: SingleChildScrollView(controller: _controller, child: widget.child),
+        child: widget.slivers != null
+            ? CustomScrollView(controller: _controller, slivers: widget.slivers!)
+            : SingleChildScrollView(controller: _controller, child: widget.child),
       ),
     );
     final track = PositionedDirectional(

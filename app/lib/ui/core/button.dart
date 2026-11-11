@@ -22,6 +22,7 @@ class GhButton extends StatelessWidget {
     this.tooltip,
     this.semanticLabel,
     this.expand = false,
+    this.disabledOpacity = 0.4,
   });
 
   final VoidCallback? onPressed;
@@ -38,6 +39,7 @@ class GhButton extends StatelessWidget {
   final String? tooltip;
   final String? semanticLabel;
   final bool expand;
+  final double disabledOpacity;
 
   @override
   Widget build(BuildContext context) {
@@ -45,6 +47,7 @@ class GhButton extends StatelessWidget {
     final radius = BorderRadius.circular(theme.radiusBtn);
     return GhPressable(
       onPressed: onPressed,
+      disabledOpacity: disabledOpacity,
       rippleColor: variant == GhButtonVariant.primary || variant == GhButtonVariant.danger ? Colors.white : theme.ink,
       autofocus: autofocus,
       focusNode: focusNode,

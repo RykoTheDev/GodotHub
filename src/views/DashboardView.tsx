@@ -328,24 +328,17 @@ function ActivityPanel({
   const [range, setRange] = useState<ActivityRange>('weekly')
   const [data, setData] = useState<[string, number][]>([])
   const [loading, setLoading] = useState(true)
-  const [revealed, setRevealed] = useState(false)
 
   useEffect(() => {
     if (!active) return
     let cancelled = false
     setLoading(true)
-    setRevealed(false)
     api
       .getActivity(range)
       .then((d) => {
         if (cancelled) return
         setData(Array.isArray(d) ? d : [])
         setLoading(false)
-        requestAnimationFrame(() =>
-          requestAnimationFrame(() => {
-            if (!cancelled) setRevealed(true)
-          }),
-        )
       })
       .catch(() => {
         if (!cancelled) setLoading(false)
@@ -430,13 +423,8 @@ function ActivityPanel({
                   <div className="group/bar w-full h-full flex flex-col justify-end items-center gap-2">
                     <div className="relative w-full flex-1 flex items-end">
                       <div
-                        className="w-full origin-bottom rounded-t-md bg-linear-to-t from-accent-dim to-accent-bright opacity-80 group-hover/bar:opacity-100"
-                        style={{
-                          height: `${pct}%`,
-                          transform: revealed ? 'scaleY(1)' : 'scaleY(0)',
-                          transition: 'transform 700ms var(--ease-out-expo)',
-                          transitionDelay: `${i * 16}ms`,
-                        }}
+                        className="activity-bar w-full origin-bottom rounded-t-md bg-linear-to-t from-accent-dim/80 to-accent-bright/80 group-hover/bar:from-accent-dim group-hover/bar:to-accent-bright"
+                        style={{ height: `${pct}%`, animationDelay: `${i * 16}ms` }}
                         aria-label={tc('dashboard_weekly_aria', {
                           label: formatDuration(seconds * 1000),
                         })}

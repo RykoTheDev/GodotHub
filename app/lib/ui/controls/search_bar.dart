@@ -21,6 +21,7 @@ class GhSearchBar extends StatefulWidget {
     this.autofocus = false,
     this.searchLabel,
     this.clearLabel,
+    this.controller,
   });
 
   final String value;
@@ -34,13 +35,16 @@ class GhSearchBar extends StatefulWidget {
   final bool autofocus;
   final String? searchLabel;
   final String? clearLabel;
+  final TextEditingController? controller;
 
   @override
   State<GhSearchBar> createState() => _GhSearchBarState();
 }
 
 class _GhSearchBarState extends State<GhSearchBar> {
-  late final TextEditingController _controller = TextEditingController(text: widget.value);
+  TextEditingController? _ownController;
+
+  TextEditingController get _controller => widget.controller ?? (_ownController ??= TextEditingController(text: widget.value));
   FocusNode? _ownNode;
   bool _focusWithin = false;
   int? _lastCaret;
@@ -61,6 +65,10 @@ class _GhSearchBarState extends State<GhSearchBar> {
       (oldWidget.focusNode ?? _ownNode)?.removeListener(_onInputFocus);
       _node.addListener(_onInputFocus);
     }
+    if (oldWidget.controller != widget.controller) {
+      (oldWidget.controller ?? _ownController)?.removeListener(_onControllerChanged);
+      _controller.addListener(_onControllerChanged);
+    }
     if (widget.value != _controller.text) {
       final offset = widget.value.length;
       final selection = _controller.selection;
@@ -75,7 +83,7 @@ class _GhSearchBarState extends State<GhSearchBar> {
   void dispose() {
     _controller.removeListener(_onControllerChanged);
     _node.removeListener(_onInputFocus);
-    _controller.dispose();
+    _ownController?.dispose();
     _ownNode?.dispose();
     super.dispose();
   }

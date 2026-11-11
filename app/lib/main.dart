@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -10,19 +9,19 @@ import 'debug/gallery/widget_gallery.dart';
 import 'design/design.dart';
 import 'i18n/i18n.dart';
 import 'i18n/i18n_controller.dart';
-import 'motion/intro.dart';
 import 'motion/motion.dart';
 import 'motion/reveal.dart';
 import 'src/app_theme.dart';
 import 'src/channel.dart';
-import 'src/hello_screen.dart';
+import 'shell/app_shell.dart';
 import 'src/providers.dart';
 import 'src/rust/api/app.dart' as core;
 import 'src/rust/api/settings.dart' as settings;
 import 'src/rust/api/types.dart';
 import 'src/rust/frb_generated.dart';
 import 'src/ui_prefs.dart';
-import 'titlebar/title_bar.dart';
+import 'state/keyboard_shortcuts.dart';
+import 'state/onboarding.dart';
 import 'ui/core/ui_settings.dart';
 import 'window/app_window.dart';
 
@@ -90,7 +89,7 @@ class _GodotHubAppState extends ConsumerState<GodotHubApp> with WidgetsBindingOb
       GhI18n.instance.setLanguageSetting(value.language);
       GhI18n.instance.setRtlLayout(value.rtlLayout);
     });
-    final current = ref.watch(settingsProvider).value ?? widget.initialSettings;
+    final current = ref.watch(themePreviewProvider) ?? ref.watch(settingsProvider).value ?? widget.initialSettings;
     final theme = ghThemeFromSettings(current, _platformBrightness);
     final i18n = GhI18n.instance;
     return ListenableBuilder(
@@ -105,24 +104,12 @@ class _GodotHubAppState extends ConsumerState<GodotHubApp> with WidgetsBindingOb
           themeAnimationCurve: GhCurves.outExpo,
           builder: (context, child) => Directionality(
             textDirection: i18n.layoutDirection,
-            child: GhMotion(prefs: ghMotionPrefsFrom(current), child: child!),
+            child: GhMotion(prefs: ghMotionPrefsFrom(current), child: GhKeyboardShortcuts(child: child!)),
           ),
           home: Scaffold(
-            body: GhShellIntro(
-              child: Column(
-                children: [
-                  GhIntroTitleBar(child: TitleBar(isMac: Platform.isMacOS)),
-                  Expanded(
-                    child: GhRevealScope(
-                      replay: _gallery,
-                      child: _gallery
-                          ? WidgetGallery(onClose: () => setState(() => _gallery = false))
-                          : HelloScreen(title: widget.title, onOpenGallery: kDebugMode ? () => setState(() => _gallery = true) : null),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            body: _gallery
+                ? GhRevealScope(child: WidgetGallery(onClose: () => setState(() => _gallery = false)))
+                : AppShell(title: widget.title, onOpenGallery: kDebugMode ? () => setState(() => _gallery = true) : null),
           ),
         ),
       ),
