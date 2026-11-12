@@ -52,6 +52,7 @@ import 'git_sidebar_overlay.dart';
 import '../api/git.dart';
 import '../console/project_console_window.dart';
 import '../git/git_sidebar.dart';
+import '../versions/versions_view.dart';
 import '../modals/create_project_modal.dart';
 import '../state/categories.dart';
 import '../state/godot_versions.dart';
@@ -420,6 +421,9 @@ class _AppShellState extends ConsumerState<AppShell> {
         prefs: widget.prefs,
         onOpenSettings: () => _setTab('settings'),
       );
+    }
+    if (id == 'versions') {
+      return VersionsView(connected: connected, prefs: widget.prefs, onOpenSettings: () => _setTab('settings'));
     }
     if (id == 'settings') {
       return GhViewInsetPadding(

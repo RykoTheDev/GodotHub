@@ -38,6 +38,7 @@ class GhTextInput extends StatefulWidget {
     this.onTap,
     this.textDirection,
     this.dashed = false,
+    this.obscureText = false,
   });
 
   final TextEditingController? controller;
@@ -70,6 +71,7 @@ class GhTextInput extends StatefulWidget {
   final VoidCallback? onTap;
   final TextDirection? textDirection;
   final bool dashed;
+  final bool obscureText;
 
   @override
   State<GhTextInput> createState() => _GhTextInputState();
@@ -130,7 +132,8 @@ class _GhTextInputState extends State<GhTextInput> {
         onSubmitted: widget.onSubmitted,
         onEditingComplete: widget.onSubmitted == null ? null : () {},
         style: style,
-        maxLines: widget.maxLines,
+        obscureText: widget.obscureText,
+        maxLines: widget.obscureText ? 1 : widget.maxLines,
         minLines: widget.minLines,
         enabled: widget.enabled,
         readOnly: widget.readOnly,
