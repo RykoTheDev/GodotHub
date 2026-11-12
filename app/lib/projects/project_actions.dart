@@ -15,7 +15,6 @@ import '../modals/project_size_modal.dart';
 import '../modals/save_as_template_modal.dart';
 import '../modals/tag_manager_modal.dart';
 import '../modals/time_tracker_modal.dart';
-import '../shell/placeholder_view.dart';
 import '../src/rust/api/types.dart';
 import '../state/app_signals.dart';
 import '../state/shell_signals.dart';
@@ -153,9 +152,6 @@ Future<void> openDuplicateProject(BuildContext context, Project project, VoidCal
   context,
   (modal) => DuplicateProjectModal(project: project, onClose: () => Navigator.of(modal).pop(), onDuplicated: onDuplicated),
 );
-
-void showProjectModalPlaceholder(BuildContext context, String titleKey, FaIconData icon) =>
-    showPlaceholderModal(context, title: ghTr(titleKey), icon: icon).ignore();
 
 List<GhDropdownHeaderItem> projectHeaderItems(BuildContext context, Project project, {required bool todosEnabled, VoidCallback? onTodos}) {
   final tr = context.tr;

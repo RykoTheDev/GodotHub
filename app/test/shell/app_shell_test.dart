@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:godothub/git/git_sidebar.dart';
 import 'package:godothub/design/design.dart';
 import 'package:godothub/logic/settings_copy.dart';
 import 'package:godothub/modals/command_palette.dart';
@@ -24,6 +25,7 @@ import 'package:godothub/state/shell_signals.dart';
 import 'package:godothub/titlebar/providers.dart';
 import 'package:godothub/ui/shell/sidebar.dart';
 
+import '../support/fake_git.dart';
 import '../support/fake_rust.dart';
 import '../support/settings_fakes.dart';
 import '../titlebar_test.dart' show FakeRunningSource, FakeWindow, baseSettings;
@@ -76,6 +78,7 @@ void fakeBackend({List<Project> projects = const [], WorkspacesState? state, Loa
     ..on('crateApiNewsFetchGodotNews', ({bool? force}) async => throw StateError('offline'))
     ..on('crateApiCategoriesListCategories', () async => <Category>[])
     ..on('crateApiGodotVersionsListInstalledVersions', () async => <InstalledGodotVersion>[]);
+  FakeGitRepo().install(rust);
 }
 
 Future<void> pumpShell(
@@ -111,6 +114,8 @@ class _NoNews extends NewsBadgeNotifier {
 }
 
 Finder tabButton(String id) => find.byWidgetPredicate((w) => w is GhSidebarTabButton && w.tab.id == id);
+
+Finder gitSidebar(String name) => find.byWidgetPredicate((w) => w is GitSidebar && w.project.name == name);
 
 Finder placeholder(String title) => find.byWidgetPredicate((w) => w is PlaceholderView && w.title == title);
 
@@ -323,8 +328,8 @@ void main() {
       final target = GitSidebarTarget(project: testProject('p1', 'Space Game'));
       AppSignals.emit(showGitSidebarSignal, target);
       await settle(tester);
-      expect(placeholder('Space Game'), findsOneWidget);
-      final panel = find.ancestor(of: placeholder('Space Game'), matching: find.byType(Container)).first;
+      expect(gitSidebar('Space Game'), findsOneWidget);
+      final panel = find.ancestor(of: gitSidebar('Space Game'), matching: find.byType(Container)).first;
       expect(tester.getSize(panel).width, 480);
 
       final strip = find.descendant(
@@ -343,7 +348,7 @@ void main() {
 
       AppSignals.emit(showGitSidebarSignal, target);
       await settle(tester);
-      expect(placeholder('Space Game'), findsNothing);
+      expect(gitSidebar('Space Game'), findsNothing);
     });
 
     testWidgets('escape closes the git sidebar and the palette', (tester) async {
@@ -353,7 +358,7 @@ void main() {
       await settle(tester);
       AppSignals.emit(escapeSignal);
       await settle(tester);
-      expect(placeholder('Space Game'), findsNothing);
+      expect(gitSidebar('Space Game'), findsNothing);
     });
 
     testWidgets('a corrupt project registry offers to restore the backup', (tester) async {

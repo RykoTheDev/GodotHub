@@ -25,10 +25,11 @@ Project copyProject(
   int? sortOrder,
   List<String>? tags,
   String? godotVersion,
+  String? path,
 }) => Project(
   id: p.id,
   name: p.name,
-  path: p.path,
+  path: path ?? p.path,
   godotVersion: godotVersion ?? p.godotVersion,
   createdAt: p.createdAt,
   lastOpened: p.lastOpened,

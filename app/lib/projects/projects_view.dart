@@ -14,6 +14,7 @@ import '../logic/project_search.dart';
 import '../logic/project_sort.dart';
 import '../modals/bulk_tag_modal.dart';
 import '../modals/category_manager_modal.dart';
+import '../modals/clone_repo_modal.dart';
 import '../motion/animated_number.dart';
 import '../motion/motion.dart';
 import '../shell/git_sidebar_overlay.dart';
@@ -464,6 +465,20 @@ class ProjectsViewState extends ConsumerState<ProjectsView> {
     }
   }
 
+  Future<void> _openCloneRepo(AppSettings settings) => showGhModal<void>(
+    context,
+    (modal) => CloneRepoModal(
+      defaultLocation: settings.defaultProjectLocation,
+      categories: ref.read(categoriesProvider).data,
+      categoriesEnabled: settings.categoriesEnabled,
+      onClose: () => Navigator.of(modal).pop(),
+      onCloned: (_) {
+        Navigator.of(modal).pop();
+        _projects.refresh().ignore();
+      },
+    ),
+  );
+
   Future<void> _openCategoryManager() => showGhModal<void>(context, (modalContext) {
     return Consumer(
       builder: (context, ref, _) {
@@ -840,7 +855,7 @@ class ProjectsViewState extends ConsumerState<ProjectsView> {
                             id: 'clone-repo',
                             label: tr.common.clone_import_repo,
                             icon: GhIcons.gitBranch,
-                            onSelected: () => showProjectModalPlaceholder(context, 'clone_import_repo', GhIcons.gitBranch),
+                            onSelected: () => _openCloneRepo(settings),
                           ),
                         ],
                       ),

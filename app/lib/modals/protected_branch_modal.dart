@@ -69,7 +69,7 @@ class _ProtectedBranchModalState extends State<ProtectedBranchModal> {
     return GhModalShell(
       icon: GhIcon(GhIcons.lock, size: theme.space(5), color: theme.amber),
       title: ghTr('git:protected_branch_title'),
-      maxWidth: GhModalWidth.md,
+      maxWidth: GhModalWidth.lg,
       onClose: _busy ? null : widget.onClose,
       footer: [
         const Spacer(),

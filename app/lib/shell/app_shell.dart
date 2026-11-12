@@ -49,7 +49,9 @@ import '../projects/projects_view.dart';
 import '../ui/splash/splash_screen.dart';
 import 'account_menu_host.dart';
 import 'git_sidebar_overlay.dart';
+import '../api/git.dart';
 import '../console/project_console_window.dart';
+import '../git/git_sidebar.dart';
 import '../modals/create_project_modal.dart';
 import '../state/categories.dart';
 import '../state/godot_versions.dart';
@@ -229,6 +231,18 @@ class _AppShellState extends ConsumerState<AppShell> {
       _bugReportRoute = route;
       if (route == null) _bugReportOpen = false;
     }).ignore();
+  }
+
+  Future<void> _switchGitProject(Project project) async {
+    final updated = await ProjectsApi.update(project.id, ProjectUpdate(path: project.path));
+    final status = await GitApi.status(updated.path).then<GitStatus?>((value) => value, onError: (Object _) => null);
+    if (mounted) {
+      setState(() {
+        final current = _git;
+        if (current != null && current.project.id == updated.id) _git = GitSidebarTarget(project: updated, gitStatus: status);
+      });
+    }
+    await ref.read(projectsProvider.notifier).refresh();
   }
 
   void _openCreateProject() {
@@ -515,9 +529,13 @@ class _AppShellState extends ConsumerState<AppShell> {
             fixedKnob: settings.fixedSidebarResizeKnob,
             onClose: () => setState(() => _git = null),
             onWidthCommitted: (width) => _prefs.setItem(GitSidebarWidth.prefKey, '${width.round()}'),
-            builder: (context, target) => ColoredBox(
-              color: GhTheme.of(context).surface,
-              child: PlaceholderView(icon: GhIcons.gitBranch, title: target.project.name),
+            builder: (context, target) => GitSidebar(
+              project: target.project,
+              gitStatus: target.gitStatus,
+              connected: !cardLayout,
+              onClose: () => setState(() => _git = null),
+              onRefresh: () => ref.read(projectsProvider.notifier).refresh().ignore(),
+              onSwitchProject: _switchGitProject,
             ),
           ),
         ),
