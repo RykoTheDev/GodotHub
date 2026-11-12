@@ -1,3 +1,5 @@
+import '../src/channel.dart';
+import '../src/rust/api/app.dart' as app_rust;
 import '../src/rust/api/discovery.dart' as discovery_rust;
 import '../src/rust/api/godot_versions.dart' as versions_rust;
 import '../src/rust/api/projects.dart' as projects_rust;
@@ -24,6 +26,8 @@ import 'workspaces.dart';
 export 'projects.dart' show getCachedProjectIcon, getCachedProjectName;
 
 abstract final class Api {
+  static String? _channelIdentifier;
+  static String channelIdentifier() => _channelIdentifier ??= app_rust.channelIdentifier(channel: buildChannel);
   static const openUrl = OpenerApi.openUrl;
   static Future<void> relaunch() async => throw UnsupportedError('Relaunching is not available in the Flutter app yet');
   static const getProjectExportPresets = ExportsApi.presets;

@@ -1009,7 +1009,7 @@ class _RenderFlow extends RenderBox {
         continue;
       }
       final p = glyph.painter;
-      if (glyph.opacity >= 1) {
+      if (glyph.opacity >= 0.998) {
         p.paint(canvas, glyph.offset);
         continue;
       }

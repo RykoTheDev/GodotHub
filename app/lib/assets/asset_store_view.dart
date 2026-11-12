@@ -171,7 +171,7 @@ class _AssetStoreViewState extends ConsumerState<AssetStoreView> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: EdgeInsetsDirectional.only(start: insets.start, end: insets.end, bottom: theme.space(2)),
+          padding: EdgeInsetsDirectional.only(start: insets.start, end: insets.end),
           child: GhViewHeader(
             connected: connected,
             title: context.tr.nav.asset_store,

@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import '../src/rust/api/news.dart' as rust;
 import '../src/rust/api/types.dart' as types;
 
@@ -13,6 +15,9 @@ final class _NewsCacheEntry {
 _NewsCacheEntry? _cached;
 
 abstract final class NewsApi {
+  @visibleForTesting
+  static void debugResetCache() => _cached = null;
+
   static Future<types.NewsResponse> fetch([bool force = false]) {
     final now = DateTime.now().millisecondsSinceEpoch;
     final current = _cached;

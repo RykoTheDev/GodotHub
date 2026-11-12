@@ -14,7 +14,11 @@ import 'package:godothub/modals/command_palette.dart';
 import 'package:godothub/modals/create_workspace_modal.dart';
 import 'package:godothub/shell/app_shell.dart';
 import 'package:godothub/shell/git_sidebar_overlay.dart';
+import 'package:godothub/changelog/changelog_view.dart';
+import 'package:godothub/onboarding/onboarding_view.dart';
 import 'package:godothub/shell/placeholder_view.dart';
+import 'package:godothub/shell/sidebar_prefs.dart';
+import 'package:godothub/storage/storage_view.dart';
 import 'package:godothub/shell/tabs.dart';
 import 'package:godothub/src/rust/api/types.dart';
 import 'package:godothub/src/ui_prefs.dart';
@@ -69,6 +73,7 @@ void fakeBackend({List<Project> projects = const [], WorkspacesState? state, Loa
   final current = state ?? workspaces('w1', [workspace('w1', 'Main')]);
   rust
     ..on('crateApiChangelogListChangelogEntries', () async => <ChangelogEntry>[])
+    ..on('crateApiStorageGetStorageReport', () async => throw 'unavailable')
     ..on('crateApiWorkspaceListWorkspaces', () async => current)
     ..on('crateApiProjectsListProjects', () async => projects)
     ..on('crateApiProjectsGetProjectName', ({required String path}) async => null)
@@ -206,19 +211,19 @@ void main() {
     testWidgets('opens the landing tab, navigates from the sidebar and announces the view', (tester) async {
       fakeBackend();
       await pumpShell(tester, shellSettings(landing: 'storage'));
-      expect(placeholder('Storage'), findsOneWidget);
+      expect(find.byType(StorageView), findsOneWidget);
       expect(signals.where((s) => s.name == viewChangedSignal).map((s) => s.detail), ['storage']);
 
       await tester.tap(tabButton('versions'));
       await settle(tester);
       expect(find.byType(VersionsView), findsOneWidget);
-      expect(placeholder('Storage'), findsNothing);
-      expect(find.byWidgetPredicate((w) => w is PlaceholderView && w.title == 'Storage', skipOffstage: false), findsOneWidget);
+      expect(find.byType(StorageView), findsNothing);
+      expect(find.byType(StorageView, skipOffstage: false), findsOneWidget);
       expect(signals.where((s) => s.name == viewChangedSignal).last.detail, 'versions');
 
       AppSignals.emit(setTabSignal, 'changelog');
       await settle(tester);
-      expect(placeholder('Changelog'), findsOneWidget);
+      expect(find.byType(ChangelogView), findsOneWidget);
     });
 
     testWidgets('persists the sidebar collapse state and closed groups', (tester) async {
@@ -258,7 +263,7 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await settle(tester);
       expect(find.byType(CommandPalette), findsNothing);
-      expect(placeholder('Changelog'), findsOneWidget);
+      expect(find.byType(ChangelogView), findsOneWidget);
 
       AppSignals.emit(toggleCommandPaletteSignal);
       await settle(tester);
@@ -402,8 +407,15 @@ void main() {
 
     testWidgets('onboarding is gated until setup is complete', (tester) async {
       fakeBackend();
+      rust
+        ..on('crateApiDiscoveryScanGodotRecentProjects', () async => const <DiscoveredProject>[])
+        ..on('crateApiDiscoveryDetectGodotInstalls', () async => const <DiscoveredInstall>[])
+        ..on('crateApiAppGetOsUsername', () async => 'Tester')
+        ..on('crateApiGitAuthGetGitAuthState', () async => const GitAuthState(pats: []))
+        ..on('crateApiWorkspaceListWorkspaceScanDirs', () async => const <WorkspaceScanDirs>[])
+        ..on('crateApiMiseMiseRefreshStatus', () async => const MiseStatus(available: false));
       await pumpShell(tester, copySettings(baseSettings, setupComplete: false));
-      expect(placeholder('Onboarding'), findsOneWidget);
+      expect(find.byType(OnboardingView), findsOneWidget);
       expect(find.byType(GhSidebar), findsNothing);
     });
   });

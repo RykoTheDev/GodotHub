@@ -25,6 +25,11 @@ pub fn init_app() {
 }
 
 #[frb(sync)]
+pub fn channel_identifier(channel: String) -> Result<String, CoreError> {
+    Ok(parse_channel(&channel)?.info().identifier.to_string())
+}
+
+#[frb(sync)]
 pub fn app_version() -> String {
     godothub_core::app_version().to_string()
 }

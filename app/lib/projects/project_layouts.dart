@@ -149,12 +149,7 @@ class _Divider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = GhTheme.of(context);
-    return Container(
-      height: 2,
-      margin: EdgeInsets.symmetric(vertical: theme.space(1)),
-      color: theme.outline,
-    );
+    return SizedBox(height: GhTheme.of(context).space(2));
   }
 }
 
