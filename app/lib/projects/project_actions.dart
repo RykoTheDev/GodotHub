@@ -6,7 +6,15 @@ import '../api/projects.dart';
 import '../design/design.dart';
 import '../ui/core/i18n.dart';
 import '../logic/launch_errors.dart';
+import '../modals/duplicate_project_modal.dart';
+import '../modals/launch_args_modal.dart';
+import '../modals/project_addons_modal.dart';
+import '../modals/project_build_modal.dart';
+import '../modals/project_doctor_modal.dart';
+import '../modals/project_size_modal.dart';
+import '../modals/save_as_template_modal.dart';
 import '../modals/tag_manager_modal.dart';
+import '../modals/time_tracker_modal.dart';
 import '../shell/placeholder_view.dart';
 import '../src/rust/api/types.dart';
 import '../state/app_signals.dart';
@@ -107,6 +115,43 @@ Future<void> openTagManager(BuildContext context, Project project, ValueChanged<
   context,
   (modalContext) =>
       TagManagerModal(project: project, onClose: () => Navigator.of(modalContext).pop(), onSaved: (updated) => onSaved?.call(updated)),
+);
+
+Future<void> openProjectBuild(BuildContext context, Project project) =>
+    showGhModal<void>(context, (modal) => ProjectBuildModal(project: project, onClose: () => Navigator.of(modal).pop()));
+
+Future<void> openProjectDoctor(BuildContext context, Project project, List<InstalledGodotVersion> installedVersions) => showGhModal<void>(
+  context,
+  (modal) => ProjectDoctorModal(project: project, installedVersions: installedVersions, onClose: () => Navigator.of(modal).pop()),
+);
+
+Future<void> openProjectAddons(BuildContext context, Project project) =>
+    showGhModal<void>(context, (modal) => ProjectAddonsModal(project: project, onClose: () => Navigator.of(modal).pop()));
+
+Future<void> openLaunchArgs(BuildContext context, Project project, ValueChanged<String>? onSave) => showGhModal<void>(
+  context,
+  (modal) => LaunchArgsModal(
+    currentArgs: project.launchArguments,
+    onSave: (args) {
+      onSave?.call(args);
+      Navigator.of(modal).pop();
+    },
+    onClose: () => Navigator.of(modal).pop(),
+  ),
+);
+
+Future<void> openSaveAsTemplate(BuildContext context, Project project) =>
+    showGhModal<void>(context, (modal) => SaveAsTemplateModal(project: project, onClose: () => Navigator.of(modal).pop()));
+
+Future<void> openProjectSize(BuildContext context, Project project) =>
+    showGhModal<void>(context, (modal) => ProjectSizeModal(projectPath: project.path, onClose: () => Navigator.of(modal).pop()));
+
+Future<void> openTimeTracker(BuildContext context, Project project) =>
+    showGhModal<void>(context, (modal) => TimeTrackerModal(project: project, onClose: () => Navigator.of(modal).pop()));
+
+Future<void> openDuplicateProject(BuildContext context, Project project, VoidCallback onDuplicated) => showGhModal<void>(
+  context,
+  (modal) => DuplicateProjectModal(project: project, onClose: () => Navigator.of(modal).pop(), onDuplicated: onDuplicated),
 );
 
 void showProjectModalPlaceholder(BuildContext context, String titleKey, FaIconData icon) =>

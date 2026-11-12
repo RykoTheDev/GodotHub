@@ -19,7 +19,8 @@ enum GhModalWidth {
   x2l(42),
   x3l(48),
   x4l(56),
-  x5l(64);
+  x5l(64),
+  x6l(72);
 
   const GhModalWidth(this.rem);
 
@@ -48,7 +49,10 @@ class GhModalShell extends StatefulWidget {
     this.showClose = true,
     this.onKeyEvent,
     this.footer,
+    this.rawFooter,
     this.bodyHeight,
+    this.panelHeight,
+    this.titleMaxLines = 2,
     this.initialFocus,
     this.isMenuOpen,
     this.staticPreview = false,
@@ -62,7 +66,10 @@ class GhModalShell extends StatefulWidget {
   final bool showClose;
   final FocusOnKeyEventCallback? onKeyEvent;
   final List<Widget>? footer;
+  final Widget? rawFooter;
   final double? bodyHeight;
+  final double? panelHeight;
+  final int? titleMaxLines;
   final FocusNode? initialFocus;
   final bool Function()? isMenuOpen;
   final bool staticPreview;
@@ -196,6 +203,7 @@ class _GhModalShellState extends State<GhModalShell> {
     final pad = theme.space(4);
     final footer = widget.footer;
     final bodyHeight = widget.bodyHeight;
+    final panelHeight = widget.panelHeight;
     Widget dialog = Container(
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
@@ -204,21 +212,26 @@ class _GhModalShellState extends State<GhModalShell> {
         boxShadow: GhShadows.xl2(),
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: panelHeight != null ? MainAxisSize.max : MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           GhModalHeader(
             icon: widget.icon,
             title: widget.title,
+            titleMaxLines: widget.titleMaxLines,
             onClose: widget.showClose && widget.onClose != null ? _close : null,
           ),
-          Flexible(
-            child: GhCascadeItem(
-              child: bodyHeight != null
-                  ? SizedBox(height: bodyHeight, child: widget.child)
-                  : SingleChildScrollView(child: widget.child),
+          if (panelHeight != null)
+            Expanded(child: GhCascadeItem(child: widget.child))
+          else
+            Flexible(
+              child: GhCascadeItem(
+                child: bodyHeight != null
+                    ? SizedBox(height: bodyHeight, child: widget.child)
+                    : SingleChildScrollView(child: widget.child),
+              ),
             ),
-          ),
+          ?widget.rawFooter,
           if (footer != null)
             DecoratedBox(
               decoration: BoxDecoration(
@@ -257,6 +270,7 @@ class _GhModalShellState extends State<GhModalShell> {
                       constraints: BoxConstraints(maxWidth: theme.rem(widget.maxWidth.rem), maxHeight: maxHeight),
                       child: SizedBox(
                         width: double.infinity,
+                        height: panelHeight == null ? null : math.min(panelHeight, maxHeight),
                         child: Semantics(
                           scopesRoute: true,
                           namesRoute: true,

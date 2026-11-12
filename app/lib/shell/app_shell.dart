@@ -49,6 +49,10 @@ import '../projects/projects_view.dart';
 import '../ui/splash/splash_screen.dart';
 import 'account_menu_host.dart';
 import 'git_sidebar_overlay.dart';
+import '../console/project_console_window.dart';
+import '../modals/create_project_modal.dart';
+import '../state/categories.dart';
+import '../state/godot_versions.dart';
 import 'placeholder_view.dart';
 import 'tabs.dart';
 import 'workspace_modals.dart';
@@ -96,6 +100,7 @@ class AppShell extends ConsumerStatefulWidget {
 
 class _AppShellState extends ConsumerState<AppShell> {
   final List<StreamSubscription<Object?>> _subscriptions = [];
+  bool _createProjectOpen = false;
   final bool _uiSwitchIntent = GhUiTransition.shouldOpenSettingsAfterSwitch();
   final bool _introHandedOff = GhUiTransition.consumeShellIntroHandOff();
   late bool _splashDone = !GhUiTransition.shouldShowSplash();
@@ -137,7 +142,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       _setTab('settings');
     });
     on(showProjectTodosSignal, (_) => _setTab('projects', closeGit: true));
-    on(newProjectRequestSignal, (_) => _showPlaceholder(context.tr.common.new_project, GhIcons.folderPlus));
+    on(newProjectRequestSignal, (_) => _openCreateProject());
     on(importProjectRequestSignal, (_) => _importProject());
     on(scanProjectsSignal, (_) => _scanProjects());
     on(reportBugSignal, (_) => _openBugReport());
@@ -224,6 +229,30 @@ class _AppShellState extends ConsumerState<AppShell> {
       _bugReportRoute = route;
       if (route == null) _bugReportOpen = false;
     }).ignore();
+  }
+
+  void _openCreateProject() {
+    if (_createProjectOpen || !mounted) return;
+    _createProjectOpen = true;
+    showGhModal<void>(
+      context,
+      (modal) => Consumer(
+        builder: (context, ref, _) {
+          final settings = ref.watch(settingsProvider).value;
+          return CreateProjectModal(
+            installedVersions: ref.watch(godotVersionsProvider).installed,
+            defaultLocation: settings?.defaultProjectLocation,
+            categories: ref.watch(categoriesProvider).data,
+            categoriesEnabled: settings?.categoriesEnabled ?? false,
+            onClose: () => Navigator.of(modal).pop(),
+            onCreated: () {
+              Navigator.of(modal).pop();
+              ref.read(projectsProvider.notifier).refresh().ignore();
+            },
+          );
+        },
+      ),
+    ).whenComplete(() => _createProjectOpen = false);
   }
 
   void _openUpdates() => _showPlaceholder(context.tr.common.update_available, GhIcons.arrowUp);
@@ -379,7 +408,9 @@ class _AppShellState extends ConsumerState<AppShell> {
       );
     }
     if (id == 'settings') {
-      return GhViewInsetPadding(child: HelloScreen(title: widget.title, onOpenGallery: kDebugMode ? gallery : null));
+      return GhViewInsetPadding(
+        child: HelloScreen(title: widget.title, onOpenGallery: kDebugMode ? gallery : null),
+      );
     }
     return GhViewInsetPadding(
       child: PlaceholderView(
@@ -456,7 +487,10 @@ class _AppShellState extends ConsumerState<AppShell> {
                       for (final id in _mountedTabs)
                         Positioned.fill(
                           key: ValueKey('pane:$id'),
-                          child: _ViewPane(active: id == _tab, child: _view(id, active: id == _tab, connected: !cardLayout)),
+                          child: _ViewPane(
+                            active: id == _tab,
+                            child: _view(id, active: id == _tab, connected: !cardLayout),
+                          ),
                         ),
                       Positioned.fill(
                         child: Padding(
@@ -487,6 +521,7 @@ class _AppShellState extends ConsumerState<AppShell> {
             ),
           ),
         ),
+        Positioned.fill(child: ProjectConsoleWindow(prefs: widget.prefs)),
       ],
     );
   }

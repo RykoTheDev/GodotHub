@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -29,6 +31,9 @@ import '../ui/core/ui_settings.dart' show GhSide;
 import '../ui/overlays/dropdown.dart';
 import '../ui/overlays/menu.dart';
 import '../ui/reusables/open_button.dart';
+import '../state/app_signals.dart';
+import '../state/shell_signals.dart';
+import '../todos/project_todo_panel.dart';
 import 'project_actions.dart';
 import 'project_icon.dart';
 import 'project_tile.dart' show formatProjectSize;
@@ -78,9 +83,37 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
   final TextEditingController _newTag = TextEditingController();
   final FocusNode _editNode = FocusNode(debugLabel: 'ProjectCard tag edit');
   final FocusNode _addNode = FocusNode(debugLabel: 'ProjectCard tag add');
+  StreamSubscription<AppSignal>? _todoSignal;
+  bool _showTodos = false;
+  bool _todosLoaded = false;
+
+  bool get _todosEnabled => ref.read(settingsProvider).value?.projectTodosEnabled ?? false;
+
+  @override
+  void initState() {
+    super.initState();
+    _todoSignal = AppSignals.on(showProjectTodosSignal).listen((signal) {
+      if (signal.detail == widget.project.id) _focusTodos();
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) => _focusTodos());
+  }
+
+  void _focusTodos() {
+    if (!mounted || !_todosEnabled || !consumeTodoFocus(widget.project.id)) return;
+    setState(() => _showTodos = true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) Scrollable.ensureVisible(context, alignment: 0.5).ignore();
+    });
+  }
+
+  void _toggleTodos({bool resetLoaded = true}) => setState(() {
+    if (resetLoaded) _todosLoaded = false;
+    _showTodos = !_showTodos;
+  });
 
   @override
   void dispose() {
+    _todoSignal?.cancel();
     _editTag.dispose();
     _newTag.dispose();
     _editNode.dispose();
@@ -214,7 +247,11 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
     if (!mounted) return;
     if (ghHitsControl(event.position, event.viewId, context.findRenderObject())) return;
     final modifiers = SelectModifiers.current();
-    if (modifiers.any) widget.callbacks.onToggleSelect?.call(modifiers);
+    if (modifiers.any) {
+      widget.callbacks.onToggleSelect?.call(modifiers);
+      return;
+    }
+    if (_todosEnabled) _toggleTodos();
   }
 
   Widget _hoverIcon(FaIconData icon, double size, Color color) {
@@ -241,25 +278,25 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
         id: 'build-export',
         label: ghTr('build_export.title'),
         icon: GhIcons.rocket,
-        onSelected: () => showProjectModalPlaceholder(context, 'build_export.title', GhIcons.rocket),
+        onSelected: () => openProjectBuild(context, project),
       ),
       GhMenuItem(
         id: 'project-doctor',
         label: ghTr('project_doctor.title'),
         icon: GhIcons.bug,
-        onSelected: () => showProjectModalPlaceholder(context, 'project_doctor.title', GhIcons.bug),
+        onSelected: () => openProjectDoctor(context, project, widget.installedVersions),
       ),
       GhMenuItem(
         id: 'project-addons',
         label: ghTr('project_addons.title'),
         icon: GhIcons.plug,
-        onSelected: () => showProjectModalPlaceholder(context, 'project_addons.title', GhIcons.plug),
+        onSelected: () => openProjectAddons(context, project),
       ),
       GhMenuItem(
         id: 'launch-arguments',
         label: tr.launch_arguments,
         icon: GhIcons.rocket,
-        onSelected: () => showProjectModalPlaceholder(context, 'launch_arguments', GhIcons.rocket),
+        onSelected: () => openLaunchArgs(context, project, cb.onLaunchArgsChange),
       ),
       GhMenuItem(
         id: 'manage-tags',
@@ -282,7 +319,7 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
         label: tr.save_as_template,
         icon: GhIcons.copy,
         dividerAfter: true,
-        onSelected: () => showProjectModalPlaceholder(context, 'save_as_template', GhIcons.copy),
+        onSelected: () => openSaveAsTemplate(context, project),
       ),
       GhMenuItem(
         id: 'remove',
@@ -322,7 +359,8 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
     );
     final icon = data.icon != null && data.icon != _brokenIcon ? data.icon : null;
     final reveal = _hovered || _focusWithin;
-    final radius = BorderRadius.circular(theme.radiusItem);
+    final showTodos = todosEnabled && _showTodos;
+    final radius = showTodos ? BorderRadius.vertical(top: Radius.circular(theme.radiusItem)) : BorderRadius.circular(theme.radiusItem);
     final motion = GhMotion.of(context);
 
     final content = LayoutBuilder(
@@ -425,7 +463,7 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
                     icon: GhIcons.hardDrive,
                     label: formatProjectSize(data.size!),
                     semanticLabel: tr.project_size,
-                    onPressed: () => showProjectModalPlaceholder(context, 'project_size', GhIcons.hardDrive),
+                    onPressed: () => openProjectSize(context, project),
                   ),
                 if (widget.categories.isNotEmpty && cb.onCategoryChange != null) _categoryDropdown(context, theme),
               ],
@@ -459,6 +497,19 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
             bottom: -theme.space(3.5),
             child: IgnorePointer(child: _backdrop(theme, icon, displayName)),
           ),
+          if (showTodos && !_todosLoaded)
+            Positioned(
+              left: -theme.space(3.5),
+              right: -theme.space(3.5),
+              bottom: -theme.space(3.5),
+              child: IgnorePointer(
+                child: LinearProgressIndicator(
+                  minHeight: theme.space(0.5),
+                  color: theme.accent,
+                  backgroundColor: theme.accent.withValues(alpha: 0.15),
+                ),
+              ),
+            ),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             spacing: theme.space(3.5),
@@ -491,7 +542,12 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
                       consoleInitiallyOn: widget.launchWithConsole && (version?.supportsConsole ?? false),
                       showConsole: options.showConsole,
                       moreLabel: tr.project_more_aria,
-                      headerItems: projectHeaderItems(context, project, todosEnabled: todosEnabled, onTodos: () {}),
+                      headerItems: projectHeaderItems(
+                        context,
+                        project,
+                        todosEnabled: todosEnabled,
+                        onTodos: () => _toggleTodos(resetLoaded: false),
+                      ),
                       items: _menuItems(context, displayName),
                     ),
                   ],
@@ -503,7 +559,7 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
       ),
     );
 
-    return MouseRegion(
+    final surface = MouseRegion(
       cursor: todosEnabled ? SystemMouseCursors.click : MouseCursor.defer,
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
@@ -516,6 +572,24 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
           child: Semantics(container: true, label: displayName, child: card),
         ),
       ),
+    );
+    if (!showTodos) return surface;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        surface,
+        ProjectTodoPanel(
+          projectId: project.id,
+          onLoaded: () {
+            if (mounted && !_todosLoaded) setState(() => _todosLoaded = true);
+          },
+          onClose: () => setState(() {
+            _todosLoaded = false;
+            _showTodos = false;
+          }),
+        ),
+      ],
     );
   }
 
@@ -1016,7 +1090,7 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
         icon: GhIcons.stopwatch,
         label: formatDuration(total),
         semanticLabel: tr.time_tracked_title,
-        onPressed: () => showProjectModalPlaceholder(context, 'time_tracked_title', GhIcons.stopwatch),
+        onPressed: () => openTimeTracker(context, _project),
       );
     }
 
