@@ -114,6 +114,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     isHidden: ghAppHidden,
   );
   final List<String> _mountedTabs = [];
+  final Map<String, ({Object inputs, Widget view})> _views = {};
   bool _landingApplied = false;
   String? _emittedTab;
   String _tab = 'projects';
@@ -413,6 +414,20 @@ class _AppShellState extends ConsumerState<AppShell> {
   Widget _view(String id, {required bool active, required bool connected}) {
     final tab = appTabById(id)!;
     final gallery = widget.onOpenGallery;
+    final Object inputs = switch (id) {
+      'projects' => (connected, active, _git != null, widget.prefs),
+      'versions' => (connected, widget.prefs),
+      'settings' => (widget.title, gallery),
+      _ => (context.tr, gallery),
+    };
+    final cached = _views[id];
+    if (cached != null && cached.inputs == inputs) return cached.view;
+    final view = _buildView(id, tab, gallery, active: active, connected: connected);
+    _views[id] = (inputs: inputs, view: view);
+    return view;
+  }
+
+  Widget _buildView(String id, AppTabDef tab, VoidCallback? gallery, {required bool active, required bool connected}) {
     if (id == 'projects') {
       return ProjectsView(
         connected: connected,
