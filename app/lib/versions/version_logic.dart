@@ -79,6 +79,10 @@ class VersionFilters {
 }
 
 final _chunk = RegExp(r'(\d+)|(\D+)');
+final _leadingV = RegExp('^v');
+final _versionSeparator = RegExp(r'[.\-]');
+final _digits = RegExp(r'^\d+$');
+final _minor = RegExp(r'^(\d+)\.(\d+)');
 
 int naturalCompare(String a, String b) {
   final left = _chunk.allMatches(a).toList();
@@ -98,10 +102,10 @@ int naturalCompare(String a, String b) {
 }
 
 String versionCore(String raw) {
-  final parts = raw.trim().toLowerCase().replaceFirst(RegExp('^v'), '').split(RegExp(r'[.\-]')).where((p) => p.isNotEmpty).toList();
+  final parts = raw.trim().toLowerCase().replaceFirst(_leadingV, '').split(_versionSeparator).where((p) => p.isNotEmpty).toList();
   final numeric = <String>[];
   var i = 0;
-  while (i < parts.length && RegExp(r'^\d+$').hasMatch(parts[i])) {
+  while (i < parts.length && _digits.hasMatch(parts[i])) {
     numeric.add(parts[i]);
     i++;
   }
@@ -122,7 +126,7 @@ List<T> reverseTagOrder<T>(List<T> rows, String Function(T row) tagOf) {
 }
 
 String minorGroup(String tag) {
-  final m = RegExp(r'^(\d+)\.(\d+)').firstMatch(tag.trim().replaceFirst(RegExp('^v'), ''));
+  final m = _minor.firstMatch(tag.trim().replaceFirst(_leadingV, ''));
   return m == null ? 'Other' : '${m[1]}.${m[2]}';
 }
 
@@ -179,9 +183,10 @@ List<(String, List<AvailableRow>)> groupAvailable(List<GodotRelease> available, 
     if (q.isNotEmpty && !release.tag.toLowerCase().contains(q)) continue;
     final stable = release.tag.toLowerCase().contains('stable');
     if (filters.channel != ChannelFilter.both && (filters.channel == ChannelFilter.stable) != stable) continue;
+    List<AvailableRow>? group;
     for (final asset in release.assets) {
       if (filters.buildType != BuildTypeFilter.both && (filters.buildType == BuildTypeFilter.mono) != asset.isMono) continue;
-      (groups[minorGroup(release.tag)] ??= []).add((tag: release.tag, asset: asset));
+      (group ??= groups[minorGroup(release.tag)] ??= []).add((tag: release.tag, asset: asset));
     }
   }
   final entries = groups.entries.toList()

@@ -52,6 +52,9 @@ import 'git_sidebar_overlay.dart';
 import '../api/git.dart';
 import '../console/project_console_window.dart';
 import '../git/git_sidebar.dart';
+import '../assets/asset_store_view.dart';
+import '../templates/templates_view.dart';
+import '../vault/vault_view.dart';
 import '../versions/versions_view.dart';
 import '../modals/create_project_modal.dart';
 import '../state/categories.dart';
@@ -416,7 +419,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     final gallery = widget.onOpenGallery;
     final Object inputs = switch (id) {
       'projects' => (connected, active, _git != null, widget.prefs),
-      'versions' => (connected, widget.prefs),
+      'versions' || 'templates' || 'asset-store' || 'vault' => (connected, widget.prefs),
       'settings' => (widget.title, gallery),
       _ => (context.tr, gallery),
     };
@@ -436,6 +439,15 @@ class _AppShellState extends ConsumerState<AppShell> {
         prefs: widget.prefs,
         onOpenSettings: () => _setTab('settings'),
       );
+    }
+    if (id == 'asset-store') {
+      return AssetStoreView(connected: connected, prefs: widget.prefs);
+    }
+    if (id == 'vault') {
+      return VaultView(connected: connected, prefs: widget.prefs);
+    }
+    if (id == 'templates') {
+      return TemplatesView(connected: connected, prefs: widget.prefs, onOpenSettings: () => _setTab('settings'));
     }
     if (id == 'versions') {
       return VersionsView(connected: connected, prefs: widget.prefs, onOpenSettings: () => _setTab('settings'));

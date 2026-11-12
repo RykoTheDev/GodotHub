@@ -33,6 +33,7 @@ Future<void> main() async {
   final current = await settings.getSettings();
   await UiPrefsStore.instance.load();
   await GhI18n.init(settingsLanguage: current.language, settingsRtlLayout: current.rtlLayout);
+  warmUpFonts(languageCode: GhI18n.instance.locale.flutterLocale.languageCode);
   final window = await AppWindow.start(title: title, useOsDecorations: current.useOsDecorations);
   runApp(
     ProviderScope(

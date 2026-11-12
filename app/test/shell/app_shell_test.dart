@@ -205,15 +205,15 @@ void main() {
   group('shell', () {
     testWidgets('opens the landing tab, navigates from the sidebar and announces the view', (tester) async {
       fakeBackend();
-      await pumpShell(tester, shellSettings(landing: 'templates'));
-      expect(placeholder('Templates'), findsOneWidget);
-      expect(signals.where((s) => s.name == viewChangedSignal).map((s) => s.detail), ['templates']);
+      await pumpShell(tester, shellSettings(landing: 'storage'));
+      expect(placeholder('Storage'), findsOneWidget);
+      expect(signals.where((s) => s.name == viewChangedSignal).map((s) => s.detail), ['storage']);
 
       await tester.tap(tabButton('versions'));
       await settle(tester);
       expect(find.byType(VersionsView), findsOneWidget);
-      expect(placeholder('Templates'), findsNothing);
-      expect(find.byWidgetPredicate((w) => w is PlaceholderView && w.title == 'Templates', skipOffstage: false), findsOneWidget);
+      expect(placeholder('Storage'), findsNothing);
+      expect(find.byWidgetPredicate((w) => w is PlaceholderView && w.title == 'Storage', skipOffstage: false), findsOneWidget);
       expect(signals.where((s) => s.name == viewChangedSignal).last.detail, 'versions');
 
       AppSignals.emit(setTabSignal, 'changelog');
