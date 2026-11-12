@@ -15,3 +15,4 @@ const scanVersionsSignal = 'app:scan-versions';
 const importVersionSignal = 'app:import-version';
 const syncTemplatesSignal = 'app:sync-templates';
 const setCategoryFilterSignal = 'app:set-category-filter';
+const refreshTemplatesSignal = 'app:refresh-templates';

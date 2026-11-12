@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import 'package:flutter/painting.dart';
 
 enum GhTextSize {
@@ -84,4 +86,20 @@ TextStyle ghTextStyle({
     letterSpacing: letterSpacingEm == null ? null : letterSpacingEm * fontSize,
     color: color,
   );
+}
+
+void warmUpFonts({String? languageCode}) {
+  const sample = 'Aa09 ĀăĞőŸ ЖжЯѣ ΩωΆἀ ạễỹ';
+  for (final mono in [false, true]) {
+    final weights = mono ? const [GhWeight.normal, GhWeight.medium] : const [GhWeight.normal, GhWeight.medium, GhWeight.semibold, GhWeight.bold];
+    for (final weight in weights) {
+      final style = ghTextStyle(remPx: 16, weight: weight, mono: mono, languageCode: languageCode);
+      final builder = ui.ParagraphBuilder(style.getParagraphStyle())
+        ..pushStyle(style.getTextStyle())
+        ..addText(sample);
+      builder.build()
+        ..layout(const ui.ParagraphConstraints(width: 2000))
+        ..dispose();
+    }
+  }
 }

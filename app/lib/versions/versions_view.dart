@@ -63,6 +63,8 @@ class _VersionsViewState extends ConsumerState<VersionsView> {
   late VersionSort _installedSort = VersionSort.parse(_prefs.getItem(versionInstalledSortKey), installed: true);
   final Set<String> _collapsed = {};
   int _visibleGroups = 5;
+  Object? _groupInputs;
+  List<(String, List<AvailableRow>)> _groups = const [];
   bool _scanning = false;
   DownloadErrorInfo? _shownError;
 
@@ -618,10 +620,15 @@ class _VersionsViewState extends ConsumerState<VersionsView> {
     );
   }
 
-  Widget _availableSection(GhTheme theme, GodotVersionsState state, AppSettings settings) {
+  List<Widget> _availableSection(GhTheme theme, GodotVersionsState state, AppSettings settings) {
     final query = _search.text.trim();
-    final groups = groupAvailable(state.available, query, _filters, _sort);
-    final Widget body;
+    final inputs = (state.available, query, _filters, _sort);
+    if (inputs != _groupInputs) {
+      _groupInputs = inputs;
+      _groups = groupAvailable(state.available, query, _filters, _sort);
+    }
+    final groups = _groups;
+    final Widget? body;
     if (state.loadingAvailable) {
       body = Padding(
         padding: EdgeInsets.symmetric(vertical: theme.space(16)),
@@ -701,72 +708,102 @@ class _VersionsViewState extends ConsumerState<VersionsView> {
         ),
       );
     } else {
-      body = Column(
+      body = null;
+    }
+    final gap = theme.space(2);
+    final header = SliverToBoxAdapter(
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: theme.space(4),
-        children: [
-          for (final (group, rows) in groups.take(_visibleGroups))
-            Column(
-              key: ValueKey(group),
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: theme.space(2),
-              children: [
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: GhPressable(
-                    onPressed: () => setState(() => _collapsed.contains(group) ? _collapsed.remove(group) : _collapsed.add(group)),
-                    expanded: !_collapsed.contains(group),
-                    borderRadius: BorderRadius.circular(theme.radiusBtn),
-                    builder: (context, states) {
-                      final color = states.active ? theme.ink : theme.muted;
-                      return Row(
-                        mainAxisSize: MainAxisSize.min,
-                        spacing: theme.space(1.5),
-                        children: [
-                          AnimatedRotation(
-                            turns: _collapsed.contains(group) ? (Directionality.of(context) == TextDirection.rtl ? 0.25 : -0.25) : 0,
-                            duration: GhDurations.iconTransform,
-                            child: GhIcon(GhIcons.chevronDown, size: theme.space(3), color: color),
-                          ),
-                          Text(
-                            (group == 'Other' ? _tv('other') : group).toUpperCase(),
-                            style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: color, letterSpacingEm: 0.05),
-                          ),
-                          Text(
-                            '${rows.length}',
-                            style: theme.text(size: GhTextSize.x3s, weight: GhWeight.medium, color: theme.muted.withValues(alpha: 0.6)),
-                          ),
-                        ],
-                      );
-                    },
-                  ),
+        spacing: gap,
+        children: [_sectionTitle(theme, _tv('available_title')), _availableFilters(theme, state, settings)],
+      ),
+    );
+    if (body != null) {
+      return [
+        header,
+        SliverPadding(
+          padding: EdgeInsets.only(top: gap),
+          sliver: SliverToBoxAdapter(child: body),
+        ),
+      ];
+    }
+    return [
+      header,
+      for (final (index, (group, rows)) in groups.take(_visibleGroups).indexed) ...[
+        SliverPadding(
+          key: ValueKey('header:$group'),
+          padding: EdgeInsets.only(top: index == 0 ? gap : theme.space(4)),
+          sliver: SliverToBoxAdapter(child: _groupHeader(theme, group, rows.length)),
+        ),
+        if (!_collapsed.contains(group))
+          SliverList.builder(
+            key: ValueKey('rows:$group'),
+            itemCount: rows.length,
+            findChildIndexCallback: (key) {
+              final index = rows.indexWhere((row) => ValueKey(downloadKeyOf(row.tag, row.asset.name)) == key);
+              return index < 0 ? null : index;
+            },
+            itemBuilder: (context, index) {
+              final row = rows[index];
+              return Padding(
+                key: ValueKey(downloadKeyOf(row.tag, row.asset.name)),
+                padding: EdgeInsets.only(top: gap),
+                child: _AvailableRowTile(
+                  row: row,
+                  state: state,
+                  onInstall: () => _versions.download(row.tag, row.asset.name, row.asset.downloadUrl).ignore(),
+                  onOpenSource: () =>
+                      OpenerApi.openUrl(sourcePageUrl(state.source, row.tag, state.miseStatus?.sourceUrl)).catchError(_toastError),
+                  onPause: _versions.pause,
+                  onResume: _versions.resume,
+                  onCancel: _versions.cancel,
                 ),
-                if (!_collapsed.contains(group))
-                  for (final row in rows)
-                    _AvailableRowTile(
-                      key: ValueKey(downloadKeyOf(row.tag, row.asset.name)),
-                      row: row,
-                      state: state,
-                      onInstall: () => _versions.download(row.tag, row.asset.name, row.asset.downloadUrl).ignore(),
-                      onOpenSource: () =>
-                          OpenerApi.openUrl(sourcePageUrl(state.source, row.tag, state.miseStatus?.sourceUrl)).catchError(_toastError),
-                      onPause: _versions.pause,
-                      onResume: _versions.resume,
-                      onCancel: _versions.cancel,
-                    ),
-              ],
-            ),
-          if (_visibleGroups < groups.length)
-            Center(
+              );
+            },
+          ),
+      ],
+      if (_visibleGroups < groups.length)
+        SliverPadding(
+          padding: EdgeInsets.only(top: theme.space(4)),
+          sliver: SliverToBoxAdapter(
+            child: Center(
               child: GhOutlineAction(onPressed: () => setState(() => _visibleGroups += 5), label: ghTr('show_more')),
             ),
-        ],
-      );
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: theme.space(2),
-      children: [_sectionTitle(theme, _tv('available_title')), _availableFilters(theme, state, settings), body],
+          ),
+        ),
+    ];
+  }
+
+  Widget _groupHeader(GhTheme theme, String group, int count) {
+    return Align(
+      alignment: AlignmentDirectional.centerStart,
+      child: GhPressable(
+        onPressed: () => setState(() => _collapsed.contains(group) ? _collapsed.remove(group) : _collapsed.add(group)),
+        expanded: !_collapsed.contains(group),
+        borderRadius: BorderRadius.circular(theme.radiusBtn),
+        builder: (context, states) {
+          final color = states.active ? theme.ink : theme.muted;
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: theme.space(1.5),
+            children: [
+              AnimatedRotation(
+                turns: _collapsed.contains(group) ? (Directionality.of(context) == TextDirection.rtl ? 0.25 : -0.25) : 0,
+                duration: GhDurations.iconTransform,
+                child: GhIcon(GhIcons.chevronDown, size: theme.space(3), color: color),
+              ),
+              Text(
+                (group == 'Other' ? _tv('other') : group).toUpperCase(),
+                style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: color, letterSpacingEm: 0.05),
+              ),
+              Text(
+                '$count',
+                style: theme.text(size: GhTextSize.x3s, weight: GhWeight.medium, color: theme.muted.withValues(alpha: 0.6)),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -862,19 +899,25 @@ class _VersionsViewState extends ConsumerState<VersionsView> {
             padding: scrollInsets,
             child: GhOverlayScrollArea(
               hideThumb: !settings.showScrollbars,
-              child: Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(
-                  theme.space(widget.connected ? 5 : 2),
-                  theme.space(2),
-                  theme.space(5),
-                  theme.space(8),
+              slivers: [
+                SliverPadding(
+                  padding: EdgeInsetsDirectional.fromSTEB(
+                    theme.space(widget.connected ? 5 : 2),
+                    theme.space(2),
+                    theme.space(5),
+                    theme.space(8),
+                  ),
+                  sliver: SliverMainAxisGroup(
+                    slivers: [
+                      SliverToBoxAdapter(child: _installedSection(theme, state, settings, templateDownloads)),
+                      SliverPadding(
+                        padding: EdgeInsets.only(top: theme.space(2)),
+                        sliver: SliverMainAxisGroup(slivers: _availableSection(theme, state, settings)),
+                      ),
+                    ],
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: theme.space(2),
-                  children: [_installedSection(theme, state, settings, templateDownloads), _availableSection(theme, state, settings)],
-                ),
-              ),
+              ],
             ),
           ),
         ),
@@ -885,7 +928,6 @@ class _VersionsViewState extends ConsumerState<VersionsView> {
 
 class _AvailableRowTile extends StatefulWidget {
   const _AvailableRowTile({
-    super.key,
     required this.row,
     required this.state,
     required this.onInstall,

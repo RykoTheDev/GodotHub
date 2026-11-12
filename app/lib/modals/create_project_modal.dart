@@ -11,7 +11,6 @@ import '../api/templates.dart';
 import '../design/design.dart';
 import '../logic/naming_convention.dart';
 import '../projects/project_icon.dart';
-import '../shell/placeholder_view.dart';
 import '../src/rust/api/types.dart';
 import '../state/settings.dart';
 import '../ui/controls/checkbox.dart';
@@ -23,6 +22,7 @@ import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
 import '../ui/reusables/modal_kit.dart';
+import 'template_preview_modal.dart';
 
 const createProjectPlaceholders = [
   'My Awesome Game',
@@ -541,7 +541,10 @@ class _CreateProjectModalState extends ConsumerState<CreateProjectModal> {
                     template: tpl,
                     active: _templateId == tpl.id,
                     onPressed: () => setState(() => _templateId = tpl.id),
-                    onPreview: () => showPlaceholderModal(context, title: tpl.name, icon: GhIcons.bookOpen).ignore(),
+                    onPreview: () => showGhModal<void>(
+                      context,
+                      (modal) => TemplatePreviewModal(template: tpl, onClose: () => Navigator.of(modal).pop()),
+                    ).ignore(),
                   ),
               ]),
             _section(
