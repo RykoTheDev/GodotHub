@@ -17,8 +17,7 @@ abstract final class AppEvents {
 
   static Stream<rust.AppEvent> of(rust.AppEventKind kind) => all.where((event) => event.kind == kind);
 
-  static Stream<rust.AppEvent> ofAny(Set<rust.AppEventKind> kinds) =>
-      all.where((event) => kinds.contains(event.kind));
+  static Stream<rust.AppEvent> ofAny(Set<rust.AppEventKind> kinds) => all.where((event) => kinds.contains(event.kind));
 
   static Stream<T> payloads<T extends Object>(rust.AppEventKind kind, T? Function(rust.AppEvent event) select) =>
       of(kind).map(select).where((payload) => payload != null).cast<T>();

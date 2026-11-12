@@ -653,6 +653,7 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       animation_intensity: "full",
       view_entrance: "fade",
       project_icon_opacity: DEFAULT_PROJECT_ICON_OPACITY,
+      project_card_style: "hub",
       raised_contrast: DEFAULT_RAISED_CONTRAST,
       theme_preset: "custom",
     });
@@ -891,6 +892,29 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
           checked={settings.card_layout ?? true}
           onChange={(checked) => update({ ...settings, card_layout: checked })}
           label={ts("card_layout_label")}
+        />
+      </Subsection>
+
+      <Subsection
+        id="appearance-card-style"
+        inline
+        title={ts("project_card_style_label")}
+        searchText={`${ts("project_card_style_label")} ${ts("project_card_style_hub")} ${ts("project_card_style_cover")}`}
+        query={searchQuery}
+        onMatch={reportMatch}
+      >
+        <Segmented
+          value={settings.project_card_style ?? "hub"}
+          onChange={(v) =>
+            update({
+              ...settings,
+              project_card_style: v as AppSettings["project_card_style"],
+            })
+          }
+          options={[
+            { value: "hub", label: ts("project_card_style_hub") },
+            { value: "cover", label: ts("project_card_style_cover") },
+          ]}
         />
       </Subsection>
 

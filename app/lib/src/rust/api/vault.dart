@@ -10,42 +10,26 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-Future<List<VaultItem>> listVaultItems() =>
-    RustLib.instance.api.crateApiVaultListVaultItems();
+Future<List<VaultItem>> listVaultItems() => RustLib.instance.api.crateApiVaultListVaultItems();
 
 Future<VaultItem> saveToVault({
   required String name,
   required String description,
   required List<String> tags,
   required List<VaultSaveSource> sources,
-}) => RustLib.instance.api.crateApiVaultSaveToVault(
-  name: name,
-  description: description,
-  tags: tags,
-  sources: sources,
-);
+}) => RustLib.instance.api.crateApiVaultSaveToVault(name: name, description: description, tags: tags, sources: sources);
 
 Future<List<VaultProjectImportResult>> addVaultItemToProjects({
   required String itemId,
   required List<String> projectIds,
   required bool overwrite,
-}) => RustLib.instance.api.crateApiVaultAddVaultItemToProjects(
-  itemId: itemId,
-  projectIds: projectIds,
-  overwrite: overwrite,
-);
+}) => RustLib.instance.api.crateApiVaultAddVaultItemToProjects(itemId: itemId, projectIds: projectIds, overwrite: overwrite);
 
-Future<void> deleteVaultItem({required String itemId}) =>
-    RustLib.instance.api.crateApiVaultDeleteVaultItem(itemId: itemId);
+Future<void> deleteVaultItem({required String itemId}) => RustLib.instance.api.crateApiVaultDeleteVaultItem(itemId: itemId);
 
 Future<VaultItem> updateVaultItem({
   required String itemId,
   required String name,
   required String description,
   required List<String> tags,
-}) => RustLib.instance.api.crateApiVaultUpdateVaultItem(
-  itemId: itemId,
-  name: name,
-  description: description,
-  tags: tags,
-);
+}) => RustLib.instance.api.crateApiVaultUpdateVaultItem(itemId: itemId, name: name, description: description, tags: tags);

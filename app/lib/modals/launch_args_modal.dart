@@ -43,7 +43,10 @@ class _LaunchArgsModalState extends State<LaunchArgsModal> {
   void _append(String flag) {
     final trimmed = _args.text.trim();
     final next = trimmed.isEmpty ? flag : '$trimmed $flag';
-    _args.value = TextEditingValue(text: next, selection: TextSelection.collapsed(offset: next.length));
+    _args.value = TextEditingValue(
+      text: next,
+      selection: TextSelection.collapsed(offset: next.length),
+    );
   }
 
   @override

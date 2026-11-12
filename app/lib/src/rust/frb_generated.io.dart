@@ -65,9 +65,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Map<String, String> dco_decode_Map_String_String_None(dynamic raw);
 
   @protected
-  Map<String, CardViewOverride> dco_decode_Map_String_card_view_override_None(
-    dynamic raw,
-  );
+  Map<String, CardViewOverride> dco_decode_Map_String_card_view_override_None(dynamic raw);
 
   @protected
   Map<String, GitStatus> dco_decode_Map_String_git_status_None(dynamic raw);
@@ -130,9 +128,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AssetDownloadError dco_decode_box_autoadd_asset_download_error(dynamic raw);
 
   @protected
-  AssetDownloadProgress dco_decode_box_autoadd_asset_download_progress(
-    dynamic raw,
-  );
+  AssetDownloadProgress dco_decode_box_autoadd_asset_download_progress(dynamic raw);
 
   @protected
   bool dco_decode_box_autoadd_bool(dynamic raw);
@@ -156,23 +152,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ExportRun dco_decode_box_autoadd_export_run(dynamic raw);
 
   @protected
-  ExportTemplatesError dco_decode_box_autoadd_export_templates_error(
-    dynamic raw,
-  );
+  ExportTemplatesError dco_decode_box_autoadd_export_templates_error(dynamic raw);
 
   @protected
-  ExportTemplatesInstallResult
-  dco_decode_box_autoadd_export_templates_install_result(dynamic raw);
+  ExportTemplatesInstallResult dco_decode_box_autoadd_export_templates_install_result(dynamic raw);
 
   @protected
-  ExportTemplatesProgress dco_decode_box_autoadd_export_templates_progress(
-    dynamic raw,
-  );
+  ExportTemplatesProgress dco_decode_box_autoadd_export_templates_progress(dynamic raw);
 
   @protected
-  ExportTemplatesStage dco_decode_box_autoadd_export_templates_stage(
-    dynamic raw,
-  );
+  ExportTemplatesStage dco_decode_box_autoadd_export_templates_stage(dynamic raw);
 
   @protected
   GistSyncResult dco_decode_box_autoadd_gist_sync_result(dynamic raw);
@@ -313,9 +302,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ExportTemplatesError dco_decode_export_templates_error(dynamic raw);
 
   @protected
-  ExportTemplatesInstallResult dco_decode_export_templates_install_result(
-    dynamic raw,
-  );
+  ExportTemplatesInstallResult dco_decode_export_templates_install_result(dynamic raw);
 
   @protected
   ExportTemplatesOrphan dco_decode_export_templates_orphan(dynamic raw);
@@ -330,9 +317,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ExportTemplatesState dco_decode_export_templates_state(dynamic raw);
 
   @protected
-  ExportTemplatesVersionInfo dco_decode_export_templates_version_info(
-    dynamic raw,
-  );
+  ExportTemplatesVersionInfo dco_decode_export_templates_version_info(dynamic raw);
 
   @protected
   double dco_decode_f_64(dynamic raw);
@@ -446,9 +431,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<AssetLibraryAsset> dco_decode_list_asset_library_asset(dynamic raw);
 
   @protected
-  List<AssetLibraryCategory> dco_decode_list_asset_library_category(
-    dynamic raw,
-  );
+  List<AssetLibraryCategory> dco_decode_list_asset_library_category(dynamic raw);
 
   @protected
   List<Category> dco_decode_list_category(dynamic raw);
@@ -457,9 +440,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<ChangelogDraftNote> dco_decode_list_changelog_draft_note(dynamic raw);
 
   @protected
-  List<ChangelogDraftSkipped> dco_decode_list_changelog_draft_skipped(
-    dynamic raw,
-  );
+  List<ChangelogDraftSkipped> dco_decode_list_changelog_draft_skipped(dynamic raw);
 
   @protected
   List<ChangelogEntry> dco_decode_list_changelog_entry(dynamic raw);
@@ -471,14 +452,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<ConsoleLine> dco_decode_list_console_line(dynamic raw);
 
   @protected
-  List<DashboardCustomPreset> dco_decode_list_dashboard_custom_preset(
-    dynamic raw,
-  );
+  List<DashboardCustomPreset> dco_decode_list_dashboard_custom_preset(dynamic raw);
 
   @protected
-  List<DiscordProjectPresence> dco_decode_list_discord_project_presence(
-    dynamic raw,
-  );
+  List<DiscordProjectPresence> dco_decode_list_discord_project_presence(dynamic raw);
 
   @protected
   List<DiscoveredInstall> dco_decode_list_discovered_install(dynamic raw);
@@ -493,13 +470,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<ExportRun> dco_decode_list_export_run(dynamic raw);
 
   @protected
-  List<ExportTemplatesOrphan> dco_decode_list_export_templates_orphan(
-    dynamic raw,
-  );
+  List<ExportTemplatesOrphan> dco_decode_list_export_templates_orphan(dynamic raw);
 
   @protected
-  List<ExportTemplatesVersionInfo>
-  dco_decode_list_export_templates_version_info(dynamic raw);
+  List<ExportTemplatesVersionInfo> dco_decode_list_export_templates_version_info(dynamic raw);
 
   @protected
   List<FileSizeCategory> dco_decode_list_file_size_category(dynamic raw);
@@ -544,9 +518,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<HealthCheck> dco_decode_list_health_check(dynamic raw);
 
   @protected
-  List<InstalledGodotVersion> dco_decode_list_installed_godot_version(
-    dynamic raw,
-  );
+  List<InstalledGodotVersion> dco_decode_list_installed_godot_version(dynamic raw);
 
   @protected
   List<NewsItem> dco_decode_list_news_item(dynamic raw);
@@ -582,13 +554,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<ReclaimItem> dco_decode_list_reclaim_item(dynamic raw);
 
   @protected
-  List<(String, CardViewOverride)>
-  dco_decode_list_record_string_card_view_override(dynamic raw);
+  List<(String, CardViewOverride)> dco_decode_list_record_string_card_view_override(dynamic raw);
 
   @protected
-  List<(String, GitStatus)> dco_decode_list_record_string_git_status(
-    dynamic raw,
-  );
+  List<(String, GitStatus)> dco_decode_list_record_string_git_status(dynamic raw);
 
   @protected
   List<(String, String)> dco_decode_list_record_string_string(dynamic raw);
@@ -600,9 +569,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<RunningProjectInfo> dco_decode_list_running_project_info(dynamic raw);
 
   @protected
-  List<StorageExportTemplates> dco_decode_list_storage_export_templates(
-    dynamic raw,
-  );
+  List<StorageExportTemplates> dco_decode_list_storage_export_templates(dynamic raw);
 
   @protected
   List<StoragePartial> dco_decode_list_storage_partial(dynamic raw);
@@ -638,9 +605,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<VaultItem> dco_decode_list_vault_item(dynamic raw);
 
   @protected
-  List<VaultProjectImportResult> dco_decode_list_vault_project_import_result(
-    dynamic raw,
-  );
+  List<VaultProjectImportResult> dco_decode_list_vault_project_import_result(dynamic raw);
 
   @protected
   List<VaultSaveSource> dco_decode_list_vault_save_source(dynamic raw);
@@ -670,14 +635,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String? dco_decode_opt_String(dynamic raw);
 
   @protected
-  AssetDownloadError? dco_decode_opt_box_autoadd_asset_download_error(
-    dynamic raw,
-  );
+  AssetDownloadError? dco_decode_opt_box_autoadd_asset_download_error(dynamic raw);
 
   @protected
-  AssetDownloadProgress? dco_decode_opt_box_autoadd_asset_download_progress(
-    dynamic raw,
-  );
+  AssetDownloadProgress? dco_decode_opt_box_autoadd_asset_download_progress(dynamic raw);
 
   @protected
   bool? dco_decode_opt_box_autoadd_bool(dynamic raw);
@@ -686,9 +647,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ConsoleExit? dco_decode_opt_box_autoadd_console_exit(dynamic raw);
 
   @protected
-  CurrentVersionInfo? dco_decode_opt_box_autoadd_current_version_info(
-    dynamic raw,
-  );
+  CurrentVersionInfo? dco_decode_opt_box_autoadd_current_version_info(dynamic raw);
 
   @protected
   DownloadFailure? dco_decode_opt_box_autoadd_download_failure(dynamic raw);
@@ -697,31 +656,22 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   DownloadProgress? dco_decode_opt_box_autoadd_download_progress(dynamic raw);
 
   @protected
-  DownloadUnverified? dco_decode_opt_box_autoadd_download_unverified(
-    dynamic raw,
-  );
+  DownloadUnverified? dco_decode_opt_box_autoadd_download_unverified(dynamic raw);
 
   @protected
   ExportRun? dco_decode_opt_box_autoadd_export_run(dynamic raw);
 
   @protected
-  ExportTemplatesError? dco_decode_opt_box_autoadd_export_templates_error(
-    dynamic raw,
-  );
+  ExportTemplatesError? dco_decode_opt_box_autoadd_export_templates_error(dynamic raw);
 
   @protected
-  ExportTemplatesInstallResult?
-  dco_decode_opt_box_autoadd_export_templates_install_result(dynamic raw);
+  ExportTemplatesInstallResult? dco_decode_opt_box_autoadd_export_templates_install_result(dynamic raw);
 
   @protected
-  ExportTemplatesProgress? dco_decode_opt_box_autoadd_export_templates_progress(
-    dynamic raw,
-  );
+  ExportTemplatesProgress? dco_decode_opt_box_autoadd_export_templates_progress(dynamic raw);
 
   @protected
-  ExportTemplatesStage? dco_decode_opt_box_autoadd_export_templates_stage(
-    dynamic raw,
-  );
+  ExportTemplatesStage? dco_decode_opt_box_autoadd_export_templates_stage(dynamic raw);
 
   @protected
   GistSyncResult? dco_decode_opt_box_autoadd_gist_sync_result(dynamic raw);
@@ -820,9 +770,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ReclaimResult dco_decode_reclaim_result(dynamic raw);
 
   @protected
-  (String, CardViewOverride) dco_decode_record_string_card_view_override(
-    dynamic raw,
-  );
+  (String, CardViewOverride) dco_decode_record_string_card_view_override(dynamic raw);
 
   @protected
   (String, GitStatus) dco_decode_record_string_git_status(dynamic raw);
@@ -960,24 +908,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
   @protected
-  Map<String, String> sse_decode_Map_String_String_None(
-    SseDeserializer deserializer,
-  );
+  Map<String, String> sse_decode_Map_String_String_None(SseDeserializer deserializer);
 
   @protected
-  Map<String, CardViewOverride> sse_decode_Map_String_card_view_override_None(
-    SseDeserializer deserializer,
-  );
+  Map<String, CardViewOverride> sse_decode_Map_String_card_view_override_None(SseDeserializer deserializer);
 
   @protected
-  Map<String, GitStatus> sse_decode_Map_String_git_status_None(
-    SseDeserializer deserializer,
-  );
+  Map<String, GitStatus> sse_decode_Map_String_git_status_None(SseDeserializer deserializer);
 
   @protected
-  RustStreamSink<AppEvent> sse_decode_StreamSink_app_event_Sse(
-    SseDeserializer deserializer,
-  );
+  RustStreamSink<AppEvent> sse_decode_StreamSink_app_event_Sse(SseDeserializer deserializer);
 
   @protected
   String sse_decode_String(SseDeserializer deserializer);
@@ -1007,29 +947,19 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AppSettings sse_decode_app_settings(SseDeserializer deserializer);
 
   @protected
-  AssetDownloadError sse_decode_asset_download_error(
-    SseDeserializer deserializer,
-  );
+  AssetDownloadError sse_decode_asset_download_error(SseDeserializer deserializer);
 
   @protected
-  AssetDownloadProgress sse_decode_asset_download_progress(
-    SseDeserializer deserializer,
-  );
+  AssetDownloadProgress sse_decode_asset_download_progress(SseDeserializer deserializer);
 
   @protected
-  AssetLibraryAsset sse_decode_asset_library_asset(
-    SseDeserializer deserializer,
-  );
+  AssetLibraryAsset sse_decode_asset_library_asset(SseDeserializer deserializer);
 
   @protected
-  AssetLibraryCategory sse_decode_asset_library_category(
-    SseDeserializer deserializer,
-  );
+  AssetLibraryCategory sse_decode_asset_library_category(SseDeserializer deserializer);
 
   @protected
-  AssetLibraryResponse sse_decode_asset_library_response(
-    SseDeserializer deserializer,
-  );
+  AssetLibraryResponse sse_decode_asset_library_response(SseDeserializer deserializer);
 
   @protected
   BetaImport sse_decode_beta_import(SseDeserializer deserializer);
@@ -1041,14 +971,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AppSettings sse_decode_box_autoadd_app_settings(SseDeserializer deserializer);
 
   @protected
-  AssetDownloadError sse_decode_box_autoadd_asset_download_error(
-    SseDeserializer deserializer,
-  );
+  AssetDownloadError sse_decode_box_autoadd_asset_download_error(SseDeserializer deserializer);
 
   @protected
-  AssetDownloadProgress sse_decode_box_autoadd_asset_download_progress(
-    SseDeserializer deserializer,
-  );
+  AssetDownloadProgress sse_decode_box_autoadd_asset_download_progress(SseDeserializer deserializer);
 
   @protected
   bool sse_decode_box_autoadd_bool(SseDeserializer deserializer);
@@ -1057,96 +983,61 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ConsoleExit sse_decode_box_autoadd_console_exit(SseDeserializer deserializer);
 
   @protected
-  CurrentVersionInfo sse_decode_box_autoadd_current_version_info(
-    SseDeserializer deserializer,
-  );
+  CurrentVersionInfo sse_decode_box_autoadd_current_version_info(SseDeserializer deserializer);
 
   @protected
-  DownloadFailure sse_decode_box_autoadd_download_failure(
-    SseDeserializer deserializer,
-  );
+  DownloadFailure sse_decode_box_autoadd_download_failure(SseDeserializer deserializer);
 
   @protected
-  DownloadProgress sse_decode_box_autoadd_download_progress(
-    SseDeserializer deserializer,
-  );
+  DownloadProgress sse_decode_box_autoadd_download_progress(SseDeserializer deserializer);
 
   @protected
-  DownloadUnverified sse_decode_box_autoadd_download_unverified(
-    SseDeserializer deserializer,
-  );
+  DownloadUnverified sse_decode_box_autoadd_download_unverified(SseDeserializer deserializer);
 
   @protected
   ExportRun sse_decode_box_autoadd_export_run(SseDeserializer deserializer);
 
   @protected
-  ExportTemplatesError sse_decode_box_autoadd_export_templates_error(
-    SseDeserializer deserializer,
-  );
+  ExportTemplatesError sse_decode_box_autoadd_export_templates_error(SseDeserializer deserializer);
 
   @protected
-  ExportTemplatesInstallResult
-  sse_decode_box_autoadd_export_templates_install_result(
-    SseDeserializer deserializer,
-  );
+  ExportTemplatesInstallResult sse_decode_box_autoadd_export_templates_install_result(SseDeserializer deserializer);
 
   @protected
-  ExportTemplatesProgress sse_decode_box_autoadd_export_templates_progress(
-    SseDeserializer deserializer,
-  );
+  ExportTemplatesProgress sse_decode_box_autoadd_export_templates_progress(SseDeserializer deserializer);
 
   @protected
-  ExportTemplatesStage sse_decode_box_autoadd_export_templates_stage(
-    SseDeserializer deserializer,
-  );
+  ExportTemplatesStage sse_decode_box_autoadd_export_templates_stage(SseDeserializer deserializer);
 
   @protected
-  GistSyncResult sse_decode_box_autoadd_gist_sync_result(
-    SseDeserializer deserializer,
-  );
+  GistSyncResult sse_decode_box_autoadd_gist_sync_result(SseDeserializer deserializer);
 
   @protected
-  GitAccountInfo sse_decode_box_autoadd_git_account_info(
-    SseDeserializer deserializer,
-  );
+  GitAccountInfo sse_decode_box_autoadd_git_account_info(SseDeserializer deserializer);
 
   @protected
-  GitAheadBehind sse_decode_box_autoadd_git_ahead_behind(
-    SseDeserializer deserializer,
-  );
+  GitAheadBehind sse_decode_box_autoadd_git_ahead_behind(SseDeserializer deserializer);
 
   @protected
-  GitInitOptions sse_decode_box_autoadd_git_init_options(
-    SseDeserializer deserializer,
-  );
+  GitInitOptions sse_decode_box_autoadd_git_init_options(SseDeserializer deserializer);
 
   @protected
-  HealthAction sse_decode_box_autoadd_health_action(
-    SseDeserializer deserializer,
-  );
+  HealthAction sse_decode_box_autoadd_health_action(SseDeserializer deserializer);
 
   @protected
   int sse_decode_box_autoadd_i_32(SseDeserializer deserializer);
 
   @protected
-  ProjectExited sse_decode_box_autoadd_project_exited(
-    SseDeserializer deserializer,
-  );
+  ProjectExited sse_decode_box_autoadd_project_exited(SseDeserializer deserializer);
 
   @protected
-  ProjectLaunched sse_decode_box_autoadd_project_launched(
-    SseDeserializer deserializer,
-  );
+  ProjectLaunched sse_decode_box_autoadd_project_launched(SseDeserializer deserializer);
 
   @protected
-  ProjectUpdate sse_decode_box_autoadd_project_update(
-    SseDeserializer deserializer,
-  );
+  ProjectUpdate sse_decode_box_autoadd_project_update(SseDeserializer deserializer);
 
   @protected
-  ScanProgress sse_decode_box_autoadd_scan_progress(
-    SseDeserializer deserializer,
-  );
+  ScanProgress sse_decode_box_autoadd_scan_progress(SseDeserializer deserializer);
 
   @protected
   TodoClosure sse_decode_box_autoadd_todo_closure(SseDeserializer deserializer);
@@ -1155,9 +1046,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   TodoLink sse_decode_box_autoadd_todo_link(SseDeserializer deserializer);
 
   @protected
-  TodoPriority sse_decode_box_autoadd_todo_priority(
-    SseDeserializer deserializer,
-  );
+  TodoPriority sse_decode_box_autoadd_todo_priority(SseDeserializer deserializer);
 
   @protected
   TodoSource sse_decode_box_autoadd_todo_source(SseDeserializer deserializer);
@@ -1181,14 +1070,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ChangelogDraft sse_decode_changelog_draft(SseDeserializer deserializer);
 
   @protected
-  ChangelogDraftNote sse_decode_changelog_draft_note(
-    SseDeserializer deserializer,
-  );
+  ChangelogDraftNote sse_decode_changelog_draft_note(SseDeserializer deserializer);
 
   @protected
-  ChangelogDraftSkipped sse_decode_changelog_draft_skipped(
-    SseDeserializer deserializer,
-  );
+  ChangelogDraftSkipped sse_decode_changelog_draft_skipped(SseDeserializer deserializer);
 
   @protected
   ChangelogEntry sse_decode_changelog_entry(SseDeserializer deserializer);
@@ -1218,14 +1103,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   CreateRepoResult sse_decode_create_repo_result(SseDeserializer deserializer);
 
   @protected
-  CurrentVersionInfo sse_decode_current_version_info(
-    SseDeserializer deserializer,
-  );
+  CurrentVersionInfo sse_decode_current_version_info(SseDeserializer deserializer);
 
   @protected
-  DashboardCustomPreset sse_decode_dashboard_custom_preset(
-    SseDeserializer deserializer,
-  );
+  DashboardCustomPreset sse_decode_dashboard_custom_preset(SseDeserializer deserializer);
 
   @protected
   DeviceFlowPoll sse_decode_device_flow_poll(SseDeserializer deserializer);
@@ -1237,9 +1118,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   DeviceFlowStatus sse_decode_device_flow_status(SseDeserializer deserializer);
 
   @protected
-  DiscordProjectPresence sse_decode_discord_project_presence(
-    SseDeserializer deserializer,
-  );
+  DiscordProjectPresence sse_decode_discord_project_presence(SseDeserializer deserializer);
 
   @protected
   DiscoveredInstall sse_decode_discovered_install(SseDeserializer deserializer);
@@ -1254,9 +1133,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   DownloadProgress sse_decode_download_progress(SseDeserializer deserializer);
 
   @protected
-  DownloadUnverified sse_decode_download_unverified(
-    SseDeserializer deserializer,
-  );
+  DownloadUnverified sse_decode_download_unverified(SseDeserializer deserializer);
 
   @protected
   ExportCatalog sse_decode_export_catalog(SseDeserializer deserializer);
@@ -1268,39 +1145,25 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ExportRun sse_decode_export_run(SseDeserializer deserializer);
 
   @protected
-  ExportTemplatesError sse_decode_export_templates_error(
-    SseDeserializer deserializer,
-  );
+  ExportTemplatesError sse_decode_export_templates_error(SseDeserializer deserializer);
 
   @protected
-  ExportTemplatesInstallResult sse_decode_export_templates_install_result(
-    SseDeserializer deserializer,
-  );
+  ExportTemplatesInstallResult sse_decode_export_templates_install_result(SseDeserializer deserializer);
 
   @protected
-  ExportTemplatesOrphan sse_decode_export_templates_orphan(
-    SseDeserializer deserializer,
-  );
+  ExportTemplatesOrphan sse_decode_export_templates_orphan(SseDeserializer deserializer);
 
   @protected
-  ExportTemplatesProgress sse_decode_export_templates_progress(
-    SseDeserializer deserializer,
-  );
+  ExportTemplatesProgress sse_decode_export_templates_progress(SseDeserializer deserializer);
 
   @protected
-  ExportTemplatesStage sse_decode_export_templates_stage(
-    SseDeserializer deserializer,
-  );
+  ExportTemplatesStage sse_decode_export_templates_stage(SseDeserializer deserializer);
 
   @protected
-  ExportTemplatesState sse_decode_export_templates_state(
-    SseDeserializer deserializer,
-  );
+  ExportTemplatesState sse_decode_export_templates_state(SseDeserializer deserializer);
 
   @protected
-  ExportTemplatesVersionInfo sse_decode_export_templates_version_info(
-    SseDeserializer deserializer,
-  );
+  ExportTemplatesVersionInfo sse_decode_export_templates_version_info(SseDeserializer deserializer);
 
   @protected
   double sse_decode_f_64(SseDeserializer deserializer);
@@ -1369,9 +1232,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   GodotRelease sse_decode_godot_release(SseDeserializer deserializer);
 
   @protected
-  GodotReleaseAsset sse_decode_godot_release_asset(
-    SseDeserializer deserializer,
-  );
+  GodotReleaseAsset sse_decode_godot_release_asset(SseDeserializer deserializer);
 
   @protected
   HealthAction sse_decode_health_action(SseDeserializer deserializer);
@@ -1392,14 +1253,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int sse_decode_i_8(SseDeserializer deserializer);
 
   @protected
-  InstallAssetResult sse_decode_install_asset_result(
-    SseDeserializer deserializer,
-  );
+  InstallAssetResult sse_decode_install_asset_result(SseDeserializer deserializer);
 
   @protected
-  InstalledGodotVersion sse_decode_installed_godot_version(
-    SseDeserializer deserializer,
-  );
+  InstalledGodotVersion sse_decode_installed_godot_version(SseDeserializer deserializer);
 
   @protected
   List<String> sse_decode_list_String(SseDeserializer deserializer);
@@ -1411,105 +1268,70 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<AliasInfo> sse_decode_list_alias_info(SseDeserializer deserializer);
 
   @protected
-  List<AliasRequest> sse_decode_list_alias_request(
-    SseDeserializer deserializer,
-  );
+  List<AliasRequest> sse_decode_list_alias_request(SseDeserializer deserializer);
 
   @protected
   List<AliasSkip> sse_decode_list_alias_skip(SseDeserializer deserializer);
 
   @protected
-  List<AssetLibraryAsset> sse_decode_list_asset_library_asset(
-    SseDeserializer deserializer,
-  );
+  List<AssetLibraryAsset> sse_decode_list_asset_library_asset(SseDeserializer deserializer);
 
   @protected
-  List<AssetLibraryCategory> sse_decode_list_asset_library_category(
-    SseDeserializer deserializer,
-  );
+  List<AssetLibraryCategory> sse_decode_list_asset_library_category(SseDeserializer deserializer);
 
   @protected
   List<Category> sse_decode_list_category(SseDeserializer deserializer);
 
   @protected
-  List<ChangelogDraftNote> sse_decode_list_changelog_draft_note(
-    SseDeserializer deserializer,
-  );
+  List<ChangelogDraftNote> sse_decode_list_changelog_draft_note(SseDeserializer deserializer);
 
   @protected
-  List<ChangelogDraftSkipped> sse_decode_list_changelog_draft_skipped(
-    SseDeserializer deserializer,
-  );
+  List<ChangelogDraftSkipped> sse_decode_list_changelog_draft_skipped(SseDeserializer deserializer);
 
   @protected
-  List<ChangelogEntry> sse_decode_list_changelog_entry(
-    SseDeserializer deserializer,
-  );
+  List<ChangelogEntry> sse_decode_list_changelog_entry(SseDeserializer deserializer);
 
   @protected
-  List<ChangelogNote> sse_decode_list_changelog_note(
-    SseDeserializer deserializer,
-  );
+  List<ChangelogNote> sse_decode_list_changelog_note(SseDeserializer deserializer);
 
   @protected
   List<ConsoleLine> sse_decode_list_console_line(SseDeserializer deserializer);
 
   @protected
-  List<DashboardCustomPreset> sse_decode_list_dashboard_custom_preset(
-    SseDeserializer deserializer,
-  );
+  List<DashboardCustomPreset> sse_decode_list_dashboard_custom_preset(SseDeserializer deserializer);
 
   @protected
-  List<DiscordProjectPresence> sse_decode_list_discord_project_presence(
-    SseDeserializer deserializer,
-  );
+  List<DiscordProjectPresence> sse_decode_list_discord_project_presence(SseDeserializer deserializer);
 
   @protected
-  List<DiscoveredInstall> sse_decode_list_discovered_install(
-    SseDeserializer deserializer,
-  );
+  List<DiscoveredInstall> sse_decode_list_discovered_install(SseDeserializer deserializer);
 
   @protected
-  List<DiscoveredProject> sse_decode_list_discovered_project(
-    SseDeserializer deserializer,
-  );
+  List<DiscoveredProject> sse_decode_list_discovered_project(SseDeserializer deserializer);
 
   @protected
-  List<ExportPreset> sse_decode_list_export_preset(
-    SseDeserializer deserializer,
-  );
+  List<ExportPreset> sse_decode_list_export_preset(SseDeserializer deserializer);
 
   @protected
   List<ExportRun> sse_decode_list_export_run(SseDeserializer deserializer);
 
   @protected
-  List<ExportTemplatesOrphan> sse_decode_list_export_templates_orphan(
-    SseDeserializer deserializer,
-  );
+  List<ExportTemplatesOrphan> sse_decode_list_export_templates_orphan(SseDeserializer deserializer);
 
   @protected
-  List<ExportTemplatesVersionInfo>
-  sse_decode_list_export_templates_version_info(SseDeserializer deserializer);
+  List<ExportTemplatesVersionInfo> sse_decode_list_export_templates_version_info(SseDeserializer deserializer);
 
   @protected
-  List<FileSizeCategory> sse_decode_list_file_size_category(
-    SseDeserializer deserializer,
-  );
+  List<FileSizeCategory> sse_decode_list_file_size_category(SseDeserializer deserializer);
 
   @protected
-  List<GitBranchInfo> sse_decode_list_git_branch_info(
-    SseDeserializer deserializer,
-  );
+  List<GitBranchInfo> sse_decode_list_git_branch_info(SseDeserializer deserializer);
 
   @protected
-  List<GitChangedFile> sse_decode_list_git_changed_file(
-    SseDeserializer deserializer,
-  );
+  List<GitChangedFile> sse_decode_list_git_changed_file(SseDeserializer deserializer);
 
   @protected
-  List<GitCommitFile> sse_decode_list_git_commit_file(
-    SseDeserializer deserializer,
-  );
+  List<GitCommitFile> sse_decode_list_git_commit_file(SseDeserializer deserializer);
 
   @protected
   List<GitDiffHunk> sse_decode_list_git_diff_hunk(SseDeserializer deserializer);
@@ -1524,35 +1346,25 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<GitPatInfo> sse_decode_list_git_pat_info(SseDeserializer deserializer);
 
   @protected
-  List<GitRemoteInfo> sse_decode_list_git_remote_info(
-    SseDeserializer deserializer,
-  );
+  List<GitRemoteInfo> sse_decode_list_git_remote_info(SseDeserializer deserializer);
 
   @protected
-  List<GitStashEntry> sse_decode_list_git_stash_entry(
-    SseDeserializer deserializer,
-  );
+  List<GitStashEntry> sse_decode_list_git_stash_entry(SseDeserializer deserializer);
 
   @protected
   List<GitWorktree> sse_decode_list_git_worktree(SseDeserializer deserializer);
 
   @protected
-  List<GodotRelease> sse_decode_list_godot_release(
-    SseDeserializer deserializer,
-  );
+  List<GodotRelease> sse_decode_list_godot_release(SseDeserializer deserializer);
 
   @protected
-  List<GodotReleaseAsset> sse_decode_list_godot_release_asset(
-    SseDeserializer deserializer,
-  );
+  List<GodotReleaseAsset> sse_decode_list_godot_release_asset(SseDeserializer deserializer);
 
   @protected
   List<HealthCheck> sse_decode_list_health_check(SseDeserializer deserializer);
 
   @protected
-  List<InstalledGodotVersion> sse_decode_list_installed_godot_version(
-    SseDeserializer deserializer,
-  );
+  List<InstalledGodotVersion> sse_decode_list_installed_godot_version(SseDeserializer deserializer);
 
   @protected
   List<NewsItem> sse_decode_list_news_item(SseDeserializer deserializer);
@@ -1567,19 +1379,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<Project> sse_decode_list_project(SseDeserializer deserializer);
 
   @protected
-  List<ProjectAddon> sse_decode_list_project_addon(
-    SseDeserializer deserializer,
-  );
+  List<ProjectAddon> sse_decode_list_project_addon(SseDeserializer deserializer);
 
   @protected
-  List<ProjectFileEntry> sse_decode_list_project_file_entry(
-    SseDeserializer deserializer,
-  );
+  List<ProjectFileEntry> sse_decode_list_project_file_entry(SseDeserializer deserializer);
 
   @protected
-  List<ProjectTemplate> sse_decode_list_project_template(
-    SseDeserializer deserializer,
-  );
+  List<ProjectTemplate> sse_decode_list_project_template(SseDeserializer deserializer);
 
   @protected
   List<ProjectTodo> sse_decode_list_project_todo(SseDeserializer deserializer);
@@ -1588,112 +1394,73 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<ProjectTool> sse_decode_list_project_tool(SseDeserializer deserializer);
 
   @protected
-  List<ReclaimFailure> sse_decode_list_reclaim_failure(
-    SseDeserializer deserializer,
-  );
+  List<ReclaimFailure> sse_decode_list_reclaim_failure(SseDeserializer deserializer);
 
   @protected
   List<ReclaimItem> sse_decode_list_reclaim_item(SseDeserializer deserializer);
 
   @protected
-  List<(String, CardViewOverride)>
-  sse_decode_list_record_string_card_view_override(
-    SseDeserializer deserializer,
-  );
+  List<(String, CardViewOverride)> sse_decode_list_record_string_card_view_override(SseDeserializer deserializer);
 
   @protected
-  List<(String, GitStatus)> sse_decode_list_record_string_git_status(
-    SseDeserializer deserializer,
-  );
+  List<(String, GitStatus)> sse_decode_list_record_string_git_status(SseDeserializer deserializer);
 
   @protected
-  List<(String, String)> sse_decode_list_record_string_string(
-    SseDeserializer deserializer,
-  );
+  List<(String, String)> sse_decode_list_record_string_string(SseDeserializer deserializer);
 
   @protected
-  List<(String, BigInt)> sse_decode_list_record_string_u_64(
-    SseDeserializer deserializer,
-  );
+  List<(String, BigInt)> sse_decode_list_record_string_u_64(SseDeserializer deserializer);
 
   @protected
-  List<RunningProjectInfo> sse_decode_list_running_project_info(
-    SseDeserializer deserializer,
-  );
+  List<RunningProjectInfo> sse_decode_list_running_project_info(SseDeserializer deserializer);
 
   @protected
-  List<StorageExportTemplates> sse_decode_list_storage_export_templates(
-    SseDeserializer deserializer,
-  );
+  List<StorageExportTemplates> sse_decode_list_storage_export_templates(SseDeserializer deserializer);
 
   @protected
-  List<StoragePartial> sse_decode_list_storage_partial(
-    SseDeserializer deserializer,
-  );
+  List<StoragePartial> sse_decode_list_storage_partial(SseDeserializer deserializer);
 
   @protected
-  List<StorageTemplate> sse_decode_list_storage_template(
-    SseDeserializer deserializer,
-  );
+  List<StorageTemplate> sse_decode_list_storage_template(SseDeserializer deserializer);
 
   @protected
-  List<StorageVersion> sse_decode_list_storage_version(
-    SseDeserializer deserializer,
-  );
+  List<StorageVersion> sse_decode_list_storage_version(SseDeserializer deserializer);
 
   @protected
-  List<TemplateFile> sse_decode_list_template_file(
-    SseDeserializer deserializer,
-  );
+  List<TemplateFile> sse_decode_list_template_file(SseDeserializer deserializer);
 
   @protected
-  List<TemplateFileEntry> sse_decode_list_template_file_entry(
-    SseDeserializer deserializer,
-  );
+  List<TemplateFileEntry> sse_decode_list_template_file_entry(SseDeserializer deserializer);
 
   @protected
-  List<TemplateOption> sse_decode_list_template_option(
-    SseDeserializer deserializer,
-  );
+  List<TemplateOption> sse_decode_list_template_option(SseDeserializer deserializer);
 
   @protected
-  List<TodoChecklistItem> sse_decode_list_todo_checklist_item(
-    SseDeserializer deserializer,
-  );
+  List<TodoChecklistItem> sse_decode_list_todo_checklist_item(SseDeserializer deserializer);
 
   @protected
   List<TodoCommit> sse_decode_list_todo_commit(SseDeserializer deserializer);
 
   @protected
-  List<UserRepoInfo> sse_decode_list_user_repo_info(
-    SseDeserializer deserializer,
-  );
+  List<UserRepoInfo> sse_decode_list_user_repo_info(SseDeserializer deserializer);
 
   @protected
-  List<VaultFileEntry> sse_decode_list_vault_file_entry(
-    SseDeserializer deserializer,
-  );
+  List<VaultFileEntry> sse_decode_list_vault_file_entry(SseDeserializer deserializer);
 
   @protected
   List<VaultItem> sse_decode_list_vault_item(SseDeserializer deserializer);
 
   @protected
-  List<VaultProjectImportResult> sse_decode_list_vault_project_import_result(
-    SseDeserializer deserializer,
-  );
+  List<VaultProjectImportResult> sse_decode_list_vault_project_import_result(SseDeserializer deserializer);
 
   @protected
-  List<VaultSaveSource> sse_decode_list_vault_save_source(
-    SseDeserializer deserializer,
-  );
+  List<VaultSaveSource> sse_decode_list_vault_save_source(SseDeserializer deserializer);
 
   @protected
   List<Workspace> sse_decode_list_workspace(SseDeserializer deserializer);
 
   @protected
-  List<WorkspaceScanDirs> sse_decode_list_workspace_scan_dirs(
-    SseDeserializer deserializer,
-  );
+  List<WorkspaceScanDirs> sse_decode_list_workspace_scan_dirs(SseDeserializer deserializer);
 
   @protected
   LoadStatus sse_decode_load_status(SseDeserializer deserializer);
@@ -1714,129 +1481,82 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String? sse_decode_opt_String(SseDeserializer deserializer);
 
   @protected
-  AssetDownloadError? sse_decode_opt_box_autoadd_asset_download_error(
-    SseDeserializer deserializer,
-  );
+  AssetDownloadError? sse_decode_opt_box_autoadd_asset_download_error(SseDeserializer deserializer);
 
   @protected
-  AssetDownloadProgress? sse_decode_opt_box_autoadd_asset_download_progress(
-    SseDeserializer deserializer,
-  );
+  AssetDownloadProgress? sse_decode_opt_box_autoadd_asset_download_progress(SseDeserializer deserializer);
 
   @protected
   bool? sse_decode_opt_box_autoadd_bool(SseDeserializer deserializer);
 
   @protected
-  ConsoleExit? sse_decode_opt_box_autoadd_console_exit(
-    SseDeserializer deserializer,
-  );
+  ConsoleExit? sse_decode_opt_box_autoadd_console_exit(SseDeserializer deserializer);
 
   @protected
-  CurrentVersionInfo? sse_decode_opt_box_autoadd_current_version_info(
-    SseDeserializer deserializer,
-  );
+  CurrentVersionInfo? sse_decode_opt_box_autoadd_current_version_info(SseDeserializer deserializer);
 
   @protected
-  DownloadFailure? sse_decode_opt_box_autoadd_download_failure(
-    SseDeserializer deserializer,
-  );
+  DownloadFailure? sse_decode_opt_box_autoadd_download_failure(SseDeserializer deserializer);
 
   @protected
-  DownloadProgress? sse_decode_opt_box_autoadd_download_progress(
-    SseDeserializer deserializer,
-  );
+  DownloadProgress? sse_decode_opt_box_autoadd_download_progress(SseDeserializer deserializer);
 
   @protected
-  DownloadUnverified? sse_decode_opt_box_autoadd_download_unverified(
-    SseDeserializer deserializer,
-  );
+  DownloadUnverified? sse_decode_opt_box_autoadd_download_unverified(SseDeserializer deserializer);
 
   @protected
-  ExportRun? sse_decode_opt_box_autoadd_export_run(
-    SseDeserializer deserializer,
-  );
+  ExportRun? sse_decode_opt_box_autoadd_export_run(SseDeserializer deserializer);
 
   @protected
-  ExportTemplatesError? sse_decode_opt_box_autoadd_export_templates_error(
-    SseDeserializer deserializer,
-  );
+  ExportTemplatesError? sse_decode_opt_box_autoadd_export_templates_error(SseDeserializer deserializer);
 
   @protected
-  ExportTemplatesInstallResult?
-  sse_decode_opt_box_autoadd_export_templates_install_result(
-    SseDeserializer deserializer,
-  );
+  ExportTemplatesInstallResult? sse_decode_opt_box_autoadd_export_templates_install_result(SseDeserializer deserializer);
 
   @protected
-  ExportTemplatesProgress? sse_decode_opt_box_autoadd_export_templates_progress(
-    SseDeserializer deserializer,
-  );
+  ExportTemplatesProgress? sse_decode_opt_box_autoadd_export_templates_progress(SseDeserializer deserializer);
 
   @protected
-  ExportTemplatesStage? sse_decode_opt_box_autoadd_export_templates_stage(
-    SseDeserializer deserializer,
-  );
+  ExportTemplatesStage? sse_decode_opt_box_autoadd_export_templates_stage(SseDeserializer deserializer);
 
   @protected
-  GistSyncResult? sse_decode_opt_box_autoadd_gist_sync_result(
-    SseDeserializer deserializer,
-  );
+  GistSyncResult? sse_decode_opt_box_autoadd_gist_sync_result(SseDeserializer deserializer);
 
   @protected
-  GitAccountInfo? sse_decode_opt_box_autoadd_git_account_info(
-    SseDeserializer deserializer,
-  );
+  GitAccountInfo? sse_decode_opt_box_autoadd_git_account_info(SseDeserializer deserializer);
 
   @protected
-  GitAheadBehind? sse_decode_opt_box_autoadd_git_ahead_behind(
-    SseDeserializer deserializer,
-  );
+  GitAheadBehind? sse_decode_opt_box_autoadd_git_ahead_behind(SseDeserializer deserializer);
 
   @protected
-  GitInitOptions? sse_decode_opt_box_autoadd_git_init_options(
-    SseDeserializer deserializer,
-  );
+  GitInitOptions? sse_decode_opt_box_autoadd_git_init_options(SseDeserializer deserializer);
 
   @protected
-  HealthAction? sse_decode_opt_box_autoadd_health_action(
-    SseDeserializer deserializer,
-  );
+  HealthAction? sse_decode_opt_box_autoadd_health_action(SseDeserializer deserializer);
 
   @protected
   int? sse_decode_opt_box_autoadd_i_32(SseDeserializer deserializer);
 
   @protected
-  ProjectExited? sse_decode_opt_box_autoadd_project_exited(
-    SseDeserializer deserializer,
-  );
+  ProjectExited? sse_decode_opt_box_autoadd_project_exited(SseDeserializer deserializer);
 
   @protected
-  ProjectLaunched? sse_decode_opt_box_autoadd_project_launched(
-    SseDeserializer deserializer,
-  );
+  ProjectLaunched? sse_decode_opt_box_autoadd_project_launched(SseDeserializer deserializer);
 
   @protected
-  ScanProgress? sse_decode_opt_box_autoadd_scan_progress(
-    SseDeserializer deserializer,
-  );
+  ScanProgress? sse_decode_opt_box_autoadd_scan_progress(SseDeserializer deserializer);
 
   @protected
-  TodoClosure? sse_decode_opt_box_autoadd_todo_closure(
-    SseDeserializer deserializer,
-  );
+  TodoClosure? sse_decode_opt_box_autoadd_todo_closure(SseDeserializer deserializer);
 
   @protected
   TodoLink? sse_decode_opt_box_autoadd_todo_link(SseDeserializer deserializer);
 
   @protected
-  TodoPriority? sse_decode_opt_box_autoadd_todo_priority(
-    SseDeserializer deserializer,
-  );
+  TodoPriority? sse_decode_opt_box_autoadd_todo_priority(SseDeserializer deserializer);
 
   @protected
-  TodoSource? sse_decode_opt_box_autoadd_todo_source(
-    SseDeserializer deserializer,
-  );
+  TodoSource? sse_decode_opt_box_autoadd_todo_source(SseDeserializer deserializer);
 
   @protected
   int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer);
@@ -1845,9 +1565,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer);
 
   @protected
-  WindowState? sse_decode_opt_box_autoadd_window_state(
-    SseDeserializer deserializer,
-  );
+  WindowState? sse_decode_opt_box_autoadd_window_state(SseDeserializer deserializer);
 
   @protected
   List<String>? sse_decode_opt_list_String(SseDeserializer deserializer);
@@ -1898,19 +1616,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ReclaimResult sse_decode_reclaim_result(SseDeserializer deserializer);
 
   @protected
-  (String, CardViewOverride) sse_decode_record_string_card_view_override(
-    SseDeserializer deserializer,
-  );
+  (String, CardViewOverride) sse_decode_record_string_card_view_override(SseDeserializer deserializer);
 
   @protected
-  (String, GitStatus) sse_decode_record_string_git_status(
-    SseDeserializer deserializer,
-  );
+  (String, GitStatus) sse_decode_record_string_git_status(SseDeserializer deserializer);
 
   @protected
-  (String, String) sse_decode_record_string_string(
-    SseDeserializer deserializer,
-  );
+  (String, String) sse_decode_record_string_string(SseDeserializer deserializer);
 
   @protected
   (String, BigInt) sse_decode_record_string_u_64(SseDeserializer deserializer);
@@ -1919,22 +1631,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   RestorePreview sse_decode_restore_preview(SseDeserializer deserializer);
 
   @protected
-  RunningProjectInfo sse_decode_running_project_info(
-    SseDeserializer deserializer,
-  );
+  RunningProjectInfo sse_decode_running_project_info(SseDeserializer deserializer);
 
   @protected
   ScanProgress sse_decode_scan_progress(SseDeserializer deserializer);
 
   @protected
-  ScanProjectsResult sse_decode_scan_projects_result(
-    SseDeserializer deserializer,
-  );
+  ScanProjectsResult sse_decode_scan_projects_result(SseDeserializer deserializer);
 
   @protected
-  StorageExportTemplates sse_decode_storage_export_templates(
-    SseDeserializer deserializer,
-  );
+  StorageExportTemplates sse_decode_storage_export_templates(SseDeserializer deserializer);
 
   @protected
   StoragePartial sse_decode_storage_partial(SseDeserializer deserializer);
@@ -1952,17 +1658,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   TemplateFile sse_decode_template_file(SseDeserializer deserializer);
 
   @protected
-  TemplateFileEntry sse_decode_template_file_entry(
-    SseDeserializer deserializer,
-  );
+  TemplateFileEntry sse_decode_template_file_entry(SseDeserializer deserializer);
 
   @protected
   TemplateOption sse_decode_template_option(SseDeserializer deserializer);
 
   @protected
-  TemplateSyncResult sse_decode_template_sync_result(
-    SseDeserializer deserializer,
-  );
+  TemplateSyncResult sse_decode_template_sync_result(SseDeserializer deserializer);
 
   @protected
   TimeInsights sse_decode_time_insights(SseDeserializer deserializer);
@@ -1971,9 +1673,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   TodoArea sse_decode_todo_area(SseDeserializer deserializer);
 
   @protected
-  TodoChecklistItem sse_decode_todo_checklist_item(
-    SseDeserializer deserializer,
-  );
+  TodoChecklistItem sse_decode_todo_checklist_item(SseDeserializer deserializer);
 
   @protected
   TodoClosure sse_decode_todo_closure(SseDeserializer deserializer);
@@ -2030,9 +1730,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   VaultItem sse_decode_vault_item(SseDeserializer deserializer);
 
   @protected
-  VaultProjectImportResult sse_decode_vault_project_import_result(
-    SseDeserializer deserializer,
-  );
+  VaultProjectImportResult sse_decode_vault_project_import_result(SseDeserializer deserializer);
 
   @protected
   VaultSaveSource sse_decode_vault_save_source(SseDeserializer deserializer);
@@ -2047,42 +1745,25 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Workspace sse_decode_workspace(SseDeserializer deserializer);
 
   @protected
-  WorkspaceScanDirs sse_decode_workspace_scan_dirs(
-    SseDeserializer deserializer,
-  );
+  WorkspaceScanDirs sse_decode_workspace_scan_dirs(SseDeserializer deserializer);
 
   @protected
   WorkspacesState sse_decode_workspaces_state(SseDeserializer deserializer);
 
   @protected
-  void sse_encode_AnyhowException(
-    AnyhowException self,
-    SseSerializer serializer,
-  );
+  void sse_encode_AnyhowException(AnyhowException self, SseSerializer serializer);
 
   @protected
-  void sse_encode_Map_String_String_None(
-    Map<String, String> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_Map_String_String_None(Map<String, String> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_Map_String_card_view_override_None(
-    Map<String, CardViewOverride> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_Map_String_card_view_override_None(Map<String, CardViewOverride> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_Map_String_git_status_None(
-    Map<String, GitStatus> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_Map_String_git_status_None(Map<String, GitStatus> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_StreamSink_app_event_Sse(
-    RustStreamSink<AppEvent> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_StreamSink_app_event_Sse(RustStreamSink<AppEvent> self, SseSerializer serializer);
 
   @protected
   void sse_encode_String(String self, SseSerializer serializer);
@@ -2091,10 +1772,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_addon_update(AddonUpdate self, SseSerializer serializer);
 
   @protected
-  void sse_encode_alias_batch_result(
-    AliasBatchResult self,
-    SseSerializer serializer,
-  );
+  void sse_encode_alias_batch_result(AliasBatchResult self, SseSerializer serializer);
 
   @protected
   void sse_encode_alias_info(AliasInfo self, SseSerializer serializer);
@@ -2115,34 +1793,19 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_app_settings(AppSettings self, SseSerializer serializer);
 
   @protected
-  void sse_encode_asset_download_error(
-    AssetDownloadError self,
-    SseSerializer serializer,
-  );
+  void sse_encode_asset_download_error(AssetDownloadError self, SseSerializer serializer);
 
   @protected
-  void sse_encode_asset_download_progress(
-    AssetDownloadProgress self,
-    SseSerializer serializer,
-  );
+  void sse_encode_asset_download_progress(AssetDownloadProgress self, SseSerializer serializer);
 
   @protected
-  void sse_encode_asset_library_asset(
-    AssetLibraryAsset self,
-    SseSerializer serializer,
-  );
+  void sse_encode_asset_library_asset(AssetLibraryAsset self, SseSerializer serializer);
 
   @protected
-  void sse_encode_asset_library_category(
-    AssetLibraryCategory self,
-    SseSerializer serializer,
-  );
+  void sse_encode_asset_library_category(AssetLibraryCategory self, SseSerializer serializer);
 
   @protected
-  void sse_encode_asset_library_response(
-    AssetLibraryResponse self,
-    SseSerializer serializer,
-  );
+  void sse_encode_asset_library_response(AssetLibraryResponse self, SseSerializer serializer);
 
   @protected
   void sse_encode_beta_import(BetaImport self, SseSerializer serializer);
@@ -2151,166 +1814,88 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_bool(bool self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_app_settings(
-    AppSettings self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_app_settings(AppSettings self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_asset_download_error(
-    AssetDownloadError self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_asset_download_error(AssetDownloadError self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_asset_download_progress(
-    AssetDownloadProgress self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_asset_download_progress(AssetDownloadProgress self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_bool(bool self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_console_exit(
-    ConsoleExit self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_console_exit(ConsoleExit self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_current_version_info(
-    CurrentVersionInfo self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_current_version_info(CurrentVersionInfo self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_download_failure(
-    DownloadFailure self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_download_failure(DownloadFailure self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_download_progress(
-    DownloadProgress self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_download_progress(DownloadProgress self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_download_unverified(
-    DownloadUnverified self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_download_unverified(DownloadUnverified self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_export_run(
-    ExportRun self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_export_run(ExportRun self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_export_templates_error(
-    ExportTemplatesError self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_export_templates_error(ExportTemplatesError self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_export_templates_install_result(
-    ExportTemplatesInstallResult self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_export_templates_install_result(ExportTemplatesInstallResult self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_export_templates_progress(
-    ExportTemplatesProgress self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_export_templates_progress(ExportTemplatesProgress self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_export_templates_stage(
-    ExportTemplatesStage self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_export_templates_stage(ExportTemplatesStage self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_gist_sync_result(
-    GistSyncResult self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_gist_sync_result(GistSyncResult self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_git_account_info(
-    GitAccountInfo self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_git_account_info(GitAccountInfo self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_git_ahead_behind(
-    GitAheadBehind self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_git_ahead_behind(GitAheadBehind self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_git_init_options(
-    GitInitOptions self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_git_init_options(GitInitOptions self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_health_action(
-    HealthAction self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_health_action(HealthAction self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_project_exited(
-    ProjectExited self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_project_exited(ProjectExited self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_project_launched(
-    ProjectLaunched self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_project_launched(ProjectLaunched self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_project_update(
-    ProjectUpdate self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_project_update(ProjectUpdate self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_scan_progress(
-    ScanProgress self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_scan_progress(ScanProgress self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_todo_closure(
-    TodoClosure self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_todo_closure(TodoClosure self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_todo_link(
-    TodoLink self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_todo_link(TodoLink self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_todo_priority(
-    TodoPriority self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_todo_priority(TodoPriority self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_todo_source(
-    TodoSource self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_todo_source(TodoSource self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
@@ -2319,43 +1904,25 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer);
 
   @protected
-  void sse_encode_box_autoadd_window_state(
-    WindowState self,
-    SseSerializer serializer,
-  );
+  void sse_encode_box_autoadd_window_state(WindowState self, SseSerializer serializer);
 
   @protected
-  void sse_encode_card_view_override(
-    CardViewOverride self,
-    SseSerializer serializer,
-  );
+  void sse_encode_card_view_override(CardViewOverride self, SseSerializer serializer);
 
   @protected
   void sse_encode_category(Category self, SseSerializer serializer);
 
   @protected
-  void sse_encode_changelog_draft(
-    ChangelogDraft self,
-    SseSerializer serializer,
-  );
+  void sse_encode_changelog_draft(ChangelogDraft self, SseSerializer serializer);
 
   @protected
-  void sse_encode_changelog_draft_note(
-    ChangelogDraftNote self,
-    SseSerializer serializer,
-  );
+  void sse_encode_changelog_draft_note(ChangelogDraftNote self, SseSerializer serializer);
 
   @protected
-  void sse_encode_changelog_draft_skipped(
-    ChangelogDraftSkipped self,
-    SseSerializer serializer,
-  );
+  void sse_encode_changelog_draft_skipped(ChangelogDraftSkipped self, SseSerializer serializer);
 
   @protected
-  void sse_encode_changelog_entry(
-    ChangelogEntry self,
-    SseSerializer serializer,
-  );
+  void sse_encode_changelog_entry(ChangelogEntry self, SseSerializer serializer);
 
   @protected
   void sse_encode_changelog_note(ChangelogNote self, SseSerializer serializer);
@@ -2370,10 +1937,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_console_line(ConsoleLine self, SseSerializer serializer);
 
   @protected
-  void sse_encode_console_snapshot(
-    ConsoleSnapshot self,
-    SseSerializer serializer,
-  );
+  void sse_encode_console_snapshot(ConsoleSnapshot self, SseSerializer serializer);
 
   @protected
   void sse_encode_console_stream(ConsoleStream self, SseSerializer serializer);
@@ -2382,76 +1946,40 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_core_error(CoreError self, SseSerializer serializer);
 
   @protected
-  void sse_encode_create_repo_result(
-    CreateRepoResult self,
-    SseSerializer serializer,
-  );
+  void sse_encode_create_repo_result(CreateRepoResult self, SseSerializer serializer);
 
   @protected
-  void sse_encode_current_version_info(
-    CurrentVersionInfo self,
-    SseSerializer serializer,
-  );
+  void sse_encode_current_version_info(CurrentVersionInfo self, SseSerializer serializer);
 
   @protected
-  void sse_encode_dashboard_custom_preset(
-    DashboardCustomPreset self,
-    SseSerializer serializer,
-  );
+  void sse_encode_dashboard_custom_preset(DashboardCustomPreset self, SseSerializer serializer);
 
   @protected
-  void sse_encode_device_flow_poll(
-    DeviceFlowPoll self,
-    SseSerializer serializer,
-  );
+  void sse_encode_device_flow_poll(DeviceFlowPoll self, SseSerializer serializer);
 
   @protected
-  void sse_encode_device_flow_start(
-    DeviceFlowStart self,
-    SseSerializer serializer,
-  );
+  void sse_encode_device_flow_start(DeviceFlowStart self, SseSerializer serializer);
 
   @protected
-  void sse_encode_device_flow_status(
-    DeviceFlowStatus self,
-    SseSerializer serializer,
-  );
+  void sse_encode_device_flow_status(DeviceFlowStatus self, SseSerializer serializer);
 
   @protected
-  void sse_encode_discord_project_presence(
-    DiscordProjectPresence self,
-    SseSerializer serializer,
-  );
+  void sse_encode_discord_project_presence(DiscordProjectPresence self, SseSerializer serializer);
 
   @protected
-  void sse_encode_discovered_install(
-    DiscoveredInstall self,
-    SseSerializer serializer,
-  );
+  void sse_encode_discovered_install(DiscoveredInstall self, SseSerializer serializer);
 
   @protected
-  void sse_encode_discovered_project(
-    DiscoveredProject self,
-    SseSerializer serializer,
-  );
+  void sse_encode_discovered_project(DiscoveredProject self, SseSerializer serializer);
 
   @protected
-  void sse_encode_download_failure(
-    DownloadFailure self,
-    SseSerializer serializer,
-  );
+  void sse_encode_download_failure(DownloadFailure self, SseSerializer serializer);
 
   @protected
-  void sse_encode_download_progress(
-    DownloadProgress self,
-    SseSerializer serializer,
-  );
+  void sse_encode_download_progress(DownloadProgress self, SseSerializer serializer);
 
   @protected
-  void sse_encode_download_unverified(
-    DownloadUnverified self,
-    SseSerializer serializer,
-  );
+  void sse_encode_download_unverified(DownloadUnverified self, SseSerializer serializer);
 
   @protected
   void sse_encode_export_catalog(ExportCatalog self, SseSerializer serializer);
@@ -2463,73 +1991,40 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_export_run(ExportRun self, SseSerializer serializer);
 
   @protected
-  void sse_encode_export_templates_error(
-    ExportTemplatesError self,
-    SseSerializer serializer,
-  );
+  void sse_encode_export_templates_error(ExportTemplatesError self, SseSerializer serializer);
 
   @protected
-  void sse_encode_export_templates_install_result(
-    ExportTemplatesInstallResult self,
-    SseSerializer serializer,
-  );
+  void sse_encode_export_templates_install_result(ExportTemplatesInstallResult self, SseSerializer serializer);
 
   @protected
-  void sse_encode_export_templates_orphan(
-    ExportTemplatesOrphan self,
-    SseSerializer serializer,
-  );
+  void sse_encode_export_templates_orphan(ExportTemplatesOrphan self, SseSerializer serializer);
 
   @protected
-  void sse_encode_export_templates_progress(
-    ExportTemplatesProgress self,
-    SseSerializer serializer,
-  );
+  void sse_encode_export_templates_progress(ExportTemplatesProgress self, SseSerializer serializer);
 
   @protected
-  void sse_encode_export_templates_stage(
-    ExportTemplatesStage self,
-    SseSerializer serializer,
-  );
+  void sse_encode_export_templates_stage(ExportTemplatesStage self, SseSerializer serializer);
 
   @protected
-  void sse_encode_export_templates_state(
-    ExportTemplatesState self,
-    SseSerializer serializer,
-  );
+  void sse_encode_export_templates_state(ExportTemplatesState self, SseSerializer serializer);
 
   @protected
-  void sse_encode_export_templates_version_info(
-    ExportTemplatesVersionInfo self,
-    SseSerializer serializer,
-  );
+  void sse_encode_export_templates_version_info(ExportTemplatesVersionInfo self, SseSerializer serializer);
 
   @protected
   void sse_encode_f_64(double self, SseSerializer serializer);
 
   @protected
-  void sse_encode_file_size_category(
-    FileSizeCategory self,
-    SseSerializer serializer,
-  );
+  void sse_encode_file_size_category(FileSizeCategory self, SseSerializer serializer);
 
   @protected
-  void sse_encode_gist_sync_result(
-    GistSyncResult self,
-    SseSerializer serializer,
-  );
+  void sse_encode_gist_sync_result(GistSyncResult self, SseSerializer serializer);
 
   @protected
-  void sse_encode_git_account_info(
-    GitAccountInfo self,
-    SseSerializer serializer,
-  );
+  void sse_encode_git_account_info(GitAccountInfo self, SseSerializer serializer);
 
   @protected
-  void sse_encode_git_ahead_behind(
-    GitAheadBehind self,
-    SseSerializer serializer,
-  );
+  void sse_encode_git_ahead_behind(GitAheadBehind self, SseSerializer serializer);
 
   @protected
   void sse_encode_git_auth_state(GitAuthState self, SseSerializer serializer);
@@ -2538,16 +2033,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_git_branch_info(GitBranchInfo self, SseSerializer serializer);
 
   @protected
-  void sse_encode_git_changed_file(
-    GitChangedFile self,
-    SseSerializer serializer,
-  );
+  void sse_encode_git_changed_file(GitChangedFile self, SseSerializer serializer);
 
   @protected
-  void sse_encode_git_commit_details(
-    GitCommitDetails self,
-    SseSerializer serializer,
-  );
+  void sse_encode_git_commit_details(GitCommitDetails self, SseSerializer serializer);
 
   @protected
   void sse_encode_git_commit_file(GitCommitFile self, SseSerializer serializer);
@@ -2562,16 +2051,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_git_diff_result(GitDiffResult self, SseSerializer serializer);
 
   @protected
-  void sse_encode_git_init_options(
-    GitInitOptions self,
-    SseSerializer serializer,
-  );
+  void sse_encode_git_init_options(GitInitOptions self, SseSerializer serializer);
 
   @protected
-  void sse_encode_git_init_outcome(
-    GitInitOutcome self,
-    SseSerializer serializer,
-  );
+  void sse_encode_git_init_outcome(GitInitOutcome self, SseSerializer serializer);
 
   @protected
   void sse_encode_git_log_entry(GitLogEntry self, SseSerializer serializer);
@@ -2595,10 +2078,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_godot_release(GodotRelease self, SseSerializer serializer);
 
   @protected
-  void sse_encode_godot_release_asset(
-    GodotReleaseAsset self,
-    SseSerializer serializer,
-  );
+  void sse_encode_godot_release_asset(GodotReleaseAsset self, SseSerializer serializer);
 
   @protected
   void sse_encode_health_action(HealthAction self, SseSerializer serializer);
@@ -2619,226 +2099,118 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_i_8(int self, SseSerializer serializer);
 
   @protected
-  void sse_encode_install_asset_result(
-    InstallAssetResult self,
-    SseSerializer serializer,
-  );
+  void sse_encode_install_asset_result(InstallAssetResult self, SseSerializer serializer);
 
   @protected
-  void sse_encode_installed_godot_version(
-    InstalledGodotVersion self,
-    SseSerializer serializer,
-  );
+  void sse_encode_installed_godot_version(InstalledGodotVersion self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_String(List<String> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_addon_update(
-    List<AddonUpdate> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_addon_update(List<AddonUpdate> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_alias_info(
-    List<AliasInfo> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_alias_info(List<AliasInfo> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_alias_request(
-    List<AliasRequest> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_alias_request(List<AliasRequest> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_alias_skip(
-    List<AliasSkip> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_alias_skip(List<AliasSkip> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_asset_library_asset(
-    List<AssetLibraryAsset> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_asset_library_asset(List<AssetLibraryAsset> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_asset_library_category(
-    List<AssetLibraryCategory> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_asset_library_category(List<AssetLibraryCategory> self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_category(List<Category> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_changelog_draft_note(
-    List<ChangelogDraftNote> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_changelog_draft_note(List<ChangelogDraftNote> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_changelog_draft_skipped(
-    List<ChangelogDraftSkipped> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_changelog_draft_skipped(List<ChangelogDraftSkipped> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_changelog_entry(
-    List<ChangelogEntry> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_changelog_entry(List<ChangelogEntry> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_changelog_note(
-    List<ChangelogNote> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_changelog_note(List<ChangelogNote> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_console_line(
-    List<ConsoleLine> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_console_line(List<ConsoleLine> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_dashboard_custom_preset(
-    List<DashboardCustomPreset> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_dashboard_custom_preset(List<DashboardCustomPreset> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_discord_project_presence(
-    List<DiscordProjectPresence> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_discord_project_presence(List<DiscordProjectPresence> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_discovered_install(
-    List<DiscoveredInstall> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_discovered_install(List<DiscoveredInstall> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_discovered_project(
-    List<DiscoveredProject> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_discovered_project(List<DiscoveredProject> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_export_preset(
-    List<ExportPreset> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_export_preset(List<ExportPreset> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_export_run(
-    List<ExportRun> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_export_run(List<ExportRun> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_export_templates_orphan(
-    List<ExportTemplatesOrphan> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_export_templates_orphan(List<ExportTemplatesOrphan> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_export_templates_version_info(
-    List<ExportTemplatesVersionInfo> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_export_templates_version_info(List<ExportTemplatesVersionInfo> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_file_size_category(
-    List<FileSizeCategory> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_file_size_category(List<FileSizeCategory> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_git_branch_info(
-    List<GitBranchInfo> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_git_branch_info(List<GitBranchInfo> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_git_changed_file(
-    List<GitChangedFile> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_git_changed_file(List<GitChangedFile> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_git_commit_file(
-    List<GitCommitFile> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_git_commit_file(List<GitCommitFile> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_git_diff_hunk(
-    List<GitDiffHunk> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_git_diff_hunk(List<GitDiffHunk> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_git_diff_line(
-    List<GitDiffLine> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_git_diff_line(List<GitDiffLine> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_git_log_entry(
-    List<GitLogEntry> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_git_log_entry(List<GitLogEntry> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_git_pat_info(
-    List<GitPatInfo> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_git_pat_info(List<GitPatInfo> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_git_remote_info(
-    List<GitRemoteInfo> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_git_remote_info(List<GitRemoteInfo> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_git_stash_entry(
-    List<GitStashEntry> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_git_stash_entry(List<GitStashEntry> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_git_worktree(
-    List<GitWorktree> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_git_worktree(List<GitWorktree> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_godot_release(
-    List<GodotRelease> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_godot_release(List<GodotRelease> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_godot_release_asset(
-    List<GodotReleaseAsset> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_godot_release_asset(List<GodotReleaseAsset> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_health_check(
-    List<HealthCheck> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_health_check(List<HealthCheck> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_installed_godot_version(
-    List<InstalledGodotVersion> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_installed_godot_version(List<InstalledGodotVersion> self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_news_item(List<NewsItem> self, SseSerializer serializer);
@@ -2847,181 +2219,94 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_list_open_todo(List<OpenTodo> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_prim_u_8_strict(
-    Uint8List self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_prim_u_8_strict(Uint8List self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_project(List<Project> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_project_addon(
-    List<ProjectAddon> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_project_addon(List<ProjectAddon> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_project_file_entry(
-    List<ProjectFileEntry> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_project_file_entry(List<ProjectFileEntry> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_project_template(
-    List<ProjectTemplate> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_project_template(List<ProjectTemplate> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_project_todo(
-    List<ProjectTodo> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_project_todo(List<ProjectTodo> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_project_tool(
-    List<ProjectTool> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_project_tool(List<ProjectTool> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_reclaim_failure(
-    List<ReclaimFailure> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_reclaim_failure(List<ReclaimFailure> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_reclaim_item(
-    List<ReclaimItem> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_reclaim_item(List<ReclaimItem> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_record_string_card_view_override(
-    List<(String, CardViewOverride)> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_record_string_card_view_override(List<(String, CardViewOverride)> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_record_string_git_status(
-    List<(String, GitStatus)> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_record_string_git_status(List<(String, GitStatus)> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_record_string_string(
-    List<(String, String)> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_record_string_string(List<(String, String)> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_record_string_u_64(
-    List<(String, BigInt)> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_record_string_u_64(List<(String, BigInt)> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_running_project_info(
-    List<RunningProjectInfo> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_running_project_info(List<RunningProjectInfo> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_storage_export_templates(
-    List<StorageExportTemplates> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_storage_export_templates(List<StorageExportTemplates> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_storage_partial(
-    List<StoragePartial> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_storage_partial(List<StoragePartial> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_storage_template(
-    List<StorageTemplate> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_storage_template(List<StorageTemplate> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_storage_version(
-    List<StorageVersion> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_storage_version(List<StorageVersion> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_template_file(
-    List<TemplateFile> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_template_file(List<TemplateFile> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_template_file_entry(
-    List<TemplateFileEntry> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_template_file_entry(List<TemplateFileEntry> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_template_option(
-    List<TemplateOption> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_template_option(List<TemplateOption> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_todo_checklist_item(
-    List<TodoChecklistItem> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_todo_checklist_item(List<TodoChecklistItem> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_todo_commit(
-    List<TodoCommit> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_todo_commit(List<TodoCommit> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_user_repo_info(
-    List<UserRepoInfo> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_user_repo_info(List<UserRepoInfo> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_vault_file_entry(
-    List<VaultFileEntry> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_vault_file_entry(List<VaultFileEntry> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_vault_item(
-    List<VaultItem> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_vault_item(List<VaultItem> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_vault_project_import_result(
-    List<VaultProjectImportResult> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_vault_project_import_result(List<VaultProjectImportResult> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_vault_save_source(
-    List<VaultSaveSource> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_vault_save_source(List<VaultSaveSource> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_workspace(
-    List<Workspace> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_workspace(List<Workspace> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_workspace_scan_dirs(
-    List<WorkspaceScanDirs> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_workspace_scan_dirs(List<WorkspaceScanDirs> self, SseSerializer serializer);
 
   @protected
   void sse_encode_load_status(LoadStatus self, SseSerializer serializer);
@@ -3042,154 +2327,82 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_opt_String(String? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_asset_download_error(
-    AssetDownloadError? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_asset_download_error(AssetDownloadError? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_asset_download_progress(
-    AssetDownloadProgress? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_asset_download_progress(AssetDownloadProgress? self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_box_autoadd_bool(bool? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_console_exit(
-    ConsoleExit? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_console_exit(ConsoleExit? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_current_version_info(
-    CurrentVersionInfo? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_current_version_info(CurrentVersionInfo? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_download_failure(
-    DownloadFailure? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_download_failure(DownloadFailure? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_download_progress(
-    DownloadProgress? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_download_progress(DownloadProgress? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_download_unverified(
-    DownloadUnverified? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_download_unverified(DownloadUnverified? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_export_run(
-    ExportRun? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_export_run(ExportRun? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_export_templates_error(
-    ExportTemplatesError? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_export_templates_error(ExportTemplatesError? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_export_templates_install_result(
-    ExportTemplatesInstallResult? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_export_templates_install_result(ExportTemplatesInstallResult? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_export_templates_progress(
-    ExportTemplatesProgress? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_export_templates_progress(ExportTemplatesProgress? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_export_templates_stage(
-    ExportTemplatesStage? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_export_templates_stage(ExportTemplatesStage? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_gist_sync_result(
-    GistSyncResult? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_gist_sync_result(GistSyncResult? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_git_account_info(
-    GitAccountInfo? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_git_account_info(GitAccountInfo? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_git_ahead_behind(
-    GitAheadBehind? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_git_ahead_behind(GitAheadBehind? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_git_init_options(
-    GitInitOptions? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_git_init_options(GitInitOptions? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_health_action(
-    HealthAction? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_health_action(HealthAction? self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_box_autoadd_i_32(int? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_project_exited(
-    ProjectExited? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_project_exited(ProjectExited? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_project_launched(
-    ProjectLaunched? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_project_launched(ProjectLaunched? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_scan_progress(
-    ScanProgress? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_scan_progress(ScanProgress? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_todo_closure(
-    TodoClosure? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_todo_closure(TodoClosure? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_todo_link(
-    TodoLink? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_todo_link(TodoLink? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_todo_priority(
-    TodoPriority? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_todo_priority(TodoPriority? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_todo_source(
-    TodoSource? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_todo_source(TodoSource? self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer);
@@ -3198,10 +2411,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_opt_box_autoadd_u_64(BigInt? self, SseSerializer serializer);
 
   @protected
-  void sse_encode_opt_box_autoadd_window_state(
-    WindowState? self,
-    SseSerializer serializer,
-  );
+  void sse_encode_opt_box_autoadd_window_state(WindowState? self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_list_String(List<String>? self, SseSerializer serializer);
@@ -3216,28 +2426,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_project_exited(ProjectExited self, SseSerializer serializer);
 
   @protected
-  void sse_encode_project_file_entry(
-    ProjectFileEntry self,
-    SseSerializer serializer,
-  );
+  void sse_encode_project_file_entry(ProjectFileEntry self, SseSerializer serializer);
 
   @protected
-  void sse_encode_project_launched(
-    ProjectLaunched self,
-    SseSerializer serializer,
-  );
+  void sse_encode_project_launched(ProjectLaunched self, SseSerializer serializer);
 
   @protected
-  void sse_encode_project_size_info(
-    ProjectSizeInfo self,
-    SseSerializer serializer,
-  );
+  void sse_encode_project_size_info(ProjectSizeInfo self, SseSerializer serializer);
 
   @protected
-  void sse_encode_project_template(
-    ProjectTemplate self,
-    SseSerializer serializer,
-  );
+  void sse_encode_project_template(ProjectTemplate self, SseSerializer serializer);
 
   @protected
   void sse_encode_project_todo(ProjectTodo self, SseSerializer serializer);
@@ -3252,10 +2450,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_rate_limit_info(RateLimitInfo self, SseSerializer serializer);
 
   @protected
-  void sse_encode_reclaim_failure(
-    ReclaimFailure self,
-    SseSerializer serializer,
-  );
+  void sse_encode_reclaim_failure(ReclaimFailure self, SseSerializer serializer);
 
   @protected
   void sse_encode_reclaim_item(ReclaimItem self, SseSerializer serializer);
@@ -3267,97 +2462,55 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_reclaim_result(ReclaimResult self, SseSerializer serializer);
 
   @protected
-  void sse_encode_record_string_card_view_override(
-    (String, CardViewOverride) self,
-    SseSerializer serializer,
-  );
+  void sse_encode_record_string_card_view_override((String, CardViewOverride) self, SseSerializer serializer);
 
   @protected
-  void sse_encode_record_string_git_status(
-    (String, GitStatus) self,
-    SseSerializer serializer,
-  );
+  void sse_encode_record_string_git_status((String, GitStatus) self, SseSerializer serializer);
 
   @protected
-  void sse_encode_record_string_string(
-    (String, String) self,
-    SseSerializer serializer,
-  );
+  void sse_encode_record_string_string((String, String) self, SseSerializer serializer);
 
   @protected
-  void sse_encode_record_string_u_64(
-    (String, BigInt) self,
-    SseSerializer serializer,
-  );
+  void sse_encode_record_string_u_64((String, BigInt) self, SseSerializer serializer);
 
   @protected
-  void sse_encode_restore_preview(
-    RestorePreview self,
-    SseSerializer serializer,
-  );
+  void sse_encode_restore_preview(RestorePreview self, SseSerializer serializer);
 
   @protected
-  void sse_encode_running_project_info(
-    RunningProjectInfo self,
-    SseSerializer serializer,
-  );
+  void sse_encode_running_project_info(RunningProjectInfo self, SseSerializer serializer);
 
   @protected
   void sse_encode_scan_progress(ScanProgress self, SseSerializer serializer);
 
   @protected
-  void sse_encode_scan_projects_result(
-    ScanProjectsResult self,
-    SseSerializer serializer,
-  );
+  void sse_encode_scan_projects_result(ScanProjectsResult self, SseSerializer serializer);
 
   @protected
-  void sse_encode_storage_export_templates(
-    StorageExportTemplates self,
-    SseSerializer serializer,
-  );
+  void sse_encode_storage_export_templates(StorageExportTemplates self, SseSerializer serializer);
 
   @protected
-  void sse_encode_storage_partial(
-    StoragePartial self,
-    SseSerializer serializer,
-  );
+  void sse_encode_storage_partial(StoragePartial self, SseSerializer serializer);
 
   @protected
   void sse_encode_storage_report(StorageReport self, SseSerializer serializer);
 
   @protected
-  void sse_encode_storage_template(
-    StorageTemplate self,
-    SseSerializer serializer,
-  );
+  void sse_encode_storage_template(StorageTemplate self, SseSerializer serializer);
 
   @protected
-  void sse_encode_storage_version(
-    StorageVersion self,
-    SseSerializer serializer,
-  );
+  void sse_encode_storage_version(StorageVersion self, SseSerializer serializer);
 
   @protected
   void sse_encode_template_file(TemplateFile self, SseSerializer serializer);
 
   @protected
-  void sse_encode_template_file_entry(
-    TemplateFileEntry self,
-    SseSerializer serializer,
-  );
+  void sse_encode_template_file_entry(TemplateFileEntry self, SseSerializer serializer);
 
   @protected
-  void sse_encode_template_option(
-    TemplateOption self,
-    SseSerializer serializer,
-  );
+  void sse_encode_template_option(TemplateOption self, SseSerializer serializer);
 
   @protected
-  void sse_encode_template_sync_result(
-    TemplateSyncResult self,
-    SseSerializer serializer,
-  );
+  void sse_encode_template_sync_result(TemplateSyncResult self, SseSerializer serializer);
 
   @protected
   void sse_encode_time_insights(TimeInsights self, SseSerializer serializer);
@@ -3366,10 +2519,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_todo_area(TodoArea self, SseSerializer serializer);
 
   @protected
-  void sse_encode_todo_checklist_item(
-    TodoChecklistItem self,
-    SseSerializer serializer,
-  );
+  void sse_encode_todo_checklist_item(TodoChecklistItem self, SseSerializer serializer);
 
   @protected
   void sse_encode_todo_closure(TodoClosure self, SseSerializer serializer);
@@ -3378,10 +2528,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_todo_commit(TodoCommit self, SseSerializer serializer);
 
   @protected
-  void sse_encode_todo_git_activity(
-    TodoGitActivity self,
-    SseSerializer serializer,
-  );
+  void sse_encode_todo_git_activity(TodoGitActivity self, SseSerializer serializer);
 
   @protected
   void sse_encode_todo_link(TodoLink self, SseSerializer serializer);
@@ -3396,10 +2543,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_todo_status(TodoStatus self, SseSerializer serializer);
 
   @protected
-  void sse_encode_todo_sync_result(
-    TodoSyncResult self,
-    SseSerializer serializer,
-  );
+  void sse_encode_todo_sync_result(TodoSyncResult self, SseSerializer serializer);
 
   @protected
   void sse_encode_u_32(int self, SseSerializer serializer);
@@ -3426,31 +2570,19 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_usize(BigInt self, SseSerializer serializer);
 
   @protected
-  void sse_encode_vault_file_entry(
-    VaultFileEntry self,
-    SseSerializer serializer,
-  );
+  void sse_encode_vault_file_entry(VaultFileEntry self, SseSerializer serializer);
 
   @protected
   void sse_encode_vault_item(VaultItem self, SseSerializer serializer);
 
   @protected
-  void sse_encode_vault_project_import_result(
-    VaultProjectImportResult self,
-    SseSerializer serializer,
-  );
+  void sse_encode_vault_project_import_result(VaultProjectImportResult self, SseSerializer serializer);
 
   @protected
-  void sse_encode_vault_save_source(
-    VaultSaveSource self,
-    SseSerializer serializer,
-  );
+  void sse_encode_vault_save_source(VaultSaveSource self, SseSerializer serializer);
 
   @protected
-  void sse_encode_version_aliases(
-    VersionAliases self,
-    SseSerializer serializer,
-  );
+  void sse_encode_version_aliases(VersionAliases self, SseSerializer serializer);
 
   @protected
   void sse_encode_window_state(WindowState self, SseSerializer serializer);
@@ -3459,29 +2591,20 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_workspace(Workspace self, SseSerializer serializer);
 
   @protected
-  void sse_encode_workspace_scan_dirs(
-    WorkspaceScanDirs self,
-    SseSerializer serializer,
-  );
+  void sse_encode_workspace_scan_dirs(WorkspaceScanDirs self, SseSerializer serializer);
 
   @protected
-  void sse_encode_workspaces_state(
-    WorkspacesState self,
-    SseSerializer serializer,
-  );
+  void sse_encode_workspaces_state(WorkspacesState self, SseSerializer serializer);
 }
 
 // Section: wire_class
 
 class RustLibWire implements BaseWire {
-  factory RustLibWire.fromExternalLibrary(ExternalLibrary lib) =>
-      RustLibWire(lib.ffiDynamicLibrary);
+  factory RustLibWire.fromExternalLibrary(ExternalLibrary lib) => RustLibWire(lib.ffiDynamicLibrary);
 
   /// Holds the symbol lookup function.
-  final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName)
-  _lookup;
+  final ffi.Pointer<T> Function<T extends ffi.NativeType>(String symbolName) _lookup;
 
   /// The symbols are looked up in [dynamicLibrary].
-  RustLibWire(ffi.DynamicLibrary dynamicLibrary)
-    : _lookup = dynamicLibrary.lookup;
+  RustLibWire(ffi.DynamicLibrary dynamicLibrary) : _lookup = dynamicLibrary.lookup;
 }

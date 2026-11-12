@@ -13,37 +13,22 @@ import 'types.dart';
 // These functions are ignored because they are not marked as `pub`: `parse_json`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `from`, `from`, `from`, `from`, `try_from`
 
-Future<ExportCatalog> getProjectExportPresets({required String id}) =>
-    RustLib.instance.api.crateApiDtoGetProjectExportPresets(id: id);
+Future<ExportCatalog> getProjectExportPresets({required String id}) => RustLib.instance.api.crateApiDtoGetProjectExportPresets(id: id);
 
-Future<DeviceFlowPoll> pollDeviceFlow({
-  required String provider,
-  required String deviceCode,
-  String? baseUrl,
-  String? clientId,
-}) => RustLib.instance.api.crateApiDtoPollDeviceFlow(
-  provider: provider,
-  deviceCode: deviceCode,
-  baseUrl: baseUrl,
-  clientId: clientId,
-);
+Future<DeviceFlowPoll> pollDeviceFlow({required String provider, required String deviceCode, String? baseUrl, String? clientId}) =>
+    RustLib.instance.api.crateApiDtoPollDeviceFlow(provider: provider, deviceCode: deviceCode, baseUrl: baseUrl, clientId: clientId);
 
-Future<HealthReport> diagnoseProject({required String id}) =>
-    RustLib.instance.api.crateApiDtoDiagnoseProject(id: id);
+Future<HealthReport> diagnoseProject({required String id}) => RustLib.instance.api.crateApiDtoDiagnoseProject(id: id);
 
-Future<ReclaimResult> reclaimStorage({required List<ReclaimItem> items}) =>
-    RustLib.instance.api.crateApiDtoReclaimStorage(items: items);
+Future<ReclaimResult> reclaimStorage({required List<ReclaimItem> items}) => RustLib.instance.api.crateApiDtoReclaimStorage(items: items);
 
 Future<UiPrefs> getUiPrefs() => RustLib.instance.api.crateApiDtoGetUiPrefs();
 
-Future<String?> getUiPref({required String key}) =>
-    RustLib.instance.api.crateApiDtoGetUiPref(key: key);
+Future<String?> getUiPref({required String key}) => RustLib.instance.api.crateApiDtoGetUiPref(key: key);
 
-Future<void> setUiPref({required String key, required String value}) =>
-    RustLib.instance.api.crateApiDtoSetUiPref(key: key, value: value);
+Future<void> setUiPref({required String key, required String value}) => RustLib.instance.api.crateApiDtoSetUiPref(key: key, value: value);
 
-Future<UiPrefs> importUiPrefs({required Map<String, String> values}) =>
-    RustLib.instance.api.crateApiDtoImportUiPrefs(values: values);
+Future<UiPrefs> importUiPrefs({required Map<String, String> values}) => RustLib.instance.api.crateApiDtoImportUiPrefs(values: values);
 
 class DeviceFlowPoll {
   final DeviceFlowStatus status;
@@ -72,15 +57,10 @@ class ExportCatalog {
   final String? engineError;
   final List<ExportPreset> presets;
 
-  const ExportCatalog({
-    required this.versionTag,
-    this.engineError,
-    required this.presets,
-  });
+  const ExportCatalog({required this.versionTag, this.engineError, required this.presets});
 
   @override
-  int get hashCode =>
-      versionTag.hashCode ^ engineError.hashCode ^ presets.hashCode;
+  int get hashCode => versionTag.hashCode ^ engineError.hashCode ^ presets.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -111,12 +91,7 @@ class ExportPreset {
 
   @override
   int get hashCode =>
-      id.hashCode ^
-      name.hashCode ^
-      platform.hashCode ^
-      outputPath.hashCode ^
-      missingTemplates.hashCode ^
-      templateError.hashCode;
+      id.hashCode ^ name.hashCode ^ platform.hashCode ^ outputPath.hashCode ^ missingTemplates.hashCode ^ templateError.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -152,13 +127,7 @@ class HealthCheck {
 
   @override
   int get hashCode =>
-      id.hashCode ^
-      category.hashCode ^
-      severity.hashCode ^
-      code.hashCode ^
-      details.hashCode ^
-      values.hashCode ^
-      action.hashCode;
+      id.hashCode ^ category.hashCode ^ severity.hashCode ^ code.hashCode ^ details.hashCode ^ values.hashCode ^ action.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -179,15 +148,10 @@ class HealthReport {
   final BigInt scannedAtMs;
   final List<HealthCheck> checks;
 
-  const HealthReport({
-    required this.projectId,
-    required this.scannedAtMs,
-    required this.checks,
-  });
+  const HealthReport({required this.projectId, required this.scannedAtMs, required this.checks});
 
   @override
-  int get hashCode =>
-      projectId.hashCode ^ scannedAtMs.hashCode ^ checks.hashCode;
+  int get hashCode => projectId.hashCode ^ scannedAtMs.hashCode ^ checks.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -206,21 +170,10 @@ class ReclaimItem {
   final String? folder;
   final String? root;
 
-  const ReclaimItem({
-    required this.kind,
-    this.tag,
-    this.path,
-    this.folder,
-    this.root,
-  });
+  const ReclaimItem({required this.kind, this.tag, this.path, this.folder, this.root});
 
   @override
-  int get hashCode =>
-      kind.hashCode ^
-      tag.hashCode ^
-      path.hashCode ^
-      folder.hashCode ^
-      root.hashCode;
+  int get hashCode => kind.hashCode ^ tag.hashCode ^ path.hashCode ^ folder.hashCode ^ root.hashCode;
 
   @override
   bool operator ==(Object other) =>

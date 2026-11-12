@@ -74,8 +74,7 @@ class GhModalShell extends StatefulWidget {
   final bool Function()? isMenuOpen;
   final bool staticPreview;
 
-  static double tallBodyHeight(BuildContext context) =>
-      math.min(MediaQuery.sizeOf(context).height * 0.6, GhTheme.of(context).rem(34));
+  static double tallBodyHeight(BuildContext context) => math.min(MediaQuery.sizeOf(context).height * 0.6, GhTheme.of(context).rem(34));
 
   @override
   State<GhModalShell> createState() => _GhModalShellState();
@@ -206,11 +205,7 @@ class _GhModalShellState extends State<GhModalShell> {
     final panelHeight = widget.panelHeight;
     Widget dialog = Container(
       clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: theme.surface,
-        borderRadius: BorderRadius.circular(theme.radiusModal),
-        boxShadow: GhShadows.xl2(),
-      ),
+      decoration: BoxDecoration(color: theme.surface, borderRadius: BorderRadius.circular(theme.radiusModal), boxShadow: GhShadows.xl2()),
       child: Column(
         mainAxisSize: panelHeight != null ? MainAxisSize.max : MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -226,9 +221,7 @@ class _GhModalShellState extends State<GhModalShell> {
           else
             Flexible(
               child: GhCascadeItem(
-                child: bodyHeight != null
-                    ? SizedBox(height: bodyHeight, child: widget.child)
-                    : SingleChildScrollView(child: widget.child),
+                child: bodyHeight != null ? SizedBox(height: bodyHeight, child: widget.child) : SingleChildScrollView(child: widget.child),
               ),
             ),
           ?widget.rawFooter,
@@ -337,9 +330,7 @@ class GhModalRoute<T> extends PopupRoute<T> {
   bool didPop(T? result) {
     final controller = this.controller;
     if (controller != null && !motion.off && controller.value > 0 && controller.value < 1) {
-      controller.reverseDuration = Duration(
-        microseconds: (reverseTransitionDuration.inMicroseconds / controller.value).round(),
-      );
+      controller.reverseDuration = Duration(microseconds: (reverseTransitionDuration.inMicroseconds / controller.value).round());
     }
     return super.didPop(result);
   }
@@ -352,12 +343,7 @@ class GhModalRoute<T> extends PopupRoute<T> {
   );
 
   @override
-  Widget buildTransitions(
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    Widget child,
-  ) {
+  Widget buildTransitions(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
     return _GhModalTransition(animation: animation, child: child);
   }
 }
@@ -473,12 +459,7 @@ class _GhModalTransitionState extends State<_GhModalTransition> {
   }
 }
 
-Future<T?> showGhModal<T>(
-  BuildContext context,
-  WidgetBuilder builder, {
-  bool useRootNavigator = true,
-  RouteSettings? settings,
-}) {
+Future<T?> showGhModal<T>(BuildContext context, WidgetBuilder builder, {bool useRootNavigator = true, RouteSettings? settings}) {
   final returnFocus = FocusManager.instance.primaryFocus;
   final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
   final themes = InheritedTheme.capture(from: context, to: navigator.context);

@@ -10,14 +10,11 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-Future<List<Project>> listProjects() =>
-    RustLib.instance.api.crateApiProjectsListProjects();
+Future<List<Project>> listProjects() => RustLib.instance.api.crateApiProjectsListProjects();
 
-Future<LoadStatus> getProjectsHealth() =>
-    RustLib.instance.api.crateApiProjectsGetProjectsHealth();
+Future<LoadStatus> getProjectsHealth() => RustLib.instance.api.crateApiProjectsGetProjectsHealth();
 
-Future<BigInt> restoreProjectsFromBackup() =>
-    RustLib.instance.api.crateApiProjectsRestoreProjectsFromBackup();
+Future<BigInt> restoreProjectsFromBackup() => RustLib.instance.api.crateApiProjectsRestoreProjectsFromBackup();
 
 Future<Project> createProject({
   required String name,
@@ -35,100 +32,49 @@ Future<Project> createProject({
   category: category,
 );
 
-Future<Project> duplicateProject({
-  required String id,
-  required String name,
-  String? destDir,
-}) => RustLib.instance.api.crateApiProjectsDuplicateProject(
-  id: id,
-  name: name,
-  destDir: destDir,
-);
+Future<Project> duplicateProject({required String id, required String name, String? destDir}) =>
+    RustLib.instance.api.crateApiProjectsDuplicateProject(id: id, name: name, destDir: destDir);
 
-Future<Project> importProject({
-  required String path,
-  required String godotVersion,
-  String? category,
-}) => RustLib.instance.api.crateApiProjectsImportProject(
-  path: path,
-  godotVersion: godotVersion,
-  category: category,
-);
+Future<Project> importProject({required String path, required String godotVersion, String? category}) =>
+    RustLib.instance.api.crateApiProjectsImportProject(path: path, godotVersion: godotVersion, category: category);
 
 Future<void> removeProject({required String id, required bool deleteFiles}) =>
-    RustLib.instance.api.crateApiProjectsRemoveProject(
-      id: id,
-      deleteFiles: deleteFiles,
-    );
+    RustLib.instance.api.crateApiProjectsRemoveProject(id: id, deleteFiles: deleteFiles);
 
-Future<Project> updateProject({
-  required String id,
-  required ProjectUpdate updates,
-}) => RustLib.instance.api.crateApiProjectsUpdateProject(
-  id: id,
-  updates: updates,
-);
+Future<Project> updateProject({required String id, required ProjectUpdate updates}) =>
+    RustLib.instance.api.crateApiProjectsUpdateProject(id: id, updates: updates);
 
-Future<void> reorderProjects({required List<String> orderedIds}) => RustLib
-    .instance
-    .api
-    .crateApiProjectsReorderProjects(orderedIds: orderedIds);
+Future<void> reorderProjects({required List<String> orderedIds}) =>
+    RustLib.instance.api.crateApiProjectsReorderProjects(orderedIds: orderedIds);
 
-Future<void> openProject({
-  required String id,
-  required bool editor,
-  bool? console,
-}) => RustLib.instance.api.crateApiProjectsOpenProject(
-  id: id,
-  editor: editor,
-  console: console,
-);
+Future<void> openProject({required String id, required bool editor, bool? console}) =>
+    RustLib.instance.api.crateApiProjectsOpenProject(id: id, editor: editor, console: console);
 
-Future<void> openProjectFolder({required String path}) =>
-    RustLib.instance.api.crateApiProjectsOpenProjectFolder(path: path);
+Future<void> openProjectFolder({required String path}) => RustLib.instance.api.crateApiProjectsOpenProjectFolder(path: path);
 
-Future<void> openInEditor({required String path}) =>
-    RustLib.instance.api.crateApiProjectsOpenInEditor(path: path);
+Future<void> openInEditor({required String path}) => RustLib.instance.api.crateApiProjectsOpenInEditor(path: path);
 
-Future<String?> getProjectIcon({required String path}) =>
-    RustLib.instance.api.crateApiProjectsGetProjectIcon(path: path);
+Future<String?> getProjectIcon({required String path}) => RustLib.instance.api.crateApiProjectsGetProjectIcon(path: path);
 
-Future<ProjectSizeInfo> getProjectSize({required String path}) =>
-    RustLib.instance.api.crateApiProjectsGetProjectSize(path: path);
+Future<ProjectSizeInfo> getProjectSize({required String path}) => RustLib.instance.api.crateApiProjectsGetProjectSize(path: path);
 
 Future<List<ProjectFileEntry>> getProjectFileTree({required String path}) =>
     RustLib.instance.api.crateApiProjectsGetProjectFileTree(path: path);
 
-Future<String?> getProjectName({required String path}) =>
-    RustLib.instance.api.crateApiProjectsGetProjectName(path: path);
+Future<String?> getProjectName({required String path}) => RustLib.instance.api.crateApiProjectsGetProjectName(path: path);
 
-Future<void> stopProject({required String id}) =>
-    RustLib.instance.api.crateApiProjectsStopProject(id: id);
+Future<void> stopProject({required String id}) => RustLib.instance.api.crateApiProjectsStopProject(id: id);
 
-Future<List<RunningProjectInfo>> listRunningProjects() =>
-    RustLib.instance.api.crateApiProjectsListRunningProjects();
+Future<List<RunningProjectInfo>> listRunningProjects() => RustLib.instance.api.crateApiProjectsListRunningProjects();
 
-Future<String?> readImageFile({required String path}) =>
-    RustLib.instance.api.crateApiProjectsReadImageFile(path: path);
+Future<String?> readImageFile({required String path}) => RustLib.instance.api.crateApiProjectsReadImageFile(path: path);
 
-Future<Project> writeProjectTags({
-  required String id,
-  required String path,
-  required List<String> tags,
-}) => RustLib.instance.api.crateApiProjectsWriteProjectTags(
-  id: id,
-  path: path,
-  tags: tags,
-);
+Future<Project> writeProjectTags({required String id, required String path, required List<String> tags}) =>
+    RustLib.instance.api.crateApiProjectsWriteProjectTags(id: id, path: path, tags: tags);
 
-Future<void> exportProjectStats({required String path}) =>
-    RustLib.instance.api.crateApiProjectsExportProjectStats(path: path);
+Future<void> exportProjectStats({required String path}) => RustLib.instance.api.crateApiProjectsExportProjectStats(path: path);
 
-Future<BigInt> importProjectStats({required String path}) =>
-    RustLib.instance.api.crateApiProjectsImportProjectStats(path: path);
+Future<BigInt> importProjectStats({required String path}) => RustLib.instance.api.crateApiProjectsImportProjectStats(path: path);
 
-Future<List<Project>> reintroduceDismissedProjects({
-  required List<String> paths,
-}) => RustLib.instance.api.crateApiProjectsReintroduceDismissedProjects(
-  paths: paths,
-);
+Future<List<Project>> reintroduceDismissedProjects({required List<String> paths}) =>
+    RustLib.instance.api.crateApiProjectsReintroduceDismissedProjects(paths: paths);

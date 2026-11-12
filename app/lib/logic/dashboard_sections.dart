@@ -31,7 +31,10 @@ final List<String> dashboardTileIds = List.unmodifiable([for (final tile in Dash
 
 List<DashboardTileId> enabledTileIds(List<String> enabled) {
   if (enabled.isEmpty) return [...DashboardTileId.values];
-  return [for (final tile in DashboardTileId.values) if (enabled.contains(tile.id)) tile];
+  return [
+    for (final tile in DashboardTileId.values)
+      if (enabled.contains(tile.id)) tile,
+  ];
 }
 
 List<DashboardTileId> orderedTileIds(List<String> order) {
@@ -39,7 +42,8 @@ List<DashboardTileId> orderedTileIds(List<String> order) {
   final present = order.toSet();
   return [
     for (final id in order) ?DashboardTileId.fromId(id),
-    for (final tile in DashboardTileId.values) if (!present.contains(tile.id)) tile,
+    for (final tile in DashboardTileId.values)
+      if (!present.contains(tile.id)) tile,
   ];
 }
 
@@ -202,13 +206,7 @@ DashboardSettingsPatch presetToSettings(DashboardLayout preset) => (
 
 String _sortedKey(List<String> values) => ([...values]..sort()).join(',');
 
-bool settingsMatchPreset(
-  DashboardLayout preset,
-  List<String> sections,
-  List<String> order,
-  List<String> spans,
-  List<String> tall,
-) {
+bool settingsMatchPreset(DashboardLayout preset, List<String> sections, List<String> order, List<String> spans, List<String> tall) {
   final allSections = [...dashboardTileIds, 'quick_actions', 'stats'];
   final sec = sections.isEmpty ? allSections : sections;
   final presetSec = preset.sections.isEmpty ? allSections : preset.sections;

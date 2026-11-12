@@ -10,29 +10,14 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-Future<List<ProjectTemplate>> listTemplates() =>
-    RustLib.instance.api.crateApiTemplatesListTemplates();
+Future<List<ProjectTemplate>> listTemplates() => RustLib.instance.api.crateApiTemplatesListTemplates();
 
-Future<ProjectTemplate> saveProjectAsTemplate({
-  required String projectId,
-  required String name,
-  required String description,
-}) => RustLib.instance.api.crateApiTemplatesSaveProjectAsTemplate(
-  projectId: projectId,
-  name: name,
-  description: description,
-);
+Future<ProjectTemplate> saveProjectAsTemplate({required String projectId, required String name, required String description}) =>
+    RustLib.instance.api.crateApiTemplatesSaveProjectAsTemplate(projectId: projectId, name: name, description: description);
 
-Future<void> deleteTemplate({required String templateId}) => RustLib
-    .instance
-    .api
-    .crateApiTemplatesDeleteTemplate(templateId: templateId);
+Future<void> deleteTemplate({required String templateId}) => RustLib.instance.api.crateApiTemplatesDeleteTemplate(templateId: templateId);
 
-Future<TemplateSyncResult> syncTemplatesWithScanDir() =>
-    RustLib.instance.api.crateApiTemplatesSyncTemplatesWithScanDir();
+Future<TemplateSyncResult> syncTemplatesWithScanDir() => RustLib.instance.api.crateApiTemplatesSyncTemplatesWithScanDir();
 
-Future<List<TemplateFileEntry>> getTemplatePreview({
-  required String templateId,
-}) => RustLib.instance.api.crateApiTemplatesGetTemplatePreview(
-  templateId: templateId,
-);
+Future<List<TemplateFileEntry>> getTemplatePreview({required String templateId}) =>
+    RustLib.instance.api.crateApiTemplatesGetTemplatePreview(templateId: templateId);

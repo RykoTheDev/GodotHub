@@ -94,18 +94,10 @@ class _TaskTrayState extends ConsumerState<TaskTray> {
                       children: [
                         Text(
                           context.tr.common.task_tray_title.toUpperCase(),
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.3,
-                            color: tokens.muted,
-                          ),
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 0.3, color: tokens.muted),
                         ),
                         const SizedBox(height: 2),
-                        Text(
-                          _subtitle(context, tasks, count),
-                          style: TextStyle(fontSize: 10, color: tokens.muted.withValues(alpha: 0.5)),
-                        ),
+                        Text(_subtitle(context, tasks, count), style: TextStyle(fontSize: 10, color: tokens.muted.withValues(alpha: 0.5))),
                       ],
                     ),
                   ),
@@ -118,9 +110,7 @@ class _TaskTrayState extends ConsumerState<TaskTray> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            for (final task in tasks) _TaskItem(key: ValueKey('task-${task.id}'), task: task),
-                          ],
+                          children: [for (final task in tasks) _TaskItem(key: ValueKey('task-${task.id}'), task: task)],
                         ),
                       ),
                     ),
@@ -203,12 +193,7 @@ class _TaskTrayState extends ConsumerState<TaskTray> {
                       decoration: BoxDecoration(color: tokens.amber, shape: BoxShape.circle),
                       child: Text(
                         count > 9 ? '9+' : '$count',
-                        style: const TextStyle(
-                          fontSize: 9,
-                          fontWeight: FontWeight.w700,
-                          height: 1,
-                          color: Colors.white,
-                        ),
+                        style: const TextStyle(fontSize: 9, fontWeight: FontWeight.w700, height: 1, color: Colors.white),
                       ),
                     ),
                   ),
@@ -262,8 +247,8 @@ class _TaskItem extends ConsumerWidget {
   (FaIconData, Color) _icon(TitleBarTokens tokens) => switch (task.type) {
     TaskType.downloadGodot || TaskType.downloadTemplates => (GhIcons.download, tokens.amber),
     TaskType.downloadAsset => (GhIcons.store, tokens.accentBright),
-    TaskType.scanProjects || TaskType.scanVersions =>
-      task.status == TaskStatus.running ? (GhIcons.search, tokens.accentBright) : (GhIcons.check, tokens.mint),
+    TaskType.scanProjects ||
+    TaskType.scanVersions => task.status == TaskStatus.running ? (GhIcons.search, tokens.accentBright) : (GhIcons.check, tokens.mint),
     TaskType.syncTemplates => (GhIcons.copy, tokens.accentBright),
     TaskType.cloneRepo => (GhIcons.gitBranch, tokens.mint),
     TaskType.importProjects => (GhIcons.folderPlus, tokens.accentBright),
@@ -435,10 +420,7 @@ class _TaskItem extends ConsumerWidget {
                               widthFactor: fraction,
                               heightFactor: 1,
                               child: DecoratedBox(
-                                decoration: BoxDecoration(
-                                  color: tokens.accent,
-                                  borderRadius: BorderRadius.circular(999),
-                                ),
+                                decoration: BoxDecoration(color: tokens.accent, borderRadius: BorderRadius.circular(999)),
                               ),
                             ),
                           ],
@@ -482,10 +464,7 @@ class _StatusBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (icon != null) ...[
-            GhIcon(icon, size: 10, color: color),
-            const SizedBox(width: 4),
-          ],
+          if (icon != null) ...[GhIcon(icon, size: 10, color: color), const SizedBox(width: 4)],
           Text(
             label,
             style: TextStyle(

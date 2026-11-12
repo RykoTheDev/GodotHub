@@ -25,7 +25,10 @@ class GalleryGroup extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title.toUpperCase(), style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: theme.muted, letterSpacingEm: 0.05)),
+          Text(
+            title.toUpperCase(),
+            style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: theme.muted, letterSpacingEm: 0.05),
+          ),
           const SizedBox(height: 10),
           Wrap(spacing: spacing, runSpacing: spacing, crossAxisAlignment: WrapCrossAlignment.center, children: children),
         ],
@@ -49,7 +52,10 @@ class GalleryItem extends StatelessWidget {
       children: [
         child,
         const SizedBox(height: 6),
-        Text(label, style: theme.text(size: GhTextSize.x4s, color: theme.muted, mono: true)),
+        Text(
+          label,
+          style: theme.text(size: GhTextSize.x4s, color: theme.muted, mono: true),
+        ),
       ],
     );
   }

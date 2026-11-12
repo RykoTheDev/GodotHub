@@ -28,15 +28,11 @@ class NewsFeed {
 
   int get total => all.length;
 
-  NewsFeed copyWith({int? visibleCount}) =>
-      NewsFeed(all: all, fromCache: fromCache, visibleCount: visibleCount ?? this.visibleCount);
+  NewsFeed copyWith({int? visibleCount}) => NewsFeed(all: all, fromCache: fromCache, visibleCount: visibleCount ?? this.visibleCount);
 
   @override
   bool operator ==(Object other) =>
-      other is NewsFeed &&
-      listEquals(other.all, all) &&
-      other.fromCache == fromCache &&
-      other.visibleCount == visibleCount;
+      other is NewsFeed && listEquals(other.all, all) && other.fromCache == fromCache && other.visibleCount == visibleCount;
 
   @override
   int get hashCode => Object.hash(Object.hashAll(all), fromCache, visibleCount);

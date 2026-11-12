@@ -1362,6 +1362,9 @@ class _Translations$settings$pt_BR extends Translations$settings$en_US {
 	@override String get tray_recent_label => 'Projetos recentes na bandeja';
 	@override String get tooltip_delay_label => 'Tempo para exibir dicas';
 	@override String get project_icon_opacity_label => 'Opacidade do ícone do projeto';
+	@override String get project_card_style_label => 'Estilo do cartão de projeto';
+	@override String get project_card_style_hub => 'Godot Hub';
+	@override String get project_card_style_cover => 'Capa';
 	@override String get time_format_label => 'Formato de hora (para projetos abertos hoje)';
 	@override String get date_format_label => 'Formato de data (para projetos abertos em outro dia)';
 	@override String get auto_scan_label => 'Busca automática ao iniciar';
@@ -3622,6 +3625,9 @@ extension on TranslationsPtBr {
 			'settings.tray_recent_label' => 'Projetos recentes na bandeja',
 			'settings.tooltip_delay_label' => 'Tempo para exibir dicas',
 			'settings.project_icon_opacity_label' => 'Opacidade do ícone do projeto',
+			'settings.project_card_style_label' => 'Estilo do cartão de projeto',
+			'settings.project_card_style_hub' => 'Godot Hub',
+			'settings.project_card_style_cover' => 'Capa',
 			'settings.time_format_label' => 'Formato de hora (para projetos abertos hoje)',
 			'settings.date_format_label' => 'Formato de data (para projetos abertos em outro dia)',
 			'settings.auto_scan_label' => 'Busca automática ao iniciar',
@@ -3749,11 +3755,11 @@ extension on TranslationsPtBr {
 			'settings.interface_label' => 'Interface',
 			'settings.card_layout_label' => 'Layout em cartões',
 			'settings.landing_tab_label' => 'Página inicial padrão',
+			_ => null,
+		} ?? switch (path) {
 			'settings.language_complete' => 'Completo',
 			'settings.language_beta' => 'Beta',
 			'settings.language_incomplete' => 'Incompleto',
-			_ => null,
-		} ?? switch (path) {
 			'settings.use_os_decorations' => 'Usar decorações de janela do sistema',
 			'settings.credits' => 'Créditos',
 			'settings.credits_developer' => 'Criado por',

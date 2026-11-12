@@ -748,7 +748,9 @@ class _GhSortableItemState extends State<GhSortableItem> {
     );
     child = Focus(focusNode: _focus, canRequestFocus: enabled, skipTraversal: !enabled, onKeyEvent: _onKey, child: child);
     child = Listener(
-      onPointerDown: enabled && scope != null && token != null ? (event) => scope.pointerDown(token, widget.id, event, _box.currentContext?.findRenderObject()) : null,
+      onPointerDown: enabled && scope != null && token != null
+          ? (event) => scope.pointerDown(token, widget.id, event, _box.currentContext?.findRenderObject())
+          : null,
       child: child,
     );
     final reflow = GhMotion.of(context).css(GhDragFeel.reflow.duration);

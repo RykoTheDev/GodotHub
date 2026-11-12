@@ -19,12 +19,13 @@ void setTemplateFilesInstalled(String tag, List<String>? names, bool installed) 
   if (options == null) return;
   final changed = names?.toSet();
   cacheTemplateOptions(tag, [
-    for (final option in options) _withFiles(option, [
-      for (final file in option.files)
-        changed == null || changed.contains(file.name)
-            ? TemplateFile(name: file.name, sizeBytes: file.sizeBytes, downloadBytes: file.downloadBytes, installed: installed)
-            : file,
-    ]),
+    for (final option in options)
+      _withFiles(option, [
+        for (final file in option.files)
+          changed == null || changed.contains(file.name)
+              ? TemplateFile(name: file.name, sizeBytes: file.sizeBytes, downloadBytes: file.downloadBytes, installed: installed)
+              : file,
+      ]),
   ]);
 }
 
@@ -42,12 +43,14 @@ Future<List<TemplateOption>> loadTemplateOptions(String tag, {bool refresh = fal
   final existing = _requests[key];
   if (existing != null) return existing;
   final fetcher = fetch ?? VersionsApi.getExportTemplateOptions;
-  final request = Future<List<TemplateOption>>.sync(() => fetcher(tag, refresh)).then((options) {
-    cacheTemplateOptions(tag, options);
-    return options;
-  }).whenComplete(() {
-    _requests.remove(key);
-  });
+  final request = Future<List<TemplateOption>>.sync(() => fetcher(tag, refresh))
+      .then((options) {
+        cacheTemplateOptions(tag, options);
+        return options;
+      })
+      .whenComplete(() {
+        _requests.remove(key);
+      });
   _requests[key] = request;
   return request;
 }

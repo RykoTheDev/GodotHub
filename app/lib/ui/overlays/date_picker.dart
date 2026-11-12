@@ -60,8 +60,7 @@ List<String> ghWeekdayNames(String language) {
   return [for (final date in week) narrow.format(date)];
 }
 
-String ghCapitalizeWords(String text) =>
-    text.replaceAllMapped(RegExp(r'(^|\s)(\S)'), (match) => '${match[1]}${match[2]!.toUpperCase()}');
+String ghCapitalizeWords(String text) => text.replaceAllMapped(RegExp(r'(^|\s)(\S)'), (match) => '${match[1]}${match[2]!.toUpperCase()}');
 
 String _languageOf(BuildContext context, String? locale) => locale ?? context.tr.$meta.locale.languageTag;
 
@@ -220,7 +219,10 @@ class _GhDatePickerState extends State<GhDatePicker> {
           if (widget.markPastDates && selectedIsPast && widget.pastDateMessage != null)
             Padding(
               padding: EdgeInsetsDirectional.only(top: theme.space(1), start: theme.space(3)),
-              child: Text(widget.pastDateMessage!, style: theme.text(size: GhTextSize.x3s, color: theme.danger)),
+              child: Text(
+                widget.pastDateMessage!,
+                style: theme.text(size: GhTextSize.x3s, color: theme.danger),
+              ),
             ),
         ],
       ),
@@ -243,9 +245,9 @@ class _GhDatePickerState extends State<GhDatePicker> {
       semanticLabel: value.isNotEmpty ? _changeDueLabel(_formatValue(value)) : widget.addDueLabel ?? context.tr.common.date_add_due,
       builder: (context, states) {
         final hovered = states.hovered && !states.disabled;
-        final style = theme.text(size: GhTextSize.x3s, color: hovered ? theme.ink : theme.muted).copyWith(
-          fontFeatures: const [FontFeature.tabularFigures()],
-        );
+        final style = theme
+            .text(size: GhTextSize.x3s, color: hovered ? theme.ink : theme.muted)
+            .copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
         return GhLiftBox(
           constraints: const BoxConstraints(minWidth: 48),
           color: hovered ? theme.raised : theme.raised.withValues(alpha: 0),
@@ -282,11 +284,7 @@ class _GhDatePickerState extends State<GhDatePicker> {
           borderRadius: radius,
           border: Border.all(color: hovered ? theme.accentDim : theme.outline.withValues(alpha: 0.5)),
           padding: EdgeInsets.symmetric(horizontal: theme.space(3.5), vertical: theme.space(2.5)),
-          child: DefaultTextStyle(
-            style: style,
-            textAlign: TextAlign.start,
-            child: widget.displayValue ?? Text(_formatValue(value)),
-          ),
+          child: DefaultTextStyle(style: style, textAlign: TextAlign.start, child: widget.displayValue ?? Text(_formatValue(value))),
         );
       },
     );
@@ -384,17 +382,19 @@ class GhDatePickerPanel extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _PanelButton(
-                  label: '‹',
-                  semanticLabel: previousMonthLabel ?? tr.common.date_previous_month,
-                  onPressed: onPreviousMonth,
-                ),
+                _PanelButton(label: '‹', semanticLabel: previousMonthLabel ?? tr.common.date_previous_month, onPressed: onPreviousMonth),
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(ghCapitalizeWords(months[viewDate.month - 1]), style: theme.text(size: GhTextSize.sm, color: theme.ink)),
+                    Text(
+                      ghCapitalizeWords(months[viewDate.month - 1]),
+                      style: theme.text(size: GhTextSize.sm, color: theme.ink),
+                    ),
                     SizedBox(width: theme.space(1)),
-                    Text('${viewDate.year}', style: theme.text(size: GhTextSize.sm, color: theme.muted)),
+                    Text(
+                      '${viewDate.year}',
+                      style: theme.text(size: GhTextSize.sm, color: theme.muted),
+                    ),
                   ],
                 ),
                 _PanelButton(label: '›', semanticLabel: nextMonthLabel ?? tr.common.date_next_month, onPressed: onNextMonth),
@@ -424,7 +424,9 @@ class GhDatePickerPanel extends StatelessWidget {
             Container(
               margin: EdgeInsets.only(top: theme.space(3)),
               padding: EdgeInsets.only(top: theme.space(3)),
-              decoration: BoxDecoration(border: Border(top: BorderSide(color: theme.line))),
+              decoration: BoxDecoration(
+                border: Border(top: BorderSide(color: theme.line)),
+              ),
               child: _PanelButton(label: clearLabel, onPressed: onClear, wide: true),
             ),
         ],
@@ -446,10 +448,10 @@ class _PanelButton extends StatelessWidget {
     final theme = GhTheme.of(context);
     final radius = BorderRadius.circular(theme.radiusBtn);
     Widget text(Color color) => GhAnimatedText(
-          label,
-          style: wide ? theme.text(size: GhTextSize.xs, color: color) : theme.text(size: GhTextSize.base, color: color),
-          textAlign: TextAlign.center,
-        );
+      label,
+      style: wide ? theme.text(size: GhTextSize.xs, color: color) : theme.text(size: GhTextSize.base, color: color),
+      textAlign: TextAlign.center,
+    );
     return GhPressable(
       onPressed: onPressed,
       borderRadius: radius,
@@ -515,7 +517,10 @@ class _DayButton extends StatelessWidget {
           color: background,
           borderRadius: radius,
           lift: hovered,
-          child: GhAnimatedText('$day', style: theme.text(size: GhTextSize.xs, color: foreground)),
+          child: GhAnimatedText(
+            '$day',
+            style: theme.text(size: GhTextSize.xs, color: foreground),
+          ),
         );
       },
     );
@@ -531,8 +536,7 @@ class _DatePickerLayout extends SingleChildLayoutDelegate {
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) => BoxConstraints(maxWidth: constraints.maxWidth);
 
   @override
-  Offset getPositionForChild(Size size, Size childSize) =>
-      ghDatePickerPosition(anchor: anchor, popover: childSize, viewport: size);
+  Offset getPositionForChild(Size size, Size childSize) => ghDatePickerPosition(anchor: anchor, popover: childSize, viewport: size);
 
   @override
   bool shouldRelayout(_DatePickerLayout oldDelegate) => oldDelegate.anchor != anchor;

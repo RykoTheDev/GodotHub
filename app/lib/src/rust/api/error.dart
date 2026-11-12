@@ -22,8 +22,5 @@ class CoreError implements FrbException {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is CoreError &&
-          runtimeType == other.runtimeType &&
-          message == other.message;
+      identical(this, other) || other is CoreError && runtimeType == other.runtimeType && message == other.message;
 }

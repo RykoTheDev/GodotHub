@@ -81,7 +81,12 @@ class ProjectsNotifier extends ApiDataNotifier<List<Project>> {
   }
 
   Future<void> remove(String id, bool deleteFiles) {
-    setData((prev) => [for (final p in prev) if (p.id != id) p]);
+    setData(
+      (prev) => [
+        for (final p in prev)
+          if (p.id != id) p,
+      ],
+    );
     return _rollback(() => ProjectsApi.remove(id, deleteFiles));
   }
 
@@ -100,9 +105,7 @@ class ProjectsNotifier extends ApiDataNotifier<List<Project>> {
   }
 
   Future<void> setCategory(String id, String category) {
-    setData(
-      (prev) => [for (final p in prev) p.id == id ? copyProject(p, category: () => category.isEmpty ? null : category) : p],
-    );
+    setData((prev) => [for (final p in prev) p.id == id ? copyProject(p, category: () => category.isEmpty ? null : category) : p]);
     return _rollback(() => ProjectsApi.update(id, ProjectUpdate(category: category)));
   }
 

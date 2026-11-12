@@ -122,7 +122,10 @@ class _ProjectSizeModalState extends State<ProjectSizeModal> {
         setState(() {
           _tree = buildSizeTree(entries);
           _empty = entries.isEmpty;
-          _collapsed = {for (final e in entries) if (e.isDir) e.path};
+          _collapsed = {
+            for (final e in entries)
+              if (e.isDir) e.path,
+          };
           _loading = false;
         });
       },
@@ -216,14 +219,27 @@ class _ProjectSizeModalState extends State<ProjectSizeModal> {
           spacing: theme.space(2),
           children: [
             GhSpinnerIcon(size: 4, color: theme.muted),
-            Text(tr.project_size_scanning, style: theme.text(size: GhTextSize.sm, color: theme.muted)),
+            Text(
+              tr.project_size_scanning,
+              style: theme.text(size: GhTextSize.sm, color: theme.muted),
+            ),
           ],
         ),
       );
     } else if (_error != null) {
-      body = centered(Text(_error!, style: theme.text(size: GhTextSize.sm, color: theme.danger)));
+      body = centered(
+        Text(
+          _error!,
+          style: theme.text(size: GhTextSize.sm, color: theme.danger),
+        ),
+      );
     } else if (_empty) {
-      body = centered(Text(tr.project_size_empty, style: theme.text(size: GhTextSize.sm, color: theme.muted)));
+      body = centered(
+        Text(
+          tr.project_size_empty,
+          style: theme.text(size: GhTextSize.sm, color: theme.muted),
+        ),
+      );
     } else {
       body = Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: _rows(theme, _tree, 0));
     }

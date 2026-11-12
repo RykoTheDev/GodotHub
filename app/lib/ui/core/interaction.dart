@@ -35,11 +35,11 @@ class GhForcedStates extends InheritedWidget {
   static GhForcedStates? maybeOf(BuildContext context) => context.dependOnInheritedWidgetOfExactType<GhForcedStates>();
 
   GhStates apply(GhStates states) => GhStates(
-        hovered: states.hovered || hovered,
-        pressed: states.pressed || (pressed && !states.disabled),
-        focused: states.focused || focused,
-        disabled: states.disabled,
-      );
+    hovered: states.hovered || hovered,
+    pressed: states.pressed || (pressed && !states.disabled),
+    focused: states.focused || focused,
+    disabled: states.disabled,
+  );
 
   @override
   bool updateShouldNotify(GhForcedStates oldWidget) =>
@@ -171,14 +171,18 @@ class _GhPressableState extends State<GhPressable> {
       onShowHoverHighlight: (value) => setState(() => _hovered = value),
       onShowFocusHighlight: (value) => setState(() => _focused = value),
       actions: {
-        ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) {
-          _keyActivate();
-          return null;
-        }),
-        ButtonActivateIntent: CallbackAction<ButtonActivateIntent>(onInvoke: (_) {
-          _keyActivate();
-          return null;
-        }),
+        ActivateIntent: CallbackAction<ActivateIntent>(
+          onInvoke: (_) {
+            _keyActivate();
+            return null;
+          },
+        ),
+        ButtonActivateIntent: CallbackAction<ButtonActivateIntent>(
+          onInvoke: (_) {
+            _keyActivate();
+            return null;
+          },
+        ),
       },
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
@@ -238,12 +242,7 @@ class GhFocusRing extends StatelessWidget {
     }
     final theme = GhTheme.of(context);
     return CustomPaint(
-      foregroundPainter: _FocusRingPainter(
-        progress: visible ? 1 : 0,
-        style: style,
-        color: theme.accent,
-        borderRadius: borderRadius,
-      ),
+      foregroundPainter: _FocusRingPainter(progress: visible ? 1 : 0, style: style, color: theme.accent, borderRadius: borderRadius),
       child: child,
     );
   }
@@ -294,10 +293,10 @@ class GhIconMotionScale extends StatelessWidget {
     final scale = !enabled || states.disabled
         ? 1.0
         : states.pressed
-            ? GhIconMotion.pressScale
-            : states.hovered
-                ? GhIconMotion.hoverScale
-                : 1.0;
+        ? GhIconMotion.pressScale
+        : states.hovered
+        ? GhIconMotion.hoverScale
+        : 1.0;
     return AnimatedScale(
       scale: scale,
       duration: GhMotion.of(context).css(states.pressed ? GhDurations.iconPress : GhDurations.iconTransform),
@@ -319,12 +318,7 @@ class GhBrightness extends StatelessWidget {
       return child;
     }
     return ColorFiltered(
-      colorFilter: ColorFilter.matrix([
-        amount, 0, 0, 0, 0,
-        0, amount, 0, 0, 0,
-        0, 0, amount, 0, 0,
-        0, 0, 0, 1, 0,
-      ]),
+      colorFilter: ColorFilter.matrix([amount, 0, 0, 0, 0, 0, amount, 0, 0, 0, 0, 0, amount, 0, 0, 0, 0, 0, 1, 0]),
       child: child,
     );
   }
@@ -598,11 +592,7 @@ class GhPressMotionState extends State<GhPressMotion> with TickerProviderStateMi
         child: CustomPaint(
           foregroundPainter: _ripples.isEmpty
               ? null
-              : _RipplePainter(
-                  ripples: _ripples.toList(),
-                  color: color,
-                  borderRadius: widget.borderRadius ?? BorderRadius.zero,
-                ),
+              : _RipplePainter(ripples: _ripples.toList(), color: color, borderRadius: widget.borderRadius ?? BorderRadius.zero),
           child: widget.child,
         ),
       ),
@@ -631,7 +621,7 @@ class _PressScale extends SingleChildRenderObjectWidget {
 
 class _RipplePainter extends CustomPainter {
   _RipplePainter({required this.ripples, required this.color, required this.borderRadius})
-      : super(repaint: Listenable.merge([for (final ripple in ripples) ripple.controller]));
+    : super(repaint: Listenable.merge([for (final ripple in ripples) ripple.controller]));
 
   final List<_Ripple> ripples;
   final Color color;
@@ -695,10 +685,10 @@ class GhTiltAngles {
   final double y;
 
   static GhTiltAngles lerp(GhTiltAngles a, GhTiltAngles b, double t) => GhTiltAngles(
-        rotationX: a.rotationX + (b.rotationX - a.rotationX) * t,
-        rotationY: a.rotationY + (b.rotationY - a.rotationY) * t,
-        y: a.y + (b.y - a.y) * t,
-      );
+    rotationX: a.rotationX + (b.rotationX - a.rotationX) * t,
+    rotationY: a.rotationY + (b.rotationY - a.rotationY) * t,
+    y: a.y + (b.y - a.y) * t,
+  );
 
   bool get isRest => rotationX == 0 && rotationY == 0 && y == 0;
 
@@ -714,8 +704,7 @@ class GhTiltAngles {
   }
 
   @override
-  bool operator ==(Object other) =>
-      other is GhTiltAngles && other.rotationX == rotationX && other.rotationY == rotationY && other.y == y;
+  bool operator ==(Object other) => other is GhTiltAngles && other.rotationX == rotationX && other.rotationY == rotationY && other.y == y;
 
   @override
   int get hashCode => Object.hash(rotationX, rotationY, y);
@@ -731,14 +720,7 @@ class GhNoTilt extends InheritedWidget {
 }
 
 class GhTiltCard extends StatefulWidget {
-  const GhTiltCard({
-    super.key,
-    required this.child,
-    this.borderRadius,
-    this.press = true,
-    this.ripple = true,
-    this.rippleColor,
-  });
+  const GhTiltCard({super.key, required this.child, this.borderRadius, this.press = true, this.ripple = true, this.rippleColor});
 
   final Widget child;
   final BorderRadius? borderRadius;

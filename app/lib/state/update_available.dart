@@ -10,10 +10,8 @@ class UpdateAvailableState {
   final bool updateAvailable;
   final bool previewUpdate;
 
-  UpdateAvailableState copyWith({bool? updateAvailable, bool? previewUpdate}) => UpdateAvailableState(
-    updateAvailable: updateAvailable ?? this.updateAvailable,
-    previewUpdate: previewUpdate ?? this.previewUpdate,
-  );
+  UpdateAvailableState copyWith({bool? updateAvailable, bool? previewUpdate}) =>
+      UpdateAvailableState(updateAvailable: updateAvailable ?? this.updateAvailable, previewUpdate: previewUpdate ?? this.previewUpdate);
 
   @override
   bool operator ==(Object other) =>
@@ -25,7 +23,10 @@ class UpdateAvailableState {
 
 typedef UpdateChecker = Future<bool> Function();
 
-final updateCheckerProvider = Provider<UpdateChecker>((ref) => () async => false);
+final updateCheckerProvider = Provider<UpdateChecker>(
+  (ref) =>
+      () async => false,
+);
 
 final updateAvailableProvider = NotifierProvider<UpdateAvailableNotifier, UpdateAvailableState>(UpdateAvailableNotifier.new);
 

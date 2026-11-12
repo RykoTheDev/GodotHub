@@ -779,7 +779,6 @@ class _CreateProjectModalState extends ConsumerState<CreateProjectModal> {
   }
 }
 
-
 class _TemplateChip extends StatefulWidget {
   const _TemplateChip({required this.template, required this.active, required this.onPressed, required this.onPreview});
 

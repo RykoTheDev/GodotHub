@@ -10,38 +10,16 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-Future<WorkspacesState> listWorkspaces() =>
-    RustLib.instance.api.crateApiWorkspaceListWorkspaces();
+Future<WorkspacesState> listWorkspaces() => RustLib.instance.api.crateApiWorkspaceListWorkspaces();
 
-Future<List<WorkspaceScanDirs>> listWorkspaceScanDirs() =>
-    RustLib.instance.api.crateApiWorkspaceListWorkspaceScanDirs();
+Future<List<WorkspaceScanDirs>> listWorkspaceScanDirs() => RustLib.instance.api.crateApiWorkspaceListWorkspaceScanDirs();
 
-Future<WorkspacesState> createWorkspace({
-  required String name,
-  required String icon,
-  required String color,
-  String? copySettingsFrom,
-}) => RustLib.instance.api.crateApiWorkspaceCreateWorkspace(
-  name: name,
-  icon: icon,
-  color: color,
-  copySettingsFrom: copySettingsFrom,
-);
+Future<WorkspacesState> createWorkspace({required String name, required String icon, required String color, String? copySettingsFrom}) =>
+    RustLib.instance.api.crateApiWorkspaceCreateWorkspace(name: name, icon: icon, color: color, copySettingsFrom: copySettingsFrom);
 
-Future<WorkspacesState> switchWorkspace({required String id}) =>
-    RustLib.instance.api.crateApiWorkspaceSwitchWorkspace(id: id);
+Future<WorkspacesState> switchWorkspace({required String id}) => RustLib.instance.api.crateApiWorkspaceSwitchWorkspace(id: id);
 
-Future<WorkspacesState> updateWorkspace({
-  required String id,
-  String? name,
-  String? icon,
-  String? color,
-}) => RustLib.instance.api.crateApiWorkspaceUpdateWorkspace(
-  id: id,
-  name: name,
-  icon: icon,
-  color: color,
-);
+Future<WorkspacesState> updateWorkspace({required String id, String? name, String? icon, String? color}) =>
+    RustLib.instance.api.crateApiWorkspaceUpdateWorkspace(id: id, name: name, icon: icon, color: color);
 
-Future<WorkspacesState> deleteWorkspace({required String id}) =>
-    RustLib.instance.api.crateApiWorkspaceDeleteWorkspace(id: id);
+Future<WorkspacesState> deleteWorkspace({required String id}) => RustLib.instance.api.crateApiWorkspaceDeleteWorkspace(id: id);

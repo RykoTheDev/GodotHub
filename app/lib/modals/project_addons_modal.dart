@@ -97,7 +97,10 @@ class _ProjectAddonsModalState extends State<ProjectAddonsModal> {
       borderRadius: BorderRadius.circular(theme.radiusTag),
       border: Border.all(color: color?.withValues(alpha: 0.4) ?? theme.line),
     ),
-    child: Text(label, style: theme.text(size: GhTextSize.x3s, weight: GhWeight.medium, color: color ?? theme.muted)),
+    child: Text(
+      label,
+      style: theme.text(size: GhTextSize.x3s, weight: GhWeight.medium, color: color ?? theme.muted),
+    ),
   );
 
   Widget _row(GhTheme theme, ProjectAddon addon) {
@@ -124,7 +127,10 @@ class _ProjectAddonsModalState extends State<ProjectAddonsModal> {
                   spacing: theme.space(2),
                   runSpacing: theme.space(2),
                   children: [
-                    Text(addon.name, style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink)),
+                    Text(
+                      addon.name,
+                      style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink),
+                    ),
                     if (addon.version.isNotEmpty)
                       Text(
                         'v${addon.version.replaceFirst(RegExp('^v', caseSensitive: false), '')}',
@@ -206,7 +212,10 @@ class _ProjectAddonsModalState extends State<ProjectAddonsModal> {
       onClose: widget.onClose,
       footer: [
         Expanded(
-          child: Text(_t('footer_hint'), style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625)),
+          child: Text(
+            _t('footer_hint'),
+            style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625),
+          ),
         ),
         GhOutlineAction(onPressed: widget.onClose, label: context.tr.common.close),
       ],
@@ -218,7 +227,9 @@ class _ProjectAddonsModalState extends State<ProjectAddonsModal> {
           children: [
             Container(
               padding: EdgeInsets.only(bottom: theme.space(4)),
-              decoration: BoxDecoration(border: Border(bottom: BorderSide(color: theme.line))),
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: theme.line)),
+              ),
               child: Row(
                 spacing: theme.space(3),
                 children: [
@@ -252,7 +263,10 @@ class _ProjectAddonsModalState extends State<ProjectAddonsModal> {
             ),
             if (_error.isNotEmpty) GhAlertBox(tone: GhAlertTone.danger, text: _error, strong: true),
             if (addons != null && addons.isEmpty)
-              Text(_t('empty'), style: theme.text(size: GhTextSize.xs, color: theme.muted, lineHeight: 1.625)),
+              Text(
+                _t('empty'),
+                style: theme.text(size: GhTextSize.xs, color: theme.muted, lineHeight: 1.625),
+              ),
             for (final addon in addons ?? const <ProjectAddon>[]) _row(theme, addon),
           ],
         ),

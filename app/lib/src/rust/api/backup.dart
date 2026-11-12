@@ -10,14 +10,10 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-Future<void> exportWorkspaceBackup({required String path}) =>
-    RustLib.instance.api.crateApiBackupExportWorkspaceBackup(path: path);
+Future<void> exportWorkspaceBackup({required String path}) => RustLib.instance.api.crateApiBackupExportWorkspaceBackup(path: path);
 
-Future<AppSettings> importWorkspaceBackup({required String path}) =>
-    RustLib.instance.api.crateApiBackupImportWorkspaceBackup(path: path);
+Future<AppSettings> importWorkspaceBackup({required String path}) => RustLib.instance.api.crateApiBackupImportWorkspaceBackup(path: path);
 
-Future<void> exportAppBackup({required String path}) =>
-    RustLib.instance.api.crateApiBackupExportAppBackup(path: path);
+Future<void> exportAppBackup({required String path}) => RustLib.instance.api.crateApiBackupExportAppBackup(path: path);
 
-Future<AppSettings> importAppBackup({required String path}) =>
-    RustLib.instance.api.crateApiBackupImportAppBackup(path: path);
+Future<AppSettings> importAppBackup({required String path}) => RustLib.instance.api.crateApiBackupImportAppBackup(path: path);

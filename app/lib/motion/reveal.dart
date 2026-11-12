@@ -126,8 +126,7 @@ class GhRevealScope extends StatefulWidget {
   final Object? replay;
   final bool fadePane;
 
-  static GhRevealScopeState? maybeOf(BuildContext context) =>
-      context.getInheritedWidgetOfExactType<_GhRevealScopeMarker>()?.state;
+  static GhRevealScopeState? maybeOf(BuildContext context) => context.getInheritedWidgetOfExactType<_GhRevealScopeMarker>()?.state;
 
   static void flushAll() {
     for (final scope in GhRevealScopeState._scopes.toList()) {
@@ -514,7 +513,8 @@ class _GhRevealState extends State<GhReveal> with SingleTickerProviderStateMixin
 
   Rect viewport() {
     final view = View.maybeOf(context);
-    var clip = Offset.zero & (MediaQuery.maybeSizeOf(context) ?? (view == null ? Size.infinite : view.physicalSize / view.devicePixelRatio));
+    var clip =
+        Offset.zero & (MediaQuery.maybeSizeOf(context) ?? (view == null ? Size.infinite : view.physicalSize / view.devicePixelRatio));
     for (final scrollable in _scrollables) {
       final box = scrollable.context.findRenderObject();
       if (box is RenderBox && box.hasSize && box.attached) {

@@ -85,11 +85,7 @@ class _DuplicateProjectModalState extends State<DuplicateProjectModal> {
       footer: [
         const Spacer(),
         GhButton(onPressed: widget.onClose, label: tr.cancel),
-        GhButton(
-          onPressed: _name.text.trim().isEmpty || _busy ? null : _duplicate,
-          label: tr.duplicate,
-          variant: GhButtonVariant.primary,
-        ),
+        GhButton(onPressed: _name.text.trim().isEmpty || _busy ? null : _duplicate, label: tr.duplicate, variant: GhButtonVariant.primary),
       ],
       child: Padding(
         padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(6)),

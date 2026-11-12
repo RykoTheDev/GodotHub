@@ -10,28 +10,14 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-Future<ExportRun> startProjectExport({
-  required String id,
-  required int presetId,
-  required String outputPath,
-  required bool overwrite,
-}) => RustLib.instance.api.crateApiExportRunnerStartProjectExport(
-  id: id,
-  presetId: presetId,
-  outputPath: outputPath,
-  overwrite: overwrite,
-);
+Future<ExportRun> startProjectExport({required String id, required int presetId, required String outputPath, required bool overwrite}) =>
+    RustLib.instance.api.crateApiExportRunnerStartProjectExport(id: id, presetId: presetId, outputPath: outputPath, overwrite: overwrite);
 
-Future<ExportRun> getProjectExport({required String runId}) =>
-    RustLib.instance.api.crateApiExportRunnerGetProjectExport(runId: runId);
+Future<ExportRun> getProjectExport({required String runId}) => RustLib.instance.api.crateApiExportRunnerGetProjectExport(runId: runId);
 
-Future<List<ExportRun>> getProjectExports({required String id}) =>
-    RustLib.instance.api.crateApiExportRunnerGetProjectExports(id: id);
+Future<List<ExportRun>> getProjectExports({required String id}) => RustLib.instance.api.crateApiExportRunnerGetProjectExports(id: id);
 
-Future<void> cancelProjectExport({required String runId}) =>
-    RustLib.instance.api.crateApiExportRunnerCancelProjectExport(runId: runId);
+Future<void> cancelProjectExport({required String runId}) => RustLib.instance.api.crateApiExportRunnerCancelProjectExport(runId: runId);
 
-Future<void> openExportArtifactFolder({required String runId}) => RustLib
-    .instance
-    .api
-    .crateApiExportRunnerOpenExportArtifactFolder(runId: runId);
+Future<void> openExportArtifactFolder({required String runId}) =>
+    RustLib.instance.api.crateApiExportRunnerOpenExportArtifactFolder(runId: runId);

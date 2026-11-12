@@ -10,66 +10,29 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-Future<DeviceFlowStart> startDeviceFlow({
-  required String provider,
-  String? baseUrl,
-  String? clientId,
-}) => RustLib.instance.api.crateApiGitAuthStartDeviceFlow(
-  provider: provider,
-  baseUrl: baseUrl,
-  clientId: clientId,
-);
+Future<DeviceFlowStart> startDeviceFlow({required String provider, String? baseUrl, String? clientId}) =>
+    RustLib.instance.api.crateApiGitAuthStartDeviceFlow(provider: provider, baseUrl: baseUrl, clientId: clientId);
 
-Future<GitAuthState> getGitAuthState() =>
-    RustLib.instance.api.crateApiGitAuthGetGitAuthState();
+Future<GitAuthState> getGitAuthState() => RustLib.instance.api.crateApiGitAuthGetGitAuthState();
 
-Future<void> disconnectGitAuth({required String provider}) =>
-    RustLib.instance.api.crateApiGitAuthDisconnectGitAuth(provider: provider);
+Future<void> disconnectGitAuth({required String provider}) => RustLib.instance.api.crateApiGitAuthDisconnectGitAuth(provider: provider);
 
-Future<void> saveGitPat({
-  required String host,
-  required String username,
-  required String token,
-}) => RustLib.instance.api.crateApiGitAuthSaveGitPat(
-  host: host,
-  username: username,
-  token: token,
-);
+Future<void> saveGitPat({required String host, required String username, required String token}) =>
+    RustLib.instance.api.crateApiGitAuthSaveGitPat(host: host, username: username, token: token);
 
-Future<void> removeGitPat({required String host}) =>
-    RustLib.instance.api.crateApiGitAuthRemoveGitPat(host: host);
+Future<void> removeGitPat({required String host}) => RustLib.instance.api.crateApiGitAuthRemoveGitPat(host: host);
 
 Future<CreateRepoResult> createRemoteRepo({
   required String provider,
   required String name,
   required bool privateRepo,
   required String path,
-}) => RustLib.instance.api.crateApiGitAuthCreateRemoteRepo(
-  provider: provider,
-  name: name,
-  privateRepo: privateRepo,
-  path: path,
-);
+}) => RustLib.instance.api.crateApiGitAuthCreateRemoteRepo(provider: provider, name: name, privateRepo: privateRepo, path: path);
 
-Future<UserRepoPage> listUserRepos({
-  required String provider,
-  required int page,
-}) => RustLib.instance.api.crateApiGitAuthListUserRepos(
-  provider: provider,
-  page: page,
-);
+Future<UserRepoPage> listUserRepos({required String provider, required int page}) =>
+    RustLib.instance.api.crateApiGitAuthListUserRepos(provider: provider, page: page);
 
-Future<bool> gitBranchProtection({required String path}) =>
-    RustLib.instance.api.crateApiGitAuthGitBranchProtection(path: path);
+Future<bool> gitBranchProtection({required String path}) => RustLib.instance.api.crateApiGitAuthGitBranchProtection(path: path);
 
-Future<String> gitOpenPullRequest({
-  required String path,
-  required String branch,
-  required String base,
-  required String title,
-}) => RustLib.instance.api.crateApiGitAuthGitOpenPullRequest(
-  path: path,
-  branch: branch,
-  base: base,
-  title: title,
-);
+Future<String> gitOpenPullRequest({required String path, required String branch, required String base, required String title}) =>
+    RustLib.instance.api.crateApiGitAuthGitOpenPullRequest(path: path, branch: branch, base: base, title: title);

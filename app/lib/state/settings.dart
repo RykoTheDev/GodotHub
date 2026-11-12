@@ -69,6 +69,7 @@ const AppSettings defaultSettings = AppSettings(
   animatedNumbers: true,
   screenReaderAnnouncements: true,
   projectIconOpacity: 14,
+  projectCardStyle: 'hub',
   animationThreshold: 20,
   animationSpeed: 1.5,
   motionScrollReveal: true,
@@ -111,10 +112,7 @@ const AppSettings defaultSettings = AppSettings(
   disabledFeatures: [],
 );
 
-final settingsProvider = AsyncNotifierProvider<SettingsNotifier, AppSettings>(
-  SettingsNotifier.new,
-  retry: (_, _) => null,
-);
+final settingsProvider = AsyncNotifierProvider<SettingsNotifier, AppSettings>(SettingsNotifier.new, retry: (_, _) => null);
 
 final settingsLoadedProvider = Provider<bool>((ref) => ref.watch(settingsProvider.select((value) => value.hasValue)));
 

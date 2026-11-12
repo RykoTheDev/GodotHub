@@ -1384,6 +1384,9 @@ class _Translations$settings$ru_RU extends Translations$settings$en_US {
 	@override String get tray_recent_label => 'Последние проекты в трее';
 	@override String get tooltip_delay_label => 'Задержка подсказки';
 	@override String get project_icon_opacity_label => 'Прозрачность иконки проекта';
+	@override String get project_card_style_label => 'Стиль карточки проекта';
+	@override String get project_card_style_hub => 'Godot Hub';
+	@override String get project_card_style_cover => 'Обложка';
 	@override String get time_format_label => 'Формат времени (показывается при открытии сегодня)';
 	@override String get date_format_label => 'Формат даты (показывается для любого другого дня)';
 	@override String get auto_scan_label => 'Авто-сканирование при запуске';
@@ -3672,6 +3675,9 @@ extension on TranslationsRuRu {
 			'settings.tray_recent_label' => 'Последние проекты в трее',
 			'settings.tooltip_delay_label' => 'Задержка подсказки',
 			'settings.project_icon_opacity_label' => 'Прозрачность иконки проекта',
+			'settings.project_card_style_label' => 'Стиль карточки проекта',
+			'settings.project_card_style_hub' => 'Godot Hub',
+			'settings.project_card_style_cover' => 'Обложка',
 			'settings.time_format_label' => 'Формат времени (показывается при открытии сегодня)',
 			'settings.date_format_label' => 'Формат даты (показывается для любого другого дня)',
 			'settings.auto_scan_label' => 'Авто-сканирование при запуске',
@@ -3799,11 +3805,11 @@ extension on TranslationsRuRu {
 			'settings.interface_label' => 'Interface',
 			'settings.card_layout_label' => 'Card layout',
 			'settings.landing_tab_label' => 'Default landing page',
+			_ => null,
+		} ?? switch (path) {
 			'settings.language_complete' => 'Complete',
 			'settings.language_beta' => 'Beta',
 			'settings.language_incomplete' => 'Incomplete',
-			_ => null,
-		} ?? switch (path) {
 			'settings.use_os_decorations' => 'Использовать системный вид окна',
 			'settings.credits' => 'Credits',
 			'settings.credits_developer' => 'Created by',

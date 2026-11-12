@@ -3662,6 +3662,15 @@ class Translations$settings$en_US {
 	/// en-US: 'Project icon opacity'
 	String get project_icon_opacity_label => 'Project icon opacity';
 
+	/// en-US: 'Project card style'
+	String get project_card_style_label => 'Project card style';
+
+	/// en-US: 'Godot Hub'
+	String get project_card_style_hub => 'Godot Hub';
+
+	/// en-US: 'Cover'
+	String get project_card_style_cover => 'Cover';
+
 	/// en-US: 'Time format (shown when opened today)'
 	String get time_format_label => 'Time format (shown when opened today)';
 
@@ -7256,6 +7265,9 @@ extension on Translations {
 			'settings.tray_recent_label' => 'Tray recent projects',
 			'settings.tooltip_delay_label' => 'Tooltip delay',
 			'settings.project_icon_opacity_label' => 'Project icon opacity',
+			'settings.project_card_style_label' => 'Project card style',
+			'settings.project_card_style_hub' => 'Godot Hub',
+			'settings.project_card_style_cover' => 'Cover',
 			'settings.time_format_label' => 'Time format (shown when opened today)',
 			'settings.date_format_label' => 'Date format (shown for any other day)',
 			'settings.auto_scan_label' => 'Auto-scan on startup',
@@ -7383,11 +7395,11 @@ extension on Translations {
 			'settings.interface_label' => 'Interface',
 			'settings.card_layout_label' => 'Card layout',
 			'settings.landing_tab_label' => 'Default landing page',
+			_ => null,
+		} ?? switch (path) {
 			'settings.language_complete' => 'Complete',
 			'settings.language_beta' => 'Beta',
 			'settings.language_incomplete' => 'Incomplete',
-			_ => null,
-		} ?? switch (path) {
 			'settings.use_os_decorations' => 'Use OS window decorations',
 			'settings.credits' => 'Credits',
 			'settings.credits_developer' => 'Created by',

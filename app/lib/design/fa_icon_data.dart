@@ -14,10 +14,10 @@ class FaIconData {
   static final Map<String, Path> _cache = {};
 
   Path get parsed => _cache.putIfAbsent('$prefix:$name', () {
-        final proxy = _PathProxy();
-        writeSvgPathDataToPath(path, proxy);
-        return proxy.path;
-      });
+    final proxy = _PathProxy();
+    writeSvgPathDataToPath(path, proxy);
+    return proxy.path;
+  });
 
   double aspectRatio() => width / height;
 }
@@ -82,7 +82,12 @@ class _FaIconPainter extends CustomPainter {
     canvas.save();
     canvas.translate((size.width - icon.width * scale) / 2, (size.height - icon.height * scale) / 2);
     canvas.scale(scale);
-    canvas.drawPath(icon.parsed, Paint()..color = color..isAntiAlias = true);
+    canvas.drawPath(
+      icon.parsed,
+      Paint()
+        ..color = color
+        ..isAntiAlias = true,
+    );
     canvas.restore();
   }
 

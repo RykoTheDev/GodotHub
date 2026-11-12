@@ -82,13 +82,7 @@ class TrayTask {
 
   String? get templateTag => type == TaskType.downloadTemplates && id.startsWith('templates-') ? id.substring(10) : null;
 
-  TrayTask copyWith({
-    String? label,
-    String? description,
-    TaskProgress? progress,
-    TaskStatus? status,
-    String? errorMessage,
-  }) => TrayTask(
+  TrayTask copyWith({String? label, String? description, TaskProgress? progress, TaskStatus? status, String? errorMessage}) => TrayTask(
     id: id,
     type: type,
     label: label ?? this.label,
@@ -125,9 +119,8 @@ String _mb(BigInt bytes) => (bytes.toDouble() / 1024 / 1024).toStringAsFixed(1);
 
 int _pct(BigInt downloaded, BigInt total) => total > BigInt.zero ? (downloaded.toDouble() / total.toDouble() * 100).round() : 0;
 
-String transferDescription(BigInt downloaded, BigInt total) => total > BigInt.zero
-    ? '${_mb(downloaded)} / ${_mb(total)} MB (${_pct(downloaded, total)}%)'
-    : '${_mb(downloaded)} MB';
+String transferDescription(BigInt downloaded, BigInt total) =>
+    total > BigInt.zero ? '${_mb(downloaded)} / ${_mb(total)} MB (${_pct(downloaded, total)}%)' : '${_mb(downloaded)} MB';
 
 TaskProgress? _transferProgress(BigInt downloaded, BigInt total) =>
     total > BigInt.zero ? TaskProgress(downloaded.toInt(), total.toInt()) : null;
@@ -162,9 +155,7 @@ const _events = {
 
 final taskTrayProvider = NotifierProvider<TaskTrayNotifier, List<TrayTask>>(TaskTrayNotifier.new);
 
-final taskTrayActiveCountProvider = Provider<int>(
-  (ref) => ref.watch(taskTrayProvider).where((task) => task.status.active).length,
-);
+final taskTrayActiveCountProvider = Provider<int>((ref) => ref.watch(taskTrayProvider).where((task) => task.status.active).length);
 
 final taskTrayDismissibleCountProvider = Provider<int>(
   (ref) => ref.watch(taskTrayProvider).where((task) => task.status.dismissible).length,
@@ -199,29 +190,14 @@ class TaskTrayNotifier extends Notifier<List<TrayTask>> {
 
   void registerTask(TrayTask task) {
     final exists = state.any((existing) => existing.id == task.id);
-    state = exists
-        ? [for (final existing in state) existing.id == task.id ? task : existing]
-        : [...state, task];
+    state = exists ? [for (final existing in state) existing.id == task.id ? task : existing] : [...state, task];
   }
 
-  void updateTask(
-    String id, {
-    String? label,
-    String? description,
-    TaskProgress? progress,
-    TaskStatus? status,
-    String? errorMessage,
-  }) {
+  void updateTask(String id, {String? label, String? description, TaskProgress? progress, TaskStatus? status, String? errorMessage}) {
     state = [
       for (final task in state)
         task.id == id
-            ? task.copyWith(
-                label: label,
-                description: description,
-                progress: progress,
-                status: status,
-                errorMessage: errorMessage,
-              )
+            ? task.copyWith(label: label, description: description, progress: progress, status: status, errorMessage: errorMessage)
             : task,
     ];
   }
@@ -243,7 +219,10 @@ class TaskTrayNotifier extends Notifier<List<TrayTask>> {
     final ordered = [for (final key in keys) godotDownloadTaskId(key)];
     final ids = ordered.toSet();
     final byId = {for (final task in state) task.id: task};
-    final rest = [for (final task in state) if (!ids.contains(task.id)) task.id];
+    final rest = [
+      for (final task in state)
+        if (!ids.contains(task.id)) task.id,
+    ];
     state = [
       for (final id in [...ordered, ...rest])
         if (byId[id] != null) byId[id]!,

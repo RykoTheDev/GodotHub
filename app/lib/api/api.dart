@@ -49,8 +49,7 @@ abstract final class Api {
   static const stopProject = ProjectsApi.stop;
   static const getProjectConsole = ProjectsApi.getConsole;
   static const clearProjectConsole = ProjectsApi.clearConsole;
-  static Future<List<RunningProjectInfo>> listRunningProjects() =>
-      projects_rust.listRunningProjects();
+  static Future<List<RunningProjectInfo>> listRunningProjects() => projects_rust.listRunningProjects();
   static const openProjectFolder = ProjectsApi.openFolder;
   static const openInEditor = ProjectsApi.openInEditor;
   static const getProjectSize = ProjectsApi.getSize;
@@ -63,8 +62,7 @@ abstract final class Api {
   static const cliToolStatus = SettingsApi.cliToolStatus;
   static const installCliTool = SettingsApi.installCliTool;
   static const uninstallCliTool = SettingsApi.uninstallCliTool;
-  static Future<void> notify(String title, String body) async =>
-      throw UnsupportedError('notify is not available in the Flutter app yet');
+  static Future<void> notify(String title, String body) async => throw UnsupportedError('notify is not available in the Flutter app yet');
   static const exportWorkspaceBackup = SettingsApi.exportWorkspaceBackup;
   static const importWorkspaceBackup = SettingsApi.importWorkspaceBackup;
   static const exportAppBackup = SettingsApi.exportAppBackup;
@@ -79,10 +77,8 @@ abstract final class Api {
   static const exportProjectStats = ProjectsApi.exportProjectStats;
   static const importProjectStats = ProjectsApi.importProjectStats;
   static const clearTimeStats = ProjectsApi.clearTimeStats;
-  static Future<List<(String, BigInt)>> getActivity(String range) =>
-      time_stats_rust.getActivity(range: range);
-  static Future<List<(String, BigInt)>> getProjectActivity(String projectId) =>
-      time_stats_rust.getProjectActivity(projectId: projectId);
+  static Future<List<(String, BigInt)>> getActivity(String range) => time_stats_rust.getActivity(range: range);
+  static Future<List<(String, BigInt)>> getProjectActivity(String projectId) => time_stats_rust.getProjectActivity(projectId: projectId);
   static const readImageFile = ProjectsApi.readImageFile;
   static const getProjectIcon = ProjectsApi.getIcon;
   static const getProjectName = ProjectsApi.getName;
@@ -94,14 +90,10 @@ abstract final class Api {
 
   static const fetchAvailableGodotVersions = VersionsApi.fetchAvailable;
   static const downloadGodotVersion = VersionsApi.download;
-  static Future<void> downloadVersionForTag(String tag) =>
-      versions_rust.downloadVersionForTag(tag: tag);
-  static Future<List<DiscoveredProject>> scanGodotRecentProjects() =>
-      discovery_rust.scanGodotRecentProjects();
-  static Future<List<DiscoveredInstall>> detectGodotInstalls() =>
-      discovery_rust.detectGodotInstalls();
-  static Future<InstalledGodotVersion> importDetectedInstall(String path) =>
-      discovery_rust.importDetectedInstall(path: path);
+  static Future<void> downloadVersionForTag(String tag) => versions_rust.downloadVersionForTag(tag: tag);
+  static Future<List<DiscoveredProject>> scanGodotRecentProjects() => discovery_rust.scanGodotRecentProjects();
+  static Future<List<DiscoveredInstall>> detectGodotInstalls() => discovery_rust.detectGodotInstalls();
+  static Future<InstalledGodotVersion> importDetectedInstall(String path) => discovery_rust.importDetectedInstall(path: path);
   static const pauseDownload = VersionsApi.pauseDownload;
   static const resumeDownload = VersionsApi.resumeDownload;
   static const reorderDownloadQueue = VersionsApi.reorderDownloadQueue;

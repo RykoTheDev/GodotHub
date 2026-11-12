@@ -267,7 +267,10 @@ class _ProjectDoctorModalState extends State<ProjectDoctorModal> {
                       _t('${finding.code}_title', args: values),
                       style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink),
                     ),
-                    Text(_t('severity_$severity'), style: theme.text(size: GhTextSize.x3s, weight: GhWeight.medium, color: tone)),
+                    Text(
+                      _t('severity_$severity'),
+                      style: theme.text(size: GhTextSize.x3s, weight: GhWeight.medium, color: tone),
+                    ),
                   ],
                 ),
                 Padding(
@@ -299,7 +302,11 @@ class _ProjectDoctorModalState extends State<ProjectDoctorModal> {
                       ],
                     ),
                   ),
-                if (action != null) Padding(padding: EdgeInsets.only(top: theme.space(3)), child: action),
+                if (action != null)
+                  Padding(
+                    padding: EdgeInsets.only(top: theme.space(3)),
+                    child: action,
+                  ),
                 if (finding.action?.kind == 'choose_version' && widget.installedVersions.isEmpty)
                   Padding(
                     padding: EdgeInsets.only(top: theme.space(2)),
@@ -346,7 +353,10 @@ class _ProjectDoctorModalState extends State<ProjectDoctorModal> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(_t('category_$category'), style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.muted)),
+                Text(
+                  _t('category_$category'),
+                  style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.muted),
+                ),
                 ..._rows(theme, entries),
               ],
             ),
@@ -358,7 +368,9 @@ class _ProjectDoctorModalState extends State<ProjectDoctorModal> {
           Container(
             margin: EdgeInsets.only(top: theme.space(5)),
             padding: EdgeInsets.only(top: theme.space(4)),
-            decoration: BoxDecoration(border: Border(top: BorderSide(color: theme.line))),
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: theme.line)),
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -401,7 +413,10 @@ class _ProjectDoctorModalState extends State<ProjectDoctorModal> {
       onClose: widget.onClose,
       footer: [
         Expanded(
-          child: Text(_t('local_checks'), style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625)),
+          child: Text(
+            _t('local_checks'),
+            style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625),
+          ),
         ),
         GhOutlineAction(onPressed: _manageVersions, label: _t('action_manage_versions')),
         GhOutlineAction(onPressed: widget.onClose, label: context.tr.common.close),
@@ -413,7 +428,9 @@ class _ProjectDoctorModalState extends State<ProjectDoctorModal> {
           children: [
             Container(
               padding: EdgeInsets.only(bottom: theme.space(4)),
-              decoration: BoxDecoration(border: Border(bottom: BorderSide(color: theme.line))),
+              decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color: theme.line)),
+              ),
               child: Row(
                 spacing: theme.space(3),
                 children: [
@@ -423,7 +440,10 @@ class _ProjectDoctorModalState extends State<ProjectDoctorModal> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(summary, style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink)),
+                          Text(
+                            summary,
+                            style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink),
+                          ),
                           if (report != null)
                             Padding(
                               padding: EdgeInsets.only(top: theme.space(1)),
@@ -459,7 +479,10 @@ class _ProjectDoctorModalState extends State<ProjectDoctorModal> {
                   spacing: theme.space(3),
                   children: [
                     GhSpinnerIcon(size: 4, color: theme.muted),
-                    Text(_t('scanning'), style: theme.text(size: GhTextSize.sm, color: theme.muted)),
+                    Text(
+                      _t('scanning'),
+                      style: theme.text(size: GhTextSize.sm, color: theme.muted),
+                    ),
                   ],
                 ),
               ),

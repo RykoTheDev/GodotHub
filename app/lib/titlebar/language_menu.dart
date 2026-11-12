@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../design/design.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../i18n/i18n_controller.dart';
@@ -155,17 +156,13 @@ class _LanguageRow extends StatelessWidget {
     final tokens = TitleBarTokens.of(context);
     final big = Radius.circular(tokens.itemRadius);
     final small = Radius.circular(tokens.smRadius);
-    final itemRadius = showLayoutToggle
-        ? BorderRadiusDirectional.horizontal(start: big, end: small)
-        : BorderRadiusDirectional.all(big);
+    final itemRadius = showLayoutToggle ? BorderRadiusDirectional.horizontal(start: big, end: small) : BorderRadiusDirectional.all(big);
     final item = TitleBarButton(
       semanticLabel: label,
       onPressed: onSelect,
       builder: (context, hovered) {
         final foreground = active ? tokens.accentBright : (hovered ? tokens.ink : tokens.muted);
-        final background = active
-            ? tokens.accent.withValues(alpha: 0.15)
-            : (hovered ? tokens.raised : Colors.transparent);
+        final background = active ? tokens.accent.withValues(alpha: 0.15) : (hovered ? tokens.raised : Colors.transparent);
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           decoration: BoxDecoration(color: background, borderRadius: itemRadius),
@@ -184,17 +181,11 @@ class _LanguageRow extends StatelessWidget {
                         style: TextStyle(fontSize: 12, color: foreground),
                       ),
                     ),
-                    if (!language.isSystem) ...[
-                      const SizedBox(width: 6),
-                      LanguageStatusBadge(status: language.status, label: statusLabel),
-                    ],
+                    if (!language.isSystem) ...[const SizedBox(width: 6), LanguageStatusBadge(status: language.status, label: statusLabel)],
                   ],
                 ),
               ),
-              if (active) ...[
-                const SizedBox(width: 8),
-                GhIcon(GhIcons.check, size: 14, color: foreground),
-              ],
+              if (active) ...[const SizedBox(width: 8), GhIcon(GhIcons.check, size: 14, color: foreground)],
             ],
           ),
         );
@@ -273,21 +264,9 @@ class LanguageStatusBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final tokens = TitleBarTokens.of(context);
     final (background, foreground, border) = switch (status) {
-      GhLanguageStatus.complete => (
-        tokens.mint.withValues(alpha: 0.1),
-        tokens.mint,
-        tokens.mint.withValues(alpha: 0.3),
-      ),
-      GhLanguageStatus.beta => (
-        tokens.amber.withValues(alpha: 0.1),
-        tokens.amber,
-        tokens.amber.withValues(alpha: 0.3),
-      ),
-      GhLanguageStatus.incomplete => (
-        Colors.black.withValues(alpha: 0.15),
-        tokens.muted,
-        tokens.line.withValues(alpha: 0.4),
-      ),
+      GhLanguageStatus.complete => (tokens.mint.withValues(alpha: 0.1), tokens.mint, tokens.mint.withValues(alpha: 0.3)),
+      GhLanguageStatus.beta => (tokens.amber.withValues(alpha: 0.1), tokens.amber, tokens.amber.withValues(alpha: 0.3)),
+      GhLanguageStatus.incomplete => (Colors.black.withValues(alpha: 0.15), tokens.muted, tokens.line.withValues(alpha: 0.4)),
     };
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

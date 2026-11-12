@@ -8,5 +8,4 @@ import 'error.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-Future<void> removeUiPref({required String key}) =>
-    RustLib.instance.api.crateApiUiPrefsRemoveUiPref(key: key);
+Future<void> removeUiPref({required String key}) => RustLib.instance.api.crateApiUiPrefsRemoveUiPref(key: key);

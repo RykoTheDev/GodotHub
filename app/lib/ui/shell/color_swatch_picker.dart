@@ -50,8 +50,12 @@ class _GhColorSwatchPickerState extends State<GhColorSwatchPicker> {
       side: GhSide.bottom,
       onOpenChange: widget.onOpenChange,
       trigger: widget.trigger ?? _defaultTrigger,
-      content: (context, close) =>
-          _SwatchPanel(value: widget.value, onChanged: widget.onChanged, presets: widget.presets, presetsLabel: widget.presetsLabel ?? context.tr.common.color_presets),
+      content: (context, close) => _SwatchPanel(
+        value: widget.value,
+        onChanged: widget.onChanged,
+        presets: widget.presets,
+        presetsLabel: widget.presetsLabel ?? context.tr.common.color_presets,
+      ),
     );
   }
 

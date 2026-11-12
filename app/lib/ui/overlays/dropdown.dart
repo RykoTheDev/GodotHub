@@ -22,13 +22,7 @@ typedef GhDropdownContentBuilder = Widget Function(BuildContext context, VoidCal
 
 @immutable
 class GhDropdownHeaderItem {
-  const GhDropdownHeaderItem({
-    required this.id,
-    required this.icon,
-    required this.label,
-    required this.onPressed,
-    this.tooltip,
-  });
+  const GhDropdownHeaderItem({required this.id, required this.icon, required this.label, required this.onPressed, this.tooltip});
 
   final String id;
   final FaIconData icon;
@@ -483,11 +477,7 @@ class _GhDropdownState extends State<GhDropdown> with WidgetsBindingObserver {
             child: GhMenuSurface(
               compact: true,
               maxHeight: info.overlaySize.height * 0.7,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: children,
-              ),
+              child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
             ),
           ),
         ),
@@ -497,14 +487,7 @@ class _GhDropdownState extends State<GhDropdown> with WidgetsBindingObserver {
 }
 
 class GhMenuIconButton extends StatelessWidget {
-  const GhMenuIconButton({
-    super.key,
-    required this.icon,
-    required this.onPressed,
-    this.iconSize,
-    this.semanticLabel,
-    this.focusNode,
-  });
+  const GhMenuIconButton({super.key, required this.icon, required this.onPressed, this.iconSize, this.semanticLabel, this.focusNode});
 
   final FaIconData icon;
   final VoidCallback? onPressed;
@@ -572,13 +555,7 @@ bool ghDropdownOpensUp({required Rect anchor, required Size menu, required Size 
   return side == GhSide.top || (spaceBelow < menu.height && spaceAbove > spaceBelow);
 }
 
-Offset ghDropdownPosition({
-  required Rect anchor,
-  required Size menu,
-  required Size viewport,
-  required GhSide side,
-  required GhSide align,
-}) {
+Offset ghDropdownPosition({required Rect anchor, required Size menu, required Size viewport, required GhSide side, required GhSide align}) {
   const pad = ghMenuViewportPad;
   const gap = ghMenuGap;
   final mh = menu.height;
@@ -602,9 +579,7 @@ Offset ghDropdownPosition({
   final up = side == GhSide.top || (spaceBelow < mh && spaceAbove > spaceBelow);
   final spaceLeft = anchor.right;
   final spaceRight = viewport.width - anchor.left;
-  final leftSide = align == GhSide.right
-      ? !(spaceLeft < mw && spaceRight > spaceLeft)
-      : spaceRight < mw && spaceLeft > spaceRight;
+  final leftSide = align == GhSide.right ? !(spaceLeft < mw && spaceRight > spaceLeft) : spaceRight < mw && spaceLeft > spaceRight;
   var left = leftSide ? anchor.right - mw : anchor.left;
   left = math.max(pad, math.min(left, viewport.width - mw - pad));
   var top = up ? anchor.top - mh - gap : anchor.bottom + gap;

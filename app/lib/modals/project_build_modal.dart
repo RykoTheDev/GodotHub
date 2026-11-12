@@ -73,14 +73,19 @@ class _ProjectToolsPanelState extends State<ProjectToolsPanel> {
     final theme = GhTheme.of(context);
     return Container(
       padding: EdgeInsets.only(top: theme.space(5)),
-      decoration: BoxDecoration(border: Border(top: BorderSide(color: theme.line))),
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: theme.line)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: theme.space(2),
         children: [
           GhFieldLabel(_t('tools_title')),
           if (!tools.any((tool) => tool.kind == 'test'))
-            Text(_t('tools_no_tests'), style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625)),
+            Text(
+              _t('tools_no_tests'),
+              style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625),
+            ),
           for (final tool in tools)
             Container(
               padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(2.5)),
@@ -97,11 +102,16 @@ class _ProjectToolsPanelState extends State<ProjectToolsPanel> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(_t('tool_${tool.id}'), style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.ink)),
+                        Text(
+                          _t('tool_${tool.id}'),
+                          style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.ink),
+                        ),
                         Tooltip(
                           message: tool.detail ?? '',
                           child: Text(
-                            tool.available ? _t('tool_${tool.id}_hint', args: {'target': tool.detail ?? ''}) : _t('tool_reason_${tool.reason}'),
+                            tool.available
+                                ? _t('tool_${tool.id}_hint', args: {'target': tool.detail ?? ''})
+                                : _t('tool_reason_${tool.reason}'),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: theme.text(size: GhTextSize.x2s, color: theme.muted),
@@ -315,12 +325,7 @@ class _ProjectBuildModalState extends ConsumerState<ProjectBuildModal> {
               style: small,
             ),
           ),
-          GhOutlineAction(
-            onPressed: _loading || busy ? null : _refresh,
-            icon: GhIcons.refresh,
-            spinIcon: _loading,
-            label: _t('refresh'),
-          ),
+          GhOutlineAction(onPressed: _loading || busy ? null : _refresh, icon: GhIcons.refresh, spinIcon: _loading, label: _t('refresh')),
         ],
       ),
     ];
@@ -330,7 +335,10 @@ class _ProjectBuildModalState extends ConsumerState<ProjectBuildModal> {
           spacing: theme.space(2),
           children: [
             GhSpinnerIcon(size: 4, color: theme.muted),
-            Text(_t('loading'), style: theme.text(size: GhTextSize.sm, color: theme.muted)),
+            Text(
+              _t('loading'),
+              style: theme.text(size: GhTextSize.sm, color: theme.muted),
+            ),
           ],
         ),
       );
@@ -348,7 +356,10 @@ class _ProjectBuildModalState extends ConsumerState<ProjectBuildModal> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(_t('no_presets'), style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink)),
+                Text(
+                  _t('no_presets'),
+                  style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink),
+                ),
                 Padding(
                   padding: EdgeInsets.only(top: theme.space(2), bottom: theme.space(4)),
                   child: Text(_t('no_presets_hint'), style: small.copyWith(height: 1.625)),
@@ -431,10 +442,17 @@ class _ProjectBuildModalState extends ConsumerState<ProjectBuildModal> {
                   GhOutlineAction(onPressed: busy ? null : _browse, icon: GhIcons.folder, iconSize: 4, semanticLabel: _t('browse')),
                 ],
               ),
-              Text(_t('output_hint'), style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625)),
+              Text(
+                _t('output_hint'),
+                style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625),
+              ),
             ],
           ),
-          if (preset.templateError != null) Text(preset.templateError!, style: theme.text(size: GhTextSize.xs, color: theme.danger)),
+          if (preset.templateError != null)
+            Text(
+              preset.templateError!,
+              style: theme.text(size: GhTextSize.xs, color: theme.danger),
+            ),
           if (preset.missingTemplates.isNotEmpty)
             GhAlertBox(
               tone: GhAlertTone.amber,
@@ -500,7 +518,10 @@ class _ProjectBuildModalState extends ConsumerState<ProjectBuildModal> {
               if (run.error != null)
                 Padding(
                   padding: EdgeInsets.only(top: theme.space(2)),
-                  child: Text(run.error!, style: theme.text(size: GhTextSize.xs, color: theme.danger)),
+                  child: Text(
+                    run.error!,
+                    style: theme.text(size: GhTextSize.xs, color: theme.danger),
+                  ),
                 ),
               if (run.status == 'cancelled')
                 Padding(
@@ -530,7 +551,10 @@ class _ProjectBuildModalState extends ConsumerState<ProjectBuildModal> {
     }
     body.addAll([
       ProjectToolsPanel(project: widget.project, onStarted: widget.onClose),
-      Text('${_t('run_hint')} ${_t('platform_tools')}', style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625)),
+      Text(
+        '${_t('run_hint')} ${_t('platform_tools')}',
+        style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625),
+      ),
     ]);
     return GhModalShell(
       icon: GhIcon(GhIcons.rocket, size: theme.space(5), color: theme.accentBright),

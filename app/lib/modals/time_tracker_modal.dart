@@ -136,7 +136,9 @@ class _TimeTrackerModalState extends State<TimeTrackerModal> {
           children: [
             for (var i = 0; i < 7; i++)
               Expanded(
-                child: Container(decoration: BoxDecoration(color: theme.raised, borderRadius: BorderRadius.circular(theme.rem(0.25)))),
+                child: Container(
+                  decoration: BoxDecoration(color: theme.raised, borderRadius: BorderRadius.circular(theme.rem(0.25))),
+                ),
               ),
           ],
         ),
@@ -147,8 +149,14 @@ class _TimeTrackerModalState extends State<TimeTrackerModal> {
         child: Column(
           spacing: theme.space(2),
           children: [
-            Opacity(opacity: 0.4, child: GhIcon(GhIcons.stopwatch, size: theme.space(7), color: hint)),
-            Text(tr.time_weekly_empty, style: theme.text(size: GhTextSize.sm, color: hint)),
+            Opacity(
+              opacity: 0.4,
+              child: GhIcon(GhIcons.stopwatch, size: theme.space(7), color: hint),
+            ),
+            Text(
+              tr.time_weekly_empty,
+              style: theme.text(size: GhTextSize.sm, color: hint),
+            ),
           ],
         ),
       );

@@ -42,12 +42,14 @@ Future<String?> _cachedLookup(
   if (cache.containsKey(path)) return Future.value(cache[path]);
   final pending = requests[path];
   if (pending != null) return pending;
-  final request = fetch().then((data) {
-    cache[path] = data;
-    return data;
-  }).whenComplete(() {
-    requests.remove(path);
-  });
+  final request = fetch()
+      .then((data) {
+        cache[path] = data;
+        return data;
+      })
+      .whenComplete(() {
+        requests.remove(path);
+      });
   requests[path] = request;
   return request;
 }
@@ -55,8 +57,7 @@ Future<String?> _cachedLookup(
 abstract final class ProjectsApi {
   static Future<dto.HealthReport> diagnose(String id) => dto.diagnoseProject(id: id);
 
-  static Future<void> fixHealth(String id, String checkId) =>
-      health_rust.fixProjectHealth(id: id, checkId: checkId);
+  static Future<void> fixHealth(String id, String checkId) => health_rust.fixProjectHealth(id: id, checkId: checkId);
 
   static Future<List<types.Project>> list() => rust.listProjects();
 
@@ -67,40 +68,34 @@ abstract final class ProjectsApi {
     String? iconPath,
     String? templateId,
     String? category,
-  ]) =>
-      rust.createProject(
-        name: name,
-        location: location,
-        godotVersion: godotVersion,
-        iconPath: iconPath,
-        templateId: templateId,
-        category: category,
-      );
+  ]) => rust.createProject(
+    name: name,
+    location: location,
+    godotVersion: godotVersion,
+    iconPath: iconPath,
+    templateId: templateId,
+    category: category,
+  );
 
-  static Future<void> remove(String id, bool deleteFiles) =>
-      rust.removeProject(id: id, deleteFiles: deleteFiles);
+  static Future<void> remove(String id, bool deleteFiles) => rust.removeProject(id: id, deleteFiles: deleteFiles);
 
   static Future<types.Project> duplicate(String id, String name, String? destDir) =>
       rust.duplicateProject(id: id, name: name, destDir: destDir);
 
-  static Future<types.Project> update(String id, types.ProjectUpdate updates) =>
-      rust.updateProject(id: id, updates: updates);
+  static Future<types.Project> update(String id, types.ProjectUpdate updates) => rust.updateProject(id: id, updates: updates);
 
   static Future<void> reorder(List<String> orderedIds) => rust.reorderProjects(orderedIds: orderedIds);
 
-  static Future<types.Project> saveTags(String id, String path, List<String> tags) =>
-      rust.writeProjectTags(id: id, path: path, tags: tags);
+  static Future<types.Project> saveTags(String id, String path, List<String> tags) => rust.writeProjectTags(id: id, path: path, tags: tags);
 
   static Future<types.Project> import(String path, String godotVersion, [String? category]) =>
       rust.importProject(path: path, godotVersion: godotVersion, category: category);
 
-  static Future<void> open(String id, bool editor, [bool? withConsole]) =>
-      rust.openProject(id: id, editor: editor, console: withConsole);
+  static Future<void> open(String id, bool editor, [bool? withConsole]) => rust.openProject(id: id, editor: editor, console: withConsole);
 
   static Future<void> stop(String id) => rust.stopProject(id: id);
 
-  static Future<types.ConsoleSnapshot> getConsole(String id, [BigInt? since]) =>
-      console_rust.getProjectConsole(id: id, since: since);
+  static Future<types.ConsoleSnapshot> getConsole(String id, [BigInt? since]) => console_rust.getProjectConsole(id: id, since: since);
 
   static Future<void> clearConsole(String id) => console_rust.clearProjectConsole(id: id);
 
@@ -112,16 +107,14 @@ abstract final class ProjectsApi {
 
   static Future<List<types.ProjectFileEntry>> getFileTree(String path) => rust.getProjectFileTree(path: path);
 
-  static Future<String?> pickFolder() async =>
-      throw UnsupportedError('pickFolder is not available in the Flutter app yet');
+  static Future<String?> pickFolder() async => throw UnsupportedError('pickFolder is not available in the Flutter app yet');
 
   static Future<String?> pickFile() async => throw UnsupportedError('pickFile is not available in the Flutter app yet');
 
   static Future<String?> pickSavePath(String defaultName) async =>
       throw UnsupportedError('pickSavePath is not available in the Flutter app yet');
 
-  static Future<String?> pickDataFile() async =>
-      throw UnsupportedError('pickDataFile is not available in the Flutter app yet');
+  static Future<String?> pickDataFile() async => throw UnsupportedError('pickDataFile is not available in the Flutter app yet');
 
   static Future<void> exportProjectStats(String path) => rust.exportProjectStats(path: path);
 
@@ -131,14 +124,11 @@ abstract final class ProjectsApi {
 
   static Future<String?> readImageFile(String path) => rust.readImageFile(path: path);
 
-  static Future<String?> getIcon(String path) =>
-      _cachedLookup(path, _iconCache, _iconRequests, () => rust.getProjectIcon(path: path));
+  static Future<String?> getIcon(String path) => _cachedLookup(path, _iconCache, _iconRequests, () => rust.getProjectIcon(path: path));
 
-  static Future<String?> getName(String path) =>
-      _cachedLookup(path, _nameCache, _nameRequests, () => rust.getProjectName(path: path));
+  static Future<String?> getName(String path) => _cachedLookup(path, _nameCache, _nameRequests, () => rust.getProjectName(path: path));
 
-  static Future<List<types.Project>> reintroduceDismissed(List<String> paths) =>
-      rust.reintroduceDismissedProjects(paths: paths);
+  static Future<List<types.Project>> reintroduceDismissed(List<String> paths) => rust.reintroduceDismissedProjects(paths: paths);
 
   static Future<types.LoadStatus> getHealth() => rust.getProjectsHealth();
 

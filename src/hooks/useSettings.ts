@@ -92,6 +92,7 @@ export const DEFAULTS: AppSettings = {
   animated_numbers: true,
   screen_reader_announcements: true,
   project_icon_opacity: 14,
+  project_card_style: 'hub',
   animation_threshold: 20,
   animation_speed: 1.5,
   motion_scroll_reveal: true,

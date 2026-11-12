@@ -73,6 +73,7 @@ class ProjectCard extends ConsumerStatefulWidget {
 class _ProjectCardState extends ConsumerState<ProjectCard> {
   bool _hovered = false;
   bool _focusWithin = false;
+  bool _cover = false;
   bool _tagsExpanded = false;
   int? _editingTag;
   bool _addingTag = false;
@@ -358,206 +359,297 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
       dateFormat: LastOpenedDateFormat.parse(settings.lastOpenedDateFormat),
     );
     final icon = data.icon != null && data.icon != _brokenIcon ? data.icon : null;
+    _cover = settings.projectCardStyle == 'cover';
     final reveal = _hovered || _focusWithin;
     final showTodos = todosEnabled && _showTodos;
     final radius = showTodos ? BorderRadius.vertical(top: Radius.circular(theme.radiusItem)) : BorderRadius.circular(theme.radiusItem);
     final motion = GhMotion.of(context);
 
-    final content = LayoutBuilder(
-      builder: (context, constraints) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: theme.space(1.5),
-            runSpacing: theme.space(1.5),
+    final todoBadge = [if (counts.open > 0) _todoBadge(theme, counts)];
+    final gitWidgets = [
+      if (widget.gitLoading && widget.gitStatus == null)
+        Semantics(
+          label: tr.git_sidebar,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: theme.space(1.5), vertical: theme.space(0.5)),
+            child: GhSpinning(
+              child: GhIcon(GhIcons.spinner, size: theme.space(3), color: theme.muted),
+            ),
+          ),
+        ),
+      if (widget.gitStatus?.isRepo ?? false) _gitChip(context, theme, widget.gitStatus!),
+    ];
+    final lastOpenedChip = [
+      if (lastOpened != null && options.showLastOpened)
+        Padding(
+          padding: _cover
+              ? EdgeInsets.symmetric(horizontal: theme.space(1))
+              : EdgeInsetsDirectional.only(start: theme.space(1.5), end: theme.space(1), top: theme.space(0.5), bottom: theme.space(0.5)),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: theme.space(_cover ? 1.5 : 1),
             children: [
-              ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: constraints.maxWidth),
-                child: Text(
-                  displayName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.text(size: GhTextSize.xl, weight: GhWeight.medium, color: theme.ink),
-                ),
+              _hoverIcon(GhIcons.clock, theme.space(2.5), theme.muted.withValues(alpha: 0.6)),
+              Text(
+                lastOpened,
+                style: theme.text(size: GhTextSize.x3s, weight: GhWeight.medium, mono: true, color: theme.muted, letterSpacingEm: -0.025),
               ),
-              if (counts.open > 0) _todoBadge(theme, counts),
-              if (widget.gitLoading && widget.gitStatus == null)
-                Semantics(
-                  label: tr.git_sidebar,
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: theme.space(1.5), vertical: theme.space(0.5)),
-                    child: GhSpinning(
-                      child: GhIcon(GhIcons.spinner, size: theme.space(3), color: theme.muted),
-                    ),
-                  ),
-                ),
-              if (widget.gitStatus?.isRepo ?? false) _gitChip(context, theme, widget.gitStatus!),
-              if (lastOpened != null && options.showLastOpened)
-                Padding(
-                  padding: EdgeInsetsDirectional.only(
-                    start: theme.space(1.5),
-                    end: theme.space(1),
-                    top: theme.space(0.5),
-                    bottom: theme.space(0.5),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: theme.space(1),
-                    children: [
-                      _hoverIcon(GhIcons.clock, theme.space(2.5), theme.muted.withValues(alpha: 0.6)),
-                      Text(
-                        lastOpened,
-                        style: theme.text(
-                          size: GhTextSize.x3s,
-                          weight: GhWeight.medium,
-                          mono: true,
-                          color: theme.muted,
-                          letterSpacingEm: -0.025,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              if (_addingTag) _addTagInput(context, theme) else _addTagReveal(context, theme, reveal),
-              if (_savingTags)
-                Semantics(
-                  label: tr.saving_tags,
-                  child: SizedBox.square(
-                    dimension: theme.space(3),
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: theme.accentBright,
-                      backgroundColor: theme.accentDim.withValues(alpha: 0.3),
-                    ),
-                  ),
-                ),
             ],
           ),
-          if (project.tags.isNotEmpty && options.showTags) _tagsRow(context, theme),
-          if (options.showPath) _pathButton(context, theme, options.blurPath),
-          Padding(
-            padding: EdgeInsets.only(top: theme.space(1.5)),
-            child: Wrap(
+        ),
+    ];
+    final addTagControls = [
+      if (_addingTag) _addTagInput(context, theme) else _addTagReveal(context, theme, reveal),
+      if (_savingTags)
+        Semantics(
+          label: tr.saving_tags,
+          child: SizedBox.square(
+            dimension: theme.space(3),
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: theme.accentBright,
+              backgroundColor: theme.accentDim.withValues(alpha: 0.3),
+            ),
+          ),
+        ),
+    ];
+    final showTags = project.tags.isNotEmpty && options.showTags;
+    final sizeChip = [
+      if (options.showSize && (data.size ?? 0) > 0)
+        _chipButton(
+          context,
+          theme,
+          icon: GhIcons.hardDrive,
+          label: formatProjectSize(data.size!),
+          semanticLabel: tr.project_size,
+          onPressed: () => openProjectSize(context, project),
+        ),
+    ];
+    final categoryChip = [if (widget.categories.isNotEmpty && cb.onCategoryChange != null) _categoryDropdown(context, theme)];
+    final openButton = GhOpenButton(
+      label: versionInstalled ? tr.open_project : tr.no_version_selected,
+      disabled: !versionInstalled,
+      onOpen: (console) => launchProject(project, console),
+      consoleSupported: version?.supportsConsole ?? false,
+      consoleInitiallyOn: widget.launchWithConsole && (version?.supportsConsole ?? false),
+      showConsole: options.showConsole,
+      moreLabel: tr.project_more_aria,
+      headerItems: projectHeaderItems(context, project, todosEnabled: todosEnabled, onTodos: () => _toggleTodos(resetLoaded: false)),
+      items: _menuItems(context, displayName),
+    );
+    final loadingBar = [
+      if (showTodos && !_todosLoaded)
+        Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          child: IgnorePointer(
+            child: LinearProgressIndicator(
+              minHeight: theme.space(0.5),
+              color: theme.accent,
+              backgroundColor: theme.accent.withValues(alpha: 0.15),
+            ),
+          ),
+        ),
+    ];
+    final decoration = BoxDecoration(
+      color: widget.selected ? theme.accent.withValues(alpha: 0.05) : (_hovered ? theme.raised : theme.overlay),
+      borderRadius: radius,
+      border: Border.all(
+        color: widget.selected ? theme.accent : (_hovered ? theme.accentDim.withValues(alpha: 0.6) : theme.outline.withValues(alpha: 0.5)),
+      ),
+      boxShadow: widget.selected ? [BoxShadow(color: theme.accent.withValues(alpha: 0.6), spreadRadius: 1)] : null,
+    );
+
+    final Widget card;
+    if (_cover) {
+      card = AnimatedContainer(
+        duration: motion.css(GhDurations.interactive),
+        curve: GhCurves.outExpo,
+        decoration: decoration,
+        child: _coverLayout(
+          context,
+          theme,
+          icon: icon,
+          displayName: displayName,
+          showTodos: showTodos,
+          canPlay: options.showPlay && versionInstalled,
+          showSession: options.showSessionTimer,
+          loadingBar: loadingBar,
+          body: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            spacing: theme.space(1.5),
+            children: [
+              Row(
+                spacing: theme.space(2),
+                children: [
+                  Flexible(
+                    child: Text(
+                      displayName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.text(size: GhTextSize.x2l, weight: GhWeight.bold, color: theme.ink, letterSpacingEm: -0.025),
+                    ),
+                  ),
+                  ...todoBadge,
+                  ...gitWidgets,
+                ],
+              ),
+              if (showTags)
+                _tagsRow(context, theme, trailing: addTagControls)
+              else
+                Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: addTagControls),
+              if (options.showPath) _pathButton(context, theme, options.blurPath),
+              Container(
+                padding: EdgeInsets.only(top: theme.space(2.5)),
+                decoration: BoxDecoration(
+                  border: Border(top: BorderSide(color: theme.outline.withValues(alpha: 0.5))),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: theme.space(1.5),
+                  children: [
+                    Expanded(
+                      child: Wrap(
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        spacing: theme.space(1.5),
+                        runSpacing: theme.space(1.5),
+                        children: [_versionDropdown(context, theme, version), ...categoryChip],
+                      ),
+                    ),
+                    Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: theme.space(1.5),
+                      runSpacing: theme.space(1.5),
+                      children: [if (options.showTime) ..._timeButton(context, theme), ...sizeChip, ...lastOpenedChip],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          rail: openButton,
+        ),
+      );
+    } else {
+      final content = LayoutBuilder(
+        builder: (context, constraints) => Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Wrap(
               crossAxisAlignment: WrapCrossAlignment.center,
               spacing: theme.space(1.5),
               runSpacing: theme.space(1.5),
               children: [
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _versionDropdown(context, theme, version),
-                    if (project.pinned || reveal)
-                      Padding(
-                        padding: EdgeInsetsDirectional.only(start: theme.space(1.5)),
-                        child: _pinButton(context, theme),
-                      ),
-                  ],
-                ),
-                if (options.showTime) ..._timeButton(context, theme),
-                if (options.showSize && (data.size ?? 0) > 0)
-                  _chipButton(
-                    context,
-                    theme,
-                    icon: GhIcons.hardDrive,
-                    label: formatProjectSize(data.size!),
-                    semanticLabel: tr.project_size,
-                    onPressed: () => openProjectSize(context, project),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: constraints.maxWidth),
+                  child: Text(
+                    displayName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.text(size: GhTextSize.xl, weight: GhWeight.medium, color: theme.ink),
                   ),
-                if (widget.categories.isNotEmpty && cb.onCategoryChange != null) _categoryDropdown(context, theme),
+                ),
+                ...todoBadge,
+                ...gitWidgets,
+                ...lastOpenedChip,
+                ...addTagControls,
               ],
             ),
-          ),
-        ],
-      ),
-    );
-
-    final card = AnimatedContainer(
-      duration: motion.css(GhDurations.interactive),
-      curve: GhCurves.outExpo,
-      padding: EdgeInsets.all(theme.space(3.5)),
-      decoration: BoxDecoration(
-        color: widget.selected ? theme.accent.withValues(alpha: 0.05) : (_hovered ? theme.raised : theme.overlay),
-        borderRadius: radius,
-        border: Border.all(
-          color: widget.selected
-              ? theme.accent
-              : (_hovered ? theme.accentDim.withValues(alpha: 0.6) : theme.outline.withValues(alpha: 0.5)),
-        ),
-        boxShadow: widget.selected ? [BoxShadow(color: theme.accent.withValues(alpha: 0.6), spreadRadius: 1)] : null,
-      ),
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Positioned(
-            left: -theme.space(3.5),
-            top: -theme.space(3.5),
-            right: -theme.space(3.5),
-            bottom: -theme.space(3.5),
-            child: IgnorePointer(child: _backdrop(theme, icon, displayName)),
-          ),
-          if (showTodos && !_todosLoaded)
-            Positioned(
-              left: -theme.space(3.5),
-              right: -theme.space(3.5),
-              bottom: -theme.space(3.5),
-              child: IgnorePointer(
-                child: LinearProgressIndicator(
-                  minHeight: theme.space(0.5),
-                  color: theme.accent,
-                  backgroundColor: theme.accent.withValues(alpha: 0.15),
-                ),
+            if (showTags) _tagsRow(context, theme),
+            if (options.showPath) _pathButton(context, theme, options.blurPath),
+            Padding(
+              padding: EdgeInsets.only(top: theme.space(1.5)),
+              child: Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: theme.space(1.5),
+                runSpacing: theme.space(1.5),
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _versionDropdown(context, theme, version),
+                      if (project.pinned || reveal)
+                        Padding(
+                          padding: EdgeInsetsDirectional.only(start: theme.space(1.5)),
+                          child: _pinButton(context, theme),
+                        ),
+                    ],
+                  ),
+                  if (options.showTime) ..._timeButton(context, theme),
+                  ...sizeChip,
+                  ...categoryChip,
+                ],
               ),
             ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            spacing: theme.space(3.5),
-            children: [
-              Expanded(child: content),
-              ..._sessionPill(theme, options.showSessionTimer),
-              Transform.translate(
-                offset: Offset(Directionality.of(context) == TextDirection.rtl ? -theme.space(2) : theme.space(2), 0),
-                child: GhEqualWidthColumn(
-                  spacing: theme.space(1.5),
-                  children: [
-                    if (options.showPlay)
-                      SizedBox(
-                        height: theme.space(12),
-                        child: versionInstalled
-                            ? Visibility(
-                                visible: _hovered,
-                                maintainSize: true,
-                                maintainAnimation: true,
-                                maintainState: true,
-                                child: _playButton(context, theme),
-                              )
-                            : null,
-                      ),
-                    GhOpenButton(
-                      label: versionInstalled ? tr.open_project : tr.no_version_selected,
-                      disabled: !versionInstalled,
-                      onOpen: (console) => launchProject(project, console),
-                      consoleSupported: version?.supportsConsole ?? false,
-                      consoleInitiallyOn: widget.launchWithConsole && (version?.supportsConsole ?? false),
-                      showConsole: options.showConsole,
-                      moreLabel: tr.project_more_aria,
-                      headerItems: projectHeaderItems(
-                        context,
-                        project,
-                        todosEnabled: todosEnabled,
-                        onTodos: () => _toggleTodos(resetLoaded: false),
-                      ),
-                      items: _menuItems(context, displayName),
-                    ),
-                  ],
+          ],
+        ),
+      );
+
+      card = AnimatedContainer(
+        duration: motion.css(GhDurations.interactive),
+        curve: GhCurves.outExpo,
+        padding: EdgeInsets.all(theme.space(3.5)),
+        decoration: decoration,
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Positioned(
+              left: -theme.space(3.5),
+              top: -theme.space(3.5),
+              right: -theme.space(3.5),
+              bottom: -theme.space(3.5),
+              child: IgnorePointer(child: _backdrop(theme, icon, displayName)),
+            ),
+            if (showTodos && !_todosLoaded)
+              Positioned(
+                left: -theme.space(3.5),
+                right: -theme.space(3.5),
+                bottom: -theme.space(3.5),
+                child: IgnorePointer(
+                  child: LinearProgressIndicator(
+                    minHeight: theme.space(0.5),
+                    color: theme.accent,
+                    backgroundColor: theme.accent.withValues(alpha: 0.15),
+                  ),
                 ),
               ),
-            ],
-          ),
-        ],
-      ),
-    );
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              spacing: theme.space(3.5),
+              children: [
+                Expanded(child: content),
+                ..._sessionPill(theme, options.showSessionTimer),
+                Transform.translate(
+                  offset: Offset(Directionality.of(context) == TextDirection.rtl ? -theme.space(2) : theme.space(2), 0),
+                  child: GhEqualWidthColumn(
+                    spacing: theme.space(1.5),
+                    children: [
+                      if (options.showPlay)
+                        SizedBox(
+                          height: theme.space(12),
+                          child: versionInstalled
+                              ? Visibility(
+                                  visible: _hovered,
+                                  maintainSize: true,
+                                  maintainAnimation: true,
+                                  maintainState: true,
+                                  child: _playButton(context, theme),
+                                )
+                              : null,
+                        ),
+                      openButton,
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
 
     final surface = MouseRegion(
       cursor: todosEnabled ? SystemMouseCursors.click : MouseCursor.defer,
@@ -589,6 +681,212 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
             _showTodos = false;
           }),
         ),
+      ],
+    );
+  }
+
+  // Cover: the project icon is the card's cover art. It fills a full-height
+  // square on the start edge, and the cover itself is the play surface, the
+  // pin, and the live session stamp.
+  Widget _coverLayout(
+    BuildContext context,
+    GhTheme theme, {
+    required String? icon,
+    required String displayName,
+    required bool showTodos,
+    required bool canPlay,
+    required bool showSession,
+    required List<Widget> loadingBar,
+    required Widget body,
+    required Widget rail,
+  }) {
+    final coverWidth = theme.space(36);
+    final direction = Directionality.of(context);
+    final corner = Radius.circular(theme.radiusItem);
+    final coverRadius = BorderRadiusDirectional.only(topStart: corner, bottomStart: showTodos ? Radius.zero : corner).resolve(direction);
+    return Stack(
+      children: [
+        PositionedDirectional(
+          start: 0,
+          top: 0,
+          bottom: 0,
+          width: coverWidth,
+          child: ClipRRect(
+            borderRadius: coverRadius,
+            child: _coverArt(context, theme, icon: icon, displayName: displayName, canPlay: canPlay, showSession: showSession),
+          ),
+        ),
+        ConstrainedBox(
+          constraints: BoxConstraints(minHeight: coverWidth),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              SizedBox(width: coverWidth),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsetsDirectional.only(start: theme.space(4), top: theme.space(3.5), bottom: theme.space(3.5)),
+                  child: body,
+                ),
+              ),
+              Padding(
+                padding: EdgeInsetsDirectional.only(start: theme.space(3), end: theme.space(3.5), top: theme.space(3.5), bottom: theme.space(3.5)),
+                child: rail,
+              ),
+            ],
+          ),
+        ),
+        ...loadingBar,
+      ],
+    );
+  }
+
+  Widget _coverArt(
+    BuildContext context,
+    GhTheme theme, {
+    required String? icon,
+    required String displayName,
+    required bool canPlay,
+    required bool showSession,
+  }) {
+    final tr = context.tr.common;
+    final motion = GhMotion.of(context);
+    final slow = motion.css(const Duration(milliseconds: 500));
+    final pinned = _project.pinned;
+    final started = _project.sessionStartedAtMs?.toInt();
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        if (icon != null) ...[
+          ColoredBox(color: theme.base),
+          IgnorePointer(
+            child: AnimatedScale(
+              scale: _hovered ? 1.05 : 1,
+              duration: slow,
+              curve: GhCurves.outExpo,
+              child: ProjectIconImage(url: icon, fit: BoxFit.cover, onError: () => setState(() => _brokenIcon = icon)),
+            ),
+          ),
+        ] else ...[
+          ColoredBox(color: theme.accent.withValues(alpha: 0.15)),
+          IgnorePointer(
+            child: Center(
+              child: AnimatedScale(
+                scale: _hovered ? 1.05 : 1,
+                duration: slow,
+                curve: GhCurves.outExpo,
+                child: Text(
+                  projectInitials(displayName),
+                  style: theme.text(weight: FontWeight.w900, color: theme.accentBright.withValues(alpha: 0.7), lineHeight: 1).copyWith(fontSize: 48),
+                ),
+              ),
+            ),
+          ),
+        ],
+        PositionedDirectional(
+          end: 0,
+          top: 0,
+          bottom: 0,
+          width: 1,
+          child: ColoredBox(color: Colors.white.withValues(alpha: 0.1)),
+        ),
+        if (canPlay)
+          GhTooltip(
+            message: tr.play_project_tooltip,
+            side: GhSide.top,
+            child: GhPressable(
+              onPressed: () => playProject(_project),
+              semanticLabel: tr.play_project,
+              builder: (context, states) => AnimatedOpacity(
+                opacity: states.highlighted ? 1 : 0,
+                duration: motion.css(const Duration(milliseconds: 300)),
+                child: ColoredBox(
+                  color: Colors.black.withValues(alpha: 0.55),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: theme.space(1.5),
+                      children: [
+                        Container(
+                          width: theme.space(11),
+                          height: theme.space(11),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.95),
+                            shape: BoxShape.circle,
+                            boxShadow: GhShadows.md(Colors.black.withValues(alpha: 0.3)),
+                          ),
+                          child: Center(child: GhIcon(GhIcons.play, size: theme.space(4), color: Colors.black)),
+                        ),
+                        Text(
+                          tr.play_project.toUpperCase(),
+                          style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, mono: true, color: Colors.white, letterSpacingEm: 0.2),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        PositionedDirectional(
+          top: theme.space(2),
+          start: theme.space(2),
+          child: AnimatedOpacity(
+            opacity: pinned || _hovered || _focusWithin ? 1 : 0,
+            duration: motion.css(GhDurations.interactive),
+            child: GhTooltip(
+              message: pinned ? tr.project_unpin_aria : tr.project_pin_aria,
+              side: GhSide.top,
+              child: GhPressable(
+                onPressed: widget.callbacks.onTogglePin,
+                semanticLabel: pinned ? tr.project_unpin_aria : tr.project_pin_aria,
+                toggled: pinned,
+                borderRadius: BorderRadius.circular(9999),
+                builder: (context, states) => GhAnimatedBox(
+                  width: theme.space(7),
+                  height: theme.space(7),
+                  alignment: Alignment.center,
+                  color: pinned ? theme.accent : Colors.black.withValues(alpha: states.active ? 0.7 : 0.55),
+                  borderRadius: BorderRadius.circular(9999),
+                  boxShadow: pinned ? GhShadows.md(Colors.black.withValues(alpha: 0.3)) : null,
+                  child: GhIcon(GhIcons.pin, size: theme.space(3), color: Colors.white.withValues(alpha: pinned || states.active ? 1 : 0.8)),
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (showSession && started != null)
+          PositionedDirectional(
+            start: theme.space(2),
+            end: theme.space(2),
+            bottom: theme.space(2),
+            child: IgnorePointer(
+              child: GhNow(
+                builder: (context, now) {
+                  final ms = now.millisecondsSinceEpoch - started;
+                  if (ms <= 0) return const SizedBox.shrink();
+                  return Container(
+                    padding: EdgeInsets.symmetric(horizontal: theme.space(2), vertical: theme.space(1)),
+                    decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.7), borderRadius: BorderRadius.circular(9999)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: theme.space(1.5),
+                      children: [
+                        Container(
+                          width: theme.space(1.5),
+                          height: theme.space(1.5),
+                          decoration: BoxDecoration(color: theme.danger, shape: BoxShape.circle),
+                        ),
+                        Text(
+                          formatDuration(ms),
+                          style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, mono: true, color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
       ],
     );
   }
@@ -817,7 +1115,7 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
     );
   }
 
-  Widget _tagsRow(BuildContext context, GhTheme theme) {
+  Widget _tagsRow(BuildContext context, GhTheme theme, {List<Widget> trailing = const []}) {
     final tags = _project.tags;
     final shown = _tagsExpanded ? tags.length : (tags.length < 2 ? tags.length : 2);
     final tr = context.tr.common;
@@ -831,6 +1129,7 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
           _dashedToggle(context, theme, '+${tags.length - 2}', tr.show_more_tags, () => setState(() => _tagsExpanded = true)),
         if (_tagsExpanded && tags.length > 2)
           _dashedToggle(context, theme, '-${tags.length - 2}', tr.show_fewer_tags, () => setState(() => _tagsExpanded = false)),
+        ...trailing,
       ],
     );
   }
@@ -966,11 +1265,16 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
           _project.path,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: theme.text(size: GhTextSize.x2s, mono: true, color: states.active ? theme.accentBright : theme.muted),
+          style: theme.text(
+            size: GhTextSize.x2s,
+            mono: true,
+            color: states.active ? theme.accentBright : (_cover ? theme.muted.withValues(alpha: 0.8) : theme.muted),
+          ),
         );
         if (blur && !states.active) {
           text = ImageFiltered(imageFilter: ui.ImageFilter.blur(sigmaX: 4, sigmaY: 4), child: text);
         }
+        if (_cover) return text;
         return Container(
           padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(1)),
           decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.15), borderRadius: radius),
@@ -982,6 +1286,17 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
 
   Widget _chipFace(GhTheme theme, GhStates states, List<Widget> children, {Color? background, Color? border}) {
     final hover = states.active;
+    if (_cover) {
+      return GhAnimatedBox(
+        color: hover ? theme.raised : Colors.black.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(theme.radiusTag),
+        padding: EdgeInsets.symmetric(horizontal: theme.space(2.5), vertical: theme.space(2)),
+        child: DefaultTextStyle.merge(
+          style: theme.text(size: GhTextSize.x3s, mono: true, color: hover ? theme.ink : theme.muted),
+          child: Row(mainAxisSize: MainAxisSize.min, spacing: theme.space(1.5), children: children),
+        ),
+      );
+    }
     return GhAnimatedBox(
       color: background ?? theme.raised,
       borderRadius: BorderRadius.circular(theme.radiusBtn),

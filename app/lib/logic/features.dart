@@ -131,8 +131,10 @@ bool isFeatureEnabled(AppSettings settings, String id) {
   return flag != null ? _flagValue(settings, flag) : !settings.disabledFeatures.contains(id);
 }
 
-Set<GhFeatureId> enabledFeatures(AppSettings settings) =>
-    {for (final feature in GhFeatureId.values) if (isFeatureEnabled(settings, feature.id)) feature};
+Set<GhFeatureId> enabledFeatures(AppSettings settings) => {
+  for (final feature in GhFeatureId.values)
+    if (isFeatureEnabled(settings, feature.id)) feature,
+};
 
 AppSettings withFeatures(AppSettings settings, Iterable<GhFeatureId> enabled) {
   final on = enabled.toSet();

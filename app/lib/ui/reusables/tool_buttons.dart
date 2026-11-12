@@ -342,7 +342,9 @@ class _Spinner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = GhTheme.of(context).space(5);
-    return GhSpinning(child: CustomPaint(size: Size.square(size), painter: _ArcPainter(color)));
+    return GhSpinning(
+      child: CustomPaint(size: Size.square(size), painter: _ArcPainter(color)),
+    );
   }
 }
 

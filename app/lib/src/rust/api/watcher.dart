@@ -8,11 +8,8 @@ import 'error.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-Future<void> restartWatchers() =>
-    RustLib.instance.api.crateApiWatcherRestartWatchers();
+Future<void> restartWatchers() => RustLib.instance.api.crateApiWatcherRestartWatchers();
 
-Future<void> startGitFsWatcher({required String path}) =>
-    RustLib.instance.api.crateApiWatcherStartGitFsWatcher(path: path);
+Future<void> startGitFsWatcher({required String path}) => RustLib.instance.api.crateApiWatcherStartGitFsWatcher(path: path);
 
-Future<void> stopGitFsWatcher() =>
-    RustLib.instance.api.crateApiWatcherStopGitFsWatcher();
+Future<void> stopGitFsWatcher() => RustLib.instance.api.crateApiWatcherStopGitFsWatcher();

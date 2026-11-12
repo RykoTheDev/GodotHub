@@ -10,18 +10,9 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-Future<List<ProjectAddon>> listProjectAddons({required String id}) =>
-    RustLib.instance.api.crateApiAddonsListProjectAddons(id: id);
+Future<List<ProjectAddon>> listProjectAddons({required String id}) => RustLib.instance.api.crateApiAddonsListProjectAddons(id: id);
 
-Future<List<AddonUpdate>> checkAddonUpdates({required String id}) =>
-    RustLib.instance.api.crateApiAddonsCheckAddonUpdates(id: id);
+Future<List<AddonUpdate>> checkAddonUpdates({required String id}) => RustLib.instance.api.crateApiAddonsCheckAddonUpdates(id: id);
 
-Future<void> updateProjectAddon({
-  required String id,
-  required String folder,
-  required String assetId,
-}) => RustLib.instance.api.crateApiAddonsUpdateProjectAddon(
-  id: id,
-  folder: folder,
-  assetId: assetId,
-);
+Future<void> updateProjectAddon({required String id, required String folder, required String assetId}) =>
+    RustLib.instance.api.crateApiAddonsUpdateProjectAddon(id: id, folder: folder, assetId: assetId);

@@ -85,7 +85,5 @@ String? formatLastOpened(
   final date = parseJsDate(lastOpened);
   if (date == null) return null;
   final local = date.toLocal();
-  return _isSameDay(local, (now ?? DateTime.now()).toLocal())
-      ? formatTime(local, timeFormat)
-      : formatDate(local, dateFormat);
+  return _isSameDay(local, (now ?? DateTime.now()).toLocal()) ? formatTime(local, timeFormat) : formatDate(local, dateFormat);
 }

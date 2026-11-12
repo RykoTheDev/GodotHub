@@ -10,50 +10,24 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-Future<List<Category>> listCategories() =>
-    RustLib.instance.api.crateApiCategoriesListCategories();
+Future<List<Category>> listCategories() => RustLib.instance.api.crateApiCategoriesListCategories();
 
 Future<Category> createCategory({required String name, String? color}) =>
-    RustLib.instance.api.crateApiCategoriesCreateCategory(
-      name: name,
-      color: color,
-    );
+    RustLib.instance.api.crateApiCategoriesCreateCategory(name: name, color: color);
 
-Future<Category> updateCategory({
-  required String id,
-  String? name,
-  String? color,
-  bool? hidden,
-}) => RustLib.instance.api.crateApiCategoriesUpdateCategory(
-  id: id,
-  name: name,
-  color: color,
-  hidden: hidden,
-);
+Future<Category> updateCategory({required String id, String? name, String? color, bool? hidden}) =>
+    RustLib.instance.api.crateApiCategoriesUpdateCategory(id: id, name: name, color: color, hidden: hidden);
 
 Future<Category> renameCategory({required String id, required String name}) =>
     RustLib.instance.api.crateApiCategoriesRenameCategory(id: id, name: name);
 
-Future<void> deleteCategory({required String id}) =>
-    RustLib.instance.api.crateApiCategoriesDeleteCategory(id: id);
+Future<void> deleteCategory({required String id}) => RustLib.instance.api.crateApiCategoriesDeleteCategory(id: id);
 
-Future<void> reorderCategories({required List<String> orderedIds}) => RustLib
-    .instance
-    .api
-    .crateApiCategoriesReorderCategories(orderedIds: orderedIds);
+Future<void> reorderCategories({required List<String> orderedIds}) =>
+    RustLib.instance.api.crateApiCategoriesReorderCategories(orderedIds: orderedIds);
 
-Future<Category> addCategoryFolder({
-  required String id,
-  required String folder,
-}) => RustLib.instance.api.crateApiCategoriesAddCategoryFolder(
-  id: id,
-  folder: folder,
-);
+Future<Category> addCategoryFolder({required String id, required String folder}) =>
+    RustLib.instance.api.crateApiCategoriesAddCategoryFolder(id: id, folder: folder);
 
-Future<Category> removeCategoryFolder({
-  required String id,
-  required String folder,
-}) => RustLib.instance.api.crateApiCategoriesRemoveCategoryFolder(
-  id: id,
-  folder: folder,
-);
+Future<Category> removeCategoryFolder({required String id, required String folder}) =>
+    RustLib.instance.api.crateApiCategoriesRemoveCategoryFolder(id: id, folder: folder);

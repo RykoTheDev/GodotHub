@@ -46,10 +46,7 @@ const _webGroups = <String, (String, String)>{
   'web_standard': ('Web', 'export_templates_web_standard'),
   'web_extensions': ('Web with Extensions', 'export_templates_web_extensions'),
   'web_single_threaded': ('Web Single-Threaded', 'export_templates_web_single_threaded'),
-  'web_extensions_single_threaded': (
-    'Web with Extensions Single-Threaded',
-    'export_templates_web_extensions_single_threaded',
-  ),
+  'web_extensions_single_threaded': ('Web with Extensions Single-Threaded', 'export_templates_web_extensions_single_threaded'),
 };
 
 const _architectureLabels = <String, String>{
@@ -90,8 +87,10 @@ List<TemplateFileGroup> groupTemplateFiles(List<TemplateFile> files) {
     if (_webPrefix.hasMatch(name)) {
       final extensions = _webExtensions.hasMatch(name);
       final singleThreaded = name.contains('nothreads');
-      final id = 'web_${extensions ? 'extensions' : 'standard'}${singleThreaded ? '_single_threaded' : ''}'
-          .replaceFirst('standard_single_threaded', 'single_threaded');
+      final id = 'web_${extensions ? 'extensions' : 'standard'}${singleThreaded ? '_single_threaded' : ''}'.replaceFirst(
+        'standard_single_threaded',
+        'single_threaded',
+      );
       final web = _webGroups[id];
       final group = groups[id] ?? (web?.$1, web?.$2, <TemplateFile>[]);
       group.$3.add(file);
@@ -127,9 +126,7 @@ List<TemplateOptionCategory> groupTemplateOptions(List<TemplateOption> options) 
       TemplateOptionCategory(
         id: id,
         labelKey: labelKey,
-        options: [
-          for (final platform in platforms) ...options.where((option) => option.id == platform),
-        ],
+        options: [for (final platform in platforms) ...options.where((option) => option.id == platform)],
       ),
   ];
   final other = options.where((option) => !known.contains(option.id)).toList();
@@ -140,6 +137,9 @@ List<TemplateOptionCategory> groupTemplateOptions(List<TemplateOption> options) 
 }
 
 List<String> toggleTemplateFiles(List<String> selected, List<TemplateFile> files, bool checked) {
-  final names = {for (final file in files) if (!file.installed) file.name};
+  final names = {
+    for (final file in files)
+      if (!file.installed) file.name,
+  };
   return checked ? {...selected, ...names}.toList() : selected.where((name) => !names.contains(name)).toList();
 }

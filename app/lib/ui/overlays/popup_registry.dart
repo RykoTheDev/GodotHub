@@ -68,12 +68,7 @@ abstract final class GhPopupRegistry {
     return phase == SchedulerPhase.persistentCallbacks || phase == SchedulerPhase.midFrameMicrotasks;
   }
 
-  static GhPopupHandle open({
-    required VoidCallback close,
-    GhContextGetter? surface,
-    GhContextGetter? origin,
-    VoidCallback? onEscape,
-  }) {
+  static GhPopupHandle open({required VoidCallback close, GhContextGetter? surface, GhContextGetter? origin, VoidCallback? onEscape}) {
     final handle = GhPopupHandle._(close, surface, origin ?? surface, onEscape);
     final originContext = handle._origin?.call();
     final others = List.of(_handles);

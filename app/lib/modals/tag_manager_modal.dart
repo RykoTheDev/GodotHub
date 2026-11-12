@@ -71,7 +71,10 @@ class _TagManagerModalState extends State<TagManagerModal> {
 
   void _removeTag(int index) {
     setState(() {
-      _tags = [for (var i = 0; i < _tags.length; i++) if (i != index) _tags[i]];
+      _tags = [
+        for (var i = 0; i < _tags.length; i++)
+          if (i != index) _tags[i],
+      ];
       if (_editing == index) {
         _editing = null;
         _edit.clear();
@@ -209,7 +212,10 @@ class _TagManagerModalState extends State<TagManagerModal> {
                   borderRadius: BorderRadius.circular(theme.radiusLg),
                   border: Border.all(color: theme.danger.withValues(alpha: 0.2)),
                 ),
-                child: Text(_error!, style: theme.text(size: GhTextSize.xs, color: theme.danger)),
+                child: Text(
+                  _error!,
+                  style: theme.text(size: GhTextSize.xs, color: theme.danger),
+                ),
               ),
             Row(
               spacing: theme.space(2),
@@ -240,7 +246,10 @@ class _TagManagerModalState extends State<TagManagerModal> {
                       spacing: theme.space(1.5),
                       children: [
                         GhIcon(GhIcons.plus, size: theme.space(3.5), color: Colors.white),
-                        Text(tr.add, style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: Colors.white)),
+                        Text(
+                          tr.add,
+                          style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: Colors.white),
+                        ),
                       ],
                     ),
                   ),
@@ -256,8 +265,14 @@ class _TagManagerModalState extends State<TagManagerModal> {
                         mainAxisSize: MainAxisSize.min,
                         spacing: theme.space(2),
                         children: [
-                          Opacity(opacity: 0.4, child: GhIcon(GhIcons.tags, size: theme.space(8), color: mutedHint)),
-                          Text(tr.no_tags, style: theme.text(size: GhTextSize.sm, color: mutedHint)),
+                          Opacity(
+                            opacity: 0.4,
+                            child: GhIcon(GhIcons.tags, size: theme.space(8), color: mutedHint),
+                          ),
+                          Text(
+                            tr.no_tags,
+                            style: theme.text(size: GhTextSize.sm, color: mutedHint),
+                          ),
                         ],
                       ),
                     )

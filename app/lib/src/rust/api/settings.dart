@@ -10,20 +10,15 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-Future<AppSettings> getSettings() =>
-    RustLib.instance.api.crateApiSettingsGetSettings();
+Future<AppSettings> getSettings() => RustLib.instance.api.crateApiSettingsGetSettings();
 
 Future<AppSettings> updateSettings({required AppSettings settings}) =>
     RustLib.instance.api.crateApiSettingsUpdateSettings(settings: settings);
 
-Future<AppSettings> resetSettings() =>
-    RustLib.instance.api.crateApiSettingsResetSettings();
+Future<AppSettings> resetSettings() => RustLib.instance.api.crateApiSettingsResetSettings();
 
-Future<void> exportSettings({required String path}) =>
-    RustLib.instance.api.crateApiSettingsExportSettings(path: path);
+Future<void> exportSettings({required String path}) => RustLib.instance.api.crateApiSettingsExportSettings(path: path);
 
-Future<AppSettings> importSettings({required String path}) =>
-    RustLib.instance.api.crateApiSettingsImportSettings(path: path);
+Future<AppSettings> importSettings({required String path}) => RustLib.instance.api.crateApiSettingsImportSettings(path: path);
 
-Future<void> resetAppData() =>
-    RustLib.instance.api.crateApiSettingsResetAppData();
+Future<void> resetAppData() => RustLib.instance.api.crateApiSettingsResetAppData();

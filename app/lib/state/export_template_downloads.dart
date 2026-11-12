@@ -10,13 +10,7 @@ import 'api_data.dart';
 
 @immutable
 class ExportTemplateDownload {
-  const ExportTemplateDownload({
-    required this.downloaded,
-    required this.total,
-    required this.stage,
-    this.file,
-    this.platforms,
-  });
+  const ExportTemplateDownload({required this.downloaded, required this.total, required this.stage, this.file, this.platforms});
 
   final int downloaded;
   final int total;
@@ -40,10 +34,9 @@ class ExportTemplateDownload {
   int get hashCode => Object.hash(downloaded, total, stage, file, platforms == null ? null : Object.hashAll(platforms!));
 }
 
-final exportTemplateDownloadsProvider =
-    NotifierProvider<ExportTemplateDownloadsNotifier, Map<String, ExportTemplateDownload>>(
-      ExportTemplateDownloadsNotifier.new,
-    );
+final exportTemplateDownloadsProvider = NotifierProvider<ExportTemplateDownloadsNotifier, Map<String, ExportTemplateDownload>>(
+  ExportTemplateDownloadsNotifier.new,
+);
 
 class ExportTemplateDownloadsNotifier extends Notifier<Map<String, ExportTemplateDownload>> {
   @override
@@ -104,11 +97,7 @@ class ExportTemplateDownloadsNotifier extends Notifier<Map<String, ExportTemplat
         if (onInstalled != null) await onInstalled();
       }
     } catch (error) {
-      pushToast(
-        GhToastType.error,
-        ghTr('versions:export_templates_install_failed', args: {'error': '$error'}),
-        ttlMs: 6000,
-      );
+      pushToast(GhToastType.error, ghTr('versions:export_templates_install_failed', args: {'error': '$error'}), ttlMs: 6000);
     } finally {
       _clear(tag);
     }

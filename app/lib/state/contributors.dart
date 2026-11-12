@@ -44,8 +44,7 @@ class ContributorsState {
   final bool loading;
 
   @override
-  bool operator ==(Object other) =>
-      other is ContributorsState && listEquals(other.contributors, contributors) && other.loading == loading;
+  bool operator ==(Object other) => other is ContributorsState && listEquals(other.contributors, contributors) && other.loading == loading;
 
   @override
   int get hashCode => Object.hash(Object.hashAll(contributors), loading);
@@ -94,7 +93,10 @@ void writeContributorsCache(List<Contributor> data, DateTime now) {
   try {
     UiPrefsStore.instance.setItem(
       contributorsCacheKey,
-      jsonEncode({'data': [for (final c in data) c.toJson()], 'timestamp': now.millisecondsSinceEpoch}),
+      jsonEncode({
+        'data': [for (final c in data) c.toJson()],
+        'timestamp': now.millisecondsSinceEpoch,
+      }),
     );
   } catch (_) {}
 }

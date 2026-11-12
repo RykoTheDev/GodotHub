@@ -10,11 +10,8 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-Future<CliToolStatus> cliToolStatus() =>
-    RustLib.instance.api.crateApiCliShimCliToolStatus();
+Future<CliToolStatus> cliToolStatus() => RustLib.instance.api.crateApiCliShimCliToolStatus();
 
-Future<CliToolStatus> installCliTool() =>
-    RustLib.instance.api.crateApiCliShimInstallCliTool();
+Future<CliToolStatus> installCliTool() => RustLib.instance.api.crateApiCliShimInstallCliTool();
 
-Future<CliToolStatus> uninstallCliTool() =>
-    RustLib.instance.api.crateApiCliShimUninstallCliTool();
+Future<CliToolStatus> uninstallCliTool() => RustLib.instance.api.crateApiCliShimUninstallCliTool();

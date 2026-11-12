@@ -7,8 +7,7 @@ class GhUiSettingsData {
   final Duration tooltipDelay;
 
   @override
-  bool operator ==(Object other) =>
-      other is GhUiSettingsData && other.tooltipDelay == tooltipDelay;
+  bool operator ==(Object other) => other is GhUiSettingsData && other.tooltipDelay == tooltipDelay;
 
   @override
   int get hashCode => tooltipDelay.hashCode;

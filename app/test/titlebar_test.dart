@@ -79,6 +79,7 @@ const baseSettings = AppSettings(
   animatedNumbers: false,
   screenReaderAnnouncements: false,
   projectIconOpacity: 0,
+  projectCardStyle: 'hub',
   animationThreshold: 0,
   animationSpeed: 1,
   motionScrollReveal: false,

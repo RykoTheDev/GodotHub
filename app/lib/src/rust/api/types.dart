@@ -62,10 +62,7 @@ class AliasBatchResult {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is AliasBatchResult &&
-          runtimeType == other.runtimeType &&
-          created == other.created &&
-          skipped == other.skipped;
+      other is AliasBatchResult && runtimeType == other.runtimeType && created == other.created && skipped == other.skipped;
 }
 
 class AliasInfo {
@@ -75,21 +72,10 @@ class AliasInfo {
   final String aliasesDir;
   final String method;
 
-  const AliasInfo({
-    required this.name,
-    required this.tag,
-    required this.aliasPath,
-    required this.aliasesDir,
-    required this.method,
-  });
+  const AliasInfo({required this.name, required this.tag, required this.aliasPath, required this.aliasesDir, required this.method});
 
   @override
-  int get hashCode =>
-      name.hashCode ^
-      tag.hashCode ^
-      aliasPath.hashCode ^
-      aliasesDir.hashCode ^
-      method.hashCode;
+  int get hashCode => name.hashCode ^ tag.hashCode ^ aliasPath.hashCode ^ aliasesDir.hashCode ^ method.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -114,11 +100,7 @@ class AliasRequest {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is AliasRequest &&
-          runtimeType == other.runtimeType &&
-          name == other.name &&
-          tag == other.tag;
+      identical(this, other) || other is AliasRequest && runtimeType == other.runtimeType && name == other.name && tag == other.tag;
 }
 
 class AliasSkip {
@@ -126,11 +108,7 @@ class AliasSkip {
   final String tag;
   final String reason;
 
-  const AliasSkip({
-    required this.name,
-    required this.tag,
-    required this.reason,
-  });
+  const AliasSkip({required this.name, required this.tag, required this.reason});
 
   @override
   int get hashCode => name.hashCode ^ tag.hashCode ^ reason.hashCode;
@@ -138,11 +116,7 @@ class AliasSkip {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is AliasSkip &&
-          runtimeType == other.runtimeType &&
-          name == other.name &&
-          tag == other.tag &&
-          reason == other.reason;
+      other is AliasSkip && runtimeType == other.runtimeType && name == other.name && tag == other.tag && reason == other.reason;
 }
 
 class AppSettings {
@@ -200,6 +174,7 @@ class AppSettings {
   final bool animatedNumbers;
   final bool screenReaderAnnouncements;
   final int projectIconOpacity;
+  final String projectCardStyle;
   final int animationThreshold;
   final double animationSpeed;
   final bool motionScrollReveal;
@@ -296,6 +271,7 @@ class AppSettings {
     required this.animatedNumbers,
     required this.screenReaderAnnouncements,
     required this.projectIconOpacity,
+    required this.projectCardStyle,
     required this.animationThreshold,
     required this.animationSpeed,
     required this.motionScrollReveal,
@@ -394,6 +370,7 @@ class AppSettings {
       animatedNumbers.hashCode ^
       screenReaderAnnouncements.hashCode ^
       projectIconOpacity.hashCode ^
+      projectCardStyle.hashCode ^
       animationThreshold.hashCode ^
       animationSpeed.hashCode ^
       motionScrollReveal.hashCode ^
@@ -494,6 +471,7 @@ class AppSettings {
           animatedNumbers == other.animatedNumbers &&
           screenReaderAnnouncements == other.screenReaderAnnouncements &&
           projectIconOpacity == other.projectIconOpacity &&
+          projectCardStyle == other.projectCardStyle &&
           animationThreshold == other.animationThreshold &&
           animationSpeed == other.animationSpeed &&
           motionScrollReveal == other.motionScrollReveal &&
@@ -541,11 +519,7 @@ class AssetDownloadError {
   final String title;
   final String message;
 
-  const AssetDownloadError({
-    required this.assetId,
-    required this.title,
-    required this.message,
-  });
+  const AssetDownloadError({required this.assetId, required this.title, required this.message});
 
   @override
   int get hashCode => assetId.hashCode ^ title.hashCode ^ message.hashCode;
@@ -566,16 +540,10 @@ class AssetDownloadProgress {
   final BigInt downloaded;
   final BigInt total;
 
-  const AssetDownloadProgress({
-    required this.assetId,
-    required this.title,
-    required this.downloaded,
-    required this.total,
-  });
+  const AssetDownloadProgress({required this.assetId, required this.title, required this.downloaded, required this.total});
 
   @override
-  int get hashCode =>
-      assetId.hashCode ^ title.hashCode ^ downloaded.hashCode ^ total.hashCode;
+  int get hashCode => assetId.hashCode ^ title.hashCode ^ downloaded.hashCode ^ total.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -668,11 +636,7 @@ class AssetLibraryCategory {
   final String name;
   final String categoryType;
 
-  const AssetLibraryCategory({
-    required this.id,
-    required this.name,
-    required this.categoryType,
-  });
+  const AssetLibraryCategory({required this.id, required this.name, required this.categoryType});
 
   @override
   int get hashCode => id.hashCode ^ name.hashCode ^ categoryType.hashCode;
@@ -693,16 +657,10 @@ class AssetLibraryResponse {
   final int pages;
   final int total;
 
-  const AssetLibraryResponse({
-    required this.assets,
-    required this.page,
-    required this.pages,
-    required this.total,
-  });
+  const AssetLibraryResponse({required this.assets, required this.page, required this.pages, required this.total});
 
   @override
-  int get hashCode =>
-      assets.hashCode ^ page.hashCode ^ pages.hashCode ^ total.hashCode;
+  int get hashCode => assets.hashCode ^ page.hashCode ^ pages.hashCode ^ total.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -784,13 +742,7 @@ class Category {
   });
 
   @override
-  int get hashCode =>
-      id.hashCode ^
-      name.hashCode ^
-      sortOrder.hashCode ^
-      color.hashCode ^
-      hidden.hashCode ^
-      folders.hashCode;
+  int get hashCode => id.hashCode ^ name.hashCode ^ sortOrder.hashCode ^ color.hashCode ^ hidden.hashCode ^ folders.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -823,13 +775,7 @@ class ChangelogDraft {
   });
 
   @override
-  int get hashCode =>
-      from.hashCode ^
-      to.hashCode ^
-      count.hashCode ^
-      nextVersion.hashCode ^
-      notes.hashCode ^
-      skipped.hashCode;
+  int get hashCode => from.hashCode ^ to.hashCode ^ count.hashCode ^ nextVersion.hashCode ^ notes.hashCode ^ skipped.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -850,16 +796,10 @@ class ChangelogDraftNote {
   final String hash;
   final String author;
 
-  const ChangelogDraftNote({
-    required this.category,
-    required this.text,
-    required this.hash,
-    required this.author,
-  });
+  const ChangelogDraftNote({required this.category, required this.text, required this.hash, required this.author});
 
   @override
-  int get hashCode =>
-      category.hashCode ^ text.hashCode ^ hash.hashCode ^ author.hashCode;
+  int get hashCode => category.hashCode ^ text.hashCode ^ hash.hashCode ^ author.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -877,11 +817,7 @@ class ChangelogDraftSkipped {
   final String subject;
   final String reason;
 
-  const ChangelogDraftSkipped({
-    required this.hash,
-    required this.subject,
-    required this.reason,
-  });
+  const ChangelogDraftSkipped({required this.hash, required this.subject, required this.reason});
 
   @override
   int get hashCode => hash.hashCode ^ subject.hashCode ^ reason.hashCode;
@@ -914,13 +850,7 @@ class ChangelogEntry {
   });
 
   @override
-  int get hashCode =>
-      id.hashCode ^
-      version.hashCode ^
-      date.hashCode ^
-      notes.hashCode ^
-      knownIssues.hashCode ^
-      createdAt.hashCode;
+  int get hashCode => id.hashCode ^ version.hashCode ^ date.hashCode ^ notes.hashCode ^ knownIssues.hashCode ^ createdAt.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -947,10 +877,7 @@ class ChangelogNote {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ChangelogNote &&
-          runtimeType == other.runtimeType &&
-          category == other.category &&
-          text == other.text;
+      other is ChangelogNote && runtimeType == other.runtimeType && category == other.category && text == other.text;
 }
 
 class CliToolStatus {
@@ -972,12 +899,7 @@ class CliToolStatus {
 
   @override
   int get hashCode =>
-      installed.hashCode ^
-      onPath.hashCode ^
-      binDir.hashCode ^
-      shimPath.hashCode ^
-      platform.hashCode ^
-      needsNewTerminal.hashCode;
+      installed.hashCode ^ onPath.hashCode ^ binDir.hashCode ^ shimPath.hashCode ^ platform.hashCode ^ needsNewTerminal.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -997,11 +919,7 @@ class ConsoleLine {
   final ConsoleStream stream;
   final String text;
 
-  const ConsoleLine({
-    required this.seq,
-    required this.stream,
-    required this.text,
-  });
+  const ConsoleLine({required this.seq, required this.stream, required this.text});
 
   @override
   int get hashCode => seq.hashCode ^ stream.hashCode ^ text.hashCode;
@@ -1009,11 +927,7 @@ class ConsoleLine {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ConsoleLine &&
-          runtimeType == other.runtimeType &&
-          seq == other.seq &&
-          stream == other.stream &&
-          text == other.text;
+      other is ConsoleLine && runtimeType == other.runtimeType && seq == other.seq && stream == other.stream && text == other.text;
 }
 
 class ConsoleSnapshot {
@@ -1034,13 +948,7 @@ class ConsoleSnapshot {
   });
 
   @override
-  int get hashCode =>
-      id.hashCode ^
-      lines.hashCode ^
-      nextSeq.hashCode ^
-      running.hashCode ^
-      exitCode.hashCode ^
-      restored.hashCode;
+  int get hashCode => id.hashCode ^ lines.hashCode ^ nextSeq.hashCode ^ running.hashCode ^ exitCode.hashCode ^ restored.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1068,11 +976,7 @@ class CreateRepoResult {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is CreateRepoResult &&
-          runtimeType == other.runtimeType &&
-          url == other.url &&
-          slug == other.slug;
+      identical(this, other) || other is CreateRepoResult && runtimeType == other.runtimeType && url == other.url && slug == other.slug;
 }
 
 class CurrentVersionInfo {
@@ -1081,16 +985,10 @@ class CurrentVersionInfo {
   final String aliasesDir;
   final String method;
 
-  const CurrentVersionInfo({
-    required this.tag,
-    required this.aliasPath,
-    required this.aliasesDir,
-    required this.method,
-  });
+  const CurrentVersionInfo({required this.tag, required this.aliasPath, required this.aliasesDir, required this.method});
 
   @override
-  int get hashCode =>
-      tag.hashCode ^ aliasPath.hashCode ^ aliasesDir.hashCode ^ method.hashCode;
+  int get hashCode => tag.hashCode ^ aliasPath.hashCode ^ aliasesDir.hashCode ^ method.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1121,13 +1019,7 @@ class DashboardCustomPreset {
   });
 
   @override
-  int get hashCode =>
-      id.hashCode ^
-      name.hashCode ^
-      sections.hashCode ^
-      order.hashCode ^
-      spans.hashCode ^
-      tall.hashCode;
+  int get hashCode => id.hashCode ^ name.hashCode ^ sections.hashCode ^ order.hashCode ^ spans.hashCode ^ tall.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1215,16 +1107,10 @@ class DiscoveredInstall {
   final String source;
   final String? version;
 
-  const DiscoveredInstall({
-    required this.path,
-    required this.name,
-    required this.source,
-    this.version,
-  });
+  const DiscoveredInstall({required this.path, required this.name, required this.source, this.version});
 
   @override
-  int get hashCode =>
-      path.hashCode ^ name.hashCode ^ source.hashCode ^ version.hashCode;
+  int get hashCode => path.hashCode ^ name.hashCode ^ source.hashCode ^ version.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1243,16 +1129,10 @@ class DiscoveredProject {
   final bool favorite;
   final String? engine;
 
-  const DiscoveredProject({
-    required this.path,
-    required this.name,
-    required this.favorite,
-    this.engine,
-  });
+  const DiscoveredProject({required this.path, required this.name, required this.favorite, this.engine});
 
   @override
-  int get hashCode =>
-      path.hashCode ^ name.hashCode ^ favorite.hashCode ^ engine.hashCode;
+  int get hashCode => path.hashCode ^ name.hashCode ^ favorite.hashCode ^ engine.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1270,11 +1150,7 @@ class DownloadProgress {
   final BigInt downloaded;
   final BigInt total;
 
-  const DownloadProgress({
-    required this.tag,
-    required this.downloaded,
-    required this.total,
-  });
+  const DownloadProgress({required this.tag, required this.downloaded, required this.total});
 
   @override
   int get hashCode => tag.hashCode ^ downloaded.hashCode ^ total.hashCode;
@@ -1356,10 +1232,7 @@ class ExportTemplatesError {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ExportTemplatesError &&
-          runtimeType == other.runtimeType &&
-          tag == other.tag &&
-          message == other.message;
+      other is ExportTemplatesError && runtimeType == other.runtimeType && tag == other.tag && message == other.message;
 }
 
 class ExportTemplatesInstallResult {
@@ -1378,12 +1251,7 @@ class ExportTemplatesInstallResult {
   });
 
   @override
-  int get hashCode =>
-      tag.hashCode ^
-      folder.hashCode ^
-      verified.hashCode ^
-      sizeBytes.hashCode ^
-      fileCount.hashCode;
+  int get hashCode => tag.hashCode ^ folder.hashCode ^ verified.hashCode ^ sizeBytes.hashCode ^ fileCount.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1413,12 +1281,7 @@ class ExportTemplatesOrphan {
   });
 
   @override
-  int get hashCode =>
-      folder.hashCode ^
-      path.hashCode ^
-      root.hashCode ^
-      sizeBytes.hashCode ^
-      fileCount.hashCode;
+  int get hashCode => folder.hashCode ^ path.hashCode ^ root.hashCode ^ sizeBytes.hashCode ^ fileCount.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1439,21 +1302,10 @@ class ExportTemplatesProgress {
   final String? file;
   final List<String> platforms;
 
-  const ExportTemplatesProgress({
-    required this.tag,
-    required this.downloaded,
-    required this.total,
-    this.file,
-    required this.platforms,
-  });
+  const ExportTemplatesProgress({required this.tag, required this.downloaded, required this.total, this.file, required this.platforms});
 
   @override
-  int get hashCode =>
-      tag.hashCode ^
-      downloaded.hashCode ^
-      total.hashCode ^
-      file.hashCode ^
-      platforms.hashCode;
+  int get hashCode => tag.hashCode ^ downloaded.hashCode ^ total.hashCode ^ file.hashCode ^ platforms.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1479,10 +1331,7 @@ class ExportTemplatesStage {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ExportTemplatesStage &&
-          runtimeType == other.runtimeType &&
-          tag == other.tag &&
-          stage == other.stage;
+      other is ExportTemplatesStage && runtimeType == other.runtimeType && tag == other.tag && stage == other.stage;
 }
 
 class ExportTemplatesState {
@@ -1490,15 +1339,10 @@ class ExportTemplatesState {
   final List<ExportTemplatesVersionInfo> versions;
   final List<ExportTemplatesOrphan> orphans;
 
-  const ExportTemplatesState({
-    required this.defaultDir,
-    required this.versions,
-    required this.orphans,
-  });
+  const ExportTemplatesState({required this.defaultDir, required this.versions, required this.orphans});
 
   @override
-  int get hashCode =>
-      defaultDir.hashCode ^ versions.hashCode ^ orphans.hashCode;
+  int get hashCode => defaultDir.hashCode ^ versions.hashCode ^ orphans.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1566,11 +1410,7 @@ class FileSizeCategory {
   final BigInt size;
   final BigInt count;
 
-  const FileSizeCategory({
-    required this.label,
-    required this.size,
-    required this.count,
-  });
+  const FileSizeCategory({required this.label, required this.size, required this.count});
 
   @override
   int get hashCode => label.hashCode ^ size.hashCode ^ count.hashCode;
@@ -1578,11 +1418,7 @@ class FileSizeCategory {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is FileSizeCategory &&
-          runtimeType == other.runtimeType &&
-          label == other.label &&
-          size == other.size &&
-          count == other.count;
+      other is FileSizeCategory && runtimeType == other.runtimeType && label == other.label && size == other.size && count == other.count;
 }
 
 class GistSyncResult {
@@ -1590,11 +1426,7 @@ class GistSyncResult {
   final String gistId;
   final String pushedAt;
 
-  const GistSyncResult({
-    required this.gistUrl,
-    required this.gistId,
-    required this.pushedAt,
-  });
+  const GistSyncResult({required this.gistUrl, required this.gistId, required this.pushedAt});
 
   @override
   int get hashCode => gistUrl.hashCode ^ gistId.hashCode ^ pushedAt.hashCode;
@@ -1621,10 +1453,7 @@ class GitAccountInfo {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is GitAccountInfo &&
-          runtimeType == other.runtimeType &&
-          username == other.username &&
-          host == other.host;
+      other is GitAccountInfo && runtimeType == other.runtimeType && username == other.username && host == other.host;
 }
 
 class GitAheadBehind {
@@ -1639,10 +1468,7 @@ class GitAheadBehind {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is GitAheadBehind &&
-          runtimeType == other.runtimeType &&
-          ahead == other.ahead &&
-          behind == other.behind;
+      other is GitAheadBehind && runtimeType == other.runtimeType && ahead == other.ahead && behind == other.behind;
 }
 
 class GitAuthState {
@@ -1658,11 +1484,7 @@ class GitAuthState {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is GitAuthState &&
-          runtimeType == other.runtimeType &&
-          github == other.github &&
-          gitlab == other.gitlab &&
-          pats == other.pats;
+      other is GitAuthState && runtimeType == other.runtimeType && github == other.github && gitlab == other.gitlab && pats == other.pats;
 }
 
 class GitBranchInfo {
@@ -1670,11 +1492,7 @@ class GitBranchInfo {
   final bool isCurrent;
   final bool hasUpstream;
 
-  const GitBranchInfo({
-    required this.name,
-    required this.isCurrent,
-    required this.hasUpstream,
-  });
+  const GitBranchInfo({required this.name, required this.isCurrent, required this.hasUpstream});
 
   @override
   int get hashCode => name.hashCode ^ isCurrent.hashCode ^ hasUpstream.hashCode;
@@ -1700,11 +1518,7 @@ class GitChangedFile {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is GitChangedFile &&
-          runtimeType == other.runtimeType &&
-          path == other.path &&
-          status == other.status;
+      identical(this, other) || other is GitChangedFile && runtimeType == other.runtimeType && path == other.path && status == other.status;
 }
 
 class GitCommitDetails {
@@ -1725,13 +1539,7 @@ class GitCommitDetails {
   });
 
   @override
-  int get hashCode =>
-      hash.hashCode ^
-      message.hashCode ^
-      author.hashCode ^
-      date.hashCode ^
-      files.hashCode ^
-      diff.hashCode;
+  int get hashCode => hash.hashCode ^ message.hashCode ^ author.hashCode ^ date.hashCode ^ files.hashCode ^ diff.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1757,11 +1565,7 @@ class GitCommitFile {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is GitCommitFile &&
-          runtimeType == other.runtimeType &&
-          path == other.path &&
-          status == other.status;
+      identical(this, other) || other is GitCommitFile && runtimeType == other.runtimeType && path == other.path && status == other.status;
 }
 
 class GitDiffHunk {
@@ -1771,21 +1575,10 @@ class GitDiffHunk {
   final int newLines;
   final List<GitDiffLine> lines;
 
-  const GitDiffHunk({
-    required this.oldStart,
-    required this.oldLines,
-    required this.newStart,
-    required this.newLines,
-    required this.lines,
-  });
+  const GitDiffHunk({required this.oldStart, required this.oldLines, required this.newStart, required this.newLines, required this.lines});
 
   @override
-  int get hashCode =>
-      oldStart.hashCode ^
-      oldLines.hashCode ^
-      newStart.hashCode ^
-      newLines.hashCode ^
-      lines.hashCode;
+  int get hashCode => oldStart.hashCode ^ oldLines.hashCode ^ newStart.hashCode ^ newLines.hashCode ^ lines.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1810,11 +1603,7 @@ class GitDiffLine {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is GitDiffLine &&
-          runtimeType == other.runtimeType &&
-          kind == other.kind &&
-          content == other.content;
+      identical(this, other) || other is GitDiffLine && runtimeType == other.runtimeType && kind == other.kind && content == other.content;
 }
 
 class GitDiffResult {
@@ -1827,10 +1616,7 @@ class GitDiffResult {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is GitDiffResult &&
-          runtimeType == other.runtimeType &&
-          hunks == other.hunks;
+      identical(this, other) || other is GitDiffResult && runtimeType == other.runtimeType && hunks == other.hunks;
 }
 
 class GitInitOptions {
@@ -1839,19 +1625,10 @@ class GitInitOptions {
   final bool readme;
   final String? license;
 
-  const GitInitOptions({
-    required this.gitignore,
-    required this.gitattributes,
-    required this.readme,
-    this.license,
-  });
+  const GitInitOptions({required this.gitignore, required this.gitattributes, required this.readme, this.license});
 
   @override
-  int get hashCode =>
-      gitignore.hashCode ^
-      gitattributes.hashCode ^
-      readme.hashCode ^
-      license.hashCode;
+  int get hashCode => gitignore.hashCode ^ gitattributes.hashCode ^ readme.hashCode ^ license.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1870,19 +1647,10 @@ class GitInitOutcome {
   final String? branch;
   final String? warning;
 
-  const GitInitOutcome({
-    required this.initialized,
-    required this.committed,
-    this.branch,
-    this.warning,
-  });
+  const GitInitOutcome({required this.initialized, required this.committed, this.branch, this.warning});
 
   @override
-  int get hashCode =>
-      initialized.hashCode ^
-      committed.hashCode ^
-      branch.hashCode ^
-      warning.hashCode;
+  int get hashCode => initialized.hashCode ^ committed.hashCode ^ branch.hashCode ^ warning.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1902,21 +1670,10 @@ class GitLogEntry {
   final String author;
   final String date;
 
-  const GitLogEntry({
-    required this.hash,
-    required this.parents,
-    required this.message,
-    required this.author,
-    required this.date,
-  });
+  const GitLogEntry({required this.hash, required this.parents, required this.message, required this.author, required this.date});
 
   @override
-  int get hashCode =>
-      hash.hashCode ^
-      parents.hashCode ^
-      message.hashCode ^
-      author.hashCode ^
-      date.hashCode;
+  int get hashCode => hash.hashCode ^ parents.hashCode ^ message.hashCode ^ author.hashCode ^ date.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1941,11 +1698,7 @@ class GitPatInfo {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is GitPatInfo &&
-          runtimeType == other.runtimeType &&
-          host == other.host &&
-          username == other.username;
+      identical(this, other) || other is GitPatInfo && runtimeType == other.runtimeType && host == other.host && username == other.username;
 }
 
 class GitRemoteInfo {
@@ -1953,11 +1706,7 @@ class GitRemoteInfo {
   final String webUrl;
   final String repoName;
 
-  const GitRemoteInfo({
-    required this.name,
-    required this.webUrl,
-    required this.repoName,
-  });
+  const GitRemoteInfo({required this.name, required this.webUrl, required this.repoName});
 
   @override
   int get hashCode => name.hashCode ^ webUrl.hashCode ^ repoName.hashCode;
@@ -1984,10 +1733,7 @@ class GitStashEntry {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is GitStashEntry &&
-          runtimeType == other.runtimeType &&
-          index == other.index &&
-          message == other.message;
+      other is GitStashEntry && runtimeType == other.runtimeType && index == other.index && message == other.message;
 }
 
 class GitStatus {
@@ -1995,15 +1741,10 @@ class GitStatus {
   final bool hasUncommitted;
   final bool isRepo;
 
-  const GitStatus({
-    this.branch,
-    required this.hasUncommitted,
-    required this.isRepo,
-  });
+  const GitStatus({this.branch, required this.hasUncommitted, required this.isRepo});
 
   @override
-  int get hashCode =>
-      branch.hashCode ^ hasUncommitted.hashCode ^ isRepo.hashCode;
+  int get hashCode => branch.hashCode ^ hasUncommitted.hashCode ^ isRepo.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2022,21 +1763,10 @@ class GitWorktree {
   final bool hasUncommitted;
   final bool isMain;
 
-  const GitWorktree({
-    required this.path,
-    this.branch,
-    required this.head,
-    required this.hasUncommitted,
-    required this.isMain,
-  });
+  const GitWorktree({required this.path, this.branch, required this.head, required this.hasUncommitted, required this.isMain});
 
   @override
-  int get hashCode =>
-      path.hashCode ^
-      branch.hashCode ^
-      head.hashCode ^
-      hasUncommitted.hashCode ^
-      isMain.hashCode;
+  int get hashCode => path.hashCode ^ branch.hashCode ^ head.hashCode ^ hasUncommitted.hashCode ^ isMain.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2061,11 +1791,7 @@ class GodotRelease {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is GodotRelease &&
-          runtimeType == other.runtimeType &&
-          tag == other.tag &&
-          assets == other.assets;
+      identical(this, other) || other is GodotRelease && runtimeType == other.runtimeType && tag == other.tag && assets == other.assets;
 }
 
 class GodotReleaseAsset {
@@ -2074,16 +1800,10 @@ class GodotReleaseAsset {
   final BigInt size;
   final bool isMono;
 
-  const GodotReleaseAsset({
-    required this.name,
-    required this.downloadUrl,
-    required this.size,
-    required this.isMono,
-  });
+  const GodotReleaseAsset({required this.name, required this.downloadUrl, required this.size, required this.isMono});
 
   @override
-  int get hashCode =>
-      name.hashCode ^ downloadUrl.hashCode ^ size.hashCode ^ isMono.hashCode;
+  int get hashCode => name.hashCode ^ downloadUrl.hashCode ^ size.hashCode ^ isMono.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2109,11 +1829,7 @@ class HealthAction {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is HealthAction &&
-          runtimeType == other.runtimeType &&
-          kind == other.kind &&
-          target == other.target &&
-          confirm == other.confirm;
+      other is HealthAction && runtimeType == other.runtimeType && kind == other.kind && target == other.target && confirm == other.confirm;
 }
 
 class InstallAssetResult {
@@ -2134,13 +1850,7 @@ class InstallAssetResult {
   });
 
   @override
-  int get hashCode =>
-      assetId.hashCode ^
-      title.hashCode ^
-      targetType.hashCode ^
-      targetName.hashCode ^
-      path.hashCode ^
-      addonFolders.hashCode;
+  int get hashCode => assetId.hashCode ^ title.hashCode ^ targetType.hashCode ^ targetName.hashCode ^ path.hashCode ^ addonFolders.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2214,19 +1924,10 @@ class MiseStatus {
   final String? version;
   final String? sourceUrl;
 
-  const MiseStatus({
-    required this.available,
-    this.path,
-    this.version,
-    this.sourceUrl,
-  });
+  const MiseStatus({required this.available, this.path, this.version, this.sourceUrl});
 
   @override
-  int get hashCode =>
-      available.hashCode ^
-      path.hashCode ^
-      version.hashCode ^
-      sourceUrl.hashCode;
+  int get hashCode => available.hashCode ^ path.hashCode ^ version.hashCode ^ sourceUrl.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2298,10 +1999,7 @@ class NewsResponse {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is NewsResponse &&
-          runtimeType == other.runtimeType &&
-          items == other.items &&
-          fromCache == other.fromCache;
+      other is NewsResponse && runtimeType == other.runtimeType && items == other.items && fromCache == other.fromCache;
 }
 
 class OpenTodo {
@@ -2309,11 +2007,7 @@ class OpenTodo {
   final String projectName;
   final ProjectTodo todo;
 
-  const OpenTodo({
-    required this.projectId,
-    required this.projectName,
-    required this.todo,
-  });
+  const OpenTodo({required this.projectId, required this.projectName, required this.todo});
 
   @override
   int get hashCode => projectId.hashCode ^ projectName.hashCode ^ todo.hashCode;
@@ -2455,11 +2149,7 @@ class ProjectFileEntry {
   final bool isDir;
   final BigInt size;
 
-  const ProjectFileEntry({
-    required this.path,
-    required this.isDir,
-    required this.size,
-  });
+  const ProjectFileEntry({required this.path, required this.isDir, required this.size});
 
   @override
   int get hashCode => path.hashCode ^ isDir.hashCode ^ size.hashCode;
@@ -2467,11 +2157,7 @@ class ProjectFileEntry {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ProjectFileEntry &&
-          runtimeType == other.runtimeType &&
-          path == other.path &&
-          isDir == other.isDir &&
-          size == other.size;
+      other is ProjectFileEntry && runtimeType == other.runtimeType && path == other.path && isDir == other.isDir && size == other.size;
 }
 
 class ProjectSizeInfo {
@@ -2479,15 +2165,10 @@ class ProjectSizeInfo {
   final List<FileSizeCategory> categories;
   final BigInt fileCount;
 
-  const ProjectSizeInfo({
-    required this.totalSize,
-    required this.categories,
-    required this.fileCount,
-  });
+  const ProjectSizeInfo({required this.totalSize, required this.categories, required this.fileCount});
 
   @override
-  int get hashCode =>
-      totalSize.hashCode ^ categories.hashCode ^ fileCount.hashCode;
+  int get hashCode => totalSize.hashCode ^ categories.hashCode ^ fileCount.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2628,21 +2309,10 @@ class ProjectTool {
   final String? reason;
   final String? detail;
 
-  const ProjectTool({
-    required this.id,
-    required this.kind,
-    required this.available,
-    this.reason,
-    this.detail,
-  });
+  const ProjectTool({required this.id, required this.kind, required this.available, this.reason, this.detail});
 
   @override
-  int get hashCode =>
-      id.hashCode ^
-      kind.hashCode ^
-      available.hashCode ^
-      reason.hashCode ^
-      detail.hashCode;
+  int get hashCode => id.hashCode ^ kind.hashCode ^ available.hashCode ^ reason.hashCode ^ detail.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2665,15 +2335,7 @@ class ProjectUpdate {
   final List<String>? tags;
   final String? path;
 
-  const ProjectUpdate({
-    this.name,
-    this.godotVersion,
-    this.category,
-    this.pinned,
-    this.launchArguments,
-    this.tags,
-    this.path,
-  });
+  const ProjectUpdate({this.name, this.godotVersion, this.category, this.pinned, this.launchArguments, this.tags, this.path});
 
   @override
   int get hashCode =>
@@ -2705,19 +2367,10 @@ class RateLimitInfo {
   final PlatformInt64 resetAt;
   final bool usedToken;
 
-  const RateLimitInfo({
-    required this.remaining,
-    required this.limit,
-    required this.resetAt,
-    required this.usedToken,
-  });
+  const RateLimitInfo({required this.remaining, required this.limit, required this.resetAt, required this.usedToken});
 
   @override
-  int get hashCode =>
-      remaining.hashCode ^
-      limit.hashCode ^
-      resetAt.hashCode ^
-      usedToken.hashCode;
+  int get hashCode => remaining.hashCode ^ limit.hashCode ^ resetAt.hashCode ^ usedToken.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2741,11 +2394,7 @@ class ReclaimFailure {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ReclaimFailure &&
-          runtimeType == other.runtimeType &&
-          label == other.label &&
-          error == other.error;
+      identical(this, other) || other is ReclaimFailure && runtimeType == other.runtimeType && label == other.label && error == other.error;
 }
 
 class ReclaimResult {
@@ -2753,11 +2402,7 @@ class ReclaimResult {
   final BigInt removed;
   final List<ReclaimFailure> failed;
 
-  const ReclaimResult({
-    required this.freedBytes,
-    required this.removed,
-    required this.failed,
-  });
+  const ReclaimResult({required this.freedBytes, required this.removed, required this.failed});
 
   @override
   int get hashCode => freedBytes.hashCode ^ removed.hashCode ^ failed.hashCode;
@@ -2839,12 +2484,7 @@ class RunningProjectInfo {
   });
 
   @override
-  int get hashCode =>
-      id.hashCode ^
-      name.hashCode ^
-      version.hashCode ^
-      launchedAtMs.hashCode ^
-      console.hashCode;
+  int get hashCode => id.hashCode ^ name.hashCode ^ version.hashCode ^ launchedAtMs.hashCode ^ console.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2870,10 +2510,7 @@ class ScanProjectsResult {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ScanProjectsResult &&
-          runtimeType == other.runtimeType &&
-          added == other.added &&
-          foundDismissed == other.foundDismissed;
+      other is ScanProjectsResult && runtimeType == other.runtimeType && added == other.added && foundDismissed == other.foundDismissed;
 }
 
 class StorageExportTemplates {
@@ -2894,13 +2531,7 @@ class StorageExportTemplates {
   });
 
   @override
-  int get hashCode =>
-      tag.hashCode ^
-      folder.hashCode ^
-      root.hashCode ^
-      path.hashCode ^
-      sizeBytes.hashCode ^
-      orphan.hashCode;
+  int get hashCode => tag.hashCode ^ folder.hashCode ^ root.hashCode ^ path.hashCode ^ sizeBytes.hashCode ^ orphan.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2921,16 +2552,10 @@ class StoragePartial {
   final String path;
   final BigInt sizeBytes;
 
-  const StoragePartial({
-    required this.kind,
-    required this.name,
-    required this.path,
-    required this.sizeBytes,
-  });
+  const StoragePartial({required this.kind, required this.name, required this.path, required this.sizeBytes});
 
   @override
-  int get hashCode =>
-      kind.hashCode ^ name.hashCode ^ path.hashCode ^ sizeBytes.hashCode;
+  int get hashCode => kind.hashCode ^ name.hashCode ^ path.hashCode ^ sizeBytes.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2959,12 +2584,7 @@ class StorageReport {
   });
 
   @override
-  int get hashCode =>
-      versions.hashCode ^
-      partials.hashCode ^
-      templates.hashCode ^
-      exportTemplates.hashCode ^
-      exportTemplatesError.hashCode;
+  int get hashCode => versions.hashCode ^ partials.hashCode ^ templates.hashCode ^ exportTemplates.hashCode ^ exportTemplatesError.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2985,21 +2605,10 @@ class StorageTemplate {
   final String path;
   final BigInt sizeBytes;
 
-  const StorageTemplate({
-    required this.id,
-    required this.name,
-    required this.workspace,
-    required this.path,
-    required this.sizeBytes,
-  });
+  const StorageTemplate({required this.id, required this.name, required this.workspace, required this.path, required this.sizeBytes});
 
   @override
-  int get hashCode =>
-      id.hashCode ^
-      name.hashCode ^
-      workspace.hashCode ^
-      path.hashCode ^
-      sizeBytes.hashCode;
+  int get hashCode => id.hashCode ^ name.hashCode ^ workspace.hashCode ^ path.hashCode ^ sizeBytes.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -3078,19 +2687,10 @@ class TemplateFile {
   final BigInt downloadBytes;
   final bool installed;
 
-  const TemplateFile({
-    required this.name,
-    required this.sizeBytes,
-    required this.downloadBytes,
-    required this.installed,
-  });
+  const TemplateFile({required this.name, required this.sizeBytes, required this.downloadBytes, required this.installed});
 
   @override
-  int get hashCode =>
-      name.hashCode ^
-      sizeBytes.hashCode ^
-      downloadBytes.hashCode ^
-      installed.hashCode;
+  int get hashCode => name.hashCode ^ sizeBytes.hashCode ^ downloadBytes.hashCode ^ installed.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -3108,11 +2708,7 @@ class TemplateFileEntry {
   final bool isDir;
   final BigInt size;
 
-  const TemplateFileEntry({
-    required this.path,
-    required this.isDir,
-    required this.size,
-  });
+  const TemplateFileEntry({required this.path, required this.isDir, required this.size});
 
   @override
   int get hashCode => path.hashCode ^ isDir.hashCode ^ size.hashCode;
@@ -3120,11 +2716,7 @@ class TemplateFileEntry {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is TemplateFileEntry &&
-          runtimeType == other.runtimeType &&
-          path == other.path &&
-          isDir == other.isDir &&
-          size == other.size;
+      other is TemplateFileEntry && runtimeType == other.runtimeType && path == other.path && isDir == other.isDir && size == other.size;
 }
 
 class TemplateOption {
@@ -3145,13 +2737,7 @@ class TemplateOption {
   });
 
   @override
-  int get hashCode =>
-      id.hashCode ^
-      label.hashCode ^
-      files.hashCode ^
-      sizeBytes.hashCode ^
-      downloadBytes.hashCode ^
-      installed.hashCode;
+  int get hashCode => id.hashCode ^ label.hashCode ^ files.hashCode ^ sizeBytes.hashCode ^ downloadBytes.hashCode ^ installed.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -3171,11 +2757,7 @@ class TemplateSyncResult {
   final List<String> updated;
   final List<String> removed;
 
-  const TemplateSyncResult({
-    required this.imported,
-    required this.updated,
-    required this.removed,
-  });
+  const TemplateSyncResult({required this.imported, required this.updated, required this.removed});
 
   @override
   int get hashCode => imported.hashCode ^ updated.hashCode ^ removed.hashCode;
@@ -3236,11 +2818,7 @@ class TodoChecklistItem {
   final String text;
   final bool done;
 
-  const TodoChecklistItem({
-    required this.id,
-    required this.text,
-    required this.done,
-  });
+  const TodoChecklistItem({required this.id, required this.text, required this.done});
 
   @override
   int get hashCode => id.hashCode ^ text.hashCode ^ done.hashCode;
@@ -3248,11 +2826,7 @@ class TodoChecklistItem {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is TodoChecklistItem &&
-          runtimeType == other.runtimeType &&
-          id == other.id &&
-          text == other.text &&
-          done == other.done;
+      other is TodoChecklistItem && runtimeType == other.runtimeType && id == other.id && text == other.text && done == other.done;
 }
 
 class TodoClosure {
@@ -3261,16 +2835,10 @@ class TodoClosure {
   final String? subject;
   final String at;
 
-  const TodoClosure({
-    required this.kind,
-    this.commit,
-    this.subject,
-    required this.at,
-  });
+  const TodoClosure({required this.kind, this.commit, this.subject, required this.at});
 
   @override
-  int get hashCode =>
-      kind.hashCode ^ commit.hashCode ^ subject.hashCode ^ at.hashCode;
+  int get hashCode => kind.hashCode ^ commit.hashCode ^ subject.hashCode ^ at.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -3301,13 +2869,7 @@ class TodoCommit {
   });
 
   @override
-  int get hashCode =>
-      hash.hashCode ^
-      shortHash.hashCode ^
-      subject.hashCode ^
-      author.hashCode ^
-      date.hashCode ^
-      closes.hashCode;
+  int get hashCode => hash.hashCode ^ shortHash.hashCode ^ subject.hashCode ^ author.hashCode ^ date.hashCode ^ closes.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -3328,19 +2890,10 @@ class TodoGitActivity {
   final List<String> branches;
   final List<TodoCommit> commits;
 
-  const TodoGitActivity({
-    required this.isRepo,
-    this.currentBranch,
-    required this.branches,
-    required this.commits,
-  });
+  const TodoGitActivity({required this.isRepo, this.currentBranch, required this.branches, required this.commits});
 
   @override
-  int get hashCode =>
-      isRepo.hashCode ^
-      currentBranch.hashCode ^
-      branches.hashCode ^
-      commits.hashCode;
+  int get hashCode => isRepo.hashCode ^ currentBranch.hashCode ^ branches.hashCode ^ commits.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -3364,11 +2917,7 @@ class TodoLink {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is TodoLink &&
-          runtimeType == other.runtimeType &&
-          path == other.path &&
-          line == other.line;
+      identical(this, other) || other is TodoLink && runtimeType == other.runtimeType && path == other.path && line == other.line;
 }
 
 enum TodoPriority { low, medium, high }
@@ -3386,11 +2935,7 @@ class TodoSource {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is TodoSource &&
-          runtimeType == other.runtimeType &&
-          kind == other.kind &&
-          tag == other.tag &&
-          key == other.key;
+      other is TodoSource && runtimeType == other.runtimeType && kind == other.kind && tag == other.tag && key == other.key;
 }
 
 enum TodoStatus { todo, paused, inProgress, done }
@@ -3501,10 +3046,7 @@ class UserRepoPage {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is UserRepoPage &&
-          runtimeType == other.runtimeType &&
-          repos == other.repos &&
-          hasMore == other.hasMore;
+      other is UserRepoPage && runtimeType == other.runtimeType && repos == other.repos && hasMore == other.hasMore;
 }
 
 class VaultFileEntry {
@@ -3512,11 +3054,7 @@ class VaultFileEntry {
   final bool isDir;
   final BigInt size;
 
-  const VaultFileEntry({
-    required this.path,
-    required this.isDir,
-    required this.size,
-  });
+  const VaultFileEntry({required this.path, required this.isDir, required this.size});
 
   @override
   int get hashCode => path.hashCode ^ isDir.hashCode ^ size.hashCode;
@@ -3524,11 +3062,7 @@ class VaultFileEntry {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is VaultFileEntry &&
-          runtimeType == other.runtimeType &&
-          path == other.path &&
-          isDir == other.isDir &&
-          size == other.size;
+      other is VaultFileEntry && runtimeType == other.runtimeType && path == other.path && isDir == other.isDir && size == other.size;
 }
 
 class VaultItem {
@@ -3592,19 +3126,10 @@ class VaultProjectImportResult {
   final List<String> conflicts;
   final bool skipped;
 
-  const VaultProjectImportResult({
-    required this.projectId,
-    required this.installed,
-    required this.conflicts,
-    required this.skipped,
-  });
+  const VaultProjectImportResult({required this.projectId, required this.installed, required this.conflicts, required this.skipped});
 
   @override
-  int get hashCode =>
-      projectId.hashCode ^
-      installed.hashCode ^
-      conflicts.hashCode ^
-      skipped.hashCode;
+  int get hashCode => projectId.hashCode ^ installed.hashCode ^ conflicts.hashCode ^ skipped.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -3629,10 +3154,7 @@ class VaultSaveSource {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is VaultSaveSource &&
-          runtimeType == other.runtimeType &&
-          projectId == other.projectId &&
-          paths == other.paths;
+      other is VaultSaveSource && runtimeType == other.runtimeType && projectId == other.projectId && paths == other.paths;
 }
 
 class VersionAliases {
@@ -3647,10 +3169,7 @@ class VersionAliases {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is VersionAliases &&
-          runtimeType == other.runtimeType &&
-          aliases == other.aliases &&
-          aliasesDir == other.aliasesDir;
+      other is VersionAliases && runtimeType == other.runtimeType && aliases == other.aliases && aliasesDir == other.aliasesDir;
 }
 
 class Workspace {
@@ -3660,21 +3179,10 @@ class Workspace {
   final String color;
   final String createdAt;
 
-  const Workspace({
-    required this.id,
-    required this.name,
-    required this.icon,
-    required this.color,
-    required this.createdAt,
-  });
+  const Workspace({required this.id, required this.name, required this.icon, required this.color, required this.createdAt});
 
   @override
-  int get hashCode =>
-      id.hashCode ^
-      name.hashCode ^
-      icon.hashCode ^
-      color.hashCode ^
-      createdAt.hashCode;
+  int get hashCode => id.hashCode ^ name.hashCode ^ icon.hashCode ^ color.hashCode ^ createdAt.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -3705,11 +3213,7 @@ class WorkspaceScanDirs {
 
   @override
   int get hashCode =>
-      workspaceId.hashCode ^
-      workspaceName.hashCode ^
-      projectScanDirs.hashCode ^
-      versionScanDirs.hashCode ^
-      templateScanDir.hashCode;
+      workspaceId.hashCode ^ workspaceName.hashCode ^ projectScanDirs.hashCode ^ versionScanDirs.hashCode ^ templateScanDir.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -3735,8 +3239,5 @@ class WorkspacesState {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is WorkspacesState &&
-          runtimeType == other.runtimeType &&
-          workspaces == other.workspaces &&
-          activeId == other.activeId;
+      other is WorkspacesState && runtimeType == other.runtimeType && workspaces == other.workspaces && activeId == other.activeId;
 }

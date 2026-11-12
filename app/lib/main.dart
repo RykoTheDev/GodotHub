@@ -104,7 +104,10 @@ class _GodotHubAppState extends ConsumerState<GodotHubApp> with WidgetsBindingOb
           themeAnimationCurve: GhCurves.outExpo,
           builder: (context, child) => Directionality(
             textDirection: i18n.layoutDirection,
-            child: GhMotion(prefs: ghMotionPrefsFrom(current), child: GhKeyboardShortcuts(child: child!)),
+            child: GhMotion(
+              prefs: ghMotionPrefsFrom(current),
+              child: GhKeyboardShortcuts(child: child!),
+            ),
           ),
           home: Scaffold(
             body: _gallery

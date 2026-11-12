@@ -70,10 +70,16 @@ class _Card extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(title, style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold)),
+          Text(
+            title,
+            style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold),
+          ),
           if (subtitle != null) ...[
             SizedBox(height: theme.space(1)),
-            Text(subtitle!, style: theme.text(size: GhTextSize.xs, color: theme.muted)),
+            Text(
+              subtitle!,
+              style: theme.text(size: GhTextSize.xs, color: theme.muted),
+            ),
           ],
         ],
       ),
@@ -108,8 +114,16 @@ class _Row extends StatelessWidget {
             child: GhIcon(GhIcons.folder, size: 12, color: theme.accentBright),
           ),
           SizedBox(width: theme.space(3)),
-          Expanded(child: Text(label ?? 'Project ${index + 1}', style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium))),
-          Text('4.${index % 5}', style: theme.text(size: GhTextSize.xs, color: theme.muted, mono: true)),
+          Expanded(
+            child: Text(
+              label ?? 'Project ${index + 1}',
+              style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium),
+            ),
+          ),
+          Text(
+            '4.${index % 5}',
+            style: theme.text(size: GhTextSize.xs, color: theme.muted, mono: true),
+          ),
         ],
       ),
     );
@@ -176,20 +190,37 @@ class _RevealDemoState extends State<_RevealDemo> {
             children: [
               GhReveal(
                 kind: GhRevealKind.heading,
-                child: Text('Projects', style: theme.text(size: GhTextSize.x2l, weight: GhWeight.bold)),
+                child: Text(
+                  'Projects',
+                  style: theme.text(size: GhTextSize.x2l, weight: GhWeight.bold),
+                ),
               ),
               SizedBox(height: theme.space(3)),
               SizedBox(
                 width: 560,
                 child: Column(
                   children: [
-                    for (var i = 0; i < rows; i++) GhReveal(projectId: 'p$i', child: _Row(index: i)),
-                    for (var i = 0; i < _added; i++) GhReveal(key: ValueKey('added$i'), child: _Row(index: i, label: 'Added row ${i + 1}')),
+                    for (var i = 0; i < rows; i++)
+                      GhReveal(
+                        projectId: 'p$i',
+                        child: _Row(index: i),
+                      ),
+                    for (var i = 0; i < _added; i++)
+                      GhReveal(
+                        key: ValueKey('added$i'),
+                        child: _Row(index: i, label: 'Added row ${i + 1}'),
+                      ),
                   ],
                 ),
               ),
               SizedBox(height: theme.space(4)),
-              GhReveal(kind: GhRevealKind.heading, child: Text('Tiles', style: theme.text(size: GhTextSize.lg, weight: GhWeight.semibold))),
+              GhReveal(
+                kind: GhRevealKind.heading,
+                child: Text(
+                  'Tiles',
+                  style: theme.text(size: GhTextSize.lg, weight: GhWeight.semibold),
+                ),
+              ),
               SizedBox(height: theme.space(3)),
               Wrap(
                 spacing: 10,
@@ -212,18 +243,32 @@ class _RevealDemoState extends State<_RevealDemo> {
                 ],
               ),
               SizedBox(height: theme.space(4)),
-              GhReveal(kind: GhRevealKind.heading, child: Text('Cards', style: theme.text(size: GhTextSize.lg, weight: GhWeight.semibold))),
+              GhReveal(
+                kind: GhRevealKind.heading,
+                child: Text(
+                  'Cards',
+                  style: theme.text(size: GhTextSize.lg, weight: GhWeight.semibold),
+                ),
+              ),
               SizedBox(height: theme.space(3)),
               Wrap(
                 spacing: 12,
                 runSpacing: 12,
                 children: [
                   for (var i = 0; i < 6; i++)
-                    GhReveal(child: _Card(title: 'Card ${i + 1}', subtitle: 'Slide, fade or scale per entrance', width: 180)),
-                  GhReveal(kind: GhRevealKind.fade, child: const _Card(title: 'Fade only', subtitle: 'kind: fade', width: 180)),
+                    GhReveal(
+                      child: _Card(title: 'Card ${i + 1}', subtitle: 'Slide, fade or scale per entrance', width: 180),
+                    ),
+                  GhReveal(
+                    kind: GhRevealKind.fade,
+                    child: const _Card(title: 'Fade only', subtitle: 'kind: fade', width: 180),
+                  ),
                   GhReveal(
                     ownOpacity: true,
-                    child: Opacity(opacity: 0.6, child: const _Card(title: 'Own opacity', subtitle: 'Keeps its opacity', width: 180)),
+                    child: Opacity(
+                      opacity: 0.6,
+                      child: const _Card(title: 'Own opacity', subtitle: 'Keeps its opacity', width: 180),
+                    ),
                   ),
                 ],
               ),
@@ -280,7 +325,10 @@ class _ScrollRevealDemoState extends State<_ScrollRevealDemo> {
                 child: ListView.builder(
                   padding: const EdgeInsets.all(12),
                   itemCount: 80,
-                  itemBuilder: (context, i) => GhReveal(id: i, child: _Row(index: i)),
+                  itemBuilder: (context, i) => GhReveal(
+                    id: i,
+                    child: _Row(index: i),
+                  ),
                 ),
               ),
             ),
@@ -294,7 +342,12 @@ class _ScrollRevealDemoState extends State<_ScrollRevealDemo> {
               child: GhRevealScope(
                 key: ValueKey('column$_replay'),
                 child: Column(
-                  children: [for (var i = 0; i < 40; i++) GhReveal(child: _Row(index: i, label: 'Page row ${i + 1}'))],
+                  children: [
+                    for (var i = 0; i < 40; i++)
+                      GhReveal(
+                        child: _Row(index: i, label: 'Page row ${i + 1}'),
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -342,15 +395,26 @@ class _ShellIntroDemoState extends State<_ShellIntroDemo> {
                         GhIntroPart(
                           child: Text(
                             'GodotHub',
-                            style: theme.text(size: GhTextSize.lg, weight: FontWeight.w900, color: theme.ink.withValues(alpha: 0.5), lineHeight: 1),
+                            style: theme.text(
+                              size: GhTextSize.lg,
+                              weight: FontWeight.w900,
+                              color: theme.ink.withValues(alpha: 0.5),
+                              lineHeight: 1,
+                            ),
                           ),
                         ),
                         const SizedBox(width: 12),
                         GhIntroPart(
                           child: Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(color: theme.mint.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(theme.radiusItem)),
-                            child: Text('2 running', style: theme.text(size: GhTextSize.x2s, color: theme.mint, weight: GhWeight.semibold)),
+                            decoration: BoxDecoration(
+                              color: theme.mint.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(theme.radiusItem),
+                            ),
+                            child: Text(
+                              '2 running',
+                              style: theme.text(size: GhTextSize.x2s, color: theme.mint, weight: GhWeight.semibold),
+                            ),
                           ),
                         ),
                         const Spacer(),
@@ -358,7 +422,10 @@ class _ShellIntroDemoState extends State<_ShellIntroDemo> {
                           child: Row(
                             children: [
                               for (final icon in [GhIcons.bookOpen, GhIcons.star, GhIcons.bug, GhIcons.language])
-                                Padding(padding: const EdgeInsets.only(left: 6), child: GhIcon(icon, size: 13, color: theme.muted)),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 6),
+                                  child: GhIcon(icon, size: 13, color: theme.muted),
+                                ),
                             ],
                           ),
                         ),
@@ -384,11 +451,17 @@ class _ShellIntroDemoState extends State<_ShellIntroDemo> {
                                   borderRadius: BorderRadius.circular(theme.radiusItem),
                                   builder: (context, states) => GhAnimatedBox(
                                     padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-                                    color: i == _active ? theme.accent.withValues(alpha: 0.15) : (states.hovered ? theme.raised : theme.raised.withValues(alpha: 0)),
+                                    color: i == _active
+                                        ? theme.accent.withValues(alpha: 0.15)
+                                        : (states.hovered ? theme.raised : theme.raised.withValues(alpha: 0)),
                                     borderRadius: BorderRadius.circular(theme.radiusItem),
                                     child: Text(
                                       tabs[i],
-                                      style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: i == _active ? theme.ink : theme.muted),
+                                      style: theme.text(
+                                        size: GhTextSize.xs,
+                                        weight: GhWeight.medium,
+                                        color: i == _active ? theme.ink : theme.muted,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -406,7 +479,10 @@ class _ShellIntroDemoState extends State<_ShellIntroDemo> {
                               children: [
                                 GhReveal(
                                   kind: GhRevealKind.heading,
-                                  child: Text(tabs[_active], style: theme.text(size: GhTextSize.xl, weight: GhWeight.bold)),
+                                  child: Text(
+                                    tabs[_active],
+                                    style: theme.text(size: GhTextSize.xl, weight: GhWeight.bold),
+                                  ),
                                 ),
                                 const SizedBox(height: 12),
                                 for (var i = 0; i < 4; i++) GhReveal(child: _Row(index: i)),
@@ -498,7 +574,10 @@ class _CtaButton extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Dive in', style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: Colors.white)),
+            Text(
+              'Dive in',
+              style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: Colors.white),
+            ),
             const SizedBox(width: 10),
             const GhIcon(GhIcons.chevronRight, size: 12, color: Colors.white),
           ],
@@ -704,8 +783,14 @@ class _InteractionsDemoState extends State<_InteractionsDemo> {
         GalleryGroup(
           title: 'Press scale by width',
           children: [
-            GalleryItem(label: 'up to 90px: 0.88', child: GhButton(onPressed: () {}, icon: GhIcons.plus, variant: GhButtonVariant.outline)),
-            GalleryItem(label: 'up to 90px: 0.88', child: GhButton(onPressed: () {}, label: 'Save', variant: GhButtonVariant.primary)),
+            GalleryItem(
+              label: 'up to 90px: 0.88',
+              child: GhButton(onPressed: () {}, icon: GhIcons.plus, variant: GhButtonVariant.outline),
+            ),
+            GalleryItem(
+              label: 'up to 90px: 0.88',
+              child: GhButton(onPressed: () {}, label: 'Save', variant: GhButtonVariant.primary),
+            ),
             GalleryItem(
               label: '90 to 260px: 0.955',
               child: GhButton(onPressed: () {}, label: 'Open project folder', icon: GhIcons.folder, variant: GhButtonVariant.outline),
@@ -719,9 +804,14 @@ class _InteractionsDemoState extends State<_InteractionsDemo> {
             ),
             GalleryItem(
               label: 'no ripple',
-              child: GhNoRipple(child: GhButton(onPressed: () {}, label: 'No ripple', variant: GhButtonVariant.outline)),
+              child: GhNoRipple(
+                child: GhButton(onPressed: () {}, label: 'No ripple', variant: GhButtonVariant.outline),
+              ),
             ),
-            GalleryItem(label: 'disabled', child: GhButton(onPressed: null, label: 'Disabled', variant: GhButtonVariant.outline)),
+            GalleryItem(
+              label: 'disabled',
+              child: GhButton(onPressed: null, label: 'Disabled', variant: GhButtonVariant.outline),
+            ),
           ],
         ),
         GalleryGroup(
@@ -764,7 +854,10 @@ class _InteractionsDemoState extends State<_InteractionsDemo> {
                 color: states.hovered ? theme.raised : theme.surface,
                 borderRadius: BorderRadius.circular(theme.radiusBtn),
                 border: Border.all(color: theme.line),
-                child: GhSpin(trigger: _spin, child: GhIcon(GhIcons.refresh, size: 14, color: theme.ink)),
+                child: GhSpin(
+                  trigger: _spin,
+                  child: GhIcon(GhIcons.refresh, size: 14, color: theme.ink),
+                ),
               ),
             ),
           ],
@@ -796,7 +889,8 @@ class _DragDemoState extends State<_DragDemo> {
       'drop': '${GhDragFeel.drop.duration.inMilliseconds}ms cubic-bezier(0.22, 1, 0.36, 1)',
       'lift.scale': '${GhDragFeel.liftScale}',
       'dropLine': 'height ${GhDragFeel.dropLine.height}, dot ${GhDragFeel.dropLine.dot}, glow ${GhDragFeel.dropLine.glow}',
-      'autoScroll': 'threshold ${GhDragFeel.autoScroll.thresholdX} x ${GhDragFeel.autoScroll.thresholdY}, acceleration ${GhDragFeel.autoScroll.acceleration}',
+      'autoScroll':
+          'threshold ${GhDragFeel.autoScroll.thresholdX} x ${GhDragFeel.autoScroll.thresholdY}, acceleration ${GhDragFeel.autoScroll.acceleration}',
     };
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -812,7 +906,13 @@ class _DragDemoState extends State<_DragDemo> {
               label: _lifted ? 'Drop' : 'Lift',
               variant: GhButtonVariant.primary,
             ),
-            GalleryItem(label: 'source (ghost while dragging)', child: GhDragGhost(ghost: _lifted, child: const _Card(title: 'Project card', width: 220))),
+            GalleryItem(
+              label: 'source (ghost while dragging)',
+              child: GhDragGhost(
+                ghost: _lifted,
+                child: const _Card(title: 'Project card', width: 220),
+              ),
+            ),
             GalleryItem(
               label: 'overlay (drag-lift keyframe)',
               child: _lifted
@@ -837,7 +937,10 @@ class _DragDemoState extends State<_DragDemo> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 for (final entry in constants.entries)
-                  Text('${entry.key}: ${entry.value}', style: theme.text(size: GhTextSize.xs, mono: true, color: theme.muted)),
+                  Text(
+                    '${entry.key}: ${entry.value}',
+                    style: theme.text(size: GhTextSize.xs, mono: true, color: theme.muted),
+                  ),
               ],
             ),
           ],

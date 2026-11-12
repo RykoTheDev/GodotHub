@@ -8,17 +8,13 @@ import 'error.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-Future<WindowState?> loadWindowState() =>
-    RustLib.instance.api.crateApiWindowLoadWindowState();
+Future<WindowState?> loadWindowState() => RustLib.instance.api.crateApiWindowLoadWindowState();
 
-Future<void> saveWindowState({required WindowState state}) =>
-    RustLib.instance.api.crateApiWindowSaveWindowState(state: state);
+Future<void> saveWindowState({required WindowState state}) => RustLib.instance.api.crateApiWindowSaveWindowState(state: state);
 
-Future<bool> openFromArgs({required List<String> args}) =>
-    RustLib.instance.api.crateApiWindowOpenFromArgs(args: args);
+Future<bool> openFromArgs({required List<String> args}) => RustLib.instance.api.crateApiWindowOpenFromArgs(args: args);
 
-Future<bool> openLaunchArgs() =>
-    RustLib.instance.api.crateApiWindowOpenLaunchArgs();
+Future<bool> openLaunchArgs() => RustLib.instance.api.crateApiWindowOpenLaunchArgs();
 
 class WindowState {
   final int width;
@@ -27,21 +23,10 @@ class WindowState {
   final int y;
   final bool maximized;
 
-  const WindowState({
-    required this.width,
-    required this.height,
-    required this.x,
-    required this.y,
-    required this.maximized,
-  });
+  const WindowState({required this.width, required this.height, required this.x, required this.y, required this.maximized});
 
   @override
-  int get hashCode =>
-      width.hashCode ^
-      height.hashCode ^
-      x.hashCode ^
-      y.hashCode ^
-      maximized.hashCode;
+  int get hashCode => width.hashCode ^ height.hashCode ^ x.hashCode ^ y.hashCode ^ maximized.hashCode;
 
   @override
   bool operator ==(Object other) =>

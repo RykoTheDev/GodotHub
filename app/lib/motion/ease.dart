@@ -4,7 +4,8 @@ import 'package:flutter/animation.dart';
 
 typedef _EaseFn = double Function(double p);
 
-double Function(double) _outFromIn(_EaseFn easeIn) => (p) => 1 - easeIn(1 - p);
+double Function(double) _outFromIn(_EaseFn easeIn) =>
+    (p) => 1 - easeIn(1 - p);
 
 double Function(double) _inOutFromIn(_EaseFn easeIn) =>
     (p) => p < .5 ? easeIn(p * 2) / 2 : 1 - easeIn((1 - p) * 2) / 2;
@@ -14,15 +15,16 @@ double Function(double) _inOutFromOut(_EaseFn easeOut) =>
 
 double _expoIn(double p) => math.pow(2, 10 * (p - 1)).toDouble() * p + p * p * p * p * p * p * (1 - p);
 
-_EaseFn _powerIn(int power) => (p) => math.pow(p, power).toDouble();
+_EaseFn _powerIn(int power) =>
+    (p) => math.pow(p, power).toDouble();
 
 _EaseFn _backOut(double overshoot) => (p) {
-      if (p == 0) {
-        return 0;
-      }
-      final q = p - 1;
-      return q * q * ((overshoot + 1) * q + overshoot) + 1;
-    };
+  if (p == 0) {
+    return 0;
+  }
+  final q = p - 1;
+  return q * q * ((overshoot + 1) * q + overshoot) + 1;
+};
 
 _EaseFn _elasticOut(double amplitude, double? period, {required bool inOut}) {
   final p1 = amplitude >= 1 ? amplitude : 1.0;
@@ -58,12 +60,7 @@ class GsapEase extends Curve {
     }
     final family = match.group(1)!.toLowerCase();
     final type = match.group(2) ?? 'out';
-    final args = (match.group(3) ?? '')
-        .split(',')
-        .map((a) => a.trim())
-        .where((a) => a.isNotEmpty)
-        .map(double.parse)
-        .toList();
+    final args = (match.group(3) ?? '').split(',').map((a) => a.trim()).where((a) => a.isNotEmpty).map(double.parse).toList();
 
     _EaseFn pick(_EaseFn easeIn, {_EaseFn? easeOut, _EaseFn? easeInOut}) {
       return switch (type) {

@@ -71,12 +71,7 @@ class GhWorkspaceSwitchCard extends StatelessWidget {
 }
 
 class GhWorkspaceSwitchNotice extends StatefulWidget {
-  const GhWorkspaceSwitchNotice({
-    super.key,
-    required this.activeId,
-    required this.workspaces,
-    this.label,
-  });
+  const GhWorkspaceSwitchNotice({super.key, required this.activeId, required this.workspaces, this.label});
 
   static const enterSeconds = 0.4;
   static const holdSeconds = 1.1;

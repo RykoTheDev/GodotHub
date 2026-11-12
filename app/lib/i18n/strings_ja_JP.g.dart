@@ -1318,6 +1318,9 @@ class _Translations$settings$ja_JP extends Translations$settings$en_US {
 	@override String get tray_recent_label => 'トレイに表示する最近のプロジェクト';
 	@override String get tooltip_delay_label => 'ツールチップの表示遅延';
 	@override String get project_icon_opacity_label => 'プロジェクトアイコンの不透明度';
+	@override String get project_card_style_label => 'プロジェクトカードのスタイル';
+	@override String get project_card_style_hub => 'Godot Hub';
+	@override String get project_card_style_cover => 'カバー';
 	@override String get time_format_label => '時刻の形式（当日に開いた場合に表示）';
 	@override String get date_format_label => '日付の形式（それ以外の日に表示）';
 	@override String get auto_scan_label => '起動時に自動スキャン';
@@ -3522,6 +3525,9 @@ extension on TranslationsJaJp {
 			'settings.tray_recent_label' => 'トレイに表示する最近のプロジェクト',
 			'settings.tooltip_delay_label' => 'ツールチップの表示遅延',
 			'settings.project_icon_opacity_label' => 'プロジェクトアイコンの不透明度',
+			'settings.project_card_style_label' => 'プロジェクトカードのスタイル',
+			'settings.project_card_style_hub' => 'Godot Hub',
+			'settings.project_card_style_cover' => 'カバー',
 			'settings.time_format_label' => '時刻の形式（当日に開いた場合に表示）',
 			'settings.date_format_label' => '日付の形式（それ以外の日に表示）',
 			'settings.auto_scan_label' => '起動時に自動スキャン',
@@ -3649,11 +3655,11 @@ extension on TranslationsJaJp {
 			'settings.interface_label' => 'インターフェース',
 			'settings.card_layout_label' => 'カードレイアウト',
 			'settings.landing_tab_label' => '起動時に表示する画面',
+			_ => null,
+		} ?? switch (path) {
 			'settings.language_complete' => '翻訳済み',
 			'settings.language_beta' => 'ベータ',
 			'settings.language_incomplete' => '一部未翻訳',
-			_ => null,
-		} ?? switch (path) {
 			'settings.use_os_decorations' => 'OS のウィンドウ装飾を使う',
 			'settings.credits' => 'クレジット',
 			'settings.credits_developer' => '作成者',

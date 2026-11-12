@@ -56,7 +56,8 @@ class GhButton extends StatelessWidget {
       semanticLabel: semanticLabel ?? (label == null ? tooltip : null),
       builder: (context, states) {
         final (background, foreground, brightness, lift) = _colors(theme, states);
-        final fontWeight = weight ?? (variant == GhButtonVariant.primary || variant == GhButtonVariant.danger ? GhWeight.medium : GhWeight.normal);
+        final fontWeight =
+            weight ?? (variant == GhButtonVariant.primary || variant == GhButtonVariant.danger ? GhWeight.medium : GhWeight.normal);
         final textStyle = theme.text(size: size, weight: fontWeight, color: foreground);
         final children = <Widget>[
           if (icon != null)
@@ -66,7 +67,10 @@ class GhButton extends StatelessWidget {
               child: GhAnimatedIcon(icon!, color: foreground, size: iconSize ?? textStyle.fontSize!),
             ),
           if (icon != null && label != null) SizedBox(width: theme.space(2)),
-          if (label != null) Flexible(child: GhAnimatedText(label!, style: textStyle, maxLines: 1, overflow: TextOverflow.ellipsis)),
+          if (label != null)
+            Flexible(
+              child: GhAnimatedText(label!, style: textStyle, maxLines: 1, overflow: TextOverflow.ellipsis),
+            ),
         ];
         return GhBrightness(
           amount: brightness,
@@ -93,7 +97,12 @@ class GhButton extends StatelessWidget {
       GhButtonVariant.primary => (hover ? theme.accentBright : theme.accent, Colors.white, 1.0, hover),
       GhButtonVariant.danger => (theme.danger, Colors.white, hover ? 1.1 : 1.0, false),
       GhButtonVariant.ghost => (hover ? theme.raised : theme.raised.withValues(alpha: 0), hover ? theme.ink : theme.muted, 1.0, hover),
-      GhButtonVariant.subtle => (hover ? theme.raised : theme.raised.withValues(alpha: 0), hover ? theme.ink : theme.muted.withValues(alpha: 0.5), 1.0, hover),
+      GhButtonVariant.subtle => (
+        hover ? theme.raised : theme.raised.withValues(alpha: 0),
+        hover ? theme.ink : theme.muted.withValues(alpha: 0.5),
+        1.0,
+        hover,
+      ),
       GhButtonVariant.outline => (hover ? theme.raised : theme.raised.withValues(alpha: 0), theme.ink, 1.0, hover),
     };
   }

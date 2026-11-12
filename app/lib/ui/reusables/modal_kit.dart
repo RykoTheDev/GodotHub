@@ -13,7 +13,9 @@ class GhSpinnerIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
-    return GhSpinning(child: GhIcon(GhIcons.spinner, size: theme.space(size), color: color ?? IconTheme.of(context).color));
+    return GhSpinning(
+      child: GhIcon(GhIcons.spinner, size: theme.space(size), color: color ?? IconTheme.of(context).color),
+    );
   }
 }
 
@@ -243,7 +245,11 @@ class GhAlertBox extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (title != null) Text(title!, style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: color)),
+        if (title != null)
+          Text(
+            title!,
+            style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: color),
+          ),
         if (text != null)
           Padding(
             padding: EdgeInsets.only(top: title != null ? theme.space(1) : 0),
@@ -327,7 +333,10 @@ class GhBusyButton extends StatelessWidget {
               const GhSpinnerIcon(color: Colors.white)
             else if (icon != null)
               GhIcon(icon!, size: theme.space(3.5), color: Colors.white),
-            Text(label, style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: Colors.white)),
+            Text(
+              label,
+              style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: Colors.white),
+            ),
           ],
         ),
       ),
