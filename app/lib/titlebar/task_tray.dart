@@ -7,6 +7,7 @@ import '../design/design.dart';
 import '../state/task_tray.dart';
 import '../ui/core/i18n.dart';
 import 'title_bar_theme.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 const _menuWidth = 320.0;
 const _triggerWidth = 36.0;
@@ -105,7 +106,7 @@ class _TaskTrayState extends ConsumerState<TaskTray> {
                     const _TaskTrayEmpty()
                   else
                     Flexible(
-                      child: SingleChildScrollView(
+                      child: GhScrollView(
                         primary: false,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,

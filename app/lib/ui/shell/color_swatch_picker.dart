@@ -231,7 +231,7 @@ class _SwatchPanelState extends State<_SwatchPanel> {
               color: theme.overlay,
               borderRadius: BorderRadius.circular(theme.radiusItem),
               border: Border.all(color: _hexFocused ? theme.accentDim : theme.outline.withValues(alpha: 0.5)),
-              boxShadow: _hexFocused ? GhShadows.focusRing(theme) : const [],
+              boxShadow: const [],
               child: Material(
                 type: MaterialType.transparency,
                 child: TextField(

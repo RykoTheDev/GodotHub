@@ -23,6 +23,7 @@ import '../ui/feedback/toast.dart';
 import '../ui/reusables/view_header.dart';
 import '../ui/shell/overlay_scroll_area.dart';
 import '../ui/shell/view_insets.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 enum ReclaimGroup { versions, partials, exports }
 
@@ -852,7 +853,7 @@ class _ReclaimConfirmModal extends StatelessWidget {
             Text(ghTr('cleanup_confirm_desc'), style: theme.text(size: GhTextSize.xs, color: theme.muted)),
             ConstrainedBox(
               constraints: BoxConstraints(maxHeight: theme.space(64)),
-              child: SingleChildScrollView(
+              child: GhScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   spacing: theme.space(1),

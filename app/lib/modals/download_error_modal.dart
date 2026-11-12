@@ -15,6 +15,7 @@ import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
 import '../versions/version_logic.dart';
 import 'current_version_modal.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 String _tv(String key) => ghTr('versions:$key');
 
@@ -157,7 +158,7 @@ class _DownloadErrorModalState extends ConsumerState<DownloadErrorModal> {
                     borderRadius: radius,
                     border: Border.all(color: theme.line),
                   ),
-                  child: SingleChildScrollView(
+                  child: GhScrollView(
                     child: SelectableText(
                       error.message,
                       style: theme.text(size: GhTextSize.x2s, mono: true, color: theme.muted, lineHeight: 1.625),

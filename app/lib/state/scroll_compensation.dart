@@ -2,11 +2,12 @@ import 'dart:math' as math;
 
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 double compensatedScrollOffset(double saved, double maxScrollExtent) => math.min(saved, math.max(0, maxScrollExtent));
 
 class ScrollCompensation {
-  ScrollCompensation([ScrollController? controller]) : controller = controller ?? ScrollController(), _owned = controller == null {
+  ScrollCompensation([ScrollController? controller]) : controller = controller ?? GhSmoothScrollController(), _owned = controller == null {
     this.controller.addListener(_track);
   }
 

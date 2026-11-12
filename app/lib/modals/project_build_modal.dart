@@ -23,6 +23,7 @@ import '../ui/feedback/toast.dart';
 import '../ui/overlays/dropdown.dart';
 import '../ui/overlays/menu.dart';
 import '../ui/reusables/modal_kit.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 String _t(String key, {Map<String, Object?> args = const {}}) => ghTr('build_export.$key', args: args);
 
@@ -603,7 +604,7 @@ class _ProjectBuildModalState extends ConsumerState<ProjectBuildModal> {
           ],
         ),
       ],
-      child: SingleChildScrollView(
+      child: GhScrollView(
         padding: EdgeInsets.all(theme.space(6)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: theme.space(5), children: body),
       ),

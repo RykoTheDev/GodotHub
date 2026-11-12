@@ -16,6 +16,7 @@ import '../ui/core/tooltip.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/reusables/modal_kit.dart';
 import 'todo_logic.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 class ProjectTodoDetailsModal extends StatefulWidget {
   const ProjectTodoDetailsModal({
@@ -229,7 +230,7 @@ class _ProjectTodoDetailsModalState extends State<ProjectTodoDetailsModal> {
           child: GhButton(onPressed: widget.onClose, label: ghTr('close'), variant: GhButtonVariant.outline),
         ),
       ),
-      child: SingleChildScrollView(
+      child: GhScrollView(
         padding: EdgeInsets.fromLTRB(theme.space(6), theme.space(4), theme.space(6), theme.space(6)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

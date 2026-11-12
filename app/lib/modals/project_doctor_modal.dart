@@ -24,6 +24,7 @@ import '../ui/overlays/dropdown.dart';
 import '../ui/overlays/menu.dart';
 import '../ui/reusables/modal_kit.dart';
 import '../ui/shell/disclosure.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 const doctorCategories = ['engine', 'templates', 'android', 'cache', 'scenes', 'addons', 'git', 'exports', 'registrations'];
 const _translatedDetails = {'android_possible', 'android_sdk_incomplete'};
@@ -453,7 +454,7 @@ class _ProjectDoctorModalState extends State<ProjectDoctorModal> {
           ),
         GhOutlineAction(onPressed: widget.onClose, label: context.tr.common.close),
       ],
-      child: SingleChildScrollView(
+      child: GhScrollView(
         padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(6)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

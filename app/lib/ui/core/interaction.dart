@@ -236,49 +236,7 @@ class GhFocusRing extends StatelessWidget {
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
-    if (style == GhFocusStyle.none) {
-      return child;
-    }
-    final theme = GhTheme.of(context);
-    return CustomPaint(
-      foregroundPainter: _FocusRingPainter(progress: visible ? 1 : 0, style: style, color: theme.accent, borderRadius: borderRadius),
-      child: child,
-    );
-  }
-}
-
-class _FocusRingPainter extends CustomPainter {
-  _FocusRingPainter({required this.progress, required this.style, required this.color, required this.borderRadius});
-
-  final double progress;
-  final GhFocusStyle style;
-  final Color color;
-  final BorderRadius borderRadius;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    if (progress <= 0) {
-      return;
-    }
-    final rect = Offset.zero & size;
-    if (style == GhFocusStyle.ring) {
-      final inner = borderRadius.toRRect(rect);
-      final outer = inner.inflate(3);
-      canvas.drawDRRect(outer, inner, Paint()..color = color.withValues(alpha: 0.45 * progress));
-      return;
-    }
-    final inner = borderRadius.toRRect(rect).inflate(2);
-    final outer = inner.inflate(2);
-    canvas.drawDRRect(outer, inner, Paint()..color = color.withValues(alpha: 0.7 * progress));
-  }
-
-  @override
-  bool shouldRepaint(_FocusRingPainter oldDelegate) =>
-      oldDelegate.progress != progress ||
-      oldDelegate.style != style ||
-      oldDelegate.color != color ||
-      oldDelegate.borderRadius != borderRadius;
+  Widget build(BuildContext context) => child;
 }
 
 class GhIconMotionScale extends StatelessWidget {

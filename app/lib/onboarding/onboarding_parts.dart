@@ -23,6 +23,7 @@ import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
 import '../ui/shell/workspace_form.dart';
 import 'mini_app_preview.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 String _to(String key, {num? count, Map<String, Object?> args = const {}}) => ghTr('onboarding:$key', count: count, args: args);
 
@@ -314,7 +315,7 @@ class DiscoveryList extends StatelessWidget {
         sectionCaps(theme, heading),
         ConstrainedBox(
           constraints: BoxConstraints(maxHeight: theme.space(56)),
-          child: SingleChildScrollView(
+          child: GhScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: theme.space(1),

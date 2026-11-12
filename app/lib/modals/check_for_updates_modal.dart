@@ -15,6 +15,7 @@ import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 const latestReleaseUrl = 'https://github.com/RykoTheDev/GodotHub/releases/latest';
 const previewUpdateVersion = '1.0.0';
@@ -634,7 +635,7 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
                 ),
                 ConstrainedBox(
                   constraints: BoxConstraints(maxHeight: theme.space(64)),
-                  child: SingleChildScrollView(
+                  child: GhScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [

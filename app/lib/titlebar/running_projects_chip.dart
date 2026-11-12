@@ -14,6 +14,7 @@ import 'providers.dart';
 import '../ui/core/i18n.dart';
 import '../ui/feedback/toast.dart';
 import 'title_bar_theme.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 const timerStartDelayMs = 3000;
 
@@ -210,7 +211,7 @@ class _RunningProjectsChipState extends ConsumerState<RunningProjectsChip> {
               ),
               ConstrainedBox(
                 constraints: BoxConstraints(maxHeight: maxListHeight),
-                child: SingleChildScrollView(
+                child: GhScrollView(
                   primary: false,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,

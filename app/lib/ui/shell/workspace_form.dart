@@ -334,7 +334,7 @@ class _NameInputState extends State<_NameInput> {
       color: theme.base,
       borderRadius: BorderRadius.circular(theme.radiusBtn),
       border: Border.all(color: border),
-      boxShadow: focused ? GhShadows.focusRing(theme) : const [],
+      boxShadow: const [],
       padding: EdgeInsets.symmetric(horizontal: theme.space(3.5), vertical: theme.space(2.5)),
       child: Semantics(
         label: widget.label,

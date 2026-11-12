@@ -26,6 +26,7 @@ import '../ui/overlays/menu.dart';
 import '../ui/reusables/open_button.dart';
 import 'project_actions.dart';
 import 'project_icon.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 String shortProjectPath(String path) {
   final parts = path.split(RegExp(r'[\\/]')).where((p) => p.isNotEmpty).toList();
@@ -335,7 +336,7 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
         Expanded(
           child: grid
               ? ClipRect(
-                  child: SingleChildScrollView(
+                  child: GhScrollView(
                     scrollDirection: Axis.horizontal,
                     physics: const NeverScrollableScrollPhysics(),
                     child: Row(spacing: theme.space(1.5), children: tagChildren),

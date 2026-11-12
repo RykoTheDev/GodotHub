@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../design/design.dart';
 import '../../motion/presence.dart';
 import '../core/interaction.dart';
+import '../shell/smooth_scroll.dart';
 
 const double ghMenuViewportPad = 8;
 const double ghMenuGap = 8;
@@ -142,7 +143,7 @@ class GhMenuSurface extends StatelessWidget {
       constraints: scrollable ? BoxConstraints(maxHeight: maxHeight!) : null,
       clipBehavior: scrollable ? Clip.antiAlias : Clip.none,
       padding: scrollable ? null : padding,
-      child: scrollable ? SingleChildScrollView(padding: padding, child: child) : child,
+      child: scrollable ? GhScrollView(padding: padding, child: child) : child,
     );
     if (fitContent) {
       surface = IntrinsicWidth(child: surface);

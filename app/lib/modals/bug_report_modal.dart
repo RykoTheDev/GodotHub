@@ -16,6 +16,7 @@ import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
 import 'download_error_modal.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 const bugReportUrl = 'https://github.com/RykoTheDev/GodotHub/issues/new';
 const bugReportMaxCaptured = 20;
@@ -363,7 +364,7 @@ class _BugReportModalState extends ConsumerState<BugReportModal> {
                     constraints: const BoxConstraints(maxHeight: 200),
                     padding: EdgeInsets.all(theme.space(3.5)),
                     decoration: BoxDecoration(color: theme.base, borderRadius: radius, border: Border.all(color: theme.line)),
-                    child: SingleChildScrollView(
+                    child: GhScrollView(
                       child: SelectableText(
                         report,
                         style: theme.text(size: GhTextSize.x2s, mono: true, color: theme.muted, lineHeight: 1.625),

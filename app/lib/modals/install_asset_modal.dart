@@ -15,6 +15,7 @@ import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/reusables/modal_kit.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 enum AssetInstallTarget { project, template }
 
@@ -230,7 +231,6 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
               controller: _query,
               focusNode: _queryNode,
               bordered: false,
-              focusRing: false,
               background: Colors.transparent,
               weight: GhWeight.medium,
               placeholderColor: theme.muted.withValues(alpha: 0.7),
@@ -450,7 +450,7 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
                         ),
                       ),
                     )
-                  : SingleChildScrollView(
+                  : GhScrollView(
                       padding: EdgeInsets.only(bottom: theme.space(1)),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,

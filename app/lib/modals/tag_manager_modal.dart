@@ -11,6 +11,7 @@ import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 class TagManagerModal extends StatefulWidget {
   const TagManagerModal({super.key, required this.project, required this.onClose, required this.onSaved, this.saveTags});
@@ -276,7 +277,7 @@ class _TagManagerModalState extends State<TagManagerModal> {
                         ],
                       ),
                     )
-                  : SingleChildScrollView(
+                  : GhScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         spacing: theme.space(2),

@@ -7,6 +7,7 @@ import '../src/rust/api/types.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import '../ui/feedback/toast.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 class RowGraphPainter extends CustomPainter {
   RowGraphPainter({required this.row, required this.surface});
@@ -83,7 +84,7 @@ class _CommitGraphState extends State<CommitGraph> {
     }
     final remote = widget.remoteUrl;
     final base = remote == null || remote.isEmpty ? null : remote.replaceFirst(RegExp(r'/+$'), '');
-    return SingleChildScrollView(
+    return GhScrollView(
       scrollDirection: Axis.horizontal,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [for (final row in _rows) _row(theme, row, base)]),
     );
