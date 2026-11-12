@@ -11,6 +11,7 @@ import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
 import '../ui/reusables/modal_kit.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 @immutable
 class ContributorPr {
@@ -307,7 +308,7 @@ class _ContributorPrsModalState extends State<ContributorPrsModal> {
                             ],
                           ),
                         ),
-                        Flexible(child: SingleChildScrollView(child: body)),
+                        Flexible(child: GhScrollView(child: body)),
                       ],
                     ),
                   ),

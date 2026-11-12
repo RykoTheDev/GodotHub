@@ -11,14 +11,12 @@ import '../api/events.dart';
 import '../api/projects.dart';
 import '../design/design.dart';
 import '../logic/launch_errors.dart';
-import '../logic/settings_copy.dart';
 import '../logic/screen_reader.dart';
 import '../logic/settings_category_nav.dart';
 import '../modals/command_palette.dart';
 import '../motion/intro.dart';
 import '../motion/presence.dart';
 import '../motion/reveal.dart';
-import '../src/hello_screen.dart';
 import '../src/rust/api/types.dart';
 import '../src/ui_prefs.dart';
 import '../src/ui_transition.dart';
@@ -53,6 +51,14 @@ import '../api/git.dart';
 import '../console/project_console_window.dart';
 import '../git/git_sidebar.dart';
 import '../assets/asset_store_view.dart';
+import '../changelog/changelog_view.dart';
+import '../dashboard/dashboard_view.dart';
+import '../modals/bug_report_modal.dart';
+import '../modals/check_for_updates_modal.dart';
+import '../news/news_view.dart';
+import '../onboarding/onboarding_view.dart';
+import '../settings/settings_view.dart';
+import '../storage/storage_view.dart';
 import '../templates/templates_view.dart';
 import '../vault/vault_view.dart';
 import '../versions/versions_view.dart';
@@ -60,37 +66,11 @@ import '../modals/create_project_modal.dart';
 import '../state/categories.dart';
 import '../state/godot_versions.dart';
 import 'placeholder_view.dart';
+import 'sidebar_prefs.dart';
 import 'tabs.dart';
 import 'workspace_modals.dart';
 
 const _repoUrl = 'https://github.com/RykoTheDev/GodotHub';
-
-abstract final class SidebarPrefs {
-  static const width = 'new_ui_sidebar_width';
-  static const collapsed = 'new_ui_sidebar_collapsed';
-  static const seenNewTabs = 'new_ui_sidebar_seen_new_tabs';
-  static const workspaceTipSeen = 'new_ui_sidebar_workspace_tip_seen';
-  static const closedGroups = 'new_ui_sidebar_closed_groups';
-
-  static double readWidth(UiPrefsStore prefs) {
-    final value = num.tryParse(prefs.getItem(width) ?? '');
-    return GhSidebar.clampWidth(value == null || value == 0 || value.isNaN ? GhSidebar.defaultWidth : value.toDouble());
-  }
-
-  static List<String> readList(UiPrefsStore prefs, String key) {
-    try {
-      final saved = jsonDecode(prefs.getItem(key) ?? '[]');
-      return saved is List
-          ? [
-              for (final id in saved)
-                if (id is String) id,
-            ]
-          : const [];
-    } catch (_) {
-      return const [];
-    }
-  }
-}
 
 class AppShell extends ConsumerStatefulWidget {
   const AppShell({super.key, this.title = 'GodotHub', this.prefs, this.isMac, this.onOpenGallery});
@@ -108,7 +88,8 @@ class _AppShellState extends ConsumerState<AppShell> {
   final List<StreamSubscription<Object?>> _subscriptions = [];
   bool _createProjectOpen = false;
   final bool _uiSwitchIntent = GhUiTransition.shouldOpenSettingsAfterSwitch();
-  final bool _introHandedOff = GhUiTransition.consumeShellIntroHandOff();
+  bool _introHandedOff = GhUiTransition.consumeShellIntroHandOff();
+  bool _onboarding = false;
   late bool _splashDone = !GhUiTransition.shouldShowSplash();
   late String _requestedTab = _uiSwitchIntent ? 'settings' : 'projects';
   late final GhAnnouncementController _announcement = GhAnnouncementController(
@@ -153,7 +134,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     on(importProjectRequestSignal, (_) => _importProject());
     on(scanProjectsSignal, (_) => _scanProjects());
     on(reportBugSignal, (_) => _openBugReport());
-    on(previewUpdateModalSignal, (_) => _openUpdates());
+    on(previewUpdateModalSignal, (_) => _openUpdates(preview: true));
     on(showGitSidebarSignal, (detail) {
       if (detail is! GitSidebarTarget) return;
       setState(() => _git = _git != null && _git!.project.id == detail.project.id ? null : detail);
@@ -232,7 +213,7 @@ class _AppShellState extends ConsumerState<AppShell> {
   void _openBugReport() {
     if (_bugReportOpen || !mounted) return;
     _bugReportOpen = true;
-    _push((context) => PlaceholderModal(title: context.tr.common.report_a_bug, icon: GhIcons.bug), (route) {
+    _push((context) => BugReportModal(onClose: () => Navigator.of(context).pop()), (route) {
       _bugReportRoute = route;
       if (route == null) _bugReportOpen = false;
     }).ignore();
@@ -274,11 +255,15 @@ class _AppShellState extends ConsumerState<AppShell> {
     ).whenComplete(() => _createProjectOpen = false);
   }
 
-  void _openUpdates() => _showPlaceholder(context.tr.common.update_available, GhIcons.arrowUp);
-
-  void _showPlaceholder(String title, FaIconData icon) {
+  void _openUpdates({bool preview = false}) {
     if (!mounted) return;
-    showPlaceholderModal(context, title: title, icon: icon).ignore();
+    showGhModal<void>(
+      context,
+      (modal) => CheckForUpdatesModal(
+        mode: preview ? CheckForUpdatesMode.preview : CheckForUpdatesMode.manual,
+        onClose: () => Navigator.of(modal).pop(),
+      ),
+    ).ignore();
   }
 
   Future<void> _confirmRestart() async {
@@ -419,8 +404,8 @@ class _AppShellState extends ConsumerState<AppShell> {
     final gallery = widget.onOpenGallery;
     final Object inputs = switch (id) {
       'projects' => (connected, active, _git != null, widget.prefs),
-      'versions' || 'templates' || 'asset-store' || 'vault' => (connected, widget.prefs),
-      'settings' => (widget.title, gallery),
+      'versions' || 'templates' || 'asset-store' || 'vault' || 'news' || 'changelog' || 'settings' => (connected, widget.prefs),
+      'storage' || 'dashboard' => (connected, active, widget.prefs),
       _ => (context.tr, gallery),
     };
     final cached = _views[id];
@@ -443,6 +428,18 @@ class _AppShellState extends ConsumerState<AppShell> {
     if (id == 'asset-store') {
       return AssetStoreView(connected: connected, prefs: widget.prefs);
     }
+    if (id == 'news') {
+      return NewsView(connected: connected, prefs: widget.prefs);
+    }
+    if (id == 'changelog') {
+      return ChangelogView(connected: connected, prefs: widget.prefs);
+    }
+    if (id == 'dashboard') {
+      return DashboardView(connected: connected, active: active, prefs: widget.prefs);
+    }
+    if (id == 'storage') {
+      return StorageView(connected: connected, prefs: widget.prefs, active: active);
+    }
     if (id == 'vault') {
       return VaultView(connected: connected, prefs: widget.prefs);
     }
@@ -453,9 +450,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       return VersionsView(connected: connected, prefs: widget.prefs, onOpenSettings: () => _setTab('settings'));
     }
     if (id == 'settings') {
-      return GhViewInsetPadding(
-        child: HelloScreen(title: widget.title, onOpenGallery: kDebugMode ? gallery : null),
-      );
+      return SettingsView(connected: connected, prefs: widget.prefs);
     }
     return GhViewInsetPadding(
       child: PlaceholderView(
@@ -583,9 +578,14 @@ class _AppShellState extends ConsumerState<AppShell> {
     final theme = GhTheme.of(context);
     final settings = ref.watch(settingsProvider).value;
     if (settings != null && !settings.setupComplete) {
+      _onboarding = true;
       return SizedBox.expand(
-        child: GhRevealScope(child: _OnboardingPlaceholder(settings: settings)),
+        child: GhRevealScope(child: OnboardingView(settings: settings)),
       );
+    }
+    if (settings != null && _onboarding) {
+      _onboarding = false;
+      _introHandedOff = GhUiTransition.consumeShellIntroHandOff();
     }
     if (settings == null) {
       return SizedBox.expand(
@@ -671,31 +671,6 @@ class _ViewPane extends StatelessWidget {
           excluding: !active,
           child: GhRevealScope(active: active, child: child),
         ),
-      ),
-    );
-  }
-}
-
-class _OnboardingPlaceholder extends ConsumerWidget {
-  const _OnboardingPlaceholder({required this.settings});
-
-  final AppSettings settings;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = GhTheme.of(context);
-    return ColoredBox(
-      color: theme.base,
-      child: PlaceholderView(
-        icon: GhIcons.rocket,
-        title: 'Onboarding',
-        actions: [
-          GhButton(
-            onPressed: () => ref.read(settingsProvider.notifier).save(copySettings(settings, setupComplete: true)).ignore(),
-            label: 'Continue to GodotHub',
-            variant: GhButtonVariant.primary,
-          ),
-        ],
       ),
     );
   }

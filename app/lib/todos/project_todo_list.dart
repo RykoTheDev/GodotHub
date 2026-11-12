@@ -13,6 +13,7 @@ import '../ui/overlays/date_picker.dart';
 import '../ui/overlays/dropdown.dart';
 import '../ui/overlays/menu.dart';
 import 'todo_logic.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 class ProjectTodoList extends StatelessWidget {
   const ProjectTodoList({
@@ -449,7 +450,7 @@ class ProjectTodoList extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) => constraints.maxWidth >= 640
           ? list
-          : SingleChildScrollView(
+          : GhScrollView(
               scrollDirection: Axis.horizontal,
               child: SizedBox(width: 640, child: list),
             ),

@@ -19,6 +19,7 @@ import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
 import '../ui/reusables/modal_kit.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 String repoBaseName(String url) {
   var cleaned = url.trim().replaceFirst(RegExp(r'/+$'), '');
@@ -410,7 +411,7 @@ class _CloneRepoModalState extends ConsumerState<CloneRepoModal> {
         borderRadius: BorderRadius.circular(theme.radiusItem),
         border: Border.all(color: theme.outline.withValues(alpha: 0.3)),
       ),
-      child: SingleChildScrollView(child: content),
+      child: GhScrollView(child: content),
     );
   }
 

@@ -408,7 +408,6 @@ class _ProjectTodoModalState extends State<ProjectTodoModal> {
                             child: GhTextInput(
                               controller: _itemController(item),
                               bordered: false,
-                              focusRing: false,
                               padding: EdgeInsets.zero,
                               background: theme.overlay.withValues(alpha: 0),
                             ),

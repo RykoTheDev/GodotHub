@@ -11,6 +11,7 @@ import '../ui/controls/equal_height_row.dart';
 import '../ui/core/i18n.dart';
 import '../ui/dnd/sortable.dart';
 import 'category_sections.dart';
+import '../ui/shell/smooth_scroll.dart';
 import 'project_actions.dart' show uncategorizedDot;
 
 typedef ProjectCardBuilder = Widget Function(Project project, {bool preview});
@@ -149,12 +150,7 @@ class _Divider extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = GhTheme.of(context);
-    return Container(
-      height: 2,
-      margin: EdgeInsets.symmetric(vertical: theme.space(1)),
-      color: theme.outline,
-    );
+    return SizedBox(height: GhTheme.of(context).space(2));
   }
 }
 
@@ -623,7 +619,7 @@ class ProjectCardKanban extends StatefulWidget {
 
 class _ProjectCardKanbanState extends State<ProjectCardKanban> {
   final ProjectDndBinding _dnd = ProjectDndBinding('kanban-cat-');
-  final ScrollController _horizontal = ScrollController();
+  final ScrollController _horizontal = GhSmoothScrollController();
 
   @override
   void dispose() {
@@ -685,7 +681,7 @@ class _ProjectCardKanbanState extends State<ProjectCardKanban> {
     final width = theme.space(widget.compact ? 65 : 75);
     final board = Scrollbar(
       controller: _horizontal,
-      child: SingleChildScrollView(
+      child: GhScrollView(
         controller: _horizontal,
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.only(bottom: theme.space(4)),

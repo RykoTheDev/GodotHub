@@ -10,6 +10,7 @@ import '../../motion/presence.dart';
 import '../core/ui_settings.dart';
 import 'modal_events.dart';
 import 'modal_header.dart';
+import '../shell/smooth_scroll.dart';
 
 enum GhModalWidth {
   sm(24),
@@ -221,7 +222,7 @@ class _GhModalShellState extends State<GhModalShell> {
           else
             Flexible(
               child: GhCascadeItem(
-                child: bodyHeight != null ? SizedBox(height: bodyHeight, child: widget.child) : SingleChildScrollView(child: widget.child),
+                child: bodyHeight != null ? SizedBox(height: bodyHeight, child: widget.child) : GhScrollView(child: widget.child),
               ),
             ),
           ?widget.rawFooter,

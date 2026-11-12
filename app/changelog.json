@@ -12,8 +12,18 @@
     "version": "flutter-v0.1.5",
     "date": "",
     "notes": [
-      { "category": "add", "text": "Add Projects View Screen" },
-      { "category": "add", "text": "Add Versions View Screen" }
+      { "category": "add", "text": "Projects View Screen" },
+      { "category": "add", "text": "Versions View Screen" }
+    ]
+  },
+  {
+    "version": "flutter-v0.2.0",
+    "date": "",
+    "notes": [
+      { "category": "add", "text": "Remaining Views" },
+      { "category": "add", "text": "Git Sidebar" },
+      { "category": "fix", "text": "UI Bugs" },
+      { "category": "improve", "text": "Smooth scrolling across views" }
     ]
   }
 ]

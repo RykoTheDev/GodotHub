@@ -8,6 +8,7 @@ import '../ui/feedback/confirm_dialog.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
 import '../ui/reusables/modal_kit.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 String _t(String key, {num? count, Map<String, Object?> args = const {}}) => ghTr('project_addons.$key', count: count, args: args);
 
@@ -219,7 +220,7 @@ class _ProjectAddonsModalState extends State<ProjectAddonsModal> {
         ),
         GhOutlineAction(onPressed: widget.onClose, label: context.tr.common.close),
       ],
-      child: SingleChildScrollView(
+      child: GhScrollView(
         padding: EdgeInsets.all(theme.space(6)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

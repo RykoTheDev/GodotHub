@@ -7,6 +7,7 @@ import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import 'project_picker.dart';
 import 'vault_file_tree.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 class VaultTreeBox extends StatelessWidget {
   const VaultTreeBox({super.key, required this.child, this.maxHeightRem = 14, this.padding = 1});
@@ -25,7 +26,7 @@ class VaultTreeBox extends StatelessWidget {
         borderRadius: BorderRadius.circular(theme.radiusItem),
         border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
       ),
-      child: SingleChildScrollView(padding: EdgeInsets.all(theme.space(padding)), child: child),
+      child: GhScrollView(padding: EdgeInsets.all(theme.space(padding)), child: child),
     );
   }
 }

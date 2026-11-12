@@ -195,7 +195,7 @@ class _AssetStoreViewState extends ConsumerState<AssetStoreView> {
           ),
         ),
         Padding(
-          padding: EdgeInsetsDirectional.only(start: insets.start + (connected ? theme.space(3) : 0), end: insets.end + theme.space(6)),
+          padding: EdgeInsetsDirectional.only(start: insets.start + (connected ? theme.space(3) : 0), end: insets.end + theme.space(6), bottom: theme.space(1)),
           child: _filters(theme),
         ),
         Expanded(

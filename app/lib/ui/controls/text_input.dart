@@ -27,7 +27,6 @@ class GhTextInput extends StatefulWidget {
     this.borderRadius,
     this.padding,
     this.bordered = true,
-    this.focusRing = true,
     this.width,
     this.semanticLabel,
     this.tooltip,
@@ -60,7 +59,6 @@ class GhTextInput extends StatefulWidget {
   final BorderRadius? borderRadius;
   final EdgeInsetsGeometry? padding;
   final bool bordered;
-  final bool focusRing;
   final double? width;
   final String? semanticLabel;
   final String? tooltip;
@@ -163,7 +161,7 @@ class _GhTextInputState extends State<GhTextInput> {
       color: widget.background,
       borderRadius: radius,
       border: widget.bordered ? Border.all(color: dashed ? Colors.transparent : (focused ? focusBorder : border)) : null,
-      boxShadow: focused && widget.focusRing && widget.bordered ? GhShadows.inputFocus(theme) : const [],
+      boxShadow: const [],
       padding: widget.padding ?? EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(2)),
       child: field,
     );

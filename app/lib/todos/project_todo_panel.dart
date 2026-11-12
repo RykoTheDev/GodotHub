@@ -24,6 +24,7 @@ import 'project_todo_details_modal.dart';
 import 'project_todo_list.dart';
 import 'project_todo_modal.dart';
 import 'todo_logic.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 class TodoBoard extends ChangeNotifier {
   TodoBoard(this.ref, this.projectId);
@@ -410,7 +411,7 @@ class _ProjectTodoListModalState extends ConsumerState<ProjectTodoListModal> {
               ),
             ),
             Expanded(
-              child: SingleChildScrollView(
+              child: GhScrollView(
                 padding: EdgeInsetsDirectional.only(end: theme.space(1)),
                 child: visible.isEmpty
                     ? Padding(

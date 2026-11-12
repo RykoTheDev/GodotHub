@@ -95,6 +95,7 @@ class _GhAccountMenuState extends State<GhAccountMenu> {
       side: GhSide.top,
       align: GhSide.left,
       onOpenChange: widget.onOpenChange,
+      compact: true,
       items: _items(),
       content: (context, close) => _header(context, close),
     );

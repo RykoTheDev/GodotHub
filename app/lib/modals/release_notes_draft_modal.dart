@@ -15,6 +15,7 @@ import '../ui/feedback/modal_shell.dart';
 import '../ui/overlays/dropdown.dart';
 import '../ui/overlays/menu.dart';
 import '../ui/reusables/modal_kit.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 const changelogHead = 'HEAD';
 const changelogCategories = ['add', 'fix', 'improve'];
@@ -369,7 +370,7 @@ class _ReleaseNotesDraftModalState extends State<ReleaseNotesDraftModal> {
               ),
               ConstrainedBox(
                 constraints: BoxConstraints(maxHeight: theme.space(64)),
-                child: SingleChildScrollView(
+                child: GhScrollView(
                   padding: EdgeInsetsDirectional.only(end: theme.space(1)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,

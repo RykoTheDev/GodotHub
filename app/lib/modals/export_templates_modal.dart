@@ -17,6 +17,7 @@ import '../ui/feedback/toast.dart';
 import '../ui/reusables/modal_kit.dart';
 import '../ui/shell/disclosure.dart';
 import 'current_version_modal.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 String _tv(String key, {num? count, Map<String, Object?> args = const {}}) => ghTr('versions:$key', count: count, args: args);
 
@@ -670,7 +671,7 @@ class _ExportTemplatesModalState extends State<ExportTemplatesModal> {
           label: _tv('export_templates_download_selected'),
         ),
       ],
-      child: SingleChildScrollView(padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(6)), child: body),
+      child: GhScrollView(padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(6)), child: body),
     );
   }
 }

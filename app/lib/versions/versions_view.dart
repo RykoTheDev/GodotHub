@@ -825,7 +825,7 @@ class _VersionsViewState extends ConsumerState<VersionsView> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: EdgeInsetsDirectional.only(start: insets.start, end: insets.end, bottom: theme.space(2)),
+          padding: EdgeInsetsDirectional.only(start: insets.start, end: insets.end),
           child: GhViewHeader(
             connected: widget.connected,
             title: tr.nav.versions,

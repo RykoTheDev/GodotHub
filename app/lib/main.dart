@@ -9,6 +9,7 @@ import 'debug/gallery/widget_gallery.dart';
 import 'design/design.dart';
 import 'i18n/i18n.dart';
 import 'i18n/i18n_controller.dart';
+import 'modals/bug_report_modal.dart';
 import 'motion/motion.dart';
 import 'motion/reveal.dart';
 import 'src/app_theme.dart';
@@ -27,6 +28,7 @@ import 'window/app_window.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  installBugReportErrorCapture();
   await RustLib.init();
   AppEvents.all.listen((_) {});
   final title = await core.startCore(channel: buildChannel);

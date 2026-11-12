@@ -27,6 +27,7 @@ import '../ui/core/ui_settings.dart' show GhSide;
 import '../ui/feedback/toast.dart';
 import '../ui/reusables/modal_kit.dart';
 import 'console_request.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 const consolePollMs = 180;
 const consolePollIdleMs = 1000;
@@ -159,7 +160,7 @@ class ProjectConsoleWindow extends ConsumerStatefulWidget {
 
 class _ProjectConsoleWindowState extends ConsumerState<ProjectConsoleWindow> {
   final List<StreamSubscription<Object?>> _subscriptions = [];
-  final ScrollController _scroll = ScrollController();
+  final ScrollController _scroll = GhSmoothScrollController();
   final GlobalKey _pillKey = GlobalKey();
   final Map<String, ConsoleTabState> _states = {};
   final Set<ConsoleLevel> _hidden = {};
@@ -727,7 +728,7 @@ class _ProjectConsoleWindowState extends ConsumerState<ProjectConsoleWindow> {
               child: Row(
                 children: [
                   Expanded(
-                    child: SingleChildScrollView(
+                    child: GhScrollView(
                       scrollDirection: Axis.horizontal,
                       child: Row(spacing: theme.space(1), children: [for (final id in _states.keys) _tab(theme, id, _states[id]!)]),
                     ),

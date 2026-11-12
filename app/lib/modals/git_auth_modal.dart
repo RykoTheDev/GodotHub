@@ -13,6 +13,7 @@ import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
 import '../ui/reusables/modal_kit.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 enum GitAuthStatus { starting, waiting, success, error, expired }
 
@@ -580,7 +581,7 @@ class _GitAuthModalState extends State<GitAuthModal> {
                       ),
                       child: Stack(
                         children: [
-                          SingleChildScrollView(
+                          GhScrollView(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [

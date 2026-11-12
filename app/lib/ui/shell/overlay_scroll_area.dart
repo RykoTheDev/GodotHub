@@ -10,6 +10,7 @@ import '../feedback/modal_events.dart';
 import '../overlays/popup_registry.dart';
 import '../core/i18n.dart';
 import '../../motion/motion.dart';
+import 'smooth_scroll.dart';
 
 const double _showTopAfter = 200;
 const double _minThumb = 32;
@@ -52,7 +53,7 @@ class _GhOverlayScrollAreaState extends State<GhOverlayScrollArea> {
   double _dragStartY = 0;
   double _dragStartScroll = 0;
 
-  ScrollController get _controller => widget.controller ?? (_own ??= ScrollController());
+  ScrollController get _controller => widget.controller ?? (_own ??= GhSmoothScrollController());
 
   @override
   void initState() {
@@ -180,7 +181,7 @@ class _GhOverlayScrollAreaState extends State<GhOverlayScrollArea> {
         behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false, overscroll: false),
         child: widget.slivers != null
             ? CustomScrollView(controller: _controller, slivers: widget.slivers!)
-            : SingleChildScrollView(controller: _controller, child: widget.child),
+            : GhScrollView(controller: _controller, child: widget.child),
       ),
     );
     final track = PositionedDirectional(

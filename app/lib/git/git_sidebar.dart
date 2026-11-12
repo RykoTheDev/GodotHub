@@ -35,6 +35,7 @@ import '../ui/reusables/modal_kit.dart';
 import 'commit_graph.dart';
 import 'git_section.dart';
 import 'git_worktrees.dart';
+import '../ui/shell/smooth_scroll.dart';
 
 const gitAutoFetchInterval = Duration(milliseconds: 180000);
 
@@ -1163,7 +1164,7 @@ class _GitSidebarState extends ConsumerState<GitSidebar> {
               border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
               boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 6, offset: const Offset(0, 4))],
             ),
-            child: SingleChildScrollView(
+            child: GhScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
@@ -1312,7 +1313,6 @@ class _GitSidebarState extends ConsumerState<GitSidebar> {
               minLines: 3,
               size: GhTextSize.xs,
               bordered: false,
-              focusRing: false,
               placeholder: ghTr('git_commit_placeholder'),
               background: theme.raised.withValues(alpha: 0),
               padding: EdgeInsets.symmetric(horizontal: theme.space(2.5), vertical: theme.space(2)),
@@ -1600,7 +1600,7 @@ class _GitSidebarState extends ConsumerState<GitSidebar> {
             borderRadius: BorderRadius.circular(theme.radiusItem),
             border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
           ),
-          child: SingleChildScrollView(
+          child: GhScrollView(
             padding: EdgeInsets.symmetric(vertical: theme.space(0.5)),
             child: body,
           ),
@@ -1790,7 +1790,7 @@ class _GitSidebarState extends ConsumerState<GitSidebar> {
                   borderRadius: BorderRadius.circular(theme.radiusItem),
                   border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
                 ),
-                child: SingleChildScrollView(
+                child: GhScrollView(
                   child: CommitGraph(commits: _commits, remoteUrl: _remotes.firstOrNull?.webUrl, onOpenDetails: _openCommit),
                 ),
               ),
@@ -1851,7 +1851,7 @@ class _GitSidebarState extends ConsumerState<GitSidebar> {
                   ),
                 ),
                 Expanded(
-                  child: SingleChildScrollView(padding: EdgeInsets.all(theme.space(3)), child: content),
+                  child: GhScrollView(padding: EdgeInsets.all(theme.space(3)), child: content),
                 ),
               ],
             ),

@@ -22,6 +22,7 @@ import '../state/workspaces.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_header.dart';
+import '../ui/shell/smooth_scroll.dart';
 import '../ui/shell/sidebar.dart' show ghModLabel;
 
 @immutable
@@ -305,7 +306,7 @@ class CommandPalette extends ConsumerStatefulWidget {
 class _CommandPaletteState extends ConsumerState<CommandPalette> {
   final TextEditingController _query = TextEditingController();
   final FocusNode _input = FocusNode(debugLabel: 'CommandPalette input');
-  final ScrollController _scroll = ScrollController();
+  final ScrollController _scroll = GhSmoothScrollController();
   final Map<int, GlobalKey> _itemKeys = {};
   int _selectedIndex = 0;
 
@@ -638,7 +639,7 @@ class _CommandPaletteState extends ConsumerState<CommandPalette> {
                         ),
                       ),
                     )
-                  : SingleChildScrollView(
+                  : GhScrollView(
                       controller: _scroll,
                       padding: EdgeInsets.all(theme.space(2)),
                       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: list),
