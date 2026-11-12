@@ -9,7 +9,7 @@ import '../api/projects.dart';
 import '../console/console_request.dart';
 import '../design/design.dart';
 import '../logic/format_bytes.dart';
-import '../shell/placeholder_view.dart';
+import 'export_templates_modal.dart';
 import '../src/rust/api/dto.dart' as dto;
 import '../src/rust/api/types.dart';
 import '../state/app_lifecycle.dart';
@@ -472,7 +472,21 @@ class _ProjectBuildModalState extends ConsumerState<ProjectBuildModal> {
                   GhOutlineAction(
                     onPressed: downloading || busy
                         ? null
-                        : () => showPlaceholderModal(context, title: _t('install_templates'), icon: GhIcons.download).ignore(),
+                        : () => showGhModal<void>(
+                            context,
+                            (modal) => ExportTemplatesModal(
+                              tag: catalog.versionTag,
+                              onClose: () => Navigator.of(modal).pop(),
+                              onChanged: _refresh,
+                              onDownload: (files) {
+                                Navigator.of(modal).pop();
+                                ref
+                                    .read(exportTemplateDownloadsProvider.notifier)
+                                    .install(catalog.versionTag, files, onInstalled: _refresh)
+                                    .ignore();
+                              },
+                            ),
+                          ).ignore(),
                     icon: GhIcons.download,
                     label: downloading ? _t('downloading_templates') : _t('install_templates'),
                   ),

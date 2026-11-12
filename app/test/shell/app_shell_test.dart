@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:godothub/git/git_sidebar.dart';
+import 'package:godothub/versions/versions_view.dart';
 import 'package:godothub/design/design.dart';
 import 'package:godothub/logic/settings_copy.dart';
 import 'package:godothub/modals/command_palette.dart';
@@ -210,7 +211,7 @@ void main() {
 
       await tester.tap(tabButton('versions'));
       await settle(tester);
-      expect(placeholder('Versions'), findsOneWidget);
+      expect(find.byType(VersionsView), findsOneWidget);
       expect(placeholder('Templates'), findsNothing);
       expect(find.byWidgetPredicate((w) => w is PlaceholderView && w.title == 'Templates', skipOffstage: false), findsOneWidget);
       expect(signals.where((s) => s.name == viewChangedSignal).last.detail, 'versions');

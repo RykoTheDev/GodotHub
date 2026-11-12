@@ -7,7 +7,8 @@ import '../api/projects.dart';
 import '../api/versions.dart';
 import '../design/design.dart';
 import '../logic/format_bytes.dart';
-import '../shell/placeholder_view.dart';
+import '../logic/export_template_catalog.dart';
+import 'export_templates_modal.dart';
 import '../src/rust/api/dto.dart' as dto;
 import '../src/rust/api/types.dart';
 import '../state/app_signals.dart';
@@ -163,6 +164,27 @@ class _ProjectDoctorModalState extends State<ProjectDoctorModal> {
     ghToasts.pushToast(GhToastType.success, _t('version_queued'));
   });
 
+  Future<void> _openTemplates() => showGhModal<void>(
+    context,
+    (modal) => ExportTemplatesModal(
+      tag: _version,
+      onClose: () => Navigator.of(modal).pop(),
+      onChanged: _scan,
+      onDownload: (files) {
+        Navigator.of(modal).pop();
+        _run('templates', () async {
+          final result = await VersionsApi.installExportTemplates(_version, files);
+          if (result != null) {
+            setTemplateFilesInstalled(_version, files, true);
+            ghToasts.pushToast(GhToastType.success, _t('fix_complete'));
+            _changed();
+          }
+          await _scan();
+        });
+      },
+    ),
+  );
+
   void _manageVersions() {
     widget.onClose();
     AppSignals.emit(setTabSignal, 'versions');
@@ -184,7 +206,7 @@ class _ProjectDoctorModalState extends State<ProjectDoctorModal> {
     }
     switch (kind) {
       case 'templates':
-        await showPlaceholderModal(context, title: _t('action_templates'), icon: GhIcons.download);
+        await _openTemplates();
       case 'install_version':
         await _installBoundVersion(finding);
       case 'manage_versions':
@@ -414,11 +436,21 @@ class _ProjectDoctorModalState extends State<ProjectDoctorModal> {
       footer: [
         Expanded(
           child: Text(
-            _t('local_checks'),
+            _busy == 'templates' ? _t('templates_downloading') : _t('local_checks'),
             style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625),
           ),
         ),
         GhOutlineAction(onPressed: _manageVersions, label: _t('action_manage_versions')),
+        if (_busy == 'templates')
+          GhOutlineAction(
+            onPressed: () => VersionsApi.cancelExportTemplates(_version).catchError((Object e) {
+              if (mounted) setState(() => _error = '$e');
+            }),
+            icon: GhIcons.x,
+            iconSize: 3,
+            tooltip: ghTr('cancel'),
+            semanticLabel: ghTr('cancel'),
+          ),
         GhOutlineAction(onPressed: widget.onClose, label: context.tr.common.close),
       ],
       child: SingleChildScrollView(
