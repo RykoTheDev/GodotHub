@@ -1318,6 +1318,9 @@ class _Translations$settings$vi_VN extends Translations$settings$en_US {
 	@override String get tray_recent_label => 'Dự án gần đây trên khay';
 	@override String get tooltip_delay_label => 'Độ trễ tooltip';
 	@override String get project_icon_opacity_label => 'Độ mờ biểu tượng dự án';
+	@override String get project_card_style_label => 'Kiểu thẻ dự án';
+	@override String get project_card_style_hub => 'Godot Hub';
+	@override String get project_card_style_cover => 'Bìa';
 	@override String get time_format_label => 'Định dạng giờ (hiện khi mở hôm nay)';
 	@override String get date_format_label => 'Định dạng ngày (hiện cho các ngày khác)';
 	@override String get auto_scan_label => 'Quét tự động khi khởi động';
@@ -3522,6 +3525,9 @@ extension on TranslationsViVn {
 			'settings.tray_recent_label' => 'Dự án gần đây trên khay',
 			'settings.tooltip_delay_label' => 'Độ trễ tooltip',
 			'settings.project_icon_opacity_label' => 'Độ mờ biểu tượng dự án',
+			'settings.project_card_style_label' => 'Kiểu thẻ dự án',
+			'settings.project_card_style_hub' => 'Godot Hub',
+			'settings.project_card_style_cover' => 'Bìa',
 			'settings.time_format_label' => 'Định dạng giờ (hiện khi mở hôm nay)',
 			'settings.date_format_label' => 'Định dạng ngày (hiện cho các ngày khác)',
 			'settings.auto_scan_label' => 'Quét tự động khi khởi động',
@@ -3649,11 +3655,11 @@ extension on TranslationsViVn {
 			'settings.interface_label' => 'Giao diện',
 			'settings.card_layout_label' => 'Bố cục thẻ',
 			'settings.landing_tab_label' => 'Trang đích mặc định',
+			_ => null,
+		} ?? switch (path) {
 			'settings.language_complete' => 'Hoàn chỉnh',
 			'settings.language_beta' => 'Beta',
 			'settings.language_incomplete' => 'Chưa hoàn chỉnh',
-			_ => null,
-		} ?? switch (path) {
 			'settings.use_os_decorations' => 'Dùng trang trí cửa sổ hệ điều hành',
 			'settings.credits' => 'Ghi công',
 			'settings.credits_developer' => 'Tạo bởi',

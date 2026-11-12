@@ -125,7 +125,9 @@ ProjectDropResolution resolveProjectDrop(ProjectDropInput input) {
   final grouped = input.grouped;
   final prefix = input.prefixes.category;
   final activeIds = input.activeIds;
-  final travelling = <String>{...(activeIds != null && activeIds.isNotEmpty ? activeIds : [activeId])};
+  final travelling = <String>{
+    ...(activeIds != null && activeIds.isNotEmpty ? activeIds : [activeId]),
+  };
   final moving = projects.where((p) => travelling.contains(p.id)).toList();
   final draggedIndex = projects.indexWhere((p) => p.id == activeId);
   if (draggedIndex == -1 || moving.isEmpty || travelling.contains(overId)) return const ProjectDropNone();

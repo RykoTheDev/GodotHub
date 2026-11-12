@@ -26,13 +26,7 @@ class ChangelogNotifier extends ApiDataNotifier<List<ChangelogEntry>> {
     AppSignals.emit(changelogEntryAddedSignal);
   }
 
-  Future<void> updateEntry(
-    String id,
-    String version,
-    String date,
-    List<ChangelogNote> notes,
-    List<String> knownIssues,
-  ) async {
+  Future<void> updateEntry(String id, String version, String date, List<ChangelogNote> notes, List<String> knownIssues) async {
     await ChangelogApi.update(id, version, date, notes, knownIssues);
     await refresh();
     AppSignals.emit(changelogEntryAddedSignal);
@@ -44,8 +38,9 @@ class ChangelogNotifier extends ApiDataNotifier<List<ChangelogEntry>> {
   }
 }
 
-final changelogBadgeEntriesProvider =
-    NotifierProvider<ChangelogBadgeEntriesNotifier, ApiData<List<ChangelogEntry>>>(ChangelogBadgeEntriesNotifier.new);
+final changelogBadgeEntriesProvider = NotifierProvider<ChangelogBadgeEntriesNotifier, ApiData<List<ChangelogEntry>>>(
+  ChangelogBadgeEntriesNotifier.new,
+);
 
 class ChangelogBadgeEntriesNotifier extends ApiDataNotifier<List<ChangelogEntry>> {
   @override

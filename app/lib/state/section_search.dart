@@ -22,16 +22,13 @@ class SectionSearchState {
   bool get noResults => query.trim().isNotEmpty && visible != null && visible!.isEmpty;
 
   @override
-  bool operator ==(Object other) =>
-      other is SectionSearchState && other.query == query && setEquals(other.visible, visible);
+  bool operator ==(Object other) => other is SectionSearchState && other.query == query && setEquals(other.visible, visible);
 
   @override
   int get hashCode => Object.hash(query, visible == null ? null : Object.hashAllUnordered(visible!));
 }
 
-final sectionSearchProvider = NotifierProvider.autoDispose<SectionSearchNotifier, SectionSearchState>(
-  SectionSearchNotifier.new,
-);
+final sectionSearchProvider = NotifierProvider.autoDispose<SectionSearchNotifier, SectionSearchState>(SectionSearchNotifier.new);
 
 class SectionSearchNotifier extends Notifier<SectionSearchState> {
   late final FocusNode focusNode = FocusNode(debugLabel: 'section-search');

@@ -33,11 +33,7 @@ class WorkspaceEditModal extends StatefulWidget {
 }
 
 class _WorkspaceEditModalState extends State<WorkspaceEditModal> {
-  late GhWorkspaceDraft _draft = GhWorkspaceDraft(
-    name: widget.workspace.name,
-    icon: widget.workspace.icon,
-    color: widget.workspace.color,
-  );
+  late GhWorkspaceDraft _draft = GhWorkspaceDraft(name: widget.workspace.name, icon: widget.workspace.icon, color: widget.workspace.color);
   bool _touched = false;
   String? _error;
   bool _busy = false;
@@ -96,7 +92,10 @@ class _WorkspaceEditModalState extends State<WorkspaceEditModal> {
             if (_error != null)
               Padding(
                 padding: EdgeInsetsDirectional.only(end: theme.space(2)),
-                child: Text(_error!, style: theme.text(size: GhTextSize.xs, color: theme.danger)),
+                child: Text(
+                  _error!,
+                  style: theme.text(size: GhTextSize.xs, color: theme.danger),
+                ),
               ),
             GhButton(onPressed: widget.onClose, label: tr.cancel),
             GhButton(
@@ -145,7 +144,10 @@ class _DeleteButton extends StatelessWidget {
           borderRadius: radius,
           color: hover ? theme.danger.withValues(alpha: 0.05) : theme.danger.withValues(alpha: 0),
           padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(2.5)),
-          child: Text(label, style: theme.text(size: GhTextSize.sm, color: hover ? theme.danger : theme.muted)),
+          child: Text(
+            label,
+            style: theme.text(size: GhTextSize.sm, color: hover ? theme.danger : theme.muted),
+          ),
         );
       },
     );

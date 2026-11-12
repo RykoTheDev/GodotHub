@@ -55,8 +55,7 @@ class ProjectTodosState {
   int get hashCode => Object.hash(identityHashCode(todos), loaded, loading, error, saving, saveError);
 }
 
-final projectTodosProvider = NotifierProvider.autoDispose
-    .family<ProjectTodosNotifier, ProjectTodosState, String>(ProjectTodosNotifier.new);
+final projectTodosProvider = NotifierProvider.autoDispose.family<ProjectTodosNotifier, ProjectTodosState, String>(ProjectTodosNotifier.new);
 
 class ProjectTodosNotifier extends Notifier<ProjectTodosState> {
   ProjectTodosNotifier(this.projectId);

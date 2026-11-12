@@ -117,14 +117,7 @@ FocusNode? ghFirstFocusableMenuNode(Iterable<FocusNode> nodes) {
 }
 
 class GhMenuSurface extends StatelessWidget {
-  const GhMenuSurface({
-    super.key,
-    required this.child,
-    this.compact = false,
-    this.minWidth,
-    this.maxHeight,
-    this.fitContent = true,
-  });
+  const GhMenuSurface({super.key, required this.child, this.compact = false, this.minWidth, this.maxHeight, this.fitContent = true});
 
   final Widget child;
   final bool compact;
@@ -284,9 +277,7 @@ class _GhMenuButtonState extends State<GhMenuButton> {
           decoration: BoxDecoration(
             color: item.active ? Colors.black.withValues(alpha: 0.15) : theme.accent.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(theme.radiusTag),
-            border: Border.all(
-              color: item.active ? Colors.black.withValues(alpha: 0.1) : theme.accentDim.withValues(alpha: 0.4),
-            ),
+            border: Border.all(color: item.active ? Colors.black.withValues(alpha: 0.1) : theme.accentDim.withValues(alpha: 0.4)),
           ),
           child: Text(
             item.badge!,
@@ -325,10 +316,7 @@ class _GhMenuButtonState extends State<GhMenuButton> {
       color: background,
       borderRadius: radius,
       lift: lift,
-      padding: EdgeInsets.symmetric(
-        horizontal: theme.space(compact ? 2 : 2.5),
-        vertical: theme.space(compact ? 1.5 : 2),
-      ),
+      padding: EdgeInsets.symmetric(horizontal: theme.space(compact ? 2 : 2.5), vertical: theme.space(compact ? 1.5 : 2)),
       child: Row(children: spaced),
     );
   }
@@ -412,6 +400,5 @@ class _OuterShadowPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_OuterShadowPainter oldDelegate) =>
-      oldDelegate.progress != progress || oldDelegate.borderRadius != borderRadius;
+  bool shouldRepaint(_OuterShadowPainter oldDelegate) => oldDelegate.progress != progress || oldDelegate.borderRadius != borderRadius;
 }

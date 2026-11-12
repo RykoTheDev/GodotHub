@@ -10,30 +10,16 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-Future<List<Project>> scanForProjects({
-  required List<String> dirs,
-  required int depth,
-}) =>
+Future<List<Project>> scanForProjects({required List<String> dirs, required int depth}) =>
     RustLib.instance.api.crateApiScanScanForProjects(dirs: dirs, depth: depth);
 
-Future<ScanProjectsResult> scanForProjectsWithInfo({
-  required List<String> dirs,
-  required int depth,
-}) => RustLib.instance.api.crateApiScanScanForProjectsWithInfo(
-  dirs: dirs,
-  depth: depth,
-);
+Future<ScanProjectsResult> scanForProjectsWithInfo({required List<String> dirs, required int depth}) =>
+    RustLib.instance.api.crateApiScanScanForProjectsWithInfo(dirs: dirs, depth: depth);
 
-Future<List<InstalledGodotVersion>> scanForVersions({
-  required List<String> dirs,
-  required int depth,
-}) =>
+Future<List<InstalledGodotVersion>> scanForVersions({required List<String> dirs, required int depth}) =>
     RustLib.instance.api.crateApiScanScanForVersions(dirs: dirs, depth: depth);
 
-Future<List<InstalledGodotVersion>> importVersion({required String path}) =>
-    RustLib.instance.api.crateApiScanImportVersion(path: path);
+Future<List<InstalledGodotVersion>> importVersion({required String path}) => RustLib.instance.api.crateApiScanImportVersion(path: path);
 
-Future<InstalledGodotVersion> addCustomBuild({
-  required String path,
-  String? name,
-}) => RustLib.instance.api.crateApiScanAddCustomBuild(path: path, name: name);
+Future<InstalledGodotVersion> addCustomBuild({required String path, String? name}) =>
+    RustLib.instance.api.crateApiScanAddCustomBuild(path: path, name: name);

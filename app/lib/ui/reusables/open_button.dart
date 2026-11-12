@@ -125,11 +125,7 @@ class _GhOpenButtonState extends State<GhOpenButton> {
                   color: _console ? theme.mint : (hover ? theme.mint.withValues(alpha: 0.5) : theme.outline.withValues(alpha: 0.5)),
                 ),
                 boxShadow: shadow,
-                child: GhIcon(
-                  GhIcons.terminal,
-                  size: theme.space(4),
-                  color: _console ? theme.mint : (hover ? theme.mint : theme.muted),
-                ),
+                child: GhIcon(GhIcons.terminal, size: theme.space(4), color: _console ? theme.mint : (hover ? theme.mint : theme.muted)),
               );
             },
           ),

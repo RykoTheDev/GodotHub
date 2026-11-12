@@ -71,10 +71,10 @@ class _SampleBody extends StatelessWidget {
 }
 
 List<Widget> _sampleFooter(VoidCallback close) => [
-      const Spacer(),
-      GhButton(onPressed: close, label: 'Cancel'),
-      GhButton(onPressed: close, label: 'Save', variant: GhButtonVariant.primary),
-    ];
+  const Spacer(),
+  GhButton(onPressed: close, label: 'Cancel'),
+  GhButton(onPressed: close, label: 'Save', variant: GhButtonVariant.primary),
+];
 
 class _Modals extends StatelessWidget {
   const _Modals();
@@ -89,9 +89,7 @@ class _Modals extends StatelessWidget {
         onClose: close,
         bodyHeight: tall ? GhModalShell.tallBodyHeight(context) : null,
         footer: _sampleFooter(close),
-        child: tall
-            ? ListView(children: [for (var i = 0; i < 4; i++) _SampleBody(lines: 4)])
-            : _SampleBody(lines: lines),
+        child: tall ? ListView(children: [for (var i = 0; i < 4; i++) _SampleBody(lines: 4)]) : _SampleBody(lines: lines),
       );
     });
   }
@@ -159,12 +157,28 @@ class _Modals extends StatelessWidget {
               children: [
                 for (final width in GhModalWidth.values.take(6))
                   GhButton(onPressed: () => _openShell(context, width), label: 'Shell ${width.name}', variant: GhButtonVariant.outline),
-                GhButton(onPressed: () => _openShell(context, GhModalWidth.x2l, lines: 40), label: 'Long body', variant: GhButtonVariant.outline),
-                GhButton(onPressed: () => _openShell(context, GhModalWidth.x2l, tall: true), label: 'Tall body height', variant: GhButtonVariant.outline),
+                GhButton(
+                  onPressed: () => _openShell(context, GhModalWidth.x2l, lines: 40),
+                  label: 'Long body',
+                  variant: GhButtonVariant.outline,
+                ),
+                GhButton(
+                  onPressed: () => _openShell(context, GhModalWidth.x2l, tall: true),
+                  label: 'Tall body height',
+                  variant: GhButtonVariant.outline,
+                ),
                 GhButton(onPressed: () => _openNoClose(context), label: 'showClose false', variant: GhButtonVariant.outline),
                 GhButton(onPressed: () => _openMenuBlocked(context), label: 'Menu open', variant: GhButtonVariant.outline),
-                GhButton(onPressed: () => _openConfirm(context, GhConfirmVariant.normal), label: 'Confirm default', variant: GhButtonVariant.primary),
-                GhButton(onPressed: () => _openConfirm(context, GhConfirmVariant.danger), label: 'Confirm danger', variant: GhButtonVariant.danger),
+                GhButton(
+                  onPressed: () => _openConfirm(context, GhConfirmVariant.normal),
+                  label: 'Confirm default',
+                  variant: GhButtonVariant.primary,
+                ),
+                GhButton(
+                  onPressed: () => _openConfirm(context, GhConfirmVariant.danger),
+                  label: 'Confirm danger',
+                  variant: GhButtonVariant.danger,
+                ),
               ],
             ),
             GalleryGroup(
@@ -293,11 +307,7 @@ class _Toasts extends StatelessWidget {
                   label: 'reportError',
                   variant: GhButtonVariant.outline,
                 ),
-                GhButton(
-                  onPressed: () => reportError(null),
-                  label: 'reportError empty',
-                  variant: GhButtonVariant.outline,
-                ),
+                GhButton(onPressed: () => reportError(null), label: 'reportError empty', variant: GhButtonVariant.outline),
                 GhButton(onPressed: ghToasts.clear, label: 'Clear all', variant: GhButtonVariant.ghost),
               ],
             ),
@@ -417,7 +427,10 @@ class _NoticesState extends State<_Notices> {
                   label: 'Switch workspace',
                   variant: GhButtonVariant.primary,
                 ),
-                Text('Active: ${_workspaces[_active].name}', style: theme.text(size: GhTextSize.xs, color: theme.muted)),
+                Text(
+                  'Active: ${_workspaces[_active].name}',
+                  style: theme.text(size: GhTextSize.xs, color: theme.muted),
+                ),
               ],
             ),
           ],

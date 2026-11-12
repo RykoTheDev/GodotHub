@@ -1,7 +1,14 @@
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
+
 abstract final class OpenerApi {
+  @visibleForTesting
+  static Future<void> Function(String url)? debugOpenUrl;
+
   static Future<void> openUrl(String url) async {
+    final override = debugOpenUrl;
+    if (override != null) return override(url);
     final uri = Uri.tryParse(url);
     if (uri == null || (uri.scheme != 'https' && uri.scheme != 'http') || uri.host.isEmpty) {
       throw ArgumentError.value(url, 'url', 'Only http and https links can be opened');

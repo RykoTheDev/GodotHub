@@ -47,15 +47,18 @@ class _Colors extends StatelessWidget {
           spacing: 6,
           children: [
             for (final hex in categoryColors)
-              Container(width: 24, height: 24, decoration: BoxDecoration(color: colorFromHex(hex), shape: BoxShape.circle)),
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(color: colorFromHex(hex), shape: BoxShape.circle),
+              ),
           ],
         ),
         GalleryGroup(
           title: 'Tag chips',
           spacing: 8,
           children: [
-            for (final tag in const ['godot', 'jam', '2d', 'prototype', 'shipped', 'multiplayer'])
-              _TagChip(tag: tag),
+            for (final tag in const ['godot', 'jam', '2d', 'prototype', 'shipped', 'multiplayer']) _TagChip(tag: tag),
           ],
         ),
       ],
@@ -84,7 +87,10 @@ class _TagChip extends StatelessWidget {
             decoration: BoxDecoration(color: color, shape: BoxShape.circle, boxShadow: GhShadows.ring(const Color(0x33000000))),
           ),
           SizedBox(width: theme.space(1)),
-          Text(tag, style: theme.text(size: GhTextSize.x3s, mono: true, color: color)),
+          Text(
+            tag,
+            style: theme.text(size: GhTextSize.x3s, mono: true, color: color),
+          ),
         ],
       ),
     );
@@ -107,20 +113,37 @@ class _Typography extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
               children: [
-                SizedBox(width: 90, child: Text('text-${_sizeName(size)}', style: theme.text(size: GhTextSize.x3s, mono: true, color: theme.muted))),
-                Expanded(child: Text('The quick brown fox jumps over the lazy dog 0123', style: theme.text(size: size))),
+                SizedBox(
+                  width: 90,
+                  child: Text(
+                    'text-${_sizeName(size)}',
+                    style: theme.text(size: GhTextSize.x3s, mono: true, color: theme.muted),
+                  ),
+                ),
+                Expanded(
+                  child: Text('The quick brown fox jumps over the lazy dog 0123', style: theme.text(size: size)),
+                ),
               ],
             ),
           ),
         const SizedBox(height: 12),
         for (final weight in const [GhWeight.normal, GhWeight.medium, GhWeight.semibold, GhWeight.bold])
-          Text('Inter weight ${weight.value}  Projects  Godot 4.5', style: theme.text(size: GhTextSize.base, weight: weight)),
+          Text(
+            'Inter weight ${weight.value}  Projects  Godot 4.5',
+            style: theme.text(size: GhTextSize.base, weight: weight),
+          ),
         const SizedBox(height: 12),
         Text('Google Sans Code 400  res://scenes/main.tscn', style: theme.text(size: GhTextSize.sm, mono: true)),
-        Text('Google Sans Code 500  v4.5.1-stable', style: theme.text(size: GhTextSize.sm, mono: true, weight: GhWeight.medium)),
+        Text(
+          'Google Sans Code 500  v4.5.1-stable',
+          style: theme.text(size: GhTextSize.sm, mono: true, weight: GhWeight.medium),
+        ),
         const SizedBox(height: 12),
         Text('Привет мир  Γειά σου  Tiếng Việt  ąęłńśź', style: theme.text(size: GhTextSize.base)),
-        Text('UPPERCASE SEMIBOLD TITLE', style: theme.text(size: GhTextSize.x2l, weight: GhWeight.semibold, lineHeight: 1.25)),
+        Text(
+          'UPPERCASE SEMIBOLD TITLE',
+          style: theme.text(size: GhTextSize.x2l, weight: GhWeight.semibold, lineHeight: 1.25),
+        ),
       ],
     );
   }
@@ -168,7 +191,11 @@ class _RadiiShadows extends StatelessWidget {
                 child: Container(
                   width: 96,
                   height: 64,
-                  decoration: BoxDecoration(color: theme.raised, borderRadius: BorderRadius.circular(entry.value), border: Border.all(color: theme.line)),
+                  decoration: BoxDecoration(
+                    color: theme.raised,
+                    borderRadius: BorderRadius.circular(entry.value),
+                    border: Border.all(color: theme.line),
+                  ),
                 ),
               ),
           ],
@@ -183,7 +210,11 @@ class _RadiiShadows extends StatelessWidget {
                 child: Container(
                   width: 110,
                   height: 64,
-                  decoration: BoxDecoration(color: theme.surface, borderRadius: BorderRadius.circular(theme.radiusCard), boxShadow: entry.value),
+                  decoration: BoxDecoration(
+                    color: theme.surface,
+                    borderRadius: BorderRadius.circular(theme.radiusCard),
+                    boxShadow: entry.value,
+                  ),
                 ),
               ),
             GalleryItem(
@@ -204,11 +235,26 @@ class _RadiiShadows extends StatelessWidget {
           children: [
             GalleryItem(
               label: 'bg-linear-to-r',
-              child: Container(width: 160, height: 40, decoration: BoxDecoration(gradient: GhGradients.toRight([theme.accent, theme.accentBright]), borderRadius: BorderRadius.circular(theme.radiusMd))),
+              child: Container(
+                width: 160,
+                height: 40,
+                decoration: BoxDecoration(
+                  gradient: GhGradients.toRight([theme.accent, theme.accentBright]),
+                  borderRadius: BorderRadius.circular(theme.radiusMd),
+                ),
+              ),
             ),
             GalleryItem(
               label: 'bg-linear-to-t',
-              child: Container(width: 160, height: 40, decoration: BoxDecoration(gradient: GhGradients.toTop([theme.base, theme.base.withValues(alpha: 0)]), borderRadius: BorderRadius.circular(theme.radiusMd), border: Border.all(color: theme.line))),
+              child: Container(
+                width: 160,
+                height: 40,
+                decoration: BoxDecoration(
+                  gradient: GhGradients.toTop([theme.base, theme.base.withValues(alpha: 0)]),
+                  borderRadius: BorderRadius.circular(theme.radiusMd),
+                  border: Border.all(color: theme.line),
+                ),
+              ),
             ),
             GalleryItem(
               label: 'project icon mask',
@@ -264,11 +310,7 @@ class _Buttons extends StatelessWidget {
             title: 'Button ${variant.name}',
             children: [
               GalleryStates(
-                builder: (context, enabled) => GhButton(
-                  onPressed: enabled ? () {} : null,
-                  label: 'Confirm',
-                  variant: variant,
-                ),
+                builder: (context, enabled) => GhButton(onPressed: enabled ? () {} : null, label: 'Confirm', variant: variant),
               ),
             ],
           ),
@@ -371,12 +413,12 @@ const galleryIcons = <String, FaIconData>{
 };
 
 String _sizeName(GhTextSize size) => switch (size) {
-      GhTextSize.x4s => '4xs',
-      GhTextSize.x3s => '3xs',
-      GhTextSize.x2s => '2xs',
-      GhTextSize.x2l => '2xl',
-      GhTextSize.x3l => '3xl',
-      GhTextSize.x4l => '4xl',
-      GhTextSize.x5l => '5xl',
-      _ => size.name,
-    };
+  GhTextSize.x4s => '4xs',
+  GhTextSize.x3s => '3xs',
+  GhTextSize.x2s => '2xs',
+  GhTextSize.x2l => '2xl',
+  GhTextSize.x3l => '3xl',
+  GhTextSize.x4l => '4xl',
+  GhTextSize.x5l => '5xl',
+  _ => size.name,
+};

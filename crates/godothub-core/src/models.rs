@@ -245,6 +245,8 @@ pub struct AppSettings {
     pub screen_reader_announcements: bool,
     #[serde(default = "default_project_icon_opacity")]
     pub project_icon_opacity: u32,
+    #[serde(default = "default_project_card_style")]
+    pub project_card_style: String,
     #[serde(default = "default_animation_threshold")]
     pub animation_threshold: u32,
     #[serde(default = "default_animation_speed")]
@@ -379,6 +381,10 @@ fn default_theme_preset() -> String {
 
 fn default_landing_tab() -> String {
     "projects".to_string()
+}
+
+fn default_project_card_style() -> String {
+    "hub".into()
 }
 
 fn default_project_icon_opacity() -> u32 {
@@ -664,6 +670,7 @@ impl Default for AppSettings {
             animated_numbers: true,
             screen_reader_announcements: true,
             project_icon_opacity: 14,
+            project_card_style: default_project_card_style(),
             animation_threshold: default_animation_threshold(),
             animation_speed: default_animation_speed(),
             motion_scroll_reveal: true,

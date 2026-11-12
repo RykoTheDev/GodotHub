@@ -51,12 +51,7 @@ class _GhDisclosureState extends State<GhDisclosure> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _controller,
-      child: GhCascadeHost(
-        cascade: GhPresenceSpecs.disclosureItems,
-        replay: _stagger,
-        resetOnReplay: false,
-        child: widget.child,
-      ),
+      child: GhCascadeHost(cascade: GhPresenceSpecs.disclosureItems, replay: _stagger, resetOnReplay: false, child: widget.child),
       builder: (context, child) {
         final value = _controller.value.clamp(0.0, 1.0);
         final hidden = value <= 0 && !widget.open;

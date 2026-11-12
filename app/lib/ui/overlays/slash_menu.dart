@@ -93,11 +93,7 @@ class GhSlashMenu extends StatelessWidget {
       child: GhMenuSurface(
         fitContent: false,
         maxHeight: theme.space(64),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: children,
-        ),
+        child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: children),
       ),
     );
   }
@@ -245,13 +241,9 @@ class _SlashMenuLayout extends SingleChildLayoutDelegate {
   BoxConstraints getConstraintsForChild(BoxConstraints constraints) => BoxConstraints.tightFor(width: _width);
 
   @override
-  Offset getPositionForChild(Size size, Size childSize) =>
-      Offset(rtl ? anchor.right - childSize.width : anchor.left, anchor.bottom + gap);
+  Offset getPositionForChild(Size size, Size childSize) => Offset(rtl ? anchor.right - childSize.width : anchor.left, anchor.bottom + gap);
 
   @override
   bool shouldRelayout(_SlashMenuLayout oldDelegate) =>
-      oldDelegate.anchor != anchor ||
-      oldDelegate.gap != gap ||
-      oldDelegate.minWidth != minWidth ||
-      oldDelegate.rtl != rtl;
+      oldDelegate.anchor != anchor || oldDelegate.gap != gap || oldDelegate.minWidth != minWidth || oldDelegate.rtl != rtl;
 }

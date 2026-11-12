@@ -208,6 +208,7 @@ pub struct _AppSettings {
     pub animated_numbers: bool,
     pub screen_reader_announcements: bool,
     pub project_icon_opacity: u32,
+    pub project_card_style: String,
     pub animation_threshold: u32,
     pub animation_speed: f64,
     pub motion_scroll_reveal: bool,

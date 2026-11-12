@@ -176,12 +176,7 @@ num daysBetween(String from, String to) {
   return (toDay - fromDay).round();
 }
 
-const Map<TodoPriority?, int> priorityRank = {
-  TodoPriority.high: 0,
-  TodoPriority.medium: 1,
-  null: 2,
-  TodoPriority.low: 3,
-};
+const Map<TodoPriority?, int> priorityRank = {TodoPriority.high: 0, TodoPriority.medium: 1, null: 2, TodoPriority.low: 3};
 
 int rankOf(TodoPriority? priority) => priorityRank[priority]!;
 
@@ -217,9 +212,7 @@ double _jsMakeDay(double year, double month, double date) {
   return firstOfMonth + dt - 1;
 }
 
-final RegExp _jsWhitespace = RegExp(
-  '^[\t\n\v\f\r    -     　﻿]+|[\t\n\v\f\r    -     　﻿]+\$',
-);
+final RegExp _jsWhitespace = RegExp('^[\t\n\v\f\r    -     　﻿]+|[\t\n\v\f\r    -     　﻿]+\$');
 final RegExp _jsDecimal = RegExp(r'^[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$');
 final RegExp _jsInfinity = RegExp(r'^([+-]?)Infinity$');
 final RegExp _jsRadix = RegExp(r'^0(?:([xX])([0-9a-fA-F]+)|([bB])([01]+)|([oO])([0-7]+))$');

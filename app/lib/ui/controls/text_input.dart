@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../design/design.dart';
 import '../../motion/motion.dart';
 import '../core/interaction.dart';
+import 'dashed_box.dart';
 
 class GhTextInput extends StatefulWidget {
   const GhTextInput({
@@ -30,6 +31,13 @@ class GhTextInput extends StatefulWidget {
     this.width,
     this.semanticLabel,
     this.tooltip,
+    this.maxLines = 1,
+    this.minLines,
+    this.enabled = true,
+    this.readOnly = false,
+    this.onTap,
+    this.textDirection,
+    this.dashed = false,
   });
 
   final TextEditingController? controller;
@@ -55,6 +63,13 @@ class GhTextInput extends StatefulWidget {
   final double? width;
   final String? semanticLabel;
   final String? tooltip;
+  final int? maxLines;
+  final int? minLines;
+  final bool enabled;
+  final bool readOnly;
+  final VoidCallback? onTap;
+  final TextDirection? textDirection;
+  final bool dashed;
 
   @override
   State<GhTextInput> createState() => _GhTextInputState();
@@ -115,7 +130,12 @@ class _GhTextInputState extends State<GhTextInput> {
         onSubmitted: widget.onSubmitted,
         onEditingComplete: widget.onSubmitted == null ? null : () {},
         style: style,
-        maxLines: 1,
+        maxLines: widget.maxLines,
+        minLines: widget.minLines,
+        enabled: widget.enabled,
+        readOnly: widget.readOnly,
+        onTap: widget.onTap,
+        textDirection: widget.textDirection,
         cursorColor: theme.caret,
         cursorWidth: 1,
         decoration: InputDecoration.collapsed(
@@ -132,16 +152,20 @@ class _GhTextInputState extends State<GhTextInput> {
     }
     final border = widget.borderColor ?? theme.outline.withValues(alpha: 0.5);
     final focusBorder = widget.focusBorderColor ?? theme.accent.withValues(alpha: 0.6);
+    final radius = widget.borderRadius ?? BorderRadius.circular(theme.radiusItem);
+    final dashed = widget.dashed && !focused;
     Widget box = GhAnimatedBox(
       duration: motion.css(GhDurations.interactive),
       width: widget.width,
       color: widget.background,
-      borderRadius: widget.borderRadius ?? BorderRadius.circular(theme.radiusItem),
-      border: widget.bordered ? Border.all(color: focused ? focusBorder : border) : null,
+      borderRadius: radius,
+      border: widget.bordered ? Border.all(color: dashed ? Colors.transparent : (focused ? focusBorder : border)) : null,
       boxShadow: focused && widget.focusRing && widget.bordered ? GhShadows.inputFocus(theme) : const [],
       padding: widget.padding ?? EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(2)),
       child: field,
     );
+    if (dashed) box = GhDashedBox(color: border, radius: radius, child: box);
+    if (!widget.enabled) box = Opacity(opacity: 0.5, child: box);
     if (widget.tooltip != null && widget.tooltip!.isNotEmpty) {
       box = Tooltip(message: widget.tooltip, child: box);
     }

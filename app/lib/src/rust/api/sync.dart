@@ -10,20 +10,14 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-Future<GistSyncResult> gistSyncPush() =>
-    RustLib.instance.api.crateApiSyncGistSyncPush();
+Future<GistSyncResult> gistSyncPush() => RustLib.instance.api.crateApiSyncGistSyncPush();
 
-Future<AppSettings> gistSyncPull() =>
-    RustLib.instance.api.crateApiSyncGistSyncPull();
+Future<AppSettings> gistSyncPull() => RustLib.instance.api.crateApiSyncGistSyncPull();
 
-Future<GistSyncResult?> gistSyncGetInfo() =>
-    RustLib.instance.api.crateApiSyncGistSyncGetInfo();
+Future<GistSyncResult?> gistSyncGetInfo() => RustLib.instance.api.crateApiSyncGistSyncGetInfo();
 
-Future<AppSettings> gistSyncPullByUrl({required String gistUrl}) =>
-    RustLib.instance.api.crateApiSyncGistSyncPullByUrl(gistUrl: gistUrl);
+Future<AppSettings> gistSyncPullByUrl({required String gistUrl}) => RustLib.instance.api.crateApiSyncGistSyncPullByUrl(gistUrl: gistUrl);
 
-Future<RestorePreview> gistSyncFetchBackup() =>
-    RustLib.instance.api.crateApiSyncGistSyncFetchBackup();
+Future<RestorePreview> gistSyncFetchBackup() => RustLib.instance.api.crateApiSyncGistSyncFetchBackup();
 
-Future<void> gistSyncSaveGistUrl({required String gistUrl}) =>
-    RustLib.instance.api.crateApiSyncGistSyncSaveGistUrl(gistUrl: gistUrl);
+Future<void> gistSyncSaveGistUrl({required String gistUrl}) => RustLib.instance.api.crateApiSyncGistSyncSaveGistUrl(gistUrl: gistUrl);

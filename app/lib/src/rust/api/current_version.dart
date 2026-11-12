@@ -10,23 +10,16 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-Future<CurrentVersionInfo?> getCurrentVersion() =>
-    RustLib.instance.api.crateApiCurrentVersionGetCurrentVersion();
+Future<CurrentVersionInfo?> getCurrentVersion() => RustLib.instance.api.crateApiCurrentVersionGetCurrentVersion();
 
 Future<CurrentVersionInfo> setCurrentVersion({required String tag}) =>
     RustLib.instance.api.crateApiCurrentVersionSetCurrentVersion(tag: tag);
 
-Future<void> clearCurrentVersion() =>
-    RustLib.instance.api.crateApiCurrentVersionClearCurrentVersion();
+Future<void> clearCurrentVersion() => RustLib.instance.api.crateApiCurrentVersionClearCurrentVersion();
 
-Future<VersionAliases> listVersionAliases() =>
-    RustLib.instance.api.crateApiCurrentVersionListVersionAliases();
+Future<VersionAliases> listVersionAliases() => RustLib.instance.api.crateApiCurrentVersionListVersionAliases();
 
-Future<AliasBatchResult> createVersionAliases({
-  required List<AliasRequest> entries,
-}) => RustLib.instance.api.crateApiCurrentVersionCreateVersionAliases(
-  entries: entries,
-);
+Future<AliasBatchResult> createVersionAliases({required List<AliasRequest> entries}) =>
+    RustLib.instance.api.crateApiCurrentVersionCreateVersionAliases(entries: entries);
 
-Future<void> deleteVersionAlias({required String name}) =>
-    RustLib.instance.api.crateApiCurrentVersionDeleteVersionAlias(name: name);
+Future<void> deleteVersionAlias({required String name}) => RustLib.instance.api.crateApiCurrentVersionDeleteVersionAlias(name: name);

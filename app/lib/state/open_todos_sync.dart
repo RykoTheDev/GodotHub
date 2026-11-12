@@ -47,7 +47,13 @@ class OpenTodosNotifier extends Notifier<OpenTodosSnapshot> {
   try {
     final parsed = jsonDecode(UiPrefsStore.instance.getItem(todoDueNotifiedKey) ?? 'null');
     if (parsed is Map && parsed['date'] == today && parsed['ids'] is List) {
-      return (date: today, ids: [for (final id in parsed['ids'] as List) if (id is String) id]);
+      return (
+        date: today,
+        ids: [
+          for (final id in parsed['ids'] as List)
+            if (id is String) id,
+        ],
+      );
     }
   } catch (_) {}
   return (date: today, ids: const []);
@@ -80,16 +86,12 @@ void checkDueTodos(OpenTodosSnapshot snapshot) {
           for (final open in due.take(3)) '${open.todo.title} (${open.projectName})',
           if (due.length > 3) ghTr('todos:due_notification_more', count: due.length - 3),
         ].join('\n');
-  _writeNotified((
-    date: today,
-    ids: [...notified.ids, for (final open in due) '${open.projectId}:${open.todo.id}'],
-  ));
+  _writeNotified((date: today, ids: [...notified.ids, for (final open in due) '${open.projectId}:${open.todo.id}']));
   Api.notify(title, body).ignore();
 }
 
 final todoDueNotificationsProvider = Provider<void>((ref) {
-  final enabled =
-      ref.watch(todosEnabledProvider) && (ref.watch(settingsProvider).value?.desktopNotificationsEnabled ?? false);
+  final enabled = ref.watch(todosEnabledProvider) && (ref.watch(settingsProvider).value?.desktopNotificationsEnabled ?? false);
   if (!enabled) return;
   final snapshot = ref.watch(openTodosProvider);
   if (!snapshot.loaded) return;

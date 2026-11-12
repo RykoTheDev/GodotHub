@@ -710,6 +710,7 @@ export interface AppSettings {
   animated_numbers: boolean
   screen_reader_announcements: boolean
   project_icon_opacity: number
+  project_card_style: ProjectCardStyle
   animation_threshold: number
   animation_speed: number
   motion_scroll_reveal: boolean
@@ -764,6 +765,8 @@ export interface CardViewSettings {
 }
 
 export type ProjectViewMode = 'list' | 'grid' | 'kanban'
+
+export type ProjectCardStyle = 'hub' | 'cover'
 
 export interface DashboardCustomPreset {
   id: string

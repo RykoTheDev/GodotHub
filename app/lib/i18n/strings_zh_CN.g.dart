@@ -1317,6 +1317,9 @@ class _Translations$settings$zh_CN extends Translations$settings$en_US {
 	@override String get tray_recent_label => '托盘最近项目';
 	@override String get tooltip_delay_label => '工具提示延迟';
 	@override String get project_icon_opacity_label => '项目图标透明度';
+	@override String get project_card_style_label => '项目卡片样式';
+	@override String get project_card_style_hub => 'Godot Hub';
+	@override String get project_card_style_cover => '封面';
 	@override String get time_format_label => '时间格式（今天打开时显示）';
 	@override String get date_format_label => '日期格式（其他日期显示）';
 	@override String get auto_scan_label => '启动时自动扫描';
@@ -3520,6 +3523,9 @@ extension on TranslationsZhCn {
 			'settings.tray_recent_label' => '托盘最近项目',
 			'settings.tooltip_delay_label' => '工具提示延迟',
 			'settings.project_icon_opacity_label' => '项目图标透明度',
+			'settings.project_card_style_label' => '项目卡片样式',
+			'settings.project_card_style_hub' => 'Godot Hub',
+			'settings.project_card_style_cover' => '封面',
 			'settings.time_format_label' => '时间格式（今天打开时显示）',
 			'settings.date_format_label' => '日期格式（其他日期显示）',
 			'settings.auto_scan_label' => '启动时自动扫描',
@@ -3647,11 +3653,11 @@ extension on TranslationsZhCn {
 			'settings.interface_label' => '界面',
 			'settings.card_layout_label' => '卡片布局',
 			'settings.landing_tab_label' => '默认启动页面',
+			_ => null,
+		} ?? switch (path) {
 			'settings.language_complete' => '完整',
 			'settings.language_beta' => '测试版',
 			'settings.language_incomplete' => '未完成',
-			_ => null,
-		} ?? switch (path) {
 			'settings.use_os_decorations' => '使用系统窗口装饰',
 			'settings.credits' => '致谢',
 			'settings.credits_developer' => '创建者',

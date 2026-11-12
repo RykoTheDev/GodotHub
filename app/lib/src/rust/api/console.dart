@@ -10,11 +10,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-Future<ConsoleSnapshot> getProjectConsole({
-  required String id,
-  BigInt? since,
-}) =>
+Future<ConsoleSnapshot> getProjectConsole({required String id, BigInt? since}) =>
     RustLib.instance.api.crateApiConsoleGetProjectConsole(id: id, since: since);
 
-Future<void> clearProjectConsole({required String id}) =>
-    RustLib.instance.api.crateApiConsoleClearProjectConsole(id: id);
+Future<void> clearProjectConsole({required String id}) => RustLib.instance.api.crateApiConsoleClearProjectConsole(id: id);

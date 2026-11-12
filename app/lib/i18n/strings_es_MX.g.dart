@@ -1362,6 +1362,9 @@ class _Translations$settings$es_MX extends Translations$settings$en_US {
 	@override String get tray_recent_label => 'Tray recent projects';
 	@override String get tooltip_delay_label => 'Tooltip delay';
 	@override String get project_icon_opacity_label => 'Project icon opacity';
+	@override String get project_card_style_label => 'Estilo de tarjeta de proyecto';
+	@override String get project_card_style_hub => 'Godot Hub';
+	@override String get project_card_style_cover => 'Portada';
 	@override String get time_format_label => 'Time format (shown when opened today)';
 	@override String get date_format_label => 'Date format (shown for any other day)';
 	@override String get auto_scan_label => 'Auto-scan on startup';
@@ -3622,6 +3625,9 @@ extension on TranslationsEsMx {
 			'settings.tray_recent_label' => 'Tray recent projects',
 			'settings.tooltip_delay_label' => 'Tooltip delay',
 			'settings.project_icon_opacity_label' => 'Project icon opacity',
+			'settings.project_card_style_label' => 'Estilo de tarjeta de proyecto',
+			'settings.project_card_style_hub' => 'Godot Hub',
+			'settings.project_card_style_cover' => 'Portada',
 			'settings.time_format_label' => 'Time format (shown when opened today)',
 			'settings.date_format_label' => 'Date format (shown for any other day)',
 			'settings.auto_scan_label' => 'Auto-scan on startup',
@@ -3749,11 +3755,11 @@ extension on TranslationsEsMx {
 			'settings.interface_label' => 'Interface',
 			'settings.card_layout_label' => 'Card layout',
 			'settings.landing_tab_label' => 'Default landing page',
+			_ => null,
+		} ?? switch (path) {
 			'settings.language_complete' => 'Complete',
 			'settings.language_beta' => 'Beta',
 			'settings.language_incomplete' => 'Incomplete',
-			_ => null,
-		} ?? switch (path) {
 			'settings.use_os_decorations' => 'Use OS window decorations',
 			'settings.credits' => 'Credits',
 			'settings.credits_developer' => 'Created by',

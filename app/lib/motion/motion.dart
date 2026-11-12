@@ -6,8 +6,7 @@ enum GhMotionIntensity {
   subtle,
   none;
 
-  static GhMotionIntensity parse(String value) =>
-      values.firstWhere((v) => v.name == value, orElse: () => GhMotionIntensity.full);
+  static GhMotionIntensity parse(String value) => values.firstWhere((v) => v.name == value, orElse: () => GhMotionIntensity.full);
 }
 
 enum GhViewEntrance {
@@ -16,8 +15,7 @@ enum GhViewEntrance {
   scale,
   none;
 
-  static GhViewEntrance parse(String value) =>
-      values.firstWhere((v) => v.name == value, orElse: () => GhViewEntrance.slide);
+  static GhViewEntrance parse(String value) => values.firstWhere((v) => v.name == value, orElse: () => GhViewEntrance.slide);
 }
 
 @immutable
@@ -145,7 +143,10 @@ class GhMotion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final reduced = osReduced ?? MediaQuery.maybeDisableAnimationsOf(context) ?? false;
-    return _GhMotionScope(data: GhMotionData(prefs: prefs, osReduced: reduced, isLinux: _isLinux), child: child);
+    return _GhMotionScope(
+      data: GhMotionData(prefs: prefs, osReduced: reduced, isLinux: _isLinux),
+      child: child,
+    );
   }
 }
 

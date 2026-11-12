@@ -11,13 +11,7 @@ import '../ui/shell/workspace_form.dart';
 enum WorkspaceStart { copy, fresh }
 
 class CreateWorkspaceModal extends StatefulWidget {
-  const CreateWorkspaceModal({
-    super.key,
-    required this.takenNames,
-    required this.onClose,
-    required this.onCreate,
-    this.copySource,
-  });
+  const CreateWorkspaceModal({super.key, required this.takenNames, required this.onClose, required this.onCreate, this.copySource});
 
   final List<String> takenNames;
   final Workspace? copySource;
@@ -84,7 +78,10 @@ class _CreateWorkspaceModalState extends State<CreateWorkspaceModal> {
             if (_error != null)
               Padding(
                 padding: EdgeInsetsDirectional.only(end: theme.space(2)),
-                child: Text(_error!, style: theme.text(size: GhTextSize.xs, color: theme.danger)),
+                child: Text(
+                  _error!,
+                  style: theme.text(size: GhTextSize.xs, color: theme.danger),
+                ),
               ),
             GhButton(onPressed: widget.onClose, label: tr.cancel),
             GhButton(
@@ -119,7 +116,10 @@ class _CreateWorkspaceModalState extends State<CreateWorkspaceModal> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: theme.space(2),
                 children: [
-                  Text(tr.workspace_start_label, style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.muted)),
+                  Text(
+                    tr.workspace_start_label,
+                    style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.muted),
+                  ),
                   Semantics(
                     label: tr.workspace_start_label,
                     container: true,
@@ -179,14 +179,14 @@ class _StartOptionButton extends StatelessWidget {
             color: active
                 ? theme.accent.withValues(alpha: 0.1)
                 : hover
-                    ? theme.overlay.withValues(alpha: 0.6)
-                    : theme.base.withValues(alpha: 0.4),
+                ? theme.overlay.withValues(alpha: 0.6)
+                : theme.base.withValues(alpha: 0.4),
             border: Border.all(
               color: active
                   ? theme.accent
                   : hover
-                      ? theme.accentDim
-                      : theme.outline.withValues(alpha: 0.5),
+                  ? theme.accentDim
+                  : theme.outline.withValues(alpha: 0.5),
             ),
             padding: EdgeInsets.symmetric(horizontal: theme.space(3.5), vertical: theme.space(3)),
             child: Row(

@@ -15,7 +15,9 @@ abstract final class GhNumberFlowTiming {
   static const transformEasing =
       'linear(0,.005,.019,.039,.066,.096,.129,.165,.202,.24,.278,.316,.354,.39,.426,.461,.494,.526,.557,.586,.614,.64,.665,.689,.711,.731,.751,.769,.786,.802,.817,.831,.844,.856,.867,.877,.887,.896,.904,.912,.919,.925,.931,.937,.942,.947,.951,.955,.959,.962,.965,.968,.971,.973,.976,.978,.98,.981,.983,.984,.986,.987,.988,.989,.99,.991,.992,.992,.993,.994,.994,.995,.995,.996,.996,.9963,.9967,.9969,.9972,.9975,.9977,.9979,.9981,.9982,.9984,.9985,.9987,.9988,.9989,1)';
 
-  static final List<double> transformPoints = List.unmodifiable(transformEasing.substring(7, transformEasing.length - 1).split(',').map(double.parse));
+  static final List<double> transformPoints = List.unmodifiable(
+    transformEasing.substring(7, transformEasing.length - 1).split(',').map(double.parse),
+  );
 
   static final transformEase = CssLinearEase(transformPoints);
   static const opacityEase = GhEase.cssEaseOut;
@@ -352,7 +354,8 @@ class _Section {
     }
   }
 
-  _Char _create(_Part p, {required bool atZero}) => p.isDigit ? _Char.digit(p.key, p.type, atZero ? 0 : p.digit, p.pos) : _Char.symbol(p.key, p.type, p.symbol);
+  _Char _create(_Part p, {required bool atZero}) =>
+      p.isDigit ? _Char.digit(p.key, p.type, atZero ? 0 : p.digit, p.pos) : _Char.symbol(p.key, p.type, p.symbol);
 
   void remove(_Char c) {
     children.remove(c.key);
@@ -1105,7 +1108,9 @@ class GhNumberFlowSnapshot {
     final band = mask;
     return [
       for (final g in glyphs)
-        if (g.opacity >= minOpacity && (!g.masked || band == null || (g.offset.dy + em > band.top + 1e-6 && g.offset.dy < band.bottom - 1e-6))) g,
+        if (g.opacity >= minOpacity &&
+            (!g.masked || band == null || (g.offset.dy + em > band.top + 1e-6 && g.offset.dy < band.bottom - 1e-6)))
+          g,
     ];
   }
 }

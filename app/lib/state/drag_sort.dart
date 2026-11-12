@@ -144,9 +144,7 @@ List<DroppableRect> detectProjectCollisions({
   if (zoneHits.isNotEmpty) {
     final zone = zoneHits.first.rect;
     final inside = cards
-        .where(
-          (c) => c.rect.top >= zone.top && c.rect.bottom <= zone.bottom && c.rect.left >= zone.left && c.rect.right <= zone.right,
-        )
+        .where((c) => c.rect.top >= zone.top && c.rect.bottom <= zone.bottom && c.rect.left >= zone.left && c.rect.right <= zone.right)
         .toList();
     final betweenCards = inside.any(
       (c) => pointer.dy >= c.rect.top - projectDropGapSlop && pointer.dy <= c.rect.bottom + projectDropGapSlop,
@@ -236,9 +234,13 @@ class ProjectDndController extends ChangeNotifier {
     _activeId = id;
     final draggable = {for (final p in _projects) p.id};
     final selected = selectedIds;
-    final carriesSelection =
-        selected != null && selected.length > 1 && selected.contains(id) && selected.every(draggable.contains);
-    _activeIds = carriesSelection ? [for (final p in _projects) if (selected.contains(p.id)) p.id] : [id];
+    final carriesSelection = selected != null && selected.length > 1 && selected.contains(id) && selected.every(draggable.contains);
+    _activeIds = carriesSelection
+        ? [
+            for (final p in _projects)
+              if (selected.contains(p.id)) p.id,
+          ]
+        : [id];
     notifyListeners();
   }
 

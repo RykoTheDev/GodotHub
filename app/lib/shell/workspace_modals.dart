@@ -79,7 +79,10 @@ class _WorkspaceModalsState extends ConsumerState<WorkspaceModals> {
       void close() => Navigator.of(context).pop();
       return WorkspaceEditModal(
         workspace: editing,
-        takenNames: [for (final w in view.workspaces) if (w.id != editing.id) w.name],
+        takenNames: [
+          for (final w in view.workspaces)
+            if (w.id != editing.id) w.name,
+        ],
         canDelete: view.workspaces.length > 1,
         onClose: close,
         onSave: (name, icon, color) async {

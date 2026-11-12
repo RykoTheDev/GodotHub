@@ -123,8 +123,7 @@ class GitStatusMapView {
   final bool loading;
 
   @override
-  bool operator ==(Object other) =>
-      other is GitStatusMapView && identical(other.statusMap, statusMap) && other.loading == loading;
+  bool operator ==(Object other) => other is GitStatusMapView && identical(other.statusMap, statusMap) && other.loading == loading;
 
   @override
   int get hashCode => Object.hash(identityHashCode(statusMap), loading);
@@ -134,8 +133,9 @@ typedef GitStatusRequest = ({String pathsKey, bool active});
 
 GitStatusRequest gitStatusRequest(List<String> paths, bool active) => (pathsKey: paths.join('|'), active: active);
 
-final gitStatusMapProvider = NotifierProvider.autoDispose
-    .family<GitStatusMapNotifier, GitStatusMapView, GitStatusRequest>(GitStatusMapNotifier.new);
+final gitStatusMapProvider = NotifierProvider.autoDispose.family<GitStatusMapNotifier, GitStatusMapView, GitStatusRequest>(
+  GitStatusMapNotifier.new,
+);
 
 class GitStatusMapNotifier extends Notifier<GitStatusMapView> {
   GitStatusMapNotifier(this.request);

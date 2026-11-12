@@ -15,15 +15,11 @@ class WorkspacesView {
   final String activeId;
   final bool loaded;
 
-  WorkspacesView withState(WorkspacesState next) =>
-      WorkspacesView(workspaces: next.workspaces, activeId: next.activeId, loaded: loaded);
+  WorkspacesView withState(WorkspacesState next) => WorkspacesView(workspaces: next.workspaces, activeId: next.activeId, loaded: loaded);
 
   @override
   bool operator ==(Object other) =>
-      other is WorkspacesView &&
-      listEquals(other.workspaces, workspaces) &&
-      other.activeId == activeId &&
-      other.loaded == loaded;
+      other is WorkspacesView && listEquals(other.workspaces, workspaces) && other.activeId == activeId && other.loaded == loaded;
 
   @override
   int get hashCode => Object.hash(Object.hashAll(workspaces), activeId, loaded);

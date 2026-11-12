@@ -20,29 +20,29 @@ abstract final class GhShadows {
   static List<BoxShadow> xs2([Color? color]) => [cssShadow(0, 1, 0, 0, color ?? _shadowBlack05)];
   static List<BoxShadow> xs([Color? color]) => [cssShadow(0, 1, 2, 0, color ?? _shadowBlack05)];
   static List<BoxShadow> sm([Color? color]) => [
-        cssShadow(0, 1, 3, 0, color ?? _shadowBlack10),
-        cssShadow(0, 1, 2, -1, color ?? _shadowBlack10),
-      ];
+    cssShadow(0, 1, 3, 0, color ?? _shadowBlack10),
+    cssShadow(0, 1, 2, -1, color ?? _shadowBlack10),
+  ];
   static List<BoxShadow> md([Color? color]) => [
-        cssShadow(0, 4, 6, -1, color ?? _shadowBlack10),
-        cssShadow(0, 2, 4, -2, color ?? _shadowBlack10),
-      ];
+    cssShadow(0, 4, 6, -1, color ?? _shadowBlack10),
+    cssShadow(0, 2, 4, -2, color ?? _shadowBlack10),
+  ];
   static List<BoxShadow> lg([Color? color]) => [
-        cssShadow(0, 10, 15, -3, color ?? _shadowBlack10),
-        cssShadow(0, 4, 6, -4, color ?? _shadowBlack10),
-      ];
+    cssShadow(0, 10, 15, -3, color ?? _shadowBlack10),
+    cssShadow(0, 4, 6, -4, color ?? _shadowBlack10),
+  ];
   static List<BoxShadow> xl([Color? color]) => [
-        cssShadow(0, 20, 25, -5, color ?? _shadowBlack10),
-        cssShadow(0, 8, 10, -6, color ?? _shadowBlack10),
-      ];
+    cssShadow(0, 20, 25, -5, color ?? _shadowBlack10),
+    cssShadow(0, 8, 10, -6, color ?? _shadowBlack10),
+  ];
   static List<BoxShadow> xl2([Color? color]) => [cssShadow(0, 25, 50, -12, color ?? _shadowBlack25)];
 
   static List<BoxShadow> hoverLift() => [cssShadow(0, 6, 18, -12, const Color(0x99000000))];
 
   static List<BoxShadow> ring(Color color, {double width = 1, double offset = 0, Color? offsetColor}) => [
-        if (offset > 0) BoxShadow(color: offsetColor ?? const Color(0x00000000), spreadRadius: offset),
-        BoxShadow(color: color, spreadRadius: offset + width),
-      ];
+    if (offset > 0) BoxShadow(color: offsetColor ?? const Color(0x00000000), spreadRadius: offset),
+    BoxShadow(color: color, spreadRadius: offset + width),
+  ];
 
   static List<BoxShadow> focusRing(GhTheme theme) => [BoxShadow(color: theme.accent.withValues(alpha: 0.45), spreadRadius: 3)];
 
@@ -77,10 +77,7 @@ class InsetShadowPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(InsetShadowPainter oldDelegate) =>
-      oldDelegate.borderRadius != borderRadius ||
-      oldDelegate.offsetY != offsetY ||
-      oldDelegate.blur != blur ||
-      oldDelegate.color != color;
+      oldDelegate.borderRadius != borderRadius || oldDelegate.offsetY != offsetY || oldDelegate.blur != blur || oldDelegate.color != color;
 }
 
 abstract final class GhBlur {
@@ -109,12 +106,7 @@ abstract final class GhGradients {
   static Shader projectIconMask(Rect rect) {
     final center = Offset(rect.left + rect.width * 0.7, rect.top + rect.height * 0.3);
     final radius = math.sqrt(math.pow(rect.width * 0.7, 2) + math.pow(rect.height * 0.7, 2));
-    return ui.Gradient.radial(
-      center,
-      radius,
-      const [Color(0xFF000000), Color(0xFF000000), Color(0x00000000)],
-      const [0, 0.25, 0.7],
-    );
+    return ui.Gradient.radial(center, radius, const [Color(0xFF000000), Color(0xFF000000), Color(0x00000000)], const [0, 0.25, 0.7]);
   }
 }
 

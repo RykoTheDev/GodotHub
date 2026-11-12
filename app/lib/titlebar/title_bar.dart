@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../design/design.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../motion/intro.dart';
@@ -24,8 +25,7 @@ bool hasAnyTitleBarButton(AppSettings settings, {required bool minimal}) =>
     settings.showTrayButton ||
     (!minimal && settings.showChangelogButton);
 
-bool showsCustomWindowControls(AppSettings settings, {required bool isMac}) =>
-    !isMac && !settings.useOsDecorations;
+bool showsCustomWindowControls(AppSettings settings, {required bool isMac}) => !isMac && !settings.useOsDecorations;
 
 class TitleBar extends ConsumerWidget {
   const TitleBar({super.key, required this.isMac, this.minimal = false, this.onAction});
@@ -175,7 +175,9 @@ class _Wordmark extends StatelessWidget {
     );
     final onPressed = this.onPressed;
     if (onPressed == null) {
-      return IgnorePointer(child: Text('GodotHub', key: const ValueKey('titlebar-wordmark'), style: style(false)));
+      return IgnorePointer(
+        child: Text('GodotHub', key: const ValueKey('titlebar-wordmark'), style: style(false)),
+      );
     }
     return TitleBarButton(
       key: const ValueKey('titlebar-wordmark'),
@@ -288,11 +290,6 @@ class _Separator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tokens = TitleBarTokens.of(context);
-    return Container(
-      width: 1,
-      height: 20,
-      margin: const EdgeInsets.symmetric(horizontal: 4),
-      color: tokens.line.withValues(alpha: 0.4),
-    );
+    return Container(width: 1, height: 20, margin: const EdgeInsets.symmetric(horizontal: 4), color: tokens.line.withValues(alpha: 0.4));
   }
 }

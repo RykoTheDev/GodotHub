@@ -14,8 +14,7 @@ class GhModalFocusHandle {
   final FocusScopeNode scope;
   FocusNode? banner;
 
-  static GhModalFocusHandle? maybeOf(BuildContext context) =>
-      context.getInheritedWidgetOfExactType<GhModalFocusProvider>()?.handle;
+  static GhModalFocusHandle? maybeOf(BuildContext context) => context.getInheritedWidgetOfExactType<GhModalFocusProvider>()?.handle;
 }
 
 class GhModalFocusProvider extends InheritedWidget {

@@ -19,10 +19,7 @@ class HelloScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('$title: Hello from core'),
-        actions: [
-          if (onOpenGallery != null)
-            TextButton(onPressed: onOpenGallery, child: const Text('Widget gallery')),
-        ],
+        actions: [if (onOpenGallery != null) TextButton(onPressed: onOpenGallery, child: const Text('Widget gallery'))],
       ),
       body: ListView(
         padding: const EdgeInsets.all(24),
@@ -37,14 +34,8 @@ class HelloScreen extends ConsumerWidget {
             title: 'Command line tool',
             onRefresh: () => ref.invalidate(cliToolStatusProvider),
             actions: [
-              FilledButton(
-                onPressed: () => _run(context, actions.install),
-                child: const Text('Install command'),
-              ),
-              OutlinedButton(
-                onPressed: () => _run(context, actions.uninstall),
-                child: const Text('Uninstall command'),
-              ),
+              FilledButton(onPressed: () => _run(context, actions.install), child: const Text('Install command')),
+              OutlinedButton(onPressed: () => _run(context, actions.uninstall), child: const Text('Uninstall command')),
             ],
             child: _AsyncRows<CliToolStatus>(value: cliStatus, rows: _cliRows),
           ),
@@ -54,20 +45,20 @@ class HelloScreen extends ConsumerWidget {
   }
 
   static Map<String, String> _settingsRows(AppSettings settings) => {
-        'language': settings.language,
-        'theme_mode': settings.themeMode,
-        'accent_color': settings.accentColor,
-        'download_dir': settings.downloadDir ?? '(default)',
-        'project_scan_dirs': settings.projectScanDirs.join(', '),
-        'setup_complete': '${settings.setupComplete}',
-      };
+    'language': settings.language,
+    'theme_mode': settings.themeMode,
+    'accent_color': settings.accentColor,
+    'download_dir': settings.downloadDir ?? '(default)',
+    'project_scan_dirs': settings.projectScanDirs.join(', '),
+    'setup_complete': '${settings.setupComplete}',
+  };
 
   static Map<String, String> _cliRows(CliToolStatus status) => {
-        'installed': '${status.installed}',
-        'on_path': '${status.onPath}',
-        'shim_path': status.shimPath,
-        'platform': status.platform,
-      };
+    'installed': '${status.installed}',
+    'on_path': '${status.onPath}',
+    'shim_path': status.shimPath,
+    'platform': status.platform,
+  };
 
   Future<void> _run(BuildContext context, Future<void> Function() action) async {
     final messenger = ScaffoldMessenger.of(context);
@@ -80,12 +71,7 @@ class HelloScreen extends ConsumerWidget {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({
-    required this.title,
-    required this.onRefresh,
-    required this.child,
-    this.actions = const [],
-  });
+  const _Section({required this.title, required this.onRefresh, required this.child, this.actions = const []});
 
   final String title;
   final VoidCallback onRefresh;
@@ -100,11 +86,7 @@ class _Section extends StatelessWidget {
         Row(
           children: [
             Expanded(child: Text(title, style: Theme.of(context).textTheme.titleMedium)),
-            IconButton(
-              tooltip: 'Refresh',
-              onPressed: onRefresh,
-              icon: const Icon(Icons.refresh),
-            ),
+            IconButton(tooltip: 'Refresh', onPressed: onRefresh, icon: const Icon(Icons.refresh)),
           ],
         ),
         if (actions.isNotEmpty) Wrap(spacing: 12, children: actions),
@@ -128,17 +110,11 @@ class _AsyncRows<T> extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           for (final entry in rows(data).entries)
-            SelectableText(
-              '${entry.key}: ${entry.value}',
-              style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
-            ),
+            SelectableText('${entry.key}: ${entry.value}', style: const TextStyle(fontFamily: 'monospace', fontSize: 13)),
         ],
       ),
       loading: () => const LinearProgressIndicator(),
-      error: (error, _) => Text(
-        '$error',
-        style: TextStyle(color: Theme.of(context).colorScheme.error),
-      ),
+      error: (error, _) => Text('$error', style: TextStyle(color: Theme.of(context).colorScheme.error)),
     );
   }
 }

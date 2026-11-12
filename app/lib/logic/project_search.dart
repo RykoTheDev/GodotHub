@@ -23,13 +23,7 @@ const _pinnedTrue = ['true', 'yes', 'on', '1', 'y', 't'];
 const _pinnedFalse = ['false', 'no', 'off', '0', 'n', 'f'];
 
 class ProjectSearchToken {
-  const ProjectSearchToken({
-    required this.raw,
-    required this.start,
-    required this.end,
-    required this.field,
-    required this.value,
-  });
+  const ProjectSearchToken({required this.raw, required this.start, required this.end, required this.field, required this.value});
 
   final String raw;
   final int start;
@@ -55,12 +49,7 @@ class ProjectSearchFilter {
 }
 
 class ParsedProjectQuery {
-  const ParsedProjectQuery({
-    required this.text,
-    required this.filters,
-    required this.activeToken,
-    required this.active,
-  });
+  const ParsedProjectQuery({required this.text, required this.filters, required this.activeToken, required this.active});
 
   final List<String> text;
   final List<ProjectSearchFilter> filters;
@@ -125,12 +114,7 @@ ParsedProjectQuery parseProjectQuery(String input, [int? caret]) {
     if (identical(token, activeToken) && token.raw.startsWith('/')) continue;
     text.add(token.raw.toLowerCase());
   }
-  return ParsedProjectQuery(
-    text: text,
-    filters: filters,
-    activeToken: activeToken,
-    active: text.isNotEmpty || filters.isNotEmpty,
-  );
+  return ParsedProjectQuery(text: text, filters: filters, activeToken: activeToken, active: text.isNotEmpty || filters.isNotEmpty);
 }
 
 bool _includesLower(String? haystack, String needle) => (haystack ?? '').toLowerCase().contains(needle);

@@ -71,7 +71,12 @@ class _BulkTagModalState extends State<BulkTagModal> {
   }
 
   Future<void> _removeTag(String tag) async {
-    await _apply((tags) => [for (final t in tags) if (t != tag) t]);
+    await _apply(
+      (tags) => [
+        for (final t in tags)
+          if (t != tag) t,
+      ],
+    );
     ghToasts.pushToast(GhToastType.success, ghTr('tags_removed_from_selection', count: _projects.length));
   }
 
@@ -121,7 +126,10 @@ class _BulkTagModalState extends State<BulkTagModal> {
                       spacing: theme.space(1.5),
                       children: [
                         GhIcon(GhIcons.plus, size: theme.space(3), color: theme.accentBright),
-                        Text(tr.add_tag, style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.accentBright)),
+                        Text(
+                          tr.add_tag,
+                          style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.accentBright),
+                        ),
                       ],
                     ),
                   ),
@@ -129,7 +137,10 @@ class _BulkTagModalState extends State<BulkTagModal> {
               ],
             ),
             if (tags.isEmpty)
-              Text(tr.no_common_tags, style: theme.text(size: GhTextSize.x2s, color: theme.muted.withValues(alpha: 0.5)))
+              Text(
+                tr.no_common_tags,
+                style: theme.text(size: GhTextSize.x2s, color: theme.muted.withValues(alpha: 0.5)),
+              )
             else
               Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,

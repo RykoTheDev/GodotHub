@@ -113,11 +113,11 @@ class GhShellIntroState extends State<GhShellIntro> with SingleTickerProviderSta
   }
 
   GhIntroTrackSpec _spec(GhIntroRole role) => switch (role) {
-        GhIntroRole.titleBar => GhShellIntroTiming.titleBar,
-        GhIntroRole.part => GhShellIntroTiming.part,
-        GhIntroRole.sidebar => GhShellIntroTiming.sidebar,
-        GhIntroRole.item => GhShellIntroTiming.item,
-      };
+    GhIntroRole.titleBar => GhShellIntroTiming.titleBar,
+    GhIntroRole.part => GhShellIntroTiming.part,
+    GhIntroRole.sidebar => GhShellIntroTiming.sidebar,
+    GhIntroRole.item => GhShellIntroTiming.item,
+  };
 
   _GhIntroTrack? _register(GhIntroRole role) {
     if (!_accepting) {
@@ -308,8 +308,7 @@ class GhIntroItem extends StatelessWidget {
 
   final Widget child;
 
-  static bool participates(BuildContext context) =>
-      context.getInheritedWidgetOfExactType<_GhIntroRegion>()?.role == GhIntroRole.sidebar;
+  static bool participates(BuildContext context) => context.getInheritedWidgetOfExactType<_GhIntroRegion>()?.role == GhIntroRole.sidebar;
 
   @override
   Widget build(BuildContext context) => _GhIntroNode(role: GhIntroRole.item, child: child);
@@ -325,10 +324,7 @@ List<Animation<double>> ghStaggerTracks(
   required double each,
   Curve? ease,
 }) {
-  return [
-    for (var i = 0; i < count; i++)
-      timeline.add(GhTrack(start: at + i * each, duration: duration, ease: ease ?? GhEase.out)),
-  ];
+  return [for (var i = 0; i < count; i++) timeline.add(GhTrack(start: at + i * each, duration: duration, ease: ease ?? GhEase.out))];
 }
 
 class GhLetterRow extends StatelessWidget {
@@ -541,13 +537,7 @@ class _GhRingPulseState extends State<GhRingPulse> with SingleTickerProviderStat
   @override
   Widget build(BuildContext context) {
     return CustomPaint(
-      painter: _RingPainter(
-        time: _time,
-        rings: widget.rings,
-        color: widget.color,
-        radius: widget.radius,
-        width: widget.width,
-      ),
+      painter: _RingPainter(time: _time, rings: widget.rings, color: widget.color, radius: widget.radius, width: widget.width),
       child: widget.child,
     );
   }
@@ -583,7 +573,7 @@ GhRingFrame? ghRingFrame(double time, int ring, double radius) {
 
 class _RingPainter extends CustomPainter {
   _RingPainter({required this.time, required this.rings, required this.color, required this.radius, required this.width})
-      : super(repaint: time);
+    : super(repaint: time);
 
   final ValueNotifier<double> time;
   final int rings;

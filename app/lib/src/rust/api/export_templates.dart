@@ -10,43 +10,21 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-Future<ExportTemplatesState> getExportTemplatesState() =>
-    RustLib.instance.api.crateApiExportTemplatesGetExportTemplatesState();
+Future<ExportTemplatesState> getExportTemplatesState() => RustLib.instance.api.crateApiExportTemplatesGetExportTemplatesState();
 
-Future<List<TemplateOption>> getExportTemplateOptions({
-  required String tag,
-  bool? refresh,
-}) => RustLib.instance.api.crateApiExportTemplatesGetExportTemplateOptions(
-  tag: tag,
-  refresh: refresh,
-);
+Future<List<TemplateOption>> getExportTemplateOptions({required String tag, bool? refresh}) =>
+    RustLib.instance.api.crateApiExportTemplatesGetExportTemplateOptions(tag: tag, refresh: refresh);
 
-Future<ExportTemplatesInstallResult?> installExportTemplates({
-  required String tag,
-  List<String>? files,
-}) => RustLib.instance.api.crateApiExportTemplatesInstallExportTemplates(
-  tag: tag,
-  files: files,
-);
+Future<ExportTemplatesInstallResult?> installExportTemplates({required String tag, List<String>? files}) =>
+    RustLib.instance.api.crateApiExportTemplatesInstallExportTemplates(tag: tag, files: files);
 
-Future<void> cancelExportTemplatesDownload({required String tag}) => RustLib
-    .instance
-    .api
-    .crateApiExportTemplatesCancelExportTemplatesDownload(tag: tag);
+Future<void> cancelExportTemplatesDownload({required String tag}) =>
+    RustLib.instance.api.crateApiExportTemplatesCancelExportTemplatesDownload(tag: tag);
 
 Future<void> deleteExportTemplates({required String folder, String? root}) =>
-    RustLib.instance.api.crateApiExportTemplatesDeleteExportTemplates(
-      folder: folder,
-      root: root,
-    );
+    RustLib.instance.api.crateApiExportTemplatesDeleteExportTemplates(folder: folder, root: root);
 
-Future<void> uninstallExportTemplateFiles({
-  required String tag,
-  required List<String> files,
-}) => RustLib.instance.api.crateApiExportTemplatesUninstallExportTemplateFiles(
-  tag: tag,
-  files: files,
-);
+Future<void> uninstallExportTemplateFiles({required String tag, required List<String> files}) =>
+    RustLib.instance.api.crateApiExportTemplatesUninstallExportTemplateFiles(tag: tag, files: files);
 
-Future<void> openExportTemplatesFolder({String? tag}) => RustLib.instance.api
-    .crateApiExportTemplatesOpenExportTemplatesFolder(tag: tag);
+Future<void> openExportTemplatesFolder({String? tag}) => RustLib.instance.api.crateApiExportTemplatesOpenExportTemplatesFolder(tag: tag);

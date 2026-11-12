@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 
-
 enum GhToastType { success, error, info }
 
 @immutable

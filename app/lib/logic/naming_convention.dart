@@ -23,8 +23,7 @@ final _lowerOrDigit = RegExp('[a-z0-9]');
 final _upper = RegExp('[A-Z]');
 final _lower = RegExp('[a-z]');
 
-String _capitalizeWord(String word) =>
-    word.isEmpty ? word : word[0].toUpperCase() + word.substring(1).toLowerCase();
+String _capitalizeWord(String word) => word.isEmpty ? word : word[0].toUpperCase() + word.substring(1).toLowerCase();
 
 List<String> _splitNamingWords(String name) {
   final words = <String>[];
@@ -41,7 +40,8 @@ List<String> _splitNamingWords(String name) {
     if (current.isNotEmpty) {
       final last = current[current.length - 1];
       final next = i + 1 < name.length ? name[i + 1] : null;
-      final split = (_lowerOrDigit.hasMatch(last) && _upper.hasMatch(c)) ||
+      final split =
+          (_lowerOrDigit.hasMatch(last) && _upper.hasMatch(c)) ||
           (_upper.hasMatch(last) && _upper.hasMatch(c) && next != null && _lower.hasMatch(next));
       if (split) {
         words.add(current);

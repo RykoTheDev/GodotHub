@@ -10,13 +10,9 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-Future<List<ProjectTool>> listProjectTools({required String id}) =>
-    RustLib.instance.api.crateApiToolRunnerListProjectTools(id: id);
+Future<List<ProjectTool>> listProjectTools({required String id}) => RustLib.instance.api.crateApiToolRunnerListProjectTools(id: id);
 
 Future<String> runProjectTool({required String id, required String tool}) =>
     RustLib.instance.api.crateApiToolRunnerRunProjectTool(id: id, tool: tool);
 
-Future<void> stopProjectTool({required String consoleId}) => RustLib
-    .instance
-    .api
-    .crateApiToolRunnerStopProjectTool(consoleId: consoleId);
+Future<void> stopProjectTool({required String consoleId}) => RustLib.instance.api.crateApiToolRunnerStopProjectTool(consoleId: consoleId);

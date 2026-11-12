@@ -24,23 +24,23 @@ final overlaysSections = [
 void _noop() {}
 
 List<GhMenuItem> _sampleItems() => [
-      const GhMenuItem(id: 'open', label: 'Open project', icon: GhIcons.folder, onSelected: _noop, shortcut: 'Ctrl+O'),
-      const GhMenuItem(id: 'run', label: 'Run', icon: GhIcons.play, onSelected: _noop, active: true),
-      const GhMenuItem(id: 'star', label: 'Favorite', icon: GhIcons.star, onSelected: _noop, badge: 'New', dividerAfter: true),
-      const GhMenuItem(id: 'terminal', label: 'Open terminal', icon: GhIcons.terminal, disabled: true),
-      GhMenuItem(
-        id: 'more',
-        label: 'More actions',
-        icon: GhIcons.more,
-        children: const [
-          GhMenuItem(id: 'copy', label: 'Copy path', icon: GhIcons.copy, onSelected: _noop),
-          GhMenuItem(id: 'code', label: 'Open in editor', icon: GhIcons.code, onSelected: _noop, dividerAfter: true),
-          GhMenuItem(id: 'link', label: 'Reveal online', icon: GhIcons.externalLink, onSelected: _noop),
-        ],
-        dividerAfter: true,
-      ),
-      const GhMenuItem(id: 'delete', label: 'Delete', icon: GhIcons.trash, danger: true, onSelected: _noop),
-    ];
+  const GhMenuItem(id: 'open', label: 'Open project', icon: GhIcons.folder, onSelected: _noop, shortcut: 'Ctrl+O'),
+  const GhMenuItem(id: 'run', label: 'Run', icon: GhIcons.play, onSelected: _noop, active: true),
+  const GhMenuItem(id: 'star', label: 'Favorite', icon: GhIcons.star, onSelected: _noop, badge: 'New', dividerAfter: true),
+  const GhMenuItem(id: 'terminal', label: 'Open terminal', icon: GhIcons.terminal, disabled: true),
+  GhMenuItem(
+    id: 'more',
+    label: 'More actions',
+    icon: GhIcons.more,
+    children: const [
+      GhMenuItem(id: 'copy', label: 'Copy path', icon: GhIcons.copy, onSelected: _noop),
+      GhMenuItem(id: 'code', label: 'Open in editor', icon: GhIcons.code, onSelected: _noop, dividerAfter: true),
+      GhMenuItem(id: 'link', label: 'Reveal online', icon: GhIcons.externalLink, onSelected: _noop),
+    ],
+    dividerAfter: true,
+  ),
+  const GhMenuItem(id: 'delete', label: 'Delete', icon: GhIcons.trash, danger: true, onSelected: _noop),
+];
 
 Widget _triggerButton(String label, bool open, VoidCallback? toggle) {
   return GhButton(
@@ -97,10 +97,7 @@ class _DropdownSection extends StatelessWidget {
           children: [
             GalleryItem(
               label: 'align right · bottom',
-              child: GhDropdown(
-                trigger: (context, open, toggle) => _triggerButton('Right', open, toggle),
-                items: _sampleItems(),
-              ),
+              child: GhDropdown(trigger: (context, open, toggle) => _triggerButton('Right', open, toggle), items: _sampleItems()),
             ),
             GalleryItem(
               label: 'align left · bottom',
@@ -253,13 +250,18 @@ class _AccountHeaderState extends State<_AccountHeader> {
     return Container(
       margin: EdgeInsets.only(bottom: theme.space(1)),
       padding: EdgeInsets.only(top: theme.space(1.5), bottom: theme.space(2.5)),
-      decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: GhMenuColors.divider))),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: GhMenuColors.divider)),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
             padding: EdgeInsets.symmetric(horizontal: theme.space(2.5)),
-            child: Text('You', style: theme.text(size: GhTextSize.xl, weight: FontWeight.w900, color: theme.ink)),
+            child: Text(
+              'You',
+              style: theme.text(size: GhTextSize.xl, weight: FontWeight.w900, color: theme.ink),
+            ),
           ),
           SizedBox(height: theme.space(2)),
           GhPressable(
@@ -274,7 +276,12 @@ class _AccountHeaderState extends State<_AccountHeader> {
                 children: [
                   GhIcon(GhIcons.plug, size: theme.space(3.5), color: states.hovered ? theme.ink : theme.muted),
                   SizedBox(width: theme.space(2)),
-                  Expanded(child: Text('Manage accounts', style: theme.text(size: GhTextSize.xs, color: states.hovered ? theme.ink : theme.muted))),
+                  Expanded(
+                    child: Text(
+                      'Manage accounts',
+                      style: theme.text(size: GhTextSize.xs, color: states.hovered ? theme.ink : theme.muted),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -291,7 +298,15 @@ class _MenuItemsSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
-    Widget row(String label, GhMenuItem item, {bool compact = false, bool hovered = false, bool focused = false, bool caret = false, GhMenuActiveStyle style = GhMenuActiveStyle.accent}) {
+    Widget row(
+      String label,
+      GhMenuItem item, {
+      bool compact = false,
+      bool hovered = false,
+      bool focused = false,
+      bool caret = false,
+      GhMenuActiveStyle style = GhMenuActiveStyle.accent,
+    }) {
       return GalleryItem(
         label: label,
         child: GhMenuSurface(
@@ -337,11 +352,24 @@ class _MenuItemsSection extends StatelessWidget {
               GhMenuItem(
                 id: 'l',
                 label: 'Workspace',
-                leading: Container(width: theme.space(5), height: theme.space(5), decoration: BoxDecoration(color: theme.accent, borderRadius: BorderRadius.circular(theme.radiusSm))),
+                leading: Container(
+                  width: theme.space(5),
+                  height: theme.space(5),
+                  decoration: BoxDecoration(color: theme.accent, borderRadius: BorderRadius.circular(theme.radiusSm)),
+                ),
                 onSelected: _noop,
               ),
             ),
-            row('caret', const GhMenuItem(id: 'm', label: 'More actions', icon: GhIcons.more, children: [GhMenuItem(id: 'c', label: 'c')]), caret: true),
+            row(
+              'caret',
+              const GhMenuItem(
+                id: 'm',
+                label: 'More actions',
+                icon: GhIcons.more,
+                children: [GhMenuItem(id: 'c', label: 'c')],
+              ),
+              caret: true,
+            ),
             row('compact', plain, compact: true),
             row('compact hover', plain, compact: true, hovered: true),
           ],
@@ -399,13 +427,18 @@ class _ContextMenuSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
     List<GhMenuItem> items() => const [
-          GhMenuItem(id: 'open', label: 'Open', icon: GhIcons.folder, onSelected: _noop),
-          GhMenuItem(id: 'rename', label: 'Rename', icon: GhIcons.pencil, onSelected: _noop, shortcut: 'F2'),
-          GhMenuItem(id: 'pin', label: 'Pinned', icon: GhIcons.pin, active: true, onSelected: _noop, dividerAfter: true),
-          GhMenuItem(id: 'more', label: 'More', icon: GhIcons.more, children: [GhMenuItem(id: 'x', label: 'x')]),
-          GhMenuItem(id: 'archive', label: 'Archive', disabled: true, dividerAfter: true),
-          GhMenuItem(id: 'delete', label: 'Delete', icon: GhIcons.trash, danger: true, onSelected: _noop),
-        ];
+      GhMenuItem(id: 'open', label: 'Open', icon: GhIcons.folder, onSelected: _noop),
+      GhMenuItem(id: 'rename', label: 'Rename', icon: GhIcons.pencil, onSelected: _noop, shortcut: 'F2'),
+      GhMenuItem(id: 'pin', label: 'Pinned', icon: GhIcons.pin, active: true, onSelected: _noop, dividerAfter: true),
+      GhMenuItem(
+        id: 'more',
+        label: 'More',
+        icon: GhIcons.more,
+        children: [GhMenuItem(id: 'x', label: 'x')],
+      ),
+      GhMenuItem(id: 'archive', label: 'Archive', disabled: true, dividerAfter: true),
+      GhMenuItem(id: 'delete', label: 'Delete', icon: GhIcons.trash, danger: true, onSelected: _noop),
+    ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -428,7 +461,10 @@ class _ContextMenuSection extends StatelessWidget {
                     borderRadius: BorderRadius.circular(theme.radiusCard),
                     border: Border.all(color: theme.line),
                   ),
-                  child: Text('Right-click here', style: theme.text(size: GhTextSize.xs, color: theme.muted)),
+                  child: Text(
+                    'Right-click here',
+                    style: theme.text(size: GhTextSize.xs, color: theme.muted),
+                  ),
                 ),
               ),
             ),
@@ -446,7 +482,10 @@ class _ContextMenuSection extends StatelessWidget {
                     borderRadius: BorderRadius.circular(theme.radiusCard),
                     border: Border.all(color: theme.line),
                   ),
-                  child: Text('Compact menu', style: theme.text(size: GhTextSize.xs, color: theme.muted)),
+                  child: Text(
+                    'Compact menu',
+                    style: theme.text(size: GhTextSize.xs, color: theme.muted),
+                  ),
                 ),
               ),
             ),
@@ -653,14 +692,24 @@ class _DatePickerSectionState extends State<_DatePickerSection> {
               label: 'with value',
               child: SizedBox(
                 width: 240,
-                child: GhDatePicker(value: _value, placeholder: 'Pick a date', clearLabel: 'Clear date', onChanged: (v) => setState(() => _value = v)),
+                child: GhDatePicker(
+                  value: _value,
+                  placeholder: 'Pick a date',
+                  clearLabel: 'Clear date',
+                  onChanged: (v) => setState(() => _value = v),
+                ),
               ),
             ),
             GalleryItem(
               label: 'placeholder',
               child: SizedBox(
                 width: 240,
-                child: GhDatePicker(value: _empty, placeholder: 'Pick a date', clearLabel: 'Clear date', onChanged: (v) => setState(() => _empty = v)),
+                child: GhDatePicker(
+                  value: _empty,
+                  placeholder: 'Pick a date',
+                  clearLabel: 'Clear date',
+                  onChanged: (v) => setState(() => _empty = v),
+                ),
               ),
             ),
             GalleryItem(
@@ -696,7 +745,14 @@ class _DatePickerSectionState extends State<_DatePickerSection> {
             ),
             GalleryItem(
               label: 'compact disabled',
-              child: GhDatePicker(value: _value, placeholder: 'Due', clearLabel: 'Clear date', compact: true, disabled: true, onChanged: (_) {}),
+              child: GhDatePicker(
+                value: _value,
+                placeholder: 'Due',
+                clearLabel: 'Clear date',
+                compact: true,
+                disabled: true,
+                onChanged: (_) {},
+              ),
             ),
           ],
         ),

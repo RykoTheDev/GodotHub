@@ -148,10 +148,12 @@ class _TitleBarButtonState extends State<TitleBarButton> {
       onShowHoverHighlight: (value) => setState(() => _hovered = value),
       onShowFocusHighlight: (value) => setState(() => _focused = value),
       actions: {
-        ActivateIntent: CallbackAction<ActivateIntent>(onInvoke: (_) {
-          _keyActivate();
-          return null;
-        }),
+        ActivateIntent: CallbackAction<ActivateIntent>(
+          onInvoke: (_) {
+            _keyActivate();
+            return null;
+          },
+        ),
       },
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,

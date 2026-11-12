@@ -126,6 +126,7 @@ function ProjectCardInner({
   const { settings } = useSettings();
   const cardSettings = getCardViewSettings(settings, viewMode);
   const projectTodosEnabled = settings.project_todos_enabled;
+  const coverStyle = settings.project_card_style === "cover";
   const resolutionEpoch = useProjectResolutionEpoch();
   const [icon, setIcon] = useState<string | null>(() =>
     getCachedProjectIcon(project.path),
@@ -340,6 +341,777 @@ function ProjectCardInner({
     saveTags(newTags);
   };
 
+  const chipClass = coverStyle
+    ? "focus-ring cursor-pointer inline-flex h-7 items-center gap-1.5 rounded-tag bg-black/15 px-2.5 font-mono text-3xs text-muted hover:bg-raised hover:text-ink shrink-0"
+    : "focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-3 rounded-btn bg-raised border border-outline/50 font-mono text-3xs text-muted hover:text-ink hover:border-accent-dim shrink-0";
+  const statClass = coverStyle
+    ? chipClass
+    : "focus-ring border border-outline/50 cursor-pointer inline-flex items-center gap-1.5 rounded-btn px-3 py-3 bg-black/10 font-mono text-3xs text-muted hover:text-ink hover:bg-raised shrink-0";
+
+  const hubBackdrop = (
+    <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-item isolate">
+      {icon ? (
+        <img
+          src={icon}
+          alt=""
+          aria-hidden="true"
+          className="select-none absolute -inset-s-6 top-1/2 -translate-y-1/2 -rotate-6 group-hover:rotate-0 transition-[rotate,filter] duration-500 ease-out-expo h-40 w-40 object-contain grayscale group-hover:grayscale-0 contrast-125"
+          style={{
+            opacity: "var(--project-icon-opacity, 0.14)",
+            maskImage: "linear-gradient(to right, black 35%, transparent 90%)",
+            WebkitMaskImage:
+              "linear-gradient(to right, black 35%, transparent 90%)",
+          }}
+        />
+      ) : (
+        <span
+          aria-hidden="true"
+          className="select-none absolute -inset-s-3 top-1/2 -translate-y-1/2 -rotate-6 group-hover:rotate-0 transition-[rotate,color] duration-500 ease-out-expo font-display font-black text-muted group-hover:text-accent-bright"
+          style={{
+            fontSize: "84px",
+            lineHeight: 1,
+            opacity: "var(--project-icon-opacity, 0.14)",
+            maskImage: "linear-gradient(to right, black 35%, transparent 90%)",
+            WebkitMaskImage:
+              "linear-gradient(to right, black 35%, transparent 90%)",
+          }}
+        >
+          {getInitials(displayName)}
+        </span>
+      )}
+    </div>
+  );
+
+  const todoBadge = openTodoCount > 0 && (
+    <span
+      className={`shrink-0 rounded-tag border px-1.5 py-0.5 text-3xs font-medium tabular-nums ${
+        overdueTodoCount > 0
+          ? "border-danger/30 bg-danger/10 text-danger"
+          : "border-outline/50 bg-raised text-muted"
+      }`}
+    >
+      {overdueTodoCount > 0
+        ? t("overdue_count", { ns: "todos", count: overdueTodoCount })
+        : t("open_count", { ns: "todos", count: openTodoCount })}
+    </span>
+  );
+
+  const gitChip = (
+    <>
+      {gitLoading && !gitStatus && (
+        <button
+          type="button"
+          disabled
+          aria-busy="true"
+          aria-label={t("git_sidebar")}
+          className="shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-tag text-muted cursor-default"
+        >
+          <IconSpinner className="w-3 h-3 shrink-0 animate-spin" />
+        </button>
+      )}
+      {gitStatus?.is_repo && (
+        <button
+          type="button"
+          onClick={onShowGitSidebar}
+          aria-label={t("git_sidebar")}
+          className={`shrink-0 inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-tag cursor-pointer ${
+            gitStatus.has_uncommitted
+              ? "bg-amber/10 text-amber"
+              : "text-muted hover:text-ink hover:bg-raised"
+          }`}
+        >
+          <IconGitBranch className="w-3 h-3 shrink-0 group-hover:scale-110 group-hover:rotate-6" />
+          {gitStatus.branch && (
+            <span className="text-3xs font-mono font-medium truncate max-w-24">
+              {gitStatus.branch}
+            </span>
+          )}
+        </button>
+      )}
+    </>
+  );
+
+  const lastOpenedChip = lastOpenedLabel && cardSettings.show_last_opened && (
+    <span
+      className={
+        coverStyle
+          ? "inline-flex h-7 items-center gap-1.5 px-1 font-mono text-3xs font-medium tracking-tight shrink-0 text-muted"
+          : "inline-flex items-center gap-1 ps-1.5 pe-1 py-0.5 rounded-tag font-mono text-3xs font-medium tracking-tight shrink-0 text-muted"
+      }
+    >
+      <IconClock className="w-2.5 h-2.5 text-muted/60 shrink-0 group-hover:scale-110 group-hover:rotate-6" />
+      {lastOpenedLabel}
+    </span>
+  );
+
+  const addTagInput = (
+    <input
+      ref={addInputRef}
+      type="text"
+      value={newTagValue}
+      title={tagError ?? undefined}
+      onChange={(e) => {
+        setNewTagValue(e.target.value);
+        if (tagError) setTagError(null);
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          handleAddTag();
+        }
+        if (e.key === "Escape") {
+          setAddingTag(false);
+          setNewTagValue("");
+          setTagError(null);
+        }
+      }}
+      onBlur={() => {
+        if (newTagValue.trim()) {
+          handleAddTag();
+        } else {
+          setAddingTag(false);
+          setTagError(null);
+        }
+      }}
+      className={`w-16 bg-transparent outline-none text-3xs font-mono font-medium ${
+        tagError
+          ? "text-danger placeholder:text-danger/40"
+          : "text-accent-bright placeholder:text-accent/40"
+      }`}
+      placeholder={t("tag_input_placeholder")}
+      aria-invalid={tagError ? true : undefined}
+      autoFocus
+    />
+  );
+
+  const addTagControl = (
+    <>
+      {addingTag ? (
+        <span
+          className={`inline-flex items-center px-1.5 py-0.5 rounded-tag font-mono text-3xs font-medium tracking-tight shrink-0 border ${
+            tagError
+              ? "bg-danger/10 border-danger/50"
+              : "bg-accent/10 border-accent/30"
+          }`}
+        >
+          {addTagInput}
+        </span>
+      ) : (
+        <span
+          className={`overflow-hidden inline-flex items-center shrink-0 me-1.5 focus-within:opacity-100 opacity-0 project-card-reveal`}
+        >
+          <button
+            type="button"
+            onClick={() => {
+              setAddingTag(true);
+              setNewTagValue("");
+              setTagError(null);
+            }}
+            aria-label={t("add_tag")}
+            className="focus-ring cursor-pointer inline-flex items-center px-2 py-0.5 rounded-tag text-3xs font-mono font-medium tracking-tight whitespace-nowrap text-muted hover:text-accent-bright hover:bg-raised shrink-0 border border-dashed border-outline/50"
+          >
+            {t("add_tag")}
+          </button>
+        </span>
+      )}
+      {savingTags && (
+        <span
+          aria-label={t("saving_tags")}
+          className="w-3 h-3 rounded-full border-2 border-accent-dim/30 border-t-accent-bright animate-spin shrink-0"
+        />
+      )}
+    </>
+  );
+
+  const tagChips = project.tags.length > 0 && cardSettings.show_tags && (
+    <>
+      {project.tags
+        .slice(0, tagsExpanded ? project.tags.length : 2)
+        .map((tag, index) => {
+          const color = tagColor(tag);
+          const isActive = activeTag === tag;
+          const isEditing = editingTagIndex === index;
+          return (
+            <span
+              key={`${tag}-${index}`}
+              className={`project-tag group/tag inline-flex items-center ps-1.5 pe-1 py-0.5 rounded-tag font-mono text-3xs font-medium tracking-tight shrink-0  ${
+                isActive ? "ring-1 ring-accent-dim/70 brightness-110" : ""
+              }`}
+              style={{ backgroundColor: `${color}18`, color }}
+            >
+              <span
+                aria-hidden="true"
+                className="w-1.5 h-1.5 me-1 rounded-full shrink-0 ring-1 ring-black/20"
+                style={{ backgroundColor: color }}
+              />
+              {isEditing ? (
+                <input
+                  ref={editInputRef}
+                  type="text"
+                  value={editTagValue}
+                  title={tagError ?? undefined}
+                  onChange={(e) => {
+                    setEditTagValue(e.target.value);
+                    if (tagError) setTagError(null);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleRenameTag(index);
+                    }
+                    if (e.key === "Escape") {
+                      setEditingTagIndex(null);
+                      setEditTagValue("");
+                      setTagError(null);
+                    }
+                  }}
+                  onBlur={() => handleRenameTag(index)}
+                  className={`w-16 bg-transparent outline-none text-3xs font-mono font-medium ${
+                    tagError ? "text-danger" : ""
+                  }`}
+                  style={tagError ? undefined : { color }}
+                  aria-invalid={tagError ? true : undefined}
+                  autoFocus
+                />
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => onTagClick?.(tag)}
+                    className="cursor-pointer hover:brightness-125 "
+                  >
+                    {tag}
+                  </button>
+                  <span className="project-hover-reveal project-tag-actions">
+                    <span className="min-w-0 overflow-hidden">
+                      <span className="flex w-max items-center gap-1 ps-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingTagIndex(index);
+                            setEditTagValue(tag);
+                            setTagError(null);
+                          }}
+                          aria-label={t("tag_rename_aria")}
+                          className="focus-ring cursor-pointer w-3 h-3 rounded-full flex items-center justify-center hover:text-ink shrink-0"
+                        >
+                          <IconPencil className="w-2.5 h-2.5 shrink-0" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveTag(index)}
+                          aria-label={t("remove_tag", { tag })}
+                          className="focus-ring cursor-pointer w-3 h-3 rounded-full flex items-center justify-center hover:text-danger shrink-0"
+                        >
+                          <IconX className="w-2.5 h-2.5 shrink-0" />
+                        </button>
+                      </span>
+                    </span>
+                  </span>
+                </>
+              )}
+            </span>
+          );
+        })}
+      {!tagsExpanded && project.tags.length > 2 && (
+        <button
+          type="button"
+          onClick={() => setTagsExpanded(true)}
+          aria-label={t("show_more_tags")}
+          className="focus-ring cursor-pointer inline-flex items-center px-2 py-0.5 rounded-tag text-3xs font-mono font-medium tracking-tight text-muted hover:text-ink hover:bg-raised shrink-0 border border-dashed border-outline/50"
+        >
+          +{project.tags.length - 2}
+        </button>
+      )}
+      {tagsExpanded && project.tags.length > 2 && (
+        <button
+          type="button"
+          onClick={() => setTagsExpanded(false)}
+          aria-label={t("show_fewer_tags")}
+          className="focus-ring cursor-pointer inline-flex items-center px-2 py-0.5 rounded-tag text-3xs font-mono font-medium tracking-tight text-muted hover:text-ink hover:bg-raised shrink-0 border border-dashed border-outline/50"
+        >
+          -{project.tags.length - 2}
+        </button>
+      )}
+    </>
+  );
+
+  const pathButton = cardSettings.show_path && (
+    <button
+      type="button"
+      onClick={openFolder}
+      className={
+        coverStyle
+          ? `block truncate font-mono text-2xs text-muted/80 hover:text-accent-bright cursor-pointer w-fit max-w-full text-start ${cardSettings.blur_path ? "blur-sm hover:blur-none " : ""}`
+          : `block bg-black/15 px-3 py-1 rounded-tag text-2xs font-mono text-muted truncate hover:text-accent-bright cursor-pointer w-fit max-w-full ${cardSettings.blur_path ? "blur-sm hover:blur-none " : ""}`
+      }
+    >
+      {project.path}
+    </button>
+  );
+
+  const versionDropdown = (
+    <Dropdown
+      align="left"
+      trigger={({ open, toggle }) => (
+        <button
+          type="button"
+          aria-expanded={open}
+          onClick={toggle}
+          className={chipClass}
+        >
+          <IconNode className="w-2.5 h-2.5 group-hover:scale-110 group-hover:rotate-6" />
+          {boundVersion ? (
+            <>
+              {boundVersion.custom_name || boundVersion.tag}
+              {boundVersion.is_mono && (
+                <span className="text-3xs font-semibold px-1.5 py-0.5 rounded-tag bg-accent/10 text-accent-bright border border-accent-dim/40 shrink-0">
+                  {t("version_mono_badge")}
+                </span>
+              )}
+            </>
+          ) : (
+            t("no_version_selected")
+          )}
+          <IconChevronDown
+            className={`w-2.5 h-2.5  ${open ? "rotate-180 text-ink" : ""}`}
+          />
+        </button>
+      )}
+      items={installedVersions.map((v) => ({
+        key: v.tag,
+        label: v.custom_name || v.tag,
+        active: v.tag === project.godot_version,
+        onClick: () => onVersionChange(v.tag),
+        badge: v.is_mono ? t("version_mono_badge") : undefined,
+      }))}
+    />
+  );
+
+  const timeButton = allMs > 0 && cardSettings.show_time && (
+    <button
+      type="button"
+      onClick={() => setTimeTrackerOpen(true)}
+      aria-label={t("time_tracked_title")}
+      className={statClass}
+    >
+      <IconStopwatch className="w-3 h-3 text-muted/60 shrink-0 group-hover:scale-110 group-hover:rotate-6" />
+      {formatDuration(allMs)}
+    </button>
+  );
+
+  const sizeButton = projectSize != null &&
+    projectSize > 0 &&
+    cardSettings.show_size && (
+      <button
+        type="button"
+        onClick={() => setSizeModalOpen(true)}
+        aria-label={t("project_size")}
+        className={statClass}
+      >
+        <IconHardDrive className="w-3 h-3 text-muted/60 shrink-0 group-hover:scale-110 group-hover:rotate-6" />
+        {formatBytes(projectSize)}
+      </button>
+    );
+
+  const categoryDropdown = categories.length > 0 && onCategoryChange && (
+    <Dropdown
+      align={coverStyle ? "left" : "right"}
+      trigger={({ open, toggle }) => {
+        const cat = categories.find((c) => c.name === project.category);
+        const catColor = cat?.color ?? "#949ba4";
+        return (
+          <button
+            type="button"
+            aria-expanded={open}
+            onClick={toggle}
+            className={chipClass}
+          >
+            <span
+              className="w-1.5 h-1.5 rounded-full shrink-0 ring-1 ring-black/20"
+              style={{ backgroundColor: catColor }}
+            />
+            {project.category ?? t("uncategorized")}
+            <IconChevronDown
+              className={`w-2.5 h-2.5  ${open ? "rotate-180 text-ink" : ""}`}
+            />
+          </button>
+        );
+      }}
+      items={[
+        {
+          key: "category-uncategorized",
+          label: t("uncategorized"),
+          dotColor: "#949ba4",
+          active: !project.category,
+          onClick: () => onCategoryChange(""),
+        },
+        ...categories.map((c) => ({
+          key: `category-${c.id}`,
+          label: c.name,
+          dotColor: c.color,
+          active: project.category === c.name,
+          onClick: () => onCategoryChange(c.name),
+        })),
+      ]}
+    />
+  );
+
+  const showSession = sessionMs > 0 && cardSettings.show_session_timer;
+  const canPlay = cardSettings.show_play && versionInstalled;
+
+  const openButton = (
+    <OpenButton
+      label={versionInstalled ? t("open_project") : t("no_version_selected")}
+      disabled={!versionInstalled}
+      onOpen={launchProject}
+      consoleSupported={supportsConsole}
+      consoleInitiallyOn={launchWithConsole && supportsConsole}
+      showConsole={cardSettings.show_console}
+      moreAriaLabel={t("project_more_aria")}
+      className={coverStyle ? "px-7" : "px-10"}
+      headerItems={[
+        {
+          key: "open-folder",
+          label: t("open_folder"),
+          icon: IconExternalLink,
+          tooltip: t("open_folder"),
+          onClick: openFolder,
+        },
+        {
+          key: "open-ide",
+          label: t("open_in_ide"),
+          icon: IconCode,
+          tooltip: t("open_in_ide"),
+          onClick: openInIde,
+        },
+        {
+          key: "open-terminal",
+          label: t("open_terminal"),
+          icon: IconTerminal,
+          tooltip: t("open_terminal"),
+          onClick: () =>
+            api
+              .openTerminal(project.path)
+              .catch((e) => pushToast("error", String(e))),
+        },
+        ...(projectTodosEnabled
+          ? [
+              {
+                key: "project-todo",
+                label: t("next_steps", { ns: "todos" }),
+                icon: IconCheckCircle,
+                tooltip: t("next_steps", { ns: "todos" }),
+                onClick: () => setShowTodoPanel((current) => !current),
+              },
+            ]
+          : []),
+      ]}
+      items={[
+        {
+          key: "build-export",
+          label: t("build_export.title"),
+          icon: IconRocket,
+          onClick: () => setBuildOpen(true),
+        },
+        {
+          key: "project-doctor",
+          label: t("project_doctor.title"),
+          icon: IconBug,
+          onClick: () => setDoctorOpen(true),
+        },
+        {
+          key: "project-addons",
+          label: t("project_addons.title"),
+          icon: IconPlug,
+          onClick: () => setAddonsOpen(true),
+        },
+        {
+          key: "launch-arguments",
+          label: t("launch_arguments"),
+          icon: IconRocket,
+          onClick: () => setShowLaunchArgs(true),
+        },
+        {
+          key: "manage-tags",
+          label: t("manage_tags"),
+          icon: IconTags,
+          onClick: () => setTagManagerOpen(true),
+          dividerAfter: !!onCategoryChange,
+        },
+        ...(onDuplicate
+          ? [
+              {
+                key: "duplicate",
+                label: t("duplicate"),
+                icon: IconCopy,
+                onClick: onDuplicate,
+              },
+            ]
+          : []),
+        ...(onCategoryChange
+          ? [
+              {
+                key: "set-category",
+                label: t("set_category"),
+                icon: IconTags,
+                children: [
+                  {
+                    key: "category-uncategorized",
+                    label: t("uncategorized"),
+                    dotColor: "#949ba4",
+                    active: !project.category,
+                    onClick: () => onCategoryChange(""),
+                  },
+                  ...categories.map((c) => ({
+                    key: `category-${c.id}`,
+                    label: c.name,
+                    dotColor: c.color,
+                    active: project.category === c.name,
+                    onClick: () => onCategoryChange(c.name),
+                  })),
+                ],
+                dividerAfter: true,
+              },
+            ]
+          : []),
+        {
+          key: "save-as-template",
+          label: t("save_as_template"),
+          icon: IconCopy,
+          onClick: () => setTemplateSaveOpen(true),
+          dividerAfter: true,
+        },
+        {
+          key: "remove",
+          label: t("project_card_remove_library"),
+          icon: IconX,
+          onClick: () => setConfirmAction("remove"),
+        },
+        {
+          key: "delete",
+          label: t("project_card_delete_files"),
+          icon: IconTrash,
+          danger: true,
+          onClick: () => setConfirmAction("delete"),
+        },
+      ]}
+    />
+  );
+
+  const hubLayout = (
+    <>
+      {hubBackdrop}
+
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+          <h3 className="font-display font-medium text-xl text-ink truncate">
+            {displayName}
+          </h3>
+          {todoBadge}
+          {gitChip}
+          {lastOpenedChip}
+          {addTagControl}
+        </div>
+
+        {tagChips && (
+          <div className="flex items-center gap-1 flex-wrap min-w-0">
+            {tagChips}
+          </div>
+        )}
+
+        {pathButton}
+
+        <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
+          <div className="inline-flex items-center shrink-0">
+            {versionDropdown}
+            <span
+              className="project-hover-reveal project-pin-action"
+              data-visible={pinButtonVisible}
+            >
+              <span className="min-w-0 overflow-hidden">
+                <span className="inline-flex w-max items-center ps-1.5">
+                  {project.pinned ? (
+                    <Tooltip content={t("project_unpin_aria")} side="top">
+                      <button
+                        type="button"
+                        onClick={onTogglePin}
+                        className="focus-ring cursor-pointer inline-flex items-center px-2.5 py-2.5 rounded-btn border font-mono shrink-0 bg-accent/10 border-accent-dim/40 text-accent-bright hover:bg-accent/20 hover:border-accent-dim"
+                      >
+                        <IconPin className="w-3 h-3" fill="currentColor" />
+                      </button>
+                    </Tooltip>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={onTogglePin}
+                      className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-3 rounded-btn border font-mono text-3xs shrink-0 bg-raised border-outline/50 text-muted hover:text-ink hover:border-accent-dim"
+                    >
+                      <IconPin className="w-3 h-3" />
+                      {t("project_pin_aria")}
+                    </button>
+                  )}
+                </span>
+              </span>
+            </span>
+          </div>
+          {timeButton}
+          {sizeButton}
+          {categoryDropdown}
+        </div>
+      </div>
+      {showSession && (
+        <div className="flex items-center shrink-0 -me-5 mb-1 overflow-hidden">
+          <div className="flex items-center gap-2 px-4 h-10 bg-base/50 border-e-0 rounded-s-dropdown-btn font-mono text-xs text-accent-bright whitespace-nowrap">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent-bright shrink-0" />
+            {formatDuration(sessionMs)}
+          </div>
+        </div>
+      )}
+      <div className="flex items-stretch shrink-0 relative -me-2">
+        <div className="flex flex-col justify-end gap-1.5">
+          {cardSettings.show_play && (
+            <div className="flex h-12 w-full">
+              {versionInstalled && (
+                <Tooltip
+                  content={t("play_project_tooltip")}
+                  side="left"
+                  className="w-full"
+                >
+                  <button
+                    type="button"
+                    onClick={playProject}
+                    aria-label={t("play_project")}
+                    className="project-card-hover-only focus-ring inline-flex h-12 w-full shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-btn border border-outline/50 bg-overlay text-lg font-medium text-muted shadow-md shadow-black/10 hover:bg-raised hover:text-ink"
+                  >
+                    <IconPlay className="h-4 w-4" />
+                    {t("play_project")}
+                  </button>
+                </Tooltip>
+              )}
+            </div>
+          )}
+          {openButton}
+        </div>
+      </div>
+    </>
+  );
+
+  // Cover: the project icon is the card's cover art. It fills a full-height
+  // square on the start edge, and the cover itself is the play surface, the
+  // pin, and the live session stamp.
+  const coverLayout = (
+    <>
+      <div
+        className={`project-cover relative w-36 shrink-0 self-stretch overflow-hidden isolate ${
+          showTodoPanel ? "rounded-ss-item" : "rounded-s-item"
+        } ${icon ? "bg-base" : "bg-accent/15"}`}
+      >
+        {icon ? (
+          <img
+            src={icon}
+            alt=""
+            aria-hidden="true"
+            className="pointer-events-none select-none absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-out-expo group-hover:scale-105"
+          />
+        ) : (
+          <span
+            aria-hidden="true"
+            className="pointer-events-none select-none absolute inset-0 flex items-center justify-center font-display text-5xl font-black text-accent-bright/70 transition-transform duration-500 ease-out-expo group-hover:scale-105"
+          >
+            {getInitials(displayName)}
+          </span>
+        )}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-0 end-0 w-px bg-white/10"
+        />
+
+        {canPlay && (
+          <Tooltip content={t("play_project_tooltip")} side="top">
+            <button
+              type="button"
+              onClick={playProject}
+              aria-label={t("play_project")}
+              className="project-cover-play focus-ring absolute inset-0 flex cursor-pointer flex-col items-center justify-center gap-1.5 bg-black/55 text-white opacity-0 transition-opacity duration-300 hover:opacity-100 focus-visible:opacity-100"
+            >
+              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white/95 text-black shadow-lg shadow-black/30">
+                <IconPlay className="ms-0.5 h-4 w-4" fill="currentColor" />
+              </span>
+              <span className="font-mono text-3xs font-semibold uppercase tracking-[0.2em]">
+                {t("play_project")}
+              </span>
+            </button>
+          </Tooltip>
+        )}
+
+        <Tooltip
+          content={
+            project.pinned ? t("project_unpin_aria") : t("project_pin_aria")
+          }
+          side="top"
+        >
+          <button
+            type="button"
+            onClick={onTogglePin}
+            aria-label={
+              project.pinned ? t("project_unpin_aria") : t("project_pin_aria")
+            }
+            aria-pressed={project.pinned}
+            className={`focus-ring absolute top-2 start-2 z-10 flex h-7 w-7 cursor-pointer items-center justify-center rounded-full ${
+              project.pinned
+                ? "bg-accent text-white shadow-md shadow-black/30"
+                : "opacity-0 group-hover:opacity-100 focus-visible:opacity-100 bg-black/55 text-white/80 hover:bg-black/65 hover:text-white"
+            }`}
+          >
+            <IconPin
+              className="h-3 w-3"
+              fill={project.pinned ? "currentColor" : "none"}
+            />
+          </button>
+        </Tooltip>
+
+        {showSession && (
+          <span className="pointer-events-none absolute inset-x-2 bottom-2 z-10 flex items-center justify-center gap-1.5 rounded-full bg-black/70 px-2 py-1 font-mono text-3xs font-semibold text-white">
+            <span className="h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-danger" />
+            {formatDuration(sessionMs)}
+          </span>
+        )}
+      </div>
+
+
+      <div className="relative flex min-w-0 flex-1 flex-col gap-1.5 py-3.5 ps-4">
+        <div className="flex min-w-0 items-center gap-2">
+          <h3 className="font-display text-2xl font-bold leading-tight tracking-tight text-ink truncate">
+            {displayName}
+          </h3>
+          {todoBadge}
+          {gitChip}
+        </div>
+
+        <div className="flex min-w-0 flex-wrap items-center gap-1">
+          {tagChips}
+          {addTagControl}
+        </div>
+
+        {pathButton}
+
+        <div className="mt-auto flex min-w-0 flex-wrap items-center gap-1.5 border-t border-outline/50 pt-2.5">
+          {versionDropdown}
+          {categoryDropdown}
+          <span className="flex-1" />
+          {timeButton}
+          {sizeButton}
+          {lastOpenedChip}
+        </div>
+      </div>
+
+      <div className="relative flex shrink-0 flex-col justify-end p-3.5 ps-3">
+        {openButton}
+      </div>
+    </>
+  );
+
   return (
     <div ref={cardRef}>
       <div
@@ -362,8 +1134,8 @@ function ProjectCardInner({
           setTodoPanelLoaded(false);
           setShowTodoPanel((current) => !current);
         }}
-        className={`project-card group relative flex items-end gap-3.5 border p-3.5  ${
-          showTodoPanel ? "" : ""
+        className={`project-card group relative flex border ${
+          coverStyle ? "items-stretch min-h-36" : "items-end gap-3.5 p-3.5"
         } ${
           projectTodosEnabled ? "cursor-pointer" : ""
         } ${showTodoPanel ? "rounded-t-item" : "rounded-item"} ${
@@ -374,685 +1146,11 @@ function ProjectCardInner({
       >
         {showTodoPanel && !todoPanelLoaded && (
           <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-0.5 overflow-hidden bg-accent/15">
-            <span
-              className="block h-full w-1/3 bg-accent"
-
-
-            />
+            <span className="block h-full w-1/3 bg-accent" />
           </div>
         )}
 
-        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-item isolate">
-          {icon ? (
-            <img
-              src={icon}
-              alt=""
-              aria-hidden="true"
-              className="select-none absolute -inset-s-6 top-1/2 -translate-y-1/2 -rotate-6 group-hover:rotate-0 transition-[rotate,filter] duration-500 ease-out-expo h-40 w-40 object-contain grayscale group-hover:grayscale-0 contrast-125"
-              style={{
-                opacity: "var(--project-icon-opacity, 0.14)",
-                maskImage:
-                  "linear-gradient(to right, black 35%, transparent 90%)",
-                WebkitMaskImage:
-                  "linear-gradient(to right, black 35%, transparent 90%)",
-              }}
-            />
-          ) : (
-            <span
-              aria-hidden="true"
-              className="select-none absolute -inset-s-3 top-1/2 -translate-y-1/2 -rotate-6 group-hover:rotate-0 transition-[rotate,color] duration-500 ease-out-expo font-display font-black text-muted group-hover:text-accent-bright"
-              style={{
-                fontSize: "84px",
-                lineHeight: 1,
-                opacity: "var(--project-icon-opacity, 0.14)",
-                maskImage:
-                  "linear-gradient(to right, black 35%, transparent 90%)",
-                WebkitMaskImage:
-                  "linear-gradient(to right, black 35%, transparent 90%)",
-              }}
-            >
-              {getInitials(displayName)}
-            </span>
-          )}
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-            <h3 className="font-display font-medium text-xl text-ink truncate">
-              {displayName}
-            </h3>
-            {openTodoCount > 0 && (
-              <span
-                className={`shrink-0 rounded-tag border px-1.5 py-0.5 text-3xs font-medium tabular-nums ${
-                  overdueTodoCount > 0
-                    ? "border-danger/30 bg-danger/10 text-danger"
-                    : "border-outline/50 bg-raised text-muted"
-                }`}
-              >
-                {overdueTodoCount > 0
-                  ? t("overdue_count", { ns: "todos", count: overdueTodoCount })
-                  : t("open_count", { ns: "todos", count: openTodoCount })}
-              </span>
-            )}
-            {gitLoading && !gitStatus && (
-              <button
-                type="button"
-                disabled
-                aria-busy="true"
-                aria-label={t("git_sidebar")}
-                className="shrink-0 inline-flex items-center px-1.5 py-0.5 rounded-tag text-muted cursor-default"
-              >
-                <IconSpinner className="w-3 h-3 shrink-0 animate-spin" />
-              </button>
-            )}
-            {gitStatus?.is_repo && (
-              <button
-                type="button"
-                onClick={onShowGitSidebar}
-                aria-label={t("git_sidebar")}
-                className={`shrink-0 inline-flex items-center gap-1.5 px-1.5 py-0.5 rounded-tag cursor-pointer ${
-                  gitStatus.has_uncommitted
-                    ? "bg-amber/10 text-amber"
-                    : "text-muted hover:text-ink hover:bg-raised"
-                }`}
-              >
-                <IconGitBranch className="w-3 h-3 shrink-0 group-hover:scale-110 group-hover:rotate-6" />
-                {gitStatus.branch && (
-                  <span className="text-3xs font-mono font-medium truncate max-w-24">
-                    {gitStatus.branch}
-                  </span>
-                )}
-              </button>
-            )}
-            {lastOpenedLabel && cardSettings.show_last_opened && (
-              <span className="inline-flex items-center gap-1 ps-1.5 pe-1 py-0.5 rounded-tag font-mono text-3xs font-medium tracking-tight shrink-0 text-muted">
-                <IconClock className="w-2.5 h-2.5 text-muted/60 shrink-0 group-hover:scale-110 group-hover:rotate-6" />
-                {lastOpenedLabel}
-              </span>
-            )}
-            {addingTag ? (
-              <span
-                className={`inline-flex items-center px-1.5 py-0.5 rounded-tag font-mono text-3xs font-medium tracking-tight shrink-0 border ${
-                  tagError
-                    ? "bg-danger/10 border-danger/50"
-                    : "bg-accent/10 border-accent/30"
-                }`}
-              >
-                {tagError ? (
-                  <input
-                    ref={addInputRef}
-                    type="text"
-                    value={newTagValue}
-                    title={tagError}
-                    onChange={(e) => {
-                      setNewTagValue(e.target.value);
-                      if (tagError) setTagError(null);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleAddTag();
-                      }
-                      if (e.key === "Escape") {
-                        setAddingTag(false);
-                        setNewTagValue("");
-                        setTagError(null);
-                      }
-                    }}
-                    onBlur={() => {
-                      if (newTagValue.trim()) {
-                        handleAddTag();
-                      } else {
-                        setAddingTag(false);
-                        setTagError(null);
-                      }
-                    }}
-                    className={`w-16 bg-transparent outline-none text-3xs font-mono font-medium ${
-                      tagError
-                        ? "text-danger placeholder:text-danger/40"
-                        : "text-accent-bright placeholder:text-accent/40"
-                    }`}
-                    placeholder={t("tag_input_placeholder")}
-                    aria-invalid={tagError ? true : undefined}
-                    autoFocus
-                  />
-                ) : (
-                  <input
-                    ref={addInputRef}
-                    type="text"
-                    value={newTagValue}
-                    onChange={(e) => {
-                      setNewTagValue(e.target.value);
-                      if (tagError) setTagError(null);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        handleAddTag();
-                      }
-                      if (e.key === "Escape") {
-                        setAddingTag(false);
-                        setNewTagValue("");
-                        setTagError(null);
-                      }
-                    }}
-                    onBlur={() => {
-                      if (newTagValue.trim()) {
-                        handleAddTag();
-                      } else {
-                        setAddingTag(false);
-                        setTagError(null);
-                      }
-                    }}
-                    className={`w-16 bg-transparent outline-none text-3xs font-mono font-medium ${
-                      tagError
-                        ? "text-danger placeholder:text-danger/40"
-                        : "text-accent-bright placeholder:text-accent/40"
-                    }`}
-                    placeholder={t("tag_input_placeholder")}
-                    aria-invalid={tagError ? true : undefined}
-                    autoFocus
-                  />
-                )}
-              </span>
-            ) : (
-              <span
-                className={`overflow-hidden inline-flex items-center shrink-0 me-1.5 focus-within:opacity-100 opacity-0 project-card-reveal`}
-              >
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAddingTag(true);
-                    setNewTagValue("");
-                    setTagError(null);
-                  }}
-                  aria-label={t("add_tag")}
-                  className="focus-ring cursor-pointer inline-flex items-center px-2 py-0.5 rounded-tag text-3xs font-mono font-medium tracking-tight whitespace-nowrap text-muted hover:text-accent-bright hover:bg-raised shrink-0 border border-dashed border-outline/50"
-                >
-                  {t("add_tag")}
-                </button>
-              </span>
-            )}
-            {savingTags && (
-              <span
-                aria-label={t("saving_tags")}
-                className="w-3 h-3 rounded-full border-2 border-accent-dim/30 border-t-accent-bright animate-spin shrink-0"
-              />
-            )}
-          </div>
-
-          {project.tags.length > 0 && cardSettings.show_tags && (
-            <div className="flex items-center gap-1 flex-wrap min-w-0">
-              {project.tags
-                .slice(0, tagsExpanded ? project.tags.length : 2)
-                .map((tag, index) => {
-                  const color = tagColor(tag);
-                  const isActive = activeTag === tag;
-                  const isEditing = editingTagIndex === index;
-                  return (
-                    <span
-                      key={`${tag}-${index}`}
-                      className={`project-tag group/tag inline-flex items-center ps-1.5 pe-1 py-0.5 rounded-tag font-mono text-3xs font-medium tracking-tight shrink-0  ${
-                        isActive
-                          ? "ring-1 ring-accent-dim/70 brightness-110"
-                          : ""
-                      }`}
-                      style={{ backgroundColor: `${color}18`, color }}
-                    >
-                      <span
-                        aria-hidden="true"
-                        className="w-1.5 h-1.5 me-1 rounded-full shrink-0 ring-1 ring-black/20"
-                        style={{ backgroundColor: color }}
-                      />
-                      {isEditing ? (
-                        tagError ? (
-                          <input
-                            ref={editInputRef}
-                            type="text"
-                            value={editTagValue}
-                            title={tagError}
-                            onChange={(e) => {
-                              setEditTagValue(e.target.value);
-                              if (tagError) setTagError(null);
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                e.preventDefault();
-                                handleRenameTag(index);
-                              }
-                              if (e.key === "Escape") {
-                                setEditingTagIndex(null);
-                                setEditTagValue("");
-                                setTagError(null);
-                              }
-                            }}
-                            onBlur={() => handleRenameTag(index)}
-                            className={`w-16 bg-transparent outline-none text-3xs font-mono font-medium ${
-                              tagError ? "text-danger" : ""
-                            }`}
-                            style={tagError ? undefined : { color }}
-                            aria-invalid={tagError ? true : undefined}
-                            autoFocus
-                          />
-                        ) : (
-                          <input
-                            ref={editInputRef}
-                            type="text"
-                            value={editTagValue}
-                            onChange={(e) => {
-                              setEditTagValue(e.target.value);
-                              if (tagError) setTagError(null);
-                            }}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                e.preventDefault();
-                                handleRenameTag(index);
-                              }
-                              if (e.key === "Escape") {
-                                setEditingTagIndex(null);
-                                setEditTagValue("");
-                                setTagError(null);
-                              }
-                            }}
-                            onBlur={() => handleRenameTag(index)}
-                            className={`w-16 bg-transparent outline-none text-3xs font-mono font-medium ${
-                              tagError ? "text-danger" : ""
-                            }`}
-                            style={tagError ? undefined : { color }}
-                            aria-invalid={tagError ? true : undefined}
-                            autoFocus
-                          />
-                        )
-                      ) : (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => onTagClick?.(tag)}
-                            className="cursor-pointer hover:brightness-125 "
-                          >
-                            {tag}
-                          </button>
-                          <span className="project-hover-reveal project-tag-actions">
-                            <span className="min-w-0 overflow-hidden">
-                              <span className="flex w-max items-center gap-1 ps-1">
-                                <button
-                                  type="button"
-                                  onClick={() => {
-                                    setEditingTagIndex(index);
-                                    setEditTagValue(tag);
-                                    setTagError(null);
-                                  }}
-                                  aria-label={t("tag_rename_aria")}
-                                  className="focus-ring cursor-pointer w-3 h-3 rounded-full flex items-center justify-center hover:text-ink shrink-0"
-                                >
-                                  <IconPencil className="w-2.5 h-2.5 shrink-0" />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleRemoveTag(index)}
-                                  aria-label={t("remove_tag", { tag })}
-                                  className="focus-ring cursor-pointer w-3 h-3 rounded-full flex items-center justify-center hover:text-danger shrink-0"
-                                >
-                                  <IconX className="w-2.5 h-2.5 shrink-0" />
-                                </button>
-                              </span>
-                            </span>
-                          </span>
-                        </>
-                      )}
-                    </span>
-                  );
-                })}
-              {!tagsExpanded && project.tags.length > 2 && (
-                <button
-                  type="button"
-                  onClick={() => setTagsExpanded(true)}
-                  aria-label={t("show_more_tags")}
-                  className="focus-ring cursor-pointer inline-flex items-center px-2 py-0.5 rounded-tag text-3xs font-mono font-medium tracking-tight text-muted hover:text-ink hover:bg-raised shrink-0 border border-dashed border-outline/50"
-                >
-                  +{project.tags.length - 2}
-                </button>
-              )}
-              {tagsExpanded && project.tags.length > 2 && (
-                <button
-                  type="button"
-                  onClick={() => setTagsExpanded(false)}
-                  aria-label={t("show_fewer_tags")}
-                  className="focus-ring cursor-pointer inline-flex items-center px-2 py-0.5 rounded-tag text-3xs font-mono font-medium tracking-tight text-muted hover:text-ink hover:bg-raised shrink-0 border border-dashed border-outline/50"
-                >
-                  -{project.tags.length - 2}
-                </button>
-              )}
-            </div>
-          )}
-
-          {cardSettings.show_path && (
-            <button
-              type="button"
-              onClick={openFolder}
-              className={`block bg-black/15 px-3 py-1 rounded-tag text-2xs font-mono text-muted truncate hover:text-accent-bright cursor-pointer w-fit max-w-full ${cardSettings.blur_path ? "blur-sm hover:blur-none " : ""}`}
-            >
-              {project.path}
-            </button>
-          )}
-
-          <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
-            <div className="inline-flex items-center shrink-0">
-              <Dropdown
-                align="left"
-                trigger={({ open, toggle }) => (
-                  <button
-                    type="button"
-                    aria-expanded={open}
-                    onClick={toggle}
-                    className="inline-flex items-center gap-1.5 px-3 py-3 rounded-btn bg-raised border border-outline/50 font-mono text-3xs text-muted hover:text-ink hover:border-accent-dim cursor-pointer shrink-0"
-                  >
-                    <IconNode className="w-2.5 h-2.5 group-hover:scale-110 group-hover:rotate-6" />
-                    {boundVersion ? (
-                      <>
-                        {boundVersion.custom_name || boundVersion.tag}
-                        {boundVersion.is_mono && (
-                          <span className="text-3xs font-semibold px-1.5 py-0.5 rounded-tag bg-accent/10 text-accent-bright border border-accent-dim/40 shrink-0">
-                            {t("version_mono_badge")}
-                          </span>
-                        )}
-                      </>
-                    ) : (
-                      t("no_version_selected")
-                    )}
-                    <IconChevronDown
-                      className={`w-2.5 h-2.5  ${
-                        open ? "rotate-180 text-ink" : ""
-                      }`}
-                    />
-                  </button>
-                )}
-                items={installedVersions.map((v) => ({
-                  key: v.tag,
-                  label: v.custom_name || v.tag,
-                  active: v.tag === project.godot_version,
-                  onClick: () => onVersionChange(v.tag),
-                  badge: v.is_mono ? t("version_mono_badge") : undefined,
-                }))}
-              />
-              <span
-                className="project-hover-reveal project-pin-action"
-                data-visible={pinButtonVisible}
-              >
-                <span className="min-w-0 overflow-hidden">
-                  <span className="inline-flex w-max items-center ps-1.5">
-                    {project.pinned ? (
-                      <Tooltip content={t("project_unpin_aria")} side="top">
-                        <button
-                          type="button"
-                          onClick={onTogglePin}
-                          className="focus-ring cursor-pointer inline-flex items-center px-2.5 py-2.5 rounded-btn border font-mono shrink-0 bg-accent/10 border-accent-dim/40 text-accent-bright hover:bg-accent/20 hover:border-accent-dim"
-                        >
-                          <IconPin className="w-3 h-3" fill="currentColor" />
-                        </button>
-                      </Tooltip>
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={onTogglePin}
-                        className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-3 rounded-btn border font-mono text-3xs shrink-0 bg-raised border-outline/50 text-muted hover:text-ink hover:border-accent-dim"
-                      >
-                        <IconPin className="w-3 h-3" />
-                        {t("project_pin_aria")}
-                      </button>
-                    )}
-                  </span>
-                </span>
-              </span>
-            </div>
-            {allMs > 0 && cardSettings.show_time && (
-              <button
-                type="button"
-                onClick={() => setTimeTrackerOpen(true)}
-                aria-label={t("time_tracked_title")}
-                className="focus-ring border border-outline/50 cursor-pointer inline-flex items-center gap-1.5 rounded-btn px-3 py-3 bg-black/10 font-mono text-3xs text-muted hover:text-ink hover:bg-raised shrink-0"
-              >
-                <IconStopwatch className="w-3 h-3 text-muted/60 shrink-0 group-hover:scale-110 group-hover:rotate-6" />
-                {formatDuration(allMs)}
-              </button>
-            )}
-            {projectSize != null &&
-              projectSize > 0 &&
-              cardSettings.show_size && (
-                <button
-                  type="button"
-                  onClick={() => setSizeModalOpen(true)}
-                  aria-label={t("project_size")}
-                  className="focus-ring cursor-pointer border border-outline/50 inline-flex items-center gap-1.5 rounded-btn px-3 py-3 bg-black/10 font-mono text-3xs text-muted hover:text-ink hover:bg-raised shrink-0"
-                >
-                  <IconHardDrive className="w-3 h-3 text-muted/60 shrink-0 group-hover:scale-110 group-hover:rotate-6" />
-                  {formatBytes(projectSize)}
-                </button>
-              )}
-            {categories.length > 0 && onCategoryChange && (
-              <Dropdown
-                align="right"
-                trigger={({ open, toggle }) => {
-                  const cat = categories.find(
-                    (c) => c.name === project.category,
-                  );
-                  const catColor = cat?.color ?? "#949ba4";
-                  return (
-                    <button
-                      type="button"
-                      aria-expanded={open}
-                      onClick={toggle}
-                      className="focus-ring cursor-pointer inline-flex items-center gap-1.5 px-3 py-3 rounded-btn bg-raised border border-outline/50 font-mono text-3xs text-muted hover:text-ink hover:border-accent-dim shrink-0"
-                    >
-                      <span
-                        className="w-1.5 h-1.5 rounded-full shrink-0 ring-1 ring-black/20"
-                        style={{ backgroundColor: catColor }}
-                      />
-                      {project.category ?? t("uncategorized")}
-                      <IconChevronDown
-                        className={`w-2.5 h-2.5  ${
-                          open ? "rotate-180 text-ink" : ""
-                        }`}
-                      />
-                    </button>
-                  );
-                }}
-                items={[
-                  {
-                    key: "category-uncategorized",
-                    label: t("uncategorized"),
-                    dotColor: "#949ba4",
-                    active: !project.category,
-                    onClick: () => onCategoryChange(""),
-                  },
-                  ...categories.map((c) => ({
-                    key: `category-${c.id}`,
-                    label: c.name,
-                    dotColor: c.color,
-                    active: project.category === c.name,
-                    onClick: () => onCategoryChange(c.name),
-                  })),
-                ]}
-              />
-            )}
-          </div>
-        </div>
-        {sessionMs > 0 && cardSettings.show_session_timer && (
-          <div
-
-            className="flex items-center shrink-0 -me-5 mb-1 overflow-hidden"
-          >
-            <div className="flex items-center gap-2 px-4 h-10 bg-base/50 border-e-0 rounded-s-dropdown-btn font-mono text-xs text-accent-bright whitespace-nowrap">
-              <span className="w-1.5 h-1.5 rounded-full bg-accent-bright shrink-0" />
-              {formatDuration(sessionMs)}
-            </div>
-          </div>
-        )}
-        <div className="flex items-stretch shrink-0 relative -me-2">
-          <div className="flex flex-col justify-end gap-1.5">
-            {cardSettings.show_play && (
-              <div className="flex h-12 w-full">
-
-                  {versionInstalled && (
-                    <Tooltip
-                      content={t("play_project_tooltip")}
-                      side="left"
-                      className="w-full"
-                    >
-                      <button
-                        key="button-787"
-
-                        type="button"
-                        onClick={playProject}
-                        aria-label={t("play_project")}
-                        className="project-card-hover-only focus-ring inline-flex h-12 w-full shrink-0 cursor-pointer items-center justify-center gap-1.5 rounded-btn border border-outline/50 bg-overlay text-lg font-medium text-muted shadow-md shadow-black/10 hover:bg-raised hover:text-ink"
-                      >
-                        <IconPlay className="h-4 w-4" />
-                        {t("play_project")}
-                      </button>
-                    </Tooltip>
-                  )}
-
-              </div>
-            )}
-            <OpenButton
-              label={
-                versionInstalled ? t("open_project") : t("no_version_selected")
-              }
-              disabled={!versionInstalled}
-              onOpen={launchProject}
-              consoleSupported={supportsConsole}
-              consoleInitiallyOn={launchWithConsole && supportsConsole}
-              showConsole={cardSettings.show_console}
-              moreAriaLabel={t("project_more_aria")}
-              className="px-10"
-              headerItems={[
-                {
-                  key: "open-folder",
-                  label: t("open_folder"),
-                  icon: IconExternalLink,
-                  tooltip: t("open_folder"),
-                  onClick: openFolder,
-                },
-                {
-                  key: "open-ide",
-                  label: t("open_in_ide"),
-                  icon: IconCode,
-                  tooltip: t("open_in_ide"),
-                  onClick: openInIde,
-                },
-                {
-                  key: "open-terminal",
-                  label: t("open_terminal"),
-                  icon: IconTerminal,
-                  tooltip: t("open_terminal"),
-                  onClick: () =>
-                    api.openTerminal(project.path).catch((e) => pushToast('error', String(e))),
-                },
-                ...(projectTodosEnabled
-                  ? [
-                      {
-                        key: "project-todo",
-                        label: t("next_steps", { ns: "todos" }),
-                        icon: IconCheckCircle,
-                        tooltip: t("next_steps", { ns: "todos" }),
-                        onClick: () => setShowTodoPanel((current) => !current),
-                      },
-                    ]
-                  : []),
-              ]}
-              items={[
-                {
-                  key: "build-export",
-                  label: t("build_export.title"),
-                  icon: IconRocket,
-                  onClick: () => setBuildOpen(true),
-                },
-                {
-                  key: "project-doctor",
-                  label: t("project_doctor.title"),
-                  icon: IconBug,
-                  onClick: () => setDoctorOpen(true),
-                },
-                {
-                  key: "project-addons",
-                  label: t("project_addons.title"),
-                  icon: IconPlug,
-                  onClick: () => setAddonsOpen(true),
-                },
-                {
-                  key: "launch-arguments",
-                  label: t("launch_arguments"),
-                  icon: IconRocket,
-                  onClick: () => setShowLaunchArgs(true),
-                },
-                {
-                  key: "manage-tags",
-                  label: t("manage_tags"),
-                  icon: IconTags,
-                  onClick: () => setTagManagerOpen(true),
-                  dividerAfter: !!onCategoryChange,
-                },
-                ...(onDuplicate
-                  ? [
-                      {
-                        key: "duplicate",
-                        label: t("duplicate"),
-                        icon: IconCopy,
-                        onClick: onDuplicate,
-                      },
-                    ]
-                  : []),
-                ...(onCategoryChange
-                  ? [
-                      {
-                        key: "set-category",
-                        label: t("set_category"),
-                        icon: IconTags,
-                        children: [
-                          {
-                            key: "category-uncategorized",
-                            label: t("uncategorized"),
-                            dotColor: "#949ba4",
-                            active: !project.category,
-                            onClick: () => onCategoryChange(""),
-                          },
-                          ...categories.map((c) => ({
-                            key: `category-${c.id}`,
-                            label: c.name,
-                            dotColor: c.color,
-                            active: project.category === c.name,
-                            onClick: () => onCategoryChange(c.name),
-                          })),
-                        ],
-                        dividerAfter: true,
-                      },
-                    ]
-                  : []),
-                {
-                  key: "save-as-template",
-                  label: t("save_as_template"),
-                  icon: IconCopy,
-                  onClick: () => setTemplateSaveOpen(true),
-                  dividerAfter: true,
-                },
-                {
-                  key: "remove",
-                  label: t("project_card_remove_library"),
-                  icon: IconX,
-                  onClick: () => setConfirmAction("remove"),
-                },
-                {
-                  key: "delete",
-                  label: t("project_card_delete_files"),
-                  icon: IconTrash,
-                  danger: true,
-                  onClick: () => setConfirmAction("delete"),
-                },
-              ]}
-            />
-          </div>
-        </div>
+        {coverStyle ? coverLayout : hubLayout}
 
 
           {confirmAction === "remove" && (

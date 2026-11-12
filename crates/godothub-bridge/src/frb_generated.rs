@@ -8583,6 +8583,7 @@ const _: fn() = || {
         let _: bool = AppSettings.animated_numbers;
         let _: bool = AppSettings.screen_reader_announcements;
         let _: u32 = AppSettings.project_icon_opacity;
+        let _: String = AppSettings.project_card_style;
         let _: u32 = AppSettings.animation_threshold;
         let _: f64 = AppSettings.animation_speed;
         let _: bool = AppSettings.motion_scroll_reveal;
@@ -9709,6 +9710,7 @@ impl SseDecode for crate::api::types::AppSettings {
         let mut var_animatedNumbers = <bool>::sse_decode(deserializer);
         let mut var_screenReaderAnnouncements = <bool>::sse_decode(deserializer);
         let mut var_projectIconOpacity = <u32>::sse_decode(deserializer);
+        let mut var_projectCardStyle = <String>::sse_decode(deserializer);
         let mut var_animationThreshold = <u32>::sse_decode(deserializer);
         let mut var_animationSpeed = <f64>::sse_decode(deserializer);
         let mut var_motionScrollReveal = <bool>::sse_decode(deserializer);
@@ -9808,6 +9810,7 @@ impl SseDecode for crate::api::types::AppSettings {
             animated_numbers: var_animatedNumbers,
             screen_reader_announcements: var_screenReaderAnnouncements,
             project_icon_opacity: var_projectIconOpacity,
+            project_card_style: var_projectCardStyle,
             animation_threshold: var_animationThreshold,
             animation_speed: var_animationSpeed,
             motion_scroll_reveal: var_motionScrollReveal,
@@ -14254,6 +14257,7 @@ impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::types::AppSettings
                 .into_into_dart()
                 .into_dart(),
             self.0.project_icon_opacity.into_into_dart().into_dart(),
+            self.0.project_card_style.into_into_dart().into_dart(),
             self.0.animation_threshold.into_into_dart().into_dart(),
             self.0.animation_speed.into_into_dart().into_dart(),
             self.0.motion_scroll_reveal.into_into_dart().into_dart(),
@@ -17458,6 +17462,7 @@ impl SseEncode for crate::api::types::AppSettings {
         <bool>::sse_encode(self.animated_numbers, serializer);
         <bool>::sse_encode(self.screen_reader_announcements, serializer);
         <u32>::sse_encode(self.project_icon_opacity, serializer);
+        <String>::sse_encode(self.project_card_style, serializer);
         <u32>::sse_encode(self.animation_threshold, serializer);
         <f64>::sse_encode(self.animation_speed, serializer);
         <bool>::sse_encode(self.motion_scroll_reveal, serializer);

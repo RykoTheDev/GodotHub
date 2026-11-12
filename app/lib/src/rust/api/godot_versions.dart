@@ -11,64 +11,34 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'types.dart';
 
 Future<List<GodotRelease>> fetchAvailableGodotVersions({String? source}) =>
-    RustLib.instance.api.crateApiGodotVersionsFetchAvailableGodotVersions(
-      source: source,
-    );
+    RustLib.instance.api.crateApiGodotVersionsFetchAvailableGodotVersions(source: source);
 
-Future<void> openVersionsFolder() =>
-    RustLib.instance.api.crateApiGodotVersionsOpenVersionsFolder();
+Future<void> openVersionsFolder() => RustLib.instance.api.crateApiGodotVersionsOpenVersionsFolder();
 
-Future<void> downloadGodotVersion({
-  required String tag,
-  required String assetName,
-  required String downloadUrl,
-}) => RustLib.instance.api.crateApiGodotVersionsDownloadGodotVersion(
-  tag: tag,
-  assetName: assetName,
-  downloadUrl: downloadUrl,
-);
+Future<void> downloadGodotVersion({required String tag, required String assetName, required String downloadUrl}) =>
+    RustLib.instance.api.crateApiGodotVersionsDownloadGodotVersion(tag: tag, assetName: assetName, downloadUrl: downloadUrl);
 
-Future<void> downloadVersionForTag({required String tag}) =>
-    RustLib.instance.api.crateApiGodotVersionsDownloadVersionForTag(tag: tag);
+Future<void> downloadVersionForTag({required String tag}) => RustLib.instance.api.crateApiGodotVersionsDownloadVersionForTag(tag: tag);
 
-Future<void> pauseDownload({required String key}) =>
-    RustLib.instance.api.crateApiGodotVersionsPauseDownload(key: key);
+Future<void> pauseDownload({required String key}) => RustLib.instance.api.crateApiGodotVersionsPauseDownload(key: key);
 
-Future<void> resumeDownload({required String key}) =>
-    RustLib.instance.api.crateApiGodotVersionsResumeDownload(key: key);
+Future<void> resumeDownload({required String key}) => RustLib.instance.api.crateApiGodotVersionsResumeDownload(key: key);
 
-Future<void> cancelDownload({required String key}) =>
-    RustLib.instance.api.crateApiGodotVersionsCancelDownload(key: key);
+Future<void> cancelDownload({required String key}) => RustLib.instance.api.crateApiGodotVersionsCancelDownload(key: key);
 
-Future<void> reorderDownloadQueue({
-  required String key,
-  required int direction,
-}) => RustLib.instance.api.crateApiGodotVersionsReorderDownloadQueue(
-  key: key,
-  direction: direction,
-);
+Future<void> reorderDownloadQueue({required String key, required int direction}) =>
+    RustLib.instance.api.crateApiGodotVersionsReorderDownloadQueue(key: key, direction: direction);
 
-Future<List<InstalledGodotVersion>> listInstalledGodotVersions() =>
-    RustLib.instance.api.crateApiGodotVersionsListInstalledGodotVersions();
+Future<List<InstalledGodotVersion>> listInstalledGodotVersions() => RustLib.instance.api.crateApiGodotVersionsListInstalledGodotVersions();
 
-Future<InstalledGodotVersion> renameGodotVersion({
-  required String tag,
-  String? customName,
-}) => RustLib.instance.api.crateApiGodotVersionsRenameGodotVersion(
-  tag: tag,
-  customName: customName,
-);
+Future<InstalledGodotVersion> renameGodotVersion({required String tag, String? customName}) =>
+    RustLib.instance.api.crateApiGodotVersionsRenameGodotVersion(tag: tag, customName: customName);
 
-Future<void> deleteGodotVersion({required String tag}) =>
-    RustLib.instance.api.crateApiGodotVersionsDeleteGodotVersion(tag: tag);
+Future<void> deleteGodotVersion({required String tag}) => RustLib.instance.api.crateApiGodotVersionsDeleteGodotVersion(tag: tag);
 
-Future<void> openGodotVersion({required String tag, bool? console}) => RustLib
-    .instance
-    .api
-    .crateApiGodotVersionsOpenGodotVersion(tag: tag, console: console);
+Future<void> openGodotVersion({required String tag, bool? console}) =>
+    RustLib.instance.api.crateApiGodotVersionsOpenGodotVersion(tag: tag, console: console);
 
-Future<RateLimitInfo> testGithubToken() =>
-    RustLib.instance.api.crateApiGodotVersionsTestGithubToken();
+Future<RateLimitInfo> testGithubToken() => RustLib.instance.api.crateApiGodotVersionsTestGithubToken();
 
-Future<RateLimitInfo> getGithubRateLimit() =>
-    RustLib.instance.api.crateApiGodotVersionsGetGithubRateLimit();
+Future<RateLimitInfo> getGithubRateLimit() => RustLib.instance.api.crateApiGodotVersionsGetGithubRateLimit();

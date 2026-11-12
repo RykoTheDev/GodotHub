@@ -11,17 +11,9 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import 'types.dart';
 
 Future<List<ProjectTodo>> listProjectTodos({required String projectId}) =>
-    RustLib.instance.api.crateApiProjectTodosListProjectTodos(
-      projectId: projectId,
-    );
+    RustLib.instance.api.crateApiProjectTodosListProjectTodos(projectId: projectId);
 
-Future<List<ProjectTodo>> saveProjectTodos({
-  required String projectId,
-  required List<ProjectTodo> todos,
-}) => RustLib.instance.api.crateApiProjectTodosSaveProjectTodos(
-  projectId: projectId,
-  todos: todos,
-);
+Future<List<ProjectTodo>> saveProjectTodos({required String projectId, required List<ProjectTodo> todos}) =>
+    RustLib.instance.api.crateApiProjectTodosSaveProjectTodos(projectId: projectId, todos: todos);
 
-Future<List<OpenTodo>> listOpenTodos() =>
-    RustLib.instance.api.crateApiProjectTodosListOpenTodos();
+Future<List<OpenTodo>> listOpenTodos() => RustLib.instance.api.crateApiProjectTodosListOpenTodos();

@@ -37,8 +37,7 @@ class _GhBindingObserver with WidgetsBindingObserver {
 extension GhRefLifecycle on Ref {
   void listenAppResumed(VoidCallback handler) => _observe(_GhBindingObserver(onResumed: handler));
 
-  void listenPlatformBrightness(void Function(Brightness brightness) handler) =>
-      _observe(_GhBindingObserver(onBrightness: handler));
+  void listenPlatformBrightness(void Function(Brightness brightness) handler) => _observe(_GhBindingObserver(onBrightness: handler));
 
   void _observe(_GhBindingObserver observer) {
     final binding = ghBindingOrNull();

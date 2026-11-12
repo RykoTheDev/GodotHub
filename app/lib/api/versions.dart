@@ -5,8 +5,7 @@ import '../src/rust/api/scan.dart' as scan_rust;
 import '../src/rust/api/types.dart' as types;
 
 abstract final class VersionsApi {
-  static Future<List<types.GodotRelease>> fetchAvailable([String? source]) =>
-      rust.fetchAvailableGodotVersions(source: source ?? 'github');
+  static Future<List<types.GodotRelease>> fetchAvailable([String? source]) => rust.fetchAvailableGodotVersions(source: source ?? 'github');
 
   static Future<void> download(String tag, String assetName, String downloadUrl) =>
       rust.downloadGodotVersion(tag: tag, assetName: assetName, downloadUrl: downloadUrl);
@@ -17,8 +16,7 @@ abstract final class VersionsApi {
 
   static Future<void> cancelDownload(String key) => rust.cancelDownload(key: key);
 
-  static Future<void> reorderDownloadQueue(String key, int direction) =>
-      rust.reorderDownloadQueue(key: key, direction: direction);
+  static Future<void> reorderDownloadQueue(String key, int direction) => rust.reorderDownloadQueue(key: key, direction: direction);
 
   static Future<List<types.InstalledGodotVersion>> listInstalled() => rust.listInstalledGodotVersions();
 
@@ -38,11 +36,9 @@ abstract final class VersionsApi {
   static Future<types.AliasBatchResult> createAliases(List<types.AliasRequest> entries) =>
       current_rust.createVersionAliases(entries: entries);
 
-  static Future<String?> pickExecutable() async =>
-      throw UnsupportedError('pickExecutable is not available in the Flutter app yet');
+  static Future<String?> pickExecutable() async => throw UnsupportedError('pickExecutable is not available in the Flutter app yet');
 
-  static Future<types.InstalledGodotVersion> addCustomBuild(String path, String? name) =>
-      scan_rust.addCustomBuild(path: path, name: name);
+  static Future<types.InstalledGodotVersion> addCustomBuild(String path, String? name) => scan_rust.addCustomBuild(path: path, name: name);
 
   static Future<void> deleteAlias(String name) => current_rust.deleteVersionAlias(name: name);
 
@@ -67,8 +63,7 @@ abstract final class VersionsApi {
 
   static Future<void> cancelExportTemplates(String tag) => templates_rust.cancelExportTemplatesDownload(tag: tag);
 
-  static Future<void> deleteExportTemplates(String folder, String root) =>
-      templates_rust.deleteExportTemplates(folder: folder, root: root);
+  static Future<void> deleteExportTemplates(String folder, String root) => templates_rust.deleteExportTemplates(folder: folder, root: root);
 
   static Future<void> uninstallExportTemplateFiles(String tag, List<String> files) =>
       templates_rust.uninstallExportTemplateFiles(tag: tag, files: files);

@@ -2,9 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/projects.dart';
 
-final projectResolutionEpochProvider = NotifierProvider<ProjectResolutionEpochNotifier, int>(
-  ProjectResolutionEpochNotifier.new,
-);
+final projectResolutionEpochProvider = NotifierProvider<ProjectResolutionEpochNotifier, int>(ProjectResolutionEpochNotifier.new);
 
 class ProjectResolutionEpochNotifier extends Notifier<int> {
   @override

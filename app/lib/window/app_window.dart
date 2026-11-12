@@ -14,11 +14,7 @@ import '../src/rust/api/window.dart' as rust;
 const Size defaultWindowSize = Size(1280, 720);
 const Size minimumWindowSize = Size(1180, 680);
 
-Rect? restoredBounds({
-  required rust.WindowState? saved,
-  required double scale,
-  required List<Rect> workAreas,
-}) {
+Rect? restoredBounds({required rust.WindowState? saved, required double scale, required List<Rect> workAreas}) {
   if (saved == null || scale <= 0) {
     return null;
   }

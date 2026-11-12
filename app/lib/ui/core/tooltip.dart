@@ -12,15 +12,7 @@ const double _viewportPad = 12;
 const double _gap = 8;
 
 class GhTooltip extends StatefulWidget {
-  const GhTooltip({
-    super.key,
-    required this.child,
-    this.message,
-    this.content,
-    this.side,
-    this.maxWidth = 280,
-    this.delay,
-  });
+  const GhTooltip({super.key, required this.child, this.message, this.content, this.side, this.maxWidth = 280, this.delay});
 
   final Widget child;
   final String? message;
@@ -116,9 +108,12 @@ class _GhTooltipState extends State<GhTooltip> {
       side = mirrorSide(widget.side!, direction);
     } else {
       final ranked =
-          [GhSide.bottom, GhSide.top, GhSide.right, GhSide.left]
-              .where((s) => space[s]! >= (s == GhSide.top || s == GhSide.bottom ? size.height : size.width) + _gap)
-              .toList()
+          [
+              GhSide.bottom,
+              GhSide.top,
+              GhSide.right,
+              GhSide.left,
+            ].where((s) => space[s]! >= (s == GhSide.top || s == GhSide.bottom ? size.height : size.width) + _gap).toList()
             ..sort((a, b) => space[b]!.compareTo(space[a]!));
       if (ranked.isNotEmpty) {
         side = ranked.first;

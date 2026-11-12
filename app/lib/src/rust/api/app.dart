@@ -12,49 +12,27 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 String appVersion() => RustLib.instance.api.crateApiAppAppVersion();
 
-Future<String> startCore({required String channel}) =>
-    RustLib.instance.api.crateApiAppStartCore(channel: channel);
+Future<String> startCore({required String channel}) => RustLib.instance.api.crateApiAppStartCore(channel: channel);
 
-Future<String> startCoreIn({
-  required String channel,
-  required String dataDir,
-  required String configDir,
-  required String cacheDir,
-}) => RustLib.instance.api.crateApiAppStartCoreIn(
-  channel: channel,
-  dataDir: dataDir,
-  configDir: configDir,
-  cacheDir: cacheDir,
-);
+Future<String> startCoreIn({required String channel, required String dataDir, required String configDir, required String cacheDir}) =>
+    RustLib.instance.api.crateApiAppStartCoreIn(channel: channel, dataDir: dataDir, configDir: configDir, cacheDir: cacheDir);
 
-Future<BetaImport> reimportFromStable() =>
-    RustLib.instance.api.crateApiAppReimportFromStable();
+Future<BetaImport> reimportFromStable() => RustLib.instance.api.crateApiAppReimportFromStable();
 
-Future<void> emitEventForTest({
-  required String name,
-  required String payloadJson,
-}) => RustLib.instance.api.crateApiAppEmitEventForTest(
-  name: name,
-  payloadJson: payloadJson,
-);
+Future<void> emitEventForTest({required String name, required String payloadJson}) =>
+    RustLib.instance.api.crateApiAppEmitEventForTest(name: name, payloadJson: payloadJson);
 
-Future<String?> getOsUsername() =>
-    RustLib.instance.api.crateApiAppGetOsUsername();
+Future<String?> getOsUsername() => RustLib.instance.api.crateApiAppGetOsUsername();
 
 class BetaImport {
   final bool imported;
   final BigInt copiedFiles;
   final String? sharedVersionsDir;
 
-  const BetaImport({
-    required this.imported,
-    required this.copiedFiles,
-    this.sharedVersionsDir,
-  });
+  const BetaImport({required this.imported, required this.copiedFiles, this.sharedVersionsDir});
 
   @override
-  int get hashCode =>
-      imported.hashCode ^ copiedFiles.hashCode ^ sharedVersionsDir.hashCode;
+  int get hashCode => imported.hashCode ^ copiedFiles.hashCode ^ sharedVersionsDir.hashCode;
 
   @override
   bool operator ==(Object other) =>

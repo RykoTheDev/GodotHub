@@ -23,7 +23,18 @@ class _NumberPlayground extends StatefulWidget {
 }
 
 class _NumberPlaygroundState extends State<_NumberPlayground> {
-  static const _jumps = <(num, num)>[(9, 10), (10, 9), (99, 100), (999, 1000), (1234, 987), (0, 12345), (12345, 0), (1999, 2001), (-5, 5), (1.5, 2.25)];
+  static const _jumps = <(num, num)>[
+    (9, 10),
+    (10, 9),
+    (99, 100),
+    (999, 1000),
+    (1234, 987),
+    (0, 12345),
+    (12345, 0),
+    (1999, 2001),
+    (-5, 5),
+    (1.5, 2.25),
+  ];
 
   final _random = math.Random();
   num _value = 1234;
@@ -75,7 +86,9 @@ class _NumberPlaygroundState extends State<_NumberPlayground> {
       ('stat tile: text-2xl semibold tabular', theme.text(size: GhTextSize.x2l, weight: GhWeight.semibold).copyWith(fontFeatures: tabular)),
       ('header count: text-xs muted tabular', theme.text(size: GhTextSize.xs, color: theme.muted).copyWith(fontFeatures: tabular)),
     ];
-    final countStyle = theme.text(size: GhTextSize.x3s, weight: GhWeight.medium, color: theme.muted.withValues(alpha: 0.5)).copyWith(fontFeatures: tabular);
+    final countStyle = theme
+        .text(size: GhTextSize.x3s, weight: GhWeight.medium, color: theme.muted.withValues(alpha: 0.5))
+        .copyWith(fontFeatures: tabular);
     final mode = !motion.prefs.animatedNumbers || motion.prefs.intensity == GhMotionIntensity.none
         ? 'plain text (animated numbers off or intensity none)'
         : motion.numbersOn
@@ -437,8 +450,14 @@ class _EaseCardState extends State<_EaseCard> with SingleTickerProviderStateMixi
 }
 
 class _EasePainter extends CustomPainter {
-  _EasePainter({required this.curve, required this.progress, required this.grid, required this.stroke, required this.dot, required this.track})
-    : super(repaint: progress);
+  _EasePainter({
+    required this.curve,
+    required this.progress,
+    required this.grid,
+    required this.stroke,
+    required this.dot,
+    required this.track,
+  }) : super(repaint: progress);
 
   final Curve curve;
   final Animation<double> progress;
@@ -505,5 +524,9 @@ class _EasePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_EasePainter oldDelegate) =>
-      oldDelegate.curve != curve || oldDelegate.grid != grid || oldDelegate.stroke != stroke || oldDelegate.dot != dot || oldDelegate.track != track;
+      oldDelegate.curve != curve ||
+      oldDelegate.grid != grid ||
+      oldDelegate.stroke != stroke ||
+      oldDelegate.dot != dot ||
+      oldDelegate.track != track;
 }

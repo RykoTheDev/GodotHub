@@ -10,17 +10,11 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-Future<List<(String, BigInt)>> getActivity({required String range}) =>
-    RustLib.instance.api.crateApiTimeStatsGetActivity(range: range);
+Future<List<(String, BigInt)>> getActivity({required String range}) => RustLib.instance.api.crateApiTimeStatsGetActivity(range: range);
 
-Future<List<(String, BigInt)>> getProjectActivity({
-  required String projectId,
-}) => RustLib.instance.api.crateApiTimeStatsGetProjectActivity(
-  projectId: projectId,
-);
+Future<List<(String, BigInt)>> getProjectActivity({required String projectId}) =>
+    RustLib.instance.api.crateApiTimeStatsGetProjectActivity(projectId: projectId);
 
-Future<TimeInsights> getTimeInsights() =>
-    RustLib.instance.api.crateApiTimeStatsGetTimeInsights();
+Future<TimeInsights> getTimeInsights() => RustLib.instance.api.crateApiTimeStatsGetTimeInsights();
 
-Future<void> clearTimeStats() =>
-    RustLib.instance.api.crateApiTimeStatsClearTimeStats();
+Future<void> clearTimeStats() => RustLib.instance.api.crateApiTimeStatsClearTimeStats();

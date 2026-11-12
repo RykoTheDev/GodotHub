@@ -7,14 +7,8 @@ import 'workspaces.dart';
 
 final categoriesProvider = NotifierProvider<CategoriesNotifier, ApiData<List<Category>>>(CategoriesNotifier.new);
 
-Category copyCategory(Category c, {bool? hidden}) => Category(
-  id: c.id,
-  name: c.name,
-  sortOrder: c.sortOrder,
-  color: c.color,
-  hidden: hidden ?? c.hidden,
-  folders: c.folders,
-);
+Category copyCategory(Category c, {bool? hidden}) =>
+    Category(id: c.id, name: c.name, sortOrder: c.sortOrder, color: c.color, hidden: hidden ?? c.hidden, folders: c.folders);
 
 class CategoriesNotifier extends ApiDataNotifier<List<Category>> {
   @override

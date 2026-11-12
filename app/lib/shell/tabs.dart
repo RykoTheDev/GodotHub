@@ -38,11 +38,9 @@ AppTabDef? appTabById(String id) {
   return null;
 }
 
-List<AppTabDef> enabledTabsFor(AppSettings settings) =>
-    appTabs.where((tab) => isFeatureEnabled(settings, tab.id)).toList(growable: false);
+List<AppTabDef> enabledTabsFor(AppSettings settings) => appTabs.where((tab) => isFeatureEnabled(settings, tab.id)).toList(growable: false);
 
-String resolveTab(String requested, List<AppTabDef> enabled) =>
-    enabled.any((tab) => tab.id == requested) ? requested : 'projects';
+String resolveTab(String requested, List<AppTabDef> enabled) => enabled.any((tab) => tab.id == requested) ? requested : 'projects';
 
 String tabLabel(AppTabDef tab, [Translations? translations]) => ghTr('nav:${tab.navKey}', translations: translations);
 

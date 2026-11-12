@@ -585,12 +585,8 @@ class _GhPresenceState extends State<GhPresence> with SingleTickerProviderStateM
     Widget result = AnimatedBuilder(
       animation: _controller,
       child: widget.child,
-      builder: (context, child) => GhPoseView(
-        allowBlur: spec.layer.blurs,
-        pose: spec.layer.poseAt(this).mirrored(rtl),
-        origin: widget.origin,
-        child: child!,
-      ),
+      builder: (context, child) =>
+          GhPoseView(allowBlur: spec.layer.blurs, pose: spec.layer.poseAt(this).mirrored(rtl), origin: widget.origin, child: child!),
     );
     result = IgnorePointer(
       ignoring: _exiting,

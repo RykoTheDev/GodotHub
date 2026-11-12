@@ -63,8 +63,7 @@ int liveSessionMs(Project project, [int? now]) {
   return diff < 0 ? 0 : diff;
 }
 
-int effectiveTotalMs(Project project, [int? now]) =>
-    project.totalTimeSeconds.toInt() * 1000 + liveSessionMs(project, now);
+int effectiveTotalMs(Project project, [int? now]) => project.totalTimeSeconds.toInt() * 1000 + liveSessionMs(project, now);
 
 int Function(Project a, Project b)? comparatorFor(ProjectSortOption sort, [int? now]) {
   final at = now ?? DateTime.now().millisecondsSinceEpoch;

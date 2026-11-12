@@ -223,11 +223,7 @@ class _GhContextMenuState extends State<GhContextMenu> with WidgetsBindingObserv
               label: widget.label,
               child: GhMenuSurface(
                 compact: widget.compact,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: rows,
-                ),
+                child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: rows),
               ),
             ),
           ),
@@ -277,14 +273,7 @@ class _ContextMenuLayout extends SingleChildLayoutDelegate {
 }
 
 class GhContextMenuArea extends StatefulWidget {
-  const GhContextMenuArea({
-    super.key,
-    required this.items,
-    required this.child,
-    this.compact = false,
-    this.label,
-    this.enabled = true,
-  });
+  const GhContextMenuArea({super.key, required this.items, required this.child, this.compact = false, this.label, this.enabled = true});
 
   final List<GhMenuItem> Function() items;
   final Widget child;

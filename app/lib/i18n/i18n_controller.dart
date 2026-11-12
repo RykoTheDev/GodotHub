@@ -25,12 +25,7 @@ class GhI18n extends ChangeNotifier {
   TextDirection get layoutDirection => ghLayoutDirection(_language, rtlLayout: _rtlLayout);
   AppLocale get locale => ghAppLocaleFor(_language) ?? AppLocale.enUs;
 
-  static Future<GhI18n> init({
-    UiPrefsStore? prefs,
-    String? settingsLanguage,
-    bool? settingsRtlLayout,
-    List<Locale>? systemLocales,
-  }) async {
+  static Future<GhI18n> init({UiPrefsStore? prefs, String? settingsLanguage, bool? settingsRtlLayout, List<Locale>? systemLocales}) async {
     final store = prefs ?? UiPrefsStore.instance;
     final i18n = GhI18n._(store);
     instance = i18n;

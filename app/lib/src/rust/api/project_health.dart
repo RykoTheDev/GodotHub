@@ -9,7 +9,4 @@ import 'error.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 Future<void> fixProjectHealth({required String id, required String checkId}) =>
-    RustLib.instance.api.crateApiProjectHealthFixProjectHealth(
-      id: id,
-      checkId: checkId,
-    );
+    RustLib.instance.api.crateApiProjectHealthFixProjectHealth(id: id, checkId: checkId);

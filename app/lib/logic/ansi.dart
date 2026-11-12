@@ -28,21 +28,12 @@ class AnsiStyle {
   int get hashCode => Object.hash(runtimeType, color, background, bold, dim, italic, underline);
 
   @override
-  String toString() =>
-      'AnsiStyle(color: $color, background: $background, bold: $bold, dim: $dim, italic: $italic, underline: $underline)';
+  String toString() => 'AnsiStyle(color: $color, background: $background, bold: $bold, dim: $dim, italic: $italic, underline: $underline)';
 }
 
 @immutable
 class AnsiSpan extends AnsiStyle {
-  const AnsiSpan({
-    required this.text,
-    super.color,
-    super.background,
-    super.bold,
-    super.dim,
-    super.italic,
-    super.underline,
-  });
+  const AnsiSpan({required this.text, super.color, super.background, super.bold, super.dim, super.italic, super.underline});
 
   AnsiSpan.styled(AnsiStyle style, this.text)
     : super(
@@ -69,14 +60,7 @@ class AnsiSpan extends AnsiStyle {
 
 @immutable
 class AnsiCssStyle {
-  const AnsiCssStyle({
-    this.color,
-    this.backgroundColor,
-    this.fontWeight,
-    this.opacity,
-    this.fontStyle,
-    this.textDecoration,
-  });
+  const AnsiCssStyle({this.color, this.backgroundColor, this.fontWeight, this.opacity, this.fontStyle, this.textDecoration});
 
   final String? color;
   final String? backgroundColor;
@@ -143,9 +127,7 @@ String? ansi256Color(int index) {
   return null;
 }
 
-final RegExp _nonSgrEscape = RegExp(
-  r'\u001b\][^\u0007\u001b]*(?:\u0007|\u001b\\)|\u001b\[[0-9;?]*[A-Za-ln-~]|\u001b[@-Z\\_]',
-);
+final RegExp _nonSgrEscape = RegExp(r'\u001b\][^\u0007\u001b]*(?:\u0007|\u001b\\)|\u001b\[[0-9;?]*[A-Za-ln-~]|\u001b[@-Z\\_]');
 
 final RegExp _sgrWithStyle = RegExp(r'\u001b\[[0-9;]*m');
 
@@ -191,8 +173,7 @@ class _MutableStyle {
     }
   }
 
-  AnsiStyle freeze() =>
-      AnsiStyle(color: color, background: background, bold: bold, dim: dim, italic: italic, underline: underline);
+  AnsiStyle freeze() => AnsiStyle(color: color, background: background, bold: bold, dim: dim, italic: italic, underline: underline);
 }
 
 String? _resolve256(num? value) {

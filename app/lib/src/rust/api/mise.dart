@@ -10,18 +10,13 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-Future<MiseStatus> miseStatus() =>
-    RustLib.instance.api.crateApiMiseMiseStatus();
+Future<MiseStatus> miseStatus() => RustLib.instance.api.crateApiMiseMiseStatus();
 
-Future<MiseStatus> miseRefreshStatus() =>
-    RustLib.instance.api.crateApiMiseMiseRefreshStatus();
+Future<MiseStatus> miseRefreshStatus() => RustLib.instance.api.crateApiMiseMiseRefreshStatus();
 
-Future<List<InstalledGodotVersion>> miseSyncGodotVersions() =>
-    RustLib.instance.api.crateApiMiseMiseSyncGodotVersions();
+Future<List<InstalledGodotVersion>> miseSyncGodotVersions() => RustLib.instance.api.crateApiMiseMiseSyncGodotVersions();
 
-Future<List<InstalledGodotVersion>> miseInstallGodotVersion({
-  required String tag,
-}) => RustLib.instance.api.crateApiMiseMiseInstallGodotVersion(tag: tag);
+Future<List<InstalledGodotVersion>> miseInstallGodotVersion({required String tag}) =>
+    RustLib.instance.api.crateApiMiseMiseInstallGodotVersion(tag: tag);
 
-Future<void> miseUninstallGodotVersion({required String tag}) =>
-    RustLib.instance.api.crateApiMiseMiseUninstallGodotVersion(tag: tag);
+Future<void> miseUninstallGodotVersion({required String tag}) => RustLib.instance.api.crateApiMiseMiseUninstallGodotVersion(tag: tag);

@@ -117,19 +117,19 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
         id: 'build-export',
         label: ghTr('build_export.title'),
         icon: GhIcons.rocket,
-        onSelected: () => showProjectModalPlaceholder(context, 'build_export.title', GhIcons.rocket),
+        onSelected: () => openProjectBuild(context, project),
       ),
       GhMenuItem(
         id: 'project-doctor',
         label: ghTr('project_doctor.title'),
         icon: GhIcons.bug,
-        onSelected: () => showProjectModalPlaceholder(context, 'project_doctor.title', GhIcons.bug),
+        onSelected: () => openProjectDoctor(context, project, widget.installedVersions),
       ),
       GhMenuItem(
         id: 'project-addons',
         label: ghTr('project_addons.title'),
         icon: GhIcons.plug,
-        onSelected: () => showProjectModalPlaceholder(context, 'project_addons.title', GhIcons.plug),
+        onSelected: () => openProjectAddons(context, project),
       ),
       GhMenuItem(
         id: 'pin',
@@ -142,7 +142,7 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
           id: 'launch-arguments',
           label: tr.launch_arguments,
           icon: GhIcons.rocket,
-          onSelected: () => showProjectModalPlaceholder(context, 'launch_arguments', GhIcons.rocket),
+          onSelected: () => openLaunchArgs(context, project, cb.onLaunchArgsChange),
         ),
       GhMenuItem(
         id: 'manage-tags',
@@ -163,7 +163,7 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
         label: tr.save_as_template,
         icon: GhIcons.copy,
         dividerAfter: true,
-        onSelected: () => showProjectModalPlaceholder(context, 'save_as_template', GhIcons.copy),
+        onSelected: () => openSaveAsTemplate(context, project),
       ),
       GhMenuItem(
         id: 'remove',
@@ -750,7 +750,7 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
         mono: true,
         semanticLabel: tr.time_tracked_title,
         tooltip: tr.project_card_total_time.args({'time': label}),
-        onPressed: () => showProjectModalPlaceholder(context, 'time_tracked_title', GhIcons.stopwatch),
+        onPressed: () => openTimeTracker(context, project),
       );
     }
 
@@ -775,7 +775,7 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
         height: theme.space(2.5),
         decoration: BoxDecoration(color: theme.raised, borderRadius: BorderRadius.circular(theme.rem(0.25))),
       ),
-      onPressed: () => showProjectModalPlaceholder(context, 'project_size', GhIcons.hardDrive),
+      onPressed: () => openProjectSize(context, widget.project),
     );
   }
 
@@ -885,7 +885,10 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
         decoration: BoxDecoration(color: theme.raised, borderRadius: radius),
         child: Center(
           widthFactor: 1,
-          child: Text(label, style: theme.text(size: GhTextSize.x3s, color: states.active ? theme.ink : theme.muted)),
+          child: Text(
+            label,
+            style: theme.text(size: GhTextSize.x3s, color: states.active ? theme.ink : theme.muted),
+          ),
         ),
       ),
     );

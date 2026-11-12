@@ -97,9 +97,7 @@ DiscordActivity buildDiscordActivity({required AppSettings settings, Project? ru
     final customState = custom?.state?.trim() ?? '';
     final resolved = resolvedName ?? '';
     return DiscordActivity(
-      details: customDetails.isNotEmpty
-          ? customDetails
-          : (storedIsFolderName && resolved.isNotEmpty ? resolved : running.name),
+      details: customDetails.isNotEmpty ? customDetails : (storedIsFolderName && resolved.isNotEmpty ? resolved : running.name),
       state: customState.isNotEmpty
           ? customState
           : (running.godotVersion.isNotEmpty ? 'Godot ${running.godotVersion}' : 'Working on a Project'),
@@ -147,9 +145,7 @@ class DiscordRpcDraftNotifier extends Notifier<AppSettings?> {
   void set(AppSettings? draft) => state = draft;
 }
 
-final discordRpcSettingsProvider = Provider<AppSettings?>(
-  (ref) => ref.watch(discordRpcDraftProvider) ?? ref.watch(settingsProvider).value,
-);
+final discordRpcSettingsProvider = Provider<AppSettings?>((ref) => ref.watch(discordRpcDraftProvider) ?? ref.watch(settingsProvider).value);
 
 final discordRpcRunningProjectProvider = Provider<Project?>((ref) {
   if (ref.watch(discordRpcDraftProvider) != null) return null;

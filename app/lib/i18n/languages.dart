@@ -73,10 +73,10 @@ final List<GhLanguageOption> ghLanguages = List.of(_unsorted)
   });
 
 String languageStatusLabelKey(GhLanguageStatus status) => switch (status) {
-      GhLanguageStatus.complete => 'settings:language_complete',
-      GhLanguageStatus.beta => 'settings:language_beta',
-      GhLanguageStatus.incomplete => 'settings:language_incomplete',
-    };
+  GhLanguageStatus.complete => 'settings:language_complete',
+  GhLanguageStatus.beta => 'settings:language_beta',
+  GhLanguageStatus.incomplete => 'settings:language_incomplete',
+};
 
 String ghSystemLanguageFor(List<Locale> systemLocales) {
   final available = ghLanguages.where((l) => !l.isSystem).toList();

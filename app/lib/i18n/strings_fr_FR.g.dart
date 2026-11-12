@@ -1362,6 +1362,9 @@ class _Translations$settings$fr_FR extends Translations$settings$en_US {
 	@override String get tray_recent_label => 'Projets récents dans la zone de notification';
 	@override String get tooltip_delay_label => 'Délai des infobulles';
 	@override String get project_icon_opacity_label => 'Opacité des icônes de projet';
+	@override String get project_card_style_label => 'Style des cartes de projet';
+	@override String get project_card_style_hub => 'Godot Hub';
+	@override String get project_card_style_cover => 'Couverture';
 	@override String get time_format_label => 'Format de l\'heure (affiché si ouvert aujourd\'hui)';
 	@override String get date_format_label => 'Format de la date (affiché pour tout autre jour)';
 	@override String get auto_scan_label => 'Scan automatique au démarrage';
@@ -3622,6 +3625,9 @@ extension on TranslationsFrFr {
 			'settings.tray_recent_label' => 'Projets récents dans la zone de notification',
 			'settings.tooltip_delay_label' => 'Délai des infobulles',
 			'settings.project_icon_opacity_label' => 'Opacité des icônes de projet',
+			'settings.project_card_style_label' => 'Style des cartes de projet',
+			'settings.project_card_style_hub' => 'Godot Hub',
+			'settings.project_card_style_cover' => 'Couverture',
 			'settings.time_format_label' => 'Format de l\'heure (affiché si ouvert aujourd\'hui)',
 			'settings.date_format_label' => 'Format de la date (affiché pour tout autre jour)',
 			'settings.auto_scan_label' => 'Scan automatique au démarrage',
@@ -3749,11 +3755,11 @@ extension on TranslationsFrFr {
 			'settings.interface_label' => 'Interface',
 			'settings.card_layout_label' => 'Disposition en cartes',
 			'settings.landing_tab_label' => 'Page d\'accueil par défaut',
+			_ => null,
+		} ?? switch (path) {
 			'settings.language_complete' => 'Complète',
 			'settings.language_beta' => 'Bêta',
 			'settings.language_incomplete' => 'Incomplète',
-			_ => null,
-		} ?? switch (path) {
 			'settings.use_os_decorations' => 'Utiliser les décorations de fenêtre du système',
 			'settings.credits' => 'Crédits',
 			'settings.credits_developer' => 'Créé par',

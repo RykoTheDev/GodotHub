@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../design/design.dart';
+
 import 'package:window_manager/window_manager.dart';
 
 import '../ui/core/i18n.dart';
@@ -246,13 +247,7 @@ class WindowControls extends StatelessWidget {
 }
 
 class _ColoredDot extends StatelessWidget {
-  const _ColoredDot({
-    super.key,
-    required this.color,
-    required this.shift,
-    required this.label,
-    required this.onPressed,
-  });
+  const _ColoredDot({super.key, required this.color, required this.shift, required this.label, required this.onPressed});
 
   final Color color;
   final double shift;

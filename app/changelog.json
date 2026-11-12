@@ -7,5 +7,13 @@
       { "category": "add", "text": "Window, title bar, theme, fonts, icons, animations and all 9 languages are in place. Most screens are not ported yet." }
     ],
     "known_issues": ["Most views from the stable app are still missing."]
+  },
+  {
+    "version": "flutter-v0.2.0",
+    "date": "",
+    "notes": [
+      { "category": "add", "text": "Add Projects View Screen" },
+      { "category": "add", "text": "Add Versions View Screen" }
+    ]
   }
 ]

@@ -170,16 +170,8 @@ class _PopoverPresenceState extends State<_PopoverPresence> {
           title: 'Dropdown (0.28 expo.out, items 0.24 power3.out stagger, exit 0.15 power2.in)',
           children: [
             GhDropdown(trigger: (context, open, toggle) => _trigger('Open below', open, toggle), items: _menuItems),
-            GhDropdown(
-              side: GhSide.top,
-              trigger: (context, open, toggle) => _trigger('Open above', open, toggle),
-              items: _menuItems,
-            ),
-            GhDropdown(
-              align: GhSide.left,
-              trigger: (context, open, toggle) => _trigger('Align left', open, toggle),
-              items: _menuItems,
-            ),
+            GhDropdown(side: GhSide.top, trigger: (context, open, toggle) => _trigger('Open above', open, toggle), items: _menuItems),
+            GhDropdown(align: GhSide.left, trigger: (context, open, toggle) => _trigger('Align left', open, toggle), items: _menuItems),
           ],
         ),
         GalleryGroup(
@@ -200,10 +192,7 @@ class _PopoverPresenceState extends State<_PopoverPresence> {
         GalleryGroup(
           title: 'Slash menu',
           children: [
-            _button(
-              _slashOpen ? 'Close slash menu' : 'Open slash menu',
-              () => setState(() => _slashOpen = !_slashOpen),
-            ),
+            _button(_slashOpen ? 'Close slash menu' : 'Open slash menu', () => setState(() => _slashOpen = !_slashOpen)),
             SizedBox(
               width: 280,
               child: GhSlashMenuAnchor(
@@ -245,8 +234,7 @@ class _TooltipPresence extends StatelessWidget {
       title: 'Tooltip (0.32 back.out(2.6) from the arrow edge, exit 0.14 power2.in), hover a button',
       spacing: 40,
       children: [
-        for (final side in GhSide.values)
-          GhTooltip(message: 'Tooltip on ${side.name}', side: side, child: _button(side.name, () {})),
+        for (final side in GhSide.values) GhTooltip(message: 'Tooltip on ${side.name}', side: side, child: _button(side.name, () {})),
       ],
     );
   }
@@ -331,11 +319,8 @@ class _PanelPresenceState extends State<_PanelPresence> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         GalleryGroup(
-          title:
-              'Side panel (0.7 expo.out, exit 0.42 power3.in) over a backdrop (0.4 power3.out, exit 0.35 power1.out)',
-          children: [
-            _button(_panel ? 'Close panel' : 'Open panel', () => setState(() => _panel = !_panel), primary: true),
-          ],
+          title: 'Side panel (0.7 expo.out, exit 0.42 power3.in) over a backdrop (0.4 power3.out, exit 0.35 power1.out)',
+          children: [_button(_panel ? 'Close panel' : 'Open panel', () => setState(() => _panel = !_panel), primary: true)],
         ),
         _Stage(
           width: 640,
@@ -603,11 +588,7 @@ class _DisclosurePresenceState extends State<_DisclosurePresence> {
     const size = Size(240, 150);
     canvas.drawRect(
       Offset.zero & size,
-      Paint()
-        ..shader = ui.Gradient.linear(Offset.zero, Offset(size.width, size.height), const [
-          Color(0xFF478CBF),
-          Color(0xFFEB459E),
-        ]),
+      Paint()..shader = ui.Gradient.linear(Offset.zero, Offset(size.width, size.height), const [Color(0xFF478CBF), Color(0xFFEB459E)]),
     );
     canvas.drawCircle(const Offset(170, 60), 34, Paint()..color = const Color(0xCCFFFFFF));
     final image = await recorder.endRecording().toImage(size.width.toInt(), size.height.toInt());
@@ -643,10 +624,7 @@ class _DisclosurePresenceState extends State<_DisclosurePresence> {
                         child: Container(
                           margin: const EdgeInsets.only(bottom: 4),
                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                          decoration: BoxDecoration(
-                            color: theme.overlay,
-                            borderRadius: BorderRadius.circular(theme.radiusItem),
-                          ),
+                          decoration: BoxDecoration(color: theme.overlay, borderRadius: BorderRadius.circular(theme.radiusItem)),
                           child: Text('Item ${i + 1}', style: theme.text(size: GhTextSize.sm)),
                         ),
                       ),

@@ -73,8 +73,19 @@ class _GhAccountMenuState extends State<GhAccountMenu> {
       badge: widget.hasNewChangelog ? widget.newBadgeLabel ?? context.tr.common.new_badge : null,
       onSelected: () => widget.onNavigate('changelog'),
     ),
-    GhMenuItem(id: 'bug', label: widget.reportBugLabel ?? context.tr.common.report_a_bug, icon: GhIcons.bug, danger: true, onSelected: widget.onReportBug ?? () {}),
-    GhMenuItem(id: 'support', label: widget.supportLabel ?? context.tr.common.support, icon: GhIcons.heart, onSelected: widget.onSupport ?? () {}),
+    GhMenuItem(
+      id: 'bug',
+      label: widget.reportBugLabel ?? context.tr.common.report_a_bug,
+      icon: GhIcons.bug,
+      danger: true,
+      onSelected: widget.onReportBug ?? () {},
+    ),
+    GhMenuItem(
+      id: 'support',
+      label: widget.supportLabel ?? context.tr.common.support,
+      icon: GhIcons.heart,
+      onSelected: widget.onSupport ?? () {},
+    ),
   ];
 
   @override

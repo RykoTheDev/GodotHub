@@ -9,6 +9,7 @@ import 'package:godothub/design/design.dart';
 import 'package:godothub/logic/settings_copy.dart';
 import 'package:godothub/modals/bulk_tag_modal.dart';
 import 'package:godothub/modals/category_manager_modal.dart';
+import 'package:godothub/modals/launch_args_modal.dart';
 import 'package:godothub/modals/tag_manager_modal.dart';
 import 'package:godothub/projects/category_sections.dart';
 import 'package:godothub/projects/project_card.dart';
@@ -19,6 +20,8 @@ import 'package:godothub/src/ui_prefs.dart';
 import 'package:godothub/state/app_signals.dart';
 import 'package:godothub/state/keyboard_shortcuts.dart';
 import 'package:godothub/state/shell_signals.dart';
+import 'package:godothub/todos/project_todo_panel.dart';
+import 'package:godothub/ui/core/i18n.dart';
 import 'package:godothub/ui/dnd/sortable.dart';
 import 'package:godothub/ui/overlays/slash_menu.dart';
 import 'package:godothub/ui/reusables/view_header.dart';
@@ -64,13 +67,8 @@ const installed = InstalledGodotVersion(
   supportsConsole: true,
 );
 
-AppSettings viewSettings({bool categories = false, bool customize = false}) => copySettings(
-  baseSettings,
-  setupComplete: true,
-  categoriesEnabled: categories,
-  customizeViewEnabled: customize,
-  cardShowTags: true,
-);
+AppSettings viewSettings({bool categories = false, bool customize = false}) =>
+    copySettings(baseSettings, setupComplete: true, categoriesEnabled: categories, customizeViewEnabled: customize, cardShowTags: true);
 
 late FakeRustApi rust;
 late UiPrefsStore prefs;
@@ -95,7 +93,10 @@ void backend(List<Project> projects, {List<Category> categories = const []}) {
     ..on('crateApiProjectsReorderProjects', ({required List<String> orderedIds}) async => reorders.add(orderedIds))
     ..on('crateApiProjectsRemoveProject', ({required String id, required bool deleteFiles}) async {
       removed.add(id);
-      store = [for (final p in store) if (p.id != id) p];
+      store = [
+        for (final p in store)
+          if (p.id != id) p,
+      ];
     })
     ..on('crateApiProjectsUpdateProject', ({required String id, required ProjectUpdate updates}) async {
       final index = store.indexWhere((p) => p.id == id);
@@ -180,7 +181,10 @@ void main() {
   });
 
   testWidgets('search narrows the list and the slash menu inserts a field', (tester) async {
-    backend([project('a', 'Alpha', tags: ['jam']), project('b', 'Beta')]);
+    backend([
+      project('a', 'Alpha', tags: ['jam']),
+      project('b', 'Beta'),
+    ]);
     await pumpView(tester, viewSettings());
     await tester.enterText(searchField(), 'alp');
     await settle(tester, 5);
@@ -282,7 +286,10 @@ void main() {
   });
 
   testWidgets('tag clicks filter by tag until cleared', (tester) async {
-    backend([project('a', 'Alpha', tags: ['jam']), project('b', 'Beta')]);
+    backend([
+      project('a', 'Alpha', tags: ['jam']),
+      project('b', 'Beta'),
+    ]);
     await pumpView(tester, viewSettings());
     await tester.tap(find.text('jam').first);
     await settle(tester, 5);
@@ -310,7 +317,9 @@ void main() {
 
   testWidgets('tag manager saves the edited tags', (tester) async {
     List<String>? saved;
-    backend([project('a', 'Alpha', tags: ['old'])]);
+    backend([
+      project('a', 'Alpha', tags: ['old']),
+    ]);
     rust.on('crateApiProjectsWriteProjectTags', ({required String id, required String path, required List<String> tags}) async {
       saved = tags;
       return project('a', 'Alpha', tags: tags);
@@ -319,7 +328,11 @@ void main() {
       MaterialApp(
         theme: GhTheme.defaults().toThemeData(),
         home: Scaffold(
-          body: TagManagerModal(project: project('a', 'Alpha', tags: ['old']), onClose: () {}, onSaved: (_) {}),
+          body: TagManagerModal(
+            project: project('a', 'Alpha', tags: ['old']),
+            onClose: () {},
+            onSaved: (_) {},
+          ),
         ),
       ),
     );
@@ -375,5 +388,40 @@ void main() {
     await pumpView(tester, viewSettings());
     expect(find.text('main'), findsOneWidget);
     expect(find.byType(ProjectCard), findsOneWidget);
+  });
+
+  testWidgets('clicking a card toggles its todo panel and the menu opens project modals', (tester) async {
+    backend([project('a', 'Alpha')]);
+    rust
+      ..on('crateApiProjectTodosListOpenTodos', () async => <OpenTodo>[])
+      ..on('crateApiProjectTodosListProjectTodos', ({required String projectId}) async => <ProjectTodo>[])
+      ..on(
+        'crateApiTodoSyncSyncProjectTodos',
+        ({required String projectId, required bool scanComments}) async => TodoSyncResult(
+          todos: const [],
+          scanned: false,
+          imported: BigInt.zero,
+          closed: BigInt.zero,
+          reopened: BigInt.zero,
+          updated: BigInt.zero,
+          closedByCommits: BigInt.zero,
+          gitAvailable: true,
+        ),
+      );
+    await pumpView(tester, copySettings(viewSettings(), projectTodosEnabled: true));
+    expect(find.byType(ProjectTodoPanel), findsNothing);
+    await tester.tapAt(tester.getCenter(card('a')));
+    await settle(tester);
+    expect(find.byType(ProjectTodoPanel), findsOneWidget);
+    expect(find.text(ghTr('todos:empty_title')), findsOneWidget);
+    await tester.tap(find.bySemanticsLabel(ghTr('todos:hide_next_steps')));
+    await settle(tester, 5);
+    expect(find.byType(ProjectTodoPanel), findsNothing);
+
+    await tester.tap(find.bySemanticsLabel(ghTr('project_more_aria')).first);
+    await settle(tester, 5);
+    await tester.tap(find.text(ghTr('launch_arguments')));
+    await settle(tester);
+    expect(find.byType(LaunchArgsModal), findsOneWidget);
   });
 }

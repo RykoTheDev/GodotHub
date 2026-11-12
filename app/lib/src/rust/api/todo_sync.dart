@@ -10,33 +10,14 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-Future<TodoSyncResult> syncProjectTodos({
-  required String projectId,
-  required bool scanComments,
-}) => RustLib.instance.api.crateApiTodoSyncSyncProjectTodos(
-  projectId: projectId,
-  scanComments: scanComments,
-);
+Future<TodoSyncResult> syncProjectTodos({required String projectId, required bool scanComments}) =>
+    RustLib.instance.api.crateApiTodoSyncSyncProjectTodos(projectId: projectId, scanComments: scanComments);
 
-Future<TodoGitActivity> todoGitActivity({
-  required String projectId,
-  required int number,
-}) => RustLib.instance.api.crateApiTodoSyncTodoGitActivity(
-  projectId: projectId,
-  number: number,
-);
+Future<TodoGitActivity> todoGitActivity({required String projectId, required int number}) =>
+    RustLib.instance.api.crateApiTodoSyncTodoGitActivity(projectId: projectId, number: number);
 
 Future<List<String>> listProjectResources({required String projectId}) =>
-    RustLib.instance.api.crateApiTodoSyncListProjectResources(
-      projectId: projectId,
-    );
+    RustLib.instance.api.crateApiTodoSyncListProjectResources(projectId: projectId);
 
-Future<void> openTodoLink({
-  required String projectId,
-  required String path,
-  int? line,
-}) => RustLib.instance.api.crateApiTodoSyncOpenTodoLink(
-  projectId: projectId,
-  path: path,
-  line: line,
-);
+Future<void> openTodoLink({required String projectId, required String path, int? line}) =>
+    RustLib.instance.api.crateApiTodoSyncOpenTodoLink(projectId: projectId, path: path, line: line);

@@ -9,13 +9,7 @@ import '../core/i18n.dart';
 import 'toast.dart';
 
 class GhToastCard extends StatelessWidget {
-  const GhToastCard({
-    super.key,
-    required this.toast,
-    required this.onDismiss,
-    this.dismissLabel,
-    this.collapse = 0,
-  });
+  const GhToastCard({super.key, required this.toast, required this.onDismiss, this.dismissLabel, this.collapse = 0});
 
   final GhToastItem toast;
   final VoidCallback onDismiss;
@@ -107,11 +101,7 @@ class _ToastActionButton extends StatelessWidget {
         padding: EdgeInsets.symmetric(horizontal: theme.space(2), vertical: theme.space(1)),
         child: GhAnimatedText(
           label,
-          style: theme.text(
-            size: GhTextSize.xs,
-            weight: GhWeight.semibold,
-            color: states.active ? theme.ink : theme.accentBright,
-          ),
+          style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: states.active ? theme.ink : theme.accentBright),
         ),
       ),
     );
@@ -140,11 +130,7 @@ class _ToastDismissButton extends StatelessWidget {
         padding: EdgeInsets.all(theme.space(0.5)),
         child: GhIconMotionScale(
           states: states,
-          child: GhAnimatedIcon(
-            GhIcons.x,
-            size: theme.space(3.5),
-            color: states.active ? theme.ink : theme.muted.withValues(alpha: 0.5),
-          ),
+          child: GhAnimatedIcon(GhIcons.x, size: theme.space(3.5), color: states.active ? theme.ink : theme.muted.withValues(alpha: 0.5)),
         ),
       ),
     );

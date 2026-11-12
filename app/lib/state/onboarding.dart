@@ -47,9 +47,7 @@ const allOnboardingSteps = [
 
 const starterCategories = ['In Progress', 'Prototypes', 'Finished', 'Game Jams'];
 
-final starterCategoryColors = {
-  for (var i = 0; i < starterCategories.length; i++) starterCategories[i]: categoryColors[i],
-};
+final starterCategoryColors = {for (var i = 0; i < starterCategories.length; i++) starterCategories[i]: categoryColors[i]};
 
 List<OnboardingStep> onboardingSteps(AppSettings draft, {required bool firstRun}) => [
   for (final step in allOnboardingSteps)
@@ -100,7 +98,10 @@ class PathSuggestion {
 
 List<PathSuggestion> _dedupe(Iterable<PathSuggestion> items) {
   final seen = <String>{};
-  return [for (final item in items) if (seen.add(item.path)) item];
+  return [
+    for (final item in items)
+      if (seen.add(item.path)) item,
+  ];
 }
 
 @immutable
@@ -258,9 +259,7 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
     if (id == current.themePreset) return;
     if (id == 'custom') {
       final defaults = customThemeDefaults(_resolve(current.themeMode));
-      setDraft(
-        (d) => copySettings(d, themePreset: id, accentColor: defaults.accentColor, backgroundColor: defaults.backgroundColor),
-      );
+      setDraft((d) => copySettings(d, themePreset: id, accentColor: defaults.accentColor, backgroundColor: defaults.backgroundColor));
       _preview();
       return;
     }
@@ -346,9 +345,7 @@ class OnboardingNotifier extends Notifier<OnboardingState> {
     state = state.copyWith(finishing: true, projectScan: () => null, versionScan: () => null);
     final settings = ref.read(settingsProvider).value ?? defaultSettings;
     final draft = state.draft;
-    final result = skip
-        ? copySettings(settings, setupComplete: true, language: draft.language)
-        : copySettings(draft, setupComplete: true);
+    final result = skip ? copySettings(settings, setupComplete: true, language: draft.language) : copySettings(draft, setupComplete: true);
     await Future.wait([
       if (result.projectScanDirs.isNotEmpty) SettingsApi.scanForProjects(result.projectScanDirs, result.scanDepth),
       if (result.versionScanDirs.isNotEmpty) VersionsApi.scan(result.versionScanDirs, result.scanDepth),

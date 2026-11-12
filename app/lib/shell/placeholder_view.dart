@@ -20,8 +20,14 @@ class PlaceholderView extends StatelessWidget {
         spacing: theme.space(3),
         children: [
           GhIcon(icon, size: theme.space(8), color: theme.muted.withValues(alpha: 0.5)),
-          Text(title, style: theme.text(size: GhTextSize.lg, weight: GhWeight.semibold, color: theme.ink)),
-          Text('This view has not been ported to the Flutter app yet.', style: theme.text(size: GhTextSize.xs, color: theme.muted)),
+          Text(
+            title,
+            style: theme.text(size: GhTextSize.lg, weight: GhWeight.semibold, color: theme.ink),
+          ),
+          Text(
+            'This view has not been ported to the Flutter app yet.',
+            style: theme.text(size: GhTextSize.xs, color: theme.muted),
+          ),
           if (actions.isNotEmpty) Row(mainAxisSize: MainAxisSize.min, spacing: theme.space(2), children: actions),
         ],
       ),
@@ -44,7 +50,10 @@ class PlaceholderModal extends StatelessWidget {
       title: title,
       maxWidth: GhModalWidth.md,
       onClose: close,
-      footer: [const Spacer(), GhButton(onPressed: close, label: 'Close', variant: GhButtonVariant.primary)],
+      footer: [
+        const Spacer(),
+        GhButton(onPressed: close, label: 'Close', variant: GhButtonVariant.primary),
+      ],
       child: Padding(
         padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(4)),
         child: Text(

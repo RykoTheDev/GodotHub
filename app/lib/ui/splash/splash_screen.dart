@@ -88,12 +88,7 @@ class _GhSplashScreenState extends State<GhSplashScreen> with TickerProviderStat
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                GhLetterRow(
-                  text: GhSplashTiming.word,
-                  style: style,
-                  animations: _letters,
-                  perspective: GhSplashTiming.perspective,
-                ),
+                GhLetterRow(text: GhSplashTiming.word, style: style, animations: _letters, perspective: GhSplashTiming.perspective),
                 const SizedBox(height: GhSplashTiming.gap),
                 GhPoseTransition(
                   animation: _track,
@@ -135,8 +130,7 @@ class _Track extends StatelessWidget {
               animation: bar,
               builder: (context, child) {
                 final percent = bar.isAnimating
-                    ? GhSplashTiming.barFrom +
-                        (GhSplashTiming.barTo - GhSplashTiming.barFrom) * GhSplashTiming.barEase.transform(bar.value)
+                    ? GhSplashTiming.barFrom + (GhSplashTiming.barTo - GhSplashTiming.barFrom) * GhSplashTiming.barEase.transform(bar.value)
                     : 0.0;
                 return FractionalTranslation(translation: Offset(percent / 100, 0), child: child);
               },

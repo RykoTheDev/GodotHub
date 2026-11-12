@@ -193,9 +193,7 @@ class _GhSidebarState extends State<GhSidebar> {
       if (groupId != null && _closedGroups.contains(groupId)) {
         final next = _closedGroups.where((g) => g != groupId).toList();
         _closedGroups = next;
-        WidgetsBinding.instance.addPostFrameCallback(
-          (_) => widget.onClosedGroupsChanged?.call(List.unmodifiable(next)),
-        );
+        WidgetsBinding.instance.addPostFrameCallback((_) => widget.onClosedGroupsChanged?.call(List.unmodifiable(next)));
       }
     }
   }
@@ -216,9 +214,8 @@ class _GhSidebarState extends State<GhSidebar> {
     widget.onClosedGroupsChanged?.call(List.unmodifiable(next));
   }
 
-  void _toggleGroup(String id) => _saveClosedGroups(
-    _closedGroups.contains(id) ? _closedGroups.where((g) => g != id).toList() : [..._closedGroups, id],
-  );
+  void _toggleGroup(String id) =>
+      _saveClosedGroups(_closedGroups.contains(id) ? _closedGroups.where((g) => g != id).toList() : [..._closedGroups, id]);
 
   void _markTabSeen(String id) {
     if (_seenNew.contains(id)) {
@@ -359,13 +356,7 @@ class _GhSidebarState extends State<GhSidebar> {
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    PositionedDirectional(
-                      start: 0,
-                      top: 0,
-                      bottom: 0,
-                      width: width,
-                      child: _panel(context, theme, width),
-                    ),
+                    PositionedDirectional(start: 0, top: 0, bottom: 0, width: width, child: _panel(context, theme, width)),
                     if (_collapsed)
                       PositionedDirectional(
                         top: theme.space(2),
@@ -447,11 +438,7 @@ class _GhSidebarState extends State<GhSidebar> {
             alignment: AlignmentDirectional.topStart,
             minWidth: layoutWidth - (widget.connected ? 1 : 0),
             maxWidth: layoutWidth - (widget.connected ? 1 : 0),
-            child: GhCascadeHost(
-              cascade: GhPresenceSpecs.sidebarLabels,
-              replay: _expandCount,
-              child: _content(context, theme),
-            ),
+            child: GhCascadeHost(cascade: GhPresenceSpecs.sidebarLabels, replay: _expandCount, child: _content(context, theme)),
           ),
         ),
       ),
@@ -503,7 +490,11 @@ class _GhSidebarState extends State<GhSidebar> {
               child: GhTooltip(
                 message: widget.searchLabel ?? context.tr.common.search,
                 side: GhSide.right,
-                child: _SquareIconButton(icon: GhIcons.search, semanticLabel: widget.searchLabel ?? context.tr.common.search, onPressed: palette),
+                child: _SquareIconButton(
+                  icon: GhIcons.search,
+                  semanticLabel: widget.searchLabel ?? context.tr.common.search,
+                  onPressed: palette,
+                ),
               ),
             ),
           ),
@@ -626,8 +617,7 @@ class _GhSidebarState extends State<GhSidebar> {
     return layout == GhSidebarTabLayout.square ? _unclamped(tooltip) : tooltip;
   }
 
-  Widget _unclamped(Widget child) =>
-      OverflowBox(fit: OverflowBoxFit.deferToChild, maxWidth: double.infinity, child: child);
+  Widget _unclamped(Widget child) => OverflowBox(fit: OverflowBoxFit.deferToChild, maxWidth: double.infinity, child: child);
 
   Widget _footer(BuildContext context, GhTheme theme) {
     final collapsed = _collapsed;
@@ -748,12 +738,7 @@ class _Kbd extends StatelessWidget {
         label,
         maxLines: 1,
         softWrap: false,
-        style: theme.text(
-          size: GhTextSize.x4s,
-          mono: true,
-          color: theme.muted.withValues(alpha: 0.7),
-          lineHeight: 1.25 / 0.875,
-        ),
+        style: theme.text(size: GhTextSize.x4s, mono: true, color: theme.muted.withValues(alpha: 0.7), lineHeight: 1.25 / 0.875),
       ),
     );
   }
@@ -780,12 +765,7 @@ class _CountBadge extends StatelessWidget {
         maxLines: 1,
         softWrap: false,
         style: theme
-            .text(
-              size: small ? GhTextSize.x4s : GhTextSize.x3s,
-              weight: GhWeight.semibold,
-              color: Colors.white,
-              lineHeight: 1,
-            )
+            .text(size: small ? GhTextSize.x4s : GhTextSize.x3s, weight: GhWeight.semibold, color: Colors.white, lineHeight: 1)
             .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
       ),
     );
@@ -1010,17 +990,11 @@ class _DashedBorderPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_DashedBorderPainter oldDelegate) =>
-      oldDelegate.color != color || oldDelegate.borderRadius != borderRadius;
+  bool shouldRepaint(_DashedBorderPainter oldDelegate) => oldDelegate.color != color || oldDelegate.borderRadius != borderRadius;
 }
 
 class _CollapseButton extends StatelessWidget {
-  const _CollapseButton({
-    required this.collapsed,
-    required this.revealed,
-    required this.label,
-    required this.onPressed,
-  });
+  const _CollapseButton({required this.collapsed, required this.revealed, required this.label, required this.onPressed});
 
   final bool collapsed;
   final bool revealed;
@@ -1366,9 +1340,7 @@ class GhSidebarGroupHeader extends StatelessWidget {
               ? theme.raised.withValues(alpha: 0.6)
               : theme.raised.withValues(alpha: 0),
           borderRadius: radius,
-          border: Border.all(
-            color: hasActive ? theme.outline.withValues(alpha: 0.3) : theme.outline.withValues(alpha: 0),
-          ),
+          border: Border.all(color: hasActive ? theme.outline.withValues(alpha: 0.3) : theme.outline.withValues(alpha: 0)),
           child: Row(
             children: [
               Expanded(
@@ -1376,11 +1348,7 @@ class GhSidebarGroupHeader extends StatelessWidget {
                   children: [
                     GhIconMotionScale(
                       states: states,
-                      child: GhAnimatedIcon(
-                        group.icon,
-                        color: hasActive ? theme.ink : theme.muted,
-                        size: theme.space(4),
-                      ),
+                      child: GhAnimatedIcon(group.icon, color: hasActive ? theme.ink : theme.muted, size: theme.space(4)),
                     ),
                     SizedBox(width: theme.space(2)),
                     Flexible(

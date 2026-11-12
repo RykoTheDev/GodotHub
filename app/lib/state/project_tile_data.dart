@@ -24,25 +24,17 @@ class ProjectTileData {
 
   String displayName(String fallback) => name ?? fallback;
 
-  ProjectTileData copyWith({
-    ValueGetter<String?>? icon,
-    ValueGetter<String?>? name,
-    ValueGetter<int?>? size,
-    bool? sizeFailed,
-  }) => ProjectTileData(
-    icon: icon != null ? icon() : this.icon,
-    name: name != null ? name() : this.name,
-    size: size != null ? size() : this.size,
-    sizeFailed: sizeFailed ?? this.sizeFailed,
-  );
+  ProjectTileData copyWith({ValueGetter<String?>? icon, ValueGetter<String?>? name, ValueGetter<int?>? size, bool? sizeFailed}) =>
+      ProjectTileData(
+        icon: icon != null ? icon() : this.icon,
+        name: name != null ? name() : this.name,
+        size: size != null ? size() : this.size,
+        sizeFailed: sizeFailed ?? this.sizeFailed,
+      );
 
   @override
   bool operator ==(Object other) =>
-      other is ProjectTileData &&
-      other.icon == icon &&
-      other.name == name &&
-      other.size == size &&
-      other.sizeFailed == sizeFailed;
+      other is ProjectTileData && other.icon == icon && other.name == name && other.size == size && other.sizeFailed == sizeFailed;
 
   @override
   int get hashCode => Object.hash(icon, name, size, sizeFailed);
@@ -50,8 +42,9 @@ class ProjectTileData {
 
 typedef ProjectTileRequest = ({String path, bool showSize, bool preview});
 
-final projectTileDataProvider = NotifierProvider.autoDispose
-    .family<ProjectTileDataNotifier, ProjectTileData, ProjectTileRequest>(ProjectTileDataNotifier.new);
+final projectTileDataProvider = NotifierProvider.autoDispose.family<ProjectTileDataNotifier, ProjectTileData, ProjectTileRequest>(
+  ProjectTileDataNotifier.new,
+);
 
 class ProjectTileDataNotifier extends Notifier<ProjectTileData> {
   ProjectTileDataNotifier(this.request);
@@ -81,13 +74,15 @@ class ProjectTileDataNotifier extends Notifier<ProjectTileData> {
           _sizeRequests.remove(sizeKey);
           return total;
         });
-        pending.then(
-          (value) => apply((s) => s.copyWith(size: () => value, sizeFailed: false)),
-          onError: (Object _) {
-            _sizeRequests.remove(sizeKey);
-            apply((s) => s.copyWith(size: () => null, sizeFailed: true));
-          },
-        ).ignore();
+        pending
+            .then(
+              (value) => apply((s) => s.copyWith(size: () => value, sizeFailed: false)),
+              onError: (Object _) {
+                _sizeRequests.remove(sizeKey);
+                apply((s) => s.copyWith(size: () => null, sizeFailed: true));
+              },
+            )
+            .ignore();
       }
     }
 

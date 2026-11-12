@@ -10,11 +10,9 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'types.dart';
 
-Future<List<DiscoveredProject>> scanGodotRecentProjects() =>
-    RustLib.instance.api.crateApiDiscoveryScanGodotRecentProjects();
+Future<List<DiscoveredProject>> scanGodotRecentProjects() => RustLib.instance.api.crateApiDiscoveryScanGodotRecentProjects();
 
-Future<List<DiscoveredInstall>> detectGodotInstalls() =>
-    RustLib.instance.api.crateApiDiscoveryDetectGodotInstalls();
+Future<List<DiscoveredInstall>> detectGodotInstalls() => RustLib.instance.api.crateApiDiscoveryDetectGodotInstalls();
 
 Future<InstalledGodotVersion> importDetectedInstall({required String path}) =>
     RustLib.instance.api.crateApiDiscoveryImportDetectedInstall(path: path);

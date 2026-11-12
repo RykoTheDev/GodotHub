@@ -19,7 +19,8 @@ enum GhModalWidth {
   x2l(42),
   x3l(48),
   x4l(56),
-  x5l(64);
+  x5l(64),
+  x6l(72);
 
   const GhModalWidth(this.rem);
 
@@ -48,7 +49,10 @@ class GhModalShell extends StatefulWidget {
     this.showClose = true,
     this.onKeyEvent,
     this.footer,
+    this.rawFooter,
     this.bodyHeight,
+    this.panelHeight,
+    this.titleMaxLines = 2,
     this.initialFocus,
     this.isMenuOpen,
     this.staticPreview = false,
@@ -62,13 +66,15 @@ class GhModalShell extends StatefulWidget {
   final bool showClose;
   final FocusOnKeyEventCallback? onKeyEvent;
   final List<Widget>? footer;
+  final Widget? rawFooter;
   final double? bodyHeight;
+  final double? panelHeight;
+  final int? titleMaxLines;
   final FocusNode? initialFocus;
   final bool Function()? isMenuOpen;
   final bool staticPreview;
 
-  static double tallBodyHeight(BuildContext context) =>
-      math.min(MediaQuery.sizeOf(context).height * 0.6, GhTheme.of(context).rem(34));
+  static double tallBodyHeight(BuildContext context) => math.min(MediaQuery.sizeOf(context).height * 0.6, GhTheme.of(context).rem(34));
 
   @override
   State<GhModalShell> createState() => _GhModalShellState();
@@ -196,29 +202,29 @@ class _GhModalShellState extends State<GhModalShell> {
     final pad = theme.space(4);
     final footer = widget.footer;
     final bodyHeight = widget.bodyHeight;
+    final panelHeight = widget.panelHeight;
     Widget dialog = Container(
       clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: theme.surface,
-        borderRadius: BorderRadius.circular(theme.radiusModal),
-        boxShadow: GhShadows.xl2(),
-      ),
+      decoration: BoxDecoration(color: theme.surface, borderRadius: BorderRadius.circular(theme.radiusModal), boxShadow: GhShadows.xl2()),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisSize: panelHeight != null ? MainAxisSize.max : MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           GhModalHeader(
             icon: widget.icon,
             title: widget.title,
+            titleMaxLines: widget.titleMaxLines,
             onClose: widget.showClose && widget.onClose != null ? _close : null,
           ),
-          Flexible(
-            child: GhCascadeItem(
-              child: bodyHeight != null
-                  ? SizedBox(height: bodyHeight, child: widget.child)
-                  : SingleChildScrollView(child: widget.child),
+          if (panelHeight != null)
+            Expanded(child: GhCascadeItem(child: widget.child))
+          else
+            Flexible(
+              child: GhCascadeItem(
+                child: bodyHeight != null ? SizedBox(height: bodyHeight, child: widget.child) : SingleChildScrollView(child: widget.child),
+              ),
             ),
-          ),
+          ?widget.rawFooter,
           if (footer != null)
             DecoratedBox(
               decoration: BoxDecoration(
@@ -257,6 +263,7 @@ class _GhModalShellState extends State<GhModalShell> {
                       constraints: BoxConstraints(maxWidth: theme.rem(widget.maxWidth.rem), maxHeight: maxHeight),
                       child: SizedBox(
                         width: double.infinity,
+                        height: panelHeight == null ? null : math.min(panelHeight, maxHeight),
                         child: Semantics(
                           scopesRoute: true,
                           namesRoute: true,
@@ -323,9 +330,7 @@ class GhModalRoute<T> extends PopupRoute<T> {
   bool didPop(T? result) {
     final controller = this.controller;
     if (controller != null && !motion.off && controller.value > 0 && controller.value < 1) {
-      controller.reverseDuration = Duration(
-        microseconds: (reverseTransitionDuration.inMicroseconds / controller.value).round(),
-      );
+      controller.reverseDuration = Duration(microseconds: (reverseTransitionDuration.inMicroseconds / controller.value).round());
     }
     return super.didPop(result);
   }
@@ -338,12 +343,7 @@ class GhModalRoute<T> extends PopupRoute<T> {
   );
 
   @override
-  Widget buildTransitions(
-    BuildContext context,
-    Animation<double> animation,
-    Animation<double> secondaryAnimation,
-    Widget child,
-  ) {
+  Widget buildTransitions(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
     return _GhModalTransition(animation: animation, child: child);
   }
 }
@@ -459,12 +459,7 @@ class _GhModalTransitionState extends State<_GhModalTransition> {
   }
 }
 
-Future<T?> showGhModal<T>(
-  BuildContext context,
-  WidgetBuilder builder, {
-  bool useRootNavigator = true,
-  RouteSettings? settings,
-}) {
+Future<T?> showGhModal<T>(BuildContext context, WidgetBuilder builder, {bool useRootNavigator = true, RouteSettings? settings}) {
   final returnFocus = FocusManager.instance.primaryFocus;
   final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
   final themes = InheritedTheme.capture(from: context, to: navigator.context);

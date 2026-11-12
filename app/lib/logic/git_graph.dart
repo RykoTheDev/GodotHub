@@ -93,12 +93,7 @@ List<GraphRow> buildGraphRows(List<GitLogEntry> commits) {
 
     final cells = <LaneCell>[
       for (var i = 0; i < tips.length; i++)
-        if (tips[i] == null)
-          const LaneCell.empty()
-        else if (i == lane)
-          LaneCell.dot(i)
-        else
-          LaneCell.line(i),
+        if (tips[i] == null) const LaneCell.empty() else if (i == lane) LaneCell.dot(i) else LaneCell.line(i),
     ];
 
     final joins = <int>[...closes];

@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../design/design.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/events.dart';
@@ -50,9 +51,7 @@ class RunningProjectsSource {
           startedAtMs: DateTime.now().millisecondsSinceEpoch + timerStartDelayMs,
         ),
       ),
-      exited: () => AppEvents.payloads(AppEventKind.projectExited, (event) => event.projectExited).map(
-        (project) => project.id,
-      ),
+      exited: () => AppEvents.payloads(AppEventKind.projectExited, (event) => event.projectExited).map((project) => project.id),
       stop: ProjectsApi.stop,
     );
   }
@@ -155,8 +154,7 @@ class _RunningProjectsChipState extends ConsumerState<RunningProjectsChip> {
 
   void _openConsole(RunningProject project) {
     _menu.close();
-    final void Function(String id, String name) handler =
-        widget.onOpenConsole ?? ref.read(titleBarConsoleOpenerProvider);
+    final void Function(String id, String name) handler = widget.onOpenConsole ?? ref.read(titleBarConsoleOpenerProvider);
     handler(project.id, project.name);
   }
 
@@ -200,12 +198,7 @@ class _RunningProjectsChipState extends ConsumerState<RunningProjectsChip> {
                   children: [
                     Text(
                       context.tr.common.running.toUpperCase(),
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.3,
-                        color: tokens.muted,
-                      ),
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 0.3, color: tokens.muted),
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -279,13 +272,7 @@ class _RunningProjectsChipState extends ConsumerState<RunningProjectsChip> {
 }
 
 class _RunningProjectRow extends StatefulWidget {
-  const _RunningProjectRow({
-    super.key,
-    required this.project,
-    required this.now,
-    required this.onOpenConsole,
-    required this.onStop,
-  });
+  const _RunningProjectRow({super.key, required this.project, required this.now, required this.onOpenConsole, required this.onStop});
 
   final RunningProject project;
   final int now;
@@ -348,11 +335,7 @@ class _RunningProjectRowState extends State<_RunningProjectRow> {
                               subtitle,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 10,
-                                fontFamily: 'monospace',
-                                color: tokens.muted.withValues(alpha: 0.6),
-                              ),
+                              style: TextStyle(fontSize: 10, fontFamily: 'monospace', color: tokens.muted.withValues(alpha: 0.6)),
                             ),
                           ],
                         ),

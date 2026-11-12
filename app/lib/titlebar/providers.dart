@@ -14,5 +14,6 @@ final titleBarWindowProvider = Provider<TitleBarWindow>((ref) => const NativeTit
 final runningProjectsSourceProvider = Provider<RunningProjectsSource>((ref) => RunningProjectsSource.native());
 
 final titleBarConsoleOpenerProvider = Provider<void Function(String id, String name)>(
-  (ref) => (id, name) => AppSignals.emit(openConsoleSignal, {'id': id, 'name': name}),
+  (ref) =>
+      (id, name) => AppSignals.emit(openConsoleSignal, {'id': id, 'name': name}),
 );

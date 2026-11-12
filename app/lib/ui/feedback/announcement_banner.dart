@@ -160,9 +160,15 @@ class GhAnnouncementCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(title ?? tr.common.announcement_support_title, style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.ink)),
+                Text(
+                  title ?? tr.common.announcement_support_title,
+                  style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.ink),
+                ),
                 SizedBox(height: theme.space(0.5)),
-                Text(body ?? tr.common.announcement_support_body, style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625)),
+                Text(
+                  body ?? tr.common.announcement_support_body,
+                  style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625),
+                ),
               ],
             ),
           ),
@@ -214,7 +220,10 @@ class _SupportButton extends StatelessWidget {
               states: states,
               child: GhIcon(GhIcons.heart, size: theme.space(3.5), color: theme.danger),
             ),
-            Text(label, style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.danger)),
+            Text(
+              label,
+              style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.danger),
+            ),
           ],
         ),
       ),
@@ -245,11 +254,7 @@ class _DismissButton extends StatelessWidget {
         boxShadow: states.active ? GhShadows.hoverLift() : const [],
         child: GhIconMotionScale(
           states: states,
-          child: GhAnimatedIcon(
-            GhIcons.x,
-            size: theme.space(4),
-            color: states.active ? theme.ink : theme.muted.withValues(alpha: 0.6),
-          ),
+          child: GhAnimatedIcon(GhIcons.x, size: theme.space(4), color: states.active ? theme.ink : theme.muted.withValues(alpha: 0.6)),
         ),
       ),
     );

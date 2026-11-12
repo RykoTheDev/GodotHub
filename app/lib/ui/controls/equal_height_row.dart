@@ -73,10 +73,7 @@ class RenderEqualHeightRow extends RenderBox
     while (child != null) {
       child.layout(BoxConstraints.tightFor(width: columnWidth, height: height));
       final x = (columnWidth + _spacing) * index;
-      (child.parentData! as _EqualHeightParentData).offset = Offset(
-        _textDirection == TextDirection.rtl ? width - x - columnWidth : x,
-        0,
-      );
+      (child.parentData! as _EqualHeightParentData).offset = Offset(_textDirection == TextDirection.rtl ? width - x - columnWidth : x, 0);
       index++;
       child = childAfter(child);
     }

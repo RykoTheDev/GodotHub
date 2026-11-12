@@ -23,12 +23,7 @@ class GhWorkspaceDraft {
   int get hashCode => Object.hash(name, icon, color);
 }
 
-String? ghWorkspaceNameError(
-  String name,
-  List<String> takenNames, {
-  String? requiredError,
-  String? takenError,
-}) {
+String? ghWorkspaceNameError(String name, List<String> takenNames, {String? requiredError, String? takenError}) {
   final trimmed = name.trim();
   if (trimmed.isEmpty) {
     return requiredError ?? t.common.workspace_name_required_error;

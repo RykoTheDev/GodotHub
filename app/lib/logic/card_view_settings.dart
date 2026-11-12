@@ -93,8 +93,5 @@ AppSettings setCardViewOverride(AppSettings settings, ProjectViewMode viewMode, 
     );
   }
   final existing = settings.cardViewOverrides[viewMode.id] ?? _listCardViewSettings(settings);
-  return copySettings(
-    settings,
-    cardViewOverrides: {...settings.cardViewOverrides, viewMode.id: _withKey(existing, key, value)},
-  );
+  return copySettings(settings, cardViewOverrides: {...settings.cardViewOverrides, viewMode.id: _withKey(existing, key, value)});
 }

@@ -24,14 +24,7 @@ abstract final class GhFonts {
   static const body = 'Inter';
   static const mono = 'GoogleSansCode';
 
-  static const bodyFallback = [
-    'InterLatinExt',
-    'InterCyrillic',
-    'InterCyrillicExt',
-    'InterGreek',
-    'InterGreekExt',
-    'InterVietnamese',
-  ];
+  static const bodyFallback = ['InterLatinExt', 'InterCyrillic', 'InterCyrillicExt', 'InterGreek', 'InterGreekExt', 'InterVietnamese'];
 
   static const monoFallback = [
     'GoogleSansCodeLatinExt',

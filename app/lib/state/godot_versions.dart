@@ -48,16 +48,11 @@ class DownloadState {
   final int total;
   final DownloadStatus status;
 
-  DownloadState withStatus(DownloadStatus next) =>
-      DownloadState(tag: tag, downloaded: downloaded, total: total, status: next);
+  DownloadState withStatus(DownloadStatus next) => DownloadState(tag: tag, downloaded: downloaded, total: total, status: next);
 
   @override
   bool operator ==(Object other) =>
-      other is DownloadState &&
-      other.tag == tag &&
-      other.downloaded == downloaded &&
-      other.total == total &&
-      other.status == status;
+      other is DownloadState && other.tag == tag && other.downloaded == downloaded && other.total == total && other.status == status;
 
   @override
   int get hashCode => Object.hash(tag, downloaded, total, status);
@@ -195,10 +190,7 @@ class GodotVersionsNotifier extends Notifier<GodotVersionsState> {
     ref.listen(settingsProvider.select((value) => value.value?.useMise ?? false), (_, _) {
       unawaited(refreshMiseStatus());
     });
-    ref.listen(settingsProvider.select((value) => (loaded: value.hasValue, useMise: value.value?.useMise ?? false)), (
-      _,
-      next,
-    ) {
+    ref.listen(settingsProvider.select((value) => (loaded: value.hasValue, useMise: value.value?.useMise ?? false)), (_, next) {
       _fallbackFromMise(next.loaded, next.useMise);
     });
     ref.listenAppResumed(_onResumed);
@@ -214,12 +206,7 @@ class GodotVersionsNotifier extends Notifier<GodotVersionsState> {
       final previous = state.downloads[key];
       _setDownloads({
         ...state.downloads,
-        key: DownloadState(
-          tag: key,
-          downloaded: previous?.downloaded ?? 0,
-          total: previous?.total ?? 0,
-          status: DownloadStatus.queued,
-        ),
+        key: DownloadState(tag: key, downloaded: previous?.downloaded ?? 0, total: previous?.total ?? 0, status: DownloadStatus.queued),
       });
     });
     ref.listenAppEvent(AppEventKind.godotDownloadProgress, (event) {
@@ -327,12 +314,7 @@ class GodotVersionsNotifier extends Notifier<GodotVersionsState> {
   Future<void> refreshAliases() async {
     try {
       final next = await VersionsApi.listAliases();
-      _set(
-        (s) => s.copyWith(
-          aliases: listEquals(s.aliases, next.aliases) ? s.aliases : next.aliases,
-          aliasesDir: next.aliasesDir,
-        ),
-      );
+      _set((s) => s.copyWith(aliases: listEquals(s.aliases, next.aliases) ? s.aliases : next.aliases, aliasesDir: next.aliasesDir));
     } catch (_) {
       _set((s) => s.aliases.isEmpty ? s : s.copyWith(aliases: const []));
     }
@@ -393,17 +375,14 @@ class GodotVersionsNotifier extends Notifier<GodotVersionsState> {
     final useMise = ref.read(settingsProvider).value?.useMise ?? defaultSettings.useMise;
     final viaMise =
         !assetName.toLowerCase().contains('mono') &&
-        (state.source == VersionSource.mise ||
-            (useMise && (state.miseStatus?.available ?? false) && !isPrereleaseTag(tag)));
+        (state.source == VersionSource.mise || (useMise && (state.miseStatus?.available ?? false) && !isPrereleaseTag(tag)));
 
     if (viaMise) {
       _set((s) => s.copyWith(miseInstalls: {...s.miseInstalls, key: true}));
       try {
         await MiseApi.install(tag);
       } catch (error) {
-        _setError(
-          DownloadErrorInfo(key: key, tag: tag, assetName: assetName, url: url, source: 'mise', message: '$error'),
-        );
+        _setError(DownloadErrorInfo(key: key, tag: tag, assetName: assetName, url: url, source: 'mise', message: '$error'));
         return;
       } finally {
         _set((s) => s.copyWith(miseInstalls: {...s.miseInstalls}..remove(key)));
@@ -413,24 +392,12 @@ class GodotVersionsNotifier extends Notifier<GodotVersionsState> {
     }
 
     _downloadParams[key] = (tag: tag, assetName: assetName, url: url, source: state.source.id);
-    _setDownloads({
-      ...state.downloads,
-      key: DownloadState(tag: key, downloaded: 0, total: 0, status: DownloadStatus.queued),
-    });
+    _setDownloads({...state.downloads, key: DownloadState(tag: key, downloaded: 0, total: 0, status: DownloadStatus.queued)});
     try {
       await VersionsApi.download(tag, assetName, url);
     } catch (error) {
       _clearKey(key);
-      _setError(
-        DownloadErrorInfo(
-          key: key,
-          tag: tag,
-          assetName: assetName,
-          url: url,
-          source: state.source.id,
-          message: '$error',
-        ),
-      );
+      _setError(DownloadErrorInfo(key: key, tag: tag, assetName: assetName, url: url, source: state.source.id, message: '$error'));
     }
   }
 

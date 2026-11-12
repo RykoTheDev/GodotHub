@@ -1427,6 +1427,9 @@ class _Translations$settings$ar_MA extends Translations$settings$en_US {
 	@override String get tray_recent_label => 'المشاريع الأخير في أيقونة شريط المهام';
 	@override String get tooltip_delay_label => 'تأخير التلميح';
 	@override String get project_icon_opacity_label => 'شفافية أيقونات المشاريع';
+	@override String get project_card_style_label => 'نمط بطاقة المشروع';
+	@override String get project_card_style_hub => 'Godot Hub';
+	@override String get project_card_style_cover => 'غلاف';
 	@override String get time_format_label => 'صيغة الوقت';
 	@override String get date_format_label => 'صيغة التاريخ';
 	@override String get auto_scan_label => 'المسح التلقائي عن الإقلاع';
@@ -3770,6 +3773,9 @@ extension on TranslationsArMa {
 			'settings.tray_recent_label' => 'المشاريع الأخير في أيقونة شريط المهام',
 			'settings.tooltip_delay_label' => 'تأخير التلميح',
 			'settings.project_icon_opacity_label' => 'شفافية أيقونات المشاريع',
+			'settings.project_card_style_label' => 'نمط بطاقة المشروع',
+			'settings.project_card_style_hub' => 'Godot Hub',
+			'settings.project_card_style_cover' => 'غلاف',
 			'settings.time_format_label' => 'صيغة الوقت',
 			'settings.date_format_label' => 'صيغة التاريخ',
 			'settings.auto_scan_label' => 'المسح التلقائي عن الإقلاع',
@@ -3897,11 +3903,11 @@ extension on TranslationsArMa {
 			'settings.interface_label' => 'واجهة المستخدم',
 			'settings.card_layout_label' => 'تخطيط البطاقة',
 			'settings.landing_tab_label' => 'الصفحة الأساسية الإفتراضية',
+			_ => null,
+		} ?? switch (path) {
 			'settings.language_complete' => 'مكتملة',
 			'settings.language_beta' => 'تجريبية',
 			'settings.language_incomplete' => 'غير مكتملة',
-			_ => null,
-		} ?? switch (path) {
 			'settings.use_os_decorations' => 'استخدم مظهر نافذة نظام التشغيل',
 			'settings.credits' => 'المطورون',
 			'settings.credits_developer' => 'تم الإنشاء بواسطة',
