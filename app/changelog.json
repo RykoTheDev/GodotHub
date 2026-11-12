@@ -9,7 +9,7 @@
     "known_issues": ["Most views from the stable app are still missing."]
   },
   {
-    "version": "flutter-v0.2.0",
+    "version": "flutter-v0.1.5",
     "date": "",
     "notes": [
       { "category": "add", "text": "Add Projects View Screen" },
