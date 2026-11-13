@@ -34,6 +34,7 @@ class AppEvent {
   final ExportTemplatesError? exportTemplatesError;
   final AssetDownloadProgress? assetDownloadProgress;
   final AssetDownloadError? assetDownloadError;
+  final bool? flag;
 
   const AppEvent({
     required this.kind,
@@ -55,6 +56,7 @@ class AppEvent {
     this.exportTemplatesError,
     this.assetDownloadProgress,
     this.assetDownloadError,
+    this.flag,
   });
 
   @override
@@ -77,7 +79,8 @@ class AppEvent {
       exportTemplatesStage.hashCode ^
       exportTemplatesError.hashCode ^
       assetDownloadProgress.hashCode ^
-      assetDownloadError.hashCode;
+      assetDownloadError.hashCode ^
+      flag.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -102,7 +105,8 @@ class AppEvent {
           exportTemplatesStage == other.exportTemplatesStage &&
           exportTemplatesError == other.exportTemplatesError &&
           assetDownloadProgress == other.assetDownloadProgress &&
-          assetDownloadError == other.assetDownloadError;
+          assetDownloadError == other.assetDownloadError &&
+          flag == other.flag;
 }
 
 enum AppEventKind {
@@ -138,6 +142,10 @@ enum AppEventKind {
   templateSynced,
   gitProjectChanged,
   secondInstance,
+  discordConnected,
+  showMainWindow,
+  hideMainWindow,
+  refreshMenus,
   unknown,
 }
 

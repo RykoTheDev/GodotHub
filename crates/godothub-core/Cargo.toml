@@ -12,6 +12,7 @@ base64 = "0.22.1"
 chrono = { version = "0.4.45", features = ["serde"] }
 clap = { version = "4", features = ["derive"] }
 dirs = "6"
+discord-rich-presence = "1.1.0"
 feed-rs = "2"
 futures-util = "0.3.32"
 interprocess = "2"

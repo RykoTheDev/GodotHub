@@ -48,7 +48,9 @@ abstract final class SettingsApi {
   static Future<ScanProjectsResult> scanForProjectsWithInfo(List<String> dirs, int depth) =>
       scan.scanForProjectsWithInfo(dirs: dirs, depth: depth);
 
-  static Future<void> refreshTrayMenu() => throw UnsupportedError('refreshTrayMenu is not available in the Flutter app yet');
+  static Future<void> Function()? trayRefresher;
+
+  static Future<void> refreshTrayMenu() async => trayRefresher?.call();
 
   static Future<void> restartWatchers() => watcher.restartWatchers();
 

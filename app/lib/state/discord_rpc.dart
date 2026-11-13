@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../api/discord.dart';
 import '../api/projects.dart';
 import '../src/rust/api/types.dart';
 import 'api_data.dart';
@@ -118,23 +119,7 @@ abstract interface class DiscordRpcClient {
   Stream<bool> get connectionChanges;
 }
 
-class NoopDiscordRpcClient implements DiscordRpcClient {
-  const NoopDiscordRpcClient();
-
-  @override
-  Future<void> connect(String appId) async {}
-
-  @override
-  Future<void> disconnect() async {}
-
-  @override
-  Future<void> setActivity(DiscordActivity activity) async {}
-
-  @override
-  Stream<bool> get connectionChanges => const Stream.empty();
-}
-
-final discordRpcClientProvider = Provider<DiscordRpcClient>((ref) => const NoopDiscordRpcClient());
+final discordRpcClientProvider = Provider<DiscordRpcClient>((ref) => const RustDiscordRpcClient());
 
 final discordRpcDraftProvider = NotifierProvider<DiscordRpcDraftNotifier, AppSettings?>(DiscordRpcDraftNotifier.new);
 

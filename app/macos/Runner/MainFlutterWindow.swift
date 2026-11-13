@@ -9,6 +9,7 @@ class MainFlutterWindow: NSWindow {
     self.setFrame(windowFrame, display: true)
 
     RegisterGeneratedPlugins(registry: flutterViewController)
+    DockMenuStore.shared.attach(messenger: flutterViewController.engine.binaryMessenger)
 
     super.awakeFromNib()
   }

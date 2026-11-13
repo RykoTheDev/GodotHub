@@ -15,6 +15,7 @@ pub mod cli;
 pub mod cli_shim;
 pub mod console;
 pub mod current_version;
+pub mod discord;
 pub mod discovery;
 pub mod error;
 pub mod export_runner;

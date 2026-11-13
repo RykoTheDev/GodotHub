@@ -23,6 +23,7 @@ import 'api/git_auth.dart';
 import 'api/godot_versions.dart';
 import 'api/install_mode.dart';
 import 'api/mise.dart';
+import 'api/native.dart';
 import 'api/news.dart';
 import 'api/project_health.dart';
 import 'api/project_todos.dart';
@@ -140,6 +141,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   CurrentVersionInfo dco_decode_box_autoadd_current_version_info(dynamic raw);
 
   @protected
+  DiscordActivity dco_decode_box_autoadd_discord_activity(dynamic raw);
+
+  @protected
   DownloadFailure dco_decode_box_autoadd_download_failure(dynamic raw);
 
   @protected
@@ -180,6 +184,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   int dco_decode_box_autoadd_i_32(dynamic raw);
+
+  @protected
+  PlatformInt64 dco_decode_box_autoadd_i_64(dynamic raw);
 
   @protected
   ProjectExited dco_decode_box_autoadd_project_exited(dynamic raw);
@@ -270,6 +277,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   DeviceFlowStatus dco_decode_device_flow_status(dynamic raw);
+
+  @protected
+  DiscordActivity dco_decode_discord_activity(dynamic raw);
 
   @protected
   DiscordProjectPresence dco_decode_discord_project_presence(dynamic raw);
@@ -548,6 +558,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<ProjectTool> dco_decode_list_project_tool(dynamic raw);
 
   @protected
+  List<RecentProject> dco_decode_list_recent_project(dynamic raw);
+
+  @protected
   List<ReclaimFailure> dco_decode_list_reclaim_failure(dynamic raw);
 
   @protected
@@ -650,6 +663,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   CurrentVersionInfo? dco_decode_opt_box_autoadd_current_version_info(dynamic raw);
 
   @protected
+  DiscordActivity? dco_decode_opt_box_autoadd_discord_activity(dynamic raw);
+
+  @protected
   DownloadFailure? dco_decode_opt_box_autoadd_download_failure(dynamic raw);
 
   @protected
@@ -690,6 +706,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   int? dco_decode_opt_box_autoadd_i_32(dynamic raw);
+
+  @protected
+  PlatformInt64? dco_decode_opt_box_autoadd_i_64(dynamic raw);
 
   @protected
   ProjectExited? dco_decode_opt_box_autoadd_project_exited(dynamic raw);
@@ -756,6 +775,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   RateLimitInfo dco_decode_rate_limit_info(dynamic raw);
+
+  @protected
+  RecentProject dco_decode_recent_project(dynamic raw);
 
   @protected
   ReclaimFailure dco_decode_reclaim_failure(dynamic raw);
@@ -986,6 +1008,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   CurrentVersionInfo sse_decode_box_autoadd_current_version_info(SseDeserializer deserializer);
 
   @protected
+  DiscordActivity sse_decode_box_autoadd_discord_activity(SseDeserializer deserializer);
+
+  @protected
   DownloadFailure sse_decode_box_autoadd_download_failure(SseDeserializer deserializer);
 
   @protected
@@ -1026,6 +1051,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   int sse_decode_box_autoadd_i_32(SseDeserializer deserializer);
+
+  @protected
+  PlatformInt64 sse_decode_box_autoadd_i_64(SseDeserializer deserializer);
 
   @protected
   ProjectExited sse_decode_box_autoadd_project_exited(SseDeserializer deserializer);
@@ -1116,6 +1144,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   DeviceFlowStatus sse_decode_device_flow_status(SseDeserializer deserializer);
+
+  @protected
+  DiscordActivity sse_decode_discord_activity(SseDeserializer deserializer);
 
   @protected
   DiscordProjectPresence sse_decode_discord_project_presence(SseDeserializer deserializer);
@@ -1394,6 +1425,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<ProjectTool> sse_decode_list_project_tool(SseDeserializer deserializer);
 
   @protected
+  List<RecentProject> sse_decode_list_recent_project(SseDeserializer deserializer);
+
+  @protected
   List<ReclaimFailure> sse_decode_list_reclaim_failure(SseDeserializer deserializer);
 
   @protected
@@ -1496,6 +1530,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   CurrentVersionInfo? sse_decode_opt_box_autoadd_current_version_info(SseDeserializer deserializer);
 
   @protected
+  DiscordActivity? sse_decode_opt_box_autoadd_discord_activity(SseDeserializer deserializer);
+
+  @protected
   DownloadFailure? sse_decode_opt_box_autoadd_download_failure(SseDeserializer deserializer);
 
   @protected
@@ -1536,6 +1573,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   int? sse_decode_opt_box_autoadd_i_32(SseDeserializer deserializer);
+
+  @protected
+  PlatformInt64? sse_decode_opt_box_autoadd_i_64(SseDeserializer deserializer);
 
   @protected
   ProjectExited? sse_decode_opt_box_autoadd_project_exited(SseDeserializer deserializer);
@@ -1602,6 +1642,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   RateLimitInfo sse_decode_rate_limit_info(SseDeserializer deserializer);
+
+  @protected
+  RecentProject sse_decode_recent_project(SseDeserializer deserializer);
 
   @protected
   ReclaimFailure sse_decode_reclaim_failure(SseDeserializer deserializer);
@@ -1832,6 +1875,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_box_autoadd_current_version_info(CurrentVersionInfo self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_discord_activity(DiscordActivity self, SseSerializer serializer);
+
+  @protected
   void sse_encode_box_autoadd_download_failure(DownloadFailure self, SseSerializer serializer);
 
   @protected
@@ -1872,6 +1918,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_i_64(PlatformInt64 self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_project_exited(ProjectExited self, SseSerializer serializer);
@@ -1962,6 +2011,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_device_flow_status(DeviceFlowStatus self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_discord_activity(DiscordActivity self, SseSerializer serializer);
 
   @protected
   void sse_encode_discord_project_presence(DiscordProjectPresence self, SseSerializer serializer);
@@ -2240,6 +2292,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_list_project_tool(List<ProjectTool> self, SseSerializer serializer);
 
   @protected
+  void sse_encode_list_recent_project(List<RecentProject> self, SseSerializer serializer);
+
+  @protected
   void sse_encode_list_reclaim_failure(List<ReclaimFailure> self, SseSerializer serializer);
 
   @protected
@@ -2342,6 +2397,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_opt_box_autoadd_current_version_info(CurrentVersionInfo? self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_box_autoadd_discord_activity(DiscordActivity? self, SseSerializer serializer);
+
+  @protected
   void sse_encode_opt_box_autoadd_download_failure(DownloadFailure? self, SseSerializer serializer);
 
   @protected
@@ -2382,6 +2440,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_opt_box_autoadd_i_32(int? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_i_64(PlatformInt64? self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_box_autoadd_project_exited(ProjectExited? self, SseSerializer serializer);
@@ -2448,6 +2509,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_rate_limit_info(RateLimitInfo self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_recent_project(RecentProject self, SseSerializer serializer);
 
   @protected
   void sse_encode_reclaim_failure(ReclaimFailure self, SseSerializer serializer);

@@ -1,6 +1,7 @@
 import '../src/rust/api/current_version.dart' as current_rust;
 import '../src/rust/api/export_templates.dart' as templates_rust;
 import '../src/rust/api/godot_versions.dart' as rust;
+import '../src/rust/api/native.dart' as native;
 import '../src/rust/api/scan.dart' as scan_rust;
 import '../src/rust/api/types.dart' as types;
 
@@ -36,7 +37,7 @@ abstract final class VersionsApi {
   static Future<types.AliasBatchResult> createAliases(List<types.AliasRequest> entries) =>
       current_rust.createVersionAliases(entries: entries);
 
-  static Future<String?> pickExecutable() async => throw UnsupportedError('pickExecutable is not available in the Flutter app yet');
+  static Future<String?> pickExecutable() async => native.pickExecutable();
 
   static Future<types.InstalledGodotVersion> addCustomBuild(String path, String? name) => scan_rust.addCustomBuild(path: path, name: name);
 

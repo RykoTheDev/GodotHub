@@ -71,4 +71,58 @@ class AppDelegate: FlutterAppDelegate {
   override func applicationSupportsSecureRestorableState(_ app: NSApplication) -> Bool {
     return true
   }
+
+  @objc func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
+    return DockMenuStore.shared.menu(target: self)
+  }
+
+  @objc func godothubOpenRecent(_ sender: NSMenuItem) {
+    DockMenuStore.shared.open(index: sender.tag)
+  }
+}
+
+final class DockMenuStore {
+  static let shared = DockMenuStore()
+
+  private var items: [(id: String, label: String, path: String)] = []
+  private var channel: FlutterMethodChannel?
+
+  func attach(messenger: FlutterBinaryMessenger) {
+    let channel = FlutterMethodChannel(name: "godothub/dock", binaryMessenger: messenger)
+    channel.setMethodCallHandler { [weak self] call, result in
+      guard call.method == "setRecent" else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      let list = call.arguments as? [[String: String]] ?? []
+      self?.items = list.compactMap { entry in
+        guard let id = entry["id"], let label = entry["label"] else {
+          return nil
+        }
+        return (id: id, label: label, path: entry["path"] ?? "")
+      }
+      result(nil)
+    }
+    self.channel = channel
+  }
+
+  func menu(target: AnyObject) -> NSMenu {
+    let menu = NSMenu()
+    for (index, item) in items.enumerated() {
+      let entry = NSMenuItem(
+        title: item.label, action: #selector(AppDelegate.godothubOpenRecent(_:)), keyEquivalent: "")
+      entry.target = target
+      entry.tag = index
+      entry.toolTip = item.path
+      menu.addItem(entry)
+    }
+    return menu
+  }
+
+  func open(index: Int) {
+    guard items.indices.contains(index) else {
+      return
+    }
+    channel?.invokeMethod("openRecent", arguments: items[index].id)
+  }
 }
