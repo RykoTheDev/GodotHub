@@ -42,5 +42,12 @@
       { "category": "fix", "text": "Remaining differences from the stable app" },
       { "category": "fix", "text": "Removed the card tilt effect" }
     ]
+  },
+  {
+    "version": "flutter-v0.3.0",
+    "date": "",
+    "notes": [
+
+    ]
   }
 ]

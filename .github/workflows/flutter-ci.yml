@@ -2,21 +2,9 @@ name: Flutter CI
 
 on:
   push:
-    paths:
-      - 'app/**'
-      - 'crates/**'
-      - 'Cargo.toml'
-      - 'Cargo.lock'
-      - 'src/i18n/locales/**'
-      - '.github/workflows/flutter-ci.yml'
-  pull_request:
-    paths:
-      - 'app/**'
-      - 'crates/**'
-      - 'Cargo.toml'
-      - 'Cargo.lock'
-      - 'src/i18n/locales/**'
-      - '.github/workflows/flutter-ci.yml'
+    tags:
+      - 'flutter-v*'
+      - 'v*'
   workflow_dispatch:
 
 permissions:
@@ -31,7 +19,26 @@ env:
   RUST_VERSION: '1.99.1'
 
 jobs:
+  on-main:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Tagged commit is on main
+        if: github.event_name == 'push'
+        run: |
+          git fetch origin main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::$GITHUB_REF_NAME points to a commit that is not on main"
+            exit 1
+          fi
+
   checks:
+    needs: on-main
     runs-on: ubuntu-latest
     timeout-minutes: 30
 
@@ -103,7 +110,6 @@ jobs:
         run: flutter test
 
   build:
-    if: github.event_name != 'push'
     needs: checks
     strategy:
       fail-fast: false
