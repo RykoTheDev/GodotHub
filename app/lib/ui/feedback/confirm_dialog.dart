@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../design/design.dart';
 import '../core/button.dart';
+import '../core/bidi.dart';
 import 'modal_shell.dart';
 import '../core/i18n.dart';
 
@@ -90,7 +91,7 @@ class _GhConfirmDialogState extends State<GhConfirmDialog> {
         padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(4)),
         child: widget.descriptionContent != null
             ? DefaultTextStyle(style: descriptionStyle, child: widget.descriptionContent!)
-            : Text(widget.description ?? '', style: descriptionStyle),
+            : ghPlaintext(widget.description ?? '', Text(widget.description ?? '', style: descriptionStyle)),
       ),
     );
   }

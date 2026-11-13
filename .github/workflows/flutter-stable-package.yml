@@ -1,0 +1,337 @@
+name: Flutter Stable Packaging
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (x.y.z). Nothing is published; packages are signed with a throwaway key.'
+        required: true
+        default: '2.0.0'
+      tauri_release:
+        description: 'Tauri release to upgrade from in the tests'
+        required: true
+        default: 'v1.5.9'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flutter-stable-package
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.47.9'
+  RUST_VERSION: '1.99.1'
+  TAURI_CLI_VERSION: '2.12.3'
+  NSIS_URL: 'https://github.com/tauri-apps/binary-releases/releases/download/nsis-3.13/nsis-3.13.zip'
+  NSIS_SHA256: 'ba63dffc4410ee89193e1cb5a41989991bd77c61068da17e3156d136b7b0b3d8'
+  APPLICATION_ID_URL: 'https://github.com/tauri-apps/binary-releases/releases/download/nsis-plugins-v0/NSIS-ApplicationID.zip'
+  APPLICATION_ID_SHA256: '1c2772b0edfb0f96a7524734d6c8fac1fc011f26221faf88f3ed2c950f0c06c0'
+  WIX_URL: 'https://github.com/wixtoolset/wix3/releases/download/wix3141rtm/wix314-binaries.zip'
+  WIX_SHA256: '6ac824e1642d6f7277d0ed7ea09411a508f6116ba6fae0aa5f2c7daa2ff43d31'
+  APPIMAGETOOL_URL: 'https://github.com/AppImage/appimagetool/releases/download/1.9.1/appimagetool-x86_64.AppImage'
+  APPIMAGETOOL_SHA256: 'ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0'
+  APPIMAGE_RUNTIME_URL: 'https://github.com/AppImage/type2-runtime/releases/download/20251108/runtime-x86_64'
+  APPIMAGE_RUNTIME_SHA256: '2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d'
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: windows
+            rust_targets: ''
+          - os: macos-latest
+            target: macos
+            rust_targets: aarch64-apple-darwin,x86_64-apple-darwin
+          - os: ubuntu-latest
+            target: linux
+            rust_targets: ''
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+
+    defaults:
+      run:
+        shell: bash
+
+    env:
+      VERSION: ${{ inputs.version }}
+      TAURI_RELEASE: ${{ inputs.tauri_release }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check the version
+        run: |
+          set -euo pipefail
+          [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "version must look like x.y.z" >&2; exit 1; }
+
+      - name: Install Rust ${{ env.RUST_VERSION }}
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          targets: ${{ matrix.rust_targets }}
+
+      - name: Install Flutter ${{ env.FLUTTER_VERSION }}
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libx11-dev libxi-dev liblzma-dev zip rpm xvfb
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-flutter-stable-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-flutter-
+
+      - name: Read the stable channel definition from the core
+        run: |
+          set -euo pipefail
+          info=$(cargo run -q --locked -p godothub_core --example channel_info -- stable)
+          echo "$info"
+          {
+            echo "CHANNEL_ID=$(jq -r .identifier <<<"$info")"
+            echo "CHANNEL_NAME=$(jq -r .display_name <<<"$info")"
+            echo "CHANNEL_BIN=$(jq -r .cli_shim_name <<<"$info")"
+          } >> "$GITHUB_ENV"
+
+      - name: Install Flutter dependencies
+        working-directory: app
+        run: flutter pub get
+
+      - name: Regenerate Flutter locale files from src/i18n/locales
+        working-directory: app
+        run: |
+          dart run tool/i18n_convert.dart
+          dart run slang
+
+      - name: Switch the macOS project to the stable channel
+        if: runner.os == 'macOS'
+        run: bash app/packaging/macos/use_channel.sh stable "$CHANNEL_ID" "$CHANNEL_NAME"
+
+      - name: Build the stable app
+        working-directory: app
+        run: flutter build ${{ matrix.target }} --release --dart-define=CHANNEL=stable --dart-define=APP_VERSION="$VERSION" --build-name="$VERSION" --build-number="${{ github.run_number }}"
+
+      - name: Download the Tauri release to upgrade from
+        run: |
+          set -euo pipefail
+          mkdir -p tauri
+          case "${{ matrix.target }}" in
+            windows) patterns=(-p '*-windows-x64-setup.exe' -p '*-windows-x64.msi' -p 'latest-v2.json') ;;
+            macos) patterns=(-p '*-darwin-universal.app.tar.gz') ;;
+            linux) patterns=(-p '*-linux-amd64.deb' -p '*-linux-x86_64.rpm') ;;
+          esac
+          gh release download "$TAURI_RELEASE" --repo "$GITHUB_REPOSITORY" "${patterns[@]}" -D tauri
+
+      - name: Package for Windows
+        if: runner.os == 'Windows'
+        run: |
+          set -euo pipefail
+          mkdir -p dist tools
+          curl -fsSL -o tools/ApplicationID.zip "$APPLICATION_ID_URL"
+          echo "$APPLICATION_ID_SHA256  tools/ApplicationID.zip" | sha256sum -c -
+          mkdir -p tools/plugin
+          unzip -q -o -j tools/ApplicationID.zip ReleaseUnicode/ApplicationID.dll -d tools/plugin
+          curl -fsSL -o tools/nsis.zip "$NSIS_URL"
+          echo "$NSIS_SHA256  tools/nsis.zip" | sha256sum -c -
+          unzip -q -o tools/nsis.zip -d tools
+          curl -fsSL -o tools/wix.zip "$WIX_URL"
+          echo "$WIX_SHA256  tools/wix.zip" | sha256sum -c -
+          unzip -q -o tools/wix.zip -d tools/wix
+          MAKENSIS="$PWD/tools/nsis-3.13/makensis.exe" NSIS_PLUGIN_DIR="$PWD/tools/plugin" WIX_DIR="$PWD/tools/wix" \
+            bash app/packaging/windows/package.sh stable "$VERSION" app/build/windows/x64/runner/Release dist
+
+      - name: Upgrade Tauri installs on Windows
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force lab | Out-Null
+          Copy-Item -Recurse tauri lab/tauri
+          Copy-Item -Recurse dist lab/dist
+          @{ version = $env:VERSION } | ConvertTo-Json | Set-Content lab/sandbox.json
+          ./app/tool/stable_sandbox/run.ps1 -Lab (Resolve-Path lab).Path
+          Get-Content lab/results/checks.txt
+          if ((Get-Content lab/results/done.txt) -ne '0') { exit 1 }
+
+      - name: Package for macOS
+        if: runner.os == 'macOS'
+        run: |
+          set -euo pipefail
+          bash app/packaging/macos/package.sh \
+            "app/build/macos/Build/Products/Release/$CHANNEL_NAME.app" "$VERSION" dist "$CHANNEL_ID" "$CHANNEL_NAME"
+
+      - name: Upgrade a Tauri install on macOS
+        if: runner.os == 'macOS'
+        run: |
+          set -euo pipefail
+          apps="$HOME/Applications"
+          mkdir -p "$apps"
+          tar -xzf tauri/*-darwin-universal.app.tar.gz -C "$apps"
+          test -d "$apps/GodotHub.app"
+          data="$HOME/Library/Application Support/$CHANNEL_ID"
+          mkdir -p "$data"
+          echo kept > "$data/ci-marker.txt"
+          rm -rf "$apps/GodotHub.app"
+          tar -xzf "dist/GodotHub-$VERSION-darwin-universal.app.tar.gz" -C "$apps"
+          id=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$apps/GodotHub.app/Contents/Info.plist")
+          test "$id" = "$CHANNEL_ID"
+          out=$("$apps/GodotHub.app/Contents/MacOS/GodotHub" --version)
+          test "$out" = "$CHANNEL_BIN $VERSION"
+          open "$apps/GodotHub.app"
+          sleep 20
+          pgrep -f "GodotHub.app/Contents/MacOS/GodotHub"
+          test "$(cat "$data/ci-marker.txt")" = kept
+          pkill -f "GodotHub.app/Contents/MacOS/GodotHub" || true
+
+      - name: Package for Linux
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          mkdir -p dist tools
+          curl -fsSL -o tools/appimagetool "$APPIMAGETOOL_URL"
+          echo "$APPIMAGETOOL_SHA256  tools/appimagetool" | sha256sum -c -
+          curl -fsSL -o tools/runtime-x86_64 "$APPIMAGE_RUNTIME_URL"
+          echo "$APPIMAGE_RUNTIME_SHA256  tools/runtime-x86_64" | sha256sum -c -
+          chmod +x tools/appimagetool
+          bash app/packaging/linux/package.sh stable \
+            app/build/linux/x64/release/bundle "$VERSION" dist "$CHANNEL_ID" "$CHANNEL_NAME" "$CHANNEL_BIN" \
+            app/packaging/icons/stable/app_icon.png "$PWD/tools/appimagetool" "$PWD/tools/runtime-x86_64"
+
+      - name: Upgrade Tauri installs on Linux
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y ./tauri/*-linux-amd64.deb
+          test "$(dpkg-query -W -f '${Version}' godot-hub)" != "$VERSION"
+          sudo apt-get install -y "./dist/GodotHub-$VERSION-linux-amd64.deb"
+          test "$(dpkg-query -W -f '${Version}' godot-hub)" = "$VERSION"
+          test "$(dpkg -l | grep -c ' godot-hub ')" = 1
+          test "$(godothub --version)" = "$CHANNEL_BIN $VERSION"
+          test -f /usr/share/applications/GodotHub.desktop
+          dpkg -S "$(readlink -f "$(command -v godothub)")" | grep -q '^godot-hub:'
+          xvfb-run -a timeout 20 godothub || code=$?
+          test "${code:-124}" = 124
+          sudo apt-get remove -y godot-hub
+          test ! -e /usr/lib/godothub
+          docker run --rm -v "$PWD:/w" -w /w fedora:41 bash -euc '
+            rpm -i --nodeps tauri/*-linux-x86_64.rpm
+            rpm -U --nodeps "dist/GodotHub-'"$VERSION"'-linux-x86_64.rpm"
+            test "$(rpm -q --qf "%{VERSION}" godot-hub)" = "'"$VERSION"'"
+            test "$(rpm -qa godot-hub | wc -l)" = 1
+            rpm -qf /usr/lib/godothub/godothub
+            rpm -e godot-hub
+            test ! -e /usr/lib/godothub
+          '
+          chmod +x "dist/GodotHub-$VERSION-linux-amd64.AppImage"
+          test "$("dist/GodotHub-$VERSION-linux-amd64.AppImage" --appimage-extract-and-run --version)" = "$CHANNEL_BIN $VERSION"
+
+      - name: Sign the update artifacts with a throwaway key
+        run: |
+          set -euo pipefail
+          tauri="npx --yes @tauri-apps/cli@$TAURI_CLI_VERSION"
+          $tauri signer generate --ci --password dry-run --write-keys "$RUNNER_TEMP/dry-run.key" --force
+          export TAURI_SIGNING_PRIVATE_KEY="$(cat "$RUNNER_TEMP/dry-run.key")"
+          export TAURI_SIGNING_PRIVATE_KEY_PASSWORD=dry-run
+          shopt -s nullglob
+          signed=0
+          for artifact in dist/*-setup.exe dist/*-windows-x64.zip dist/*.msi dist/*.app.tar.gz dist/*.AppImage dist/*.deb dist/*.rpm; do
+            $tauri signer sign "$artifact"
+            test -s "$artifact.sig"
+            signed=$((signed + 1))
+          done
+          case "$RUNNER_OS" in
+            Windows) test "$signed" -eq 3 ;;
+            macOS) test "$signed" -eq 1 ;;
+            Linux) test "$signed" -eq 3 ;;
+          esac
+
+      - name: Upload the packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: stable-${{ matrix.target }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  assemble:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      VERSION: ${{ inputs.version }}
+      REPO: ${{ github.repository }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download the packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: stable-*
+          path: dist
+          merge-multiple: true
+
+      - name: Check the asset names against the Tauri release
+        run: |
+          set -euo pipefail
+          expected=(
+            "GodotHub-$VERSION-windows-x64-setup.exe"
+            "GodotHub-$VERSION-windows-x64-setup.exe.sig"
+            "GodotHub-$VERSION-windows-x64.msi"
+            "GodotHub-$VERSION-windows-x64.msi.sig"
+            "GodotHub-$VERSION-windows-x64.zip"
+            "GodotHub-$VERSION-windows-x64.zip.sig"
+            "GodotHub-$VERSION-windows-x64-portable.zip"
+            "GodotHub-$VERSION-darwin-universal.dmg"
+            "GodotHub-$VERSION-darwin-universal.app.tar.gz"
+            "GodotHub-$VERSION-darwin-universal.app.tar.gz.sig"
+            "GodotHub-$VERSION-linux-amd64.AppImage"
+            "GodotHub-$VERSION-linux-amd64.AppImage.sig"
+            "GodotHub-$VERSION-linux-amd64.deb"
+            "GodotHub-$VERSION-linux-amd64.deb.sig"
+            "GodotHub-$VERSION-linux-x86_64.rpm"
+            "GodotHub-$VERSION-linux-x86_64.rpm.sig"
+          )
+          actual=$(ls dist | sort)
+          wanted=$(printf '%s\n' "${expected[@]}" | sort)
+          if [ "$actual" != "$wanted" ]; then
+            diff <(echo "$wanted") <(echo "$actual") >&2 || true
+            exit 1
+          fi
+
+      - name: Write latest-v2.json
+        run: |
+          set -euo pipefail
+          mkdir -p release
+          CHANNEL=stable RELEASE_TAG="v$VERSION" ASSETS_DIR=dist OUT=release/latest-v2.json NOTES="Dry run of the stable Flutter packages." \
+            node app/packaging/release/latest_json.mjs
+          cat release/latest-v2.json
+
+      - name: Upload the manifest preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: stable-manifest-preview
+          path: release/*
+          retention-days: 7

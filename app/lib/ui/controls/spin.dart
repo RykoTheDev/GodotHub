@@ -1,5 +1,7 @@
 import 'package:flutter/widgets.dart';
 
+import '../../motion/motion.dart';
+
 class GhSpinning extends StatefulWidget {
   const GhSpinning({super.key, required this.child});
 
@@ -12,8 +14,18 @@ class GhSpinning extends StatefulWidget {
 }
 
 class _GhSpinningState extends State<GhSpinning> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(seconds: 1))..repeat();
+  late final AnimationController _controller = AnimationController(vsync: this, duration: const Duration(seconds: 1));
   late final Animation<double> _turns = CurvedAnimation(parent: _controller, curve: GhSpinning.curve);
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (GhMotion.of(context).off) {
+      _controller.value = 0;
+    } else if (!_controller.isAnimating) {
+      _controller.repeat();
+    }
+  }
 
   @override
   void dispose() {

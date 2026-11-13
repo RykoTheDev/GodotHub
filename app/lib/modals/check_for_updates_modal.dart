@@ -8,6 +8,7 @@ import '../api/opener.dart';
 import '../api/updater.dart';
 import '../api/updates.dart';
 import '../design/design.dart';
+import '../motion/motion.dart';
 import '../state/app_version.dart';
 import '../state/settings.dart';
 import '../ui/controls/spin.dart';
@@ -935,8 +936,8 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
               color: theme.line,
               alignment: AlignmentDirectional.centerStart,
               child: AnimatedFractionallySizedBox(
-                duration: const Duration(milliseconds: 180),
-                curve: Curves.easeOut,
+                duration: GhMotion.of(context).css(GhDurations.progress),
+                curve: GhCurves.outExpo,
                 widthFactor: _progress.clamp(0, 1).toDouble(),
                 heightFactor: 1,
                 child: DecoratedBox(

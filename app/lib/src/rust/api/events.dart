@@ -146,6 +146,7 @@ enum AppEventKind {
   showMainWindow,
   hideMainWindow,
   refreshMenus,
+  exitApp,
   unknown,
 }
 

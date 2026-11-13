@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../design/design.dart';
+import 'bidi.dart';
 import 'interaction.dart';
 
 enum GhButtonVariant { primary, danger, ghost, subtle, outline }
@@ -69,7 +70,7 @@ class GhButton extends StatelessWidget {
           if (icon != null && label != null) SizedBox(width: theme.space(2)),
           if (label != null)
             Flexible(
-              child: GhAnimatedText(label!, style: textStyle, maxLines: 1, overflow: TextOverflow.ellipsis),
+              child: ghPlaintext(label!, GhAnimatedText(label!, style: textStyle, maxLines: 1, overflow: TextOverflow.ellipsis)),
             ),
         ];
         return GhBrightness(

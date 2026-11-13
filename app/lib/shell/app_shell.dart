@@ -36,6 +36,7 @@ import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/feedback/announcement_banner.dart';
 import '../ui/feedback/confirm_dialog.dart';
+import '../ui/feedback/error_boundary.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
 import '../ui/feedback/toast_host.dart';
@@ -671,7 +672,10 @@ class _ViewPane extends StatelessWidget {
         enabled: active,
         child: ExcludeFocus(
           excluding: !active,
-          child: GhRevealScope(active: active, child: child),
+          child: GhRevealScope(
+            active: active,
+            child: GhViewErrorScope(child: child),
+          ),
         ),
       ),
     );

@@ -2049,8 +2049,10 @@ dependencies = [
 name = "godothub_launcher"
 version = "0.1.0"
 dependencies = [
+ "embed-resource",
  "serde",
  "serde_json",
+ "static_vcruntime",
  "windows-sys 0.61.2",
 ]
 

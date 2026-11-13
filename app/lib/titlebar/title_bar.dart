@@ -14,6 +14,7 @@ import '../ui/core/i18n.dart';
 import 'task_tray.dart';
 import 'title_bar_theme.dart';
 import 'window_controls.dart';
+import '../window/app_window.dart';
 
 enum TitleBarAction { wordmark, changelog, support, star, bug }
 
@@ -25,7 +26,9 @@ bool hasAnyTitleBarButton(AppSettings settings, {required bool minimal}) =>
     settings.showTrayButton ||
     (!minimal && settings.showChangelogButton);
 
-bool showsCustomWindowControls(AppSettings settings, {required bool isMac}) => !isMac && !settings.useOsDecorations;
+bool windowUsesOsDecorations(AppSettings settings) => AppWindow.maybeInstance?.startedWithOsDecorations ?? settings.useOsDecorations;
+
+bool showsCustomWindowControls(AppSettings settings, {required bool isMac}) => !isMac && !windowUsesOsDecorations(settings);
 
 class TitleBar extends ConsumerWidget {
   const TitleBar({super.key, required this.isMac, this.minimal = false, this.onAction});
@@ -38,7 +41,7 @@ class TitleBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final settings = ref.watch(settingsProvider).value;
     if (settings == null) return const SizedBox.shrink();
-    if (settings.useOsDecorations && !hasAnyTitleBarButton(settings, minimal: minimal)) {
+    if (windowUsesOsDecorations(settings) && !hasAnyTitleBarButton(settings, minimal: minimal)) {
       return const SizedBox.shrink();
     }
     final window = ref.watch(titleBarWindowProvider);

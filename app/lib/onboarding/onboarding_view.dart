@@ -1329,11 +1329,7 @@ class _LanguageDropdown extends StatelessWidget {
           GhMenuItem(
             id: option.value,
             label: option.displayLabel(),
-            leading: SizedBox(
-              width: 20,
-              height: 14,
-              child: FittedBox(child: LanguageFlag(country: option.country)),
-            ),
+            leading: LanguageFlag(country: option.country, width: 20, height: 14),
             active: value == option.value,
             onSelected: () => onSelected(option.value),
           ),

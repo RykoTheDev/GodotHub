@@ -12,6 +12,8 @@ import '../design/design.dart';
 import '../logic/duration.dart';
 import '../logic/last_opened.dart';
 import '../logic/settings_copy.dart';
+import '../motion/motion.dart';
+import '../motion/reveal.dart';
 import '../src/rust/api/types.dart';
 import '../src/ui_prefs.dart';
 import '../state/app_signals.dart';
@@ -151,10 +153,16 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
         ],
       );
     }, onError: (Object _) {});
+    _syncGreeting();
+  }
+
+  void _syncGreeting() {
     _greetingTimer?.cancel();
-    _greetingTimer = Timer.periodic(const Duration(seconds: 30), (_) {
-      final hour = DateTime.now().hour;
-      if (mounted && hour != _greetingHour) setState(() => _greetingHour = hour);
+    final now = DateTime.now();
+    if (now.hour != _greetingHour) setState(() => _greetingHour = now.hour);
+    final next = DateTime(now.year, now.month, now.day, now.hour + 1);
+    _greetingTimer = Timer(next.difference(now) + const Duration(milliseconds: 50), () {
+      if (mounted) _syncGreeting();
     });
   }
 
@@ -623,8 +631,16 @@ class _ClockState extends State<_Clock> {
     _timer = null;
     if (!widget.active) return;
     _now = DateTime.now();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) {
-      if (mounted) setState(() => _now = DateTime.now());
+    _schedule();
+  }
+
+  void _schedule() {
+    final now = DateTime.now();
+    final next = DateTime(now.year, now.month, now.day, now.hour, now.minute + 1);
+    _timer = Timer(next.difference(now) + const Duration(milliseconds: 50), () {
+      if (!mounted) return;
+      setState(() => _now = DateTime.now());
+      _schedule();
     });
   }
 
@@ -743,7 +759,9 @@ class _TopByTime extends StatelessWidget {
                                     decoration: BoxDecoration(color: theme.raised, borderRadius: BorderRadius.circular(999)),
                                     clipBehavior: Clip.antiAlias,
                                     alignment: AlignmentDirectional.centerStart,
-                                    child: FractionallySizedBox(
+                                    child: AnimatedFractionallySizedBox(
+                                      duration: GhMotion.of(context).css(GhDurations.progress),
+                                      curve: GhCurves.outExpo,
                                       widthFactor: math.max(seconds / max, 0.03),
                                       heightFactor: 1,
                                       child: DecoratedBox(
@@ -826,57 +844,63 @@ class _RunningPanelState extends State<_RunningPanel> {
               spacing: theme.space(2),
               children: [
                 for (final p in widget.running)
-                  Container(
+                  GhReveal(
                     key: ValueKey(p.id),
-                    padding: EdgeInsets.all(theme.space(2.5)),
-                    decoration: BoxDecoration(
-                      color: theme.overlay,
+                    id: 'running:${p.id}',
+                    child: GhTiltCard(
                       borderRadius: BorderRadius.circular(theme.radiusItem),
-                      border: Border.all(color: theme.mint.withValues(alpha: 0.25)),
-                    ),
-                    child: Row(
-                      spacing: theme.space(3),
-                      children: [
-                        Container(
-                          width: theme.space(2),
-                          height: theme.space(2),
-                          decoration: BoxDecoration(color: theme.mint, shape: BoxShape.circle),
+                      child: Container(
+                        padding: EdgeInsets.all(theme.space(2.5)),
+                        decoration: BoxDecoration(
+                          color: theme.overlay,
+                          borderRadius: BorderRadius.circular(theme.radiusItem),
+                          border: Border.all(color: theme.mint.withValues(alpha: 0.25)),
                         ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                p.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink),
-                              ),
-                              Text(
-                                '${p.version.isNotEmpty ? 'Godot ${p.version} · ' : ''}${formatDuration(_now - p.startedAtMs)}',
-                                style: theme.text(size: GhTextSize.x2s, color: theme.muted.withValues(alpha: 0.7)),
-                              ),
-                            ],
-                          ),
-                        ),
-                        GhPressable(
-                          onPressed: () => widget.onStop(p.id),
-                          semanticLabel: '${td('stop')} ${p.name}',
-                          borderRadius: radius,
-                          builder: (context, states) => GhAnimatedBox(
-                            width: theme.space(6),
-                            height: theme.space(6),
-                            alignment: Alignment.center,
-                            borderRadius: radius,
-                            color: states.active ? theme.danger.withValues(alpha: 0.1) : theme.danger.withValues(alpha: 0),
-                            child: GhIcon(
-                              GhIcons.x,
-                              size: theme.space(3.5),
-                              color: states.active ? theme.danger : theme.muted.withValues(alpha: 0.5),
+                        child: Row(
+                          spacing: theme.space(3),
+                          children: [
+                            Container(
+                              width: theme.space(2),
+                              height: theme.space(2),
+                              decoration: BoxDecoration(color: theme.mint, shape: BoxShape.circle),
                             ),
-                          ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    p.name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink),
+                                  ),
+                                  Text(
+                                    '${p.version.isNotEmpty ? 'Godot ${p.version} · ' : ''}${formatDuration(_now - p.startedAtMs)}',
+                                    style: theme.text(size: GhTextSize.x2s, color: theme.muted.withValues(alpha: 0.7)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            GhPressable(
+                              onPressed: () => widget.onStop(p.id),
+                              semanticLabel: '${td('stop')} ${p.name}',
+                              borderRadius: radius,
+                              builder: (context, states) => GhAnimatedBox(
+                                width: theme.space(6),
+                                height: theme.space(6),
+                                alignment: Alignment.center,
+                                borderRadius: radius,
+                                color: states.active ? theme.danger.withValues(alpha: 0.1) : theme.danger.withValues(alpha: 0),
+                                child: GhIcon(
+                                  GhIcons.x,
+                                  size: theme.space(3.5),
+                                  color: states.active ? theme.danger : theme.muted.withValues(alpha: 0.5),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
               ],
@@ -904,51 +928,56 @@ class _EngineRowState extends State<_EngineRow> {
     final v = widget.version;
     final name = (v.customName?.isNotEmpty ?? false) ? v.customName! : v.tag;
     final radius = BorderRadius.circular(theme.radiusBtn);
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: AnimatedContainer(
-        duration: GhDurations.interactive,
-        padding: EdgeInsets.all(theme.space(2.5)),
-        decoration: dashRowDecoration(theme, _hovered),
-        child: Row(
-          spacing: theme.space(3),
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, mono: true, color: theme.ink),
+    return GhReveal(
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: GhTiltCard(
+          borderRadius: BorderRadius.circular(theme.radiusItem),
+          child: AnimatedContainer(
+            duration: GhDurations.interactive,
+            padding: EdgeInsets.all(theme.space(2.5)),
+            decoration: dashRowDecoration(theme, _hovered),
+            child: Row(
+              spacing: theme.space(3),
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, mono: true, color: theme.ink),
+                      ),
+                      Text(
+                        v.executablePath,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.text(size: GhTextSize.x2s, mono: true, color: theme.muted.withValues(alpha: 0.7)),
+                      ),
+                    ],
                   ),
-                  Text(
-                    v.executablePath,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.text(size: GhTextSize.x2s, mono: true, color: theme.muted.withValues(alpha: 0.7)),
-                  ),
-                ],
-              ),
-            ),
-            GhPressable(
-              onPressed: widget.onOpen,
-              semanticLabel: name,
-              borderRadius: radius,
-              builder: (context, states) => GhAnimatedBox(
-                padding: EdgeInsets.all(theme.space(1.5)),
-                borderRadius: radius,
-                color: states.active ? theme.surface : theme.surface.withValues(alpha: 0),
-                child: GhIcon(
-                  GhIcons.terminal,
-                  size: theme.space(3.5),
-                  color: states.active ? theme.ink : theme.muted.withValues(alpha: 0.6),
                 ),
-              ),
+                GhPressable(
+                  onPressed: widget.onOpen,
+                  semanticLabel: name,
+                  borderRadius: radius,
+                  builder: (context, states) => GhAnimatedBox(
+                    padding: EdgeInsets.all(theme.space(1.5)),
+                    borderRadius: radius,
+                    color: states.active ? theme.surface : theme.surface.withValues(alpha: 0),
+                    child: GhIcon(
+                      GhIcons.terminal,
+                      size: theme.space(3.5),
+                      color: states.active ? theme.ink : theme.muted.withValues(alpha: 0.6),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

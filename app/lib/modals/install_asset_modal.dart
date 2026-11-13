@@ -5,6 +5,7 @@ import '../api/asset_library.dart';
 import '../api/templates.dart';
 import '../assets/asset_common.dart';
 import '../design/design.dart';
+import '../motion/presence.dart';
 import '../src/rust/api/types.dart';
 import '../state/app_signals.dart';
 import '../state/projects.dart';
@@ -335,6 +336,7 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
               borderRadius: BorderRadius.circular(theme.radiusTile),
               child: Image.network(
                 iconUrl,
+                frameBuilder: ghFadeInFrameBuilder,
                 fit: BoxFit.cover,
                 width: double.infinity,
                 height: double.infinity,

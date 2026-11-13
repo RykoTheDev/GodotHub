@@ -5,6 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 import '../design/design.dart';
 import '../motion/motion.dart';
+import '../motion/presence.dart';
 
 final Map<String, ({Uint8List bytes, bool svg})?> _decoded = {};
 
@@ -59,6 +60,7 @@ class ProjectIconImage extends StatelessWidget {
     }
     return Image.memory(
       decoded.bytes,
+      frameBuilder: ghFadeInFrameBuilder,
       fit: fit,
       gaplessPlayback: true,
       errorBuilder: (context, error, stack) {

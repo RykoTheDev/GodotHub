@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../design/design.dart';
 import '../../motion/presence.dart';
 import '../core/interaction.dart';
+import '../core/bidi.dart';
 import '../shell/smooth_scroll.dart';
 
 const double ghMenuViewportPad = 8;
@@ -264,12 +265,15 @@ class _GhMenuButtonState extends State<GhMenuButton> {
           ),
         ),
       Expanded(
-        child: GhAnimatedText(
+        child: ghPlaintext(
           item.label,
-          style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: foreground),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.start,
+          GhAnimatedText(
+            item.label,
+            style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: foreground),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.start,
+          ),
         ),
       ),
       if (item.badge != null)

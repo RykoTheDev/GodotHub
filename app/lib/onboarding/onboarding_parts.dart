@@ -143,14 +143,16 @@ class ProgressRow extends StatelessWidget {
               height: theme.space(1.5),
               color: theme.line.withValues(alpha: 0.4),
               alignment: AlignmentDirectional.centerStart,
-              child: FractionallySizedBox(
+              child: AnimatedFractionallySizedBox(
+                duration: GhMotion.of(context).css(GhDurations.progress),
+                curve: GhCurves.outExpo,
                 widthFactor: hasProgress ? pct : (running ? 0.3 : 0),
                 heightFactor: 1,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: hasProgress ? theme.accent : theme.accent.withValues(alpha: 0.6),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
+                child: GhAnimatedBox(
+                  duration: GhDurations.progress,
+                  color: hasProgress ? theme.accent : theme.accent.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(999),
+                  child: const SizedBox.expand(),
                 ),
               ),
             ),
@@ -619,7 +621,9 @@ class _FinishCelebrationState extends State<FinishCelebration> with SingleTicker
     final theme = GhTheme.of(context);
     final stats = [(ghTr('section_projects'), _projects), (ghTr('section_versions'), _versions)];
     final tiles = widget.projects.take(maxCelebrationTiles).toList();
-    final big = theme.text(size: GhTextSize.x4l, weight: GhWeight.bold, color: theme.ink, letterSpacingEm: -0.025);
+    final big = theme
+        .text(size: GhTextSize.x4l, weight: GhWeight.bold, color: theme.ink, letterSpacingEm: -0.025)
+        .copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: theme.space(5),

@@ -47,6 +47,7 @@ pub enum AppEventKind {
     ShowMainWindow,
     HideMainWindow,
     RefreshMenus,
+    ExitApp,
     Unknown,
 }
 
@@ -177,6 +178,7 @@ fn kind_of(name: &str) -> AppEventKind {
         crate::host::SHOW_MAIN_WINDOW_EVENT => ShowMainWindow,
         crate::host::HIDE_MAIN_WINDOW_EVENT => HideMainWindow,
         crate::host::REFRESH_MENUS_EVENT => RefreshMenus,
+        crate::host::EXIT_APP_EVENT => ExitApp,
         _ => Unknown,
     }
 }
@@ -214,7 +216,7 @@ pub(crate) fn decode(name: &str, json: &str) -> AppEvent {
         | VersionsAvailableUpdated | ExportTemplatesQueued | ExportTemplatesCanceled
         | ExportTemplatesComplete => event.text = parse(json),
         VersionsAliasesChanged | ProjectScanDone | VersionScanDone | TemplateSynced | GitProjectChanged
-        | ShowMainWindow | HideMainWindow | RefreshMenus | Unknown => {}
+        | ShowMainWindow | HideMainWindow | RefreshMenus | ExitApp | Unknown => {}
     }
     event
 }

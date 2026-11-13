@@ -30,23 +30,39 @@ RequestExecutionLevel user
 !ifndef LAUNCHER
   !error "pass /DLAUNCHER=<godothub-launcher.exe>"
 !endif
+!ifndef PUBLISHER
+  !define PUBLISHER "Ryko"
+!endif
+!ifndef UNINSTALL_NAME
+  !define UNINSTALL_NAME "${IDENTIFIER}"
+!endif
+!ifndef APP_KEY_PARENT
+  !define APP_KEY_PARENT "Software\Ryko"
+!endif
+!ifndef APP_KEY
+  !define APP_KEY "${APP_KEY_PARENT}\${IDENTIFIER}"
+!endif
+!ifndef APP_KEY_VALUE
+  !define APP_KEY_VALUE "InstallDir"
+!endif
 
 !addplugindir /x86-unicode "${PLUGIN_DIR}"
 
 !include "MUI2.nsh"
 !include "FileFunc.nsh"
 
-!define UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${IDENTIFIER}"
-!define APP_KEY "Software\Ryko\${IDENTIFIER}"
+!define UNINSTALL_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${UNINSTALL_NAME}"
 !define SHORTCUT "$SMPROGRAMS\${DISPLAY_NAME}.lnk"
+!define DESKTOP_LINK "$DESKTOP\${DISPLAY_NAME}.lnk"
 
 Name "${DISPLAY_NAME}"
 OutFile "${OUTFILE}"
 InstallDir "$LOCALAPPDATA\${DISPLAY_NAME}"
+InstallDirRegKey HKCU "${APP_KEY}" "${APP_KEY_VALUE}"
 BrandingText "${DISPLAY_NAME} ${VERSION}"
 VIProductVersion "${VERSION}.0"
 VIAddVersionKey "ProductName" "${DISPLAY_NAME}"
-VIAddVersionKey "CompanyName" "Ryko"
+VIAddVersionKey "CompanyName" "${PUBLISHER}"
 VIAddVersionKey "LegalCopyright" "Ryko"
 VIAddVersionKey "FileDescription" "${DISPLAY_NAME} Setup"
 VIAddVersionKey "FileVersion" "${VERSION}"
@@ -60,6 +76,7 @@ VIAddVersionKey "ProductVersion" "${VERSION}"
 
 Var Passive
 Var Restart
+Var Updating
 
 !define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
 !insertmacro MUI_PAGE_WELCOME
@@ -114,6 +131,10 @@ Function .onInit
   ${GetOptions} $R0 "/R" $R1
   IfErrors +2 0
     StrCpy $Restart 1
+  ClearErrors
+  ${GetOptions} $R0 "/UPDATE" $R1
+  IfErrors +2 0
+    StrCpy $Updating 1
 FunctionEnd
 
 Function .onInstSuccess
@@ -128,28 +149,38 @@ Section "Install"
   !insertmacro WaitForAppToClose
   RMDir /r "$INSTDIR\data"
   Delete "$INSTDIR\*.dll"
+  Delete "$INSTDIR\app.ico"
   RMDir /r "$INSTDIR\app-${VERSION}"
   SetOutPath "$INSTDIR\app-${VERSION}"
   File /r "${SOURCE_DIR}\*.*"
   SetOutPath "$INSTDIR"
   File "/oname=${EXE_NAME}" "${LAUNCHER}"
-  File "/oname=app.ico" "${ICON}"
   FileOpen $0 "$INSTDIR\launcher.json" w
   FileWrite $0 '{"current": "${VERSION}"}'
   FileClose $0
   WriteUninstaller "$INSTDIR\uninstall.exe"
 
-  CreateShortcut "${SHORTCUT}" "$INSTDIR\${EXE_NAME}" "" "$INSTDIR\app.ico" 0
+  CreateShortcut "${SHORTCUT}" "$INSTDIR\${EXE_NAME}" "" "$INSTDIR\${EXE_NAME}" 0
   ApplicationID::Set "${SHORTCUT}" "${IDENTIFIER}"
   Pop $0
+!ifdef DESKTOP_SHORTCUT
+  IfFileExists "${DESKTOP_LINK}" desktop_link 0
+  StrCmp $Updating 1 desktop_done
+  desktop_link:
+    CreateShortcut "${DESKTOP_LINK}" "$INSTDIR\${EXE_NAME}" "" "$INSTDIR\${EXE_NAME}" 0
+    ApplicationID::Set "${DESKTOP_LINK}" "${IDENTIFIER}"
+    Pop $0
+  desktop_done:
+!endif
 
-  WriteRegStr HKCU "${APP_KEY}" "InstallDir" "$INSTDIR"
+  WriteRegStr HKCU "${APP_KEY}" "${APP_KEY_VALUE}" "$INSTDIR"
   WriteRegStr HKCU "${APP_KEY}" "Version" "${VERSION}"
   WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayName" "${DISPLAY_NAME}"
   WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayVersion" "${VERSION}"
-  WriteRegStr HKCU "${UNINSTALL_KEY}" "Publisher" "Ryko"
-  WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayIcon" "$INSTDIR\app.ico"
-  WriteRegStr HKCU "${UNINSTALL_KEY}" "InstallLocation" "$INSTDIR"
+  WriteRegStr HKCU "${UNINSTALL_KEY}" "Publisher" "${PUBLISHER}"
+  WriteRegStr HKCU "${UNINSTALL_KEY}" "MainBinaryName" "${EXE_NAME}"
+  WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayIcon" '"$INSTDIR\${EXE_NAME}"'
+  WriteRegStr HKCU "${UNINSTALL_KEY}" "InstallLocation" '"$INSTDIR"'
   WriteRegStr HKCU "${UNINSTALL_KEY}" "UninstallString" '"$INSTDIR\uninstall.exe"'
   WriteRegStr HKCU "${UNINSTALL_KEY}" "QuietUninstallString" '"$INSTDIR\uninstall.exe" /S'
   WriteRegDWORD HKCU "${UNINSTALL_KEY}" "NoModify" 1
@@ -169,8 +200,11 @@ FunctionEnd
 Section "Uninstall"
   !insertmacro WaitForAppToClose
   Delete "${SHORTCUT}"
+!ifdef DESKTOP_SHORTCUT
+  Delete "${DESKTOP_LINK}"
+!endif
   RMDir /r "$INSTDIR"
   DeleteRegKey HKCU "${UNINSTALL_KEY}"
   DeleteRegKey HKCU "${APP_KEY}"
-  DeleteRegKey /ifempty HKCU "Software\Ryko"
+  DeleteRegKey /ifempty HKCU "${APP_KEY_PARENT}"
 SectionEnd

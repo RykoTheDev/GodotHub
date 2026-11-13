@@ -758,7 +758,7 @@ class GhTiltCardState extends State<GhTiltCard> with SingleTickerProviderStateMi
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      opaque: false,
+      hitTestBehavior: HitTestBehavior.deferToChild,
       onHover: _onHover,
       onExit: (_) => _leave(),
       child: Transform(

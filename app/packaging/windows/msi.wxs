@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Id="*" Name="$(var.ProductName)" Language="1033" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" UpgradeCode="$(var.UpgradeCode)">
+    <Package InstallerVersion="450" Compressed="yes" InstallScope="perMachine" Platform="x64" />
+    <MajorUpgrade Schedule="afterInstallInitialize" AllowDowngrades="yes" />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <Icon Id="ProductIcon" SourceFile="$(var.Icon)" />
+    <Property Id="ARPPRODUCTICON" Value="ProductIcon" />
+    <Property Id="ARPNOREPAIR" Value="yes" Secure="yes" />
+    <Property Id="REINSTALLMODE" Value="amus" />
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+    <Property Id="AUTOLAUNCHAPP" Secure="yes" />
+    <Property Id="LAUNCHAPPARGS" Secure="yes" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOX" Value="1" />
+    <Property Id="WIXUI_EXITDIALOGOPTIONALCHECKBOXTEXT" Value="Launch $(var.ProductName)" />
+    <SetProperty Id="ARPINSTALLLOCATION" Value="[INSTALLDIR]" After="CostFinalize" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFiles64Folder">
+        <Directory Id="INSTALLDIR" Name="$(var.ProductName)" />
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="$(var.ProductName)" />
+      </Directory>
+      <Directory Id="DesktopFolder" Name="Desktop" />
+    </Directory>
+
+    <DirectoryRef Id="INSTALLDIR">
+      <Component Id="InstallDirRegistry" Guid="*">
+        <RegistryValue Root="HKCU" Key="$(var.AppKey)" Name="InstallDir" Type="string" Value="[INSTALLDIR]" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="ApplicationProgramsFolder">
+      <Component Id="StartMenuShortcut" Guid="*">
+        <Shortcut Id="ApplicationStartMenuShortcut" Name="$(var.ProductName)" Target="[INSTALLDIR]$(var.ExeName)" WorkingDirectory="INSTALLDIR" Icon="ProductIcon">
+          <ShortcutProperty Key="System.AppUserModel.ID" Value="$(var.Identifier)" />
+        </Shortcut>
+        <RemoveFolder Id="RemoveApplicationProgramsFolder" On="uninstall" />
+        <RegistryValue Root="HKCU" Key="$(var.AppKey)" Name="Start Menu Shortcut" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="DesktopShortcut" Guid="*">
+        <Shortcut Id="ApplicationDesktopShortcut" Name="$(var.ProductName)" Target="[INSTALLDIR]$(var.ExeName)" WorkingDirectory="INSTALLDIR" Icon="ProductIcon">
+          <ShortcutProperty Key="System.AppUserModel.ID" Value="$(var.Identifier)" />
+        </Shortcut>
+        <RegistryValue Root="HKCU" Key="$(var.AppKey)" Name="Desktop Shortcut" Type="integer" Value="1" KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <Feature Id="Main" Title="$(var.ProductName)" Level="1" Absent="disallow">
+      <ComponentGroupRef Id="AppFiles" />
+      <ComponentRef Id="InstallDirRegistry" />
+      <ComponentRef Id="StartMenuShortcut" />
+      <ComponentRef Id="DesktopShortcut" />
+    </Feature>
+
+    <CustomAction Id="LaunchApplication" Directory="INSTALLDIR" ExeCommand="&quot;[INSTALLDIR]$(var.ExeName)&quot; [LAUNCHAPPARGS]" Return="asyncNoWait" Impersonate="yes" />
+    <InstallExecuteSequence>
+      <Custom Action="LaunchApplication" After="InstallFinalize">AUTOLAUNCHAPP AND NOT Installed</Custom>
+    </InstallExecuteSequence>
+
+    <UI>
+      <UIRef Id="WixUI_InstallDir" />
+      <Publish Dialog="WelcomeDlg" Control="Next" Event="NewDialog" Value="InstallDirDlg" Order="2">1</Publish>
+      <Publish Dialog="InstallDirDlg" Control="Back" Event="NewDialog" Value="WelcomeDlg" Order="2">1</Publish>
+      <Publish Dialog="ExitDialog" Control="Finish" Event="DoAction" Value="LaunchApplication">WIXUI_EXITDIALOGOPTIONALCHECKBOX = 1 AND NOT Installed</Publish>
+    </UI>
+  </Product>
+</Wix>

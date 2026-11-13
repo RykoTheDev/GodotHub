@@ -195,20 +195,8 @@ jobs:
           curl -fsSL -o tools/nsis.zip "$NSIS_URL"
           echo "$NSIS_SHA256  tools/nsis.zip" | sha256sum -c -
           unzip -q -o tools/nsis.zip -d tools
-          cargo build -p godothub_launcher --release --locked
-          (cd app/build/windows/x64/runner/Release && "$SYSTEMROOT/System32/tar.exe" -a -c -f "../../../../../../dist/GodotHub-Beta-$VERSION-windows-x64.zip" *)
-          makensis="tools/nsis-3.13/makensis.exe"
-          "$makensis" -V2 \
-            -DVERSION="$VERSION" \
-            -DSOURCE_DIR="$(cygpath -aw app/build/windows/x64/runner/Release)" \
-            -DOUTFILE="$(cygpath -aw dist)\\GodotHub-Beta-$VERSION-windows-x64-setup.exe" \
-            -DIDENTIFIER="$CHANNEL_ID" \
-            -DDISPLAY_NAME="$CHANNEL_NAME" \
-            -DEXE_NAME="$CHANNEL_BIN.exe" \
-            -DICON="$(cygpath -aw app/windows/runner/resources/app_icon.ico)" \
-            -DPLUGIN_DIR="$(cygpath -aw tools/plugin)" \
-            -DLAUNCHER="$(cygpath -aw src-tauri/target/release/godothub-launcher.exe)" \
-            "$(cygpath -aw app/packaging/windows/installer.nsi)"
+          MAKENSIS="$PWD/tools/nsis-3.13/makensis.exe" NSIS_PLUGIN_DIR="$PWD/tools/plugin" \
+            bash app/packaging/windows/package.sh beta "$VERSION" app/build/windows/x64/runner/Release dist
 
       - name: Install and uninstall the Windows package
         if: runner.os == 'Windows'
@@ -235,7 +223,7 @@ jobs:
           curl -fsSL -o tools/runtime-x86_64 "$APPIMAGE_RUNTIME_URL"
           echo "$APPIMAGE_RUNTIME_SHA256  tools/runtime-x86_64" | sha256sum -c -
           chmod +x tools/appimagetool
-          bash app/packaging/linux/package.sh \
+          bash app/packaging/linux/package.sh beta \
             app/build/linux/x64/release/bundle "$VERSION" dist "$CHANNEL_ID" "$CHANNEL_NAME" "$CHANNEL_BIN" \
             app/linux/runner/resources/app_icon.png "$PWD/tools/appimagetool" "$PWD/tools/runtime-x86_64"
 

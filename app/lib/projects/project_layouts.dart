@@ -134,7 +134,9 @@ class PinnedHeader extends StatelessWidget {
               style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: theme.muted, letterSpacingEm: 0.05),
             ),
             DefaultTextStyle.merge(
-              style: theme.text(size: GhTextSize.x3s, weight: GhWeight.medium, color: theme.muted.withValues(alpha: 0.5)),
+              style: theme
+                  .text(size: GhTextSize.x3s, weight: GhWeight.medium, color: theme.muted.withValues(alpha: 0.5))
+                  .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
               child: Row(mainAxisSize: MainAxisSize.min, children: [const Text('· '), GhAnimatedNumber(count)]),
             ),
             Expanded(child: Container(height: 1, color: theme.outline.withValues(alpha: 0.5))),

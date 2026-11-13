@@ -1,3 +1,4 @@
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, OnceLock};
 
 use flutter_rust_bridge::frb;
@@ -7,6 +8,12 @@ use serde_json::value::RawValue;
 use crate::api::error::CoreError;
 
 static APP: OnceLock<AppHandle> = OnceLock::new();
+static MAIN_WINDOW_VISIBLE: AtomicBool = AtomicBool::new(true);
+const EXIT_GRACE: std::time::Duration = std::time::Duration::from_secs(5);
+
+pub fn set_main_window_visible(visible: bool) {
+    MAIN_WINDOW_VISIBLE.store(visible, Ordering::SeqCst);
+}
 
 #[frb(opaque)]
 pub struct FlutterHost;
@@ -20,22 +27,29 @@ impl EventSink for FlutterHost {
 pub const SHOW_MAIN_WINDOW_EVENT: &str = "host:show-main-window";
 pub const HIDE_MAIN_WINDOW_EVENT: &str = "host:hide-main-window";
 pub const REFRESH_MENUS_EVENT: &str = "host:refresh-menus";
+pub const EXIT_APP_EVENT: &str = "host:exit-app";
 
 impl Host for FlutterHost {
     fn show_main_window(&self) {
+        set_main_window_visible(true);
         crate::api::events::dispatch(SHOW_MAIN_WINDOW_EVENT, "null");
     }
     fn hide_main_window(&self) {
+        set_main_window_visible(false);
         crate::api::events::dispatch(HIDE_MAIN_WINDOW_EVENT, "null");
     }
     fn exit(&self, code: i32) {
-        std::process::exit(code);
+        crate::api::events::dispatch(EXIT_APP_EVENT, "null");
+        std::thread::spawn(move || {
+            std::thread::sleep(EXIT_GRACE);
+            std::process::exit(code);
+        });
     }
     fn refresh_menus(&self) {
         crate::api::events::dispatch(REFRESH_MENUS_EVENT, "null");
     }
     fn main_window_visible(&self) -> Option<bool> {
-        Some(true)
+        Some(MAIN_WINDOW_VISIBLE.load(Ordering::SeqCst))
     }
 }
 

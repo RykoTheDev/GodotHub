@@ -28,7 +28,10 @@ fn sync_state_file(app: &AppHandle) -> PathBuf {
     if !base.exists() {
         let _ = fs::create_dir_all(&base);
     }
-    base.join("gist-sync.json")
+    base.join(match app.channel() {
+        crate::Channel::Stable => "gist-sync.json",
+        crate::Channel::Beta => "gist-sync.beta.json",
+    })
 }
 
 fn read_sync_state(app: &AppHandle) -> Option<SyncState> {

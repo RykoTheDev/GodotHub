@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../design/design.dart';
+import '../motion/motion.dart';
 import '../state/task_tray.dart';
 import '../ui/core/i18n.dart';
 import 'title_bar_theme.dart';
@@ -416,7 +417,9 @@ class _TaskItem extends ConsumerWidget {
                         child: Stack(
                           children: [
                             Positioned.fill(child: ColoredBox(color: tokens.line.withValues(alpha: 0.6))),
-                            FractionallySizedBox(
+                            AnimatedFractionallySizedBox(
+                              duration: GhMotion.of(context).css(GhDurations.progress),
+                              curve: GhCurves.outExpo,
                               alignment: AlignmentDirectional.centerStart,
                               widthFactor: fraction,
                               heightFactor: 1,

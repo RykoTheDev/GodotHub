@@ -17,6 +17,7 @@ import '../modals/category_manager_modal.dart';
 import '../modals/clone_repo_modal.dart';
 import '../motion/animated_number.dart';
 import '../motion/motion.dart';
+import '../motion/reveal.dart';
 import '../shell/git_sidebar_overlay.dart';
 import '../src/rust/api/types.dart';
 import '../src/ui_prefs.dart';
@@ -658,7 +659,7 @@ class ProjectsViewState extends ConsumerState<ProjectsView> {
       onToggleSelect: (modifiers) => _toggleSelect(p.id, modifiers, visualOrder),
     );
 
-    Widget cardBuilder(Project p, {bool preview = false}) {
+    Widget rawCard(Project p, {bool preview = false}) {
       final status = git.statusMap[p.path];
       if (_viewMode == ProjectViewMode.list) {
         return ProjectCard(
@@ -689,6 +690,13 @@ class ProjectsViewState extends ConsumerState<ProjectsView> {
         preview: preview,
         callbacks: preview ? ProjectCallbacks.preview : callbacksFor(p),
       );
+    }
+
+    Widget cardBuilder(Project p, {bool preview = false}) {
+      final card = rawCard(p, preview: preview);
+      if (preview) return card;
+      final id = 'project:${_viewMode.name}:${p.id}';
+      return GhReveal(key: ValueKey(id), id: id, projectId: p.id, child: card);
     }
 
     final reorder = dragEnabled

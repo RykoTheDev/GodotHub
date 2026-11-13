@@ -22,6 +22,8 @@ Future<String?> pickExecutable() => RustLib.instance.api.crateApiNativePickExecu
 
 Future<void> notify({required String title, required String body}) => RustLib.instance.api.crateApiNativeNotify(title: title, body: body);
 
+void setMainWindowVisible({required bool visible}) => RustLib.instance.api.crateApiNativeSetMainWindowVisible(visible: visible);
+
 Future<void> relaunch({required List<String> args}) => RustLib.instance.api.crateApiNativeRelaunch(args: args);
 
 Future<List<RecentProject>> refreshRecentProjects() => RustLib.instance.api.crateApiNativeRefreshRecentProjects();

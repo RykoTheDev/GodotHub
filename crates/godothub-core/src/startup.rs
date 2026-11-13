@@ -30,6 +30,7 @@ pub fn initialize(app: &AppHandle) {
 
 pub async fn background_tasks(handle: AppHandle) {
     templates::consolidate_legacy_templates(&handle);
+    let _ = tokio::task::spawn_blocking(crate::updater::remove_stale_temp_dirs).await;
 
     let s = settings::read_settings(&handle);
 

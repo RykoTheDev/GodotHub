@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'api/events.dart';
@@ -26,11 +27,13 @@ import 'src/ui_prefs.dart';
 import 'state/keyboard_shortcuts.dart';
 import 'state/onboarding.dart';
 import 'ui/core/ui_settings.dart';
+import 'ui/feedback/error_boundary.dart';
 import 'window/app_window.dart';
 import 'window/tray.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  ErrorWidget.builder = ghErrorWidget;
   installBugReportErrorCapture();
   await RustLib.init();
   UpdaterApi.applyBuildVersion();
@@ -110,6 +113,9 @@ class _GodotHubAppState extends ConsumerState<GodotHubApp> with WidgetsBindingOb
         child: MaterialApp(
           title: widget.title,
           debugShowCheckedModeBanner: false,
+          locale: i18n.locale.flutterLocale,
+          supportedLocales: AppLocaleUtils.supportedLocales,
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
           theme: theme.toThemeData(),
           themeAnimationDuration: GhDurations.color,
           themeAnimationCurve: GhCurves.outExpo,

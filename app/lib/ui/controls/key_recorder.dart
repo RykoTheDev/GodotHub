@@ -54,6 +54,9 @@ class _GhKeyRecorderState extends State<GhKeyRecorder> {
   }
 
   void _setListening(bool value) {
+    if (!mounted || value == _listening) {
+      return;
+    }
     setState(() => _listening = value);
     if (value) {
       _attach();
@@ -97,6 +100,10 @@ class _GhKeyRecorderState extends State<GhKeyRecorder> {
     if (event.logicalKey == LogicalKeyboardKey.escape) {
       _setListening(false);
       return KeyEventResult.handled;
+    }
+    if (event.logicalKey == LogicalKeyboardKey.tab) {
+      _setListening(false);
+      return KeyEventResult.ignored;
     }
     final captured = _capture(event);
     if (captured == null) {
@@ -176,7 +183,7 @@ class _GhKeyRecorderState extends State<GhKeyRecorder> {
       ),
     );
 
-    final button = GhPressable(
+    final pressable = GhPressable(
       onPressed: () => _setListening(!_listening),
       borderRadius: BorderRadius.circular(theme.radiusItem),
       builder: (context, states) {
@@ -221,6 +228,17 @@ class _GhKeyRecorderState extends State<GhKeyRecorder> {
           child: Row(mainAxisSize: MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: children),
         );
       },
+    );
+    final button = TapRegion(
+      onTapOutside: (_) => _setListening(false),
+      child: Focus(
+        canRequestFocus: false,
+        skipTraversal: true,
+        onFocusChange: (focused) {
+          if (!focused) _setListening(false);
+        },
+        child: pressable,
+      ),
     );
 
     final confirm = _confirm;
