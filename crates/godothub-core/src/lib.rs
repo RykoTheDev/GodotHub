@@ -39,6 +39,7 @@ pub mod project_metadata;
 pub mod project_todos;
 pub mod projects;
 pub mod recent;
+pub mod renderer;
 pub mod repo_identity;
 pub mod resolve;
 pub mod scan;

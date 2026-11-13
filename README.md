@@ -301,6 +301,9 @@ GodotHub is available as a desktop app for:
 
 Replace `<version>` with the release you're downloading (for example `1.4.4`). Releases before v1.4.4 use the older file names.
 
+> [!NOTE]
+> **Linux rendering:** GodotHub uses WebKitGTK's accelerated (DMA-BUF) renderer by default. It only falls back to software rendering where that path is known to draw nothing (the NVIDIA proprietary driver) or after a launch that never painted a frame. If the window comes up blank or the UI feels slow, force a path with `GODOTHUB_RENDERER=software godothub` or `GODOTHUB_RENDERER=gpu godothub`; the choice is remembered per machine.
+
 ### Install via Winget (Windows)
 
 GodotHub is on the **Windows Package Manager (winget)**. On Windows 10/11:

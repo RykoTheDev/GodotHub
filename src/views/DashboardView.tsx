@@ -423,7 +423,7 @@ function ActivityPanel({
                   <div className="group/bar w-full h-full flex flex-col justify-end items-center gap-2">
                     <div className="relative w-full flex-1 flex items-end">
                       <div
-                        className="activity-bar w-full origin-bottom rounded-t-md bg-linear-to-t from-accent-dim/80 to-accent-bright/80 group-hover/bar:from-accent-dim group-hover/bar:to-accent-bright"
+                        className="activity-bar w-full origin-bottom rounded-t-md bg-linear-to-t from-accent-dim to-accent-bright opacity-80 group-hover/bar:opacity-100"
                         style={{ height: `${pct}%`, animationDelay: `${i * 16}ms` }}
                         aria-label={tc('dashboard_weekly_aria', {
                           label: formatDuration(seconds * 1000),
@@ -644,11 +644,33 @@ function Clock({
   const { t: tc } = useTranslation('dashboard')
   const [now, setNow] = useState(() => new Date())
 
+  // The clock only shows hours and minutes, so waking up every second would
+  // repaint the dashboard header 60x more often than the text can change.
+  // WebKitGTK (Linux) rasterizes in software here, so that idle repaint is
+  // enough to make the whole view feel laggy. Tick on the minute boundary.
   useEffect(() => {
     if (!active) return
     setNow(new Date())
-    const id = setInterval(() => setNow(new Date()), 1000)
-    return () => clearInterval(id)
+    let id = 0
+    const schedule = () => {
+      const delay = 60_000 - (Date.now() % 60_000) + 50
+      id = window.setTimeout(() => {
+        setNow(new Date())
+        schedule()
+      }, delay)
+    }
+    schedule()
+    const onVisibility = () => {
+      if (document.visibilityState !== 'visible') return
+      window.clearTimeout(id)
+      setNow(new Date())
+      schedule()
+    }
+    document.addEventListener('visibilitychange', onVisibility)
+    return () => {
+      window.clearTimeout(id)
+      document.removeEventListener('visibilitychange', onVisibility)
+    }
   }, [active])
 
   return (
@@ -708,11 +730,18 @@ export function DashboardView({
 
   useEffect(() => {
     if (!active) return
-    const id = setInterval(() => {
-      const h = new Date().getHours()
-      setGreetingHour((prev) => (prev === h ? prev : h))
-    }, 30000)
-    return () => clearInterval(id)
+    const sync = () => setGreetingHour(new Date().getHours())
+    sync()
+    let id = 0
+    const schedule = () => {
+      const delay = 3_600_000 - (Date.now() % 3_600_000) + 50
+      id = window.setTimeout(() => {
+        sync()
+        schedule()
+      }, delay)
+    }
+    schedule()
+    return () => window.clearTimeout(id)
   }, [active])
 
   useEffect(() => {

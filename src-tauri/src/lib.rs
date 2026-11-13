@@ -20,6 +20,14 @@ fn get_os_username() -> Option<String> {
     godothub_core::system::get_os_username()
 }
 
+/// Called by the frontend once it has painted a frame. Confirms that the
+/// accelerated WebKitGTK path draws on this machine, so the next launch does not
+/// fall back to the software renderer.
+#[tauri::command]
+fn renderer_healthy() {
+    godothub_core::renderer::mark_painted();
+}
+
 pub fn run_cli() -> Option<i32> {
     godothub_core::set_app_version(env!("CARGO_PKG_VERSION"));
     godothub_core::cli::dispatch(host::CHANNEL)
@@ -315,6 +323,7 @@ pub fn run() {
             commands::watcher::start_git_fs_watcher,
             commands::watcher::stop_git_fs_watcher,
             notify,
+            renderer_healthy,
             get_os_username,
             dialogs::pick_folder,
             dialogs::pick_save_path,
