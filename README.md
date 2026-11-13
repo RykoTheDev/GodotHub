@@ -390,6 +390,47 @@ bun tauri build
 
 ---
 
+## Benchmarks
+
+GodotHub is moving from Tauri (React in a WebView) to Flutter. The Flutter version is measured against the current Tauri release on the same machine, display and data.
+
+<details>
+<summary><strong>Windows results</strong></summary>
+
+Windows 11, 180 Hz display, release builds, measured 2026-11-14. "Real" is a copy of an everyday data folder; "bench" is a generated workspace with 120 projects.
+
+| Metric | Tauri | Flutter | Change |
+|---|---|---|---|
+| Cold start to projects shown, real (median of 5) | 1177 ms | **651 ms** | 45% faster |
+| Cold start to projects shown, 120 projects | 1664 ms | **1224 ms** | 26% faster |
+| Cold start to interactive, 120 projects | 1887 ms | **1230 ms** | 35% faster |
+| Private memory, real (30 s idle) | 192 MB, 7 processes | **168 MB**, 1 process | 13% less |
+| Private memory, 120 projects | 248 MB | **136 MB** | 45% less |
+| Working set, real / 120 projects | 557 / 683 MB | **228 / 196 MB** | 59% / 71% less |
+| Opening Versions for the first time | 356 ms | **30 ms** | |
+| Opening Settings for the first time | 340 ms | **20 ms** | |
+| Switching views afterwards | 35 to 52 ms | **11 to 21 ms** | |
+| Scrolling 120 projects, average fps | 89 to 93 | **181 to 188** | full refresh rate |
+| Scrolling, worst frame | 17 to 100 ms | **5.6 to 11 ms** | |
+| Drag to reorder, average fps | 168 to 172 | **175 to 180** | |
+
+View times are until the new view first shows; both apps then play the same 0.7 s slide animation.
+
+</details>
+
+### Run them yourself
+
+The benchmark runs on Windows, Linux and macOS and compares with the Tauri app if it is installed:
+
+```bash
+cd app
+node tool/bench/bench.mjs all
+```
+
+It needs Node.js 18+ and the Flutter toolchain, and writes `app/build/bench_lab/results/<os>/REPORT.md`. Your data is only copied, never changed. See [app/tool/bench/README.md](app/tool/bench/README.md) for the commands, requirements and what each number means.
+
+---
+
 ## License
 
 MIT, see [LICENSE](LICENSE) for details.
