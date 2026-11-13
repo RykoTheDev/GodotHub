@@ -542,6 +542,20 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String get check_updates_portable_title => '手動での更新が必要です';
 	@override String get check_updates_portable_desc => 'ポータブル版は自動更新に対応していません。GitHub から最新バージョンをダウンロードし、既存のファイルを置き換えてください。';
 	@override String get check_updates_download_from_github => 'GitHub からダウンロード';
+	@override String get check_updates_details => 'Update details';
+	@override String get check_updates_released => 'Released';
+	@override String get check_updates_source => 'Source';
+	@override String get check_updates_file => 'File';
+	@override String get check_updates_package => 'Package';
+	@override String get check_updates_signature => 'Signature';
+	@override String get check_updates_signature_checked => 'Checked with minisign before installing';
+	@override String get check_updates_view_release => 'View release on GitHub';
+	@override String get check_updates_progress_size => '{{downloaded}} of {{total}}';
+	@override String get check_updates_speed => '{{speed}}/s';
+	@override String get check_updates_time_left => 'About {{time}} left';
+	@override String get check_updates_from_host => 'From {{host}}';
+	@override String get check_updates_download_summary => 'Downloaded {{size}} in {{time}}';
+	@override String get check_updates_signature_verified => 'Signature verified';
 	@override String get preview_state_checking => '確認中';
 	@override String get preview_state_available => '利用可能';
 	@override String get preview_state_downloading => 'ダウンロード中';
@@ -659,7 +673,7 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String get asset_duplicate_desc => '「{{name}}」はすでにテンプレートに追加されています。重複してインストールしますか？';
 	@override String get empty_category => 'カテゴリは空です';
 	@override String get release_to_drop => 'ここにドロップ';
-	@override String get preview_release_notes => '## v1.0.0 の新着情報 - プレビューアップデート\\n\\n## 新機能\\n\\n- 更新確認モーダルを刷新し、リリースノートを構造化して表示\\n- アクセシビリティ設定タブとスクリーンリーダーの読み上げを追加\\n\\n## 修正\\n\\n- ピン留めしたプロジェクトがあるワークスペースを切り替えるとクラッシュする問題を修正\\n- GitHub のレート制限に達したときに更新確認が無言で失敗する問題を修正\\n\\n## 改善\\n\\n- すべてのプラットフォームで起動を高速化\\n- ワークスペースのモーダルを刷新し、スタイルの選択をコンパクトに\\n\\n## 既知の問題\\n\\n- Linux: 一部のディストリビューションでは AppImage が動作しません。.rpm または .deb パッケージを使用してください\\n- Windows: アプリを再起動するまで、タスクバーにアイコンが二重に表示されることがあります';
+	@override String get preview_release_notes => '## v1.0.0 の新着情報 - プレビューアップデート\n\n## 新機能\n\n- 更新確認モーダルを刷新し、リリースノートを構造化して表示\n- アクセシビリティ設定タブとスクリーンリーダーの読み上げを追加\n\n## 修正\n\n- ピン留めしたプロジェクトがあるワークスペースを切り替えるとクラッシュする問題を修正\n- GitHub のレート制限に達したときに更新確認が無言で失敗する問題を修正\n\n## 改善\n\n- すべてのプラットフォームで起動を高速化\n- ワークスペースのモーダルを刷新し、スタイルの選択をコンパクトに\n\n## 既知の問題\n\n- Linux: 一部のディストリビューションでは AppImage が動作しません。.rpm または .deb パッケージを使用してください\n- Windows: アプリを再起動するまで、タスクバーにアイコンが二重に表示されることがあります';
 	@override String get preview_error => 'プレビューエラー: GitHub API のレート制限に達しました（HTTP 403）。確認を続けるには、設定でトークンを追加してください。';
 	@override String get bug_report_system => 'システム';
 	@override String get bug_report_version => 'バージョン';
@@ -2578,6 +2592,20 @@ extension on TranslationsJaJp {
 			'common.check_updates_portable_title' => '手動での更新が必要です',
 			'common.check_updates_portable_desc' => 'ポータブル版は自動更新に対応していません。GitHub から最新バージョンをダウンロードし、既存のファイルを置き換えてください。',
 			'common.check_updates_download_from_github' => 'GitHub からダウンロード',
+			'common.check_updates_details' => 'Update details',
+			'common.check_updates_released' => 'Released',
+			'common.check_updates_source' => 'Source',
+			'common.check_updates_file' => 'File',
+			'common.check_updates_package' => 'Package',
+			'common.check_updates_signature' => 'Signature',
+			'common.check_updates_signature_checked' => 'Checked with minisign before installing',
+			'common.check_updates_view_release' => 'View release on GitHub',
+			'common.check_updates_progress_size' => '{{downloaded}} of {{total}}',
+			'common.check_updates_speed' => '{{speed}}/s',
+			'common.check_updates_time_left' => 'About {{time}} left',
+			'common.check_updates_from_host' => 'From {{host}}',
+			'common.check_updates_download_summary' => 'Downloaded {{size}} in {{time}}',
+			'common.check_updates_signature_verified' => 'Signature verified',
 			'common.preview_state_checking' => '確認中',
 			'common.preview_state_available' => '利用可能',
 			'common.preview_state_downloading' => 'ダウンロード中',
@@ -2613,6 +2641,8 @@ extension on TranslationsJaJp {
 			'common.task_tray_aria' => 'タスクトレイ',
 			'common.task_tray_auto_dismiss' => '完了したものを自動的に消す',
 			'common.task_tray_dismiss' => '{{count}} 件を消す',
+			_ => null,
+		} ?? switch (path) {
 			'common.task_error_status' => 'エラー',
 			'common.command_palette_title' => 'コマンドパレット',
 			'common.command_palette_placeholder' => 'コマンド、プロジェクト、エンジン、設定を検索…',
@@ -2627,8 +2657,6 @@ extension on TranslationsJaJp {
 			'common.setting_scan_depth' => 'スキャン深度',
 			'common.setting_icon_scan_depth' => 'プロジェクトアイコン検索深度',
 			'common.setting_download_concurrency' => '同時ダウンロード数',
-			_ => null,
-		} ?? switch (path) {
 			'common.setting_close_on_project_open' => 'プロジェクト起動時に終了',
 			'common.setting_minimize_to_tray' => 'システムトレイに最小化',
 			'common.setting_reopen_after_godot_closes' => 'Godot 終了後に再表示',
@@ -2691,7 +2719,7 @@ extension on TranslationsJaJp {
 			'common.asset_duplicate_desc' => '「{{name}}」はすでにテンプレートに追加されています。重複してインストールしますか？',
 			'common.empty_category' => 'カテゴリは空です',
 			'common.release_to_drop' => 'ここにドロップ',
-			'common.preview_release_notes' => '## v1.0.0 の新着情報 - プレビューアップデート\\n\\n## 新機能\\n\\n- 更新確認モーダルを刷新し、リリースノートを構造化して表示\\n- アクセシビリティ設定タブとスクリーンリーダーの読み上げを追加\\n\\n## 修正\\n\\n- ピン留めしたプロジェクトがあるワークスペースを切り替えるとクラッシュする問題を修正\\n- GitHub のレート制限に達したときに更新確認が無言で失敗する問題を修正\\n\\n## 改善\\n\\n- すべてのプラットフォームで起動を高速化\\n- ワークスペースのモーダルを刷新し、スタイルの選択をコンパクトに\\n\\n## 既知の問題\\n\\n- Linux: 一部のディストリビューションでは AppImage が動作しません。.rpm または .deb パッケージを使用してください\\n- Windows: アプリを再起動するまで、タスクバーにアイコンが二重に表示されることがあります',
+			'common.preview_release_notes' => '## v1.0.0 の新着情報 - プレビューアップデート\n\n## 新機能\n\n- 更新確認モーダルを刷新し、リリースノートを構造化して表示\n- アクセシビリティ設定タブとスクリーンリーダーの読み上げを追加\n\n## 修正\n\n- ピン留めしたプロジェクトがあるワークスペースを切り替えるとクラッシュする問題を修正\n- GitHub のレート制限に達したときに更新確認が無言で失敗する問題を修正\n\n## 改善\n\n- すべてのプラットフォームで起動を高速化\n- ワークスペースのモーダルを刷新し、スタイルの選択をコンパクトに\n\n## 既知の問題\n\n- Linux: 一部のディストリビューションでは AppImage が動作しません。.rpm または .deb パッケージを使用してください\n- Windows: アプリを再起動するまで、タスクバーにアイコンが二重に表示されることがあります',
 			'common.preview_error' => 'プレビューエラー: GitHub API のレート制限に達しました（HTTP 403）。確認を続けるには、設定でトークンを追加してください。',
 			'common.bug_report_system' => 'システム',
 			'common.bug_report_version' => 'バージョン',
@@ -3127,6 +3155,8 @@ extension on TranslationsJaJp {
 			'common.project_addons.matched_by_name' => '名前から「{{title}}」と判定',
 			'common.project_addons.update' => '更新',
 			'common.project_addons.updating' => '更新中…',
+			_ => null,
+		} ?? switch (path) {
 			'common.project_addons.updated' => '{{name}} を更新しました',
 			'common.project_addons.confirm_title' => '{{name}} を更新しますか？',
 			'common.project_addons.confirm_description' => 'res://addons/{{folder}} を、アセットライブラリのバージョン {{version}} に置き換えます。元のフォルダはゴミ箱に移動するため、アドオンに加えた変更はそちらに残ります。先に Godot でプロジェクトを閉じてください。',
@@ -3141,8 +3171,6 @@ extension on TranslationsJaJp {
 			'dashboard.greeting_morning' => 'おはようございます',
 			'dashboard.greeting_afternoon' => 'こんにちは',
 			'dashboard.greeting_evening' => 'こんばんは',
-			_ => null,
-		} ?? switch (path) {
 			'dashboard.greeting_night' => 'お疲れさまです',
 			'dashboard.greeting_name' => '{{greeting}}、{{name}} さん',
 			'dashboard.dashboard_rename_hint' => '表示名を設定',
@@ -3641,6 +3669,8 @@ extension on TranslationsJaJp {
 			'settings.discord_app_id_desc' => 'Discord Developer Portal でアプリケーションを作成し、そのアプリケーション ID をここに貼り付けると、GodotHub の組み込みのものではなく自分のアプリケーションを使えます。アクティビティはそのアプリケーション名で表示されます。',
 			'settings.discord_developer_portal' => 'Discord Developer Portal',
 			'settings.discord_builtin_hint' => '組み込みの GodotHub アプリケーションを使用しています。',
+			_ => null,
+		} ?? switch (path) {
 			'settings.discord_show_projects_label' => 'プロジェクト名を表示',
 			'settings.discord_excluded_label' => '除外するプロジェクト',
 			'settings.discord_exclude_project' => 'プロジェクトを追加',
@@ -3655,8 +3685,6 @@ extension on TranslationsJaJp {
 			'settings.interface_label' => 'インターフェース',
 			'settings.card_layout_label' => 'カードレイアウト',
 			'settings.landing_tab_label' => '起動時に表示する画面',
-			_ => null,
-		} ?? switch (path) {
 			'settings.language_complete' => '翻訳済み',
 			'settings.language_beta' => 'ベータ',
 			'settings.language_incomplete' => '一部未翻訳',

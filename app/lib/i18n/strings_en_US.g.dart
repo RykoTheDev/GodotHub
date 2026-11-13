@@ -1476,6 +1476,48 @@ class Translations$common$en_US {
 	/// en-US: 'Download from GitHub'
 	String get check_updates_download_from_github => 'Download from GitHub';
 
+	/// en-US: 'Update details'
+	String get check_updates_details => 'Update details';
+
+	/// en-US: 'Released'
+	String get check_updates_released => 'Released';
+
+	/// en-US: 'Source'
+	String get check_updates_source => 'Source';
+
+	/// en-US: 'File'
+	String get check_updates_file => 'File';
+
+	/// en-US: 'Package'
+	String get check_updates_package => 'Package';
+
+	/// en-US: 'Signature'
+	String get check_updates_signature => 'Signature';
+
+	/// en-US: 'Checked with minisign before installing'
+	String get check_updates_signature_checked => 'Checked with minisign before installing';
+
+	/// en-US: 'View release on GitHub'
+	String get check_updates_view_release => 'View release on GitHub';
+
+	/// en-US: '{{downloaded}} of {{total}}'
+	String get check_updates_progress_size => '{{downloaded}} of {{total}}';
+
+	/// en-US: '{{speed}}/s'
+	String get check_updates_speed => '{{speed}}/s';
+
+	/// en-US: 'About {{time}} left'
+	String get check_updates_time_left => 'About {{time}} left';
+
+	/// en-US: 'From {{host}}'
+	String get check_updates_from_host => 'From {{host}}';
+
+	/// en-US: 'Downloaded {{size}} in {{time}}'
+	String get check_updates_download_summary => 'Downloaded {{size}} in {{time}}';
+
+	/// en-US: 'Signature verified'
+	String get check_updates_signature_verified => 'Signature verified';
+
 	/// en-US: 'Checking'
 	String get preview_state_checking => 'Checking';
 
@@ -1818,8 +1860,8 @@ class Translations$common$en_US {
 	/// en-US: 'Release to drop'
 	String get release_to_drop => 'Release to drop';
 
-	/// en-US: '## What's new in v1.0.0 - The Preview Update\\n\\n## New\\n\\n- Revamped the Check for Updates modal with structured release notes\\n- Added screen reader announcements with an Accessibility settings tab\\n\\n## Fixes\\n\\n- Fixed a crash when switching workspaces with pinned projects\\n- Fixed update checks failing silently when GitHub rate limits are hit\\n\\n## Improvements\\n\\n- Faster startup times across all platforms\\n- Reworked workspace modals with compact style pickers\\n\\n## Known Issues\\n\\n- Linux OS: AppImage won't work on some distros, use the .rpm or .deb package instead\\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts'
-	String get preview_release_notes => '## What\'s new in v1.0.0 - The Preview Update\\n\\n## New\\n\\n- Revamped the Check for Updates modal with structured release notes\\n- Added screen reader announcements with an Accessibility settings tab\\n\\n## Fixes\\n\\n- Fixed a crash when switching workspaces with pinned projects\\n- Fixed update checks failing silently when GitHub rate limits are hit\\n\\n## Improvements\\n\\n- Faster startup times across all platforms\\n- Reworked workspace modals with compact style pickers\\n\\n## Known Issues\\n\\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts';
+	/// en-US: '## What's new in v1.0.0 - The Preview Update ## New - Revamped the Check for Updates modal with structured release notes - Added screen reader announcements with an Accessibility settings tab ## Fixes - Fixed a crash when switching workspaces with pinned projects - Fixed update checks failing silently when GitHub rate limits are hit ## Improvements - Faster startup times across all platforms - Reworked workspace modals with compact style pickers ## Known Issues - Linux OS: AppImage won't work on some distros, use the .rpm or .deb package instead - Windows: the taskbar may briefly show a duplicate icon until the app restarts'
+	String get preview_release_notes => '## What\'s new in v1.0.0 - The Preview Update\n\n## New\n\n- Revamped the Check for Updates modal with structured release notes\n- Added screen reader announcements with an Accessibility settings tab\n\n## Fixes\n\n- Fixed a crash when switching workspaces with pinned projects\n- Fixed update checks failing silently when GitHub rate limits are hit\n\n## Improvements\n\n- Faster startup times across all platforms\n- Reworked workspace modals with compact style pickers\n\n## Known Issues\n\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts';
 
 	/// en-US: 'Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking.'
 	String get preview_error => 'Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking.';
@@ -6318,6 +6360,20 @@ extension on Translations {
 			'common.check_updates_portable_title' => 'Manual update required',
 			'common.check_updates_portable_desc' => 'Portable installs cannot auto-update. Download the latest version from GitHub and replace the existing files.',
 			'common.check_updates_download_from_github' => 'Download from GitHub',
+			'common.check_updates_details' => 'Update details',
+			'common.check_updates_released' => 'Released',
+			'common.check_updates_source' => 'Source',
+			'common.check_updates_file' => 'File',
+			'common.check_updates_package' => 'Package',
+			'common.check_updates_signature' => 'Signature',
+			'common.check_updates_signature_checked' => 'Checked with minisign before installing',
+			'common.check_updates_view_release' => 'View release on GitHub',
+			'common.check_updates_progress_size' => '{{downloaded}} of {{total}}',
+			'common.check_updates_speed' => '{{speed}}/s',
+			'common.check_updates_time_left' => 'About {{time}} left',
+			'common.check_updates_from_host' => 'From {{host}}',
+			'common.check_updates_download_summary' => 'Downloaded {{size}} in {{time}}',
+			'common.check_updates_signature_verified' => 'Signature verified',
 			'common.preview_state_checking' => 'Checking',
 			'common.preview_state_available' => 'Available',
 			'common.preview_state_downloading' => 'Downloading',
@@ -6353,6 +6409,8 @@ extension on Translations {
 			'common.task_tray_aria' => 'Task Tray',
 			'common.task_tray_auto_dismiss' => 'Completed auto-dismiss',
 			'common.task_tray_dismiss' => 'Dismiss {{count}}',
+			_ => null,
+		} ?? switch (path) {
 			'common.task_error_status' => 'Error',
 			'common.command_palette_title' => 'Command Palette',
 			'common.command_palette_placeholder' => 'Search commands, projects, engines, settings…',
@@ -6367,8 +6425,6 @@ extension on Translations {
 			'common.setting_scan_depth' => 'Scan Depth',
 			'common.setting_icon_scan_depth' => 'Project Icon Search Depth',
 			'common.setting_download_concurrency' => 'Simultaneous Downloads',
-			_ => null,
-		} ?? switch (path) {
 			'common.setting_close_on_project_open' => 'Close on Project Open',
 			'common.setting_minimize_to_tray' => 'Minimize to System Tray',
 			'common.setting_reopen_after_godot_closes' => 'Reopen After Godot Closes',
@@ -6431,7 +6487,7 @@ extension on Translations {
 			'common.asset_duplicate_desc' => '"{{name}}" is already in your templates. Install a duplicate anyway?',
 			'common.empty_category' => 'Empty Category',
 			'common.release_to_drop' => 'Release to drop',
-			'common.preview_release_notes' => '## What\'s new in v1.0.0 - The Preview Update\\n\\n## New\\n\\n- Revamped the Check for Updates modal with structured release notes\\n- Added screen reader announcements with an Accessibility settings tab\\n\\n## Fixes\\n\\n- Fixed a crash when switching workspaces with pinned projects\\n- Fixed update checks failing silently when GitHub rate limits are hit\\n\\n## Improvements\\n\\n- Faster startup times across all platforms\\n- Reworked workspace modals with compact style pickers\\n\\n## Known Issues\\n\\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts',
+			'common.preview_release_notes' => '## What\'s new in v1.0.0 - The Preview Update\n\n## New\n\n- Revamped the Check for Updates modal with structured release notes\n- Added screen reader announcements with an Accessibility settings tab\n\n## Fixes\n\n- Fixed a crash when switching workspaces with pinned projects\n- Fixed update checks failing silently when GitHub rate limits are hit\n\n## Improvements\n\n- Faster startup times across all platforms\n- Reworked workspace modals with compact style pickers\n\n## Known Issues\n\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts',
 			'common.preview_error' => 'Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking.',
 			'common.bug_report_system' => 'System',
 			'common.bug_report_version' => 'Version',
@@ -6867,6 +6923,8 @@ extension on Translations {
 			'common.project_addons.matched_by_name' => 'matched by name to “{{title}}”',
 			'common.project_addons.update' => 'Update',
 			'common.project_addons.updating' => 'Updating…',
+			_ => null,
+		} ?? switch (path) {
 			'common.project_addons.updated' => '{{name}} was updated',
 			'common.project_addons.confirm_title' => 'Update {{name}}?',
 			'common.project_addons.confirm_description' => 'This replaces res://addons/{{folder}} with version {{version}} from the Asset Library. The old folder is moved to the Trash, so any changes you made to the addon are kept there. Close the project in Godot first.',
@@ -6881,8 +6939,6 @@ extension on Translations {
 			'dashboard.greeting_morning' => 'Good morning',
 			'dashboard.greeting_afternoon' => 'Good afternoon',
 			'dashboard.greeting_evening' => 'Good evening',
-			_ => null,
-		} ?? switch (path) {
 			'dashboard.greeting_night' => 'Good night',
 			'dashboard.greeting_name' => '{{greeting}}, {{name}}',
 			'dashboard.dashboard_rename_hint' => 'Set a custom name',
@@ -7381,6 +7437,8 @@ extension on Translations {
 			'settings.discord_app_id_desc' => 'Create an application in the Discord Developer Portal and paste its Application ID here to use your own instead of GodotHub\'s built-in one. The activity shows under that application\'s name.',
 			'settings.discord_developer_portal' => 'Discord Developer Portal',
 			'settings.discord_builtin_hint' => 'Using the built-in GodotHub application.',
+			_ => null,
+		} ?? switch (path) {
 			'settings.discord_show_projects_label' => 'Show project names',
 			'settings.discord_excluded_label' => 'Excluded projects',
 			'settings.discord_exclude_project' => 'Add project',
@@ -7395,8 +7453,6 @@ extension on Translations {
 			'settings.interface_label' => 'Interface',
 			'settings.card_layout_label' => 'Card layout',
 			'settings.landing_tab_label' => 'Default landing page',
-			_ => null,
-		} ?? switch (path) {
 			'settings.language_complete' => 'Complete',
 			'settings.language_beta' => 'Beta',
 			'settings.language_incomplete' => 'Incomplete',

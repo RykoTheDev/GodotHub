@@ -554,6 +554,20 @@ class _Translations$common$pt_BR extends Translations$common$en_US {
 	@override String get check_updates_portable_title => 'Atualização manual necessária';
 	@override String get check_updates_portable_desc => 'Instalações portáteis não podem ser atualizadas automaticamente. Baixe a versão mais recente no GitHub e substitua os arquivos existentes.';
 	@override String get check_updates_download_from_github => 'Baixar do GitHub';
+	@override String get check_updates_details => 'Update details';
+	@override String get check_updates_released => 'Released';
+	@override String get check_updates_source => 'Source';
+	@override String get check_updates_file => 'File';
+	@override String get check_updates_package => 'Package';
+	@override String get check_updates_signature => 'Signature';
+	@override String get check_updates_signature_checked => 'Checked with minisign before installing';
+	@override String get check_updates_view_release => 'View release on GitHub';
+	@override String get check_updates_progress_size => '{{downloaded}} of {{total}}';
+	@override String get check_updates_speed => '{{speed}}/s';
+	@override String get check_updates_time_left => 'About {{time}} left';
+	@override String get check_updates_from_host => 'From {{host}}';
+	@override String get check_updates_download_summary => 'Downloaded {{size}} in {{time}}';
+	@override String get check_updates_signature_verified => 'Signature verified';
 	@override String get preview_state_checking => 'Verificando';
 	@override String get preview_state_available => 'Disponível';
 	@override String get preview_state_downloading => 'Baixando';
@@ -677,7 +691,7 @@ class _Translations$common$pt_BR extends Translations$common$en_US {
 	@override String get asset_duplicate_desc => '"{{name}}" já está nos seus templates. Deseja instalar uma cópia mesmo assim?';
 	@override String get empty_category => 'Categoria vazia';
 	@override String get release_to_drop => 'Solte para mover';
-	@override String get preview_release_notes => '## Novidades da v1.0.0 - Atualização de prévia\\n\\n## Novidades\\n\\n- Reformulação da janela Verificar atualizações com notas da versão estruturadas\\n- Adicionados anúncios para leitores de tela e uma seção de Acessibilidade nas configurações\\n\\n## Correções\\n\\n- Corrigida uma falha ao trocar de espaço de trabalho com projetos fixados\\n- Corrigidas verificações de atualização que falhavam silenciosamente ao atingir o limite de requisições da API do GitHub\\n\\n## Melhorias\\n\\n- Inicialização mais rápida em todas as plataformas\\n- Reformulação das janelas de espaço de trabalho com seletores de estilo compactos\\n\\n## Problemas conhecidos\\n\\n- Linux: o AppImage pode não funcionar em algumas distribuições; use o pacote .rpm ou .deb\\n- Windows: a barra de tarefas pode exibir brevemente um ícone duplicado até que o aplicativo seja reiniciado';
+	@override String get preview_release_notes => '## Novidades da v1.0.0 - Atualização de prévia\n\n## Novidades\n\n- Reformulação da janela Verificar atualizações com notas da versão estruturadas\n- Adicionados anúncios para leitores de tela e uma seção de Acessibilidade nas configurações\n\n## Correções\n\n- Corrigida uma falha ao trocar de espaço de trabalho com projetos fixados\n- Corrigidas verificações de atualização que falhavam silenciosamente ao atingir o limite de requisições da API do GitHub\n\n## Melhorias\n\n- Inicialização mais rápida em todas as plataformas\n- Reformulação das janelas de espaço de trabalho com seletores de estilo compactos\n\n## Problemas conhecidos\n\n- Linux: o AppImage pode não funcionar em algumas distribuições; use o pacote .rpm ou .deb\n- Windows: a barra de tarefas pode exibir brevemente um ícone duplicado até que o aplicativo seja reiniciado';
 	@override String get preview_error => 'Erro de prévia: o limite de requisições da API do GitHub foi atingido (HTTP 403). Adicione um token nas Configurações para continuar verificando.';
 	@override String get bug_report_system => 'Sistema';
 	@override String get bug_report_version => 'Versão';
@@ -2678,6 +2692,20 @@ extension on TranslationsPtBr {
 			'common.check_updates_portable_title' => 'Atualização manual necessária',
 			'common.check_updates_portable_desc' => 'Instalações portáteis não podem ser atualizadas automaticamente. Baixe a versão mais recente no GitHub e substitua os arquivos existentes.',
 			'common.check_updates_download_from_github' => 'Baixar do GitHub',
+			'common.check_updates_details' => 'Update details',
+			'common.check_updates_released' => 'Released',
+			'common.check_updates_source' => 'Source',
+			'common.check_updates_file' => 'File',
+			'common.check_updates_package' => 'Package',
+			'common.check_updates_signature' => 'Signature',
+			'common.check_updates_signature_checked' => 'Checked with minisign before installing',
+			'common.check_updates_view_release' => 'View release on GitHub',
+			'common.check_updates_progress_size' => '{{downloaded}} of {{total}}',
+			'common.check_updates_speed' => '{{speed}}/s',
+			'common.check_updates_time_left' => 'About {{time}} left',
+			'common.check_updates_from_host' => 'From {{host}}',
+			'common.check_updates_download_summary' => 'Downloaded {{size}} in {{time}}',
+			'common.check_updates_signature_verified' => 'Signature verified',
 			'common.preview_state_checking' => 'Verificando',
 			'common.preview_state_available' => 'Disponível',
 			'common.preview_state_downloading' => 'Baixando',
@@ -2713,6 +2741,8 @@ extension on TranslationsPtBr {
 			'common.task_tray_aria' => 'Bandeja do sistema',
 			'common.task_tray_auto_dismiss' => 'Concluídas são dispensadas automaticamente',
 			'common.task_tray_dismiss' => 'Dispensar {{count}}',
+			_ => null,
+		} ?? switch (path) {
 			'common.task_error_status' => 'Erro',
 			'common.command_palette_title' => 'Menu de comandos',
 			'common.command_palette_placeholder' => 'Pesquisar comandos, projetos, versões da Godot e configurações…',
@@ -2727,8 +2757,6 @@ extension on TranslationsPtBr {
 			'common.setting_scan_depth' => 'Profundidade da busca',
 			'common.setting_icon_scan_depth' => 'Profundidade da busca de ícones do projeto',
 			'common.setting_download_concurrency' => 'Downloads simultâneos',
-			_ => null,
-		} ?? switch (path) {
 			'common.setting_close_on_project_open' => 'Fechar ao abrir projeto',
 			'common.setting_minimize_to_tray' => 'Minimizar para a bandeja do sistema',
 			'common.setting_reopen_after_godot_closes' => 'Reabrir após fechar o Godot',
@@ -2791,7 +2819,7 @@ extension on TranslationsPtBr {
 			'common.asset_duplicate_desc' => '"{{name}}" já está nos seus templates. Deseja instalar uma cópia mesmo assim?',
 			'common.empty_category' => 'Categoria vazia',
 			'common.release_to_drop' => 'Solte para mover',
-			'common.preview_release_notes' => '## Novidades da v1.0.0 - Atualização de prévia\\n\\n## Novidades\\n\\n- Reformulação da janela Verificar atualizações com notas da versão estruturadas\\n- Adicionados anúncios para leitores de tela e uma seção de Acessibilidade nas configurações\\n\\n## Correções\\n\\n- Corrigida uma falha ao trocar de espaço de trabalho com projetos fixados\\n- Corrigidas verificações de atualização que falhavam silenciosamente ao atingir o limite de requisições da API do GitHub\\n\\n## Melhorias\\n\\n- Inicialização mais rápida em todas as plataformas\\n- Reformulação das janelas de espaço de trabalho com seletores de estilo compactos\\n\\n## Problemas conhecidos\\n\\n- Linux: o AppImage pode não funcionar em algumas distribuições; use o pacote .rpm ou .deb\\n- Windows: a barra de tarefas pode exibir brevemente um ícone duplicado até que o aplicativo seja reiniciado',
+			'common.preview_release_notes' => '## Novidades da v1.0.0 - Atualização de prévia\n\n## Novidades\n\n- Reformulação da janela Verificar atualizações com notas da versão estruturadas\n- Adicionados anúncios para leitores de tela e uma seção de Acessibilidade nas configurações\n\n## Correções\n\n- Corrigida uma falha ao trocar de espaço de trabalho com projetos fixados\n- Corrigidas verificações de atualização que falhavam silenciosamente ao atingir o limite de requisições da API do GitHub\n\n## Melhorias\n\n- Inicialização mais rápida em todas as plataformas\n- Reformulação das janelas de espaço de trabalho com seletores de estilo compactos\n\n## Problemas conhecidos\n\n- Linux: o AppImage pode não funcionar em algumas distribuições; use o pacote .rpm ou .deb\n- Windows: a barra de tarefas pode exibir brevemente um ícone duplicado até que o aplicativo seja reiniciado',
 			'common.preview_error' => 'Erro de prévia: o limite de requisições da API do GitHub foi atingido (HTTP 403). Adicione um token nas Configurações para continuar verificando.',
 			'common.bug_report_system' => 'Sistema',
 			'common.bug_report_version' => 'Versão',
@@ -3227,6 +3255,8 @@ extension on TranslationsPtBr {
 			'common.project_addons.matched_by_name' => 'matched by name to “{{title}}”',
 			'common.project_addons.update' => 'Update',
 			'common.project_addons.updating' => 'Updating…',
+			_ => null,
+		} ?? switch (path) {
 			'common.project_addons.updated' => '{{name}} was updated',
 			'common.project_addons.confirm_title' => 'Update {{name}}?',
 			'common.project_addons.confirm_description' => 'This replaces res://addons/{{folder}} with version {{version}} from the Asset Library. The old folder is moved to the Trash, so any changes you made to the addon are kept there. Close the project in Godot first.',
@@ -3241,8 +3271,6 @@ extension on TranslationsPtBr {
 			'dashboard.greeting_morning' => 'Bom dia',
 			'dashboard.greeting_afternoon' => 'Boa tarde',
 			'dashboard.greeting_evening' => 'Boa noite',
-			_ => null,
-		} ?? switch (path) {
 			'dashboard.greeting_night' => 'Boa noite',
 			'dashboard.greeting_name' => '{{greeting}}, {{name}}',
 			'dashboard.dashboard_rename_hint' => 'Definir um nome personalizado',
@@ -3741,6 +3769,8 @@ extension on TranslationsPtBr {
 			'settings.discord_app_id_desc' => 'Crie um aplicativo no Discord Developer Portal e cole aqui o ID do aplicativo para usar o seu em vez do padrão integrado do GodotHub. A atividade será exibida com o nome desse aplicativo.',
 			'settings.discord_developer_portal' => 'Discord Developer Portal',
 			'settings.discord_builtin_hint' => 'Usando o aplicativo integrado do GodotHub.',
+			_ => null,
+		} ?? switch (path) {
 			'settings.discord_show_projects_label' => 'Mostrar nomes dos projetos',
 			'settings.discord_excluded_label' => 'Projetos excluídos',
 			'settings.discord_exclude_project' => 'Adicionar projeto',
@@ -3755,8 +3785,6 @@ extension on TranslationsPtBr {
 			'settings.interface_label' => 'Interface',
 			'settings.card_layout_label' => 'Layout em cartões',
 			'settings.landing_tab_label' => 'Página inicial padrão',
-			_ => null,
-		} ?? switch (path) {
 			'settings.language_complete' => 'Completo',
 			'settings.language_beta' => 'Beta',
 			'settings.language_incomplete' => 'Incompleto',

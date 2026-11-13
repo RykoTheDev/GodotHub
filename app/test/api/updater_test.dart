@@ -53,9 +53,11 @@ void main() {
     final update = await UpdaterApi.check();
     expect(update!.version, '1.6.0');
     expect(update.body, '### New\n- x');
-    final progress = <double>[];
-    await update.downloadAndInstall(progress.add, githubToken: 'ghp_x');
-    expect(progress, [0, 0.5, 1]);
+    expect(update.downloadUrl, 'https://example.com/setup.exe');
+    expect(update.package, 'windows-x86_64-nsis');
+    final progress = <(int, int?)>[];
+    await update.downloadAndInstall((p) => progress.add((p.downloaded, p.total)), githubToken: 'ghp_x');
+    expect(progress, [(0, 100), (50, 100), (50, 100)]);
     expect(token, 'ghp_x');
   });
 
@@ -63,5 +65,32 @@ void main() {
     installFakeRust().on('crateApiUpdaterCheckForUpdate', () async => null);
     expect(await UpdaterApi.check(), isNull);
     expect(await UpdaterApi.isUpdateAvailable(), isFalse);
+  });
+
+  test('the download source comes from the release URL', () {
+    final source = updateSourceFrom('https://github.com/RykoTheDev/godothub/releases/download/flutter-v0.2.0/GodotHub-Beta-0.2.0-windows-x64-setup.exe');
+    expect(source.host, 'github.com');
+    expect(source.file, 'GodotHub-Beta-0.2.0-windows-x64-setup.exe');
+    expect(source.releaseUrl, 'https://github.com/RykoTheDev/godothub/releases/tag/flutter-v0.2.0');
+    final other = updateSourceFrom('https://cdn.example.com/files/GodotHub%20Setup.exe');
+    expect(other.host, 'cdn.example.com');
+    expect(other.file, 'GodotHub Setup.exe');
+    expect(other.releaseUrl, isNull);
+    expect(updateSourceFrom(null).host, isNull);
+    expect(updateSourceFrom('not a url').host, isNull);
+  });
+
+  test('speed is averaged over recent samples and gives the time left', () {
+    final meter = DownloadSpeedMeter();
+    expect(meter.sample(0, 1000, Duration.zero).speed, isNull);
+    final half = meter.sample(500, 1000, const Duration(seconds: 1));
+    expect(half.speed, 500);
+    expect(half.eta, const Duration(seconds: 1));
+    meter.sample(600, 1000, const Duration(seconds: 2));
+    meter.sample(700, 1000, const Duration(seconds: 3));
+    final later = meter.sample(800, 1000, const Duration(seconds: 5));
+    expect(later.speed, closeTo(66.67, 0.01));
+    expect(later.eta, const Duration(seconds: 3));
+    expect(DownloadSpeedMeter().sample(10, null, Duration.zero).eta, isNull);
   });
 }

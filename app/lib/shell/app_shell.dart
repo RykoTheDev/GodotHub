@@ -484,7 +484,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       connected: !cardLayout,
       paletteKey: settings.commandPaletteKeybind.isEmpty ? 'p' : settings.commandPaletteKeybind,
       onOpenCommandPalette: _openPalette,
-      onOpenUpdatesModal: _openUpdates,
+      onOpenUpdatesModal: () => _openUpdates(preview: update.previewUpdate && !update.updateAvailable),
       updateAvailable: update.updateAvailable || update.previewUpdate,
       workspacesEnabled: settings.workspacesEnabled,
       fixedResizeKnob: settings.fixedSidebarResizeKnob,

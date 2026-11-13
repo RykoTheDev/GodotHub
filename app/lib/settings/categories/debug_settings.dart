@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../api/api.dart';
 import '../../api/settings.dart';
+import '../../api/updater.dart';
 import '../../design/design.dart';
 import '../../logic/debug_mode.dart';
 import '../../logic/settings_copy.dart';
@@ -18,6 +19,7 @@ import '../../state/app_signals.dart';
 import '../../state/app_version.dart';
 import '../../state/settings.dart';
 import '../../state/shell_signals.dart';
+import '../../state/update_available.dart';
 import '../../ui/core/interaction.dart';
 import '../../ui/feedback/toast.dart';
 
@@ -223,6 +225,34 @@ class _DebugSettingsState extends ConsumerState<DebugSettings> {
               label: 'Show announcement banner',
               description: 'Displays the one-time bottom banner now, ignoring the 30-minute usage timer and the dismissed flag.',
               children: [_DebugButton(label: 'Show', onPressed: () => AppSignals.emit(showAnnouncementSignal))],
+            ),
+          ],
+        ),
+        _DebugSection(
+          title: 'Updater',
+          description: 'See the update flow without a real release. The preview uses a made-up version, file, speed and progress, and never downloads or installs anything.',
+          children: [
+            _DebugRow(
+              label: 'Preview update modal',
+              description: 'Opens Check for Updates in preview mode. Use the state chips at the top to jump between checking, available, downloading, done, up to date, portable and error.',
+              children: [_DebugButton(label: 'Preview', onPressed: () => AppSignals.emit(previewUpdateModalSignal))],
+            ),
+            _DebugRow(
+              label: 'Fake update badge',
+              description: 'Shows the "update available" badge in the sidebar. Clicking it opens the preview.',
+              children: [
+                _DebugButton(
+                  label: ref.watch(updateAvailableProvider.select((s) => s.previewUpdate)) ? 'Turn off' : 'Turn on',
+                  onPressed: () => ref.read(updateAvailableProvider.notifier).togglePreviewUpdate(),
+                ),
+              ],
+            ),
+            _DebugRow(
+              label: 'Build version',
+              description: appBuildVersion.isEmpty
+                  ? 'APP_VERSION is not set, so the background update check is off. Pass --dart-define=APP_VERSION=x.y.z to test real updates.'
+                  : 'Built as $appBuildVersion. The background update check compares against this version.',
+              children: const [],
             ),
           ],
         ),

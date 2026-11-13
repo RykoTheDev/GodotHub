@@ -541,6 +541,20 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String get check_updates_portable_title => '需要手动更新';
 	@override String get check_updates_portable_desc => '便携式安装无法自动更新。请从 GitHub 下载最新版本并替换现有文件。';
 	@override String get check_updates_download_from_github => '从 GitHub 下载';
+	@override String get check_updates_details => 'Update details';
+	@override String get check_updates_released => 'Released';
+	@override String get check_updates_source => 'Source';
+	@override String get check_updates_file => 'File';
+	@override String get check_updates_package => 'Package';
+	@override String get check_updates_signature => 'Signature';
+	@override String get check_updates_signature_checked => 'Checked with minisign before installing';
+	@override String get check_updates_view_release => 'View release on GitHub';
+	@override String get check_updates_progress_size => '{{downloaded}} of {{total}}';
+	@override String get check_updates_speed => '{{speed}}/s';
+	@override String get check_updates_time_left => 'About {{time}} left';
+	@override String get check_updates_from_host => 'From {{host}}';
+	@override String get check_updates_download_summary => 'Downloaded {{size}} in {{time}}';
+	@override String get check_updates_signature_verified => 'Signature verified';
 	@override String get preview_state_checking => '检查中';
 	@override String get preview_state_available => '有可用更新';
 	@override String get preview_state_downloading => '下载中';
@@ -658,7 +672,7 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String get asset_duplicate_desc => '"{{name}}" 已在你的模板中。是否安装副本？';
 	@override String get empty_category => '空分类';
 	@override String get release_to_drop => '释放鼠标以放置';
-	@override String get preview_release_notes => '## v1.0.0 预览版更新内容\\n\\n## 新功能\\n\\n- 重做检查更新弹窗，使用结构化发布说明\\n- 添加无障碍设置页和屏幕阅读器播报\\n\\n## 修复\\n\\n- 修复切换工作区时置顶项目导致的崩溃\\n- 修复 GitHub 触发速率限制时更新检查静默失败的问题\\n\\n## 改进\\n\\n- 提升所有平台的启动速度\\n- 重做工作区弹窗，采用紧凑的样式选择器\\n\\n## 已知问题\\n\\n- Linux：部分发行版无法使用 AppImage，请改用 .rpm 或 .deb 安装包\\n- Windows：应用重启前，任务栏可能短暂显示重复图标';
+	@override String get preview_release_notes => '## v1.0.0 预览版更新内容\n\n## 新功能\n\n- 重做检查更新弹窗，使用结构化发布说明\n- 添加无障碍设置页和屏幕阅读器播报\n\n## 修复\n\n- 修复切换工作区时置顶项目导致的崩溃\n- 修复 GitHub 触发速率限制时更新检查静默失败的问题\n\n## 改进\n\n- 提升所有平台的启动速度\n- 重做工作区弹窗，采用紧凑的样式选择器\n\n## 已知问题\n\n- Linux：部分发行版无法使用 AppImage，请改用 .rpm 或 .deb 安装包\n- Windows：应用重启前，任务栏可能短暂显示重复图标';
 	@override String get preview_error => '预览错误：GitHub API 已达到速率限制（HTTP 403）。请在设置中添加令牌以继续检查。';
 	@override String get bug_report_system => '系统';
 	@override String get bug_report_version => '版本';
@@ -2576,6 +2590,20 @@ extension on TranslationsZhCn {
 			'common.check_updates_portable_title' => '需要手动更新',
 			'common.check_updates_portable_desc' => '便携式安装无法自动更新。请从 GitHub 下载最新版本并替换现有文件。',
 			'common.check_updates_download_from_github' => '从 GitHub 下载',
+			'common.check_updates_details' => 'Update details',
+			'common.check_updates_released' => 'Released',
+			'common.check_updates_source' => 'Source',
+			'common.check_updates_file' => 'File',
+			'common.check_updates_package' => 'Package',
+			'common.check_updates_signature' => 'Signature',
+			'common.check_updates_signature_checked' => 'Checked with minisign before installing',
+			'common.check_updates_view_release' => 'View release on GitHub',
+			'common.check_updates_progress_size' => '{{downloaded}} of {{total}}',
+			'common.check_updates_speed' => '{{speed}}/s',
+			'common.check_updates_time_left' => 'About {{time}} left',
+			'common.check_updates_from_host' => 'From {{host}}',
+			'common.check_updates_download_summary' => 'Downloaded {{size}} in {{time}}',
+			'common.check_updates_signature_verified' => 'Signature verified',
 			'common.preview_state_checking' => '检查中',
 			'common.preview_state_available' => '有可用更新',
 			'common.preview_state_downloading' => '下载中',
@@ -2611,6 +2639,8 @@ extension on TranslationsZhCn {
 			'common.task_tray_aria' => '任务托盘',
 			'common.task_tray_auto_dismiss' => '已完成自动关闭',
 			'common.task_tray_dismiss' => '隐藏 {{count}} 个任务',
+			_ => null,
+		} ?? switch (path) {
 			'common.task_error_status' => '错误',
 			'common.command_palette_title' => '命令面板',
 			'common.command_palette_placeholder' => '搜索命令、项目、引擎、设置…',
@@ -2625,8 +2655,6 @@ extension on TranslationsZhCn {
 			'common.setting_scan_depth' => '扫描深度',
 			'common.setting_icon_scan_depth' => '项目图标搜索深度',
 			'common.setting_download_concurrency' => '同时下载数',
-			_ => null,
-		} ?? switch (path) {
 			'common.setting_close_on_project_open' => '打开项目时关闭应用',
 			'common.setting_minimize_to_tray' => '最小化到系统托盘',
 			'common.setting_reopen_after_godot_closes' => 'Godot 关闭后重新打开',
@@ -2689,7 +2717,7 @@ extension on TranslationsZhCn {
 			'common.asset_duplicate_desc' => '"{{name}}" 已在你的模板中。是否安装副本？',
 			'common.empty_category' => '空分类',
 			'common.release_to_drop' => '释放鼠标以放置',
-			'common.preview_release_notes' => '## v1.0.0 预览版更新内容\\n\\n## 新功能\\n\\n- 重做检查更新弹窗，使用结构化发布说明\\n- 添加无障碍设置页和屏幕阅读器播报\\n\\n## 修复\\n\\n- 修复切换工作区时置顶项目导致的崩溃\\n- 修复 GitHub 触发速率限制时更新检查静默失败的问题\\n\\n## 改进\\n\\n- 提升所有平台的启动速度\\n- 重做工作区弹窗，采用紧凑的样式选择器\\n\\n## 已知问题\\n\\n- Linux：部分发行版无法使用 AppImage，请改用 .rpm 或 .deb 安装包\\n- Windows：应用重启前，任务栏可能短暂显示重复图标',
+			'common.preview_release_notes' => '## v1.0.0 预览版更新内容\n\n## 新功能\n\n- 重做检查更新弹窗，使用结构化发布说明\n- 添加无障碍设置页和屏幕阅读器播报\n\n## 修复\n\n- 修复切换工作区时置顶项目导致的崩溃\n- 修复 GitHub 触发速率限制时更新检查静默失败的问题\n\n## 改进\n\n- 提升所有平台的启动速度\n- 重做工作区弹窗，采用紧凑的样式选择器\n\n## 已知问题\n\n- Linux：部分发行版无法使用 AppImage，请改用 .rpm 或 .deb 安装包\n- Windows：应用重启前，任务栏可能短暂显示重复图标',
 			'common.preview_error' => '预览错误：GitHub API 已达到速率限制（HTTP 403）。请在设置中添加令牌以继续检查。',
 			'common.bug_report_system' => '系统',
 			'common.bug_report_version' => '版本',
@@ -3125,6 +3153,8 @@ extension on TranslationsZhCn {
 			'common.project_addons.matched_by_name' => '按名称匹配到“{{title}}”',
 			'common.project_addons.update' => '更新',
 			'common.project_addons.updating' => '正在更新…',
+			_ => null,
+		} ?? switch (path) {
 			'common.project_addons.updated' => '{{name}} 已更新',
 			'common.project_addons.confirm_title' => '更新 {{name}}？',
 			'common.project_addons.confirm_description' => '这将用资源库中的版本 {{version}} 替换 res://addons/{{folder}}。旧文件夹会被移到回收站，因此你对插件所做的任何更改都会保留在那里。请先在 Godot 中关闭项目。',
@@ -3139,8 +3169,6 @@ extension on TranslationsZhCn {
 			'dashboard.greeting_morning' => '早上好',
 			'dashboard.greeting_afternoon' => '下午好',
 			'dashboard.greeting_evening' => '晚上好',
-			_ => null,
-		} ?? switch (path) {
 			'dashboard.greeting_night' => '晚安',
 			'dashboard.greeting_name' => '{{greeting}}, {{name}}',
 			'dashboard.dashboard_rename_hint' => '设置自定义名称',
@@ -3639,6 +3667,8 @@ extension on TranslationsZhCn {
 			'settings.discord_app_id_desc' => '在 Discord 开发者门户中创建应用程序，然后在此粘贴其应用程序 ID，以使用你自己的应用替代 GodotHub 内置应用。活动将显示在该应用程序名称下。',
 			'settings.discord_developer_portal' => 'Discord 开发者门户',
 			'settings.discord_builtin_hint' => '使用内置的 GodotHub 应用程序。',
+			_ => null,
+		} ?? switch (path) {
 			'settings.discord_show_projects_label' => '显示项目名称',
 			'settings.discord_excluded_label' => '排除的项目',
 			'settings.discord_exclude_project' => '添加项目',
@@ -3653,8 +3683,6 @@ extension on TranslationsZhCn {
 			'settings.interface_label' => '界面',
 			'settings.card_layout_label' => '卡片布局',
 			'settings.landing_tab_label' => '默认启动页面',
-			_ => null,
-		} ?? switch (path) {
 			'settings.language_complete' => '完整',
 			'settings.language_beta' => '测试版',
 			'settings.language_incomplete' => '未完成',

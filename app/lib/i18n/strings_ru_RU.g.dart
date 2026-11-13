@@ -560,6 +560,20 @@ class _Translations$common$ru_RU extends Translations$common$en_US {
 	@override String get check_updates_portable_title => 'Manual update required';
 	@override String get check_updates_portable_desc => 'Portable installs cannot auto-update. Download the latest version from GitHub and replace the existing files.';
 	@override String get check_updates_download_from_github => 'Скачать с GitHub';
+	@override String get check_updates_details => 'Update details';
+	@override String get check_updates_released => 'Released';
+	@override String get check_updates_source => 'Source';
+	@override String get check_updates_file => 'File';
+	@override String get check_updates_package => 'Package';
+	@override String get check_updates_signature => 'Signature';
+	@override String get check_updates_signature_checked => 'Checked with minisign before installing';
+	@override String get check_updates_view_release => 'View release on GitHub';
+	@override String get check_updates_progress_size => '{{downloaded}} of {{total}}';
+	@override String get check_updates_speed => '{{speed}}/s';
+	@override String get check_updates_time_left => 'About {{time}} left';
+	@override String get check_updates_from_host => 'From {{host}}';
+	@override String get check_updates_download_summary => 'Downloaded {{size}} in {{time}}';
+	@override String get check_updates_signature_verified => 'Signature verified';
 	@override String get preview_state_checking => 'Проверка';
 	@override String get preview_state_available => 'Доступно';
 	@override String get preview_state_downloading => 'Загрузка';
@@ -686,7 +700,7 @@ class _Translations$common$ru_RU extends Translations$common$en_US {
 	@override String get asset_duplicate_desc => '"{{name}}" is already in your templates. Install a duplicate anyway?';
 	@override String get empty_category => 'Empty Category';
 	@override String get release_to_drop => 'Release to drop';
-	@override String get preview_release_notes => '## What\'s new in v1.0.0 - The Preview Update\\n\\n## New\\n\\n- Revamped the Check for Updates modal with structured release notes\\n- Added screen reader announcements with an Accessibility settings tab\\n\\n## Fixes\\n\\n- Fixed a crash when switching workspaces with pinned projects\\n- Fixed update checks failing silently when GitHub rate limits are hit\\n\\n## Improvements\\n\\n- Faster startup times across all platforms\\n- Reworked workspace modals with compact style pickers\\n\\n## Known Issues\\n\\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts';
+	@override String get preview_release_notes => '## What\'s new in v1.0.0 - The Preview Update\n\n## New\n\n- Revamped the Check for Updates modal with structured release notes\n- Added screen reader announcements with an Accessibility settings tab\n\n## Fixes\n\n- Fixed a crash when switching workspaces with pinned projects\n- Fixed update checks failing silently when GitHub rate limits are hit\n\n## Improvements\n\n- Faster startup times across all platforms\n- Reworked workspace modals with compact style pickers\n\n## Known Issues\n\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts';
 	@override String get preview_error => 'Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking.';
 	@override String get bug_report_system => 'System';
 	@override String get bug_report_version => 'Version';
@@ -2728,6 +2742,20 @@ extension on TranslationsRuRu {
 			'common.check_updates_portable_title' => 'Manual update required',
 			'common.check_updates_portable_desc' => 'Portable installs cannot auto-update. Download the latest version from GitHub and replace the existing files.',
 			'common.check_updates_download_from_github' => 'Скачать с GitHub',
+			'common.check_updates_details' => 'Update details',
+			'common.check_updates_released' => 'Released',
+			'common.check_updates_source' => 'Source',
+			'common.check_updates_file' => 'File',
+			'common.check_updates_package' => 'Package',
+			'common.check_updates_signature' => 'Signature',
+			'common.check_updates_signature_checked' => 'Checked with minisign before installing',
+			'common.check_updates_view_release' => 'View release on GitHub',
+			'common.check_updates_progress_size' => '{{downloaded}} of {{total}}',
+			'common.check_updates_speed' => '{{speed}}/s',
+			'common.check_updates_time_left' => 'About {{time}} left',
+			'common.check_updates_from_host' => 'From {{host}}',
+			'common.check_updates_download_summary' => 'Downloaded {{size}} in {{time}}',
+			'common.check_updates_signature_verified' => 'Signature verified',
 			'common.preview_state_checking' => 'Проверка',
 			'common.preview_state_available' => 'Доступно',
 			'common.preview_state_downloading' => 'Загрузка',
@@ -2763,6 +2791,8 @@ extension on TranslationsRuRu {
 			'common.task_tray_aria' => 'Панель задач',
 			'common.task_tray_auto_dismiss' => 'Завершённые задачи автоматически скрываются',
 			'common.task_tray_dismiss' => 'Скрыть {{count}}',
+			_ => null,
+		} ?? switch (path) {
 			'common.task_error_status' => 'Ошибка',
 			'common.command_palette_title' => 'Command Palette',
 			'common.command_palette_placeholder' => 'Найти команду, проект, версию, настройки...',
@@ -2777,8 +2807,6 @@ extension on TranslationsRuRu {
 			'common.setting_scan_depth' => 'Scan Depth',
 			'common.setting_icon_scan_depth' => 'Project Icon Search Depth',
 			'common.setting_download_concurrency' => 'Simultaneous Downloads',
-			_ => null,
-		} ?? switch (path) {
 			'common.setting_close_on_project_open' => 'Close on Project Open',
 			'common.setting_minimize_to_tray' => 'Minimize to System Tray',
 			'common.setting_reopen_after_godot_closes' => 'Reopen After Godot Closes',
@@ -2841,7 +2869,7 @@ extension on TranslationsRuRu {
 			'common.asset_duplicate_desc' => '"{{name}}" is already in your templates. Install a duplicate anyway?',
 			'common.empty_category' => 'Empty Category',
 			'common.release_to_drop' => 'Release to drop',
-			'common.preview_release_notes' => '## What\'s new in v1.0.0 - The Preview Update\\n\\n## New\\n\\n- Revamped the Check for Updates modal with structured release notes\\n- Added screen reader announcements with an Accessibility settings tab\\n\\n## Fixes\\n\\n- Fixed a crash when switching workspaces with pinned projects\\n- Fixed update checks failing silently when GitHub rate limits are hit\\n\\n## Improvements\\n\\n- Faster startup times across all platforms\\n- Reworked workspace modals with compact style pickers\\n\\n## Known Issues\\n\\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts',
+			'common.preview_release_notes' => '## What\'s new in v1.0.0 - The Preview Update\n\n## New\n\n- Revamped the Check for Updates modal with structured release notes\n- Added screen reader announcements with an Accessibility settings tab\n\n## Fixes\n\n- Fixed a crash when switching workspaces with pinned projects\n- Fixed update checks failing silently when GitHub rate limits are hit\n\n## Improvements\n\n- Faster startup times across all platforms\n- Reworked workspace modals with compact style pickers\n\n## Known Issues\n\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts',
 			'common.preview_error' => 'Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking.',
 			'common.bug_report_system' => 'System',
 			'common.bug_report_version' => 'Version',
@@ -3277,6 +3305,8 @@ extension on TranslationsRuRu {
 			'common.project_addons.matched_by_name' => 'matched by name to “{{title}}”',
 			'common.project_addons.update' => 'Update',
 			'common.project_addons.updating' => 'Updating…',
+			_ => null,
+		} ?? switch (path) {
 			'common.project_addons.updated' => '{{name}} was updated',
 			'common.project_addons.confirm_title' => 'Update {{name}}?',
 			'common.project_addons.confirm_description' => 'This replaces res://addons/{{folder}} with version {{version}} from the Asset Library. The old folder is moved to the Trash, so any changes you made to the addon are kept there. Close the project in Godot first.',
@@ -3291,8 +3321,6 @@ extension on TranslationsRuRu {
 			'dashboard.greeting_morning' => 'Good morning',
 			'dashboard.greeting_afternoon' => 'Good afternoon',
 			'dashboard.greeting_evening' => 'Good evening',
-			_ => null,
-		} ?? switch (path) {
 			'dashboard.greeting_night' => 'Good night',
 			'dashboard.greeting_name' => '{{greeting}}, {{name}}',
 			'dashboard.dashboard_rename_hint' => 'Set a custom name',
@@ -3791,6 +3819,8 @@ extension on TranslationsRuRu {
 			'settings.discord_app_id_desc' => 'Create an application in the Discord Developer Portal and paste its Application ID here to use your own instead of GodotHub\'s built-in one. The activity shows under that application\'s name.',
 			'settings.discord_developer_portal' => 'Discord Developer Portal',
 			'settings.discord_builtin_hint' => 'Using the built-in GodotHub application.',
+			_ => null,
+		} ?? switch (path) {
 			'settings.discord_show_projects_label' => 'Show project names',
 			'settings.discord_excluded_label' => 'Excluded projects',
 			'settings.discord_exclude_project' => 'Add project',
@@ -3805,8 +3835,6 @@ extension on TranslationsRuRu {
 			'settings.interface_label' => 'Interface',
 			'settings.card_layout_label' => 'Card layout',
 			'settings.landing_tab_label' => 'Default landing page',
-			_ => null,
-		} ?? switch (path) {
 			'settings.language_complete' => 'Complete',
 			'settings.language_beta' => 'Beta',
 			'settings.language_incomplete' => 'Incomplete',

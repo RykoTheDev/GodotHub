@@ -21,6 +21,7 @@ import 'package:godothub/state/app_signals.dart';
 import 'package:godothub/state/app_version.dart';
 import 'package:godothub/state/contributors.dart';
 import 'package:godothub/state/shell_signals.dart';
+import 'package:godothub/state/update_available.dart';
 import 'package:godothub/ui/core/i18n.dart';
 import 'package:godothub/ui/feedback/toast.dart';
 import 'package:godothub/ui/feedback/toast_host.dart';
@@ -209,6 +210,39 @@ void main() {
     await base.settle(tester, 2);
     expect(isDebugUnlocked, isFalse);
     await base.drainToasts(tester);
+  });
+
+  testWidgets('debug updater tools open the preview and fake the update badge', (tester) async {
+    setDebugUnlocked(true);
+    final signals = <String>[];
+    final sub = AppSignals.all.listen((s) => signals.add(s.name));
+    addTearDown(sub.cancel);
+    late WidgetRef widgetRef;
+    await pumpBody(
+      tester,
+      Consumer(
+        builder: (context, ref, _) {
+          widgetRef = ref;
+          return const DebugSettings(channel: 'stable');
+        },
+      ),
+    );
+    expect(find.text('Updater'), findsOneWidget);
+    expect(find.textContaining('APP_VERSION is not set'), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Preview'));
+    await tester.tap(find.text('Preview'));
+    await tester.pump();
+    expect(signals, contains(previewUpdateModalSignal));
+
+    expect(widgetRef.read(updateAvailableProvider).previewUpdate, isFalse);
+    await tester.tap(find.text('Turn on'));
+    await tester.pump();
+    expect(widgetRef.read(updateAvailableProvider).previewUpdate, isTrue);
+    expect(find.text('Turn off'), findsOneWidget);
+    await tester.tap(find.text('Turn off'));
+    await tester.pump();
+    expect(widgetRef.read(updateAvailableProvider).previewUpdate, isFalse);
   });
 
   testWidgets('debug copy info writes settings JSON to the clipboard', (tester) async {
