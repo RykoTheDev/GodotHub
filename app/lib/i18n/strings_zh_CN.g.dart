@@ -537,7 +537,6 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String get check_updates_rate_limited_token_hint => '已保存的 GitHub 令牌被拒绝，可能已过期或被吊销。请在设置中测试该令牌，必要时请更换。';
 	@override String get check_updates_add_token => '添加 GitHub 令牌';
 	@override String get check_updates_open_token_settings => '打开令牌设置';
-	@override String get check_updates_preview_badge => '预览';
 	@override String get check_updates_portable_title => '需要手动更新';
 	@override String get check_updates_portable_desc => '便携式安装无法自动更新。请从 GitHub 下载最新版本并替换现有文件。';
 	@override String get check_updates_download_from_github => '从 GitHub 下载';
@@ -555,14 +554,6 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String get check_updates_from_host => 'From {{host}}';
 	@override String get check_updates_download_summary => 'Downloaded {{size}} in {{time}}';
 	@override String get check_updates_signature_verified => 'Signature verified';
-	@override String get preview_state_checking => '检查中';
-	@override String get preview_state_available => '有可用更新';
-	@override String get preview_state_downloading => '下载中';
-	@override String get preview_state_done => '已完成';
-	@override String get preview_state_uptodate => '已是最新';
-	@override String get preview_state_error => '出错';
-	@override String get preview_state_portable => '便携版';
-	@override String get preview_update_modal => '预览更新弹窗';
 	@override String get clone_repo_title => '克隆仓库';
 	@override String get clone_repo_url_label => '仓库 URL';
 	@override String get clone_repo_url_placeholder => 'https://github.com/user/my-game.git';
@@ -672,8 +663,6 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String get asset_duplicate_desc => '"{{name}}" 已在你的模板中。是否安装副本？';
 	@override String get empty_category => '空分类';
 	@override String get release_to_drop => '释放鼠标以放置';
-	@override String get preview_release_notes => '## v1.0.0 预览版更新内容\n\n## 新功能\n\n- 重做检查更新弹窗，使用结构化发布说明\n- 添加无障碍设置页和屏幕阅读器播报\n\n## 修复\n\n- 修复切换工作区时置顶项目导致的崩溃\n- 修复 GitHub 触发速率限制时更新检查静默失败的问题\n\n## 改进\n\n- 提升所有平台的启动速度\n- 重做工作区弹窗，采用紧凑的样式选择器\n\n## 已知问题\n\n- Linux：部分发行版无法使用 AppImage，请改用 .rpm 或 .deb 安装包\n- Windows：应用重启前，任务栏可能短暂显示重复图标';
-	@override String get preview_error => '预览错误：GitHub API 已达到速率限制（HTTP 403）。请在设置中添加令牌以继续检查。';
 	@override String get bug_report_system => '系统';
 	@override String get bug_report_version => '版本';
 	@override String get bug_report_date => '日期';
@@ -2586,7 +2575,6 @@ extension on TranslationsZhCn {
 			'common.check_updates_rate_limited_token_hint' => '已保存的 GitHub 令牌被拒绝，可能已过期或被吊销。请在设置中测试该令牌，必要时请更换。',
 			'common.check_updates_add_token' => '添加 GitHub 令牌',
 			'common.check_updates_open_token_settings' => '打开令牌设置',
-			'common.check_updates_preview_badge' => '预览',
 			'common.check_updates_portable_title' => '需要手动更新',
 			'common.check_updates_portable_desc' => '便携式安装无法自动更新。请从 GitHub 下载最新版本并替换现有文件。',
 			'common.check_updates_download_from_github' => '从 GitHub 下载',
@@ -2604,14 +2592,6 @@ extension on TranslationsZhCn {
 			'common.check_updates_from_host' => 'From {{host}}',
 			'common.check_updates_download_summary' => 'Downloaded {{size}} in {{time}}',
 			'common.check_updates_signature_verified' => 'Signature verified',
-			'common.preview_state_checking' => '检查中',
-			'common.preview_state_available' => '有可用更新',
-			'common.preview_state_downloading' => '下载中',
-			'common.preview_state_done' => '已完成',
-			'common.preview_state_uptodate' => '已是最新',
-			'common.preview_state_error' => '出错',
-			'common.preview_state_portable' => '便携版',
-			'common.preview_update_modal' => '预览更新弹窗',
 			'common.clone_repo_title' => '克隆仓库',
 			'common.clone_repo_url_label' => '仓库 URL',
 			'common.clone_repo_url_placeholder' => 'https://github.com/user/my-game.git',
@@ -2639,8 +2619,6 @@ extension on TranslationsZhCn {
 			'common.task_tray_aria' => '任务托盘',
 			'common.task_tray_auto_dismiss' => '已完成自动关闭',
 			'common.task_tray_dismiss' => '隐藏 {{count}} 个任务',
-			_ => null,
-		} ?? switch (path) {
 			'common.task_error_status' => '错误',
 			'common.command_palette_title' => '命令面板',
 			'common.command_palette_placeholder' => '搜索命令、项目、引擎、设置…',
@@ -2650,6 +2628,8 @@ extension on TranslationsZhCn {
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
 			'common.setting_project_scan_dirs' => '扫描项目文件夹',
 			'common.setting_version_scan_dirs' => '扫描版本文件夹',
+			_ => null,
+		} ?? switch (path) {
 			'common.setting_default_project_location' => '默认项目位置',
 			'common.setting_download_dir' => '下载版本位置',
 			'common.setting_scan_depth' => '扫描深度',
@@ -2717,8 +2697,6 @@ extension on TranslationsZhCn {
 			'common.asset_duplicate_desc' => '"{{name}}" 已在你的模板中。是否安装副本？',
 			'common.empty_category' => '空分类',
 			'common.release_to_drop' => '释放鼠标以放置',
-			'common.preview_release_notes' => '## v1.0.0 预览版更新内容\n\n## 新功能\n\n- 重做检查更新弹窗，使用结构化发布说明\n- 添加无障碍设置页和屏幕阅读器播报\n\n## 修复\n\n- 修复切换工作区时置顶项目导致的崩溃\n- 修复 GitHub 触发速率限制时更新检查静默失败的问题\n\n## 改进\n\n- 提升所有平台的启动速度\n- 重做工作区弹窗，采用紧凑的样式选择器\n\n## 已知问题\n\n- Linux：部分发行版无法使用 AppImage，请改用 .rpm 或 .deb 安装包\n- Windows：应用重启前，任务栏可能短暂显示重复图标',
-			'common.preview_error' => '预览错误：GitHub API 已达到速率限制（HTTP 403）。请在设置中添加令牌以继续检查。',
 			'common.bug_report_system' => '系统',
 			'common.bug_report_version' => '版本',
 			'common.bug_report_date' => '日期',
@@ -3153,8 +3131,6 @@ extension on TranslationsZhCn {
 			'common.project_addons.matched_by_name' => '按名称匹配到“{{title}}”',
 			'common.project_addons.update' => '更新',
 			'common.project_addons.updating' => '正在更新…',
-			_ => null,
-		} ?? switch (path) {
 			'common.project_addons.updated' => '{{name}} 已更新',
 			'common.project_addons.confirm_title' => '更新 {{name}}？',
 			'common.project_addons.confirm_description' => '这将用资源库中的版本 {{version}} 替换 res://addons/{{folder}}。旧文件夹会被移到回收站，因此你对插件所做的任何更改都会保留在那里。请先在 Godot 中关闭项目。',
@@ -3166,6 +3142,8 @@ extension on TranslationsZhCn {
 			'common.date_next_month' => '下个月',
 			'common.date_change_due' => '更改截止日期: {{date}}',
 			'common.date_add_due' => '添加截止日期',
+			_ => null,
+		} ?? switch (path) {
 			'dashboard.greeting_morning' => '早上好',
 			'dashboard.greeting_afternoon' => '下午好',
 			'dashboard.greeting_evening' => '晚上好',
@@ -3667,8 +3645,6 @@ extension on TranslationsZhCn {
 			'settings.discord_app_id_desc' => '在 Discord 开发者门户中创建应用程序，然后在此粘贴其应用程序 ID，以使用你自己的应用替代 GodotHub 内置应用。活动将显示在该应用程序名称下。',
 			'settings.discord_developer_portal' => 'Discord 开发者门户',
 			'settings.discord_builtin_hint' => '使用内置的 GodotHub 应用程序。',
-			_ => null,
-		} ?? switch (path) {
 			'settings.discord_show_projects_label' => '显示项目名称',
 			'settings.discord_excluded_label' => '排除的项目',
 			'settings.discord_exclude_project' => '添加项目',
@@ -3680,6 +3656,8 @@ extension on TranslationsZhCn {
 			'settings.discord_custom_state_placeholder' => '状态文本',
 			'settings.discord_custom_remove' => '删除自定义状态',
 			'settings.search_placeholder' => '搜索设置…',
+			_ => null,
+		} ?? switch (path) {
 			'settings.interface_label' => '界面',
 			'settings.card_layout_label' => '卡片布局',
 			'settings.landing_tab_label' => '默认启动页面',

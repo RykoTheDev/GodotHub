@@ -27,6 +27,17 @@ export '../api/updater.dart' show AppUpdate, UpdateDownloadProgress;
 const latestReleaseUrl = 'https://github.com/RykoTheDev/GodotHub/releases/latest';
 const previewUpdateVersion = '1.0.0';
 const previewUpdateSize = 92 * 1024 * 1024;
+const previewReleaseNotes = '## What\'s new in v1.0.0 - The Preview Update\n\n## New\n\n- Revamped the Check for Updates modal with structured release notes\n- Added screen reader announcements with an Accessibility settings tab\n\n## Fixes\n\n- Fixed a crash when switching workspaces with pinned projects\n- Fixed update checks failing silently when GitHub rate limits are hit\n\n## Improvements\n\n- Faster startup times across all platforms\n- Reworked workspace modals with compact style pickers\n\n## Known Issues\n\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts';
+const previewError = 'Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking.';
+const previewStateLabels = {
+  UpdateStateType.checking: 'Checking',
+  UpdateStateType.available: 'Available',
+  UpdateStateType.downloading: 'Downloading',
+  UpdateStateType.done: 'Done',
+  UpdateStateType.uptodate: 'Up to date',
+  UpdateStateType.portable: 'Portable',
+  UpdateStateType.error: 'Error',
+};
 const previewUpdateUrl = 'https://github.com/RykoTheDev/GodotHub/releases/download/v1.0.0/GodotHub-1.0.0-setup.exe';
 
 class DownloadStats {
@@ -203,7 +214,7 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
 
   AppUpdate get _previewUpdate => AppUpdate(
     version: previewUpdateVersion,
-    body: ghTr('preview_release_notes'),
+    body: previewReleaseNotes,
     date: DateTime.now().toUtc().toIso8601String(),
     downloadUrl: previewUpdateUrl,
     package: 'windows-x86_64-nsis',
@@ -224,7 +235,7 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
     final update = _previewUpdate;
     _type = UpdateStateType.available;
     _version = previewUpdateVersion;
-    _notes = ghTr('preview_release_notes');
+    _notes = previewReleaseNotes;
     _install = _simulateDownload;
     _date = update.date;
     _package = update.package;
@@ -259,7 +270,7 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
       _set(
         UpdateStateType.available,
         version: previewUpdateVersion,
-        notes: ghTr('preview_release_notes'),
+        notes: previewReleaseNotes,
         install: _simulateDownload,
         update: _previewUpdate,
       );
@@ -334,7 +345,7 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
         _set(
           UpdateStateType.available,
           version: previewUpdateVersion,
-          notes: ghTr('preview_release_notes'),
+          notes: previewReleaseNotes,
           install: _simulateDownload,
           update: _previewUpdate,
         );
@@ -356,9 +367,9 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
       case UpdateStateType.uptodate:
         _set(UpdateStateType.uptodate);
       case UpdateStateType.portable:
-        _set(UpdateStateType.portable, version: previewUpdateVersion, notes: ghTr('preview_release_notes'));
+        _set(UpdateStateType.portable, version: previewUpdateVersion, notes: previewReleaseNotes);
       case UpdateStateType.error:
-        _set(UpdateStateType.error, message: ghTr('preview_error'));
+        _set(UpdateStateType.error, message: previewError);
     }
   }
 
@@ -410,7 +421,7 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
           padding: EdgeInsets.symmetric(horizontal: theme.space(2), vertical: theme.space(0.5)),
           decoration: BoxDecoration(color: theme.amber.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(theme.radiusTag)),
           child: Text(
-            ghTr('check_updates_preview_badge').toUpperCase(),
+            'PREVIEW',
             style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: theme.amber, letterSpacingEm: 0.05),
           ),
         ),
@@ -433,7 +444,7 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
                     ),
                     padding: EdgeInsets.symmetric(horizontal: theme.space(2.5), vertical: theme.space(1)),
                     child: Text(
-                      ghTr('preview_state_${s.name}'),
+                      previewStateLabels[s]!,
                       style: theme.text(
                         size: GhTextSize.x3s,
                         weight: GhWeight.medium,

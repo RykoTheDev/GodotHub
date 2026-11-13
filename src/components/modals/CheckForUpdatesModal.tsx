@@ -43,6 +43,40 @@ const PREVIEW_VERSION = '1.0.0'
 
 const PREVIEW_SIZE = 92 * 1024 * 1024
 
+const PREVIEW_RELEASE_NOTES = `## What's new in v1.0.0 - The Preview Update
+
+## New
+
+- Revamped the Check for Updates modal with structured release notes
+- Added screen reader announcements with an Accessibility settings tab
+
+## Fixes
+
+- Fixed a crash when switching workspaces with pinned projects
+- Fixed update checks failing silently when GitHub rate limits are hit
+
+## Improvements
+
+- Faster startup times across all platforms
+- Reworked workspace modals with compact style pickers
+
+## Known Issues
+
+- Linux OS: AppImage won't work on some distros, use the .rpm or .deb package instead
+- Windows: the taskbar may briefly show a duplicate icon until the app restarts`
+
+const PREVIEW_ERROR = "Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking."
+
+const PREVIEW_STATE_LABELS: Record<(typeof PREVIEW_STATES)[number], string> = {
+  checking: 'Checking',
+  available: 'Available',
+  downloading: 'Downloading',
+  done: 'Done',
+  uptodate: 'Up to date',
+  portable: 'Portable',
+  error: 'Error',
+}
+
 interface UpdateSource {
   host: string | null
   file: string | null
@@ -214,7 +248,7 @@ export function CheckForUpdatesModal({
       ? {
           type: 'available',
           version: PREVIEW_VERSION,
-          notes: t('preview_release_notes'),
+          notes: PREVIEW_RELEASE_NOTES,
           date: new Date().toISOString(),
           source: PREVIEW_SOURCE,
           downloadAndInstall: () => Promise.resolve(),
@@ -282,7 +316,7 @@ export function CheckForUpdatesModal({
       setState({
         type: 'available',
         version: PREVIEW_VERSION,
-        notes: t('preview_release_notes'),
+        notes: PREVIEW_RELEASE_NOTES,
         date: new Date().toISOString(),
         source: PREVIEW_SOURCE,
         downloadAndInstall: simulateDownload,
@@ -399,7 +433,7 @@ export function CheckForUpdatesModal({
         setState({
           type: 'available',
           version: PREVIEW_VERSION,
-          notes: t('preview_release_notes'),
+          notes: PREVIEW_RELEASE_NOTES,
           date: new Date().toISOString(),
           source: PREVIEW_SOURCE,
           downloadAndInstall: simulateDownload,
@@ -440,14 +474,13 @@ export function CheckForUpdatesModal({
         setState({
           type: 'portable',
           version: PREVIEW_VERSION,
-          notes: t('preview_release_notes'),
+          notes: PREVIEW_RELEASE_NOTES,
         })
         break
       case 'error':
         setState({
           type: 'error',
-          message:
-            t('preview_error'),
+          message: PREVIEW_ERROR,
         })
         break
     }
@@ -487,7 +520,7 @@ export function CheckForUpdatesModal({
           {isPreview && (
             <div className="w-full flex flex-col items-center gap-2.5">
               <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-tag bg-amber/15 text-amber text-3xs font-semibold uppercase tracking-wider">
-                {t('check_updates_preview_badge')}
+                Preview
               </span>
               <div className="flex flex-wrap items-center justify-center gap-1.5">
                 {PREVIEW_STATES.map((s) => (
@@ -501,7 +534,7 @@ export function CheckForUpdatesModal({
                         : 'bg-raised border-line text-muted hover:text-ink hover:border-accent-dim'
                     }`}
                   >
-                    {t(`preview_state_${s}`)}
+                    {PREVIEW_STATE_LABELS[s]}
                   </button>
                 ))}
               </div>

@@ -538,7 +538,6 @@ class _Translations$common$vi_VN extends Translations$common$en_US {
 	@override String get check_updates_rate_limited_token_hint => 'Token GitHub đã lưu bị từ chối. Có thể đã hết hạn hoặc bị thu hồi. Kiểm tra trong Cài đặt và thay thế nếu cần.';
 	@override String get check_updates_add_token => 'Thêm token GitHub';
 	@override String get check_updates_open_token_settings => 'Mở cài đặt Token';
-	@override String get check_updates_preview_badge => 'Xem trước';
 	@override String get check_updates_portable_title => 'Manual update required';
 	@override String get check_updates_portable_desc => 'Portable installs cannot auto-update. Download the latest version from GitHub and replace the existing files.';
 	@override String get check_updates_download_from_github => 'Download from GitHub';
@@ -556,14 +555,6 @@ class _Translations$common$vi_VN extends Translations$common$en_US {
 	@override String get check_updates_from_host => 'From {{host}}';
 	@override String get check_updates_download_summary => 'Downloaded {{size}} in {{time}}';
 	@override String get check_updates_signature_verified => 'Signature verified';
-	@override String get preview_state_checking => 'Đang kiểm tra';
-	@override String get preview_state_available => 'Có sẵn';
-	@override String get preview_state_downloading => 'Đang tải';
-	@override String get preview_state_done => 'Xong';
-	@override String get preview_state_uptodate => 'Đã cập nhật';
-	@override String get preview_state_error => 'Lỗi';
-	@override String get preview_state_portable => 'Portable';
-	@override String get preview_update_modal => 'Xem trước hộp thoại cập nhật';
 	@override String get clone_repo_title => 'Sao chép Repository';
 	@override String get clone_repo_url_label => 'URL Repository';
 	@override String get clone_repo_url_placeholder => 'https://github.com/user/my-game.git';
@@ -673,8 +664,6 @@ class _Translations$common$vi_VN extends Translations$common$en_US {
 	@override String get asset_duplicate_desc => '"{{name}}" is already in your templates. Install a duplicate anyway?';
 	@override String get empty_category => 'Empty Category';
 	@override String get release_to_drop => 'Release to drop';
-	@override String get preview_release_notes => '## What\'s new in v1.0.0 - The Preview Update\n\n## New\n\n- Revamped the Check for Updates modal with structured release notes\n- Added screen reader announcements with an Accessibility settings tab\n\n## Fixes\n\n- Fixed a crash when switching workspaces with pinned projects\n- Fixed update checks failing silently when GitHub rate limits are hit\n\n## Improvements\n\n- Faster startup times across all platforms\n- Reworked workspace modals with compact style pickers\n\n## Known Issues\n\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts';
-	@override String get preview_error => 'Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking.';
 	@override String get bug_report_system => 'System';
 	@override String get bug_report_version => 'Version';
 	@override String get bug_report_date => 'Date';
@@ -2588,7 +2577,6 @@ extension on TranslationsViVn {
 			'common.check_updates_rate_limited_token_hint' => 'Token GitHub đã lưu bị từ chối. Có thể đã hết hạn hoặc bị thu hồi. Kiểm tra trong Cài đặt và thay thế nếu cần.',
 			'common.check_updates_add_token' => 'Thêm token GitHub',
 			'common.check_updates_open_token_settings' => 'Mở cài đặt Token',
-			'common.check_updates_preview_badge' => 'Xem trước',
 			'common.check_updates_portable_title' => 'Manual update required',
 			'common.check_updates_portable_desc' => 'Portable installs cannot auto-update. Download the latest version from GitHub and replace the existing files.',
 			'common.check_updates_download_from_github' => 'Download from GitHub',
@@ -2606,14 +2594,6 @@ extension on TranslationsViVn {
 			'common.check_updates_from_host' => 'From {{host}}',
 			'common.check_updates_download_summary' => 'Downloaded {{size}} in {{time}}',
 			'common.check_updates_signature_verified' => 'Signature verified',
-			'common.preview_state_checking' => 'Đang kiểm tra',
-			'common.preview_state_available' => 'Có sẵn',
-			'common.preview_state_downloading' => 'Đang tải',
-			'common.preview_state_done' => 'Xong',
-			'common.preview_state_uptodate' => 'Đã cập nhật',
-			'common.preview_state_error' => 'Lỗi',
-			'common.preview_state_portable' => 'Portable',
-			'common.preview_update_modal' => 'Xem trước hộp thoại cập nhật',
 			'common.clone_repo_title' => 'Sao chép Repository',
 			'common.clone_repo_url_label' => 'URL Repository',
 			'common.clone_repo_url_placeholder' => 'https://github.com/user/my-game.git',
@@ -2641,8 +2621,6 @@ extension on TranslationsViVn {
 			'common.task_tray_aria' => 'Khay tác vụ',
 			'common.task_tray_auto_dismiss' => 'Tự ẩn khi hoàn thành',
 			'common.task_tray_dismiss' => 'Ẩn {{count}}',
-			_ => null,
-		} ?? switch (path) {
 			'common.task_error_status' => 'Lỗi',
 			'common.command_palette_title' => 'Bảng lệnh',
 			'common.command_palette_placeholder' => 'Tìm lệnh, dự án, engine, cài đặt…',
@@ -2652,6 +2630,8 @@ extension on TranslationsViVn {
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
 			'common.setting_project_scan_dirs' => 'Scan Project Folders',
 			'common.setting_version_scan_dirs' => 'Scan Version Folders',
+			_ => null,
+		} ?? switch (path) {
 			'common.setting_default_project_location' => 'Default Project Location Setting',
 			'common.setting_download_dir' => 'Download Versions Location Setting',
 			'common.setting_scan_depth' => 'Scan Depth',
@@ -2719,8 +2699,6 @@ extension on TranslationsViVn {
 			'common.asset_duplicate_desc' => '"{{name}}" is already in your templates. Install a duplicate anyway?',
 			'common.empty_category' => 'Empty Category',
 			'common.release_to_drop' => 'Release to drop',
-			'common.preview_release_notes' => '## What\'s new in v1.0.0 - The Preview Update\n\n## New\n\n- Revamped the Check for Updates modal with structured release notes\n- Added screen reader announcements with an Accessibility settings tab\n\n## Fixes\n\n- Fixed a crash when switching workspaces with pinned projects\n- Fixed update checks failing silently when GitHub rate limits are hit\n\n## Improvements\n\n- Faster startup times across all platforms\n- Reworked workspace modals with compact style pickers\n\n## Known Issues\n\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts',
-			'common.preview_error' => 'Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking.',
 			'common.bug_report_system' => 'System',
 			'common.bug_report_version' => 'Version',
 			'common.bug_report_date' => 'Date',
@@ -3155,8 +3133,6 @@ extension on TranslationsViVn {
 			'common.project_addons.matched_by_name' => 'matched by name to “{{title}}”',
 			'common.project_addons.update' => 'Update',
 			'common.project_addons.updating' => 'Updating…',
-			_ => null,
-		} ?? switch (path) {
 			'common.project_addons.updated' => '{{name}} was updated',
 			'common.project_addons.confirm_title' => 'Update {{name}}?',
 			'common.project_addons.confirm_description' => 'This replaces res://addons/{{folder}} with version {{version}} from the Asset Library. The old folder is moved to the Trash, so any changes you made to the addon are kept there. Close the project in Godot first.',
@@ -3168,6 +3144,8 @@ extension on TranslationsViVn {
 			'common.date_next_month' => 'Next month',
 			'common.date_change_due' => 'Change due date: {{date}}',
 			'common.date_add_due' => 'Add due date',
+			_ => null,
+		} ?? switch (path) {
 			'dashboard.greeting_morning' => 'Chào buổi sáng',
 			'dashboard.greeting_afternoon' => 'Chào buổi chiều',
 			'dashboard.greeting_evening' => 'Chào buổi tối',
@@ -3669,8 +3647,6 @@ extension on TranslationsViVn {
 			'settings.discord_app_id_desc' => 'Tạo ứng dụng trong Discord Developer Portal và dán Application ID vào đây để dùng của bạn thay vì của GodotHub. Hoạt động hiện dưới tên ứng dụng đó.',
 			'settings.discord_developer_portal' => 'Discord Developer Portal',
 			'settings.discord_builtin_hint' => 'Đang dùng ứng dụng GodotHub tích hợp.',
-			_ => null,
-		} ?? switch (path) {
 			'settings.discord_show_projects_label' => 'Hiện tên dự án',
 			'settings.discord_excluded_label' => 'Dự án loại trừ',
 			'settings.discord_exclude_project' => 'Thêm dự án',
@@ -3682,6 +3658,8 @@ extension on TranslationsViVn {
 			'settings.discord_custom_state_placeholder' => 'Dòng State',
 			'settings.discord_custom_remove' => 'Xóa presence tùy chỉnh',
 			'settings.search_placeholder' => 'Tìm cài đặt…',
+			_ => null,
+		} ?? switch (path) {
 			'settings.interface_label' => 'Giao diện',
 			'settings.card_layout_label' => 'Bố cục thẻ',
 			'settings.landing_tab_label' => 'Trang đích mặc định',

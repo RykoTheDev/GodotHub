@@ -29,7 +29,8 @@ import '../ui/shell/sidebar.dart' show ghModLabel;
 class _Command {
   const _Command({
     required this.id,
-    required this.labelKey,
+    this.labelKey = '',
+    this.plainLabel,
     required this.icon,
     required this.sectionKey,
     required this.action,
@@ -40,6 +41,7 @@ class _Command {
 
   final String id;
   final String labelKey;
+  final String? plainLabel;
   final bool nav;
   final String? shortcut;
   final FaIconData icon;
@@ -281,7 +283,7 @@ List<_Command> _buildCommands(ValueChanged<String> onNavigate, String mod) {
     if (kDebugMode)
       _Command(
         id: 'preview-update-modal',
-        labelKey: 'preview_update_modal',
+        plainLabel: 'Preview Update Modal',
         icon: GhIcons.rocket,
         sectionKey: 'section_help',
         action: () => emit(previewUpdateModalSignal),
@@ -350,7 +352,7 @@ class _CommandPaletteState extends ConsumerState<CommandPalette> {
       for (final cmd in commands)
         _Item(
           id: cmd.id,
-          label: cmd.nav ? ghTr('nav:${cmd.labelKey}', translations: tr) : common(cmd.labelKey),
+          label: cmd.plainLabel ?? (cmd.nav ? ghTr('nav:${cmd.labelKey}', translations: tr) : common(cmd.labelKey)),
           shortcut: cmd.shortcut,
           icon: cmd.icon,
           section: common(cmd.sectionKey),

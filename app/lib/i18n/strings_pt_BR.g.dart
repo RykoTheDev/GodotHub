@@ -550,7 +550,6 @@ class _Translations$common$pt_BR extends Translations$common$en_US {
 	@override String get check_updates_rate_limited_token_hint => 'Seu token salvo do GitHub foi rejeitado. Ele pode ter expirado ou sido revogado. Teste-o nas Configurações e substitua-o, se necessário.';
 	@override String get check_updates_add_token => 'Adicionar token do GitHub';
 	@override String get check_updates_open_token_settings => 'Abrir configurações do token';
-	@override String get check_updates_preview_badge => 'Prévia';
 	@override String get check_updates_portable_title => 'Atualização manual necessária';
 	@override String get check_updates_portable_desc => 'Instalações portáteis não podem ser atualizadas automaticamente. Baixe a versão mais recente no GitHub e substitua os arquivos existentes.';
 	@override String get check_updates_download_from_github => 'Baixar do GitHub';
@@ -568,14 +567,6 @@ class _Translations$common$pt_BR extends Translations$common$en_US {
 	@override String get check_updates_from_host => 'From {{host}}';
 	@override String get check_updates_download_summary => 'Downloaded {{size}} in {{time}}';
 	@override String get check_updates_signature_verified => 'Signature verified';
-	@override String get preview_state_checking => 'Verificando';
-	@override String get preview_state_available => 'Disponível';
-	@override String get preview_state_downloading => 'Baixando';
-	@override String get preview_state_done => 'Concluído';
-	@override String get preview_state_uptodate => 'Atualizado';
-	@override String get preview_state_error => 'Erro';
-	@override String get preview_state_portable => 'Portátil';
-	@override String get preview_update_modal => 'Prévia da janela de atualização';
 	@override String get clone_repo_title => 'Clonar repositório';
 	@override String get clone_repo_url_label => 'URL do repositório';
 	@override String get clone_repo_url_placeholder => 'https://github.com/user/my-game.git';
@@ -691,8 +682,6 @@ class _Translations$common$pt_BR extends Translations$common$en_US {
 	@override String get asset_duplicate_desc => '"{{name}}" já está nos seus templates. Deseja instalar uma cópia mesmo assim?';
 	@override String get empty_category => 'Categoria vazia';
 	@override String get release_to_drop => 'Solte para mover';
-	@override String get preview_release_notes => '## Novidades da v1.0.0 - Atualização de prévia\n\n## Novidades\n\n- Reformulação da janela Verificar atualizações com notas da versão estruturadas\n- Adicionados anúncios para leitores de tela e uma seção de Acessibilidade nas configurações\n\n## Correções\n\n- Corrigida uma falha ao trocar de espaço de trabalho com projetos fixados\n- Corrigidas verificações de atualização que falhavam silenciosamente ao atingir o limite de requisições da API do GitHub\n\n## Melhorias\n\n- Inicialização mais rápida em todas as plataformas\n- Reformulação das janelas de espaço de trabalho com seletores de estilo compactos\n\n## Problemas conhecidos\n\n- Linux: o AppImage pode não funcionar em algumas distribuições; use o pacote .rpm ou .deb\n- Windows: a barra de tarefas pode exibir brevemente um ícone duplicado até que o aplicativo seja reiniciado';
-	@override String get preview_error => 'Erro de prévia: o limite de requisições da API do GitHub foi atingido (HTTP 403). Adicione um token nas Configurações para continuar verificando.';
 	@override String get bug_report_system => 'Sistema';
 	@override String get bug_report_version => 'Versão';
 	@override String get bug_report_date => 'Data';
@@ -2688,7 +2677,6 @@ extension on TranslationsPtBr {
 			'common.check_updates_rate_limited_token_hint' => 'Seu token salvo do GitHub foi rejeitado. Ele pode ter expirado ou sido revogado. Teste-o nas Configurações e substitua-o, se necessário.',
 			'common.check_updates_add_token' => 'Adicionar token do GitHub',
 			'common.check_updates_open_token_settings' => 'Abrir configurações do token',
-			'common.check_updates_preview_badge' => 'Prévia',
 			'common.check_updates_portable_title' => 'Atualização manual necessária',
 			'common.check_updates_portable_desc' => 'Instalações portáteis não podem ser atualizadas automaticamente. Baixe a versão mais recente no GitHub e substitua os arquivos existentes.',
 			'common.check_updates_download_from_github' => 'Baixar do GitHub',
@@ -2706,14 +2694,6 @@ extension on TranslationsPtBr {
 			'common.check_updates_from_host' => 'From {{host}}',
 			'common.check_updates_download_summary' => 'Downloaded {{size}} in {{time}}',
 			'common.check_updates_signature_verified' => 'Signature verified',
-			'common.preview_state_checking' => 'Verificando',
-			'common.preview_state_available' => 'Disponível',
-			'common.preview_state_downloading' => 'Baixando',
-			'common.preview_state_done' => 'Concluído',
-			'common.preview_state_uptodate' => 'Atualizado',
-			'common.preview_state_error' => 'Erro',
-			'common.preview_state_portable' => 'Portátil',
-			'common.preview_update_modal' => 'Prévia da janela de atualização',
 			'common.clone_repo_title' => 'Clonar repositório',
 			'common.clone_repo_url_label' => 'URL do repositório',
 			'common.clone_repo_url_placeholder' => 'https://github.com/user/my-game.git',
@@ -2741,8 +2721,6 @@ extension on TranslationsPtBr {
 			'common.task_tray_aria' => 'Bandeja do sistema',
 			'common.task_tray_auto_dismiss' => 'Concluídas são dispensadas automaticamente',
 			'common.task_tray_dismiss' => 'Dispensar {{count}}',
-			_ => null,
-		} ?? switch (path) {
 			'common.task_error_status' => 'Erro',
 			'common.command_palette_title' => 'Menu de comandos',
 			'common.command_palette_placeholder' => 'Pesquisar comandos, projetos, versões da Godot e configurações…',
@@ -2752,6 +2730,8 @@ extension on TranslationsPtBr {
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
 			'common.setting_project_scan_dirs' => 'Pastas de busca de projetos',
 			'common.setting_version_scan_dirs' => 'Pastas de busca de versões',
+			_ => null,
+		} ?? switch (path) {
 			'common.setting_default_project_location' => 'Configuração do local padrão dos projetos',
 			'common.setting_download_dir' => 'Configuração do local de download das versões',
 			'common.setting_scan_depth' => 'Profundidade da busca',
@@ -2819,8 +2799,6 @@ extension on TranslationsPtBr {
 			'common.asset_duplicate_desc' => '"{{name}}" já está nos seus templates. Deseja instalar uma cópia mesmo assim?',
 			'common.empty_category' => 'Categoria vazia',
 			'common.release_to_drop' => 'Solte para mover',
-			'common.preview_release_notes' => '## Novidades da v1.0.0 - Atualização de prévia\n\n## Novidades\n\n- Reformulação da janela Verificar atualizações com notas da versão estruturadas\n- Adicionados anúncios para leitores de tela e uma seção de Acessibilidade nas configurações\n\n## Correções\n\n- Corrigida uma falha ao trocar de espaço de trabalho com projetos fixados\n- Corrigidas verificações de atualização que falhavam silenciosamente ao atingir o limite de requisições da API do GitHub\n\n## Melhorias\n\n- Inicialização mais rápida em todas as plataformas\n- Reformulação das janelas de espaço de trabalho com seletores de estilo compactos\n\n## Problemas conhecidos\n\n- Linux: o AppImage pode não funcionar em algumas distribuições; use o pacote .rpm ou .deb\n- Windows: a barra de tarefas pode exibir brevemente um ícone duplicado até que o aplicativo seja reiniciado',
-			'common.preview_error' => 'Erro de prévia: o limite de requisições da API do GitHub foi atingido (HTTP 403). Adicione um token nas Configurações para continuar verificando.',
 			'common.bug_report_system' => 'Sistema',
 			'common.bug_report_version' => 'Versão',
 			'common.bug_report_date' => 'Data',
@@ -3255,8 +3233,6 @@ extension on TranslationsPtBr {
 			'common.project_addons.matched_by_name' => 'matched by name to “{{title}}”',
 			'common.project_addons.update' => 'Update',
 			'common.project_addons.updating' => 'Updating…',
-			_ => null,
-		} ?? switch (path) {
 			'common.project_addons.updated' => '{{name}} was updated',
 			'common.project_addons.confirm_title' => 'Update {{name}}?',
 			'common.project_addons.confirm_description' => 'This replaces res://addons/{{folder}} with version {{version}} from the Asset Library. The old folder is moved to the Trash, so any changes you made to the addon are kept there. Close the project in Godot first.',
@@ -3268,6 +3244,8 @@ extension on TranslationsPtBr {
 			'common.date_next_month' => 'Next month',
 			'common.date_change_due' => 'Change due date: {{date}}',
 			'common.date_add_due' => 'Add due date',
+			_ => null,
+		} ?? switch (path) {
 			'dashboard.greeting_morning' => 'Bom dia',
 			'dashboard.greeting_afternoon' => 'Boa tarde',
 			'dashboard.greeting_evening' => 'Boa noite',
@@ -3769,8 +3747,6 @@ extension on TranslationsPtBr {
 			'settings.discord_app_id_desc' => 'Crie um aplicativo no Discord Developer Portal e cole aqui o ID do aplicativo para usar o seu em vez do padrão integrado do GodotHub. A atividade será exibida com o nome desse aplicativo.',
 			'settings.discord_developer_portal' => 'Discord Developer Portal',
 			'settings.discord_builtin_hint' => 'Usando o aplicativo integrado do GodotHub.',
-			_ => null,
-		} ?? switch (path) {
 			'settings.discord_show_projects_label' => 'Mostrar nomes dos projetos',
 			'settings.discord_excluded_label' => 'Projetos excluídos',
 			'settings.discord_exclude_project' => 'Adicionar projeto',
@@ -3782,6 +3758,8 @@ extension on TranslationsPtBr {
 			'settings.discord_custom_state_placeholder' => 'Linha de estado',
 			'settings.discord_custom_remove' => 'Remover Discord Rich Presence personalizada',
 			'settings.search_placeholder' => 'Pesquisar configurações…',
+			_ => null,
+		} ?? switch (path) {
 			'settings.interface_label' => 'Interface',
 			'settings.card_layout_label' => 'Layout em cartões',
 			'settings.landing_tab_label' => 'Página inicial padrão',

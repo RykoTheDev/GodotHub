@@ -186,6 +186,15 @@ void main() {
       expect(find.textContaining('100.0 MB'), findsOneWidget);
     });
 
+    testWidgets('preview mode shows the sample release notes and known issues', (tester) async {
+      await openWith(tester, (close) => CheckForUpdatesModal(onClose: close, mode: CheckForUpdatesMode.preview));
+      expect(find.text(ghTr('check_updates_release_notes').toUpperCase()), findsOneWidget);
+      expect(find.text('NEW'), findsOneWidget);
+      expect(find.text('Faster startup times across all platforms'), findsOneWidget);
+      expect(find.text(ghTr('changelog_known_issues').toUpperCase()), findsOneWidget);
+      expect(find.textContaining('the taskbar may briefly show a duplicate icon'), findsOneWidget);
+    });
+
     testWidgets('portable installs link to the GitHub release instead of installing', (tester) async {
       await openWith(
         tester,
@@ -247,12 +256,12 @@ void main() {
         ],
       );
       expect(checks, 0);
-      expect(find.text(ghTr('check_updates_preview_badge').toUpperCase()), findsOneWidget);
+      expect(find.text('PREVIEW'), findsOneWidget);
       expect(find.text('v$previewUpdateVersion'), findsOneWidget);
-      await tester.tap(find.text(ghTr('preview_state_error')));
+      await tester.tap(find.text(previewStateLabels[UpdateStateType.error]!));
       await base.settle(tester, 2);
-      expect(find.text(ghTr('preview_error')), findsOneWidget);
-      await tester.tap(find.text(ghTr('preview_state_available')));
+      expect(find.text(previewError), findsOneWidget);
+      await tester.tap(find.text(previewStateLabels[UpdateStateType.available]!));
       await base.settle(tester, 2);
       await tester.tap(find.text(ghTr('install_update')));
       await base.settle(tester, 40);
