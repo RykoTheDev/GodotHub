@@ -79,7 +79,7 @@ pub async fn cli_tool_status(app: AppHandle) -> CliToolStatus {
 }
 
 pub async fn install_cli_tool(app: AppHandle) -> Result<CliToolStatus, String> {
-    let target = std::env::current_exe().map_err(|e| e.to_string())?;
+    let target = crate::install_mode::launch_executable().map_err(|e| e.to_string())?;
     let bin = crate::current_version::aliases_dir(&app);
     write_shim(&shim_path(&bin, shim_name(&app)), &target)?;
     let path_changed = add_bin_to_path(&bin, shim_name(&app))?;

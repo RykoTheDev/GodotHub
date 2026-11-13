@@ -554,6 +554,7 @@ class _Translations$common$fr_FR extends Translations$common$en_US {
 	@override String get check_updates_portable_desc => 'Portable installs cannot auto-update. Download the latest version from GitHub and replace the existing files.';
 	@override String get check_updates_download_from_github => 'Download from GitHub';
 	@override String get check_updates_details => 'Update details';
+	@override String get check_updates_log => 'Log';
 	@override String get check_updates_released => 'Released';
 	@override String get check_updates_source => 'Source';
 	@override String get check_updates_file => 'File';
@@ -2681,6 +2682,7 @@ extension on TranslationsFrFr {
 			'common.check_updates_portable_desc' => 'Portable installs cannot auto-update. Download the latest version from GitHub and replace the existing files.',
 			'common.check_updates_download_from_github' => 'Download from GitHub',
 			'common.check_updates_details' => 'Update details',
+			'common.check_updates_log' => 'Log',
 			'common.check_updates_released' => 'Released',
 			'common.check_updates_source' => 'Source',
 			'common.check_updates_file' => 'File',
@@ -2729,9 +2731,9 @@ extension on TranslationsFrFr {
 			'common.command_palette_escape' => 'Échap',
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
 			'common.setting_project_scan_dirs' => 'Scan Project Folders',
-			'common.setting_version_scan_dirs' => 'Scan Version Folders',
 			_ => null,
 		} ?? switch (path) {
+			'common.setting_version_scan_dirs' => 'Scan Version Folders',
 			'common.setting_default_project_location' => 'Default Project Location Setting',
 			'common.setting_download_dir' => 'Download Versions Location Setting',
 			'common.setting_scan_depth' => 'Scan Depth',
@@ -3243,9 +3245,9 @@ extension on TranslationsFrFr {
 			'common.date_previous_month' => 'Previous month',
 			'common.date_next_month' => 'Next month',
 			'common.date_change_due' => 'Change due date: {{date}}',
-			'common.date_add_due' => 'Add due date',
 			_ => null,
 		} ?? switch (path) {
+			'common.date_add_due' => 'Add due date',
 			'dashboard.greeting_morning' => 'Bonjour',
 			'dashboard.greeting_afternoon' => 'Bonjour',
 			'dashboard.greeting_evening' => 'Bonsoir',
@@ -3757,9 +3759,9 @@ extension on TranslationsFrFr {
 			'settings.discord_custom_details_placeholder' => 'Ligne Details',
 			'settings.discord_custom_state_placeholder' => 'Ligne State',
 			'settings.discord_custom_remove' => 'Supprimer la présence personnalisée',
-			'settings.search_placeholder' => 'Rechercher dans les paramètres…',
 			_ => null,
 		} ?? switch (path) {
+			'settings.search_placeholder' => 'Rechercher dans les paramètres…',
 			'settings.interface_label' => 'Interface',
 			'settings.card_layout_label' => 'Disposition en cartes',
 			'settings.landing_tab_label' => 'Page d\'accueil par défaut',

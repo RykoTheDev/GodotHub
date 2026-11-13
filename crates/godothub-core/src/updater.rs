@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
+use std::sync::OnceLock;
 
 use base64::Engine;
 use futures_util::StreamExt;
@@ -15,9 +16,16 @@ pub enum Installer {
     App,
     Msi,
     Nsis,
+    InApp,
 }
 
 impl Installer {
+    pub const ALL: [Installer; 7] = [Self::AppImage, Self::Deb, Self::Rpm, Self::App, Self::Msi, Self::Nsis, Self::InApp];
+
+    pub fn from_name(name: &str) -> Option<Self> {
+        Self::ALL.into_iter().find(|i| i.name() == name)
+    }
+
     pub fn name(self) -> &'static str {
         match self {
             Self::AppImage => "appimage",
@@ -26,6 +34,7 @@ impl Installer {
             Self::App => "app",
             Self::Msi => "msi",
             Self::Nsis => "nsis",
+            Self::InApp => "inapp",
         }
     }
 }
@@ -145,6 +154,65 @@ pub fn endpoint(channel: Channel) -> &'static str {
     channel.info().update_endpoint
 }
 
+#[derive(Debug, Default)]
+struct TestOverrides {
+    endpoint: Option<String>,
+    public_key: Option<String>,
+}
+
+static TEST_OVERRIDES: OnceLock<TestOverrides> = OnceLock::new();
+
+fn non_empty(value: Option<String>) -> Option<String> {
+    value.map(|v| v.trim().to_string()).filter(|v| !v.is_empty())
+}
+
+pub fn check_test_endpoint(url: &str) -> Result<(), String> {
+    let parsed = url::Url::parse(url).map_err(|e| format!("Invalid updater test endpoint: {e}"))?;
+    let loopback = match parsed.host() {
+        Some(url::Host::Domain(domain)) => domain.eq_ignore_ascii_case("localhost"),
+        Some(url::Host::Ipv4(ip)) => ip.is_loopback(),
+        Some(url::Host::Ipv6(ip)) => ip.is_loopback(),
+        None => false,
+    };
+    if loopback && matches!(parsed.scheme(), "http" | "https") {
+        Ok(())
+    } else {
+        Err("The updater test endpoint must be on this computer (localhost or 127.0.0.1)".into())
+    }
+}
+
+fn check_public_key(key: &str) -> Result<(), String> {
+    let text = decode_base64_text(key)?;
+    minisign_verify::PublicKey::decode(&text).map(|_| ()).map_err(|e| format!("Invalid updater test key: {e}"))
+}
+
+pub fn set_test_overrides(endpoint: Option<String>, public_key: Option<String>) -> Result<(), String> {
+    let endpoint = non_empty(endpoint);
+    let public_key = non_empty(public_key);
+    if endpoint.is_none() && public_key.is_none() {
+        return Ok(());
+    }
+    if let Some(url) = &endpoint {
+        check_test_endpoint(url)?;
+    }
+    if let Some(key) = &public_key {
+        check_public_key(key)?;
+    }
+    TEST_OVERRIDES
+        .set(TestOverrides { endpoint, public_key })
+        .map_err(|_| "The updater test overrides are already set".to_string())
+}
+
+fn manifest_url(channel: Channel) -> &'static str {
+    TEST_OVERRIDES.get().and_then(|o| o.endpoint.as_deref()).unwrap_or_else(|| endpoint(channel))
+}
+
+fn trusted_keys(channel: Channel) -> Vec<&'static str> {
+    let mut keys = channel.info().updater_public_keys.to_vec();
+    keys.extend(TEST_OVERRIDES.get().and_then(|o| o.public_key.as_deref()));
+    keys
+}
+
 pub fn detect_install_kind() -> InstallKind {
     let Ok(exe) = std::env::current_exe() else {
         return InstallKind::Unknown;
@@ -154,6 +222,9 @@ pub fn detect_install_kind() -> InstallKind {
 
 #[cfg(target_os = "windows")]
 fn detect_for(exe: &Path) -> InstallKind {
+    if godothub_launcher::Layout::of_app_exe(exe).is_some() {
+        return InstallKind::Installed(Installer::InApp);
+    }
     if crate::install_mode::is_portable_install() {
         return InstallKind::Portable;
     }
@@ -292,6 +363,10 @@ pub fn update_from_manifest(manifest: &Manifest, current: &str, kind: InstallKin
     let (target, entry) = manifest
         .select(&keys)
         .ok_or_else(|| format!("The update has no download for {}", keys.join(" or ")))?;
+    let installer = match installer {
+        Some(Installer::InApp) if target != keys[0] => Some(Installer::Nsis),
+        other => other,
+    };
     Ok(Some(UpdateInfo {
         version: manifest.version_text.trim_start_matches('v').to_string(),
         current_version: current.to_string(),
@@ -313,8 +388,13 @@ fn with_token(request: reqwest::RequestBuilder, token: Option<&str>, send: bool)
     }
 }
 
+fn rolled_back_version() -> Option<String> {
+    let (layout, _) = crate::install_mode::versioned_install()?;
+    layout.read_state().ok()?.failed
+}
+
 pub async fn check(app: &AppHandle) -> Result<Option<UpdateInfo>, String> {
-    let url = endpoint(app.channel());
+    let url = manifest_url(app.channel());
     let response = crate::http::client()?
         .get(url)
         .header(reqwest::header::ACCEPT, "application/json")
@@ -329,7 +409,9 @@ pub async fn check(app: &AppHandle) -> Result<Option<UpdateInfo>, String> {
     }
     let body = response.text().await.map_err(|e| e.to_string())?;
     let manifest = Manifest::parse(&body)?;
-    update_from_manifest(&manifest, crate::app_version(), detect_install_kind())
+    let update = update_from_manifest(&manifest, crate::app_version(), detect_install_kind())?;
+    let skipped = rolled_back_version();
+    Ok(update.filter(|u| skipped.as_deref() != Some(u.version.as_str())))
 }
 
 pub async fn download<F: FnMut(u64, Option<u64>)>(
@@ -354,7 +436,7 @@ pub async fn download<F: FnMut(u64, Option<u64>)>(
         buffer.extend_from_slice(&chunk);
         on_progress(buffer.len() as u64, total);
     }
-    verify_signature(&buffer, &update.signature, app.channel().info().updater_public_keys, &update.version)?;
+    verify_signature(&buffer, &update.signature, &trusted_keys(app.channel()), &update.version)?;
     Ok(buffer)
 }
 
@@ -411,8 +493,107 @@ fn temp_dir_for(version: &str) -> Result<PathBuf, String> {
     Ok(dir)
 }
 
-pub fn install(update: &UpdateInfo, bytes: &[u8]) -> Result<(), String> {
-    platform::install(update, bytes)
+pub enum PreparedUpdate {
+    Ready,
+    Installer(Box<UpdateInfo>, Vec<u8>),
+}
+
+fn installs_on_restart(update: &UpdateInfo) -> bool {
+    cfg!(target_os = "windows") && update.installer != Some(Installer::InApp)
+}
+
+pub type Log<'a> = &'a mut dyn FnMut(String);
+
+pub fn download_source(url: &str) -> (String, String) {
+    let parsed = url::Url::parse(url).ok();
+    let host = parsed.as_ref().and_then(|u| u.host_str().map(str::to_string)).unwrap_or_default();
+    let file = parsed
+        .as_ref()
+        .and_then(|u| u.path_segments().and_then(|mut s| s.next_back().map(str::to_string)))
+        .unwrap_or_default();
+    (file, host)
+}
+
+pub fn format_size(bytes: u64) -> String {
+    match bytes {
+        b if b >= 1024 * 1024 => format!("{:.1} MB", b as f64 / (1024.0 * 1024.0)),
+        b if b >= 1024 => format!("{:.1} KB", b as f64 / 1024.0),
+        b => format!("{b} B"),
+    }
+}
+
+pub fn prepare(update: &UpdateInfo, bytes: Vec<u8>, log: Log) -> Result<PreparedUpdate, String> {
+    if installs_on_restart(update) {
+        log(format!("The {} installer will run when GodotHub restarts", update.installer.map_or("update", Installer::name)));
+        return Ok(PreparedUpdate::Installer(Box::new(update.clone()), bytes));
+    }
+    install(update, &bytes, log)?;
+    Ok(PreparedUpdate::Ready)
+}
+
+pub fn finish(prepared: PreparedUpdate, log: Log) -> Result<bool, String> {
+    match prepared {
+        PreparedUpdate::Ready => Ok(false),
+        PreparedUpdate::Installer(update, bytes) => install(&update, &bytes, log).map(|()| true),
+    }
+}
+
+pub fn install(update: &UpdateInfo, bytes: &[u8], log: Log) -> Result<(), String> {
+    if update.installer == Some(Installer::InApp) {
+        let exe = std::env::current_exe().map_err(|e| e.to_string())?;
+        let (layout, _) = godothub_launcher::Layout::of_app_exe(&exe).ok_or("GodotHub is not installed in versioned folders")?;
+        let name = exe.file_name().and_then(|n| n.to_str()).ok_or("The app has no file name")?;
+        return install_in_app(&layout, name, update, bytes, log);
+    }
+    log(format!("Installing {} {}", update.target, update.version));
+    platform::install(update, bytes)?;
+    log("Installer started".to_string());
+    Ok(())
+}
+
+fn unpack_zip(bytes: &[u8], dir: &Path, log: Log) -> Result<(), String> {
+    let fail = |e: &dyn std::fmt::Display| format!("Could not unpack the update: {e}");
+    let mut archive = zip::ZipArchive::new(std::io::Cursor::new(bytes)).map_err(|e| fail(&e))?;
+    for i in 0..archive.len() {
+        let mut file = archive.by_index(i).map_err(|e| fail(&e))?;
+        let relative = file.enclosed_name().ok_or_else(|| fail(&"an entry points outside the update folder"))?;
+        let path = dir.join(&relative);
+        if file.is_dir() {
+            std::fs::create_dir_all(&path).map_err(|e| fail(&e))?;
+            continue;
+        }
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent).map_err(|e| fail(&e))?;
+        }
+        let mut out = std::fs::File::create(&path).map_err(|e| fail(&e))?;
+        let size = std::io::copy(&mut file, &mut out).map_err(|e| fail(&e))?;
+        log(format!("Extract: {} ({})", relative.to_string_lossy().replace('\\', "/"), format_size(size)));
+    }
+    Ok(())
+}
+
+pub fn install_in_app(layout: &godothub_launcher::Layout, exe_name: &str, update: &UpdateInfo, bytes: &[u8], log: Log) -> Result<(), String> {
+    if !is_zip(bytes) {
+        return Err("The update is not a zip archive".into());
+    }
+    let folder = layout.app_dir(&update.version);
+    log(format!("Output folder: {}", folder.display()));
+    layout.stage(&update.version, exe_name, |dir| unpack_zip(bytes, dir, log))?;
+    layout.activate(&update.version).map_err(|e| e.to_string())?;
+    log(format!("GodotHub {} starts on the next launch", update.version));
+    Ok(())
+}
+
+pub fn confirm_launch() -> Result<bool, String> {
+    match crate::install_mode::versioned_install() {
+        Some((layout, version)) => layout.confirm(&version).map_err(|e| e.to_string()),
+        None => Ok(false),
+    }
+}
+
+pub(crate) fn is_installer_name(name: &str) -> bool {
+    let name = name.to_lowercase();
+    name.ends_with("setup.exe") || name.ends_with(".msi")
 }
 
 #[cfg(target_os = "windows")]
@@ -443,10 +624,7 @@ mod platform {
     fn unpack(update: &UpdateInfo, bytes: &[u8]) -> Result<Package, String> {
         let dir = temp_dir_for(&update.version)?;
         if is_zip(bytes) {
-            let (name, inner) = extract_from_zip(bytes, |n| {
-                let n = n.to_lowercase();
-                n.ends_with(".exe") || n.ends_with(".msi")
-            })?;
+            let (name, inner) = extract_from_zip(bytes, is_installer_name)?;
             let path = write(&dir, &name, &inner)?;
             return Ok(if name.to_lowercase().ends_with(".msi") { Package::Msi(path) } else { Package::Nsis(path) });
         }
@@ -877,6 +1055,102 @@ mod tests {
         ] {
             assert_eq!(legacy.select(&target_keys(os, arch, installer)).unwrap().0, key);
         }
+    }
+
+    fn in_app_update(version: &str) -> UpdateInfo {
+        UpdateInfo {
+            version: version.into(),
+            current_version: "0.1.0".into(),
+            notes: None,
+            pub_date: None,
+            target: "windows-x86_64-inapp".into(),
+            url: String::new(),
+            signature: String::new(),
+            installer: Some(Installer::InApp),
+            portable: false,
+            send_token: false,
+        }
+    }
+
+    fn zip_of(files: &[(&str, &[u8])]) -> Vec<u8> {
+        use std::io::Write;
+        let mut buffer = std::io::Cursor::new(Vec::new());
+        {
+            let mut zip = zip::ZipWriter::new(&mut buffer);
+            for (name, data) in files {
+                zip.start_file(*name, zip::write::SimpleFileOptions::default()).unwrap();
+                zip.write_all(data).unwrap();
+            }
+            zip.finish().unwrap();
+        }
+        buffer.into_inner()
+    }
+
+    #[test]
+    fn in_app_updates_unpack_into_a_new_version_folder() {
+        let root = std::env::temp_dir().join(format!("godothub-inapp-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        let layout = godothub_launcher::Layout::new(&root);
+        std::fs::create_dir_all(layout.app_dir("0.1.0")).unwrap();
+        layout.write_state(&godothub_launcher::State { current: "0.1.0".into(), ..Default::default() }).unwrap();
+        let exe = "GodotHub Beta.exe";
+        let good = zip_of(&[(exe, b"new"), ("data/flutter_assets/a.txt", b"asset")]);
+        let mut lines = Vec::new();
+        install_in_app(&layout, exe, &in_app_update("0.2.0"), &good, &mut |line| lines.push(line)).unwrap();
+        assert!(lines.contains(&"Extract: data/flutter_assets/a.txt (5 B)".to_string()));
+        assert_eq!(std::fs::read(layout.app_dir("0.2.0").join("data/flutter_assets/a.txt")).unwrap(), b"asset");
+        let state = layout.read_state().unwrap();
+        assert_eq!((state.current.as_str(), state.previous.as_deref(), state.trial), ("0.2.0", Some("0.1.0"), true));
+        let quiet = &mut |_: String| {};
+        assert!(install_in_app(&layout, exe, &in_app_update("0.3.0"), b"MZ not a zip", quiet).is_err());
+        let missing_exe = zip_of(&[("other.exe", b"x")]);
+        assert!(install_in_app(&layout, exe, &in_app_update("0.3.0"), &missing_exe, quiet).is_err());
+        let escaping = zip_of(&[(exe, b"x"), ("../outside.txt", b"x")]);
+        assert!(install_in_app(&layout, exe, &in_app_update("0.3.0"), &escaping, quiet).is_err());
+        assert!(!root.parent().unwrap().join("outside.txt").exists());
+        assert!(!layout.app_dir("0.3.0").exists());
+        assert_eq!(layout.read_state().unwrap().current, "0.2.0");
+        let _ = std::fs::remove_dir_all(&root);
+    }
+
+    #[test]
+    fn in_app_installs_fall_back_to_the_setup_when_no_zip_is_published() {
+        let os = updater_os().unwrap();
+        let arch = updater_arch().unwrap();
+        let both = manifest(&[&format!("{os}-{arch}"), &format!("{os}-{arch}-inapp")]);
+        let update = update_from_manifest(&both, "1.0.0", InstallKind::Installed(Installer::InApp)).unwrap().unwrap();
+        assert_eq!((update.target, update.installer), (format!("{os}-{arch}-inapp"), Some(Installer::InApp)));
+        let setup_only = manifest(&[&format!("{os}-{arch}")]);
+        let update = update_from_manifest(&setup_only, "1.0.0", InstallKind::Installed(Installer::InApp)).unwrap().unwrap();
+        assert_eq!(update.installer, Some(Installer::Nsis));
+    }
+
+    #[test]
+    fn installer_names_round_trip() {
+        for installer in Installer::ALL {
+            assert_eq!(Installer::from_name(installer.name()), Some(installer));
+        }
+        assert_eq!(Installer::from_name("zip"), None);
+    }
+
+    #[test]
+    fn only_setup_programs_and_msi_files_are_run_from_a_zip() {
+        assert!(is_installer_name("GodotHub_1.5.6_x64-setup.exe"));
+        assert!(is_installer_name("GodotHub_1.5.6_x64_en-US.msi"));
+        assert!(!is_installer_name("godothub-beta.exe"));
+        assert!(!is_installer_name("uninstall.exe"));
+    }
+
+    #[test]
+    fn test_endpoints_must_stay_on_this_computer() {
+        for ok in ["http://127.0.0.1:8787/latest.json", "http://localhost:1/x", "https://[::1]/x"] {
+            assert!(check_test_endpoint(ok).is_ok(), "{ok}");
+        }
+        for bad in ["http://example.com/latest.json", "https://github.com/x", "file:///C:/latest.json", "http://10.0.0.1/x", "nope"] {
+            assert!(check_test_endpoint(bad).is_err(), "{bad}");
+        }
+        assert!(check_public_key("not base64!").is_err());
+        assert!(check_public_key(Channel::Beta.info().updater_public_keys[0]).is_ok());
     }
 
     #[test]

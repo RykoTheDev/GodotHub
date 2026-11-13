@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +34,7 @@ Future<void> main() async {
   installBugReportErrorCapture();
   await RustLib.init();
   UpdaterApi.applyBuildVersion();
+  if (const bool.fromEnvironment('UPDATER_LAB_CRASH')) exit(70);
   AppEvents.all.listen((_) {});
   final title = await core.startCore(channel: buildChannel);
   final current = await settings.getSettings();
@@ -50,6 +52,7 @@ Future<void> main() async {
     ),
   );
   unawaited(window.openLaunchArgs());
+  WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(UpdaterApi.confirmLaunch()));
 }
 
 class GodotHubApp extends ConsumerStatefulWidget {

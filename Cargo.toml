@@ -1,5 +1,5 @@
 [workspace]
-members = ["src-tauri", "crates/godothub-core", "crates/godothub-bridge"]
+members = ["src-tauri", "crates/godothub-core", "crates/godothub-bridge", "crates/godothub-launcher"]
 resolver = "2"
 
 [profile.release]

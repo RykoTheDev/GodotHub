@@ -13,7 +13,9 @@ import '../state/settings.dart';
 import '../ui/controls/spin.dart';
 import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
+import '../ui/reusables/modal_kit.dart';
 import '../ui/core/interaction.dart';
+import '../ui/core/tooltip.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
 import '../ui/shell/smooth_scroll.dart';
@@ -27,7 +29,8 @@ export '../api/updater.dart' show AppUpdate, UpdateDownloadProgress;
 const latestReleaseUrl = 'https://github.com/RykoTheDev/GodotHub/releases/latest';
 const previewUpdateVersion = '1.0.0';
 const previewUpdateSize = 92 * 1024 * 1024;
-const previewReleaseNotes = '## What\'s new in v1.0.0 - The Preview Update\n\n## New\n\n- Revamped the Check for Updates modal with structured release notes\n- Added screen reader announcements with an Accessibility settings tab\n\n## Fixes\n\n- Fixed a crash when switching workspaces with pinned projects\n- Fixed update checks failing silently when GitHub rate limits are hit\n\n## Improvements\n\n- Faster startup times across all platforms\n- Reworked workspace modals with compact style pickers\n\n## Known Issues\n\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts';
+const previewReleaseNotes =
+    '## What\'s new in v1.0.0 - The Preview Update\n\n## New\n\n- Revamped the Check for Updates modal with structured release notes\n- Added screen reader announcements with an Accessibility settings tab\n\n## Fixes\n\n- Fixed a crash when switching workspaces with pinned projects\n- Fixed update checks failing silently when GitHub rate limits are hit\n\n## Improvements\n\n- Faster startup times across all platforms\n- Reworked workspace modals with compact style pickers\n\n## Known Issues\n\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts';
 const previewError = 'Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking.';
 const previewStateLabels = {
   UpdateStateType.checking: 'Checking',
@@ -38,6 +41,19 @@ const previewStateLabels = {
   UpdateStateType.portable: 'Portable',
   UpdateStateType.error: 'Error',
 };
+const maxUpdateLogLines = 1000;
+const previewLogLines = [
+  'Downloaded 92.0 MB',
+  'Signature verified',
+  'Output folder: C:\\Users\\you\\AppData\\Local\\GodotHub\\app-1.0.0',
+  'Extract: godothub.exe (104.0 KB)',
+  'Extract: flutter_windows.dll (18.4 MB)',
+  'Extract: godothub_bridge.dll (31.2 MB)',
+  'Extract: data/app.so (12.6 MB)',
+  'Extract: data/icudtl.dat (781.2 KB)',
+  'Extract: data/flutter_assets/fonts/Inter.ttf (309.8 KB)',
+  'GodotHub 1.0.0 starts on the next launch',
+];
 const previewUpdateUrl = 'https://github.com/RykoTheDev/GodotHub/releases/download/v1.0.0/GodotHub-1.0.0-setup.exe';
 
 class DownloadStats {
@@ -141,6 +157,9 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
   double _progress = 0;
   String _message = '';
   Future<void> Function()? _install;
+  Future<void> Function()? _restart;
+  bool _restarting = false;
+  final _log = <String>[];
   String? _date;
   String? _package;
   UpdateSource _source = const UpdateSource();
@@ -196,8 +215,8 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
     if (!mounted) return;
     setState(() {
       _type = type;
-      _version = version;
-      _notes = notes;
+      _version = version ?? _version;
+      _notes = notes ?? _notes;
       _progress = progress;
       _message = message;
       _install = install;
@@ -218,8 +237,17 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
     date: DateTime.now().toUtc().toIso8601String(),
     downloadUrl: previewUpdateUrl,
     package: 'windows-x86_64-nsis',
-    downloadAndInstall: (_, {githubToken}) async {},
+    download: (_, {githubToken, onLog}) async {},
+    restart: () async {},
   );
+
+  void _addLog(String line) {
+    if (!mounted) return;
+    setState(() {
+      _log.add(line);
+      if (_log.length > maxUpdateLogLines) _log.removeRange(0, _log.length - maxUpdateLogLines);
+    });
+  }
 
   void _simulateTick(double progress, DownloadSpeedMeter meter, Stopwatch clock) {
     final downloaded = (previewUpdateSize * progress).round();
@@ -244,6 +272,9 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
 
   Future<void> _simulateDownload() {
     _clearSimulation();
+    _log
+      ..clear()
+      ..add('Downloading GodotHub-$previewUpdateVersion-setup.exe from github.com');
     final done = Completer<void>();
     final meter = DownloadSpeedMeter();
     final clock = Stopwatch()..start();
@@ -256,6 +287,7 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
         timer.cancel();
         _simulation = null;
         _finish = Timer(const Duration(milliseconds: 350), () {
+          _log.addAll(previewLogLines);
           _set(UpdateStateType.done, doneSize: previewUpdateSize, doneElapsed: clock.elapsed);
           done.complete();
         });
@@ -277,6 +309,7 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
       return;
     }
     final check = ++_check;
+    _log.clear();
     _set(UpdateStateType.checking);
     try {
       final results = await Future.wait<Object?>([
@@ -304,27 +337,33 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
           final clock = Stopwatch()..start();
           var last = const UpdateDownloadProgress(downloaded: 0);
           Duration? painted;
+          _log.clear();
           _set(UpdateStateType.downloading);
           try {
-            await update.downloadAndInstall((progress) {
-              last = progress;
-              final now = clock.elapsed;
-              final rates = meter.sample(progress.downloaded, progress.total, now);
-              final total = progress.total;
-              final finished = total != null && progress.downloaded >= total;
-              if (!finished && painted != null && now - painted! < const Duration(milliseconds: 100)) return;
-              painted = now;
-              _set(
-                UpdateStateType.downloading,
-                progress: total != null && total > 0 ? (progress.downloaded / total).clamp(0, 1).toDouble() : 0,
-                stats: DownloadStats(
-                  downloaded: progress.downloaded,
-                  total: total,
-                  speed: finished ? null : rates.speed,
-                  eta: finished ? Duration.zero : rates.eta,
-                ),
-              );
-            }, githubToken: _githubToken);
+            await update.download(
+              (progress) {
+                last = progress;
+                final now = clock.elapsed;
+                final rates = meter.sample(progress.downloaded, progress.total, now);
+                final total = progress.total;
+                final finished = total != null && progress.downloaded >= total;
+                if (!finished && painted != null && now - painted! < const Duration(milliseconds: 100)) return;
+                painted = now;
+                _set(
+                  UpdateStateType.downloading,
+                  progress: total != null && total > 0 ? (progress.downloaded / total).clamp(0, 1).toDouble() : 0,
+                  stats: DownloadStats(
+                    downloaded: progress.downloaded,
+                    total: total,
+                    speed: finished ? null : rates.speed,
+                    eta: finished ? Duration.zero : rates.eta,
+                  ),
+                );
+              },
+              githubToken: _githubToken,
+              onLog: _addLog,
+            );
+            _restart = update.restart;
             _set(UpdateStateType.done, doneSize: last.total ?? last.downloaded, doneElapsed: clock.elapsed);
           } catch (e) {
             _set(UpdateStateType.error, message: '$e');
@@ -336,8 +375,25 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
     }
   }
 
+  Future<void> _restartNow() async {
+    final restart = _restart;
+    if (_preview || restart == null) {
+      Navigator.of(context).maybePop();
+      return;
+    }
+    setState(() => _restarting = true);
+    try {
+      await restart();
+    } catch (e) {
+      _set(UpdateStateType.error, message: '$e');
+    } finally {
+      if (mounted) setState(() => _restarting = false);
+    }
+  }
+
   void _switchPreviewState(UpdateStateType to) {
     _clearSimulation();
+    _log.clear();
     switch (to) {
       case UpdateStateType.checking:
         _set(UpdateStateType.checking);
@@ -350,6 +406,7 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
           update: _previewUpdate,
         );
       case UpdateStateType.downloading:
+        _log.add('Downloading GodotHub-$previewUpdateVersion-setup.exe from github.com');
         final meter = DownloadSpeedMeter();
         final clock = Stopwatch()..start();
         _simulateTick(0, meter, clock);
@@ -363,6 +420,10 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
           }
         });
       case UpdateStateType.done:
+        _log
+          ..clear()
+          ..add('Downloading GodotHub-$previewUpdateVersion-setup.exe from github.com')
+          ..addAll(previewLogLines);
         _set(UpdateStateType.done, doneSize: previewUpdateSize, doneElapsed: const Duration(milliseconds: 21400));
       case UpdateStateType.uptodate:
         _set(UpdateStateType.uptodate);
@@ -388,20 +449,11 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
       maxWidth: GhModalWidth.x2l,
       onClose: widget.onClose,
       showClose: false,
-      footer: [
-        const Spacer(),
-        GhButton(
-          onPressed: widget.onClose,
-          label: ghTr('close'),
-          variant: GhButtonVariant.outline,
-          size: GhTextSize.xs,
-          paddingX: 4,
-          paddingY: 2,
-        ),
-      ],
+      footer: _footer(theme),
       child: Padding(
-        padding: EdgeInsets.all(theme.space(6)),
+        padding: EdgeInsets.fromLTRB(theme.space(6), theme.space(1), theme.space(6), theme.space(6)),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: theme.space(5),
           children: [
             if (_preview) _previewSwitcher(theme),
@@ -412,84 +464,99 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
     );
   }
 
+  List<Widget> _footer(GhTheme theme) {
+    final releaseUrl = _source.releaseUrl;
+    final primary = switch (_type) {
+      UpdateStateType.available => GhButton(
+        onPressed: () => _install?.call().ignore(),
+        label: ghTr('install_update'),
+        icon: GhIcons.download,
+        variant: GhButtonVariant.primary,
+        weight: GhWeight.medium,
+      ),
+      UpdateStateType.done => GhBusyButton(
+        onPressed: _restarting ? null : () => _restartNow().ignore(),
+        busy: _restarting,
+        label: ghTr('restart_now'),
+        icon: GhIcons.refresh,
+      ),
+      UpdateStateType.portable => GhButton(
+        onPressed: () => OpenerApi.openUrl(latestReleaseUrl).catchError((Object e) => ghToasts.pushToast(GhToastType.error, '$e')),
+        label: ghTr('check_updates_download_from_github'),
+        icon: GhIcons.externalLink,
+        variant: GhButtonVariant.primary,
+        weight: GhWeight.medium,
+      ),
+      UpdateStateType.error => GhButton(
+        onPressed: () => _doCheck().ignore(),
+        label: ghTr('try_again'),
+        icon: GhIcons.refresh,
+        variant: GhButtonVariant.primary,
+        weight: GhWeight.medium,
+      ),
+      _ => null,
+    };
+    return [
+      if (releaseUrl != null && (_type == UpdateStateType.available || _type == UpdateStateType.done))
+        GhButton(
+          onPressed: () => OpenerApi.openUrl(releaseUrl).catchError((Object e) => ghToasts.pushToast(GhToastType.error, '$e')),
+          label: ghTr('check_updates_view_release'),
+          icon: GhIcons.externalLink,
+          variant: GhButtonVariant.ghost,
+          size: GhTextSize.xs,
+          paddingX: 3,
+          paddingY: 2,
+        ),
+      const Spacer(),
+      GhButton(
+        onPressed: widget.onClose,
+        label: ghTr('close'),
+        variant: GhButtonVariant.outline,
+        size: GhTextSize.xs,
+        paddingX: 4,
+        paddingY: 2,
+      ),
+      ?primary,
+    ];
+  }
+
   Widget _previewSwitcher(GhTheme theme) {
-    final radius = BorderRadius.circular(theme.radiusItem);
-    return Column(
-      spacing: theme.space(2.5),
+    final radius = BorderRadius.circular(theme.radiusTag);
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: theme.space(1.5),
+      runSpacing: theme.space(1.5),
       children: [
         Container(
+          margin: EdgeInsetsDirectional.only(end: theme.space(1.5)),
           padding: EdgeInsets.symmetric(horizontal: theme.space(2), vertical: theme.space(0.5)),
-          decoration: BoxDecoration(color: theme.amber.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(theme.radiusTag)),
+          decoration: BoxDecoration(color: theme.amber.withValues(alpha: 0.15), borderRadius: radius),
           child: Text(
             'PREVIEW',
             style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: theme.amber, letterSpacingEm: 0.05),
           ),
         ),
-        Wrap(
-          alignment: WrapAlignment.center,
-          spacing: theme.space(1.5),
-          runSpacing: theme.space(1.5),
-          children: [
-            for (final s in UpdateStateType.values)
-              GhPressable(
-                onPressed: () => _switchPreviewState(s),
+        for (final s in UpdateStateType.values)
+          GhPressable(
+            onPressed: () => _switchPreviewState(s),
+            borderRadius: radius,
+            builder: (context, states) {
+              final active = _type == s;
+              return GhAnimatedBox(
                 borderRadius: radius,
-                builder: (context, states) {
-                  final active = _type == s;
-                  return GhAnimatedBox(
-                    borderRadius: radius,
-                    color: active ? theme.accent.withValues(alpha: 0.15) : theme.raised,
-                    border: Border.all(
-                      color: active ? theme.accentDim.withValues(alpha: 0.4) : (states.active ? theme.accentDim : theme.line),
-                    ),
-                    padding: EdgeInsets.symmetric(horizontal: theme.space(2.5), vertical: theme.space(1)),
-                    child: Text(
-                      previewStateLabels[s]!,
-                      style: theme.text(
-                        size: GhTextSize.x3s,
-                        weight: GhWeight.medium,
-                        color: active || states.active ? theme.ink : theme.muted,
-                      ),
-                    ),
-                  );
-                },
-              ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _statusIcon(GhTheme theme, FaIconData icon, Color color, {bool spin = false}) {
-    final glyph = GhIcon(icon, size: theme.space(6), color: color);
-    return Container(
-      width: theme.space(14),
-      height: theme.space(14),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(shape: BoxShape.circle, color: color.withValues(alpha: 0.1)),
-      child: spin ? GhSpinning(child: glyph) : glyph,
-    );
-  }
-
-  Widget _titled(GhTheme theme, String title, String? subtitle, {double? subtitleMaxWidth}) {
-    return Column(
-      children: [
-        Text(
-          title,
-          textAlign: TextAlign.center,
-          style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink),
-        ),
-        if (subtitle != null)
-          Padding(
-            padding: EdgeInsets.only(top: theme.space(1)),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: subtitleMaxWidth ?? double.infinity),
-              child: Text(
-                subtitle,
-                textAlign: TextAlign.center,
-                style: theme.text(size: GhTextSize.xs, color: theme.muted, lineHeight: subtitleMaxWidth == null ? null : 1.625),
-              ),
-            ),
+                color: active ? theme.accent.withValues(alpha: 0.15) : (states.active ? theme.overlay : theme.raised),
+                border: Border.all(color: active ? theme.accent.withValues(alpha: 0.4) : theme.line),
+                padding: EdgeInsets.symmetric(horizontal: theme.space(2.5), vertical: theme.space(1)),
+                child: Text(
+                  previewStateLabels[s]!,
+                  style: theme.text(
+                    size: GhTextSize.x2s,
+                    weight: GhWeight.medium,
+                    color: active ? theme.accentBright : (states.active ? theme.ink : theme.muted),
+                  ),
+                ),
+              );
+            },
           ),
       ],
     );
@@ -497,484 +564,517 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
 
   Widget _body(GhTheme theme) {
     final current = ref.watch(appVersionProvider).value;
+    final hint = githubTokenHint(_message, hasToken: _githubToken != null);
     switch (_type) {
       case UpdateStateType.checking:
-        return Column(
-          spacing: theme.space(4),
-          children: [
-            _statusIcon(theme, GhIcons.refresh, theme.accent, spin: true),
-            Text(
-              ghTr('checking_updates'),
-              style: theme.text(size: GhTextSize.sm, color: theme.muted),
-            ),
-          ],
+        return _hero(
+          theme,
+          icon: GhIcons.refresh,
+          color: theme.accent,
+          spin: true,
+          title: ghTr('checking_updates'),
+          subtitle: current == null ? null : 'v$current',
         );
       case UpdateStateType.uptodate:
-        return Column(
-          spacing: theme.space(4),
-          children: [
-            _statusIcon(theme, GhIcons.check, theme.mint),
-            _titled(theme, ghTr('up_to_date'), ghTr('is_latest', args: {'version': current ?? '?'})),
-          ],
+        return _hero(
+          theme,
+          icon: GhIcons.check,
+          color: theme.mint,
+          title: ghTr('up_to_date'),
+          subtitle: ghTr('is_latest', args: {'version': current ?? '?'}),
         );
       case UpdateStateType.portable:
-        return _portable(theme);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: theme.space(5),
+          children: [
+            _hero(
+              theme,
+              icon: GhIcons.alertTriangle,
+              color: theme.amber,
+              title: ghTr('check_updates_portable_title'),
+              subtitle: ghTr('check_updates_version_available', args: {'version': _version ?? ''}),
+              trailing: _versionChange(theme, current),
+            ),
+            GhAlertBox(tone: GhAlertTone.amber, icon: GhIcons.info, text: ghTr('check_updates_portable_desc')),
+          ],
+        );
       case UpdateStateType.available:
         return _available(theme, current);
       case UpdateStateType.downloading:
         return Column(
-          spacing: theme.space(4),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: theme.space(5),
           children: [
-            _statusIcon(theme, GhIcons.download, theme.accent),
-            _titled(theme, ghTr('downloading_update'), ghTr('percent_complete', args: {'percent': (_progress * 100).round()})),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(999),
-              child: Container(
-                height: theme.space(2),
-                color: theme.line,
-                alignment: AlignmentDirectional.centerStart,
-                child: FractionallySizedBox(
-                  widthFactor: _progress.clamp(0, 1).toDouble(),
-                  heightFactor: 1,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(color: theme.accent, borderRadius: BorderRadius.circular(999)),
-                  ),
-                ),
-              ),
+            _hero(
+              theme,
+              icon: GhIcons.cloudArrowDown,
+              color: theme.accent,
+              title: ghTr('downloading_update'),
+              subtitle: ghTr('percent_complete', args: {'percent': (_progress * 100).round()}),
+              trailing: _versionChange(theme, current),
             ),
-            _downloadStats(theme),
+            _progressCard(theme),
+            if (_log.isNotEmpty) _logPanel(theme),
           ],
         );
       case UpdateStateType.done:
         return Column(
-          spacing: theme.space(4),
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: theme.space(5),
           children: [
-            _statusIcon(theme, GhIcons.check, theme.mint),
-            _titled(theme, ghTr('update_downloaded'), ghTr('restart_to_apply')),
-            if (_doneSize != null || _doneElapsed != null) _doneSummary(theme),
-            ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: theme.rem(20)),
-              child: Text(
-                ghTr('update_applied_desc'),
-                textAlign: TextAlign.center,
-                style: theme.text(size: GhTextSize.x2s, color: theme.muted.withValues(alpha: 0.7)),
-              ),
+            _hero(
+              theme,
+              icon: GhIcons.check,
+              color: theme.mint,
+              title: ghTr('update_downloaded'),
+              subtitle: ghTr('restart_to_apply'),
+              trailing: _versionChange(theme, current),
             ),
+            _doneSummary(theme),
+            if (_log.isNotEmpty) _logPanel(theme),
           ],
         );
       case UpdateStateType.error:
-        return _error(theme);
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: theme.space(4),
+          children: [
+            _hero(
+              theme,
+              icon: GhIcons.x,
+              color: theme.danger,
+              title: switch (hint) {
+                GithubTokenHint.rateLimited => ghTr('check_updates_rate_limited'),
+                GithubTokenHint.tokenRejected => ghTr('check_updates_token_rejected'),
+                null => ghTr('check_updates_failed'),
+              },
+            ),
+            if (_message.isNotEmpty) GhAlertBox(tone: GhAlertTone.danger, icon: GhIcons.alertTriangle, text: _message),
+            if (hint != null) _tokenHint(theme, hint),
+            if (_log.isNotEmpty) _logPanel(theme),
+          ],
+        );
     }
   }
 
-  Widget _portable(GhTheme theme) {
-    final version = _version ?? '';
-    final radius = BorderRadius.circular(theme.radiusItem);
-    return Column(
-      spacing: theme.space(5),
+  Widget _hero(
+    GhTheme theme, {
+    required FaIconData icon,
+    required Color color,
+    required String title,
+    String? subtitle,
+    bool spin = false,
+    Widget? trailing,
+  }) {
+    final glyph = GhIcon(icon, size: theme.space(5), color: color);
+    final tile = Container(
+      width: theme.space(11),
+      height: theme.space(11),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(theme.radiusTile),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
+      ),
+      child: spin ? GhSpinning(child: glyph) : glyph,
+    );
+    return Row(
+      spacing: theme.space(3.5),
       children: [
-        _statusIcon(theme, GhIcons.alertTriangle, theme.amber),
-        _titled(theme, ghTr('check_updates_portable_title'), ghTr('check_updates_portable_desc'), subtitleMaxWidth: theme.rem(20)),
-        ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: theme.rem(24)),
-          child: Container(
-            padding: EdgeInsets.all(theme.space(4)),
-            decoration: BoxDecoration(
-              borderRadius: radius,
-              border: Border.all(color: theme.amber.withValues(alpha: 0.3)),
-              color: theme.amber.withValues(alpha: 0.1),
-            ),
+        tile,
+        Expanded(
+          child: Semantics(
+            liveRegion: true,
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: theme.space(3),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: theme.space(0.5),
               children: [
-                Row(
-                  spacing: theme.space(2),
-                  children: [
-                    Text(
-                      'v$version',
-                      style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, mono: true, color: theme.ink),
-                    ),
-                    Text(
-                      '-',
-                      style: theme.text(size: GhTextSize.xs, color: theme.muted),
-                    ),
-                    Flexible(
-                      child: Text(
-                        ghTr('check_updates_version_available', args: {'version': version}),
-                        style: theme.text(size: GhTextSize.xs, color: theme.muted),
-                      ),
-                    ),
-                  ],
+                Text(
+                  title,
+                  style: theme.text(size: GhTextSize.base, weight: GhWeight.semibold, color: theme.ink, lineHeight: 1.3),
                 ),
-                _AccentButton(
-                  icon: GhIcons.externalLink,
-                  label: ghTr('check_updates_download_from_github'),
-                  onPressed: () =>
-                      OpenerApi.openUrl(latestReleaseUrl).catchError((Object e) => ghToasts.pushToast(GhToastType.error, '$e')),
-                  expand: true,
-                ),
+                if (subtitle != null)
+                  Text(
+                    subtitle,
+                    style: theme.text(size: GhTextSize.xs, color: theme.muted, lineHeight: 1.5),
+                  ),
               ],
             ),
           ),
         ),
+        ?trailing,
       ],
     );
   }
 
+  Widget? _versionChange(GhTheme theme, String? current) {
+    final next = _version;
+    if (next == null || next.isEmpty) return null;
+    Widget chip(String text, {required bool strong}) => Container(
+      padding: EdgeInsets.symmetric(horizontal: theme.space(2.5), vertical: theme.space(1)),
+      decoration: BoxDecoration(
+        color: strong ? theme.accent.withValues(alpha: 0.15) : theme.overlay,
+        borderRadius: BorderRadius.circular(theme.radiusTag),
+        border: Border.all(color: strong ? theme.accent.withValues(alpha: 0.35) : theme.line),
+      ),
+      child: Text(
+        text,
+        style: theme.text(
+          size: GhTextSize.xs,
+          mono: true,
+          weight: strong ? GhWeight.semibold : GhWeight.normal,
+          color: strong ? theme.accentBright : theme.muted,
+        ),
+      ),
+    );
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: theme.space(1.5),
+      children: [
+        if (current != null) ...[
+          chip('v$current', strong: false),
+          GhIcon(GhIcons.chevronRight, size: theme.space(3), color: theme.muted.withValues(alpha: 0.6)),
+        ],
+        chip('v$next', strong: true),
+      ],
+    );
+  }
+
+  Widget _sectionLabel(GhTheme theme, String text, {Color? color, FaIconData? icon}) {
+    final label = Text(
+      text.toUpperCase(),
+      style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: color ?? theme.muted, letterSpacingEm: 0.06),
+    );
+    if (icon == null) return label;
+    return Row(
+      spacing: theme.space(1.5),
+      children: [
+        GhIcon(icon, size: theme.space(3.5), color: color ?? theme.muted),
+        Flexible(child: label),
+      ],
+    );
+  }
+
+  BoxDecoration _panel(GhTheme theme) => BoxDecoration(
+    color: theme.raised,
+    borderRadius: BorderRadius.circular(theme.radiusItem),
+    border: Border.all(color: theme.line),
+  );
+
+  Widget _panelHeader(GhTheme theme, String label, {Widget? trailing}) => Container(
+    padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(2.5)),
+    decoration: BoxDecoration(
+      border: Border(bottom: BorderSide(color: theme.line.withValues(alpha: 0.7))),
+    ),
+    child: Row(
+      children: [
+        Expanded(child: _sectionLabel(theme, label)),
+        ?trailing,
+      ],
+    ),
+  );
+
   Widget _available(GhTheme theme, String? current) {
-    final version = _version ?? '';
     final notes = parseReleaseNotes(_notes);
     final knownIssues = [
       for (final s in notes.sections)
         if (s.isKnownIssues) ...s.items,
     ];
-    final mainSections = [
+    final sections = [
       for (final s in notes.sections)
         if (!s.isKnownIssues) s,
     ];
-    final hasNotes = mainSections.isNotEmpty || notes.intro.isNotEmpty;
-    final radius = BorderRadius.circular(theme.radiusItem);
-    final left = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: theme.space(5),
-      children: [
-        Row(
-          spacing: theme.space(3.5),
-          children: [
-            Container(
-              width: theme.space(12),
-              height: theme.space(12),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(color: theme.accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(theme.radiusTile)),
-              child: GhIcon(GhIcons.download, size: theme.space(5), color: theme.accentBright),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: theme.space(0.5),
-                children: [
-                  Text(
-                    ghTr('check_updates_version_available', args: {'version': version}),
-                    style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink, lineHeight: 1.375),
-                  ),
-                  Text(
-                    ghTr('check_updates_ask_download'),
-                    style: theme.text(size: GhTextSize.xs, color: theme.muted),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        Wrap(
-          crossAxisAlignment: WrapCrossAlignment.center,
-          spacing: theme.space(2),
-          runSpacing: theme.space(2),
-          children: [
-            _versionPill(theme, 'v${current ?? '?'}', theme.mint, theme.raised, theme.line, theme.ink, false),
-            Transform.rotate(
-              angle: math.pi,
-              child: GhIcon(GhIcons.refresh, size: theme.space(3), color: theme.muted.withValues(alpha: 0.4)),
-            ),
-            _versionPill(
-              theme,
-              'v$version',
-              theme.accentBright,
-              theme.accent.withValues(alpha: 0.15),
-              theme.accent.withValues(alpha: 0.3),
-              theme.accentBright,
-              true,
-            ),
-          ],
-        ),
-        if (knownIssues.isNotEmpty)
-          Container(
-            padding: EdgeInsets.all(theme.space(4)),
-            decoration: BoxDecoration(
-              borderRadius: radius,
-              border: Border.all(color: theme.amber.withValues(alpha: 0.3)),
-              color: theme.amber.withValues(alpha: 0.1),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(bottom: theme.space(2)),
-                  child: Row(
-                    spacing: theme.space(1.5),
-                    children: [
-                      GhIcon(GhIcons.alertTriangle, size: theme.space(3.5), color: theme.amber),
-                      Text(
-                        ghTr('changelog_known_issues').toUpperCase(),
-                        style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: theme.amber, letterSpacingEm: 0.05),
-                      ),
-                    ],
-                  ),
-                ),
-                for (final issue in knownIssues)
-                  Padding(
-                    padding: EdgeInsets.only(bottom: theme.space(1.5)),
-                    child: _bulletLine(theme, issue, theme.amber, theme.muted),
-                  ),
-              ],
-            ),
-          ),
-      ],
+    final hasNotes = sections.isNotEmpty || notes.intro.isNotEmpty || knownIssues.isNotEmpty;
+    final hero = _hero(
+      theme,
+      icon: GhIcons.download,
+      color: theme.accent,
+      title: ghTr('check_updates_version_available', args: {'version': _version ?? ''}),
+      subtitle: ghTr('check_updates_ask_download'),
+      trailing: _versionChange(theme, current),
     );
-    final right = hasNotes
-        ? Container(
-            decoration: BoxDecoration(
-              color: theme.raised,
-              borderRadius: radius,
-              border: Border.all(color: theme.line),
-            ),
-            clipBehavior: Clip.antiAlias,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(2.5)),
-                  decoration: BoxDecoration(
-                    color: theme.raised,
-                    border: Border(bottom: BorderSide(color: theme.line.withValues(alpha: 0.7))),
-                  ),
-                  child: Text(
-                    ghTr('check_updates_release_notes').toUpperCase(),
-                    style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: theme.muted, letterSpacingEm: 0.05),
-                  ),
-                ),
-                ConstrainedBox(
-                  constraints: BoxConstraints(maxHeight: theme.space(64)),
-                  child: GhScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        if (notes.intro.isNotEmpty)
-                          Padding(
-                            padding: EdgeInsets.fromLTRB(theme.space(4), theme.space(3), theme.space(4), 0),
-                            child: Text(
-                              notes.intro.join(' '),
-                              style: theme.text(size: GhTextSize.xs, color: theme.muted, lineHeight: 1.625),
-                            ),
-                          ),
-                        for (final (i, section) in mainSections.indexed)
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(3)),
-                            decoration: BoxDecoration(
-                              border: i == mainSections.length - 1
-                                  ? null
-                                  : Border(bottom: BorderSide(color: theme.line.withValues(alpha: 0.5))),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(bottom: theme.space(1.5)),
-                                  child: Text(
-                                    section.title.toUpperCase(),
-                                    style: theme.text(
-                                      size: GhTextSize.x3s,
-                                      weight: GhWeight.semibold,
-                                      color: theme.muted,
-                                      letterSpacingEm: 0.025,
-                                    ),
-                                  ),
-                                ),
-                                for (final item in section.items)
-                                  Padding(
-                                    padding: EdgeInsets.only(bottom: theme.space(1.5)),
-                                    child: _bulletLine(theme, item, theme.muted, theme.ink.withValues(alpha: 0.9)),
-                                  ),
-                              ],
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          )
-        : const SizedBox.shrink();
-    final wide = MediaQuery.sizeOf(context).width >= 640;
     return Column(
-      spacing: theme.space(5),
-      children: [
-        if (wide)
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: theme.space(6),
-            children: [
-              ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: theme.rem(15)),
-                child: SizedBox(width: theme.rem(15), child: left),
-              ),
-              Expanded(child: right),
-            ],
-          )
-        else
-          Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: theme.space(6), children: [left, right]),
-        _details(theme),
-        _AccentButton(icon: GhIcons.download, label: ghTr('install_update'), onPressed: () => _install?.call().ignore()),
-      ],
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: theme.space(4),
+      children: [hero, _details(theme), if (hasNotes) _releaseNotes(theme, notes.intro, sections, knownIssues)],
     );
   }
 
-  Widget _details(GhTheme theme) {
-    final released = formatReleaseDate(_date, Localizations.localeOf(context).toLanguageTag());
-    final label = theme.text(size: GhTextSize.xs, color: theme.muted);
-    final value = theme.text(size: GhTextSize.xs, color: theme.ink);
-    final mono = theme.text(size: GhTextSize.xs, mono: true, color: theme.ink);
-    TableRow row(String name, String text, TextStyle style) => TableRow(
-      children: [
-        Padding(
-          padding: EdgeInsetsDirectional.only(end: theme.space(3), bottom: theme.space(1.5)),
-          child: Text(name, style: label),
+  Widget _releaseNotes(GhTheme theme, List<String> intro, List<ReleaseSection> sections, List<String> knownIssues) {
+    final maxHeight = math.max(theme.rem(9), math.min(theme.rem(22), MediaQuery.sizeOf(context).height * 0.28));
+    final blocks = <Widget>[
+      if (intro.isNotEmpty)
+        Text(
+          intro.join(' '),
+          style: theme.text(size: GhTextSize.xs, color: theme.muted, lineHeight: 1.625),
         ),
-        Padding(
-          padding: EdgeInsets.only(bottom: theme.space(1.5)),
-          child: Text(text, maxLines: 2, overflow: TextOverflow.ellipsis, style: style),
+      for (final section in sections)
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: theme.space(1.5),
+          children: [
+            _sectionLabel(theme, section.title),
+            for (final item in section.items) _bulletLine(theme, item, theme.accent, theme.ink.withValues(alpha: 0.9)),
+          ],
         ),
-      ],
-    );
-    final releaseUrl = _source.releaseUrl;
-    return Container(
-      padding: EdgeInsets.all(theme.space(3.5)),
-      decoration: BoxDecoration(
-        color: theme.raised,
-        borderRadius: BorderRadius.circular(theme.radiusItem),
-        border: Border.all(color: theme.line),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: theme.space(2.5),
-        children: [
-          Text(
-            ghTr('check_updates_details').toUpperCase(),
-            style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: theme.muted, letterSpacingEm: 0.05),
-          ),
-          Table(
-            columnWidths: const {0: IntrinsicColumnWidth(), 1: FlexColumnWidth()},
+      if (knownIssues.isNotEmpty)
+        GhAlertBox(
+          tone: GhAlertTone.amber,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: theme.space(1.5),
             children: [
-              if (released != null) row(ghTr('check_updates_released'), released, value),
-              if (_source.host != null) row(ghTr('check_updates_source'), _source.host!, mono),
-              if (_source.file != null) row(ghTr('check_updates_file'), _source.file!, mono),
-              if (_package != null) row(ghTr('check_updates_package'), _package!, mono),
-              row(ghTr('check_updates_signature'), ghTr('check_updates_signature_checked'), value),
+              _sectionLabel(theme, ghTr('changelog_known_issues'), color: theme.amber, icon: GhIcons.alertTriangle),
+              for (final issue in knownIssues) _bulletLine(theme, issue, theme.amber, theme.ink.withValues(alpha: 0.85)),
             ],
           ),
-          if (releaseUrl != null)
-            GhPressable(
-              onPressed: () => OpenerApi.openUrl(releaseUrl).catchError((Object e) => ghToasts.pushToast(GhToastType.error, '$e')),
-              borderRadius: BorderRadius.circular(theme.radiusTag),
-              builder: (context, states) {
-                final color = states.active ? theme.accentBright : theme.accent;
-                return Row(
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: theme.space(1.5),
-                  children: [
-                    GhIcon(GhIcons.externalLink, size: theme.space(3.5), color: color),
-                    Text(
-                      ghTr('check_updates_view_release'),
-                      style: theme.text(size: GhTextSize.xs, color: color),
-                    ),
-                  ],
-                );
-              },
+        ),
+    ];
+    return Container(
+      decoration: _panel(theme),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _panelHeader(theme, ghTr('check_updates_release_notes')),
+          ConstrainedBox(
+            constraints: BoxConstraints(maxHeight: maxHeight),
+            child: GhScrollView(
+              padding: EdgeInsets.all(theme.space(4)),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: theme.space(4), children: blocks),
             ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _downloadStats(GhTheme theme) {
-    final stats = _stats;
-    final total = stats.total;
-    final mono = theme.text(size: GhTextSize.xs, mono: true, color: theme.ink).copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
-    final muted = mono.copyWith(color: theme.muted);
-    final speed = stats.speed;
-    final eta = stats.eta;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: theme.space(2),
-      children: [
-        Row(
-          spacing: theme.space(3),
+  Widget _details(GhTheme theme) {
+    final released = formatReleaseDate(_date, Localizations.localeOf(context).toLanguageTag());
+    Widget fact(FaIconData icon, String label, String value, {bool mono = false, Color? color}) => GhTooltip(
+      message: label,
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: theme.space(2.5), vertical: theme.space(1.25)),
+        decoration: BoxDecoration(
+          color: theme.raised,
+          borderRadius: BorderRadius.circular(theme.radiusTag),
+          border: Border.all(color: theme.line),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: theme.space(1.5),
           children: [
-            Expanded(
+            GhIcon(icon, size: theme.space(3.25), color: color ?? theme.muted),
+            Flexible(
               child: Text(
-                total != null
-                    ? ghTr('check_updates_progress_size', args: {'downloaded': formatBytes(stats.downloaded), 'total': formatBytes(total)})
-                    : formatBytes(stats.downloaded),
-                style: mono,
+                value,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.text(size: GhTextSize.x2s, mono: mono, color: color ?? theme.ink.withValues(alpha: 0.9)),
               ),
             ),
-            if (speed != null && speed > 0) Text(ghTr('check_updates_speed', args: {'speed': formatBytes(speed)}), style: muted),
-            if (eta != null && eta > Duration.zero)
-              Text(ghTr('check_updates_time_left', args: {'time': formatDuration(math.max(1000, eta.inMilliseconds))}), style: muted),
           ],
         ),
-        if (_source.host != null)
-          Text(
-            ghTr('check_updates_from_host', args: {'host': _source.host!}),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.text(size: GhTextSize.x2s, color: theme.muted.withValues(alpha: 0.8)),
+      ),
+    );
+    return Semantics(
+      label: ghTr('check_updates_details'),
+      container: true,
+      child: Wrap(
+        spacing: theme.space(1.5),
+        runSpacing: theme.space(1.5),
+        children: [
+          if (released != null) fact(GhIcons.clock, ghTr('check_updates_released'), released),
+          if (_source.host != null) fact(GhIcons.cloudArrowDown, ghTr('check_updates_source'), _source.host!, mono: true),
+          if (_source.file != null) fact(GhIcons.hardDrive, ghTr('check_updates_file'), _source.file!, mono: true),
+          if (_package != null) fact(GhIcons.monitor, ghTr('check_updates_package'), _package!, mono: true),
+          fact(GhIcons.lock, ghTr('check_updates_signature'), ghTr('check_updates_signature_checked'), color: theme.mint),
+        ],
+      ),
+    );
+  }
+
+  Widget _progressCard(GhTheme theme) {
+    final stats = _stats;
+    final total = stats.total;
+    final speed = stats.speed;
+    final eta = stats.eta;
+    final numbers = theme
+        .text(size: GhTextSize.xs, mono: true, color: theme.ink)
+        .copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
+    final quiet = numbers.copyWith(color: theme.muted);
+    return Container(
+      padding: EdgeInsets.all(theme.space(4)),
+      decoration: _panel(theme),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: theme.space(3),
+        children: [
+          Row(
+            spacing: theme.space(3),
+            children: [
+              Expanded(
+                child: Text(
+                  total != null
+                      ? ghTr(
+                          'check_updates_progress_size',
+                          args: {'downloaded': formatBytes(stats.downloaded), 'total': formatBytes(total)},
+                        )
+                      : formatBytes(stats.downloaded),
+                  style: numbers,
+                ),
+              ),
+              if (speed != null && speed > 0) Text(ghTr('check_updates_speed', args: {'speed': formatBytes(speed)}), style: quiet),
+            ],
           ),
-      ],
+          ClipRRect(
+            borderRadius: BorderRadius.circular(999),
+            child: Container(
+              height: theme.space(1.5),
+              color: theme.line,
+              alignment: AlignmentDirectional.centerStart,
+              child: AnimatedFractionallySizedBox(
+                duration: const Duration(milliseconds: 180),
+                curve: Curves.easeOut,
+                widthFactor: _progress.clamp(0, 1).toDouble(),
+                heightFactor: 1,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(999),
+                    gradient: LinearGradient(colors: [theme.accent, theme.accentBright]),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Row(
+            spacing: theme.space(3),
+            children: [
+              if (_source.host != null)
+                Expanded(
+                  child: Text(
+                    ghTr('check_updates_from_host', args: {'host': _source.host!}),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.text(size: GhTextSize.x2s, color: theme.muted),
+                  ),
+                )
+              else
+                const Spacer(),
+              if (eta != null && eta > Duration.zero)
+                Text(
+                  ghTr('check_updates_time_left', args: {'time': formatDuration(math.max(1000, eta.inMilliseconds))}),
+                  style: theme.text(size: GhTextSize.x2s, color: theme.muted),
+                ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
   Widget _doneSummary(GhTheme theme) {
     final size = _doneSize;
     final elapsed = _doneElapsed;
-    return Column(
-      spacing: theme.space(1),
-      children: [
-        if (size != null && elapsed != null)
-          Text(
-            ghTr(
-              'check_updates_download_summary',
-              args: {'size': formatBytes(size), 'time': formatDuration(math.max(1000, elapsed.inMilliseconds))},
-            ),
-            style: theme.text(size: GhTextSize.xs, mono: true, color: theme.muted),
-          ),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: theme.space(1.5),
-          children: [
-            GhIcon(GhIcons.check, size: theme.space(3.5), color: theme.mint),
+    return GhAlertBox(
+      tone: GhAlertTone.mint,
+      child: Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: theme.space(5),
+        runSpacing: theme.space(2),
+        children: [
+          if (size != null && elapsed != null)
             Text(
-              ghTr('check_updates_signature_verified'),
-              style: theme.text(size: GhTextSize.xs, color: theme.mint),
+              ghTr(
+                'check_updates_download_summary',
+                args: {'size': formatBytes(size), 'time': formatDuration(math.max(1000, elapsed.inMilliseconds))},
+              ),
+              style: theme.text(size: GhTextSize.xs, color: theme.ink),
             ),
-          ],
-        ),
-      ],
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: theme.space(1.5),
+            children: [
+              GhIcon(GhIcons.lock, size: theme.space(3.5), color: theme.mint),
+              Text(
+                ghTr('check_updates_signature_verified'),
+                style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.mint),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
-  Widget _versionPill(GhTheme theme, String text, Color dot, Color fill, Color border, Color ink, bool strong) {
+  Widget _logPanel(GhTheme theme) {
+    final lines = _log.reversed.toList(growable: false);
+    final height = math.max(theme.rem(5), math.min(theme.rem(11), MediaQuery.sizeOf(context).height * 0.18));
+    Color colorOf(String line) {
+      if (line.startsWith('Failed')) return theme.danger;
+      if (line.startsWith('Extract:')) return theme.muted;
+      return theme.ink;
+    }
+
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(1.5)),
-      decoration: BoxDecoration(
-        color: fill,
-        borderRadius: BorderRadius.circular(theme.radiusItem),
-        border: Border.all(color: border),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        spacing: theme.space(1.5),
+      decoration: _panel(theme),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            width: theme.space(1.5),
-            height: theme.space(1.5),
-            decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
+          _panelHeader(
+            theme,
+            ghTr('check_updates_log'),
+            trailing: Text(
+              '${_log.length}',
+              style: theme.text(size: GhTextSize.x2s, mono: true, color: theme.muted),
+            ),
           ),
+          Container(
+            height: height,
+            color: theme.base.withValues(alpha: 0.35),
+            child: ListView.builder(
+              key: const ValueKey('update-log'),
+              reverse: true,
+              padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(2.5)),
+              itemCount: lines.length,
+              itemBuilder: (context, i) => Padding(
+                padding: EdgeInsets.symmetric(vertical: theme.space(0.25)),
+                child: Text(
+                  lines[i],
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.text(size: GhTextSize.x2s, mono: true, color: colorOf(lines[i]), lineHeight: 1.5),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _tokenHint(GhTheme theme, GithubTokenHint hint) {
+    return GhAlertBox(
+      tone: GhAlertTone.amber,
+      icon: GhIcons.github,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: theme.space(3),
+        children: [
           Text(
-            text,
-            style: theme.text(size: GhTextSize.xs, mono: true, weight: strong ? GhWeight.semibold : GhWeight.normal, color: ink),
+            hint == GithubTokenHint.tokenRejected ? ghTr('check_updates_rate_limited_token_hint') : ghTr('check_updates_rate_limited_hint'),
+            style: theme.text(size: GhTextSize.xs, color: theme.ink.withValues(alpha: 0.85), lineHeight: 1.6),
+          ),
+          GhButton(
+            onPressed: _openTokenSettings,
+            label: hint == GithubTokenHint.tokenRejected ? ghTr('check_updates_open_token_settings') : ghTr('check_updates_add_token'),
+            icon: GhIcons.gear,
+            variant: GhButtonVariant.outline,
+            size: GhTextSize.xs,
+            paddingX: 3,
+            paddingY: 1.5,
           ),
         ],
       ),
@@ -982,119 +1082,21 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
   }
 
   Widget _bulletLine(GhTheme theme, String text, Color bullet, Color color) {
-    final style = theme.text(size: GhTextSize.xs, color: color, lineHeight: 1.625);
+    final style = theme.text(size: GhTextSize.xs, color: color, lineHeight: 1.6);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: theme.space(2),
+      spacing: theme.space(2.5),
       children: [
-        Text('•', style: style.copyWith(color: bullet)),
+        Padding(
+          padding: EdgeInsets.only(top: theme.space(1.75)),
+          child: Container(
+            width: theme.space(1.25),
+            height: theme.space(1.25),
+            decoration: BoxDecoration(color: bullet.withValues(alpha: 0.8), shape: BoxShape.circle),
+          ),
+        ),
         Expanded(child: Text(text, style: style)),
       ],
-    );
-  }
-
-  Widget _error(GhTheme theme) {
-    final hint = githubTokenHint(_message, hasToken: _githubToken != null);
-    final title = switch (hint) {
-      GithubTokenHint.rateLimited => ghTr('check_updates_rate_limited'),
-      GithubTokenHint.tokenRejected => ghTr('check_updates_token_rejected'),
-      null => ghTr('check_updates_failed'),
-    };
-    final radius = BorderRadius.circular(theme.radiusItem);
-    return Column(
-      spacing: theme.space(4),
-      children: [
-        _statusIcon(theme, GhIcons.x, theme.danger),
-        _titled(theme, title, _message, subtitleMaxWidth: theme.rem(20)),
-        if (hint != null)
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(theme.space(4)),
-            decoration: BoxDecoration(
-              color: theme.raised,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: theme.line),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: theme.space(3),
-              children: [
-                Text(
-                  hint == GithubTokenHint.tokenRejected
-                      ? ghTr('check_updates_rate_limited_token_hint')
-                      : ghTr('check_updates_rate_limited_hint'),
-                  style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625),
-                ),
-                _AccentButton(
-                  label: hint == GithubTokenHint.tokenRejected
-                      ? ghTr('check_updates_open_token_settings')
-                      : ghTr('check_updates_add_token'),
-                  onPressed: _openTokenSettings,
-                  small: true,
-                ),
-              ],
-            ),
-          ),
-        GhPressable(
-          onPressed: () => _doCheck().ignore(),
-          borderRadius: radius,
-          builder: (context, states) => GhAnimatedBox(
-            borderRadius: radius,
-            color: states.active ? theme.raised : theme.raised.withValues(alpha: 0),
-            border: Border.all(color: states.active ? theme.accentDim : theme.line),
-            padding: EdgeInsets.symmetric(horizontal: theme.space(5), vertical: theme.space(2.5)),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              spacing: theme.space(2),
-              children: [
-                GhIcon(GhIcons.refresh, size: theme.space(4), color: theme.ink),
-                Text(
-                  ghTr('try_again'),
-                  style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _AccentButton extends StatelessWidget {
-  const _AccentButton({required this.label, required this.onPressed, this.icon, this.small = false, this.expand = false});
-
-  final String label;
-  final VoidCallback onPressed;
-  final FaIconData? icon;
-  final bool small;
-  final bool expand;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = GhTheme.of(context);
-    final radius = BorderRadius.circular(theme.radiusItem);
-    return GhPressable(
-      onPressed: onPressed,
-      rippleColor: Colors.white,
-      borderRadius: radius,
-      builder: (context, states) => GhAnimatedBox(
-        color: states.active ? theme.accentBright : theme.accent,
-        borderRadius: radius,
-        padding: EdgeInsets.symmetric(horizontal: theme.space(small ? 4 : (expand ? 5 : 6)), vertical: theme.space(small ? 2 : 2.5)),
-        child: Row(
-          mainAxisSize: expand ? MainAxisSize.max : MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: theme.space(2),
-          children: [
-            if (icon != null) GhIcon(icon!, size: theme.space(4), color: Colors.white),
-            Text(
-              label,
-              style: theme.text(size: small ? GhTextSize.xs : GhTextSize.sm, weight: GhWeight.medium, color: Colors.white),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

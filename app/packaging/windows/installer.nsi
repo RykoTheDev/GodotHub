@@ -27,6 +27,9 @@ RequestExecutionLevel user
 !ifndef PLUGIN_DIR
   !error "pass /DPLUGIN_DIR=<folder with ApplicationID.dll>"
 !endif
+!ifndef LAUNCHER
+  !error "pass /DLAUNCHER=<godothub-launcher.exe>"
+!endif
 
 !addplugindir /x86-unicode "${PLUGIN_DIR}"
 
@@ -123,12 +126,20 @@ Section "Install"
     SetAutoClose true
   !insertmacro RequireOwnFolder
   !insertmacro WaitForAppToClose
-  SetOutPath "$INSTDIR"
   RMDir /r "$INSTDIR\data"
+  Delete "$INSTDIR\*.dll"
+  RMDir /r "$INSTDIR\app-${VERSION}"
+  SetOutPath "$INSTDIR\app-${VERSION}"
   File /r "${SOURCE_DIR}\*.*"
+  SetOutPath "$INSTDIR"
+  File "/oname=${EXE_NAME}" "${LAUNCHER}"
+  File "/oname=app.ico" "${ICON}"
+  FileOpen $0 "$INSTDIR\launcher.json" w
+  FileWrite $0 '{"current": "${VERSION}"}'
+  FileClose $0
   WriteUninstaller "$INSTDIR\uninstall.exe"
 
-  CreateShortcut "${SHORTCUT}" "$INSTDIR\${EXE_NAME}" "" "$INSTDIR\${EXE_NAME}" 0
+  CreateShortcut "${SHORTCUT}" "$INSTDIR\${EXE_NAME}" "" "$INSTDIR\app.ico" 0
   ApplicationID::Set "${SHORTCUT}" "${IDENTIFIER}"
   Pop $0
 
@@ -137,7 +148,7 @@ Section "Install"
   WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayName" "${DISPLAY_NAME}"
   WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayVersion" "${VERSION}"
   WriteRegStr HKCU "${UNINSTALL_KEY}" "Publisher" "Ryko"
-  WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayIcon" "$INSTDIR\${EXE_NAME}"
+  WriteRegStr HKCU "${UNINSTALL_KEY}" "DisplayIcon" "$INSTDIR\app.ico"
   WriteRegStr HKCU "${UNINSTALL_KEY}" "InstallLocation" "$INSTDIR"
   WriteRegStr HKCU "${UNINSTALL_KEY}" "UninstallString" '"$INSTDIR\uninstall.exe"'
   WriteRegStr HKCU "${UNINSTALL_KEY}" "QuietUninstallString" '"$INSTDIR\uninstall.exe" /S'

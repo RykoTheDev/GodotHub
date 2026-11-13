@@ -1,0 +1,19 @@
+[package]
+name = "godothub_launcher"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+name = "godothub_launcher"
+
+[[bin]]
+name = "godothub-launcher"
+path = "src/main.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_System_Console", "Win32_UI_WindowsAndMessaging"] }

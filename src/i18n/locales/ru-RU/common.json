@@ -340,6 +340,7 @@
   "check_updates_open_token_settings": "Открыть настройки токена",
   "check_updates_download_from_github": "Скачать с GitHub",
   "check_updates_details": "Update details",
+  "check_updates_log": "Log",
   "check_updates_released": "Released",
   "check_updates_source": "Source",
   "check_updates_file": "File",

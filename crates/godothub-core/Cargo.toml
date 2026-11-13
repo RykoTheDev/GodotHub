@@ -15,6 +15,7 @@ dirs = "6"
 discord-rich-presence = "1.1.0"
 feed-rs = "2"
 futures-util = "0.3.32"
+godothub_launcher = { path = "../godothub-launcher" }
 interprocess = "2"
 minisign-verify = "0.3"
 notify = "6"

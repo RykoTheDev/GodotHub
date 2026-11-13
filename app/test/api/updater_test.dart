@@ -41,13 +41,20 @@ void main() {
       sendToken: false,
     );
     String? token;
+    var restarted = 0;
     rustApi
       ..on('crateApiUpdaterCheckForUpdate', () async => info)
-      ..on('crateApiUpdaterDownloadAndInstallUpdate', ({required rust.UpdateInfo update, String? githubToken}) {
+      ..on('crateApiUpdaterRestartToUpdate', () async {
+        restarted++;
+        return false;
+      })
+      ..on('crateApiUpdaterDownloadUpdate', ({required rust.UpdateInfo update, String? githubToken}) {
         token = githubToken;
         return Stream.fromIterable([
           rust.UpdateProgress(downloaded: BigInt.zero, total: BigInt.from(100)),
+          rust.UpdateProgress(downloaded: BigInt.zero, total: BigInt.from(100), log: 'Downloading x.zip from example.com'),
           rust.UpdateProgress(downloaded: BigInt.from(50), total: BigInt.from(100)),
+          rust.UpdateProgress(downloaded: BigInt.from(50), total: BigInt.from(100), log: 'Extract: data/app.so (1.0 KB)'),
         ]);
       });
     final update = await UpdaterApi.check();
@@ -56,9 +63,14 @@ void main() {
     expect(update.downloadUrl, 'https://example.com/setup.exe');
     expect(update.package, 'windows-x86_64-nsis');
     final progress = <(int, int?)>[];
-    await update.downloadAndInstall((p) => progress.add((p.downloaded, p.total)), githubToken: 'ghp_x');
+    final log = <String>[];
+    await update.download((p) => progress.add((p.downloaded, p.total)), githubToken: 'ghp_x', onLog: log.add);
     expect(progress, [(0, 100), (50, 100), (50, 100)]);
+    expect(log, ['Downloading x.zip from example.com', 'Extract: data/app.so (1.0 KB)']);
     expect(token, 'ghp_x');
+    expect(restarted, 0);
+    await update.restart();
+    expect(restarted, 1);
   });
 
   test('no update and unversioned builds skip the background check', () async {
@@ -68,7 +80,9 @@ void main() {
   });
 
   test('the download source comes from the release URL', () {
-    final source = updateSourceFrom('https://github.com/RykoTheDev/godothub/releases/download/flutter-v0.2.0/GodotHub-Beta-0.2.0-windows-x64-setup.exe');
+    final source = updateSourceFrom(
+      'https://github.com/RykoTheDev/godothub/releases/download/flutter-v0.2.0/GodotHub-Beta-0.2.0-windows-x64-setup.exe',
+    );
     expect(source.host, 'github.com');
     expect(source.file, 'GodotHub-Beta-0.2.0-windows-x64-setup.exe');
     expect(source.releaseUrl, 'https://github.com/RykoTheDev/godothub/releases/tag/flutter-v0.2.0');
