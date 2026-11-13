@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../api/opener.dart';
 import '../../design/design.dart';
 import '../../modals/contributor_prs_modal.dart';
+import '../../motion/presence.dart';
 import '../../state/contributors.dart';
 import '../../ui/core/i18n.dart';
 import '../../ui/core/interaction.dart';
@@ -206,6 +207,7 @@ class CreditsAvatar extends StatelessWidget {
     return ClipOval(
       child: Image.network(
         url,
+        frameBuilder: ghFadeInFrameBuilder,
         width: size,
         height: size,
         fit: BoxFit.cover,

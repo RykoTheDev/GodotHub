@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1341125740;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -106462884;
 
 // Section: executor
 
@@ -8185,6 +8185,38 @@ fn wire__crate__api__current_version__set_current_version_impl(
         },
     )
 }
+fn wire__crate__api__native__set_main_window_visible_impl(
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "set_main_window_visible",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_visible = <bool>::sse_decode(&mut deserializer);
+            deserializer.end();
+            transform_result_sse::<_, ()>((move || {
+                let output_ok = Ok::<_, ()>({
+                    crate::api::native::set_main_window_visible(api_visible);
+                })?;
+                std::result::Result::Ok(output_ok)
+            })())
+        },
+    )
+}
 fn wire__crate__api__dto__set_ui_pref_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -10341,7 +10373,8 @@ impl SseDecode for crate::api::events::AppEventKind {
             33 => crate::api::events::AppEventKind::ShowMainWindow,
             34 => crate::api::events::AppEventKind::HideMainWindow,
             35 => crate::api::events::AppEventKind::RefreshMenus,
-            36 => crate::api::events::AppEventKind::Unknown,
+            36 => crate::api::events::AppEventKind::ExitApp,
+            37 => crate::api::events::AppEventKind::Unknown,
             _ => unreachable!("Invalid variant for AppEventKind: {}", inner),
         };
     }
@@ -14729,77 +14762,77 @@ fn pde_ffi_dispatcher_primary_impl(
             rust_vec_len,
             data_len,
         ),
-        219 => wire__crate__api__dto__set_ui_pref_impl(port, ptr, rust_vec_len, data_len),
-        221 => wire__crate__api__app__start_core_impl(port, ptr, rust_vec_len, data_len),
-        222 => wire__crate__api__app__start_core_in_impl(port, ptr, rust_vec_len, data_len),
-        223 => {
+        220 => wire__crate__api__dto__set_ui_pref_impl(port, ptr, rust_vec_len, data_len),
+        222 => wire__crate__api__app__start_core_impl(port, ptr, rust_vec_len, data_len),
+        223 => wire__crate__api__app__start_core_in_impl(port, ptr, rust_vec_len, data_len),
+        224 => {
             wire__crate__api__git_auth__start_device_flow_impl(port, ptr, rust_vec_len, data_len)
         }
-        224 => {
+        225 => {
             wire__crate__api__watcher__start_git_fs_watcher_impl(port, ptr, rust_vec_len, data_len)
         }
-        225 => wire__crate__api__export_runner__start_project_export_impl(
+        226 => wire__crate__api__export_runner__start_project_export_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        226 => {
+        227 => {
             wire__crate__api__watcher__stop_git_fs_watcher_impl(port, ptr, rust_vec_len, data_len)
         }
-        227 => wire__crate__api__projects__stop_project_impl(port, ptr, rust_vec_len, data_len),
-        228 => {
+        228 => wire__crate__api__projects__stop_project_impl(port, ptr, rust_vec_len, data_len),
+        229 => {
             wire__crate__api__tool_runner__stop_project_tool_impl(port, ptr, rust_vec_len, data_len)
         }
-        229 => {
+        230 => {
             wire__crate__api__workspace__switch_workspace_impl(port, ptr, rust_vec_len, data_len)
         }
-        230 => {
+        231 => {
             wire__crate__api__todo_sync__sync_project_todos_impl(port, ptr, rust_vec_len, data_len)
         }
-        231 => wire__crate__api__templates__sync_templates_with_scan_dir_impl(
+        232 => wire__crate__api__templates__sync_templates_with_scan_dir_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        232 => wire__crate__api__godot_versions__test_github_token_impl(
+        233 => wire__crate__api__godot_versions__test_github_token_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        233 => {
+        234 => {
             wire__crate__api__todo_sync__todo_git_activity_impl(port, ptr, rust_vec_len, data_len)
         }
-        234 => {
+        235 => {
             wire__crate__api__cli_shim__uninstall_cli_tool_impl(port, ptr, rust_vec_len, data_len)
         }
-        235 => wire__crate__api__export_templates__uninstall_export_template_files_impl(
+        236 => wire__crate__api__export_templates__uninstall_export_template_files_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        236 => {
+        237 => {
             wire__crate__api__categories__update_category_impl(port, ptr, rust_vec_len, data_len)
         }
-        237 => wire__crate__api__changelog__update_changelog_entry_impl(
+        238 => wire__crate__api__changelog__update_changelog_entry_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        238 => wire__crate__api__projects__update_project_impl(port, ptr, rust_vec_len, data_len),
-        239 => {
+        239 => wire__crate__api__projects__update_project_impl(port, ptr, rust_vec_len, data_len),
+        240 => {
             wire__crate__api__addons__update_project_addon_impl(port, ptr, rust_vec_len, data_len)
         }
-        240 => wire__crate__api__settings__update_settings_impl(port, ptr, rust_vec_len, data_len),
-        241 => wire__crate__api__vault__update_vault_item_impl(port, ptr, rust_vec_len, data_len),
-        242 => {
+        241 => wire__crate__api__settings__update_settings_impl(port, ptr, rust_vec_len, data_len),
+        242 => wire__crate__api__vault__update_vault_item_impl(port, ptr, rust_vec_len, data_len),
+        243 => {
             wire__crate__api__workspace__update_workspace_impl(port, ptr, rust_vec_len, data_len)
         }
-        243 => {
+        244 => {
             wire__crate__api__projects__write_project_tags_impl(port, ptr, rust_vec_len, data_len)
         }
         _ => unreachable!(),
@@ -14817,7 +14850,8 @@ fn pde_ffi_dispatcher_sync_impl(
         6 => wire__crate__api__app__app_version_impl(ptr, rust_vec_len, data_len),
         11 => wire__crate__api__app__channel_identifier_impl(ptr, rust_vec_len, data_len),
         217 => wire__crate__api__updater__set_app_version_impl(ptr, rust_vec_len, data_len),
-        220 => {
+        219 => wire__crate__api__native__set_main_window_visible_impl(ptr, rust_vec_len, data_len),
+        221 => {
             wire__crate__api__updater__set_updater_test_overrides_impl(ptr, rust_vec_len, data_len)
         }
         _ => unreachable!(),
@@ -15016,7 +15050,8 @@ impl flutter_rust_bridge::IntoDart for crate::api::events::AppEventKind {
             Self::ShowMainWindow => 33.into_dart(),
             Self::HideMainWindow => 34.into_dart(),
             Self::RefreshMenus => 35.into_dart(),
-            Self::Unknown => 36.into_dart(),
+            Self::ExitApp => 36.into_dart(),
+            Self::Unknown => 37.into_dart(),
             _ => unreachable!(),
         }
     }
@@ -18356,7 +18391,8 @@ impl SseEncode for crate::api::events::AppEventKind {
                 crate::api::events::AppEventKind::ShowMainWindow => 33,
                 crate::api::events::AppEventKind::HideMainWindow => 34,
                 crate::api::events::AppEventKind::RefreshMenus => 35,
-                crate::api::events::AppEventKind::Unknown => 36,
+                crate::api::events::AppEventKind::ExitApp => 36,
+                crate::api::events::AppEventKind::Unknown => 37,
                 _ => {
                     unimplemented!("");
                 }

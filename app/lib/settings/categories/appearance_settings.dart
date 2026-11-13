@@ -10,14 +10,12 @@ import '../../src/rust/api/types.dart';
 import '../../state/app_lifecycle.dart';
 import '../../state/settings.dart';
 import '../../ui/controls/slider.dart';
-import '../../ui/controls/text_input.dart';
 import '../../ui/controls/toggle.dart';
 import '../../ui/core/interaction.dart';
 import '../../ui/feedback/modal_shell.dart';
 import '../../ui/shell/color_swatch_picker.dart';
 import '../settings_parts.dart';
 import 'look_parts.dart';
-
 
 GhThemeMode resolvedMode(AppSettings settings) => resolveThemeMode(settings.themeMode, ghPlatformBrightness());
 
@@ -75,26 +73,7 @@ class AppearanceSettings extends ConsumerStatefulWidget {
 }
 
 class _AppearanceSettingsState extends ConsumerState<AppearanceSettings> {
-  late final TextEditingController _css = TextEditingController(text: ref.read(settingsProvider).value?.customCss ?? '');
-  bool _applied = false;
-  Timer? _appliedTimer;
-
-  @override
-  void dispose() {
-    _appliedTimer?.cancel();
-    _css.dispose();
-    super.dispose();
-  }
-
   void _update(AppSettings next) => ref.read(settingsProvider.notifier).save(next).ignore();
-
-  void _flashApplied() {
-    _appliedTimer?.cancel();
-    setState(() => _applied = true);
-    _appliedTimer = Timer(const Duration(milliseconds: 1500), () {
-      if (mounted) setState(() => _applied = false);
-    });
-  }
 
   void _openPresets(GhThemeMode mode, AppSettings settings) {
     showGhModal<void>(
@@ -118,9 +97,6 @@ class _AppearanceSettingsState extends ConsumerState<AppearanceSettings> {
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
     final settings = ref.watch(settingsProvider).value ?? defaultSettings;
-    ref.listen(settingsProvider.select((s) => s.value?.customCss), (previous, next) {
-      if (next != null && next != _css.text) _css.text = next;
-    });
     final custom = settings.themePreset == 'custom';
     final light = resolvedMode(settings) == GhThemeMode.light;
     return Column(
@@ -289,60 +265,6 @@ class _AppearanceSettingsState extends ConsumerState<AppearanceSettings> {
             onChanged: (value) => _update(copySettings(settings, projectIconOpacity: value.round())),
           ),
         ),
-        SettingsSubsection(
-          id: 'appearance-css',
-          title: lts('custom_css_label'),
-          searchText: '${lts('custom_css_label')} ${lts('custom_css_apply')} ${lts('clear')}',
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: theme.space(2),
-            children: [
-              GhTextInput(
-                controller: _css,
-                mono: true,
-                size: GhTextSize.xs,
-                minLines: 8,
-                maxLines: 8,
-                placeholder: lts('custom_css_placeholder'),
-                semanticLabel: lts('custom_css_label'),
-                background: theme.base,
-                borderColor: theme.outline.withValues(alpha: 0.5),
-                focusBorderColor: theme.accentDim,
-                borderRadius: BorderRadius.circular(theme.radiusBtn),
-                padding: EdgeInsets.symmetric(horizontal: theme.space(3.5), vertical: theme.space(2.5)),
-                onChanged: (_) {
-                  if (_applied) setState(() => _applied = false);
-                },
-              ),
-              Row(
-                spacing: theme.space(2),
-                children: [
-                  LookSolidButton(
-                    label: lts('custom_css_apply'),
-                    onPressed: () {
-                      _update(copySettings(settings, customCss: _css.text));
-                      _flashApplied();
-                    },
-                  ),
-                  if (settings.customCss.isNotEmpty)
-                    LookOutlineButton(
-                      label: lts('clear'),
-                      onPressed: () {
-                        _css.text = '';
-                        _update(copySettings(settings, customCss: ''));
-                        _flashApplied();
-                      },
-                    ),
-                  if (_applied)
-                    Text(
-                      lts('custom_css_applied'),
-                      style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.mint),
-                    ),
-                ],
-              ),
-            ],
-          ),
-        ),
         Align(
           alignment: AlignmentDirectional.centerStart,
           child: LookOutlineButton(
@@ -350,10 +272,7 @@ class _AppearanceSettingsState extends ConsumerState<AppearanceSettings> {
             label: lts('reset_appearance'),
             paddingX: 4,
             paddingY: 2,
-            onPressed: () {
-              _css.text = '';
-              _update(withAppearanceReset(settings));
-            },
+            onPressed: () => _update(withAppearanceReset(settings)),
           ),
         ),
       ],

@@ -487,6 +487,25 @@ pub fn extract_from_zip(bytes: &[u8], wanted: impl Fn(&str) -> bool) -> Result<(
     Err("The update archive does not contain an installer".into())
 }
 
+fn is_stale_updater_dir(name: &str, pid: u32) -> bool {
+    name.strip_prefix("godothub-")
+        .and_then(|rest| rest.rsplit_once("-updater-"))
+        .is_some_and(|(_, owner)| owner.parse::<u32>().is_ok_and(|owner| owner != pid))
+}
+
+pub fn remove_stale_temp_dirs() {
+    let pid = std::process::id();
+    let Ok(entries) = std::fs::read_dir(std::env::temp_dir()) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let name = entry.file_name().to_string_lossy().to_string();
+        if is_stale_updater_dir(&name, pid) && entry.file_type().is_ok_and(|t| t.is_dir()) {
+            let _ = std::fs::remove_dir_all(entry.path());
+        }
+    }
+}
+
 fn temp_dir_for(version: &str) -> Result<PathBuf, String> {
     let dir = std::env::temp_dir().join(format!("godothub-{version}-updater-{}", std::process::id()));
     std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
@@ -1123,6 +1142,15 @@ mod tests {
         let setup_only = manifest(&[&format!("{os}-{arch}")]);
         let update = update_from_manifest(&setup_only, "1.0.0", InstallKind::Installed(Installer::InApp)).unwrap().unwrap();
         assert_eq!(update.installer, Some(Installer::Nsis));
+    }
+
+    #[test]
+    fn only_other_processes_updater_folders_are_stale() {
+        assert!(is_stale_updater_dir("godothub-1.6.0-updater-41", 7));
+        assert!(!is_stale_updater_dir("godothub-1.6.0-updater-7", 7));
+        assert!(!is_stale_updater_dir("godothub-asset-12", 7));
+        assert!(!is_stale_updater_dir("other-1.6.0-updater-41", 7));
+        assert!(!is_stale_updater_dir("godothub-1.6.0-updater-x", 7));
     }
 
     #[test]

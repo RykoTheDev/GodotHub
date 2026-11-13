@@ -7,6 +7,7 @@ import '../design/design.dart';
 import '../logic/last_opened.dart';
 import '../motion/animated_number.dart';
 import '../motion/motion.dart';
+import '../motion/reveal.dart';
 import '../projects/project_icon.dart';
 import '../src/rust/api/types.dart';
 import '../state/app_signals.dart';
@@ -303,54 +304,59 @@ class DashInsightChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
-    return Container(
-      padding: EdgeInsets.all(theme.space(3)),
-      decoration: BoxDecoration(
-        color: theme.overlay,
+    return GhReveal(
+      child: GhTiltCard(
         borderRadius: BorderRadius.circular(theme.radiusItem),
-        border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: theme.space(2.5),
-        children: [
-          Container(
-            width: theme.space(7),
-            height: theme.space(7),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: theme.raised,
-              borderRadius: BorderRadius.circular(theme.radiusBtn),
-              border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-            ),
-            child: GhIcon(icon, size: theme.space(3.5), color: tone),
+        child: Container(
+          padding: EdgeInsets.all(theme.space(3)),
+          decoration: BoxDecoration(
+            color: theme.overlay,
+            borderRadius: BorderRadius.circular(theme.radiusItem),
+            border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
           ),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label.toUpperCase(),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.text(
-                    size: GhTextSize.x3s,
-                    weight: GhWeight.semibold,
-                    color: theme.muted.withValues(alpha: 0.6),
-                    letterSpacingEm: 0.05,
-                  ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: theme.space(2.5),
+            children: [
+              Container(
+                width: theme.space(7),
+                height: theme.space(7),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: theme.raised,
+                  borderRadius: BorderRadius.circular(theme.radiusBtn),
+                  border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
                 ),
-                SizedBox(height: theme.space(0.5)),
-                Text(
-                  value,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.ink),
+                child: GhIcon(icon, size: theme.space(3.5), color: tone),
+              ),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label.toUpperCase(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.text(
+                        size: GhTextSize.x3s,
+                        weight: GhWeight.semibold,
+                        color: theme.muted.withValues(alpha: 0.6),
+                        letterSpacingEm: 0.05,
+                      ),
+                    ),
+                    SizedBox(height: theme.space(0.5)),
+                    Text(
+                      value,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.ink),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -707,10 +713,15 @@ class _DashKpiCardState extends State<DashKpiCard> {
     final onPressed = widget.onPressed;
     final Widget card;
     if (onPressed != null) {
-      card = GhPressable(
-        onPressed: onPressed,
+      card = GhTiltCard(
+        press: false,
+        ripple: false,
         borderRadius: BorderRadius.circular(theme.radiusCard),
-        builder: (context, states) => _body(theme, states.active),
+        child: GhPressable(
+          onPressed: onPressed,
+          borderRadius: BorderRadius.circular(theme.radiusCard),
+          builder: (context, states) => _body(theme, states.active),
+        ),
       );
     } else {
       card = MouseRegion(

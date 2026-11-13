@@ -65,7 +65,7 @@ fn registry_has_godot_hub_install() -> bool {
 
     for root in UNINSTALL_ROOTS {
         let Ok(output) = std::process::Command::new("reg")
-            .args(["query", root, "/s", "/f", "GodotHub"])
+            .args(["query", root, "/s", "/d", "/e", "/f", "GodotHub"])
             .output()
         else {
             continue;
@@ -82,6 +82,10 @@ pub fn versioned_install() -> Option<(godothub_launcher::Layout, String)> {
 }
 
 pub fn launch_executable() -> std::io::Result<std::path::PathBuf> {
+    #[cfg(target_os = "linux")]
+    if let Some(image) = std::env::var_os("APPIMAGE").filter(|v| !v.is_empty()) {
+        return Ok(std::path::PathBuf::from(image));
+    }
     let exe = std::env::current_exe()?;
     let launcher = godothub_launcher::Layout::of_app_exe(&exe)
         .and_then(|(layout, _)| exe.file_name().map(|name| layout.root().join(name)))

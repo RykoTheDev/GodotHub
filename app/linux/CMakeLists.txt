@@ -8,6 +8,12 @@ set(BINARY_NAME "godothub-beta")
 # The unique GTK application identifier for this application. See:
 # https://wiki.gnome.org/HowDoI/ChooseApplicationID
 set(APPLICATION_ID "Ryko.GodotHub.Beta")
+set(GODOTHUB_APP_ICON "${CMAKE_CURRENT_SOURCE_DIR}/runner/resources/app_icon.png")
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/flutter/ephemeral/generated_config.cmake" GODOTHUB_GENERATED_CONFIG)
+if(GODOTHUB_GENERATED_CONFIG MATCHES "[=,]Q0hBTk5FTD1zdGFibGU=[,\"]")
+  set(APPLICATION_ID "Ryko.GodotHub")
+  set(GODOTHUB_APP_ICON "${CMAKE_CURRENT_SOURCE_DIR}/../packaging/icons/stable/app_icon.png")
+endif()
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
@@ -94,7 +100,7 @@ set(INSTALL_BUNDLE_LIB_DIR "${CMAKE_INSTALL_PREFIX}/lib")
 install(TARGETS ${BINARY_NAME} RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
   COMPONENT Runtime)
 
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/runner/resources/app_icon.png" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
+install(FILES "${GODOTHUB_APP_ICON}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
   COMPONENT Runtime)
 
 install(FILES "${FLUTTER_ICU_DATA_FILE}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"

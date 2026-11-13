@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../design/design.dart';
 
@@ -226,29 +227,40 @@ class _LanguageRow extends StatelessWidget {
   }
 }
 
+const ghFlagCountries = {'US', 'CN', 'RU', 'MA', 'MX', 'JP', 'FR', 'VN', 'BR'};
+
 class LanguageFlag extends StatelessWidget {
-  const LanguageFlag({super.key, required this.country});
+  const LanguageFlag({super.key, required this.country, this.width = 16, this.height = 16});
 
   final String country;
+  final double width;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
-    final tokens = TitleBarTokens.of(context);
     if (country == 'SYSTEM') {
-      return GhIcon(GhIcons.language, size: 16, color: tokens.muted);
+      return ExcludeSemantics(
+        child: SizedBox(
+          width: width,
+          height: height,
+          child: const Center(child: Text('\u{1F310}', style: TextStyle(fontSize: 12, height: 1))),
+        ),
+      );
     }
-    return Container(
-      width: 22,
-      height: 15,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: tokens.ink.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(3),
-        border: Border.all(color: Colors.black.withValues(alpha: 0.1)),
-      ),
-      child: Text(
-        country,
-        style: TextStyle(fontSize: 8, fontWeight: FontWeight.w700, height: 1, color: tokens.muted),
+    if (!ghFlagCountries.contains(country)) return const SizedBox.shrink();
+    return ExcludeSemantics(
+      child: Container(
+        key: ValueKey('language-flag-$country'),
+        width: width,
+        height: height,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(3),
+          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.1), spreadRadius: 1)],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(3),
+          child: SvgPicture.asset('assets/flags/$country.svg', width: width, height: height, fit: BoxFit.contain),
+        ),
       ),
     );
   }

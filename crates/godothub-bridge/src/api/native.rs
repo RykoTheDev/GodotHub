@@ -58,6 +58,11 @@ pub async fn notify(title: String, body: String) -> Result<(), CoreError> {
     notification.show().map(|_| ()).map_err(|e| CoreError::from(e.to_string()))
 }
 
+#[flutter_rust_bridge::frb(sync)]
+pub fn set_main_window_visible(visible: bool) {
+    crate::host::set_main_window_visible(visible);
+}
+
 pub async fn relaunch(args: Vec<String>) -> Result<(), CoreError> {
     godothub_core::single_instance::relaunch(&args).map_err(CoreError::from)
 }

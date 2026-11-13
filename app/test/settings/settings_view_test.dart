@@ -127,9 +127,9 @@ void main() {
 
   testWidgets('search hides unmatched sections, shows the empty state and clears', (tester) async {
     await pumpSettings(tester);
-    await tester.enterText(find.byType(TextField).first, ts('custom_css_label'));
+    await tester.enterText(find.byType(TextField).first, ts('project_icon_opacity_label'));
     await base.settle(tester, 3);
-    expect(find.descendant(of: find.byType(SettingsSubsection), matching: find.text(ts('custom_css_label'))), findsOneWidget);
+    expect(find.descendant(of: find.byType(SettingsSubsection), matching: find.text(ts('project_icon_opacity_label'))), findsOneWidget);
     expect(find.text(ts('theme_preset_label')), findsNothing);
 
     await tester.enterText(find.byType(TextField).first, 'zzzz-nothing');
@@ -191,16 +191,7 @@ void main() {
     await tester.sendKeyEvent(LogicalKeyboardKey.escape);
     await base.settle(tester);
 
-    await tester.enterText(find.byType(TextField), 'body { color: red; }');
-    await tester.tap(find.text(ts('custom_css_apply')));
-    await base.settle(tester, 3);
-    expect(host.last.customCss, 'body { color: red; }');
-    expect(find.text(ts('custom_css_applied')), findsOneWidget);
-    await tester.pump(const Duration(seconds: 2));
-    expect(find.text(ts('custom_css_applied')), findsNothing);
-    await tester.tap(find.text(ts('clear')));
-    await base.settle(tester, 3);
-    expect(host.last.customCss, '');
+    expect(find.text(ts('custom_css_label')), findsNothing);
 
     await tester.tap(find.text(ts('reset_appearance')));
     await base.settle(tester, 3);

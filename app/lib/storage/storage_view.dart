@@ -5,6 +5,7 @@ import '../api/projects.dart';
 import '../api/storage.dart';
 import '../design/design.dart';
 import '../logic/format_bytes.dart';
+import '../motion/motion.dart';
 import '../src/rust/api/dto.dart';
 import '../src/rust/api/types.dart';
 import '../src/ui_prefs.dart';
@@ -20,6 +21,7 @@ import '../ui/core/tooltip.dart';
 import '../ui/core/ui_settings.dart' show GhSide;
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
+import '../ui/reusables/unlocalized_badge.dart';
 import '../ui/reusables/view_header.dart';
 import '../ui/shell/overlay_scroll_area.dart';
 import '../ui/shell/view_insets.dart';
@@ -224,11 +226,21 @@ class _StorageViewState extends ConsumerState<StorageView> {
         borderRadius: BorderRadius.circular(theme.radiusTag),
         border: Border.all(color: border),
       ),
-      child: Text(text, style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: fg)),
+      child: Text(
+        text,
+        style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: fg),
+      ),
     );
   }
 
-  Widget _section(GhTheme theme, {required FaIconData icon, required String title, double? total, String? description, required Widget child}) {
+  Widget _section(
+    GhTheme theme, {
+    required FaIconData icon,
+    required String title,
+    double? total,
+    String? description,
+    required Widget child,
+  }) {
     return Container(
       padding: EdgeInsets.all(theme.space(4)),
       decoration: BoxDecoration(
@@ -255,7 +267,10 @@ class _StorageViewState extends ConsumerState<StorageView> {
                         children: [
                           GhIcon(icon, size: theme.space(3.5), color: theme.muted),
                           Flexible(
-                            child: Text(title, style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink)),
+                            child: Text(
+                              title,
+                              style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink),
+                            ),
                           ),
                         ],
                       ),
@@ -263,12 +278,19 @@ class _StorageViewState extends ConsumerState<StorageView> {
                     if (description != null)
                       Padding(
                         padding: EdgeInsets.only(top: theme.space(1)),
-                        child: Text(description, style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625)),
+                        child: Text(
+                          description,
+                          style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625),
+                        ),
                       ),
                   ],
                 ),
               ),
-              if (total != null) Text(formatBytes(total), style: theme.text(size: GhTextSize.xs, mono: true, color: theme.muted)),
+              if (total != null)
+                Text(
+                  formatBytes(total),
+                  style: theme.text(size: GhTextSize.xs, mono: true, color: theme.muted),
+                ),
             ],
           ),
           child,
@@ -291,17 +313,33 @@ class _StorageViewState extends ConsumerState<StorageView> {
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, maxLines: 1, overflow: TextOverflow.ellipsis, style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.ink)),
-        Text(detail, maxLines: 1, overflow: TextOverflow.ellipsis, style: theme.text(size: GhTextSize.x2s, color: theme.muted)),
+        Text(
+          title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.ink),
+        ),
+        Text(
+          detail,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: theme.text(size: GhTextSize.x2s, color: theme.muted),
+        ),
       ],
     ),
   );
 
-  Widget _size(GhTheme theme, String text) => Text(text, style: theme.text(size: GhTextSize.xs, mono: true, color: theme.ink));
+  Widget _size(GhTheme theme, String text) => Text(
+    text,
+    style: theme.text(size: GhTextSize.xs, mono: true, color: theme.ink),
+  );
 
   Widget _emptyNote(GhTheme theme, String text) => Padding(
     padding: EdgeInsets.symmetric(vertical: theme.space(2)),
-    child: Text(text, style: theme.text(size: GhTextSize.xs, color: theme.muted.withValues(alpha: 0.7))),
+    child: Text(
+      text,
+      style: theme.text(size: GhTextSize.xs, color: theme.muted.withValues(alpha: 0.7)),
+    ),
   );
 
   Widget _reclaimSection(GhTheme theme, List<ReclaimEntry> entries, List<ReclaimEntry> chosen, double chosenSize) {
@@ -326,7 +364,10 @@ class _StorageViewState extends ConsumerState<StorageView> {
                   if (entries.any((e) => e.group == group.id))
                     Builder(
                       builder: (context) {
-                        final rows = [for (final e in entries) if (e.group == group.id) e];
+                        final rows = [
+                          for (final e in entries)
+                            if (e.group == group.id) e,
+                        ];
                         final allOn = rows.every((r) => _selected.contains(r.key));
                         final someOn = rows.any((r) => _selected.contains(r.key));
                         return Column(
@@ -353,7 +394,10 @@ class _StorageViewState extends ConsumerState<StorageView> {
                                           }
                                           _selected = next;
                                         }),
-                                        child: Text(group.title, style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.ink)),
+                                        child: Text(
+                                          group.title,
+                                          style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.ink),
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -365,14 +409,21 @@ class _StorageViewState extends ConsumerState<StorageView> {
                               ),
                             ),
                             if (group.hint != null)
-                              Text(group.hint!, style: theme.text(size: GhTextSize.x2s, color: theme.amber.withValues(alpha: 0.9), lineHeight: 1.625)),
+                              Text(
+                                group.hint!,
+                                style: theme.text(size: GhTextSize.x2s, color: theme.amber.withValues(alpha: 0.9), lineHeight: 1.625),
+                              ),
                             for (final row in rows)
                               KeyedSubtree(
                                 key: ValueKey(row.key),
                                 child: _row(
                                   theme,
                                   children: [
-                                    GhCheckbox(checked: _selected.contains(row.key), label: row.label, onChanged: (on) => _toggle(row.key, on)),
+                                    GhCheckbox(
+                                      checked: _selected.contains(row.key),
+                                      label: row.label,
+                                      onChanged: (on) => _toggle(row.key, on),
+                                    ),
                                     _titleDetail(theme, row.label, row.detail),
                                     _size(theme, formatBytes(row.size)),
                                     _OpenFolderButton(path: row.path),
@@ -385,7 +436,9 @@ class _StorageViewState extends ConsumerState<StorageView> {
                     ),
                 Container(
                   padding: EdgeInsets.only(top: theme.space(2)),
-                  decoration: BoxDecoration(border: Border(top: BorderSide(color: theme.line))),
+                  decoration: BoxDecoration(
+                    border: Border(top: BorderSide(color: theme.line)),
+                  ),
                   child: Align(
                     alignment: AlignmentDirectional.centerEnd,
                     child: GhPressable(
@@ -403,7 +456,9 @@ class _StorageViewState extends ConsumerState<StorageView> {
                             spacing: theme.space(2),
                             children: [
                               _reclaiming
-                                  ? GhSpinning(child: GhIcon(GhIcons.spinner, size: theme.space(4), color: Colors.white))
+                                  ? GhSpinning(
+                                      child: GhIcon(GhIcons.spinner, size: theme.space(4), color: Colors.white),
+                                    )
                                   : GhIcon(GhIcons.trash, size: theme.space(4), color: Colors.white),
                               Text(
                                 ghTr('cleanup_reclaim_btn', args: {'size': formatBytes(chosenSize)}),
@@ -457,8 +512,17 @@ class _StorageViewState extends ConsumerState<StorageView> {
                                 runSpacing: theme.space(1),
                                 crossAxisAlignment: WrapCrossAlignment.center,
                                 children: [
-                                  Text(v.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.ink)),
-                                  if (v.name != v.tag) Text(v.tag, style: theme.text(size: GhTextSize.x2s, mono: true, color: theme.muted)),
+                                  Text(
+                                    v.name,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.ink),
+                                  ),
+                                  if (v.name != v.tag)
+                                    Text(
+                                      v.tag,
+                                      style: theme.text(size: GhTextSize.x2s, mono: true, color: theme.muted),
+                                    ),
                                   if (v.isCurrent) _badge(theme, _BadgeTone.accent, ghTr('cleanup_current_badge')),
                                   if (v.aliases.isNotEmpty) _badge(theme, _BadgeTone.accent, ghTr('cleanup_alias_badge')),
                                   if (v.projects.isNotEmpty)
@@ -588,9 +652,17 @@ class _StorageViewState extends ConsumerState<StorageView> {
             c.label.toUpperCase(),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: theme.muted.withValues(alpha: 0.6), letterSpacingEm: 0.05),
+            style: theme.text(
+              size: GhTextSize.x3s,
+              weight: GhWeight.semibold,
+              color: theme.muted.withValues(alpha: 0.6),
+              letterSpacingEm: 0.05,
+            ),
           ),
-          Text(formatBytes(c.value), style: theme.text(size: GhTextSize.lg, weight: GhWeight.semibold, color: theme.ink)),
+          Text(
+            formatBytes(c.value),
+            style: theme.text(size: GhTextSize.lg, weight: GhWeight.semibold, color: theme.ink),
+          ),
         ],
       ),
     );
@@ -640,7 +712,10 @@ class _StorageViewState extends ConsumerState<StorageView> {
                     spacing: theme.space(2),
                     children: [
                       GhIcon(GhIcons.refresh, size: theme.space(3.5), color: theme.ink),
-                      Text(ghTr('try_again'), style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.ink)),
+                      Text(
+                        ghTr('try_again'),
+                        style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.ink),
+                      ),
                     ],
                   ),
                 ),
@@ -656,8 +731,13 @@ class _StorageViewState extends ConsumerState<StorageView> {
         child: Column(
           spacing: theme.space(3),
           children: [
-            GhSpinning(child: GhIcon(GhIcons.spinner, size: theme.space(5), color: theme.muted)),
-            Text(ghTr('cleanup_scanning'), style: theme.text(size: GhTextSize.xs, color: theme.muted)),
+            GhSpinning(
+              child: GhIcon(GhIcons.spinner, size: theme.space(5), color: theme.muted),
+            ),
+            Text(
+              ghTr('cleanup_scanning'),
+              style: theme.text(size: GhTextSize.xs, color: theme.muted),
+            ),
           ],
         ),
       );
@@ -703,6 +783,11 @@ class _StorageViewState extends ConsumerState<StorageView> {
           child: GhViewHeader(
             connected: widget.connected,
             title: ghTr('cleanup_title'),
+            badge: GhUnlocalizedBadge.maybe(context, const [
+              ('common', 'cleanup_title'),
+              ('common', 'cleanup_templates_title'),
+              ('common', 'cleanup_reclaimable_title'),
+            ]),
             metric: [
               Text(
                 report != null ? formatBytes(totals.all) : '…',
@@ -730,7 +815,9 @@ class _StorageViewState extends ConsumerState<StorageView> {
                       spacing: theme.space(1.5),
                       children: [
                         if (_loading)
-                          GhSpinning(child: GhIcon(GhIcons.refresh, size: theme.space(3.5), color: states.active ? theme.ink : theme.muted))
+                          GhSpinning(
+                            child: GhIcon(GhIcons.refresh, size: theme.space(3.5), color: states.active ? theme.ink : theme.muted),
+                          )
                         else
                           GhIcon(GhIcons.refresh, size: theme.space(3.5), color: states.active ? theme.ink : theme.muted),
                         Text(
@@ -743,7 +830,10 @@ class _StorageViewState extends ConsumerState<StorageView> {
                 ),
               ),
             ],
-            child: Text(ghTr('cleanup_subtitle'), style: theme.text(size: GhTextSize.xs, color: theme.muted)),
+            child: Text(
+              ghTr('cleanup_subtitle'),
+              style: theme.text(size: GhTextSize.xs, color: theme.muted),
+            ),
           ),
         ),
         Expanded(
@@ -753,7 +843,12 @@ class _StorageViewState extends ConsumerState<StorageView> {
               hideThumb: !settings.showScrollbars,
               topButtonBottom: theme.space(17),
               child: Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(theme.space(widget.connected ? 5 : 2), theme.space(2), theme.space(5), theme.space(8)),
+                padding: EdgeInsetsDirectional.fromSTEB(
+                  theme.space(widget.connected ? 5 : 2),
+                  theme.space(2),
+                  theme.space(5),
+                  theme.space(8),
+                ),
                 child: _body(theme, report),
               ),
             ),
@@ -807,7 +902,9 @@ class _SizeBar extends StatelessWidget {
         height: theme.space(1),
         color: theme.raised,
         alignment: AlignmentDirectional.centerStart,
-        child: FractionallySizedBox(
+        child: AnimatedFractionallySizedBox(
+          duration: GhMotion.of(context).css(GhDurations.progress),
+          curve: GhCurves.outExpo,
           widthFactor: pct / 100,
           heightFactor: 1,
           child: ColoredBox(color: theme.accent.withValues(alpha: 0.6)),
@@ -850,7 +947,10 @@ class _ReclaimConfirmModal extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: theme.space(3),
           children: [
-            Text(ghTr('cleanup_confirm_desc'), style: theme.text(size: GhTextSize.xs, color: theme.muted)),
+            Text(
+              ghTr('cleanup_confirm_desc'),
+              style: theme.text(size: GhTextSize.xs, color: theme.muted),
+            ),
             ConstrainedBox(
               constraints: BoxConstraints(maxHeight: theme.space(64)),
               child: GhScrollView(
@@ -874,15 +974,28 @@ class _ReclaimConfirmModal extends StatelessWidget {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(e.label, maxLines: 1, overflow: TextOverflow.ellipsis, style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.ink)),
+                                  Text(
+                                    e.label,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.ink),
+                                  ),
                                   GhTooltip(
                                     message: e.path,
-                                    child: Text(e.path, maxLines: 1, overflow: TextOverflow.ellipsis, style: theme.text(size: GhTextSize.x2s, color: theme.muted)),
+                                    child: Text(
+                                      e.path,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: theme.text(size: GhTextSize.x2s, color: theme.muted),
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
-                            Text(formatBytes(e.size), style: theme.text(size: GhTextSize.xs, mono: true, color: theme.ink)),
+                            Text(
+                              formatBytes(e.size),
+                              style: theme.text(size: GhTextSize.xs, mono: true, color: theme.ink),
+                            ),
                           ],
                         ),
                       ),
@@ -890,7 +1003,10 @@ class _ReclaimConfirmModal extends StatelessWidget {
                 ),
               ),
             ),
-            Text(ghTr('cleanup_confirm_trash_note'), style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625)),
+            Text(
+              ghTr('cleanup_confirm_trash_note'),
+              style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625),
+            ),
           ],
         ),
       ),

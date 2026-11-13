@@ -6,6 +6,7 @@ import '../api/api.dart';
 import '../design/design.dart';
 import '../logic/duration.dart';
 import '../logic/last_opened.dart';
+import '../motion/motion.dart';
 import '../src/rust/api/types.dart';
 import '../ui/core/interaction.dart';
 import '../ui/core/tooltip.dart';
@@ -269,7 +270,6 @@ class _BarState extends State<_Bar> {
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
     final duration = formatDuration(widget.seconds * 1000);
-    final alpha = _hovered ? 1.0 : 0.8;
     return GhTooltip(
       side: GhSide.top,
       delay: const Duration(milliseconds: 80),
@@ -304,17 +304,17 @@ class _BarState extends State<_Bar> {
                     label: td('dashboard_weekly_aria', args: {'label': duration}),
                     child: DashGrowBar(
                       delay: widget.delay,
-                      child: AnimatedContainer(
-                        duration: GhDurations.interactive,
-                        decoration: BoxDecoration(
-                          borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
-                          gradient: LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [
-                              theme.accentDim.withValues(alpha: alpha),
-                              theme.accentBright.withValues(alpha: alpha),
-                            ],
+                      child: AnimatedOpacity(
+                        opacity: _hovered ? 1.0 : 0.8,
+                        duration: GhMotion.of(context).css(GhDurations.interactive),
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(6)),
+                            gradient: LinearGradient(
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                              colors: [theme.accentDim, theme.accentBright],
+                            ),
                           ),
                         ),
                       ),

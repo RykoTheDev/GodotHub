@@ -661,7 +661,11 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
         onFocusChange: (value) => setState(() => _focusWithin = value),
         child: Listener(
           onPointerUp: _onPointerUp,
-          child: Semantics(container: true, label: displayName, child: card),
+          child: Semantics(
+            container: true,
+            label: displayName,
+            child: GhTiltCard(borderRadius: radius, child: card),
+          ),
         ),
       ),
     );
@@ -729,7 +733,12 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
                 ),
               ),
               Padding(
-                padding: EdgeInsetsDirectional.only(start: theme.space(3), end: theme.space(3.5), top: theme.space(3.5), bottom: theme.space(3.5)),
+                padding: EdgeInsetsDirectional.only(
+                  start: theme.space(3),
+                  end: theme.space(3.5),
+                  top: theme.space(3.5),
+                  bottom: theme.space(3.5),
+                ),
                 child: rail,
               ),
             ],
@@ -776,19 +785,15 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
                 curve: GhCurves.outExpo,
                 child: Text(
                   projectInitials(displayName),
-                  style: theme.text(weight: FontWeight.w900, color: theme.accentBright.withValues(alpha: 0.7), lineHeight: 1).copyWith(fontSize: 48),
+                  style: theme
+                      .text(weight: FontWeight.w900, color: theme.accentBright.withValues(alpha: 0.7), lineHeight: 1)
+                      .copyWith(fontSize: 48),
                 ),
               ),
             ),
           ),
         ],
-        PositionedDirectional(
-          end: 0,
-          top: 0,
-          bottom: 0,
-          width: 1,
-          child: ColoredBox(color: Colors.white.withValues(alpha: 0.1)),
-        ),
+        PositionedDirectional(end: 0, top: 0, bottom: 0, width: 1, child: ColoredBox(color: Colors.white.withValues(alpha: 0.1))),
         if (canPlay)
           GhTooltip(
             message: tr.play_project_tooltip,
@@ -814,11 +819,19 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
                             shape: BoxShape.circle,
                             boxShadow: GhShadows.md(Colors.black.withValues(alpha: 0.3)),
                           ),
-                          child: Center(child: GhIcon(GhIcons.play, size: theme.space(4), color: Colors.black)),
+                          child: Center(
+                            child: GhIcon(GhIcons.play, size: theme.space(4), color: Colors.black),
+                          ),
                         ),
                         Text(
                           tr.play_project.toUpperCase(),
-                          style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, mono: true, color: Colors.white, letterSpacingEm: 0.2),
+                          style: theme.text(
+                            size: GhTextSize.x3s,
+                            weight: GhWeight.semibold,
+                            mono: true,
+                            color: Colors.white,
+                            letterSpacingEm: 0.2,
+                          ),
                         ),
                       ],
                     ),
@@ -848,7 +861,11 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
                   color: pinned ? theme.accent : Colors.black.withValues(alpha: states.active ? 0.7 : 0.55),
                   borderRadius: BorderRadius.circular(9999),
                   boxShadow: pinned ? GhShadows.md(Colors.black.withValues(alpha: 0.3)) : null,
-                  child: GhIcon(GhIcons.pin, size: theme.space(3), color: Colors.white.withValues(alpha: pinned || states.active ? 1 : 0.8)),
+                  child: GhIcon(
+                    GhIcons.pin,
+                    size: theme.space(3),
+                    color: Colors.white.withValues(alpha: pinned || states.active ? 1 : 0.8),
+                  ),
                 ),
               ),
             ),

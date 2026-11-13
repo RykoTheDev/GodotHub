@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import '../api/opener.dart';
 import '../design/design.dart';
 import '../logic/locale.dart';
+import '../motion/presence.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
@@ -265,6 +266,7 @@ class _ContributorPrsModalState extends State<ContributorPrsModal> {
                               ClipOval(
                                 child: Image.network(
                                   widget.avatarUrl,
+                                  frameBuilder: ghFadeInFrameBuilder,
                                   width: theme.space(9),
                                   height: theme.space(9),
                                   fit: BoxFit.cover,

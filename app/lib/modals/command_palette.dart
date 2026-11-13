@@ -98,7 +98,6 @@ const _settingsSearchItems = [
   ('corner_radius', 'appearance'),
   ('ui_density', 'appearance'),
   ('font_scale', 'appearance'),
-  ('custom_css', 'appearance'),
   ('project_icon_opacity', 'appearance'),
   ('show_scrollbars', 'accessibility'),
   ('setup_wizard', 'advanced'),
@@ -346,14 +345,20 @@ class _CommandPaletteState extends ConsumerState<CommandPalette> {
           (!cmd.id.startsWith('go-') || isFeatureEnabled(settings, cmd.id.substring(3))) &&
           (cmd.context == null || cmd.context == widget.currentTab),
     );
-    final navShortcuts = {'projects': '${mod}1', 'versions': '${mod}2', 'settings': '$mod,'};
+    final tabs = shortcutTabsFor(settings);
+    String? tabShortcut(String id) {
+      final index = tabs.indexOf(id);
+      return index < 0 ? null : '$mod${index + 1}';
+    }
+
+    final navShortcuts = {'projects': tabShortcut('projects'), 'versions': tabShortcut('versions'), 'settings': '$mod,'};
 
     final items = <_Item>[
       for (final cmd in commands)
         _Item(
           id: cmd.id,
           label: cmd.plainLabel ?? (cmd.nav ? ghTr('nav:${cmd.labelKey}', translations: tr) : common(cmd.labelKey)),
-          shortcut: cmd.shortcut,
+          shortcut: cmd.id.startsWith('go-') ? tabShortcut(cmd.id.substring(3)) : cmd.shortcut,
           icon: cmd.icon,
           section: common(cmd.sectionKey),
           action: cmd.action,

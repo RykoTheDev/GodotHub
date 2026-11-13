@@ -52,7 +52,11 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
+#if GODOTHUB_CHANNEL == 0
+IDI_APP_ICON            ICON                    "resources\\app_icon_stable.ico"
+#else
 IDI_APP_ICON            ICON                    "resources\\app_icon.ico"
+#endif
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -90,12 +94,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "Ryko" "\0"
-            VALUE "FileDescription", "GodotHub Beta" "\0"
+            VALUE "FileDescription", GODOTHUB_PRODUCT_NAME "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "godothub-beta" "\0"
+            VALUE "InternalName", GODOTHUB_BINARY_NAME "\0"
             VALUE "LegalCopyright", "Copyright (C) 2026 Ryko. All rights reserved." "\0"
-            VALUE "OriginalFilename", "godothub-beta.exe" "\0"
-            VALUE "ProductName", "GodotHub Beta" "\0"
+            VALUE "OriginalFilename", GODOTHUB_BINARY_NAME ".exe" "\0"
+            VALUE "ProductName", GODOTHUB_PRODUCT_NAME "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

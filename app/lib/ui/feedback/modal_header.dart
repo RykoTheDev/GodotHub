@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../design/design.dart';
 import '../../motion/presence.dart';
 import '../core/button.dart';
+import '../core/bidi.dart';
 import '../core/tooltip.dart';
 import '../core/i18n.dart';
 
@@ -119,11 +120,14 @@ class _GhModalHeaderState extends State<GhModalHeader> {
                           message: widget.title,
                           child: Semantics(
                             header: true,
-                            child: Text(
-                              widget.title.toUpperCase(),
-                              maxLines: widget.titleMaxLines,
-                              overflow: widget.titleMaxLines == null ? null : TextOverflow.ellipsis,
-                              style: theme.text(size: GhTextSize.x2l, weight: GhWeight.semibold, lineHeight: 1.25),
+                            child: ghPlaintext(
+                              widget.title,
+                              Text(
+                                widget.title.toUpperCase(),
+                                maxLines: widget.titleMaxLines,
+                                overflow: widget.titleMaxLines == null ? null : TextOverflow.ellipsis,
+                                style: theme.text(size: GhTextSize.x2l, weight: GhWeight.semibold, lineHeight: 1.25),
+                              ),
                             ),
                           ),
                         ),

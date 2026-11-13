@@ -45,6 +45,8 @@ dependencies:
   slang_flutter: 4.19.0
   intl: ^0.20.3
   flutter_svg: ^2.3.2
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
@@ -72,6 +74,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/tray/
+    - assets/flags/
   fonts:
     - family: Inter
       fonts:

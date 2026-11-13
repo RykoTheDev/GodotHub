@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 
 import '../../design/design.dart';
+import '../../motion/motion.dart';
 import 'keyframe.dart';
 
 const _cssEaseOut = Cubic(0, 0, 0.58, 1);
@@ -17,7 +18,17 @@ class GhPulseDot extends StatefulWidget {
 }
 
 class _GhPulseDotState extends State<GhPulseDot> with SingleTickerProviderStateMixin {
-  late final AnimationController _pulse = AnimationController(vsync: this, duration: const Duration(milliseconds: 1800))..repeat();
+  late final AnimationController _pulse = AnimationController(vsync: this, duration: const Duration(milliseconds: 1800));
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (GhMotion.of(context).off) {
+      _pulse.value = 1;
+    } else if (!_pulse.isAnimating) {
+      _pulse.repeat();
+    }
+  }
 
   @override
   void dispose() {

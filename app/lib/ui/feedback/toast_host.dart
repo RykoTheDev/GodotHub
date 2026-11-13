@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../../design/design.dart';
 import '../../motion/presence.dart';
 import '../core/interaction.dart';
+import '../core/bidi.dart';
 import '../core/i18n.dart';
 import 'toast.dart';
 
@@ -55,9 +56,12 @@ class GhToastCard extends StatelessWidget {
                       child: GhIcon(icon, size: theme.space(4), color: color),
                     ),
                     Expanded(
-                      child: Text(
+                      child: ghPlaintext(
                         toast.message,
-                        style: theme.text(size: GhTextSize.xs, color: theme.ink, lineHeight: 1.375),
+                        Text(
+                          toast.message,
+                          style: theme.text(size: GhTextSize.xs, color: theme.ink, lineHeight: 1.375),
+                        ),
                       ),
                     ),
                     if (action != null)

@@ -5,6 +5,7 @@ import '../design/design.dart';
 import '../logic/format_bytes.dart';
 import '../modals/current_version_modal.dart';
 import '../modals/export_templates_modal.dart';
+import '../motion/reveal.dart';
 import '../src/rust/api/types.dart';
 import '../state/export_template_downloads.dart';
 import '../ui/controls/text_input.dart';
@@ -473,50 +474,56 @@ class _InstalledVersionCardState extends State<InstalledVersionCard> {
         ],
       );
     }
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: GhAnimatedBox(
-        color: _hovered ? theme.raised : theme.overlay,
+    return GhReveal(
+      id: 'version:${v.tag}',
+      child: GhTiltCard(
         borderRadius: radius,
-        border: Border.all(color: _hovered ? theme.accentDim.withValues(alpha: 0.6) : theme.outline.withValues(alpha: 0.5)),
-        padding: EdgeInsets.all(theme.space(3.5)),
-        child: Row(
-          spacing: theme.space(3.5),
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  head,
-                  if (busy && download != null)
-                    Padding(
-                      padding: EdgeInsets.only(top: theme.space(1)),
-                      child: GhTooltip(
-                        message: download.file ?? '',
-                        child: Text(
-                          [
-                            if (download.platforms?.isNotEmpty ?? false) download.platforms!.join(', '),
-                            if (download.file?.isNotEmpty ?? false) download.file!,
-                            if (download.total > 0) '${formatBytes(download.downloaded)} / ${formatBytes(download.total)}',
-                          ].join(' · '),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.text(size: GhTextSize.xs, color: theme.muted),
+        child: MouseRegion(
+          onEnter: (_) => setState(() => _hovered = true),
+          onExit: (_) => setState(() => _hovered = false),
+          child: GhAnimatedBox(
+            color: _hovered ? theme.raised : theme.overlay,
+            borderRadius: radius,
+            border: Border.all(color: _hovered ? theme.accentDim.withValues(alpha: 0.6) : theme.outline.withValues(alpha: 0.5)),
+            padding: EdgeInsets.all(theme.space(3.5)),
+            child: Row(
+              spacing: theme.space(3.5),
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      head,
+                      if (busy && download != null)
+                        Padding(
+                          padding: EdgeInsets.only(top: theme.space(1)),
+                          child: GhTooltip(
+                            message: download.file ?? '',
+                            child: Text(
+                              [
+                                if (download.platforms?.isNotEmpty ?? false) download.platforms!.join(', '),
+                                if (download.file?.isNotEmpty ?? false) download.file!,
+                                if (download.total > 0) '${formatBytes(download.downloaded)} / ${formatBytes(download.total)}',
+                              ].join(' · '),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.text(size: GhTextSize.xs, color: theme.muted),
+                            ),
+                          ),
                         ),
-                      ),
-                    ),
-                ],
-              ),
+                    ],
+                  ),
+                ),
+                GhOpenButton(
+                  label: _tv('open'),
+                  onOpen: widget.onOpen,
+                  consoleSupported: v.supportsConsole,
+                  moreLabel: _tv('more_editor_launch_options'),
+                  items: _menu(),
+                ),
+              ],
             ),
-            GhOpenButton(
-              label: _tv('open'),
-              onOpen: widget.onOpen,
-              consoleSupported: v.supportsConsole,
-              moreLabel: _tv('more_editor_launch_options'),
-              items: _menu(),
-            ),
-          ],
+          ),
         ),
       ),
     );

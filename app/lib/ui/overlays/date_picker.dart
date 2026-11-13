@@ -7,6 +7,7 @@ import '../../design/design.dart';
 import '../core/i18n.dart';
 import '../core/interaction.dart';
 import 'menu.dart';
+import 'popup_registry.dart';
 
 String ghDateToValue(DateTime date) {
   final month = date.month.toString().padLeft(2, '0');
@@ -119,6 +120,8 @@ class GhDatePicker extends StatefulWidget {
 class _GhDatePickerState extends State<GhDatePicker> {
   final _portal = OverlayPortalController();
   final _group = Object();
+  final _surfaceKey = GlobalKey();
+  GhPopupHandle? _handle;
   bool _open = false;
   late DateTime _viewDate = ghDateFromValue(widget.value) ?? _now();
 
@@ -142,17 +145,32 @@ class _GhDatePickerState extends State<GhDatePicker> {
         _open = true;
       });
       _portal.show();
+      _handle = GhPopupRegistry.open(
+        close: _close,
+        surface: () => _surfaceKey.currentContext,
+        origin: () => mounted ? context : null,
+        onEscape: _close,
+      );
     }
   }
 
   void _close() {
+    _handle?.release();
+    _handle = null;
     if (!_open) {
       return;
     }
     if (_portal.isShowing) {
       _portal.hide();
     }
-    setState(() => _open = false);
+    if (mounted) setState(() => _open = false);
+  }
+
+  @override
+  void dispose() {
+    _handle?.release();
+    _handle = null;
+    super.dispose();
   }
 
   void _select(DateTime date) {
@@ -183,7 +201,9 @@ class _GhDatePickerState extends State<GhDatePicker> {
         return CustomSingleChildLayout(
           delegate: _DatePickerLayout(anchor),
           child: TapRegion(
+            key: _surfaceKey,
             groupId: _group,
+            consumeOutsideTaps: true,
             onTapOutside: (_) => _close(),
             child: GhDatePickerPanel(
               viewDate: _viewDate,

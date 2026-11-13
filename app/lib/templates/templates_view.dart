@@ -12,6 +12,7 @@ import '../modals/create_project_modal.dart';
 import '../modals/current_version_modal.dart' show openFolderOrToast;
 import '../modals/template_preview_modal.dart';
 import '../motion/animated_number.dart';
+import '../motion/reveal.dart';
 import '../src/rust/api/types.dart';
 import '../src/ui_prefs.dart';
 import '../state/app_signals.dart';
@@ -169,10 +170,8 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
     _prefs.setItem(templateSortKey, sort.id);
   }
 
-  void _preview(ProjectTemplate template) => showGhModal<void>(
-    context,
-    (modal) => TemplatePreviewModal(template: template, onClose: () => Navigator.of(modal).pop()),
-  ).ignore();
+  void _preview(ProjectTemplate template) =>
+      showGhModal<void>(context, (modal) => TemplatePreviewModal(template: template, onClose: () => Navigator.of(modal).pop())).ignore();
 
   void _create(ProjectTemplate template) => showGhModal<void>(
     context,
@@ -206,7 +205,14 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
     if (!ok) return;
     try {
       await TemplatesApi.delete(template.id);
-      if (mounted) setState(() => _templates = [for (final t in _templates) if (t.id != template.id) t]);
+      if (mounted) {
+        setState(
+          () => _templates = [
+            for (final t in _templates)
+              if (t.id != template.id) t,
+          ],
+        );
+      }
     } catch (e) {
       ghToasts.pushToast(GhToastType.error, '$e');
     }
@@ -227,7 +233,9 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
         alignment: Alignment.center,
         child: Text(
           label,
-          style: theme.text(weight: GhWeight.semibold, color: states.active ? theme.ink : theme.muted).copyWith(fontSize: theme.rem(1.0625)),
+          style: theme
+              .text(weight: GhWeight.semibold, color: states.active ? theme.ink : theme.muted)
+              .copyWith(fontSize: theme.rem(1.0625)),
         ),
       ),
     );
@@ -253,7 +261,10 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
               spacing: theme.space(1.5),
               children: [
                 GhIcon(icon, size: theme.space(3.5), color: color),
-                Text(label, style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: color)),
+                Text(
+                  label,
+                  style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: color),
+                ),
               ],
             ),
           );
@@ -352,7 +363,12 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
               TextSpan(
                 children: ghTrans(
                   ghTr('no_templates_yet'),
-                  tags: {'1': (text, children) => TextSpan(children: children, style: const TextStyle(fontWeight: FontWeight.w700))},
+                  tags: {
+                    '1': (text, children) => TextSpan(
+                      children: children,
+                      style: const TextStyle(fontWeight: FontWeight.w700),
+                    ),
+                  },
                 ),
               ),
               textAlign: TextAlign.center,
@@ -412,7 +428,10 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
                   mainAxisSize: MainAxisSize.min,
                   spacing: theme.space(1.5),
                   children: [
-                    Text('${ghTr('sort')}:', style: theme.text(size: GhTextSize.xs, color: theme.muted)),
+                    Text(
+                      '${ghTr('sort')}:',
+                      style: theme.text(size: GhTextSize.xs, color: theme.muted),
+                    ),
                     Text(
                       ghTr(_sort.labelKey),
                       style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink),
@@ -474,7 +493,8 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
               ),
             ],
             actions: [
-              if (scanDir != null && scanDir.isNotEmpty) _headerButton(theme, label: ghTr('open_folder'), onPressed: () => openFolderOrToast(scanDir)),
+              if (scanDir != null && scanDir.isNotEmpty)
+                _headerButton(theme, label: ghTr('open_folder'), onPressed: () => openFolderOrToast(scanDir)),
               GhScanButton(
                 onOpenSettings: widget.onOpenSettings,
                 scanDirs: [if (scanDir != null && scanDir.isNotEmpty) scanDir],
@@ -507,7 +527,12 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
             child: GhOverlayScrollArea(
               hideThumb: !settings.showScrollbars,
               child: Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(theme.space(widget.connected ? 5 : 2), theme.space(2), theme.space(5), theme.space(8)),
+                padding: EdgeInsetsDirectional.fromSTEB(
+                  theme.space(widget.connected ? 5 : 2),
+                  theme.space(2),
+                  theme.space(5),
+                  theme.space(8),
+                ),
                 child: local
                     ? _local(context, theme)
                     : AssetLibraryBrowser(
@@ -549,118 +574,127 @@ class _TemplateCardState extends State<TemplateCard> {
     final created = DateTime.tryParse(t.createdAt);
     final meta = theme.text(size: GhTextSize.x3s, mono: true, color: theme.muted.withValues(alpha: 0.5));
     final deleteLabel = ghTr('delete_template', args: {'name': t.name});
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      onEnter: (_) => setState(() => _hover = true),
-      onExit: (_) => setState(() => _hover = false),
-      child: GestureDetector(
-        onTap: widget.onPreview,
-        behavior: HitTestBehavior.opaque,
-        child: GhAnimatedBox(
-          color: theme.overlay,
-          borderRadius: radius,
-          border: Border.all(color: _hover ? theme.accentDim : theme.outline.withValues(alpha: 0.5)),
-          padding: EdgeInsets.all(theme.space(4)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: theme.space(3),
-            children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return GhReveal(
+      id: 'template:${t.id}',
+      child: GhTiltCard(
+        borderRadius: radius,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.click,
+          onEnter: (_) => setState(() => _hover = true),
+          onExit: (_) => setState(() => _hover = false),
+          child: GestureDetector(
+            onTap: widget.onPreview,
+            behavior: HitTestBehavior.opaque,
+            child: GhAnimatedBox(
+              color: theme.overlay,
+              borderRadius: radius,
+              border: Border.all(color: _hover ? theme.accentDim : theme.outline.withValues(alpha: 0.5)),
+              padding: EdgeInsets.all(theme.space(4)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: theme.space(3),
                 children: [
-                  Container(
-                    width: theme.space(10),
-                    height: theme.space(10),
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: theme.raised,
-                      borderRadius: BorderRadius.circular(theme.radiusTile),
-                      border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-                    ),
-                    child: GhIcon(GhIcons.copy, size: theme.space(4), color: theme.muted),
-                  ),
-                  GhTooltip(
-                    message: deleteLabel,
-                    side: GhSide.left,
-                    child: GhPressable(
-                      onPressed: widget.onDelete,
-                      semanticLabel: deleteLabel,
-                      borderRadius: BorderRadius.circular(theme.radiusBtn),
-                      builder: (context, del) {
-                        final visible = _hover || del.focused;
-                        return GhAnimatedBox(
-                          color: del.active ? theme.danger.withValues(alpha: 0.1) : theme.danger.withValues(alpha: 0),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        width: theme.space(10),
+                        height: theme.space(10),
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: theme.raised,
+                          borderRadius: BorderRadius.circular(theme.radiusTile),
+                          border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
+                        ),
+                        child: GhIcon(GhIcons.copy, size: theme.space(4), color: theme.muted),
+                      ),
+                      GhTooltip(
+                        message: deleteLabel,
+                        side: GhSide.left,
+                        child: GhPressable(
+                          onPressed: widget.onDelete,
+                          semanticLabel: deleteLabel,
                           borderRadius: BorderRadius.circular(theme.radiusBtn),
-                          padding: EdgeInsets.all(theme.space(1.5)),
-                          child: AnimatedOpacity(
-                            opacity: visible ? 1 : 0,
-                            duration: const Duration(milliseconds: 150),
-                            child: GhIcon(
-                              GhIcons.trash,
-                              size: theme.space(3.5),
-                              color: del.active ? theme.danger : theme.muted.withValues(alpha: 0.4),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      t.name,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.ink),
-                    ),
-                    if (t.description.isNotEmpty)
-                      Padding(
-                        padding: EdgeInsets.only(top: theme.space(1)),
-                        child: Text(
-                          t.description,
-                          maxLines: 3,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.text(size: GhTextSize.xs, color: theme.muted, lineHeight: 1.625),
+                          builder: (context, del) {
+                            final visible = _hover || del.focused;
+                            return GhAnimatedBox(
+                              color: del.active ? theme.danger.withValues(alpha: 0.1) : theme.danger.withValues(alpha: 0),
+                              borderRadius: BorderRadius.circular(theme.radiusBtn),
+                              padding: EdgeInsets.all(theme.space(1.5)),
+                              child: AnimatedOpacity(
+                                opacity: visible ? 1 : 0,
+                                duration: const Duration(milliseconds: 150),
+                                child: GhIcon(
+                                  GhIcons.trash,
+                                  size: theme.space(3.5),
+                                  color: del.active ? theme.danger : theme.muted.withValues(alpha: 0.4),
+                                ),
+                              ),
+                            );
+                          },
                         ),
                       ),
-                  ],
-                ),
-              ),
-              Row(
-                spacing: theme.space(1.5),
-                children: [
-                  if (t.godotVersion.isNotEmpty) Text('${ghTr('godot')} ${t.godotVersion}', style: meta),
-                  if (t.createdAt.isNotEmpty) ...[
-                    Text('·', style: meta),
-                    Text(created == null ? '' : formatLocaleDate(created), style: meta),
-                  ],
-                ],
-              ),
-              GhPressable(
-                onPressed: widget.onCreate,
-                borderRadius: radius,
-                builder: (context, create) => GhAnimatedBox(
-                  color: theme.accent.withValues(alpha: create.active ? 0.2 : 0.1),
-                  borderRadius: radius,
-                  border: Border.all(color: theme.accentDim.withValues(alpha: 0.3)),
-                  padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(2)),
-                  alignment: Alignment.center,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: theme.space(1.5),
-                    children: [
-                      GhIcon(GhIcons.folderPlus, size: theme.space(3.5), color: theme.accentBright),
-                      Text(ghTr('create_project_btn'), style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.accentBright)),
                     ],
                   ),
-                ),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          t.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.ink),
+                        ),
+                        if (t.description.isNotEmpty)
+                          Padding(
+                            padding: EdgeInsets.only(top: theme.space(1)),
+                            child: Text(
+                              t.description,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.text(size: GhTextSize.xs, color: theme.muted, lineHeight: 1.625),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  Row(
+                    spacing: theme.space(1.5),
+                    children: [
+                      if (t.godotVersion.isNotEmpty) Text('${ghTr('godot')} ${t.godotVersion}', style: meta),
+                      if (t.createdAt.isNotEmpty) ...[
+                        Text('·', style: meta),
+                        Text(created == null ? '' : formatLocaleDate(created), style: meta),
+                      ],
+                    ],
+                  ),
+                  GhPressable(
+                    onPressed: widget.onCreate,
+                    borderRadius: radius,
+                    builder: (context, create) => GhAnimatedBox(
+                      color: theme.accent.withValues(alpha: create.active ? 0.2 : 0.1),
+                      borderRadius: radius,
+                      border: Border.all(color: theme.accentDim.withValues(alpha: 0.3)),
+                      padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(2)),
+                      alignment: Alignment.center,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: theme.space(1.5),
+                        children: [
+                          GhIcon(GhIcons.folderPlus, size: theme.space(3.5), color: theme.accentBright),
+                          Text(
+                            ghTr('create_project_btn'),
+                            style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.accentBright),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),

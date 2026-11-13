@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../../design/design.dart';
 import '../../motion/presence.dart';
+import 'bidi.dart';
 import 'ui_settings.dart';
 
 const double _viewportPad = 12;
@@ -156,7 +157,7 @@ class _GhTooltipState extends State<GhTooltip> {
       ),
       child: DefaultTextStyle(
         style: theme.text(size: GhTextSize.x2s, weight: GhWeight.medium, color: theme.muted, lineHeight: 1.375),
-        child: widget.content ?? Text(widget.message ?? ''),
+        child: widget.content ?? ghPlaintext(widget.message ?? '', Text(widget.message ?? '')),
       ),
     );
     final position = _position;

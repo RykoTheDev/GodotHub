@@ -30,10 +30,16 @@ target_compile_definitions(${BINARY_NAME} PRIVATE "FLUTTER_VERSION_BUILD=${FLUTT
 file(READ "${CMAKE_SOURCE_DIR}/flutter/ephemeral/generated_config.cmake" GODOTHUB_GENERATED_CONFIG)
 if(GODOTHUB_GENERATED_CONFIG MATCHES "[=,]Q0hBTk5FTD1zdGFibGU=[,\"]")
   set(GODOTHUB_CHANNEL 0)
+  set(GODOTHUB_PRODUCT_NAME "GodotHub")
+  set(GODOTHUB_SHIPPED_NAME "godothub")
 else()
   set(GODOTHUB_CHANNEL 1)
+  set(GODOTHUB_PRODUCT_NAME "GodotHub Beta")
+  set(GODOTHUB_SHIPPED_NAME "godothub-beta")
 endif()
 target_compile_definitions(${BINARY_NAME} PRIVATE "GODOTHUB_CHANNEL=${GODOTHUB_CHANNEL}")
+target_compile_definitions(${BINARY_NAME} PRIVATE "GODOTHUB_PRODUCT_NAME=\"${GODOTHUB_PRODUCT_NAME}\"")
+target_compile_definitions(${BINARY_NAME} PRIVATE "GODOTHUB_BINARY_NAME=\"${GODOTHUB_SHIPPED_NAME}\"")
 target_compile_definitions(${BINARY_NAME} PRIVATE "GODOTHUB_VERSION=\"${FLUTTER_VERSION_MAJOR}.${FLUTTER_VERSION_MINOR}.${FLUTTER_VERSION_PATCH}\"")
 
 # Disable Windows macros that collide with C++ standard library functions.

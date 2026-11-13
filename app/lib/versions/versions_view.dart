@@ -11,6 +11,8 @@ import '../logic/format_bytes.dart';
 import '../modals/download_error_modal.dart';
 import '../modals/version_aliases_modal.dart';
 import '../motion/animated_number.dart';
+import '../motion/motion.dart';
+import '../motion/reveal.dart';
 import '../src/rust/api/types.dart';
 import '../src/ui_prefs.dart';
 import '../state/app_signals.dart';
@@ -290,11 +292,14 @@ class _VersionsViewState extends ConsumerState<VersionsView> {
     );
   }
 
-  Widget _sectionTitle(GhTheme theme, String text) => Padding(
-    padding: EdgeInsets.symmetric(horizontal: theme.space(1)),
-    child: Text(
-      text.toUpperCase(),
-      style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: theme.muted, letterSpacingEm: 0.05),
+  Widget _sectionTitle(GhTheme theme, String text) => GhReveal(
+    kind: GhRevealKind.heading,
+    child: Padding(
+      padding: EdgeInsets.symmetric(horizontal: theme.space(1)),
+      child: Text(
+        text.toUpperCase(),
+        style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: theme.muted, letterSpacingEm: 0.05),
+      ),
     ),
   );
 
@@ -1030,13 +1035,15 @@ class _AvailableRowTileState extends State<_AvailableRowTile> {
                       height: theme.space(1.5),
                       color: theme.raised,
                       alignment: AlignmentDirectional.centerStart,
-                      child: FractionallySizedBox(
+                      child: AnimatedFractionallySizedBox(
+                        duration: GhMotion.of(context).css(GhDurations.progress),
+                        curve: GhCurves.outExpo,
                         widthFactor: dl.total > 0 ? (dl.downloaded / dl.total).clamp(0.0, 1.0) : 0.06,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: paused ? theme.muted : theme.amber,
-                            borderRadius: BorderRadius.circular(theme.space(1)),
-                          ),
+                        child: GhAnimatedBox(
+                          duration: GhDurations.progress,
+                          color: paused ? theme.muted : theme.amber,
+                          borderRadius: BorderRadius.circular(theme.space(1)),
+                          child: const SizedBox.expand(),
                         ),
                       ),
                     ),
@@ -1128,67 +1135,73 @@ class _AvailableRowTileState extends State<_AvailableRowTile> {
         ],
       );
     }
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hovered = true),
-      onExit: (_) => setState(() => _hovered = false),
-      child: GhAnimatedBox(
-        color: theme.overlay,
+    return GhReveal(
+      id: 'available:$key',
+      child: GhTiltCard(
         borderRadius: BorderRadius.circular(theme.radiusItem),
-        border: Border.all(color: _hovered ? theme.accentDim : theme.outline.withValues(alpha: 0.5)),
-        padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(3)),
-        child: Row(
-          spacing: theme.space(3),
-          children: [
-            Expanded(
-              child: Row(
-                spacing: theme.space(2.5),
-                children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(1.5)),
-                    decoration: BoxDecoration(
-                      color: theme.overlay,
-                      borderRadius: BorderRadius.circular(theme.radiusItem),
-                      border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: theme.space(2),
-                      children: [
+        child: MouseRegion(
+          onEnter: (_) => setState(() => _hovered = true),
+          onExit: (_) => setState(() => _hovered = false),
+          child: GhAnimatedBox(
+            color: theme.overlay,
+            borderRadius: BorderRadius.circular(theme.radiusItem),
+            border: Border.all(color: _hovered ? theme.accentDim : theme.outline.withValues(alpha: 0.5)),
+            padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(3)),
+            child: Row(
+              spacing: theme.space(3),
+              children: [
+                Expanded(
+                  child: Row(
+                    spacing: theme.space(2.5),
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(1.5)),
+                        decoration: BoxDecoration(
+                          color: theme.overlay,
+                          borderRadius: BorderRadius.circular(theme.radiusItem),
+                          border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          spacing: theme.space(2),
+                          children: [
+                            Container(
+                              width: theme.space(1.5),
+                              height: theme.space(1.5),
+                              decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
+                            ),
+                            Text(
+                              row.tag.isEmpty ? _tv('unbound') : row.tag,
+                              style: theme.text(size: GhTextSize.xs, mono: true, color: theme.ink),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (row.asset.isMono)
                         Container(
-                          width: theme.space(1.5),
-                          height: theme.space(1.5),
-                          decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
+                          padding: EdgeInsets.symmetric(horizontal: theme.space(2), vertical: theme.space(0.5)),
+                          decoration: BoxDecoration(
+                            color: theme.accent.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(theme.radiusTag),
+                            border: Border.all(color: theme.accentDim.withValues(alpha: 0.4)),
+                          ),
+                          child: Text(
+                            '.NET',
+                            style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: theme.accentBright),
+                          ),
                         ),
+                      if (state.source != VersionSource.mise)
                         Text(
-                          row.tag.isEmpty ? _tv('unbound') : row.tag,
-                          style: theme.text(size: GhTextSize.xs, mono: true, color: theme.ink),
+                          '${(row.asset.size.toDouble() / 1024 / 1024).toStringAsFixed(0)} ${_tv('mb')}',
+                          style: theme.text(size: GhTextSize.xs, mono: true, color: theme.muted),
                         ),
-                      ],
-                    ),
+                    ],
                   ),
-                  if (row.asset.isMono)
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: theme.space(2), vertical: theme.space(0.5)),
-                      decoration: BoxDecoration(
-                        color: theme.accent.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(theme.radiusTag),
-                        border: Border.all(color: theme.accentDim.withValues(alpha: 0.4)),
-                      ),
-                      child: Text(
-                        '.NET',
-                        style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: theme.accentBright),
-                      ),
-                    ),
-                  if (state.source != VersionSource.mise)
-                    Text(
-                      '${(row.asset.size.toDouble() / 1024 / 1024).toStringAsFixed(0)} ${_tv('mb')}',
-                      style: theme.text(size: GhTextSize.xs, mono: true, color: theme.muted),
-                    ),
-                ],
-              ),
+                ),
+                trailing,
+              ],
             ),
-            trailing,
-          ],
+          ),
         ),
       ),
     );

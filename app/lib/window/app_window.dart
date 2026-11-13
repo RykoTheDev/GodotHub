@@ -47,6 +47,7 @@ class AppWindow {
   Rect? _normalBounds;
   bool _closing = false;
   bool Function()? keepAliveOnClose;
+  bool? startedWithOsDecorations;
 
   static AppWindow? _instance;
 
@@ -59,7 +60,7 @@ class AppWindow {
   static Future<AppWindow> start({required String title, required bool useOsDecorations}) async {
     final window = WindowManager.instance.getCurrent()!;
     final scale = PlatformDispatcher.instance.views.first.devicePixelRatio;
-    final app = AppWindow._(window, scale);
+    final app = AppWindow._(window, scale)..startedWithOsDecorations = useOsDecorations;
     _instance = app;
 
     window.title = title;
@@ -86,7 +87,8 @@ class AppWindow {
     window.addListener(app._onWindowEvent);
     AppEvents.of(AppEventKind.secondInstance).listen(app._onSecondInstance);
     AppEvents.of(AppEventKind.showMainWindow).listen((_) => app.showAndFocus());
-    AppEvents.of(AppEventKind.hideMainWindow).listen((_) => app._window.hide());
+    AppEvents.of(AppEventKind.hideMainWindow).listen((_) => app.hide());
+    AppEvents.of(AppEventKind.exitApp).listen((_) => app.quit());
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
       window.show();
@@ -112,7 +114,7 @@ class AppWindow {
         await flushPendingSave().catchError((Object _) {});
         await _saveState();
         if (Platform.isMacOS || (keepAliveOnClose?.call() ?? false)) {
-          _window.hide();
+          hide();
         } else {
           await quit();
         }
@@ -143,6 +145,12 @@ class AppWindow {
     }
     _window.show();
     _window.focus();
+    native.setMainWindowVisible(visible: true);
+  }
+
+  void hide() {
+    _window.hide();
+    native.setMainWindowVisible(visible: false);
   }
 
   Future<void> _prepareExit() async {

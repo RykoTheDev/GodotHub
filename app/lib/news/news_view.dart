@@ -5,6 +5,8 @@ import '../api/opener.dart';
 import '../design/design.dart';
 import '../logic/locale.dart';
 import '../motion/animated_number.dart';
+import '../motion/presence.dart';
+import '../motion/reveal.dart';
 import '../src/rust/api/types.dart';
 import '../src/ui_prefs.dart';
 import '../state/news.dart';
@@ -227,6 +229,7 @@ class _NewsCardState extends State<NewsCard> {
                     children: [
                       Image.network(
                         image,
+                        frameBuilder: ghFadeInFrameBuilder,
                         fit: BoxFit.cover,
                         excludeFromSemantics: true,
                         errorBuilder: (context, error, stack) {
@@ -295,11 +298,15 @@ class _NewsCardState extends State<NewsCard> {
                         ),
                       ],
                     ),
-                    Text(
-                      item.title,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.text(size: GhTextSize.lg, weight: GhWeight.medium, color: theme.ink, lineHeight: 1.375),
+                    GhReveal(
+                      id: 'news:${item.link}',
+                      kind: GhRevealKind.heading,
+                      child: Text(
+                        item.title,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.text(size: GhTextSize.lg, weight: GhWeight.medium, color: theme.ink, lineHeight: 1.375),
+                      ),
                     ),
                     if (summary != null && summary.isNotEmpty)
                       Text(
