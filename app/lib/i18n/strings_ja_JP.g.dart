@@ -538,18 +538,23 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String get check_updates_rate_limited_token_hint => '保存済みの GitHub トークンが拒否されました。有効期限が切れたか、失効した可能性があります。「設定」でテストし、必要なら差し替えてください。';
 	@override String get check_updates_add_token => 'GitHub トークンを追加';
 	@override String get check_updates_open_token_settings => 'トークンの設定を開く';
-	@override String get check_updates_preview_badge => 'プレビュー';
 	@override String get check_updates_portable_title => '手動での更新が必要です';
 	@override String get check_updates_portable_desc => 'ポータブル版は自動更新に対応していません。GitHub から最新バージョンをダウンロードし、既存のファイルを置き換えてください。';
 	@override String get check_updates_download_from_github => 'GitHub からダウンロード';
-	@override String get preview_state_checking => '確認中';
-	@override String get preview_state_available => '利用可能';
-	@override String get preview_state_downloading => 'ダウンロード中';
-	@override String get preview_state_done => '完了';
-	@override String get preview_state_uptodate => '最新の状態';
-	@override String get preview_state_error => 'エラー';
-	@override String get preview_state_portable => 'ポータブル';
-	@override String get preview_update_modal => '更新モーダルをプレビュー';
+	@override String get check_updates_details => 'Update details';
+	@override String get check_updates_released => 'Released';
+	@override String get check_updates_source => 'Source';
+	@override String get check_updates_file => 'File';
+	@override String get check_updates_package => 'Package';
+	@override String get check_updates_signature => 'Signature';
+	@override String get check_updates_signature_checked => 'Checked with minisign before installing';
+	@override String get check_updates_view_release => 'View release on GitHub';
+	@override String get check_updates_progress_size => '{{downloaded}} of {{total}}';
+	@override String get check_updates_speed => '{{speed}}/s';
+	@override String get check_updates_time_left => 'About {{time}} left';
+	@override String get check_updates_from_host => 'From {{host}}';
+	@override String get check_updates_download_summary => 'Downloaded {{size}} in {{time}}';
+	@override String get check_updates_signature_verified => 'Signature verified';
 	@override String get clone_repo_title => 'リポジトリをクローン';
 	@override String get clone_repo_url_label => 'リポジトリの URL';
 	@override String get clone_repo_url_placeholder => 'https://github.com/user/my-game.git';
@@ -659,8 +664,6 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String get asset_duplicate_desc => '「{{name}}」はすでにテンプレートに追加されています。重複してインストールしますか？';
 	@override String get empty_category => 'カテゴリは空です';
 	@override String get release_to_drop => 'ここにドロップ';
-	@override String get preview_release_notes => '## v1.0.0 の新着情報 - プレビューアップデート\\n\\n## 新機能\\n\\n- 更新確認モーダルを刷新し、リリースノートを構造化して表示\\n- アクセシビリティ設定タブとスクリーンリーダーの読み上げを追加\\n\\n## 修正\\n\\n- ピン留めしたプロジェクトがあるワークスペースを切り替えるとクラッシュする問題を修正\\n- GitHub のレート制限に達したときに更新確認が無言で失敗する問題を修正\\n\\n## 改善\\n\\n- すべてのプラットフォームで起動を高速化\\n- ワークスペースのモーダルを刷新し、スタイルの選択をコンパクトに\\n\\n## 既知の問題\\n\\n- Linux: 一部のディストリビューションでは AppImage が動作しません。.rpm または .deb パッケージを使用してください\\n- Windows: アプリを再起動するまで、タスクバーにアイコンが二重に表示されることがあります';
-	@override String get preview_error => 'プレビューエラー: GitHub API のレート制限に達しました（HTTP 403）。確認を続けるには、設定でトークンを追加してください。';
 	@override String get bug_report_system => 'システム';
 	@override String get bug_report_version => 'バージョン';
 	@override String get bug_report_date => '日付';
@@ -2574,18 +2577,23 @@ extension on TranslationsJaJp {
 			'common.check_updates_rate_limited_token_hint' => '保存済みの GitHub トークンが拒否されました。有効期限が切れたか、失効した可能性があります。「設定」でテストし、必要なら差し替えてください。',
 			'common.check_updates_add_token' => 'GitHub トークンを追加',
 			'common.check_updates_open_token_settings' => 'トークンの設定を開く',
-			'common.check_updates_preview_badge' => 'プレビュー',
 			'common.check_updates_portable_title' => '手動での更新が必要です',
 			'common.check_updates_portable_desc' => 'ポータブル版は自動更新に対応していません。GitHub から最新バージョンをダウンロードし、既存のファイルを置き換えてください。',
 			'common.check_updates_download_from_github' => 'GitHub からダウンロード',
-			'common.preview_state_checking' => '確認中',
-			'common.preview_state_available' => '利用可能',
-			'common.preview_state_downloading' => 'ダウンロード中',
-			'common.preview_state_done' => '完了',
-			'common.preview_state_uptodate' => '最新の状態',
-			'common.preview_state_error' => 'エラー',
-			'common.preview_state_portable' => 'ポータブル',
-			'common.preview_update_modal' => '更新モーダルをプレビュー',
+			'common.check_updates_details' => 'Update details',
+			'common.check_updates_released' => 'Released',
+			'common.check_updates_source' => 'Source',
+			'common.check_updates_file' => 'File',
+			'common.check_updates_package' => 'Package',
+			'common.check_updates_signature' => 'Signature',
+			'common.check_updates_signature_checked' => 'Checked with minisign before installing',
+			'common.check_updates_view_release' => 'View release on GitHub',
+			'common.check_updates_progress_size' => '{{downloaded}} of {{total}}',
+			'common.check_updates_speed' => '{{speed}}/s',
+			'common.check_updates_time_left' => 'About {{time}} left',
+			'common.check_updates_from_host' => 'From {{host}}',
+			'common.check_updates_download_summary' => 'Downloaded {{size}} in {{time}}',
+			'common.check_updates_signature_verified' => 'Signature verified',
 			'common.clone_repo_title' => 'リポジトリをクローン',
 			'common.clone_repo_url_label' => 'リポジトリの URL',
 			'common.clone_repo_url_placeholder' => 'https://github.com/user/my-game.git',
@@ -2622,13 +2630,13 @@ extension on TranslationsJaJp {
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
 			'common.setting_project_scan_dirs' => 'プロジェクトフォルダをスキャン',
 			'common.setting_version_scan_dirs' => 'バージョンフォルダをスキャン',
+			_ => null,
+		} ?? switch (path) {
 			'common.setting_default_project_location' => 'デフォルトのプロジェクト保存先',
 			'common.setting_download_dir' => 'バージョンダウンロード先',
 			'common.setting_scan_depth' => 'スキャン深度',
 			'common.setting_icon_scan_depth' => 'プロジェクトアイコン検索深度',
 			'common.setting_download_concurrency' => '同時ダウンロード数',
-			_ => null,
-		} ?? switch (path) {
 			'common.setting_close_on_project_open' => 'プロジェクト起動時に終了',
 			'common.setting_minimize_to_tray' => 'システムトレイに最小化',
 			'common.setting_reopen_after_godot_closes' => 'Godot 終了後に再表示',
@@ -2691,8 +2699,6 @@ extension on TranslationsJaJp {
 			'common.asset_duplicate_desc' => '「{{name}}」はすでにテンプレートに追加されています。重複してインストールしますか？',
 			'common.empty_category' => 'カテゴリは空です',
 			'common.release_to_drop' => 'ここにドロップ',
-			'common.preview_release_notes' => '## v1.0.0 の新着情報 - プレビューアップデート\\n\\n## 新機能\\n\\n- 更新確認モーダルを刷新し、リリースノートを構造化して表示\\n- アクセシビリティ設定タブとスクリーンリーダーの読み上げを追加\\n\\n## 修正\\n\\n- ピン留めしたプロジェクトがあるワークスペースを切り替えるとクラッシュする問題を修正\\n- GitHub のレート制限に達したときに更新確認が無言で失敗する問題を修正\\n\\n## 改善\\n\\n- すべてのプラットフォームで起動を高速化\\n- ワークスペースのモーダルを刷新し、スタイルの選択をコンパクトに\\n\\n## 既知の問題\\n\\n- Linux: 一部のディストリビューションでは AppImage が動作しません。.rpm または .deb パッケージを使用してください\\n- Windows: アプリを再起動するまで、タスクバーにアイコンが二重に表示されることがあります',
-			'common.preview_error' => 'プレビューエラー: GitHub API のレート制限に達しました（HTTP 403）。確認を続けるには、設定でトークンを追加してください。',
 			'common.bug_report_system' => 'システム',
 			'common.bug_report_version' => 'バージョン',
 			'common.bug_report_date' => '日付',
@@ -3138,11 +3144,11 @@ extension on TranslationsJaJp {
 			'common.date_next_month' => '次の月',
 			'common.date_change_due' => '期限を変更: {{date}}',
 			'common.date_add_due' => '期限を追加',
+			_ => null,
+		} ?? switch (path) {
 			'dashboard.greeting_morning' => 'おはようございます',
 			'dashboard.greeting_afternoon' => 'こんにちは',
 			'dashboard.greeting_evening' => 'こんばんは',
-			_ => null,
-		} ?? switch (path) {
 			'dashboard.greeting_night' => 'お疲れさまです',
 			'dashboard.greeting_name' => '{{greeting}}、{{name}} さん',
 			'dashboard.dashboard_rename_hint' => '表示名を設定',
@@ -3652,11 +3658,11 @@ extension on TranslationsJaJp {
 			'settings.discord_custom_state_placeholder' => '状態テキスト',
 			'settings.discord_custom_remove' => 'カスタムプレゼンスを削除',
 			'settings.search_placeholder' => '設定を検索…',
+			_ => null,
+		} ?? switch (path) {
 			'settings.interface_label' => 'インターフェース',
 			'settings.card_layout_label' => 'カードレイアウト',
 			'settings.landing_tab_label' => '起動時に表示する画面',
-			_ => null,
-		} ?? switch (path) {
 			'settings.language_complete' => '翻訳済み',
 			'settings.language_beta' => 'ベータ',
 			'settings.language_incomplete' => '一部未翻訳',

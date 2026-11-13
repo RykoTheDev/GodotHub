@@ -17,11 +17,43 @@ import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
 import '../ui/shell/smooth_scroll.dart';
+import '../logic/format_bytes.dart';
+import '../logic/duration.dart';
 
-export '../api/updater.dart' show AppUpdate;
+import 'package:intl/intl.dart';
+
+export '../api/updater.dart' show AppUpdate, UpdateDownloadProgress;
 
 const latestReleaseUrl = 'https://github.com/RykoTheDev/GodotHub/releases/latest';
 const previewUpdateVersion = '1.0.0';
+const previewUpdateSize = 92 * 1024 * 1024;
+const previewReleaseNotes = '## What\'s new in v1.0.0 - The Preview Update\n\n## New\n\n- Revamped the Check for Updates modal with structured release notes\n- Added screen reader announcements with an Accessibility settings tab\n\n## Fixes\n\n- Fixed a crash when switching workspaces with pinned projects\n- Fixed update checks failing silently when GitHub rate limits are hit\n\n## Improvements\n\n- Faster startup times across all platforms\n- Reworked workspace modals with compact style pickers\n\n## Known Issues\n\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts';
+const previewError = 'Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking.';
+const previewStateLabels = {
+  UpdateStateType.checking: 'Checking',
+  UpdateStateType.available: 'Available',
+  UpdateStateType.downloading: 'Downloading',
+  UpdateStateType.done: 'Done',
+  UpdateStateType.uptodate: 'Up to date',
+  UpdateStateType.portable: 'Portable',
+  UpdateStateType.error: 'Error',
+};
+const previewUpdateUrl = 'https://github.com/RykoTheDev/GodotHub/releases/download/v1.0.0/GodotHub-1.0.0-setup.exe';
+
+class DownloadStats {
+  const DownloadStats({this.downloaded = 0, this.total, this.speed, this.eta});
+
+  final int downloaded;
+  final int? total;
+  final double? speed;
+  final Duration? eta;
+}
+
+String? formatReleaseDate(String? date, String locale) {
+  final parsed = date == null ? null : DateTime.tryParse(date);
+  if (parsed == null) return null;
+  return DateFormat.yMMMd(locale).format(parsed.toLocal());
+}
 
 typedef AppUpdateCheck = Future<AppUpdate?> Function();
 
@@ -109,6 +141,12 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
   double _progress = 0;
   String _message = '';
   Future<void> Function()? _install;
+  String? _date;
+  String? _package;
+  UpdateSource _source = const UpdateSource();
+  DownloadStats _stats = const DownloadStats();
+  int? _doneSize;
+  Duration? _doneElapsed;
   Timer? _simulation;
   Timer? _finish;
   int _check = 0;
@@ -150,6 +188,10 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
     double progress = 0,
     String message = '',
     Future<void> Function()? install,
+    AppUpdate? update,
+    DownloadStats stats = const DownloadStats(),
+    int? doneSize,
+    Duration? doneElapsed,
   }) {
     if (!mounted) return;
     setState(() {
@@ -159,29 +201,62 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
       _progress = progress;
       _message = message;
       _install = install;
+      if (update != null) {
+        _date = update.date;
+        _package = update.package;
+        _source = updateSourceFrom(update.downloadUrl);
+      }
+      _stats = stats;
+      _doneSize = doneSize;
+      _doneElapsed = doneElapsed;
     });
   }
 
+  AppUpdate get _previewUpdate => AppUpdate(
+    version: previewUpdateVersion,
+    body: previewReleaseNotes,
+    date: DateTime.now().toUtc().toIso8601String(),
+    downloadUrl: previewUpdateUrl,
+    package: 'windows-x86_64-nsis',
+    downloadAndInstall: (_, {githubToken}) async {},
+  );
+
+  void _simulateTick(double progress, DownloadSpeedMeter meter, Stopwatch clock) {
+    final downloaded = (previewUpdateSize * progress).round();
+    final rates = meter.sample(downloaded, previewUpdateSize, clock.elapsed);
+    _set(
+      UpdateStateType.downloading,
+      progress: progress,
+      stats: DownloadStats(downloaded: downloaded, total: previewUpdateSize, speed: rates.speed, eta: rates.eta),
+    );
+  }
+
   void _setAvailablePreview() {
+    final update = _previewUpdate;
     _type = UpdateStateType.available;
     _version = previewUpdateVersion;
-    _notes = ghTr('preview_release_notes');
+    _notes = previewReleaseNotes;
     _install = _simulateDownload;
+    _date = update.date;
+    _package = update.package;
+    _source = updateSourceFrom(update.downloadUrl);
   }
 
   Future<void> _simulateDownload() {
     _clearSimulation();
     final done = Completer<void>();
-    _set(UpdateStateType.downloading);
+    final meter = DownloadSpeedMeter();
+    final clock = Stopwatch()..start();
+    _simulateTick(0, meter, clock);
     var progress = 0.0;
     _simulation = Timer.periodic(const Duration(milliseconds: 200), (timer) {
       progress = math.min(progress + 0.045 + _random.nextDouble() * 0.06, 1);
-      _set(UpdateStateType.downloading, progress: progress);
+      _simulateTick(progress, meter, clock);
       if (progress >= 1) {
         timer.cancel();
         _simulation = null;
         _finish = Timer(const Duration(milliseconds: 350), () {
-          _set(UpdateStateType.done);
+          _set(UpdateStateType.done, doneSize: previewUpdateSize, doneElapsed: clock.elapsed);
           done.complete();
         });
       }
@@ -192,7 +267,13 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
   Future<void> _doCheck() async {
     if (_preview) {
       _clearSimulation();
-      _set(UpdateStateType.available, version: previewUpdateVersion, notes: ghTr('preview_release_notes'), install: _simulateDownload);
+      _set(
+        UpdateStateType.available,
+        version: previewUpdateVersion,
+        notes: previewReleaseNotes,
+        install: _simulateDownload,
+        update: _previewUpdate,
+      );
       return;
     }
     final check = ++_check;
@@ -217,14 +298,34 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
         UpdateStateType.available,
         version: update.version,
         notes: update.body,
+        update: update,
         install: () async {
+          final meter = DownloadSpeedMeter();
+          final clock = Stopwatch()..start();
+          var last = const UpdateDownloadProgress(downloaded: 0);
+          Duration? painted;
           _set(UpdateStateType.downloading);
           try {
-            await update.downloadAndInstall(
-              (progress) => _set(UpdateStateType.downloading, progress: progress.clamp(0, 1).toDouble()),
-              githubToken: _githubToken,
-            );
-            _set(UpdateStateType.done);
+            await update.downloadAndInstall((progress) {
+              last = progress;
+              final now = clock.elapsed;
+              final rates = meter.sample(progress.downloaded, progress.total, now);
+              final total = progress.total;
+              final finished = total != null && progress.downloaded >= total;
+              if (!finished && painted != null && now - painted! < const Duration(milliseconds: 100)) return;
+              painted = now;
+              _set(
+                UpdateStateType.downloading,
+                progress: total != null && total > 0 ? (progress.downloaded / total).clamp(0, 1).toDouble() : 0,
+                stats: DownloadStats(
+                  downloaded: progress.downloaded,
+                  total: total,
+                  speed: finished ? null : rates.speed,
+                  eta: finished ? Duration.zero : rates.eta,
+                ),
+              );
+            }, githubToken: _githubToken);
+            _set(UpdateStateType.done, doneSize: last.total ?? last.downloaded, doneElapsed: clock.elapsed);
           } catch (e) {
             _set(UpdateStateType.error, message: '$e');
           }
@@ -241,26 +342,34 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
       case UpdateStateType.checking:
         _set(UpdateStateType.checking);
       case UpdateStateType.available:
-        _set(UpdateStateType.available, version: previewUpdateVersion, notes: ghTr('preview_release_notes'), install: _simulateDownload);
+        _set(
+          UpdateStateType.available,
+          version: previewUpdateVersion,
+          notes: previewReleaseNotes,
+          install: _simulateDownload,
+          update: _previewUpdate,
+        );
       case UpdateStateType.downloading:
-        _set(UpdateStateType.downloading);
+        final meter = DownloadSpeedMeter();
+        final clock = Stopwatch()..start();
+        _simulateTick(0, meter, clock);
         var progress = 0.0;
         _simulation = Timer.periodic(const Duration(milliseconds: 160), (timer) {
           progress = math.min(progress + 0.05 + _random.nextDouble() * 0.07, 1);
-          _set(UpdateStateType.downloading, progress: progress);
+          _simulateTick(progress, meter, clock);
           if (progress >= 1) {
             timer.cancel();
             _simulation = null;
           }
         });
       case UpdateStateType.done:
-        _set(UpdateStateType.done);
+        _set(UpdateStateType.done, doneSize: previewUpdateSize, doneElapsed: const Duration(milliseconds: 21400));
       case UpdateStateType.uptodate:
         _set(UpdateStateType.uptodate);
       case UpdateStateType.portable:
-        _set(UpdateStateType.portable, version: previewUpdateVersion, notes: ghTr('preview_release_notes'));
+        _set(UpdateStateType.portable, version: previewUpdateVersion, notes: previewReleaseNotes);
       case UpdateStateType.error:
-        _set(UpdateStateType.error, message: ghTr('preview_error'));
+        _set(UpdateStateType.error, message: previewError);
     }
   }
 
@@ -312,7 +421,7 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
           padding: EdgeInsets.symmetric(horizontal: theme.space(2), vertical: theme.space(0.5)),
           decoration: BoxDecoration(color: theme.amber.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(theme.radiusTag)),
           child: Text(
-            ghTr('check_updates_preview_badge').toUpperCase(),
+            'PREVIEW',
             style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: theme.amber, letterSpacingEm: 0.05),
           ),
         ),
@@ -335,7 +444,7 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
                     ),
                     padding: EdgeInsets.symmetric(horizontal: theme.space(2.5), vertical: theme.space(1)),
                     child: Text(
-                      ghTr('preview_state_${s.name}'),
+                      previewStateLabels[s]!,
                       style: theme.text(
                         size: GhTextSize.x3s,
                         weight: GhWeight.medium,
@@ -433,6 +542,7 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
                 ),
               ),
             ),
+            _downloadStats(theme),
           ],
         );
       case UpdateStateType.done:
@@ -441,6 +551,7 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
           children: [
             _statusIcon(theme, GhIcons.check, theme.mint),
             _titled(theme, ghTr('update_downloaded'), ghTr('restart_to_apply')),
+            if (_doneSize != null || _doneElapsed != null) _doneSummary(theme),
             ConstrainedBox(
               constraints: BoxConstraints(maxWidth: theme.rem(20)),
               child: Text(
@@ -704,7 +815,142 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
           )
         else
           Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: theme.space(6), children: [left, right]),
+        _details(theme),
         _AccentButton(icon: GhIcons.download, label: ghTr('install_update'), onPressed: () => _install?.call().ignore()),
+      ],
+    );
+  }
+
+  Widget _details(GhTheme theme) {
+    final released = formatReleaseDate(_date, Localizations.localeOf(context).toLanguageTag());
+    final label = theme.text(size: GhTextSize.xs, color: theme.muted);
+    final value = theme.text(size: GhTextSize.xs, color: theme.ink);
+    final mono = theme.text(size: GhTextSize.xs, mono: true, color: theme.ink);
+    TableRow row(String name, String text, TextStyle style) => TableRow(
+      children: [
+        Padding(
+          padding: EdgeInsetsDirectional.only(end: theme.space(3), bottom: theme.space(1.5)),
+          child: Text(name, style: label),
+        ),
+        Padding(
+          padding: EdgeInsets.only(bottom: theme.space(1.5)),
+          child: Text(text, maxLines: 2, overflow: TextOverflow.ellipsis, style: style),
+        ),
+      ],
+    );
+    final releaseUrl = _source.releaseUrl;
+    return Container(
+      padding: EdgeInsets.all(theme.space(3.5)),
+      decoration: BoxDecoration(
+        color: theme.raised,
+        borderRadius: BorderRadius.circular(theme.radiusItem),
+        border: Border.all(color: theme.line),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: theme.space(2.5),
+        children: [
+          Text(
+            ghTr('check_updates_details').toUpperCase(),
+            style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: theme.muted, letterSpacingEm: 0.05),
+          ),
+          Table(
+            columnWidths: const {0: IntrinsicColumnWidth(), 1: FlexColumnWidth()},
+            children: [
+              if (released != null) row(ghTr('check_updates_released'), released, value),
+              if (_source.host != null) row(ghTr('check_updates_source'), _source.host!, mono),
+              if (_source.file != null) row(ghTr('check_updates_file'), _source.file!, mono),
+              if (_package != null) row(ghTr('check_updates_package'), _package!, mono),
+              row(ghTr('check_updates_signature'), ghTr('check_updates_signature_checked'), value),
+            ],
+          ),
+          if (releaseUrl != null)
+            GhPressable(
+              onPressed: () => OpenerApi.openUrl(releaseUrl).catchError((Object e) => ghToasts.pushToast(GhToastType.error, '$e')),
+              borderRadius: BorderRadius.circular(theme.radiusTag),
+              builder: (context, states) {
+                final color = states.active ? theme.accentBright : theme.accent;
+                return Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: theme.space(1.5),
+                  children: [
+                    GhIcon(GhIcons.externalLink, size: theme.space(3.5), color: color),
+                    Text(
+                      ghTr('check_updates_view_release'),
+                      style: theme.text(size: GhTextSize.xs, color: color),
+                    ),
+                  ],
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _downloadStats(GhTheme theme) {
+    final stats = _stats;
+    final total = stats.total;
+    final mono = theme.text(size: GhTextSize.xs, mono: true, color: theme.ink).copyWith(fontFeatures: const [FontFeature.tabularFigures()]);
+    final muted = mono.copyWith(color: theme.muted);
+    final speed = stats.speed;
+    final eta = stats.eta;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: theme.space(2),
+      children: [
+        Row(
+          spacing: theme.space(3),
+          children: [
+            Expanded(
+              child: Text(
+                total != null
+                    ? ghTr('check_updates_progress_size', args: {'downloaded': formatBytes(stats.downloaded), 'total': formatBytes(total)})
+                    : formatBytes(stats.downloaded),
+                style: mono,
+              ),
+            ),
+            if (speed != null && speed > 0) Text(ghTr('check_updates_speed', args: {'speed': formatBytes(speed)}), style: muted),
+            if (eta != null && eta > Duration.zero)
+              Text(ghTr('check_updates_time_left', args: {'time': formatDuration(math.max(1000, eta.inMilliseconds))}), style: muted),
+          ],
+        ),
+        if (_source.host != null)
+          Text(
+            ghTr('check_updates_from_host', args: {'host': _source.host!}),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.text(size: GhTextSize.x2s, color: theme.muted.withValues(alpha: 0.8)),
+          ),
+      ],
+    );
+  }
+
+  Widget _doneSummary(GhTheme theme) {
+    final size = _doneSize;
+    final elapsed = _doneElapsed;
+    return Column(
+      spacing: theme.space(1),
+      children: [
+        if (size != null && elapsed != null)
+          Text(
+            ghTr(
+              'check_updates_download_summary',
+              args: {'size': formatBytes(size), 'time': formatDuration(math.max(1000, elapsed.inMilliseconds))},
+            ),
+            style: theme.text(size: GhTextSize.xs, mono: true, color: theme.muted),
+          ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: theme.space(1.5),
+          children: [
+            GhIcon(GhIcons.check, size: theme.space(3.5), color: theme.mint),
+            Text(
+              ghTr('check_updates_signature_verified'),
+              style: theme.text(size: GhTextSize.xs, color: theme.mint),
+            ),
+          ],
+        ),
       ],
     );
   }

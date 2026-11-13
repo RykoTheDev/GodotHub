@@ -128,7 +128,7 @@ void main() {
 
     testWidgets('shows the available update, notes and known issues, then downloads with progress', (tester) async {
       String? token;
-      late void Function(double) report;
+      late void Function(UpdateDownloadProgress) report;
       final finish = <void Function()>[];
       await openWith(
         tester,
@@ -139,6 +139,9 @@ void main() {
             () async => AppUpdate(
               version: '2.1.0',
               body: notes,
+              date: '2026-11-10T12:00:00Z',
+              downloadUrl: 'https://github.com/RykoTheDev/godothub/releases/download/flutter-v2.1.0/GodotHub-Beta-2.1.0-windows-x64-setup.exe',
+              package: 'windows-x86_64-nsis',
               downloadAndInstall: (onProgress, {githubToken}) {
                 token = githubToken;
                 report = onProgress;
@@ -158,16 +161,38 @@ void main() {
       expect(find.text('New thing'), findsOneWidget);
       expect(find.text('Slow start'), findsOneWidget);
       expect(find.text('ADDED'), findsOneWidget);
+      expect(find.text(ghTr('check_updates_details').toUpperCase()), findsOneWidget);
+      expect(find.text('github.com'), findsOneWidget);
+      expect(find.text('GodotHub-Beta-2.1.0-windows-x64-setup.exe'), findsOneWidget);
+      expect(find.text('windows-x86_64-nsis'), findsOneWidget);
+      expect(find.text(ghTr('check_updates_signature_checked')), findsOneWidget);
+      await tester.tap(find.text(ghTr('check_updates_view_release')));
+      await tester.pump();
+      expect(opened, ['https://github.com/RykoTheDev/godothub/releases/tag/flutter-v2.1.0']);
       await tester.tap(find.text(ghTr('install_update')));
       await tester.pump();
       expect(token, 'tok');
-      report(0.5);
+      report(const UpdateDownloadProgress(downloaded: 50 * 1024 * 1024, total: 100 * 1024 * 1024));
       await tester.pump();
       expect(find.text(ghTr('downloading_update')), findsOneWidget);
       expect(find.text(ghTr('percent_complete', args: {'percent': 50})), findsOneWidget);
+      expect(find.text(ghTr('check_updates_progress_size', args: {'downloaded': '50.0 MB', 'total': '100.0 MB'})), findsOneWidget);
+      expect(find.text(ghTr('check_updates_from_host', args: {'host': 'github.com'})), findsOneWidget);
+      report(const UpdateDownloadProgress(downloaded: 100 * 1024 * 1024, total: 100 * 1024 * 1024));
       await base.settle(tester, 12);
       expect(finish, hasLength(1));
       expect(find.text(ghTr('update_downloaded')), findsOneWidget);
+      expect(find.text(ghTr('check_updates_signature_verified')), findsOneWidget);
+      expect(find.textContaining('100.0 MB'), findsOneWidget);
+    });
+
+    testWidgets('preview mode shows the sample release notes and known issues', (tester) async {
+      await openWith(tester, (close) => CheckForUpdatesModal(onClose: close, mode: CheckForUpdatesMode.preview));
+      expect(find.text(ghTr('check_updates_release_notes').toUpperCase()), findsOneWidget);
+      expect(find.text('NEW'), findsOneWidget);
+      expect(find.text('Faster startup times across all platforms'), findsOneWidget);
+      expect(find.text(ghTr('changelog_known_issues').toUpperCase()), findsOneWidget);
+      expect(find.textContaining('the taskbar may briefly show a duplicate icon'), findsOneWidget);
     });
 
     testWidgets('portable installs link to the GitHub release instead of installing', (tester) async {
@@ -231,12 +256,12 @@ void main() {
         ],
       );
       expect(checks, 0);
-      expect(find.text(ghTr('check_updates_preview_badge').toUpperCase()), findsOneWidget);
+      expect(find.text('PREVIEW'), findsOneWidget);
       expect(find.text('v$previewUpdateVersion'), findsOneWidget);
-      await tester.tap(find.text(ghTr('preview_state_error')));
+      await tester.tap(find.text(previewStateLabels[UpdateStateType.error]!));
       await base.settle(tester, 2);
-      expect(find.text(ghTr('preview_error')), findsOneWidget);
-      await tester.tap(find.text(ghTr('preview_state_available')));
+      expect(find.text(previewError), findsOneWidget);
+      await tester.tap(find.text(previewStateLabels[UpdateStateType.available]!));
       await base.settle(tester, 2);
       await tester.tap(find.text(ghTr('install_update')));
       await base.settle(tester, 40);

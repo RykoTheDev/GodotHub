@@ -35,7 +35,8 @@ import { ModalHeader } from './ModalHeader'
 
 interface CommandItem {
   id: string
-  labelKey: string
+  labelKey?: string
+  plainLabel?: string
   labelNs?: 'nav' | 'common'
   shortcut?: string
   icon: React.ReactNode
@@ -244,7 +245,7 @@ function buildCommands(
       ? [
           {
             id: 'preview-update-modal',
-            labelKey: 'preview_update_modal',
+            plainLabel: 'Preview Update Modal',
             icon: <IconRocket className="w-4 h-4" />,
             sectionKey: 'section_help',
             action: () => dispatch('app:preview-update-modal'),
@@ -318,6 +319,11 @@ export function CommandPalette({
 }: Props) {
   const { t } = useTranslation('nav')
   const { t: tc } = useTranslation('common')
+
+  const commandLabel = (item: ResultItem) =>
+    'sectionKey' in item
+      ? item.plainLabel ?? (item.labelNs === 'nav' ? t(item.labelKey ?? '') : tc(item.labelKey ?? ''))
+      : item.label
   const { settings, update } = useSettings()
   const { workspaces, activeId, switchWorkspace } = useWorkspaces()
   const { categories } = useCategoriesContext()
@@ -505,12 +511,7 @@ export function CommandPalette({
     const q = query.trim().toLowerCase()
     const results = q
       ? allItems.filter((item) => {
-          const label = 'labelKey' in item
-            ? (item.labelNs === 'nav'
-                ? t(item.labelKey)
-                : tc(item.labelKey)
-              ).toLowerCase()
-            : item.label.toLowerCase()
+          const label = commandLabel(item).toLowerCase()
           const sublabel = 'sublabel' in item
             ? (item as DynamicItem).sublabel.toLowerCase()
             : ''
@@ -669,11 +670,7 @@ export function CommandPalette({
                       </span>
                       <div className="flex-1 text-start min-w-0">
                         <span className="block truncate">
-                          {'labelKey' in item
-                            ? item.labelNs === 'nav'
-                              ? t(item.labelKey)
-                              : tc(item.labelKey)
-                            : item.label}
+                          {commandLabel(item)}
                         </span>
                         {isDynamic && (
                           <span className="block text-3xs text-muted/50 truncate">

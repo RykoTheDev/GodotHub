@@ -556,18 +556,23 @@ class _Translations$common$ru_RU extends Translations$common$en_US {
 	@override String get check_updates_rate_limited_token_hint => 'Сохранённый токен GitHub отклонён. Возможно, срок его действия истёк или он был отозван. Проверьте его в Настройках и замените при необходимости.';
 	@override String get check_updates_add_token => 'Добавить токен GitHub';
 	@override String get check_updates_open_token_settings => 'Открыть настройки токена';
-	@override String get check_updates_preview_badge => 'Превью';
 	@override String get check_updates_portable_title => 'Manual update required';
 	@override String get check_updates_portable_desc => 'Portable installs cannot auto-update. Download the latest version from GitHub and replace the existing files.';
 	@override String get check_updates_download_from_github => 'Скачать с GitHub';
-	@override String get preview_state_checking => 'Проверка';
-	@override String get preview_state_available => 'Доступно';
-	@override String get preview_state_downloading => 'Загрузка';
-	@override String get preview_state_done => 'Готово';
-	@override String get preview_state_uptodate => 'Актуально';
-	@override String get preview_state_error => 'Ошибка';
-	@override String get preview_state_portable => 'Portable';
-	@override String get preview_update_modal => 'Модальное окно превью обновления';
+	@override String get check_updates_details => 'Update details';
+	@override String get check_updates_released => 'Released';
+	@override String get check_updates_source => 'Source';
+	@override String get check_updates_file => 'File';
+	@override String get check_updates_package => 'Package';
+	@override String get check_updates_signature => 'Signature';
+	@override String get check_updates_signature_checked => 'Checked with minisign before installing';
+	@override String get check_updates_view_release => 'View release on GitHub';
+	@override String get check_updates_progress_size => '{{downloaded}} of {{total}}';
+	@override String get check_updates_speed => '{{speed}}/s';
+	@override String get check_updates_time_left => 'About {{time}} left';
+	@override String get check_updates_from_host => 'From {{host}}';
+	@override String get check_updates_download_summary => 'Downloaded {{size}} in {{time}}';
+	@override String get check_updates_signature_verified => 'Signature verified';
 	@override String get clone_repo_title => 'Клонировать репозиторий';
 	@override String get clone_repo_url_label => 'URL репозитория';
 	@override String get clone_repo_url_placeholder => 'https://github.com/user/my-game.git';
@@ -686,8 +691,6 @@ class _Translations$common$ru_RU extends Translations$common$en_US {
 	@override String get asset_duplicate_desc => '"{{name}}" is already in your templates. Install a duplicate anyway?';
 	@override String get empty_category => 'Empty Category';
 	@override String get release_to_drop => 'Release to drop';
-	@override String get preview_release_notes => '## What\'s new in v1.0.0 - The Preview Update\\n\\n## New\\n\\n- Revamped the Check for Updates modal with structured release notes\\n- Added screen reader announcements with an Accessibility settings tab\\n\\n## Fixes\\n\\n- Fixed a crash when switching workspaces with pinned projects\\n- Fixed update checks failing silently when GitHub rate limits are hit\\n\\n## Improvements\\n\\n- Faster startup times across all platforms\\n- Reworked workspace modals with compact style pickers\\n\\n## Known Issues\\n\\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts';
-	@override String get preview_error => 'Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking.';
 	@override String get bug_report_system => 'System';
 	@override String get bug_report_version => 'Version';
 	@override String get bug_report_date => 'Date';
@@ -2724,18 +2727,23 @@ extension on TranslationsRuRu {
 			'common.check_updates_rate_limited_token_hint' => 'Сохранённый токен GitHub отклонён. Возможно, срок его действия истёк или он был отозван. Проверьте его в Настройках и замените при необходимости.',
 			'common.check_updates_add_token' => 'Добавить токен GitHub',
 			'common.check_updates_open_token_settings' => 'Открыть настройки токена',
-			'common.check_updates_preview_badge' => 'Превью',
 			'common.check_updates_portable_title' => 'Manual update required',
 			'common.check_updates_portable_desc' => 'Portable installs cannot auto-update. Download the latest version from GitHub and replace the existing files.',
 			'common.check_updates_download_from_github' => 'Скачать с GitHub',
-			'common.preview_state_checking' => 'Проверка',
-			'common.preview_state_available' => 'Доступно',
-			'common.preview_state_downloading' => 'Загрузка',
-			'common.preview_state_done' => 'Готово',
-			'common.preview_state_uptodate' => 'Актуально',
-			'common.preview_state_error' => 'Ошибка',
-			'common.preview_state_portable' => 'Portable',
-			'common.preview_update_modal' => 'Модальное окно превью обновления',
+			'common.check_updates_details' => 'Update details',
+			'common.check_updates_released' => 'Released',
+			'common.check_updates_source' => 'Source',
+			'common.check_updates_file' => 'File',
+			'common.check_updates_package' => 'Package',
+			'common.check_updates_signature' => 'Signature',
+			'common.check_updates_signature_checked' => 'Checked with minisign before installing',
+			'common.check_updates_view_release' => 'View release on GitHub',
+			'common.check_updates_progress_size' => '{{downloaded}} of {{total}}',
+			'common.check_updates_speed' => '{{speed}}/s',
+			'common.check_updates_time_left' => 'About {{time}} left',
+			'common.check_updates_from_host' => 'From {{host}}',
+			'common.check_updates_download_summary' => 'Downloaded {{size}} in {{time}}',
+			'common.check_updates_signature_verified' => 'Signature verified',
 			'common.clone_repo_title' => 'Клонировать репозиторий',
 			'common.clone_repo_url_label' => 'URL репозитория',
 			'common.clone_repo_url_placeholder' => 'https://github.com/user/my-game.git',
@@ -2772,13 +2780,13 @@ extension on TranslationsRuRu {
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
 			'common.setting_project_scan_dirs' => 'Scan Project Folders',
 			'common.setting_version_scan_dirs' => 'Scan Version Folders',
+			_ => null,
+		} ?? switch (path) {
 			'common.setting_default_project_location' => 'Default Project Location Setting',
 			'common.setting_download_dir' => 'Download Versions Location Setting',
 			'common.setting_scan_depth' => 'Scan Depth',
 			'common.setting_icon_scan_depth' => 'Project Icon Search Depth',
 			'common.setting_download_concurrency' => 'Simultaneous Downloads',
-			_ => null,
-		} ?? switch (path) {
 			'common.setting_close_on_project_open' => 'Close on Project Open',
 			'common.setting_minimize_to_tray' => 'Minimize to System Tray',
 			'common.setting_reopen_after_godot_closes' => 'Reopen After Godot Closes',
@@ -2841,8 +2849,6 @@ extension on TranslationsRuRu {
 			'common.asset_duplicate_desc' => '"{{name}}" is already in your templates. Install a duplicate anyway?',
 			'common.empty_category' => 'Empty Category',
 			'common.release_to_drop' => 'Release to drop',
-			'common.preview_release_notes' => '## What\'s new in v1.0.0 - The Preview Update\\n\\n## New\\n\\n- Revamped the Check for Updates modal with structured release notes\\n- Added screen reader announcements with an Accessibility settings tab\\n\\n## Fixes\\n\\n- Fixed a crash when switching workspaces with pinned projects\\n- Fixed update checks failing silently when GitHub rate limits are hit\\n\\n## Improvements\\n\\n- Faster startup times across all platforms\\n- Reworked workspace modals with compact style pickers\\n\\n## Known Issues\\n\\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts',
-			'common.preview_error' => 'Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking.',
 			'common.bug_report_system' => 'System',
 			'common.bug_report_version' => 'Version',
 			'common.bug_report_date' => 'Date',
@@ -3288,11 +3294,11 @@ extension on TranslationsRuRu {
 			'common.date_next_month' => 'Next month',
 			'common.date_change_due' => 'Change due date: {{date}}',
 			'common.date_add_due' => 'Add due date',
+			_ => null,
+		} ?? switch (path) {
 			'dashboard.greeting_morning' => 'Good morning',
 			'dashboard.greeting_afternoon' => 'Good afternoon',
 			'dashboard.greeting_evening' => 'Good evening',
-			_ => null,
-		} ?? switch (path) {
 			'dashboard.greeting_night' => 'Good night',
 			'dashboard.greeting_name' => '{{greeting}}, {{name}}',
 			'dashboard.dashboard_rename_hint' => 'Set a custom name',
@@ -3802,11 +3808,11 @@ extension on TranslationsRuRu {
 			'settings.discord_custom_state_placeholder' => 'State line',
 			'settings.discord_custom_remove' => 'Remove custom presence',
 			'settings.search_placeholder' => 'Найти настройки…',
+			_ => null,
+		} ?? switch (path) {
 			'settings.interface_label' => 'Interface',
 			'settings.card_layout_label' => 'Card layout',
 			'settings.landing_tab_label' => 'Default landing page',
-			_ => null,
-		} ?? switch (path) {
 			'settings.language_complete' => 'Complete',
 			'settings.language_beta' => 'Beta',
 			'settings.language_incomplete' => 'Incomplete',

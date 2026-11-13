@@ -1464,9 +1464,6 @@ class Translations$common$en_US {
 	/// en-US: 'Open Token Settings'
 	String get check_updates_open_token_settings => 'Open Token Settings';
 
-	/// en-US: 'Preview'
-	String get check_updates_preview_badge => 'Preview';
-
 	/// en-US: 'Manual update required'
 	String get check_updates_portable_title => 'Manual update required';
 
@@ -1476,29 +1473,47 @@ class Translations$common$en_US {
 	/// en-US: 'Download from GitHub'
 	String get check_updates_download_from_github => 'Download from GitHub';
 
-	/// en-US: 'Checking'
-	String get preview_state_checking => 'Checking';
+	/// en-US: 'Update details'
+	String get check_updates_details => 'Update details';
 
-	/// en-US: 'Available'
-	String get preview_state_available => 'Available';
+	/// en-US: 'Released'
+	String get check_updates_released => 'Released';
 
-	/// en-US: 'Downloading'
-	String get preview_state_downloading => 'Downloading';
+	/// en-US: 'Source'
+	String get check_updates_source => 'Source';
 
-	/// en-US: 'Done'
-	String get preview_state_done => 'Done';
+	/// en-US: 'File'
+	String get check_updates_file => 'File';
 
-	/// en-US: 'Up to date'
-	String get preview_state_uptodate => 'Up to date';
+	/// en-US: 'Package'
+	String get check_updates_package => 'Package';
 
-	/// en-US: 'Error'
-	String get preview_state_error => 'Error';
+	/// en-US: 'Signature'
+	String get check_updates_signature => 'Signature';
 
-	/// en-US: 'Portable'
-	String get preview_state_portable => 'Portable';
+	/// en-US: 'Checked with minisign before installing'
+	String get check_updates_signature_checked => 'Checked with minisign before installing';
 
-	/// en-US: 'Preview Update Modal'
-	String get preview_update_modal => 'Preview Update Modal';
+	/// en-US: 'View release on GitHub'
+	String get check_updates_view_release => 'View release on GitHub';
+
+	/// en-US: '{{downloaded}} of {{total}}'
+	String get check_updates_progress_size => '{{downloaded}} of {{total}}';
+
+	/// en-US: '{{speed}}/s'
+	String get check_updates_speed => '{{speed}}/s';
+
+	/// en-US: 'About {{time}} left'
+	String get check_updates_time_left => 'About {{time}} left';
+
+	/// en-US: 'From {{host}}'
+	String get check_updates_from_host => 'From {{host}}';
+
+	/// en-US: 'Downloaded {{size}} in {{time}}'
+	String get check_updates_download_summary => 'Downloaded {{size}} in {{time}}';
+
+	/// en-US: 'Signature verified'
+	String get check_updates_signature_verified => 'Signature verified';
 
 	/// en-US: 'Clone Repository'
 	String get clone_repo_title => 'Clone Repository';
@@ -1817,12 +1832,6 @@ class Translations$common$en_US {
 
 	/// en-US: 'Release to drop'
 	String get release_to_drop => 'Release to drop';
-
-	/// en-US: '## What's new in v1.0.0 - The Preview Update\\n\\n## New\\n\\n- Revamped the Check for Updates modal with structured release notes\\n- Added screen reader announcements with an Accessibility settings tab\\n\\n## Fixes\\n\\n- Fixed a crash when switching workspaces with pinned projects\\n- Fixed update checks failing silently when GitHub rate limits are hit\\n\\n## Improvements\\n\\n- Faster startup times across all platforms\\n- Reworked workspace modals with compact style pickers\\n\\n## Known Issues\\n\\n- Linux OS: AppImage won't work on some distros, use the .rpm or .deb package instead\\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts'
-	String get preview_release_notes => '## What\'s new in v1.0.0 - The Preview Update\\n\\n## New\\n\\n- Revamped the Check for Updates modal with structured release notes\\n- Added screen reader announcements with an Accessibility settings tab\\n\\n## Fixes\\n\\n- Fixed a crash when switching workspaces with pinned projects\\n- Fixed update checks failing silently when GitHub rate limits are hit\\n\\n## Improvements\\n\\n- Faster startup times across all platforms\\n- Reworked workspace modals with compact style pickers\\n\\n## Known Issues\\n\\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts';
-
-	/// en-US: 'Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking.'
-	String get preview_error => 'Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking.';
 
 	/// en-US: 'System'
 	String get bug_report_system => 'System';
@@ -6314,18 +6323,23 @@ extension on Translations {
 			'common.check_updates_rate_limited_token_hint' => 'Your saved GitHub token was rejected. It may have expired or been revoked. Test it in Settings and replace it if needed.',
 			'common.check_updates_add_token' => 'Add GitHub Token',
 			'common.check_updates_open_token_settings' => 'Open Token Settings',
-			'common.check_updates_preview_badge' => 'Preview',
 			'common.check_updates_portable_title' => 'Manual update required',
 			'common.check_updates_portable_desc' => 'Portable installs cannot auto-update. Download the latest version from GitHub and replace the existing files.',
 			'common.check_updates_download_from_github' => 'Download from GitHub',
-			'common.preview_state_checking' => 'Checking',
-			'common.preview_state_available' => 'Available',
-			'common.preview_state_downloading' => 'Downloading',
-			'common.preview_state_done' => 'Done',
-			'common.preview_state_uptodate' => 'Up to date',
-			'common.preview_state_error' => 'Error',
-			'common.preview_state_portable' => 'Portable',
-			'common.preview_update_modal' => 'Preview Update Modal',
+			'common.check_updates_details' => 'Update details',
+			'common.check_updates_released' => 'Released',
+			'common.check_updates_source' => 'Source',
+			'common.check_updates_file' => 'File',
+			'common.check_updates_package' => 'Package',
+			'common.check_updates_signature' => 'Signature',
+			'common.check_updates_signature_checked' => 'Checked with minisign before installing',
+			'common.check_updates_view_release' => 'View release on GitHub',
+			'common.check_updates_progress_size' => '{{downloaded}} of {{total}}',
+			'common.check_updates_speed' => '{{speed}}/s',
+			'common.check_updates_time_left' => 'About {{time}} left',
+			'common.check_updates_from_host' => 'From {{host}}',
+			'common.check_updates_download_summary' => 'Downloaded {{size}} in {{time}}',
+			'common.check_updates_signature_verified' => 'Signature verified',
 			'common.clone_repo_title' => 'Clone Repository',
 			'common.clone_repo_url_label' => 'Repository URL',
 			'common.clone_repo_url_placeholder' => 'https://github.com/user/my-game.git',
@@ -6362,13 +6376,13 @@ extension on Translations {
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
 			'common.setting_project_scan_dirs' => 'Scan Project Folders',
 			'common.setting_version_scan_dirs' => 'Scan Version Folders',
+			_ => null,
+		} ?? switch (path) {
 			'common.setting_default_project_location' => 'Default Project Location Setting',
 			'common.setting_download_dir' => 'Download Versions Location Setting',
 			'common.setting_scan_depth' => 'Scan Depth',
 			'common.setting_icon_scan_depth' => 'Project Icon Search Depth',
 			'common.setting_download_concurrency' => 'Simultaneous Downloads',
-			_ => null,
-		} ?? switch (path) {
 			'common.setting_close_on_project_open' => 'Close on Project Open',
 			'common.setting_minimize_to_tray' => 'Minimize to System Tray',
 			'common.setting_reopen_after_godot_closes' => 'Reopen After Godot Closes',
@@ -6431,8 +6445,6 @@ extension on Translations {
 			'common.asset_duplicate_desc' => '"{{name}}" is already in your templates. Install a duplicate anyway?',
 			'common.empty_category' => 'Empty Category',
 			'common.release_to_drop' => 'Release to drop',
-			'common.preview_release_notes' => '## What\'s new in v1.0.0 - The Preview Update\\n\\n## New\\n\\n- Revamped the Check for Updates modal with structured release notes\\n- Added screen reader announcements with an Accessibility settings tab\\n\\n## Fixes\\n\\n- Fixed a crash when switching workspaces with pinned projects\\n- Fixed update checks failing silently when GitHub rate limits are hit\\n\\n## Improvements\\n\\n- Faster startup times across all platforms\\n- Reworked workspace modals with compact style pickers\\n\\n## Known Issues\\n\\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts',
-			'common.preview_error' => 'Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking.',
 			'common.bug_report_system' => 'System',
 			'common.bug_report_version' => 'Version',
 			'common.bug_report_date' => 'Date',
@@ -6878,11 +6890,11 @@ extension on Translations {
 			'common.date_next_month' => 'Next month',
 			'common.date_change_due' => 'Change due date: {{date}}',
 			'common.date_add_due' => 'Add due date',
+			_ => null,
+		} ?? switch (path) {
 			'dashboard.greeting_morning' => 'Good morning',
 			'dashboard.greeting_afternoon' => 'Good afternoon',
 			'dashboard.greeting_evening' => 'Good evening',
-			_ => null,
-		} ?? switch (path) {
 			'dashboard.greeting_night' => 'Good night',
 			'dashboard.greeting_name' => '{{greeting}}, {{name}}',
 			'dashboard.dashboard_rename_hint' => 'Set a custom name',
@@ -7392,11 +7404,11 @@ extension on Translations {
 			'settings.discord_custom_state_placeholder' => 'State line',
 			'settings.discord_custom_remove' => 'Remove custom presence',
 			'settings.search_placeholder' => 'Search settings…',
+			_ => null,
+		} ?? switch (path) {
 			'settings.interface_label' => 'Interface',
 			'settings.card_layout_label' => 'Card layout',
 			'settings.landing_tab_label' => 'Default landing page',
-			_ => null,
-		} ?? switch (path) {
 			'settings.language_complete' => 'Complete',
 			'settings.language_beta' => 'Beta',
 			'settings.language_incomplete' => 'Incomplete',

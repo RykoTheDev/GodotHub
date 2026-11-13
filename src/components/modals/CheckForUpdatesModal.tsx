@@ -13,12 +13,22 @@ import {
 } from '../../lib/icons'
 import { api } from '../../lib/api'
 import { useSettings } from '../../hooks/useSettings'
+import { formatBytes } from '../../lib/formatBytes'
+import { formatDuration } from '../../lib/duration'
+import { isMac, isWindows } from '../../lib/platform'
 
 type UpdateState =
   | { type: 'checking' }
-  | { type: 'available'; version: string; notes: string | null; downloadAndInstall: () => Promise<void> }
-  | { type: 'downloading'; progress: number }
-  | { type: 'done' }
+  | {
+      type: 'available'
+      version: string
+      notes: string | null
+      date: string | null
+      source: UpdateSource
+      downloadAndInstall: () => Promise<void>
+    }
+  | { type: 'downloading'; progress: number; stats: DownloadStats }
+  | { type: 'done'; size: number | null; elapsedMs: number | null }
   | { type: 'uptodate' }
   | { type: 'portable'; version: string; notes: string | null }
   | { type: 'error'; message: string }
@@ -30,6 +40,126 @@ interface Props {
 }
 
 const PREVIEW_VERSION = '1.0.0'
+
+const PREVIEW_SIZE = 92 * 1024 * 1024
+
+const PREVIEW_RELEASE_NOTES = `## What's new in v1.0.0 - The Preview Update
+
+## New
+
+- Revamped the Check for Updates modal with structured release notes
+- Added screen reader announcements with an Accessibility settings tab
+
+## Fixes
+
+- Fixed a crash when switching workspaces with pinned projects
+- Fixed update checks failing silently when GitHub rate limits are hit
+
+## Improvements
+
+- Faster startup times across all platforms
+- Reworked workspace modals with compact style pickers
+
+## Known Issues
+
+- Linux OS: AppImage won't work on some distros, use the .rpm or .deb package instead
+- Windows: the taskbar may briefly show a duplicate icon until the app restarts`
+
+const PREVIEW_ERROR = "Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking."
+
+const PREVIEW_STATE_LABELS: Record<(typeof PREVIEW_STATES)[number], string> = {
+  checking: 'Checking',
+  available: 'Available',
+  downloading: 'Downloading',
+  done: 'Done',
+  uptodate: 'Up to date',
+  portable: 'Portable',
+  error: 'Error',
+}
+
+interface UpdateSource {
+  host: string | null
+  file: string | null
+  releaseUrl: string | null
+}
+
+interface DownloadStats {
+  downloaded: number
+  total: number | null
+  speed: number | null
+  etaMs: number | null
+  host: string | null
+}
+
+const PREVIEW_SOURCE: UpdateSource = {
+  host: 'github.com',
+  file: 'GodotHub-1.0.0-setup.exe',
+  releaseUrl: 'https://github.com/RykoTheDev/GodotHub/releases/latest',
+}
+
+const EMPTY_STATS: DownloadStats = { downloaded: 0, total: null, speed: null, etaMs: null, host: null }
+
+function currentOsKey(): string {
+  if (isWindows) return 'windows'
+  if (isMac) return 'darwin'
+  return 'linux'
+}
+
+function parseUrl(u: string): URL | null {
+  try {
+    return new URL(u)
+  } catch {
+    return null
+  }
+}
+
+function updateSource(rawJson: Record<string, unknown> | undefined): UpdateSource {
+  const platforms = rawJson?.platforms as Record<string, { url?: unknown }> | undefined
+  const entries = Object.entries(platforms ?? {}).flatMap(([key, p]) =>
+    typeof p?.url === 'string' ? [{ key, url: p.url }] : [],
+  )
+  const direct = typeof rawJson?.url === 'string' ? rawJson.url : null
+  const urls = direct ? [{ key: currentOsKey(), url: direct }] : entries
+  if (urls.length === 0) return { host: null, file: null, releaseUrl: null }
+  const first = parseUrl(urls[0].url)
+  const os = currentOsKey()
+  const files = new Set(
+    urls
+      .filter((e) => e.key === os || e.key.startsWith(`${os}-`))
+      .map((e) => decodeURIComponent(parseUrl(e.url)?.pathname.split('/').pop() ?? ''))
+      .filter(Boolean),
+  )
+  const release = first?.pathname.match(/^(\/[^/]+\/[^/]+)\/releases\/download\/([^/]+)\//)
+  return {
+    host: first?.host ?? null,
+    file: files.size === 1 ? [...files][0] : null,
+    releaseUrl:
+      first && release && first.host === 'github.com'
+        ? `https://github.com${release[1]}/releases/tag/${release[2]}`
+        : null,
+  }
+}
+
+function createSpeedMeter() {
+  const samples: { t: number; d: number }[] = []
+  return (downloaded: number, total: number | null, now = performance.now()) => {
+    samples.push({ t: now, d: downloaded })
+    while (samples.length > 2 && now - samples[0].t > 3000) samples.shift()
+    const first = samples[0]
+    const seconds = (now - first.t) / 1000
+    const speed = seconds >= 0.25 ? (downloaded - first.d) / seconds : null
+    const etaMs =
+      speed && speed > 0 && total ? Math.max(0, ((total - downloaded) / speed) * 1000) : null
+    return { speed, etaMs }
+  }
+}
+
+function formatReleaseDate(date: string | null, locale: string): string | null {
+  if (!date) return null
+  const parsed = new Date(date)
+  if (Number.isNaN(parsed.getTime())) return null
+  return parsed.toLocaleDateString(locale, { year: 'numeric', month: 'short', day: 'numeric' })
+}
 
 const PREVIEW_STATES = [
   'checking',
@@ -109,7 +239,7 @@ export function CheckForUpdatesModal({
   onOpenTokenSettings,
   mode = 'manual',
 }: Props) {
-  const { t } = useTranslation('common')
+  const { t, i18n } = useTranslation('common')
   const { settings } = useSettings()
   const isPreview = mode === 'preview'
   const simulateRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -118,7 +248,9 @@ export function CheckForUpdatesModal({
       ? {
           type: 'available',
           version: PREVIEW_VERSION,
-          notes: t('preview_release_notes'),
+          notes: PREVIEW_RELEASE_NOTES,
+          date: new Date().toISOString(),
+          source: PREVIEW_SOURCE,
           downloadAndInstall: () => Promise.resolve(),
         }
       : { type: 'checking' },
@@ -147,15 +279,31 @@ export function CheckForUpdatesModal({
   const simulateDownload = useCallback(() => {
     clearSimulation()
     return new Promise<void>((resolve) => {
-      setState({ type: 'downloading', progress: 0 })
+      const started = performance.now()
+      const meter = createSpeedMeter()
+      setState({
+        type: 'downloading',
+        progress: 0,
+        stats: { ...EMPTY_STATS, total: PREVIEW_SIZE, host: PREVIEW_SOURCE.host },
+      })
       let progress = 0
       simulateRef.current = setInterval(() => {
         progress = Math.min(progress + 0.045 + Math.random() * 0.06, 1)
-        setState({ type: 'downloading', progress })
+        const downloaded = Math.round(PREVIEW_SIZE * progress)
+        setState({
+          type: 'downloading',
+          progress,
+          stats: {
+            downloaded,
+            total: PREVIEW_SIZE,
+            host: PREVIEW_SOURCE.host,
+            ...meter(downloaded, PREVIEW_SIZE),
+          },
+        })
         if (progress >= 1) {
           clearSimulation()
           setTimeout(() => {
-            setState({ type: 'done' })
+            setState({ type: 'done', size: PREVIEW_SIZE, elapsedMs: performance.now() - started })
             resolve()
           }, 350)
         }
@@ -168,7 +316,9 @@ export function CheckForUpdatesModal({
       setState({
         type: 'available',
         version: PREVIEW_VERSION,
-        notes: t('preview_release_notes'),
+        notes: PREVIEW_RELEASE_NOTES,
+        date: new Date().toISOString(),
+        source: PREVIEW_SOURCE,
         downloadAndInstall: simulateDownload,
       })
       return
@@ -188,14 +338,20 @@ export function CheckForUpdatesModal({
           })
           return
         }
+        const source = updateSource(update.rawJson)
         setState({
           type: 'available',
           version: update.version,
           notes: update.body ?? null,
+          date: update.date ?? null,
+          source,
           downloadAndInstall: async () => {
-            setState({ type: 'downloading', progress: 0 })
+            const started = performance.now()
+            const meter = createSpeedMeter()
+            setState({ type: 'downloading', progress: 0, stats: { ...EMPTY_STATS, host: source.host } })
             let downloaded = 0
             let total: number | null = null
+            let lastPaint = 0
             try {
               const sendToken =
                 githubToken && downloadsFromGithubApi(update.rawJson)
@@ -204,23 +360,46 @@ export function CheckForUpdatesModal({
                   if (progressEvent.event === 'Started') {
                     downloaded = 0
                     total = progressEvent.data.contentLength ?? null
+                    setState({
+                      type: 'downloading',
+                      progress: 0,
+                      stats: { ...EMPTY_STATS, total, host: source.host },
+                    })
                   } else if (progressEvent.event === 'Progress') {
                     downloaded += progressEvent.data.chunkLength
-                    if (total) {
+                    const now = performance.now()
+                    const rates = meter(downloaded, total, now)
+                    if (now - lastPaint >= 100) {
+                      lastPaint = now
                       setState({
                         type: 'downloading',
-                        progress: Math.min(downloaded / total, 1),
+                        progress: total ? Math.min(downloaded / total, 1) : 0,
+                        stats: { downloaded, total, host: source.host, ...rates },
                       })
                     }
                   } else if (progressEvent.event === 'Finished') {
-                    setState({ type: 'downloading', progress: 1 })
+                    setState({
+                      type: 'downloading',
+                      progress: 1,
+                      stats: {
+                        downloaded,
+                        total: total ?? downloaded,
+                        host: source.host,
+                        speed: null,
+                        etaMs: 0,
+                      },
+                    })
                   }
                 },
                 sendToken
                   ? { headers: { Authorization: `Bearer ${githubToken}` } }
                   : undefined,
               )
-              setState({ type: 'done' })
+              setState({
+                type: 'done',
+                size: total ?? (downloaded || null),
+                elapsedMs: performance.now() - started,
+              })
             } catch (e) {
               setState({ type: 'error', message: String(e) })
             }
@@ -254,21 +433,39 @@ export function CheckForUpdatesModal({
         setState({
           type: 'available',
           version: PREVIEW_VERSION,
-          notes: t('preview_release_notes'),
+          notes: PREVIEW_RELEASE_NOTES,
+          date: new Date().toISOString(),
+          source: PREVIEW_SOURCE,
           downloadAndInstall: simulateDownload,
         })
         break
-      case 'downloading':
-        setState({ type: 'downloading', progress: 0 })
+      case 'downloading': {
+        const meter = createSpeedMeter()
+        setState({
+          type: 'downloading',
+          progress: 0,
+          stats: { ...EMPTY_STATS, total: PREVIEW_SIZE, host: PREVIEW_SOURCE.host },
+        })
         let progress = 0
         simulateRef.current = setInterval(() => {
           progress = Math.min(progress + 0.05 + Math.random() * 0.07, 1)
-          setState({ type: 'downloading', progress })
+          const downloaded = Math.round(PREVIEW_SIZE * progress)
+          setState({
+            type: 'downloading',
+            progress,
+            stats: {
+              downloaded,
+              total: PREVIEW_SIZE,
+              host: PREVIEW_SOURCE.host,
+              ...meter(downloaded, PREVIEW_SIZE),
+            },
+          })
           if (progress >= 1) clearSimulation()
         }, 160)
         break
+      }
       case 'done':
-        setState({ type: 'done' })
+        setState({ type: 'done', size: PREVIEW_SIZE, elapsedMs: 21_400 })
         break
       case 'uptodate':
         setState({ type: 'uptodate' })
@@ -277,14 +474,13 @@ export function CheckForUpdatesModal({
         setState({
           type: 'portable',
           version: PREVIEW_VERSION,
-          notes: t('preview_release_notes'),
+          notes: PREVIEW_RELEASE_NOTES,
         })
         break
       case 'error':
         setState({
           type: 'error',
-          message:
-            t('preview_error'),
+          message: PREVIEW_ERROR,
         })
         break
     }
@@ -324,7 +520,7 @@ export function CheckForUpdatesModal({
           {isPreview && (
             <div className="w-full flex flex-col items-center gap-2.5">
               <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-tag bg-amber/15 text-amber text-3xs font-semibold uppercase tracking-wider">
-                {t('check_updates_preview_badge')}
+                Preview
               </span>
               <div className="flex flex-wrap items-center justify-center gap-1.5">
                 {PREVIEW_STATES.map((s) => (
@@ -338,7 +534,7 @@ export function CheckForUpdatesModal({
                         : 'bg-raised border-line text-muted hover:text-ink hover:border-accent-dim'
                     }`}
                   >
-                    {t(`preview_state_${s}`)}
+                    {PREVIEW_STATE_LABELS[s]}
                   </button>
                 ))}
               </div>
@@ -520,6 +716,48 @@ export function CheckForUpdatesModal({
                   )}
                 </div>
               </div>
+              <div className="w-full rounded-item border border-line bg-raised p-3.5 flex flex-col gap-2.5">
+                <p className="text-2xs font-semibold uppercase tracking-wider text-muted">
+                  {t('check_updates_details')}
+                </p>
+                <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1.5 text-xs">
+                  {formatReleaseDate(state.date, i18n.language) && (
+                    <>
+                      <dt className="text-muted">{t('check_updates_released')}</dt>
+                      <dd className="text-ink truncate">
+                        {formatReleaseDate(state.date, i18n.language)}
+                      </dd>
+                    </>
+                  )}
+                  {state.source.host && (
+                    <>
+                      <dt className="text-muted">{t('check_updates_source')}</dt>
+                      <dd className="text-ink font-mono truncate">{state.source.host}</dd>
+                    </>
+                  )}
+                  {state.source.file && (
+                    <>
+                      <dt className="text-muted">{t('check_updates_file')}</dt>
+                      <dd className="text-ink font-mono break-all" title={state.source.file}>
+                        {state.source.file}
+                      </dd>
+                    </>
+                  )}
+                  <dt className="text-muted">{t('check_updates_signature')}</dt>
+                  <dd className="text-ink">{t('check_updates_signature_checked')}</dd>
+                </dl>
+                {state.source.releaseUrl && (
+                  <a
+                    href={state.source.releaseUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="focus-ring cursor-pointer self-start flex items-center gap-1.5 text-xs text-accent hover:text-accent-bright no-underline"
+                  >
+                    <IconExternalLink className="w-3.5 h-3.5" />
+                    {t('check_updates_view_release')}
+                  </a>
+                )}
+              </div>
               <button
 
 
@@ -549,6 +787,33 @@ export function CheckForUpdatesModal({
                   style={{ width: `${Math.min(100, Math.max(0, state.progress * 100))}%` }}
                 />
               </div>
+              <div className="w-full flex items-center justify-between gap-3 text-xs">
+                <span className="font-mono text-ink tabular-nums">
+                  {state.stats.total
+                    ? t('check_updates_progress_size', {
+                        downloaded: formatBytes(state.stats.downloaded),
+                        total: formatBytes(state.stats.total),
+                      })
+                    : formatBytes(state.stats.downloaded)}
+                </span>
+                <span className="font-mono text-muted tabular-nums flex items-center gap-2">
+                  {state.stats.speed != null && state.stats.speed > 0 && (
+                    <span>{t('check_updates_speed', { speed: formatBytes(state.stats.speed) })}</span>
+                  )}
+                  {state.stats.etaMs != null && state.stats.etaMs > 0 && (
+                    <span>
+                      {t('check_updates_time_left', {
+                        time: formatDuration(Math.max(1000, state.stats.etaMs)),
+                      })}
+                    </span>
+                  )}
+                </span>
+              </div>
+              {state.stats.host && (
+                <p className="w-full text-2xs text-muted/80 truncate">
+                  {t('check_updates_from_host', { host: state.stats.host })}
+                </p>
+              )}
             </div>
           )}
 
@@ -561,6 +826,22 @@ export function CheckForUpdatesModal({
                 <p className="text-sm font-medium text-ink">{t('update_downloaded')}</p>
                 <p className="text-xs text-muted mt-1">{t('restart_to_apply')}</p>
               </div>
+              {(state.size != null || state.elapsedMs != null) && (
+                <div className="flex flex-col items-center gap-1 text-xs">
+                  {state.size != null && state.elapsedMs != null && (
+                    <span className="font-mono text-muted tabular-nums">
+                      {t('check_updates_download_summary', {
+                        size: formatBytes(state.size),
+                        time: formatDuration(Math.max(1000, state.elapsedMs)),
+                      })}
+                    </span>
+                  )}
+                  <span className="flex items-center gap-1.5 text-mint">
+                    <IconCheck className="w-3.5 h-3.5" />
+                    {t('check_updates_signature_verified')}
+                  </span>
+                </div>
+              )}
               <p className="text-2xs text-muted/70 text-center max-w-xs">
                 {t('update_applied_desc')}
               </p>

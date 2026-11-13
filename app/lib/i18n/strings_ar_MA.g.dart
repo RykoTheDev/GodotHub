@@ -567,18 +567,23 @@ class _Translations$common$ar_MA extends Translations$common$en_US {
 	@override String get check_updates_rate_limited_token_hint => 'Your saved GitHub token was rejected. It may have expired or been revoked. Test it in Settings and replace it if needed.';
 	@override String get check_updates_add_token => 'أضف رمز GitHub';
 	@override String get check_updates_open_token_settings => 'افتح إعدادات الرمز (Token)';
-	@override String get check_updates_preview_badge => 'معاينة';
 	@override String get check_updates_portable_title => 'يتطلب التحديث اليدوي';
 	@override String get check_updates_portable_desc => 'Portable installs cannot auto-update. Download the latest version from GitHub and replace the existing files.';
 	@override String get check_updates_download_from_github => 'حمل من GitHub';
-	@override String get preview_state_checking => 'التحقق';
-	@override String get preview_state_available => 'المتوفر';
-	@override String get preview_state_downloading => 'التحميل';
-	@override String get preview_state_done => 'تم';
-	@override String get preview_state_uptodate => 'مُحدث';
-	@override String get preview_state_error => 'خطأ';
-	@override String get preview_state_portable => 'Portable';
-	@override String get preview_update_modal => 'Preview Update Modal';
+	@override String get check_updates_details => 'Update details';
+	@override String get check_updates_released => 'Released';
+	@override String get check_updates_source => 'Source';
+	@override String get check_updates_file => 'File';
+	@override String get check_updates_package => 'Package';
+	@override String get check_updates_signature => 'Signature';
+	@override String get check_updates_signature_checked => 'Checked with minisign before installing';
+	@override String get check_updates_view_release => 'View release on GitHub';
+	@override String get check_updates_progress_size => '{{downloaded}} of {{total}}';
+	@override String get check_updates_speed => '{{speed}}/s';
+	@override String get check_updates_time_left => 'About {{time}} left';
+	@override String get check_updates_from_host => 'From {{host}}';
+	@override String get check_updates_download_summary => 'Downloaded {{size}} in {{time}}';
+	@override String get check_updates_signature_verified => 'Signature verified';
 	@override String get clone_repo_title => 'استنسخ المستودع';
 	@override String get clone_repo_url_label => 'انسخ رابط المستودع';
 	@override String get clone_repo_url_placeholder => 'https://github.com/user/my-game.git';
@@ -703,8 +708,6 @@ class _Translations$common$ar_MA extends Translations$common$en_US {
 	@override String get asset_duplicate_desc => '"{{name}}" is already in your templates. Install a duplicate anyway?';
 	@override String get empty_category => 'تصنيف فارغ';
 	@override String get release_to_drop => 'أفلت للإسقاط';
-	@override String get preview_release_notes => '## What\'s new in v1.0.0 - The Preview Update\\n\\n## New\\n\\n- Revamped the Check for Updates modal with structured release notes\\n- Added screen reader announcements with an Accessibility settings tab\\n\\n## Fixes\\n\\n- Fixed a crash when switching workspaces with pinned projects\\n- Fixed update checks failing silently when GitHub rate limits are hit\\n\\n## Improvements\\n\\n- Faster startup times across all platforms\\n- Reworked workspace modals with compact style pickers\\n\\n## Known Issues\\n\\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts';
-	@override String get preview_error => 'Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking.';
 	@override String get bug_report_system => 'النظام';
 	@override String get bug_report_version => 'الإصدار';
 	@override String get bug_report_date => 'التاريخ';
@@ -2822,18 +2825,23 @@ extension on TranslationsArMa {
 			'common.check_updates_rate_limited_token_hint' => 'Your saved GitHub token was rejected. It may have expired or been revoked. Test it in Settings and replace it if needed.',
 			'common.check_updates_add_token' => 'أضف رمز GitHub',
 			'common.check_updates_open_token_settings' => 'افتح إعدادات الرمز (Token)',
-			'common.check_updates_preview_badge' => 'معاينة',
 			'common.check_updates_portable_title' => 'يتطلب التحديث اليدوي',
 			'common.check_updates_portable_desc' => 'Portable installs cannot auto-update. Download the latest version from GitHub and replace the existing files.',
 			'common.check_updates_download_from_github' => 'حمل من GitHub',
-			'common.preview_state_checking' => 'التحقق',
-			'common.preview_state_available' => 'المتوفر',
-			'common.preview_state_downloading' => 'التحميل',
-			'common.preview_state_done' => 'تم',
-			'common.preview_state_uptodate' => 'مُحدث',
-			'common.preview_state_error' => 'خطأ',
-			'common.preview_state_portable' => 'Portable',
-			'common.preview_update_modal' => 'Preview Update Modal',
+			'common.check_updates_details' => 'Update details',
+			'common.check_updates_released' => 'Released',
+			'common.check_updates_source' => 'Source',
+			'common.check_updates_file' => 'File',
+			'common.check_updates_package' => 'Package',
+			'common.check_updates_signature' => 'Signature',
+			'common.check_updates_signature_checked' => 'Checked with minisign before installing',
+			'common.check_updates_view_release' => 'View release on GitHub',
+			'common.check_updates_progress_size' => '{{downloaded}} of {{total}}',
+			'common.check_updates_speed' => '{{speed}}/s',
+			'common.check_updates_time_left' => 'About {{time}} left',
+			'common.check_updates_from_host' => 'From {{host}}',
+			'common.check_updates_download_summary' => 'Downloaded {{size}} in {{time}}',
+			'common.check_updates_signature_verified' => 'Signature verified',
 			'common.clone_repo_title' => 'استنسخ المستودع',
 			'common.clone_repo_url_label' => 'انسخ رابط المستودع',
 			'common.clone_repo_url_placeholder' => 'https://github.com/user/my-game.git',
@@ -2870,13 +2878,13 @@ extension on TranslationsArMa {
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
 			'common.setting_project_scan_dirs' => 'Scan Project Folders',
 			'common.setting_version_scan_dirs' => 'Scan Version Folders',
+			_ => null,
+		} ?? switch (path) {
 			'common.setting_default_project_location' => 'Default Project Location Setting',
 			'common.setting_download_dir' => 'Download Versions Location Setting',
 			'common.setting_scan_depth' => 'Scan Depth',
 			'common.setting_icon_scan_depth' => 'Project Icon Search Depth',
 			'common.setting_download_concurrency' => 'التنزيلات المتتالية',
-			_ => null,
-		} ?? switch (path) {
 			'common.setting_close_on_project_open' => 'أغلق عن فتح المشروع',
 			'common.setting_minimize_to_tray' => 'أخفي لشريط المهام',
 			'common.setting_reopen_after_godot_closes' => 'أعد الفتح عند إغلاق Godot',
@@ -2939,8 +2947,6 @@ extension on TranslationsArMa {
 			'common.asset_duplicate_desc' => '"{{name}}" is already in your templates. Install a duplicate anyway?',
 			'common.empty_category' => 'تصنيف فارغ',
 			'common.release_to_drop' => 'أفلت للإسقاط',
-			'common.preview_release_notes' => '## What\'s new in v1.0.0 - The Preview Update\\n\\n## New\\n\\n- Revamped the Check for Updates modal with structured release notes\\n- Added screen reader announcements with an Accessibility settings tab\\n\\n## Fixes\\n\\n- Fixed a crash when switching workspaces with pinned projects\\n- Fixed update checks failing silently when GitHub rate limits are hit\\n\\n## Improvements\\n\\n- Faster startup times across all platforms\\n- Reworked workspace modals with compact style pickers\\n\\n## Known Issues\\n\\n- Linux OS: AppImage won\'t work on some distros, use the .rpm or .deb package instead\\n- Windows: the taskbar may briefly show a duplicate icon until the app restarts',
-			'common.preview_error' => 'Preview error: GitHub API rate limit reached (HTTP 403). Add a token in Settings to keep checking.',
 			'common.bug_report_system' => 'النظام',
 			'common.bug_report_version' => 'الإصدار',
 			'common.bug_report_date' => 'التاريخ',
@@ -3386,11 +3392,11 @@ extension on TranslationsArMa {
 			'common.date_next_month' => 'Next month',
 			'common.date_change_due' => 'Change due date: {{date}}',
 			'common.date_add_due' => 'Add due date',
+			_ => null,
+		} ?? switch (path) {
 			'dashboard.greeting_morning' => 'صباح الخير',
 			'dashboard.greeting_afternoon' => 'مساء الخير',
 			'dashboard.greeting_evening' => 'طاب مساؤك',
-			_ => null,
-		} ?? switch (path) {
 			'dashboard.greeting_night' => 'ليلة سعيدة',
 			'dashboard.greeting_name' => 'إسم التحية',
 			'dashboard.dashboard_rename_hint' => 'عيين إسما مخصصا',
@@ -3900,11 +3906,11 @@ extension on TranslationsArMa {
 			'settings.discord_custom_state_placeholder' => 'سطر الحالة',
 			'settings.discord_custom_remove' => 'Remove custom presence',
 			'settings.search_placeholder' => 'ابحث في الإعدادات…',
+			_ => null,
+		} ?? switch (path) {
 			'settings.interface_label' => 'واجهة المستخدم',
 			'settings.card_layout_label' => 'تخطيط البطاقة',
 			'settings.landing_tab_label' => 'الصفحة الأساسية الإفتراضية',
-			_ => null,
-		} ?? switch (path) {
 			'settings.language_complete' => 'مكتملة',
 			'settings.language_beta' => 'تجريبية',
 			'settings.language_incomplete' => 'غير مكتملة',

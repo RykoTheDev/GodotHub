@@ -25,5 +25,13 @@
       { "category": "fix", "text": "UI Bugs" },
       { "category": "improve", "text": "Smooth scrolling across views" }
     ]
+  },
+  {
+    "version": "flutter-v0.2.5",
+    "date": "",
+    "notes": [
+      { "category": "add", "text": "Auto Updater" },
+      { "category": "add", "text": "Remaining integerations; Opener, Git, Discord etc." }
+    ]
   }
 ]
