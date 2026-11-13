@@ -18,6 +18,7 @@ pub mod git_auth;
 pub mod godot_versions;
 pub mod install_mode;
 pub mod mise;
+pub mod native;
 pub mod news;
 pub mod project_health;
 pub mod project_todos;

@@ -14,6 +14,11 @@ godothub_core = { path = "../godothub-core" }
 serde = "1"
 tokio = { version = "1", features = ["rt", "rt-multi-thread", "sync"] }
 serde_json = { version = "1", features = ["raw_value"] }
+notify-rust = "4.18"
+rfd = { version = "0.17", default-features = false, features = ["common-controls-v6", "gtk3"] }
+
+[target.'cfg(windows)'.dependencies]
+windows = { version = "0.62", features = ["Win32_Foundation", "Win32_Storage_EnhancedStorage", "Win32_System_Com", "Win32_System_Com_StructuredStorage", "Win32_System_Variant", "Win32_UI_Shell", "Win32_UI_Shell_Common", "Win32_UI_Shell_PropertiesSystem"] }
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }

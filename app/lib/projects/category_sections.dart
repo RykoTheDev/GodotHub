@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -68,54 +70,57 @@ class CategorySectionHeader extends StatelessWidget {
             borderRadius: radius,
             border: highlight ? Border.all(color: theme.accent.withValues(alpha: 0.3)) : null,
             padding: EdgeInsets.symmetric(horizontal: theme.space(1), vertical: theme.space(grid ? 1.5 : 1)),
-            child: Row(
-              spacing: theme.space(1.5),
-              children: [
-                AnimatedRotation(
-                  turns: open ? 0 : (rtl ? 0.25 : -0.25),
-                  duration: motion.css(const Duration(milliseconds: 500)),
-                  curve: GhCurves.spring,
-                  child: GhIcon(GhIcons.chevronDown, size: theme.space(3), color: theme.muted.withValues(alpha: 0.5)),
-                ),
-                ?leading,
-                if (color != null)
-                  Container(
-                    width: theme.space(2),
-                    height: theme.space(2),
-                    decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            child: LayoutBuilder(
+              builder: (context, constraints) => Row(
+                spacing: theme.space(1.5),
+                children: [
+                  AnimatedRotation(
+                    turns: open ? 0 : (rtl ? 0.25 : -0.25),
+                    duration: motion.css(const Duration(milliseconds: 500)),
+                    curve: GhCurves.spring,
+                    child: GhIcon(GhIcons.chevronDown, size: theme.space(3), color: theme.muted.withValues(alpha: 0.5)),
                   ),
-                Flexible(
-                  child: Text(
-                    title.toUpperCase(),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.text(
-                      size: GhTextSize.xs,
-                      weight: GhWeight.semibold,
-                      color: hover ? theme.muted : theme.muted.withValues(alpha: 0.5),
-                      letterSpacingEm: 0.05,
+                  ?leading,
+                  if (color != null)
+                    Container(
+                      width: theme.space(2),
+                      height: theme.space(2),
+                      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                    ),
+                  ConstrainedBox(
+                    constraints: BoxConstraints(maxWidth: math.max(0, constraints.maxWidth - theme.space(24))),
+                    child: Text(
+                      title.toUpperCase(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.text(
+                        size: GhTextSize.xs,
+                        weight: GhWeight.semibold,
+                        color: hover ? theme.muted : theme.muted.withValues(alpha: 0.5),
+                        letterSpacingEm: 0.05,
+                      ),
                     ),
                   ),
-                ),
-                Expanded(
-                  child: Container(
-                    height: 1,
-                    margin: EdgeInsets.symmetric(horizontal: theme.space(1.5)),
-                    color: theme.outline.withValues(alpha: 0.3),
+                  Expanded(
+                    child: Container(
+                      height: 1,
+                      margin: EdgeInsets.symmetric(horizontal: theme.space(1.5)),
+                      color: theme.outline.withValues(alpha: 0.3),
+                    ),
                   ),
-                ),
-                if (releaseHint)
-                  Text(
-                    context.tr.common.release_to_drop,
-                    style: theme.text(size: GhTextSize.x3s, weight: GhWeight.medium, color: theme.accentBright),
+                  if (releaseHint)
+                    Text(
+                      context.tr.common.release_to_drop,
+                      style: theme.text(size: GhTextSize.x3s, weight: GhWeight.medium, color: theme.accentBright),
+                    ),
+                  DefaultTextStyle.merge(
+                    style: theme
+                        .text(size: GhTextSize.x3s, weight: GhWeight.medium, color: theme.muted.withValues(alpha: 0.5))
+                        .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [const Text('· '), GhAnimatedNumber(count)]),
                   ),
-                DefaultTextStyle.merge(
-                  style: theme
-                      .text(size: GhTextSize.x3s, weight: GhWeight.medium, color: theme.muted.withValues(alpha: 0.5))
-                      .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
-                  child: Row(mainAxisSize: MainAxisSize.min, children: [const Text('· '), GhAnimatedNumber(count)]),
-                ),
-              ],
+                ],
+              ),
             ),
           );
         },

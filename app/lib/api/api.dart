@@ -1,6 +1,7 @@
 import '../src/channel.dart';
 import '../src/rust/api/app.dart' as app_rust;
 import '../src/rust/api/discovery.dart' as discovery_rust;
+import '../src/rust/api/native.dart' as native;
 import '../src/rust/api/godot_versions.dart' as versions_rust;
 import '../src/rust/api/projects.dart' as projects_rust;
 import '../src/rust/api/time_stats.dart' as time_stats_rust;
@@ -22,6 +23,7 @@ import 'updates.dart';
 import 'vault.dart';
 import 'versions.dart';
 import 'workspaces.dart';
+import '../window/app_window.dart';
 
 export 'projects.dart' show getCachedProjectIcon, getCachedProjectName;
 
@@ -29,7 +31,11 @@ abstract final class Api {
   static String? _channelIdentifier;
   static String channelIdentifier() => _channelIdentifier ??= app_rust.channelIdentifier(channel: buildChannel);
   static const openUrl = OpenerApi.openUrl;
-  static Future<void> relaunch() async => throw UnsupportedError('Relaunching is not available in the Flutter app yet');
+  static Future<void> relaunch() async {
+    final window = AppWindow.maybeInstance;
+    if (window == null) throw StateError('Relaunching needs the app window');
+    await window.relaunch();
+  }
   static const getProjectExportPresets = ExportsApi.presets;
   static const startProjectExport = ExportsApi.start;
   static const getProjectExport = ExportsApi.get;
@@ -66,7 +72,7 @@ abstract final class Api {
   static const cliToolStatus = SettingsApi.cliToolStatus;
   static const installCliTool = SettingsApi.installCliTool;
   static const uninstallCliTool = SettingsApi.uninstallCliTool;
-  static Future<void> notify(String title, String body) async => throw UnsupportedError('notify is not available in the Flutter app yet');
+  static Future<void> notify(String title, String body) async => native.notify(title: title, body: body);
   static const exportWorkspaceBackup = SettingsApi.exportWorkspaceBackup;
   static const importWorkspaceBackup = SettingsApi.importWorkspaceBackup;
   static const exportAppBackup = SettingsApi.exportAppBackup;

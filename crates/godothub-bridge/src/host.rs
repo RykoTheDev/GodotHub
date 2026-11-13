@@ -17,13 +17,26 @@ impl EventSink for FlutterHost {
     }
 }
 
+pub const SHOW_MAIN_WINDOW_EVENT: &str = "host:show-main-window";
+pub const HIDE_MAIN_WINDOW_EVENT: &str = "host:hide-main-window";
+pub const REFRESH_MENUS_EVENT: &str = "host:refresh-menus";
+
 impl Host for FlutterHost {
-    fn show_main_window(&self) {}
-    fn hide_main_window(&self) {}
+    fn show_main_window(&self) {
+        crate::api::events::dispatch(SHOW_MAIN_WINDOW_EVENT, "null");
+    }
+    fn hide_main_window(&self) {
+        crate::api::events::dispatch(HIDE_MAIN_WINDOW_EVENT, "null");
+    }
     fn exit(&self, code: i32) {
         std::process::exit(code);
     }
-    fn refresh_menus(&self) {}
+    fn refresh_menus(&self) {
+        crate::api::events::dispatch(REFRESH_MENUS_EVENT, "null");
+    }
+    fn main_window_visible(&self) -> Option<bool> {
+        Some(true)
+    }
 }
 
 pub fn start(channel: Channel, paths: Paths, single_instance: bool) -> Result<(), CoreError> {

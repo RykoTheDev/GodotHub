@@ -9,6 +9,7 @@ import 'package:window_manager/window_manager.dart';
 
 import '../api/events.dart';
 import '../logic/pending_save.dart';
+import '../src/rust/api/native.dart' as native;
 import '../src/rust/api/window.dart' as rust;
 
 const Size defaultWindowSize = Size(1280, 720);
@@ -45,10 +46,13 @@ class AppWindow {
   final double _scale;
   Rect? _normalBounds;
   bool _closing = false;
+  bool Function()? keepAliveOnClose;
 
   static AppWindow? _instance;
 
   static AppWindow get instance => _instance!;
+
+  static AppWindow? get maybeInstance => _instance;
 
   bool get isMac => Platform.isMacOS;
 
@@ -81,6 +85,8 @@ class AppWindow {
 
     window.addListener(app._onWindowEvent);
     AppEvents.of(AppEventKind.secondInstance).listen(app._onSecondInstance);
+    AppEvents.of(AppEventKind.showMainWindow).listen((_) => app.showAndFocus());
+    AppEvents.of(AppEventKind.hideMainWindow).listen((_) => app._window.hide());
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
       window.show();
@@ -105,11 +111,10 @@ class AppWindow {
         event.request.cancel();
         await flushPendingSave().catchError((Object _) {});
         await _saveState();
-        if (Platform.isMacOS) {
+        if (Platform.isMacOS || (keepAliveOnClose?.call() ?? false)) {
           _window.hide();
         } else {
-          _closing = true;
-          _window.close();
+          await quit();
         }
       default:
         break;
@@ -138,6 +143,23 @@ class AppWindow {
     }
     _window.show();
     _window.focus();
+  }
+
+  Future<void> _prepareExit() async {
+    _closing = true;
+    await flushPendingSave().catchError((Object _) {});
+    await _saveState();
+  }
+
+  Future<void> quit() async {
+    await _prepareExit();
+    exit(0);
+  }
+
+  Future<void> relaunch() async {
+    await native.relaunch(args: const []);
+    await _prepareExit();
+    exit(0);
   }
 
   Future<void> openLaunchArgs() async {

@@ -65,6 +65,7 @@ import '../versions/versions_view.dart';
 import '../modals/create_project_modal.dart';
 import '../state/categories.dart';
 import '../state/godot_versions.dart';
+import '../window/tray.dart';
 import 'placeholder_view.dart';
 import 'sidebar_prefs.dart';
 import 'tabs.dart';
@@ -573,6 +574,7 @@ class _AppShellState extends ConsumerState<AppShell> {
   @override
   Widget build(BuildContext context) {
     ref.watch(discordRpcProvider);
+    ref.watch(traySyncProvider);
     ref.watch(openTodosProvider);
     ref.watch(todoDueNotificationsProvider);
     final theme = GhTheme.of(context);

@@ -25,6 +25,7 @@ import 'state/keyboard_shortcuts.dart';
 import 'state/onboarding.dart';
 import 'ui/core/ui_settings.dart';
 import 'window/app_window.dart';
+import 'window/tray.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,6 +38,8 @@ Future<void> main() async {
   await GhI18n.init(settingsLanguage: current.language, settingsRtlLayout: current.rtlLayout);
   warmUpFonts(languageCode: GhI18n.instance.locale.flutterLocale.languageCode);
   final window = await AppWindow.start(title: title, useOsDecorations: current.useOsDecorations);
+  final tray = await TrayController.start(tooltip: title).catchError((Object _) => null);
+  tray?.minimizeToTray = current.minimizeToTray;
   runApp(
     ProviderScope(
       child: TranslationProvider(

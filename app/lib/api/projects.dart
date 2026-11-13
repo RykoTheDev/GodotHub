@@ -1,5 +1,6 @@
 import '../src/rust/api/console.dart' as console_rust;
 import '../src/rust/api/dto.dart' as dto;
+import '../src/rust/api/native.dart' as native;
 import '../src/rust/api/project_health.dart' as health_rust;
 import '../src/rust/api/projects.dart' as rust;
 import '../src/rust/api/time_stats.dart' as time_stats_rust;
@@ -107,14 +108,13 @@ abstract final class ProjectsApi {
 
   static Future<List<types.ProjectFileEntry>> getFileTree(String path) => rust.getProjectFileTree(path: path);
 
-  static Future<String?> pickFolder() async => throw UnsupportedError('pickFolder is not available in the Flutter app yet');
+  static Future<String?> pickFolder() async => native.pickFolder();
 
-  static Future<String?> pickFile() async => throw UnsupportedError('pickFile is not available in the Flutter app yet');
+  static Future<String?> pickFile() async => native.pickImageFile();
 
-  static Future<String?> pickSavePath(String defaultName) async =>
-      throw UnsupportedError('pickSavePath is not available in the Flutter app yet');
+  static Future<String?> pickSavePath(String defaultName) async => native.pickSavePath(defaultName: defaultName);
 
-  static Future<String?> pickDataFile() async => throw UnsupportedError('pickDataFile is not available in the Flutter app yet');
+  static Future<String?> pickDataFile() async => native.pickDataFile();
 
   static Future<void> exportProjectStats(String path) => rust.exportProjectStats(path: path);
 

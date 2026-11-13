@@ -164,10 +164,11 @@ void main() {
 
     testWidgets('picker errors show inline like React', (tester) async {
       backend();
+      rust.on('crateApiNativePickSavePath', ({required String defaultName}) async => throw 'The save dialog failed');
       await pumpCategory(tester, const DataSettings());
       await tester.tap(find.text(ts('workspace_backup_export_btn')));
       await base.settle(tester);
-      expect(find.textContaining('pickSavePath is not available'), findsOneWidget);
+      expect(find.textContaining('The save dialog failed'), findsOneWidget);
       expect(calls, isEmpty);
     });
   });

@@ -58,8 +58,42 @@ where
         .map_err(|e| e.to_string())
 }
 
+pub const RELAUNCH_ENV: &str = "GODOTHUB_RELAUNCH_FROM";
+
+const RELAUNCH_WAIT: std::time::Duration = std::time::Duration::from_secs(15);
+
+fn instance_alive(name: &str) -> bool {
+    let Ok(name) = name.to_ns_name::<GenericNamespaced>() else {
+        return false;
+    };
+    Stream::connect(name).is_ok()
+}
+
+fn wait_for_previous_instance(name: &str) {
+    let deadline = std::time::Instant::now() + RELAUNCH_WAIT;
+    while instance_alive(name) && std::time::Instant::now() < deadline {
+        std::thread::sleep(std::time::Duration::from_millis(100));
+    }
+}
+
 pub fn forward_to_running_instance(channel: Channel, args: &[String]) -> bool {
-    forward_to(&socket_name(channel), args)
+    let name = socket_name(channel);
+    if std::env::var_os(RELAUNCH_ENV).is_some() {
+        std::env::remove_var(RELAUNCH_ENV);
+        wait_for_previous_instance(&name);
+        return false;
+    }
+    forward_to(&name, args)
+}
+
+pub fn relaunch(args: &[String]) -> Result<(), String> {
+    let exe = std::env::current_exe().map_err(|e| e.to_string())?;
+    std::process::Command::new(exe)
+        .args(args)
+        .env(RELAUNCH_ENV, std::process::id().to_string())
+        .spawn()
+        .map(|_| ())
+        .map_err(|e| e.to_string())
 }
 
 pub fn listen_for_other_instances<F>(channel: Channel, on_args: F) -> Result<(), String>
@@ -109,6 +143,22 @@ mod tests {
         assert_eq!(rx.recv_timeout(Duration::from_secs(5)).unwrap(), args);
         assert!(forward_to(&name, &["again".into()]));
         assert_eq!(rx.recv_timeout(Duration::from_secs(5)).unwrap(), vec!["again".to_string()]);
+    }
+
+    #[test]
+    fn a_relaunched_instance_waits_instead_of_forwarding() {
+        let name = format!("godothub-relaunch-test-{}.sock", std::process::id());
+        let (tx, rx) = mpsc::channel();
+        listen_on(&name, move |args| {
+            let _ = tx.send(args);
+        })
+        .unwrap();
+        assert!(instance_alive(&name));
+        let started = std::time::Instant::now();
+        let other = format!("{name}.gone");
+        wait_for_previous_instance(&other);
+        assert!(started.elapsed() < Duration::from_secs(1));
+        assert!(rx.recv_timeout(Duration::from_millis(200)).is_err());
     }
 
     #[test]

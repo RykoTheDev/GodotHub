@@ -273,7 +273,7 @@ void main() {
       expect(find.text(ts('restart_app_confirm_desc')), findsOneWidget);
       await tester.tap(find.text(ts('restart_app')).last);
       await base.settle(tester, 4);
-      expect(find.textContaining('Relaunching is not available'), findsOneWidget);
+      expect(find.textContaining('Relaunching needs the app window'), findsOneWidget);
       await base.drainToasts(tester);
     });
   });
