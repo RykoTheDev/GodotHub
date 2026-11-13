@@ -503,10 +503,7 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
         canRequestFocus: false,
         skipTraversal: true,
         onFocusChange: (value) => setState(() => _focusWithin = value),
-        child: Listener(
-          onPointerUp: _onPointerUp,
-          child: GhTiltCard(borderRadius: radius, child: tile),
-        ),
+        child: Listener(onPointerUp: _onPointerUp, child: tile),
       ),
     );
   }

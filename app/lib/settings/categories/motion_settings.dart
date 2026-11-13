@@ -100,7 +100,6 @@ class MotionSettings extends ConsumerWidget {
             onChanged: (value) => update(copySettings(settings, animationThreshold: value.round())),
           ),
         ),
-        toggle('motion-card-tilt', 'card_tilt_label', settings.motionCardTilt, (v) => copySettings(settings, motionCardTilt: v)),
         toggle(
           'motion-click-ripple',
           'click_ripple_label',

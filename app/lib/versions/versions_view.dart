@@ -1137,70 +1137,67 @@ class _AvailableRowTileState extends State<_AvailableRowTile> {
     }
     return GhReveal(
       id: 'available:$key',
-      child: GhTiltCard(
-        borderRadius: BorderRadius.circular(theme.radiusItem),
-        child: MouseRegion(
-          onEnter: (_) => setState(() => _hovered = true),
-          onExit: (_) => setState(() => _hovered = false),
-          child: GhAnimatedBox(
-            color: theme.overlay,
-            borderRadius: BorderRadius.circular(theme.radiusItem),
-            border: Border.all(color: _hovered ? theme.accentDim : theme.outline.withValues(alpha: 0.5)),
-            padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(3)),
-            child: Row(
-              spacing: theme.space(3),
-              children: [
-                Expanded(
-                  child: Row(
-                    spacing: theme.space(2.5),
-                    children: [
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: GhAnimatedBox(
+          color: theme.overlay,
+          borderRadius: BorderRadius.circular(theme.radiusItem),
+          border: Border.all(color: _hovered ? theme.accentDim : theme.outline.withValues(alpha: 0.5)),
+          padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(3)),
+          child: Row(
+            spacing: theme.space(3),
+            children: [
+              Expanded(
+                child: Row(
+                  spacing: theme.space(2.5),
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(1.5)),
+                      decoration: BoxDecoration(
+                        color: theme.overlay,
+                        borderRadius: BorderRadius.circular(theme.radiusItem),
+                        border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: theme.space(2),
+                        children: [
+                          Container(
+                            width: theme.space(1.5),
+                            height: theme.space(1.5),
+                            decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
+                          ),
+                          Text(
+                            row.tag.isEmpty ? _tv('unbound') : row.tag,
+                            style: theme.text(size: GhTextSize.xs, mono: true, color: theme.ink),
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (row.asset.isMono)
                       Container(
-                        padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(1.5)),
+                        padding: EdgeInsets.symmetric(horizontal: theme.space(2), vertical: theme.space(0.5)),
                         decoration: BoxDecoration(
-                          color: theme.overlay,
-                          borderRadius: BorderRadius.circular(theme.radiusItem),
-                          border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
+                          color: theme.accent.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(theme.radiusTag),
+                          border: Border.all(color: theme.accentDim.withValues(alpha: 0.4)),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          spacing: theme.space(2),
-                          children: [
-                            Container(
-                              width: theme.space(1.5),
-                              height: theme.space(1.5),
-                              decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
-                            ),
-                            Text(
-                              row.tag.isEmpty ? _tv('unbound') : row.tag,
-                              style: theme.text(size: GhTextSize.xs, mono: true, color: theme.ink),
-                            ),
-                          ],
+                        child: Text(
+                          '.NET',
+                          style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: theme.accentBright),
                         ),
                       ),
-                      if (row.asset.isMono)
-                        Container(
-                          padding: EdgeInsets.symmetric(horizontal: theme.space(2), vertical: theme.space(0.5)),
-                          decoration: BoxDecoration(
-                            color: theme.accent.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(theme.radiusTag),
-                            border: Border.all(color: theme.accentDim.withValues(alpha: 0.4)),
-                          ),
-                          child: Text(
-                            '.NET',
-                            style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: theme.accentBright),
-                          ),
-                        ),
-                      if (state.source != VersionSource.mise)
-                        Text(
-                          '${(row.asset.size.toDouble() / 1024 / 1024).toStringAsFixed(0)} ${_tv('mb')}',
-                          style: theme.text(size: GhTextSize.xs, mono: true, color: theme.muted),
-                        ),
-                    ],
-                  ),
+                    if (state.source != VersionSource.mise)
+                      Text(
+                        '${(row.asset.size.toDouble() / 1024 / 1024).toStringAsFixed(0)} ${_tv('mb')}',
+                        style: theme.text(size: GhTextSize.xs, mono: true, color: theme.muted),
+                      ),
+                  ],
                 ),
-                trailing,
-              ],
-            ),
+              ),
+              trailing,
+            ],
           ),
         ),
       ),

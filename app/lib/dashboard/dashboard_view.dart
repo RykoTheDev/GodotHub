@@ -847,59 +847,56 @@ class _RunningPanelState extends State<_RunningPanel> {
                   GhReveal(
                     key: ValueKey(p.id),
                     id: 'running:${p.id}',
-                    child: GhTiltCard(
-                      borderRadius: BorderRadius.circular(theme.radiusItem),
-                      child: Container(
-                        padding: EdgeInsets.all(theme.space(2.5)),
-                        decoration: BoxDecoration(
-                          color: theme.overlay,
-                          borderRadius: BorderRadius.circular(theme.radiusItem),
-                          border: Border.all(color: theme.mint.withValues(alpha: 0.25)),
-                        ),
-                        child: Row(
-                          spacing: theme.space(3),
-                          children: [
-                            Container(
-                              width: theme.space(2),
-                              height: theme.space(2),
-                              decoration: BoxDecoration(color: theme.mint, shape: BoxShape.circle),
-                            ),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    p.name,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink),
-                                  ),
-                                  Text(
-                                    '${p.version.isNotEmpty ? 'Godot ${p.version} · ' : ''}${formatDuration(_now - p.startedAtMs)}',
-                                    style: theme.text(size: GhTextSize.x2s, color: theme.muted.withValues(alpha: 0.7)),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            GhPressable(
-                              onPressed: () => widget.onStop(p.id),
-                              semanticLabel: '${td('stop')} ${p.name}',
-                              borderRadius: radius,
-                              builder: (context, states) => GhAnimatedBox(
-                                width: theme.space(6),
-                                height: theme.space(6),
-                                alignment: Alignment.center,
-                                borderRadius: radius,
-                                color: states.active ? theme.danger.withValues(alpha: 0.1) : theme.danger.withValues(alpha: 0),
-                                child: GhIcon(
-                                  GhIcons.x,
-                                  size: theme.space(3.5),
-                                  color: states.active ? theme.danger : theme.muted.withValues(alpha: 0.5),
+                    child: Container(
+                      padding: EdgeInsets.all(theme.space(2.5)),
+                      decoration: BoxDecoration(
+                        color: theme.overlay,
+                        borderRadius: BorderRadius.circular(theme.radiusItem),
+                        border: Border.all(color: theme.mint.withValues(alpha: 0.25)),
+                      ),
+                      child: Row(
+                        spacing: theme.space(3),
+                        children: [
+                          Container(
+                            width: theme.space(2),
+                            height: theme.space(2),
+                            decoration: BoxDecoration(color: theme.mint, shape: BoxShape.circle),
+                          ),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  p.name,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink),
                                 ),
+                                Text(
+                                  '${p.version.isNotEmpty ? 'Godot ${p.version} · ' : ''}${formatDuration(_now - p.startedAtMs)}',
+                                  style: theme.text(size: GhTextSize.x2s, color: theme.muted.withValues(alpha: 0.7)),
+                                ),
+                              ],
+                            ),
+                          ),
+                          GhPressable(
+                            onPressed: () => widget.onStop(p.id),
+                            semanticLabel: '${td('stop')} ${p.name}',
+                            borderRadius: radius,
+                            builder: (context, states) => GhAnimatedBox(
+                              width: theme.space(6),
+                              height: theme.space(6),
+                              alignment: Alignment.center,
+                              borderRadius: radius,
+                              color: states.active ? theme.danger.withValues(alpha: 0.1) : theme.danger.withValues(alpha: 0),
+                              child: GhIcon(
+                                GhIcons.x,
+                                size: theme.space(3.5),
+                                color: states.active ? theme.danger : theme.muted.withValues(alpha: 0.5),
                               ),
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -932,51 +929,48 @@ class _EngineRowState extends State<_EngineRow> {
       child: MouseRegion(
         onEnter: (_) => setState(() => _hovered = true),
         onExit: (_) => setState(() => _hovered = false),
-        child: GhTiltCard(
-          borderRadius: BorderRadius.circular(theme.radiusItem),
-          child: AnimatedContainer(
-            duration: GhDurations.interactive,
-            padding: EdgeInsets.all(theme.space(2.5)),
-            decoration: dashRowDecoration(theme, _hovered),
-            child: Row(
-              spacing: theme.space(3),
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, mono: true, color: theme.ink),
-                      ),
-                      Text(
-                        v.executablePath,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.text(size: GhTextSize.x2s, mono: true, color: theme.muted.withValues(alpha: 0.7)),
-                      ),
-                    ],
-                  ),
-                ),
-                GhPressable(
-                  onPressed: widget.onOpen,
-                  semanticLabel: name,
-                  borderRadius: radius,
-                  builder: (context, states) => GhAnimatedBox(
-                    padding: EdgeInsets.all(theme.space(1.5)),
-                    borderRadius: radius,
-                    color: states.active ? theme.surface : theme.surface.withValues(alpha: 0),
-                    child: GhIcon(
-                      GhIcons.terminal,
-                      size: theme.space(3.5),
-                      color: states.active ? theme.ink : theme.muted.withValues(alpha: 0.6),
+        child: AnimatedContainer(
+          duration: GhDurations.interactive,
+          padding: EdgeInsets.all(theme.space(2.5)),
+          decoration: dashRowDecoration(theme, _hovered),
+          child: Row(
+            spacing: theme.space(3),
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      name,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, mono: true, color: theme.ink),
                     ),
+                    Text(
+                      v.executablePath,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.text(size: GhTextSize.x2s, mono: true, color: theme.muted.withValues(alpha: 0.7)),
+                    ),
+                  ],
+                ),
+              ),
+              GhPressable(
+                onPressed: widget.onOpen,
+                semanticLabel: name,
+                borderRadius: radius,
+                builder: (context, states) => GhAnimatedBox(
+                  padding: EdgeInsets.all(theme.space(1.5)),
+                  borderRadius: radius,
+                  color: states.active ? theme.surface : theme.surface.withValues(alpha: 0),
+                  child: GhIcon(
+                    GhIcons.terminal,
+                    size: theme.space(3.5),
+                    color: states.active ? theme.ink : theme.muted.withValues(alpha: 0.6),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
