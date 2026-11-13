@@ -127,6 +127,7 @@ class _Translations$common$ru_RU extends Translations$common$en_US {
 	@override String get up_to_date => 'Актуально';
 	@override String get downloading_update => 'Загрузка…';
 	@override String get install_update => 'Установить';
+	@override String get restart_to_apply_update => 'Restart to Apply Update';
 	@override String get restart_now => 'Перезапустить сейчас';
 	@override String get update_downloaded => 'Обновление загружено!';
 	@override String get restart_to_apply => 'Перезапустите GodotHub, чтобы применить обновление.';
@@ -2325,6 +2326,7 @@ extension on TranslationsRuRu {
 			'common.up_to_date' => 'Актуально',
 			'common.downloading_update' => 'Загрузка…',
 			'common.install_update' => 'Установить',
+			'common.restart_to_apply_update' => 'Restart to Apply Update',
 			'common.restart_now' => 'Перезапустить сейчас',
 			'common.update_downloaded' => 'Обновление загружено!',
 			'common.restart_to_apply' => 'Перезапустите GodotHub, чтобы применить обновление.',
@@ -2780,9 +2782,9 @@ extension on TranslationsRuRu {
 			'common.command_palette_navigate' => 'Перейти',
 			'common.command_palette_escape' => 'Esc',
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
-			'common.setting_project_scan_dirs' => 'Scan Project Folders',
 			_ => null,
 		} ?? switch (path) {
+			'common.setting_project_scan_dirs' => 'Scan Project Folders',
 			'common.setting_version_scan_dirs' => 'Scan Version Folders',
 			'common.setting_default_project_location' => 'Default Project Location Setting',
 			'common.setting_download_dir' => 'Download Versions Location Setting',
@@ -3294,9 +3296,9 @@ extension on TranslationsRuRu {
 			'common.color_presets' => 'Presets',
 			'common.date_previous_month' => 'Previous month',
 			'common.date_next_month' => 'Next month',
-			'common.date_change_due' => 'Change due date: {{date}}',
 			_ => null,
 		} ?? switch (path) {
+			'common.date_change_due' => 'Change due date: {{date}}',
 			'common.date_add_due' => 'Add due date',
 			'dashboard.greeting_morning' => 'Good morning',
 			'dashboard.greeting_afternoon' => 'Good afternoon',
@@ -3808,9 +3810,9 @@ extension on TranslationsRuRu {
 			'settings.discord_custom_add' => 'Add project',
 			'settings.discord_custom_details_placeholder' => 'Details line',
 			'settings.discord_custom_state_placeholder' => 'State line',
-			'settings.discord_custom_remove' => 'Remove custom presence',
 			_ => null,
 		} ?? switch (path) {
+			'settings.discord_custom_remove' => 'Remove custom presence',
 			'settings.search_placeholder' => 'Найти настройки…',
 			'settings.interface_label' => 'Interface',
 			'settings.card_layout_label' => 'Card layout',

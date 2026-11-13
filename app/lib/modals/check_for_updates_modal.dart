@@ -11,6 +11,7 @@ import '../design/design.dart';
 import '../motion/motion.dart';
 import '../state/app_version.dart';
 import '../state/settings.dart';
+import '../state/update_available.dart';
 import '../ui/controls/spin.dart';
 import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
@@ -365,6 +366,7 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
               onLog: _addLog,
             );
             _restart = update.restart;
+            ref.read(updateAvailableProvider.notifier).markDownloaded(update.restart);
             _set(UpdateStateType.done, doneSize: last.total ?? last.downloaded, doneElapsed: clock.elapsed);
           } catch (e) {
             _set(UpdateStateType.error, message: '$e');

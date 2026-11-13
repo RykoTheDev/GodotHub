@@ -124,6 +124,7 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String get up_to_date => '已是最新';
 	@override String get downloading_update => '下载中…';
 	@override String get install_update => '安装';
+	@override String get restart_to_apply_update => 'Restart to Apply Update';
 	@override String get restart_now => '立即重启';
 	@override String get update_downloaded => '更新已下载！';
 	@override String get restart_to_apply => '重启 GodotHub 以应用更新。';
@@ -2173,6 +2174,7 @@ extension on TranslationsZhCn {
 			'common.up_to_date' => '已是最新',
 			'common.downloading_update' => '下载中…',
 			'common.install_update' => '安装',
+			'common.restart_to_apply_update' => 'Restart to Apply Update',
 			'common.restart_now' => '立即重启',
 			'common.update_downloaded' => '更新已下载！',
 			'common.restart_to_apply' => '重启 GodotHub 以应用更新。',
@@ -2628,9 +2630,9 @@ extension on TranslationsZhCn {
 			'common.command_palette_navigate' => '导航',
 			'common.command_palette_escape' => 'Esc',
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
-			'common.setting_project_scan_dirs' => '扫描项目文件夹',
 			_ => null,
 		} ?? switch (path) {
+			'common.setting_project_scan_dirs' => '扫描项目文件夹',
 			'common.setting_version_scan_dirs' => '扫描版本文件夹',
 			'common.setting_default_project_location' => '默认项目位置',
 			'common.setting_download_dir' => '下载版本位置',
@@ -3142,9 +3144,9 @@ extension on TranslationsZhCn {
 			'common.color_presets' => '预设',
 			'common.date_previous_month' => '上个月',
 			'common.date_next_month' => '下个月',
-			'common.date_change_due' => '更改截止日期: {{date}}',
 			_ => null,
 		} ?? switch (path) {
+			'common.date_change_due' => '更改截止日期: {{date}}',
 			'common.date_add_due' => '添加截止日期',
 			'dashboard.greeting_morning' => '早上好',
 			'dashboard.greeting_afternoon' => '下午好',
@@ -3656,9 +3658,9 @@ extension on TranslationsZhCn {
 			'settings.discord_custom_add' => '添加项目',
 			'settings.discord_custom_details_placeholder' => '详细信息文本',
 			'settings.discord_custom_state_placeholder' => '状态文本',
-			'settings.discord_custom_remove' => '删除自定义状态',
 			_ => null,
 		} ?? switch (path) {
+			'settings.discord_custom_remove' => '删除自定义状态',
 			'settings.search_placeholder' => '搜索设置…',
 			'settings.interface_label' => '界面',
 			'settings.card_layout_label' => '卡片布局',

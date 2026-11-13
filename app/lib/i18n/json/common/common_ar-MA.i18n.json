@@ -52,6 +52,7 @@
   "up_to_date": "محدث بالفعل",
   "downloading_update": "جاري التنزيل…",
   "install_update": "ثبت",
+  "restart_to_apply_update": "Restart to Apply Update",
   "restart_now": "أعد التشغيل الآن",
   "update_downloaded": "تم تنزيل التحديث!",
   "restart_to_apply": "أعد تشغيل البرنامج لتطبيق التحديث.",
