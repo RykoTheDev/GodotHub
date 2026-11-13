@@ -38,6 +38,7 @@ import 'api/todo_sync.dart';
 import 'api/tool_runner.dart';
 import 'api/types.dart';
 import 'api/ui_prefs.dart';
+import 'api/updater.dart';
 import 'api/vault.dart';
 import 'api/watcher.dart';
 import 'api/window.dart';
@@ -73,6 +74,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   RustStreamSink<AppEvent> dco_decode_StreamSink_app_event_Sse(dynamic raw);
+
+  @protected
+  RustStreamSink<UpdateProgress> dco_decode_StreamSink_update_progress_Sse(dynamic raw);
 
   @protected
   String dco_decode_String(dynamic raw);
@@ -217,6 +221,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   BigInt dco_decode_box_autoadd_u_64(dynamic raw);
+
+  @protected
+  UpdateInfo dco_decode_box_autoadd_update_info(dynamic raw);
 
   @protected
   WindowState dco_decode_box_autoadd_window_state(dynamic raw);
@@ -738,6 +745,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   BigInt? dco_decode_opt_box_autoadd_u_64(dynamic raw);
 
   @protected
+  UpdateInfo? dco_decode_opt_box_autoadd_update_info(dynamic raw);
+
+  @protected
   WindowState? dco_decode_opt_box_autoadd_window_state(dynamic raw);
 
   @protected
@@ -891,6 +901,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void dco_decode_unit(dynamic raw);
 
   @protected
+  UpdateInfo dco_decode_update_info(dynamic raw);
+
+  @protected
+  UpdateProgress dco_decode_update_progress(dynamic raw);
+
+  @protected
   UserRepoInfo dco_decode_user_repo_info(dynamic raw);
 
   @protected
@@ -940,6 +956,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   RustStreamSink<AppEvent> sse_decode_StreamSink_app_event_Sse(SseDeserializer deserializer);
+
+  @protected
+  RustStreamSink<UpdateProgress> sse_decode_StreamSink_update_progress_Sse(SseDeserializer deserializer);
 
   @protected
   String sse_decode_String(SseDeserializer deserializer);
@@ -1084,6 +1103,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer);
+
+  @protected
+  UpdateInfo sse_decode_box_autoadd_update_info(SseDeserializer deserializer);
 
   @protected
   WindowState sse_decode_box_autoadd_window_state(SseDeserializer deserializer);
@@ -1605,6 +1627,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer);
 
   @protected
+  UpdateInfo? sse_decode_opt_box_autoadd_update_info(SseDeserializer deserializer);
+
+  @protected
   WindowState? sse_decode_opt_box_autoadd_window_state(SseDeserializer deserializer);
 
   @protected
@@ -1758,6 +1783,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_decode_unit(SseDeserializer deserializer);
 
   @protected
+  UpdateInfo sse_decode_update_info(SseDeserializer deserializer);
+
+  @protected
+  UpdateProgress sse_decode_update_progress(SseDeserializer deserializer);
+
+  @protected
   UserRepoInfo sse_decode_user_repo_info(SseDeserializer deserializer);
 
   @protected
@@ -1807,6 +1838,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_StreamSink_app_event_Sse(RustStreamSink<AppEvent> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_StreamSink_update_progress_Sse(RustStreamSink<UpdateProgress> self, SseSerializer serializer);
 
   @protected
   void sse_encode_String(String self, SseSerializer serializer);
@@ -1951,6 +1985,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_update_info(UpdateInfo self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_window_state(WindowState self, SseSerializer serializer);
@@ -2472,6 +2509,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_opt_box_autoadd_u_64(BigInt? self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_box_autoadd_update_info(UpdateInfo? self, SseSerializer serializer);
+
+  @protected
   void sse_encode_opt_box_autoadd_window_state(WindowState? self, SseSerializer serializer);
 
   @protected
@@ -2623,6 +2663,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_unit(void self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_update_info(UpdateInfo self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_update_progress(UpdateProgress self, SseSerializer serializer);
 
   @protected
   void sse_encode_user_repo_info(UserRepoInfo self, SseSerializer serializer);

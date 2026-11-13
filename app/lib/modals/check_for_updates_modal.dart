@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/opener.dart';
+import '../api/updater.dart';
 import '../api/updates.dart';
 import '../design/design.dart';
 import '../state/app_version.dart';
@@ -17,23 +18,14 @@ import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
 import '../ui/shell/smooth_scroll.dart';
 
+export '../api/updater.dart' show AppUpdate;
+
 const latestReleaseUrl = 'https://github.com/RykoTheDev/GodotHub/releases/latest';
 const previewUpdateVersion = '1.0.0';
 
-class AppUpdate {
-  const AppUpdate({required this.version, this.body, required this.downloadAndInstall});
-
-  final String version;
-  final String? body;
-  final Future<void> Function(void Function(double progress) onProgress, {String? githubToken}) downloadAndInstall;
-}
-
 typedef AppUpdateCheck = Future<AppUpdate?> Function();
 
-final appUpdateCheckProvider = Provider<AppUpdateCheck>(
-  (ref) =>
-      () async => throw UnsupportedError('Checking for updates is not available in the Flutter app yet'),
-);
+final appUpdateCheckProvider = Provider<AppUpdateCheck>((ref) => UpdaterApi.check);
 
 final portableInstallCheckProvider = Provider<Future<bool> Function()>((ref) => UpdatesApi.isPortableInstall);
 
@@ -151,7 +143,14 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
     _finish = null;
   }
 
-  void _set(UpdateStateType type, {String? version, String? notes, double progress = 0, String message = '', Future<void> Function()? install}) {
+  void _set(
+    UpdateStateType type, {
+    String? version,
+    String? notes,
+    double progress = 0,
+    String message = '',
+    Future<void> Function()? install,
+  }) {
     if (!mounted) return;
     setState(() {
       _type = type;
@@ -485,7 +484,10 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
                       'v$version',
                       style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, mono: true, color: theme.ink),
                     ),
-                    Text('-', style: theme.text(size: GhTextSize.xs, color: theme.muted)),
+                    Text(
+                      '-',
+                      style: theme.text(size: GhTextSize.xs, color: theme.muted),
+                    ),
                     Flexible(
                       child: Text(
                         ghTr('check_updates_version_available', args: {'version': version}),
@@ -497,7 +499,8 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
                 _AccentButton(
                   icon: GhIcons.externalLink,
                   label: ghTr('check_updates_download_from_github'),
-                  onPressed: () => OpenerApi.openUrl(latestReleaseUrl).catchError((Object e) => ghToasts.pushToast(GhToastType.error, '$e')),
+                  onPressed: () =>
+                      OpenerApi.openUrl(latestReleaseUrl).catchError((Object e) => ghToasts.pushToast(GhToastType.error, '$e')),
                   expand: true,
                 ),
               ],
@@ -532,10 +535,7 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
               width: theme.space(12),
               height: theme.space(12),
               alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: theme.accent.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(theme.radiusTile),
-              ),
+              decoration: BoxDecoration(color: theme.accent.withValues(alpha: 0.1), borderRadius: BorderRadius.circular(theme.radiusTile)),
               child: GhIcon(GhIcons.download, size: theme.space(5), color: theme.accentBright),
             ),
             Expanded(
@@ -703,11 +703,7 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
             ],
           )
         else
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: theme.space(6),
-            children: [left, right],
-          ),
+          Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: theme.space(6), children: [left, right]),
         _AccentButton(icon: GhIcons.download, label: ghTr('install_update'), onPressed: () => _install?.call().ignore()),
       ],
     );
@@ -784,7 +780,9 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
                   style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625),
                 ),
                 _AccentButton(
-                  label: hint == GithubTokenHint.tokenRejected ? ghTr('check_updates_open_token_settings') : ghTr('check_updates_add_token'),
+                  label: hint == GithubTokenHint.tokenRejected
+                      ? ghTr('check_updates_open_token_settings')
+                      : ghTr('check_updates_add_token'),
                   onPressed: _openTokenSettings,
                   small: true,
                 ),

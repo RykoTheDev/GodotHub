@@ -57,6 +57,7 @@ pub mod time_stats;
 pub mod todo_sync;
 pub mod tool_runner;
 pub mod ui_prefs;
+pub mod updater;
 pub mod vault;
 pub mod watcher;
 pub mod window_state;

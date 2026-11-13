@@ -32,6 +32,7 @@ pub mod time_stats;
 pub mod todo_sync;
 pub mod tool_runner;
 pub mod types;
+pub mod updater;
 pub mod ui_prefs;
 pub mod vault;
 pub mod watcher;

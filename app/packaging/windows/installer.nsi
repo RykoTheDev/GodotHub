@@ -55,8 +55,13 @@ VIAddVersionKey "ProductVersion" "${VERSION}"
 !define MUI_FINISHPAGE_RUN "$INSTDIR\${EXE_NAME}"
 !define MUI_FINISHPAGE_RUN_TEXT "Launch ${DISPLAY_NAME}"
 
+Var Passive
+Var Restart
+
+!define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
 !insertmacro MUI_PAGE_WELCOME
 !insertmacro MUI_PAGE_INSTFILES
+!define MUI_PAGE_CUSTOMFUNCTION_PRE SkipIfPassive
 !insertmacro MUI_PAGE_FINISH
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
@@ -90,11 +95,32 @@ VIAddVersionKey "ProductVersion" "${VERSION}"
   done:
 !macroend
 
+Function SkipIfPassive
+  StrCmp $Passive 1 0 +2
+    Abort
+FunctionEnd
+
 Function .onInit
   !insertmacro RequireOwnFolder
+  ${GetParameters} $R0
+  ClearErrors
+  ${GetOptions} $R0 "/P" $R1
+  IfErrors +2 0
+    StrCpy $Passive 1
+  ClearErrors
+  ${GetOptions} $R0 "/R" $R1
+  IfErrors +2 0
+    StrCpy $Restart 1
+FunctionEnd
+
+Function .onInstSuccess
+  StrCmp $Restart 1 0 +2
+    Exec '"$INSTDIR\${EXE_NAME}"'
 FunctionEnd
 
 Section "Install"
+  StrCmp $Passive 1 0 +2
+    SetAutoClose true
   !insertmacro RequireOwnFolder
   !insertmacro WaitForAppToClose
   SetOutPath "$INSTDIR"
