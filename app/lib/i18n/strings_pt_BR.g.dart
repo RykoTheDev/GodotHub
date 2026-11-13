@@ -554,6 +554,7 @@ class _Translations$common$pt_BR extends Translations$common$en_US {
 	@override String get check_updates_portable_desc => 'Instalações portáteis não podem ser atualizadas automaticamente. Baixe a versão mais recente no GitHub e substitua os arquivos existentes.';
 	@override String get check_updates_download_from_github => 'Baixar do GitHub';
 	@override String get check_updates_details => 'Update details';
+	@override String get check_updates_log => 'Log';
 	@override String get check_updates_released => 'Released';
 	@override String get check_updates_source => 'Source';
 	@override String get check_updates_file => 'File';
@@ -2681,6 +2682,7 @@ extension on TranslationsPtBr {
 			'common.check_updates_portable_desc' => 'Instalações portáteis não podem ser atualizadas automaticamente. Baixe a versão mais recente no GitHub e substitua os arquivos existentes.',
 			'common.check_updates_download_from_github' => 'Baixar do GitHub',
 			'common.check_updates_details' => 'Update details',
+			'common.check_updates_log' => 'Log',
 			'common.check_updates_released' => 'Released',
 			'common.check_updates_source' => 'Source',
 			'common.check_updates_file' => 'File',
@@ -2729,9 +2731,9 @@ extension on TranslationsPtBr {
 			'common.command_palette_escape' => 'Esc',
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
 			'common.setting_project_scan_dirs' => 'Pastas de busca de projetos',
-			'common.setting_version_scan_dirs' => 'Pastas de busca de versões',
 			_ => null,
 		} ?? switch (path) {
+			'common.setting_version_scan_dirs' => 'Pastas de busca de versões',
 			'common.setting_default_project_location' => 'Configuração do local padrão dos projetos',
 			'common.setting_download_dir' => 'Configuração do local de download das versões',
 			'common.setting_scan_depth' => 'Profundidade da busca',
@@ -3243,9 +3245,9 @@ extension on TranslationsPtBr {
 			'common.date_previous_month' => 'Previous month',
 			'common.date_next_month' => 'Next month',
 			'common.date_change_due' => 'Change due date: {{date}}',
-			'common.date_add_due' => 'Add due date',
 			_ => null,
 		} ?? switch (path) {
+			'common.date_add_due' => 'Add due date',
 			'dashboard.greeting_morning' => 'Bom dia',
 			'dashboard.greeting_afternoon' => 'Boa tarde',
 			'dashboard.greeting_evening' => 'Boa noite',
@@ -3757,9 +3759,9 @@ extension on TranslationsPtBr {
 			'settings.discord_custom_details_placeholder' => 'Linha de detalhes',
 			'settings.discord_custom_state_placeholder' => 'Linha de estado',
 			'settings.discord_custom_remove' => 'Remover Discord Rich Presence personalizada',
-			'settings.search_placeholder' => 'Pesquisar configurações…',
 			_ => null,
 		} ?? switch (path) {
+			'settings.search_placeholder' => 'Pesquisar configurações…',
 			'settings.interface_label' => 'Interface',
 			'settings.card_layout_label' => 'Layout em cartões',
 			'settings.landing_tab_label' => 'Página inicial padrão',

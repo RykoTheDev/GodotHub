@@ -68,7 +68,7 @@ mod platform {
         let mut slots = 0u32;
         let removed: IObjectArray = list.BeginList(&mut slots)?;
         let removed = removed_ids(&removed);
-        let exe = HSTRING::from(std::env::current_exe().unwrap_or_default().as_os_str());
+        let exe = HSTRING::from(godothub_core::install_mode::launch_executable().unwrap_or_default().as_os_str());
         let collection: IObjectCollection =
             CoCreateInstance(&EnumerableObjectCollection, None, CLSCTX_INPROC_SERVER)?;
         let mut added = 0;

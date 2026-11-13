@@ -30,7 +30,7 @@
     "version": "flutter-v0.2.5",
     "date": "",
     "notes": [
-      { "category": "add", "text": "Auto Updater" },
+      { "category": "add", "text": "Auto Updater and the way it updates the App" },
       { "category": "add", "text": "Remaining integerations; Opener, Git, Discord etc." }
     ]
   }

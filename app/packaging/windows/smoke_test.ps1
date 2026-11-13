@@ -63,6 +63,11 @@ $p = Start-Process -FilePath $Setup -ArgumentList '/S' -PassThru -Wait
 Check ($p.ExitCode -eq 0) "silent install exits 0 (got $($p.ExitCode))"
 $exe = Join-Path $installDir $ExeName
 Check (Test-Path $exe) "installed to $installDir"
+Check (Test-Path (Join-Path $installDir 'launcher.json')) 'launcher state written'
+if ($ExpectedVersion) {
+  Check (Test-Path (Join-Path $installDir "app-$ExpectedVersion\$ExeName")) "app installed into app-$ExpectedVersion"
+  Check ((Get-Content (Join-Path $installDir 'launcher.json') -Raw | ConvertFrom-Json).current -eq $ExpectedVersion) "launcher starts $ExpectedVersion"
+}
 Check ((Get-ItemProperty $uninstallKey -ErrorAction SilentlyContinue).DisplayName -eq $DisplayName) "uninstall entry $Identifier named $DisplayName"
 Check ((Get-ItemProperty $uninstallKey -ErrorAction SilentlyContinue).InstallLocation -eq $installDir) 'uninstall entry points at the beta folder'
 Check (Test-Path $shortcut) "start menu shortcut $DisplayName.lnk"

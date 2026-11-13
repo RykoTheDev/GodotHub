@@ -2021,6 +2021,7 @@ dependencies = [
  "feed-rs",
  "flate2",
  "futures-util",
+ "godothub_launcher",
  "interprocess",
  "libc",
  "minisign",
@@ -2042,6 +2043,15 @@ dependencies = [
  "windows-sys 0.61.2",
  "winreg 0.55.0",
  "zip",
+]
+
+[[package]]
+name = "godothub_launcher"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

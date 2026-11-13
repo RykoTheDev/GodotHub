@@ -4,6 +4,8 @@ import '../src/rust/api/updater.dart' as rust;
 import '../window/app_window.dart';
 
 const appBuildVersion = String.fromEnvironment('APP_VERSION');
+const updaterTestEndpoint = String.fromEnvironment('UPDATER_TEST_ENDPOINT');
+const updaterTestPublicKey = String.fromEnvironment('UPDATER_TEST_PUBKEY');
 
 class UpdateDownloadProgress {
   const UpdateDownloadProgress({required this.downloaded, this.total});
@@ -13,14 +15,28 @@ class UpdateDownloadProgress {
 }
 
 class AppUpdate {
-  const AppUpdate({required this.version, this.body, this.date, this.downloadUrl, this.package, required this.downloadAndInstall});
+  const AppUpdate({
+    required this.version,
+    this.body,
+    this.date,
+    this.downloadUrl,
+    this.package,
+    required this.download,
+    required this.restart,
+  });
 
   final String version;
   final String? body;
   final String? date;
   final String? downloadUrl;
   final String? package;
-  final Future<void> Function(void Function(UpdateDownloadProgress progress) onProgress, {String? githubToken}) downloadAndInstall;
+  final Future<void> Function(
+    void Function(UpdateDownloadProgress progress) onProgress, {
+    String? githubToken,
+    void Function(String line)? onLog,
+  })
+  download;
+  final Future<void> Function() restart;
 }
 
 class UpdateSource {
@@ -66,6 +82,19 @@ class DownloadSpeedMeter {
 abstract final class UpdaterApi {
   static void applyBuildVersion() {
     if (appBuildVersion.isNotEmpty) rust.setAppVersion(version: appBuildVersion);
+    if (updaterTestEndpoint.isEmpty && updaterTestPublicKey.isEmpty) return;
+    try {
+      rust.setUpdaterTestOverrides(endpoint: updaterTestEndpoint, publicKey: updaterTestPublicKey);
+      stderr.writeln('Updater test mode: $updaterTestEndpoint');
+    } catch (error) {
+      stderr.writeln('Updater test overrides rejected: $error');
+    }
+  }
+
+  static Future<void> confirmLaunch() async {
+    try {
+      await rust.confirmLaunch();
+    } catch (_) {}
   }
 
   static Future<AppUpdate?> check() async {
@@ -77,7 +106,8 @@ abstract final class UpdaterApi {
       date: info.pubDate,
       downloadUrl: info.url,
       package: info.target,
-      downloadAndInstall: (onProgress, {githubToken}) => _install(info, onProgress, githubToken),
+      download: (onProgress, {githubToken, onLog}) => _download(info, onProgress, githubToken, onLog),
+      restart: _restart,
     );
   }
 
@@ -86,16 +116,30 @@ abstract final class UpdaterApi {
     return await rust.checkForUpdate() != null;
   }
 
-  static Future<void> _install(rust.UpdateInfo info, void Function(UpdateDownloadProgress progress) onProgress, String? githubToken) async {
+  static Future<void> _download(
+    rust.UpdateInfo info,
+    void Function(UpdateDownloadProgress progress) onProgress,
+    String? githubToken,
+    void Function(String line)? onLog,
+  ) async {
     var last = const UpdateDownloadProgress(downloaded: 0);
-    await for (final progress in rust.downloadAndInstallUpdate(update: info, githubToken: githubToken)) {
+    await for (final progress in rust.downloadUpdate(update: info, githubToken: githubToken)) {
+      final line = progress.log;
+      if (line != null) {
+        onLog?.call(line);
+        continue;
+      }
       last = UpdateDownloadProgress(downloaded: progress.downloaded.toInt(), total: progress.total?.toInt());
       onProgress(last);
     }
     onProgress(UpdateDownloadProgress(downloaded: last.downloaded, total: last.total ?? last.downloaded));
+  }
+
+  static Future<void> _restart() async {
+    final installerRelaunches = await rust.restartToUpdate();
     final window = AppWindow.maybeInstance;
     if (window == null) return;
-    if (Platform.isWindows) {
+    if (installerRelaunches) {
       await window.quit();
     } else {
       await window.relaunch();

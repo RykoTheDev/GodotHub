@@ -465,6 +465,7 @@
   "check_updates_portable_desc": "ポータブル版は自動更新に対応していません。GitHub から最新バージョンをダウンロードし、既存のファイルを置き換えてください。",
   "check_updates_download_from_github": "GitHub からダウンロード",
   "check_updates_details": "Update details",
+  "check_updates_log": "Log",
   "check_updates_released": "Released",
   "check_updates_source": "Source",
   "check_updates_file": "File",

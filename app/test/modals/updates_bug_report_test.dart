@@ -114,11 +114,7 @@ void main() {
 
   group('CheckForUpdatesModal', () {
     testWidgets('reports up to date with the current version', (tester) async {
-      await openWith(
-        tester,
-        (close) => CheckForUpdatesModal(onClose: close),
-        overrides: [checker(() async => null), portableIs(false)],
-      );
+      await openWith(tester, (close) => CheckForUpdatesModal(onClose: close), overrides: [checker(() async => null), portableIs(false)]);
       expect(find.text(ghTr('up_to_date')), findsOneWidget);
       expect(find.text(ghTr('is_latest', args: {'version': '2.0.0'})), findsOneWidget);
       await tester.tap(find.text(ghTr('close')));
@@ -130,6 +126,7 @@ void main() {
       String? token;
       late void Function(UpdateDownloadProgress) report;
       final finish = <void Function()>[];
+      var restarts = 0;
       await openWith(
         tester,
         (close) => CheckForUpdatesModal(onClose: close),
@@ -140,11 +137,14 @@ void main() {
               version: '2.1.0',
               body: notes,
               date: '2026-11-10T12:00:00Z',
-              downloadUrl: 'https://github.com/RykoTheDev/godothub/releases/download/flutter-v2.1.0/GodotHub-Beta-2.1.0-windows-x64-setup.exe',
+              downloadUrl:
+                  'https://github.com/RykoTheDev/godothub/releases/download/flutter-v2.1.0/GodotHub-Beta-2.1.0-windows-x64-setup.exe',
               package: 'windows-x86_64-nsis',
-              downloadAndInstall: (onProgress, {githubToken}) {
+              restart: () async => restarts++,
+              download: (onProgress, {githubToken, onLog}) {
                 token = githubToken;
                 report = onProgress;
+                onLog?.call('Downloading GodotHub-Beta-2.1.0-windows-x64-setup.exe from github.com');
                 return Future<void>(() async {
                   await Future<void>.delayed(const Duration(seconds: 1));
                   finish.add(() {});
@@ -161,7 +161,6 @@ void main() {
       expect(find.text('New thing'), findsOneWidget);
       expect(find.text('Slow start'), findsOneWidget);
       expect(find.text('ADDED'), findsOneWidget);
-      expect(find.text(ghTr('check_updates_details').toUpperCase()), findsOneWidget);
       expect(find.text('github.com'), findsOneWidget);
       expect(find.text('GodotHub-Beta-2.1.0-windows-x64-setup.exe'), findsOneWidget);
       expect(find.text('windows-x86_64-nsis'), findsOneWidget);
@@ -178,12 +177,18 @@ void main() {
       expect(find.text(ghTr('percent_complete', args: {'percent': 50})), findsOneWidget);
       expect(find.text(ghTr('check_updates_progress_size', args: {'downloaded': '50.0 MB', 'total': '100.0 MB'})), findsOneWidget);
       expect(find.text(ghTr('check_updates_from_host', args: {'host': 'github.com'})), findsOneWidget);
+      expect(find.text(ghTr('check_updates_log').toUpperCase()), findsOneWidget);
+      expect(find.text('Downloading GodotHub-Beta-2.1.0-windows-x64-setup.exe from github.com'), findsOneWidget);
       report(const UpdateDownloadProgress(downloaded: 100 * 1024 * 1024, total: 100 * 1024 * 1024));
       await base.settle(tester, 12);
       expect(finish, hasLength(1));
       expect(find.text(ghTr('update_downloaded')), findsOneWidget);
       expect(find.text(ghTr('check_updates_signature_verified')), findsOneWidget);
       expect(find.textContaining('100.0 MB'), findsOneWidget);
+      expect(restarts, 0);
+      await tester.tap(find.text(ghTr('restart_now')));
+      await tester.pump();
+      expect(restarts, 1);
     });
 
     testWidgets('preview mode shows the sample release notes and known issues', (tester) async {
@@ -200,7 +205,7 @@ void main() {
         tester,
         (close) => CheckForUpdatesModal(onClose: close),
         overrides: [
-          checker(() async => AppUpdate(version: '2.1.0', downloadAndInstall: (_, {githubToken}) async {})),
+          checker(() async => AppUpdate(version: '2.1.0', download: (_, {githubToken, onLog}) async {}, restart: () async {})),
           portableIs(true),
         ],
       );

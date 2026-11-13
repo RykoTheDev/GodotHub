@@ -542,6 +542,7 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String get check_updates_portable_desc => 'ポータブル版は自動更新に対応していません。GitHub から最新バージョンをダウンロードし、既存のファイルを置き換えてください。';
 	@override String get check_updates_download_from_github => 'GitHub からダウンロード';
 	@override String get check_updates_details => 'Update details';
+	@override String get check_updates_log => 'Log';
 	@override String get check_updates_released => 'Released';
 	@override String get check_updates_source => 'Source';
 	@override String get check_updates_file => 'File';
@@ -2581,6 +2582,7 @@ extension on TranslationsJaJp {
 			'common.check_updates_portable_desc' => 'ポータブル版は自動更新に対応していません。GitHub から最新バージョンをダウンロードし、既存のファイルを置き換えてください。',
 			'common.check_updates_download_from_github' => 'GitHub からダウンロード',
 			'common.check_updates_details' => 'Update details',
+			'common.check_updates_log' => 'Log',
 			'common.check_updates_released' => 'Released',
 			'common.check_updates_source' => 'Source',
 			'common.check_updates_file' => 'File',
@@ -2629,9 +2631,9 @@ extension on TranslationsJaJp {
 			'common.command_palette_escape' => 'Esc',
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
 			'common.setting_project_scan_dirs' => 'プロジェクトフォルダをスキャン',
-			'common.setting_version_scan_dirs' => 'バージョンフォルダをスキャン',
 			_ => null,
 		} ?? switch (path) {
+			'common.setting_version_scan_dirs' => 'バージョンフォルダをスキャン',
 			'common.setting_default_project_location' => 'デフォルトのプロジェクト保存先',
 			'common.setting_download_dir' => 'バージョンダウンロード先',
 			'common.setting_scan_depth' => 'スキャン深度',
@@ -3143,9 +3145,9 @@ extension on TranslationsJaJp {
 			'common.date_previous_month' => '前の月',
 			'common.date_next_month' => '次の月',
 			'common.date_change_due' => '期限を変更: {{date}}',
-			'common.date_add_due' => '期限を追加',
 			_ => null,
 		} ?? switch (path) {
+			'common.date_add_due' => '期限を追加',
 			'dashboard.greeting_morning' => 'おはようございます',
 			'dashboard.greeting_afternoon' => 'こんにちは',
 			'dashboard.greeting_evening' => 'こんばんは',
@@ -3657,9 +3659,9 @@ extension on TranslationsJaJp {
 			'settings.discord_custom_details_placeholder' => '詳細テキスト',
 			'settings.discord_custom_state_placeholder' => '状態テキスト',
 			'settings.discord_custom_remove' => 'カスタムプレゼンスを削除',
-			'settings.search_placeholder' => '設定を検索…',
 			_ => null,
 		} ?? switch (path) {
+			'settings.search_placeholder' => '設定を検索…',
 			'settings.interface_label' => 'インターフェース',
 			'settings.card_layout_label' => 'カードレイアウト',
 			'settings.landing_tab_label' => '起動時に表示する画面',

@@ -15,6 +15,9 @@ pub fn is_portable_install() -> bool {
         let Some(dir) = exe.parent() else {
             return false;
         };
+        if godothub_launcher::Layout::of_app_exe(&exe).is_some() {
+            return false;
+        }
 
         !(dir_has_uninstaller(dir)
             || is_standard_install_location(dir)
@@ -72,4 +75,16 @@ fn registry_has_godot_hub_install() -> bool {
         }
     }
     false
+}
+
+pub fn versioned_install() -> Option<(godothub_launcher::Layout, String)> {
+    std::env::current_exe().ok().and_then(|exe| godothub_launcher::Layout::of_app_exe(&exe))
+}
+
+pub fn launch_executable() -> std::io::Result<std::path::PathBuf> {
+    let exe = std::env::current_exe()?;
+    let launcher = godothub_launcher::Layout::of_app_exe(&exe)
+        .and_then(|(layout, _)| exe.file_name().map(|name| layout.root().join(name)))
+        .filter(|path| path.is_file());
+    Ok(launcher.unwrap_or(exe))
 }

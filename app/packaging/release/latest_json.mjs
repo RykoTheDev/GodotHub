@@ -18,6 +18,7 @@ const classify = (name) => {
   if (!m) return null
   const arch = { x64: 'x86_64', amd64: 'x86_64', x86_64: 'x86_64', arm64: 'aarch64', aarch64: 'aarch64' }[m[2]] ?? m[2]
   if (m[1] === 'windows' && name.endsWith('-setup.exe')) return { os: 'windows', arch, installer: 'nsis' }
+  if (m[1] === 'windows' && name.endsWith(`-${m[2]}.zip`)) return { os: 'windows', arch, installer: 'inapp', only: true }
   if (m[1] === 'darwin' && name.endsWith('.app.tar.gz')) return { os: 'darwin', arch, installer: 'app' }
   if (m[1] === 'linux' && name.endsWith('.AppImage.zip')) return { os: 'linux', arch, installer: 'appimage' }
   return null
@@ -39,6 +40,8 @@ for (const sig of sigs) {
     platforms['darwin-aarch64-app'] = entry
     platforms['darwin-x86_64-app'] = entry
     platforms['darwin-universal-app'] = entry
+  } else if (c.only) {
+    platforms[`${c.os}-${c.arch}-${c.installer}`] = entry
   } else {
     platforms[`${c.os}-${c.arch}`] = entry
     platforms[`${c.os}-${c.arch}-${c.installer}`] = entry

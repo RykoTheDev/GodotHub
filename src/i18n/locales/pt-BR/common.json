@@ -528,6 +528,7 @@
   "check_updates_portable_desc": "Instalações portáteis não podem ser atualizadas automaticamente. Baixe a versão mais recente no GitHub e substitua os arquivos existentes.",
   "check_updates_download_from_github": "Baixar do GitHub",
   "check_updates_details": "Update details",
+  "check_updates_log": "Log",
   "check_updates_released": "Released",
   "check_updates_source": "Source",
   "check_updates_file": "File",

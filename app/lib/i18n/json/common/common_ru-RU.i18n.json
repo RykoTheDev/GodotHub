@@ -483,6 +483,7 @@
   "check_updates_portable_desc": "Portable installs cannot auto-update. Download the latest version from GitHub and replace the existing files.",
   "check_updates_download_from_github": "Скачать с GitHub",
   "check_updates_details": "Update details",
+  "check_updates_log": "Log",
   "check_updates_released": "Released",
   "check_updates_source": "Source",
   "check_updates_file": "File",

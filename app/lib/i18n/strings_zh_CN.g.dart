@@ -541,6 +541,7 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String get check_updates_portable_desc => '便携式安装无法自动更新。请从 GitHub 下载最新版本并替换现有文件。';
 	@override String get check_updates_download_from_github => '从 GitHub 下载';
 	@override String get check_updates_details => 'Update details';
+	@override String get check_updates_log => 'Log';
 	@override String get check_updates_released => 'Released';
 	@override String get check_updates_source => 'Source';
 	@override String get check_updates_file => 'File';
@@ -2579,6 +2580,7 @@ extension on TranslationsZhCn {
 			'common.check_updates_portable_desc' => '便携式安装无法自动更新。请从 GitHub 下载最新版本并替换现有文件。',
 			'common.check_updates_download_from_github' => '从 GitHub 下载',
 			'common.check_updates_details' => 'Update details',
+			'common.check_updates_log' => 'Log',
 			'common.check_updates_released' => 'Released',
 			'common.check_updates_source' => 'Source',
 			'common.check_updates_file' => 'File',
@@ -2627,9 +2629,9 @@ extension on TranslationsZhCn {
 			'common.command_palette_escape' => 'Esc',
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
 			'common.setting_project_scan_dirs' => '扫描项目文件夹',
-			'common.setting_version_scan_dirs' => '扫描版本文件夹',
 			_ => null,
 		} ?? switch (path) {
+			'common.setting_version_scan_dirs' => '扫描版本文件夹',
 			'common.setting_default_project_location' => '默认项目位置',
 			'common.setting_download_dir' => '下载版本位置',
 			'common.setting_scan_depth' => '扫描深度',
@@ -3141,9 +3143,9 @@ extension on TranslationsZhCn {
 			'common.date_previous_month' => '上个月',
 			'common.date_next_month' => '下个月',
 			'common.date_change_due' => '更改截止日期: {{date}}',
-			'common.date_add_due' => '添加截止日期',
 			_ => null,
 		} ?? switch (path) {
+			'common.date_add_due' => '添加截止日期',
 			'dashboard.greeting_morning' => '早上好',
 			'dashboard.greeting_afternoon' => '下午好',
 			'dashboard.greeting_evening' => '晚上好',
@@ -3655,9 +3657,9 @@ extension on TranslationsZhCn {
 			'settings.discord_custom_details_placeholder' => '详细信息文本',
 			'settings.discord_custom_state_placeholder' => '状态文本',
 			'settings.discord_custom_remove' => '删除自定义状态',
-			'settings.search_placeholder' => '搜索设置…',
 			_ => null,
 		} ?? switch (path) {
+			'settings.search_placeholder' => '搜索设置…',
 			'settings.interface_label' => '界面',
 			'settings.card_layout_label' => '卡片布局',
 			'settings.landing_tab_label' => '默认启动页面',

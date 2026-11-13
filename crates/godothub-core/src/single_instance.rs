@@ -87,7 +87,7 @@ pub fn forward_to_running_instance(channel: Channel, args: &[String]) -> bool {
 }
 
 pub fn relaunch(args: &[String]) -> Result<(), String> {
-    let exe = std::env::current_exe().map_err(|e| e.to_string())?;
+    let exe = crate::install_mode::launch_executable().map_err(|e| e.to_string())?;
     std::process::Command::new(exe)
         .args(args)
         .env(RELAUNCH_ENV, std::process::id().to_string())
