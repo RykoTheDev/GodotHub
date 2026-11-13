@@ -50,6 +50,7 @@
   "up_to_date": "Актуально",
   "downloading_update": "Загрузка…",
   "install_update": "Установить",
+  "restart_to_apply_update": "Restart to Apply Update",
   "restart_now": "Перезапустить сейчас",
   "update_downloaded": "Обновление загружено!",
   "restart_to_apply": "Перезапустите GodotHub, чтобы применить обновление.",

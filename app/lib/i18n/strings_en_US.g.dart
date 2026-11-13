@@ -240,6 +240,9 @@ class Translations$common$en_US {
 	/// en-US: 'Install'
 	String get install_update => 'Install';
 
+	/// en-US: 'Restart to Apply Update'
+	String get restart_to_apply_update => 'Restart to Apply Update';
+
 	/// en-US: 'Restart Now'
 	String get restart_now => 'Restart Now';
 
@@ -5923,6 +5926,7 @@ extension on Translations {
 			'common.up_to_date' => 'Up to date',
 			'common.downloading_update' => 'Downloading…',
 			'common.install_update' => 'Install',
+			'common.restart_to_apply_update' => 'Restart to Apply Update',
 			'common.restart_now' => 'Restart Now',
 			'common.update_downloaded' => 'Update downloaded!',
 			'common.restart_to_apply' => 'Restart GodotHub to apply the update.',
@@ -6378,9 +6382,9 @@ extension on Translations {
 			'common.command_palette_navigate' => 'Navigate',
 			'common.command_palette_escape' => 'Esc',
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
-			'common.setting_project_scan_dirs' => 'Scan Project Folders',
 			_ => null,
 		} ?? switch (path) {
+			'common.setting_project_scan_dirs' => 'Scan Project Folders',
 			'common.setting_version_scan_dirs' => 'Scan Version Folders',
 			'common.setting_default_project_location' => 'Default Project Location Setting',
 			'common.setting_download_dir' => 'Download Versions Location Setting',
@@ -6892,9 +6896,9 @@ extension on Translations {
 			'common.color_presets' => 'Presets',
 			'common.date_previous_month' => 'Previous month',
 			'common.date_next_month' => 'Next month',
-			'common.date_change_due' => 'Change due date: {{date}}',
 			_ => null,
 		} ?? switch (path) {
+			'common.date_change_due' => 'Change due date: {{date}}',
 			'common.date_add_due' => 'Add due date',
 			'dashboard.greeting_morning' => 'Good morning',
 			'dashboard.greeting_afternoon' => 'Good afternoon',
@@ -7406,9 +7410,9 @@ extension on Translations {
 			'settings.discord_custom_add' => 'Add project',
 			'settings.discord_custom_details_placeholder' => 'Details line',
 			'settings.discord_custom_state_placeholder' => 'State line',
-			'settings.discord_custom_remove' => 'Remove custom presence',
 			_ => null,
 		} ?? switch (path) {
+			'settings.discord_custom_remove' => 'Remove custom presence',
 			'settings.search_placeholder' => 'Search settings…',
 			'settings.interface_label' => 'Interface',
 			'settings.card_layout_label' => 'Card layout',

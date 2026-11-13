@@ -49,6 +49,7 @@
   "up_to_date": "À jour",
   "downloading_update": "Téléchargement…",
   "install_update": "Installer",
+  "restart_to_apply_update": "Restart to Apply Update",
   "restart_now": "Redémarrer maintenant",
   "update_downloaded": "Mise à jour téléchargée !",
   "restart_to_apply": "Redémarrez GodotHub pour appliquer la mise à jour.",

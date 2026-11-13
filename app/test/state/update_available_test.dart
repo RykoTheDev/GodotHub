@@ -36,6 +36,24 @@ void main() {
     expect(c.read(updateAvailableProvider).previewUpdate, isFalse);
   });
 
+  test('a downloaded update keeps its restart action', () async {
+    final c = container(() async => false);
+    c.read(updateAvailableProvider);
+    await pumpEventQueue();
+    expect(c.read(updateAvailableProvider).downloaded, isFalse);
+
+    var applied = 0;
+    c.read(updateAvailableProvider.notifier).markDownloaded(() async => applied++);
+    final state = c.read(updateAvailableProvider);
+    expect(state.updateAvailable, isTrue);
+    expect(state.downloaded, isTrue);
+    await state.applyDownloaded!();
+    expect(applied, 1);
+
+    c.read(updateAvailableProvider.notifier).setPreviewUpdate(true);
+    expect(c.read(updateAvailableProvider).downloaded, isTrue);
+  });
+
   test('the default checker reports no update', () async {
     final c = ProviderContainer();
     addTearDown(c.dispose);

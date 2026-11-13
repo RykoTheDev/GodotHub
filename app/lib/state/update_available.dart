@@ -7,20 +7,29 @@ import '../api/updater.dart';
 
 @immutable
 class UpdateAvailableState {
-  const UpdateAvailableState({this.updateAvailable = false, this.previewUpdate = false});
+  const UpdateAvailableState({this.updateAvailable = false, this.previewUpdate = false, this.applyDownloaded});
 
   final bool updateAvailable;
   final bool previewUpdate;
+  final Future<void> Function()? applyDownloaded;
 
-  UpdateAvailableState copyWith({bool? updateAvailable, bool? previewUpdate}) =>
-      UpdateAvailableState(updateAvailable: updateAvailable ?? this.updateAvailable, previewUpdate: previewUpdate ?? this.previewUpdate);
+  bool get downloaded => applyDownloaded != null;
+
+  UpdateAvailableState copyWith({bool? updateAvailable, bool? previewUpdate}) => UpdateAvailableState(
+    updateAvailable: updateAvailable ?? this.updateAvailable,
+    previewUpdate: previewUpdate ?? this.previewUpdate,
+    applyDownloaded: applyDownloaded,
+  );
 
   @override
   bool operator ==(Object other) =>
-      other is UpdateAvailableState && other.updateAvailable == updateAvailable && other.previewUpdate == previewUpdate;
+      other is UpdateAvailableState &&
+      other.updateAvailable == updateAvailable &&
+      other.previewUpdate == previewUpdate &&
+      identical(other.applyDownloaded, applyDownloaded);
 
   @override
-  int get hashCode => Object.hash(updateAvailable, previewUpdate);
+  int get hashCode => Object.hash(updateAvailable, previewUpdate, applyDownloaded);
 }
 
 typedef UpdateChecker = Future<bool> Function();
@@ -45,6 +54,9 @@ class UpdateAvailableNotifier extends Notifier<UpdateAvailableState> {
   }
 
   void dismissUpdate() => state = state.copyWith(updateAvailable: false);
+
+  void markDownloaded(Future<void> Function() apply) =>
+      state = UpdateAvailableState(updateAvailable: true, previewUpdate: state.previewUpdate, applyDownloaded: apply);
 
   void setPreviewUpdate(bool value) => state = state.copyWith(previewUpdate: value);
 

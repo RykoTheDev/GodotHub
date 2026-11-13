@@ -110,6 +110,7 @@ class _AppShellState extends ConsumerState<AppShell> {
   bool _paletteOpen = false;
   bool _bugReportOpen = false;
   bool _confirmingRestart = false;
+  bool _applyingUpdate = false;
 
   UiPrefsStore get _prefs => widget.prefs ?? UiPrefsStore.instance;
 
@@ -266,6 +267,18 @@ class _AppShellState extends ConsumerState<AppShell> {
         onClose: () => Navigator.of(modal).pop(),
       ),
     ).ignore();
+  }
+
+  Future<void> _applyDownloadedUpdate(Future<void> Function() apply) async {
+    if (_applyingUpdate) return;
+    _applyingUpdate = true;
+    try {
+      await apply();
+    } catch (_) {
+      _openUpdates();
+    } finally {
+      _applyingUpdate = false;
+    }
   }
 
   Future<void> _confirmRestart() async {
@@ -485,8 +498,11 @@ class _AppShellState extends ConsumerState<AppShell> {
       connected: !cardLayout,
       paletteKey: settings.commandPaletteKeybind.isEmpty ? 'p' : settings.commandPaletteKeybind,
       onOpenCommandPalette: _openPalette,
-      onOpenUpdatesModal: () => _openUpdates(preview: update.previewUpdate && !update.updateAvailable),
+      onOpenUpdatesModal: update.downloaded
+          ? () => _applyDownloadedUpdate(update.applyDownloaded!).ignore()
+          : () => _openUpdates(preview: update.previewUpdate && !update.updateAvailable),
       updateAvailable: update.updateAvailable || update.previewUpdate,
+      updateAvailableLabel: update.downloaded ? context.tr.common.restart_to_apply_update : null,
       workspacesEnabled: settings.workspacesEnabled,
       fixedResizeKnob: settings.fixedSidebarResizeKnob,
       isMac: _isMac,
