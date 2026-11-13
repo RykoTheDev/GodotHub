@@ -7,9 +7,11 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'api/events.dart';
+import 'bench/bench_mode.dart';
 import 'api/updater.dart';
 import 'debug/gallery/widget_gallery.dart';
 import 'design/design.dart';
+import 'design/shader_warm_up.dart';
 import 'i18n/i18n.dart';
 import 'i18n/i18n_controller.dart';
 import 'modals/bug_report_modal.dart';
@@ -32,6 +34,8 @@ import 'window/app_window.dart';
 import 'window/tray.dart';
 
 Future<void> main() async {
+  if (benchMode) benchMarkMain();
+  PaintingBinding.shaderWarmUp = const GhShaderWarmUp();
   WidgetsFlutterBinding.ensureInitialized();
   ErrorWidget.builder = ghErrorWidget;
   installBugReportErrorCapture();
@@ -39,7 +43,10 @@ Future<void> main() async {
   UpdaterApi.applyBuildVersion();
   if (const bool.fromEnvironment('UPDATER_LAB_CRASH')) exit(70);
   AppEvents.all.listen((_) {});
-  final title = await core.startCore(channel: buildChannel);
+  final benchData = benchDataDir();
+  final title = benchData == null
+      ? await core.startCore(channel: buildChannel)
+      : await core.startCoreIn(channel: buildChannel, dataDir: benchData, configDir: benchData, cacheDir: '$benchData/cache');
   final current = await settings.getSettings();
   await UiPrefsStore.instance.load();
   await GhI18n.init(settingsLanguage: current.language, settingsRtlLayout: current.rtlLayout);
@@ -50,7 +57,11 @@ Future<void> main() async {
   runApp(
     ProviderScope(
       child: TranslationProvider(
-        child: GodotHubApp(title: title, initialSettings: current),
+        child: benchMode
+            ? BenchHost(
+                child: GodotHubApp(title: title, initialSettings: current),
+              )
+            : GodotHubApp(title: title, initialSettings: current),
       ),
     ),
   );
