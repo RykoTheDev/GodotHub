@@ -72,7 +72,10 @@ class AppDelegate: FlutterAppDelegate {
     return true
   }
 
-  @objc func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
+  override func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
+    if DockMenuStore.shared.isEmpty {
+      return super.applicationDockMenu(sender)
+    }
     return DockMenuStore.shared.menu(target: self)
   }
 
@@ -86,6 +89,10 @@ final class DockMenuStore {
 
   private var items: [(id: String, label: String, path: String)] = []
   private var channel: FlutterMethodChannel?
+
+  var isEmpty: Bool {
+    return items.isEmpty
+  }
 
   func attach(messenger: FlutterBinaryMessenger) {
     let channel = FlutterMethodChannel(name: "godothub/dock", binaryMessenger: messenger)
