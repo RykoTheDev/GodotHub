@@ -168,7 +168,7 @@ jobs:
 
       - name: Build the beta app
         working-directory: app
-        run: flutter build ${{ matrix.target }} --release --dart-define=CHANNEL=beta --build-name="$VERSION" --build-number="${{ github.run_number }}"
+        run: flutter build ${{ matrix.target }} --release --dart-define=CHANNEL=beta --dart-define=APP_VERSION="$VERSION" --build-name="$VERSION" --build-number="${{ github.run_number }}"
 
       - name: Check the built binary
         working-directory: app

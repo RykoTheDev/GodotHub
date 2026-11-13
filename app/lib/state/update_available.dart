@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../api/updater.dart';
+
 @immutable
 class UpdateAvailableState {
   const UpdateAvailableState({this.updateAvailable = false, this.previewUpdate = false});
@@ -23,10 +25,7 @@ class UpdateAvailableState {
 
 typedef UpdateChecker = Future<bool> Function();
 
-final updateCheckerProvider = Provider<UpdateChecker>(
-  (ref) =>
-      () async => false,
-);
+final updateCheckerProvider = Provider<UpdateChecker>((ref) => UpdaterApi.isUpdateAvailable);
 
 final updateAvailableProvider = NotifierProvider<UpdateAvailableNotifier, UpdateAvailableState>(UpdateAvailableNotifier.new);
 

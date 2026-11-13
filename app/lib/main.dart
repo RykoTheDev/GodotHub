@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'api/events.dart';
+import 'api/updater.dart';
 import 'debug/gallery/widget_gallery.dart';
 import 'design/design.dart';
 import 'i18n/i18n.dart';
@@ -31,6 +32,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   installBugReportErrorCapture();
   await RustLib.init();
+  UpdaterApi.applyBuildVersion();
   AppEvents.all.listen((_) {});
   final title = await core.startCore(channel: buildChannel);
   final current = await settings.getSettings();
