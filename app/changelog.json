@@ -30,8 +30,17 @@
     "version": "flutter-v0.2.5",
     "date": "",
     "notes": [
-      { "category": "add", "text": "Auto Updater and the way it updates the App" },
-      { "category": "add", "text": "Remaining integerations; Opener, Git, Discord etc." }
+      { "category": "add", "text": "In-app updater: downloads, verifies and applies updates by itself, with no external installer" },
+      { "category": "add", "text": "Update log that lists every file as it is downloaded and installed" },
+      { "category": "add", "text": "Restart to Apply Update button in the sidebar when an update is downloaded but the app has not restarted yet" },
+      { "category": "add", "text": "Automatic rollback to the previous version if an update fails to start" },
+      { "category": "add", "text": "Remaining integrations: Opener, Git, Discord etc." },
+      { "category": "improve", "text": "Redesigned Check for Updates window" },
+      { "category": "improve", "text": "Faster startup on Windows" },
+      { "category": "improve", "text": "Smoother scrolling and dragging, with no stutter the first time an effect is drawn" },
+      { "category": "improve", "text": "Uses less memory than the stable app" },
+      { "category": "fix", "text": "Remaining differences from the stable app" },
+      { "category": "fix", "text": "Removed the card tilt effect" }
     ]
   }
 ]
