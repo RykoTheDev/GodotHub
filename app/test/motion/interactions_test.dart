@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -24,16 +23,16 @@ Widget _host(Widget child, {GhMotionPrefs prefs = _speed1, bool reduced = false}
 }
 
 Widget _button(double width, {double height = 36, VoidCallback? onPressed, Key? key, bool ripple = true}) => GhPressable(
-      key: key,
-      onPressed: onPressed ?? () {},
-      ripple: ripple,
-      borderRadius: BorderRadius.circular(8),
-      builder: (context, states) => SizedBox(width: width, height: height),
-    );
+  key: key,
+  onPressed: onPressed ?? () {},
+  ripple: ripple,
+  borderRadius: BorderRadius.circular(8),
+  builder: (context, states) => SizedBox(width: width, height: height),
+);
 
 GhPressMotionState _motion(WidgetTester tester, [Finder? within]) => tester.state<GhPressMotionState>(
-      within == null ? find.byType(GhPressMotion).first : find.descendant(of: within, matching: find.byType(GhPressMotion)).first,
-    );
+  within == null ? find.byType(GhPressMotion).first : find.descendant(of: within, matching: find.byType(GhPressMotion)).first,
+);
 
 void main() {
   setUp(GhLiveReveal.reset);
@@ -74,7 +73,12 @@ void main() {
     expect(_motion(tester).rippleCount, 0);
     await tester.pumpAndSettle();
 
-    await tester.pumpWidget(_host(_button(120, key: const ValueKey('subtle')), prefs: _speed1.copyWith(intensity: GhMotionIntensity.subtle)));
+    await tester.pumpWidget(
+      _host(
+        _button(120, key: const ValueKey('subtle')),
+        prefs: _speed1.copyWith(intensity: GhMotionIntensity.subtle),
+      ),
+    );
     final subtle = await tester.startGesture(tester.getCenter(find.byType(GhPressable)));
     await tester.pump();
     expect(_motion(tester).rippleCount, 0);
@@ -126,20 +130,41 @@ void main() {
 
     expect(await pressed(_host(_button(120), prefs: _speed1.copyWith(press: false))), 1);
     expect(await pressed(_host(_button(120, key: const ValueKey('off')), reduced: true)), 1);
-    expect(await pressed(_host(_button(120, key: const ValueKey('none')), prefs: _speed1.copyWith(intensity: GhMotionIntensity.none))), 1);
     expect(
-      await pressed(_host(GhPressable(onPressed: null, builder: (context, states) => const SizedBox(width: 120, height: 36)))),
+      await pressed(
+        _host(
+          _button(120, key: const ValueKey('none')),
+          prefs: _speed1.copyWith(intensity: GhMotionIntensity.none),
+        ),
+      ),
       1,
     );
-    expect(await pressed(_host(_button(120, key: const ValueKey('subtle')), prefs: _speed1.copyWith(intensity: GhMotionIntensity.subtle))), 0.955);
+    expect(await pressed(_host(GhPressable(onPressed: null, builder: (context, states) => const SizedBox(width: 120, height: 36)))), 1);
+    expect(
+      await pressed(
+        _host(
+          _button(120, key: const ValueKey('subtle')),
+          prefs: _speed1.copyWith(intensity: GhMotionIntensity.subtle),
+        ),
+      ),
+      0.955,
+    );
   });
 
   testWidgets('only the innermost pressable reacts', (tester) async {
-    await tester.pumpWidget(_host(GhPressable(
-      key: const ValueKey('outer'),
-      onPressed: () {},
-      builder: (context, states) => SizedBox(width: 300, height: 80, child: Center(child: _button(60, key: const ValueKey('inner')))),
-    )));
+    await tester.pumpWidget(
+      _host(
+        GhPressable(
+          key: const ValueKey('outer'),
+          onPressed: () {},
+          builder: (context, states) => SizedBox(
+            width: 300,
+            height: 80,
+            child: Center(child: _button(60, key: const ValueKey('inner'))),
+          ),
+        ),
+      ),
+    );
     final gesture = await tester.startGesture(tester.getCenter(find.byKey(const ValueKey('inner'))));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 200));
@@ -168,7 +193,12 @@ void main() {
     expect(_motion(tester).scale, closeTo(0.92, 1e-9));
     await tester.pumpAndSettle();
 
-    await tester.pumpWidget(_host(_button(120, key: const ValueKey('nopress'), onPressed: () => taps += 1), prefs: _speed1.copyWith(press: false)));
+    await tester.pumpWidget(
+      _host(
+        _button(120, key: const ValueKey('nopress'), onPressed: () => taps += 1),
+        prefs: _speed1.copyWith(press: false),
+      ),
+    );
     await tester.sendKeyEvent(LogicalKeyboardKey.tab);
     await tester.pump();
     await tester.sendKeyEvent(LogicalKeyboardKey.enter);
@@ -177,87 +207,16 @@ void main() {
     expect(_motion(tester).scale, 1);
   });
 
-  group('tilt', () {
-    test('strength and angles', () {
-      expect(ghTiltStrength(const Size(300, 150)), 7);
-      expect(ghTiltStrength(const Size(600, 150)), 4);
-      expect(ghTiltStrength(const Size(119, 150)), 0);
-      expect(ghTiltStrength(const Size(300, 63)), 0);
-      expect(ghTiltStrength(const Size(1401, 150)), 0);
-      expect(ghTiltStrength(const Size(300, 641)), 0);
-      final angles = ghTiltAngles(const Size(300, 150), const Offset(300, 0))!;
-      expect(angles.rotationY, 3.5);
-      expect(angles.rotationX, 3.5);
-      expect(angles.y, -4);
-      expect(ghTiltAngles(const Size(100, 150), Offset.zero), isNull);
-      expect(GhTiltAngles.rest.toMatrix(), Matrix4.identity());
-      expect(angles.toMatrix(), isNot(Matrix4.identity()));
-    });
-
-    Future<TestGesture> hover(WidgetTester tester, Offset at) async {
-      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
-      await mouse.addPointer(location: const Offset(1, 1));
-      await tester.pump();
-      await mouse.moveTo(at);
-      await tester.pump();
-      return mouse;
-    }
-
-    testWidgets('a card tilts toward the mouse and springs back on leave', (tester) async {
-      await tester.pumpWidget(_host(const GhTiltCard(child: SizedBox(width: 300, height: 150))));
-      final rect = tester.getRect(find.byType(GhTiltCard));
-      final mouse = await hover(tester, rect.topRight + const Offset(-1, 1));
-      await tester.pump(const Duration(seconds: 1));
-      final state = tester.state<GhTiltCardState>(find.byType(GhTiltCard));
-      expect(state.angles.rotationY, greaterThan(3));
-      expect(state.angles.rotationX, greaterThan(3));
-      expect(state.angles.y, -4);
-      await mouse.moveTo(const Offset(1, 1));
-      await tester.pump();
-      await tester.pump(const Duration(milliseconds: 1100));
-      expect(state.angles, GhTiltAngles.rest);
-      await mouse.removePointer();
-    });
-
-    testWidgets('no tilt with subtle intensity, without the pref or inside a no-tilt region', (tester) async {
-      for (final (index, widget) in [
-        _host(const GhTiltCard(child: SizedBox(width: 300, height: 150)), prefs: _speed1.copyWith(intensity: GhMotionIntensity.subtle)),
-        _host(const GhTiltCard(child: SizedBox(width: 300, height: 150)), prefs: _speed1.copyWith(tilt: false)),
-        _host(const GhNoTilt(child: GhTiltCard(child: SizedBox(width: 300, height: 150)))),
-      ].indexed) {
-        await tester.pumpWidget(KeyedSubtree(key: ValueKey(index), child: widget));
-        final rect = tester.getRect(find.byType(GhTiltCard));
-        final mouse = await hover(tester, rect.topRight + const Offset(-1, 1));
-        await tester.pump(const Duration(seconds: 1));
-        expect(tester.state<GhTiltCardState>(find.byType(GhTiltCard)).angles, GhTiltAngles.rest);
-        await mouse.removePointer();
-      }
-    });
-
-    testWidgets('cards inside dialogs do not tilt', (tester) async {
-      await tester.pumpWidget(_host(Builder(
-        builder: (context) => TextButton(
-          onPressed: () => showDialog<void>(
-            context: context,
-            builder: (context) => const Center(child: GhTiltCard(child: SizedBox(width: 300, height: 150))),
-          ),
-          child: const Text('open'),
-        ),
-      )));
-      await tester.tap(find.text('open'));
-      await tester.pumpAndSettle();
-      final rect = tester.getRect(find.byType(GhTiltCard));
-      final mouse = await hover(tester, rect.topRight + const Offset(-1, 1));
-      await tester.pump(const Duration(seconds: 1));
-      expect(tester.state<GhTiltCardState>(find.byType(GhTiltCard)).angles, GhTiltAngles.rest);
-      await mouse.removePointer();
-    });
-  });
-
   testWidgets('spin turns and grows, then clears; skipped when motion is off', (tester) async {
-    Widget build(int trigger, {bool reduced = false}) =>
-        _host(GhSpin(trigger: trigger, child: const SizedBox(key: ValueKey('icon'), width: 20, height: 20)), reduced: reduced);
-    Matrix4 matrix() => tester.widget<Transform>(find.ancestor(of: find.byKey(const ValueKey('icon')), matching: find.byType(Transform)).first).transform;
+    Widget build(int trigger, {bool reduced = false}) => _host(
+      GhSpin(
+        trigger: trigger,
+        child: const SizedBox(key: ValueKey('icon'), width: 20, height: 20),
+      ),
+      reduced: reduced,
+    );
+    Matrix4 matrix() =>
+        tester.widget<Transform>(find.ancestor(of: find.byKey(const ValueKey('icon')), matching: find.byType(Transform)).first).transform;
     await tester.pumpWidget(build(0));
     expect(matrix(), Matrix4.identity());
     await tester.pumpWidget(build(1));
@@ -300,7 +259,15 @@ void main() {
       expect(scale(), greaterThan(1));
       await tester.pump(const Duration(milliseconds: 200));
       expect(scale(), closeTo(1.02, 1e-9));
-      await tester.pumpWidget(_host(const GhDragLift(key: ValueKey('r'), child: SizedBox(key: ValueKey('card'), width: 100, height: 40)), reduced: true));
+      await tester.pumpWidget(
+        _host(
+          const GhDragLift(
+            key: ValueKey('r'),
+            child: SizedBox(key: ValueKey('card'), width: 100, height: 40),
+          ),
+          reduced: true,
+        ),
+      );
       await tester.pump(const Duration(milliseconds: 1));
       expect(scale(), closeTo(1.02, 1e-9));
     });
@@ -338,15 +305,15 @@ void main() {
     testWidgets('GhNow rebuilds every second while active', (tester) async {
       var builds = 0;
       Widget build(bool active) => Directionality(
-            textDirection: TextDirection.ltr,
-            child: GhNow(
-              active: active,
-              builder: (context, now) {
-                builds += 1;
-                return Text('${now.millisecondsSinceEpoch}');
-              },
-            ),
-          );
+        textDirection: TextDirection.ltr,
+        child: GhNow(
+          active: active,
+          builder: (context, now) {
+            builds += 1;
+            return Text('${now.millisecondsSinceEpoch}');
+          },
+        ),
+      );
       await tester.pumpWidget(build(true));
       expect(builds, 1);
       await tester.pump(const Duration(seconds: 1));

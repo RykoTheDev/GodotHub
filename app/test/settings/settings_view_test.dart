@@ -204,12 +204,12 @@ void main() {
     final host = await pumpSettings(tester);
     await tester.tap(railItem('motion'));
     await base.settle(tester, 3);
-    final tilt = find.byWidgetPredicate((w) => w is GhToggle && w.label == ts('card_tilt_label'));
-    expect(tester.widget<GhToggle>(tilt).disabled, isFalse);
+    final ripple = find.byWidgetPredicate((w) => w is GhToggle && w.label == ts('click_ripple_label'));
+    expect(tester.widget<GhToggle>(ripple).disabled, isFalse);
     await tester.tap(find.byKey(const ValueKey('segment:none')).first);
     await base.settle(tester, 3);
     expect(host.last.animationIntensity, 'none');
-    expect(tester.widget<GhToggle>(tilt).disabled, isTrue);
+    expect(tester.widget<GhToggle>(ripple).disabled, isTrue);
     await tester.tap(find.byKey(const ValueKey('segment:scale')));
     await base.settle(tester, 3);
     expect(host.last.viewEntrance, 'scale');

@@ -538,135 +538,132 @@ class _VaultItemCardState extends State<VaultItemCard> {
     final created = DateTime.tryParse(item.createdAt);
     return GhReveal(
       id: 'vault:${item.id}',
-      child: GhTiltCard(
-        borderRadius: radius,
-        child: MouseRegion(
-          onEnter: (_) => setState(() => _hovered = true),
-          onExit: (_) => setState(() => _hovered = false),
-          child: GhPressable(
-            onPressed: widget.onPreview,
-            semanticLabel: item.name,
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() => _hovered = false),
+        child: GhPressable(
+          onPressed: widget.onPreview,
+          semanticLabel: item.name,
+          borderRadius: radius,
+          ripple: false,
+          pressMotion: false,
+          builder: (context, states) => GhAnimatedBox(
+            color: theme.overlay,
             borderRadius: radius,
-            ripple: false,
-            pressMotion: false,
-            builder: (context, states) => GhAnimatedBox(
-              color: theme.overlay,
-              borderRadius: radius,
-              border: Border.all(color: states.active ? theme.accentDim : theme.outline.withValues(alpha: 0.5)),
-              padding: EdgeInsets.all(theme.space(5)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: theme.space(3),
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        width: theme.space(10),
-                        height: theme.space(10),
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: theme.raised,
-                          borderRadius: BorderRadius.circular(theme.radiusTile),
-                          border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-                        ),
-                        child: GhIcon(GhIcons.briefcase, size: theme.space(4), color: theme.muted),
-                      ),
-                      AnimatedOpacity(
-                        opacity: _hovered ? 1 : 0,
-                        alwaysIncludeSemantics: true,
-                        duration: const Duration(milliseconds: 150),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          spacing: theme.space(0.5),
-                          children: [
-                            _iconAction(
-                              theme,
-                              label: ghTr('vault_edit_action'),
-                              icon: GhIcons.pencil,
-                              danger: false,
-                              onPressed: widget.onEdit,
-                            ),
-                            _iconAction(
-                              theme,
-                              label: ghTr('vault_delete_action', args: {'name': item.name}),
-                              icon: GhIcons.trash,
-                              danger: true,
-                              onPressed: widget.onDelete,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.text(weight: GhWeight.semibold, color: theme.ink),
-                        ),
-                        if (item.description.isNotEmpty)
-                          Padding(
-                            padding: EdgeInsets.only(top: theme.space(1)),
-                            child: Text(
-                              item.description,
-                              maxLines: 3,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.text(size: GhTextSize.xs, color: theme.muted, lineHeight: 1.625),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  if (item.tags.isNotEmpty)
-                    Wrap(
-                      spacing: theme.space(1),
-                      runSpacing: theme.space(1),
-                      crossAxisAlignment: WrapCrossAlignment.center,
-                      children: [
-                        for (final tag in item.tags.take(4)) VaultTagChip(tag),
-                        if (item.tags.length > 4) Text('+${item.tags.length - 4}', style: faint),
-                      ],
-                    ),
-                  Row(
-                    spacing: theme.space(1.5),
-                    children: [
-                      if (item.godotVersion.isNotEmpty) Text('${ghTr('godot')} ${item.godotVersion}', style: faint),
-                      if (item.createdAt.isNotEmpty) ...[
-                        Text('·', style: faint),
-                        Text(created != null ? formatLocaleDate(created) : item.createdAt, style: faint),
-                      ],
-                    ],
-                  ),
-                  GhPressable(
-                    onPressed: widget.onAdd,
-                    borderRadius: radius,
-                    builder: (context, states) => GhAnimatedBox(
+            border: Border.all(color: states.active ? theme.accentDim : theme.outline.withValues(alpha: 0.5)),
+            padding: EdgeInsets.all(theme.space(5)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: theme.space(3),
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      width: theme.space(10),
+                      height: theme.space(10),
                       alignment: Alignment.center,
-                      color: theme.accent.withValues(alpha: states.active ? 0.2 : 0.1),
-                      borderRadius: radius,
-                      border: Border.all(color: theme.accentDim.withValues(alpha: 0.3)),
-                      padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(2)),
+                      decoration: BoxDecoration(
+                        color: theme.raised,
+                        borderRadius: BorderRadius.circular(theme.radiusTile),
+                        border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
+                      ),
+                      child: GhIcon(GhIcons.briefcase, size: theme.space(4), color: theme.muted),
+                    ),
+                    AnimatedOpacity(
+                      opacity: _hovered ? 1 : 0,
+                      alwaysIncludeSemantics: true,
+                      duration: const Duration(milliseconds: 150),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        spacing: theme.space(1.5),
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: theme.space(0.5),
                         children: [
-                          GhIcon(GhIcons.folderPlus, size: theme.space(3.5), color: theme.accentBright),
-                          Text(
-                            ghTr('vault_add_btn'),
-                            style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.accentBright),
+                          _iconAction(
+                            theme,
+                            label: ghTr('vault_edit_action'),
+                            icon: GhIcons.pencil,
+                            danger: false,
+                            onPressed: widget.onEdit,
+                          ),
+                          _iconAction(
+                            theme,
+                            label: ghTr('vault_delete_action', args: {'name': item.name}),
+                            icon: GhIcons.trash,
+                            danger: true,
+                            onPressed: widget.onDelete,
                           ),
                         ],
                       ),
                     ),
+                  ],
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.text(weight: GhWeight.semibold, color: theme.ink),
+                      ),
+                      if (item.description.isNotEmpty)
+                        Padding(
+                          padding: EdgeInsets.only(top: theme.space(1)),
+                          child: Text(
+                            item.description,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.text(size: GhTextSize.xs, color: theme.muted, lineHeight: 1.625),
+                          ),
+                        ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                if (item.tags.isNotEmpty)
+                  Wrap(
+                    spacing: theme.space(1),
+                    runSpacing: theme.space(1),
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      for (final tag in item.tags.take(4)) VaultTagChip(tag),
+                      if (item.tags.length > 4) Text('+${item.tags.length - 4}', style: faint),
+                    ],
+                  ),
+                Row(
+                  spacing: theme.space(1.5),
+                  children: [
+                    if (item.godotVersion.isNotEmpty) Text('${ghTr('godot')} ${item.godotVersion}', style: faint),
+                    if (item.createdAt.isNotEmpty) ...[
+                      Text('·', style: faint),
+                      Text(created != null ? formatLocaleDate(created) : item.createdAt, style: faint),
+                    ],
+                  ],
+                ),
+                GhPressable(
+                  onPressed: widget.onAdd,
+                  borderRadius: radius,
+                  builder: (context, states) => GhAnimatedBox(
+                    alignment: Alignment.center,
+                    color: theme.accent.withValues(alpha: states.active ? 0.2 : 0.1),
+                    borderRadius: radius,
+                    border: Border.all(color: theme.accentDim.withValues(alpha: 0.3)),
+                    padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(2)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: theme.space(1.5),
+                      children: [
+                        GhIcon(GhIcons.folderPlus, size: theme.space(3.5), color: theme.accentBright),
+                        Text(
+                          ghTr('vault_add_btn'),
+                          style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.accentBright),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),

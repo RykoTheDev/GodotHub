@@ -47,19 +47,17 @@ class _Frame extends StatelessWidget {
 }
 
 class _Card extends StatelessWidget {
-  const _Card({required this.title, this.subtitle, this.width, this.height});
+  const _Card({required this.title, this.subtitle, this.width});
 
   final String title;
   final String? subtitle;
   final double? width;
-  final double? height;
 
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
     return Container(
       width: width,
-      height: height,
       padding: EdgeInsets.all(theme.space(3)),
       decoration: BoxDecoration(
         color: theme.surface,
@@ -811,32 +809,6 @@ class _InteractionsDemoState extends State<_InteractionsDemo> {
             GalleryItem(
               label: 'disabled',
               child: GhButton(onPressed: null, label: 'Disabled', variant: GhButtonVariant.outline),
-            ),
-          ],
-        ),
-        GalleryGroup(
-          title: 'Card tilt',
-          children: [
-            GalleryItem(
-              label: 'tilts toward the pointer',
-              child: GhTiltCard(
-                borderRadius: BorderRadius.circular(theme.radiusCard),
-                child: const _Card(title: 'Project card', subtitle: 'Hover to tilt, press to squash', width: 300, height: 150),
-              ),
-            ),
-            GalleryItem(
-              label: 'wide card, weaker tilt',
-              child: GhTiltCard(
-                borderRadius: BorderRadius.circular(theme.radiusCard),
-                child: const _Card(title: 'Wide card', subtitle: 'Strength is min(7, 2400 / width)', width: 520, height: 120),
-              ),
-            ),
-            GalleryItem(
-              label: 'under 120px: no tilt',
-              child: GhTiltCard(
-                borderRadius: BorderRadius.circular(theme.radiusCard),
-                child: const _Card(title: 'Small', width: 110, height: 80),
-              ),
             ),
           ],
         ),

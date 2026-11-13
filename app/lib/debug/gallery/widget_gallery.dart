@@ -370,7 +370,6 @@ class _Controls extends StatelessWidget {
             config.motion.scrollReveal,
             () => onChanged(config.copyWith(motion: config.motion.copyWith(scrollReveal: !config.motion.scrollReveal))),
           ),
-          chip('tilt', config.motion.tilt, () => onChanged(config.copyWith(motion: config.motion.copyWith(tilt: !config.motion.tilt)))),
           chip(
             'ripple',
             config.motion.ripple,

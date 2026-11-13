@@ -26,7 +26,6 @@ class GhMotionPrefs {
     this.entrance = GhViewEntrance.slide,
     this.threshold = 20,
     this.scrollReveal = true,
-    this.tilt = true,
     this.ripple = true,
     this.press = true,
     this.animatedNumbers = true,
@@ -37,7 +36,6 @@ class GhMotionPrefs {
   final GhViewEntrance entrance;
   final int threshold;
   final bool scrollReveal;
-  final bool tilt;
   final bool ripple;
   final bool press;
   final bool animatedNumbers;
@@ -48,7 +46,6 @@ class GhMotionPrefs {
     GhViewEntrance? entrance,
     int? threshold,
     bool? scrollReveal,
-    bool? tilt,
     bool? ripple,
     bool? press,
     bool? animatedNumbers,
@@ -59,7 +56,6 @@ class GhMotionPrefs {
       entrance: entrance ?? this.entrance,
       threshold: threshold ?? this.threshold,
       scrollReveal: scrollReveal ?? this.scrollReveal,
-      tilt: tilt ?? this.tilt,
       ripple: ripple ?? this.ripple,
       press: press ?? this.press,
       animatedNumbers: animatedNumbers ?? this.animatedNumbers,
@@ -74,13 +70,12 @@ class GhMotionPrefs {
       other.entrance == entrance &&
       other.threshold == threshold &&
       other.scrollReveal == scrollReveal &&
-      other.tilt == tilt &&
       other.ripple == ripple &&
       other.press == press &&
       other.animatedNumbers == animatedNumbers;
 
   @override
-  int get hashCode => Object.hash(intensity, speed, entrance, threshold, scrollReveal, tilt, ripple, press, animatedNumbers);
+  int get hashCode => Object.hash(intensity, speed, entrance, threshold, scrollReveal, ripple, press, animatedNumbers);
 }
 
 @immutable
@@ -103,7 +98,6 @@ class GhMotionData {
   bool get entranceOn => !off && prefs.entrance != GhViewEntrance.none;
   bool get pressOn => !off && prefs.press;
   bool get rippleOn => prefs.ripple && flourishes;
-  bool get tiltOn => prefs.tilt && flourishes;
   bool get numbersOn => prefs.animatedNumbers && prefs.intensity != GhMotionIntensity.none && !osReduced;
 
   Duration gsap(double seconds) => Duration(microseconds: (seconds * 1e6 / timeScale).round());

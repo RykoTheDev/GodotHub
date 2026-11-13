@@ -34,7 +34,6 @@ GhMotionPrefs ghMotionPrefsFrom(AppSettings settings) {
     entrance: GhViewEntrance.parse(settings.viewEntrance),
     threshold: settings.animationThreshold,
     scrollReveal: settings.motionScrollReveal,
-    tilt: settings.motionCardTilt,
     ripple: settings.motionClickRipple,
     press: settings.motionPressBounce,
     animatedNumbers: settings.animatedNumbers,
