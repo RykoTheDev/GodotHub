@@ -2110,6 +2110,30 @@
       {
         "category": "improve",
         "text": "Project cards show a loading spinner where the git branch button goes while git status is still loading at startup, instead of the button appearing out of nowhere a moment later"
+      },
+      {
+        "category": "fix",
+        "text": "Linux: the Dashboard no longer lags. GodotHub used to force WebKitGTK's software renderer on every Linux machine, which made the Dashboard crawl even with nothing on it while Projects and Versions stayed fine. The accelerated (GPU) path is the default again (#271)"
+      },
+      {
+        "category": "improve",
+        "text": "Linux: the software renderer is now only used where the accelerated path really fails, like the NVIDIA proprietary driver or a launch that never drew a frame, and that choice is remembered per machine, so a blank window recovers on the next launch instead of affecting everyone. GODOTHUB_RENDERER=software or GODOTHUB_RENDERER=gpu forces either path (#271)"
+      },
+      {
+        "category": "improve",
+        "text": "The Dashboard clock and greeting no longer redraw the whole view every second and every 30 seconds just to keep the time and greeting current"
+      },
+      {
+        "category": "improve",
+        "text": "Dashboard activity bars now grow in with a transform-based animation, and hovering one no longer rebuilds its gradient, which keeps the chart smooth as you move across it"
+      },
+      {
+        "category": "add",
+        "text": "New Cover style for project cards, picked in Settings \u2192 Appearance \u2192 Project card style, next to the existing Godot Hub cards (#301)"
+      },
+      {
+        "category": "fix",
+        "text": "macOS: the version list now offers the editor download built for your Mac (Apple Silicon or Intel) instead of the universal build, and standard and Mono builds are no longer mixed up (#297)"
       }
     ],
     "known_issues": [],
