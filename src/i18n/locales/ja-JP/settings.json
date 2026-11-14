@@ -283,5 +283,5 @@
   "feature_desc_asset_store": "Godot アセットライブラリからアドオンやデモを探してインストールできます。",
   "feature_desc_categories": "プロジェクトをカテゴリに分けて整理できます。",
   "feature_desc_workspaces": "用途に合わせて、プロジェクトと設定をまとめて切り替えられます。",
-  "token_resets_in": "(resets ~{{minutes}} min)"
+  "token_resets_in": "（約 {{minutes}} 分後にリセット）"
 }
