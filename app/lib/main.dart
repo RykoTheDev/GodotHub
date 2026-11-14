@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'api/events.dart';
 import 'bench/bench_mode.dart';
 import 'api/updater.dart';
+import 'api/updater_lab.dart';
 import 'debug/gallery/widget_gallery.dart';
 import 'design/design.dart';
 import 'design/shader_warm_up.dart';
@@ -67,6 +68,9 @@ Future<void> main() async {
   );
   unawaited(window.openLaunchArgs());
   WidgetsBinding.instance.addPostFrameCallback((_) => unawaited(UpdaterApi.confirmLaunch()));
+  if (updaterLabAuto) {
+    unawaited(Future<void>.delayed(const Duration(seconds: 5), runUpdaterLab));
+  }
 }
 
 class GodotHubApp extends ConsumerStatefulWidget {
