@@ -74,7 +74,7 @@ class AppDelegate: FlutterAppDelegate {
 
   override func applicationDockMenu(_ sender: NSApplication) -> NSMenu? {
     if DockMenuStore.shared.isEmpty {
-      return super.applicationDockMenu(sender)
+      return nil
     }
     return DockMenuStore.shared.menu(target: self)
   }
