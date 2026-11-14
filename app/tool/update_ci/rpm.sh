@@ -6,7 +6,7 @@ printf '#!/bin/sh\nexec "$@"\n' > /usr/local/bin/pkexec
 chmod +x /usr/local/bin/pkexec
 
 checks=/lab/results/rpm-checks.txt
-report=/tmp/godothub-updater-lab.txt
+report=/root/godothub-updater-lab.txt
 data=/root/.local/share/Ryko.GodotHub
 failures=0
 : > "$checks"

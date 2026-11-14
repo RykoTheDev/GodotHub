@@ -21,7 +21,7 @@ serve 1.9.1
 note "===== Flutter app 1.9.0 to 1.9.1 in-app (bundle swap)"
 stop_apps; seed; rm -rf "$app"
 tar -xzf "$(ls "$lab"/dist/1.9.0/*.app.tar.gz)" -C "$apps"
-open "$app"
+nohup "$app/Contents/MacOS/GodotHub" >> "$results/apps.log" 2>&1 &
 check '1.9.0 started' started 1.9.0 60
 check '1.9.1 started after the in-app update' started 1.9.1
 check "the bundle is now 1.9.1 ($(bundle_version))" test "$(bundle_version)" = 1.9.1
@@ -34,7 +34,7 @@ note "===== Tauri 1.5.9 app to Flutter through the Tauri updater"
 seed; rm -rf "$app"
 cp -R "$lab/tauri/GodotHub.app" "$app"
 check "Tauri app installed ($(bundle_version))" test "$(bundle_version)" = 1.5.9
-open "$app"
+nohup "$app/Contents/MacOS/GodotHub" >> "$results/apps.log" 2>&1 &
 check 'Flutter 1.9.1 started after the Tauri updater swapped the bundle' started 1.9.1 300
 check "the bundle is now 1.9.1 ($(bundle_version))" test "$(bundle_version)" = 1.9.1
 check 'data kept' kept

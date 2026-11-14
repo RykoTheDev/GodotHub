@@ -5,7 +5,11 @@ import 'updater.dart';
 
 const updaterLabAuto = bool.fromEnvironment('UPDATER_LAB_AUTO');
 
-File get updaterLabReport => File('${Directory.systemTemp.path}${Platform.pathSeparator}godothub-updater-lab.txt');
+File get updaterLabReport {
+  final home = Platform.isWindows ? null : Platform.environment['HOME'];
+  final dir = home == null || home.isEmpty ? Directory.systemTemp.path : home;
+  return File('$dir${Platform.pathSeparator}godothub-updater-lab.txt');
+}
 
 void _note(String line) {
   try {
