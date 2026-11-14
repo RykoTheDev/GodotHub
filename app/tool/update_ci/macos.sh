@@ -28,6 +28,7 @@ check "the bundle is now 1.9.1 ($(bundle_version))" test "$(bundle_version)" = 1
 check 'no leftover bundles next to the app' test "$(ls -d "$apps"/*.app | wc -l | tr -d ' ')" = 1
 check 'data kept' kept
 save_report app
+log show --style compact --last 8m --predicate 'process == "GodotHub"' > "$results/oslog-app.txt" 2>&1 || true
 stop_apps
 
 note "===== Tauri 1.5.9 app to Flutter through the Tauri updater"
@@ -39,6 +40,7 @@ check 'Flutter 1.9.1 started after the Tauri updater swapped the bundle' started
 check "the bundle is now 1.9.1 ($(bundle_version))" test "$(bundle_version)" = 1.9.1
 check 'data kept' kept
 save_report tauri-app
+log show --style compact --last 8m --predicate 'process == "GodotHub"' > "$results/oslog-tauri-app.txt" 2>&1 || true
 stop_apps
 
 finish

@@ -42,19 +42,24 @@ Future<void> main() async {
   installBugReportErrorCapture();
   await RustLib.init();
   UpdaterApi.applyBuildVersion();
+  updaterLabStep('rust ready $appBuildVersion');
   if (const bool.fromEnvironment('UPDATER_LAB_CRASH')) exit(70);
   AppEvents.all.listen((_) {});
   final benchData = benchDataDir();
   final title = benchData == null
       ? await core.startCore(channel: buildChannel)
       : await core.startCoreIn(channel: buildChannel, dataDir: benchData, configDir: benchData, cacheDir: '$benchData/cache');
+  updaterLabStep('core started');
   final current = await settings.getSettings();
   await UiPrefsStore.instance.load();
   await GhI18n.init(settingsLanguage: current.language, settingsRtlLayout: current.rtlLayout);
   warmUpFonts(languageCode: GhI18n.instance.locale.flutterLocale.languageCode);
+  updaterLabStep('i18n ready');
   final window = await AppWindow.start(title: title, useOsDecorations: current.useOsDecorations);
+  updaterLabStep('window ready');
   final tray = await TrayController.start(tooltip: title).catchError((Object _) => null);
   tray?.minimizeToTray = current.minimizeToTray;
+  updaterLabStep('tray ready');
   runApp(
     ProviderScope(
       child: TranslationProvider(

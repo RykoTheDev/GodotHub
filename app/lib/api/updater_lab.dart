@@ -11,6 +11,10 @@ File get updaterLabReport {
   return File('$dir${Platform.pathSeparator}godothub-updater-lab.txt');
 }
 
+void updaterLabStep(String step) {
+  if (updaterLabAuto) _note('step $step');
+}
+
 void _note(String line) {
   stderr.writeln('[updater-lab] $line');
   try {
