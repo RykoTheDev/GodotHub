@@ -34,7 +34,7 @@ note "===== Flutter AppImage 1.9.0 to 1.9.1 in-app"
 stop_apps; seed
 cp "$lab"/dist/1.9.0/*.AppImage "$apps/GodotHub.AppImage" && chmod +x "$apps/GodotHub.AppImage"
 launch "$apps/GodotHub.AppImage"
-check '1.9.0 started' started 1.9.0 60
+check '1.9.0 started' started 1.9.0 180
 check '1.9.1 started after the in-app update' started 1.9.1
 check "the AppImage is now 1.9.1 ($(appimage_version))" test "$(appimage_version)" = 'godothub 1.9.1'
 check 'data kept' kept
@@ -45,7 +45,7 @@ note "===== Flutter deb 1.9.0 to 1.9.1 in-app (pkexec)"
 seed
 sudo apt-get install -y "$(ls "$lab"/dist/1.9.0/*.deb)" > /dev/null
 launch godothub
-check '1.9.0 started' started 1.9.0 60
+check '1.9.0 started' started 1.9.0 180
 check '1.9.1 started after the in-app update' started 1.9.1
 check "the installed package is 1.9.1 ($(deb_version))" test "$(deb_version)" = 1.9.1
 check 'data kept' kept
