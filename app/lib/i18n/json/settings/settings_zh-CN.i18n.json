@@ -76,7 +76,7 @@
   "test": "测试",
   "testing": "测试中…",
   "token_valid": "令牌有效！速率限制：{{status}}",
-  "token_resets_in": "(resets ~{{minutes}} min)",
+  "token_resets_in": "（约 {{minutes}} 分钟后重置）",
   "test_failed": "测试失败：{{error}}",
   "key_space": "空格",
   "no_settings_match": "没有匹配的设置",
