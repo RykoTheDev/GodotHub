@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -35,9 +36,16 @@ import 'window/app_window.dart';
 import 'window/tray.dart';
 
 Future<void> main() async {
+  updaterLabStep('dart started');
   if (benchMode) benchMarkMain();
   PaintingBinding.shaderWarmUp = const GhShaderWarmUp();
   WidgetsFlutterBinding.ensureInitialized();
+  if (updaterLabAuto) {
+    PlatformDispatcher.instance.onError = (error, stack) {
+      updaterLabStep('uncaught $error');
+      return false;
+    };
+  }
   ErrorWidget.builder = ghErrorWidget;
   installBugReportErrorCapture();
   await RustLib.init();

@@ -22,13 +22,16 @@ note "===== Flutter app 1.9.0 to 1.9.1 in-app (bundle swap)"
 stop_apps; seed; rm -rf "$app"
 tar -xzf "$(ls "$lab"/dist/1.9.0/*.app.tar.gz)" -C "$apps"
 nohup "$app/Contents/MacOS/GodotHub" >> "$results/apps.log" 2>&1 &
+sleep 30
+pgrep -fl 'GodotHub.app/Contents/MacOS/' > "$results/processes.txt" 2>&1
+for pid in $(pgrep -f 'GodotHub.app/Contents/MacOS/'); do sample "$pid" 3 -file "$results/sample-$pid.txt" > /dev/null 2>&1; done
 check '1.9.0 started' started 1.9.0 60
 check '1.9.1 started after the in-app update' started 1.9.1
 check "the bundle is now 1.9.1 ($(bundle_version))" test "$(bundle_version)" = 1.9.1
 check 'no leftover bundles next to the app' test "$(ls -d "$apps"/*.app | wc -l | tr -d ' ')" = 1
 check 'data kept' kept
 save_report app
-log show --style compact --last 8m --predicate 'process == "GodotHub"' > "$results/oslog-app.txt" 2>&1 || true
+log show --info --debug --style compact --last 8m --predicate 'process == "GodotHub"' > "$results/oslog-app.txt" 2>&1 || true
 stop_apps
 
 note "===== Tauri 1.5.9 app to Flutter through the Tauri updater"
@@ -40,7 +43,7 @@ check 'Flutter 1.9.1 started after the Tauri updater swapped the bundle' started
 check "the bundle is now 1.9.1 ($(bundle_version))" test "$(bundle_version)" = 1.9.1
 check 'data kept' kept
 save_report tauri-app
-log show --style compact --last 8m --predicate 'process == "GodotHub"' > "$results/oslog-tauri-app.txt" 2>&1 || true
+log show --info --debug --style compact --last 8m --predicate 'process == "GodotHub"' > "$results/oslog-tauri-app.txt" 2>&1 || true
 stop_apps
 
 finish
