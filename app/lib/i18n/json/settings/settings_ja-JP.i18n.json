@@ -76,7 +76,7 @@
   "test": "テスト",
   "testing": "テスト中…",
   "token_valid": "トークンは有効です！ レート制限: {{status}}",
-  "token_resets_in": "(resets ~{{minutes}} min)",
+  "token_resets_in": "（約 {{minutes}} 分後にリセット）",
   "test_failed": "テストに失敗しました: {{error}}",
   "key_space": "スペース",
   "no_settings_match": "一致する設定はありません",
