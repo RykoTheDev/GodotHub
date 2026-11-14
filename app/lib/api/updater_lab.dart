@@ -12,9 +12,12 @@ File get updaterLabReport {
 }
 
 void _note(String line) {
+  stderr.writeln('[updater-lab] $line');
   try {
     updaterLabReport.writeAsStringSync('$line\n', mode: FileMode.append, flush: true);
-  } catch (_) {}
+  } catch (error) {
+    stderr.writeln('[updater-lab] could not write ${updaterLabReport.path}: $error');
+  }
 }
 
 Future<void> runUpdaterLab() async {
