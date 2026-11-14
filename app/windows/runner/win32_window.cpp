@@ -150,6 +150,9 @@ bool Win32Window::Create(const std::wstring& title,
 }
 
 bool Win32Window::Show() {
+  if (IsWindowVisible(window_handle_)) {
+    return true;
+  }
   return ShowWindow(window_handle_, SW_SHOWNORMAL);
 }
 

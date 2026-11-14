@@ -52,6 +52,7 @@ class ProjectIconImage extends StatelessWidget {
       return SvgPicture.memory(
         decoded.bytes,
         fit: fit,
+        excludeFromSemantics: true,
         errorBuilder: (context, error, stack) {
           if (onError != null) WidgetsBinding.instance.addPostFrameCallback((_) => onError!());
           return const SizedBox.shrink();
@@ -63,6 +64,7 @@ class ProjectIconImage extends StatelessWidget {
       frameBuilder: ghFadeInFrameBuilder,
       fit: fit,
       gaplessPlayback: true,
+      excludeFromSemantics: true,
       errorBuilder: (context, error, stack) {
         if (onError != null) WidgetsBinding.instance.addPostFrameCallback((_) => onError!());
         return const SizedBox.shrink();

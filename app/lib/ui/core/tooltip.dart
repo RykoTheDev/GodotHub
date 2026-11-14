@@ -27,8 +27,8 @@ class GhTooltip extends StatefulWidget {
 }
 
 class _GhTooltipState extends State<GhTooltip> {
-  final _portal = OverlayPortalController();
   final _bubbleKey = GlobalKey();
+  OverlayEntry? _entry;
   Timer? _timer;
   Rect? _trigger;
   Offset? _position;
@@ -38,8 +38,16 @@ class _GhTooltipState extends State<GhTooltip> {
   bool get _hasContent => widget.content != null || (widget.message?.isNotEmpty ?? false);
 
   @override
+  void setState(VoidCallback fn) {
+    super.setState(fn);
+    _entry?.markNeedsBuild();
+  }
+
+  @override
   void dispose() {
     _timer?.cancel();
+    _entry?.remove();
+    _entry = null;
     super.dispose();
   }
 
@@ -61,7 +69,10 @@ class _GhTooltipState extends State<GhTooltip> {
         _position = null;
         _shown = true;
       });
-      _portal.show();
+      if (_entry == null) {
+        _entry = OverlayEntry(builder: (context) => ExcludeSemantics(child: Stack(children: [_overlay(context)])));
+        Overlay.of(context).insert(_entry!);
+      }
       WidgetsBinding.instance.addPostFrameCallback((_) => _measure());
     });
   }
@@ -83,9 +94,8 @@ class _GhTooltipState extends State<GhTooltip> {
     if (_shown) {
       return;
     }
-    if (_portal.isShowing) {
-      _portal.hide();
-    }
+    _entry?.remove();
+    _entry = null;
     _position = null;
   }
 
@@ -189,22 +199,19 @@ class _GhTooltipState extends State<GhTooltip> {
 
   @override
   Widget build(BuildContext context) {
-    return OverlayPortal(
-      controller: _portal,
-      overlayChildBuilder: (context) => Stack(children: [_overlay(context)]),
-      child: MouseRegion(
-        onEnter: (event) {
-          if (event.kind == PointerDeviceKind.mouse) {
-            _show();
-          }
-        },
-        onExit: (_) => _hide(),
-        child: Focus(
-          canRequestFocus: false,
-          skipTraversal: true,
-          onFocusChange: (focused) => focused ? _show() : _hide(),
-          child: Listener(onPointerDown: (_) => _hide(), child: widget.child),
-        ),
+    return MouseRegion(
+      onEnter: (event) {
+        if (event.kind == PointerDeviceKind.mouse) {
+          _show();
+        }
+      },
+      onExit: (_) => _hide(),
+      child: Focus(
+        canRequestFocus: false,
+        skipTraversal: true,
+        includeSemantics: false,
+        onFocusChange: (focused) => focused ? _show() : _hide(),
+        child: Listener(onPointerDown: (_) => _hide(), child: widget.child),
       ),
     );
   }

@@ -165,6 +165,7 @@ class ThemePresetsModal extends StatelessWidget {
                       onPressed: () => onSelect(preset.id),
                       selected: preset.id == currentId,
                       semanticLabel: preset.name,
+                      excludeChildSemantics: true,
                       borderRadius: radius,
                       builder: (context, states) {
                         final active = preset.id == currentId;

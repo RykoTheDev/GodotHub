@@ -61,6 +61,25 @@ void SetAppUserModelId(HMODULE library) {
   }
 }
 
+void FillMissingScanCode(MSG& msg) {
+  if (msg.message != WM_KEYDOWN && msg.message != WM_KEYUP &&
+      msg.message != WM_SYSKEYDOWN && msg.message != WM_SYSKEYUP) {
+    return;
+  }
+  if (((msg.lParam >> 16) & 0xFF) != 0 || msg.wParam == VK_PACKET) {
+    return;
+  }
+  const UINT scan = ::MapVirtualKeyW(static_cast<UINT>(msg.wParam), MAPVK_VK_TO_VSC_EX);
+  if ((scan & 0xFF) == 0) {
+    return;
+  }
+  LPARAM filled = msg.lParam | (static_cast<LPARAM>(scan & 0xFF) << 16);
+  if ((scan & 0xFF00) == 0xE000) {
+    filled |= static_cast<LPARAM>(1) << 24;
+  }
+  msg.lParam = filled;
+}
+
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
@@ -103,6 +122,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
 
   ::MSG msg;
   while (::GetMessage(&msg, nullptr, 0, 0)) {
+    FillMissingScanCode(msg);
     ::TranslateMessage(&msg);
     ::DispatchMessage(&msg);
   }

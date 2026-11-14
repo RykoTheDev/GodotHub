@@ -46,6 +46,17 @@ class GhForcedStates extends InheritedWidget {
       hovered != oldWidget.hovered || pressed != oldWidget.pressed || focused != oldWidget.focused;
 }
 
+class GhFieldName extends InheritedWidget {
+  const GhFieldName({super.key, required this.name, required super.child});
+
+  final String name;
+
+  static String? of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<GhFieldName>()?.name;
+
+  @override
+  bool updateShouldNotify(GhFieldName oldWidget) => oldWidget.name != name;
+}
+
 class GhPressable extends StatefulWidget {
   const GhPressable({
     super.key,
@@ -60,6 +71,8 @@ class GhPressable extends StatefulWidget {
     this.cursor,
     this.disabledCursor = SystemMouseCursors.basic,
     this.semanticLabel,
+    this.semanticValue,
+    this.excludeChildSemantics = false,
     this.tooltip,
     this.button = true,
     this.toggled,
@@ -86,6 +99,8 @@ class GhPressable extends StatefulWidget {
   final MouseCursor? cursor;
   final MouseCursor disabledCursor;
   final String? semanticLabel;
+  final String? semanticValue;
+  final bool excludeChildSemantics;
   final String? tooltip;
   final bool button;
   final bool? toggled;
@@ -142,6 +157,9 @@ class _GhPressableState extends State<GhPressable> {
     final raw = GhStates(hovered: _hovered, pressed: _pressed && enabled, focused: _focused, disabled: !enabled);
     final states = GhForcedStates.maybeOf(context)?.apply(raw) ?? raw;
     Widget child = widget.builder(context, states);
+    if (widget.excludeChildSemantics) {
+      child = ExcludeSemantics(child: child);
+    }
     if (widget.focusStyle != GhFocusStyle.none) {
       child = GhFocusRing(
         visible: states.focused && enabled,
@@ -202,6 +220,7 @@ class _GhPressableState extends State<GhPressable> {
       button: widget.button,
       enabled: enabled,
       label: widget.semanticLabel,
+      value: widget.semanticValue,
       toggled: widget.toggled,
       checked: widget.checked,
       mixed: widget.mixed,

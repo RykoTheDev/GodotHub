@@ -82,7 +82,9 @@ class AppWindow {
       window.center();
     }
     app._normalBounds = window.bounds.toRect();
-    final maximize = saved?.maximized ?? false;
+    if (saved?.maximized ?? false) {
+      window.maximize();
+    }
 
     window.addListener(app._onWindowEvent);
     AppEvents.of(AppEventKind.secondInstance).listen(app._onSecondInstance);
@@ -92,9 +94,6 @@ class AppWindow {
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
       window.show();
-      if (maximize) {
-        window.maximize();
-      }
       window.focus();
     });
     return app;

@@ -535,31 +535,33 @@ class _AppShellState extends ConsumerState<AppShell> {
             children: [
               Padding(
                 padding: cardLayout ? EdgeInsetsDirectional.only(start: theme.space(4), bottom: theme.space(4)) : EdgeInsets.zero,
-                child: GhIntroSidebar(child: _sidebar(settings, cardLayout)),
+                child: FocusTraversalGroup(child: GhIntroSidebar(child: _sidebar(settings, cardLayout))),
               ),
               Expanded(
-                child: GhViewInsets(
-                  insets: insets,
-                  child: Stack(
-                    children: [
-                      for (final id in _mountedTabs)
+                child: FocusTraversalGroup(
+                  child: GhViewInsets(
+                    insets: insets,
+                    child: Stack(
+                      children: [
+                        for (final id in _mountedTabs)
+                          Positioned.fill(
+                            key: ValueKey('pane:$id'),
+                            child: _ViewPane(
+                              active: id == _tab,
+                              child: _view(id, active: id == _tab, connected: !cardLayout),
+                            ),
+                          ),
                         Positioned.fill(
-                          key: ValueKey('pane:$id'),
-                          child: _ViewPane(
-                            active: id == _tab,
-                            child: _view(id, active: id == _tab, connected: !cardLayout),
+                          child: Padding(
+                            padding: insets,
+                            child: GhAnnouncementBanner(
+                              controller: _announcement,
+                              onSupport: () => Api.openUrl(GhAnnouncement.supportUrl).ignore(),
+                            ),
                           ),
                         ),
-                      Positioned.fill(
-                        child: Padding(
-                          padding: insets,
-                          child: GhAnnouncementBanner(
-                            controller: _announcement,
-                            onSupport: () => Api.openUrl(GhAnnouncement.supportUrl).ignore(),
-                          ),
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -640,8 +642,10 @@ class _AppShellState extends ConsumerState<AppShell> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        GhIntroTitleBar(
-                          child: TitleBar(isMac: _isMac, onAction: _onTitleBarAction),
+                        FocusTraversalGroup(
+                          child: GhIntroTitleBar(
+                            child: TitleBar(isMac: _isMac, onAction: _onTitleBarAction),
+                          ),
                         ),
                         Expanded(child: _main(settings)),
                       ],

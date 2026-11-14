@@ -1,19 +1,19 @@
 function FlutterChanges($proc, [string]$dataset) {
-  ClickAt $proc 140 182
+  Press $proc 'Projects' 140 182
   ClickAt $proc 900 330 1000
   ClickAt $proc 560 411
   Shot $proc "$dataset-b-flutter-9-pinned"
-  ClickAt $proc 245 734
-  ClickAt $proc 667 593
+  Press $proc 'Settings' 245 734
+  Press $proc 'Light' 667 593
   Shot $proc "$dataset-b-flutter-10-light-theme"
-  ClickAt $proc 371 574
+  Press $proc 'Advanced' 371 574
   Shot $proc "$dataset-b-flutter-11-advanced"
-  ClickAt $proc 1374 414 9000
+  Press $proc 'Check for Updates' 1374 414 9000
   Shot $proc "$dataset-b-flutter-12-update-check"
-  ClickAt $proc 60 60
-  ClickAt $proc 378 484
+  Keys $proc '{ESC}'
+  Press $proc 'Integrations' 378 484
   Shot $proc "$dataset-b-flutter-13-integrations"
-  ClickAt $proc 140 182
+  Press $proc 'Projects' 140 182
 
   $before = @(Get-Process godothub -ErrorAction SilentlyContinue).Count
   $second = Start-Process $exe -PassThru

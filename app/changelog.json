@@ -47,7 +47,9 @@
     "version": "flutter-v0.3.0",
     "date": "",
     "notes": [
-
+      { "category": "add", "text": "Tauri UI Preferences import to flutter" },
+      { "category": "improve", "text": "Windows accessibility and keyboard input" },
+      { "category": "improve", "text": "Tested Real updates end to end" }
     ]
   }
 ]

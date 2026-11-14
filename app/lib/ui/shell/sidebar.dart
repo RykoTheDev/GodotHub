@@ -1079,7 +1079,8 @@ class _SearchButton extends StatelessWidget {
     return GhPressable(
       onPressed: onPressed,
       borderRadius: radius,
-      semanticLabel: label,
+      semanticLabel: '$label ($shortcut)',
+      excludeChildSemantics: true,
       builder: (context, states) {
         final hover = states.active;
         final foreground = hover ? theme.ink : theme.muted;

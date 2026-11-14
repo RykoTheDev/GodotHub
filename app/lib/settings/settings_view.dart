@@ -328,6 +328,7 @@ class _RailButton extends StatelessWidget {
       selected: active,
       borderRadius: radius,
       semanticLabel: label,
+      excludeChildSemantics: true,
       builder: (context, states) {
         final hover = states.highlighted && !active;
         final Color background;
@@ -384,6 +385,7 @@ class _VersionButton extends StatelessWidget {
       onPressed: onPressed,
       borderRadius: radius,
       semanticLabel: label,
+      excludeChildSemantics: true,
       builder: (context, states) => GhAnimatedBox(
         padding: EdgeInsets.symmetric(horizontal: theme.space(2.5), vertical: theme.space(1)),
         color: states.highlighted ? theme.raised : theme.raised.withValues(alpha: 0.6),
