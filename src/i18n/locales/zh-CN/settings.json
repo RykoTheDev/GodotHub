@@ -283,5 +283,5 @@
   "feature_desc_asset_store": "从 Godot Asset Library 浏览并安装插件和项目。",
   "feature_desc_categories": "将项目列表分组到文件夹中。",
   "feature_desc_workspaces": "在不同的项目和设置集合之间切换。",
-  "token_resets_in": "(resets ~{{minutes}} min)"
+  "token_resets_in": "（约 {{minutes}} 分钟后重置）"
 }
