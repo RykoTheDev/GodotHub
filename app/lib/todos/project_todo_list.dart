@@ -436,6 +436,7 @@ class ProjectTodoList extends StatelessWidget {
                     GhSortableItem(
                       key: ValueKey(todos[i].id),
                       id: todos[i].id,
+                      semanticLabel: todos[i].title,
                       disabled: !reorderable,
                       child: _row(context, todos[i], last: i == todos.length - 1),
                     ),

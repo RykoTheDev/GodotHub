@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../design/design.dart';
 import '../state/section_search.dart';
+import '../ui/core/interaction.dart';
 
 export '../ui/reusables/segmented.dart';
 
@@ -73,17 +74,18 @@ class _SettingsSubsectionState extends ConsumerState<SettingsSubsection> {
                 titleText,
                 style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink),
               ));
+    final child = titleText == null || titleText.isEmpty ? widget.child : GhFieldName(name: titleText, child: widget.child);
     final Widget body;
     if (!widget.inline) {
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: theme.space(2),
-        children: [?heading, widget.child],
+        children: [?heading, child],
       );
     } else if (widget.fill) {
       body = Row(
         spacing: theme.space(4),
-        children: [?heading, Expanded(child: widget.child)],
+        children: [?heading, Expanded(child: child)],
       );
     } else {
       body = Row(
@@ -91,7 +93,7 @@ class _SettingsSubsectionState extends ConsumerState<SettingsSubsection> {
         children: [
           ?heading,
           Expanded(child: SettingsDividerLine(theme: theme)),
-          widget.child,
+          child,
         ],
       );
     }

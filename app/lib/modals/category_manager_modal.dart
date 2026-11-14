@@ -511,7 +511,7 @@ class _SortableCategoryListState extends State<SortableCategoryList> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: theme.space(2),
-          children: [for (final c in _ordered) GhSortableItem(key: ValueKey(c.id), id: c.id, disabled: _editingId == c.id, child: _row(c))],
+          children: [for (final c in _ordered) GhSortableItem(key: ValueKey(c.id), id: c.id, semanticLabel: c.name, disabled: _editingId == c.id, child: _row(c))],
         ),
       ),
     );

@@ -211,7 +211,6 @@ class _NewsCardState extends State<NewsCard> {
     return GhPressable(
       onPressed: () => OpenerApi.openUrl(item.link).catchError((Object e) => ghToasts.pushToast(GhToastType.error, '$e')),
       borderRadius: radius,
-      semanticLabel: item.title,
       builder: (context, states) => GhAnimatedBox(
         color: states.active ? theme.raised : theme.overlay,
         borderRadius: radius,

@@ -67,6 +67,8 @@ class _GhColorSwatchPickerState extends State<GhColorSwatchPicker> {
       borderRadius: radius,
       expanded: open,
       semanticLabel: widget.label,
+      semanticValue: widget.value.toLowerCase(),
+      excludeChildSemantics: widget.label != null,
       builder: (context, states) => GhAnimatedBox(
         padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(2.5)),
         color: theme.overlay,
@@ -95,9 +97,11 @@ class _GhColorSwatchPickerState extends State<GhColorSwatchPicker> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (widget.label != null) ...[
-            Text(
-              widget.label!,
-              style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.muted),
+            ExcludeSemantics(
+              child: Text(
+                widget.label!,
+                style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.muted),
+              ),
             ),
             SizedBox(height: theme.space(2)),
           ],

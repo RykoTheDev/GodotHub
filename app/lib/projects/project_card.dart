@@ -661,7 +661,7 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
         onFocusChange: (value) => setState(() => _focusWithin = value),
         child: Listener(
           onPointerUp: _onPointerUp,
-          child: Semantics(container: true, label: displayName, child: card),
+          child: Semantics(container: true, child: card),
         ),
       ),
     );

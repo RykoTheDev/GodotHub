@@ -117,7 +117,7 @@ class CategorySectionHeader extends StatelessWidget {
                     style: theme
                         .text(size: GhTextSize.x3s, weight: GhWeight.medium, color: theme.muted.withValues(alpha: 0.5))
                         .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
-                    child: Row(mainAxisSize: MainAxisSize.min, children: [const Text('· '), GhAnimatedNumber(count)]),
+                    child: Row(mainAxisSize: MainAxisSize.min, children: [const ExcludeSemantics(child: Text('· ')), GhAnimatedNumber(count)]),
                   ),
                 ],
               ),

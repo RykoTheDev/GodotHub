@@ -495,7 +495,7 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
         ],
       ),
     );
-    tile = Semantics(container: true, label: displayName, child: tile);
+    tile = Semantics(container: true, child: tile);
     return MouseRegion(
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),

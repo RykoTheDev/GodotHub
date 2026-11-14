@@ -45,6 +45,7 @@ class GhCheckbox extends StatelessWidget {
         borderRadius: radius,
         disabledCursor: SystemMouseCursors.forbidden,
         semanticLabel: label,
+        excludeChildSemantics: label != null,
         button: false,
         checked: indeterminate ? null : checked,
         mixed: indeterminate ? true : null,

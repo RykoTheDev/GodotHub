@@ -653,6 +653,7 @@ class GhSortableItem extends StatefulWidget {
     this.disabled = false,
     this.isStatic = false,
     this.carried = false,
+    this.semanticLabel,
   });
 
   final String id;
@@ -660,6 +661,7 @@ class GhSortableItem extends StatefulWidget {
   final bool disabled;
   final bool isStatic;
   final bool carried;
+  final String? semanticLabel;
 
   @override
   State<GhSortableItem> createState() => _GhSortableItemState();
@@ -747,6 +749,9 @@ class _GhSortableItemState extends State<GhSortableItem> {
       child: child,
     );
     child = Focus(focusNode: _focus, canRequestFocus: enabled, skipTraversal: !enabled, onKeyEvent: _onKey, child: child);
+    if (widget.semanticLabel != null) {
+      child = Semantics(label: widget.semanticLabel, child: child);
+    }
     child = Listener(
       onPointerDown: enabled && scope != null && token != null
           ? (event) => scope.pointerDown(token, widget.id, event, _box.currentContext?.findRenderObject())

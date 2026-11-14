@@ -204,7 +204,7 @@ pub async fn reclaim_storage(items: Vec<ReclaimItem>) -> Result<super::types::Re
 
 pub async fn get_ui_prefs() -> Result<UiPrefs, CoreError> {
     let app = app()?;
-    Ok(crate::lane::serial(move || godothub_core::ui_prefs::get_ui_prefs(app)).await?.into())
+    Ok(crate::lane::serial(move || godothub_core::ui_prefs::get_ui_prefs_with_webview_import(app)).await?.into())
 }
 
 pub async fn get_ui_pref(key: String) -> Result<Option<String>, CoreError> {

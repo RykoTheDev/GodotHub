@@ -313,7 +313,7 @@ class _GhSliderState extends State<GhSlider> {
     final slider = Semantics(
       slider: true,
       enabled: enabled,
-      label: widget.label,
+      label: widget.label ?? GhFieldName.of(context),
       value: _format(widget.value),
       increasedValue: _format(_snap(widget.value + step)),
       decreasedValue: _format(_snap(widget.value - step)),

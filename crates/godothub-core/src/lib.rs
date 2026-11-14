@@ -60,5 +60,6 @@ pub mod ui_prefs;
 pub mod updater;
 pub mod vault;
 pub mod watcher;
+pub mod webview_storage;
 pub mod window_state;
 pub mod workspace;

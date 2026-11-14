@@ -163,7 +163,9 @@ class _TitleBarButtonState extends State<TitleBarButton> {
           ripple: widget.ripple,
           borderRadius: widget.borderRadius ?? BorderRadius.circular(TitleBarTokens.of(context).itemRadius),
           pulse: _pulse,
-          child: widget.builder(context, enabled && (_hovered || _focused)),
+          child: widget.semanticLabel == null
+              ? widget.builder(context, enabled && (_hovered || _focused))
+              : ExcludeSemantics(child: widget.builder(context, enabled && (_hovered || _focused))),
         ),
       ),
     );
@@ -172,7 +174,6 @@ class _TitleBarButtonState extends State<TitleBarButton> {
       enabled: enabled,
       label: widget.semanticLabel,
       expanded: widget.expanded,
-      excludeSemantics: widget.semanticLabel != null,
       child: result,
     );
     final tooltip = widget.tooltip;

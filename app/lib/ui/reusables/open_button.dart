@@ -78,6 +78,7 @@ class _GhOpenButtonState extends State<GhOpenButton> {
       borderRadius: mainRadius,
       tooltip: tooltip,
       semanticLabel: widget.label,
+      excludeChildSemantics: true,
       rippleColor: Colors.white,
       builder: (context, states) {
         final hover = states.active;

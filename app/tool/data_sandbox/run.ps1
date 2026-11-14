@@ -2,6 +2,7 @@ param([string]$Lab = 'C:\lab')
 
 $ErrorActionPreference = 'Continue'
 Add-Type -AssemblyName System.Windows.Forms, System.Drawing, UIAutomationClient, UIAutomationTypes
+Add-Type -Path (Join-Path $Lab 'UiaCom.cs') -ReferencedAssemblies Accessibility
 Add-Type @'
 using System;
 using System.Runtime.InteropServices;
@@ -91,33 +92,42 @@ function ClickAt($proc, [int]$x, [int]$y, [int]$wait = 2500) {
   Start-Sleep -Milliseconds $wait
 }
 
-$sidebar = [ordered]@{ '1-projects' = 182; '2-versions' = 223; '3-templates' = 264; '4-vault' = 356; '5-storage' = 397; '6-assets' = 490; '7-news' = 530 }
+$sidebar = [ordered]@{ '1-projects' = @('Projects', 182); '2-versions' = @('Versions', 223); '3-templates' = @('Templates', 264); '4-vault' = @('Vault', 356); '5-storage' = @('Storage', 397); '6-assets' = @('Asset Store', 490); '7-news' = @('Godot News', 530) }
+
+function WaitUia($proc, [string]$name, [int]$seconds = 15) {
+  for ($i = 0; $i -lt $seconds * 2; $i++) {
+    if ([UiaCom]::Exists($proc.MainWindowHandle, $name)) { return $true }
+    Start-Sleep -Milliseconds 500
+  }
+  return $false
+}
+
+function Press($proc, [string]$name, [int]$x = -1, [int]$y = -1, [int]$wait = 2500) {
+  [Win]::SetForegroundWindow($proc.MainWindowHandle) | Out-Null
+  if ((WaitUia $proc $name 5) -and [UiaCom]::Invoke($proc.MainWindowHandle, $name)) {
+    $script:pressed[[UiaCom]::LastPath]++
+    Start-Sleep -Milliseconds $wait
+    return
+  }
+  $script:pressed['position']++
+  Note "     '$name' not found through accessibility, $(if ($x -ge 0) { 'clicking by position' } else { 'skipped' })"
+  if ($x -ge 0) { ClickAt $proc $x $y $wait }
+}
+
+$script:pressed = @{ uia = 0; msaa = 0; position = 0 }
 
 function Tour($proc, [string]$prefix) {
+  $found = WaitUia $proc 'Projects'
+  Note "     accessibility tree ready: $found (MSAA nodes: $([UiaCom]::MsaaCount($proc.MainWindowHandle)))"
   Shot $proc "$prefix-0-start"
-  foreach ($entry in $sidebar.GetEnumerator()) { ClickAt $proc 140 $entry.Value; Shot $proc "$prefix-$($entry.Key)" }
-  ClickAt $proc 245 734; Shot $proc "$prefix-8-settings"
-  ClickAt $proc 140 182
+  foreach ($entry in $sidebar.GetEnumerator()) { Press $proc $entry.Value[0] 140 $entry.Value[1]; Shot $proc "$prefix-$($entry.Key)" }
+  Press $proc 'Settings' 245 734; Shot $proc "$prefix-8-settings"
+  Press $proc 'Projects' 140 182
 }
 
 function DumpTree($proc, [string]$name, [int]$max = 2500) {
-  $root = [System.Windows.Automation.AutomationElement]::FromHandle($proc.MainWindowHandle)
-  $walker = [System.Windows.Automation.TreeWalker]::RawViewWalker
-  $out = New-Object System.Collections.Generic.List[string]
-  $stack = New-Object System.Collections.Stack
-  $stack.Push(@($root, 0))
-  while ($stack.Count -gt 0 -and $out.Count -lt $max) {
-    $item = $stack.Pop(); $el = $item[0]; $depth = $item[1]
-    try {
-      $c = $el.Current
-      $out.Add(('{0}{1} | {2} | {3}' -f ('  ' * $depth), $c.ControlType.ProgrammaticName, $c.Name, $c.AutomationId))
-      $kids = New-Object System.Collections.Generic.List[object]
-      $child = $walker.GetFirstChild($el)
-      while ($child) { $kids.Add($child); $child = $walker.GetNextSibling($child) }
-      for ($k = $kids.Count - 1; $k -ge 0; $k--) { $stack.Push(@($kids[$k], $depth + 1)) }
-    } catch {}
-  }
-  Set-Content (Join-Path $results "$name.txt") $out
+  WaitUia $proc 'Projects' | Out-Null
+  Set-Content (Join-Path $results "$name.txt") ([UiaCom]::Dump($proc.MainWindowHandle, $max))
 }
 
 function CloseApp([string]$title = 'GodotHub') {
@@ -192,6 +202,70 @@ function UninstallAll {
   Remove-Item $installDir -Recurse -Force -ErrorAction SilentlyContinue
 }
 
+function WebViewHashes {
+  @(Get-ChildItem $webview -Recurse -File -Force -ErrorAction SilentlyContinue | ForEach-Object {
+    '{0}|{1}' -f $_.FullName.Substring($webview.Length + 1), (Get-FileHash $_.FullName -Algorithm SHA256).Hash
+  } | Sort-Object)
+}
+
+function SavePrefs([string]$name) {
+  $file = Join-Path $roaming 'ui_prefs.json'
+  if (Test-Path $file) { Copy-Item $file (Join-Path $results "prefs-$name.json") }
+  return (Test-Path $file)
+}
+
+function ComparePrefs([string]$left, [string]$right) {
+  $a = (Get-Content (Join-Path $results "prefs-$left.json") -Raw | ConvertFrom-Json).values
+  $b = (Get-Content (Join-Path $results "prefs-$right.json") -Raw | ConvertFrom-Json).values
+  $same = 0
+  $keys = @($a.PSObject.Properties.Name) + @($b.PSObject.Properties.Name) | Sort-Object -Unique
+  foreach ($key in $keys) {
+    $x = $a.$key; $y = $b.$key
+    if ($x -eq $y) { $same++ } else { Note ("     differs {0} | {1}={2} | {3}={4}" -f $key, $left, "$x".Substring(0, [Math]::Min(80, "$x".Length)), $right, "$y".Substring(0, [Math]::Min(80, "$y".Length))) }
+  }
+  Note "     $same of $($keys.Count) keys match between $left and $right"
+}
+
+function DirectRun([string]$dataset) {
+  Note "`n===== dataset $dataset, Flutter installed directly"
+  UninstallAll
+  Seed $dataset
+  Check (-not (Test-Path (Join-Path $roaming 'ui_prefs.json'))) 'the seeded data has no ui_prefs.json'
+  $before = WebViewHashes
+  Check ($before.Count -gt 0) "the seeded WebView storage has $($before.Count) files"
+  Check ((InstallFlutter) -eq 0) 'Flutter installs with no Tauri run first'
+  Start-Process $exe
+  $w = WaitWindow
+  Check ($null -ne $w) 'Flutter opens'
+  if ($w) { Tour $w "$dataset-direct-a-flutter" }
+  CloseApp
+  Check (((WebViewHashes) -join "`n") -eq ($before -join "`n")) 'the WebView storage is unchanged'
+  Check (SavePrefs 'direct-flutter') 'Flutter wrote ui_prefs.json'
+  Snapshot "$dataset-direct-flutter"
+
+  Note '-- Tauri 1.5.9 on a fresh copy of the same data'
+  UninstallAll
+  Seed $dataset
+  Check ((InstallTauri) -eq 0) 'Tauri installs'
+  Start-Process $exe
+  $w = WaitWindow
+  Check ($null -ne $w) 'Tauri opens'
+  if ($w) { Tour $w "$dataset-direct-b-tauri" }
+  CloseApp
+  Check (SavePrefs 'direct-tauri') 'Tauri wrote ui_prefs.json'
+  if ((Test-Path (Join-Path $results 'prefs-direct-flutter.json')) -and (Test-Path (Join-Path $results 'prefs-direct-tauri.json'))) {
+    ComparePrefs 'direct-flutter' 'direct-tauri'
+  }
+}
+
+if ($config.mode -eq 'direct') {
+  foreach ($dataset in $config.datasets) { DirectRun $dataset }
+  Note "`nsteps through UI Automation: $($script:pressed.uia), MSAA: $($script:pressed.msaa), screen position: $($script:pressed.position)"
+  Note "$script:failures failure(s)"
+  Set-Content (Join-Path $results 'done.txt') "$script:failures"
+  return
+}
+
 foreach ($dataset in $config.datasets) {
   Note "`n===== dataset $dataset"
   UninstallAll
@@ -253,5 +327,6 @@ if ($betaSetup) {
   CloseApp
 }
 
-Note "`n$script:failures failure(s)"
+Note "`nsteps through UI Automation: $($script:pressed.uia), MSAA: $($script:pressed.msaa), screen position: $($script:pressed.position)"
+Note "$script:failures failure(s)"
 Set-Content (Join-Path $results 'done.txt') "$script:failures"

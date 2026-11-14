@@ -110,7 +110,7 @@ Project? _find(List<Project> projects, String id) {
 
 Widget _sortable(ProjectDndController c, Project p, bool enabled, Widget child) {
   if (!enabled) return KeyedSubtree(key: ValueKey(p.id), child: child);
-  return GhSortableItem(key: ValueKey(p.id), id: p.id, isStatic: c.activeIds.length > 1, carried: c.activeIds.contains(p.id), child: child);
+  return GhSortableItem(key: ValueKey(p.id), id: p.id, semanticLabel: p.name, isStatic: c.activeIds.length > 1, carried: c.activeIds.contains(p.id), child: child);
 }
 
 class PinnedHeader extends StatelessWidget {
@@ -137,7 +137,7 @@ class PinnedHeader extends StatelessWidget {
               style: theme
                   .text(size: GhTextSize.x3s, weight: GhWeight.medium, color: theme.muted.withValues(alpha: 0.5))
                   .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
-              child: Row(mainAxisSize: MainAxisSize.min, children: [const Text('· '), GhAnimatedNumber(count)]),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [const ExcludeSemantics(child: Text('· ')), GhAnimatedNumber(count)]),
             ),
             Expanded(child: Container(height: 1, color: theme.outline.withValues(alpha: 0.5))),
           ],
