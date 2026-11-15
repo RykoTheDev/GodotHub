@@ -1,4 +1,4 @@
-param([string]$Lab)
+param([string]$Lab, [switch]$Extra)
 
 $ErrorActionPreference = 'Stop'
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -10,6 +10,7 @@ foreach ($need in 'dist\1.9.0', 'dist\1.9.1', 'dist\1.9.2', 'manifests', 'tauri'
 Copy-Item (Join-Path $here 'run.ps1'), (Join-Path $here 'server.ps1') $Lab -Force
 Copy-Item (Join-Path $here '..\data_sandbox\UiaCom.cs') $Lab -Force
 Remove-Item (Join-Path $Lab 'results'), (Join-Path $Lab 'serve') -Recurse -Force -ErrorAction SilentlyContinue
+if ($Extra) { Set-Content (Join-Path $Lab 'extra-only.txt') 'yes' } else { Remove-Item (Join-Path $Lab 'extra-only.txt') -ErrorAction SilentlyContinue }
 
 $wsb = @"
 <Configuration>

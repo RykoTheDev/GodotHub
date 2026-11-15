@@ -6,6 +6,11 @@ Add-Type -Path (Join-Path $Lab 'UiaCom.cs') -ReferencedAssemblies Accessibility
 Add-Type @'
 using System;
 using System.Runtime.InteropServices;
+public static class Disk {
+  [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)] static extern bool GetDiskFreeSpaceEx(string path, out ulong free, out ulong total, out ulong totalFree);
+  public static long Free(string path) { ulong f, t, tf; return GetDiskFreeSpaceEx(path, out f, out t, out tf) ? (long)f : -1; }
+  public static long Total(string path) { ulong f, t, tf; return GetDiskFreeSpaceEx(path, out f, out t, out tf) ? (long)t : -1; }
+}
 public static class Win {
   [StructLayout(LayoutKind.Sequential)] public struct RECT { public int Left, Top, Right, Bottom; }
   [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr h, out RECT r);
@@ -209,6 +214,98 @@ function UpdateInApp([string]$manifest, [string]$what) {
   return WaitFlutterAfterUpdate 120
 }
 
+function ProjectsFile {
+  $active = (Get-Content (Join-Path $roaming 'workspaces.json') -Raw | ConvertFrom-Json).active_id
+  Get-Item (Join-Path $roaming "workspaces\$active\projects.json")
+}
+
+function ProjectSession([string]$id) {
+  $data = Get-Content (ProjectsFile).FullName -Raw | ConvertFrom-Json
+  ($data.projects | Where-Object { $_.id -eq $id }).session_started_at_ms
+}
+
+function DiskFull {
+  Note "`n===== Disk full while staging 1.9.1 (launcher layout)"
+  UninstallAll
+  Seed
+  $vhd = 'C:\godothub-small.vhdx'
+  Remove-Item $vhd -Force -ErrorAction SilentlyContinue
+  New-Item -ItemType Directory -Force -Path $userDir | Out-Null
+  $script = Join-Path $env:TEMP 'small-disk.txt'
+  Set-Content $script "create vdisk file=$vhd maximum=160 type=fixed`nselect vdisk file=$vhd`nattach vdisk`ncreate partition primary`nformat fs=ntfs quick label=small`nassign mount=$userDir"
+  diskpart /s $script | Out-File (Join-Path $results 'diskpart.txt')
+  $total = [Disk]::Total($userDir)
+  Note "     small disk mounted at the install folder: $([int]($total / 1MB)) MB"
+  if ($total -le 0 -or $total -gt 400MB) { Note '     skipped: could not attach a small virtual disk'; return }
+  Check ((Run (Join-Path $Lab 'dist\1.9.0\GodotHub-1.9.0-windows-x64-setup.exe') @('/S')) -eq 0) '1.9.0 installs onto the small disk'
+  $free = [Disk]::Free($userDir)
+  $filler = Join-Path $userDir 'filler.bin'
+  fsutil file createnew $filler ([int64]($free - 8MB)) | Out-Null
+  Note "     free space left: $([int]([Disk]::Free($userDir) / 1MB)) MB"
+  CloseApp
+  Serve '1.9.1'
+  Start-Process (Join-Path $userDir 'godothub.exe')
+  $w = AppWindow
+  if (-not $w) { Check $false 'disk full : app opens'; return }
+  Check (OpenUpdate $w) 'disk full : update offered'
+  Press $w 'Install' | Out-Null
+  Start-Sleep 30
+  Shot $w 'disk-full'
+  Check (-not [UiaCom]::Exists($w.MainWindowHandle, 'Restart Now')) 'disk full : no restart offered'
+  $state = LauncherState
+  Check ($state.current -eq '1.9.0') "disk full : still on 1.9.0 ($($state.current))"
+  Check (-not (Test-Path (Join-Path $userDir 'app-1.9.1'))) 'disk full : the partial 1.9.1 folder was removed'
+  Check (-not $state.trial) 'disk full : nothing was activated'
+  Check ((Get-Process godothub -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowHandle -ne 0 }).Count -ge 1) 'disk full : app still running'
+  Remove-Item $filler -Force
+  $f = UpdateInApp '1.9.1' 'after freeing space'
+  Check ($null -ne $f) 'after freeing space : 1.9.1 starts'
+  Check ((LauncherState).current -eq '1.9.1') "after freeing space : launcher current is 1.9.1 ($((LauncherState).current))"
+  UninstallAll
+  Set-Content $script "select vdisk file=$vhd`ndetach vdisk"
+  diskpart /s $script | Out-Null
+}
+
+function GodotRunning {
+  Note "`n===== Update while a Godot project is running"
+  UninstallAll
+  Seed
+  Check ((Run (Join-Path $Lab 'dist\1.9.0\GodotHub-1.9.0-windows-x64-setup.exe') @('/S')) -eq 0) 'Flutter 1.9.0 installs'
+  $fake = 'C:\fakegodot\Godot_v4.4-stable_win64.exe'
+  New-Item -ItemType Directory -Force -Path (Split-Path $fake) | Out-Null
+  Add-Type -TypeDefinition 'public static class FakeGodot { public static void Main() { System.Threading.Thread.Sleep(900000); } }' -OutputAssembly $fake -OutputType ConsoleApplication
+  $file = ProjectsFile
+  $data = Get-Content $file.FullName -Raw | ConvertFrom-Json
+  $project = $data.projects | Where-Object { $_.path -and (Test-Path (Join-Path $_.path 'project.godot')) } | Select-Object -First 1
+  $before = [int64]$project.total_time_seconds
+  $project.session_started_at_ms = [int64]([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() - 120000)
+  Set-Content $file.FullName ($data | ConvertTo-Json -Depth 20)
+  Start-Process $fake -ArgumentList '--editor', '--path', "`"$($project.path)`"" -WindowStyle Hidden
+  Start-Sleep 2
+  $godotPid = (Get-CimInstance Win32_Process -Filter "Name='Godot_v4.4-stable_win64.exe'" | Select-Object -First 1).ProcessId
+  Note "     running $($project.name) in a stand-in Godot (pid $godotPid)"
+  $f = UpdateInApp '1.9.1' 'with Godot running'
+  Check ($null -ne $f) 'with Godot running : 1.9.1 starts'
+  Check ((LauncherState).current -eq '1.9.1') "with Godot running : launcher current is 1.9.1 ($((LauncherState).current))"
+  Start-Sleep 15
+  Check ($null -ne (Get-Process -Id $godotPid -ErrorAction SilentlyContinue)) 'the Godot editor kept running through the update'
+  Check ($null -ne (ProjectSession $project.id)) 'its play session is still tracked after the restart'
+  taskkill /PID $godotPid /F | Out-Null
+  for ($i = 0; $i -lt 30 -and $null -ne (ProjectSession $project.id); $i++) { Start-Sleep 2 }
+  $after = (Get-Content (ProjectsFile).FullName -Raw | ConvertFrom-Json).projects | Where-Object { $_.id -eq $project.id }
+  Check ($null -eq $after.session_started_at_ms) 'the session closes when Godot exits'
+  Check ([int64]$after.total_time_seconds -ge $before + 100) "the time across the update was counted ($before s to $($after.total_time_seconds) s)"
+  CloseApp
+}
+
+if (Test-Path (Join-Path $Lab 'extra-only.txt')) {
+  DiskFull
+  GodotRunning
+  Note "`n$script:failures failure(s)"
+  Set-Content (Join-Path $results 'done.txt') "$script:failures"
+  return
+}
+
 TauriToFlutter 'nsis'
 TauriToFlutter 'msi'
 
@@ -264,6 +361,9 @@ if ($w) {
   Check ($v -like '1.9.1*') "installed exe is 1.9.1 ($v)"
   if ($f) { Shot $f 'msi-after' }
 } else { Check $false 'Flutter MSI opens' }
+
+DiskFull
+GodotRunning
 
 Get-Content (Join-Path $results 'server.log') -ErrorAction SilentlyContinue | Select-Object -Last 40 | ForEach-Object { Note "     server: $_" }
 Note "`n$script:failures failure(s)"

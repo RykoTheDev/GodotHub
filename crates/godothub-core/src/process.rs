@@ -222,14 +222,18 @@ $processes | Where-Object { $_.CommandLine } | ForEach-Object {
 pub(crate) fn process_liveness(pid: u32) -> ProcessLiveness {
     #[cfg(target_os = "windows")]
     {
-        use windows_sys::Win32::Foundation::CloseHandle;
+        use windows_sys::Win32::Foundation::{CloseHandle, GetLastError, ERROR_INVALID_PARAMETER};
         use windows_sys::Win32::System::Threading::{
             GetExitCodeProcess, OpenProcess, PROCESS_QUERY_LIMITED_INFORMATION,
         };
 
         let handle = unsafe { OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, 0, pid) };
         if handle.is_null() {
-            return ProcessLiveness::Unknown;
+            return if unsafe { GetLastError() } == ERROR_INVALID_PARAMETER {
+                ProcessLiveness::Exited
+            } else {
+                ProcessLiveness::Unknown
+            };
         }
         let mut exit_code = 0u32;
         let queried = unsafe { GetExitCodeProcess(handle, &mut exit_code) != 0 };
@@ -317,5 +321,23 @@ pub(crate) fn terminate_process(pid: u32) -> Result<(), String> {
             return Ok(());
         }
         Err(std::io::Error::last_os_error().to_string())
+    }
+}
+
+#[cfg(test)]
+mod liveness_tests {
+    use super::*;
+
+    #[test]
+    fn a_process_that_is_gone_reads_as_exited() {
+        #[cfg(windows)]
+        let mut child = std::process::Command::new("cmd").args(["/C", "exit 0"]).spawn().unwrap();
+        #[cfg(unix)]
+        let mut child = std::process::Command::new("true").spawn().unwrap();
+        let pid = child.id();
+        child.wait().unwrap();
+        drop(child);
+        assert_eq!(process_liveness(pid), ProcessLiveness::Exited);
+        assert_eq!(process_liveness(std::process::id()), ProcessLiveness::Alive);
     }
 }
