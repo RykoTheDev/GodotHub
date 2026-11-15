@@ -245,6 +245,19 @@ void main() {
     expect(widgetRef.read(updateAvailableProvider).previewUpdate, isFalse);
   });
 
+  testWidgets('debug Preview Flutter welcome asks the shell to show it', (tester) async {
+    setDebugUnlocked(true);
+    final signals = <String>[];
+    final sub = AppSignals.all.listen((s) => signals.add(s.name));
+    addTearDown(sub.cancel);
+    await pumpBody(tester, const DebugSettings(channel: 'stable'));
+    expect(find.text('Preview Flutter welcome'), findsOneWidget);
+    await tester.ensureVisible(find.text('Show welcome'));
+    await tester.tap(find.text('Show welcome'));
+    await tester.pump();
+    expect(signals, contains(previewFlutterWelcomeSignal));
+  });
+
   testWidgets('debug copy info writes settings JSON to the clipboard', (tester) async {
     String? copied;
     tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {

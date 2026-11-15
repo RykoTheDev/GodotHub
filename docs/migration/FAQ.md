@@ -39,6 +39,10 @@ The Windows portable build used to be a single `.exe`. It is now a folder in a `
 
 On macOS 10.15 or 11, keep using [GodotHub 1.5.9](https://github.com/RykoTheDev/GodotHub/releases/tag/v1.5.9). It keeps working with your data.
 
+## I'm on a Mac. Why didn't GodotHub 1.5 update itself to 1.6?
+
+The old app cannot tell which macOS version it runs on, and 1.6 does not open on macOS 10.15 or 11. So that nobody ends up with an app that will not start, GodotHub 1.5 on a Mac is not offered 1.6. On macOS 12 or newer, download `GodotHub-<version>-darwin-universal.dmg` from the [latest release](https://github.com/RykoTheDev/GodotHub/releases/latest) and drag GodotHub into Applications, replacing the old one. Your data stays where it is. From then on, updates install from inside the app as usual.
+
 ## How do updates work now?
 
 GodotHub checks for updates when it starts and shows **Update available** in the sidebar. You can also check from **Settings → Advanced → Check for Updates**.
@@ -46,7 +50,7 @@ GodotHub checks for updates when it starts and shows **Update available** in the
 - **Windows installer:** the update downloads, its signature is checked, and it installs inside the app with no installer window. Click **Restart Now** to switch. If you close the window first, the sidebar shows **Restart to Apply Update**.
 - **Windows MSI:** the update downloads inside the app, then Windows Installer finishes it and GodotHub starts again.
 - **Windows portable:** GodotHub tells you about the update but does not install it. Download the new portable `.zip` from the release page and unzip it over your folder or next to it.
-- **macOS:** the app bundle is replaced in place.
+- **macOS:** the app bundle is replaced in place. Coming from GodotHub 1.5 on a Mac, install 1.6 by hand once (see the Mac question above); after that it updates itself.
 - **Linux:** the AppImage replaces itself. For `.deb` and `.rpm`, the app downloads the new package and asks for your password to install it.
 
 The **Log** tab in the update window lists every step and file, which helps if you need to report a problem.

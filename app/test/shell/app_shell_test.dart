@@ -12,6 +12,7 @@ import 'package:godothub/design/design.dart';
 import 'package:godothub/logic/settings_copy.dart';
 import 'package:godothub/modals/command_palette.dart';
 import 'package:godothub/modals/create_workspace_modal.dart';
+import 'package:godothub/modals/flutter_welcome_modal.dart';
 import 'package:godothub/shell/app_shell.dart';
 import 'package:godothub/shell/git_sidebar_overlay.dart';
 import 'package:godothub/changelog/changelog_view.dart';
@@ -92,6 +93,7 @@ Future<void> pumpShell(
   AppSettings settings, {
   Size size = const Size(1400, 900),
   Widget Function(Widget app)? wrap,
+  String? channel,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -106,7 +108,9 @@ Future<void> pumpShell(
     child: MaterialApp(
       theme: GhTheme.defaults().toThemeData(),
       builder: (context, child) => GhKeyboardShortcuts(child: child!),
-      home: Scaffold(body: AppShell(prefs: prefs, isMac: false)),
+      home: Scaffold(
+        body: AppShell(prefs: prefs, isMac: false, channel: channel),
+      ),
     ),
   );
   await tester.pumpWidget(wrap == null ? app : wrap(app));
@@ -417,6 +421,60 @@ void main() {
       await pumpShell(tester, copySettings(baseSettings, setupComplete: false));
       expect(find.byType(OnboardingView), findsOneWidget);
       expect(find.byType(GhSidebar), findsNothing);
+    });
+  });
+
+  group('Flutter welcome', () {
+    testWidgets('shows once on data that came from the Tauri app, with real counts', (tester) async {
+      fakeBackend(projects: [testProject('p1', 'Alpha'), testProject('p2', 'Beta')]);
+      await pumpShell(tester, shellSettings(), channel: 'stable');
+      await settle(tester);
+      expect(find.byType(FlutterWelcomeModal), findsOneWidget);
+      expect(find.text('2 projects'), findsOneWidget);
+      expect(prefs.getItem(flutterWelcomeSeenKey), isNotNull);
+
+      await tester.tap(find.byKey(const ValueKey('flutter-welcome-continue')));
+      await settle(tester);
+      expect(find.byType(FlutterWelcomeModal), findsNothing);
+
+      await tester.pumpWidget(const SizedBox());
+      await pumpShell(tester, shellSettings(), channel: 'stable');
+      await settle(tester);
+      expect(find.byType(FlutterWelcomeModal), findsNothing);
+    });
+
+    testWidgets('See what\'s new opens the changelog', (tester) async {
+      fakeBackend();
+      await pumpShell(tester, shellSettings(), channel: 'stable');
+      await settle(tester);
+      await tester.tap(find.byKey(const ValueKey('flutter-welcome-changelog')));
+      await settle(tester);
+      expect(find.byType(FlutterWelcomeModal), findsNothing);
+      expect(find.byType(ChangelogView), findsOneWidget);
+    });
+
+    testWidgets('a fresh install gets onboarding, never the welcome', (tester) async {
+      fakeBackend();
+      rust
+        ..on('crateApiDiscoveryScanGodotRecentProjects', () async => const <DiscoveredProject>[])
+        ..on('crateApiDiscoveryDetectGodotInstalls', () async => const <DiscoveredInstall>[])
+        ..on('crateApiAppGetOsUsername', () async => 'Tester')
+        ..on('crateApiGitAuthGetGitAuthState', () async => const GitAuthState(pats: []))
+        ..on('crateApiWorkspaceListWorkspaceScanDirs', () async => const <WorkspaceScanDirs>[])
+        ..on('crateApiMiseMiseRefreshStatus', () async => const MiseStatus(available: false));
+      await pumpShell(tester, copySettings(shellSettings(), setupComplete: false), channel: 'stable');
+      await settle(tester);
+      expect(find.byType(OnboardingView), findsOneWidget);
+      expect(find.byType(FlutterWelcomeModal), findsNothing);
+      expect(prefs.getItem(flutterWelcomeSeenKey), isNotNull);
+    });
+
+    testWidgets('the beta channel never shows it', (tester) async {
+      fakeBackend();
+      await pumpShell(tester, shellSettings());
+      await settle(tester);
+      expect(find.byType(FlutterWelcomeModal), findsNothing);
+      expect(prefs.getItem(flutterWelcomeSeenKey), isNull);
     });
   });
 }

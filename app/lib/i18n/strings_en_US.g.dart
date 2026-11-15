@@ -2482,6 +2482,96 @@ class Translations$common$en_US {
 
 	/// en-US: 'Add due date'
 	String get date_add_due => 'Add due date';
+
+	/// en-US: 'Welcome to the new'
+	String get flutter_welcome_eyebrow => 'Welcome to the new';
+
+	/// en-US: 'Welcome to the new GodotHub'
+	String get flutter_welcome_title => 'Welcome to the new GodotHub';
+
+	/// en-US: 'GodotHub has been rebuilt from the ground up. It looks and works the way you know it, only faster and smoother.'
+	String get flutter_welcome_desc => 'GodotHub has been rebuilt from the ground up. It looks and works the way you know it, only faster and smoother.';
+
+	/// en-US: 'Faster'
+	String get flutter_welcome_fast_title => 'Faster';
+
+	/// en-US: 'Starts quicker, scrolls smoother and uses less memory.'
+	String get flutter_welcome_fast_desc => 'Starts quicker, scrolls smoother and uses less memory.';
+
+	/// en-US: 'Updates inside the app'
+	String get flutter_welcome_updates_title => 'Updates inside the app';
+
+	/// en-US: 'New versions download and install from inside GodotHub, and every update is checked before it is installed.'
+	String get flutter_welcome_updates_desc => 'New versions download and install from inside GodotHub, and every update is checked before it is installed.';
+
+	/// en-US: 'Refreshed design'
+	String get flutter_welcome_design_title => 'Refreshed design';
+
+	/// en-US: 'Smoother motion, sharper text and themes that follow your system.'
+	String get flutter_welcome_design_desc => 'Smoother motion, sharper text and themes that follow your system.';
+
+	/// en-US: 'Everything you had is here'
+	String get flutter_welcome_data_title => 'Everything you had is here';
+
+	/// en-US: 'Projects, Godot versions, settings and your Git sign-in came along on their own.'
+	String get flutter_welcome_data_desc => 'Projects, Godot versions, settings and your Git sign-in came along on their own.';
+
+	/// en-US: 'Your data came along'
+	String get flutter_welcome_summary => 'Your data came along';
+
+	/// en-US: '(one) {${count} project} (other) {${count} projects}'
+	String flutter_welcome_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} project',
+		other: '${count} projects',
+	);
+
+	/// en-US: '{{count}} project'
+	String get flutter_welcome_projects_one => '{{count}} project';
+
+	/// en-US: '{{count}} projects'
+	String get flutter_welcome_projects_other => '{{count}} projects';
+
+	/// en-US: '(one) {${count} workspace} (other) {${count} workspaces}'
+	String flutter_welcome_workspaces({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} workspace',
+		other: '${count} workspaces',
+	);
+
+	/// en-US: '{{count}} workspace'
+	String get flutter_welcome_workspaces_one => '{{count}} workspace';
+
+	/// en-US: '{{count}} workspaces'
+	String get flutter_welcome_workspaces_other => '{{count}} workspaces';
+
+	/// en-US: '(one) {${count} template} (other) {${count} templates}'
+	String flutter_welcome_templates({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} template',
+		other: '${count} templates',
+	);
+
+	/// en-US: '{{count}} template'
+	String get flutter_welcome_templates_one => '{{count}} template';
+
+	/// en-US: '{{count}} templates'
+	String get flutter_welcome_templates_other => '{{count}} templates';
+
+	/// en-US: '(one) {${count} vault item} (other) {${count} vault items}'
+	String flutter_welcome_vault_items({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} vault item',
+		other: '${count} vault items',
+	);
+
+	/// en-US: '{{count}} vault item'
+	String get flutter_welcome_vault_items_one => '{{count}} vault item';
+
+	/// en-US: '{{count}} vault items'
+	String get flutter_welcome_vault_items_other => '{{count}} vault items';
+
+	/// en-US: 'See what's new'
+	String get flutter_welcome_changelog => 'See what\'s new';
+
+	/// en-US: 'Continue'
+	String get flutter_welcome_continue => 'Continue';
 }
 
 // Path: dashboard
@@ -6927,6 +7017,32 @@ extension on Translations {
 			'common.date_next_month' => 'Next month',
 			'common.date_change_due' => 'Change due date: {{date}}',
 			'common.date_add_due' => 'Add due date',
+			'common.flutter_welcome_eyebrow' => 'Welcome to the new',
+			'common.flutter_welcome_title' => 'Welcome to the new GodotHub',
+			'common.flutter_welcome_desc' => 'GodotHub has been rebuilt from the ground up. It looks and works the way you know it, only faster and smoother.',
+			'common.flutter_welcome_fast_title' => 'Faster',
+			'common.flutter_welcome_fast_desc' => 'Starts quicker, scrolls smoother and uses less memory.',
+			'common.flutter_welcome_updates_title' => 'Updates inside the app',
+			'common.flutter_welcome_updates_desc' => 'New versions download and install from inside GodotHub, and every update is checked before it is installed.',
+			'common.flutter_welcome_design_title' => 'Refreshed design',
+			'common.flutter_welcome_design_desc' => 'Smoother motion, sharper text and themes that follow your system.',
+			'common.flutter_welcome_data_title' => 'Everything you had is here',
+			'common.flutter_welcome_data_desc' => 'Projects, Godot versions, settings and your Git sign-in came along on their own.',
+			'common.flutter_welcome_summary' => 'Your data came along',
+			'common.flutter_welcome_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} project', other: '${count} projects', ), 
+			'common.flutter_welcome_projects_one' => '{{count}} project',
+			'common.flutter_welcome_projects_other' => '{{count}} projects',
+			'common.flutter_welcome_workspaces' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} workspace', other: '${count} workspaces', ), 
+			'common.flutter_welcome_workspaces_one' => '{{count}} workspace',
+			'common.flutter_welcome_workspaces_other' => '{{count}} workspaces',
+			'common.flutter_welcome_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} template', other: '${count} templates', ), 
+			'common.flutter_welcome_templates_one' => '{{count}} template',
+			'common.flutter_welcome_templates_other' => '{{count}} templates',
+			'common.flutter_welcome_vault_items' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} vault item', other: '${count} vault items', ), 
+			'common.flutter_welcome_vault_items_one' => '{{count}} vault item',
+			'common.flutter_welcome_vault_items_other' => '{{count}} vault items',
+			'common.flutter_welcome_changelog' => 'See what\'s new',
+			'common.flutter_welcome_continue' => 'Continue',
 			'dashboard.greeting_morning' => 'Good morning',
 			'dashboard.greeting_afternoon' => 'Good afternoon',
 			'dashboard.greeting_evening' => 'Good evening',
@@ -7405,6 +7521,8 @@ extension on Translations {
 			'settings.restore_modal_templates_one' => 'template',
 			'settings.restore_modal_templates_other' => 'templates',
 			'settings.restore_modal_time_stats' => 'Includes time tracking data',
+			_ => null,
+		} ?? switch (path) {
 			'settings.restore_modal_todos' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: 'Includes ${count} to-do', other: 'Includes ${count} to-dos', ), 
 			'settings.restore_modal_todos_one' => 'Includes {{count}} to-do',
 			'settings.restore_modal_todos_other' => 'Includes {{count}} to-dos',
@@ -7431,8 +7549,6 @@ extension on Translations {
 			'settings.discord_show_projects_label' => 'Show project names',
 			'settings.discord_excluded_label' => 'Excluded projects',
 			'settings.discord_exclude_project' => 'Add project',
-			_ => null,
-		} ?? switch (path) {
 			'settings.discord_excluded_empty' => 'No excluded projects.',
 			'settings.discord_excluded_remove' => 'Remove from excluded projects',
 			'settings.discord_custom_label' => 'Custom presence',

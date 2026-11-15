@@ -141,8 +141,13 @@ pub fn updater_arch() -> Option<&'static str> {
     }
 }
 
+pub const FLUTTER_ONLY_SUFFIX: &str = "flutter";
+
 pub fn target_keys(os: &str, arch: &str, installer: Option<Installer>) -> Vec<String> {
     let mut keys = Vec::new();
+    if os == "darwin" {
+        keys.push(format!("{os}-{arch}-{FLUTTER_ONLY_SUFFIX}"));
+    }
     if let Some(installer) = installer {
         keys.push(format!("{os}-{arch}-{}", installer.name()));
     }
@@ -511,26 +516,32 @@ pub(crate) fn is_zip(bytes: &[u8]) -> bool {
     bytes.starts_with(b"PK\x03\x04")
 }
 
+#[cfg(any(test, target_os = "windows"))]
 pub(crate) fn is_exe(bytes: &[u8]) -> bool {
     bytes.starts_with(b"MZ")
 }
 
+#[cfg(any(test, target_os = "windows"))]
 pub(crate) fn is_msi(bytes: &[u8]) -> bool {
     bytes.starts_with(&[0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1])
 }
 
+#[cfg(any(test, target_os = "linux"))]
 pub(crate) fn is_elf(bytes: &[u8]) -> bool {
     bytes.starts_with(&[0x7F, b'E', b'L', b'F'])
 }
 
+#[cfg(any(test, target_os = "macos"))]
 pub(crate) fn is_gzip(bytes: &[u8]) -> bool {
     bytes.starts_with(&[0x1F, 0x8B])
 }
 
+#[cfg(any(test, target_os = "linux"))]
 pub(crate) fn is_deb(bytes: &[u8]) -> bool {
     bytes.starts_with(b"!<arch>\ndebian-binary")
 }
 
+#[cfg(any(test, target_os = "linux"))]
 pub(crate) fn is_rpm(bytes: &[u8]) -> bool {
     bytes.starts_with(&[0xED, 0xAB, 0xEE, 0xDB])
 }
@@ -1056,6 +1067,15 @@ mod tests {
         assert_eq!(m.select(&target_keys("darwin", "aarch64", Some(Installer::App))).unwrap().0, "darwin-aarch64-app");
         assert!(m.select(&target_keys("linux", "x86_64", Some(Installer::Deb))).is_none());
         assert_eq!(m.select(&target_keys("linux", "x86_64", Some(Installer::AppImage))).unwrap().0, "linux-x86_64-appimage");
+    }
+
+    #[test]
+    fn macs_read_the_flutter_only_key_first() {
+        assert_eq!(target_keys("darwin", "x86_64", Some(Installer::App)), ["darwin-x86_64-flutter", "darwin-x86_64-app", "darwin-x86_64"]);
+        let bridge = manifest(&["darwin-aarch64-flutter", "darwin-x86_64-flutter", "windows-x86_64"]);
+        assert_eq!(bridge.select(&target_keys("darwin", "aarch64", Some(Installer::App))).unwrap().0, "darwin-aarch64-flutter");
+        let tauri_keys = ["darwin-aarch64-app", "darwin-aarch64"];
+        assert!(bridge.select(&tauri_keys.map(String::from)).is_none(), "the Tauri updater must find no Mac package");
     }
 
     #[test]

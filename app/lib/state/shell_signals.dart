@@ -6,6 +6,7 @@ const importProjectRequestSignal = 'app:import-project-request';
 const scanProjectsSignal = 'app:scan-projects';
 const reportBugSignal = 'app:report-bug';
 const previewUpdateModalSignal = 'app:preview-update-modal';
+const previewFlutterWelcomeSignal = 'app:preview-flutter-welcome';
 const showGitSidebarSignal = 'app:show-git-sidebar';
 const createWorkspaceRequestSignal = 'app:create-workspace-request';
 const editWorkspaceRequestSignal = 'app:edit-workspace-request';
