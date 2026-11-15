@@ -114,7 +114,7 @@ Architecture: amd64
 Installed-Size: $installed_kb
 Maintainer: Ryko
 Priority: optional
-Depends: libgtk-3-0 | libgtk-3-0t64, libx11-6, libxi6, liblzma5
+Depends: libgtk-3-0 | libgtk-3-0t64, libx11-6, libxi6, liblzma5, libegl1, libgles2
 Description: $summary
  GodotHub manages Godot versions and projects.
 EOF
@@ -133,7 +133,7 @@ mkdir -p "$rpmtop/SPECS" "$rpmtop/BUILDROOT" "$rpmtop/RPMS"
   echo "License: MIT"
   echo "BuildArch: x86_64"
   echo "AutoReqProv: no"
-  echo "Requires: gtk3, libX11, libXi, xz-libs"
+  echo "Requires: gtk3, libX11, libXi, xz-libs, libEGL.so.1()(64bit), libGLESv2.so.2()(64bit)"
   echo
   echo "%description"
   echo "$summary"
