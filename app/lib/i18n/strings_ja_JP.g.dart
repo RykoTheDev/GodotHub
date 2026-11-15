@@ -124,6 +124,7 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String get up_to_date => '最新の状態です';
 	@override String get downloading_update => 'ダウンロード中…';
 	@override String get install_update => 'インストール';
+	@override String get restart_to_apply_update => 'Restart to Apply Update';
 	@override String get restart_now => '今すぐ再起動';
 	@override String get update_downloaded => '更新をダウンロードしました！';
 	@override String get restart_to_apply => '更新を適用するには GodotHub を再起動してください。';
@@ -2175,6 +2176,7 @@ extension on TranslationsJaJp {
 			'common.up_to_date' => '最新の状態です',
 			'common.downloading_update' => 'ダウンロード中…',
 			'common.install_update' => 'インストール',
+			'common.restart_to_apply_update' => 'Restart to Apply Update',
 			'common.restart_now' => '今すぐ再起動',
 			'common.update_downloaded' => '更新をダウンロードしました！',
 			'common.restart_to_apply' => '更新を適用するには GodotHub を再起動してください。',
@@ -2630,9 +2632,9 @@ extension on TranslationsJaJp {
 			'common.command_palette_navigate' => '移動',
 			'common.command_palette_escape' => 'Esc',
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
-			'common.setting_project_scan_dirs' => 'プロジェクトフォルダをスキャン',
 			_ => null,
 		} ?? switch (path) {
+			'common.setting_project_scan_dirs' => 'プロジェクトフォルダをスキャン',
 			'common.setting_version_scan_dirs' => 'バージョンフォルダをスキャン',
 			'common.setting_default_project_location' => 'デフォルトのプロジェクト保存先',
 			'common.setting_download_dir' => 'バージョンダウンロード先',
@@ -3144,9 +3146,9 @@ extension on TranslationsJaJp {
 			'common.color_presets' => 'プリセット',
 			'common.date_previous_month' => '前の月',
 			'common.date_next_month' => '次の月',
-			'common.date_change_due' => '期限を変更: {{date}}',
 			_ => null,
 		} ?? switch (path) {
+			'common.date_change_due' => '期限を変更: {{date}}',
 			'common.date_add_due' => '期限を追加',
 			'dashboard.greeting_morning' => 'おはようございます',
 			'dashboard.greeting_afternoon' => 'こんにちは',
@@ -3658,9 +3660,9 @@ extension on TranslationsJaJp {
 			'settings.discord_custom_add' => 'プロジェクトを追加',
 			'settings.discord_custom_details_placeholder' => '詳細テキスト',
 			'settings.discord_custom_state_placeholder' => '状態テキスト',
-			'settings.discord_custom_remove' => 'カスタムプレゼンスを削除',
 			_ => null,
 		} ?? switch (path) {
+			'settings.discord_custom_remove' => 'カスタムプレゼンスを削除',
 			'settings.search_placeholder' => '設定を検索…',
 			'settings.interface_label' => 'インターフェース',
 			'settings.card_layout_label' => 'カードレイアウト',

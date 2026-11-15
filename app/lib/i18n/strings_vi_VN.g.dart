@@ -124,6 +124,7 @@ class _Translations$common$vi_VN extends Translations$common$en_US {
 	@override String get up_to_date => 'Đã cập nhật';
 	@override String get downloading_update => 'Đang tải xuống…';
 	@override String get install_update => 'Cài đặt';
+	@override String get restart_to_apply_update => 'Restart to Apply Update';
 	@override String get restart_now => 'Khởi động lại ngay';
 	@override String get update_downloaded => 'Đã tải xong bản cập nhật!';
 	@override String get restart_to_apply => 'Khởi động lại GodotHub để áp dụng bản cập nhật.';
@@ -2175,6 +2176,7 @@ extension on TranslationsViVn {
 			'common.up_to_date' => 'Đã cập nhật',
 			'common.downloading_update' => 'Đang tải xuống…',
 			'common.install_update' => 'Cài đặt',
+			'common.restart_to_apply_update' => 'Restart to Apply Update',
 			'common.restart_now' => 'Khởi động lại ngay',
 			'common.update_downloaded' => 'Đã tải xong bản cập nhật!',
 			'common.restart_to_apply' => 'Khởi động lại GodotHub để áp dụng bản cập nhật.',
@@ -2630,9 +2632,9 @@ extension on TranslationsViVn {
 			'common.command_palette_navigate' => 'Điều hướng',
 			'common.command_palette_escape' => 'Esc',
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
-			'common.setting_project_scan_dirs' => 'Scan Project Folders',
 			_ => null,
 		} ?? switch (path) {
+			'common.setting_project_scan_dirs' => 'Scan Project Folders',
 			'common.setting_version_scan_dirs' => 'Scan Version Folders',
 			'common.setting_default_project_location' => 'Default Project Location Setting',
 			'common.setting_download_dir' => 'Download Versions Location Setting',
@@ -3144,9 +3146,9 @@ extension on TranslationsViVn {
 			'common.color_presets' => 'Presets',
 			'common.date_previous_month' => 'Previous month',
 			'common.date_next_month' => 'Next month',
-			'common.date_change_due' => 'Change due date: {{date}}',
 			_ => null,
 		} ?? switch (path) {
+			'common.date_change_due' => 'Change due date: {{date}}',
 			'common.date_add_due' => 'Add due date',
 			'dashboard.greeting_morning' => 'Chào buổi sáng',
 			'dashboard.greeting_afternoon' => 'Chào buổi chiều',
@@ -3658,9 +3660,9 @@ extension on TranslationsViVn {
 			'settings.discord_custom_add' => 'Thêm dự án',
 			'settings.discord_custom_details_placeholder' => 'Dòng Details',
 			'settings.discord_custom_state_placeholder' => 'Dòng State',
-			'settings.discord_custom_remove' => 'Xóa presence tùy chỉnh',
 			_ => null,
 		} ?? switch (path) {
+			'settings.discord_custom_remove' => 'Xóa presence tùy chỉnh',
 			'settings.search_placeholder' => 'Tìm cài đặt…',
 			'settings.interface_label' => 'Giao diện',
 			'settings.card_layout_label' => 'Bố cục thẻ',
