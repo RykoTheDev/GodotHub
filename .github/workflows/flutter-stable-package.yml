@@ -275,6 +275,106 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
+  launch-macos:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-13, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    env:
+      VERSION: ${{ inputs.version }}
+    steps:
+      - name: Download the macOS package
+        uses: actions/download-artifact@v4
+        with:
+          name: stable-macos
+          path: dist
+
+      - name: Open the app on ${{ matrix.os }}
+        run: |
+          set -euo pipefail
+          echo "macOS $(sw_vers -productVersion) on $(uname -m)"
+          mkdir -p "$HOME/Applications"
+          tar -xzf "dist/GodotHub-$VERSION-darwin-universal.app.tar.gz" -C "$HOME/Applications"
+          app="$HOME/Applications/GodotHub.app"
+          codesign -dv "$app" 2>&1 | grep -E 'Signature|Identifier=' || true
+          if codesign -d --entitlements - "$app" 2>/dev/null | grep -A1 app-sandbox | grep -q true; then
+            echo "the app is sandboxed" >&2
+            exit 1
+          fi
+          data="$HOME/Library/Application Support/Ryko.GodotHub"
+          rm -rf "$data"
+          open "$app"
+          for _ in $(seq 1 90); do [ -f "$data/workspaces.json" ] && break; sleep 2; done
+          test -f "$data/workspaces.json"
+          pgrep -f "GodotHub.app/Contents/MacOS/GodotHub"
+          echo "GodotHub started and wrote its data on $(sw_vers -productVersion) $(uname -m)"
+          pkill -f "GodotHub.app/Contents/MacOS/GodotHub" || true
+
+  launch-linux:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - distro: ubuntu
+            image: ubuntu:24.04
+            package: deb
+          - distro: fedora
+            image: fedora:41
+            package: rpm
+          - distro: arch
+            image: archlinux:latest
+            package: appimage
+    runs-on: ubuntu-latest
+    container: ${{ matrix.image }}
+    timeout-minutes: 30
+    env:
+      VERSION: ${{ inputs.version }}
+    steps:
+      - name: Download the Linux package
+        uses: actions/download-artifact@v4
+        with:
+          name: stable-linux
+          path: dist
+
+      - name: Install on ${{ matrix.distro }}
+        run: |
+          set -eu
+          case "${{ matrix.package }}" in
+            deb)
+              apt-get update -q
+              DEBIAN_FRONTEND=noninteractive apt-get install -y -q xvfb procps "./dist/GodotHub-$VERSION-linux-amd64.deb" ;;
+            rpm)
+              dnf install -y -q xorg-x11-server-Xvfb procps-ng mesa-dri-drivers "./dist/GodotHub-$VERSION-linux-x86_64.rpm" ;;
+            appimage)
+              pacman -Syu --noconfirm --needed xorg-server-xvfb gtk3 procps-ng mesa
+              chmod +x "dist/GodotHub-$VERSION-linux-amd64.AppImage" ;;
+          esac
+
+      - name: Open the app on ${{ matrix.distro }}
+        run: |
+          set -eu
+          Xvfb :99 -screen 0 1600x1000x24 > /tmp/xvfb.log 2>&1 &
+          export DISPLAY=:99
+          sleep 2
+          if [ "${{ matrix.package }}" = appimage ]; then
+            APPIMAGE_EXTRACT_AND_RUN=1 "dist/GodotHub-$VERSION-linux-amd64.AppImage" > /tmp/app.log 2>&1 &
+          else
+            test "$(godothub --version)" = "godothub $VERSION"
+            godothub > /tmp/app.log 2>&1 &
+          fi
+          data="$HOME/.local/share/Ryko.GodotHub"
+          for _ in $(seq 1 90); do [ -f "$data/workspaces.json" ] && break; sleep 2; done
+          if [ ! -f "$data/workspaces.json" ]; then
+            tail -50 /tmp/app.log
+            exit 1
+          fi
+          pgrep -f 'godothub|GodotHub' > /dev/null
+          echo "GodotHub started and wrote its data on ${{ matrix.distro }}"
+
   assemble:
     needs: build
     runs-on: ubuntu-latest
