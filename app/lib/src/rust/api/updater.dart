@@ -20,6 +20,8 @@ Future<bool> confirmLaunch() => RustLib.instance.api.crateApiUpdaterConfirmLaunc
 
 Future<UpdateInfo?> checkForUpdate() => RustLib.instance.api.crateApiUpdaterCheckForUpdate();
 
+Future<String?> flutterStableRelease() => RustLib.instance.api.crateApiUpdaterFlutterStableRelease();
+
 Stream<UpdateProgress> downloadUpdate({required UpdateInfo update, String? githubToken}) =>
     RustLib.instance.api.crateApiUpdaterDownloadUpdate(update: update, githubToken: githubToken);
 

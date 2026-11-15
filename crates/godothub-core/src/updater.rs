@@ -393,6 +393,26 @@ fn rolled_back_version() -> Option<String> {
     layout.read_state().ok()?.failed
 }
 
+pub const FIRST_FLUTTER_STABLE: semver::Version = semver::Version::new(1, 6, 0);
+
+pub fn flutter_stable_in(manifest: &Manifest) -> Option<String> {
+    (manifest.version >= FIRST_FLUTTER_STABLE).then(|| manifest.version_text.clone())
+}
+
+pub async fn flutter_stable_release() -> Result<Option<String>, String> {
+    let response = crate::http::client()?
+        .get(manifest_url(Channel::Stable))
+        .header(reqwest::header::ACCEPT, "application/json")
+        .send()
+        .await
+        .map_err(|e| e.to_string())?;
+    if !response.status().is_success() {
+        return Ok(None);
+    }
+    let body = response.text().await.map_err(|e| e.to_string())?;
+    Ok(Manifest::parse(&body).ok().as_ref().and_then(flutter_stable_in))
+}
+
 pub async fn check(app: &AppHandle) -> Result<Option<UpdateInfo>, String> {
     let url = manifest_url(app.channel());
     let response = crate::http::client()?
@@ -493,21 +513,27 @@ fn is_stale_updater_dir(name: &str, pid: u32) -> bool {
         .is_some_and(|(_, owner)| owner.parse::<u32>().is_ok_and(|owner| owner != pid))
 }
 
+fn updates_root() -> PathBuf {
+    dirs::cache_dir().map(|dir| dir.join("godothub-updates")).unwrap_or_else(std::env::temp_dir)
+}
+
 pub fn remove_stale_temp_dirs() {
     let pid = std::process::id();
-    let Ok(entries) = std::fs::read_dir(std::env::temp_dir()) else {
-        return;
-    };
-    for entry in entries.flatten() {
-        let name = entry.file_name().to_string_lossy().to_string();
-        if is_stale_updater_dir(&name, pid) && entry.file_type().is_ok_and(|t| t.is_dir()) {
-            let _ = std::fs::remove_dir_all(entry.path());
+    for root in [updates_root(), std::env::temp_dir()] {
+        let Ok(entries) = std::fs::read_dir(root) else {
+            continue;
+        };
+        for entry in entries.flatten() {
+            let name = entry.file_name().to_string_lossy().to_string();
+            if is_stale_updater_dir(&name, pid) && entry.file_type().is_ok_and(|t| t.is_dir()) {
+                let _ = std::fs::remove_dir_all(entry.path());
+            }
         }
     }
 }
 
 fn temp_dir_for(version: &str) -> Result<PathBuf, String> {
-    let dir = std::env::temp_dir().join(format!("godothub-{version}-updater-{}", std::process::id()));
+    let dir = updates_root().join(format!("godothub-{version}-updater-{}", std::process::id()));
     std::fs::create_dir_all(&dir).map_err(|e| e.to_string())?;
     Ok(dir)
 }
@@ -931,6 +957,17 @@ mod tests {
             entries.join(",")
         ))
         .unwrap()
+    }
+
+    #[test]
+    fn only_a_flutter_stable_release_ends_the_beta() {
+        let at = |version: &str| {
+            Manifest::parse(&format!(r#"{{"version": "{version}", "platforms": {{"windows-x86_64": {{"signature": "s", "url": "https://x/y"}}}}}}"#))
+                .unwrap()
+        };
+        assert_eq!(flutter_stable_in(&at("1.5.9")), None);
+        assert_eq!(flutter_stable_in(&at("1.6.0")).as_deref(), Some("1.6.0"));
+        assert_eq!(flutter_stable_in(&at("v2.0.1")).as_deref(), Some("v2.0.1"));
     }
 
     #[test]

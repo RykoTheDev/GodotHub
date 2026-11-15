@@ -31,6 +31,7 @@ env:
   APPIMAGE_RUNTIME_URL: 'https://github.com/AppImage/type2-runtime/releases/download/20251108/runtime-x86_64'
   APPIMAGE_RUNTIME_SHA256: '2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d'
   BETA_POINTER_TAG: 'flutter-beta'
+  FINAL_BETA_VERSION: '0.2.5'
 
 jobs:
   prepare:
@@ -65,6 +66,11 @@ jobs:
             exit 1
           fi
           version="${tag#flutter-v}"
+          newest=$(printf '%s\n%s\n' "$version" "$FINAL_BETA_VERSION" | sort -V | tail -n 1)
+          if [ "$version" != "$FINAL_BETA_VERSION" ] && [ "$newest" = "$version" ]; then
+            echo "GodotHub Beta ended with flutter-v$FINAL_BETA_VERSION; no later beta can be released" >&2
+            exit 1
+          fi
           {
             echo "tag=$tag"
             echo "version=$version"
@@ -334,6 +340,14 @@ jobs:
           set -euo pipefail
           mkdir -p release
           node app/packaging/release/notes.mjs > release/notes.md
+          if [ "$VERSION" = "$FINAL_BETA_VERSION" ]; then
+            {
+              echo "This is the final GodotHub Beta. Once GodotHub 1.6.0 is released, the Flutter app becomes the regular GodotHub and the beta stops getting updates. The beta will then show a notice with a link to download GodotHub."
+              echo
+              cat release/notes.md
+            } > release/notes.final.md
+            mv release/notes.final.md release/notes.md
+          fi
           NOTES="$(cat release/notes.md)" ASSETS_DIR=dist OUT=release/latest.json node app/packaging/release/latest_json.mjs
           cat release/notes.md
           cat release/latest.json
@@ -392,6 +406,9 @@ jobs:
         run: |
           set -euo pipefail
           body="Update feed for GodotHub Beta. Latest beta: [$RELEASE_TAG](https://github.com/$REPO/releases/tag/$RELEASE_TAG). Download the beta from that release, not from here."
+          if [ "$VERSION" = "$FINAL_BETA_VERSION" ]; then
+            body="GodotHub Beta has ended. The final beta is [$RELEASE_TAG](https://github.com/$REPO/releases/tag/$RELEASE_TAG); after GodotHub 1.6.0 use the regular GodotHub instead. This feed only serves that final beta to existing beta installs."
+          fi
           if gh release view "$BETA_POINTER_TAG" --repo "$REPO" > /dev/null 2>&1; then
             gh release edit "$BETA_POINTER_TAG" --repo "$REPO" --prerelease --latest=false --notes "$body"
             gh release upload "$BETA_POINTER_TAG" release/latest.json --repo "$REPO" --clobber

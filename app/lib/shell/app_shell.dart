@@ -54,6 +54,9 @@ import '../git/git_sidebar.dart';
 import '../assets/asset_store_view.dart';
 import '../changelog/changelog_view.dart';
 import '../dashboard/dashboard_view.dart';
+import '../api/updater.dart';
+import '../modals/beta_ended_modal.dart';
+import '../src/channel.dart';
 import '../modals/bug_report_modal.dart';
 import '../modals/check_for_updates_modal.dart';
 import '../news/news_view.dart';
@@ -154,6 +157,9 @@ class _AppShellState extends ConsumerState<AppShell> {
     _subscriptions.add(AppEvents.of(AppEventKind.projectExited).listen((_) => ref.read(projectsProvider.notifier).refresh().ignore()));
     _announcement.start();
     WidgetsBinding.instance.addPostFrameCallback((_) => _checkProjectsHealth());
+    if (buildChannel == 'beta') {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _checkBetaEnded());
+    }
   }
 
   @override
@@ -358,6 +364,15 @@ class _AppShellState extends ConsumerState<AppShell> {
     } catch (e) {
       debugPrint('[new-ui] scan failed: $e');
     }
+  }
+
+  Future<void> _checkBetaEnded() async {
+    final version = await UpdaterApi.flutterStableRelease();
+    if (version == null || !mounted) return;
+    await showGhModal<void>(
+      context,
+      (modal) => BetaEndedModal(version: version, uninstallerPath: betaUninstallerPath(), onClose: () => Navigator.of(modal).pop()),
+    );
   }
 
   Future<void> _checkProjectsHealth() async {
