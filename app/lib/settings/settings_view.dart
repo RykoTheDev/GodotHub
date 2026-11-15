@@ -18,6 +18,7 @@ import '../state/keyboard_shortcuts.dart';
 import '../state/section_search.dart';
 import '../state/settings.dart';
 import '../state/shell_signals.dart';
+import '../ui/shell/smooth_scroll.dart';
 import '../ui/controls/search_bar.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
@@ -217,23 +218,32 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                         onKeyEvent: (node, event) => _onRailKey(node, event, categories),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
-                          spacing: theme.space(1),
                           children: [
-                            for (final (id, icon) in categories)
-                              _RailButton(
-                                key: ValueKey('settings-rail:$id'),
-                                focusNode: _railNode(id),
-                                icon: icon,
-                                label: settingsCategoryLabel(id),
-                                active: cat == id,
-                                danger: id == 'experimental',
-                                onPressed: () {
-                                  _changeCategory(id);
-                                  _railNode(id).requestFocus();
-                                },
+                            Expanded(
+                              child: GhScrollView(
+                                primary: false,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  spacing: theme.space(1),
+                                  children: [
+                                    for (final (id, icon) in categories)
+                                      _RailButton(
+                                        key: ValueKey('settings-rail:$id'),
+                                        focusNode: _railNode(id),
+                                        icon: icon,
+                                        label: settingsCategoryLabel(id),
+                                        active: cat == id,
+                                        danger: id == 'experimental',
+                                        onPressed: () {
+                                          _changeCategory(id);
+                                          _railNode(id).requestFocus();
+                                        },
+                                      ),
+                                  ],
+                                ),
                               ),
-                            if (appVersion != null && appVersion.isNotEmpty) ...[
-                              const Spacer(),
+                            ),
+                            if (appVersion != null && appVersion.isNotEmpty)
                               Padding(
                                 padding: EdgeInsetsDirectional.only(
                                   top: theme.space(6),
@@ -248,7 +258,6 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                                   ),
                                 ),
                               ),
-                            ],
                           ],
                         ),
                       ),
