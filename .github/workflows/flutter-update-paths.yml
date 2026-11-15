@@ -1,0 +1,102 @@
+name: Flutter Update Paths
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [update-paths-ci]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flutter-update-paths-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.47.9'
+  RUST_VERSION: '1.99.1'
+  TAURI_CLI_VERSION: '2.12.3'
+  APPIMAGETOOL_URL: 'https://github.com/AppImage/appimagetool/releases/download/1.9.1/appimagetool-x86_64.AppImage'
+  APPIMAGETOOL_SHA256: 'ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0'
+  APPIMAGE_RUNTIME_URL: 'https://github.com/AppImage/type2-runtime/releases/download/20251108/runtime-x86_64'
+  APPIMAGE_RUNTIME_SHA256: '2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d'
+
+jobs:
+  update-paths:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            target: macos
+            rust_targets: aarch64-apple-darwin,x86_64-apple-darwin
+          - os: ubuntu-24.04
+            target: linux
+            rust_targets: ''
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 150
+
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust ${{ env.RUST_VERSION }}
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ env.RUST_VERSION }}
+          targets: ${{ matrix.rust_targets }}
+
+      - name: Install Flutter ${{ env.FLUTTER_VERSION }}
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install Linux dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libx11-dev libxi-dev liblzma-dev zip rpm xvfb \
+            libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libfuse2t64 polkitd pkexec jq
+          echo 'polkit.addRule(function (action, subject) { if (subject.user == "runner") return polkit.Result.YES; });' \
+            | sudo tee /etc/polkit-1/rules.d/00-update-paths-ci.rules
+          sudo systemctl restart polkit
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-update-paths-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Build the test packages
+        run: bash app/tool/update_ci/build.sh ${{ matrix.target }}
+
+      - name: Run the update paths
+        run: bash app/tool/update_ci/${{ matrix.target }}.sh
+
+      - name: Upload the results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: update-paths-${{ matrix.target }}
+          path: lab/results
+          if-no-files-found: warn
+          retention-days: 7

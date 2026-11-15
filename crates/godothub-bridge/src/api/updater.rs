@@ -108,26 +108,29 @@ pub async fn download_update(update: UpdateInfo, github_token: Option<String>, s
         let _ = sink.add(UpdateProgress { downloaded, total, log: None });
     })
     .await;
-    let bytes = match result {
-        Ok(bytes) => bytes,
+    let outcome = match result {
+        Ok(bytes) => {
+            log_line(&sink, last, format!("Downloaded {}", updater::format_size(bytes.len() as u64)));
+            let log_sink = sink.clone();
+            tokio::task::spawn_blocking(move || updater::prepare(&update, bytes, &mut |line| log_line(&log_sink, last, line)))
+                .await
+                .map_err(|e| e.to_string())
+                .and_then(|prepared| prepared)
+        }
+        Err(error) => Err(error),
+    };
+    match outcome {
+        Ok(prepared) => {
+            log_line(&sink, last, "Signature verified".to_string());
+            set_pending(Some(prepared));
+            Ok(())
+        }
         Err(error) => {
             log_line(&sink, last, format!("Failed: {error}"));
-            return Err(CoreError::from(error));
+            let _ = sink.add_error(CoreError::from(error.clone()));
+            Err(CoreError::from(error))
         }
-    };
-    log_line(&sink, last, format!("Downloaded {}", updater::format_size(bytes.len() as u64)));
-    log_line(&sink, last, "Signature verified".to_string());
-    let log_sink = sink.clone();
-    let prepared = tokio::task::spawn_blocking(move || {
-        updater::prepare(&update, bytes, &mut |line| log_line(&log_sink, last, line)).inspect_err(|error| {
-            log_line(&log_sink, last, format!("Failed: {error}"));
-        })
-    })
-    .await
-        .map_err(|e| CoreError::from(e.to_string()))?
-        .map_err(CoreError::from)?;
-    set_pending(Some(prepared));
-    Ok(())
+    }
 }
 
 pub async fn restart_to_update() -> Result<bool, CoreError> {

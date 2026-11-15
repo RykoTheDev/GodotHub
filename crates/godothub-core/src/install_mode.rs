@@ -81,14 +81,43 @@ pub fn versioned_install() -> Option<(godothub_launcher::Layout, String)> {
     std::env::current_exe().ok().and_then(|exe| godothub_launcher::Layout::of_app_exe(&exe))
 }
 
+fn replaced_executable(exe: std::path::PathBuf) -> std::path::PathBuf {
+    let Some(text) = exe.to_str() else {
+        return exe;
+    };
+    match text.strip_suffix(" (deleted)").map(std::path::PathBuf::from) {
+        Some(original) if original.is_file() => original,
+        _ => exe,
+    }
+}
+
 pub fn launch_executable() -> std::io::Result<std::path::PathBuf> {
     #[cfg(target_os = "linux")]
     if let Some(image) = std::env::var_os("APPIMAGE").filter(|v| !v.is_empty()) {
         return Ok(std::path::PathBuf::from(image));
     }
-    let exe = std::env::current_exe()?;
+    let exe = replaced_executable(std::env::current_exe()?);
     let launcher = godothub_launcher::Layout::of_app_exe(&exe)
         .and_then(|(layout, _)| exe.file_name().map(|name| layout.root().join(name)))
         .filter(|path| path.is_file());
     Ok(launcher.unwrap_or(exe))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn a_replaced_binary_relaunches_from_its_original_path() {
+        let dir = std::env::temp_dir().join(format!("godothub-replaced-{}", uuid::Uuid::new_v4()));
+        std::fs::create_dir_all(&dir).unwrap();
+        let exe = dir.join("godothub");
+        std::fs::write(&exe, b"new").unwrap();
+        let deleted = std::path::PathBuf::from(format!("{} (deleted)", exe.display()));
+        assert_eq!(replaced_executable(deleted), exe);
+        assert_eq!(replaced_executable(exe.clone()), exe);
+        let gone = dir.join("missing (deleted)");
+        assert_eq!(replaced_executable(gone.clone()), gone);
+        let _ = std::fs::remove_dir_all(&dir);
+    }
 }

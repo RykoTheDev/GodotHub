@@ -15,7 +15,8 @@ if (channel === 'stable' && out.endsWith('/latest.json')) throw new Error('lates
 
 const version = tag.replace(channel === 'stable' ? /^v/ : /^flutter-v/, '')
 const prefix = channel === 'stable' ? 'GodotHub' : 'GodotHub-Beta'
-const url = (name) => `https://github.com/${repo}/releases/download/${tag}/${encodeURIComponent(name)}`
+const baseUrl = process.env.BASE_URL ?? `https://github.com/${repo}/releases/download/${tag}`
+const url = (name) => `${baseUrl}/${encodeURIComponent(name)}`
 
 const classify = (name) => {
   const m = name.match(/-(windows|darwin|linux)-([a-z0-9_]+)/)

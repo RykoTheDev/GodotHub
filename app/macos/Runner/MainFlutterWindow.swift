@@ -5,13 +5,15 @@ class MainFlutterWindow: NSWindow {
   private let trafficLightInset = NSPoint(x: 20, y: 22)
 
   override func awakeFromNib() {
-    let flutterViewController = FlutterViewController()
+    let engine = FlutterEngine(name: "io.flutter", project: nil, allowHeadlessExecution: true)
+    let flutterViewController = FlutterViewController(engine: engine, nibName: nil, bundle: nil)
     let windowFrame = self.frame
     self.contentViewController = flutterViewController
     self.setFrame(windowFrame, display: true)
 
     RegisterGeneratedPlugins(registry: flutterViewController)
-    DockMenuStore.shared.attach(messenger: flutterViewController.engine.binaryMessenger)
+    DockMenuStore.shared.attach(messenger: engine.binaryMessenger)
+    _ = engine.run(withEntrypoint: nil)
 
     super.awakeFromNib()
 
