@@ -141,6 +141,12 @@ class _Translations$common$pt_BR extends Translations$common$en_US {
 	@override String get scan_for_projects => 'Procurar projetos';
 	@override String get create_workspace => 'Criar espaço de trabalho';
 	@override String get report_a_bug => 'Reportar um bug';
+	@override String get high_contrast_active => 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.';
+	@override String get crash_notice_title => 'GodotHub closed unexpectedly';
+	@override String get crash_notice_desc => 'GodotHub {{version}} stopped without closing normally the last time it ran.';
+	@override String get crash_notice_rolled_back => 'The update did not start, so GodotHub went back to {{previous}}, the version you had before.';
+	@override String get crash_notice_log => 'What happened is saved in a log on this computer. A bug report includes it, and you can read everything before you send it.';
+	@override String get bug_report_log => 'Log (personal details removed)';
 	@override String get report_bug => 'Reportar bug';
 	@override String get app_error_title => 'Algo deu errado';
 	@override String get app_error_desc => 'O GodotHub encontrou um erro inesperado e não conseguiu renderizar. Veja os detalhes abaixo e consulte o console (clique com o botão direito → Inspecionar) para ver o stack trace completo.';
@@ -2291,6 +2297,12 @@ extension on TranslationsPtBr {
 			'common.scan_for_projects' => 'Procurar projetos',
 			'common.create_workspace' => 'Criar espaço de trabalho',
 			'common.report_a_bug' => 'Reportar um bug',
+			'common.high_contrast_active' => 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.',
+			'common.crash_notice_title' => 'GodotHub closed unexpectedly',
+			'common.crash_notice_desc' => 'GodotHub {{version}} stopped without closing normally the last time it ran.',
+			'common.crash_notice_rolled_back' => 'The update did not start, so GodotHub went back to {{previous}}, the version you had before.',
+			'common.crash_notice_log' => 'What happened is saved in a log on this computer. A bug report includes it, and you can read everything before you send it.',
+			'common.bug_report_log' => 'Log (personal details removed)',
 			'common.report_bug' => 'Reportar bug',
 			'common.app_error_title' => 'Algo deu errado',
 			'common.app_error_desc' => 'O GodotHub encontrou um erro inesperado e não conseguiu renderizar. Veja os detalhes abaixo e consulte o console (clique com o botão direito → Inspecionar) para ver o stack trace completo.',
@@ -2726,14 +2738,14 @@ extension on TranslationsPtBr {
 			'common.task_tray_auto_dismiss' => 'Concluídas são dispensadas automaticamente',
 			'common.task_tray_dismiss' => 'Dispensar {{count}}',
 			'common.task_error_status' => 'Erro',
+			_ => null,
+		} ?? switch (path) {
 			'common.command_palette_title' => 'Menu de comandos',
 			'common.command_palette_placeholder' => 'Pesquisar comandos, projetos, versões da Godot e configurações…',
 			'common.command_palette_no_results' => 'Nenhum resultado corresponde',
 			'common.command_palette_navigate' => 'Navegar',
 			'common.command_palette_escape' => 'Esc',
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
-			_ => null,
-		} ?? switch (path) {
 			'common.setting_project_scan_dirs' => 'Pastas de busca de projetos',
 			'common.setting_version_scan_dirs' => 'Pastas de busca de versões',
 			'common.setting_default_project_location' => 'Configuração do local padrão dos projetos',
@@ -3240,14 +3252,14 @@ extension on TranslationsPtBr {
 			'common.project_addons.updated' => '{{name}} was updated',
 			'common.project_addons.confirm_title' => 'Update {{name}}?',
 			'common.project_addons.confirm_description' => 'This replaces res://addons/{{folder}} with version {{version}} from the Asset Library. The old folder is moved to the Trash, so any changes you made to the addon are kept there. Close the project in Godot first.',
+			_ => null,
+		} ?? switch (path) {
 			'common.project_addons.footer_hint' => 'Addons installed through GodotHub are matched exactly. Others are matched by name, so check the result before updating.',
 			'common.reload_confirm_title' => 'Reload GodotHub?',
 			'common.reload_confirm_desc' => 'Any unsaved changes in open forms will be lost.',
 			'common.color_presets' => 'Presets',
 			'common.date_previous_month' => 'Previous month',
 			'common.date_next_month' => 'Next month',
-			_ => null,
-		} ?? switch (path) {
 			'common.date_change_due' => 'Change due date: {{date}}',
 			'common.date_add_due' => 'Add due date',
 			'dashboard.greeting_morning' => 'Bom dia',
@@ -3754,14 +3766,14 @@ extension on TranslationsPtBr {
 			'settings.discord_show_projects_label' => 'Mostrar nomes dos projetos',
 			'settings.discord_excluded_label' => 'Projetos excluídos',
 			'settings.discord_exclude_project' => 'Adicionar projeto',
+			_ => null,
+		} ?? switch (path) {
 			'settings.discord_excluded_empty' => 'Nenhum projeto excluído.',
 			'settings.discord_excluded_remove' => 'Remover dos projetos excluídos',
 			'settings.discord_custom_label' => 'Discord Rich Presence personalizada',
 			'settings.discord_custom_add' => 'Adicionar projeto',
 			'settings.discord_custom_details_placeholder' => 'Linha de detalhes',
 			'settings.discord_custom_state_placeholder' => 'Linha de estado',
-			_ => null,
-		} ?? switch (path) {
 			'settings.discord_custom_remove' => 'Remover Discord Rich Presence personalizada',
 			'settings.search_placeholder' => 'Pesquisar configurações…',
 			'settings.interface_label' => 'Interface',

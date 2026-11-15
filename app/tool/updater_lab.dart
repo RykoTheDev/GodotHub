@@ -5,16 +5,26 @@ import 'dart:io';
 const usage = '''
 Local update lab for the Flutter beta (Windows, in-app updates). Nothing is committed or published.
 
-  dart run tool/updater_lab.dart prepare [--from 0.0.1] [--to 0.0.2] [--broken] [--rebuild]
-      Builds both versions with a throwaway signing key, installs --from into
-      build/updater_lab/install the way the setup does, and packages --to as a signed update.
+  dart run tool/updater_lab.dart prepare [--from 0.0.1] [--to 0.0.2] [--fix 0.0.3] [--broken] [--auto] [--rebuild]
+      Builds the versions with a throwaway signing key, installs --from into
+      build/updater_lab/install the way the setup does, and packages every version as a signed
+      release in build/updater_lab/releases/<version>. --to becomes the latest release.
+      --fix adds a later release that is published only with "publish".
       --broken makes --to exit on startup so the launcher's rollback can be tested.
+      --auto makes the app check, download and restart by itself and note each step in
+      %TEMP%\\godothub-updater-lab.txt. Lab builds keep their data in build/updater_lab/data.
   dart run tool/updater_lab.dart serve [--port 47821] [--slow] [--drop] [--tamper]
-      Serves latest.json and the update on 127.0.0.1. --slow throttles the download,
+      Serves the latest release on 127.0.0.1. --slow throttles the download,
       --drop cuts it off halfway, --tamper changes a byte so the signature check must fail.
+  dart run tool/updater_lab.dart publish <version>   Makes a packaged release the latest one.
   dart run tool/updater_lab.dart start      Starts the installed copy through the launcher.
   dart run tool/updater_lab.dart status     Shows launcher.json and the installed version folders.
-  dart run tool/updater_lab.dart reset      Puts the --from version back as the only installed version.
+  dart run tool/updater_lab.dart reset [--version <version>]
+      Installs --from (or the given version) as the only installed version.
+
+The release folders work with app/packaging/release/kill_switch.sh:
+  LOCAL_RELEASES=build/updater_lab/releases LOCAL_URL=http://127.0.0.1:47821 MANIFEST=latest.json \\
+    bash packaging/release/kill_switch.sh pause 0.0.2 0.0.1
 ''';
 
 const exeName = 'godothub-beta.exe';
@@ -25,7 +35,9 @@ final repoDir = appDir.parent;
 final labDir = Directory(_join(appDir.path, ['build', 'updater_lab']));
 final buildsDir = Directory(_join(labDir.path, ['builds']));
 final installDir = Directory(_join(labDir.path, ['install']));
-final serverDir = Directory(_join(labDir.path, ['server']));
+final releasesDir = Directory(_join(labDir.path, ['releases']));
+final latestFile = File(_join(releasesDir.path, ['latest']));
+final dataDir = Directory(_join(labDir.path, ['data']));
 final keyFile = File(_join(labDir.path, ['lab.key']));
 final configFile = File(_join(labDir.path, ['lab.json']));
 
@@ -43,12 +55,14 @@ Future<void> main(List<String> args) async {
       await prepare(options);
     case 'serve':
       await serve(options);
+    case 'publish':
+      publish(options);
     case 'start':
       await start();
     case 'status':
       status();
     case 'reset':
-      reset();
+      reset(options);
     default:
       stdout.write(usage);
       exit(command.isEmpty ? 0 : 64);
@@ -123,7 +137,7 @@ Future<String> _launcherExe() async {
 
 Directory _buildDir(String version, bool broken) => Directory(_join(buildsDir.path, [broken ? '$version-broken' : version]));
 
-Future<Directory> _build(String version, String publicKey, int port, {bool broken = false, bool rebuild = false}) async {
+Future<Directory> _build(String version, String publicKey, int port, {bool broken = false, bool auto = false, bool rebuild = false}) async {
   final out = _buildDir(version, broken);
   if (out.existsSync() && !rebuild) {
     stdout.writeln('Reusing ${out.path}');
@@ -137,7 +151,9 @@ Future<Directory> _build(String version, String publicKey, int port, {bool broke
     '--dart-define=APP_VERSION=$version',
     '--dart-define=UPDATER_TEST_ENDPOINT=http://127.0.0.1:$port/latest.json',
     '--dart-define=UPDATER_TEST_PUBKEY=$publicKey',
+    '--dart-define=UPDATER_LAB_DATA=${dataDir.path}',
     if (broken) '--dart-define=UPDATER_LAB_CRASH=true',
+    if (auto) '--dart-define=UPDATER_LAB_AUTO=true',
     '--build-name=$version',
   ], workingDirectory: appDir.path);
   _deleteDir(out);
@@ -147,14 +163,20 @@ Future<Directory> _build(String version, String publicKey, int port, {bool broke
 
 void _install(String version) {
   final config = _config();
+  final build = _buildDir(version, false);
+  if (!build.existsSync()) {
+    stderr.writeln('Version $version has not been built: prepare it first.');
+    exit(1);
+  }
   _deleteDir(installDir);
-  _copyDir(_buildDir(version, false), Directory(_join(installDir.path, ['app-$version'])));
+  _copyDir(build, Directory(_join(installDir.path, ['app-$version'])));
   File(config['launcher'] as String).copySync(_join(installDir.path, [exeName]));
   File(_join(installDir.path, ['launcher.json'])).writeAsStringSync(jsonEncode({'current': version}));
   stdout.writeln('Installed $version into ${installDir.path}');
 }
 
 Future<void> _package(Directory build, String version, int port) async {
+  final serverDir = Directory(_join(releasesDir.path, [version]));
   _deleteDir(serverDir);
   serverDir.createSync(recursive: true);
   final name = 'GodotHub-Beta-$version-windows-x64.zip';
@@ -178,17 +200,36 @@ Future<void> _package(Directory build, String version, int port) async {
 Future<void> prepare(List<String> options) async {
   final from = _option(options, '--from') ?? '0.0.1';
   final to = _option(options, '--to') ?? '0.0.2';
+  final fix = _option(options, '--fix');
   final port = int.parse(_option(options, '--port') ?? '$defaultPort');
   final broken = options.contains('--broken');
-  final rebuild = options.contains('--rebuild') || (_config()['port'] ?? port) != port;
+  final auto = options.contains('--auto');
+  final previous = _config();
+  final rebuild = options.contains('--rebuild') || (previous['port'] ?? port) != port || (previous['auto'] ?? false) != auto;
   final publicKey = await _publicKey();
   final launcher = await _launcherExe();
-  configFile.writeAsStringSync(jsonEncode({'from': from, 'to': to, 'port': port, 'broken': broken, 'launcher': launcher}));
-  await _build(from, publicKey, port, rebuild: rebuild);
-  final update = await _build(to, publicKey, port, broken: broken, rebuild: rebuild);
-  _install(from);
+  configFile.writeAsStringSync(
+    jsonEncode({'from': from, 'to': to, 'fix': fix, 'port': port, 'broken': broken, 'auto': auto, 'launcher': launcher}),
+  );
+  _deleteDir(releasesDir);
+  final first = await _build(from, publicKey, port, auto: auto, rebuild: rebuild);
+  await _package(first, from, port);
+  final update = await _build(to, publicKey, port, broken: broken, auto: auto, rebuild: rebuild);
   await _package(update, to, port);
+  if (fix != null) await _package(await _build(fix, publicKey, port, auto: auto, rebuild: rebuild), fix, port);
+  latestFile.writeAsStringSync(to);
+  _install(from);
   stdout.writeln('\nNext: close any running GodotHub Beta, then run "serve" in one terminal and "start" in another.');
+}
+
+void publish(List<String> options) {
+  final version = options.isEmpty ? null : options.first;
+  if (version == null || !File(_join(releasesDir.path, [version, 'latest.json'])).existsSync()) {
+    stderr.writeln('No packaged release ${version ?? ''}: run "prepare" with that version first.');
+    exit(1);
+  }
+  latestFile.writeAsStringSync(version);
+  stdout.writeln('$version is now the latest release');
 }
 
 Future<void> serve(List<String> options) async {
@@ -196,7 +237,7 @@ Future<void> serve(List<String> options) async {
   final slow = options.contains('--slow');
   final drop = options.contains('--drop');
   final tamper = options.contains('--tamper');
-  if (!File(_join(serverDir.path, ['latest.json'])).existsSync()) {
+  if (!latestFile.existsSync()) {
     stderr.writeln('Nothing to serve yet: run "prepare" first.');
     exit(1);
   }
@@ -207,11 +248,12 @@ Future<void> serve(List<String> options) async {
     stderr.writeln('Port $port is in use by another program. Run "prepare --port <free port>" to rebuild for another port.');
     exit(1);
   }
-  stdout.writeln('Serving ${serverDir.path} on http://127.0.0.1:$port (slow: $slow, drop: $drop, tamper: $tamper)');
+  stdout.writeln('Serving the latest release in ${releasesDir.path} on http://127.0.0.1:$port (slow: $slow, drop: $drop, tamper: $tamper)');
   await for (final request in server) {
     final name = request.uri.pathSegments.isEmpty ? '' : request.uri.pathSegments.last;
-    final file = File(_join(serverDir.path, [name]));
-    stdout.writeln('${DateTime.now().toIso8601String().substring(11, 19)} ${request.method} ${request.uri.path}');
+    final latest = latestFile.readAsStringSync().trim();
+    final file = File(_join(releasesDir.path, [latest, name]));
+    stdout.writeln('${DateTime.now().toIso8601String().substring(11, 19)} ${request.method} ${request.uri.path} from $latest');
     if (name.isEmpty || name.contains('..') || !file.existsSync()) {
       request.response.statusCode = HttpStatus.notFound;
       await request.response.close();
@@ -270,11 +312,11 @@ void status() {
   }
 }
 
-void reset() {
-  final from = _config()['from'] as String?;
-  if (from == null) {
+void reset(List<String> options) {
+  final version = _option(options, '--version') ?? _config()['from'] as String?;
+  if (version == null) {
     stderr.writeln('Nothing prepared yet: run "prepare" first.');
     exit(1);
   }
-  _install(from);
+  _install(version);
 }

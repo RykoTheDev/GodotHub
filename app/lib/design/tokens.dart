@@ -85,14 +85,18 @@ class GhTheme extends ThemeExtension<GhTheme> {
     required bool showScrollbars,
     required Brightness platformBrightness,
     String? languageCode,
+    bool highContrast = false,
   }) {
-    final palette = resolvePalette(
-      accent: accentColor,
-      background: backgroundColor,
-      mode: resolveThemeMode(themeMode, platformBrightness),
-      presetId: themePreset,
-      raisedContrast: raisedContrast,
-    );
+    final mode = resolveThemeMode(themeMode, platformBrightness);
+    final palette = highContrast
+        ? highContrastPalette(mode)
+        : resolvePalette(
+            accent: accentColor,
+            background: backgroundColor,
+            mode: mode,
+            presetId: themePreset,
+            raisedContrast: raisedContrast,
+          );
     return GhTheme.fromPalette(
       palette,
       cornerRadius: cornerRadius,

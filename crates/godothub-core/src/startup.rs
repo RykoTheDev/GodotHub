@@ -8,11 +8,14 @@ use crate::{
 };
 
 pub fn initialize(app: &AppHandle) {
+    crate::diagnostics::install_panic_hook();
     identifier_migration::migrate_identifier(app);
 
     if let Ok(dir) = app.path().app_data_dir() {
+        crate::diagnostics::init(&dir);
         git_helpers::set_credential_store(dir.join("git-credentials"));
     }
+    crate::diagnostics::collect_launcher_crash();
 
     app.manage(asset_library::AssetResponseCache::default());
     app.manage(watcher::ActiveWatchers(Mutex::new(Vec::new())));
@@ -29,6 +32,7 @@ pub fn initialize(app: &AppHandle) {
 }
 
 pub async fn background_tasks(handle: AppHandle) {
+    crate::diagnostics::set_project_roots(projects::list_projects(handle.clone()).await.into_iter().map(|p| p.path));
     templates::consolidate_legacy_templates(&handle);
     let _ = tokio::task::spawn_blocking(crate::updater::remove_stale_temp_dirs).await;
 

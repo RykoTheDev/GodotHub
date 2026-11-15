@@ -2556,3 +2556,32 @@ mod launch_arg_tests {
         );
     }
 }
+
+#[cfg(test)]
+mod path_environment_tests {
+    use super::*;
+
+    #[test]
+    fn projects_in_long_non_ascii_paths_with_spaces_work() {
+        let root = std::env::temp_dir().join(format!("godothub-paths-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        let mut dir = root.join("Ünïcödé Üser 名前 Ряко");
+        while dir.as_os_str().len() < 300 {
+            dir = dir.join("a folder with spaces ñ");
+        }
+        let project = dir.join("My Gämé 🎮");
+        std::fs::create_dir_all(project.join("scenes")).unwrap();
+        std::fs::write(project.join("project.godot"), "[application]\nconfig/name=\"Gämé 名前\"\n").unwrap();
+        std::fs::write(project.join("scenes").join("main.tscn"), "[gd_scene format=3]\n").unwrap();
+        assert!(project.as_os_str().len() > 260);
+        let path = project.to_string_lossy().to_string();
+        let runtime = tokio::runtime::Runtime::new().unwrap();
+        assert_eq!(runtime.block_on(get_project_name(path.clone())).as_deref(), Some("Gämé 名前"));
+        let size = runtime.block_on(get_project_size(path.clone())).unwrap();
+        assert_eq!(size.file_count, 2);
+        let tree = runtime.block_on(get_project_file_tree(path.clone())).unwrap();
+        assert!(tree.iter().any(|e| e.path.ends_with("main.tscn")));
+        assert!(path_is_within(&project.join("scenes").to_string_lossy(), &path));
+        std::fs::remove_dir_all(&root).unwrap();
+    }
+}

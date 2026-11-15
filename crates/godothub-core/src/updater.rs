@@ -276,6 +276,12 @@ fn detect_for(_exe: &Path) -> InstallKind {
     InstallKind::Unknown
 }
 
+pub const TRANSLOCATED_MESSAGE: &str = "macOS is running GodotHub from a temporary read-only copy because it was opened from Downloads. Move GodotHub to Applications, open it from there, then update again.";
+
+pub fn is_translocated(path: &Path) -> bool {
+    path.components().any(|c| c.as_os_str() == "AppTranslocation")
+}
+
 pub fn app_bundle_of(exe: &Path) -> Option<PathBuf> {
     let macos = exe.parent()?;
     let contents = macos.parent()?;
@@ -764,6 +770,9 @@ mod platform {
     pub fn install(update: &UpdateInfo, bytes: &[u8]) -> Result<(), String> {
         let exe = std::env::current_exe().map_err(|e| e.to_string())?;
         let target = app_bundle_of(&exe).ok_or("GodotHub is not running from an .app bundle")?;
+        if is_translocated(&target) {
+            return Err(TRANSLOCATED_MESSAGE.into());
+        }
         if !is_gzip(bytes) {
             return Err("The update is not an .app.tar.gz archive".into());
         }
@@ -1009,6 +1018,30 @@ mod tests {
         assert!(portable.portable);
         let none = manifest(&["plan9-x86_64"]);
         assert!(update_from_manifest(&none, "1.0.0", InstallKind::Unknown).is_err());
+    }
+
+    #[test]
+    fn translocated_bundles_are_recognised() {
+        let translocated = Path::new("/private/var/folders/x1/abc/T/AppTranslocation/0C7D5E2A-1111/d/GodotHub.app");
+        assert!(is_translocated(translocated));
+        assert!(!is_translocated(Path::new("/Applications/GodotHub.app")));
+        assert!(!is_translocated(Path::new("/Users/ana/Downloads/GodotHub.app")));
+    }
+
+    #[test]
+    fn a_paused_rollout_never_downgrades_any_install() {
+        let os = updater_os().unwrap();
+        let arch = updater_arch().unwrap();
+        let platforms: Vec<String> = Installer::ALL.iter().map(|i| format!("{os}-{arch}-{}", i.name())).chain([format!("{os}-{arch}")]).collect();
+        let entries: Vec<String> = platforms.iter().map(|k| format!(r#""{k}": {{"signature": "s", "url": "https://github.com/x/{k}.bin"}}"#)).collect();
+        let previous = Manifest::parse(&format!(r#"{{"version": "1.5.9", "platforms": {{{}}}}}"#, entries.join(","))).unwrap();
+        let kinds = Installer::ALL.map(InstallKind::Installed).into_iter().chain([InstallKind::Portable, InstallKind::Unknown]);
+        for kind in kinds {
+            assert!(update_from_manifest(&previous, "1.6.0", kind).unwrap().is_none(), "{kind:?}");
+            assert!(update_from_manifest(&previous, "1.5.9", kind).unwrap().is_none(), "{kind:?}");
+            assert_eq!(update_from_manifest(&previous, "1.5.8", kind).unwrap().unwrap().version, "1.5.9", "{kind:?}");
+        }
+        assert_eq!(flutter_stable_in(&previous), None);
     }
 
     #[test]

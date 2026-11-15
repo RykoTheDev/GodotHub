@@ -16,6 +16,16 @@ pub struct State {
     pub trial: bool,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub failed: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub crash: Option<Crash>,
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Crash {
+    pub version: String,
+    pub code: i64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rolled_back_to: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -149,6 +159,21 @@ impl Layout {
         Ok(Some(previous))
     }
 
+    pub fn record_crash(&self, crash: Crash) -> io::Result<()> {
+        let mut state = self.read_state()?;
+        state.crash = Some(crash);
+        self.write_state(&state)
+    }
+
+    pub fn take_crash(&self) -> io::Result<Option<Crash>> {
+        let mut state = self.read_state()?;
+        let crash = state.crash.take();
+        if crash.is_some() {
+            self.write_state(&state)?;
+        }
+        Ok(crash)
+    }
+
     fn remove_stale(&self, state: &State) {
         let keep: Vec<String> = [Some(&state.current), state.previous.as_ref()]
             .into_iter()
@@ -232,7 +257,7 @@ mod tests {
         layout.stage("0.3.0", EXE, payload("0.3.0")).unwrap();
         layout.activate("0.3.0").unwrap();
         let state = layout.read_state().unwrap();
-        assert_eq!(state, State { current: "0.3.0".into(), previous: Some("0.2.0".into()), trial: true, failed: None });
+        assert_eq!(state, State { current: "0.3.0".into(), previous: Some("0.2.0".into()), trial: true, failed: None, crash: None });
         assert!(layout.confirm("0.3.0").unwrap());
         assert!(!layout.read_state().unwrap().trial);
         assert!(!layout.app_dir("0.1.0").exists());
@@ -263,7 +288,7 @@ mod tests {
         layout.activate("0.2.0").unwrap();
         assert_eq!(layout.rollback_after_failure("0.2.0").unwrap(), Some("0.1.0".into()));
         let state = layout.read_state().unwrap();
-        assert_eq!(state, State { current: "0.1.0".into(), previous: None, trial: false, failed: Some("0.2.0".into()) });
+        assert_eq!(state, State { current: "0.1.0".into(), previous: None, trial: false, failed: Some("0.2.0".into()), crash: None });
         assert_eq!(layout.rollback_after_failure("0.1.0").unwrap(), None);
         layout.activate("0.2.0").unwrap();
         assert_eq!(layout.read_state().unwrap().failed, None);
@@ -289,5 +314,27 @@ mod tests {
         std::fs::remove_dir_all(layout.app_dir("0.1.0")).unwrap();
         assert_eq!(layout.rollback_after_failure("0.2.0").unwrap(), None);
         assert_eq!(layout.read_state().unwrap().current, "0.2.0");
+    }
+
+    #[test]
+    fn a_crash_is_recorded_once_and_survives_other_state_changes() {
+        let root = Root::new("crash");
+        let layout = installed(&root, "0.1.0");
+        let crash = Crash { version: "0.1.0".into(), code: -1073741819, rolled_back_to: None };
+        layout.record_crash(crash.clone()).unwrap();
+        layout.stage("0.2.0", EXE, payload("0.2.0")).unwrap();
+        layout.activate("0.2.0").unwrap();
+        assert_eq!(layout.take_crash().unwrap(), Some(crash));
+        assert_eq!(layout.take_crash().unwrap(), None);
+        let text = std::fs::read_to_string(layout.state_path()).unwrap();
+        assert!(!text.contains("crash"), "{text}");
+    }
+
+    #[test]
+    fn state_files_without_a_crash_still_load() {
+        let root = Root::new("old-state");
+        let layout = Layout::new(&root.0);
+        std::fs::write(layout.state_path(), r#"{"current":"0.1.0","trial":false}"#).unwrap();
+        assert_eq!(layout.read_state().unwrap().crash, None);
     }
 }

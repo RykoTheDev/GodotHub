@@ -344,4 +344,25 @@ void main() {
     await tester.pump();
     expect(tester.takeException(), isA<StateError>());
   });
+
+  testWidgets('crash tests ask before quitting and copy an empty log safely', (tester) async {
+    tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async => null);
+    addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
+    await pumpBody(tester, const DebugSettings(channel: 'stable'));
+    ghToasts.clear();
+    await tester.pump();
+    await tester.ensureVisible(find.text('Quit'));
+    await tester.tap(find.text('Quit'));
+    await tester.pump();
+    expect(find.text('Confirm'), findsOneWidget);
+    await tester.tap(find.text('Cancel'));
+    await tester.pump();
+    expect(find.text('Confirm'), findsNothing);
+    expect(find.text('Quit'), findsOneWidget);
+    await tester.ensureVisible(find.text('Copy log'));
+    await tester.tap(find.text('Copy log'));
+    await base.settle(tester, 3);
+    expect(toastTexts(tester), contains('The log is empty'));
+    await base.drainToasts(tester);
+  });
 }

@@ -2092,6 +2092,7 @@ dependencies = [
  "minisign-verify",
  "notify",
  "quick-xml 0.41.0",
+ "regex",
  "reqwest",
  "rusqlite",
  "rusty-leveldb",

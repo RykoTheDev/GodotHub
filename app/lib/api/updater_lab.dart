@@ -4,6 +4,9 @@ import 'dart:io';
 import 'updater.dart';
 
 const updaterLabAuto = bool.fromEnvironment('UPDATER_LAB_AUTO');
+const _updaterLabData = String.fromEnvironment('UPDATER_LAB_DATA');
+
+String? get updaterLabDataDir => _updaterLabData.isEmpty ? null : _updaterLabData;
 
 File get updaterLabReport {
   final home = Platform.isWindows ? null : Platform.environment['HOME'];

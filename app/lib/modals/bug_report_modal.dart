@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../api/diagnostics.dart';
 import '../api/opener.dart';
 import '../design/design.dart';
 import '../state/app_version.dart';
@@ -21,6 +22,8 @@ import '../ui/shell/smooth_scroll.dart';
 const bugReportUrl = 'https://github.com/RykoTheDev/GodotHub/issues/new';
 const bugReportMaxCaptured = 20;
 const bugReportMaxDescription = 2000;
+const bugReportLogLines = 40;
+const bugReportMaxIssueLogChars = 3000;
 
 enum CapturedErrorSource {
   flutterError('FlutterError'),
@@ -62,12 +65,14 @@ abstract final class BugReportErrorLog {
     final previousFlutter = FlutterError.onError;
     FlutterError.onError = (details) {
       record(CapturedErrorSource.flutterError, details.exceptionAsString());
+      Diagnostics.record('flutter', Diagnostics.describe(details.exceptionAsString(), details.stack));
       previousFlutter?.call(details);
     };
     final dispatcher = ui.PlatformDispatcher.instance;
     final previousPlatform = dispatcher.onError;
     dispatcher.onError = (error, stack) {
       record(CapturedErrorSource.platformDispatcher, '$error');
+      Diagnostics.record('dart', Diagnostics.describe(error, stack));
       return previousPlatform?.call(error, stack) ?? false;
     };
   }
@@ -118,7 +123,9 @@ String _dateStamp(DateTime now) => now.toUtc().toIso8601String().substring(0, 10
   return (specs: specs, errors: lines.join('\n'));
 }
 
-String assembleBugReport(String description, String specs, String errors) {
+String _logBlock(String log) => '```\n${log.trimRight()}\n```';
+
+String assembleBugReport(String description, String specs, String errors, [String log = '']) {
   final desc = description.trim();
   return [
     '## ${ghTr('bug_report_description')}',
@@ -128,10 +135,13 @@ String assembleBugReport(String description, String specs, String errors) {
     specs,
     '',
     errors,
+    if (log.trim().isNotEmpty) ...['', '## ${ghTr('bug_report_log')}', '', _logBlock(log)],
   ].join('\n');
 }
 
-String bugReportIssueUrl(String description, String specs, String errors) {
+String bugReportIssueUrl(String description, String specs, String errors, [String log = '']) {
+  final trimmed = log.trim();
+  final issueLog = trimmed.length > bugReportMaxIssueLogChars ? trimmed.substring(trimmed.length - bugReportMaxIssueLogChars) : trimmed;
   final firstLine = description.trim().split('\n').first;
   final title = (firstLine.isNotEmpty ? firstLine : ghTr('report_a_bug'));
   return Uri.parse(bugReportUrl)
@@ -142,6 +152,7 @@ String bugReportIssueUrl(String description, String specs, String errors) {
           'description': description.trim(),
           'environment': specs,
           'actual-behavior': errors,
+          if (issueLog.isNotEmpty) 'additional-context': '## ${ghTr('bug_report_log')}\n\n${_logBlock(issueLog)}',
         },
       )
       .toString();
@@ -164,9 +175,10 @@ Future<String> _saveToDownloads(String name, String content) async {
 }
 
 class BugReportModal extends ConsumerStatefulWidget {
-  const BugReportModal({super.key, required this.onClose});
+  const BugReportModal({super.key, required this.onClose, this.initialDescription = ''});
 
   final VoidCallback onClose;
+  final String initialDescription;
 
   @visibleForTesting
   static Future<String> Function(String name, String content)? debugSaveReport;
@@ -176,8 +188,9 @@ class BugReportModal extends ConsumerStatefulWidget {
 }
 
 class _BugReportModalState extends ConsumerState<BugReportModal> {
-  final _description = TextEditingController();
+  late final _description = TextEditingController(text: widget.initialDescription);
   ({String specs, String errors})? _system;
+  String _log = '';
   bool _copied = false;
   Timer? _reset;
 
@@ -207,12 +220,14 @@ class _BugReportModalState extends ConsumerState<BugReportModal> {
 
   Future<void> _build() async {
     final version = await ref.read(appVersionProvider.future).then((v) => v ?? '', onError: (Object _) => '');
+    final log = await Diagnostics.tail(lines: bugReportLogLines);
     if (!mounted) return;
     final view = View.of(context);
     final display = view.display;
     final size = display.size;
     final ratio = display.devicePixelRatio;
     setState(() {
+      _log = log;
       _system = buildBugSystemReport(
         version: version,
         now: DateTime.now(),
@@ -229,7 +244,7 @@ class _BugReportModalState extends ConsumerState<BugReportModal> {
 
   String? get _report {
     final system = _system;
-    return system == null ? null : assembleBugReport(_description.text, system.specs, system.errors);
+    return system == null ? null : assembleBugReport(_description.text, system.specs, system.errors, _log);
   }
 
   Future<void> _copy() async {
@@ -260,9 +275,8 @@ class _BugReportModalState extends ConsumerState<BugReportModal> {
   void _openIssue() {
     final system = _system;
     if (system == null) return;
-    OpenerApi.openUrl(
-      bugReportIssueUrl(_description.text, system.specs, system.errors),
-    ).catchError((Object e) => ghToasts.pushToast(GhToastType.error, '$e'));
+    OpenerApi.openUrl(bugReportIssueUrl(_description.text, system.specs, system.errors, _log))
+        .catchError((Object e) => ghToasts.pushToast(GhToastType.error, '$e'));
     widget.onClose();
   }
 
@@ -356,14 +370,24 @@ class _BugReportModalState extends ConsumerState<BugReportModal> {
                   Container(
                     padding: EdgeInsets.symmetric(vertical: theme.space(10)),
                     alignment: Alignment.center,
-                    decoration: BoxDecoration(color: theme.base, borderRadius: radius, border: Border.all(color: theme.line)),
-                    child: GhSpinning(child: GhIcon(GhIcons.refresh, size: theme.space(5), color: theme.muted)),
+                    decoration: BoxDecoration(
+                      color: theme.base,
+                      borderRadius: radius,
+                      border: Border.all(color: theme.line),
+                    ),
+                    child: GhSpinning(
+                      child: GhIcon(GhIcons.refresh, size: theme.space(5), color: theme.muted),
+                    ),
                   )
                 else
                   Container(
                     constraints: const BoxConstraints(maxHeight: 200),
                     padding: EdgeInsets.all(theme.space(3.5)),
-                    decoration: BoxDecoration(color: theme.base, borderRadius: radius, border: Border.all(color: theme.line)),
+                    decoration: BoxDecoration(
+                      color: theme.base,
+                      borderRadius: radius,
+                      border: Border.all(color: theme.line),
+                    ),
                     child: GhScrollView(
                       child: SelectableText(
                         report,

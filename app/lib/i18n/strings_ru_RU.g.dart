@@ -142,6 +142,12 @@ class _Translations$common$ru_RU extends Translations$common$en_US {
 	@override String get scan_for_projects => 'Сканировать проекты';
 	@override String get create_workspace => 'Создать рабочее пространство';
 	@override String get report_a_bug => 'Сообщить об ошибке';
+	@override String get high_contrast_active => 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.';
+	@override String get crash_notice_title => 'GodotHub closed unexpectedly';
+	@override String get crash_notice_desc => 'GodotHub {{version}} stopped without closing normally the last time it ran.';
+	@override String get crash_notice_rolled_back => 'The update did not start, so GodotHub went back to {{previous}}, the version you had before.';
+	@override String get crash_notice_log => 'What happened is saved in a log on this computer. A bug report includes it, and you can read everything before you send it.';
+	@override String get bug_report_log => 'Log (personal details removed)';
 	@override String get report_bug => 'Сообщить об ошибке';
 	@override String get app_error_title => 'Что то пошло не так';
 	@override String get app_error_desc => 'GodotHub столкнулся с непредвиденной ошибкой и не смог отрисовать интерфейс. Подробности ниже: проверьте консоль (правый клик → Inspect) чтобы увидеть полный stack trace.';
@@ -2341,6 +2347,12 @@ extension on TranslationsRuRu {
 			'common.scan_for_projects' => 'Сканировать проекты',
 			'common.create_workspace' => 'Создать рабочее пространство',
 			'common.report_a_bug' => 'Сообщить об ошибке',
+			'common.high_contrast_active' => 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.',
+			'common.crash_notice_title' => 'GodotHub closed unexpectedly',
+			'common.crash_notice_desc' => 'GodotHub {{version}} stopped without closing normally the last time it ran.',
+			'common.crash_notice_rolled_back' => 'The update did not start, so GodotHub went back to {{previous}}, the version you had before.',
+			'common.crash_notice_log' => 'What happened is saved in a log on this computer. A bug report includes it, and you can read everything before you send it.',
+			'common.bug_report_log' => 'Log (personal details removed)',
 			'common.report_bug' => 'Сообщить об ошибке',
 			'common.app_error_title' => 'Что то пошло не так',
 			'common.app_error_desc' => 'GodotHub столкнулся с непредвиденной ошибкой и не смог отрисовать интерфейс. Подробности ниже: проверьте консоль (правый клик → Inspect) чтобы увидеть полный stack trace.',
@@ -2776,14 +2788,14 @@ extension on TranslationsRuRu {
 			'common.task_tray_auto_dismiss' => 'Завершённые задачи автоматически скрываются',
 			'common.task_tray_dismiss' => 'Скрыть {{count}}',
 			'common.task_error_status' => 'Ошибка',
+			_ => null,
+		} ?? switch (path) {
 			'common.command_palette_title' => 'Command Palette',
 			'common.command_palette_placeholder' => 'Найти команду, проект, версию, настройки...',
 			'common.command_palette_no_results' => 'Ничего не найдено',
 			'common.command_palette_navigate' => 'Перейти',
 			'common.command_palette_escape' => 'Esc',
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
-			_ => null,
-		} ?? switch (path) {
 			'common.setting_project_scan_dirs' => 'Scan Project Folders',
 			'common.setting_version_scan_dirs' => 'Scan Version Folders',
 			'common.setting_default_project_location' => 'Default Project Location Setting',
@@ -3290,14 +3302,14 @@ extension on TranslationsRuRu {
 			'common.project_addons.updated' => '{{name}} was updated',
 			'common.project_addons.confirm_title' => 'Update {{name}}?',
 			'common.project_addons.confirm_description' => 'This replaces res://addons/{{folder}} with version {{version}} from the Asset Library. The old folder is moved to the Trash, so any changes you made to the addon are kept there. Close the project in Godot first.',
+			_ => null,
+		} ?? switch (path) {
 			'common.project_addons.footer_hint' => 'Addons installed through GodotHub are matched exactly. Others are matched by name, so check the result before updating.',
 			'common.reload_confirm_title' => 'Reload GodotHub?',
 			'common.reload_confirm_desc' => 'Any unsaved changes in open forms will be lost.',
 			'common.color_presets' => 'Presets',
 			'common.date_previous_month' => 'Previous month',
 			'common.date_next_month' => 'Next month',
-			_ => null,
-		} ?? switch (path) {
 			'common.date_change_due' => 'Change due date: {{date}}',
 			'common.date_add_due' => 'Add due date',
 			'dashboard.greeting_morning' => 'Good morning',
@@ -3804,14 +3816,14 @@ extension on TranslationsRuRu {
 			'settings.discord_show_projects_label' => 'Show project names',
 			'settings.discord_excluded_label' => 'Excluded projects',
 			'settings.discord_exclude_project' => 'Add project',
+			_ => null,
+		} ?? switch (path) {
 			'settings.discord_excluded_empty' => 'No excluded projects.',
 			'settings.discord_excluded_remove' => 'Remove from excluded projects',
 			'settings.discord_custom_label' => 'Custom presence',
 			'settings.discord_custom_add' => 'Add project',
 			'settings.discord_custom_details_placeholder' => 'Details line',
 			'settings.discord_custom_state_placeholder' => 'State line',
-			_ => null,
-		} ?? switch (path) {
 			'settings.discord_custom_remove' => 'Remove custom presence',
 			'settings.search_placeholder' => 'Найти настройки…',
 			'settings.interface_label' => 'Interface',

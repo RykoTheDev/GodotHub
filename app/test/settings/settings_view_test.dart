@@ -164,6 +164,15 @@ void main() {
     expect(find.text(ts('appearance').toUpperCase()), findsOneWidget);
   });
 
+  testWidgets('appearance explains when Windows high contrast replaces the theme', (tester) async {
+    await pumpSettings(tester, body: const SingleChildScrollView(child: AppearanceSettings()));
+    expect(find.text(ghTr('high_contrast_active')), findsNothing);
+    tester.platformDispatcher.accessibilityFeaturesTestValue = const FakeAccessibilityFeatures(highContrast: true);
+    addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+    await base.settle(tester, 2);
+    expect(find.text(ghTr('high_contrast_active')), findsOneWidget);
+  });
+
   testWidgets('appearance saves custom theme, mode, sliders, css and reset', (tester) async {
     final host = await pumpSettings(
       tester,

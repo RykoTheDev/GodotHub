@@ -154,6 +154,48 @@ ThemePreset buildCustomPalette(String accent, String background, {GhThemeMode mo
   );
 }
 
+const highContrastDark = ThemePreset(
+  id: 'high-contrast-dark',
+  name: 'High Contrast Dark',
+  mode: GhThemeMode.dark,
+  base: '#000000',
+  surface: '#000000',
+  raised: '#141414',
+  overlay: '#000000',
+  line: '#a6a6a6',
+  outline: '#ffffff',
+  ink: '#ffffff',
+  muted: '#e0e0e0',
+  accent: '#1c62e8',
+  accentDim: '#8fb8ff',
+  accentBright: '#a8c8ff',
+  mint: '#4ae168',
+  amber: '#ffc83d',
+  danger: '#d42c2c',
+);
+
+const highContrastLight = ThemePreset(
+  id: 'high-contrast-light',
+  name: 'High Contrast Light',
+  mode: GhThemeMode.light,
+  base: '#ffffff',
+  surface: '#ffffff',
+  raised: '#ececec',
+  overlay: '#ffffff',
+  line: '#4d4d4d',
+  outline: '#000000',
+  ink: '#000000',
+  muted: '#1f1f1f',
+  accent: '#0037da',
+  accentDim: '#0037da',
+  accentBright: '#002aa8',
+  mint: '#0b6b1f',
+  amber: '#7a4f00',
+  danger: '#b00020',
+);
+
+ThemePreset highContrastPalette(GhThemeMode mode) => mode == GhThemeMode.light ? highContrastLight : highContrastDark;
+
 ThemePreset resolvePalette({
   required String accent,
   required String background,

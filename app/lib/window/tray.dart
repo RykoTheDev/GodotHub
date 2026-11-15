@@ -68,6 +68,34 @@ List<TrayEntry> buildTrayMenu({
   TrayAction(trayQuitLabel, onSelected: onQuit),
 ];
 
+const linuxTrayWatchers = ['org.kde.StatusNotifierWatcher', 'com.canonical.StatusNotifierWatcher'];
+
+typedef ProcessRunner = Future<ProcessResult> Function(String executable, List<String> arguments);
+
+Future<bool> linuxTrayHostRunning({ProcessRunner run = Process.run}) async {
+  for (final name in linuxTrayWatchers) {
+    final ProcessResult result;
+    try {
+      result = await run('gdbus', [
+        'call',
+        '--session',
+        '--dest',
+        'org.freedesktop.DBus',
+        '--object-path',
+        '/org/freedesktop/DBus',
+        '--method',
+        'org.freedesktop.DBus.NameHasOwner',
+        name,
+      ]);
+    } on ProcessException {
+      return true;
+    }
+    if (result.exitCode != 0) return true;
+    if ('${result.stdout}'.contains('true')) return true;
+  }
+  return false;
+}
+
 class TrayController {
   TrayController({
     required TrayBackend backend,
@@ -90,9 +118,10 @@ class TrayController {
   final void Function() quit;
   final DockMenu? dock;
   bool minimizeToTray = false;
+  bool trayShown = true;
   int _generation = 0;
 
-  bool keepAliveOnClose() => !Platform.isMacOS && minimizeToTray;
+  bool keepAliveOnClose() => !Platform.isMacOS && minimizeToTray && trayShown;
 
   Future<void> refresh() async {
     final generation = ++_generation;
@@ -128,6 +157,7 @@ class TrayController {
       quit: () => AppWindow.instance.quit().ignore(),
       dock: Platform.isMacOS ? MacDockMenu() : null,
     );
+    if (Platform.isLinux) controller.trayShown = await linuxTrayHostRunning();
     instance = controller;
     SettingsApi.trayRefresher = controller.refresh;
     AppWindow.instance.keepAliveOnClose = controller.keepAliveOnClose;

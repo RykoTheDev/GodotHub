@@ -11,6 +11,7 @@ import '../../state/app_lifecycle.dart';
 import '../../state/settings.dart';
 import '../../ui/controls/slider.dart';
 import '../../ui/controls/toggle.dart';
+import '../../ui/core/i18n.dart';
 import '../../ui/core/interaction.dart';
 import '../../ui/feedback/modal_shell.dart';
 import '../../ui/shell/color_swatch_picker.dart';
@@ -103,6 +104,27 @@ class _AppearanceSettingsState extends ConsumerState<AppearanceSettings> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: theme.space(3),
       children: [
+        if (MediaQuery.highContrastOf(context))
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(3)),
+            decoration: BoxDecoration(
+              color: theme.raised,
+              borderRadius: BorderRadius.circular(theme.radiusItem),
+              border: Border.all(color: theme.outline),
+            ),
+            child: Row(
+              spacing: theme.space(3),
+              children: [
+                GhIcon(GhIcons.info, size: theme.space(4), color: theme.ink),
+                Expanded(
+                  child: Text(
+                    ghTr('high_contrast_active'),
+                    style: theme.text(size: GhTextSize.sm, color: theme.ink, lineHeight: 1.5),
+                  ),
+                ),
+              ],
+            ),
+          ),
         SettingsSubsection(
           id: 'appearance-presets',
           title: lts('theme_preset_label'),

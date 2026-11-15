@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 import '../../api/api.dart';
+import '../../api/diagnostics.dart';
 import '../../design/design.dart';
 import '../core/button.dart';
 import '../core/i18n.dart';
@@ -27,6 +28,7 @@ class _GhViewErrorScopeState extends State<GhViewErrorScope> {
   void _report(Object error) {
     if (_error != null) return;
     _error = error;
+    Diagnostics.record('view', 'A view failed and shows the error panel: ${_messageOf(error)}');
     SchedulerBinding.instance.addPostFrameCallback((_) {
       if (mounted) setState(() {});
     });
@@ -144,6 +146,7 @@ class _ErrorReporterState extends State<_ErrorReporter> {
     final scope = context.getInheritedWidgetOfExactType<_ViewErrorScope>();
     _inView = scope != null;
     scope?.state._report(widget.details.exception);
+    if (scope == null) Diagnostics.record('view', 'The app shows the error screen: ${_messageOf(widget.details.exception)}');
   }
 
   @override
