@@ -69,7 +69,7 @@ if ($ExpectedVersion) {
   Check ((Get-Content (Join-Path $installDir 'launcher.json') -Raw | ConvertFrom-Json).current -eq $ExpectedVersion) "launcher starts $ExpectedVersion"
 }
 Check ((Get-ItemProperty $uninstallKey -ErrorAction SilentlyContinue).DisplayName -eq $DisplayName) "uninstall entry $Identifier named $DisplayName"
-Check ((Get-ItemProperty $uninstallKey -ErrorAction SilentlyContinue).InstallLocation -eq $installDir) 'uninstall entry points at the beta folder'
+Check ("$((Get-ItemProperty $uninstallKey -ErrorAction SilentlyContinue).InstallLocation)".Trim('"') -eq $installDir) 'uninstall entry points at the install folder'
 Check (Test-Path $shortcut) "start menu shortcut $DisplayName.lnk"
 $shell = New-Object -ComObject Shell.Application
 $aumid = $shell.NameSpace($startMenu).ParseName("$DisplayName.lnk").ExtendedProperty('System.AppUserModel.ID')

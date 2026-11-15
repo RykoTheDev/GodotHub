@@ -182,9 +182,10 @@ jobs:
 
       - name: Command line dispatch through the runner
         run: |
+          version="$(sed -n 's/^version: *\([^+ ]*\).*/\1/p' pubspec.yaml)"
           output="$("${{ matrix.binary }}" --version)"
           echo "$output"
-          test "$output" = "godothub-beta 0.1.0"
+          test "$output" = "godothub-beta $version"
 
       - name: Integration test (Linux)
         if: runner.os == 'Linux'
