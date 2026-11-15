@@ -90,6 +90,10 @@ pub async fn check_for_update() -> Result<Option<UpdateInfo>, CoreError> {
     Ok(updater::check(&app).await.map_err(CoreError::from)?.map(UpdateInfo::from))
 }
 
+pub async fn flutter_stable_release() -> Result<Option<String>, CoreError> {
+    updater::flutter_stable_release().await.map_err(CoreError::from)
+}
+
 static PENDING: std::sync::Mutex<Option<updater::PreparedUpdate>> = std::sync::Mutex::new(None);
 
 fn set_pending(prepared: Option<updater::PreparedUpdate>) {

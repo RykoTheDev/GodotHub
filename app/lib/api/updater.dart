@@ -111,6 +111,15 @@ abstract final class UpdaterApi {
     );
   }
 
+  static Future<String?> flutterStableRelease() async {
+    if (appBuildVersion.isEmpty) return null;
+    try {
+      return await rust.flutterStableRelease();
+    } catch (_) {
+      return null;
+    }
+  }
+
   static Future<bool> isUpdateAvailable() async {
     if (appBuildVersion.isEmpty) return false;
     return await rust.checkForUpdate() != null;
