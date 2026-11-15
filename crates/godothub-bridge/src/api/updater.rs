@@ -103,6 +103,7 @@ fn set_pending(prepared: Option<updater::PreparedUpdate>) {
 pub async fn download_update(update: UpdateInfo, github_token: Option<String>, sink: StreamSink<UpdateProgress>) -> Result<(), CoreError> {
     let app = crate::host::app()?;
     let update: updater::UpdateInfo = update.into();
+    let update_version = update.version.clone();
     set_pending(None);
     let (file, host) = updater::download_source(&update.url);
     log_line(&sink, (0, None), format!("Downloading {file} from {host}"));
@@ -131,8 +132,9 @@ pub async fn download_update(update: UpdateInfo, github_token: Option<String>, s
         }
         Err(error) => {
             log_line(&sink, last, format!("Failed: {error}"));
-            let _ = sink.add_error(CoreError::from(error.clone()));
-            Err(CoreError::from(error))
+            let error = CoreError::logged("updater", format!("Update {} failed: {error}", update_version));
+            let _ = sink.add_error(error.clone());
+            Err(error)
         }
     }
 }
@@ -145,6 +147,7 @@ pub async fn restart_to_update() -> Result<bool, CoreError> {
         .ok_or_else(|| CoreError::from("No update has been downloaded".to_string()))?;
     tokio::task::spawn_blocking(move || updater::finish(prepared, &mut |_| {}))
         .await
-        .map_err(|e| CoreError::from(e.to_string()))?
-        .map_err(CoreError::from)
+        .map_err(|e| e.to_string())
+        .and_then(|result| result)
+        .map_err(|error| CoreError::logged("updater", format!("Applying the update failed: {error}")))
 }

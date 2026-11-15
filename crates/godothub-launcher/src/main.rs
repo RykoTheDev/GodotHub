@@ -3,7 +3,7 @@
 use std::ffi::OsString;
 use std::process::Command;
 
-use godothub_launcher::Layout;
+use godothub_launcher::{Crash, Layout};
 
 fn main() {
     let code = run().unwrap_or_else(|message| {
@@ -29,12 +29,15 @@ fn run() -> Result<i32, String> {
     loop {
         let app = layout.app_dir(&version).join(name);
         let result = Command::new(&app).args(&args).status();
-        let should_roll_back = match &result {
-            Ok(status) => !status.success() && args.is_empty(),
-            Err(_) => true,
+        let crash_code = match &result {
+            Ok(status) if !status.success() && args.is_empty() => Some(status.code().map_or(-1, i64::from)),
+            Ok(_) => None,
+            Err(_) => Some(-1),
         };
-        if should_roll_back {
-            if let Ok(Some(previous)) = layout.rollback_after_failure(&version) {
+        if let Some(code) = crash_code {
+            let rolled_back_to = layout.rollback_after_failure(&version).ok().flatten();
+            let _ = layout.record_crash(Crash { version: version.clone(), code, rolled_back_to: rolled_back_to.clone() });
+            if let Some(previous) = rolled_back_to {
                 version = previous;
                 continue;
             }

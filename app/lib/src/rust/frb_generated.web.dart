@@ -15,6 +15,7 @@ import 'api/changelog.dart';
 import 'api/cli_shim.dart';
 import 'api/console.dart';
 import 'api/current_version.dart';
+import 'api/diagnostics.dart';
 import 'api/discovery.dart';
 import 'api/dto.dart';
 import 'api/error.dart';
@@ -144,6 +145,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ConsoleExit dco_decode_box_autoadd_console_exit(dynamic raw);
 
   @protected
+  CrashNotice dco_decode_box_autoadd_crash_notice(dynamic raw);
+
+  @protected
   CurrentVersionInfo dco_decode_box_autoadd_current_version_info(dynamic raw);
 
   @protected
@@ -268,6 +272,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   CoreError dco_decode_core_error(dynamic raw);
+
+  @protected
+  CrashNotice dco_decode_crash_notice(dynamic raw);
 
   @protected
   CreateRepoResult dco_decode_create_repo_result(dynamic raw);
@@ -669,6 +676,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ConsoleExit? dco_decode_opt_box_autoadd_console_exit(dynamic raw);
 
   @protected
+  CrashNotice? dco_decode_opt_box_autoadd_crash_notice(dynamic raw);
+
+  @protected
   CurrentVersionInfo? dco_decode_opt_box_autoadd_current_version_info(dynamic raw);
 
   @protected
@@ -1026,6 +1036,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ConsoleExit sse_decode_box_autoadd_console_exit(SseDeserializer deserializer);
 
   @protected
+  CrashNotice sse_decode_box_autoadd_crash_notice(SseDeserializer deserializer);
+
+  @protected
   CurrentVersionInfo sse_decode_box_autoadd_current_version_info(SseDeserializer deserializer);
 
   @protected
@@ -1150,6 +1163,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   CoreError sse_decode_core_error(SseDeserializer deserializer);
+
+  @protected
+  CrashNotice sse_decode_crash_notice(SseDeserializer deserializer);
 
   @protected
   CreateRepoResult sse_decode_create_repo_result(SseDeserializer deserializer);
@@ -1551,6 +1567,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ConsoleExit? sse_decode_opt_box_autoadd_console_exit(SseDeserializer deserializer);
 
   @protected
+  CrashNotice? sse_decode_opt_box_autoadd_crash_notice(SseDeserializer deserializer);
+
+  @protected
   CurrentVersionInfo? sse_decode_opt_box_autoadd_current_version_info(SseDeserializer deserializer);
 
   @protected
@@ -1908,6 +1927,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_box_autoadd_console_exit(ConsoleExit self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_crash_notice(CrashNotice self, SseSerializer serializer);
+
+  @protected
   void sse_encode_box_autoadd_current_version_info(CurrentVersionInfo self, SseSerializer serializer);
 
   @protected
@@ -2032,6 +2054,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_core_error(CoreError self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_crash_notice(CrashNotice self, SseSerializer serializer);
 
   @protected
   void sse_encode_create_repo_result(CreateRepoResult self, SseSerializer serializer);
@@ -2431,6 +2456,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_opt_box_autoadd_console_exit(ConsoleExit? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_crash_notice(CrashNotice? self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_box_autoadd_current_version_info(CurrentVersionInfo? self, SseSerializer serializer);

@@ -144,6 +144,12 @@ class _Translations$common$ar_MA extends Translations$common$en_US {
 	@override String get scan_for_projects => 'ابحث عن المشاريع';
 	@override String get create_workspace => 'أنشئ بيئة عمل';
 	@override String get report_a_bug => 'أبلغ عن مشكلة';
+	@override String get high_contrast_active => 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.';
+	@override String get crash_notice_title => 'GodotHub closed unexpectedly';
+	@override String get crash_notice_desc => 'GodotHub {{version}} stopped without closing normally the last time it ran.';
+	@override String get crash_notice_rolled_back => 'The update did not start, so GodotHub went back to {{previous}}, the version you had before.';
+	@override String get crash_notice_log => 'What happened is saved in a log on this computer. A bug report includes it, and you can read everything before you send it.';
+	@override String get bug_report_log => 'Log (personal details removed)';
 	@override String get report_bug => 'أبلغ عن مشكلة';
 	@override String get app_error_title => 'حدث خطأ ما';
 	@override String get app_error_desc => 'قد حصل خطأ غير متوقع و لا يمكن العرض. التفاصيل في الأسفل, تأكد من الطرفية (right-click → Inspect) من أجل المتابعة الكاملة للمشكلة.';
@@ -2439,6 +2445,12 @@ extension on TranslationsArMa {
 			'common.scan_for_projects' => 'ابحث عن المشاريع',
 			'common.create_workspace' => 'أنشئ بيئة عمل',
 			'common.report_a_bug' => 'أبلغ عن مشكلة',
+			'common.high_contrast_active' => 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.',
+			'common.crash_notice_title' => 'GodotHub closed unexpectedly',
+			'common.crash_notice_desc' => 'GodotHub {{version}} stopped without closing normally the last time it ran.',
+			'common.crash_notice_rolled_back' => 'The update did not start, so GodotHub went back to {{previous}}, the version you had before.',
+			'common.crash_notice_log' => 'What happened is saved in a log on this computer. A bug report includes it, and you can read everything before you send it.',
+			'common.bug_report_log' => 'Log (personal details removed)',
 			'common.report_bug' => 'أبلغ عن مشكلة',
 			'common.app_error_title' => 'حدث خطأ ما',
 			'common.app_error_desc' => 'قد حصل خطأ غير متوقع و لا يمكن العرض. التفاصيل في الأسفل, تأكد من الطرفية (right-click → Inspect) من أجل المتابعة الكاملة للمشكلة.',
@@ -2874,14 +2886,14 @@ extension on TranslationsArMa {
 			'common.task_tray_auto_dismiss' => 'Completed auto-dismiss',
 			'common.task_tray_dismiss' => 'متجاهلة {{count}}',
 			'common.task_error_status' => 'خطأ',
+			_ => null,
+		} ?? switch (path) {
 			'common.command_palette_title' => 'Command Palette',
 			'common.command_palette_placeholder' => 'Search commands, projects, engines, settings…',
 			'common.command_palette_no_results' => 'لا توجد نتائج متوافقة',
 			'common.command_palette_navigate' => 'تصفح',
 			'common.command_palette_escape' => 'Esc',
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
-			_ => null,
-		} ?? switch (path) {
 			'common.setting_project_scan_dirs' => 'Scan Project Folders',
 			'common.setting_version_scan_dirs' => 'Scan Version Folders',
 			'common.setting_default_project_location' => 'Default Project Location Setting',
@@ -3388,14 +3400,14 @@ extension on TranslationsArMa {
 			'common.project_addons.updated' => '{{name}} was updated',
 			'common.project_addons.confirm_title' => 'Update {{name}}?',
 			'common.project_addons.confirm_description' => 'This replaces res://addons/{{folder}} with version {{version}} from the Asset Library. The old folder is moved to the Trash, so any changes you made to the addon are kept there. Close the project in Godot first.',
+			_ => null,
+		} ?? switch (path) {
 			'common.project_addons.footer_hint' => 'Addons installed through GodotHub are matched exactly. Others are matched by name, so check the result before updating.',
 			'common.reload_confirm_title' => 'Reload GodotHub?',
 			'common.reload_confirm_desc' => 'Any unsaved changes in open forms will be lost.',
 			'common.color_presets' => 'Presets',
 			'common.date_previous_month' => 'Previous month',
 			'common.date_next_month' => 'Next month',
-			_ => null,
-		} ?? switch (path) {
 			'common.date_change_due' => 'Change due date: {{date}}',
 			'common.date_add_due' => 'Add due date',
 			'dashboard.greeting_morning' => 'صباح الخير',
@@ -3902,14 +3914,14 @@ extension on TranslationsArMa {
 			'settings.discord_show_projects_label' => 'أظهر إسم المشروع',
 			'settings.discord_excluded_label' => 'المشاريع المعزولة',
 			'settings.discord_exclude_project' => 'أضف مشروعا',
+			_ => null,
+		} ?? switch (path) {
 			'settings.discord_excluded_empty' => 'No excluded projects.',
 			'settings.discord_excluded_remove' => 'Remove from excluded projects',
 			'settings.discord_custom_label' => 'تخصيص الحالة',
 			'settings.discord_custom_add' => 'أضف مشروعا',
 			'settings.discord_custom_details_placeholder' => 'سطر التفاصيل',
 			'settings.discord_custom_state_placeholder' => 'سطر الحالة',
-			_ => null,
-		} ?? switch (path) {
 			'settings.discord_custom_remove' => 'Remove custom presence',
 			'settings.search_placeholder' => 'ابحث في الإعدادات…',
 			'settings.interface_label' => 'واجهة المستخدم',

@@ -25,7 +25,11 @@ class FakeTrayBackend implements TrayBackend {
   void dispose() => disposed = true;
 
   TrayAction action(String label) {
-    for (final entry in [...menu, for (final e in menu) if (e is TraySubmenu) ...e.entries]) {
+    for (final entry in [
+      ...menu,
+      for (final e in menu)
+        if (e is TraySubmenu) ...e.entries,
+    ]) {
       if (entry is TrayAction && entry.label == label) return entry;
     }
     throw StateError('no $label');
@@ -151,5 +155,25 @@ void main() {
     expect(sent.single, [
       {'id': 'a', 'label': 'Alpha', 'path': 'C:/p/a'},
     ]);
+  });
+
+  test('closing hides to the tray only when a tray is shown', () {
+    final c = controller()..minimizeToTray = true;
+    expect(c.keepAliveOnClose(), !Platform.isMacOS);
+    c.trayShown = false;
+    expect(c.keepAliveOnClose(), isFalse);
+  });
+
+  test('a Linux tray host is found on the session bus', () async {
+    final asked = <String>[];
+    ProcessRunner answer(Map<String, String> owners, {int code = 0}) => (executable, arguments) async {
+      asked.add(arguments.last);
+      return ProcessResult(0, code, owners[arguments.last] ?? '(false,)', '');
+    };
+    expect(await linuxTrayHostRunning(run: answer({'com.canonical.StatusNotifierWatcher': '(true,)'})), isTrue);
+    expect(asked, linuxTrayWatchers);
+    expect(await linuxTrayHostRunning(run: answer({})), isFalse);
+    expect(await linuxTrayHostRunning(run: answer({}, code: 1)), isTrue);
+    expect(await linuxTrayHostRunning(run: (_, _) async => throw const ProcessException('gdbus', [])), isTrue);
   });
 }

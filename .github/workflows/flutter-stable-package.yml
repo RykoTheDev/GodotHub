@@ -46,7 +46,7 @@ jobs:
           - os: macos-latest
             target: macos
             rust_targets: aarch64-apple-darwin,x86_64-apple-darwin
-          - os: ubuntu-latest
+          - os: ubuntu-22.04
             target: linux
             rust_targets: ''
 
@@ -93,7 +93,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libx11-dev libxi-dev liblzma-dev zip rpm xvfb
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libx11-dev libxi-dev liblzma-dev libstdc++-12-dev zip rpm xvfb
 
       - name: Cache Rust dependencies
         uses: actions/cache@v4
@@ -219,22 +219,36 @@ jobs:
             app/build/linux/x64/release/bundle "$VERSION" dist "$CHANNEL_ID" "$CHANNEL_NAME" "$CHANNEL_BIN" \
             app/packaging/icons/stable/app_icon.png "$PWD/tools/appimagetool" "$PWD/tools/runtime-x86_64"
 
+      - name: Check the glibc floor of the Linux build
+        if: runner.os == 'Linux'
+        run: |
+          set -euo pipefail
+          floor=$(find app/build/linux/x64/release/bundle -type f -exec sh -c 'file -b "$1" | grep -q ELF && objdump -T "$1"' _ {} \; \
+            | grep -o 'GLIBC_[0-9.]*' | sed 's/GLIBC_//' | sort -V | tail -n 1)
+          echo "The Linux build needs glibc $floor or newer"
+          test "$(printf '%s\n2.35\n' "$floor" | sort -V | tail -n 1)" = 2.35
+
       - name: Upgrade Tauri installs on Linux
         if: runner.os == 'Linux'
         run: |
           set -euo pipefail
-          sudo apt-get install -y ./tauri/*-linux-amd64.deb
-          test "$(dpkg-query -W -f '${Version}' godot-hub)" != "$VERSION"
-          sudo apt-get install -y "./dist/GodotHub-$VERSION-linux-amd64.deb"
-          test "$(dpkg-query -W -f '${Version}' godot-hub)" = "$VERSION"
-          test "$(dpkg -l | grep -c ' godot-hub ')" = 1
-          test "$(godothub --version)" = "$CHANNEL_BIN $VERSION"
-          test -f /usr/share/applications/GodotHub.desktop
-          dpkg -S "$(readlink -f "$(command -v godothub)")" | grep -q '^godot-hub:'
-          xvfb-run -a timeout 20 godothub || code=$?
-          test "${code:-124}" = 124
-          sudo apt-get remove -y godot-hub
-          test ! -e /usr/lib/godothub
+          docker run --rm -v "$PWD:/w" -w /w -e VERSION -e CHANNEL_BIN ubuntu:24.04 bash -euc '
+            apt-get update -q
+            export DEBIAN_FRONTEND=noninteractive
+            apt-get install -y -q xvfb xauth ./tauri/*-linux-amd64.deb
+            test "$(dpkg-query -W -f "\${Version}" godot-hub)" != "$VERSION"
+            apt-get install -y -q "./dist/GodotHub-$VERSION-linux-amd64.deb"
+            test "$(dpkg-query -W -f "\${Version}" godot-hub)" = "$VERSION"
+            test "$(dpkg -l | grep -c " godot-hub ")" = 1
+            test "$(godothub --version)" = "$CHANNEL_BIN $VERSION"
+            test -f /usr/share/applications/GodotHub.desktop
+            dpkg -S "$(readlink -f "$(command -v godothub)")" | grep -q "^godot-hub:"
+            code=0
+            xvfb-run -a timeout 20 godothub || code=$?
+            test "$code" = 124
+            apt-get remove -y -q godot-hub
+            test ! -e /usr/lib/godothub
+          '
           docker run --rm -v "$PWD:/w" -w /w fedora:41 bash -euc '
             rpm -i --nodeps tauri/*-linux-x86_64.rpm
             rpm -U --nodeps "dist/GodotHub-'"$VERSION"'-linux-x86_64.rpm"
@@ -321,6 +335,12 @@ jobs:
         include:
           - distro: ubuntu
             image: ubuntu:24.04
+            package: deb
+          - distro: ubuntu-22.04
+            image: ubuntu:22.04
+            package: deb
+          - distro: debian-12
+            image: debian:12
             package: deb
           - distro: fedora
             image: fedora:41

@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'api/diagnostics.dart';
 import 'api/events.dart';
 import 'bench/bench_mode.dart';
 import 'api/updater.dart';
@@ -41,13 +42,14 @@ Future<void> main() async {
   ErrorWidget.builder = ghErrorWidget;
   installBugReportErrorCapture();
   await RustLib.init();
+  Diagnostics.markReady();
   UpdaterApi.applyBuildVersion();
   if (const bool.fromEnvironment('UPDATER_LAB_CRASH')) exit(70);
   AppEvents.all.listen((_) {});
-  final benchData = benchDataDir();
-  final title = benchData == null
+  final dataOverride = benchDataDir() ?? updaterLabDataDir;
+  final title = dataOverride == null
       ? await core.startCore(channel: buildChannel)
-      : await core.startCoreIn(channel: buildChannel, dataDir: benchData, configDir: benchData, cacheDir: '$benchData/cache');
+      : await core.startCoreIn(channel: buildChannel, dataDir: dataOverride, configDir: dataOverride, cacheDir: '$dataOverride/cache');
   final current = await settings.getSettings();
   await UiPrefsStore.instance.load();
   await GhI18n.init(settingsLanguage: current.language, settingsRtlLayout: current.rtlLayout);
@@ -85,6 +87,7 @@ class GodotHubApp extends ConsumerStatefulWidget {
 
 class _GodotHubAppState extends ConsumerState<GodotHubApp> with WidgetsBindingObserver {
   Brightness _platformBrightness = PlatformDispatcher.instance.platformBrightness;
+  bool _highContrast = PlatformDispatcher.instance.accessibilityFeatures.highContrast;
   bool _gallery = false;
 
   @override
@@ -111,6 +114,12 @@ class _GodotHubAppState extends ConsumerState<GodotHubApp> with WidgetsBindingOb
   }
 
   @override
+  void didChangeAccessibilityFeatures() {
+    final highContrast = PlatformDispatcher.instance.accessibilityFeatures.highContrast;
+    if (highContrast != _highContrast) setState(() => _highContrast = highContrast);
+  }
+
+  @override
   Widget build(BuildContext context) {
     ref.listen(settingsProvider, (previous, next) {
       final value = next.value;
@@ -119,7 +128,7 @@ class _GodotHubAppState extends ConsumerState<GodotHubApp> with WidgetsBindingOb
       GhI18n.instance.setRtlLayout(value.rtlLayout);
     });
     final current = ref.watch(themePreviewProvider) ?? ref.watch(settingsProvider).value ?? widget.initialSettings;
-    final theme = ghThemeFromSettings(current, _platformBrightness);
+    final theme = ghThemeFromSettings(current, _platformBrightness, highContrast: _highContrast);
     final i18n = GhI18n.instance;
     return ListenableBuilder(
       listenable: i18n,

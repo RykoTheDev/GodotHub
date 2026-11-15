@@ -22,6 +22,7 @@ fn parse_channel(channel: &str) -> Result<Channel, CoreError> {
 #[frb(init)]
 pub fn init_app() {
     flutter_rust_bridge::setup_default_user_utils();
+    godothub_core::diagnostics::install_panic_hook();
 }
 
 #[frb(sync)]

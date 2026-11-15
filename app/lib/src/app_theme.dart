@@ -6,7 +6,7 @@ import '../motion/motion.dart';
 import '../ui/core/ui_settings.dart';
 import 'rust/api/types.dart';
 
-GhTheme ghThemeFromSettings(AppSettings settings, Brightness platformBrightness) {
+GhTheme ghThemeFromSettings(AppSettings settings, Brightness platformBrightness, {bool highContrast = false}) {
   return GhTheme.fromSettings(
     accentColor: settings.accentColor,
     backgroundColor: settings.backgroundColor,
@@ -19,6 +19,7 @@ GhTheme ghThemeFromSettings(AppSettings settings, Brightness platformBrightness)
     projectIconOpacity: settings.projectIconOpacity.toDouble(),
     showScrollbars: settings.showScrollbars,
     platformBrightness: platformBrightness,
+    highContrast: highContrast,
     languageCode: ghResolveLanguage(settings.language).split(RegExp('[-_]')).first,
   );
 }

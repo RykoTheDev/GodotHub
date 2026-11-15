@@ -5,17 +5,22 @@ pub struct CoreError {
     pub message: String,
 }
 
+impl CoreError {
+    pub(crate) fn logged(source: &str, message: String) -> Self {
+        godothub_core::diagnostics::record(source, &message);
+        Self { message }
+    }
+}
+
 impl From<String> for CoreError {
     fn from(message: String) -> Self {
-        Self { message }
+        Self::logged("core", message)
     }
 }
 
 impl From<&str> for CoreError {
     fn from(message: &str) -> Self {
-        Self {
-            message: message.to_string(),
-        }
+        Self::logged("core", message.to_string())
     }
 }
 

@@ -20,6 +20,7 @@ interprocess = "2"
 minisign-verify = "0.3"
 notify = "6"
 quick-xml = "0.41"
+regex = "1"
 semver = "1"
 reqwest = { version = "0.13.4", features = ["json", "stream", "gzip"] }
 serde = { version = "1", features = ["derive"] }

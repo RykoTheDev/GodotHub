@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../api/api.dart';
+import '../../api/diagnostics.dart';
 import '../../api/settings.dart';
 import '../../api/updater.dart';
 import '../../design/design.dart';
@@ -14,6 +15,7 @@ import '../../logic/settings_copy.dart';
 import '../../shell/sidebar_prefs.dart';
 import '../../src/channel.dart';
 import '../../src/rust/api/app.dart' as app_rust;
+import '../../src/rust/api/diagnostics.dart' as diagnostics_rust;
 import '../../src/ui_prefs.dart';
 import '../../state/app_signals.dart';
 import '../../state/app_version.dart';
@@ -24,6 +26,8 @@ import '../../ui/core/interaction.dart';
 import '../../ui/feedback/toast.dart';
 
 typedef BetaReimporter = Future<app_rust.BetaImport> Function();
+
+enum _CrashTest { exitCode, abort }
 
 class DebugSettings extends ConsumerStatefulWidget {
   const DebugSettings({super.key, this.channel = buildChannel, this.reimport});
@@ -40,6 +44,7 @@ class DebugSettings extends ConsumerStatefulWidget {
 
 class _DebugSettingsState extends ConsumerState<DebugSettings> {
   bool _crash = false;
+  _CrashTest? _confirmCrash;
   bool _confirmWipe = false;
   bool _confirmReimport = false;
   bool _reimporting = false;
@@ -91,6 +96,65 @@ class _DebugSettingsState extends ConsumerState<DebugSettings> {
       await _relaunch();
     } catch (e) {
       _toast(GhToastType.error, 'Could not wipe app data: $e');
+    }
+  }
+
+  List<Widget> _crashTest(_CrashTest test) => _confirmCrash == test
+      ? [
+          _DebugButton(label: 'Confirm', danger: true, onPressed: () => _runCrashTest(test)),
+          _DebugButton(label: 'Cancel', onPressed: () => setState(() => _confirmCrash = null)),
+        ]
+      : [
+          _DebugButton(
+            label: test == _CrashTest.exitCode ? 'Quit' : 'Abort',
+            danger: true,
+            onPressed: () => setState(() => _confirmCrash = test),
+          ),
+        ];
+
+  void _runCrashTest(_CrashTest test) {
+    switch (test) {
+      case _CrashTest.exitCode:
+        Diagnostics.record('debug', 'Debug crash test: quitting with exit code 3 from Settings > Debug');
+        exit(3);
+      case _CrashTest.abort:
+        diagnostics_rust.debugAbort().ignore();
+    }
+  }
+
+  void _throwDartError() {
+    Future<void>.delayed(Duration.zero, () => throw StateError('Debug crash test: Dart error thrown from Settings > Debug')).ignore();
+    _toast(GhToastType.info, 'Dart error thrown and logged');
+  }
+
+  Future<void> _rustPanic() async {
+    try {
+      await diagnostics_rust.debugPanic();
+      _toast(GhToastType.error, 'The Rust call returned without panicking');
+    } catch (_) {
+      _toast(GhToastType.info, 'Rust panicked and the panic was logged');
+    }
+  }
+
+  Future<void> _openLogFolder() async {
+    try {
+      await Api.openProjectFolder(await diagnostics_rust.diagnosticLogDir());
+    } catch (e) {
+      _toast(GhToastType.error, 'Could not open the log folder: $e');
+    }
+  }
+
+  Future<void> _copyLog() async {
+    final tail = await Diagnostics.tail(lines: 200);
+    if (tail.isEmpty) {
+      _toast(GhToastType.info, 'The log is empty');
+      return;
+    }
+    try {
+      await Clipboard.setData(ClipboardData(text: tail));
+      _toast(GhToastType.success, 'Copied the last 200 log lines');
+    } catch (e) {
+      _toast(GhToastType.error, 'Could not copy the log: $e');
     }
   }
 
@@ -278,6 +342,40 @@ class _DebugSettingsState extends ConsumerState<DebugSettings> {
               label: 'Trigger crash',
               description: 'Throws a render error to test the crash screen.',
               children: [_DebugButton(label: 'Crash', danger: true, onPressed: () => setState(() => _crash = true))],
+            ),
+          ],
+        ),
+        _DebugSection(
+          title: 'Crash tests',
+          description: 'Test the diagnostics log and the "GodotHub closed unexpectedly" notice. Everything is written to the local log only. The notice needs the Windows installer build, where the launcher sees the app exit.',
+          children: [
+            _DebugRow(
+              label: 'Throw a Dart error',
+              description: 'Throws an uncaught async error. It is logged as [dart] and listed in the bug report.',
+              children: [_DebugButton(label: 'Throw', onPressed: _throwDartError)],
+            ),
+            _DebugRow(
+              label: 'Panic in Rust',
+              description: 'Panics inside a bridge call. The panic hook logs it as [panic] and the app keeps running.',
+              children: [_DebugButton(label: 'Panic', onPressed: () => _rustPanic().ignore())],
+            ),
+            _DebugRow(
+              label: 'Quit with a crash code',
+              description: 'Exits with code 3. On the next start the launcher record shows the crash notice.',
+              children: _crashTest(_CrashTest.exitCode),
+            ),
+            _DebugRow(
+              label: 'Hard crash',
+              description: 'Aborts the process from Rust, like a native crash (exit code 0xC0000409 on Windows).',
+              children: _crashTest(_CrashTest.abort),
+            ),
+            _DebugRow(
+              label: 'Diagnostics log',
+              description: 'Opens the log folder, or copies the last 200 lines.',
+              children: [
+                _DebugButton(label: 'Open folder', onPressed: () => _openLogFolder().ignore()),
+                _DebugButton(label: 'Copy log', onPressed: () => _copyLog().ignore()),
+              ],
             ),
           ],
         ),

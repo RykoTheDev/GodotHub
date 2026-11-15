@@ -139,6 +139,12 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String get scan_for_projects => 'スキャン';
 	@override String get create_workspace => 'ワークスペースを作成';
 	@override String get report_a_bug => 'バグを報告';
+	@override String get high_contrast_active => 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.';
+	@override String get crash_notice_title => 'GodotHub closed unexpectedly';
+	@override String get crash_notice_desc => 'GodotHub {{version}} stopped without closing normally the last time it ran.';
+	@override String get crash_notice_rolled_back => 'The update did not start, so GodotHub went back to {{previous}}, the version you had before.';
+	@override String get crash_notice_log => 'What happened is saved in a log on this computer. A bug report includes it, and you can read everything before you send it.';
+	@override String get bug_report_log => 'Log (personal details removed)';
 	@override String get report_bug => 'バグを報告';
 	@override String get app_error_title => '問題が発生しました';
 	@override String get app_error_desc => 'GodotHub で予期しないエラーが発生し、画面を描画できませんでした。詳細は以下のとおりです。完全なスタックトレースはコンソール（右クリック →「検証」）で確認できます。';
@@ -2191,6 +2197,12 @@ extension on TranslationsJaJp {
 			'common.scan_for_projects' => 'スキャン',
 			'common.create_workspace' => 'ワークスペースを作成',
 			'common.report_a_bug' => 'バグを報告',
+			'common.high_contrast_active' => 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.',
+			'common.crash_notice_title' => 'GodotHub closed unexpectedly',
+			'common.crash_notice_desc' => 'GodotHub {{version}} stopped without closing normally the last time it ran.',
+			'common.crash_notice_rolled_back' => 'The update did not start, so GodotHub went back to {{previous}}, the version you had before.',
+			'common.crash_notice_log' => 'What happened is saved in a log on this computer. A bug report includes it, and you can read everything before you send it.',
+			'common.bug_report_log' => 'Log (personal details removed)',
 			'common.report_bug' => 'バグを報告',
 			'common.app_error_title' => '問題が発生しました',
 			'common.app_error_desc' => 'GodotHub で予期しないエラーが発生し、画面を描画できませんでした。詳細は以下のとおりです。完全なスタックトレースはコンソール（右クリック →「検証」）で確認できます。',
@@ -2626,14 +2638,14 @@ extension on TranslationsJaJp {
 			'common.task_tray_auto_dismiss' => '完了したものを自動的に消す',
 			'common.task_tray_dismiss' => '{{count}} 件を消す',
 			'common.task_error_status' => 'エラー',
+			_ => null,
+		} ?? switch (path) {
 			'common.command_palette_title' => 'コマンドパレット',
 			'common.command_palette_placeholder' => 'コマンド、プロジェクト、エンジン、設定を検索…',
 			'common.command_palette_no_results' => '一致する結果はありません',
 			'common.command_palette_navigate' => '移動',
 			'common.command_palette_escape' => 'Esc',
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
-			_ => null,
-		} ?? switch (path) {
 			'common.setting_project_scan_dirs' => 'プロジェクトフォルダをスキャン',
 			'common.setting_version_scan_dirs' => 'バージョンフォルダをスキャン',
 			'common.setting_default_project_location' => 'デフォルトのプロジェクト保存先',
@@ -3140,14 +3152,14 @@ extension on TranslationsJaJp {
 			'common.project_addons.updated' => '{{name}} を更新しました',
 			'common.project_addons.confirm_title' => '{{name}} を更新しますか？',
 			'common.project_addons.confirm_description' => 'res://addons/{{folder}} を、アセットライブラリのバージョン {{version}} に置き換えます。元のフォルダはゴミ箱に移動するため、アドオンに加えた変更はそちらに残ります。先に Godot でプロジェクトを閉じてください。',
+			_ => null,
+		} ?? switch (path) {
 			'common.project_addons.footer_hint' => 'GodotHub 経由でインストールしたアドオンは正確に照合されます。それ以外は名前で判定するため、更新前に結果を確認してください。',
 			'common.reload_confirm_title' => 'GodotHub を再読み込みしますか？',
 			'common.reload_confirm_desc' => '入力中の未保存の変更は失われます。',
 			'common.color_presets' => 'プリセット',
 			'common.date_previous_month' => '前の月',
 			'common.date_next_month' => '次の月',
-			_ => null,
-		} ?? switch (path) {
 			'common.date_change_due' => '期限を変更: {{date}}',
 			'common.date_add_due' => '期限を追加',
 			'dashboard.greeting_morning' => 'おはようございます',
@@ -3654,14 +3666,14 @@ extension on TranslationsJaJp {
 			'settings.discord_show_projects_label' => 'プロジェクト名を表示',
 			'settings.discord_excluded_label' => '除外するプロジェクト',
 			'settings.discord_exclude_project' => 'プロジェクトを追加',
+			_ => null,
+		} ?? switch (path) {
 			'settings.discord_excluded_empty' => '除外中のプロジェクトはありません。',
 			'settings.discord_excluded_remove' => '除外リストから削除',
 			'settings.discord_custom_label' => 'カスタムプレゼンス',
 			'settings.discord_custom_add' => 'プロジェクトを追加',
 			'settings.discord_custom_details_placeholder' => '詳細テキスト',
 			'settings.discord_custom_state_placeholder' => '状態テキスト',
-			_ => null,
-		} ?? switch (path) {
 			'settings.discord_custom_remove' => 'カスタムプレゼンスを削除',
 			'settings.search_placeholder' => '設定を検索…',
 			'settings.interface_label' => 'インターフェース',

@@ -58,6 +58,8 @@ import '../api/updater.dart';
 import '../modals/beta_ended_modal.dart';
 import '../src/channel.dart';
 import '../modals/bug_report_modal.dart';
+import '../api/diagnostics.dart';
+import '../modals/crash_notice_modal.dart';
 import '../modals/check_for_updates_modal.dart';
 import '../news/news_view.dart';
 import '../onboarding/onboarding_view.dart';
@@ -157,6 +159,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     _subscriptions.add(AppEvents.of(AppEventKind.projectExited).listen((_) => ref.read(projectsProvider.notifier).refresh().ignore()));
     _announcement.start();
     WidgetsBinding.instance.addPostFrameCallback((_) => _checkProjectsHealth());
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkCrashNotice());
     if (buildChannel == 'beta') {
       WidgetsBinding.instance.addPostFrameCallback((_) => _checkBetaEnded());
     }
@@ -219,10 +222,10 @@ class _AppShellState extends ConsumerState<AppShell> {
     ).ignore();
   }
 
-  void _openBugReport() {
+  void _openBugReport({String description = ''}) {
     if (_bugReportOpen || !mounted) return;
     _bugReportOpen = true;
-    _push((context) => BugReportModal(onClose: () => Navigator.of(context).pop()), (route) {
+    _push((context) => BugReportModal(initialDescription: description, onClose: () => Navigator.of(context).pop()), (route) {
       _bugReportRoute = route;
       if (route == null) _bugReportOpen = false;
     }).ignore();
@@ -364,6 +367,25 @@ class _AppShellState extends ConsumerState<AppShell> {
     } catch (e) {
       debugPrint('[new-ui] scan failed: $e');
     }
+  }
+
+  Future<void> _checkCrashNotice() async {
+    final notice = await Diagnostics.takeCrashNotice();
+    if (notice == null || !mounted) return;
+    var report = false;
+    await showGhModal<void>(
+      context,
+      (modal) => CrashNoticeModal(
+        version: notice.version,
+        rolledBackTo: notice.rolledBackTo,
+        onClose: () => Navigator.of(modal).pop(),
+        onReport: () {
+          report = true;
+          Navigator.of(modal).pop();
+        },
+      ),
+    );
+    if (report) _openBugReport(description: notice.summary);
   }
 
   Future<void> _checkBetaEnded() async {

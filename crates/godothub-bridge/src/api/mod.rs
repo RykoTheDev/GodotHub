@@ -7,6 +7,7 @@ pub mod changelog;
 pub mod cli_shim;
 pub mod console;
 pub mod current_version;
+pub mod diagnostics;
 pub mod discovery;
 pub mod dto;
 pub mod error;

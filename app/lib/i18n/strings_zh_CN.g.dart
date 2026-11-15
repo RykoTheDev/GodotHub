@@ -139,6 +139,12 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String get scan_for_projects => '扫描项目';
 	@override String get create_workspace => '创建工作区';
 	@override String get report_a_bug => '报告问题';
+	@override String get high_contrast_active => 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.';
+	@override String get crash_notice_title => 'GodotHub closed unexpectedly';
+	@override String get crash_notice_desc => 'GodotHub {{version}} stopped without closing normally the last time it ran.';
+	@override String get crash_notice_rolled_back => 'The update did not start, so GodotHub went back to {{previous}}, the version you had before.';
+	@override String get crash_notice_log => 'What happened is saved in a log on this computer. A bug report includes it, and you can read everything before you send it.';
+	@override String get bug_report_log => 'Log (personal details removed)';
 	@override String get report_bug => '报告问题';
 	@override String get app_error_title => '出现问题';
 	@override String get app_error_desc => 'GodotHub 遇到意外错误，无法渲染。详细信息如下，请查看控制台（右键 → 检查）以获取完整堆栈跟踪。';
@@ -2189,6 +2195,12 @@ extension on TranslationsZhCn {
 			'common.scan_for_projects' => '扫描项目',
 			'common.create_workspace' => '创建工作区',
 			'common.report_a_bug' => '报告问题',
+			'common.high_contrast_active' => 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.',
+			'common.crash_notice_title' => 'GodotHub closed unexpectedly',
+			'common.crash_notice_desc' => 'GodotHub {{version}} stopped without closing normally the last time it ran.',
+			'common.crash_notice_rolled_back' => 'The update did not start, so GodotHub went back to {{previous}}, the version you had before.',
+			'common.crash_notice_log' => 'What happened is saved in a log on this computer. A bug report includes it, and you can read everything before you send it.',
+			'common.bug_report_log' => 'Log (personal details removed)',
 			'common.report_bug' => '报告问题',
 			'common.app_error_title' => '出现问题',
 			'common.app_error_desc' => 'GodotHub 遇到意外错误，无法渲染。详细信息如下，请查看控制台（右键 → 检查）以获取完整堆栈跟踪。',
@@ -2624,14 +2636,14 @@ extension on TranslationsZhCn {
 			'common.task_tray_auto_dismiss' => '已完成自动关闭',
 			'common.task_tray_dismiss' => '隐藏 {{count}} 个任务',
 			'common.task_error_status' => '错误',
+			_ => null,
+		} ?? switch (path) {
 			'common.command_palette_title' => '命令面板',
 			'common.command_palette_placeholder' => '搜索命令、项目、引擎、设置…',
 			'common.command_palette_no_results' => '没有匹配的结果',
 			'common.command_palette_navigate' => '导航',
 			'common.command_palette_escape' => 'Esc',
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
-			_ => null,
-		} ?? switch (path) {
 			'common.setting_project_scan_dirs' => '扫描项目文件夹',
 			'common.setting_version_scan_dirs' => '扫描版本文件夹',
 			'common.setting_default_project_location' => '默认项目位置',
@@ -3138,14 +3150,14 @@ extension on TranslationsZhCn {
 			'common.project_addons.updated' => '{{name}} 已更新',
 			'common.project_addons.confirm_title' => '更新 {{name}}？',
 			'common.project_addons.confirm_description' => '这将用资源库中的版本 {{version}} 替换 res://addons/{{folder}}。旧文件夹会被移到回收站，因此你对插件所做的任何更改都会保留在那里。请先在 Godot 中关闭项目。',
+			_ => null,
+		} ?? switch (path) {
 			'common.project_addons.footer_hint' => '通过 GodotHub 安装的插件会精确匹配。其他插件按名称匹配，因此更新前请检查结果。',
 			'common.reload_confirm_title' => '重新加载 GodotHub？',
 			'common.reload_confirm_desc' => '表单中任何未保存的更改都将丢失。',
 			'common.color_presets' => '预设',
 			'common.date_previous_month' => '上个月',
 			'common.date_next_month' => '下个月',
-			_ => null,
-		} ?? switch (path) {
 			'common.date_change_due' => '更改截止日期: {{date}}',
 			'common.date_add_due' => '添加截止日期',
 			'dashboard.greeting_morning' => '早上好',
@@ -3652,14 +3664,14 @@ extension on TranslationsZhCn {
 			'settings.discord_show_projects_label' => '显示项目名称',
 			'settings.discord_excluded_label' => '排除的项目',
 			'settings.discord_exclude_project' => '添加项目',
+			_ => null,
+		} ?? switch (path) {
 			'settings.discord_excluded_empty' => '暂无排除的项目。',
 			'settings.discord_excluded_remove' => '从排除列表中删除',
 			'settings.discord_custom_label' => '自定义状态',
 			'settings.discord_custom_add' => '添加项目',
 			'settings.discord_custom_details_placeholder' => '详细信息文本',
 			'settings.discord_custom_state_placeholder' => '状态文本',
-			_ => null,
-		} ?? switch (path) {
 			'settings.discord_custom_remove' => '删除自定义状态',
 			'settings.search_placeholder' => '搜索设置…',
 			'settings.interface_label' => '界面',
