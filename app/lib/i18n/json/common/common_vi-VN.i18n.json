@@ -47,6 +47,7 @@
   "up_to_date": "Đã cập nhật",
   "downloading_update": "Đang tải xuống…",
   "install_update": "Cài đặt",
+  "restart_to_apply_update": "Restart to Apply Update",
   "restart_now": "Khởi động lại ngay",
   "update_downloaded": "Đã tải xong bản cập nhật!",
   "restart_to_apply": "Khởi động lại GodotHub để áp dụng bản cập nhật.",
