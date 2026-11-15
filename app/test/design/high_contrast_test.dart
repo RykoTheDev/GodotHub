@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui';
 
@@ -52,5 +53,73 @@ void main() {
     expect(build(highContrast: true).presetId, highContrastDark.id);
     expect(build(highContrast: true).base, colorFromHex('#000000'));
     expect(build(highContrast: true, mode: 'light').presetId, highContrastLight.id);
+  });
+
+  const windowsThemes = {
+    'Aquatic': (window: '#202020', text: '#ffffff', highlight: '#8ee3f0', button: '#202020', gray: '#a6a6a6', link: '#75e9fc', dark: true),
+    'Desert': (window: '#fffaef', text: '#3d3d3d', highlight: '#903909', button: '#fffaef', gray: '#676767', link: '#1c5e75', dark: false),
+    'Dusk': (window: '#2d3236', text: '#b6f6f0', highlight: '#a1bfde', button: '#2d3236', gray: '#a6a6a6', link: '#70ebde', dark: true),
+    'Night sky': (
+      window: '#000000',
+      text: '#ffffff',
+      highlight: '#d6b4fd',
+      button: '#000000',
+      gray: '#a6a6a6',
+      link: '#8080ff',
+      dark: true,
+    ),
+  };
+
+  for (final MapEntry(key: name, value: t) in windowsThemes.entries) {
+    test('the $name contrast theme gives a readable palette in its own colors', () {
+      final p = highContrastFromSystem(
+        window: t.window,
+        windowText: t.text,
+        highlight: t.highlight,
+        buttonFace: t.button,
+        grayText: t.gray,
+        hotlight: t.link,
+      );
+      expect(p.mode, t.dark ? GhThemeMode.dark : GhThemeMode.light);
+      expect(p.base, t.window);
+      expect(p.ink, t.text);
+      expect(contrastRatio(p.ink, p.base), greaterThanOrEqualTo(7));
+      expect(contrastRatio('#ffffff', p.accent), greaterThanOrEqualTo(4.5), reason: 'white text on primary buttons');
+      expect(contrastRatio('#ffffff', p.danger), greaterThanOrEqualTo(4.5));
+      for (final color in [p.accentBright, p.accentDim, p.line, p.outline, p.mint, p.amber]) {
+        expect(contrastRatio(color, p.base), greaterThanOrEqualTo(3), reason: color);
+      }
+      expect(
+        contrastRatio(p.danger, p.base),
+        greaterThanOrEqualTo(2.85),
+        reason: 'the lightest red that still carries white text; 2.87 is the most Dusk allows',
+      );
+    });
+  }
+
+  test('a highlight that already suits white text is kept as the accent', () {
+    expect(darkenForWhiteText('#903909'), '#903909');
+    expect(contrastRatio('#ffffff', darkenForWhiteText('#8ee3f0')), greaterThanOrEqualTo(4.5));
+  });
+
+  test('Windows system colors can be read', () {
+    final colors = readSystemContrastColors();
+    if (!Platform.isWindows) {
+      expect(colors, isNull);
+      return;
+    }
+    final hex = RegExp(r'^#[0-9a-f]{6}$');
+    for (final value in [
+      colors!.window,
+      colors.windowText,
+      colors.highlight,
+      colors.highlightText,
+      colors.buttonFace,
+      colors.grayText,
+      colors.hotlight,
+    ]) {
+      expect(value, matches(hex));
+    }
+    expect(colors.window, isNot(colors.windowText));
   });
 }

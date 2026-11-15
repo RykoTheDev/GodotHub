@@ -5,6 +5,7 @@ import '../design/design.dart';
 import 'package:window_manager/window_manager.dart';
 
 import '../ui/core/i18n.dart';
+import '../window/app_window.dart';
 import 'title_bar_theme.dart';
 
 abstract interface class TitleBarWindow {
@@ -66,7 +67,7 @@ class NativeTitleBarWindow implements TitleBarWindow {
   });
 
   @override
-  void close() => _guard((window) => window.close());
+  void close() => AppWindow.maybeInstance?.requestClose().ignore();
 
   @override
   void startDragging() => _guard((window) => window.startDragging());

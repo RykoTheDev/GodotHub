@@ -139,7 +139,7 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String get scan_for_projects => '扫描项目';
 	@override String get create_workspace => '创建工作区';
 	@override String get report_a_bug => '报告问题';
-	@override String get high_contrast_active => 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.';
+	@override String get high_contrast_active => 'Windows high contrast is on, so GodotHub uses the colors of your contrast theme. Your own theme comes back when you turn high contrast off.';
 	@override String get crash_notice_title => 'GodotHub closed unexpectedly';
 	@override String get crash_notice_desc => 'GodotHub {{version}} stopped without closing normally the last time it ran.';
 	@override String get crash_notice_rolled_back => 'The update did not start, so GodotHub went back to {{previous}}, the version you had before.';
@@ -2195,7 +2195,7 @@ extension on TranslationsZhCn {
 			'common.scan_for_projects' => '扫描项目',
 			'common.create_workspace' => '创建工作区',
 			'common.report_a_bug' => '报告问题',
-			'common.high_contrast_active' => 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.',
+			'common.high_contrast_active' => 'Windows high contrast is on, so GodotHub uses the colors of your contrast theme. Your own theme comes back when you turn high contrast off.',
 			'common.crash_notice_title' => 'GodotHub closed unexpectedly',
 			'common.crash_notice_desc' => 'GodotHub {{version}} stopped without closing normally the last time it ran.',
 			'common.crash_notice_rolled_back' => 'The update did not start, so GodotHub went back to {{previous}}, the version you had before.',

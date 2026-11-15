@@ -20,6 +20,8 @@ const discordViewPresence = <String, ({String details, String state})>{
   'projects': (details: 'Browsing Projects', state: 'Deciding what to work on...'),
   'versions': (details: 'Browsing Versions', state: 'Deciding which one to install...'),
   'templates': (details: 'Browsing Templates', state: 'Looking to start with...'),
+  'vault': (details: 'Digging through the Vault', state: 'Grabbing that script I wrote ages ago...'),
+  'storage': (details: 'Checking Storage', state: 'Where did all my disk space go?'),
   'asset-store': (details: 'Browsing the Asset Store', state: 'Looking for something to use...'),
   'news': (details: 'Reading Godot News', state: 'Latest from the Godot itself'),
   'updates': (details: 'Reading Updates by Dev', state: 'What is bro yappin. about now?'),
@@ -119,7 +121,7 @@ abstract interface class DiscordRpcClient {
   Stream<bool> get connectionChanges;
 }
 
-final discordRpcClientProvider = Provider<DiscordRpcClient>((ref) => const RustDiscordRpcClient());
+final discordRpcClientProvider = Provider<DiscordRpcClient>((ref) => IpcDiscordRpcClient());
 
 final discordRpcDraftProvider = NotifierProvider<DiscordRpcDraftNotifier, AppSettings?>(DiscordRpcDraftNotifier.new);
 

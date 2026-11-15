@@ -3,6 +3,7 @@ import 'dart:ui' show lerpDouble;
 import 'package:flutter/material.dart';
 
 import 'palette.dart';
+import 'system_contrast.dart';
 import 'typography.dart';
 
 const double defaultCornerRadius = 7;
@@ -86,10 +87,21 @@ class GhTheme extends ThemeExtension<GhTheme> {
     required Brightness platformBrightness,
     String? languageCode,
     bool highContrast = false,
+    SystemContrastColors? systemContrast,
   }) {
     final mode = resolveThemeMode(themeMode, platformBrightness);
+    final system = systemContrast;
     final palette = highContrast
-        ? highContrastPalette(mode)
+        ? (system == null
+              ? highContrastPalette(mode)
+              : highContrastFromSystem(
+                  window: system.window,
+                  windowText: system.windowText,
+                  highlight: system.highlight,
+                  buttonFace: system.buttonFace,
+                  grayText: system.grayText,
+                  hotlight: system.hotlight,
+                ))
         : resolvePalette(
             accent: accentColor,
             background: backgroundColor,

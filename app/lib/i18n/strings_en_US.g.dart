@@ -285,8 +285,8 @@ class Translations$common$en_US {
 	/// en-US: 'Report a Bug'
 	String get report_a_bug => 'Report a Bug';
 
-	/// en-US: 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.'
-	String get high_contrast_active => 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.';
+	/// en-US: 'Windows high contrast is on, so GodotHub uses the colors of your contrast theme. Your own theme comes back when you turn high contrast off.'
+	String get high_contrast_active => 'Windows high contrast is on, so GodotHub uses the colors of your contrast theme. Your own theme comes back when you turn high contrast off.';
 
 	/// en-US: 'GodotHub closed unexpectedly'
 	String get crash_notice_title => 'GodotHub closed unexpectedly';
@@ -5959,7 +5959,7 @@ extension on Translations {
 			'common.scan_for_projects' => 'Scan',
 			'common.create_workspace' => 'Create Workspace',
 			'common.report_a_bug' => 'Report a Bug',
-			'common.high_contrast_active' => 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.',
+			'common.high_contrast_active' => 'Windows high contrast is on, so GodotHub uses the colors of your contrast theme. Your own theme comes back when you turn high contrast off.',
 			'common.crash_notice_title' => 'GodotHub closed unexpectedly',
 			'common.crash_notice_desc' => 'GodotHub {{version}} stopped without closing normally the last time it ran.',
 			'common.crash_notice_rolled_back' => 'The update did not start, so GodotHub went back to {{previous}}, the version you had before.',

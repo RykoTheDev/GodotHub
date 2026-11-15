@@ -59,7 +59,7 @@
   "scan_for_projects": "Quét tìm dự án",
   "create_workspace": "Tạo Workspace",
   "report_a_bug": "Báo cáo lỗi",
-  "high_contrast_active": "Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.",
+  "high_contrast_active": "Windows high contrast is on, so GodotHub uses the colors of your contrast theme. Your own theme comes back when you turn high contrast off.",
   "crash_notice_title": "GodotHub closed unexpectedly",
   "crash_notice_desc": "GodotHub {{version}} stopped without closing normally the last time it ran.",
   "crash_notice_rolled_back": "The update did not start, so GodotHub went back to {{previous}}, the version you had before.",

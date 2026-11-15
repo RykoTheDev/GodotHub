@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:godothub/logic/settings_copy.dart';
 import 'package:godothub/src/rust/api/types.dart';
 import 'package:godothub/state/app_signals.dart';
+import 'package:godothub/shell/tabs.dart';
 import 'package:godothub/state/discord_rpc.dart';
 import 'package:godothub/state/news.dart';
 import 'package:godothub/state/projects.dart';
@@ -64,15 +65,23 @@ class FakeClient implements DiscordRpcClient {
 }
 
 void main() {
+  test('every view has its own Discord status', () {
+    for (final tab in appTabs) {
+      expect(discordViewPresence.keys, contains(tab.id), reason: tab.id);
+    }
+    expect(discordViewPresence.keys, contains('onboarding'));
+  });
+
   group('buildDiscordActivity', () {
     final settings = defaultSettings;
 
     test('falls back to view presets and a generic preset', () {
-      expect(buildDiscordActivity(settings: settings, view: 'versions'),
-          const DiscordActivity(details: 'Browsing Versions', state: 'Deciding which one to install...'));
-      expect(buildDiscordActivity(settings: settings),
-          const DiscordActivity(details: 'Using GodotHub', state: 'Managing my Projects'));
-      expect(buildDiscordActivity(settings: settings, view: 'vault').details, 'Using GodotHub');
+      expect(
+        buildDiscordActivity(settings: settings, view: 'versions'),
+        const DiscordActivity(details: 'Browsing Versions', state: 'Deciding which one to install...'),
+      );
+      expect(buildDiscordActivity(settings: settings), const DiscordActivity(details: 'Using GodotHub', state: 'Managing my Projects'));
+      expect(buildDiscordActivity(settings: settings, view: 'not-a-view').details, 'Using GodotHub');
     });
 
     test('running project uses resolved names only for folder-named projects', () {
@@ -99,7 +108,13 @@ void main() {
       expect(buildDiscordActivity(settings: custom, running: running).state, 'Godot 4.3');
       const secret = DiscordActivity(details: 'Working on a Top Secret Project', state: 'Please do not disturb', startTimestamp: 9);
       expect(buildDiscordActivity(settings: copySettings(settings, discordRpcShowProjects: false), running: running), secret);
-      expect(buildDiscordActivity(settings: copySettings(settings, discordRpcExcludedProjects: const ['p']), running: running), secret);
+      expect(
+        buildDiscordActivity(
+          settings: copySettings(settings, discordRpcExcludedProjects: const ['p']),
+          running: running,
+        ),
+        secret,
+      );
     });
 
     test('picks the most recently started session and the app id fallback', () {

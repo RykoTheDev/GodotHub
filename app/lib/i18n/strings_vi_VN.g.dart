@@ -139,7 +139,7 @@ class _Translations$common$vi_VN extends Translations$common$en_US {
 	@override String get scan_for_projects => 'Quét tìm dự án';
 	@override String get create_workspace => 'Tạo Workspace';
 	@override String get report_a_bug => 'Báo cáo lỗi';
-	@override String get high_contrast_active => 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.';
+	@override String get high_contrast_active => 'Windows high contrast is on, so GodotHub uses the colors of your contrast theme. Your own theme comes back when you turn high contrast off.';
 	@override String get crash_notice_title => 'GodotHub closed unexpectedly';
 	@override String get crash_notice_desc => 'GodotHub {{version}} stopped without closing normally the last time it ran.';
 	@override String get crash_notice_rolled_back => 'The update did not start, so GodotHub went back to {{previous}}, the version you had before.';
@@ -2197,7 +2197,7 @@ extension on TranslationsViVn {
 			'common.scan_for_projects' => 'Quét tìm dự án',
 			'common.create_workspace' => 'Tạo Workspace',
 			'common.report_a_bug' => 'Báo cáo lỗi',
-			'common.high_contrast_active' => 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.',
+			'common.high_contrast_active' => 'Windows high contrast is on, so GodotHub uses the colors of your contrast theme. Your own theme comes back when you turn high contrast off.',
 			'common.crash_notice_title' => 'GodotHub closed unexpectedly',
 			'common.crash_notice_desc' => 'GodotHub {{version}} stopped without closing normally the last time it ran.',
 			'common.crash_notice_rolled_back' => 'The update did not start, so GodotHub went back to {{previous}}, the version you had before.',

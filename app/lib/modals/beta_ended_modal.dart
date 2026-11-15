@@ -6,6 +6,7 @@ import '../api/opener.dart';
 import '../design/design.dart';
 import '../ui/core/button.dart';
 import '../ui/feedback/modal_shell.dart';
+import '../window/app_window.dart';
 
 const stableReleaseUrl = 'https://github.com/RykoTheDev/GodotHub/releases/latest';
 
@@ -36,7 +37,7 @@ class BetaEndedModal extends StatelessWidget {
 
   static Future<void> _startUninstaller(String path) async {
     await Process.start(path, const [], mode: ProcessStartMode.detached);
-    exit(0);
+    await AppWindow.instance.quit();
   }
 
   @override

@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:nativeapi/nativeapi.dart' show DisplayManager;
 import 'package:window_manager/window_manager.dart';
 
@@ -11,6 +12,8 @@ import '../api/events.dart';
 import '../logic/pending_save.dart';
 import '../src/rust/api/native.dart' as native;
 import '../src/rust/api/window.dart' as rust;
+import 'process_exit.dart';
+import 'tray.dart';
 
 const Size defaultWindowSize = Size(1280, 720);
 const Size minimumWindowSize = Size(1180, 680);
@@ -38,6 +41,8 @@ rust.WindowState windowStateFrom({required Rect bounds, required bool maximized,
     maximized: maximized,
   );
 }
+
+const windowCloseChannel = MethodChannel('godothub/window-close');
 
 class AppWindow {
   AppWindow._(this._window, this._scale);
@@ -91,6 +96,9 @@ class AppWindow {
     AppEvents.of(AppEventKind.showMainWindow).listen((_) => app.showAndFocus());
     AppEvents.of(AppEventKind.hideMainWindow).listen((_) => app.hide());
     AppEvents.of(AppEventKind.exitApp).listen((_) => app.quit());
+    windowCloseChannel.setMethodCallHandler((call) async {
+      if (call.method == 'close') await app.requestClose();
+    });
 
     SchedulerBinding.instance.addPostFrameCallback((_) {
       window.show();
@@ -106,19 +114,21 @@ class AppWindow {
           _normalBounds = _window.bounds.toRect();
         }
       case WindowCloseRequestedEvent():
-        if (_closing) {
-          return;
-        }
         event.request.cancel();
-        await flushPendingSave().catchError((Object _) {});
-        await _saveState();
-        if (Platform.isMacOS || (keepAliveOnClose?.call() ?? false)) {
-          hide();
-        } else {
-          await quit();
-        }
+        await requestClose();
       default:
         break;
+    }
+  }
+
+  Future<void> requestClose() async {
+    if (_closing) return;
+    if (Platform.isMacOS || (keepAliveOnClose?.call() ?? false)) {
+      await flushPendingSave().catchError((Object _) {});
+      await _saveState();
+      hide();
+    } else {
+      await quit();
     }
   }
 
@@ -156,17 +166,18 @@ class AppWindow {
     _closing = true;
     await flushPendingSave().catchError((Object _) {});
     await _saveState();
+    TrayController.instance?.dispose();
   }
 
   Future<void> quit() async {
     await _prepareExit();
-    exit(0);
+    endProcess(0);
   }
 
   Future<void> relaunch() async {
     await native.relaunch(args: const []);
     await _prepareExit();
-    exit(0);
+    endProcess(0);
   }
 
   Future<void> openLaunchArgs() async {
