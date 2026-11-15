@@ -126,6 +126,7 @@ class _Translations$common$fr_FR extends Translations$common$en_US {
 	@override String get up_to_date => 'À jour';
 	@override String get downloading_update => 'Téléchargement…';
 	@override String get install_update => 'Installer';
+	@override String get restart_to_apply_update => 'Restart to Apply Update';
 	@override String get restart_now => 'Redémarrer maintenant';
 	@override String get update_downloaded => 'Mise à jour téléchargée !';
 	@override String get restart_to_apply => 'Redémarrez GodotHub pour appliquer la mise à jour.';
@@ -2275,6 +2276,7 @@ extension on TranslationsFrFr {
 			'common.up_to_date' => 'À jour',
 			'common.downloading_update' => 'Téléchargement…',
 			'common.install_update' => 'Installer',
+			'common.restart_to_apply_update' => 'Restart to Apply Update',
 			'common.restart_now' => 'Redémarrer maintenant',
 			'common.update_downloaded' => 'Mise à jour téléchargée !',
 			'common.restart_to_apply' => 'Redémarrez GodotHub pour appliquer la mise à jour.',
@@ -2730,9 +2732,9 @@ extension on TranslationsFrFr {
 			'common.command_palette_navigate' => 'Naviguer',
 			'common.command_palette_escape' => 'Échap',
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
-			'common.setting_project_scan_dirs' => 'Scan Project Folders',
 			_ => null,
 		} ?? switch (path) {
+			'common.setting_project_scan_dirs' => 'Scan Project Folders',
 			'common.setting_version_scan_dirs' => 'Scan Version Folders',
 			'common.setting_default_project_location' => 'Default Project Location Setting',
 			'common.setting_download_dir' => 'Download Versions Location Setting',
@@ -3244,9 +3246,9 @@ extension on TranslationsFrFr {
 			'common.color_presets' => 'Presets',
 			'common.date_previous_month' => 'Previous month',
 			'common.date_next_month' => 'Next month',
-			'common.date_change_due' => 'Change due date: {{date}}',
 			_ => null,
 		} ?? switch (path) {
+			'common.date_change_due' => 'Change due date: {{date}}',
 			'common.date_add_due' => 'Add due date',
 			'dashboard.greeting_morning' => 'Bonjour',
 			'dashboard.greeting_afternoon' => 'Bonjour',
@@ -3758,9 +3760,9 @@ extension on TranslationsFrFr {
 			'settings.discord_custom_add' => 'Ajouter un projet',
 			'settings.discord_custom_details_placeholder' => 'Ligne Details',
 			'settings.discord_custom_state_placeholder' => 'Ligne State',
-			'settings.discord_custom_remove' => 'Supprimer la présence personnalisée',
 			_ => null,
 		} ?? switch (path) {
+			'settings.discord_custom_remove' => 'Supprimer la présence personnalisée',
 			'settings.search_placeholder' => 'Rechercher dans les paramètres…',
 			'settings.interface_label' => 'Interface',
 			'settings.card_layout_label' => 'Disposition en cartes',

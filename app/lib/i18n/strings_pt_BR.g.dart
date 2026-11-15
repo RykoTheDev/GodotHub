@@ -126,6 +126,7 @@ class _Translations$common$pt_BR extends Translations$common$en_US {
 	@override String get up_to_date => 'Atualizado';
 	@override String get downloading_update => 'Baixando…';
 	@override String get install_update => 'Instalar';
+	@override String get restart_to_apply_update => 'Restart to Apply Update';
 	@override String get restart_now => 'Reiniciar agora';
 	@override String get update_downloaded => 'Atualização baixada!';
 	@override String get restart_to_apply => 'Reinicie o GodotHub para aplicar a atualização.';
@@ -2275,6 +2276,7 @@ extension on TranslationsPtBr {
 			'common.up_to_date' => 'Atualizado',
 			'common.downloading_update' => 'Baixando…',
 			'common.install_update' => 'Instalar',
+			'common.restart_to_apply_update' => 'Restart to Apply Update',
 			'common.restart_now' => 'Reiniciar agora',
 			'common.update_downloaded' => 'Atualização baixada!',
 			'common.restart_to_apply' => 'Reinicie o GodotHub para aplicar a atualização.',
@@ -2730,9 +2732,9 @@ extension on TranslationsPtBr {
 			'common.command_palette_navigate' => 'Navegar',
 			'common.command_palette_escape' => 'Esc',
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
-			'common.setting_project_scan_dirs' => 'Pastas de busca de projetos',
 			_ => null,
 		} ?? switch (path) {
+			'common.setting_project_scan_dirs' => 'Pastas de busca de projetos',
 			'common.setting_version_scan_dirs' => 'Pastas de busca de versões',
 			'common.setting_default_project_location' => 'Configuração do local padrão dos projetos',
 			'common.setting_download_dir' => 'Configuração do local de download das versões',
@@ -3244,9 +3246,9 @@ extension on TranslationsPtBr {
 			'common.color_presets' => 'Presets',
 			'common.date_previous_month' => 'Previous month',
 			'common.date_next_month' => 'Next month',
-			'common.date_change_due' => 'Change due date: {{date}}',
 			_ => null,
 		} ?? switch (path) {
+			'common.date_change_due' => 'Change due date: {{date}}',
 			'common.date_add_due' => 'Add due date',
 			'dashboard.greeting_morning' => 'Bom dia',
 			'dashboard.greeting_afternoon' => 'Boa tarde',
@@ -3758,9 +3760,9 @@ extension on TranslationsPtBr {
 			'settings.discord_custom_add' => 'Adicionar projeto',
 			'settings.discord_custom_details_placeholder' => 'Linha de detalhes',
 			'settings.discord_custom_state_placeholder' => 'Linha de estado',
-			'settings.discord_custom_remove' => 'Remover Discord Rich Presence personalizada',
 			_ => null,
 		} ?? switch (path) {
+			'settings.discord_custom_remove' => 'Remover Discord Rich Presence personalizada',
 			'settings.search_placeholder' => 'Pesquisar configurações…',
 			'settings.interface_label' => 'Interface',
 			'settings.card_layout_label' => 'Layout em cartões',

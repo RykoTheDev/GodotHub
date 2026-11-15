@@ -129,6 +129,7 @@ class _Translations$common$ar_MA extends Translations$common$en_US {
 	@override String get up_to_date => 'محدث بالفعل';
 	@override String get downloading_update => 'جاري التنزيل…';
 	@override String get install_update => 'ثبت';
+	@override String get restart_to_apply_update => 'Restart to Apply Update';
 	@override String get restart_now => 'أعد التشغيل الآن';
 	@override String get update_downloaded => 'تم تنزيل التحديث!';
 	@override String get restart_to_apply => 'أعد تشغيل البرنامج لتطبيق التحديث.';
@@ -2423,6 +2424,7 @@ extension on TranslationsArMa {
 			'common.up_to_date' => 'محدث بالفعل',
 			'common.downloading_update' => 'جاري التنزيل…',
 			'common.install_update' => 'ثبت',
+			'common.restart_to_apply_update' => 'Restart to Apply Update',
 			'common.restart_now' => 'أعد التشغيل الآن',
 			'common.update_downloaded' => 'تم تنزيل التحديث!',
 			'common.restart_to_apply' => 'أعد تشغيل البرنامج لتطبيق التحديث.',
@@ -2878,9 +2880,9 @@ extension on TranslationsArMa {
 			'common.command_palette_navigate' => 'تصفح',
 			'common.command_palette_escape' => 'Esc',
 			'common.setting_token_placeholder' => 'ghp_xxxxxxxxxxxxxxxxxxxx',
-			'common.setting_project_scan_dirs' => 'Scan Project Folders',
 			_ => null,
 		} ?? switch (path) {
+			'common.setting_project_scan_dirs' => 'Scan Project Folders',
 			'common.setting_version_scan_dirs' => 'Scan Version Folders',
 			'common.setting_default_project_location' => 'Default Project Location Setting',
 			'common.setting_download_dir' => 'Download Versions Location Setting',
@@ -3392,9 +3394,9 @@ extension on TranslationsArMa {
 			'common.color_presets' => 'Presets',
 			'common.date_previous_month' => 'Previous month',
 			'common.date_next_month' => 'Next month',
-			'common.date_change_due' => 'Change due date: {{date}}',
 			_ => null,
 		} ?? switch (path) {
+			'common.date_change_due' => 'Change due date: {{date}}',
 			'common.date_add_due' => 'Add due date',
 			'dashboard.greeting_morning' => 'صباح الخير',
 			'dashboard.greeting_afternoon' => 'مساء الخير',
@@ -3906,9 +3908,9 @@ extension on TranslationsArMa {
 			'settings.discord_custom_add' => 'أضف مشروعا',
 			'settings.discord_custom_details_placeholder' => 'سطر التفاصيل',
 			'settings.discord_custom_state_placeholder' => 'سطر الحالة',
-			'settings.discord_custom_remove' => 'Remove custom presence',
 			_ => null,
 		} ?? switch (path) {
+			'settings.discord_custom_remove' => 'Remove custom presence',
 			'settings.search_placeholder' => 'ابحث في الإعدادات…',
 			'settings.interface_label' => 'واجهة المستخدم',
 			'settings.card_layout_label' => 'تخطيط البطاقة',
