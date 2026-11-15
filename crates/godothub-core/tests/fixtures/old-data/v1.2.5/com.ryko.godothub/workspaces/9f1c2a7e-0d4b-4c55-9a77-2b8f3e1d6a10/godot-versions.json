@@ -1,0 +1,20 @@
+[
+  {
+    "tag": "4.2.2-stable",
+    "version": "4.2.2",
+    "executable_path": "__ROOT__/godot/4.2.2/Godot_v4.2.2-stable_win64.exe",
+    "is_mono": false,
+    "installed_at": "2026-07-21T13:40:00Z",
+    "custom_name": "Jam copy",
+    "install_root": "__ROOT__/godot/4.2.2"
+  },
+  {
+    "tag": "4.3-stable",
+    "version": "4.3",
+    "executable_path": "__ROOT__/godot/4.3-mono/Godot_v4.3-stable_win64.exe",
+    "is_mono": true,
+    "installed_at": "2026-07-21T13:40:00Z",
+    "custom_name": null,
+    "install_root": "__ROOT__/godot/4.3-mono"
+  }
+]

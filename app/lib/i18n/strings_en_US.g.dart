@@ -4127,6 +4127,9 @@ class Translations$settings$en_US {
 	/// en-US: 'Built with'
 	String get credits_built_with => 'Built with';
 
+	/// en-US: 'Open Source Licenses'
+	String get credits_licenses => 'Open Source Licenses';
+
 	/// en-US: 'Contributors'
 	String get credits_contributors => 'Contributors';
 
@@ -7448,6 +7451,7 @@ extension on Translations {
 			'settings.credits' => 'Credits',
 			'settings.credits_developer' => 'Created by',
 			'settings.credits_built_with' => 'Built with',
+			'settings.credits_licenses' => 'Open Source Licenses',
 			'settings.credits_contributors' => 'Contributors',
 			'settings.experimental' => 'Experimental',
 			'settings.customize_view_label' => 'Customize View button',

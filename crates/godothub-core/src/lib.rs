@@ -16,6 +16,8 @@ pub mod cli_shim;
 pub mod console;
 pub mod current_version;
 pub mod diagnostics;
+#[cfg(test)]
+mod old_data_tests;
 pub mod discovery;
 pub mod error;
 pub mod export_runner;

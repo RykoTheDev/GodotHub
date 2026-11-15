@@ -76,6 +76,10 @@ flutter:
   assets:
     - assets/tray/
     - assets/flags/
+    - assets/licenses/
+    - assets/fonts/Inter-LICENSE.txt
+    - assets/fonts/GoogleSansCode-LICENSE.txt
+    - assets/icons/FontAwesome-LICENSE.txt
   fonts:
     - family: Inter
       fonts:

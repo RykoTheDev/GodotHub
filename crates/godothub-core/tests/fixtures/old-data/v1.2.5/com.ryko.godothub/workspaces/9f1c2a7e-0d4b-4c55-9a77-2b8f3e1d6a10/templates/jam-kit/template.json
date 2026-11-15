@@ -1,0 +1,10 @@
+{
+  "id": "jam-kit",
+  "name": "Jam Kit",
+  "description": "A small starter",
+  "godot_version": "4.2.2-stable",
+  "created_at": "2026-07-22T10:00:00Z",
+  "source_project_id": "p-space",
+  "source_path": "__ROOT__/projects/jam-entry",
+  "path": "__ROOT__/com.ryko.godothub/workspaces/9f1c2a7e-0d4b-4c55-9a77-2b8f3e1d6a10/templates/jam-kit"
+}

@@ -1538,6 +1538,7 @@ class _Translations$settings$es_MX extends Translations$settings$en_US {
 	@override String get credits => 'Credits';
 	@override String get credits_developer => 'Created by';
 	@override String get credits_built_with => 'Built with';
+	@override String get credits_licenses => 'Open Source Licenses';
 	@override String get credits_contributors => 'Contributors';
 	@override String get experimental => 'Experimental';
 	@override String get customize_view_label => 'Customize View button';
@@ -3786,6 +3787,7 @@ extension on TranslationsEsMx {
 			'settings.credits' => 'Credits',
 			'settings.credits_developer' => 'Created by',
 			'settings.credits_built_with' => 'Built with',
+			'settings.credits_licenses' => 'Open Source Licenses',
 			'settings.credits_contributors' => 'Contributors',
 			'settings.experimental' => 'Experimental',
 			'settings.customize_view_label' => 'Customize View button',

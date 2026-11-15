@@ -1,0 +1,17 @@
+[
+  {
+    "id": "p-tiles",
+    "name": "Tile Quest",
+    "path": "__ROOT__/projects/tile-quest",
+    "godot_version": "4.2.2-stable",
+    "created_at": "2026-07-21T14:00:00Z",
+    "last_opened": "2026-07-23T18:30:00Z",
+    "category": null,
+    "pinned": false,
+    "sort_order": 0,
+    "launch_arguments": "",
+    "tags": [
+      "2d"
+    ]
+  }
+]

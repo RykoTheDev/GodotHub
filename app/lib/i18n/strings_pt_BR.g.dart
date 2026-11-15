@@ -1538,6 +1538,7 @@ class _Translations$settings$pt_BR extends Translations$settings$en_US {
 	@override String get credits => 'Créditos';
 	@override String get credits_developer => 'Criado por';
 	@override String get credits_built_with => 'Desenvolvido com';
+	@override String get credits_licenses => 'Open Source Licenses';
 	@override String get credits_contributors => 'Colaboradores';
 	@override String get experimental => 'Experimental';
 	@override String get customize_view_label => 'Botão Personalizar modo de exibição';
@@ -3786,6 +3787,7 @@ extension on TranslationsPtBr {
 			'settings.credits' => 'Créditos',
 			'settings.credits_developer' => 'Criado por',
 			'settings.credits_built_with' => 'Desenvolvido com',
+			'settings.credits_licenses' => 'Open Source Licenses',
 			'settings.credits_contributors' => 'Colaboradores',
 			'settings.experimental' => 'Experimental',
 			'settings.customize_view_label' => 'Botão Personalizar modo de exibição',

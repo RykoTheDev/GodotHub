@@ -195,6 +195,7 @@
   "credits": "Credits",
   "credits_developer": "Created by",
   "credits_built_with": "Built with",
+  "credits_licenses": "Open Source Licenses",
   "credits_contributors": "Contributors",
   "sync_last_pushed": "Last pushed: {{time}}",
   "sync_manual_hint": "Lost your local data? Enter your gist URL or ID to restore from any machine.",

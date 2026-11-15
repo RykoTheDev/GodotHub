@@ -9,6 +9,15 @@ use crate::AppHandle;
 impl persist::Versioned for AppSettings {
     const VERSION: u32 = 1;
     // Additions are covered by serde defaults; add migration steps here for renames.
+    fn migrate(mut value: serde_json::Value, _from: u32) -> serde_json::Value {
+        if let Some(map) = value.as_object_mut() {
+            let reduced = map.get("reduce_motion").and_then(serde_json::Value::as_bool) == Some(true);
+            if reduced && !map.contains_key("animation_intensity") {
+                map.insert("animation_intensity".into(), "none".into());
+            }
+        }
+        value
+    }
 }
 
 fn settings_path(dir: &Path) -> std::path::PathBuf {

@@ -7,6 +7,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'api/diagnostics.dart';
+import 'build_switches.dart';
+import 'licenses.dart';
 import 'api/events.dart';
 import 'bench/bench_mode.dart';
 import 'api/updater.dart';
@@ -41,8 +43,10 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   ErrorWidget.builder = ghErrorWidget;
   installBugReportErrorCapture();
+  registerBundledLicenses();
   await RustLib.init();
   Diagnostics.markReady();
+  if (testBuildSwitches.isNotEmpty) Diagnostics.record('build', 'Test switches: ${testBuildSwitches.join(', ')}');
   UpdaterApi.applyBuildVersion();
   if (const bool.fromEnvironment('UPDATER_LAB_CRASH')) exit(70);
   AppEvents.all.listen((_) {});

@@ -1480,6 +1480,7 @@ class _Translations$settings$ja_JP extends Translations$settings$en_US {
 	@override String get credits => 'クレジット';
 	@override String get credits_developer => '作成者';
 	@override String get credits_built_with => '使用技術';
+	@override String get credits_licenses => 'Open Source Licenses';
 	@override String get credits_contributors => 'コントリビューター';
 	@override String get experimental => '試験的機能';
 	@override String get customize_view_label => '「ビューをカスタマイズ」ボタン';
@@ -3686,6 +3687,7 @@ extension on TranslationsJaJp {
 			'settings.credits' => 'クレジット',
 			'settings.credits_developer' => '作成者',
 			'settings.credits_built_with' => '使用技術',
+			'settings.credits_licenses' => 'Open Source Licenses',
 			'settings.credits_contributors' => 'コントリビューター',
 			'settings.experimental' => '試験的機能',
 			'settings.customize_view_label' => '「ビューをカスタマイズ」ボタン',

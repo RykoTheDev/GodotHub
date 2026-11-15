@@ -198,6 +198,7 @@
   "credits": "المطورون",
   "credits_developer": "تم الإنشاء بواسطة",
   "credits_built_with": "تم البناء بواسطة",
+  "credits_licenses": "Open Source Licenses",
   "credits_contributors": "المساهمون",
   "sync_last_pushed": "أخر عملية دفع: {{time}}",
   "sync_manual_hint": "Lost your local data? Enter your gist URL or ID to restore from any machine.",

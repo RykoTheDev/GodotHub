@@ -199,6 +199,7 @@
   "credits": "致谢",
   "credits_developer": "创建者",
   "credits_built_with": "使用以下技术构建",
+  "credits_licenses": "Open Source Licenses",
   "credits_contributors": "贡献者",
   "sync_last_pushed": "上次推送：{{time}}",
   "sync_manual_hint": "丢失了本地数据？输入你的 gist URL 或 ID 从任意机器恢复。",

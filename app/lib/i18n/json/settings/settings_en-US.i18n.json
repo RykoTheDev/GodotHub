@@ -260,6 +260,7 @@
   "credits": "Credits",
   "credits_developer": "Created by",
   "credits_built_with": "Built with",
+  "credits_licenses": "Open Source Licenses",
   "credits_contributors": "Contributors",
   "experimental": "Experimental",
   "customize_view_label": "Customize View button",

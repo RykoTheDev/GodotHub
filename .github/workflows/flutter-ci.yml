@@ -82,6 +82,10 @@ jobs:
         working-directory: .
         run: cargo test -p godothub_core -p godothub_bridge --locked
 
+      - name: Third-party Rust notices are up to date
+        working-directory: .
+        run: node app/tool/gen_rust_notices.mjs --check
+
       - name: Get Flutter packages
         run: flutter pub get
 

@@ -1624,6 +1624,7 @@ class _Translations$settings$ar_MA extends Translations$settings$en_US {
 	@override String get credits => 'المطورون';
 	@override String get credits_developer => 'تم الإنشاء بواسطة';
 	@override String get credits_built_with => 'تم البناء بواسطة';
+	@override String get credits_licenses => 'Open Source Licenses';
 	@override String get credits_contributors => 'المساهمون';
 	@override String get experimental => 'تجريبية';
 	@override String get customize_view_label => 'زر تخصيص الواجهة';
@@ -3934,6 +3935,7 @@ extension on TranslationsArMa {
 			'settings.credits' => 'المطورون',
 			'settings.credits_developer' => 'تم الإنشاء بواسطة',
 			'settings.credits_built_with' => 'تم البناء بواسطة',
+			'settings.credits_licenses' => 'Open Source Licenses',
 			'settings.credits_contributors' => 'المساهمون',
 			'settings.experimental' => 'تجريبية',
 			'settings.customize_view_label' => 'زر تخصيص الواجهة',

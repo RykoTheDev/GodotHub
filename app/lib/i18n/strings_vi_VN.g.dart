@@ -1480,6 +1480,7 @@ class _Translations$settings$vi_VN extends Translations$settings$en_US {
 	@override String get credits => 'Ghi công';
 	@override String get credits_developer => 'Tạo bởi';
 	@override String get credits_built_with => 'Xây dựng bằng';
+	@override String get credits_licenses => 'Open Source Licenses';
 	@override String get credits_contributors => 'Người đóng góp';
 	@override String get experimental => 'Experimental';
 	@override String get customize_view_label => 'Customize View button';
@@ -3686,6 +3687,7 @@ extension on TranslationsViVn {
 			'settings.credits' => 'Ghi công',
 			'settings.credits_developer' => 'Tạo bởi',
 			'settings.credits_built_with' => 'Xây dựng bằng',
+			'settings.credits_licenses' => 'Open Source Licenses',
 			'settings.credits_contributors' => 'Người đóng góp',
 			'settings.experimental' => 'Experimental',
 			'settings.customize_view_label' => 'Customize View button',

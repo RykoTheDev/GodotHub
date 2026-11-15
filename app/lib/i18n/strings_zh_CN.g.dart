@@ -1479,6 +1479,7 @@ class _Translations$settings$zh_CN extends Translations$settings$en_US {
 	@override String get credits => '致谢';
 	@override String get credits_developer => '创建者';
 	@override String get credits_built_with => '使用以下技术构建';
+	@override String get credits_licenses => 'Open Source Licenses';
 	@override String get credits_contributors => '贡献者';
 	@override String get experimental => '实验性';
 	@override String get customize_view_label => '自定义视图按钮';
@@ -3684,6 +3685,7 @@ extension on TranslationsZhCn {
 			'settings.credits' => '致谢',
 			'settings.credits_developer' => '创建者',
 			'settings.credits_built_with' => '使用以下技术构建',
+			'settings.credits_licenses' => 'Open Source Licenses',
 			'settings.credits_contributors' => '贡献者',
 			'settings.experimental' => '实验性',
 			'settings.customize_view_label' => '自定义视图按钮',
