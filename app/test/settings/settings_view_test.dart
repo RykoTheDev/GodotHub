@@ -164,6 +164,29 @@ void main() {
     expect(find.text(ts('appearance').toUpperCase()), findsOneWidget);
   });
 
+  testWidgets('the rail with the Debug tab scrolls instead of overflowing in a short window', (tester) async {
+    setDebugUnlocked(true);
+    addTearDown(() => setDebugUnlocked(false));
+    await pumpSettings(tester);
+    for (final height in [700.0, 520.0, 420.0]) {
+      tester.view.physicalSize = Size(1400, height);
+      await base.settle(tester, 2);
+      expect(tester.takeException(), isNull, reason: 'height $height');
+      expect(railItem('debug'), findsOneWidget);
+    }
+    final version = find.textContaining('2.0.0');
+    expect(version, findsOneWidget);
+    final pinned = tester.getTopLeft(version);
+    await tester.drag(railItem('appearance'), const Offset(0, -300));
+    await base.settle(tester, 2);
+    expect(tester.getTopLeft(version), pinned);
+    await tester.ensureVisible(railItem('debug'));
+    expect(tester.getTopLeft(version), pinned);
+    await tester.tap(railItem('debug'));
+    await base.settle(tester, 3);
+    expect(find.text('DEBUG'), findsOneWidget);
+  });
+
   testWidgets('appearance explains when Windows high contrast replaces the theme', (tester) async {
     await pumpSettings(tester, body: const SingleChildScrollView(child: AppearanceSettings()));
     expect(find.text(ghTr('high_contrast_active')), findsNothing);
