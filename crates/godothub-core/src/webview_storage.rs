@@ -235,7 +235,7 @@ mod tests {
     use super::*;
 
     fn fixture() -> PathBuf {
-        Path::new(env!("CARGO_MANIFEST_DIR")).join("tests").join("fixtures").join("tauri-1.5.7-local-storage")
+        Path::new(env!("CARGO_MANIFEST_DIR")).join("../../dev/fixtures").join("tauri-1.5.7-local-storage")
     }
 
     fn snapshot(dir: &Path) -> Vec<(PathBuf, Vec<u8>)> {

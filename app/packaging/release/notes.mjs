@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 const tag = process.env.RELEASE_TAG
 const repo = process.env.REPO
 const stable = /^v\d/.test(tag ?? '')
-const changelogPath = process.env.CHANGELOG ?? 'src-tauri/changelog.json'
+const changelogPath = process.env.CHANGELOG ?? 'changelog.json'
 const allowMissing = process.env.ALLOW_MISSING_NOTES === 'true'
 const previous = process.env.PREVIOUS_TAG
 if (!tag || !repo) throw new Error('RELEASE_TAG and REPO are required')

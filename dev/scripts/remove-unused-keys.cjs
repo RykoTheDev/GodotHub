@@ -171,7 +171,7 @@ console.log('');
 
 console.log(color('  Regenerating types.ts...', c.cyan));
 try {
-  execSync('node scripts/generate-i18n-types.cjs', { stdio: 'inherit' });
+  execSync('node dev/scripts/generate-i18n-types.cjs', { stdio: 'inherit' });
   console.log(color('  ✓ types.ts updated', c.green));
 } catch (e) {
   console.log(color('  ⚠ Failed to regenerate types.ts - run manually: bun run i18n:types', c.yellow));

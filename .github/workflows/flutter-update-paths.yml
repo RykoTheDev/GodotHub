@@ -87,10 +87,10 @@ jobs:
             ${{ runner.os }}-cargo-
 
       - name: Build the test packages
-        run: bash app/tool/update_ci/build.sh ${{ matrix.target }}
+        run: bash dev/tool/update_ci/build.sh ${{ matrix.target }}
 
       - name: Run the update paths
-        run: bash app/tool/update_ci/${{ matrix.target }}.sh
+        run: bash dev/tool/update_ci/${{ matrix.target }}.sh
 
       - name: Upload the results
         if: always()

@@ -9,11 +9,11 @@ use std::path::{Path, PathBuf};
 #[cfg(debug_assertions)]
 use uuid::Uuid;
 
-const EMBEDDED_CHANGELOG: &str = include_str!("../../../src-tauri/changelog.json");
+const EMBEDDED_CHANGELOG: &str = include_str!("../../../changelog.json");
 
 #[cfg(debug_assertions)]
 fn changelog_file() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../src-tauri/changelog.json")
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../changelog.json")
 }
 
 fn read_entries() -> Vec<ChangelogEntry> {

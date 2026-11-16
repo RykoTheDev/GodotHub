@@ -2,7 +2,7 @@
 set -euo pipefail
 
 here="$(cd "$(dirname "$0")" && pwd)"
-app="$(cd "$here/../.." && pwd)"
+app="$(cd "$here/../../../app" && pwd)"
 repo="$(cd "$app/.." && pwd)"
 lab="${UPDATE_LAB:-$app/build/update_lab}"
 port="${UPDATE_LAB_PORT:-47821}"

@@ -17,7 +17,7 @@ id=$(jq -r .identifier <<<"$info")
 name=$(jq -r .display_name <<<"$info")
 bin=$(jq -r .cli_shim_name <<<"$info")
 
-(cd app && flutter pub get && dart run tool/i18n_convert.dart && dart run slang)
+(cd app && flutter pub get && dart run ../dev/tool/i18n_convert.dart && dart run slang)
 if [ "$os" = macos ]; then
   bash app/packaging/macos/use_channel.sh stable "$id" "$name"
 fi
@@ -62,7 +62,7 @@ fi
 CHANNEL=stable RELEASE_TAG=v1.9.1 REPO=lab/lab ASSETS_DIR="$lab/dist/1.9.1" OUT="$lab/manifests/1.9.1.json" \
   BASE_URL="$base/1.9.1" REQUIRED_PLATFORMS="$required" node app/packaging/release/latest_json.mjs
 
-cat app/tool/update_ci/tauri-auto-update.ts >> src/main.tsx
+cat dev/tool/update_ci/tauri-auto-update.ts >> src/main.tsx
 if [ "$os" = linux ]; then targets='["appimage","deb","rpm"]'; else targets='["app"]'; fi
 node -e '
 const [pub, base, targets, out] = process.argv.slice(1)

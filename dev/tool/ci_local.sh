@@ -2,13 +2,13 @@
 # Runs the steps of the "checks" job in .github/workflows/flutter-ci.yml
 # locally, so failures show up before a push. Keep the two in sync.
 #
-#   app/tool/ci_local.sh            run here (Windows Git Bash, macOS, Linux)
-#   app/tool/ci_local.sh --linux    run inside WSL on a copy of the working
+#   dev/tool/ci_local.sh            run here (Windows Git Bash, macOS, Linux)
+#   dev/tool/ci_local.sh --linux    run inside WSL on a copy of the working
 #                                   tree, like the Ubuntu runner. Needs Flutter,
 #                                   Rust and Node installed inside WSL. Started
 #                                   with WSL's bash (PowerShell "bash"), this is
 #                                   what happens even without the flag.
-#   app/tool/ci_local.sh --fast     skip the Rust tests
+#   dev/tool/ci_local.sh --fast     skip the Rust tests
 set -euo pipefail
 
 repo="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
@@ -58,7 +58,7 @@ if { [ "$linux" = 1 ] && [ "$(uname -s)" != "Linux" ]; } || [ "$on_wsl_mount" = 
     git ls-files -co --exclude-standard -z | rsync -a --from0 --files-from=- ./ \"\$dest/\"
     cd \"\$dest\"
     export CARGO_TARGET_DIR=\"\$HOME/.cache/godothub-ci-target\"
-    bash app/tool/ci_local.sh $flags
+    bash dev/tool/ci_local.sh $flags
   "
   if [ "$on_wsl_mount" = 1 ]; then
     exec bash -lc "$script"
@@ -78,12 +78,12 @@ cd "$repo"
 if [ "$fast" = 0 ]; then
   run "Rust tests for core and bridge" cargo test -p godothub_core -p godothub_bridge --locked
 fi
-run "Third-party Rust notices are up to date" node app/tool/gen_rust_notices.mjs --check
+run "Third-party Rust notices are up to date" node dev/tool/gen_rust_notices.mjs --check
 
 cd "$repo/app"
 run "Get Flutter packages" flutter pub get
 step "Regenerate Flutter locale files"
-dart run tool/i18n_convert.dart && dart run slang || failed+=("Regenerate locale files")
+dart run ../dev/tool/i18n_convert.dart && dart run slang || failed+=("Regenerate locale files")
 # Line endings alone don't count: on Windows the generators write LF into a
 # CRLF checkout. Put such files back so the working tree stays clean.
 if [ -d "$repo/.git" ] && [ -n "$(git status --porcelain -- lib/i18n)" ]; then
@@ -94,9 +94,9 @@ if [ -d "$repo/.git" ] && [ -n "$(git status --porcelain -- lib/i18n)" ]; then
     echo "Warning: app/lib/i18n changed after regenerating. Commit it, or CI will warn."
   fi
 fi
-run "i18n missing keys and values" dart run tool/i18n/check_keys.dart --check-values
-run "i18n duplicate keys" dart run tool/i18n/duplicate_keys.dart
-run "i18n unused keys" dart run tool/i18n/unused_keys.dart
+run "i18n missing keys and values" dart run ../dev/tool/i18n/check_keys.dart --check-values
+run "i18n duplicate keys" dart run ../dev/tool/i18n/duplicate_keys.dart
+run "i18n unused keys" dart run ../dev/tool/i18n/unused_keys.dart
 run "Analyze" flutter analyze
 run "Widget tests" flutter test
 
