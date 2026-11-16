@@ -9,6 +9,7 @@ import 'package:godothub/src/rust/api/types.dart';
 import 'package:godothub/src/ui_prefs.dart';
 import 'package:godothub/state/changelog.dart';
 import 'package:godothub/ui/core/i18n.dart';
+import 'package:godothub/ui/core/interaction.dart';
 import 'package:godothub/ui/reusables/card_kit.dart';
 import 'package:godothub/ui/reusables/modal_kit.dart';
 
@@ -134,6 +135,47 @@ void main() {
     expect(captured.read(changelogBadgeProvider), isFalse);
     expect(jsonDecode(UiPrefsStore.instance.getItem(changelogSeenKey)!), ['e2', 'e1']);
     expect(backend.calls, isEmpty);
+  });
+
+  testWidgets('only the v1.6.0 entry gets the Moved to Flutter title, above its card', (tester) async {
+    (ChangelogBackend()
+          ..entries = [
+            entry(
+              'e3',
+              'v1.6.1',
+              notes: const [ChangelogNote(category: 'fix', text: 'Later fix')],
+            ),
+            entry(
+              'e2',
+              'v1.6.0',
+              notes: const [ChangelogNote(category: 'add', text: 'Flutter app')],
+            ),
+            entry(
+              'e1',
+              'v1.5.9',
+              notes: const [ChangelogNote(category: 'add', text: 'Last Tauri')],
+            ),
+          ])
+        .install(rust);
+    await base.pumpHost(tester, body: const ChangelogView(devTools: false));
+    await base.settle(tester);
+    final title = find.text('Moved to Flutter');
+    expect(title, findsOneWidget);
+    final card = find.ancestor(of: find.text('v1.6.0'), matching: find.byType(ChangelogEntryCard));
+    expect(find.descendant(of: card, matching: title), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.ancestor(of: find.text('v1.6.1'), matching: find.byType(ChangelogEntryCard)),
+        matching: title,
+      ),
+      findsNothing,
+    );
+    // Outside the card box itself, above the version line.
+    final box = find.ancestor(of: find.text('v1.6.0'), matching: find.byType(GhAnimatedBox)).first;
+    expect(find.descendant(of: box, matching: title), findsNothing);
+    expect(tester.getBottomLeft(title).dy, lessThanOrEqualTo(tester.getTopLeft(box).dy));
+    expect(isFlutterMigrationEntry(entry('x', 'v1.6.0 - Flutter')), isTrue);
+    expect(isFlutterMigrationEntry(entry('x', 'v1.6.0-beta')), isFalse);
   });
 
   testWidgets('shows the empty state', (tester) async {

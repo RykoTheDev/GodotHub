@@ -34,6 +34,11 @@ String formatChangelogDate(String raw) {
 
 typedef ChangelogGroup = ({String key, String labelKey, Color Function(GhTheme theme) color, GhTone tone});
 
+const flutterMigrationVersion = 'v1.6.0';
+const flutterMigrationTitle = 'Moved to Flutter';
+
+bool isFlutterMigrationEntry(ChangelogEntry entry) => entry.version.trim().split(' ').first == flutterMigrationVersion;
+
 final List<ChangelogGroup> changelogGroups = [
   (key: 'add', labelKey: 'added', color: (t) => t.mint, tone: GhTone.mint),
   (key: 'fix', labelKey: 'fixed', color: (t) => t.danger, tone: GhTone.danger),
@@ -363,155 +368,170 @@ class _ChangelogEntryCardState extends State<ChangelogEntryCard> {
             Expanded(
               child: Padding(
                 padding: EdgeInsets.only(bottom: theme.space(9)),
-                child: MouseRegion(
-                  onEnter: (_) => setState(() => _cardHovered = true),
-                  onExit: (_) => setState(() => _cardHovered = false),
-                  child: GhAnimatedBox(
-                    padding: EdgeInsets.all(theme.space(5)),
-                    color: _cardHovered ? theme.raised : theme.overlay,
-                    borderRadius: radius,
-                    border: Border.all(color: _cardHovered ? theme.accentDim.withValues(alpha: 0.7) : theme.outline.withValues(alpha: 0.5)),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          spacing: theme.space(4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    if (isFlutterMigrationEntry(entry))
+                      Padding(
+                        padding: EdgeInsets.only(bottom: theme.space(4)),
+                        child: Text(
+                          flutterMigrationTitle,
+                          style: theme.text(size: GhTextSize.x3l, weight: GhWeight.bold, color: theme.ink, lineHeight: 1.1),
+                        ),
+                      ),
+                    MouseRegion(
+                      onEnter: (_) => setState(() => _cardHovered = true),
+                      onExit: (_) => setState(() => _cardHovered = false),
+                      child: GhAnimatedBox(
+                        padding: EdgeInsets.all(theme.space(5)),
+                        color: _cardHovered ? theme.raised : theme.overlay,
+                        borderRadius: radius,
+                        border: Border.all(
+                          color: _cardHovered ? theme.accentDim.withValues(alpha: 0.7) : theme.outline.withValues(alpha: 0.5),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                spacing: theme.space(1),
-                                children: [
-                                  Text(
-                                    entry.version,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: theme.text(size: GhTextSize.lg, weight: GhWeight.semibold, color: theme.ink),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              spacing: theme.space(4),
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    spacing: theme.space(1),
+                                    children: [
+                                      Text(
+                                        entry.version,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: theme.text(size: GhTextSize.lg, weight: GhWeight.semibold, color: theme.ink),
+                                      ),
+                                      if (entry.date.isNotEmpty)
+                                        Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          spacing: theme.space(1),
+                                          children: [
+                                            GhIcon(GhIcons.clock, size: theme.space(3), color: theme.muted),
+                                            Text(
+                                              formatChangelogDate(entry.date),
+                                              style: theme.text(size: GhTextSize.x2s, color: theme.muted),
+                                            ),
+                                          ],
+                                        ),
+                                    ],
                                   ),
-                                  if (entry.date.isNotEmpty)
+                                ),
+                                if (widget.devTools)
+                                  Focus(
+                                    canRequestFocus: false,
+                                    skipTraversal: true,
+                                    onFocusChange: (inside) => setState(() => _focusInside = inside),
+                                    child: AnimatedOpacity(
+                                      opacity: showTools ? 1 : 0,
+                                      alwaysIncludeSemantics: true,
+                                      duration: GhDurations.color,
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        spacing: theme.space(1),
+                                        children: [
+                                          _iconButton(
+                                            theme,
+                                            icon: GhIcons.pencil,
+                                            label: _tc('edit_entry_aria', args: {'version': entry.version}),
+                                            onPressed: widget.onEdit,
+                                          ),
+                                          _iconButton(
+                                            theme,
+                                            icon: GhIcons.trash,
+                                            label: _tc('delete_entry_aria', args: {'version': entry.version}),
+                                            onPressed: widget.onDelete,
+                                            danger: true,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            if (entry.notes.isNotEmpty || issues.isNotEmpty)
+                              Padding(
+                                padding: EdgeInsets.only(top: theme.space(3)),
+                                child: Wrap(
+                                  spacing: theme.space(1.5),
+                                  runSpacing: theme.space(1.5),
+                                  children: [
+                                    for (final group in changelogGroups)
+                                      if (entry.notes.any((n) => n.category == group.key))
+                                        GhBadge(
+                                          tone: group.tone,
+                                          label: '${entry.notes.where((n) => n.category == group.key).length} ${_tc(group.labelKey)}',
+                                        ),
+                                    if (issues.isNotEmpty)
+                                      GhBadge(
+                                        tone: GhTone.amber,
+                                        icon: GhIcons.alertTriangle,
+                                        label: '${issues.length} ${_tc('changelog_known_issues')}',
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            if (entry.notes.isNotEmpty)
+                              Padding(
+                                padding: EdgeInsets.only(top: theme.space(4)),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  spacing: theme.space(3),
+                                  children: [
+                                    for (final group in changelogGroups)
+                                      if (entry.notes.any((n) => n.category == group.key))
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                                          spacing: theme.space(1.5),
+                                          children: [
+                                            Text(
+                                              _tc(group.labelKey),
+                                              style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: group.color(theme)),
+                                            ),
+                                            _bullets(theme, [
+                                              for (final n in entry.notes)
+                                                if (n.category == group.key) n.text,
+                                            ], group.color(theme)),
+                                          ],
+                                        ),
+                                  ],
+                                ),
+                              ),
+                            if (issues.isNotEmpty)
+                              Container(
+                                margin: EdgeInsets.only(top: theme.space(4)),
+                                padding: EdgeInsets.only(top: theme.space(4)),
+                                decoration: BoxDecoration(
+                                  border: Border(top: BorderSide(color: theme.outline.withValues(alpha: 0.4))),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  spacing: theme.space(1.5),
+                                  children: [
                                     Row(
-                                      mainAxisSize: MainAxisSize.min,
                                       spacing: theme.space(1),
                                       children: [
-                                        GhIcon(GhIcons.clock, size: theme.space(3), color: theme.muted),
+                                        GhIcon(GhIcons.alertTriangle, size: theme.space(3), color: theme.amber),
                                         Text(
-                                          formatChangelogDate(entry.date),
-                                          style: theme.text(size: GhTextSize.x2s, color: theme.muted),
+                                          _tc('changelog_known_issues'),
+                                          style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.amber),
                                         ),
                                       ],
                                     ),
-                                ],
-                              ),
-                            ),
-                            if (widget.devTools)
-                              Focus(
-                                canRequestFocus: false,
-                                skipTraversal: true,
-                                onFocusChange: (inside) => setState(() => _focusInside = inside),
-                                child: AnimatedOpacity(
-                                  opacity: showTools ? 1 : 0,
-                                  alwaysIncludeSemantics: true,
-                                  duration: GhDurations.color,
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    spacing: theme.space(1),
-                                    children: [
-                                      _iconButton(
-                                        theme,
-                                        icon: GhIcons.pencil,
-                                        label: _tc('edit_entry_aria', args: {'version': entry.version}),
-                                        onPressed: widget.onEdit,
-                                      ),
-                                      _iconButton(
-                                        theme,
-                                        icon: GhIcons.trash,
-                                        label: _tc('delete_entry_aria', args: {'version': entry.version}),
-                                        onPressed: widget.onDelete,
-                                        danger: true,
-                                      ),
-                                    ],
-                                  ),
+                                    _bullets(theme, issues, theme.amber),
+                                  ],
                                 ),
                               ),
                           ],
                         ),
-                        if (entry.notes.isNotEmpty || issues.isNotEmpty)
-                          Padding(
-                            padding: EdgeInsets.only(top: theme.space(3)),
-                            child: Wrap(
-                              spacing: theme.space(1.5),
-                              runSpacing: theme.space(1.5),
-                              children: [
-                                for (final group in changelogGroups)
-                                  if (entry.notes.any((n) => n.category == group.key))
-                                    GhBadge(
-                                      tone: group.tone,
-                                      label: '${entry.notes.where((n) => n.category == group.key).length} ${_tc(group.labelKey)}',
-                                    ),
-                                if (issues.isNotEmpty)
-                                  GhBadge(
-                                    tone: GhTone.amber,
-                                    icon: GhIcons.alertTriangle,
-                                    label: '${issues.length} ${_tc('changelog_known_issues')}',
-                                  ),
-                              ],
-                            ),
-                          ),
-                        if (entry.notes.isNotEmpty)
-                          Padding(
-                            padding: EdgeInsets.only(top: theme.space(4)),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              spacing: theme.space(3),
-                              children: [
-                                for (final group in changelogGroups)
-                                  if (entry.notes.any((n) => n.category == group.key))
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                                      spacing: theme.space(1.5),
-                                      children: [
-                                        Text(
-                                          _tc(group.labelKey),
-                                          style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: group.color(theme)),
-                                        ),
-                                        _bullets(theme, [
-                                          for (final n in entry.notes)
-                                            if (n.category == group.key) n.text,
-                                        ], group.color(theme)),
-                                      ],
-                                    ),
-                              ],
-                            ),
-                          ),
-                        if (issues.isNotEmpty)
-                          Container(
-                            margin: EdgeInsets.only(top: theme.space(4)),
-                            padding: EdgeInsets.only(top: theme.space(4)),
-                            decoration: BoxDecoration(
-                              border: Border(top: BorderSide(color: theme.outline.withValues(alpha: 0.4))),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              spacing: theme.space(1.5),
-                              children: [
-                                Row(
-                                  spacing: theme.space(1),
-                                  children: [
-                                    GhIcon(GhIcons.alertTriangle, size: theme.space(3), color: theme.amber),
-                                    Text(
-                                      _tc('changelog_known_issues'),
-                                      style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.amber),
-                                    ),
-                                  ],
-                                ),
-                                _bullets(theme, issues, theme.amber),
-                              ],
-                            ),
-                          ),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
             ),
