@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:godothub/api/opener.dart';
+import 'package:godothub/assets/asset_common.dart' show assetPageSizeFor;
 import 'package:godothub/assets/asset_detail_modal.dart';
 import 'package:godothub/assets/asset_store_view.dart';
 import 'package:godothub/logic/asset_search_cache.dart';
@@ -8,7 +9,6 @@ import 'package:godothub/modals/install_asset_modal.dart';
 import 'package:godothub/src/rust/api/types.dart';
 import 'package:godothub/src/ui_prefs.dart';
 import 'package:godothub/state/asset_prefs.dart';
-import 'package:godothub/state/godot_versions.dart';
 import 'package:godothub/templates/templates_view.dart';
 
 import '../projects/project_actions_test.dart' as base;
@@ -26,7 +26,10 @@ AssetInfo info(AssetLibraryAsset asset, {bool paid = false, List<AssetRelease> r
   version: version,
   license: 'MIT',
   sourceUrl: 'https://github.com/x/y',
-  media: const [AssetMedia(url: 'https://img/1.png', video: false), AssetMedia(url: 'https://youtu.be/x', video: true)],
+  media: const [
+    AssetMedia(url: 'https://img/1.png', video: false),
+    AssetMedia(url: 'https://youtu.be/x', video: true),
+  ],
   releases: releases,
   downloadSizeBytes: BigInt.from(2 * 1024 * 1024),
   paid: paid,
@@ -62,7 +65,10 @@ class QolBackend extends assets.AssetBackend {
         prefs = AssetPrefs(
           schemaVersion: 1,
           favorites: prefs.favorites,
-          hidden: [if (hidden) HiddenAsset(assetId: assetId, title: title), ...prefs.hidden.where((h) => h.assetId != assetId)],
+          hidden: [
+            if (hidden) HiddenAsset(assetId: assetId, title: title),
+            ...prefs.hidden.where((h) => h.assetId != assetId),
+          ],
         );
         return prefs;
       })
@@ -108,24 +114,6 @@ void main() {
   tearDown(() => OpenerApi.debugOpenUrl = null);
 
   group('logic', () {
-    InstalledGodotVersion v(String tag, String version) =>
-        InstalledGodotVersion(tag: tag, version: version, executablePath: '', isMono: false, installedAt: '', supportsConsole: false);
-
-    test('match my versions prefers the pinned version, else the newest install', () {
-      expect(myAssetVersion(const GodotVersionsState()), isNull);
-      final installed = [v('a', '4.2.1-stable'), v('b', '4.4-stable'), v('c', '3.6')];
-      expect(myAssetVersion(GodotVersionsState(installed: installed)), '4.4');
-      expect(
-        myAssetVersion(
-          GodotVersionsState(
-            installed: installed,
-            current: const CurrentVersionInfo(tag: 'a', aliasPath: '', aliasesDir: '', method: ''),
-          ),
-        ),
-        '4.2',
-      );
-    });
-
     test('an update shows only when a project has a different version', () {
       final a = AssetLibraryAsset(
         assetId: '1',
@@ -190,6 +178,69 @@ void main() {
       await base.pumpHost(tester, body: const AssetStoreView());
       await base.settle(tester, 10);
       expect(find.text('In 1 project'), findsOneWidget);
+    });
+  });
+
+  group('full rows', () {
+    test('page sizes fill whole rows', () {
+      expect([for (var c = 1; c <= 6; c++) assetPageSizeFor(c)], [12, 12, 12, 12, 15, 12]);
+      for (var c = 1; c <= 6; c++) {
+        expect(assetPageSizeFor(c) % c, 0);
+      }
+    });
+
+    testWidgets('the store asks for a page that fills five columns', (tester) async {
+      QolBackend().install(rust);
+      final sizes = <int?>[];
+      rust.on('crateApiAssetLibrarySearchAssetStore', ({
+        String? filter,
+        String? godotVersion,
+        int? page,
+        int? maxResults,
+        String? sort,
+      }) async {
+        sizes.add(maxResults);
+        return const AssetLibraryResponse(assets: [], page: 0, pages: 1, total: 0);
+      });
+      // About 1500 px of grid width: five columns.
+      await base.pumpHost(tester, body: const AssetStoreView(), size: const Size(1560, 1000));
+      await base.settle(tester, 10);
+      expect(sizes, isNotEmpty);
+      expect(sizes.toSet(), {15});
+    });
+  });
+
+  group('asset store sections', () {
+    testWidgets('opening the template library lands on the Templates section', (tester) async {
+      final backend = QolBackend()
+        ..libraryPages = {
+          0: [assets.asset('t9', title: 'Platformer kit', assetType: 'project')],
+        };
+      backend.install(rust);
+      openAssetStoreTemplates();
+      await base.pumpHost(tester, body: const AssetStoreView());
+      await base.settle(tester, 10);
+      expect(find.byKey(const ValueKey('asset-store-templates')), findsOneWidget);
+      expect(find.byKey(const ValueKey('t9')), findsOneWidget);
+      expect(find.byKey(const ValueKey('asset-source-tabs')), findsNothing, reason: 'addon filters belong to the Addons section');
+    });
+
+    testWidgets('switching sections swaps the browser and keeps the counts apart', (tester) async {
+      final backend = QolBackend()
+        ..libraryPages = {
+          0: [assets.asset('t9', title: 'Platformer kit', assetType: 'project')],
+        };
+      backend.install(rust);
+      await base.pumpHost(tester, body: const AssetStoreView());
+      await base.settle(tester, 10);
+      expect(find.byKey(const ValueKey('store:pub/one')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('view-tab-templates')));
+      await base.settle(tester, 10);
+      expect(find.byKey(const ValueKey('store:pub/one')), findsNothing);
+      expect(find.byKey(const ValueKey('t9')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('view-tab-addons')));
+      await base.settle(tester, 10);
+      expect(find.byKey(const ValueKey('store:pub/one')), findsOneWidget);
     });
   });
 

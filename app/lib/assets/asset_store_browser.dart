@@ -79,12 +79,40 @@ class _AssetStoreBrowserState extends ConsumerState<AssetStoreBrowser> {
   Timer? _searchTimer;
   Timer? _noticeTimer;
   int _requestSeq = 0;
+
+  /// Page size matched to the column count, set from the first layout.
+  int _pageSize = assetPageSize;
+  bool _sized = false;
+
+  /// Requests pages that fill whole rows. Measured from the grid's width
+  /// before the first search, and again when a resize changes the columns.
+  Widget _sizedTo(BoxConstraints constraints, Widget child) {
+    final theme = GhTheme.of(context);
+    final size = assetPageSizeFor(GhGridBreakpoints.cards.columnsFor(constraints.maxWidth, fontScale: theme.fontScale));
+    if (!_sized || size != _pageSize) {
+      final first = !_sized;
+      _sized = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        if (!first && size == _pageSize) return;
+        _pageSize = size;
+        _reloadForPageSize();
+      });
+    }
+    return child;
+  }
+
+  void _reloadForPageSize() {
+    _page = 0;
+    _schedule();
+  }
+
   ({bool loading, int total})? _reported;
 
   @override
   void initState() {
     super.initState();
-    _schedule();
+    // The first search waits for the first layout, which sets the page size.
   }
 
   @override
@@ -144,12 +172,12 @@ class _AssetStoreBrowserState extends ConsumerState<AssetStoreBrowser> {
       final storeSort = storeServerSort(widget.sort);
       final res = widget.source == AssetSource.library
           ? await cachedAssetSearch(
-              'lib|$query|$version|$nextPage|${widget.categoryId}|${params.sort}|${params.reverse}',
+              'lib|$query|$version|$nextPage|$_pageSize|${widget.categoryId}|${params.sort}|${params.reverse}',
               () => AssetLibraryApi.search(
                 query.isEmpty ? null : query,
                 version.isEmpty ? assetVersionOptions.first : version,
                 nextPage,
-                assetPageSize,
+                _pageSize,
                 'addon',
                 widget.categoryId.isEmpty ? null : widget.categoryId,
                 params.sort,
@@ -157,12 +185,12 @@ class _AssetStoreBrowserState extends ConsumerState<AssetStoreBrowser> {
               ),
             )
           : await cachedAssetSearch(
-              'store|$query|$version|$nextPage|$storeSort',
+              'store|$query|$version|$nextPage|$_pageSize|$storeSort',
               () => AssetLibraryApi.searchStore(
                 query.isEmpty ? null : query,
                 version.isEmpty ? null : version,
                 nextPage,
-                assetPageSize,
+                _pageSize,
                 storeSort,
               ),
             );
@@ -289,7 +317,7 @@ class _AssetStoreBrowserState extends ConsumerState<AssetStoreBrowser> {
           showConsole: false,
           onOpen: (_) => _openInstall(asset),
           moreLabel: ghTr('project_more_aria'),
-          paddingX: 8,
+          size: GhOpenButtonSize.compact,
           items: [
             GhMenuItem(
               id: 'details',
@@ -340,6 +368,7 @@ class _AssetStoreBrowserState extends ConsumerState<AssetStoreBrowser> {
       );
     }
     return GhCardGrid(
+      gap: 4,
       children: [for (final asset in saved) _card(asset, prefs: prefs, installs: installs)],
     );
   }
@@ -401,19 +430,25 @@ class _AssetStoreBrowserState extends ConsumerState<AssetStoreBrowser> {
             GhCardNotice(message: ghTr('asset_page_all_hidden'))
           else
             GhCardGrid(
+              gap: 4,
               children: [for (final asset in visible) _card(asset, prefs: prefs, installs: installs)],
             ),
           if (_page > 0 || _page + 1 < _pages) AssetPagination(page: _page, pages: _pages, paging: _paging, onNavigate: _navigate),
         ],
       );
     }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: theme.space(3),
-      children: [
-        if (_notice != null) GhCardNotice(message: _notice!),
-        body,
-      ],
+    return LayoutBuilder(
+      builder: (context, constraints) => _sizedTo(
+        constraints,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: theme.space(3),
+          children: [
+            if (_notice != null) GhCardNotice(message: _notice!),
+            body,
+          ],
+        ),
+      ),
     );
   }
 }

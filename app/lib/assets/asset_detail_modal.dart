@@ -269,7 +269,7 @@ class _AssetDetailModalState extends ConsumerState<AssetDetailModal> {
         if (asset.godotVersion.isNotEmpty) GhBadge(label: 'Godot ${asset.godotVersion}', mono: true),
         if (info.license.isNotEmpty) GhBadge(label: info.license, mono: true),
         if (asset.supportLevel.isNotEmpty) GhBadge(label: asset.supportLevel, tone: assetSupportTone(asset.supportLevel)),
-        if (rating != null && rating > 0) GhBadge(label: rating.toStringAsFixed(1), icon: GhIcons.star, tone: GhTone.amber),
+        if (rating != null && rating > 0) GhBadge(label: formatAssetRating(rating), icon: GhIcons.star, tone: GhTone.amber),
         if (info.paid) GhBadge(label: ghTr('asset_paid'), tone: GhTone.amber),
       ],
     );

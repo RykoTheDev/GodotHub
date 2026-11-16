@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '../design/design.dart';
@@ -5,6 +7,11 @@ import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 
 const assetPageSize = 12;
+
+/// A page size that fills whole rows at [columns] per row and stays close to
+/// [assetPageSize]: 12 at 1 to 4 and 6 columns, 15 at 5. Partly empty last
+/// rows on wide screens looked broken.
+int assetPageSizeFor(int columns) => columns <= 0 ? assetPageSize : columns * math.max(2, (assetPageSize / columns).ceil());
 
 /// Web pages for the two sources, offered when a search fails.
 const assetLibrarySiteUrl = 'https://godotengine.org/asset-library/asset';
@@ -58,7 +65,7 @@ class AssetDropButton extends StatelessWidget {
       label,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-      style: theme.text(size: GhTextSize.base, weight: GhWeight.medium),
+      style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium),
     );
     return GhPressable(
       onPressed: onPressed,

@@ -7,7 +7,9 @@ import 'package:godothub/modals/create_project_modal.dart';
 import 'package:godothub/modals/template_preview_modal.dart';
 import 'package:godothub/src/rust/api/types.dart';
 import 'package:godothub/src/ui_prefs.dart';
+import 'package:godothub/logic/pending_action.dart';
 import 'package:godothub/state/app_signals.dart';
+import 'package:godothub/state/keyboard_shortcuts.dart' show setTabSignal;
 import 'package:godothub/state/shell_signals.dart';
 import 'package:godothub/state/task_tray.dart';
 import 'package:godothub/templates/templates_view.dart';
@@ -169,9 +171,13 @@ void main() {
     await base.pumpHost(tester, body: const TemplatesView());
     await base.settle(tester);
     expect(find.text(ghTr('templates_empty_title')), findsOneWidget);
-    await tester.tap(find.text(ghTr('templates_browse_library')));
+    final tabs = <Object?>[];
+    final sub = AppSignals.on(setTabSignal).listen((signal) => tabs.add(signal.detail));
+    addTearDown(sub.cancel);
+    await tester.tap(find.text(ghTr('templates_browse_library')).last);
     await base.settle(tester);
-    expect(find.text(ghTr('asset_no_results_title')), findsOneWidget);
+    expect(tabs, ['asset-store'], reason: 'the template library lives in the Asset Store now');
+    expect(consumePendingActionIf('asset-store:templates'), isTrue);
   });
 
   testWidgets('no-match state clears the search', (tester) async {

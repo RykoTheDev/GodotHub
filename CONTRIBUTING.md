@@ -382,6 +382,9 @@ it, so a fix in one place reaches every screen.
 | A path the user can type, paste or browse for | `GhPathField` (`ghPathError` for submit-time checks) | `ui/reusables/path_field.dart` |
 | A content card (assets, templates, news, versions) | `GhCard`, `GhCardMedia`, `GhCardFooter` | `ui/reusables/card_kit.dart` |
 | A status pill or badge | `GhBadge` with a `GhTone` | `ui/reusables/card_kit.dart` |
+| A showcase card (assets, templates, news): cover art, glass chips and actions, hover lift | `GhCard(lift: true)`, `GhCover`, `GhGlassChip`, `GhGlassIconButton`, `GhInitialsAvatar` | `ui/reusables/showcase_card.dart` |
+| A toolbar of filters above a grid | `GhFilterBar` | `ui/reusables/filter_bar.dart` |
+| Sections beside a view's search box | `GhViewTabs` | `ui/reusables/view_tabs.dart` |
 | A selectable chip | `GhChoiceChip` | `ui/reusables/modal_kit.dart` |
 | A responsive grid of cards | `GhCardGrid` with `GhGridBreakpoints.cards` or `.reading` | `ui/reusables/card_grid.dart` |
 | Empty, loading and error states, skeletons | `GhStatePanel.empty/.loading/.error`, `GhSkeleton` | `ui/reusables/state_panel.dart` |

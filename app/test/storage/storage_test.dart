@@ -88,15 +88,6 @@ void main() {
       ..on('crateApiMiseMiseRefreshStatus', () async => const MiseStatus(available: false));
   });
 
-  test('stat cards go 1, 2 or 4 per row by available width', () {
-    expect(
-      [
-        for (final w in [300.0, 500.0, 740.0, 800.0, 1600.0]) storageStatBreakpoints.columnsFor(w),
-      ],
-      [1, 2, 2, 4, 4],
-    );
-  });
-
   test('reclaim entries pick unused versions, partials and orphan exports with defaults', () {
     final entries = reclaimEntries(report());
     expect(
@@ -202,7 +193,7 @@ void main() {
     await base.settle(tester);
     expect(find.text(ghTr('cleanup_load_error', args: {'error': 'disk gone'})), findsOneWidget);
     fail = false;
-    await tester.tap(find.text(ghTr('try_again')));
+    await tester.tap(find.text(ghTr('retry')));
     await base.settle(tester);
     expect(find.text('Starter'), findsOneWidget);
   });

@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/asset_library.dart';
 import '../api/templates.dart';
-import '../assets/asset_library_browser.dart';
+import '../assets/asset_store_view.dart' show openAssetStoreTemplates;
 import '../design/design.dart';
 import '../logic/locale.dart';
 import '../logic/pending_action.dart';
@@ -89,8 +89,6 @@ String? templateSyncSummary(TemplateSyncResult result) {
   return parts.isEmpty ? null : parts.join(' · ');
 }
 
-enum _TemplatesTab { local, asset }
-
 class TemplatesView extends ConsumerStatefulWidget {
   const TemplatesView({super.key, this.connected = false, this.prefs, this.onOpenSettings});
 
@@ -108,11 +106,9 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
   final TextEditingController _search = TextEditingController();
   final FocusNode _searchNode = FocusNode(debugLabel: 'TemplatesView search');
   final List<StreamSubscription<Object?>> _subscriptions = [];
-  _TemplatesTab _tab = _TemplatesTab.local;
   List<ProjectTemplate> _templates = const [];
   bool _loaded = false;
   String? _loadError;
-  ({bool loading, int total}) _assetStats = (loading: true, total: 0);
   late TemplateSort _sort = TemplateSort.parse(_prefs.getItem(templateSortKey));
 
   UiPrefsStore get _prefs => widget.prefs ?? UiPrefsStore.instance;
@@ -265,68 +261,16 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
         borderRadius: radius,
         border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
         boxShadow: GhShadows.md(Colors.black.withValues(alpha: 0.1)),
-        padding: EdgeInsets.symmetric(horizontal: theme.space(6)),
+        padding: EdgeInsets.symmetric(horizontal: theme.space(4)),
         alignment: Alignment.center,
         child: Text(
           label,
+          maxLines: 1,
+          softWrap: false,
           style: theme
               .text(weight: GhWeight.semibold, color: states.active ? theme.ink : theme.muted)
               .copyWith(fontSize: theme.rem(1.0625)),
         ),
-      ),
-    );
-  }
-
-  Widget _tabSwitcher(GhTheme theme) {
-    final radius = BorderRadius.circular(theme.radiusBtn);
-    Widget option(_TemplatesTab value, String label, FaIconData icon) {
-      final active = _tab == value;
-      return GhPressable(
-        onPressed: () => setState(() => _tab = value),
-        borderRadius: radius,
-        selected: active,
-        builder: (context, states) {
-          final color = active ? Colors.white : (states.active ? theme.ink : theme.muted);
-          return GhAnimatedBox(
-            color: active ? theme.accent : (states.active ? theme.raised : theme.raised.withValues(alpha: 0)),
-            borderRadius: radius,
-            padding: EdgeInsets.symmetric(horizontal: theme.space(3.5)),
-            alignment: Alignment.center,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              spacing: theme.space(1.5),
-              children: [
-                GhIcon(icon, size: theme.space(3.5), color: color),
-                Flexible(
-                  child: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: color),
-                  ),
-                ),
-              ],
-            ),
-          );
-        },
-      );
-    }
-
-    return Container(
-      height: theme.space(12),
-      padding: EdgeInsets.all(theme.space(1)),
-      decoration: BoxDecoration(
-        color: theme.overlay,
-        borderRadius: radius,
-        border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        spacing: theme.space(1),
-        children: [
-          Flexible(child: option(_TemplatesTab.local, ghTr('templates_tab_local'), GhIcons.copy)),
-          Flexible(child: option(_TemplatesTab.asset, ghTr('templates_tab_asset'), GhIcons.store)),
-        ],
       ),
     );
   }
@@ -348,7 +292,7 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
         message: ghTr('no_templates_yet').replaceAll(RegExp(r'</?\d+>'), ''),
         actions: [
           GhButton(
-            onPressed: () => setState(() => _tab = _TemplatesTab.asset),
+            onPressed: openAssetStoreTemplates,
             label: ghTr('templates_browse_library'),
             icon: GhIcons.store,
             variant: GhButtonVariant.primary,
@@ -445,8 +389,7 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
       end: insets.end >= theme.space(4) ? insets.end - theme.space(4) : insets.end,
       bottom: insets.bottom >= theme.space(4) ? insets.bottom - theme.space(4) : insets.bottom,
     );
-    final local = _tab == _TemplatesTab.local;
-    final count = local ? _templates.length : _assetStats.total;
+    final count = _templates.length;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -461,11 +404,12 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
                 child: GhAnimatedNumber(count),
               ),
               Text(
-                ghTr(local ? 'template_your_templates' : 'asset_store_count', count: count),
+                ghTr('template_your_templates', count: count),
                 style: theme.text(size: GhTextSize.lg, weight: GhWeight.medium, color: theme.muted),
               ),
             ],
             actions: [
+              _headerButton(theme, label: ghTr('templates_asset_library_btn'), onPressed: openAssetStoreTemplates),
               if (scanDir != null && scanDir.isNotEmpty)
                 _headerButton(theme, label: ghTr('open_folder'), onPressed: () => openFolderOrToast(scanDir)),
               GhScanButton(
@@ -477,31 +421,12 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
                 },
               ),
             ],
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                final search = GhSearchBar(
-                  value: _search.text,
-                  controller: _search,
-                  focusNode: _searchNode,
-                  placeholder: ghTr(local ? 'template_search_placeholder' : 'asset_search_placeholder'),
-                  onChanged: (_) {},
-                );
-                // Narrow windows stack the tab switcher under the search box.
-                if (constraints.maxWidth < theme.space(110)) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: theme.space(2),
-                    children: [search, _tabSwitcher(theme)],
-                  );
-                }
-                return Row(
-                  spacing: theme.space(2),
-                  children: [
-                    Expanded(child: search),
-                    _tabSwitcher(theme),
-                  ],
-                );
-              },
+            child: GhSearchBar(
+              value: _search.text,
+              controller: _search,
+              focusNode: _searchNode,
+              placeholder: ghTr('template_search_placeholder'),
+              onChanged: (_) {},
             ),
           ),
         ),
@@ -517,20 +442,7 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
                   theme.space(5),
                   theme.space(8),
                 ),
-                child: local
-                    ? _local(context, theme)
-                    : AssetLibraryBrowser(
-                        query: _search.text,
-                        onClearQuery: _search.clear,
-                        onStatsChange: (stats) {
-                          if (mounted && stats != _assetStats) setState(() => _assetStats = stats);
-                        },
-                        installedTemplateNames: [for (final t in _templates) t.name],
-                        installedTemplateIds: {
-                          for (final t in _templates)
-                            if (t.sourceAssetId != null) t.sourceAssetId!,
-                        },
-                      ),
+                child: _local(context, theme),
               ),
             ),
           ),

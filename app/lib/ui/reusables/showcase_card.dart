@@ -1,5 +1,3 @@
-import 'dart:ui' as ui;
-
 import 'package:flutter/material.dart';
 
 import '../../design/design.dart';
@@ -7,16 +5,6 @@ import '../../motion/motion.dart';
 import '../../motion/presence.dart' show ghFadeInFrameBuilder;
 import '../core/interaction.dart';
 import '../core/tooltip.dart';
-
-/// How a cover renders its picture.
-enum GhCoverStyle {
-  /// A real thumbnail or article image: full bleed, gently zoomed on hover.
-  photo,
-
-  /// A small square icon (Asset Library icons are often 64 px): a blurred,
-  /// enlarged copy fills the cover as ambient color behind a crisp icon tile.
-  icon,
-}
 
 int _hash(String text) {
   var h = 0;
@@ -37,9 +25,9 @@ int _hash(String text) {
   return (a, b);
 }
 
-/// The top of a showcase card. Shows [imageUrl] in the given [style], or a
-/// generated gradient with a large faint [fallbackIcon] when there is no
-/// picture (or it fails to load). [topStart] and [topEnd] float over the
+/// The top of a showcase card. Shows [imageUrl] full bleed, or a generated
+/// gradient with a large faint [fallbackIcon] when there is no picture (or
+/// it fails to load). [topStart] and [topEnd] float over the
 /// cover (glass chips and quick actions). [zoom] is the card's hover state.
 class GhCover extends StatelessWidget {
   const GhCover({
@@ -47,7 +35,6 @@ class GhCover extends StatelessWidget {
     required this.seed,
     required this.fallbackIcon,
     this.imageUrl,
-    this.style = GhCoverStyle.photo,
     this.zoom = false,
     this.height = 40,
     this.topStart = const [],
@@ -57,7 +44,6 @@ class GhCover extends StatelessWidget {
   final String seed;
   final String? imageUrl;
   final FaIconData fallbackIcon;
-  final GhCoverStyle style;
   final bool zoom;
 
   /// Height in spacing units.
@@ -88,62 +74,22 @@ class GhCover extends StatelessWidget {
     Widget image(BoxFit fit, {Widget? fallback}) => Image.network(
       url!,
       fit: fit,
+      // Small library icons are scaled up to the cover; smooth the result.
+      filterQuality: FilterQuality.medium,
       excludeFromSemantics: true,
       frameBuilder: ghFadeInFrameBuilder,
       errorBuilder: (context, error, stack) => fallback ?? const SizedBox.shrink(),
     );
 
-    final Widget art;
-    if (!hasImage) {
-      art = AnimatedScale(scale: scale, duration: duration, curve: GhCurves.outExpo, child: generated);
-    } else if (style == GhCoverStyle.photo) {
-      art = Stack(
-        fit: StackFit.expand,
-        children: [
-          generated,
-          AnimatedScale(scale: scale, duration: duration, curve: GhCurves.outExpo, child: image(BoxFit.cover)),
-        ],
-      );
-    } else {
-      final tile = theme.space(17);
-      art = Stack(
-        fit: StackFit.expand,
-        children: [
-          generated,
-          ClipRect(
-            child: ImageFiltered(
-              imageFilter: ui.ImageFilter.blur(sigmaX: 22, sigmaY: 22, tileMode: TileMode.decal),
-              child: Transform.scale(scale: 1.6, child: Opacity(opacity: 0.85, child: image(BoxFit.cover))),
-            ),
-          ),
-          ColoredBox(color: Colors.black.withValues(alpha: theme.isLight ? 0.05 : 0.18)),
-          Center(
-            child: AnimatedScale(
-              scale: zoom && !motion.off ? 1.08 : 1.0,
-              duration: duration,
-              curve: GhCurves.outExpo,
-              child: Container(
-                width: tile,
-                height: tile,
-                clipBehavior: Clip.antiAlias,
-                decoration: BoxDecoration(
-                  color: theme.surface,
-                  borderRadius: BorderRadius.circular(theme.radiusCard),
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.18)),
-                  boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.35), blurRadius: 24, offset: const Offset(0, 10))],
-                ),
-                child: image(
-                  BoxFit.cover,
-                  fallback: Center(
-                    child: GhIcon(fallbackIcon, size: theme.space(6), color: theme.muted),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      );
-    }
+    final Widget art = hasImage
+        ? Stack(
+            fit: StackFit.expand,
+            children: [
+              generated,
+              AnimatedScale(scale: scale, duration: duration, curve: GhCurves.outExpo, child: image(BoxFit.cover)),
+            ],
+          )
+        : AnimatedScale(scale: scale, duration: duration, curve: GhCurves.outExpo, child: generated);
 
     return SizedBox(
       height: theme.space(height),
@@ -188,7 +134,7 @@ class GhCover extends StatelessWidget {
   }
 }
 
-/// A frosted pill for labels over a cover image (source, rating, category).
+/// A translucent pill for labels over a cover image (source, rating, category).
 class GhGlassChip extends StatelessWidget {
   const GhGlassChip({super.key, required this.label, this.icon, this.iconColor, this.tooltip});
 
@@ -200,33 +146,27 @@ class GhGlassChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
-    Widget chip = ClipRRect(
-      borderRadius: BorderRadius.circular(999),
-      child: BackdropFilter(
-        filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: theme.space(2.5), vertical: theme.space(1)),
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.42),
-            borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
+    Widget chip = Container(
+      padding: EdgeInsets.symmetric(horizontal: theme.space(2.5), vertical: theme.space(1)),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: theme.space(1),
+        children: [
+          if (icon != null) GhIcon(icon!, size: theme.space(2.75), color: iconColor ?? Colors.white),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: Colors.white),
+            ),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            spacing: theme.space(1),
-            children: [
-              if (icon != null) GhIcon(icon!, size: theme.space(2.75), color: iconColor ?? Colors.white),
-              Flexible(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: Colors.white),
-                ),
-              ),
-            ],
-          ),
-        ),
+        ],
       ),
     );
     if (tooltip != null) chip = GhTooltip(message: tooltip!, child: chip);
@@ -234,7 +174,7 @@ class GhGlassChip extends StatelessWidget {
   }
 }
 
-/// A round frosted quick action over a cover (save, hide, open page).
+/// A round translucent quick action over a cover (save, hide, open page).
 /// [visible] lets the card reveal it on hover or focus; an [active] action
 /// (a saved favorite) always shows.
 class GhGlassIconButton extends StatelessWidget {
@@ -270,22 +210,17 @@ class GhGlassIconButton extends StatelessWidget {
         tooltip: label,
         toggled: active,
         borderRadius: BorderRadius.circular(999),
-        builder: (context, states) => ClipOval(
-          child: BackdropFilter(
-            filter: ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-            child: AnimatedContainer(
-              duration: motion.css(GhDurations.color),
-              width: size,
-              height: size,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.black.withValues(alpha: states.active ? 0.6 : 0.42),
-                border: Border.all(color: Colors.white.withValues(alpha: states.active ? 0.35 : 0.16)),
-              ),
-              child: GhIcon(icon, size: theme.space(3.5), color: active ? (activeColor ?? theme.amber) : Colors.white),
-            ),
+        builder: (context, states) => AnimatedContainer(
+          duration: motion.css(GhDurations.color),
+          width: size,
+          height: size,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: Colors.black.withValues(alpha: states.active ? 0.75 : 0.6),
+            border: Border.all(color: Colors.white.withValues(alpha: states.active ? 0.35 : 0.16)),
           ),
+          child: GhIcon(icon, size: theme.space(3.5), color: active ? (activeColor ?? theme.amber) : Colors.white),
         ),
       ),
     );

@@ -58,6 +58,7 @@ abstract final class ProjectsViewPrefs {
   static const sortBy = 'godothub_projects_sort_by';
   static const tagFilter = 'godothub_projects_tag_filter';
   static const categoryFilter = 'godothub_projects_category_filter';
+  static const kanbanColumnWidth = 'godothub_projects_kanban_column_width';
   static const uncategorized = '__uncategorized__';
   static final Map<String, String> session = {};
 }
@@ -775,6 +776,8 @@ class ProjectsViewState extends ConsumerState<ProjectsView> {
           hiddenCategories: hiddenEntries,
           onUnhideCategory: (id) => ref.read(categoriesProvider.notifier).setHidden(id, false).ignore(),
           onCategoryContextMenu: openCategoryMenu,
+          columnWidthUnits: double.tryParse(_prefs.getItem(ProjectsViewPrefs.kanbanColumnWidth) ?? ''),
+          onColumnWidthChanged: (units) => setState(() => _prefs.setItem(ProjectsViewPrefs.kanbanColumnWidth, units.toStringAsFixed(1))),
         ),
       );
     } else if (_viewMode == ProjectViewMode.grid) {

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -12,7 +14,6 @@ import '../src/ui_prefs.dart';
 import '../state/godot_versions.dart';
 import '../state/settings.dart';
 import '../ui/controls/checkbox.dart';
-import '../ui/controls/dashed_box.dart';
 import '../ui/controls/spin.dart';
 import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
@@ -22,17 +23,13 @@ import '../ui/core/ui_settings.dart' show GhSide;
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
 import '../ui/reusables/unlocalized_badge.dart';
+import '../ui/reusables/state_panel.dart';
 import '../ui/reusables/view_header.dart';
 import '../ui/shell/overlay_scroll_area.dart';
 import '../ui/shell/view_insets.dart';
 import '../ui/shell/smooth_scroll.dart';
-import '../ui/reusables/card_grid.dart';
 
 enum ReclaimGroup { versions, partials, exports }
-
-/// Four fixed stat cards: 1, 2 or 4 per row by available width, never a
-/// 3 + 1 split or sparse wide rows.
-const storageStatBreakpoints = GhGridBreakpoints([(0, 1), (360, 2), (760, 4)]);
 
 class ReclaimEntry {
   const ReclaimEntry({
@@ -126,6 +123,7 @@ class _StorageViewState extends ConsumerState<StorageView> {
   String? _error;
   Set<String> _selected = {};
   bool _reclaiming = false;
+  final GlobalKey _reclaimKey = GlobalKey(debugLabel: 'storage-reclaim');
 
   @override
   void initState() {
@@ -244,63 +242,58 @@ class _StorageViewState extends ConsumerState<StorageView> {
     required String title,
     double? total,
     String? description,
-    required Widget child,
+    bool empty = false,
+    Key? key,
+    Widget? child,
   }) {
-    return Container(
-      padding: EdgeInsets.all(theme.space(4)),
-      decoration: BoxDecoration(
-        color: theme.overlay,
-        borderRadius: BorderRadius.circular(theme.radiusItem),
-        border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: theme.space(3),
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: theme.space(4),
+    final header = Row(
+      spacing: theme.space(2),
+      children: [
+        GhIcon(icon, size: theme.space(3.5), color: theme.muted),
+        Expanded(
+          child: Row(
+            spacing: theme.space(2),
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Semantics(
-                      header: true,
-                      child: Row(
-                        spacing: theme.space(2),
-                        children: [
-                          GhIcon(icon, size: theme.space(3.5), color: theme.muted),
-                          Flexible(
-                            child: Text(
-                              title,
-                              style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (description != null)
-                      Padding(
-                        padding: EdgeInsets.only(top: theme.space(1)),
-                        child: Text(
-                          description,
-                          style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625),
-                        ),
-                      ),
-                  ],
+              Flexible(
+                child: Semantics(
+                  header: true,
+                  child: Text(
+                    title,
+                    style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.ink),
+                  ),
                 ),
               ),
-              if (total != null)
-                Text(
-                  formatBytes(total),
-                  style: theme.text(size: GhTextSize.xs, mono: true, color: theme.muted),
+              if (description != null)
+                GhTooltip(
+                  message: description,
+                  child: GhIcon(GhIcons.info, size: theme.space(3), color: theme.muted.withValues(alpha: 0.6)),
                 ),
             ],
           ),
-          child,
-        ],
+        ),
+        if (empty)
+          Text(
+            ghTr('cleanup_none'),
+            style: theme.text(size: GhTextSize.xs, color: theme.muted.withValues(alpha: 0.7)),
+          )
+        else if (total != null)
+          Text(
+            formatBytes(total),
+            style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, mono: true, color: theme.muted),
+          ),
+      ],
+    );
+    return Container(
+      key: key,
+      padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(empty ? 3 : 4)),
+      decoration: BoxDecoration(
+        color: theme.overlay,
+        borderRadius: BorderRadius.circular(theme.radiusCard),
+        border: Border.all(color: theme.outline.withValues(alpha: 0.45)),
       ),
+      child: empty || child == null
+          ? header
+          : Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: theme.space(3), children: [header, child]),
     );
   }
 
@@ -357,127 +350,122 @@ class _StorageViewState extends ConsumerState<StorageView> {
     return _section(
       theme,
       icon: GhIcons.trash,
+      key: _reclaimKey,
       title: ghTr('cleanup_reclaimable_title'),
       description: ghTr('cleanup_reclaimable_desc'),
-      child: entries.isEmpty
-          ? _emptyNote(theme, ghTr('cleanup_nothing_to_reclaim'))
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: theme.space(3),
-              children: [
-                for (final group in groups)
-                  if (entries.any((e) => e.group == group.id))
-                    Builder(
-                      builder: (context) {
-                        final rows = [
-                          for (final e in entries)
-                            if (e.group == group.id) e,
-                        ];
-                        final allOn = rows.every((r) => _selected.contains(r.key));
-                        final someOn = rows.any((r) => _selected.contains(r.key));
-                        return Column(
-                          key: ValueKey('group:${group.id.name}'),
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          spacing: theme.space(1.5),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: theme.space(3),
+        children: [
+          for (final group in groups)
+            if (entries.any((e) => e.group == group.id))
+              Builder(
+                builder: (context) {
+                  final rows = [
+                    for (final e in entries)
+                      if (e.group == group.id) e,
+                  ];
+                  final allOn = rows.every((r) => _selected.contains(r.key));
+                  final someOn = rows.any((r) => _selected.contains(r.key));
+                  return Column(
+                    key: ValueKey('group:${group.id.name}'),
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: theme.space(1.5),
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(top: theme.space(1)),
+                        child: Row(
+                          spacing: theme.space(3),
                           children: [
-                            Padding(
-                              padding: EdgeInsets.only(top: theme.space(1)),
-                              child: Row(
-                                spacing: theme.space(3),
-                                children: [
-                                  Expanded(
-                                    child: Align(
-                                      alignment: AlignmentDirectional.centerStart,
-                                      child: GhCheckbox(
-                                        checked: allOn,
-                                        indeterminate: !allOn && someOn,
-                                        label: group.title,
-                                        onChanged: (on) => setState(() {
-                                          final next = {..._selected};
-                                          for (final r in rows) {
-                                            on ? next.add(r.key) : next.remove(r.key);
-                                          }
-                                          _selected = next;
-                                        }),
-                                        child: Text(
-                                          group.title,
-                                          style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.ink),
-                                        ),
-                                      ),
-                                    ),
+                            Expanded(
+                              child: Align(
+                                alignment: AlignmentDirectional.centerStart,
+                                child: GhCheckbox(
+                                  checked: allOn,
+                                  indeterminate: !allOn && someOn,
+                                  label: group.title,
+                                  onChanged: (on) => setState(() {
+                                    final next = {..._selected};
+                                    for (final r in rows) {
+                                      on ? next.add(r.key) : next.remove(r.key);
+                                    }
+                                    _selected = next;
+                                  }),
+                                  child: Text(
+                                    group.title,
+                                    style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.ink),
                                   ),
-                                  Text(
-                                    formatBytes(_sum(rows.map((r) => r.size))),
-                                    style: theme.text(size: GhTextSize.x2s, mono: true, color: theme.muted),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            if (group.hint != null)
-                              Text(
-                                group.hint!,
-                                style: theme.text(size: GhTextSize.x2s, color: theme.amber.withValues(alpha: 0.9), lineHeight: 1.625),
-                              ),
-                            for (final row in rows)
-                              KeyedSubtree(
-                                key: ValueKey(row.key),
-                                child: _row(
-                                  theme,
-                                  children: [
-                                    GhCheckbox(
-                                      checked: _selected.contains(row.key),
-                                      label: row.label,
-                                      onChanged: (on) => _toggle(row.key, on),
-                                    ),
-                                    _titleDetail(theme, row.label, row.detail),
-                                    _size(theme, formatBytes(row.size)),
-                                    _OpenFolderButton(path: row.path),
-                                  ],
                                 ),
                               ),
+                            ),
+                            Text(
+                              formatBytes(_sum(rows.map((r) => r.size))),
+                              style: theme.text(size: GhTextSize.x2s, mono: true, color: theme.muted),
+                            ),
                           ],
-                        );
-                      },
-                    ),
-                Container(
-                  padding: EdgeInsets.only(top: theme.space(2)),
-                  decoration: BoxDecoration(
-                    border: Border(top: BorderSide(color: theme.line)),
-                  ),
-                  child: Align(
-                    alignment: AlignmentDirectional.centerEnd,
-                    child: GhPressable(
-                      onPressed: disabled ? null : () => _confirm(chosen, chosenSize),
-                      borderRadius: BorderRadius.circular(theme.radiusItem),
-                      builder: (context, states) => Opacity(
-                        opacity: disabled ? 0.4 : 1,
-                        child: GhAnimatedBox(
-                          height: theme.space(9),
-                          padding: EdgeInsets.symmetric(horizontal: theme.space(5)),
-                          color: states.active ? Color.lerp(theme.danger, Colors.white, 0.1)! : theme.danger,
-                          borderRadius: BorderRadius.circular(theme.radiusItem),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            spacing: theme.space(2),
+                        ),
+                      ),
+                      if (group.hint != null)
+                        Text(
+                          group.hint!,
+                          style: theme.text(size: GhTextSize.x2s, color: theme.amber.withValues(alpha: 0.9), lineHeight: 1.625),
+                        ),
+                      for (final row in rows)
+                        KeyedSubtree(
+                          key: ValueKey(row.key),
+                          child: _row(
+                            theme,
                             children: [
-                              _reclaiming
-                                  ? GhSpinning(
-                                      child: GhIcon(GhIcons.spinner, size: theme.space(4), color: Colors.white),
-                                    )
-                                  : GhIcon(GhIcons.trash, size: theme.space(4), color: Colors.white),
-                              Text(
-                                ghTr('cleanup_reclaim_btn', args: {'size': formatBytes(chosenSize)}),
-                                style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: Colors.white),
-                              ),
+                              GhCheckbox(checked: _selected.contains(row.key), label: row.label, onChanged: (on) => _toggle(row.key, on)),
+                              _titleDetail(theme, row.label, row.detail),
+                              _size(theme, formatBytes(row.size)),
+                              _OpenFolderButton(path: row.path),
                             ],
                           ),
                         ),
-                      ),
+                    ],
+                  );
+                },
+              ),
+          Container(
+            padding: EdgeInsets.only(top: theme.space(2)),
+            decoration: BoxDecoration(
+              border: Border(top: BorderSide(color: theme.line)),
+            ),
+            child: Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: GhPressable(
+                onPressed: disabled ? null : () => _confirm(chosen, chosenSize),
+                borderRadius: BorderRadius.circular(theme.radiusItem),
+                builder: (context, states) => Opacity(
+                  opacity: disabled ? 0.4 : 1,
+                  child: GhAnimatedBox(
+                    height: theme.space(9),
+                    padding: EdgeInsets.symmetric(horizontal: theme.space(5)),
+                    color: states.active ? Color.lerp(theme.danger, Colors.white, 0.1)! : theme.danger,
+                    borderRadius: BorderRadius.circular(theme.radiusItem),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: theme.space(2),
+                      children: [
+                        _reclaiming
+                            ? GhSpinning(
+                                child: GhIcon(GhIcons.spinner, size: theme.space(4), color: Colors.white),
+                              )
+                            : GhIcon(GhIcons.trash, size: theme.space(4), color: Colors.white),
+                        Text(
+                          ghTr('cleanup_reclaim_btn', args: {'size': formatBytes(chosenSize)}),
+                          style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: Colors.white),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ],
+              ),
             ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -486,76 +474,75 @@ class _StorageViewState extends ConsumerState<StorageView> {
     return _section(
       theme,
       icon: GhIcons.cloudArrowDown,
-      title: ghTr('installed_versions_section'),
+      title: ghTr('versions:installed_heading'),
       total: total,
       description: ghTr('cleanup_versions_desc'),
-      child: report.versions.isEmpty
-          ? _emptyNote(theme, ghTr('cleanup_empty'))
-          : Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: theme.space(1.5),
-              children: [
-                for (final v in report.versions)
-                  Container(
-                    key: ValueKey(v.tag),
-                    padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(2)),
-                    decoration: BoxDecoration(
-                      color: theme.base.withValues(alpha: 0.4),
-                      borderRadius: BorderRadius.circular(theme.radiusBtn),
-                      border: Border.all(color: theme.outline.withValues(alpha: 0.4)),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      spacing: theme.space(1.5),
-                      children: [
-                        Row(
-                          spacing: theme.space(2),
+      empty: report.versions.isEmpty,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: theme.space(1.5),
+        children: [
+          for (final v in report.versions)
+            Container(
+              key: ValueKey(v.tag),
+              padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(2)),
+              decoration: BoxDecoration(
+                color: theme.base.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(theme.radiusBtn),
+                border: Border.all(color: theme.outline.withValues(alpha: 0.4)),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: theme.space(1.5),
+                children: [
+                  Row(
+                    spacing: theme.space(2),
+                    children: [
+                      Expanded(
+                        child: Wrap(
+                          spacing: theme.space(1.5),
+                          runSpacing: theme.space(1),
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
-                            Expanded(
-                              child: Wrap(
-                                spacing: theme.space(1.5),
-                                runSpacing: theme.space(1),
-                                crossAxisAlignment: WrapCrossAlignment.center,
-                                children: [
-                                  Text(
-                                    v.name,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.ink),
-                                  ),
-                                  if (v.name != v.tag)
-                                    Text(
-                                      v.tag,
-                                      style: theme.text(size: GhTextSize.x2s, mono: true, color: theme.muted),
-                                    ),
-                                  if (v.isCurrent) _badge(theme, _BadgeTone.accent, ghTr('cleanup_current_badge')),
-                                  if (v.aliases.isNotEmpty) _badge(theme, _BadgeTone.accent, ghTr('cleanup_alias_badge')),
-                                  if (v.projects.isNotEmpty)
-                                    GhTooltip(
-                                      message: v.projects.join(', '),
-                                      child: _badge(theme, _BadgeTone.mint, ghTr('n_projects', count: v.projects.length)),
-                                    ),
-                                  if (v.templates.isNotEmpty)
-                                    GhTooltip(
-                                      message: v.templates.join(', '),
-                                      child: _badge(theme, _BadgeTone.mint, ghTr('cleanup_used_by_templates', count: v.templates.length)),
-                                    ),
-                                  if (v.unused) _badge(theme, _BadgeTone.amber, ghTr('cleanup_unused_badge')),
-                                  if (v.managedBy != null) _badge(theme, _BadgeTone.muted, ghTr('cleanup_mise_badge')),
-                                  if (v.external_ && v.managedBy == null) _badge(theme, _BadgeTone.muted, ghTr('cleanup_external_badge')),
-                                ],
-                              ),
+                            Text(
+                              v.name,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.ink),
                             ),
-                            _size(theme, v.managedBy != null ? '-' : formatBigBytes(v.sizeBytes)),
-                            _OpenFolderButton(path: v.path),
+                            if (v.name != v.tag)
+                              Text(
+                                v.tag,
+                                style: theme.text(size: GhTextSize.x2s, mono: true, color: theme.muted),
+                              ),
+                            if (v.isCurrent) _badge(theme, _BadgeTone.accent, ghTr('cleanup_current_badge')),
+                            if (v.aliases.isNotEmpty) _badge(theme, _BadgeTone.accent, ghTr('cleanup_alias_badge')),
+                            if (v.projects.isNotEmpty)
+                              GhTooltip(
+                                message: v.projects.join(', '),
+                                child: _badge(theme, _BadgeTone.mint, ghTr('n_projects', count: v.projects.length)),
+                              ),
+                            if (v.templates.isNotEmpty)
+                              GhTooltip(
+                                message: v.templates.join(', '),
+                                child: _badge(theme, _BadgeTone.mint, ghTr('cleanup_used_by_templates', count: v.templates.length)),
+                              ),
+                            if (v.unused) _badge(theme, _BadgeTone.amber, ghTr('cleanup_unused_badge')),
+                            if (v.managedBy != null) _badge(theme, _BadgeTone.muted, ghTr('cleanup_mise_badge')),
+                            if (v.external_ && v.managedBy == null) _badge(theme, _BadgeTone.muted, ghTr('cleanup_external_badge')),
                           ],
                         ),
-                        if (v.managedBy == null) _SizeBar(size: v.sizeBytes.toDouble(), max: maxVersion),
-                      ],
-                    ),
+                      ),
+                      _size(theme, v.managedBy != null ? '-' : formatBigBytes(v.sizeBytes)),
+                      _OpenFolderButton(path: v.path),
+                    ],
                   ),
-              ],
+                  if (v.managedBy == null) _SizeBar(size: v.sizeBytes.toDouble(), max: maxVersion),
+                ],
+              ),
             ),
+        ],
+      ),
     );
   }
 
@@ -564,26 +551,25 @@ class _StorageViewState extends ConsumerState<StorageView> {
     icon: GhIcons.rocket,
     title: ghTr('cleanup_templates_title'),
     total: total,
-    child: report.templates.isEmpty
-        ? _emptyNote(theme, ghTr('cleanup_empty'))
-        : Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: theme.space(1.5),
-            children: [
-              for (final t in report.templates)
-                KeyedSubtree(
-                  key: ValueKey(t.path),
-                  child: _row(
-                    theme,
-                    children: [
-                      _titleDetail(theme, t.name, t.workspace),
-                      _size(theme, formatBigBytes(t.sizeBytes)),
-                      _OpenFolderButton(path: t.path),
-                    ],
-                  ),
-                ),
-            ],
+    empty: report.templates.isEmpty,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: theme.space(1.5),
+      children: [
+        for (final t in report.templates)
+          KeyedSubtree(
+            key: ValueKey(t.path),
+            child: _row(
+              theme,
+              children: [
+                _titleDetail(theme, t.name, t.workspace),
+                _size(theme, formatBigBytes(t.sizeBytes)),
+                _OpenFolderButton(path: t.path),
+              ],
+            ),
           ),
+      ],
+    ),
   );
 
   Widget _exportsSection(GhTheme theme, StorageReport report, double total) {
@@ -593,10 +579,9 @@ class _StorageViewState extends ConsumerState<StorageView> {
       icon: GhIcons.hardDrive,
       title: ghTr('cleanup_export_templates_title'),
       total: total,
+      empty: (error == null || error.isEmpty) && report.exportTemplates.isEmpty,
       child: error != null && error.isNotEmpty
           ? _emptyNote(theme, error)
-          : report.exportTemplates.isEmpty
-          ? _emptyNote(theme, ghTr('cleanup_empty'))
           : Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: theme.space(1.5),
@@ -633,101 +618,135 @@ class _StorageViewState extends ConsumerState<StorageView> {
     );
   }
 
-  Widget _cards(GhTheme theme, StorageTotals totals, double reclaimable) {
-    final cards = [
-      (label: ghTr('installed_versions_section'), value: totals.versions),
-      (label: ghTr('cleanup_templates_title'), value: totals.templates),
-      (label: ghTr('cleanup_export_templates_title'), value: totals.exports),
-      (label: ghTr('cleanup_reclaimable_title'), value: reclaimable),
+  /// Where the space goes, in one stacked bar with a legend, and whether
+  /// anything can be cleaned up.
+  Widget _overview(GhTheme theme, StorageTotals totals, double reclaimable) {
+    final parts = [
+      (label: ghTr('versions:installed_heading'), value: totals.versions, color: theme.accent),
+      (label: ghTr('cleanup_templates_title'), value: totals.templates, color: theme.mint),
+      (label: ghTr('cleanup_export_templates_title'), value: totals.exports, color: theme.amber),
+      (label: ghTr('cleanup_legend_downloads'), value: totals.partials, color: theme.muted),
     ];
-    Widget card(({String label, double value}) c) => Container(
-      key: ValueKey(c.label),
-      padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(3)),
+    final shown = [
+      for (final p in parts)
+        if (p.value > 0) p,
+    ];
+    final radius = BorderRadius.circular(999);
+    final bar = ClipRRect(
+      borderRadius: radius,
+      child: SizedBox(
+        height: theme.space(3),
+        child: totals.all <= 0
+            ? ColoredBox(color: theme.raised)
+            : Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (final p in shown)
+                    Expanded(
+                      // At least a sliver for small but non-zero parts.
+                      flex: math.max(1, (p.value / totals.all * 1000).round()),
+                      child: Padding(
+                        padding: EdgeInsetsDirectional.only(end: p == shown.last ? 0 : 2),
+                        child: ColoredBox(color: p.color),
+                      ),
+                    ),
+                ],
+              ),
+      ),
+    );
+    final legend = Wrap(
+      spacing: theme.space(5),
+      runSpacing: theme.space(2),
+      children: [
+        for (final p in parts)
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: theme.space(2),
+            children: [
+              Container(
+                width: theme.space(2.5),
+                height: theme.space(2.5),
+                decoration: BoxDecoration(color: p.value > 0 ? p.color : theme.raised, shape: BoxShape.circle),
+              ),
+              Text(
+                p.label,
+                style: theme.text(size: GhTextSize.xs, color: theme.muted),
+              ),
+              Text(
+                formatBytes(p.value),
+                style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, mono: true, color: p.value > 0 ? theme.ink : theme.muted),
+              ),
+            ],
+          ),
+      ],
+    );
+    final status = reclaimable > 0
+        ? Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: theme.space(3),
+            children: [
+              GhIcon(GhIcons.trash, size: theme.space(3.5), color: theme.amber),
+              Text(
+                ghTr('cleanup_can_free', args: {'size': formatBytes(reclaimable)}),
+                style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.ink),
+              ),
+              GhButton(
+                key: const ValueKey('storage-review'),
+                onPressed: () {
+                  final target = _reclaimKey.currentContext;
+                  if (target != null) Scrollable.ensureVisible(target, duration: GhMotion.of(context).css(GhDurations.interactive));
+                },
+                label: ghTr('cleanup_review'),
+                variant: GhButtonVariant.outline,
+                size: GhTextSize.xs,
+              ),
+            ],
+          )
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: theme.space(2),
+            children: [
+              GhIcon(GhIcons.circleCheck, size: theme.space(3.5), color: theme.mint),
+              Text(
+                ghTr('cleanup_nothing_to_reclaim'),
+                style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.mint),
+              ),
+            ],
+          );
+    return Container(
+      key: const ValueKey('storage-overview'),
+      padding: EdgeInsets.all(theme.space(5)),
       decoration: BoxDecoration(
         color: theme.overlay,
-        borderRadius: BorderRadius.circular(theme.radiusItem),
-        border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
+        borderRadius: BorderRadius.circular(theme.radiusCard),
+        border: Border.all(color: theme.outline.withValues(alpha: 0.45)),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: theme.space(1),
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: theme.space(4),
         children: [
-          Text(
-            c.label,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: theme.text(size: GhTextSize.x2s, weight: GhWeight.medium, color: theme.muted.withValues(alpha: 0.8)),
-          ),
-          Text(
-            formatBytes(c.value),
-            style: theme.text(size: GhTextSize.lg, weight: GhWeight.semibold, color: theme.ink),
+          bar,
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            spacing: theme.space(6),
+            runSpacing: theme.space(3),
+            children: [legend, status],
           ),
         ],
       ),
     );
-    return GhCardGrid(breakpoints: storageStatBreakpoints, children: [for (final c in cards) card(c)]);
   }
 
   Widget _body(GhTheme theme, StorageReport? report) {
     if (_error != null && report == null) {
-      return GhDashedBox(
-        color: theme.danger.withValues(alpha: 0.3),
-        radius: BorderRadius.circular(theme.radiusItem),
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: theme.space(16)),
-          child: Column(
-            spacing: theme.space(4),
-            children: [
-              ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: theme.rem(24)),
-                child: Text(
-                  ghTr('cleanup_load_error', args: {'error': _error}),
-                  textAlign: TextAlign.center,
-                  style: theme.text(size: GhTextSize.sm, color: theme.muted, lineHeight: 1.625),
-                ),
-              ),
-              GhPressable(
-                onPressed: _load,
-                borderRadius: BorderRadius.circular(theme.radiusItem),
-                builder: (context, states) => GhAnimatedBox(
-                  padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(2)),
-                  color: states.active ? theme.raised : theme.raised.withValues(alpha: 0),
-                  borderRadius: BorderRadius.circular(theme.radiusItem),
-                  border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: theme.space(2),
-                    children: [
-                      GhIcon(GhIcons.refresh, size: theme.space(3.5), color: theme.ink),
-                      Text(
-                        ghTr('try_again'),
-                        style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.ink),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+      return GhStatePanel.error(
+        title: ghTr('cleanup_load_error', args: {'error': _error}),
+        onRetry: _load,
       );
     }
     if (report == null) {
-      return Padding(
-        padding: EdgeInsets.symmetric(vertical: theme.space(16)),
-        child: Column(
-          spacing: theme.space(3),
-          children: [
-            GhSpinning(
-              child: GhIcon(GhIcons.spinner, size: theme.space(5), color: theme.muted),
-            ),
-            Text(
-              ghTr('cleanup_scanning'),
-              style: theme.text(size: GhTextSize.xs, color: theme.muted),
-            ),
-          ],
-        ),
-      );
+      return GhStatePanel.loading(title: ghTr('cleanup_scanning'));
     }
     final entries = reclaimEntries(report);
     final chosen = [
@@ -738,10 +757,10 @@ class _StorageViewState extends ConsumerState<StorageView> {
     final totals = storageTotals(report);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: theme.space(2),
+      spacing: theme.space(3),
       children: [
-        _cards(theme, totals, _sum(entries.map((e) => e.size))),
-        _reclaimSection(theme, entries, chosen, chosenSize),
+        _overview(theme, totals, _sum(entries.map((e) => e.size))),
+        if (entries.isNotEmpty) _reclaimSection(theme, entries, chosen, chosenSize),
         _versionsSection(theme, report, totals.versions),
         _templatesSection(theme, report, totals.templates),
         _exportsSection(theme, report, totals.exports),
@@ -817,10 +836,6 @@ class _StorageViewState extends ConsumerState<StorageView> {
                 ),
               ),
             ],
-            child: Text(
-              ghTr('cleanup_subtitle'),
-              style: theme.text(size: GhTextSize.xs, color: theme.muted),
-            ),
           ),
         ),
         Expanded(
