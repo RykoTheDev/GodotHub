@@ -82,6 +82,10 @@ The full docs live at **[ryko.is-a.dev/godothub-docs](https://ryko.is-a.dev/godo
 
 Want to build GodotHub or contribute? See [Build from source](https://ryko.is-a.dev/godothub-docs/contributing/build-from-source) and [Architecture](https://ryko.is-a.dev/godothub-docs/contributing/architecture).
 
+### Flutter migration
+
+The Flutter desktop app is the active development version and is available as stable (as of v1.6.0). The legacy stable installers are still present that were built in Tauri version. Existing Tauri code will be removed from the codebase as time goes on.
+
 ---
 
 ## Features
@@ -190,7 +194,7 @@ Want to build GodotHub or contribute? See [Build from source](https://ryko.is-a.
 | **Create & Customize** | Custom names and colors from a rich palette. |
 | **Collapsible Sections** | Collapse and expand category sections. |
 | **Hide & Restore** | Right-click a category to hide it and its projects, then bring it back from the Hidden Categories section. |
-| **Drag Between Categories** | Drag projects between categories (`@dnd-kit`-powered). |
+| **Drag Between Categories** | Drag projects between categories. |
 | **Filter by Category** | Filter the project list by any category. |
 | **Enable / Disable** | Turn categories on or off globally from Settings. |
 
@@ -264,7 +268,7 @@ Want to build GodotHub or contribute? See [Build from source](https://ryko.is-a.
 | **Custom Titlebar** | Frameless window, custom title bar. |
 | **Splash Screen** | An animated splash screen on startup. |
 | **Onboarding Wizard** | Guided first-time setup for workspaces, projects, versions, templates, categories, and appearance. |
-| **Auto-Updates** | Checks for updates on startup, downloads them via the Tauri updater. |
+| **Auto-Updates** | Checks for updates on startup and installs updates through the app's updater. |
 | **Bug Reporting** | Report issues directly from the app. |
 | **Changelog Viewer** | See what changed in each release. |
 | **Vault** | Save a project as a reusable item in the workspace's vault, with tags, a Godot version and its files. |
@@ -302,7 +306,7 @@ GodotHub is available as a desktop app for:
 Replace `<version>` with the release you're downloading (for example `1.4.4`). Releases before v1.4.4 use the older file names.
 
 > [!NOTE]
-> **Linux rendering:** GodotHub uses WebKitGTK's accelerated (DMA-BUF) renderer by default. It only falls back to software rendering where that path is known to draw nothing (the NVIDIA proprietary driver) or after a launch that never painted a frame. If the window comes up blank or the UI feels slow, force a path with `GODOTHUB_RENDERER=software godothub` or `GODOTHUB_RENDERER=gpu godothub`; the choice is remembered per machine.
+> **Legacy Tauri Linux builds only:** The Tauri app uses WebKitGTK. Its renderer can be selected with `GODOTHUB_RENDERER=software godothub` or `GODOTHUB_RENDERER=gpu godothub`. This setting does not apply to the Flutter app.
 
 ### Install via Winget (Windows)
 
@@ -341,29 +345,42 @@ scoop update godothub
 
 | Dependency | Version | Purpose |
 |---|---|---|
-| [Bun](https://bun.sh) | >= 1.0 | JavaScript runtime & package manager |
-| [Rust](https://rustup.rs) | Latest stable | Backend compilation |
-| [Tauri 2 Prerequisites](https://v2.tauri.app/start/prerequisites/) | n/a | Platform-specific build tools |
+| [Flutter](https://docs.flutter.dev/get-started/install) | Stable (CI uses 3.47.9) | App framework and Dart SDK |
+| [Rust](https://rustup.rs) | Stable (CI uses 1.99.1) | Shared core and Flutter bridge |
+| Platform desktop toolchain | See below | Native desktop build tools |
 
 </details>
+
+Install the platform-specific Flutter desktop requirements before building:
+
+- **Windows:** Visual Studio with the *Desktop development with C++* workload.
+- **macOS:** Xcode and its command-line tools.
+- **Linux:** `clang`, `cmake`, `ninja-build`, `pkg-config`, `libgtk-3-dev`,
+  `libx11-dev`, `libxi-dev`, and `liblzma-dev`.
 
 ```bash
 # Clone the repository
 git clone https://github.com/RykoTheDev/godothub.git
 cd godothub
 
-# Install frontend dependencies
-bun install
+# Install Flutter dependencies
+cd app
+flutter pub get
 
-# Run in development mode (with hot-reload)
-bun tauri dev
+# Run in development mode (replace windows with macos or linux as needed)
+flutter run -d windows
 
-# Build for production
-bun tauri build
+# Run checks
+flutter analyze
+flutter test
+
+# Build for release
+flutter build windows --release
 ```
 
 > [!TIP]
-> The built app ends up in `src-tauri/target/release/bundle/`.
+> Flutter build outputs are under `app/build/`. The Rust core and Flutter bridge
+> live in `crates/` and are built automatically with the app.
 
 ---
 
@@ -374,17 +391,12 @@ bun tauri build
 
 | Layer | Technology |
 |---|---|
-| **Frontend Framework** | [React 19](https://react.dev) + [TypeScript](https://www.typescriptlang.org/) |
-| **Styling** | [Tailwind CSS 4](https://tailwindcss.com) |
-| **Animation** | [GSAP](https://gsap.com) |
-| **Localization** | [i18next](https://www.i18next.com) + [react-i18next](https://react.i18next.com) |
-| **Drag & Drop** | [@dnd-kit](https://dndkit.com/) |
-| **Desktop Framework** | [Tauri 2](https://v2.tauri.app/) (Rust) |
-| **Icons** | [Font Awesome Free](https://fontawesome.com) via [react-fontawesome](https://github.com/FortAwesome/react-fontawesome) |
-| **HTTP Client** | [reqwest](https://docs.rs/reqwest/) (Rust) |
-| **File Watchers** | [notify](https://docs.rs/notify/) (Rust) |
-| **RSS Parsing** | [feed-rs](https://docs.rs/feed-rs/) (Rust) |
-| **Build Tool** | [Vite](https://vitejs.dev) + [Bun](https://bun.sh) |
+| **Desktop UI** | [Flutter](https://flutter.dev) + Dart |
+| **State Management** | [Riverpod](https://riverpod.dev) |
+| **Core Services** | Rust workspace (`godothub-core`, `godothub-bridge`, `godothub-launcher`) |
+| **Flutter/Rust Bridge** | [flutter_rust_bridge](https://cjycode.com/flutter_rust_bridge/) |
+| **Localization** | Shared JSON resources; [Slang](https://pub.dev/packages/slang) generates typed Dart translations |
+| **Legacy App** | React, TypeScript, Tailwind CSS, and Tauri remain for the existing stable app and migration compatibility |
 
 </details>
 
@@ -392,7 +404,8 @@ bun tauri build
 
 ## Benchmarks
 
-GodotHub is moving from Tauri (React in a WebView) to Flutter. The Flutter version is measured against the current Tauri release on the same machine, display and data.
+The Flutter beta is measured against the legacy stable (pre v1.6.0) Tauri app on the same machine, display, and data. This comparison helps validate the replacement
+before the stable release switches over.
 
 <details>
 <summary><strong>Windows results</strong></summary>
@@ -442,9 +455,12 @@ MIT, see [LICENSE](LICENSE) for details.
 | Project | Why |
 |---|---|
 | [Godot Engine](https://godotengine.org) | The open-source engine this whole tool is built around. |
-| [Tauri](https://v2.tauri.app) | Makes cross-platform desktop apps with web tech possible. |
-| [React](https://react.dev) | The UI library the frontend is built on. |
-| [Tailwind CSS](https://tailwindcss.com) | Utility-first CSS framework for styling. |
+| [Flutter](https://flutter.dev) | Cross-platform desktop UI for the new app. |
+| [Rust](https://www.rust-lang.org/) | Shared core services and command-line launcher. |
+| [Flutter Rust Bridge](https://cjycode.com/flutter_rust_bridge/) | Connects the Flutter UI to the Rust core. |
+| [Tauri](https://v2.tauri.app) | Framework used by the legacy stable app (pre v1.6.0) |
+| [React](https://react.dev) | UI library used by the legacy stable app (pre v1.6.0). |
+| [Tailwind CSS](https://tailwindcss.com) | Styling framework used by the legacy stable app (pre v1.6.0). |
 | [Font Awesome](https://fontawesome.com) | Icons used throughout the app. |
 
 Plus every other open-source library that makes GodotHub possible, see `package.json` and `Cargo.toml` for the full list.
