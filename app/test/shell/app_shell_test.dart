@@ -24,6 +24,7 @@ import 'package:godothub/shell/tabs.dart';
 import 'package:godothub/src/rust/api/types.dart';
 import 'package:godothub/src/ui_prefs.dart';
 import 'package:godothub/src/ui_transition.dart';
+import 'package:godothub/state/settings.dart';
 import 'package:godothub/state/app_signals.dart';
 import 'package:godothub/state/keyboard_shortcuts.dart';
 import 'package:godothub/state/news.dart';
@@ -453,7 +454,7 @@ void main() {
       expect(find.byType(ChangelogView), findsOneWidget);
     });
 
-    testWidgets('a fresh install gets onboarding, never the welcome', (tester) async {
+    testWidgets('a fresh install gets onboarding and never the welcome, even after finishing it', (tester) async {
       fakeBackend();
       rust
         ..on('crateApiDiscoveryScanGodotRecentProjects', () async => const <DiscoveredProject>[])
@@ -467,6 +468,14 @@ void main() {
       expect(find.byType(OnboardingView), findsOneWidget);
       expect(find.byType(FlutterWelcomeModal), findsNothing);
       expect(prefs.getItem(flutterWelcomeSeenKey), isNotNull);
+
+      final container = ProviderScope.containerOf(tester.element(find.byType(AppShell)));
+      final current = container.read(settingsProvider).value!;
+      await container.read(settingsProvider.notifier).save(copySettings(current, setupComplete: true));
+      await settle(tester);
+      await settle(tester);
+      expect(find.byType(OnboardingView), findsNothing);
+      expect(find.byType(FlutterWelcomeModal), findsNothing);
     });
 
     testWidgets('the beta channel never shows it', (tester) async {

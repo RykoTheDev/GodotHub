@@ -281,7 +281,12 @@ class _HighlightGrid extends StatelessWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   spacing: gap,
-                  children: [for (final h in highlights.skip(i).take(columns)) Expanded(child: _HighlightCard(highlight: h))],
+                  children: [
+                    for (final h in highlights.skip(i).take(columns))
+                      Expanded(
+                        child: _HighlightCard(highlight: h, siblings: highlights),
+                      ),
+                  ],
                 ),
               ),
           ],
@@ -292,9 +297,10 @@ class _HighlightGrid extends StatelessWidget {
 }
 
 class _HighlightCard extends StatelessWidget {
-  const _HighlightCard({required this.highlight});
+  const _HighlightCard({required this.highlight, required this.siblings});
 
   final _Highlight highlight;
+  final List<_Highlight> siblings;
 
   @override
   Widget build(BuildContext context) {
@@ -318,18 +324,29 @@ class _HighlightCard extends StatelessWidget {
             child: GhIcon(highlight.icon, size: theme.space(4), color: theme.accentBright),
           ),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: theme.space(1),
+            child: Stack(
               children: [
-                Text(
-                  highlight.title,
-                  style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.ink),
-                ),
-                Text(
-                  highlight.description,
-                  style: theme.text(size: GhTextSize.xs, color: theme.muted, lineHeight: 1.5),
-                ),
+                for (final other in siblings)
+                  Visibility(
+                    visible: identical(other, highlight),
+                    maintainSize: true,
+                    maintainAnimation: true,
+                    maintainState: true,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: theme.space(1),
+                      children: [
+                        Text(
+                          other.title,
+                          style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.ink),
+                        ),
+                        Text(
+                          other.description,
+                          style: theme.text(size: GhTextSize.xs, color: theme.muted, lineHeight: 1.5),
+                        ),
+                      ],
+                    ),
+                  ),
               ],
             ),
           ),

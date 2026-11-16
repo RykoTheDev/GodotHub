@@ -49,7 +49,7 @@ void main() {
       expect(flutterWelcomeStart(channel: 'stable', setupComplete: true, seen: null), FlutterWelcomeStart.show);
     });
 
-    test('a fresh install is marked as seen so onboarding is not followed by the welcome', () {
+    test('a fresh install is marked as seen, so it only ever shows to updating users', () {
       expect(flutterWelcomeStart(channel: 'stable', setupComplete: false, seen: null), FlutterWelcomeStart.markSeen);
     });
 
@@ -77,10 +77,10 @@ void main() {
       ),
     );
     expect(find.text('WELCOME TO THE NEW'), findsOneWidget);
-    expect(find.text('Faster'), findsOneWidget);
-    expect(find.text('Updates inside the app'), findsOneWidget);
-    expect(find.text('Refreshed design'), findsOneWidget);
-    expect(find.text('Everything you had is here'), findsOneWidget);
+    expect(find.text('Faster').hitTestable(), findsOneWidget);
+    expect(find.text('Updates inside the app').hitTestable(), findsOneWidget);
+    expect(find.text('Refreshed design').hitTestable(), findsOneWidget);
+    expect(find.text('Everything you had is here').hitTestable(), findsOneWidget);
     expect(find.text('Your data came along'), findsOneWidget);
     expect(find.text('12 projects'), findsOneWidget);
     expect(find.text('1 workspace'), findsOneWidget);
@@ -164,4 +164,17 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('Continue'), findsOneWidget);
   });
+
+  for (final size in [const Size(1280, 800), const Size(700, 900)]) {
+    testWidgets('all four tiles are the same size at ${size.width.toInt()} wide', (tester) async {
+      await open(
+        tester,
+        size: size,
+        (close) => FlutterWelcomeModal(counts: const FlutterWelcomeCounts(), onContinue: close, onChangelog: close),
+      );
+      Size tile(String title) => tester.getSize(find.ancestor(of: find.text(title).hitTestable(), matching: find.byType(Container)).first);
+      final sizes = [tile('Faster'), tile('Updates inside the app'), tile('Refreshed design'), tile('Everything you had is here')];
+      expect(sizes.toSet(), hasLength(1), reason: '$sizes');
+    });
+  }
 }
