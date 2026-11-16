@@ -1266,7 +1266,5 @@
   "template_update_failed": "Couldn't update {{name}}: {{error}}",
   "asset_page_all_hidden": "Everything on this page is hidden. Try the next page, or show hidden assets again.",
   "template_update_confirm_title": "Update {{name}} to {{version}}?",
-  "template_update_confirm_desc": "The template's files are replaced with the new upload, including any changes you made to them. Its name stays the same.",
-  "news_featured": "Latest",
-  "news_read_more": "Read the post"
+  "template_update_confirm_desc": "The template's files are replaced with the new upload, including any changes you made to them. Its name stays the same."
 }

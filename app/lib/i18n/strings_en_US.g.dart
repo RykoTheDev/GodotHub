@@ -3040,12 +3040,6 @@ class Translations$common$en_US {
 
 	/// en-US: 'The template's files are replaced with the new upload, including any changes you made to them. Its name stays the same.'
 	String get template_update_confirm_desc => 'The template\'s files are replaced with the new upload, including any changes you made to them. Its name stays the same.';
-
-	/// en-US: 'Latest'
-	String get news_featured => 'Latest';
-
-	/// en-US: 'Read the post'
-	String get news_read_more => 'Read the post';
 }
 
 // Path: dashboard
@@ -7761,8 +7755,6 @@ extension on Translations {
 			'common.asset_page_all_hidden' => 'Everything on this page is hidden. Try the next page, or show hidden assets again.',
 			'common.template_update_confirm_title' => 'Update {{name}} to {{version}}?',
 			'common.template_update_confirm_desc' => 'The template\'s files are replaced with the new upload, including any changes you made to them. Its name stays the same.',
-			'common.news_featured' => 'Latest',
-			'common.news_read_more' => 'Read the post',
 			'dashboard.greeting_morning' => 'Good morning',
 			'dashboard.greeting_afternoon' => 'Good afternoon',
 			'dashboard.greeting_evening' => 'Good evening',
@@ -8088,10 +8080,10 @@ extension on Translations {
 			'settings.storage_title' => 'Storage & Auto-scan',
 			'settings.behavior_projects_title' => 'Projects',
 			'settings.file_watchers_title' => 'File Watchers',
-			_ => null,
-		} ?? switch (path) {
 			'settings.last_opened_title' => 'Last Opened Display',
 			'settings.github_token_title' => 'GitHub API Token',
+			_ => null,
+		} ?? switch (path) {
 			'settings.titlebar_buttons' => 'Titlebar Buttons',
 			'settings.setup_wizard' => 'Setup Wizard',
 			'settings.setup_wizard_again' => 'Run Setup Wizard Again',
@@ -8602,10 +8594,10 @@ extension on Translations {
 			'versions.add_custom_build' => 'Add custom build…',
 			'versions.adding_custom_build' => 'Adding custom build…',
 			'versions.download_failed_summary' => 'GodotHub couldn\'t download Godot {{tag}}.',
-			_ => null,
-		} ?? switch (path) {
 			'versions.download_failed_show_details' => 'Show error details',
 			'versions.download_failed_hide_details' => 'Hide error details',
+			_ => null,
+		} ?? switch (path) {
 			'versions.download_failed_report' => 'Report this problem',
 			'versions.export_templates_select_none' => 'Select none',
 			'versions.export_templates_select_hint' => 'Select at least one template to download.',

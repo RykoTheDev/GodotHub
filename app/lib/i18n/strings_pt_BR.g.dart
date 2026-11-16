@@ -1140,8 +1140,6 @@ class _Translations$common$pt_BR extends Translations$common$en_US {
 	@override String get asset_page_all_hidden => 'Everything on this page is hidden. Try the next page, or show hidden assets again.';
 	@override String get template_update_confirm_title => 'Update {{name}} to {{version}}?';
 	@override String get template_update_confirm_desc => 'The template\'s files are replaced with the new upload, including any changes you made to them. Its name stays the same.';
-	@override String get news_featured => 'Latest';
-	@override String get news_read_more => 'Read the post';
 }
 
 // Path: dashboard
@@ -3686,8 +3684,6 @@ extension on TranslationsPtBr {
 			'common.asset_page_all_hidden' => 'Everything on this page is hidden. Try the next page, or show hidden assets again.',
 			'common.template_update_confirm_title' => 'Update {{name}} to {{version}}?',
 			'common.template_update_confirm_desc' => 'The template\'s files are replaced with the new upload, including any changes you made to them. Its name stays the same.',
-			'common.news_featured' => 'Latest',
-			'common.news_read_more' => 'Read the post',
 			'dashboard.greeting_morning' => 'Bom dia',
 			'dashboard.greeting_afternoon' => 'Boa tarde',
 			'dashboard.greeting_evening' => 'Boa noite',
@@ -4013,10 +4009,10 @@ extension on TranslationsPtBr {
 			'settings.storage_title' => 'Armazenamento e busca automática',
 			'settings.behavior_projects_title' => 'Projetos',
 			'settings.file_watchers_title' => 'Monitores de arquivos',
-			_ => null,
-		} ?? switch (path) {
 			'settings.last_opened_title' => 'Última abertura',
 			'settings.github_token_title' => 'Token da API do GitHub',
+			_ => null,
+		} ?? switch (path) {
 			'settings.titlebar_buttons' => 'Botões da barra de título',
 			'settings.setup_wizard' => 'Assistente de configuração',
 			'settings.setup_wizard_again' => 'Executar assistente de configuração novamente',
@@ -4527,10 +4523,10 @@ extension on TranslationsPtBr {
 			'versions.add_custom_build' => 'Add custom build…',
 			'versions.adding_custom_build' => 'Adding custom build…',
 			'versions.download_failed_summary' => 'GodotHub couldn\'t download Godot {{tag}}.',
-			_ => null,
-		} ?? switch (path) {
 			'versions.download_failed_show_details' => 'Show error details',
 			'versions.download_failed_hide_details' => 'Hide error details',
+			_ => null,
+		} ?? switch (path) {
 			'versions.download_failed_report' => 'Report this problem',
 			'versions.export_templates_select_none' => 'Select none',
 			'versions.export_templates_select_hint' => 'Select at least one template to download.',
