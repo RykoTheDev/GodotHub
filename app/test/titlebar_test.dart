@@ -279,13 +279,11 @@ void main() {
       expect(find.byKey(const ValueKey('titlebar')), findsNothing);
     });
 
-    testWidgets('custom controls: 32px bar, controls call the window, double-click toggles maximize', (
-      tester,
-    ) async {
+    testWidgets('custom controls: 38px bar, controls call the window, double-click toggles maximize', (tester) async {
       final window = FakeWindow();
       await pumpTitleBar(tester, settingsWith(), window: window);
 
-      expect(tester.getSize(find.byKey(const ValueKey('titlebar'))).height, 32);
+      expect(tester.getSize(find.byKey(const ValueKey('titlebar'))).height, 38);
       expect(find.byKey(const ValueKey('window-controls')), findsOneWidget);
       expect(byGhIcon(GhIcons.windowMaximize), findsOneWidget);
 
@@ -360,13 +358,7 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('titlebar-bug')));
       await tester.pumpAndSettle();
 
-      expect(actions, [
-        TitleBarAction.wordmark,
-        TitleBarAction.changelog,
-        TitleBarAction.support,
-        TitleBarAction.star,
-        TitleBarAction.bug,
-      ]);
+      expect(actions, [TitleBarAction.wordmark, TitleBarAction.changelog, TitleBarAction.support, TitleBarAction.star, TitleBarAction.bug]);
       expect(find.byKey(const ValueKey('language-menu-trigger')), findsNothing);
       expect(find.byKey(const ValueKey('task-tray-trigger')), findsNothing);
     });
@@ -496,11 +488,7 @@ void main() {
   });
 
   group('RunningProjectsChip', () {
-    Future<void> pumpChip(
-      WidgetTester tester,
-      FakeRunningSource fake, {
-      void Function(String id, String name)? onOpen,
-    }) async {
+    Future<void> pumpChip(WidgetTester tester, FakeRunningSource fake, {void Function(String id, String name)? onOpen}) async {
       await tester.pumpWidget(
         ProviderScope(
           child: MaterialApp(
@@ -648,7 +636,14 @@ void main() {
           projectLaunched: const ProjectLaunched(id: 'b', name: 'Beta', version: '4.2', console: true),
         ),
       );
-      rust.emit(AppEvent(kind: AppEventKind.projectExited, name: 'project:exited', json: '{}', projectExited: const ProjectExited(id: 'a')));
+      rust.emit(
+        AppEvent(
+          kind: AppEventKind.projectExited,
+          name: 'project:exited',
+          json: '{}',
+          projectExited: const ProjectExited(id: 'a'),
+        ),
+      );
       await pumpEventQueue();
       expect(launched.single.name, 'Beta');
       expect(launched.single.startedAtMs, greaterThan(DateTime.now().millisecondsSinceEpoch));

@@ -898,8 +898,8 @@ export function SettingsView({ connected = false }: { connected?: boolean }) {
       <Subsection
         id="appearance-card-style"
         inline
-        title={ts("project_card_style_label")}
-        searchText={`${ts("project_card_style_label")} ${ts("project_card_style_hub")} ${ts("project_card_style_cover")}`}
+        title={ts("list_project_card_style_label")}
+        searchText={`${ts("list_project_card_style_label")} ${ts("project_card_style_hub")} ${ts("project_card_style_cover")}`}
         query={searchQuery}
         onMatch={reportMatch}
       >

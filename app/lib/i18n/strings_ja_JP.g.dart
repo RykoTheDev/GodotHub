@@ -925,6 +925,31 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String get flutter_welcome_vault_items_other => '{{count}} vault items';
 	@override String get flutter_welcome_changelog => 'See what\'s new';
 	@override String get flutter_welcome_continue => 'Continue';
+	@override String get bug_report_intro => 'Tell us what went wrong. Your app version, system details and recent log lines are added for you.';
+	@override String get bug_report_what_happened_placeholder => 'Describe the problem and where in GodotHub it happened.';
+	@override String get bug_report_steps_label => 'Steps to reproduce';
+	@override String get bug_report_steps_placeholder => '1. Open…\n2. Click…\n3. See the problem';
+	@override String get bug_report_expected_label => 'What did you expect?';
+	@override String get bug_report_expected_placeholder => 'What should have happened instead';
+	@override String get bug_report_optional => 'Optional';
+	@override String get bug_report_describe_first => 'Describe what happened before creating the issue.';
+	@override String get bug_report_included_title => 'Included with your report';
+	@override String get bug_report_included_system => 'GodotHub {{version}} on {{os}}, plus screen, language and CPU details';
+	@override String bug_report_included_errors({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
+		other: '${count} recent errors',
+	);
+	@override String get bug_report_included_errors_one => '{{count}} recent error';
+	@override String get bug_report_included_errors_other => '{{count}} recent errors';
+	@override String get bug_report_included_no_errors => 'No errors recorded this session';
+	@override String bug_report_included_log({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
+		other: 'The last ${count} log lines',
+	);
+	@override String get bug_report_included_log_one => 'The last {{count}} log line';
+	@override String get bug_report_included_log_other => 'The last {{count}} log lines';
+	@override String get bug_report_include_log => 'Include the log';
+	@override String get bug_report_preview_show => 'Preview report';
+	@override String get bug_report_preview_hide => 'Hide preview';
+	@override String get bug_report_github_hint => 'Create GitHub Issue opens GitHub in your browser with everything filled in. You need a GitHub account to post it, and you can edit the report there first.';
 }
 
 // Path: dashboard
@@ -1363,8 +1388,8 @@ class _Translations$settings$ja_JP extends Translations$settings$en_US {
 	@override String get tray_recent_label => 'トレイに表示する最近のプロジェクト';
 	@override String get tooltip_delay_label => 'ツールチップの表示遅延';
 	@override String get project_icon_opacity_label => 'プロジェクトアイコンの不透明度';
-	@override String get project_card_style_label => 'プロジェクトカードのスタイル';
-	@override String get project_card_style_hub => 'Godot Hub';
+	@override String get list_project_card_style_label => 'List project card style';
+	@override String get project_card_style_hub => 'GodotHub';
 	@override String get project_card_style_cover => 'カバー';
 	@override String get time_format_label => '時刻の形式（当日に開いた場合に表示）';
 	@override String get date_format_label => '日付の形式（それ以外の日に表示）';
@@ -3223,6 +3248,27 @@ extension on TranslationsJaJp {
 			'common.flutter_welcome_vault_items_other' => '{{count}} vault items',
 			'common.flutter_welcome_changelog' => 'See what\'s new',
 			'common.flutter_welcome_continue' => 'Continue',
+			'common.bug_report_intro' => 'Tell us what went wrong. Your app version, system details and recent log lines are added for you.',
+			'common.bug_report_what_happened_placeholder' => 'Describe the problem and where in GodotHub it happened.',
+			'common.bug_report_steps_label' => 'Steps to reproduce',
+			'common.bug_report_steps_placeholder' => '1. Open…\n2. Click…\n3. See the problem',
+			'common.bug_report_expected_label' => 'What did you expect?',
+			'common.bug_report_expected_placeholder' => 'What should have happened instead',
+			'common.bug_report_optional' => 'Optional',
+			'common.bug_report_describe_first' => 'Describe what happened before creating the issue.',
+			'common.bug_report_included_title' => 'Included with your report',
+			'common.bug_report_included_system' => 'GodotHub {{version}} on {{os}}, plus screen, language and CPU details',
+			'common.bug_report_included_errors' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} recent errors', ), 
+			'common.bug_report_included_errors_one' => '{{count}} recent error',
+			'common.bug_report_included_errors_other' => '{{count}} recent errors',
+			'common.bug_report_included_no_errors' => 'No errors recorded this session',
+			'common.bug_report_included_log' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: 'The last ${count} log lines', ), 
+			'common.bug_report_included_log_one' => 'The last {{count}} log line',
+			'common.bug_report_included_log_other' => 'The last {{count}} log lines',
+			'common.bug_report_include_log' => 'Include the log',
+			'common.bug_report_preview_show' => 'Preview report',
+			'common.bug_report_preview_hide' => 'Hide preview',
+			'common.bug_report_github_hint' => 'Create GitHub Issue opens GitHub in your browser with everything filled in. You need a GitHub account to post it, and you can edit the report there first.',
 			'dashboard.greeting_morning' => 'おはようございます',
 			'dashboard.greeting_afternoon' => 'こんにちは',
 			'dashboard.greeting_evening' => 'こんばんは',
@@ -3608,8 +3654,8 @@ extension on TranslationsJaJp {
 			'settings.tray_recent_label' => 'トレイに表示する最近のプロジェクト',
 			'settings.tooltip_delay_label' => 'ツールチップの表示遅延',
 			'settings.project_icon_opacity_label' => 'プロジェクトアイコンの不透明度',
-			'settings.project_card_style_label' => 'プロジェクトカードのスタイル',
-			'settings.project_card_style_hub' => 'Godot Hub',
+			'settings.list_project_card_style_label' => 'List project card style',
+			'settings.project_card_style_hub' => 'GodotHub',
 			'settings.project_card_style_cover' => 'カバー',
 			'settings.time_format_label' => '時刻の形式（当日に開いた場合に表示）',
 			'settings.date_format_label' => '日付の形式（それ以外の日に表示）',
@@ -3680,6 +3726,8 @@ extension on TranslationsJaJp {
 			'settings.sync_pull_btn' => 'プル',
 			'settings.sync_push_done' => 'すべてのワークスペースを gist にプッシュしました。',
 			'settings.sync_open_gist' => 'gist を開く',
+			_ => null,
+		} ?? switch (path) {
 			'settings.sync_last_pushed' => '最終プッシュ: {{time}}',
 			'settings.sync_manual_hint' => 'ローカルのデータを失いましたか？ gist の URL または ID を入力すれば、どのマシンからでも復元できます。',
 			'settings.sync_manual_placeholder' => 'https://gist.github.com/... または gist ID',
@@ -3701,8 +3749,6 @@ extension on TranslationsJaJp {
 			'settings.restore_modal_templates_one' => 'テンプレート',
 			'settings.restore_modal_templates_other' => 'テンプレート',
 			'settings.restore_modal_time_stats' => '作業時間のデータを含みます',
-			_ => null,
-		} ?? switch (path) {
 			'settings.restore_modal_todos' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件のタスクを含みます', ), 
 			'settings.restore_modal_todos_one' => '{{count}} 件のタスクを含みます',
 			'settings.restore_modal_todos_other' => '{{count}} 件のタスクを含みます',

@@ -454,7 +454,19 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: theme.space(3), children: top),
+              Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  Positioned(
+                    left: -theme.space(4),
+                    top: -theme.space(4),
+                    right: -theme.space(4),
+                    bottom: -theme.space(3),
+                    child: IgnorePointer(child: _backdrop(theme, icon, displayName)),
+                  ),
+                  Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: theme.space(3), children: top),
+                ],
+              ),
               Padding(
                 padding: EdgeInsets.only(top: theme.space(3)),
                 child: footer,
@@ -480,20 +492,7 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
         boxShadow: widget.selected ? [BoxShadow(color: theme.accent.withValues(alpha: 0.6), spreadRadius: 1)] : null,
       ),
       clipBehavior: Clip.none,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          if (grid)
-            Positioned(
-              left: -theme.space(4),
-              top: -theme.space(4),
-              right: -theme.space(4),
-              bottom: -theme.space(4),
-              child: IgnorePointer(child: _backdrop(theme, icon, displayName)),
-            ),
-          body,
-        ],
-      ),
+      child: Stack(clipBehavior: Clip.none, children: [body]),
     );
     tile = Semantics(container: true, child: tile);
     return MouseRegion(
@@ -522,59 +521,69 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
       colors: [Colors.black, Colors.black, Colors.transparent],
       stops: [0, 0.357, 1],
     ).createShader(bounds);
+    Shader fadeDown(Rect bounds) => const LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [Colors.black, Colors.black, Colors.transparent],
+      stops: [0, 0.4, 1],
+    ).createShader(bounds);
     return ClipRRect(
-      borderRadius: BorderRadius.circular(theme.radiusItem),
-      child: Stack(
-        clipBehavior: Clip.hardEdge,
-        children: [
-          if (icon != null)
-            PositionedDirectional(
-              end: -theme.space(10),
-              top: -theme.space(10),
-              width: theme.space(44),
-              height: theme.space(44),
-              child: Opacity(
-                opacity: theme.projectIconAlpha,
-                child: ShaderMask(
-                  shaderCallback: mask,
-                  blendMode: BlendMode.dstIn,
-                  child: ProjectBackdropIcon(
-                    hovered: _hovered,
-                    restAngle: -12,
-                    hoverAngle: -3,
-                    child: ProjectIconImage(url: icon),
+      borderRadius: BorderRadius.vertical(top: Radius.circular(theme.radiusItem)),
+      child: ShaderMask(
+        shaderCallback: fadeDown,
+        blendMode: BlendMode.dstIn,
+        child: Stack(
+          clipBehavior: Clip.hardEdge,
+          children: [
+            if (icon != null)
+              PositionedDirectional(
+                end: -theme.space(10),
+                top: -theme.space(10),
+                width: theme.space(44),
+                height: theme.space(44),
+                child: Opacity(
+                  opacity: theme.projectIconAlpha,
+                  child: ShaderMask(
+                    shaderCallback: mask,
+                    blendMode: BlendMode.dstIn,
+                    child: ProjectBackdropIcon(
+                      hovered: _hovered,
+                      restAngle: -12,
+                      hoverAngle: -3,
+                      child: ProjectIconImage(url: icon),
+                    ),
                   ),
                 ),
-              ),
-            )
-          else
-            PositionedDirectional(
-              end: -theme.space(3),
-              top: -theme.space(5),
-              child: Opacity(
-                opacity: theme.projectIconAlpha,
-                child: ShaderMask(
-                  shaderCallback: mask,
-                  blendMode: BlendMode.dstIn,
-                  child: ProjectBackdropIcon(
-                    hovered: _hovered,
-                    restAngle: -12,
-                    hoverAngle: -3,
-                    grayscale: false,
-                    child: TweenAnimationBuilder<Color?>(
-                      tween: ColorTween(end: _hovered ? theme.accentBright : theme.muted),
-                      duration: GhMotion.of(context).css(const Duration(milliseconds: 500)),
-                      curve: GhCurves.outExpo,
-                      builder: (context, color, _) => Text(
-                        projectInitials(displayName, tileStyle: true),
-                        style: theme.text(weight: FontWeight.w900, color: color, lineHeight: 1).copyWith(fontSize: 112),
+              )
+            else
+              PositionedDirectional(
+                end: -theme.space(3),
+                top: -theme.space(5),
+                child: Opacity(
+                  opacity: theme.projectIconAlpha,
+                  child: ShaderMask(
+                    shaderCallback: mask,
+                    blendMode: BlendMode.dstIn,
+                    child: ProjectBackdropIcon(
+                      hovered: _hovered,
+                      restAngle: -12,
+                      hoverAngle: -3,
+                      grayscale: false,
+                      child: TweenAnimationBuilder<Color?>(
+                        tween: ColorTween(end: _hovered ? theme.accentBright : theme.muted),
+                        duration: GhMotion.of(context).css(const Duration(milliseconds: 500)),
+                        curve: GhCurves.outExpo,
+                        builder: (context, color, _) => Text(
+                          projectInitials(displayName, tileStyle: true),
+                          style: theme.text(weight: FontWeight.w900, color: color, lineHeight: 1).copyWith(fontSize: 112),
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }

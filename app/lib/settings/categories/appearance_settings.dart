@@ -14,9 +14,12 @@ import '../../ui/controls/toggle.dart';
 import '../../ui/core/i18n.dart';
 import '../../ui/core/interaction.dart';
 import '../../ui/feedback/modal_shell.dart';
+import '../../ui/overlays/dropdown.dart';
+import '../../ui/overlays/menu.dart';
 import '../../ui/shell/color_swatch_picker.dart';
 import '../settings_parts.dart';
 import 'look_parts.dart';
+import 'settings_option_controls.dart';
 
 GhThemeMode resolvedMode(AppSettings settings) => resolveThemeMode(settings.themeMode, ghPlatformBrightness());
 
@@ -263,12 +266,23 @@ class _AppearanceSettingsState extends ConsumerState<AppearanceSettings> {
         SettingsSubsection(
           id: 'appearance-card-style',
           inline: true,
-          title: lts('project_card_style_label'),
-          searchText: '${lts('project_card_style_label')} ${lts('project_card_style_hub')} ${lts('project_card_style_cover')}',
-          child: GhSegmented(
-            value: settings.projectCardStyle,
-            onChanged: (value) => _update(copySettings(settings, projectCardStyle: value)),
-            options: [ghSegment('hub', lts('project_card_style_hub')), ghSegment('cover', lts('project_card_style_cover'))],
+          title: lts('list_project_card_style_label'),
+          searchText: '${lts('list_project_card_style_label')} ${lts('project_card_style_hub')} ${lts('project_card_style_cover')}',
+          child: GhDropdown(
+            items: [
+              for (final (id, key) in const [('hub', 'project_card_style_hub'), ('cover', 'project_card_style_cover')])
+                GhMenuItem(
+                  id: id,
+                  label: lts(key),
+                  active: settings.projectCardStyle == id,
+                  onSelected: () => _update(copySettings(settings, projectCardStyle: id)),
+                ),
+            ],
+            trigger: (context, open, toggle) => SettingsDropdownTrigger(
+              label: lts(settings.projectCardStyle == 'cover' ? 'project_card_style_cover' : 'project_card_style_hub'),
+              open: open,
+              onPressed: toggle,
+            ),
           ),
         ),
         SettingsSubsection(

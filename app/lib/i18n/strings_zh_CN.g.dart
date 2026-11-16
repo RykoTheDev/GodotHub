@@ -924,6 +924,31 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String get flutter_welcome_vault_items_other => '{{count}} vault items';
 	@override String get flutter_welcome_changelog => 'See what\'s new';
 	@override String get flutter_welcome_continue => 'Continue';
+	@override String get bug_report_intro => 'Tell us what went wrong. Your app version, system details and recent log lines are added for you.';
+	@override String get bug_report_what_happened_placeholder => 'Describe the problem and where in GodotHub it happened.';
+	@override String get bug_report_steps_label => 'Steps to reproduce';
+	@override String get bug_report_steps_placeholder => '1. Open…\n2. Click…\n3. See the problem';
+	@override String get bug_report_expected_label => 'What did you expect?';
+	@override String get bug_report_expected_placeholder => 'What should have happened instead';
+	@override String get bug_report_optional => 'Optional';
+	@override String get bug_report_describe_first => 'Describe what happened before creating the issue.';
+	@override String get bug_report_included_title => 'Included with your report';
+	@override String get bug_report_included_system => 'GodotHub {{version}} on {{os}}, plus screen, language and CPU details';
+	@override String bug_report_included_errors({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
+		other: '${count} recent errors',
+	);
+	@override String get bug_report_included_errors_one => '{{count}} recent error';
+	@override String get bug_report_included_errors_other => '{{count}} recent errors';
+	@override String get bug_report_included_no_errors => 'No errors recorded this session';
+	@override String bug_report_included_log({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
+		other: 'The last ${count} log lines',
+	);
+	@override String get bug_report_included_log_one => 'The last {{count}} log line';
+	@override String get bug_report_included_log_other => 'The last {{count}} log lines';
+	@override String get bug_report_include_log => 'Include the log';
+	@override String get bug_report_preview_show => 'Preview report';
+	@override String get bug_report_preview_hide => 'Hide preview';
+	@override String get bug_report_github_hint => 'Create GitHub Issue opens GitHub in your browser with everything filled in. You need a GitHub account to post it, and you can edit the report there first.';
 }
 
 // Path: dashboard
@@ -1362,8 +1387,8 @@ class _Translations$settings$zh_CN extends Translations$settings$en_US {
 	@override String get tray_recent_label => '托盘最近项目';
 	@override String get tooltip_delay_label => '工具提示延迟';
 	@override String get project_icon_opacity_label => '项目图标透明度';
-	@override String get project_card_style_label => '项目卡片样式';
-	@override String get project_card_style_hub => 'Godot Hub';
+	@override String get list_project_card_style_label => 'List project card style';
+	@override String get project_card_style_hub => 'GodotHub';
 	@override String get project_card_style_cover => '封面';
 	@override String get time_format_label => '时间格式（今天打开时显示）';
 	@override String get date_format_label => '日期格式（其他日期显示）';
@@ -3221,6 +3246,27 @@ extension on TranslationsZhCn {
 			'common.flutter_welcome_vault_items_other' => '{{count}} vault items',
 			'common.flutter_welcome_changelog' => 'See what\'s new',
 			'common.flutter_welcome_continue' => 'Continue',
+			'common.bug_report_intro' => 'Tell us what went wrong. Your app version, system details and recent log lines are added for you.',
+			'common.bug_report_what_happened_placeholder' => 'Describe the problem and where in GodotHub it happened.',
+			'common.bug_report_steps_label' => 'Steps to reproduce',
+			'common.bug_report_steps_placeholder' => '1. Open…\n2. Click…\n3. See the problem',
+			'common.bug_report_expected_label' => 'What did you expect?',
+			'common.bug_report_expected_placeholder' => 'What should have happened instead',
+			'common.bug_report_optional' => 'Optional',
+			'common.bug_report_describe_first' => 'Describe what happened before creating the issue.',
+			'common.bug_report_included_title' => 'Included with your report',
+			'common.bug_report_included_system' => 'GodotHub {{version}} on {{os}}, plus screen, language and CPU details',
+			'common.bug_report_included_errors' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} recent errors', ), 
+			'common.bug_report_included_errors_one' => '{{count}} recent error',
+			'common.bug_report_included_errors_other' => '{{count}} recent errors',
+			'common.bug_report_included_no_errors' => 'No errors recorded this session',
+			'common.bug_report_included_log' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: 'The last ${count} log lines', ), 
+			'common.bug_report_included_log_one' => 'The last {{count}} log line',
+			'common.bug_report_included_log_other' => 'The last {{count}} log lines',
+			'common.bug_report_include_log' => 'Include the log',
+			'common.bug_report_preview_show' => 'Preview report',
+			'common.bug_report_preview_hide' => 'Hide preview',
+			'common.bug_report_github_hint' => 'Create GitHub Issue opens GitHub in your browser with everything filled in. You need a GitHub account to post it, and you can edit the report there first.',
 			'dashboard.greeting_morning' => '早上好',
 			'dashboard.greeting_afternoon' => '下午好',
 			'dashboard.greeting_evening' => '晚上好',
@@ -3606,8 +3652,8 @@ extension on TranslationsZhCn {
 			'settings.tray_recent_label' => '托盘最近项目',
 			'settings.tooltip_delay_label' => '工具提示延迟',
 			'settings.project_icon_opacity_label' => '项目图标透明度',
-			'settings.project_card_style_label' => '项目卡片样式',
-			'settings.project_card_style_hub' => 'Godot Hub',
+			'settings.list_project_card_style_label' => 'List project card style',
+			'settings.project_card_style_hub' => 'GodotHub',
 			'settings.project_card_style_cover' => '封面',
 			'settings.time_format_label' => '时间格式（今天打开时显示）',
 			'settings.date_format_label' => '日期格式（其他日期显示）',
@@ -3678,6 +3724,8 @@ extension on TranslationsZhCn {
 			'settings.sync_pull_btn' => '拉取',
 			'settings.sync_push_done' => '工作区已推送到 gist。',
 			'settings.sync_open_gist' => '打开 gist',
+			_ => null,
+		} ?? switch (path) {
 			'settings.sync_last_pushed' => '上次推送：{{time}}',
 			'settings.sync_manual_hint' => '丢失了本地数据？输入你的 gist URL 或 ID 从任意机器恢复。',
 			'settings.sync_manual_placeholder' => 'https://gist.github.com/... 或 gist ID',
@@ -3699,8 +3747,6 @@ extension on TranslationsZhCn {
 			'settings.restore_modal_templates_one' => '个模板',
 			'settings.restore_modal_templates_other' => '个模板',
 			'settings.restore_modal_time_stats' => '包含时间跟踪数据',
-			_ => null,
-		} ?? switch (path) {
 			'settings.restore_modal_todos' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '包含 ${count} 个待办事项', ), 
 			'settings.restore_modal_todos_one' => '包含 {{count}} 个待办事项',
 			'settings.restore_modal_todos_other' => '包含 {{count}} 个待办事项',

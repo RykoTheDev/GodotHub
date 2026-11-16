@@ -133,6 +133,33 @@ final _physicalDigits = {
   PhysicalKeyboardKey.digit9: 9,
 };
 
+final _numpadKeys = {
+  PhysicalKeyboardKey.numpad0,
+  PhysicalKeyboardKey.numpad1,
+  PhysicalKeyboardKey.numpad2,
+  PhysicalKeyboardKey.numpad3,
+  PhysicalKeyboardKey.numpad4,
+  PhysicalKeyboardKey.numpad5,
+  PhysicalKeyboardKey.numpad6,
+  PhysicalKeyboardKey.numpad7,
+  PhysicalKeyboardKey.numpad8,
+  PhysicalKeyboardKey.numpad9,
+  PhysicalKeyboardKey.numpadDecimal,
+  PhysicalKeyboardKey.numpadAdd,
+  PhysicalKeyboardKey.numpadSubtract,
+  PhysicalKeyboardKey.numpadMultiply,
+  PhysicalKeyboardKey.numpadDivide,
+};
+
+bool isUnclaimedAltCharacter(KeyEvent event, ShortcutKeyInput input) =>
+    event is! KeyUpEvent &&
+    input.alt &&
+    !input.ctrl &&
+    !input.meta &&
+    input.key.length == 1 &&
+    input.key != ' ' &&
+    !_numpadKeys.contains(event.physicalKey);
+
 String shortcutKeyName(KeyEvent event) {
   final logical = event.logicalKey;
   if (logical == LogicalKeyboardKey.escape) return 'Escape';
@@ -309,8 +336,8 @@ class _GhKeyboardShortcutsState extends ConsumerState<GhKeyboardShortcuts> {
       nonSelectionTarget: focusIsNonSelectionTarget(primary, _node),
     );
     final command = ref.read(keyboardShortcutsProvider).handle(input, widget.handlers);
-    if (command == null || !command.preventDefault) return KeyEventResult.ignored;
-    return KeyEventResult.handled;
+    if (command != null && command.preventDefault) return KeyEventResult.handled;
+    return isUnclaimedAltCharacter(event, input) ? KeyEventResult.handled : KeyEventResult.ignored;
   }
 
   @override

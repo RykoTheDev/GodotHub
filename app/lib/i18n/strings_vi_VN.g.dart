@@ -925,6 +925,31 @@ class _Translations$common$vi_VN extends Translations$common$en_US {
 	@override String get flutter_welcome_vault_items_other => '{{count}} vault items';
 	@override String get flutter_welcome_changelog => 'See what\'s new';
 	@override String get flutter_welcome_continue => 'Continue';
+	@override String get bug_report_intro => 'Tell us what went wrong. Your app version, system details and recent log lines are added for you.';
+	@override String get bug_report_what_happened_placeholder => 'Describe the problem and where in GodotHub it happened.';
+	@override String get bug_report_steps_label => 'Steps to reproduce';
+	@override String get bug_report_steps_placeholder => '1. Open…\n2. Click…\n3. See the problem';
+	@override String get bug_report_expected_label => 'What did you expect?';
+	@override String get bug_report_expected_placeholder => 'What should have happened instead';
+	@override String get bug_report_optional => 'Optional';
+	@override String get bug_report_describe_first => 'Describe what happened before creating the issue.';
+	@override String get bug_report_included_title => 'Included with your report';
+	@override String get bug_report_included_system => 'GodotHub {{version}} on {{os}}, plus screen, language and CPU details';
+	@override String bug_report_included_errors({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
+		other: '${count} recent errors',
+	);
+	@override String get bug_report_included_errors_one => '{{count}} recent error';
+	@override String get bug_report_included_errors_other => '{{count}} recent errors';
+	@override String get bug_report_included_no_errors => 'No errors recorded this session';
+	@override String bug_report_included_log({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count,
+		other: 'The last ${count} log lines',
+	);
+	@override String get bug_report_included_log_one => 'The last {{count}} log line';
+	@override String get bug_report_included_log_other => 'The last {{count}} log lines';
+	@override String get bug_report_include_log => 'Include the log';
+	@override String get bug_report_preview_show => 'Preview report';
+	@override String get bug_report_preview_hide => 'Hide preview';
+	@override String get bug_report_github_hint => 'Create GitHub Issue opens GitHub in your browser with everything filled in. You need a GitHub account to post it, and you can edit the report there first.';
 }
 
 // Path: dashboard
@@ -1363,8 +1388,8 @@ class _Translations$settings$vi_VN extends Translations$settings$en_US {
 	@override String get tray_recent_label => 'Dự án gần đây trên khay';
 	@override String get tooltip_delay_label => 'Độ trễ tooltip';
 	@override String get project_icon_opacity_label => 'Độ mờ biểu tượng dự án';
-	@override String get project_card_style_label => 'Kiểu thẻ dự án';
-	@override String get project_card_style_hub => 'Godot Hub';
+	@override String get list_project_card_style_label => 'List project card style';
+	@override String get project_card_style_hub => 'GodotHub';
 	@override String get project_card_style_cover => 'Bìa';
 	@override String get time_format_label => 'Định dạng giờ (hiện khi mở hôm nay)';
 	@override String get date_format_label => 'Định dạng ngày (hiện cho các ngày khác)';
@@ -3223,6 +3248,27 @@ extension on TranslationsViVn {
 			'common.flutter_welcome_vault_items_other' => '{{count}} vault items',
 			'common.flutter_welcome_changelog' => 'See what\'s new',
 			'common.flutter_welcome_continue' => 'Continue',
+			'common.bug_report_intro' => 'Tell us what went wrong. Your app version, system details and recent log lines are added for you.',
+			'common.bug_report_what_happened_placeholder' => 'Describe the problem and where in GodotHub it happened.',
+			'common.bug_report_steps_label' => 'Steps to reproduce',
+			'common.bug_report_steps_placeholder' => '1. Open…\n2. Click…\n3. See the problem',
+			'common.bug_report_expected_label' => 'What did you expect?',
+			'common.bug_report_expected_placeholder' => 'What should have happened instead',
+			'common.bug_report_optional' => 'Optional',
+			'common.bug_report_describe_first' => 'Describe what happened before creating the issue.',
+			'common.bug_report_included_title' => 'Included with your report',
+			'common.bug_report_included_system' => 'GodotHub {{version}} on {{os}}, plus screen, language and CPU details',
+			'common.bug_report_included_errors' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: '${count} recent errors', ), 
+			'common.bug_report_included_errors_one' => '{{count}} recent error',
+			'common.bug_report_included_errors_other' => '{{count}} recent errors',
+			'common.bug_report_included_no_errors' => 'No errors recorded this session',
+			'common.bug_report_included_log' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'The last ${count} log lines', ), 
+			'common.bug_report_included_log_one' => 'The last {{count}} log line',
+			'common.bug_report_included_log_other' => 'The last {{count}} log lines',
+			'common.bug_report_include_log' => 'Include the log',
+			'common.bug_report_preview_show' => 'Preview report',
+			'common.bug_report_preview_hide' => 'Hide preview',
+			'common.bug_report_github_hint' => 'Create GitHub Issue opens GitHub in your browser with everything filled in. You need a GitHub account to post it, and you can edit the report there first.',
 			'dashboard.greeting_morning' => 'Chào buổi sáng',
 			'dashboard.greeting_afternoon' => 'Chào buổi chiều',
 			'dashboard.greeting_evening' => 'Chào buổi tối',
@@ -3608,8 +3654,8 @@ extension on TranslationsViVn {
 			'settings.tray_recent_label' => 'Dự án gần đây trên khay',
 			'settings.tooltip_delay_label' => 'Độ trễ tooltip',
 			'settings.project_icon_opacity_label' => 'Độ mờ biểu tượng dự án',
-			'settings.project_card_style_label' => 'Kiểu thẻ dự án',
-			'settings.project_card_style_hub' => 'Godot Hub',
+			'settings.list_project_card_style_label' => 'List project card style',
+			'settings.project_card_style_hub' => 'GodotHub',
 			'settings.project_card_style_cover' => 'Bìa',
 			'settings.time_format_label' => 'Định dạng giờ (hiện khi mở hôm nay)',
 			'settings.date_format_label' => 'Định dạng ngày (hiện cho các ngày khác)',
@@ -3680,6 +3726,8 @@ extension on TranslationsViVn {
 			'settings.sync_pull_btn' => 'Kéo',
 			'settings.sync_push_done' => 'Đã đẩy tất cả workspace lên gist của bạn.',
 			'settings.sync_open_gist' => 'Mở gist',
+			_ => null,
+		} ?? switch (path) {
 			'settings.sync_last_pushed' => 'Lần đẩy cuối: {{time}}',
 			'settings.sync_manual_hint' => 'Mất dữ liệu local? Nhập URL hoặc ID gist để khôi phục từ bất kỳ máy nào.',
 			'settings.sync_manual_placeholder' => 'https://gist.github.com/... hoặc ID gist',
@@ -3701,8 +3749,6 @@ extension on TranslationsViVn {
 			'settings.restore_modal_templates_one' => 'mẫu',
 			'settings.restore_modal_templates_other' => 'mẫu',
 			'settings.restore_modal_time_stats' => 'Bao gồm dữ liệu theo dõi thời gian',
-			_ => null,
-		} ?? switch (path) {
 			'settings.restore_modal_todos' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('vi'))(count, other: 'Includes ${count} to-dos', ), 
 			'settings.restore_modal_todos_one' => 'Includes {{count}} to-do',
 			'settings.restore_modal_todos_other' => 'Includes {{count}} to-dos',

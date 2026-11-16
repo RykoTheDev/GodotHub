@@ -2572,6 +2572,75 @@ class Translations$common$en_US {
 
 	/// en-US: 'Continue'
 	String get flutter_welcome_continue => 'Continue';
+
+	/// en-US: 'Tell us what went wrong. Your app version, system details and recent log lines are added for you.'
+	String get bug_report_intro => 'Tell us what went wrong. Your app version, system details and recent log lines are added for you.';
+
+	/// en-US: 'Describe the problem and where in GodotHub it happened.'
+	String get bug_report_what_happened_placeholder => 'Describe the problem and where in GodotHub it happened.';
+
+	/// en-US: 'Steps to reproduce'
+	String get bug_report_steps_label => 'Steps to reproduce';
+
+	/// en-US: '1. Open… 2. Click… 3. See the problem'
+	String get bug_report_steps_placeholder => '1. Open…\n2. Click…\n3. See the problem';
+
+	/// en-US: 'What did you expect?'
+	String get bug_report_expected_label => 'What did you expect?';
+
+	/// en-US: 'What should have happened instead'
+	String get bug_report_expected_placeholder => 'What should have happened instead';
+
+	/// en-US: 'Optional'
+	String get bug_report_optional => 'Optional';
+
+	/// en-US: 'Describe what happened before creating the issue.'
+	String get bug_report_describe_first => 'Describe what happened before creating the issue.';
+
+	/// en-US: 'Included with your report'
+	String get bug_report_included_title => 'Included with your report';
+
+	/// en-US: 'GodotHub {{version}} on {{os}}, plus screen, language and CPU details'
+	String get bug_report_included_system => 'GodotHub {{version}} on {{os}}, plus screen, language and CPU details';
+
+	/// en-US: '(one) {${count} recent error} (other) {${count} recent errors}'
+	String bug_report_included_errors({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} recent error',
+		other: '${count} recent errors',
+	);
+
+	/// en-US: '{{count}} recent error'
+	String get bug_report_included_errors_one => '{{count}} recent error';
+
+	/// en-US: '{{count}} recent errors'
+	String get bug_report_included_errors_other => '{{count}} recent errors';
+
+	/// en-US: 'No errors recorded this session'
+	String get bug_report_included_no_errors => 'No errors recorded this session';
+
+	/// en-US: '(one) {The last ${count} log line} (other) {The last ${count} log lines}'
+	String bug_report_included_log({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: 'The last ${count} log line',
+		other: 'The last ${count} log lines',
+	);
+
+	/// en-US: 'The last {{count}} log line'
+	String get bug_report_included_log_one => 'The last {{count}} log line';
+
+	/// en-US: 'The last {{count}} log lines'
+	String get bug_report_included_log_other => 'The last {{count}} log lines';
+
+	/// en-US: 'Include the log'
+	String get bug_report_include_log => 'Include the log';
+
+	/// en-US: 'Preview report'
+	String get bug_report_preview_show => 'Preview report';
+
+	/// en-US: 'Hide preview'
+	String get bug_report_preview_hide => 'Hide preview';
+
+	/// en-US: 'Create GitHub Issue opens GitHub in your browser with everything filled in. You need a GitHub account to post it, and you can edit the report there first.'
+	String get bug_report_github_hint => 'Create GitHub Issue opens GitHub in your browser with everything filled in. You need a GitHub account to post it, and you can edit the report there first.';
 }
 
 // Path: dashboard
@@ -3785,11 +3854,11 @@ class Translations$settings$en_US {
 	/// en-US: 'Project icon opacity'
 	String get project_icon_opacity_label => 'Project icon opacity';
 
-	/// en-US: 'Project card style'
-	String get project_card_style_label => 'Project card style';
+	/// en-US: 'List project card style'
+	String get list_project_card_style_label => 'List project card style';
 
-	/// en-US: 'Godot Hub'
-	String get project_card_style_hub => 'Godot Hub';
+	/// en-US: 'GodotHub'
+	String get project_card_style_hub => 'GodotHub';
 
 	/// en-US: 'Cover'
 	String get project_card_style_cover => 'Cover';
@@ -7043,6 +7112,27 @@ extension on Translations {
 			'common.flutter_welcome_vault_items_other' => '{{count}} vault items',
 			'common.flutter_welcome_changelog' => 'See what\'s new',
 			'common.flutter_welcome_continue' => 'Continue',
+			'common.bug_report_intro' => 'Tell us what went wrong. Your app version, system details and recent log lines are added for you.',
+			'common.bug_report_what_happened_placeholder' => 'Describe the problem and where in GodotHub it happened.',
+			'common.bug_report_steps_label' => 'Steps to reproduce',
+			'common.bug_report_steps_placeholder' => '1. Open…\n2. Click…\n3. See the problem',
+			'common.bug_report_expected_label' => 'What did you expect?',
+			'common.bug_report_expected_placeholder' => 'What should have happened instead',
+			'common.bug_report_optional' => 'Optional',
+			'common.bug_report_describe_first' => 'Describe what happened before creating the issue.',
+			'common.bug_report_included_title' => 'Included with your report',
+			'common.bug_report_included_system' => 'GodotHub {{version}} on {{os}}, plus screen, language and CPU details',
+			'common.bug_report_included_errors' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} recent error', other: '${count} recent errors', ), 
+			'common.bug_report_included_errors_one' => '{{count}} recent error',
+			'common.bug_report_included_errors_other' => '{{count}} recent errors',
+			'common.bug_report_included_no_errors' => 'No errors recorded this session',
+			'common.bug_report_included_log' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: 'The last ${count} log line', other: 'The last ${count} log lines', ), 
+			'common.bug_report_included_log_one' => 'The last {{count}} log line',
+			'common.bug_report_included_log_other' => 'The last {{count}} log lines',
+			'common.bug_report_include_log' => 'Include the log',
+			'common.bug_report_preview_show' => 'Preview report',
+			'common.bug_report_preview_hide' => 'Hide preview',
+			'common.bug_report_github_hint' => 'Create GitHub Issue opens GitHub in your browser with everything filled in. You need a GitHub account to post it, and you can edit the report there first.',
 			'dashboard.greeting_morning' => 'Good morning',
 			'dashboard.greeting_afternoon' => 'Good afternoon',
 			'dashboard.greeting_evening' => 'Good evening',
@@ -7428,8 +7518,8 @@ extension on Translations {
 			'settings.tray_recent_label' => 'Tray recent projects',
 			'settings.tooltip_delay_label' => 'Tooltip delay',
 			'settings.project_icon_opacity_label' => 'Project icon opacity',
-			'settings.project_card_style_label' => 'Project card style',
-			'settings.project_card_style_hub' => 'Godot Hub',
+			'settings.list_project_card_style_label' => 'List project card style',
+			'settings.project_card_style_hub' => 'GodotHub',
 			'settings.project_card_style_cover' => 'Cover',
 			'settings.time_format_label' => 'Time format (shown when opened today)',
 			'settings.date_format_label' => 'Date format (shown for any other day)',
@@ -7500,6 +7590,8 @@ extension on Translations {
 			'settings.sync_pull_btn' => 'Pull',
 			'settings.sync_push_done' => 'All workspaces pushed to your gist.',
 			'settings.sync_open_gist' => 'Open gist',
+			_ => null,
+		} ?? switch (path) {
 			'settings.sync_last_pushed' => 'Last pushed: {{time}}',
 			'settings.sync_manual_hint' => 'Lost your local data? Enter your gist URL or ID to restore from any machine.',
 			'settings.sync_manual_placeholder' => 'https://gist.github.com/... or gist ID',
@@ -7521,8 +7613,6 @@ extension on Translations {
 			'settings.restore_modal_templates_one' => 'template',
 			'settings.restore_modal_templates_other' => 'templates',
 			'settings.restore_modal_time_stats' => 'Includes time tracking data',
-			_ => null,
-		} ?? switch (path) {
 			'settings.restore_modal_todos' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: 'Includes ${count} to-do', other: 'Includes ${count} to-dos', ), 
 			'settings.restore_modal_todos_one' => 'Includes {{count}} to-do',
 			'settings.restore_modal_todos_other' => 'Includes {{count}} to-dos',

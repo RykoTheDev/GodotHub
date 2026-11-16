@@ -93,6 +93,7 @@ void main() {
   tearDown(() {
     OpenerApi.debugOpenUrl = null;
     BugReportModal.debugSaveReport = null;
+    BugReportModal.debugLogTail = null;
   });
 
   group('update logic', () {
@@ -281,7 +282,31 @@ void main() {
   });
 
   group('BugReportModal', () {
-    testWidgets('builds the report, copies it and opens a prefilled issue', (tester) async {
+    testWidgets('summarises what is included and previews the full report on request', (tester) async {
+      BugReportErrorLog.record(CapturedErrorSource.flutterError, 'Overflow by 3px', DateTime(2026, 1, 1, 9, 5, 7));
+      BugReportModal.debugLogTail = () async => 'line one\nline two\nline three';
+      await openWith(tester, (close) => BugReportModal(onClose: close));
+      expect(find.text(ghTr('bug_report_included_title')), findsOneWidget);
+      expect(find.textContaining('GodotHub 2.0.0 on '), findsOneWidget);
+      expect(find.text(ghTr('bug_report_included_errors', count: 1)), findsOneWidget);
+      expect(find.text(ghTr('bug_report_included_log', count: 3)), findsOneWidget);
+      expect(find.textContaining('## ${ghTr('bug_report_system')}'), findsNothing);
+
+      await tester.tap(find.byKey(const ValueKey('bug-report-preview')));
+      await base.settle(tester);
+      expect(find.textContaining('## ${ghTr('bug_report_system')}'), findsOneWidget);
+      expect(find.textContaining('- **${ghTr('bug_report_version')}**: 2.0.0'), findsOneWidget);
+      expect(find.textContaining('`[09:05:07]` (FlutterError) Overflow by 3px'), findsOneWidget);
+      expect(find.textContaining('line two'), findsOneWidget);
+
+      await tester.ensureVisible(find.byKey(const ValueKey('bug-report-include-log')));
+      await base.settle(tester, 2);
+      await tester.tap(find.byKey(const ValueKey('bug-report-include-log')));
+      await base.settle(tester, 2);
+      expect(find.textContaining('line two'), findsNothing);
+    });
+
+    testWidgets('copies a report with every section and opens a prefilled issue', (tester) async {
       BugReportErrorLog.record(CapturedErrorSource.flutterError, 'Overflow by 3px', DateTime(2026, 1, 1, 9, 5, 7));
       String? copied;
       tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
@@ -290,17 +315,20 @@ void main() {
       });
       addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
       await openWith(tester, (close) => BugReportModal(onClose: close));
-      expect(find.textContaining('## ${ghTr('bug_report_system')}'), findsOneWidget);
-      expect(find.textContaining('- **${ghTr('bug_report_version')}**: 2.0.0'), findsOneWidget);
-      expect(find.textContaining('`[09:05:07]` (FlutterError) Overflow by 3px'), findsOneWidget);
-      expect(find.textContaining(ghTr('bug_report_no_description')), findsOneWidget);
-      await tester.enterText(find.byType(TextField), 'Crash on launch\nmore detail');
+      final fields = find.byType(TextField);
+      expect(fields, findsNWidgets(3));
+      await tester.enterText(fields.at(0), 'Crash on launch\nmore detail');
+      await tester.enterText(fields.at(1), '1. Open the app');
+      await tester.enterText(fields.at(2), 'It should start');
       await base.settle(tester, 2);
-      await tester.tap(find.text(ghTr('bug_report_copy_log')));
+      await tester.tap(find.byKey(const ValueKey('bug-report-copy')));
       await base.settle(tester, 2);
       expect(copied, startsWith('## ${ghTr('bug_report_description')}\n\nCrash on launch\nmore detail'));
+      expect(copied, contains('## ${ghTr('bug_report_steps_label')}\n\n1. Open the app'));
+      expect(copied, contains('## ${ghTr('bug_report_expected_label')}\n\nIt should start'));
       expect(find.text(ghTr('bug_report_copied')), findsOneWidget);
-      await tester.tap(find.text(ghTr('bug_report_open_github')));
+
+      await tester.tap(find.byKey(const ValueKey('bug-report-github')));
       await base.settle(tester);
       expect(opened, hasLength(1));
       final uri = Uri.parse(opened.single);
@@ -308,8 +336,30 @@ void main() {
       expect(uri.queryParameters['template'], 'bug_report.yaml');
       expect(uri.queryParameters['title'], 'Crash on launch');
       expect(uri.queryParameters['description'], 'Crash on launch\nmore detail');
+      expect(uri.queryParameters['steps-to-reproduce'], '1. Open the app');
+      expect(uri.queryParameters['expected-behavior'], 'It should start');
       expect(uri.queryParameters['actual-behavior'], contains('Overflow by 3px'));
       expect(find.byType(BugReportModal), findsNothing);
+    });
+
+    testWidgets('asks for a description before opening GitHub', (tester) async {
+      await openWith(tester, (close) => BugReportModal(onClose: close));
+      expect(find.text(ghTr('bug_report_included_no_errors')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('bug-report-github')));
+      await base.settle(tester, 2);
+      expect(opened, isEmpty);
+      expect(find.byType(BugReportModal), findsOneWidget);
+      expect(find.text(ghTr('bug_report_describe_first')), findsOneWidget);
+      await tester.enterText(find.byType(TextField).first, 'Now described');
+      await base.settle(tester, 2);
+      expect(find.text(ghTr('bug_report_describe_first')), findsNothing);
+    });
+
+    testWidgets('a crash notice prefills the description so GitHub opens straight away', (tester) async {
+      await openWith(tester, (close) => BugReportModal(onClose: close, initialDescription: 'GodotHub closed unexpectedly'));
+      await tester.tap(find.byKey(const ValueKey('bug-report-github')));
+      await base.settle(tester);
+      expect(Uri.parse(opened.single).queryParameters['description'], 'GodotHub closed unexpectedly');
     });
 
     testWidgets('downloads the report and shows where it went', (tester) async {
@@ -319,14 +369,21 @@ void main() {
         return 'C:/Users/me/Downloads/$name';
       };
       await openWith(tester, (close) => BugReportModal(onClose: close));
-      expect(find.textContaining(ghTr('bug_report_none_captured')), findsOneWidget);
-      await tester.tap(find.text(ghTr('bug_report_download_log')));
+      await tester.tap(find.byKey(const ValueKey('bug-report-download')));
       await base.settle(tester, 2);
       expect(writes.keys.single, bugReportFileName(DateTime.now()));
       expect(writes.values.single, contains('## ${ghTr('bug_report_recent_errors')}'));
       expect(find.text('C:/Users/me/Downloads/${writes.keys.single}'), findsOneWidget);
       await base.drainToasts(tester);
     });
+
+    for (final size in [const Size(800, 600), const Size(440, 700), const Size(340, 640)]) {
+      testWidgets('fits a ${size.width.toInt()}x${size.height.toInt()} window without overflow', (tester) async {
+        await openWith(tester, (close) => BugReportModal(onClose: close), size: size);
+        expect(tester.takeException(), isNull);
+        expect(find.byKey(const ValueKey('bug-report-github')), findsOneWidget);
+      });
+    }
 
     test('the error log keeps the newest 20 entries', () {
       for (var i = 0; i < 25; i++) {
