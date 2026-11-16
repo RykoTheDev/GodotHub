@@ -118,7 +118,7 @@ void main() {
     expect(find.text(ts('appearance').toUpperCase()), findsOneWidget);
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
     await base.settle(tester, 3);
-    expect(find.text(ts('experimental').toUpperCase()), findsOneWidget);
+    expect(find.text(ts('advanced').toUpperCase()), findsOneWidget);
 
     await tester.tap(find.text(ts('app_version_label', args: {'version': '2.0.0'})));
     await base.settle(tester, 3);

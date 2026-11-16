@@ -15,10 +15,9 @@ const String todosChangedSignal = 'app:todos-changed';
 const String todoDueNotifiedKey = 'godothub_todo_due_notified';
 const Duration todoDueRecheckInterval = Duration(hours: 1);
 
-final todosEnabledProvider = Provider<bool>((ref) {
-  final settings = ref.watch(settingsProvider);
-  return settings.hasValue && settings.requireValue.projectTodosEnabled;
-});
+/// Project next steps are always on now (they left Experimental); this only
+/// waits for the settings to load, which the due-date checks need.
+final todosEnabledProvider = Provider<bool>((ref) => ref.watch(settingsProvider).hasValue);
 
 final openTodosProvider = NotifierProvider<OpenTodosNotifier, OpenTodosSnapshot>(OpenTodosNotifier.new);
 

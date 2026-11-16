@@ -153,7 +153,7 @@ Future<void> openDuplicateProject(BuildContext context, Project project, VoidCal
   (modal) => DuplicateProjectModal(project: project, onClose: () => Navigator.of(modal).pop(), onDuplicated: onDuplicated),
 );
 
-List<GhDropdownHeaderItem> projectHeaderItems(BuildContext context, Project project, {required bool todosEnabled, VoidCallback? onTodos}) {
+List<GhDropdownHeaderItem> projectHeaderItems(BuildContext context, Project project, {VoidCallback? onTodos}) {
   final tr = context.tr;
   return [
     GhDropdownHeaderItem(
@@ -177,7 +177,7 @@ List<GhDropdownHeaderItem> projectHeaderItems(BuildContext context, Project proj
       tooltip: tr.common.open_terminal,
       onPressed: () => openProjectTerminal(project),
     ),
-    if (todosEnabled && onTodos != null)
+    if (onTodos != null)
       GhDropdownHeaderItem(
         id: 'project-todo',
         icon: GhIcons.checkCircle,

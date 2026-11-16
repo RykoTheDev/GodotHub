@@ -36,7 +36,6 @@ import 'categories/credits_settings.dart';
 import 'categories/data_settings.dart';
 import 'categories/debug_settings.dart';
 import 'categories/display_settings.dart';
-import 'categories/experimental_settings.dart';
 import 'categories/integrations_settings.dart';
 import 'categories/motion_settings.dart';
 import 'categories/storage_settings.dart';
@@ -53,7 +52,6 @@ const settingsCategories = <(String, FaIconData)>[
   ('integrations', GhIcons.plug),
   ('data', GhIcons.history),
   ('advanced', GhIcons.code),
-  ('experimental', GhIcons.flask),
 ];
 
 const _debugCategory = ('debug', GhIcons.bug);
@@ -76,7 +74,6 @@ Widget settingsCategoryContent(String id, {VoidCallback? onCheckUpdates, VoidCal
   'integrations' => const IntegrationsSettings(),
   'data' => const DataSettings(),
   'advanced' => AdvancedSettings(onCheckUpdates: onCheckUpdates, onReportBug: onReportBug),
-  'experimental' => const ExperimentalSettings(),
   'debug' => const DebugSettings(),
   'credits' => const CreditsSettings(),
   _ => const SizedBox.shrink(),
@@ -241,7 +238,6 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                                         icon: icon,
                                         label: settingsCategoryLabel(id),
                                         active: cat == id,
-                                        danger: id == 'experimental',
                                         onPressed: () {
                                           _changeCategory(id);
                                           _railNode(id).requestFocus();
@@ -331,7 +327,6 @@ class _RailButton extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.active,
-    required this.danger,
     required this.onPressed,
   });
 
@@ -339,7 +334,6 @@ class _RailButton extends StatelessWidget {
   final FaIconData icon;
   final String label;
   final bool active;
-  final bool danger;
   final VoidCallback onPressed;
 
   @override
@@ -358,17 +352,17 @@ class _RailButton extends StatelessWidget {
         final Color background;
         final Color? border;
         if (active) {
-          background = danger ? theme.danger.withValues(alpha: 0.1) : theme.overlay;
-          border = danger ? theme.danger.withValues(alpha: 0.3) : theme.outline.withValues(alpha: 0.5);
+          background = theme.overlay;
+          border = theme.outline.withValues(alpha: 0.5);
         } else if (hover) {
-          background = danger ? theme.danger.withValues(alpha: 0.1) : theme.raised.withValues(alpha: 0.6);
+          background = theme.raised.withValues(alpha: 0.6);
           border = null;
         } else {
           background = theme.raised.withValues(alpha: 0);
           border = null;
         }
-        final Color textColor = active ? (danger ? theme.danger : theme.ink) : (hover ? (danger ? theme.danger : theme.ink) : theme.muted);
-        final Color iconColor = active ? (danger ? theme.danger : theme.accent) : theme.muted;
+        final Color textColor = active || hover ? theme.ink : theme.muted;
+        final Color iconColor = active ? theme.accent : theme.muted;
         return GhAnimatedBox(
           padding: EdgeInsets.symmetric(horizontal: theme.space(3) - 1, vertical: theme.space(2.5) - 1),
           color: background,

@@ -70,8 +70,8 @@ const installed = InstalledGodotVersion(
   supportsConsole: true,
 );
 
-AppSettings viewSettings({bool categories = false, bool customize = false}) =>
-    copySettings(baseSettings, setupComplete: true, categoriesEnabled: categories, customizeViewEnabled: customize, cardShowTags: true);
+AppSettings viewSettings({bool categories = false}) =>
+    copySettings(baseSettings, setupComplete: true, categoriesEnabled: categories, cardShowTags: true);
 
 late FakeRustApi rust;
 late UiPrefsStore prefs;
@@ -236,7 +236,7 @@ void main() {
 
   testWidgets('view mode follows the switch-view signal and is saved', (tester) async {
     backend([project('a', 'Alpha'), project('b', 'Beta')]);
-    await pumpView(tester, viewSettings(customize: true));
+    await pumpView(tester, viewSettings());
     AppSignals.emit(switchViewSignal, 'grid');
     await settle(tester, 5);
     expect(find.byType(ProjectTile), findsNWidgets(2));
@@ -284,7 +284,7 @@ void main() {
       changes.add('$id:${updates.category}');
       return store.firstWhere((p) => p.id == id);
     });
-    await pumpView(tester, viewSettings(categories: true, customize: true));
+    await pumpView(tester, viewSettings(categories: true));
     AppSignals.emit(switchViewSignal, 'kanban');
     await settle(tester, 8);
     expect(find.byType(KanbanColumn), findsNWidgets(3));
