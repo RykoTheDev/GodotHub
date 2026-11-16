@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui';
 
 enum GhThemeMode {
@@ -195,6 +196,63 @@ const highContrastLight = ThemePreset(
 );
 
 ThemePreset highContrastPalette(GhThemeMode mode) => mode == GhThemeMode.light ? highContrastLight : highContrastDark;
+
+double _linear(int channel) {
+  final c = channel / 255;
+  return c <= 0.03928 ? c / 12.92 : math.pow((c + 0.055) / 1.055, 2.4).toDouble();
+}
+
+double relativeLuminance(String hex) {
+  final rgb = hexToRgb(hex);
+  return 0.2126 * _linear(rgb[0]) + 0.7152 * _linear(rgb[1]) + 0.0722 * _linear(rgb[2]);
+}
+
+double contrastRatio(String a, String b) {
+  final la = relativeLuminance(a);
+  final lb = relativeLuminance(b);
+  return (math.max(la, lb) + 0.05) / (math.min(la, lb) + 0.05);
+}
+
+String darkenForWhiteText(String hex, {double target = 4.5}) {
+  final rgb = hexToRgb(hex);
+  for (var factor = 1.0; factor > 0; factor -= 0.005) {
+    final candidate = rgbToHex(rgb[0] * factor, rgb[1] * factor, rgb[2] * factor);
+    if (contrastRatio('#ffffff', candidate) >= target) return candidate;
+  }
+  return '#000000';
+}
+
+ThemePreset highContrastFromSystem({
+  required String window,
+  required String windowText,
+  required String highlight,
+  required String buttonFace,
+  required String grayText,
+  required String hotlight,
+}) {
+  final dark = isDarkColor(window);
+  final fallback = dark ? highContrastDark : highContrastLight;
+  String readable(String color, String backup) => contrastRatio(color, window) >= 3 ? color : backup;
+  return ThemePreset(
+    id: 'high-contrast-system',
+    name: 'Windows Contrast Theme',
+    mode: dark ? GhThemeMode.dark : GhThemeMode.light,
+    base: window,
+    surface: window,
+    raised: buttonFace,
+    overlay: window,
+    line: readable(grayText, windowText),
+    outline: windowText,
+    ink: windowText,
+    muted: windowText,
+    accent: darkenForWhiteText(highlight),
+    accentDim: readable(highlight, windowText),
+    accentBright: readable(hotlight, readable(highlight, windowText)),
+    mint: fallback.mint,
+    amber: fallback.amber,
+    danger: dark ? darkenForWhiteText('#ff6b6b') : fallback.danger,
+  );
+}
 
 ThemePreset resolvePalette({
   required String accent,

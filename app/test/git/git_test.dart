@@ -15,6 +15,7 @@ import 'package:godothub/modals/create_worktree_modal.dart';
 import 'package:godothub/modals/diff_viewer_modal.dart';
 import 'package:godothub/modals/git_auth_modal.dart';
 import 'package:godothub/modals/protected_branch_modal.dart';
+import 'package:godothub/ui/reusables/modal_kit.dart';
 import 'package:godothub/modals/release_notes_draft_modal.dart';
 import 'package:godothub/src/rust/api/dto.dart' as dto;
 import 'package:godothub/src/rust/api/types.dart';
@@ -468,14 +469,162 @@ void main() {
       await tester.pump(const Duration(seconds: 4));
     });
 
-    testWidgets('clone without an account validates the url', (tester) async {
+    testWidgets('clone without an account validates the url as you type and previews the destination', (tester) async {
       rust.on('crateApiGitAuthGetGitAuthState', () async => const GitAuthState(pats: []));
       await base.openModal(tester, (close) => CloneRepoModal(defaultLocation: 'C:/games', onClose: close, onCloned: (_) {}));
       expect(find.text(ghTr('clone_repo_no_account')), findsOneWidget);
-      await tester.tap(find.text(ghTr('clone_import')));
+      bool canClone() => tester.widget<GhBusyButton>(find.byKey(const ValueKey('clone-submit'))).onPressed != null;
+      expect(canClone(), isFalse);
+      await tester.testTextInput.receiveAction(TextInputAction.done);
       await base.settle(tester, 3);
       expect(find.text(ghTr('clone_repo_error_url')), findsOneWidget);
+      await tester.enterText(find.byType(TextField).first, 'not a url');
+      await base.settle(tester, 3);
+      expect(find.text(ghTr('clone_repo_url_invalid')), findsOneWidget);
+      expect(canClone(), isFalse);
+      await tester.enterText(find.byType(TextField).first, 'git@github.com:ryko/game.git');
+      await base.settle(tester, 3);
+      expect(find.text(ghTr('clone_repo_url_invalid')), findsNothing);
+      expect(find.text(ghTr('clone_repo_dest_preview', args: {'path': 'C:/games/game'})), findsOneWidget);
+      expect(canClone(), isTrue);
     });
+
+    test('clone urls accept https, ssh and scp-style addresses only', () {
+      for (final good in [
+        'https://github.com/a/b.git',
+        'http://host/x',
+        'ssh://git@host/a/b',
+        'git@gitlab.com:a/b.git',
+        'file:///srv/repo',
+      ]) {
+        expect(isCloneUrl(good), isTrue, reason: good);
+      }
+      for (final bad in ['', 'github.com/a/b', 'https://', 'not a url', 'https://github.com']) {
+        expect(isCloneUrl(bad), isFalse, reason: bad);
+      }
+      expect(cloneDestination('C:/games', 'https://github.com/a/game.git'), 'C:/games/game');
+      expect(cloneDestination(r'S:\Games', 'git@h:a/tool.git'), r'S:\Games\tool');
+    });
+
+    test('branch names follow git ref rules', () {
+      for (final good in ['feature/jump', 'fix-123', 'ryko/tune.jump']) {
+        expect(isValidBranchName(good), isTrue, reason: good);
+      }
+      for (final bad in [
+        'has space',
+        'a..b',
+        'a~b',
+        'a^b',
+        'a:b',
+        'a?b',
+        'a*b',
+        'a[b',
+        r'a\b',
+        '/lead',
+        'trail/',
+        'end.',
+        'x.lock',
+        '.hidden',
+        'a//b',
+        '@',
+        'a@{b',
+      ]) {
+        expect(isValidBranchName(bad), isFalse, reason: bad);
+      }
+      expect(branchNameError('main', existing: ['main']), ghTr('git:branch_name_exists'));
+      expect(branchNameError('  '), ghTr('git:branch_name_required'));
+    });
+
+    testWidgets('protected branch validates the name inline and confirms before committing anyway', (tester) async {
+      var committed = 0;
+      String? created;
+      await base.openModal(
+        tester,
+        (close) => ProtectedBranchModal(
+          branch: 'main',
+          suggestedBranch: 'tune-jump',
+          existingBranches: const ['main', 'taken'],
+          onCommitAnyway: () => committed++,
+          onCreatePullRequest: (b) async => created = b,
+          onClose: close,
+        ),
+      );
+      bool canCreate() => tester.widget<GhBusyButton>(find.byKey(const ValueKey('protected-branch-create-pr'))).onPressed != null;
+      expect(canCreate(), isTrue);
+      await tester.enterText(find.byType(TextField).first, 'bad name');
+      await base.settle(tester, 3);
+      expect(find.text(ghTr('git:branch_name_invalid')), findsOneWidget);
+      expect(canCreate(), isFalse);
+      await tester.enterText(find.byType(TextField).first, 'taken');
+      await base.settle(tester, 3);
+      expect(find.text(ghTr('git:branch_name_exists')), findsOneWidget);
+
+      await tester.tap(find.byKey(const ValueKey('protected-branch-commit-anyway')));
+      await base.settle(tester);
+      expect(find.text(ghTr('git:protected_branch_confirm_desc', args: {'branch': 'main'})), findsOneWidget);
+      await tester.tap(find.text(ghTr('cancel')).last);
+      await base.settle(tester);
+      expect(committed, 0);
+      await tester.tap(find.byKey(const ValueKey('protected-branch-commit-anyway')));
+      await base.settle(tester);
+      await tester.tap(find.text(g('protected_branch_commit_anyway')).last);
+      await base.settle(tester);
+      expect(committed, 1);
+
+      await tester.enterText(find.byType(TextField).first, 'feature/jump');
+      await base.settle(tester, 3);
+      await tester.tap(find.byKey(const ValueKey('protected-branch-create-pr')));
+      await base.settle(tester);
+      expect(created, 'feature/jump');
+    });
+
+    for (final size in [const Size(340, 640), const Size(380, 700)]) {
+      testWidgets('clone and protected branch fit a ${size.width.toInt()}px window', (tester) async {
+        rust
+          ..on(
+            'crateApiGitAuthGetGitAuthState',
+            () async => const GitAuthState(
+              github: GitAccountInfo(username: 'ryko'),
+              pats: [],
+            ),
+          )
+          ..on(
+            'crateApiGitAuthListUserRepos',
+            ({required String provider, required int page}) async => const UserRepoPage(
+              repos: [
+                UserRepoInfo(
+                  name: 'a-very-long-repository-name',
+                  fullName: 'ryko/a-very-long-repository-name',
+                  cloneUrl: 'https://github.com/ryko/a.git',
+                  htmlUrl: '',
+                  private: true,
+                ),
+              ],
+              hasMore: true,
+            ),
+          );
+        await base.openModal(
+          tester,
+          (close) => CloneRepoModal(defaultLocation: 'C:/games', onClose: close, onCloned: (_) {}),
+          size: size,
+        );
+        expect(tester.takeException(), isNull);
+        await tester.tap(find.text(ghTr('cancel')));
+        await base.settle(tester);
+        await base.openModal(
+          tester,
+          (close) => ProtectedBranchModal(
+            branch: 'main',
+            suggestedBranch: 'tune-jump',
+            onCommitAnyway: () {},
+            onCreatePullRequest: (_) async {},
+            onClose: close,
+          ),
+          size: size,
+        );
+        expect(tester.takeException(), isNull);
+      });
+    }
 
     testWidgets('contributor PRs list badges and counts', (tester) async {
       await base.openModal(

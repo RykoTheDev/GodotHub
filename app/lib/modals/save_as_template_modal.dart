@@ -4,8 +4,8 @@ import '../api/templates.dart';
 import '../design/design.dart';
 import '../src/rust/api/types.dart';
 import '../ui/controls/text_input.dart';
+import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
-import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
 import '../ui/reusables/modal_kit.dart';
@@ -57,7 +57,6 @@ class _SaveAsTemplateModalState extends State<SaveAsTemplateModal> {
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
     final tr = context.tr.common;
-    final radius = BorderRadius.circular(theme.radiusItem);
     final enabled = !_busy && _name.text.trim().isNotEmpty;
     Widget field(TextEditingController controller, String placeholder, {int lines = 1, bool autofocus = false}) => GhTextInput(
       controller: controller,
@@ -76,40 +75,10 @@ class _SaveAsTemplateModalState extends State<SaveAsTemplateModal> {
       title: tr.save_as_template,
       maxWidth: GhModalWidth.sm,
       onClose: widget.onClose,
-      footer: [
-        GhPressable(
-          onPressed: widget.onClose,
-          borderRadius: radius,
-          builder: (context, states) => GhAnimatedBox(
-            color: states.active ? theme.raised : theme.raised.withValues(alpha: 0),
-            borderRadius: radius,
-            padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(2.5)),
-            child: Text(
-              tr.cancel,
-              style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: states.active ? theme.ink : theme.muted),
-            ),
-          ),
-        ),
-        Expanded(
-          child: GhPressable(
-            onPressed: enabled ? _save : null,
-            disabledOpacity: 0.5,
-            disabledCursor: SystemMouseCursors.forbidden,
-            borderRadius: radius,
-            rippleColor: Colors.white,
-            builder: (context, states) => GhAnimatedBox(
-              alignment: Alignment.center,
-              color: states.active ? theme.accentBright : theme.accent,
-              borderRadius: radius,
-              padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(2.5)),
-              child: Text(
-                _busy ? tr.saving : tr.project_save_template_btn,
-                style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: Colors.white),
-              ),
-            ),
-          ),
-        ),
-      ],
+      footer: ghModalActions(
+        trailing: [GhButton(onPressed: widget.onClose, label: tr.cancel)],
+        primary: GhBusyButton(onPressed: enabled ? _save : null, busy: _busy, label: _busy ? tr.saving : tr.project_save_template_btn),
+      ),
       child: Padding(
         padding: EdgeInsets.fromLTRB(theme.space(6), theme.space(4), theme.space(6), theme.space(6)),
         child: Column(

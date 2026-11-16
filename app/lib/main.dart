@@ -7,6 +7,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'api/diagnostics.dart';
+import 'build_switches.dart';
+import 'licenses.dart';
 import 'api/events.dart';
 import 'bench/bench_mode.dart';
 import 'api/updater.dart';
@@ -41,8 +43,10 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   ErrorWidget.builder = ghErrorWidget;
   installBugReportErrorCapture();
+  registerBundledLicenses();
   await RustLib.init();
   Diagnostics.markReady();
+  if (testBuildSwitches.isNotEmpty) Diagnostics.record('build', 'Test switches: ${testBuildSwitches.join(', ')}');
   UpdaterApi.applyBuildVersion();
   if (const bool.fromEnvironment('UPDATER_LAB_CRASH')) exit(70);
   AppEvents.all.listen((_) {});
@@ -88,16 +92,32 @@ class GodotHubApp extends ConsumerStatefulWidget {
 class _GodotHubAppState extends ConsumerState<GodotHubApp> with WidgetsBindingObserver {
   Brightness _platformBrightness = PlatformDispatcher.instance.platformBrightness;
   bool _highContrast = PlatformDispatcher.instance.accessibilityFeatures.highContrast;
+  SystemContrastColors? _systemContrast = PlatformDispatcher.instance.accessibilityFeatures.highContrast
+      ? readSystemContrastColors()
+      : null;
   bool _gallery = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _watchContrastColors();
+  }
+
+  Timer? _contrastWatch;
+
+  void _watchContrastColors() {
+    _contrastWatch?.cancel();
+    if (!_highContrast || !Platform.isWindows) return;
+    _contrastWatch = Timer.periodic(const Duration(seconds: 3), (_) {
+      final next = readSystemContrastColors();
+      if (next != null && next != _systemContrast) setState(() => _systemContrast = next);
+    });
   }
 
   @override
   void dispose() {
+    _contrastWatch?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -116,7 +136,11 @@ class _GodotHubAppState extends ConsumerState<GodotHubApp> with WidgetsBindingOb
   @override
   void didChangeAccessibilityFeatures() {
     final highContrast = PlatformDispatcher.instance.accessibilityFeatures.highContrast;
-    if (highContrast != _highContrast) setState(() => _highContrast = highContrast);
+    setState(() {
+      _highContrast = highContrast;
+      _systemContrast = highContrast ? readSystemContrastColors() : null;
+    });
+    _watchContrastColors();
   }
 
   @override
@@ -128,7 +152,7 @@ class _GodotHubAppState extends ConsumerState<GodotHubApp> with WidgetsBindingOb
       GhI18n.instance.setRtlLayout(value.rtlLayout);
     });
     final current = ref.watch(themePreviewProvider) ?? ref.watch(settingsProvider).value ?? widget.initialSettings;
-    final theme = ghThemeFromSettings(current, _platformBrightness, highContrast: _highContrast);
+    final theme = ghThemeFromSettings(current, _platformBrightness, highContrast: _highContrast, systemContrast: _systemContrast);
     final i18n = GhI18n.instance;
     return ListenableBuilder(
       listenable: i18n,

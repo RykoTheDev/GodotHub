@@ -102,8 +102,8 @@
   "tray_recent_label": "托盘最近项目",
   "tooltip_delay_label": "工具提示延迟",
   "project_icon_opacity_label": "项目图标透明度",
-  "project_card_style_label": "项目卡片样式",
-  "project_card_style_hub": "Godot Hub",
+  "list_project_card_style_label": "List project card style",
+  "project_card_style_hub": "GodotHub",
   "project_card_style_cover": "封面",
   "time_format_label": "时间格式（今天打开时显示）",
   "date_format_label": "日期格式（其他日期显示）",
@@ -253,6 +253,7 @@
   "credits": "致谢",
   "credits_developer": "创建者",
   "credits_built_with": "使用以下技术构建",
+  "credits_licenses": "Open Source Licenses",
   "credits_contributors": "贡献者",
   "experimental": "实验性",
   "customize_view_label": "自定义视图按钮",
@@ -304,5 +305,7 @@
   "feature_desc_storage": "查看项目和引擎占用的磁盘空间。",
   "feature_desc_asset_store": "从 Godot Asset Library 浏览并安装插件和项目。",
   "feature_desc_categories": "将项目列表分组到文件夹中。",
-  "feature_desc_workspaces": "在不同的项目和设置集合之间切换。"
+  "feature_desc_workspaces": "在不同的项目和设置集合之间切换。",
+  "git_auth_intro": "Approve GodotHub on {{provider}} to finish signing in. Keep this window open until it's done; use Cancel to stop.",
+  "git_auth_step_current": "current step"
 }

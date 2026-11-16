@@ -69,31 +69,17 @@ class _CreateWorkspaceModalState extends State<CreateWorkspaceModal> {
       maxWidth: GhModalWidth.lg,
       onClose: widget.onClose,
       showClose: false,
-      footer: [
-        const Spacer(),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: theme.space(2.5),
-          children: [
-            if (_error != null)
-              Padding(
-                padding: EdgeInsetsDirectional.only(end: theme.space(2)),
-                child: Text(
-                  _error!,
-                  style: theme.text(size: GhTextSize.xs, color: theme.danger),
-                ),
-              ),
-            GhButton(onPressed: widget.onClose, label: tr.cancel),
-            GhButton(
-              onPressed: _busy || (_touched && _invalid) ? null : _submit,
-              label: _busy ? tr.creating : tr.create_workspace,
-              variant: GhButtonVariant.primary,
-              paddingX: 5,
-              disabledOpacity: 0.5,
-            ),
-          ],
+      error: _error,
+      footer: ghModalActions(
+        trailing: [GhButton(onPressed: widget.onClose, label: tr.cancel)],
+        primary: GhButton(
+          onPressed: _busy || (_touched && _invalid) ? null : _submit,
+          label: _busy ? tr.creating : tr.create_workspace,
+          variant: GhButtonVariant.primary,
+          paddingX: 5,
+          disabledOpacity: 0.5,
         ),
-      ],
+      ),
       child: Padding(
         padding: EdgeInsets.all(theme.space(6)),
         child: Column(

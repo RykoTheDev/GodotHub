@@ -1,12 +1,16 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/projects.dart';
 import '../design/design.dart';
+import '../logic/naming_convention.dart';
 import '../src/rust/api/types.dart';
+import '../state/settings.dart';
 import '../ui/controls/text_input.dart';
 import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
-import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
 import '../ui/reusables/modal_kit.dart';
@@ -18,7 +22,7 @@ String defaultDuplicateDest(String path) {
   return cut > 0 ? path.substring(0, cut) : path;
 }
 
-class DuplicateProjectModal extends StatefulWidget {
+class DuplicateProjectModal extends ConsumerStatefulWidget {
   const DuplicateProjectModal({super.key, required this.project, required this.onClose, required this.onDuplicated, this.pickFolder});
 
   final Project project;
@@ -27,10 +31,10 @@ class DuplicateProjectModal extends StatefulWidget {
   final Future<String?> Function()? pickFolder;
 
   @override
-  State<DuplicateProjectModal> createState() => _DuplicateProjectModalState();
+  ConsumerState<DuplicateProjectModal> createState() => _DuplicateProjectModalState();
 }
 
-class _DuplicateProjectModalState extends State<DuplicateProjectModal> {
+class _DuplicateProjectModalState extends ConsumerState<DuplicateProjectModal> {
   late final TextEditingController _name = TextEditingController(text: '${widget.project.name} ${ghTr('copy_suffix')}');
   late String _dest = defaultDuplicateDest(widget.project.path);
   bool _busy = false;
@@ -56,9 +60,21 @@ class _DuplicateProjectModalState extends State<DuplicateProjectModal> {
     }
   }
 
+  String get _folderName =>
+      applyNamingConvention(_name.text.trim(), NamingConvention.parse(ref.read(settingsProvider).value?.directoryNamingConvention ?? ''));
+
+  String? get _nameError {
+    final trimmed = _name.text.trim();
+    if (trimmed.isEmpty) return null;
+    final folder = _folderName;
+    if (!isValidFolderName(folder)) return ghTr('folder_name_invalid_chars');
+    if (Directory('$_dest${Platform.pathSeparator}$folder').existsSync()) return ghTr('duplicate_folder_exists');
+    return null;
+  }
+
   Future<void> _duplicate() async {
     final trimmed = _name.text.trim();
-    if (trimmed.isEmpty || _busy) return;
+    if (trimmed.isEmpty || _busy || _nameError != null) return;
     setState(() => _busy = true);
     try {
       await ProjectsApi.duplicate(widget.project.id, trimmed, _dest);
@@ -77,16 +93,18 @@ class _DuplicateProjectModalState extends State<DuplicateProjectModal> {
     final theme = GhTheme.of(context);
     final tr = context.tr.common;
     final radius = BorderRadius.circular(theme.radiusItem);
+    ref.watch(settingsProvider);
+    final nameError = _nameError;
+    final canDuplicate = _name.text.trim().isNotEmpty && nameError == null && !_busy;
     return GhModalShell(
       icon: GhIcon(GhIcons.copy, size: theme.space(5), color: theme.ink),
       title: tr.duplicate_project_title,
       maxWidth: GhModalWidth.md,
       onClose: widget.onClose,
-      footer: [
-        const Spacer(),
-        GhButton(onPressed: widget.onClose, label: tr.cancel),
-        GhButton(onPressed: _name.text.trim().isEmpty || _busy ? null : _duplicate, label: tr.duplicate, variant: GhButtonVariant.primary),
-      ],
+      footer: ghModalActions(
+        trailing: [GhButton(onPressed: widget.onClose, label: tr.cancel)],
+        primary: GhBusyButton(onPressed: canDuplicate ? _duplicate : null, busy: _busy, label: tr.duplicate),
+      ),
       child: Padding(
         padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(6)),
         child: Column(
@@ -102,9 +120,20 @@ class _DuplicateProjectModalState extends State<DuplicateProjectModal> {
                   controller: _name,
                   placeholder: tr.new_project_name,
                   background: theme.base,
-                  focusBorderColor: theme.accentDim,
+                  borderColor: nameError != null ? theme.danger : null,
+                  focusBorderColor: nameError != null ? theme.danger : theme.accentDim,
                   placeholderColor: theme.muted,
                 ),
+                if (nameError != null)
+                  Text(
+                    nameError,
+                    style: theme.text(size: GhTextSize.x2s, color: theme.danger, lineHeight: 1.5),
+                  )
+                else if (_name.text.trim().isNotEmpty)
+                  Text(
+                    tr.folder_name_preview.args({'name': _folderName}),
+                    style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.5),
+                  ),
               ],
             ),
             Column(
@@ -139,19 +168,13 @@ class _DuplicateProjectModalState extends State<DuplicateProjectModal> {
                         ),
                       ),
                     ),
-                    GhPressable(
+                    GhButton(
                       onPressed: _pick,
-                      borderRadius: radius,
-                      builder: (context, states) => GhAnimatedBox(
-                        color: theme.raised,
-                        borderRadius: radius,
-                        border: Border.all(color: states.active ? theme.accentDim : theme.outline.withValues(alpha: 0.5)),
-                        padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(2)),
-                        child: Text(
-                          tr.browse,
-                          style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: states.active ? theme.ink : theme.muted),
-                        ),
-                      ),
+                      label: tr.browse,
+                      variant: GhButtonVariant.outline,
+                      size: GhTextSize.xs,
+                      paddingX: 3,
+                      paddingY: 2,
                     ),
                   ],
                 ),

@@ -219,17 +219,8 @@ class _TaskTrayEmpty extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: tokens.raised,
-              borderRadius: BorderRadius.circular(tokens.btnRadius),
-              border: Border.all(color: tokens.line.withValues(alpha: 0.5)),
-            ),
-            child: GhIcon(GhIcons.bell, size: 16, color: tokens.muted.withValues(alpha: 0.5)),
-          ),
-          const SizedBox(height: 12),
+          GhIcon(GhIcons.bell, size: 20, color: tokens.muted.withValues(alpha: 0.5)),
+          const SizedBox(height: 10),
           Text(
             context.tr.common.no_tasks_running,
             textAlign: TextAlign.center,

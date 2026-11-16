@@ -329,6 +329,11 @@ class _DebugSettingsState extends ConsumerState<DebugSettings> {
               children: [_DebugButton(label: 'Open', onPressed: _showOnboarding)],
             ),
             _DebugRow(
+              label: 'Preview Flutter welcome',
+              description: 'Opens the one-time welcome that Tauri users see on their first start of the Flutter app, with your real counts. It does not change whether it shows at startup.',
+              children: [_DebugButton(label: 'Show welcome', onPressed: () => AppSignals.emit(previewFlutterWelcomeSignal))],
+            ),
+            _DebugRow(
               label: 'Reload window',
               description: 'Reloads the interface without restarting the backend.',
               children: [_DebugButton(label: 'Reload', onPressed: () => _restartAndToast('Could not reload the window').ignore())],

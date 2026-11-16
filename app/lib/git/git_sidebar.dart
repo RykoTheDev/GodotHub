@@ -648,6 +648,7 @@ class _GitSidebarState extends ConsumerState<GitSidebar> {
       return ProtectedBranchModal(
         branch: current.name,
         suggestedBranch: suggestedPrBranch(_message.text),
+        existingBranches: [for (final b in _branches) b.name],
         onCommitAnyway: () {
           close();
           _commit(force: true);

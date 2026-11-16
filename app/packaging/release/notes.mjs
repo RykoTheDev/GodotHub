@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs'
 const tag = process.env.RELEASE_TAG
 const repo = process.env.REPO
 const stable = /^v\d/.test(tag ?? '')
-const changelogPath = process.env.CHANGELOG ?? (stable ? 'src-tauri/changelog.json' : 'app/changelog.json')
+const changelogPath = process.env.CHANGELOG ?? 'src-tauri/changelog.json'
 const allowMissing = process.env.ALLOW_MISSING_NOTES === 'true'
 const previous = process.env.PREVIOUS_TAG
 if (!tag || !repo) throw new Error('RELEASE_TAG and REPO are required')
@@ -30,8 +30,8 @@ if (stable && version === firstFlutterStable) {
       '### What changes for you',
       '',
       '- **Windows:** updates now download and install inside the app, with no installer window. If a new version fails to start, GodotHub goes back to the previous one by itself.',
-      '- **Windows:** the portable build is now a `.zip`. Unzip it anywhere and run `godothub.exe` inside. The Visual C++ runtime and everything else it needs are in the folder, and WebView2 is no longer needed.',
-      '- **macOS:** GodotHub now needs macOS 12 Monterey or newer. On macOS 10.15 or 11, keep using GodotHub 1.5.9.',
+      '- **Windows:** the portable build is now a `.zip`. Unzip it anywhere and run `godothub.exe` inside. Everything it needs is in the folder, and neither WebView2 nor a Visual C++ install is needed.',
+      '- **macOS:** GodotHub now needs macOS 12 Monterey or newer, so GodotHub 1.5 on a Mac does not update itself to this version. On macOS 12 or newer, download the disk image below once; later updates install from inside the app again. On macOS 10.15 or 11, keep using GodotHub 1.5.9.',
       '- **Linux:** the `.deb` and `.rpm` install the app into `/usr/lib/godothub` with `godothub` on your PATH, and no longer need WebKitGTK.',
       '',
       `Questions about the switch, rolling back or a failed update: see the [migration FAQ](${faqUrl}).`,
@@ -81,6 +81,21 @@ if (stable) {
       '- Scoop: `scoop bucket add extras` then `scoop install godothub`\n' +
       '- AM (Linux): `am -i godothub`\n\n' +
       'Already using GodotHub? It offers this update in the app.',
+  )
+  blocks.push(
+    '**AppImage not starting on Linux?**\n\n' +
+      'The AppImage does not run on every Linux setup. If it fails to start, install it with ' +
+      '[AM](https://github.com/ivan-hc/AM) instead. AM downloads the same AppImage from this page, ' +
+      'adds GodotHub to your app menu, and updates it with `am -u godothub`.\n\n' +
+      '1. Install AM:\n\n' +
+      '```bash\n' +
+      'wget -q https://raw.githubusercontent.com/ivan-hc/AM/main/AM-INSTALLER && chmod a+x ./AM-INSTALLER && ./AM-INSTALLER && rm ./AM-INSTALLER\n' +
+      '```\n\n' +
+      '2. Install GodotHub:\n\n' +
+      '```bash\n' +
+      'am -i godothub\n' +
+      '```\n\n' +
+      'If you chose AppMan in the AM installer, use `appman -i godothub` instead.',
   )
   blocks.push(
     '**Requirements:** Windows 10 or 11 (x64), macOS 12 or newer, or a 64-bit Linux desktop with GTK 3 and OpenGL ES. ' +

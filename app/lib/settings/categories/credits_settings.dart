@@ -6,6 +6,7 @@ import '../../design/design.dart';
 import '../../modals/contributor_prs_modal.dart';
 import '../../motion/presence.dart';
 import '../../state/contributors.dart';
+import '../../ui/core/button.dart';
 import '../../ui/core/i18n.dart';
 import '../../ui/core/interaction.dart';
 import '../../ui/feedback/modal_shell.dart';
@@ -119,6 +120,14 @@ class CreditsSettings extends ConsumerWidget {
                   Expanded(child: infoTile(_ts('git_option_license'), creditsLicense)),
                   Expanded(child: infoTile(_ts('credits_built_with'), creditsBuiltWith)),
                 ],
+              ),
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: GhButton(
+                  onPressed: () => showLicensePage(context: context, applicationName: 'GodotHub'),
+                  label: _ts('credits_licenses'),
+                  variant: GhButtonVariant.outline,
+                ),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

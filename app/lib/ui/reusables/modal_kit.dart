@@ -333,9 +333,13 @@ class GhBusyButton extends StatelessWidget {
               const GhSpinnerIcon(color: Colors.white)
             else if (icon != null)
               GhIcon(icon!, size: theme.space(3.5), color: Colors.white),
-            Text(
-              label,
-              style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: Colors.white),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: Colors.white),
+              ),
             ),
           ],
         ),

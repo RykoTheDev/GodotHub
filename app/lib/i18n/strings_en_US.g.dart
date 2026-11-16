@@ -285,8 +285,8 @@ class Translations$common$en_US {
 	/// en-US: 'Report a Bug'
 	String get report_a_bug => 'Report a Bug';
 
-	/// en-US: 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.'
-	String get high_contrast_active => 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.';
+	/// en-US: 'Windows high contrast is on, so GodotHub uses the colors of your contrast theme. Your own theme comes back when you turn high contrast off.'
+	String get high_contrast_active => 'Windows high contrast is on, so GodotHub uses the colors of your contrast theme. Your own theme comes back when you turn high contrast off.';
 
 	/// en-US: 'GodotHub closed unexpectedly'
 	String get crash_notice_title => 'GodotHub closed unexpectedly';
@@ -2482,6 +2482,249 @@ class Translations$common$en_US {
 
 	/// en-US: 'Add due date'
 	String get date_add_due => 'Add due date';
+
+	/// en-US: 'Welcome to the new'
+	String get flutter_welcome_eyebrow => 'Welcome to the new';
+
+	/// en-US: 'Welcome to the new GodotHub'
+	String get flutter_welcome_title => 'Welcome to the new GodotHub';
+
+	/// en-US: 'GodotHub has been rebuilt from the ground up. It looks and works the way you know it, only faster and smoother.'
+	String get flutter_welcome_desc => 'GodotHub has been rebuilt from the ground up. It looks and works the way you know it, only faster and smoother.';
+
+	/// en-US: 'Faster'
+	String get flutter_welcome_fast_title => 'Faster';
+
+	/// en-US: 'Starts quicker, scrolls smoother and uses less memory.'
+	String get flutter_welcome_fast_desc => 'Starts quicker, scrolls smoother and uses less memory.';
+
+	/// en-US: 'Updates inside the app'
+	String get flutter_welcome_updates_title => 'Updates inside the app';
+
+	/// en-US: 'New versions download and install from inside GodotHub, and every update is checked before it is installed.'
+	String get flutter_welcome_updates_desc => 'New versions download and install from inside GodotHub, and every update is checked before it is installed.';
+
+	/// en-US: 'Refreshed design'
+	String get flutter_welcome_design_title => 'Refreshed design';
+
+	/// en-US: 'Smoother motion, sharper text and themes that follow your system.'
+	String get flutter_welcome_design_desc => 'Smoother motion, sharper text and themes that follow your system.';
+
+	/// en-US: 'Everything you had is here'
+	String get flutter_welcome_data_title => 'Everything you had is here';
+
+	/// en-US: 'Projects, Godot versions, settings and your Git sign-in came along on their own.'
+	String get flutter_welcome_data_desc => 'Projects, Godot versions, settings and your Git sign-in came along on their own.';
+
+	/// en-US: 'Your data came along'
+	String get flutter_welcome_summary => 'Your data came along';
+
+	/// en-US: '(one) {${count} project} (other) {${count} projects}'
+	String flutter_welcome_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} project',
+		other: '${count} projects',
+	);
+
+	/// en-US: '{{count}} project'
+	String get flutter_welcome_projects_one => '{{count}} project';
+
+	/// en-US: '{{count}} projects'
+	String get flutter_welcome_projects_other => '{{count}} projects';
+
+	/// en-US: '(one) {${count} workspace} (other) {${count} workspaces}'
+	String flutter_welcome_workspaces({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} workspace',
+		other: '${count} workspaces',
+	);
+
+	/// en-US: '{{count}} workspace'
+	String get flutter_welcome_workspaces_one => '{{count}} workspace';
+
+	/// en-US: '{{count}} workspaces'
+	String get flutter_welcome_workspaces_other => '{{count}} workspaces';
+
+	/// en-US: '(one) {${count} template} (other) {${count} templates}'
+	String flutter_welcome_templates({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} template',
+		other: '${count} templates',
+	);
+
+	/// en-US: '{{count}} template'
+	String get flutter_welcome_templates_one => '{{count}} template';
+
+	/// en-US: '{{count}} templates'
+	String get flutter_welcome_templates_other => '{{count}} templates';
+
+	/// en-US: '(one) {${count} vault item} (other) {${count} vault items}'
+	String flutter_welcome_vault_items({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} vault item',
+		other: '${count} vault items',
+	);
+
+	/// en-US: '{{count}} vault item'
+	String get flutter_welcome_vault_items_one => '{{count}} vault item';
+
+	/// en-US: '{{count}} vault items'
+	String get flutter_welcome_vault_items_other => '{{count}} vault items';
+
+	/// en-US: 'See what's new'
+	String get flutter_welcome_changelog => 'See what\'s new';
+
+	/// en-US: 'Continue'
+	String get flutter_welcome_continue => 'Continue';
+
+	/// en-US: 'Tell us what went wrong. Your app version, system details and recent log lines are added for you.'
+	String get bug_report_intro => 'Tell us what went wrong. Your app version, system details and recent log lines are added for you.';
+
+	/// en-US: 'Describe the problem and where in GodotHub it happened.'
+	String get bug_report_what_happened_placeholder => 'Describe the problem and where in GodotHub it happened.';
+
+	/// en-US: 'Steps to reproduce'
+	String get bug_report_steps_label => 'Steps to reproduce';
+
+	/// en-US: '1. Open… 2. Click… 3. See the problem'
+	String get bug_report_steps_placeholder => '1. Open…\n2. Click…\n3. See the problem';
+
+	/// en-US: 'What did you expect?'
+	String get bug_report_expected_label => 'What did you expect?';
+
+	/// en-US: 'What should have happened instead'
+	String get bug_report_expected_placeholder => 'What should have happened instead';
+
+	/// en-US: 'Optional'
+	String get bug_report_optional => 'Optional';
+
+	/// en-US: 'Describe what happened before creating the issue.'
+	String get bug_report_describe_first => 'Describe what happened before creating the issue.';
+
+	/// en-US: 'Included with your report'
+	String get bug_report_included_title => 'Included with your report';
+
+	/// en-US: 'GodotHub {{version}} on {{os}}, plus screen, language and CPU details'
+	String get bug_report_included_system => 'GodotHub {{version}} on {{os}}, plus screen, language and CPU details';
+
+	/// en-US: '(one) {${count} recent error} (other) {${count} recent errors}'
+	String bug_report_included_errors({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} recent error',
+		other: '${count} recent errors',
+	);
+
+	/// en-US: '{{count}} recent error'
+	String get bug_report_included_errors_one => '{{count}} recent error';
+
+	/// en-US: '{{count}} recent errors'
+	String get bug_report_included_errors_other => '{{count}} recent errors';
+
+	/// en-US: 'No errors recorded this session'
+	String get bug_report_included_no_errors => 'No errors recorded this session';
+
+	/// en-US: '(one) {The last ${count} log line} (other) {The last ${count} log lines}'
+	String bug_report_included_log({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: 'The last ${count} log line',
+		other: 'The last ${count} log lines',
+	);
+
+	/// en-US: 'The last {{count}} log line'
+	String get bug_report_included_log_one => 'The last {{count}} log line';
+
+	/// en-US: 'The last {{count}} log lines'
+	String get bug_report_included_log_other => 'The last {{count}} log lines';
+
+	/// en-US: 'Include the log'
+	String get bug_report_include_log => 'Include the log';
+
+	/// en-US: 'Preview report'
+	String get bug_report_preview_show => 'Preview report';
+
+	/// en-US: 'Hide preview'
+	String get bug_report_preview_hide => 'Hide preview';
+
+	/// en-US: '(one) {${count} category} (other) {${count} categories}'
+	String n_categories({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} category',
+		other: '${count} categories',
+	);
+
+	/// en-US: '{{count}} category'
+	String get n_categories_one => '{{count}} category';
+
+	/// en-US: '{{count}} categories'
+	String get n_categories_other => '{{count}} categories';
+
+	/// en-US: 'Category name is required.'
+	String get category_name_required => 'Category name is required.';
+
+	/// en-US: 'A category with this name already exists.'
+	String get category_name_taken => 'A category with this name already exists.';
+
+	/// en-US: '(one) {Changes apply right away to the ${count} selected project.} (other) {Changes apply right away to the ${count} selected projects.}'
+	String bulk_tags_intro({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: 'Changes apply right away to the ${count} selected project.',
+		other: 'Changes apply right away to the ${count} selected projects.',
+	);
+
+	/// en-US: 'Changes apply right away to the {{count}} selected project.'
+	String get bulk_tags_intro_one => 'Changes apply right away to the {{count}} selected project.';
+
+	/// en-US: 'Changes apply right away to the {{count}} selected projects.'
+	String get bulk_tags_intro_other => 'Changes apply right away to the {{count}} selected projects.';
+
+	/// en-US: 'A folder with this name already exists here. Pick another name or destination.'
+	String get duplicate_folder_exists => 'A folder with this name already exists here. Pick another name or destination.';
+
+	/// en-US: 'Folder names cannot contain < > : " / \\ | ? * or end with a dot or space.'
+	String get folder_name_invalid_chars => 'Folder names cannot contain < > : " / \\ | ? * or end with a dot or space.';
+
+	/// en-US: 'Creates {{path}}'
+	String get create_project_path_preview => 'Creates {{path}}';
+
+	/// en-US: 'Give the project a name.'
+	String get create_project_name_required => 'Give the project a name.';
+
+	/// en-US: 'Choose a folder to create it in.'
+	String get create_project_location_required => 'Choose a folder to create it in.';
+
+	/// en-US: 'Version control'
+	String get create_project_version_control => 'Version control';
+
+	/// en-US: 'Tags on {{name}}. Click a tag to rename it.'
+	String get tag_manager_intro => 'Tags on {{name}}. Click a tag to rename it.';
+
+	/// en-US: 'New tag'
+	String get tag_new_label => 'New tag';
+
+	/// en-US: 'Choose the project to install {{title}} into.'
+	String get asset_install_intro_project => 'Choose the project to install {{title}} into.';
+
+	/// en-US: 'Choose a template to install {{title}} into. New projects made from it will include it.'
+	String get asset_install_intro_template => 'Choose a template to install {{title}} into. New projects made from it will include it.';
+
+	/// en-US: 'Install into'
+	String get asset_install_where_label => 'Install into';
+
+	/// en-US: 'The install keeps running if you close this window. You'll get a message when it's done.'
+	String get asset_install_continues => 'The install keeps running if you close this window. You\'ll get a message when it\'s done.';
+
+	/// en-US: 'Couldn't install {{title}}: {{error}}'
+	String get asset_install_failed_toast => 'Couldn\'t install {{title}}: {{error}}';
+
+	/// en-US: 'Pick one of the repositories on your connected account.'
+	String get clone_repo_browse_intro => 'Pick one of the repositories on your connected account.';
+
+	/// en-US: 'Paste the HTTPS or SSH address of any Git repository.'
+	String get clone_repo_url_intro => 'Paste the HTTPS or SSH address of any Git repository.';
+
+	/// en-US: 'Use an HTTPS or SSH address, like https://github.com/user/repo.git or git@github.com:user/repo.git.'
+	String get clone_repo_url_invalid => 'Use an HTTPS or SSH address, like https://github.com/user/repo.git or git@github.com:user/repo.git.';
+
+	/// en-US: 'Clones into {{path}}'
+	String get clone_repo_dest_preview => 'Clones into {{path}}';
+
+	/// en-US: 'Selected {{name}}'
+	String get clone_repo_selected => 'Selected {{name}}';
+
+	/// en-US: 'Select a repository from the list to clone it.'
+	String get clone_repo_select_hint => 'Select a repository from the list to clone it.';
 }
 
 // Path: dashboard
@@ -3148,6 +3391,21 @@ class Translations$git$en_US {
 
 	/// en-US: 'Pushed {{branch}} and opened a pull request.'
 	String get pr_opened_ok => 'Pushed {{branch}} and opened a pull request.';
+
+	/// en-US: 'Enter a name for the new branch.'
+	String get branch_name_required => 'Enter a name for the new branch.';
+
+	/// en-US: 'Branch names can't contain spaces, ~ ^ : ? * [ or a backslash, two dots in a row, or start or end with a slash or a dot.'
+	String get branch_name_invalid => 'Branch names can\'t contain spaces, ~ ^ : ? * [ or a backslash, two dots in a row, or start or end with a slash or a dot.';
+
+	/// en-US: 'A branch with this name already exists.'
+	String get branch_name_exists => 'A branch with this name already exists.';
+
+	/// en-US: 'Commit to {{branch}} anyway?'
+	String get protected_branch_confirm_title => 'Commit to {{branch}} anyway?';
+
+	/// en-US: 'This bypasses the protection on {{branch}}. The commit is made locally, and the remote may reject it when you push.'
+	String get protected_branch_confirm_desc => 'This bypasses the protection on {{branch}}. The commit is made locally, and the remote may reject it when you push.';
 }
 
 // Path: nav
@@ -3695,11 +3953,11 @@ class Translations$settings$en_US {
 	/// en-US: 'Project icon opacity'
 	String get project_icon_opacity_label => 'Project icon opacity';
 
-	/// en-US: 'Project card style'
-	String get project_card_style_label => 'Project card style';
+	/// en-US: 'List project card style'
+	String get list_project_card_style_label => 'List project card style';
 
-	/// en-US: 'Godot Hub'
-	String get project_card_style_hub => 'Godot Hub';
+	/// en-US: 'GodotHub'
+	String get project_card_style_hub => 'GodotHub';
 
 	/// en-US: 'Cover'
 	String get project_card_style_cover => 'Cover';
@@ -4127,6 +4385,9 @@ class Translations$settings$en_US {
 	/// en-US: 'Built with'
 	String get credits_built_with => 'Built with';
 
+	/// en-US: 'Open Source Licenses'
+	String get credits_licenses => 'Open Source Licenses';
+
 	/// en-US: 'Contributors'
 	String get credits_contributors => 'Contributors';
 
@@ -4279,6 +4540,12 @@ class Translations$settings$en_US {
 
 	/// en-US: 'Switch between separate sets of projects and settings.'
 	String get feature_desc_workspaces => 'Switch between separate sets of projects and settings.';
+
+	/// en-US: 'Approve GodotHub on {{provider}} to finish signing in. Keep this window open until it's done; use Cancel to stop.'
+	String get git_auth_intro => 'Approve GodotHub on {{provider}} to finish signing in. Keep this window open until it\'s done; use Cancel to stop.';
+
+	/// en-US: 'current step'
+	String get git_auth_step_current => 'current step';
 }
 
 // Path: todos
@@ -5095,6 +5362,27 @@ class Translations$versions$en_US {
 
 	/// en-US: 'Adding custom build…'
 	String get adding_custom_build => 'Adding custom build…';
+
+	/// en-US: 'GodotHub couldn't download Godot {{tag}}.'
+	String get download_failed_summary => 'GodotHub couldn\'t download Godot {{tag}}.';
+
+	/// en-US: 'Show error details'
+	String get download_failed_show_details => 'Show error details';
+
+	/// en-US: 'Hide error details'
+	String get download_failed_hide_details => 'Hide error details';
+
+	/// en-US: 'Report this problem'
+	String get download_failed_report => 'Report this problem';
+
+	/// en-US: 'Select none'
+	String get export_templates_select_none => 'Select none';
+
+	/// en-US: 'Select at least one template to download.'
+	String get export_templates_select_hint => 'Select at least one template to download.';
+
+	/// en-US: 'Every template for this release is already installed.'
+	String get export_templates_all_installed => 'Every template for this release is already installed.';
 }
 
 // Path: common.project_doctor
@@ -5959,7 +6247,7 @@ extension on Translations {
 			'common.scan_for_projects' => 'Scan',
 			'common.create_workspace' => 'Create Workspace',
 			'common.report_a_bug' => 'Report a Bug',
-			'common.high_contrast_active' => 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.',
+			'common.high_contrast_active' => 'Windows high contrast is on, so GodotHub uses the colors of your contrast theme. Your own theme comes back when you turn high contrast off.',
 			'common.crash_notice_title' => 'GodotHub closed unexpectedly',
 			'common.crash_notice_desc' => 'GodotHub {{version}} stopped without closing normally the last time it ran.',
 			'common.crash_notice_rolled_back' => 'The update did not start, so GodotHub went back to {{previous}}, the version you had before.',
@@ -6924,6 +7212,79 @@ extension on Translations {
 			'common.date_next_month' => 'Next month',
 			'common.date_change_due' => 'Change due date: {{date}}',
 			'common.date_add_due' => 'Add due date',
+			'common.flutter_welcome_eyebrow' => 'Welcome to the new',
+			'common.flutter_welcome_title' => 'Welcome to the new GodotHub',
+			'common.flutter_welcome_desc' => 'GodotHub has been rebuilt from the ground up. It looks and works the way you know it, only faster and smoother.',
+			'common.flutter_welcome_fast_title' => 'Faster',
+			'common.flutter_welcome_fast_desc' => 'Starts quicker, scrolls smoother and uses less memory.',
+			'common.flutter_welcome_updates_title' => 'Updates inside the app',
+			'common.flutter_welcome_updates_desc' => 'New versions download and install from inside GodotHub, and every update is checked before it is installed.',
+			'common.flutter_welcome_design_title' => 'Refreshed design',
+			'common.flutter_welcome_design_desc' => 'Smoother motion, sharper text and themes that follow your system.',
+			'common.flutter_welcome_data_title' => 'Everything you had is here',
+			'common.flutter_welcome_data_desc' => 'Projects, Godot versions, settings and your Git sign-in came along on their own.',
+			'common.flutter_welcome_summary' => 'Your data came along',
+			'common.flutter_welcome_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} project', other: '${count} projects', ), 
+			'common.flutter_welcome_projects_one' => '{{count}} project',
+			'common.flutter_welcome_projects_other' => '{{count}} projects',
+			'common.flutter_welcome_workspaces' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} workspace', other: '${count} workspaces', ), 
+			'common.flutter_welcome_workspaces_one' => '{{count}} workspace',
+			'common.flutter_welcome_workspaces_other' => '{{count}} workspaces',
+			'common.flutter_welcome_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} template', other: '${count} templates', ), 
+			'common.flutter_welcome_templates_one' => '{{count}} template',
+			'common.flutter_welcome_templates_other' => '{{count}} templates',
+			'common.flutter_welcome_vault_items' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} vault item', other: '${count} vault items', ), 
+			'common.flutter_welcome_vault_items_one' => '{{count}} vault item',
+			'common.flutter_welcome_vault_items_other' => '{{count}} vault items',
+			'common.flutter_welcome_changelog' => 'See what\'s new',
+			'common.flutter_welcome_continue' => 'Continue',
+			'common.bug_report_intro' => 'Tell us what went wrong. Your app version, system details and recent log lines are added for you.',
+			'common.bug_report_what_happened_placeholder' => 'Describe the problem and where in GodotHub it happened.',
+			'common.bug_report_steps_label' => 'Steps to reproduce',
+			'common.bug_report_steps_placeholder' => '1. Open…\n2. Click…\n3. See the problem',
+			'common.bug_report_expected_label' => 'What did you expect?',
+			'common.bug_report_expected_placeholder' => 'What should have happened instead',
+			'common.bug_report_optional' => 'Optional',
+			'common.bug_report_describe_first' => 'Describe what happened before creating the issue.',
+			'common.bug_report_included_title' => 'Included with your report',
+			'common.bug_report_included_system' => 'GodotHub {{version}} on {{os}}, plus screen, language and CPU details',
+			'common.bug_report_included_errors' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} recent error', other: '${count} recent errors', ), 
+			'common.bug_report_included_errors_one' => '{{count}} recent error',
+			'common.bug_report_included_errors_other' => '{{count}} recent errors',
+			'common.bug_report_included_no_errors' => 'No errors recorded this session',
+			'common.bug_report_included_log' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: 'The last ${count} log line', other: 'The last ${count} log lines', ), 
+			'common.bug_report_included_log_one' => 'The last {{count}} log line',
+			'common.bug_report_included_log_other' => 'The last {{count}} log lines',
+			'common.bug_report_include_log' => 'Include the log',
+			'common.bug_report_preview_show' => 'Preview report',
+			'common.bug_report_preview_hide' => 'Hide preview',
+			'common.n_categories' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} category', other: '${count} categories', ), 
+			'common.n_categories_one' => '{{count}} category',
+			'common.n_categories_other' => '{{count}} categories',
+			'common.category_name_required' => 'Category name is required.',
+			'common.category_name_taken' => 'A category with this name already exists.',
+			'common.bulk_tags_intro' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: 'Changes apply right away to the ${count} selected project.', other: 'Changes apply right away to the ${count} selected projects.', ), 
+			'common.bulk_tags_intro_one' => 'Changes apply right away to the {{count}} selected project.',
+			'common.bulk_tags_intro_other' => 'Changes apply right away to the {{count}} selected projects.',
+			'common.duplicate_folder_exists' => 'A folder with this name already exists here. Pick another name or destination.',
+			'common.folder_name_invalid_chars' => 'Folder names cannot contain < > : " / \\ | ? * or end with a dot or space.',
+			'common.create_project_path_preview' => 'Creates {{path}}',
+			'common.create_project_name_required' => 'Give the project a name.',
+			'common.create_project_location_required' => 'Choose a folder to create it in.',
+			'common.create_project_version_control' => 'Version control',
+			'common.tag_manager_intro' => 'Tags on {{name}}. Click a tag to rename it.',
+			'common.tag_new_label' => 'New tag',
+			'common.asset_install_intro_project' => 'Choose the project to install {{title}} into.',
+			'common.asset_install_intro_template' => 'Choose a template to install {{title}} into. New projects made from it will include it.',
+			'common.asset_install_where_label' => 'Install into',
+			'common.asset_install_continues' => 'The install keeps running if you close this window. You\'ll get a message when it\'s done.',
+			'common.asset_install_failed_toast' => 'Couldn\'t install {{title}}: {{error}}',
+			'common.clone_repo_browse_intro' => 'Pick one of the repositories on your connected account.',
+			'common.clone_repo_url_intro' => 'Paste the HTTPS or SSH address of any Git repository.',
+			'common.clone_repo_url_invalid' => 'Use an HTTPS or SSH address, like https://github.com/user/repo.git or git@github.com:user/repo.git.',
+			'common.clone_repo_dest_preview' => 'Clones into {{path}}',
+			'common.clone_repo_selected' => 'Selected {{name}}',
+			'common.clone_repo_select_hint' => 'Select a repository from the list to clone it.',
 			'dashboard.greeting_morning' => 'Good morning',
 			'dashboard.greeting_afternoon' => 'Good afternoon',
 			'dashboard.greeting_evening' => 'Good evening',
@@ -7139,6 +7500,11 @@ extension on Translations {
 			'git.protected_branch_create_pr' => 'Create branch & open PR',
 			'git.protected_branch_creating_pr' => 'Opening pull request…',
 			'git.pr_opened_ok' => 'Pushed {{branch}} and opened a pull request.',
+			'git.branch_name_required' => 'Enter a name for the new branch.',
+			'git.branch_name_invalid' => 'Branch names can\'t contain spaces, ~ ^ : ? * [ or a backslash, two dots in a row, or start or end with a slash or a dot.',
+			'git.branch_name_exists' => 'A branch with this name already exists.',
+			'git.protected_branch_confirm_title' => 'Commit to {{branch}} anyway?',
+			'git.protected_branch_confirm_desc' => 'This bypasses the protection on {{branch}}. The commit is made locally, and the remote may reject it when you push.',
 			'nav.dashboard' => 'Dashboard',
 			'nav.projects' => 'Projects',
 			'nav.projects_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: 'Project', other: 'Projects', ), 
@@ -7309,8 +7675,8 @@ extension on Translations {
 			'settings.tray_recent_label' => 'Tray recent projects',
 			'settings.tooltip_delay_label' => 'Tooltip delay',
 			'settings.project_icon_opacity_label' => 'Project icon opacity',
-			'settings.project_card_style_label' => 'Project card style',
-			'settings.project_card_style_hub' => 'Godot Hub',
+			'settings.list_project_card_style_label' => 'List project card style',
+			'settings.project_card_style_hub' => 'GodotHub',
 			'settings.project_card_style_cover' => 'Cover',
 			'settings.time_format_label' => 'Time format (shown when opened today)',
 			'settings.date_format_label' => 'Date format (shown for any other day)',
@@ -7350,6 +7716,8 @@ extension on Translations {
 			'settings.entrance_slide' => 'Slide',
 			'settings.entrance_scale' => 'Scale',
 			'settings.entrance_none' => 'None',
+			_ => null,
+		} ?? switch (path) {
 			'settings.custom_css_label' => 'Custom CSS',
 			'settings.custom_css_placeholder' => '/* Your custom styles, e.g. */\n.card { border-radius: 4px !important; }',
 			'settings.custom_css_apply' => 'Apply CSS',
@@ -7428,8 +7796,6 @@ extension on Translations {
 			'settings.discord_show_projects_label' => 'Show project names',
 			'settings.discord_excluded_label' => 'Excluded projects',
 			'settings.discord_exclude_project' => 'Add project',
-			_ => null,
-		} ?? switch (path) {
 			'settings.discord_excluded_empty' => 'No excluded projects.',
 			'settings.discord_excluded_remove' => 'Remove from excluded projects',
 			'settings.discord_custom_label' => 'Custom presence',
@@ -7448,6 +7814,7 @@ extension on Translations {
 			'settings.credits' => 'Credits',
 			'settings.credits_developer' => 'Created by',
 			'settings.credits_built_with' => 'Built with',
+			'settings.credits_licenses' => 'Open Source Licenses',
 			'settings.credits_contributors' => 'Contributors',
 			'settings.experimental' => 'Experimental',
 			'settings.customize_view_label' => 'Customize View button',
@@ -7498,6 +7865,8 @@ extension on Translations {
 			'settings.feature_desc_asset_store' => 'Browse and install addons and demos from the Godot Asset Library.',
 			'settings.feature_desc_categories' => 'Group your project list into folders.',
 			'settings.feature_desc_workspaces' => 'Switch between separate sets of projects and settings.',
+			'settings.git_auth_intro' => 'Approve GodotHub on {{provider}} to finish signing in. Keep this window open until it\'s done; use Cancel to stop.',
+			'settings.git_auth_step_current' => 'current step',
 			'todos.next_steps' => 'Next steps',
 			'todos.saving_tasks' => 'Saving tasks',
 			'todos.pending_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} pending', other: '${count} pending', ), 
@@ -7749,6 +8118,13 @@ extension on Translations {
 			'versions.custom_build_badge' => 'Custom build',
 			'versions.add_custom_build' => 'Add custom build…',
 			'versions.adding_custom_build' => 'Adding custom build…',
+			'versions.download_failed_summary' => 'GodotHub couldn\'t download Godot {{tag}}.',
+			'versions.download_failed_show_details' => 'Show error details',
+			'versions.download_failed_hide_details' => 'Hide error details',
+			'versions.download_failed_report' => 'Report this problem',
+			'versions.export_templates_select_none' => 'Select none',
+			'versions.export_templates_select_hint' => 'Select at least one template to download.',
+			'versions.export_templates_all_installed' => 'Every template for this release is already installed.',
 			_ => null,
 		};
 	}

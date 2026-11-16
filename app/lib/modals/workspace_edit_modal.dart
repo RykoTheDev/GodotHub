@@ -4,7 +4,6 @@ import '../design/design.dart';
 import '../src/rust/api/types.dart';
 import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
-import '../ui/core/interaction.dart';
 import '../ui/core/tooltip.dart';
 import '../ui/feedback/confirm_dialog.dart';
 import '../ui/feedback/modal_shell.dart';
@@ -72,7 +71,13 @@ class _WorkspaceEditModalState extends State<WorkspaceEditModal> {
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
     final tr = context.tr.common;
-    Widget delete = _DeleteButton(label: tr.delete, onPressed: widget.canDelete ? _confirmDelete : null);
+    Widget delete = GhButton(
+      key: const ValueKey('workspace-delete'),
+      onPressed: widget.canDelete ? _confirmDelete : null,
+      icon: GhIcons.trash,
+      label: tr.delete,
+      variant: GhButtonVariant.danger,
+    );
     if (!widget.canDelete) {
       delete = GhTooltip(message: tr.cant_delete_only_workspace, child: delete);
     }
@@ -82,32 +87,18 @@ class _WorkspaceEditModalState extends State<WorkspaceEditModal> {
       maxWidth: GhModalWidth.lg,
       onClose: widget.onClose,
       showClose: false,
-      footer: [
-        delete,
-        const Spacer(),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: theme.space(2.5),
-          children: [
-            if (_error != null)
-              Padding(
-                padding: EdgeInsetsDirectional.only(end: theme.space(2)),
-                child: Text(
-                  _error!,
-                  style: theme.text(size: GhTextSize.xs, color: theme.danger),
-                ),
-              ),
-            GhButton(onPressed: widget.onClose, label: tr.cancel),
-            GhButton(
-              onPressed: _busy || (_touched && _invalid) ? null : _submit,
-              label: tr.save,
-              variant: GhButtonVariant.primary,
-              paddingX: 5,
-              disabledOpacity: 0.5,
-            ),
-          ],
+      error: _error,
+      footer: ghModalActions(
+        leading: [delete],
+        trailing: [GhButton(onPressed: widget.onClose, label: tr.cancel)],
+        primary: GhButton(
+          onPressed: _busy || (_touched && _invalid) ? null : _submit,
+          label: tr.save,
+          variant: GhButtonVariant.primary,
+          paddingX: 5,
+          disabledOpacity: 0.5,
         ),
-      ],
+      ),
       child: Padding(
         padding: EdgeInsets.all(theme.space(6)),
         child: GhWorkspaceForm(
@@ -120,36 +111,6 @@ class _WorkspaceEditModalState extends State<WorkspaceEditModal> {
           onNameBlur: () => setState(() => _touched = true),
         ),
       ),
-    );
-  }
-}
-
-class _DeleteButton extends StatelessWidget {
-  const _DeleteButton({required this.label, required this.onPressed});
-
-  final String label;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = GhTheme.of(context);
-    final radius = BorderRadius.circular(theme.radiusBtn);
-    return GhPressable(
-      onPressed: onPressed,
-      borderRadius: radius,
-      rippleColor: theme.danger,
-      builder: (context, states) {
-        final hover = states.active;
-        return GhAnimatedBox(
-          borderRadius: radius,
-          color: hover ? theme.danger.withValues(alpha: 0.05) : theme.danger.withValues(alpha: 0),
-          padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(2.5)),
-          child: Text(
-            label,
-            style: theme.text(size: GhTextSize.sm, color: hover ? theme.danger : theme.muted),
-          ),
-        );
-      },
     );
   }
 }

@@ -141,8 +141,13 @@ pub fn updater_arch() -> Option<&'static str> {
     }
 }
 
+pub const FLUTTER_ONLY_SUFFIX: &str = "flutter";
+
 pub fn target_keys(os: &str, arch: &str, installer: Option<Installer>) -> Vec<String> {
     let mut keys = Vec::new();
+    if os == "darwin" {
+        keys.push(format!("{os}-{arch}-{FLUTTER_ONLY_SUFFIX}"));
+    }
     if let Some(installer) = installer {
         keys.push(format!("{os}-{arch}-{}", installer.name()));
     }
@@ -196,6 +201,9 @@ pub fn set_test_overrides(endpoint: Option<String>, public_key: Option<String>) 
         check_test_endpoint(url)?;
     }
     if let Some(key) = &public_key {
+        if endpoint.is_none() {
+            return Err("An updater test key needs a test endpoint on this computer".into());
+        }
         check_public_key(key)?;
     }
     TEST_OVERRIDES
@@ -303,9 +311,34 @@ fn signed_version(trusted_comment: &str) -> Option<&str> {
     trusted_comment.split('\t').find_map(|field| field.strip_prefix("version:"))
 }
 
+fn signed_file(trusted_comment: &str) -> Option<&str> {
+    trusted_comment.split('\t').find_map(|field| field.strip_prefix("file:"))
+}
+
+fn names_version(file: &str, version: &str) -> bool {
+    let version = version.trim_start_matches('v');
+    if version.is_empty() {
+        return false;
+    }
+    file.match_indices(version).any(|(at, _)| {
+        let before = file[..at].chars().next_back();
+        let mut rest = file[at + version.len()..].chars();
+        let ends = match rest.next() {
+            None | Some('-' | '_') => true,
+            Some('.') => !rest.next().is_some_and(|c| c.is_ascii_digit()),
+            _ => false,
+        };
+        matches!(before, Some('-' | '_')) && ends
+    })
+}
+
 fn check_signed_version(trusted_comment: &str, announced: &str) -> Result<(), String> {
     let Some(signed) = signed_version(trusted_comment) else {
-        return Ok(());
+        return match signed_file(trusted_comment) {
+            Some(file) if names_version(file, announced) => Ok(()),
+            Some(file) => Err(format!("The update file {file} is not version {}", announced.trim_start_matches('v'))),
+            None => Err("The update signature does not say which version it is for".into()),
+        };
     };
     let matches = match (parse_version(signed), parse_version(announced)) {
         (Ok(a), Ok(b)) => a == b,
@@ -454,11 +487,17 @@ pub async fn download<F: FnMut(u64, Option<u64>)>(
         return Err(format!("Download request failed with status: {}", response.status()));
     }
     let total = response.content_length();
+    if total.is_some_and(|t| t > MAX_UPDATE_BYTES) {
+        return Err(too_large());
+    }
     let mut buffer = Vec::with_capacity(total.unwrap_or(0) as usize);
     let mut stream = response.bytes_stream();
     on_progress(0, total);
     while let Some(chunk) = stream.next().await {
         let chunk = chunk.map_err(|e| e.to_string())?;
+        if buffer.len() as u64 + chunk.len() as u64 > MAX_UPDATE_BYTES {
+            return Err(too_large());
+        }
         buffer.extend_from_slice(&chunk);
         on_progress(buffer.len() as u64, total);
     }
@@ -466,30 +505,43 @@ pub async fn download<F: FnMut(u64, Option<u64>)>(
     Ok(buffer)
 }
 
+pub const MAX_UPDATE_BYTES: u64 = 512 * 1024 * 1024;
+pub const MAX_UNPACKED_BYTES: u64 = 2 * 1024 * 1024 * 1024;
+
+fn too_large() -> String {
+    format!("The update is larger than {}", format_size(MAX_UPDATE_BYTES))
+}
+
 pub(crate) fn is_zip(bytes: &[u8]) -> bool {
     bytes.starts_with(b"PK\x03\x04")
 }
 
+#[cfg(any(test, target_os = "windows"))]
 pub(crate) fn is_exe(bytes: &[u8]) -> bool {
     bytes.starts_with(b"MZ")
 }
 
+#[cfg(any(test, target_os = "windows"))]
 pub(crate) fn is_msi(bytes: &[u8]) -> bool {
     bytes.starts_with(&[0xD0, 0xCF, 0x11, 0xE0, 0xA1, 0xB1, 0x1A, 0xE1])
 }
 
+#[cfg(any(test, target_os = "linux"))]
 pub(crate) fn is_elf(bytes: &[u8]) -> bool {
     bytes.starts_with(&[0x7F, b'E', b'L', b'F'])
 }
 
+#[cfg(any(test, target_os = "macos"))]
 pub(crate) fn is_gzip(bytes: &[u8]) -> bool {
     bytes.starts_with(&[0x1F, 0x8B])
 }
 
+#[cfg(any(test, target_os = "linux"))]
 pub(crate) fn is_deb(bytes: &[u8]) -> bool {
     bytes.starts_with(b"!<arch>\ndebian-binary")
 }
 
+#[cfg(any(test, target_os = "linux"))]
 pub(crate) fn is_rpm(bytes: &[u8]) -> bool {
     bytes.starts_with(&[0xED, 0xAB, 0xEE, 0xDB])
 }
@@ -505,8 +557,14 @@ pub fn extract_from_zip(bytes: &[u8], wanted: impl Fn(&str) -> bool) -> Result<(
         let name = file.name().map_err(|e| e.to_string())?.to_string();
         let leaf = Path::new(&name).file_name().map(|n| n.to_string_lossy().to_string()).unwrap_or_default();
         if wanted(&leaf) {
+            if file.is_symlink() || file.size() > MAX_UNPACKED_BYTES {
+                return Err(format!("The update archive entry {leaf} is not a normal file of a sensible size"));
+            }
             let mut out = Vec::with_capacity(file.size() as usize);
-            file.read_to_end(&mut out).map_err(|e| e.to_string())?;
+            file.by_ref().take(MAX_UNPACKED_BYTES + 1).read_to_end(&mut out).map_err(|e| e.to_string())?;
+            if out.len() as u64 > MAX_UNPACKED_BYTES {
+                return Err(format!("The update archive entry {leaf} is too large"));
+            }
             return Ok((leaf, out));
         }
     }
@@ -605,9 +663,17 @@ pub fn install(update: &UpdateInfo, bytes: &[u8], log: Log) -> Result<(), String
 fn unpack_zip(bytes: &[u8], dir: &Path, log: Log) -> Result<(), String> {
     let fail = |e: &dyn std::fmt::Display| format!("Could not unpack the update: {e}");
     let mut archive = zip::ZipArchive::new(std::io::Cursor::new(bytes)).map_err(|e| fail(&e))?;
+    let mut unpacked = 0u64;
     for i in 0..archive.len() {
         let mut file = archive.by_index(i).map_err(|e| fail(&e))?;
         let relative = file.enclosed_name().ok_or_else(|| fail(&"an entry points outside the update folder"))?;
+        if file.is_symlink() {
+            return Err(fail(&format!("{} is a link", relative.display())));
+        }
+        unpacked = unpacked.saturating_add(file.size());
+        if unpacked > MAX_UNPACKED_BYTES {
+            return Err(fail(&"it unpacks to more than 2 GB"));
+        }
         let path = dir.join(&relative);
         if file.is_dir() {
             std::fs::create_dir_all(&path).map_err(|e| fail(&e))?;
@@ -1004,6 +1070,15 @@ mod tests {
     }
 
     #[test]
+    fn macs_read_the_flutter_only_key_first() {
+        assert_eq!(target_keys("darwin", "x86_64", Some(Installer::App)), ["darwin-x86_64-flutter", "darwin-x86_64-app", "darwin-x86_64"]);
+        let bridge = manifest(&["darwin-aarch64-flutter", "darwin-x86_64-flutter", "windows-x86_64"]);
+        assert_eq!(bridge.select(&target_keys("darwin", "aarch64", Some(Installer::App))).unwrap().0, "darwin-aarch64-flutter");
+        let tauri_keys = ["darwin-aarch64-app", "darwin-aarch64"];
+        assert!(bridge.select(&tauri_keys.map(String::from)).is_none(), "the Tauri updater must find no Mac package");
+    }
+
+    #[test]
     fn current_platform_update_is_found_only_for_newer_versions() {
         let os = updater_os().unwrap();
         let arch = updater_arch().unwrap();
@@ -1117,7 +1192,7 @@ mod tests {
         let (old_public, old_secret) = keypair();
         let (new_public, new_secret) = keypair();
         let data = b"installer bytes";
-        let signed_old = sign(&old_secret, data, "timestamp:1\tfile:x");
+        let signed_old = sign(&old_secret, data, "timestamp:1\tfile:GodotHub-1.6.0-windows-x64.zip");
         let signed_new = sign(&new_secret, data, "timestamp:1\tfile:x\tversion:1.6.0");
         assert!(verify_signature(data, &signed_old, &[&old_public], "1.6.0").is_ok());
         assert!(verify_signature(data, &signed_new, &[&old_public, &new_public], "1.6.0").is_ok());
@@ -1126,6 +1201,63 @@ mod tests {
         assert!(verify_signature(data, &signed_new, &[&new_public], "1.7.0").is_err());
         assert!(verify_signature(data, &signed_new, &[&new_public], "v1.6.0").is_ok());
         assert!(verify_signature(data, &signed_old, &[], "1.6.0").is_err());
+    }
+
+    #[test]
+    fn an_older_signed_package_cannot_be_replayed_as_a_newer_version() {
+        let (public, secret) = keypair();
+        let data = b"the 1.6.0 package";
+        let old_package = sign(&secret, data, "timestamp:1\tfile:GodotHub-1.6.0-windows-x64.zip");
+        assert!(verify_signature(data, &old_package, &[&public], "1.6.0").is_ok());
+        let error = verify_signature(data, &old_package, &[&public], "9.9.9").unwrap_err();
+        assert!(error.contains("not version 9.9.9"), "{error}");
+        let unnamed = sign(&secret, data, "timestamp:1");
+        assert!(verify_signature(data, &unnamed, &[&public], "1.6.0").is_err());
+    }
+
+    #[test]
+    fn signed_file_names_must_carry_the_announced_version() {
+        for (file, version) in [
+            ("GodotHub-1.6.0-windows-x64.zip", "1.6.0"),
+            ("GodotHub_1.5.9_x64-setup.exe", "1.5.9"),
+            ("GodotHub-Beta-0.2.5-windows-x64-setup.exe", "v0.2.5"),
+            ("GodotHub-1.6.0-darwin-universal.app.tar.gz", "1.6.0"),
+            ("GodotHub-1.7.0-rc.1-linux-amd64.AppImage", "1.7.0-rc.1"),
+        ] {
+            assert!(names_version(file, version), "{file} {version}");
+        }
+        for (file, version) in [
+            ("GodotHub-1.6.0-windows-x64.zip", "1.6"),
+            ("GodotHub-11.6.0-windows-x64.zip", "1.6.0"),
+            ("GodotHub-1.6.01-windows-x64.zip", "1.6.0"),
+            ("GodotHub-1.6.0-windows-x64.zip", ""),
+        ] {
+            assert!(!names_version(file, version), "{file} {version}");
+        }
+    }
+
+    #[test]
+    fn update_archives_with_links_are_refused() {
+        let mut bytes = Vec::new();
+        {
+            let mut zip = zip::ZipWriter::new(std::io::Cursor::new(&mut bytes));
+            zip.add_symlink("evil.dll", "C:/Windows/System32/kernel32.dll", zip::write::SimpleFileOptions::default()).unwrap();
+            zip.finish().unwrap();
+        }
+        let dir = std::env::temp_dir().join(format!("godothub-zip-link-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        let error = unpack_zip(&bytes, &dir, &mut |_| {}).unwrap_err();
+        assert!(error.contains("is a link"), "{error}");
+        assert!(!dir.join("evil.dll").exists());
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn a_test_key_needs_a_local_test_endpoint() {
+        let (public, _) = keypair();
+        let error = set_test_overrides(None, Some(public)).unwrap_err();
+        assert!(error.contains("needs a test endpoint"), "{error}");
     }
 
     #[test]

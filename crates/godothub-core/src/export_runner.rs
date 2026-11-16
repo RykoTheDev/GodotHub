@@ -508,7 +508,9 @@ pub(crate) fn wait_for_export(
             }
             #[cfg(unix)]
             {
-                let _ = std::process::Command::new("kill")
+                let mut kill = std::process::Command::new("kill");
+                crate::terminal::sanitize_child_env(&mut kill);
+                let _ = kill
                     .args(["-KILL", "--", &format!("-{}", child.id())])
                     .stdout(std::process::Stdio::null())
                     .stderr(std::process::Stdio::null())

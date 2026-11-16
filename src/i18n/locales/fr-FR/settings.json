@@ -96,8 +96,8 @@
   "tray_recent_label": "Projets récents dans la zone de notification",
   "tooltip_delay_label": "Délai des infobulles",
   "project_icon_opacity_label": "Opacité des icônes de projet",
-  "project_card_style_label": "Style des cartes de projet",
-  "project_card_style_hub": "Godot Hub",
+  "list_project_card_style_label": "List project card style",
+  "project_card_style_hub": "GodotHub",
   "project_card_style_cover": "Couverture",
   "time_format_label": "Format de l'heure (affiché si ouvert aujourd'hui)",
   "date_format_label": "Format de la date (affiché pour tout autre jour)",
@@ -229,6 +229,7 @@
   "credits": "Crédits",
   "credits_developer": "Créé par",
   "credits_built_with": "Construit avec",
+  "credits_licenses": "Open Source Licenses",
   "credits_contributors": "Contributeurs",
   "experimental": "Experimental",
   "customize_view_label": "Customize View button",
@@ -293,5 +294,7 @@
   "feature_desc_asset_store": "Browse and install addons and demos from the Godot Asset Library.",
   "feature_desc_categories": "Group your project list into folders.",
   "feature_desc_workspaces": "Switch between separate sets of projects and settings.",
-  "token_resets_in": "(resets ~{{minutes}} min)"
+  "token_resets_in": "(resets ~{{minutes}} min)",
+  "git_auth_intro": "Approve GodotHub on {{provider}} to finish signing in. Keep this window open until it's done; use Cancel to stop.",
+  "git_auth_step_current": "current step"
 }

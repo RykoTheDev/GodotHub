@@ -563,18 +563,30 @@ class _ExportTemplatesModalState extends State<ExportTemplatesModal> {
         ),
       );
     } else {
+      final hint = available.isEmpty
+          ? _tv('export_templates_all_installed')
+          : chosen.isEmpty
+          ? _tv('export_templates_select_hint')
+          : null;
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: theme.space(3),
         children: [
+          Text(
+            _tv('export_templates_keep_existing'),
+            style: theme.text(size: GhTextSize.xs, color: theme.muted, lineHeight: 1.6),
+          ),
           Row(
-            spacing: theme.space(3),
+            spacing: theme.space(2),
             children: [
-              Text(
-                _tv('export_templates_available', count: _options.length),
-                style: theme.text(size: GhTextSize.xs, color: theme.muted),
+              Expanded(
+                child: Text(
+                  _tv('export_templates_available', count: _options.length),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.ink),
+                ),
               ),
-              const Spacer(),
               GhTooltip(
                 message: _tv('export_templates_refresh'),
                 child: GhPressable(
@@ -594,32 +606,86 @@ class _ExportTemplatesModalState extends State<ExportTemplatesModal> {
                   },
                 ),
               ),
-              GhPressable(
-                onPressed: _busy || available.isEmpty
-                    ? null
-                    : () => setState(() => _selected = allSelected ? const [] : [for (final f in available) f.name]),
-                disabledOpacity: 0.4,
-                borderRadius: BorderRadius.circular(theme.radiusBtn),
-                builder: (context, states) => GhAnimatedBox(
-                  color: theme.accent.withValues(alpha: states.active ? 0.1 : 0),
-                  borderRadius: BorderRadius.circular(theme.radiusBtn),
-                  padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(1.5)),
-                  child: Text(
-                    allSelected ? _tv('clear_selection') : _tv('export_templates_select_all'),
-                    style: theme.text(size: GhTextSize.xs, color: theme.accentBright),
-                  ),
-                ),
-              ),
             ],
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: theme.space(2.5),
-            children: [for (final c in groupTemplateOptions(_options)) _category(theme, c)],
+          Semantics(
+            liveRegion: true,
+            child: Container(
+              key: const ValueKey('export-templates-summary'),
+              padding: EdgeInsets.symmetric(horizontal: theme.space(3.5), vertical: theme.space(2.5)),
+              decoration: BoxDecoration(
+                color: chosen.isEmpty ? theme.base.withValues(alpha: 0.5) : theme.accent.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(theme.radiusItem),
+                border: Border.all(color: chosen.isEmpty ? theme.line : theme.accentDim.withValues(alpha: 0.4)),
+              ),
+              child: Row(
+                spacing: theme.space(3),
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: theme.space(0.5),
+                      children: [
+                        Text(
+                          _tv('export_templates_selected', count: chosen.length),
+                          style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.ink),
+                        ),
+                        Text(
+                          hint ??
+                              _tv(
+                                'export_templates_size_summary',
+                                args: {
+                                  'download': formatBytes(_sum(chosen, (f) => f.downloadBytes)),
+                                  'installed': formatBytes(_sum(chosen, (f) => f.sizeBytes)),
+                                },
+                              ),
+                          style: theme.text(size: GhTextSize.x2s, color: theme.muted),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Flexible(
+                    child: OverflowBar(
+                      alignment: MainAxisAlignment.end,
+                      overflowAlignment: OverflowBarAlignment.end,
+                      spacing: theme.space(1.5),
+                      overflowSpacing: theme.space(1.5),
+                      children: [
+                        GhButton(
+                          key: const ValueKey('export-templates-select-all'),
+                          onPressed: _busy || available.isEmpty || allSelected
+                              ? null
+                              : () => setState(() => _selected = [for (final f in available) f.name]),
+                          label: _tv('export_templates_select_all'),
+                          variant: GhButtonVariant.subtle,
+                          size: GhTextSize.xs,
+                          paddingX: 2.5,
+                          paddingY: 1.5,
+                        ),
+                        GhButton(
+                          key: const ValueKey('export-templates-select-none'),
+                          onPressed: _busy || chosen.isEmpty ? null : () => setState(() => _selected = const []),
+                          label: _tv('export_templates_select_none'),
+                          variant: GhButtonVariant.subtle,
+                          size: GhTextSize.xs,
+                          paddingX: 2.5,
+                          paddingY: 1.5,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-          Text(
-            _tv('export_templates_keep_existing'),
-            style: theme.text(size: GhTextSize.x2s, color: theme.muted.withValues(alpha: 0.7), lineHeight: 1.625),
+          Expanded(
+            child: GhScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: theme.space(2.5),
+                children: [for (final c in groupTemplateOptions(_options)) _category(theme, c)],
+              ),
+            ),
           ),
         ],
       );
@@ -630,48 +696,22 @@ class _ExportTemplatesModalState extends State<ExportTemplatesModal> {
       maxWidth: GhModalWidth.x2l,
       bodyHeight: GhModalShell.tallBodyHeight(context),
       onClose: widget.onClose,
-      footer: [
-        Expanded(
-          child: Semantics(
-            liveRegion: true,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  _tv('export_templates_selected', count: chosen.length),
-                  style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.ink),
-                ),
-                if (chosen.isNotEmpty)
-                  Padding(
-                    padding: EdgeInsets.only(top: theme.space(1)),
-                    child: Text(
-                      _tv(
-                        'export_templates_size_summary',
-                        args: {
-                          'download': formatBytes(_sum(chosen, (f) => f.downloadBytes)),
-                          'installed': formatBytes(_sum(chosen, (f) => f.sizeBytes)),
-                        },
-                      ),
-                      style: theme.text(size: GhTextSize.x2s, color: theme.muted),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ),
-        GhButton(onPressed: widget.onClose, label: ghTr('cancel'), variant: GhButtonVariant.outline),
-        GhBusyButton(
+      footer: ghModalActions(
+        trailing: [GhButton(onPressed: widget.onClose, label: ghTr('cancel'))],
+        primary: GhBusyButton(
+          key: const ValueKey('export-templates-download'),
           onPressed: _loading || _error.isNotEmpty || _busy || chosen.isEmpty
               ? null
               : () => widget.onDownload([for (final f in chosen) f.name]),
           busy: false,
           icon: GhIcons.download,
-          paddingX: 4,
           label: _tv('export_templates_download_selected'),
         ),
-      ],
-      child: GhScrollView(padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(6)), child: body),
+      ),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(5)),
+        child: _loading || _error.isNotEmpty ? GhScrollView(child: body) : body,
+      ),
     );
   }
 }

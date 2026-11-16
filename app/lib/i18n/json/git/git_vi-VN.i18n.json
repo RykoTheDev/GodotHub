@@ -121,5 +121,10 @@
   "protected_branch_commit_anyway": "Commit anyway",
   "protected_branch_create_pr": "Create branch & open PR",
   "protected_branch_creating_pr": "Opening pull request…",
-  "pr_opened_ok": "Pushed {{branch}} and opened a pull request."
+  "pr_opened_ok": "Pushed {{branch}} and opened a pull request.",
+  "branch_name_required": "Enter a name for the new branch.",
+  "branch_name_invalid": "Branch names can't contain spaces, ~ ^ : ? * [ or a backslash, two dots in a row, or start or end with a slash or a dot.",
+  "branch_name_exists": "A branch with this name already exists.",
+  "protected_branch_confirm_title": "Commit to {{branch}} anyway?",
+  "protected_branch_confirm_desc": "This bypasses the protection on {{branch}}. The commit is made locally, and the remote may reject it when you push."
 }

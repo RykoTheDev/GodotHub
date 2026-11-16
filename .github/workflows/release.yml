@@ -8,33 +8,112 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  FLUTTER_VERSION: '3.47.9'
+  RUST_VERSION: '1.99.1'
+  TAURI_CLI_VERSION: '2.12.3'
+  NSIS_URL: 'https://github.com/tauri-apps/binary-releases/releases/download/nsis-3.13/nsis-3.13.zip'
+  NSIS_SHA256: 'ba63dffc4410ee89193e1cb5a41989991bd77c61068da17e3156d136b7b0b3d8'
+  APPLICATION_ID_URL: 'https://github.com/tauri-apps/binary-releases/releases/download/nsis-plugins-v0/NSIS-ApplicationID.zip'
+  APPLICATION_ID_SHA256: '1c2772b0edfb0f96a7524734d6c8fac1fc011f26221faf88f3ed2c950f0c06c0'
+  WIX_URL: 'https://github.com/wixtoolset/wix3/releases/download/wix3141rtm/wix314-binaries.zip'
+  WIX_SHA256: '6ac824e1642d6f7277d0ed7ea09411a508f6116ba6fae0aa5f2c7daa2ff43d31'
+  APPIMAGETOOL_URL: 'https://github.com/AppImage/appimagetool/releases/download/1.9.1/appimagetool-x86_64.AppImage'
+  APPIMAGETOOL_SHA256: 'ed4ce84f0d9caff66f50bcca6ff6f35aae54ce8135408b3fa33abfc3cb384eb0'
+  APPIMAGE_RUNTIME_URL: 'https://github.com/AppImage/type2-runtime/releases/download/20251108/runtime-x86_64'
+  APPIMAGE_RUNTIME_SHA256: '2fca8b443c92510f1483a883f60061ad09b46b978b2631c807cd873a47ec260d'
+
 jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    env:
+      TAG: ${{ github.ref_name }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check the version
+        id: version
+        run: |
+          set -euo pipefail
+          version="${TAG#v}"
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "::error::$TAG is not vX.Y.Z" >&2; exit 1; }
+          latest=$(gh release view --repo "$GITHUB_REPOSITORY" --json tagName -q .tagName 2>/dev/null || true)
+          if [ -n "$latest" ]; then
+            newest=$(printf '%s\n%s\n' "${latest#v}" "$version" | sort -V | tail -n 1)
+            if [ "$newest" != "$version" ] || [ "${latest#v}" = "$version" ]; then
+              echo "::error::$version must be higher than the latest release $latest, or installed apps will not update to it" >&2
+              exit 1
+            fi
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Check the changelog has notes for this release
+        run: RELEASE_TAG="$TAG" REPO="$GITHUB_REPOSITORY" node app/packaging/release/notes.mjs > /dev/null
+
   build:
+    needs: prepare
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         include:
           - os: windows-latest
-            rust_targets: x86_64-pc-windows-msvc
-            args: ''
+            target: windows
+            rust_targets: ''
           - os: macos-latest
+            target: macos
             rust_targets: aarch64-apple-darwin,x86_64-apple-darwin
-            args: '--target universal-apple-darwin'
-          - os: ubuntu-latest
-            rust_targets: x86_64-unknown-linux-gnu
-            args: ''
+          - os: ubuntu-22.04
+            target: linux
+            rust_targets: ''
 
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 60
+    timeout-minutes: 120
+
+    defaults:
+      run:
+        shell: bash
+
+    env:
+      VERSION: ${{ needs.prepare.outputs.version }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Rust stable
-        uses: dtolnay/rust-toolchain@stable
+      - name: Install Rust ${{ env.RUST_VERSION }}
+        uses: dtolnay/rust-toolchain@master
         with:
+          toolchain: ${{ env.RUST_VERSION }}
           targets: ${{ matrix.rust_targets }}
+
+      - name: Install Flutter ${{ env.FLUTTER_VERSION }}
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          cache: true
+
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Linux build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libx11-dev libxi-dev liblzma-dev libstdc++-12-dev zip rpm
 
       - name: Cache Rust dependencies
         uses: actions/cache@v4
@@ -42,350 +121,217 @@ jobs:
           path: |
             ~/.cargo/registry
             ~/.cargo/git
-            src-tauri/target
-          key: ${{ runner.os }}-cargo-release-${{ hashFiles('src-tauri/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-flutter-release-${{ hashFiles('Cargo.lock') }}
           restore-keys: |
-            ${{ runner.os }}-cargo-release-
+            ${{ runner.os }}-cargo-flutter-
 
-      - name: Install dependencies (Linux only)
+      - name: Read the stable channel definition from the core
+        run: |
+          set -euo pipefail
+          info=$(cargo run -q --locked -p godothub_core --example channel_info -- stable)
+          echo "$info"
+          {
+            echo "CHANNEL_ID=$(jq -r .identifier <<<"$info")"
+            echo "CHANNEL_NAME=$(jq -r .display_name <<<"$info")"
+            echo "CHANNEL_BIN=$(jq -r .cli_shim_name <<<"$info")"
+          } >> "$GITHUB_ENV"
+
+      - name: Install Flutter dependencies
+        working-directory: app
+        run: flutter pub get
+
+      - name: Regenerate Flutter locale files from src/i18n/locales
+        working-directory: app
+        run: |
+          dart run tool/i18n_convert.dart
+          dart run slang
+
+      - name: Switch the macOS project to the stable channel
+        if: runner.os == 'macOS'
+        run: bash app/packaging/macos/use_channel.sh stable "$CHANNEL_ID" "$CHANNEL_NAME"
+
+      - name: Build the stable app
+        working-directory: app
+        run: flutter build ${{ matrix.target }} --release --dart-define=CHANNEL=stable --dart-define=APP_VERSION="$VERSION" --build-name="$VERSION" --build-number="${{ github.run_number }}"
+
+      - name: Check the build has no test switches
+        working-directory: app
+        run: bash packaging/release/check_test_switches.sh build
+
+      - name: Package for Windows
+        if: runner.os == 'Windows'
+        run: |
+          set -euo pipefail
+          mkdir -p dist tools
+          curl -fsSL -o tools/ApplicationID.zip "$APPLICATION_ID_URL"
+          echo "$APPLICATION_ID_SHA256  tools/ApplicationID.zip" | sha256sum -c -
+          mkdir -p tools/plugin
+          unzip -q -o -j tools/ApplicationID.zip ReleaseUnicode/ApplicationID.dll -d tools/plugin
+          curl -fsSL -o tools/nsis.zip "$NSIS_URL"
+          echo "$NSIS_SHA256  tools/nsis.zip" | sha256sum -c -
+          unzip -q -o tools/nsis.zip -d tools
+          curl -fsSL -o tools/wix.zip "$WIX_URL"
+          echo "$WIX_SHA256  tools/wix.zip" | sha256sum -c -
+          unzip -q -o tools/wix.zip -d tools/wix
+          MAKENSIS="$PWD/tools/nsis-3.13/makensis.exe" NSIS_PLUGIN_DIR="$PWD/tools/plugin" WIX_DIR="$PWD/tools/wix" \
+            bash app/packaging/windows/package.sh stable "$VERSION" app/build/windows/x64/runner/Release dist
+
+      - name: Package for macOS
+        if: runner.os == 'macOS'
+        run: |
+          set -euo pipefail
+          bash app/packaging/macos/package.sh \
+            "app/build/macos/Build/Products/Release/$CHANNEL_NAME.app" "$VERSION" dist "$CHANNEL_ID" "$CHANNEL_NAME"
+
+      - name: Package for Linux
         if: runner.os == 'Linux'
         run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libwebkit2gtk-4.1-dev \
-            libappindicator3-dev \
-            librsvg2-dev \
-            patchelf \
-            libgtk-3-dev \
-            libsoup-3.0-dev \
-            libjavascriptcoregtk-4.1-dev
+          set -euo pipefail
+          mkdir -p dist tools
+          curl -fsSL -o tools/appimagetool "$APPIMAGETOOL_URL"
+          echo "$APPIMAGETOOL_SHA256  tools/appimagetool" | sha256sum -c -
+          curl -fsSL -o tools/runtime-x86_64 "$APPIMAGE_RUNTIME_URL"
+          echo "$APPIMAGE_RUNTIME_SHA256  tools/runtime-x86_64" | sha256sum -c -
+          chmod +x tools/appimagetool
+          bash app/packaging/linux/package.sh stable \
+            app/build/linux/x64/release/bundle "$VERSION" dist "$CHANNEL_ID" "$CHANNEL_NAME" "$CHANNEL_BIN" \
+            app/packaging/icons/stable/app_icon.png "$PWD/tools/appimagetool" "$PWD/tools/runtime-x86_64"
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-
-      - name: Install frontend dependencies
-        run: bun install
-
-      - name: TypeScript typecheck
-        run: bun run tsc --noEmit
-
-      - name: Generate release notes from changelog
-        id: release-notes
-        shell: bash
-        env:
-          RELEASE_TAG: ${{ github.ref_name }}
-          REPO: ${{ github.repository }}
+      - name: Check the glibc floor of the Linux build
+        if: runner.os == 'Linux'
         run: |
           set -euo pipefail
-          export RELEASE_TAGS="$(git ls-remote --tags --refs origin 'v*' 2>/dev/null | sed 's#.*refs/tags/##' || true)"
-          BODY=$(node - <<'EOF'
-          const fs = require('fs');
-          const tag = process.env.RELEASE_TAG;
-          const repo = process.env.REPO;
-          const version = tag.replace(/^v/i, '');
-          const entries = JSON.parse(fs.readFileSync('src-tauri/changelog.json', 'utf8'));
-          const tagOf = (e) => (e.version || '').trim().split(' ')[0];
-          const entry = entries.find((e) => tagOf(e) === tag) || entries.find((e) => tagOf(e).startsWith(tag));
-          const semver = (v) => {
-            const m = /^v?(\d+)\.(\d+)\.(\d+)$/.exec(v);
-            return m ? m.slice(1).map(Number) : null;
-          };
-          const compare = (a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
-          const current = semver(tag);
-          const previous = current
-            ? (process.env.RELEASE_TAGS || '')
-                .split('\n')
-                .map((t) => t.trim())
-                .filter((t) => semver(t) && compare(semver(t), current) < 0)
-                .sort((a, b) => compare(semver(b), semver(a)))[0]
-            : undefined;
-          const blocks = [];
-          if (entry) {
-            blocks.push(`## What's new in ${tag}`);
-            const HEADERS = { add: 'New', fix: 'Fixes', improve: 'Improvements' };
-            for (const key of ['add', 'fix', 'improve']) {
-              const items = (entry.notes || []).filter((n) => n.category === key).map((n) => n.text);
-              if (items.length) blocks.push(`### ${HEADERS[key]}\n\n` + items.map((t) => `- ${t}`).join('\n'));
-            }
-            const known = (entry.known_issues || []).filter(Boolean);
-            if (known.length) blocks.push('### Known issues\n\n' + known.map((t) => `- ${t}`).join('\n'));
-            blocks.push('---');
-          }
-          const downloadUrl = (name) =>
-            `https://github.com/${repo}/releases/download/${tag}/${encodeURIComponent(name)}`;
-          const rows = [
-            ['Windows', 'x64', 'Installer (recommended)', `GodotHub-${version}-windows-x64-setup.exe`],
-            ['Windows', 'x64', 'MSI installer', `GodotHub-${version}-windows-x64.msi`],
-            ['Windows', 'x64', 'Portable, no install', `GodotHub-${version}-windows-x64-portable.exe`],
-            ['macOS', 'Apple Silicon and Intel', 'Disk image', `GodotHub-${version}-darwin-universal.dmg`],
-            ['Linux', 'x64', 'AppImage', `GodotHub-${version}-linux-amd64.AppImage`],
-            ['Linux', 'x64', 'Debian, Ubuntu (.deb)', `GodotHub-${version}-linux-amd64.deb`],
-            ['Linux', 'x64', 'Fedora, openSUSE (.rpm)', `GodotHub-${version}-linux-x86_64.rpm`],
-          ];
-          blocks.push(
-            '## Downloads\n\n' +
-              '| Platform | Architecture | Package | Download |\n' +
-              '| --- | --- | --- | --- |\n' +
-              rows.map(([p, a, k, f]) => `| ${p} | ${a} | ${k} | [${f}](${downloadUrl(f)}) |`).join('\n'),
-          );
-          blocks.push(
-            '**Package managers**\n\n' +
-              '- winget: `winget install Ryko.GodotHub`\n' +
-              '- Scoop: `scoop bucket add extras` then `scoop install godothub`\n' +
-              '- AM (Linux): `am -i godothub`\n\n' +
-              'Already using GodotHub? It offers this update in the app.',
-          );
-          blocks.push(
-            '**AppImage not starting on Linux?**\n\n' +
-              'The AppImage does not run on every Linux setup. If it fails to start, install it with ' +
-              '[AM](https://github.com/ivan-hc/AM) instead. AM downloads the same AppImage from this page, ' +
-              'adds GodotHub to your app menu, and updates it with `am -u godothub`.\n\n' +
-              '1. Install AM:\n\n' +
-              '```bash\n' +
-              'wget -q https://raw.githubusercontent.com/ivan-hc/AM/main/AM-INSTALLER && chmod a+x ./AM-INSTALLER && ./AM-INSTALLER && rm ./AM-INSTALLER\n' +
-              '```\n\n' +
-              '2. Install GodotHub:\n\n' +
-              '```bash\n' +
-              'am -i godothub\n' +
-              '```\n\n' +
-              'If you chose AppMan in the AM installer, use `appman -i godothub` instead.',
-          );
-          if (previous) {
-            blocks.push(`**Full changelog:** [${previous}...${tag}](https://github.com/${repo}/compare/${previous}...${tag})`);
-          }
-          console.log(blocks.join('\n\n'));
-          EOF
-          )
-          {
-            echo "body<<GH_RELEASE_NOTES"
-            echo "$BODY"
-            echo "GH_RELEASE_NOTES"
-          } >> "$GITHUB_OUTPUT"
+          floor=$(find app/build/linux/x64/release/bundle -type f -exec sh -c 'file -b "$1" | grep -q ELF && objdump -T "$1"' _ {} \; \
+            | grep -o 'GLIBC_[0-9.]*' | sed 's/GLIBC_//' | sort -V | tail -n 1)
+          echo "The Linux build needs glibc $floor or newer"
+          test "$(printf '%s\n2.35\n' "$floor" | sort -V | tail -n 1)" = 2.35
 
-      - name: Resolve release asset names
-        id: naming
-        shell: bash
+      - name: Sign the update artifacts
         env:
-          RELEASE_TAG: ${{ github.ref_name }}
-        run: |
-          set -euo pipefail
-          version="${RELEASE_TAG#v}"
-          # Beautified asset names start with v1.4.4. Earlier tags must keep
-          # Tauri's default CLI names because already-installed builds of those
-          # versions look for them, so the new layout turns itself on only once
-          # the tag reaches FIRST_BEAUTIFIED.
-          FIRST_BEAUTIFIED="1.4.4"
-          older=$(printf '%s\n%s\n' "$FIRST_BEAUTIFIED" "$version" | sort -V | head -n1)
-          if [ "$older" = "$FIRST_BEAUTIFIED" ]; then
-            pattern='[name]-[version]-[platform]-[arch][setup].[ext]'
-            portable="GodotHub-${version}-windows-x64-portable.exe"
-          else
-            pattern=''
-            portable='GodotHub.exe'
-          fi
-          {
-            echo "pattern=$pattern"
-            echo "portable=$portable"
-          } >> "$GITHUB_OUTPUT"
-          echo "asset name pattern: ${pattern:-<tauri default>}"
-          echo "portable executable: $portable"
-
-      - name: Build Tauri app & publish release
-        uses: tauri-apps/tauri-action@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
-        with:
-          args: ${{ matrix.args }}
-          releaseAssetNamePattern: ${{ steps.naming.outputs.pattern }}
-          tagName: ${{ github.ref_name }}
-          releaseName: 'GodotHub ${{ github.ref_name }}'
-          releaseBody: ${{ steps.release-notes.outputs.body }}
-          releaseDraft: true
-          uploadUpdaterJson: false
-          uploadUpdaterSignatures: true
-
-      - name: Upload standalone executable (Windows only)
-        if: runner.os == 'Windows'
-        shell: bash
         run: |
-          cp "src-tauri/target/release/GodotHub.exe" "${{ steps.naming.outputs.portable }}"
-          gh release upload "${{ github.ref_name }}" \
-            "${{ steps.naming.outputs.portable }}" \
-            --clobber
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    
-  generate-latest-json:
-    needs: build
-    if: ${{ !cancelled() }}
+          set -euo pipefail
+          test -n "$TAURI_SIGNING_PRIVATE_KEY" || { echo "::error::TAURI_SIGNING_PRIVATE_KEY is not set" >&2; exit 1; }
+          tauri="npx --yes @tauri-apps/cli@$TAURI_CLI_VERSION"
+          shopt -s nullglob
+          signed=0
+          for artifact in dist/*-setup.exe dist/*-windows-x64.zip dist/*.msi dist/*.app.tar.gz dist/*.AppImage dist/*.deb dist/*.rpm; do
+            $tauri signer sign "$artifact"
+            test -s "$artifact.sig"
+            signed=$((signed + 1))
+          done
+          case "$RUNNER_OS" in
+            Windows) test "$signed" -eq 3 ;;
+            macOS) test "$signed" -eq 1 ;;
+            Linux) test "$signed" -eq 3 ;;
+          esac
+
+      - name: Upload the packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-${{ matrix.target }}
+          path: dist/*
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    needs: [prepare, build]
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TAG: ${{ github.ref_name }}
+      VERSION: ${{ needs.prepare.outputs.version }}
+      REPO: ${{ github.repository }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      - name: Generate latest-v2.json and upload the frozen legacy latest.json
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.ref_name }}
-          REPO: ${{ github.repository }}
+      - name: Install Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Download the packages
+        uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: dist
+          merge-multiple: true
+
+      - name: Check the asset names
         run: |
           set -euo pipefail
-          # The releases/tags/{tag} endpoint 404s while the release is still a
-          # draft, so find the release via the (draft-inclusive) list endpoint.
-          release_id=$(gh api --paginate "repos/$REPO/releases" \
-            --jq "map(select(.tag_name == \"$TAG\")) | .[0].id // empty")
-          if [ -z "$release_id" ]; then
-            echo "no release found for tag $TAG" >&2
+          expected=(
+            "GodotHub-$VERSION-windows-x64-setup.exe"
+            "GodotHub-$VERSION-windows-x64-setup.exe.sig"
+            "GodotHub-$VERSION-windows-x64.msi"
+            "GodotHub-$VERSION-windows-x64.msi.sig"
+            "GodotHub-$VERSION-windows-x64.zip"
+            "GodotHub-$VERSION-windows-x64.zip.sig"
+            "GodotHub-$VERSION-windows-x64-portable.zip"
+            "GodotHub-$VERSION-darwin-universal.dmg"
+            "GodotHub-$VERSION-darwin-universal.app.tar.gz"
+            "GodotHub-$VERSION-darwin-universal.app.tar.gz.sig"
+            "GodotHub-$VERSION-linux-amd64.AppImage"
+            "GodotHub-$VERSION-linux-amd64.AppImage.sig"
+            "GodotHub-$VERSION-linux-amd64.deb"
+            "GodotHub-$VERSION-linux-amd64.deb.sig"
+            "GodotHub-$VERSION-linux-x86_64.rpm"
+            "GodotHub-$VERSION-linux-x86_64.rpm.sig"
+          )
+          actual=$(ls dist | sort)
+          wanted=$(printf '%s\n' "${expected[@]}" | sort)
+          if [ "$actual" != "$wanted" ]; then
+            diff <(echo "$wanted") <(echo "$actual") >&2 || true
             exit 1
           fi
-          release=$(gh api "repos/$REPO/releases/$release_id")
-          gh api --paginate "repos/$REPO/releases/$release_id/assets" > assets.json
-          mkdir -p sigs
-          while IFS=$'\t' read -r asset_id asset_name; do
-            gh api -H "Accept: application/octet-stream" \
-              "repos/$REPO/releases/assets/$asset_id" > "sigs/$asset_name"
-          done < <(jq -r '.[] | select(.name | endswith(".sig")) | [.id, .name] | @tsv' assets.json)
-          export NOTES="$(printf '%s' "$release" | jq -r '.body // ""')"
-          node - <<'EOF'
-          const fs = require('fs');
-          const TAG = process.env.TAG;
-          const REPO = process.env.REPO;
-          const NOTES = (process.env.NOTES || '')
-            .replace(/(^|\r?\n)(?:---[ \t]*\r?\n(?:[ \t]*\r?\n)*)?## Downloads[\s\S]*$/, '')
-            .trimEnd();
-          const version = TAG.replace(/^v/i, '');
-          const assets = JSON.parse(fs.readFileSync('assets.json', 'utf8'));
-          const sigAssets = assets.filter((a) => a.name.endsWith('.sig'));
-          if (sigAssets.length === 0) {
-            throw new Error('no .sig files found on the release; are updater artifacts enabled?');
-          }
-          const signatures = new Map();
-          for (const a of sigAssets) {
-            const artifactName = a.name.slice(0, -'.sig'.length);
-            signatures.set(artifactName, fs.readFileSync(`sigs/${a.name}`, 'utf8').trim());
-          }
-          const taggedUrl = (name) =>
-            `https://github.com/${REPO}/releases/download/${TAG}/${encodeURIComponent(name)}`;
-          const normArch = (a) => {
-            if (['amd64', 'x86_64', 'x64'].includes(a)) return 'x86_64';
-            if (['x86', 'i386', 'i686'].includes(a)) return 'i686';
-            if (['arm64', 'aarch64'].includes(a)) return 'aarch64';
-            if (['arm', 'armv7', 'armhf'].includes(a)) return 'armv7';
-            return a;
-          };
-          const classify = (name) => {
-            let m;
-            // v1.4.4+ assets carry an explicit platform token, e.g.
-            // GodotHub-1.4.4-windows-x64-setup.exe or
-            // GodotHub-1.4.4-darwin-universal.app.tar.gz. Older tags keep
-            // Tauri's default CLI names, so both shapes are parsed here.
-            if ((m = name.match(/-(windows|darwin|macos|linux)-([a-zA-Z0-9_]+)/))) {
-              const os = m[1] === 'macos' ? 'darwin' : m[1];
-              const arch = normArch(m[2]);
-              if (/\.app\.tar\.gz$/.test(name)) return { os, arch, installer: 'app' };
-              if (/\.AppImage$/.test(name)) return { os, arch, installer: 'appimage' };
-              if (/\.deb$/.test(name)) return { os, arch, installer: 'deb' };
-              if (/\.rpm$/.test(name)) return { os, arch, installer: 'rpm' };
-              if (/-setup\.exe$/.test(name)) return { os, arch, installer: 'nsis' };
-              if (/\.msi$/.test(name)) return { os, arch, installer: 'msi' };
-              return null;
-            }
-            if ((m = name.match(/_([a-zA-Z0-9]+)\.app\.tar\.gz$/)))
-              return { os: 'darwin', arch: normArch(m[1]), installer: 'app' };
-            if ((m = name.match(/_([a-zA-Z0-9]+)\.AppImage$/)))
-              return { os: 'linux', arch: normArch(m[1]), installer: 'appimage' };
-            if ((m = name.match(/_([a-zA-Z0-9]+)\.deb$/)))
-              return { os: 'linux', arch: normArch(m[1]), installer: 'deb' };
-            if ((m = name.match(/\.([a-zA-Z0-9_]+)\.rpm$/)))
-              return { os: 'linux', arch: normArch(m[1]), installer: 'rpm' };
-            if ((m = name.match(/_([a-zA-Z0-9]+)-setup\.exe$/)))
-              return { os: 'windows', arch: normArch(m[1]), installer: 'nsis' };
-            if ((m = name.match(/_([a-zA-Z0-9]+)(?:_[a-zA-Z-]+)?\.msi$/)))
-              return { os: 'windows', arch: normArch(m[1]), installer: 'msi' };
-            return null;
-          };
-          // Mirrors updaterJsonPreferNsis: the NSIS setup.exe owns the base windows key.
-          const preferNsis = true;
-          const isPreferredBase = (c) => {
-            if (c.os === 'darwin') return c.installer === 'app';
-            if (c.os === 'linux') return c.installer === 'appimage';
-            if (c.os === 'windows') return preferNsis ? c.installer === 'nsis' : c.installer === 'msi';
-            return false;
-          };
-          const artifacts = [];
-          for (const [name, signature] of signatures) {
-            const c = classify(name);
-            if (!c) {
-              // Every .sig on the release is an updater artifact, so failing to
-              // recognize one must fail the job instead of silently publishing
-              // a latest.json that is missing that platform.
-              throw new Error(`unrecognized updater artifact: ${name}`);
-            }
-            artifacts.push({ name, signature, ...c });
-          }
-          const hasNativeArm = artifacts.some((a) => a.os === 'darwin' && a.arch === 'aarch64');
-          const hasNativeX64 = artifacts.some((a) => a.os === 'darwin' && a.arch === 'x86_64');
-          const platforms = {};
-          const set = (key, entry) => { platforms[key] = entry; };
-          // Deterministic ordering (OS, then installer, then name) so the file
-          // looks the same on every runner and matches the old v1.2.5 layout.
-          const osOrder = { darwin: 0, linux: 1, windows: 2 };
-          const installerOrder = { app: 0, appimage: 1, deb: 2, rpm: 3, nsis: 4, msi: 5 };
-          artifacts.sort(
-            (a, b) =>
-              (osOrder[a.os] ?? 9) - (osOrder[b.os] ?? 9) ||
-              (installerOrder[a.installer] ?? 9) - (installerOrder[b.installer] ?? 9) ||
-              (a.name < b.name ? -1 : a.name > b.name ? 1 : 0),
-          );
-          for (const a of artifacts) {
-            const entry = { signature: a.signature, url: taggedUrl(a.name) };
-            if (isPreferredBase(a)) {
-              if (a.os === 'darwin' && a.arch === 'universal') {
-                if (!platforms['darwin-aarch64'] || !hasNativeArm) set('darwin-aarch64', entry);
-                if (!platforms['darwin-x86_64'] || !hasNativeX64) set('darwin-x86_64', entry);
-                set('darwin-universal', entry);
-              } else {
-                set(`${a.os}-${a.arch}`, entry);
-              }
-            }
-            if (a.os === 'darwin' && a.arch === 'universal') {
-              if (!platforms['darwin-aarch64-app'] || !hasNativeArm) set('darwin-aarch64-app', entry);
-              if (!platforms['darwin-x86_64-app'] || !hasNativeX64) set('darwin-x86_64-app', entry);
-              set('darwin-universal-app', entry);
-            } else {
-              set(`${a.os}-${a.arch}-${a.installer}`, entry);
-            }
-          }
-          if (Object.keys(platforms).length === 0) {
-            throw new Error('could not derive any platform entries from the release signatures');
-          }
-          const missing = ['windows-x86_64', 'linux-x86_64'].filter((key) => !platforms[key]);
-          if (missing.length) {
-            throw new Error(`required platforms missing from the release: ${missing.join(', ')}`);
-          }
-          const manifest = { version, notes: NOTES, pub_date: new Date().toISOString(), platforms };
-          fs.writeFileSync('latest-v2.json', JSON.stringify(manifest, null, 2));
-          console.log(`wrote latest-v2.json with ${Object.keys(platforms).length} platform entries`);
-          EOF
-          cp .github/updater/legacy-latest.json latest.json
-          gh release upload "$TAG" latest-v2.json latest.json --repo "$REPO" --clobber
+
+      - name: Write the release notes
+        run: |
+          set -euo pipefail
+          mkdir -p release
+          previous=$(git tag --list 'v*' --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' \
+            | while read -r t; do if [ "$(printf '%s\n%s\n' "${t#v}" "$VERSION" | sort -V | head -n 1)" = "${t#v}" ] && [ "${t#v}" != "$VERSION" ]; then echo "$t"; break; fi; done)
+          RELEASE_TAG="$TAG" PREVIOUS_TAG="$previous" node app/packaging/release/notes.mjs > release/notes.md
+          cat release/notes.md
+
+      - name: Check every download link matches an uploaded file
+        run: RELEASE_TAG="$TAG" node app/packaging/release/check_note_links.mjs release/notes.md dist
+
+      - name: Write latest-v2.json and the frozen latest.json
+        run: |
+          set -euo pipefail
+          NOTES="$(cat release/notes.md)" CHANNEL=stable RELEASE_TAG="$TAG" ASSETS_DIR=dist OUT=release/latest-v2.json \
+            node app/packaging/release/latest_json.mjs
+          cp .github/updater/legacy-latest.json release/latest.json
+          cmp release/latest.json .github/updater/legacy-latest.json
+          node -e '
+            const m = JSON.parse(require("fs").readFileSync("release/latest-v2.json", "utf8"));
+            if (m.version !== process.env.VERSION) throw new Error(`latest-v2.json says ${m.version}, not ${process.env.VERSION}`);
+            if (m.notes.includes("## Downloads")) throw new Error("latest-v2.json notes still contain the Downloads section");
+          '
+          cat release/latest-v2.json
+
+      - name: Upload everything to a draft release
+        run: |
+          set -euo pipefail
+          gh release create "$TAG" --repo "$REPO" --verify-tag --draft \
+            --title "GodotHub $TAG" --notes-file release/notes.md \
+            dist/* release/latest-v2.json release/latest.json
+
+      - name: Publish it as the latest release
+        run: gh release edit "$TAG" --repo "$REPO" --draft=false --latest
 
   publish-to-winget:
-    needs: [build, generate-latest-json]
+    needs: [prepare, publish]
     runs-on: ubuntu-latest
-    if: ${{ !cancelled() && needs.generate-latest-json.result == 'success' && startsWith(github.ref, 'refs/tags/') }}
+    if: ${{ !cancelled() && needs.publish.result == 'success' }}
 
     steps:
-      - name: Strip 'v' prefix from tag
-        id: version
-        run: |
-          VERSION="${{ github.ref_name }}"
-          VERSION="${VERSION#v}"  # Remove leading 'v' if present
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
-
       - name: Sync winget-pkgs fork
         env:
           GH_TOKEN: ${{ secrets.WINGET_TOKEN }}
@@ -398,6 +344,6 @@ jobs:
         uses: vedantmgoyal9/winget-releaser@v2
         with:
           identifier: Ryko.GodotHub
-          token: ${{ secrets.WINGET_TOKEN }}
-          version: ${{ steps.version.outputs.version }}
           installers-regex: '\.msi$'
+          token: ${{ secrets.WINGET_TOKEN }}
+          version: ${{ needs.prepare.outputs.version }}

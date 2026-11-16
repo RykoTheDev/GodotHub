@@ -121,5 +121,10 @@
   "protected_branch_commit_anyway": "このままコミット",
   "protected_branch_create_pr": "ブランチと PR を作成",
   "protected_branch_creating_pr": "PR を作成中…",
-  "pr_opened_ok": "{{branch}} をプッシュし、プルリクエストを作成しました。"
+  "pr_opened_ok": "{{branch}} をプッシュし、プルリクエストを作成しました。",
+  "branch_name_required": "Enter a name for the new branch.",
+  "branch_name_invalid": "Branch names can't contain spaces, ~ ^ : ? * [ or a backslash, two dots in a row, or start or end with a slash or a dot.",
+  "branch_name_exists": "A branch with this name already exists.",
+  "protected_branch_confirm_title": "Commit to {{branch}} anyway?",
+  "protected_branch_confirm_desc": "This bypasses the protection on {{branch}}. The commit is made locally, and the remote may reject it when you push."
 }

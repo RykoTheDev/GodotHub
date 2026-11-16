@@ -1,0 +1,20 @@
+[
+  {
+    "tag": "4.2.2-stable",
+    "version": "4.2.2",
+    "executable_path": "__ROOT__/godot/4.2.2/Godot_v4.2.2-stable_win64.exe",
+    "is_mono": false,
+    "installed_at": "2026-07-21T13:40:00Z",
+    "custom_name": "Main 4.2",
+    "install_root": "__ROOT__/godot/4.2.2"
+  },
+  {
+    "tag": "4.1.4-stable",
+    "version": "4.1.4",
+    "executable_path": "__ROOT__/godot/4.1.4/Godot_v4.1.4-stable_win64.exe",
+    "is_mono": false,
+    "installed_at": "2026-07-21T13:40:00Z",
+    "custom_name": "Old LTS",
+    "install_root": "__ROOT__/godot/4.1.4"
+  }
+]

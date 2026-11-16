@@ -43,7 +43,6 @@ pub enum AppEventKind {
     TemplateSynced,
     GitProjectChanged,
     SecondInstance,
-    DiscordConnected,
     ShowMainWindow,
     HideMainWindow,
     RefreshMenus,
@@ -109,7 +108,6 @@ pub struct AppEvent {
     pub export_templates_error: Option<ExportTemplatesError>,
     pub asset_download_progress: Option<AssetDownloadProgress>,
     pub asset_download_error: Option<AssetDownloadError>,
-    pub flag: Option<bool>,
 }
 
 impl AppEvent {
@@ -134,7 +132,6 @@ impl AppEvent {
             export_templates_error: None,
             asset_download_progress: None,
             asset_download_error: None,
-            flag: None,
         }
     }
 }
@@ -174,7 +171,6 @@ fn kind_of(name: &str) -> AppEventKind {
         "watcher:template-synced" => TemplateSynced,
         "git:project-changed" => GitProjectChanged,
         "app:second-instance" => SecondInstance,
-        godothub_core::discord::CONNECTED_EVENT => DiscordConnected,
         crate::host::SHOW_MAIN_WINDOW_EVENT => ShowMainWindow,
         crate::host::HIDE_MAIN_WINDOW_EVENT => HideMainWindow,
         crate::host::REFRESH_MENUS_EVENT => RefreshMenus,
@@ -198,7 +194,6 @@ pub(crate) fn decode(name: &str, json: &str) -> AppEvent {
         ExportStarted | ExportFinished => event.export_run = parse(json),
         GodotDownloadQueue => event.queue = parse(json),
         SecondInstance => event.args = parse(json),
-        DiscordConnected => event.flag = parse(json),
         GodotDownloadProgress => event.download_progress = parse(json),
         GodotDownloadError => event.download_failure = parse(json),
         GodotDownloadUnverified => event.download_unverified = parse(json),

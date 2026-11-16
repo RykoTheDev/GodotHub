@@ -99,7 +99,7 @@ class TitleBar extends ConsumerWidget {
         data: TooltipTheme.of(context).copyWith(waitDuration: Duration(milliseconds: settings.tooltipDelay)),
         child: Container(
           key: const ValueKey('titlebar'),
-          height: showControls ? 32 : 44,
+          height: showControls ? 38 : 44,
           decoration: BoxDecoration(
             color: background,
             border: settings.cardLayout ? null : Border(bottom: BorderSide(color: tokens.line)),

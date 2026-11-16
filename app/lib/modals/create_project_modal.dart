@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -184,11 +185,9 @@ class _CreateProjectModalState extends ConsumerState<CreateProjectModal> {
     if (_busy || _finished) return;
     final name = _name.text.trim();
     final location = _location.text;
-    if (name.isEmpty || location.isEmpty) {
-      setState(() {
-        _attempted = true;
-        _error = ghTr('create_project_error');
-      });
+    setState(() => _attempted = true);
+    if (name.isEmpty || location.isEmpty || _nameError != null) {
+      _nameNode.requestFocus();
       return;
     }
     setState(() {
@@ -242,6 +241,27 @@ class _CreateProjectModalState extends ConsumerState<CreateProjectModal> {
     }
   }
 
+  String get _folderName =>
+      applyNamingConvention(_name.text.trim(), NamingConvention.parse(ref.read(settingsProvider).value?.directoryNamingConvention ?? ''));
+
+  String get _targetPath {
+    final dir = _location.text;
+    final folder = _folderName;
+    if (dir.isEmpty) return folder;
+    final separator = dir.contains(r'\') && !dir.contains('/') ? r'\' : '/';
+    return dir.endsWith('/') || dir.endsWith(r'\') ? '$dir$folder' : '$dir$separator$folder';
+  }
+
+  String? get _nameError {
+    final name = _name.text.trim();
+    if (name.isEmpty) return _attempted ? ghTr('create_project_name_required') : null;
+    if (!isValidFolderName(_folderName)) return ghTr('folder_name_invalid_chars');
+    if (_location.text.isNotEmpty && Directory(_targetPath).existsSync()) return ghTr('duplicate_folder_exists');
+    return null;
+  }
+
+  String? get _locationError => _attempted && _location.text.isEmpty ? ghTr('create_project_location_required') : null;
+
   Widget _input(
     GhTheme theme, {
     required TextEditingController controller,
@@ -252,6 +272,7 @@ class _CreateProjectModalState extends ConsumerState<CreateProjectModal> {
     VoidCallback? onTap,
     ValueChanged<String>? onSubmitted,
     Color? textColor,
+    String? semanticLabel,
   }) => GhTextInput(
     controller: controller,
     focusNode: focusNode,
@@ -262,6 +283,7 @@ class _CreateProjectModalState extends ConsumerState<CreateProjectModal> {
     onSubmitted: onSubmitted,
     mono: true,
     textColor: textColor,
+    semanticLabel: semanticLabel,
     background: theme.overlay,
     placeholderColor: theme.muted.withValues(alpha: 0.7),
     borderColor: invalid ? theme.danger.withValues(alpha: 0.7) : theme.outline.withValues(alpha: 0.5),
@@ -270,36 +292,31 @@ class _CreateProjectModalState extends ConsumerState<CreateProjectModal> {
     padding: EdgeInsets.symmetric(horizontal: theme.space(3.5), vertical: theme.space(2.5)),
   );
 
-  Widget _outline(
-    GhTheme theme, {
-    required String label,
-    required VoidCallback? onPressed,
-    GhTextSize size = GhTextSize.xs,
-    double px = 3,
-    double py = 2,
-    bool danger = false,
-  }) {
-    final radius = BorderRadius.circular(theme.radiusBtn);
-    return GhPressable(
-      onPressed: onPressed,
-      borderRadius: radius,
-      builder: (context, states) {
-        final hover = states.active;
-        return GhAnimatedBox(
-          color: hover ? (danger ? theme.danger.withValues(alpha: 0.1) : theme.raised) : theme.raised.withValues(alpha: 0),
-          borderRadius: radius,
-          border: Border.all(
-            color: hover ? (danger ? theme.danger.withValues(alpha: 0.3) : theme.accentDim) : theme.outline.withValues(alpha: 0.5),
+  Widget _hint(GhTheme theme, {required String text, bool error = false}) => Padding(
+    padding: EdgeInsetsDirectional.only(start: theme.space(1), top: theme.space(1.5)),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: theme.space(1.5),
+      children: [
+        Padding(
+          padding: EdgeInsets.only(top: theme.space(0.25)),
+          child: GhIcon(
+            error ? GhIcons.alertTriangle : GhIcons.folder,
+            size: theme.space(3),
+            color: error ? theme.danger : theme.accentBright.withValues(alpha: 0.7),
           ),
-          padding: EdgeInsets.symmetric(horizontal: theme.space(px), vertical: theme.space(py)),
+        ),
+        Expanded(
           child: Text(
-            label,
-            style: theme.text(size: size, color: danger ? (hover ? theme.danger : theme.muted) : theme.ink),
+            text,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: theme.text(size: GhTextSize.x2s, mono: !error, color: error ? theme.danger : theme.muted, lineHeight: 1.5),
           ),
-        );
-      },
-    );
-  }
+        ),
+      ],
+    ),
+  );
 
   Widget _section(GhTheme theme, String label, List<Widget> chips, {Widget? after}) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -327,7 +344,7 @@ class _CreateProjectModalState extends ConsumerState<CreateProjectModal> {
           children: [
             Text(
               label,
-              style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.ink),
+              style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.ink),
             ),
             Padding(
               padding: EdgeInsets.only(top: theme.space(1)),
@@ -343,71 +360,377 @@ class _CreateProjectModalState extends ConsumerState<CreateProjectModal> {
     ],
   );
 
-  Widget _box(GhTheme theme, {required double padding, required List<Widget> children}) => Container(
-    padding: EdgeInsets.all(theme.space(padding)),
-    decoration: BoxDecoration(
-      color: theme.overlay,
-      borderRadius: BorderRadius.circular(theme.radiusItem),
-      border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
+  Widget _notice(GhTheme theme, {required Color color, required FaIconData icon, String? title, required String text}) => Semantics(
+    liveRegion: true,
+    child: Container(
+      padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(3.5)),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(theme.radiusItem),
+        border: Border.all(color: color.withValues(alpha: 0.25)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: theme.space(3),
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top: theme.space(0.5)),
+            child: GhIcon(icon, size: theme.space(4), color: color),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: theme.space(1),
+              children: [
+                if (title != null)
+                  Text(
+                    title,
+                    style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: color),
+                  ),
+                SelectableText(
+                  text,
+                  style: theme.text(size: GhTextSize.xs, color: title != null ? theme.muted : color, lineHeight: 1.625),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     ),
-    child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: theme.space(2.5), children: children),
   );
 
-  Widget _notice(GhTheme theme, {required Color color, required FaIconData icon, String? title, required String text}) => Padding(
-    padding: EdgeInsets.symmetric(horizontal: theme.space(6)),
-    child: Semantics(
-      liveRegion: true,
-      child: Container(
-        padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(3)),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(theme.radiusItem),
-          border: Border.all(color: color.withValues(alpha: 0.25)),
+  Widget _iconTile(GhTheme theme, Translations$common$en_US tr) {
+    final icon = _iconPreview;
+    final size = theme.space(16);
+    final radius = BorderRadius.circular(theme.radiusTile);
+    return Column(
+      spacing: theme.space(1),
+      children: [
+        Tooltip(
+          message: tr.icon_format_desc,
+          child: GhPressable(
+            key: const ValueKey('create-project-icon'),
+            onPressed: _busy ? null : _pickIcon,
+            borderRadius: radius,
+            semanticLabel: _iconPath != null ? tr.change_icon : tr.choose_icon,
+            builder: (context, states) => GhAnimatedBox(
+              width: size,
+              height: size,
+              alignment: Alignment.center,
+              color: theme.overlay,
+              borderRadius: radius,
+              border: Border.all(color: states.active ? theme.accentDim : theme.outline.withValues(alpha: 0.5)),
+              child: ClipRRect(
+                borderRadius: radius,
+                child: icon != null
+                    ? ProjectIconImage(url: icon)
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        spacing: theme.space(1),
+                        children: [
+                          SvgPicture.string(
+                            '<svg viewBox="0 0 24 24" fill="none" stroke="${_hex(states.active ? theme.accentBright : theme.muted)}" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="$_iconPresetPath"/></svg>',
+                            width: theme.space(6),
+                            height: theme.space(6),
+                          ),
+                          Text(
+                            tr.choose_icon,
+                            style: theme.text(size: GhTextSize.x3s, color: states.active ? theme.ink : theme.muted),
+                          ),
+                        ],
+                      ),
+              ),
+            ),
+          ),
         ),
-        child: Row(
+        if (_iconPath != null)
+          GhButton(
+            onPressed: _busy
+                ? null
+                : () => setState(() {
+                    _iconPath = null;
+                    _iconPreview = null;
+                  }),
+            label: tr.reset,
+            variant: GhButtonVariant.subtle,
+            size: GhTextSize.x2s,
+            paddingX: 2,
+            paddingY: 1,
+          ),
+      ],
+    );
+  }
+
+  Widget _versionControl(GhTheme theme, Translations$common$en_US tr, bool locked) {
+    final auth = _gitAuth;
+    return Container(
+      padding: EdgeInsets.all(theme.space(4)),
+      decoration: BoxDecoration(
+        color: theme.overlay,
+        borderRadius: BorderRadius.circular(theme.radiusItem),
+        border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: theme.space(3.5),
+        children: [
+          _switchRow(
+            theme,
+            label: tr.init_git_label,
+            description: _gitAvailable ? tr.init_git_desc : tr.init_git_unavailable,
+            checked: _initGit,
+            disabled: locked || !_gitAvailable,
+            onChanged: (v) => setState(() {
+              _initGit = v;
+              if (!v) _remoteEnabled = false;
+            }),
+          ),
+          if (_initGit && _gitAvailable) ...[
+            Wrap(
+              spacing: theme.space(5),
+              runSpacing: theme.space(2),
+              children: [
+                GhCheckbox(
+                  checked: _gitignore,
+                  disabled: _busy,
+                  onChanged: (v) => setState(() => _gitignore = v),
+                  child: Text(tr.git_option_gitignore),
+                ),
+                GhCheckbox(
+                  checked: _gitattributes,
+                  disabled: _busy,
+                  onChanged: (v) => setState(() => _gitattributes = v),
+                  child: Text(tr.git_option_gitattributes),
+                ),
+                GhCheckbox(
+                  checked: _readme,
+                  disabled: _busy,
+                  onChanged: (v) => setState(() => _readme = v),
+                  child: Text(tr.git_option_readme),
+                ),
+              ],
+            ),
+            _section(theme, tr.git_option_license, [
+              GhChoiceChip(
+                label: tr.git_option_no_license,
+                active: _license.isEmpty,
+                tone: GhChoiceTone.muted,
+                onPressed: () => setState(() => _license = ''),
+              ),
+              for (final lic in _licenses)
+                GhChoiceChip(label: lic, active: _license == lic, onPressed: () => setState(() => _license = lic)),
+            ]),
+            if (_hasRemoteAuth) ...[
+              Container(height: 1, color: theme.line),
+              _switchRow(
+                theme,
+                label: tr.create_remote_label,
+                description: tr.create_remote_desc,
+                checked: _remoteEnabled,
+                disabled: locked,
+                onChanged: (v) => setState(() => _remoteEnabled = v),
+              ),
+              if (_remoteEnabled)
+                Wrap(
+                  spacing: theme.space(1.5),
+                  runSpacing: theme.space(1.5),
+                  children: [
+                    if (auth?.github != null)
+                      GhChoiceChip(
+                        label: 'GitHub',
+                        active: _remoteProvider == 'github',
+                        onPressed: () => setState(() => _remoteProvider = 'github'),
+                      ),
+                    if (auth?.gitlab != null)
+                      GhChoiceChip(
+                        label: 'GitLab',
+                        active: _remoteProvider == 'gitlab',
+                        onPressed: () => setState(() => _remoteProvider = 'gitlab'),
+                      ),
+                    for (final private in const [true, false])
+                      GhChoiceChip(
+                        label: private ? tr.remote_private : tr.remote_public,
+                        active: _remotePrivate == private,
+                        tone: GhChoiceTone.mint,
+                        onPressed: () => setState(() => _remotePrivate = private),
+                      ),
+                  ],
+                ),
+            ],
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _form(GhTheme theme, Translations$common$en_US tr, bool locked) {
+    final versions = widget.installedVersions;
+    final nameError = _nameError;
+    final locationError = _locationError;
+    final hasName = _name.text.trim().isNotEmpty;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: theme.space(5),
+      children: [
+        Row(
           crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: theme.space(2.5),
+          spacing: theme.space(4),
           children: [
-            Padding(
-              padding: EdgeInsets.only(top: theme.space(0.5)),
-              child: GhIcon(icon, size: theme.space(4), color: color),
+            Column(
+              children: [
+                ExcludeSemantics(
+                  child: Visibility(
+                    visible: false,
+                    maintainSize: true,
+                    maintainAnimation: true,
+                    maintainState: true,
+                    child: GhFieldLabel(tr.project_name_label, inset: true),
+                  ),
+                ),
+                SizedBox(height: theme.space(0.5)),
+                _iconTile(theme, tr),
+              ],
             ),
             Expanded(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (title != null)
-                    Text(
-                      title,
-                      style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: color),
-                    ),
-                  Padding(
-                    padding: EdgeInsets.only(top: title != null ? theme.space(1) : 0),
-                    child: Text(
-                      text,
-                      style: theme.text(size: GhTextSize.xs, color: title != null ? theme.muted : color, lineHeight: 1.625),
-                    ),
+                  GhFieldLabel(tr.project_name_label, inset: true),
+                  SizedBox(height: theme.space(0.5)),
+                  _input(
+                    theme,
+                    controller: _name,
+                    focusNode: _nameNode,
+                    invalid: nameError != null,
+                    placeholder: _placeholder,
+                    semanticLabel: tr.project_name_label,
+                    onSubmitted: (_) => _submit(),
                   ),
+                  if (nameError != null)
+                    _hint(theme, text: nameError, error: true)
+                  else
+                    _hint(theme, text: hasName ? ghTr('create_project_path_preview', args: {'path': _targetPath}) : tr.folder_name_hint),
                 ],
               ),
             ),
           ],
         ),
-      ),
-    ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            GhFieldLabel(tr.project_location_label, inset: true),
+            SizedBox(height: theme.space(0.5)),
+            Row(
+              spacing: theme.space(2.5),
+              children: [
+                Expanded(
+                  child: _input(
+                    theme,
+                    controller: _location,
+                    invalid: locationError != null,
+                    placeholder: tr.choose_folder_placeholder,
+                    readOnly: true,
+                    onTap: _pickLocation,
+                    textColor: theme.muted,
+                    semanticLabel: tr.project_location_label,
+                  ),
+                ),
+                GhButton(
+                  onPressed: locked ? null : _pickLocation,
+                  label: tr.browse,
+                  icon: GhIcons.folder,
+                  variant: GhButtonVariant.outline,
+                ),
+              ],
+            ),
+            if (locationError != null) _hint(theme, text: locationError, error: true),
+          ],
+        ),
+        _section(
+          theme,
+          tr.godot_version_label,
+          [
+            for (final v in versions)
+              GhChoiceChip(
+                label: (v.customName?.isNotEmpty ?? false) ? v.customName! : v.tag,
+                active: _version == v.tag,
+                tone: GhChoiceTone.mint,
+                dotColor: theme.mint,
+                onPressed: () => setState(() => _version = v.tag),
+                trailing: v.isMono
+                    ? Container(
+                        padding: EdgeInsets.symmetric(horizontal: theme.space(1.5), vertical: theme.space(0.5)),
+                        decoration: BoxDecoration(
+                          color: theme.mint.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(theme.radiusTag),
+                          border: Border.all(color: theme.mint.withValues(alpha: 0.25)),
+                        ),
+                        child: Text(
+                          'MONO',
+                          style: theme.text(size: GhTextSize.x4s, weight: GhWeight.bold, color: theme.mint, letterSpacingEm: 0.05),
+                        ),
+                      )
+                    : null,
+              ),
+          ],
+          after: versions.isEmpty
+              ? Text(
+                  tr.no_engine_warning,
+                  style: theme.text(size: GhTextSize.xs, color: theme.amber),
+                )
+              : null,
+        ),
+        if (_templates.isNotEmpty)
+          _section(theme, tr.template_optional, [
+            GhChoiceChip(label: tr.blank_template, active: _templateId == null, onPressed: () => setState(() => _templateId = null)),
+            for (final tpl in _templates)
+              _TemplateChip(
+                template: tpl,
+                active: _templateId == tpl.id,
+                onPressed: () => setState(() => _templateId = tpl.id),
+                onPreview: () => showGhModal<void>(
+                  context,
+                  (modal) => TemplatePreviewModal(template: tpl, onClose: () => Navigator.of(modal).pop()),
+                ).ignore(),
+              ),
+          ]),
+        if (widget.categoriesEnabled)
+          _section(theme, tr.category_optional, [
+            GhChoiceChip(label: tr.no_category_label, active: _category == null, onPressed: () => setState(() => _category = null)),
+            for (final cat in widget.categories)
+              GhChoiceChip(
+                label: cat.name,
+                active: _category == cat.name,
+                dotColor: colorFromHex(cat.color),
+                onPressed: () => setState(() => _category = cat.name),
+              ),
+          ]),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: theme.space(2),
+          children: [GhFieldLabel(ghTr('create_project_version_control')), _versionControl(theme, tr, locked)],
+        ),
+      ],
+    );
+  }
+
+  Widget _result(GhTheme theme, Translations$common$en_US tr) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    spacing: theme.space(3),
+    children: [
+      if (_gitWarning != null)
+        _notice(theme, color: theme.amber, icon: GhIcons.alertTriangle, title: tr.git_init_warning_title, text: _gitWarning!),
+      if (_remoteSuccess != null)
+        _notice(theme, color: theme.mint, icon: GhIcons.circleCheck, title: tr.remote_repo_created_title, text: _remoteSuccess!),
+    ],
   );
 
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
     final tr = context.tr.common;
-    final settings = ref.watch(settingsProvider).value;
-    final name = _name.text.trim();
-    final folderName = applyNamingConvention(_name.text, NamingConvention.parse(settings?.directoryNamingConvention ?? ''));
-    final icon = _iconPreview;
+    ref.watch(settingsProvider);
     final locked = _busy || _finished;
-    final versions = widget.installedVersions;
-    final auth = _gitAuth;
     return GhModalShell(
       icon: GhIcon(GhIcons.folderPlus, size: theme.space(5), color: theme.accentBright),
       title: tr.new_project,
@@ -415,368 +738,29 @@ class _CreateProjectModalState extends ConsumerState<CreateProjectModal> {
       showClose: false,
       onClose: _dismiss,
       initialFocus: _nameNode,
-      rawFooter: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (_error != null) _notice(theme, color: theme.danger, icon: GhIcons.alertTriangle, text: _error!),
-          if (_gitWarning != null)
-            _notice(theme, color: theme.amber, icon: GhIcons.alertTriangle, title: tr.git_init_warning_title, text: _gitWarning!),
-          if (_remoteSuccess != null)
-            _notice(theme, color: theme.mint, icon: GhIcons.check, title: tr.remote_repo_created_title, text: _remoteSuccess!),
-          Container(
-            padding: EdgeInsets.fromLTRB(theme.space(6), theme.space(4), theme.space(6), theme.space(6)),
-            decoration: BoxDecoration(
-              border: Border(top: BorderSide(color: theme.line)),
+      error: _error,
+      footer: _finished
+          ? ghModalActions(
+              primary: GhButton(onPressed: widget.onCreated, label: tr.create_project_done, variant: GhButtonVariant.primary, paddingX: 5),
+            )
+          : ghModalActions(
+              trailing: [GhButton(onPressed: _busy ? null : widget.onClose, label: tr.cancel, disabledOpacity: 0.5)],
+              primary: GhBusyButton(
+                key: const ValueKey('create-project-submit'),
+                onPressed: _busy ? null : _submit,
+                busy: _busy,
+                label: !_busy
+                    ? tr.create_project_btn
+                    : _creatingRemote
+                    ? tr.creating_remote_repo
+                    : _initializingGit
+                    ? tr.initializing_git
+                    : tr.creating,
+              ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              spacing: theme.space(2.5),
-              children: [
-                if (_finished)
-                  GhButton(
-                    onPressed: widget.onCreated,
-                    label: tr.create_project_done,
-                    variant: GhButtonVariant.primary,
-                    paddingX: 5,
-                    weight: GhWeight.medium,
-                  )
-                else ...[
-                  GhButton(onPressed: _busy ? null : widget.onClose, label: tr.cancel, disabledOpacity: 0.5),
-                  GhBusyButton(
-                    onPressed: _busy ? null : _submit,
-                    busy: _busy,
-                    label: !_busy
-                        ? tr.create_project_btn
-                        : _creatingRemote
-                        ? tr.creating_remote_repo
-                        : _initializingGit
-                        ? tr.initializing_git
-                        : tr.creating,
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ],
-      ),
       child: Padding(
-        padding: EdgeInsets.all(theme.space(6)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: theme.space(4),
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: theme.space(0.5),
-              children: [
-                GhFieldLabel(tr.project_name_label, inset: true),
-                _input(
-                  theme,
-                  controller: _name,
-                  focusNode: _nameNode,
-                  invalid: _attempted && name.isEmpty,
-                  placeholder: _placeholder,
-                  onSubmitted: (_) => _submit(),
-                ),
-                Padding(
-                  padding: EdgeInsetsDirectional.only(start: theme.space(2), top: theme.space(1)),
-                  child: Row(
-                    spacing: theme.space(1.5),
-                    children: [
-                      GhIcon(GhIcons.folderPlus, size: theme.space(3), color: theme.accentBright.withValues(alpha: 0.7)),
-                      Expanded(
-                        child: Text(
-                          name.isNotEmpty ? tr.folder_name_preview.args({'name': folderName}) : tr.folder_name_hint,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.text(size: GhTextSize.x3s, mono: true, color: theme.muted.withValues(alpha: 0.6)),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: theme.space(0.5),
-              children: [
-                GhFieldLabel(tr.project_location_label, inset: true),
-                Row(
-                  spacing: theme.space(2.5),
-                  children: [
-                    Expanded(
-                      child: _input(
-                        theme,
-                        controller: _location,
-                        invalid: _attempted && _location.text.isEmpty,
-                        placeholder: tr.choose_folder_placeholder,
-                        readOnly: true,
-                        onTap: _pickLocation,
-                        textColor: theme.muted,
-                      ),
-                    ),
-                    _outline(theme, label: tr.browse, onPressed: _pickLocation, size: GhTextSize.sm, px: 4, py: 2.5),
-                  ],
-                ),
-              ],
-            ),
-            if (widget.categoriesEnabled)
-              _section(theme, tr.category_optional, [
-                GhChoiceChip(label: tr.no_category_label, active: _category == null, onPressed: () => setState(() => _category = null)),
-                for (final cat in widget.categories)
-                  GhChoiceChip(
-                    label: cat.name,
-                    active: _category == cat.name,
-                    dotColor: colorFromHex(cat.color),
-                    onPressed: () => setState(() => _category = cat.name),
-                  ),
-              ]),
-            if (_templates.isNotEmpty)
-              _section(theme, tr.template_optional, [
-                GhChoiceChip(label: tr.blank_template, active: _templateId == null, onPressed: () => setState(() => _templateId = null)),
-                for (final tpl in _templates)
-                  _TemplateChip(
-                    template: tpl,
-                    active: _templateId == tpl.id,
-                    onPressed: () => setState(() => _templateId = tpl.id),
-                    onPreview: () => showGhModal<void>(
-                      context,
-                      (modal) => TemplatePreviewModal(template: tpl, onClose: () => Navigator.of(modal).pop()),
-                    ).ignore(),
-                  ),
-              ]),
-            _section(
-              theme,
-              tr.godot_version_label,
-              [
-                for (final v in versions)
-                  GhChoiceChip(
-                    label: (v.customName?.isNotEmpty ?? false) ? v.customName! : v.tag,
-                    active: _version == v.tag,
-                    tone: GhChoiceTone.mint,
-                    dotColor: theme.mint,
-                    onPressed: () => setState(() => _version = v.tag),
-                    trailing: v.isMono
-                        ? Container(
-                            padding: EdgeInsets.symmetric(horizontal: theme.space(1.5), vertical: theme.space(0.5)),
-                            decoration: BoxDecoration(
-                              color: theme.mint.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(theme.radiusTag),
-                              border: Border.all(color: theme.mint.withValues(alpha: 0.25)),
-                            ),
-                            child: Text(
-                              'MONO',
-                              style: theme.text(size: GhTextSize.x4s, weight: GhWeight.bold, color: theme.mint, letterSpacingEm: 0.05),
-                            ),
-                          )
-                        : null,
-                  ),
-              ],
-              after: versions.isEmpty
-                  ? Text(
-                      tr.no_engine_warning,
-                      style: theme.text(size: GhTextSize.xs, color: theme.amber),
-                    )
-                  : null,
-            ),
-            Row(
-              spacing: theme.space(3.5),
-              children: [
-                Container(
-                  width: theme.space(14),
-                  height: theme.space(14),
-                  clipBehavior: Clip.antiAlias,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: theme.overlay,
-                    borderRadius: BorderRadius.circular(theme.radiusTile),
-                    border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-                  ),
-                  child: icon != null
-                      ? ProjectIconImage(url: icon)
-                      : SvgPicture.string(
-                          '<svg viewBox="0 0 24 24" fill="none" stroke="${_hex(theme.muted)}" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="$_iconPresetPath"/></svg>',
-                          width: theme.space(6),
-                          height: theme.space(6),
-                        ),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: theme.space(1.5),
-                    children: [
-                      Row(
-                        spacing: theme.space(2),
-                        children: [
-                          _outline(theme, label: _iconPath != null ? tr.change_icon : tr.choose_icon, onPressed: _pickIcon),
-                          if (_iconPath != null)
-                            _outline(
-                              theme,
-                              label: tr.reset,
-                              danger: true,
-                              onPressed: () => setState(() {
-                                _iconPath = null;
-                                _iconPreview = null;
-                              }),
-                            ),
-                        ],
-                      ),
-                      if (_iconPath != null)
-                        Text(
-                          _iconPath!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.text(size: GhTextSize.x3s, mono: true, color: theme.muted.withValues(alpha: 0.6)),
-                        ),
-                      Text(
-                        tr.icon_format_desc,
-                        style: theme.text(size: GhTextSize.x3s, color: theme.muted.withValues(alpha: 0.4)),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-            Container(
-              padding: EdgeInsets.only(top: theme.space(5)),
-              decoration: BoxDecoration(
-                border: Border(top: BorderSide(color: theme.line)),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: theme.space(3),
-                children: [
-                  GhFieldLabel(tr.other_settings_label),
-                  _switchRow(
-                    theme,
-                    label: tr.init_git_label,
-                    description: _gitAvailable ? tr.init_git_desc : tr.init_git_unavailable,
-                    checked: _initGit,
-                    disabled: locked || !_gitAvailable,
-                    onChanged: (v) => setState(() => _initGit = v),
-                  ),
-                  if (_initGit && _gitAvailable)
-                    _box(
-                      theme,
-                      padding: 3.5,
-                      children: [
-                        Wrap(
-                          spacing: theme.space(5),
-                          runSpacing: theme.space(2),
-                          children: [
-                            GhCheckbox(
-                              checked: _gitignore,
-                              disabled: _busy,
-                              onChanged: (v) => setState(() => _gitignore = v),
-                              child: Text(tr.git_option_gitignore),
-                            ),
-                            GhCheckbox(
-                              checked: _gitattributes,
-                              disabled: _busy,
-                              onChanged: (v) => setState(() => _gitattributes = v),
-                              child: Text(tr.git_option_gitattributes),
-                            ),
-                            GhCheckbox(
-                              checked: _readme,
-                              disabled: _busy,
-                              onChanged: (v) => setState(() => _readme = v),
-                              child: Text(tr.git_option_readme),
-                            ),
-                          ],
-                        ),
-                        Row(
-                          spacing: theme.space(3),
-                          children: [
-                            GhFieldLabel(tr.git_option_license),
-                            Expanded(
-                              child: Wrap(
-                                spacing: theme.space(1.5),
-                                runSpacing: theme.space(1.5),
-                                children: [
-                                  GhChoiceChip(
-                                    label: tr.git_option_no_license,
-                                    active: _license.isEmpty,
-                                    tone: GhChoiceTone.muted,
-                                    onPressed: () => setState(() => _license = ''),
-                                  ),
-                                  for (final lic in _licenses)
-                                    GhChoiceChip(label: lic, active: _license == lic, onPressed: () => setState(() => _license = lic)),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  if (_hasRemoteAuth)
-                    Padding(
-                      padding: EdgeInsets.only(top: theme.space(1)),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        spacing: theme.space(2.5),
-                        children: [
-                          _switchRow(
-                            theme,
-                            label: tr.create_remote_label,
-                            description: tr.create_remote_desc,
-                            checked: _remoteEnabled,
-                            disabled: locked || !_initGit || !_gitAvailable,
-                            onChanged: (v) => setState(() {
-                              _remoteEnabled = v;
-                              if (v && !_initGit) _initGit = true;
-                            }),
-                          ),
-                          if (_remoteEnabled)
-                            _box(
-                              theme,
-                              padding: 3,
-                              children: [
-                                Wrap(
-                                  spacing: theme.space(1.5),
-                                  runSpacing: theme.space(1.5),
-                                  children: [
-                                    if (auth?.github != null)
-                                      GhChoiceChip(
-                                        label: 'GitHub',
-                                        active: _remoteProvider == 'github',
-                                        onPressed: () => setState(() => _remoteProvider = 'github'),
-                                      ),
-                                    if (auth?.gitlab != null)
-                                      GhChoiceChip(
-                                        label: 'GitLab',
-                                        active: _remoteProvider == 'gitlab',
-                                        onPressed: () => setState(() => _remoteProvider = 'gitlab'),
-                                      ),
-                                  ],
-                                ),
-                                Row(
-                                  spacing: theme.space(2),
-                                  children: [
-                                    for (final private in const [true, false])
-                                      Expanded(
-                                        child: GhChoiceChip(
-                                          label: private ? tr.remote_private : tr.remote_public,
-                                          active: _remotePrivate == private,
-                                          tone: GhChoiceTone.mint,
-                                          showCheck: false,
-                                          expand: true,
-                                          onPressed: () => setState(() => _remotePrivate = private),
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                        ],
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
+        padding: EdgeInsets.fromLTRB(theme.space(6), theme.space(2), theme.space(6), theme.space(6)),
+        child: _finished ? _result(theme, tr) : _form(theme, tr, locked),
       ),
     );
   }

@@ -30,34 +30,6 @@ Future<List<RecentProject>> refreshRecentProjects() => RustLib.instance.api.crat
 
 Future<void> openRecentProject({required String id}) => RustLib.instance.api.crateApiNativeOpenRecentProject(id: id);
 
-Future<void> discordConnect({required String appId}) => RustLib.instance.api.crateApiNativeDiscordConnect(appId: appId);
-
-Future<void> discordDisconnect() => RustLib.instance.api.crateApiNativeDiscordDisconnect();
-
-Future<void> discordSetActivity({DiscordActivity? activity}) => RustLib.instance.api.crateApiNativeDiscordSetActivity(activity: activity);
-
-class DiscordActivity {
-  final String? name;
-  final String? details;
-  final String? state;
-  final PlatformInt64? startTimestamp;
-
-  const DiscordActivity({this.name, this.details, this.state, this.startTimestamp});
-
-  @override
-  int get hashCode => name.hashCode ^ details.hashCode ^ state.hashCode ^ startTimestamp.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is DiscordActivity &&
-          runtimeType == other.runtimeType &&
-          name == other.name &&
-          details == other.details &&
-          state == other.state &&
-          startTimestamp == other.startTimestamp;
-}
-
 class RecentProject {
   final String id;
   final String label;

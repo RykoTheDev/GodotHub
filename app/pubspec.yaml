@@ -41,6 +41,7 @@ dependencies:
   window_manager: ^0.6.0
   nativeapi: ^0.5.10
   path_parsing: ^1.1.0
+  ffi: ^2.2.0
   slang: 4.19.2
   slang_flutter: 4.19.0
   intl: ^0.20.3
@@ -75,6 +76,10 @@ flutter:
   assets:
     - assets/tray/
     - assets/flags/
+    - assets/licenses/
+    - assets/fonts/Inter-LICENSE.txt
+    - assets/fonts/GoogleSansCode-LICENSE.txt
+    - assets/icons/FontAwesome-LICENSE.txt
   fonts:
     - family: Inter
       fonts:

@@ -85,7 +85,6 @@ void main() {
       }
       expect(resolve('a'), isNull);
     });
-
   });
 
   group('ShortcutDispatcher', () {
@@ -99,7 +98,10 @@ void main() {
     });
 
     Future<ProviderContainer> container(AppSettings settings, {List<Workspace> workspaces = const []}) async {
-      rust.on('crateApiWorkspaceListWorkspaces', () async => WorkspacesState(workspaces: workspaces, activeId: workspaces.isEmpty ? 'w' : workspaces.first.id));
+      rust.on(
+        'crateApiWorkspaceListWorkspaces',
+        () async => WorkspacesState(workspaces: workspaces, activeId: workspaces.isEmpty ? 'w' : workspaces.first.id),
+      );
       final c = ProviderContainer(overrides: [fakeSettings(() => settings)]);
       addTearDown(c.dispose);
       c.listen(workspacesProvider, (_, _) {});
@@ -119,17 +121,20 @@ void main() {
       dispatcher.handle(const ShortcutKeyInput(key: 'Escape'));
       dispatcher.handle(const ShortcutKeyInput(key: 'Enter'));
       dispatcher.handle(const ShortcutKeyInput(key: 'Delete'));
-      expect([for (final s in signals) '${s.name}${s.detail == null ? '' : ':${s.detail}'}'], [
-        toggleCommandPaletteSignal,
-        newProjectRequestSignal,
-        '$setTabSignal:settings',
-        confirmRestartSignal,
-        focusSearchSignal,
-        '$setTabSignal:storage',
-        escapeSignal,
-        launchSelectionSignal,
-        deleteSelectionSignal,
-      ]);
+      expect(
+        [for (final s in signals) '${s.name}${s.detail == null ? '' : ':${s.detail}'}'],
+        [
+          toggleCommandPaletteSignal,
+          newProjectRequestSignal,
+          '$setTabSignal:settings',
+          confirmRestartSignal,
+          focusSearchSignal,
+          '$setTabSignal:storage',
+          escapeSignal,
+          launchSelectionSignal,
+          deleteSelectionSignal,
+        ],
+      );
     });
 
     test('custom palette key comes from settings and handlers override signals', () async {
@@ -236,6 +241,29 @@ void main() {
       handle.release();
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       expect(fired, ['escape']);
+    });
+
+    testWidgets('unclaimed Alt+character keys are kept from Windows so it does not beep', (tester) async {
+      await pump(tester);
+      Future<bool> withAlt(LogicalKeyboardKey key, {bool ctrl = false}) async {
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.altLeft);
+        if (ctrl) await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+        final handled = await tester.sendKeyDownEvent(key);
+        await tester.sendKeyUpEvent(key);
+        if (ctrl) await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.altLeft);
+        return handled;
+      }
+
+      expect(await withAlt(LogicalKeyboardKey.digit1), isTrue);
+      expect(await withAlt(LogicalKeyboardKey.digit2), isTrue);
+      expect(await withAlt(LogicalKeyboardKey.keyA), isTrue);
+      expect(await withAlt(LogicalKeyboardKey.space), isFalse, reason: 'Alt+Space opens the window menu');
+      expect(await withAlt(LogicalKeyboardKey.f4), isFalse, reason: 'Alt+F4 closes the window');
+      expect(await withAlt(LogicalKeyboardKey.numpad1), isFalse, reason: 'Alt+numpad types Alt codes');
+      expect(await withAlt(LogicalKeyboardKey.keyQ, ctrl: true), isFalse, reason: 'AltGr arrives as Ctrl+Alt');
+      expect(await tester.sendKeyEvent(LogicalKeyboardKey.digit1), isFalse);
+      expect(fired, isEmpty);
     });
   });
 }

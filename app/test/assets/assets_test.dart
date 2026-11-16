@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:godothub/api/opener.dart';
@@ -10,6 +12,7 @@ import 'package:godothub/modals/install_asset_modal.dart';
 import 'package:godothub/src/rust/api/types.dart';
 import 'package:godothub/src/ui_prefs.dart';
 import 'package:godothub/state/app_signals.dart';
+import 'package:godothub/state/keyboard_shortcuts.dart';
 import 'package:godothub/state/shell_signals.dart';
 import 'package:godothub/ui/core/i18n.dart';
 
@@ -284,6 +287,86 @@ void main() {
       expect(outcomes.single.targetType, AssetInstallTarget.template);
       expect(outcomes.single.targetName, 'Fresh template');
       expect(closed, 1);
+    });
+
+    Future<({Completer<InstallAssetResult> pending, List<AssetInstallOutcome> outcomes, List<int> closed})> startInstall(
+      WidgetTester tester,
+    ) async {
+      AssetBackend().install(rust);
+      final pending = Completer<InstallAssetResult>();
+      rust.on('crateApiAssetLibraryInstallAsset', ({required String assetId, String? projectId, String? templateId}) => pending.future);
+      final outcomes = <AssetInstallOutcome>[];
+      final closed = <int>[0];
+      await base.openModal(
+        tester,
+        (close) => InstallAssetModal(
+          asset: asset('7', title: 'Tilemap kit'),
+          onClose: () {
+            closed[0]++;
+            close();
+          },
+          onInstalled: outcomes.add,
+        ),
+      );
+      expect(find.text(ghTr('asset_install_intro_project', args: {'title': 'Tilemap kit'})), findsOneWidget);
+      await tester.tap(find.text('Demo'));
+      await base.settle(tester, 2);
+      await tester.tap(find.byKey(const ValueKey('asset-install-submit')));
+      await base.settle(tester, 3);
+      expect(find.text(ghTr('asset_install_continues')), findsOneWidget);
+      expect(find.text(ghTr('close')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('asset-install-close')));
+      await base.settle(tester, 3);
+      expect(find.byType(InstallAssetModal), findsNothing);
+      expect(closed[0], 1);
+      return (pending: pending, outcomes: outcomes, closed: closed);
+    }
+
+    testWidgets('can be closed while installing and still reports success', (tester) async {
+      final run = await startInstall(tester);
+      run.pending.complete(result('project'));
+      await base.settle(tester, 3);
+      expect(run.outcomes.single.targetName, 'Demo');
+      expect(run.closed[0], 1);
+    });
+
+    testWidgets('a failed background install shows a toast', (tester) async {
+      final run = await startInstall(tester);
+      run.pending.completeError('disk full');
+      await base.settle(tester, 3);
+      expect(find.text(ghTr('asset_install_failed_toast', args: {'title': 'Tilemap kit', 'error': 'disk full'})), findsOneWidget);
+      expect(run.outcomes, isEmpty);
+      expect(run.closed[0], 1);
+      await base.drainToasts(tester);
+    });
+
+    testWidgets('with no projects it offers to create one', (tester) async {
+      AssetBackend().install(rust);
+      rust.on('crateApiProjectsListProjects', () async => <Project>[]);
+      final signals = <String>[];
+      final sub = AppSignals.on(newProjectRequestSignal).listen((s) => signals.add(s.name));
+      addTearDown(sub.cancel);
+      await base.openModal(tester, (close) => InstallAssetModal(asset: asset('7'), onClose: close, onInstalled: (_) {}));
+      expect(find.text(ghTr('asset_install_no_projects')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('asset-install-new-project')));
+      await base.settle(tester, 3);
+      expect(signals, [newProjectRequestSignal]);
+      expect(find.byType(InstallAssetModal), findsNothing);
+    });
+
+    testWidgets('fits a 340x640 window without overflow', (tester) async {
+      AssetBackend().install(rust);
+      await base.openModal(
+        tester,
+        (close) => InstallAssetModal(
+          asset: asset('7', title: 'A very long asset title for narrow windows'),
+          onClose: close,
+          onInstalled: (_) {},
+        ),
+        size: const Size(340, 640),
+      );
+      expect(tester.takeException(), isNull);
+      expect(find.byKey(const ValueKey('asset-install-submit')), findsOneWidget);
     });
   });
 

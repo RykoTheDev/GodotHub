@@ -196,12 +196,19 @@ class _VersionAliasesModalState extends State<VersionAliasesModal> {
       title: _tv('aliases_title'),
       maxWidth: GhModalWidth.xl,
       onClose: widget.onClose,
-      footer: [
-        if (folder.isNotEmpty)
-          OutlineIconButton(label: _tv('current_open_folder'), icon: GhIcons.externalLink, onPressed: () => openFolderOrToast(folder)),
-        const Spacer(),
-        GhButton(onPressed: widget.onClose, label: ghTr('close'), variant: GhButtonVariant.primary, weight: GhWeight.medium),
-      ],
+      footer: ghModalActions(
+        leading: [
+          if (folder.isNotEmpty)
+            Flexible(
+              child: OutlineIconButton(
+                label: _tv('current_open_folder'),
+                icon: GhIcons.externalLink,
+                onPressed: () => openFolderOrToast(folder),
+              ),
+            ),
+        ],
+        primary: GhButton(onPressed: widget.onClose, label: ghTr('close'), variant: GhButtonVariant.outline, weight: GhWeight.medium),
+      ),
       child: Padding(
         padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(6)),
         child: Column(
@@ -408,16 +415,16 @@ class _VersionAliasesModalState extends State<VersionAliasesModal> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
+                                Wrap(
                                   spacing: theme.space(2),
+                                  runSpacing: theme.space(1),
+                                  crossAxisAlignment: WrapCrossAlignment.center,
                                   children: [
-                                    Flexible(
-                                      child: Text(
-                                        alias.name,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: theme.text(size: GhTextSize.sm, mono: true, color: theme.ink),
-                                      ),
+                                    Text(
+                                      alias.name,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: theme.text(size: GhTextSize.sm, mono: true, color: theme.ink),
                                     ),
                                     _tagChip(theme, alias.tag),
                                     if (alias.method == 'shim')

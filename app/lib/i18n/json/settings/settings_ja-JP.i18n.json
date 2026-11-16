@@ -102,8 +102,8 @@
   "tray_recent_label": "トレイに表示する最近のプロジェクト",
   "tooltip_delay_label": "ツールチップの表示遅延",
   "project_icon_opacity_label": "プロジェクトアイコンの不透明度",
-  "project_card_style_label": "プロジェクトカードのスタイル",
-  "project_card_style_hub": "Godot Hub",
+  "list_project_card_style_label": "List project card style",
+  "project_card_style_hub": "GodotHub",
   "project_card_style_cover": "カバー",
   "time_format_label": "時刻の形式（当日に開いた場合に表示）",
   "date_format_label": "日付の形式（それ以外の日に表示）",
@@ -253,6 +253,7 @@
   "credits": "クレジット",
   "credits_developer": "作成者",
   "credits_built_with": "使用技術",
+  "credits_licenses": "Open Source Licenses",
   "credits_contributors": "コントリビューター",
   "experimental": "試験的機能",
   "customize_view_label": "「ビューをカスタマイズ」ボタン",
@@ -304,5 +305,7 @@
   "feature_desc_storage": "プロジェクトやエンジンのディスク使用量を確認できます。",
   "feature_desc_asset_store": "Godot アセットライブラリからアドオンやデモを探してインストールできます。",
   "feature_desc_categories": "プロジェクトをカテゴリに分けて整理できます。",
-  "feature_desc_workspaces": "用途に合わせて、プロジェクトと設定をまとめて切り替えられます。"
+  "feature_desc_workspaces": "用途に合わせて、プロジェクトと設定をまとめて切り替えられます。",
+  "git_auth_intro": "Approve GodotHub on {{provider}} to finish signing in. Keep this window open until it's done; use Cancel to stop.",
+  "git_auth_step_current": "current step"
 }

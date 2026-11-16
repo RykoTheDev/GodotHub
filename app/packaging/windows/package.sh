@@ -41,6 +41,7 @@ output=$("$stage/$exe" --version | tr -d '\r')
 (cd "$root" && GODOTHUB_CHANNEL="$channel" GODOTHUB_VERSION="$version" cargo build -q -p godothub_launcher --release --locked)
 target_dir=$(cd "$root" && cargo metadata --format-version 1 --no-deps | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).target_directory))')
 launcher="$target_dir/release/godothub-launcher.exe"
+node "$here/check_runtime_imports.mjs" "$stage" "$launcher"
 
 mkdir -p "$out_dir"
 out_dir="$(cd "$out_dir" && pwd)"

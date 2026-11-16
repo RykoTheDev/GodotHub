@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import '../design/design.dart';
 import '../src/rust/api/types.dart';
 import '../ui/controls/text_input.dart';
+import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
+import '../ui/reusables/modal_kit.dart';
 
 typedef ChangelogEntryPrefill = ({String? version, String? date, List<ChangelogNote>? notes});
 
@@ -252,7 +254,6 @@ class _ChangelogEntryModalState extends State<ChangelogEntryModal> {
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
-    final btnRadius = BorderRadius.circular(theme.radiusBtn);
     final error = _error;
     return GhModalShell(
       icon: GhIcon(GhIcons.pencil, size: theme.space(5), color: theme.accentBright),
@@ -260,44 +261,15 @@ class _ChangelogEntryModalState extends State<ChangelogEntryModal> {
       maxWidth: GhModalWidth.lg,
       onClose: widget.onClose,
       showClose: false,
-      footer: [
-        if (error != null)
-          Flexible(
-            child: Text(
-              error,
-              style: theme.text(size: GhTextSize.xs, color: theme.danger),
-            ),
-          ),
-        const Spacer(),
-        GhPressable(
-          onPressed: widget.onClose,
-          borderRadius: btnRadius,
-          builder: (context, states) => GhAnimatedBox(
-            padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(2.5)),
-            color: states.active ? theme.raised : theme.raised.withValues(alpha: 0),
-            borderRadius: btnRadius,
-            child: Text(
-              ghTr('cancel'),
-              style: theme.text(size: GhTextSize.sm, color: states.active ? theme.ink : theme.muted),
-            ),
-          ),
-        ),
-        GhPressable(
+      error: error,
+      footer: ghModalActions(
+        trailing: [GhButton(onPressed: widget.onClose, label: ghTr('cancel'))],
+        primary: GhBusyButton(
           onPressed: _busy ? null : _submit,
-          disabledOpacity: 0.5,
-          borderRadius: btnRadius,
-          rippleColor: Colors.white,
-          builder: (context, states) => GhAnimatedBox(
-            padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(2.5)),
-            color: states.active ? theme.accentBright : theme.accent,
-            borderRadius: btnRadius,
-            child: Text(
-              _busy ? ghTr('saving') : (widget.entry != null ? ghTr('save_changes') : ghTr('add_entry')),
-              style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: Colors.white),
-            ),
-          ),
+          busy: _busy,
+          label: _busy ? ghTr('saving') : (widget.entry != null ? ghTr('save_changes') : ghTr('add_entry')),
         ),
-      ],
+      ),
       child: Padding(
         padding: EdgeInsets.all(theme.space(6)),
         child: Column(

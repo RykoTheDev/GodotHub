@@ -139,7 +139,7 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String get scan_for_projects => '扫描项目';
 	@override String get create_workspace => '创建工作区';
 	@override String get report_a_bug => '报告问题';
-	@override String get high_contrast_active => 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.';
+	@override String get high_contrast_active => 'Windows high contrast is on, so GodotHub uses the colors of your contrast theme. Your own theme comes back when you turn high contrast off.';
 	@override String get crash_notice_title => 'GodotHub closed unexpectedly';
 	@override String get crash_notice_desc => 'GodotHub {{version}} stopped without closing normally the last time it ran.';
 	@override String get crash_notice_rolled_back => 'The update did not start, so GodotHub went back to {{previous}}, the version you had before.';
@@ -890,6 +890,95 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String get date_next_month => '下个月';
 	@override String get date_change_due => '更改截止日期: {{date}}';
 	@override String get date_add_due => '添加截止日期';
+	@override String get flutter_welcome_eyebrow => 'Welcome to the new';
+	@override String get flutter_welcome_title => 'Welcome to the new GodotHub';
+	@override String get flutter_welcome_desc => 'GodotHub has been rebuilt from the ground up. It looks and works the way you know it, only faster and smoother.';
+	@override String get flutter_welcome_fast_title => 'Faster';
+	@override String get flutter_welcome_fast_desc => 'Starts quicker, scrolls smoother and uses less memory.';
+	@override String get flutter_welcome_updates_title => 'Updates inside the app';
+	@override String get flutter_welcome_updates_desc => 'New versions download and install from inside GodotHub, and every update is checked before it is installed.';
+	@override String get flutter_welcome_design_title => 'Refreshed design';
+	@override String get flutter_welcome_design_desc => 'Smoother motion, sharper text and themes that follow your system.';
+	@override String get flutter_welcome_data_title => 'Everything you had is here';
+	@override String get flutter_welcome_data_desc => 'Projects, Godot versions, settings and your Git sign-in came along on their own.';
+	@override String get flutter_welcome_summary => 'Your data came along';
+	@override String flutter_welcome_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
+		other: '${count} projects',
+	);
+	@override String get flutter_welcome_projects_one => '{{count}} project';
+	@override String get flutter_welcome_projects_other => '{{count}} projects';
+	@override String flutter_welcome_workspaces({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
+		other: '${count} workspaces',
+	);
+	@override String get flutter_welcome_workspaces_one => '{{count}} workspace';
+	@override String get flutter_welcome_workspaces_other => '{{count}} workspaces';
+	@override String flutter_welcome_templates({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
+		other: '${count} templates',
+	);
+	@override String get flutter_welcome_templates_one => '{{count}} template';
+	@override String get flutter_welcome_templates_other => '{{count}} templates';
+	@override String flutter_welcome_vault_items({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
+		other: '${count} vault items',
+	);
+	@override String get flutter_welcome_vault_items_one => '{{count}} vault item';
+	@override String get flutter_welcome_vault_items_other => '{{count}} vault items';
+	@override String get flutter_welcome_changelog => 'See what\'s new';
+	@override String get flutter_welcome_continue => 'Continue';
+	@override String get bug_report_intro => 'Tell us what went wrong. Your app version, system details and recent log lines are added for you.';
+	@override String get bug_report_what_happened_placeholder => 'Describe the problem and where in GodotHub it happened.';
+	@override String get bug_report_steps_label => 'Steps to reproduce';
+	@override String get bug_report_steps_placeholder => '1. Open…\n2. Click…\n3. See the problem';
+	@override String get bug_report_expected_label => 'What did you expect?';
+	@override String get bug_report_expected_placeholder => 'What should have happened instead';
+	@override String get bug_report_optional => 'Optional';
+	@override String get bug_report_describe_first => 'Describe what happened before creating the issue.';
+	@override String get bug_report_included_title => 'Included with your report';
+	@override String get bug_report_included_system => 'GodotHub {{version}} on {{os}}, plus screen, language and CPU details';
+	@override String bug_report_included_errors({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
+		other: '${count} recent errors',
+	);
+	@override String get bug_report_included_errors_one => '{{count}} recent error';
+	@override String get bug_report_included_errors_other => '{{count}} recent errors';
+	@override String get bug_report_included_no_errors => 'No errors recorded this session';
+	@override String bug_report_included_log({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
+		other: 'The last ${count} log lines',
+	);
+	@override String get bug_report_included_log_one => 'The last {{count}} log line';
+	@override String get bug_report_included_log_other => 'The last {{count}} log lines';
+	@override String get bug_report_include_log => 'Include the log';
+	@override String get bug_report_preview_show => 'Preview report';
+	@override String get bug_report_preview_hide => 'Hide preview';
+	@override String n_categories({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
+		other: '${count} categories',
+	);
+	@override String get n_categories_one => '{{count}} category';
+	@override String get n_categories_other => '{{count}} categories';
+	@override String get category_name_required => 'Category name is required.';
+	@override String get category_name_taken => 'A category with this name already exists.';
+	@override String bulk_tags_intro({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
+		other: 'Changes apply right away to the ${count} selected projects.',
+	);
+	@override String get bulk_tags_intro_one => 'Changes apply right away to the {{count}} selected project.';
+	@override String get bulk_tags_intro_other => 'Changes apply right away to the {{count}} selected projects.';
+	@override String get duplicate_folder_exists => 'A folder with this name already exists here. Pick another name or destination.';
+	@override String get folder_name_invalid_chars => 'Folder names cannot contain < > : " / \\ | ? * or end with a dot or space.';
+	@override String get create_project_path_preview => 'Creates {{path}}';
+	@override String get create_project_name_required => 'Give the project a name.';
+	@override String get create_project_location_required => 'Choose a folder to create it in.';
+	@override String get create_project_version_control => 'Version control';
+	@override String get tag_manager_intro => 'Tags on {{name}}. Click a tag to rename it.';
+	@override String get tag_new_label => 'New tag';
+	@override String get asset_install_intro_project => 'Choose the project to install {{title}} into.';
+	@override String get asset_install_intro_template => 'Choose a template to install {{title}} into. New projects made from it will include it.';
+	@override String get asset_install_where_label => 'Install into';
+	@override String get asset_install_continues => 'The install keeps running if you close this window. You\'ll get a message when it\'s done.';
+	@override String get asset_install_failed_toast => 'Couldn\'t install {{title}}: {{error}}';
+	@override String get clone_repo_browse_intro => 'Pick one of the repositories on your connected account.';
+	@override String get clone_repo_url_intro => 'Paste the HTTPS or SSH address of any Git repository.';
+	@override String get clone_repo_url_invalid => 'Use an HTTPS or SSH address, like https://github.com/user/repo.git or git@github.com:user/repo.git.';
+	@override String get clone_repo_dest_preview => 'Clones into {{path}}';
+	@override String get clone_repo_selected => 'Selected {{name}}';
+	@override String get clone_repo_select_hint => 'Select a repository from the list to clone it.';
 }
 
 // Path: dashboard
@@ -1125,6 +1214,11 @@ class _Translations$git$zh_CN extends Translations$git$en_US {
 	@override String get protected_branch_create_pr => '创建分支并打开 PR';
 	@override String get protected_branch_creating_pr => '正在打开拉取请求…';
 	@override String get pr_opened_ok => '已推送 {{branch}} 并打开拉取请求。';
+	@override String get branch_name_required => 'Enter a name for the new branch.';
+	@override String get branch_name_invalid => 'Branch names can\'t contain spaces, ~ ^ : ? * [ or a backslash, two dots in a row, or start or end with a slash or a dot.';
+	@override String get branch_name_exists => 'A branch with this name already exists.';
+	@override String get protected_branch_confirm_title => 'Commit to {{branch}} anyway?';
+	@override String get protected_branch_confirm_desc => 'This bypasses the protection on {{branch}}. The commit is made locally, and the remote may reject it when you push.';
 }
 
 // Path: nav
@@ -1328,8 +1422,8 @@ class _Translations$settings$zh_CN extends Translations$settings$en_US {
 	@override String get tray_recent_label => '托盘最近项目';
 	@override String get tooltip_delay_label => '工具提示延迟';
 	@override String get project_icon_opacity_label => '项目图标透明度';
-	@override String get project_card_style_label => '项目卡片样式';
-	@override String get project_card_style_hub => 'Godot Hub';
+	@override String get list_project_card_style_label => 'List project card style';
+	@override String get project_card_style_hub => 'GodotHub';
 	@override String get project_card_style_cover => '封面';
 	@override String get time_format_label => '时间格式（今天打开时显示）';
 	@override String get date_format_label => '日期格式（其他日期显示）';
@@ -1479,6 +1573,7 @@ class _Translations$settings$zh_CN extends Translations$settings$en_US {
 	@override String get credits => '致谢';
 	@override String get credits_developer => '创建者';
 	@override String get credits_built_with => '使用以下技术构建';
+	@override String get credits_licenses => 'Open Source Licenses';
 	@override String get credits_contributors => '贡献者';
 	@override String get experimental => '实验性';
 	@override String get customize_view_label => '自定义视图按钮';
@@ -1531,6 +1626,8 @@ class _Translations$settings$zh_CN extends Translations$settings$en_US {
 	@override String get feature_desc_asset_store => '从 Godot Asset Library 浏览并安装插件和项目。';
 	@override String get feature_desc_categories => '将项目列表分组到文件夹中。';
 	@override String get feature_desc_workspaces => '在不同的项目和设置集合之间切换。';
+	@override String get git_auth_intro => 'Approve GodotHub on {{provider}} to finish signing in. Keep this window open until it\'s done; use Cancel to stop.';
+	@override String get git_auth_step_current => 'current step';
 }
 
 // Path: todos
@@ -1830,6 +1927,13 @@ class _Translations$versions$zh_CN extends Translations$versions$en_US {
 	@override String get custom_build_badge => '自定义构建';
 	@override String get add_custom_build => '添加自定义构建…';
 	@override String get adding_custom_build => '正在添加自定义构建…';
+	@override String get download_failed_summary => 'GodotHub couldn\'t download Godot {{tag}}.';
+	@override String get download_failed_show_details => 'Show error details';
+	@override String get download_failed_hide_details => 'Hide error details';
+	@override String get download_failed_report => 'Report this problem';
+	@override String get export_templates_select_none => 'Select none';
+	@override String get export_templates_select_hint => 'Select at least one template to download.';
+	@override String get export_templates_all_installed => 'Every template for this release is already installed.';
 }
 
 // Path: common.project_doctor
@@ -2195,7 +2299,7 @@ extension on TranslationsZhCn {
 			'common.scan_for_projects' => '扫描项目',
 			'common.create_workspace' => '创建工作区',
 			'common.report_a_bug' => '报告问题',
-			'common.high_contrast_active' => 'Windows high contrast is on, so GodotHub uses its high contrast colors. Your theme comes back when you turn high contrast off.',
+			'common.high_contrast_active' => 'Windows high contrast is on, so GodotHub uses the colors of your contrast theme. Your own theme comes back when you turn high contrast off.',
 			'common.crash_notice_title' => 'GodotHub closed unexpectedly',
 			'common.crash_notice_desc' => 'GodotHub {{version}} stopped without closing normally the last time it ran.',
 			'common.crash_notice_rolled_back' => 'The update did not start, so GodotHub went back to {{previous}}, the version you had before.',
@@ -3160,6 +3264,79 @@ extension on TranslationsZhCn {
 			'common.date_next_month' => '下个月',
 			'common.date_change_due' => '更改截止日期: {{date}}',
 			'common.date_add_due' => '添加截止日期',
+			'common.flutter_welcome_eyebrow' => 'Welcome to the new',
+			'common.flutter_welcome_title' => 'Welcome to the new GodotHub',
+			'common.flutter_welcome_desc' => 'GodotHub has been rebuilt from the ground up. It looks and works the way you know it, only faster and smoother.',
+			'common.flutter_welcome_fast_title' => 'Faster',
+			'common.flutter_welcome_fast_desc' => 'Starts quicker, scrolls smoother and uses less memory.',
+			'common.flutter_welcome_updates_title' => 'Updates inside the app',
+			'common.flutter_welcome_updates_desc' => 'New versions download and install from inside GodotHub, and every update is checked before it is installed.',
+			'common.flutter_welcome_design_title' => 'Refreshed design',
+			'common.flutter_welcome_design_desc' => 'Smoother motion, sharper text and themes that follow your system.',
+			'common.flutter_welcome_data_title' => 'Everything you had is here',
+			'common.flutter_welcome_data_desc' => 'Projects, Godot versions, settings and your Git sign-in came along on their own.',
+			'common.flutter_welcome_summary' => 'Your data came along',
+			'common.flutter_welcome_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} projects', ), 
+			'common.flutter_welcome_projects_one' => '{{count}} project',
+			'common.flutter_welcome_projects_other' => '{{count}} projects',
+			'common.flutter_welcome_workspaces' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} workspaces', ), 
+			'common.flutter_welcome_workspaces_one' => '{{count}} workspace',
+			'common.flutter_welcome_workspaces_other' => '{{count}} workspaces',
+			'common.flutter_welcome_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} templates', ), 
+			'common.flutter_welcome_templates_one' => '{{count}} template',
+			'common.flutter_welcome_templates_other' => '{{count}} templates',
+			'common.flutter_welcome_vault_items' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} vault items', ), 
+			'common.flutter_welcome_vault_items_one' => '{{count}} vault item',
+			'common.flutter_welcome_vault_items_other' => '{{count}} vault items',
+			'common.flutter_welcome_changelog' => 'See what\'s new',
+			'common.flutter_welcome_continue' => 'Continue',
+			'common.bug_report_intro' => 'Tell us what went wrong. Your app version, system details and recent log lines are added for you.',
+			'common.bug_report_what_happened_placeholder' => 'Describe the problem and where in GodotHub it happened.',
+			'common.bug_report_steps_label' => 'Steps to reproduce',
+			'common.bug_report_steps_placeholder' => '1. Open…\n2. Click…\n3. See the problem',
+			'common.bug_report_expected_label' => 'What did you expect?',
+			'common.bug_report_expected_placeholder' => 'What should have happened instead',
+			'common.bug_report_optional' => 'Optional',
+			'common.bug_report_describe_first' => 'Describe what happened before creating the issue.',
+			'common.bug_report_included_title' => 'Included with your report',
+			'common.bug_report_included_system' => 'GodotHub {{version}} on {{os}}, plus screen, language and CPU details',
+			'common.bug_report_included_errors' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} recent errors', ), 
+			'common.bug_report_included_errors_one' => '{{count}} recent error',
+			'common.bug_report_included_errors_other' => '{{count}} recent errors',
+			'common.bug_report_included_no_errors' => 'No errors recorded this session',
+			'common.bug_report_included_log' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: 'The last ${count} log lines', ), 
+			'common.bug_report_included_log_one' => 'The last {{count}} log line',
+			'common.bug_report_included_log_other' => 'The last {{count}} log lines',
+			'common.bug_report_include_log' => 'Include the log',
+			'common.bug_report_preview_show' => 'Preview report',
+			'common.bug_report_preview_hide' => 'Hide preview',
+			'common.n_categories' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} categories', ), 
+			'common.n_categories_one' => '{{count}} category',
+			'common.n_categories_other' => '{{count}} categories',
+			'common.category_name_required' => 'Category name is required.',
+			'common.category_name_taken' => 'A category with this name already exists.',
+			'common.bulk_tags_intro' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: 'Changes apply right away to the ${count} selected projects.', ), 
+			'common.bulk_tags_intro_one' => 'Changes apply right away to the {{count}} selected project.',
+			'common.bulk_tags_intro_other' => 'Changes apply right away to the {{count}} selected projects.',
+			'common.duplicate_folder_exists' => 'A folder with this name already exists here. Pick another name or destination.',
+			'common.folder_name_invalid_chars' => 'Folder names cannot contain < > : " / \\ | ? * or end with a dot or space.',
+			'common.create_project_path_preview' => 'Creates {{path}}',
+			'common.create_project_name_required' => 'Give the project a name.',
+			'common.create_project_location_required' => 'Choose a folder to create it in.',
+			'common.create_project_version_control' => 'Version control',
+			'common.tag_manager_intro' => 'Tags on {{name}}. Click a tag to rename it.',
+			'common.tag_new_label' => 'New tag',
+			'common.asset_install_intro_project' => 'Choose the project to install {{title}} into.',
+			'common.asset_install_intro_template' => 'Choose a template to install {{title}} into. New projects made from it will include it.',
+			'common.asset_install_where_label' => 'Install into',
+			'common.asset_install_continues' => 'The install keeps running if you close this window. You\'ll get a message when it\'s done.',
+			'common.asset_install_failed_toast' => 'Couldn\'t install {{title}}: {{error}}',
+			'common.clone_repo_browse_intro' => 'Pick one of the repositories on your connected account.',
+			'common.clone_repo_url_intro' => 'Paste the HTTPS or SSH address of any Git repository.',
+			'common.clone_repo_url_invalid' => 'Use an HTTPS or SSH address, like https://github.com/user/repo.git or git@github.com:user/repo.git.',
+			'common.clone_repo_dest_preview' => 'Clones into {{path}}',
+			'common.clone_repo_selected' => 'Selected {{name}}',
+			'common.clone_repo_select_hint' => 'Select a repository from the list to clone it.',
 			'dashboard.greeting_morning' => '早上好',
 			'dashboard.greeting_afternoon' => '下午好',
 			'dashboard.greeting_evening' => '晚上好',
@@ -3375,6 +3552,11 @@ extension on TranslationsZhCn {
 			'git.protected_branch_create_pr' => '创建分支并打开 PR',
 			'git.protected_branch_creating_pr' => '正在打开拉取请求…',
 			'git.pr_opened_ok' => '已推送 {{branch}} 并打开拉取请求。',
+			'git.branch_name_required' => 'Enter a name for the new branch.',
+			'git.branch_name_invalid' => 'Branch names can\'t contain spaces, ~ ^ : ? * [ or a backslash, two dots in a row, or start or end with a slash or a dot.',
+			'git.branch_name_exists' => 'A branch with this name already exists.',
+			'git.protected_branch_confirm_title' => 'Commit to {{branch}} anyway?',
+			'git.protected_branch_confirm_desc' => 'This bypasses the protection on {{branch}}. The commit is made locally, and the remote may reject it when you push.',
 			'nav.dashboard' => '仪表盘',
 			'nav.projects' => '项目',
 			'nav.projects_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '项目', ), 
@@ -3545,8 +3727,8 @@ extension on TranslationsZhCn {
 			'settings.tray_recent_label' => '托盘最近项目',
 			'settings.tooltip_delay_label' => '工具提示延迟',
 			'settings.project_icon_opacity_label' => '项目图标透明度',
-			'settings.project_card_style_label' => '项目卡片样式',
-			'settings.project_card_style_hub' => 'Godot Hub',
+			'settings.list_project_card_style_label' => 'List project card style',
+			'settings.project_card_style_hub' => 'GodotHub',
 			'settings.project_card_style_cover' => '封面',
 			'settings.time_format_label' => '时间格式（今天打开时显示）',
 			'settings.date_format_label' => '日期格式（其他日期显示）',
@@ -3586,6 +3768,8 @@ extension on TranslationsZhCn {
 			'settings.entrance_slide' => '滑动',
 			'settings.entrance_scale' => '缩放',
 			'settings.entrance_none' => '无',
+			_ => null,
+		} ?? switch (path) {
 			'settings.custom_css_label' => '自定义 CSS',
 			'settings.custom_css_placeholder' => '/* 你的自定义样式，例如 */\n.card { border-radius: 4px !important; }',
 			'settings.custom_css_apply' => '应用 CSS',
@@ -3664,8 +3848,6 @@ extension on TranslationsZhCn {
 			'settings.discord_show_projects_label' => '显示项目名称',
 			'settings.discord_excluded_label' => '排除的项目',
 			'settings.discord_exclude_project' => '添加项目',
-			_ => null,
-		} ?? switch (path) {
 			'settings.discord_excluded_empty' => '暂无排除的项目。',
 			'settings.discord_excluded_remove' => '从排除列表中删除',
 			'settings.discord_custom_label' => '自定义状态',
@@ -3684,6 +3866,7 @@ extension on TranslationsZhCn {
 			'settings.credits' => '致谢',
 			'settings.credits_developer' => '创建者',
 			'settings.credits_built_with' => '使用以下技术构建',
+			'settings.credits_licenses' => 'Open Source Licenses',
 			'settings.credits_contributors' => '贡献者',
 			'settings.experimental' => '实验性',
 			'settings.customize_view_label' => '自定义视图按钮',
@@ -3734,6 +3917,8 @@ extension on TranslationsZhCn {
 			'settings.feature_desc_asset_store' => '从 Godot Asset Library 浏览并安装插件和项目。',
 			'settings.feature_desc_categories' => '将项目列表分组到文件夹中。',
 			'settings.feature_desc_workspaces' => '在不同的项目和设置集合之间切换。',
+			'settings.git_auth_intro' => 'Approve GodotHub on {{provider}} to finish signing in. Keep this window open until it\'s done; use Cancel to stop.',
+			'settings.git_auth_step_current' => 'current step',
 			'todos.next_steps' => '事项列表',
 			'todos.saving_tasks' => '正在保存事项',
 			'todos.pending_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个待处理', ), 
@@ -3985,6 +4170,13 @@ extension on TranslationsZhCn {
 			'versions.custom_build_badge' => '自定义构建',
 			'versions.add_custom_build' => '添加自定义构建…',
 			'versions.adding_custom_build' => '正在添加自定义构建…',
+			'versions.download_failed_summary' => 'GodotHub couldn\'t download Godot {{tag}}.',
+			'versions.download_failed_show_details' => 'Show error details',
+			'versions.download_failed_hide_details' => 'Hide error details',
+			'versions.download_failed_report' => 'Report this problem',
+			'versions.export_templates_select_none' => 'Select none',
+			'versions.export_templates_select_hint' => 'Select at least one template to download.',
+			'versions.export_templates_all_installed' => 'Every template for this release is already installed.',
 			_ => null,
 		};
 	}

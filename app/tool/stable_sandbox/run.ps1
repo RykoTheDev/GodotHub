@@ -66,9 +66,7 @@ $portableDir = Join-Path $env:TEMP 'portable\GodotHub'
 Expand-Archive $portable -DestinationPath $portableDir -Force
 Check (Test-Path (Join-Path $portableDir 'godothub.exe')) 'godothub.exe at the top level of the portable zip'
 Check (-not (Test-Path (Join-Path $portableDir 'launcher.json'))) 'portable zip has no launcher layout'
-foreach ($dll in 'vcruntime140.dll', 'vcruntime140_1.dll', 'msvcp140.dll') {
-  Check (Test-Path (Join-Path $portableDir $dll)) "portable zip ships $dll"
-}
+Check (@(Get-ChildItem $portableDir -Filter '*.dll' | Where-Object { $_.Name -match '^(msvcp|vcruntime|concrt)140' }).Count -eq 0) 'portable zip needs no Visual C++ runtime DLLs'
 $out = (& (Join-Path $portableDir 'godothub.exe') --version | Out-String).Trim()
 Check ($out -eq "godothub $version") "portable binary answers --version ($out)"
 
@@ -94,9 +92,7 @@ Check ($state.current -eq $version) "launcher.json starts $version"
 Check (Test-Path (Join-Path $installDir "app-$version\godothub.exe")) "app installed into app-$version"
 Check ((Get-Item (Join-Path $installDir 'godothub.exe')).Length -lt 2MB) 'godothub.exe is now the launcher'
 Check ((Get-ChildItem $installDir -File | Where-Object { $_.Extension -eq '.dll' }).Count -eq 0) 'no loose DLLs left at the top level'
-foreach ($dll in 'vcruntime140.dll', 'vcruntime140_1.dll', 'msvcp140.dll') {
-  Check (Test-Path (Join-Path $installDir "app-$version\$dll")) "app folder ships $dll"
-}
+Check (@(Get-ChildItem (Join-Path $installDir "app-$version") -Filter '*.dll' | Where-Object { $_.Name -match '^(msvcp|vcruntime|concrt)140' }).Count -eq 0) 'app folder needs no Visual C++ runtime DLLs'
 $entry = Get-ItemProperty $uninstallKey -ErrorAction SilentlyContinue
 Check ($entry.DisplayVersion -eq $version) "uninstall entry GodotHub is $version (got $($entry.DisplayVersion))"
 Check ($entry.Publisher -eq 'GodotHub') "publisher stays GodotHub (got $($entry.Publisher))"

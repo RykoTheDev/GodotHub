@@ -5,6 +5,7 @@ import '../design/design.dart';
 import '../logic/project_sort.dart' show stableSorted;
 import '../src/rust/api/types.dart';
 import '../ui/controls/text_input.dart';
+import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
@@ -86,18 +87,29 @@ class _BulkTagModalState extends State<BulkTagModal> {
     final tr = context.tr.common;
     final tags = _allTags;
     final enabled = _input.text.trim().isNotEmpty;
-    final addRadius = BorderRadius.circular(theme.radiusItem);
     return GhModalShell(
       icon: GhIcon(GhIcons.tags, size: theme.space(5), color: theme.ink),
       title: tr.bulk_tags_title,
       maxWidth: GhModalWidth.md,
       onClose: widget.onClose,
+      footer: ghModalActions(
+        primary: GhButton(
+          key: const ValueKey('bulk-tags-done'),
+          onPressed: widget.onClose,
+          label: tr.done,
+          variant: GhButtonVariant.primary,
+        ),
+      ),
       child: Padding(
         padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(6)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: theme.space(4),
           children: [
+            Text(
+              ghTr('bulk_tags_intro', count: _projects.length),
+              style: theme.text(size: GhTextSize.sm, color: theme.muted, lineHeight: 1.6),
+            ),
             Row(
               spacing: theme.space(2),
               children: [
@@ -113,33 +125,22 @@ class _BulkTagModalState extends State<BulkTagModal> {
                     padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(2)),
                   ),
                 ),
-                GhPressable(
+                GhButton(
+                  key: const ValueKey('bulk-tags-add'),
                   onPressed: enabled ? _addTag : null,
-                  borderRadius: addRadius,
-                  builder: (context, states) => GhAnimatedBox(
-                    color: theme.accent.withValues(alpha: states.active ? 0.25 : 0.15),
-                    borderRadius: addRadius,
-                    border: Border.all(color: theme.accent.withValues(alpha: 0.4)),
-                    padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(2)),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: theme.space(1.5),
-                      children: [
-                        GhIcon(GhIcons.plus, size: theme.space(3), color: theme.accentBright),
-                        Text(
-                          tr.add_tag,
-                          style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.accentBright),
-                        ),
-                      ],
-                    ),
-                  ),
+                  icon: GhIcons.plus,
+                  label: tr.add_tag,
+                  variant: GhButtonVariant.outline,
+                  size: GhTextSize.xs,
+                  paddingX: 3,
+                  paddingY: 2,
                 ),
               ],
             ),
             if (tags.isEmpty)
               Text(
                 tr.no_common_tags,
-                style: theme.text(size: GhTextSize.x2s, color: theme.muted.withValues(alpha: 0.5)),
+                style: theme.text(size: GhTextSize.xs, color: theme.muted),
               )
             else
               Column(

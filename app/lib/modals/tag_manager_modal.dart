@@ -11,6 +11,7 @@ import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
+import '../ui/reusables/modal_kit.dart';
 import '../ui/shell/smooth_scroll.dart';
 
 class TagManagerModal extends StatefulWidget {
@@ -149,7 +150,8 @@ class _TagManagerModalState extends State<TagManagerModal> {
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
     final tr = context.tr.common;
-    final mutedHint = theme.muted.withValues(alpha: 0.6);
+    final hasInput = _newTag.text.trim().isNotEmpty;
+    final duplicate = _error == tr.tag_already_exists;
     return GhModalShell(
       icon: GhIcon(GhIcons.tags, size: theme.space(5), color: theme.accentBright),
       title: tr.manage_tags,
@@ -157,287 +159,205 @@ class _TagManagerModalState extends State<TagManagerModal> {
       onClose: widget.onClose,
       showClose: false,
       onKeyEvent: _onModalKey,
-      footer: [
-        Text(
-          _tags.isEmpty ? tr.no_tags : tr.tag_count(count: _tags.length),
-          style: theme.text(size: GhTextSize.xs, color: mutedHint),
+      error: duplicate ? null : _error,
+      footer: ghModalActions(
+        trailing: [GhButton(onPressed: widget.onClose, label: tr.cancel)],
+        primary: GhBusyButton(
+          key: const ValueKey('tag-manager-save'),
+          onPressed: _saving ? null : _save,
+          busy: _saving,
+          icon: GhIcons.check,
+          label: _saving ? tr.saving : tr.save,
         ),
-        const Spacer(),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: theme.space(2.5),
+      ),
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(6)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: theme.space(5),
           children: [
-            GhButton(onPressed: widget.onClose, label: tr.cancel),
-            GhPressable(
-              onPressed: _saving ? null : _save,
-              disabledOpacity: 0.5,
-              borderRadius: BorderRadius.circular(theme.radiusBtn),
-              rippleColor: Colors.white,
-              builder: (context, states) => GhAnimatedBox(
-                color: states.active ? theme.accentBright : theme.accent,
-                borderRadius: BorderRadius.circular(theme.radiusBtn),
-                padding: EdgeInsets.symmetric(horizontal: theme.space(5), vertical: theme.space(2.5)),
+            Text(
+              ghTr('tag_manager_intro', args: {'name': widget.project.name}),
+              style: theme.text(size: GhTextSize.sm, color: theme.muted, lineHeight: 1.6),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: theme.space(1.5),
+              children: [
+                Text(
+                  ghTr('tag_new_label'),
+                  style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.ink),
+                ),
+                Row(
+                  spacing: theme.space(2),
+                  children: [
+                    Expanded(
+                      child: GhTextInput(
+                        controller: _newTag,
+                        focusNode: _input,
+                        placeholder: tr.tag_input_placeholder,
+                        semanticLabel: ghTr('tag_new_label'),
+                        onSubmitted: (_) => _addTag(),
+                        mono: true,
+                        background: theme.base,
+                        borderColor: duplicate ? theme.danger : theme.outline.withValues(alpha: 0.5),
+                        focusBorderColor: duplicate ? theme.danger : theme.accentDim,
+                        placeholderColor: theme.muted.withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(theme.radiusBtn),
+                        padding: EdgeInsets.symmetric(horizontal: theme.space(3.5), vertical: theme.space(2.5)),
+                      ),
+                    ),
+                    GhButton(
+                      key: const ValueKey('tag-manager-add'),
+                      onPressed: hasInput ? _addTag : null,
+                      icon: GhIcons.plus,
+                      label: tr.add,
+                      variant: GhButtonVariant.outline,
+                    ),
+                  ],
+                ),
+                if (duplicate)
+                  Text(
+                    _error!,
+                    style: theme.text(size: GhTextSize.x2s, color: theme.danger),
+                  ),
+              ],
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: theme.space(2),
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        tr.bulk_tags,
+                        style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.ink),
+                      ),
+                    ),
+                    Text(
+                      _tags.isEmpty ? tr.no_tags : tr.tag_count(count: _tags.length),
+                      style: theme.text(size: GhTextSize.x2s, color: theme.muted),
+                    ),
+                  ],
+                ),
+                Container(
+                  constraints: BoxConstraints(minHeight: theme.space(16), maxHeight: theme.space(64)),
+                  padding: EdgeInsets.all(theme.space(3)),
+                  decoration: BoxDecoration(
+                    color: theme.base.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(theme.radiusItem),
+                    border: Border.all(color: theme.line),
+                  ),
+                  child: _tags.isEmpty
+                      ? Center(
+                          child: Text(
+                            tr.no_tags,
+                            style: theme.text(size: GhTextSize.xs, color: theme.muted),
+                          ),
+                        )
+                      : GhScrollView(
+                          child: Wrap(
+                            spacing: theme.space(2),
+                            runSpacing: theme.space(2),
+                            children: [for (var i = 0; i < _tags.length; i++) _chip(context, i)],
+                          ),
+                        ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _chip(BuildContext context, int index) {
+    final theme = GhTheme.of(context);
+    final tr = context.tr.common;
+    final tag = _tags[index];
+    final color = colorFromHex(tagColor(tag));
+    final radius = BorderRadius.circular(999);
+    if (_editing == index) {
+      return SizedBox(
+        key: ValueKey('edit-$tag-$index'),
+        width: theme.space(48),
+        child: GhTextInput(
+          controller: _edit,
+          focusNode: _editNode,
+          autofocus: true,
+          onSubmitted: (_) => _saveEdit(),
+          onBlur: _saveEdit,
+          onKeyEvent: (node, event) {
+            if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.escape) {
+              _cancelEdit();
+              return KeyEventResult.handled;
+            }
+            return KeyEventResult.ignored;
+          },
+          mono: true,
+          size: GhTextSize.xs,
+          weight: GhWeight.medium,
+          textColor: color,
+          background: theme.base,
+          borderColor: color.withValues(alpha: 0.5),
+          focusBorderColor: color,
+          borderRadius: radius,
+          padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(1.5)),
+        ),
+      );
+    }
+    return Container(
+      key: ValueKey('$tag-$index'),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: radius,
+        border: Border.all(color: color.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Tooltip(
+            message: tr.tag_rename_hint,
+            child: GhPressable(
+              onPressed: () => _startEdit(index),
+              semanticLabel: '${tr.tag_rename_aria}: $tag',
+              borderRadius: radius,
+              builder: (context, states) => Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(theme.space(3), theme.space(1.5), theme.space(1), theme.space(1.5)),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   spacing: theme.space(1.5),
                   children: [
-                    if (_saving)
-                      SizedBox.square(
-                        dimension: theme.space(3.5),
-                        child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.white, backgroundColor: Color(0x4DFFFFFF)),
-                      )
-                    else
-                      GhIcon(GhIcons.check, size: theme.space(3.5), color: Colors.white),
+                    Container(
+                      width: theme.space(2),
+                      height: theme.space(2),
+                      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                    ),
                     Text(
-                      _saving ? tr.saving : tr.save,
-                      style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: Colors.white),
+                      tag,
+                      style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, mono: true, color: states.active ? theme.ink : color),
                     ),
                   ],
                 ),
               ),
             ),
-          ],
-        ),
-      ],
-      child: Padding(
-        padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(6)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: theme.space(4),
-          children: [
-            if (_error != null)
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(2)),
-                decoration: BoxDecoration(
-                  color: theme.danger.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(theme.radiusLg),
-                  border: Border.all(color: theme.danger.withValues(alpha: 0.2)),
-                ),
-                child: Text(
-                  _error!,
-                  style: theme.text(size: GhTextSize.xs, color: theme.danger),
-                ),
-              ),
-            Row(
-              spacing: theme.space(2),
-              children: [
-                Expanded(
-                  child: GhTextInput(
-                    controller: _newTag,
-                    focusNode: _input,
-                    placeholder: tr.tag_input_placeholder,
-                    onSubmitted: (_) => _addTag(),
-                    background: theme.raised,
-                    borderColor: theme.line,
-                    focusBorderColor: theme.accentDim,
-                    borderRadius: BorderRadius.circular(theme.radiusLg),
-                    padding: EdgeInsets.symmetric(horizontal: theme.space(3.5), vertical: theme.space(2.5)),
-                  ),
-                ),
-                GhPressable(
-                  onPressed: _newTag.text.trim().isEmpty ? null : _addTag,
-                  borderRadius: BorderRadius.circular(theme.radiusLg),
-                  rippleColor: Colors.white,
-                  builder: (context, states) => GhAnimatedBox(
-                    color: states.active ? theme.accentBright : theme.accent,
-                    borderRadius: BorderRadius.circular(theme.radiusLg),
-                    padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(2.5)),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: theme.space(1.5),
-                      children: [
-                        GhIcon(GhIcons.plus, size: theme.space(3.5), color: Colors.white),
-                        Text(
-                          tr.add,
-                          style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: Colors.white),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            ConstrainedBox(
-              constraints: BoxConstraints(maxHeight: theme.space(64)),
-              child: _tags.isEmpty
-                  ? Padding(
-                      padding: EdgeInsets.symmetric(vertical: theme.space(8)),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        spacing: theme.space(2),
-                        children: [
-                          Opacity(
-                            opacity: 0.4,
-                            child: GhIcon(GhIcons.tags, size: theme.space(8), color: mutedHint),
-                          ),
-                          Text(
-                            tr.no_tags,
-                            style: theme.text(size: GhTextSize.sm, color: mutedHint),
-                          ),
-                        ],
-                      ),
-                    )
-                  : GhScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        spacing: theme.space(2),
-                        children: [for (var i = 0; i < _tags.length; i++) _row(context, i)],
-                      ),
-                    ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _row(BuildContext context, int index) {
-    final theme = GhTheme.of(context);
-    final tr = context.tr.common;
-    final tag = _tags[index];
-    final color = colorFromHex(tagColor(tag));
-    final editing = _editing == index;
-    return _TagRow(
-      key: ValueKey('$tag-$index'),
-      builder: (hovered) => GhAnimatedBox(
-        color: theme.raised,
-        borderRadius: BorderRadius.circular(theme.radiusXl / 2),
-        border: Border.all(color: hovered ? theme.accentDim.withValues(alpha: 0.4) : theme.line.withValues(alpha: 0.6)),
-        padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(2)),
-        child: Row(
-          spacing: theme.space(2),
-          children: [
-            Container(
-              width: theme.space(2.5),
-              height: theme.space(2.5),
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.black.withValues(alpha: 0.1)),
+          ),
+          Padding(
+            padding: EdgeInsetsDirectional.only(end: theme.space(1)),
+            child: GhPressable(
+              onPressed: () => _removeTag(index),
+              semanticLabel: '${tr.remove_tag}: $tag',
+              borderRadius: radius,
+              builder: (context, states) => GhAnimatedBox(
+                padding: EdgeInsets.all(theme.space(1)),
+                color: states.active ? theme.danger.withValues(alpha: 0.15) : theme.danger.withValues(alpha: 0),
+                borderRadius: radius,
+                child: GhIcon(GhIcons.x, size: theme.space(2.5), color: states.active ? theme.danger : color.withValues(alpha: 0.7)),
               ),
             ),
-            Expanded(
-              child: editing
-                  ? GhTextInput(
-                      controller: _edit,
-                      focusNode: _editNode,
-                      autofocus: true,
-                      onSubmitted: (_) => _saveEdit(),
-                      onBlur: _saveEdit,
-                      onKeyEvent: (node, event) {
-                        if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.escape) {
-                          _cancelEdit();
-                          return KeyEventResult.handled;
-                        }
-                        return KeyEventResult.ignored;
-                      },
-                      mono: true,
-                      weight: GhWeight.medium,
-                      textColor: color,
-                      background: theme.base,
-                      borderColor: theme.accent.withValues(alpha: 0.4),
-                      borderRadius: BorderRadius.circular(theme.radiusMd / 2),
-                      padding: EdgeInsets.symmetric(horizontal: theme.space(2), vertical: theme.space(1)),
-                    )
-                  : MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        onTap: () => _startEdit(index),
-                        child: Tooltip(
-                          message: tr.tag_rename_hint,
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(vertical: theme.space(1)),
-                            child: Text(
-                              tag,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, mono: true, color: color),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-            ),
-            AnimatedOpacity(
-              opacity: hovered ? 1 : 0,
-              duration: GhDurations.interactive,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: theme.space(1),
-                children: [
-                  if (!editing)
-                    _SmallIconButton(
-                      icon: GhIcons.pencil,
-                      label: tr.tag_rename_aria,
-                      hoverColor: theme.ink,
-                      hoverBackground: theme.base,
-                      onPressed: () => _startEdit(index),
-                    ),
-                  _SmallIconButton(
-                    icon: GhIcons.x,
-                    label: tr.remove_tag.args({'tag': tag}),
-                    hoverColor: theme.danger,
-                    hoverBackground: theme.danger.withValues(alpha: 0.1),
-                    onPressed: () => _removeTag(index),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _TagRow extends StatefulWidget {
-  const _TagRow({super.key, required this.builder});
-
-  final Widget Function(bool hovered) builder;
-
-  @override
-  State<_TagRow> createState() => _TagRowState();
-}
-
-class _TagRowState extends State<_TagRow> {
-  bool _hovered = false;
-
-  @override
-  Widget build(BuildContext context) => MouseRegion(
-    onEnter: (_) => setState(() => _hovered = true),
-    onExit: (_) => setState(() => _hovered = false),
-    child: widget.builder(_hovered),
-  );
-}
-
-class _SmallIconButton extends StatelessWidget {
-  const _SmallIconButton({
-    required this.icon,
-    required this.label,
-    required this.hoverColor,
-    required this.hoverBackground,
-    required this.onPressed,
-  });
-
-  final FaIconData icon;
-  final String label;
-  final Color hoverColor;
-  final Color hoverBackground;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = GhTheme.of(context);
-    final radius = BorderRadius.circular(theme.radiusMd / 2);
-    return GhPressable(
-      onPressed: onPressed,
-      semanticLabel: label,
-      borderRadius: radius,
-      builder: (context, states) => GhAnimatedBox(
-        color: states.active ? hoverBackground : hoverBackground.withValues(alpha: 0),
-        borderRadius: radius,
-        padding: EdgeInsets.all(theme.space(1.5)),
-        child: GhIcon(icon, size: theme.space(3), color: states.active ? hoverColor : theme.muted.withValues(alpha: 0.5)),
+          ),
+        ],
       ),
     );
   }

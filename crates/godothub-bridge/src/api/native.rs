@@ -6,15 +6,13 @@ pub struct RecentProject {
     pub path: String,
 }
 
-pub struct DiscordActivity {
-    pub name: Option<String>,
-    pub details: Option<String>,
-    pub state: Option<String>,
-    pub start_timestamp: Option<i64>,
-}
-
 fn dialog() -> rfd::AsyncFileDialog {
-    rfd::AsyncFileDialog::new()
+    let dialog = rfd::AsyncFileDialog::new();
+    #[cfg(windows)]
+    if let Some(parent) = crate::dialog_parent::main_window() {
+        return dialog.set_parent(&parent);
+    }
+    dialog
 }
 
 fn path_of(handle: Option<rfd::FileHandle>) -> Option<String> {
@@ -80,28 +78,4 @@ pub async fn refresh_recent_projects() -> Result<Vec<RecentProject>, CoreError> 
 pub async fn open_recent_project(id: String) -> Result<(), CoreError> {
     let app = crate::host::app()?;
     godothub_core::projects::open_project(app, id, true, None).await.map_err(CoreError::from)
-}
-
-pub async fn discord_connect(app_id: String) -> Result<(), CoreError> {
-    let app = crate::host::app()?;
-    tokio::task::spawn_blocking(move || godothub_core::discord::connect(&app, app_id))
-        .await
-        .map_err(|e| CoreError::from(e.to_string()))?
-        .map_err(CoreError::from)
-}
-
-pub async fn discord_disconnect() -> Result<(), CoreError> {
-    godothub_core::discord::disconnect(&crate::host::app()?);
-    Ok(())
-}
-
-pub async fn discord_set_activity(activity: Option<DiscordActivity>) -> Result<(), CoreError> {
-    let activity = activity.map(|a| godothub_core::discord::DiscordActivity {
-        name: a.name,
-        details: a.details,
-        state: a.state,
-        start_timestamp: a.start_timestamp,
-    });
-    godothub_core::discord::set_activity(&crate::host::app()?, activity);
-    Ok(())
 }

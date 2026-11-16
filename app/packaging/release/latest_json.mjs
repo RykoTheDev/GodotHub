@@ -43,8 +43,12 @@ for (const sig of sigs) {
   const entry = { signature: readFileSync(join(dir, sig), 'utf8').trim(), url: url(name) }
   if (c.os === 'darwin' && c.arch === 'universal') {
     for (const arch of ['aarch64', 'x86_64', 'universal']) {
-      platforms[`darwin-${arch}`] = entry
-      platforms[`darwin-${arch}-app`] = entry
+      if (channel === 'stable') {
+        platforms[`darwin-${arch}-flutter`] = entry
+      } else {
+        platforms[`darwin-${arch}`] = entry
+        platforms[`darwin-${arch}-app`] = entry
+      }
     }
   } else {
     if (!c.only) platforms[`${c.os}-${c.arch}`] = entry
@@ -54,12 +58,9 @@ for (const sig of sigs) {
 const defaultRequired =
   channel === 'stable'
     ? [
-        'darwin-aarch64',
-        'darwin-x86_64',
-        'darwin-universal',
-        'darwin-aarch64-app',
-        'darwin-x86_64-app',
-        'darwin-universal-app',
+        'darwin-aarch64-flutter',
+        'darwin-x86_64-flutter',
+        'darwin-universal-flutter',
         'linux-x86_64',
         'linux-x86_64-appimage',
         'linux-x86_64-deb',
@@ -73,6 +74,11 @@ const defaultRequired =
 const required = (process.env.REQUIRED_PLATFORMS ?? defaultRequired).split(',').filter(Boolean)
 const missing = required.filter((k) => !platforms[k])
 if (missing.length) throw new Error(`required platforms missing: ${missing.join(', ')}`)
+
+if (channel === 'stable') {
+  const tauriVisible = Object.keys(platforms).filter((k) => k.startsWith('darwin-') && !k.endsWith('-flutter'))
+  if (tauriVisible.length) throw new Error(`Mac entries the Tauri updater would install: ${tauriVisible.join(', ')}`)
+}
 
 const ordered = Object.fromEntries(Object.keys(platforms).sort().map((k) => [k, platforms[k]]))
 writeFileSync(out, JSON.stringify({ version, notes, pub_date: new Date().toISOString(), platforms: ordered }, null, 2))

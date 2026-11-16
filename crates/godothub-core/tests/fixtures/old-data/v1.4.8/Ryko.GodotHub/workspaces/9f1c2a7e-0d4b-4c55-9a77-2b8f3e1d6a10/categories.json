@@ -1,0 +1,20 @@
+[
+  {
+    "id": "c-jams",
+    "name": "Jam Games",
+    "sort_order": 0,
+    "color": "#e05d44",
+    "hidden": false,
+    "folders": [
+      "__ROOT__/projects"
+    ]
+  },
+  {
+    "id": "c-old",
+    "name": "Archive",
+    "sort_order": 1,
+    "color": "#646b78",
+    "hidden": true,
+    "folders": []
+  }
+]

@@ -57,7 +57,7 @@ done
 if [ "$os" = linux ]; then
   required=linux-x86_64,linux-x86_64-appimage,linux-x86_64-deb,linux-x86_64-rpm
 else
-  required=darwin-aarch64,darwin-x86_64,darwin-universal,darwin-aarch64-app,darwin-x86_64-app,darwin-universal-app
+  required=darwin-aarch64-flutter,darwin-x86_64-flutter,darwin-universal-flutter
 fi
 CHANNEL=stable RELEASE_TAG=v1.9.1 REPO=lab/lab ASSETS_DIR="$lab/dist/1.9.1" OUT="$lab/manifests/1.9.1.json" \
   BASE_URL="$base/1.9.1" REQUIRED_PLATFORMS="$required" node app/packaging/release/latest_json.mjs

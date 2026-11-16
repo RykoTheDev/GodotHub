@@ -8,12 +8,12 @@ import '../api/opener.dart';
 import '../design/design.dart';
 import '../src/rust/api/dto.dart' as dto;
 import '../src/rust/api/types.dart';
+import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
 import '../ui/reusables/modal_kit.dart';
-import '../ui/shell/smooth_scroll.dart';
 
 enum GitAuthStatus { starting, waiting, success, error, expired }
 
@@ -52,7 +52,6 @@ class GitAuthModal extends StatefulWidget {
 }
 
 class _GitAuthModalState extends State<GitAuthModal> {
-  final FocusNode _dialog = FocusNode(debugLabel: 'GitAuthModal');
   DeviceFlowStart? _flow;
   GitAuthStatus _status = GitAuthStatus.starting;
   String? _message;
@@ -87,7 +86,6 @@ class _GitAuthModalState extends State<GitAuthModal> {
     for (final timer in [_poll, _tick, _copiedTimer, _linkTimer, _closeTimer]) {
       timer?.cancel();
     }
-    _dialog.dispose();
     super.dispose();
   }
 
@@ -215,29 +213,8 @@ class _GitAuthModalState extends State<GitAuthModal> {
     } catch (_) {}
   }
 
-  Widget _primary(GhTheme theme, {required FaIconData icon, required String label, required VoidCallback onPressed}) => GhPressable(
-    onPressed: onPressed,
-    rippleColor: Colors.white,
-    borderRadius: BorderRadius.circular(theme.radiusBtn),
-    builder: (context, states) => GhAnimatedBox(
-      color: states.active ? theme.accentBright : theme.accent,
-      borderRadius: BorderRadius.circular(theme.radiusBtn),
-      padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(2.5)),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        spacing: theme.space(2),
-        children: [
-          GhIcon(icon, size: theme.space(4), color: Colors.white),
-          Flexible(
-            child: Text(
-              label,
-              style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: Colors.white),
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
+  Widget _primary({required FaIconData icon, required String label, required VoidCallback onPressed, Key? key}) =>
+      GhButton(key: key, onPressed: onPressed, icon: icon, label: label, variant: GhButtonVariant.primary);
 
   Widget _step(
     GhTheme theme, {
@@ -294,9 +271,17 @@ class _GitAuthModalState extends State<GitAuthModal> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: theme.space(2.5),
                 children: [
-                  Text(
-                    title,
-                    style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: active || done ? theme.ink : theme.muted),
+                  Semantics(
+                    label: done ? '$title, ${ghTr('done')}' : (active ? '$title, ${_s('git_auth_step_current')}' : title),
+                    excludeSemantics: true,
+                    child: Text(
+                      title,
+                      style: theme.text(
+                        size: GhTextSize.sm,
+                        weight: active ? GhWeight.semibold : GhWeight.medium,
+                        color: active || done ? theme.ink : theme.muted,
+                      ),
+                    ),
                   ),
                   ?child,
                 ],
@@ -394,42 +379,19 @@ class _GitAuthModalState extends State<GitAuthModal> {
             spacing: theme.space(2),
             children: [
               _primary(
-                theme,
+                key: const ValueKey('git-auth-open'),
                 icon: GhIcons.externalLink,
                 label: _s('git_auth_copy_and_open', args: {'provider': _providerLabel}),
                 onPressed: _copyAndOpen,
               ),
               if (url != null)
-                GhPressable(
+                GhButton(
+                  key: const ValueKey('git-auth-copy-link'),
                   onPressed: _copyLink,
-                  semanticLabel: _s('git_auth_copy_link'),
-                  borderRadius: BorderRadius.circular(theme.radiusItem),
-                  builder: (context, states) => GhAnimatedBox(
-                    color: states.active ? theme.raised : theme.raised.withValues(alpha: 0),
-                    borderRadius: BorderRadius.circular(theme.radiusItem),
-                    border: Border.all(color: states.active ? theme.accentDim : theme.line),
-                    padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(2.5)),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      spacing: theme.space(2),
-                      children: [
-                        GhIcon(
-                          _linkCopied ? GhIcons.check : GhIcons.copy,
-                          size: theme.space(4),
-                          color: _linkCopied ? theme.mint : (states.active ? theme.ink : theme.muted),
-                        ),
-                        Flexible(
-                          child: Text(
-                            url.replaceFirst(RegExp('^https?://'), ''),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textDirection: TextDirection.ltr,
-                            style: theme.text(size: GhTextSize.sm, color: states.active ? theme.ink : theme.muted),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  icon: _linkCopied ? GhIcons.check : GhIcons.copy,
+                  label: _linkCopied ? _s('git_auth_copied') : url.replaceFirst(RegExp('^https?://'), ''),
+                  tooltip: _s('git_auth_copy_link'),
+                  variant: GhButtonVariant.outline,
                 ),
             ],
           ),
@@ -491,6 +453,13 @@ class _GitAuthModalState extends State<GitAuthModal> {
           child: Column(
             spacing: theme.space(1.5),
             children: [
+              Container(
+                width: theme.space(11),
+                height: theme.space(11),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(color: theme.mint.withValues(alpha: 0.15), shape: BoxShape.circle),
+                child: GhIcon(GhIcons.check, size: theme.space(5), color: theme.mint),
+              ),
               Text(
                 ghTr('settings:git_connected_as', args: {'username': _message ?? ''}),
                 textAlign: TextAlign.center,
@@ -537,7 +506,6 @@ class _GitAuthModalState extends State<GitAuthModal> {
                     ),
                 ],
               ),
-              _primary(theme, icon: GhIcons.refresh, label: _s('git_auth_try_again'), onPressed: _start),
             ],
           ),
         );
@@ -546,141 +514,55 @@ class _GitAuthModalState extends State<GitAuthModal> {
     }
   }
 
+  bool get _inProgress => _status == GitAuthStatus.starting || _status == GitAuthStatus.waiting;
+
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
     final host = widget.provider == 'gitlab' && widget.baseUrl != null ? widget.baseUrl!.replaceFirst(RegExp('^https?://'), '') : null;
-    final title = _s('git_auth_title', args: {'provider': _providerLabel});
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        const ModalBarrier(dismissible: false, color: Color(0xB3000000)),
-        Center(
-          child: Padding(
-            padding: EdgeInsets.all(theme.space(4)),
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: theme.rem(28), maxHeight: MediaQuery.sizeOf(context).height - theme.space(8)),
-              child: Semantics(
-                scopesRoute: true,
-                explicitChildNodes: true,
-                namesRoute: true,
-                label: title,
-                child: FocusScope(
-                  autofocus: true,
-                  onKeyEvent: (node, event) =>
-                      event.logicalKey == LogicalKeyboardKey.escape ? KeyEventResult.handled : KeyEventResult.ignored,
-                  child: Material(
-                    type: MaterialType.transparency,
-                    child: Container(
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(
-                        color: theme.surface,
-                        borderRadius: BorderRadius.circular(28),
-                        border: Border.all(color: theme.outline.withValues(alpha: 0.4)),
-                        boxShadow: GhShadows.xl2(),
-                      ),
-                      child: Stack(
-                        children: [
-                          GhScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.fromLTRB(theme.space(7), theme.space(9), theme.space(7), theme.space(6)),
-                                  child: Column(
-                                    spacing: theme.space(3),
-                                    children: [
-                                      SizedBox(
-                                        width: theme.space(16),
-                                        height: theme.space(16),
-                                        child: Stack(
-                                          clipBehavior: Clip.none,
-                                          children: [
-                                            Container(
-                                              alignment: Alignment.center,
-                                              decoration: BoxDecoration(
-                                                color: theme.raised,
-                                                shape: BoxShape.circle,
-                                                border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-                                              ),
-                                              child: GhIcon(
-                                                widget.provider == 'github' ? GhIcons.github : GhIcons.gitlab,
-                                                size: theme.space(8),
-                                                color: theme.ink,
-                                              ),
-                                            ),
-                                            if (_status == GitAuthStatus.success)
-                                              PositionedDirectional(
-                                                bottom: -theme.space(1),
-                                                end: -theme.space(1),
-                                                child: Container(
-                                                  width: theme.space(6),
-                                                  height: theme.space(6),
-                                                  alignment: Alignment.center,
-                                                  decoration: BoxDecoration(
-                                                    color: theme.mint,
-                                                    shape: BoxShape.circle,
-                                                    border: Border.all(color: theme.surface, width: 4),
-                                                  ),
-                                                  child: GhIcon(GhIcons.check, size: theme.space(3), color: Colors.white),
-                                                ),
-                                              ),
-                                          ],
-                                        ),
-                                      ),
-                                      Text(
-                                        title,
-                                        textAlign: TextAlign.center,
-                                        style: theme.text(
-                                          size: GhTextSize.xl,
-                                          weight: FontWeight.w900,
-                                          color: theme.ink,
-                                          letterSpacingEm: -0.025,
-                                        ),
-                                      ),
-                                      if (host != null)
-                                        Text(
-                                          host,
-                                          textDirection: TextDirection.ltr,
-                                          style: theme.text(size: GhTextSize.xs, color: theme.muted),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsets.fromLTRB(theme.space(7), 0, theme.space(7), theme.space(9)),
-                                  child: _body(theme),
-                                ),
-                              ],
-                            ),
-                          ),
-                          PositionedDirectional(
-                            top: theme.space(4),
-                            end: theme.space(4),
-                            child: GhPressable(
-                              onPressed: widget.onClose,
-                              semanticLabel: ghTr('close'),
-                              borderRadius: BorderRadius.circular(theme.space(4)),
-                              builder: (context, states) => GhAnimatedBox(
-                                width: theme.space(8),
-                                height: theme.space(8),
-                                color: states.active ? theme.ink.withValues(alpha: 0.1) : theme.ink.withValues(alpha: 0),
-                                borderRadius: BorderRadius.circular(theme.space(4)),
-                                alignment: Alignment.center,
-                                child: GhIcon(GhIcons.x, size: theme.space(3.5), color: states.active ? theme.ink : theme.muted),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+    final inProgress = _inProgress;
+    final footer = switch (_status) {
+      GitAuthStatus.starting || GitAuthStatus.waiting => ghModalActions(
+        primary: GhButton(key: const ValueKey('git-auth-cancel'), onPressed: widget.onClose, label: ghTr('cancel')),
+      ),
+      GitAuthStatus.success => ghModalActions(
+        primary: GhButton(onPressed: widget.onClose, label: ghTr('done'), variant: GhButtonVariant.primary),
+      ),
+      GitAuthStatus.error || GitAuthStatus.expired => ghModalActions(
+        trailing: [GhButton(onPressed: widget.onClose, label: ghTr('close'))],
+        primary: _primary(key: const ValueKey('git-auth-retry'), icon: GhIcons.refresh, label: _s('git_auth_try_again'), onPressed: _start),
+      ),
+    };
+    return GhModalShell(
+      icon: GhIcon(widget.provider == 'github' ? GhIcons.github : GhIcons.gitlab, size: theme.space(5), color: theme.ink),
+      title: _s('git_auth_title', args: {'provider': _providerLabel}),
+      maxWidth: GhModalWidth.md,
+      showClose: !inProgress,
+      onClose: inProgress ? null : widget.onClose,
+      onKeyEvent: (node, event) =>
+          inProgress && event.logicalKey == LogicalKeyboardKey.escape ? KeyEventResult.handled : KeyEventResult.ignored,
+      footer: footer,
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(6)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: theme.space(4),
+          children: [
+            if (inProgress)
+              Text(
+                _s('git_auth_intro', args: {'provider': _providerLabel}),
+                style: theme.text(size: GhTextSize.sm, color: theme.muted, lineHeight: 1.6),
               ),
-            ),
-          ),
+            if (host != null)
+              Text(
+                host,
+                textDirection: TextDirection.ltr,
+                style: theme.text(size: GhTextSize.xs, mono: true, color: theme.muted),
+              ),
+            _body(theme),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
