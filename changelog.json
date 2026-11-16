@@ -2138,5 +2138,54 @@
     ],
     "known_issues": [],
     "created_at": 1794329757
+  },
+  {
+    "id": "e386f782-cca0-439a-8bc5-cff8e6687076",
+    "version": "v1.6.0",
+    "date": "2026-11-17",
+    "notes": [
+      {
+        "category": "add",
+        "text": "Asset Store: mark addons and templates as favorites, or hide the ones you're not interested in"
+      },
+      {
+        "category": "add",
+        "text": "Asset Store: open any asset to see its description, screenshots and the files it contains before installing"
+      },
+      {
+        "category": "add",
+        "text": "Asset Store: installed addons are marked, with a badge when an update is available, and an addon can be installed into several projects at once"
+      },
+      {
+        "category": "add",
+        "text": "Asset Store: templates from the Godot Asset Library now have their own section, with an update check for templates you already installed and an option to hide them"
+      },
+      {
+        "category": "add",
+        "text": "Kanban columns can be resized by dragging their edge, and the width is remembered"
+      },
+      {
+        "category": "add",
+        "text": "Time tracking is now stored inside each project's .godothub folder, so a project's history stays with its folder, even when it's added to another workspace. Existing history is moved over on its own, and copies of a project start from zero"
+      },
+      {
+        "category": "fix",
+        "text": "Projects on an unplugged drive or an offline network share stay in the library, marked as unavailable, instead of disappearing. They come back as soon as the folder is reachable again"
+      },
+      {
+        "category": "improve",
+        "text": "Folder and file paths can be typed or pasted everywhere, with a clear message when a path doesn't exist"
+      },
+      {
+        "category": "improve",
+        "text": "Refreshed Asset Store, template and news cards, a simpler Storage view, redesigned version cards and consistent loading, empty and error states across the app"
+      },
+      {
+        "category": "improve",
+        "text": "Project Doctor offers Fix all when there are safe fixes to apply"
+      }
+    ],
+    "known_issues": [],
+    "created_at": 1794867964
   }
 ]

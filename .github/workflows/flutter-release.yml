@@ -169,7 +169,7 @@ jobs:
       - name: Regenerate Flutter locale files from src/i18n/locales
         working-directory: app
         run: |
-          dart run tool/i18n_convert.dart
+          dart run ../dev/tool/i18n_convert.dart
           dart run slang
 
       - name: Build the beta app

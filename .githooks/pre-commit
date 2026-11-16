@@ -57,8 +57,8 @@ if git diff --cached --name-only -- 'src/i18n/locales' | grep -q '\.json$'; then
   }
   if ! command -v dart >/dev/null 2>&1; then
     skip "Dart SDK not found"
-  elif ! (cd "$root/app" && dart run tool/i18n_convert.dart >/dev/null 2>&1 && dart run slang >/dev/null 2>&1); then
-    skip "generation failed, run: cd app && dart run tool/i18n_convert.dart && dart run slang"
+  elif ! (cd "$root/app" && dart run ../dev/tool/i18n_convert.dart >/dev/null 2>&1 && dart run slang >/dev/null 2>&1); then
+    skip "generation failed, run: cd app && dart run ../dev/tool/i18n_convert.dart && dart run slang"
   else
     git -C "$root" add -A -- app/lib/i18n
     echo "pre-commit: regenerated and staged Flutter locale files in app/lib/i18n." >&2

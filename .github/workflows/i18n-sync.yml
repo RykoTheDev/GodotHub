@@ -63,7 +63,7 @@ jobs:
       - name: Regenerate Flutter locale files
         id: regen
         run: |
-          dart run tool/i18n_convert.dart
+          dart run ../dev/tool/i18n_convert.dart
           dart run slang
           if [ -n "$(git status --porcelain -- lib/i18n)" ]; then
             echo "changed=true" >> "$GITHUB_OUTPUT"
@@ -111,5 +111,5 @@ jobs:
           else
             gh pr create --head "$SYNC_BRANCH" --base "$BASE" \
               --title "Sync Flutter locale files" \
-              --body "Regenerated app/lib/i18n from src/i18n/locales with tool/i18n_convert.dart and slang after locale changes on $BASE."
+              --body "Regenerated app/lib/i18n from src/i18n/locales with dev/tool/i18n_convert.dart and slang after locale changes on $BASE."
           fi

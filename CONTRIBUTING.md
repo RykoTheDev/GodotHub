@@ -180,8 +180,8 @@ hand.
 | `flutter test` | All widget and unit tests |
 | `flutter test test/projects` | Tests for one area |
 | `dart format -l 140 <files>` | Format the files you touched (the repo uses 140 columns) |
-| `dart run tool/i18n_convert.dart && dart run slang` | Regenerate Flutter translations from `src/i18n/locales` |
-| `dart run tool/i18n/check_keys.dart --check-values` | Locale completeness report |
+| `dart run ../dev/tool/i18n_convert.dart && dart run slang` | Regenerate Flutter translations from `src/i18n/locales` |
+| `dart run ../dev/tool/i18n/check_keys.dart --check-values` | Locale completeness report |
 | `flutter_rust_bridge_codegen generate` | Regenerate the bridge after changing `crates/godothub-bridge/src/api` |
 
 | Command (from the repo root) | Purpose |
@@ -229,7 +229,6 @@ godothub/
 │   │   └── src/rust/                 # Generated bridge bindings (do not edit by hand)
 │   ├── test/                         # Widget and unit tests, mirroring lib/
 │   ├── integration_test/             # End-to-end tests
-│   ├── tool/                         # i18n conversion and checks, icon/notice generators
 │   ├── packaging/                    # Installers, release notes, kill switch
 │   └── windows/ macos/ linux/        # Native desktop runners
 ├── crates/
@@ -239,8 +238,13 @@ godothub/
 │   └── godothub-launcher/            # Windows launcher that starts and rolls back updates
 ├── src/i18n/locales/                 # Translation source of truth (JSON per locale)
 ├── src/, src-tauri/                  # Legacy React + Tauri app
-├── scripts/                          # Legacy i18n helper scripts (Node)
-├── docs/migration/                   # Bridge release notes, environments, FAQ
+├── dev/                              # Everything for developers, nothing that ships
+│   ├── tool/                         # Local CI, i18n conversion and checks, generators,
+│   │                                 #   benchmarks, update labs and sandboxes
+│   ├── scripts/                      # Legacy i18n helper scripts (Node)
+│   ├── docs/                         # Bridge release runbook, environment checks
+│   └── fixtures/                     # Old-version data used by the Rust tests
+├── docs/migration/FAQ.md             # User FAQ (linked from release notes, keep the path)
 ├── .githooks/                        # pre-commit & commit-msg hooks
 └── .github/workflows/                # Flutter CI, release and packaging pipelines
 ```
@@ -283,9 +287,9 @@ worry about platforms you can't test locally.
 To run every step of the CI `checks` job before pushing, in the same order:
 
 ```bash
-bash app/tool/ci_local.sh           # Rust tests, notices, i18n checks, analyze, widget tests
-bash app/tool/ci_local.sh --fast    # the same without the Rust tests
-bash app/tool/ci_local.sh --linux   # inside WSL on a copy of the tree, like the Ubuntu runner
+bash dev/tool/ci_local.sh           # Rust tests, notices, i18n checks, analyze, widget tests
+bash dev/tool/ci_local.sh --fast    # the same without the Rust tests
+bash dev/tool/ci_local.sh --linux   # inside WSL on a copy of the tree, like the Ubuntu runner
 ```
 
 CI runs on Ubuntu, so a test that only passes on Windows (a `C:\` path, a `\`
@@ -487,10 +491,10 @@ The Flutter files are generated from those JSON files:
 - If you don't, the hook lets the commit through and the **i18n sync** workflow
   handles generation for your pull request. For pull requests from forks, it
   opens a follow-up pull request after merge.
-- By hand: `cd app && dart run tool/i18n_convert.dart && dart run slang`.
+- By hand: `cd app && dart run ../dev/tool/i18n_convert.dart && dart run slang`.
 
 Do not edit `app/lib/i18n/json/`, `app/lib/i18n/strings*.g.dart`,
-`app/slang.yaml` or `app/tool/i18n_convert.dart` for a translation.
+`app/slang.yaml` or `dev/tool/i18n_convert.dart` for a translation.
 
 ### Namespace Reference
 
@@ -521,7 +525,7 @@ locale files and create confusion about where a string lives.
 - Shared strings (buttons, labels, messages used in multiple views) go in `common.json`.
 - Namespace-specific strings (only used in one view) go in that namespace's file.
 - Never copy a key from `common.json` into another file, even for translation.
-- Run `cd app && dart run tool/i18n/duplicate_keys.dart` (or `bun run i18n:dupes`)
+- Run `cd app && dart run ../dev/tool/i18n/duplicate_keys.dart` (or `bun run i18n:dupes`)
   to find any duplicate keys across namespace files.
 
 ```bash
@@ -584,7 +588,7 @@ language needs them):
    ```
 3. Copy the English text to the other locales so translators can see it:
    `bun run i18n:sync -- --apply` (or add the same key by hand). Don't translate.
-4. Regenerate: `cd app && dart run tool/i18n_convert.dart && dart run slang`
+4. Regenerate: `cd app && dart run ../dev/tool/i18n_convert.dart && dart run slang`
    (the pre-commit hook does this for you if Dart is installed).
 5. Use it with `context.tr.common.project_created`.
 6. Run `flutter analyze` and the tests for the screen you touched.
@@ -615,8 +619,8 @@ Say you want to add **Japanese** (`ja-JP`):
 5. **Verify** and open a PR:
    ```bash
    cd app
-   dart run tool/i18n_convert.dart && dart run slang
-   dart run tool/i18n/check_keys.dart --check-values
+   dart run ../dev/tool/i18n_convert.dart && dart run slang
+   dart run ../dev/tool/i18n/check_keys.dart --check-values
    flutter analyze
    ```
    If you don't have Flutter, skip this step: CI and the i18n sync workflow
@@ -649,9 +653,9 @@ Use `--empty` if you want empty strings instead (for translators to fill in).
 
 ```bash
 cd app
-dart run tool/i18n/check_keys.dart --check-values   # missing and untranslated keys
-dart run tool/i18n/duplicate_keys.dart              # keys duplicated across namespaces
-dart run tool/i18n/unused_keys.dart                 # keys no source file references
+dart run ../dev/tool/i18n/check_keys.dart --check-values   # missing and untranslated keys
+dart run ../dev/tool/i18n/duplicate_keys.dart              # keys duplicated across namespaces
+dart run ../dev/tool/i18n/unused_keys.dart                 # keys no source file references
 ```
 
 Missing keys fail CI. Untranslated keys (the same text as English) are reported
@@ -755,7 +759,7 @@ Bypass a hook with `git commit --no-verify` only when you know what you are doin
 Releases are cut by maintainers with the Flutter release workflows
 (`flutter-release.yml` for beta builds, `flutter-stable-package.yml` for stable
 installers), which build and sign packages for every platform and publish the
-update feed. See [docs/migration/BRIDGE_RELEASE.md](docs/migration/BRIDGE_RELEASE.md)
+update feed. See [dev/docs/BRIDGE_RELEASE.md](dev/docs/BRIDGE_RELEASE.md)
 for how updates roll out and how a release can be paused. You don't need to do
 anything special as a contributor, just get your PR merged.
 

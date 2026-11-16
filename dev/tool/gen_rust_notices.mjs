@@ -3,7 +3,7 @@ import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const app = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+const app = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', 'app')
 const repo = resolve(app, '..')
 const out = join(app, 'assets', 'licenses', 'rust-crates.txt')
 const roots = ['godothub_bridge', 'godothub_launcher']
@@ -61,7 +61,7 @@ const content = parts.join('\n')
 if (check) {
   const current = existsSync(out) ? readFileSync(out, 'utf8') : ''
   if (current !== content) {
-    console.error(`${out} is out of date; run: node app/tool/gen_rust_notices.mjs`)
+    console.error(`${out} is out of date; run: node dev/tool/gen_rust_notices.mjs`)
     process.exit(1)
   }
   console.log(`ok: ${crates.length} crates`)

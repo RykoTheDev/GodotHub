@@ -2,8 +2,9 @@
 
 import { readdirSync, readFileSync } from 'node:fs'
 import { join, basename } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
-const LOCALES_DIR = new URL('../src/i18n/locales', import.meta.url).pathname
+const LOCALES_DIR = fileURLToPath(new URL('../../src/i18n/locales', import.meta.url))
 
 const args = process.argv.slice(2)
 const localeFilter = args.find(a => !a.startsWith('--'))

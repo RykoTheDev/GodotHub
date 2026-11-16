@@ -57,7 +57,7 @@ Now `releases/latest` points at v1.5.9: its own `latest-v2.json` and `latest.jso
 | 1.6.0 does not start (macOS, Linux) | Same: install 1.6.1 from the release page, or go back to 1.5.9. |
 | A later Flutter update fails to start (Windows setup.exe installs) | The launcher goes back to the previous version by itself and the next start shows "GodotHub closed unexpectedly" with a prefilled bug report. Publish a fix as usual. |
 
-Point affected users to the "How do I go back to the last Tauri version?" and "What if an update fails?" answers in [FAQ.md](FAQ.md): uninstall 1.6.0 (the data folder stays), install 1.5.9 from its release page, and leave the update button alone until a fixed version is out.
+Point affected users to the "How do I go back to the last Tauri version?" and "What if an update fails?" answers in [FAQ.md](../../docs/migration/FAQ.md): uninstall 1.6.0 (the data folder stays), install 1.5.9 from its release page, and leave the update button alone until a fixed version is out.
 
 If 1.6.x cannot be fixed quickly and many users are stuck, the last resort is to rebuild the 1.5.9 Tauri code under a new, higher version number (for example 1.6.2) and release it through the Tauri `release.yml` from git history. Updaters only install higher versions, so this is the only way to move everyone back through the updater. Check that the data written by 1.6.x still loads in that build first.
 
@@ -66,26 +66,26 @@ If 1.6.x cannot be fixed quickly and many users are stuck, the last resort is to
 The update lab rehearses the same steps on this computer with a throwaway signing key, the Windows in-app updater and version numbers standing in for the real ones: 0.0.1 for 1.5.9, 0.0.2 for the bad 1.6.0, and 0.0.3 for the fix 1.6.1. Lab builds keep their data in `app/build/updater_lab/data`, so your real GodotHub data is never touched. Run from `app/`:
 
 ```bash
-dart run tool/updater_lab.dart prepare --from 0.0.1 --to 0.0.2 --fix 0.0.3 --auto
-dart run tool/updater_lab.dart serve
+dart run ../dev/tool/updater_lab.dart prepare --from 0.0.1 --to 0.0.2 --fix 0.0.3 --auto
+dart run ../dev/tool/updater_lab.dart serve
 ```
 
 With `--auto` each started copy checks, downloads and restarts by itself and appends a line per step to `%TEMP%\godothub-updater-lab.txt`. In a second terminal (Git Bash):
 
 ```bash
 export LOCAL_RELEASES=build/updater_lab/releases LOCAL_URL=http://127.0.0.1:47821 MANIFEST=latest.json
-dart run tool/updater_lab.dart start
+dart run ../dev/tool/updater_lab.dart start
 bash packaging/release/kill_switch.sh pause 0.0.2 0.0.1
-dart run tool/updater_lab.dart start
-dart run tool/updater_lab.dart reset
-dart run tool/updater_lab.dart start
+dart run ../dev/tool/updater_lab.dart start
+dart run ../dev/tool/updater_lab.dart reset
+dart run ../dev/tool/updater_lab.dart start
 bash packaging/release/kill_switch.sh resume 0.0.2
 bash packaging/release/kill_switch.sh pause 0.0.2 0.0.1
-dart run tool/updater_lab.dart publish 0.0.3
-dart run tool/updater_lab.dart reset --version 0.0.2
-dart run tool/updater_lab.dart start
-dart run tool/updater_lab.dart reset
-dart run tool/updater_lab.dart start
+dart run ../dev/tool/updater_lab.dart publish 0.0.3
+dart run ../dev/tool/updater_lab.dart reset --version 0.0.2
+dart run ../dev/tool/updater_lab.dart start
+dart run ../dev/tool/updater_lab.dart reset
+dart run ../dev/tool/updater_lab.dart start
 ```
 
 Close the running copy between steps. Expected results:
@@ -114,12 +114,12 @@ Close the running copy between steps. Expected results:
 
 ## Release checklist
 
-`.github/workflows/release.yml` builds and publishes a stable release when a `v*` tag is pushed. It builds the Flutter packages on Windows, macOS and Ubuntu 22.04, refuses builds that still contain test switches, signs the update files with the v2 key (`TAURI_SIGNING_PRIVATE_KEY` and its password), writes the release notes from `src-tauri/changelog.json`, fails if a download link in the notes has no matching file, writes `latest-v2.json`, uploads the frozen `.github/updater/legacy-latest.json` unchanged as `latest.json`, publishes the release as the latest one and opens the winget update from the MSI. Beta builds keep using `flutter-v*` tags and `flutter-release.yml`.
+`.github/workflows/release.yml` builds and publishes a stable release when a `v*` tag is pushed. It builds the Flutter packages on Windows, macOS and Ubuntu 22.04, refuses builds that still contain test switches, signs the update files with the v2 key (`TAURI_SIGNING_PRIVATE_KEY` and its password), writes the release notes from `changelog.json` (repository root), fails if a download link in the notes has no matching file, writes `latest-v2.json`, uploads the frozen `.github/updater/legacy-latest.json` unchanged as `latest.json`, publishes the release as the latest one and opens the winget update from the MSI. Beta builds keep using `flutter-v*` tags and `flutter-release.yml`.
 
 ### Before tagging
 
 - [ ] **Version.** Higher than the last Tauri release (1.5.9), so 1.6.0 for the bridge. Updaters only install higher versions, and the workflow refuses a tag that is not higher than the current latest release.
-- [ ] **Version everywhere.** `app/pubspec.yaml` and the top entry of `src-tauri/changelog.json` (`"version": "v1.6.0"`) carry the same number. The workflow fails without a changelog entry.
+- [ ] **Version everywhere.** `app/pubspec.yaml` and the `v1.6.0` entry in `changelog.json` at the repository root (`"version": "v1.6.0"`) carry the same number. The workflow fails without a changelog entry.
 - [ ] **CI green on `main`.** Flutter CI and the Tauri jobs in `ci.yml` pass on the commit you tag. Run the stable packaging workflow (`flutter-stable-package.yml`) once on that commit too: it rehearses the Tauri-to-Flutter upgrade on all three systems with a throwaway key.
 - [ ] **Secrets.** `TAURI_SIGNING_PRIVATE_KEY`, `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` (v2 key) and `WINGET_TOKEN` are set on the repository.
 - [ ] **Kill switch ready.** `bash app/packaging/release/kill_switch.sh status` works on the machine you would use.

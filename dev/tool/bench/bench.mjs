@@ -5,7 +5,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const HERE = path.dirname(fileURLToPath(import.meta.url))
-const APP = path.resolve(HERE, '..', '..')
+const APP = path.resolve(HERE, '..', '..', 'app')
 const LAB = process.env.GODOTHUB_BENCH_LAB || path.join(APP, 'build', 'bench_lab')
 const PLATFORM = { win32: 'windows', linux: 'linux', darwin: 'macos' }[process.platform]
 const RESULTS = path.join(LAB, 'results', PLATFORM)
@@ -493,7 +493,7 @@ function cell(v, unit = '') { return v === null || v === undefined || Number.isN
 
 function report() {
   const m = machine()
-  const lines = [`# GodotHub benchmark (${PLATFORM})`, '', `Generated ${new Date().toISOString()} by app/tool/bench/bench.mjs.`, '', '## Machine', '', '| | |', '|---|---|', `| OS | ${PLATFORM} ${m.release} |`, `| CPU | ${m.cpu} (${m.threads} threads) |`, `| GPU | ${m.gpu ?? 'unknown'} |`, `| RAM | ${m.memoryGB} GB |`, `| Display | ${m.refreshHz} Hz |`, '']
+  const lines = [`# GodotHub benchmark (${PLATFORM})`, '', `Generated ${new Date().toISOString()} by dev/tool/bench/bench.mjs.`, '', '## Machine', '', '| | |', '|---|---|', `| OS | ${PLATFORM} ${m.release} |`, `| CPU | ${m.cpu} (${m.threads} threads) |`, `| GPU | ${m.gpu ?? 'unknown'} |`, `| RAM | ${m.memoryGB} GB |`, `| Display | ${m.refreshHz} Hz |`, '']
   const t = load('tauri')
   const fw = load('flutter-window')
   if (t || fw) {
@@ -531,12 +531,12 @@ function report() {
 
 const USAGE = `GodotHub benchmark (Windows, Linux, macOS)
 
-  node tool/bench/bench.mjs all                 setup + build + flutter + tauri (if installed) + report
-  node tool/bench/bench.mjs setup [--from DIR]  copy GodotHub data (no credentials) and generate the ${PROJECT_COUNT}-project bench set
-  node tool/bench/bench.mjs build               build the Flutter benchmark binary for this OS
-  node tool/bench/bench.mjs flutter [tasks]     tasks: ${FLUTTER_TASKS.join(' ')} (default all) [--data real|bench] [--runs N]
-  node tool/bench/bench.mjs tauri [--exe PATH]  first window and memory of the installed Tauri app, plus Flutter first window
-  node tool/bench/bench.mjs report              write results/<os>/REPORT.md
+  node ../dev/tool/bench/bench.mjs all                 setup + build + flutter + tauri (if installed) + report
+  node ../dev/tool/bench/bench.mjs setup [--from DIR]  copy GodotHub data (no credentials) and generate the ${PROJECT_COUNT}-project bench set
+  node ../dev/tool/bench/bench.mjs build               build the Flutter benchmark binary for this OS
+  node ../dev/tool/bench/bench.mjs flutter [tasks]     tasks: ${FLUTTER_TASKS.join(' ')} (default all) [--data real|bench] [--runs N]
+  node ../dev/tool/bench/bench.mjs tauri [--exe PATH]  first window and memory of the installed Tauri app, plus Flutter first window
+  node ../dev/tool/bench/bench.mjs report              write results/<os>/REPORT.md
 
 Results go to ${path.relative(process.cwd(), RESULTS) || RESULTS}. Close every GodotHub window before running.`
 
