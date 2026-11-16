@@ -8,5 +8,6 @@
   "delete_entry_aria": "Delete {{version}}",
   "added": "Añadido",
   "fixed": "Fixed",
-  "improved": "Improved"
+  "improved": "Improved",
+  "changelog_load_failed": "Couldn't load the changelog"
 }

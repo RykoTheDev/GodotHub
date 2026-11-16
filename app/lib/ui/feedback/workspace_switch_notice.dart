@@ -51,8 +51,8 @@ class GhWorkspaceSwitchCard extends StatelessWidget {
             child: GhIcon(icon, size: theme.space(5), color: theme.ink),
           ),
           Text(
-            (label ?? context.tr.common.workspace_switched_to).toUpperCase(),
-            style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: theme.muted, letterSpacingEm: 0.25),
+            (label ?? context.tr.common.workspace_switched_to),
+            style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: theme.muted),
           ),
           ConstrainedBox(
             constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.6),

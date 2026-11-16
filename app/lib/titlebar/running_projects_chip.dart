@@ -198,8 +198,8 @@ class _RunningProjectsChipState extends ConsumerState<RunningProjectsChip> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      context.tr.common.running.toUpperCase(),
-                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 0.3, color: tokens.muted),
+                      context.tr.common.running,
+                      style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: tokens.muted),
                     ),
                     const SizedBox(height: 2),
                     Text(

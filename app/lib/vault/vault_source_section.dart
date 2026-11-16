@@ -5,6 +5,7 @@ import '../design/design.dart';
 import '../src/rust/api/types.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
+import '../ui/reusables/state_panel.dart';
 import 'project_picker.dart';
 import 'vault_file_tree.dart';
 import '../ui/shell/smooth_scroll.dart';
@@ -146,7 +147,7 @@ class _VaultSourceSectionState extends State<VaultSourceSection> {
             spacing: theme.space(2),
             children: [
               Text(
-                ghTr('vault_source_n', args: {'index': widget.index + 1}).toUpperCase(),
+                ghTr('vault_source_n', args: {'index': widget.index + 1}),
                 style: theme.text(size: GhTextSize.x3s, mono: true, color: theme.muted.withValues(alpha: 0.6)),
               ),
               Expanded(
@@ -188,20 +189,32 @@ class _VaultSourceSectionState extends State<VaultSourceSection> {
                     ),
                   ],
                 ),
-                VaultTreeBox(
-                  child: _loading
-                      ? VaultTreeMessage(ghTr('loading'))
-                      : error != null
-                      ? VaultTreeMessage(error, danger: true)
-                      : _tree.isEmpty
-                      ? VaultTreeMessage(ghTr('vault_project_empty'))
-                      : SelectableVaultFileTree(
-                          key: ValueKey(project.path),
-                          entries: _tree,
-                          selected: widget.selected,
-                          onToggle: widget.onToggle,
-                        ),
-                ),
+                if (_loading)
+                  GhStatePanel.loading(key: const ValueKey('vault-source-loading'), title: ghTr('vault_files_loading'), compact: true)
+                else if (error != null)
+                  GhStatePanel.error(
+                    key: const ValueKey('vault-source-error'),
+                    title: ghTr('vault_files_load_failed'),
+                    message: error,
+                    onRetry: () => setState(_load),
+                    compact: true,
+                  )
+                else if (_tree.isEmpty)
+                  GhStatePanel.empty(
+                    key: const ValueKey('vault-source-empty'),
+                    icon: GhIcons.folder,
+                    title: ghTr('vault_project_empty'),
+                    compact: true,
+                  )
+                else
+                  VaultTreeBox(
+                    child: SelectableVaultFileTree(
+                      key: ValueKey(project.path),
+                      entries: _tree,
+                      selected: widget.selected,
+                      onToggle: widget.onToggle,
+                    ),
+                  ),
               ],
             ),
         ],

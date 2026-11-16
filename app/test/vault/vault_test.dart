@@ -51,6 +51,7 @@ final second = Project(
   totalTimeSeconds: BigInt.zero,
   timeTodaySeconds: BigInt.zero,
   timeWeekSeconds: BigInt.zero,
+  missing: false,
 );
 
 class VaultBackend {
@@ -167,8 +168,48 @@ void main() {
       final backend = VaultBackend()..items = [];
       backend.install(rust);
       await pumpVault(tester);
-      expect(find.textContaining('Your vault is empty'), findsOneWidget);
-      expect(find.text(ghTr('vault_save_btn')), findsOneWidget);
+      expect(find.byKey(const ValueKey('vault-empty')), findsOneWidget);
+      expect(find.text(ghTr('vault_empty_title')), findsOneWidget);
+      expect(find.text(ghTr('vault_empty_desc')), findsOneWidget);
+      final panelSave = find.descendant(of: find.byKey(const ValueKey('vault-empty')), matching: find.text(ghTr('vault_save_btn')));
+      expect(panelSave, findsOneWidget);
+      await tester.tap(panelSave);
+      await base.settle(tester);
+      expect(find.byType(SaveToVaultModal), findsOneWidget);
+    });
+
+    testWidgets('shows a load error instead of an empty vault and retries', (tester) async {
+      final backend = VaultBackend()..install(rust);
+      var failing = true;
+      rust.on('crateApiVaultListVaultItems', () async {
+        if (failing) throw 'vault folder unreadable';
+        return backend.items;
+      });
+      await pumpVault(tester);
+      expect(find.byKey(const ValueKey('vault-error')), findsOneWidget);
+      expect(find.text(ghTr('vault_load_failed')), findsOneWidget);
+      expect(find.text('vault folder unreadable'), findsOneWidget);
+      expect(find.byKey(const ValueKey('vault-empty')), findsNothing);
+      failing = false;
+      await tester.tap(find.text(ghTr('retry')));
+      await base.settle(tester);
+      expect(find.byKey(const ValueKey('vault-error')), findsNothing);
+      expect(find.text('Player kit'), findsOneWidget);
+    });
+
+    testWidgets('no results offers to clear the search and tag filters', (tester) async {
+      VaultBackend().install(rust);
+      await pumpVault(tester);
+      await tester.tap(find.text('fx').first);
+      await base.settle(tester, 3);
+      await tester.enterText(find.byType(TextField), 'nothing here');
+      await base.settle(tester, 3);
+      expect(find.byKey(const ValueKey('vault-no-match')), findsOneWidget);
+      await tester.tap(find.text(ghTr('clear_search')));
+      await base.settle(tester, 3);
+      expect(find.byKey(const ValueKey('vault-no-match')), findsNothing);
+      expect(find.text('Player kit'), findsOneWidget);
+      expect(find.text('Shaders'), findsOneWidget);
     });
 
     testWidgets('filters with tag chips and search, and persists the sort', (tester) async {
@@ -176,7 +217,7 @@ void main() {
       await pumpVault(tester);
       expect(find.text('Player kit'), findsOneWidget);
       expect(find.text('Shaders'), findsOneWidget);
-      expect(find.text(ghTr('vault_item_count', count: 2).toUpperCase()), findsOneWidget);
+      expect(find.text(ghTr('vault_item_count', count: 2)), findsOneWidget);
       await tester.tap(find.text('fx').first);
       await base.settle(tester, 3);
       expect(find.text('Player kit'), findsNothing);
@@ -235,6 +276,29 @@ void main() {
   });
 
   group('modals', () {
+    testWidgets('a source whose files fail to load shows an error with retry', (tester) async {
+      final backend = VaultBackend()..install(rust);
+      var failing = true;
+      rust.on('crateApiProjectsGetProjectFileTree', ({required String path}) async {
+        if (failing) throw 'access denied';
+        return [ProjectFileEntry(path: 'main.tscn', isDir: false, size: BigInt.from(300))];
+      });
+      await base.openModal(tester, (close) => SaveToVaultModal(projects: [base.demo, second], onClose: close, onSaved: () {}));
+      await tester.tap(find.text(ghTr('vault_select_project')));
+      await base.settle(tester, 3);
+      await tester.tap(find.text('Demo').last);
+      await base.settle(tester);
+      expect(find.byKey(const ValueKey('vault-source-error')), findsOneWidget);
+      expect(find.text(ghTr('vault_files_load_failed')), findsOneWidget);
+      expect(find.text('access denied'), findsOneWidget);
+      failing = false;
+      await tester.tap(find.text(ghTr('retry')));
+      await base.settle(tester);
+      expect(find.byKey(const ValueKey('vault-source-error')), findsNothing);
+      expect(find.text('main.tscn'), findsOneWidget);
+      expect(backend.calls, isEmpty);
+    });
+
     testWidgets('save collects selections per source and covers children of a folder', (tester) async {
       final backend = VaultBackend()..install(rust);
       var saved = 0;
@@ -256,7 +320,7 @@ void main() {
 
       await tester.tap(find.text(ghTr('vault_add_source')));
       await base.settle(tester, 3);
-      expect(find.text(ghTr('vault_source_n', args: {'index': 2}).toUpperCase()), findsOneWidget);
+      expect(find.text(ghTr('vault_source_n', args: {'index': 2})), findsOneWidget);
       await tester.tap(find.bySemanticsLabel(ghTr('vault_remove_source')).last);
       await base.settle(tester, 3);
 

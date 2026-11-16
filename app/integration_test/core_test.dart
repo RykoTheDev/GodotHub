@@ -44,8 +44,7 @@ late String projectId;
 
 Directory makeProject(Directory parent, String name) {
   final dir = Directory('${parent.path}${Platform.pathSeparator}$name')..createSync(recursive: true);
-  File('${dir.path}${Platform.pathSeparator}project.godot')
-      .writeAsStringSync('config_version=5\n\n[application]\n\nconfig/name="$name"\n');
+  File('${dir.path}${Platform.pathSeparator}project.godot').writeAsStringSync('config_version=5\n\n[application]\n\nconfig/name="$name"\n');
   return dir;
 }
 
@@ -64,10 +63,7 @@ void main() {
     await RustLib.init();
     root = Directory.systemTemp.createTempSync('godothub-it-');
     String dir(String name) => Directory('${root.path}${Platform.pathSeparator}$name').path;
-    expect(
-      await app.startCoreIn(channel: 'beta', dataDir: dir('data'), configDir: dir('config'), cacheDir: dir('cache')),
-      'GodotHub Beta',
-    );
+    expect(await app.startCoreIn(channel: 'beta', dataDir: dir('data'), configDir: dir('config'), cacheDir: dir('cache')), 'GodotHub Beta');
     final project = makeProject(root, 'Space Game');
     projectId = (await projects.importProject(path: project.path, godotVersion: '4.4.1-stable')).id;
   });
@@ -136,6 +132,27 @@ void main() {
     expect(file.existsSync(), isTrue);
   });
 
+  testWidgets('a project whose folder disappears stays listed as missing and recovers', (tester) async {
+    final dir = makeProject(root, 'On Drive');
+    final id = (await projects.importProject(path: dir.path, godotVersion: '4.4.1-stable')).id;
+    final unplugged = dir.renameSync('${dir.path}-unplugged');
+    final whileGone = await projects.listProjects();
+    expect(whileGone.firstWhere((p) => p.id == id).missing, isTrue);
+    expect(Directory(dir.path).existsSync(), isFalse, reason: 'refresh must not recreate the folder');
+    unplugged.renameSync(dir.path);
+    final back = await projects.listProjects();
+    expect(back.firstWhere((p) => p.id == id).missing, isFalse);
+  });
+
+  testWidgets('asset favorites and hidden assets round-trip through the core', (tester) async {
+    expect((await asset_library.getAssetPrefs()).favorites, isEmpty);
+    final prefs = await asset_library.setAssetHidden(assetId: '42', title: 'Noise', hidden: true);
+    expect(prefs.hidden.single.assetId, '42');
+    expect((await asset_library.getAssetPrefs()).hidden.single.title, 'Noise');
+    expect((await asset_library.setAssetHidden(assetId: '42', title: 'Noise', hidden: false)).hidden, isEmpty);
+    expect(await asset_library.listAssetInstallations(), isEmpty);
+  });
+
   testWidgets('network commands fail with typed errors instead of crashing', (tester) async {
     await tolerateNetwork(asset_library.getAssetLibraryCategories);
     await tolerateNetwork(news.fetchGodotNews);
@@ -153,13 +170,11 @@ void main() {
   });
 
   testWidgets('the event stream delivers download progress', (tester) async {
-    final progress = AppEvents.payloads(AppEventKind.godotDownloadProgress, (event) => event.downloadProgress)
-        .first
-        .timeout(const Duration(seconds: 20));
-    await app.emitEventForTest(
-      name: 'godot-download-progress',
-      payloadJson: '{"tag":"4.4.1-stable","downloaded":5,"total":10}',
-    );
+    final progress = AppEvents.payloads(
+      AppEventKind.godotDownloadProgress,
+      (event) => event.downloadProgress,
+    ).first.timeout(const Duration(seconds: 20));
+    await app.emitEventForTest(name: 'godot-download-progress', payloadJson: '{"tag":"4.4.1-stable","downloaded":5,"total":10}');
     final payload = await progress;
     expect(payload.tag, '4.4.1-stable');
     expect(payload.downloaded, BigInt.from(5));

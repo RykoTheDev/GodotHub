@@ -298,7 +298,7 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('onboarding-add-category')));
     await base.settle(tester, 4);
     expect(categories.map((c) => c.name), [prototypes, 'Tools']);
-    expect(find.text(ghTr('onboarding_your_categories').toUpperCase()), findsOneWidget);
+    expect(find.text(ghTr('onboarding_your_categories')), findsOneWidget);
     expect(find.text('Tools'), findsWidgets);
   });
 
@@ -319,7 +319,7 @@ void main() {
         ),
       ),
     );
-    await tester.tap(find.text(ghTr('add_folder')));
+    await tester.tap(find.byKey(const ValueKey('path-browse')));
     await base.settle(tester, 2);
     expect(dirs, ['C:/a', 'C:/b']);
     await tester.tap(find.text(ghTr('make_this_default', args: {'label': ghTr('default_folder').toLowerCase()})).first);
@@ -330,7 +330,7 @@ void main() {
     expect(dirs, ['C:/b']);
     expect(fallback, isNull);
     picked = null;
-    await tester.tap(find.text(ghTr('add_folder')));
+    await tester.tap(find.byKey(const ValueKey('path-browse')));
     await base.settle(tester, 2);
     expect(dirs, ['C:/b']);
   });
@@ -346,7 +346,7 @@ void main() {
       ),
     );
     expect(find.text('Pick a folder'), findsOneWidget);
-    await tester.tap(find.text(ghTr('add_folder')));
+    await tester.tap(find.byKey(const ValueKey('path-browse')));
     await base.settle(tester, 2);
     expect(find.textContaining('nope'), findsOneWidget);
     await base.drainToasts(tester);

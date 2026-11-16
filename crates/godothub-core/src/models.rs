@@ -73,6 +73,12 @@ pub struct Project {
     pub time_today_seconds: u64,
     #[serde(default)]
     pub time_week_seconds: u64,
+    /// True when `project.godot` could not be read during the last refresh,
+    /// for example because the project lives on an unplugged external drive or
+    /// an unavailable network share. Computed on every refresh and never
+    /// persisted, so the entry is kept and recovers once the drive returns.
+    #[serde(default, skip_serializing)]
+    pub missing: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -549,6 +555,18 @@ pub struct ProjectTemplate {
     pub path: String,
     #[serde(default)]
     pub keep_name: bool,
+    /// The Asset Library asset this template was installed from, if any, so
+    /// the app can tell when the library has a newer upload. Templates
+    /// installed before this was recorded have no source.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source_asset_id: Option<String>,
+    /// The asset's human-readable version at install time.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source_asset_version: Option<String>,
+    /// The asset's revision counter at install time; it increases with every
+    /// upload, so it is the reliable value to compare.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub source_asset_revision: Option<u64>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

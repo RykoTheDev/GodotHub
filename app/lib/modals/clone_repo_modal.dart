@@ -17,9 +17,10 @@ import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
-import '../ui/feedback/toast.dart';
+import '../ui/reusables/labelled_field.dart';
 import '../ui/reusables/segmented.dart';
 import '../ui/reusables/modal_kit.dart';
+import '../ui/reusables/path_field.dart';
 import '../ui/shell/smooth_scroll.dart';
 
 String repoBaseName(String url) {
@@ -79,6 +80,7 @@ class _CloneRepoModalState extends ConsumerState<CloneRepoModal> {
   final FocusNode _urlNode = FocusNode(debugLabel: 'CloneRepoModal url');
   final FocusNode _searchNode = FocusNode(debugLabel: 'CloneRepoModal search');
   String? _error;
+  String? _locationPathError;
   bool _busy = false;
   bool _attempted = false;
   late bool _openAfter = ref.read(settingsProvider).value?.openAfterImport ?? true;
@@ -102,6 +104,12 @@ class _CloneRepoModalState extends ConsumerState<CloneRepoModal> {
     super.initState();
     _search.addListener(() => setState(() {}));
     _url.addListener(() => setState(() {}));
+    _location.addListener(
+      () => setState(() {
+        _error = null;
+        _locationPathError = null;
+      }),
+    );
     GitAuthApi.getState().then(
       (state) {
         if (!mounted) return;
@@ -186,20 +194,6 @@ class _CloneRepoModalState extends ConsumerState<CloneRepoModal> {
     }
   }
 
-  Future<void> _pickLocation() async {
-    try {
-      final folder = await ProjectsApi.pickFolder();
-      if (folder != null && mounted) {
-        setState(() {
-          _location.text = folder;
-          _error = null;
-        });
-      }
-    } catch (e) {
-      ghToasts.pushToast(GhToastType.error, '$e');
-    }
-  }
-
   void _select(UserRepoInfo repo) {
     setState(() {
       _selected = repo;
@@ -211,9 +205,14 @@ class _CloneRepoModalState extends ConsumerState<CloneRepoModal> {
   Future<void> _submit() async {
     if (_busy) return;
     final url = _url.text.trim();
-    final location = _location.text;
+    final location = ghNormalizePath(_location.text);
     if (!isCloneUrl(url) || location.isEmpty) {
       setState(() => _attempted = true);
+      return;
+    }
+    final pathError = ghPathError(location, GhPathKind.folder);
+    if (pathError != null) {
+      setState(() => _locationPathError = pathError);
       return;
     }
     setState(() {
@@ -254,30 +253,17 @@ class _CloneRepoModalState extends ConsumerState<CloneRepoModal> {
   GhTextInput _input(
     GhTheme theme,
     TextEditingController controller, {
-    required bool invalid,
     FocusNode? focusNode,
     String? placeholder,
-    bool readOnly = false,
-    VoidCallback? onTap,
-    ValueChanged<String>? onSubmitted,
-    ValueChanged<String>? onChanged,
-    Color? textColor,
-    bool mono = true,
     EdgeInsetsGeometry? padding,
   }) => GhTextInput(
     controller: controller,
     focusNode: focusNode,
     placeholder: placeholder,
-    readOnly: readOnly,
-    onTap: onTap,
-    onSubmitted: onSubmitted,
-    onChanged: onChanged,
-    mono: mono,
-    textColor: textColor,
-    background: theme.overlay,
-    placeholderColor: theme.muted.withValues(alpha: 0.7),
-    borderColor: invalid ? theme.danger.withValues(alpha: 0.7) : theme.outline.withValues(alpha: 0.5),
-    focusBorderColor: invalid ? theme.danger : theme.accentDim,
+    mono: true,
+    background: theme.base,
+    borderColor: theme.outline.withValues(alpha: 0.5),
+    focusBorderColor: theme.accentDim,
     borderRadius: BorderRadius.circular(theme.radiusItem),
     padding: padding ?? EdgeInsets.symmetric(horizontal: theme.space(3.5), vertical: theme.space(2.5)),
   );
@@ -571,7 +557,6 @@ class _CloneRepoModalState extends ConsumerState<CloneRepoModal> {
             _input(
               theme,
               _search,
-              invalid: false,
               focusNode: _searchNode,
               placeholder: ghTr('clone_repo_search_repos'),
               padding: EdgeInsetsDirectional.fromSTEB(theme.space(9), theme.space(2.5), theme.space(3.5), theme.space(2.5)),
@@ -598,25 +583,21 @@ class _CloneRepoModalState extends ConsumerState<CloneRepoModal> {
     final String? error = url.isEmpty
         ? (_attempted ? ghTr('clone_repo_error_url') : null)
         : (isCloneUrl(url) ? null : ghTr('clone_repo_url_invalid'));
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        GhFieldLabel(ghTr('clone_repo_url_label'), inset: true),
-        SizedBox(height: theme.space(0.5)),
-        _input(
-          theme,
-          _url,
-          invalid: error != null,
-          focusNode: _urlNode,
-          placeholder: ghTr('clone_repo_url_placeholder'),
-          onChanged: (_) => setState(() {
-            _selected = null;
-            _error = null;
-          }),
-          onSubmitted: (_) => _submit(),
-        ),
-        if (error != null) _hint(theme, error, error: true),
-      ],
+    return GhLabelledField(
+      label: ghTr('clone_repo_url_label'),
+      error: error,
+      child: GhFieldInput(
+        controller: _url,
+        focusNode: _urlNode,
+        mono: true,
+        textDirection: TextDirection.ltr,
+        placeholder: ghTr('clone_repo_url_placeholder'),
+        onChanged: (_) => setState(() {
+          _selected = null;
+          _error = null;
+        }),
+        onSubmitted: (_) => _submit(),
+      ),
     );
   }
 
@@ -626,7 +607,7 @@ class _CloneRepoModalState extends ConsumerState<CloneRepoModal> {
     final hasProvider = _providers.isNotEmpty;
     final browsing = hasProvider && _tab == CloneTab.browse && _provider != null;
     final url = _url.text.trim();
-    final location = _location.text;
+    final location = ghNormalizePath(_location.text);
     final ready = isCloneUrl(url) && location.isNotEmpty && !_busy;
     return GhModalShell(
       icon: GhIcon(GhIcons.gitBranch, size: theme.space(5), color: theme.accentBright),
@@ -700,38 +681,14 @@ class _CloneRepoModalState extends ConsumerState<CloneRepoModal> {
               ],
             ),
             if (browsing) _browse(theme) else _urlField(theme),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                GhFieldLabel(ghTr('destination_folder'), inset: true),
-                SizedBox(height: theme.space(0.5)),
-                Row(
-                  spacing: theme.space(2.5),
-                  children: [
-                    Expanded(
-                      child: _input(
-                        theme,
-                        _location,
-                        invalid: location.isEmpty,
-                        readOnly: true,
-                        onTap: _pickLocation,
-                        textColor: theme.muted,
-                        placeholder: ghTr('choose_folder_placeholder'),
-                      ),
-                    ),
-                    GhButton(
-                      onPressed: _busy ? null : _pickLocation,
-                      label: ghTr('browse'),
-                      icon: GhIcons.folder,
-                      variant: GhButtonVariant.outline,
-                    ),
-                  ],
-                ),
-                if (location.isEmpty)
-                  _hint(theme, ghTr('clone_repo_error_location'), error: true)
-                else if (isCloneUrl(url))
-                  _hint(theme, ghTr('clone_repo_dest_preview', args: {'path': cloneDestination(location, url)})),
-              ],
+            GhPathField(
+              key: const ValueKey('clone-location'),
+              controller: _location,
+              kind: GhPathKind.folder,
+              label: ghTr('destination_folder'),
+              enabled: !_busy,
+              error: location.isEmpty ? ghTr('clone_repo_error_location') : _locationPathError,
+              hint: isCloneUrl(url) ? ghTr('clone_repo_dest_preview', args: {'path': cloneDestination(location, url)}) : null,
             ),
             if (widget.categoriesEnabled)
               Column(

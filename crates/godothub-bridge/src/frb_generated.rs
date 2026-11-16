@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 923261942;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1129625937;
 
 // Section: executor
 
@@ -519,6 +519,41 @@ fn wire__crate__api__updater__check_for_update_impl(
                 transform_result_sse::<_, crate::api::error::CoreError>(
                     (move || async move {
                         let output_ok = crate::api::updater::check_for_update().await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__asset_library__check_template_updates_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "check_template_updates",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            move |context| async move {
+                transform_result_sse::<_, crate::api::error::CoreError>(
+                    (move || async move {
+                        let output_ok = crate::api::asset_library::check_template_updates().await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -2151,6 +2186,43 @@ fn wire__crate__api__time_stats__get_activity_impl(
         },
     )
 }
+fn wire__crate__api__asset_library__get_asset_info_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "get_asset_info",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_asset_id = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| async move {
+                transform_result_sse::<_, crate::api::error::CoreError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::api::asset_library::get_asset_info(api_asset_id).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__asset_library__get_asset_library_categories_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -2179,6 +2251,41 @@ fn wire__crate__api__asset_library__get_asset_library_categories_impl(
                     (move || async move {
                         let output_ok =
                             crate::api::asset_library::get_asset_library_categories().await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__asset_library__get_asset_prefs_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "get_asset_prefs",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            move |context| async move {
+                transform_result_sse::<_, crate::api::error::CoreError>(
+                    (move || async move {
+                        let output_ok = crate::api::asset_library::get_asset_prefs().await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -5348,6 +5455,79 @@ fn wire__crate__api__install_mode__is_portable_install_impl(
         },
     )
 }
+fn wire__crate__api__asset_library__list_asset_files_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "list_asset_files",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_asset_id = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| async move {
+                transform_result_sse::<_, crate::api::error::CoreError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::api::asset_library::list_asset_files(api_asset_id).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__asset_library__list_asset_installations_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "list_asset_installations",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            move |context| async move {
+                transform_result_sse::<_, crate::api::error::CoreError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::api::asset_library::list_asset_installations().await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__categories__list_categories_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -8241,6 +8421,88 @@ fn wire__crate__api__updater__set_app_version_impl(
         },
     )
 }
+fn wire__crate__api__asset_library__set_asset_favorite_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "set_asset_favorite",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_asset = <crate::api::types::AssetLibraryAsset>::sse_decode(&mut deserializer);
+            let api_favorite = <bool>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| async move {
+                transform_result_sse::<_, crate::api::error::CoreError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::api::asset_library::set_asset_favorite(api_asset, api_favorite)
+                                .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__asset_library__set_asset_hidden_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "set_asset_hidden",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_asset_id = <String>::sse_decode(&mut deserializer);
+            let api_title = <String>::sse_decode(&mut deserializer);
+            let api_hidden = <bool>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| async move {
+                transform_result_sse::<_, crate::api::error::CoreError>(
+                    (move || async move {
+                        let output_ok = crate::api::asset_library::set_asset_hidden(
+                            api_asset_id,
+                            api_title,
+                            api_hidden,
+                        )
+                        .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__current_version__set_current_version_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -9193,6 +9455,44 @@ fn wire__crate__api__settings__update_settings_impl(
         },
     )
 }
+fn wire__crate__api__asset_library__update_template_from_asset_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "update_template_from_asset",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_template_id = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| async move {
+                transform_result_sse::<_, crate::api::error::CoreError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::api::asset_library::update_template_from_asset(api_template_id)
+                                .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__vault__update_vault_item_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -9473,6 +9773,43 @@ const _: fn() = || {
         let _: u64 = AssetDownloadProgress.total;
     }
     {
+        let AssetFileEntry = None::<crate::api::types::AssetFileEntry>.unwrap();
+        let _: String = AssetFileEntry.path;
+        let _: bool = AssetFileEntry.is_dir;
+        let _: u64 = AssetFileEntry.size;
+    }
+    {
+        let AssetFileListing = None::<crate::api::types::AssetFileListing>.unwrap();
+        let _: Vec<crate::api::types::AssetFileEntry> = AssetFileListing.entries;
+        let _: bool = AssetFileListing.truncated;
+        let _: u64 = AssetFileListing.archive_bytes;
+    }
+    {
+        let AssetInfo = None::<crate::api::types::AssetInfo>.unwrap();
+        let _: crate::api::types::AssetLibraryAsset = AssetInfo.asset;
+        let _: String = AssetInfo.description;
+        let _: String = AssetInfo.version;
+        let _: Option<u64> = AssetInfo.revision;
+        let _: String = AssetInfo.license;
+        let _: Option<String> = AssetInfo.license_url;
+        let _: Option<String> = AssetInfo.source_url;
+        let _: Option<String> = AssetInfo.issues_url;
+        let _: Option<String> = AssetInfo.updated;
+        let _: Vec<crate::api::types::AssetMedia> = AssetInfo.media;
+        let _: Vec<crate::api::types::AssetRelease> = AssetInfo.releases;
+        let _: Option<u64> = AssetInfo.download_size_bytes;
+        let _: bool = AssetInfo.paid;
+    }
+    {
+        let AssetInstallation = None::<crate::api::types::AssetInstallation>.unwrap();
+        let _: String = AssetInstallation.asset_id;
+        let _: String = AssetInstallation.project_id;
+        let _: String = AssetInstallation.project_name;
+        let _: String = AssetInstallation.folder;
+        let _: String = AssetInstallation.version;
+        let _: Option<u64> = AssetInstallation.revision;
+    }
+    {
         let AssetLibraryAsset = None::<crate::api::types::AssetLibraryAsset>.unwrap();
         let _: String = AssetLibraryAsset.asset_id;
         let _: String = AssetLibraryAsset.title;
@@ -9489,6 +9826,7 @@ const _: fn() = || {
         let _: Option<String> = AssetLibraryAsset.modify_date;
         let _: String = AssetLibraryAsset.rating;
         let _: String = AssetLibraryAsset.source;
+        let _: String = AssetLibraryAsset.version;
     }
     {
         let AssetLibraryCategory = None::<crate::api::types::AssetLibraryCategory>.unwrap();
@@ -9502,6 +9840,28 @@ const _: fn() = || {
         let _: u32 = AssetLibraryResponse.page;
         let _: u32 = AssetLibraryResponse.pages;
         let _: u32 = AssetLibraryResponse.total;
+    }
+    {
+        let AssetMedia = None::<crate::api::types::AssetMedia>.unwrap();
+        let _: String = AssetMedia.url;
+        let _: Option<String> = AssetMedia.thumbnail;
+        let _: bool = AssetMedia.video;
+    }
+    {
+        let AssetPrefs = None::<crate::api::types::AssetPrefs>.unwrap();
+        let _: u32 = AssetPrefs.schema_version;
+        let _: Vec<crate::api::types::AssetLibraryAsset> = AssetPrefs.favorites;
+        let _: Vec<crate::api::types::HiddenAsset> = AssetPrefs.hidden;
+    }
+    {
+        let AssetRelease = None::<crate::api::types::AssetRelease>.unwrap();
+        let _: String = AssetRelease.version;
+        let _: String = AssetRelease.date;
+        let _: String = AssetRelease.notes;
+        let _: Option<String> = AssetRelease.min_godot;
+        let _: Option<String> = AssetRelease.max_godot;
+        let _: bool = AssetRelease.stable;
+        let _: Option<u64> = AssetRelease.size_bytes;
     }
     {
         let BetaImport = None::<crate::api::app::BetaImport>.unwrap();
@@ -9856,6 +10216,11 @@ const _: fn() = || {
         let _: bool = HealthAction.confirm;
     }
     {
+        let HiddenAsset = None::<crate::api::types::HiddenAsset>.unwrap();
+        let _: String = HiddenAsset.asset_id;
+        let _: String = HiddenAsset.title;
+    }
+    {
         let InstallAssetResult = None::<crate::api::types::InstallAssetResult>.unwrap();
         let _: String = InstallAssetResult.asset_id;
         let _: String = InstallAssetResult.title;
@@ -9922,6 +10287,7 @@ const _: fn() = || {
         let _: Option<u64> = Project.session_started_at_ms;
         let _: u64 = Project.time_today_seconds;
         let _: u64 = Project.time_week_seconds;
+        let _: bool = Project.missing;
     }
     {
         let ProjectAddon = None::<crate::api::types::ProjectAddon>.unwrap();
@@ -9957,6 +10323,9 @@ const _: fn() = || {
         let _: Option<String> = ProjectTemplate.source_path;
         let _: String = ProjectTemplate.path;
         let _: bool = ProjectTemplate.keep_name;
+        let _: Option<String> = ProjectTemplate.source_asset_id;
+        let _: Option<String> = ProjectTemplate.source_asset_version;
+        let _: Option<u64> = ProjectTemplate.source_asset_revision;
     }
     {
         let ProjectTodo = None::<crate::api::types::ProjectTodo>.unwrap();
@@ -10109,6 +10478,13 @@ const _: fn() = || {
         let _: Vec<crate::api::types::ProjectTemplate> = TemplateSyncResult.imported;
         let _: Vec<String> = TemplateSyncResult.updated;
         let _: Vec<String> = TemplateSyncResult.removed;
+    }
+    {
+        let TemplateUpdate = None::<crate::api::types::TemplateUpdate>.unwrap();
+        let _: String = TemplateUpdate.template_id;
+        let _: String = TemplateUpdate.asset_id;
+        let _: String = TemplateUpdate.installed_version;
+        let _: String = TemplateUpdate.latest_version;
     }
     {
         let TimeInsights = None::<crate::api::types::TimeInsights>.unwrap();
@@ -10735,6 +11111,88 @@ impl SseDecode for crate::api::types::AssetDownloadProgress {
     }
 }
 
+impl SseDecode for crate::api::types::AssetFileEntry {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_path = <String>::sse_decode(deserializer);
+        let mut var_isDir = <bool>::sse_decode(deserializer);
+        let mut var_size = <u64>::sse_decode(deserializer);
+        return crate::api::types::AssetFileEntry {
+            path: var_path,
+            is_dir: var_isDir,
+            size: var_size,
+        };
+    }
+}
+
+impl SseDecode for crate::api::types::AssetFileListing {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_entries = <Vec<crate::api::types::AssetFileEntry>>::sse_decode(deserializer);
+        let mut var_truncated = <bool>::sse_decode(deserializer);
+        let mut var_archiveBytes = <u64>::sse_decode(deserializer);
+        return crate::api::types::AssetFileListing {
+            entries: var_entries,
+            truncated: var_truncated,
+            archive_bytes: var_archiveBytes,
+        };
+    }
+}
+
+impl SseDecode for crate::api::types::AssetInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_asset = <crate::api::types::AssetLibraryAsset>::sse_decode(deserializer);
+        let mut var_description = <String>::sse_decode(deserializer);
+        let mut var_version = <String>::sse_decode(deserializer);
+        let mut var_revision = <Option<u64>>::sse_decode(deserializer);
+        let mut var_license = <String>::sse_decode(deserializer);
+        let mut var_licenseUrl = <Option<String>>::sse_decode(deserializer);
+        let mut var_sourceUrl = <Option<String>>::sse_decode(deserializer);
+        let mut var_issuesUrl = <Option<String>>::sse_decode(deserializer);
+        let mut var_updated = <Option<String>>::sse_decode(deserializer);
+        let mut var_media = <Vec<crate::api::types::AssetMedia>>::sse_decode(deserializer);
+        let mut var_releases = <Vec<crate::api::types::AssetRelease>>::sse_decode(deserializer);
+        let mut var_downloadSizeBytes = <Option<u64>>::sse_decode(deserializer);
+        let mut var_paid = <bool>::sse_decode(deserializer);
+        return crate::api::types::AssetInfo {
+            asset: var_asset,
+            description: var_description,
+            version: var_version,
+            revision: var_revision,
+            license: var_license,
+            license_url: var_licenseUrl,
+            source_url: var_sourceUrl,
+            issues_url: var_issuesUrl,
+            updated: var_updated,
+            media: var_media,
+            releases: var_releases,
+            download_size_bytes: var_downloadSizeBytes,
+            paid: var_paid,
+        };
+    }
+}
+
+impl SseDecode for crate::api::types::AssetInstallation {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_assetId = <String>::sse_decode(deserializer);
+        let mut var_projectId = <String>::sse_decode(deserializer);
+        let mut var_projectName = <String>::sse_decode(deserializer);
+        let mut var_folder = <String>::sse_decode(deserializer);
+        let mut var_version = <String>::sse_decode(deserializer);
+        let mut var_revision = <Option<u64>>::sse_decode(deserializer);
+        return crate::api::types::AssetInstallation {
+            asset_id: var_assetId,
+            project_id: var_projectId,
+            project_name: var_projectName,
+            folder: var_folder,
+            version: var_version,
+            revision: var_revision,
+        };
+    }
+}
+
 impl SseDecode for crate::api::types::AssetLibraryAsset {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -10753,6 +11211,7 @@ impl SseDecode for crate::api::types::AssetLibraryAsset {
         let mut var_modifyDate = <Option<String>>::sse_decode(deserializer);
         let mut var_rating = <String>::sse_decode(deserializer);
         let mut var_source = <String>::sse_decode(deserializer);
+        let mut var_version = <String>::sse_decode(deserializer);
         return crate::api::types::AssetLibraryAsset {
             asset_id: var_assetId,
             title: var_title,
@@ -10769,6 +11228,7 @@ impl SseDecode for crate::api::types::AssetLibraryAsset {
             modify_date: var_modifyDate,
             rating: var_rating,
             source: var_source,
+            version: var_version,
         };
     }
 }
@@ -10799,6 +11259,57 @@ impl SseDecode for crate::api::types::AssetLibraryResponse {
             page: var_page,
             pages: var_pages,
             total: var_total,
+        };
+    }
+}
+
+impl SseDecode for crate::api::types::AssetMedia {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_url = <String>::sse_decode(deserializer);
+        let mut var_thumbnail = <Option<String>>::sse_decode(deserializer);
+        let mut var_video = <bool>::sse_decode(deserializer);
+        return crate::api::types::AssetMedia {
+            url: var_url,
+            thumbnail: var_thumbnail,
+            video: var_video,
+        };
+    }
+}
+
+impl SseDecode for crate::api::types::AssetPrefs {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_schemaVersion = <u32>::sse_decode(deserializer);
+        let mut var_favorites =
+            <Vec<crate::api::types::AssetLibraryAsset>>::sse_decode(deserializer);
+        let mut var_hidden = <Vec<crate::api::types::HiddenAsset>>::sse_decode(deserializer);
+        return crate::api::types::AssetPrefs {
+            schema_version: var_schemaVersion,
+            favorites: var_favorites,
+            hidden: var_hidden,
+        };
+    }
+}
+
+impl SseDecode for crate::api::types::AssetRelease {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_version = <String>::sse_decode(deserializer);
+        let mut var_date = <String>::sse_decode(deserializer);
+        let mut var_notes = <String>::sse_decode(deserializer);
+        let mut var_minGodot = <Option<String>>::sse_decode(deserializer);
+        let mut var_maxGodot = <Option<String>>::sse_decode(deserializer);
+        let mut var_stable = <bool>::sse_decode(deserializer);
+        let mut var_sizeBytes = <Option<u64>>::sse_decode(deserializer);
+        return crate::api::types::AssetRelease {
+            version: var_version,
+            date: var_date,
+            notes: var_notes,
+            min_godot: var_minGodot,
+            max_godot: var_maxGodot,
+            stable: var_stable,
+            size_bytes: var_sizeBytes,
         };
     }
 }
@@ -11789,6 +12300,18 @@ impl SseDecode for crate::api::dto::HealthReport {
     }
 }
 
+impl SseDecode for crate::api::types::HiddenAsset {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_assetId = <String>::sse_decode(deserializer);
+        let mut var_title = <String>::sse_decode(deserializer);
+        return crate::api::types::HiddenAsset {
+            asset_id: var_assetId,
+            title: var_title,
+        };
+    }
+}
+
 impl SseDecode for i32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -11916,6 +12439,34 @@ impl SseDecode for Vec<crate::api::types::AliasSkip> {
     }
 }
 
+impl SseDecode for Vec<crate::api::types::AssetFileEntry> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::types::AssetFileEntry>::sse_decode(
+                deserializer,
+            ));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::api::types::AssetInstallation> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::types::AssetInstallation>::sse_decode(
+                deserializer,
+            ));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::api::types::AssetLibraryAsset> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -11939,6 +12490,30 @@ impl SseDecode for Vec<crate::api::types::AssetLibraryCategory> {
             ans_.push(<crate::api::types::AssetLibraryCategory>::sse_decode(
                 deserializer,
             ));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::api::types::AssetMedia> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::types::AssetMedia>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::api::types::AssetRelease> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::types::AssetRelease>::sse_decode(deserializer));
         }
         return ans_;
     }
@@ -12304,6 +12879,18 @@ impl SseDecode for Vec<crate::api::dto::HealthCheck> {
     }
 }
 
+impl SseDecode for Vec<crate::api::types::HiddenAsset> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::types::HiddenAsset>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::api::types::InstalledGodotVersion> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -12625,6 +13212,20 @@ impl SseDecode for Vec<crate::api::types::TemplateOption> {
         let mut ans_ = Vec::with_capacity(len_ as usize);
         for idx_ in 0..len_ {
             ans_.push(<crate::api::types::TemplateOption>::sse_decode(
+                deserializer,
+            ));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::api::types::TemplateUpdate> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::types::TemplateUpdate>::sse_decode(
                 deserializer,
             ));
         }
@@ -13245,6 +13846,7 @@ impl SseDecode for crate::api::types::Project {
         let mut var_sessionStartedAtMs = <Option<u64>>::sse_decode(deserializer);
         let mut var_timeTodaySeconds = <u64>::sse_decode(deserializer);
         let mut var_timeWeekSeconds = <u64>::sse_decode(deserializer);
+        let mut var_missing = <bool>::sse_decode(deserializer);
         return crate::api::types::Project {
             id: var_id,
             name: var_name,
@@ -13261,6 +13863,7 @@ impl SseDecode for crate::api::types::Project {
             session_started_at_ms: var_sessionStartedAtMs,
             time_today_seconds: var_timeTodaySeconds,
             time_week_seconds: var_timeWeekSeconds,
+            missing: var_missing,
         };
     }
 }
@@ -13354,6 +13957,9 @@ impl SseDecode for crate::api::types::ProjectTemplate {
         let mut var_sourcePath = <Option<String>>::sse_decode(deserializer);
         let mut var_path = <String>::sse_decode(deserializer);
         let mut var_keepName = <bool>::sse_decode(deserializer);
+        let mut var_sourceAssetId = <Option<String>>::sse_decode(deserializer);
+        let mut var_sourceAssetVersion = <Option<String>>::sse_decode(deserializer);
+        let mut var_sourceAssetRevision = <Option<u64>>::sse_decode(deserializer);
         return crate::api::types::ProjectTemplate {
             id: var_id,
             name: var_name,
@@ -13364,6 +13970,9 @@ impl SseDecode for crate::api::types::ProjectTemplate {
             source_path: var_sourcePath,
             path: var_path,
             keep_name: var_keepName,
+            source_asset_id: var_sourceAssetId,
+            source_asset_version: var_sourceAssetVersion,
+            source_asset_revision: var_sourceAssetRevision,
         };
     }
 }
@@ -13799,6 +14408,22 @@ impl SseDecode for crate::api::types::TemplateSyncResult {
             imported: var_imported,
             updated: var_updated,
             removed: var_removed,
+        };
+    }
+}
+
+impl SseDecode for crate::api::types::TemplateUpdate {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_templateId = <String>::sse_decode(deserializer);
+        let mut var_assetId = <String>::sse_decode(deserializer);
+        let mut var_installedVersion = <String>::sse_decode(deserializer);
+        let mut var_latestVersion = <String>::sse_decode(deserializer);
+        return crate::api::types::TemplateUpdate {
+            template_id: var_templateId,
+            asset_id: var_assetId,
+            installed_version: var_installedVersion,
+            latest_version: var_latestVersion,
         };
     }
 }
@@ -14300,668 +14925,710 @@ fn pde_ffi_dispatcher_primary_impl(
         ),
         12 => wire__crate__api__addons__check_addon_updates_impl(port, ptr, rust_vec_len, data_len),
         13 => wire__crate__api__updater__check_for_update_impl(port, ptr, rust_vec_len, data_len),
-        14 => wire__crate__api__current_version__clear_current_version_impl(
+        14 => wire__crate__api__asset_library__check_template_updates_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        15 => {
+        15 => wire__crate__api__current_version__clear_current_version_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        16 => {
             wire__crate__api__console__clear_project_console_impl(port, ptr, rust_vec_len, data_len)
         }
-        16 => {
+        17 => {
             wire__crate__api__time_stats__clear_time_stats_impl(port, ptr, rust_vec_len, data_len)
         }
-        17 => wire__crate__api__cli_shim__cli_tool_status_impl(port, ptr, rust_vec_len, data_len),
-        18 => wire__crate__api__git__clone_repo_impl(port, ptr, rust_vec_len, data_len),
-        19 => wire__crate__api__updater__confirm_launch_impl(port, ptr, rust_vec_len, data_len),
-        20 => wire__crate__api__categories__create_category_impl(port, ptr, rust_vec_len, data_len),
-        21 => wire__crate__api__projects__create_project_impl(port, ptr, rust_vec_len, data_len),
-        22 => {
+        18 => wire__crate__api__cli_shim__cli_tool_status_impl(port, ptr, rust_vec_len, data_len),
+        19 => wire__crate__api__git__clone_repo_impl(port, ptr, rust_vec_len, data_len),
+        20 => wire__crate__api__updater__confirm_launch_impl(port, ptr, rust_vec_len, data_len),
+        21 => wire__crate__api__categories__create_category_impl(port, ptr, rust_vec_len, data_len),
+        22 => wire__crate__api__projects__create_project_impl(port, ptr, rust_vec_len, data_len),
+        23 => {
             wire__crate__api__git_auth__create_remote_repo_impl(port, ptr, rust_vec_len, data_len)
         }
-        23 => wire__crate__api__current_version__create_version_aliases_impl(
+        24 => wire__crate__api__current_version__create_version_aliases_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        24 => wire__crate__api__workspace__create_workspace_impl(port, ptr, rust_vec_len, data_len),
-        25 => wire__crate__api__diagnostics__debug_abort_impl(port, ptr, rust_vec_len, data_len),
-        26 => wire__crate__api__diagnostics__debug_panic_impl(port, ptr, rust_vec_len, data_len),
-        27 => wire__crate__api__categories__delete_category_impl(port, ptr, rust_vec_len, data_len),
-        28 => wire__crate__api__changelog__delete_changelog_entry_impl(
+        25 => wire__crate__api__workspace__create_workspace_impl(port, ptr, rust_vec_len, data_len),
+        26 => wire__crate__api__diagnostics__debug_abort_impl(port, ptr, rust_vec_len, data_len),
+        27 => wire__crate__api__diagnostics__debug_panic_impl(port, ptr, rust_vec_len, data_len),
+        28 => wire__crate__api__categories__delete_category_impl(port, ptr, rust_vec_len, data_len),
+        29 => wire__crate__api__changelog__delete_changelog_entry_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        29 => wire__crate__api__export_templates__delete_export_templates_impl(
+        30 => wire__crate__api__export_templates__delete_export_templates_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        30 => wire__crate__api__godot_versions__delete_godot_version_impl(
+        31 => wire__crate__api__godot_versions__delete_godot_version_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        31 => wire__crate__api__templates__delete_template_impl(port, ptr, rust_vec_len, data_len),
-        32 => wire__crate__api__vault__delete_vault_item_impl(port, ptr, rust_vec_len, data_len),
-        33 => wire__crate__api__current_version__delete_version_alias_impl(
+        32 => wire__crate__api__templates__delete_template_impl(port, ptr, rust_vec_len, data_len),
+        33 => wire__crate__api__vault__delete_vault_item_impl(port, ptr, rust_vec_len, data_len),
+        34 => wire__crate__api__current_version__delete_version_alias_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        34 => wire__crate__api__workspace__delete_workspace_impl(port, ptr, rust_vec_len, data_len),
-        35 => wire__crate__api__discovery__detect_godot_installs_impl(
+        35 => wire__crate__api__workspace__delete_workspace_impl(port, ptr, rust_vec_len, data_len),
+        36 => wire__crate__api__discovery__detect_godot_installs_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        36 => wire__crate__api__dto__diagnose_project_impl(port, ptr, rust_vec_len, data_len),
-        37 => wire__crate__api__diagnostics__diagnostic_log_dir_impl(
+        37 => wire__crate__api__dto__diagnose_project_impl(port, ptr, rust_vec_len, data_len),
+        38 => wire__crate__api__diagnostics__diagnostic_log_dir_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        38 => wire__crate__api__diagnostics__diagnostic_log_tail_impl(
+        39 => wire__crate__api__diagnostics__diagnostic_log_tail_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        39 => {
+        40 => {
             wire__crate__api__git_auth__disconnect_git_auth_impl(port, ptr, rust_vec_len, data_len)
         }
-        40 => {
+        41 => {
             wire__crate__api__asset_library__download_asset_impl(port, ptr, rust_vec_len, data_len)
         }
-        41 => wire__crate__api__godot_versions__download_godot_version_impl(
+        42 => wire__crate__api__godot_versions__download_godot_version_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        42 => wire__crate__api__asset_library__download_store_asset_impl(
+        43 => wire__crate__api__asset_library__download_store_asset_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        43 => wire__crate__api__updater__download_update_impl(port, ptr, rust_vec_len, data_len),
-        44 => wire__crate__api__godot_versions__download_version_for_tag_impl(
+        44 => wire__crate__api__updater__download_update_impl(port, ptr, rust_vec_len, data_len),
+        45 => wire__crate__api__godot_versions__download_version_for_tag_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        45 => wire__crate__api__projects__duplicate_project_impl(port, ptr, rust_vec_len, data_len),
-        46 => wire__crate__api__app__emit_event_for_test_impl(port, ptr, rust_vec_len, data_len),
-        47 => wire__crate__api__backup__export_app_backup_impl(port, ptr, rust_vec_len, data_len),
-        48 => {
+        46 => wire__crate__api__projects__duplicate_project_impl(port, ptr, rust_vec_len, data_len),
+        47 => wire__crate__api__app__emit_event_for_test_impl(port, ptr, rust_vec_len, data_len),
+        48 => wire__crate__api__backup__export_app_backup_impl(port, ptr, rust_vec_len, data_len),
+        49 => {
             wire__crate__api__projects__export_project_stats_impl(port, ptr, rust_vec_len, data_len)
         }
-        49 => wire__crate__api__settings__export_settings_impl(port, ptr, rust_vec_len, data_len),
-        50 => wire__crate__api__backup__export_workspace_backup_impl(
+        50 => wire__crate__api__settings__export_settings_impl(port, ptr, rust_vec_len, data_len),
+        51 => wire__crate__api__backup__export_workspace_backup_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        51 => wire__crate__api__godot_versions__fetch_available_godot_versions_impl(
+        52 => wire__crate__api__godot_versions__fetch_available_godot_versions_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        52 => wire__crate__api__news__fetch_godot_news_impl(port, ptr, rust_vec_len, data_len),
-        53 => wire__crate__api__project_health__fix_project_health_impl(
+        53 => wire__crate__api__news__fetch_godot_news_impl(port, ptr, rust_vec_len, data_len),
+        54 => wire__crate__api__project_health__fix_project_health_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        54 => wire__crate__api__updater__flutter_stable_release_impl(
+        55 => wire__crate__api__updater__flutter_stable_release_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        55 => wire__crate__api__changelog__generate_changelog_draft_impl(
+        56 => wire__crate__api__changelog__generate_changelog_draft_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        56 => wire__crate__api__time_stats__get_activity_impl(port, ptr, rust_vec_len, data_len),
-        57 => wire__crate__api__asset_library__get_asset_library_categories_impl(
+        57 => wire__crate__api__time_stats__get_activity_impl(port, ptr, rust_vec_len, data_len),
+        58 => {
+            wire__crate__api__asset_library__get_asset_info_impl(port, ptr, rust_vec_len, data_len)
+        }
+        59 => wire__crate__api__asset_library__get_asset_library_categories_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        58 => wire__crate__api__current_version__get_current_version_impl(
+        60 => {
+            wire__crate__api__asset_library__get_asset_prefs_impl(port, ptr, rust_vec_len, data_len)
+        }
+        61 => wire__crate__api__current_version__get_current_version_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        59 => wire__crate__api__export_templates__get_export_template_options_impl(
+        62 => wire__crate__api__export_templates__get_export_template_options_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        60 => wire__crate__api__export_templates__get_export_templates_state_impl(
+        63 => wire__crate__api__export_templates__get_export_templates_state_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        61 => {
+        64 => {
             wire__crate__api__git_auth__get_git_auth_state_impl(port, ptr, rust_vec_len, data_len)
         }
-        62 => wire__crate__api__git__get_git_status_impl(port, ptr, rust_vec_len, data_len),
-        63 => wire__crate__api__godot_versions__get_github_rate_limit_impl(
+        65 => wire__crate__api__git__get_git_status_impl(port, ptr, rust_vec_len, data_len),
+        66 => wire__crate__api__godot_versions__get_github_rate_limit_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        64 => wire__crate__api__app__get_os_username_impl(port, ptr, rust_vec_len, data_len),
-        65 => wire__crate__api__time_stats__get_project_activity_impl(
+        67 => wire__crate__api__app__get_os_username_impl(port, ptr, rust_vec_len, data_len),
+        68 => wire__crate__api__time_stats__get_project_activity_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        66 => {
+        69 => {
             wire__crate__api__console__get_project_console_impl(port, ptr, rust_vec_len, data_len)
         }
-        67 => wire__crate__api__export_runner__get_project_export_impl(
+        70 => wire__crate__api__export_runner__get_project_export_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        68 => wire__crate__api__dto__get_project_export_presets_impl(
+        71 => wire__crate__api__dto__get_project_export_presets_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        69 => wire__crate__api__export_runner__get_project_exports_impl(
+        72 => wire__crate__api__export_runner__get_project_exports_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        70 => wire__crate__api__projects__get_project_file_tree_impl(
+        73 => wire__crate__api__projects__get_project_file_tree_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        71 => wire__crate__api__projects__get_project_icon_impl(port, ptr, rust_vec_len, data_len),
-        72 => wire__crate__api__projects__get_project_name_impl(port, ptr, rust_vec_len, data_len),
-        73 => wire__crate__api__projects__get_project_size_impl(port, ptr, rust_vec_len, data_len),
-        74 => {
+        74 => wire__crate__api__projects__get_project_icon_impl(port, ptr, rust_vec_len, data_len),
+        75 => wire__crate__api__projects__get_project_name_impl(port, ptr, rust_vec_len, data_len),
+        76 => wire__crate__api__projects__get_project_size_impl(port, ptr, rust_vec_len, data_len),
+        77 => {
             wire__crate__api__projects__get_projects_health_impl(port, ptr, rust_vec_len, data_len)
         }
-        75 => wire__crate__api__settings__get_settings_impl(port, ptr, rust_vec_len, data_len),
-        76 => wire__crate__api__storage__get_storage_report_impl(port, ptr, rust_vec_len, data_len),
-        77 => wire__crate__api__templates__get_template_preview_impl(
+        78 => wire__crate__api__settings__get_settings_impl(port, ptr, rust_vec_len, data_len),
+        79 => wire__crate__api__storage__get_storage_report_impl(port, ptr, rust_vec_len, data_len),
+        80 => wire__crate__api__templates__get_template_preview_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        78 => {
+        81 => {
             wire__crate__api__time_stats__get_time_insights_impl(port, ptr, rust_vec_len, data_len)
         }
-        79 => wire__crate__api__dto__get_ui_pref_impl(port, ptr, rust_vec_len, data_len),
-        80 => wire__crate__api__dto__get_ui_prefs_impl(port, ptr, rust_vec_len, data_len),
-        81 => {
+        82 => wire__crate__api__dto__get_ui_pref_impl(port, ptr, rust_vec_len, data_len),
+        83 => wire__crate__api__dto__get_ui_prefs_impl(port, ptr, rust_vec_len, data_len),
+        84 => {
             wire__crate__api__sync__gist_sync_fetch_backup_impl(port, ptr, rust_vec_len, data_len)
         }
-        82 => wire__crate__api__sync__gist_sync_get_info_impl(port, ptr, rust_vec_len, data_len),
-        83 => wire__crate__api__sync__gist_sync_pull_impl(port, ptr, rust_vec_len, data_len),
-        84 => wire__crate__api__sync__gist_sync_pull_by_url_impl(port, ptr, rust_vec_len, data_len),
-        85 => wire__crate__api__sync__gist_sync_push_impl(port, ptr, rust_vec_len, data_len),
-        86 => {
+        85 => wire__crate__api__sync__gist_sync_get_info_impl(port, ptr, rust_vec_len, data_len),
+        86 => wire__crate__api__sync__gist_sync_pull_impl(port, ptr, rust_vec_len, data_len),
+        87 => wire__crate__api__sync__gist_sync_pull_by_url_impl(port, ptr, rust_vec_len, data_len),
+        88 => wire__crate__api__sync__gist_sync_push_impl(port, ptr, rust_vec_len, data_len),
+        89 => {
             wire__crate__api__sync__gist_sync_save_gist_url_impl(port, ptr, rust_vec_len, data_len)
         }
-        87 => wire__crate__api__git__git_abort_merge_impl(port, ptr, rust_vec_len, data_len),
-        88 => wire__crate__api__git__git_ahead_behind_impl(port, ptr, rust_vec_len, data_len),
-        89 => wire__crate__api__git_auth__git_branch_protection_impl(
+        90 => wire__crate__api__git__git_abort_merge_impl(port, ptr, rust_vec_len, data_len),
+        91 => wire__crate__api__git__git_ahead_behind_impl(port, ptr, rust_vec_len, data_len),
+        92 => wire__crate__api__git_auth__git_branch_protection_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        90 => wire__crate__api__git__git_branch_publish_impl(port, ptr, rust_vec_len, data_len),
-        91 => wire__crate__api__git__git_changed_files_impl(port, ptr, rust_vec_len, data_len),
-        92 => wire__crate__api__git__git_commit_impl(port, ptr, rust_vec_len, data_len),
-        93 => wire__crate__api__git__git_create_branch_impl(port, ptr, rust_vec_len, data_len),
-        94 => wire__crate__api__git__git_delete_branch_impl(port, ptr, rust_vec_len, data_len),
-        95 => wire__crate__api__git__git_discard_changes_impl(port, ptr, rust_vec_len, data_len),
-        96 => wire__crate__api__git__git_discard_file_impl(port, ptr, rust_vec_len, data_len),
-        97 => wire__crate__api__git__git_fetch_impl(port, ptr, rust_vec_len, data_len),
-        98 => wire__crate__api__git__git_file_diff_impl(port, ptr, rust_vec_len, data_len),
-        99 => wire__crate__api__git__git_init_project_impl(port, ptr, rust_vec_len, data_len),
-        100 => wire__crate__api__git__git_is_available_impl(port, ptr, rust_vec_len, data_len),
-        101 => wire__crate__api__git__git_is_merging_impl(port, ptr, rust_vec_len, data_len),
-        102 => wire__crate__api__git__git_list_branches_impl(port, ptr, rust_vec_len, data_len),
-        103 => wire__crate__api__git__git_list_remotes_impl(port, ptr, rust_vec_len, data_len),
-        104 => wire__crate__api__git__git_log_entries_impl(port, ptr, rust_vec_len, data_len),
-        105 => {
+        93 => wire__crate__api__git__git_branch_publish_impl(port, ptr, rust_vec_len, data_len),
+        94 => wire__crate__api__git__git_changed_files_impl(port, ptr, rust_vec_len, data_len),
+        95 => wire__crate__api__git__git_commit_impl(port, ptr, rust_vec_len, data_len),
+        96 => wire__crate__api__git__git_create_branch_impl(port, ptr, rust_vec_len, data_len),
+        97 => wire__crate__api__git__git_delete_branch_impl(port, ptr, rust_vec_len, data_len),
+        98 => wire__crate__api__git__git_discard_changes_impl(port, ptr, rust_vec_len, data_len),
+        99 => wire__crate__api__git__git_discard_file_impl(port, ptr, rust_vec_len, data_len),
+        100 => wire__crate__api__git__git_fetch_impl(port, ptr, rust_vec_len, data_len),
+        101 => wire__crate__api__git__git_file_diff_impl(port, ptr, rust_vec_len, data_len),
+        102 => wire__crate__api__git__git_init_project_impl(port, ptr, rust_vec_len, data_len),
+        103 => wire__crate__api__git__git_is_available_impl(port, ptr, rust_vec_len, data_len),
+        104 => wire__crate__api__git__git_is_merging_impl(port, ptr, rust_vec_len, data_len),
+        105 => wire__crate__api__git__git_list_branches_impl(port, ptr, rust_vec_len, data_len),
+        106 => wire__crate__api__git__git_list_remotes_impl(port, ptr, rust_vec_len, data_len),
+        107 => wire__crate__api__git__git_log_entries_impl(port, ptr, rust_vec_len, data_len),
+        108 => {
             wire__crate__api__git__git_merge_conflict_files_impl(port, ptr, rust_vec_len, data_len)
         }
-        106 => wire__crate__api__git_auth__git_open_pull_request_impl(
+        109 => wire__crate__api__git_auth__git_open_pull_request_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        107 => wire__crate__api__git__git_pull_impl(port, ptr, rust_vec_len, data_len),
-        108 => wire__crate__api__git__git_push_impl(port, ptr, rust_vec_len, data_len),
-        109 => wire__crate__api__git__git_resolve_conflict_manual_impl(
+        110 => wire__crate__api__git__git_pull_impl(port, ptr, rust_vec_len, data_len),
+        111 => wire__crate__api__git__git_push_impl(port, ptr, rust_vec_len, data_len),
+        112 => wire__crate__api__git__git_resolve_conflict_manual_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        110 => {
+        113 => {
             wire__crate__api__git__git_resolve_conflict_ours_impl(port, ptr, rust_vec_len, data_len)
         }
-        111 => wire__crate__api__git__git_resolve_conflict_theirs_impl(
+        114 => wire__crate__api__git__git_resolve_conflict_theirs_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        112 => wire__crate__api__git__git_show_commit_impl(port, ptr, rust_vec_len, data_len),
-        113 => wire__crate__api__git__git_stage_file_impl(port, ptr, rust_vec_len, data_len),
-        114 => wire__crate__api__git__git_stash_apply_impl(port, ptr, rust_vec_len, data_len),
-        115 => wire__crate__api__git__git_stash_drop_impl(port, ptr, rust_vec_len, data_len),
-        116 => wire__crate__api__git__git_stash_list_impl(port, ptr, rust_vec_len, data_len),
-        117 => wire__crate__api__git__git_stash_pop_impl(port, ptr, rust_vec_len, data_len),
-        118 => wire__crate__api__git__git_stash_push_impl(port, ptr, rust_vec_len, data_len),
-        119 => wire__crate__api__git__git_stash_show_impl(port, ptr, rust_vec_len, data_len),
-        120 => wire__crate__api__git__git_switch_branch_impl(port, ptr, rust_vec_len, data_len),
-        121 => wire__crate__api__git__git_undo_commit_impl(port, ptr, rust_vec_len, data_len),
-        122 => wire__crate__api__git__git_undo_pull_impl(port, ptr, rust_vec_len, data_len),
-        123 => wire__crate__api__git__git_unstage_file_impl(port, ptr, rust_vec_len, data_len),
-        124 => wire__crate__api__git__git_worktree_add_impl(port, ptr, rust_vec_len, data_len),
-        125 => wire__crate__api__git__git_worktree_list_impl(port, ptr, rust_vec_len, data_len),
-        126 => wire__crate__api__git__git_worktree_remove_impl(port, ptr, rust_vec_len, data_len),
-        127 => wire__crate__api__git__git_worktree_switch_impl(port, ptr, rust_vec_len, data_len),
-        128 => wire__crate__api__backup__import_app_backup_impl(port, ptr, rust_vec_len, data_len),
-        129 => wire__crate__api__discovery__import_detected_install_impl(
+        115 => wire__crate__api__git__git_show_commit_impl(port, ptr, rust_vec_len, data_len),
+        116 => wire__crate__api__git__git_stage_file_impl(port, ptr, rust_vec_len, data_len),
+        117 => wire__crate__api__git__git_stash_apply_impl(port, ptr, rust_vec_len, data_len),
+        118 => wire__crate__api__git__git_stash_drop_impl(port, ptr, rust_vec_len, data_len),
+        119 => wire__crate__api__git__git_stash_list_impl(port, ptr, rust_vec_len, data_len),
+        120 => wire__crate__api__git__git_stash_pop_impl(port, ptr, rust_vec_len, data_len),
+        121 => wire__crate__api__git__git_stash_push_impl(port, ptr, rust_vec_len, data_len),
+        122 => wire__crate__api__git__git_stash_show_impl(port, ptr, rust_vec_len, data_len),
+        123 => wire__crate__api__git__git_switch_branch_impl(port, ptr, rust_vec_len, data_len),
+        124 => wire__crate__api__git__git_undo_commit_impl(port, ptr, rust_vec_len, data_len),
+        125 => wire__crate__api__git__git_undo_pull_impl(port, ptr, rust_vec_len, data_len),
+        126 => wire__crate__api__git__git_unstage_file_impl(port, ptr, rust_vec_len, data_len),
+        127 => wire__crate__api__git__git_worktree_add_impl(port, ptr, rust_vec_len, data_len),
+        128 => wire__crate__api__git__git_worktree_list_impl(port, ptr, rust_vec_len, data_len),
+        129 => wire__crate__api__git__git_worktree_remove_impl(port, ptr, rust_vec_len, data_len),
+        130 => wire__crate__api__git__git_worktree_switch_impl(port, ptr, rust_vec_len, data_len),
+        131 => wire__crate__api__backup__import_app_backup_impl(port, ptr, rust_vec_len, data_len),
+        132 => wire__crate__api__discovery__import_detected_install_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        130 => wire__crate__api__projects__import_project_impl(port, ptr, rust_vec_len, data_len),
-        131 => {
+        133 => wire__crate__api__projects__import_project_impl(port, ptr, rust_vec_len, data_len),
+        134 => {
             wire__crate__api__projects__import_project_stats_impl(port, ptr, rust_vec_len, data_len)
         }
-        132 => wire__crate__api__settings__import_settings_impl(port, ptr, rust_vec_len, data_len),
-        133 => wire__crate__api__dto__import_ui_prefs_impl(port, ptr, rust_vec_len, data_len),
-        134 => wire__crate__api__scan__import_version_impl(port, ptr, rust_vec_len, data_len),
-        135 => wire__crate__api__backup__import_workspace_backup_impl(
+        135 => wire__crate__api__settings__import_settings_impl(port, ptr, rust_vec_len, data_len),
+        136 => wire__crate__api__dto__import_ui_prefs_impl(port, ptr, rust_vec_len, data_len),
+        137 => wire__crate__api__scan__import_version_impl(port, ptr, rust_vec_len, data_len),
+        138 => wire__crate__api__backup__import_workspace_backup_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        136 => wire__crate__api__app__init_app_impl(port, ptr, rust_vec_len, data_len),
-        137 => {
+        139 => wire__crate__api__app__init_app_impl(port, ptr, rust_vec_len, data_len),
+        140 => {
             wire__crate__api__asset_library__install_asset_impl(port, ptr, rust_vec_len, data_len)
         }
-        138 => wire__crate__api__asset_library__install_asset_as_template_impl(
+        141 => wire__crate__api__asset_library__install_asset_as_template_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        139 => wire__crate__api__cli_shim__install_cli_tool_impl(port, ptr, rust_vec_len, data_len),
-        140 => wire__crate__api__export_templates__install_export_templates_impl(
+        142 => wire__crate__api__cli_shim__install_cli_tool_impl(port, ptr, rust_vec_len, data_len),
+        143 => wire__crate__api__export_templates__install_export_templates_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        141 => wire__crate__api__asset_library__install_store_asset_impl(
+        144 => wire__crate__api__asset_library__install_store_asset_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        142 => wire__crate__api__install_mode__is_portable_install_impl(
+        145 => wire__crate__api__install_mode__is_portable_install_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        143 => {
+        146 => wire__crate__api__asset_library__list_asset_files_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        147 => wire__crate__api__asset_library__list_asset_installations_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        148 => {
             wire__crate__api__categories__list_categories_impl(port, ptr, rust_vec_len, data_len)
         }
-        144 => wire__crate__api__changelog__list_changelog_entries_impl(
+        149 => wire__crate__api__changelog__list_changelog_entries_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        145 => wire__crate__api__changelog__list_git_tags_impl(port, ptr, rust_vec_len, data_len),
-        146 => wire__crate__api__godot_versions__list_installed_godot_versions_impl(
+        150 => wire__crate__api__changelog__list_git_tags_impl(port, ptr, rust_vec_len, data_len),
+        151 => wire__crate__api__godot_versions__list_installed_godot_versions_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        147 => {
+        152 => {
             wire__crate__api__project_todos__list_open_todos_impl(port, ptr, rust_vec_len, data_len)
         }
-        148 => {
+        153 => {
             wire__crate__api__addons__list_project_addons_impl(port, ptr, rust_vec_len, data_len)
         }
-        149 => wire__crate__api__todo_sync__list_project_resources_impl(
+        154 => wire__crate__api__todo_sync__list_project_resources_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        150 => wire__crate__api__project_todos__list_project_todos_impl(
+        155 => wire__crate__api__project_todos__list_project_todos_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        151 => wire__crate__api__tool_runner__list_project_tools_impl(
+        156 => wire__crate__api__tool_runner__list_project_tools_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        152 => wire__crate__api__projects__list_projects_impl(port, ptr, rust_vec_len, data_len),
-        153 => wire__crate__api__projects__list_running_projects_impl(
+        157 => wire__crate__api__projects__list_projects_impl(port, ptr, rust_vec_len, data_len),
+        158 => wire__crate__api__projects__list_running_projects_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        154 => wire__crate__api__templates__list_templates_impl(port, ptr, rust_vec_len, data_len),
-        155 => wire__crate__api__git_auth__list_user_repos_impl(port, ptr, rust_vec_len, data_len),
-        156 => wire__crate__api__vault__list_vault_items_impl(port, ptr, rust_vec_len, data_len),
-        157 => wire__crate__api__current_version__list_version_aliases_impl(
+        159 => wire__crate__api__templates__list_templates_impl(port, ptr, rust_vec_len, data_len),
+        160 => wire__crate__api__git_auth__list_user_repos_impl(port, ptr, rust_vec_len, data_len),
+        161 => wire__crate__api__vault__list_vault_items_impl(port, ptr, rust_vec_len, data_len),
+        162 => wire__crate__api__current_version__list_version_aliases_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        158 => wire__crate__api__workspace__list_workspace_scan_dirs_impl(
+        163 => wire__crate__api__workspace__list_workspace_scan_dirs_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        159 => wire__crate__api__workspace__list_workspaces_impl(port, ptr, rust_vec_len, data_len),
-        160 => wire__crate__api__window__load_window_state_impl(port, ptr, rust_vec_len, data_len),
-        161 => wire__crate__api__mise__mise_install_godot_version_impl(
+        164 => wire__crate__api__workspace__list_workspaces_impl(port, ptr, rust_vec_len, data_len),
+        165 => wire__crate__api__window__load_window_state_impl(port, ptr, rust_vec_len, data_len),
+        166 => wire__crate__api__mise__mise_install_godot_version_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        162 => wire__crate__api__mise__mise_refresh_status_impl(port, ptr, rust_vec_len, data_len),
-        163 => wire__crate__api__mise__mise_status_impl(port, ptr, rust_vec_len, data_len),
-        164 => {
+        167 => wire__crate__api__mise__mise_refresh_status_impl(port, ptr, rust_vec_len, data_len),
+        168 => wire__crate__api__mise__mise_status_impl(port, ptr, rust_vec_len, data_len),
+        169 => {
             wire__crate__api__mise__mise_sync_godot_versions_impl(port, ptr, rust_vec_len, data_len)
         }
-        165 => wire__crate__api__mise__mise_uninstall_godot_version_impl(
+        170 => wire__crate__api__mise__mise_uninstall_godot_version_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        166 => wire__crate__api__native__notify_impl(port, ptr, rust_vec_len, data_len),
-        167 => wire__crate__api__export_runner__open_export_artifact_folder_impl(
+        171 => wire__crate__api__native__notify_impl(port, ptr, rust_vec_len, data_len),
+        172 => wire__crate__api__export_runner__open_export_artifact_folder_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        168 => wire__crate__api__export_templates__open_export_templates_folder_impl(
+        173 => wire__crate__api__export_templates__open_export_templates_folder_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        169 => wire__crate__api__window__open_from_args_impl(port, ptr, rust_vec_len, data_len),
-        170 => wire__crate__api__godot_versions__open_godot_version_impl(
+        174 => wire__crate__api__window__open_from_args_impl(port, ptr, rust_vec_len, data_len),
+        175 => wire__crate__api__godot_versions__open_godot_version_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        171 => wire__crate__api__projects__open_in_editor_impl(port, ptr, rust_vec_len, data_len),
-        172 => wire__crate__api__window__open_launch_args_impl(port, ptr, rust_vec_len, data_len),
-        173 => wire__crate__api__projects__open_project_impl(port, ptr, rust_vec_len, data_len),
-        174 => {
+        176 => wire__crate__api__projects__open_in_editor_impl(port, ptr, rust_vec_len, data_len),
+        177 => wire__crate__api__window__open_launch_args_impl(port, ptr, rust_vec_len, data_len),
+        178 => wire__crate__api__projects__open_project_impl(port, ptr, rust_vec_len, data_len),
+        179 => {
             wire__crate__api__projects__open_project_folder_impl(port, ptr, rust_vec_len, data_len)
         }
-        175 => {
+        180 => {
             wire__crate__api__native__open_recent_project_impl(port, ptr, rust_vec_len, data_len)
         }
-        176 => wire__crate__api__git__open_terminal_impl(port, ptr, rust_vec_len, data_len),
-        177 => wire__crate__api__todo_sync__open_todo_link_impl(port, ptr, rust_vec_len, data_len),
-        178 => wire__crate__api__godot_versions__open_versions_folder_impl(
+        181 => wire__crate__api__git__open_terminal_impl(port, ptr, rust_vec_len, data_len),
+        182 => wire__crate__api__todo_sync__open_todo_link_impl(port, ptr, rust_vec_len, data_len),
+        183 => wire__crate__api__godot_versions__open_versions_folder_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        179 => {
+        184 => {
             wire__crate__api__godot_versions__pause_download_impl(port, ptr, rust_vec_len, data_len)
         }
-        180 => wire__crate__api__native__pick_data_file_impl(port, ptr, rust_vec_len, data_len),
-        181 => wire__crate__api__native__pick_executable_impl(port, ptr, rust_vec_len, data_len),
-        182 => wire__crate__api__native__pick_folder_impl(port, ptr, rust_vec_len, data_len),
-        183 => wire__crate__api__native__pick_image_file_impl(port, ptr, rust_vec_len, data_len),
-        184 => wire__crate__api__native__pick_save_path_impl(port, ptr, rust_vec_len, data_len),
-        185 => wire__crate__api__dto__poll_device_flow_impl(port, ptr, rust_vec_len, data_len),
-        186 => wire__crate__api__projects__read_image_file_impl(port, ptr, rust_vec_len, data_len),
-        187 => wire__crate__api__dto__reclaim_storage_impl(port, ptr, rust_vec_len, data_len),
-        189 => wire__crate__api__native__refresh_recent_projects_impl(
+        185 => wire__crate__api__native__pick_data_file_impl(port, ptr, rust_vec_len, data_len),
+        186 => wire__crate__api__native__pick_executable_impl(port, ptr, rust_vec_len, data_len),
+        187 => wire__crate__api__native__pick_folder_impl(port, ptr, rust_vec_len, data_len),
+        188 => wire__crate__api__native__pick_image_file_impl(port, ptr, rust_vec_len, data_len),
+        189 => wire__crate__api__native__pick_save_path_impl(port, ptr, rust_vec_len, data_len),
+        190 => wire__crate__api__dto__poll_device_flow_impl(port, ptr, rust_vec_len, data_len),
+        191 => wire__crate__api__projects__read_image_file_impl(port, ptr, rust_vec_len, data_len),
+        192 => wire__crate__api__dto__reclaim_storage_impl(port, ptr, rust_vec_len, data_len),
+        194 => wire__crate__api__native__refresh_recent_projects_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        190 => wire__crate__api__app__reimport_from_stable_impl(port, ptr, rust_vec_len, data_len),
-        191 => wire__crate__api__projects__reintroduce_dismissed_projects_impl(
+        195 => wire__crate__api__app__reimport_from_stable_impl(port, ptr, rust_vec_len, data_len),
+        196 => wire__crate__api__projects__reintroduce_dismissed_projects_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        192 => wire__crate__api__native__relaunch_impl(port, ptr, rust_vec_len, data_len),
-        193 => wire__crate__api__categories__remove_category_folder_impl(
+        197 => wire__crate__api__native__relaunch_impl(port, ptr, rust_vec_len, data_len),
+        198 => wire__crate__api__categories__remove_category_folder_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        194 => wire__crate__api__git_auth__remove_git_pat_impl(port, ptr, rust_vec_len, data_len),
-        195 => wire__crate__api__projects__remove_project_impl(port, ptr, rust_vec_len, data_len),
-        196 => wire__crate__api__ui_prefs__remove_ui_pref_impl(port, ptr, rust_vec_len, data_len),
-        197 => {
+        199 => wire__crate__api__git_auth__remove_git_pat_impl(port, ptr, rust_vec_len, data_len),
+        200 => wire__crate__api__projects__remove_project_impl(port, ptr, rust_vec_len, data_len),
+        201 => wire__crate__api__ui_prefs__remove_ui_pref_impl(port, ptr, rust_vec_len, data_len),
+        202 => {
             wire__crate__api__categories__rename_category_impl(port, ptr, rust_vec_len, data_len)
         }
-        198 => wire__crate__api__godot_versions__rename_godot_version_impl(
+        203 => wire__crate__api__godot_versions__rename_godot_version_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        199 => {
+        204 => {
             wire__crate__api__categories__reorder_categories_impl(port, ptr, rust_vec_len, data_len)
         }
-        200 => wire__crate__api__godot_versions__reorder_download_queue_impl(
+        205 => wire__crate__api__godot_versions__reorder_download_queue_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        201 => wire__crate__api__projects__reorder_projects_impl(port, ptr, rust_vec_len, data_len),
-        202 => wire__crate__api__settings__reset_app_data_impl(port, ptr, rust_vec_len, data_len),
-        203 => wire__crate__api__settings__reset_settings_impl(port, ptr, rust_vec_len, data_len),
-        204 => wire__crate__api__updater__restart_to_update_impl(port, ptr, rust_vec_len, data_len),
-        205 => wire__crate__api__watcher__restart_watchers_impl(port, ptr, rust_vec_len, data_len),
-        206 => wire__crate__api__projects__restore_projects_from_backup_impl(
+        206 => wire__crate__api__projects__reorder_projects_impl(port, ptr, rust_vec_len, data_len),
+        207 => wire__crate__api__settings__reset_app_data_impl(port, ptr, rust_vec_len, data_len),
+        208 => wire__crate__api__settings__reset_settings_impl(port, ptr, rust_vec_len, data_len),
+        209 => wire__crate__api__updater__restart_to_update_impl(port, ptr, rust_vec_len, data_len),
+        210 => wire__crate__api__watcher__restart_watchers_impl(port, ptr, rust_vec_len, data_len),
+        211 => wire__crate__api__projects__restore_projects_from_backup_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        207 => wire__crate__api__godot_versions__resume_download_impl(
+        212 => wire__crate__api__godot_versions__resume_download_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        208 => {
+        213 => {
             wire__crate__api__tool_runner__run_project_tool_impl(port, ptr, rust_vec_len, data_len)
         }
-        209 => wire__crate__api__git_auth__save_git_pat_impl(port, ptr, rust_vec_len, data_len),
-        210 => wire__crate__api__templates__save_project_as_template_impl(
+        214 => wire__crate__api__git_auth__save_git_pat_impl(port, ptr, rust_vec_len, data_len),
+        215 => wire__crate__api__templates__save_project_as_template_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        211 => wire__crate__api__project_todos__save_project_todos_impl(
+        216 => wire__crate__api__project_todos__save_project_todos_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        212 => wire__crate__api__vault__save_to_vault_impl(port, ptr, rust_vec_len, data_len),
-        213 => wire__crate__api__window__save_window_state_impl(port, ptr, rust_vec_len, data_len),
-        214 => wire__crate__api__scan__scan_for_projects_impl(port, ptr, rust_vec_len, data_len),
-        215 => wire__crate__api__scan__scan_for_projects_with_info_impl(
+        217 => wire__crate__api__vault__save_to_vault_impl(port, ptr, rust_vec_len, data_len),
+        218 => wire__crate__api__window__save_window_state_impl(port, ptr, rust_vec_len, data_len),
+        219 => wire__crate__api__scan__scan_for_projects_impl(port, ptr, rust_vec_len, data_len),
+        220 => wire__crate__api__scan__scan_for_projects_with_info_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        216 => wire__crate__api__scan__scan_for_versions_impl(port, ptr, rust_vec_len, data_len),
-        217 => wire__crate__api__discovery__scan_godot_recent_projects_impl(
+        221 => wire__crate__api__scan__scan_for_versions_impl(port, ptr, rust_vec_len, data_len),
+        222 => wire__crate__api__discovery__scan_godot_recent_projects_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        218 => wire__crate__api__asset_library__search_asset_library_impl(
+        223 => wire__crate__api__asset_library__search_asset_library_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        219 => wire__crate__api__asset_library__search_asset_store_impl(
+        224 => wire__crate__api__asset_library__search_asset_store_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        221 => wire__crate__api__current_version__set_current_version_impl(
+        226 => wire__crate__api__asset_library__set_asset_favorite_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        223 => wire__crate__api__dto__set_ui_pref_impl(port, ptr, rust_vec_len, data_len),
-        225 => wire__crate__api__app__start_core_impl(port, ptr, rust_vec_len, data_len),
-        226 => wire__crate__api__app__start_core_in_impl(port, ptr, rust_vec_len, data_len),
-        227 => {
+        227 => wire__crate__api__asset_library__set_asset_hidden_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        228 => wire__crate__api__current_version__set_current_version_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        230 => wire__crate__api__dto__set_ui_pref_impl(port, ptr, rust_vec_len, data_len),
+        232 => wire__crate__api__app__start_core_impl(port, ptr, rust_vec_len, data_len),
+        233 => wire__crate__api__app__start_core_in_impl(port, ptr, rust_vec_len, data_len),
+        234 => {
             wire__crate__api__git_auth__start_device_flow_impl(port, ptr, rust_vec_len, data_len)
         }
-        228 => {
+        235 => {
             wire__crate__api__watcher__start_git_fs_watcher_impl(port, ptr, rust_vec_len, data_len)
         }
-        229 => wire__crate__api__export_runner__start_project_export_impl(
+        236 => wire__crate__api__export_runner__start_project_export_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        230 => {
+        237 => {
             wire__crate__api__watcher__stop_git_fs_watcher_impl(port, ptr, rust_vec_len, data_len)
         }
-        231 => wire__crate__api__projects__stop_project_impl(port, ptr, rust_vec_len, data_len),
-        232 => {
+        238 => wire__crate__api__projects__stop_project_impl(port, ptr, rust_vec_len, data_len),
+        239 => {
             wire__crate__api__tool_runner__stop_project_tool_impl(port, ptr, rust_vec_len, data_len)
         }
-        233 => {
+        240 => {
             wire__crate__api__workspace__switch_workspace_impl(port, ptr, rust_vec_len, data_len)
         }
-        234 => {
+        241 => {
             wire__crate__api__todo_sync__sync_project_todos_impl(port, ptr, rust_vec_len, data_len)
         }
-        235 => wire__crate__api__templates__sync_templates_with_scan_dir_impl(
+        242 => wire__crate__api__templates__sync_templates_with_scan_dir_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        236 => {
+        243 => {
             wire__crate__api__diagnostics__take_crash_notice_impl(port, ptr, rust_vec_len, data_len)
         }
-        237 => wire__crate__api__godot_versions__test_github_token_impl(
+        244 => wire__crate__api__godot_versions__test_github_token_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        238 => {
+        245 => {
             wire__crate__api__todo_sync__todo_git_activity_impl(port, ptr, rust_vec_len, data_len)
         }
-        239 => {
+        246 => {
             wire__crate__api__cli_shim__uninstall_cli_tool_impl(port, ptr, rust_vec_len, data_len)
         }
-        240 => wire__crate__api__export_templates__uninstall_export_template_files_impl(
+        247 => wire__crate__api__export_templates__uninstall_export_template_files_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        241 => {
+        248 => {
             wire__crate__api__categories__update_category_impl(port, ptr, rust_vec_len, data_len)
         }
-        242 => wire__crate__api__changelog__update_changelog_entry_impl(
+        249 => wire__crate__api__changelog__update_changelog_entry_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        243 => wire__crate__api__projects__update_project_impl(port, ptr, rust_vec_len, data_len),
-        244 => {
+        250 => wire__crate__api__projects__update_project_impl(port, ptr, rust_vec_len, data_len),
+        251 => {
             wire__crate__api__addons__update_project_addon_impl(port, ptr, rust_vec_len, data_len)
         }
-        245 => wire__crate__api__settings__update_settings_impl(port, ptr, rust_vec_len, data_len),
-        246 => wire__crate__api__vault__update_vault_item_impl(port, ptr, rust_vec_len, data_len),
-        247 => {
+        252 => wire__crate__api__settings__update_settings_impl(port, ptr, rust_vec_len, data_len),
+        253 => wire__crate__api__asset_library__update_template_from_asset_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        254 => wire__crate__api__vault__update_vault_item_impl(port, ptr, rust_vec_len, data_len),
+        255 => {
             wire__crate__api__workspace__update_workspace_impl(port, ptr, rust_vec_len, data_len)
         }
-        248 => {
+        256 => {
             wire__crate__api__projects__write_project_tags_impl(port, ptr, rust_vec_len, data_len)
         }
         _ => unreachable!(),
@@ -14978,10 +15645,10 @@ fn pde_ffi_dispatcher_sync_impl(
     match func_id {
         6 => wire__crate__api__app__app_version_impl(ptr, rust_vec_len, data_len),
         11 => wire__crate__api__app__channel_identifier_impl(ptr, rust_vec_len, data_len),
-        188 => wire__crate__api__diagnostics__record_diagnostic_impl(ptr, rust_vec_len, data_len),
-        220 => wire__crate__api__updater__set_app_version_impl(ptr, rust_vec_len, data_len),
-        222 => wire__crate__api__native__set_main_window_visible_impl(ptr, rust_vec_len, data_len),
-        224 => {
+        193 => wire__crate__api__diagnostics__record_diagnostic_impl(ptr, rust_vec_len, data_len),
+        225 => wire__crate__api__updater__set_app_version_impl(ptr, rust_vec_len, data_len),
+        229 => wire__crate__api__native__set_main_window_visible_impl(ptr, rust_vec_len, data_len),
+        231 => {
             wire__crate__api__updater__set_updater_test_overrides_impl(ptr, rust_vec_len, data_len)
         }
         _ => unreachable!(),
@@ -15385,6 +16052,107 @@ impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::types::AssetDownlo
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::types::AssetFileEntry> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.0.path.into_into_dart().into_dart(),
+            self.0.is_dir.into_into_dart().into_dart(),
+            self.0.size.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for FrbWrapper<crate::api::types::AssetFileEntry>
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::types::AssetFileEntry>>
+    for crate::api::types::AssetFileEntry
+{
+    fn into_into_dart(self) -> FrbWrapper<crate::api::types::AssetFileEntry> {
+        self.into()
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::types::AssetFileListing> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.0.entries.into_into_dart().into_dart(),
+            self.0.truncated.into_into_dart().into_dart(),
+            self.0.archive_bytes.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for FrbWrapper<crate::api::types::AssetFileListing>
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::types::AssetFileListing>>
+    for crate::api::types::AssetFileListing
+{
+    fn into_into_dart(self) -> FrbWrapper<crate::api::types::AssetFileListing> {
+        self.into()
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::types::AssetInfo> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.0.asset.into_into_dart().into_dart(),
+            self.0.description.into_into_dart().into_dart(),
+            self.0.version.into_into_dart().into_dart(),
+            self.0.revision.into_into_dart().into_dart(),
+            self.0.license.into_into_dart().into_dart(),
+            self.0.license_url.into_into_dart().into_dart(),
+            self.0.source_url.into_into_dart().into_dart(),
+            self.0.issues_url.into_into_dart().into_dart(),
+            self.0.updated.into_into_dart().into_dart(),
+            self.0.media.into_into_dart().into_dart(),
+            self.0.releases.into_into_dart().into_dart(),
+            self.0.download_size_bytes.into_into_dart().into_dart(),
+            self.0.paid.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for FrbWrapper<crate::api::types::AssetInfo>
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::types::AssetInfo>>
+    for crate::api::types::AssetInfo
+{
+    fn into_into_dart(self) -> FrbWrapper<crate::api::types::AssetInfo> {
+        self.into()
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::types::AssetInstallation> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.0.asset_id.into_into_dart().into_dart(),
+            self.0.project_id.into_into_dart().into_dart(),
+            self.0.project_name.into_into_dart().into_dart(),
+            self.0.folder.into_into_dart().into_dart(),
+            self.0.version.into_into_dart().into_dart(),
+            self.0.revision.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for FrbWrapper<crate::api::types::AssetInstallation>
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::types::AssetInstallation>>
+    for crate::api::types::AssetInstallation
+{
+    fn into_into_dart(self) -> FrbWrapper<crate::api::types::AssetInstallation> {
+        self.into()
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::types::AssetLibraryAsset> {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -15403,6 +16171,7 @@ impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::types::AssetLibrar
             self.0.modify_date.into_into_dart().into_dart(),
             self.0.rating.into_into_dart().into_dart(),
             self.0.source.into_into_dart().into_dart(),
+            self.0.version.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -15460,6 +16229,76 @@ impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::types::AssetLibrar
     for crate::api::types::AssetLibraryResponse
 {
     fn into_into_dart(self) -> FrbWrapper<crate::api::types::AssetLibraryResponse> {
+        self.into()
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::types::AssetMedia> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.0.url.into_into_dart().into_dart(),
+            self.0.thumbnail.into_into_dart().into_dart(),
+            self.0.video.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for FrbWrapper<crate::api::types::AssetMedia>
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::types::AssetMedia>>
+    for crate::api::types::AssetMedia
+{
+    fn into_into_dart(self) -> FrbWrapper<crate::api::types::AssetMedia> {
+        self.into()
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::types::AssetPrefs> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.0.schema_version.into_into_dart().into_dart(),
+            self.0.favorites.into_into_dart().into_dart(),
+            self.0.hidden.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for FrbWrapper<crate::api::types::AssetPrefs>
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::types::AssetPrefs>>
+    for crate::api::types::AssetPrefs
+{
+    fn into_into_dart(self) -> FrbWrapper<crate::api::types::AssetPrefs> {
+        self.into()
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::types::AssetRelease> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.0.version.into_into_dart().into_dart(),
+            self.0.date.into_into_dart().into_dart(),
+            self.0.notes.into_into_dart().into_dart(),
+            self.0.min_godot.into_into_dart().into_dart(),
+            self.0.max_godot.into_into_dart().into_dart(),
+            self.0.stable.into_into_dart().into_dart(),
+            self.0.size_bytes.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for FrbWrapper<crate::api::types::AssetRelease>
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::types::AssetRelease>>
+    for crate::api::types::AssetRelease
+{
+    fn into_into_dart(self) -> FrbWrapper<crate::api::types::AssetRelease> {
         self.into()
     }
 }
@@ -16865,6 +17704,27 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::dto::HealthReport>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::types::HiddenAsset> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.0.asset_id.into_into_dart().into_dart(),
+            self.0.title.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for FrbWrapper<crate::api::types::HiddenAsset>
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::types::HiddenAsset>>
+    for crate::api::types::HiddenAsset
+{
+    fn into_into_dart(self) -> FrbWrapper<crate::api::types::HiddenAsset> {
+        self.into()
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::types::InstallAssetResult> {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -17052,6 +17912,7 @@ impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::types::Project> {
             self.0.session_started_at_ms.into_into_dart().into_dart(),
             self.0.time_today_seconds.into_into_dart().into_dart(),
             self.0.time_week_seconds.into_into_dart().into_dart(),
+            self.0.missing.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -17191,6 +18052,9 @@ impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::types::ProjectTemp
             self.0.source_path.into_into_dart().into_dart(),
             self.0.path.into_into_dart().into_dart(),
             self.0.keep_name.into_into_dart().into_dart(),
+            self.0.source_asset_id.into_into_dart().into_dart(),
+            self.0.source_asset_version.into_into_dart().into_dart(),
+            self.0.source_asset_revision.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -17726,6 +18590,29 @@ impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::types::TemplateSyn
     for crate::api::types::TemplateSyncResult
 {
     fn into_into_dart(self) -> FrbWrapper<crate::api::types::TemplateSyncResult> {
+        self.into()
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::types::TemplateUpdate> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.0.template_id.into_into_dart().into_dart(),
+            self.0.asset_id.into_into_dart().into_dart(),
+            self.0.installed_version.into_into_dart().into_dart(),
+            self.0.latest_version.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for FrbWrapper<crate::api::types::TemplateUpdate>
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::types::TemplateUpdate>>
+    for crate::api::types::TemplateUpdate
+{
+    fn into_into_dart(self) -> FrbWrapper<crate::api::types::TemplateUpdate> {
         self.into()
     }
 }
@@ -18657,6 +19544,55 @@ impl SseEncode for crate::api::types::AssetDownloadProgress {
     }
 }
 
+impl SseEncode for crate::api::types::AssetFileEntry {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.path, serializer);
+        <bool>::sse_encode(self.is_dir, serializer);
+        <u64>::sse_encode(self.size, serializer);
+    }
+}
+
+impl SseEncode for crate::api::types::AssetFileListing {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<crate::api::types::AssetFileEntry>>::sse_encode(self.entries, serializer);
+        <bool>::sse_encode(self.truncated, serializer);
+        <u64>::sse_encode(self.archive_bytes, serializer);
+    }
+}
+
+impl SseEncode for crate::api::types::AssetInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::api::types::AssetLibraryAsset>::sse_encode(self.asset, serializer);
+        <String>::sse_encode(self.description, serializer);
+        <String>::sse_encode(self.version, serializer);
+        <Option<u64>>::sse_encode(self.revision, serializer);
+        <String>::sse_encode(self.license, serializer);
+        <Option<String>>::sse_encode(self.license_url, serializer);
+        <Option<String>>::sse_encode(self.source_url, serializer);
+        <Option<String>>::sse_encode(self.issues_url, serializer);
+        <Option<String>>::sse_encode(self.updated, serializer);
+        <Vec<crate::api::types::AssetMedia>>::sse_encode(self.media, serializer);
+        <Vec<crate::api::types::AssetRelease>>::sse_encode(self.releases, serializer);
+        <Option<u64>>::sse_encode(self.download_size_bytes, serializer);
+        <bool>::sse_encode(self.paid, serializer);
+    }
+}
+
+impl SseEncode for crate::api::types::AssetInstallation {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.asset_id, serializer);
+        <String>::sse_encode(self.project_id, serializer);
+        <String>::sse_encode(self.project_name, serializer);
+        <String>::sse_encode(self.folder, serializer);
+        <String>::sse_encode(self.version, serializer);
+        <Option<u64>>::sse_encode(self.revision, serializer);
+    }
+}
+
 impl SseEncode for crate::api::types::AssetLibraryAsset {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -18675,6 +19611,7 @@ impl SseEncode for crate::api::types::AssetLibraryAsset {
         <Option<String>>::sse_encode(self.modify_date, serializer);
         <String>::sse_encode(self.rating, serializer);
         <String>::sse_encode(self.source, serializer);
+        <String>::sse_encode(self.version, serializer);
     }
 }
 
@@ -18694,6 +19631,37 @@ impl SseEncode for crate::api::types::AssetLibraryResponse {
         <u32>::sse_encode(self.page, serializer);
         <u32>::sse_encode(self.pages, serializer);
         <u32>::sse_encode(self.total, serializer);
+    }
+}
+
+impl SseEncode for crate::api::types::AssetMedia {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.url, serializer);
+        <Option<String>>::sse_encode(self.thumbnail, serializer);
+        <bool>::sse_encode(self.video, serializer);
+    }
+}
+
+impl SseEncode for crate::api::types::AssetPrefs {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u32>::sse_encode(self.schema_version, serializer);
+        <Vec<crate::api::types::AssetLibraryAsset>>::sse_encode(self.favorites, serializer);
+        <Vec<crate::api::types::HiddenAsset>>::sse_encode(self.hidden, serializer);
+    }
+}
+
+impl SseEncode for crate::api::types::AssetRelease {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.version, serializer);
+        <String>::sse_encode(self.date, serializer);
+        <String>::sse_encode(self.notes, serializer);
+        <Option<String>>::sse_encode(self.min_godot, serializer);
+        <Option<String>>::sse_encode(self.max_godot, serializer);
+        <bool>::sse_encode(self.stable, serializer);
+        <Option<u64>>::sse_encode(self.size_bytes, serializer);
     }
 }
 
@@ -19337,6 +20305,14 @@ impl SseEncode for crate::api::dto::HealthReport {
     }
 }
 
+impl SseEncode for crate::api::types::HiddenAsset {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.asset_id, serializer);
+        <String>::sse_encode(self.title, serializer);
+    }
+}
+
 impl SseEncode for i32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -19435,6 +20411,26 @@ impl SseEncode for Vec<crate::api::types::AliasSkip> {
     }
 }
 
+impl SseEncode for Vec<crate::api::types::AssetFileEntry> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::types::AssetFileEntry>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::api::types::AssetInstallation> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::types::AssetInstallation>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::api::types::AssetLibraryAsset> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -19451,6 +20447,26 @@ impl SseEncode for Vec<crate::api::types::AssetLibraryCategory> {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <crate::api::types::AssetLibraryCategory>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::api::types::AssetMedia> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::types::AssetMedia>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::api::types::AssetRelease> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::types::AssetRelease>::sse_encode(item, serializer);
         }
     }
 }
@@ -19735,6 +20751,16 @@ impl SseEncode for Vec<crate::api::dto::HealthCheck> {
     }
 }
 
+impl SseEncode for Vec<crate::api::types::HiddenAsset> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::types::HiddenAsset>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::api::types::InstalledGodotVersion> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -19981,6 +21007,16 @@ impl SseEncode for Vec<crate::api::types::TemplateOption> {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <crate::api::types::TemplateOption>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::api::types::TemplateUpdate> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::types::TemplateUpdate>::sse_encode(item, serializer);
         }
     }
 }
@@ -20482,6 +21518,7 @@ impl SseEncode for crate::api::types::Project {
         <Option<u64>>::sse_encode(self.session_started_at_ms, serializer);
         <u64>::sse_encode(self.time_today_seconds, serializer);
         <u64>::sse_encode(self.time_week_seconds, serializer);
+        <bool>::sse_encode(self.missing, serializer);
     }
 }
 
@@ -20546,6 +21583,9 @@ impl SseEncode for crate::api::types::ProjectTemplate {
         <Option<String>>::sse_encode(self.source_path, serializer);
         <String>::sse_encode(self.path, serializer);
         <bool>::sse_encode(self.keep_name, serializer);
+        <Option<String>>::sse_encode(self.source_asset_id, serializer);
+        <Option<String>>::sse_encode(self.source_asset_version, serializer);
+        <Option<u64>>::sse_encode(self.source_asset_revision, serializer);
     }
 }
 
@@ -20832,6 +21872,16 @@ impl SseEncode for crate::api::types::TemplateSyncResult {
         <Vec<crate::api::types::ProjectTemplate>>::sse_encode(self.imported, serializer);
         <Vec<String>>::sse_encode(self.updated, serializer);
         <Vec<String>>::sse_encode(self.removed, serializer);
+    }
+}
+
+impl SseEncode for crate::api::types::TemplateUpdate {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.template_id, serializer);
+        <String>::sse_encode(self.asset_id, serializer);
+        <String>::sse_encode(self.installed_version, serializer);
+        <String>::sse_encode(self.latest_version, serializer);
     }
 }
 

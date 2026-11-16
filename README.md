@@ -78,13 +78,13 @@
 
 ## Documentation
 
-The full docs live at **[ryko.is-a.dev/godothub-docs](https://ryko.is-a.dev/godothub-docs)**: installation, every feature, the settings reference, keyboard shortcuts, custom CSS, and troubleshooting.
+The full docs live at **[ryko.is-a.dev/godothub-docs](https://ryko.is-a.dev/godothub-docs)**: installation, every feature, the settings reference, keyboard shortcuts, and troubleshooting.
 
 Want to build GodotHub or contribute? See [Build from source](https://ryko.is-a.dev/godothub-docs/contributing/build-from-source) and [Architecture](https://ryko.is-a.dev/godothub-docs/contributing/architecture).
 
 ### Flutter migration
 
-The Flutter desktop app is the active development version and is available as stable (as of v1.6.0). The legacy stable installers are still present that were built in Tauri version. Existing Tauri code will be removed from the codebase as time goes on.
+GodotHub is a Flutter desktop app (stable since v1.6.0) built on a shared Rust core. Releases before 1.6.0 were built with Tauri; their installers stay on the releases page, and the remaining Tauri code is being removed from the codebase over time. New features and fixes land in the Flutter app only.
 
 ---
 
@@ -98,18 +98,20 @@ The Flutter desktop app is the active development version and is available as st
 | Feature | Description |
 |---|---|
 | **Create & Import** | Create new projects from scratch or from templates, import existing ones from disk, or clone directly from a Git repo. |
+| **List, Grid & Kanban** | Switch between a list, a responsive grid, or a Kanban board with a column per category. Drag projects between columns to recategorize them. |
 | **Drag & Drop Reorder** | Rearrange projects with drag-and-drop, within a category or between categories. |
 | **Pin Projects** | Pin projects to a dedicated section at the top. |
 | **Tags** | Tags are read straight from `project.godot`, so they stay in sync with the Godot launcher. Edit, add, or delete them and the sync follows. |
 | **Batch Operations** | Select multiple projects at once to change versions, assign categories, toggle pins, or remove from the library. |
 | **Search & Filter** | Search by name or path, filter by category, sort by custom order, name, date, last opened, or size. |
 | **Version Warnings** | Flags when a project's bound Godot version is missing or there's a major version mismatch. |
+| **Safe With External Drives** | A project on an unplugged drive or an offline network share stays in your library, marked unavailable, and comes back as soon as the drive does. Projects are only removed when you remove them. |
 | **Project Properties** | A file breakdown by type (scripts, scenes, images, audio, 3D models, etc.) with sizes and counts. |
 | **Custom Launch Args** | Add custom command-line arguments when launching a project. |
 | **Quick Actions** | Open the project folder, open in an external editor, or open a terminal at the project path, all from the project card. |
 | **Build & Export** | Export a release build from any export preset with the project's bound Godot version. Output streams to the built-in console. |
 | **Tests & Lint** | Run GUT or gdUnit4 tests headless, gdlint, or a gdformat check from the Build & Export window, with output in the built-in console. |
-| **Project Doctor** | Checks the engine binding, export templates, main scene, import cache, addons, export presets, Git setup and duplicate registrations, with one-click fixes where possible. |
+| **Project Doctor** | Checks the engine binding, export templates, main scene, import cache, addons, export presets, Git setup and duplicate registrations, with one-click fixes where possible, each shown next to the problem it fixes. |
 | **Android Checks** | Projects with an Android export preset get checks for the Android SDK, Java JDK version, keystores and the Gradle build template. Projects that only look mobile (Mobile renderer, ETC2/ASTC textures) get the same checks as notes. |
 | **Addons** | Lists every addon in `res://addons` with its version and whether it's enabled, and checks the Godot Asset Library for newer versions. Updating moves the old folder to the Trash and restores it if the update fails. |
 
@@ -147,6 +149,26 @@ The Flutter desktop app is the active development version and is available as st
 | **Preview Contents** | Browse a template's full directory tree before using it. |
 | **Sync from Directory** | Auto-import templates from a configured scan folder. |
 | **File Watcher** | The template directory is watched, so editing a template folder updates the library automatically. |
+
+</details>
+
+### Asset Store & Asset Library
+
+<details>
+<summary><strong>Details</strong></summary>
+
+| Feature | Description |
+|---|---|
+| **Two Sources** | Browse the Godot Asset Store and the Godot Asset Library from one view. |
+| **Search & Filter** | Search by name, filter by category and Godot version, and sort by relevance, last update, name, rating or license. |
+| **Install Into Projects** | Install an addon straight into one or several of your projects at once, or download it. |
+| **Asset Details** | Open any asset for its screenshots, full description, license, links and Store release notes, and browse every file in the archive before installing. The preview download is reused if you install. |
+| **Installed & Updates** | Cards show which of your projects already have an asset you installed through GodotHub and flag a newer version; update each project from the asset's details. |
+| **Match My Godot** | One click filters to assets that work with your current or newest installed Godot version. |
+| **Saved & Not Interested** | Star assets to keep them in a Saved list that works offline, and hide the ones you don't want to see again. Hidden assets can be brought back anytime. |
+| **Templates From the Library** | Install demos and templates from the Asset Library as local templates, ready for New Project. Hide the ones you already have, save favorites, and hide the ones you're not interested in. |
+| **Template Updates** | Templates installed from the Asset Library are flagged when a newer upload exists and can be updated in place. |
+| **Responsive Grid** | Cards reflow from one column on a narrow window to six on a wide screen. |
 
 </details>
 
@@ -239,7 +261,7 @@ The Flutter desktop app is the active development version and is available as st
 
 | Feature | Description |
 |---|---|
-| **Storage Locations** | Configure scan directories for projects, Godot versions, and templates. |
+| **Storage Locations** | Configure scan directories for projects, Godot versions, and templates. Type or paste a path, or browse for it. |
 | **Auto-Scan on Startup** | Discover new projects and versions automatically on launch. |
 | **File Watchers** | Real-time detection of changes in project, version, and template directories. |
 | **Download Concurrency** | How many Godot versions download at once (1-10). |
@@ -373,6 +395,7 @@ flutter run -d windows
 # Run checks
 flutter analyze
 flutter test
+(cd .. && cargo test -p godothub_core -p godothub_bridge)
 
 # Build for release
 flutter build windows --release
@@ -380,7 +403,9 @@ flutter build windows --release
 
 > [!TIP]
 > Flutter build outputs are under `app/build/`. The Rust core and Flutter bridge
-> live in `crates/` and are built automatically with the app.
+> live in `crates/` and are built automatically with the app. See
+> [CONTRIBUTING.md](CONTRIBUTING.md) for the project layout, the shared UI
+> components and how translations are generated.
 
 ---
 

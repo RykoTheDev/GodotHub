@@ -750,8 +750,8 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
 
   Widget _sectionLabel(GhTheme theme, String text, {Color? color, FaIconData? icon}) {
     final label = Text(
-      text.toUpperCase(),
-      style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: color ?? theme.muted, letterSpacingEm: 0.06),
+      text,
+      style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: color ?? theme.muted),
     );
     if (icon == null) return label;
     return Row(

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
 import '../design/design.dart';
-import '../ui/controls/dashed_box.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 
 const assetPageSize = 12;
+
+/// Web pages for the two sources, offered when a search fails.
+const assetLibrarySiteUrl = 'https://godotengine.org/asset-library/asset';
+const assetStoreSiteUrl = 'https://store.godotengine.org/';
 
 const assetVersionOptions = ['4.7', '4.6', '4.5', '4.4', '4.3', '4.2', '4.1', '4.0'];
 
@@ -79,201 +82,6 @@ class AssetDropButton extends StatelessWidget {
               text,
             GhIcon(GhIcons.chevronDown, size: theme.space(3), color: theme.muted),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class AssetGrid extends StatelessWidget {
-  const AssetGrid({super.key, required this.children});
-
-  final List<Widget> children;
-
-  static int columnsFor(double viewportWidth) => viewportWidth >= 1024 ? 3 : (viewportWidth >= 640 ? 2 : 1);
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = GhTheme.of(context);
-    final columns = columnsFor(MediaQuery.sizeOf(context).width);
-    final gap = theme.space(3);
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: gap,
-      children: [
-        for (var start = 0; start < children.length; start += columns)
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: gap,
-              children: [
-                for (var i = start; i < start + columns; i++) Expanded(child: i < children.length ? children[i] : const SizedBox.shrink()),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class AssetSkeletonGrid extends StatelessWidget {
-  const AssetSkeletonGrid({super.key, required this.storeActions});
-
-  final bool storeActions;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = GhTheme.of(context);
-    Widget bar({double? width, double? widthFactor, required double height, double? radius}) {
-      final box = DecoratedBox(
-        decoration: BoxDecoration(color: theme.raised, borderRadius: BorderRadius.circular(radius ?? theme.radiusSm)),
-        child: SizedBox(width: width, height: height),
-      );
-      return widthFactor == null
-          ? box
-          : FractionallySizedBox(alignment: AlignmentDirectional.centerStart, widthFactor: widthFactor, child: box);
-    }
-
-    Widget card() => ClipRRect(
-      borderRadius: BorderRadius.circular(theme.radiusItem),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: theme.overlay,
-          borderRadius: BorderRadius.circular(theme.radiusItem),
-          border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(
-              height: theme.space(24),
-              child: ColoredBox(color: theme.raised),
-            ),
-            Padding(
-              padding: EdgeInsets.all(theme.space(4)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: theme.space(2.5),
-                children: [
-                  bar(widthFactor: 0.75, height: theme.space(4)),
-                  bar(widthFactor: 0.5, height: theme.space(3)),
-                  Padding(
-                    padding: EdgeInsets.only(top: theme.space(1)),
-                    child: Row(
-                      spacing: theme.space(1.5),
-                      children: [
-                        bar(width: theme.space(16), height: theme.space(5), radius: theme.radiusTag),
-                        bar(width: theme.space(12), height: theme.space(5), radius: theme.radiusTag),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(theme.space(4), theme.space(1), theme.space(4), theme.space(4)),
-              child: storeActions
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      spacing: theme.space(1.5),
-                      children: [
-                        bar(width: theme.space(9), height: theme.space(8), radius: theme.radiusItem),
-                        bar(width: theme.space(20), height: theme.space(8), radius: theme.radiusItem),
-                      ],
-                    )
-                  : bar(height: theme.space(9), radius: theme.radiusItem),
-            ),
-          ],
-        ),
-      ),
-    );
-
-    return AssetGrid(children: [for (var i = 0; i < 6; i++) card()]);
-  }
-}
-
-class AssetStateBox extends StatelessWidget {
-  const AssetStateBox({super.key, required this.message, required this.icon, this.danger = false, this.onRetry});
-
-  final String message;
-  final Widget icon;
-  final bool danger;
-  final VoidCallback? onRetry;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = GhTheme.of(context);
-    final radius = BorderRadius.circular(theme.radiusItem);
-    return GhDashedBox(
-      color: danger ? theme.danger.withValues(alpha: 0.3) : theme.outline.withValues(alpha: 0.5),
-      radius: radius,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: theme.space(20)),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          spacing: theme.space(4),
-          children: [
-            icon,
-            ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: theme.space(80)),
-              child: Text(
-                message,
-                textAlign: TextAlign.center,
-                style: theme.text(size: GhTextSize.sm, color: theme.muted, lineHeight: 1.625),
-              ),
-            ),
-            if (onRetry != null)
-              GhPressable(
-                onPressed: onRetry,
-                borderRadius: radius,
-                builder: (context, states) => GhAnimatedBox(
-                  color: states.active ? theme.raised : theme.raised.withValues(alpha: 0),
-                  borderRadius: radius,
-                  border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-                  padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(2)),
-                  child: Text(
-                    ghTr('retry'),
-                    style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class AssetNotice extends StatelessWidget {
-  const AssetNotice({super.key, required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = GhTheme.of(context);
-    return Semantics(
-      liveRegion: true,
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: theme.mint.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(theme.radiusItem),
-          border: Border.all(color: theme.mint.withValues(alpha: 0.2)),
-        ),
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: theme.space(3.5), vertical: theme.space(2.5)),
-          child: Row(
-            spacing: theme.space(2),
-            children: [
-              GhIcon(GhIcons.check, size: theme.space(3.5), color: theme.mint),
-              Expanded(
-                child: Text(
-                  message,
-                  style: theme.text(size: GhTextSize.xs, color: theme.mint),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

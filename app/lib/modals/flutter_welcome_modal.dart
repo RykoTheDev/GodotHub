@@ -147,14 +147,9 @@ class _FlutterWelcomeModalState extends ConsumerState<FlutterWelcomeModal> with 
                         from: GhWelcomeIntroPoses.eyebrow,
                         child: ExcludeSemantics(
                           child: Text(
-                            ghTr('flutter_welcome_eyebrow').toUpperCase(),
+                            ghTr('flutter_welcome_eyebrow'),
                             textAlign: TextAlign.center,
-                            style: theme.text(
-                              size: GhTextSize.sm,
-                              weight: GhWeight.semibold,
-                              color: theme.accentBright,
-                              letterSpacingEm: 0.3,
-                            ),
+                            style: theme.text(size: GhTextSize.base, weight: GhWeight.semibold, color: theme.accentBright),
                           ),
                         ),
                       ),

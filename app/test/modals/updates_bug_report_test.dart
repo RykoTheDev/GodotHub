@@ -162,7 +162,7 @@ void main() {
       expect(find.text('v2.1.0'), findsOneWidget);
       expect(find.text('New thing'), findsOneWidget);
       expect(find.text('Slow start'), findsOneWidget);
-      expect(find.text('ADDED'), findsOneWidget);
+      expect(find.text('Added'), findsOneWidget);
       expect(find.text('github.com'), findsOneWidget);
       expect(find.text('GodotHub-Beta-2.1.0-windows-x64-setup.exe'), findsOneWidget);
       expect(find.text('windows-x86_64-nsis'), findsOneWidget);
@@ -179,7 +179,7 @@ void main() {
       expect(find.text(ghTr('percent_complete', args: {'percent': 50})), findsOneWidget);
       expect(find.text(ghTr('check_updates_progress_size', args: {'downloaded': '50.0 MB', 'total': '100.0 MB'})), findsOneWidget);
       expect(find.text(ghTr('check_updates_from_host', args: {'host': 'github.com'})), findsOneWidget);
-      expect(find.text(ghTr('check_updates_log').toUpperCase()), findsOneWidget);
+      expect(find.text(ghTr('check_updates_log')), findsOneWidget);
       expect(find.text('Downloading GodotHub-Beta-2.1.0-windows-x64-setup.exe from github.com'), findsOneWidget);
       report(const UpdateDownloadProgress(downloaded: 100 * 1024 * 1024, total: 100 * 1024 * 1024));
       await base.settle(tester, 12);
@@ -200,10 +200,10 @@ void main() {
 
     testWidgets('preview mode shows the sample release notes and known issues', (tester) async {
       await openWith(tester, (close) => CheckForUpdatesModal(onClose: close, mode: CheckForUpdatesMode.preview));
-      expect(find.text(ghTr('check_updates_release_notes').toUpperCase()), findsOneWidget);
-      expect(find.text('NEW'), findsOneWidget);
+      expect(find.text(ghTr('check_updates_release_notes')), findsOneWidget);
+      expect(find.text('New'), findsOneWidget);
       expect(find.text('Faster startup times across all platforms'), findsOneWidget);
-      expect(find.text(ghTr('changelog_known_issues').toUpperCase()), findsOneWidget);
+      expect(find.text(ghTr('changelog_known_issues')), findsOneWidget);
       expect(find.textContaining('the taskbar may briefly show a duplicate icon'), findsOneWidget);
     });
 

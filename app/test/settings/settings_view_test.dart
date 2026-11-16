@@ -134,10 +134,47 @@ void main() {
 
     await tester.enterText(find.byType(TextField).first, 'zzzz-nothing');
     await base.settle(tester, 3);
+    expect(find.byKey(const ValueKey('settings-no-results')), findsOneWidget);
     expect(find.text(ts('no_settings_match')), findsOneWidget);
-    await tester.tap(find.text(ts('clear')));
+    await tester.tap(find.text(ghTr('clear_search')));
     await base.settle(tester, 3);
     expect(find.text(ts('no_settings_match')), findsNothing);
+    expect(find.text(ts('theme_preset_label')), findsOneWidget);
+  });
+
+  testWidgets('a settings load failure shows an error with retry instead of defaults', (tester) async {
+    tester.view.physicalSize = const Size(1400, 1000);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    var failing = true;
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          fakeSettings(() => failing ? throw 'settings.json is corrupt' : copySettings(baseSettings, setupComplete: true)),
+          appVersionLoaderProvider.overrideWithValue(() async => '2.0.0'),
+          contributorsFetcherProvider.overrideWithValue(() async => const <Contributor>[]),
+        ],
+        child: MaterialApp(
+          theme: GhTheme.defaults().toThemeData(),
+          home: const Scaffold(body: GhToastHost(child: SettingsView())),
+        ),
+      ),
+    );
+    await base.settle(tester, 4);
+    expect(find.byKey(const ValueKey('settings-load-error')), findsOneWidget);
+    expect(find.text(ts('settings_load_failed')), findsOneWidget);
+    expect(find.text('settings.json is corrupt'), findsOneWidget);
+    expect(find.text(ts('theme_preset_label')), findsNothing);
+    await tester.tap(railItem('data'));
+    await base.settle(tester, 3);
+    expect(find.byKey(const ValueKey('settings-load-error')), findsNothing);
+    expect(find.text(ts('import_settings_btn')), findsOneWidget);
+    await tester.tap(railItem('appearance'));
+    await base.settle(tester, 3);
+    failing = false;
+    await tester.tap(find.text(ghTr('retry')));
+    await base.settle(tester, 4);
+    expect(find.byKey(const ValueKey('settings-load-error')), findsNothing);
     expect(find.text(ts('theme_preset_label')), findsOneWidget);
   });
 

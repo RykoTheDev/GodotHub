@@ -14,6 +14,7 @@ import '../src/rust/api/types.dart';
 import '../state/app_signals.dart';
 import '../state/keyboard_shortcuts.dart' show setTabSignal;
 import '../state/projects.dart' show projectHealthChangedSignal;
+import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import '../ui/core/ui_settings.dart' show GhSide;
@@ -29,6 +30,35 @@ import '../ui/shell/smooth_scroll.dart';
 const doctorCategories = ['engine', 'templates', 'android', 'cache', 'scenes', 'addons', 'git', 'exports', 'registrations'];
 const _translatedDetails = {'android_possible', 'android_sdk_incomplete'};
 const _rank = {'error': 0, 'warning': 1, 'info': 2, 'ok': 3};
+
+/// Actions that need the user (a picker, a download, a destructive confirm,
+/// another app). Everything else is a one-step local fix that "Fix all" may
+/// apply in a batch.
+const _manualKinds = {
+  'templates',
+  'install_version',
+  'manage_versions',
+  'choose_version',
+  'open_editor',
+  'open_presets',
+  'open_addons',
+  'remove_registration',
+};
+
+/// Engine binding problems that Versions can resolve; their rows carry a
+/// "Manage engine versions" shortcut next to the fix.
+const doctorVersionCodes = {'version_unbound', 'version_missing', 'version_executable_missing'};
+
+/// Findings "Fix all" applies: an error or warning whose action needs no
+/// confirmation and runs in place.
+List<dto.HealthCheck> doctorBatchFixable(Iterable<dto.HealthCheck> findings) => [
+  for (final f in findings)
+    if ((f.severity == 'error' || f.severity == 'warning') &&
+        f.action != null &&
+        !f.action!.confirm &&
+        !_manualKinds.contains(f.action!.kind))
+      f,
+];
 
 String _t(String key, {num? count, Map<String, Object?> args = const {}}) => ghTr('project_doctor.$key', count: count, args: args);
 
@@ -141,6 +171,18 @@ class _ProjectDoctorModalState extends State<ProjectDoctorModal> {
     } else {
       await _scan();
     }
+  });
+
+  Future<void> _fixAll(List<dto.HealthCheck> findings) => _run('fix_all', () async {
+    try {
+      for (final finding in findings) {
+        await ProjectsApi.fixHealth(widget.project.id, finding.id);
+      }
+    } finally {
+      _changed();
+      await _scan();
+    }
+    ghToasts.pushToast(GhToastType.success, _t('fix_complete'));
   });
 
   Future<void> _bind(String tag) => _run('binding', () async {
@@ -264,7 +306,12 @@ class _ProjectDoctorModalState extends State<ProjectDoctorModal> {
     };
     final values = <String, Object?>{...finding.values, 'size': formatBytes(num.tryParse(finding.values['bytes'] ?? '') ?? 0)};
     final action = _action(finding);
+    final kind = finding.action?.kind;
+    final manageVersions =
+        kind != 'manage_versions' &&
+        (doctorVersionCodes.contains(finding.code) || (kind == 'choose_version' && widget.installedVersions.isEmpty));
     return Container(
+      key: ValueKey('doctor-row:${finding.id}'),
       padding: EdgeInsets.symmetric(vertical: theme.space(4)),
       decoration: BoxDecoration(
         border: last ? null : Border(bottom: BorderSide(color: theme.line.withValues(alpha: 0.7))),
@@ -325,15 +372,26 @@ class _ProjectDoctorModalState extends State<ProjectDoctorModal> {
                       ],
                     ),
                   ),
-                if (action != null)
+                if (action != null || manageVersions)
                   Padding(
                     padding: EdgeInsets.only(top: theme.space(3)),
-                    child: action,
-                  ),
-                if (finding.action?.kind == 'choose_version' && widget.installedVersions.isEmpty)
-                  Padding(
-                    padding: EdgeInsets.only(top: theme.space(2)),
-                    child: GhOutlineAction(onPressed: _manageVersions, label: _t('action_manage_versions')),
+                    child: Wrap(
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: theme.space(2),
+                      runSpacing: theme.space(2),
+                      children: [
+                        ?action,
+                        if (manageVersions)
+                          GhButton(
+                            key: ValueKey('doctor-manage-versions:${finding.id}'),
+                            onPressed: _busy == null ? _manageVersions : null,
+                            label: _t('action_manage_versions'),
+                            size: GhTextSize.xs,
+                            paddingX: 3,
+                            paddingY: 2,
+                          ),
+                      ],
+                    ),
                   ),
               ],
             ),
@@ -364,6 +422,10 @@ class _ProjectDoctorModalState extends State<ProjectDoctorModal> {
         : report != null
         ? _t('summary_ready')
         : _t('scan_failed');
+    final fixable = report == null ? const <dto.HealthCheck>[] : doctorBatchFixable(findings);
+    final idle = _busy == null && !_loading;
+    final templating = _busy == 'templates';
+    final status = templating ? _t('templates_downloading') : _t('local_checks');
     final sections = <Widget>[];
     if (report != null) {
       for (final category in doctorCategories) {
@@ -434,26 +496,59 @@ class _ProjectDoctorModalState extends State<ProjectDoctorModal> {
       maxWidth: GhModalWidth.x3l,
       bodyHeight: GhModalShell.tallBodyHeight(context),
       onClose: widget.onClose,
-      footer: [
-        Expanded(
-          child: Text(
-            _busy == 'templates' ? _t('templates_downloading') : _t('local_checks'),
-            style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625),
+      rawFooter: Semantics(
+        key: const ValueKey('doctor-status'),
+        liveRegion: true,
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(theme.space(6), theme.space(3), theme.space(6), theme.space(3)),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: theme.space(2),
+            children: [
+              Padding(
+                padding: EdgeInsets.only(top: theme.space(0.5)),
+                child: templating
+                    ? GhSpinnerIcon(size: 3, color: theme.accentBright)
+                    : GhIcon(GhIcons.info, size: theme.space(3), color: theme.muted),
+              ),
+              Expanded(
+                child: Text(
+                  status,
+                  style: theme.text(size: GhTextSize.xs, color: templating ? theme.ink : theme.muted, lineHeight: 1.5),
+                ),
+              ),
+            ],
           ),
         ),
-        GhOutlineAction(onPressed: _manageVersions, label: _t('action_manage_versions')),
-        if (_busy == 'templates')
-          GhOutlineAction(
-            onPressed: () => VersionsApi.cancelExportTemplates(_version).catchError((Object e) {
-              if (mounted) setState(() => _error = '$e');
-            }),
-            icon: GhIcons.x,
-            iconSize: 3,
-            tooltip: ghTr('cancel'),
-            semanticLabel: ghTr('cancel'),
-          ),
-        GhOutlineAction(onPressed: widget.onClose, label: context.tr.common.close),
-      ],
+      ),
+      footer: ghModalActions(
+        trailing: [
+          if (templating)
+            GhButton(
+              key: const ValueKey('doctor-cancel-templates'),
+              onPressed: () => VersionsApi.cancelExportTemplates(_version).catchError((Object e) {
+                if (mounted) setState(() => _error = '$e');
+              }),
+              icon: GhIcons.x,
+              label: ghTr('cancel'),
+            ),
+          if (fixable.isNotEmpty) GhButton(key: const ValueKey('doctor-close'), onPressed: widget.onClose, label: ghTr('close')),
+        ],
+        primary: fixable.isNotEmpty
+            ? GhBusyButton(
+                key: const ValueKey('doctor-fix-all'),
+                onPressed: idle ? () => _fixAll(fixable) : null,
+                busy: _busy == 'fix_all',
+                paddingX: 4,
+                label: _busy == 'fix_all' ? ghTr('doctor_fixing_all') : ghTr('doctor_fix_all', args: {'count': fixable.length}),
+              )
+            : GhButton(
+                key: const ValueKey('doctor-done'),
+                onPressed: widget.onClose,
+                label: ghTr('done'),
+                variant: GhButtonVariant.primary,
+              ),
+      ),
       child: GhScrollView(
         padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(6)),
         child: Column(

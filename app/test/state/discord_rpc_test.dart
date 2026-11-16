@@ -28,6 +28,7 @@ Project project({String id = 'p', String name = 'game', String path = '/work/gam
   sessionStartedAtMs: started == null ? null : BigInt.from(started),
   timeTodaySeconds: BigInt.zero,
   timeWeekSeconds: BigInt.zero,
+  missing: false,
 );
 
 class FakeProjects extends ProjectsNotifier {

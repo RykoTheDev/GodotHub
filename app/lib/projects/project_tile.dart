@@ -26,6 +26,7 @@ import '../ui/overlays/menu.dart';
 import '../ui/reusables/open_button.dart';
 import 'project_actions.dart';
 import 'project_icon.dart';
+import 'project_missing_notice.dart';
 import '../ui/shell/smooth_scroll.dart';
 
 String shortProjectPath(String path) {
@@ -172,7 +173,7 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
         icon: GhIcons.x,
         onSelected: () => confirmRemoveProject(context, displayName, cb.onRemove),
       ),
-      if (cb.onDelete != null)
+      if (cb.onDelete != null && !widget.project.missing)
         GhMenuItem(
           id: 'delete',
           label: tr.project_card_delete_files,
@@ -193,6 +194,7 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
     final data = ref.watch(projectTileDataProvider((path: project.path, showSize: options.showSize, preview: widget.preview)));
     final displayName = data.displayName(project.name);
     final grid = widget.viewMode == ProjectViewMode.grid;
+    final kanban = widget.viewMode == ProjectViewMode.kanban;
     final compact = widget.compact;
     final version = _version;
     final versionLabel = (version?.customName?.isNotEmpty ?? false)
@@ -228,30 +230,36 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
     final background = widget.selected ? theme.accent.withValues(alpha: 0.05) : theme.overlay;
     final radius = BorderRadius.circular(theme.radiusItem);
 
+    Widget iconBox(double units) => Container(
+      width: theme.space(units),
+      height: theme.space(units),
+      alignment: Alignment.center,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        color: theme.raised,
+        borderRadius: BorderRadius.circular(theme.radiusTile),
+        border: Border.all(color: theme.outline.withValues(alpha: 0.4)),
+      ),
+      child: icon != null
+          ? Padding(
+              padding: EdgeInsets.all(theme.space(1)),
+              child: ProjectIconImage(url: icon, onError: () => setState(() => _brokenIcon = icon)),
+            )
+          : Text(
+              projectInitials(displayName, tileStyle: true),
+              style: theme.text(
+                size: units < 9 ? GhTextSize.xs : GhTextSize.sm,
+                weight: GhWeight.semibold,
+                color: theme.accentBright.withValues(alpha: 0.8),
+              ),
+            ),
+    );
+
     final header = Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: theme.space(3),
       children: [
-        Container(
-          width: theme.space(grid ? 12 : (compact ? 9 : 10)),
-          height: theme.space(grid ? 12 : (compact ? 9 : 10)),
-          alignment: Alignment.center,
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            color: theme.raised,
-            borderRadius: BorderRadius.circular(theme.radiusTile),
-            border: Border.all(color: theme.outline.withValues(alpha: 0.4)),
-          ),
-          child: icon != null
-              ? Padding(
-                  padding: EdgeInsets.all(theme.space(1)),
-                  child: ProjectIconImage(url: icon, onError: () => setState(() => _brokenIcon = icon)),
-                )
-              : Text(
-                  projectInitials(displayName, tileStyle: true),
-                  style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.accentBright.withValues(alpha: 0.8)),
-                ),
-        ),
+        iconBox(grid ? 12 : (compact ? 9 : 10)),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -290,7 +298,7 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
       ],
     );
 
-    final metaChildren = <Widget>[
+    final gitChildren = <Widget>[
       if (gitPending)
         Container(
           padding: EdgeInsets.symmetric(horizontal: theme.space(2), vertical: theme.space(1)),
@@ -300,6 +308,8 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
           ),
         ),
       if (hasGit) _gitButton(context, theme, gitStatus!),
+    ];
+    final timeChildren = <Widget>[
       if (options.showTime) ..._timeButton(context, theme),
       if (options.showSize && (data.size != null || !data.sizeFailed)) _sizeButton(context, theme, data),
       if (options.showLastOpened && lastOpened != null)
@@ -315,6 +325,7 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
           ),
         ),
     ];
+    final metaChildren = <Widget>[...gitChildren, ...timeChildren];
 
     final tags = project.tags;
     final tagChildren = <Widget>[
@@ -361,8 +372,13 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: theme.space(2),
       children: [
+        if (project.missing)
+          ProjectMissingNotice(
+            compact: grid || compact,
+            onRemove: preview ? null : () => confirmRemoveProject(context, displayName, cb.onRemove),
+          ),
         _versionDropdown(context, theme, version, versionLabel, unavailable, unavailableHint),
-        if (version == null)
+        if (version == null && !project.missing)
           Tooltip(
             message: unavailableHint,
             child: Padding(
@@ -394,8 +410,8 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
             Expanded(
               child: GhOpenButton(
                 label: tr.open_project,
-                disabled: version == null || preview,
-                disabledReason: unavailableHint,
+                disabled: version == null || preview || project.missing,
+                disabledReason: project.missing ? tr.project_missing_open_disabled : unavailableHint,
                 size: GhOpenButtonSize.compact,
                 onOpen: (console) => launchProject(project, console),
                 consoleSupported: version?.supportsConsole ?? false,
@@ -449,7 +465,106 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
         ),
       if (options.showTags) tagsRow,
     ];
-    final body = grid
+    Widget kanbanBody() {
+      final badges = <Widget>[
+        if (running) _runningBadge(context, theme, options.showSessionTimer),
+        ...gitChildren,
+        if (options.showTags) ...[
+          for (final tag in tags.take(2)) _tagChip(context, theme, tag),
+          if (tags.length > 2)
+            _smallChip(
+              context,
+              theme,
+              label: '+${tags.length - 2}',
+              semanticLabel: tr.project_card_more_tags.args({'count': tags.length - 2}),
+              onPressed: preview ? null : () => openTagManager(context, project, cb.onTagsSaved),
+            ),
+        ],
+      ];
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        spacing: theme.space(compact ? 2 : 2.5),
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: theme.space(2.5),
+            children: [
+              iconBox(compact ? 7 : 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: theme.space(0.5),
+                  children: [
+                    Tooltip(
+                      message: displayName,
+                      waitDuration: const Duration(milliseconds: 600),
+                      child: Text(
+                        displayName,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.ink, lineHeight: 1.3),
+                      ),
+                    ),
+                    _versionDropdown(context, theme, version, versionLabel, unavailable, unavailableHint, dense: true),
+                    if (options.showPath) _pathButton(context, theme, true, options.blurPath),
+                  ],
+                ),
+              ),
+              _iconButton(
+                context,
+                icon: GhIcons.pin,
+                label: project.pinned ? tr.project_unpin_aria : tr.project_pin_aria,
+                onPressed: preview ? null : cb.onTogglePin,
+                active: project.pinned,
+                reveal: !project.pinned,
+                toggled: project.pinned,
+                iconSize: 3,
+              ),
+            ],
+          ),
+          if (badges.isNotEmpty)
+            Wrap(crossAxisAlignment: WrapCrossAlignment.center, spacing: theme.space(1.5), runSpacing: theme.space(1.5), children: badges),
+          if (project.missing)
+            ProjectMissingNotice(compact: true, onRemove: preview ? null : () => confirmRemoveProject(context, displayName, cb.onRemove)),
+          if (timeChildren.isNotEmpty)
+            DefaultTextStyle.merge(
+              style: theme.text(size: GhTextSize.x2s, color: theme.muted.withValues(alpha: 0.7)),
+              child: Wrap(
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: theme.space(2),
+                runSpacing: theme.space(1),
+                children: timeChildren,
+              ),
+            ),
+          Row(
+            spacing: theme.space(1.5),
+            children: [
+              if (options.showPlay) _playButton(context, theme, version, unavailableHint),
+              Expanded(
+                child: GhOpenButton(
+                  label: tr.open_project,
+                  disabled: version == null || preview || project.missing,
+                  disabledReason: project.missing ? tr.project_missing_open_disabled : unavailableHint,
+                  size: GhOpenButtonSize.compact,
+                  onOpen: (console) => launchProject(project, console),
+                  consoleSupported: version?.supportsConsole ?? false,
+                  consoleInitiallyOn: widget.launchWithConsole,
+                  showConsole: options.showConsole,
+                  moreLabel: tr.project_more_aria,
+                  items: _menuItems(context, displayName),
+                  headerItems: projectHeaderItems(context, project, todosEnabled: false),
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
+
+    final body = kanban
+        ? kanbanBody()
+        : grid
         ? Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -484,7 +599,7 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
       duration: GhMotion.of(context).css(GhDurations.interactive),
       curve: GhCurves.outExpo,
       constraints: grid ? BoxConstraints(minHeight: theme.space(60)) : null,
-      padding: EdgeInsets.all(theme.space(grid ? 4 : (compact ? 3 : 3.5))),
+      padding: EdgeInsets.all(theme.space(grid ? 4 : (kanban ? (compact ? 2.5 : 3) : (compact ? 3 : 3.5)))),
       decoration: BoxDecoration(
         color: background,
         borderRadius: radius,
@@ -944,14 +1059,15 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
     InstalledGodotVersion? version,
     String label,
     bool unavailable,
-    String unavailableHint,
-  ) {
+    String unavailableHint, {
+    bool dense = false,
+  }) {
     final tr = context.tr.common;
     final disabled = widget.preview || widget.installedVersions.isEmpty;
     final radius = BorderRadius.circular(theme.radiusBtn);
     return GhDropdown(
       align: GhSide.left,
-      expand: true,
+      expand: !dense,
       items: [
         for (final entry in widget.installedVersions)
           GhMenuItem(
@@ -972,6 +1088,30 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
         borderRadius: radius,
         builder: (context, states) {
           final color = unavailable ? theme.amber : theme.muted;
+          if (dense) {
+            final inline = unavailable || version == null ? theme.amber : (states.active ? theme.ink : theme.muted);
+            return GhAnimatedBox(
+              color: states.active ? theme.raised : theme.raised.withValues(alpha: 0),
+              borderRadius: BorderRadius.circular(theme.radiusTag),
+              padding: EdgeInsets.symmetric(horizontal: theme.space(1), vertical: theme.space(0.5)),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: theme.space(1),
+                children: [
+                  GhIcon(version == null ? GhIcons.alertTriangle : GhIcons.node, size: theme.space(2.5), color: inline),
+                  Flexible(
+                    child: Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.text(size: GhTextSize.x2s, weight: GhWeight.medium, mono: true, color: inline),
+                    ),
+                  ),
+                  GhIcon(GhIcons.chevronDown, size: theme.space(2), color: inline.withValues(alpha: 0.7)),
+                ],
+              ),
+            );
+          }
           return GhAnimatedBox(
             color: theme.raised,
             borderRadius: radius,
@@ -1002,7 +1142,7 @@ class _ProjectTileState extends ConsumerState<ProjectTile> {
     final tr = context.tr.common;
     final radius = BorderRadius.circular(theme.radiusBtn);
     return GhPressable(
-      onPressed: version == null || widget.preview ? null : () => playProject(widget.project),
+      onPressed: version == null || widget.preview || widget.project.missing ? null : () => playProject(widget.project),
       disabledCursor: SystemMouseCursors.forbidden,
       semanticLabel: tr.play_project_tooltip,
       tooltip: version == null ? unavailableHint : tr.play_project_tooltip,

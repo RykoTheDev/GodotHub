@@ -60,6 +60,7 @@ final demo = Project(
   totalTimeSeconds: BigInt.from(7200),
   timeTodaySeconds: BigInt.from(600),
   timeWeekSeconds: BigInt.from(3600),
+  missing: false,
 );
 
 const engine = InstalledGodotVersion(
@@ -158,7 +159,14 @@ Future<void> openModal(
   await settle(tester);
 }
 
+/// A real folder for forms that check their location exists before submitting.
+late Directory games;
+
+String inGames(String name) => '${games.path}${games.path.contains(r'\') && !games.path.contains('/') ? r'\' : '/'}$name';
+
 void main() {
+  setUpAll(() => games = Directory.systemTemp.createTempSync('gh-games-'));
+  tearDownAll(() => games.deleteSync(recursive: true));
   setUpAll(() async {
     await loadFont('Inter', ['assets/fonts/inter-latin.ttf']);
     await loadFont('GoogleSansCode', ['assets/fonts/gsc-latin-400.ttf', 'assets/fonts/gsc-latin-500.ttf']);
@@ -178,13 +186,24 @@ void main() {
         sent = {'id': id, 'name': name, 'dest': destDir};
         return demo;
       });
+      final dir = (await tester.runAsync(() => Directory.systemTemp.createTemp('gh-duplicate-dest-')))!;
+      addTearDown(() => dir.deleteSync(recursive: true));
       await openModal(tester, (close) => DuplicateProjectModal(project: demo, onClose: close, onDuplicated: () => duplicated++));
       expect(defaultDuplicateDest(r'C:\games\demo'), r'C:\games');
-      expect(find.text('C:/games'), findsOneWidget);
-      expect(tester.widget<TextField>(find.byType(TextField)).controller!.text, 'Demo ${ghTr('copy_suffix')}');
+      expect(tester.widget<TextField>(find.byType(TextField).last).controller!.text, 'C:/games');
+      expect(tester.widget<TextField>(find.byType(TextField).first).controller!.text, 'Demo ${ghTr('copy_suffix')}');
+      // The default parent does not exist here: submitting explains why instead of calling the backend.
       await tester.tap(find.text(ghTr('duplicate')));
       await settle(tester);
-      expect(sent, {'id': 'p1', 'name': 'Demo ${ghTr('copy_suffix')}', 'dest': 'C:/games'});
+      expect(sent, isNull);
+      expect(find.text(ghTr('path_error_folder_not_found')), findsOneWidget);
+      // A typed destination clears the error and is used as is.
+      await tester.enterText(find.byType(TextField).last, dir.path);
+      await settle(tester, 2);
+      expect(find.text(ghTr('path_error_folder_not_found')), findsNothing);
+      await tester.tap(find.text(ghTr('duplicate')));
+      await settle(tester);
+      expect(sent, {'id': 'p1', 'name': 'Demo ${ghTr('copy_suffix')}', 'dest': dir.path});
       expect(duplicated, 1);
       expect(find.byType(DuplicateProjectModal), findsNothing);
       await drainToasts(tester);
@@ -217,22 +236,23 @@ void main() {
         totalTimeSeconds: BigInt.zero,
         timeTodaySeconds: BigInt.zero,
         timeWeekSeconds: BigInt.zero,
+        missing: false,
       );
       await openModal(tester, (close) => DuplicateProjectModal(project: project, onClose: close, onDuplicated: () {}));
       bool canDuplicate() => tester.widget<GhBusyButton>(find.byType(GhBusyButton)).onPressed != null;
       expect(canDuplicate(), isTrue);
 
-      await tester.enterText(find.byType(TextField), 'Bad: name');
+      await tester.enterText(find.byType(TextField).first, 'Bad: name');
       await settle(tester);
       expect(find.text(ghTr('folder_name_invalid_chars')), findsOneWidget);
       expect(canDuplicate(), isFalse);
 
-      await tester.enterText(find.byType(TextField), 'Taken Name');
+      await tester.enterText(find.byType(TextField).first, 'Taken Name');
       await settle(tester);
       expect(find.text(ghTr('duplicate_folder_exists')), findsOneWidget);
       expect(canDuplicate(), isFalse);
 
-      await tester.enterText(find.byType(TextField), 'Fresh Name');
+      await tester.enterText(find.byType(TextField).first, 'Fresh Name');
       await settle(tester);
       expect(find.text(ghTr('duplicate_folder_exists')), findsNothing);
       expect(find.textContaining(ghTr('folder_name_preview', args: {'name': ''}).trim()), findsOneWidget);
@@ -254,6 +274,7 @@ void main() {
         totalTimeSeconds: BigInt.zero,
         timeTodaySeconds: BigInt.zero,
         timeWeekSeconds: BigInt.zero,
+        missing: false,
       );
       await openModal(
         tester,
@@ -329,7 +350,7 @@ void main() {
         (close) => TimeTrackerModal(project: demo, onClose: close, loadActivity: (_) async => [('2026-11-09', BigInt.zero)]),
       );
       expect(find.text(ghTr('time_weekly_empty')), findsOneWidget);
-      expect(find.text(ghTr('time_today').toUpperCase()), findsOneWidget);
+      expect(find.text(ghTr('time_today')), findsOneWidget);
     });
 
     testWidgets('addons lists installed addons and offers updates after a check', (tester) async {
@@ -474,7 +495,7 @@ void main() {
         tester,
         (close) => CreateProjectModal(
           installedVersions: const [engine],
-          defaultLocation: 'C:/games',
+          defaultLocation: games.path,
           placeholder: 'My Awesome Game',
           onClose: close,
           onCreated: () => done++,
@@ -488,10 +509,10 @@ void main() {
       await tester.enterText(find.byType(TextField).first, 'Space Game');
       await settle(tester, 2);
       expect(find.text(ghTr('create_project_name_required')), findsNothing);
-      expect(find.text(ghTr('create_project_path_preview', args: {'path': 'C:/games/Space Game'})), findsOneWidget);
+      expect(find.text(ghTr('create_project_path_preview', args: {'path': inGames('Space Game')})), findsOneWidget);
       await tester.tap(find.text(ghTr('create_project_btn')));
       await settle(tester);
-      expect(created, {'name': 'Space Game', 'location': 'C:/games', 'version': '4.3', 'category': null});
+      expect(created, {'name': 'Space Game', 'location': games.path, 'version': '4.3', 'category': null});
       expect(git?.gitignore, isTrue);
       expect(git?.readme, isFalse);
       expect(done, 1);
@@ -553,6 +574,60 @@ void main() {
       expect(find.byType(CreateProjectModal), findsOneWidget);
     });
 
+    testWidgets('create project location accepts a typed path, flags a bad one and still browses', (tester) async {
+      final created = <String>[];
+      final other = Directory('${games.path}${Platform.pathSeparator}picked')..createSync();
+      rust
+        ..on('crateApiTemplatesListTemplates', () async => <ProjectTemplate>[])
+        ..on('crateApiGitGitIsAvailable', () async => true)
+        ..on('crateApiGitAuthGetGitAuthState', () async => const GitAuthState(pats: []))
+        ..on('crateApiNativePickFolder', () async => other.path)
+        ..on('crateApiProjectsCreateProject', ({
+          required String name,
+          required String location,
+          required String godotVersion,
+          String? iconPath,
+          String? templateId,
+          String? category,
+        }) async {
+          created.add(location);
+          return demo;
+        });
+      await openModal(tester, (close) => CreateProjectModal(installedVersions: const [engine], onClose: close, onCreated: () {}));
+      final location = find.descendant(of: find.byKey(const ValueKey('create-project-location')), matching: find.byType(TextField));
+      expect(tester.widget<TextField>(location).readOnly, isFalse);
+      await tester.enterText(find.byType(TextField).first, 'Space Game');
+
+      // A folder that does not exist is flagged on Enter and blocks creating.
+      await tester.enterText(location, '${games.path}${Platform.pathSeparator}missing');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await settle(tester, 2);
+      expect(find.text(ghTr('path_error_folder_not_found')), findsOneWidget);
+      await tester.tap(find.text(ghTr('create_project_btn')));
+      await settle(tester, 3);
+      expect(created, isEmpty);
+      expect(find.text(ghTr('path_error_folder_not_found')), findsOneWidget);
+
+      // A pasted path with quotes is cleaned up and confirmed with Enter.
+      await tester.enterText(location, '"${games.path}"');
+      await settle(tester, 2);
+      expect(find.text(ghTr('path_error_folder_not_found')), findsNothing);
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await settle(tester, 2);
+      expect(tester.widget<TextField>(location).controller!.text, games.path);
+      expect(find.text(ghTr('create_project_path_preview', args: {'path': inGames('Space Game')})), findsOneWidget);
+
+      // Browse still fills the field.
+      await tester.tap(
+        find.descendant(of: find.byKey(const ValueKey('create-project-location')), matching: find.byKey(const ValueKey('path-browse'))),
+      );
+      await settle(tester, 3);
+      expect(tester.widget<TextField>(location).controller!.text, other.path);
+      await tester.tap(find.text(ghTr('create_project_btn')));
+      await settle(tester);
+      expect(created, [other.path]);
+    });
+
     testWidgets('create project shows a git warning on its own result screen', (tester) async {
       var done = 0;
       rust
@@ -578,7 +653,7 @@ void main() {
       await openModal(
         tester,
         (close) =>
-            CreateProjectModal(installedVersions: const [engine], defaultLocation: 'C:/games', onClose: close, onCreated: () => done++),
+            CreateProjectModal(installedVersions: const [engine], defaultLocation: games.path, onClose: close, onCreated: () => done++),
         settings: copySettings(baseSettings, setupComplete: true, gitInitNewProjects: true),
       );
       await tester.enterText(find.byType(TextField).first, 'Space Game');
@@ -795,10 +870,10 @@ void main() {
           );
         });
       await pumpHost(tester, body: const ProjectConsoleWindow());
-      expect(find.text(ghTr('console_title').toUpperCase()), findsNothing);
+      expect(find.text(ghTr('console_title')), findsNothing);
       requestOpenConsole('p1', name: 'Demo');
       await settle(tester);
-      expect(find.text(ghTr('console_title').toUpperCase()), findsOneWidget);
+      expect(find.text(ghTr('console_title')), findsOneWidget);
       expect(find.text('Demo'), findsOneWidget);
       expect(find.text(ghTr('running')), findsOneWidget);
       expect(find.text('Godot Engine started'), findsOneWidget);
@@ -835,11 +910,11 @@ void main() {
 
       await tester.tap(find.bySemanticsLabel(ghTr('console_minimize')));
       await settle(tester, 3);
-      expect(find.text(ghTr('console_title').toUpperCase()), findsNothing);
+      expect(find.text(ghTr('console_title')), findsNothing);
       expect(find.bySemanticsLabel(ghTr('console_pill_hint')), findsOneWidget);
       await tester.tap(find.text('Demo'));
       await settle(tester, 3);
-      expect(find.text(ghTr('console_title').toUpperCase()), findsOneWidget);
+      expect(find.text(ghTr('console_title')), findsOneWidget);
 
       await tester.tap(find.bySemanticsLabel(ghTr('console_clear')));
       await settle(tester, 3);

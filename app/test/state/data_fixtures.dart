@@ -35,6 +35,7 @@ Project project(
   totalTimeSeconds: BigInt.zero,
   timeTodaySeconds: BigInt.zero,
   timeWeekSeconds: BigInt.zero,
+  missing: false,
 );
 
 Category category(String id, {int sortOrder = 0, bool hidden = false}) =>

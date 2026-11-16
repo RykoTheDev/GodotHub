@@ -14,7 +14,10 @@ import 'package:godothub/src/ui_prefs.dart';
 import 'package:godothub/state/app_signals.dart';
 import 'package:godothub/state/keyboard_shortcuts.dart';
 import 'package:godothub/state/shell_signals.dart';
+import 'package:godothub/ui/overlays/menu.dart';
 import 'package:godothub/ui/core/i18n.dart';
+import 'package:godothub/ui/reusables/card_grid.dart';
+import 'package:godothub/ui/reusables/open_button.dart';
 
 import '../projects/project_actions_test.dart' as base;
 import '../support/fake_rust.dart';
@@ -43,6 +46,7 @@ AssetLibraryAsset asset(
   description: 'Line one\nline two',
   rating: rating,
   source: source,
+  version: '',
   browseUrl: browseUrl,
 );
 
@@ -60,6 +64,7 @@ class AssetBackend {
   ];
   int storePages = 3;
   Object? storeError;
+  int? failLibraryPage;
   Map<int, List<AssetLibraryAsset>> libraryPages = {
     0: [asset('1', godotVersion: '4.2'), asset('2')],
   };
@@ -95,6 +100,7 @@ class AssetBackend {
         bool? reverse,
       }) async {
         calls.add('lib:$filter:$godotVersion:$page:$assetType:$categoryId:$sort');
+        if (failLibraryPage == (page ?? 0)) throw 'offline';
         final list = libraryPages[page ?? 0] ?? const <AssetLibraryAsset>[];
         return AssetLibraryResponse(assets: list, page: page ?? 0, pages: libraryPages.length, total: 30);
       })
@@ -131,6 +137,23 @@ class AssetBackend {
   }
 }
 
+/// Runs [body] and returns layout errors raised by this screen's own widgets.
+/// The shared view header (not owned here) is reported separately.
+Future<List<String>> ownLayoutErrors(Future<void> Function() body) async {
+  final errors = <String>[];
+  final previous = FlutterError.onError;
+  FlutterError.onError = (details) => errors.add(details.toString());
+  try {
+    await body();
+  } finally {
+    FlutterError.onError = previous;
+  }
+  return [
+    for (final e in errors)
+      if (!e.contains('view_header.dart')) e,
+  ];
+}
+
 void main() {
   setUpAll(() async {
     await base.loadFont('Inter', ['assets/fonts/inter-latin.ttf']);
@@ -162,9 +185,128 @@ void main() {
       expect(assetVersionMatches('4.2', '4.3'), isFalse);
       expect(parseAssetRating('4.56 stars'), closeTo(4.56, 0.001));
       expect(parseAssetRating(''), isNull);
-      expect(AssetGrid.columnsFor(1400), 3);
-      expect(AssetGrid.columnsFor(800), 2);
-      expect(AssetGrid.columnsFor(500), 1);
+    });
+  });
+
+  group('responsive card grid', () {
+    test('asset grids use 1 to 6 columns by available width', () {
+      const b = GhGridBreakpoints.cards;
+      expect(
+        [
+          for (final w in [400.0, 600.0, 900.0, 1150.0, 1450.0, 1700.0]) b.columnsFor(w),
+        ],
+        [1, 2, 3, 4, 5, 6],
+      );
+    });
+
+    for (final (width, columns) in [(320.0, 1), (545.0, 2), (825.0, 3), (1105.0, 4), (1385.0, 5), (1665.0, 6)]) {
+      testWidgets('store cards at ${width.toInt()}px give $columns per row without overflow', (tester) async {
+        final cards = [
+          for (var i = 0; i < 7; i++)
+            AssetCard(
+              key: ValueKey('card-$i'),
+              asset: asset(
+                '$i',
+                title: 'A very long asset title that has to wrap and then ellipsize on narrow cards $i',
+                rating: '4.5',
+                browseUrl: 'https://x/$i',
+              ),
+              showSource: true,
+              onOpenPage: () {},
+              actions: [
+                GhOpenButton(
+                  label: ghTr('asset_install_inside'),
+                  showConsole: false,
+                  onOpen: (_) {},
+                  moreLabel: ghTr('project_more_aria'),
+                  paddingX: 8,
+                  items: [GhMenuItem(id: 'download', label: ghTr('asset_download_outside'), onSelected: () {})],
+                ),
+              ],
+            ),
+        ];
+        await base.pumpHost(
+          tester,
+          size: Size(width + 40, 1000),
+          body: SingleChildScrollView(
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: SizedBox(
+                width: width,
+                child: GhCardGrid(children: cards),
+              ),
+            ),
+          ),
+        );
+        await base.settle(tester, 4);
+        expect(tester.takeException(), isNull);
+        final top = tester.getTopLeft(find.byKey(const ValueKey('card-0'))).dy;
+        final perRow = [for (var i = 0; i < 7; i++) tester.getTopLeft(find.byKey(ValueKey('card-$i'))).dy].where((dy) => dy == top).length;
+        expect(perRow, columns);
+        expect(
+          tester.getSize(find.byKey(const ValueKey('card-0'))).height,
+          tester.getSize(find.byKey(ValueKey('card-${columns - 1}'))).height,
+          reason: 'rows have equal-height cards',
+        );
+      });
+    }
+
+    testWidgets('the store view fits a 340px window', (tester) async {
+      AssetBackend().install(rust);
+      final errors = await ownLayoutErrors(() async {
+        await base.pumpHost(tester, body: const AssetStoreView(), size: const Size(340, 800));
+        await base.settle(tester);
+      });
+      expect(errors, isEmpty);
+      expect(find.text('Asset store:pub/one', skipOffstage: false), findsOneWidget);
+    });
+  });
+
+  group('asset store states', () {
+    testWidgets('no results for a search offers to clear filters', (tester) async {
+      final backend = AssetBackend()
+        ..store = []
+        ..install(rust);
+      await base.pumpHost(tester, body: const AssetStoreView());
+      await base.settle(tester);
+      expect(find.text(ghTr('asset_no_results_title')), findsOneWidget);
+      expect(find.text(ghTr('clear_filters')), findsNothing, reason: 'nothing to clear without a search or filter');
+      await tester.enterText(find.byType(EditableText), 'zzz');
+      await base.settle(tester);
+      expect(find.text(ghTr('asset_no_results_filtered')), findsOneWidget);
+      await tester.tap(find.text(ghTr('clear_filters')));
+      await base.settle(tester);
+      expect(find.text('zzz'), findsNothing);
+      expect(find.text(ghTr('clear_filters')), findsNothing);
+      expect(backend.calls.first, 'store:null:null:0:relevance');
+    });
+
+    testWidgets('the load error offers retry and the source site', (tester) async {
+      AssetBackend()
+        ..storeError = 'offline'
+        ..install(rust);
+      await base.pumpHost(tester, body: const AssetStoreView());
+      await base.settle(tester);
+      expect(find.text(ghTr('asset_load_error_title')), findsOneWidget);
+      await tester.tap(find.text(ghTr('asset_open_page')));
+      await base.settle(tester, 2);
+      expect(opened, [assetStoreSiteUrl]);
+    });
+
+    testWidgets('a failed page change keeps the results and offers retry', (tester) async {
+      final backend = AssetBackend()..install(rust);
+      await base.pumpHost(tester, body: const AssetStoreView());
+      await base.settle(tester);
+      backend.storeError = 'offline';
+      await tester.tap(find.bySemanticsLabel(ghTr('asset_page_x_of_y', args: {'page': 2, 'total': 3})));
+      await base.settle(tester);
+      expect(find.text(ghTr('asset_partial_error')), findsOneWidget);
+      expect(find.text('Asset store:pub/one'), findsOneWidget);
+      backend.storeError = null;
+      await tester.tap(find.text(ghTr('retry')));
+      await base.settle(tester);
+      expect(find.text(ghTr('asset_partial_error')), findsNothing);
+      expect(backend.calls.last, 'store:null:null:1:relevance');
     });
   });
 
@@ -405,6 +547,54 @@ void main() {
       expect(find.text('Asset 1'), findsNothing);
       expect(find.text('Asset 2'), findsOneWidget);
       expect(find.text(ghTr('asset_result_count', args: {'count': 1})), findsOneWidget);
+    });
+
+    testWidgets('a failed page change keeps the results and retries that page', (tester) async {
+      final backend = AssetBackend()
+        ..libraryPages = {
+          0: [asset('1'), asset('2')],
+          1: [asset('3')],
+          2: [asset('4')],
+        }
+        ..install(rust);
+      await base.pumpHost(
+        tester,
+        body: const SingleChildScrollView(child: AssetLibraryBrowser(query: '')),
+      );
+      await base.settle(tester);
+      backend.failLibraryPage = 1;
+      await tester.tap(find.bySemanticsLabel(ghTr('asset_page_x_of_y', args: {'page': 2, 'total': 3})));
+      await base.settle(tester);
+      expect(find.text(ghTr('asset_partial_error')), findsOneWidget);
+      expect(find.text('Asset 1'), findsOneWidget);
+      backend.failLibraryPage = null;
+      await tester.tap(find.text(ghTr('retry')));
+      await base.settle(tester);
+      expect(find.text(ghTr('asset_partial_error')), findsNothing);
+      expect(find.text('Asset 3'), findsOneWidget);
+    });
+
+    testWidgets('a failed install reports a toast and an empty version filter can be cleared', (tester) async {
+      final backend = AssetBackend()..install(rust);
+      rust.on('crateApiAssetLibraryInstallAssetAsTemplate', ({required String assetId}) async => throw 'disk full');
+      await base.pumpHost(
+        tester,
+        body: const SingleChildScrollView(child: AssetLibraryBrowser(query: '')),
+      );
+      await base.settle(tester);
+      await tester.tap(find.text(ghTr('asset_install')).first);
+      await base.settle(tester);
+      expect(find.text(ghTr('asset_install_failed_toast', args: {'title': 'Asset 1', 'error': 'disk full'})), findsOneWidget);
+      await base.drainToasts(tester);
+      backend.libraryPages = {0: []};
+      await tester.tap(find.text(ghTr('asset_all_versions')));
+      await base.settle(tester, 4);
+      await tester.tap(find.text('Godot 4.0').first);
+      await base.settle(tester, 30);
+      expect(find.text(ghTr('asset_no_results_title')), findsOneWidget);
+      await tester.tap(find.text(ghTr('clear_filters')));
+      await base.settle(tester, 30);
+      expect(find.text(ghTr('asset_all_versions')), findsOneWidget);
     });
   });
 }

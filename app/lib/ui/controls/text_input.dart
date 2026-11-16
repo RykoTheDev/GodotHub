@@ -29,6 +29,7 @@ class GhTextInput extends StatefulWidget {
     this.bordered = true,
     this.width,
     this.semanticLabel,
+    this.semanticHint,
     this.tooltip,
     this.maxLines = 1,
     this.minLines,
@@ -61,6 +62,9 @@ class GhTextInput extends StatefulWidget {
   final bool bordered;
   final double? width;
   final String? semanticLabel;
+
+  /// Read after the label by screen readers: the field's error, or its hint.
+  final String? semanticHint;
   final String? tooltip;
   final int? maxLines;
   final int? minLines;
@@ -148,8 +152,8 @@ class _GhTextInputState extends State<GhTextInput> {
     if (widget.onKeyEvent != null) {
       field = Focus(canRequestFocus: false, skipTraversal: true, onKeyEvent: widget.onKeyEvent, child: field);
     }
-    if (widget.semanticLabel != null) {
-      field = Semantics(label: widget.semanticLabel, textField: true, child: field);
+    if (widget.semanticLabel != null || widget.semanticHint != null) {
+      field = Semantics(label: widget.semanticLabel, hint: widget.semanticHint, textField: true, child: field);
     }
     final border = widget.borderColor ?? theme.outline.withValues(alpha: 0.5);
     final focusBorder = widget.focusBorderColor ?? theme.accent.withValues(alpha: 0.6);

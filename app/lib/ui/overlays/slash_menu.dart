@@ -47,14 +47,9 @@ class GhSlashMenu extends StatelessWidget {
         child: Row(
           children: [
             Text(
-              title.toUpperCase(),
+              title,
               maxLines: 1,
-              style: theme.text(
-                size: GhTextSize.x3s,
-                weight: GhWeight.semibold,
-                color: theme.muted.withValues(alpha: 0.6),
-                letterSpacingEm: 0.05,
-              ),
+              style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: theme.muted.withValues(alpha: 0.6)),
             ),
             SizedBox(width: theme.space(2)),
             Expanded(child: Container(height: 1, color: theme.outline.withValues(alpha: 0.4))),

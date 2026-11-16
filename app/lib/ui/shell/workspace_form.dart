@@ -143,13 +143,8 @@ class GhWorkspaceForm extends StatelessWidget {
                 ),
                 SizedBox(height: theme.space(0.5)),
                 Text(
-                  sectionLabel.toUpperCase(),
-                  style: theme.text(
-                    size: GhTextSize.x3s,
-                    weight: GhWeight.semibold,
-                    color: theme.muted.withValues(alpha: 0.6),
-                    letterSpacingEm: 0.05,
-                  ),
+                  sectionLabel,
+                  style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: theme.muted.withValues(alpha: 0.6)),
                 ),
               ],
             ),

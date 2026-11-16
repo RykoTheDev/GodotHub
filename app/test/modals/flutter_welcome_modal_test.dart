@@ -76,7 +76,7 @@ void main() {
         onChangelog: close,
       ),
     );
-    expect(find.text('WELCOME TO THE NEW'), findsOneWidget);
+    expect(find.text('Welcome to the new'), findsOneWidget);
     expect(find.text('Faster').hitTestable(), findsOneWidget);
     expect(find.text('Updates inside the app').hitTestable(), findsOneWidget);
     expect(find.text('Refreshed design').hitTestable(), findsOneWidget);

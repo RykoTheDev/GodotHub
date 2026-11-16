@@ -286,5 +286,10 @@
   "feature_desc_workspaces": "用途に合わせて、プロジェクトと設定をまとめて切り替えられます。",
   "token_resets_in": "（約 {{minutes}} 分後にリセット）",
   "git_auth_intro": "Approve GodotHub on {{provider}} to finish signing in. Keep this window open until it's done; use Cancel to stop.",
-  "git_auth_step_current": "current step"
+  "git_auth_step_current": "current step",
+  "settings_load_failed": "Couldn't load your settings",
+  "credits_contributors_loading": "Loading contributors…",
+  "credits_contributors_unavailable": "Contributors aren't available",
+  "credits_contributors_unavailable_desc": "They load from GitHub. Check your connection and try again.",
+  "credits_contributors_none": "No other contributors yet."
 }

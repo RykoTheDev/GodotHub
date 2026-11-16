@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,7 +15,6 @@ import '../src/rust/api/dto.dart' as dto;
 import '../src/rust/api/types.dart';
 import '../state/app_lifecycle.dart';
 import '../state/export_template_downloads.dart';
-import '../ui/controls/text_input.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/ui_settings.dart' show GhSide;
 import '../ui/feedback/confirm_dialog.dart';
@@ -23,6 +23,7 @@ import '../ui/feedback/toast.dart';
 import '../ui/overlays/dropdown.dart';
 import '../ui/overlays/menu.dart';
 import '../ui/reusables/modal_kit.dart';
+import '../ui/reusables/path_field.dart';
 import '../ui/shell/smooth_scroll.dart';
 
 String _t(String key, {Map<String, Object?> args = const {}}) => ghTr('build_export.$key', args: args);
@@ -149,6 +150,7 @@ class ProjectBuildModal extends ConsumerStatefulWidget {
 
 class _ProjectBuildModalState extends ConsumerState<ProjectBuildModal> {
   final TextEditingController _output = TextEditingController();
+  String? _outputPathError;
   final FocusNode _closeNode = FocusNode(debugLabel: 'ProjectBuildModal close');
   final List<StreamSubscription<AppEvent>> _subscriptions = [];
   dto.ExportCatalog? _catalog;
@@ -164,7 +166,7 @@ class _ProjectBuildModalState extends ConsumerState<ProjectBuildModal> {
   @override
   void initState() {
     super.initState();
-    _output.addListener(() => setState(() {}));
+    _output.addListener(() => setState(() => _outputPathError = null));
     _subscriptions
       ..add(
         AppEvents.of(AppEventKind.exportTemplatesComplete).listen((event) {
@@ -263,13 +265,18 @@ class _ProjectBuildModalState extends ConsumerState<ProjectBuildModal> {
   Future<void> _start([bool replace = false]) async {
     final preset = _preset;
     if (preset == null || _blocked || _mutation) return;
+    final outputError = _outputError(_output.text);
+    if (outputError != null) {
+      setState(() => _outputPathError = outputError);
+      return;
+    }
     _mutation = true;
     setState(() {
       _starting = true;
       _error = '';
     });
     try {
-      final job = await ExportsApi.start(widget.project.id, preset.id, _output.text, replace);
+      final job = await ExportsApi.start(widget.project.id, preset.id, ghNormalizePath(_output.text), replace);
       requestOpenExportConsole(job);
       widget.onClose();
     } catch (reason) {
@@ -295,14 +302,20 @@ class _ProjectBuildModalState extends ConsumerState<ProjectBuildModal> {
     }
   }
 
-  Future<void> _browse() async {
-    try {
-      final name = _output.text.split(RegExp(r'[\\/]')).last;
-      final path = await ProjectsApi.pickSavePath(name.isEmpty ? 'game.zip' : name);
-      if (path != null && mounted) _output.text = path;
-    } catch (reason) {
-      ghToasts.pushToast(GhToastType.error, '$reason');
-    }
+  Future<String?> _pickOutput() {
+    final name = _output.text.split(RegExp(r'[\\/]')).last;
+    return ProjectsApi.pickSavePath(name.isEmpty ? 'game.zip' : name);
+  }
+
+  /// The export runner accepts paths relative to the project and creates
+  /// missing folders, so only an empty value or an existing folder is wrong.
+  String? _outputError(String raw) {
+    final path = ghNormalizePath(raw);
+    if (path.isEmpty) return ghTr('path_error_required');
+    final relative = !RegExp(r'^([A-Za-z]:[\\/]|[\\/])').hasMatch(path);
+    final resolved = relative ? '${widget.project.path}${Platform.pathSeparator}$path' : path;
+    if (!path.toLowerCase().endsWith('.app') && FileSystemEntity.isDirectorySync(resolved)) return ghTr('path_error_not_a_file');
+    return null;
   }
 
   void _toast(Future<void> action) => action.catchError((Object reason) => ghToasts.pushToast(GhToastType.error, '$reason'));
@@ -421,33 +434,18 @@ class _ProjectBuildModalState extends ConsumerState<ProjectBuildModal> {
               ),
             ],
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: theme.space(2),
-            children: [
-              GhFieldLabel(_t('output')),
-              Row(
-                spacing: theme.space(2),
-                children: [
-                  Expanded(
-                    child: GhTextInput(
-                      controller: _output,
-                      enabled: !busy,
-                      size: GhTextSize.xs,
-                      mono: true,
-                      background: theme.overlay,
-                      borderColor: theme.line,
-                      padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(2.5)),
-                    ),
-                  ),
-                  GhOutlineAction(onPressed: busy ? null : _browse, icon: GhIcons.folder, iconSize: 4, semanticLabel: _t('browse')),
-                ],
-              ),
-              Text(
-                _t('output_hint'),
-                style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625),
-              ),
-            ],
+          GhPathField(
+            key: const ValueKey('build-output'),
+            controller: _output,
+            kind: GhPathKind.newFile,
+            validator: _outputError,
+            pick: _pickOutput,
+            label: _t('output'),
+            hint: _t('output_hint'),
+            error: _outputPathError,
+            browseLabel: _t('browse'),
+            compactBrowse: true,
+            enabled: !busy,
           ),
           if (preset.templateError != null)
             Text(

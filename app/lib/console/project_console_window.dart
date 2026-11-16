@@ -662,13 +662,8 @@ class _ProjectConsoleWindowState extends ConsumerState<ProjectConsoleWindow> {
                 children: [
                   GhIcon(GhIcons.terminal, size: theme.space(3.5), color: theme.muted),
                   Text(
-                    tr.console_title.toUpperCase(),
-                    style: theme.text(
-                      size: GhTextSize.xs,
-                      weight: GhWeight.semibold,
-                      color: theme.muted.withValues(alpha: 0.8),
-                      letterSpacingEm: 0.05,
-                    ),
+                    tr.console_title,
+                    style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.muted.withValues(alpha: 0.9)),
                   ),
                   if (status != null)
                     Builder(

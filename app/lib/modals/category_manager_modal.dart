@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../api/projects.dart';
 import '../design/design.dart';
 import '../src/rust/api/types.dart';
 import '../state/drag_sort.dart' show arrayMove;
@@ -13,6 +12,7 @@ import '../ui/core/interaction.dart';
 import '../ui/dnd/sortable.dart';
 import '../ui/feedback/confirm_dialog.dart';
 import '../ui/feedback/modal_shell.dart';
+import '../ui/reusables/path_field.dart';
 import '../ui/shell/color_swatch_picker.dart';
 
 String normalizeCategoryName(String value) => value.trim().toLowerCase();
@@ -370,6 +370,7 @@ class _SortableCategoryListState extends State<SortableCategoryList> {
   bool _busy = false;
   String? _folderBusyId;
   String? _editingId;
+  String? _addingFolderId;
   final TextEditingController _editName = TextEditingController();
   String _editColor = '';
 
@@ -402,10 +403,11 @@ class _SortableCategoryListState extends State<SortableCategoryList> {
     });
   }
 
-  Future<void> _assignFolder(Category category) async {
-    final folder = await (widget.pickFolder ?? ProjectsApi.pickFolder)().catchError((Object _) => null);
-    if (folder == null) return;
-    setState(() => _folderBusyId = category.id);
+  Future<void> _assignFolder(Category category, String folder) async {
+    setState(() {
+      _folderBusyId = category.id;
+      _addingFolderId = null;
+    });
     widget.onError(null);
     try {
       await widget.onAssignFolder(category.id, folder);
@@ -499,7 +501,10 @@ class _SortableCategoryListState extends State<SortableCategoryList> {
     onCancelEdit: () => setState(() => _editingId = null),
     onEditColorChange: (value) => setState(() => _editColor = value),
     onConfirmDelete: () => _confirmDelete(category),
-    onAssignFolder: () => _assignFolder(category),
+    onAssignFolder: (folder) => _assignFolder(category, folder),
+    addingFolder: _addingFolderId == category.id,
+    onAddingFolderChange: (adding) => setState(() => _addingFolderId = adding ? category.id : null),
+    pickFolder: widget.pickFolder,
     onRemoveFolder: (folder) => _removeFolder(category, folder),
   );
 
@@ -523,7 +528,13 @@ class _SortableCategoryListState extends State<SortableCategoryList> {
           spacing: theme.space(2),
           children: [
             for (final c in _ordered)
-              GhSortableItem(key: ValueKey(c.id), id: c.id, semanticLabel: c.name, disabled: _editingId == c.id, child: _row(c)),
+              GhSortableItem(
+                key: ValueKey(c.id),
+                id: c.id,
+                semanticLabel: c.name,
+                disabled: _editingId == c.id || _addingFolderId == c.id,
+                child: _row(c),
+              ),
           ],
         ),
       ),
@@ -546,6 +557,9 @@ class _CategoryRow extends StatefulWidget {
     required this.onConfirmDelete,
     required this.onAssignFolder,
     required this.onRemoveFolder,
+    this.pickFolder,
+    this.addingFolder = false,
+    this.onAddingFolderChange,
   });
 
   final Category category;
@@ -559,8 +573,11 @@ class _CategoryRow extends StatefulWidget {
   final VoidCallback onCancelEdit;
   final ValueChanged<String> onEditColorChange;
   final VoidCallback onConfirmDelete;
-  final VoidCallback onAssignFolder;
+  final ValueChanged<String> onAssignFolder;
   final ValueChanged<String> onRemoveFolder;
+  final Future<String?> Function()? pickFolder;
+  final bool addingFolder;
+  final ValueChanged<bool>? onAddingFolderChange;
 
   @override
   State<_CategoryRow> createState() => _CategoryRowState();
@@ -568,6 +585,62 @@ class _CategoryRow extends StatefulWidget {
 
 class _CategoryRowState extends State<_CategoryRow> {
   bool _hovered = false;
+  final TextEditingController _folder = TextEditingController();
+  final FocusNode _folderNode = FocusNode(debugLabel: 'category folder');
+
+  @override
+  void didUpdateWidget(_CategoryRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Move focus into the new field so Enter and Escape reach it.
+    if (widget.addingFolder && !oldWidget.addingFolder) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _folderNode.requestFocus();
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _folder.dispose();
+    _folderNode.dispose();
+    super.dispose();
+  }
+
+  bool get _addingFolder => widget.addingFolder;
+
+  Widget _folderField(GhTheme theme) => CallbackShortcuts(
+    bindings: {
+      const SingleActivator(LogicalKeyboardKey.escape): () {
+        _folder.clear();
+        widget.onAddingFolderChange?.call(false);
+      },
+    },
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: theme.space(1),
+      children: [
+        Expanded(
+          child: GhPathField(
+            key: ValueKey('category-folder-${widget.category.id}'),
+            controller: _folder,
+            kind: GhPathKind.folder,
+            pick: widget.pickFolder,
+            focusNode: _folderNode,
+            showApply: true,
+            applyLabel: context.tr.common.assign_folder,
+            clearOnCommit: true,
+            compactBrowse: true,
+            enabled: !widget.busy,
+            onCommitted: widget.onAssignFolder,
+          ),
+        ),
+        _icon(theme, GhIcons.x, context.tr.common.cancel, () {
+          _folder.clear();
+          widget.onAddingFolderChange?.call(false);
+        }),
+      ],
+    ),
+  );
 
   Widget _icon(
     GhTheme theme,
@@ -732,8 +805,13 @@ class _CategoryRowState extends State<_CategoryRow> {
                   crossAxisAlignment: WrapCrossAlignment.center,
                   spacing: theme.space(1.5),
                   runSpacing: theme.space(1.5),
-                  children: [for (final folder in category.folders) _folderChip(theme, folder), _assignButton(theme)],
+                  children: [for (final folder in category.folders) _folderChip(theme, folder), if (!_addingFolder) _assignButton(theme)],
                 ),
+              ),
+            if (!widget.editing && _addingFolder)
+              Padding(
+                padding: EdgeInsetsDirectional.only(start: theme.space(11), end: theme.space(4), bottom: theme.space(3)),
+                child: _folderField(theme),
               ),
             if (projects.isNotEmpty && !widget.editing)
               Padding(
@@ -838,7 +916,7 @@ class _CategoryRowState extends State<_CategoryRow> {
     final tr = context.tr.common;
     final radius = BorderRadius.circular(theme.radiusLg);
     return GhPressable(
-      onPressed: widget.busy ? null : widget.onAssignFolder,
+      onPressed: widget.busy ? null : () => widget.onAddingFolderChange?.call(true),
       semanticLabel: tr.assign_folder_to_category.args({'name': widget.category.name}),
       borderRadius: radius,
       builder: (context, states) {

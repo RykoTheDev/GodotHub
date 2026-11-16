@@ -18,6 +18,9 @@ class ChangelogNotifier extends ApiDataNotifier<List<ChangelogEntry>> {
   List<ChangelogEntry> get initial => const [];
 
   @override
+  bool get keepsError => true;
+
+  @override
   Future<List<ChangelogEntry>> fetch() => ChangelogApi.list();
 
   Future<void> addEntry(String version, String date, List<ChangelogNote> notes, List<String> knownIssues) async {

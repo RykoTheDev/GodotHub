@@ -85,13 +85,8 @@ class _LanguageMenuState extends ConsumerState<LanguageMenu> {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(10, 6, 10, 4),
                       child: Text(
-                        tr.common.language_label.toUpperCase(),
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 0.8,
-                          color: tokens.muted.withValues(alpha: 0.5),
-                        ),
+                        tr.common.language_label,
+                        style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: tokens.muted.withValues(alpha: 0.5)),
                       ),
                     ),
                     for (final language in ghLanguages)

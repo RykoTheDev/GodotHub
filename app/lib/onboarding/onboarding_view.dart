@@ -469,8 +469,8 @@ class _OnboardingViewState extends ConsumerState<OnboardingView> with SingleTick
                 spacing: theme.space(2.5),
                 children: [
                   Text(
-                    _to('language_label').toUpperCase(),
-                    style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.muted, letterSpacingEm: 0.025),
+                    _to('language_label'),
+                    style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.muted),
                   ),
                   _LanguageDropdown(
                     value: draft.language,
@@ -806,8 +806,8 @@ class _OnboardingViewState extends ConsumerState<OnboardingView> with SingleTick
             spacing: theme.space(2),
             children: [
               Text(
-                ghTr('onboarding_your_categories').toUpperCase(),
-                style: theme.text(size: GhTextSize.x2s, weight: GhWeight.medium, color: theme.muted, letterSpacingEm: 0.025),
+                ghTr('onboarding_your_categories'),
+                style: theme.text(size: GhTextSize.x2s, weight: GhWeight.medium, color: theme.muted),
               ),
               SortableCategoryList(
                 categories: categories,

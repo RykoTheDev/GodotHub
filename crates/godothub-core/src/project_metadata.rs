@@ -46,6 +46,11 @@ pub fn ensure_gitignore(root: &Path, defaults: &str) -> io::Result<()> {
 }
 
 pub fn prepare(root: &Path) -> io::Result<PathBuf> {
+    // Never recreate a project folder that is gone, for example one on an
+    // unmounted drive: that would write a stray tree onto the parent volume.
+    if !root.is_dir() {
+        return Err(io::Error::new(io::ErrorKind::NotFound, "project folder is unavailable"));
+    }
     let dir = directory(root);
     fs::create_dir_all(&dir)?;
     match fs::OpenOptions::new()

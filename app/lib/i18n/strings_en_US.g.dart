@@ -89,6 +89,9 @@ class Translations$changelog$en_US {
 
 	/// en-US: 'Improved'
 	String get improved => 'Improved';
+
+	/// en-US: 'Couldn't load the changelog'
+	String get changelog_load_failed => 'Couldn\'t load the changelog';
 }
 
 // Path: common
@@ -2725,6 +2728,324 @@ class Translations$common$en_US {
 
 	/// en-US: 'Select a repository from the list to clone it.'
 	String get clone_repo_select_hint => 'Select a repository from the list to clone it.';
+
+	/// en-US: 'Unavailable'
+	String get project_missing_badge => 'Unavailable';
+
+	/// en-US: 'Project folder unavailable'
+	String get project_missing_title => 'Project folder unavailable';
+
+	/// en-US: 'GodotHub can't read project.godot at this path. Reconnect the drive or network share and refresh, or remove the project from the library.'
+	String get project_missing_desc => 'GodotHub can\'t read project.godot at this path. Reconnect the drive or network share and refresh, or remove the project from the library.';
+
+	/// en-US: 'Reconnect the drive or share to open this project'
+	String get project_missing_open_disabled => 'Reconnect the drive or share to open this project';
+
+	/// en-US: 'required'
+	String get field_required => 'required';
+
+	/// en-US: 'Type or paste a path, or choose Browse'
+	String get path_placeholder => 'Type or paste a path, or choose Browse';
+
+	/// en-US: 'Path'
+	String get path_input_label => 'Path';
+
+	/// en-US: 'Apply'
+	String get path_apply => 'Apply';
+
+	/// en-US: 'Enter a path or choose one with Browse.'
+	String get path_error_required => 'Enter a path or choose one with Browse.';
+
+	/// en-US: 'Use a full path that starts at a drive or the root folder.'
+	String get path_error_relative => 'Use a full path that starts at a drive or the root folder.';
+
+	/// en-US: 'No folder exists at this path.'
+	String get path_error_folder_not_found => 'No folder exists at this path.';
+
+	/// en-US: 'This path points to a file. Choose a folder.'
+	String get path_error_not_a_folder => 'This path points to a file. Choose a folder.';
+
+	/// en-US: 'No file exists at this path.'
+	String get path_error_file_not_found => 'No file exists at this path.';
+
+	/// en-US: 'This path points to a folder. Choose a file.'
+	String get path_error_not_a_file => 'This path points to a folder. Choose a file.';
+
+	/// en-US: 'Choose a {{extensions}} file.'
+	String get path_error_extension => 'Choose a {{extensions}} file.';
+
+	/// en-US: 'The folder this would be saved in doesn't exist.'
+	String get path_error_parent_missing => 'The folder this would be saved in doesn\'t exist.';
+
+	/// en-US: 'No projects'
+	String get kanban_column_empty => 'No projects';
+
+	/// en-US: 'Drag projects here'
+	String get kanban_drop_hint => 'Drag projects here';
+
+	/// en-US: 'Category options'
+	String get category_options => 'Category options';
+
+	/// en-US: 'Clear filters'
+	String get clear_filters => 'Clear filters';
+
+	/// en-US: 'Couldn't load assets'
+	String get asset_load_error_title => 'Couldn\'t load assets';
+
+	/// en-US: 'No assets found'
+	String get asset_no_results_title => 'No assets found';
+
+	/// en-US: 'Nothing matches the current search and filters.'
+	String get asset_no_results_filtered => 'Nothing matches the current search and filters.';
+
+	/// en-US: 'Some results couldn't be loaded.'
+	String get asset_partial_error => 'Some results couldn\'t be loaded.';
+
+	/// en-US: 'Open godotengine.org'
+	String get news_open_site => 'Open godotengine.org';
+
+	/// en-US: 'No templates yet'
+	String get templates_empty_title => 'No templates yet';
+
+	/// en-US: 'Couldn't load templates'
+	String get templates_load_error => 'Couldn\'t load templates';
+
+	/// en-US: 'Browse the Asset Library'
+	String get templates_browse_library => 'Browse the Asset Library';
+
+	/// en-US: 'Fix all ({{count}})'
+	String get doctor_fix_all => 'Fix all ({{count}})';
+
+	/// en-US: 'Fixing…'
+	String get doctor_fixing_all => 'Fixing…';
+
+	/// en-US: 'Your vault is empty'
+	String get vault_empty_title => 'Your vault is empty';
+
+	/// en-US: 'Save files or folders from a project to reuse them in any other project.'
+	String get vault_empty_desc => 'Save files or folders from a project to reuse them in any other project.';
+
+	/// en-US: 'Couldn't load your vault'
+	String get vault_load_failed => 'Couldn\'t load your vault';
+
+	/// en-US: 'Loading project files…'
+	String get vault_files_loading => 'Loading project files…';
+
+	/// en-US: 'Couldn't load this project's files'
+	String get vault_files_load_failed => 'Couldn\'t load this project\'s files';
+
+	/// en-US: 'View details'
+	String get asset_view_details => 'View details';
+
+	/// en-US: 'Overview'
+	String get asset_tab_overview => 'Overview';
+
+	/// en-US: 'Files'
+	String get asset_tab_files => 'Files';
+
+	/// en-US: 'Releases'
+	String get asset_tab_releases => 'Releases';
+
+	/// en-US: 'Save'
+	String get asset_save => 'Save';
+
+	/// en-US: 'Saved'
+	String get asset_saved => 'Saved';
+
+	/// en-US: 'Remove from saved'
+	String get asset_unsave => 'Remove from saved';
+
+	/// en-US: 'Saved ({{count}})'
+	String get asset_saved_filter => 'Saved ({{count}})';
+
+	/// en-US: 'No saved assets yet'
+	String get asset_saved_empty_title => 'No saved assets yet';
+
+	/// en-US: 'Select the star on an asset to keep it here.'
+	String get asset_saved_empty_desc => 'Select the star on an asset to keep it here.';
+
+	/// en-US: 'Not interested'
+	String get asset_not_interested => 'Not interested';
+
+	/// en-US: '{{title}} is hidden. Show it again from Hidden.'
+	String get asset_hidden_toast => '{{title}} is hidden. Show it again from Hidden.';
+
+	/// en-US: 'Hidden ({{count}})'
+	String get asset_hidden_manage => 'Hidden ({{count}})';
+
+	/// en-US: 'Hidden assets'
+	String get asset_hidden_title => 'Hidden assets';
+
+	/// en-US: 'Assets you marked as not interested don't appear in results.'
+	String get asset_hidden_desc => 'Assets you marked as not interested don\'t appear in results.';
+
+	/// en-US: 'Nothing is hidden'
+	String get asset_hidden_empty => 'Nothing is hidden';
+
+	/// en-US: 'Show again'
+	String get asset_show_again => 'Show again';
+
+	/// en-US: 'Match my Godot ({{version}})'
+	String get asset_match_versions => 'Match my Godot ({{version}})';
+
+	/// en-US: 'Match my Godot'
+	String get asset_match_versions_off => 'Match my Godot';
+
+	/// en-US: 'Show assets that work with Godot {{version}}, your current or newest install.'
+	String get asset_match_versions_tip => 'Show assets that work with Godot {{version}}, your current or newest install.';
+
+	/// en-US: 'Install a Godot version to filter by it.'
+	String get asset_match_versions_none => 'Install a Godot version to filter by it.';
+
+	/// en-US: '(one) {In ${count} project} (other) {In ${count} projects}'
+	String asset_in_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: 'In ${count} project',
+		other: 'In ${count} projects',
+	);
+
+	/// en-US: 'In {{count}} project'
+	String get asset_in_projects_one => 'In {{count}} project';
+
+	/// en-US: 'In {{count}} projects'
+	String get asset_in_projects_other => 'In {{count}} projects';
+
+	/// en-US: 'Update available'
+	String get asset_update_available => 'Update available';
+
+	/// en-US: 'Installed in your projects'
+	String get asset_installed_in => 'Installed in your projects';
+
+	/// en-US: 'Update to {{version}}'
+	String get asset_update_to => 'Update to {{version}}';
+
+	/// en-US: 'Up to date'
+	String get asset_up_to_date => 'Up to date';
+
+	/// en-US: 'Updated {{title}} in {{project}}'
+	String get asset_updated_toast => 'Updated {{title}} in {{project}}';
+
+	/// en-US: 'Couldn't update: {{error}}'
+	String get asset_update_failed => 'Couldn\'t update: {{error}}';
+
+	/// en-US: 'Couldn't load the details'
+	String get asset_info_error => 'Couldn\'t load the details';
+
+	/// en-US: 'No description provided.'
+	String get asset_no_description => 'No description provided.';
+
+	/// en-US: 'Paid'
+	String get asset_paid => 'Paid';
+
+	/// en-US: 'Updated'
+	String get asset_fact_updated => 'Updated';
+
+	/// en-US: 'Category'
+	String get asset_fact_category => 'Category';
+
+	/// en-US: 'License'
+	String get asset_fact_license => 'License';
+
+	/// en-US: 'Download size'
+	String get asset_fact_size => 'Download size';
+
+	/// en-US: 'Source code'
+	String get asset_link_source => 'Source code';
+
+	/// en-US: 'Issues'
+	String get asset_link_issues => 'Issues';
+
+	/// en-US: 'Play video'
+	String get asset_media_video => 'Play video';
+
+	/// en-US: 'Screenshot {{index}}'
+	String get asset_media_image => 'Screenshot {{index}}';
+
+	/// en-US: 'Stable'
+	String get asset_release_stable => 'Stable';
+
+	/// en-US: 'Pre-release'
+	String get asset_release_unstable => 'Pre-release';
+
+	/// en-US: 'Godot {{min}}+'
+	String get asset_godot_range => 'Godot {{min}}+';
+
+	/// en-US: 'See the files before you install'
+	String get asset_files_title => 'See the files before you install';
+
+	/// en-US: 'This downloads the archive once ({{size}}) and reuses it if you install.'
+	String get asset_files_intro => 'This downloads the archive once ({{size}}) and reuses it if you install.';
+
+	/// en-US: 'This downloads the archive once and reuses it if you install.'
+	String get asset_files_intro_unknown => 'This downloads the archive once and reuses it if you install.';
+
+	/// en-US: 'Show files'
+	String get asset_files_load => 'Show files';
+
+	/// en-US: 'Downloading and reading the archive...'
+	String get asset_files_loading => 'Downloading and reading the archive...';
+
+	/// en-US: 'Couldn't read the files'
+	String get asset_files_error => 'Couldn\'t read the files';
+
+	/// en-US: 'Files can't be previewed for paid assets. Open the store page to get it.'
+	String get asset_files_paid => 'Files can\'t be previewed for paid assets. Open the store page to get it.';
+
+	/// en-US: '{{files}} files, {{size}}'
+	String get asset_files_summary => '{{files}} files, {{size}}';
+
+	/// en-US: 'Showing the first {{count}} entries.'
+	String get asset_files_truncated => 'Showing the first {{count}} entries.';
+
+	/// en-US: 'Install into {{count}}'
+	String get asset_install_into_many => 'Install into {{count}}';
+
+	/// en-US: 'Installing {{done}} of {{total}}...'
+	String get asset_installing_progress => 'Installing {{done}} of {{total}}...';
+
+	/// en-US: '{{count}} installs failed. They're still selected so you can try again.'
+	String get asset_install_some_failed => '{{count}} installs failed. They\'re still selected so you can try again.';
+
+	/// en-US: 'Installed'
+	String get asset_install_target_done => 'Installed';
+
+	/// en-US: 'Select all'
+	String get asset_install_select_all => 'Select all';
+
+	/// en-US: 'Clear selection'
+	String get asset_install_select_none => 'Clear selection';
+
+	/// en-US: 'Hide installed'
+	String get templates_hide_installed => 'Hide installed';
+
+	/// en-US: 'Update: {{version}}'
+	String get template_update_available => 'Update: {{version}}';
+
+	/// en-US: 'Installed {{installed}}, the Asset Library has {{latest}}.'
+	String get template_update_tip => 'Installed {{installed}}, the Asset Library has {{latest}}.';
+
+	/// en-US: 'Update'
+	String get template_update_btn => 'Update';
+
+	/// en-US: 'Updated {{name}} to {{version}}'
+	String get template_updated_toast => 'Updated {{name}} to {{version}}';
+
+	/// en-US: 'Couldn't update {{name}}: {{error}}'
+	String get template_update_failed => 'Couldn\'t update {{name}}: {{error}}';
+
+	/// en-US: 'Everything on this page is hidden. Try the next page, or show hidden assets again.'
+	String get asset_page_all_hidden => 'Everything on this page is hidden. Try the next page, or show hidden assets again.';
+
+	/// en-US: 'Update {{name}} to {{version}}?'
+	String get template_update_confirm_title => 'Update {{name}} to {{version}}?';
+
+	/// en-US: 'The template's files are replaced with the new upload, including any changes you made to them. Its name stays the same.'
+	String get template_update_confirm_desc => 'The template\'s files are replaced with the new upload, including any changes you made to them. Its name stays the same.';
+
+	/// en-US: 'Latest'
+	String get news_featured => 'Latest';
+
+	/// en-US: 'Read the post'
+	String get news_read_more => 'Read the post';
 }
 
 // Path: dashboard
@@ -3530,8 +3851,8 @@ class Translations$onboarding$en_US {
 	/// en-US: 'No folder set, you can always configure this later in Settings, or save templates manually.'
 	String get onboard_no_template_folder => 'No folder set, you can always configure this later in Settings, or save templates manually.';
 
-	/// en-US: 'Cloud Backup'
-	String get onboard_cloud_heading => 'Cloud Backup';
+	/// en-US: 'Cloud backup'
+	String get onboard_cloud_heading => 'Cloud backup';
 
 	/// en-US: 'Already have a backup? Sign in with GitHub and restore your workspaces, projects, and settings from a gist.'
 	String get onboard_cloud_desc => 'Already have a backup? Sign in with GitHub and restore your workspaces, projects, and settings from a gist.';
@@ -4546,6 +4867,21 @@ class Translations$settings$en_US {
 
 	/// en-US: 'current step'
 	String get git_auth_step_current => 'current step';
+
+	/// en-US: 'Couldn't load your settings'
+	String get settings_load_failed => 'Couldn\'t load your settings';
+
+	/// en-US: 'Loading contributors…'
+	String get credits_contributors_loading => 'Loading contributors…';
+
+	/// en-US: 'Contributors aren't available'
+	String get credits_contributors_unavailable => 'Contributors aren\'t available';
+
+	/// en-US: 'They load from GitHub. Check your connection and try again.'
+	String get credits_contributors_unavailable_desc => 'They load from GitHub. Check your connection and try again.';
+
+	/// en-US: 'No other contributors yet.'
+	String get credits_contributors_none => 'No other contributors yet.';
 }
 
 // Path: todos
@@ -5383,6 +5719,42 @@ class Translations$versions$en_US {
 
 	/// en-US: 'Every template for this release is already installed.'
 	String get export_templates_all_installed => 'Every template for this release is already installed.';
+
+	/// en-US: 'Installed versions'
+	String get installed_heading => 'Installed versions';
+
+	/// en-US: 'Available versions'
+	String get available_heading => 'Available versions';
+
+	/// en-US: 'No Godot versions installed yet'
+	String get no_installed_title => 'No Godot versions installed yet';
+
+	/// en-US: 'Loading available versions…'
+	String get loading_available => 'Loading available versions…';
+
+	/// en-US: 'GitHub limits how often releases can be checked without a token. Add a GitHub token in Settings, switch to the Godot Archive, or try again later.'
+	String get fetch_error_rate_limited => 'GitHub limits how often releases can be checked without a token. Add a GitHub token in Settings, switch to the Godot Archive, or try again later.';
+
+	/// en-US: 'Check your internet connection, then try again.'
+	String get fetch_error_hint => 'Check your internet connection, then try again.';
+
+	/// en-US: 'Add GitHub token'
+	String get add_github_token => 'Add GitHub token';
+
+	/// en-US: 'Reset filters'
+	String get reset_filters => 'Reset filters';
+
+	/// en-US: 'Try another channel or build type, or clear the search.'
+	String get no_available_hint => 'Try another channel or build type, or clear the search.';
+
+	/// en-US: 'View release page'
+	String get view_release_page => 'View release page';
+
+	/// en-US: '{{tag}} is available'
+	String get update_available_tag => '{{tag}} is available';
+
+	/// en-US: 'Install export templates to export projects with this version.'
+	String get templates_none_hint => 'Install export templates to export projects with this version.';
 }
 
 // Path: common.project_doctor
@@ -6186,6 +6558,7 @@ extension on Translations {
 			'changelog.added' => 'Added',
 			'changelog.fixed' => 'Fixed',
 			'changelog.improved' => 'Improved',
+			'changelog.changelog_load_failed' => 'Couldn\'t load the changelog',
 			'common.new_project' => 'New Project',
 			'common.import_project' => 'Import Project',
 			'common.search' => 'Search',
@@ -6687,9 +7060,9 @@ extension on Translations {
 			'common.task_tray_aria' => 'Task Tray',
 			'common.task_tray_auto_dismiss' => 'Completed auto-dismiss',
 			'common.task_tray_dismiss' => 'Dismiss {{count}}',
-			'common.task_error_status' => 'Error',
 			_ => null,
 		} ?? switch (path) {
+			'common.task_error_status' => 'Error',
 			'common.command_palette_title' => 'Command Palette',
 			'common.command_palette_placeholder' => 'Search commands, projects, engines, settings…',
 			'common.command_palette_no_results' => 'No results match',
@@ -7201,9 +7574,9 @@ extension on Translations {
 			'common.project_addons.updating' => 'Updating…',
 			'common.project_addons.updated' => '{{name}} was updated',
 			'common.project_addons.confirm_title' => 'Update {{name}}?',
-			'common.project_addons.confirm_description' => 'This replaces res://addons/{{folder}} with version {{version}} from the Asset Library. The old folder is moved to the Trash, so any changes you made to the addon are kept there. Close the project in Godot first.',
 			_ => null,
 		} ?? switch (path) {
+			'common.project_addons.confirm_description' => 'This replaces res://addons/{{folder}} with version {{version}} from the Asset Library. The old folder is moved to the Trash, so any changes you made to the addon are kept there. Close the project in Godot first.',
 			'common.project_addons.footer_hint' => 'Addons installed through GodotHub are matched exactly. Others are matched by name, so check the result before updating.',
 			'common.reload_confirm_title' => 'Reload GodotHub?',
 			'common.reload_confirm_desc' => 'Any unsaved changes in open forms will be lost.',
@@ -7285,6 +7658,111 @@ extension on Translations {
 			'common.clone_repo_dest_preview' => 'Clones into {{path}}',
 			'common.clone_repo_selected' => 'Selected {{name}}',
 			'common.clone_repo_select_hint' => 'Select a repository from the list to clone it.',
+			'common.project_missing_badge' => 'Unavailable',
+			'common.project_missing_title' => 'Project folder unavailable',
+			'common.project_missing_desc' => 'GodotHub can\'t read project.godot at this path. Reconnect the drive or network share and refresh, or remove the project from the library.',
+			'common.project_missing_open_disabled' => 'Reconnect the drive or share to open this project',
+			'common.field_required' => 'required',
+			'common.path_placeholder' => 'Type or paste a path, or choose Browse',
+			'common.path_input_label' => 'Path',
+			'common.path_apply' => 'Apply',
+			'common.path_error_required' => 'Enter a path or choose one with Browse.',
+			'common.path_error_relative' => 'Use a full path that starts at a drive or the root folder.',
+			'common.path_error_folder_not_found' => 'No folder exists at this path.',
+			'common.path_error_not_a_folder' => 'This path points to a file. Choose a folder.',
+			'common.path_error_file_not_found' => 'No file exists at this path.',
+			'common.path_error_not_a_file' => 'This path points to a folder. Choose a file.',
+			'common.path_error_extension' => 'Choose a {{extensions}} file.',
+			'common.path_error_parent_missing' => 'The folder this would be saved in doesn\'t exist.',
+			'common.kanban_column_empty' => 'No projects',
+			'common.kanban_drop_hint' => 'Drag projects here',
+			'common.category_options' => 'Category options',
+			'common.clear_filters' => 'Clear filters',
+			'common.asset_load_error_title' => 'Couldn\'t load assets',
+			'common.asset_no_results_title' => 'No assets found',
+			'common.asset_no_results_filtered' => 'Nothing matches the current search and filters.',
+			'common.asset_partial_error' => 'Some results couldn\'t be loaded.',
+			'common.news_open_site' => 'Open godotengine.org',
+			'common.templates_empty_title' => 'No templates yet',
+			'common.templates_load_error' => 'Couldn\'t load templates',
+			'common.templates_browse_library' => 'Browse the Asset Library',
+			'common.doctor_fix_all' => 'Fix all ({{count}})',
+			'common.doctor_fixing_all' => 'Fixing…',
+			'common.vault_empty_title' => 'Your vault is empty',
+			'common.vault_empty_desc' => 'Save files or folders from a project to reuse them in any other project.',
+			'common.vault_load_failed' => 'Couldn\'t load your vault',
+			'common.vault_files_loading' => 'Loading project files…',
+			'common.vault_files_load_failed' => 'Couldn\'t load this project\'s files',
+			'common.asset_view_details' => 'View details',
+			'common.asset_tab_overview' => 'Overview',
+			'common.asset_tab_files' => 'Files',
+			'common.asset_tab_releases' => 'Releases',
+			'common.asset_save' => 'Save',
+			'common.asset_saved' => 'Saved',
+			'common.asset_unsave' => 'Remove from saved',
+			'common.asset_saved_filter' => 'Saved ({{count}})',
+			'common.asset_saved_empty_title' => 'No saved assets yet',
+			'common.asset_saved_empty_desc' => 'Select the star on an asset to keep it here.',
+			'common.asset_not_interested' => 'Not interested',
+			'common.asset_hidden_toast' => '{{title}} is hidden. Show it again from Hidden.',
+			'common.asset_hidden_manage' => 'Hidden ({{count}})',
+			'common.asset_hidden_title' => 'Hidden assets',
+			'common.asset_hidden_desc' => 'Assets you marked as not interested don\'t appear in results.',
+			'common.asset_hidden_empty' => 'Nothing is hidden',
+			'common.asset_show_again' => 'Show again',
+			'common.asset_match_versions' => 'Match my Godot ({{version}})',
+			'common.asset_match_versions_off' => 'Match my Godot',
+			'common.asset_match_versions_tip' => 'Show assets that work with Godot {{version}}, your current or newest install.',
+			'common.asset_match_versions_none' => 'Install a Godot version to filter by it.',
+			'common.asset_in_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: 'In ${count} project', other: 'In ${count} projects', ), 
+			'common.asset_in_projects_one' => 'In {{count}} project',
+			'common.asset_in_projects_other' => 'In {{count}} projects',
+			'common.asset_update_available' => 'Update available',
+			'common.asset_installed_in' => 'Installed in your projects',
+			'common.asset_update_to' => 'Update to {{version}}',
+			'common.asset_up_to_date' => 'Up to date',
+			'common.asset_updated_toast' => 'Updated {{title}} in {{project}}',
+			'common.asset_update_failed' => 'Couldn\'t update: {{error}}',
+			'common.asset_info_error' => 'Couldn\'t load the details',
+			'common.asset_no_description' => 'No description provided.',
+			'common.asset_paid' => 'Paid',
+			'common.asset_fact_updated' => 'Updated',
+			'common.asset_fact_category' => 'Category',
+			'common.asset_fact_license' => 'License',
+			'common.asset_fact_size' => 'Download size',
+			'common.asset_link_source' => 'Source code',
+			'common.asset_link_issues' => 'Issues',
+			'common.asset_media_video' => 'Play video',
+			'common.asset_media_image' => 'Screenshot {{index}}',
+			'common.asset_release_stable' => 'Stable',
+			'common.asset_release_unstable' => 'Pre-release',
+			'common.asset_godot_range' => 'Godot {{min}}+',
+			'common.asset_files_title' => 'See the files before you install',
+			'common.asset_files_intro' => 'This downloads the archive once ({{size}}) and reuses it if you install.',
+			'common.asset_files_intro_unknown' => 'This downloads the archive once and reuses it if you install.',
+			'common.asset_files_load' => 'Show files',
+			'common.asset_files_loading' => 'Downloading and reading the archive...',
+			'common.asset_files_error' => 'Couldn\'t read the files',
+			'common.asset_files_paid' => 'Files can\'t be previewed for paid assets. Open the store page to get it.',
+			'common.asset_files_summary' => '{{files}} files, {{size}}',
+			'common.asset_files_truncated' => 'Showing the first {{count}} entries.',
+			'common.asset_install_into_many' => 'Install into {{count}}',
+			'common.asset_installing_progress' => 'Installing {{done}} of {{total}}...',
+			'common.asset_install_some_failed' => '{{count}} installs failed. They\'re still selected so you can try again.',
+			'common.asset_install_target_done' => 'Installed',
+			'common.asset_install_select_all' => 'Select all',
+			'common.asset_install_select_none' => 'Clear selection',
+			'common.templates_hide_installed' => 'Hide installed',
+			'common.template_update_available' => 'Update: {{version}}',
+			'common.template_update_tip' => 'Installed {{installed}}, the Asset Library has {{latest}}.',
+			'common.template_update_btn' => 'Update',
+			'common.template_updated_toast' => 'Updated {{name}} to {{version}}',
+			'common.template_update_failed' => 'Couldn\'t update {{name}}: {{error}}',
+			'common.asset_page_all_hidden' => 'Everything on this page is hidden. Try the next page, or show hidden assets again.',
+			'common.template_update_confirm_title' => 'Update {{name}} to {{version}}?',
+			'common.template_update_confirm_desc' => 'The template\'s files are replaced with the new upload, including any changes you made to them. Its name stays the same.',
+			'common.news_featured' => 'Latest',
+			'common.news_read_more' => 'Read the post',
 			'dashboard.greeting_morning' => 'Good morning',
 			'dashboard.greeting_afternoon' => 'Good afternoon',
 			'dashboard.greeting_evening' => 'Good evening',
@@ -7539,7 +8017,7 @@ extension on Translations {
 			'onboarding.onboard_empty_projects' => 'No folders added yet, GodotHub won\'t find any existing projects until you add one, or you can add projects manually later.',
 			'onboarding.onboard_empty_versions' => 'No folders added yet, new Godot downloads will go to the app data folder unless you set one below.',
 			'onboarding.onboard_no_template_folder' => 'No folder set, you can always configure this later in Settings, or save templates manually.',
-			'onboarding.onboard_cloud_heading' => 'Cloud Backup',
+			'onboarding.onboard_cloud_heading' => 'Cloud backup',
 			'onboarding.onboard_cloud_desc' => 'Already have a backup? Sign in with GitHub and restore your workspaces, projects, and settings from a gist.',
 			'onboarding.discovery_recent_heading' => 'Recent projects from Godot',
 			'onboarding.discovery_installs_heading' => 'Godot found on this computer',
@@ -7610,6 +8088,8 @@ extension on Translations {
 			'settings.storage_title' => 'Storage & Auto-scan',
 			'settings.behavior_projects_title' => 'Projects',
 			'settings.file_watchers_title' => 'File Watchers',
+			_ => null,
+		} ?? switch (path) {
 			'settings.last_opened_title' => 'Last Opened Display',
 			'settings.github_token_title' => 'GitHub API Token',
 			'settings.titlebar_buttons' => 'Titlebar Buttons',
@@ -7716,8 +8196,6 @@ extension on Translations {
 			'settings.entrance_slide' => 'Slide',
 			'settings.entrance_scale' => 'Scale',
 			'settings.entrance_none' => 'None',
-			_ => null,
-		} ?? switch (path) {
 			'settings.custom_css_label' => 'Custom CSS',
 			'settings.custom_css_placeholder' => '/* Your custom styles, e.g. */\n.card { border-radius: 4px !important; }',
 			'settings.custom_css_apply' => 'Apply CSS',
@@ -7867,6 +8345,11 @@ extension on Translations {
 			'settings.feature_desc_workspaces' => 'Switch between separate sets of projects and settings.',
 			'settings.git_auth_intro' => 'Approve GodotHub on {{provider}} to finish signing in. Keep this window open until it\'s done; use Cancel to stop.',
 			'settings.git_auth_step_current' => 'current step',
+			'settings.settings_load_failed' => 'Couldn\'t load your settings',
+			'settings.credits_contributors_loading' => 'Loading contributors…',
+			'settings.credits_contributors_unavailable' => 'Contributors aren\'t available',
+			'settings.credits_contributors_unavailable_desc' => 'They load from GitHub. Check your connection and try again.',
+			'settings.credits_contributors_none' => 'No other contributors yet.',
 			'todos.next_steps' => 'Next steps',
 			'todos.saving_tasks' => 'Saving tasks',
 			'todos.pending_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} pending', other: '${count} pending', ), 
@@ -8119,12 +8602,26 @@ extension on Translations {
 			'versions.add_custom_build' => 'Add custom build…',
 			'versions.adding_custom_build' => 'Adding custom build…',
 			'versions.download_failed_summary' => 'GodotHub couldn\'t download Godot {{tag}}.',
+			_ => null,
+		} ?? switch (path) {
 			'versions.download_failed_show_details' => 'Show error details',
 			'versions.download_failed_hide_details' => 'Hide error details',
 			'versions.download_failed_report' => 'Report this problem',
 			'versions.export_templates_select_none' => 'Select none',
 			'versions.export_templates_select_hint' => 'Select at least one template to download.',
 			'versions.export_templates_all_installed' => 'Every template for this release is already installed.',
+			'versions.installed_heading' => 'Installed versions',
+			'versions.available_heading' => 'Available versions',
+			'versions.no_installed_title' => 'No Godot versions installed yet',
+			'versions.loading_available' => 'Loading available versions…',
+			'versions.fetch_error_rate_limited' => 'GitHub limits how often releases can be checked without a token. Add a GitHub token in Settings, switch to the Godot Archive, or try again later.',
+			'versions.fetch_error_hint' => 'Check your internet connection, then try again.',
+			'versions.add_github_token' => 'Add GitHub token',
+			'versions.reset_filters' => 'Reset filters',
+			'versions.no_available_hint' => 'Try another channel or build type, or clear the search.',
+			'versions.view_release_page' => 'View release page',
+			'versions.update_available_tag' => '{{tag}} is available',
+			'versions.templates_none_hint' => 'Install export templates to export projects with this version.',
 			_ => null,
 		};
 	}

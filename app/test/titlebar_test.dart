@@ -447,7 +447,7 @@ void main() {
 
     testWidgets('lists every language with native names and status badges', (tester) async {
       await pumpMenu(tester, settingsWith());
-      expect(find.text(t.common.language_label.toUpperCase()), findsOneWidget);
+      expect(find.text(t.common.language_label), findsOneWidget);
       for (final language in ghLanguages) {
         expect(find.text(language.displayLabel()), findsOneWidget);
       }
@@ -519,7 +519,7 @@ void main() {
 
       await tester.tap(find.byKey(const ValueKey('running-projects-chip')));
       await tester.pumpAndSettle();
-      expect(find.text(t.common.running.toUpperCase()), findsOneWidget);
+      expect(find.text(t.common.running), findsOneWidget);
       expect(find.text('2 projects running'), findsOneWidget);
       expect(find.text('Alpha'), findsOneWidget);
       expect(find.text('Beta'), findsOneWidget);
@@ -579,7 +579,7 @@ void main() {
       );
       await tester.tap(find.byKey(const ValueKey('task-tray-trigger')));
       await tester.pumpAndSettle();
-      expect(find.text(t.common.task_tray_title.toUpperCase()), findsOneWidget);
+      expect(find.text(t.common.task_tray_title), findsOneWidget);
       expect(find.text(t.common.task_tray_empty), findsOneWidget);
       expect(find.text(t.common.no_tasks_running), findsOneWidget);
 

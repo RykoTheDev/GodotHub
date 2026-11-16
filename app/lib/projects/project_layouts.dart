@@ -5,10 +5,13 @@ import 'package:flutter/material.dart';
 import '../design/design.dart';
 import '../logic/project_drag.dart';
 import '../motion/animated_number.dart';
+import '../motion/motion.dart';
 import '../src/rust/api/types.dart';
 import '../state/drag_sort.dart';
+import '../ui/controls/dashed_box.dart';
 import '../ui/controls/equal_height_row.dart';
 import '../ui/core/i18n.dart';
+import '../ui/core/interaction.dart';
 import '../ui/dnd/sortable.dart';
 import 'category_sections.dart';
 import '../ui/shell/smooth_scroll.dart';
@@ -110,7 +113,14 @@ Project? _find(List<Project> projects, String id) {
 
 Widget _sortable(ProjectDndController c, Project p, bool enabled, Widget child) {
   if (!enabled) return KeyedSubtree(key: ValueKey(p.id), child: child);
-  return GhSortableItem(key: ValueKey(p.id), id: p.id, semanticLabel: p.name, isStatic: c.activeIds.length > 1, carried: c.activeIds.contains(p.id), child: child);
+  return GhSortableItem(
+    key: ValueKey(p.id),
+    id: p.id,
+    semanticLabel: p.name,
+    isStatic: c.activeIds.length > 1,
+    carried: c.activeIds.contains(p.id),
+    child: child,
+  );
 }
 
 class PinnedHeader extends StatelessWidget {
@@ -130,14 +140,20 @@ class PinnedHeader extends StatelessWidget {
           children: [
             GhIcon(GhIcons.pin, size: theme.space(3), color: theme.accentBright),
             Text(
-              context.tr.common.pinned_section.toUpperCase(),
-              style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: theme.muted, letterSpacingEm: 0.05),
+              context.tr.common.pinned_section,
+              style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.muted),
             ),
             DefaultTextStyle.merge(
               style: theme
                   .text(size: GhTextSize.x3s, weight: GhWeight.medium, color: theme.muted.withValues(alpha: 0.5))
                   .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
-              child: Row(mainAxisSize: MainAxisSize.min, children: [const ExcludeSemantics(child: Text('· ')), GhAnimatedNumber(count)]),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const ExcludeSemantics(child: Text('· ')),
+                  GhAnimatedNumber(count),
+                ],
+              ),
             ),
             Expanded(child: Container(height: 1, color: theme.outline.withValues(alpha: 0.5))),
           ],
@@ -589,6 +605,10 @@ class _ProjectCardGridState extends State<ProjectCardGrid> {
   }
 }
 
+/// Category board: one column per visible category plus uncategorized.
+/// Columns share one width that grows to fill the view when only a few are
+/// shown and falls back to a minimum width with horizontal scroll when they
+/// do not fit.
 class ProjectCardKanban extends StatefulWidget {
   const ProjectCardKanban({
     super.key,
@@ -614,6 +634,13 @@ class ProjectCardKanban extends StatefulWidget {
   final List<HiddenCategoryEntry> hiddenCategories;
   final ValueChanged<String>? onUnhideCategory;
   final CategoryMenuOpener? onCategoryContextMenu;
+
+  /// Narrowest a column gets before the board scrolls horizontally, in
+  /// spacing units.
+  static double minColumnUnits(bool compact) => compact ? 64 : 72;
+
+  /// Widest a column grows when there is spare room, in spacing units.
+  static double maxColumnUnits(bool compact) => compact ? 96 : 112;
 
   @override
   State<ProjectCardKanban> createState() => _ProjectCardKanbanState();
@@ -680,50 +707,52 @@ class _ProjectCardKanbanState extends State<ProjectCardKanban> {
         category: null as Category?,
       ),
     ];
-    final width = theme.space(widget.compact ? 65 : 75);
-    final board = Scrollbar(
-      controller: _horizontal,
-      child: GhScrollView(
-        controller: _horizontal,
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.only(bottom: theme.space(4)),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: theme.space(4),
-          children: [
-            for (final column in columns)
-              SizedBox(
-                width: width,
-                child: _KanbanColumn(
-                  key: ValueKey('kanban:${column.key}'),
-                  title: column.title,
-                  color: column.color,
-                  count: column.projects.length,
-                  compact: widget.compact,
-                  droppableId: 'kanban-cat-${column.key}',
-                  onContextMenu: column.category != null && widget.onCategoryContextMenu != null
-                      ? (position) => widget.onCategoryContextMenu!(position, column.category!)
-                      : null,
-                  child: GhSortableContext(
-                    items: [for (final p in column.projects) p.id],
-                    child: ListView.builder(
-                      padding: EdgeInsets.all(theme.space(widget.compact ? 2.5 : 3)),
-                      itemCount: column.projects.length,
-                      itemBuilder: (context, index) {
-                        final p = column.projects[index];
-                        return Padding(
-                          key: ValueKey(p.id),
-                          padding: EdgeInsets.only(bottom: theme.space(3)),
-                          child: _sortable(c, p, dndEnabled, widget.cardBuilder(p)),
-                        );
-                      },
+    final gap = theme.space(3);
+    final board = LayoutBuilder(
+      builder: (context, constraints) {
+        final minWidth = theme.space(ProjectCardKanban.minColumnUnits(widget.compact));
+        final maxWidth = theme.space(ProjectCardKanban.maxColumnUnits(widget.compact));
+        final fit = (constraints.maxWidth - gap * (columns.length - 1)) / columns.length;
+        final width = fit.isFinite ? fit.clamp(minWidth, maxWidth) : minWidth;
+        return Scrollbar(
+          controller: _horizontal,
+          child: GhScrollView(
+            controller: _horizontal,
+            scrollDirection: Axis.horizontal,
+            padding: EdgeInsets.only(bottom: theme.space(3)),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: gap,
+              children: [
+                for (final column in columns)
+                  SizedBox(
+                    width: width,
+                    child: GhSortableContext(
+                      items: [for (final p in column.projects) p.id],
+                      child: KanbanColumn(
+                        key: ValueKey('kanban:${column.key}'),
+                        title: column.title,
+                        color: column.color,
+                        count: column.projects.length,
+                        compact: widget.compact,
+                        droppableId: 'kanban-cat-${column.key}',
+                        onMenu: column.category != null && widget.onCategoryContextMenu != null
+                            ? (position) => widget.onCategoryContextMenu!(position, column.category!)
+                            : null,
+                        itemCount: column.projects.length,
+                        itemBuilder: (context, index) {
+                          final p = column.projects[index];
+                          return _sortable(c, p, dndEnabled, widget.cardBuilder(p));
+                        },
+                        itemKey: (index) => column.projects[index].id,
+                      ),
                     ),
                   ),
-                ),
-              ),
-          ],
-        ),
-      ),
+              ],
+            ),
+          ),
+        );
+      },
     );
     final scoped = dndEnabled
         ? _dnd.scope(enabled: true, ignorePrefix: 'kanban-cat-', overlay: (p) => widget.cardBuilder(p, preview: true), child: board)
@@ -742,16 +771,22 @@ class _ProjectCardKanbanState extends State<ProjectCardKanban> {
   }
 }
 
-class _KanbanColumn extends StatelessWidget {
-  const _KanbanColumn({
+/// One board column: a quiet surface with a fixed header (category dot,
+/// name, count, options) above its own vertically scrolling card list. The
+/// whole column is the drop zone, so it lights up while a dragged card is
+/// anywhere over it, and an empty column shows a dashed drop target.
+class KanbanColumn extends StatelessWidget {
+  const KanbanColumn({
     super.key,
     required this.title,
     required this.color,
     required this.count,
-    required this.compact,
     required this.droppableId,
-    required this.child,
-    this.onContextMenu,
+    required this.itemCount,
+    required this.itemBuilder,
+    required this.itemKey,
+    this.compact = false,
+    this.onMenu,
   });
 
   final String title;
@@ -759,76 +794,215 @@ class _KanbanColumn extends StatelessWidget {
   final int count;
   final bool compact;
   final String droppableId;
-  final ValueChanged<Offset>? onContextMenu;
-  final Widget child;
+  final int itemCount;
+  final IndexedWidgetBuilder itemBuilder;
+  final String Function(int index) itemKey;
+  final ValueChanged<Offset>? onMenu;
 
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
+    final motion = GhMotion.of(context);
+    final radius = BorderRadius.circular(theme.radiusCard);
+    return GhDroppable(
+      id: droppableId,
+      builder: (context, state) {
+        final target = state.dragging && state.containsTarget;
+        return AnimatedContainer(
+          duration: motion.css(GhDurations.color),
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            color: target ? Color.alphaBlend(theme.accent.withValues(alpha: 0.06), theme.surface) : theme.surface,
+            borderRadius: radius,
+            border: Border.all(color: target ? theme.accent.withValues(alpha: 0.6) : theme.outline.withValues(alpha: 0.5)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _header(context, theme, target),
+              Expanded(child: count == 0 ? _emptyZone(context, theme, state) : _list(context, theme, state)),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _header(BuildContext context, GhTheme theme, bool target) {
     final tr = context.tr.common;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        GestureDetector(
-          onSecondaryTapUp: onContextMenu == null ? null : (details) => onContextMenu!(details.globalPosition),
-          child: Padding(
-            padding: EdgeInsets.only(bottom: theme.space(2), left: theme.space(1), right: theme.space(1)),
-            child: Row(
-              spacing: theme.space(2),
+    final menu = onMenu;
+    return GestureDetector(
+      onSecondaryTapUp: menu == null ? null : (details) => menu(details.globalPosition),
+      child: Container(
+        padding: EdgeInsetsDirectional.fromSTEB(theme.space(3), theme.space(2), theme.space(menu == null ? 3 : 1.5), theme.space(2)),
+        constraints: BoxConstraints(minHeight: theme.space(11)),
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: theme.outline.withValues(alpha: 0.3))),
+        ),
+        child: Row(
+          spacing: theme.space(2),
+          children: [
+            Container(
+              width: theme.space(2.5),
+              height: theme.space(2.5),
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.black.withValues(alpha: 0.2)),
+              ),
+            ),
+            Flexible(
+              child: Semantics(
+                header: true,
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.ink),
+                ),
+              ),
+            ),
+            _CountBadge(count: count, active: target),
+            const Spacer(),
+            if (menu != null)
+              Builder(
+                builder: (buttonContext) => GhPressable(
+                  onPressed: () {
+                    final box = buttonContext.findRenderObject();
+                    if (box is! RenderBox) return;
+                    menu(box.localToGlobal(box.size.bottomLeft(Offset.zero)));
+                  },
+                  semanticLabel: tr.category_options,
+                  tooltip: tr.category_options,
+                  borderRadius: BorderRadius.circular(theme.radiusBtn),
+                  builder: (context, states) => GhAnimatedBox(
+                    width: theme.space(7),
+                    height: theme.space(7),
+                    alignment: Alignment.center,
+                    color: states.active ? theme.raised : theme.raised.withValues(alpha: 0),
+                    borderRadius: BorderRadius.circular(theme.radiusBtn),
+                    child: GhIcon(
+                      GhIcons.more,
+                      size: theme.space(3.5),
+                      color: states.active ? theme.ink : theme.muted.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _list(BuildContext context, GhTheme theme, GhDropState state) {
+    final pad = theme.space(compact ? 2 : 2.5);
+    final appendSlot = state.isOver;
+    return ListView.builder(
+      padding: EdgeInsets.all(pad),
+      itemCount: itemCount + (appendSlot ? 1 : 0),
+      findChildIndexCallback: (key) {
+        if (key is ValueKey<String>) {
+          for (var i = 0; i < itemCount; i++) {
+            if (itemKey(i) == key.value) return i;
+          }
+        }
+        return null;
+      },
+      itemBuilder: (context, index) {
+        if (index >= itemCount) {
+          return Container(
+            key: const ValueKey('kanban-append-slot'),
+            height: theme.space(12),
+            decoration: BoxDecoration(
+              color: theme.accent.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(theme.radiusItem),
+              border: Border.all(color: theme.accent.withValues(alpha: 0.5)),
+            ),
+          );
+        }
+        return Padding(
+          key: ValueKey(itemKey(index)),
+          padding: EdgeInsets.only(bottom: theme.space(2)),
+          child: itemBuilder(context, index),
+        );
+      },
+    );
+  }
+
+  Widget _emptyZone(BuildContext context, GhTheme theme, GhDropState state) {
+    final tr = context.tr.common;
+    final over = state.isOver;
+    final radius = BorderRadius.circular(theme.radiusItem);
+    final color = over ? theme.accentBright : theme.muted.withValues(alpha: state.dragging ? 0.8 : 0.6);
+    return Align(
+      alignment: Alignment.topCenter,
+      child: Padding(
+        padding: EdgeInsets.all(theme.space(compact ? 2 : 2.5)),
+        child: GhDashedBox(
+          key: const ValueKey('kanban-empty-zone'),
+          color: over ? theme.accent.withValues(alpha: 0.7) : theme.outline.withValues(alpha: state.dragging ? 0.9 : 0.6),
+          radius: radius,
+          child: AnimatedContainer(
+            duration: GhMotion.of(context).css(GhDurations.color),
+            height: theme.space(compact ? 20 : 24),
+            decoration: BoxDecoration(color: over ? theme.accent.withValues(alpha: 0.08) : Colors.transparent, borderRadius: radius),
+            padding: EdgeInsets.symmetric(horizontal: theme.space(3)),
+            alignment: Alignment.center,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              spacing: theme.space(1),
               children: [
-                Container(
-                  width: theme.space(2.5),
-                  height: theme.space(2.5),
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.black.withValues(alpha: 0.2)),
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    title,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink),
-                  ),
-                ),
+                GhIcon(over ? GhIcons.arrowUp : GhIcons.kanban, size: theme.space(3.5), color: color.withValues(alpha: 0.7)),
                 Text(
-                  '$count',
-                  style: theme.text(size: GhTextSize.xs, color: theme.muted),
+                  over ? tr.release_to_drop : tr.kanban_column_empty,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: color),
                 ),
+                if (!over)
+                  Text(
+                    tr.kanban_drop_hint,
+                    textAlign: TextAlign.center,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.text(size: GhTextSize.x2s, color: theme.muted.withValues(alpha: 0.5)),
+                  ),
               ],
             ),
           ),
         ),
-        Expanded(
-          child: GhDroppable(
-            id: droppableId,
-            builder: (context, state) => AnimatedContainer(
-              duration: GhDurations.color,
-              constraints: BoxConstraints(minHeight: compact ? 200 : 250),
-              clipBehavior: Clip.antiAlias,
-              decoration: BoxDecoration(
-                color: state.isOver ? theme.accent.withValues(alpha: 0.1) : theme.overlay.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(theme.radiusItem),
-                border: Border.all(color: state.isOver ? theme.accent.withValues(alpha: 0.5) : theme.outline.withValues(alpha: 0.3)),
-              ),
-              child: count == 0
-                  ? Center(
-                      child: Text(
-                        state.isOver ? tr.release_to_drop : tr.empty_category,
-                        style: theme.text(
-                          size: GhTextSize.xs,
-                          weight: state.isOver ? GhWeight.medium : GhWeight.normal,
-                          color: state.isOver ? theme.accentBright : theme.muted.withValues(alpha: 0.4),
-                        ),
-                      ),
-                    )
-                  : child,
-            ),
-          ),
-        ),
-      ],
+      ),
+    );
+  }
+}
+
+class _CountBadge extends StatelessWidget {
+  const _CountBadge({required this.count, required this.active});
+
+  final int count;
+  final bool active;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = GhTheme.of(context);
+    return AnimatedContainer(
+      duration: GhMotion.of(context).css(GhDurations.color),
+      constraints: BoxConstraints(minWidth: theme.space(5)),
+      height: theme.space(5),
+      padding: EdgeInsets.symmetric(horizontal: theme.space(1.5)),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: active ? theme.accent.withValues(alpha: 0.15) : theme.raised,
+        borderRadius: BorderRadius.circular(9999),
+      ),
+      child: Text(
+        '$count',
+        style: theme
+            .text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: active ? theme.accentBright : theme.muted)
+            .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
+      ),
     );
   }
 }

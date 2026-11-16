@@ -362,3 +362,52 @@ mod tests {
         let _ = fs::remove_dir_all(&root);
     }
 }
+
+/// One asset installed into one project, from the install records GodotHub
+/// keeps when it installs an addon (`addon_sources.json`).
+#[derive(Serialize, Clone, Debug)]
+pub struct AssetInstallation {
+    pub asset_id: String,
+    pub project_id: String,
+    pub project_name: String,
+    pub folder: String,
+    pub version: String,
+    pub revision: Option<u64>,
+}
+
+/// Every recorded install across the library. Projects whose folder is
+/// unavailable and addon folders the user deleted are left out.
+pub fn list_asset_installations(app: &AppHandle) -> Vec<AssetInstallation> {
+    let Some(path) = sources_path(app) else {
+        return vec![];
+    };
+    let sources = crate::persist::load_json::<AddonSources>(&path).value.projects;
+    if sources.is_empty() {
+        return vec![];
+    }
+    let mut out = Vec::new();
+    for project in crate::projects::read_projects(app) {
+        let dir = PathBuf::from(&project.path);
+        if !dir.join("project.godot").is_file() {
+            continue;
+        }
+        let Some(entries) = sources.get(&project_key(&dir)) else {
+            continue;
+        };
+        for (folder, source) in entries {
+            if !dir.join("addons").join(folder).is_dir() {
+                continue;
+            }
+            out.push(AssetInstallation {
+                asset_id: source.asset_id.clone(),
+                project_id: project.id.clone(),
+                project_name: project.name.clone(),
+                folder: folder.clone(),
+                version: source.version.clone(),
+                revision: source.revision,
+            });
+        }
+    }
+    out.sort_by(|a, b| a.asset_id.cmp(&b.asset_id).then_with(|| a.project_name.cmp(&b.project_name)));
+    out
+}

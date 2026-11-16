@@ -76,15 +76,10 @@ class _TimeTrackerModalState extends State<TimeTrackerModal> {
               GhIcon(icon, size: theme.space(3), color: theme.muted.withValues(alpha: 0.6)),
               Flexible(
                 child: Text(
-                  label.toUpperCase(),
+                  label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: theme.text(
-                    size: GhTextSize.x3s,
-                    weight: GhWeight.semibold,
-                    color: theme.muted.withValues(alpha: 0.6),
-                    letterSpacingEm: 0.05,
-                  ),
+                  style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: theme.muted.withValues(alpha: 0.8)),
                 ),
               ),
             ],
@@ -223,8 +218,8 @@ class _TimeTrackerModalState extends State<TimeTrackerModal> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      tr.time_weekly_chart.toUpperCase(),
-                      style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: hint, letterSpacingEm: 0.05),
+                      tr.time_weekly_chart,
+                      style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: hint),
                     ),
                     Text(
                       tr.time_week_total.args({'total': formatDuration(weekTotal * 1000)}),

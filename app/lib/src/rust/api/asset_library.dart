@@ -64,3 +64,23 @@ Future<InstallAssetResult> installStoreAsset({
 );
 
 Future<List<AssetLibraryCategory>> getAssetLibraryCategories() => RustLib.instance.api.crateApiAssetLibraryGetAssetLibraryCategories();
+
+Future<AssetInfo> getAssetInfo({required String assetId}) => RustLib.instance.api.crateApiAssetLibraryGetAssetInfo(assetId: assetId);
+
+Future<AssetFileListing> listAssetFiles({required String assetId}) =>
+    RustLib.instance.api.crateApiAssetLibraryListAssetFiles(assetId: assetId);
+
+Future<List<AssetInstallation>> listAssetInstallations() => RustLib.instance.api.crateApiAssetLibraryListAssetInstallations();
+
+Future<AssetPrefs> getAssetPrefs() => RustLib.instance.api.crateApiAssetLibraryGetAssetPrefs();
+
+Future<AssetPrefs> setAssetFavorite({required AssetLibraryAsset asset, required bool favorite}) =>
+    RustLib.instance.api.crateApiAssetLibrarySetAssetFavorite(asset: asset, favorite: favorite);
+
+Future<AssetPrefs> setAssetHidden({required String assetId, required String title, required bool hidden}) =>
+    RustLib.instance.api.crateApiAssetLibrarySetAssetHidden(assetId: assetId, title: title, hidden: hidden);
+
+Future<List<TemplateUpdate>> checkTemplateUpdates() => RustLib.instance.api.crateApiAssetLibraryCheckTemplateUpdates();
+
+Future<ProjectTemplate> updateTemplateFromAsset({required String templateId}) =>
+    RustLib.instance.api.crateApiAssetLibraryUpdateTemplateFromAsset(templateId: templateId);

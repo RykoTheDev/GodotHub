@@ -135,5 +135,17 @@
   "download_failed_report": "Report this problem",
   "export_templates_select_none": "Select none",
   "export_templates_select_hint": "Select at least one template to download.",
-  "export_templates_all_installed": "Every template for this release is already installed."
+  "export_templates_all_installed": "Every template for this release is already installed.",
+  "installed_heading": "Installed versions",
+  "available_heading": "Available versions",
+  "no_installed_title": "No Godot versions installed yet",
+  "loading_available": "Loading available versions…",
+  "fetch_error_rate_limited": "GitHub limits how often releases can be checked without a token. Add a GitHub token in Settings, switch to the Godot Archive, or try again later.",
+  "fetch_error_hint": "Check your internet connection, then try again.",
+  "add_github_token": "Add GitHub token",
+  "reset_filters": "Reset filters",
+  "no_available_hint": "Try another channel or build type, or clear the search.",
+  "view_release_page": "View release page",
+  "update_available_tag": "{{tag}} is available",
+  "templates_none_hint": "Install export templates to export projects with this version."
 }

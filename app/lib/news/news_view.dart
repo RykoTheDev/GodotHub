@@ -5,17 +5,21 @@ import '../api/opener.dart';
 import '../design/design.dart';
 import '../logic/locale.dart';
 import '../motion/animated_number.dart';
-import '../motion/presence.dart';
+import '../motion/motion.dart';
 import '../motion/reveal.dart';
 import '../src/rust/api/types.dart';
 import '../src/ui_prefs.dart';
 import '../state/news.dart';
 import '../state/settings.dart';
-import '../ui/controls/dashed_box.dart';
 import '../ui/controls/spin.dart';
+import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import '../ui/feedback/toast.dart';
+import '../ui/reusables/card_grid.dart';
+import '../ui/reusables/card_kit.dart';
+import '../ui/reusables/showcase_card.dart';
+import '../ui/reusables/state_panel.dart';
 import '../ui/reusables/view_header.dart';
 import '../ui/shell/overlay_scroll_area.dart';
 import '../ui/shell/view_insets.dart';
@@ -30,11 +34,11 @@ String? formatNewsDate(String? iso) {
   );
 }
 
-List<List<T>> splitNewsColumns<T>(List<T> items, int columns) {
-  if (columns <= 1) return [items];
-  final perColumn = (items.length / columns).ceil();
-  return [for (var c = 0; c < columns; c++) items.skip(c * perColumn).take(perColumn).toList()];
-}
+/// The site the feed comes from (crates/godothub-core/src/news.rs reads
+/// its rss.xml), offered when the feed can't be loaded or is empty.
+const godotBlogUrl = 'https://godotengine.org/';
+
+void _openUrl(String url) => OpenerApi.openUrl(url).catchError((Object e) => ghToasts.pushToast(GhToastType.error, '$e')).ignore();
 
 class NewsView extends ConsumerWidget {
   const NewsView({super.key, this.connected = false, this.prefs});
@@ -57,28 +61,69 @@ class NewsView extends ConsumerWidget {
       bottom: connected ? insets.bottom : (insets.bottom >= theme.space(4) ? insets.bottom - theme.space(4) : insets.bottom),
     );
     final items = feed.items;
+    final openSite = GhButton(
+      onPressed: () => _openUrl(godotBlogUrl),
+      label: ghTr('news_open_site'),
+      icon: GhIcons.externalLink,
+      variant: GhButtonVariant.ghost,
+    );
     final Widget body;
     if (loading && items.isEmpty) {
-      body = _Masonry(children: [for (var i = 0; i < 6; i++) const _NewsCardSkeleton()]);
+      body = GhCardGrid.fill(
+        rows: 2,
+        breakpoints: GhGridBreakpoints.reading,
+        builder: (context, _) => const GhCardSkeleton(mediaHeight: 38, footer: false, showcase: true),
+      );
     } else if (news.error != null && items.isEmpty) {
-      body = _NewsMessage(
-        danger: true,
-        icon: GhIcons.wifiOff,
-        text: '${ghTr('news_error')} ${news.error}',
-        action: _OutlineButton(icon: GhIcons.refresh, label: ghTr('try_again'), onPressed: () => notifier.reload().ignore()),
+      body = GhStatePanel.error(
+        title: ghTr('news_error'),
+        message: '${news.error}',
+        onRetry: () => notifier.reload().ignore(),
+        actions: [openSite],
       );
     } else if (items.isEmpty) {
-      body = _NewsMessage(icon: GhIcons.news, text: ghTr('news_empty'));
+      body = GhStatePanel.empty(
+        icon: GhIcons.news,
+        title: ghTr('news_empty'),
+        actions: [
+          GhButton(
+            onPressed: () => notifier.reload().ignore(),
+            label: ghTr('refresh'),
+            icon: GhIcons.refresh,
+            variant: GhButtonVariant.outline,
+          ),
+          openSite,
+        ],
+      );
     } else {
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: theme.space(4),
         children: [
-          _Masonry(
-            children: [for (final item in items) NewsCard(key: ValueKey(item.id), item: item)],
+          LayoutBuilder(
+            builder: (context, constraints) {
+              // The newest post gets a wide hero once the grid has room for
+              // three columns; below that it is just the first card.
+              final columns = GhGridBreakpoints.reading.columnsFor(constraints.maxWidth, fontScale: theme.fontScale);
+              final featured = items.length > 1 && columns >= 3;
+              final rest = featured ? items.skip(1) : items;
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: theme.space(4),
+                children: [
+                  if (featured) NewsFeaturedCard(key: ValueKey('featured:${items.first.id}'), item: items.first),
+                  GhCardGrid(
+                    breakpoints: GhGridBreakpoints.reading,
+                    gap: 4,
+                    children: [for (final item in rest) NewsCard(key: ValueKey(item.id), item: item)],
+                  ),
+                ],
+              );
+            },
           ),
           if (feed.hasMore)
             Padding(
-              padding: EdgeInsets.only(top: theme.space(6)),
+              padding: EdgeInsets.only(top: theme.space(3)),
               child: Center(child: _ShowMoreButton(onPressed: notifier.showMore)),
             ),
         ],
@@ -98,7 +143,7 @@ class NewsView extends ConsumerWidget {
                 child: GhAnimatedNumber(feed.total),
               ),
               Text(
-                ghTr('news_count').toUpperCase(),
+                ghTr('news_count'),
                 style: theme.text(size: GhTextSize.lg, weight: GhWeight.medium, color: theme.muted),
               ),
             ],
@@ -113,24 +158,12 @@ class NewsView extends ConsumerWidget {
                   style: theme.text(size: GhTextSize.xs, color: theme.muted),
                 ),
                 if (feed.fromCache)
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: theme.space(2), vertical: theme.space(0.5)),
-                    decoration: BoxDecoration(
-                      color: theme.overlay,
-                      borderRadius: BorderRadius.circular(theme.radiusTag),
-                      border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: theme.space(1),
-                      children: [
-                        GhIcon(GhIcons.wifiOff, size: theme.space(3), color: theme.muted.withValues(alpha: 0.7)),
-                        Text(
-                          ghTr('news_cached'),
-                          style: theme.text(size: GhTextSize.x3s, color: theme.muted.withValues(alpha: 0.7)),
-                        ),
-                      ],
-                    ),
+                  GhBadge(
+                    label: ghTr('news_cached'),
+                    icon: GhIcons.wifiOff,
+                    tooltip: ghTr('news_cached'),
+                    size: GhTextSize.x2s,
+                    maxWidth: theme.space(140),
                   ),
               ],
             ),
@@ -154,250 +187,38 @@ class NewsView extends ConsumerWidget {
   }
 }
 
-class _Masonry extends StatelessWidget {
-  const _Masonry({required this.children});
-
-  final List<Widget> children;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = GhTheme.of(context);
-    final columns = MediaQuery.sizeOf(context).width >= 1024 ? 2 : 1;
-    final split = splitNewsColumns(children, columns);
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: theme.space(3),
-      children: [
-        for (final column in split)
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                for (final child in column)
-                  Padding(
-                    padding: EdgeInsets.only(bottom: theme.space(3)),
-                    child: child,
-                  ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class NewsCard extends StatefulWidget {
+/// One blog post as a showcase card: the article image full bleed (or a
+/// generated cover), the category as a glass chip, then author and date,
+/// a bold title, a three-line summary and a "Read" cue that slides on
+/// hover. The whole card opens the post.
+class NewsCard extends StatelessWidget {
   const NewsCard({super.key, required this.item});
 
   final NewsItem item;
 
   @override
-  State<NewsCard> createState() => _NewsCardState();
-}
-
-class _NewsCardState extends State<NewsCard> {
-  bool _imageFailed = false;
-
-  @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
-    final item = widget.item;
-    final date = formatNewsDate(item.published);
-    final radius = BorderRadius.circular(theme.radiusItem);
-    final image = item.image;
     final category = item.category;
-    final summary = item.summary;
-    final author = item.author;
-    return GhPressable(
-      onPressed: () => OpenerApi.openUrl(item.link).catchError((Object e) => ghToasts.pushToast(GhToastType.error, '$e')),
-      borderRadius: radius,
-      builder: (context, states) => GhAnimatedBox(
-        color: states.active ? theme.raised : theme.overlay,
-        borderRadius: radius,
-        border: Border.all(color: states.active ? theme.accentDim.withValues(alpha: 0.7) : theme.outline.withValues(alpha: 0.5)),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(theme.radiusItem - 1),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (image != null && image.isNotEmpty && !_imageFailed)
-                SizedBox(
-                  height: theme.space(36),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Image.network(
-                        image,
-                        frameBuilder: ghFadeInFrameBuilder,
-                        fit: BoxFit.cover,
-                        excludeFromSemantics: true,
-                        errorBuilder: (context, error, stack) {
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            if (mounted && !_imageFailed) setState(() => _imageFailed = true);
-                          });
-                          return const SizedBox.shrink();
-                        },
-                      ),
-                      Positioned(
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        height: theme.space(14),
-                        child: IgnorePointer(
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.bottomCenter,
-                                end: Alignment.topCenter,
-                                colors: [theme.overlay, theme.overlay.withValues(alpha: 0)],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              Padding(
-                padding: EdgeInsets.fromLTRB(
-                  theme.space(5),
-                  image != null && image.isNotEmpty && !_imageFailed ? theme.space(3) : theme.space(5),
-                  theme.space(5),
-                  theme.space(5),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: theme.space(3),
-                  children: [
-                    Row(
-                      children: [
-                        if (category != null && category.isNotEmpty)
-                          Container(
-                            padding: EdgeInsets.symmetric(horizontal: theme.space(2.5), vertical: theme.space(1)),
-                            decoration: BoxDecoration(
-                              color: theme.accent.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(theme.radiusTag),
-                              border: Border.all(color: theme.accentDim.withValues(alpha: 0.3)),
-                            ),
-                            child: Text(
-                              category.toUpperCase(),
-                              style: theme.text(
-                                size: GhTextSize.x3s,
-                                weight: GhWeight.semibold,
-                                color: theme.accentBright,
-                                letterSpacingEm: 0.05,
-                              ),
-                            ),
-                          ),
-                        const Spacer(),
-                        AnimatedOpacity(
-                          opacity: states.hovered ? 1 : 0,
-                          duration: GhDurations.color,
-                          child: GhIcon(GhIcons.externalLink, size: theme.space(3), color: theme.muted),
-                        ),
-                      ],
-                    ),
-                    GhReveal(
-                      id: 'news:${item.link}',
-                      kind: GhRevealKind.heading,
-                      child: Text(
-                        item.title,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.text(size: GhTextSize.lg, weight: GhWeight.medium, color: theme.ink, lineHeight: 1.375),
-                      ),
-                    ),
-                    if (summary != null && summary.isNotEmpty)
-                      Text(
-                        summary,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.text(size: GhTextSize.xs, color: theme.muted, lineHeight: 1.625),
-                      ),
-                    Padding(
-                      padding: EdgeInsets.only(top: theme.space(1)),
-                      child: Row(
-                        spacing: theme.space(3),
-                        children: [
-                          if (date != null)
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              spacing: theme.space(1.5),
-                              children: [
-                                GhIcon(GhIcons.clock, size: theme.space(3), color: theme.muted),
-                                Text(
-                                  date,
-                                  style: theme.text(size: GhTextSize.x2s, color: theme.muted),
-                                ),
-                              ],
-                            ),
-                          if (author != null && author.isNotEmpty)
-                            Flexible(
-                              child: Text(
-                                author,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: theme.text(size: GhTextSize.x2s, color: theme.muted),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _NewsCardSkeleton extends StatelessWidget {
-  const _NewsCardSkeleton();
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = GhTheme.of(context);
-    Widget bar(double height, {double? width, double? fraction, double? radius}) {
-      final box = Container(
-        height: height,
-        width: width,
-        decoration: BoxDecoration(color: theme.raised, borderRadius: BorderRadius.circular(radius ?? theme.rem(0.25))),
-      );
-      return Align(
-        alignment: AlignmentDirectional.centerStart,
-        child: fraction == null ? box : FractionallySizedBox(widthFactor: fraction, child: box),
-      );
-    }
-
-    return Container(
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        color: theme.overlay,
-        borderRadius: BorderRadius.circular(theme.radiusItem),
-        border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-      ),
-      child: Column(
+    return GhCard(
+      lift: true,
+      semanticLabel: item.title,
+      onPressed: () => _openUrl(item.link),
+      builder: (context, highlighted) => Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(height: theme.space(36), color: theme.raised),
-          Padding(
-            padding: EdgeInsets.fromLTRB(theme.space(5), theme.space(3), theme.space(5), theme.space(5)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: theme.space(3),
-              children: [
-                bar(theme.space(4), width: theme.space(16), radius: theme.radiusTag),
-                bar(theme.space(4), fraction: 0.8),
-                bar(theme.space(3), fraction: 1),
-                bar(theme.space(3), fraction: 0.75),
-                Padding(
-                  padding: EdgeInsets.only(top: theme.space(1)),
-                  child: bar(theme.space(3), width: theme.space(24)),
-                ),
-              ],
+          GhCover(
+            seed: item.title,
+            imageUrl: item.image,
+            fallbackIcon: GhIcons.news,
+            zoom: highlighted,
+            height: 38,
+            topStart: [if (category != null && category.isNotEmpty) GhGlassChip(label: category)],
+          ),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.fromLTRB(theme.space(4.5), theme.space(4), theme.space(4.5), theme.space(4.5)),
+              child: _NewsText(item: item, highlighted: highlighted, titleSize: GhTextSize.lg, summaryLines: 3),
             ),
           ),
         ],
@@ -406,52 +227,123 @@ class _NewsCardSkeleton extends StatelessWidget {
   }
 }
 
-class _NewsMessage extends StatelessWidget {
-  const _NewsMessage({required this.icon, required this.text, this.action, this.danger = false});
+/// The newest post across the full width on wide layouts: the image on one
+/// side, a large title and a longer summary on the other.
+class NewsFeaturedCard extends StatelessWidget {
+  const NewsFeaturedCard({super.key, required this.item});
 
-  final FaIconData icon;
-  final String text;
-  final Widget? action;
-  final bool danger;
+  final NewsItem item;
 
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
-    final tone = danger ? theme.danger : theme.muted;
-    return GhDashedBox(
-      color: danger ? theme.danger.withValues(alpha: 0.3) : theme.outline.withValues(alpha: 0.5),
-      radius: BorderRadius.circular(theme.radiusItem),
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: theme.space(24)),
-        child: SizedBox(
-          width: double.infinity,
-          child: Column(
-            spacing: theme.space(4),
-            children: [
-              Container(
-                width: theme.space(12),
-                height: theme.space(12),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: danger ? theme.danger.withValues(alpha: 0.1) : theme.overlay,
-                  borderRadius: BorderRadius.circular(theme.radiusTile),
-                  border: Border.all(color: danger ? theme.danger.withValues(alpha: 0.3) : theme.outline.withValues(alpha: 0.5)),
-                ),
-                child: GhIcon(icon, size: theme.space(5), color: tone),
+    final category = item.category;
+    return GhCard(
+      lift: true,
+      semanticLabel: item.title,
+      onPressed: () => _openUrl(item.link),
+      builder: (context, highlighted) => SizedBox(
+        height: theme.space(80),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              flex: 3,
+              child: GhCover(
+                seed: item.title,
+                imageUrl: item.image,
+                fallbackIcon: GhIcons.news,
+                zoom: highlighted,
+                height: 80,
+                topStart: [
+                  GhGlassChip(label: ghTr('news_featured'), icon: GhIcons.star, iconColor: theme.amber),
+                  if (category != null && category.isNotEmpty) GhGlassChip(label: category),
+                ],
               ),
-              ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: theme.rem(20)),
-                child: Text(
-                  text,
-                  textAlign: TextAlign.center,
-                  style: theme.text(size: GhTextSize.sm, color: theme.muted, lineHeight: 1.625),
-                ),
+            ),
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: EdgeInsets.all(theme.space(7)),
+                child: _NewsText(item: item, highlighted: highlighted, titleSize: GhTextSize.x2l, summaryLines: 5),
               ),
-              ?action,
-            ],
-          ),
+            ),
+          ],
         ),
       ),
+    );
+  }
+}
+
+class _NewsText extends StatelessWidget {
+  const _NewsText({required this.item, required this.highlighted, required this.titleSize, required this.summaryLines});
+
+  final NewsItem item;
+  final bool highlighted;
+  final GhTextSize titleSize;
+  final int summaryLines;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = GhTheme.of(context);
+    final motion = GhMotion.of(context);
+    final date = formatNewsDate(item.published);
+    final author = item.author;
+    final hasAuthor = author != null && author.isNotEmpty;
+    final summary = item.summary?.trim();
+    final meta = [if (hasAuthor) author, if (date != null) date].join('  ·  ');
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: theme.space(2.5),
+      children: [
+        Row(
+          spacing: theme.space(2),
+          children: [
+            if (hasAuthor) GhInitialsAvatar(name: author, size: 5),
+            Flexible(
+              child: Text(
+                meta,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.muted),
+              ),
+            ),
+          ],
+        ),
+        GhReveal(
+          id: 'news:${item.link}',
+          kind: GhRevealKind.heading,
+          child: Text(
+            item.title,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            style: theme.text(size: titleSize, weight: GhWeight.bold, lineHeight: 1.25, letterSpacingEm: -0.015),
+          ),
+        ),
+        if (summary != null && summary.isNotEmpty)
+          Text(
+            summary,
+            maxLines: summaryLines,
+            overflow: TextOverflow.ellipsis,
+            style: theme.text(size: GhTextSize.sm, color: theme.muted, lineHeight: 1.55),
+          ),
+        const Spacer(),
+        Row(
+          spacing: theme.space(2),
+          children: [
+            Text(
+              ghTr('news_read_more'),
+              style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: highlighted ? theme.accentBright : theme.ink),
+            ),
+            AnimatedSlide(
+              offset: Offset(highlighted && !motion.off ? 0.35 : 0, 0),
+              duration: motion.css(GhDurations.interactive),
+              curve: GhCurves.outExpo,
+              child: GhIcon(GhIcons.chevronRight, size: theme.space(3), color: highlighted ? theme.accentBright : theme.muted),
+            ),
+          ],
+        ),
+      ],
     );
   }
 }
@@ -491,41 +383,6 @@ class _RefreshButton extends StatelessWidget {
           ),
         );
       },
-    );
-  }
-}
-
-class _OutlineButton extends StatelessWidget {
-  const _OutlineButton({required this.icon, required this.label, required this.onPressed});
-
-  final FaIconData icon;
-  final String label;
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = GhTheme.of(context);
-    final radius = BorderRadius.circular(theme.radiusItem);
-    return GhPressable(
-      onPressed: onPressed,
-      borderRadius: radius,
-      builder: (context, states) => GhAnimatedBox(
-        padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(2)),
-        color: states.active ? theme.raised : theme.raised.withValues(alpha: 0),
-        borderRadius: radius,
-        border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: theme.space(2),
-          children: [
-            GhIcon(icon, size: theme.space(3.5), color: theme.ink),
-            Text(
-              label,
-              style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.ink),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

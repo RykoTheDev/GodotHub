@@ -15,10 +15,12 @@ import 'package:godothub/modals/export_templates_modal.dart';
 import 'package:godothub/modals/version_aliases_modal.dart';
 import 'package:godothub/src/rust/api/types.dart';
 import 'package:godothub/src/ui_prefs.dart';
+import 'package:godothub/state/export_template_downloads.dart';
 import 'package:godothub/state/godot_versions.dart';
 import 'package:godothub/state/task_tray.dart';
 import 'package:godothub/titlebar/task_tray.dart';
 import 'package:godothub/ui/core/i18n.dart';
+import 'package:godothub/versions/available_version_card.dart';
 import 'package:godothub/versions/installed_version_card.dart';
 import 'package:godothub/versions/version_logic.dart';
 import 'package:godothub/versions/version_settings.dart';
@@ -198,7 +200,7 @@ void main() {
       await base.pumpHost(tester, body: const VersionsView());
       await base.settle(tester);
       expect(find.text('4.3-stable'), findsWidgets);
-      expect(find.text(tv('installed_label')), findsOneWidget);
+      expect(find.text(tv('installed_label')), findsWidgets);
       expect(find.text('.NET'), findsOneWidget);
       expect(find.text('4.4-stable'), findsOneWidget);
       await tester.tap(find.text(tv('install')).first);
@@ -295,6 +297,241 @@ void main() {
       await base.settle(tester);
       expect(find.byType(DownloadErrorModal), findsNothing);
       expect(backend.calls.where((c) => c.startsWith('download:4.4-stable')).length, 2);
+    });
+  });
+
+  group('version state', () {
+    test('stable channel and newer patch detection', () {
+      expect(isStableTag('4.3-stable'), isTrue);
+      expect(isStableTag('4.4-beta1'), isFalse);
+      final available = [release('4.3.2-stable', mono: true), release('4.3.1-stable'), release('4.4-stable'), release('4.3.3-rc1')];
+      expect(newerStableRelease(installed('4.3-stable'), available, [installed('4.3-stable')]), '4.3.2-stable');
+      expect(newerStableRelease(installed('4.3-stable', mono: true), available, const []), '4.3.2-stable');
+      expect(newerStableRelease(installed('4.3-stable'), available, [installed('4.3-stable'), installed('4.3.2-stable')]), '4.3.1-stable');
+      expect(newerStableRelease(installed('4.3.2-stable'), available, const []), isNull);
+      expect(newerStableRelease(installed('4.4-beta1'), available, const []), isNull);
+      expect(newerStableRelease(installed('4.3-stable', managedBy: 'custom'), available, const []), isNull);
+    });
+
+    Widget installedCard(InstalledGodotVersion v, {bool current = false, String? update, void Function(bool?)? onOpen}) =>
+        InstalledVersionCard(
+          version: v,
+          isCurrent: current,
+          updateTag: update,
+          onOpen: onOpen ?? (_) {},
+          onRename: (_) {},
+          onSetCurrent: () async => CurrentVersionInfo(tag: v.tag, aliasPath: 'C:/a', aliasesDir: 'C:/', method: 'shim'),
+          onClearCurrent: () async {},
+          onManageAliases: () {},
+          onUninstall: () {},
+          onInstallTemplates: (_) {},
+        );
+
+    testWidgets('installed card shows its state badges and opens as the primary action', (tester) async {
+      bool? openedWith = false;
+      await base.pumpHost(
+        tester,
+        body: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [
+              installedCard(installed('4.3-stable', mono: true), current: true, update: '4.3.1-stable', onOpen: (c) => openedWith = c),
+              installedCard(installed('4.4-beta1', name: 'Beta')),
+            ],
+          ),
+        ),
+      );
+      final first = find.byType(InstalledVersionCard).first;
+      Finder inFirst(Finder f) => find.descendant(of: first, matching: f);
+      expect(inFirst(find.byKey(const ValueKey('version-badge-current'))), findsOneWidget);
+      expect(inFirst(find.text(tv('stable'))), findsOneWidget);
+      expect(inFirst(find.text('.NET')), findsOneWidget);
+      expect(inFirst(find.byKey(const ValueKey('version-badge-update'))), findsOneWidget);
+      final second = find.byType(InstalledVersionCard).last;
+      expect(find.descendant(of: second, matching: find.text(tv('unstable'))), findsOneWidget);
+      expect(find.descendant(of: second, matching: find.byKey(const ValueKey('version-badge-current'))), findsNothing);
+      expect(find.descendant(of: second, matching: find.text('${tv('original_name')}: 4.4-beta1')), findsOneWidget);
+      await tester.tap(inFirst(find.bySemanticsLabel(tv('open'))));
+      await tester.pump();
+      expect(openedWith, isNull);
+      await base.drainToasts(tester);
+    });
+
+    testWidgets('installed card shows template download progress with a cancel button', (tester) async {
+      var cancelled = 0;
+      await base.pumpHost(
+        tester,
+        body: Padding(
+          padding: const EdgeInsets.all(24),
+          child: InstalledVersionCard(
+            version: installed('4.3-stable'),
+            isCurrent: false,
+            onOpen: (_) {},
+            onRename: (_) {},
+            onSetCurrent: () async => const CurrentVersionInfo(tag: '4.3-stable', aliasPath: 'C:/a', aliasesDir: 'C:/', method: 'shim'),
+            onClearCurrent: () async {},
+            onManageAliases: () {},
+            onUninstall: () {},
+            onInstallTemplates: (_) {},
+            onCancelTemplates: () => cancelled++,
+            templateDownload: const ExportTemplateDownload(downloaded: 25, total: 100, stage: 'downloading'),
+          ),
+        ),
+      );
+      expect(find.text('${tv('export_templates_installed')} 25%'), findsOneWidget);
+      expect(find.text(tv('export_templates_missing')), findsNothing);
+      await tester.tap(find.bySemanticsLabel(tv('cancel_download')));
+      await tester.pump();
+      expect(cancelled, 1);
+      await base.drainToasts(tester);
+    });
+
+    testWidgets('installed card stacks its launch button in a narrow window', (tester) async {
+      await base.pumpHost(
+        tester,
+        size: const Size(340, 600),
+        body: Padding(
+          padding: const EdgeInsets.all(8),
+          child: installedCard(
+            installed('4.3-stable', mono: true, name: 'A very long custom version name'),
+            current: true,
+            update: '4.3.1-stable',
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(find.bySemanticsLabel(tv('open')), findsOneWidget);
+    });
+
+    Widget availableCard({bool installed = false, DownloadState? download, VoidCallback? onInstall, List<String>? calls}) =>
+        AvailableVersionCard(
+          tag: '4.4-stable',
+          asset: release('4.4-stable').assets.first,
+          source: VersionSource.github,
+          installed: installed,
+          download: download,
+          onInstall: onInstall ?? () {},
+          onOpenSource: () => calls?.add('source'),
+          onPause: () async => calls?.add('pause'),
+          onResume: () async => calls?.add('resume'),
+          onCancel: () async => calls?.add('cancel'),
+        );
+
+    testWidgets('available card has one primary action per state', (tester) async {
+      final calls = <String>[];
+      var installs = 0;
+      Future<void> pump(Widget card, {Size size = const Size(1000, 400)}) => base.pumpHost(
+        tester,
+        size: size,
+        body: Padding(padding: const EdgeInsets.all(8), child: card),
+      );
+
+      await pump(availableCard(onInstall: () => installs++, calls: calls));
+      expect(find.byKey(const ValueKey('available-install')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('available-install')));
+      expect(installs, 1);
+      await tester.tap(find.bySemanticsLabel(tv('view_release_page')));
+      expect(calls, ['source']);
+
+      await pump(availableCard(installed: true));
+      expect(find.byKey(const ValueKey('available-installed')), findsOneWidget);
+      expect(find.byKey(const ValueKey('available-install')), findsNothing);
+
+      await pump(
+        availableCard(
+          download: DownloadState(tag: '4.4-stable', downloaded: 1 << 20, total: 4 << 20, status: DownloadStatus.downloading),
+          calls: calls,
+        ),
+      );
+      expect(find.byKey(const ValueKey('available-install')), findsNothing);
+      expect(find.byKey(const ValueKey('available-resume')), findsNothing);
+      expect(find.text('1.0 MB / 4.0 MB'), findsOneWidget);
+      await tester.tap(find.bySemanticsLabel(tv('pause_download')));
+      await tester.pump();
+      expect(calls.last, 'pause');
+
+      await pump(
+        availableCard(
+          download: DownloadState(tag: '4.4-stable', downloaded: 1 << 20, total: 4 << 20, status: DownloadStatus.paused),
+          calls: calls,
+        ),
+      );
+      expect(find.bySemanticsLabel(tv('pause_download')), findsNothing);
+      await tester.tap(find.byKey(const ValueKey('available-resume')));
+      await tester.pump();
+      expect(calls.last, 'resume');
+
+      await base.drainToasts(tester);
+    });
+
+    testWidgets('a queued download can be cancelled in a narrow window', (tester) async {
+      final calls = <String>[];
+      await base.pumpHost(
+        tester,
+        size: const Size(320, 400),
+        body: Padding(
+          padding: const EdgeInsets.all(8),
+          child: availableCard(
+            download: const DownloadState(tag: '4.4-stable', downloaded: 0, total: 0, status: DownloadStatus.queued),
+            calls: calls,
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(find.byKey(const ValueKey('available-queued')), findsOneWidget);
+      expect(find.byKey(const ValueKey('available-install')), findsNothing);
+      await tester.tap(find.bySemanticsLabel(tv('cancel_download')));
+      await tester.pump();
+      expect(calls, ['cancel']);
+      await base.drainToasts(tester);
+    });
+
+    testWidgets('no installed versions shows the empty state with an import action', (tester) async {
+      VersionsBackend()
+        ..installedList = []
+        ..install(rust);
+      await base.pumpHost(tester, body: const VersionsView());
+      await base.settle(tester);
+      expect(find.byKey(const ValueKey('versions-empty-installed')), findsOneWidget);
+      expect(find.text(tv('no_installed_title')), findsOneWidget);
+      expect(find.text(ghTr('import_version')), findsWidgets);
+    });
+
+    testWidgets('a failed fetch shows the error state and retries', (tester) async {
+      final backend = VersionsBackend()..availableError = 'connection refused';
+      backend.install(rust);
+      await base.pumpHost(tester, body: const VersionsView());
+      await base.settle(tester);
+      expect(find.byKey(const ValueKey('versions-available-error')), findsOneWidget);
+      expect(find.textContaining('connection refused'), findsOneWidget);
+      expect(find.text(tv('switch_to_archive')), findsNothing);
+      backend.availableError = null;
+      await tester.tap(find.text(ghTr('retry')));
+      await base.settle(tester);
+      expect(find.byKey(const ValueKey('versions-available-error')), findsNothing);
+      expect(find.text('4.4-stable'), findsOneWidget);
+    });
+
+    testWidgets('a rate limited fetch points at the GitHub token setting', (tester) async {
+      final backend = VersionsBackend()..availableError = 'API rate limit exceeded';
+      backend.install(rust);
+      await base.pumpHost(tester, body: const VersionsView());
+      await base.settle(tester);
+      expect(find.text(tv('fetch_error_rate_limited')), findsOneWidget);
+      expect(find.text(tv('add_github_token')), findsOneWidget);
+    });
+
+    testWidgets('filters that match nothing offer a reset', (tester) async {
+      final backend = VersionsBackend()..available = [release('4.4-beta1')];
+      backend.install(rust);
+      UiPrefsStore.instance.setItem(versionFiltersKey, const VersionFilters(channel: ChannelFilter.stable).encode());
+      await base.pumpHost(tester, body: const VersionsView());
+      await base.settle(tester);
+      expect(find.byKey(const ValueKey('versions-available-empty')), findsOneWidget);
+      await tester.tap(find.text(tv('reset_filters')));
+      await base.settle(tester);
+      expect(find.byKey(const ValueKey('versions-available-empty')), findsNothing);
+      expect(find.text('4.4-beta1'), findsOneWidget);
     });
   });
 

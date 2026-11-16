@@ -42,6 +42,7 @@ Project copyProject(
   sessionStartedAtMs: p.sessionStartedAtMs,
   timeTodaySeconds: p.timeTodaySeconds,
   timeWeekSeconds: p.timeWeekSeconds,
+  missing: p.missing,
 );
 
 void _refreshTrayMenu() {

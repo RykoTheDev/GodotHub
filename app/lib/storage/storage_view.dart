@@ -26,8 +26,13 @@ import '../ui/reusables/view_header.dart';
 import '../ui/shell/overlay_scroll_area.dart';
 import '../ui/shell/view_insets.dart';
 import '../ui/shell/smooth_scroll.dart';
+import '../ui/reusables/card_grid.dart';
 
 enum ReclaimGroup { versions, partials, exports }
+
+/// Four fixed stat cards: 1, 2 or 4 per row by available width, never a
+/// 3 + 1 split or sparse wide rows.
+const storageStatBreakpoints = GhGridBreakpoints([(0, 1), (360, 2), (760, 4)]);
 
 class ReclaimEntry {
   const ReclaimEntry({
@@ -635,7 +640,6 @@ class _StorageViewState extends ConsumerState<StorageView> {
       (label: ghTr('cleanup_export_templates_title'), value: totals.exports),
       (label: ghTr('cleanup_reclaimable_title'), value: reclaimable),
     ];
-    final columns = MediaQuery.sizeOf(context).width >= 1024 ? 4 : 2;
     Widget card(({String label, double value}) c) => Container(
       key: ValueKey(c.label),
       padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(3)),
@@ -649,15 +653,10 @@ class _StorageViewState extends ConsumerState<StorageView> {
         spacing: theme.space(1),
         children: [
           Text(
-            c.label.toUpperCase(),
+            c.label,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: theme.text(
-              size: GhTextSize.x3s,
-              weight: GhWeight.semibold,
-              color: theme.muted.withValues(alpha: 0.6),
-              letterSpacingEm: 0.05,
-            ),
+            style: theme.text(size: GhTextSize.x2s, weight: GhWeight.medium, color: theme.muted.withValues(alpha: 0.8)),
           ),
           Text(
             formatBytes(c.value),
@@ -666,19 +665,7 @@ class _StorageViewState extends ConsumerState<StorageView> {
         ],
       ),
     );
-    return Column(
-      spacing: theme.space(3),
-      children: [
-        for (var i = 0; i < cards.length; i += columns)
-          IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: theme.space(3),
-              children: [for (final c in cards.skip(i).take(columns)) Expanded(child: card(c))],
-            ),
-          ),
-      ],
-    );
+    return GhCardGrid(breakpoints: storageStatBreakpoints, children: [for (final c in cards) card(c)]);
   }
 
   Widget _body(GhTheme theme, StorageReport? report) {
@@ -794,7 +781,7 @@ class _StorageViewState extends ConsumerState<StorageView> {
                 style: theme.text(size: GhTextSize.x4l, weight: GhWeight.bold, color: theme.muted),
               ),
               Text(
-                ghTr('cleanup_total_label').toUpperCase(),
+                ghTr('cleanup_total_label'),
                 style: theme.text(size: GhTextSize.lg, weight: GhWeight.medium, color: theme.muted),
               ),
             ],

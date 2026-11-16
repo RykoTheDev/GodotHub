@@ -11,14 +11,22 @@ import '../logic/asset_sort.dart';
 import '../src/rust/api/types.dart';
 import '../state/app_signals.dart';
 import '../state/shell_signals.dart';
+import '../state/asset_prefs.dart';
 import '../ui/core/i18n.dart';
-import '../ui/core/interaction.dart';
+import '../ui/feedback/modal_shell.dart';
+import '../ui/reusables/filter_bar.dart';
+import '../ui/reusables/modal_kit.dart';
+import '../ui/core/button.dart';
 import '../ui/core/ui_settings.dart' show GhSide;
 import '../ui/feedback/confirm_dialog.dart';
+import '../ui/feedback/toast.dart';
 import '../ui/overlays/dropdown.dart';
 import '../ui/overlays/menu.dart';
-import '../ui/reusables/modal_kit.dart';
+import '../ui/reusables/card_grid.dart';
+import '../ui/reusables/card_kit.dart';
+import '../ui/reusables/state_panel.dart';
 import 'asset_card.dart';
+import 'asset_detail_modal.dart';
 import 'asset_common.dart';
 
 const _maxEmptySkip = 15;
@@ -49,9 +57,23 @@ bool assetVersionMatches(String assetVersion, String target) {
 }
 
 class AssetLibraryBrowser extends ConsumerStatefulWidget {
-  const AssetLibraryBrowser({super.key, required this.query, this.onStatsChange, this.installedTemplateNames = const []});
+  const AssetLibraryBrowser({
+    super.key,
+    required this.query,
+    this.onStatsChange,
+    this.installedTemplateNames = const [],
+    this.installedTemplateIds = const {},
+    this.onClearQuery,
+  });
+
+  /// Asset ids local templates were installed from, for "Hide installed".
+  final Set<String> installedTemplateIds;
 
   final String query;
+
+  /// Clears the parent's search box; offered with the version filter when
+  /// nothing matches.
+  final VoidCallback? onClearQuery;
   final ValueChanged<({bool loading, int total})>? onStatsChange;
   final List<String> installedTemplateNames;
 
@@ -61,8 +83,17 @@ class AssetLibraryBrowser extends ConsumerStatefulWidget {
 
 class _AssetLibraryBrowserState extends ConsumerState<AssetLibraryBrowser> {
   List<AssetLibraryAsset> _assets = const [];
+  bool _savedOnly = false;
+  bool _hideInstalled = false;
   bool _loading = true;
   String? _error;
+
+  /// A follow-up page (neighbour probe, gather or page change) failed while
+  /// the current results stay visible.
+  bool _partialError = false;
+
+  /// The page a failed page change was heading to, retried by the notice.
+  int? _retryPage;
   String _version = '';
   AssetSortKey _sort = AssetSortKey.relevance;
   int _page = 0;
@@ -132,7 +163,7 @@ class _AssetLibraryBrowserState extends ConsumerState<AssetLibraryBrowser> {
   List<AssetLibraryAsset> _ranked(List<AssetLibraryAsset> list) =>
       _sort == AssetSortKey.relevance && widget.query.trim().isNotEmpty ? rankByRelevance(list, widget.query) : list;
 
-  Future<AssetLibraryResponse?> _fetchPage(int nextPage, int seq) async {
+  Future<AssetLibraryResponse?> _fetchPage(int nextPage, int seq, {bool partial = false}) async {
     final query = widget.query.trim();
     final version = _version;
     final params = assetSortParams(_sort);
@@ -151,13 +182,21 @@ class _AssetLibraryBrowserState extends ConsumerState<AssetLibraryBrowser> {
         ),
       );
     } catch (e) {
-      if (seq == _searchSeq && mounted) setState(() => _error = '$e');
+      if (seq == _searchSeq && mounted) {
+        setState(() {
+          if (partial && _assets.isNotEmpty) {
+            _partialError = true;
+          } else {
+            _error = '$e';
+          }
+        });
+      }
       return null;
     }
   }
 
-  Future<AssetLibraryResponse?> _load(int nextPage, int seq) async {
-    final res = await _fetchPage(nextPage, seq);
+  Future<AssetLibraryResponse?> _load(int nextPage, int seq, {bool partial = false}) async {
+    final res = await _fetchPage(nextPage, seq, partial: partial);
     if (res == null || seq != _searchSeq || !mounted) return null;
     setState(() {
       _assets = _ranked(res.assets.where(_isExactVersion).toList());
@@ -182,11 +221,11 @@ class _AssetLibraryBrowserState extends ConsumerState<AssetLibraryBrowser> {
     var next = false;
     for (var i = 1; i <= _probeDepth && !(prev && next); i++) {
       if (!prev && cursor - i >= 0) {
-        final r = await _fetchPage(cursor - i, seq);
+        final r = await _fetchPage(cursor - i, seq, partial: true);
         if (r != null && r.assets.any(_isExactVersion)) prev = true;
       }
       if (!next && cursor + i < _pages) {
-        final r = await _fetchPage(cursor + i, seq);
+        final r = await _fetchPage(cursor + i, seq, partial: true);
         if (r != null && r.assets.any(_isExactVersion)) next = true;
       }
     }
@@ -202,7 +241,7 @@ class _AssetLibraryBrowserState extends ConsumerState<AssetLibraryBrowser> {
     var emptyRun = 0;
     var cursor = startPage;
     for (var i = 0; i <= _maxEmptySkip && collected.length < _gatherLimit; i++) {
-      final res = await _fetchPage(cursor, seq);
+      final res = await _fetchPage(cursor, seq, partial: true);
       if (res == null) break;
       final matched = res.assets.where(_isExactVersion).toList();
       if (matched.isNotEmpty) {
@@ -229,7 +268,11 @@ class _AssetLibraryBrowserState extends ConsumerState<AssetLibraryBrowser> {
   Future<void> _runSearch() async {
     final seq = ++_searchSeq;
     if (!mounted) return;
-    setState(() => _loading = true);
+    setState(() {
+      _loading = true;
+      _partialError = false;
+      _retryPage = null;
+    });
     var cursor = 0;
     var landedPage = 0;
     AssetLibraryResponse? landedRes;
@@ -259,12 +302,16 @@ class _AssetLibraryBrowserState extends ConsumerState<AssetLibraryBrowser> {
     if (_paging || _pages <= 1) return;
     final clamped = target.clamp(0, _pages - 1);
     final dir = clamped >= _page ? 1 : -1;
-    setState(() => _paging = true);
+    setState(() {
+      _paging = true;
+      _partialError = false;
+      _retryPage = clamped;
+    });
     final seq = _searchSeq;
     var cursor = clamped;
     var landedPage = clamped;
     for (var i = 0; i <= _maxEmptySkip; i++) {
-      final res = await _load(cursor, seq);
+      final res = await _load(cursor, seq, partial: true);
       if (res != null) landedPage = res.page.clamp(0, res.pages - 1 < 0 ? 0 : res.pages - 1);
       if (res == null || res.assets.any(_isExactVersion)) break;
       cursor += dir;
@@ -277,7 +324,47 @@ class _AssetLibraryBrowserState extends ConsumerState<AssetLibraryBrowser> {
   }
 
   bool _isAlreadyInstalled(AssetLibraryAsset asset) =>
+      _installed.contains(asset.assetId) ||
+      widget.installedTemplateIds.contains(asset.assetId) ||
       widget.installedTemplateNames.any((name) => name.toLowerCase() == asset.title.toLowerCase());
+
+  Future<void> _setFavorite(AssetLibraryAsset asset, bool favorite) async {
+    try {
+      await ref.read(assetPrefsProvider.notifier).setFavorite(asset, favorite);
+    } catch (e) {
+      ghToasts.pushToast(GhToastType.error, '$e');
+    }
+  }
+
+  Future<void> _hide(AssetLibraryAsset asset) async {
+    try {
+      await ref.read(assetPrefsProvider.notifier).setHidden(asset.assetId, asset.title, true);
+      ghToasts.pushToast(GhToastType.info, ghTr('asset_hidden_toast', args: {'title': asset.title}));
+    } catch (e) {
+      ghToasts.pushToast(GhToastType.error, '$e');
+    }
+  }
+
+  Widget _card(AssetLibraryAsset asset, AssetPrefs prefs) {
+    final favorite = prefs.isFavorite(asset.assetId);
+    final installed = _isAlreadyInstalled(asset);
+    final browse = asset.browseUrl;
+    return AssetCard(
+      key: ValueKey(asset.assetId),
+      asset: asset,
+      favorite: favorite,
+      onToggleFavorite: () => _setFavorite(asset, !favorite).ignore(),
+      onHide: () => _hide(asset).ignore(),
+      onOpenDetails: () => showAssetDetails(
+        context,
+        asset,
+        primaryLabel: installed ? ghTr('asset_installed') : ghTr('asset_install'),
+        onPrimary: () => _install(asset).ignore(),
+      ).ignore(),
+      onOpenPage: browse != null && browse.isNotEmpty ? () => OpenerApi.openUrl(browse).ignore() : null,
+      actions: [_installButton(asset)],
+    );
+  }
 
   Future<void> _doInstall(AssetLibraryAsset asset) async {
     if (_installing != null || _installingAssets.contains(asset.assetId)) return;
@@ -287,7 +374,8 @@ class _AssetLibraryBrowserState extends ConsumerState<AssetLibraryBrowser> {
       await AssetLibraryApi.installAsTemplate(asset.assetId);
       if (mounted) setState(() => _installed.add(asset.assetId));
       AppSignals.emit(refreshTemplatesSignal);
-    } catch (_) {
+    } catch (e) {
+      ghToasts.pushToast(GhToastType.error, ghTr('asset_install_failed_toast', args: {'title': asset.title, 'error': '$e'}));
     } finally {
       _installingAssets.remove(asset.assetId);
       if (mounted) setState(() => _installing = null);
@@ -307,116 +395,147 @@ class _AssetLibraryBrowserState extends ConsumerState<AssetLibraryBrowser> {
     await _doInstall(asset);
   }
 
-  Widget _installButton(GhTheme theme, AssetLibraryAsset asset) {
+  Widget _installButton(AssetLibraryAsset asset) {
     final isInstalled = _installed.contains(asset.assetId) || _isAlreadyInstalled(asset);
     final isInstalling = _installing == asset.assetId || _installingAssets.contains(asset.assetId);
-    final radius = BorderRadius.circular(theme.radiusDropdownBtn);
-    return GhPressable(
+    return GhButton(
       onPressed: isInstalling ? null : () => _install(asset).ignore(),
-      disabledOpacity: null,
-      borderRadius: radius,
-      rippleColor: Colors.white,
-      builder: (context, states) {
-        final hover = states.active && !isInstalling;
-        final foreground = isInstalled ? theme.mint : theme.ink;
-        final style = theme.text(weight: GhWeight.semibold, color: foreground).copyWith(fontSize: theme.rem(1.0625));
-        return GhAnimatedBox(
-          height: theme.space(12),
-          padding: EdgeInsets.symmetric(horizontal: theme.space(6)),
-          alignment: Alignment.center,
-          color: isInstalled ? theme.mint.withValues(alpha: 0.1) : (hover ? theme.accentBright : theme.accent),
-          borderRadius: radius,
-          border: Border.all(color: isInstalled ? theme.mint.withValues(alpha: 0.2) : theme.outline.withValues(alpha: 0.5)),
-          boxShadow: GhShadows.md(Colors.black.withValues(alpha: 0.1)),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            spacing: theme.space(1.5),
-            children: [
-              if (isInstalling) ...[
-                GhSpinnerIcon(color: foreground),
-                Text(ghTr('asset_installing'), style: style),
-              ] else if (isInstalled) ...[
-                GhIcon(GhIcons.check, size: theme.space(3.5), color: foreground),
-                Text(ghTr('asset_installed'), style: style),
-              ] else ...[
-                GhIcon(GhIcons.download, size: theme.space(3.5), color: foreground),
-                Text(ghTr('asset_install'), style: style),
-              ],
-            ],
-          ),
-        );
-      },
+      label: ghTr(
+        isInstalling
+            ? 'asset_installing'
+            : isInstalled
+            ? 'asset_installed'
+            : 'asset_install',
+      ),
+      icon: isInstalling
+          ? GhIcons.spinner
+          : isInstalled
+          ? GhIcons.check
+          : GhIcons.download,
+      variant: isInstalled ? GhButtonVariant.outline : GhButtonVariant.primary,
+      disabledOpacity: 0.7,
     );
   }
 
-  Widget _filters(GhTheme theme) => Row(
-    children: [
-      Expanded(
-        child: Wrap(
-          spacing: theme.space(2),
-          runSpacing: theme.space(2),
-          crossAxisAlignment: WrapCrossAlignment.center,
-          children: [
-            GhDropdown(
-              align: GhSide.left,
-              items: [
-                for (final key in assetLibrarySortKeys)
-                  GhMenuItem(id: key.id, label: ghTr('asset_store_${key.id}'), active: _sort == key, onSelected: () => _setSort(key)),
-              ],
-              trigger: (context, open, toggle) => AssetDropButton(label: ghTr('asset_store_${_sort.id}'), open: open, onPressed: toggle),
-            ),
-            GhDropdown(
-              align: GhSide.left,
-              items: [
-                GhMenuItem(id: 'all', label: ghTr('asset_all_versions'), active: _version.isEmpty, onSelected: () => _setVersion('')),
-                for (final v in assetVersionOptions)
-                  GhMenuItem(id: v, label: 'Godot $v', active: _version == v, onSelected: () => _setVersion(v)),
-              ],
-              trigger: (context, open, toggle) => AssetDropButton(
-                label: _version.isNotEmpty ? 'Godot $_version' : ghTr('asset_all_versions'),
-                open: open,
-                onPressed: toggle,
-              ),
-            ),
-          ],
-        ),
+  void _retryPartial() {
+    final page = _retryPage;
+    if (page != null && _pages > 1) {
+      _navigate(page).ignore();
+    } else {
+      _runSearch().ignore();
+    }
+  }
+
+  void _clearFilters() {
+    widget.onClearQuery?.call();
+    if (_hideInstalled) setState(() => _hideInstalled = false);
+    if (_version.isNotEmpty) _setVersion('');
+  }
+
+  List<Widget> _quickFilters(GhTheme theme) {
+    final prefs = ref.watch(assetPrefsProvider).data;
+    final savedCount = prefs.favorites.where((a) => a.source == 'library').length;
+    return [
+      GhChoiceChip(
+        key: const ValueKey('library-filter-saved'),
+        label: ghTr('asset_saved_filter', args: {'count': savedCount}),
+        active: _savedOnly,
+        onPressed: () => setState(() => _savedOnly = !_savedOnly),
       ),
-      if (!_loading)
-        Text(
-          ghTr('asset_result_count', args: {'count': _total}),
-          style: theme.text(size: GhTextSize.x2s, color: theme.muted.withValues(alpha: 0.6)),
+      GhChoiceChip(
+        key: const ValueKey('library-filter-hide-installed'),
+        label: ghTr('templates_hide_installed'),
+        active: _hideInstalled,
+        tone: GhChoiceTone.mint,
+        onPressed: () => setState(() => _hideInstalled = !_hideInstalled),
+      ),
+      if (prefs.hidden.isNotEmpty)
+        GhButton(
+          key: const ValueKey('library-hidden-manage'),
+          onPressed: () => showGhModal<void>(context, (modal) => HiddenAssetsModal(onClose: () => Navigator.of(modal).pop())).ignore(),
+          icon: GhIcons.eyeSlash,
+          label: ghTr('asset_hidden_manage', args: {'count': prefs.hidden.length}),
+          variant: GhButtonVariant.ghost,
+          size: GhTextSize.xs,
         ),
+    ];
+  }
+
+  Widget _filters(GhTheme theme) => GhFilterBar(
+    primary: [
+      GhDropdown(
+        align: GhSide.left,
+        items: [
+          for (final key in assetLibrarySortKeys)
+            GhMenuItem(id: key.id, label: ghTr('asset_store_${key.id}'), active: _sort == key, onSelected: () => _setSort(key)),
+        ],
+        trigger: (context, open, toggle) => AssetDropButton(label: ghTr('asset_store_${_sort.id}'), open: open, onPressed: toggle),
+      ),
+      GhDropdown(
+        align: GhSide.left,
+        items: [
+          GhMenuItem(id: 'all', label: ghTr('asset_all_versions'), active: _version.isEmpty, onSelected: () => _setVersion('')),
+          for (final v in assetVersionOptions)
+            GhMenuItem(id: v, label: 'Godot $v', active: _version == v, onSelected: () => _setVersion(v)),
+        ],
+        trigger: (context, open, toggle) =>
+            AssetDropButton(label: _version.isNotEmpty ? 'Godot $_version' : ghTr('asset_all_versions'), open: open, onPressed: toggle),
+      ),
     ],
+    secondary: _quickFilters(theme),
+    trailing: _loading
+        ? null
+        : Text(
+            ghTr('asset_result_count', args: {'count': _total}),
+            style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.muted),
+          ),
   );
 
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
+    final prefs = ref.watch(assetPrefsProvider).data;
+    final hidden = prefs.hiddenIds;
+    final visible = [
+      for (final a in _assets)
+        if (!hidden.contains(a.assetId) && !(_hideInstalled && _isAlreadyInstalled(a))) a,
+    ];
     _reportStats();
     final Widget body;
-    if (_loading) {
-      body = const AssetSkeletonGrid(storeActions: false);
+    final filtered = _version.isNotEmpty || _hideInstalled || (widget.query.trim().isNotEmpty && widget.onClearQuery != null);
+    if (_savedOnly) {
+      final query = widget.query.trim().toLowerCase();
+      final saved = [
+        for (final a in prefs.favorites)
+          if (a.source == 'library' && (query.isEmpty || a.title.toLowerCase().contains(query))) a,
+      ];
+      body = saved.isEmpty
+          ? GhStatePanel.empty(icon: GhIcons.star, title: ghTr('asset_saved_empty_title'), message: ghTr('asset_saved_empty_desc'))
+          : GhCardGrid(children: [for (final a in saved) _card(a, prefs)]);
+    } else if (_loading) {
+      body = GhCardGrid.fill(rows: 2, builder: (context, _) => const GhCardSkeleton(mediaHeight: 40, showcase: true));
     } else if (_error != null) {
-      body = AssetStateBox(
-        danger: true,
-        icon: Container(
-          width: theme.space(12),
-          height: theme.space(12),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: theme.danger.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(theme.radiusTile),
-            border: Border.all(color: theme.danger.withValues(alpha: 0.3)),
-          ),
-          child: GhIcon(GhIcons.x, size: theme.space(5), color: theme.danger),
-        ),
+      body = GhStatePanel.error(
+        title: ghTr('asset_load_error_title'),
         message: ghTr('asset_load_error'),
         onRetry: () => _runSearch().ignore(),
+        actions: [
+          GhButton(
+            onPressed: () => OpenerApi.openUrl(assetLibrarySiteUrl).ignore(),
+            label: ghTr('asset_open_page'),
+            icon: GhIcons.externalLink,
+            variant: GhButtonVariant.ghost,
+          ),
+        ],
       );
     } else if (_assets.isEmpty) {
-      body = AssetStateBox(
-        icon: GhIcon(GhIcons.store, size: theme.space(6), color: theme.muted),
-        message: ghTr('asset_no_results'),
+      body = GhStatePanel.empty(
+        icon: GhIcons.store,
+        title: ghTr('asset_no_results_title'),
+        message: filtered ? ghTr('asset_no_results_filtered') : null,
+        actions: [
+          if (filtered) GhButton(onPressed: _clearFilters, label: ghTr('clear_filters'), icon: GhIcons.x, variant: GhButtonVariant.outline),
+        ],
       );
     } else {
       final Widget? pager;
@@ -441,19 +560,16 @@ class _AssetLibraryBrowserState extends ConsumerState<AssetLibraryBrowser> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: theme.space(3),
         children: [
-          AssetGrid(
-            children: [
-              for (final asset in _assets)
-                AssetCard(
-                  key: ValueKey(asset.assetId),
-                  asset: asset,
-                  onOpenPage: asset.browseUrl != null && asset.browseUrl!.isNotEmpty
-                      ? () => OpenerApi.openUrl(asset.browseUrl!).ignore()
-                      : null,
-                  actions: SizedBox(width: double.infinity, child: _installButton(theme, asset)),
-                ),
-            ],
-          ),
+          if (_partialError)
+            GhCardNotice(
+              tone: GhTone.danger,
+              message: ghTr('asset_partial_error'),
+              action: GhButton(onPressed: _retryPartial, label: ghTr('retry'), size: GhTextSize.xs, paddingY: 1.5),
+            ),
+          if (visible.isEmpty)
+            GhCardNotice(message: ghTr('asset_page_all_hidden'))
+          else
+            GhCardGrid(children: [for (final asset in visible) _card(asset, prefs)]),
           ?pager,
         ],
       );

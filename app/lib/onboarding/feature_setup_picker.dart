@@ -172,8 +172,8 @@ class _FeatureSetupPickerState extends State<FeatureSetupPicker> {
   Widget _groupLabel(GhTheme theme, String text) => Padding(
     padding: EdgeInsets.symmetric(horizontal: theme.space(1)),
     child: Text(
-      text.toUpperCase(),
-      style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: theme.muted.withValues(alpha: 0.7), letterSpacingEm: 0.025),
+      text,
+      style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: theme.muted.withValues(alpha: 0.8)),
     ),
   );
 

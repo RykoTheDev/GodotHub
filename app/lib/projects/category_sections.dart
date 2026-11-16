@@ -90,15 +90,10 @@ class CategorySectionHeader extends StatelessWidget {
                   ConstrainedBox(
                     constraints: BoxConstraints(maxWidth: math.max(0, constraints.maxWidth - theme.space(24))),
                     child: Text(
-                      title.toUpperCase(),
+                      title,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: theme.text(
-                        size: GhTextSize.xs,
-                        weight: GhWeight.semibold,
-                        color: hover ? theme.muted : theme.muted.withValues(alpha: 0.5),
-                        letterSpacingEm: 0.05,
-                      ),
+                      style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: hover ? theme.ink : theme.muted),
                     ),
                   ),
                   Expanded(
@@ -117,7 +112,13 @@ class CategorySectionHeader extends StatelessWidget {
                     style: theme
                         .text(size: GhTextSize.x3s, weight: GhWeight.medium, color: theme.muted.withValues(alpha: 0.5))
                         .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
-                    child: Row(mainAxisSize: MainAxisSize.min, children: [const ExcludeSemantics(child: Text('· ')), GhAnimatedNumber(count)]),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const ExcludeSemantics(child: Text('· ')),
+                        GhAnimatedNumber(count),
+                      ],
+                    ),
                   ),
                 ],
               ),

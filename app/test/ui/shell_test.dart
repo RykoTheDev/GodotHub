@@ -421,7 +421,7 @@ void main() {
       );
       expect(find.text(t.common.workspace_name_required_error), findsOneWidget);
       expect(find.text(t.common.workspace_name_placeholder), findsNWidgets(2));
-      expect(find.text(t.common.section_workspaces.toUpperCase()), findsOneWidget);
+      expect(find.text(t.common.section_workspaces), findsOneWidget);
       await tester.enterText(find.byType(TextField), 'work');
       await tester.pump();
       expect(draft.name, 'work');
@@ -484,7 +484,7 @@ void main() {
       expect(find.text('Accent'), findsOneWidget);
       await tester.tap(find.text('#457ff2'));
       await tester.pumpAndSettle();
-      expect(find.text(t.common.color_presets.toUpperCase()), findsOneWidget);
+      expect(find.text(t.common.color_presets), findsOneWidget);
       await tester.tap(find.bySemanticsLabel('#eb459e'));
       await tester.pumpAndSettle();
       expect(value, '#eb459e');

@@ -409,13 +409,8 @@ class _ReleaseNotesDraftModalState extends State<ReleaseNotesDraftModal> {
                       Padding(
                         padding: EdgeInsets.only(bottom: theme.space(0.5)),
                         child: Text(
-                          ghTr('skipped').toUpperCase(),
-                          style: theme.text(
-                            size: GhTextSize.x2s,
-                            weight: GhWeight.semibold,
-                            color: theme.muted.withValues(alpha: 0.6),
-                            letterSpacingEm: 0.05,
-                          ),
+                          ghTr('skipped'),
+                          style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.muted.withValues(alpha: 0.7)),
                         ),
                       ),
                       for (var i = 0; i < draft.skipped.length; i++)

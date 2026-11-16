@@ -20,9 +20,11 @@ import '../state/settings.dart';
 import '../state/shell_signals.dart';
 import '../ui/shell/smooth_scroll.dart';
 import '../ui/controls/search_bar.dart';
+import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
+import '../ui/reusables/state_panel.dart';
 import '../ui/reusables/view_header.dart';
 import '../ui/shell/overlay_scroll_area.dart';
 import '../ui/shell/view_insets.dart';
@@ -55,6 +57,10 @@ const settingsCategories = <(String, FaIconData)>[
 ];
 
 const _debugCategory = ('debug', GhIcons.bug);
+
+/// Categories that work without loaded settings (Data can restore a backup),
+/// so a settings load failure does not hide them.
+const _settingsIndependent = {'data', 'credits', 'debug'};
 
 List<(String, FaIconData)> settingsRail({required bool debug}) => debug ? [...settingsCategories, _debugCategory] : settingsCategories;
 
@@ -171,7 +177,9 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
-    final settings = ref.watch(settingsProvider).value ?? defaultSettings;
+    final settingsState = ref.watch(settingsProvider);
+    final settings = settingsState.value ?? defaultSettings;
+    final loadError = settingsState.hasValue ? null : settingsState.error;
     final search = ref.watch(sectionSearchProvider);
     final appVersion = ref.watch(appVersionProvider).value;
     final debug = debugUnlocked.value;
@@ -286,7 +294,14 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                               scrollToTopOn: cat,
                               child: Padding(
                                 padding: EdgeInsetsDirectional.fromSTEB(theme.space(5), theme.space(3), theme.space(5), theme.space(4)),
-                                child: search.noResults
+                                child: loadError != null && !_settingsIndependent.contains(cat)
+                                    ? GhStatePanel.error(
+                                        key: const ValueKey('settings-load-error'),
+                                        title: _ts('settings_load_failed'),
+                                        message: '$loadError',
+                                        onRetry: () => ref.invalidate(settingsProvider),
+                                      )
+                                    : search.noResults
                                     ? _NoResults(onClear: _search.clear)
                                     : KeyedSubtree(
                                         key: ValueKey('settings-content:$cat'),
@@ -474,43 +489,10 @@ class _NoResults extends StatelessWidget {
   final VoidCallback onClear;
 
   @override
-  Widget build(BuildContext context) {
-    final theme = GhTheme.of(context);
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: theme.space(16)),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        spacing: theme.space(3),
-        children: [
-          Container(
-            width: theme.space(12),
-            height: theme.space(12),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: theme.overlay,
-              borderRadius: BorderRadius.circular(theme.radiusTile),
-              border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-            ),
-            child: GhIcon(GhIcons.search, size: theme.space(5), color: theme.muted.withValues(alpha: 0.5)),
-          ),
-          Text(
-            _ts('no_settings_match'),
-            textAlign: TextAlign.center,
-            style: theme.text(size: GhTextSize.sm, color: theme.muted),
-          ),
-          GhPressable(
-            onPressed: onClear,
-            builder: (context, states) => Text(
-              _ts('clear'),
-              style: theme.text(
-                size: GhTextSize.xs,
-                weight: GhWeight.medium,
-                color: states.highlighted ? theme.accentBright : theme.accent,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => GhStatePanel.empty(
+    key: const ValueKey('settings-no-results'),
+    icon: GhIcons.search,
+    title: _ts('no_settings_match'),
+    actions: [GhButton(onPressed: onClear, label: ghTr('clear_search'), variant: GhButtonVariant.outline)],
+  );
 }

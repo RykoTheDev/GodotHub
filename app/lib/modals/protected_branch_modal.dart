@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
 import '../design/design.dart';
-import '../ui/controls/text_input.dart';
 import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/feedback/confirm_dialog.dart';
 import '../ui/feedback/modal_shell.dart';
+import '../ui/reusables/labelled_field.dart';
 import '../ui/reusables/modal_kit.dart';
 
 final _invalidRefChars = RegExp(r'[\s~^:?*\[\\\x00-\x1f\x7f]');
@@ -138,42 +138,16 @@ class _ProtectedBranchModalState extends State<ProtectedBranchModal> {
               ghTr('git:protected_branch_desc', args: {'branch': widget.branch}),
               style: theme.text(size: GhTextSize.sm, color: theme.muted, lineHeight: 1.625),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: theme.space(1.5),
-              children: [
-                GhFieldLabel(ghTr('git:protected_branch_new_label')),
-                GhTextInput(
-                  controller: _branch,
-                  enabled: !_busy,
-                  mono: true,
-                  textDirection: TextDirection.ltr,
-                  semanticLabel: ghTr('git:protected_branch_new_label'),
-                  onSubmitted: (_) => _submit(),
-                  background: theme.base,
-                  borderColor: nameError != null ? theme.danger.withValues(alpha: 0.7) : theme.outline.withValues(alpha: 0.5),
-                  focusBorderColor: nameError != null ? theme.danger : theme.accentDim,
-                  borderRadius: BorderRadius.circular(theme.radiusItem),
-                  padding: EdgeInsets.symmetric(horizontal: theme.space(3.5), vertical: theme.space(2.5)),
-                ),
-                if (nameError != null)
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: theme.space(1.5),
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(top: theme.space(0.25)),
-                        child: GhIcon(GhIcons.alertTriangle, size: theme.space(3), color: theme.danger),
-                      ),
-                      Expanded(
-                        child: Text(
-                          nameError,
-                          style: theme.text(size: GhTextSize.x2s, color: theme.danger, lineHeight: 1.5),
-                        ),
-                      ),
-                    ],
-                  ),
-              ],
+            GhLabelledField(
+              label: ghTr('git:protected_branch_new_label'),
+              error: nameError,
+              child: GhFieldInput(
+                controller: _branch,
+                enabled: !_busy,
+                mono: true,
+                textDirection: TextDirection.ltr,
+                onSubmitted: (_) => _submit(),
+              ),
             ),
           ],
         ),

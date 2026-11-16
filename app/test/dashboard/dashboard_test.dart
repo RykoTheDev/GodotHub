@@ -42,6 +42,7 @@ Project project(String id, String name, {bool pinned = false, String? lastOpened
   totalTimeSeconds: BigInt.from(seconds),
   timeTodaySeconds: BigInt.zero,
   timeWeekSeconds: BigInt.zero,
+  missing: false,
 );
 
 TimeInsights insights({int thisMonth = 7200, int lastMonth = 3600, int? weekday = 2}) => TimeInsights(
@@ -162,18 +163,18 @@ void main() {
       await pumpDashboard(tester, backend);
 
       expect(find.textContaining('ryko', findRichText: true), findsOneWidget);
-      expect(find.text(td('dashboard_stat_projects').toUpperCase()), findsOneWidget);
+      expect(find.descendant(of: find.byType(DashKpiCard), matching: find.text(td('dashboard_stat_projects'))), findsWidgets);
       expect(find.text('3h 0m'), findsOneWidget);
       expect(find.text(td('dashboard_insights_days', count: 4)), findsOneWidget);
       expect(find.text(td('dashboard_insights_delta_up', args: {'pct': 100})), findsOneWidget);
-      expect(find.text(td('dashboard_weekly').toUpperCase()), findsOneWidget);
+      expect(find.text(td('dashboard_weekly')), findsOneWidget);
       expect(find.text('Wednesday'), findsOneWidget);
       expect(backend.ranges, ['weekly']);
       expect(find.text('Alpha'), findsNWidgets(2));
       expect(find.text('Beta'), findsNWidgets(3));
       expect(find.text(td('dashboard_running_empty')), findsOneWidget);
       expect(find.text('4.3-stable'), findsOneWidget);
-      expect(find.text(td('dashboard_todos').toUpperCase()), findsNothing);
+      expect(find.text(td('dashboard_todos')), findsNothing);
       await unmount(tester);
     });
 
@@ -184,7 +185,7 @@ void main() {
       await tester.tap(find.text(td('dashboard_new_project')));
       await tester.tap(find.text(td('dashboard_import_project')));
       await tester.tap(find.text(td('dashboard_scan_projects')));
-      await tester.tap(find.text(td('dashboard_stat_projects').toUpperCase()));
+      await tester.tap(find.descendant(of: find.byType(DashKpiCard), matching: find.text(td('dashboard_stat_projects'))).first);
       await tester.tap(find.text('C:/games/a'));
       await tester.pump();
       expect(signals.map((s) => (s.name, s.detail)), [
@@ -209,7 +210,7 @@ void main() {
       await tester.tap(find.text(td('dashboard_range_daily')));
       await base.settle(tester);
       expect(backend.ranges, ['weekly', 'daily']);
-      expect(find.text(td('dashboard_daily').toUpperCase()), findsOneWidget);
+      expect(find.text(td('dashboard_daily')), findsOneWidget);
       expect(find.text(td('dashboard_daily_empty')), findsOneWidget);
       expect(find.byType(DashActivityPanel), findsOneWidget);
       await unmount(tester);
@@ -294,8 +295,8 @@ void main() {
     testWidgets('narrow windows stack the panels in one column', (tester) async {
       final backend = DashBackend();
       await pumpDashboard(tester, backend, size: const Size(900, 1400));
-      final running = tester.getTopLeft(find.text(td('dashboard_running').toUpperCase()));
-      final pinned = tester.getTopLeft(find.text(td('dashboard_pinned').toUpperCase()));
+      final running = tester.getTopLeft(find.text(td('dashboard_running')));
+      final pinned = tester.getTopLeft(find.text(td('dashboard_pinned')));
       expect(pinned.dy, greaterThan(running.dy));
       expect((pinned.dx - running.dx).abs(), lessThan(1));
       await unmount(tester);

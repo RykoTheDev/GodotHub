@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../api/asset_library.dart';
 import '../api/templates.dart';
 import '../assets/asset_library_browser.dart';
 import '../design/design.dart';
@@ -16,6 +17,7 @@ import '../motion/reveal.dart';
 import '../src/rust/api/types.dart';
 import '../src/ui_prefs.dart';
 import '../state/app_signals.dart';
+import '../state/asset_prefs.dart';
 import '../state/categories.dart';
 import '../state/godot_versions.dart';
 import '../state/keyboard_shortcuts.dart' show focusSearchSignal;
@@ -24,16 +26,18 @@ import '../state/settings.dart';
 import '../state/shell_signals.dart';
 import '../state/task_tray.dart';
 import '../state/workspaces.dart';
-import '../ui/controls/dashed_box.dart';
 import '../ui/controls/search_bar.dart';
+import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
-import '../ui/core/tooltip.dart';
 import '../ui/feedback/confirm_dialog.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
 import '../ui/overlays/dropdown.dart';
 import '../ui/overlays/menu.dart';
+import '../ui/reusables/card_grid.dart';
+import '../ui/reusables/card_kit.dart';
+import '../ui/reusables/state_panel.dart';
 import '../ui/reusables/tool_buttons.dart';
 import '../ui/reusables/view_header.dart';
 import '../ui/shell/overlay_scroll_area.dart';
@@ -107,6 +111,7 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
   _TemplatesTab _tab = _TemplatesTab.local;
   List<ProjectTemplate> _templates = const [];
   bool _loaded = false;
+  String? _loadError;
   ({bool loading, int total}) _assetStats = (loading: true, total: 0);
   late TemplateSort _sort = TemplateSort.parse(_prefs.getItem(templateSortKey));
 
@@ -134,11 +139,42 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
     super.dispose();
   }
 
+  final Set<String> _updating = {};
+
+  Future<void> _updateTemplate(ProjectTemplate t, TemplateUpdate update) async {
+    final confirmed = await showGhConfirmDialog(
+      context,
+      title: ghTr('template_update_confirm_title', args: {'name': t.name, 'version': update.latestVersion}),
+      description: ghTr('template_update_confirm_desc', args: {'name': t.name}),
+      confirmLabel: ghTr('template_update_btn'),
+      cancelLabel: ghTr('cancel'),
+    );
+    if (!confirmed || !mounted) return;
+    setState(() => _updating.add(t.id));
+    try {
+      await AssetLibraryApi.updateTemplate(t.id);
+      ghToasts.pushToast(GhToastType.success, ghTr('template_updated_toast', args: {'name': t.name, 'version': update.latestVersion}));
+      await _load();
+    } catch (e) {
+      ghToasts.pushToast(GhToastType.error, ghTr('template_update_failed', args: {'name': t.name, 'error': '$e'}));
+    } finally {
+      if (mounted) setState(() => _updating.remove(t.id));
+    }
+  }
+
   Future<void> _load() async {
     try {
       final list = await TemplatesApi.list();
-      if (mounted) setState(() => _templates = list);
-    } catch (_) {}
+      if (mounted) {
+        setState(() {
+          _templates = list;
+          _loadError = null;
+        });
+        if (list.any((t) => t.sourceAssetId != null)) ref.read(templateUpdatesProvider.notifier).refresh().ignore();
+      }
+    } catch (e) {
+      if (mounted) setState(() => _loadError = '$e');
+    }
     if (mounted) setState(() => _loaded = true);
   }
 
@@ -261,9 +297,13 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
               spacing: theme.space(1.5),
               children: [
                 GhIcon(icon, size: theme.space(3.5), color: color),
-                Text(
-                  label,
-                  style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: color),
+                Flexible(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: color),
+                  ),
                 ),
               ],
             ),
@@ -284,122 +324,44 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
         mainAxisSize: MainAxisSize.min,
         spacing: theme.space(1),
         children: [
-          option(_TemplatesTab.local, ghTr('templates_tab_local'), GhIcons.copy),
-          option(_TemplatesTab.asset, ghTr('templates_tab_asset'), GhIcons.store),
+          Flexible(child: option(_TemplatesTab.local, ghTr('templates_tab_local'), GhIcons.copy)),
+          Flexible(child: option(_TemplatesTab.asset, ghTr('templates_tab_asset'), GhIcons.store)),
         ],
       ),
     );
   }
 
-  Widget _dashed(GhTheme theme, {required double py, double px = 0, required List<Widget> children}) => GhDashedBox(
-    color: theme.outline.withValues(alpha: 0.5),
-    radius: BorderRadius.circular(theme.radiusItem),
-    child: Padding(
-      padding: EdgeInsets.symmetric(vertical: theme.space(py), horizontal: theme.space(px)),
-      child: SizedBox(
-        width: double.infinity,
-        child: Column(spacing: theme.space(3), children: children),
-      ),
-    ),
-  );
-
-  Widget _grid(BuildContext context, List<Widget> children) {
-    final theme = GhTheme.of(context);
-    final width = MediaQuery.sizeOf(context).width;
-    final columns = width >= 1024 ? 3 : (width >= 640 ? 2 : 1);
-    final rows = <Widget>[];
-    for (var start = 0; start < children.length; start += columns) {
-      rows.add(
-        IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: theme.space(3),
-            children: [
-              for (var i = start; i < start + columns; i++) Expanded(child: i < children.length ? children[i] : const SizedBox.shrink()),
-            ],
-          ),
-        ),
-      );
-    }
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: theme.space(3), children: rows);
-  }
-
   Widget _local(BuildContext context, GhTheme theme) {
+    final updates = {for (final u in ref.watch(templateUpdatesProvider).data) u.templateId: u};
     final query = _search.text;
     if (!_loaded) {
-      return _grid(context, [
-        for (var i = 0; i < 3; i++)
-          Container(
-            key: ValueKey('template-skeleton-$i'),
-            height: theme.space(52),
-            decoration: BoxDecoration(
-              color: theme.overlay,
-              borderRadius: BorderRadius.circular(theme.radiusItem),
-              border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-            ),
-          ),
-      ]);
+      return GhCardGrid.fill(rows: 1, builder: (context, i) => GhCardSkeleton(key: ValueKey('template-skeleton-$i'), mediaHeight: null));
+    }
+    final error = _loadError;
+    if (_templates.isEmpty && error != null) {
+      return GhStatePanel.error(title: ghTr('templates_load_error'), message: error, onRetry: () => _load().ignore());
     }
     if (_templates.isEmpty) {
-      return _dashed(
-        theme,
-        py: 20,
-        px: 6,
-        children: [
-          Container(
-            width: theme.space(12),
-            height: theme.space(12),
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: theme.overlay,
-              borderRadius: BorderRadius.circular(theme.radiusTile),
-              border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-            ),
-            child: GhIcon(GhIcons.copy, size: theme.space(5), color: theme.muted),
-          ),
-          ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: theme.rem(24)),
-            child: Text.rich(
-              TextSpan(
-                children: ghTrans(
-                  ghTr('no_templates_yet'),
-                  tags: {
-                    '1': (text, children) => TextSpan(
-                      children: children,
-                      style: const TextStyle(fontWeight: FontWeight.w700),
-                    ),
-                  },
-                ),
-              ),
-              textAlign: TextAlign.center,
-              style: theme.text(size: GhTextSize.sm, color: theme.muted, lineHeight: 1.625),
-            ),
+      return GhStatePanel.empty(
+        icon: GhIcons.copy,
+        title: ghTr('templates_empty_title'),
+        message: ghTr('no_templates_yet').replaceAll(RegExp(r'</?\d+>'), ''),
+        actions: [
+          GhButton(
+            onPressed: () => setState(() => _tab = _TemplatesTab.asset),
+            label: ghTr('templates_browse_library'),
+            icon: GhIcons.store,
+            variant: GhButtonVariant.primary,
           ),
         ],
       );
     }
     final list = filterAndSortTemplates(_templates, query, _sort);
     if (list.isEmpty) {
-      return _dashed(
-        theme,
-        py: 16,
-        children: [
-          GhIcon(GhIcons.search, size: theme.space(5), color: theme.muted),
-          Text.rich(
-            TextSpan(
-              text: '${ghTr('no_templates_match')} ',
-              children: [
-                TextSpan(
-                  text: '"$query"',
-                  style: TextStyle(color: theme.ink, fontWeight: FontWeight.w700),
-                ),
-                const TextSpan(text: '.'),
-              ],
-            ),
-            textAlign: TextAlign.center,
-            style: theme.text(size: GhTextSize.sm, color: theme.muted),
-          ),
-        ],
+      return GhStatePanel.empty(
+        icon: GhIcons.search,
+        title: '${ghTr('no_templates_match')} "$query"',
+        actions: [GhButton(onPressed: _search.clear, label: ghTr('clear_search'), icon: GhIcons.x, variant: GhButtonVariant.outline)],
       );
     }
     final radius = BorderRadius.circular(theme.radiusItem);
@@ -443,16 +405,27 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
             ),
           ),
         ),
-        _grid(context, [
-          for (final t in list)
-            TemplateCard(
-              key: ValueKey(t.id),
-              template: t,
-              onPreview: () => _preview(t),
-              onDelete: () => _confirmDelete(t).ignore(),
-              onCreate: () => _create(t),
-            ),
-        ]),
+        if (error != null)
+          GhCardNotice(
+            tone: GhTone.danger,
+            message: ghTr('templates_load_error'),
+            action: GhButton(onPressed: () => _load().ignore(), label: ghTr('retry'), size: GhTextSize.xs, paddingY: 1.5),
+          ),
+        GhCardGrid(
+          children: [
+            for (final t in list)
+              TemplateCard(
+                key: ValueKey(t.id),
+                template: t,
+                onPreview: () => _preview(t),
+                onDelete: () => _confirmDelete(t).ignore(),
+                onCreate: () => _create(t),
+                update: updates[t.id],
+                updating: _updating.contains(t.id),
+                onUpdate: updates[t.id] == null ? null : () => _updateTemplate(t, updates[t.id]!).ignore(),
+              ),
+          ],
+        ),
       ],
     );
   }
@@ -488,7 +461,7 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
                 child: GhAnimatedNumber(count),
               ),
               Text(
-                ghTr(local ? 'template_your_templates' : 'asset_store_count', count: count).toUpperCase(),
+                ghTr(local ? 'template_your_templates' : 'asset_store_count', count: count),
                 style: theme.text(size: GhTextSize.lg, weight: GhWeight.medium, color: theme.muted),
               ),
             ],
@@ -504,20 +477,31 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
                 },
               ),
             ],
-            child: Row(
-              spacing: theme.space(2),
-              children: [
-                Expanded(
-                  child: GhSearchBar(
-                    value: _search.text,
-                    controller: _search,
-                    focusNode: _searchNode,
-                    placeholder: ghTr(local ? 'template_search_placeholder' : 'asset_search_placeholder'),
-                    onChanged: (_) {},
-                  ),
-                ),
-                _tabSwitcher(theme),
-              ],
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final search = GhSearchBar(
+                  value: _search.text,
+                  controller: _search,
+                  focusNode: _searchNode,
+                  placeholder: ghTr(local ? 'template_search_placeholder' : 'asset_search_placeholder'),
+                  onChanged: (_) {},
+                );
+                // Narrow windows stack the tab switcher under the search box.
+                if (constraints.maxWidth < theme.space(110)) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: theme.space(2),
+                    children: [search, _tabSwitcher(theme)],
+                  );
+                }
+                return Row(
+                  spacing: theme.space(2),
+                  children: [
+                    Expanded(child: search),
+                    _tabSwitcher(theme),
+                  ],
+                );
+              },
             ),
           ),
         ),
@@ -537,10 +521,15 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
                     ? _local(context, theme)
                     : AssetLibraryBrowser(
                         query: _search.text,
+                        onClearQuery: _search.clear,
                         onStatsChange: (stats) {
                           if (mounted && stats != _assetStats) setState(() => _assetStats = stats);
                         },
                         installedTemplateNames: [for (final t in _templates) t.name],
+                        installedTemplateIds: {
+                          for (final t in _templates)
+                            if (t.sourceAssetId != null) t.sourceAssetId!,
+                        },
                       ),
               ),
             ),
@@ -551,148 +540,99 @@ class _TemplatesViewState extends ConsumerState<TemplatesView> {
   }
 }
 
-class TemplateCard extends StatefulWidget {
-  const TemplateCard({super.key, required this.template, required this.onPreview, required this.onDelete, required this.onCreate});
+class TemplateCard extends StatelessWidget {
+  const TemplateCard({
+    super.key,
+    required this.template,
+    required this.onPreview,
+    required this.onDelete,
+    required this.onCreate,
+    this.update,
+    this.updating = false,
+    this.onUpdate,
+  });
 
   final ProjectTemplate template;
+
+  /// A newer upload of the Asset Library asset this template came from.
+  final TemplateUpdate? update;
+  final bool updating;
+  final VoidCallback? onUpdate;
   final VoidCallback onPreview;
   final VoidCallback onDelete;
   final VoidCallback onCreate;
 
   @override
-  State<TemplateCard> createState() => _TemplateCardState();
-}
-
-class _TemplateCardState extends State<TemplateCard> {
-  bool _hover = false;
-
-  @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
-    final t = widget.template;
-    final radius = BorderRadius.circular(theme.radiusItem);
+    final t = template;
     final created = DateTime.tryParse(t.createdAt);
-    final meta = theme.text(size: GhTextSize.x3s, mono: true, color: theme.muted.withValues(alpha: 0.5));
     final deleteLabel = ghTr('delete_template', args: {'name': t.name});
     return GhReveal(
       id: 'template:${t.id}',
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        onEnter: (_) => setState(() => _hover = true),
-        onExit: (_) => setState(() => _hover = false),
-        child: GestureDetector(
-          onTap: widget.onPreview,
-          behavior: HitTestBehavior.opaque,
-          child: GhAnimatedBox(
-            color: theme.overlay,
-            borderRadius: radius,
-            border: Border.all(color: _hover ? theme.accentDim : theme.outline.withValues(alpha: 0.5)),
-            padding: EdgeInsets.all(theme.space(4)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: theme.space(3),
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      width: theme.space(10),
-                      height: theme.space(10),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: theme.raised,
-                        borderRadius: BorderRadius.circular(theme.radiusTile),
-                        border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-                      ),
-                      child: GhIcon(GhIcons.copy, size: theme.space(4), color: theme.muted),
-                    ),
-                    GhTooltip(
-                      message: deleteLabel,
-                      side: GhSide.left,
-                      child: GhPressable(
-                        onPressed: widget.onDelete,
-                        semanticLabel: deleteLabel,
-                        borderRadius: BorderRadius.circular(theme.radiusBtn),
-                        builder: (context, del) {
-                          final visible = _hover || del.focused;
-                          return GhAnimatedBox(
-                            color: del.active ? theme.danger.withValues(alpha: 0.1) : theme.danger.withValues(alpha: 0),
-                            borderRadius: BorderRadius.circular(theme.radiusBtn),
-                            padding: EdgeInsets.all(theme.space(1.5)),
-                            child: AnimatedOpacity(
-                              opacity: visible ? 1 : 0,
-                              duration: const Duration(milliseconds: 150),
-                              child: GhIcon(
-                                GhIcons.trash,
-                                size: theme.space(3.5),
-                                color: del.active ? theme.danger : theme.muted.withValues(alpha: 0.4),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
+      child: GhCard(
+        onPressed: onPreview,
+        builder: (context, highlighted) => Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: GhCardBody(
+                leading: Container(
+                  width: theme.space(9),
+                  height: theme.space(9),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: theme.raised,
+                    borderRadius: BorderRadius.circular(theme.radiusTile),
+                    border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
+                  ),
+                  child: GhIcon(GhIcons.copy, size: theme.space(4), color: theme.muted),
                 ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        t.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.ink),
-                      ),
-                      if (t.description.isNotEmpty)
-                        Padding(
-                          padding: EdgeInsets.only(top: theme.space(1)),
-                          child: Text(
-                            t.description,
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                            style: theme.text(size: GhTextSize.xs, color: theme.muted, lineHeight: 1.625),
-                          ),
-                        ),
-                    ],
+                title: t.name,
+                meta: [if (t.godotVersion.isNotEmpty) '${ghTr('godot')} ${t.godotVersion}', if (created != null) formatLocaleDate(created)],
+                description: t.description,
+                badges: [
+                  if (update != null)
+                    GhBadge(
+                      label: ghTr('template_update_available', args: {'version': update!.latestVersion}),
+                      icon: GhIcons.arrowUp,
+                      tone: GhTone.amber,
+                      tooltip: ghTr('template_update_tip', args: {'installed': update!.installedVersion, 'latest': update!.latestVersion}),
+                    ),
+                ],
+                trailing: AnimatedOpacity(
+                  opacity: highlighted ? 1 : 0,
+                  duration: GhDurations.color,
+                  alwaysIncludeSemantics: true,
+                  child: GhIconButton(
+                    icon: GhIcons.trash,
+                    onPressed: onDelete,
+                    tooltip: deleteLabel,
+                    semanticLabel: deleteLabel,
+                    iconSpace: 3.5,
                   ),
                 ),
-                Row(
-                  spacing: theme.space(1.5),
-                  children: [
-                    if (t.godotVersion.isNotEmpty) Text('${ghTr('godot')} ${t.godotVersion}', style: meta),
-                    if (t.createdAt.isNotEmpty) ...[
-                      Text('·', style: meta),
-                      Text(created == null ? '' : formatLocaleDate(created), style: meta),
-                    ],
-                  ],
-                ),
-                GhPressable(
-                  onPressed: widget.onCreate,
-                  borderRadius: radius,
-                  builder: (context, create) => GhAnimatedBox(
-                    color: theme.accent.withValues(alpha: create.active ? 0.2 : 0.1),
-                    borderRadius: radius,
-                    border: Border.all(color: theme.accentDim.withValues(alpha: 0.3)),
-                    padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(2)),
-                    alignment: Alignment.center,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: theme.space(1.5),
-                      children: [
-                        GhIcon(GhIcons.folderPlus, size: theme.space(3.5), color: theme.accentBright),
-                        Text(
-                          ghTr('create_project_btn'),
-                          style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.accentBright),
-                        ),
-                      ],
-                    ),
+              ),
+            ),
+            GhCardFooter(
+              trailing: [
+                if (onUpdate != null)
+                  GhButton(
+                    key: ValueKey('template-update-${t.id}'),
+                    onPressed: updating ? null : onUpdate,
+                    label: ghTr('template_update_btn'),
+                    icon: GhIcons.arrowUp,
+                    variant: GhButtonVariant.outline,
                   ),
+                GhButton(
+                  onPressed: onCreate,
+                  label: ghTr('create_project_btn'),
+                  icon: GhIcons.folderPlus,
+                  variant: GhButtonVariant.primary,
                 ),
               ],
             ),
-          ),
+          ],
         ),
       ),
     );

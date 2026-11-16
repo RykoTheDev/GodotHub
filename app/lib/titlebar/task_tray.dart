@@ -95,8 +95,8 @@ class _TaskTrayState extends ConsumerState<TaskTray> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          context.tr.common.task_tray_title.toUpperCase(),
-                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, letterSpacing: 0.3, color: tokens.muted),
+                          context.tr.common.task_tray_title,
+                          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: tokens.muted),
                         ),
                         const SizedBox(height: 2),
                         Text(_subtitle(context, tasks, count), style: TextStyle(fontSize: 10, color: tokens.muted.withValues(alpha: 0.5))),

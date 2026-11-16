@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -30,14 +32,8 @@ late List<String> calls;
 
 String ts(String key, {num? count, Map<String, Object?> args = const {}}) => ghTr('settings:$key', count: count, args: args);
 
-CliToolStatus cliStatus({required bool installed, String shim = 'C:/bin/godothub.cmd'}) => CliToolStatus(
-  installed: installed,
-  onPath: installed,
-  binDir: 'C:/bin',
-  shimPath: shim,
-  platform: 'windows',
-  needsNewTerminal: false,
-);
+CliToolStatus cliStatus({required bool installed, String shim = 'C:/bin/godothub.cmd'}) =>
+    CliToolStatus(installed: installed, onPath: installed, binDir: 'C:/bin', shimPath: shim, platform: 'windows', needsNewTerminal: false);
 
 Future<ProviderContainer> pump(WidgetTester tester, Widget body, {AppSettings? settings}) async {
   tester.view.physicalSize = const Size(1200, 2600);
@@ -109,10 +105,7 @@ void main() {
     test('uses the channel shim from the core status', () {
       expect(cliShimName(cliStatus(installed: true)), 'godothub');
       expect(cliShimName(cliStatus(installed: true, shim: '/usr/local/bin/godothub-beta')), 'godothub-beta');
-      expect(
-        cliChannelMessage('run: godothub', cliStatus(installed: true, shim: r'C:\bin\godothub-beta.cmd')),
-        'run: godothub-beta',
-      );
+      expect(cliChannelMessage('run: godothub', cliStatus(installed: true, shim: r'C:\bin\godothub-beta.cmd')), 'run: godothub-beta');
       expect(cliChannelMessage('run: godothub', cliStatus(installed: true)), 'run: godothub');
     });
   });
@@ -185,14 +178,20 @@ void main() {
       await pump(
         tester,
         StorageSettings(pickFolder: () async => 'D:/games'),
-        settings: copySettings(baseSettings, setupComplete: true, projectScanDirs: ['C:/projects'], versionScanDirs: ['C:/godot'], scanDepth: 3),
+        settings: copySettings(
+          baseSettings,
+          setupComplete: true,
+          projectScanDirs: ['C:/projects'],
+          versionScanDirs: ['C:/godot'],
+          scanDepth: 3,
+        ),
       );
       expect(find.text(ts('storage_title')), findsOneWidget);
       expect(find.text('C:/projects'), findsOneWidget);
       expect(find.text(ts('folders_deep', count: 3)), findsOneWidget);
       expect(find.text(ghTr('default_downloads_go_to', args: {'path': 'AppData/Ryko.GodotHub.Beta/godot-versions/'})), findsOneWidget);
 
-      await tester.tap(find.text(ghTr('add_folder')).first);
+      await tester.tap(find.byKey(const ValueKey('path-browse')).first);
       await base.settle(tester, 3);
       expect(saved.last.projectScanDirs, ['C:/projects', 'D:/games']);
 
@@ -210,9 +209,46 @@ void main() {
     testWidgets('the template folder is a single directory', (tester) async {
       await pump(tester, StorageSettings(pickFolder: () async => 'E:/templates'));
       expect(find.text(ts('no_folder_set')), findsOneWidget);
-      await tester.tap(find.text(ghTr('add_folder')).last);
+      await tester.tap(find.byKey(const ValueKey('path-browse')).last);
       await base.settle(tester, 3);
       expect(saved.last.templateScanDir, 'E:/templates');
+    });
+  });
+
+  group('storage typed paths', () {
+    testWidgets('folders can be typed or pasted, and bad paths are explained', (tester) async {
+      final dir = (await tester.runAsync(() => Directory.systemTemp.createTemp('gh-storage-')))!;
+      addTearDown(() => dir.deleteSync(recursive: true));
+      await pump(
+        tester,
+        StorageSettings(pickFolder: () async => null),
+        settings: copySettings(baseSettings, setupComplete: true, projectScanDirs: ['C:/projects']),
+      );
+      final addProject = find.byType(TextField).first;
+
+      await tester.enterText(addProject, 'relative/folder');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await base.settle(tester, 3);
+      expect(find.text(ghTr('path_error_relative')), findsOneWidget);
+      expect(saved, isEmpty);
+
+      await tester.enterText(addProject, '"${dir.path}"');
+      await base.settle(tester, 2);
+      expect(find.text(ghTr('path_error_relative')), findsNothing);
+      expect(find.byKey(const ValueKey('path-apply')), findsOneWidget, reason: 'an explicit add action appears while typing');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await base.settle(tester, 3);
+      expect(saved.last.projectScanDirs, ['C:/projects', dir.path]);
+      expect(tester.widget<TextField>(addProject).controller!.text, isEmpty);
+
+      // The single template folder is edited in place and saved with Apply.
+      final template = find.byType(TextField).last;
+      await tester.enterText(template, dir.path);
+      await base.settle(tester, 2);
+      await tester.ensureVisible(find.byKey(const ValueKey('path-apply')));
+      await tester.tap(find.byKey(const ValueKey('path-apply')));
+      await base.settle(tester, 3);
+      expect(saved.last.templateScanDir, dir.path);
     });
   });
 

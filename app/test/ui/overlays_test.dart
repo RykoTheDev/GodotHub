@@ -578,7 +578,7 @@ void main() {
           ),
         ),
       );
-      expect(find.text('COMMANDS'), findsOneWidget);
+      expect(find.text('Commands'), findsOneWidget);
       expect(find.text('Enter to insert'), findsOneWidget);
       final gesture = await tester.createGesture(kind: PointerDeviceKind.mouse);
       await gesture.addPointer(location: Offset.zero);

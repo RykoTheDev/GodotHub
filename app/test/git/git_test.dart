@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -125,7 +127,7 @@ void main() {
       )..install(rust);
       await base.pumpHost(tester, body: sidebar());
       await base.settle(tester);
-      expect(find.text(g('staged_changes').toUpperCase()), findsOneWidget);
+      expect(find.text(g('staged_changes')), findsOneWidget);
       expect(find.text('player.gd'), findsOneWidget);
       expect(find.text('enemy.gd'), findsOneWidget);
       expect(find.text('U'), findsOneWidget);
@@ -241,7 +243,7 @@ void main() {
       )..install(rust);
       await base.pumpHost(tester, body: sidebar());
       await base.settle(tester);
-      await tester.tap(find.text(g('changes_title').toUpperCase()).first, buttons: kSecondaryButton);
+      await tester.tap(find.text(g('changes_title')).first, buttons: kSecondaryButton);
       await base.settle(tester, 4);
       await tester.tap(find.text(g('discard_all')));
       await base.settle(tester);
@@ -257,7 +259,7 @@ void main() {
       )..install(rust);
       await base.pumpHost(tester, body: sidebar());
       await base.settle(tester);
-      expect(find.text(g('merge_in_progress').toUpperCase()), findsOneWidget);
+      expect(find.text(g('merge_in_progress')), findsOneWidget);
       await tester.tap(find.text(g('use_theirs')));
       await base.settle(tester);
       expect(repo.calls, contains('theirs:scene.tscn'));
@@ -414,6 +416,8 @@ void main() {
     });
 
     testWidgets('clone browses repos, selects one and imports it', (tester) async {
+      final games = (await tester.runAsync(() => Directory.systemTemp.createTemp('gh-clone-')))!;
+      addTearDown(() => games.deleteSync(recursive: true));
       Map<String, Object?>? cloned;
       String? importedFrom;
       var done = <String>[];
@@ -451,7 +455,7 @@ void main() {
         });
       await base.openModal(
         tester,
-        (close) => CloneRepoModal(defaultLocation: 'C:/games', onClose: close, onCloned: (id) => done = [...done, id]),
+        (close) => CloneRepoModal(defaultLocation: games.path, onClose: close, onCloned: (id) => done = [...done, id]),
         settings: copySettings(baseSettings, setupComplete: true, openAfterImport: false),
       );
       expect(find.text('@ryko'), findsOneWidget);
@@ -463,8 +467,8 @@ void main() {
       await base.settle(tester, 3);
       await tester.tap(find.text(ghTr('clone_import')));
       await base.settle(tester);
-      expect(cloned, {'url': 'https://github.com/ryko/game.git', 'dest': 'C:/games'});
-      expect(importedFrom, 'C:/games/game');
+      expect(cloned, {'url': 'https://github.com/ryko/game.git', 'dest': games.path});
+      expect(importedFrom, '${games.path}/game');
       expect(done, ['p1']);
       await tester.pump(const Duration(seconds: 4));
     });
@@ -487,6 +491,57 @@ void main() {
       expect(find.text(ghTr('clone_repo_url_invalid')), findsNothing);
       expect(find.text(ghTr('clone_repo_dest_preview', args: {'path': 'C:/games/game'})), findsOneWidget);
       expect(canClone(), isTrue);
+    });
+
+    testWidgets('clone destination accepts a typed path, flags a bad one and still browses', (tester) async {
+      final games = (await tester.runAsync(() => Directory.systemTemp.createTemp('gh-clone-dest-')))!;
+      addTearDown(() => games.deleteSync(recursive: true));
+      final picked = Directory('${games.path}${Platform.pathSeparator}picked')..createSync();
+      final cloned = <String>[];
+      rust
+        ..on('crateApiGitAuthGetGitAuthState', () async => const GitAuthState(pats: []))
+        ..on('crateApiNativePickFolder', () async => picked.path)
+        ..on('crateApiGitCloneRepo', ({required String url, required String dest}) async {
+          cloned.add(dest);
+          return '$dest/game';
+        })
+        ..on('crateApiProjectsImportProject', ({required String path, required String godotVersion, String? category}) async => base.demo);
+      await base.openModal(
+        tester,
+        (close) => CloneRepoModal(onClose: close, onCloned: (_) {}),
+        settings: copySettings(baseSettings, setupComplete: true, openAfterImport: false),
+      );
+      final location = find.descendant(of: find.byKey(const ValueKey('clone-location')), matching: find.byType(TextField));
+      expect(tester.widget<TextField>(location).readOnly, isFalse);
+      expect(find.text(ghTr('clone_repo_error_location')), findsOneWidget);
+      await tester.enterText(find.byType(TextField).first, 'git@github.com:ryko/game.git');
+
+      await tester.enterText(location, '${games.path}${Platform.pathSeparator}missing');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await base.settle(tester, 3);
+      expect(find.text(ghTr('path_error_folder_not_found')), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey('clone-submit')));
+      await base.settle(tester, 3);
+      expect(cloned, isEmpty);
+
+      await tester.enterText(location, games.path);
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await base.settle(tester, 3);
+      expect(find.text(ghTr('path_error_folder_not_found')), findsNothing);
+      expect(
+        find.text(ghTr('clone_repo_dest_preview', args: {'path': cloneDestination(games.path, 'git@github.com:ryko/game.git')})),
+        findsOneWidget,
+      );
+
+      await tester.tap(
+        find.descendant(of: find.byKey(const ValueKey('clone-location')), matching: find.byKey(const ValueKey('path-browse'))),
+      );
+      await base.settle(tester, 3);
+      expect(tester.widget<TextField>(location).controller!.text, picked.path);
+      await tester.tap(find.byKey(const ValueKey('clone-submit')));
+      await base.settle(tester);
+      expect(cloned, [picked.path]);
+      await tester.pump(const Duration(seconds: 4));
     });
 
     test('clone urls accept https, ssh and scp-style addresses only', () {

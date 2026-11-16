@@ -16,6 +16,7 @@ Project _p(String id, [String? category, bool pinned = false]) => Project(
   totalTimeSeconds: BigInt.zero,
   timeTodaySeconds: BigInt.zero,
   timeWeekSeconds: BigInt.zero,
+  missing: false,
 );
 
 Category _cat(String id, String name) =>

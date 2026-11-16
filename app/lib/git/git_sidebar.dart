@@ -1530,19 +1530,14 @@ class _GitSidebarState extends ConsumerState<GitSidebar> {
   }
 
   Widget _groupHeader(GhTheme theme, String label, int count) {
-    final style = theme.text(
-      size: GhTextSize.x4s,
-      weight: GhWeight.semibold,
-      color: theme.muted.withValues(alpha: 0.5),
-      letterSpacingEm: 0.05,
-    );
+    final style = theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: theme.muted.withValues(alpha: 0.7));
     return Padding(
       padding: EdgeInsets.fromLTRB(theme.space(2.5), theme.space(1.5), theme.space(2.5), theme.space(0.5)),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label.toUpperCase(), style: style),
-          Text('$count', style: style.copyWith(fontFamily: GhFonts.mono, letterSpacing: 0)),
+          Text(label, style: style),
+          Text('$count', style: style.copyWith(fontFamily: GhFonts.mono)),
         ],
       ),
     );

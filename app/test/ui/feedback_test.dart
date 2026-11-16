@@ -408,7 +408,7 @@ void main() {
       await tester.pumpWidget(build('b'));
       await tester.pump(const Duration(milliseconds: 500));
       expect(find.text('Beta'), findsOneWidget);
-      expect(find.text(t.common.workspace_switched_to.toUpperCase()), findsOneWidget);
+      expect(find.text(t.common.workspace_switched_to), findsOneWidget);
 
       await tester.pump(const Duration(milliseconds: 1400));
       expect(find.text('Beta'), findsNothing);

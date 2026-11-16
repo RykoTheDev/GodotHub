@@ -12,12 +12,12 @@ import '../design/design.dart';
 import '../motion/motion.dart';
 import '../state/app_version.dart';
 import '../ui/controls/spin.dart';
-import '../ui/controls/text_input.dart';
 import '../ui/controls/toggle.dart';
 import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
+import '../ui/reusables/labelled_field.dart';
 import 'download_error_modal.dart';
 import '../ui/shell/smooth_scroll.dart';
 
@@ -338,48 +338,18 @@ class _BugReportModalState extends ConsumerState<BugReportModal> {
     FocusNode? focusNode,
     String? error,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: theme.space(1.5),
-      children: [
-        Row(
-          spacing: theme.space(2),
-          children: [
-            Flexible(
-              child: Text(
-                label,
-                style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.ink),
-              ),
-            ),
-            if (optional)
-              Text(
-                ghTr('bug_report_optional'),
-                style: theme.text(size: GhTextSize.x2s, color: theme.muted.withValues(alpha: 0.7)),
-              ),
-          ],
-        ),
-        GhTextInput(
-          controller: controller,
-          focusNode: focusNode,
-          autofocus: autofocus,
-          size: GhTextSize.sm,
-          minLines: lines,
-          maxLines: lines,
-          placeholder: placeholder,
-          semanticLabel: label,
-          background: theme.base,
-          borderColor: error != null ? theme.danger : theme.outline.withValues(alpha: 0.5),
-          focusBorderColor: error != null ? theme.danger : theme.accentDim,
-          placeholderColor: theme.muted.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(theme.radiusBtn),
-          padding: EdgeInsets.symmetric(horizontal: theme.space(3.5), vertical: theme.space(2.5)),
-        ),
-        if (error != null)
-          Text(
-            error,
-            style: theme.text(size: GhTextSize.x2s, color: theme.danger),
-          ),
-      ],
+    return GhLabelledField(
+      label: label,
+      optional: optional,
+      error: error,
+      child: GhFieldInput(
+        controller: controller,
+        focusNode: focusNode,
+        autofocus: autofocus,
+        minLines: lines,
+        maxLines: lines,
+        placeholder: placeholder,
+      ),
     );
   }
 
