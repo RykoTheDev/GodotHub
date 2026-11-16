@@ -280,6 +280,20 @@ Flutter CI (`flutter-ci.yml`) runs these on every push and pull request, along
 with the i18n checks and a release build on Windows, macOS and Linux, so don't
 worry about platforms you can't test locally.
 
+To run every step of the CI `checks` job before pushing, in the same order:
+
+```bash
+bash app/tool/ci_local.sh           # Rust tests, notices, i18n checks, analyze, widget tests
+bash app/tool/ci_local.sh --fast    # the same without the Rust tests
+bash app/tool/ci_local.sh --linux   # inside WSL on a copy of the tree, like the Ubuntu runner
+```
+
+CI runs on Ubuntu, so a test that only passes on Windows (a `C:\` path, a `\`
+separator) fails there. `--linux` catches that; it needs Flutter, Rust, Node and
+rsync installed inside WSL. In PowerShell, `bash` is WSL's bash, so a run
+started there always goes the `--linux` way; use Git Bash to check on Windows.
+Keep the script in step with `flutter-ci.yml`.
+
 ### Changing the bridge
 
 The Dart side only sees what `crates/godothub-bridge/src/api` exposes. After
