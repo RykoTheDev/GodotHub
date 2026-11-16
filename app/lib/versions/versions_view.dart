@@ -11,7 +11,6 @@ import '../logic/format_bytes.dart';
 import '../modals/download_error_modal.dart';
 import '../modals/version_aliases_modal.dart';
 import '../motion/animated_number.dart';
-import '../motion/motion.dart';
 import '../motion/reveal.dart';
 import '../src/rust/api/types.dart';
 import '../src/ui_prefs.dart';
@@ -32,11 +31,14 @@ import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
 import '../ui/overlays/dropdown.dart';
 import '../ui/overlays/menu.dart';
+import '../ui/core/button.dart';
 import '../ui/reusables/modal_kit.dart';
+import '../ui/reusables/state_panel.dart';
 import '../ui/reusables/tool_buttons.dart';
 import '../ui/reusables/view_header.dart';
 import '../ui/shell/overlay_scroll_area.dart';
 import '../ui/shell/view_insets.dart';
+import 'available_version_card.dart';
 import 'installed_version_card.dart';
 import 'version_logic.dart';
 
@@ -296,21 +298,27 @@ class _VersionsViewState extends ConsumerState<VersionsView> {
     kind: GhRevealKind.heading,
     child: Padding(
       padding: EdgeInsets.symmetric(horizontal: theme.space(1)),
-      child: Text(
-        text.toUpperCase(),
-        style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: theme.muted, letterSpacingEm: 0.05),
+      child: Semantics(
+        header: true,
+        child: Text(
+          text,
+          style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.muted),
+        ),
       ),
     ),
   );
 
-  Widget _dashedEmpty(GhTheme theme, {required Widget icon, required Widget text, double py = 20, Color? border}) => Container(
-    padding: EdgeInsets.symmetric(vertical: theme.space(py), horizontal: theme.space(6)),
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.circular(theme.radiusItem),
-      border: Border.all(color: border ?? theme.outline.withValues(alpha: 0.5)),
-    ),
-    child: Column(spacing: theme.space(3), children: [icon, text]),
-  );
+  void _clearSearch() {
+    _search.clear();
+    _searchNode.requestFocus();
+  }
+
+  void _resetFilters() {
+    _setFilters(const VersionFilters());
+    if (_search.text.isNotEmpty) _search.clear();
+  }
+
+  void _openTokenSettings() => AppSignals.emit(openSettingsCategorySignal, 'integrations');
 
   Widget _installedSection(
     GhTheme theme,
@@ -322,48 +330,19 @@ class _VersionsViewState extends ConsumerState<VersionsView> {
     final searching = query.isNotEmpty;
     final installed = filterAndSortInstalled(state.installed, query, _installedSort);
     if (state.installed.isEmpty && !searching) {
-      return _dashedEmpty(
-        theme,
-        icon: Container(
-          width: theme.space(12),
-          height: theme.space(12),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: theme.overlay,
-            borderRadius: BorderRadius.circular(theme.radiusTile),
-            border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
+      return GhStatePanel.empty(
+        key: const ValueKey('versions-empty-installed'),
+        icon: GhIcons.download,
+        title: _tv('no_installed_title'),
+        message: ghTr('version_no_installed'),
+        actions: [
+          GhButton(
+            onPressed: () => _import.currentState?.trigger().ignore(),
+            label: ghTr('import_version'),
+            icon: GhIcons.folderPlus,
+            variant: GhButtonVariant.outline,
           ),
-          child: GhIcon(GhIcons.download, size: theme.space(5), color: theme.muted),
-        ),
-        text: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: theme.rem(24)),
-          child: Text(
-            ghTr('version_no_installed'),
-            textAlign: TextAlign.center,
-            style: theme.text(size: GhTextSize.sm, color: theme.muted, lineHeight: 1.625),
-          ),
-        ),
-      );
-    }
-    if (installed.isEmpty && searching) {
-      return _dashedEmpty(
-        theme,
-        py: 16,
-        icon: GhIcon(GhIcons.search, size: theme.space(5), color: theme.muted),
-        text: Text.rich(
-          TextSpan(
-            text: '${_tv('no_versions_match')} ',
-            children: [
-              TextSpan(
-                text: '"$query"',
-                style: TextStyle(color: theme.ink, fontWeight: FontWeight.w700),
-              ),
-              const TextSpan(text: '.'),
-            ],
-          ),
-          textAlign: TextAlign.center,
-          style: theme.text(size: GhTextSize.sm, color: theme.muted),
-        ),
+        ],
       );
     }
     final templates = state.exportTemplates;
@@ -374,7 +353,7 @@ class _VersionsViewState extends ConsumerState<VersionsView> {
       children: [
         Row(
           children: [
-            Expanded(child: _sectionTitle(theme, ghTr('installed_versions_section'))),
+            Expanded(child: _sectionTitle(theme, _tv('installed_heading'))),
             Wrap(
               spacing: theme.space(2),
               children: [
@@ -420,11 +399,20 @@ class _VersionsViewState extends ConsumerState<VersionsView> {
             ),
           ],
         ),
+        if (installed.isEmpty)
+          GhStatePanel.empty(
+            key: const ValueKey('versions-empty-installed-search'),
+            compact: true,
+            icon: GhIcons.search,
+            title: '${_tv('no_versions_match')} "$query"',
+            actions: [GhButton(onPressed: _clearSearch, label: ghTr('clear_search'), variant: GhButtonVariant.outline)],
+          ),
         for (final v in installed)
           InstalledVersionCard(
             key: ValueKey(v.tag),
             version: v,
             isCurrent: state.current?.tag == v.tag,
+            updateTag: newerStableRelease(v, state.available, state.installed),
             onOpen: (console) => VersionsApi.open(v.tag, console).catchError((Object e) => ghToasts.pushToast(GhToastType.error, '$e')),
             onRename: (name) => _versions.rename(v.tag, name).catchError((Object e) {
               ghToasts.pushToast(GhToastType.error, '$e');
@@ -464,8 +452,8 @@ class _VersionsViewState extends ConsumerState<VersionsView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _tv('export_templates_orphans_title').toUpperCase(),
-                      style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: theme.muted, letterSpacingEm: 0.05),
+                      _tv('export_templates_orphans_title'),
+                      style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.muted),
                     ),
                     Padding(
                       padding: EdgeInsets.only(top: theme.space(0.5)),
@@ -635,82 +623,39 @@ class _VersionsViewState extends ConsumerState<VersionsView> {
     final groups = _groups;
     final Widget? body;
     if (state.loadingAvailable) {
-      body = Padding(
-        padding: EdgeInsets.symmetric(vertical: theme.space(16)),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          spacing: theme.space(2),
-          children: [
-            GhSpinnerIcon(size: 5, color: theme.muted),
-            Text(
-              ghTr('loading'),
-              style: theme.text(size: GhTextSize.sm, color: theme.muted),
-            ),
-          ],
-        ),
-      );
+      body = GhStatePanel.loading(key: const ValueKey('versions-available-loading'), title: _tv('loading_available'), compact: true);
     } else if (state.availableError != null) {
       final error = state.availableError!;
-      body = _dashedEmpty(
-        theme,
-        py: 16,
-        border: theme.danger.withValues(alpha: 0.3),
-        icon: Container(
-          width: theme.space(12),
-          height: theme.space(12),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: theme.danger.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(theme.radiusTile),
-            border: Border.all(color: theme.danger.withValues(alpha: 0.3)),
-          ),
-          child: GhIcon(GhIcons.x, size: theme.space(5), color: theme.danger),
-        ),
-        text: Column(
-          spacing: theme.space(3),
-          children: [
-            Text(
-              _tv('fetch_error'),
-              style: theme.text(size: GhTextSize.sm, color: theme.danger),
+      final rateLimited = isRateLimited(state.source, error);
+      body = GhStatePanel.error(
+        key: const ValueKey('versions-available-error'),
+        title: _tv('fetch_error'),
+        message: rateLimited ? _tv('fetch_error_rate_limited') : '${_tv('fetch_error_hint')}\n$error',
+        onRetry: () => _versions.refreshAvailable().ignore(),
+        actions: [
+          if (rateLimited) ...[
+            GhButton(
+              onPressed: () => _versions.refreshAvailable(VersionSource.archive).ignore(),
+              label: _tv('switch_to_archive'),
+              variant: GhButtonVariant.primary,
             ),
-            ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: theme.rem(28)),
-              child: Text(
-                error,
-                textAlign: TextAlign.center,
-                style: theme.text(size: GhTextSize.xs, mono: true, color: theme.muted),
-              ),
-            ),
-            GhOutlineAction(onPressed: () => _versions.refreshAvailable().ignore(), label: _tv('retry')),
-            if (isRateLimited(state.source, error))
-              GhBusyButton(
-                onPressed: () => _versions.refreshAvailable(VersionSource.archive).ignore(),
-                busy: false,
-                paddingX: 4,
-                label: _tv('switch_to_archive'),
-              ),
+            GhButton(onPressed: _openTokenSettings, label: _tv('add_github_token'), icon: GhIcons.github, variant: GhButtonVariant.ghost),
           ],
-        ),
+        ],
       );
     } else if (groups.isEmpty) {
-      body = Padding(
-        padding: EdgeInsets.symmetric(horizontal: theme.space(1)),
-        child: Text.rich(
-          TextSpan(
-            text: _tv('no_available_versions_match'),
-            children: [
-              if (query.isNotEmpty) ...[
-                const TextSpan(text: ' '),
-                TextSpan(
-                  text: '"$query"',
-                  style: TextStyle(color: theme.ink, fontWeight: FontWeight.w700),
-                ),
-                const TextSpan(text: '.'),
-              ],
-            ],
-          ),
-          style: theme.text(size: GhTextSize.sm, color: theme.muted),
-        ),
+      final filtered = _filters != const VersionFilters();
+      body = GhStatePanel.empty(
+        key: const ValueKey('versions-available-empty'),
+        compact: true,
+        icon: query.isNotEmpty ? GhIcons.search : GhIcons.filter,
+        title: query.isNotEmpty ? '${_tv('no_available_versions_match')} "$query"' : _tv('no_available_versions_match'),
+        message: filtered || query.isNotEmpty ? _tv('no_available_hint') : null,
+        actions: [
+          if (filtered) GhButton(onPressed: _resetFilters, label: _tv('reset_filters'), variant: GhButtonVariant.outline),
+          if (!filtered && query.isNotEmpty)
+            GhButton(onPressed: _clearSearch, label: ghTr('clear_search'), variant: GhButtonVariant.outline),
+        ],
       );
     } else {
       body = null;
@@ -720,7 +665,7 @@ class _VersionsViewState extends ConsumerState<VersionsView> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: gap,
-        children: [_sectionTitle(theme, _tv('available_title')), _availableFilters(theme, state, settings)],
+        children: [_sectionTitle(theme, _tv('available_heading')), _availableFilters(theme, state, settings)],
       ),
     );
     if (body != null) {
@@ -750,18 +695,23 @@ class _VersionsViewState extends ConsumerState<VersionsView> {
             },
             itemBuilder: (context, index) {
               final row = rows[index];
+              final key = downloadKeyOf(row.tag, row.asset.name);
               return Padding(
-                key: ValueKey(downloadKeyOf(row.tag, row.asset.name)),
+                key: ValueKey(key),
                 padding: EdgeInsets.only(top: gap),
-                child: _AvailableRowTile(
-                  row: row,
-                  state: state,
+                child: AvailableVersionCard(
+                  tag: row.tag,
+                  asset: row.asset,
+                  source: state.source,
+                  installed: isAvailableInstalled(state.installed, row.tag, row.asset.isMono),
+                  download: state.downloads[key],
+                  miseBusy: state.miseInstalls[key] ?? false,
                   onInstall: () => _versions.download(row.tag, row.asset.name, row.asset.downloadUrl).ignore(),
                   onOpenSource: () =>
                       OpenerApi.openUrl(sourcePageUrl(state.source, row.tag, state.miseStatus?.sourceUrl)).catchError(_toastError),
-                  onPause: _versions.pause,
-                  onResume: _versions.resume,
-                  onCancel: _versions.cancel,
+                  onPause: () => _versions.pause(key),
+                  onResume: () => _versions.resume(key),
+                  onCancel: () => _versions.cancel(key),
                 ),
               );
             },
@@ -798,8 +748,8 @@ class _VersionsViewState extends ConsumerState<VersionsView> {
                 child: GhIcon(GhIcons.chevronDown, size: theme.space(3), color: color),
               ),
               Text(
-                (group == 'Other' ? _tv('other') : group).toUpperCase(),
-                style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: color, letterSpacingEm: 0.05),
+                group == 'Other' ? _tv('other') : group,
+                style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: color),
               ),
               Text(
                 '$count',
@@ -840,7 +790,7 @@ class _VersionsViewState extends ConsumerState<VersionsView> {
                 child: GhAnimatedNumber(state.installed.length),
               ),
               Text(
-                _tv('installed_count', count: state.installed.length).toUpperCase(),
+                _tv('installed_count', count: state.installed.length),
                 style: theme.text(size: GhTextSize.lg, weight: GhWeight.medium, color: theme.muted),
               ),
             ],
@@ -927,280 +877,6 @@ class _VersionsViewState extends ConsumerState<VersionsView> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _AvailableRowTile extends StatefulWidget {
-  const _AvailableRowTile({
-    required this.row,
-    required this.state,
-    required this.onInstall,
-    required this.onOpenSource,
-    required this.onPause,
-    required this.onResume,
-    required this.onCancel,
-  });
-
-  final AvailableRow row;
-  final GodotVersionsState state;
-  final VoidCallback onInstall;
-  final VoidCallback onOpenSource;
-  final Future<void> Function(String key) onPause;
-  final Future<void> Function(String key) onResume;
-  final Future<void> Function(String key) onCancel;
-
-  @override
-  State<_AvailableRowTile> createState() => _AvailableRowTileState();
-}
-
-class _AvailableRowTileState extends State<_AvailableRowTile> {
-  bool _hovered = false;
-
-  Widget _square(
-    GhTheme theme, {
-    required String tooltip,
-    required FaIconData icon,
-    required Color hover,
-    required VoidCallback onPressed,
-  }) => GhTooltip(
-    message: tooltip,
-    side: GhSide.top,
-    child: GhPressable(
-      onPressed: onPressed,
-      semanticLabel: tooltip,
-      borderRadius: BorderRadius.circular(theme.radiusBtn),
-      builder: (context, states) => GhAnimatedBox(
-        borderRadius: BorderRadius.circular(theme.radiusBtn),
-        border: Border.all(color: states.active ? hover.withValues(alpha: 0.4) : theme.outline.withValues(alpha: 0.5)),
-        padding: EdgeInsets.all(theme.space(2)),
-        child: GhIcon(icon, size: theme.space(4), color: states.active ? hover : theme.muted),
-      ),
-    ),
-  );
-
-  void _guard(Future<void> Function(String key) action, String key) =>
-      action(key).catchError((Object e) => ghToasts.pushToast(GhToastType.error, '$e'));
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = GhTheme.of(context);
-    final row = widget.row;
-    final state = widget.state;
-    final key = downloadKeyOf(row.tag, row.asset.name);
-    final installed = isAvailableInstalled(state.installed, row.tag, row.asset.isMono);
-    final dl = state.downloads[key];
-    final miseBusy = state.miseInstalls[key] ?? false;
-    final dot = installed
-        ? theme.mint
-        : dl != null || miseBusy
-        ? theme.amber
-        : theme.muted;
-    final Widget trailing;
-    if (miseBusy) {
-      trailing = Row(
-        mainAxisSize: MainAxisSize.min,
-        spacing: theme.space(2),
-        children: [
-          GhSpinnerIcon(size: 4, color: theme.muted),
-          Text(
-            _tv('mise_installing'),
-            style: theme.text(size: GhTextSize.xs, color: theme.muted),
-          ),
-        ],
-      );
-    } else if (dl != null) {
-      final paused = dl.status == DownloadStatus.paused;
-      trailing = Row(
-        mainAxisSize: MainAxisSize.min,
-        spacing: theme.space(2),
-        children: [
-          if (dl.status == DownloadStatus.queued)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: theme.space(2)),
-              child: Text(
-                ghTr('queued'),
-                style: theme.text(size: GhTextSize.xs, mono: true, color: theme.muted),
-              ),
-            )
-          else
-            SizedBox(
-              width: theme.space(56),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(theme.space(1)),
-                    child: Container(
-                      height: theme.space(1.5),
-                      color: theme.raised,
-                      alignment: AlignmentDirectional.centerStart,
-                      child: AnimatedFractionallySizedBox(
-                        duration: GhMotion.of(context).css(GhDurations.progress),
-                        curve: GhCurves.outExpo,
-                        widthFactor: dl.total > 0 ? (dl.downloaded / dl.total).clamp(0.0, 1.0) : 0.06,
-                        child: GhAnimatedBox(
-                          duration: GhDurations.progress,
-                          color: paused ? theme.muted : theme.amber,
-                          borderRadius: BorderRadius.circular(theme.space(1)),
-                          child: const SizedBox.expand(),
-                        ),
-                      ),
-                    ),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(top: theme.space(1)),
-                    child: Text(
-                      '${paused ? _tv('paused_dot') : ''}${(dl.downloaded / 1024 / 1024).toStringAsFixed(1)} MB${dl.total > 0 ? ' / ${(dl.total / 1024 / 1024).toStringAsFixed(1)} MB' : ''}',
-                      style: theme
-                          .text(size: GhTextSize.x2s, mono: true, color: theme.muted)
-                          .copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          if (paused)
-            _square(
-              theme,
-              tooltip: _tv('resume_download'),
-              icon: GhIcons.play,
-              hover: theme.mint,
-              onPressed: () => _guard(widget.onResume, key),
-            )
-          else if (dl.status == DownloadStatus.downloading)
-            _square(
-              theme,
-              tooltip: _tv('pause_download'),
-              icon: GhIcons.pause,
-              hover: theme.ink,
-              onPressed: () => _guard(widget.onPause, key),
-            ),
-          _square(
-            theme,
-            tooltip: _tv('cancel_download'),
-            icon: GhIcons.x,
-            hover: theme.danger,
-            onPressed: () => _guard(widget.onCancel, key),
-          ),
-        ],
-      );
-    } else if (installed) {
-      trailing = Text(
-        _tv('installed_label'),
-        style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.mint),
-      );
-    } else {
-      final radius = BorderRadius.circular(theme.radiusItem);
-      trailing = Row(
-        mainAxisSize: MainAxisSize.min,
-        spacing: theme.space(2),
-        children: [
-          GhPressable(
-            onPressed: widget.onOpenSource,
-            semanticLabel: row.tag,
-            borderRadius: radius,
-            builder: (context, states) => GhAnimatedBox(
-              height: theme.space(9),
-              color: states.active ? theme.raised : theme.raised.withValues(alpha: 0),
-              borderRadius: radius,
-              border: Border.all(color: states.active ? theme.accentDim : theme.outline.withValues(alpha: 0.5)),
-              padding: EdgeInsets.symmetric(horizontal: theme.space(3.5)),
-              alignment: Alignment.center,
-              child: GhIcon(GhIcons.externalLink, size: theme.space(3.5), color: states.active ? theme.ink : theme.muted),
-            ),
-          ),
-          GhPressable(
-            onPressed: widget.onInstall,
-            rippleColor: Colors.white,
-            borderRadius: radius,
-            builder: (context, states) => GhAnimatedBox(
-              height: theme.space(9),
-              color: states.active ? theme.accentBright : theme.accent,
-              borderRadius: radius,
-              padding: EdgeInsets.symmetric(horizontal: theme.space(4)),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: theme.space(1.5),
-                children: [
-                  GhIcon(GhIcons.download, size: theme.space(3.5), color: Colors.white),
-                  Text(
-                    _tv('install'),
-                    style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: Colors.white),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      );
-    }
-    return GhReveal(
-      id: 'available:$key',
-      child: MouseRegion(
-        onEnter: (_) => setState(() => _hovered = true),
-        onExit: (_) => setState(() => _hovered = false),
-        child: GhAnimatedBox(
-          color: theme.overlay,
-          borderRadius: BorderRadius.circular(theme.radiusItem),
-          border: Border.all(color: _hovered ? theme.accentDim : theme.outline.withValues(alpha: 0.5)),
-          padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(3)),
-          child: Row(
-            spacing: theme.space(3),
-            children: [
-              Expanded(
-                child: Row(
-                  spacing: theme.space(2.5),
-                  children: [
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(1.5)),
-                      decoration: BoxDecoration(
-                        color: theme.overlay,
-                        borderRadius: BorderRadius.circular(theme.radiusItem),
-                        border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        spacing: theme.space(2),
-                        children: [
-                          Container(
-                            width: theme.space(1.5),
-                            height: theme.space(1.5),
-                            decoration: BoxDecoration(color: dot, shape: BoxShape.circle),
-                          ),
-                          Text(
-                            row.tag.isEmpty ? _tv('unbound') : row.tag,
-                            style: theme.text(size: GhTextSize.xs, mono: true, color: theme.ink),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (row.asset.isMono)
-                      Container(
-                        padding: EdgeInsets.symmetric(horizontal: theme.space(2), vertical: theme.space(0.5)),
-                        decoration: BoxDecoration(
-                          color: theme.accent.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(theme.radiusTag),
-                          border: Border.all(color: theme.accentDim.withValues(alpha: 0.4)),
-                        ),
-                        child: Text(
-                          '.NET',
-                          style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: theme.accentBright),
-                        ),
-                      ),
-                    if (state.source != VersionSource.mise)
-                      Text(
-                        '${(row.asset.size.toDouble() / 1024 / 1024).toStringAsFixed(0)} ${_tv('mb')}',
-                        style: theme.text(size: GhTextSize.xs, mono: true, color: theme.muted),
-                      ),
-                  ],
-                ),
-              ),
-              trailing,
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

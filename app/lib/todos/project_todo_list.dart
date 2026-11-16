@@ -81,13 +81,12 @@ class ProjectTodoList extends StatelessWidget {
         borderRadius: BorderRadius.circular(theme.radiusBtn),
         alignment: Alignment.center,
         child: Text(
-          '${label.toUpperCase()} $arrow',
+          '$label $arrow',
           maxLines: 1,
           style: theme.text(
-            size: GhTextSize.x4s,
+            size: GhTextSize.x3s,
             weight: GhWeight.medium,
             color: states.active ? theme.ink : theme.muted.withValues(alpha: 0.6),
-            letterSpacingEm: 0.025,
           ),
         ),
       ),
@@ -95,8 +94,8 @@ class ProjectTodoList extends StatelessWidget {
   );
 
   Widget _columnLabel(GhTheme theme, String label) => Text(
-    label.toUpperCase(),
-    style: theme.text(size: GhTextSize.x4s, weight: GhWeight.medium, color: theme.muted.withValues(alpha: 0.6), letterSpacingEm: 0.025),
+    label,
+    style: theme.text(size: GhTextSize.x3s, weight: GhWeight.medium, color: theme.muted.withValues(alpha: 0.6)),
   );
 
   Widget _statusControl(GhTheme theme, ProjectTodo todo) {

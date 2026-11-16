@@ -847,6 +847,7 @@ pub(crate) fn diagnose_cli(
         session_started_at_ms: None,
         time_today_seconds: 0,
         time_week_seconds: 0,
+        missing: false,
     };
     let projects = [project.clone()];
     diagnose_local(&project, &projects, versions)

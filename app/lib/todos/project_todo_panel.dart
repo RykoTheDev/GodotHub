@@ -704,8 +704,8 @@ class _ProjectTodoPanelState extends ConsumerState<ProjectTodoPanel> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  tt('next_steps').toUpperCase(),
-                  style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: theme.muted, letterSpacingEm: 0.025),
+                  tt('next_steps'),
+                  style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: theme.muted),
                 ),
                 SizedBox(
                   width: theme.space(3),

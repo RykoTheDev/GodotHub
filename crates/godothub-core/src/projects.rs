@@ -255,6 +255,7 @@ pub(crate) fn register_project_in_workspace(
         session_started_at_ms: None,
         time_today_seconds: 0,
         time_week_seconds: 0,
+        missing: false,
     };
     projects.push(project.clone());
     write_projects_to(workspace_dir, &projects)?;
@@ -520,29 +521,30 @@ pub async fn list_projects(app: AppHandle) -> Vec<Project> {
         .unwrap_or_default()
 }
 
-pub(crate) fn list_projects_blocking(app: &AppHandle) -> Vec<Project> {
-    let app = app.clone();
-    let start = std::time::Instant::now();
-    settle_stale_sessions(&app);
-    let projects = read_projects(&app);
-    let mut kept: Vec<Project> = Vec::with_capacity(projects.len());
-    let mut any_removed = false;
-    let mut tags_changed = false;
-    let mut names_changed = false;
-    let mut paths_changed = false;
-    for mut p in projects {
+/// Brings registry entries in line with what is on disk. A project whose
+/// `project.godot` cannot be read right now (unplugged drive, offline network
+/// share, deleted folder) is kept and flagged `missing`; it is only ever
+/// removed through an explicit `remove_project` call. Returns true when a
+/// persisted field changed and the registry should be written back.
+fn reconcile_with_disk(
+    projects: &mut [Project],
+    file_info: impl Fn(&str) -> Option<ProjectFileInfo>,
+) -> bool {
+    let mut changed = false;
+    for p in projects.iter_mut() {
         let native = native_path(&p.path);
         if native != p.path {
             p.path = native;
-            paths_changed = true;
+            changed = true;
         }
-        let Some(info) = cached_project_file_info(&p.path) else {
-            any_removed = true;
+        let Some(info) = file_info(&p.path) else {
+            p.missing = true;
             continue;
         };
+        p.missing = false;
         if p.tags.is_empty() && !info.tags.is_empty() {
             p.tags = info.tags;
-            tags_changed = true;
+            changed = true;
         }
         let folder = Path::new(&p.path)
             .file_name()
@@ -550,20 +552,57 @@ pub(crate) fn list_projects_blocking(app: &AppHandle) -> Vec<Project> {
         if let (Some(folder_name), Some(resolved)) = (folder, info.name) {
             if p.name == folder_name && !resolved.trim().is_empty() && resolved != p.name {
                 p.name = resolved;
-                names_changed = true;
+                changed = true;
             }
         }
-        kept.push(p);
     }
+    changed
+}
 
-    if fold_worktree_duplicates(&app, &mut kept) {
-        any_removed = true;
-    }
-
-    if any_removed || tags_changed || names_changed || paths_changed {
-        let _ = write_projects(&app, &kept);
-    }
+pub(crate) fn list_projects_blocking(app: &AppHandle) -> Vec<Project> {
+    let app = app.clone();
+    let start = std::time::Instant::now();
+    settle_stale_sessions(&app);
+    let mut kept = read_projects(&app);
+    let mut file_infos: HashMap<String, Option<ProjectFileInfo>> = HashMap::new();
     for p in &kept {
+        let path = native_path(&p.path);
+        let info = cached_project_file_info(&path);
+        file_infos.insert(path, info);
+    }
+    let lookup = |path: &str| file_infos.get(path).cloned().flatten();
+
+    let running = running_project_ids(&app);
+    let mut needs_write = reconcile_with_disk(&mut kept, lookup);
+    let mut probe = kept.clone();
+    needs_write |= !fold_worktree_duplicates(&mut probe, &running).is_empty();
+
+    if needs_write {
+        // Re-apply on the registry as it is on disk, under its lock, so a
+        // concurrent update is never overwritten by this refresh.
+        let mut merges = Vec::new();
+        let updated = update_projects(&app, |projects| {
+            reconcile_with_disk(projects, |path: &str| {
+                file_infos
+                    .get(path)
+                    .cloned()
+                    .unwrap_or_else(|| cached_project_file_info(path))
+            });
+            merges = fold_worktree_duplicates(projects, &running);
+        });
+        match updated {
+            Ok(projects) => {
+                // `update_projects` returns the in-memory value, which still
+                // carries the `missing` flags set inside the closure.
+                kept = projects;
+                for (from, into) in &merges {
+                    crate::time_stats::merge_project_stats(&app, from, into);
+                }
+            }
+            Err(_) => kept = probe,
+        }
+    }
+    for p in kept.iter().filter(|p| !p.missing) {
         ensure_project_identity_cached(&p.path, &p.id, p.category.as_deref());
     }
     let stats = crate::time_stats::read_stats(&app);
@@ -594,9 +633,8 @@ fn merge_project_into(target: &mut Project, duplicate: Project) {
     }
 }
 
-fn fold_worktree_duplicates(app: &AppHandle, projects: &mut Vec<Project>) -> bool {
-    let running: std::collections::HashSet<String> = app
-        .try_state::<ActiveProcesses>()
+fn running_project_ids(app: &AppHandle) -> std::collections::HashSet<String> {
+    app.try_state::<ActiveProcesses>()
         .map(|state| {
             state
                 .0
@@ -606,13 +644,25 @@ fn fold_worktree_duplicates(app: &AppHandle, projects: &mut Vec<Project>) -> boo
                 .cloned()
                 .collect()
         })
-        .unwrap_or_default();
+        .unwrap_or_default()
+}
 
+/// Folds worktree checkouts of the same repository into one entry. Returns the
+/// `(from, into)` id pairs that were merged so the caller can move their stats.
+/// Missing projects are never folded: their repository cannot be inspected.
+fn fold_worktree_duplicates(
+    projects: &mut Vec<Project>,
+    running: &std::collections::HashSet<String>,
+) -> Vec<(String, String)> {
     let mut owners: HashMap<crate::repo_identity::RepoIdentity, usize> = HashMap::new();
     let mut folded: Vec<Project> = Vec::with_capacity(projects.len());
     let mut merges: Vec<(String, String)> = Vec::new();
     for project in projects.drain(..) {
-        let identity = crate::repo_identity::identity(Path::new(&project.path));
+        let identity = if project.missing {
+            None
+        } else {
+            crate::repo_identity::identity(Path::new(&project.path))
+        };
         let busy = project.session_started_at_ms.is_some() || running.contains(&project.id);
         match identity.as_ref().and_then(|id| owners.get(id).copied()) {
             Some(owner) if !busy => {
@@ -628,10 +678,7 @@ fn fold_worktree_duplicates(app: &AppHandle, projects: &mut Vec<Project>) -> boo
         }
     }
     *projects = folded;
-    for (from, into) in &merges {
-        crate::time_stats::merge_project_stats(app, from, into);
-    }
-    !merges.is_empty()
+    merges
 }
 
 fn capitalize_word(word: &str) -> String {
@@ -823,6 +870,7 @@ pub async fn create_project(
         session_started_at_ms: None,
         time_today_seconds: 0,
         time_week_seconds: 0,
+        missing: false,
     };
 
     projects.push(project.clone());
@@ -922,6 +970,7 @@ pub async fn duplicate_project(
         session_started_at_ms: None,
         time_today_seconds: 0,
         time_week_seconds: 0,
+        missing: false,
     };
 
     projects.push(project.clone());
@@ -1194,6 +1243,7 @@ pub fn register_project(
         session_started_at_ms: None,
         time_today_seconds: 0,
         time_week_seconds: 0,
+        missing: false,
     };
     projects.push(project.clone());
     write_projects(&app, &projects)?;
@@ -1432,6 +1482,12 @@ pub(crate) fn launch_project(
         .iter_mut()
         .find(|p| p.id == id)
         .ok_or("Project not found")?;
+    if !Path::new(&project.path).join("project.godot").is_file() {
+        return Err(
+            "This project's folder is unavailable. Reconnect its drive or network share and try again."
+                .into(),
+        );
+    }
     let project_name = resolve_project_name(&project.path).unwrap_or_else(|| project.name.clone());
     // A project-local pin takes precedence over the app binding so the editor
     // launches the same engine terminals and CI resolve.
@@ -2583,5 +2639,171 @@ mod path_environment_tests {
         assert!(tree.iter().any(|e| e.path.ends_with("main.tscn")));
         assert!(path_is_within(&project.join("scenes").to_string_lossy(), &path));
         std::fs::remove_dir_all(&root).unwrap();
+    }
+}
+
+#[cfg(test)]
+mod missing_project_tests {
+    use super::*;
+    use crate::{Channel, Paths};
+    use std::sync::Arc;
+
+    struct NoEvents;
+    impl crate::EventSink for NoEvents {
+        fn emit(&self, _event: &str, _payload: &serde_json::value::RawValue) {}
+    }
+    struct NoHost;
+    impl crate::Host for NoHost {
+        fn show_main_window(&self) {}
+        fn hide_main_window(&self) {}
+        fn exit(&self, _code: i32) {}
+        fn refresh_menus(&self) {}
+    }
+
+    struct Sandbox {
+        root: PathBuf,
+        app: AppHandle,
+    }
+    impl Drop for Sandbox {
+        fn drop(&mut self) {
+            let _ = fs::remove_dir_all(&self.root);
+        }
+    }
+
+    fn sandbox(name: &str) -> Sandbox {
+        let root = std::env::temp_dir().join(format!("godothub-missing-{name}-{}", Uuid::new_v4()));
+        let data = root.join("data");
+        fs::create_dir_all(&data).unwrap();
+        let app = AppHandle::new(
+            Channel::Stable,
+            Paths::at(data.clone(), data, root.join("cache")),
+            Arc::new(NoEvents),
+            Arc::new(NoHost),
+        );
+        Sandbox { root, app }
+    }
+
+    fn project(id: &str, path: &Path) -> Project {
+        Project {
+            id: id.into(),
+            name: id.into(),
+            path: native_path(&path.to_string_lossy()),
+            godot_version: String::new(),
+            created_at: String::new(),
+            last_opened: None,
+            category: None,
+            pinned: false,
+            sort_order: 0,
+            launch_arguments: String::new(),
+            tags: vec![],
+            total_time_seconds: 42,
+            session_started_at_ms: None,
+            time_today_seconds: 0,
+            time_week_seconds: 0,
+            missing: false,
+        }
+    }
+
+    fn make_project_dir(dir: &Path) {
+        fs::create_dir_all(dir).unwrap();
+        fs::write(dir.join("project.godot"), "[application]\nconfig/name=\"Game\"\n").unwrap();
+    }
+
+    fn persisted_ids(app: &AppHandle) -> Vec<String> {
+        read_projects(app).into_iter().map(|p| p.id).collect()
+    }
+
+    #[test]
+    fn unplugged_drive_keeps_project_and_reconnecting_restores_it() {
+        let sb = sandbox("unplug");
+        let drive = sb.root.join("external-drive");
+        let present = sb.root.join("local").join("present");
+        let on_drive = drive.join("games").join("on_drive");
+        make_project_dir(&present);
+        make_project_dir(&on_drive);
+        write_projects(&sb.app, &vec![project("present", &present), project("on_drive", &on_drive)]).unwrap();
+
+        let listed = list_projects_blocking(&sb.app);
+        assert!(listed.iter().all(|p| !p.missing));
+
+        // Unplug the drive: the whole root disappears.
+        let unplugged = sb.root.join("drive-unplugged");
+        fs::rename(&drive, &unplugged).unwrap();
+        let listed = list_projects_blocking(&sb.app);
+        let gone = listed.iter().find(|p| p.id == "on_drive").expect("project must stay listed");
+        assert!(gone.missing);
+        assert_eq!(gone.total_time_seconds, 42);
+        assert!(!listed.iter().find(|p| p.id == "present").unwrap().missing);
+        assert_eq!(persisted_ids(&sb.app), vec!["present", "on_drive"]);
+
+        // A second refresh while still unplugged must not drop it either.
+        list_projects_blocking(&sb.app);
+        assert_eq!(persisted_ids(&sb.app), vec!["present", "on_drive"]);
+
+        // Reconnect.
+        fs::rename(&unplugged, &drive).unwrap();
+        let listed = list_projects_blocking(&sb.app);
+        assert!(listed.iter().all(|p| !p.missing));
+    }
+
+    #[test]
+    fn unreadable_project_file_is_flagged_not_removed() {
+        let sb = sandbox("unreadable");
+        let dir = sb.root.join("broken");
+        fs::create_dir_all(dir.join("project.godot")).unwrap(); // not a file
+        write_projects(&sb.app, &vec![project("broken", &dir)]).unwrap();
+        let listed = list_projects_blocking(&sb.app);
+        assert_eq!(listed.len(), 1);
+        assert!(listed[0].missing);
+        assert_eq!(persisted_ids(&sb.app), vec!["broken"]);
+    }
+
+    #[test]
+    fn refresh_that_writes_does_not_drop_missing_entries() {
+        // A path in a non-native form forces a registry write; the missing
+        // entry written alongside it must survive that write.
+        let sb = sandbox("write");
+        let present = sb.root.join("present");
+        make_project_dir(&present);
+        let mut moved = project("present", &present);
+        moved.path = if cfg!(windows) { moved.path.replace('\\', "/") } else { moved.path };
+        let offline = project("offline", &sb.root.join("nowhere").join("game"));
+        write_projects(&sb.app, &vec![moved, offline]).unwrap();
+        let listed = list_projects_blocking(&sb.app);
+        assert_eq!(listed.len(), 2);
+        assert!(listed.iter().find(|p| p.id == "offline").unwrap().missing);
+        assert_eq!(persisted_ids(&sb.app), vec!["present", "offline"]);
+    }
+
+    #[test]
+    fn missing_flag_is_never_persisted() {
+        let sb = sandbox("persist");
+        let mut p = project("x", &sb.root.join("nowhere"));
+        p.missing = true;
+        write_projects(&sb.app, &vec![p]).unwrap();
+        let raw = fs::read_to_string(projects_path(&crate::workspace::active_workspace_dir(&sb.app))).unwrap();
+        assert!(!raw.contains("\"missing\""));
+    }
+
+    #[test]
+    fn network_share_offline_is_flagged_missing() {
+        // Network shares are reconciled through the same lookup; an offline
+        // share simply yields no file info.
+        let mut projects = vec![project("net", Path::new(r"\\nas\games\project"))];
+        let changed = reconcile_with_disk(&mut projects, |_| None);
+        assert!(projects[0].missing);
+        assert!(!changed, "flagging missing must not force a registry write");
+    }
+}
+
+#[cfg(test)]
+mod missing_project_metadata_tests {
+    #[test]
+    fn identity_is_not_written_into_a_vanished_folder() {
+        let root = std::env::temp_dir().join(format!("godothub-vanished-{}", uuid::Uuid::new_v4()));
+        let project = root.join("unmounted").join("game");
+        assert!(!crate::project_identity::write_project_identity(&project.to_string_lossy(), "id", None));
+        assert!(!project.exists(), "the project folder must not be recreated");
+        let _ = std::fs::remove_dir_all(&root);
     }
 }

@@ -421,7 +421,7 @@ class _CommandPaletteState extends ConsumerState<CommandPalette> {
           sublabel: common('settings_label', {'tab': '${tab[0].toUpperCase()}${tab.substring(1)}'}),
           shortcut: navShortcuts['settings'],
           icon: GhIcons.gear,
-          section: common('settings_title'),
+          section: ghTr('nav:settings', translations: tr),
           action: () => AppSignals.emit(openSettingSignal, key),
         ),
       );
@@ -556,8 +556,8 @@ class _CommandPaletteState extends ConsumerState<CommandPalette> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: theme.space(2), vertical: theme.space(1.5)),
           child: Text(
-            section.toUpperCase(),
-            style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: mutedHint, letterSpacingEm: 0.05),
+            section,
+            style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: mutedHint),
           ),
         ),
       );

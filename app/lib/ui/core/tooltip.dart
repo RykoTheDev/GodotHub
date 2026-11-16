@@ -70,7 +70,9 @@ class _GhTooltipState extends State<GhTooltip> {
         _shown = true;
       });
       if (_entry == null) {
-        _entry = OverlayEntry(builder: (context) => ExcludeSemantics(child: Stack(children: [_overlay(context)])));
+        _entry = OverlayEntry(
+          builder: (context) => ExcludeSemantics(child: Stack(children: [_overlay(context)])),
+        );
         Overlay.of(context).insert(_entry!);
       }
       WidgetsBinding.instance.addPostFrameCallback((_) => _measure());

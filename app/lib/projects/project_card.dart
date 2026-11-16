@@ -35,6 +35,7 @@ import '../state/app_signals.dart';
 import '../state/shell_signals.dart';
 import '../todos/project_todo_panel.dart';
 import 'project_actions.dart';
+import 'project_missing_notice.dart';
 import 'project_icon.dart';
 import 'project_tile.dart' show formatProjectSize;
 
@@ -328,13 +329,14 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
         icon: GhIcons.x,
         onSelected: () => confirmRemoveProject(context, displayName, cb.onRemove),
       ),
-      GhMenuItem(
-        id: 'delete',
-        label: tr.project_card_delete_files,
-        icon: GhIcons.trash,
-        danger: true,
-        onSelected: () => confirmDeleteProject(context, displayName, cb.onDelete ?? () {}),
-      ),
+      if (!project.missing)
+        GhMenuItem(
+          id: 'delete',
+          label: tr.project_card_delete_files,
+          icon: GhIcons.trash,
+          danger: true,
+          onSelected: () => confirmDeleteProject(context, displayName, cb.onDelete ?? () {}),
+        ),
     ];
   }
 
@@ -352,6 +354,11 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
     final displayName = data.displayName(project.name);
     final version = _version;
     final versionInstalled = version != null;
+    final canOpen = versionInstalled && !project.missing;
+    final missingNotice = [
+      if (project.missing)
+        ProjectMissingNotice(compact: _cover, onRemove: () => confirmRemoveProject(context, displayName, widget.callbacks.onRemove)),
+    ];
     final cb = widget.callbacks;
     final lastOpened = formatLastOpened(
       project.lastOpened,
@@ -427,8 +434,8 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
     ];
     final categoryChip = [if (widget.categories.isNotEmpty && cb.onCategoryChange != null) _categoryDropdown(context, theme)];
     final openButton = GhOpenButton(
-      label: versionInstalled ? tr.open_project : tr.no_version_selected,
-      disabled: !versionInstalled,
+      label: project.missing ? tr.project_missing_badge : (versionInstalled ? tr.open_project : tr.no_version_selected),
+      disabled: !canOpen,
       onOpen: (console) => launchProject(project, console),
       consoleSupported: version?.supportsConsole ?? false,
       consoleInitiallyOn: widget.launchWithConsole && (version?.supportsConsole ?? false),
@@ -473,7 +480,7 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
           icon: icon,
           displayName: displayName,
           showTodos: showTodos,
-          canPlay: options.showPlay && versionInstalled,
+          canPlay: options.showPlay && canOpen,
           showSession: options.showSessionTimer,
           loadingBar: loadingBar,
           body: Column(
@@ -501,6 +508,7 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
               else
                 Wrap(crossAxisAlignment: WrapCrossAlignment.center, children: addTagControls),
               if (options.showPath) _pathButton(context, theme, options.blurPath),
+              ...missingNotice,
               Container(
                 padding: EdgeInsets.only(top: theme.space(2.5)),
                 decoration: BoxDecoration(
@@ -560,6 +568,11 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
             ),
             if (showTags) _tagsRow(context, theme),
             if (options.showPath) _pathButton(context, theme, options.blurPath),
+            if (project.missing)
+              Padding(
+                padding: EdgeInsets.only(top: theme.space(2)),
+                child: missingNotice.single,
+              ),
             Padding(
               padding: EdgeInsets.only(top: theme.space(1.5)),
               child: Wrap(

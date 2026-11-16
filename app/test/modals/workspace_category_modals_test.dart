@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:godothub/design/design.dart';
 import 'package:godothub/modals/bulk_tag_modal.dart';
@@ -110,6 +113,64 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text(ghTr('category_name_taken')), findsOneWidget);
   });
+
+  for (final size in [const Size(340, 640), const Size(1280, 800)]) {
+    testWidgets('category folders can be typed, browsed or cancelled at ${size.width.toInt()} px', (tester) async {
+      final dir = (await tester.runAsync(() => Directory.systemTemp.createTemp('gh-category-')))!;
+      addTearDown(() => dir.deleteSync(recursive: true));
+      final assigned = <String>[];
+      await open(
+        tester,
+        (close) => CategoryManagerModal(
+          categories: [category('c1', 'Games')],
+          onClose: close,
+          onCreate: (name, color) async => category('c3', name),
+          onUpdate: (id, name, color) async => category(id, name ?? id),
+          onDelete: (_) async {},
+          onReorder: (_) async {},
+          onAssignFolder: (id, folder) async {
+            assigned.add(folder);
+            return category(id, id);
+          },
+          onUnassignFolder: (id, _) async => category(id, id),
+          pickFolder: () async => '/picked/folder',
+        ),
+        size: size,
+      );
+      final field = find.byKey(const ValueKey('category-folder-c1'));
+      Future<void> openField() async {
+        await tester.ensureVisible(find.text(ghTr('assign_folder')));
+        await tester.tap(find.text(ghTr('assign_folder')));
+        await tester.pumpAndSettle();
+        expect(field, findsOneWidget);
+      }
+
+      await openField();
+      await tester.enterText(find.descendant(of: field, matching: find.byType(TextField)), dir.path);
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull, reason: 'the open field with its Assign button fits');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(assigned, [dir.path]);
+      expect(field, findsNothing);
+
+      await openField();
+      await tester.tap(find.descendant(of: field, matching: find.byKey(const ValueKey('path-browse'))));
+      await tester.pumpAndSettle();
+      expect(assigned.last, '/picked/folder');
+
+      await openField();
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(field, findsNothing);
+      expect(find.byType(CategoryManagerModal), findsOneWidget);
+      await openField();
+      await tester.tap(find.bySemanticsLabel(ghTr('cancel')).last);
+      await tester.pumpAndSettle();
+      expect(field, findsNothing);
+      expect(assigned, hasLength(2));
+    });
+  }
 
   testWidgets('bulk tags explains that changes apply right away and closes with Done', (tester) async {
     var closed = 0;

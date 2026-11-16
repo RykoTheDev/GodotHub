@@ -556,6 +556,142 @@ class AssetDownloadProgress {
           total == other.total;
 }
 
+class AssetFileEntry {
+  final String path;
+  final bool isDir;
+  final BigInt size;
+
+  const AssetFileEntry({required this.path, required this.isDir, required this.size});
+
+  @override
+  int get hashCode => path.hashCode ^ isDir.hashCode ^ size.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AssetFileEntry && runtimeType == other.runtimeType && path == other.path && isDir == other.isDir && size == other.size;
+}
+
+class AssetFileListing {
+  final List<AssetFileEntry> entries;
+  final bool truncated;
+  final BigInt archiveBytes;
+
+  const AssetFileListing({required this.entries, required this.truncated, required this.archiveBytes});
+
+  @override
+  int get hashCode => entries.hashCode ^ truncated.hashCode ^ archiveBytes.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AssetFileListing &&
+          runtimeType == other.runtimeType &&
+          entries == other.entries &&
+          truncated == other.truncated &&
+          archiveBytes == other.archiveBytes;
+}
+
+class AssetInfo {
+  final AssetLibraryAsset asset;
+  final String description;
+  final String version;
+  final BigInt? revision;
+  final String license;
+  final String? licenseUrl;
+  final String? sourceUrl;
+  final String? issuesUrl;
+  final String? updated;
+  final List<AssetMedia> media;
+  final List<AssetRelease> releases;
+  final BigInt? downloadSizeBytes;
+  final bool paid;
+
+  const AssetInfo({
+    required this.asset,
+    required this.description,
+    required this.version,
+    this.revision,
+    required this.license,
+    this.licenseUrl,
+    this.sourceUrl,
+    this.issuesUrl,
+    this.updated,
+    required this.media,
+    required this.releases,
+    this.downloadSizeBytes,
+    required this.paid,
+  });
+
+  @override
+  int get hashCode =>
+      asset.hashCode ^
+      description.hashCode ^
+      version.hashCode ^
+      revision.hashCode ^
+      license.hashCode ^
+      licenseUrl.hashCode ^
+      sourceUrl.hashCode ^
+      issuesUrl.hashCode ^
+      updated.hashCode ^
+      media.hashCode ^
+      releases.hashCode ^
+      downloadSizeBytes.hashCode ^
+      paid.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AssetInfo &&
+          runtimeType == other.runtimeType &&
+          asset == other.asset &&
+          description == other.description &&
+          version == other.version &&
+          revision == other.revision &&
+          license == other.license &&
+          licenseUrl == other.licenseUrl &&
+          sourceUrl == other.sourceUrl &&
+          issuesUrl == other.issuesUrl &&
+          updated == other.updated &&
+          media == other.media &&
+          releases == other.releases &&
+          downloadSizeBytes == other.downloadSizeBytes &&
+          paid == other.paid;
+}
+
+class AssetInstallation {
+  final String assetId;
+  final String projectId;
+  final String projectName;
+  final String folder;
+  final String version;
+  final BigInt? revision;
+
+  const AssetInstallation({
+    required this.assetId,
+    required this.projectId,
+    required this.projectName,
+    required this.folder,
+    required this.version,
+    this.revision,
+  });
+
+  @override
+  int get hashCode => assetId.hashCode ^ projectId.hashCode ^ projectName.hashCode ^ folder.hashCode ^ version.hashCode ^ revision.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AssetInstallation &&
+          runtimeType == other.runtimeType &&
+          assetId == other.assetId &&
+          projectId == other.projectId &&
+          projectName == other.projectName &&
+          folder == other.folder &&
+          version == other.version &&
+          revision == other.revision;
+}
+
 class AssetLibraryAsset {
   final String assetId;
   final String title;
@@ -572,6 +708,7 @@ class AssetLibraryAsset {
   final String? modifyDate;
   final String rating;
   final String source;
+  final String version;
 
   const AssetLibraryAsset({
     required this.assetId,
@@ -589,6 +726,7 @@ class AssetLibraryAsset {
     this.modifyDate,
     required this.rating,
     required this.source,
+    required this.version,
   });
 
   @override
@@ -607,7 +745,8 @@ class AssetLibraryAsset {
       browseUrl.hashCode ^
       modifyDate.hashCode ^
       rating.hashCode ^
-      source.hashCode;
+      source.hashCode ^
+      version.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -628,7 +767,8 @@ class AssetLibraryAsset {
           browseUrl == other.browseUrl &&
           modifyDate == other.modifyDate &&
           rating == other.rating &&
-          source == other.source;
+          source == other.source &&
+          version == other.version;
 }
 
 class AssetLibraryCategory {
@@ -671,6 +811,79 @@ class AssetLibraryResponse {
           page == other.page &&
           pages == other.pages &&
           total == other.total;
+}
+
+class AssetMedia {
+  final String url;
+  final String? thumbnail;
+  final bool video;
+
+  const AssetMedia({required this.url, this.thumbnail, required this.video});
+
+  @override
+  int get hashCode => url.hashCode ^ thumbnail.hashCode ^ video.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AssetMedia && runtimeType == other.runtimeType && url == other.url && thumbnail == other.thumbnail && video == other.video;
+}
+
+class AssetPrefs {
+  final int schemaVersion;
+  final List<AssetLibraryAsset> favorites;
+  final List<HiddenAsset> hidden;
+
+  const AssetPrefs({required this.schemaVersion, required this.favorites, required this.hidden});
+
+  @override
+  int get hashCode => schemaVersion.hashCode ^ favorites.hashCode ^ hidden.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AssetPrefs &&
+          runtimeType == other.runtimeType &&
+          schemaVersion == other.schemaVersion &&
+          favorites == other.favorites &&
+          hidden == other.hidden;
+}
+
+class AssetRelease {
+  final String version;
+  final String date;
+  final String notes;
+  final String? minGodot;
+  final String? maxGodot;
+  final bool stable;
+  final BigInt? sizeBytes;
+
+  const AssetRelease({
+    required this.version,
+    required this.date,
+    required this.notes,
+    this.minGodot,
+    this.maxGodot,
+    required this.stable,
+    this.sizeBytes,
+  });
+
+  @override
+  int get hashCode =>
+      version.hashCode ^ date.hashCode ^ notes.hashCode ^ minGodot.hashCode ^ maxGodot.hashCode ^ stable.hashCode ^ sizeBytes.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AssetRelease &&
+          runtimeType == other.runtimeType &&
+          version == other.version &&
+          date == other.date &&
+          notes == other.notes &&
+          minGodot == other.minGodot &&
+          maxGodot == other.maxGodot &&
+          stable == other.stable &&
+          sizeBytes == other.sizeBytes;
 }
 
 class CardViewOverride {
@@ -1832,6 +2045,21 @@ class HealthAction {
       other is HealthAction && runtimeType == other.runtimeType && kind == other.kind && target == other.target && confirm == other.confirm;
 }
 
+class HiddenAsset {
+  final String assetId;
+  final String title;
+
+  const HiddenAsset({required this.assetId, required this.title});
+
+  @override
+  int get hashCode => assetId.hashCode ^ title.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HiddenAsset && runtimeType == other.runtimeType && assetId == other.assetId && title == other.title;
+}
+
 class InstallAssetResult {
   final String assetId;
   final String title;
@@ -2038,6 +2266,7 @@ class Project {
   final BigInt? sessionStartedAtMs;
   final BigInt timeTodaySeconds;
   final BigInt timeWeekSeconds;
+  final bool missing;
 
   const Project({
     required this.id,
@@ -2055,6 +2284,7 @@ class Project {
     this.sessionStartedAtMs,
     required this.timeTodaySeconds,
     required this.timeWeekSeconds,
+    required this.missing,
   });
 
   @override
@@ -2073,7 +2303,8 @@ class Project {
       totalTimeSeconds.hashCode ^
       sessionStartedAtMs.hashCode ^
       timeTodaySeconds.hashCode ^
-      timeWeekSeconds.hashCode;
+      timeWeekSeconds.hashCode ^
+      missing.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2094,7 +2325,8 @@ class Project {
           totalTimeSeconds == other.totalTimeSeconds &&
           sessionStartedAtMs == other.sessionStartedAtMs &&
           timeTodaySeconds == other.timeTodaySeconds &&
-          timeWeekSeconds == other.timeWeekSeconds;
+          timeWeekSeconds == other.timeWeekSeconds &&
+          missing == other.missing;
 }
 
 class ProjectAddon {
@@ -2190,6 +2422,9 @@ class ProjectTemplate {
   final String? sourcePath;
   final String path;
   final bool keepName;
+  final String? sourceAssetId;
+  final String? sourceAssetVersion;
+  final BigInt? sourceAssetRevision;
 
   const ProjectTemplate({
     required this.id,
@@ -2201,6 +2436,9 @@ class ProjectTemplate {
     this.sourcePath,
     required this.path,
     required this.keepName,
+    this.sourceAssetId,
+    this.sourceAssetVersion,
+    this.sourceAssetRevision,
   });
 
   @override
@@ -2213,7 +2451,10 @@ class ProjectTemplate {
       sourceProjectId.hashCode ^
       sourcePath.hashCode ^
       path.hashCode ^
-      keepName.hashCode;
+      keepName.hashCode ^
+      sourceAssetId.hashCode ^
+      sourceAssetVersion.hashCode ^
+      sourceAssetRevision.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -2228,7 +2469,10 @@ class ProjectTemplate {
           sourceProjectId == other.sourceProjectId &&
           sourcePath == other.sourcePath &&
           path == other.path &&
-          keepName == other.keepName;
+          keepName == other.keepName &&
+          sourceAssetId == other.sourceAssetId &&
+          sourceAssetVersion == other.sourceAssetVersion &&
+          sourceAssetRevision == other.sourceAssetRevision;
 }
 
 class ProjectTodo {
@@ -2770,6 +3014,28 @@ class TemplateSyncResult {
           imported == other.imported &&
           updated == other.updated &&
           removed == other.removed;
+}
+
+class TemplateUpdate {
+  final String templateId;
+  final String assetId;
+  final String installedVersion;
+  final String latestVersion;
+
+  const TemplateUpdate({required this.templateId, required this.assetId, required this.installedVersion, required this.latestVersion});
+
+  @override
+  int get hashCode => templateId.hashCode ^ assetId.hashCode ^ installedVersion.hashCode ^ latestVersion.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TemplateUpdate &&
+          runtimeType == other.runtimeType &&
+          templateId == other.templateId &&
+          assetId == other.assetId &&
+          installedVersion == other.installedVersion &&
+          latestVersion == other.latestVersion;
 }
 
 class TimeInsights {

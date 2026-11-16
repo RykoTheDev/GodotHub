@@ -19,12 +19,12 @@ String changelogTodayIso([DateTime? now]) {
   return '${d.year.toString().padLeft(4, '0')}-${two(d.month)}-${two(d.day)}';
 }
 
-typedef _Category = ({String value, Color Function(GhTheme theme) color, Color Function(GhTheme theme) active});
+typedef _Category = ({String value, Color Function(GhTheme theme) color});
 
 final List<_Category> _categories = [
-  (value: 'add', color: (t) => t.mint, active: (t) => t.mint.withValues(alpha: 0.15)),
-  (value: 'fix', color: (t) => t.danger, active: (t) => t.danger.withValues(alpha: 0.15)),
-  (value: 'improve', color: (t) => t.accentBright, active: (t) => t.accent.withValues(alpha: 0.15)),
+  (value: 'add', color: (t) => t.mint),
+  (value: 'fix', color: (t) => t.danger),
+  (value: 'improve', color: (t) => t.accentBright),
 ];
 
 class _NoteRow {
@@ -203,53 +203,21 @@ class _ChangelogEntryModalState extends State<ChangelogEntryModal> {
     );
   }
 
-  Widget _categoryPicker(GhTheme theme, _NoteRow note) {
-    final radius = BorderRadius.circular(theme.radiusBtn);
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: radius,
-        border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(theme.radiusBtn - 1),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (final c in _categories)
-              GhPressable(
-                tooltip: ghTr(c.value),
-                onPressed: () => setState(() => note.category = c.value),
-                selected: note.category == c.value,
-                builder: (context, states) {
-                  final active = note.category == c.value;
-                  return GhAnimatedBox(
-                    padding: EdgeInsets.symmetric(horizontal: theme.space(2), vertical: theme.space(1.5)),
-                    color: active
-                        ? c.active(theme)
-                        : (states.active ? theme.raised.withValues(alpha: 0.5) : theme.raised.withValues(alpha: 0)),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      spacing: theme.space(1),
-                      children: [
-                        Container(
-                          width: theme.space(1.5),
-                          height: theme.space(1.5),
-                          decoration: BoxDecoration(color: c.color(theme), shape: BoxShape.circle),
-                        ),
-                        Text(
-                          ghTr(c.value),
-                          style: theme.text(size: GhTextSize.x3s, weight: GhWeight.medium, color: active ? c.color(theme) : theme.muted),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
-          ],
+  Widget _categoryPicker(GhTheme theme, _NoteRow note) => Wrap(
+    spacing: theme.space(1.5),
+    runSpacing: theme.space(1.5),
+    children: [
+      for (final c in _categories)
+        GhChoiceChip(
+          key: ValueKey('changelog-category:${c.value}'),
+          label: ghTr(c.value),
+          active: note.category == c.value,
+          showCheck: false,
+          dotColor: c.color(theme),
+          onPressed: () => setState(() => note.category = c.value),
         ),
-      ),
-    );
-  }
+    ],
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -317,26 +285,32 @@ class _ChangelogEntryModalState extends State<ChangelogEntryModal> {
               spacing: theme.space(2),
               children: [
                 for (final (i, note) in _notes.indexed)
-                  Row(
+                  Column(
                     key: ObjectKey(note),
-                    spacing: theme.space(2),
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: theme.space(1.5),
                     children: [
                       _categoryPicker(theme, note),
-                      Expanded(
-                        child: _input(
-                          theme,
-                          note.controller,
-                          focusNode: note.focus,
-                          py: 2,
-                          placeholder: ghTr('changelog_placeholder_note'),
-                          onEnter: () {
-                            _addNote();
-                            note.focus.requestFocus();
-                          },
-                        ),
+                      Row(
+                        spacing: theme.space(2),
+                        children: [
+                          Expanded(
+                            child: _input(
+                              theme,
+                              note.controller,
+                              focusNode: note.focus,
+                              py: 2,
+                              placeholder: ghTr('changelog_placeholder_note'),
+                              onEnter: () {
+                                _addNote();
+                                note.focus.requestFocus();
+                              },
+                            ),
+                          ),
+                          if (_notes.length > 1)
+                            _removeButton(theme, label: ghTr('changelog_remove_line_aria'), onPressed: () => _removeNote(i)),
+                        ],
                       ),
-                      if (_notes.length > 1)
-                        _removeButton(theme, label: ghTr('changelog_remove_line_aria'), onPressed: () => _removeNote(i)),
                     ],
                   ),
               ],

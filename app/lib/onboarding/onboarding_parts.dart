@@ -172,8 +172,8 @@ BoxDecoration _rowBox(GhTheme theme) => BoxDecoration(
 Widget sectionCaps(GhTheme theme, String text, {double inset = 0}) => Padding(
   padding: EdgeInsets.symmetric(horizontal: inset),
   child: Text(
-    text.toUpperCase(),
-    style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: theme.muted.withValues(alpha: 0.7), letterSpacingEm: 0.025),
+    text,
+    style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: theme.muted.withValues(alpha: 0.7)),
   ),
 );
 
@@ -824,8 +824,8 @@ class _OnboardingCloudBackupState extends State<OnboardingCloudBackup> {
       spacing: theme.space(2.5),
       children: [
         Text(
-          _to('onboard_cloud_heading').toUpperCase(),
-          style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.muted, letterSpacingEm: 0.025),
+          _to('onboard_cloud_heading'),
+          style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.muted),
         ),
         Container(
           padding: EdgeInsets.all(theme.space(4)),

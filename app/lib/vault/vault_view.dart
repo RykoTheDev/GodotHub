@@ -15,8 +15,8 @@ import '../state/keyboard_shortcuts.dart' show focusSearchSignal;
 import '../state/projects.dart';
 import '../state/settings.dart';
 import '../state/workspaces.dart';
-import '../ui/controls/dashed_box.dart';
 import '../ui/controls/search_bar.dart';
+import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import '../ui/core/tooltip.dart';
@@ -25,6 +25,8 @@ import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
 import '../ui/overlays/dropdown.dart';
 import '../ui/overlays/menu.dart';
+import '../ui/reusables/card_grid.dart';
+import '../ui/reusables/state_panel.dart';
 import '../ui/reusables/view_header.dart';
 import '../ui/reusables/unlocalized_badge.dart';
 import '../ui/shell/overlay_scroll_area.dart';
@@ -88,6 +90,7 @@ class _VaultViewState extends ConsumerState<VaultView> {
   StreamSubscription<Object?>? _focusSub;
   List<VaultItem> _items = const [];
   bool _loaded = false;
+  String? _loadError;
   List<String> _activeTags = const [];
   bool _deleting = false;
   late VaultSort _sort = VaultSort.parse(_prefs.getItem(vaultSortKey));
@@ -116,9 +119,34 @@ class _VaultViewState extends ConsumerState<VaultView> {
   Future<void> _load() async {
     try {
       final items = await VaultApi.list();
-      if (mounted) setState(() => _items = items);
-    } catch (_) {}
+      if (mounted) {
+        setState(() {
+          _items = items;
+          _loadError = null;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _items = const [];
+          _loadError = '$e';
+        });
+      }
+    }
     if (mounted) setState(() => _loaded = true);
+  }
+
+  void _retry() {
+    setState(() {
+      _loaded = false;
+      _loadError = null;
+    });
+    _load();
+  }
+
+  void _clearFilters() {
+    _search.clear();
+    setState(() => _activeTags = const []);
   }
 
   List<String> get _allTags {
@@ -290,88 +318,39 @@ class _VaultViewState extends ConsumerState<VaultView> {
     ),
   );
 
-  Widget _grid(GhTheme theme, List<Widget> children, {double? rowHeight}) {
-    final width = MediaQuery.sizeOf(context).width;
-    final columns = width >= 1024 ? 3 : (width >= 640 ? 2 : 1);
-    final gap = theme.space(3);
-    final rows = <Widget>[];
-    for (var i = 0; i < children.length; i += columns) {
-      final cells = <Widget>[
-        for (var c = 0; c < columns; c++) Expanded(child: i + c < children.length ? children[i + c] : const SizedBox.shrink()),
-      ];
-      final row = Row(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: gap, children: cells);
-      rows.add(rowHeight != null ? SizedBox(height: rowHeight, child: row) : IntrinsicHeight(child: row));
-    }
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: gap, children: rows);
-  }
+  Widget _grid(GhTheme theme, List<Widget> children) => GhCardGrid(children: children);
 
-  Widget _skeleton(GhTheme theme) => _grid(theme, [
-    for (var i = 0; i < 3; i++)
-      DecoratedBox(
+  Widget _skeleton(GhTheme theme) => GhCardGrid.fill(
+    rows: 1,
+    builder: (context, _) => SizedBox(
+      height: theme.rem(13),
+      child: DecoratedBox(
         decoration: BoxDecoration(
           color: theme.overlay,
           borderRadius: BorderRadius.circular(theme.radiusItem),
           border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
         ),
       ),
-  ], rowHeight: theme.rem(13));
-
-  Widget _emptyBox(GhTheme theme, {required double paddingY, required List<Widget> children}) => GhDashedBox(
-    color: theme.outline.withValues(alpha: 0.5),
-    radius: BorderRadius.circular(theme.radiusItem),
-    child: Padding(
-      padding: EdgeInsets.symmetric(horizontal: theme.space(6), vertical: theme.space(paddingY)),
-      child: Column(spacing: theme.space(3), children: children),
     ),
   );
 
-  Widget _empty(GhTheme theme) {
-    final style = theme.text(color: theme.muted, lineHeight: 1.625);
-    return _emptyBox(
-      theme,
-      paddingY: 20,
-      children: [
-        Container(
-          width: theme.space(12),
-          height: theme.space(12),
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: theme.overlay,
-            borderRadius: BorderRadius.circular(theme.radiusTile),
-            border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-          ),
-          child: GhIcon(GhIcons.briefcase, size: theme.space(5), color: theme.muted),
-        ),
-        ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: theme.rem(24)),
-          child: Text.rich(
-            TextSpan(
-              children: ghTrans(
-                ghTr('vault_empty'),
-                tags: {
-                  '1': (text, children) => TextSpan(
-                    children: children,
-                    style: const TextStyle(fontWeight: GhWeight.bold),
-                  ),
-                },
-              ),
-            ),
-            textAlign: TextAlign.center,
-            style: style,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _noMatch(GhTheme theme) => _emptyBox(
-    theme,
-    paddingY: 16,
-    children: [
-      GhIcon(GhIcons.search, size: theme.space(5), color: theme.muted),
-      Text(ghTr('vault_no_match'), style: theme.text(color: theme.muted)),
-    ],
+  Widget _empty() => GhStatePanel.empty(
+    key: const ValueKey('vault-empty'),
+    icon: GhIcons.briefcase,
+    title: ghTr('vault_empty_title'),
+    message: ghTr('vault_empty_desc'),
+    actions: [GhButton(onPressed: _openSave, icon: GhIcons.plus, label: ghTr('vault_save_btn'), variant: GhButtonVariant.primary)],
   );
+
+  Widget _noMatch() => GhStatePanel.empty(
+    key: const ValueKey('vault-no-match'),
+    icon: GhIcons.search,
+    title: ghTr('vault_no_match'),
+    actions: [GhButton(onPressed: _clearFilters, label: ghTr('clear_search'), variant: GhButtonVariant.outline)],
+  );
+
+  Widget _error(String message) =>
+      GhStatePanel.error(key: const ValueKey('vault-error'), title: ghTr('vault_load_failed'), message: message, onRetry: _retry);
 
   @override
   Widget build(BuildContext context) {
@@ -390,12 +369,15 @@ class _VaultViewState extends ConsumerState<VaultView> {
       bottom: insets.bottom >= theme.space(4) ? insets.bottom - theme.space(4) : insets.bottom,
     );
     final Widget body;
+    final loadError = _loadError;
     if (!_loaded) {
       body = _skeleton(theme);
+    } else if (_items.isEmpty && loadError != null) {
+      body = _error(loadError);
     } else if (_items.isEmpty) {
-      body = _empty(theme);
+      body = _empty();
     } else if (filtered.isEmpty) {
-      body = _noMatch(theme);
+      body = _noMatch();
     } else {
       body = Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -435,7 +417,7 @@ class _VaultViewState extends ConsumerState<VaultView> {
                 child: GhAnimatedNumber(_items.length),
               ),
               Text(
-                ghTr('vault_item_count', count: _items.length).toUpperCase(),
+                ghTr('vault_item_count', count: _items.length),
                 style: theme.text(size: GhTextSize.lg, weight: GhWeight.medium, color: theme.muted),
               ),
             ],

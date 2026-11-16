@@ -13,6 +13,7 @@ import 'package:godothub/modals/launch_args_modal.dart';
 import 'package:godothub/modals/tag_manager_modal.dart';
 import 'package:godothub/projects/category_sections.dart';
 import 'package:godothub/projects/project_card.dart';
+import 'package:godothub/projects/project_layouts.dart';
 import 'package:godothub/projects/project_tile.dart';
 import 'package:godothub/projects/projects_view.dart';
 import 'package:godothub/src/rust/api/types.dart';
@@ -39,6 +40,7 @@ Project project(
   int order = 0,
   List<String> tags = const [],
   String version = '4.3',
+  bool missing = false,
 }) => Project(
   id: id,
   name: name,
@@ -53,6 +55,7 @@ Project project(
   totalTimeSeconds: BigInt.zero,
   timeTodaySeconds: BigInt.zero,
   timeWeekSeconds: BigInt.zero,
+  missing: missing,
 );
 
 Category category(String id, String name, {int order = 0, bool hidden = false}) =>
@@ -175,9 +178,26 @@ void main() {
     await pumpView(tester, viewSettings());
     expect(card('a'), findsOneWidget);
     expect(card('b'), findsOneWidget);
-    expect(find.text('PINNED'), findsOneWidget);
+    expect(find.descendant(of: find.byType(PinnedHeader), matching: find.text('Pinned')), findsOneWidget);
     expect(tester.getTopLeft(card('b')).dy, lessThan(tester.getTopLeft(card('a')).dy));
     expect(tester.getTopLeft(card('a')).dy, lessThan(tester.getTopLeft(card('c')).dy));
+  });
+
+  testWidgets('a project on an unplugged drive stays listed as unavailable until removed explicitly', (tester) async {
+    backend([project('a', 'Alpha'), project('d', 'OnDrive', missing: true)]);
+    await pumpView(tester, viewSettings());
+    expect(card('d'), findsOneWidget);
+    expect(find.descendant(of: card('d'), matching: find.text('Project folder unavailable')), findsOneWidget);
+    expect(find.descendant(of: card('a'), matching: find.text('Project folder unavailable')), findsNothing);
+    expect(removed, isEmpty);
+
+    await tester.tap(find.descendant(of: card('d'), matching: find.text('Remove from Library')));
+    await settle(tester);
+    expect(removed, isEmpty, reason: 'removal asks for confirmation first');
+    await tester.tap(find.text('Remove').last);
+    await settle(tester);
+    await tester.pump(const Duration(seconds: 7));
+    expect(removed, ['d']);
   });
 
   testWidgets('search narrows the list and the slash menu inserts a field', (tester) async {
@@ -251,6 +271,36 @@ void main() {
     await pumpView(tester, viewSettings(categories: true));
     expect(find.byType(ProjectCategorySection), findsNWidgets(3));
     await dragCard(tester, 'a', tester.getCenter(card('b')) + const Offset(0, 10));
+    expect(changes, ['a:Tools']);
+  });
+
+  testWidgets('kanban shows category columns and dragging a card to another column moves the project', (tester) async {
+    backend(
+      [project('a', 'Alpha', category: 'Games', order: 0), project('b', 'Beta', category: 'Tools', order: 1)],
+      categories: [category('c1', 'Games'), category('c2', 'Tools', order: 1)],
+    );
+    final changes = <String>[];
+    rust.on('crateApiProjectsUpdateProject', ({required String id, required ProjectUpdate updates}) async {
+      changes.add('$id:${updates.category}');
+      return store.firstWhere((p) => p.id == id);
+    });
+    await pumpView(tester, viewSettings(categories: true, customize: true));
+    AppSignals.emit(switchViewSignal, 'kanban');
+    await settle(tester, 8);
+    expect(find.byType(KanbanColumn), findsNWidgets(3));
+    final tile = find.byKey(const ValueKey('tile:a'));
+    final target = find.byKey(const ValueKey('tile:b'));
+    final start = tester.getTopLeft(tile) + const Offset(6, 6);
+    final gesture = await tester.startGesture(start, kind: PointerDeviceKind.mouse);
+    await tester.pump();
+    final to = tester.getCenter(target) + const Offset(0, 10);
+    for (var i = 1; i <= 10; i++) {
+      await gesture.moveTo(Offset.lerp(start, to, i / 10)!);
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    await tester.pump(const Duration(milliseconds: 100));
+    await gesture.up();
+    await settle(tester, 8);
     expect(changes, ['a:Tools']);
   });
 

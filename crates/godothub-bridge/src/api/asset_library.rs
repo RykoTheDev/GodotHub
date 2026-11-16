@@ -44,3 +44,42 @@ pub async fn install_store_asset(publisher_slug: String, asset_slug: String, tit
 pub async fn get_asset_library_categories() -> Result<Vec<AssetLibraryCategory>, CoreError> {
     godothub_core::asset_library::get_asset_library_categories().await.map_err(CoreError::from)
 }
+
+pub async fn get_asset_info(asset_id: String) -> Result<AssetInfo, CoreError> {
+    godothub_core::asset_extras::get_asset_info(asset_id).await.map_err(CoreError::from)
+}
+
+pub async fn list_asset_files(asset_id: String) -> Result<AssetFileListing, CoreError> {
+    let app = app()?;
+    godothub_core::asset_extras::list_asset_files(app, asset_id).await.map_err(CoreError::from)
+}
+
+pub async fn list_asset_installations() -> Result<Vec<AssetInstallation>, CoreError> {
+    let app = app()?;
+    Ok(tokio::task::spawn_blocking(move || godothub_core::addons::list_asset_installations(&app)).await.unwrap_or_default())
+}
+
+pub async fn get_asset_prefs() -> Result<AssetPrefs, CoreError> {
+    let app = app()?;
+    Ok(godothub_core::asset_extras::get_asset_prefs(&app))
+}
+
+pub async fn set_asset_favorite(asset: AssetLibraryAsset, favorite: bool) -> Result<AssetPrefs, CoreError> {
+    let app = app()?;
+    crate::lane::serial(move || godothub_core::asset_extras::set_asset_favorite(&app, asset, favorite)).await.map_err(CoreError::from)
+}
+
+pub async fn set_asset_hidden(asset_id: String, title: String, hidden: bool) -> Result<AssetPrefs, CoreError> {
+    let app = app()?;
+    crate::lane::serial(move || godothub_core::asset_extras::set_asset_hidden(&app, asset_id, title, hidden)).await.map_err(CoreError::from)
+}
+
+pub async fn check_template_updates() -> Result<Vec<TemplateUpdate>, CoreError> {
+    let app = app()?;
+    godothub_core::asset_extras::check_template_updates(app).await.map_err(CoreError::from)
+}
+
+pub async fn update_template_from_asset(template_id: String) -> Result<ProjectTemplate, CoreError> {
+    let app = app()?;
+    godothub_core::asset_library::update_template_from_asset(app, template_id).await.map_err(CoreError::from)
+}

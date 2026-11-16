@@ -63,6 +63,23 @@ class TemplatesBackend {
   }
 }
 
+/// Runs [body] and returns layout errors raised by this screen's own widgets.
+/// The shared view header (not owned here) is reported separately.
+Future<List<String>> ownLayoutErrors(Future<void> Function() body) async {
+  final errors = <String>[];
+  final previous = FlutterError.onError;
+  FlutterError.onError = (details) => errors.add(details.toString());
+  try {
+    await body();
+  } finally {
+    FlutterError.onError = previous;
+  }
+  return [
+    for (final e in errors)
+      if (!e.contains('view_header.dart')) e,
+  ];
+}
+
 void main() {
   setUpAll(() async {
     await base.loadFont('Inter', ['assets/fonts/inter-latin.ttf']);
@@ -113,7 +130,7 @@ void main() {
     expect(find.text('Platformer'), findsOneWidget);
     expect(tester.getTopLeft(find.text('Arena')).dx, lessThan(tester.getTopLeft(find.text('Platformer')).dx));
     expect(find.text('Jump and run'), findsOneWidget);
-    expect(find.text(ghTr("template_your_templates", count: 2).toUpperCase()), findsWidgets);
+    expect(find.text(ghTr("template_your_templates", count: 2)), findsWidgets);
     await tester.tap(find.text(ghTr('sort_name_asc')));
     await base.settle(tester, 3);
     await tester.tap(find.text(ghTr('sort_created_desc')).last);
@@ -126,11 +143,99 @@ void main() {
     expect(find.textContaining('"zzz"', findRichText: true), findsOneWidget);
   });
 
-  testWidgets('empty state renders the bold Save as Template hint', (tester) async {
+  testWidgets('empty state mentions the Save as Template action', (tester) async {
     (TemplatesBackend()..list = []).install(rust);
     await base.pumpHost(tester, body: const TemplatesView());
     await base.settle(tester);
     expect(find.textContaining('Save as Template', findRichText: true), findsOneWidget);
+  });
+
+  testWidgets('empty library offers the Asset Library, no-match offers clear search', (tester) async {
+    final backend = TemplatesBackend()..list = [];
+    backend.install(rust);
+    rust.on(
+      'crateApiAssetLibrarySearchAssetLibrary',
+      ({
+        String? filter,
+        String? godotVersion,
+        int? page,
+        int? maxResults,
+        String? assetType,
+        String? categoryId,
+        String? sort,
+        bool? reverse,
+      }) async => const AssetLibraryResponse(assets: [], page: 0, pages: 0, total: 0),
+    );
+    await base.pumpHost(tester, body: const TemplatesView());
+    await base.settle(tester);
+    expect(find.text(ghTr('templates_empty_title')), findsOneWidget);
+    await tester.tap(find.text(ghTr('templates_browse_library')));
+    await base.settle(tester);
+    expect(find.text(ghTr('asset_no_results_title')), findsOneWidget);
+  });
+
+  testWidgets('no-match state clears the search', (tester) async {
+    TemplatesBackend().install(rust);
+    await base.pumpHost(tester, body: const TemplatesView());
+    await base.settle(tester);
+    await tester.enterText(find.byType(TextField).first, 'zzz');
+    await base.settle(tester, 3);
+    await tester.tap(find.text(ghTr('clear_search')).last);
+    await base.settle(tester, 3);
+    expect(find.text('Arena'), findsOneWidget);
+  });
+
+  testWidgets('a load error shows retry instead of the first-run state', (tester) async {
+    var fail = true;
+    rust.on('crateApiTemplatesListTemplates', () async {
+      if (fail) throw 'disk gone';
+      return [template('a', 'Arena')];
+    });
+    await base.pumpHost(tester, body: const TemplatesView());
+    await base.settle(tester);
+    expect(find.text(ghTr('templates_load_error')), findsOneWidget);
+    expect(find.text(ghTr('templates_empty_title')), findsNothing);
+    fail = false;
+    await tester.tap(find.text(ghTr('retry')));
+    await base.settle(tester);
+    expect(find.text('Arena'), findsOneWidget);
+  });
+
+  testWidgets('cards fit a 340px window', (tester) async {
+    TemplatesBackend().install(rust);
+    final errors = await ownLayoutErrors(() async {
+      await base.pumpHost(tester, body: const TemplatesView(), size: const Size(340, 900));
+      await base.settle(tester);
+    });
+    expect(errors, isEmpty);
+  });
+
+  testWidgets('a failed reload keeps the list and shows a retry notice', (tester) async {
+    final backend = TemplatesBackend()..install(rust);
+    await base.pumpHost(tester, body: const TemplatesView());
+    await base.settle(tester);
+    rust.on('crateApiTemplatesListTemplates', () async => throw 'disk gone');
+    AppSignals.emit(refreshTemplatesSignal);
+    await base.settle(tester, 4);
+    expect(find.text('Arena'), findsOneWidget);
+    expect(find.text(ghTr('templates_load_error')), findsOneWidget);
+    backend.install(rust);
+    await tester.tap(find.text(ghTr('retry')));
+    await base.settle(tester, 4);
+    expect(find.text(ghTr('templates_load_error')), findsNothing);
+  });
+
+  testWidgets('keyboard focus inside a card reveals its delete button', (tester) async {
+    TemplatesBackend().install(rust);
+    await base.pumpHost(tester, body: const TemplatesView());
+    await base.settle(tester);
+    final label = ghTr('delete_template', args: {'name': 'Arena'});
+    final opacity = find.ancestor(of: find.bySemanticsLabel(label), matching: find.byType(AnimatedOpacity)).first;
+    expect(tester.widget<AnimatedOpacity>(opacity).opacity, 0);
+    final focus = find.descendant(of: find.bySemanticsLabel(label), matching: find.byType(Focus)).first;
+    Focus.of(tester.element(focus)).requestFocus();
+    await base.settle(tester, 3);
+    expect(tester.widget<AnimatedOpacity>(opacity).opacity, 1);
   });
 
   testWidgets('deletes a template after confirming', (tester) async {
@@ -198,11 +303,7 @@ void main() {
     rust
       ..on('crateApiGitGitIsAvailable', () async => false)
       ..on('crateApiGitAuthGetGitAuthState', () async => const GitAuthState(pats: []));
-    await base.pumpHost(
-      tester,
-      body: const TemplatesView(),
-      settings: copySettings(baseSettings, setupComplete: true),
-    );
+    await base.pumpHost(tester, body: const TemplatesView(), settings: copySettings(baseSettings, setupComplete: true));
     await base.settle(tester);
     await tester.tap(find.text(ghTr('create_project_btn')).first);
     await base.settle(tester, 6);

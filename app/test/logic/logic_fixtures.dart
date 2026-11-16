@@ -31,6 +31,7 @@ Project project({
   sessionStartedAtMs: sessionStartedAtMs == null ? null : BigInt.from(sessionStartedAtMs),
   timeTodaySeconds: BigInt.zero,
   timeWeekSeconds: BigInt.zero,
+  missing: false,
 );
 
 AssetLibraryAsset asset({
@@ -51,6 +52,7 @@ AssetLibraryAsset asset({
   description: description,
   rating: '0',
   source: 'library',
+  version: '',
 );
 
 TemplateFile templateFile(String name, {bool installed = false}) =>

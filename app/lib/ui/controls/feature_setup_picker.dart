@@ -78,12 +78,7 @@ class _GhFeatureSetupPickerState extends State<GhFeatureSetupPicker> {
       );
     }
 
-    final sectionLabel = theme.text(
-      size: GhTextSize.x3s,
-      weight: GhWeight.semibold,
-      color: theme.muted.withValues(alpha: 0.7),
-      letterSpacingEm: 0.025,
-    );
+    final sectionLabel = theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: theme.muted.withValues(alpha: 0.7));
     final rowGap = theme.space(1.5);
 
     return Column(
@@ -112,7 +107,7 @@ class _GhFeatureSetupPickerState extends State<GhFeatureSetupPicker> {
           SizedBox(height: theme.space(4)),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: theme.space(1)),
-            child: Text(context.tr.settings.features_always_on.toUpperCase(), style: sectionLabel),
+            child: Text(context.tr.settings.features_always_on, style: sectionLabel),
           ),
           for (final core in GhCoreFeature.values) ...[
             SizedBox(height: rowGap),
@@ -121,7 +116,7 @@ class _GhFeatureSetupPickerState extends State<GhFeatureSetupPicker> {
           SizedBox(height: rowGap),
           Padding(
             padding: EdgeInsets.only(left: theme.space(1), right: theme.space(1), top: theme.space(2)),
-            child: Text(context.tr.settings.features_optional.toUpperCase(), style: sectionLabel),
+            child: Text(context.tr.settings.features_optional, style: sectionLabel),
           ),
           for (final feature in GhFeatureId.values) ...[
             SizedBox(height: rowGap),

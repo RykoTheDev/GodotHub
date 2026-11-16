@@ -8,12 +8,13 @@ import '../design/design.dart';
 import '../logic/naming_convention.dart';
 import '../src/rust/api/types.dart';
 import '../state/settings.dart';
-import '../ui/controls/text_input.dart';
 import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
+import '../ui/reusables/labelled_field.dart';
 import '../ui/reusables/modal_kit.dart';
+import '../ui/reusables/path_field.dart';
 
 String defaultDuplicateDest(String path) {
   final slash = path.lastIndexOf('/');
@@ -36,28 +37,28 @@ class DuplicateProjectModal extends ConsumerStatefulWidget {
 
 class _DuplicateProjectModalState extends ConsumerState<DuplicateProjectModal> {
   late final TextEditingController _name = TextEditingController(text: '${widget.project.name} ${ghTr('copy_suffix')}');
-  late String _dest = defaultDuplicateDest(widget.project.path);
+  late final TextEditingController _destination = TextEditingController(text: defaultDuplicateDest(widget.project.path));
+
+  /// The last destination the user committed; the name check only touches
+  /// the disk under this folder, never under half-typed text.
+  late String _checkedDest = ghNormalizePath(_destination.text);
   bool _busy = false;
+  String? _destError;
+
+  String get _dest => ghNormalizePath(_destination.text);
 
   @override
   void initState() {
     super.initState();
     _name.addListener(() => setState(() {}));
+    _destination.addListener(() => setState(() => _destError = null));
   }
 
   @override
   void dispose() {
     _name.dispose();
+    _destination.dispose();
     super.dispose();
-  }
-
-  Future<void> _pick() async {
-    try {
-      final picked = await (widget.pickFolder ?? ProjectsApi.pickFolder)();
-      if (picked != null && mounted) setState(() => _dest = picked);
-    } catch (e) {
-      ghToasts.pushToast(GhToastType.error, '$e');
-    }
   }
 
   String get _folderName =>
@@ -68,13 +69,22 @@ class _DuplicateProjectModalState extends ConsumerState<DuplicateProjectModal> {
     if (trimmed.isEmpty) return null;
     final folder = _folderName;
     if (!isValidFolderName(folder)) return ghTr('folder_name_invalid_chars');
-    if (Directory('$_dest${Platform.pathSeparator}$folder').existsSync()) return ghTr('duplicate_folder_exists');
+    if (_dest.isNotEmpty && _dest == _checkedDest && Directory('$_dest${Platform.pathSeparator}$folder').existsSync()) {
+      return ghTr('duplicate_folder_exists');
+    }
     return null;
   }
 
   Future<void> _duplicate() async {
     final trimmed = _name.text.trim();
     if (trimmed.isEmpty || _busy || _nameError != null) return;
+    final destError = ghPathError(_dest, GhPathKind.folder);
+    if (destError != null) {
+      setState(() => _destError = destError);
+      return;
+    }
+    setState(() => _checkedDest = _dest);
+    if (_nameError != null) return;
     setState(() => _busy = true);
     try {
       await ProjectsApi.duplicate(widget.project.id, trimmed, _dest);
@@ -92,10 +102,9 @@ class _DuplicateProjectModalState extends ConsumerState<DuplicateProjectModal> {
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
     final tr = context.tr.common;
-    final radius = BorderRadius.circular(theme.radiusItem);
     ref.watch(settingsProvider);
     final nameError = _nameError;
-    final canDuplicate = _name.text.trim().isNotEmpty && nameError == null && !_busy;
+    final canDuplicate = _name.text.trim().isNotEmpty && _dest.isNotEmpty && nameError == null && !_busy;
     return GhModalShell(
       icon: GhIcon(GhIcons.copy, size: theme.space(5), color: theme.ink),
       title: tr.duplicate_project_title,
@@ -111,74 +120,21 @@ class _DuplicateProjectModalState extends ConsumerState<DuplicateProjectModal> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: theme.space(4),
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: theme.space(2),
-              children: [
-                GhFieldLabel(tr.new_project_name),
-                GhTextInput(
-                  controller: _name,
-                  placeholder: tr.new_project_name,
-                  background: theme.base,
-                  borderColor: nameError != null ? theme.danger : null,
-                  focusBorderColor: nameError != null ? theme.danger : theme.accentDim,
-                  placeholderColor: theme.muted,
-                ),
-                if (nameError != null)
-                  Text(
-                    nameError,
-                    style: theme.text(size: GhTextSize.x2s, color: theme.danger, lineHeight: 1.5),
-                  )
-                else if (_name.text.trim().isNotEmpty)
-                  Text(
-                    tr.folder_name_preview.args({'name': _folderName}),
-                    style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.5),
-                  ),
-              ],
+            GhLabelledField(
+              label: tr.new_project_name,
+              error: nameError,
+              hint: _name.text.trim().isNotEmpty ? tr.folder_name_preview.args({'name': _folderName}) : null,
+              child: GhFieldInput(controller: _name, placeholder: tr.new_project_name),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: theme.space(2),
-              children: [
-                GhFieldLabel(tr.destination_folder),
-                Row(
-                  spacing: theme.space(2),
-                  children: [
-                    Expanded(
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(2)),
-                        decoration: BoxDecoration(
-                          color: theme.base,
-                          borderRadius: radius,
-                          border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-                        ),
-                        child: Row(
-                          spacing: theme.space(2),
-                          children: [
-                            GhIcon(GhIcons.folder, size: theme.space(3.5), color: theme.muted),
-                            Expanded(
-                              child: Text(
-                                _dest,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: theme.text(size: GhTextSize.xs, mono: true, color: theme.ink),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    GhButton(
-                      onPressed: _pick,
-                      label: tr.browse,
-                      variant: GhButtonVariant.outline,
-                      size: GhTextSize.xs,
-                      paddingX: 3,
-                      paddingY: 2,
-                    ),
-                  ],
-                ),
-              ],
+            GhPathField(
+              key: const ValueKey('duplicate-destination'),
+              controller: _destination,
+              kind: GhPathKind.folder,
+              label: tr.destination_folder,
+              error: _destError,
+              enabled: !_busy,
+              pick: widget.pickFolder,
+              onCommitted: (path) => setState(() => _checkedDest = path),
             ),
           ],
         ),

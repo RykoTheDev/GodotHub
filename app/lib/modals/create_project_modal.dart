@@ -15,14 +15,15 @@ import '../projects/project_icon.dart';
 import '../src/rust/api/types.dart';
 import '../state/settings.dart';
 import '../ui/controls/checkbox.dart';
-import '../ui/controls/text_input.dart';
 import '../ui/controls/toggle.dart';
 import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
+import '../ui/reusables/labelled_field.dart';
 import '../ui/reusables/modal_kit.dart';
+import '../ui/reusables/path_field.dart';
 import 'template_preview_modal.dart';
 
 const createProjectPlaceholders = [
@@ -84,6 +85,10 @@ class CreateProjectModal extends ConsumerStatefulWidget {
 class _CreateProjectModalState extends ConsumerState<CreateProjectModal> {
   final TextEditingController _name = TextEditingController();
   late final TextEditingController _location = TextEditingController(text: widget.defaultLocation ?? '');
+
+  /// The last location the user committed; the name check only touches
+  /// the disk under this folder, never under half-typed text.
+  late String _checkedLocation = ghNormalizePath(widget.defaultLocation ?? '');
   final FocusNode _nameNode = FocusNode(debugLabel: 'CreateProjectModal name');
   late final String _placeholder = widget.placeholder ?? createProjectPlaceholders[math.Random().nextInt(createProjectPlaceholders.length)];
   late String _version = widget.installedVersions.firstOrNull?.tag ?? '';
@@ -93,6 +98,7 @@ class _CreateProjectModalState extends ConsumerState<CreateProjectModal> {
   String? _category;
   List<ProjectTemplate> _templates = const [];
   String? _error;
+  String? _locationPathError;
   late bool _initGit = ref.read(settingsProvider).value?.gitInitNewProjects ?? false;
   bool _gitignore = true;
   bool _gitattributes = true;
@@ -120,6 +126,12 @@ class _CreateProjectModalState extends ConsumerState<CreateProjectModal> {
     _name.addListener(
       () => setState(() {
         if (_error != null) _error = null;
+      }),
+    );
+    _location.addListener(
+      () => setState(() {
+        _error = null;
+        _locationPathError = null;
       }),
     );
     TemplatesApi.list().then((value) {
@@ -155,20 +167,6 @@ class _CreateProjectModalState extends ConsumerState<CreateProjectModal> {
 
   void _dismiss() => _finished ? widget.onCreated() : widget.onClose();
 
-  Future<void> _pickLocation() async {
-    try {
-      final folder = await ProjectsApi.pickFolder();
-      if (folder != null && mounted) {
-        setState(() {
-          _location.text = folder;
-          _error = null;
-        });
-      }
-    } catch (reason) {
-      ghToasts.pushToast(GhToastType.error, '$reason');
-    }
-  }
-
   Future<void> _pickIcon() async {
     try {
       final file = await ProjectsApi.pickFile();
@@ -184,9 +182,19 @@ class _CreateProjectModalState extends ConsumerState<CreateProjectModal> {
   Future<void> _submit() async {
     if (_busy || _finished) return;
     final name = _name.text.trim();
-    final location = _location.text;
+    final location = _locationText;
     setState(() => _attempted = true);
     if (name.isEmpty || location.isEmpty || _nameError != null) {
+      _nameNode.requestFocus();
+      return;
+    }
+    final pathError = ghPathError(location, GhPathKind.folder);
+    if (pathError != null) {
+      setState(() => _locationPathError = pathError);
+      return;
+    }
+    setState(() => _checkedLocation = location);
+    if (_nameError != null) {
       _nameNode.requestFocus();
       return;
     }
@@ -244,8 +252,10 @@ class _CreateProjectModalState extends ConsumerState<CreateProjectModal> {
   String get _folderName =>
       applyNamingConvention(_name.text.trim(), NamingConvention.parse(ref.read(settingsProvider).value?.directoryNamingConvention ?? ''));
 
+  String get _locationText => ghNormalizePath(_location.text);
+
   String get _targetPath {
-    final dir = _location.text;
+    final dir = _locationText;
     final folder = _folderName;
     if (dir.isEmpty) return folder;
     final separator = dir.contains(r'\') && !dir.contains('/') ? r'\' : '/';
@@ -256,67 +266,13 @@ class _CreateProjectModalState extends ConsumerState<CreateProjectModal> {
     final name = _name.text.trim();
     if (name.isEmpty) return _attempted ? ghTr('create_project_name_required') : null;
     if (!isValidFolderName(_folderName)) return ghTr('folder_name_invalid_chars');
-    if (_location.text.isNotEmpty && Directory(_targetPath).existsSync()) return ghTr('duplicate_folder_exists');
+    if (_locationText.isNotEmpty && _locationText == _checkedLocation && Directory(_targetPath).existsSync()) {
+      return ghTr('duplicate_folder_exists');
+    }
     return null;
   }
 
-  String? get _locationError => _attempted && _location.text.isEmpty ? ghTr('create_project_location_required') : null;
-
-  Widget _input(
-    GhTheme theme, {
-    required TextEditingController controller,
-    required bool invalid,
-    FocusNode? focusNode,
-    String? placeholder,
-    bool readOnly = false,
-    VoidCallback? onTap,
-    ValueChanged<String>? onSubmitted,
-    Color? textColor,
-    String? semanticLabel,
-  }) => GhTextInput(
-    controller: controller,
-    focusNode: focusNode,
-    autofocus: focusNode != null,
-    placeholder: placeholder,
-    readOnly: readOnly,
-    onTap: onTap,
-    onSubmitted: onSubmitted,
-    mono: true,
-    textColor: textColor,
-    semanticLabel: semanticLabel,
-    background: theme.overlay,
-    placeholderColor: theme.muted.withValues(alpha: 0.7),
-    borderColor: invalid ? theme.danger.withValues(alpha: 0.7) : theme.outline.withValues(alpha: 0.5),
-    focusBorderColor: invalid ? theme.danger : theme.accentDim,
-    borderRadius: BorderRadius.circular(theme.radiusItem),
-    padding: EdgeInsets.symmetric(horizontal: theme.space(3.5), vertical: theme.space(2.5)),
-  );
-
-  Widget _hint(GhTheme theme, {required String text, bool error = false}) => Padding(
-    padding: EdgeInsetsDirectional.only(start: theme.space(1), top: theme.space(1.5)),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: theme.space(1.5),
-      children: [
-        Padding(
-          padding: EdgeInsets.only(top: theme.space(0.25)),
-          child: GhIcon(
-            error ? GhIcons.alertTriangle : GhIcons.folder,
-            size: theme.space(3),
-            color: error ? theme.danger : theme.accentBright.withValues(alpha: 0.7),
-          ),
-        ),
-        Expanded(
-          child: Text(
-            text,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-            style: theme.text(size: GhTextSize.x2s, mono: !error, color: error ? theme.danger : theme.muted, lineHeight: 1.5),
-          ),
-        ),
-      ],
-    ),
-  );
+  String? get _locationError => _attempted && _locationText.isEmpty ? ghTr('create_project_location_required') : _locationPathError;
 
   Widget _section(GhTheme theme, String label, List<Widget> chips, {Widget? after}) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -587,64 +543,35 @@ class _CreateProjectModalState extends ConsumerState<CreateProjectModal> {
                     child: GhFieldLabel(tr.project_name_label, inset: true),
                   ),
                 ),
-                SizedBox(height: theme.space(0.5)),
+                SizedBox(height: theme.space(1.5)),
                 _iconTile(theme, tr),
               ],
             ),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  GhFieldLabel(tr.project_name_label, inset: true),
-                  SizedBox(height: theme.space(0.5)),
-                  _input(
-                    theme,
-                    controller: _name,
-                    focusNode: _nameNode,
-                    invalid: nameError != null,
-                    placeholder: _placeholder,
-                    semanticLabel: tr.project_name_label,
-                    onSubmitted: (_) => _submit(),
-                  ),
-                  if (nameError != null)
-                    _hint(theme, text: nameError, error: true)
-                  else
-                    _hint(theme, text: hasName ? ghTr('create_project_path_preview', args: {'path': _targetPath}) : tr.folder_name_hint),
-                ],
+              child: GhLabelledField(
+                label: tr.project_name_label,
+                error: nameError,
+                hint: hasName ? ghTr('create_project_path_preview', args: {'path': _targetPath}) : tr.folder_name_hint,
+                child: GhFieldInput(
+                  controller: _name,
+                  focusNode: _nameNode,
+                  autofocus: true,
+                  mono: true,
+                  placeholder: _placeholder,
+                  onSubmitted: (_) => _submit(),
+                ),
               ),
             ),
           ],
         ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            GhFieldLabel(tr.project_location_label, inset: true),
-            SizedBox(height: theme.space(0.5)),
-            Row(
-              spacing: theme.space(2.5),
-              children: [
-                Expanded(
-                  child: _input(
-                    theme,
-                    controller: _location,
-                    invalid: locationError != null,
-                    placeholder: tr.choose_folder_placeholder,
-                    readOnly: true,
-                    onTap: _pickLocation,
-                    textColor: theme.muted,
-                    semanticLabel: tr.project_location_label,
-                  ),
-                ),
-                GhButton(
-                  onPressed: locked ? null : _pickLocation,
-                  label: tr.browse,
-                  icon: GhIcons.folder,
-                  variant: GhButtonVariant.outline,
-                ),
-              ],
-            ),
-            if (locationError != null) _hint(theme, text: locationError, error: true),
-          ],
+        GhPathField(
+          key: const ValueKey('create-project-location'),
+          controller: _location,
+          kind: GhPathKind.folder,
+          label: tr.project_location_label,
+          error: locationError,
+          enabled: !locked,
+          onCommitted: (path) => setState(() => _checkedLocation = path),
         ),
         _section(
           theme,

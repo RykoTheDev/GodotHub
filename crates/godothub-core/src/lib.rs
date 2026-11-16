@@ -6,6 +6,7 @@ pub use app::{app_version, set_app_version, AppHandle, Channel, ChannelInfo, Eve
 
 pub mod addons;
 pub mod android;
+pub mod asset_extras;
 pub mod asset_library;
 pub mod backup;
 pub mod beta_import;

@@ -103,6 +103,7 @@ pub(crate) fn install_downloaded_asset(
     description: String,
     godot_version: String,
     src: &Path,
+    source: Option<(String, String, Option<u64>)>,
 ) -> Result<ProjectTemplate, String> {
     if !src.join("project.godot").is_file() {
         return Err("Downloaded asset does not contain a project.godot file".into());
@@ -122,6 +123,9 @@ pub(crate) fn install_downloaded_asset(
         source_path: None,
         path: dst.to_string_lossy().to_string(),
         keep_name: true,
+        source_asset_id: source.as_ref().map(|s| s.0.clone()),
+        source_asset_version: source.as_ref().map(|s| s.1.clone()),
+        source_asset_revision: source.and_then(|s| s.2),
     };
 
     write_template_json(&dst, &template)?;
@@ -271,6 +275,9 @@ pub async fn save_project_as_template(
         source_path: None,
         path: dst.to_string_lossy().to_string(),
         keep_name: false,
+        source_asset_id: None,
+        source_asset_version: None,
+        source_asset_revision: None,
     };
 
     write_template_json(&dst, &template)?;
@@ -604,6 +611,9 @@ pub fn sync_templates_with_scan_dir_blocking(app: &AppHandle) -> Result<Template
             source_path: Some(full_path.clone()),
             path: dst.to_string_lossy().to_string(),
             keep_name: false,
+            source_asset_id: None,
+            source_asset_version: None,
+            source_asset_revision: None,
         };
 
         if write_template_json(&dst, &template).is_ok() {
@@ -617,4 +627,83 @@ pub fn sync_templates_with_scan_dir_blocking(app: &AppHandle) -> Result<Template
         updated: updated_names,
         removed: removed_names,
     })
+}
+
+fn swap_in(src: &Path, dir: &Path, template: &ProjectTemplate) -> Result<(), String> {
+    let staging = dir.with_extension("updating");
+    let _ = remove_dir_force(&staging);
+    copy_dir(src, &staging, &[".godot", ".git", "node_modules"])?;
+    write_template_json(&staging, template)?;
+    remove_dir_force(dir)?;
+    fs::rename(&staging, dir).map_err(|e| e.to_string())
+}
+
+/// Replaces a library template's files with a newer download, keeping its id,
+/// name, description and category of use. The files are staged next to the
+/// template and swapped in, so a failed copy never leaves it empty. The
+/// scan-folder copy, when there is one, is refreshed too so the watcher does
+/// not bring the old files back.
+pub(crate) fn replace_template_files(
+    app: &AppHandle,
+    template_id: &str,
+    src: &Path,
+    version: String,
+    revision: Option<u64>,
+    godot_version: String,
+) -> Result<ProjectTemplate, String> {
+    if !src.join("project.godot").is_file() {
+        return Err("Downloaded asset does not contain a project.godot file".into());
+    }
+    let mut template = read_templates(app)
+        .into_iter()
+        .find(|t| t.id == template_id)
+        .ok_or("Template not found")?;
+    template.source_asset_version = Some(version);
+    template.source_asset_revision = revision;
+    if !godot_version.is_empty() {
+        template.godot_version = godot_version;
+    }
+    swap_in(src, Path::new(&template.path), &template)?;
+    if let Some(scan_copy) = template.source_path.as_deref().map(PathBuf::from).filter(|p| p.is_dir()) {
+        swap_in(src, &scan_copy, &template)?;
+    }
+    Ok(template)
+}
+
+#[cfg(test)]
+mod replace_tests {
+    use super::*;
+
+    #[test]
+    fn swap_in_replaces_files_and_keeps_metadata() {
+        let root = std::env::temp_dir().join(format!("godothub-swap-{}", Uuid::new_v4()));
+        let dir = root.join("tpl");
+        let src = root.join("new");
+        fs::create_dir_all(&dir).unwrap();
+        fs::write(dir.join("old.gd"), "old").unwrap();
+        fs::create_dir_all(&src).unwrap();
+        fs::write(src.join("project.godot"), "[application]").unwrap();
+        fs::write(src.join("new.gd"), "new").unwrap();
+        let template = ProjectTemplate {
+            id: "t".into(),
+            name: "T".into(),
+            description: String::new(),
+            godot_version: "4.3".into(),
+            created_at: String::new(),
+            source_project_id: None,
+            source_path: None,
+            path: dir.to_string_lossy().to_string(),
+            keep_name: true,
+            source_asset_id: Some("12".into()),
+            source_asset_version: Some("2.0".into()),
+            source_asset_revision: Some(7),
+        };
+        swap_in(&src, &dir, &template).unwrap();
+        assert!(!dir.join("old.gd").exists());
+        assert!(dir.join("new.gd").exists());
+        let saved = read_template_json(&dir).unwrap();
+        assert_eq!(saved.source_asset_revision, Some(7));
+        assert!(!dir.with_extension("updating").exists());
+        fs::remove_dir_all(&root).unwrap();
+    }
 }

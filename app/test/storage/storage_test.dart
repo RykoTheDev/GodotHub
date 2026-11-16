@@ -38,23 +38,39 @@ StorageVersion version(
   unused: unused,
 );
 
-StorageReport report({List<StorageVersion>? versions, List<StoragePartial>? partials, List<StorageExportTemplates>? exports}) => StorageReport(
-  versions:
-      versions ??
-      [
-        version('4.3-stable', size: 200 * mb, current: true, projects: const ['Game']),
-        version('4.2-stable', unused: true),
-        version('4.1-stable', unused: true, external: true),
-      ],
-  partials: partials ?? [StoragePartial(kind: 'version_download', name: 'godot.zip.part', path: 'C:/dl/godot.zip.part', sizeBytes: BigInt.from(10 * mb))],
-  templates: [StorageTemplate(id: 't', name: 'Starter', workspace: 'Default', path: 'C:/tpl/starter', sizeBytes: BigInt.from(5 * mb))],
-  exportTemplates:
-      exports ??
-      [
-        StorageExportTemplates(tag: '4.3-stable', folder: '4.3.stable', root: 'C:/et', path: 'C:/et/4.3.stable', sizeBytes: BigInt.from(50 * mb), orphan: false),
-        StorageExportTemplates(folder: '3.5.stable', root: 'C:/et', path: 'C:/et/3.5.stable', sizeBytes: BigInt.from(20 * mb), orphan: true),
-      ],
-);
+StorageReport report({List<StorageVersion>? versions, List<StoragePartial>? partials, List<StorageExportTemplates>? exports}) =>
+    StorageReport(
+      versions:
+          versions ??
+          [
+            version('4.3-stable', size: 200 * mb, current: true, projects: const ['Game']),
+            version('4.2-stable', unused: true),
+            version('4.1-stable', unused: true, external: true),
+          ],
+      partials:
+          partials ??
+          [StoragePartial(kind: 'version_download', name: 'godot.zip.part', path: 'C:/dl/godot.zip.part', sizeBytes: BigInt.from(10 * mb))],
+      templates: [StorageTemplate(id: 't', name: 'Starter', workspace: 'Default', path: 'C:/tpl/starter', sizeBytes: BigInt.from(5 * mb))],
+      exportTemplates:
+          exports ??
+          [
+            StorageExportTemplates(
+              tag: '4.3-stable',
+              folder: '4.3.stable',
+              root: 'C:/et',
+              path: 'C:/et/4.3.stable',
+              sizeBytes: BigInt.from(50 * mb),
+              orphan: false,
+            ),
+            StorageExportTemplates(
+              folder: '3.5.stable',
+              root: 'C:/et',
+              path: 'C:/et/3.5.stable',
+              sizeBytes: BigInt.from(20 * mb),
+              orphan: true,
+            ),
+          ],
+    );
 
 void main() {
   setUpAll(() async {
@@ -72,9 +88,21 @@ void main() {
       ..on('crateApiMiseMiseRefreshStatus', () async => const MiseStatus(available: false));
   });
 
+  test('stat cards go 1, 2 or 4 per row by available width', () {
+    expect(
+      [
+        for (final w in [300.0, 500.0, 740.0, 800.0, 1600.0]) storageStatBreakpoints.columnsFor(w),
+      ],
+      [1, 2, 2, 4, 4],
+    );
+  });
+
   test('reclaim entries pick unused versions, partials and orphan exports with defaults', () {
     final entries = reclaimEntries(report());
-    expect([for (final e in entries) e.key], ['version:4.2-stable', 'version:4.1-stable', 'partial:C:/dl/godot.zip.part', 'export:C:/et:3.5.stable']);
+    expect(
+      [for (final e in entries) e.key],
+      ['version:4.2-stable', 'version:4.1-stable', 'partial:C:/dl/godot.zip.part', 'export:C:/et:3.5.stable'],
+    );
     expect([for (final e in entries) e.defaultOn], [true, false, true, false]);
     expect(entries[1].detail, ghTr('cleanup_external_hint'));
     expect(entries[2].detail, ghTr('cleanup_kind_version_download'));

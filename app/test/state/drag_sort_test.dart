@@ -21,6 +21,7 @@ Project _p(String id, [String? category]) => Project(
   totalTimeSeconds: BigInt.zero,
   timeTodaySeconds: BigInt.zero,
   timeWeekSeconds: BigInt.zero,
+  missing: false,
 );
 
 Category _cat(String name) => Category(id: name, name: name, sortOrder: 0, color: '#fff', hidden: false, folders: const []);

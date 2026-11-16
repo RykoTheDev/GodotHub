@@ -88,14 +88,13 @@ class _GitSectionState extends State<GitSection> {
                 ),
                 Expanded(
                   child: Text(
-                    widget.title.toUpperCase(),
+                    widget.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.text(
-                      size: GhTextSize.x3s,
+                      size: GhTextSize.x2s,
                       weight: GhWeight.semibold,
-                      color: states.active ? theme.muted : theme.muted.withValues(alpha: 0.5),
-                      letterSpacingEm: 0.05,
+                      color: states.active ? theme.muted : theme.muted.withValues(alpha: 0.7),
                     ),
                   ),
                 ),

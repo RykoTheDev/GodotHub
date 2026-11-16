@@ -847,7 +847,7 @@ class ProjectsViewState extends ConsumerState<ProjectsView> {
                         child: GhAnimatedNumber(filtered.length),
                       ),
                       Text(
-                        ghTr('nav:projects_count', count: filtered.length).toUpperCase(),
+                        ghTr('nav:projects_count', count: filtered.length),
                         style: theme.text(size: GhTextSize.lg, weight: GhWeight.medium, color: theme.muted),
                       ),
                     ],

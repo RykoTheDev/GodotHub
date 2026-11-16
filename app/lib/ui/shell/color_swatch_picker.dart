@@ -291,13 +291,8 @@ class _SwatchPanelState extends State<_SwatchPanel> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.presetsLabel.toUpperCase(),
-            style: theme.text(
-              size: GhTextSize.x3s,
-              weight: GhWeight.medium,
-              color: theme.muted.withValues(alpha: 0.6),
-              letterSpacingEm: 0.05,
-            ),
+            widget.presetsLabel,
+            style: theme.text(size: GhTextSize.x2s, weight: GhWeight.medium, color: theme.muted.withValues(alpha: 0.6)),
           ),
           SizedBox(height: theme.space(2)),
           ...rows,

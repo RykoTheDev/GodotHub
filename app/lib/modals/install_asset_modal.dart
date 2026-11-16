@@ -8,16 +8,20 @@ import '../design/design.dart';
 import '../motion/presence.dart';
 import '../src/rust/api/types.dart';
 import '../state/app_signals.dart';
+import '../state/asset_prefs.dart';
 import '../state/projects.dart';
 import '../state/keyboard_shortcuts.dart';
 import '../state/shell_signals.dart';
+import '../ui/controls/checkbox.dart';
 import '../ui/controls/dashed_box.dart';
 import '../ui/controls/text_input.dart';
 import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
+import '../ui/core/tooltip.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
+import '../ui/reusables/card_kit.dart';
 import '../ui/reusables/modal_kit.dart';
 import '../ui/shell/smooth_scroll.dart';
 
@@ -43,7 +47,13 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
   final FocusNode _queryNode = FocusNode(debugLabel: 'InstallAssetModal search');
   AssetInstallTarget _tab = AssetInstallTarget.project;
   List<ProjectTemplate> _templates = const [];
-  String? _selectedId;
+
+  /// Selected targets in the current tab; installs run one after another.
+  final Set<String> _selected = {};
+  int _done = 0;
+
+  /// Per-target results of the last run, shown when any target failed.
+  Map<String, String?> _results = const {};
   bool _installing = false;
   bool _detached = false;
   String? _error;
@@ -97,10 +107,13 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
     super.dispose();
   }
 
-  List<_Row> _rows(List<Project> projects) {
-    final q = _query.text.trim().toLowerCase();
+  List<_Row> _rows(List<Project> projects, {bool filtered = true}) {
+    final q = filtered ? _query.text.trim().toLowerCase() : '';
     final List<_Row> all = _tab == AssetInstallTarget.project
-        ? [for (final p in projects) (id: p.id, name: p.name, path: p.path, godotVersion: p.godotVersion, description: null)]
+        ? [
+            for (final p in projects)
+              if (!p.missing) (id: p.id, name: p.name, path: p.path, godotVersion: p.godotVersion, description: null),
+          ]
         : [for (final t in _templates) (id: t.id, name: t.name, path: t.path, godotVersion: t.godotVersion, description: t.description)];
     return [
       for (final row in all)
@@ -108,31 +121,70 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
     ];
   }
 
-  Future<void> _install(String targetId, String targetName) async {
+  Future<void> _installOne(AssetInstallTarget tab, String targetId) async {
+    if (_asset.source == 'store') {
+      final (publisher, slug) = parseStoreId(_asset.assetId);
+      if (tab == AssetInstallTarget.project) {
+        await AssetLibraryApi.installStoreAsset(publisher, slug, _asset.title, targetId, null);
+      } else {
+        await AssetLibraryApi.installStoreAsset(publisher, slug, _asset.title, null, targetId);
+      }
+    } else if (tab == AssetInstallTarget.project) {
+      await AssetLibraryApi.install(_asset.assetId, targetId, null);
+    } else {
+      await AssetLibraryApi.install(_asset.assetId, null, targetId);
+    }
+  }
+
+  /// Installs into every selected target in turn. Each success is reported
+  /// as it lands; when any target fails the dialog stays open with a result
+  /// per target and only the failed ones still selected, ready to retry.
+  Future<void> _install(List<_Row> targets) async {
     setState(() {
       _installing = true;
       _error = null;
+      _done = 0;
+      _results = const {};
     });
     final tab = _tab;
-    try {
-      if (_asset.source == 'store') {
-        final (publisher, slug) = parseStoreId(_asset.assetId);
-        if (tab == AssetInstallTarget.project) {
-          await AssetLibraryApi.installStoreAsset(publisher, slug, _asset.title, targetId, null);
-        } else {
-          await AssetLibraryApi.installStoreAsset(publisher, slug, _asset.title, null, targetId);
-        }
-      } else if (tab == AssetInstallTarget.project) {
-        await AssetLibraryApi.install(_asset.assetId, targetId, null);
-      } else {
-        await AssetLibraryApi.install(_asset.assetId, null, targetId);
+    // Read before awaiting: the dialog may be closed while installs continue.
+    final installations = ref.read(assetInstallationsProvider.notifier);
+    final results = <String, String?>{};
+    for (final target in targets) {
+      try {
+        await _installOne(tab, target.id);
+        results[target.id] = null;
+        widget.onInstalled((assetId: _asset.assetId, targetType: tab, targetName: target.name));
+      } catch (e) {
+        results[target.id] = '$e';
       }
-      _finish((assetId: _asset.assetId, targetType: tab, targetName: targetName));
-    } catch (e) {
-      _failed(e);
-    } finally {
-      if (mounted) setState(() => _installing = false);
+      if (mounted && !_detached) setState(() => _done++);
     }
+    installations.refresh().ignore();
+    final failed = {
+      for (final e in results.entries)
+        if (e.value != null) e.key: e.value!,
+    };
+    if (failed.isEmpty) {
+      if (!_detached) widget.onClose();
+    } else if (_detached || !mounted) {
+      for (final target in targets.where((t) => failed.containsKey(t.id))) {
+        ghToasts.pushToast(
+          GhToastType.error,
+          ghTr(
+            'asset_install_failed_toast',
+            args: {'title': targets.length == 1 ? _asset.title : '${_asset.title} (${target.name})', 'error': failed[target.id]},
+          ),
+        );
+      }
+    } else {
+      setState(() {
+        _results = results;
+        _selected.removeWhere((id) => results[id] == null);
+        _error = targets.length == 1 ? failed.values.first : ghTr('asset_install_some_failed', args: {'count': failed.length});
+      });
+    }
+    if (mounted) setState(() => _installing = false);
   }
 
   Future<void> _saveAsNewTemplate() async {
@@ -160,7 +212,8 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
             ? null
             : () => setState(() {
                 _tab = value;
-                _selectedId = null;
+                _selected.clear();
+                _results = const {};
               }),
         selected: active,
         borderRadius: radius,
@@ -234,7 +287,7 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
                   ],
                 ),
               ),
-              if (_installing && _selectedId == null) GhSpinnerIcon(size: 4, color: theme.mint),
+              if (_installing && _selected.isEmpty) GhSpinnerIcon(size: 4, color: theme.mint),
             ],
           ),
         ),
@@ -271,16 +324,20 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
     );
   }
 
-  Widget _row(GhTheme theme, _Row item) {
-    final selected = _selectedId == item.id;
+  void _toggle(String id) => setState(() => _selected.contains(id) ? _selected.remove(id) : _selected.add(id));
+
+  Widget _row(GhTheme theme, _Row item, {List<AssetInstallation> installs = const []}) {
+    final selected = _selected.contains(item.id);
+    final result = _results[item.id];
+    final hasResult = _results.containsKey(item.id);
     final radius = BorderRadius.circular(theme.radiusItem);
     final project = _tab == AssetInstallTarget.project;
     final subtitle = project
         ? '${item.godotVersion.isNotEmpty ? 'Godot ${item.godotVersion} · ' : ''}${item.path}'
         : (item.description ?? '');
     return GhPressable(
-      onPressed: () => setState(() => _selectedId = item.id),
-      selected: selected,
+      onPressed: _installing ? null : () => _toggle(item.id),
+      checked: selected,
       borderRadius: radius,
       builder: (context, states) => GhAnimatedBox(
         padding: EdgeInsets.all(theme.space(2.5)),
@@ -331,12 +388,24 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
                 ],
               ),
             ),
-            if (selected)
-              Container(
-                width: theme.space(1.5),
-                height: theme.space(1.5),
-                decoration: BoxDecoration(color: theme.accent, shape: BoxShape.circle),
+            if (installs.isNotEmpty && !hasResult)
+              GhBadge(
+                label: ghTr('asset_installed'),
+                tone: GhTone.mint,
+                tooltip: installs.map((i) => i.version).where((v) => v.isNotEmpty).join(', '),
               ),
+            if (hasResult)
+              GhTooltip(
+                message: result ?? ghTr('asset_install_target_done'),
+                child: GhIcon(
+                  result == null ? GhIcons.circleCheck : GhIcons.circleX,
+                  size: theme.space(4),
+                  color: result == null ? theme.mint : theme.danger,
+                ),
+              ),
+            ExcludeSemantics(
+              child: GhCheckbox(checked: selected, disabled: _installing, onChanged: (_) => _toggle(item.id)),
+            ),
           ],
         ),
       ),
@@ -348,15 +417,20 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
     final theme = GhTheme.of(context);
     final projects = ref.watch(projectsProvider).data;
     final rows = _rows(projects);
-    final selectedId = _selectedId;
-    final selectedName = selectedId == null
-        ? null
-        : (_tab == AssetInstallTarget.project
-              ? projects.where((p) => p.id == selectedId).firstOrNull?.name
-              : _templates.where((t) => t.id == selectedId).firstOrNull?.name);
+    final installsByProject = <String, List<AssetInstallation>>{};
+    for (final i in ref.watch(assetInstallationsProvider).data.where((i) => i.assetId == _asset.assetId)) {
+      installsByProject.putIfAbsent(i.projectId, () => []).add(i);
+    }
+    final allRows = _rows(projects, filtered: false);
+    final targets = [
+      for (final r in allRows)
+        if (_selected.contains(r.id)) r,
+    ];
+    final selectedName = targets.length == 1 ? targets.single.name : null;
+    final allVisibleSelected = rows.isNotEmpty && rows.every((r) => _selected.contains(r.id));
     final radius = BorderRadius.circular(theme.radiusItem);
     final iconUrl = _asset.iconUrl;
-    final canInstall = selectedId != null && !_installing;
+    final canInstall = targets.isNotEmpty && !_installing;
     final project = _tab == AssetInstallTarget.project;
     return GhModalShell(
       icon: iconUrl != null && iconUrl.isNotEmpty
@@ -383,13 +457,17 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
         ],
         primary: GhBusyButton(
           key: const ValueKey('asset-install-submit'),
-          onPressed: canInstall ? () => _install(selectedId, selectedName ?? '') : null,
+          onPressed: canInstall ? () => _install(targets).ignore() : null,
           busy: _installing,
           icon: GhIcons.download,
           label: _installing
-              ? ghTr('asset_installing')
+              ? (targets.length > 1
+                    ? ghTr('asset_installing_progress', args: {'done': _done + 1, 'total': targets.length})
+                    : ghTr('asset_installing'))
               : selectedName != null
               ? ghTr('asset_install_into', args: {'name': selectedName})
+              : targets.length > 1
+              ? ghTr('asset_install_into_many', args: {'count': targets.length})
               : ghTr('asset_install'),
         ),
       ),
@@ -459,7 +537,30 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
                 ),
               ),
             if (_canCreateTemplate && !project) _newTemplateButton(theme),
-            _search(theme),
+            Row(
+              children: [
+                Expanded(child: _search(theme)),
+                if (rows.length > 1)
+                  Padding(
+                    padding: EdgeInsetsDirectional.only(start: theme.space(2)),
+                    child: GhButton(
+                      key: const ValueKey('asset-install-select-all'),
+                      onPressed: _installing
+                          ? null
+                          : () => setState(() {
+                              if (allVisibleSelected) {
+                                _selected.removeAll(rows.map((r) => r.id));
+                              } else {
+                                _selected.addAll(rows.map((r) => r.id));
+                              }
+                            }),
+                      label: allVisibleSelected ? ghTr('asset_install_select_none') : ghTr('asset_install_select_all'),
+                      variant: GhButtonVariant.ghost,
+                      size: GhTextSize.xs,
+                    ),
+                  ),
+              ],
+            ),
             ConstrainedBox(
               constraints: BoxConstraints(maxHeight: theme.space(72)),
               child: rows.isEmpty
@@ -501,7 +602,10 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         spacing: theme.space(1.5),
-                        children: [for (final item in rows) _row(theme, item)],
+                        children: [
+                          for (final item in rows)
+                            _row(theme, item, installs: project ? (installsByProject[item.id] ?? const []) : const []),
+                        ],
                       ),
                     ),
             ),

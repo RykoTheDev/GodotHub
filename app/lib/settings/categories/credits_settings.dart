@@ -11,6 +11,7 @@ import '../../ui/core/i18n.dart';
 import '../../ui/core/interaction.dart';
 import '../../ui/feedback/modal_shell.dart';
 import '../../ui/feedback/toast.dart';
+import '../../ui/reusables/state_panel.dart';
 
 String _ts(String key) => ghTr('settings:$key');
 
@@ -33,14 +34,14 @@ class CreditsSettings extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = GhTheme.of(context);
-    final contributors = ref.watch(contributorsProvider.select((s) => s.contributors));
+    final contributorsState = ref.watch(contributorsProvider);
+    final fetched = contributorsState.contributors.isNotEmpty;
+    final contributors = [
+      for (final c in contributorsState.contributors)
+        if (c.login != creditsDeveloperLogin) c,
+    ];
     final radius = BorderRadius.circular(theme.radiusItem);
-    final caption = theme.text(
-      size: GhTextSize.x3s,
-      weight: GhWeight.semibold,
-      color: theme.muted.withValues(alpha: 0.5),
-      letterSpacingEm: 0.05,
-    );
+    final caption = theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.muted);
     Widget infoTile(String label, String value) => Container(
       padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(3)),
       decoration: BoxDecoration(
@@ -52,7 +53,7 @@ class CreditsSettings extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: theme.space(1),
         children: [
-          Text(label.toUpperCase(), style: caption),
+          Text(label, style: caption),
           Text(
             value,
             style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: theme.ink),
@@ -133,16 +134,44 @@ class CreditsSettings extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: theme.space(2),
                 children: [
-                  Text(_ts('credits_contributors').toUpperCase(), style: caption),
-                  Wrap(
-                    spacing: theme.space(2),
-                    runSpacing: theme.space(2),
-                    children: [
-                      for (final contributor in contributors)
-                        if (contributor.login != creditsDeveloperLogin)
+                  Text(_ts('credits_contributors'), style: caption),
+                  if (contributors.isNotEmpty)
+                    Wrap(
+                      spacing: theme.space(2),
+                      runSpacing: theme.space(2),
+                      children: [
+                        for (final contributor in contributors)
                           _ContributorChip(contributor: contributor, onPressed: () => _openContributor(context, contributor)),
-                    ],
-                  ),
+                      ],
+                    )
+                  else if (contributorsState.loading)
+                    GhStatePanel.loading(
+                      key: const ValueKey('credits-contributors-loading'),
+                      title: _ts('credits_contributors_loading'),
+                      compact: true,
+                    )
+                  else if (fetched)
+                    Text(
+                      _ts('credits_contributors_none'),
+                      key: const ValueKey('credits-contributors-none'),
+                      style: theme.text(size: GhTextSize.xs, color: theme.muted),
+                    )
+                  else
+                    GhStatePanel.empty(
+                      key: const ValueKey('credits-contributors-empty'),
+                      icon: GhIcons.user,
+                      title: _ts('credits_contributors_unavailable'),
+                      message: _ts('credits_contributors_unavailable_desc'),
+                      compact: true,
+                      actions: [
+                        GhButton(
+                          onPressed: () => ref.invalidate(contributorsProvider),
+                          label: ghTr('retry'),
+                          icon: GhIcons.refresh,
+                          variant: GhButtonVariant.outline,
+                        ),
+                      ],
+                    ),
                 ],
               ),
             ],

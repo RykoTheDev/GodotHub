@@ -58,4 +58,21 @@ abstract final class AssetLibraryApi {
   );
 
   static Future<List<AssetLibraryCategory>> listCategories() => rust.getAssetLibraryCategories();
+
+  static Future<AssetInfo> info(String assetId) => rust.getAssetInfo(assetId: assetId);
+
+  static Future<AssetFileListing> files(String assetId) => rust.listAssetFiles(assetId: assetId);
+
+  static Future<List<AssetInstallation>> installations() => rust.listAssetInstallations();
+
+  static Future<AssetPrefs> prefs() => rust.getAssetPrefs();
+
+  static Future<AssetPrefs> setFavorite(AssetLibraryAsset asset, bool favorite) => rust.setAssetFavorite(asset: asset, favorite: favorite);
+
+  static Future<AssetPrefs> setHidden(String assetId, String title, bool hidden) =>
+      rust.setAssetHidden(assetId: assetId, title: title, hidden: hidden);
+
+  static Future<List<TemplateUpdate>> templateUpdates() => rust.checkTemplateUpdates();
+
+  static Future<ProjectTemplate> updateTemplate(String templateId) => rust.updateTemplateFromAsset(templateId: templateId);
 }

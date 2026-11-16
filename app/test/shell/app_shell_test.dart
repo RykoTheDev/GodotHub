@@ -56,6 +56,7 @@ Project testProject(String id, String name, {String? lastOpened}) => Project(
   totalTimeSeconds: BigInt.zero,
   timeTodaySeconds: BigInt.zero,
   timeWeekSeconds: BigInt.zero,
+  missing: false,
 );
 
 AppSettings shellSettings({bool workspacesEnabled = false, String landing = '', bool cardLayout = true}) => copySettings(
@@ -395,6 +396,7 @@ void main() {
         totalTimeSeconds: BigInt.zero,
         timeTodaySeconds: BigInt.zero,
         timeWeekSeconds: BigInt.zero,
+        missing: false,
         sessionStartedAtMs: BigInt.one,
       );
       fakeBackend(projects: [running]);

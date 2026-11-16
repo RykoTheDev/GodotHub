@@ -240,15 +240,10 @@ class DashPanel extends StatelessWidget {
                             child: Semantics(
                               header: true,
                               child: Text(
-                                title.toUpperCase(),
+                                title,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: theme.text(
-                                  size: GhTextSize.xs,
-                                  weight: GhWeight.semibold,
-                                  color: theme.muted,
-                                  letterSpacingEm: 0.05,
-                                ),
+                                style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.muted),
                               ),
                             ),
                           ),
@@ -332,15 +327,10 @@ class DashInsightChip extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    label.toUpperCase(),
+                    label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: theme.text(
-                      size: GhTextSize.x3s,
-                      weight: GhWeight.semibold,
-                      color: theme.muted.withValues(alpha: 0.6),
-                      letterSpacingEm: 0.05,
-                    ),
+                    style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: theme.muted.withValues(alpha: 0.8)),
                   ),
                   SizedBox(height: theme.space(0.5)),
                   Text(
@@ -630,15 +620,10 @@ class _DashKpiCardState extends State<DashKpiCard> {
                       child: Padding(
                         padding: EdgeInsets.only(top: theme.space(1)),
                         child: Text(
-                          widget.label.toUpperCase(),
+                          widget.label,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: theme.text(
-                            size: GhTextSize.x3s,
-                            weight: GhWeight.semibold,
-                            color: theme.muted.withValues(alpha: 0.7),
-                            letterSpacingEm: 0.05,
-                          ),
+                          style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: theme.muted.withValues(alpha: 0.8)),
                         ),
                       ),
                     ),

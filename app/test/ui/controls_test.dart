@@ -558,7 +558,7 @@ void main() {
       await pump(tester, {}, calls.add);
       await tester.tap(find.text(t.settings.setup_profile_custom));
       await settle(tester);
-      expect(find.text(t.settings.features_always_on.toUpperCase()), findsOneWidget);
+      expect(find.text(t.settings.features_always_on), findsOneWidget);
       expect(find.byType(GhToggle), findsNWidgets(GhCoreFeature.values.length + GhFeatureId.values.length));
       await tester.tap(find.byWidgetPredicate((w) => w is GhToggle && w.label == t.nav.news));
       expect(calls.single, {GhFeatureId.news});
@@ -570,7 +570,7 @@ void main() {
     testWidgets('non-matching selection starts in custom mode with a feature count', (tester) async {
       await pump(tester, {GhFeatureId.news, GhFeatureId.vault}, (_) {});
       await settle(tester);
-      expect(find.text(t.settings.features_optional.toUpperCase()), findsOneWidget);
+      expect(find.text(t.settings.features_optional), findsOneWidget);
       expect(find.text(t.settings.features_enabled_count(count: 4)), findsOneWidget);
       expect(t.settings.features_enabled_count(count: 1), '1 feature on');
     });

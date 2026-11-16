@@ -169,13 +169,7 @@ class _TitleBarButtonState extends State<TitleBarButton> {
         ),
       ),
     );
-    result = Semantics(
-      button: true,
-      enabled: enabled,
-      label: widget.semanticLabel,
-      expanded: widget.expanded,
-      child: result,
-    );
+    result = Semantics(button: true, enabled: enabled, label: widget.semanticLabel, expanded: widget.expanded, child: result);
     final tooltip = widget.tooltip;
     if (tooltip != null && tooltip.isNotEmpty) {
       result = Tooltip(message: tooltip, excludeFromSemantics: true, child: result);

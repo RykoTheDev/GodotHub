@@ -203,6 +203,45 @@ List<(String, List<AvailableRow>)> groupAvailable(List<GodotRelease> available, 
 bool isAvailableInstalled(List<InstalledGodotVersion> installed, String tag, bool mono) =>
     installed.any((v) => (versionCore(v.tag) == versionCore(tag) || versionCore(v.version) == versionCore(tag)) && v.isMono == mono);
 
+/// Whether [tag] is on the stable channel, by the same rule the available
+/// list filters on.
+bool isStableTag(String tag) => tag.toLowerCase().contains('stable');
+
+List<int> _numericCore(String tag) => [for (final part in versionCore(tag).split('-').first.split('.')) int.tryParse(part) ?? 0];
+
+int _compareNumeric(List<int> a, List<int> b) {
+  for (var i = 0; i < a.length || i < b.length; i++) {
+    final diff = (i < a.length ? a[i] : 0) - (i < b.length ? b[i] : 0);
+    if (diff != 0) return diff;
+  }
+  return 0;
+}
+
+/// The newest stable patch release in the same minor line as [version]
+/// (same build type) that is not installed yet, or null. Only stable,
+/// non-custom installs get an update hint: unstable builds move between
+/// channels and custom builds have no upstream release.
+String? newerStableRelease(InstalledGodotVersion version, List<GodotRelease> available, List<InstalledGodotVersion> installed) {
+  if (version.managedBy == 'custom' || !isStableTag(version.tag)) return null;
+  final group = minorGroup(version.tag);
+  if (group == 'Other') return null;
+  final current = _numericCore(version.tag);
+  String? best;
+  List<int>? bestCore;
+  for (final release in available) {
+    if (!isStableTag(release.tag) || minorGroup(release.tag) != group) continue;
+    if (!release.assets.any((a) => a.isMono == version.isMono)) continue;
+    final core = _numericCore(release.tag);
+    if (_compareNumeric(core, current) <= 0) continue;
+    if (isAvailableInstalled(installed, release.tag, version.isMono)) continue;
+    if (bestCore == null || _compareNumeric(core, bestCore) > 0) {
+      best = release.tag;
+      bestCore = core;
+    }
+  }
+  return best;
+}
+
 const downloadSourceLabels = {'github': 'GitHub', 'archive': 'Godot Archive', 'mise': 'mise'};
 
 String downloadReport(DownloadErrorInfo error, {required String appVersion, required String os, required String platform}) => [

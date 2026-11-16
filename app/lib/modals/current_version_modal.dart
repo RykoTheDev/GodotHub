@@ -144,8 +144,8 @@ class CurrentVersionModal extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                label.toUpperCase(),
-                style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: theme.muted, letterSpacingEm: 0.05),
+                label,
+                style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.muted),
               ),
               Padding(
                 padding: EdgeInsets.only(top: theme.space(0.5)),

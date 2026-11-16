@@ -9,6 +9,8 @@ import 'package:godothub/src/rust/api/types.dart';
 import 'package:godothub/src/ui_prefs.dart';
 import 'package:godothub/state/changelog.dart';
 import 'package:godothub/ui/core/i18n.dart';
+import 'package:godothub/ui/reusables/card_kit.dart';
+import 'package:godothub/ui/reusables/modal_kit.dart';
 
 import '../projects/project_actions_test.dart' as base;
 import '../support/fake_rust.dart';
@@ -76,6 +78,13 @@ class ChangelogBackend {
   }
 }
 
+/// The shipped notifier drops fetch errors (keepsError is false); the view
+/// still renders an error panel when a notifier keeps them.
+class _ErrorKeepingChangelog extends ChangelogNotifier {
+  @override
+  bool get keepsError => true;
+}
+
 void main() {
   setUpAll(() async {
     await base.loadFont('Inter', ['assets/fonts/inter-latin.ttf']);
@@ -117,7 +126,9 @@ void main() {
     expect(find.text('1 ${tc('changelog_known_issues')}'), findsOneWidget);
     expect(find.text('Added dashboards'), findsOneWidget);
     expect(find.text('Slow on first launch'), findsOneWidget);
-    expect(find.text(tc('added').toUpperCase()), findsOneWidget);
+    expect(find.text(tc('added')), findsOneWidget);
+    expect(find.widgetWithText(GhBadge, '2 ${tc('added')}'), findsOneWidget);
+    expect(find.widgetWithText(GhBadge, '1 ${tc('changelog_known_issues')}'), findsOneWidget);
     expect(find.text(ghTr('add_entry')), findsNothing);
     expect(find.byTooltip(tc('edit_entry_aria', args: {'version': 'v2.0'})), findsNothing);
     expect(captured.read(changelogBadgeProvider), isFalse);
@@ -147,7 +158,7 @@ void main() {
 
     await tester.enterText(find.byType(EditableText).at(0), 'v3.0');
     await tester.enterText(find.byType(EditableText).at(2), 'New view');
-    await tester.tap(find.byTooltip(ghTr('fix')));
+    await tester.tap(find.byKey(const ValueKey('changelog-category:fix')));
     await tester.pump();
     await tester.tap(find.text(ghTr('changelog_add_known_issue')));
     await tester.pump();
@@ -211,6 +222,63 @@ void main() {
     await tester.tap(find.text(ghTr('add_entry')));
     await base.settle(tester);
     expect(saved, ['v9|2026-01-01|improve=Draft line|']);
+  });
+
+  testWidgets('entry modal category chips are shared choice chips with one active per line', (tester) async {
+    final saved = <String>[];
+    await base.openModal(
+      tester,
+      (close) => ChangelogEntryModal(
+        initial: (version: 'v9', date: '2026-01-01', notes: const [ChangelogNote(category: 'improve', text: 'Draft line')]),
+        onClose: close,
+        onSave: (version, date, notes, issues) async => saved.add([for (final n in notes) n.category].join(',')),
+      ),
+    );
+    GhChoiceChip chip(String value) => tester.widget<GhChoiceChip>(find.byKey(ValueKey('changelog-category:$value')));
+    expect(find.byType(GhChoiceChip), findsNWidgets(3));
+    expect(
+      [
+        for (final v in ['add', 'fix', 'improve']) chip(v).active,
+      ],
+      [false, false, true],
+    );
+    await tester.tap(find.byKey(const ValueKey('changelog-category:fix')));
+    await tester.pump();
+    expect(
+      [
+        for (final v in ['add', 'fix', 'improve']) chip(v).active,
+      ],
+      [false, true, false],
+    );
+    await tester.tap(find.byKey(const ValueKey('changelog-category:fix')));
+    await tester.pump();
+    expect(chip('fix').active, isTrue);
+    await tester.tap(find.text(ghTr('add_entry')));
+    await base.settle(tester);
+    expect(saved, ['fix']);
+  });
+
+  testWidgets('shows a load error with retry', (tester) async {
+    var failing = true;
+    rust.on('crateApiChangelogListChangelogEntries', () async {
+      if (failing) throw 'disk unreadable';
+      return [entry('e1', 'v1.0')];
+    });
+    await base.pumpHost(
+      tester,
+      body: ProviderScope(
+        overrides: [changelogProvider.overrideWith(_ErrorKeepingChangelog.new)],
+        child: const ChangelogView(devTools: false),
+      ),
+    );
+    await base.settle(tester);
+    expect(find.text(tc('changelog_load_failed')), findsOneWidget);
+    expect(find.text('disk unreadable'), findsOneWidget);
+    failing = false;
+    await tester.tap(find.text(ghTr('retry')));
+    await base.settle(tester);
+    expect(find.text('v1.0'), findsOneWidget);
+    expect(find.text(tc('changelog_load_failed')), findsNothing);
   });
 
   testWidgets('entry modal fits a 340x640 window without overflow', (tester) async {

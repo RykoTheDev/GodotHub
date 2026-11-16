@@ -113,6 +113,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AssetDownloadProgress dco_decode_asset_download_progress(dynamic raw);
 
   @protected
+  AssetFileEntry dco_decode_asset_file_entry(dynamic raw);
+
+  @protected
+  AssetFileListing dco_decode_asset_file_listing(dynamic raw);
+
+  @protected
+  AssetInfo dco_decode_asset_info(dynamic raw);
+
+  @protected
+  AssetInstallation dco_decode_asset_installation(dynamic raw);
+
+  @protected
   AssetLibraryAsset dco_decode_asset_library_asset(dynamic raw);
 
   @protected
@@ -120,6 +132,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   AssetLibraryResponse dco_decode_asset_library_response(dynamic raw);
+
+  @protected
+  AssetMedia dco_decode_asset_media(dynamic raw);
+
+  @protected
+  AssetPrefs dco_decode_asset_prefs(dynamic raw);
+
+  @protected
+  AssetRelease dco_decode_asset_release(dynamic raw);
 
   @protected
   BetaImport dco_decode_beta_import(dynamic raw);
@@ -135,6 +156,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   AssetDownloadProgress dco_decode_box_autoadd_asset_download_progress(dynamic raw);
+
+  @protected
+  AssetLibraryAsset dco_decode_box_autoadd_asset_library_asset(dynamic raw);
 
   @protected
   bool dco_decode_box_autoadd_bool(dynamic raw);
@@ -413,6 +437,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   HealthReport dco_decode_health_report(dynamic raw);
 
   @protected
+  HiddenAsset dco_decode_hidden_asset(dynamic raw);
+
+  @protected
   int dco_decode_i_32(dynamic raw);
 
   @protected
@@ -443,10 +470,22 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<AliasSkip> dco_decode_list_alias_skip(dynamic raw);
 
   @protected
+  List<AssetFileEntry> dco_decode_list_asset_file_entry(dynamic raw);
+
+  @protected
+  List<AssetInstallation> dco_decode_list_asset_installation(dynamic raw);
+
+  @protected
   List<AssetLibraryAsset> dco_decode_list_asset_library_asset(dynamic raw);
 
   @protected
   List<AssetLibraryCategory> dco_decode_list_asset_library_category(dynamic raw);
+
+  @protected
+  List<AssetMedia> dco_decode_list_asset_media(dynamic raw);
+
+  @protected
+  List<AssetRelease> dco_decode_list_asset_release(dynamic raw);
 
   @protected
   List<Category> dco_decode_list_category(dynamic raw);
@@ -533,6 +572,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<HealthCheck> dco_decode_list_health_check(dynamic raw);
 
   @protected
+  List<HiddenAsset> dco_decode_list_hidden_asset(dynamic raw);
+
+  @protected
   List<InstalledGodotVersion> dco_decode_list_installed_godot_version(dynamic raw);
 
   @protected
@@ -606,6 +648,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<TemplateOption> dco_decode_list_template_option(dynamic raw);
+
+  @protected
+  List<TemplateUpdate> dco_decode_list_template_update(dynamic raw);
 
   @protected
   List<TodoChecklistItem> dco_decode_list_todo_checklist_item(dynamic raw);
@@ -848,6 +893,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   TemplateSyncResult dco_decode_template_sync_result(dynamic raw);
 
   @protected
+  TemplateUpdate dco_decode_template_update(dynamic raw);
+
+  @protected
   TimeInsights dco_decode_time_insights(dynamic raw);
 
   @protected
@@ -989,6 +1037,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AssetDownloadProgress sse_decode_asset_download_progress(SseDeserializer deserializer);
 
   @protected
+  AssetFileEntry sse_decode_asset_file_entry(SseDeserializer deserializer);
+
+  @protected
+  AssetFileListing sse_decode_asset_file_listing(SseDeserializer deserializer);
+
+  @protected
+  AssetInfo sse_decode_asset_info(SseDeserializer deserializer);
+
+  @protected
+  AssetInstallation sse_decode_asset_installation(SseDeserializer deserializer);
+
+  @protected
   AssetLibraryAsset sse_decode_asset_library_asset(SseDeserializer deserializer);
 
   @protected
@@ -996,6 +1056,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   AssetLibraryResponse sse_decode_asset_library_response(SseDeserializer deserializer);
+
+  @protected
+  AssetMedia sse_decode_asset_media(SseDeserializer deserializer);
+
+  @protected
+  AssetPrefs sse_decode_asset_prefs(SseDeserializer deserializer);
+
+  @protected
+  AssetRelease sse_decode_asset_release(SseDeserializer deserializer);
 
   @protected
   BetaImport sse_decode_beta_import(SseDeserializer deserializer);
@@ -1011,6 +1080,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   AssetDownloadProgress sse_decode_box_autoadd_asset_download_progress(SseDeserializer deserializer);
+
+  @protected
+  AssetLibraryAsset sse_decode_box_autoadd_asset_library_asset(SseDeserializer deserializer);
 
   @protected
   bool sse_decode_box_autoadd_bool(SseDeserializer deserializer);
@@ -1289,6 +1361,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   HealthReport sse_decode_health_report(SseDeserializer deserializer);
 
   @protected
+  HiddenAsset sse_decode_hidden_asset(SseDeserializer deserializer);
+
+  @protected
   int sse_decode_i_32(SseDeserializer deserializer);
 
   @protected
@@ -1319,10 +1394,22 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<AliasSkip> sse_decode_list_alias_skip(SseDeserializer deserializer);
 
   @protected
+  List<AssetFileEntry> sse_decode_list_asset_file_entry(SseDeserializer deserializer);
+
+  @protected
+  List<AssetInstallation> sse_decode_list_asset_installation(SseDeserializer deserializer);
+
+  @protected
   List<AssetLibraryAsset> sse_decode_list_asset_library_asset(SseDeserializer deserializer);
 
   @protected
   List<AssetLibraryCategory> sse_decode_list_asset_library_category(SseDeserializer deserializer);
+
+  @protected
+  List<AssetMedia> sse_decode_list_asset_media(SseDeserializer deserializer);
+
+  @protected
+  List<AssetRelease> sse_decode_list_asset_release(SseDeserializer deserializer);
 
   @protected
   List<Category> sse_decode_list_category(SseDeserializer deserializer);
@@ -1409,6 +1496,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<HealthCheck> sse_decode_list_health_check(SseDeserializer deserializer);
 
   @protected
+  List<HiddenAsset> sse_decode_list_hidden_asset(SseDeserializer deserializer);
+
+  @protected
   List<InstalledGodotVersion> sse_decode_list_installed_godot_version(SseDeserializer deserializer);
 
   @protected
@@ -1482,6 +1572,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<TemplateOption> sse_decode_list_template_option(SseDeserializer deserializer);
+
+  @protected
+  List<TemplateUpdate> sse_decode_list_template_update(SseDeserializer deserializer);
 
   @protected
   List<TodoChecklistItem> sse_decode_list_todo_checklist_item(SseDeserializer deserializer);
@@ -1724,6 +1817,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   TemplateSyncResult sse_decode_template_sync_result(SseDeserializer deserializer);
 
   @protected
+  TemplateUpdate sse_decode_template_update(SseDeserializer deserializer);
+
+  @protected
   TimeInsights sse_decode_time_insights(SseDeserializer deserializer);
 
   @protected
@@ -1865,6 +1961,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_asset_download_progress(AssetDownloadProgress self, SseSerializer serializer);
 
   @protected
+  void sse_encode_asset_file_entry(AssetFileEntry self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_asset_file_listing(AssetFileListing self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_asset_info(AssetInfo self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_asset_installation(AssetInstallation self, SseSerializer serializer);
+
+  @protected
   void sse_encode_asset_library_asset(AssetLibraryAsset self, SseSerializer serializer);
 
   @protected
@@ -1872,6 +1980,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_asset_library_response(AssetLibraryResponse self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_asset_media(AssetMedia self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_asset_prefs(AssetPrefs self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_asset_release(AssetRelease self, SseSerializer serializer);
 
   @protected
   void sse_encode_beta_import(BetaImport self, SseSerializer serializer);
@@ -1887,6 +2004,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_box_autoadd_asset_download_progress(AssetDownloadProgress self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_asset_library_asset(AssetLibraryAsset self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_bool(bool self, SseSerializer serializer);
@@ -2165,6 +2285,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_health_report(HealthReport self, SseSerializer serializer);
 
   @protected
+  void sse_encode_hidden_asset(HiddenAsset self, SseSerializer serializer);
+
+  @protected
   void sse_encode_i_32(int self, SseSerializer serializer);
 
   @protected
@@ -2195,10 +2318,22 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_list_alias_skip(List<AliasSkip> self, SseSerializer serializer);
 
   @protected
+  void sse_encode_list_asset_file_entry(List<AssetFileEntry> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_asset_installation(List<AssetInstallation> self, SseSerializer serializer);
+
+  @protected
   void sse_encode_list_asset_library_asset(List<AssetLibraryAsset> self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_asset_library_category(List<AssetLibraryCategory> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_asset_media(List<AssetMedia> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_asset_release(List<AssetRelease> self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_category(List<Category> self, SseSerializer serializer);
@@ -2285,6 +2420,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_list_health_check(List<HealthCheck> self, SseSerializer serializer);
 
   @protected
+  void sse_encode_list_hidden_asset(List<HiddenAsset> self, SseSerializer serializer);
+
+  @protected
   void sse_encode_list_installed_godot_version(List<InstalledGodotVersion> self, SseSerializer serializer);
 
   @protected
@@ -2358,6 +2496,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_list_template_option(List<TemplateOption> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_template_update(List<TemplateUpdate> self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_todo_checklist_item(List<TodoChecklistItem> self, SseSerializer serializer);
@@ -2598,6 +2739,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_template_sync_result(TemplateSyncResult self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_template_update(TemplateUpdate self, SseSerializer serializer);
 
   @protected
   void sse_encode_time_insights(TimeInsights self, SseSerializer serializer);

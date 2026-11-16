@@ -3,13 +3,17 @@ import 'package:flutter/material.dart';
 import '../../api/api.dart';
 import '../../design/design.dart';
 import '../controls/checkbox.dart';
-import '../controls/dashed_box.dart';
 import '../core/i18n.dart';
 import '../core/interaction.dart';
 import '../core/tooltip.dart';
-import '../feedback/toast.dart';
+import 'path_field.dart';
 
-class GhDirList extends StatelessWidget {
+/// A list of folders (scan folders, download folders) or a single folder.
+///
+/// Folders are added with a [GhPathField]: type or paste a path and press
+/// Enter or Add folder, or choose Browse. In [single] mode the field edits the
+/// one folder in place and saves on Enter, Apply or Browse.
+class GhDirList extends StatefulWidget {
   const GhDirList({
     super.key,
     required this.dirs,
@@ -35,82 +39,86 @@ class GhDirList extends StatelessWidget {
   final bool single;
   final Future<String?> Function()? pickFolder;
 
-  Future<void> _addDir() async {
-    final String? folder;
-    try {
-      folder = await (pickFolder ?? Api.pickFolder)();
-    } catch (e) {
-      ghToasts.pushToast(GhToastType.error, '$e');
-      return;
-    }
-    if (folder == null) return;
+  @override
+  State<GhDirList> createState() => _GhDirListState();
+}
+
+class _GhDirListState extends State<GhDirList> {
+  late final TextEditingController _add = TextEditingController(text: widget.single ? (widget.dirs.firstOrNull ?? '') : '');
+
+  @override
+  void didUpdateWidget(GhDirList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Keep the single folder field in step with the saved value.
+    final current = widget.dirs.firstOrNull ?? '';
+    if (widget.single && current != (oldWidget.dirs.firstOrNull ?? '') && _add.text != current) _add.text = current;
+  }
+
+  @override
+  void dispose() {
+    _add.dispose();
+    super.dispose();
+  }
+
+  List<String> get dirs => widget.dirs;
+  bool get single => widget.single;
+  ValueChanged<String?>? get onSetDefault => widget.onSetDefault;
+  String? get defaultDir => widget.defaultDir;
+
+  void _addDir(String picked) {
+    // `C:\games\` and `C:\games` are the same folder.
+    final trimmed = picked.replaceFirst(RegExp(r'[\\/]+$'), '');
+    final folder = trimmed.isEmpty || RegExp(r'^[A-Za-z]:$').hasMatch(trimmed) ? picked : trimmed;
     if (single) {
-      onChanged([folder]);
+      if (dirs.firstOrNull != folder) widget.onChanged([folder]);
     } else if (!dirs.contains(folder)) {
-      onChanged([...dirs, folder]);
+      widget.onChanged([...dirs, folder]);
     }
   }
 
   void _removeDir(String dir) {
-    onChanged([
+    widget.onChanged([
       for (final d in dirs)
         if (d != dir) d,
     ]);
     if (onSetDefault != null && defaultDir == dir) onSetDefault!(null);
+    if (single) _add.clear();
   }
 
   void _toggleDefault(String dir) => onSetDefault?.call(defaultDir == dir ? null : dir);
 
+  Widget _field(GhTheme theme, {String? hint}) => GhPathField(
+    // Re-created when the saved folder changes so Apply tracks the new value.
+    key: single ? ValueKey('dir-single:${dirs.firstOrNull ?? ''}') : null,
+    controller: _add,
+    kind: GhPathKind.folder,
+    pick: widget.pickFolder,
+    hint: hint,
+    showApply: true,
+    applyLabel: single ? null : ghTr('add_folder'),
+    clearOnCommit: !single,
+    compactBrowse: true,
+    onCommitted: _addDir,
+  );
+
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
-    final label = defaultLabel ?? ghTr('default_folder');
+    final label = widget.defaultLabel ?? ghTr('default_folder');
     final makeDefaultLabel = ghTr('make_this_default', args: {'label': label.toLowerCase()});
-    if (dirs.isEmpty) {
-      final radius = BorderRadius.circular(theme.radiusItem);
-      return GhPressable(
-        onPressed: _addDir,
-        borderRadius: radius,
-        builder: (context, states) => GhDashedBox(
-          color: states.highlighted ? theme.accentDim : theme.outline.withValues(alpha: 0.6),
-          radius: BorderRadius.circular(theme.radiusItem),
-          child: GhAnimatedBox(
-            color: states.highlighted ? theme.overlay.withValues(alpha: 0.4) : Colors.transparent,
-            borderRadius: radius,
-            padding: EdgeInsets.symmetric(horizontal: theme.space(3.5), vertical: theme.space(3)),
-            child: Row(
-              spacing: theme.space(3),
-              children: [
-                Container(
-                  width: theme.space(8),
-                  height: theme.space(8),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(color: theme.overlay, borderRadius: BorderRadius.circular(theme.radiusTile)),
-                  child: GhIcon(GhIcons.folderPlus, size: theme.space(4), color: states.highlighted ? theme.accentBright : theme.muted),
-                ),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        ghTr('add_folder'),
-                        style: theme.text(
-                          size: GhTextSize.xs,
-                          weight: GhWeight.medium,
-                          color: states.highlighted ? theme.accentBright : theme.ink,
-                        ),
-                      ),
-                      Text(
-                        emptyHint,
-                        style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+    if (single) {
+      final dir = dirs.firstOrNull;
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: theme.space(1),
+        children: [
+          Expanded(child: _field(theme, hint: dir == null ? widget.emptyHint : null)),
+          if (dir != null)
+            Padding(
+              padding: EdgeInsets.only(top: theme.space(1)),
+              child: _iconButton(theme, GhIcons.trash, ghTr('remove_folder'), () => _removeDir(dir), danger: true),
             ),
-          ),
-        ),
+        ],
       );
     }
     return Column(
@@ -118,36 +126,15 @@ class GhDirList extends StatelessWidget {
       spacing: theme.space(1.5),
       children: [
         for (final dir in dirs) _row(context, theme, dir, makeDefaultLabel),
-        if (!single)
-          GhPressable(
-            onPressed: _addDir,
-            borderRadius: BorderRadius.circular(theme.radiusItem),
-            builder: (context, states) => GhDashedBox(
-              color: states.highlighted ? theme.accentDim : theme.outline.withValues(alpha: 0.6),
-              radius: BorderRadius.circular(theme.radiusItem),
-              child: GhAnimatedBox(
-                color: states.highlighted ? theme.overlay.withValues(alpha: 0.4) : Colors.transparent,
-                borderRadius: BorderRadius.circular(theme.radiusItem),
-                padding: EdgeInsets.symmetric(horizontal: theme.space(3.5), vertical: theme.space(2)),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  spacing: theme.space(1.5),
-                  children: [
-                    GhIcon(GhIcons.folderPlus, size: theme.space(3.5), color: states.highlighted ? theme.accentBright : theme.muted),
-                    Text(
-                      ghTr('add_folder'),
-                      style: theme.text(size: GhTextSize.xs, color: states.highlighted ? theme.accentBright : theme.muted),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        if (showFallbackDescription && onSetDefault != null && defaultDir == null)
+        _field(theme, hint: dirs.isEmpty ? widget.emptyHint : null),
+        if (widget.showFallbackDescription && onSetDefault != null && defaultDir == null)
           Padding(
             padding: EdgeInsets.symmetric(horizontal: theme.space(1)),
             child: Text(
-              ghTr('default_downloads_go_to', args: {'path': fallbackDownloadPath ?? 'AppData/${Api.channelIdentifier()}/godot-versions/'}),
+              ghTr(
+                'default_downloads_go_to',
+                args: {'path': widget.fallbackDownloadPath ?? 'AppData/${Api.channelIdentifier()}/godot-versions/'},
+              ),
               style: theme.text(size: GhTextSize.x3s, color: theme.muted, lineHeight: 1.625),
             ),
           ),
@@ -212,10 +199,7 @@ class GhDirList extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   spacing: theme.space(0.5),
-                  children: [
-                    if (single) _iconButton(theme, GhIcons.pencil, ghTr('browse'), _addDir),
-                    _iconButton(theme, GhIcons.trash, ghTr('remove_folder'), () => _removeDir(dir), danger: true),
-                  ],
+                  children: [_iconButton(theme, GhIcons.trash, ghTr('remove_folder'), () => _removeDir(dir), danger: true)],
                 ),
               ],
             ),

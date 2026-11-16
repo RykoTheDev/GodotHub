@@ -35,7 +35,7 @@ void main() {
   testWidgets('a long title still truncates instead of overflowing', (tester) async {
     await _pump(tester, 'A very long category name ' * 12);
     expect(tester.takeException(), isNull);
-    final title = tester.getRect(find.textContaining('A VERY LONG'));
+    final title = tester.getRect(find.textContaining('A very long'));
     expect(title.right, lessThan(1000));
   });
 }

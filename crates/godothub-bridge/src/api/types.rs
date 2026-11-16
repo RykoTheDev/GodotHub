@@ -11,6 +11,8 @@ pub use godothub_core::asset_library::AssetDownloadProgress;
 pub use godothub_core::asset_library::AssetLibraryAsset;
 pub use godothub_core::asset_library::AssetLibraryCategory;
 pub use godothub_core::asset_library::AssetLibraryResponse;
+pub use godothub_core::addons::AssetInstallation;
+pub use godothub_core::asset_extras::{AssetFileEntry, AssetFileListing, AssetInfo, AssetMedia, AssetPrefs, AssetRelease, HiddenAsset, TemplateUpdate};
 pub use godothub_core::models::CardViewOverride;
 pub use godothub_core::models::Category;
 pub use godothub_core::changelog::ChangelogDraft;
@@ -283,6 +285,7 @@ pub struct _AssetLibraryAsset {
     pub modify_date: Option<String>,
     pub rating: String,
     pub source: String,
+    pub version: String,
 }
 
 #[frb(mirror(AssetLibraryCategory))]
@@ -780,6 +783,7 @@ pub struct _Project {
     pub session_started_at_ms: Option<u64>,
     pub time_today_seconds: u64,
     pub time_week_seconds: u64,
+    pub missing: bool,
 }
 
 #[frb(mirror(ProjectAddon))]
@@ -819,6 +823,9 @@ pub struct _ProjectTemplate {
     pub source_path: Option<String>,
     pub path: String,
     pub keep_name: bool,
+    pub source_asset_id: Option<String>,
+    pub source_asset_version: Option<String>,
+    pub source_asset_revision: Option<u64>,
 }
 
 #[frb(mirror(ProjectTodo))]
@@ -1165,4 +1172,84 @@ pub struct _WorkspaceScanDirs {
 pub struct _WorkspacesState {
     pub workspaces: Vec<Workspace>,
     pub active_id: String,
+}
+
+#[frb(mirror(AssetInstallation))]
+pub struct _AssetInstallation {
+    pub asset_id: String,
+    pub project_id: String,
+    pub project_name: String,
+    pub folder: String,
+    pub version: String,
+    pub revision: Option<u64>,
+}
+
+#[frb(mirror(AssetMedia))]
+pub struct _AssetMedia {
+    pub url: String,
+    pub thumbnail: Option<String>,
+    pub video: bool,
+}
+
+#[frb(mirror(AssetRelease))]
+pub struct _AssetRelease {
+    pub version: String,
+    pub date: String,
+    pub notes: String,
+    pub min_godot: Option<String>,
+    pub max_godot: Option<String>,
+    pub stable: bool,
+    pub size_bytes: Option<u64>,
+}
+
+#[frb(mirror(AssetInfo))]
+pub struct _AssetInfo {
+    pub asset: AssetLibraryAsset,
+    pub description: String,
+    pub version: String,
+    pub revision: Option<u64>,
+    pub license: String,
+    pub license_url: Option<String>,
+    pub source_url: Option<String>,
+    pub issues_url: Option<String>,
+    pub updated: Option<String>,
+    pub media: Vec<AssetMedia>,
+    pub releases: Vec<AssetRelease>,
+    pub download_size_bytes: Option<u64>,
+    pub paid: bool,
+}
+
+#[frb(mirror(AssetFileEntry))]
+pub struct _AssetFileEntry {
+    pub path: String,
+    pub is_dir: bool,
+    pub size: u64,
+}
+
+#[frb(mirror(AssetFileListing))]
+pub struct _AssetFileListing {
+    pub entries: Vec<AssetFileEntry>,
+    pub truncated: bool,
+    pub archive_bytes: u64,
+}
+
+#[frb(mirror(HiddenAsset))]
+pub struct _HiddenAsset {
+    pub asset_id: String,
+    pub title: String,
+}
+
+#[frb(mirror(AssetPrefs))]
+pub struct _AssetPrefs {
+    pub schema_version: u32,
+    pub favorites: Vec<AssetLibraryAsset>,
+    pub hidden: Vec<HiddenAsset>,
+}
+
+#[frb(mirror(TemplateUpdate))]
+pub struct _TemplateUpdate {
+    pub template_id: String,
+    pub asset_id: String,
+    pub installed_version: String,
+    pub latest_version: String,
 }

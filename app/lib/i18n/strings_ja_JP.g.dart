@@ -67,6 +67,7 @@ class _Translations$changelog$ja_JP extends Translations$changelog$en_US {
 	@override String get added => '追加';
 	@override String get fixed => '修正';
 	@override String get improved => '改善';
+	@override String get changelog_load_failed => 'Couldn\'t load the changelog';
 }
 
 // Path: common
@@ -980,6 +981,111 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String get clone_repo_dest_preview => 'Clones into {{path}}';
 	@override String get clone_repo_selected => 'Selected {{name}}';
 	@override String get clone_repo_select_hint => 'Select a repository from the list to clone it.';
+	@override String get project_missing_badge => 'Unavailable';
+	@override String get project_missing_title => 'Project folder unavailable';
+	@override String get project_missing_desc => 'GodotHub can\'t read project.godot at this path. Reconnect the drive or network share and refresh, or remove the project from the library.';
+	@override String get project_missing_open_disabled => 'Reconnect the drive or share to open this project';
+	@override String get field_required => 'required';
+	@override String get path_placeholder => 'Type or paste a path, or choose Browse';
+	@override String get path_input_label => 'Path';
+	@override String get path_apply => 'Apply';
+	@override String get path_error_required => 'Enter a path or choose one with Browse.';
+	@override String get path_error_relative => 'Use a full path that starts at a drive or the root folder.';
+	@override String get path_error_folder_not_found => 'No folder exists at this path.';
+	@override String get path_error_not_a_folder => 'This path points to a file. Choose a folder.';
+	@override String get path_error_file_not_found => 'No file exists at this path.';
+	@override String get path_error_not_a_file => 'This path points to a folder. Choose a file.';
+	@override String get path_error_extension => 'Choose a {{extensions}} file.';
+	@override String get path_error_parent_missing => 'The folder this would be saved in doesn\'t exist.';
+	@override String get kanban_column_empty => 'No projects';
+	@override String get kanban_drop_hint => 'Drag projects here';
+	@override String get category_options => 'Category options';
+	@override String get clear_filters => 'Clear filters';
+	@override String get asset_load_error_title => 'Couldn\'t load assets';
+	@override String get asset_no_results_title => 'No assets found';
+	@override String get asset_no_results_filtered => 'Nothing matches the current search and filters.';
+	@override String get asset_partial_error => 'Some results couldn\'t be loaded.';
+	@override String get news_open_site => 'Open godotengine.org';
+	@override String get templates_empty_title => 'No templates yet';
+	@override String get templates_load_error => 'Couldn\'t load templates';
+	@override String get templates_browse_library => 'Browse the Asset Library';
+	@override String get doctor_fix_all => 'Fix all ({{count}})';
+	@override String get doctor_fixing_all => 'Fixing…';
+	@override String get vault_empty_title => 'Your vault is empty';
+	@override String get vault_empty_desc => 'Save files or folders from a project to reuse them in any other project.';
+	@override String get vault_load_failed => 'Couldn\'t load your vault';
+	@override String get vault_files_loading => 'Loading project files…';
+	@override String get vault_files_load_failed => 'Couldn\'t load this project\'s files';
+	@override String get asset_view_details => 'View details';
+	@override String get asset_tab_overview => 'Overview';
+	@override String get asset_tab_files => 'Files';
+	@override String get asset_tab_releases => 'Releases';
+	@override String get asset_save => 'Save';
+	@override String get asset_saved => 'Saved';
+	@override String get asset_unsave => 'Remove from saved';
+	@override String get asset_saved_filter => 'Saved ({{count}})';
+	@override String get asset_saved_empty_title => 'No saved assets yet';
+	@override String get asset_saved_empty_desc => 'Select the star on an asset to keep it here.';
+	@override String get asset_not_interested => 'Not interested';
+	@override String get asset_hidden_toast => '{{title}} is hidden. Show it again from Hidden.';
+	@override String get asset_hidden_manage => 'Hidden ({{count}})';
+	@override String get asset_hidden_title => 'Hidden assets';
+	@override String get asset_hidden_desc => 'Assets you marked as not interested don\'t appear in results.';
+	@override String get asset_hidden_empty => 'Nothing is hidden';
+	@override String get asset_show_again => 'Show again';
+	@override String get asset_match_versions => 'Match my Godot ({{version}})';
+	@override String get asset_match_versions_off => 'Match my Godot';
+	@override String get asset_match_versions_tip => 'Show assets that work with Godot {{version}}, your current or newest install.';
+	@override String get asset_match_versions_none => 'Install a Godot version to filter by it.';
+	@override String asset_in_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
+		other: 'In ${count} projects',
+	);
+	@override String get asset_in_projects_one => 'In {{count}} project';
+	@override String get asset_in_projects_other => 'In {{count}} projects';
+	@override String get asset_update_available => 'Update available';
+	@override String get asset_installed_in => 'Installed in your projects';
+	@override String get asset_update_to => 'Update to {{version}}';
+	@override String get asset_up_to_date => 'Up to date';
+	@override String get asset_updated_toast => 'Updated {{title}} in {{project}}';
+	@override String get asset_update_failed => 'Couldn\'t update: {{error}}';
+	@override String get asset_info_error => 'Couldn\'t load the details';
+	@override String get asset_no_description => 'No description provided.';
+	@override String get asset_paid => 'Paid';
+	@override String get asset_fact_updated => 'Updated';
+	@override String get asset_fact_category => 'Category';
+	@override String get asset_fact_license => 'License';
+	@override String get asset_fact_size => 'Download size';
+	@override String get asset_link_source => 'Source code';
+	@override String get asset_link_issues => 'Issues';
+	@override String get asset_media_video => 'Play video';
+	@override String get asset_media_image => 'Screenshot {{index}}';
+	@override String get asset_release_stable => 'Stable';
+	@override String get asset_release_unstable => 'Pre-release';
+	@override String get asset_godot_range => 'Godot {{min}}+';
+	@override String get asset_files_title => 'See the files before you install';
+	@override String get asset_files_intro => 'This downloads the archive once ({{size}}) and reuses it if you install.';
+	@override String get asset_files_intro_unknown => 'This downloads the archive once and reuses it if you install.';
+	@override String get asset_files_load => 'Show files';
+	@override String get asset_files_loading => 'Downloading and reading the archive...';
+	@override String get asset_files_error => 'Couldn\'t read the files';
+	@override String get asset_files_paid => 'Files can\'t be previewed for paid assets. Open the store page to get it.';
+	@override String get asset_files_summary => '{{files}} files, {{size}}';
+	@override String get asset_files_truncated => 'Showing the first {{count}} entries.';
+	@override String get asset_install_into_many => 'Install into {{count}}';
+	@override String get asset_installing_progress => 'Installing {{done}} of {{total}}...';
+	@override String get asset_install_some_failed => '{{count}} installs failed. They\'re still selected so you can try again.';
+	@override String get asset_install_target_done => 'Installed';
+	@override String get asset_install_select_all => 'Select all';
+	@override String get asset_install_select_none => 'Clear selection';
+	@override String get templates_hide_installed => 'Hide installed';
+	@override String get template_update_available => 'Update: {{version}}';
+	@override String get template_update_tip => 'Installed {{installed}}, the Asset Library has {{latest}}.';
+	@override String get template_update_btn => 'Update';
+	@override String get template_updated_toast => 'Updated {{name}} to {{version}}';
+	@override String get template_update_failed => 'Couldn\'t update {{name}}: {{error}}';
+	@override String get asset_page_all_hidden => 'Everything on this page is hidden. Try the next page, or show hidden assets again.';
+	@override String get template_update_confirm_title => 'Update {{name}} to {{version}}?';
+	@override String get template_update_confirm_desc => 'The template\'s files are replaced with the new upload, including any changes you made to them. Its name stays the same.';
 }
 
 // Path: dashboard
@@ -1629,6 +1735,11 @@ class _Translations$settings$ja_JP extends Translations$settings$en_US {
 	@override String get feature_desc_workspaces => '用途に合わせて、プロジェクトと設定をまとめて切り替えられます。';
 	@override String get git_auth_intro => 'Approve GodotHub on {{provider}} to finish signing in. Keep this window open until it\'s done; use Cancel to stop.';
 	@override String get git_auth_step_current => 'current step';
+	@override String get settings_load_failed => 'Couldn\'t load your settings';
+	@override String get credits_contributors_loading => 'Loading contributors…';
+	@override String get credits_contributors_unavailable => 'Contributors aren\'t available';
+	@override String get credits_contributors_unavailable_desc => 'They load from GitHub. Check your connection and try again.';
+	@override String get credits_contributors_none => 'No other contributors yet.';
 }
 
 // Path: todos
@@ -1936,6 +2047,18 @@ class _Translations$versions$ja_JP extends Translations$versions$en_US {
 	@override String get export_templates_select_none => 'Select none';
 	@override String get export_templates_select_hint => 'Select at least one template to download.';
 	@override String get export_templates_all_installed => 'Every template for this release is already installed.';
+	@override String get installed_heading => 'Installed versions';
+	@override String get available_heading => 'Available versions';
+	@override String get no_installed_title => 'No Godot versions installed yet';
+	@override String get loading_available => 'Loading available versions…';
+	@override String get fetch_error_rate_limited => 'GitHub limits how often releases can be checked without a token. Add a GitHub token in Settings, switch to the Godot Archive, or try again later.';
+	@override String get fetch_error_hint => 'Check your internet connection, then try again.';
+	@override String get add_github_token => 'Add GitHub token';
+	@override String get reset_filters => 'Reset filters';
+	@override String get no_available_hint => 'Try another channel or build type, or clear the search.';
+	@override String get view_release_page => 'View release page';
+	@override String get update_available_tag => '{{tag}} is available';
+	@override String get templates_none_hint => 'Install export templates to export projects with this version.';
 }
 
 // Path: common.project_doctor
@@ -2240,6 +2363,7 @@ extension on TranslationsJaJp {
 			'changelog.added' => '追加',
 			'changelog.fixed' => '修正',
 			'changelog.improved' => '改善',
+			'changelog.changelog_load_failed' => 'Couldn\'t load the changelog',
 			'common.new_project' => '新規プロジェクト',
 			'common.import_project' => 'プロジェクトをインポート',
 			'common.search' => '検索',
@@ -2741,9 +2865,9 @@ extension on TranslationsJaJp {
 			'common.task_tray_aria' => 'タスクトレイ',
 			'common.task_tray_auto_dismiss' => '完了したものを自動的に消す',
 			'common.task_tray_dismiss' => '{{count}} 件を消す',
-			'common.task_error_status' => 'エラー',
 			_ => null,
 		} ?? switch (path) {
+			'common.task_error_status' => 'エラー',
 			'common.command_palette_title' => 'コマンドパレット',
 			'common.command_palette_placeholder' => 'コマンド、プロジェクト、エンジン、設定を検索…',
 			'common.command_palette_no_results' => '一致する結果はありません',
@@ -3255,9 +3379,9 @@ extension on TranslationsJaJp {
 			'common.project_addons.updating' => '更新中…',
 			'common.project_addons.updated' => '{{name}} を更新しました',
 			'common.project_addons.confirm_title' => '{{name}} を更新しますか？',
-			'common.project_addons.confirm_description' => 'res://addons/{{folder}} を、アセットライブラリのバージョン {{version}} に置き換えます。元のフォルダはゴミ箱に移動するため、アドオンに加えた変更はそちらに残ります。先に Godot でプロジェクトを閉じてください。',
 			_ => null,
 		} ?? switch (path) {
+			'common.project_addons.confirm_description' => 'res://addons/{{folder}} を、アセットライブラリのバージョン {{version}} に置き換えます。元のフォルダはゴミ箱に移動するため、アドオンに加えた変更はそちらに残ります。先に Godot でプロジェクトを閉じてください。',
 			'common.project_addons.footer_hint' => 'GodotHub 経由でインストールしたアドオンは正確に照合されます。それ以外は名前で判定するため、更新前に結果を確認してください。',
 			'common.reload_confirm_title' => 'GodotHub を再読み込みしますか？',
 			'common.reload_confirm_desc' => '入力中の未保存の変更は失われます。',
@@ -3339,6 +3463,109 @@ extension on TranslationsJaJp {
 			'common.clone_repo_dest_preview' => 'Clones into {{path}}',
 			'common.clone_repo_selected' => 'Selected {{name}}',
 			'common.clone_repo_select_hint' => 'Select a repository from the list to clone it.',
+			'common.project_missing_badge' => 'Unavailable',
+			'common.project_missing_title' => 'Project folder unavailable',
+			'common.project_missing_desc' => 'GodotHub can\'t read project.godot at this path. Reconnect the drive or network share and refresh, or remove the project from the library.',
+			'common.project_missing_open_disabled' => 'Reconnect the drive or share to open this project',
+			'common.field_required' => 'required',
+			'common.path_placeholder' => 'Type or paste a path, or choose Browse',
+			'common.path_input_label' => 'Path',
+			'common.path_apply' => 'Apply',
+			'common.path_error_required' => 'Enter a path or choose one with Browse.',
+			'common.path_error_relative' => 'Use a full path that starts at a drive or the root folder.',
+			'common.path_error_folder_not_found' => 'No folder exists at this path.',
+			'common.path_error_not_a_folder' => 'This path points to a file. Choose a folder.',
+			'common.path_error_file_not_found' => 'No file exists at this path.',
+			'common.path_error_not_a_file' => 'This path points to a folder. Choose a file.',
+			'common.path_error_extension' => 'Choose a {{extensions}} file.',
+			'common.path_error_parent_missing' => 'The folder this would be saved in doesn\'t exist.',
+			'common.kanban_column_empty' => 'No projects',
+			'common.kanban_drop_hint' => 'Drag projects here',
+			'common.category_options' => 'Category options',
+			'common.clear_filters' => 'Clear filters',
+			'common.asset_load_error_title' => 'Couldn\'t load assets',
+			'common.asset_no_results_title' => 'No assets found',
+			'common.asset_no_results_filtered' => 'Nothing matches the current search and filters.',
+			'common.asset_partial_error' => 'Some results couldn\'t be loaded.',
+			'common.news_open_site' => 'Open godotengine.org',
+			'common.templates_empty_title' => 'No templates yet',
+			'common.templates_load_error' => 'Couldn\'t load templates',
+			'common.templates_browse_library' => 'Browse the Asset Library',
+			'common.doctor_fix_all' => 'Fix all ({{count}})',
+			'common.doctor_fixing_all' => 'Fixing…',
+			'common.vault_empty_title' => 'Your vault is empty',
+			'common.vault_empty_desc' => 'Save files or folders from a project to reuse them in any other project.',
+			'common.vault_load_failed' => 'Couldn\'t load your vault',
+			'common.vault_files_loading' => 'Loading project files…',
+			'common.vault_files_load_failed' => 'Couldn\'t load this project\'s files',
+			'common.asset_view_details' => 'View details',
+			'common.asset_tab_overview' => 'Overview',
+			'common.asset_tab_files' => 'Files',
+			'common.asset_tab_releases' => 'Releases',
+			'common.asset_save' => 'Save',
+			'common.asset_saved' => 'Saved',
+			'common.asset_unsave' => 'Remove from saved',
+			'common.asset_saved_filter' => 'Saved ({{count}})',
+			'common.asset_saved_empty_title' => 'No saved assets yet',
+			'common.asset_saved_empty_desc' => 'Select the star on an asset to keep it here.',
+			'common.asset_not_interested' => 'Not interested',
+			'common.asset_hidden_toast' => '{{title}} is hidden. Show it again from Hidden.',
+			'common.asset_hidden_manage' => 'Hidden ({{count}})',
+			'common.asset_hidden_title' => 'Hidden assets',
+			'common.asset_hidden_desc' => 'Assets you marked as not interested don\'t appear in results.',
+			'common.asset_hidden_empty' => 'Nothing is hidden',
+			'common.asset_show_again' => 'Show again',
+			'common.asset_match_versions' => 'Match my Godot ({{version}})',
+			'common.asset_match_versions_off' => 'Match my Godot',
+			'common.asset_match_versions_tip' => 'Show assets that work with Godot {{version}}, your current or newest install.',
+			'common.asset_match_versions_none' => 'Install a Godot version to filter by it.',
+			'common.asset_in_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: 'In ${count} projects', ), 
+			'common.asset_in_projects_one' => 'In {{count}} project',
+			'common.asset_in_projects_other' => 'In {{count}} projects',
+			'common.asset_update_available' => 'Update available',
+			'common.asset_installed_in' => 'Installed in your projects',
+			'common.asset_update_to' => 'Update to {{version}}',
+			'common.asset_up_to_date' => 'Up to date',
+			'common.asset_updated_toast' => 'Updated {{title}} in {{project}}',
+			'common.asset_update_failed' => 'Couldn\'t update: {{error}}',
+			'common.asset_info_error' => 'Couldn\'t load the details',
+			'common.asset_no_description' => 'No description provided.',
+			'common.asset_paid' => 'Paid',
+			'common.asset_fact_updated' => 'Updated',
+			'common.asset_fact_category' => 'Category',
+			'common.asset_fact_license' => 'License',
+			'common.asset_fact_size' => 'Download size',
+			'common.asset_link_source' => 'Source code',
+			'common.asset_link_issues' => 'Issues',
+			'common.asset_media_video' => 'Play video',
+			'common.asset_media_image' => 'Screenshot {{index}}',
+			'common.asset_release_stable' => 'Stable',
+			'common.asset_release_unstable' => 'Pre-release',
+			'common.asset_godot_range' => 'Godot {{min}}+',
+			'common.asset_files_title' => 'See the files before you install',
+			'common.asset_files_intro' => 'This downloads the archive once ({{size}}) and reuses it if you install.',
+			'common.asset_files_intro_unknown' => 'This downloads the archive once and reuses it if you install.',
+			'common.asset_files_load' => 'Show files',
+			'common.asset_files_loading' => 'Downloading and reading the archive...',
+			'common.asset_files_error' => 'Couldn\'t read the files',
+			'common.asset_files_paid' => 'Files can\'t be previewed for paid assets. Open the store page to get it.',
+			'common.asset_files_summary' => '{{files}} files, {{size}}',
+			'common.asset_files_truncated' => 'Showing the first {{count}} entries.',
+			'common.asset_install_into_many' => 'Install into {{count}}',
+			'common.asset_installing_progress' => 'Installing {{done}} of {{total}}...',
+			'common.asset_install_some_failed' => '{{count}} installs failed. They\'re still selected so you can try again.',
+			'common.asset_install_target_done' => 'Installed',
+			'common.asset_install_select_all' => 'Select all',
+			'common.asset_install_select_none' => 'Clear selection',
+			'common.templates_hide_installed' => 'Hide installed',
+			'common.template_update_available' => 'Update: {{version}}',
+			'common.template_update_tip' => 'Installed {{installed}}, the Asset Library has {{latest}}.',
+			'common.template_update_btn' => 'Update',
+			'common.template_updated_toast' => 'Updated {{name}} to {{version}}',
+			'common.template_update_failed' => 'Couldn\'t update {{name}}: {{error}}',
+			'common.asset_page_all_hidden' => 'Everything on this page is hidden. Try the next page, or show hidden assets again.',
+			'common.template_update_confirm_title' => 'Update {{name}} to {{version}}?',
+			'common.template_update_confirm_desc' => 'The template\'s files are replaced with the new upload, including any changes you made to them. Its name stays the same.',
 			'dashboard.greeting_morning' => 'おはようございます',
 			'dashboard.greeting_afternoon' => 'こんにちは',
 			'dashboard.greeting_evening' => 'こんばんは',
@@ -3666,6 +3893,8 @@ extension on TranslationsJaJp {
 			'settings.file_watchers_title' => 'ファイル監視',
 			'settings.last_opened_title' => '「最終起動」の表示',
 			'settings.github_token_title' => 'GitHub API トークン',
+			_ => null,
+		} ?? switch (path) {
 			'settings.titlebar_buttons' => 'タイトルバーのボタン',
 			'settings.setup_wizard' => 'セットアップウィザード',
 			'settings.setup_wizard_again' => 'セットアップウィザードを再実行',
@@ -3770,8 +3999,6 @@ extension on TranslationsJaJp {
 			'settings.entrance_slide' => 'スライド',
 			'settings.entrance_scale' => 'スケール',
 			'settings.entrance_none' => 'なし',
-			_ => null,
-		} ?? switch (path) {
 			'settings.custom_css_label' => 'カスタム CSS',
 			'settings.custom_css_placeholder' => '/* 独自のスタイル。例: */\n.card { border-radius: 4px !important; }',
 			'settings.custom_css_apply' => 'CSS を適用',
@@ -3921,6 +4148,11 @@ extension on TranslationsJaJp {
 			'settings.feature_desc_workspaces' => '用途に合わせて、プロジェクトと設定をまとめて切り替えられます。',
 			'settings.git_auth_intro' => 'Approve GodotHub on {{provider}} to finish signing in. Keep this window open until it\'s done; use Cancel to stop.',
 			'settings.git_auth_step_current' => 'current step',
+			'settings.settings_load_failed' => 'Couldn\'t load your settings',
+			'settings.credits_contributors_loading' => 'Loading contributors…',
+			'settings.credits_contributors_unavailable' => 'Contributors aren\'t available',
+			'settings.credits_contributors_unavailable_desc' => 'They load from GitHub. Check your connection and try again.',
+			'settings.credits_contributors_none' => 'No other contributors yet.',
 			'todos.next_steps' => '次のステップ',
 			'todos.saving_tasks' => 'タスクを保存中',
 			'todos.pending_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '未完了 ${count} 件', ), 
@@ -4175,10 +4407,24 @@ extension on TranslationsJaJp {
 			'versions.download_failed_summary' => 'GodotHub couldn\'t download Godot {{tag}}.',
 			'versions.download_failed_show_details' => 'Show error details',
 			'versions.download_failed_hide_details' => 'Hide error details',
+			_ => null,
+		} ?? switch (path) {
 			'versions.download_failed_report' => 'Report this problem',
 			'versions.export_templates_select_none' => 'Select none',
 			'versions.export_templates_select_hint' => 'Select at least one template to download.',
 			'versions.export_templates_all_installed' => 'Every template for this release is already installed.',
+			'versions.installed_heading' => 'Installed versions',
+			'versions.available_heading' => 'Available versions',
+			'versions.no_installed_title' => 'No Godot versions installed yet',
+			'versions.loading_available' => 'Loading available versions…',
+			'versions.fetch_error_rate_limited' => 'GitHub limits how often releases can be checked without a token. Add a GitHub token in Settings, switch to the Godot Archive, or try again later.',
+			'versions.fetch_error_hint' => 'Check your internet connection, then try again.',
+			'versions.add_github_token' => 'Add GitHub token',
+			'versions.reset_filters' => 'Reset filters',
+			'versions.no_available_hint' => 'Try another channel or build type, or clear the search.',
+			'versions.view_release_page' => 'View release page',
+			'versions.update_available_tag' => '{{tag}} is available',
+			'versions.templates_none_hint' => 'Install export templates to export projects with this version.',
 			_ => null,
 		};
 	}

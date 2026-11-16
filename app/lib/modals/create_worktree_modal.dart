@@ -1,14 +1,17 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 
 import '../api/git.dart';
 import '../api/projects.dart';
 import '../design/design.dart';
 import '../logic/worktree_paths.dart';
-import '../ui/controls/text_input.dart';
 import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/feedback/modal_shell.dart';
+import '../ui/reusables/labelled_field.dart';
 import '../ui/reusables/modal_kit.dart';
+import '../ui/reusables/path_field.dart';
 
 String worktreePathWithParent(String current, String parent) {
   final folder = current.replaceAll('\\', '/').replaceFirst(RegExp(r'/+$'), '').split('/').last;
@@ -27,18 +30,27 @@ class CreateWorktreeModal extends StatefulWidget {
   State<CreateWorktreeModal> createState() => _CreateWorktreeModalState();
 }
 
+/// A worktree target may be new or an empty folder; git creates missing
+/// parents, so only an empty value or an existing file is rejected here.
+String? worktreePathError(String raw) {
+  final path = ghNormalizePath(raw);
+  if (path.isEmpty) return ghTr('path_error_required');
+  if (FileSystemEntity.typeSync(path) == FileSystemEntityType.file) return ghTr('path_error_not_a_folder');
+  return null;
+}
+
 class _CreateWorktreeModalState extends State<CreateWorktreeModal> {
   late final TextEditingController _path = TextEditingController(text: defaultWorktreePath(widget.repositoryPath));
   final TextEditingController _branch = TextEditingController();
   final FocusNode _pathNode = FocusNode(debugLabel: 'CreateWorktreeModal path');
   bool _busy = false;
-  bool _picking = false;
   String? _error;
+  String? _pathError;
 
   @override
   void initState() {
     super.initState();
-    _path.addListener(() => setState(() {}));
+    _path.addListener(() => setState(() => _pathError = null));
   }
 
   @override
@@ -49,11 +61,14 @@ class _CreateWorktreeModalState extends State<CreateWorktreeModal> {
     super.dispose();
   }
 
-  bool get _locked => _busy || _picking;
-
   Future<void> _create() async {
-    final path = _path.text.trim();
-    if (path.isEmpty || _locked) return;
+    final path = ghNormalizePath(_path.text);
+    if (path.isEmpty || _busy) return;
+    final pathError = worktreePathError(path);
+    if (pathError != null) {
+      setState(() => _pathError = pathError);
+      return;
+    }
     setState(() {
       _busy = true;
       _error = null;
@@ -72,43 +87,12 @@ class _CreateWorktreeModalState extends State<CreateWorktreeModal> {
     }
   }
 
-  Future<void> _browse() async {
-    setState(() {
-      _picking = true;
-      _error = null;
-    });
-    try {
-      final parent = await (widget.pickFolder ?? ProjectsApi.pickFolder)();
-      if (parent != null && mounted) _path.text = worktreePathWithParent(_path.text, parent);
-    } catch (e) {
-      if (mounted) setState(() => _error = '$e');
-    } finally {
-      if (mounted) setState(() => _picking = false);
-    }
+  /// Browse picks the parent folder; the worktree folder name is kept.
+  Future<String?> _pickParent() async {
+    if (mounted) setState(() => _error = null);
+    final parent = await (widget.pickFolder ?? ProjectsApi.pickFolder)();
+    return parent == null ? null : worktreePathWithParent(_path.text, parent);
   }
-
-  GhTextInput _input(GhTheme theme, TextEditingController controller, {String? placeholder, bool mono = false, FocusNode? focusNode}) =>
-      GhTextInput(
-        controller: controller,
-        focusNode: focusNode,
-        autofocus: focusNode != null,
-        enabled: !(mono ? _locked : _busy),
-        mono: mono,
-        textDirection: TextDirection.ltr,
-        placeholder: placeholder,
-        onSubmitted: (_) => _create(),
-        background: theme.raised,
-        borderColor: theme.line,
-        focusBorderColor: theme.accentDim,
-        placeholderColor: theme.muted.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(theme.radiusItem),
-        padding: EdgeInsets.symmetric(horizontal: theme.space(3.5), vertical: theme.space(2.5)),
-      );
-
-  Widget _hint(GhTheme theme, String text) => Text(
-    text,
-    style: theme.text(size: GhTextSize.x2s, color: theme.muted.withValues(alpha: 0.7), lineHeight: 1.625),
-  );
 
   @override
   Widget build(BuildContext context) {
@@ -117,13 +101,13 @@ class _CreateWorktreeModalState extends State<CreateWorktreeModal> {
       icon: GhIcon(GhIcons.clone, size: theme.space(5), color: theme.ink),
       title: ghTr('git:add_worktree'),
       maxWidth: GhModalWidth.lg,
-      onClose: _locked ? null : widget.onClose,
+      onClose: _busy ? null : widget.onClose,
       initialFocus: _pathNode,
       footer: [
         const Spacer(),
-        GhButton(onPressed: _locked ? null : widget.onClose, label: ghTr('cancel')),
+        GhButton(onPressed: _busy ? null : widget.onClose, label: ghTr('cancel')),
         GhBusyButton(
-          onPressed: _path.text.trim().isEmpty || _locked ? null : _create,
+          onPressed: _path.text.trim().isEmpty || _busy ? null : _create,
           busy: _busy,
           paddingX: 4,
           label: _busy ? ghTr('creating') : ghTr('git:add_worktree_btn'),
@@ -135,41 +119,34 @@ class _CreateWorktreeModalState extends State<CreateWorktreeModal> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: theme.space(5),
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: theme.space(2),
-              children: [
-                GhFieldLabel(ghTr('git:worktree_location_label')),
-                Row(
-                  spacing: theme.space(2),
-                  children: [
-                    Expanded(
-                      child: _input(theme, _path, placeholder: ghTr('git:worktree_path_placeholder'), mono: true, focusNode: _pathNode),
-                    ),
-                    SizedBox(
-                      width: theme.space(11),
-                      child: GhOutlineAction(
-                        onPressed: _locked ? null : _browse,
-                        icon: _picking ? null : GhIcons.folder,
-                        iconSize: 4,
-                        busy: _picking,
-                        tooltip: ghTr('git:worktree_browse_parent'),
-                        semanticLabel: ghTr('git:worktree_browse_parent'),
-                      ),
-                    ),
-                  ],
-                ),
-                _hint(theme, ghTr('git:worktree_location_hint')),
-              ],
+            GhPathField(
+              key: const ValueKey('worktree-path'),
+              controller: _path,
+              focusNode: _pathNode,
+              autofocus: true,
+              kind: GhPathKind.folder,
+              validator: worktreePathError,
+              pick: _pickParent,
+              onPickError: (e) => setState(() => _error = '$e'),
+              label: ghTr('git:worktree_location_label'),
+              hint: ghTr('git:worktree_location_hint'),
+              error: _pathError,
+              placeholder: ghTr('git:worktree_path_placeholder'),
+              browseLabel: ghTr('git:worktree_browse_parent'),
+              compactBrowse: true,
+              enabled: !_busy,
+              onSubmitted: (_) => _create(),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: theme.space(2),
-              children: [
-                GhFieldLabel(ghTr('git:worktree_branch_label')),
-                _input(theme, _branch, placeholder: ghTr('git:worktree_branch_placeholder')),
-                _hint(theme, ghTr('git:worktree_branch_hint')),
-              ],
+            GhLabelledField(
+              label: ghTr('git:worktree_branch_label'),
+              hint: ghTr('git:worktree_branch_hint'),
+              child: GhFieldInput(
+                controller: _branch,
+                enabled: !_busy,
+                textDirection: TextDirection.ltr,
+                placeholder: ghTr('git:worktree_branch_placeholder'),
+                onSubmitted: (_) => _create(),
+              ),
             ),
             if (_error != null) GhAlertBox(tone: GhAlertTone.danger, text: _error, strong: true),
           ],

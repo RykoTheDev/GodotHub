@@ -139,7 +139,7 @@ void main() {
       await tester.tap(find.byKey(const ValueKey('language-menu-trigger')));
       await tester.pumpAndSettle();
       expect(find.byKey(const ValueKey('rtl-layout-toggle')), findsNothing);
-      expect(find.text(AppLocale.enUs.translations.common.language_label.toUpperCase()), findsOneWidget);
+      expect(find.text(AppLocale.enUs.translations.common.language_label), findsOneWidget);
     });
   });
 

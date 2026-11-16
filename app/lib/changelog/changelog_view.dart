@@ -10,13 +10,15 @@ import '../src/rust/api/types.dart';
 import '../src/ui_prefs.dart';
 import '../state/changelog.dart';
 import '../state/settings.dart';
-import '../ui/controls/dashed_box.dart';
+import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import '../ui/core/tooltip.dart';
 import '../ui/feedback/confirm_dialog.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
+import '../ui/reusables/card_kit.dart';
+import '../ui/reusables/state_panel.dart';
 import '../ui/reusables/view_header.dart';
 import '../ui/shell/overlay_scroll_area.dart';
 import '../ui/shell/view_insets.dart';
@@ -30,12 +32,12 @@ String formatChangelogDate(String raw) {
   return formatLocaleDate(date, const GhDateFormatOptions(day: GhDatePart.numeric, month: GhDatePart.short, year: GhDatePart.numeric));
 }
 
-typedef ChangelogGroup = ({String key, String labelKey, Color Function(GhTheme theme) color, Color Function(GhTheme theme) chip});
+typedef ChangelogGroup = ({String key, String labelKey, Color Function(GhTheme theme) color, GhTone tone});
 
 final List<ChangelogGroup> changelogGroups = [
-  (key: 'add', labelKey: 'added', color: (t) => t.mint, chip: (t) => t.mint.withValues(alpha: 0.1)),
-  (key: 'fix', labelKey: 'fixed', color: (t) => t.danger, chip: (t) => t.danger.withValues(alpha: 0.1)),
-  (key: 'improve', labelKey: 'improved', color: (t) => t.accentBright, chip: (t) => t.accent.withValues(alpha: 0.15)),
+  (key: 'add', labelKey: 'added', color: (t) => t.mint, tone: GhTone.mint),
+  (key: 'fix', labelKey: 'fixed', color: (t) => t.danger, tone: GhTone.danger),
+  (key: 'improve', labelKey: 'improved', color: (t) => t.accentBright, tone: GhTone.accent),
 ];
 
 class ChangelogView extends ConsumerStatefulWidget {
@@ -133,40 +135,20 @@ class _ChangelogViewState extends ConsumerState<ChangelogView> {
             ),
         ],
       );
+    } else if (entries.isEmpty && changelog.error != null) {
+      body = GhStatePanel.error(
+        title: _tc('changelog_load_failed'),
+        message: changelog.error,
+        onRetry: () => ref.read(changelogProvider.notifier).refresh().ignore(),
+      );
     } else if (entries.isEmpty) {
-      body = GhDashedBox(
-        color: theme.outline.withValues(alpha: 0.5),
-        radius: BorderRadius.circular(theme.radiusItem),
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: theme.space(24)),
-          child: SizedBox(
-            width: double.infinity,
-            child: Column(
-              spacing: theme.space(4),
-              children: [
-                Container(
-                  width: theme.space(12),
-                  height: theme.space(12),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: theme.overlay,
-                    borderRadius: BorderRadius.circular(theme.radiusTile),
-                    border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-                  ),
-                  child: GhIcon(GhIcons.bookOpen, size: theme.space(5), color: theme.muted),
-                ),
-                ConstrainedBox(
-                  constraints: BoxConstraints(maxWidth: theme.rem(20)),
-                  child: Text(
-                    _tc('no_entries'),
-                    textAlign: TextAlign.center,
-                    style: theme.text(size: GhTextSize.sm, color: theme.muted, lineHeight: 1.625),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
+      body = GhStatePanel.empty(
+        icon: GhIcons.bookOpen,
+        title: _tc('no_entries'),
+        actions: [
+          if (widget.devTools)
+            GhButton(onPressed: _openEditor, icon: GhIcons.plus, label: ghTr('add_entry'), variant: GhButtonVariant.outline),
+        ],
       );
     } else {
       body = Column(
@@ -463,19 +445,14 @@ class _ChangelogEntryCardState extends State<ChangelogEntryCard> {
                               children: [
                                 for (final group in changelogGroups)
                                   if (entry.notes.any((n) => n.category == group.key))
-                                    _chip(
-                                      theme,
-                                      background: group.chip(theme),
-                                      color: group.color(theme),
-                                      leading: _dot(theme, group.color(theme)),
+                                    GhBadge(
+                                      tone: group.tone,
                                       label: '${entry.notes.where((n) => n.category == group.key).length} ${_tc(group.labelKey)}',
                                     ),
                                 if (issues.isNotEmpty)
-                                  _chip(
-                                    theme,
-                                    background: theme.amber.withValues(alpha: 0.1),
-                                    color: theme.amber,
-                                    leading: GhIcon(GhIcons.alertTriangle, size: theme.space(2.5), color: theme.amber),
+                                  GhBadge(
+                                    tone: GhTone.amber,
+                                    icon: GhIcons.alertTriangle,
                                     label: '${issues.length} ${_tc('changelog_known_issues')}',
                                   ),
                               ],
@@ -495,13 +472,8 @@ class _ChangelogEntryCardState extends State<ChangelogEntryCard> {
                                       spacing: theme.space(1.5),
                                       children: [
                                         Text(
-                                          _tc(group.labelKey).toUpperCase(),
-                                          style: theme.text(
-                                            size: GhTextSize.x3s,
-                                            weight: GhWeight.semibold,
-                                            color: group.color(theme),
-                                            letterSpacingEm: 0.05,
-                                          ),
+                                          _tc(group.labelKey),
+                                          style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: group.color(theme)),
                                         ),
                                         _bullets(theme, [
                                           for (final n in entry.notes)
@@ -528,13 +500,8 @@ class _ChangelogEntryCardState extends State<ChangelogEntryCard> {
                                   children: [
                                     GhIcon(GhIcons.alertTriangle, size: theme.space(3), color: theme.amber),
                                     Text(
-                                      _tc('changelog_known_issues').toUpperCase(),
-                                      style: theme.text(
-                                        size: GhTextSize.x3s,
-                                        weight: GhWeight.semibold,
-                                        color: theme.amber,
-                                        letterSpacingEm: 0.05,
-                                      ),
+                                      _tc('changelog_known_issues'),
+                                      style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.amber),
                                     ),
                                   ],
                                 ),
@@ -553,21 +520,4 @@ class _ChangelogEntryCardState extends State<ChangelogEntryCard> {
       ),
     );
   }
-
-  Widget _chip(GhTheme theme, {required Color background, required Color color, required Widget leading, required String label}) =>
-      Container(
-        padding: EdgeInsets.symmetric(horizontal: theme.space(2), vertical: theme.space(0.5)),
-        decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(theme.radiusTag)),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: theme.space(1.5),
-          children: [
-            leading,
-            Text(
-              label,
-              style: theme.text(size: GhTextSize.x3s, weight: GhWeight.semibold, color: color),
-            ),
-          ],
-        ),
-      );
 }

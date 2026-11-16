@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -36,7 +37,13 @@ late FakeRustApi rust;
 final opened = <String>[];
 final saved = <AppSettings>[];
 
-Future<void> pumpBody(WidgetTester tester, Widget body, {AppSettings? settings, List<Override> overrides = const []}) async {
+Future<void> pumpBody(
+  WidgetTester tester,
+  Widget body, {
+  AppSettings? settings,
+  List<Override> overrides = const [],
+  ContributorsFetcher? contributors,
+}) async {
   tester.view.physicalSize = const Size(1400, 1100);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -52,11 +59,12 @@ Future<void> pumpBody(WidgetTester tester, Widget body, {AppSettings? settings, 
         ),
         appVersionLoaderProvider.overrideWithValue(() async => '2.0.0'),
         contributorsFetcherProvider.overrideWithValue(
-          () async => const [
-            Contributor(login: 'RykoTheDev', avatarUrl: '', contributions: 90),
-            Contributor(login: 'alice', avatarUrl: '', contributions: 5),
-            Contributor(login: 'bob', avatarUrl: '', contributions: 2),
-          ],
+          contributors ??
+              () async => const [
+                Contributor(login: 'RykoTheDev', avatarUrl: '', contributions: 90),
+                Contributor(login: 'alice', avatarUrl: '', contributions: 5),
+                Contributor(login: 'bob', avatarUrl: '', contributions: 2),
+              ],
         ),
         ...overrides,
       ],
@@ -116,6 +124,35 @@ void main() {
     await tester.tap(toggles.last);
     await base.settle(tester, 3);
     expect(saved.last.projectTodosEnabled, !baseSettings.projectTodosEnabled);
+  });
+
+  testWidgets('credits shows a loading state, then an unavailable state with retry when GitHub fails', (tester) async {
+    var gate = Completer<List<Contributor>>();
+    await pumpBody(tester, const CreditsSettings(), contributors: () => gate.future);
+    expect(find.byKey(const ValueKey('credits-contributors-loading')), findsOneWidget);
+    expect(find.text(ghTr('settings:credits_contributors_loading')), findsOneWidget);
+    gate.completeError('offline');
+    await base.settle(tester, 3);
+    expect(find.byKey(const ValueKey('credits-contributors-loading')), findsNothing);
+    expect(find.byKey(const ValueKey('credits-contributors-empty')), findsOneWidget);
+    expect(find.text(ghTr('settings:credits_contributors_unavailable')), findsOneWidget);
+    gate = Completer<List<Contributor>>()..complete(const [Contributor(login: 'carol', avatarUrl: '', contributions: 3)]);
+    await tester.tap(find.text(ghTr('retry')));
+    await base.settle(tester, 3);
+    expect(find.byKey(const ValueKey('credits-contributors-empty')), findsNothing);
+    expect(find.text('carol'), findsOneWidget);
+    expect(find.text(ghTr('settings:credits_contributors')), findsOneWidget);
+  });
+
+  testWidgets('credits says there are no other contributors when GitHub only lists the developer', (tester) async {
+    await pumpBody(
+      tester,
+      const CreditsSettings(),
+      contributors: () async => const [Contributor(login: creditsDeveloperLogin, avatarUrl: '', contributions: 90)],
+    );
+    expect(find.byKey(const ValueKey('credits-contributors-none')), findsOneWidget);
+    expect(find.text(ghTr('settings:credits_contributors_none')), findsOneWidget);
+    expect(find.byKey(const ValueKey('credits-contributors-empty')), findsNothing);
   });
 
   testWidgets('credits shows the developer, license and contributors and opens their PRs', (tester) async {

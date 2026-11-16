@@ -11,7 +11,7 @@ use std::time::{Duration, Instant};
 use crate::AppHandle;
 
 pub(crate) const ASSET_LIB_API: &str = "https://godotengine.org/asset-library/api";
-const ASSET_STORE_API: &str = "https://store.godotengine.org/api/v1";
+pub(crate) const ASSET_STORE_API: &str = "https://store.godotengine.org/api/v1";
 const ALLOWED_TYPES: &[&str] = &["project"];
 const MAX_PAGE_SKIP: u32 = 8;
 
@@ -32,37 +32,37 @@ struct AssetSearchResponse {
 #[derive(Debug, Clone, Default, Deserialize)]
 pub(crate) struct AssetDetail {
     #[serde(rename = "asset_id")]
-    asset_id: String,
+    pub(crate) asset_id: String,
     #[serde(default, rename = "type")]
-    asset_type: String,
+    pub(crate) asset_type: String,
     #[serde(default)]
-    title: String,
+    pub(crate) title: String,
     #[serde(default)]
-    author: String,
+    pub(crate) author: String,
     #[serde(default)]
-    category: String,
+    pub(crate) category: String,
     #[serde(default, rename = "godot_version")]
-    godot_version: String,
+    pub(crate) godot_version: String,
     #[serde(default)]
-    cost: String,
+    pub(crate) cost: String,
     #[serde(default)]
-    description: Option<String>,
+    pub(crate) description: Option<String>,
     #[serde(default, rename = "support_level")]
-    support_level: String,
+    pub(crate) support_level: String,
     #[serde(default, rename = "download_url")]
-    download_url: Option<String>,
+    pub(crate) download_url: Option<String>,
     #[serde(default, rename = "browse_url")]
-    browse_url: Option<String>,
+    pub(crate) browse_url: Option<String>,
     #[serde(default, rename = "icon_url")]
-    icon_url: Option<String>,
+    pub(crate) icon_url: Option<String>,
     #[serde(default, rename = "modify_date")]
-    modify_date: Option<String>,
+    pub(crate) modify_date: Option<String>,
     #[serde(default)]
-    rating: String,
+    pub(crate) rating: String,
     #[serde(default)]
-    version: serde_json::Value,
+    pub(crate) version: serde_json::Value,
     #[serde(default, rename = "version_string")]
-    version_string: String,
+    pub(crate) version_string: String,
 }
 
 impl AssetDetail {
@@ -84,7 +84,7 @@ impl AssetDetail {
     }
 }
 
-#[derive(Debug, Clone, serde::Serialize)]
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct AssetLibraryAsset {
     pub asset_id: String,
     pub title: String,
@@ -101,6 +101,10 @@ pub struct AssetLibraryAsset {
     pub modify_date: Option<String>,
     pub rating: String,
     pub source: String,
+    /// The latest version string, when the source reports it in results
+    /// (the Asset Library does; Store results leave it empty).
+    #[serde(default)]
+    pub version: String,
 }
 
 #[derive(Debug, Clone, serde::Serialize)]
@@ -144,7 +148,7 @@ pub struct AssetDownloadError {
     pub message: String,
 }
 
-fn client() -> Result<reqwest::Client, String> {
+pub(crate) fn client() -> Result<reqwest::Client, String> {
     crate::http::client()
 }
 
@@ -268,6 +272,11 @@ async fn download_to_file(
     title: &str,
     max_bytes: Option<u64>,
 ) -> Result<(), String> {
+    // The file preview already downloaded this archive: reuse it.
+    if let Some(cached) = crate::asset_extras::cached_archive(app, url) {
+        fs::copy(&cached, dest).map_err(|e| e.to_string())?;
+        return Ok(());
+    }
     let resp = http
         .get(url)
         .header(reqwest::header::ACCEPT_ENCODING, "identity")
@@ -430,6 +439,7 @@ pub async fn search_asset_library(
                 modify_date: d.modify_date,
                 rating: d.rating.clone(),
                 source: "library".to_string(),
+                version: d.version_string.clone(),
             })
             .collect();
 
@@ -488,44 +498,44 @@ struct StoreSearchHit {
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
-struct StorePublisher {
+pub(crate) struct StorePublisher {
     #[serde(default)]
-    name: String,
+    pub(crate) name: String,
     #[serde(default)]
-    slug: String,
+    pub(crate) slug: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
-struct StoreTag {
+pub(crate) struct StoreTag {
     #[serde(default)]
-    display_name: String,
+    pub(crate) display_name: String,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
-struct StoreAsset {
+pub(crate) struct StoreAsset {
     #[serde(default)]
-    slug: String,
+    pub(crate) slug: String,
     #[serde(default)]
-    publisher: StorePublisher,
+    pub(crate) publisher: StorePublisher,
     #[serde(default)]
-    name: String,
+    pub(crate) name: String,
     #[serde(default, rename = "type")]
-    asset_type: i64,
+    pub(crate) asset_type: i64,
     #[serde(default)]
-    description: Option<String>,
+    pub(crate) description: Option<String>,
     #[serde(default, rename = "license_type")]
-    license_type: String,
+    pub(crate) license_type: String,
     #[serde(default)]
-    thumbnail: Option<String>,
+    pub(crate) thumbnail: Option<String>,
     #[serde(default, rename = "reviews_score")]
-    reviews_score: i64,
+    pub(crate) reviews_score: i64,
     #[serde(default)]
-    tags: Vec<StoreTag>,
+    pub(crate) tags: Vec<StoreTag>,
     #[serde(default, rename = "store_url")]
-    store_url: String,
+    pub(crate) store_url: String,
 }
 
-fn normalize_store_asset(a: StoreAsset) -> AssetLibraryAsset {
+pub(crate) fn normalize_store_asset(a: StoreAsset) -> AssetLibraryAsset {
     let publisher_slug = a.publisher.slug.clone();
     let asset_slug = a.slug.clone();
     AssetLibraryAsset {
@@ -559,6 +569,7 @@ fn normalize_store_asset(a: StoreAsset) -> AssetLibraryAsset {
         modify_date: None,
         rating: a.reviews_score.to_string(),
         source: "store".to_string(),
+        version: String::new(),
     }
 }
 
@@ -898,7 +909,7 @@ struct StoreRelease {
     stable: bool,
 }
 
-async fn resolve_store_download_url(
+pub(crate) async fn resolve_store_download_url(
     http: &reqwest::Client,
     publisher_slug: &str,
     asset_slug: &str,
@@ -1066,6 +1077,7 @@ async fn download_and_install(
             detail.description.clone().unwrap_or_default(),
             detail.godot_version.clone(),
             &src,
+            Some((asset_id.to_string(), detail.version_string.clone(), detail.revision())),
         )
     });
 
@@ -1074,8 +1086,54 @@ async fn download_and_install(
     extract_result
 }
 
+/// Downloads the newest upload of the asset a template came from and swaps
+/// it into that template, keeping the template's id and name.
+pub async fn update_template_from_asset(app: AppHandle, template_id: String) -> Result<ProjectTemplate, String> {
+    let template = crate::templates::read_templates(&app)
+        .into_iter()
+        .find(|t| t.id == template_id)
+        .ok_or("Template not found")?;
+    let asset_id = template
+        .source_asset_id
+        .clone()
+        .ok_or("This template wasn't installed from the Asset Library")?;
+    let http = client()?;
+    let detail = fetch_detail(&http, &asset_id)
+        .await
+        .ok_or_else(|| format!("Could not fetch asset {asset_id} from the Asset Library"))?;
+    let download_url = detail.download_url.clone().ok_or("This asset has no download URL")?;
+    emit_asset_queued(&app, &detail);
+    let temp_key = asset_id.replace([':', '/', '\\'], "_");
+    let temp_dir = std::env::temp_dir().join(format!("godothub-template-update-{temp_key}"));
+    let zip_path = std::env::temp_dir().join(format!("godothub-template-update-{temp_key}.zip"));
+    let _ = crate::templates::remove_dir_force(&temp_dir);
+    let _ = fs::remove_file(&zip_path);
+    let result = async {
+        fs::create_dir_all(&temp_dir).map_err(|e| e.to_string())?;
+        download_to_file(&app, &http, &download_url, &zip_path, &detail.asset_id, &detail.title, Some(MAX_ASSET_DOWNLOAD_BYTES)).await?;
+        extract_zip(&zip_path, &temp_dir)?;
+        let src = find_project_root(&temp_dir)?;
+        crate::templates::replace_template_files(
+            &app,
+            &template_id,
+            &src,
+            detail.version_string.clone(),
+            detail.revision(),
+            detail.godot_version.clone(),
+        )
+    }
+    .await;
+    let _ = fs::remove_file(&zip_path);
+    let _ = crate::templates::remove_dir_force(&temp_dir);
+    match &result {
+        Ok(_) => emit_asset_complete(&app, &detail),
+        Err(message) => emit_asset_error(&app, &asset_id, &detail.title, message),
+    }
+    result
+}
+
 /// Cap on the compressed archive we are willing to download to disk.
-const MAX_ASSET_DOWNLOAD_BYTES: u64 = 2 * 1024 * 1024 * 1024;
+pub(crate) const MAX_ASSET_DOWNLOAD_BYTES: u64 = 2 * 1024 * 1024 * 1024;
 
 struct ExtractLimits {
     /// Cap on the total decompressed size across all entries (zip-bomb guard).

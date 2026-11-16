@@ -8,5 +8,6 @@
   "delete_entry_aria": "{{version}} を削除",
   "added": "追加",
   "fixed": "修正",
-  "improved": "改善"
+  "improved": "改善",
+  "changelog_load_failed": "Couldn't load the changelog"
 }

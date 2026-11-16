@@ -97,13 +97,8 @@ class MiniAppPreview extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: theme.space(0.5)),
             child: Text(
-              ghTr('onboarding:preview_heading').toUpperCase(),
-              style: theme.text(
-                size: GhTextSize.x3s,
-                weight: GhWeight.semibold,
-                color: theme.muted.withValues(alpha: 0.7),
-                letterSpacingEm: 0.025,
-              ),
+              ghTr('onboarding:preview_heading'),
+              style: theme.text(size: GhTextSize.x2s, weight: GhWeight.semibold, color: theme.muted.withValues(alpha: 0.8)),
             ),
           ),
           Visibility(
