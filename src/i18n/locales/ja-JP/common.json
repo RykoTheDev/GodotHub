@@ -1047,7 +1047,6 @@
   "bug_report_include_log": "Include the log",
   "bug_report_preview_show": "Preview report",
   "bug_report_preview_hide": "Hide preview",
-  "bug_report_github_hint": "Create GitHub Issue opens GitHub in your browser with everything filled in. You need a GitHub account to post it, and you can edit the report there first.",
   "n_categories_one": "{{count}} category",
   "n_categories_other": "{{count}} categories",
   "category_name_required": "Category name is required.",
@@ -1059,5 +1058,7 @@
   "create_project_path_preview": "Creates {{path}}",
   "create_project_name_required": "Give the project a name.",
   "create_project_location_required": "Choose a folder to create it in.",
-  "create_project_version_control": "Version control"
+  "create_project_version_control": "Version control",
+  "tag_manager_intro": "Tags on {{name}}. Click a tag to rename it.",
+  "tag_new_label": "New tag"
 }

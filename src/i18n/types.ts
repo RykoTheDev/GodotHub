@@ -1055,7 +1055,6 @@ export type commonKeys =
   | 'bug_report_include_log'
   | 'bug_report_preview_show'
   | 'bug_report_preview_hide'
-  | 'bug_report_github_hint'
   | 'n_categories_one'
   | 'n_categories_other'
   | 'category_name_required'
@@ -1063,7 +1062,13 @@ export type commonKeys =
   | 'bulk_tags_intro_one'
   | 'bulk_tags_intro_other'
   | 'duplicate_folder_exists'
-  | 'folder_name_invalid_chars';
+  | 'folder_name_invalid_chars'
+  | 'create_project_path_preview'
+  | 'create_project_name_required'
+  | 'create_project_location_required'
+  | 'create_project_version_control'
+  | 'tag_manager_intro'
+  | 'tag_new_label';
 
 /** Keys from dashboard.json */
 export type dashboardKeys =
@@ -2937,7 +2942,6 @@ export type TranslationKey =
   | 'common:bug_report_include_log'
   | 'common:bug_report_preview_show'
   | 'common:bug_report_preview_hide'
-  | 'common:bug_report_github_hint'
   | 'common:n_categories_one'
   | 'common:n_categories_other'
   | 'common:category_name_required'
@@ -2946,6 +2950,12 @@ export type TranslationKey =
   | 'common:bulk_tags_intro_other'
   | 'common:duplicate_folder_exists'
   | 'common:folder_name_invalid_chars'
+  | 'common:create_project_path_preview'
+  | 'common:create_project_name_required'
+  | 'common:create_project_location_required'
+  | 'common:create_project_version_control'
+  | 'common:tag_manager_intro'
+  | 'common:tag_new_label'
   | 'dashboard:greeting_morning'
   | 'dashboard:greeting_afternoon'
   | 'dashboard:greeting_evening'

@@ -239,6 +239,48 @@ void main() {
       expect(canDuplicate(), isTrue);
     });
 
+    testWidgets('tag manager shows tags as chips, flags duplicates inline and removes a tag', (tester) async {
+      List<String>? saved;
+      final tagged = Project(
+        id: 'p1',
+        name: 'Demo',
+        path: 'C:/games/demo',
+        godotVersion: '4.3',
+        createdAt: '',
+        pinned: false,
+        sortOrder: 0,
+        launchArguments: '',
+        tags: const ['alpha', 'beta'],
+        totalTimeSeconds: BigInt.zero,
+        timeTodaySeconds: BigInt.zero,
+        timeWeekSeconds: BigInt.zero,
+      );
+      await openModal(
+        tester,
+        (close) => TagManagerModal(
+          project: tagged,
+          onClose: close,
+          onSaved: (_) {},
+          saveTags: (id, path, tags) async {
+            saved = tags;
+            return tagged;
+          },
+        ),
+      );
+      expect(find.text(ghTr('tag_manager_intro', args: {'name': 'Demo'})), findsOneWidget);
+      expect(find.text(ghTr('tag_count', count: 2)), findsOneWidget);
+      await tester.enterText(find.byType(TextField).first, 'Beta');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await settle(tester, 3);
+      expect(find.text(ghTr('tag_already_exists')), findsOneWidget);
+      await tester.tap(find.bySemanticsLabel('${ghTr('remove_tag')}: alpha'));
+      await settle(tester, 3);
+      expect(find.text('alpha'), findsNothing);
+      await tester.tap(find.byKey(const ValueKey('tag-manager-save')));
+      await settle(tester);
+      expect(saved, ['beta']);
+    });
+
     for (final (name, build) in <(String, Widget Function(VoidCallback))>[
       ('launch arguments', (close) => LaunchArgsModal(currentArgs: demo.launchArguments, onSave: (_) {}, onClose: close)),
       ('duplicate', (close) => DuplicateProjectModal(project: demo, onClose: close, onDuplicated: () {})),

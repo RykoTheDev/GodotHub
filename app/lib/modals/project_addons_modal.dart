@@ -92,15 +92,17 @@ class _ProjectAddonsModalState extends State<ProjectAddonsModal> {
   Widget _badge(GhTheme theme, String label, {Color? color}) => Container(
     height: theme.space(5),
     padding: EdgeInsets.symmetric(horizontal: theme.space(2)),
-    alignment: Alignment.center,
     decoration: BoxDecoration(
       color: color?.withValues(alpha: 0.1),
       borderRadius: BorderRadius.circular(theme.radiusTag),
       border: Border.all(color: color?.withValues(alpha: 0.4) ?? theme.line),
     ),
-    child: Text(
-      label,
-      style: theme.text(size: GhTextSize.x3s, weight: GhWeight.medium, color: color ?? theme.muted),
+    child: Center(
+      widthFactor: 1,
+      child: Text(
+        label,
+        style: theme.text(size: GhTextSize.x3s, weight: GhWeight.medium, color: color ?? theme.muted),
+      ),
     ),
   );
 

@@ -1021,7 +1021,6 @@ class _Translations$common$ru_RU extends Translations$common$en_US {
 	@override String get bug_report_include_log => 'Include the log';
 	@override String get bug_report_preview_show => 'Preview report';
 	@override String get bug_report_preview_hide => 'Hide preview';
-	@override String get bug_report_github_hint => 'Create GitHub Issue opens GitHub in your browser with everything filled in. You need a GitHub account to post it, and you can edit the report there first.';
 	@override String n_categories({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count,
 		one: '${count} category',
 		few: '${count} categories',
@@ -1046,6 +1045,8 @@ class _Translations$common$ru_RU extends Translations$common$en_US {
 	@override String get create_project_name_required => 'Give the project a name.';
 	@override String get create_project_location_required => 'Choose a folder to create it in.';
 	@override String get create_project_version_control => 'Version control';
+	@override String get tag_manager_intro => 'Tags on {{name}}. Click a tag to rename it.';
+	@override String get tag_new_label => 'New tag';
 }
 
 // Path: dashboard
@@ -3460,7 +3461,6 @@ extension on TranslationsRuRu {
 			'common.bug_report_include_log' => 'Include the log',
 			'common.bug_report_preview_show' => 'Preview report',
 			'common.bug_report_preview_hide' => 'Hide preview',
-			'common.bug_report_github_hint' => 'Create GitHub Issue opens GitHub in your browser with everything filled in. You need a GitHub account to post it, and you can edit the report there first.',
 			'common.n_categories' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ru'))(count, one: '${count} category', few: '${count} categories', many: '${count} categories', other: '${count} categories', ), 
 			'common.n_categories_one' => '{{count}} category',
 			'common.n_categories_other' => '{{count}} categories',
@@ -3475,6 +3475,8 @@ extension on TranslationsRuRu {
 			'common.create_project_name_required' => 'Give the project a name.',
 			'common.create_project_location_required' => 'Choose a folder to create it in.',
 			'common.create_project_version_control' => 'Version control',
+			'common.tag_manager_intro' => 'Tags on {{name}}. Click a tag to rename it.',
+			'common.tag_new_label' => 'New tag',
 			'dashboard.greeting_morning' => 'Good morning',
 			'dashboard.greeting_afternoon' => 'Good afternoon',
 			'dashboard.greeting_evening' => 'Good evening',
@@ -3917,9 +3919,9 @@ extension on TranslationsRuRu {
 			'settings.settings_backup_title' => 'Backup settings',
 			'settings.export_settings_btn' => 'Export Settings',
 			'settings.import_settings_btn' => 'Import Settings',
-			'settings.workspace_backup_title' => 'Backup workspace',
 			_ => null,
 		} ?? switch (path) {
+			'settings.workspace_backup_title' => 'Backup workspace',
 			'settings.workspace_backup_export_btn' => 'Export Workspace',
 			'settings.workspace_backup_restore_btn' => 'Restore Workspace',
 			'settings.workspace_backup_exported' => 'Workspace backup exported.',

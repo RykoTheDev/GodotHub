@@ -576,7 +576,21 @@ class _CreateProjectModalState extends ConsumerState<CreateProjectModal> {
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: theme.space(4),
           children: [
-            _iconTile(theme, tr),
+            Column(
+              children: [
+                ExcludeSemantics(
+                  child: Visibility(
+                    visible: false,
+                    maintainSize: true,
+                    maintainAnimation: true,
+                    maintainState: true,
+                    child: GhFieldLabel(tr.project_name_label, inset: true),
+                  ),
+                ),
+                SizedBox(height: theme.space(0.5)),
+                _iconTile(theme, tr),
+              ],
+            ),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -576,10 +576,6 @@ class _BugReportModalState extends ConsumerState<BugReportModal> {
                 ],
               ),
             ),
-            Text(
-              ghTr('bug_report_github_hint'),
-              style: theme.text(size: GhTextSize.x2s, color: theme.muted.withValues(alpha: 0.7), lineHeight: 1.5),
-            ),
           ],
         ),
       ),
