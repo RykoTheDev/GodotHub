@@ -1,5 +1,6 @@
 # Project-level configuration.
 cmake_minimum_required(VERSION 3.14)
+cmake_policy(SET CMP0091 NEW)
 project(godothub LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
@@ -9,6 +10,8 @@ set(BINARY_NAME "godothub-beta")
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.
 cmake_policy(VERSION 3.14...3.25)
+
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 # Define build configuration option.
 get_property(IS_MULTICONFIG GLOBAL PROPERTY GENERATOR_IS_MULTI_CONFIG)
@@ -73,20 +76,6 @@ set(INSTALL_BUNDLE_DATA_DIR "${CMAKE_INSTALL_PREFIX}/data")
 set(INSTALL_BUNDLE_LIB_DIR "${CMAKE_INSTALL_PREFIX}")
 
 install(TARGETS ${BINARY_NAME} RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}"
-  COMPONENT Runtime)
-
-set(CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION "${CMAKE_INSTALL_PREFIX}")
-set(CMAKE_INSTALL_SYSTEM_RUNTIME_COMPONENT Runtime)
-set(CMAKE_INSTALL_UCRT_LIBRARIES FALSE)
-set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP TRUE)
-include(InstallRequiredSystemLibraries)
-set(APP_RUNTIME_LIBS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS})
-list(FILTER APP_RUNTIME_LIBS INCLUDE REGEX "/(msvcp140|vcruntime140|vcruntime140_1)\\.dll$")
-list(LENGTH APP_RUNTIME_LIBS APP_RUNTIME_LIB_COUNT)
-if(NOT APP_RUNTIME_LIB_COUNT EQUAL 3)
-  message(FATAL_ERROR "Expected msvcp140, vcruntime140 and vcruntime140_1, found: ${APP_RUNTIME_LIBS}")
-endif()
-install(PROGRAMS ${APP_RUNTIME_LIBS} DESTINATION "${CMAKE_INSTALL_SYSTEM_RUNTIME_DESTINATION}"
   COMPONENT Runtime)
 
 install(FILES "${FLUTTER_ICU_DATA_FILE}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"

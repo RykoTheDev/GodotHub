@@ -30,7 +30,7 @@ if (stable && version === firstFlutterStable) {
       '### What changes for you',
       '',
       '- **Windows:** updates now download and install inside the app, with no installer window. If a new version fails to start, GodotHub goes back to the previous one by itself.',
-      '- **Windows:** the portable build is now a `.zip`. Unzip it anywhere and run `godothub.exe` inside. The Visual C++ runtime and everything else it needs are in the folder, and WebView2 is no longer needed.',
+      '- **Windows:** the portable build is now a `.zip`. Unzip it anywhere and run `godothub.exe` inside. Everything it needs is in the folder, and neither WebView2 nor a Visual C++ install is needed.',
       '- **macOS:** GodotHub now needs macOS 12 Monterey or newer, so GodotHub 1.5 on a Mac does not update itself to this version. On macOS 12 or newer, download the disk image below once; later updates install from inside the app again. On macOS 10.15 or 11, keep using GodotHub 1.5.9.',
       '- **Linux:** the `.deb` and `.rpm` install the app into `/usr/lib/godothub` with `godothub` on your PATH, and no longer need WebKitGTK.',
       '',

@@ -29,7 +29,7 @@ Uninstalling GodotHub removes the app but keeps this folder. Delete it yourself 
 | Linux `.deb` and `.rpm` | `/usr/lib/godothub`, with `/usr/bin/godothub` pointing to it |
 | Linux AppImage | Wherever you keep the `.AppImage` file |
 
-The Windows portable build used to be a single `.exe`. It is now a folder in a `.zip` because the app ships its own Visual C++ runtime and engine files next to `godothub.exe`. You no longer need WebView2 or a separate Visual C++ install.
+The Windows portable build used to be a single `.exe`. It is now a folder in a `.zip` because the app's engine and data files sit next to `godothub.exe`. The Visual C++ runtime is built into the app, so you no longer need WebView2 or a separate Visual C++ install.
 
 ## Which systems are supported?
 

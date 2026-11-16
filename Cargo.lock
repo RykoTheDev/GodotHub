@@ -2069,6 +2069,7 @@ dependencies = [
  "rfd",
  "serde",
  "serde_json",
+ "static_vcruntime",
  "tokio",
  "windows 0.62.2",
 ]
