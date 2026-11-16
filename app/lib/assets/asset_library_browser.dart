@@ -31,7 +31,6 @@ import 'asset_common.dart';
 
 const _maxEmptySkip = 15;
 const _probeDepth = 5;
-const _gatherLimit = assetPageSize * 3;
 const _gatherEmptyRun = 5;
 
 const assetLibrarySortKeys = [
@@ -111,7 +110,7 @@ class _AssetLibraryBrowserState extends ConsumerState<AssetLibraryBrowser> {
   @override
   void initState() {
     super.initState();
-    _schedule();
+    // The first search waits for the first layout, which sets the page size.
   }
 
   @override
@@ -158,6 +157,30 @@ class _AssetLibraryBrowserState extends ConsumerState<AssetLibraryBrowser> {
     if (callback != null) WidgetsBinding.instance.addPostFrameCallback((_) => callback(stats));
   }
 
+  /// Page size matched to the column count, set from the first layout.
+  int _pageSize = assetPageSize;
+  bool _sized = false;
+
+  /// Requests pages that fill whole rows. Measured from the grid's width
+  /// before the first search, and again when a resize changes the columns.
+  Widget _sizedTo(BoxConstraints constraints, Widget child) {
+    final theme = GhTheme.of(context);
+    final size = assetPageSizeFor(GhGridBreakpoints.cards.columnsFor(constraints.maxWidth, fontScale: theme.fontScale));
+    if (!_sized || size != _pageSize) {
+      final first = !_sized;
+      _sized = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        if (!first && size == _pageSize) return;
+        _pageSize = size;
+        _reloadForPageSize();
+      });
+    }
+    return child;
+  }
+
+  void _reloadForPageSize() => _schedule();
+
   bool _isExactVersion(AssetLibraryAsset asset) => _version.isEmpty || assetVersionMatches(asset.godotVersion, _version);
 
   List<AssetLibraryAsset> _ranked(List<AssetLibraryAsset> list) =>
@@ -169,12 +192,12 @@ class _AssetLibraryBrowserState extends ConsumerState<AssetLibraryBrowser> {
     final params = assetSortParams(_sort);
     try {
       return await cachedAssetSearch(
-        'lib|$query|$version|$nextPage|${params.sort}|${params.reverse}',
+        'lib|$query|$version|$nextPage|$_pageSize|${params.sort}|${params.reverse}',
         () => AssetLibraryApi.search(
           query.isEmpty ? null : query,
           version.isEmpty ? assetVersionOptions.first : version,
           nextPage,
-          assetPageSize,
+          _pageSize,
           null,
           null,
           params.sort,
@@ -240,7 +263,7 @@ class _AssetLibraryBrowserState extends ConsumerState<AssetLibraryBrowser> {
     var collected = <AssetLibraryAsset>[];
     var emptyRun = 0;
     var cursor = startPage;
-    for (var i = 0; i <= _maxEmptySkip && collected.length < _gatherLimit; i++) {
+    for (var i = 0; i <= _maxEmptySkip && collected.length < (_pageSize * 3); i++) {
       final res = await _fetchPage(cursor, seq, partial: true);
       if (res == null) break;
       final matched = res.assets.where(_isExactVersion).toList();
@@ -288,7 +311,7 @@ class _AssetLibraryBrowserState extends ConsumerState<AssetLibraryBrowser> {
     if (seq != _searchSeq || !mounted) return;
     if (_version.isNotEmpty && landedRes != null) {
       final firstCount = landedRes.assets.where(_isExactVersion).length;
-      if (firstCount > 0 && firstCount < assetPageSize) {
+      if (firstCount > 0 && firstCount < _pageSize) {
         await _gatherAll(landedPage, seq);
         if (seq == _searchSeq && mounted) setState(() => _loading = false);
         return;
@@ -413,6 +436,7 @@ class _AssetLibraryBrowserState extends ConsumerState<AssetLibraryBrowser> {
           ? GhIcons.check
           : GhIcons.download,
       variant: isInstalled ? GhButtonVariant.outline : GhButtonVariant.primary,
+      expand: true,
       disabledOpacity: 0.7,
     );
   }
@@ -569,11 +593,16 @@ class _AssetLibraryBrowserState extends ConsumerState<AssetLibraryBrowser> {
           if (visible.isEmpty)
             GhCardNotice(message: ghTr('asset_page_all_hidden'))
           else
-            GhCardGrid(children: [for (final asset in visible) _card(asset, prefs)]),
+            GhCardGrid(gap: 4, children: [for (final asset in visible) _card(asset, prefs)]),
           ?pager,
         ],
       );
     }
-    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: theme.space(3), children: [_filters(theme), body]);
+    return LayoutBuilder(
+      builder: (context, constraints) => _sizedTo(
+        constraints,
+        Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: theme.space(3), children: [_filters(theme), body]),
+      ),
+    );
   }
 }

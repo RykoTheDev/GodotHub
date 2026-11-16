@@ -103,8 +103,8 @@ class GhCard extends StatefulWidget {
 
   final Widget Function(BuildContext context, bool highlighted) builder;
 
-  /// Showcase cards (assets, templates, news) rise a little with a soft
-  /// accent glow when highlighted. Off under Reduce Motion.
+  /// Showcase cards (assets, templates, news) use the larger card radius and
+  /// rise a little when highlighted. The rise is off under Reduce Motion.
   final bool lift;
   final VoidCallback? onPressed;
   final bool selected;
@@ -131,12 +131,6 @@ class _GhCardState extends State<GhCard> {
           ? Color.alphaBlend(theme.accent.withValues(alpha: 0.05), theme.overlay)
           : (highlighted ? theme.raised : theme.overlay),
       borderRadius: BorderRadius.circular(widget.lift ? theme.radiusCard : theme.radiusItem),
-      boxShadow: widget.lift && highlighted
-          ? [
-              BoxShadow(color: theme.accent.withValues(alpha: 0.22), blurRadius: 28, spreadRadius: -6, offset: const Offset(0, 14)),
-              BoxShadow(color: Colors.black.withValues(alpha: 0.35), blurRadius: 18, spreadRadius: -10, offset: const Offset(0, 10)),
-            ]
-          : const [],
       border: Border.all(
         color: widget.selected
             ? theme.accent
@@ -535,11 +529,15 @@ class GhCardNotice extends StatelessWidget {
 /// informational content; [trailing] holds actions, with the primary action
 /// last so it always lands in the same corner.
 class GhCardFooter extends StatelessWidget {
-  const GhCardFooter({super.key, this.leading = const [], this.trailing = const [], this.divided = false});
+  const GhCardFooter({super.key, this.leading = const [], this.trailing = const [], this.divided = false, this.fill = false});
 
   final List<Widget> leading;
   final List<Widget> trailing;
   final bool divided;
+
+  /// Stretches the primary (last) action across the card, as showcase cards
+  /// do. Use with actions that can grow (a compact `GhOpenButton`).
+  final bool fill;
 
   @override
   Widget build(BuildContext context) {
@@ -554,15 +552,16 @@ class GhCardFooter extends StatelessWidget {
       child: Row(
         spacing: theme.space(2),
         children: [
-          Expanded(
-            child: Wrap(
-              spacing: theme.space(1.5),
-              runSpacing: theme.space(1.5),
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: leading,
+          if (!fill || leading.isNotEmpty)
+            Expanded(
+              child: Wrap(
+                spacing: theme.space(1.5),
+                runSpacing: theme.space(1.5),
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: leading,
+              ),
             ),
-          ),
-          ...trailing,
+          if (fill && trailing.isNotEmpty) ...[...trailing.take(trailing.length - 1), Expanded(child: trailing.last)] else ...trailing,
         ],
       ),
     );

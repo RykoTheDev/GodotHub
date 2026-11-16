@@ -159,16 +159,15 @@ GodotHub is a Flutter desktop app (stable since v1.6.0) built on a shared Rust c
 
 | Feature | Description |
 |---|---|
-| **Two Sources** | Browse the Godot Asset Store and the Godot Asset Library from one view. |
+| **Addons & Templates** | One view with two sections: Addons from the Godot Asset Store and the Godot Asset Library, and Templates (demos and starter projects) from the Asset Library. |
 | **Search & Filter** | Search by name, filter by category and Godot version, and sort by relevance, last update, name, rating or license. |
 | **Install Into Projects** | Install an addon straight into one or several of your projects at once, or download it. |
 | **Asset Details** | Open any asset for its screenshots, full description, license, links and Store release notes, and browse every file in the archive before installing. The preview download is reused if you install. |
 | **Installed & Updates** | Cards show which of your projects already have an asset you installed through GodotHub and flag a newer version; update each project from the asset's details. |
-| **Match My Godot** | One click filters to assets that work with your current or newest installed Godot version. |
 | **Saved & Not Interested** | Star assets to keep them in a Saved list that works offline, and hide the ones you don't want to see again. Hidden assets can be brought back anytime. |
-| **Templates From the Library** | Install demos and templates from the Asset Library as local templates, ready for New Project. Hide the ones you already have, save favorites, and hide the ones you're not interested in. |
+| **Templates From the Library** | Install demos and templates from the Asset Store's Templates section as local templates, ready for New Project. Hide the ones you already have, save favorites, and hide the ones you're not interested in. |
 | **Template Updates** | Templates installed from the Asset Library are flagged when a newer upload exists and can be updated in place. |
-| **Responsive Grid** | Cards reflow from one column on a narrow window to six on a wide screen. |
+| **Showcase Cards** | Cover art (or the asset's own colors behind its icon), glass chips for rating, installs and updates, and quick save, hide and open actions on hover. Cards reflow from one column on a narrow window to six on a wide screen. |
 
 </details>
 

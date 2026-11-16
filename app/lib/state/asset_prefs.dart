@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../api/asset_library.dart';
 import '../src/rust/api/types.dart';
 import 'api_data.dart';
-import 'godot_versions.dart';
 
 const _emptyPrefs = AssetPrefs(schemaVersion: 0, favorites: [], hidden: []);
 
@@ -96,29 +95,4 @@ class TemplateUpdatesNotifier extends ApiDataNotifier<List<TemplateUpdate>> {
 
   @override
   Future<List<TemplateUpdate>> fetch() => AssetLibraryApi.templateUpdates();
-}
-
-final _minor = RegExp(r'(\d+)\.(\d+)');
-
-(int, int)? _parseMinor(String version) {
-  final m = _minor.firstMatch(version);
-  return m == null ? null : (int.parse(m[1]!), int.parse(m[2]!));
-}
-
-/// The Godot version "Match my versions" filters by: the pinned current
-/// version, or else the newest installed one, as `major.minor`. Both asset
-/// sources treat a version filter as "works with this version", so the newest
-/// install also covers older ones in the same major. Null with no installs.
-String? myAssetVersion(GodotVersionsState versions) {
-  final current = versions.current?.tag;
-  final pinned = current == null ? null : versions.installed.where((v) => v.tag == current).firstOrNull;
-  (int, int)? pick = pinned == null ? null : _parseMinor(pinned.version);
-  if (pick == null) {
-    for (final v in versions.installed) {
-      final parsed = _parseMinor(v.version);
-      if (parsed == null) continue;
-      if (pick == null || parsed.$1 > pick.$1 || (parsed.$1 == pick.$1 && parsed.$2 > pick.$2)) pick = parsed;
-    }
-  }
-  return pick == null ? null : '${pick.$1}.${pick.$2}';
 }

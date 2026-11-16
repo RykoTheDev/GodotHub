@@ -1032,10 +1032,6 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String get asset_hidden_desc => 'Assets you marked as not interested don\'t appear in results.';
 	@override String get asset_hidden_empty => 'Nothing is hidden';
 	@override String get asset_show_again => 'Show again';
-	@override String get asset_match_versions => 'Match my Godot ({{version}})';
-	@override String get asset_match_versions_off => 'Match my Godot';
-	@override String get asset_match_versions_tip => 'Show assets that work with Godot {{version}}, your current or newest install.';
-	@override String get asset_match_versions_none => 'Install a Godot version to filter by it.';
 	@override String asset_in_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
 		other: 'In ${count} projects',
 	);
@@ -1085,6 +1081,23 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String get asset_page_all_hidden => 'Everything on this page is hidden. Try the next page, or show hidden assets again.';
 	@override String get template_update_confirm_title => 'Update {{name}} to {{version}}?';
 	@override String get template_update_confirm_desc => 'The template\'s files are replaced with the new upload, including any changes you made to them. Its name stays the same.';
+	@override String get news_featured => 'Latest';
+	@override String get news_read_more => 'Read the post';
+	@override String get asset_section_addons => 'Addons';
+	@override String get asset_section_templates => 'Templates';
+	@override String get asset_source_label => 'Store';
+	@override String get asset_source_new => 'New';
+	@override String get asset_source_old => 'Old';
+	@override String get cleanup_none => 'None';
+	@override String get cleanup_can_free => '{{size}} can be freed';
+	@override String get cleanup_review => 'Review';
+	@override String get cleanup_legend_downloads => 'Downloads';
+	@override String get asset_store_name_az => 'Name (A to Z)';
+	@override String get asset_store_name_za => 'Name (Z to A)';
+	@override String get asset_store_license_az => 'License (A to Z)';
+	@override String get asset_store_license_za => 'License (Z to A)';
+	@override String get templates_asset_library_btn => 'Asset Library';
+	@override String get kanban_resize_columns => 'Drag to resize columns';
 }
 
 // Path: dashboard
@@ -3513,10 +3526,6 @@ extension on TranslationsZhCn {
 			'common.asset_hidden_desc' => 'Assets you marked as not interested don\'t appear in results.',
 			'common.asset_hidden_empty' => 'Nothing is hidden',
 			'common.asset_show_again' => 'Show again',
-			'common.asset_match_versions' => 'Match my Godot ({{version}})',
-			'common.asset_match_versions_off' => 'Match my Godot',
-			'common.asset_match_versions_tip' => 'Show assets that work with Godot {{version}}, your current or newest install.',
-			'common.asset_match_versions_none' => 'Install a Godot version to filter by it.',
 			'common.asset_in_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: 'In ${count} projects', ), 
 			'common.asset_in_projects_one' => 'In {{count}} project',
 			'common.asset_in_projects_other' => 'In {{count}} projects',
@@ -3564,6 +3573,23 @@ extension on TranslationsZhCn {
 			'common.asset_page_all_hidden' => 'Everything on this page is hidden. Try the next page, or show hidden assets again.',
 			'common.template_update_confirm_title' => 'Update {{name}} to {{version}}?',
 			'common.template_update_confirm_desc' => 'The template\'s files are replaced with the new upload, including any changes you made to them. Its name stays the same.',
+			'common.news_featured' => 'Latest',
+			'common.news_read_more' => 'Read the post',
+			'common.asset_section_addons' => 'Addons',
+			'common.asset_section_templates' => 'Templates',
+			'common.asset_source_label' => 'Store',
+			'common.asset_source_new' => 'New',
+			'common.asset_source_old' => 'Old',
+			'common.cleanup_none' => 'None',
+			'common.cleanup_can_free' => '{{size}} can be freed',
+			'common.cleanup_review' => 'Review',
+			'common.cleanup_legend_downloads' => 'Downloads',
+			'common.asset_store_name_az' => 'Name (A to Z)',
+			'common.asset_store_name_za' => 'Name (Z to A)',
+			'common.asset_store_license_az' => 'License (A to Z)',
+			'common.asset_store_license_za' => 'License (Z to A)',
+			'common.templates_asset_library_btn' => 'Asset Library',
+			'common.kanban_resize_columns' => 'Drag to resize columns',
 			'dashboard.greeting_morning' => '早上好',
 			'dashboard.greeting_afternoon' => '下午好',
 			'dashboard.greeting_evening' => '晚上好',
@@ -3878,6 +3904,8 @@ extension on TranslationsZhCn {
 			'settings.git_self_hosted_url_placeholder' => 'https://gitlab.example.com',
 			'settings.git_self_hosted_client_id' => '应用程序 ID',
 			'settings.git_sign_in_self_hosted' => '使用实例登录',
+			_ => null,
+		} ?? switch (path) {
 			'settings.git_pat_title' => '其他主机（个人访问令牌）',
 			'settings.git_pat_add' => '添加令牌',
 			'settings.git_pat_host_placeholder' => '例如 codeberg.org',
@@ -3891,8 +3919,6 @@ extension on TranslationsZhCn {
 			'settings.file_watchers_title' => '文件监听',
 			'settings.last_opened_title' => '最近打开记录',
 			'settings.github_token_title' => 'GitHub API 令牌',
-			_ => null,
-		} ?? switch (path) {
 			'settings.titlebar_buttons' => '标题栏按钮',
 			'settings.setup_wizard' => '设置向导',
 			'settings.setup_wizard_again' => '重新运行设置向导',
@@ -4392,6 +4418,8 @@ extension on TranslationsZhCn {
 			'versions.export_templates_web_standard' => 'Web (标准)',
 			'versions.export_templates_web_extensions' => 'Web (支持扩展)',
 			'versions.export_templates_web_single_threaded' => 'Web (单线程)',
+			_ => null,
+		} ?? switch (path) {
 			'versions.export_templates_web_extensions_single_threaded' => 'Web (支持扩展·单线程)',
 			'versions.export_templates_refresh' => '刷新可用模板',
 			'versions.download_failed_title' => '下载失败',
@@ -4405,8 +4433,6 @@ extension on TranslationsZhCn {
 			'versions.download_failed_summary' => 'GodotHub couldn\'t download Godot {{tag}}.',
 			'versions.download_failed_show_details' => 'Show error details',
 			'versions.download_failed_hide_details' => 'Hide error details',
-			_ => null,
-		} ?? switch (path) {
 			'versions.download_failed_report' => 'Report this problem',
 			'versions.export_templates_select_none' => 'Select none',
 			'versions.export_templates_select_hint' => 'Select at least one template to download.',

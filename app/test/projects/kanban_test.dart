@@ -9,6 +9,7 @@ import 'package:godothub/projects/project_actions.dart';
 import 'package:godothub/projects/project_tile.dart';
 import 'package:godothub/design/design.dart';
 import 'package:godothub/projects/project_layouts.dart';
+import 'package:godothub/ui/core/i18n.dart';
 import 'package:godothub/src/rust/api/types.dart';
 import 'package:godothub/ui/controls/dashed_box.dart';
 
@@ -54,6 +55,8 @@ Future<_Calls> _pump(
   required List<Project> projects,
   required List<Category> categories,
   Size size = const Size(1400, 900),
+  double? columnWidthUnits,
+  ValueChanged<double>? onColumnWidthChanged,
 }) async {
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
@@ -72,6 +75,8 @@ Future<_Calls> _pump(
           onReorder: (ids) => calls.reorders.add(ids),
           onMoveProjects: (ids, category, dest) => calls.moves.add('${ids.join(',')}:$category'),
           onCategoryContextMenu: (position, category) => calls.menus.add(category.name),
+          columnWidthUnits: columnWidthUnits,
+          onColumnWidthChanged: onColumnWidthChanged,
         ),
       ),
     ),
@@ -223,7 +228,7 @@ void main() {
     expect(calls.moves, isEmpty);
   });
 
-  testWidgets('a narrow window keeps the minimum column width and scrolls horizontally', (tester) async {
+  testWidgets('a narrow window keeps the column width and scrolls horizontally', (tester) async {
     final many = [for (var i = 0; i < 5; i++) _category('c$i', 'Category $i', order: i)];
     await _pump(
       tester,
@@ -233,29 +238,46 @@ void main() {
     );
     expect(tester.takeException(), isNull);
     final theme = GhTheme.defaults();
-    expect(tester.getSize(_column('c0')).width, theme.space(ProjectCardKanban.minColumnUnits(false)));
+    expect(tester.getSize(_column('c0')).width, theme.space(ProjectCardKanban.defaultColumnUnits(false)));
     final scrollable = tester.state<ScrollableState>(
       find.byWidgetPredicate((w) => w is Scrollable && w.axisDirection == AxisDirection.right).first,
     );
     expect(scrollable.position.maxScrollExtent, greaterThan(0));
   });
 
-  testWidgets('a wide window grows the columns to fill without scrolling', (tester) async {
+  testWidgets('a few columns keep their width and leave free space instead of stretching', (tester) async {
     await _pump(
       tester,
       projects: [_project('a', 'Alpha', category: 'Games')],
       categories: categories,
-      size: const Size(1200, 700),
+      size: const Size(1600, 700),
     );
     expect(tester.takeException(), isNull);
     final theme = GhTheme.defaults();
-    final width = tester.getSize(_column('c1')).width;
-    expect(width, greaterThan(theme.space(ProjectCardKanban.minColumnUnits(false))));
-    expect(width, lessThanOrEqualTo(theme.space(ProjectCardKanban.maxColumnUnits(false))));
-    final scrollable = tester.state<ScrollableState>(
-      find.byWidgetPredicate((w) => w is Scrollable && w.axisDirection == AxisDirection.right).first,
-    );
-    expect(scrollable.position.maxScrollExtent, 0);
+    expect(tester.getSize(_column('c1')).width, theme.space(ProjectCardKanban.defaultColumnUnits(false)));
+    expect(tester.getTopRight(_column('uncategorized')).dx, lessThan(1000), reason: 'the board does not fill the window');
+  });
+
+  testWidgets('the column options button sits flush with the column end', (tester) async {
+    await _pump(tester, projects: [_project('a', 'Alpha', category: 'Games')], categories: categories);
+    final column = tester.getRect(_column('c1'));
+    final button = tester.getRect(find.bySemanticsLabel(ghTr('category_options')).first);
+    expect(column.right - button.right, lessThan(GhTheme.defaults().space(3)));
+  });
+
+  testWidgets('dragging a column edge resizes every column and reports the width', (tester) async {
+    final saved = <double>[];
+    await _pump(tester, projects: [_project('a', 'Alpha', category: 'Games')], categories: categories, onColumnWidthChanged: saved.add);
+    final theme = GhTheme.defaults();
+    final before = tester.getSize(_column('c1')).width;
+    await tester.drag(find.byKey(const ValueKey('kanban-resize')).first, const Offset(80, 0));
+    await tester.pumpAndSettle();
+    expect(saved, hasLength(1));
+    expect(saved.single, closeTo(ProjectCardKanban.defaultColumnUnits(false) + 80 / theme.spacingUnit, 3));
+    // The parent stores the width; a saved width is applied to all columns.
+    await _pump(tester, projects: [_project('a', 'Alpha', category: 'Games')], categories: categories, columnWidthUnits: saved.single);
+    expect(tester.getSize(_column('c1')).width, greaterThan(before + 60));
+    expect(tester.getSize(_column('uncategorized')).width, tester.getSize(_column('c1')).width);
   });
 
   for (final compact in [false, true]) {
@@ -275,7 +297,7 @@ void main() {
         ..on('crateApiProjectsGetProjectIcon', ({required String path}) async => null);
       final settings = copySettings(baseSettings, setupComplete: true, cardShowPlay: true, cardShowConsole: true, cardShowTags: true);
       final theme = GhTheme.defaults();
-      final column = theme.space(ProjectCardKanban.minColumnUnits(compact));
+      final column = theme.space(ProjectCardKanban.minColumnUnits);
       final cardWidth = column - theme.space(compact ? 2 : 2.5) * 2 - 2;
       final callbacks = ProjectCallbacks(onTogglePin: () {}, onVersionChange: (_) {}, onRemove: () {});
       tester.view.physicalSize = const Size(900, 900);

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/asset_library.dart';
+import '../api/templates.dart';
+import '../logic/pending_action.dart';
 import '../design/design.dart';
 import '../logic/asset_sort.dart';
 import '../motion/animated_number.dart';
@@ -11,13 +13,12 @@ import '../src/rust/api/types.dart';
 import '../src/ui_prefs.dart';
 import '../state/app_signals.dart';
 import '../state/asset_prefs.dart';
-import '../state/godot_versions.dart';
-import '../state/keyboard_shortcuts.dart' show focusSearchSignal;
+import '../state/keyboard_shortcuts.dart' show focusSearchSignal, setTabSignal;
+import '../state/shell_signals.dart' show refreshTemplatesSignal;
 import '../state/settings.dart';
 import '../ui/controls/search_bar.dart';
 import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
-import '../ui/core/tooltip.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/reusables/filter_bar.dart';
 import '../ui/reusables/modal_kit.dart';
@@ -26,9 +27,11 @@ import '../ui/core/ui_settings.dart' show GhSide;
 import '../ui/overlays/dropdown.dart';
 import '../ui/overlays/menu.dart';
 import '../ui/reusables/view_header.dart';
+import '../ui/reusables/view_tabs.dart';
 import '../ui/shell/overlay_scroll_area.dart';
 import '../ui/shell/view_insets.dart';
 import 'asset_common.dart';
+import 'asset_library_browser.dart';
 import 'asset_detail_modal.dart';
 import 'asset_store_browser.dart';
 
@@ -40,7 +43,21 @@ const assetStoreSortKeys = [
   AssetSortKey.ratingLow,
 ];
 
-const _sourceOptions = [(AssetSource.library, 'asset_source_library'), (AssetSource.store, 'asset_source_store')];
+/// Signal that switches a mounted Asset Store view to a section
+/// (detail: `'templates'` or `'addons'`).
+const assetStoreSectionSignal = 'app:asset-store-section';
+const _templatesAction = 'asset-store:templates';
+
+/// Opens the Asset Store on its Templates section, from anywhere.
+void openAssetStoreTemplates() {
+  setPendingAction(_templatesAction);
+  AppSignals.emit(setTabSignal, 'asset-store');
+  AppSignals.emit(assetStoreSectionSignal, 'templates');
+}
+
+enum _StoreSection { addons, templates }
+
+const _sourceOptions = [(AssetSource.store, 'asset_source_new'), (AssetSource.library, 'asset_source_old')];
 
 class AssetStoreView extends ConsumerStatefulWidget {
   const AssetStoreView({super.key, this.connected = false, this.prefs});
@@ -56,12 +73,17 @@ class _AssetStoreViewState extends ConsumerState<AssetStoreView> {
   final TextEditingController _search = TextEditingController();
   final FocusNode _searchNode = FocusNode(debugLabel: 'AssetStoreView search');
   StreamSubscription<Object?>? _focusSub;
+  StreamSubscription<Object?>? _sectionSub;
+  StreamSubscription<Object?>? _templatesSub;
+  _StoreSection _section = _StoreSection.addons;
+  List<ProjectTemplate> _templates = const [];
+  ({bool loading, int total}) _templateStats = (loading: true, total: 0);
   AssetSource _source = AssetSource.store;
   String _categoryId = '';
   String _version = '';
   AssetSortKey _sort = AssetSortKey.relevance;
   bool _savedOnly = false;
-  bool _matchMine = false;
+
   List<AssetLibraryCategory> _categories = const [];
   ({bool loading, int total}) _stats = (loading: true, total: 0);
 
@@ -70,6 +92,14 @@ class _AssetStoreViewState extends ConsumerState<AssetStoreView> {
     super.initState();
     _search.addListener(() => setState(() {}));
     _focusSub = AppSignals.on(focusSearchSignal).listen((_) => _searchNode.requestFocus());
+    if (consumePendingActionIf(_templatesAction)) _section = _StoreSection.templates;
+    _sectionSub = AppSignals.on(assetStoreSectionSignal).listen((signal) {
+      consumePendingActionIf(_templatesAction);
+      final section = signal.detail == 'templates' ? _StoreSection.templates : _StoreSection.addons;
+      if (mounted) _setSection(section);
+    });
+    _templatesSub = AppSignals.on(refreshTemplatesSignal).listen((_) => _loadTemplates());
+    _loadTemplates();
     AssetLibraryApi.listCategories().then(
       (list) {
         if (mounted) setState(() => _categories = list);
@@ -83,9 +113,25 @@ class _AssetStoreViewState extends ConsumerState<AssetStoreView> {
   @override
   void dispose() {
     _focusSub?.cancel();
+    _sectionSub?.cancel();
+    _templatesSub?.cancel();
     _search.dispose();
     _searchNode.dispose();
     super.dispose();
+  }
+
+  /// Local templates, so the template library can mark and hide the ones
+  /// already installed.
+  void _loadTemplates() {
+    TemplatesApi.list().then((list) {
+      if (mounted) setState(() => _templates = list);
+    }, onError: (Object _) {});
+  }
+
+  void _setSection(_StoreSection section) {
+    if (section == _section) return;
+    _search.clear();
+    setState(() => _section = section);
   }
 
   List<AssetLibraryCategory> get _categoryOptions => [
@@ -95,7 +141,7 @@ class _AssetStoreViewState extends ConsumerState<AssetStoreView> {
 
   List<AssetSortKey> _sortKeys(AssetSource source) => source == AssetSource.store ? assetStoreSortKeys : sortKeysForSource(source);
 
-  String _sortLabel(AssetSortKey key) => _source == AssetSource.store ? ghTr('asset_store_${key.id}') : ghTr('asset_sort_${key.id}');
+  String _sortLabel(AssetSortKey key) => ghTr('asset_store_${key.id}');
 
   void _setSource(AssetSource source) {
     setState(() {
@@ -109,14 +155,10 @@ class _AssetStoreViewState extends ConsumerState<AssetStoreView> {
     setState(() {
       _version = '';
       _categoryId = '';
-      _matchMine = false;
     });
   }
 
-  /// The version filter actually sent: "Match my Godot" overrides the menu.
-  String _effectiveVersion(String? mine) => _matchMine && mine != null ? mine : _version;
-
-  List<Widget> _quickFilters(GhTheme theme, String? mine) {
+  List<Widget> _quickFilters(GhTheme theme) {
     final prefs = ref.watch(assetPrefsProvider).data;
     final source = _source == AssetSource.library ? 'library' : 'store';
     final savedCount = prefs.favorites.where((a) => a.source == source).length;
@@ -127,16 +169,6 @@ class _AssetStoreViewState extends ConsumerState<AssetStoreView> {
         active: _savedOnly,
         tone: GhChoiceTone.accent,
         onPressed: () => setState(() => _savedOnly = !_savedOnly),
-      ),
-      GhTooltip(
-        message: mine == null ? ghTr('asset_match_versions_none') : ghTr('asset_match_versions_tip', args: {'version': mine}),
-        child: GhChoiceChip(
-          key: const ValueKey('asset-filter-mine'),
-          label: mine == null ? ghTr('asset_match_versions_off') : ghTr('asset_match_versions', args: {'version': mine}),
-          active: _matchMine && mine != null,
-          tone: GhChoiceTone.mint,
-          onPressed: mine == null ? null : () => setState(() => _matchMine = !_matchMine),
-        ),
       ),
       if (prefs.hidden.isNotEmpty)
         GhButton(
@@ -151,13 +183,20 @@ class _AssetStoreViewState extends ConsumerState<AssetStoreView> {
   }
 
   List<Widget> _filters(GhTheme theme) {
-    final shown = _effectiveVersion(myAssetVersion(ref.watch(godotVersionsProvider)));
+    final shown = _version;
     final options = _categoryOptions;
     final categoryId = options.any((c) => c.id == _categoryId) ? _categoryId : '';
     final categoryLabel = categoryId.isEmpty
         ? ghTr('all_categories')
         : (options.where((c) => c.id == categoryId).firstOrNull?.name ?? categoryId);
     return [
+      Padding(
+        padding: EdgeInsetsDirectional.only(start: theme.space(2)),
+        child: Text(
+          ghTr('asset_source_label'),
+          style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.muted),
+        ),
+      ),
       GhSegmented(
         key: const ValueKey('asset-source-tabs'),
         value: _source.name,
@@ -197,7 +236,6 @@ class _AssetStoreViewState extends ConsumerState<AssetStoreView> {
             active: shown.isEmpty,
             onSelected: () => setState(() {
               _version = '';
-              _matchMine = false;
             }),
           ),
           for (final v in assetVersionOptions)
@@ -207,7 +245,6 @@ class _AssetStoreViewState extends ConsumerState<AssetStoreView> {
               active: shown == v,
               onSelected: () => setState(() {
                 _version = v;
-                _matchMine = false;
               }),
             ),
         ],
@@ -222,10 +259,11 @@ class _AssetStoreViewState extends ConsumerState<AssetStoreView> {
     final theme = GhTheme.of(context);
     final settings = ref.watch(settingsProvider).value ?? defaultSettings;
     final insets = GhViewInsets.of(context);
+    final templates = _section == _StoreSection.templates;
+    final total = templates ? _templateStats.total : _stats.total;
     final connected = widget.connected;
     final categoryId = _categoryOptions.any((c) => c.id == _categoryId) ? _categoryId : '';
-    final mine = myAssetVersion(ref.watch(godotVersionsProvider));
-    final version = _effectiveVersion(mine);
+    final version = _version;
     final scrollInsets = EdgeInsetsDirectional.only(
       start: insets.start >= theme.space(2) ? insets.start - theme.space(2) : insets.start,
       end: insets.end >= theme.space(4) ? insets.end - theme.space(4) : insets.end,
@@ -242,50 +280,91 @@ class _AssetStoreViewState extends ConsumerState<AssetStoreView> {
             metric: [
               DefaultTextStyle.merge(
                 style: theme.text(size: GhTextSize.x4l, weight: GhWeight.bold, color: theme.muted),
-                child: GhAnimatedNumber(_stats.total),
+                child: GhAnimatedNumber(total),
               ),
               Text(
-                ghTr('asset_store_count', count: _stats.total),
+                ghTr('asset_store_count', count: total),
                 style: theme.text(size: GhTextSize.lg, weight: GhWeight.medium, color: theme.muted),
               ),
             ],
-            child: GhSearchBar(
-              value: _search.text,
-              controller: _search,
-              focusNode: _searchNode,
-              placeholder: ghTr('asset_search_placeholder'),
-              onChanged: (_) {},
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final search = GhSearchBar(
+                  value: _search.text,
+                  controller: _search,
+                  focusNode: _searchNode,
+                  placeholder: ghTr(templates ? 'template_search_placeholder' : 'asset_search_placeholder'),
+                  onChanged: (_) {},
+                );
+                final tabs = GhViewTabs(
+                  value: _section.name,
+                  onChanged: (v) => _setSection(_StoreSection.values.firstWhere((s) => s.name == v)),
+                  tabs: [
+                    (value: _StoreSection.addons.name, label: ghTr('asset_section_addons'), icon: GhIcons.plug),
+                    (value: _StoreSection.templates.name, label: ghTr('asset_section_templates'), icon: GhIcons.copy),
+                  ],
+                );
+                // Narrow windows stack the section switch under the search box.
+                if (constraints.maxWidth < theme.space(110)) {
+                  return Column(crossAxisAlignment: CrossAxisAlignment.start, spacing: theme.space(2), children: [search, tabs]);
+                }
+                return Row(
+                  spacing: theme.space(2),
+                  children: [
+                    Expanded(child: search),
+                    tabs,
+                  ],
+                );
+              },
             ),
           ),
         ),
-        Padding(
-          padding: EdgeInsetsDirectional.only(
-            start: insets.start + (connected ? theme.space(3) : 0),
-            end: insets.end + theme.space(6),
-            bottom: theme.space(1),
+        if (!templates)
+          Padding(
+            padding: EdgeInsetsDirectional.only(
+              // The same edges as the card grid below.
+              start: scrollInsets.start + theme.space(connected ? 3 : 2),
+              end: scrollInsets.end + theme.space(5),
+              bottom: theme.space(1),
+            ),
+            child: GhFilterBar(primary: _filters(theme), secondary: _quickFilters(theme)),
           ),
-          child: GhFilterBar(primary: _filters(theme), secondary: _quickFilters(theme, mine)),
-        ),
         Expanded(
           child: Padding(
             padding: scrollInsets,
             child: GhOverlayScrollArea(
               hideThumb: !settings.showScrollbars,
-              topButtonBottom: theme.space(14),
+              topButtonBottom: theme.space(24),
               child: Padding(
                 padding: EdgeInsetsDirectional.fromSTEB(theme.space(connected ? 3 : 2), theme.space(2), theme.space(5), theme.space(8)),
-                child: AssetStoreBrowser(
-                  query: _search.text,
-                  source: _source,
-                  categoryId: categoryId,
-                  version: version,
-                  sort: _sort,
-                  savedOnly: _savedOnly,
-                  onClearFilters: _search.text.trim().isNotEmpty || version.isNotEmpty || categoryId.isNotEmpty ? _clearFilters : null,
-                  onStatsChange: (stats) {
-                    if (mounted && stats != _stats) setState(() => _stats = stats);
-                  },
-                ),
+                child: templates
+                    ? AssetLibraryBrowser(
+                        key: const ValueKey('asset-store-templates'),
+                        query: _search.text,
+                        onClearQuery: _search.clear,
+                        onStatsChange: (stats) {
+                          if (mounted && stats != _templateStats) setState(() => _templateStats = stats);
+                        },
+                        installedTemplateNames: [for (final t in _templates) t.name],
+                        installedTemplateIds: {
+                          for (final t in _templates)
+                            if (t.sourceAssetId != null) t.sourceAssetId!,
+                        },
+                      )
+                    : AssetStoreBrowser(
+                        query: _search.text,
+                        source: _source,
+                        categoryId: categoryId,
+                        version: version,
+                        sort: _sort,
+                        savedOnly: _savedOnly,
+                        onClearFilters: _search.text.trim().isNotEmpty || version.isNotEmpty || categoryId.isNotEmpty
+                            ? _clearFilters
+                            : null,
+                        onStatsChange: (stats) {
+                          if (mounted && stats != _stats) setState(() => _stats = stats);
+                        },
+                      ),
               ),
             ),
           ),

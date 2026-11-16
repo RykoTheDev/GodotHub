@@ -622,6 +622,8 @@ class ProjectCardKanban extends StatefulWidget {
     this.hiddenCategories = const [],
     this.onUnhideCategory,
     this.onCategoryContextMenu,
+    this.columnWidthUnits,
+    this.onColumnWidthChanged,
   });
 
   final List<Project> projects;
@@ -629,18 +631,24 @@ class ProjectCardKanban extends StatefulWidget {
   final ProjectCardBuilder cardBuilder;
   final Set<String> selectedIds;
   final bool compact;
+
+  /// The width every column uses, in spacing units; null for the default.
+  /// Columns keep this width whatever the board's size: a few columns leave
+  /// free space beside them, many scroll sideways.
+  final double? columnWidthUnits;
+
+  /// Called with the new width when the user finishes dragging a column edge.
+  final ValueChanged<double>? onColumnWidthChanged;
   final ProjectReorderCallback? onReorder;
   final ProjectMoveCallback? onMoveProjects;
   final List<HiddenCategoryEntry> hiddenCategories;
   final ValueChanged<String>? onUnhideCategory;
   final CategoryMenuOpener? onCategoryContextMenu;
 
-  /// Narrowest a column gets before the board scrolls horizontally, in
-  /// spacing units.
-  static double minColumnUnits(bool compact) => compact ? 64 : 72;
-
-  /// Widest a column grows when there is spare room, in spacing units.
-  static double maxColumnUnits(bool compact) => compact ? 96 : 112;
+  /// Column width limits and defaults, in spacing units.
+  static const double minColumnUnits = 64;
+  static const double maxColumnUnits = 160;
+  static double defaultColumnUnits(bool compact) => compact ? 64 : 76;
 
   @override
   State<ProjectCardKanban> createState() => _ProjectCardKanbanState();
@@ -649,6 +657,59 @@ class ProjectCardKanban extends StatefulWidget {
 class _ProjectCardKanbanState extends State<ProjectCardKanban> {
   final ProjectDndBinding _dnd = ProjectDndBinding('kanban-cat-');
   final ScrollController _horizontal = GhSmoothScrollController();
+
+  /// The width while an edge is being dragged, before it is saved.
+  double? _dragUnits;
+  bool _resizeHover = false;
+
+  double get _units => (_dragUnits ?? widget.columnWidthUnits ?? ProjectCardKanban.defaultColumnUnits(widget.compact)).clamp(
+    ProjectCardKanban.minColumnUnits,
+    ProjectCardKanban.maxColumnUnits,
+  );
+
+  /// The grip on a column's trailing edge. Dragging it resizes every column,
+  /// so the board keeps one even rhythm.
+  Widget _resizeGrip(GhTheme theme) {
+    if (widget.onColumnWidthChanged == null) return const SizedBox.shrink();
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    final active = _resizeHover || _dragUnits != null;
+    return Semantics(
+      label: context.tr.common.kanban_resize_columns,
+      child: MouseRegion(
+        cursor: SystemMouseCursors.resizeColumn,
+        onEnter: (_) => setState(() => _resizeHover = true),
+        onExit: (_) => setState(() => _resizeHover = false),
+        child: GestureDetector(
+          key: const ValueKey('kanban-resize'),
+          behavior: HitTestBehavior.opaque,
+          onHorizontalDragStart: (_) => setState(() => _dragUnits = _units),
+          onHorizontalDragUpdate: (details) {
+            final delta = (rtl ? -details.delta.dx : details.delta.dx) / theme.spacingUnit;
+            setState(() => _dragUnits = (_units + delta).clamp(ProjectCardKanban.minColumnUnits, ProjectCardKanban.maxColumnUnits));
+          },
+          onHorizontalDragEnd: (_) {
+            final units = _units;
+            setState(() => _dragUnits = null);
+            widget.onColumnWidthChanged?.call(units);
+          },
+          child: SizedBox(
+            width: theme.space(3),
+            child: Center(
+              child: AnimatedContainer(
+                duration: GhMotion.of(context).css(GhDurations.interactive),
+                width: 2,
+                height: active ? theme.space(16) : theme.space(8),
+                decoration: BoxDecoration(
+                  color: active ? theme.accent : theme.outline.withValues(alpha: 0.6),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 
   @override
   void dispose() {
@@ -707,13 +768,9 @@ class _ProjectCardKanbanState extends State<ProjectCardKanban> {
         category: null as Category?,
       ),
     ];
-    final gap = theme.space(3);
-    final board = LayoutBuilder(
-      builder: (context, constraints) {
-        final minWidth = theme.space(ProjectCardKanban.minColumnUnits(widget.compact));
-        final maxWidth = theme.space(ProjectCardKanban.maxColumnUnits(widget.compact));
-        final fit = (constraints.maxWidth - gap * (columns.length - 1)) / columns.length;
-        final width = fit.isFinite ? fit.clamp(minWidth, maxWidth) : minWidth;
+    final width = theme.space(_units);
+    final board = Builder(
+      builder: (context) {
         return Scrollbar(
           controller: _horizontal,
           child: GhScrollView(
@@ -722,9 +779,8 @@ class _ProjectCardKanbanState extends State<ProjectCardKanban> {
             padding: EdgeInsets.only(bottom: theme.space(3)),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: gap,
               children: [
-                for (final column in columns)
+                for (final column in columns) ...[
                   SizedBox(
                     width: width,
                     child: GhSortableContext(
@@ -748,6 +804,8 @@ class _ProjectCardKanbanState extends State<ProjectCardKanban> {
                       ),
                     ),
                   ),
+                  _resizeGrip(theme),
+                ],
               ],
             ),
           ),
@@ -851,19 +909,27 @@ class KanbanColumn extends StatelessWidget {
                 border: Border.all(color: Colors.black.withValues(alpha: 0.2)),
               ),
             ),
-            Flexible(
-              child: Semantics(
-                header: true,
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.ink),
-                ),
+            // Title and count share the free space, so the options button
+            // always sits flush with the column's end.
+            Expanded(
+              child: Row(
+                spacing: theme.space(2),
+                children: [
+                  Flexible(
+                    child: Semantics(
+                      header: true,
+                      child: Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.text(size: GhTextSize.sm, weight: GhWeight.semibold, color: theme.ink),
+                      ),
+                    ),
+                  ),
+                  _CountBadge(count: count, active: target),
+                ],
               ),
             ),
-            _CountBadge(count: count, active: target),
-            const Spacer(),
             if (menu != null)
               Builder(
                 builder: (buttonContext) => GhPressable(

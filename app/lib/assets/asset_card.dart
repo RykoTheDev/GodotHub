@@ -13,6 +13,10 @@ double? parseAssetRating(String raw) {
   return double.tryParse(match.group(0)!.trim());
 }
 
+/// The Store reports ratings as a percentage of positive reviews (81) and
+/// the Asset Library on a five-point scale (4.2); show each the way it reads.
+String formatAssetRating(double rating) => rating > 5 ? '${rating.round()}%' : rating.toStringAsFixed(1);
+
 /// Badge tone for an Asset Library support level.
 GhTone assetSupportTone(String level) => switch (level) {
   'official' => GhTone.mint,
@@ -85,12 +89,11 @@ class AssetCard extends StatelessWidget {
             GhCover(
               seed: asset.title,
               imageUrl: asset.iconUrl,
-              style: asset.source == 'store' ? GhCoverStyle.photo : GhCoverStyle.icon,
               fallbackIcon: GhIcons.store,
               zoom: highlighted,
               topStart: [
                 if (showSource && asset.source.isNotEmpty) GhGlassChip(label: ghTr('asset_source_${asset.source}')),
-                if (hasRating) GhGlassChip(label: rating.toStringAsFixed(1), icon: GhIcons.star, iconColor: theme.amber),
+                if (hasRating) GhGlassChip(label: formatAssetRating(rating), icon: GhIcons.star, iconColor: theme.amber),
                 if (installedIn.isNotEmpty)
                   GhGlassChip(
                     label: ghTr('asset_in_projects', count: installedIn.length),
@@ -167,7 +170,7 @@ class AssetCard extends StatelessWidget {
                 ),
               ),
             ),
-            if (actions != null) GhCardFooter(trailing: actions!),
+            if (actions != null) GhCardFooter(trailing: actions!, fill: true),
           ],
         ),
       ),

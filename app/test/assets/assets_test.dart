@@ -316,15 +316,13 @@ void main() {
       await base.pumpHost(tester, body: const AssetStoreView());
       await base.settle(tester);
       expect(find.text('Asset store:pub/one'), findsOneWidget);
-      expect(find.text(ghTr('asset_by_author', args: {'author': 'Ryko'})), findsNWidgets(2));
+      expect(find.text('Ryko'), findsNWidgets(2));
       expect(find.text('Line one line two'), findsNWidgets(2));
       expect(backend.calls.first, 'store:null:null:0:relevance');
       await tester.tap(find.bySemanticsLabel(ghTr('asset_page_x_of_y', args: {'page': 2, 'total': 3})));
       await base.settle(tester);
       expect(backend.calls.last, 'store:null:null:1:relevance');
-      await tester.tap(find.text(ghTr('asset_source_store')));
-      await base.settle(tester, 4);
-      await tester.tap(find.text(ghTr('asset_source_library')).last);
+      await tester.tap(find.text(ghTr('asset_source_old')));
       await base.settle(tester);
       expect(find.text(ghTr('all_categories')), findsOneWidget);
       expect(backend.calls.last, 'lib:null:4.7:0:addon:null:null');

@@ -88,12 +88,15 @@ void main() {
     expect(find.text('News 10', skipOffstage: false), findsNothing);
     expect(find.text(ghTr('news_cached')), findsOneWidget);
     expect(find.text('Release'), findsWidgets);
-    expect(find.text('Author 0'), findsOneWidget);
+    expect(find.textContaining('Author 0'), findsOneWidget);
 
     await tester.ensureVisible(find.text(ghTr('show_more')));
     await tester.tap(find.text(ghTr('show_more')));
     await base.settle(tester);
-    expect(find.text('News 19', skipOffstage: false), findsOneWidget);
+    // Three columns: the featured post plus six full rows; post 19 would
+    // start a ragged row, so it waits for the next "Show more".
+    expect(find.text('News 18', skipOffstage: false), findsOneWidget);
+    expect(find.text('News 19', skipOffstage: false), findsNothing);
 
     await tester.ensureVisible(find.text('News 3'));
     await tester.tap(find.text('News 3'));

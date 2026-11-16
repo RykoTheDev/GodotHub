@@ -106,7 +106,11 @@ class NewsView extends ConsumerWidget {
               // three columns; below that it is just the first card.
               final columns = GhGridBreakpoints.reading.columnsFor(constraints.maxWidth, fontScale: theme.fontScale);
               final featured = items.length > 1 && columns >= 3;
-              final rest = featured ? items.skip(1) : items;
+              final rest = (featured ? items.skip(1) : items).toList();
+              // While more posts can be loaded, show only complete rows; the
+              // rest arrive with "Show more" instead of leaving a ragged row.
+              final full = (rest.length ~/ columns) * columns;
+              final shown = feed.hasMore && full > 0 ? rest.take(full) : rest;
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 spacing: theme.space(4),
@@ -115,7 +119,7 @@ class NewsView extends ConsumerWidget {
                   GhCardGrid(
                     breakpoints: GhGridBreakpoints.reading,
                     gap: 4,
-                    children: [for (final item in rest) NewsCard(key: ValueKey(item.id), item: item)],
+                    children: [for (final item in shown) NewsCard(key: ValueKey(item.id), item: item)],
                   ),
                 ],
               );
@@ -174,7 +178,7 @@ class NewsView extends ConsumerWidget {
             padding: scrollInsets,
             child: GhOverlayScrollArea(
               hideThumb: !settings.showScrollbars,
-              topButtonBottom: theme.space(16),
+              topButtonBottom: theme.space(24),
               child: Padding(
                 padding: EdgeInsetsDirectional.fromSTEB(theme.space(connected ? 3 : 2), theme.space(2), theme.space(5), theme.space(8)),
                 child: body,
@@ -291,7 +295,7 @@ class _NewsText extends StatelessWidget {
     final author = item.author;
     final hasAuthor = author != null && author.isNotEmpty;
     final summary = item.summary?.trim();
-    final meta = [if (hasAuthor) author, if (date != null) date].join('  ·  ');
+    final meta = [if (hasAuthor) author, ?date].join('  ·  ');
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: theme.space(2.5),
