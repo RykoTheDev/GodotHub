@@ -573,8 +573,7 @@ class _DashboardViewState extends ConsumerState<DashboardView> {
                       ),
                       _kpis(theme, projects, wide),
                       DashActivityPanel(insights: _insights, timeFormat: timeFormat, active: widget.active),
-                      if (settings.projectTodosEnabled)
-                        DashPanel(title: td('dashboard_todos'), icon: GhIcons.checkCircle, delay: 160, child: const TodoDueTile()),
+                      DashPanel(title: td('dashboard_todos'), icon: GhIcons.checkCircle, delay: 160, child: const TodoDueTile()),
                       grid,
                       SizedBox(height: theme.space(2)),
                     ],

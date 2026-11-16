@@ -532,10 +532,6 @@ class ProjectsViewState extends ConsumerState<ProjectsView> {
     final paths = [for (final p in projects) p.path];
     final git = ref.watch(gitStatusMapProvider(gitStatusRequest(paths, widget.active)));
 
-    if (!settings.customizeViewEnabled && _viewMode != ProjectViewMode.list) {
-      _viewMode = ProjectViewMode.list;
-      _prefs.setItem(ProjectsViewPrefs.viewMode, _viewMode.id);
-    }
     if (_tagFilter != null && !projects.any((p) => p.tags.contains(_tagFilter))) {
       WidgetsBinding.instance.addPostFrameCallback((_) => mounted ? _setTagFilter(null) : null);
     }
@@ -1025,63 +1021,61 @@ class ProjectsViewState extends ConsumerState<ProjectsView> {
               ),
             ),
           if (_tagFilter != null) _TagFilterChip(tag: _tagFilter!, tooltip: tr.clear_tag_filter, onPressed: () => _setTagFilter(null)),
-          if (settings.customizeViewEnabled) ...[
-            const Spacer(),
-            GhDropdown(
-              align: GhSide.right,
-              compact: true,
-              content: (context, close) => _cardSettings(context, theme, settings),
-              trigger: (context, open, toggle) => _OutlineToolButton(
-                onPressed: toggle,
-                open: open,
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: theme.space(1.5),
-                  children: [
-                    Text(
-                      tr.customize_card_section,
-                      style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium),
-                    ),
-                    AnimatedRotation(
-                      turns: open ? 0.5 : 0,
-                      duration: GhMotion.of(context).css(const Duration(milliseconds: 500)),
-                      curve: GhCurves.spring,
-                      child: GhIcon(GhIcons.chevronDown, size: theme.space(2.5)),
-                    ),
-                  ],
-                ),
+          const Spacer(),
+          GhDropdown(
+            align: GhSide.right,
+            compact: true,
+            content: (context, close) => _cardSettings(context, theme, settings),
+            trigger: (context, open, toggle) => _OutlineToolButton(
+              onPressed: toggle,
+              open: open,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: theme.space(1.5),
+                children: [
+                  Text(
+                    tr.customize_card_section,
+                    style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium),
+                  ),
+                  AnimatedRotation(
+                    turns: open ? 0.5 : 0,
+                    duration: GhMotion.of(context).css(const Duration(milliseconds: 500)),
+                    curve: GhCurves.spring,
+                    child: GhIcon(GhIcons.chevronDown, size: theme.space(2.5)),
+                  ),
+                ],
               ),
             ),
-            GhDropdown(
-              align: GhSide.right,
-              compact: true,
-              items: [
-                for (final (mode, icon, label) in [
-                  (ProjectViewMode.list, GhIcons.layoutList, tr.view_list),
-                  (ProjectViewMode.grid, GhIcons.layoutGrid, tr.view_grid),
-                  (ProjectViewMode.kanban, GhIcons.kanban, tr.view_kanban),
-                ])
-                  GhMenuItem(id: mode.id, label: label, icon: icon, active: _viewMode == mode, onSelected: () => _setViewMode(mode)),
-              ],
-              trigger: (context, open, toggle) {
-                final (icon, label) = switch (_viewMode) {
-                  ProjectViewMode.grid => (GhIcons.layoutGrid, tr.view_grid),
-                  ProjectViewMode.kanban => (GhIcons.kanban, tr.view_kanban),
-                  ProjectViewMode.list => (GhIcons.layoutList, tr.view_list),
-                };
-                return GhTooltip(
-                  message: label,
-                  child: _OutlineToolButton(
-                    onPressed: toggle,
-                    open: open,
-                    square: true,
-                    semanticLabel: label,
-                    child: GhIcon(icon, size: theme.space(3.5)),
-                  ),
-                );
-              },
-            ),
-          ],
+          ),
+          GhDropdown(
+            align: GhSide.right,
+            compact: true,
+            items: [
+              for (final (mode, icon, label) in [
+                (ProjectViewMode.list, GhIcons.layoutList, tr.view_list),
+                (ProjectViewMode.grid, GhIcons.layoutGrid, tr.view_grid),
+                (ProjectViewMode.kanban, GhIcons.kanban, tr.view_kanban),
+              ])
+                GhMenuItem(id: mode.id, label: label, icon: icon, active: _viewMode == mode, onSelected: () => _setViewMode(mode)),
+            ],
+            trigger: (context, open, toggle) {
+              final (icon, label) = switch (_viewMode) {
+                ProjectViewMode.grid => (GhIcons.layoutGrid, tr.view_grid),
+                ProjectViewMode.kanban => (GhIcons.kanban, tr.view_kanban),
+                ProjectViewMode.list => (GhIcons.layoutList, tr.view_list),
+              };
+              return GhTooltip(
+                message: label,
+                child: _OutlineToolButton(
+                  onPressed: toggle,
+                  open: open,
+                  square: true,
+                  semanticLabel: label,
+                  child: GhIcon(icon, size: theme.space(3.5)),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );

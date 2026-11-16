@@ -30,7 +30,6 @@ OpenTodo open(String projectId, String id, {String? due}) => OpenTodo(
 
 void main() {
   late FakeRustApi rust;
-  late CoreBackend backend;
   late List<OpenTodo> server;
   late List<Project> projects;
 
@@ -38,26 +37,14 @@ void main() {
     rust = installFakeRust();
     debugResetOpenTodos();
     useMemoryUiPrefs();
-    backend = CoreBackend(rust, active: 'w1', settings: settingsWith(projectTodosEnabled: true));
+    CoreBackend(rust, active: 'w1', settings: settingsWith(projectTodosEnabled: true));
     server = [open('p1', 'a')];
     projects = [project('p1')];
     rust.on(_open, () async => List<OpenTodo>.of(server));
     rust.on('crateApiProjectsListProjects', () async => List<Project>.of(projects));
   });
 
-  test('stays cleared and idle while todos are disabled', () async {
-    backend.settings = settingsWith();
-    final container = createContainer([openTodosProvider]);
-    await settle();
-    expect(container.read(openTodosProvider).loaded, isFalse);
-    expect(rust.callCount(_open), 0);
-
-    AppSignals.emit(todosChangedSignal);
-    await settle();
-    expect(rust.callCount(_open), 0);
-  });
-
-  test('syncs once enabled, on todo changes and when the project list changes, and clears when disabled', () async {
+  test('syncs on load, on todo changes and when the project list changes', () async {
     final container = createContainer([openTodosProvider]);
     await settle();
     expect(container.read(openTodosProvider).loaded, isTrue);
@@ -78,11 +65,6 @@ void main() {
     await container.read(projectsProvider.notifier).refresh();
     await settle();
     expect(rust.callCount(_open), afterLoad + 2);
-
-    await container.read(settingsProvider.notifier).save(settingsWith());
-    await settle();
-    expect(container.read(openTodosProvider).loaded, isFalse);
-    expect(container.read(openTodosProvider).todos, isEmpty);
   });
 
   group('due notifications', () {

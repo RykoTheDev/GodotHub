@@ -81,8 +81,7 @@ class DashBackend {
   }
 }
 
-AppSettings dashSettings({String? customName, bool todos = false}) =>
-    copySettings(baseSettings, setupComplete: true, projectTodosEnabled: todos, dashboardCustomName: () => customName);
+AppSettings dashSettings({String? customName}) => copySettings(baseSettings, setupComplete: true, dashboardCustomName: () => customName);
 
 Future<void> pumpDashboard(WidgetTester tester, DashBackend backend, {AppSettings? settings, Size size = const Size(1400, 1000)}) async {
   backend.install(rust);
@@ -174,7 +173,7 @@ void main() {
       expect(find.text('Beta'), findsNWidgets(3));
       expect(find.text(td('dashboard_running_empty')), findsOneWidget);
       expect(find.text('4.3-stable'), findsOneWidget);
-      expect(find.text(td('dashboard_todos')), findsNothing);
+      expect(find.text(td('dashboard_todos')), findsOneWidget);
       await unmount(tester);
     });
 
@@ -186,6 +185,7 @@ void main() {
       await tester.tap(find.text(td('dashboard_import_project')));
       await tester.tap(find.text(td('dashboard_scan_projects')));
       await tester.tap(find.descendant(of: find.byType(DashKpiCard), matching: find.text(td('dashboard_stat_projects'))).first);
+      await tester.ensureVisible(find.text('C:/games/a'));
       await tester.tap(find.text('C:/games/a'));
       await tester.pump();
       expect(signals.map((s) => (s.name, s.detail)), [

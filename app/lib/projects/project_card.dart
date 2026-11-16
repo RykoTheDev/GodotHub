@@ -89,8 +89,6 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
   bool _showTodos = false;
   bool _todosLoaded = false;
 
-  bool get _todosEnabled => ref.read(settingsProvider).value?.projectTodosEnabled ?? false;
-
   @override
   void initState() {
     super.initState();
@@ -101,7 +99,7 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
   }
 
   void _focusTodos() {
-    if (!mounted || !_todosEnabled || !consumeTodoFocus(widget.project.id)) return;
+    if (!mounted || !consumeTodoFocus(widget.project.id)) return;
     setState(() => _showTodos = true);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) Scrollable.ensureVisible(context, alignment: 0.5).ignore();
@@ -253,7 +251,7 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
       widget.callbacks.onToggleSelect?.call(modifiers);
       return;
     }
-    if (_todosEnabled) _toggleTodos();
+    _toggleTodos();
   }
 
   Widget _hoverIcon(FaIconData icon, double size, Color color) {
@@ -346,9 +344,8 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
     final tr = context.tr.common;
     final settings = ref.watch(settingsProvider).value ?? defaultSettings;
     final options = getCardViewSettings(settings, widget.viewMode);
-    final todosEnabled = settings.projectTodosEnabled;
-    if (todosEnabled) ref.watch(openTodosProvider);
-    final counts = todosEnabled ? projectTodoCounts(_project.id, localDateValue()) : noTodos;
+    ref.watch(openTodosProvider);
+    final counts = projectTodoCounts(_project.id, localDateValue());
     final project = _project;
     final data = ref.watch(projectTileDataProvider((path: project.path, showSize: options.showSize, preview: false)));
     final displayName = data.displayName(project.name);
@@ -368,7 +365,7 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
     final icon = data.icon != null && data.icon != _brokenIcon ? data.icon : null;
     _cover = settings.projectCardStyle == 'cover';
     final reveal = _hovered || _focusWithin;
-    final showTodos = todosEnabled && _showTodos;
+    final showTodos = _showTodos;
     final radius = showTodos ? BorderRadius.vertical(top: Radius.circular(theme.radiusItem)) : BorderRadius.circular(theme.radiusItem);
     final motion = GhMotion.of(context);
 
@@ -441,7 +438,7 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
       consoleInitiallyOn: widget.launchWithConsole && (version?.supportsConsole ?? false),
       showConsole: options.showConsole,
       moreLabel: tr.project_more_aria,
-      headerItems: projectHeaderItems(context, project, todosEnabled: todosEnabled, onTodos: () => _toggleTodos(resetLoaded: false)),
+      headerItems: projectHeaderItems(context, project, onTodos: () => _toggleTodos(resetLoaded: false)),
       items: _menuItems(context, displayName),
     );
     final loadingBar = [
@@ -665,7 +662,7 @@ class _ProjectCardState extends ConsumerState<ProjectCard> {
     }
 
     final surface = MouseRegion(
-      cursor: todosEnabled ? SystemMouseCursors.click : MouseCursor.defer,
+      cursor: SystemMouseCursors.click,
       onEnter: (_) => setState(() => _hovered = true),
       onExit: (_) => setState(() => _hovered = false),
       child: Focus(

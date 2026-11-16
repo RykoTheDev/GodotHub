@@ -14,7 +14,6 @@ import 'package:godothub/logic/settings_copy.dart';
 import 'package:godothub/modals/contributor_prs_modal.dart';
 import 'package:godothub/settings/categories/credits_settings.dart';
 import 'package:godothub/settings/categories/debug_settings.dart';
-import 'package:godothub/settings/categories/experimental_settings.dart';
 import 'package:godothub/src/rust/api/app.dart';
 import 'package:godothub/src/rust/api/types.dart';
 import 'package:godothub/src/ui_prefs.dart';
@@ -110,20 +109,6 @@ void main() {
   tearDown(() {
     OpenerApi.debugOpenUrl = null;
     DebugSettings.debugRelaunch = null;
-  });
-
-  testWidgets('experimental toggles are translated and save their settings', (tester) async {
-    await pumpBody(tester, const ExperimentalSettings());
-    expect(find.text(ghTr('settings:customize_view_label')), findsOneWidget);
-    expect(find.text(ghTr('settings:project_todos_label')), findsOneWidget);
-    final toggles = find.byWidgetPredicate((w) => w.runtimeType.toString() == 'GhToggle');
-    expect(toggles, findsNWidgets(2));
-    await tester.tap(toggles.first);
-    await base.settle(tester, 3);
-    expect(saved.last.customizeViewEnabled, !baseSettings.customizeViewEnabled);
-    await tester.tap(toggles.last);
-    await base.settle(tester, 3);
-    expect(saved.last.projectTodosEnabled, !baseSettings.projectTodosEnabled);
   });
 
   testWidgets('credits shows a loading state, then an unavailable state with retry when GitHub fails', (tester) async {
