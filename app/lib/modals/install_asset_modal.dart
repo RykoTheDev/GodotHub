@@ -9,12 +9,15 @@ import '../motion/presence.dart';
 import '../src/rust/api/types.dart';
 import '../state/app_signals.dart';
 import '../state/projects.dart';
+import '../state/keyboard_shortcuts.dart';
 import '../state/shell_signals.dart';
 import '../ui/controls/dashed_box.dart';
 import '../ui/controls/text_input.dart';
+import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
+import '../ui/feedback/toast.dart';
 import '../ui/reusables/modal_kit.dart';
 import '../ui/shell/smooth_scroll.dart';
 
@@ -42,11 +45,35 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
   List<ProjectTemplate> _templates = const [];
   String? _selectedId;
   bool _installing = false;
+  bool _detached = false;
   String? _error;
 
   AssetLibraryAsset get _asset => widget.asset;
 
   bool get _canCreateTemplate => _asset.source != 'store' && _asset.assetType == 'project';
+
+  void _close() {
+    if (_installing) _detached = true;
+    widget.onClose();
+  }
+
+  void _failed(Object e) {
+    if (_detached || !mounted) {
+      ghToasts.pushToast(GhToastType.error, ghTr('asset_install_failed_toast', args: {'title': _asset.title, 'error': '$e'}));
+    } else {
+      setState(() => _error = '$e');
+    }
+  }
+
+  void _finish(AssetInstallOutcome outcome) {
+    widget.onInstalled(outcome);
+    if (!_detached) widget.onClose();
+  }
+
+  void _newProject() {
+    widget.onClose();
+    AppSignals.emit(newProjectRequestSignal);
+  }
 
   @override
   void initState() {
@@ -100,10 +127,9 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
       } else {
         await AssetLibraryApi.install(_asset.assetId, null, targetId);
       }
-      widget.onInstalled((assetId: _asset.assetId, targetType: tab, targetName: targetName));
-      widget.onClose();
+      _finish((assetId: _asset.assetId, targetType: tab, targetName: targetName));
     } catch (e) {
-      if (mounted) setState(() => _error = '$e');
+      _failed(e);
     } finally {
       if (mounted) setState(() => _installing = false);
     }
@@ -117,10 +143,9 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
     try {
       final template = await AssetLibraryApi.installAsTemplate(_asset.assetId);
       AppSignals.emit(refreshTemplatesSignal);
-      widget.onInstalled((assetId: _asset.assetId, targetType: AssetInstallTarget.template, targetName: template.name));
-      widget.onClose();
+      _finish((assetId: _asset.assetId, targetType: AssetInstallTarget.template, targetName: template.name));
     } catch (e) {
-      if (mounted) setState(() => _error = '$e');
+      _failed(e);
     } finally {
       if (mounted) setState(() => _installing = false);
     }
@@ -131,10 +156,12 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
     final radius = BorderRadius.circular(theme.radiusBtn);
     return Expanded(
       child: GhPressable(
-        onPressed: () => setState(() {
-          _tab = value;
-          _selectedId = null;
-        }),
+        onPressed: _installing
+            ? null
+            : () => setState(() {
+                _tab = value;
+                _selectedId = null;
+              }),
         selected: active,
         borderRadius: radius,
         builder: (context, states) {
@@ -330,6 +357,7 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
     final radius = BorderRadius.circular(theme.radiusItem);
     final iconUrl = _asset.iconUrl;
     final canInstall = selectedId != null && !_installing;
+    final project = _tab == AssetInstallTarget.project;
     return GhModalShell(
       icon: iconUrl != null && iconUrl.isNotEmpty
           ? ClipRRect(
@@ -347,80 +375,90 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
           : GhIcon(GhIcons.store, size: theme.space(5), color: theme.muted),
       title: ghTr('asset_install_modal_title', args: {'title': _asset.title}),
       maxWidth: GhModalWidth.md,
-      showClose: false,
-      onClose: () {
-        if (!_installing) widget.onClose();
-      },
-      footer: [
-        GhPressable(
-          onPressed: _installing ? null : widget.onClose,
-          borderRadius: radius,
-          builder: (context, states) => GhAnimatedBox(
-            color: states.active ? theme.raised : theme.raised.withValues(alpha: 0),
-            borderRadius: radius,
-            padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(2)),
-            child: Text(ghTr('cancel'), style: theme.text(color: states.active ? theme.ink : theme.muted)),
-          ),
-        ),
-        GhPressable(
+      onClose: _close,
+      error: _error,
+      footer: ghModalActions(
+        trailing: [
+          GhButton(key: const ValueKey('asset-install-close'), onPressed: _close, label: _installing ? ghTr('close') : ghTr('cancel')),
+        ],
+        primary: GhBusyButton(
+          key: const ValueKey('asset-install-submit'),
           onPressed: canInstall ? () => _install(selectedId, selectedName ?? '') : null,
-          disabledCursor: SystemMouseCursors.forbidden,
-          borderRadius: radius,
-          rippleColor: Colors.white,
-          builder: (context, states) => GhAnimatedBox(
-            color: states.active && canInstall ? theme.accentBright : theme.accent,
-            borderRadius: radius,
-            padding: EdgeInsets.symmetric(horizontal: theme.space(4), vertical: theme.space(2)),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              spacing: theme.space(2),
-              children: [
-                if (_installing) ...[
-                  GhSpinnerIcon(color: Colors.white),
-                  Text(
-                    ghTr('asset_installing'),
-                    style: theme.text(weight: GhWeight.medium, color: Colors.white),
-                  ),
-                ] else if (selectedName != null) ...[
-                  GhIcon(GhIcons.download, size: theme.space(3.5), color: Colors.white),
-                  Text(
-                    ghTr('asset_install_into', args: {'name': selectedName}),
-                    style: theme.text(weight: GhWeight.medium, color: Colors.white),
-                  ),
-                ] else
-                  Text(
-                    ghTr('asset_install'),
-                    style: theme.text(weight: GhWeight.medium, color: Colors.white),
-                  ),
-              ],
-            ),
-          ),
+          busy: _installing,
+          icon: GhIcons.download,
+          label: _installing
+              ? ghTr('asset_installing')
+              : selectedName != null
+              ? ghTr('asset_install_into', args: {'name': selectedName})
+              : ghTr('asset_install'),
         ),
-      ],
+      ),
       child: Padding(
         padding: EdgeInsetsDirectional.fromSTEB(theme.space(5), 0, theme.space(5), theme.space(4)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: theme.space(3),
           children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                color: theme.overlay,
-                borderRadius: radius,
-                border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(theme.space(1)),
-                child: Row(
-                  spacing: theme.space(1),
-                  children: [
-                    _tabButton(theme, AssetInstallTarget.project, GhIcons.folderPlus, ghTr('asset_install_tab_project')),
-                    _tabButton(theme, AssetInstallTarget.template, GhIcons.copy, ghTr('asset_install_tab_template')),
-                  ],
+            Text(
+              ghTr(project ? 'asset_install_intro_project' : 'asset_install_intro_template', args: {'title': _asset.title}),
+              style: theme.text(size: GhTextSize.sm, color: theme.muted, lineHeight: 1.6),
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: theme.space(1.5),
+              children: [
+                Text(
+                  ghTr('asset_install_where_label'),
+                  style: theme.text(size: GhTextSize.xs, weight: GhWeight.semibold, color: theme.ink),
+                ),
+                DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: theme.overlay,
+                    borderRadius: radius,
+                    border: Border.all(color: theme.outline.withValues(alpha: 0.5)),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(theme.space(1)),
+                    child: Row(
+                      spacing: theme.space(1),
+                      children: [
+                        _tabButton(theme, AssetInstallTarget.project, GhIcons.folderPlus, ghTr('asset_install_tab_project')),
+                        _tabButton(theme, AssetInstallTarget.template, GhIcons.copy, ghTr('asset_install_tab_template')),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (_installing)
+              Semantics(
+                liveRegion: true,
+                child: Container(
+                  padding: EdgeInsets.all(theme.space(2.5)),
+                  decoration: BoxDecoration(
+                    color: theme.accent.withValues(alpha: 0.08),
+                    borderRadius: radius,
+                    border: Border.all(color: theme.accentDim.withValues(alpha: 0.4)),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: theme.space(2),
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(top: theme.space(0.5)),
+                        child: GhIcon(GhIcons.info, size: theme.space(3.5), color: theme.accentBright),
+                      ),
+                      Expanded(
+                        child: Text(
+                          ghTr('asset_install_continues'),
+                          style: theme.text(size: GhTextSize.xs, color: theme.ink, lineHeight: 1.5),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            if (_canCreateTemplate && _tab == AssetInstallTarget.template) _newTemplateButton(theme),
+            if (_canCreateTemplate && !project) _newTemplateButton(theme),
             _search(theme),
             ConstrainedBox(
               constraints: BoxConstraints(maxHeight: theme.space(72)),
@@ -431,22 +469,28 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
                         color: theme.outline.withValues(alpha: 0.5),
                         radius: radius,
                         child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: theme.space(10)),
+                          padding: EdgeInsets.symmetric(vertical: theme.space(8), horizontal: theme.space(4)),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
-                            spacing: theme.space(2),
+                            spacing: theme.space(3),
                             children: [
                               GhIcon(GhIcons.store, size: theme.space(5), color: theme.muted.withValues(alpha: 0.5)),
                               ConstrainedBox(
-                                constraints: const BoxConstraints(maxWidth: 220),
+                                constraints: const BoxConstraints(maxWidth: 260),
                                 child: Text(
-                                  _tab == AssetInstallTarget.project
-                                      ? ghTr('asset_install_no_projects')
-                                      : ghTr('asset_install_no_templates'),
+                                  project ? ghTr('asset_install_no_projects') : ghTr('asset_install_no_templates'),
                                   textAlign: TextAlign.center,
                                   style: theme.text(size: GhTextSize.xs, color: theme.muted, lineHeight: 1.625),
                                 ),
                               ),
+                              if (project && _query.text.trim().isEmpty)
+                                GhButton(
+                                  key: const ValueKey('asset-install-new-project'),
+                                  onPressed: _installing ? null : _newProject,
+                                  icon: GhIcons.folderPlus,
+                                  label: ghTr('new_project'),
+                                  variant: GhButtonVariant.outline,
+                                ),
                             ],
                           ),
                         ),
@@ -461,34 +505,6 @@ class _InstallAssetModalState extends ConsumerState<InstallAssetModal> {
                       ),
                     ),
             ),
-            if (_error != null)
-              Semantics(
-                liveRegion: true,
-                child: Container(
-                  padding: EdgeInsets.all(theme.space(2.5)),
-                  decoration: BoxDecoration(
-                    color: theme.danger.withValues(alpha: 0.1),
-                    borderRadius: radius,
-                    border: Border.all(color: theme.danger.withValues(alpha: 0.2)),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: theme.space(2),
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(top: theme.space(0.5)),
-                        child: GhIcon(GhIcons.alertTriangle, size: theme.space(3.5), color: theme.danger),
-                      ),
-                      Expanded(
-                        child: Text(
-                          _error!,
-                          style: theme.text(size: GhTextSize.xs, color: theme.danger, lineHeight: 1.375),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
           ],
         ),
       ),

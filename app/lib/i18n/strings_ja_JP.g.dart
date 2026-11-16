@@ -969,6 +969,17 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String get create_project_version_control => 'Version control';
 	@override String get tag_manager_intro => 'Tags on {{name}}. Click a tag to rename it.';
 	@override String get tag_new_label => 'New tag';
+	@override String get asset_install_intro_project => 'Choose the project to install {{title}} into.';
+	@override String get asset_install_intro_template => 'Choose a template to install {{title}} into. New projects made from it will include it.';
+	@override String get asset_install_where_label => 'Install into';
+	@override String get asset_install_continues => 'The install keeps running if you close this window. You\'ll get a message when it\'s done.';
+	@override String get asset_install_failed_toast => 'Couldn\'t install {{title}}: {{error}}';
+	@override String get clone_repo_browse_intro => 'Pick one of the repositories on your connected account.';
+	@override String get clone_repo_url_intro => 'Paste the HTTPS or SSH address of any Git repository.';
+	@override String get clone_repo_url_invalid => 'Use an HTTPS or SSH address, like https://github.com/user/repo.git or git@github.com:user/repo.git.';
+	@override String get clone_repo_dest_preview => 'Clones into {{path}}';
+	@override String get clone_repo_selected => 'Selected {{name}}';
+	@override String get clone_repo_select_hint => 'Select a repository from the list to clone it.';
 }
 
 // Path: dashboard
@@ -1204,6 +1215,11 @@ class _Translations$git$ja_JP extends Translations$git$en_US {
 	@override String get protected_branch_create_pr => 'ブランチと PR を作成';
 	@override String get protected_branch_creating_pr => 'PR を作成中…';
 	@override String get pr_opened_ok => '{{branch}} をプッシュし、プルリクエストを作成しました。';
+	@override String get branch_name_required => 'Enter a name for the new branch.';
+	@override String get branch_name_invalid => 'Branch names can\'t contain spaces, ~ ^ : ? * [ or a backslash, two dots in a row, or start or end with a slash or a dot.';
+	@override String get branch_name_exists => 'A branch with this name already exists.';
+	@override String get protected_branch_confirm_title => 'Commit to {{branch}} anyway?';
+	@override String get protected_branch_confirm_desc => 'This bypasses the protection on {{branch}}. The commit is made locally, and the remote may reject it when you push.';
 }
 
 // Path: nav
@@ -1611,6 +1627,8 @@ class _Translations$settings$ja_JP extends Translations$settings$en_US {
 	@override String get feature_desc_asset_store => 'Godot アセットライブラリからアドオンやデモを探してインストールできます。';
 	@override String get feature_desc_categories => 'プロジェクトをカテゴリに分けて整理できます。';
 	@override String get feature_desc_workspaces => '用途に合わせて、プロジェクトと設定をまとめて切り替えられます。';
+	@override String get git_auth_intro => 'Approve GodotHub on {{provider}} to finish signing in. Keep this window open until it\'s done; use Cancel to stop.';
+	@override String get git_auth_step_current => 'current step';
 }
 
 // Path: todos
@@ -1911,6 +1929,13 @@ class _Translations$versions$ja_JP extends Translations$versions$en_US {
 	@override String get custom_build_badge => 'カスタムビルド';
 	@override String get add_custom_build => 'カスタムビルドを追加…';
 	@override String get adding_custom_build => 'カスタムビルドを追加中…';
+	@override String get download_failed_summary => 'GodotHub couldn\'t download Godot {{tag}}.';
+	@override String get download_failed_show_details => 'Show error details';
+	@override String get download_failed_hide_details => 'Hide error details';
+	@override String get download_failed_report => 'Report this problem';
+	@override String get export_templates_select_none => 'Select none';
+	@override String get export_templates_select_hint => 'Select at least one template to download.';
+	@override String get export_templates_all_installed => 'Every template for this release is already installed.';
 }
 
 // Path: common.project_doctor
@@ -3303,6 +3328,17 @@ extension on TranslationsJaJp {
 			'common.create_project_version_control' => 'Version control',
 			'common.tag_manager_intro' => 'Tags on {{name}}. Click a tag to rename it.',
 			'common.tag_new_label' => 'New tag',
+			'common.asset_install_intro_project' => 'Choose the project to install {{title}} into.',
+			'common.asset_install_intro_template' => 'Choose a template to install {{title}} into. New projects made from it will include it.',
+			'common.asset_install_where_label' => 'Install into',
+			'common.asset_install_continues' => 'The install keeps running if you close this window. You\'ll get a message when it\'s done.',
+			'common.asset_install_failed_toast' => 'Couldn\'t install {{title}}: {{error}}',
+			'common.clone_repo_browse_intro' => 'Pick one of the repositories on your connected account.',
+			'common.clone_repo_url_intro' => 'Paste the HTTPS or SSH address of any Git repository.',
+			'common.clone_repo_url_invalid' => 'Use an HTTPS or SSH address, like https://github.com/user/repo.git or git@github.com:user/repo.git.',
+			'common.clone_repo_dest_preview' => 'Clones into {{path}}',
+			'common.clone_repo_selected' => 'Selected {{name}}',
+			'common.clone_repo_select_hint' => 'Select a repository from the list to clone it.',
 			'dashboard.greeting_morning' => 'おはようございます',
 			'dashboard.greeting_afternoon' => 'こんにちは',
 			'dashboard.greeting_evening' => 'こんばんは',
@@ -3518,6 +3554,11 @@ extension on TranslationsJaJp {
 			'git.protected_branch_create_pr' => 'ブランチと PR を作成',
 			'git.protected_branch_creating_pr' => 'PR を作成中…',
 			'git.pr_opened_ok' => '{{branch}} をプッシュし、プルリクエストを作成しました。',
+			'git.branch_name_required' => 'Enter a name for the new branch.',
+			'git.branch_name_invalid' => 'Branch names can\'t contain spaces, ~ ^ : ? * [ or a backslash, two dots in a row, or start or end with a slash or a dot.',
+			'git.branch_name_exists' => 'A branch with this name already exists.',
+			'git.protected_branch_confirm_title' => 'Commit to {{branch}} anyway?',
+			'git.protected_branch_confirm_desc' => 'This bypasses the protection on {{branch}}. The commit is made locally, and the remote may reject it when you push.',
 			'nav.dashboard' => 'ダッシュボード',
 			'nav.projects' => 'プロジェクト',
 			'nav.projects_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: 'プロジェクト', ), 
@@ -3729,6 +3770,8 @@ extension on TranslationsJaJp {
 			'settings.entrance_slide' => 'スライド',
 			'settings.entrance_scale' => 'スケール',
 			'settings.entrance_none' => 'なし',
+			_ => null,
+		} ?? switch (path) {
 			'settings.custom_css_label' => 'カスタム CSS',
 			'settings.custom_css_placeholder' => '/* 独自のスタイル。例: */\n.card { border-radius: 4px !important; }',
 			'settings.custom_css_apply' => 'CSS を適用',
@@ -3745,8 +3788,6 @@ extension on TranslationsJaJp {
 			'settings.settings_backup_title' => '設定のバックアップ',
 			'settings.export_settings_btn' => '設定をエクスポート',
 			'settings.import_settings_btn' => '設定をインポート',
-			_ => null,
-		} ?? switch (path) {
 			'settings.workspace_backup_title' => 'ワークスペースのバックアップ',
 			'settings.workspace_backup_export_btn' => 'ワークスペースをエクスポート',
 			'settings.workspace_backup_restore_btn' => 'ワークスペースを復元',
@@ -3878,6 +3919,8 @@ extension on TranslationsJaJp {
 			'settings.feature_desc_asset_store' => 'Godot アセットライブラリからアドオンやデモを探してインストールできます。',
 			'settings.feature_desc_categories' => 'プロジェクトをカテゴリに分けて整理できます。',
 			'settings.feature_desc_workspaces' => '用途に合わせて、プロジェクトと設定をまとめて切り替えられます。',
+			'settings.git_auth_intro' => 'Approve GodotHub on {{provider}} to finish signing in. Keep this window open until it\'s done; use Cancel to stop.',
+			'settings.git_auth_step_current' => 'current step',
 			'todos.next_steps' => '次のステップ',
 			'todos.saving_tasks' => 'タスクを保存中',
 			'todos.pending_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '未完了 ${count} 件', ), 
@@ -4129,6 +4172,13 @@ extension on TranslationsJaJp {
 			'versions.custom_build_badge' => 'カスタムビルド',
 			'versions.add_custom_build' => 'カスタムビルドを追加…',
 			'versions.adding_custom_build' => 'カスタムビルドを追加中…',
+			'versions.download_failed_summary' => 'GodotHub couldn\'t download Godot {{tag}}.',
+			'versions.download_failed_show_details' => 'Show error details',
+			'versions.download_failed_hide_details' => 'Hide error details',
+			'versions.download_failed_report' => 'Report this problem',
+			'versions.export_templates_select_none' => 'Select none',
+			'versions.export_templates_select_hint' => 'Select at least one template to download.',
+			'versions.export_templates_all_installed' => 'Every template for this release is already installed.',
 			_ => null,
 		};
 	}

@@ -305,5 +305,7 @@
   "feature_desc_storage": "プロジェクトやエンジンのディスク使用量を確認できます。",
   "feature_desc_asset_store": "Godot アセットライブラリからアドオンやデモを探してインストールできます。",
   "feature_desc_categories": "プロジェクトをカテゴリに分けて整理できます。",
-  "feature_desc_workspaces": "用途に合わせて、プロジェクトと設定をまとめて切り替えられます。"
+  "feature_desc_workspaces": "用途に合わせて、プロジェクトと設定をまとめて切り替えられます。",
+  "git_auth_intro": "Approve GodotHub on {{provider}} to finish signing in. Keep this window open until it's done; use Cancel to stop.",
+  "git_auth_step_current": "current step"
 }

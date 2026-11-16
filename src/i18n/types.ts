@@ -1068,7 +1068,18 @@ export type commonKeys =
   | 'create_project_location_required'
   | 'create_project_version_control'
   | 'tag_manager_intro'
-  | 'tag_new_label';
+  | 'tag_new_label'
+  | 'asset_install_intro_project'
+  | 'asset_install_intro_template'
+  | 'asset_install_where_label'
+  | 'asset_install_continues'
+  | 'asset_install_failed_toast'
+  | 'clone_repo_browse_intro'
+  | 'clone_repo_url_intro'
+  | 'clone_repo_url_invalid'
+  | 'clone_repo_dest_preview'
+  | 'clone_repo_selected'
+  | 'clone_repo_select_hint';
 
 /** Keys from dashboard.json */
 export type dashboardKeys =
@@ -1288,7 +1299,12 @@ export type gitKeys =
   | 'protected_branch_commit_anyway'
   | 'protected_branch_create_pr'
   | 'protected_branch_creating_pr'
-  | 'pr_opened_ok';
+  | 'pr_opened_ok'
+  | 'branch_name_required'
+  | 'branch_name_invalid'
+  | 'branch_name_exists'
+  | 'protected_branch_confirm_title'
+  | 'protected_branch_confirm_desc';
 
 /** Keys from nav.json */
 export type navKeys =
@@ -1644,7 +1660,9 @@ export type settingsKeys =
   | 'feature_desc_storage'
   | 'feature_desc_asset_store'
   | 'feature_desc_categories'
-  | 'feature_desc_workspaces';
+  | 'feature_desc_workspaces'
+  | 'git_auth_intro'
+  | 'git_auth_step_current';
 
 /** Keys from todos.json */
 export type todosKeys =
@@ -1886,7 +1904,14 @@ export type versionsKeys =
   | 'download_failed_hint'
   | 'custom_build_badge'
   | 'add_custom_build'
-  | 'adding_custom_build';
+  | 'adding_custom_build'
+  | 'download_failed_summary'
+  | 'download_failed_show_details'
+  | 'download_failed_hide_details'
+  | 'download_failed_report'
+  | 'export_templates_select_none'
+  | 'export_templates_select_hint'
+  | 'export_templates_all_installed';
 
 /** All namespace names */
 export type Namespace = 'changelog' | 'common' | 'dashboard' | 'git' | 'nav' | 'onboarding' | 'settings' | 'todos' | 'versions';
@@ -2956,6 +2981,17 @@ export type TranslationKey =
   | 'common:create_project_version_control'
   | 'common:tag_manager_intro'
   | 'common:tag_new_label'
+  | 'common:asset_install_intro_project'
+  | 'common:asset_install_intro_template'
+  | 'common:asset_install_where_label'
+  | 'common:asset_install_continues'
+  | 'common:asset_install_failed_toast'
+  | 'common:clone_repo_browse_intro'
+  | 'common:clone_repo_url_intro'
+  | 'common:clone_repo_url_invalid'
+  | 'common:clone_repo_dest_preview'
+  | 'common:clone_repo_selected'
+  | 'common:clone_repo_select_hint'
   | 'dashboard:greeting_morning'
   | 'dashboard:greeting_afternoon'
   | 'dashboard:greeting_evening'
@@ -3170,6 +3206,11 @@ export type TranslationKey =
   | 'git:protected_branch_create_pr'
   | 'git:protected_branch_creating_pr'
   | 'git:pr_opened_ok'
+  | 'git:branch_name_required'
+  | 'git:branch_name_invalid'
+  | 'git:branch_name_exists'
+  | 'git:protected_branch_confirm_title'
+  | 'git:protected_branch_confirm_desc'
   | 'nav:dashboard'
   | 'nav:projects'
   | 'nav:projects_count_one'
@@ -3517,6 +3558,8 @@ export type TranslationKey =
   | 'settings:feature_desc_asset_store'
   | 'settings:feature_desc_categories'
   | 'settings:feature_desc_workspaces'
+  | 'settings:git_auth_intro'
+  | 'settings:git_auth_step_current'
   | 'todos:next_steps'
   | 'todos:saving_tasks'
   | 'todos:pending_count_one'
@@ -3752,4 +3795,11 @@ export type TranslationKey =
   | 'versions:download_failed_hint'
   | 'versions:custom_build_badge'
   | 'versions:add_custom_build'
-  | 'versions:adding_custom_build';
+  | 'versions:adding_custom_build'
+  | 'versions:download_failed_summary'
+  | 'versions:download_failed_show_details'
+  | 'versions:download_failed_hide_details'
+  | 'versions:download_failed_report'
+  | 'versions:export_templates_select_none'
+  | 'versions:export_templates_select_hint'
+  | 'versions:export_templates_all_installed';

@@ -164,5 +164,12 @@
   "download_failed_hint": "Causas comunes: una red o proxy bloqueado, un antivirus que bloquea la descarga, una carpeta de descargas inexistente o de solo lectura, o poco espacio en disco.",
   "custom_build_badge": "Custom build",
   "add_custom_build": "Add custom build…",
-  "adding_custom_build": "Adding custom build…"
+  "adding_custom_build": "Adding custom build…",
+  "download_failed_summary": "GodotHub couldn't download Godot {{tag}}.",
+  "download_failed_show_details": "Show error details",
+  "download_failed_hide_details": "Hide error details",
+  "download_failed_report": "Report this problem",
+  "export_templates_select_none": "Select none",
+  "export_templates_select_hint": "Select at least one template to download.",
+  "export_templates_all_installed": "Every template for this release is already installed."
 }

@@ -150,5 +150,12 @@
   "download_failed_hint": "よくある原因: ネットワークやプロキシのブロック、アンチウイルスによるダウンロードのブロック、ダウンロードフォルダーが存在しないか読み取り専用、またはディスク容量不足。",
   "custom_build_badge": "カスタムビルド",
   "add_custom_build": "カスタムビルドを追加…",
-  "adding_custom_build": "カスタムビルドを追加中…"
+  "adding_custom_build": "カスタムビルドを追加中…",
+  "download_failed_summary": "GodotHub couldn't download Godot {{tag}}.",
+  "download_failed_show_details": "Show error details",
+  "download_failed_hide_details": "Hide error details",
+  "download_failed_report": "Report this problem",
+  "export_templates_select_none": "Select none",
+  "export_templates_select_hint": "Select at least one template to download.",
+  "export_templates_all_installed": "Every template for this release is already installed."
 }

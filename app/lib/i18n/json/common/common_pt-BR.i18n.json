@@ -1213,5 +1213,16 @@
   "create_project_location_required": "Choose a folder to create it in.",
   "create_project_version_control": "Version control",
   "tag_manager_intro": "Tags on {{name}}. Click a tag to rename it.",
-  "tag_new_label": "New tag"
+  "tag_new_label": "New tag",
+  "asset_install_intro_project": "Choose the project to install {{title}} into.",
+  "asset_install_intro_template": "Choose a template to install {{title}} into. New projects made from it will include it.",
+  "asset_install_where_label": "Install into",
+  "asset_install_continues": "The install keeps running if you close this window. You'll get a message when it's done.",
+  "asset_install_failed_toast": "Couldn't install {{title}}: {{error}}",
+  "clone_repo_browse_intro": "Pick one of the repositories on your connected account.",
+  "clone_repo_url_intro": "Paste the HTTPS or SSH address of any Git repository.",
+  "clone_repo_url_invalid": "Use an HTTPS or SSH address, like https://github.com/user/repo.git or git@github.com:user/repo.git.",
+  "clone_repo_dest_preview": "Clones into {{path}}",
+  "clone_repo_selected": "Selected {{name}}",
+  "clone_repo_select_hint": "Select a repository from the list to clone it."
 }

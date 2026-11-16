@@ -18,6 +18,7 @@ import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/feedback/toast.dart';
+import '../ui/reusables/segmented.dart';
 import '../ui/reusables/modal_kit.dart';
 import '../ui/shell/smooth_scroll.dart';
 
@@ -28,6 +29,16 @@ String repoBaseName(String url) {
   }
   final last = cleaned.split('/').last;
   return last.isEmpty ? 'repo' : last;
+}
+
+final _cloneUrlPattern = RegExp(r'^((https?|ssh|git|file)://\S+/\S+|[\w.-]+@[\w.-]+:\S+)$');
+
+bool isCloneUrl(String url) => _cloneUrlPattern.hasMatch(url.trim());
+
+String cloneDestination(String location, String url) {
+  final name = repoBaseName(url);
+  final separator = location.contains(r'\') && !location.contains('/') ? r'\' : '/';
+  return location.endsWith('/') || location.endsWith(r'\') ? '$location$name' : '$location$separator$name';
 }
 
 bool repoMatches(UserRepoInfo r, String query) {
@@ -201,11 +212,8 @@ class _CloneRepoModalState extends ConsumerState<CloneRepoModal> {
     if (_busy) return;
     final url = _url.text.trim();
     final location = _location.text;
-    if (url.isEmpty || location.isEmpty) {
-      setState(() {
-        _attempted = true;
-        _error = url.isEmpty ? ghTr('clone_repo_error_url') : ghTr('clone_repo_error_location');
-      });
+    if (!isCloneUrl(url) || location.isEmpty) {
+      setState(() => _attempted = true);
       return;
     }
     setState(() {
@@ -242,27 +250,6 @@ class _CloneRepoModalState extends ConsumerState<CloneRepoModal> {
       if (mounted) setState(() => _busy = false);
     }
   }
-
-  Widget _pill(GhTheme theme, {required String label, required bool active, required VoidCallback onPressed, bool small = false}) =>
-      GhPressable(
-        onPressed: onPressed,
-        selected: active,
-        borderRadius: BorderRadius.circular(theme.radiusBtn),
-        builder: (context, states) => GhAnimatedBox(
-          color: active ? theme.accent.withValues(alpha: 0.15) : (states.active ? theme.raised : theme.raised.withValues(alpha: 0)),
-          borderRadius: BorderRadius.circular(theme.radiusBtn),
-          border: Border.all(color: active ? theme.accent.withValues(alpha: 0.3) : Colors.transparent),
-          padding: EdgeInsets.symmetric(horizontal: theme.space(small ? 2.5 : 3), vertical: theme.space(small ? 1 : 1.5)),
-          child: Text(
-            label,
-            style: theme.text(
-              size: small ? GhTextSize.x2s : GhTextSize.xs,
-              weight: GhWeight.medium,
-              color: active ? theme.accentBright : (states.active ? theme.ink : theme.muted),
-            ),
-          ),
-        ),
-      );
 
   GhTextInput _input(
     GhTheme theme,
@@ -380,15 +367,14 @@ class _CloneRepoModalState extends ConsumerState<CloneRepoModal> {
                       ),
                     )
                   : _hasMore
-                  ? GhPressable(
-                      onPressed: () => _fetch(_page + 1, append: true),
-                      builder: (context, states) => GhAnimatedBox(
-                        color: states.active ? theme.raised : theme.raised.withValues(alpha: 0),
-                        padding: EdgeInsets.symmetric(vertical: theme.space(3)),
-                        alignment: Alignment.center,
-                        child: Text(
-                          ghTr('load_more'),
-                          style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.accentBright),
+                  ? Padding(
+                      padding: EdgeInsets.symmetric(vertical: theme.space(2)),
+                      child: Center(
+                        child: GhButton(
+                          onPressed: () => _fetch(_page + 1, append: true),
+                          label: ghTr('load_more'),
+                          variant: GhButtonVariant.subtle,
+                          size: GhTextSize.xs,
                         ),
                       ),
                     )
@@ -491,80 +477,93 @@ class _CloneRepoModalState extends ConsumerState<CloneRepoModal> {
     );
   }
 
+  Widget _hint(GhTheme theme, String text, {bool error = false, FaIconData? icon}) => Padding(
+    padding: EdgeInsetsDirectional.only(start: theme.space(1), top: theme.space(1.5)),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: theme.space(1.5),
+      children: [
+        Padding(
+          padding: EdgeInsets.only(top: theme.space(0.25)),
+          child: GhIcon(
+            error ? GhIcons.alertTriangle : (icon ?? GhIcons.folder),
+            size: theme.space(3),
+            color: error ? theme.danger : theme.accentBright.withValues(alpha: 0.7),
+          ),
+        ),
+        Expanded(
+          child: Text(
+            text,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: theme.text(size: GhTextSize.x2s, mono: !error, color: error ? theme.danger : theme.muted, lineHeight: 1.5),
+          ),
+        ),
+      ],
+    ),
+  );
+
+  void _switchProvider(String provider) {
+    if (provider == _provider) return;
+    _request++;
+    setState(() {
+      _provider = provider;
+      _repos = const [];
+      _selected = null;
+      _url.clear();
+      _reposLoading = false;
+      _reposLoadingMore = false;
+    });
+    _search.clear();
+    _maybeFetch();
+  }
+
   Widget _browse(GhTheme theme) {
     final providers = _providers;
     final provider = _provider!;
     final username = (provider == 'github' ? _auth?.github : _auth?.gitlab)?.username;
-    String capital(String p) => '${p[0].toUpperCase()}${p.substring(1)}';
+    String capital(String p) => switch (p) {
+      'github' => 'GitHub',
+      'gitlab' => 'GitLab',
+      _ => '${p[0].toUpperCase()}${p.substring(1)}',
+    };
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: theme.space(3),
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: theme.space(1)),
-          child: Row(
-            spacing: theme.space(2),
-            children: [
-              if (providers.length > 1)
-                Row(
-                  spacing: theme.space(1),
-                  children: [
-                    for (final p in providers)
-                      _pill(
-                        theme,
-                        label: capital(p),
-                        small: true,
-                        active: p == provider,
-                        onPressed: () {
-                          if (p == provider) return;
-                          _request++;
-                          setState(() {
-                            _provider = p;
-                            _repos = const [];
-                            _selected = null;
-                            _reposLoading = false;
-                            _reposLoadingMore = false;
-                          });
-                          _search.clear();
-                          _maybeFetch();
-                        },
-                      ),
-                  ],
-                )
-              else
-                Text(
-                  capital(provider),
-                  style: theme.text(size: GhTextSize.xs, weight: GhWeight.medium, color: theme.accentBright),
-                ),
-              Opacity(
-                opacity: 0.5,
+        Row(
+          spacing: theme.space(2),
+          children: [
+            for (final p in providers) GhChoiceChip(label: capital(p), active: p == provider, onPressed: () => _switchProvider(p)),
+            if (username != null)
+              Flexible(
                 child: Text(
-                  '•',
+                  '@$username',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: theme.text(size: GhTextSize.xs, color: theme.muted),
                 ),
               ),
-              Text(
-                username != null ? '@$username' : '',
-                style: theme.text(size: GhTextSize.xs, color: theme.muted),
-              ),
-              const Spacer(),
-              GhPressable(
-                onPressed: _reposLoading
-                    ? null
-                    : () {
-                        setState(() {
-                          _repos = const [];
-                          _selected = null;
-                        });
-                        _fetch(1, append: false);
-                      },
-                builder: (context, states) => Text(
-                  ghTr('refresh'),
-                  style: theme.text(size: GhTextSize.xs, color: states.active ? theme.accentBright : theme.muted),
-                ),
-              ),
-            ],
-          ),
+            const Spacer(),
+            GhButton(
+              key: const ValueKey('clone-refresh'),
+              onPressed: _reposLoading
+                  ? null
+                  : () {
+                      setState(() {
+                        _repos = const [];
+                        _selected = null;
+                      });
+                      _fetch(1, append: false);
+                    },
+              icon: GhIcons.refresh,
+              label: ghTr('refresh'),
+              variant: GhButtonVariant.subtle,
+              size: GhTextSize.xs,
+              paddingX: 2.5,
+              paddingY: 1.5,
+            ),
+          ],
         ),
         Stack(
           alignment: AlignmentDirectional.centerStart,
@@ -586,6 +585,37 @@ class _CloneRepoModalState extends ConsumerState<CloneRepoModal> {
           ],
         ),
         _repoList(theme),
+        if (_selected case final repo?)
+          _hint(theme, ghTr('clone_repo_selected', args: {'name': repo.fullName}), icon: GhIcons.check)
+        else if (_attempted)
+          _hint(theme, ghTr('clone_repo_select_hint'), error: true),
+      ],
+    );
+  }
+
+  Widget _urlField(GhTheme theme) {
+    final url = _url.text.trim();
+    final String? error = url.isEmpty
+        ? (_attempted ? ghTr('clone_repo_error_url') : null)
+        : (isCloneUrl(url) ? null : ghTr('clone_repo_url_invalid'));
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        GhFieldLabel(ghTr('clone_repo_url_label'), inset: true),
+        SizedBox(height: theme.space(0.5)),
+        _input(
+          theme,
+          _url,
+          invalid: error != null,
+          focusNode: _urlNode,
+          placeholder: ghTr('clone_repo_url_placeholder'),
+          onChanged: (_) => setState(() {
+            _selected = null;
+            _error = null;
+          }),
+          onSubmitted: (_) => _submit(),
+        ),
+        if (error != null) _hint(theme, error, error: true),
       ],
     );
   }
@@ -594,178 +624,149 @@ class _CloneRepoModalState extends ConsumerState<CloneRepoModal> {
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
     final hasProvider = _providers.isNotEmpty;
-    final showUrl = _tab == CloneTab.url || !hasProvider;
+    final browsing = hasProvider && _tab == CloneTab.browse && _provider != null;
+    final url = _url.text.trim();
+    final location = _location.text;
+    final ready = isCloneUrl(url) && location.isNotEmpty && !_busy;
     return GhModalShell(
       icon: GhIcon(GhIcons.gitBranch, size: theme.space(5), color: theme.accentBright),
       title: ghTr('clone_repo_title'),
       maxWidth: GhModalWidth.x2l,
       showClose: false,
       onClose: widget.onClose,
-      rawFooter: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (_error != null)
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: theme.space(6)),
-              child: GhAlertBox(tone: GhAlertTone.danger, icon: GhIcons.alertTriangle, text: _error, strong: true, padding: 3),
-            ),
-          Container(
-            margin: EdgeInsets.only(top: _error != null ? theme.space(6) : 0),
-            padding: EdgeInsets.fromLTRB(theme.space(6), theme.space(4), theme.space(6), theme.space(6)),
-            decoration: BoxDecoration(
-              border: Border(top: BorderSide(color: theme.line)),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              spacing: theme.space(2.5),
-              children: [
-                GhButton(onPressed: _busy ? null : widget.onClose, label: ghTr('cancel'), disabledOpacity: 0.5),
-                GhBusyButton(onPressed: _busy ? null : _submit, busy: _busy, label: _busy ? ghTr('cloning') : ghTr('clone_import')),
-              ],
-            ),
-          ),
-        ],
+      error: _error,
+      footer: ghModalActions(
+        trailing: [GhButton(onPressed: _busy ? null : widget.onClose, label: ghTr('cancel'), disabledOpacity: 0.5)],
+        primary: GhBusyButton(
+          key: const ValueKey('clone-submit'),
+          onPressed: ready ? _submit : null,
+          busy: _busy,
+          icon: GhIcons.download,
+          label: _busy ? ghTr('cloning') : ghTr('clone_import'),
+        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          if (hasProvider)
-            Padding(
-              padding: EdgeInsets.fromLTRB(theme.space(6), theme.space(1), theme.space(6), 0),
-              child: Row(
-                spacing: theme.space(2),
-                children: [
-                  _pill(
-                    theme,
-                    label: ghTr('clone_repo_browse_repos'),
-                    active: _tab == CloneTab.browse,
-                    onPressed: () => _setTab(CloneTab.browse),
-                  ),
-                  _pill(theme, label: ghTr('clone_repo_url_manual'), active: _tab == CloneTab.url, onPressed: () => _setTab(CloneTab.url)),
-                ],
-              ),
-            ),
-          Padding(
-            padding: EdgeInsets.all(theme.space(6)),
-            child: Column(
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(theme.space(6), theme.space(1), theme.space(6), theme.space(6)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: theme.space(5),
+          children: [
+            Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: theme.space(4),
+              spacing: theme.space(2),
               children: [
-                if (_tab == CloneTab.browse && _provider != null) _browse(theme),
-                if (showUrl) ...[
-                  if (!hasProvider)
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(2.5)),
-                      decoration: BoxDecoration(
-                        color: theme.overlay,
-                        borderRadius: BorderRadius.circular(theme.radiusItem),
-                        border: Border.all(color: theme.outline.withValues(alpha: 0.3)),
-                      ),
-                      child: Row(
-                        spacing: theme.space(2),
-                        children: [
-                          Opacity(
-                            opacity: 0.6,
-                            child: GhIcon(GhIcons.plug, size: theme.space(3.5), color: theme.muted),
-                          ),
-                          Expanded(
-                            child: Text(
-                              ghTr('clone_repo_no_account'),
-                              style: theme.text(size: GhTextSize.xs, color: theme.muted),
-                            ),
-                          ),
+                if (hasProvider)
+                  Align(
+                    alignment: AlignmentDirectional.centerStart,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerStart,
+                      child: GhSegmented(
+                        value: _tab.name,
+                        options: [
+                          ghSegment(CloneTab.browse.name, ghTr('clone_repo_browse_repos')),
+                          ghSegment(CloneTab.url.name, ghTr('clone_repo_url_manual')),
                         ],
+                        onChanged: (value) => _setTab(CloneTab.values.byName(value)),
                       ),
                     ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: theme.space(0.5),
-                    children: [
-                      GhFieldLabel(ghTr('clone_repo_url_label'), inset: true),
-                      _input(
-                        theme,
-                        _url,
-                        invalid: _attempted && _url.text.trim().isEmpty,
-                        focusNode: _urlNode,
-                        placeholder: ghTr('clone_repo_url_placeholder'),
-                        onChanged: (_) => setState(() {
-                          _selected = null;
-                          _error = null;
-                        }),
-                        onSubmitted: (_) => _submit(),
-                      ),
-                      if (_selected case final repo?)
-                        Padding(
-                          padding: EdgeInsetsDirectional.only(start: theme.space(3), top: theme.space(0.5)),
-                          child: Text(
-                            repo.fullName,
-                            style: theme.text(size: GhTextSize.xs, color: theme.accentBright),
-                          ),
-                        ),
-                    ],
                   ),
-                ],
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  spacing: theme.space(0.5),
-                  children: [
-                    GhFieldLabel(ghTr('destination_folder'), inset: true),
-                    Row(
-                      spacing: theme.space(2.5),
+                if (hasProvider)
+                  Text(
+                    ghTr(browsing ? 'clone_repo_browse_intro' : 'clone_repo_url_intro'),
+                    style: theme.text(size: GhTextSize.sm, color: theme.muted, lineHeight: 1.6),
+                  )
+                else
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: theme.space(3), vertical: theme.space(2.5)),
+                    decoration: BoxDecoration(
+                      color: theme.overlay,
+                      borderRadius: BorderRadius.circular(theme.radiusItem),
+                      border: Border.all(color: theme.outline.withValues(alpha: 0.3)),
+                    ),
+                    child: Row(
+                      spacing: theme.space(2),
                       children: [
+                        GhIcon(GhIcons.plug, size: theme.space(3.5), color: theme.muted),
                         Expanded(
-                          child: _input(
-                            theme,
-                            _location,
-                            invalid: _attempted && _location.text.isEmpty,
-                            readOnly: true,
-                            onTap: _pickLocation,
-                            textColor: theme.muted,
-                            placeholder: ghTr('choose_folder_placeholder'),
+                          child: Text(
+                            ghTr('clone_repo_no_account'),
+                            style: theme.text(size: GhTextSize.xs, color: theme.muted),
                           ),
                         ),
-                        GhButton(onPressed: _pickLocation, label: ghTr('browse'), variant: GhButtonVariant.outline),
                       ],
+                    ),
+                  ),
+              ],
+            ),
+            if (browsing) _browse(theme) else _urlField(theme),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                GhFieldLabel(ghTr('destination_folder'), inset: true),
+                SizedBox(height: theme.space(0.5)),
+                Row(
+                  spacing: theme.space(2.5),
+                  children: [
+                    Expanded(
+                      child: _input(
+                        theme,
+                        _location,
+                        invalid: location.isEmpty,
+                        readOnly: true,
+                        onTap: _pickLocation,
+                        textColor: theme.muted,
+                        placeholder: ghTr('choose_folder_placeholder'),
+                      ),
+                    ),
+                    GhButton(
+                      onPressed: _busy ? null : _pickLocation,
+                      label: ghTr('browse'),
+                      icon: GhIcons.folder,
+                      variant: GhButtonVariant.outline,
                     ),
                   ],
                 ),
-                if (widget.categoriesEnabled)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: theme.space(2),
-                    children: [
-                      GhFieldLabel(ghTr('category_optional')),
-                      Wrap(
-                        spacing: theme.space(1.5),
-                        runSpacing: theme.space(1.5),
-                        children: [
-                          GhChoiceChip(
-                            label: ghTr('no_category_label'),
-                            active: _category == null,
-                            onPressed: () => setState(() => _category = null),
-                          ),
-                          for (final cat in widget.categories)
-                            GhChoiceChip(
-                              label: cat.name,
-                              active: _category == cat.name,
-                              dotColor: colorFromHex(cat.color),
-                              onPressed: () => setState(() => _category = cat.name),
-                            ),
-                        ],
-                      ),
-                    ],
-                  ),
-                GhCheckbox(
-                  checked: _openAfter,
-                  label: ghTr('clone_repo_open_after'),
-                  onChanged: _setOpenAfter,
-                  child: Text(ghTr('clone_repo_open_after')),
-                ),
+                if (location.isEmpty)
+                  _hint(theme, ghTr('clone_repo_error_location'), error: true)
+                else if (isCloneUrl(url))
+                  _hint(theme, ghTr('clone_repo_dest_preview', args: {'path': cloneDestination(location, url)})),
               ],
             ),
-          ),
-        ],
+            if (widget.categoriesEnabled)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: theme.space(2),
+                children: [
+                  GhFieldLabel(ghTr('category_optional')),
+                  Wrap(
+                    spacing: theme.space(1.5),
+                    runSpacing: theme.space(1.5),
+                    children: [
+                      GhChoiceChip(
+                        label: ghTr('no_category_label'),
+                        active: _category == null,
+                        onPressed: () => setState(() => _category = null),
+                      ),
+                      for (final cat in widget.categories)
+                        GhChoiceChip(
+                          label: cat.name,
+                          active: _category == cat.name,
+                          dotColor: colorFromHex(cat.color),
+                          onPressed: () => setState(() => _category = cat.name),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            GhCheckbox(
+              checked: _openAfter,
+              label: ghTr('clone_repo_open_after'),
+              onChanged: _setOpenAfter,
+              child: Text(ghTr('clone_repo_open_after')),
+            ),
+          ],
+        ),
       ),
     );
   }

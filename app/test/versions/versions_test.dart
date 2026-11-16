@@ -287,6 +287,9 @@ void main() {
       );
       await base.settle(tester);
       expect(find.byType(DownloadErrorModal), findsOneWidget);
+      expect(find.text('checksum mismatch'), findsNothing);
+      await tester.tap(find.byKey(const ValueKey('download-error-details')));
+      await base.settle(tester, 3);
       expect(find.text('checksum mismatch'), findsOneWidget);
       await tester.tap(find.text(ghTr('retry')));
       await base.settle(tester);
@@ -439,16 +442,43 @@ void main() {
           onClose: close,
         ),
       );
+      expect(find.text(ghTr('versions:download_failed_summary', args: {'tag': '4.3'})), findsOneWidget);
+      expect(find.text('boom'), findsNothing);
+      await tester.tap(find.byKey(const ValueKey('download-error-details')));
+      await base.settle(tester, 3);
+      expect(find.text('boom'), findsOneWidget);
+      expect(find.text(tv('download_failed_hide_details')), findsOneWidget);
       await tester.tap(find.text(tv('download_failed_copy')));
       await base.settle(tester, 3);
       expect(copied, contains('Version:  4.3'));
       expect(copied, contains('App:      2.0.0'));
-      await tester.tap(find.text(ghTr('bug_report_open_github')));
+      await tester.tap(find.byKey(const ValueKey('download-error-report')));
       await base.settle(tester, 3);
       expect(opened.single, startsWith('https://github.com/RykoTheDev/GodotHub/issues/new?'));
-      await tester.tap(find.text(ghTr('retry')));
+      await tester.tap(find.byKey(const ValueKey('download-error-retry')));
       expect(retried, 1);
       await tester.pump(const Duration(seconds: 2));
+    });
+
+    testWidgets('download error modal fits a 340x640 window without overflow', (tester) async {
+      await base.openModal(
+        tester,
+        (close) => DownloadErrorModal(
+          error: const DownloadErrorInfo(
+            key: 'k',
+            tag: '4.3-stable',
+            assetName: 'Godot_v4.3-stable_win64.exe.zip',
+            url: 'https://u',
+            source: 'github',
+            message: 'boom',
+          ),
+          onRetry: () {},
+          onClose: close,
+        ),
+        size: const Size(340, 640),
+      );
+      expect(tester.takeException(), isNull);
+      expect(find.byKey(const ValueKey('download-error-retry')), findsOneWidget);
     });
   });
 

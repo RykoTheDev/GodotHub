@@ -968,6 +968,17 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String get create_project_version_control => 'Version control';
 	@override String get tag_manager_intro => 'Tags on {{name}}. Click a tag to rename it.';
 	@override String get tag_new_label => 'New tag';
+	@override String get asset_install_intro_project => 'Choose the project to install {{title}} into.';
+	@override String get asset_install_intro_template => 'Choose a template to install {{title}} into. New projects made from it will include it.';
+	@override String get asset_install_where_label => 'Install into';
+	@override String get asset_install_continues => 'The install keeps running if you close this window. You\'ll get a message when it\'s done.';
+	@override String get asset_install_failed_toast => 'Couldn\'t install {{title}}: {{error}}';
+	@override String get clone_repo_browse_intro => 'Pick one of the repositories on your connected account.';
+	@override String get clone_repo_url_intro => 'Paste the HTTPS or SSH address of any Git repository.';
+	@override String get clone_repo_url_invalid => 'Use an HTTPS or SSH address, like https://github.com/user/repo.git or git@github.com:user/repo.git.';
+	@override String get clone_repo_dest_preview => 'Clones into {{path}}';
+	@override String get clone_repo_selected => 'Selected {{name}}';
+	@override String get clone_repo_select_hint => 'Select a repository from the list to clone it.';
 }
 
 // Path: dashboard
@@ -1203,6 +1214,11 @@ class _Translations$git$zh_CN extends Translations$git$en_US {
 	@override String get protected_branch_create_pr => '创建分支并打开 PR';
 	@override String get protected_branch_creating_pr => '正在打开拉取请求…';
 	@override String get pr_opened_ok => '已推送 {{branch}} 并打开拉取请求。';
+	@override String get branch_name_required => 'Enter a name for the new branch.';
+	@override String get branch_name_invalid => 'Branch names can\'t contain spaces, ~ ^ : ? * [ or a backslash, two dots in a row, or start or end with a slash or a dot.';
+	@override String get branch_name_exists => 'A branch with this name already exists.';
+	@override String get protected_branch_confirm_title => 'Commit to {{branch}} anyway?';
+	@override String get protected_branch_confirm_desc => 'This bypasses the protection on {{branch}}. The commit is made locally, and the remote may reject it when you push.';
 }
 
 // Path: nav
@@ -1610,6 +1626,8 @@ class _Translations$settings$zh_CN extends Translations$settings$en_US {
 	@override String get feature_desc_asset_store => '从 Godot Asset Library 浏览并安装插件和项目。';
 	@override String get feature_desc_categories => '将项目列表分组到文件夹中。';
 	@override String get feature_desc_workspaces => '在不同的项目和设置集合之间切换。';
+	@override String get git_auth_intro => 'Approve GodotHub on {{provider}} to finish signing in. Keep this window open until it\'s done; use Cancel to stop.';
+	@override String get git_auth_step_current => 'current step';
 }
 
 // Path: todos
@@ -1909,6 +1927,13 @@ class _Translations$versions$zh_CN extends Translations$versions$en_US {
 	@override String get custom_build_badge => '自定义构建';
 	@override String get add_custom_build => '添加自定义构建…';
 	@override String get adding_custom_build => '正在添加自定义构建…';
+	@override String get download_failed_summary => 'GodotHub couldn\'t download Godot {{tag}}.';
+	@override String get download_failed_show_details => 'Show error details';
+	@override String get download_failed_hide_details => 'Hide error details';
+	@override String get download_failed_report => 'Report this problem';
+	@override String get export_templates_select_none => 'Select none';
+	@override String get export_templates_select_hint => 'Select at least one template to download.';
+	@override String get export_templates_all_installed => 'Every template for this release is already installed.';
 }
 
 // Path: common.project_doctor
@@ -3301,6 +3326,17 @@ extension on TranslationsZhCn {
 			'common.create_project_version_control' => 'Version control',
 			'common.tag_manager_intro' => 'Tags on {{name}}. Click a tag to rename it.',
 			'common.tag_new_label' => 'New tag',
+			'common.asset_install_intro_project' => 'Choose the project to install {{title}} into.',
+			'common.asset_install_intro_template' => 'Choose a template to install {{title}} into. New projects made from it will include it.',
+			'common.asset_install_where_label' => 'Install into',
+			'common.asset_install_continues' => 'The install keeps running if you close this window. You\'ll get a message when it\'s done.',
+			'common.asset_install_failed_toast' => 'Couldn\'t install {{title}}: {{error}}',
+			'common.clone_repo_browse_intro' => 'Pick one of the repositories on your connected account.',
+			'common.clone_repo_url_intro' => 'Paste the HTTPS or SSH address of any Git repository.',
+			'common.clone_repo_url_invalid' => 'Use an HTTPS or SSH address, like https://github.com/user/repo.git or git@github.com:user/repo.git.',
+			'common.clone_repo_dest_preview' => 'Clones into {{path}}',
+			'common.clone_repo_selected' => 'Selected {{name}}',
+			'common.clone_repo_select_hint' => 'Select a repository from the list to clone it.',
 			'dashboard.greeting_morning' => '早上好',
 			'dashboard.greeting_afternoon' => '下午好',
 			'dashboard.greeting_evening' => '晚上好',
@@ -3516,6 +3552,11 @@ extension on TranslationsZhCn {
 			'git.protected_branch_create_pr' => '创建分支并打开 PR',
 			'git.protected_branch_creating_pr' => '正在打开拉取请求…',
 			'git.pr_opened_ok' => '已推送 {{branch}} 并打开拉取请求。',
+			'git.branch_name_required' => 'Enter a name for the new branch.',
+			'git.branch_name_invalid' => 'Branch names can\'t contain spaces, ~ ^ : ? * [ or a backslash, two dots in a row, or start or end with a slash or a dot.',
+			'git.branch_name_exists' => 'A branch with this name already exists.',
+			'git.protected_branch_confirm_title' => 'Commit to {{branch}} anyway?',
+			'git.protected_branch_confirm_desc' => 'This bypasses the protection on {{branch}}. The commit is made locally, and the remote may reject it when you push.',
 			'nav.dashboard' => '仪表盘',
 			'nav.projects' => '项目',
 			'nav.projects_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '项目', ), 
@@ -3727,6 +3768,8 @@ extension on TranslationsZhCn {
 			'settings.entrance_slide' => '滑动',
 			'settings.entrance_scale' => '缩放',
 			'settings.entrance_none' => '无',
+			_ => null,
+		} ?? switch (path) {
 			'settings.custom_css_label' => '自定义 CSS',
 			'settings.custom_css_placeholder' => '/* 你的自定义样式，例如 */\n.card { border-radius: 4px !important; }',
 			'settings.custom_css_apply' => '应用 CSS',
@@ -3743,8 +3786,6 @@ extension on TranslationsZhCn {
 			'settings.settings_backup_title' => '备份设置',
 			'settings.export_settings_btn' => '导出设置',
 			'settings.import_settings_btn' => '导入设置',
-			_ => null,
-		} ?? switch (path) {
 			'settings.workspace_backup_title' => '备份工作区',
 			'settings.workspace_backup_export_btn' => '导出工作区',
 			'settings.workspace_backup_restore_btn' => '恢复工作区',
@@ -3876,6 +3917,8 @@ extension on TranslationsZhCn {
 			'settings.feature_desc_asset_store' => '从 Godot Asset Library 浏览并安装插件和项目。',
 			'settings.feature_desc_categories' => '将项目列表分组到文件夹中。',
 			'settings.feature_desc_workspaces' => '在不同的项目和设置集合之间切换。',
+			'settings.git_auth_intro' => 'Approve GodotHub on {{provider}} to finish signing in. Keep this window open until it\'s done; use Cancel to stop.',
+			'settings.git_auth_step_current' => 'current step',
 			'todos.next_steps' => '事项列表',
 			'todos.saving_tasks' => '正在保存事项',
 			'todos.pending_count' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个待处理', ), 
@@ -4127,6 +4170,13 @@ extension on TranslationsZhCn {
 			'versions.custom_build_badge' => '自定义构建',
 			'versions.add_custom_build' => '添加自定义构建…',
 			'versions.adding_custom_build' => '正在添加自定义构建…',
+			'versions.download_failed_summary' => 'GodotHub couldn\'t download Godot {{tag}}.',
+			'versions.download_failed_show_details' => 'Show error details',
+			'versions.download_failed_hide_details' => 'Hide error details',
+			'versions.download_failed_report' => 'Report this problem',
+			'versions.export_templates_select_none' => 'Select none',
+			'versions.export_templates_select_hint' => 'Select at least one template to download.',
+			'versions.export_templates_all_installed' => 'Every template for this release is already installed.',
 			_ => null,
 		};
 	}

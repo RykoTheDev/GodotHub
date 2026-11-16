@@ -4,8 +4,27 @@ import '../design/design.dart';
 import '../ui/controls/text_input.dart';
 import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
+import '../ui/feedback/confirm_dialog.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../ui/reusables/modal_kit.dart';
+
+final _invalidRefChars = RegExp(r'[\s~^:?*\[\\\x00-\x1f\x7f]');
+
+bool isValidBranchName(String name) {
+  if (name.isEmpty || name == '@') return false;
+  if (_invalidRefChars.hasMatch(name)) return false;
+  if (name.contains('..') || name.contains('@{') || name.contains('//')) return false;
+  if (name.startsWith('/') || name.endsWith('/') || name.endsWith('.') || name.endsWith('.lock')) return false;
+  return name.split('/').every((part) => part.isNotEmpty && !part.startsWith('.') && !part.endsWith('.lock'));
+}
+
+String? branchNameError(String name, {Iterable<String> existing = const []}) {
+  final trimmed = name.trim();
+  if (trimmed.isEmpty) return ghTr('git:branch_name_required');
+  if (!isValidBranchName(trimmed)) return ghTr('git:branch_name_invalid');
+  if (existing.any((b) => b == trimmed)) return ghTr('git:branch_name_exists');
+  return null;
+}
 
 class ProtectedBranchModal extends StatefulWidget {
   const ProtectedBranchModal({
@@ -15,6 +34,7 @@ class ProtectedBranchModal extends StatefulWidget {
     required this.onCommitAnyway,
     required this.onCreatePullRequest,
     required this.onClose,
+    this.existingBranches = const [],
   });
 
   final String branch;
@@ -22,6 +42,7 @@ class ProtectedBranchModal extends StatefulWidget {
   final VoidCallback onCommitAnyway;
   final Future<void> Function(String branch) onCreatePullRequest;
   final VoidCallback onClose;
+  final List<String> existingBranches;
 
   @override
   State<ProtectedBranchModal> createState() => _ProtectedBranchModalState();
@@ -44,9 +65,11 @@ class _ProtectedBranchModalState extends State<ProtectedBranchModal> {
     super.dispose();
   }
 
+  String? get _nameError => branchNameError(_branch.text, existing: widget.existingBranches);
+
   Future<void> _submit() async {
     final name = _branch.text.trim();
-    if (name.isEmpty || _busy) return;
+    if (_nameError != null || _busy) return;
     setState(() {
       _busy = true;
       _error = null;
@@ -63,30 +86,48 @@ class _ProtectedBranchModalState extends State<ProtectedBranchModal> {
     }
   }
 
+  Future<void> _commitAnyway() async {
+    final confirmed = await showGhConfirmDialog(
+      context,
+      title: ghTr('git:protected_branch_confirm_title', args: {'branch': widget.branch}),
+      description: ghTr('git:protected_branch_confirm_desc', args: {'branch': widget.branch}),
+      confirmLabel: ghTr('git:protected_branch_commit_anyway'),
+      cancelLabel: ghTr('cancel'),
+      variant: GhConfirmVariant.danger,
+    );
+    if (confirmed && mounted) widget.onCommitAnyway();
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
+    final nameError = _nameError;
     return GhModalShell(
       icon: GhIcon(GhIcons.lock, size: theme.space(5), color: theme.amber),
       title: ghTr('git:protected_branch_title'),
       maxWidth: GhModalWidth.lg,
       onClose: _busy ? null : widget.onClose,
-      footer: [
-        const Spacer(),
-        GhButton(onPressed: _busy ? null : widget.onClose, label: ghTr('cancel')),
-        GhButton(
-          onPressed: _busy ? null : widget.onCommitAnyway,
-          label: ghTr('git:protected_branch_commit_anyway'),
-          variant: GhButtonVariant.outline,
-        ),
-        GhBusyButton(
-          onPressed: _branch.text.trim().isEmpty || _busy ? null : _submit,
+      error: _error,
+      footer: ghModalActions(
+        leading: [
+          GhButton(
+            key: const ValueKey('protected-branch-commit-anyway'),
+            onPressed: _busy ? null : _commitAnyway,
+            icon: GhIcons.alertTriangle,
+            label: ghTr('git:protected_branch_commit_anyway'),
+            variant: GhButtonVariant.danger,
+          ),
+        ],
+        trailing: [GhButton(onPressed: _busy ? null : widget.onClose, label: ghTr('cancel'))],
+        primary: GhBusyButton(
+          key: const ValueKey('protected-branch-create-pr'),
+          onPressed: nameError != null || _busy ? null : _submit,
           busy: _busy,
           autofocus: true,
           paddingX: 4,
           label: _busy ? ghTr('git:protected_branch_creating_pr') : ghTr('git:protected_branch_create_pr'),
         ),
-      ],
+      ),
       child: Padding(
         padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(6)),
         child: Column(
@@ -99,7 +140,7 @@ class _ProtectedBranchModalState extends State<ProtectedBranchModal> {
             ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: theme.space(2),
+              spacing: theme.space(1.5),
               children: [
                 GhFieldLabel(ghTr('git:protected_branch_new_label')),
                 GhTextInput(
@@ -107,16 +148,33 @@ class _ProtectedBranchModalState extends State<ProtectedBranchModal> {
                   enabled: !_busy,
                   mono: true,
                   textDirection: TextDirection.ltr,
+                  semanticLabel: ghTr('git:protected_branch_new_label'),
                   onSubmitted: (_) => _submit(),
-                  background: theme.raised,
-                  borderColor: theme.line,
-                  focusBorderColor: theme.accentDim,
+                  background: theme.base,
+                  borderColor: nameError != null ? theme.danger.withValues(alpha: 0.7) : theme.outline.withValues(alpha: 0.5),
+                  focusBorderColor: nameError != null ? theme.danger : theme.accentDim,
                   borderRadius: BorderRadius.circular(theme.radiusItem),
                   padding: EdgeInsets.symmetric(horizontal: theme.space(3.5), vertical: theme.space(2.5)),
                 ),
+                if (nameError != null)
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: theme.space(1.5),
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(top: theme.space(0.25)),
+                        child: GhIcon(GhIcons.alertTriangle, size: theme.space(3), color: theme.danger),
+                      ),
+                      Expanded(
+                        child: Text(
+                          nameError,
+                          style: theme.text(size: GhTextSize.x2s, color: theme.danger, lineHeight: 1.5),
+                        ),
+                      ),
+                    ],
+                  ),
               ],
             ),
-            if (_error != null) GhAlertBox(tone: GhAlertTone.danger, text: _error, strong: true),
           ],
         ),
       ),
