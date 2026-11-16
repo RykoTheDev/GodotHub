@@ -409,11 +409,11 @@
       },
       {
         "category": "add",
-        "text": "Option in Settings → Advanced to disable the Support button in the titlebar"
+        "text": "Option in Settings \u2192 Advanced to disable the Support button in the titlebar"
       },
       {
         "category": "add",
-        "text": "Option in Settings → Advanced to disable the Star on GitHub button in the titlebar"
+        "text": "Option in Settings \u2192 Advanced to disable the Star on GitHub button in the titlebar"
       },
       {
         "category": "improve",
@@ -425,7 +425,7 @@
       },
       {
         "category": "add",
-        "text": "Option in Settings → Appearance to disable the scrollbar entirely; scroll still works via keyboard, trackpad, or mouse wheel"
+        "text": "Option in Settings \u2192 Appearance to disable the scrollbar entirely; scroll still works via keyboard, trackpad, or mouse wheel"
       }
     ],
     "known_issues": [],
@@ -837,7 +837,7 @@
       },
       {
         "category": "improve",
-        "text": "New UI is now set as the default, with an option to switch back to the old UI in Settings → Appearance"
+        "text": "New UI is now set as the default, with an option to switch back to the old UI in Settings \u2192 Appearance"
       },
       {
         "category": "improve",
@@ -1115,7 +1115,7 @@
       },
       {
         "category": "add",
-        "text": "Experimental toggle in Settings → Experimental to enable/disable Git Worktrees"
+        "text": "Experimental toggle in Settings \u2192 Experimental to enable/disable Git Worktrees"
       }
     ],
     "known_issues": [],
@@ -2146,43 +2146,147 @@
     "notes": [
       {
         "category": "add",
-        "text": "Asset Store: mark addons and templates as favorites, or hide the ones you're not interested in"
+        "text": "A welcome screen on the first start after updating from GodotHub 1.5 shows what changed and how many projects, workspaces, templates and vault items came along"
       },
       {
         "category": "add",
-        "text": "Asset Store: open any asset to see its description, screenshots and the files it contains before installing"
+        "text": "In-app updates show a log of every file as it downloads and installs, and a Restart to apply button appears in the sidebar once an update is ready"
       },
       {
         "category": "add",
-        "text": "Asset Store: installed addons are marked, with a badge when an update is available, and an addon can be installed into several projects at once"
+        "text": "Asset Store: open any asset for its description, screenshots, releases and links, and see the files inside it before you install"
       },
       {
         "category": "add",
-        "text": "Asset Store: templates from the Godot Asset Library now have their own section, with an update check for templates you already installed and an option to hide them"
+        "text": "Asset Store: save assets with the star to find them again under Saved, and hide the ones you're not interested in (show them again from Hidden)"
       },
       {
         "category": "add",
-        "text": "Kanban columns can be resized by dragging their edge, and the width is remembered"
+        "text": "Asset Store: addons you already installed show which projects they're in, with a badge and a one-click update when a newer version is out"
+      },
+      {
+        "category": "add",
+        "text": "Asset Store: install an addon into several projects at once"
+      },
+      {
+        "category": "add",
+        "text": "Asset Store: templates from the Godot Asset Library now have their own section, with an update check for templates you installed from it and an option to hide installed ones"
+      },
+      {
+        "category": "add",
+        "text": "Kanban columns can be resized by dragging, and the width is remembered"
       },
       {
         "category": "add",
         "text": "Time tracking is now stored inside each project's .godothub folder, so a project's history stays with its folder, even when it's added to another workspace. Existing history is moved over on its own, and copies of a project start from zero"
       },
       {
+        "category": "add",
+        "text": "Project Doctor can apply every safe fix at once with Fix all"
+      },
+      {
+        "category": "add",
+        "text": "A diagnostics log on your computer records errors, crashes and failed updates, with tokens, passwords, emails and private paths removed. It never leaves your computer unless you send a bug report"
+      },
+      {
+        "category": "add",
+        "text": "Windows: after a crash, the next start offers to open a bug report that is already filled in"
+      },
+      {
+        "category": "add",
+        "text": "Redesigned bug report window with steps to reproduce, what you expected, and a preview of exactly what will be sent, including recent log lines you can leave out"
+      },
+      {
+        "category": "add",
+        "text": "High contrast colors while Windows high contrast is turned on"
+      },
+      {
+        "category": "add",
+        "text": "Settings: a separate card style for the list view, and Credits \u2192 Open Source Licenses lists every library GodotHub uses"
+      },
+      {
+        "category": "add",
+        "text": "Committing to a protected branch now asks for confirmation first"
+      },
+      {
         "category": "fix",
         "text": "Projects on an unplugged drive or an offline network share stay in the library, marked as unavailable, instead of disappearing. They come back as soon as the folder is reachable again"
       },
       {
-        "category": "improve",
-        "text": "Folder and file paths can be typed or pasted everywhere, with a clear message when a path doesn't exist"
+        "category": "fix",
+        "text": "Windows: project folders with very long paths now work"
+      },
+      {
+        "category": "fix",
+        "text": "Linux: closing the window with Minimize to tray on no longer hides GodotHub on desktops that have no tray"
+      },
+      {
+        "category": "fix",
+        "text": "macOS: updating a copy opened from Downloads now tells you to move GodotHub to Applications instead of failing"
       },
       {
         "category": "improve",
-        "text": "Refreshed Asset Store, template and news cards, a simpler Storage view, redesigned version cards and consistent loading, empty and error states across the app"
+        "text": "Smoother scrolling and dragging, with no stutter the first time an effect is drawn"
       },
       {
         "category": "improve",
-        "text": "Project Doctor offers Fix all when there are safe fixes to apply"
+        "text": "Updates are checked more strictly before they install: a signed package must match the version it claims, and oversized or unsafe archives are refused"
+      },
+      {
+        "category": "improve",
+        "text": "Windows: updates unpack inside GodotHub's own folder instead of the system Temp folder, and the launcher carries the app's version and publisher, so antivirus tools are less likely to flag them"
+      },
+      {
+        "category": "improve",
+        "text": "Windows: better accessibility and keyboard input"
+      },
+      {
+        "category": "improve",
+        "text": "Folder and file paths can be typed or pasted everywhere, with a clear message when a path doesn't exist, isn't a folder or isn't the right file type"
+      },
+      {
+        "category": "improve",
+        "text": "New Project, Duplicate and Clone show the exact folder they will create and explain what's missing before you can continue"
+      },
+      {
+        "category": "improve",
+        "text": "Branch names, category names and folder names are checked as you type"
+      },
+      {
+        "category": "improve",
+        "text": "Every window now shares one layout, with clearer descriptions, and the tag manager was rebuilt"
+      },
+      {
+        "category": "improve",
+        "text": "Refreshed Asset Store, template and news cards, a featured latest news post, grids that fill each row, and a full-width filter bar"
+      },
+      {
+        "category": "improve",
+        "text": "A simpler Storage view that shows at a glance how much space can be freed"
+      },
+      {
+        "category": "improve",
+        "text": "Versions: redesigned version cards, separate Installed and Available sections, a badge when a newer version is available, and a direct way to add a GitHub token when GitHub limits release checks"
+      },
+      {
+        "category": "improve",
+        "text": "A failed Godot download shows the error details and a button to report it"
+      },
+      {
+        "category": "improve",
+        "text": "Clear loading, empty and error states with a retry across Projects, Versions, Templates, the Vault, the Asset Store, News and Settings"
+      },
+      {
+        "category": "improve",
+        "text": "A taller title bar and consistent sentence-case labels throughout the app"
+      },
+      {
+        "category": "improve",
+        "text": "Removed the card tilt effect"
+      },
+      {
+        "category": "improve",
+        "text": "The Customize view button and Project Next Steps are no longer experimental: both are always on, and the Experimental section is gone from Settings"
       }
     ],
     "known_issues": [],
