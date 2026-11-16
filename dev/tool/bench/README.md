@@ -4,7 +4,7 @@
 
 ```bash
 cd app
-node tool/bench/bench.mjs all
+node ../dev/tool/bench/bench.mjs all
 ```
 
 The report lands in `app/build/bench_lab/results/<os>/REPORT.md`, next to the raw JSON of every run. Close every GodotHub window first; the script refuses to start while one is open.
@@ -21,7 +21,7 @@ The report lands in `app/build/bench_lab/results/<os>/REPORT.md`, next to the ra
 On a Wayland desktop, run with `GDK_BACKEND=x11` so both apps open XWayland windows that `xdotool` can see:
 
 ```bash
-GDK_BACKEND=x11 node tool/bench/bench.mjs all
+GDK_BACKEND=x11 node ../dev/tool/bench/bench.mjs all
 ```
 
 ## Commands

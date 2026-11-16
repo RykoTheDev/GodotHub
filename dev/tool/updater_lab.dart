@@ -5,7 +5,7 @@ import 'dart:io';
 const usage = '''
 Local update lab for the Flutter beta (Windows, in-app updates). Nothing is committed or published.
 
-  dart run tool/updater_lab.dart prepare [--from 0.0.1] [--to 0.0.2] [--fix 0.0.3] [--broken] [--auto] [--rebuild]
+  dart run ../dev/tool/updater_lab.dart prepare [--from 0.0.1] [--to 0.0.2] [--fix 0.0.3] [--broken] [--auto] [--rebuild]
       Builds the versions with a throwaway signing key, installs --from into
       build/updater_lab/install the way the setup does, and packages every version as a signed
       release in build/updater_lab/releases/<version>. --to becomes the latest release.
@@ -13,13 +13,13 @@ Local update lab for the Flutter beta (Windows, in-app updates). Nothing is comm
       --broken makes --to exit on startup so the launcher's rollback can be tested.
       --auto makes the app check, download and restart by itself and note each step in
       %TEMP%\\godothub-updater-lab.txt. Lab builds keep their data in build/updater_lab/data.
-  dart run tool/updater_lab.dart serve [--port 47821] [--slow] [--drop] [--tamper]
+  dart run ../dev/tool/updater_lab.dart serve [--port 47821] [--slow] [--drop] [--tamper]
       Serves the latest release on 127.0.0.1. --slow throttles the download,
       --drop cuts it off halfway, --tamper changes a byte so the signature check must fail.
-  dart run tool/updater_lab.dart publish <version>   Makes a packaged release the latest one.
-  dart run tool/updater_lab.dart start      Starts the installed copy through the launcher.
-  dart run tool/updater_lab.dart status     Shows launcher.json and the installed version folders.
-  dart run tool/updater_lab.dart reset [--version <version>]
+  dart run ../dev/tool/updater_lab.dart publish <version>   Makes a packaged release the latest one.
+  dart run ../dev/tool/updater_lab.dart start      Starts the installed copy through the launcher.
+  dart run ../dev/tool/updater_lab.dart status     Shows launcher.json and the installed version folders.
+  dart run ../dev/tool/updater_lab.dart reset [--version <version>]
       Installs --from (or the given version) as the only installed version.
 
 The release folders work with app/packaging/release/kill_switch.sh:
@@ -30,7 +30,7 @@ The release folders work with app/packaging/release/kill_switch.sh:
 const exeName = 'godothub-beta.exe';
 const defaultPort = 47821;
 
-final appDir = File.fromUri(Platform.script).parent.parent;
+final appDir = Directory('${File.fromUri(Platform.script).parent.parent.parent.path}${Platform.pathSeparator}app');
 final repoDir = appDir.parent;
 final labDir = Directory(_join(appDir.path, ['build', 'updater_lab']));
 final buildsDir = Directory(_join(labDir.path, ['builds']));

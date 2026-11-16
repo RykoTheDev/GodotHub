@@ -193,14 +193,16 @@ void main() {
       expect(tester.widget<TextField>(find.byType(TextField).last).controller!.text, 'C:/games');
       expect(tester.widget<TextField>(find.byType(TextField).first).controller!.text, 'Demo ${ghTr('copy_suffix')}');
       // The default parent does not exist here: submitting explains why instead of calling the backend.
+      // `C:/games` is a missing folder on Windows and a relative path everywhere else.
+      final error = ghTr(Platform.isWindows ? 'path_error_folder_not_found' : 'path_error_relative');
       await tester.tap(find.text(ghTr('duplicate')));
       await settle(tester);
       expect(sent, isNull);
-      expect(find.text(ghTr('path_error_folder_not_found')), findsOneWidget);
+      expect(find.text(error), findsOneWidget);
       // A typed destination clears the error and is used as is.
       await tester.enterText(find.byType(TextField).last, dir.path);
       await settle(tester, 2);
-      expect(find.text(ghTr('path_error_folder_not_found')), findsNothing);
+      expect(find.text(error), findsNothing);
       await tester.tap(find.text(ghTr('duplicate')));
       await settle(tester);
       expect(sent, {'id': 'p1', 'name': 'Demo ${ghTr('copy_suffix')}', 'dest': dir.path});

@@ -75,7 +75,7 @@ stop_apps
 
 note "===== rpm paths in a Fedora container"
 rm -f "$report"
-docker run --rm -v "$lab:/lab" -v "$root:/repo:ro" --network host fedora:41 bash /repo/app/tool/update_ci/rpm.sh > "$results/rpm.log" 2>&1
+docker run --rm -v "$lab:/lab" -v "$root:/repo:ro" --network host fedora:41 bash /repo/dev/tool/update_ci/rpm.sh > "$results/rpm.log" 2>&1
 rpm_code=$?
 cat "$lab/results/rpm-checks.txt" 2>/dev/null | tee -a "$results/checks.txt"
 check 'rpm scenarios pass' test "$rpm_code" = 0

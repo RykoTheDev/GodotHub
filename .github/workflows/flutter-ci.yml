@@ -82,14 +82,14 @@ jobs:
 
       - name: Third-party Rust notices are up to date
         working-directory: .
-        run: node app/tool/gen_rust_notices.mjs --check
+        run: node dev/tool/gen_rust_notices.mjs --check
 
       - name: Get Flutter packages
         run: flutter pub get
 
       - name: Regenerate Flutter locale files from src/i18n/locales
         run: |
-          dart run tool/i18n_convert.dart
+          dart run ../dev/tool/i18n_convert.dart
           dart run slang
           if [ -n "$(git status --porcelain -- lib/i18n)" ]; then
             git status --short -- lib/i18n
@@ -97,13 +97,13 @@ jobs:
           fi
 
       - name: i18n missing keys and values
-        run: dart run tool/i18n/check_keys.dart --check-values
+        run: dart run ../dev/tool/i18n/check_keys.dart --check-values
 
       - name: i18n duplicate keys
-        run: dart run tool/i18n/duplicate_keys.dart
+        run: dart run ../dev/tool/i18n/duplicate_keys.dart
 
       - name: i18n unused keys
-        run: dart run tool/i18n/unused_keys.dart
+        run: dart run ../dev/tool/i18n/unused_keys.dart
 
       - name: Analyze
         run: flutter analyze
@@ -176,7 +176,7 @@ jobs:
 
       - name: Regenerate Flutter locale files from src/i18n/locales
         run: |
-          dart run tool/i18n_convert.dart
+          dart run ../dev/tool/i18n_convert.dart
           dart run slang
 
       - name: Build release

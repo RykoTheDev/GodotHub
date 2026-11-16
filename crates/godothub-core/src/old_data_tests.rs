@@ -48,7 +48,7 @@ fn copy_fixture(from: &Path, to: &Path, root: &str) {
 }
 
 fn start(version: &str) -> OldData {
-    let fixture = Path::new(env!("CARGO_MANIFEST_DIR")).join("tests/fixtures/old-data").join(version);
+    let fixture = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../dev/fixtures/old-data").join(version);
     static NEXT: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
     let run = NEXT.fetch_add(1, std::sync::atomic::Ordering::Relaxed);
     let root = std::env::temp_dir().join(format!("godothub-old-data-{version}-{}-{run}", std::process::id()));

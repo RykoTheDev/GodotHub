@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:godothub/i18n/plural_rules.dart';
+// A relative import: dev/ is outside the app package, so package:godothub
+// does not resolve here. plural_rules.dart has no imports of its own.
+import '../../app/lib/i18n/plural_rules.dart';
 
 const sourceLocale = 'en-US';
 const pluralSuffixes = ['zero', 'one', 'two', 'few', 'many', 'other'];
@@ -152,7 +154,7 @@ void main(List<String> args) {
       stdout.writeln('Flutter locale files match src/i18n/locales (${outputs.length} files).');
       return;
     }
-    stderr.writeln('Flutter locale files are out of date. Run: dart run tool/i18n_convert.dart && dart run slang');
+    stderr.writeln('Flutter locale files are out of date. Run: dart run ../dev/tool/i18n_convert.dart && dart run slang');
     for (final path in [...drift, ...stale]) {
       stderr.writeln('  $path');
     }

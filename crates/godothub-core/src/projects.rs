@@ -595,8 +595,8 @@ pub(crate) fn list_projects_blocking(app: &AppHandle) -> Vec<Project> {
                 // `update_projects` returns the in-memory value, which still
                 // carries the `missing` flags set inside the closure.
                 kept = projects;
-                for (from, into) in &merges {
-                    crate::time_stats::merge_project_stats(&app, from, into);
+                for (from, from_path, into) in &merges {
+                    crate::time_stats::merge_project_stats(&app, from, Path::new(from_path), into);
                 }
             }
             Err(_) => kept = probe,
@@ -605,7 +605,9 @@ pub(crate) fn list_projects_blocking(app: &AppHandle) -> Vec<Project> {
     for p in kept.iter().filter(|p| !p.missing) {
         ensure_project_identity_cached(&p.path, &p.id, p.category.as_deref());
     }
-    let stats = crate::time_stats::read_stats(&app);
+    let workspace_dir = crate::workspace::active_workspace_dir(&app);
+    crate::time_stats::flush_pending_in(&workspace_dir, &kept);
+    let stats = crate::time_stats::read_stats_for(&workspace_dir, &kept);
     let now = chrono::Local::now();
     for p in kept.iter_mut() {
         let (today, week) = crate::time_stats::breakdown(&stats, &p.id, now);
@@ -650,13 +652,15 @@ fn running_project_ids(app: &AppHandle) -> std::collections::HashSet<String> {
 /// Folds worktree checkouts of the same repository into one entry. Returns the
 /// `(from, into)` id pairs that were merged so the caller can move their stats.
 /// Missing projects are never folded: their repository cannot be inspected.
+/// Folds worktrees of the same repository into one entry. Returns
+/// `(folded id, folded path, kept id)` for each fold.
 fn fold_worktree_duplicates(
     projects: &mut Vec<Project>,
     running: &std::collections::HashSet<String>,
-) -> Vec<(String, String)> {
+) -> Vec<(String, String, String)> {
     let mut owners: HashMap<crate::repo_identity::RepoIdentity, usize> = HashMap::new();
     let mut folded: Vec<Project> = Vec::with_capacity(projects.len());
-    let mut merges: Vec<(String, String)> = Vec::new();
+    let mut merges: Vec<(String, String, String)> = Vec::new();
     for project in projects.drain(..) {
         let identity = if project.missing {
             None
@@ -666,7 +670,7 @@ fn fold_worktree_duplicates(
         let busy = project.session_started_at_ms.is_some() || running.contains(&project.id);
         match identity.as_ref().and_then(|id| owners.get(id).copied()) {
             Some(owner) if !busy => {
-                merges.push((project.id.clone(), folded[owner].id.clone()));
+                merges.push((project.id.clone(), project.path.clone(), folded[owner].id.clone()));
                 merge_project_into(&mut folded[owner], project);
             }
             _ => {
@@ -1239,7 +1243,7 @@ pub fn register_project(
         pinned: false,
         launch_arguments: String::new(),
         tags,
-        total_time_seconds: crate::time_stats::total_seconds_for(&app, &project_id),
+        total_time_seconds: crate::time_stats::total_seconds_for(&app, &project_id, Path::new(&path)),
         session_started_at_ms: None,
         time_today_seconds: 0,
         time_week_seconds: 0,
@@ -1339,6 +1343,7 @@ pub async fn remove_project(app: AppHandle, id: String, delete_files: bool) -> R
         .ok_or("Project not found")?;
     let project = projects.remove(idx);
     write_projects(&app, &projects)?;
+    crate::time_stats::retire_project(&app, &project.id, Path::new(&project.path));
 
     if !delete_files {
         let mut s = crate::settings::read_settings(&app);
@@ -2231,21 +2236,7 @@ pub async fn import_project_stats(app: AppHandle, path: String) -> Result<usize,
     }
     if imported > 0 {
         write_projects(&app, &projects)?;
-        let mut store = crate::time_stats::read_stats(&app);
-        let mut changed = false;
-        for (id, sessions, daily) in &restored {
-            if !sessions.is_empty() {
-                store.projects.insert(id.clone(), sessions.clone());
-                changed = true;
-            }
-            if !daily.is_empty() {
-                store.daily.insert(id.clone(), daily.clone());
-                changed = true;
-            }
-        }
-        if changed {
-            crate::time_stats::write_stats(&app, &store);
-        }
+        crate::time_stats::replace_project_stats(&app, restored);
     }
     Ok(imported)
 }

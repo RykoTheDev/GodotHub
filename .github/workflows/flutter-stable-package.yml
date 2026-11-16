@@ -123,7 +123,7 @@ jobs:
       - name: Regenerate Flutter locale files from src/i18n/locales
         working-directory: app
         run: |
-          dart run tool/i18n_convert.dart
+          dart run ../dev/tool/i18n_convert.dart
           dart run slang
 
       - name: Switch the macOS project to the stable channel
@@ -176,7 +176,7 @@ jobs:
           Copy-Item -Recurse tauri lab/tauri
           Copy-Item -Recurse dist lab/dist
           @{ version = $env:VERSION } | ConvertTo-Json | Set-Content lab/sandbox.json
-          ./app/tool/stable_sandbox/run.ps1 -Lab (Resolve-Path lab).Path
+          ./dev/tool/stable_sandbox/run.ps1 -Lab (Resolve-Path lab).Path
           Get-Content lab/results/checks.txt
           if ((Get-Content lab/results/done.txt) -ne '0') { exit 1 }
 

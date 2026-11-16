@@ -461,10 +461,10 @@ The benchmark runs on Windows, Linux and macOS and compares with the Tauri app i
 
 ```bash
 cd app
-node tool/bench/bench.mjs all
+node ../dev/tool/bench/bench.mjs all
 ```
 
-It needs Node.js 18+ and the Flutter toolchain, and writes `app/build/bench_lab/results/<os>/REPORT.md`. Your data is only copied, never changed. See [app/tool/bench/README.md](app/tool/bench/README.md) for the commands, requirements and what each number means.
+It needs Node.js 18+ and the Flutter toolchain, and writes `app/build/bench_lab/results/<os>/REPORT.md`. Your data is only copied, never changed. See [dev/tool/bench/README.md](dev/tool/bench/README.md) for the commands, requirements and what each number means.
 
 ---
 
