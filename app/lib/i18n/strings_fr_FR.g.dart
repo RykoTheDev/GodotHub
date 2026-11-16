@@ -998,6 +998,28 @@ class _Translations$common$fr_FR extends Translations$common$en_US {
 	@override String get bug_report_preview_show => 'Preview report';
 	@override String get bug_report_preview_hide => 'Hide preview';
 	@override String get bug_report_github_hint => 'Create GitHub Issue opens GitHub in your browser with everything filled in. You need a GitHub account to post it, and you can edit the report there first.';
+	@override String n_categories({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: '${count} category',
+		many: '${count} categories',
+		other: '${count} categories',
+	);
+	@override String get n_categories_one => '{{count}} category';
+	@override String get n_categories_other => '{{count}} categories';
+	@override String get category_name_required => 'Category name is required.';
+	@override String get category_name_taken => 'A category with this name already exists.';
+	@override String bulk_tags_intro({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count,
+		one: 'Changes apply right away to the ${count} selected project.',
+		many: 'Changes apply right away to the ${count} selected projects.',
+		other: 'Changes apply right away to the ${count} selected projects.',
+	);
+	@override String get bulk_tags_intro_one => 'Changes apply right away to the {{count}} selected project.';
+	@override String get bulk_tags_intro_other => 'Changes apply right away to the {{count}} selected projects.';
+	@override String get duplicate_folder_exists => 'A folder with this name already exists here. Pick another name or destination.';
+	@override String get folder_name_invalid_chars => 'Folder names cannot contain < > : " / \\ | ? * or end with a dot or space.';
+	@override String get create_project_path_preview => 'Creates {{path}}';
+	@override String get create_project_name_required => 'Give the project a name.';
+	@override String get create_project_location_required => 'Choose a folder to create it in.';
+	@override String get create_project_version_control => 'Version control';
 }
 
 // Path: dashboard
@@ -3381,6 +3403,20 @@ extension on TranslationsFrFr {
 			'common.bug_report_preview_show' => 'Preview report',
 			'common.bug_report_preview_hide' => 'Hide preview',
 			'common.bug_report_github_hint' => 'Create GitHub Issue opens GitHub in your browser with everything filled in. You need a GitHub account to post it, and you can edit the report there first.',
+			'common.n_categories' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: '${count} category', many: '${count} categories', other: '${count} categories', ), 
+			'common.n_categories_one' => '{{count}} category',
+			'common.n_categories_other' => '{{count}} categories',
+			'common.category_name_required' => 'Category name is required.',
+			'common.category_name_taken' => 'A category with this name already exists.',
+			'common.bulk_tags_intro' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('fr'))(count, one: 'Changes apply right away to the ${count} selected project.', many: 'Changes apply right away to the ${count} selected projects.', other: 'Changes apply right away to the ${count} selected projects.', ), 
+			'common.bulk_tags_intro_one' => 'Changes apply right away to the {{count}} selected project.',
+			'common.bulk_tags_intro_other' => 'Changes apply right away to the {{count}} selected projects.',
+			'common.duplicate_folder_exists' => 'A folder with this name already exists here. Pick another name or destination.',
+			'common.folder_name_invalid_chars' => 'Folder names cannot contain < > : " / \\ | ? * or end with a dot or space.',
+			'common.create_project_path_preview' => 'Creates {{path}}',
+			'common.create_project_name_required' => 'Give the project a name.',
+			'common.create_project_location_required' => 'Choose a folder to create it in.',
+			'common.create_project_version_control' => 'Version control',
 			'dashboard.greeting_morning' => 'Bonjour',
 			'dashboard.greeting_afternoon' => 'Bonjour',
 			'dashboard.greeting_evening' => 'Bonsoir',
@@ -3824,6 +3860,8 @@ extension on TranslationsFrFr {
 			'settings.export_settings_btn' => 'Exporter les paramètres',
 			'settings.import_settings_btn' => 'Importer des paramètres',
 			'settings.workspace_backup_title' => 'Sauvegarde de l\'espace de travail',
+			_ => null,
+		} ?? switch (path) {
 			'settings.workspace_backup_export_btn' => 'Exporter l\'espace de travail',
 			'settings.workspace_backup_restore_btn' => 'Restaurer l\'espace de travail',
 			'settings.workspace_backup_exported' => 'Sauvegarde de l\'espace de travail exportée.',
@@ -3838,8 +3876,6 @@ extension on TranslationsFrFr {
 			'settings.sync_pull_btn' => 'Pull',
 			'settings.sync_push_done' => 'Tous les espaces de travail ont été envoyés vers votre gist.',
 			'settings.sync_open_gist' => 'Ouvrir le gist',
-			_ => null,
-		} ?? switch (path) {
 			'settings.sync_last_pushed' => 'Dernier push : {{time}}',
 			'settings.sync_manual_hint' => 'Vous avez perdu vos données locales ? Saisissez l\'URL ou l\'ID de votre gist pour restaurer depuis n\'importe quelle machine.',
 			'settings.sync_manual_placeholder' => 'https://gist.github.com/... ou ID du gist',

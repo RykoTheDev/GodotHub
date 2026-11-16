@@ -7,6 +7,7 @@ import '../src/rust/api/types.dart';
 import '../state/drag_sort.dart' show arrayMove;
 import '../ui/controls/dashed_box.dart';
 import '../ui/controls/text_input.dart';
+import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import '../ui/dnd/sortable.dart';
@@ -67,11 +68,11 @@ class _CategoryManagerModalState extends State<CategoryManagerModal> {
   Future<void> _submitNew() async {
     final trimmed = _name.text.trim();
     if (trimmed.isEmpty) {
-      setState(() => _error = 'Category name is required.');
+      setState(() => _error = ghTr('category_name_required'));
       return;
     }
     if (widget.categories.any((c) => normalizeCategoryName(c.name) == normalizeCategoryName(trimmed))) {
-      setState(() => _error = 'A category with this name already exists.');
+      setState(() => _error = ghTr('category_name_taken'));
       return;
     }
     setState(() {
@@ -102,15 +103,24 @@ class _CategoryManagerModalState extends State<CategoryManagerModal> {
       title: tr.manage_categories,
       maxWidth: GhModalWidth.x2l,
       onClose: widget.onClose,
-      footer: [
-        Text(
-          count == 0
-              ? tr.no_categories_yet
-              : '$count ${count == 1 ? 'category' : 'categories'} · $total ${total == 1 ? 'project' : 'projects'}',
-          style: theme.text(size: GhTextSize.xs, color: theme.muted.withValues(alpha: 0.6)),
+      footer: ghModalActions(
+        leading: [
+          Flexible(
+            child: Text(
+              count == 0 ? tr.no_categories_yet : '${ghTr('n_categories', count: count)} · ${ghTr('n_projects', count: total)}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.text(size: GhTextSize.xs, color: theme.muted),
+            ),
+          ),
+        ],
+        primary: GhButton(
+          key: const ValueKey('categories-done'),
+          onPressed: widget.onClose,
+          label: tr.done,
+          variant: GhButtonVariant.primary,
         ),
-        const Spacer(),
-      ],
+      ),
       child: Padding(
         padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(6)),
         child: Column(
@@ -511,7 +521,10 @@ class _SortableCategoryListState extends State<SortableCategoryList> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: theme.space(2),
-          children: [for (final c in _ordered) GhSortableItem(key: ValueKey(c.id), id: c.id, semanticLabel: c.name, disabled: _editingId == c.id, child: _row(c))],
+          children: [
+            for (final c in _ordered)
+              GhSortableItem(key: ValueKey(c.id), id: c.id, semanticLabel: c.name, disabled: _editingId == c.id, child: _row(c)),
+          ],
         ),
       ),
     );

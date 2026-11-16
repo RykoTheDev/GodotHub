@@ -499,28 +499,32 @@ class _CheckForUpdatesModalState extends ConsumerState<CheckForUpdatesModal> {
       ),
       _ => null,
     };
-    return [
-      if (releaseUrl != null && (_type == UpdateStateType.available || _type == UpdateStateType.done))
-        GhButton(
-          onPressed: () => OpenerApi.openUrl(releaseUrl).catchError((Object e) => ghToasts.pushToast(GhToastType.error, '$e')),
-          label: ghTr('check_updates_view_release'),
-          icon: GhIcons.externalLink,
-          variant: GhButtonVariant.ghost,
-          size: GhTextSize.xs,
-          paddingX: 3,
-          paddingY: 2,
-        ),
-      const Spacer(),
-      GhButton(
-        onPressed: widget.onClose,
-        label: ghTr('close'),
-        variant: GhButtonVariant.outline,
-        size: GhTextSize.xs,
-        paddingX: 4,
-        paddingY: 2,
-      ),
-      ?primary,
-    ];
+    final close = GhButton(
+      onPressed: widget.onClose,
+      label: ghTr('close'),
+      variant: GhButtonVariant.outline,
+      size: GhTextSize.xs,
+      paddingX: 4,
+      paddingY: 2,
+    );
+    return ghModalActions(
+      leading: [
+        if (releaseUrl != null && (_type == UpdateStateType.available || _type == UpdateStateType.done))
+          Flexible(
+            child: GhButton(
+              onPressed: () => OpenerApi.openUrl(releaseUrl).catchError((Object e) => ghToasts.pushToast(GhToastType.error, '$e')),
+              label: ghTr('check_updates_view_release'),
+              icon: GhIcons.externalLink,
+              variant: GhButtonVariant.ghost,
+              size: GhTextSize.xs,
+              paddingX: 3,
+              paddingY: 2,
+            ),
+          ),
+      ],
+      trailing: [if (primary != null) close],
+      primary: primary ?? close,
+    );
   }
 
   Widget _previewSwitcher(GhTheme theme) {

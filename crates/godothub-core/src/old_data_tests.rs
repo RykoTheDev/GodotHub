@@ -179,3 +179,24 @@ fn new_identifier_with_tags_and_folders_v1_4_8() {
     assert_eq!(settings.animation_intensity, "none");
     assert!(!old.root.join("com.ryko.godothub").exists());
 }
+
+#[test]
+fn deleting_the_active_workspace_leaves_the_remaining_one_working() {
+    let old = start("v1.4.8");
+    let rt = tokio::runtime::Runtime::new().unwrap();
+    let main_before = crate::projects::read_projects_from(&old.workspace(MAIN));
+    assert_eq!(main_before.len(), 1);
+
+    let state = rt.block_on(crate::workspace::delete_workspace(old.app.clone(), JAMS.into())).unwrap();
+    assert_eq!(state.active_id, MAIN);
+    assert_eq!(crate::workspace::active_workspace_id(&old.app), MAIN);
+
+    let projects = rt.block_on(crate::projects::list_projects(old.app.clone()));
+    let ids = |list: &[crate::models::Project]| list.iter().map(|p| p.id.clone()).collect::<Vec<_>>();
+    assert_eq!(ids(&projects), ids(&main_before));
+    rt.block_on(crate::godot_versions::list_installed_godot_versions(old.app.clone())).unwrap();
+    let settings = crate::settings::get_settings(old.app.clone());
+    rt.block_on(crate::scan::scan_for_projects_with_info(old.app.clone(), settings.project_scan_dirs.clone(), settings.scan_depth))
+        .unwrap();
+    assert!(!old.data().join("workspaces").join(JAMS).exists(), "the deleted workspace folder came back");
+}

@@ -271,26 +271,16 @@ class _ReleaseNotesDraftModalState extends State<ReleaseNotesDraftModal> {
       maxWidth: GhModalWidth.lg,
       showClose: false,
       onClose: widget.onClose,
-      footer: [
-        if (_error != null)
-          Flexible(
-            child: ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: theme.space(64)),
-              child: Text(
-                _error!,
-                style: theme.text(size: GhTextSize.xs, color: theme.danger),
-              ),
-            ),
-          ),
-        const Spacer(),
-        GhButton(onPressed: widget.onClose, label: ghTr('cancel')),
-        GhButton(
+      error: _error,
+      footer: ghModalActions(
+        trailing: [GhButton(onPressed: widget.onClose, label: ghTr('cancel'))],
+        primary: GhButton(
           onPressed: _rows.isEmpty ? null : _useDraft,
           label: ghTr('changelog_draft_use'),
           variant: GhButtonVariant.primary,
           weight: GhWeight.medium,
         ),
-      ],
+      ),
       child: Padding(
         padding: EdgeInsets.all(theme.space(6)),
         child: Column(

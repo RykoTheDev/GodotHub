@@ -411,21 +411,16 @@ class _BugReportModalState extends ConsumerState<BugReportModal> {
       title: ghTr('report_a_bug'),
       maxWidth: GhModalWidth.x2l,
       onClose: widget.onClose,
-      footer: [
-        GhButton(onPressed: widget.onClose, label: ghTr('cancel'), variant: GhButtonVariant.ghost),
-        Expanded(
-          child: Align(
-            alignment: AlignmentDirectional.centerEnd,
-            child: GhButton(
-              key: const ValueKey('bug-report-github'),
-              onPressed: ready ? _openIssue : null,
-              icon: GhIcons.github,
-              label: ghTr('bug_report_open_github'),
-              variant: GhButtonVariant.primary,
-            ),
-          ),
+      footer: ghModalActions(
+        leading: [GhButton(onPressed: widget.onClose, label: ghTr('cancel'), variant: GhButtonVariant.ghost)],
+        primary: GhButton(
+          key: const ValueKey('bug-report-github'),
+          onPressed: ready ? _openIssue : null,
+          icon: GhIcons.github,
+          label: ghTr('bug_report_open_github'),
+          variant: GhButtonVariant.primary,
         ),
-      ],
+      ),
       child: Padding(
         padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(5)),
         child: Column(

@@ -11,6 +11,7 @@ import '../ui/core/button.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/interaction.dart';
 import '../ui/feedback/modal_shell.dart';
+import '../ui/reusables/modal_kit.dart';
 import '../ui/shell/smooth_scroll.dart';
 
 class TagManagerModal extends StatefulWidget {
@@ -157,48 +158,20 @@ class _TagManagerModalState extends State<TagManagerModal> {
       onClose: widget.onClose,
       showClose: false,
       onKeyEvent: _onModalKey,
-      footer: [
-        Text(
-          _tags.isEmpty ? tr.no_tags : tr.tag_count(count: _tags.length),
-          style: theme.text(size: GhTextSize.xs, color: mutedHint),
-        ),
-        const Spacer(),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: theme.space(2.5),
-          children: [
-            GhButton(onPressed: widget.onClose, label: tr.cancel),
-            GhPressable(
-              onPressed: _saving ? null : _save,
-              disabledOpacity: 0.5,
-              borderRadius: BorderRadius.circular(theme.radiusBtn),
-              rippleColor: Colors.white,
-              builder: (context, states) => GhAnimatedBox(
-                color: states.active ? theme.accentBright : theme.accent,
-                borderRadius: BorderRadius.circular(theme.radiusBtn),
-                padding: EdgeInsets.symmetric(horizontal: theme.space(5), vertical: theme.space(2.5)),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: theme.space(1.5),
-                  children: [
-                    if (_saving)
-                      SizedBox.square(
-                        dimension: theme.space(3.5),
-                        child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.white, backgroundColor: Color(0x4DFFFFFF)),
-                      )
-                    else
-                      GhIcon(GhIcons.check, size: theme.space(3.5), color: Colors.white),
-                    Text(
-                      _saving ? tr.saving : tr.save,
-                      style: theme.text(size: GhTextSize.sm, weight: GhWeight.medium, color: Colors.white),
-                    ),
-                  ],
-                ),
-              ),
+      footer: ghModalActions(
+        leading: [
+          Flexible(
+            child: Text(
+              _tags.isEmpty ? tr.no_tags : tr.tag_count(count: _tags.length),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: theme.text(size: GhTextSize.xs, color: mutedHint),
             ),
-          ],
-        ),
-      ],
+          ),
+        ],
+        trailing: [GhButton(onPressed: widget.onClose, label: tr.cancel)],
+        primary: GhBusyButton(onPressed: _saving ? null : _save, busy: _saving, icon: GhIcons.check, label: _saving ? tr.saving : tr.save),
+      ),
       child: Padding(
         padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(6)),
         child: Column(

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../api/opener.dart';
 import '../design/design.dart';
 import '../ui/core/button.dart';
+import '../ui/feedback/confirm_dialog.dart';
 import '../ui/feedback/modal_shell.dart';
 import '../window/app_window.dart';
 
@@ -40,6 +41,17 @@ class BetaEndedModal extends StatelessWidget {
     await AppWindow.instance.quit();
   }
 
+  Future<void> _confirmUninstall(BuildContext context, String path) async {
+    final confirmed = await showGhConfirmDialog(
+      context,
+      title: 'Uninstall GodotHub Beta?',
+      description: 'GodotHub Beta closes and its uninstaller starts. The beta data folder stays until you delete it.',
+      confirmLabel: 'Uninstall',
+      variant: GhConfirmVariant.danger,
+    );
+    if (confirmed) await runUninstaller(path);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = GhTheme.of(context);
@@ -50,19 +62,19 @@ class BetaEndedModal extends StatelessWidget {
       title: 'GodotHub Beta has ended',
       maxWidth: GhModalWidth.md,
       onClose: onClose,
-      footer: [
-        GhButton(onPressed: onClose, label: 'Later', variant: GhButtonVariant.ghost),
-        const Spacer(),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: theme.space(2.5),
-          children: [
-            if (uninstaller != null)
-              GhButton(onPressed: () => runUninstaller(uninstaller), label: 'Uninstall Beta', variant: GhButtonVariant.outline),
-            GhButton(onPressed: () => openUrl(stableReleaseUrl), label: 'Get GodotHub', variant: GhButtonVariant.primary),
-          ],
-        ),
-      ],
+      footer: ghModalActions(
+        leading: [GhButton(onPressed: onClose, label: 'Later', variant: GhButtonVariant.ghost)],
+        trailing: [
+          if (uninstaller != null)
+            GhButton(
+              key: const ValueKey('beta-uninstall'),
+              onPressed: () => _confirmUninstall(context, uninstaller),
+              label: 'Uninstall Beta',
+              variant: GhButtonVariant.outline,
+            ),
+        ],
+        primary: GhButton(onPressed: () => openUrl(stableReleaseUrl), label: 'Get GodotHub', variant: GhButtonVariant.primary),
+      ),
       child: Padding(
         padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(4)),
         child: Column(

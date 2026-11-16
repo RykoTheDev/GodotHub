@@ -1069,6 +1069,34 @@ class _Translations$common$ar_MA extends Translations$common$en_US {
 	@override String get bug_report_preview_show => 'Preview report';
 	@override String get bug_report_preview_hide => 'Hide preview';
 	@override String get bug_report_github_hint => 'Create GitHub Issue opens GitHub in your browser with everything filled in. You need a GitHub account to post it, and you can edit the report there first.';
+	@override String n_categories({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(count,
+		zero: '${count} categories',
+		one: '${count} category',
+		two: '${count} categories',
+		few: '${count} categories',
+		many: '${count} categories',
+		other: '${count} categories',
+	);
+	@override String get n_categories_one => '{{count}} category';
+	@override String get n_categories_other => '{{count}} categories';
+	@override String get category_name_required => 'Category name is required.';
+	@override String get category_name_taken => 'A category with this name already exists.';
+	@override String bulk_tags_intro({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(count,
+		zero: 'Changes apply right away to the ${count} selected projects.',
+		one: 'Changes apply right away to the ${count} selected project.',
+		two: 'Changes apply right away to the ${count} selected projects.',
+		few: 'Changes apply right away to the ${count} selected projects.',
+		many: 'Changes apply right away to the ${count} selected projects.',
+		other: 'Changes apply right away to the ${count} selected projects.',
+	);
+	@override String get bulk_tags_intro_one => 'Changes apply right away to the {{count}} selected project.';
+	@override String get bulk_tags_intro_other => 'Changes apply right away to the {{count}} selected projects.';
+	@override String get duplicate_folder_exists => 'A folder with this name already exists here. Pick another name or destination.';
+	@override String get folder_name_invalid_chars => 'Folder names cannot contain < > : " / \\ | ? * or end with a dot or space.';
+	@override String get create_project_path_preview => 'Creates {{path}}';
+	@override String get create_project_name_required => 'Give the project a name.';
+	@override String get create_project_location_required => 'Choose a folder to create it in.';
+	@override String get create_project_version_control => 'Version control';
 }
 
 // Path: dashboard
@@ -3547,6 +3575,20 @@ extension on TranslationsArMa {
 			'common.bug_report_preview_show' => 'Preview report',
 			'common.bug_report_preview_hide' => 'Hide preview',
 			'common.bug_report_github_hint' => 'Create GitHub Issue opens GitHub in your browser with everything filled in. You need a GitHub account to post it, and you can edit the report there first.',
+			'common.n_categories' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(count, zero: '${count} categories', one: '${count} category', two: '${count} categories', few: '${count} categories', many: '${count} categories', other: '${count} categories', ), 
+			'common.n_categories_one' => '{{count}} category',
+			'common.n_categories_other' => '{{count}} categories',
+			'common.category_name_required' => 'Category name is required.',
+			'common.category_name_taken' => 'A category with this name already exists.',
+			'common.bulk_tags_intro' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ar'))(count, zero: 'Changes apply right away to the ${count} selected projects.', one: 'Changes apply right away to the ${count} selected project.', two: 'Changes apply right away to the ${count} selected projects.', few: 'Changes apply right away to the ${count} selected projects.', many: 'Changes apply right away to the ${count} selected projects.', other: 'Changes apply right away to the ${count} selected projects.', ), 
+			'common.bulk_tags_intro_one' => 'Changes apply right away to the {{count}} selected project.',
+			'common.bulk_tags_intro_other' => 'Changes apply right away to the {{count}} selected projects.',
+			'common.duplicate_folder_exists' => 'A folder with this name already exists here. Pick another name or destination.',
+			'common.folder_name_invalid_chars' => 'Folder names cannot contain < > : " / \\ | ? * or end with a dot or space.',
+			'common.create_project_path_preview' => 'Creates {{path}}',
+			'common.create_project_name_required' => 'Give the project a name.',
+			'common.create_project_location_required' => 'Choose a folder to create it in.',
+			'common.create_project_version_control' => 'Version control',
 			'dashboard.greeting_morning' => 'صباح الخير',
 			'dashboard.greeting_afternoon' => 'مساء الخير',
 			'dashboard.greeting_evening' => 'طاب مساؤك',
@@ -3990,6 +4032,8 @@ extension on TranslationsArMa {
 			'settings.export_settings_btn' => 'صدر الإعدادات',
 			'settings.import_settings_btn' => 'استورد الإعدادات',
 			'settings.workspace_backup_title' => 'أنشئ نسخة إحتياطية لبيئة العمل',
+			_ => null,
+		} ?? switch (path) {
 			'settings.workspace_backup_export_btn' => 'صدر بيئة العمل',
 			'settings.workspace_backup_restore_btn' => 'استرجع بيئة العمل',
 			'settings.workspace_backup_exported' => 'تم تصدير النسخة الإحتياطية لبيئة العمل.',
@@ -4004,8 +4048,6 @@ extension on TranslationsArMa {
 			'settings.sync_pull_btn' => 'اسحب',
 			'settings.sync_push_done' => 'تم دفع بيئة العمل لـ \'gist\' خاصتك.',
 			'settings.sync_open_gist' => 'افتح \'gist\'',
-			_ => null,
-		} ?? switch (path) {
 			'settings.sync_last_pushed' => 'أخر عملية دفع: {{time}}',
 			'settings.sync_manual_hint' => 'Lost your local data? Enter your gist URL or ID to restore from any machine.',
 			'settings.sync_manual_placeholder' => 'https://gist.github.com/... or gist ID',

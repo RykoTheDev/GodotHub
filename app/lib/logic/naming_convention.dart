@@ -68,3 +68,8 @@ String applyNamingConvention(String name, NamingConvention convention) {
     NamingConvention.keep => name,
   };
 }
+
+final _invalidFolderChars = RegExp(r'[<>:"/\\|?*\x00-\x1f]');
+
+bool isValidFolderName(String folder) =>
+    folder.isNotEmpty && !_invalidFolderChars.hasMatch(folder) && !folder.endsWith('.') && !folder.endsWith(' ');

@@ -106,9 +106,13 @@ class OutlineIconButton extends StatelessWidget {
           spacing: theme.space(2),
           children: [
             GhIcon(icon, size: theme.space(4), color: states.active ? theme.ink : theme.muted),
-            Text(
-              label,
-              style: theme.text(size: GhTextSize.sm, color: states.active ? theme.ink : theme.muted),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.text(size: GhTextSize.sm, color: states.active ? theme.ink : theme.muted),
+              ),
             ),
           ],
         ),
@@ -172,15 +176,18 @@ class CurrentVersionModal extends StatelessWidget {
       title: _tv('current_set_title'),
       maxWidth: GhModalWidth.xl,
       onClose: onClose,
-      footer: [
-        OutlineIconButton(
-          label: _tv('current_open_folder'),
-          icon: GhIcons.externalLink,
-          onPressed: () => openFolderOrToast(info.aliasesDir),
-        ),
-        const Spacer(),
-        GhButton(onPressed: onClose, label: ghTr('close'), variant: GhButtonVariant.primary, weight: GhWeight.medium),
-      ],
+      footer: ghModalActions(
+        leading: [
+          Flexible(
+            child: OutlineIconButton(
+              label: _tv('current_open_folder'),
+              icon: GhIcons.externalLink,
+              onPressed: () => openFolderOrToast(info.aliasesDir),
+            ),
+          ),
+        ],
+        primary: GhButton(onPressed: onClose, label: ghTr('close'), variant: GhButtonVariant.outline, weight: GhWeight.medium),
+      ),
       child: Padding(
         padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(6)),
         child: Column(

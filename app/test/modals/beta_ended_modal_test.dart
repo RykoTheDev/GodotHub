@@ -11,8 +11,8 @@ import '../ui/i18n_setup.dart';
 
 const uninstaller = r'C:\Users\x\AppData\Local\GodotHub Beta\uninstall.exe';
 
-Future<void> open(WidgetTester tester, Widget Function(VoidCallback close) build) async {
-  await tester.binding.setSurfaceSize(const Size(1280, 800));
+Future<void> open(WidgetTester tester, Widget Function(VoidCallback close) build, {Size size = const Size(1280, 800)}) async {
+  await tester.binding.setSurfaceSize(size);
   addTearDown(() => tester.binding.setSurfaceSize(null));
   late BuildContext host;
   await tester.pumpWidget(
@@ -67,6 +67,16 @@ void main() {
     await tester.tap(find.text('Get GodotHub'));
     expect(opened, [stableReleaseUrl]);
     await tester.tap(find.text('Uninstall Beta'));
+    await tester.pumpAndSettle();
+    expect(uninstalled, isEmpty);
+    expect(find.text('Uninstall GodotHub Beta?'.toUpperCase()), findsOneWidget);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(uninstalled, isEmpty);
+    await tester.tap(find.text('Uninstall Beta'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Uninstall'));
+    await tester.pumpAndSettle();
     expect(uninstalled, [uninstaller]);
     await tester.tap(find.text('Later'));
     await tester.pumpAndSettle();
@@ -89,4 +99,22 @@ void main() {
     File('${root.path}\\uninstall.exe').writeAsStringSync('');
     expect(betaUninstallerPath(exe), '${root.path}\\uninstall.exe');
   });
+
+  for (final size in [const Size(340, 640), const Size(500, 640)]) {
+    testWidgets('fits a ${size.width.toInt()} px window without overflow', (tester) async {
+      await open(
+        tester,
+        size: size,
+        (close) => BetaEndedModal(
+          version: '1.6.0',
+          uninstallerPath: uninstaller,
+          onClose: close,
+          openUrl: (_) async {},
+          runUninstaller: (_) async {},
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(find.text('Get GodotHub'), findsOneWidget);
+    });
+  }
 }

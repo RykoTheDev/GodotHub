@@ -34,7 +34,11 @@ class ChangelogBackend {
       ],
       issues: const ['Slow on first launch'],
     ),
-    entry('e1', 'v1.0', notes: const [ChangelogNote(category: 'improve', text: 'Faster scans')]),
+    entry(
+      'e1',
+      'v1.0',
+      notes: const [ChangelogNote(category: 'improve', text: 'Faster scans')],
+    ),
   ];
   final calls = <String>[];
 
@@ -64,7 +68,10 @@ class ChangelogBackend {
       })
       ..on('crateApiChangelogDeleteChangelogEntry', ({required String id}) async {
         calls.add('delete:$id');
-        entries = [for (final e in entries) if (e.id != id) e];
+        entries = [
+          for (final e in entries)
+            if (e.id != id) e,
+        ];
       });
   }
 }
@@ -204,5 +211,14 @@ void main() {
     await tester.tap(find.text(ghTr('add_entry')));
     await base.settle(tester);
     expect(saved, ['v9|2026-01-01|improve=Draft line|']);
+  });
+
+  testWidgets('entry modal fits a 340x640 window without overflow', (tester) async {
+    await base.openModal(
+      tester,
+      (close) => ChangelogEntryModal(onClose: close, onSave: (_, _, _, _) async {}),
+      size: const Size(340, 640),
+    );
+    expect(tester.takeException(), isNull);
   });
 }

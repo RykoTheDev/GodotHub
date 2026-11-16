@@ -578,32 +578,29 @@ class _ProjectBuildModalState extends ConsumerState<ProjectBuildModal> {
       bodyHeight: GhModalShell.tallBodyHeight(context),
       onClose: widget.onClose,
       initialFocus: _closeNode,
-      footer: [
-        if (run != null)
-          GhOutlineAction(
-            onPressed: () {
-              requestOpenExportConsole(run);
-              widget.onClose();
-            },
-            icon: GhIcons.terminal,
-            label: _t('open_console'),
-          ),
-        const Spacer(),
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: theme.space(2),
-          children: [
-            GhOutlineAction(onPressed: widget.onClose, focusNode: _closeNode, label: context.tr.common.close),
-            GhOutlineAction(
-              onPressed: _blocked ? null : _start,
-              primary: true,
-              icon: GhIcons.rocket,
-              busy: _starting,
-              label: _starting ? _t('starting') : _t('start'),
+      footer: ghModalActions(
+        leading: [
+          if (run != null)
+            Flexible(
+              child: GhOutlineAction(
+                onPressed: () {
+                  requestOpenExportConsole(run);
+                  widget.onClose();
+                },
+                icon: GhIcons.terminal,
+                label: _t('open_console'),
+              ),
             ),
-          ],
+        ],
+        trailing: [GhOutlineAction(onPressed: widget.onClose, focusNode: _closeNode, label: context.tr.common.close)],
+        primary: GhOutlineAction(
+          onPressed: _blocked ? null : _start,
+          primary: true,
+          icon: GhIcons.rocket,
+          busy: _starting,
+          label: _starting ? _t('starting') : _t('start'),
         ),
-      ],
+      ),
       child: GhScrollView(
         padding: EdgeInsets.all(theme.space(6)),
         child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: theme.space(5), children: body),

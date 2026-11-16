@@ -32,7 +32,11 @@ class LaunchArgsModal extends StatefulWidget {
 }
 
 class _LaunchArgsModalState extends State<LaunchArgsModal> {
-  late final TextEditingController _args = TextEditingController(text: widget.currentArgs);
+  late final TextEditingController _args = TextEditingController(text: widget.currentArgs)..addListener(_changed);
+
+  void _changed() => setState(() {});
+
+  bool get _dirty => _args.text.trim() != widget.currentArgs.trim();
 
   @override
   void dispose() {
@@ -60,11 +64,14 @@ class _LaunchArgsModalState extends State<LaunchArgsModal> {
       title: tr.launch_arguments,
       maxWidth: GhModalWidth.lg,
       onClose: widget.onClose,
-      footer: [
-        const Spacer(),
-        GhButton(onPressed: widget.onClose, label: tr.cancel),
-        GhButton(onPressed: () => widget.onSave(_args.text.trim()), label: tr.save, variant: GhButtonVariant.primary),
-      ],
+      footer: ghModalActions(
+        trailing: [GhButton(onPressed: widget.onClose, label: tr.cancel)],
+        primary: GhButton(
+          onPressed: _dirty ? () => widget.onSave(_args.text.trim()) : null,
+          label: tr.save,
+          variant: GhButtonVariant.primary,
+        ),
+      ),
       child: Padding(
         padding: EdgeInsets.fromLTRB(theme.space(6), 0, theme.space(6), theme.space(6)),
         child: Column(

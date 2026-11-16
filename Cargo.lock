@@ -2066,6 +2066,7 @@ dependencies = [
  "flutter_rust_bridge",
  "godothub_core",
  "notify-rust",
+ "raw-window-handle",
  "rfd",
  "serde",
  "serde_json",

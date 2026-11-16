@@ -51,6 +51,7 @@ class GhModalShell extends StatefulWidget {
     this.onKeyEvent,
     this.footer,
     this.rawFooter,
+    this.error,
     this.bodyHeight,
     this.panelHeight,
     this.titleMaxLines = 2,
@@ -68,6 +69,7 @@ class GhModalShell extends StatefulWidget {
   final FocusOnKeyEventCallback? onKeyEvent;
   final List<Widget>? footer;
   final Widget? rawFooter;
+  final String? error;
   final double? bodyHeight;
   final double? panelHeight;
   final int? titleMaxLines;
@@ -226,6 +228,29 @@ class _GhModalShellState extends State<GhModalShell> {
               ),
             ),
           ?widget.rawFooter,
+          if (widget.error case final error? when error.isNotEmpty)
+            Semantics(
+              liveRegion: true,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(theme.space(6), theme.space(1), theme.space(6), theme.space(3)),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: theme.space(2),
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top: theme.space(0.5)),
+                      child: GhIcon(GhIcons.alertTriangle, size: theme.space(3.5), color: theme.danger),
+                    ),
+                    Expanded(
+                      child: Text(
+                        error,
+                        style: theme.text(size: GhTextSize.xs, color: theme.danger, lineHeight: 1.5),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           if (footer != null)
             DecoratedBox(
               decoration: BoxDecoration(
@@ -485,4 +510,39 @@ Future<T?> showGhModal<T>(BuildContext context, WidgetBuilder builder, {bool use
       ),
     ),
   );
+}
+
+List<Widget> ghModalActions({required Widget primary, List<Widget> leading = const [], List<Widget> trailing = const []}) => [
+  Expanded(
+    child: _GhModalActions(leading: leading, trailing: trailing, primary: primary),
+  ),
+];
+
+class _GhModalActions extends StatelessWidget {
+  const _GhModalActions({required this.leading, required this.trailing, required this.primary});
+
+  final List<Widget> leading;
+  final List<Widget> trailing;
+  final Widget primary;
+
+  @override
+  Widget build(BuildContext context) {
+    final gap = GhTheme.of(context).space(2.5);
+    final actions = OverflowBar(
+      alignment: MainAxisAlignment.end,
+      overflowAlignment: OverflowBarAlignment.end,
+      spacing: gap,
+      overflowSpacing: gap,
+      children: [...trailing, primary],
+    );
+    if (leading.isEmpty) return Align(alignment: AlignmentDirectional.centerEnd, child: actions);
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      spacing: gap,
+      children: [
+        ...leading,
+        Flexible(flex: 2, child: actions),
+      ],
+    );
+  }
 }

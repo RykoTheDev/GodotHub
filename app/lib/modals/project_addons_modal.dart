@@ -211,21 +211,19 @@ class _ProjectAddonsModalState extends State<ProjectAddonsModal> {
       maxWidth: GhModalWidth.x2l,
       bodyHeight: GhModalShell.tallBodyHeight(context),
       onClose: widget.onClose,
-      footer: [
-        Expanded(
-          child: Text(
-            _t('footer_hint'),
-            style: theme.text(size: GhTextSize.x2s, color: theme.muted, lineHeight: 1.625),
-          ),
-        ),
-        GhOutlineAction(onPressed: widget.onClose, label: context.tr.common.close),
-      ],
+      footer: ghModalActions(
+        primary: GhOutlineAction(onPressed: widget.onClose, label: context.tr.common.close),
+      ),
       child: GhScrollView(
         padding: EdgeInsets.all(theme.space(6)),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: theme.space(4),
           children: [
+            Text(
+              _t('footer_hint'),
+              style: theme.text(size: GhTextSize.sm, color: theme.muted, lineHeight: 1.6),
+            ),
             Container(
               padding: EdgeInsets.only(bottom: theme.space(4)),
               decoration: BoxDecoration(

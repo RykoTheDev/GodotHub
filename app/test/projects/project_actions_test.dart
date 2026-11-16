@@ -12,12 +12,16 @@ import 'package:godothub/logic/last_opened.dart';
 import 'package:godothub/logic/open_todos.dart';
 import 'package:godothub/logic/settings_copy.dart';
 import 'package:godothub/modals/create_project_modal.dart';
+import 'package:godothub/logic/naming_convention.dart';
 import 'package:godothub/modals/duplicate_project_modal.dart';
+import 'package:godothub/ui/reusables/modal_kit.dart';
 import 'package:godothub/modals/launch_args_modal.dart';
 import 'package:godothub/modals/project_addons_modal.dart';
 import 'package:godothub/modals/project_build_modal.dart';
 import 'package:godothub/modals/project_doctor_modal.dart';
 import 'package:godothub/modals/project_size_modal.dart';
+import 'package:godothub/modals/save_as_template_modal.dart';
+import 'package:godothub/modals/tag_manager_modal.dart';
 import 'package:godothub/modals/time_tracker_modal.dart';
 import 'package:godothub/src/rust/api/dto.dart' as dto;
 import 'package:godothub/src/rust/api/types.dart';
@@ -31,6 +35,7 @@ import 'package:godothub/todos/project_todo_modal.dart';
 import 'package:godothub/todos/project_todo_panel.dart';
 import 'package:godothub/todos/todo_due_tile.dart';
 import 'package:godothub/todos/todo_logic.dart';
+import 'package:godothub/ui/core/button.dart';
 import 'package:godothub/ui/core/i18n.dart';
 import 'package:godothub/ui/feedback/modal_shell.dart';
 import 'package:godothub/ui/feedback/toast_host.dart';
@@ -142,8 +147,13 @@ Future<BuildContext> pumpHost(WidgetTester tester, {Widget? body, AppSettings? s
   return host;
 }
 
-Future<void> openModal(WidgetTester tester, Widget Function(VoidCallback close) builder, {AppSettings? settings}) async {
-  final host = await pumpHost(tester, settings: settings);
+Future<void> openModal(
+  WidgetTester tester,
+  Widget Function(VoidCallback close) builder, {
+  AppSettings? settings,
+  Size size = const Size(1400, 1000),
+}) async {
+  final host = await pumpHost(tester, settings: settings, size: size);
   showGhModal<void>(host, (modal) => builder(() => Navigator.of(modal).pop())).ignore();
   await settle(tester);
 }
@@ -180,10 +190,73 @@ void main() {
       await drainToasts(tester);
     });
 
+    test('folder names reject characters Windows cannot use and trailing dots or spaces', () {
+      expect(isValidFolderName('My Game'), isTrue);
+      for (final bad in ['a<b', 'a>b', 'a:b', 'a"b', 'a/b', r'a\b', 'a|b', 'a?b', 'a*b', 'a\u0001b', 'ends.', 'ends ', '']) {
+        expect(isValidFolderName(bad), isFalse, reason: bad);
+      }
+    });
+
+    testWidgets('duplicate checks the folder name as you type and blocks an existing folder', (tester) async {
+      final root = tester.runAsync(() => Directory.systemTemp.createTemp('gh-duplicate-'));
+      final dir = (await root)!;
+      addTearDown(() => dir.deleteSync(recursive: true));
+      for (final convention in NamingConvention.values) {
+        Directory('${dir.path}${Platform.pathSeparator}${applyNamingConvention('Taken Name', convention)}').createSync(recursive: true);
+      }
+      final project = Project(
+        id: 'p9',
+        name: 'Source',
+        path: '${dir.path}${Platform.pathSeparator}source',
+        godotVersion: '4.3',
+        createdAt: '2026-01-01T00:00:00Z',
+        pinned: false,
+        sortOrder: 0,
+        launchArguments: '',
+        tags: const [],
+        totalTimeSeconds: BigInt.zero,
+        timeTodaySeconds: BigInt.zero,
+        timeWeekSeconds: BigInt.zero,
+      );
+      await openModal(tester, (close) => DuplicateProjectModal(project: project, onClose: close, onDuplicated: () {}));
+      bool canDuplicate() => tester.widget<GhBusyButton>(find.byType(GhBusyButton)).onPressed != null;
+      expect(canDuplicate(), isTrue);
+
+      await tester.enterText(find.byType(TextField), 'Bad: name');
+      await settle(tester);
+      expect(find.text(ghTr('folder_name_invalid_chars')), findsOneWidget);
+      expect(canDuplicate(), isFalse);
+
+      await tester.enterText(find.byType(TextField), 'Taken Name');
+      await settle(tester);
+      expect(find.text(ghTr('duplicate_folder_exists')), findsOneWidget);
+      expect(canDuplicate(), isFalse);
+
+      await tester.enterText(find.byType(TextField), 'Fresh Name');
+      await settle(tester);
+      expect(find.text(ghTr('duplicate_folder_exists')), findsNothing);
+      expect(find.textContaining(ghTr('folder_name_preview', args: {'name': ''}).trim()), findsOneWidget);
+      expect(canDuplicate(), isTrue);
+    });
+
+    for (final (name, build) in <(String, Widget Function(VoidCallback))>[
+      ('launch arguments', (close) => LaunchArgsModal(currentArgs: demo.launchArguments, onSave: (_) {}, onClose: close)),
+      ('duplicate', (close) => DuplicateProjectModal(project: demo, onClose: close, onDuplicated: () {})),
+      ('save as template', (close) => SaveAsTemplateModal(project: demo, onClose: close)),
+      ('tag manager', (close) => TagManagerModal(project: demo, onClose: close, onSaved: (_) {})),
+    ]) {
+      testWidgets('$name modal fits a 340x640 window without overflow', (tester) async {
+        await openModal(tester, build, size: const Size(340, 640));
+        expect(tester.takeException(), isNull);
+      });
+    }
+
     testWidgets('launch arguments returns the trimmed value', (tester) async {
       String? saved;
       await openModal(tester, (close) => LaunchArgsModal(currentArgs: demo.launchArguments, onSave: (v) => saved = v, onClose: close));
+      expect(tester.widget<GhButton>(find.widgetWithText(GhButton, ghTr('save'))).onPressed, isNull);
       await tester.enterText(find.byType(TextField), '  --headless  ');
+      await tester.pump();
       await tester.tap(find.text(ghTr('save')));
       await settle(tester, 3);
       expect(saved, '--headless');
@@ -368,11 +441,12 @@ void main() {
       );
       await tester.tap(find.text(ghTr('create_project_btn')));
       await settle(tester, 3);
-      expect(find.text(ghTr('create_project_error')), findsOneWidget);
+      expect(find.text(ghTr('create_project_name_required')), findsOneWidget);
       expect(created, isNull);
       await tester.enterText(find.byType(TextField).first, 'Space Game');
       await settle(tester, 2);
-      expect(find.text(ghTr('create_project_error')), findsNothing);
+      expect(find.text(ghTr('create_project_name_required')), findsNothing);
+      expect(find.text(ghTr('create_project_path_preview', args: {'path': 'C:/games/Space Game'})), findsOneWidget);
       await tester.tap(find.text(ghTr('create_project_btn')));
       await settle(tester);
       expect(created, {'name': 'Space Game', 'location': 'C:/games', 'version': '4.3', 'category': null});
@@ -380,6 +454,124 @@ void main() {
       expect(git?.readme, isFalse);
       expect(done, 1);
     });
+
+    testWidgets('create project checks the name and folder inline before calling the backend', (tester) async {
+      final dir = (await tester.runAsync(() => Directory.systemTemp.createTemp('gh-create-')))!;
+      addTearDown(() => dir.deleteSync(recursive: true));
+      Directory('${dir.path}${Platform.pathSeparator}Taken Game').createSync();
+      var calls = 0;
+      rust
+        ..on('crateApiTemplatesListTemplates', () async => <ProjectTemplate>[])
+        ..on('crateApiGitGitIsAvailable', () async => true)
+        ..on('crateApiGitAuthGetGitAuthState', () async => const GitAuthState(pats: []))
+        ..on('crateApiProjectsCreateProject', ({
+          required String name,
+          required String location,
+          required String godotVersion,
+          String? iconPath,
+          String? templateId,
+          String? category,
+        }) async {
+          calls++;
+          return demo;
+        });
+      await openModal(
+        tester,
+        (close) => CreateProjectModal(installedVersions: const [engine], defaultLocation: dir.path, onClose: close, onCreated: () {}),
+        settings: copySettings(baseSettings, setupComplete: true, directoryNamingConvention: 'keep'),
+      );
+      await tester.enterText(find.byType(TextField).first, 'Bad: name');
+      await settle(tester, 2);
+      expect(find.text(ghTr('folder_name_invalid_chars')), findsOneWidget);
+      await tester.enterText(find.byType(TextField).first, 'Taken Game');
+      await settle(tester, 2);
+      expect(find.text(ghTr('duplicate_folder_exists')), findsOneWidget);
+      await tester.tap(find.text(ghTr('create_project_btn')));
+      await settle(tester, 3);
+      expect(calls, 0);
+      await tester.enterText(find.byType(TextField).first, 'Fresh Game');
+      await settle(tester, 2);
+      expect(find.text(ghTr('duplicate_folder_exists')), findsNothing);
+      await tester.tap(find.text(ghTr('create_project_btn')));
+      await settle(tester);
+      expect(calls, 1);
+    });
+
+    testWidgets('create project asks for a folder when none is set', (tester) async {
+      rust
+        ..on('crateApiTemplatesListTemplates', () async => <ProjectTemplate>[])
+        ..on('crateApiGitGitIsAvailable', () async => true)
+        ..on('crateApiGitAuthGetGitAuthState', () async => const GitAuthState(pats: []));
+      await openModal(tester, (close) => CreateProjectModal(installedVersions: const [engine], onClose: close, onCreated: () {}));
+      await tester.enterText(find.byType(TextField).first, 'Space Game');
+      await settle(tester, 2);
+      await tester.tap(find.text(ghTr('create_project_btn')));
+      await settle(tester, 3);
+      expect(find.text(ghTr('create_project_location_required')), findsOneWidget);
+      expect(find.byType(CreateProjectModal), findsOneWidget);
+    });
+
+    testWidgets('create project shows a git warning on its own result screen', (tester) async {
+      var done = 0;
+      rust
+        ..on('crateApiTemplatesListTemplates', () async => <ProjectTemplate>[])
+        ..on('crateApiGitGitIsAvailable', () async => true)
+        ..on('crateApiGitAuthGetGitAuthState', () async => const GitAuthState(pats: []))
+        ..on(
+          'crateApiProjectsCreateProject',
+          ({
+            required String name,
+            required String location,
+            required String godotVersion,
+            String? iconPath,
+            String? templateId,
+            String? category,
+          }) async => demo,
+        )
+        ..on(
+          'crateApiGitGitInitProject',
+          ({required String path, GitInitOptions? options}) async =>
+              const GitInitOutcome(initialized: true, committed: false, warning: 'Author identity unknown'),
+        );
+      await openModal(
+        tester,
+        (close) =>
+            CreateProjectModal(installedVersions: const [engine], defaultLocation: 'C:/games', onClose: close, onCreated: () => done++),
+        settings: copySettings(baseSettings, setupComplete: true, gitInitNewProjects: true),
+      );
+      await tester.enterText(find.byType(TextField).first, 'Space Game');
+      await settle(tester, 2);
+      await tester.tap(find.text(ghTr('create_project_btn')));
+      await settle(tester);
+      expect(find.text(ghTr('git_init_warning_title')), findsOneWidget);
+      expect(find.text('Author identity unknown'), findsOneWidget);
+      expect(find.byType(TextField), findsNothing);
+      await tester.tap(find.text(ghTr('create_project_done')));
+      await settle(tester);
+      expect(done, 1);
+    });
+
+    for (final size in [const Size(340, 640), const Size(500, 700)]) {
+      testWidgets('create project fits a ${size.width.toInt()}px window without overflow', (tester) async {
+        rust
+          ..on('crateApiTemplatesListTemplates', () async => <ProjectTemplate>[])
+          ..on('crateApiGitGitIsAvailable', () async => true)
+          ..on(
+            'crateApiGitAuthGetGitAuthState',
+            () async => const GitAuthState(
+              pats: [],
+              github: GitAccountInfo(username: 'me'),
+            ),
+          );
+        await openModal(
+          tester,
+          (close) => CreateProjectModal(installedVersions: const [engine], defaultLocation: 'C:/games', onClose: close, onCreated: () {}),
+          settings: copySettings(baseSettings, setupComplete: true, gitInitNewProjects: true),
+          size: size,
+        );
+        expect(tester.takeException(), isNull);
+      });
+    }
   });
 
   group('todos', () {

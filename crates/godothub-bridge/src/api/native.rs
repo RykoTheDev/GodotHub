@@ -7,7 +7,12 @@ pub struct RecentProject {
 }
 
 fn dialog() -> rfd::AsyncFileDialog {
-    rfd::AsyncFileDialog::new()
+    let dialog = rfd::AsyncFileDialog::new();
+    #[cfg(windows)]
+    if let Some(parent) = crate::dialog_parent::main_window() {
+        return dialog.set_parent(&parent);
+    }
+    dialog
 }
 
 fn path_of(handle: Option<rfd::FileHandle>) -> Option<String> {

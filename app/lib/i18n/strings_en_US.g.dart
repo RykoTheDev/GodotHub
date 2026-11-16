@@ -2641,6 +2641,54 @@ class Translations$common$en_US {
 
 	/// en-US: 'Create GitHub Issue opens GitHub in your browser with everything filled in. You need a GitHub account to post it, and you can edit the report there first.'
 	String get bug_report_github_hint => 'Create GitHub Issue opens GitHub in your browser with everything filled in. You need a GitHub account to post it, and you can edit the report there first.';
+
+	/// en-US: '(one) {${count} category} (other) {${count} categories}'
+	String n_categories({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: '${count} category',
+		other: '${count} categories',
+	);
+
+	/// en-US: '{{count}} category'
+	String get n_categories_one => '{{count}} category';
+
+	/// en-US: '{{count}} categories'
+	String get n_categories_other => '{{count}} categories';
+
+	/// en-US: 'Category name is required.'
+	String get category_name_required => 'Category name is required.';
+
+	/// en-US: 'A category with this name already exists.'
+	String get category_name_taken => 'A category with this name already exists.';
+
+	/// en-US: '(one) {Changes apply right away to the ${count} selected project.} (other) {Changes apply right away to the ${count} selected projects.}'
+	String bulk_tags_intro({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
+		one: 'Changes apply right away to the ${count} selected project.',
+		other: 'Changes apply right away to the ${count} selected projects.',
+	);
+
+	/// en-US: 'Changes apply right away to the {{count}} selected project.'
+	String get bulk_tags_intro_one => 'Changes apply right away to the {{count}} selected project.';
+
+	/// en-US: 'Changes apply right away to the {{count}} selected projects.'
+	String get bulk_tags_intro_other => 'Changes apply right away to the {{count}} selected projects.';
+
+	/// en-US: 'A folder with this name already exists here. Pick another name or destination.'
+	String get duplicate_folder_exists => 'A folder with this name already exists here. Pick another name or destination.';
+
+	/// en-US: 'Folder names cannot contain < > : " / \\ | ? * or end with a dot or space.'
+	String get folder_name_invalid_chars => 'Folder names cannot contain < > : " / \\ | ? * or end with a dot or space.';
+
+	/// en-US: 'Creates {{path}}'
+	String get create_project_path_preview => 'Creates {{path}}';
+
+	/// en-US: 'Give the project a name.'
+	String get create_project_name_required => 'Give the project a name.';
+
+	/// en-US: 'Choose a folder to create it in.'
+	String get create_project_location_required => 'Choose a folder to create it in.';
+
+	/// en-US: 'Version control'
+	String get create_project_version_control => 'Version control';
 }
 
 // Path: dashboard
@@ -7133,6 +7181,20 @@ extension on Translations {
 			'common.bug_report_preview_show' => 'Preview report',
 			'common.bug_report_preview_hide' => 'Hide preview',
 			'common.bug_report_github_hint' => 'Create GitHub Issue opens GitHub in your browser with everything filled in. You need a GitHub account to post it, and you can edit the report there first.',
+			'common.n_categories' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} category', other: '${count} categories', ), 
+			'common.n_categories_one' => '{{count}} category',
+			'common.n_categories_other' => '{{count}} categories',
+			'common.category_name_required' => 'Category name is required.',
+			'common.category_name_taken' => 'A category with this name already exists.',
+			'common.bulk_tags_intro' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: 'Changes apply right away to the ${count} selected project.', other: 'Changes apply right away to the ${count} selected projects.', ), 
+			'common.bulk_tags_intro_one' => 'Changes apply right away to the {{count}} selected project.',
+			'common.bulk_tags_intro_other' => 'Changes apply right away to the {{count}} selected projects.',
+			'common.duplicate_folder_exists' => 'A folder with this name already exists here. Pick another name or destination.',
+			'common.folder_name_invalid_chars' => 'Folder names cannot contain < > : " / \\ | ? * or end with a dot or space.',
+			'common.create_project_path_preview' => 'Creates {{path}}',
+			'common.create_project_name_required' => 'Give the project a name.',
+			'common.create_project_location_required' => 'Choose a folder to create it in.',
+			'common.create_project_version_control' => 'Version control',
 			'dashboard.greeting_morning' => 'Good morning',
 			'dashboard.greeting_afternoon' => 'Good afternoon',
 			'dashboard.greeting_evening' => 'Good evening',
@@ -7576,6 +7638,8 @@ extension on Translations {
 			'settings.export_settings_btn' => 'Export Settings',
 			'settings.import_settings_btn' => 'Import Settings',
 			'settings.workspace_backup_title' => 'Backup workspace',
+			_ => null,
+		} ?? switch (path) {
 			'settings.workspace_backup_export_btn' => 'Export Workspace',
 			'settings.workspace_backup_restore_btn' => 'Restore Workspace',
 			'settings.workspace_backup_exported' => 'Workspace backup exported.',
@@ -7590,8 +7654,6 @@ extension on Translations {
 			'settings.sync_pull_btn' => 'Pull',
 			'settings.sync_push_done' => 'All workspaces pushed to your gist.',
 			'settings.sync_open_gist' => 'Open gist',
-			_ => null,
-		} ?? switch (path) {
 			'settings.sync_last_pushed' => 'Last pushed: {{time}}',
 			'settings.sync_manual_hint' => 'Lost your local data? Enter your gist URL or ID to restore from any machine.',
 			'settings.sync_manual_placeholder' => 'https://gist.github.com/... or gist ID',
