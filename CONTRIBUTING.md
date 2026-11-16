@@ -42,7 +42,7 @@ You don't have to write code to help:
 |---|---|
 | **Report a bug** | Open an issue with steps to reproduce, expected vs. actual behavior, and your OS + app version. |
 | **Request a feature** | Open an issue describing *what* you want and *why*. Screenshots/mockups help a lot. |
-| **Translate** | Add or improve a language in `src/i18n/`. A Bit of Typescript and React Knowledge is needed. See the [Localization section](#-localization). |
+| **Translate** | Add or improve a language by editing the JSON files in `src/i18n/locales/`. No coding or Flutter knowledge is needed. See the [Localization section](#-localization). |
 | **Test** | The app is only heavily tested on Windows, Arch Linux (Hyprland), Fedora (Gnome) 43, and recent macOS. Try a nightly/dev build on your setup and report what breaks. |
 | **Write docs** | Improve the README, this file, or add FAQ content. |
 | **Fix a bug / build a feature** | The traditional path, see below. |
@@ -343,11 +343,11 @@ but do mention which platform you *did* test on in the PR.
 
 ## 🌍 Localization
 
-Localization uses **i18next** + **react-i18next** with JSON resource files.
+The Flutter app uses generated translations from shared JSON resource files.
 English is the source of truth; every other language falls back to English for
 missing keys. The `common` namespace is the primary home for shared strings,
 and all other namespaces (`git`, `settings`, `versions`, etc.) fall back to
-`common` automatically via `fallbackNS`.
+`common`.
 
 ### Current Status
 
@@ -393,11 +393,23 @@ src/i18n/
     ├── zh-CN/
 ```
 
-The new Flutter app (`app/`) reuses these exact files. Its copies in `app/lib/i18n` are generated, so never edit them by hand: edit `src/i18n/locales` as usual and they follow automatically.
+The JSON files under `src/i18n/locales/` are the source of truth. To translate,
+edit values in the relevant locale and namespace JSON files there; no
+TypeScript, Flutter, or Dart knowledge is required.
 
-- If you have the Flutter SDK installed, the pre-commit hook regenerates and stages `app/lib/i18n` whenever you commit a locale change.
-- If you don't, the hook just prints a notice and lets the commit through. The **i18n sync** workflow then commits the update to your pull request, or opens a follow-up pull request after merge when your pull request comes from a fork.
-- To regenerate by hand: `cd app && dart run tool/i18n_convert.dart && dart run slang`.
+Flutter's Slang/Dart translation files are generated from these JSON files.
+Do not edit generated files under `app/lib/i18n/json/` or
+`app/lib/i18n/strings*.g.dart`, or change `app/slang.yaml` and
+`app/tool/i18n_convert.dart` for a translation. You do not need to install
+Flutter, run Dart, or regenerate these files for a translation-only contribution.
+
+- If you have the Flutter SDK installed, the pre-commit hook regenerates and
+  stages the Flutter locale files when you commit a locale change.
+- If you don't, the hook lets the commit through and the **i18n sync** workflow
+  handles generation for your pull request. For pull requests from forks, it
+  opens a follow-up pull request after merge.
+- Maintainers can regenerate by hand with
+  `cd app && dart run tool/i18n_convert.dart && dart run slang`.
 
 ### Namespace Reference
 
