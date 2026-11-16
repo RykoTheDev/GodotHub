@@ -113,7 +113,7 @@ fn restore_template(dir: &Path, backup: &TemplateBackup) {
     let _ = crate::templates::write_template_json(dir, &backup.meta);
 }
 
-fn build_workspace_backup_in(dir: &Path, ws: &Workspace) -> WorkspaceBackup {
+pub(crate) fn build_workspace_backup_in(dir: &Path, ws: &Workspace) -> WorkspaceBackup {
     let workspace = WorkspaceMeta {
         name: ws.name.clone(),
         icon: ws.icon.clone(),
@@ -160,7 +160,7 @@ pub(crate) fn build_workspace_backup(app: &AppHandle) -> Result<WorkspaceBackup,
     Ok(build_workspace_backup_in(&dir, ws))
 }
 
-fn apply_workspace_backup_in(dir: &Path, backup: WorkspaceBackup) -> Result<AppSettings, String> {
+pub(crate) fn apply_workspace_backup_in(dir: &Path, backup: WorkspaceBackup) -> Result<AppSettings, String> {
     let current_settings = crate::settings::read_settings_from(dir);
     let mut settings = backup.settings;
     settings.dismissed_project_paths = current_settings.dismissed_project_paths;

@@ -1,2 +1,3 @@
 crates/godothub-core/tests/fixtures/** -text
 app/assets/licenses/** text eol=lf
+*.sh text eol=lf
