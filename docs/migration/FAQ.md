@@ -1,6 +1,6 @@
 # GodotHub 1.6 migration FAQ
 
-GodotHub 1.6.0 is the same app rebuilt with Flutter instead of Tauri and a web view. Projects, Godot versions, workspaces, templates, categories, settings and your Git sign-in carry over by themselves. This page covers what changed and what to do if something goes wrong.
+GodotHub 1.6.0 is the same app rebuilt with Flutter instead of Tauri. Projects, Godot versions, workspaces, templates, categories, settings and your Git sign-in carry over by themselves. This page covers what changed and what to do if something goes wrong.
 
 ## Where does my data live?
 
@@ -14,7 +14,7 @@ GodotHub 1.6 uses the same data folder as 1.5, so nothing is copied or converted
 
 Your projects and Godot installs stay wherever you put them. GodotHub only keeps their paths.
 
-Appearance choices that 1.5 kept inside its web view (theme, sidebar width, card style and similar) are copied into the data folder the first time 1.6 starts.
+Appearance choices from 1.5 (theme, sidebar width, card style and similar) were copied over by 1.6.0 and 1.6.1. Later versions start with the default appearance when updating straight from 1.5; set it again in Settings.
 
 Uninstalling GodotHub removes the app but keeps this folder. Delete it yourself if you want a clean start.
 
@@ -29,13 +29,13 @@ Uninstalling GodotHub removes the app but keeps this folder. Delete it yourself 
 | Linux `.deb` and `.rpm` | `/usr/lib/godothub`, with `/usr/bin/godothub` pointing to it |
 | Linux AppImage | Wherever you keep the `.AppImage` file |
 
-The Windows portable build used to be a single `.exe`. It is now a folder in a `.zip` because the app's engine and data files sit next to `godothub.exe`. The Visual C++ runtime is built into the app, so you no longer need WebView2 or a separate Visual C++ install.
+The Windows portable build used to be a single `.exe`. It is now a folder in a `.zip` because the app's engine and data files sit next to `godothub.exe`. The Visual C++ runtime is built into the app, so you do not need a separate Visual C++ install.
 
 ## Which systems are supported?
 
 - Windows 10 or 11, x64.
 - macOS 12 Monterey or newer, on Apple Silicon or Intel. Flutter does not run on older macOS.
-- 64-bit Linux with GTK 3 and OpenGL ES (`libegl1` and `libgles2`, which the `.deb` and `.rpm` pull in). WebKitGTK is no longer needed.
+- 64-bit Linux with GTK 3 and OpenGL ES (`libegl1` and `libgles2`, which the `.deb` and `.rpm` pull in).
 
 On macOS 10.15 or 11, keep using [GodotHub 1.5.9](https://github.com/RykoTheDev/GodotHub/releases/tag/v1.5.9). It keeps working with your data.
 

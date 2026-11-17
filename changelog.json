@@ -409,11 +409,11 @@
       },
       {
         "category": "add",
-        "text": "Option in Settings \u2192 Advanced to disable the Support button in the titlebar"
+        "text": "Option in Settings → Advanced to disable the Support button in the titlebar"
       },
       {
         "category": "add",
-        "text": "Option in Settings \u2192 Advanced to disable the Star on GitHub button in the titlebar"
+        "text": "Option in Settings → Advanced to disable the Star on GitHub button in the titlebar"
       },
       {
         "category": "improve",
@@ -425,7 +425,7 @@
       },
       {
         "category": "add",
-        "text": "Option in Settings \u2192 Appearance to disable the scrollbar entirely; scroll still works via keyboard, trackpad, or mouse wheel"
+        "text": "Option in Settings → Appearance to disable the scrollbar entirely; scroll still works via keyboard, trackpad, or mouse wheel"
       }
     ],
     "known_issues": [],
@@ -837,7 +837,7 @@
       },
       {
         "category": "improve",
-        "text": "New UI is now set as the default, with an option to switch back to the old UI in Settings \u2192 Appearance"
+        "text": "New UI is now set as the default, with an option to switch back to the old UI in Settings → Appearance"
       },
       {
         "category": "improve",
@@ -1115,7 +1115,7 @@
       },
       {
         "category": "add",
-        "text": "Experimental toggle in Settings \u2192 Experimental to enable/disable Git Worktrees"
+        "text": "Experimental toggle in Settings → Experimental to enable/disable Git Worktrees"
       }
     ],
     "known_issues": [],
@@ -2129,7 +2129,7 @@
       },
       {
         "category": "add",
-        "text": "New Cover style for project cards, picked in Settings \u2192 Appearance \u2192 Project card style, next to the existing Godot Hub cards (#301)"
+        "text": "New Cover style for project cards, picked in Settings → Appearance → Project card style, next to the existing Godot Hub cards (#301)"
       },
       {
         "category": "fix",
@@ -2202,7 +2202,7 @@
       },
       {
         "category": "add",
-        "text": "Settings: a separate card style for the list view, and Credits \u2192 Open Source Licenses lists every library GodotHub uses"
+        "text": "Settings: a separate card style for the list view, and Credits → Open Source Licenses lists every library GodotHub uses"
       },
       {
         "category": "add",
@@ -2304,22 +2304,13 @@
       {
         "category": "fix",
         "text": "Linux: the window no longer gets a little bigger every time GodotHub starts (#352)"
-      }
-    ],
-    "known_issues": [],
-    "created_at": 1794935846
-  },
-  {
-    "id": "2e0fbe70-54b8-4061-b371-e3fab65bdeed",
-    "version": "v1.6.2",
-    "date": "2026-11-18",
-    "notes": [
+      },
       {
         "category": "fix",
         "text": "Linux: the window can be resized again by dragging its edges and corners (#352)"
       }
     ],
     "known_issues": [],
-    "created_at": 1794942433
+    "created_at": 1794935846
   }
 ]
