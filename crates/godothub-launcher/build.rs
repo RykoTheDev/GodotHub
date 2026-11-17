@@ -29,7 +29,7 @@ BEGIN
   BEGIN
     BLOCK "040904b0"
     BEGIN
-      VALUE "CompanyName", "GodotHub"
+      VALUE "CompanyName", "Rykode"
       VALUE "FileDescription", "{product}"
       VALUE "FileVersion", "{version}"
       VALUE "InternalName", "{product}"

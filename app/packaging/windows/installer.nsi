@@ -31,7 +31,7 @@ RequestExecutionLevel user
   !error "pass /DLAUNCHER=<godothub-launcher.exe>"
 !endif
 !ifndef PUBLISHER
-  !define PUBLISHER "Ryko"
+  !define PUBLISHER "Rykode"
 !endif
 !ifndef UNINSTALL_NAME
   !define UNINSTALL_NAME "${IDENTIFIER}"

@@ -93,7 +93,7 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "GodotHub" "\0"
+            VALUE "CompanyName", "Rykode" "\0"
             VALUE "FileDescription", GODOTHUB_PRODUCT_NAME "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", GODOTHUB_BINARY_NAME "\0"

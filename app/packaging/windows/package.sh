@@ -66,7 +66,7 @@ nsis_defines=(
 )
 if [ "$channel" = stable ]; then
   nsis_defines+=(
-    -DPUBLISHER=GodotHub
+    -DPUBLISHER=Rykode
     -DUNINSTALL_NAME=GodotHub
     '-DAPP_KEY_PARENT=Software\GodotHub'
     '-DAPP_KEY=Software\GodotHub\GodotHub'
@@ -85,7 +85,7 @@ if [ "$channel" = stable ]; then
   wix_vars=(
     -dVersion="$version"
     -dProductName="$display_name"
-    -dManufacturer=GodotHub
+    -dManufacturer=Rykode
     -dUpgradeCode='{72724A70-2A9C-59CB-9DD8-EC8EB8DE6CC5}'
     -dIdentifier="$identifier"
     -dExeName="$exe"
