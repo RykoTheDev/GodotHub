@@ -887,6 +887,8 @@
     "cancelled": "エクスポートをキャンセルしました",
     "cancel_hint": "出力フォルダに、書き出し途中のファイルが残っている場合があります。",
     "open_folder": "出力フォルダを開く",
+    "onyx_upload": "Upload to Steam with Onyx",
+    "onyx_hint": "Onyx opens the project whose content folder holds this export, or offers to create one.",
     "overwrite_title": "既存のエクスポートを置き換えますか？",
     "overwrite_description": "{{path}} にはすでに出力ファイルがあります。このエクスポートで置き換えますか？",
     "overwrite": "置き換えてエクスポート",

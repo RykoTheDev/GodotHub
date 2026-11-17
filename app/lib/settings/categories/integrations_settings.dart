@@ -24,6 +24,7 @@ import '../../ui/overlays/menu.dart';
 import '../../versions/version_settings.dart';
 import '../settings_parts.dart';
 import 'cli_tool_section.dart';
+import 'onyx_setting.dart';
 import 'settings_buttons.dart';
 
 String _ts(String key, {Map<String, Object?> args = const {}}) => ghTr('settings:$key', args: args);
@@ -220,6 +221,12 @@ class _IntegrationsSettingsState extends ConsumerState<IntegrationsSettings> {
           title: _ts('mise_label'),
           searchText: '${_ts('mise_label')} mise',
           child: const MiseSetting(),
+        ),
+        SettingsSubsection(
+          id: 'integrations-onyx',
+          title: _ts('onyx_title'),
+          searchText: '${_ts('onyx_title')} ${_ts('onyx_label')} ${_ts('onyx_desc')} Onyx Steam Steamworks',
+          child: const OnyxSetting(),
         ),
         const CliToolSection(),
       ],

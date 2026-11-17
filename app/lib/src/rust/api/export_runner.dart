@@ -19,5 +19,7 @@ Future<List<ExportRun>> getProjectExports({required String id}) => RustLib.insta
 
 Future<void> cancelProjectExport({required String runId}) => RustLib.instance.api.crateApiExportRunnerCancelProjectExport(runId: runId);
 
+Future<void> openExportInOnyx({required String runId}) => RustLib.instance.api.crateApiExportRunnerOpenExportInOnyx(runId: runId);
+
 Future<void> openExportArtifactFolder({required String runId}) =>
     RustLib.instance.api.crateApiExportRunnerOpenExportArtifactFolder(runId: runId);

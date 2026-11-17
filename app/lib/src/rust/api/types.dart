@@ -214,6 +214,7 @@ class AppSettings {
   final bool rtlLayout;
   final bool projectTodosEnabled;
   final bool useMise;
+  final bool onyxEnabled;
   final List<String> disabledFeatures;
 
   const AppSettings({
@@ -311,6 +312,7 @@ class AppSettings {
     required this.rtlLayout,
     required this.projectTodosEnabled,
     required this.useMise,
+    required this.onyxEnabled,
     required this.disabledFeatures,
   });
 
@@ -410,6 +412,7 @@ class AppSettings {
       rtlLayout.hashCode ^
       projectTodosEnabled.hashCode ^
       useMise.hashCode ^
+      onyxEnabled.hashCode ^
       disabledFeatures.hashCode;
 
   @override
@@ -511,6 +514,7 @@ class AppSettings {
           rtlLayout == other.rtlLayout &&
           projectTodosEnabled == other.projectTodosEnabled &&
           useMise == other.useMise &&
+          onyxEnabled == other.onyxEnabled &&
           disabledFeatures == other.disabledFeatures;
 }
 
@@ -2228,6 +2232,32 @@ class NewsResponse {
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is NewsResponse && runtimeType == other.runtimeType && items == other.items && fromCache == other.fromCache;
+}
+
+class OnyxStatus {
+  final bool supported;
+  final String? path;
+  final String? version;
+  final String? latest;
+  final bool upToDate;
+  final String releasesUrl;
+
+  const OnyxStatus({required this.supported, this.path, this.version, this.latest, required this.upToDate, required this.releasesUrl});
+
+  @override
+  int get hashCode => supported.hashCode ^ path.hashCode ^ version.hashCode ^ latest.hashCode ^ upToDate.hashCode ^ releasesUrl.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OnyxStatus &&
+          runtimeType == other.runtimeType &&
+          supported == other.supported &&
+          path == other.path &&
+          version == other.version &&
+          latest == other.latest &&
+          upToDate == other.upToDate &&
+          releasesUrl == other.releasesUrl;
 }
 
 class OpenTodo {

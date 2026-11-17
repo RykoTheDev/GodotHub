@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 115459394;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -701310623;
 
 // Section: executor
 
@@ -6311,6 +6311,41 @@ fn wire__crate__api__native__notify_impl(
         },
     )
 }
+fn wire__crate__api__onyx__onyx_status_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "onyx_status",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            move |context| async move {
+                transform_result_sse::<_, crate::api::error::CoreError>(
+                    (move || async move {
+                        let output_ok = crate::api::onyx::onyx_status().await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__export_runner__open_export_artifact_folder_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -6341,6 +6376,43 @@ fn wire__crate__api__export_runner__open_export_artifact_folder_impl(
                         let output_ok =
                             crate::api::export_runner::open_export_artifact_folder(api_run_id)
                                 .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__export_runner__open_export_in_onyx_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "open_export_in_onyx",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_run_id = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| async move {
+                transform_result_sse::<_, crate::api::error::CoreError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::api::export_runner::open_export_in_onyx(api_run_id).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -9646,6 +9718,7 @@ const _: fn() = || {
         let _: bool = AppSettings.rtl_layout;
         let _: bool = AppSettings.project_todos_enabled;
         let _: bool = AppSettings.use_mise;
+        let _: bool = AppSettings.onyx_enabled;
         let _: Vec<String> = AppSettings.disabled_features;
     }
     {
@@ -10146,6 +10219,15 @@ const _: fn() = || {
         let NewsResponse = None::<crate::api::types::NewsResponse>.unwrap();
         let _: Vec<crate::api::types::NewsItem> = NewsResponse.items;
         let _: bool = NewsResponse.from_cache;
+    }
+    {
+        let OnyxStatus = None::<crate::api::types::OnyxStatus>.unwrap();
+        let _: bool = OnyxStatus.supported;
+        let _: Option<String> = OnyxStatus.path;
+        let _: Option<String> = OnyxStatus.version;
+        let _: Option<String> = OnyxStatus.latest;
+        let _: bool = OnyxStatus.up_to_date;
+        let _: String = OnyxStatus.releases_url;
     }
     {
         let OpenTodo = None::<crate::api::types::OpenTodo>.unwrap();
@@ -10863,6 +10945,7 @@ impl SseDecode for crate::api::types::AppSettings {
         let mut var_rtlLayout = <bool>::sse_decode(deserializer);
         let mut var_projectTodosEnabled = <bool>::sse_decode(deserializer);
         let mut var_useMise = <bool>::sse_decode(deserializer);
+        let mut var_onyxEnabled = <bool>::sse_decode(deserializer);
         let mut var_disabledFeatures = <Vec<String>>::sse_decode(deserializer);
         return crate::api::types::AppSettings {
             schema_version: var_schemaVersion,
@@ -10959,6 +11042,7 @@ impl SseDecode for crate::api::types::AppSettings {
             rtl_layout: var_rtlLayout,
             project_todos_enabled: var_projectTodosEnabled,
             use_mise: var_useMise,
+            onyx_enabled: var_onyxEnabled,
             disabled_features: var_disabledFeatures,
         };
     }
@@ -13286,6 +13370,26 @@ impl SseDecode for crate::api::types::NewsResponse {
     }
 }
 
+impl SseDecode for crate::api::types::OnyxStatus {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_supported = <bool>::sse_decode(deserializer);
+        let mut var_path = <Option<String>>::sse_decode(deserializer);
+        let mut var_version = <Option<String>>::sse_decode(deserializer);
+        let mut var_latest = <Option<String>>::sse_decode(deserializer);
+        let mut var_upToDate = <bool>::sse_decode(deserializer);
+        let mut var_releasesUrl = <String>::sse_decode(deserializer);
+        return crate::api::types::OnyxStatus {
+            supported: var_supported,
+            path: var_path,
+            version: var_version,
+            latest: var_latest,
+            up_to_date: var_upToDate,
+            releases_url: var_releasesUrl,
+        };
+    }
+}
+
 impl SseDecode for crate::api::types::OpenTodo {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -15240,252 +15344,259 @@ fn pde_ffi_dispatcher_primary_impl(
             data_len,
         ),
         169 => wire__crate__api__native__notify_impl(port, ptr, rust_vec_len, data_len),
-        170 => wire__crate__api__export_runner__open_export_artifact_folder_impl(
+        170 => wire__crate__api__onyx__onyx_status_impl(port, ptr, rust_vec_len, data_len),
+        171 => wire__crate__api__export_runner__open_export_artifact_folder_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        171 => wire__crate__api__export_templates__open_export_templates_folder_impl(
+        172 => wire__crate__api__export_runner__open_export_in_onyx_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        172 => wire__crate__api__window__open_from_args_impl(port, ptr, rust_vec_len, data_len),
-        173 => wire__crate__api__godot_versions__open_godot_version_impl(
+        173 => wire__crate__api__export_templates__open_export_templates_folder_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        174 => wire__crate__api__projects__open_in_editor_impl(port, ptr, rust_vec_len, data_len),
-        175 => wire__crate__api__window__open_launch_args_impl(port, ptr, rust_vec_len, data_len),
-        176 => wire__crate__api__projects__open_project_impl(port, ptr, rust_vec_len, data_len),
-        177 => {
+        174 => wire__crate__api__window__open_from_args_impl(port, ptr, rust_vec_len, data_len),
+        175 => wire__crate__api__godot_versions__open_godot_version_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        176 => wire__crate__api__projects__open_in_editor_impl(port, ptr, rust_vec_len, data_len),
+        177 => wire__crate__api__window__open_launch_args_impl(port, ptr, rust_vec_len, data_len),
+        178 => wire__crate__api__projects__open_project_impl(port, ptr, rust_vec_len, data_len),
+        179 => {
             wire__crate__api__projects__open_project_folder_impl(port, ptr, rust_vec_len, data_len)
         }
-        178 => {
+        180 => {
             wire__crate__api__native__open_recent_project_impl(port, ptr, rust_vec_len, data_len)
         }
-        179 => wire__crate__api__git__open_terminal_impl(port, ptr, rust_vec_len, data_len),
-        180 => wire__crate__api__todo_sync__open_todo_link_impl(port, ptr, rust_vec_len, data_len),
-        181 => wire__crate__api__godot_versions__open_versions_folder_impl(
+        181 => wire__crate__api__git__open_terminal_impl(port, ptr, rust_vec_len, data_len),
+        182 => wire__crate__api__todo_sync__open_todo_link_impl(port, ptr, rust_vec_len, data_len),
+        183 => wire__crate__api__godot_versions__open_versions_folder_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        182 => {
+        184 => {
             wire__crate__api__godot_versions__pause_download_impl(port, ptr, rust_vec_len, data_len)
         }
-        183 => wire__crate__api__native__pick_data_file_impl(port, ptr, rust_vec_len, data_len),
-        184 => wire__crate__api__native__pick_executable_impl(port, ptr, rust_vec_len, data_len),
-        185 => wire__crate__api__native__pick_folder_impl(port, ptr, rust_vec_len, data_len),
-        186 => wire__crate__api__native__pick_image_file_impl(port, ptr, rust_vec_len, data_len),
-        187 => wire__crate__api__native__pick_save_path_impl(port, ptr, rust_vec_len, data_len),
-        188 => wire__crate__api__dto__poll_device_flow_impl(port, ptr, rust_vec_len, data_len),
-        189 => wire__crate__api__projects__read_image_file_impl(port, ptr, rust_vec_len, data_len),
-        190 => wire__crate__api__dto__reclaim_storage_impl(port, ptr, rust_vec_len, data_len),
-        192 => wire__crate__api__native__refresh_recent_projects_impl(
+        185 => wire__crate__api__native__pick_data_file_impl(port, ptr, rust_vec_len, data_len),
+        186 => wire__crate__api__native__pick_executable_impl(port, ptr, rust_vec_len, data_len),
+        187 => wire__crate__api__native__pick_folder_impl(port, ptr, rust_vec_len, data_len),
+        188 => wire__crate__api__native__pick_image_file_impl(port, ptr, rust_vec_len, data_len),
+        189 => wire__crate__api__native__pick_save_path_impl(port, ptr, rust_vec_len, data_len),
+        190 => wire__crate__api__dto__poll_device_flow_impl(port, ptr, rust_vec_len, data_len),
+        191 => wire__crate__api__projects__read_image_file_impl(port, ptr, rust_vec_len, data_len),
+        192 => wire__crate__api__dto__reclaim_storage_impl(port, ptr, rust_vec_len, data_len),
+        194 => wire__crate__api__native__refresh_recent_projects_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        193 => wire__crate__api__projects__reintroduce_dismissed_projects_impl(
+        195 => wire__crate__api__projects__reintroduce_dismissed_projects_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        194 => wire__crate__api__native__relaunch_impl(port, ptr, rust_vec_len, data_len),
-        195 => wire__crate__api__categories__remove_category_folder_impl(
+        196 => wire__crate__api__native__relaunch_impl(port, ptr, rust_vec_len, data_len),
+        197 => wire__crate__api__categories__remove_category_folder_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        196 => wire__crate__api__git_auth__remove_git_pat_impl(port, ptr, rust_vec_len, data_len),
-        197 => wire__crate__api__projects__remove_project_impl(port, ptr, rust_vec_len, data_len),
-        198 => wire__crate__api__ui_prefs__remove_ui_pref_impl(port, ptr, rust_vec_len, data_len),
-        199 => {
+        198 => wire__crate__api__git_auth__remove_git_pat_impl(port, ptr, rust_vec_len, data_len),
+        199 => wire__crate__api__projects__remove_project_impl(port, ptr, rust_vec_len, data_len),
+        200 => wire__crate__api__ui_prefs__remove_ui_pref_impl(port, ptr, rust_vec_len, data_len),
+        201 => {
             wire__crate__api__categories__rename_category_impl(port, ptr, rust_vec_len, data_len)
         }
-        200 => wire__crate__api__godot_versions__rename_godot_version_impl(
+        202 => wire__crate__api__godot_versions__rename_godot_version_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        201 => {
+        203 => {
             wire__crate__api__categories__reorder_categories_impl(port, ptr, rust_vec_len, data_len)
         }
-        202 => wire__crate__api__godot_versions__reorder_download_queue_impl(
+        204 => wire__crate__api__godot_versions__reorder_download_queue_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        203 => wire__crate__api__projects__reorder_projects_impl(port, ptr, rust_vec_len, data_len),
-        204 => wire__crate__api__settings__reset_app_data_impl(port, ptr, rust_vec_len, data_len),
-        205 => wire__crate__api__settings__reset_settings_impl(port, ptr, rust_vec_len, data_len),
-        206 => wire__crate__api__updater__restart_to_update_impl(port, ptr, rust_vec_len, data_len),
-        207 => wire__crate__api__watcher__restart_watchers_impl(port, ptr, rust_vec_len, data_len),
-        208 => wire__crate__api__projects__restore_projects_from_backup_impl(
+        205 => wire__crate__api__projects__reorder_projects_impl(port, ptr, rust_vec_len, data_len),
+        206 => wire__crate__api__settings__reset_app_data_impl(port, ptr, rust_vec_len, data_len),
+        207 => wire__crate__api__settings__reset_settings_impl(port, ptr, rust_vec_len, data_len),
+        208 => wire__crate__api__updater__restart_to_update_impl(port, ptr, rust_vec_len, data_len),
+        209 => wire__crate__api__watcher__restart_watchers_impl(port, ptr, rust_vec_len, data_len),
+        210 => wire__crate__api__projects__restore_projects_from_backup_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        209 => wire__crate__api__godot_versions__resume_download_impl(
+        211 => wire__crate__api__godot_versions__resume_download_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        210 => {
+        212 => {
             wire__crate__api__tool_runner__run_project_tool_impl(port, ptr, rust_vec_len, data_len)
         }
-        211 => wire__crate__api__git_auth__save_git_pat_impl(port, ptr, rust_vec_len, data_len),
-        212 => wire__crate__api__templates__save_project_as_template_impl(
+        213 => wire__crate__api__git_auth__save_git_pat_impl(port, ptr, rust_vec_len, data_len),
+        214 => wire__crate__api__templates__save_project_as_template_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        213 => wire__crate__api__project_todos__save_project_todos_impl(
+        215 => wire__crate__api__project_todos__save_project_todos_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        214 => wire__crate__api__vault__save_to_vault_impl(port, ptr, rust_vec_len, data_len),
-        215 => wire__crate__api__window__save_window_state_impl(port, ptr, rust_vec_len, data_len),
-        216 => wire__crate__api__scan__scan_for_projects_impl(port, ptr, rust_vec_len, data_len),
-        217 => wire__crate__api__scan__scan_for_projects_with_info_impl(
+        216 => wire__crate__api__vault__save_to_vault_impl(port, ptr, rust_vec_len, data_len),
+        217 => wire__crate__api__window__save_window_state_impl(port, ptr, rust_vec_len, data_len),
+        218 => wire__crate__api__scan__scan_for_projects_impl(port, ptr, rust_vec_len, data_len),
+        219 => wire__crate__api__scan__scan_for_projects_with_info_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        218 => wire__crate__api__scan__scan_for_versions_impl(port, ptr, rust_vec_len, data_len),
-        219 => wire__crate__api__discovery__scan_godot_recent_projects_impl(
+        220 => wire__crate__api__scan__scan_for_versions_impl(port, ptr, rust_vec_len, data_len),
+        221 => wire__crate__api__discovery__scan_godot_recent_projects_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        220 => wire__crate__api__asset_library__search_asset_library_impl(
+        222 => wire__crate__api__asset_library__search_asset_library_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        221 => wire__crate__api__asset_library__search_asset_store_impl(
+        223 => wire__crate__api__asset_library__search_asset_store_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        223 => wire__crate__api__asset_library__set_asset_favorite_impl(
+        225 => wire__crate__api__asset_library__set_asset_favorite_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        224 => wire__crate__api__asset_library__set_asset_hidden_impl(
+        226 => wire__crate__api__asset_library__set_asset_hidden_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        225 => wire__crate__api__current_version__set_current_version_impl(
+        227 => wire__crate__api__current_version__set_current_version_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        227 => wire__crate__api__dto__set_ui_pref_impl(port, ptr, rust_vec_len, data_len),
-        229 => wire__crate__api__app__start_core_impl(port, ptr, rust_vec_len, data_len),
-        230 => wire__crate__api__app__start_core_in_impl(port, ptr, rust_vec_len, data_len),
-        231 => {
+        229 => wire__crate__api__dto__set_ui_pref_impl(port, ptr, rust_vec_len, data_len),
+        231 => wire__crate__api__app__start_core_impl(port, ptr, rust_vec_len, data_len),
+        232 => wire__crate__api__app__start_core_in_impl(port, ptr, rust_vec_len, data_len),
+        233 => {
             wire__crate__api__git_auth__start_device_flow_impl(port, ptr, rust_vec_len, data_len)
         }
-        232 => {
+        234 => {
             wire__crate__api__watcher__start_git_fs_watcher_impl(port, ptr, rust_vec_len, data_len)
         }
-        233 => wire__crate__api__export_runner__start_project_export_impl(
+        235 => wire__crate__api__export_runner__start_project_export_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        234 => {
+        236 => {
             wire__crate__api__watcher__stop_git_fs_watcher_impl(port, ptr, rust_vec_len, data_len)
         }
-        235 => wire__crate__api__projects__stop_project_impl(port, ptr, rust_vec_len, data_len),
-        236 => {
+        237 => wire__crate__api__projects__stop_project_impl(port, ptr, rust_vec_len, data_len),
+        238 => {
             wire__crate__api__tool_runner__stop_project_tool_impl(port, ptr, rust_vec_len, data_len)
         }
-        237 => {
+        239 => {
             wire__crate__api__workspace__switch_workspace_impl(port, ptr, rust_vec_len, data_len)
         }
-        238 => {
+        240 => {
             wire__crate__api__todo_sync__sync_project_todos_impl(port, ptr, rust_vec_len, data_len)
         }
-        239 => wire__crate__api__templates__sync_templates_with_scan_dir_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        240 => {
-            wire__crate__api__diagnostics__take_crash_notice_impl(port, ptr, rust_vec_len, data_len)
-        }
-        241 => wire__crate__api__godot_versions__test_github_token_impl(
+        241 => wire__crate__api__templates__sync_templates_with_scan_dir_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
         242 => {
+            wire__crate__api__diagnostics__take_crash_notice_impl(port, ptr, rust_vec_len, data_len)
+        }
+        243 => wire__crate__api__godot_versions__test_github_token_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        244 => {
             wire__crate__api__todo_sync__todo_git_activity_impl(port, ptr, rust_vec_len, data_len)
         }
-        243 => {
+        245 => {
             wire__crate__api__cli_shim__uninstall_cli_tool_impl(port, ptr, rust_vec_len, data_len)
         }
-        244 => wire__crate__api__export_templates__uninstall_export_template_files_impl(
+        246 => wire__crate__api__export_templates__uninstall_export_template_files_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        245 => {
+        247 => {
             wire__crate__api__categories__update_category_impl(port, ptr, rust_vec_len, data_len)
         }
-        246 => wire__crate__api__changelog__update_changelog_entry_impl(
+        248 => wire__crate__api__changelog__update_changelog_entry_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        247 => wire__crate__api__projects__update_project_impl(port, ptr, rust_vec_len, data_len),
-        248 => {
+        249 => wire__crate__api__projects__update_project_impl(port, ptr, rust_vec_len, data_len),
+        250 => {
             wire__crate__api__addons__update_project_addon_impl(port, ptr, rust_vec_len, data_len)
         }
-        249 => wire__crate__api__settings__update_settings_impl(port, ptr, rust_vec_len, data_len),
-        250 => wire__crate__api__asset_library__update_template_from_asset_impl(
+        251 => wire__crate__api__settings__update_settings_impl(port, ptr, rust_vec_len, data_len),
+        252 => wire__crate__api__asset_library__update_template_from_asset_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        251 => wire__crate__api__vault__update_vault_item_impl(port, ptr, rust_vec_len, data_len),
-        252 => {
+        253 => wire__crate__api__vault__update_vault_item_impl(port, ptr, rust_vec_len, data_len),
+        254 => {
             wire__crate__api__workspace__update_workspace_impl(port, ptr, rust_vec_len, data_len)
         }
-        253 => {
+        255 => {
             wire__crate__api__projects__write_project_tags_impl(port, ptr, rust_vec_len, data_len)
         }
         _ => unreachable!(),
@@ -15502,10 +15613,10 @@ fn pde_ffi_dispatcher_sync_impl(
     match func_id {
         6 => wire__crate__api__app__app_identifier_impl(ptr, rust_vec_len, data_len),
         7 => wire__crate__api__app__app_version_impl(ptr, rust_vec_len, data_len),
-        191 => wire__crate__api__diagnostics__record_diagnostic_impl(ptr, rust_vec_len, data_len),
-        222 => wire__crate__api__updater__set_app_version_impl(ptr, rust_vec_len, data_len),
-        226 => wire__crate__api__native__set_main_window_visible_impl(ptr, rust_vec_len, data_len),
-        228 => {
+        193 => wire__crate__api__diagnostics__record_diagnostic_impl(ptr, rust_vec_len, data_len),
+        224 => wire__crate__api__updater__set_app_version_impl(ptr, rust_vec_len, data_len),
+        228 => wire__crate__api__native__set_main_window_visible_impl(ptr, rust_vec_len, data_len),
+        230 => {
             wire__crate__api__updater__set_updater_test_overrides_impl(ptr, rust_vec_len, data_len)
         }
         _ => unreachable!(),
@@ -15847,6 +15958,7 @@ impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::types::AppSettings
             self.0.rtl_layout.into_into_dart().into_dart(),
             self.0.project_todos_enabled.into_into_dart().into_dart(),
             self.0.use_mise.into_into_dart().into_dart(),
+            self.0.onyx_enabled.into_into_dart().into_dart(),
             self.0.disabled_features.into_into_dart().into_dart(),
         ]
         .into_dart()
@@ -17707,6 +17819,31 @@ impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::types::NewsRespons
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::types::OnyxStatus> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.0.supported.into_into_dart().into_dart(),
+            self.0.path.into_into_dart().into_dart(),
+            self.0.version.into_into_dart().into_dart(),
+            self.0.latest.into_into_dart().into_dart(),
+            self.0.up_to_date.into_into_dart().into_dart(),
+            self.0.releases_url.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for FrbWrapper<crate::api::types::OnyxStatus>
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::types::OnyxStatus>>
+    for crate::api::types::OnyxStatus
+{
+    fn into_into_dart(self) -> FrbWrapper<crate::api::types::OnyxStatus> {
+        self.into()
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::types::OpenTodo> {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -19350,6 +19487,7 @@ impl SseEncode for crate::api::types::AppSettings {
         <bool>::sse_encode(self.rtl_layout, serializer);
         <bool>::sse_encode(self.project_todos_enabled, serializer);
         <bool>::sse_encode(self.use_mise, serializer);
+        <bool>::sse_encode(self.onyx_enabled, serializer);
         <Vec<String>>::sse_encode(self.disabled_features, serializer);
     }
 }
@@ -20978,6 +21116,18 @@ impl SseEncode for crate::api::types::NewsResponse {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <Vec<crate::api::types::NewsItem>>::sse_encode(self.items, serializer);
         <bool>::sse_encode(self.from_cache, serializer);
+    }
+}
+
+impl SseEncode for crate::api::types::OnyxStatus {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.supported, serializer);
+        <Option<String>>::sse_encode(self.path, serializer);
+        <Option<String>>::sse_encode(self.version, serializer);
+        <Option<String>>::sse_encode(self.latest, serializer);
+        <bool>::sse_encode(self.up_to_date, serializer);
+        <String>::sse_encode(self.releases_url, serializer);
     }
 }
 

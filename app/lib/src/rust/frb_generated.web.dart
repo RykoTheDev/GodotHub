@@ -29,6 +29,7 @@ import 'api/install_mode.dart';
 import 'api/mise.dart';
 import 'api/native.dart';
 import 'api/news.dart';
+import 'api/onyx.dart';
 import 'api/project_health.dart';
 import 'api/project_todos.dart';
 import 'api/projects.dart';
@@ -689,6 +690,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   NewsResponse dco_decode_news_response(dynamic raw);
+
+  @protected
+  OnyxStatus dco_decode_onyx_status(dynamic raw);
 
   @protected
   OpenTodo dco_decode_open_todo(dynamic raw);
@@ -1612,6 +1616,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   NewsResponse sse_decode_news_response(SseDeserializer deserializer);
 
   @protected
+  OnyxStatus sse_decode_onyx_status(SseDeserializer deserializer);
+
+  @protected
   OpenTodo sse_decode_open_todo(SseDeserializer deserializer);
 
   @protected
@@ -2531,6 +2538,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_news_response(NewsResponse self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_onyx_status(OnyxStatus self, SseSerializer serializer);
 
   @protected
   void sse_encode_open_todo(OpenTodo self, SseSerializer serializer);

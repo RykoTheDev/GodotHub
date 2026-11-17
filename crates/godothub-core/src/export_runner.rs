@@ -733,7 +733,7 @@ pub fn cancel_project_export(app: AppHandle, run_id: String) -> Result<(), Strin
     Ok(())
 }
 
-pub fn open_export_artifact_folder(app: AppHandle, run_id: String) -> Result<(), String> {
+fn artifact_folder(app: AppHandle, run_id: String) -> Result<PathBuf, String> {
     let run = get_project_export(app, run_id)?;
     if run.status != "succeeded" {
         return Err("No successful export artifact is available".into());
@@ -742,12 +742,16 @@ pub fn open_export_artifact_folder(app: AppHandle, run_id: String) -> Result<(),
     if !path.exists() {
         return Err("The export artifact has been moved or deleted".into());
     }
-    crate::projects::open_project_folder_blocking(
-        path.parent()
-            .ok_or("Invalid artifact path")?
-            .to_string_lossy()
-            .into(),
-    )
+    Ok(path.parent().ok_or("Invalid artifact path")?.to_path_buf())
+}
+
+pub fn open_export_artifact_folder(app: AppHandle, run_id: String) -> Result<(), String> {
+    crate::projects::open_project_folder_blocking(artifact_folder(app, run_id)?.to_string_lossy().into())
+}
+
+/// Hands the folder holding a finished export to Onyx for a Steam upload.
+pub fn open_export_in_onyx(app: AppHandle, run_id: String) -> Result<(), String> {
+    crate::onyx::open_folder(&artifact_folder(app, run_id)?)
 }
 
 #[cfg(test)]

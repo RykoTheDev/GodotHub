@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../api/events.dart';
 import '../api/exports.dart';
+import '../api/onyx.dart';
 import '../api/projects.dart';
 import '../console/console_request.dart';
 import '../design/design.dart';
@@ -15,6 +16,7 @@ import '../src/rust/api/dto.dart' as dto;
 import '../src/rust/api/types.dart';
 import '../state/app_lifecycle.dart';
 import '../state/export_template_downloads.dart';
+import '../state/settings.dart';
 import '../ui/core/i18n.dart';
 import '../ui/core/ui_settings.dart' show GhSide;
 import '../ui/feedback/confirm_dialog.dart';
@@ -327,6 +329,7 @@ class _ProjectBuildModalState extends ConsumerState<ProjectBuildModal> {
     final preset = _preset;
     final run = _run;
     final busy = _starting || _running;
+    final onyx = ref.watch(settingsProvider.select((s) => s.value?.onyxEnabled ?? false));
     final downloading = catalog != null && ref.watch(exportTemplateDownloadsProvider).containsKey(catalog.versionTag);
     final small = theme.text(size: GhTextSize.xs, color: theme.muted);
     final body = <Widget>[
@@ -554,8 +557,19 @@ class _ProjectBuildModalState extends ConsumerState<ProjectBuildModal> {
                           icon: GhIcons.folder,
                           label: _t('open_folder'),
                         ),
+                      if (onyx && run.status == 'succeeded')
+                        GhOutlineAction(
+                          onPressed: () => _toast(OnyxApi.openExport(run.id)),
+                          icon: GhIcons.externalLink,
+                          label: _t('onyx_upload'),
+                        ),
                     ],
                   ),
+                ),
+              if (onyx && run.status == 'succeeded')
+                Padding(
+                  padding: EdgeInsets.only(top: theme.space(2)),
+                  child: Text(_t('onyx_hint'), style: small),
                 ),
             ],
           ),

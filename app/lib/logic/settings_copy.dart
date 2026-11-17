@@ -98,6 +98,7 @@ AppSettings copySettings(
   bool? rtlLayout,
   bool? projectTodosEnabled,
   bool? useMise,
+  bool? onyxEnabled,
   List<String>? disabledFeatures,
 }) {
   return AppSettings(
@@ -195,6 +196,7 @@ AppSettings copySettings(
     rtlLayout: rtlLayout ?? s.rtlLayout,
     projectTodosEnabled: projectTodosEnabled ?? s.projectTodosEnabled,
     useMise: useMise ?? s.useMise,
+    onyxEnabled: onyxEnabled ?? s.onyxEnabled,
     disabledFeatures: disabledFeatures ?? s.disabledFeatures,
   );
 }
