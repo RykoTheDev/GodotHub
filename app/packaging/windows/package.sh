@@ -49,9 +49,15 @@ tar="$SYSTEMROOT/System32/tar.exe"
 entries=()
 for path in "$stage"/*; do entries+=("$(basename "$path")"); done
 
-inapp="$out_dir/$slug-$version-windows-x64.zip"
-rm -f "$inapp"
-(cd "$stage" && "$tar" -a -c -f "$(win "$inapp")" "${entries[@]}")
+# One zip serves as both the portable download and the in-app update payload.
+# Stable names it -portable so the release has a single, clearly named zip.
+if [ "$channel" = stable ]; then
+  zip="$out_dir/$slug-$version-windows-x64-portable.zip"
+else
+  zip="$out_dir/$slug-$version-windows-x64.zip"
+fi
+rm -f "$zip"
+(cd "$stage" && "$tar" -a -c -f "$(win "$zip")" "${entries[@]}")
 
 nsis_defines=(
   -DVERSION="$version"
@@ -78,10 +84,6 @@ fi
 
 if [ "$channel" = stable ]; then
   : "${WIX_DIR:?set WIX_DIR to the WiX 3 binaries folder}"
-  portable="$out_dir/$slug-$version-windows-x64-portable.zip"
-  rm -f "$portable"
-  (cd "$stage" && "$tar" -a -c -f "$(win "$portable")" "${entries[@]}")
-
   wix_vars=(
     -dVersion="$version"
     -dProductName="$display_name"

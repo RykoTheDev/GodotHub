@@ -63,9 +63,12 @@ fn registry_has_godot_hub_install() -> bool {
         r"HKLM\Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall",
     ];
 
+    use std::os::windows::process::CommandExt;
+
     for root in UNINSTALL_ROOTS {
         let Ok(output) = std::process::Command::new("reg")
             .args(["query", root, "/s", "/d", "/e", "/f", "GodotHub"])
+            .creation_flags(crate::terminal::CREATE_NO_WINDOW)
             .output()
         else {
             continue;
