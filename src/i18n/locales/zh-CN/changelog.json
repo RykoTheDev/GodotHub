@@ -9,5 +9,5 @@
   "added": "新增",
   "fixed": "修复",
   "improved": "改进",
-  "changelog_load_failed": "Couldn't load the changelog"
+  "changelog_load_failed": "无法加载更新日志。"
 }

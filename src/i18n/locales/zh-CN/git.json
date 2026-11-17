@@ -122,9 +122,9 @@
   "protected_branch_create_pr": "创建分支并打开 PR",
   "protected_branch_creating_pr": "正在打开拉取请求…",
   "pr_opened_ok": "已推送 {{branch}} 并打开拉取请求。",
-  "branch_name_required": "Enter a name for the new branch.",
-  "branch_name_invalid": "Branch names can't contain spaces, ~ ^ : ? * [ or a backslash, two dots in a row, or start or end with a slash or a dot.",
-  "branch_name_exists": "A branch with this name already exists.",
-  "protected_branch_confirm_title": "Commit to {{branch}} anyway?",
-  "protected_branch_confirm_desc": "This bypasses the protection on {{branch}}. The commit is made locally, and the remote may reject it when you push."
+  "branch_name_required": "请输入新分支的名称。",
+  "branch_name_invalid": "分支名称不能包含空格、~ ^ : ? * [ 或反斜杠，不能包含连续两个点，也不能以斜杠或点开头或结尾。",
+  "branch_name_exists": "已存在同名分支。",
+  "protected_branch_confirm_title": "仍要提交到 {{branch}} 吗？",
+  "protected_branch_confirm_desc": "这将绕过 {{branch}} 的分支保护。提交将在本地完成，但推送时可能被远程仓库拒绝。"
 }
