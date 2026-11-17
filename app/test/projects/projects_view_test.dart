@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -28,6 +28,7 @@ import 'package:godothub/ui/overlays/slash_menu.dart';
 import 'package:godothub/ui/reusables/view_header.dart';
 
 import '../support/fake_rust.dart';
+import '../support/finders.dart';
 import '../support/settings_fakes.dart';
 import '../titlebar_test.dart' show baseSettings;
 import '../ui/i18n_setup.dart';
@@ -345,7 +346,7 @@ void main() {
     await settle(tester, 5);
     expect(card('b'), findsNothing);
     expect(ProjectsViewPrefs.session[ProjectsViewPrefs.tagFilter], 'jam');
-    await tester.tap(find.byTooltip('Clear tag filter'));
+    await tester.tap(findTooltip('Clear tag filter'));
     await settle(tester, 5);
     expect(card('b'), findsOneWidget);
   });

@@ -366,7 +366,7 @@ scoop update godothub
 
 | Dependency | Version | Purpose |
 |---|---|---|
-| [Flutter](https://docs.flutter.dev/get-started/install) | Stable (CI uses 3.47.9) | App framework and Dart SDK |
+| [Flutter](https://docs.flutter.dev/get-started/install) | Stable (CI uses 3.50.0) | App framework and Dart SDK |
 | [Rust](https://rustup.rs) | Stable (CI uses 1.99.1) | Shared core and Flutter bridge |
 | Platform desktop toolchain | See below | Native desktop build tools |
 

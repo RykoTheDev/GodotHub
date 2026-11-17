@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:godothub/changelog/changelog_view.dart';
@@ -15,6 +15,7 @@ import 'package:godothub/ui/reusables/modal_kit.dart';
 
 import '../projects/project_actions_test.dart' as base;
 import '../support/fake_rust.dart';
+import '../support/finders.dart';
 import '../ui/i18n_setup.dart';
 
 late FakeRustApi rust;
@@ -131,7 +132,7 @@ void main() {
     expect(find.widgetWithText(GhBadge, '2 ${tc('added')}'), findsOneWidget);
     expect(find.widgetWithText(GhBadge, '1 ${tc('changelog_known_issues')}'), findsOneWidget);
     expect(find.text(ghTr('add_entry')), findsNothing);
-    expect(find.byTooltip(tc('edit_entry_aria', args: {'version': 'v2.0'})), findsNothing);
+    expect(findTooltip(tc('edit_entry_aria', args: {'version': 'v2.0'})), findsNothing);
     expect(captured.read(changelogBadgeProvider), isFalse);
     expect(jsonDecode(UiPrefsStore.instance.getItem(changelogSeenKey)!), ['e2', 'e1']);
     expect(backend.calls, isEmpty);

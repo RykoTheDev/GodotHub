@@ -19,7 +19,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VERSION: '3.47.9'
+  FLUTTER_VERSION: '3.50.0'
   SYNC_BRANCH: i18n-sync/flutter-locales
 
 jobs:
