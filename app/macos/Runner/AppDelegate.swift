@@ -17,42 +17,24 @@ class AppDelegate: FlutterAppDelegate {
     dlsym(UnsafeMutableRawPointer(bitPattern: -2), name)
   }
 
-  private static var channel: UInt32 {
-    let defines = Bundle.main.infoDictionary?["GodotHubDartDefines"] as? String ?? ""
-    return buildChannel(defines) == "stable" ? 0 : 1
-  }
-
   private static func runCli() -> Int32? {
-    typealias Dispatch = @convention(c) (UInt32, UnsafePointer<CChar>?, UnsafeMutablePointer<Int32>?) -> Bool
+    typealias Dispatch = @convention(c) (UnsafePointer<CChar>?, UnsafeMutablePointer<Int32>?) -> Bool
     guard let symbol = bridgeSymbol("godothub_cli_dispatch") else {
       return nil
     }
     let dispatch = unsafeBitCast(symbol, to: Dispatch.self)
     let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? ""
     var code: Int32 = 0
-    let handled = version.withCString { dispatch(channel, $0, &code) }
+    let handled = version.withCString { dispatch($0, &code) }
     return handled ? code : nil
   }
 
   private static func forwardedToRunningInstance() -> Bool {
-    typealias Forward = @convention(c) (UInt32) -> Bool
+    typealias Forward = @convention(c) () -> Bool
     guard let symbol = bridgeSymbol("godothub_forward_to_running_instance") else {
       return false
     }
-    return unsafeBitCast(symbol, to: Forward.self)(channel)
-  }
-
-  private static func buildChannel(_ defines: String) -> String? {
-    for item in defines.split(separator: ",") {
-      guard let data = Data(base64Encoded: String(item)),
-        let text = String(data: data, encoding: .utf8),
-        text.hasPrefix("CHANNEL=")
-      else {
-        continue
-      }
-      return String(text.dropFirst("CHANNEL=".count))
-    }
-    return nil
+    return unsafeBitCast(symbol, to: Forward.self)()
   }
 
   override func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {

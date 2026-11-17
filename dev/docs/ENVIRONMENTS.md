@@ -20,7 +20,7 @@ Environments the Tauri app handled without special code, checked against the sta
 
 | Environment | Result | How it was checked | Notes |
 | --- | --- | --- | --- |
-| Oldest supported distros (glibc) | Fixed, needs a CI run | Reviewed, CI added | Packages were built on `ubuntu-latest` (24.04, glibc 2.39), the same runner Tauri 1.5.9 used. The stable Linux build now runs on `ubuntu-22.04` (glibc 2.35), fails if any binary needs a newer glibc, and the launch checks add Ubuntu 22.04 and Debian 12. The bridge release workflow must build Linux on `ubuntu-22.04` too. |
+| Oldest supported distros (glibc) | Fixed, needs a launch check | Reviewed, CI added | Packages were built on `ubuntu-latest` (24.04, glibc 2.39), the same runner Tauri 1.5.9 used. `release.yml` now builds Linux on `ubuntu-22.04` (glibc 2.35) and fails if any binary needs a newer glibc. No workflow starts the packages on Ubuntu 22.04 or Debian 12, so that is a manual check. |
 | Wayland fractional scaling | Same as Tauri | Reviewed | Both use GTK 3, which scales by whole numbers; the compositor scales fractional settings, which can look soft. |
 | Missing libayatana-appindicator | Fixed | Tested: `app/test/window/tray_test.dart` | The tray talks to the desktop over D-Bus and needs no appindicator library, so the app always starts. On desktops with no tray (GNOME without the AppIndicator extension), "minimize to tray" hid the window with no icon to bring it back; it now only hides to the tray when a tray host is running. |
 | Read-only home or NFS home | Not tested | Reviewed | The single-instance check uses an abstract socket, not a file in home. A read-only home stops GodotHub from saving anything, as it did for Tauri. Needs a run on an NFS home. |
@@ -38,6 +38,6 @@ Environments the Tauri app handled without special code, checked against the sta
 1. A Windows 10 22H2 machine: install, start, update.
 2. A mixed-DPI Windows setup: move the window between monitors, restart, check size and position.
 3. Windows on ARM (Windows 11): start the x64 build.
-4. The stable packaging workflow, to confirm the Ubuntu 22.04 build, the glibc check and the new launch checks.
+4. Install and start the Linux packages from a release on Ubuntu 22.04 and Debian 12.
 5. A Linux NFS home, and GNOME without the AppIndicator extension with "minimize to tray" on.
 6. macOS on a case-sensitive volume and with an external display.

@@ -6,18 +6,15 @@ void main(List<String> args) {
   final filter = args.where((a) => !a.startsWith('--')).firstOrNull;
   final onlySame = args.contains('--same');
   final onlyDiff = args.contains('--diff');
-  final locales = localeNames().where((l) {
-    final dir = Directory('$localesPath/$l');
-    return dir.listSync().any((f) => f.path.endsWith('.json'));
-  }).where((l) => filter == null || l == filter);
+  final locales = localeNames().where((l) => filter == null || l == filter);
 
   var total = 0;
   for (final locale in locales) {
     final all = <String, List<(String, Object?)>>{};
-    for (final ns in namespaceNames(locale)) {
+    for (final ns in namespaceNames()) {
       final data = readLocaleFile(locale, ns) ?? const {};
       for (final entry in data.entries) {
-        all.putIfAbsent(entry.key, () => []).add(('$ns.json', entry.value));
+        all.putIfAbsent(entry.key, () => []).add((localeFile(locale, ns).uri.pathSegments.last, entry.value));
       }
     }
     final same = <String, List<(String, Object?)>>{};

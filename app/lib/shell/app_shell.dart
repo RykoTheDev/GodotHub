@@ -54,13 +54,9 @@ import '../git/git_sidebar.dart';
 import '../assets/asset_store_view.dart';
 import '../changelog/changelog_view.dart';
 import '../dashboard/dashboard_view.dart';
-import '../api/updater.dart';
-import '../modals/beta_ended_modal.dart';
-import '../src/channel.dart';
 import '../modals/bug_report_modal.dart';
 import '../api/diagnostics.dart';
 import '../modals/crash_notice_modal.dart';
-import '../modals/flutter_welcome_modal.dart';
 import '../modals/check_for_updates_modal.dart';
 import '../news/news_view.dart';
 import '../onboarding/onboarding_view.dart';
@@ -81,13 +77,12 @@ import 'workspace_modals.dart';
 const _repoUrl = 'https://github.com/RykoTheDev/GodotHub';
 
 class AppShell extends ConsumerStatefulWidget {
-  const AppShell({super.key, this.title = 'GodotHub', this.prefs, this.isMac, this.onOpenGallery, this.channel});
+  const AppShell({super.key, this.title = 'GodotHub', this.prefs, this.isMac, this.onOpenGallery});
 
   final String title;
   final UiPrefsStore? prefs;
   final bool? isMac;
   final VoidCallback? onOpenGallery;
-  final String? channel;
 
   @override
   ConsumerState<AppShell> createState() => _AppShellState();
@@ -145,7 +140,6 @@ class _AppShellState extends ConsumerState<AppShell> {
     on(scanProjectsSignal, (_) => _scanProjects());
     on(reportBugSignal, (_) => _openBugReport());
     on(previewUpdateModalSignal, (_) => _openUpdates(preview: true));
-    on(previewFlutterWelcomeSignal, (_) => _openFlutterWelcome());
     on(showGitSidebarSignal, (detail) {
       if (detail is! GitSidebarTarget) return;
       setState(() => _git = _git != null && _git!.project.id == detail.project.id ? null : detail);
@@ -162,10 +156,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     _subscriptions.add(AppEvents.of(AppEventKind.projectExited).listen((_) => ref.read(projectsProvider.notifier).refresh().ignore()));
     _announcement.start();
     WidgetsBinding.instance.addPostFrameCallback((_) => _checkProjectsHealth());
-    WidgetsBinding.instance.addPostFrameCallback((_) => _startupNotices());
-    if (buildChannel == 'beta') {
-      WidgetsBinding.instance.addPostFrameCallback((_) => _checkBetaEnded());
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) => _checkCrashNotice());
   }
 
   @override
@@ -372,47 +363,6 @@ class _AppShellState extends ConsumerState<AppShell> {
     }
   }
 
-  Future<void> _startupNotices() async {
-    await _checkFlutterWelcome();
-    if (mounted) await _checkCrashNotice();
-  }
-
-  Future<void> _checkFlutterWelcome() async {
-    final AppSettings settings;
-    try {
-      settings = await ref.read(settingsProvider.future);
-    } catch (_) {
-      return;
-    }
-    final start = flutterWelcomeStart(
-      channel: widget.channel ?? buildChannel,
-      setupComplete: settings.setupComplete,
-      seen: _prefs.getItem(flutterWelcomeSeenKey),
-    );
-    if (start == FlutterWelcomeStart.skip) return;
-    _prefs.setItem(flutterWelcomeSeenKey, appBuildVersion.isEmpty ? 'seen' : appBuildVersion);
-    if (start == FlutterWelcomeStart.show && mounted) await _openFlutterWelcome();
-  }
-
-  Future<void> _openFlutterWelcome() async {
-    final settings = ref.read(settingsProvider).value;
-    final counts = await FlutterWelcomeCounts.load(workspacesEnabled: settings?.workspacesEnabled ?? false);
-    if (!mounted) return;
-    var changelog = false;
-    await showGhModal<void>(
-      context,
-      (modal) => FlutterWelcomeModal(
-        counts: counts,
-        onContinue: () => Navigator.of(modal).pop(),
-        onChangelog: () {
-          changelog = true;
-          Navigator.of(modal).pop();
-        },
-      ),
-    );
-    if (changelog && mounted) _setTab('changelog');
-  }
-
   Future<void> _checkCrashNotice() async {
     final notice = await Diagnostics.takeCrashNotice();
     if (notice == null || !mounted) return;
@@ -430,15 +380,6 @@ class _AppShellState extends ConsumerState<AppShell> {
       ),
     );
     if (report) _openBugReport(description: notice.summary);
-  }
-
-  Future<void> _checkBetaEnded() async {
-    final version = await UpdaterApi.flutterStableRelease();
-    if (version == null || !mounted) return;
-    await showGhModal<void>(
-      context,
-      (modal) => BetaEndedModal(version: version, uninstallerPath: betaUninstallerPath(), onClose: () => Navigator.of(modal).pop()),
-    );
   }
 
   Future<void> _checkProjectsHealth() async {

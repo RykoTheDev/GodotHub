@@ -1,6 +1,6 @@
 # Bridge release
 
-The bridge release (1.6.0) is the first GodotHub built with Flutter. It is published where the Tauri updater already looks, so every Tauri user from 1.5.6 on is offered it on the same day. This file covers how to stop that rollout quickly if 1.6.0 turns out to be broken, and how users recover.
+The bridge release (1.6.0) is the first GodotHub built with Flutter. It is published where the Tauri updater already looks, so every Tauri user from 1.5.6 on is offered it on the same day. This file covers how to stop that rollout quickly if 1.6.0 turns out to be broken, and how users recover. It was written for the 1.6.0 switch and is kept as a historical runbook; the feeds and the kill switch it describes are still in use.
 
 ## Who reads which feed
 
@@ -9,7 +9,6 @@ The bridge release (1.6.0) is the first GodotHub built with Flutter. It is publi
 | Tauri 0.5.0 to 1.5.5 | `latest.json` (frozen, offers 1.5.6) | Updates to 1.5.6 first, then reads `latest-v2.json` |
 | Tauri 1.5.6 to 1.5.9 | `latest-v2.json` | Offered 1.6.0 on Windows and Linux. Not offered on macOS (see [macOS](#macos-updates-by-hand-once)) |
 | Flutter 1.6.0 and later | `latest-v2.json` | Offered whatever is newer than itself. Macs read the `darwin-*-flutter` entries |
-| GodotHub Beta 0.2.5 | `latest-v2.json` (only to see whether 1.6.0 is out) | Shows "GodotHub Beta has ended" once it reports 1.6.0 or later |
 
 All of them fetch `https://github.com/<owner>/GodotHub/releases/latest/download/<feed>`, so the feed attached to the latest release decides what everyone is offered. Apps check once at startup and whenever the user opens Check for Updates.
 
@@ -46,7 +45,6 @@ Now `releases/latest` points at v1.5.9: its own `latest-v2.json` and `latest.jso
 - **Tauri before 1.5.6:** unchanged; they are offered 1.5.6 by the frozen `latest.json`.
 - **Already on 1.6.0:** Check for Updates says they are up to date. The updater only ever installs a version newer than the installed one, so a feed that goes back to 1.5.9 never downgrades anyone (tested in `crates/godothub-core/src/updater.rs`, `a_paused_rollout_never_downgrades_any_install`).
 - **Downloading 1.6.0 at that moment:** the download finishes, because the 1.6.0 files stay on the release. Do not delete them: the paused feed no longer points at them, and deleting them would only break downloads that are already running.
-- **GodotHub Beta:** the "beta has ended" notice waits until a 1.6.0 or later feed is back.
 
 ## Recovering users who already have a broken 1.6.0
 
@@ -59,7 +57,7 @@ Now `releases/latest` points at v1.5.9: its own `latest-v2.json` and `latest.jso
 
 Point affected users to the "How do I go back to the last Tauri version?" and "What if an update fails?" answers in [FAQ.md](../../docs/migration/FAQ.md): uninstall 1.6.0 (the data folder stays), install 1.5.9 from its release page, and leave the update button alone until a fixed version is out.
 
-If 1.6.x cannot be fixed quickly and many users are stuck, the last resort is to rebuild the 1.5.9 Tauri code under a new, higher version number (for example 1.6.2) and release it through the Tauri `release.yml` from git history. Updaters only install higher versions, so this is the only way to move everyone back through the updater. Check that the data written by 1.6.x still loads in that build first.
+If 1.6.x cannot be fixed quickly and many users are stuck, the last resort is to rebuild the 1.5.9 Tauri code under a new, higher version number (for example 1.6.2) and release it through the Tauri `release.yml` at the `v1.5.9` tag (see [Rolling back](#rolling-back)). Updaters only install higher versions, so this is the only way to move everyone back through the updater. Check that the data written by 1.6.x still loads in that build first.
 
 ## Rehearsal with local servers
 
@@ -108,19 +106,19 @@ Close the running copy between steps. Expected results:
 
 ## Before the real release
 
-- Build the Linux packages on `ubuntu-22.04`, as the stable packaging workflow does, so they run on glibc 2.35 (Ubuntu 22.04, Debian 12). See [ENVIRONMENTS.md](ENVIRONMENTS.md).
+- The Linux packages are built on `ubuntu-22.04` by `release.yml`, which fails if any binary needs a glibc newer than 2.35 (Ubuntu 22.04, Debian 12). See [ENVIRONMENTS.md](ENVIRONMENTS.md).
 - Make sure `gh` is signed in with write access on the machine you would run the kill switch from, and run `kill_switch.sh status` once so you know it works.
 - Keep the v1.5.9 release and its `latest-v2.json` untouched: `pause` copies it.
 
 ## Release checklist
 
-`.github/workflows/release.yml` builds and publishes a stable release when a `v*` tag is pushed. It builds the Flutter packages on Windows, macOS and Ubuntu 22.04, refuses builds that still contain test switches, signs the update files with the v2 key (`TAURI_SIGNING_PRIVATE_KEY` and its password), writes the release notes from `changelog.json` (repository root), fails if a download link in the notes has no matching file, writes `latest-v2.json`, uploads the frozen `.github/updater/legacy-latest.json` unchanged as `latest.json`, publishes the release as the latest one and opens the winget update from the MSI. Beta builds keep using `flutter-v*` tags and `flutter-release.yml`.
+`.github/workflows/release.yml` builds a stable release when a `v*` tag is pushed. It builds the Flutter packages on Windows, macOS and Ubuntu 22.04, refuses builds that still contain test switches, signs the update files with the v2 key (`TAURI_SIGNING_PRIVATE_KEY` and its password), writes the release notes from `changelog.json` (repository root), fails if a download link in the notes has no matching file, writes `latest-v2.json`, uploads the frozen `.github/updater/legacy-latest.json` unchanged as `latest.json`, and uploads everything to a draft release. Publishing that draft by hand makes it the latest release, and only then do installed apps see the new feed; it also starts `winget.yml`, which opens the winget update from the MSI. Update files are signed with the minisign signer of the Tauri CLI (`npx @tauri-apps/cli@2.12.3 signer`); the Tauri app itself is not built.
 
 ### Before tagging
 
 - [ ] **Version.** Higher than the last Tauri release (1.5.9), so 1.6.0 for the bridge. Updaters only install higher versions, and the workflow refuses a tag that is not higher than the current latest release.
 - [ ] **Version everywhere.** `app/pubspec.yaml` and the `v1.6.0` entry in `changelog.json` at the repository root (`"version": "v1.6.0"`) carry the same number. The workflow fails without a changelog entry.
-- [ ] **CI green on `main`.** Flutter CI and the Tauri jobs in `ci.yml` pass on the commit you tag. Run the stable packaging workflow (`flutter-stable-package.yml`) once on that commit too: it rehearses the Tauri-to-Flutter upgrade on all three systems with a throwaway key.
+- [ ] **CI green on `main`.** Flutter CI (`flutter-ci.yml`) passes on the commit you tag. When the tag is pushed, Flutter CI also fails if the tagged commit is not on `main`. `flutter-update-paths.yml` only covers Flutter-to-Flutter updates, so nothing in CI rehearses the Tauri-to-Flutter upgrade anymore: use the manual upgrade test below.
 - [ ] **Secrets.** `TAURI_SIGNING_PRIVATE_KEY`, `TAURI_SIGNING_PRIVATE_KEY_PASSWORD` (v2 key) and `WINGET_TOKEN` are set on the repository.
 - [ ] **Kill switch ready.** `bash app/packaging/release/kill_switch.sh status` works on the machine you would use.
 - [ ] **Scoop pull request drafted** (below), not yet opened.
@@ -131,6 +129,8 @@ Tag and push from `main`:
 git tag v1.6.0
 git push origin v1.6.0
 ```
+
+When the workflow is done, check the draft release (files and notes) and publish it by hand.
 
 ### Release notes and feeds
 
@@ -149,7 +149,7 @@ Decision: **the Tauri updater on a Mac is never offered a Flutter build.** The s
 
 ### Manual upgrade test after publishing
 
-Start from the last Tauri release on each install type, with a project, a Godot version and a workspace in the data, and check that 1.6.0 starts with all of them. Do this on real machines, not only the CI rehearsal.
+Start from the last Tauri release on each install type, with a project, a Godot version and a workspace in the data, and check that 1.6.0 starts with all of them. Do this on real machines.
 
 | Install type | Start from | Expected |
 | --- | --- | --- |
@@ -164,7 +164,6 @@ Start from the last Tauri release on each install type, with a project, a Godot 
 | Linux `.rpm` | 1.5.9 `.rpm` | Same as `.deb` |
 | Linux AppImage | 1.5.9 AppImage | Offered 1.6.0, the AppImage replaces itself and starts 1.6.0 |
 | Tauri 1.5.5 or older | for example 1.4.8 | Offered 1.5.6 by `latest.json`, then 1.6.0 (Windows, Linux) |
-| GodotHub Beta 0.2.5 | next to GodotHub | Shows "GodotHub Beta has ended" with the 1.6.0 link |
 
 ### Rolling back
 
@@ -172,7 +171,7 @@ Updaters only install higher versions, so publishing an older release never take
 
 1. Stop the rollout with the kill switch (above).
 2. If 1.6.x can be fixed, publish 1.6.1 through this workflow.
-3. If it cannot, release the last Tauri code under a new, higher version number. Branch from the v1.5.9 tag, which still has the Tauri `release.yml`; set the version (for example 1.6.2) in `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` and `package.json`; add a changelog entry; then tag `v1.6.2` on that branch. That workflow publishes Tauri packages and a `latest-v2.json` with the standard keys, so Flutter installs on Windows and Linux move back to Tauri through their updater. First check that data written by 1.6.x still loads in that build. Afterwards, the next Flutter release must be numbered higher again (1.6.3 or later).
+3. If it cannot, release the last Tauri code under a new, higher version number. The Tauri app is no longer on `main`; its files (`src-tauri/`, `package.json` and the Tauri `release.yml`) exist only in git history, for example at the v1.5.9 tag. Branch from that tag; set the version (for example 1.6.2) in `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` and `package.json`; add a changelog entry; then tag `v1.6.2` on that branch. That workflow publishes Tauri packages and a `latest-v2.json` with the standard keys, so Flutter installs on Windows and Linux move back to Tauri through their updater. First check that data written by 1.6.x still loads in that build. Afterwards, the next Flutter release must be numbered higher again (1.6.3 or later).
 
 ```bash
 git switch -c rollback-tauri v1.5.9

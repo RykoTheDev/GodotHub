@@ -13,10 +13,10 @@ RequestExecutionLevel user
   !error "pass /DOUTFILE=<setup.exe path>"
 !endif
 !ifndef IDENTIFIER
-  !error "pass /DIDENTIFIER=<channel identifier>"
+  !error "pass /DIDENTIFIER=<app identifier>"
 !endif
 !ifndef DISPLAY_NAME
-  !error "pass /DDISPLAY_NAME=<channel display name>"
+  !error "pass /DDISPLAY_NAME=<app display name>"
 !endif
 !ifndef EXE_NAME
   !error "pass /DEXE_NAME=<binary name>.exe"
@@ -34,16 +34,16 @@ RequestExecutionLevel user
   !define PUBLISHER "Rykode"
 !endif
 !ifndef UNINSTALL_NAME
-  !define UNINSTALL_NAME "${IDENTIFIER}"
+  !define UNINSTALL_NAME "GodotHub"
 !endif
 !ifndef APP_KEY_PARENT
-  !define APP_KEY_PARENT "Software\Ryko"
+  !define APP_KEY_PARENT "Software\GodotHub"
 !endif
 !ifndef APP_KEY
-  !define APP_KEY "${APP_KEY_PARENT}\${IDENTIFIER}"
+  !define APP_KEY "${APP_KEY_PARENT}\GodotHub"
 !endif
 !ifndef APP_KEY_VALUE
-  !define APP_KEY_VALUE "InstallDir"
+  !define APP_KEY_VALUE ""
 !endif
 
 !addplugindir /x86-unicode "${PLUGIN_DIR}"

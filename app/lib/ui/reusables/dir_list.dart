@@ -133,7 +133,7 @@ class _GhDirListState extends State<GhDirList> {
             child: Text(
               ghTr(
                 'default_downloads_go_to',
-                args: {'path': widget.fallbackDownloadPath ?? 'AppData/${Api.channelIdentifier()}/godot-versions/'},
+                args: {'path': widget.fallbackDownloadPath ?? 'AppData/${Api.appIdentifier()}/godot-versions/'},
               ),
               style: theme.text(size: GhTextSize.x3s, color: theme.muted, lineHeight: 1.625),
             ),

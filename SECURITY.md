@@ -40,11 +40,11 @@ publicly.
 
 ## Scope
 
-GodotHub is a desktop application built on Tauri. A report is in scope when it
-affects:
+GodotHub is a desktop application built with Flutter on a shared Rust core. A
+report is in scope when it affects:
 
-- The application itself: the Rust backend, the web frontend, or the Tauri IPC
-  boundary between them.
+- The application itself: the Flutter app, the Rust core, the bridge between
+  them, the Windows launcher, or the `godothub` command line.
 - The auto-updater or the release artifacts, for example a signature or
   integrity problem.
 - Handling of untrusted input such as downloaded archives, Git repositories, or

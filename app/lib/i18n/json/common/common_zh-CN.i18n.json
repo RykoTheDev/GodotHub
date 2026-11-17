@@ -1073,40 +1073,6 @@
   "date_next_month": "下个月",
   "date_change_due": "更改截止日期: {{date}}",
   "date_add_due": "添加截止日期",
-  "flutter_welcome_eyebrow": "欢迎使用新版本",
-  "flutter_welcome_title": "欢迎使用全新的 GodotHub",
-  "flutter_welcome_desc": "GodotHub 已从底层完全重建。它的外观和操作方式仍是你熟悉的样子，只是更快、更流畅。",
-  "flutter_welcome_fast_title": "更快",
-  "flutter_welcome_fast_desc": "启动更快、滚动更流畅，并且占用更少内存。",
-  "flutter_welcome_updates_title": "应用内更新",
-  "flutter_welcome_updates_desc": "新版本可直接在 GodotHub 内下载并安装，每次更新在安装前都会经过检查。",
-  "flutter_welcome_design_title": "全新的设计",
-  "flutter_welcome_design_desc": "更流畅的动效、更清晰的文字，以及跟随系统的主题。",
-  "flutter_welcome_data_title": "你原有的内容都在这里",
-  "flutter_welcome_data_desc": "项目、Godot 版本、设置以及你的 Git 登录信息都已自动迁移。",
-  "flutter_welcome_summary": "你的数据已一并迁移",
-  "flutter_welcome_projects(plural)": {
-    "other": "${count} 个项目"
-  },
-  "flutter_welcome_projects_one": "{{count}} 个项目",
-  "flutter_welcome_projects_other": "{{count}} 个项目",
-  "flutter_welcome_workspaces(plural)": {
-    "other": "${count} 个工作区"
-  },
-  "flutter_welcome_workspaces_one": "{{count}} 个工作区",
-  "flutter_welcome_workspaces_other": "{{count}} 个工作区",
-  "flutter_welcome_templates(plural)": {
-    "other": "${count} 个模板"
-  },
-  "flutter_welcome_templates_one": "{{count}} 个模板",
-  "flutter_welcome_templates_other": "{{count}} 个模板",
-  "flutter_welcome_vault_items(plural)": {
-    "other": "${count} 个储藏库条目"
-  },
-  "flutter_welcome_vault_items_one": "{{count}} 个储藏库条目",
-  "flutter_welcome_vault_items_other": "{{count}} 个储藏库条目",
-  "flutter_welcome_changelog": "查看新功能",
-  "flutter_welcome_continue": "继续",
   "bug_report_intro": "告诉我们出了什么问题。系统会为你附加应用版本、系统详情和最近的日志行。",
   "bug_report_what_happened_placeholder": "描述问题以及它在 GodotHub 中发生的位置。",
   "bug_report_steps_label": "复现步骤",

@@ -214,7 +214,7 @@ mod tests {
         }
     }
 
-    const EXE: &str = "GodotHub Beta.exe";
+    const EXE: &str = "godothub.exe";
 
     fn installed(root: &Root, version: &str) -> Layout {
         let layout = Layout::new(&root.0);

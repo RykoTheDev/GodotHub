@@ -4,13 +4,13 @@ set -euo pipefail
 app_path="$1"
 version="$2"
 out_dir="$3"
-identifier="$4"
-display_name="$5"
+identifier=Ryko.GodotHub
+display_name=GodotHub
 
 bundle_id=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$app_path/Contents/Info.plist")
 bundle_version=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$app_path/Contents/Info.plist")
 if [ "$bundle_id" != "$identifier" ]; then
-  echo "bundle id $bundle_id does not match the channel identifier $identifier" >&2
+  echo "bundle id $bundle_id does not match the app identifier $identifier" >&2
   exit 1
 fi
 if [ "$bundle_version" != "$version" ]; then
@@ -28,7 +28,7 @@ case "$archs" in
   *) echo "expected a universal binary, got: $archs" >&2; exit 1 ;;
 esac
 
-slug="${display_name// /-}"
+slug="$display_name"
 mkdir -p "$out_dir"
 stage=$(mktemp -d)
 trap 'rm -rf "$stage"' EXIT

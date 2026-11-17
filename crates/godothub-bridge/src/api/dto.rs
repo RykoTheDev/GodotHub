@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use serde_json::{Map, Value};
+use serde_json::Value;
 
 use super::error::CoreError;
 use super::types::HealthAction;
@@ -150,14 +150,12 @@ impl TryFrom<ReclaimItem> for godothub_core::storage::ReclaimItem {
 }
 
 pub struct UiPrefs {
-    pub migrated_from_local_storage: bool,
     pub values: HashMap<String, String>,
 }
 
 impl From<godothub_core::ui_prefs::UiPrefs> for UiPrefs {
     fn from(prefs: godothub_core::ui_prefs::UiPrefs) -> Self {
         Self {
-            migrated_from_local_storage: prefs.migrated_from_local_storage,
             values: prefs
                 .values
                 .into_iter()
@@ -204,7 +202,7 @@ pub async fn reclaim_storage(items: Vec<ReclaimItem>) -> Result<super::types::Re
 
 pub async fn get_ui_prefs() -> Result<UiPrefs, CoreError> {
     let app = app()?;
-    Ok(crate::lane::serial(move || godothub_core::ui_prefs::get_ui_prefs_with_webview_import(app)).await?.into())
+    Ok(crate::lane::serial(move || godothub_core::ui_prefs::get_ui_prefs(app)).await?.into())
 }
 
 pub async fn get_ui_pref(key: String) -> Result<Option<String>, CoreError> {
@@ -217,13 +215,4 @@ pub async fn set_ui_pref(key: String, value: String) -> Result<(), CoreError> {
     let app = app()?;
     let value = parse_json(&value)?;
     Ok(crate::lane::serial(move || godothub_core::ui_prefs::set_ui_pref(app, key, value)).await?)
-}
-
-pub async fn import_ui_prefs(values: HashMap<String, String>) -> Result<UiPrefs, CoreError> {
-    let app = app()?;
-    let values = values
-        .into_iter()
-        .map(|(key, raw)| parse_json(&raw).map(|value| (key, value)))
-        .collect::<Result<Map<String, Value>, _>>()?;
-    Ok(crate::lane::serial(move || godothub_core::ui_prefs::import_ui_prefs(app, values)).await?.into())
 }

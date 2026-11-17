@@ -28,7 +28,7 @@ final opened = <String>[];
 
 String ts(String key, {num? count, Map<String, Object?> args = const {}}) => ghTr('settings:$key', count: count, args: args);
 
-const _cli = CliToolStatus(installed: false, onPath: false, binDir: 'C:/bin', shimPath: 'C:/bin/godothub-beta', platform: 'windows', needsNewTerminal: false);
+const _cli = CliToolStatus(installed: false, onPath: false, binDir: 'C:/bin', shimPath: 'C:/bin/godothub', platform: 'windows', needsNewTerminal: false);
 
 GitAuthState authState({bool github = false, List<GitPatInfo> pats = const []}) =>
     GitAuthState(github: github ? const GitAccountInfo(username: 'octo') : null, pats: pats);
@@ -59,7 +59,7 @@ void backend({GitAuthState? auth, GistSyncResult? gist, List<Project> projects =
     ..on('crateApiCliShimCliToolStatus', () async => _cli)
     ..on('crateApiCliShimInstallCliTool', () async {
       calls.add('cli-install');
-      return const CliToolStatus(installed: true, onPath: true, binDir: 'C:/bin', shimPath: 'C:/bin/godothub-beta', platform: 'windows', needsNewTerminal: false);
+      return const CliToolStatus(installed: true, onPath: true, binDir: 'C:/bin', shimPath: 'C:/bin/godothub', platform: 'windows', needsNewTerminal: false);
     })
     ..on('crateApiCliShimUninstallCliTool', () async {
       calls.add('cli-uninstall');

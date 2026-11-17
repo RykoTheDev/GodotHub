@@ -14,7 +14,6 @@ import 'package:godothub/logic/settings_copy.dart';
 import 'package:godothub/modals/contributor_prs_modal.dart';
 import 'package:godothub/settings/categories/credits_settings.dart';
 import 'package:godothub/settings/categories/debug_settings.dart';
-import 'package:godothub/src/rust/api/app.dart';
 import 'package:godothub/src/rust/api/types.dart';
 import 'package:godothub/src/ui_prefs.dart';
 import 'package:godothub/state/app_signals.dart';
@@ -169,7 +168,7 @@ void main() {
     final signals = <String>[];
     final sub = AppSignals.all.listen((s) => signals.add(s.name));
     addTearDown(sub.cancel);
-    await pumpBody(tester, const DebugSettings(channel: 'stable'));
+    await pumpBody(tester, const DebugSettings());
     expect(find.text('Debug'), findsOneWidget);
     expect(find.text('Danger zone'), findsOneWidget);
     expect(find.text('Re-import from GodotHub'), findsNothing);
@@ -245,7 +244,7 @@ void main() {
       Consumer(
         builder: (context, ref, _) {
           widgetRef = ref;
-          return const DebugSettings(channel: 'stable');
+          return const DebugSettings();
         },
       ),
     );
@@ -267,19 +266,6 @@ void main() {
     expect(widgetRef.read(updateAvailableProvider).previewUpdate, isFalse);
   });
 
-  testWidgets('debug Preview Flutter welcome asks the shell to show it', (tester) async {
-    setDebugUnlocked(true);
-    final signals = <String>[];
-    final sub = AppSignals.all.listen((s) => signals.add(s.name));
-    addTearDown(sub.cancel);
-    await pumpBody(tester, const DebugSettings(channel: 'stable'));
-    expect(find.text('Preview Flutter welcome'), findsOneWidget);
-    await tester.ensureVisible(find.text('Show welcome'));
-    await tester.tap(find.text('Show welcome'));
-    await tester.pump();
-    expect(signals, contains(previewFlutterWelcomeSignal));
-  });
-
   testWidgets('debug copy info writes settings JSON to the clipboard', (tester) async {
     String? copied;
     tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async {
@@ -288,7 +274,7 @@ void main() {
     });
     addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
     rust.on('crateApiSettingsExportSettings', ({required String path}) async => File(path).writeAsStringSync('{"theme":"dark"}'));
-    await pumpBody(tester, const DebugSettings(channel: 'stable'));
+    await pumpBody(tester, const DebugSettings());
     await tester.runAsync(() async {
       await tester.tap(find.text('Copy'));
       for (var i = 0; i < 20 && copied == null; i++) {
@@ -304,74 +290,8 @@ void main() {
     await base.drainToasts(tester);
   });
 
-  testWidgets('beta re-import asks to confirm, re-imports and restarts', (tester) async {
-    final relaunched = <String>[];
-    DebugSettings.debugRelaunch = () async => relaunched.add('relaunch');
-    var imports = 0;
-    await pumpBody(
-      tester,
-      DebugSettings(
-        channel: 'beta',
-        reimport: () async {
-          imports++;
-          return BetaImport(imported: true, copiedFiles: BigInt.from(12));
-        },
-      ),
-    );
-    final row = find.text('Re-import from GodotHub');
-    expect(row, findsOneWidget);
-    ghToasts.clear();
-    await tester.pump();
-    await tester.ensureVisible(find.text('Re-import'));
-    await tester.tap(find.text('Re-import'));
-    await base.settle(tester, 2);
-    expect(imports, 0);
-    ghToasts.clear();
-    await tester.pump();
-    await tester.tap(find.text('Confirm re-import'));
-    await base.settle(tester, 3);
-    expect(imports, 1);
-    expect(relaunched, ['relaunch']);
-    expect(toastTexts(tester), contains('Re-imported 12 files from GodotHub'));
-    expect(find.text('Confirm re-import'), findsNothing);
-    await base.drainToasts(tester);
-  });
-
-  testWidgets('beta re-import reports failures and restart problems', (tester) async {
-    DebugSettings.debugRelaunch = () async => throw UnsupportedError('no relaunch');
-    var fail = true;
-    await pumpBody(
-      tester,
-      DebugSettings(
-        channel: 'beta',
-        reimport: () async {
-          if (fail) throw StateError('locked');
-          return BetaImport(imported: true, copiedFiles: BigInt.one);
-        },
-      ),
-    );
-    ghToasts.clear();
-    await tester.pump();
-    await tester.ensureVisible(find.text('Re-import'));
-    await tester.tap(find.text('Re-import'));
-    await base.settle(tester, 2);
-    ghToasts.clear();
-    await tester.pump();
-    await tester.tap(find.text('Confirm re-import'));
-    await base.settle(tester, 3);
-    expect(toastTexts(tester).any((t) => t.startsWith('Could not re-import from GodotHub')), isTrue);
-    expect(find.text('Confirm re-import'), findsOneWidget);
-    fail = false;
-    ghToasts.clear();
-    await tester.pump();
-    await tester.tap(find.text('Confirm re-import'));
-    await base.settle(tester, 3);
-    expect(toastTexts(tester), contains('Restart GodotHub Beta to load the imported data'));
-    await base.drainToasts(tester);
-  });
-
   testWidgets('debug crash throws a render error', (tester) async {
-    await pumpBody(tester, const DebugSettings(channel: 'stable'));
+    await pumpBody(tester, const DebugSettings());
     ghToasts.clear();
     await tester.pump();
     await tester.ensureVisible(find.text('Crash'));
@@ -383,7 +303,7 @@ void main() {
   testWidgets('crash tests ask before quitting and copy an empty log safely', (tester) async {
     tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, (call) async => null);
     addTearDown(() => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(SystemChannels.platform, null));
-    await pumpBody(tester, const DebugSettings(channel: 'stable'));
+    await pumpBody(tester, const DebugSettings());
     ghToasts.clear();
     await tester.pump();
     await tester.ensureVisible(find.text('Quit'));

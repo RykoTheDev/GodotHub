@@ -28,7 +28,5 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
-	<key>GodotHubDartDefines</key>
-	<string>$(DART_DEFINES)</string>
 </dict>
 </plist>

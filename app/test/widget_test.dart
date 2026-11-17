@@ -14,7 +14,7 @@ const status = CliToolStatus(
   installed: true,
   onPath: false,
   binDir: 'C:/beta/bin',
-  shimPath: 'C:/beta/bin/godothub-beta.cmd',
+  shimPath: 'C:/bin/godothub.cmd',
   platform: 'windows',
   needsNewTerminal: false,
 );
@@ -27,15 +27,15 @@ void main() {
           fakeSettings(() => Future<AppSettings>.error('core failed')),
           cliToolStatusProvider.overrideWith((ref) async => status),
         ],
-        child: const MaterialApp(home: HelloScreen(title: 'GodotHub Beta')),
+        child: const MaterialApp(home: HelloScreen(title: 'GodotHub')),
       ),
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('GodotHub Beta: Hello from core'), findsOneWidget);
+    expect(find.text('GodotHub: Hello from core'), findsOneWidget);
     expect(find.text('core failed'), findsOneWidget);
     expect(selectableText('installed: true'), findsOneWidget);
-    expect(selectableText('shim_path: C:/beta/bin/godothub-beta.cmd'), findsOneWidget);
+    expect(selectableText('shim_path: C:/bin/godothub.cmd'), findsOneWidget);
     expect(find.text('Install command'), findsOneWidget);
   });
 }

@@ -11,7 +11,7 @@ const PLATFORM = { win32: 'windows', linux: 'linux', darwin: 'macos' }[process.p
 const RESULTS = path.join(LAB, 'results', PLATFORM)
 const PROJECT_COUNT = 120
 const SECRETS = new Set(['git-credentials', 'git_auth.json'])
-const APP_NAMES = ['godothub', 'godothub-beta', 'GodotHub', 'GodotHub Beta']
+const APP_NAMES = ['godothub', 'GodotHub']
 
 if (!PLATFORM) throw new Error(`unsupported platform ${process.platform}`)
 
@@ -48,7 +48,7 @@ function load(name) {
   return fs.existsSync(file) ? readJson(file) : null
 }
 
-function tauriDataDir() {
+function dataDir() {
   const home = os.homedir()
   if (PLATFORM === 'windows') return path.join(process.env.APPDATA, 'Ryko.GodotHub')
   if (PLATFORM === 'macos') return path.join(home, 'Library', 'Application Support', 'Ryko.GodotHub')
@@ -56,25 +56,13 @@ function tauriDataDir() {
 }
 
 function flutterExe() {
-  if (PLATFORM === 'windows') return path.join(APP, 'build', 'windows', 'x64', 'runner', 'Release', 'godothub-beta.exe')
-  if (PLATFORM === 'linux') return path.join(APP, 'build', 'linux', 'x64', 'release', 'bundle', 'godothub-beta')
+  if (PLATFORM === 'windows') return path.join(APP, 'build', 'windows', 'x64', 'runner', 'Release', 'godothub.exe')
+  if (PLATFORM === 'linux') return path.join(APP, 'build', 'linux', 'x64', 'release', 'bundle', 'godothub')
   const products = path.join(APP, 'build', 'macos', 'Build', 'Products', 'Release')
   const bundle = fs.existsSync(products) ? fs.readdirSync(products).find((n) => n.endsWith('.app')) : null
-  if (!bundle) return path.join(products, 'GodotHub Beta.app', 'Contents', 'MacOS', 'GodotHub Beta')
+  if (!bundle) return path.join(products, 'GodotHub.app', 'Contents', 'MacOS', 'GodotHub')
   const macosDir = path.join(products, bundle, 'Contents', 'MacOS')
   return path.join(macosDir, fs.readdirSync(macosDir)[0])
-}
-
-function tauriExe(opts) {
-  if (opts.exe) return opts.exe
-  if (process.env.GODOTHUB_TAURI_EXE) return process.env.GODOTHUB_TAURI_EXE
-  if (PLATFORM === 'windows') return path.join(process.env.LOCALAPPDATA, 'GodotHub', 'godothub.exe')
-  if (PLATFORM === 'macos') {
-    const dir = '/Applications/GodotHub.app/Contents/MacOS'
-    return fs.existsSync(dir) ? path.join(dir, fs.readdirSync(dir)[0]) : null
-  }
-  const which = run('which', ['godothub'])
-  return which.status === 0 ? which.stdout.trim() : null
 }
 
 let machineCache
@@ -185,7 +173,7 @@ function generateBench(profile, projectsDir) {
 }
 
 function setup(opts) {
-  const source = opts.from || tauriDataDir()
+  const source = opts.from || dataDir()
   fs.mkdirSync(LAB, { recursive: true })
   const real = path.join(LAB, 'real')
   const bench = path.join(LAB, 'bench')
@@ -207,7 +195,7 @@ function setup(opts) {
 
 function build(opts) {
   const target = { windows: 'windows', linux: 'linux', macos: 'macos' }[PLATFORM]
-  const args = ['build', target, '--release', '--dart-define=GODOTHUB_BENCH=true', `--dart-define=CHANNEL=${opts.channel || 'beta'}`, '--dart-define=APP_VERSION=0.0.0-bench', '--build-name=0.0.0']
+  const args = ['build', target, '--release', '--dart-define=GODOTHUB_BENCH=true', '--dart-define=APP_VERSION=0.0.0-bench', '--build-name=0.0.0']
   log('flutter', args.join(' '))
   const r = spawnSync('flutter', args, { cwd: APP, stdio: 'inherit', shell: PLATFORM === 'windows' })
   if (r.status !== 0) throw new Error('flutter build failed')
@@ -389,7 +377,8 @@ async function flutterDrag(label) {
   save(`flutter-drag-${label}`, { label, refreshMs: round(refreshMs, 2), runs })
 }
 
-const FLUTTER_TASKS = ['coldstart', 'memory', 'views', 'scroll', 'drag']
+
+const FLUTTER_TASKS = ['coldstart', 'window', 'memory', 'views', 'scroll', 'drag']
 
 async function flutter(opts) {
   const tasks = opts._.length ? opts._ : FLUTTER_TASKS
@@ -397,6 +386,7 @@ async function flutter(opts) {
   for (const label of datasets(opts)) {
     for (const t of tasks) {
       if (t === 'coldstart') await flutterColdstart(label, runs)
+      else if (t === 'window') await flutterWindow(label, runs)
       else if (t === 'memory') await flutterMemory(label, Math.min(runs, 3))
       else if (t === 'views') await flutterViews(label)
       else if ((t === 'scroll' || t === 'drag') && label !== 'bench') continue
@@ -422,10 +412,8 @@ function windowVisible(pid) {
   return w.status === 0 && w.stdout.split('\n').some((l) => l.split(/\s+/)[2] === String(pid))
 }
 
-function checkWindowTool() {
-  if (PLATFORM !== 'linux') return
-  const ok = run('sh', ['-c', 'command -v xdotool || command -v wmctrl']).status === 0
-  if (!ok) throw new Error('install xdotool or wmctrl (X11 session) to time the first window on Linux')
+function hasWindowTool() {
+  return PLATFORM !== 'linux' || run('sh', ['-c', 'command -v xdotool || command -v wmctrl']).status === 0
 }
 
 async function timeToWindow(exe, args, env, timeoutMs = 60000) {
@@ -440,53 +428,23 @@ async function timeToWindow(exe, args, env, timeoutMs = 60000) {
   throw new Error('no window after 60 s')
 }
 
-async function closeChild(child) {
-  if (PLATFORM === 'windows') run('taskkill', ['/PID', String(child.pid), '/T'])
-  else child.kill('SIGTERM')
-  await waitExit(child)
-}
-
-async function tauri(opts) {
-  checkWindowTool()
-  const exe = tauriExe(opts)
-  if (!exe || !fs.existsSync(exe)) throw new Error('Tauri GodotHub not found; pass --exe <path to the Tauri executable or AppImage>')
-  log(`Tauri app: ${exe} (runs on its own data folder, ${tauriDataDir()})`)
-  const runs = Number(opts.runs || 5)
-  const cold = []
+async function flutterWindow(label, runs) {
+  if (!hasWindowTool()) { log('xdotool or wmctrl not found, skipping the first window timing (X11 session needed)'); return }
+  const exe = flutterExe()
+  if (!fs.existsSync(exe)) throw new Error(`benchmark build not found at ${exe}; run "build" first`)
+  const results = []
   for (let i = 0; i < runs; i++) {
     assertNotRunning()
-    const { child, windowMs } = await timeToWindow(exe, [], process.env)
-    log(`tauri first window #${i + 1}`, windowMs, 'ms')
-    cold.push({ windowMs })
-    await closeChild(child)
-    await sleep(8000)
-  }
-  const memory = []
-  for (let i = 0; i < Math.min(runs, 3); i++) {
-    assertNotRunning()
-    const child = spawn(exe, [], { stdio: 'ignore' })
-    await sleep(30000)
-    const m = memorySample(child.pid)
-    log(`tauri memory #${i + 1}`, { privateMB: m.privateMB, rssMB: m.rssMB, processes: m.processes })
-    memory.push(m)
-    await closeChild(child)
-    await sleep(3000)
-  }
-  save('tauri', { exe, cold, coldSummary: summarize(cold, ['windowMs']), memory, memorySummary: summarize(memory, ['privateMB', 'rssMB', 'processes']) })
-
-  const fl = []
-  for (let i = 0; i < runs; i++) {
-    assertNotRunning()
-    const data = freshData(datasets(opts).includes('real') ? 'real' : 'bench')
-    const out = path.join(LAB, 'work', 'window.json')
-    const { child, windowMs } = await timeToWindow(flutterExe(), [], { ...process.env, GODOTHUB_BENCH_DATA: data, GODOTHUB_BENCH_TASK: 'idle', GODOTHUB_BENCH_OUT: out })
-    log(`flutter first window #${i + 1}`, windowMs, 'ms')
-    fl.push({ windowMs })
+    const data = freshData(label)
+    const out = path.join(LAB, 'work', `${label}-window.json`)
+    const { child, windowMs } = await timeToWindow(exe, [], { ...process.env, GODOTHUB_BENCH_DATA: data, GODOTHUB_BENCH_TASK: 'idle', GODOTHUB_BENCH_OUT: out })
+    log(`first window ${label} #${i + 1}`, windowMs, 'ms')
+    results.push({ windowMs })
     child.kill()
     await waitExit(child)
     await sleep(8000)
   }
-  save('flutter-window', { cold: fl, coldSummary: summarize(fl, ['windowMs']) })
+  save(`flutter-window-${label}`, { label, results, summary: summarize(results, ['windowMs']) })
 }
 
 function cell(v, unit = '') { return v === null || v === undefined || Number.isNaN(v) ? 'n/a' : `${round(v, 1)}${unit}` }
@@ -494,24 +452,16 @@ function cell(v, unit = '') { return v === null || v === undefined || Number.isN
 function report() {
   const m = machine()
   const lines = [`# GodotHub benchmark (${PLATFORM})`, '', `Generated ${new Date().toISOString()} by dev/tool/bench/bench.mjs.`, '', '## Machine', '', '| | |', '|---|---|', `| OS | ${PLATFORM} ${m.release} |`, `| CPU | ${m.cpu} (${m.threads} threads) |`, `| GPU | ${m.gpu ?? 'unknown'} |`, `| RAM | ${m.memoryGB} GB |`, `| Display | ${m.refreshHz} Hz |`, '']
-  const t = load('tauri')
-  const fw = load('flutter-window')
-  if (t || fw) {
-    lines.push('## Flutter vs Tauri (same method for both)', '', 'First window: process spawn to the first visible window (median of runs). Memory: process tree after 30 s idle (median). Tauri runs on its own data folder, Flutter on a copy of it.', '', '| Metric | Tauri | Flutter |', '|---|---|---|')
-    lines.push(`| First window | ${cell(t?.coldSummary?.windowMs?.median, ' ms')} | ${cell(fw?.coldSummary?.windowMs?.median, ' ms')} |`)
-    const fm = load('flutter-memory-real') || load('flutter-memory-bench')
-    lines.push(`| Private memory | ${cell(t?.memorySummary?.privateMB?.median, ' MB')} | ${cell(fm?.summary?.privateMB?.median, ' MB')} |`)
-    lines.push(`| Resident memory (RSS) | ${cell(t?.memorySummary?.rssMB?.median, ' MB')} | ${cell(fm?.summary?.rssMB?.median, ' MB')} |`)
-    lines.push(`| Processes | ${cell(t?.memorySummary?.processes?.median)} | ${cell(fm?.summary?.processes?.median)} |`, '')
-  }
   lines.push('## Flutter details', '')
   for (const label of ['real', 'bench']) {
     const c = load(`flutter-coldstart-${label}`)
     const mem = load(`flutter-memory-${label}`)
     const v = load(`flutter-views-${label}`)
-    if (!c && !mem && !v) continue
+    const fw = load(`flutter-window-${label}`)
+    if (!c && !mem && !v && !fw) continue
     lines.push(`### ${label === 'real' ? 'Real data' : `Bench data (${PROJECT_COUNT} projects)`}`, '', '| Metric | Median | Range |', '|---|---|---|')
     if (c) for (const [k, name] of [['firstFrameMs', 'First frame'], ['readyMs', 'Ready (projects shown)'], ['interactiveMs', 'Interactive']]) lines.push(`| ${name} | ${c.summary[k].median} ms | ${c.summary[k].min} to ${c.summary[k].max} ms |`)
+    if (fw) lines.push(`| First window | ${fw.summary.windowMs.median} ms | ${fw.summary.windowMs.min} to ${fw.summary.windowMs.max} ms |`)
     if (mem) lines.push(`| Private memory | ${cell(mem.summary.privateMB.median, ' MB')} | ${cell(mem.summary.privateMB.min)} to ${cell(mem.summary.privateMB.max, ' MB')} |`, `| Resident memory | ${mem.summary.rssMB.median} MB | ${mem.summary.rssMB.min} to ${mem.summary.rssMB.max} MB |`)
     if (v) for (const view of ['versions', 'settings', 'projects']) { const s = v.summary[view]; lines.push(`| ${view}: first open content / settled | ${s.firstContentMs} / ${s.firstSettledMs} ms | later switches ${s.warmContentMs} / ${s.warmSettledMs} ms |`) }
     lines.push('')
@@ -531,11 +481,10 @@ function report() {
 
 const USAGE = `GodotHub benchmark (Windows, Linux, macOS)
 
-  node ../dev/tool/bench/bench.mjs all                 setup + build + flutter + tauri (if installed) + report
+  node ../dev/tool/bench/bench.mjs all                 setup + build + flutter + report
   node ../dev/tool/bench/bench.mjs setup [--from DIR]  copy GodotHub data (no credentials) and generate the ${PROJECT_COUNT}-project bench set
   node ../dev/tool/bench/bench.mjs build               build the Flutter benchmark binary for this OS
   node ../dev/tool/bench/bench.mjs flutter [tasks]     tasks: ${FLUTTER_TASKS.join(' ')} (default all) [--data real|bench] [--runs N]
-  node ../dev/tool/bench/bench.mjs tauri [--exe PATH]  first window and memory of the installed Tauri app, plus Flutter first window
   node ../dev/tool/bench/bench.mjs report              write results/<os>/REPORT.md
 
 Results go to ${path.relative(process.cwd(), RESULTS) || RESULTS}. Close every GodotHub window before running.`
@@ -546,14 +495,11 @@ try {
   if (cmd === 'setup') setup(opts)
   else if (cmd === 'build') build(opts)
   else if (cmd === 'flutter') await flutter(opts)
-  else if (cmd === 'tauri') await tauri(opts)
   else if (cmd === 'report') report()
   else if (cmd === 'all') {
     if (!fs.existsSync(path.join(LAB, 'bench'))) setup(opts)
     if (!opts['skip-build']) build(opts)
     await flutter({ ...opts, _: [] })
-    if (tauriExe(opts) && fs.existsSync(tauriExe(opts))) await tauri(opts)
-    else log('Tauri GodotHub not found, skipping the comparison (pass --exe to include it)')
     report()
   } else {
     console.log(USAGE)

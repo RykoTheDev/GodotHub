@@ -6,14 +6,8 @@ use std::sync::{Arc, OnceLock, PoisonError, RwLock};
 use serde::Serialize;
 use serde_json::value::RawValue;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub enum Channel {
-    Stable,
-    Beta,
-}
-
 #[derive(Debug)]
-pub struct ChannelInfo {
+pub struct AppInfo {
     pub identifier: &'static str,
     pub display_name: &'static str,
     pub cli_shim_name: &'static str,
@@ -24,7 +18,7 @@ pub struct ChannelInfo {
 
 const UPDATER_PUBLIC_KEY_V2: &str = "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDQ2NUUyOUY1RUExQTIyMTQKUldRVUlocnE5U2xlUmtpOVRDZTAvWWtwM2dkUWpSb0ZadTkzeS8xOEhFVkU1UVlMUWRwN0h3VW8K";
 
-const STABLE: ChannelInfo = ChannelInfo {
+pub const APP: AppInfo = AppInfo {
     identifier: "Ryko.GodotHub",
     display_name: "GodotHub",
     cli_shim_name: "godothub",
@@ -32,24 +26,6 @@ const STABLE: ChannelInfo = ChannelInfo {
     updater_public_keys: &[UPDATER_PUBLIC_KEY_V2],
     single_instance_key: "Ryko.GodotHub",
 };
-
-const BETA: ChannelInfo = ChannelInfo {
-    identifier: "Ryko.GodotHub.Beta",
-    display_name: "GodotHub Beta",
-    cli_shim_name: "godothub-beta",
-    update_endpoint: "https://github.com/RykoTheDev/godothub/releases/download/flutter-beta/latest.json",
-    updater_public_keys: &[UPDATER_PUBLIC_KEY_V2],
-    single_instance_key: "Ryko.GodotHub.Beta",
-};
-
-impl Channel {
-    pub const fn info(self) -> &'static ChannelInfo {
-        match self {
-            Channel::Stable => &STABLE,
-            Channel::Beta => &BETA,
-        }
-    }
-}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct UnknownPath;
@@ -70,8 +46,8 @@ pub struct Paths {
 }
 
 impl Paths {
-    pub fn for_channel(channel: Channel) -> Self {
-        let identifier = channel.info().identifier;
+    pub fn default_dirs() -> Self {
+        let identifier = APP.identifier;
         Self {
             data: dirs::data_dir().map(|dir| dir.join(identifier)),
             config: dirs::config_dir().map(|dir| dir.join(identifier)),
@@ -125,7 +101,6 @@ pub trait Host: Send + Sync {
 type StateMap = HashMap<TypeId, Arc<dyn Any + Send + Sync>>;
 
 struct Inner {
-    channel: Channel,
     paths: Paths,
     events: Arc<dyn EventSink>,
     host: Arc<dyn Host>,
@@ -136,18 +111,13 @@ struct Inner {
 pub struct AppHandle(Arc<Inner>);
 
 impl AppHandle {
-    pub fn new(channel: Channel, paths: Paths, events: Arc<dyn EventSink>, host: Arc<dyn Host>) -> Self {
+    pub fn new(paths: Paths, events: Arc<dyn EventSink>, host: Arc<dyn Host>) -> Self {
         Self(Arc::new(Inner {
-            channel,
             paths,
             events,
             host,
             states: RwLock::new(HashMap::new()),
         }))
-    }
-
-    pub fn channel(&self) -> Channel {
-        self.0.channel
     }
 
     pub fn path(&self) -> &Paths {
@@ -222,7 +192,7 @@ mod tests {
     }
 
     fn handle(recorder: Arc<Recorder>) -> AppHandle {
-        AppHandle::new(Channel::Stable, Paths::for_channel(Channel::Stable), recorder, Arc::new(NoHost))
+        AppHandle::new(Paths::default_dirs(), recorder, Arc::new(NoHost))
     }
 
     #[test]
@@ -246,16 +216,9 @@ mod tests {
     }
 
     #[test]
-    fn channels_map_to_their_own_identity() {
-        assert_eq!(Channel::Stable.info().identifier, "Ryko.GodotHub");
-        assert_eq!(Channel::Beta.info().identifier, "Ryko.GodotHub.Beta");
-        assert_eq!(Channel::Stable.info().cli_shim_name, "godothub");
-        assert_eq!(Channel::Beta.info().cli_shim_name, "godothub-beta");
-        assert_eq!(Channel::Stable.info().single_instance_key, Channel::Stable.info().identifier);
-        assert_ne!(Channel::Stable.info().update_endpoint, Channel::Beta.info().update_endpoint);
-        let stable = Paths::for_channel(Channel::Stable).app_data_dir().unwrap();
-        let beta = Paths::for_channel(Channel::Beta).app_data_dir().unwrap();
-        assert_ne!(stable, beta);
-        assert_eq!(stable.parent(), beta.parent());
+    fn default_dirs_use_the_app_identifier() {
+        assert_eq!(APP.single_instance_key, APP.identifier);
+        let data = Paths::default_dirs().app_data_dir().unwrap();
+        assert!(data.ends_with(APP.identifier));
     }
 }

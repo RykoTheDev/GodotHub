@@ -2,15 +2,13 @@ use std::io::{BufRead, BufReader, Write};
 
 use interprocess::local_socket::{prelude::*, GenericNamespaced, ListenerOptions, Stream};
 
-use crate::Channel;
-
-fn socket_name(channel: Channel) -> String {
+fn socket_name() -> String {
     let user: String = crate::system::get_os_username()
         .unwrap_or_default()
         .chars()
         .filter(char::is_ascii_alphanumeric)
         .collect();
-    format!("{}.{user}.sock", channel.info().single_instance_key)
+    format!("{}.{user}.sock", crate::APP.single_instance_key)
 }
 
 fn forward_to(name: &str, args: &[String]) -> bool {
@@ -76,8 +74,8 @@ fn wait_for_previous_instance(name: &str) {
     }
 }
 
-pub fn forward_to_running_instance(channel: Channel, args: &[String]) -> bool {
-    let name = socket_name(channel);
+pub fn forward_to_running_instance(args: &[String]) -> bool {
+    let name = socket_name();
     if std::env::var_os(RELAUNCH_ENV).is_some() {
         std::env::remove_var(RELAUNCH_ENV);
         wait_for_previous_instance(&name);
@@ -98,11 +96,11 @@ pub fn relaunch(args: &[String]) -> Result<(), String> {
         .map_err(|e| e.to_string())
 }
 
-pub fn listen_for_other_instances<F>(channel: Channel, on_args: F) -> Result<(), String>
+pub fn listen_for_other_instances<F>(on_args: F) -> Result<(), String>
 where
     F: Fn(Vec<String>) + Send + 'static,
 {
-    listen_on(&socket_name(channel), on_args)
+    listen_on(&socket_name(), on_args)
 }
 
 #[cfg(windows)]
@@ -117,10 +115,9 @@ fn allow_foreground_handoff() {
 fn allow_foreground_handoff() {}
 
 #[no_mangle]
-pub extern "C" fn godothub_forward_to_running_instance(channel: u32) -> bool {
-    let channel = if channel == 0 { Channel::Stable } else { Channel::Beta };
+pub extern "C" fn godothub_forward_to_running_instance() -> bool {
     let args: Vec<String> = std::env::args().collect();
-    std::panic::catch_unwind(|| forward_to_running_instance(channel, &args)).unwrap_or(false)
+    std::panic::catch_unwind(|| forward_to_running_instance(&args)).unwrap_or(false)
 }
 
 #[cfg(test)]
@@ -164,8 +161,8 @@ mod tests {
     }
 
     #[test]
-    fn channels_use_different_sockets() {
-        assert_ne!(socket_name(Channel::Stable), socket_name(Channel::Beta));
-        assert!(socket_name(Channel::Beta).starts_with("Ryko.GodotHub.Beta."));
+    fn socket_is_named_after_the_app() {
+        assert!(socket_name().starts_with("Ryko.GodotHub."));
+        assert!(socket_name().ends_with(".sock"));
     }
 }

@@ -9,11 +9,11 @@ the Flutter app, finding something to work on, code and UI conventions, and in
 depth, how **localization** works and how to add or improve a language.
 
 > [!NOTE]
-> GodotHub is now a **Flutter + Rust** desktop app. The Flutter app lives in
-> `app/` and talks to the shared Rust core in `crates/`. The old React + Tauri
-> app in `src/` and `src-tauri/` is legacy: it still builds the last Tauri
-> releases, but new features and fixes go into the Flutter app. The one part of
-> `src/` everyone still uses is `src/i18n/locales/`, the translation source.
+> GodotHub is a **Flutter + Rust** desktop app. The Flutter app lives in
+> `app/` and talks to the shared Rust core in `crates/`. Translations live next
+> to the app in `app/lib/i18n/json/`. Releases before 1.6.0 were built with
+> Tauri; that code is no longer in the repository (it is still in git history,
+> for example at the `v1.5.9` tag).
 
 ---
 
@@ -31,7 +31,6 @@ depth, how **localization** works and how to add or improve a language.
 - [Localization](#-localization)
 - [Testing & CI](#-testing--ci)
 - [Release Process](#-release-process)
-- [Legacy Tauri App](#-legacy-tauri-app)
 - [Getting Help](#-getting-help)
 
 ---
@@ -52,7 +51,7 @@ You don't have to write code to help:
 |---|---|
 | **Report a bug** | Open an issue with steps to reproduce, expected vs. actual behavior, and your OS + app version. The in-app bug report fills in most of that for you. |
 | **Request a feature** | Open an issue describing *what* you want and *why*. Screenshots/mockups help a lot. |
-| **Translate** | Add or improve a language by editing the JSON files in `src/i18n/locales/`. No coding, Flutter or Dart knowledge is needed. See the [Localization section](#-localization). |
+| **Translate** | Add or improve a language by editing the JSON files in `app/lib/i18n/json/`. No coding, Flutter or Dart knowledge is needed. See the [Localization section](#-localization). |
 | **Test** | The app is only heavily tested on Windows, Arch Linux (Hyprland), Fedora (Gnome) 43, and recent macOS. Try a build on your setup and report what breaks. |
 | **Write docs** | Improve the README, this file, or the [docs site](https://ryko.is-a.dev/godothub-docs). |
 | **Fix a bug / build a feature** | The traditional path, see below. |
@@ -119,7 +118,7 @@ your PR I'm happy to discuss it.
 | **Rust (stable)** | Shared core (`crates/`) and the Flutter bridge | CI uses Rust 1.99.1. Install via [rustup](https://rustup.rs). |
 | **Desktop toolchain** | Native build of the Flutter desktop shell | **Windows:** Visual Studio with *Desktop development with C++*. **macOS:** Xcode and its command-line tools. **Linux:** `clang`, `cmake`, `ninja-build`, `pkg-config`, `libgtk-3-dev`, `libx11-dev`, `libxi-dev`, `liblzma-dev`. |
 | **Git** | Version control | Also required by the app's Git features. |
-| **Node.js 20+ / Bun** *(optional)* | Legacy i18n helper scripts (`bun run i18n:*`) and the legacy Tauri app | Not needed to build or run the Flutter app. |
+| **Node.js 20+** *(optional)* | A few repo scripts: the third-party Rust notices check (`dev/tool/gen_rust_notices.mjs`), `dev/tool/ci_local.sh`, the benchmark and the release scripts in `app/packaging/release/` | Not needed to build or run the app. |
 | **flutter_rust_bridge_codegen 2.13** *(only when changing the bridge API)* | Regenerates the Dart/Rust bindings | `cargo install flutter_rust_bridge_codegen --version 2.13.0` |
 
 ### 1. Clone & install
@@ -130,8 +129,11 @@ cd GodotHub/app
 flutter pub get
 ```
 
-If you use Bun, `bun install` at the repository root also points git at the
-repo's hooks (see [Git hooks](#git-hooks)).
+Then point git at the repo's hooks once (see [Git hooks](#git-hooks)):
+
+```bash
+git config core.hooksPath .githooks
+```
 
 ### 2. Verify the toolchain
 
@@ -160,6 +162,14 @@ The Rust core and the bridge are compiled automatically as part of the Flutter
 build (`app/rust_builder`). Press `r` for hot reload and `R` for hot restart.
 Changes to Rust code need a full restart (`q`, then `flutter run` again).
 
+> [!WARNING]
+> A dev build is the same app as an installed GodotHub: identifier
+> `Ryko.GodotHub`, the same data folder and the same single-instance lock.
+> Only one of them can run at a time, so close an installed GodotHub before
+> `flutter run`. The dev build reads and writes your real projects, versions
+> and settings, so back up the data folder first if you are worried about
+> breaking it. Widget tests never touch it (they use a fake Rust API).
+
 ### Building a release
 
 ```bash
@@ -167,8 +177,9 @@ cd app
 flutter build windows --release   # or macos / linux
 ```
 
-Build outputs land under `app/build/`. Installers and update packages are made
-by the release workflows (see [Release Process](#-release-process)), not by
+Build outputs land under `app/build/`; Rust build output goes to `target/` at
+the repository root. Installers and update packages are made by the release
+workflow (see [Release Process](#-release-process)), not by
 hand.
 
 ### Useful commands
@@ -180,15 +191,19 @@ hand.
 | `flutter test` | All widget and unit tests |
 | `flutter test test/projects` | Tests for one area |
 | `dart format -l 140 <files>` | Format the files you touched (the repo uses 140 columns) |
-| `dart run ../dev/tool/i18n_convert.dart && dart run slang` | Regenerate Flutter translations from `src/i18n/locales` |
+| `dart run slang` | Regenerate `lib/i18n/strings*.g.dart` after editing a locale file |
 | `dart run ../dev/tool/i18n/check_keys.dart --check-values` | Locale completeness report |
+| `dart run ../dev/tool/i18n/duplicate_keys.dart` | Keys duplicated across namespaces |
+| `dart run ../dev/tool/i18n/unused_keys.dart` | Keys no Dart source references |
 | `flutter_rust_bridge_codegen generate` | Regenerate the bridge after changing `crates/godothub-bridge/src/api` |
 
 | Command (from the repo root) | Purpose |
 |---|---|
 | `cargo test -p godothub_core -p godothub_bridge` | Rust tests |
-| `cargo check --workspace` | Type-check every crate, including the legacy Tauri one |
+| `cargo check --workspace` | Type-check every crate (core, bridge, launcher) |
 | `cargo fmt` | Format Rust code |
+| `bash dev/tool/ci_local.sh` | Run the CI `checks` job locally (see [Development Workflow](#-development-workflow)) |
+| `node dev/tool/gen_rust_notices.mjs` | Regenerate `app/assets/licenses/rust-crates.txt` after changing Rust dependencies (`--check` only verifies it) |
 
 ---
 
@@ -225,7 +240,10 @@ godothub/
 │   │   ├── state/                    # Riverpod providers and notifiers
 │   │   ├── logic/                    # Pure helpers (sorting, search, formatting)
 │   │   ├── api/                      # Thin Dart wrappers over the Rust bridge
-│   │   ├── i18n/                     # Generated translations (do not edit by hand)
+│   │   ├── i18n/
+│   │   │   ├── json/                 #   Translation source: <namespace>/<namespace>_<locale>.i18n.json
+│   │   │   ├── languages.dart        #   Language picker entries and their status
+│   │   │   └── strings*.g.dart       #   Generated by `dart run slang` (do not edit by hand)
 │   │   └── src/rust/                 # Generated bridge bindings (do not edit by hand)
 │   ├── test/                         # Widget and unit tests, mirroring lib/
 │   ├── integration_test/             # End-to-end tests
@@ -233,20 +251,22 @@ godothub/
 │   └── windows/ macos/ linux/        # Native desktop runners
 ├── crates/
 │   ├── godothub-core/                # All app logic in Rust: projects, versions, git,
-│   │                                 #   templates, asset library, settings, persistence
+│   │   │                             #   templates, asset library, settings, persistence
+│   │   └── assets/                   #   Theme defaults, default project icon, project
+│   │                                 #   license templates (project-licenses/)
 │   ├── godothub-bridge/              # flutter_rust_bridge API exposed to Dart
 │   └── godothub-launcher/            # Windows launcher that starts and rolls back updates
-├── src/i18n/locales/                 # Translation source of truth (JSON per locale)
-├── src/, src-tauri/                  # Legacy React + Tauri app
 ├── dev/                              # Everything for developers, nothing that ships
-│   ├── tool/                         # Local CI, i18n conversion and checks, generators,
-│   │                                 #   benchmarks, update labs and sandboxes
-│   ├── scripts/                      # Legacy i18n helper scripts (Node)
+│   ├── tool/                         # Local CI, i18n checks, notice and fixture generators,
+│   │                                 #   benchmark, updater lab, update CI and sandboxes
 │   ├── docs/                         # Bridge release runbook, environment checks
 │   └── fixtures/                     # Old-version data used by the Rust tests
 ├── docs/migration/FAQ.md             # User FAQ (linked from release notes, keep the path)
+├── changelog.json                    # Release notes source for the in-app changelog and releases
+├── target/                           # Rust build output (not committed)
 ├── .githooks/                        # pre-commit & commit-msg hooks
-└── .github/workflows/                # Flutter CI, release and packaging pipelines
+└── .github/                          # Workflows (Flutter CI, release, update paths, winget)
+                                      #   and the frozen legacy update feed
 ```
 
 Logic that touches the disk, the network or other processes belongs in
@@ -281,13 +301,13 @@ cargo test -p godothub_core -p godothub_bridge
 ```
 
 Flutter CI (`flutter-ci.yml`) runs these on every push and pull request, along
-with the i18n checks and a release build on Windows, macOS and Linux, so don't
-worry about platforms you can't test locally.
+with the notices and i18n checks and a release build on Windows, macOS and
+Linux, so don't worry about platforms you can't test locally.
 
 To run every step of the CI `checks` job before pushing, in the same order:
 
 ```bash
-bash dev/tool/ci_local.sh           # Rust tests, notices, i18n checks, analyze, widget tests
+bash dev/tool/ci_local.sh           # Rust tests, notices, slang, i18n checks, analyze, widget tests
 bash dev/tool/ci_local.sh --fast    # the same without the Rust tests
 bash dev/tool/ci_local.sh --linux   # inside WSL on a copy of the tree, like the Ubuntu runner
 ```
@@ -318,12 +338,16 @@ Commit the regenerated `app/lib/src/rust` and
 
 > **When you add or change a user-facing string, write it in English only.**
 >
-> Add new keys to `src/i18n/locales/en-US/` and copy the English text into the
-> same key in every other locale (`bun run i18n:sync -- --apply` does this), so
-> translators can see what is new. Do **not** translate into other languages
+> Add new keys to the en-US file of the namespace
+> (`app/lib/i18n/json/<namespace>/<namespace>_en-US.i18n.json`) and copy the
+> English text into the same key in every other locale, so translators can see
+> what is new. Do **not** translate into other languages
 > yourself: native speakers pick up the new keys afterwards. Mixing machine or
 > half-correct translations into other locales creates a mess that's hard to
 > clean up.
+>
+> Text that only developers see (debug settings, previews, dev tools) is plain
+> English hard-coded in the widget, not an i18n key.
 
 ### Commit style
 
@@ -354,8 +378,9 @@ Commit the regenerated `app/lib/src/rust` and
   is respected. Prefer transform and opacity over layout animations.
 - Every interactive element must work with the keyboard and have a semantic
   label. `GhPressable` gives you focus rings, hover and press states for free.
-- Generated files (`lib/i18n/strings*.g.dart`, `lib/i18n/json`,
-  `lib/src/rust`) are never edited by hand.
+- Generated files (`lib/i18n/strings*.g.dart`, `lib/src/rust`) are never
+  edited by hand. The locale JSON in `lib/i18n/json` is the source and is
+  edited directly.
 
 ### Rust
 
@@ -437,12 +462,13 @@ it on its own with `flutter run -d <platform> -t lib/gallery_main.dart`.
 
 ## 🌍 Localization
 
-The Flutter app uses typed translations generated by
-[Slang](https://pub.dev/packages/slang) from shared JSON resource files.
-English is the source of truth; every other language falls back to English for
-missing keys. The `common` namespace is the primary home for shared strings,
-and all other namespaces (`git`, `settings`, `versions`, etc.) fall back to
-`common`.
+The app uses typed translations generated by
+[Slang](https://pub.dev/packages/slang) from JSON locale files in
+`app/lib/i18n/json/`. Those files are the source of truth and translators edit
+them directly. English (`en-US`) is the base locale; every other language falls
+back to English for missing keys. The `common` namespace is the primary home
+for shared strings: a runtime lookup (`ghTr`) that doesn't find a key in its
+own namespace (`git`, `settings`, `versions`, etc.) falls back to `common`.
 
 ### Current Status
 
@@ -463,38 +489,37 @@ and all other namespaces (`git`, `settings`, `versions`, etc.) fall back to
 ### How it's organized
 
 ```
-src/i18n/locales/                 # Source of truth, edited by translators
-├── en-US/                        # English (ALWAYS complete, the fallback)
-│   ├── common.json               #   Shared strings (buttons, dialogs, modals)
-│   ├── settings.json             #   Settings view strings
-│   ├── git.json                  #   Git sidebar & dialogs
-│   ├── versions.json             #   Versions view
-│   ├── onboarding.json           #   Onboarding flow
-│   ├── nav.json                  #   Sidebar navigation labels
-│   ├── changelog.json            #   Changelog view
-│   ├── dashboard.json            #   Dashboard greetings
-│   └── todos.json                #   Project Next Steps (todos)
-├── ar-MA/  es-MX/  fr-FR/  ja-JP/  pt-BR/  ru-RU/  vi-VN/  zh-CN/
-
-app/lib/i18n/                     # Generated, never edited by hand
-├── json/<namespace>/<namespace>_<locale>.i18n.json
-└── strings*.g.dart
+app/lib/i18n/
+├── json/                                  # Source of truth, edited by translators
+│   ├── common/
+│   │   ├── common_en-US.i18n.json         #   English (ALWAYS complete, the fallback)
+│   │   ├── common_ar-MA.i18n.json
+│   │   └── ...                            #   one file per locale
+│   ├── changelog/  dashboard/  git/  nav/  onboarding/
+│   └── settings/  todos/  versions/       #   same layout: <namespace>_<locale>.i18n.json
+├── languages.dart                         # Language picker entries and status badges
+└── strings*.g.dart                        # Generated by `dart run slang`, never edited by hand
 ```
 
-To translate, edit values in the relevant locale and namespace JSON file under
-`src/i18n/locales/`; no Flutter or Dart knowledge is required.
+Locales: `ar-MA`, `en-US`, `es-MX`, `fr-FR`, `ja-JP`, `pt-BR`, `ru-RU`,
+`vi-VN`, `zh-CN`.
 
-The Flutter files are generated from those JSON files:
+To translate, edit values in
+`app/lib/i18n/json/<namespace>/<namespace>_<locale>.i18n.json`; no Flutter or
+Dart knowledge is required.
 
-- If you have the Flutter SDK installed, the pre-commit hook regenerates and
-  stages the Flutter locale files when you commit a locale change.
-- If you don't, the hook lets the commit through and the **i18n sync** workflow
-  handles generation for your pull request. For pull requests from forks, it
-  opens a follow-up pull request after merge.
-- By hand: `cd app && dart run ../dev/tool/i18n_convert.dart && dart run slang`.
+The committed `app/lib/i18n/strings*.g.dart` files are generated from the JSON:
 
-Do not edit `app/lib/i18n/json/`, `app/lib/i18n/strings*.g.dart`,
-`app/slang.yaml` or `dev/tool/i18n_convert.dart` for a translation.
+- If you have the Flutter SDK installed, the pre-commit hook runs
+  `dart run slang` and stages the regenerated files when you commit a locale
+  change.
+- If you don't, the hook lets the commit through. CI regenerates the files for
+  its own run and warns that the committed ones are out of date; mention in
+  your PR that you couldn't run `dart run slang`.
+- By hand: `cd app && dart run slang`.
+
+Do not edit `app/lib/i18n/strings*.g.dart` or `app/slang.yaml` for a
+translation.
 
 ### Namespace Reference
 
@@ -514,25 +539,26 @@ Do not edit `app/lib/i18n/json/`, `app/lib/i18n/strings*.g.dart`,
 
 Duplicate keys across namespace files are **not allowed**. The `common` namespace
 is the single source of truth for any string shared across views. If a key
-exists in `common.json`, it must **not** also exist in `git.json`, `settings.json`,
-`versions.json`, or any other namespace file, even with the same value.
+exists in `common`, it must **not** also exist in `git`, `settings`,
+`versions`, or any other namespace, even with the same value.
 
-**Why?** i18next's `fallbackNS: ['common']` config means every namespace
-automatically falls back to `common` for missing keys. Duplicates bloat the
-locale files and create confusion about where a string lives.
+**Why?** A runtime lookup that misses in its own namespace falls back to
+`common` (see `ghTr` in `app/lib/i18n/i18n.dart`), so a shared string only
+needs to exist once. Duplicates bloat the locale files and create confusion
+about where a string lives.
 
 **Rules:**
-- Shared strings (buttons, labels, messages used in multiple views) go in `common.json`.
+- Shared strings (buttons, labels, messages used in multiple views) go in `common`.
 - Namespace-specific strings (only used in one view) go in that namespace's file.
-- Never copy a key from `common.json` into another file, even for translation.
-- Run `cd app && dart run ../dev/tool/i18n/duplicate_keys.dart` (or `bun run i18n:dupes`)
-  to find any duplicate keys across namespace files.
+- Never copy a key from `common` into another namespace, even for translation.
+- Run the duplicate check to find any duplicate keys across namespace files:
 
 ```bash
-bun run i18n:dupes            # Check all locales
-bun run i18n:dupes -- en-US   # Check one locale
-bun run i18n:dupes -- --same  # Only same-value dupes (safe to remove)
-bun run i18n:dupes -- --diff  # Only different-value dupes (need review)
+cd app
+dart run ../dev/tool/i18n/duplicate_keys.dart            # Check all locales
+dart run ../dev/tool/i18n/duplicate_keys.dart en-US      # Check one locale
+dart run ../dev/tool/i18n/duplicate_keys.dart --same     # Only same-value dupes (safe to remove)
+dart run ../dev/tool/i18n/duplicate_keys.dart --diff     # Only different-value dupes (need review)
 ```
 
 ### How strings are used in code
@@ -551,67 +577,80 @@ Text(ghTr('git:branch_name_required'));
 Text(ghTr('asset_store_count', count: total));
 ```
 
-Interpolation placeholders are written `{{name}}` in the JSON.
-
 ### Interpolation & Pluralization
 
 #### Interpolation
 Use `{{variable}}` for dynamic values:
 ```json
 {
-  "project_count": "{{count}} projects",
-  "welcome_user": "Welcome, {{name}}!"
+  "welcome_user": "Welcome, {{name}}!",
+  "is_latest": "v{{version}} is the latest version."
 }
 ```
 
+A literal dollar sign has to be escaped for Slang as `\$` (inside the JSON
+string that is written `\\$`), because a bare `$` starts a Dart interpolation.
+
 #### Pluralization
-Use `_one` and `_other` suffixes (and `_zero`, `_two`, `_few`, `_many` where the
-language needs them):
+Plurals are a group whose key ends in `(plural)`. Inside the group, use
+`${count}` (not `{{count}}`) and the plural categories your language has in
+[CLDR](https://cldr.unicode.org/index/cldr-spec/plural-rules):
 ```json
 {
-  "file_count_one": "{{count}} file",
-  "file_count_other": "{{count}} files"
+  "file_count(plural)": {
+    "one": "${count} file",
+    "other": "${count} files"
+  }
 }
 ```
+
+English uses `one` and `other`; Japanese only has `other`; Arabic uses `zero`,
+`one`, `two`, `few`, `many` and `other`. Some files still contain flat
+`file_count_one` / `file_count_other` keys next to the group. They are left
+over from an older converter; the app reads plurals from the `(plural)` group,
+so edit the group.
 
 ### Adding a new string (English only!)
 
 1. Decide where the key belongs:
-   - **`common.json`** if the string is a button, label, or message shared
+   - **`common`** if the string is a button, label, or message shared
      across multiple views (the default for most new strings).
-   - **Namespace file** (`git.json`, `settings.json`, etc.) only if the
-     string is exclusively used in that one view.
-2. Add the key to `src/i18n/locales/en-US/<namespace>.json`:
+   - **Another namespace** (`git`, `settings`, etc.) only if the string is
+     exclusively used in that one view.
+2. Add the key to `app/lib/i18n/json/<namespace>/<namespace>_en-US.i18n.json`:
    ```json
    "project_created": "Project created",
    "greeting_user": "Hello, {{name}}!"
    ```
-3. Copy the English text to the other locales so translators can see it:
-   `bun run i18n:sync -- --apply` (or add the same key by hand). Don't translate.
-4. Regenerate: `cd app && dart run ../dev/tool/i18n_convert.dart && dart run slang`
-   (the pre-commit hook does this for you if Dart is installed).
+3. Copy the same key with the English text into that namespace's file for
+   every other locale, so translators can see it. Don't translate.
+4. Regenerate: `cd app && dart run slang` (the pre-commit hook does this for
+   you if Dart is installed).
 5. Use it with `context.tr.common.project_created`.
 6. Run `flutter analyze` and the tests for the screen you touched.
 
 ### Adding a new language (step by step)
 
-Say you want to add **Japanese** (`ja-JP`):
+Say you want to add **Korean** (`ko-KR`):
 
-1. **Create the locale folder** with all 9 namespace files, copied from English
-   so the key structure is identical:
+1. **Create the locale files** by copying the English file in each of the 9
+   namespace folders, so the key structure is identical:
    ```bash
-   mkdir src/i18n/locales/ja-JP
-   cp src/i18n/locales/en-US/*.json src/i18n/locales/ja-JP/
+   cd app/lib/i18n/json
+   for ns in */; do ns=${ns%/}; cp "$ns/${ns}_en-US.i18n.json" "$ns/${ns}_ko-KR.i18n.json"; done
    ```
-   (`bun run i18n:add ja-JP "日本語"` does the same if you have Bun.)
 2. **Add it to the language picker** in `app/lib/i18n/languages.dart`, next to
    the existing entries:
    ```dart
-   GhLanguageOption(value: 'ja-JP', label: '日本語', country: 'JP', status: GhLanguageStatus.incomplete),
+   GhLanguageOption(value: 'ko-KR', label: '한국어', country: 'KR', status: GhLanguageStatus.incomplete),
    ```
+   If the language's plural rules differ from English (`one`/`other`), add
+   its categories and rules to `app/lib/i18n/plural_rules.dart` too (ask in
+   the PR if you need help with the Dart).
 3. **Translate** the values (not the keys!) in each file. Untranslated strings
    can be left in English, they fall back, but try to cover the common
-   namespaces first (`common`, `nav`, `settings`).
+   namespaces first (`common`, `nav`, `settings`). Adjust each `(plural)`
+   group to the plural categories of the new language.
 4. **Set a status badge.** `status` is one of:
    - `complete`, every key translated and verified.
    - `beta`, mostly translated; minor gaps or needs a native-speaker review.
@@ -619,13 +658,13 @@ Say you want to add **Japanese** (`ja-JP`):
 5. **Verify** and open a PR:
    ```bash
    cd app
-   dart run ../dev/tool/i18n_convert.dart && dart run slang
+   dart run slang
    dart run ../dev/tool/i18n/check_keys.dart --check-values
    flutter analyze
    ```
-   If you don't have Flutter, skip this step: CI and the i18n sync workflow
-   regenerate and check the files for you. Native speakers are strongly
-   preferred, get a review before marking `complete` or `beta`.
+   If you don't have Flutter, skip this step and say so in the PR: CI
+   regenerates and checks the files for its own run. Native speakers
+   are strongly preferred, get a review before marking `complete` or `beta`.
 
 ### Updating an existing translation
 
@@ -635,19 +674,16 @@ Say you want to add **Japanese** (`ja-JP`):
 - Translation status lives in `app/lib/i18n/languages.dart`; if you complete a
   language, flip its status there and in the table above.
 
-### Sync Missing Keys
+### Missing keys
 
-If en-US has new keys your locale is missing, sync them:
+If en-US has new keys your locale is missing, find them with the key check
+and add each one with its English text (then translate it):
+
 ```bash
-bun run i18n:sync              # Dry run (shows what would change)
-bun run i18n:sync -- --apply   # Add missing keys (copies English values)
-bun run i18n:sync -- --apply --empty  # Add missing keys (empty for translation)
-bun run i18n:sync -- zh-CN     # Sync only one locale
-bun run i18n:sync -- --remove-extras  # Also remove stale keys
+cd app
+dart run ../dev/tool/i18n/check_keys.dart --missing zh-CN   # Missing keys for one locale
+dart run ../dev/tool/i18n/check_keys.dart --list            # Available locales
 ```
-
-By default, `--apply` copies the English text as a placeholder.
-Use `--empty` if you want empty strings instead (for translators to fill in).
 
 ### Checking locales
 
@@ -655,26 +691,21 @@ Use `--empty` if you want empty strings instead (for translators to fill in).
 cd app
 dart run ../dev/tool/i18n/check_keys.dart --check-values   # missing and untranslated keys
 dart run ../dev/tool/i18n/duplicate_keys.dart              # keys duplicated across namespaces
-dart run ../dev/tool/i18n/unused_keys.dart                 # keys no source file references
+dart run ../dev/tool/i18n/unused_keys.dart                 # keys no Dart source in app/lib references
 ```
 
-Missing keys fail CI. Untranslated keys (the same text as English) are reported
-but allowed, because new strings start out in English.
-
-The older Node scripts still work if you have Bun installed:
-
-| Command | Purpose |
-|---|---|
-| `bun run i18n:add` | Interactive wizard to add a new language |
-| `bun run i18n:check -- --check-values` | Check all locales against en-US |
-| `bun run i18n:sync -- --apply` | Add missing keys (copies English values) |
-| `bun run i18n:dupes` | Find duplicate keys across namespace files |
+`check_keys.dart` also takes `--json` or `--md` for a report and an optional
+locale to check just one. Untranslated keys (the same text as English) are
+reported but expected, because new strings start out in English. In CI these
+checks only warn, since missing translations fall back to English;
+`ci_local.sh` reports them as failed steps.
 
 ### Locale file checklist
 
 - Keys are always `snake_case`, quoted, with commas after every entry except
   the last.
-- Values keep `{{placeholder}}` interpolation tokens intact.
+- Values keep `{{placeholder}}` interpolation tokens intact, and `${count}`
+  inside `(plural)` groups.
 - Never reorder or rename keys in non-English files without updating the
   English source first.
 
@@ -682,7 +713,7 @@ The older Node scripts still work if you have Bun installed:
 
 #### Do's ✅
 - **Keep keys identical** across all locales, only change values
-- **Use interpolation** for dynamic content: `{{name}}`, `{{count}}`
+- **Use interpolation** for dynamic content: `{{name}}`, and `${count}` inside plural groups
 - **Test your translations** in the app if possible
 - **Maintain the same tone** as the English version
 - **Use proper formatting** for dates/numbers per locale
@@ -691,7 +722,7 @@ The older Node scripts still work if you have Bun installed:
 #### Don'ts ❌
 - **Don't translate keys**, only translate values
 - **Don't add HTML** in translations (use interpolation instead)
-- **Don't change interpolation variables**, keep `{{name}}` as-is
+- **Don't change interpolation variables**, keep `{{name}}` and `${count}` as-is
 - **Don't translate technical terms** that should stay in English (e.g., "Git", "Godot")
 - **Don't remove keys** that exist in en-US
 
@@ -720,11 +751,20 @@ For languages like Arabic, Urdu, etc.:
   pull request:
   1. Rust tests for `godothub_core` and `godothub_bridge`
   2. A check that third-party Rust notices are up to date
-  3. Flutter locale regeneration from `src/i18n/locales`, then the i18n
-     checks (missing keys, duplicates, unused keys)
+  3. `dart run slang`, with a warning if the committed `strings*.g.dart`
+     files were out of date, then the i18n checks (missing keys, duplicates,
+     unused keys)
   4. `flutter analyze`
   5. `flutter test`
-  6. A release build on Windows, macOS and Linux
+  6. A release build on Windows, macOS and Linux, plus a command line and
+     integration test on each
+
+  The notices, generated-code and i18n steps only warn; the Rust tests,
+  analyze, the widget tests and the builds must pass.
+- **Update paths** (`.github/workflows/flutter-update-paths.yml`, started by
+  hand) installs real signed packages and checks that one Flutter version
+  updates itself to the next on macOS and Linux. See
+  [dev/tool/update_ci/README.md](dev/tool/update_ci/README.md).
 - **Write tests for what you change.** Widget tests live in `app/test/`,
   mirroring `app/lib/`, and use the fake Rust API in
   `app/test/support/fake_rust.dart`, so they never touch your real data. Rust
@@ -742,11 +782,13 @@ This repo keeps its hooks in `.githooks/`. Point git at them once per clone:
 git config core.hooksPath .githooks
 ```
 
-(`bun install` does this for you through the `prepare` script.) On macOS and
-Linux the hook files also need the executable bit: `chmod +x .githooks/*`.
+On macOS and Linux the hook files also need the executable bit:
+`chmod +x .githooks/*`.
 
-- **`pre-commit`** blocks em-dashes (U+2014) in staged files and regenerates
-  the Flutter locale files when a locale JSON changes.
+- **`pre-commit`** blocks em-dashes (U+2014) in staged files. When a file in
+  `app/lib/i18n/json` changes, it runs `dart run slang` in `app/` and stages
+  the regenerated `app/lib/i18n/*.g.dart` (if Dart is not installed it only
+  prints a reminder).
 - **`commit-msg`** blocks AI or bot co-author trailers, AI attribution terms and
   em-dashes in commit messages. Human co-authors are allowed.
 
@@ -756,27 +798,14 @@ Bypass a hook with `git commit --no-verify` only when you know what you are doin
 
 ## 🚀 Release Process
 
-Releases are cut by maintainers with the Flutter release workflows
-(`flutter-release.yml` for beta builds, `flutter-stable-package.yml` for stable
-installers), which build and sign packages for every platform and publish the
-update feed. See [dev/docs/BRIDGE_RELEASE.md](dev/docs/BRIDGE_RELEASE.md)
-for how updates roll out and how a release can be paused. You don't need to do
+Releases are cut by maintainers by pushing a `v*` tag. The release workflow
+(`release.yml`) builds and signs the packages for every platform, writes the
+release notes from `changelog.json` and the update feed, and creates a draft
+release. A maintainer publishes the draft by hand, which also starts the winget
+update (`winget.yml`). See
+[dev/docs/BRIDGE_RELEASE.md](dev/docs/BRIDGE_RELEASE.md) for the checklist,
+how updates roll out and how a release can be paused. You don't need to do
 anything special as a contributor, just get your PR merged.
-
----
-
-## 🗄️ Legacy Tauri App
-
-The React + Tauri app in `src/` and `src-tauri/` produced every release before
-1.6.0 and is being removed over time. It still shares the Rust core, so
-`cargo check --workspace` must keep passing. If you need to run it:
-
-```bash
-bun install
-bun run tauri dev
-```
-
-Please don't add features there; open them against the Flutter app instead.
 
 ---
 

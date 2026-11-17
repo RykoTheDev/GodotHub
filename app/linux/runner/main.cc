@@ -9,8 +9,8 @@
 
 namespace {
 
-using CliDispatch = bool (*)(uint32_t, const char*, int32_t*);
-using ForwardToRunningInstance = bool (*)(uint32_t);
+using CliDispatch = bool (*)(const char*, int32_t*);
+using ForwardToRunningInstance = bool (*)();
 
 void* LoadBridge() {
   char exe_path[PATH_MAX];
@@ -31,7 +31,7 @@ bool RunCli(void* library, int* exit_code) {
   const auto dispatch =
       reinterpret_cast<CliDispatch>(dlsym(library, "godothub_cli_dispatch"));
   int32_t code = 0;
-  if (dispatch == nullptr || !dispatch(GODOTHUB_CHANNEL, GODOTHUB_VERSION, &code)) {
+  if (dispatch == nullptr || !dispatch(GODOTHUB_VERSION, &code)) {
     return false;
   }
   *exit_code = code;
@@ -44,7 +44,7 @@ bool ForwardedToRunningInstance(void* library) {
   }
   const auto forward = reinterpret_cast<ForwardToRunningInstance>(
       dlsym(library, "godothub_forward_to_running_instance"));
-  return forward != nullptr && forward(GODOTHUB_CHANNEL);
+  return forward != nullptr && forward();
 }
 
 }

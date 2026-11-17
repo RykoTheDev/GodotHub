@@ -2,7 +2,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, OnceLock};
 
 use flutter_rust_bridge::frb;
-use godothub_core::{AppHandle, Channel, EventSink, Host, Paths};
+use godothub_core::{AppHandle, EventSink, Host, Paths};
 use serde_json::value::RawValue;
 
 use crate::api::error::CoreError;
@@ -53,23 +53,19 @@ impl Host for FlutterHost {
     }
 }
 
-pub fn start(channel: Channel, paths: Paths, single_instance: bool) -> Result<(), CoreError> {
-    if let Some(app) = APP.get() {
-        return if app.channel() == channel {
-            Ok(())
-        } else {
-            Err("The core is already running on another channel".into())
-        };
+pub fn start(paths: Paths, single_instance: bool) -> Result<(), CoreError> {
+    if APP.get().is_some() {
+        return Ok(());
     }
     if let Ok(handle) = tokio::runtime::Handle::try_current() {
         godothub_core::runtime::set(handle);
     }
     let host = Arc::new(FlutterHost);
-    let app = APP.get_or_init(|| AppHandle::new(channel, paths, host.clone(), host));
+    let app = APP.get_or_init(|| AppHandle::new(paths, host.clone(), host));
     godothub_core::startup::initialize(app);
     if single_instance {
         let events = app.clone();
-        if let Err(error) = godothub_core::single_instance::listen_for_other_instances(channel, move |args| {
+        if let Err(error) = godothub_core::single_instance::listen_for_other_instances(move |args| {
             let _ = events.emit("app:second-instance", args);
         }) {
             eprintln!("single instance listener unavailable: {error}");

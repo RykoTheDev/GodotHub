@@ -5,7 +5,7 @@ import 'package:godothub/ui/core/i18n.dart';
 
 import '../projects/project_actions_test.dart' as base;
 import '../ui/i18n_setup.dart';
-import 'beta_ended_modal_test.dart' show open;
+import 'modal_test_helpers.dart';
 
 void main() {
   setUpAll(() async {

@@ -1,4 +1,4 @@
-Third-party Rust crates used by GodotHub: 413 crates.
+Third-party Rust crates used by GodotHub: 402 crates.
 
 ==============================================================================
 addr2line 0.27.1 (Apache-2.0 OR MIT)
@@ -5763,16 +5763,7 @@ SOFTWARE.
 ==============================================================================
 dispatch2 0.3.1 (Zlib OR Apache-2.0 OR MIT)
 objc2-app-kit 0.3.2 (Zlib OR Apache-2.0 OR MIT)
-objc2-cloud-kit 0.3.2 (Zlib OR Apache-2.0 OR MIT)
-objc2-core-data 0.3.2 (Zlib OR Apache-2.0 OR MIT)
 objc2-core-foundation 0.3.2 (Zlib OR Apache-2.0 OR MIT)
-objc2-core-graphics 0.3.2 (Zlib OR Apache-2.0 OR MIT)
-objc2-core-image 0.3.2 (Zlib OR Apache-2.0 OR MIT)
-objc2-core-text 0.3.2 (Zlib OR Apache-2.0 OR MIT)
-objc2-core-video 0.3.2 (Zlib OR Apache-2.0 OR MIT)
-objc2-exception-helper 0.1.1 (Zlib OR Apache-2.0 OR MIT)
-objc2-io-surface 0.3.2 (Zlib OR Apache-2.0 OR MIT)
-objc2-quartz-core 0.3.2 (Zlib OR Apache-2.0 OR MIT)
 ------------------------------------------------------------------------------
 Licensed under Zlib OR Apache-2.0 OR MIT. The crate ships no license file.
 
@@ -9008,7 +8999,6 @@ sync_wrapper 1.0.2 (Apache-2.0)
 tauri-winrt-notification 0.8.1 (MIT OR Apache-2.0)
 time 0.3.55 (MIT OR Apache-2.0)
 time-core 0.1.9 (MIT OR Apache-2.0)
-time-macros 0.2.32 (MIT OR Apache-2.0)
 widestring 1.2.1 (MIT OR Apache-2.0)
 ------------------------------------------------------------------------------
 Apache License
@@ -12647,7 +12637,6 @@ DEALINGS IN THE SOFTWARE.
 ==============================================================================
 time 0.3.55 (MIT OR Apache-2.0)
 time-core 0.1.9 (MIT OR Apache-2.0)
-time-macros 0.2.32 (MIT OR Apache-2.0)
 ------------------------------------------------------------------------------
 Copyright (c) Jacob Pratt et al.
 
@@ -13026,7 +13015,6 @@ DEALINGS IN THE SOFTWARE.
 
 ==============================================================================
 tracing 0.1.44 (MIT)
-tracing-attributes 0.1.31 (MIT)
 tracing-core 0.1.36 (MIT)
 ------------------------------------------------------------------------------
 Copyright (c) 2019 Tokio Contributors

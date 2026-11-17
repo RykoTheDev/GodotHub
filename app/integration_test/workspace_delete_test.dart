@@ -41,7 +41,7 @@ void main() {
         } catch (_) {}
       });
       String dir(String name) => Directory('${root.path}${Platform.pathSeparator}$name').path;
-      await app.startCoreIn(channel: 'beta', dataDir: dir('data'), configDir: dir('config'), cacheDir: dir('cache'));
+      await app.startCoreIn(dataDir: dir('data'), configDir: dir('config'), cacheDir: dir('cache'));
 
       final first = await workspace.listWorkspaces();
       final firstId = first.activeId;

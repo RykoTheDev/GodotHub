@@ -57,10 +57,6 @@ pub fn migrate_app_data(new_dir: &Path, old_dir: &Path) -> IdentifierMigration {
 }
 
 pub fn migrate_identifier(app: &crate::AppHandle) {
-    if app.channel() != crate::Channel::Stable {
-        return;
-    }
-
     let Ok(new_dir) = app.path().app_data_dir() else {
         return;
     };

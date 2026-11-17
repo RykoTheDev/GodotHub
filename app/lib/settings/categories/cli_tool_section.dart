@@ -9,21 +9,6 @@ import 'settings_option_controls.dart';
 
 String _ts(String key, {num? count, Map<String, Object?> args = const {}}) => settingsTr(key, count: count, args: args);
 
-final _pathSeparator = RegExp(r'[/\\]');
-final _extension = RegExp(r'\.[^.]*$');
-const _defaultShimName = 'godothub';
-
-String cliShimName(CliToolStatus status) {
-  final file = status.shimPath.split(_pathSeparator).where((part) => part.isNotEmpty).lastOrNull ?? '';
-  final name = file.replaceFirst(_extension, '');
-  return name.isEmpty ? _defaultShimName : name;
-}
-
-String cliChannelMessage(String message, CliToolStatus status) {
-  final name = cliShimName(status);
-  return name == _defaultShimName ? message : message.replaceAll(_defaultShimName, name);
-}
-
 class CliToolSection extends StatefulWidget {
   const CliToolSection({super.key});
 
@@ -54,7 +39,7 @@ class _CliToolSectionState extends State<CliToolSection> {
       if (!mounted) return;
       setState(() {
         _status = status;
-        _message = cliChannelMessage(_ts(messageKey), status);
+        _message = _ts(messageKey);
       });
     } catch (e) {
       if (mounted) setState(() => _message = '$e');

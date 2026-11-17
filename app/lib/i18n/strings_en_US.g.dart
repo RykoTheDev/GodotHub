@@ -2486,96 +2486,6 @@ class Translations$common$en_US {
 	/// en-US: 'Add due date'
 	String get date_add_due => 'Add due date';
 
-	/// en-US: 'Welcome to the new'
-	String get flutter_welcome_eyebrow => 'Welcome to the new';
-
-	/// en-US: 'Welcome to the new GodotHub'
-	String get flutter_welcome_title => 'Welcome to the new GodotHub';
-
-	/// en-US: 'GodotHub has been rebuilt from the ground up. It looks and works the way you know it, only faster and smoother.'
-	String get flutter_welcome_desc => 'GodotHub has been rebuilt from the ground up. It looks and works the way you know it, only faster and smoother.';
-
-	/// en-US: 'Faster'
-	String get flutter_welcome_fast_title => 'Faster';
-
-	/// en-US: 'Starts quicker, scrolls smoother and uses less memory.'
-	String get flutter_welcome_fast_desc => 'Starts quicker, scrolls smoother and uses less memory.';
-
-	/// en-US: 'Updates inside the app'
-	String get flutter_welcome_updates_title => 'Updates inside the app';
-
-	/// en-US: 'New versions download and install from inside GodotHub, and every update is checked before it is installed.'
-	String get flutter_welcome_updates_desc => 'New versions download and install from inside GodotHub, and every update is checked before it is installed.';
-
-	/// en-US: 'Refreshed design'
-	String get flutter_welcome_design_title => 'Refreshed design';
-
-	/// en-US: 'Smoother motion, sharper text and themes that follow your system.'
-	String get flutter_welcome_design_desc => 'Smoother motion, sharper text and themes that follow your system.';
-
-	/// en-US: 'Everything you had is here'
-	String get flutter_welcome_data_title => 'Everything you had is here';
-
-	/// en-US: 'Projects, Godot versions, settings and your Git sign-in came along on their own.'
-	String get flutter_welcome_data_desc => 'Projects, Godot versions, settings and your Git sign-in came along on their own.';
-
-	/// en-US: 'Your data came along'
-	String get flutter_welcome_summary => 'Your data came along';
-
-	/// en-US: '(one) {${count} project} (other) {${count} projects}'
-	String flutter_welcome_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
-		one: '${count} project',
-		other: '${count} projects',
-	);
-
-	/// en-US: '{{count}} project'
-	String get flutter_welcome_projects_one => '{{count}} project';
-
-	/// en-US: '{{count}} projects'
-	String get flutter_welcome_projects_other => '{{count}} projects';
-
-	/// en-US: '(one) {${count} workspace} (other) {${count} workspaces}'
-	String flutter_welcome_workspaces({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
-		one: '${count} workspace',
-		other: '${count} workspaces',
-	);
-
-	/// en-US: '{{count}} workspace'
-	String get flutter_welcome_workspaces_one => '{{count}} workspace';
-
-	/// en-US: '{{count}} workspaces'
-	String get flutter_welcome_workspaces_other => '{{count}} workspaces';
-
-	/// en-US: '(one) {${count} template} (other) {${count} templates}'
-	String flutter_welcome_templates({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
-		one: '${count} template',
-		other: '${count} templates',
-	);
-
-	/// en-US: '{{count}} template'
-	String get flutter_welcome_templates_one => '{{count}} template';
-
-	/// en-US: '{{count}} templates'
-	String get flutter_welcome_templates_other => '{{count}} templates';
-
-	/// en-US: '(one) {${count} vault item} (other) {${count} vault items}'
-	String flutter_welcome_vault_items({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count,
-		one: '${count} vault item',
-		other: '${count} vault items',
-	);
-
-	/// en-US: '{{count}} vault item'
-	String get flutter_welcome_vault_items_one => '{{count}} vault item';
-
-	/// en-US: '{{count}} vault items'
-	String get flutter_welcome_vault_items_other => '{{count}} vault items';
-
-	/// en-US: 'See what's new'
-	String get flutter_welcome_changelog => 'See what\'s new';
-
-	/// en-US: 'Continue'
-	String get flutter_welcome_continue => 'Continue';
-
 	/// en-US: 'Tell us what went wrong. Your app version, system details and recent log lines are added for you.'
 	String get bug_report_intro => 'Tell us what went wrong. Your app version, system details and recent log lines are added for you.';
 
@@ -7618,32 +7528,6 @@ extension on Translations {
 			'common.date_next_month' => 'Next month',
 			'common.date_change_due' => 'Change due date: {{date}}',
 			'common.date_add_due' => 'Add due date',
-			'common.flutter_welcome_eyebrow' => 'Welcome to the new',
-			'common.flutter_welcome_title' => 'Welcome to the new GodotHub',
-			'common.flutter_welcome_desc' => 'GodotHub has been rebuilt from the ground up. It looks and works the way you know it, only faster and smoother.',
-			'common.flutter_welcome_fast_title' => 'Faster',
-			'common.flutter_welcome_fast_desc' => 'Starts quicker, scrolls smoother and uses less memory.',
-			'common.flutter_welcome_updates_title' => 'Updates inside the app',
-			'common.flutter_welcome_updates_desc' => 'New versions download and install from inside GodotHub, and every update is checked before it is installed.',
-			'common.flutter_welcome_design_title' => 'Refreshed design',
-			'common.flutter_welcome_design_desc' => 'Smoother motion, sharper text and themes that follow your system.',
-			'common.flutter_welcome_data_title' => 'Everything you had is here',
-			'common.flutter_welcome_data_desc' => 'Projects, Godot versions, settings and your Git sign-in came along on their own.',
-			'common.flutter_welcome_summary' => 'Your data came along',
-			'common.flutter_welcome_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} project', other: '${count} projects', ), 
-			'common.flutter_welcome_projects_one' => '{{count}} project',
-			'common.flutter_welcome_projects_other' => '{{count}} projects',
-			'common.flutter_welcome_workspaces' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} workspace', other: '${count} workspaces', ), 
-			'common.flutter_welcome_workspaces_one' => '{{count}} workspace',
-			'common.flutter_welcome_workspaces_other' => '{{count}} workspaces',
-			'common.flutter_welcome_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} template', other: '${count} templates', ), 
-			'common.flutter_welcome_templates_one' => '{{count}} template',
-			'common.flutter_welcome_templates_other' => '{{count}} templates',
-			'common.flutter_welcome_vault_items' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('en'))(count, one: '${count} vault item', other: '${count} vault items', ), 
-			'common.flutter_welcome_vault_items_one' => '{{count}} vault item',
-			'common.flutter_welcome_vault_items_other' => '{{count}} vault items',
-			'common.flutter_welcome_changelog' => 'See what\'s new',
-			'common.flutter_welcome_continue' => 'Continue',
 			'common.bug_report_intro' => 'Tell us what went wrong. Your app version, system details and recent log lines are added for you.',
 			'common.bug_report_what_happened_placeholder' => 'Describe the problem and where in GodotHub it happened.',
 			'common.bug_report_steps_label' => 'Steps to reproduce',
@@ -8121,8 +8005,6 @@ extension on Translations {
 			'settings.git_self_hosted_url_placeholder' => 'https://gitlab.example.com',
 			'settings.git_self_hosted_client_id' => 'Application ID',
 			'settings.git_sign_in_self_hosted' => 'Sign in with instance',
-			_ => null,
-		} ?? switch (path) {
 			'settings.git_pat_title' => 'Other hosts (personal access tokens)',
 			'settings.git_pat_add' => 'Add token',
 			'settings.git_pat_host_placeholder' => 'e.g. codeberg.org',
@@ -8149,6 +8031,8 @@ extension on Translations {
 			'settings.system' => 'System',
 			'settings.k12h' => '12-hour (2:30 PM)',
 			'settings.k24h' => '24-hour (14:30)',
+			_ => null,
+		} ?? switch (path) {
 			'settings.dd_mm_yyyy' => 'DD-MM-YYYY',
 			'settings.mm_dd_yyyy' => 'MM-DD-YYYY',
 			'settings.yyyy_mm_dd' => 'YYYY-MM-DD',
@@ -8635,8 +8519,6 @@ extension on Translations {
 			'versions.export_templates_web_standard' => 'Web',
 			'versions.export_templates_web_extensions' => 'Web with Extensions',
 			'versions.export_templates_web_single_threaded' => 'Web Single-Threaded',
-			_ => null,
-		} ?? switch (path) {
 			'versions.export_templates_web_extensions_single_threaded' => 'Web with Extensions Single-Threaded',
 			'versions.export_templates_refresh' => 'Refresh available templates',
 			'versions.download_failed_title' => 'Download failed',
@@ -8663,6 +8545,8 @@ extension on Translations {
 			'versions.add_github_token' => 'Add GitHub token',
 			'versions.reset_filters' => 'Reset filters',
 			'versions.no_available_hint' => 'Try another channel or build type, or clear the search.',
+			_ => null,
+		} ?? switch (path) {
 			'versions.view_release_page' => 'View release page',
 			'versions.update_available_tag' => '{{tag}} is available',
 			'versions.templates_none_hint' => 'Install export templates to export projects with this version.',

@@ -1074,40 +1074,6 @@
   "date_next_month": "次の月",
   "date_change_due": "期限を変更: {{date}}",
   "date_add_due": "期限を追加",
-  "flutter_welcome_eyebrow": "新しくなりました",
-  "flutter_welcome_title": "新しい GodotHub へようこそ",
-  "flutter_welcome_desc": "GodotHub を一から作り直しました。使い慣れた見た目と操作はそのままに、より速く、滑らかに動作します。",
-  "flutter_welcome_fast_title": "より高速に",
-  "flutter_welcome_fast_desc": "起動とスクロールがより快適になり、メモリ使用量も減りました。",
-  "flutter_welcome_updates_title": "アプリ内で更新",
-  "flutter_welcome_updates_desc": "GodotHub 内で新しいバージョンをダウンロードしてインストールできます。すべての更新は、インストール前に検証されます。",
-  "flutter_welcome_design_title": "デザインを一新",
-  "flutter_welcome_design_desc": "滑らかなアニメーション、鮮明な文字、システム設定に合わせたテーマを利用できます。",
-  "flutter_welcome_data_title": "これまでのデータを引き継ぎました",
-  "flutter_welcome_data_desc": "プロジェクト、Godot のバージョン、設定、Git のサインイン情報は自動的に引き継がれています。",
-  "flutter_welcome_summary": "データを引き継ぎました",
-  "flutter_welcome_projects(plural)": {
-    "other": "${count} 件のプロジェクト"
-  },
-  "flutter_welcome_projects_one": "{{count}} 件のプロジェクト",
-  "flutter_welcome_projects_other": "{{count}} 件のプロジェクト",
-  "flutter_welcome_workspaces(plural)": {
-    "other": "${count} 件のワークスペース"
-  },
-  "flutter_welcome_workspaces_one": "{{count}} 件のワークスペース",
-  "flutter_welcome_workspaces_other": "{{count}} 件のワークスペース",
-  "flutter_welcome_templates(plural)": {
-    "other": "${count} 件のテンプレート"
-  },
-  "flutter_welcome_templates_one": "{{count}} 件のテンプレート",
-  "flutter_welcome_templates_other": "{{count}} 件のテンプレート",
-  "flutter_welcome_vault_items(plural)": {
-    "other": "保管庫のアイテム ${count} 件"
-  },
-  "flutter_welcome_vault_items_one": "保管庫のアイテム {{count}} 件",
-  "flutter_welcome_vault_items_other": "保管庫のアイテム {{count}} 件",
-  "flutter_welcome_changelog": "新機能を確認",
-  "flutter_welcome_continue": "続ける",
   "bug_report_intro": "発生した問題を教えてください。アプリのバージョン、システム情報、直近のログは自動的に追加されます。",
   "bug_report_what_happened_placeholder": "どのような問題が、GodotHub のどこで発生したかを入力してください。",
   "bug_report_steps_label": "再現手順",

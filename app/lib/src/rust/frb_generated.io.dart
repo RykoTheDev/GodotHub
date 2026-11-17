@@ -143,9 +143,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AssetRelease dco_decode_asset_release(dynamic raw);
 
   @protected
-  BetaImport dco_decode_beta_import(dynamic raw);
-
-  @protected
   bool dco_decode_bool(dynamic raw);
 
   @protected
@@ -1067,9 +1064,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AssetRelease sse_decode_asset_release(SseDeserializer deserializer);
 
   @protected
-  BetaImport sse_decode_beta_import(SseDeserializer deserializer);
-
-  @protected
   bool sse_decode_bool(SseDeserializer deserializer);
 
   @protected
@@ -1989,9 +1983,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_asset_release(AssetRelease self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_beta_import(BetaImport self, SseSerializer serializer);
 
   @protected
   void sse_encode_bool(bool self, SseSerializer serializer);

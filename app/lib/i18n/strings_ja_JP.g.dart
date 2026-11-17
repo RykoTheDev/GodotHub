@@ -892,40 +892,6 @@ class _Translations$common$ja_JP extends Translations$common$en_US {
 	@override String get date_next_month => '次の月';
 	@override String get date_change_due => '期限を変更: {{date}}';
 	@override String get date_add_due => '期限を追加';
-	@override String get flutter_welcome_eyebrow => '新しくなりました';
-	@override String get flutter_welcome_title => '新しい GodotHub へようこそ';
-	@override String get flutter_welcome_desc => 'GodotHub を一から作り直しました。使い慣れた見た目と操作はそのままに、より速く、滑らかに動作します。';
-	@override String get flutter_welcome_fast_title => 'より高速に';
-	@override String get flutter_welcome_fast_desc => '起動とスクロールがより快適になり、メモリ使用量も減りました。';
-	@override String get flutter_welcome_updates_title => 'アプリ内で更新';
-	@override String get flutter_welcome_updates_desc => 'GodotHub 内で新しいバージョンをダウンロードしてインストールできます。すべての更新は、インストール前に検証されます。';
-	@override String get flutter_welcome_design_title => 'デザインを一新';
-	@override String get flutter_welcome_design_desc => '滑らかなアニメーション、鮮明な文字、システム設定に合わせたテーマを利用できます。';
-	@override String get flutter_welcome_data_title => 'これまでのデータを引き継ぎました';
-	@override String get flutter_welcome_data_desc => 'プロジェクト、Godot のバージョン、設定、Git のサインイン情報は自動的に引き継がれています。';
-	@override String get flutter_welcome_summary => 'データを引き継ぎました';
-	@override String flutter_welcome_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
-		other: '${count} 件のプロジェクト',
-	);
-	@override String get flutter_welcome_projects_one => '{{count}} 件のプロジェクト';
-	@override String get flutter_welcome_projects_other => '{{count}} 件のプロジェクト';
-	@override String flutter_welcome_workspaces({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
-		other: '${count} 件のワークスペース',
-	);
-	@override String get flutter_welcome_workspaces_one => '{{count}} 件のワークスペース';
-	@override String get flutter_welcome_workspaces_other => '{{count}} 件のワークスペース';
-	@override String flutter_welcome_templates({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
-		other: '${count} 件のテンプレート',
-	);
-	@override String get flutter_welcome_templates_one => '{{count}} 件のテンプレート';
-	@override String get flutter_welcome_templates_other => '{{count}} 件のテンプレート';
-	@override String flutter_welcome_vault_items({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count,
-		other: '保管庫のアイテム ${count} 件',
-	);
-	@override String get flutter_welcome_vault_items_one => '保管庫のアイテム {{count}} 件';
-	@override String get flutter_welcome_vault_items_other => '保管庫のアイテム {{count}} 件';
-	@override String get flutter_welcome_changelog => '新機能を確認';
-	@override String get flutter_welcome_continue => '続ける';
 	@override String get bug_report_intro => '発生した問題を教えてください。アプリのバージョン、システム情報、直近のログは自動的に追加されます。';
 	@override String get bug_report_what_happened_placeholder => 'どのような問題が、GodotHub のどこで発生したかを入力してください。';
 	@override String get bug_report_steps_label => '再現手順';
@@ -3403,32 +3369,6 @@ extension on TranslationsJaJp {
 			'common.date_next_month' => '次の月',
 			'common.date_change_due' => '期限を変更: {{date}}',
 			'common.date_add_due' => '期限を追加',
-			'common.flutter_welcome_eyebrow' => '新しくなりました',
-			'common.flutter_welcome_title' => '新しい GodotHub へようこそ',
-			'common.flutter_welcome_desc' => 'GodotHub を一から作り直しました。使い慣れた見た目と操作はそのままに、より速く、滑らかに動作します。',
-			'common.flutter_welcome_fast_title' => 'より高速に',
-			'common.flutter_welcome_fast_desc' => '起動とスクロールがより快適になり、メモリ使用量も減りました。',
-			'common.flutter_welcome_updates_title' => 'アプリ内で更新',
-			'common.flutter_welcome_updates_desc' => 'GodotHub 内で新しいバージョンをダウンロードしてインストールできます。すべての更新は、インストール前に検証されます。',
-			'common.flutter_welcome_design_title' => 'デザインを一新',
-			'common.flutter_welcome_design_desc' => '滑らかなアニメーション、鮮明な文字、システム設定に合わせたテーマを利用できます。',
-			'common.flutter_welcome_data_title' => 'これまでのデータを引き継ぎました',
-			'common.flutter_welcome_data_desc' => 'プロジェクト、Godot のバージョン、設定、Git のサインイン情報は自動的に引き継がれています。',
-			'common.flutter_welcome_summary' => 'データを引き継ぎました',
-			'common.flutter_welcome_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件のプロジェクト', ), 
-			'common.flutter_welcome_projects_one' => '{{count}} 件のプロジェクト',
-			'common.flutter_welcome_projects_other' => '{{count}} 件のプロジェクト',
-			'common.flutter_welcome_workspaces' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件のワークスペース', ), 
-			'common.flutter_welcome_workspaces_one' => '{{count}} 件のワークスペース',
-			'common.flutter_welcome_workspaces_other' => '{{count}} 件のワークスペース',
-			'common.flutter_welcome_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '${count} 件のテンプレート', ), 
-			'common.flutter_welcome_templates_one' => '{{count}} 件のテンプレート',
-			'common.flutter_welcome_templates_other' => '{{count}} 件のテンプレート',
-			'common.flutter_welcome_vault_items' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('ja'))(count, other: '保管庫のアイテム ${count} 件', ), 
-			'common.flutter_welcome_vault_items_one' => '保管庫のアイテム {{count}} 件',
-			'common.flutter_welcome_vault_items_other' => '保管庫のアイテム {{count}} 件',
-			'common.flutter_welcome_changelog' => '新機能を確認',
-			'common.flutter_welcome_continue' => '続ける',
 			'common.bug_report_intro' => '発生した問題を教えてください。アプリのバージョン、システム情報、直近のログは自動的に追加されます。',
 			'common.bug_report_what_happened_placeholder' => 'どのような問題が、GodotHub のどこで発生したかを入力してください。',
 			'common.bug_report_steps_label' => '再現手順',
@@ -3906,8 +3846,6 @@ extension on TranslationsJaJp {
 			'settings.git_self_hosted_url_placeholder' => 'https://gitlab.example.com',
 			'settings.git_self_hosted_client_id' => 'アプリケーション ID',
 			'settings.git_sign_in_self_hosted' => 'インスタンスでサインイン',
-			_ => null,
-		} ?? switch (path) {
 			'settings.git_pat_title' => 'その他のホスト（パーソナルアクセストークン）',
 			'settings.git_pat_add' => 'トークンを追加',
 			'settings.git_pat_host_placeholder' => '例: codeberg.org',
@@ -3934,6 +3872,8 @@ extension on TranslationsJaJp {
 			'settings.system' => 'システム',
 			'settings.k12h' => '12 時間制（2:30 PM）',
 			'settings.k24h' => '24 時間制（14:30）',
+			_ => null,
+		} ?? switch (path) {
 			'settings.dd_mm_yyyy' => '日-月-年',
 			'settings.mm_dd_yyyy' => '月-日-年',
 			'settings.yyyy_mm_dd' => '年-月-日',
@@ -4420,8 +4360,6 @@ extension on TranslationsJaJp {
 			'versions.export_templates_web_standard' => 'Web',
 			'versions.export_templates_web_extensions' => 'Web（拡張機能あり）',
 			'versions.export_templates_web_single_threaded' => 'Web（シングルスレッド）',
-			_ => null,
-		} ?? switch (path) {
 			'versions.export_templates_web_extensions_single_threaded' => 'Web（拡張機能あり・シングルスレッド）',
 			'versions.export_templates_refresh' => '利用可能なテンプレートを再読み込み',
 			'versions.download_failed_title' => 'ダウンロードに失敗しました',
@@ -4448,6 +4386,8 @@ extension on TranslationsJaJp {
 			'versions.add_github_token' => 'GitHub トークンを追加',
 			'versions.reset_filters' => 'フィルターをリセット',
 			'versions.no_available_hint' => '別のチャンネルやビルドの種類を選ぶか、検索をクリアしてください。',
+			_ => null,
+		} ?? switch (path) {
 			'versions.view_release_page' => 'リリースページを表示',
 			'versions.update_available_tag' => '{{tag}} が利用可能です',
 			'versions.templates_none_hint' => 'このバージョンでプロジェクトをエクスポートするには、エクスポートテンプレートをインストールしてください。',

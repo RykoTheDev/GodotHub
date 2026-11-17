@@ -188,11 +188,11 @@ pub struct Io<'a> {
 /// Returns `None` when no subcommand is given, meaning the GUI should launch.
 /// Stray OS arguments on a GUI launch (for example macOS `-psn_...`) are ignored
 /// rather than treated as a parse error.
-pub fn dispatch(channel: crate::Channel) -> Option<i32> {
-    dispatch_from(channel, std::env::args_os().collect())
+pub fn dispatch() -> Option<i32> {
+    dispatch_from(std::env::args_os().collect())
 }
 
-pub fn dispatch_from(channel: crate::Channel, argv: Vec<OsString>) -> Option<i32> {
+pub fn dispatch_from(argv: Vec<OsString>) -> Option<i32> {
     let args: Vec<String> = argv
         .iter()
         .skip(1)
@@ -202,7 +202,7 @@ pub fn dispatch_from(channel: crate::Channel, argv: Vec<OsString>) -> Option<i32
         return None;
     }
     attach_console();
-    match parse_from(channel, argv) {
+    match parse_from(argv) {
         Ok(cli) => {
             COLOR.store(detect_color(cli.no_color), Ordering::Relaxed);
             let mut stdout = std::io::stdout();
@@ -213,7 +213,7 @@ pub fn dispatch_from(channel: crate::Channel, argv: Vec<OsString>) -> Option<i32
             };
             Some(
                 cli.command
-                    .map(|command| run(channel, command, &mut io))
+                    .map(|command| run(command, &mut io))
                     .unwrap_or(0),
             )
         }
@@ -224,14 +224,14 @@ pub fn dispatch_from(channel: crate::Channel, argv: Vec<OsString>) -> Option<i32
     }
 }
 
-pub fn command(channel: crate::Channel) -> clap::Command {
+pub fn command() -> clap::Command {
     Cli::command()
-        .name(channel.info().cli_shim_name)
+        .name(crate::APP.cli_shim_name)
         .version(crate::app_version())
 }
 
-pub fn parse_from(channel: crate::Channel, argv: Vec<OsString>) -> Result<Cli, clap::Error> {
-    let matches = command(channel).try_get_matches_from(argv)?;
+pub fn parse_from(argv: Vec<OsString>) -> Result<Cli, clap::Error> {
+    let matches = command().try_get_matches_from(argv)?;
     Cli::from_arg_matches(&matches)
 }
 
@@ -248,8 +248,8 @@ fn attach_console() {
 #[cfg(not(windows))]
 fn attach_console() {}
 
-fn run(channel: crate::Channel, command: Commands, io: &mut Io) -> i32 {
-    let result = base_dir(channel).and_then(|base| run_in(&base, command, io));
+fn run(command: Commands, io: &mut Io) -> i32 {
+    let result = base_dir().and_then(|base| run_in(&base, command, io));
     report(result, io)
 }
 
@@ -284,8 +284,8 @@ fn run_in(base: &Path, command: Commands, io: &mut Io) -> Result<i32, String> {
     }
 }
 
-fn base_dir(channel: crate::Channel) -> Result<PathBuf, String> {
-    resolve::data_dir(channel)
+fn base_dir() -> Result<PathBuf, String> {
+    resolve::data_dir()
         .ok_or_else(|| "Could not determine the GodotHub data directory".to_string())
 }
 
@@ -759,7 +759,6 @@ fn spawn_detached(exe: &str, args: &[String]) -> Result<(), String> {
 #[allow(clippy::missing_safety_doc)]
 #[no_mangle]
 pub unsafe extern "C" fn godothub_cli_dispatch(
-    channel: u32,
     version: *const std::ffi::c_char,
     exit_code: *mut i32,
 ) -> bool {
@@ -768,7 +767,7 @@ pub unsafe extern "C" fn godothub_cli_dispatch(
             crate::set_app_version(Box::leak(version.to_owned().into_boxed_str()));
         }
     }
-    match ffi_dispatch(channel, std::env::args_os().collect()) {
+    match ffi_dispatch(std::env::args_os().collect()) {
         Some(code) => {
             if !exit_code.is_null() {
                 *exit_code = code;
@@ -779,13 +778,8 @@ pub unsafe extern "C" fn godothub_cli_dispatch(
     }
 }
 
-fn ffi_dispatch(channel: u32, argv: Vec<OsString>) -> Option<i32> {
-    let channel = if channel == 0 {
-        crate::Channel::Stable
-    } else {
-        crate::Channel::Beta
-    };
-    std::panic::catch_unwind(|| dispatch_from(channel, argv)).unwrap_or(Some(101))
+fn ffi_dispatch(argv: Vec<OsString>) -> Option<i32> {
+    std::panic::catch_unwind(|| dispatch_from(argv)).unwrap_or(Some(101))
 }
 
 #[cfg(test)]
@@ -1011,7 +1005,7 @@ mod tests {
         }
 
         fn run(&self, args: &[&str]) -> (i32, String, String) {
-            let cli = parse_from(crate::Channel::Stable, os(args)).expect("args should parse");
+            let cli = parse_from(os(args)).expect("args should parse");
             let (mut out, mut err) = (Vec::new(), Vec::new());
             let code = {
                 let mut io = Io {
@@ -1045,23 +1039,18 @@ mod tests {
     }
 
     #[test]
-    fn version_flag_prints_the_app_version_for_each_channel() {
-        let stable = parse_from(crate::Channel::Stable, os(&["godothub", "--version"])).unwrap_err();
+    fn version_flag_prints_the_app_version() {
+        let stable = parse_from(os(&["godothub", "--version"])).unwrap_err();
         assert_eq!(stable.kind(), clap::error::ErrorKind::DisplayVersion);
         assert_eq!(
             stable.to_string(),
             format!("godothub {}\n", crate::app_version())
         );
-        let beta = parse_from(crate::Channel::Beta, os(&["godothub-beta", "-V"])).unwrap_err();
-        assert_eq!(
-            beta.to_string(),
-            format!("godothub-beta {}\n", crate::app_version())
-        );
     }
 
     #[test]
     fn help_shows_the_logo_usage_and_every_subcommand() {
-        let help = parse_from(crate::Channel::Stable, os(&["godothub", "--help"])).unwrap_err();
+        let help = parse_from(os(&["godothub", "--help"])).unwrap_err();
         assert_eq!(help.kind(), clap::error::ErrorKind::DisplayHelp);
         let text = help.to_string();
         assert!(text.starts_with(LOGO));
@@ -1308,9 +1297,9 @@ mod tests {
 
     #[test]
     fn c_entry_point_only_handles_cli_arguments() {
-        assert_eq!(ffi_dispatch(0, os(&["godothub"])), None);
-        assert_eq!(ffi_dispatch(1, os(&["godothub-beta", "-psn_0_1"])), None);
-        assert_eq!(ffi_dispatch(0, os(&["godothub", "--version"])), Some(0));
-        assert_eq!(ffi_dispatch(0, os(&["godothub", "versions", "--bogus"])), Some(2));
+        assert_eq!(ffi_dispatch(os(&["godothub"])), None);
+        assert_eq!(ffi_dispatch(os(&["godothub", "-psn_0_1"])), None);
+        assert_eq!(ffi_dispatch(os(&["godothub", "--version"])), Some(0));
+        assert_eq!(ffi_dispatch(os(&["godothub", "versions", "--bogus"])), Some(2));
     }
 }

@@ -70,8 +70,6 @@ DefenderState
 SmartScreenState
 Probe 'Flutter 1.9.1 setup.exe from the internet zone' (Join-Path $Lab 'dist\1.9.1\GodotHub-1.9.1-windows-x64-setup.exe') 'GodotHub-1.9.1-windows-x64-setup.exe'
 Probe 'Flutter 1.9.1 MSI from the internet zone' (Join-Path $Lab 'dist\1.9.1\GodotHub-1.9.1-windows-x64.msi') 'GodotHub-1.9.1-windows-x64.msi'
-Probe 'Tauri 1.5.9 setup.exe from the internet zone' (Join-Path $Lab 'tauri\tauri-setup.exe') 'GodotHub_1.5.9_x64-setup.exe'
-Probe 'Tauri 1.5.9 MSI from the internet zone' (Join-Path $Lab 'tauri\tauri.msi') 'GodotHub_1.5.9_x64_en-US.msi'
 Detections 'before the update run'
 
 Note "`n===== install, launch, in-app update and rollback (run.ps1)"

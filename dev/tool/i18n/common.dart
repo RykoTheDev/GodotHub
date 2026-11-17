@@ -5,7 +5,11 @@ const sourceLocale = 'en-US';
 
 String get repoRoot => File.fromUri(Platform.script).parent.parent.parent.parent.path;
 
-String get localesPath => '$repoRoot/src/i18n/locales';
+// The Flutter locale files are the source of truth: one folder per namespace,
+// one `<namespace>_<locale>.i18n.json` file per locale (slang's layout).
+String get localesPath => '$repoRoot/app/lib/i18n/json';
+
+File localeFile(String locale, String namespace) => File('$localesPath/$namespace/${namespace}_$locale.i18n.json');
 
 bool get useColor => stdout.hasTerminal && stdout.supportsAnsiEscapes;
 
@@ -19,23 +23,27 @@ const yellow = '\x1b[33m';
 const cyan = '\x1b[36m';
 const gray = '\x1b[90m';
 
-List<String> localeNames() => Directory(localesPath)
+List<String> namespaceNames() => Directory(localesPath)
     .listSync()
     .whereType<Directory>()
     .map((d) => d.uri.pathSegments.where((s) => s.isNotEmpty).last)
     .toList()
   ..sort();
 
-List<String> namespaceNames([String locale = sourceLocale]) => Directory('$localesPath/$locale')
-    .listSync()
-    .whereType<File>()
-    .where((f) => f.path.endsWith('.json'))
-    .map((f) => f.uri.pathSegments.last.replaceAll('.json', ''))
-    .toList()
-  ..sort();
+List<String> localeNames() {
+  final names = <String>{};
+  for (final ns in namespaceNames()) {
+    final suffix = RegExp('^${RegExp.escape(ns)}_(.+)' r'\.i18n\.json$');
+    for (final file in Directory('$localesPath/$ns').listSync().whereType<File>()) {
+      final match = suffix.firstMatch(file.uri.pathSegments.last);
+      if (match != null) names.add(match[1]!);
+    }
+  }
+  return names.toList()..sort();
+}
 
 Map<String, Object?>? readLocaleFile(String locale, String namespace) {
-  final file = File('$localesPath/$locale/$namespace.json');
+  final file = localeFile(locale, namespace);
   if (!file.existsSync() || file.lengthSync() == 0) return null;
   try {
     return (jsonDecode(file.readAsStringSync()) as Map).cast<String, Object?>();
@@ -49,7 +57,11 @@ Map<String, Object?> flatten(Map<String, Object?> data, [String prefix = '']) {
   for (final entry in data.entries) {
     final path = prefix.isEmpty ? entry.key : '$prefix.${entry.key}';
     final value = entry.value;
-    if (value is Map) {
+    if (value is Map && entry.key.endsWith(')')) {
+      // A slang modifier such as `files(plural)`: its forms depend on the
+      // language, so the group counts as one key.
+      out[path] = jsonEncode(value);
+    } else if (value is Map) {
       out.addAll(flatten(value.cast<String, Object?>(), path));
     } else if (value is List) {
       out.addAll(flatten({for (var i = 0; i < value.length; i++) '$i': value[i]}, path));

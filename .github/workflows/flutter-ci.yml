@@ -90,13 +90,12 @@ jobs:
       - name: Get Flutter packages
         run: flutter pub get
 
-      - name: Regenerate Flutter locale files from src/i18n/locales
+      - name: Generated locale code is up to date
         run: |
-          dart run ../dev/tool/i18n_convert.dart
           dart run slang
-          if [ -n "$(git status --porcelain -- lib/i18n)" ]; then
-            git status --short -- lib/i18n
-            echo "::warning title=Flutter locale files out of date::app/lib/i18n differs from src/i18n/locales. The i18n sync workflow commits the update; this run tests the regenerated files."
+          if ! git diff --ignore-cr-at-eol --quiet -- lib/i18n; then
+            git diff --ignore-cr-at-eol --stat -- lib/i18n
+            echo "::warning title=Generated locale code out of date::Run 'dart run slang' in app/ and commit lib/i18n. This run tests the regenerated files."
           fi
 
       # Missing translations fall back to English, so these only warn.
@@ -113,21 +112,6 @@ jobs:
       - name: Analyze
         run: flutter analyze --no-fatal-warnings --no-fatal-infos
 
-      # The i18next parity test compares the Dart resolver against i18next on the
-      # current locale files. Regenerate its fixture so a translation update on a
-      # branch is not mistaken for a resolver bug.
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-
-      - name: Regenerate i18next resolution fixture
-        working-directory: .
-        run: |
-          bun install --frozen-lockfile
-          bun dev/tool/gen_i18n_fixtures.ts
-          if [ -n "$(git status --porcelain -- app/test/fixtures/i18next_resolution.json)" ]; then
-            echo "::warning title=i18next fixture out of date::app/test/fixtures/i18next_resolution.json was regenerated from src/i18n/locales. Run 'bun dev/tool/gen_i18n_fixtures.ts' and commit it."
-          fi
-
       - name: Widget tests
         run: flutter test
 
@@ -140,15 +124,15 @@ jobs:
           - os: windows-latest
             target: windows
             rust_targets: ''
-            binary: build/windows/x64/runner/Release/godothub-beta.exe
+            binary: build/windows/x64/runner/Release/godothub.exe
           - os: macos-latest
             target: macos
             rust_targets: aarch64-apple-darwin,x86_64-apple-darwin
-            binary: build/macos/Build/Products/Release/GodotHub Beta.app/Contents/MacOS/GodotHub Beta
+            binary: build/macos/Build/Products/Release/GodotHub.app/Contents/MacOS/GodotHub
           - os: ubuntu-latest
             target: linux
             rust_targets: ''
-            binary: build/linux/x64/release/bundle/godothub-beta
+            binary: build/linux/x64/release/bundle/godothub
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 60
@@ -194,10 +178,8 @@ jobs:
       - name: Get Flutter packages
         run: flutter pub get
 
-      - name: Regenerate Flutter locale files from src/i18n/locales
-        run: |
-          dart run ../dev/tool/i18n_convert.dart
-          dart run slang
+      - name: Generate locale code
+        run: dart run slang
 
       - name: Build release
         run: flutter build ${{ matrix.target }} --release
@@ -207,7 +189,7 @@ jobs:
           version="$(sed -n 's/^version: *\([^+ ]*\).*/\1/p' pubspec.yaml)"
           output="$("${{ matrix.binary }}" --version)"
           echo "$output"
-          test "$output" = "godothub-beta $version"
+          test "$output" = "godothub $version"
 
       # One flutter test run per file. With several files in one run, the
       # desktop app from the first file is still running when the next one

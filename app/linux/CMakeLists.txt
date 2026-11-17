@@ -4,16 +4,11 @@ project(runner LANGUAGES CXX)
 
 # The name of the executable created for the application. Change this to change
 # the on-disk name of your application.
-set(BINARY_NAME "godothub-beta")
+set(BINARY_NAME "godothub")
 # The unique GTK application identifier for this application. See:
 # https://wiki.gnome.org/HowDoI/ChooseApplicationID
-set(APPLICATION_ID "Ryko.GodotHub.Beta")
+set(APPLICATION_ID "Ryko.GodotHub")
 set(GODOTHUB_APP_ICON "${CMAKE_CURRENT_SOURCE_DIR}/runner/resources/app_icon.png")
-file(READ "${CMAKE_CURRENT_SOURCE_DIR}/flutter/ephemeral/generated_config.cmake" GODOTHUB_GENERATED_CONFIG)
-if(GODOTHUB_GENERATED_CONFIG MATCHES "[=,]Q0hBTk5FTD1zdGFibGU=[,\"]")
-  set(APPLICATION_ID "Ryko.GodotHub")
-  set(GODOTHUB_APP_ICON "${CMAKE_CURRENT_SOURCE_DIR}/../packaging/icons/stable/app_icon.png")
-endif()
 
 # Explicitly opt in to modern CMake behaviors to avoid warnings with recent
 # versions of CMake.

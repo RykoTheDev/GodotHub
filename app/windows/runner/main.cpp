@@ -10,9 +10,9 @@
 
 namespace {
 
-using CliDispatch = bool (*)(uint32_t, const char*, int32_t*);
-using ForwardToRunningInstance = bool (*)(uint32_t);
-using SetAppUserModelIdFn = bool (*)(uint32_t);
+using CliDispatch = bool (*)(const char*, int32_t*);
+using ForwardToRunningInstance = bool (*)();
+using SetAppUserModelIdFn = bool (*)();
 
 HMODULE LoadBridge() {
   wchar_t module_path[MAX_PATH];
@@ -33,8 +33,7 @@ bool RunCli(HMODULE library, int* exit_code) {
   const auto dispatch = reinterpret_cast<CliDispatch>(
       ::GetProcAddress(library, "godothub_cli_dispatch"));
   int32_t code = 0;
-  if (dispatch == nullptr ||
-      !dispatch(GODOTHUB_CHANNEL, GODOTHUB_VERSION, &code)) {
+  if (dispatch == nullptr || !dispatch(GODOTHUB_VERSION, &code)) {
     return false;
   }
   *exit_code = code;
@@ -47,7 +46,7 @@ bool ForwardedToRunningInstance(HMODULE library) {
   }
   const auto forward = reinterpret_cast<ForwardToRunningInstance>(
       ::GetProcAddress(library, "godothub_forward_to_running_instance"));
-  return forward != nullptr && forward(GODOTHUB_CHANNEL);
+  return forward != nullptr && forward();
 }
 
 void SetAppUserModelId(HMODULE library) {
@@ -57,7 +56,7 @@ void SetAppUserModelId(HMODULE library) {
   const auto set_id = reinterpret_cast<SetAppUserModelIdFn>(
       ::GetProcAddress(library, "godothub_set_app_user_model_id"));
   if (set_id != nullptr) {
-    set_id(GODOTHUB_CHANNEL);
+    set_id();
   }
 }
 
@@ -115,7 +114,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   FlutterWindow window(project);
   Win32Window::Point origin(10, 10);
   Win32Window::Size size(1280, 720);
-  if (!window.Create(L"GodotHub Beta", origin, size)) {
+  if (!window.Create(L"GodotHub", origin, size)) {
     return EXIT_FAILURE;
   }
   window.SetQuitOnClose(true);

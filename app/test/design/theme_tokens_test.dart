@@ -46,7 +46,7 @@ void main() {
     final light = customThemeDefaults(GhThemeMode.light);
     expect({'accent_color': dark.accentColor, 'background_color': dark.backgroundColor}, d['customDark']);
     expect({'accent_color': light.accentColor, 'background_color': light.backgroundColor}, d['customLight']);
-    final json = jsonDecode(File('../src-tauri/theme-defaults.json').readAsStringSync()) as Map<String, dynamic>;
+    final json = jsonDecode(File('../crates/godothub-core/assets/theme-defaults.json').readAsStringSync()) as Map<String, dynamic>;
     expect(defaultAccent, json['accent']);
     expect(defaultBackground, json['background']);
   });

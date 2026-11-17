@@ -12,7 +12,7 @@ permissions:
 jobs:
   publish-to-winget:
     runs-on: ubuntu-latest
-    # Stable app releases only (vX.Y.Z), not flutter-v* prereleases.
+    # App releases only (vX.Y.Z), never prereleases.
     if: ${{ !github.event.release.prerelease && startsWith(github.event.release.tag_name, 'v') }}
 
     steps:

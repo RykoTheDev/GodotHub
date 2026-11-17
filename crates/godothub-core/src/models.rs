@@ -419,7 +419,7 @@ struct ThemeDefaults {
     background: String,
 }
 
-const THEME_DEFAULTS_JSON: &str = include_str!("../../../src-tauri/theme-defaults.json");
+const THEME_DEFAULTS_JSON: &str = include_str!("../assets/theme-defaults.json");
 
 fn theme_defaults() -> &'static ThemeDefaults {
     static DEFAULTS: OnceLock<ThemeDefaults> = OnceLock::new();

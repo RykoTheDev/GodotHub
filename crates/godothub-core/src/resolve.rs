@@ -22,8 +22,8 @@ pub struct Engine {
     pub source: EngineSource,
 }
 
-pub fn data_dir(channel: crate::Channel) -> Option<PathBuf> {
-    crate::Paths::for_channel(channel).app_data_dir().ok()
+pub fn data_dir() -> Option<PathBuf> {
+    crate::Paths::default_dirs().app_data_dir().ok()
 }
 
 pub fn active_workspace_dir(base: &Path) -> PathBuf {

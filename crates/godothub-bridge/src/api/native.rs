@@ -45,7 +45,7 @@ pub async fn pick_executable() -> Option<String> {
 }
 
 pub async fn notify(title: String, body: String) -> Result<(), CoreError> {
-    let identifier = crate::host::app()?.channel().info().identifier;
+    let identifier = godothub_core::APP.identifier;
     let mut notification = notify_rust::Notification::new();
     notification.summary(&title).body(&body).auto_icon();
     #[cfg(windows)]
