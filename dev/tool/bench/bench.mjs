@@ -118,7 +118,7 @@ function assertNotRunning() {
 
 function copyProfile(from, to) {
   fs.rmSync(to, { recursive: true, force: true })
-  fs.cpSync(from, to, { recursive: true, filter: (src) => !SECRETS.has(path.basename(src)) && !src.includes(`${path.sep}EBWebView`) })
+  fs.cpSync(from, to, { recursive: true, filter: (src) => !SECRETS.has(path.basename(src)) })
 }
 
 function syntheticProfile(dir) {
