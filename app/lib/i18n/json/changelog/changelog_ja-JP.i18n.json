@@ -9,5 +9,5 @@
   "added": "追加",
   "fixed": "修正",
   "improved": "改善",
-  "changelog_load_failed": "Couldn't load the changelog"
+  "changelog_load_failed": "変更履歴の読み込みに失敗しました"
 }
