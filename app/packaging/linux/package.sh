@@ -112,7 +112,7 @@ Package: $package
 Version: $version
 Architecture: amd64
 Installed-Size: $installed_kb
-Maintainer: Ryko
+Maintainer: Rykode
 Priority: optional
 Depends: libgtk-3-0 | libgtk-3-0t64, libx11-6, libxi6, liblzma5, libegl1, libgles2
 Description: $summary

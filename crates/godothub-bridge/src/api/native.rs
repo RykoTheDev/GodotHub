@@ -7,40 +7,41 @@ pub struct RecentProject {
 }
 
 fn dialog() -> rfd::AsyncFileDialog {
-    let dialog = rfd::AsyncFileDialog::new();
-    #[cfg(windows)]
-    if let Some(parent) = crate::dialog_parent::main_window() {
-        return dialog.set_parent(&parent);
-    }
-    dialog
+    rfd::AsyncFileDialog::new()
 }
 
-fn path_of(handle: Option<rfd::FileHandle>) -> Option<String> {
-    handle.map(|h| h.path().to_string_lossy().to_string())
+/// Shows a dialog modally. On Windows the dialog is deliberately not given the
+/// Flutter window as owner (see `dialog_modal`); the window is disabled instead.
+async fn show<F>(open: impl FnOnce(rfd::AsyncFileDialog) -> F) -> Option<String>
+where
+    F: std::future::Future<Output = Option<rfd::FileHandle>>,
+{
+    #[cfg(windows)]
+    let _modal = crate::dialog_modal::disable_main_window();
+    open(dialog()).await.map(|h| h.path().to_string_lossy().to_string())
 }
 
 pub async fn pick_folder() -> Option<String> {
-    path_of(dialog().pick_folder().await)
+    show(|d| d.pick_folder()).await
 }
 
 pub async fn pick_save_path(default_name: String) -> Option<String> {
-    path_of(dialog().set_file_name(default_name).save_file().await)
+    show(|d| d.set_file_name(default_name).save_file()).await
 }
 
 pub async fn pick_data_file() -> Option<String> {
-    path_of(dialog().add_filter("JSON", &["json"]).pick_file().await)
+    show(|d| d.add_filter("JSON", &["json"]).pick_file()).await
 }
 
 pub async fn pick_image_file() -> Option<String> {
-    path_of(dialog().add_filter("Images", &["png", "svg", "jpg", "jpeg", "webp"]).pick_file().await)
+    show(|d| d.add_filter("Images", &["png", "svg", "jpg", "jpeg", "webp"]).pick_file()).await
 }
 
 pub async fn pick_executable() -> Option<String> {
     #[cfg(target_os = "macos")]
-    let handle = dialog().pick_folder().await;
+    return show(|d| d.pick_folder()).await;
     #[cfg(not(target_os = "macos"))]
-    let handle = dialog().pick_file().await;
-    path_of(handle)
+    show(|d| d.pick_file()).await
 }
 
 pub async fn notify(title: String, body: String) -> Result<(), CoreError> {

@@ -322,28 +322,3 @@ jobs:
           gh release create "$TAG" --repo "$REPO" --verify-tag --draft \
             --title "GodotHub $TAG" --notes-file release/notes.md \
             dist/* release/latest-v2.json release/latest.json
-
-      - name: Publish it as the latest release
-        run: gh release edit "$TAG" --repo "$REPO" --draft=false --latest
-
-  publish-to-winget:
-    needs: [prepare, publish]
-    runs-on: ubuntu-latest
-    if: ${{ !cancelled() && needs.publish.result == 'success' }}
-
-    steps:
-      - name: Sync winget-pkgs fork
-        env:
-          GH_TOKEN: ${{ secrets.WINGET_TOKEN }}
-        run: |
-          FORK_OWNER=$(gh api user --jq .login)
-          gh api -X POST "repos/${FORK_OWNER}/winget-pkgs/merge-upstream" \
-            -f branch=master
-
-      - name: Publish to WinGet
-        uses: vedantmgoyal9/winget-releaser@v2
-        with:
-          identifier: Ryko.GodotHub
-          installers-regex: '\.msi$'
-          token: ${{ secrets.WINGET_TOKEN }}
-          version: ${{ needs.prepare.outputs.version }}
