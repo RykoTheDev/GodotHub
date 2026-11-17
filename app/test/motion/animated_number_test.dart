@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter/material.dart' show MaterialApp, Scaffold;
+import 'package:material_ui/material_ui.dart' show MaterialApp, Scaffold;
 import 'package:godothub/debug/gallery/sections/motion_numbers.dart';
 import 'package:godothub/motion/animated_number.dart';
 import 'package:godothub/motion/motion.dart';

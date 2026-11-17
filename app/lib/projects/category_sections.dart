@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../design/design.dart';
 import '../motion/animated_number.dart';

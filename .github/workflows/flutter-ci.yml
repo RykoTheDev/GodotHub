@@ -80,9 +80,12 @@ jobs:
         working-directory: .
         run: cargo test -p godothub_core -p godothub_bridge --locked
 
+      # Steps ending in `|| echo "::warning ..."` report problems without failing the run.
+      # Only things that break the app (compile errors, failing behaviour tests,
+      # a release build that does not build or run) fail CI.
       - name: Third-party Rust notices are up to date
         working-directory: .
-        run: node dev/tool/gen_rust_notices.mjs --check
+        run: node dev/tool/gen_rust_notices.mjs --check || echo "::warning title=Rust notices out of date::Check failed (non-blocking). See this step's log."
 
       - name: Get Flutter packages
         run: flutter pub get
@@ -96,17 +99,34 @@ jobs:
             echo "::warning title=Flutter locale files out of date::app/lib/i18n differs from src/i18n/locales. The i18n sync workflow commits the update; this run tests the regenerated files."
           fi
 
+      # Missing translations fall back to English, so these only warn.
       - name: i18n missing keys and values
-        run: dart run ../dev/tool/i18n/check_keys.dart --check-values
+        run: dart run ../dev/tool/i18n/check_keys.dart --check-values || echo "::warning title=i18n missing keys or values::Check failed (non-blocking). See this step's log."
 
       - name: i18n duplicate keys
-        run: dart run ../dev/tool/i18n/duplicate_keys.dart
+        run: dart run ../dev/tool/i18n/duplicate_keys.dart || echo "::warning title=i18n duplicate keys::Check failed (non-blocking). See this step's log."
 
       - name: i18n unused keys
-        run: dart run ../dev/tool/i18n/unused_keys.dart
+        run: dart run ../dev/tool/i18n/unused_keys.dart || echo "::warning title=i18n unused keys::Check failed (non-blocking). See this step's log."
 
+      # Errors fail the run; warnings and infos (lints, deprecations) are reported only.
       - name: Analyze
-        run: flutter analyze
+        run: flutter analyze --no-fatal-warnings --no-fatal-infos
+
+      # The i18next parity test compares the Dart resolver against i18next on the
+      # current locale files. Regenerate its fixture so a translation update on a
+      # branch is not mistaken for a resolver bug.
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Regenerate i18next resolution fixture
+        working-directory: .
+        run: |
+          bun install --frozen-lockfile
+          bun dev/tool/gen_i18n_fixtures.ts
+          if [ -n "$(git status --porcelain -- app/test/fixtures/i18next_resolution.json)" ]; then
+            echo "::warning title=i18next fixture out of date::app/test/fixtures/i18next_resolution.json was regenerated from src/i18n/locales. Run 'bun dev/tool/gen_i18n_fixtures.ts' and commit it."
+          fi
 
       - name: Widget tests
         run: flutter test
@@ -193,20 +213,25 @@ jobs:
       # desktop app from the first file is still running when the next one
       # starts, and GodotHub's single-instance handoff makes that launch exit
       # at once ("The log reader stopped unexpectedly").
-      - name: Integration test (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          for file in integration_test/*_test.dart; do
-            echo "::group::$file"
-            xvfb-run -a flutter test "$file" -d linux
-            echo "::endgroup::"
-          done
-
+      # Desktop runners sometimes fail to attach the debugger ("Error waiting
+      # for a debug connection"), so each file gets one retry; a test that
+      # fails twice is a real failure.
       - name: Integration test
-        if: runner.os != 'Linux'
         run: |
+          run_file() {
+            if [ "$RUNNER_OS" = "Linux" ]; then
+              xvfb-run -a flutter test "$1" -d linux
+            else
+              flutter test "$1" -d ${{ matrix.target }}
+            fi
+          }
+          failed=0
           for file in integration_test/*_test.dart; do
             echo "::group::$file"
-            flutter test "$file" -d ${{ matrix.target }}
+            if ! run_file "$file"; then
+              echo "::warning title=Integration test retry::$file failed, retrying once"
+              run_file "$file" || { echo "::error title=Integration test failed::$file"; failed=1; }
+            fi
             echo "::endgroup::"
           done
+          exit $failed

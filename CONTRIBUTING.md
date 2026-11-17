@@ -115,7 +115,7 @@ your PR I'm happy to discuss it.
 
 | Tool | Why | Notes |
 |---|---|---|
-| **Flutter (stable)** | App framework and Dart SDK | CI uses Flutter 3.47.9. Install from [docs.flutter.dev](https://docs.flutter.dev/get-started/install) and run `flutter doctor`. |
+| **Flutter (stable)** | App framework and Dart SDK | CI uses Flutter 3.50.0. Install from [docs.flutter.dev](https://docs.flutter.dev/get-started/install) and run `flutter doctor`. |
 | **Rust (stable)** | Shared core (`crates/`) and the Flutter bridge | CI uses Rust 1.99.1. Install via [rustup](https://rustup.rs). |
 | **Desktop toolchain** | Native build of the Flutter desktop shell | **Windows:** Visual Studio with *Desktop development with C++*. **macOS:** Xcode and its command-line tools. **Linux:** `clang`, `cmake`, `ninja-build`, `pkg-config`, `libgtk-3-dev`, `libx11-dev`, `libxi-dev`, `liblzma-dev`. |
 | **Git** | Version control | Also required by the app's Git features. |

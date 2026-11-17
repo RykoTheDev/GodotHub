@@ -38,8 +38,9 @@ dependencies:
     path: rust_builder
   flutter_rust_bridge: 2.13.0
   flutter_riverpod: ^3.5.0
-  window_manager: ^0.6.0
-  nativeapi: ^0.5.10
+  window_manager: ^0.7.0
+  nativeapi: ^0.6.1
+  material_ui: ^1.11.1
   path_parsing: ^1.1.0
   ffi: ^2.2.0
   slang: 4.19.2

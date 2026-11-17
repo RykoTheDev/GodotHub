@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:godothub/logic/open_todos.dart';
 import 'package:godothub/src/rust/api/types.dart';
