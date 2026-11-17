@@ -299,7 +299,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-13, macos-latest]
+        # Intel and Apple Silicon. macos-13 and macos-14 are retired; macos-15-intel
+        # is the oldest Intel image left (the app supports macOS 12 and up).
+        os: [macos-15-intel, macos-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 20
     env:
