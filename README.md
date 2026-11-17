@@ -4,12 +4,6 @@
   </a>
 </p>
 <p align="center">
-  <a href="https://github.com/ivan-hc/AM">
-  <img width="800" height="251" alt="Group 176(1)" src="https://github.com/user-attachments/assets/57e24df7-9046-431f-b550-3d885549580f" />
-  </a>
-  <img width="800" height="232" alt="Frame 101 (2)" src="https://github.com/user-attachments/assets/1f05b9c6-0c0e-4dd6-92b0-ae4a35751dde" />
-</p>
-<p align="center">
   <a href="https://patreon.com/TheRyko">
   <img width="300" height="70" alt="patreon-badge" src="https://github.com/user-attachments/assets/931aa0ac-f46b-4155-81cd-3615ed55122b" />
   </a>
