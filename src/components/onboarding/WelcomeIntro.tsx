@@ -187,7 +187,7 @@ export function WelcomeIntro({ onLeave, onDone }: { onLeave: () => void; onDone:
           <h1
             ref={wordmarkRef}
             aria-label={t('welcome_title')}
-            className="flex font-display font-black tracking-tight leading-none text-ink text-[5.5rem] perspective-[800px]"
+            className="flex font-display font-black tracking-tight leading-none text-ink text-[5.5rem] perspective-midrange"
           >
             {'GodotHub'.split('').map((letter, i) => (
               <span key={i} data-intro-letter aria-hidden="true" className="inline-block">
