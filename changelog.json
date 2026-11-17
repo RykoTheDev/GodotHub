@@ -2299,7 +2299,7 @@
     "notes": [
       {
         "category": "fix",
-        "text": "Linux: the whole window responds to clicks again. Clicks along the bottom and right edges, including the minimize, maximize and close buttons, no longer go through to the window behind GodotHub, and the window can be resized from its edges (#352)"
+        "text": "Linux: the whole window responds to clicks again. Clicks along the bottom and right edges, including the minimize, maximize and close buttons, no longer go through to the window behind GodotHub (#352)"
       },
       {
         "category": "fix",
@@ -2308,5 +2308,18 @@
     ],
     "known_issues": [],
     "created_at": 1794935846
+  },
+  {
+    "id": "2e0fbe70-54b8-4061-b371-e3fab65bdeed",
+    "version": "v1.6.2",
+    "date": "2026-11-18",
+    "notes": [
+      {
+        "category": "fix",
+        "text": "Linux: the window can be resized again by dragging its edges and corners (#352)"
+      }
+    ],
+    "known_issues": [],
+    "created_at": 1794942433
   }
 ]
