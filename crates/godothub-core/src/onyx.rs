@@ -1,4 +1,4 @@
-//! Onyx (github.com/RykoTheDev/OnyxSteamworks) uploads game builds to Steamworks.
+//! Onyx (github.com/Rykode/OnyxSteamworks) uploads game builds to Steamworks.
 //! GodotHub finds an installed copy, checks it is current, and hands it an export
 //! folder with `onyx --open <folder>`; Onyx then shows the matching project's Build page.
 use serde::{Deserialize, Serialize};
@@ -9,8 +9,8 @@ use std::time::{Duration, Instant};
 #[cfg(target_os = "windows")]
 use std::os::windows::process::CommandExt;
 
-pub const RELEASES_URL: &str = "https://github.com/RykoTheDev/OnyxSteamworks/releases/latest";
-const LATEST_API: &str = "https://api.github.com/repos/RykoTheDev/OnyxSteamworks/releases/latest";
+pub const RELEASES_URL: &str = "https://github.com/Rykode/OnyxSteamworks/releases/latest";
+const LATEST_API: &str = "https://api.github.com/repos/Rykode/OnyxSteamworks/releases/latest";
 const LATEST_CACHE_TTL: Duration = Duration::from_secs(60 * 60);
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

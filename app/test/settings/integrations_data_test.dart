@@ -7,6 +7,7 @@ import 'package:godothub/modals/restore_progress_modal.dart';
 import 'package:godothub/settings/categories/cli_tool_section.dart';
 import 'package:godothub/settings/categories/data_settings.dart';
 import 'package:godothub/settings/categories/integrations_settings.dart';
+import 'package:godothub/settings/categories/onyx_setting.dart';
 import 'package:godothub/src/rust/api/types.dart';
 import 'package:godothub/src/ui_prefs.dart';
 import 'package:godothub/state/app_signals.dart';
@@ -28,12 +29,15 @@ final opened = <String>[];
 
 String ts(String key, {num? count, Map<String, Object?> args = const {}}) => ghTr('settings:$key', count: count, args: args);
 
+const _releases = 'https://github.com/Rykode/OnyxSteamworks/releases/latest';
+const _onyxMissing = OnyxStatus(supported: true, latest: '1.0.0', upToDate: false, releasesUrl: _releases);
+
 const _cli = CliToolStatus(installed: false, onPath: false, binDir: 'C:/bin', shimPath: 'C:/bin/godothub', platform: 'windows', needsNewTerminal: false);
 
 GitAuthState authState({bool github = false, List<GitPatInfo> pats = const []}) =>
     GitAuthState(github: github ? const GitAccountInfo(username: 'octo') : null, pats: pats);
 
-void backend({GitAuthState? auth, GistSyncResult? gist, List<Project> projects = const []}) {
+void backend({GitAuthState? auth, GistSyncResult? gist, List<Project> projects = const [], OnyxStatus onyx = _onyxMissing}) {
   var current = auth ?? authState();
   rust
     ..on('crateApiGitAuthGetGitAuthState', () async => current)
@@ -66,6 +70,7 @@ void backend({GitAuthState? auth, GistSyncResult? gist, List<Project> projects =
       return _cli;
     })
     ..on('crateApiMiseMiseRefreshStatus', () async => const MiseStatus(available: false))
+    ..on('crateApiOnyxOnyxStatus', () async => onyx)
     ..on('crateApiWorkspaceListWorkspaces', () async => const WorkspacesState(workspaces: [], activeId: ''))
     ..on('crateApiProjectsListProjects', () async => projects)
     ..on('crateApiProjectsGetProjectName', ({required String path}) async => null)
@@ -276,6 +281,41 @@ void main() {
       await base.settle(tester);
       expect(container.read(sectionSearchProvider).visible, isEmpty);
       expect(container.read(sectionSearchProvider).noResults, isTrue);
+    });
+
+    testWidgets('onyx: missing links to the releases, current can be turned on, macOS is unavailable', (tester) async {
+      backend();
+      await pumpCategory(tester, const OnyxSetting(), settings: copySettings(baseSettings, setupComplete: true));
+      expect(find.text(ts('onyx_not_installed')), findsOneWidget);
+      await tester.tap(find.byType(GhToggle));
+      await base.settle(tester);
+      expect(readSettings(tester, OnyxSetting).onyxEnabled, isFalse);
+      await tester.tap(find.text(ts('onyx_download')));
+      await base.settle(tester);
+      expect(opened, [_releases]);
+
+      backend(onyx: const OnyxStatus(supported: true, path: 'C:/Onyx/onyx.exe', latest: '1.0.0', upToDate: false, releasesUrl: _releases));
+      await tester.tap(find.text(ts('onyx_check_again')));
+      await base.settle(tester);
+      expect(find.text(ts('onyx_too_old')), findsOneWidget);
+      expect(find.text(ts('onyx_update')), findsOneWidget);
+
+      backend(
+        onyx: const OnyxStatus(supported: true, path: 'C:/Onyx/onyx.exe', version: '1.0.0', latest: '1.0.0', upToDate: true, releasesUrl: _releases),
+      );
+      await tester.tap(find.text(ts('onyx_check_again')));
+      await base.settle(tester);
+      expect(find.text(ts('onyx_detected', args: {'version': '1.0.0'})), findsOneWidget);
+      expect(find.text(ts('onyx_update')), findsNothing);
+      await tester.tap(find.byType(GhToggle));
+      await base.settle(tester, 3);
+      expect(readSettings(tester, OnyxSetting).onyxEnabled, isTrue);
+
+      backend(onyx: const OnyxStatus(supported: false, upToDate: false, releasesUrl: _releases));
+      await tester.tap(find.text(ts('onyx_check_again')));
+      await base.settle(tester);
+      expect(find.text(ts('onyx_unavailable_mac')), findsOneWidget);
+      expect(find.byType(GhToggle), findsNothing);
     });
   });
 }
