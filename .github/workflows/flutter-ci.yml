@@ -189,10 +189,24 @@ jobs:
           echo "$output"
           test "$output" = "godothub-beta $version"
 
+      # One flutter test run per file. With several files in one run, the
+      # desktop app from the first file is still running when the next one
+      # starts, and GodotHub's single-instance handoff makes that launch exit
+      # at once ("The log reader stopped unexpectedly").
       - name: Integration test (Linux)
         if: runner.os == 'Linux'
-        run: xvfb-run -a flutter test integration_test -d linux
+        run: |
+          for file in integration_test/*_test.dart; do
+            echo "::group::$file"
+            xvfb-run -a flutter test "$file" -d linux
+            echo "::endgroup::"
+          done
 
       - name: Integration test
         if: runner.os != 'Linux'
-        run: flutter test integration_test -d ${{ matrix.target }}
+        run: |
+          for file in integration_test/*_test.dart; do
+            echo "::group::$file"
+            flutter test "$file" -d ${{ matrix.target }}
+            echo "::endgroup::"
+          done
