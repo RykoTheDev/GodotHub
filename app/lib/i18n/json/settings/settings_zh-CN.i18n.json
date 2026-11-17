@@ -306,11 +306,11 @@
   "feature_desc_asset_store": "从 Godot Asset Library 浏览并安装插件和项目。",
   "feature_desc_categories": "将项目列表分组到文件夹中。",
   "feature_desc_workspaces": "在不同的项目和设置集合之间切换。",
-  "git_auth_intro": "Approve GodotHub on {{provider}} to finish signing in. Keep this window open until it's done; use Cancel to stop.",
-  "git_auth_step_current": "current step",
-  "settings_load_failed": "Couldn't load your settings",
-  "credits_contributors_loading": "Loading contributors…",
-  "credits_contributors_unavailable": "Contributors aren't available",
-  "credits_contributors_unavailable_desc": "They load from GitHub. Check your connection and try again.",
-  "credits_contributors_none": "No other contributors yet."
+  "git_auth_intro": "请在 {{provider}} 上授权 GodotHub 以完成登录。在完成之前，请保持此窗口打开；如需终止，请点击取消。",
+  "git_auth_step_current": "当前步骤",
+  "settings_load_failed": "无法加载设置",
+  "credits_contributors_loading": "正在加载贡献者…",
+  "credits_contributors_unavailable": "无法获取贡献者信息",
+  "credits_contributors_unavailable_desc": "贡献者信息来自 GitHub。请检查网络连接后重试。",
+  "credits_contributors_none": "暂无其他贡献者。"
 }
