@@ -887,6 +887,8 @@
     "cancelled": "Export cancelled",
     "cancel_hint": "Partial output files may remain in the output folder.",
     "open_folder": "Open output folder",
+    "onyx_upload": "Upload to Steam with Onyx",
+    "onyx_hint": "Onyx opens the project whose content folder holds this export, or offers to create one.",
     "overwrite_title": "Replace existing export?",
     "overwrite_description": "An output file already exists at {{path}}. Replace it with this export?",
     "overwrite": "Replace and export",

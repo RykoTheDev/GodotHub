@@ -1669,6 +1669,18 @@ class _Translations$settings$zh_CN extends Translations$settings$en_US {
 	@override String get mise_label => '使用 mise 管理 Godot 版本';
 	@override String get mise_detected => '检测到 mise {{version}}';
 	@override String get mise_not_found => '在 PATH 中未找到 mise，因此在安装它之前此功能保持关闭状态。';
+	@override String get onyx_title => 'Onyx';
+	@override String get onyx_label => 'Upload exports to Steam with Onyx';
+	@override String get onyx_desc => 'Onyx uploads game builds to Steamworks. With this on, a finished export can be opened in Onyx from the Build & Export window.';
+	@override String get onyx_detected => 'Onyx {{version}} is installed and up to date.';
+	@override String get onyx_not_installed => 'Onyx isn\'t installed. Download it to turn this on.';
+	@override String get onyx_outdated => 'Onyx {{version}} is installed, but {{latest}} is out. Update Onyx to turn this on.';
+	@override String get onyx_too_old => 'This version of Onyx is too old to work with GodotHub. Update Onyx to turn this on.';
+	@override String get onyx_unavailable_mac => 'Onyx is only available for Windows and Linux, so it can\'t be used on macOS.';
+	@override String get onyx_download => 'Download Onyx';
+	@override String get onyx_update => 'Update Onyx';
+	@override String get onyx_checking => 'Looking for Onyx…';
+	@override String get onyx_check_again => 'Check again';
 	@override String get cli_tool_title => '命令行工具';
 	@override String get cli_tool_install => '安装';
 	@override String get cli_tool_installing => '安装中...';
@@ -2260,6 +2272,8 @@ class _Translations$common$build_export$zh_CN extends Translations$common$build_
 	@override String get cancelled => '导出已取消';
 	@override String get cancel_hint => '输出文件夹中可能残留部分输出文件。';
 	@override String get open_folder => '打开输出文件夹';
+	@override String get onyx_upload => 'Upload to Steam with Onyx';
+	@override String get onyx_hint => 'Onyx opens the project whose content folder holds this export, or offers to create one.';
 	@override String get overwrite_title => '要替换现有导出吗？';
 	@override String get overwrite_description => '{{path}} 处已存在输出文件。要用此次导出替换它吗？';
 	@override String get overwrite => '替换并导出';
@@ -3201,6 +3215,8 @@ extension on TranslationsZhCn {
 			'common.build_export.cancelled' => '导出已取消',
 			'common.build_export.cancel_hint' => '输出文件夹中可能残留部分输出文件。',
 			'common.build_export.open_folder' => '打开输出文件夹',
+			'common.build_export.onyx_upload' => 'Upload to Steam with Onyx',
+			'common.build_export.onyx_hint' => 'Onyx opens the project whose content folder holds this export, or offers to create one.',
 			'common.build_export.overwrite_title' => '要替换现有导出吗？',
 			'common.build_export.overwrite_description' => '{{path}} 处已存在输出文件。要用此次导出替换它吗？',
 			'common.build_export.overwrite' => '替换并导出',
@@ -3354,10 +3370,10 @@ extension on TranslationsZhCn {
 			'common.project_addons.matched_by_name' => '按名称匹配到“{{title}}”',
 			'common.project_addons.update' => '更新',
 			'common.project_addons.updating' => '正在更新…',
-			'common.project_addons.updated' => '{{name}} 已更新',
-			'common.project_addons.confirm_title' => '更新 {{name}}？',
 			_ => null,
 		} ?? switch (path) {
+			'common.project_addons.updated' => '{{name}} 已更新',
+			'common.project_addons.confirm_title' => '更新 {{name}}？',
 			'common.project_addons.confirm_description' => '这将用资源库中的版本 {{version}} 替换 res://addons/{{folder}}。旧文件夹会被移到回收站，因此你对插件所做的任何更改都会保留在那里。请先在 Godot 中关闭项目。',
 			'common.project_addons.footer_hint' => '通过 GodotHub 安装的插件会精确匹配。其他插件按名称匹配，因此更新前请检查结果。',
 			'common.reload_confirm_title' => '重新加载 GodotHub？',
@@ -3868,10 +3884,10 @@ extension on TranslationsZhCn {
 			'settings.new_project_default' => '新项目默认路径',
 			'settings.download_folder' => '下载文件夹',
 			'settings.system' => '跟随系统',
-			'settings.k12h' => '12 小时制 (2:30 PM)',
-			'settings.k24h' => '24 小时制 (14:30)',
 			_ => null,
 		} ?? switch (path) {
+			'settings.k12h' => '12 小时制 (2:30 PM)',
+			'settings.k24h' => '24 小时制 (14:30)',
 			'settings.dd_mm_yyyy' => 'DD-MM-YYYY',
 			'settings.mm_dd_yyyy' => 'MM-DD-YYYY',
 			'settings.yyyy_mm_dd' => 'YYYY-MM-DD',
@@ -4070,6 +4086,18 @@ extension on TranslationsZhCn {
 			'settings.mise_label' => '使用 mise 管理 Godot 版本',
 			'settings.mise_detected' => '检测到 mise {{version}}',
 			'settings.mise_not_found' => '在 PATH 中未找到 mise，因此在安装它之前此功能保持关闭状态。',
+			'settings.onyx_title' => 'Onyx',
+			'settings.onyx_label' => 'Upload exports to Steam with Onyx',
+			'settings.onyx_desc' => 'Onyx uploads game builds to Steamworks. With this on, a finished export can be opened in Onyx from the Build & Export window.',
+			'settings.onyx_detected' => 'Onyx {{version}} is installed and up to date.',
+			'settings.onyx_not_installed' => 'Onyx isn\'t installed. Download it to turn this on.',
+			'settings.onyx_outdated' => 'Onyx {{version}} is installed, but {{latest}} is out. Update Onyx to turn this on.',
+			'settings.onyx_too_old' => 'This version of Onyx is too old to work with GodotHub. Update Onyx to turn this on.',
+			'settings.onyx_unavailable_mac' => 'Onyx is only available for Windows and Linux, so it can\'t be used on macOS.',
+			'settings.onyx_download' => 'Download Onyx',
+			'settings.onyx_update' => 'Update Onyx',
+			'settings.onyx_checking' => 'Looking for Onyx…',
+			'settings.onyx_check_again' => 'Check again',
 			'settings.cli_tool_title' => '命令行工具',
 			'settings.cli_tool_install' => '安装',
 			'settings.cli_tool_installing' => '安装中...',
@@ -4370,6 +4398,8 @@ extension on TranslationsZhCn {
 			'versions.adding_custom_build' => '正在添加自定义构建…',
 			'versions.download_failed_summary' => 'GodotHub 无法下载 Godot {{tag}}。',
 			'versions.download_failed_show_details' => '显示错误详情',
+			_ => null,
+		} ?? switch (path) {
 			'versions.download_failed_hide_details' => '隐藏错误详情',
 			'versions.download_failed_report' => '报告此问题',
 			'versions.export_templates_select_none' => '取消全选',
@@ -4384,8 +4414,6 @@ extension on TranslationsZhCn {
 			'versions.add_github_token' => '添加 GitHub 令牌',
 			'versions.reset_filters' => '重置筛选条件',
 			'versions.no_available_hint' => '请尝试其他发布渠道或构建类型，或清除搜索条件。',
-			_ => null,
-		} ?? switch (path) {
 			'versions.view_release_page' => '查看发布页面',
 			'versions.update_available_tag' => '{{tag}} 已发布',
 			'versions.templates_none_hint' => '请安装导出模板，以便使用此版本导出项目。',

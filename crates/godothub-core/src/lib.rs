@@ -34,6 +34,7 @@ pub mod licenses;
 pub mod mise;
 pub mod models;
 pub mod news;
+pub mod onyx;
 pub mod persist;
 pub mod process;
 pub mod project_health;

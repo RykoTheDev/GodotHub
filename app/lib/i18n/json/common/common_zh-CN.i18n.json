@@ -886,6 +886,8 @@
     "cancelled": "导出已取消",
     "cancel_hint": "输出文件夹中可能残留部分输出文件。",
     "open_folder": "打开输出文件夹",
+    "onyx_upload": "Upload to Steam with Onyx",
+    "onyx_hint": "Onyx opens the project whose content folder holds this export, or offers to create one.",
     "overwrite_title": "要替换现有导出吗？",
     "overwrite_description": "{{path}} 处已存在输出文件。要用此次导出替换它吗？",
     "overwrite": "替换并导出",

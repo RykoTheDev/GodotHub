@@ -1670,6 +1670,18 @@ class _Translations$settings$ja_JP extends Translations$settings$en_US {
 	@override String get mise_label => 'Godot のバージョン管理に mise を使用';
 	@override String get mise_detected => 'mise {{version}} を検出しました';
 	@override String get mise_not_found => 'PATH 上に mise が見つかりません。mise をインストールするまでこの設定はオフのままになります。';
+	@override String get onyx_title => 'Onyx';
+	@override String get onyx_label => 'Upload exports to Steam with Onyx';
+	@override String get onyx_desc => 'Onyx uploads game builds to Steamworks. With this on, a finished export can be opened in Onyx from the Build & Export window.';
+	@override String get onyx_detected => 'Onyx {{version}} is installed and up to date.';
+	@override String get onyx_not_installed => 'Onyx isn\'t installed. Download it to turn this on.';
+	@override String get onyx_outdated => 'Onyx {{version}} is installed, but {{latest}} is out. Update Onyx to turn this on.';
+	@override String get onyx_too_old => 'This version of Onyx is too old to work with GodotHub. Update Onyx to turn this on.';
+	@override String get onyx_unavailable_mac => 'Onyx is only available for Windows and Linux, so it can\'t be used on macOS.';
+	@override String get onyx_download => 'Download Onyx';
+	@override String get onyx_update => 'Update Onyx';
+	@override String get onyx_checking => 'Looking for Onyx…';
+	@override String get onyx_check_again => 'Check again';
 	@override String get cli_tool_title => 'コマンドラインツール';
 	@override String get cli_tool_install => 'インストール';
 	@override String get cli_tool_installing => 'インストール中…';
@@ -2262,6 +2274,8 @@ class _Translations$common$build_export$ja_JP extends Translations$common$build_
 	@override String get cancelled => 'エクスポートをキャンセルしました';
 	@override String get cancel_hint => '出力フォルダに、書き出し途中のファイルが残っている場合があります。';
 	@override String get open_folder => '出力フォルダを開く';
+	@override String get onyx_upload => 'Upload to Steam with Onyx';
+	@override String get onyx_hint => 'Onyx opens the project whose content folder holds this export, or offers to create one.';
 	@override String get overwrite_title => '既存のエクスポートを置き換えますか？';
 	@override String get overwrite_description => '{{path}} にはすでに出力ファイルがあります。このエクスポートで置き換えますか？';
 	@override String get overwrite => '置き換えてエクスポート';
@@ -3203,6 +3217,8 @@ extension on TranslationsJaJp {
 			'common.build_export.cancelled' => 'エクスポートをキャンセルしました',
 			'common.build_export.cancel_hint' => '出力フォルダに、書き出し途中のファイルが残っている場合があります。',
 			'common.build_export.open_folder' => '出力フォルダを開く',
+			'common.build_export.onyx_upload' => 'Upload to Steam with Onyx',
+			'common.build_export.onyx_hint' => 'Onyx opens the project whose content folder holds this export, or offers to create one.',
 			'common.build_export.overwrite_title' => '既存のエクスポートを置き換えますか？',
 			'common.build_export.overwrite_description' => '{{path}} にはすでに出力ファイルがあります。このエクスポートで置き換えますか？',
 			'common.build_export.overwrite' => '置き換えてエクスポート',
@@ -3356,10 +3372,10 @@ extension on TranslationsJaJp {
 			'common.project_addons.matched_by_name' => '名前から「{{title}}」と判定',
 			'common.project_addons.update' => '更新',
 			'common.project_addons.updating' => '更新中…',
-			'common.project_addons.updated' => '{{name}} を更新しました',
-			'common.project_addons.confirm_title' => '{{name}} を更新しますか？',
 			_ => null,
 		} ?? switch (path) {
+			'common.project_addons.updated' => '{{name}} を更新しました',
+			'common.project_addons.confirm_title' => '{{name}} を更新しますか？',
 			'common.project_addons.confirm_description' => 'res://addons/{{folder}} を、アセットライブラリのバージョン {{version}} に置き換えます。元のフォルダはゴミ箱に移動するため、アドオンに加えた変更はそちらに残ります。先に Godot でプロジェクトを閉じてください。',
 			'common.project_addons.footer_hint' => 'GodotHub 経由でインストールしたアドオンは正確に照合されます。それ以外は名前で判定するため、更新前に結果を確認してください。',
 			'common.reload_confirm_title' => 'GodotHub を再読み込みしますか？',
@@ -3870,10 +3886,10 @@ extension on TranslationsJaJp {
 			'settings.new_project_default' => '新規プロジェクトの既定',
 			'settings.download_folder' => 'ダウンロードフォルダ',
 			'settings.system' => 'システム',
-			'settings.k12h' => '12 時間制（2:30 PM）',
-			'settings.k24h' => '24 時間制（14:30）',
 			_ => null,
 		} ?? switch (path) {
+			'settings.k12h' => '12 時間制（2:30 PM）',
+			'settings.k24h' => '24 時間制（14:30）',
 			'settings.dd_mm_yyyy' => '日-月-年',
 			'settings.mm_dd_yyyy' => '月-日-年',
 			'settings.yyyy_mm_dd' => '年-月-日',
@@ -4072,6 +4088,18 @@ extension on TranslationsJaJp {
 			'settings.mise_label' => 'Godot のバージョン管理に mise を使用',
 			'settings.mise_detected' => 'mise {{version}} を検出しました',
 			'settings.mise_not_found' => 'PATH 上に mise が見つかりません。mise をインストールするまでこの設定はオフのままになります。',
+			'settings.onyx_title' => 'Onyx',
+			'settings.onyx_label' => 'Upload exports to Steam with Onyx',
+			'settings.onyx_desc' => 'Onyx uploads game builds to Steamworks. With this on, a finished export can be opened in Onyx from the Build & Export window.',
+			'settings.onyx_detected' => 'Onyx {{version}} is installed and up to date.',
+			'settings.onyx_not_installed' => 'Onyx isn\'t installed. Download it to turn this on.',
+			'settings.onyx_outdated' => 'Onyx {{version}} is installed, but {{latest}} is out. Update Onyx to turn this on.',
+			'settings.onyx_too_old' => 'This version of Onyx is too old to work with GodotHub. Update Onyx to turn this on.',
+			'settings.onyx_unavailable_mac' => 'Onyx is only available for Windows and Linux, so it can\'t be used on macOS.',
+			'settings.onyx_download' => 'Download Onyx',
+			'settings.onyx_update' => 'Update Onyx',
+			'settings.onyx_checking' => 'Looking for Onyx…',
+			'settings.onyx_check_again' => 'Check again',
 			'settings.cli_tool_title' => 'コマンドラインツール',
 			'settings.cli_tool_install' => 'インストール',
 			'settings.cli_tool_installing' => 'インストール中…',
@@ -4372,6 +4400,8 @@ extension on TranslationsJaJp {
 			'versions.adding_custom_build' => 'カスタムビルドを追加中…',
 			'versions.download_failed_summary' => 'Godot {{tag}} をダウンロードできませんでした。',
 			'versions.download_failed_show_details' => 'エラーの詳細を表示',
+			_ => null,
+		} ?? switch (path) {
 			'versions.download_failed_hide_details' => 'エラーの詳細を非表示',
 			'versions.download_failed_report' => 'この問題を報告',
 			'versions.export_templates_select_none' => '選択を解除',
@@ -4386,8 +4416,6 @@ extension on TranslationsJaJp {
 			'versions.add_github_token' => 'GitHub トークンを追加',
 			'versions.reset_filters' => 'フィルターをリセット',
 			'versions.no_available_hint' => '別のチャンネルやビルドの種類を選ぶか、検索をクリアしてください。',
-			_ => null,
-		} ?? switch (path) {
 			'versions.view_release_page' => 'リリースページを表示',
 			'versions.update_available_tag' => '{{tag}} が利用可能です',
 			'versions.templates_none_hint' => 'このバージョンでプロジェクトをエクスポートするには、エクスポートテンプレートをインストールしてください。',

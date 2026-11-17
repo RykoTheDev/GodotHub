@@ -67,6 +67,7 @@ pub use godothub_core::asset_library::InstallAssetResult;
 pub use godothub_core::models::InstalledGodotVersion;
 pub use godothub_core::persist::LoadStatus;
 pub use godothub_core::mise::MiseStatus;
+pub use godothub_core::onyx::OnyxStatus;
 pub use godothub_core::models::NewsItem;
 pub use godothub_core::news::NewsResponse;
 pub use godothub_core::project_todos::OpenTodo;
@@ -250,6 +251,7 @@ pub struct _AppSettings {
     pub rtl_layout: bool,
     pub project_todos_enabled: bool,
     pub use_mise: bool,
+    pub onyx_enabled: bool,
     pub disabled_features: Vec<String>,
 }
 
@@ -739,6 +741,16 @@ pub struct _MiseStatus {
     pub path: Option<String>,
     pub version: Option<String>,
     pub source_url: Option<String>,
+}
+
+#[frb(mirror(OnyxStatus))]
+pub struct _OnyxStatus {
+    pub supported: bool,
+    pub path: Option<String>,
+    pub version: Option<String>,
+    pub latest: Option<String>,
+    pub up_to_date: bool,
+    pub releases_url: String,
 }
 
 #[frb(mirror(NewsItem))]

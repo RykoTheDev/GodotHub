@@ -25,6 +25,11 @@ pub async fn cancel_project_export(run_id: String) -> Result<(), CoreError> {
     crate::lane::serial(move || godothub_core::export_runner::cancel_project_export(app, run_id)).await.map_err(CoreError::from)
 }
 
+pub async fn open_export_in_onyx(run_id: String) -> Result<(), CoreError> {
+    let app = app()?;
+    crate::lane::serial(move || godothub_core::export_runner::open_export_in_onyx(app, run_id)).await.map_err(CoreError::from)
+}
+
 pub async fn open_export_artifact_folder(run_id: String) -> Result<(), CoreError> {
     let app = app()?;
     crate::lane::serial(move || godothub_core::export_runner::open_export_artifact_folder(app, run_id)).await.map_err(CoreError::from)

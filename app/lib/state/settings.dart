@@ -109,6 +109,7 @@ const AppSettings defaultSettings = AppSettings(
   rtlLayout: false,
   projectTodosEnabled: false,
   useMise: false,
+  onyxEnabled: false,
   disabledFeatures: [],
 );
 

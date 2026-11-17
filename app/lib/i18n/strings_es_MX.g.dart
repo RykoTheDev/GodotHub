@@ -1738,6 +1738,18 @@ class _Translations$settings$es_MX extends Translations$settings$en_US {
 	@override String get mise_label => 'Use mise for Godot versions';
 	@override String get mise_detected => 'Detected mise {{version}}';
 	@override String get mise_not_found => 'mise was not found on your PATH, so this stays off until you install it.';
+	@override String get onyx_title => 'Onyx';
+	@override String get onyx_label => 'Upload exports to Steam with Onyx';
+	@override String get onyx_desc => 'Onyx uploads game builds to Steamworks. With this on, a finished export can be opened in Onyx from the Build & Export window.';
+	@override String get onyx_detected => 'Onyx {{version}} is installed and up to date.';
+	@override String get onyx_not_installed => 'Onyx isn\'t installed. Download it to turn this on.';
+	@override String get onyx_outdated => 'Onyx {{version}} is installed, but {{latest}} is out. Update Onyx to turn this on.';
+	@override String get onyx_too_old => 'This version of Onyx is too old to work with GodotHub. Update Onyx to turn this on.';
+	@override String get onyx_unavailable_mac => 'Onyx is only available for Windows and Linux, so it can\'t be used on macOS.';
+	@override String get onyx_download => 'Download Onyx';
+	@override String get onyx_update => 'Update Onyx';
+	@override String get onyx_checking => 'Looking for Onyx…';
+	@override String get onyx_check_again => 'Check again';
 	@override String get cli_tool_title => 'Command-line tool';
 	@override String get cli_tool_install => 'Install';
 	@override String get cli_tool_installing => 'Installing...';
@@ -2368,6 +2380,8 @@ class _Translations$common$build_export$es_MX extends Translations$common$build_
 	@override String get cancelled => 'Export cancelled';
 	@override String get cancel_hint => 'Partial output files may remain in the output folder.';
 	@override String get open_folder => 'Open output folder';
+	@override String get onyx_upload => 'Upload to Steam with Onyx';
+	@override String get onyx_hint => 'Onyx opens the project whose content folder holds this export, or offers to create one.';
 	@override String get overwrite_title => 'Replace existing export?';
 	@override String get overwrite_description => 'An output file already exists at {{path}}. Replace it with this export?';
 	@override String get overwrite => 'Replace and export';
@@ -3313,6 +3327,8 @@ extension on TranslationsEsMx {
 			'common.build_export.cancelled' => 'Export cancelled',
 			'common.build_export.cancel_hint' => 'Partial output files may remain in the output folder.',
 			'common.build_export.open_folder' => 'Open output folder',
+			'common.build_export.onyx_upload' => 'Upload to Steam with Onyx',
+			'common.build_export.onyx_hint' => 'Onyx opens the project whose content folder holds this export, or offers to create one.',
 			'common.build_export.overwrite_title' => 'Replace existing export?',
 			'common.build_export.overwrite_description' => 'An output file already exists at {{path}}. Replace it with this export?',
 			'common.build_export.overwrite' => 'Replace and export',
@@ -3466,10 +3482,10 @@ extension on TranslationsEsMx {
 			'common.project_addons.matched_by_name' => 'matched by name to “{{title}}”',
 			'common.project_addons.update' => 'Update',
 			'common.project_addons.updating' => 'Updating…',
-			'common.project_addons.updated' => '{{name}} was updated',
-			'common.project_addons.confirm_title' => 'Update {{name}}?',
 			_ => null,
 		} ?? switch (path) {
+			'common.project_addons.updated' => '{{name}} was updated',
+			'common.project_addons.confirm_title' => 'Update {{name}}?',
 			'common.project_addons.confirm_description' => 'This replaces res://addons/{{folder}} with version {{version}} from the Asset Library. The old folder is moved to the Trash, so any changes you made to the addon are kept there. Close the project in Godot first.',
 			'common.project_addons.footer_hint' => 'Addons installed through GodotHub are matched exactly. Others are matched by name, so check the result before updating.',
 			'common.reload_confirm_title' => 'Reload GodotHub?',
@@ -3980,10 +3996,10 @@ extension on TranslationsEsMx {
 			'settings.new_project_default' => 'Nuevo Proyecto por Defecto',
 			'settings.download_folder' => 'Carpeta de Descargas',
 			'settings.system' => 'System',
-			'settings.k12h' => '12-horas (2:30 PM)',
-			'settings.k24h' => '24-horas (14:30)',
 			_ => null,
 		} ?? switch (path) {
+			'settings.k12h' => '12-horas (2:30 PM)',
+			'settings.k24h' => '24-horas (14:30)',
 			'settings.dd_mm_yyyy' => 'DD-MM-YYYY',
 			'settings.mm_dd_yyyy' => 'MM-DD-YYYY',
 			'settings.yyyy_mm_dd' => 'YYYY-MM-DD',
@@ -4182,6 +4198,18 @@ extension on TranslationsEsMx {
 			'settings.mise_label' => 'Use mise for Godot versions',
 			'settings.mise_detected' => 'Detected mise {{version}}',
 			'settings.mise_not_found' => 'mise was not found on your PATH, so this stays off until you install it.',
+			'settings.onyx_title' => 'Onyx',
+			'settings.onyx_label' => 'Upload exports to Steam with Onyx',
+			'settings.onyx_desc' => 'Onyx uploads game builds to Steamworks. With this on, a finished export can be opened in Onyx from the Build & Export window.',
+			'settings.onyx_detected' => 'Onyx {{version}} is installed and up to date.',
+			'settings.onyx_not_installed' => 'Onyx isn\'t installed. Download it to turn this on.',
+			'settings.onyx_outdated' => 'Onyx {{version}} is installed, but {{latest}} is out. Update Onyx to turn this on.',
+			'settings.onyx_too_old' => 'This version of Onyx is too old to work with GodotHub. Update Onyx to turn this on.',
+			'settings.onyx_unavailable_mac' => 'Onyx is only available for Windows and Linux, so it can\'t be used on macOS.',
+			'settings.onyx_download' => 'Download Onyx',
+			'settings.onyx_update' => 'Update Onyx',
+			'settings.onyx_checking' => 'Looking for Onyx…',
+			'settings.onyx_check_again' => 'Check again',
 			'settings.cli_tool_title' => 'Command-line tool',
 			'settings.cli_tool_install' => 'Install',
 			'settings.cli_tool_installing' => 'Installing...',
@@ -4482,6 +4510,8 @@ extension on TranslationsEsMx {
 			'versions.adding_custom_build' => 'Adding custom build…',
 			'versions.download_failed_summary' => 'GodotHub couldn\'t download Godot {{tag}}.',
 			'versions.download_failed_show_details' => 'Show error details',
+			_ => null,
+		} ?? switch (path) {
 			'versions.download_failed_hide_details' => 'Hide error details',
 			'versions.download_failed_report' => 'Report this problem',
 			'versions.export_templates_select_none' => 'Select none',
@@ -4496,8 +4526,6 @@ extension on TranslationsEsMx {
 			'versions.add_github_token' => 'Add GitHub token',
 			'versions.reset_filters' => 'Reset filters',
 			'versions.no_available_hint' => 'Try another channel or build type, or clear the search.',
-			_ => null,
-		} ?? switch (path) {
 			'versions.view_release_page' => 'View release page',
 			'versions.update_available_tag' => '{{tag}} is available',
 			'versions.templates_none_hint' => 'Install export templates to export projects with this version.',

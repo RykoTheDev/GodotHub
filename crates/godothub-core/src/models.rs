@@ -332,6 +332,8 @@ pub struct AppSettings {
     #[serde(default)]
     pub use_mise: bool,
     #[serde(default)]
+    pub onyx_enabled: bool,
+    #[serde(default)]
     pub disabled_features: Vec<String>,
 }
 
@@ -728,6 +730,7 @@ impl Default for AppSettings {
             rtl_layout: false,
             project_todos_enabled: false,
             use_mise: false,
+            onyx_enabled: false,
             disabled_features: vec![],
         }
     }
