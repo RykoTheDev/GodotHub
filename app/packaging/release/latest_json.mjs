@@ -24,7 +24,7 @@ const classify = (name) => {
   const arch = { x64: 'x86_64', amd64: 'x86_64', x86_64: 'x86_64', arm64: 'aarch64', aarch64: 'aarch64' }[m[2]] ?? m[2]
   if (m[1] === 'windows' && name.endsWith('-setup.exe')) return { os: 'windows', arch, installer: 'nsis' }
   if (m[1] === 'windows' && name.endsWith('.msi')) return { os: 'windows', arch, installer: 'msi', only: true }
-  if (m[1] === 'windows' && name.endsWith(`-${m[2]}.zip`)) return { os: 'windows', arch, installer: 'inapp', only: true }
+  if (m[1] === 'windows' && (name.endsWith(`-${m[2]}.zip`) || name.endsWith(`-${m[2]}-portable.zip`))) return { os: 'windows', arch, installer: 'inapp', only: true }
   if (m[1] === 'darwin' && name.endsWith('.app.tar.gz')) return { os: 'darwin', arch, installer: 'app' }
   if (m[1] === 'linux' && (name.endsWith('.AppImage.zip') || name.endsWith('.AppImage'))) return { os: 'linux', arch, installer: 'appimage' }
   if (m[1] === 'linux' && name.endsWith('.deb')) return { os: 'linux', arch, installer: 'deb', only: true }

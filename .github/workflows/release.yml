@@ -216,7 +216,7 @@ jobs:
           tauri="npx --yes @tauri-apps/cli@$TAURI_CLI_VERSION"
           shopt -s nullglob
           signed=0
-          for artifact in dist/*-setup.exe dist/*-windows-x64.zip dist/*.msi dist/*.app.tar.gz dist/*.AppImage dist/*.deb dist/*.rpm; do
+          for artifact in dist/*-setup.exe dist/*-windows-x64-portable.zip dist/*.msi dist/*.app.tar.gz dist/*.AppImage dist/*.deb dist/*.rpm; do
             $tauri signer sign "$artifact"
             test -s "$artifact.sig"
             signed=$((signed + 1))
@@ -270,9 +270,8 @@ jobs:
             "GodotHub-$VERSION-windows-x64-setup.exe.sig"
             "GodotHub-$VERSION-windows-x64.msi"
             "GodotHub-$VERSION-windows-x64.msi.sig"
-            "GodotHub-$VERSION-windows-x64.zip"
-            "GodotHub-$VERSION-windows-x64.zip.sig"
             "GodotHub-$VERSION-windows-x64-portable.zip"
+            "GodotHub-$VERSION-windows-x64-portable.zip.sig"
             "GodotHub-$VERSION-darwin-universal.dmg"
             "GodotHub-$VERSION-darwin-universal.app.tar.gz"
             "GodotHub-$VERSION-darwin-universal.app.tar.gz.sig"

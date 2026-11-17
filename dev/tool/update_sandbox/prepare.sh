@@ -36,13 +36,12 @@ build() {
     --build-name="$version" --build-number=1 > "$lab/build-$version.log" 2>&1)
   rm -rf "$out"
   bash "$app/packaging/windows/package.sh" stable "$version" "$app/build/windows/x64/runner/Release" "$out" > "$lab/package-$version.log" 2>&1
-  rm -f "$out/GodotHub-$version-windows-x64-portable.zip"
 }
 
 sign() {
   local dir="$1" key="$2" password="$3"
   rm -f "$dir"/*.sig
-  for file in "$dir"/*-setup.exe "$dir"/*.msi "$dir"/*-windows-x64.zip; do
+  for file in "$dir"/*-setup.exe "$dir"/*.msi "$dir"/*-windows-x64-portable.zip; do
     [ -f "$file" ] || continue
     TAURI_SIGNING_PRIVATE_KEY_PASSWORD="$password" "$tauri" signer sign --private-key-path "$key" "$file" > /dev/null
   done
@@ -68,7 +67,7 @@ manifest 1.9.2 "$lab/dist/1.9.2" "$lab/manifests/1.9.2-crash.json" "$all"
 
 wrong="$lab/dist/wrong-1.9.1"
 rm -rf "$wrong" && mkdir -p "$wrong"
-cp "$lab/dist/1.9.1"/*-setup.exe "$lab/dist/1.9.1"/*.msi "$lab/dist/1.9.1"/*-windows-x64.zip "$wrong/"
+cp "$lab/dist/1.9.1"/*-setup.exe "$lab/dist/1.9.1"/*.msi "$lab/dist/1.9.1"/*-windows-x64-portable.zip "$wrong/"
 sign "$wrong" "$lab/wrong.key" other
 manifest 1.9.1 "$wrong" "$lab/manifests/1.9.1-wrong-key.json" "$all"
 rm -rf "$wrong"
