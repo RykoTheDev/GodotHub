@@ -52,11 +52,7 @@ END
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-#if GODOTHUB_CHANNEL == 0
-IDI_APP_ICON            ICON                    "resources\\app_icon_stable.ico"
-#else
 IDI_APP_ICON            ICON                    "resources\\app_icon.ico"
-#endif
 
 
 /////////////////////////////////////////////////////////////////////////////

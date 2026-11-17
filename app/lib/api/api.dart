@@ -1,4 +1,3 @@
-import '../src/channel.dart';
 import '../src/rust/api/app.dart' as app_rust;
 import '../src/rust/api/discovery.dart' as discovery_rust;
 import '../src/rust/api/native.dart' as native;
@@ -28,8 +27,7 @@ import '../window/app_window.dart';
 export 'projects.dart' show getCachedProjectIcon, getCachedProjectName;
 
 abstract final class Api {
-  static String? _channelIdentifier;
-  static String channelIdentifier() => _channelIdentifier ??= app_rust.channelIdentifier(channel: buildChannel);
+  static String appIdentifier() => app_rust.appIdentifier();
   static const openUrl = OpenerApi.openUrl;
   static Future<void> relaunch() async {
     final window = AppWindow.maybeInstance;

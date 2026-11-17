@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-dnf install -y -q xorg-x11-server-Xvfb gtk3 webkit2gtk4.1 libappindicator-gtk3 mesa-dri-drivers procps-ng sudo > /dev/null
+dnf install -y -q xorg-x11-server-Xvfb gtk3 libX11 libXi xz-libs libglvnd-egl libglvnd-gles mesa-libEGL mesa-dri-drivers procps-ng sudo > /dev/null
 printf '#!/bin/sh\nexec "$@"\n' > /usr/local/bin/pkexec
 chmod +x /usr/local/bin/pkexec
 
@@ -34,17 +34,6 @@ check '1.9.1 started after the in-app update' started 1.9.1
 check "the installed package is 1.9.1 ($(version))" test "$(version)" = 1.9.1
 check 'data kept' kept
 cp "$report" /lab/results/report-rpm.txt 2>/dev/null
-stop
-
-note "===== Tauri 1.5.9 rpm to Flutter through the Tauri updater"
-seed
-rpm -i --nodeps /lab/tauri/tauri.rpm
-check "Tauri rpm installed ($(version))" test "$(version)" = 1.5.9
-nohup godothub > /lab/results/rpm-tauri.log 2>&1 &
-check 'Flutter 1.9.1 started after the Tauri updater installed it' started 1.9.1
-check "the installed package is 1.9.1 ($(version))" test "$(version)" = 1.9.1
-check 'data kept' kept
-cp "$report" /lab/results/report-tauri-rpm.txt 2>/dev/null
 stop
 
 exit "$failures"

@@ -5,6 +5,7 @@ import 'common.dart';
 
 const _annotationLimit = 10;
 final _pluralSuffix = RegExp(r'_(one|other|zero|two|few|many)$');
+final _modifiers = RegExp(r'\(.*\)$');
 
 class _Key {
   _Key(this.key, this.line);
@@ -19,9 +20,10 @@ List<_Key> _collectKeys(File file) {
   final keys = <_Key>[];
   void walk(Map<String, Object?> data, String prefix) {
     for (final entry in data.entries) {
-      final full = prefix.isEmpty ? entry.key : '$prefix.${entry.key}';
+      final name = entry.key.replaceFirst(_modifiers, '');
+      final full = prefix.isEmpty ? name : '$prefix.$name';
       final value = entry.value;
-      if (value is Map) {
+      if (value is Map && name == entry.key) {
         walk(value.cast<String, Object?>(), full);
       } else {
         keys.add(_Key(full, lines.indexWhere((l) => l.contains('"${entry.key}":')) + 1));
@@ -44,36 +46,26 @@ Iterable<File> _sourceFiles(Directory dir, bool Function(String path) include, b
 void main(List<String> args) {
   final jsonMode = args.contains('--json');
   final strict = args.contains('--strict');
-  final flutter = args.contains('--flutter');
   final annotate = !jsonMode && Platform.environment.containsKey('GITHUB_ACTIONS');
 
   final namespaces = <String, List<_Key>>{
-    for (final ns in namespaceNames()) ns: _collectKeys(File('$localesPath/$sourceLocale/$ns.json')),
+    for (final ns in namespaceNames()) ns: _collectKeys(localeFile(sourceLocale, ns)),
   };
 
-  final files = flutter
-      ? _sourceFiles(
-          Directory('$repoRoot/app/lib'),
-          (p) => p.endsWith('.dart'),
-          (p) => p.contains('/app/lib/i18n/') || p.contains('/app/lib/src/rust/'),
-        ).toList()
-      : _sourceFiles(
-          Directory('$repoRoot/src'),
-          (p) => p.endsWith('.ts') || p.endsWith('.tsx'),
-          (p) => p.contains('/src/i18n/locales/') || p.endsWith('/src/i18n/types.ts'),
-        ).toList();
+  final files = _sourceFiles(
+    Directory('$repoRoot/app/lib'),
+    (p) => p.endsWith('.dart'),
+    (p) => p.contains('/app/lib/i18n/') || p.contains('/app/lib/src/rust/'),
+  ).toList();
   final source = files.map((f) => f.readAsStringSync()).join('\n');
 
   final literals = <String>{
     for (final m in RegExp('[\'"`]([A-Za-z0-9_:.]+)[\'"`]').allMatches(source)) m[1]!.split(':').last,
-    if (flutter)
-      for (final m in RegExp(r'\bt\.(?:changelog|common|dashboard|git|nav|onboarding|settings|todos|versions)\.([A-Za-z0-9_.]+)').allMatches(source))
-        ...[m[1]!, m[1]!.replaceFirst(RegExp(r'_plural$'), '')],
+    for (final m in RegExp(r'\bt\.(?:changelog|common|dashboard|git|nav|onboarding|settings|todos|versions)\.([A-Za-z0-9_.]+)').allMatches(source))
+      ...[m[1]!, m[1]!.replaceFirst(RegExp(r'_plural$'), '')],
   };
   final prefixes = <String>{
-    for (final m in RegExp(r'`([A-Za-z0-9_]+_)\$\{').allMatches(source)) m[1]!,
-    if (flutter)
-      for (final m in RegExp(r"'([A-Za-z0-9_:]+_)\$").allMatches(source)) m[1]!.split(':').last,
+    for (final m in RegExp(r"'([A-Za-z0-9_:]+_)\$").allMatches(source)) m[1]!.split(':').last,
   }.toList()
     ..sort();
 
@@ -109,7 +101,7 @@ void main(List<String> args) {
   }
 
   stdout.writeln('');
-  stdout.writeln(paint('  Unused i18n Keys${flutter ? ' (Flutter app)' : ''}', '$cyan$bold'));
+  stdout.writeln(paint('  Unused i18n Keys', '$cyan$bold'));
   stdout.writeln('');
   stdout.writeln(paint('  Scanned $scanned $sourceLocale keys against ${files.length} source files', dim));
   stdout.writeln(paint('  Dynamic prefixes treated as used: ${prefixes.isEmpty ? 'none' : prefixes.join(', ')}', dim));
@@ -125,7 +117,7 @@ void main(List<String> args) {
     for (final key in entry.value) {
       stdout.writeln('    ${paint('x', yellow)} ${key.key}${paint('  :${key.line}', dim)}');
       if (annotate && annotated < _annotationLimit) {
-        stdout.writeln('::warning file=src/i18n/locales/$sourceLocale/${entry.key}.json,line=${key.line}::Unused i18n key "${key.key}"');
+        stdout.writeln('::warning file=app/lib/i18n/json/${entry.key}/${entry.key}_$sourceLocale.i18n.json,line=${key.line}::Unused i18n key "${key.key}"');
         annotated++;
       }
     }

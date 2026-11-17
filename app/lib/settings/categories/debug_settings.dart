@@ -13,8 +13,6 @@ import '../../design/design.dart';
 import '../../logic/debug_mode.dart';
 import '../../logic/settings_copy.dart';
 import '../../shell/sidebar_prefs.dart';
-import '../../src/channel.dart';
-import '../../src/rust/api/app.dart' as app_rust;
 import '../../src/rust/api/diagnostics.dart' as diagnostics_rust;
 import '../../src/ui_prefs.dart';
 import '../../state/app_signals.dart';
@@ -25,15 +23,10 @@ import '../../state/update_available.dart';
 import '../../ui/core/interaction.dart';
 import '../../ui/feedback/toast.dart';
 
-typedef BetaReimporter = Future<app_rust.BetaImport> Function();
-
 enum _CrashTest { exitCode, abort }
 
 class DebugSettings extends ConsumerStatefulWidget {
-  const DebugSettings({super.key, this.channel = buildChannel, this.reimport});
-
-  final String channel;
-  final BetaReimporter? reimport;
+  const DebugSettings({super.key});
 
   @visibleForTesting
   static Future<void> Function()? debugRelaunch;
@@ -46,8 +39,6 @@ class _DebugSettingsState extends ConsumerState<DebugSettings> {
   bool _crash = false;
   _CrashTest? _confirmCrash;
   bool _confirmWipe = false;
-  bool _confirmReimport = false;
-  bool _reimporting = false;
 
   Future<void> _relaunch() => (DebugSettings.debugRelaunch ?? Api.relaunch)();
 
@@ -155,33 +146,6 @@ class _DebugSettingsState extends ConsumerState<DebugSettings> {
       _toast(GhToastType.success, 'Copied the last 200 log lines');
     } catch (e) {
       _toast(GhToastType.error, 'Could not copy the log: $e');
-    }
-  }
-
-  Future<void> _reimportFromStable() async {
-    if (_reimporting) return;
-    setState(() => _reimporting = true);
-    try {
-      final result = await (widget.reimport ?? app_rust.reimportFromStable)();
-      if (!mounted) return;
-      setState(() {
-        _reimporting = false;
-        _confirmReimport = false;
-      });
-      if (!result.imported) {
-        _toast(GhToastType.info, 'Nothing to import: no GodotHub data was found');
-        return;
-      }
-      _toast(GhToastType.success, 'Re-imported ${result.copiedFiles} files from GodotHub');
-      try {
-        await _relaunch();
-      } catch (_) {
-        _toast(GhToastType.info, 'Restart GodotHub Beta to load the imported data');
-      }
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _reimporting = false);
-      _toast(GhToastType.error, 'Could not re-import from GodotHub: $e');
     }
   }
 
@@ -329,11 +293,6 @@ class _DebugSettingsState extends ConsumerState<DebugSettings> {
               children: [_DebugButton(label: 'Open', onPressed: _showOnboarding)],
             ),
             _DebugRow(
-              label: 'Preview Flutter welcome',
-              description: 'Opens the one-time welcome that Tauri users see on their first start of the Flutter app, with your real counts. It does not change whether it shows at startup.',
-              children: [_DebugButton(label: 'Show welcome', onPressed: () => AppSignals.emit(previewFlutterWelcomeSignal))],
-            ),
-            _DebugRow(
               label: 'Reload window',
               description: 'Reloads the interface without restarting the backend.',
               children: [_DebugButton(label: 'Reload', onPressed: () => _restartAndToast('Could not reload the window').ignore())],
@@ -384,28 +343,6 @@ class _DebugSettingsState extends ConsumerState<DebugSettings> {
             ),
           ],
         ),
-        if (widget.channel == 'beta')
-          _DebugSection(
-            title: 'Beta data',
-            description: 'Data shared with the stable GodotHub app.',
-            children: [
-              _DebugRow(
-                label: 'Re-import from GodotHub',
-                description:
-                    "Deletes GodotHub Beta's data and copies it again from GodotHub, then restarts. GodotHub's own data is never changed.",
-                children: _confirmReimport
-                    ? [
-                        _DebugButton(
-                          label: _reimporting ? 'Re-importing...' : 'Confirm re-import',
-                          danger: true,
-                          onPressed: _reimporting ? null : () => _reimportFromStable().ignore(),
-                        ),
-                        _DebugButton(label: 'Cancel', onPressed: _reimporting ? null : () => setState(() => _confirmReimport = false)),
-                      ]
-                    : [_DebugButton(label: 'Re-import', danger: true, onPressed: () => setState(() => _confirmReimport = true))],
-              ),
-            ],
-          ),
         _DebugSection(
           title: 'Danger zone',
           description: 'Destructive actions, for testing a fresh install.',

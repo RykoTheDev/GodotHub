@@ -63,7 +63,7 @@ void main() {
     await RustLib.init();
     root = Directory.systemTemp.createTempSync('godothub-it-');
     String dir(String name) => Directory('${root.path}${Platform.pathSeparator}$name').path;
-    expect(await app.startCoreIn(channel: 'beta', dataDir: dir('data'), configDir: dir('config'), cacheDir: dir('cache')), 'GodotHub Beta');
+    expect(await app.startCoreIn(dataDir: dir('data'), configDir: dir('config'), cacheDir: dir('cache')), 'GodotHub');
     final project = makeProject(root, 'Space Game');
     projectId = (await projects.importProject(path: project.path, godotVersion: '4.4.1-stable')).id;
   });

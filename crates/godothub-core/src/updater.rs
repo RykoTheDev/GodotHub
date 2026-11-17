@@ -6,7 +6,6 @@ use base64::Engine;
 use futures_util::StreamExt;
 use serde::Deserialize;
 
-use crate::{AppHandle, Channel};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Installer {
@@ -155,8 +154,8 @@ pub fn target_keys(os: &str, arch: &str, installer: Option<Installer>) -> Vec<St
     keys
 }
 
-pub fn endpoint(channel: Channel) -> &'static str {
-    channel.info().update_endpoint
+pub fn endpoint() -> &'static str {
+    crate::APP.update_endpoint
 }
 
 #[derive(Debug, Default)]
@@ -211,12 +210,12 @@ pub fn set_test_overrides(endpoint: Option<String>, public_key: Option<String>) 
         .map_err(|_| "The updater test overrides are already set".to_string())
 }
 
-fn manifest_url(channel: Channel) -> &'static str {
-    TEST_OVERRIDES.get().and_then(|o| o.endpoint.as_deref()).unwrap_or_else(|| endpoint(channel))
+fn manifest_url() -> &'static str {
+    TEST_OVERRIDES.get().and_then(|o| o.endpoint.as_deref()).unwrap_or_else(endpoint)
 }
 
-fn trusted_keys(channel: Channel) -> Vec<&'static str> {
-    let mut keys = channel.info().updater_public_keys.to_vec();
+fn trusted_keys() -> Vec<&'static str> {
+    let mut keys = crate::APP.updater_public_keys.to_vec();
     keys.extend(TEST_OVERRIDES.get().and_then(|o| o.public_key.as_deref()));
     keys
 }
@@ -432,28 +431,8 @@ fn rolled_back_version() -> Option<String> {
     layout.read_state().ok()?.failed
 }
 
-pub const FIRST_FLUTTER_STABLE: semver::Version = semver::Version::new(1, 6, 0);
-
-pub fn flutter_stable_in(manifest: &Manifest) -> Option<String> {
-    (manifest.version >= FIRST_FLUTTER_STABLE).then(|| manifest.version_text.clone())
-}
-
-pub async fn flutter_stable_release() -> Result<Option<String>, String> {
-    let response = crate::http::client()?
-        .get(manifest_url(Channel::Stable))
-        .header(reqwest::header::ACCEPT, "application/json")
-        .send()
-        .await
-        .map_err(|e| e.to_string())?;
-    if !response.status().is_success() {
-        return Ok(None);
-    }
-    let body = response.text().await.map_err(|e| e.to_string())?;
-    Ok(Manifest::parse(&body).ok().as_ref().and_then(flutter_stable_in))
-}
-
-pub async fn check(app: &AppHandle) -> Result<Option<UpdateInfo>, String> {
-    let url = manifest_url(app.channel());
+pub async fn check() -> Result<Option<UpdateInfo>, String> {
+    let url = manifest_url();
     let response = crate::http::client()?
         .get(url)
         .header(reqwest::header::ACCEPT, "application/json")
@@ -474,7 +453,6 @@ pub async fn check(app: &AppHandle) -> Result<Option<UpdateInfo>, String> {
 }
 
 pub async fn download<F: FnMut(u64, Option<u64>)>(
-    app: &AppHandle,
     update: &UpdateInfo,
     github_token: Option<&str>,
     mut on_progress: F,
@@ -501,7 +479,7 @@ pub async fn download<F: FnMut(u64, Option<u64>)>(
         buffer.extend_from_slice(&chunk);
         on_progress(buffer.len() as u64, total);
     }
-    verify_signature(&buffer, &update.signature, &trusted_keys(app.channel()), &update.version)?;
+    verify_signature(&buffer, &update.signature, &trusted_keys(), &update.version)?;
     Ok(buffer)
 }
 
@@ -1035,17 +1013,6 @@ mod tests {
     }
 
     #[test]
-    fn only_a_flutter_stable_release_ends_the_beta() {
-        let at = |version: &str| {
-            Manifest::parse(&format!(r#"{{"version": "{version}", "platforms": {{"windows-x86_64": {{"signature": "s", "url": "https://x/y"}}}}}}"#))
-                .unwrap()
-        };
-        assert_eq!(flutter_stable_in(&at("1.5.9")), None);
-        assert_eq!(flutter_stable_in(&at("1.6.0")).as_deref(), Some("1.6.0"));
-        assert_eq!(flutter_stable_in(&at("v2.0.1")).as_deref(), Some("v2.0.1"));
-    }
-
-    #[test]
     fn manifests_parse_static_and_dynamic_shapes() {
         let m = manifest(&["windows-x86_64", "windows-x86_64-nsis"]);
         assert_eq!(m.version, semver::Version::new(1, 6, 0));
@@ -1116,15 +1083,12 @@ mod tests {
             assert!(update_from_manifest(&previous, "1.5.9", kind).unwrap().is_none(), "{kind:?}");
             assert_eq!(update_from_manifest(&previous, "1.5.8", kind).unwrap().unwrap().version, "1.5.9", "{kind:?}");
         }
-        assert_eq!(flutter_stable_in(&previous), None);
     }
 
     #[test]
-    fn channels_read_their_own_endpoint() {
-        assert_eq!(endpoint(Channel::Beta), "https://github.com/RykoTheDev/godothub/releases/download/flutter-beta/latest.json");
-        assert_eq!(endpoint(Channel::Stable), "https://github.com/RykoTheDev/godothub/releases/latest/download/latest-v2.json");
-        assert_eq!(Channel::Stable.info().updater_public_keys, Channel::Beta.info().updater_public_keys);
-        assert!(!Channel::Stable.info().updater_public_keys.is_empty());
+    fn reads_the_stable_feed() {
+        assert_eq!(endpoint(), "https://github.com/RykoTheDev/godothub/releases/latest/download/latest-v2.json");
+        assert!(!crate::APP.updater_public_keys.is_empty());
     }
 
     #[test]
@@ -1380,12 +1344,12 @@ mod tests {
             assert!(check_test_endpoint(bad).is_err(), "{bad}");
         }
         assert!(check_public_key("not base64!").is_err());
-        assert!(check_public_key(Channel::Beta.info().updater_public_keys[0]).is_ok());
+        assert!(check_public_key(crate::APP.updater_public_keys[0]).is_ok());
     }
 
     #[test]
     fn the_shipped_key_decodes() {
-        let text = decode_base64_text(Channel::Beta.info().updater_public_keys[0]).unwrap();
+        let text = decode_base64_text(crate::APP.updater_public_keys[0]).unwrap();
         assert!(minisign_verify::PublicKey::decode(&text).is_ok());
         assert!(text.contains("465E29F5EA1A2214"));
     }

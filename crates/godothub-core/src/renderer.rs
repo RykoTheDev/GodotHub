@@ -54,7 +54,7 @@ pub fn mark_painted() {}
 
 #[cfg(target_os = "linux")]
 fn config_dir() -> Option<std::path::PathBuf> {
-    crate::Paths::for_channel(crate::Channel::Stable)
+    crate::Paths::default_dirs()
         .app_config_dir()
         .ok()
 }

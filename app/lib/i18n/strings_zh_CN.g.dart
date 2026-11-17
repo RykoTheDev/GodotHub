@@ -891,40 +891,6 @@ class _Translations$common$zh_CN extends Translations$common$en_US {
 	@override String get date_next_month => '下个月';
 	@override String get date_change_due => '更改截止日期: {{date}}';
 	@override String get date_add_due => '添加截止日期';
-	@override String get flutter_welcome_eyebrow => '欢迎使用新版本';
-	@override String get flutter_welcome_title => '欢迎使用全新的 GodotHub';
-	@override String get flutter_welcome_desc => 'GodotHub 已从底层完全重建。它的外观和操作方式仍是你熟悉的样子，只是更快、更流畅。';
-	@override String get flutter_welcome_fast_title => '更快';
-	@override String get flutter_welcome_fast_desc => '启动更快、滚动更流畅，并且占用更少内存。';
-	@override String get flutter_welcome_updates_title => '应用内更新';
-	@override String get flutter_welcome_updates_desc => '新版本可直接在 GodotHub 内下载并安装，每次更新在安装前都会经过检查。';
-	@override String get flutter_welcome_design_title => '全新的设计';
-	@override String get flutter_welcome_design_desc => '更流畅的动效、更清晰的文字，以及跟随系统的主题。';
-	@override String get flutter_welcome_data_title => '你原有的内容都在这里';
-	@override String get flutter_welcome_data_desc => '项目、Godot 版本、设置以及你的 Git 登录信息都已自动迁移。';
-	@override String get flutter_welcome_summary => '你的数据已一并迁移';
-	@override String flutter_welcome_projects({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
-		other: '${count} 个项目',
-	);
-	@override String get flutter_welcome_projects_one => '{{count}} 个项目';
-	@override String get flutter_welcome_projects_other => '{{count}} 个项目';
-	@override String flutter_welcome_workspaces({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
-		other: '${count} 个工作区',
-	);
-	@override String get flutter_welcome_workspaces_one => '{{count}} 个工作区';
-	@override String get flutter_welcome_workspaces_other => '{{count}} 个工作区';
-	@override String flutter_welcome_templates({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
-		other: '${count} 个模板',
-	);
-	@override String get flutter_welcome_templates_one => '{{count}} 个模板';
-	@override String get flutter_welcome_templates_other => '{{count}} 个模板';
-	@override String flutter_welcome_vault_items({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count,
-		other: '${count} 个储藏库条目',
-	);
-	@override String get flutter_welcome_vault_items_one => '{{count}} 个储藏库条目';
-	@override String get flutter_welcome_vault_items_other => '{{count}} 个储藏库条目';
-	@override String get flutter_welcome_changelog => '查看新功能';
-	@override String get flutter_welcome_continue => '继续';
 	@override String get bug_report_intro => '告诉我们出了什么问题。系统会为你附加应用版本、系统详情和最近的日志行。';
 	@override String get bug_report_what_happened_placeholder => '描述问题以及它在 GodotHub 中发生的位置。';
 	@override String get bug_report_steps_label => '复现步骤';
@@ -3401,32 +3367,6 @@ extension on TranslationsZhCn {
 			'common.date_next_month' => '下个月',
 			'common.date_change_due' => '更改截止日期: {{date}}',
 			'common.date_add_due' => '添加截止日期',
-			'common.flutter_welcome_eyebrow' => '欢迎使用新版本',
-			'common.flutter_welcome_title' => '欢迎使用全新的 GodotHub',
-			'common.flutter_welcome_desc' => 'GodotHub 已从底层完全重建。它的外观和操作方式仍是你熟悉的样子，只是更快、更流畅。',
-			'common.flutter_welcome_fast_title' => '更快',
-			'common.flutter_welcome_fast_desc' => '启动更快、滚动更流畅，并且占用更少内存。',
-			'common.flutter_welcome_updates_title' => '应用内更新',
-			'common.flutter_welcome_updates_desc' => '新版本可直接在 GodotHub 内下载并安装，每次更新在安装前都会经过检查。',
-			'common.flutter_welcome_design_title' => '全新的设计',
-			'common.flutter_welcome_design_desc' => '更流畅的动效、更清晰的文字，以及跟随系统的主题。',
-			'common.flutter_welcome_data_title' => '你原有的内容都在这里',
-			'common.flutter_welcome_data_desc' => '项目、Godot 版本、设置以及你的 Git 登录信息都已自动迁移。',
-			'common.flutter_welcome_summary' => '你的数据已一并迁移',
-			'common.flutter_welcome_projects' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个项目', ), 
-			'common.flutter_welcome_projects_one' => '{{count}} 个项目',
-			'common.flutter_welcome_projects_other' => '{{count}} 个项目',
-			'common.flutter_welcome_workspaces' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个工作区', ), 
-			'common.flutter_welcome_workspaces_one' => '{{count}} 个工作区',
-			'common.flutter_welcome_workspaces_other' => '{{count}} 个工作区',
-			'common.flutter_welcome_templates' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个模板', ), 
-			'common.flutter_welcome_templates_one' => '{{count}} 个模板',
-			'common.flutter_welcome_templates_other' => '{{count}} 个模板',
-			'common.flutter_welcome_vault_items' => ({required num count}) => (_root.$meta.cardinalResolver ?? PluralResolvers.cardinal('zh'))(count, other: '${count} 个储藏库条目', ), 
-			'common.flutter_welcome_vault_items_one' => '{{count}} 个储藏库条目',
-			'common.flutter_welcome_vault_items_other' => '{{count}} 个储藏库条目',
-			'common.flutter_welcome_changelog' => '查看新功能',
-			'common.flutter_welcome_continue' => '继续',
 			'common.bug_report_intro' => '告诉我们出了什么问题。系统会为你附加应用版本、系统详情和最近的日志行。',
 			'common.bug_report_what_happened_placeholder' => '描述问题以及它在 GodotHub 中发生的位置。',
 			'common.bug_report_steps_label' => '复现步骤',
@@ -3904,8 +3844,6 @@ extension on TranslationsZhCn {
 			'settings.git_self_hosted_url_placeholder' => 'https://gitlab.example.com',
 			'settings.git_self_hosted_client_id' => '应用程序 ID',
 			'settings.git_sign_in_self_hosted' => '使用实例登录',
-			_ => null,
-		} ?? switch (path) {
 			'settings.git_pat_title' => '其他主机（个人访问令牌）',
 			'settings.git_pat_add' => '添加令牌',
 			'settings.git_pat_host_placeholder' => '例如 codeberg.org',
@@ -3932,6 +3870,8 @@ extension on TranslationsZhCn {
 			'settings.system' => '跟随系统',
 			'settings.k12h' => '12 小时制 (2:30 PM)',
 			'settings.k24h' => '24 小时制 (14:30)',
+			_ => null,
+		} ?? switch (path) {
 			'settings.dd_mm_yyyy' => 'DD-MM-YYYY',
 			'settings.mm_dd_yyyy' => 'MM-DD-YYYY',
 			'settings.yyyy_mm_dd' => 'YYYY-MM-DD',
@@ -4418,8 +4358,6 @@ extension on TranslationsZhCn {
 			'versions.export_templates_web_standard' => 'Web (标准)',
 			'versions.export_templates_web_extensions' => 'Web (支持扩展)',
 			'versions.export_templates_web_single_threaded' => 'Web (单线程)',
-			_ => null,
-		} ?? switch (path) {
 			'versions.export_templates_web_extensions_single_threaded' => 'Web (支持扩展·单线程)',
 			'versions.export_templates_refresh' => '刷新可用模板',
 			'versions.download_failed_title' => '下载失败',
@@ -4446,6 +4384,8 @@ extension on TranslationsZhCn {
 			'versions.add_github_token' => '添加 GitHub 令牌',
 			'versions.reset_filters' => '重置筛选条件',
 			'versions.no_available_hint' => '请尝试其他发布渠道或构建类型，或清除搜索条件。',
+			_ => null,
+		} ?? switch (path) {
 			'versions.view_release_page' => '查看发布页面',
 			'versions.update_available_tag' => '{{tag}} 已发布',
 			'versions.templates_none_hint' => '请安装导出模板，以便使用此版本导出项目。',

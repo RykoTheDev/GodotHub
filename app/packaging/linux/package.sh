@@ -1,16 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-channel="$1"
-bundle_dir="$2"
-version="$3"
-out_dir="$4"
-identifier="$5"
-display_name="$6"
-binary="$7"
-icon="$8"
-appimagetool="$9"
-runtime="${10}"
+bundle_dir="$1"
+version="$2"
+out_dir="$3"
+appimagetool="$4"
+runtime="$5"
+
+identifier=Ryko.GodotHub
+display_name=GodotHub
+binary=godothub
+icons="$(cd "$(dirname "$0")/../icons" && pwd)"
+icon="$icons/app_icon.png"
 
 built=$(find "$bundle_dir" -maxdepth 1 -type f -name 'godothub*' -perm -u+x | head -n 1)
 if [ -z "$built" ]; then
@@ -31,7 +32,7 @@ if [ "$output" != "$binary $version" ]; then
   exit 1
 fi
 
-slug="${display_name// /-}"
+slug="$display_name"
 mkdir -p "$out_dir"
 out_dir="$(cd "$out_dir" && pwd)"
 
@@ -63,19 +64,6 @@ appimage="$slug-$version-linux-amd64.AppImage"
 ARCH=x86_64 "$appimagetool" --appimage-extract-and-run --no-appstream --runtime-file "$runtime" "$appdir" "$work/$appimage"
 chmod +x "$work/$appimage"
 
-if [ "$channel" != stable ]; then
-  zip_name="$appimage.zip"
-  rm -f "$out_dir/$zip_name"
-  (cd "$work" && zip -9 -X "$zip_name" "$appimage")
-  mv "$work/$zip_name" "$out_dir/$zip_name"
-  if find "$out_dir" -maxdepth 1 -iname '*.appimage' | grep -q .; then
-    echo "a plain AppImage ended up in $out_dir" >&2
-    exit 1
-  fi
-  echo "$out_dir/$zip_name"
-  exit 0
-fi
-
 mv "$work/$appimage" "$out_dir/$appimage"
 echo "$out_dir/$appimage"
 
@@ -96,7 +84,7 @@ Name=$display_name
 Terminal=false
 Type=Application
 EOF
-sizes_dir="$(dirname "$icon")/sizes"
+sizes_dir="$icons/sizes"
 for size in 32 128 256 512; do
   dir="$root/usr/share/icons/hicolor/${size}x${size}/apps"
   mkdir -p "$dir"

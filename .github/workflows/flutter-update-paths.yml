@@ -63,15 +63,12 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Install Bun
-        uses: oven-sh/setup-bun@v2
-
       - name: Install Linux dependencies
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
           sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libx11-dev libxi-dev liblzma-dev zip rpm xvfb \
-            libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf libfuse2t64 polkitd pkexec jq
+            libfuse2t64 polkitd pkexec jq
           echo 'polkit.addRule(function (action, subject) { if (subject.user == "runner") return polkit.Result.YES; });' \
             | sudo tee /etc/polkit-1/rules.d/00-update-paths-ci.rules
           sudo systemctl restart polkit

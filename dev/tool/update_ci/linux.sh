@@ -52,27 +52,6 @@ check 'data kept' kept
 save_report deb
 stop_apps; remove_deb
 
-note "===== Tauri 1.5.9 deb to Flutter through the Tauri updater"
-seed
-sudo apt-get install -y "$lab/tauri/tauri.deb" > /dev/null
-check "Tauri deb installed ($(deb_version))" test "$(deb_version)" = 1.5.9
-launch godothub
-check 'Flutter 1.9.1 started after the Tauri updater installed it' started 1.9.1 300
-check "the installed package is 1.9.1 ($(deb_version))" test "$(deb_version)" = 1.9.1
-check 'data kept' kept
-save_report tauri-deb
-stop_apps; remove_deb
-
-note "===== Tauri 1.5.9 AppImage to Flutter AppImage through the Tauri updater"
-seed
-cp "$lab/tauri/tauri.AppImage" "$apps/GodotHub.AppImage" && chmod +x "$apps/GodotHub.AppImage"
-launch "$apps/GodotHub.AppImage"
-check 'Flutter 1.9.1 started after the Tauri updater replaced the AppImage' started 1.9.1 300
-check "the AppImage is now 1.9.1 ($(appimage_version))" test "$(appimage_version)" = 'godothub 1.9.1'
-check 'data kept' kept
-save_report tauri-appimage
-stop_apps
-
 note "===== rpm paths in a Fedora container"
 rm -f "$report"
 docker run --rm -v "$lab:/lab" -v "$root:/repo:ro" --network host fedora:41 bash /repo/dev/tool/update_ci/rpm.sh > "$results/rpm.log" 2>&1

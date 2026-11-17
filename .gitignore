@@ -33,3 +33,5 @@ godothub.key.pub
 
 todo.txt
 .personal/
+# Rust build output
+/target

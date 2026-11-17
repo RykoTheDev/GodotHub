@@ -4,12 +4,9 @@ fn main() {
     }
     static_vcruntime::metabuild();
     let manifest = std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
-    println!("cargo:rerun-if-env-changed=GODOTHUB_CHANNEL");
     println!("cargo:rerun-if-env-changed=GODOTHUB_VERSION");
-    let stable = std::env::var("GODOTHUB_CHANNEL").as_deref() == Ok("stable");
-    let (icon_name, product, binary) =
-        if stable { ("app_icon_stable.ico", "GodotHub", "godothub.exe") } else { ("app_icon.ico", "GodotHub Beta", "godothub-beta.exe") };
-    let icon = manifest.join("../../app/windows/runner/resources").join(icon_name);
+    let (product, binary) = ("GodotHub", "godothub.exe");
+    let icon = manifest.join("../../app/windows/runner/resources/app_icon.ico");
     let icon = icon.canonicalize().expect("app icon");
     println!("cargo:rerun-if-changed={}", icon.display());
     let path = icon.to_string_lossy().trim_start_matches(r"\\?\").replace('\\', "/");

@@ -125,34 +125,17 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-flutter-
 
-      - name: Read the stable channel definition from the core
-        run: |
-          set -euo pipefail
-          info=$(cargo run -q --locked -p godothub_core --example channel_info -- stable)
-          echo "$info"
-          {
-            echo "CHANNEL_ID=$(jq -r .identifier <<<"$info")"
-            echo "CHANNEL_NAME=$(jq -r .display_name <<<"$info")"
-            echo "CHANNEL_BIN=$(jq -r .cli_shim_name <<<"$info")"
-          } >> "$GITHUB_ENV"
-
       - name: Install Flutter dependencies
         working-directory: app
         run: flutter pub get
 
-      - name: Regenerate Flutter locale files from src/i18n/locales
+      - name: Generate locale code
         working-directory: app
-        run: |
-          dart run ../dev/tool/i18n_convert.dart
-          dart run slang
+        run: dart run slang
 
-      - name: Switch the macOS project to the stable channel
-        if: runner.os == 'macOS'
-        run: bash app/packaging/macos/use_channel.sh stable "$CHANNEL_ID" "$CHANNEL_NAME"
-
-      - name: Build the stable app
+      - name: Build the app
         working-directory: app
-        run: flutter build ${{ matrix.target }} --release --dart-define=CHANNEL=stable --dart-define=APP_VERSION="$VERSION" --build-name="$VERSION" --build-number="${{ github.run_number }}"
+        run: flutter build ${{ matrix.target }} --release --dart-define=APP_VERSION="$VERSION" --build-name="$VERSION" --build-number="${{ github.run_number }}"
 
       - name: Check the build has no test switches
         working-directory: app
@@ -174,14 +157,13 @@ jobs:
           echo "$WIX_SHA256  tools/wix.zip" | sha256sum -c -
           unzip -q -o tools/wix.zip -d tools/wix
           MAKENSIS="$PWD/tools/nsis-3.13/makensis.exe" NSIS_PLUGIN_DIR="$PWD/tools/plugin" WIX_DIR="$PWD/tools/wix" \
-            bash app/packaging/windows/package.sh stable "$VERSION" app/build/windows/x64/runner/Release dist
+            bash app/packaging/windows/package.sh "$VERSION" app/build/windows/x64/runner/Release dist
 
       - name: Package for macOS
         if: runner.os == 'macOS'
         run: |
           set -euo pipefail
-          bash app/packaging/macos/package.sh \
-            "app/build/macos/Build/Products/Release/$CHANNEL_NAME.app" "$VERSION" dist "$CHANNEL_ID" "$CHANNEL_NAME"
+          bash app/packaging/macos/package.sh app/build/macos/Build/Products/Release/GodotHub.app "$VERSION" dist
 
       - name: Package for Linux
         if: runner.os == 'Linux'
@@ -193,9 +175,8 @@ jobs:
           curl -fsSL -o tools/runtime-x86_64 "$APPIMAGE_RUNTIME_URL"
           echo "$APPIMAGE_RUNTIME_SHA256  tools/runtime-x86_64" | sha256sum -c -
           chmod +x tools/appimagetool
-          bash app/packaging/linux/package.sh stable \
-            app/build/linux/x64/release/bundle "$VERSION" dist "$CHANNEL_ID" "$CHANNEL_NAME" "$CHANNEL_BIN" \
-            app/packaging/icons/stable/app_icon.png "$PWD/tools/appimagetool" "$PWD/tools/runtime-x86_64"
+          bash app/packaging/linux/package.sh \
+            app/build/linux/x64/release/bundle "$VERSION" dist "$PWD/tools/appimagetool" "$PWD/tools/runtime-x86_64"
 
       - name: Check the glibc floor of the Linux build
         if: runner.os == 'Linux'
@@ -304,7 +285,7 @@ jobs:
       - name: Write latest-v2.json and the frozen latest.json
         run: |
           set -euo pipefail
-          NOTES="$(cat release/notes.md)" CHANNEL=stable RELEASE_TAG="$TAG" ASSETS_DIR=dist OUT=release/latest-v2.json \
+          NOTES="$(cat release/notes.md)" RELEASE_TAG="$TAG" ASSETS_DIR=dist OUT=release/latest-v2.json \
             node app/packaging/release/latest_json.mjs
           cp .github/updater/legacy-latest.json release/latest.json
           cmp release/latest.json .github/updater/legacy-latest.json

@@ -21,7 +21,6 @@ import 'modals/bug_report_modal.dart';
 import 'motion/motion.dart';
 import 'motion/reveal.dart';
 import 'src/app_theme.dart';
-import 'src/channel.dart';
 import 'shell/app_shell.dart';
 import 'src/providers.dart';
 import 'src/rust/api/app.dart' as core;
@@ -51,8 +50,8 @@ Future<void> main() async {
   AppEvents.all.listen((_) {});
   final dataOverride = benchDataDir() ?? updaterLabDataDir;
   final title = dataOverride == null
-      ? await core.startCore(channel: buildChannel)
-      : await core.startCoreIn(channel: buildChannel, dataDir: dataOverride, configDir: dataOverride, cacheDir: '$dataOverride/cache');
+      ? await core.startCore()
+      : await core.startCoreIn(dataDir: dataOverride, configDir: dataOverride, cacheDir: '$dataOverride/cache');
   final current = await settings.getSettings();
   await UiPrefsStore.instance.load();
   await GhI18n.init(settingsLanguage: current.language, settingsRtlLayout: current.rtlLayout);

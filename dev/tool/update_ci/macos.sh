@@ -34,17 +34,4 @@ save_report app
 log show --info --debug --style compact --last 8m --predicate 'process == "GodotHub"' > "$results/oslog-app.txt" 2>&1 || true
 stop_apps
 
-note "===== Tauri 1.5.9 app is not offered the Flutter build (Macs update by hand)"
-seed; rm -rf "$app"
-cp -R "$lab/tauri/GodotHub.app" "$app"
-check "Tauri app installed ($(bundle_version))" test "$(bundle_version)" = 1.5.9
-nohup "$app/Contents/MacOS/GodotHub" >> "$results/apps.log" 2>&1 &
-sleep 90
-check "the Tauri updater left the bundle alone ($(bundle_version))" test "$(bundle_version)" = 1.5.9
-check 'the Tauri app is still running' pgrep -f 'GodotHub.app/Contents/MacOS/GodotHub'
-check 'data kept' kept
-save_report tauri-app
-log show --info --debug --style compact --last 8m --predicate 'process == "GodotHub"' > "$results/oslog-tauri-app.txt" 2>&1 || true
-stop_apps
-
 finish

@@ -52,7 +52,7 @@ void main() {
 
   TrayController controller({DockMenu? dock}) => TrayController(
     backend: backend,
-    tooltip: 'GodotHub Beta',
+    tooltip: 'GodotHub',
     loadRecent: () async => projects,
     openRecent: (id) => calls.add('open:$id'),
     show: () => calls.add('show'),
@@ -68,7 +68,7 @@ void main() {
 
   test('the tooltip is the channel display name', () {
     controller();
-    expect(backend.tooltip, 'GodotHub Beta');
+    expect(backend.tooltip, 'GodotHub');
   });
 
   test('the menu without recent projects shows a disabled placeholder', () async {

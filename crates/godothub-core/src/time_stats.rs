@@ -863,7 +863,7 @@ pub fn clear_time_stats(app: AppHandle) -> Result<(), String> {
 #[cfg(test)]
 mod storage_tests {
     use super::*;
-    use crate::{Channel, Paths};
+    use crate::Paths;
     use std::fs;
     use std::sync::Arc;
 
@@ -913,7 +913,6 @@ mod storage_tests {
         let data = root.join("data");
         fs::create_dir_all(&data).unwrap();
         let app = AppHandle::new(
-            Channel::Stable,
             Paths::at(data.clone(), data, root.join("cache")),
             Arc::new(NoEvents),
             Arc::new(NoHost),

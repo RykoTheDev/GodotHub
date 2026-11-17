@@ -4,12 +4,12 @@ $ErrorActionPreference = 'Stop'
 $here = Split-Path -Parent $MyInvocation.MyCommand.Path
 if (-not $Lab) { $Lab = Join-Path $here '..\..\build\update_lab' }
 $Lab = (Resolve-Path $Lab).Path
-foreach ($need in 'dist\1.9.0', 'dist\1.9.1', 'dist\1.9.2', 'manifests', 'tauri', 'backup') {
+foreach ($need in 'dist\1.9.0', 'dist\1.9.1', 'dist\1.9.2', 'manifests', 'backup') {
   if (-not (Test-Path (Join-Path $Lab $need))) { throw "missing $Lab\$need; run prepare.sh first" }
 }
 Copy-Item (Join-Path $here 'run.ps1'), (Join-Path $here 'server.ps1'), (Join-Path $here 'av.ps1') $Lab -Force
 $script = if ($Av) { 'av.ps1' } else { 'run.ps1' }
-Copy-Item (Join-Path $here '..\data_sandbox\UiaCom.cs') $Lab -Force
+Copy-Item (Join-Path $here 'UiaCom.cs') $Lab -Force
 Remove-Item (Join-Path $Lab 'results'), (Join-Path $Lab 'serve') -Recurse -Force -ErrorAction SilentlyContinue
 if ($Extra) { Set-Content (Join-Path $Lab 'extra-only.txt') 'yes' } else { Remove-Item (Join-Path $Lab 'extra-only.txt') -ErrorAction SilentlyContinue }
 

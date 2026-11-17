@@ -28,8 +28,6 @@ Future<String?> getUiPref({required String key}) => RustLib.instance.api.crateAp
 
 Future<void> setUiPref({required String key, required String value}) => RustLib.instance.api.crateApiDtoSetUiPref(key: key, value: value);
 
-Future<UiPrefs> importUiPrefs({required Map<String, String> values}) => RustLib.instance.api.crateApiDtoImportUiPrefs(values: values);
-
 class DeviceFlowPoll {
   final DeviceFlowStatus status;
   final String? username;
@@ -190,19 +188,14 @@ class ReclaimItem {
 enum ReclaimKind { version, partial, exportTemplates }
 
 class UiPrefs {
-  final bool migratedFromLocalStorage;
   final Map<String, String> values;
 
-  const UiPrefs({required this.migratedFromLocalStorage, required this.values});
+  const UiPrefs({required this.values});
 
   @override
-  int get hashCode => migratedFromLocalStorage.hashCode ^ values.hashCode;
+  int get hashCode => values.hashCode;
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is UiPrefs &&
-          runtimeType == other.runtimeType &&
-          migratedFromLocalStorage == other.migratedFromLocalStorage &&
-          values == other.values;
+      identical(this, other) || other is UiPrefs && runtimeType == other.runtimeType && values == other.values;
 }

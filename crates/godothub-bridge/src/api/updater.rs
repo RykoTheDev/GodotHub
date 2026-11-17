@@ -86,12 +86,7 @@ pub async fn confirm_launch() -> Result<bool, CoreError> {
 }
 
 pub async fn check_for_update() -> Result<Option<UpdateInfo>, CoreError> {
-    let app = crate::host::app()?;
-    Ok(updater::check(&app).await.map_err(CoreError::from)?.map(UpdateInfo::from))
-}
-
-pub async fn flutter_stable_release() -> Result<Option<String>, CoreError> {
-    updater::flutter_stable_release().await.map_err(CoreError::from)
+    Ok(updater::check().await.map_err(CoreError::from)?.map(UpdateInfo::from))
 }
 
 static PENDING: std::sync::Mutex<Option<updater::PreparedUpdate>> = std::sync::Mutex::new(None);
@@ -101,14 +96,13 @@ fn set_pending(prepared: Option<updater::PreparedUpdate>) {
 }
 
 pub async fn download_update(update: UpdateInfo, github_token: Option<String>, sink: StreamSink<UpdateProgress>) -> Result<(), CoreError> {
-    let app = crate::host::app()?;
     let update: updater::UpdateInfo = update.into();
     let update_version = update.version.clone();
     set_pending(None);
     let (file, host) = updater::download_source(&update.url);
     log_line(&sink, (0, None), format!("Downloading {file} from {host}"));
     let mut last = (0, None);
-    let result = updater::download(&app, &update, github_token.as_deref(), |downloaded, total| {
+    let result = updater::download(&update, github_token.as_deref(), |downloaded, total| {
         last = (downloaded, total);
         let _ = sink.add(UpdateProgress { downloaded, total, log: None });
     })

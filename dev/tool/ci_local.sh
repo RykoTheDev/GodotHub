@@ -82,8 +82,8 @@ run "Third-party Rust notices are up to date" node dev/tool/gen_rust_notices.mjs
 
 cd "$repo/app"
 run "Get Flutter packages" flutter pub get
-step "Regenerate Flutter locale files"
-dart run ../dev/tool/i18n_convert.dart && dart run slang || failed+=("Regenerate locale files")
+step "Generate locale code"
+dart run slang || failed+=("Generate locale code")
 # Line endings alone don't count: on Windows the generators write LF into a
 # CRLF checkout. Put such files back so the working tree stays clean.
 if [ -d "$repo/.git" ] && [ -n "$(git status --porcelain -- lib/i18n)" ]; then
@@ -91,7 +91,7 @@ if [ -d "$repo/.git" ] && [ -n "$(git status --porcelain -- lib/i18n)" ]; then
     git -c core.safecrlf=false checkout -- lib/i18n 2>/dev/null || true
   else
     git diff --ignore-cr-at-eol --stat -- lib/i18n
-    echo "Warning: app/lib/i18n changed after regenerating. Commit it, or CI will warn."
+    echo "Warning: app/lib/i18n changed after running slang. Commit it, or CI will warn."
   fi
 fi
 run "i18n missing keys and values" dart run ../dev/tool/i18n/check_keys.dart --check-values

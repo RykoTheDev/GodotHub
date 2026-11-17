@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 
 const usage = '''
-Local update lab for the Flutter beta (Windows, in-app updates). Nothing is committed or published.
+Local update lab for GodotHub (Windows, in-app updates). Nothing is committed or published.
 
   dart run ../dev/tool/updater_lab.dart prepare [--from 0.0.1] [--to 0.0.2] [--fix 0.0.3] [--broken] [--auto] [--rebuild]
       Builds the versions with a throwaway signing key, installs --from into
@@ -27,7 +27,7 @@ The release folders work with app/packaging/release/kill_switch.sh:
     bash packaging/release/kill_switch.sh pause 0.0.2 0.0.1
 ''';
 
-const exeName = 'godothub-beta.exe';
+const exeName = 'godothub.exe';
 const defaultPort = 47821;
 
 final appDir = Directory('${File.fromUri(Platform.script).parent.parent.parent.path}${Platform.pathSeparator}app');
@@ -118,13 +118,15 @@ void _deleteDir(Directory dir) {
   if (dir.existsSync()) dir.deleteSync(recursive: true);
 }
 
-String get _signer => _join(repoDir.path, ['node_modules', '.bin', 'tauri.exe']);
+// Only the Tauri CLI's minisign `signer` command is used: it writes the
+// signatures the updater checks. Same pinned version as the release workflows.
+const _signer = ['--yes', '@tauri-apps/cli@2.12.3', 'signer'];
 
 Future<String> _publicKey() async {
   final pub = File('${keyFile.path}.pub');
   if (!pub.existsSync()) {
     labDir.createSync(recursive: true);
-    await _run(_signer, ['signer', 'generate', '--ci', '--password', 'lab', '--write-keys', keyFile.path, '--force']);
+    await _run('npx', [..._signer, 'generate', '--ci', '--password', 'lab', '--write-keys', keyFile.path, '--force']);
   }
   return pub.readAsStringSync().trim();
 }
@@ -147,7 +149,6 @@ Future<Directory> _build(String version, String publicKey, int port, {bool broke
     'build',
     'windows',
     '--release',
-    '--dart-define=CHANNEL=beta',
     '--dart-define=APP_VERSION=$version',
     '--dart-define=UPDATER_TEST_ENDPOINT=http://127.0.0.1:$port/latest.json',
     '--dart-define=UPDATER_TEST_PUBKEY=$publicKey',
@@ -179,12 +180,12 @@ Future<void> _package(Directory build, String version, int port) async {
   final serverDir = Directory(_join(releasesDir.path, [version]));
   _deleteDir(serverDir);
   serverDir.createSync(recursive: true);
-  final name = 'GodotHub-Beta-$version-windows-x64.zip';
+  final name = 'GodotHub-$version-windows-x64-portable.zip';
   final zip = _join(serverDir.path, [name]);
   final entries = build.listSync().map((e) => e.uri.pathSegments.lastWhere((s) => s.isNotEmpty)).toList();
   final tar = _join(Platform.environment['SYSTEMROOT'] ?? r'C:\Windows', ['System32', 'tar.exe']);
   await _run(tar, ['-a', '-c', '-f', zip, ...entries], workingDirectory: build.path);
-  await _run(_signer, ['signer', 'sign', '--private-key-path', keyFile.path, '--password', 'lab', zip]);
+  await _run('npx', [..._signer, 'sign', '--private-key-path', keyFile.path, '--password', 'lab', zip]);
   final manifest = {
     'version': version,
     'notes': '### New\n- Update lab build $version\n### Fixed\n- Served from this computer',
@@ -219,7 +220,7 @@ Future<void> prepare(List<String> options) async {
   if (fix != null) await _package(await _build(fix, publicKey, port, auto: auto, rebuild: rebuild), fix, port);
   latestFile.writeAsStringSync(to);
   _install(from);
-  stdout.writeln('\nNext: close any running GodotHub Beta, then run "serve" in one terminal and "start" in another.');
+  stdout.writeln('\nNext: close any running GodotHub, then run "serve" in one terminal and "start" in another.');
 }
 
 void publish(List<String> options) {

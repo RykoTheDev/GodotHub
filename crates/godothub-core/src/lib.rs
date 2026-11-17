@@ -2,14 +2,13 @@ mod app;
 pub mod app_user_model;
 pub mod runtime;
 
-pub use app::{app_version, set_app_version, AppHandle, Channel, ChannelInfo, EventSink, Host, Paths, UnknownPath};
+pub use app::{app_version, set_app_version, AppHandle, AppInfo, EventSink, Host, Paths, UnknownPath, APP};
 
 pub mod addons;
 pub mod android;
 pub mod asset_extras;
 pub mod asset_library;
 pub mod backup;
-pub mod beta_import;
 pub mod categories;
 pub mod changelog;
 pub mod cli;
@@ -63,6 +62,5 @@ pub mod ui_prefs;
 pub mod updater;
 pub mod vault;
 pub mod watcher;
-pub mod webview_storage;
 pub mod window_state;
 pub mod workspace;

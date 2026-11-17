@@ -84,7 +84,7 @@ Want to build GodotHub or contribute? See [Build from source](https://ryko.is-a.
 
 ### Flutter migration
 
-GodotHub is a Flutter desktop app (stable since v1.6.0) built on a shared Rust core. Releases before 1.6.0 were built with Tauri; their installers stay on the releases page, and the remaining Tauri code is being removed from the codebase over time. New features and fixes land in the Flutter app only.
+GodotHub is a Flutter desktop app (since v1.6.0) built on a shared Rust core. Releases before 1.6.0 were built with Tauri; their installers stay on the releases page, and existing Tauri installs keep reading the same update feeds. The Tauri code itself has been removed from the repository.
 
 ---
 
@@ -320,14 +320,11 @@ GodotHub is available as a desktop app for:
 
 | Platform | Download |
 |---|---|
-| **Windows** | `GodotHub-<version>-windows-x64-setup.exe` (installer), `GodotHub-<version>-windows-x64.msi` (installer), or `GodotHub-<version>-windows-x64-portable.exe` (no install needed) |
+| **Windows** | `GodotHub-<version>-windows-x64-setup.exe` (installer), `GodotHub-<version>-windows-x64.msi` (installer), or `GodotHub-<version>-windows-x64-portable.zip` (no install needed; 1.5.x and older used a portable `.exe`) |
 | **macOS** | `GodotHub-<version>-darwin-universal.dmg` (Apple Silicon and Intel) |
 | **Linux** | `GodotHub-<version>-linux-amd64.deb`, `GodotHub-<version>-linux-x86_64.rpm`, or `GodotHub-<version>-linux-amd64.AppImage` |
 
 Replace `<version>` with the release you're downloading (for example `1.4.4`). Releases before v1.4.4 use the older file names.
-
-> [!NOTE]
-> **Legacy Tauri Linux builds only:** The Tauri app uses WebKitGTK. Its renderer can be selected with `GODOTHUB_RENDERER=software godothub` or `GODOTHUB_RENDERER=gpu godothub`. This setting does not apply to the Flutter app.
 
 ### Install via Winget (Windows)
 
@@ -400,11 +397,14 @@ flutter test
 flutter build windows --release
 ```
 
+> [!WARNING]
+> A build from source uses the same data folder as an installed GodotHub, and only one of them can run at a time. Close the installed app first, and back up your data if you are worried about it.
+
 > [!TIP]
 > Flutter build outputs are under `app/build/`. The Rust core and Flutter bridge
 > live in `crates/` and are built automatically with the app. See
 > [CONTRIBUTING.md](CONTRIBUTING.md) for the project layout, the shared UI
-> components and how translations are generated.
+> components and how translations work.
 
 ---
 
@@ -419,8 +419,7 @@ flutter build windows --release
 | **State Management** | [Riverpod](https://riverpod.dev) |
 | **Core Services** | Rust workspace (`godothub-core`, `godothub-bridge`, `godothub-launcher`) |
 | **Flutter/Rust Bridge** | [flutter_rust_bridge](https://cjycode.com/flutter_rust_bridge/) |
-| **Localization** | Shared JSON resources; [Slang](https://pub.dev/packages/slang) generates typed Dart translations |
-| **Legacy App** | React, TypeScript, Tailwind CSS, and Tauri remain for the existing stable app and migration compatibility |
+| **Localization** | JSON locale files in `app/lib/i18n/json`; [Slang](https://pub.dev/packages/slang) generates typed Dart translations |
 
 </details>
 
@@ -428,8 +427,7 @@ flutter build windows --release
 
 ## Benchmarks
 
-The Flutter beta is measured against the legacy stable (pre v1.6.0) Tauri app on the same machine, display, and data. This comparison helps validate the replacement
-before the stable release switches over.
+Before the switch in v1.6.0, the Flutter app was measured against the last Tauri app (1.5.x) on the same machine, display, and data.
 
 <details>
 <summary><strong>Windows results</strong></summary>
@@ -457,7 +455,7 @@ View times are until the new view first shows; both apps then play the same 0.7 
 
 ### Run them yourself
 
-The benchmark runs on Windows, Linux and macOS and compares with the Tauri app if it is installed:
+The benchmark measures the Flutter app on Windows, Linux and macOS:
 
 ```bash
 cd app
@@ -479,15 +477,15 @@ MIT, see [LICENSE](LICENSE) for details.
 | Project | Why |
 |---|---|
 | [Godot Engine](https://godotengine.org) | The open-source engine this whole tool is built around. |
-| [Flutter](https://flutter.dev) | Cross-platform desktop UI for the new app. |
+| [Flutter](https://flutter.dev) | Cross-platform desktop UI. |
 | [Rust](https://www.rust-lang.org/) | Shared core services and command-line launcher. |
 | [Flutter Rust Bridge](https://cjycode.com/flutter_rust_bridge/) | Connects the Flutter UI to the Rust core. |
-| [Tauri](https://v2.tauri.app) | Framework used by the legacy stable app (pre v1.6.0) |
-| [React](https://react.dev) | UI library used by the legacy stable app (pre v1.6.0). |
-| [Tailwind CSS](https://tailwindcss.com) | Styling framework used by the legacy stable app (pre v1.6.0). |
+| [Tauri](https://v2.tauri.app) | Framework used by GodotHub before v1.6.0. |
+| [React](https://react.dev) | UI library used by GodotHub before v1.6.0. |
+| [Tailwind CSS](https://tailwindcss.com) | Styling framework used by GodotHub before v1.6.0. |
 | [Font Awesome](https://fontawesome.com) | Icons used throughout the app. |
 
-Plus every other open-source library that makes GodotHub possible, see `package.json` and `Cargo.toml` for the full list.
+Plus every other open-source library that makes GodotHub possible, see `app/pubspec.yaml` and the `Cargo.toml` files in `crates/` for the full list.
 
 ---
 

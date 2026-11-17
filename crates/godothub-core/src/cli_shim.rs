@@ -29,10 +29,6 @@ fn platform_name() -> &'static str {
     }
 }
 
-fn shim_name(app: &AppHandle) -> &'static str {
-    app.channel().info().cli_shim_name
-}
-
 fn shim_path(bin: &Path, name: &str) -> PathBuf {
     #[cfg(windows)]
     {
@@ -63,7 +59,7 @@ fn dir_on_path(dir: &Path) -> bool {
 
 fn status_for(app: &AppHandle, needs_new_terminal: bool) -> CliToolStatus {
     let bin = crate::current_version::aliases_dir(app);
-    let shim = shim_path(&bin, shim_name(app));
+    let shim = shim_path(&bin, crate::APP.cli_shim_name);
     CliToolStatus {
         installed: shim_exists(&shim),
         on_path: dir_on_path(&bin),
@@ -81,18 +77,18 @@ pub async fn cli_tool_status(app: AppHandle) -> CliToolStatus {
 pub async fn install_cli_tool(app: AppHandle) -> Result<CliToolStatus, String> {
     let target = crate::install_mode::launch_executable().map_err(|e| e.to_string())?;
     let bin = crate::current_version::aliases_dir(&app);
-    write_shim(&shim_path(&bin, shim_name(&app)), &target)?;
-    let path_changed = add_bin_to_path(&bin, shim_name(&app))?;
+    write_shim(&shim_path(&bin, crate::APP.cli_shim_name), &target)?;
+    let path_changed = add_bin_to_path(&bin, crate::APP.cli_shim_name)?;
     Ok(status_for(&app, path_changed))
 }
 
 pub fn uninstall_cli_tool(app: AppHandle) -> Result<CliToolStatus, String> {
     let bin = crate::current_version::aliases_dir(&app);
-    let shim = shim_path(&bin, shim_name(&app));
+    let shim = shim_path(&bin, crate::APP.cli_shim_name);
     if shim_exists(&shim) {
         std::fs::remove_file(&shim).map_err(|e| e.to_string())?;
     }
-    remove_bin_from_path(&bin, shim_name(&app))?;
+    remove_bin_from_path(&bin, crate::APP.cli_shim_name)?;
     Ok(status_for(&app, false))
 }
 

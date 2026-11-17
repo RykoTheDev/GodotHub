@@ -92,22 +92,13 @@ void main() {
     loads = 0;
     calls = [];
     rust
-      ..on('crateApiAppChannelIdentifier', ({required String channel}) => channel == 'beta' ? 'Ryko.GodotHub.Beta' : 'Ryko.GodotHub')
+      ..on('crateApiAppAppIdentifier', () => 'Ryko.GodotHub')
       ..on('crateApiWatcherRestartWatchers', () async => calls.add('watchers'))
       ..on('crateApiProjectsListProjects', () async {
         calls.add('projects');
         return const <Project>[];
       })
       ..on('crateApiCliShimCliToolStatus', () async => cliStatus(installed: false));
-  });
-
-  group('cli shim name', () {
-    test('uses the channel shim from the core status', () {
-      expect(cliShimName(cliStatus(installed: true)), 'godothub');
-      expect(cliShimName(cliStatus(installed: true, shim: '/usr/local/bin/godothub-beta')), 'godothub-beta');
-      expect(cliChannelMessage('run: godothub', cliStatus(installed: true, shim: r'C:\bin\godothub-beta.cmd')), 'run: godothub-beta');
-      expect(cliChannelMessage('run: godothub', cliStatus(installed: true)), 'run: godothub');
-    });
   });
 
   group('behavior', () {
@@ -189,7 +180,7 @@ void main() {
       expect(find.text(ts('storage_title')), findsOneWidget);
       expect(find.text('C:/projects'), findsOneWidget);
       expect(find.text(ts('folders_deep', count: 3)), findsOneWidget);
-      expect(find.text(ghTr('default_downloads_go_to', args: {'path': 'AppData/Ryko.GodotHub.Beta/godot-versions/'})), findsOneWidget);
+      expect(find.text(ghTr('default_downloads_go_to', args: {'path': 'AppData/Ryko.GodotHub/godot-versions/'})), findsOneWidget);
 
       await tester.tap(find.byKey(const ValueKey('path-browse')).first);
       await base.settle(tester, 3);
@@ -315,19 +306,19 @@ void main() {
   });
 
   group('cli tool', () {
-    testWidgets('installs with the channel shim name and uninstalls', (tester) async {
+    testWidgets('installs and uninstalls the shim', (tester) async {
       rust
-        ..on('crateApiCliShimInstallCliTool', () async => cliStatus(installed: true, shim: 'C:/bin/godothub-beta.cmd'))
-        ..on('crateApiCliShimUninstallCliTool', () async => cliStatus(installed: false, shim: 'C:/bin/godothub-beta.cmd'));
+        ..on('crateApiCliShimInstallCliTool', () async => cliStatus(installed: true, shim: 'C:/bin/godothub.cmd'))
+        ..on('crateApiCliShimUninstallCliTool', () async => cliStatus(installed: false, shim: 'C:/bin/godothub.cmd'));
       await pump(tester, const CliToolSection());
       expect(find.text(ts('cli_tool_title')), findsOneWidget);
       await tester.tap(find.text(ts('cli_tool_install')));
       await base.settle(tester, 3);
-      final installedMessage = ts('cli_tool_installed_msg').replaceAll('godothub', 'godothub-beta');
+      final installedMessage = ts('cli_tool_installed_msg');
       expect(find.text(installedMessage), findsOneWidget);
       await tester.tap(find.text(ghTr('version_uninstall_confirm')));
       await base.settle(tester, 3);
-      expect(find.text(ts('cli_tool_uninstalled_msg').replaceAll('godothub', 'godothub-beta')), findsOneWidget);
+      expect(find.text(ts('cli_tool_uninstalled_msg')), findsOneWidget);
       expect(find.text(ts('cli_tool_install')), findsOneWidget);
     });
   });

@@ -1,7 +1,7 @@
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use crate::{AppHandle, Channel, Paths};
+use crate::{AppHandle, Paths};
 
 const MAIN: &str = "6a0c4d1e-2b7f-4f3a-9d55-0e8b1c2a7f41";
 const JAMS: &str = "9f1c2a7e-0d4b-4c55-9a77-2b8f3e1d6a10";
@@ -56,7 +56,7 @@ fn start(version: &str) -> OldData {
     let root_text = root.to_string_lossy().replace('\\', "/");
     copy_fixture(&fixture, &root, &root_text);
     let data = root.join("Ryko.GodotHub");
-    let app = AppHandle::new(Channel::Stable, Paths::at(data.clone(), data, root.join("cache")), Arc::new(NoEvents), Arc::new(NoHost));
+    let app = AppHandle::new(Paths::at(data.clone(), data, root.join("cache")), Arc::new(NoEvents), Arc::new(NoHost));
     crate::startup::initialize(&app);
     crate::templates::consolidate_legacy_templates(&app);
     OldData { root, app }

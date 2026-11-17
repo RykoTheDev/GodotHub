@@ -80,7 +80,7 @@ static LAST_SETTLE_OK: Mutex<Option<Instant>> = Mutex::new(None);
 static SETTLE_LOCK: Mutex<()> = Mutex::new(());
 static EXIT_WHEN_EDITORS_CLOSE: AtomicBool = AtomicBool::new(false);
 
-const DEFAULT_ICON_SVG: &[u8] = include_bytes!("../../../src-tauri/icon.svg");
+const DEFAULT_ICON_SVG: &[u8] = include_bytes!("../assets/icon.svg");
 
 struct CachedIcon {
     project_godot_mtime: Option<SystemTime>,
@@ -2636,7 +2636,7 @@ mod path_environment_tests {
 #[cfg(test)]
 mod missing_project_tests {
     use super::*;
-    use crate::{Channel, Paths};
+    use crate::Paths;
     use std::sync::Arc;
 
     struct NoEvents;
@@ -2666,7 +2666,6 @@ mod missing_project_tests {
         let data = root.join("data");
         fs::create_dir_all(&data).unwrap();
         let app = AppHandle::new(
-            Channel::Stable,
             Paths::at(data.clone(), data, root.join("cache")),
             Arc::new(NoEvents),
             Arc::new(NoHost),

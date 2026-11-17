@@ -29,7 +29,6 @@ function Note([string]$text) { Add-Content $log $text; Write-Host $text }
 function Check([bool]$ok, [string]$what) { if ($ok) { Note "ok   $what" } else { Note "FAIL $what"; $script:failures++ } }
 
 $roaming = Join-Path $env:APPDATA 'Ryko.GodotHub'
-$webview = Join-Path $env:LOCALAPPDATA 'Ryko.GodotHub\EBWebView\Default'
 $userDir = Join-Path $env:LOCALAPPDATA 'GodotHub'
 $machineDir = Join-Path $env:ProgramFiles 'GodotHub'
 $serve = Join-Path $Lab 'serve'
@@ -106,8 +105,6 @@ function UninstallAll {
 function Seed {
   Remove-Item $roaming, (Join-Path $env:LOCALAPPDATA 'Ryko.GodotHub') -Recurse -Force -ErrorAction SilentlyContinue
   Copy-Item -Recurse (Join-Path $Lab 'backup\Roaming\Ryko.GodotHub') $roaming
-  New-Item -ItemType Directory -Force -Path $webview | Out-Null
-  Copy-Item -Recurse (Join-Path $Lab 'backup\WebView\*') $webview
   foreach ($file in Get-ChildItem (Join-Path $roaming 'workspaces') -Recurse -Filter 'projects.json') {
     $data = Get-Content $file.FullName -Raw | ConvertFrom-Json
     $list = if ($data.projects) { $data.projects } else { $data }
@@ -153,33 +150,6 @@ function WaitFlutterAfterUpdate([int]$seconds = 240) {
     Start-Sleep 1
   }
   return $null
-}
-
-function TauriToFlutter([string]$kind) {
-  Note "`n===== Tauri 1.5.9 $kind to Flutter stable through the Tauri updater"
-  UninstallAll
-  Seed
-  if ($kind -eq 'nsis') { $code = Run (Join-Path $Lab 'tauri\tauri-setup.exe') @('/S'); $exe = Join-Path $userDir 'godothub.exe' }
-  else { $code = Run msiexec @('/i', (Join-Path $Lab 'tauri\tauri.msi'), '/qn'); $exe = Join-Path $machineDir 'godothub.exe' }
-  Check ($code -eq 0) "Tauri $kind installs (exit $code)"
-  Serve '1.9.1'
-  Start-Process $exe
-  $w = AppWindow
-  Check ($w -and -not (IsFlutter $w)) 'Tauri opens'
-  if (-not $w) { return }
-  Check (OpenUpdate $w) 'Tauri shows the 1.9.1 update'
-  Shot $w "tauri-$kind-1-update"
-  Check (Press $w 'Install') 'Tauri starts the install'
-  $f = WaitFlutterAfterUpdate
-  Check ($null -ne $f) 'the Flutter app starts after the Tauri updater ran the installer'
-  if ($f) {
-    Check (WaitName $f 'Projects' 30) 'Flutter shows its shell'
-    Start-Sleep 3
-    Check ([UiaCom]::Dump($f.MainWindowHandle, 3000) -match 'Barely a Driver') 'Flutter shows the existing projects'
-    Shot $f "tauri-$kind-2-flutter"
-  }
-  if ($kind -eq 'nsis') { $state = LauncherState; Check ($state -and $state.current -eq '1.9.1') "launcher current is 1.9.1 ($($state.current))" }
-  else { $v = FileVersion (Join-Path $machineDir 'godothub.exe'); Check ($v -like '1.9.1*') "installed exe is 1.9.1 ($v)" }
 }
 
 function ExpectFailure($proc, [string]$manifest, [string]$mode, [string]$what, [string]$version) {
@@ -305,9 +275,6 @@ if (Test-Path (Join-Path $Lab 'extra-only.txt')) {
   Set-Content (Join-Path $results 'done.txt') "$script:failures"
   return
 }
-
-TauriToFlutter 'nsis'
-TauriToFlutter 'msi'
 
 Note "`n===== Flutter stable 1.9.0 (launcher layout): failure cases, update, rollback"
 UninstallAll

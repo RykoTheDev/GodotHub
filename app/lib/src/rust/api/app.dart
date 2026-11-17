@@ -8,40 +8,16 @@ import 'error.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `parse_channel`
-
-String channelIdentifier({required String channel}) => RustLib.instance.api.crateApiAppChannelIdentifier(channel: channel);
+String appIdentifier() => RustLib.instance.api.crateApiAppAppIdentifier();
 
 String appVersion() => RustLib.instance.api.crateApiAppAppVersion();
 
-Future<String> startCore({required String channel}) => RustLib.instance.api.crateApiAppStartCore(channel: channel);
+Future<String> startCore() => RustLib.instance.api.crateApiAppStartCore();
 
-Future<String> startCoreIn({required String channel, required String dataDir, required String configDir, required String cacheDir}) =>
-    RustLib.instance.api.crateApiAppStartCoreIn(channel: channel, dataDir: dataDir, configDir: configDir, cacheDir: cacheDir);
-
-Future<BetaImport> reimportFromStable() => RustLib.instance.api.crateApiAppReimportFromStable();
+Future<String> startCoreIn({required String dataDir, required String configDir, required String cacheDir}) =>
+    RustLib.instance.api.crateApiAppStartCoreIn(dataDir: dataDir, configDir: configDir, cacheDir: cacheDir);
 
 Future<void> emitEventForTest({required String name, required String payloadJson}) =>
     RustLib.instance.api.crateApiAppEmitEventForTest(name: name, payloadJson: payloadJson);
 
 Future<String?> getOsUsername() => RustLib.instance.api.crateApiAppGetOsUsername();
-
-class BetaImport {
-  final bool imported;
-  final BigInt copiedFiles;
-  final String? sharedVersionsDir;
-
-  const BetaImport({required this.imported, required this.copiedFiles, this.sharedVersionsDir});
-
-  @override
-  int get hashCode => imported.hashCode ^ copiedFiles.hashCode ^ sharedVersionsDir.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is BetaImport &&
-          runtimeType == other.runtimeType &&
-          imported == other.imported &&
-          copiedFiles == other.copiedFiles &&
-          sharedVersionsDir == other.sharedVersionsDir;
-}

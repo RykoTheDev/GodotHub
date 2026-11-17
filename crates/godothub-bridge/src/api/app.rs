@@ -1,23 +1,7 @@
 use flutter_rust_bridge::frb;
-pub use godothub_core::beta_import::BetaImport;
-use godothub_core::{Channel, Paths};
+use godothub_core::{Paths, APP};
 
 use super::error::CoreError;
-
-#[frb(mirror(BetaImport))]
-pub struct _BetaImport {
-    pub imported: bool,
-    pub copied_files: u64,
-    pub shared_versions_dir: Option<String>,
-}
-
-fn parse_channel(channel: &str) -> Result<Channel, CoreError> {
-    match channel {
-        "stable" => Ok(Channel::Stable),
-        "beta" => Ok(Channel::Beta),
-        other => Err(format!("Unknown channel {other:?}, expected \"stable\" or \"beta\"").into()),
-    }
-}
 
 #[frb(init)]
 pub fn init_app() {
@@ -26,8 +10,8 @@ pub fn init_app() {
 }
 
 #[frb(sync)]
-pub fn channel_identifier(channel: String) -> Result<String, CoreError> {
-    Ok(parse_channel(&channel)?.info().identifier.to_string())
+pub fn app_identifier() -> String {
+    APP.identifier.to_string()
 }
 
 #[frb(sync)]
@@ -35,39 +19,14 @@ pub fn app_version() -> String {
     godothub_core::app_version().to_string()
 }
 
-pub async fn start_core(channel: String) -> Result<String, CoreError> {
-    let channel = parse_channel(&channel)?;
-    if channel == Channel::Beta {
-        godothub_core::beta_import::import_on_first_launch(
-            &Paths::for_channel(Channel::Stable),
-            &Paths::for_channel(Channel::Beta),
-        )?;
-    }
-    crate::host::start(channel, Paths::for_channel(channel), true)?;
-    Ok(channel.info().display_name.to_string())
+pub async fn start_core() -> Result<String, CoreError> {
+    crate::host::start(Paths::default_dirs(), true)?;
+    Ok(APP.display_name.to_string())
 }
 
-pub async fn start_core_in(
-    channel: String,
-    data_dir: String,
-    config_dir: String,
-    cache_dir: String,
-) -> Result<String, CoreError> {
-    let channel = parse_channel(&channel)?;
-    crate::host::start(channel, Paths::at(data_dir.into(), config_dir.into(), cache_dir.into()), false)?;
-    Ok(channel.info().display_name.to_string())
-}
-
-pub async fn reimport_from_stable() -> Result<BetaImport, CoreError> {
-    let app = crate::host::app()?;
-    if app.channel() != Channel::Beta {
-        return Err("Only the beta can re-import data from GodotHub".into());
-    }
-    let result = crate::lane::serial(|| {
-        godothub_core::beta_import::reimport(&Paths::for_channel(Channel::Stable), &Paths::for_channel(Channel::Beta))
-    })
-    .await?;
-    Ok(result)
+pub async fn start_core_in(data_dir: String, config_dir: String, cache_dir: String) -> Result<String, CoreError> {
+    crate::host::start(Paths::at(data_dir.into(), config_dir.into(), cache_dir.into()), false)?;
+    Ok(APP.display_name.to_string())
 }
 
 pub async fn emit_event_for_test(name: String, payload_json: String) -> Result<(), CoreError> {
