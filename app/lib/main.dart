@@ -32,8 +32,11 @@ import 'state/keyboard_shortcuts.dart';
 import 'state/onboarding.dart';
 import 'ui/core/ui_settings.dart';
 import 'ui/feedback/error_boundary.dart';
+import 'titlebar/providers.dart';
+import 'titlebar/title_bar.dart';
 import 'window/app_window.dart';
 import 'window/tray.dart';
+import 'window/window_resize_edges.dart';
 
 Future<void> main() async {
   if (benchMode) benchMarkMain();
@@ -169,7 +172,11 @@ class _GodotHubAppState extends ConsumerState<GodotHubApp> with WidgetsBindingOb
             textDirection: i18n.layoutDirection,
             child: GhMotion(
               prefs: ghMotionPrefsFrom(current),
-              child: GhKeyboardShortcuts(child: child!),
+              child: WindowResizeEdges(
+                enabled: Platform.isLinux && !windowUsesOsDecorations(current),
+                window: ref.watch(titleBarWindowProvider),
+                child: GhKeyboardShortcuts(child: child!),
+              ),
             ),
           ),
           home: Scaffold(
