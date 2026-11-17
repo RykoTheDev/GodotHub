@@ -8,9 +8,7 @@ const previous = process.env.PREVIOUS_TAG
 if (!tag || !repo) throw new Error('RELEASE_TAG and REPO are required')
 if (!/^v\d/.test(tag)) throw new Error(`release tag ${tag} must look like vX.Y.Z`)
 
-const firstFlutterStable = '1.6.0'
 const lastTauri = 'v1.5.9'
-const faqUrl = `https://github.com/${repo}/blob/main/docs/migration/FAQ.md`
 
 const version = tag.replace(/^v/, '')
 const slug = 'GodotHub'
@@ -21,23 +19,6 @@ if (!entry && !allowMissing) throw new Error(`no entry for ${tag} in ${changelog
 
 const blocks = []
 blocks.push(`## What's new in ${tag}`)
-if (version === firstFlutterStable) {
-  blocks.push(
-    [
-      '> [!IMPORTANT]',
-      '> GodotHub has been rebuilt with Flutter. It looks and works the same, starts faster on Windows and uses less memory. Your projects, Godot versions, workspaces and settings carry over on their own.',
-      '',
-      '### What changes for you',
-      '',
-      '- **Windows:** updates now download and install inside the app, with no installer window. If a new version fails to start, GodotHub goes back to the previous one by itself.',
-      '- **Windows:** the portable build is now a `.zip`. Unzip it anywhere and run `godothub.exe` inside. Everything it needs is in the folder, and neither WebView2 nor a Visual C++ install is needed.',
-      '- **macOS:** GodotHub now needs macOS 12 Monterey or newer, so GodotHub 1.5 on a Mac does not update itself to this version. On macOS 12 or newer, download the disk image below once; later updates install from inside the app again. On macOS 10.15 or 11, keep using GodotHub 1.5.9.',
-      '- **Linux:** the `.deb` and `.rpm` install the app into `/usr/lib/godothub` with `godothub` on your PATH, and no longer need WebKitGTK.',
-      '',
-      `Questions about the switch, rolling back or a failed update: see the [migration FAQ](${faqUrl}).`,
-    ].join('\n'),
-  )
-}
 if (entry) {
   const headers = { add: 'New', fix: 'Fixes', improve: 'Improvements' }
   for (const key of ['add', 'fix', 'improve']) {
