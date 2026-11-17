@@ -2291,5 +2291,22 @@
     ],
     "known_issues": [],
     "created_at": 1794867964
+  },
+  {
+    "id": "dd6a3de6-e86e-4162-8cf2-bf66b0decbca",
+    "version": "v1.6.1",
+    "date": "2026-11-17",
+    "notes": [
+      {
+        "category": "fix",
+        "text": "Linux: the whole window responds to clicks again. Clicks along the bottom and right edges, including the minimize, maximize and close buttons, no longer go through to the window behind GodotHub, and the window can be resized from its edges (#352)"
+      },
+      {
+        "category": "fix",
+        "text": "Linux: the window no longer gets a little bigger every time GodotHub starts (#352)"
+      }
+    ],
+    "known_issues": [],
+    "created_at": 1794935846
   }
 ]
